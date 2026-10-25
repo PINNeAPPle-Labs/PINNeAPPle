@@ -1,0 +1,12 @@
+{
+ "code_hash": "00f0601cda027ece",
+ "figures": [],
+ "id": "node:cfd.geometry",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FreeCAD geometry and patches -> pinneapple_simulation.pipelines.freecad_openfoam.steps.cad_step\ninputs: [('study', 'params')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'parameters': {}}",
+ "timed_out": false
+}

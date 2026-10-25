@@ -1,0 +1,93 @@
+[
+ {
+  "name": "pipe_bend_straight_vs_reference",
+  "passed": true,
+  "value": 0.3209807777504656,
+  "reference": 0.3202145888380032,
+  "rtol": 0.03,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "straight vs Hagen-Poiseuille, f = 64 / Re",
+  "kind": "reference"
+ },
+ {
+  "name": "pipe_bend_bend_vs_reference",
+  "passed": true,
+  "value": 1.4375374593561443,
+  "reference": 1.3734397186528322,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "bend vs White (1929) curved-pipe friction",
+  "kind": "reference"
+ },
+ {
+  "name": "heated_pipe_Nu_vs_reference",
+  "passed": true,
+  "value": 4.678594323676027,
+  "reference": 4.691881333239061,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "Nu vs Hausen (1943), Incropera eq. 8.57",
+  "kind": "reference"
+ },
+ {
+  "name": "sphere_drag_CD_vs_reference",
+  "passed": true,
+  "value": 1.086615926059062,
+  "reference": 1.0870171641572397,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "CD vs Clift, Grace & Weber (1978), Table 5.2",
+  "kind": "reference"
+ },
+ {
+  "name": "sphere_drag_Re_50_CD_vs_reference",
+  "passed": true,
+  "value": 1.5688735632467348,
+  "reference": 1.5742657203722197,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "CD vs Clift, Grace & Weber (1978), Table 5.2",
+  "kind": "reference"
+ },
+ {
+  "name": "sphere_drag_Re_200_CD_vs_reference",
+  "passed": true,
+  "value": 0.7774858690466071,
+  "reference": 0.7756342422322543,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "CD vs Clift, Grace & Weber (1978), Table 5.2",
+  "kind": "reference"
+ },
+ {
+  "name": "sweep_cases_finished",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "label": "every sweep case finished",
+  "kind": "sanity"
+ }
+]

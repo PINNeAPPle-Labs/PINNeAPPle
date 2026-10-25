@@ -1,0 +1,51 @@
+{
+ "run_id": "manifest-394f7768d42e",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/freecad_openfoam",
+  "path": "examples/freecad_openfoam/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792931461.873279,
+ "tags": [
+  "manifest"
+ ],
+ "git": "f5a1eba8",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792931461.8873222,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/figures__mesh_studies.png",
+   "figures/figures__sweep_surrogate.png"
+  ]
+ },
+ "validation": {
+  "total": 7,
+  "failed": 0
+ },
+ "seconds": 0.014,
+ "datasets": {}
+}

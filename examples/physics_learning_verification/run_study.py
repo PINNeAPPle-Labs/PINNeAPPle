@@ -36,7 +36,11 @@ def detection():
 
 def models():
     from pinneapple_analysis.validation.physics_learning import baselines, verify
-    from pinneapple_analysis.validation.physics_learning_cases import Section, pinn_model, surrogate_model
+    from pinneapple_analysis.validation.physics_learning_cases import (
+        Section,
+        pinn_model,
+        surrogate_model,
+    )
     case = Section()
     out = []
 

@@ -3,10 +3,21 @@ miss the causal defects), the informative points, the sufficiency check, and arc
 import numpy as np
 import pytest
 
-from pinneapple_analysis.validation.physics_learning import (BASELINE_LIMITS, baselines, fv_residual, select_points,
-                                                             verify)
-from pinneapple_analysis.validation.physics_learning_cases import (DEFAULT, WIDTH, Model, Section, defective_models,
-                                                                   good_models)
+from pinneapple_analysis.validation.physics_learning import (
+    BASELINE_LIMITS,
+    baselines,
+    fv_residual,
+    select_points,
+    verify,
+)
+from pinneapple_analysis.validation.physics_learning_cases import (
+    DEFAULT,
+    WIDTH,
+    Model,
+    Section,
+    defective_models,
+    good_models,
+)
 
 
 @pytest.fixture(scope="module")

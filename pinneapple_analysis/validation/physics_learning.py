@@ -43,7 +43,14 @@ from typing import Any
 
 import numpy as np
 
-from .physics_learning_cases import DEFAULT, PARAMS, TRAIN_BOX, WIDTH, Model, Section, training_distribution
+from .physics_learning_cases import (
+    DEFAULT,
+    PARAMS,
+    WIDTH,
+    Model,
+    Section,
+    training_distribution,
+)
 
 #: the default interventions: (name, change of theta, whether the change leaves the training box)
 INTERVENTIONS = (

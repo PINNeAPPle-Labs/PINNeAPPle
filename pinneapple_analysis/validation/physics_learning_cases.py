@@ -17,8 +17,8 @@ in one physical respect each) and :func:`good_models` the controls.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 import numpy as np
 
@@ -43,7 +43,7 @@ class Section:
 
     def z_edges(self) -> np.ndarray:
         e = [0.0]
-        for (_, t), n in zip(LAYERS, self.nz):
+        for (_, t), n in zip(LAYERS, self.nz, strict=True):
             e += list(e[-1] + t * (np.arange(1, n + 1) / n))
         return np.array(e)
 
@@ -144,7 +144,7 @@ class Model:
     fn: Callable[[np.ndarray, dict], np.ndarray]
     inputs: tuple[str, ...] = ("P", "x_s", "k_tim", "h")
     defect: str = ""
-    reinit: Callable[[], "Model"] | None = None
+    reinit: Callable[[], Model] | None = None
 
     def __call__(self, X, theta):
         th = {**DEFAULT, **{k: v for k, v in theta.items() if k in self.inputs}}

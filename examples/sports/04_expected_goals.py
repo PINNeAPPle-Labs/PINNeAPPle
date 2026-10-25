@@ -43,7 +43,7 @@ def main(smoke: bool = False) -> dict:
     fig = HERE / "figures"
     plots.reliability_figure(res["reliability"], fig / "xg_reliability.png", "xG reliability on Euro 2024",
                              models=["standard_logistic", "standard+physics_logistic",
-                                     "standard+freeze_geometry_logistic", "statsbomb_xg_reference"])
+                                     "standard+freeze_geometry_logistic", "statsbomb_xg_reference"], lim=0.4)
     plots.efficiency_figure(res["data_efficiency"]["rows"], "log_loss", fig / "xg_learning_curve.png",
                             "xG: test log-loss against training shots", "log-loss on Euro 2024",
                             models=["standard_logistic", "standard+physics_logistic", "physics_logistic"])

@@ -66,13 +66,19 @@ def verdict_rows(ball, pc, kin, xg) -> list[dict]:
                            f"{_ci(c['paired_vs_best_data_only']['pc_reaction'])}")
         sig = [pc[k]["paired_vs_best_data_only"]["pc_reaction"]["ci95"][1] < 0 for k in ("compare_1_to_2",
                                                                                         "compare_2_to_1")]
+        eff = _curve(pc["efficiency_1_to_2"]["rows"])
+        n_small = min(n for (_, n) in eff if n >= 100)
+        small = (f"with {n_small} training passes: fitted pitch control {eff[('pc_reaction', n_small)]:.4f}, "
+                 f"logistic {eff[('logistic', n_small)]:.4f}, trees {eff[('gbm', n_small)]:.4f}; unfitted pitch "
+                 f"control (0 passes) {pc['compare_1_to_2']['scores']['pc_default']['log_loss']:.4f}")
         rows.append({"case": "Pass completion (Metrica, 2 matches, ~2000 passes)",
                      "physics": "Spearman pitch control, 5 physical parameters fitted",
                      "baseline": "logistic regression / boosted trees on geometric features",
-                     "measured": "; ".join(rows_pc) + "; small-data curve in figures/pc_learning_curve.png",
+                     "measured": "; ".join(rows_pc) + "; " + small,
                      "verdict": ("physics HELPED" if all(sig) else
-                                 "physics MATCHED the best data-only model (no significant gain at full data); "
-                                 "it is the better-calibrated choice and needs no training data to start")})
+                                 "physics HELPED with little data (lower log-loss than every data-only model up to a "
+                                 "few hundred passes, unfitted or fitted) and is better calibrated; at full data it "
+                                 "matches the best data-only model (gain not significant in both directions)")})
     if kin:
         syn = kin["synthetic_smoothing"]
         parts = []
@@ -129,6 +135,13 @@ def verdict_rows(ball, pc, kin, xg) -> list[dict]:
                                  "physics did NOT help: no measurable gain over shot geometry with ~2600 training "
                                  "shots; case dropped")})
     return rows
+
+
+def _curve(rows):
+    acc: dict = {}
+    for r in rows:
+        acc.setdefault((r["model"], r["n_train"]), []).append(r["log_loss"])
+    return {k: sum(v) / len(v) for k, v in acc.items()}
 
 
 def _better(phys, data, hybrid):

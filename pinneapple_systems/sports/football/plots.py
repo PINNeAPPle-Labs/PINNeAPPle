@@ -157,15 +157,15 @@ def gravity_audit_figure(audit: dict[str, Any], synthetic_g: list[float] | None,
     return _save(fig, path)
 
 
-def reliability_figure(rel: dict[str, dict], path, title="", models: list[str] | None = None):
+def reliability_figure(rel: dict[str, dict], path, title="", models: list[str] | None = None, lim: float = 1.0):
     fig, ax = _fig(5, 4.6)
-    ax.plot([0, 1], [0, 1], color=INK2, lw=1, ls=":")
+    ax.plot([0, lim], [0, lim], color=INK2, lw=1, ls=":")
     for m in models or list(rel):
         r = rel[m]
         ax.plot(r["pred"], r["obs"], "-o", color=color_of(m), lw=2, ms=5, label=m, mec=SURFACE, mew=1.5)
     _style(ax, title, "predicted probability", "observed frequency")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    ax.set_xlim(0, lim)
+    ax.set_ylim(0, lim)
     ax.legend(fontsize=7, frameon=False)
     return _save(fig, path)
 

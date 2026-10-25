@@ -7697,6 +7697,56 @@
    "status": "done"
   }
  },
+ "physics_learning_verification/detection": {
+  "full": {
+   "commit": "bc567c3e",
+   "comparisons": [
+    {
+     "flow": "flat.defect_verifier",
+     "outcome": "match",
+     "ref": "results/detection.json:summary.defect.verifier",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "flat.defect_flag_loss",
+     "outcome": "match",
+     "ref": "results/detection.json:summary.defect.flag_loss",
+     "reference": 0.5454545454545454,
+     "rel_diff": 0.0,
+     "value": 0.5454545454545454
+    },
+    {
+     "flow": "flat.defect_flag_heldout",
+     "outcome": "match",
+     "ref": "results/detection.json:summary.defect.flag_heldout",
+     "reference": 0.22727272727272727,
+     "rel_diff": 0.0,
+     "value": 0.22727272727272727
+    },
+    {
+     "flow": "flat.controls_flagged",
+     "outcome": "match",
+     "ref": "results/detection.json:summary.control.verifier",
+     "reference": 0.42857142857142855,
+     "rel_diff": 0.0,
+     "value": 0.42857142857142855
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-25",
+   "manifest": "manifest /tmp/claude-0/fw7/example.physics_learning_verification.detection.experiment.json, Lab item manifest/flow/example.physics_learning_verification.detection",
+   "matched": 4,
+   "nodes": {
+    "compare": "done",
+    "flat": "done",
+    "verify": "done"
+   },
+   "seconds": 10.3,
+   "status": "done"
+  }
+ },
  "physics_module/01_coarse_fem_plus_neural_correction": {
   "full": {
    "commit": "ee5fd359",

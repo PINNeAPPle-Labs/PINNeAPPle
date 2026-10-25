@@ -7,6 +7,7 @@ from . import (  # noqa: F401
     condense,
     data,
     methods,
+    physics_learning,
     presets,
     problem,
     reason,

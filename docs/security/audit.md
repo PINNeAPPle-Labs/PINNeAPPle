@@ -187,7 +187,7 @@ Tools:
 | semgrep (same rules, same scope) | 52 error / 116 warning / 73 info | 21 error / 113 warning / 72 info (missing-user 32 → 0, eval-detected 4 → 0) |
 | trivy config | 33 high (DS-0002) | **0** |
 | hadolint | 36 warnings, 1 info | 36 warnings, 1 info (unpinned pip/apt: L7) |
-| gitleaks (history, with `.gitleaks.toml` allow-listing the 3 placeholders) | 39 false positives | 0 |
+| gitleaks (history, with `.gitleaks.toml` allow-listing the 4 placeholder patterns) | 39 false positives | 0 |
 | trivy, Playground base image | 7 critical / 86 high | 0 critical / 4 high |
 | A hardened container (uid, capabilities, writes) | root, all default capabilities, writable root | uid 10001, `CapEff 0`, `NoNewPrivs 1`, `/` and `/srv` read-only, `/data` and `/tmp` writable |
 

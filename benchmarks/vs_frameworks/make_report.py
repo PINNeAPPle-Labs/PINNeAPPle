@@ -17,16 +17,18 @@ HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
 FIGS = HERE / "figures"
 #: the first three slots of the validated categorical palette (all-pairs safe), fixed per framework family
-COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "pinneapple_fixed": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
+COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "pinneapple_fixed": "#2a78d6", "pinneapple_equal": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
           "physicsnemo_sym": "#1baf7a", "physicsnemo_sym_matched": "#1baf7a", "physicsnemo_sym_netmatched": "#1baf7a", "physicsnemo": "#1baf7a"}
 LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early stopping off (patience = iterations)",
-         "pinneapple_fixed": "PINNeAPPle after the fixes (fix/benchmark-findings), its defaults", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
+         "pinneapple_fixed": "PINNeAPPle after the fixes (fix/benchmark-findings), its defaults",
+         "pinneapple_equal": "PINNeAPPle after the fixes, new default weighting='equal'", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
          "physicsnemo_sym_matched": "Sym recipe, points per step matched to pp.solve",
          "physicsnemo_sym_netmatched": "Sym recipe, network matched to PINNeAPPle A2",
          "physicsnemo": "PhysicsNeMo", "neuraloperator": "neuraloperator"}
-ORDER = ["pinneapple", "pinneapple_nostop", "pinneapple_fixed", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo_sym_netmatched", "physicsnemo", "neuraloperator"]
+ORDER = ["pinneapple", "pinneapple_nostop", "pinneapple_fixed", "pinneapple_equal", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo_sym_netmatched", "physicsnemo", "neuraloperator"]
 #: short tick labels for the figures
-SHORT = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle\nno stop", "pinneapple_fixed": "PINNeAPPle\nfixed", "deepxde": "DeepXDE",
+SHORT = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle\nno stop", "pinneapple_fixed": "PINNeAPPle\nfixed",
+         "pinneapple_equal": "PINNeAPPle\nequal w", "deepxde": "DeepXDE",
          "physicsnemo_sym": "Sym", "physicsnemo_sym_matched": "Sym\npts-matched",
          "physicsnemo_sym_netmatched": "Sym\nnet-matched", "physicsnemo": "PhysicsNeMo",
          "neuraloperator": "neuralop"}

@@ -63,7 +63,7 @@
 | **Meta-aprendizado** | MAML, Reptile, PDETaskSampler | ❌ | PINNeAPPle exclusivo |
 | **Transfer Learning** | TransferTrainer, ParametricFamilyTransfer | ❌ | PINNeAPPle exclusivo |
 | **Active Learning** | RAR, RAD, CombinedAL, AdaptiveCollocationTrainer | PhysicsNeMo-Sym: amostragem por importância nas restrições contínuas (`importance_measure`, `domain/constraint/continuous.py`) | Não é exclusivo; DeepXDE também tem RAR (exemplo `Burgers_RAR.py`). Não medido |
-| **Ajuste de pesos** | SA-PINN, GradNorm, NTK, LossRatio | PhysicsNeMo-Sym: agregadores `grad_norm`, `res_norm`, `homoscedastic`, `lr_annealing`, `soft_adapt`, `relobralo` e opção NTK (`training.ntk`) | Não é exclusivo. Medido: o balanceamento adaptativo do `InversePINN` é a causa principal do seu erro de ν no problema inverso ([trilha C](../../benchmarks/vs_frameworks/REPORT.md#c-inverse-burgers-ν-from-2000-samples-with-1--noise-5-seeds-3000-iterations)) |
+| **Ajuste de pesos** | SA-PINN, GradNorm, NTK, LossRatio | PhysicsNeMo-Sym: agregadores `grad_norm`, `res_norm`, `homoscedastic`, `lr_annealing`, `soft_adapt`, `relobralo` e opção NTK (`training.ntk`) | Não é exclusivo. Medido: o balanceamento adaptativo do `InversePINN` (hoje opcional, `weighting="adaptive"`) era a causa principal do seu erro de ν no problema inverso ([trilha C](../../benchmarks/vs_frameworks/REPORT.md#c-inverse-burgers-ν-from-2000-samples-with-1--noise-5-seeds-3000-iterations)) |
 | **Validação física** | ConservationCheck, BoundaryCheck, SymmetryCheck | ❌ | PINNeAPPle exclusivo |
 | **Problem design** | ProblemBuilder → ProblemSpec → Arena pipeline | Scripts Python | PINNeAPPle exclusivo |
 | **Presets** | 35+ (CFD, estrutural, térmico, finanças, fármacos…) | CFD focado | PINNeAPPle mais amplo |
@@ -91,8 +91,10 @@ Resumo de [`benchmarks/vs_frameworks/REPORT.md`](../../benchmarks/vs_frameworks/
   DeepXDE e 1,32 [0,24, 1,83] do Sym (cujo ν é a média de um campo aprendido, negativa em 4 de 5 seeds). Depois das
   correções do `InversePINN` (parada antecipada sobre a perda não ponderada, sem fallback silencioso do resíduo) o
   resultado com os padrões é o mesmo: 12,5 [11,0, 13,7]. O diagnóstico aponta o balanceamento adaptativo PDE/dados
-  como causa: com pesos fixos iguais (diagnóstico fora do protocolo, não é um resultado do PINNeAPPle) o erro de ν cai
-  para 3,41 [2,99, 3,90], perto do DeepXDE. O balanceamento não foi alterado na biblioteca.
+  como causa. Por isso o `InversePINN` passou a usar pesos fixos iguais por padrão (`weighting="equal"`; o esquema
+  adaptativo continua como `weighting="adaptive"`). Rodada de novo com o novo padrão (5 seeds, 3000 iterações, mesmo
+  harness): erro de ν 3,41 [2,99, 3,90] e erro do campo 0,112 [0,103, 0,133], contra 12,5 e 0,38 antes. Mais perto do
+  DeepXDE (2,16; campo 0,079), mas ainda atrás: ν continua 4,4× grande demais.
 
 ## Estado da integração com PhysicsNeMo
 

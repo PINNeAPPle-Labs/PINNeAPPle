@@ -68,6 +68,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
+  and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
+  `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
+  PDE loss fell and traded data fit for a smaller residual. On the benchmark's inverse Burgers problem (ν from 2000
+  samples with 1 % noise, 5 seeds, 3000 iterations, `benchmarks/vs_frameworks/REPORT.md` track C) the ν relative error
+  was 12.5 [11.0, 13.7] with adaptive weighting and is 3.41 [2.99, 3.90] with the new default (median [min, max]);
+  the field error went from 0.384 to 0.112. The ENSO PINNs in `pinneapple_systems.time_series.enso.pinn` pass
+  `weighting="adaptive"`, so their results are unchanged.
 - **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
   "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
 - **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first

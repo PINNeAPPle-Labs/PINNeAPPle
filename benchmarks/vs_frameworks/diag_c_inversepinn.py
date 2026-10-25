@@ -4,10 +4,12 @@
     python -m benchmarks.vs_frameworks.diag_c_inversepinn run <variant> <seed> <out.json> [--iters 3000]
     python -m benchmarks.vs_frameworks.diag_c_inversepinn collect <dir>     # -> results/C_diagnostics.json
 
+The baseline is the recipe the benchmark ran first, with ``weighting="adaptive"`` (InversePINN's default then).
 Variants (early stopping off in all, ``patience=None``, so each has the full budget of the other frameworks):
-* ``equalw``: InversePINN's adaptive PDE weight (``100 * clamp(ema_data / ema_pde, 0.01, 100)``) replaced by a fixed
-  weight equal to the data weight (100), i.e. equal fixed weights as in DeepXDE's and Sym's runs. InversePINN has no
-  option for this, so the diagnostic replaces the module's ``min`` (used only in that clamp) by ``lambda *a: 1.0``.
+* ``equalw``: the adaptive PDE weight (``100 * clamp(ema_data / ema_pde, 0.01, 100)``) replaced by a fixed weight
+  equal to the data weight (100), i.e. equal fixed weights as in DeepXDE's and Sym's runs (``weighting="equal"``,
+  InversePINN's default since; the recorded runs replaced the module's ``min`` by ``lambda *a: 1.0``, the same
+  arithmetic).
 * ``linear``: nu as a linear parameter instead of log space.
 * ``lrp3``: lr_params 1e-3 (the network's lr, as DeepXDE uses for its variable) instead of 1e-2.
 * ``equalw_linear_lrp3``: all three.
@@ -29,7 +31,6 @@ RESULTS = Path(__file__).resolve().parent / "results"
 def run(variant: str, seed: int, iters: int, out: str) -> dict:
     import torch
 
-    import pinneapple_neural.trainer.inverse_pinn as ipmod
     from pinneapple_neural.trainer.inverse_pinn import InverseParam, InversePINN
     from pinneapple_tools.benchmark_suite.crossframework import inverse as INV
     from pinneapple_tools.benchmark_suite.crossframework import problems as P
@@ -37,8 +38,6 @@ def run(variant: str, seed: int, iters: int, out: str) -> dict:
     from pinneapple_tools.benchmark_suite.crossframework import weights as W
 
     torch.set_num_threads(1)
-    if "equalw" in variant:
-        ipmod.min = lambda *a: 1.0          # w_pde_eff = 1 * 100 = the data weight
     obs = INV.observations()
     torch.manual_seed(seed)
     sizes = W.layer_sizes()
@@ -61,7 +60,8 @@ def run(variant: str, seed: int, iters: int, out: str) -> dict:
     nu = InverseParam(initial_value=proto.C["nu_init"], log_space="linear" not in variant, name="nu")
     tr = InversePINN(model, [nu], residual_fn, torch.from_numpy(obs["X"]), torch.from_numpy(obs["u"]),
                      domain_bounds=[(-1.0, 1.0), (0.0, 1.0)], n_col=proto.C["n_interior"], lr=proto.C["lr"],
-                     lr_params=1e-3 if "lrp3" in variant else 1e-2, patience=None)
+                     lr_params=1e-3 if "lrp3" in variant else 1e-2, patience=None,
+                     weighting="equal" if "equalw" in variant else "adaptive")
     t0 = time.process_time()
     h = tr.train(n_epochs=iters)
     nu_hat = tr.get_identified_params()["nu"]

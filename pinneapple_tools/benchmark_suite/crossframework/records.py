@@ -25,6 +25,7 @@ __all__ = ["setup_threads", "loadavg", "cpu_model", "package_versions", "environ
 FRAMEWORK_PACKAGES = {
     "pinneapple": ["pinneapple"],
     "pinneapple_fixed": ["pinneapple"],
+    "pinneapple_equal": ["pinneapple"],
     "deepxde": ["deepxde"],
     "physicsnemo_sym": ["nvidia-physicsnemo.sym", "nvidia-physicsnemo"],
     "physicsnemo": ["nvidia-physicsnemo"],

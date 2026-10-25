@@ -32,7 +32,8 @@ def main(argv=None):
     # with --patience the run is the equal-budget variant (early stopping off), kept apart from the default recipe
     fw = args.framework or ("pinneapple_nostop" if args.patience else "pinneapple")
     cfg = {**proto.C, "iters": args.iters, "patience": args.patience or "library default (300)",
-           "early_stopping_on": "unweighted L_pde + L_data" if fw == "pinneapple_fixed" else "weighted total", "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
+           "early_stopping_on": ("unweighted L_pde + L_data" if fw in ("pinneapple_fixed", "pinneapple_equal")
+                                 else "weighted total"), "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
            "collocation": "10000 fresh uniform points per step (InversePINN's only mode)"}
     meta = proto.base_meta(args, track="C", framework=fw, source=SOURCE, config=cfg)
     t0 = time.perf_counter()
@@ -66,6 +67,7 @@ def main(argv=None):
         trainer = InversePINN(model, [nu], residual_fn, torch.from_numpy(obs["X"]), torch.from_numpy(obs["u"]),
                               domain_bounds=[(-1.0, 1.0), (0.0, 1.0)], n_col=proto.C["n_interior"], lr=proto.C["lr"],
                               device=args.device, **({"patience": args.patience} if args.patience else {}))
+        meta["config"]["weighting"] = getattr(trainer, "weighting", "adaptive (no option at that commit)")
         with R.Clock() as clk:
             hist = trainer.train(n_epochs=args.iters)
         nu_hat = trainer.get_identified_params()["nu"]

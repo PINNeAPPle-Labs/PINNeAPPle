@@ -67,7 +67,7 @@ def test_early_stopping_is_not_fooled_by_the_adaptive_weights():
         return torch.full((x_col.shape[0], 1), 0.999 ** step["n"]) + 0.0 * model(x_col) * params["k"]
 
     trainer = InversePINN(_Frozen(), [InverseParam(1.0, name="k")], shrinking_residual, x, y,
-                          domain_bounds=[(0.0, 2.0)], n_col=16, patience=20)
+                          domain_bounds=[(0.0, 2.0)], n_col=16, patience=20, weighting="adaptive")
     hist = trainer.train(n_epochs=150)
     assert hist["total"][100] > hist["total"][0]          # the weighted total did rise: the trap is real
     assert len(hist["total"]) == 150
@@ -89,9 +89,40 @@ def test_early_stopping_still_stops_on_a_plateau_and_can_be_disabled():
     assert len(off.train(n_epochs=50)["total"]) == 50
 
 
-def test_recovers_a_decay_rate():
+@pytest.mark.parametrize("weighting", ["equal", "adaptive"])
+def test_recovers_a_decay_rate(weighting):
     x, y = _decay_problem(k_true=1.5)
     k = InverseParam(0.5, log_space=True, name="k")
-    trainer = InversePINN(_net(), [k], _residual, x, y, domain_bounds=[(0.0, 2.0)], n_col=128, lr=1e-2)
+    # lr 3e-3: at 1e-2 the estimate of k oscillates by about 10 % with either weighting
+    trainer = InversePINN(_net(), [k], _residual, x, y, domain_bounds=[(0.0, 2.0)], n_col=128, lr=3e-3,
+                          weighting=weighting)
     trainer.train(n_epochs=1500)
     assert abs(trainer.get_identified_params()["k"] - 1.5) / 1.5 < 0.1
+
+
+def test_default_weighting_is_equal_and_fixed():
+    """Default: total = 100 * (L_pde + L_data) at every step (benchmark track C: the adaptive rule left nu 12x off)."""
+    x, y = _decay_problem()
+    trainer = InversePINN(_net(), [InverseParam(1.0, name="k")], _residual, x, y, domain_bounds=[(0.0, 2.0)],
+                          n_col=32, patience=None)
+    assert trainer.weighting == "equal"
+    h = trainer.train(n_epochs=20)
+    for tot, pde, data in zip(h["total"], h["pde"], h["data"], strict=True):
+        assert tot == pytest.approx(100.0 * (pde + data), rel=1e-5)
+
+
+def test_adaptive_weighting_is_still_available():
+    x, y = _decay_problem()
+    trainer = InversePINN(_net(), [InverseParam(1.0, name="k")], _residual, x, y, domain_bounds=[(0.0, 2.0)],
+                          n_col=32, patience=None, weighting="adaptive")
+    h = trainer.train(n_epochs=20)
+    ema_d = ema_p = 1.0
+    for tot, pde, data in zip(h["total"], h["pde"], h["data"], strict=True):
+        ema_d = 0.98 * ema_d + 0.02 * (data + 1e-12)
+        ema_p = 0.98 * ema_p + 0.02 * (pde + 1e-12)
+        w = min(max(ema_d / (ema_p + 1e-12), 0.01), 100.0) * 100.0
+        assert tot == pytest.approx(w * pde + 100.0 * data, rel=1e-4)
+    assert any(abs(t - 100.0 * (p + d)) > 1e-3 * t for t, p, d in zip(h["total"], h["pde"], h["data"], strict=True))
+    with pytest.raises(ValueError, match="weighting"):
+        InversePINN(_net(), [InverseParam(1.0, name="k")], _residual, x, y, domain_bounds=[(0.0, 2.0)],
+                    weighting="gradnorm")

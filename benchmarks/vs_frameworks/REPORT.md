@@ -130,6 +130,7 @@ first A2 results; they are not Sym's official recipe.
 | PINNeAPPle `InversePINN`, its defaults (**unequal budget**: stopped by its own early stopping) | 0.0428 [0.0381, 0.0466] | 12.5 [11.0, 13.6] | 0.374 [0.362, 0.414] | 540 [492, 564] |
 | PINNeAPPle `InversePINN`, early stopping off (`patience` > iterations), **equal budget** | 0.0437 [0.0342, 0.0448] | 12.7 [9.75, 13.1] | 0.379 [0.370, 0.399] | 3000 |
 | PINNeAPPle `InversePINN` **after the fixes** of `fix/benchmark-findings`, its defaults (rerun, new row) | 0.0428 [0.0383, 0.0467] | 12.5 [11.0, 13.7] | 0.384 [0.365, 0.417] | 544 [531, 601] |
+| PINNeAPPle `InversePINN` after the fixes, **new default `weighting="equal"`** (rerun, new row) | 0.0140 [0.0127, 0.0156] | 3.41 [2.99, 3.90] | 0.112 [0.103, 0.133] | 3000 |
 | DeepXDE (`dde.Variable`) | 0.0101 [0.00924, 0.0119] | 2.16 [1.90, 2.74] | 0.0786 [0.0679, 0.0938] | 3000 |
 | PhysicsNeMo-Sym (invert network, mean over the data points) | -0.00102 [-0.00266, 0.00243] | 1.32 [0.237, 1.83] | 0.0199 [0.0191, 0.0416] | 3000 |
 
@@ -165,7 +166,14 @@ first A2 results; they are not Sym's official recipe.
   * The ν parametrisation and the parameter learning rate change nothing on their own.
   * With equal weights `InversePINN` is close to DeepXDE (2.16 [1.90, 2.74], field 0.079) but still behind; the
     remaining difference (fresh vs fixed collocation points, gradient clipping, the parameter-gradient clamp) was not
-    isolated. The weighting was not changed in the library: this is a diagnosis, not a tuned PINNeAPPle result.
+    isolated.
+* **New default: equal fixed weights (fourth row).** After this diagnosis `InversePINN` defaults to
+  `weighting="equal"` (PDE and data weight 100 each); the adaptive rule stays available as `weighting="adaptive"`.
+  Rerun with its defaults otherwise (early stopping as fixed, patience 300), 5 seeds, 3000 iterations, the same
+  harness, 3 runs at a time: ν error 3.41 [2.99, 3.90] (from 12.5 [11.0, 13.7]; paired ratio to the first row 0.27
+  [0.24, 0.36], lower on 5/5 seeds), field error 0.112 [0.103, 0.133], and early stopping no longer fires (3000 of
+  3000 iterations). It reproduces the `equalw` diagnostic exactly (the same arithmetic). It is still behind DeepXDE
+  (2.16 [1.90, 2.74], field 0.079) and ν is still 4.4x too large: no framework identifies ν well in this budget.
 * **No framework identifies ν well in 3000 iterations.**
   * DeepXDE's estimate is positive and still approaching the true value (0.0101, 3x too large).
   * PhysicsNeMo-Sym fits the field best (rel. L2 0.020), but its ν is the mean of a learned field ν(x, t). That mean
@@ -198,9 +206,10 @@ first A2 results; they are not Sym's official recipe.
     (2.4x lower), level with DeepXDE on Burgers, worse on Allen-Cahn (0.59 vs 0.49; both are failures). Its Poisson
     residual is 16x DeepXDE's despite the lower error.
   * FNO (B): the lowest early-training error and the cheapest per epoch (13.9 s vs 27.3 and 44.4).
-  * Inverse problem (C): clearly worse. `InversePINN` misses ν by 12x, against 3x for DeepXDE, and its field error is
-    4.8x DeepXDE's and 19x Sym's. Fixing its early stopping does not change that; its adaptive loss weighting is the
-    measured cause.
+  * Inverse problem (C): clearly worse with the weighting it had. `InversePINN` missed ν by 12x, against 3x for
+    DeepXDE, and its field error was 4.8x DeepXDE's and 19x Sym's. Fixing its early stopping did not change that; its
+    adaptive loss weighting was the measured cause. With the new default (equal fixed weights) ν is 4.4x too large
+    (error 3.41 against DeepXDE's 2.16) and the field error 1.4x DeepXDE's: closer, still behind.
 * **DeepXDE.**
   * Recipes: the best or level result on Burgers and Allen-Cahn, the most plausible ν, and the lowest residuals on
     Poisson and Helmholtz.
@@ -258,6 +267,7 @@ first A2 results; they are not Sym's official recipe.
     * C: a rerun of PINNeAPPle with the fixed `InversePINN` (row "after the fixes"), its defaults, 5 seeds, 3000
       iterations, the same runner and harness, 3 runs at a time on the same 4-core machine. The earlier rows are
       kept unchanged.
+    * C: a second rerun after `InversePINN`'s default became `weighting="equal"` (row "new default"), same conditions.
     * C diagnostics (`diag_c_inversepinn.py`, `results/C_diagnostics.json`): single-knob variants of the PINNeAPPle
       recipe to find the cause of its ν error. They are not tuning and not reported as PINNeAPPle results.
 
@@ -329,8 +339,9 @@ benchmark measured and one on the state of the PhysicsNeMo integration, with a l
      (`patience=None` turns it off).
    * Exceptions from `residual_fn` were caught and logged, and training continued with a zero PDE loss, so a broken
      residual trained a data-only model silently. They now propagate.
-   * **Not fixed: its adaptive PDE / data weighting**, the measured cause of the track C error (above). Changing it
-     is a design decision, left open.
+   * Its adaptive PDE / data weighting, the measured cause of the track C error (above), is no longer the default:
+     `weighting="equal"` is, and `weighting="adaptive"` keeps the old rule (the ENSO PINNs in
+     `pinneapple_systems.time_series.enso.pinn` pass it explicitly, so their results are unchanged).
 4. **Silently dropped options, fixed in `fix/benchmark-findings`** (tests in
    `tests/pinneapple_neural/test_registry_size_kwargs.py`, `tests/test_solve_unknown_options.py`).
    * `ModelRegistry.build("vanilla_pinn" or "bench_mlp", hidden_dim=..., n_layers=...)` dropped both arguments (these
@@ -381,6 +392,9 @@ python -m benchmarks.vs_frameworks.driver run --track C --iters 3000 --seeds 0 1
 python -m benchmarks.vs_frameworks.driver run --work _work_c_fixed --track C --iters 3000 --seeds 0 1 2 3 4 \
     --frameworks pinneapple_fixed --jobs 3
 python -m benchmarks.vs_frameworks.driver collect --work _work_c_fixed --merge
+python -m benchmarks.vs_frameworks.driver run --work _work_c_equal --track C --iters 3000 --seeds 0 1 2 3 4 \
+    --frameworks pinneapple_equal --jobs 3          # after the default became weighting="equal"
+python -m benchmarks.vs_frameworks.driver collect --work _work_c_equal --merge
 # C diagnostics (outside the protocol rows) -> results/C_diagnostics.json
 python -m benchmarks.vs_frameworks.diag_c_inversepinn run equalw 0 _diag/equalw_s0.json      # ... per variant, seed
 python -m benchmarks.vs_frameworks.diag_c_inversepinn collect _diag

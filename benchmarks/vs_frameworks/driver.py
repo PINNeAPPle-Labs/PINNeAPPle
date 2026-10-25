@@ -42,6 +42,8 @@ RUNNERS = {
     # InversePINN after the fixes of fix/benchmark-findings (early stopping on the unweighted loss, no silent residual
     # fallback), its defaults; a separate row, the earlier rows are kept
     ("C", "pinneapple_fixed"): "track_c_pinneapple",
+    # then InversePINN's new default weighting="equal" (fixed equal PDE / data weights), its defaults otherwise
+    ("C", "pinneapple_equal"): "track_c_pinneapple",
 }
 DEFAULT_PROBLEMS = {"A1": ["burgers", "poisson", "helmholtz"], "A2": ["burgers", "poisson", "helmholtz", "allen_cahn"],
                     "B": ["darcy"], "C": ["burgers_inverse"]}
@@ -80,7 +82,7 @@ def job_cmd(args, track, problem, fw, seed):
         cmd += ["--mode", "c", "--iters", str(args.iters)]
         if fw == "pinneapple_nostop":                  # equal budget: InversePINN early stopping off
             cmd += ["--patience", str(args.iters + 1)]
-        if fw == "pinneapple_fixed":
+        if fw in ("pinneapple_fixed", "pinneapple_equal"):
             cmd += ["--framework", fw]
     return cmd
 

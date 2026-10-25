@@ -16,9 +16,12 @@ Robustness features (built in, not opt-in extras):
 - Gradient clipping applied to both network weights and inverse parameters
 - Early stopping on a plateau of the unweighted loss ``L_pde + L_data`` (see
   ``InversePINN``'s ``patience``)
-- Adaptive PDE-vs-data loss weighting via an EMA of each loss's own
-  magnitude (mirrors `pinneapple_neural.trainer.graybox`'s balancing rule --
-  prevents whichever term is larger from dominating training)
+- PDE-vs-data loss weighting: fixed equal weights by default
+  (``weighting="equal"``); ``weighting="adaptive"`` sets the PDE weight from an
+  EMA of each loss's own magnitude (``graybox``'s balancing rule). On the
+  inverse Burgers benchmark the adaptive rule raised the PDE weight as the PDE
+  loss fell, traded data fit for a smaller residual and left nu 12x off
+  (``benchmarks/vs_frameworks/REPORT.md``, track C)
 - Pluggable collocation sampling (uniform / Latin hypercube / Sobol)
 - Optional log-space parameterization for positivity-constrained parameters
   (e.g. a diffusivity or rate constant that must stay > 0)
@@ -83,7 +86,12 @@ class InversePINN:
     re-weighted every step by the adaptive balancing, so totals of different
     steps are not comparable and are not used for stopping. ``None`` turns
     early stopping off. Exceptions raised by ``residual_fn`` propagate: a
-    broken residual is an error, not a silent data-only fit."""
+    broken residual is an error, not a silent data-only fit.
+
+    ``weighting``: ``"equal"`` (default) weighs the PDE and data losses the
+    same (100 each); ``"adaptive"`` sets the PDE weight every step to
+    ``100 * clamp(ema_data / ema_pde, 0.01, 100)`` (the earlier default),
+    against a data weight of 100."""
 
     def __init__(
         self,
@@ -99,7 +107,11 @@ class InversePINN:
         device: str = "cpu",
         sampling_method: str = "uniform",
         patience: Optional[int] = 300,
+        weighting: str = "equal",
     ):
+        if weighting not in ("equal", "adaptive"):
+            raise ValueError(f"weighting must be 'equal' or 'adaptive', got {weighting!r}")
+        self.weighting = weighting
         self.model = model
         self.inverse_params = nn.ModuleList(inverse_params)
         self.residual_fn = residual_fn
@@ -169,7 +181,7 @@ class InversePINN:
                 ema_data = ema_alpha * ema_data + (1 - ema_alpha) * float(L_data.item() + 1e-12)
                 ema_pde = ema_alpha * ema_pde + (1 - ema_alpha) * float(L_pde.item() + 1e-12)
                 scale = ema_data / (ema_pde + 1e-12)
-                w_pde_eff = min(max(scale, 0.01), 100.0) * 100.0
+                w_pde_eff = min(max(scale, 0.01), 100.0) * 100.0 if self.weighting == "adaptive" else 100.0
 
             total = w_pde_eff * L_pde + 100.0 * L_data
             total.backward()

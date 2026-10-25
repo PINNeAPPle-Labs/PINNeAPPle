@@ -2,6 +2,8 @@
 
 **Plate-fin heat sinks, sized and verified by physics — in seconds.**
 
+> Not the same tool as [HeatSink Design AI](../heatsink_inverse_ai/README.md): this app sizes plate-fin heat sinks from published forced/natural-convection correlations, pressure drop and a 3-D base-plate solve; that one demonstrates gradient-based inverse design through a neural surrogate of the 1-D fin-array formula with a fixed convection coefficient.
+
 Day 1 of the PINNeAPPle 30-app program. A working SaaS prototype for thermal/mechanical
 engineers at electronics, power-electronics, LED and industrial-drive companies who today
 size heat sinks with spreadsheets, vendor calculators or a CFD run per candidate.

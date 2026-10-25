@@ -13,6 +13,22 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Added
+- `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
+  verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
+  `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,
+  `reflex_port`) with triangle meshes of the parts (`meshes`). Imported from PINNeAPPle-apps.
+- `pinneapple_design.thermal.fin_cell.solve_fin_cell`: 2-D finite-volume conduction in one fin pitch (energy balance,
+  grid-refinement check), an independent check of the fin-array formula.
+- `pinneapple_design.geometry.bodies.annulus`; `apps/_shared/static/shared/stl.js` (binary STL to three.js geometry).
+- Apps HeatSink Design AI (`apps/heatsink_inverse_ai`), BrakeCool AI (`apps/brakecool_ai`), PatchDose AI
+  (`apps/patchdose_ai`), RideTune AI (`apps/ridetune_ai`) and SoundShape AI (`apps/soundshape_ai`), with Dockerfiles,
+  tests and deploy entries (ports 8160-8164).
+
+### Changed
+- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
+  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+
 ### Fixed
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
   system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against

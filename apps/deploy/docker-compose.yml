@@ -815,6 +815,88 @@ services:
     expose: ["8116"]
     mem_limit: ${HUB_MEM_LIMIT:-2g}
 
+  # Surrogate inverse-design demos (pinneapple_design.surrogate_inverse): a small MLP trains in the background at
+  # start-up (a few seconds of one core); no volume, nothing is stored
+  hsdesign:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/heatsink_inverse_ai/Dockerfile
+    image: pinneapple/heatsink-design-ai:latest
+    restart: unless-stopped
+    environment:
+      HSD_USER: ${HSD_USER:-}
+      HSD_PASSWORD: ${HSD_PASSWORD:-}
+      HSD_PASSWORD_HASH: ${HSD_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      HSD_RATE_LIMIT: ${HSD_RATE_LIMIT:-}
+      HSD_EPOCHS: ${HSD_EPOCHS:-1500}
+    expose: ["8160"]
+    mem_limit: ${HSD_MEM_LIMIT:-1g}
+
+  brakecool:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/brakecool_ai/Dockerfile
+    image: pinneapple/brakecool-ai:latest
+    restart: unless-stopped
+    environment:
+      BRAKE_USER: ${BRAKE_USER:-}
+      BRAKE_PASSWORD: ${BRAKE_PASSWORD:-}
+      BRAKE_PASSWORD_HASH: ${BRAKE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      BRAKE_RATE_LIMIT: ${BRAKE_RATE_LIMIT:-}
+      BRAKE_EPOCHS: ${BRAKE_EPOCHS:-1500}
+    expose: ["8161"]
+    mem_limit: ${BRAKE_MEM_LIMIT:-1g}
+
+  patchdose:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/patchdose_ai/Dockerfile
+    image: pinneapple/patchdose-ai:latest
+    restart: unless-stopped
+    environment:
+      PATCH_USER: ${PATCH_USER:-}
+      PATCH_PASSWORD: ${PATCH_PASSWORD:-}
+      PATCH_PASSWORD_HASH: ${PATCH_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PATCH_RATE_LIMIT: ${PATCH_RATE_LIMIT:-}
+      PATCH_EPOCHS: ${PATCH_EPOCHS:-1500}
+    expose: ["8162"]
+    mem_limit: ${PATCH_MEM_LIMIT:-1g}
+
+  ridetune:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/ridetune_ai/Dockerfile
+    image: pinneapple/ridetune-ai:latest
+    restart: unless-stopped
+    environment:
+      RIDE_USER: ${RIDE_USER:-}
+      RIDE_PASSWORD: ${RIDE_PASSWORD:-}
+      RIDE_PASSWORD_HASH: ${RIDE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      RIDE_RATE_LIMIT: ${RIDE_RATE_LIMIT:-}
+      RIDE_EPOCHS: ${RIDE_EPOCHS:-1500}
+    expose: ["8163"]
+    mem_limit: ${RIDE_MEM_LIMIT:-1g}
+
+  soundshape:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/soundshape_ai/Dockerfile
+    image: pinneapple/soundshape-ai:latest
+    restart: unless-stopped
+    environment:
+      SOUND_USER: ${SOUND_USER:-}
+      SOUND_PASSWORD: ${SOUND_PASSWORD:-}
+      SOUND_PASSWORD_HASH: ${SOUND_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SOUND_RATE_LIMIT: ${SOUND_RATE_LIMIT:-}
+      SOUND_EPOCHS: ${SOUND_EPOCHS:-1500}
+    expose: ["8164"]
+    mem_limit: ${SOUND_MEM_LIMIT:-1g}
+
   caddy:
     <<: *base-hardening
     cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
@@ -861,12 +943,17 @@ services:
       EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
       PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
       HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
+      HSD_DOMAIN: ${HSD_DOMAIN:-heatsink-design.localhost}
+      BRAKE_DOMAIN: ${BRAKE_DOMAIN:-brakecool.localhost}
+      PATCH_DOMAIN: ${PATCH_DOMAIN:-patchdose.localhost}
+      RIDE_DOMAIN: ${RIDE_DOMAIN:-ridetune.localhost}
+      SOUND_DOMAIN: ${SOUND_DOMAIN:-soundshape.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub, hsdesign, brakecool, patchdose, ridetune, soundshape]
 
 volumes:
   surrogate_data:

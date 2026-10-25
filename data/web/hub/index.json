@@ -18273,7 +18273,7 @@
     "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes_ext/examples.py#L283"
    },
    "extra": {
-    "calls": "",
+    "calls": "no library call: re-records the numbers an upstream node returned (for examples.compare)",
     "category": "Examples",
     "available": true,
     "install": "",

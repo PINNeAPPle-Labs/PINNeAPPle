@@ -283,7 +283,8 @@ def compare(ctx, inputs, params):
 @node("examples.flatten", "Numbers of an upstream result", category="Examples",
       inputs=[Port("value", "any", help="a result dict (e.g. the metrics output of a node that returns it)")],
       outputs=[Port("metrics", "metrics")],
-      params=[Param("max_items", "int", 400, minimum=1, maximum=10000)])
+      params=[Param("max_items", "int", 400, minimum=1, maximum=10000)],
+      calls="no library call: re-records the numbers an upstream node returned (for examples.compare)")
 def flatten(ctx, inputs, params):
     """Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a
     node that returns its numbers in an output instead of recording them; strings and booleans are kept too."""

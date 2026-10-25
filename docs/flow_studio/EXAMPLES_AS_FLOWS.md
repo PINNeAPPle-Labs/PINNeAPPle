@@ -7,17 +7,17 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 6 |
-| not yet run | 7 |
+| not yet run | 4 |
 | not_convertible | 16 |
-| runs | 37 |
-| runs-quick | 10 |
+| runs | 39 |
+| runs-quick | 11 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
 | `architectures` | neural architectures | `architectures/00_registry_tour`<br>`architectures/01_list_models`<br>`architectures/30_rom_pod_dmd`<br>`architectures/60_new_architectures_demo` | runs |  | 00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist |
 | `arena_pipelines` | benchmarks | `arena_pipelines/00_list_datasets`<br>`arena_pipelines/01_physics_benchmark`<br>`arena_pipelines/02_timeseries_benchmark`<br>`arena_pipelines/04_arena_from_yaml` | runs-quick |  | flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare |
-| `autolab` | design | `autolab/self_optimizing_engineer` | not yet run |  | self_optimizing_engineer: autolab.board_cooling (#867) + examples.flatten, compared with the committed _out/self_optimizing_engineer/summary.json (heat-sink mass, fan power, pessimistic junction temperatures) |
-| `autolab_aero` | aerodynamics | `autolab_aero/autolab_aero` | not yet run |  | autolab.aerodynamicist (#881): the full configuration runs the OpenFOAM campaign (20 simpleFoam runs, hours) and is compared with _out/summary.json (drag improvement); the quick configuration shows the dashboard of the recorded session, which recomputes nothing and so compares nothing |
+| `autolab` | design | `autolab/self_optimizing_engineer` | runs | 6 / 6 match | self_optimizing_engineer: autolab.board_cooling (#867) + examples.flatten, compared with the committed _out/self_optimizing_engineer/summary.json (heat-sink mass, fan power, pessimistic junction temperatures) |
+| `autolab_aero` | aerodynamics | `autolab_aero/autolab_aero` | runs-quick |  | autolab.aerodynamicist (#881): the full configuration runs the OpenFOAM campaign (20 simpleFoam runs, hours) and is compared with _out/summary.json (drag improvement); the quick configuration shows the dashboard of the recorded session, which recomputes nothing and so compares nothing |
 | `autolab_aero_agent` | aerodynamics | - | not_convertible |  | agent_mission.py drives pinneapple_autolab.agent.run_agent with a ReplaySimulator over stage 1's ledger and two refusal cases, arranged in the script; no node wraps the replayed agent session (autolab.aerodynamicist runs the agent on live OpenFOAM instead, see autolab_aero), and an LLM provider is optional |
 | `autolab_digital_twin` | digital twin | `autolab_digital_twin/twin_knows_when_wrong` | runs | 2 / 2 match | twin_knows_when_wrong: autolab.pipe_twin (#869) + examples.flatten, compared with the committed _out/summary.json (diagnosis accuracy, cases with a false alarm) |
 | `autolab_rover` | vehicles | `autolab_rover/rover_learns_planet` | runs | 12 / 12 match | rover_learns_planet: rover.learn_planet (#871), compared with results/summary.json (learned soil-parameter errors, multibody distance, energy, slip and sinkage of routes A and B) |
@@ -74,7 +74,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `proof_graph` | validation | `proof_graph/pt_chain_no_go` | runs | 4 / 4 match | status counts compared with the committed report docs/assets/proof_graph/pt_chain_no_go_report.md |
 | `qualitative` | design | `qualitative/03_ahmed_slant` | runs |  | 03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts |
 | `rigid_body` | multibody | `rigid_body/newton_quickstart` | runs |  | NVIDIA Newton 1.7 (warp, CPU) installed with pip here |
-| `science` | science | `science/ampere_law`<br>`science/bench_mu0_solenoid`<br>`science/bench_rc_discharge`<br>`science/biot_savart`<br>`science/cavity_resonance`<br>`science/circuits_rc_rl_rlc`<br>`science/coulomb_superposition`<br>`science/dipole_radiation`<br>`science/faraday_induction`<br>`science/fresnel_snell`<br>`science/gauss_law`<br>`science/hall_effect`<br>`science/lossy_plane_wave`<br>`science/mie_scattering`<br>`science/parallel_plate_capacitor`<br>`science/research_fdtd_3d`<br>`science/research_inverse_permittivity`<br>`science/research_surrogate_hall`<br>`science/research_uq_waveguide`<br>`science/waveguide_modes` | not yet run | 66 / 67 match | one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes |
+| `science` | science | `science/ampere_law`<br>`science/bench_mu0_solenoid`<br>`science/bench_rc_discharge`<br>`science/biot_savart`<br>`science/cavity_resonance`<br>`science/circuits_rc_rl_rlc`<br>`science/coulomb_superposition`<br>`science/dipole_radiation`<br>`science/faraday_induction`<br>`science/fresnel_snell`<br>`science/gauss_law`<br>`science/hall_effect`<br>`science/lossy_plane_wave`<br>`science/mie_scattering`<br>`science/parallel_plate_capacitor`<br>`science/research_fdtd_3d`<br>`science/research_inverse_permittivity`<br>`science/research_surrogate_hall`<br>`science/research_uq_waveguide`<br>`science/waveguide_modes` | runs | 87 / 89 match | one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes |
 | `security` | security | `security/02_physics_residual_fdi` | runs | 131 / 131 match | 02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script |
 | `solver_api` | PINN | `solver_api/01_classical_vs_pinn` | runs | 2 / 2 match | compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md |
 | `solvers` | numerical solvers | `solvers/01_time_series_decompositions`<br>`solvers/02_sph_box`<br>`solvers/03_poisson_solvers` | runs |  | three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation |
@@ -215,6 +215,23 @@ done in 1952 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
 ### `arena_pipelines/04_arena_from_yaml` (quick)
 
 done in 1918 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `autolab/self_optimizing_engineer` (full)
+
+done in 462 s (commit 3bd6a5ad, 2026-10-24); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `flat.mass_g` | `_out/self_optimizing_engineer/summary.json:mass_g` | 29.627 | 29.627 | 0 | match |
+| `flat.fan_power_w` | `_out/self_optimizing_engineer/summary.json:fan_power_w` | 0.0192113 | 0.0192113 | 0 | match |
+| `flat.tj_pessimistic_c.SoC` | `_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.SoC` | 88.525 | 88.525 | 6.19482e-13 | match |
+| `flat.tj_pessimistic_c.VRM1` | `_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.VRM1` | 101.613 | 101.613 | 7.6976e-12 | match |
+| `flat.tj_pessimistic_c.VRM2` | `_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.VRM2` | 101.613 | 101.613 | 2.33922e-11 | match |
+| `flat.tj_pessimistic_c.DDR` | `_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.DDR` | 83.5641 | 83.5641 | 1.35782e-11 | match |
+
+### `autolab_aero/autolab_aero` (quick)
+
+done in 9 s (commit 3bd6a5ad, 2026-10-24); 0 of 0 numbers match.
 
 ### `autolab_digital_twin/twin_knows_when_wrong` (full)
 
@@ -1487,6 +1504,70 @@ done in 7 s (commit 3bd6a5ad, 2026-10-24); 5 of 5 numbers match.
 | `run_3d.rel_error[Q_sca at x = 0.02 (Rayleigh)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.2.rel_error` | 2.94454e-05 | 2.94454e-05 | 0 | match |
 | `run_3d.rel_error[optical theorem: 4 Re S(0) / x^2 (absorbing sphere)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.3.rel_error` | 2.2352e-16 | 2.2352e-16 | 0 | match |
 | `run_3d.rel_error[Q_ext at x = 3000 (absorbing)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.4.rel_error` | 0.00477543 | 0.00477543 | 0 | match |
+
+### `science/parallel_plate_capacitor` (full)
+
+done in 245 s (commit 1fcc55e8, 2026-10-24); 3 of 3 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[C per unit length (extrapolated)]` | `electromagnetism/parallel_plate_capacitor/2D/result.json:comparisons.0.rel_error` | 0.00392796 | 0.00392796 | 0 | match |
+| `run_3d.rel_error[C, 3-D Cartesian (finest) vs axisymmetric]` | `electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.0.rel_error` | 0.00239331 | 0.00239331 | 0 | match |
+| `run_3d.rel_error[C, axisymmetric (extrapolated)]` | `electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.1.rel_error` | 0.00816651 | 0.00816651 | 0 | match |
+
+### `science/research_fdtd_3d` (full)
+
+done in 101 s (commit 1fcc55e8, 2026-10-24); 3 of 3 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d_plus_t.rel_error[radiated power, dipole in vacuum (finest grid)]` | `electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.0.rel_error` | 0.00328814 | 0.00328814 | 0 | match |
+| `run_3d_plus_t.rel_error[P / P_closed_form, Richardson-extrapolated]` | `electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.1.rel_error` | 0.00106281 | 0.00106281 | 0 | match |
+| `run_3d_plus_t.rel_error[far-field pattern max |U/Umax - sin^2|]` | `electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.2.rel_error` | 0.00856227 | 0.00856227 | 0 | match |
+
+### `science/research_inverse_permittivity` (full)
+
+done in 27 s (commit 1fcc55e8, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_1d.rel_error[eps_r recovered vs truth]` | `electromagnetism/research_inverse_permittivity/1D/result.json:comparisons.0.rel_error` | 4.77726e-05 | 4.77726e-05 | 2.25963e-07 | match |
+| `run_1d.rel_error[sigma recovered vs truth]` | `electromagnetism/research_inverse_permittivity/1D/result.json:comparisons.1.rel_error` | 0.0526261 | 0.0526261 | 2.22905e-08 | match |
+
+### `science/research_surrogate_hall` (full)
+
+done in 8 s (commit 1fcc55e8, 2026-10-24); 1 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[hold-out: worst surrogate G vs solver G]` | `electromagnetism/research_surrogate_hall/2D/result.json:comparisons.0.rel_error` | 0.000589491 | 0.000789873 | 0.253689 | differs |
+| `run_2d.rel_error[solver: long bar G(L/W = 8) -> 1]` | `electromagnetism/research_surrogate_hall/2D/result.json:comparisons.1.rel_error` | 5.7433e-06 | 5.7433e-06 | 0 | match |
+
+### `science/research_uq_waveguide` (full)
+
+done in 47 s (commit 1fcc55e8, 2026-10-24); 4 of 4 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[TE10: Monte Carlo std vs first-order GUM]` | `electromagnetism/research_uq_waveguide/2D/result.json:comparisons.0.rel_error` | 0.0252454 | 0.0252454 | 4.30152e-13 | match |
+| `run_2d.rel_error[TE10: Monte Carlo mean vs nominal]` | `electromagnetism/research_uq_waveguide/2D/result.json:comparisons.1.rel_error` | 0.00035194 | 0.00035194 | 6.12895e-13 | match |
+| `run_2d.rel_error[TE20: Monte Carlo std vs first-order GUM]` | `electromagnetism/research_uq_waveguide/2D/result.json:comparisons.2.rel_error` | 0.0248117 | 0.0248117 | 5.0493e-13 | match |
+| `run_2d.rel_error[TE20: Monte Carlo mean vs nominal]` | `electromagnetism/research_uq_waveguide/2D/result.json:comparisons.3.rel_error` | 0.000774841 | 0.000774841 | 0 | match |
+
+### `science/waveguide_modes` (full)
+
+done in 6 s (commit 1fcc55e8, 2026-10-24); 8 of 8 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[TE10 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.0.rel_error` | 1.98317e-05 | 1.98317e-05 | 4.40024e-11 | match |
+| `run_2d.rel_error[TE20 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.1.rel_error` | 7.93256e-05 | 7.93256e-05 | 3.66706e-12 | match |
+| `run_2d.rel_error[TE01 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.2.rel_error` | 0.000100396 | 0.000100396 | 6.43853e-12 | match |
+| `run_2d.rel_error[TE11 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.3.rel_error` | 8.71064e-05 | 8.71064e-05 | 2.71248e-12 | match |
+| `run_2d.rel_error[TE30 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.4.rel_error` | 0.000178477 | 0.000178477 | 1.08662e-12 | match |
+| `run_2d.rel_error[TM mode 1 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.5.rel_error` | 8.71064e-05 | 8.71064e-05 | 5.42497e-12 | match |
+| `run_2d.rel_error[TM mode 2 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.6.rel_error` | 9.10958e-05 | 9.10958e-05 | 4.24284e-12 | match |
+| `run_2d.rel_error[TM mode 3 cut-off frequency]` | `electromagnetism/waveguide_modes/2D/result.json:comparisons.7.rel_error` | 0.000150367 | 0.000150367 | 5.15847e-12 | match |
 
 ### `security/02_physics_residual_fdi` (full)
 

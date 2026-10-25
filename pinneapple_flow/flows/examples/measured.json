@@ -7698,6 +7698,285 @@
    "status": "done"
   }
  },
+ "science/parallel_plate_capacitor": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[C per unit length (extrapolated)]",
+     "outcome": "match",
+     "ref": "electromagnetism/parallel_plate_capacitor/2D/result.json:comparisons.0.rel_error",
+     "reference": 0.003927955814044814,
+     "rel_diff": 0.0,
+     "value": 0.003927955814044814
+    },
+    {
+     "flow": "run_3d.rel_error[C, 3-D Cartesian (finest) vs axisymmetric]",
+     "outcome": "match",
+     "ref": "electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.0.rel_error",
+     "reference": 0.0023933094036951204,
+     "rel_diff": 0.0,
+     "value": 0.0023933094036951204
+    },
+    {
+     "flow": "run_3d.rel_error[C, axisymmetric (extrapolated)]",
+     "outcome": "match",
+     "ref": "electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.1.rel_error",
+     "reference": 0.008166506876191646,
+     "rel_diff": 0.0,
+     "value": 0.008166506876191646
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.parallel_plate_capacitor.experiment.json, Lab item manifest/flow/example.science.parallel_plate_capacitor",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done",
+    "run_3d": "done"
+   },
+   "seconds": 244.7,
+   "status": "done"
+  }
+ },
+ "science/research_fdtd_3d": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_3d_plus_t.rel_error[radiated power, dipole in vacuum (finest grid)]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.0.rel_error",
+     "reference": 0.0032881391345897406,
+     "rel_diff": 0.0,
+     "value": 0.0032881391345897406
+    },
+    {
+     "flow": "run_3d_plus_t.rel_error[P / P_closed_form, Richardson-extrapolated]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.1.rel_error",
+     "reference": 0.0010628076372023454,
+     "rel_diff": 0.0,
+     "value": 0.0010628076372023454
+    },
+    {
+     "flow": "run_3d_plus_t.rel_error[far-field pattern max |U/Umax - sin^2|]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_fdtd_3d/3D_plus_t/result.json:comparisons.2.rel_error",
+     "reference": 0.008562273035930712,
+     "rel_diff": 0.0,
+     "value": 0.008562273035930712
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.research_fdtd_3d.experiment.json, Lab item manifest/flow/example.science.research_fdtd_3d",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "run_3d_plus_t": "done"
+   },
+   "seconds": 101.1,
+   "status": "done"
+  }
+ },
+ "science/research_inverse_permittivity": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_1d.rel_error[eps_r recovered vs truth]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_inverse_permittivity/1D/result.json:comparisons.0.rel_error",
+     "reference": 4.777263580172056e-05,
+     "rel_diff": 2.2596300833150797e-07,
+     "value": 4.777262500687206e-05
+    },
+    {
+     "flow": "run_1d.rel_error[sigma recovered vs truth]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_inverse_permittivity/1D/result.json:comparisons.1.rel_error",
+     "reference": 0.05262612022736198,
+     "rel_diff": 2.2290496366449196e-08,
+     "value": 0.052626121400424324
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.research_inverse_permittivity.experiment.json, Lab item manifest/flow/example.science.research_inverse_permittivity",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "run_1d": "done"
+   },
+   "seconds": 27.2,
+   "status": "done"
+  }
+ },
+ "science/research_surrogate_hall": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[hold-out: worst surrogate G vs solver G]",
+     "outcome": "differs",
+     "ref": "electromagnetism/research_surrogate_hall/2D/result.json:comparisons.0.rel_error",
+     "reference": 0.0007898725588408868,
+     "rel_diff": 0.25368900341757733,
+     "value": 0.0005894905765616506
+    },
+    {
+     "flow": "run_2d.rel_error[solver: long bar G(L/W = 8) -> 1]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_surrogate_hall/2D/result.json:comparisons.1.rel_error",
+     "reference": 5.743298456928336e-06,
+     "rel_diff": 0.0,
+     "value": 5.743298456928336e-06
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.research_surrogate_hall.experiment.json, Lab item manifest/flow/example.science.research_surrogate_hall",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done"
+   },
+   "seconds": 7.7,
+   "status": "done"
+  }
+ },
+ "science/research_uq_waveguide": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[TE10: Monte Carlo std vs first-order GUM]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_uq_waveguide/2D/result.json:comparisons.0.rel_error",
+     "reference": 0.02524542009758375,
+     "rel_diff": 4.3015204015773803e-13,
+     "value": 0.025245420097572892
+    },
+    {
+     "flow": "run_2d.rel_error[TE10: Monte Carlo mean vs nominal]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_uq_waveguide/2D/result.json:comparisons.1.rel_error",
+     "reference": 0.00035193953006807717,
+     "rel_diff": 6.128951248365506e-13,
+     "value": 0.00035193953006829287
+    },
+    {
+     "flow": "run_2d.rel_error[TE20: Monte Carlo std vs first-order GUM]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_uq_waveguide/2D/result.json:comparisons.2.rel_error",
+     "reference": 0.0248116901071461,
+     "rel_diff": 5.049302522078582e-13,
+     "value": 0.02481169010713357
+    },
+    {
+     "flow": "run_2d.rel_error[TE20: Monte Carlo mean vs nominal]",
+     "outcome": "match",
+     "ref": "electromagnetism/research_uq_waveguide/2D/result.json:comparisons.3.rel_error",
+     "reference": 0.0007748405598485373,
+     "rel_diff": 0.0,
+     "value": 0.0007748405598485373
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.research_uq_waveguide.experiment.json, Lab item manifest/flow/example.science.research_uq_waveguide",
+   "matched": 4,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done"
+   },
+   "seconds": 46.7,
+   "status": "done"
+  }
+ },
+ "science/waveguide_modes": {
+  "full": {
+   "commit": "1fcc55e8",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[TE10 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.0.rel_error",
+     "reference": 1.9831744946407245e-05,
+     "rel_diff": 4.4002372852499353e-11,
+     "value": 1.983174494727989e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TE20 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.1.rel_error",
+     "reference": 7.932556515358469e-05,
+     "rel_diff": 3.667057931634737e-12,
+     "value": 7.932556515387558e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TE01 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.2.rel_error",
+     "reference": 0.0001003957837956847,
+     "rel_diff": 6.438530691202611e-12,
+     "value": 0.0001003957837950383
+    },
+    {
+     "flow": "run_2d.rel_error[TE11 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.3.rel_error",
+     "reference": 8.71064231790586e-05,
+     "rel_diff": 2.712483761997781e-12,
+     "value": 8.710642317929487e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TE30 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.4.rel_error",
+     "reference": 0.00017847721235471602,
+     "rel_diff": 1.0866186279170675e-12,
+     "value": 0.00017847721235490996
+    },
+    {
+     "flow": "run_2d.rel_error[TM mode 1 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.5.rel_error",
+     "reference": 8.710642322702264e-05,
+     "rel_diff": 5.424967521008372e-12,
+     "value": 8.71064232274952e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TM mode 2 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.6.rel_error",
+     "reference": 9.109577055333111e-05,
+     "rel_diff": 4.242837176920865e-12,
+     "value": 9.10957705529446e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TM mode 3 cut-off frequency]",
+     "outcome": "match",
+     "ref": "electromagnetism/waveguide_modes/2D/result.json:comparisons.7.rel_error",
+     "reference": 0.00015036719567064556,
+     "rel_diff": 5.1584744650648965e-12,
+     "value": 0.0001503671956698699
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.waveguide_modes.experiment.json, Lab item manifest/flow/example.science.waveguide_modes",
+   "matched": 8,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done"
+   },
+   "seconds": 6.4,
+   "status": "done"
+  }
+ },
  "security/02_physics_residual_fdi": {
   "full": {
    "commit": "3f2296e8",

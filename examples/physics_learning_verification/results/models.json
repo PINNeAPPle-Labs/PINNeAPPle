@@ -1,0 +1,285 @@
+[
+ {
+  "model": "POD-GPR surrogate, correlated training data",
+  "inputs": [
+   "P",
+   "x_s",
+   "k_tim",
+   "h"
+  ],
+  "detected": true,
+  "decision": "REJECT",
+  "failed": [
+   "FAIL  intervention:power x2                 0.905 (limit 0.1)",
+   "FAIL  intervention:source outside the box      0.494 (limit 0.1)",
+   "FAIL  intervention:TIM conductivity x2      0.669 (limit 0.1)",
+   "FAIL  intervention:TIM conductivity /2      0.295 (limit 0.1)",
+   "FAIL  intervention:cooling x2                1.21 (limit 0.1)",
+   "FAIL  boundary:source_flux                 0.0522 (limit 0.05)",
+   "FAIL  scaling                               0.452 (limit 0.01)"
+  ],
+  "out_of_scope": [
+   "intervention:contact resistance added",
+   "sufficiency"
+  ],
+  "findings": [
+   {
+    "check": "intervention:power x2",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  intervention:power x2                 0.905 (limit 0.1)"
+   },
+   {
+    "check": "intervention:source moved",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  intervention:source moved           0.00221 (limit 0.1)"
+   },
+   {
+    "check": "intervention:source outside the box",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:source outside the box      0.494 (limit 0.1)"
+   },
+   {
+    "check": "intervention:TIM conductivity x2",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:TIM conductivity x2      0.669 (limit 0.1)"
+   },
+   {
+    "check": "intervention:TIM conductivity /2",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:TIM conductivity /2      0.295 (limit 0.1)"
+   },
+   {
+    "check": "intervention:cooling x2",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:cooling x2                1.21 (limit 0.1)"
+   },
+   {
+    "check": "intervention:contact resistance added",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:contact resistance added          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "residual",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  residual                             0.0482 (limit 0.05)"
+   },
+   {
+    "check": "interface_flux",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  interface_flux                       0.0157 (limit 0.05)"
+   },
+   {
+    "check": "boundary:source_flux",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  boundary:source_flux                 0.0522 (limit 0.05)"
+   },
+   {
+    "check": "boundary:robin_top",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  boundary:robin_top                  0.00438 (limit 0.05)"
+   },
+   {
+    "check": "boundary:adiabatic_sides",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  boundary:adiabatic_sides            0.00384 (limit 0.05)"
+   },
+   {
+    "check": "boundary:side_gradient",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  boundary:side_gradient             7.12e-12 (limit 0.05)"
+   },
+   {
+    "check": "energy_balance",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  energy_balance                     1.27e-06 (limit 0.01)"
+   },
+   {
+    "check": "neighbour_consistency",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  neighbour_consistency              1.49e-05 (limit 0.01)"
+   },
+   {
+    "check": "symmetry",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  symmetry                           0.000167 (limit 0.01)"
+   },
+   {
+    "check": "scaling",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  scaling                               0.452 (limit 0.01)"
+   },
+   {
+    "check": "sufficiency",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  sufficiency                           0.333 (limit 0) [out of scope]"
+   }
+  ],
+  "verify_s": 0.23249149322509766,
+  "train_s": 4.109104633331299,
+  "info": {
+   "correlated": true
+  },
+  "heldout_rel_l2": 9.491715214246315e-05,
+  "physics_loss": 0.00021761188845426346
+ },
+ {
+  "model": "POD-GPR surrogate, independent training data",
+  "inputs": [
+   "P",
+   "x_s",
+   "k_tim",
+   "h"
+  ],
+  "detected": true,
+  "decision": "REJECT",
+  "failed": [
+   "FAIL  intervention:source outside the box      0.614 (limit 0.1)",
+   "FAIL  intervention:TIM conductivity x2      0.157 (limit 0.1)",
+   "FAIL  intervention:TIM conductivity /2      0.108 (limit 0.1)",
+   "FAIL  residual                               0.13 (limit 0.05)",
+   "FAIL  boundary:source_flux                  0.178 (limit 0.05)",
+   "FAIL  boundary:robin_top                   0.0504 (limit 0.05)",
+   "FAIL  boundary:adiabatic_sides             0.0504 (limit 0.05)",
+   "FAIL  scaling                              0.0381 (limit 0.01)"
+  ],
+  "out_of_scope": [
+   "intervention:contact resistance added",
+   "sufficiency"
+  ],
+  "findings": [
+   {
+    "check": "intervention:power x2",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  intervention:power x2                 0.078 (limit 0.1)"
+   },
+   {
+    "check": "intervention:source moved",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  intervention:source moved              0.06 (limit 0.1)"
+   },
+   {
+    "check": "intervention:source outside the box",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:source outside the box      0.614 (limit 0.1)"
+   },
+   {
+    "check": "intervention:TIM conductivity x2",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:TIM conductivity x2      0.157 (limit 0.1)"
+   },
+   {
+    "check": "intervention:TIM conductivity /2",
+    "passed": "False",
+    "provenance": "",
+    "line": "FAIL  intervention:TIM conductivity /2      0.108 (limit 0.1)"
+   },
+   {
+    "check": "intervention:cooling x2",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  intervention:cooling x2              0.0112 (limit 0.1)"
+   },
+   {
+    "check": "intervention:contact resistance added",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:contact resistance added          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "residual",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  residual                               0.13 (limit 0.05)"
+   },
+   {
+    "check": "interface_flux",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  interface_flux                        0.024 (limit 0.05)"
+   },
+   {
+    "check": "boundary:source_flux",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  boundary:source_flux                  0.178 (limit 0.05)"
+   },
+   {
+    "check": "boundary:robin_top",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  boundary:robin_top                   0.0504 (limit 0.05)"
+   },
+   {
+    "check": "boundary:adiabatic_sides",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  boundary:adiabatic_sides             0.0504 (limit 0.05)"
+   },
+   {
+    "check": "boundary:side_gradient",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  boundary:side_gradient             7.12e-12 (limit 0.05)"
+   },
+   {
+    "check": "energy_balance",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  energy_balance                      0.00199 (limit 0.01)"
+   },
+   {
+    "check": "neighbour_consistency",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  neighbour_consistency              1.42e-05 (limit 0.01)"
+   },
+   {
+    "check": "symmetry",
+    "passed": true,
+    "provenance": "",
+    "line": "PASS  symmetry                            0.00116 (limit 0.01)"
+   },
+   {
+    "check": "scaling",
+    "passed": false,
+    "provenance": "",
+    "line": "FAIL  scaling                              0.0381 (limit 0.01)"
+   },
+   {
+    "check": "sufficiency",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  sufficiency                           0.333 (limit 0) [out of scope]"
+   }
+  ],
+  "verify_s": 0.04714560508728027,
+  "train_s": 3.714139699935913,
+  "info": {
+   "correlated": false
+  },
+  "heldout_rel_l2": 0.0059935650639470804,
+  "physics_loss": 0.0015537760465139155
+ }
+]

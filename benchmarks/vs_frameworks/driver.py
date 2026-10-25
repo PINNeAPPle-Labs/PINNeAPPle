@@ -7,6 +7,7 @@ one neutral evaluator.
     python -m benchmarks.vs_frameworks.driver run --track B --epochs 30 --seeds 0 1 2
     python -m benchmarks.vs_frameworks.driver run --track C --iters 10000 --seeds 0 1 2 3 4
     python -m benchmarks.vs_frameworks.driver collect                   # results/*.json from the exports
+    python -m benchmarks.vs_frameworks.driver collect --work W --merge  # add W's runs, keep the recorded ones
     python -m benchmarks.vs_frameworks.driver timing --work W           # results/timing.json (quiet-machine runs)
 
 Runs are resumable (a run whose result exists with status "ok" or "failed" is not repeated; ``--rerun`` repeats
@@ -38,6 +39,9 @@ RUNNERS = {
     ("C", "pinneapple"): "track_c_pinneapple", ("C", "deepxde"): "track_c_deepxde",
     ("C", "physicsnemo_sym"): "track_c_physicsnemo_sym",
     ("C", "pinneapple_nostop"): "track_c_pinneapple",
+    # InversePINN after the fixes of fix/benchmark-findings (early stopping on the unweighted loss, no silent residual
+    # fallback), its defaults; a separate row, the earlier rows are kept
+    ("C", "pinneapple_fixed"): "track_c_pinneapple",
 }
 DEFAULT_PROBLEMS = {"A1": ["burgers", "poisson", "helmholtz"], "A2": ["burgers", "poisson", "helmholtz", "allen_cahn"],
                     "B": ["darcy"], "C": ["burgers_inverse"]}
@@ -76,6 +80,8 @@ def job_cmd(args, track, problem, fw, seed):
         cmd += ["--mode", "c", "--iters", str(args.iters)]
         if fw == "pinneapple_nostop":                  # equal budget: InversePINN early stopping off
             cmd += ["--patience", str(args.iters + 1)]
+        if fw == "pinneapple_fixed":
+            cmd += ["--framework", fw]
     return cmd
 
 
@@ -187,6 +193,11 @@ def cmd_collect(args) -> None:
         _ = np
     RESULTS.mkdir(parents=True, exist_ok=True)
     for track, rows in out.items():
+        if args.merge and (RESULTS / f"{track}.json").exists():
+            # keep the recorded rows of runs this work dir does not have (earlier runs, other machines)
+            new_ids = {r["run_id"] for r in rows}
+            kept = [r for r in json.loads((RESULTS / f"{track}.json").read_text()) if r.get("run_id") not in new_ids]
+            rows = sorted(kept + rows, key=lambda r: r["run_id"])
         (RESULTS / f"{track}.json").write_text(json.dumps(rows, indent=1, default=float))
         print(f"{track}: {len(rows)} runs -> {RESULTS / (track + '.json')}")
 
@@ -223,6 +234,9 @@ def main(argv=None):
             p.add_argument("--device", default="cpu")
             p.add_argument("--timeout", type=float, default=3 * 3600)
             p.add_argument("--rerun", action="store_true")
+        if name == "collect":
+            p.add_argument("--merge", action="store_true",
+                           help="add these runs to results/<track>.json instead of replacing it")
     args = ap.parse_args(argv)
     {"env": cmd_env, "run": cmd_run, "collect": cmd_collect, "timing": cmd_timing}[args.cmd](args)
 

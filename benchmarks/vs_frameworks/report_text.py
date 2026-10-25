@@ -132,18 +132,43 @@ first A2 results; they are not Sym's official recipe.
 |---|---|---|---|---|
 | PINNeAPPle `InversePINN`, its defaults (**unequal budget**: stopped by its own early stopping) | 0.0428 [0.0381, 0.0466] | 12.5 [11.0, 13.6] | 0.374 [0.362, 0.414] | 540 [492, 564] |
 | PINNeAPPle `InversePINN`, early stopping off (`patience` > iterations), **equal budget** | 0.0437 [0.0342, 0.0448] | 12.7 [9.75, 13.1] | 0.379 [0.370, 0.399] | 3000 |
+| PINNeAPPle `InversePINN` **after the fixes** of `fix/benchmark-findings`, its defaults (rerun, new row) | 0.0428 [0.0383, 0.0467] | 12.5 [11.0, 13.7] | 0.384 [0.365, 0.417] | 544 [531, 601] |
 | DeepXDE (`dde.Variable`) | 0.0101 [0.00924, 0.0119] | 2.16 [1.90, 2.74] | 0.0786 [0.0679, 0.0938] | 3000 |
 | PhysicsNeMo-Sym (invert network, mean over the data points) | -0.00102 [-0.00266, 0.00243] | 1.32 [0.237, 1.83] | 0.0199 [0.0191, 0.0416] | 3000 |
 
-* **Why PINNeAPPle stopped early.** `InversePINN` has built-in early stopping (`patience=300`) on its total loss. That
-  total is re-weighted every step by its EMA loss balancing, on fresh random collocation points. The stopping rule
-  therefore compares losses taken under different weights. After the first fast drop it sees no "improvement" for
-  300 steps and stops, at 492-564 of 3000 iterations. It is not a crash and not a convergence test.
+* **Why PINNeAPPle stopped early (first two rows).** `InversePINN` had built-in early stopping (`patience=300`) on
+  its total loss. That total is re-weighted every step by its EMA loss balancing, on fresh random collocation points.
+  The stopping rule therefore compared losses taken under different weights. After the first fast drop it saw no
+  "improvement" for 300 steps and stopped, at 492-564 of 3000 iterations. It is not a crash and not a convergence
+  test.
 * **Early stopping is not what causes the error.** With early stopping off and the full 3000 iterations, the result
   is unchanged: the paired ratio of ν error (equal budget over default) is 0.95 [0.89, 1.09]. ν stays near 0.04,
-  12x too large, and the field error near 0.38. In this budget the `InversePINN` recipe (10000 fresh points per step,
-  EMA balancing, ν in log space with lr 1e-2) does not fit the data well enough to pin ν. The cause beyond early
-  stopping was not isolated.
+  12x too large, and the field error near 0.38.
+* **Rerun after the fixes (third row).** Early stopping now watches the unweighted `L_pde + L_data`, and a failing
+  residual raises instead of training a data-only model (bugs 3 below). Same harness, protocol, observations, network
+  and initial weights; run on the same machine, 3 runs at a time. The ν error is unchanged, 12.5 [11.0, 13.7] (paired
+  ratio to the first row 1.00 [1.00, 1.01]), and the run still stops early, at 531-601 iterations. This time the stop
+  is sound: the unweighted loss really stops improving, because the data misfit **rises** after about iteration 100
+  (seed 0: 0.038 at iteration 110, 0.049 at 264) while the PDE loss keeps falling.
+* **The cause is the adaptive PDE / data weighting** (diagnostic runs below, `results/C_diagnostics.json`, outside
+  the protocol rows; one knob changed at a time, early stopping off, 3000 iterations). `InversePINN` sets the PDE
+  weight to `100 * clamp(ema_data / ema_pde, 0.01, 100)` against a data weight of 100. As the PDE loss falls its
+  weight grows (towards 1e4), so the optimiser trades data fit for a smaller residual, which a large, smoothing ν
+  provides.
+
+  | `InversePINN` variant (early stopping off, 3000 iterations) | seeds | ν estimate | ν relative error | field rel. L2 |
+  |---|---|---|---|---|
+  | equal fixed PDE and data weights (adaptive weighting off) | 0-4 | 0.0140 [0.0127, 0.0156] | 3.41 [2.99, 3.90] | 0.112 [0.103, 0.133] |
+  | ν linear instead of log space | 0 | 0.0477 | 14.0 | 0.407 |
+  | lr_params 1e-3 instead of 1e-2 | 0 | 0.0499 | 14.7 | 0.380 |
+  | all three (DeepXDE's choices except the fresh points) | 0-1 | 0.0149 [0.0148, 0.0149] | 3.67 [3.65, 3.68] | 0.132 [0.121, 0.142] |
+
+  * Turning the adaptive weighting off cuts the ν error from 12.7 to 3.4 and the field error from 0.38 to 0.11, on
+    every seed. With it off, the final data loss is about 0.004 instead of 0.05.
+  * The ν parametrisation and the parameter learning rate change nothing on their own.
+  * With equal weights `InversePINN` is close to DeepXDE (2.16 [1.90, 2.74], field 0.079) but still behind; the
+    remaining difference (fresh vs fixed collocation points, gradient clipping, the parameter-gradient clamp) was not
+    isolated. The weighting was not changed in the library: this is a diagnosis, not a tuned PINNeAPPle result.
 * **No framework identifies ν well in 3000 iterations.**
   * DeepXDE's estimate is positive and still approaching the true value (0.0101, 3x too large).
   * PhysicsNeMo-Sym fits the field best (rel. L2 0.020), but its ν is the mean of a learned field ν(x, t). That mean
@@ -177,8 +202,8 @@ first A2 results; they are not Sym's official recipe.
     residual is 16x DeepXDE's despite the lower error.
   * FNO (B): the lowest early-training error and the cheapest per epoch (13.9 s vs 27.3 and 44.4).
   * Inverse problem (C): clearly worse. `InversePINN` misses ν by 12x, against 3x for DeepXDE, and its field error is
-    4.8x DeepXDE's and 19x Sym's. Its early stopping cuts the budget to about 540 of 3000 iterations, although that
-    does not change the outcome.
+    4.8x DeepXDE's and 19x Sym's. Fixing its early stopping does not change that; its adaptive loss weighting is the
+    measured cause.
 * **DeepXDE.**
   * Recipes: the best or level result on Burgers and Allen-Cahn, the most plausible ν, and the lowest residuals on
     Poisson and Helmholtz.
@@ -232,6 +257,12 @@ first A2 results; they are not Sym's official recipe.
     * On Burgers the stencil (h = 1e-3) does not resolve the front: the exact solution itself has an FD residual RMS
       of 0.027. Burgers residuals below about 0.03 carry no information.
     * The Allen-Cahn reference has a max-abs uncertainty of 1.7e-4 (2048 vs 4096 modes).
+11. **Added after the benchmark, in `fix/benchmark-findings`:**
+    * C: a rerun of PINNeAPPle with the fixed `InversePINN` (row "after the fixes"), its defaults, 5 seeds, 3000
+      iterations, the same runner and harness, 3 runs at a time on the same 4-core machine. The earlier rows are
+      kept unchanged.
+    * C diagnostics (`diag_c_inversepinn.py`, `results/C_diagnostics.json`): single-knob variants of the PINNeAPPle
+      recipe to find the cause of its ν error. They are not tuning and not reported as PINNeAPPle results.
 
 ## Installation and run failures (results in themselves)
 
@@ -257,7 +288,9 @@ first A2 results; they are not Sym's official recipe.
 ## Existing repository claims the data contradicts or does not support
 
 The first three claims are from the feature table in `examples/vs_physicsnemo/README.md`. They were checked against
-the installed packages and measured where a track applies. The README was not rewritten.
+the installed packages and measured where a track applies. The README was not rewritten in the benchmark branch; it
+was corrected afterwards in `fix/benchmark-findings` (the rows below, the operator row, a section on what the
+benchmark measured and one on the state of the PhysicsNeMo integration, with a link to this report).
 
 * **"Arquiteturas PINN: 8 variantes | FullyConnected (via Sym)".** PhysicsNeMo-Sym 2.4.0 also ships Fourier-feature,
   modified-Fourier, multiscale-Fourier, highway-Fourier, SiReN, DGM, multiplicative-filter, hash-encoding,
@@ -277,8 +310,8 @@ the installed packages and measured where a track applies. The README was not re
   * lower errors on Poisson and Helmholtz with its defaults, level on Burgers, worse on Allen-Cahn (A2);
   * clearly worse results on the inverse problem (C).
 * **README.md: "It bridges to DeepXDE and PhysicsNeMo".**
-  * `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym` does not import with PhysicsNeMo-Sym 2.4.0 (bug 5
-    below).
+  * `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym` did not import with PhysicsNeMo-Sym 2.4.0 (bug 5
+    below; fixed since, checked only by a 3-step smoke test).
   * The DeepXDE backend only fits sensor data, with no PDE.
   * `pinneapple_physics.deepxde_bridge` was not tested here.
 
@@ -293,20 +326,27 @@ the installed packages and measured where a track applies. The README was not re
    it, PINNeAPPle could not be trained on the same points as the other libraries.
    * Test: `test_solve_pde_fixed_collocation_points` (it checks the first loss against a hand-written mean squared
      residual).
-3. **Not fixed: `InversePINN`.**
-   * Its early stopping compares totals taken under changing loss weights on fresh random points, so it stops after
-     about 500 iterations whatever the budget (track C).
-   * Exceptions from `residual_fn` are caught and logged, and training continues with a zero PDE loss. A broken
-     residual therefore trains a data-only model silently.
-4. **Not fixed: silently dropped options.**
-   * `ModelRegistry.build("vanilla_pinn" or "bench_mlp", hidden_dim=..., n_layers=...)` drops both arguments (these
-     classes take `hidden=`). So `pp.solve(problem, "pinn", architecture="vanilla_pinn", hidden_dim=16, n_layers=2)`
-     trains a 4 x 128 network.
-   * `pp.solve`'s `_pinn(**_)` swallows every unknown option without a warning.
-5. **Not fixed: `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym`.**
-   * It imports `ModulusConfig` from `physicsnemo.sym.hydra`, which does not exist in PhysicsNeMo-Sym 2.4.0.
-   * It then reports "physicsnemo.sym is not available" even when the package is installed.
-   * It never returns a predictor, so its runs cannot be evaluated.
+3. **`InversePINN`, fixed in `fix/benchmark-findings`** (tests in `tests/pinneapple_neural/test_inverse_pinn_trainer.py`).
+   * Its early stopping compared totals taken under changing loss weights on fresh random points, so it stopped
+     after about 500 iterations whatever the budget (track C). It now watches the unweighted `L_pde + L_data`
+     (`patience=None` turns it off).
+   * Exceptions from `residual_fn` were caught and logged, and training continued with a zero PDE loss, so a broken
+     residual trained a data-only model silently. They now propagate.
+   * **Not fixed: its adaptive PDE / data weighting**, the measured cause of the track C error (above). Changing it
+     is a design decision, left open.
+4. **Silently dropped options, fixed in `fix/benchmark-findings`** (tests in
+   `tests/pinneapple_neural/test_registry_size_kwargs.py`, `tests/test_solve_unknown_options.py`).
+   * `ModelRegistry.build("vanilla_pinn" or "bench_mlp", hidden_dim=..., n_layers=...)` dropped both arguments (these
+     classes take `hidden=` or `width=` / `depth=`), so `pp.solve(problem, "pinn", architecture="vanilla_pinn",
+     hidden_dim=16, n_layers=2)` trained a 4 x 128 network. They are now translated to the class's own arguments.
+   * `pp.solve`'s `_pinn(**_)` swallowed every unknown option. It now raises `TypeError`, and warns when an explicit
+     size cannot be applied to the architecture; the other built-in methods warn on options they ignore.
+5. **`pinneapple_tools.benchmark_suite.backends.physicsnemo_sym`, fixed in `fix/benchmark-findings`** (test
+   `tests/pinneapple_tools/test_physicsnemo_sym_backend.py`).
+   * It imported `ModulusConfig` from `physicsnemo.sym.hydra`, which does not exist in PhysicsNeMo-Sym 2.4.0, then
+     reported "physicsnemo.sym is not available" with the package installed, and never returned a predictor.
+   * It now uses the 2.4.0 API, returns `model` and `predict_fn`, and a missing package raises `ImportError` naming
+     it. Only a 3-step CPU smoke test checks it; its accuracy was not measured.
 6. **Defaults noted, not changed.**
    * The `burgers_1d` preset defaults to `nu=0.01`; the benchmark value is 0.01/π.
    * Preset condition weight 10 times `LossWeights(w_bc=10, w_ic=10)` gives an effective boundary and initial weight
@@ -323,6 +363,9 @@ the installed packages and measured where a track applies. The README was not re
   values, point sets, shared weights, the two `solve_pde` changes, and A1 / C runner smoke tests for every framework.
 * Behind `PINNEAPPLE_SLOW=1`: the Allen-Cahn resolution study, A2 and B runner smoke tests.
 * Results: 23 passed, 7 skipped by default; 30 passed with `PINNEAPPLE_SLOW=1`.
+* `fix/benchmark-findings` adds `tests/pinneapple_neural/test_inverse_pinn_trainer.py`,
+  `tests/pinneapple_neural/test_registry_size_kwargs.py`, `tests/test_solve_unknown_options.py` and
+  `tests/pinneapple_tools/test_physicsnemo_sym_backend.py` (bugs 3-5).
 * Regression check of the `solve_pde` change: `test_public_api`, `test_manufactured_solutions`, `test_compile_api`,
   `test_compare_precomputed_solution`, `test_cartesian_breadth`, `test_solve_compare_experiment`, `test_agents_md` and
   `test_app_helpers` gave 125 passed, 21 skipped, 0 failed.
@@ -337,6 +380,13 @@ python -m benchmarks.vs_frameworks.driver run --track A2 --cap-s 240 --seeds 0 1
 python -m benchmarks.vs_frameworks.driver run --track B --epochs 12 --seeds 0 1 2
 python -m benchmarks.vs_frameworks.driver run --track C --iters 3000 --seeds 0 1 2 3 4 \
     --frameworks pinneapple pinneapple_nostop deepxde physicsnemo_sym
+# rerun of C after the fixes of fix/benchmark-findings, in its own work dir, merged into results/C.json
+python -m benchmarks.vs_frameworks.driver run --work _work_c_fixed --track C --iters 3000 --seeds 0 1 2 3 4 \
+    --frameworks pinneapple_fixed --jobs 3
+python -m benchmarks.vs_frameworks.driver collect --work _work_c_fixed --merge
+# C diagnostics (outside the protocol rows) -> results/C_diagnostics.json
+python -m benchmarks.vs_frameworks.diag_c_inversepinn run equalw 0 _diag/equalw_s0.json      # ... per variant, seed
+python -m benchmarks.vs_frameworks.diag_c_inversepinn collect _diag
 python -m benchmarks.vs_frameworks.driver run --work _timing --track A1 --iters 200 --seeds 0
 python -m benchmarks.vs_frameworks.driver timing --work _timing
 python -m benchmarks.vs_frameworks.driver collect

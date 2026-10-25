@@ -100,6 +100,7 @@ median [min, max] over seeds
 |---|---|---|---|---|---|---|
 | PINNeAPPle | 5 | 0.0428 [0.0381, 0.0466] | 12.5 [11, 13.6] | 0.374 [0.362, 0.414] | 540 [492, 564] | 48.2 [45.9, 51.4] |
 | PINNeAPPle, early stopping off (patience = iterations) | 5 | 0.0437 [0.0342, 0.0448] | 12.7 [9.75, 13.1] | 0.379 [0.37, 0.399] | 3e+03 [3e+03, 3e+03] | 230 [222, 236] |
+| PINNeAPPle after the fixes (fix/benchmark-findings), its defaults | 5 | 0.0428 [0.0383, 0.0467] | 12.5 [11, 13.7] | 0.384 [0.365, 0.417] | 544 [531, 601] | 45.2 [42.1, 47.7] |
 | DeepXDE | 5 | 0.0101 [9.24e-03, 0.0119] | 2.16 [1.9, 2.74] | 0.0786 [0.0679, 0.0938] | 3e+03 [3e+03, 3e+03] | 392 [382, 424] |
 | PhysicsNeMo-Sym | 5 | -1.02e-03 [-2.66e-03, 2.43e-03] | 1.32 [0.237, 1.83] | 0.0199 [0.0191, 0.0416] | 3e+03 [3e+03, 3e+03] | 389 [369, 397] |
 
@@ -108,8 +109,20 @@ Paired per-seed ratio of nu_rel_err to PINNeAPPle (median [min, max]; 'lower' = 
 | problem | framework | n | ratio | lower |
 |---|---|---|---|---|
 | burgers_inverse | PINNeAPPle, early stopping off (patience = iterations) | 5 | 0.945 [0.889, 1.09] | 3/5 |
+| burgers_inverse | PINNeAPPle after the fixes (fix/benchmark-findings), its defaults | 5 | 1 [1, 1.01] | 0/5 |
 | burgers_inverse | DeepXDE | 5 | 0.17 [0.153, 0.235] | 5/5 |
 | burgers_inverse | PhysicsNeMo-Sym | 5 | 0.106 [0.0174, 0.146] | 5/5 |
+
+### Track C diagnostics (InversePINN, one knob changed, early stopping off; not protocol rows)
+
+median [min, max] over the seeds run
+
+| variant | seeds | nu estimate | nu relative error | field rel. L2 | final data loss | final PDE loss |
+|---|---|---|---|---|---|---|
+| equalw | 0, 1, 2, 3, 4 | 0.014 [0.0127, 0.0156] | 3.41 [2.99, 3.9] | 0.112 [0.103, 0.133] | 4.09e-03 [3.57e-03, 6.14e-03] | 2.44e-03 [2.00e-03, 4.44e-03] |
+| linear | 0 | 0.0477 [0.0477, 0.0477] | 14 [14, 14] | 0.407 [0.407, 0.407] | 0.061 [0.061, 0.061] | 1.81e-04 [1.81e-04, 1.81e-04] |
+| lrp3 | 0 | 0.0499 [0.0499, 0.0499] | 14.7 [14.7, 14.7] | 0.38 [0.38, 0.38] | 0.0518 [0.0518, 0.0518] | 1.71e-04 [1.71e-04, 1.71e-04] |
+| equalw_linear_lrp3 | 0, 1 | 0.0149 [0.0148, 0.0149] | 3.67 [3.65, 3.68] | 0.132 [0.121, 0.142] | 5.95e-03 [4.91e-03, 6.99e-03] | 3.48e-03 [3.12e-03, 3.84e-03] |
 
 ### Track D (measured ergonomics)
 

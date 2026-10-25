@@ -17,15 +17,16 @@ HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
 FIGS = HERE / "figures"
 #: the first three slots of the validated categorical palette (all-pairs safe), fixed per framework family
-COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
+COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "pinneapple_fixed": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
           "physicsnemo_sym": "#1baf7a", "physicsnemo_sym_matched": "#1baf7a", "physicsnemo_sym_netmatched": "#1baf7a", "physicsnemo": "#1baf7a"}
-LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early stopping off (patience = iterations)", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
+LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early stopping off (patience = iterations)",
+         "pinneapple_fixed": "PINNeAPPle after the fixes (fix/benchmark-findings), its defaults", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
          "physicsnemo_sym_matched": "Sym recipe, points per step matched to pp.solve",
          "physicsnemo_sym_netmatched": "Sym recipe, network matched to PINNeAPPle A2",
          "physicsnemo": "PhysicsNeMo", "neuraloperator": "neuraloperator"}
-ORDER = ["pinneapple", "pinneapple_nostop", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo_sym_netmatched", "physicsnemo", "neuraloperator"]
+ORDER = ["pinneapple", "pinneapple_nostop", "pinneapple_fixed", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo_sym_netmatched", "physicsnemo", "neuraloperator"]
 #: short tick labels for the figures
-SHORT = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle\nno stop", "deepxde": "DeepXDE",
+SHORT = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle\nno stop", "pinneapple_fixed": "PINNeAPPle\nfixed", "deepxde": "DeepXDE",
          "physicsnemo_sym": "Sym", "physicsnemo_sym_matched": "Sym\npts-matched",
          "physicsnemo_sym_netmatched": "Sym\nnet-matched", "physicsnemo": "PhysicsNeMo",
          "neuraloperator": "neuralop"}
@@ -157,6 +158,25 @@ def table_c(rows):
     return lines + table_paired("C", rows, "nu_rel_err")
 
 
+def table_c_diagnostics():
+    """InversePINN diagnostic runs of ``diag_c_inversepinn.py`` (outside the protocol rows)."""
+    p = RESULTS / "C_diagnostics.json"
+    if not p.exists():
+        return []
+    rows = json.loads(p.read_text())
+    lines = ["### Track C diagnostics (InversePINN, one knob changed, early stopping off; not protocol rows)", "",
+             "median [min, max] over the seeds run", "",
+             "| variant | seeds | nu estimate | nu relative error | field rel. L2 | final data loss | final PDE loss |",
+             "|---|---|---|---|---|---|---|"]
+    for v in ("equalw", "linear", "lrp3", "equalw_linear_lrp3"):
+        rs = sorted((r for r in rows if r["variant"] == v), key=lambda r: r["seed"])
+        if rs:
+            lines.append(f"| {v} | {', '.join(str(r['seed']) for r in rs)} | {cell([r['nu_hat'] for r in rs])} | "
+                         f"{cell([r['nu_rel_err'] for r in rs])} | {cell([r['rel_l2'] for r in rs])} | "
+                         f"{cell([r['final_data_loss'] for r in rs])} | {cell([r['final_pde_loss'] for r in rs])} |")
+    return lines
+
+
 def table_timing():
     p = RESULTS / "timing.json"
     if not p.exists():
@@ -247,7 +267,7 @@ def main():
         lines += table_b(rows) + [""]
     rows = load("C")
     if rows:
-        lines += table_c(rows) + [""]
+        lines += table_c(rows) + [""] + table_c_diagnostics() + [""]
     lines += table_d()
     (RESULTS / "TABLES.md").write_text("\n".join(lines) + "\n")
     from benchmarks.vs_frameworks.report_text import NARRATIVE

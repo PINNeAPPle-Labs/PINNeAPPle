@@ -24,6 +24,7 @@ __all__ = ["setup_threads", "loadavg", "cpu_model", "package_versions", "environ
 #: distribution names of each framework (the versions go into every result)
 FRAMEWORK_PACKAGES = {
     "pinneapple": ["pinneapple"],
+    "pinneapple_fixed": ["pinneapple"],
     "deepxde": ["deepxde"],
     "physicsnemo_sym": ["nvidia-physicsnemo.sym", "nvidia-physicsnemo"],
     "physicsnemo": ["nvidia-physicsnemo"],

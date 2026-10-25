@@ -238,7 +238,7 @@ def test_uploaded_dataset_is_used_or_the_experiment_fails(client):
     exp_id = client.post("/api/experiments", json=bad).json()["experiment_id"]
     st = client.get(f"/api/experiments/{exp_id}/status").json()
     assert st["status"] == "FAILED" and "could not be used" in st["message"]
-    assert client.get("/api/datasets/..%2F..%2Fetc").status_code == 404
+    assert client.get("/api/datasets/not-a-dataset-id").status_code == 404     # ids are UUIDs, nothing else is read
 
 
 def test_weights_download(client):

@@ -58,6 +58,8 @@ REASONS: dict[str, str] = {
     "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
+    "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
+                                         "examples/paper_reproductions runners, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

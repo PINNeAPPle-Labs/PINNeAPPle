@@ -29,6 +29,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - `pinneapple_analysis.reproduction`: one neutral evaluator for the errors papers report (`rel_l2` = rRMSE, `rmae`,
   `max_abs`, `mean_abs`, `mse`, `rmse`), seed statistics that keep diverged seeds (`seed_stats`) and the status rule
   of the paper-reproduction protocol (`status`), for `examples/paper_reproductions`.
+- `pinneapple_physics.paper_problems`: the PINNsFormer convection / 1-D reaction / 1-D wave cases with the
+  official code's grids and pseudo-sequences (AdityaLab/pinnsformer@00d790f5) and analytic references, checked
+  against their equations in `tests/test_paper_problems.py`. The official convection reference `convection.mat`
+  is not exact (relative L2 0.016 against sin(x - 50 t), error growing with t); the analytic one is used.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

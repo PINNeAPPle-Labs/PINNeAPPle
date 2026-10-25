@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>BrakeCool AI</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0b0d; --card:#14161c; --border:#232630; --text:#e8e9ec; --dim:#8b8f9a; --faint:#5b5f6b; --accent:#e8955b; --green:#3ecf8e; --green-dim:#123024; --amber:#e8b44a; --amber-dim:#332711; --red:#ef5b5b; --red-dim:#3a1717; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13.5px; margin-bottom: 20px; line-height: 1.5; max-width: 800px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--dim); margin: 0 0 14px; font-weight: 650; }
+  label { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 4px; }
+  .slider-row { margin-bottom: 16px; }
+  .slider-row .value { color: var(--accent); font-weight: 650; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  input[type=number], select { background: #0e1015; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 7px; font-size: 13.5px; width: 100%; }
+  button { background: var(--accent); color: #1a0d02; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 650; width: 100%; }
+  button:disabled { opacity: 0.5; }
+  #viewer { width: 100%; height: 420px; border-radius: 12px; border: 1px solid var(--border); background: #050608; position: relative; overflow: hidden; }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--faint); font-size: 11px; }
+  #viewer .loading { position: absolute; top: 10px; left: 12px; color: var(--amber); font-size: 11px; display: none; }
+  .colorbar { position: absolute; top: 12px; right: 14px; width: 150px; display: none; }
+  .colorbar-grad { height: 10px; border-radius: 5px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--dim); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .colorbar-title { font-size: 10px; color: var(--faint); text-align: right; margin-top: 1px; }
+  .flow-caption { font-size: 12px; color: var(--dim); line-height: 1.55; margin: 8px 2px 14px; }
+  .flow-caption b { color: var(--text); }
+  .live-readout { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .readout-item .num { font-size: 26px; font-weight: 700; }
+  .readout-item .lbl { color: var(--dim); font-size: 11.5px; }
+  .readout-item .num.hot { color: var(--red); } .readout-item .num.cool { color: var(--green); } .readout-item .num.warn { color: var(--amber); }
+  .verdict-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+  .v-PASS { background: var(--green-dim); color: var(--green); }
+  .v-WARNING { background: var(--amber-dim); color: var(--amber); }
+  .v-FAIL { background: var(--red-dim); color: var(--red); }
+  .check-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .detail { color: var(--dim); flex: 1; }
+  .trust-score { font-size: 34px; font-weight: 750; }
+  .footer-note { color: var(--faint); font-size: 11px; margin-top: 20px; line-height: 1.6; }
+  .badge { display:inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background:#1e2129; color: var(--dim); margin-left: 6px; }
+  .unc-stats { display: flex; gap: 18px; margin: 14px 0; flex-wrap: wrap; }
+  .unc-stats .num { font-size: 24px; font-weight: 700; }
+  .unc-stats .lbl { color: var(--dim); font-size: 11.5px; }
+  .unc-bar-track { position: relative; height: 22px; border-radius: 6px; margin: 18px 0 30px; background: linear-gradient(to right, var(--green-dim), var(--green-dim) 70%, var(--amber-dim) 88%, var(--red-dim) 100%); border: 1px solid var(--border); }
+  .unc-bar-range { position: absolute; top: 3px; bottom: 3px; background: rgba(232,149,91,0.55); border-radius: 4px; }
+  .unc-mark { position: absolute; top: -4px; bottom: -4px; width: 2px; }
+  .unc-mark .tag { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); font-size: 10.5px; white-space: nowrap; }
+  .unc-mark.mean { background: var(--text); }
+  .unc-mark.p95 { background: var(--amber); }
+  .unc-mark.threshold { background: var(--red); }
+  .unc-mark.mean .tag { color: var(--text); }
+  .unc-mark.p95 .tag { color: var(--amber); }
+  .unc-mark.threshold .tag { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🏎️ BrakeCool AI</h1>
+  <div class="sub">Triangle mesh of a vented brake rotor, updated live as you drag the sliders below (fetches the analytical temperature from the server too — no client-side physics duplication). Scenario: sustained braking (e.g. a mountain descent), not a single hard stop. Click "Optimize with AI" to run the trained surrogate + gradient-based inverse design, then independently re-verify the result against the solver.</div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Operating conditions</h2>
+        <div class="slider-row">
+          <label>Sustained braking power (W)</label>
+          <input type="number" id="power" value="800" min="1" max="2000" />
+        </div>
+        <div class="slider-row">
+          <label>Cooling condition</label>
+          <select id="profile">
+            <option value="city">City (low speed)</option>
+            <option value="highway" selected>Highway</option>
+            <option value="mountain_descent">Mountain descent</option>
+          </select>
+        </div>
+        <button id="btn-optimize">Optimize with AI</button>
+      </div>
+
+      <div class="card">
+        <h2>Vane geometry <span class="badge">manual explore</span></h2>
+        <div class="slider-row">
+          <label>Vane count: <span class="value" id="v-count">36</span></label>
+          <input type="range" id="s-count" min="16" max="80" step="1" value="36" />
+        </div>
+        <div class="slider-row">
+          <label>Vane gap (mm): <span class="value" id="v-gap">8.0</span></label>
+          <input type="range" id="s-gap" min="3" max="16" step="0.5" value="8" />
+        </div>
+        <div class="slider-row">
+          <label>Vane thickness (mm): <span class="value" id="v-thickness">4.00</span></label>
+          <input type="range" id="s-thickness" min="1.5" max="6" step="0.1" value="4.0" />
+        </div>
+        <div class="live-readout">
+          <div class="readout-item"><div class="num" id="live-temp">--</div><div class="lbl">rotor temp (formula)</div></div>
+        </div>
+        <div class="footer-note" id="constraint-note"></div>
+      </div>
+
+      <div class="card">
+        <h2>Uncertainty under manufacturing tolerance <span class="badge">Monte Carlo</span></h2>
+        <div class="footer-note" style="margin-top:0;">This is BrakeCool's core objective: not just "what's the best design," but "how much does cast/machined manufacturing tolerance on vane thickness (&plusmn;0.05mm) and vent gap (&plusmn;0.1mm) move the temperature for the CURRENT design above?" Runs 200 closed-form physics evaluations (never the neural surrogate) with random tolerance noise.</div>
+        <button id="btn-uncertainty" style="margin-top:10px;">Run Monte Carlo (N=200)</button>
+        <div id="uncertainty-result"></div>
+      </div>
+    </div>
+
+    <div>
+      <div id="viewer">
+        <div class="loading" id="loading-note">regenerating mesh…</div>
+        <div class="hint">drag to rotate · scroll to zoom</div>
+        <div class="colorbar" id="colorbar">
+          <div class="colorbar-grad"></div>
+          <div class="colorbar-labels"><span id="cb-min">25°C</span><span id="cb-max">200°C</span></div>
+          <div class="colorbar-title">temp. field (radial vane profile)</div>
+        </div>
+      </div>
+      <div class="flow-caption">🔴 <b>Heat enters here</b> (both friction-ring faces, top and bottom — brake pads clamp the rotor from both sides on every stop) → conducts through the friction ring thickness → into the radial vanes → <b>exits via convection</b> across the vane surfaces (the red-to-blue gradient above is the 1-D fin profile along each vane — hottest at each vane's inner edge nearest the hub, coolest at its outer edge, where spinning-rotor airflow is strongest).</div>
+      <div id="result"></div>
+      <div class="footer-note" id="status-note"></div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+import { parseBinarySTL } from "/shared/stl.js";
+let scene, camera, renderer, controls, currentMesh;
+let lastDesign = { vane_count: 36, vane_gap_m: 0.008, vane_thickness_m: 0.004 };
+let lastThermalField = null;
+// Matches physics.MEAN_CIRCUMFERENCE_M / physics.RADIAL_FLOW_LENGTH_M --
+// needed to locate each STL vertex's radial distance from the
+// rotor's center axis (its physical position along the vane),
+// same convention the mesh builder (surrogate_inverse.meshes) builds the solid in.
+const MEAN_CIRCUMFERENCE_M = 0.754;
+const RADIAL_FLOW_LENGTH_M = 0.06;
+const R_MEAN_MM = MEAN_CIRCUMFERENCE_M * 1000 / (2 * Math.PI);
+const R_INNER_MM = R_MEAN_MM - RADIAL_FLOW_LENGTH_M * 1000 / 2;
+const R_OUTER_MM = R_MEAN_MM + RADIAL_FLOW_LENGTH_M * 1000 / 2;
+const physicsAmbientC = 25.0; // matches physics.T_AMBIENT_C, used as the uncertainty bar's lower bound
+
+// 4-stop thermal colormap (blue -> cyan -> yellow -> red), matching the colorbar gradient in the CSS above.
+function tempToColor(t, tmin, tmax) {
+  let f = (t - tmin) / Math.max(tmax - tmin, 1e-6);
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]],
+    [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]],
+    [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+
+// Colors each vertex of the CAD mesh by the analytical radial
+// vane-temperature profile (physics.vane_temperature_at_radial_position_c)
+// evaluated at that vertex's radial distance from the rotor's center
+// axis -- must run BEFORE geom.center() re-origins the vertex positions,
+// since it needs the true physical (x,y) in the plane the rings/vanes were
+// built in (radial distance = sqrt(x^2+y^2)), not a simple z-height like
+// heatsink's straight fins: BrakeCool's vanes are radial, so "position
+// along the vane" is a radial distance, computed per-vertex.
+function colorGeometryByTemperature(geom, field) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const colors = new Float32Array(n * 3);
+  const tMin = field.t_ambient_c;
+  const tMax = field.t_ambient_c + field.theta_vane_base_c;
+  const ml = field.m * field.lc_radial_m;
+  const span = R_OUTER_MM - R_INNER_MM;
+  for (let i = 0; i < n; i++) {
+    const xMm = pos.getX(i), yMm = pos.getY(i);
+    const rMm = Math.sqrt(xMm * xMm + yMm * yMm);
+    let rFrac = (rMm - R_INNER_MM) / Math.max(span, 1e-6);
+    rFrac = Math.min(Math.max(rFrac, 0), 1);
+    const xM = rFrac * RADIAL_FLOW_LENGTH_M;
+    let theta;
+    if (ml <= 1e-9) {
+      theta = field.theta_vane_base_c;
+    } else {
+      theta = field.theta_vane_base_c * Math.cosh(field.m * (field.lc_radial_m - xM)) / Math.cosh(ml);
+    }
+    const t = field.t_ambient_c + theta;
+    const [r, g, b] = tempToColor(t, tMin, tMax);
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-min").textContent = tMin.toFixed(0) + "°C";
+  document.getElementById("cb-max").textContent = tMax.toFixed(0) + "°C";
+  document.getElementById("colorbar").style.display = "block";
+}
+
+function initViewer() {
+  const el = document.getElementById("viewer");
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(220, 180, 220);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(150, 250, 150);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0xff9966, 0.4 * Math.PI);
+  dir2.position.set(-150, 80, -150);
+  scene.add(dir2);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+async function reloadMesh(design) {
+  document.getElementById("loading-note").style.display = "block";
+  const res = await fetch("/api/mesh.stl", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, power_w: 800, cooling_profile: "highway" }),
+  });
+  const buf = await res.arrayBuffer();
+  const geom = parseBinarySTL(buf);
+
+  let useVertexColors = false;
+  if (lastThermalField) {
+    colorGeometryByTemperature(geom, lastThermalField); // must run before center() -- see function docstring
+    useVertexColors = true;
+  }
+  geom.center();
+  geom.computeVertexNormals();
+  geom.computeBoundingBox();
+
+  if (currentMesh) scene.remove(currentMesh);
+  const material = new THREE.MeshStandardMaterial({
+    color: useVertexColors ? 0xffffff : 0xe8955b,
+    vertexColors: useVertexColors,
+    metalness: 0.4, roughness: 0.4,
+  });
+  currentMesh = new THREE.Mesh(geom, material);
+  currentMesh.rotation.x = -Math.PI / 2;
+
+  // Flow-direction indicators: a single stop's braking heat genuinely
+  // enters at BOTH friction-ring faces (the pads clamp the rotor from both
+  // sides -- see the mesh builder (surrogate_inverse.meshes), where ring1 sits at local Z=0 and ring2 at
+  // local Z=gap+2*ring_t, with the vane gap and radial vanes between them).
+  // Two arrows, added as children of currentMesh so they inherit its
+  // rotation/position and are cleaned up automatically on the next
+  // scene.remove(currentMesh): one from below pointing up into the bottom
+  // ring's outer face, one from above pointing down into the top ring's
+  // outer face -- both landing on the friction-contact surfaces, in
+  // the geometry's own local (pre-rotation) Z axis.
+  const bbox = geom.boundingBox;
+  const zExtent = Math.max(bbox.max.z - bbox.min.z, 1e-6);
+  const arrowLen = Math.max(zExtent * 0.35, 10);
+  const bottomArrow = new THREE.ArrowHelper(
+    new THREE.Vector3(0, 0, 1),
+    new THREE.Vector3(0, 0, bbox.min.z - arrowLen - 4),
+    arrowLen, 0xff5533, arrowLen * 0.35, arrowLen * 0.22,
+  );
+  const topArrow = new THREE.ArrowHelper(
+    new THREE.Vector3(0, 0, -1),
+    new THREE.Vector3(0, 0, bbox.max.z + arrowLen + 4),
+    arrowLen, 0xff5533, arrowLen * 0.35, arrowLen * 0.22,
+  );
+  currentMesh.add(bottomArrow);
+  currentMesh.add(topArrow);
+
+  scene.add(currentMesh);
+  document.getElementById("loading-note").style.display = "none";
+}
+
+async function liveEvaluate() {
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  const design = {
+    vane_count: Number(document.getElementById("s-count").value),
+    vane_gap_m: Number(document.getElementById("s-gap").value) / 1000,
+    vane_thickness_m: Number(document.getElementById("s-thickness").value) / 1000,
+  };
+  lastDesign = design;
+  const res = await fetch("/api/evaluate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, power_w, cooling_profile }),
+  });
+  const data = await res.json();
+  lastThermalField = data.thermal_field;
+  const el = document.getElementById("live-temp");
+  el.textContent = data.rotor_temperature_c.toFixed(0) + "°C";
+  el.className = "num " + (data.violated_constraints.length ? "warn" : (data.rotor_temperature_c > 500 ? "hot" : "cool"));
+  document.getElementById("constraint-note").textContent = data.violated_constraints.length
+    ? `Violated constraints: ${data.violated_constraints.join(", ")}`
+    : "";
+}
+
+let debounceTimer;
+function onSliderChange() {
+  document.getElementById("v-count").textContent = document.getElementById("s-count").value;
+  document.getElementById("v-gap").textContent = Number(document.getElementById("s-gap").value).toFixed(1);
+  document.getElementById("v-thickness").textContent = Number(document.getElementById("s-thickness").value).toFixed(2);
+  liveEvaluate();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => reloadMesh(lastDesign), 180);
+}
+
+["s-count", "s-gap", "s-thickness"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", onSliderChange);
+});
+document.getElementById("power").addEventListener("change", liveEvaluate);
+document.getElementById("profile").addEventListener("change", liveEvaluate);
+
+async function loadStatus() {
+  const s = await (await fetch("/api/status")).json();
+  document.getElementById("status-note").textContent = s.surrogate_trained
+    ? `Surrogate trained at server startup (validation relative error: ${(s.validation_relative_error*100).toFixed(1)}%). Ground truth: radial-vane analytical model (same fin-efficiency family as HeatSink Design AI), cast-iron conductivity (k=50 W/m·K).`
+    : "Training…";
+}
+
+async function runOptimize() {
+  const btn = document.getElementById("btn-optimize");
+  btn.disabled = true; btn.textContent = "Optimizing…";
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  try {
+    const res = await fetch("/api/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ power_w, cooling_profile }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+
+    // Snap the sliders/3D view to the optimized design.
+    const d = data.optimized.design;
+    document.getElementById("s-count").value = d.vane_count_rounded;
+    document.getElementById("s-gap").value = (d.vane_gap_m * 1000).toFixed(1);
+    document.getElementById("s-thickness").value = (d.vane_thickness_m * 1000).toFixed(2);
+    onSliderChange();
+
+    renderVerification(data);
+  } catch (e) {
+    document.getElementById("result").innerHTML = `<div class="card">Error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Optimize with AI"; }
+}
+
+function renderVerification(data) {
+  const v = data.verification;
+  const checksHtml = v.checks.map(c => `<div class="check-row"><span>${c.name}</span><span class="detail">${c.detail}</span><span class="verdict-pill v-${c.verdict}">${c.verdict}</span></div>`).join("");
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h2>AI result vs. baseline</h2>
+      <div style="font-size:14px; margin-bottom:10px;">Baseline: ${data.baseline.rotor_temperature_c.toFixed(0)}°C &rarr; AI-optimized (re-verified): <b style="color:var(--green)">${v.real_temperature_c.toFixed(0)}°C</b> (${data.temp_reduction_c.toFixed(0)}°C reduction)</div>
+      <div style="display:flex; align-items:center; gap:20px; margin: 14px 0;">
+        <div class="trust-score" style="color:${v.overall_verdict==='PASS'?'var(--green)':v.overall_verdict==='WARNING'?'var(--amber)':'var(--red)'}">${v.trust_score}</div>
+        <div><div class="verdict-pill v-${v.overall_verdict}">${v.overall_verdict}</div><div style="color:var(--dim); font-size:12px; margin-top:4px;">trust score &middot; coverage ${(v.coverage*100).toFixed(0)}%</div></div>
+      </div>
+      <div style="color:var(--dim); font-size:12px; margin-bottom:12px;">${v.coverage_note}</div>
+      ${checksHtml}
+    </div>
+  `;
+}
+
+function verdictColor(v) {
+  return v === "ROBUST" ? "var(--green)" : v === "MARGINAL" ? "var(--amber)" : "var(--red)";
+}
+
+async function runUncertainty() {
+  const btn = document.getElementById("btn-uncertainty");
+  btn.disabled = true; btn.textContent = "Running 200 physics evaluations…";
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  try {
+    const res = await fetch("/api/uncertainty", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...lastDesign, power_w, cooling_profile, n_samples: 200 }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+
+    // Inline bar: range from ambient up past 1.15x the safety
+    // threshold, with tick marks at the mean/p95/threshold.
+    const rangeMin = physicsAmbientC;
+    const rangeMax = Math.max(data.max_c, data.safety_threshold_c) * 1.12;
+    const pct = (t) => Math.min(Math.max((t - rangeMin) / (rangeMax - rangeMin), 0), 1) * 100;
+
+    document.getElementById("uncertainty-result").innerHTML = `
+      <div class="unc-stats">
+        <div><div class="num">${data.mean_c.toFixed(0)}°C</div><div class="lbl">mean (N=${data.n_samples})</div></div>
+        <div><div class="num" style="color:var(--amber)">${data.p95_c.toFixed(0)}°C</div><div class="lbl">p95 &mdash; worst realistic case</div></div>
+        <div><div class="num">&plusmn;${data.std_c.toFixed(1)}°C</div><div class="lbl">std dev</div></div>
+        <div><div class="num">${(data.safe_fraction*100).toFixed(0)}%</div><div class="lbl">samples under safety line</div></div>
+        <div><div class="verdict-pill" style="background:transparent;border:1.5px solid ${verdictColor(data.verdict)};color:${verdictColor(data.verdict)}">${data.verdict}</div></div>
+      </div>
+      <div class="unc-bar-track">
+        <div class="unc-bar-range" style="left:${pct(data.min_c)}%; width:${pct(data.max_c)-pct(data.min_c)}%;"></div>
+        <div class="unc-mark mean" style="left:${pct(data.mean_c)}%"><span class="tag">mean ${data.mean_c.toFixed(0)}°</span></div>
+        <div class="unc-mark p95" style="left:${pct(data.p95_c)}%"><span class="tag">p95 ${data.p95_c.toFixed(0)}°</span></div>
+        <div class="unc-mark threshold" style="left:${pct(data.safety_threshold_c)}%"><span class="tag">limit ${data.safety_threshold_c.toFixed(0)}°</span></div>
+      </div>
+      <div class="footer-note" style="margin-top:0;">Random noise (uniform, not Gaussian -- see the library model) on vane thickness (&plusmn;${(data.tolerances.vane_thickness_tolerance_m*1000).toFixed(2)}mm) and vent gap (&plusmn;${(data.tolerances.vane_gap_tolerance_m*1000).toFixed(2)}mm), vane count held fixed. Every sample re-evaluated with the closed-form solver (never the neural surrogate). Verdict: p95 vs. the ${data.safety_threshold_c.toFixed(0)}°C safety threshold (brake_rotor.MAX_SAFE_ROTOR_TEMP_C) -- FRAGILE if p95 exceeds it, MARGINAL if within 5% below it, ROBUST otherwise.</div>
+    `;
+  } catch (e) {
+    document.getElementById("uncertainty-result").innerHTML = `<div class="footer-note" style="color:var(--red)">Uncertainty error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Run Monte Carlo (N=200)"; }
+}
+
+document.getElementById("btn-optimize").onclick = runOptimize;
+document.getElementById("btn-uncertainty").onclick = runUncertainty;
+initViewer();
+loadStatus();
+liveEvaluate().then(() => reloadMesh(lastDesign));
+</script>
+</body>
+</html>

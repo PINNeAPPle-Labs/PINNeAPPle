@@ -481,3 +481,63 @@
 		}
 	}
 }
+
+{$HSD_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy hsdesign:8160 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$BRAKE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy brakecool:8161 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$PATCH_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy patchdose:8162 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$RIDE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy ridetune:8163 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$SOUND_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy soundshape:8164 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}

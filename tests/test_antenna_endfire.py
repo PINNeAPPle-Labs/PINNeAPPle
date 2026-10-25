@@ -177,6 +177,16 @@ def test_runner_one_process_per_frequency(fake, tmp_path):
     assert s["status"] == {"ok": 4, "invalid": 1} and s["processes"] == 5
 
 
+def test_runner_resume_reuses_finished_runs(fake, tmp_path):
+    CLISimulator(fake, str(tmp_path / "runs"), timeout=30).run([{"Lb": 200.0}], [2.0], tags=["a"])
+    sim = CLISimulator(fake, str(tmp_path / "runs"), timeout=30, resume=True)
+    t = sim.run([{"Lb": 200.0}, {"Lb": 150.0}], [2.0], tags=["a", "b"])
+    assert [r.message for r in sim.records] == ["reused", ""] and len(t) == 2
+    assert sim.summary()["reused"] == 1
+    t2 = sim.run([{"Lb": 210.0}], [2.0], tags=["a"])           # other parameters in the same folder: solved again
+    assert sim.records[-1].message == "" and t2.rows[0]["Lb"] == 210.0
+
+
 def test_runner_timeout_and_sigbus_without_fallback(fake, tmp_path):
     sim = CLISimulator(fake, str(tmp_path / "runs"), timeout=1.0)
     assert sim.run_one({"Lb": 1.0, "crash": "hang"}, [2.0], "h").status == "timeout"

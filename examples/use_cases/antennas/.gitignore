@@ -7,3 +7,6 @@ results/3d/*.usda
 results/3d/*.html
 results/3d/*/frame_*.png
 results/3d/experiment.json
+# unit-cell process folders (result.json and logs of every EMerge run): the tables keep the results
+results/unit_cell/runs/
+results/unit_cell/bench_runs/

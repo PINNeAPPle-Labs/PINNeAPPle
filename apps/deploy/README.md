@@ -72,7 +72,13 @@ At your DNS provider, create two **A** records (and AAAA records if you use IPv6
 | `sky` | A | `<server IPv4>` |
 | `playground` | A | `<server IPv4>` |
 | `surrogate` | A | `<server IPv4>` |
+| `heatsink-design` | A | `<server IPv4>` |
+| `brakecool` | A | `<server IPv4>` |
+| `patchdose` | A | `<server IPv4>` |
+| `ridetune` | A | `<server IPv4>` |
+| `soundshape` | A | `<server IPv4>` |
 | `arena` | A | `<server IPv4>` |
+| `pinnarena` | A | `<server IPv4>` |
 | `models` | A | `<server IPv4>` |
 | `rom` | A | `<server IPv4>` |
 | `meshless` | A | `<server IPv4>` |
@@ -113,7 +119,7 @@ nano .env        # domains, ACME e-mail, logins (use long passwords)
 
 | Variable | Meaning |
 |---|---|
-| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN`, `HUB_DOMAIN` | Public hostnames (must match the DNS records) |
+| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `PINN_ARENA_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN`, `HUB_DOMAIN`, `HSD_DOMAIN`, `BRAKE_DOMAIN`, `PATCH_DOMAIN`, `RIDE_DOMAIN`, `SOUND_DOMAIN` | Public hostnames (must match the DNS records) |
 | `ACME_EMAIL` | Let's Encrypt account / expiry notices |
 | `<APP>_USER` / `<APP>_PASSWORD` (HSS, PCB, EDH, EDS, SMD, UDR, IHL, PFL, MQA, CMP, LIN, IOP, ADO, OBS, UQL, SEN, VAL, EVR, CALIB, IDENT, INVS, ROM, MESHLESS, SUR, ARN, MDL, TWIN, ANOMALY, CONTROL, EDO, PDO, HUB) | HTTP Basic login per app. If either is empty, that app is public. `/health` is always public. |
 | `HSS_MAX_SIZING`, `PCB_MAX_HEAVY`, `EDH/EDS/SMD/UDR/PFL/MQA/CMP/LIN/IOP/ADO/UQL/SEN/VAL/EVR_MAX_HEAVY` | Concurrent heavy runs per app. Any excess gets HTTP 429. |
@@ -162,7 +168,7 @@ Caddy. Start only the apps, attached to that proxy's Docker network, and add two
 ```bash
 docker inspect <proxy container> --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 PROXY_NETWORK=<that network> docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml \
-  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design
+  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena pinnarena surrogate twin anomaly control optimize design hsdesign brakecool patchdose ridetune soundshape
 ```
 
 Caddyfile blocks for the existing proxy (then `caddy validate` and `caddy reload` inside its container):
@@ -316,6 +322,26 @@ playground.example.org {
 	encode zstd gzip
 	reverse_proxy pinneapple-playground:8095
 }
+heatsink-design.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-hsdesign:8160
+}
+brakecool.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-brakecool:8161
+}
+patchdose.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-patchdose:8162
+}
+ridetune.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-ridetune:8163
+}
+soundshape.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-soundshape:8164
+}
 surrogate.example.org {
 	encode zstd gzip
 	request_body {
@@ -335,6 +361,17 @@ arena.example.org {
 	reverse_proxy pinneapple-arena:8105 {
 		transport http {
 			read_timeout 120s
+		}
+	}
+}
+pinnarena.example.org {
+	encode zstd gzip
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy pinneapple-pinnarena:8130 {
+		transport http {
+			read_timeout 300s
 		}
 	}
 }
@@ -703,6 +740,17 @@ busy). Refresh the public results on the deployment hardware with
 them back into the repository to keep them). `ARN_MAX_BUDGET_S` × methods × seeds × training sets bounds one
 benchmark's time. Uploads, private results, keys and usage live on the `arena_data` volume.
 
+## PINNeAPPle Arena (`pinnarena`)
+
+Trains PINNeAPPle architectures on the arena's 34 problems in the server process and ranks them on a leaderboard
+built from this server's experiments (the database starts empty), plus the external catalog of third-party
+physics-ML libraries (references and runners; almost all report `not_installed` / `manual_install` in the image).
+`PINN_ARENA_MAX_RUNNING` (default 1 here) experiments train at once; `PINN_ARENA_MAX_EPOCHS` and
+`PINN_ARENA_MAX_ARCHITECTURES` bound one experiment. Login with `PINN_ARENA_USER` / `PINN_ARENA_PASSWORD_HASH`;
+GitHub sign-in is optional (`GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `ARENA_JWT_SECRET`, callback
+`https://<PINN_ARENA_DOMAIN>/api/auth/github/callback`) and works behind the login. Users, experiments, datasets and
+weights live on the `pinnarena_data` volume. See `apps/pinn_arena/README.md`.
+
 ## Physics AI Model Gateway (`models`)
 
 Serves physical models behind one API (`/v1/models/<name>/predict`), with versions, stages, an OOD policy per version
@@ -774,6 +822,18 @@ API keys are in the `hub_data` volume. 2 GB is enough (1.5 GB with the low-memor
 
 ```bash
 docker compose up -d --build hub caddy          # https://$HUB_DOMAIN
+```
+
+## Surrogate inverse-design demos (`hsdesign`, `brakecool`, `patchdose`, `ridetune`, `soundshape`)
+
+Five small apps on `pinneapple_design.surrogate_inverse` (imported from PINNeAPPle-apps): HeatSink Design AI, BrakeCool
+AI, PatchDose AI, RideTune AI and SoundShape AI. Each trains a small MLP surrogate of a closed-form model in a
+background thread at start-up (a few seconds of one core; `<PREFIX>_EPOCHS`, default 1500), answers `/health` at once
+and `/api/optimize` with 503 until the surrogate is ready. Nothing is stored (no volume). 1 GB each is plenty (one
+torch process). Logins: `HSD_`, `BRAKE_`, `PATCH_`, `RIDE_`, `SOUND_` + `USER` / `PASSWORD` (or `PASSWORD_HASH`).
+
+```bash
+docker compose up -d --build hsdesign brakecool patchdose ridetune soundshape caddy
 ```
 
 ## PINNeAPPle Lab catalogue (`lab`)

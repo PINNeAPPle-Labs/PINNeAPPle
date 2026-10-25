@@ -26,9 +26,9 @@ First used in, and ported back from, PINNeAPPle-apps' ``patchdose_ai``
 from __future__ import annotations
 
 import math
-from typing import Dict, List, Optional
 
 FLOAT_FLOOR = 1e-12
+KG_TO_MG = 1.0e6  # until 0.7.x this module used 1e3 here, so every "mg" figure was in grams (1000x too small)
 
 
 def steady_state_release_rate_mg_day(
@@ -39,7 +39,7 @@ def steady_state_release_rate_mg_day(
     (mg/day) through a rate-limiting membrane, Fick's first law."""
     flux = diffusion_coeff_m2_s * partition_coeff * reservoir_conc_kg_m3 / max(membrane_thickness_m, FLOAT_FLOOR)
     rate_kg_s = flux * area_m2
-    return rate_kg_s * 1000.0 * 86400.0  # kg/s -> mg/day
+    return rate_kg_s * KG_TO_MG * 86400.0  # kg/s -> mg/day
 
 
 def depletion_time_days(
@@ -100,8 +100,8 @@ def post_depletion_decay_rate_constant_per_day(
 def simulate_release_timeseries(
     diffusion_coeff_m2_s: float, partition_coeff: float, reservoir_conc_kg_m3: float,
     area_m2: float, membrane_thickness_m: float, reservoir_thickness_m: float,
-    duration_days: Optional[float] = None, n_points: int = 100,
-) -> List[Dict[str, float]]:
+    duration_days: float | None = None, n_points: int = 100,
+) -> list[dict[str, float]]:
     """Real time-domain simulation of release/depletion over the
     device's wear life, combining only the real formulas above plus
     the one derived decay-tail formula -- no invented dynamics.
@@ -123,10 +123,10 @@ def simulate_release_timeseries(
 
     rate0 = steady_state_release_rate_mg_day(diffusion_coeff_m2_s, partition_coeff, reservoir_conc_kg_m3, area_m2, membrane_thickness_m)
     k_per_day = post_depletion_decay_rate_constant_per_day(diffusion_coeff_m2_s, partition_coeff, membrane_thickness_m, reservoir_thickness_m)
-    reservoir_mass_mg = reservoir_conc_kg_m3 * area_m2 * reservoir_thickness_m * 1000.0
+    reservoir_mass_mg = reservoir_conc_kg_m3 * area_m2 * reservoir_thickness_m * KG_TO_MG
 
     n = max(int(n_points), 2)
-    points: List[Dict[str, float]] = []
+    points: list[dict[str, float]] = []
     for i in range(n):
         t = duration_days * i / (n - 1)
         if t <= t_dep:

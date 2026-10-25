@@ -63,10 +63,10 @@ jobs:
       - name: gitleaks (secrets in the commits of this change, or the whole history on main)
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            gitleaks detect --source . --redact --config .gitleaks.toml \
+            gitleaks detect --source . --redact --verbose --config .gitleaks.toml \
               --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
           else
-            gitleaks detect --source . --redact --config .gitleaks.toml
+            gitleaks detect --source . --redact --verbose --config .gitleaks.toml
           fi
 
       - name: hadolint (Dockerfiles; fails on errors)

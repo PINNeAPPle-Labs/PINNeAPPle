@@ -3,7 +3,8 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub
+#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena pinnarena surrogate twin anomaly control optimize design hub \
+#       hsdesign brakecool patchdose ridetune soundshape
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
@@ -13,6 +14,7 @@
 # The Engineering Design Optimizer answers on pinneapple-optimize:8100.
 # The Physics Design Optimizer answers on pinneapple-design:8106.
 # The PINNeAPPle Hub answers on pinneapple-hub:8116.
+# The surrogate inverse-design demos answer on pinneapple-hsdesign:8160, pinneapple-brakecool:8161, pinneapple-patchdose:8162, pinneapple-ridetune:8163, pinneapple-soundshape:8164.
 # The optional Engineering GUI Agent (heavy image) is started by name and answers on pinneapple-guiagent:8115.
 services:
   caddy:                       # the server already has a proxy on 80/443: never start this project's own
@@ -168,6 +170,11 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-arena]
+  pinnarena:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-pinnarena]
   models:
     networks:
       default: {}
@@ -203,6 +210,31 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-hub]
+  hsdesign:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-hsdesign]
+  brakecool:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-brakecool]
+  patchdose:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-patchdose]
+  ridetune:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-ridetune]
+  soundshape:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-soundshape]
 
 networks:
   proxy:

@@ -25,7 +25,11 @@ reference solution that does not exist once a model is used on new cases. PINNeA
 in computational science who train or compare physics-based surrogate models and need to know when those models stop
 being valid. It gives every method one problem description, a comparison interface and a record of each run, and it
 checks each prediction against the physics (equation residuals, conservation, bounds and each model's declared
-assumptions) without needing a reference. It bridges to DeepXDE and PhysicsNeMo instead of replacing them. See
+assumptions) without needing a reference. It works next to DeepXDE and PhysicsNeMo instead of replacing them:
+`pinneapple_physics.deepxde_bridge` trains a problem description with DeepXDE, and for PhysicsNeMo there are adapters
+for models trained there, but no path from a `pp.PhysicalProblem` to the PhysicsNeMo-Sym solver (what is and is not
+integrated, and a CPU benchmark against both: [`examples/vs_physicsnemo`](examples/vs_physicsnemo/README.md),
+[`benchmarks/vs_frameworks/REPORT.md`](benchmarks/vs_frameworks/REPORT.md)). See
 [`paper/paper.md`](paper/paper.md) for how it relates to other libraries.
 
 ## The whole Physics-AI workflow, not only PINNs

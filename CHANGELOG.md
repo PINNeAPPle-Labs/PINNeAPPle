@@ -100,6 +100,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   because tfc has no `cf` method. **Behavior:** `activation` now defaults to `None`, and passing one with the
   default `rf_kind="rff"` (cos/sin Fourier features, which never used it) raises `ValueError`; with
   `rf_kind="random_linear"` it is honoured as before (`None` = tanh). Default outputs are unchanged.
+- `pinneapple_physics.solve_pde` computed `model(x_col)` every step and passed it to the compiled loss, which never
+  reads it (the loss evaluates the model on its own gradient-tracking copy): one wasted forward pass per step,
+  removed. Losses are unchanged.
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
   system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
   0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
@@ -186,6 +189,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   official code's grids and pseudo-sequences (AdityaLab/pinnsformer@00d790f5) and analytic references, checked
   against their equations in `tests/test_paper_problems.py`. The official convection reference `convection.mat`
   is not exact (relative L2 0.016 against sin(x - 50 t), error growing with t); the analytic one is used.
+- Cross-framework benchmark against PhysicsNeMo / PhysicsNeMo-Sym, DeepXDE and neuraloperator
+  (`benchmarks/vs_frameworks/`: protocol, one runner per framework and track, driver, results, report). Its neutral
+  parts are a library module, `pinneapple_tools.benchmark_suite.crossframework`: problems with checked references
+  (Cole-Hopf Burgers, manufactured Poisson / Helmholtz, a spectral ETDRK4 Allen-Cahn reference), shared point sets
+  and initial weights, one evaluator from exported predictions, seed statistics, run records, the Darcy data and
+  operator training loop.
+- `pinneapple_physics.solve_pde(..., x_col=...)`: optional fixed collocation points used every step (default
+  unchanged: fresh samples every step).
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

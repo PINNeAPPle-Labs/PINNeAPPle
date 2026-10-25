@@ -57,6 +57,11 @@ jobs:
           pip install scikit-learn
           pytest tests/test_autolab.py tests/test_autolab_racecar.py tests/test_autolab_agent.py tests/test_autolab_dashboard.py -q -p no:warnings
 
+      - name: Adaptive Physics Condensation — exact condensation vs fine FV, hierarchy, reduced interfaces, Keff, learned blocks, transient (must pass)
+        run: |
+          pip install scikit-learn pyamg
+          pytest tests/test_condense.py tests/test_meshless_stencils.py -q -p no:warnings
+
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
           python scripts/check_experiment_manifests.py

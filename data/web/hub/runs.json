@@ -1605,6 +1605,17 @@
   "stdout": "Physics checks in CI | validation and benchmarks | not curated",
   "timed_out": false
  },
+ "example:examples/physics_condensation": {
+  "code_hash": "b1f14338741a3fea",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 0.7,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Adaptive Physics Condensation: chip-package thermal | heat transfer | not curated\nerr_Tmax_m8 0.004695839999996565 K\ntransient_err_Tmax 0.001935563937912832 K\nlargest_blocks 65536.0 blocks\nlargest_build_s 43.746866945999955 s\nlargest_solve_s 3.3815957900001195 s",
+  "timed_out": false
+ },
  "example:examples/physics_db": {
   "code_hash": "81faf3c85c0f8106",
   "figures": [],
@@ -6091,6 +6102,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Physics checks of results and models (pinneapple check) -> pinneapple_check.engine.run (Report.violations, exit_code)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'path': 'physics_check/fail', 'expected': 'expected.json'}",
+  "timed_out": false
+ },
+ "node:condense.package_thermal": {
+  "code_hash": "a616b1c55bca6203",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 5.44,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Chip package thermal by condensation -> pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'blocks': 64, 'modes': 8, 'power_density': 1000000.0, 'hotspots': 3, 'seed': 0, 'reference': False}",
   "timed_out": false
  },
  "node:control.compare": {

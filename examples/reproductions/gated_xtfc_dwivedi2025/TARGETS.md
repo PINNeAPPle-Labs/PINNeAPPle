@@ -160,3 +160,19 @@ All methods have 2000 points and 2000 basis functions, at ν ∈ {1e-2, 1e-3, 1e
 - the same tanh ELM with constraints as rows (PIELM).
 
 All are scored on the same 2 × 10^4 test points.
+
+## Amendment 1 (before any run): the Bayesian optimiser
+
+Ambiguity 5 described a new GP-EI optimiser. We use the library's existing one instead:
+`pinneapple_design.design_optimizer.optimizer.BayesianDesignOptimizer`. It does the same job, and the code is
+reused rather than duplicated.
+
+- **Surrogate:** scikit-learn 1.9.1 `GaussianProcessRegressor` with a Matérn 5/2 kernel, `normalize_y` and 3
+  restarts.
+- **Acquisition:** EI with xi = 0.01, maximised over 500 uniform random candidates in the box (the box is scaled to
+  [0, 1]^d).
+- **Start:** `n_initial_random = 5` uniform random points.
+- **Budget and seeds:** 30 evaluations for the inverse problem and 60 for the twin boundary layer. The optimiser is
+  seeded with the run seed.
+
+Everything else in ambiguities 5 and 6 is unchanged.

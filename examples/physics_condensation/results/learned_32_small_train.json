@@ -1,0 +1,50 @@
+{
+ "blocks": 1024,
+ "n_train": 6,
+ "build_s": 4.457335642000544,
+ "train": {
+  "train_condensations": 1.345811510999738,
+  "fit": 0.9913047410000217
+ },
+ "rank": 5,
+ "adaptive": {
+  "timings": {
+   "predict": 2.0245537500004502,
+   "exact_condensations": 59.23686738500055,
+   "solve": 3.2235693229995377,
+   "verify": 32.93317477099936,
+   "total": 97.4207252440001
+  },
+  "exact_blocks": 250,
+  "checked": 120,
+  "failed_per_round": [
+   4,
+   5,
+   4,
+   1,
+   5
+  ],
+  "flagged_std": 227,
+  "flagged_ood": 4,
+  "estimate": {
+   "unchecked_blocks": 673,
+   "mean_effect_K": 0.006591452227618727,
+   "max_effect_K": 0.02920036815147913,
+   "additive_estimate_K": 4.436047349187404
+  }
+ },
+ "learned_only_s": 2.3422666010001194,
+ "exact_s": 1198.2914440370005,
+ "Tmax_exact": 79.96112874067386,
+ "adaptive_err": {
+  "err_Tmax": 0.131613102818676,
+  "err_Tj_max": 0.8966050795081202,
+  "err_q_tim": 0.10121735097371412
+ },
+ "learned_only_err": {
+  "err_Tmax": 0.7030301222275455,
+  "err_Tj_max": 1.3951556128570388,
+  "err_q_tim": 0.12479859961742067
+ },
+ "peak_rss_gb": 1.151476
+}

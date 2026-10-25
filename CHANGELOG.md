@@ -14,6 +14,24 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
+  `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
+  - **Package and baselines:** a synthetic multilayer package with repeated microbump/TSV blocks, a fine FV reference
+    and the Keff baseline.
+  - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field
+    snapshot modes, a residual error estimate, p- and full refinement, and an exact CG correction; nested condensation
+    with memoised identical subtrees (65,536 blocks / 9.6e7 fine cells at m=12 built in 44 s and 7.6 GB in this container; the
+    interface-reduction error grows with package size: 27 mK at 1,024 blocks, 0.37 K at 4,096).
+  - **Extensions:** learned block operators with an out-of-box/deviation fallback and verification against exact
+    condensation; Craig-Bampton transients.
+  - **Track 1b, meshless:** RBF-FD / GFDM on point clouds from the implicit geometry, with interface pairs, mirror
+    sides and least squares. Measured not to converge reliably on this multi-material benchmark.
+  - **Track 1c:** a prior plus residual-selected exception patches with an energy correction.
+  - **Flow node** `condense.package_thermal`.
+- `pinneapple_simulation.meshless.stencils`: RBF-FD and GFDM stencil weights in any dimension (eval, gradient,
+  Laplacian), exact on polynomials up to the degree.
+
+### Added
 - `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
   verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
   `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,

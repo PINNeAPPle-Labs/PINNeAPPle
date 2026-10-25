@@ -1,0 +1,55 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-openfoam-campaign",
+ "name": "OpenFOAM campaign: a jet into a trough, six runs",
+ "description": "The base case of make_base.py (6 m 2-D trough, liquid bath, inclined jet, interFoam with k-omega SST) and the six runs of plan.json (jet speed 2-3 m/s, angle 50-70 degrees), each with its solver health and the k / alpha profile on the mid-depth line averaged from 2 s (examples/openfoam_campaign).",
+ "nodes": [
+  {
+   "id": "campaign",
+   "type": "cfd.campaign",
+   "params": {},
+   "label": "Campaign (plan.json)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "OpenFOAM campaign"
+   },
+   "label": "Report",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "campaign",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "campaign.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "openfoam_campaign",
+  "domain": "CFD",
+  "scripts": [
+   "make_base.py"
+  ],
+  "quick": {
+   "campaign": {
+    "runs": [
+     "A1"
+    ],
+    "end_time": 0.5
+   }
+  }
+ }
+}

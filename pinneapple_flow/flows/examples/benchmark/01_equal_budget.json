@@ -1,0 +1,54 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.benchmark.01_equal_budget",
+ "name": "Equal-budget benchmark: PINN vs FNO vs DeepONet on Burgers",
+ "description": "pp.benchmark.run: the three methods on 1-D Burgers under the same 300 s wall-clock budget per run, the same search effort (4 trials, a third of the budget), 3 seeds, three budget levels and an equal-FLOPs arm; the table, the correctness gates and the advisor's diagnostics (examples/benchmark/01_equal_budget.py --full; hours on a CPU). Quick: the script's default smoke sizes. Nothing is committed to compare with.",
+ "nodes": [
+  {
+   "id": "bench",
+   "type": "benchmark.equal_budget",
+   "params": {
+    "problems": [
+     "burgers"
+    ],
+    "methods": [
+     "pinn",
+     "fno",
+     "deeponet"
+    ],
+    "wall_s": 300.0,
+    "budget_levels": [
+     0.1111111111111111,
+     0.3333333333333333,
+     1.0
+    ],
+    "seeds": 3,
+    "n_trials": 4,
+    "search_fraction": 0.3333333333333333,
+    "equal_flops": true,
+    "n_workers": 4,
+    "threads_per_run": 1,
+    "smoke": false
+   },
+   "label": "equal-budget benchmark",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "benchmark",
+  "domain": "benchmarks",
+  "scripts": [
+   "01_equal_budget.py"
+  ],
+  "quick": {
+   "bench": {
+    "smoke": true
+   }
+  }
+ }
+}

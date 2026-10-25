@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.solvers.03_poisson_solvers",
+ "name": "Poisson: finite differences against FFT",
+ "description": "lap(u) = sin(2 pi x) sin(2 pi y) on a 64 x 64 grid, SOR finite differences with u = 0 on the boundary against the periodic FFT solver, both from SolverRegistry, and each against the exact solution (examples/solvers/03_poisson_solvers.py; nothing is committed to compare with).",
+ "nodes": [
+  {
+   "id": "poisson",
+   "type": "solvers.poisson_fdm_spectral",
+   "params": {},
+   "label": "FDM vs FFT",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "solvers",
+  "domain": "numerical solvers",
+  "scripts": [
+   "03_poisson_solvers.py"
+  ],
+  "quick": {}
+ }
+}

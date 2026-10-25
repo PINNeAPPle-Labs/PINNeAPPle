@@ -1,0 +1,144 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.water_hammer_valve_closure",
+ "name": "Industrial preset: water hammer valve closure",
+ "description": "pinneapple_presets.load('water_hammer_valve_closure').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/water_hammer_valve_closure), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "water_hammer_valve_closure"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "water_hammer_valve_closure"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.inner_diameter",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.inner_diameter"
+     },
+     {
+      "flow": "run.wave_speed",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.wave_speed"
+     },
+     {
+      "flow": "run.period",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.period"
+     },
+     {
+      "flow": "run.reynolds",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.reynolds"
+     },
+     {
+      "flow": "run.friction_factor",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.friction_factor"
+     },
+     {
+      "flow": "run.max_head",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head"
+     },
+     {
+      "flow": "run.max_head_x",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head_x"
+     },
+     {
+      "flow": "run.max_head_t",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head_t"
+     },
+     {
+      "flow": "run.surge_head",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.surge_head"
+     },
+     {
+      "flow": "run.min_head",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.min_head"
+     },
+     {
+      "flow": "run.drawdown",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.drawdown"
+     },
+     {
+      "flow": "run.p_max",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.p_max"
+     },
+     {
+      "flow": "run.p_min_abs",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.p_min_abs"
+     },
+     {
+      "flow": "run.joukowsky_head",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.joukowsky_head"
+     },
+     {
+      "flow": "run.michaud_head",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.michaud_head"
+     },
+     {
+      "flow": "run.h_static_valve",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.h_static_valve"
+     },
+     {
+      "flow": "run.h_allow",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.h_allow"
+     },
+     {
+      "flow": "run.t_close_safe",
+      "ref": "water_hammer_valve_closure/results/result.json:outputs.t_close_safe"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "water_hammer_valve_closure/README.md"
+  ],
+  "quick": {}
+ }
+}

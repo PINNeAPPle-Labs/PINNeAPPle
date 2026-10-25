@@ -1,0 +1,138 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_learning_verification",
+ "title": "Physics learning verification of learned thermal models",
+ "description": "A verifier independent of the training loss: discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal interventions against a finite-volume reference, on deliberately defective models, a POD-GPR surrogate and PINNs.",
+ "domain": "heat transfer",
+ "methods": [
+  "finite volumes",
+  "PINN",
+  "POD-GPR",
+  "interventions"
+ ],
+ "modules": [
+  "pinneapple_analysis.validation.physics_learning"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "defect_detection_verifier",
+   "value": 1.0,
+   "unit": "fraction",
+   "how": "verifier, 48 informative points + probes; 22 defective models"
+  },
+  {
+   "name": "defect_detection_flag_loss",
+   "value": 0.5454545454545454,
+   "unit": "fraction",
+   "how": "mean squared discrete residual > limit; 22 defective models"
+  },
+  {
+   "name": "defect_detection_flag_heldout",
+   "value": 0.22727272727272727,
+   "unit": "fraction",
+   "how": "held-out relative L2 > limit; 22 defective models"
+  },
+  {
+   "name": "heldout_rel_l2[POD-GPR surrogate, correlated training data]",
+   "value": 9.491715214246315e-05,
+   "unit": "",
+   "how": "200 points, 6 held-out cases"
+  },
+  {
+   "name": "heldout_rel_l2[POD-GPR surrogate, independent training data]",
+   "value": 0.0059935650639470804,
+   "unit": "",
+   "how": "200 points, 6 held-out cases"
+  },
+  {
+   "name": "heldout_rel_l2[PINN, soft constraints]",
+   "value": 0.28962155212510166,
+   "unit": "",
+   "how": "200 points, 6 held-out cases"
+  },
+  {
+   "name": "heldout_rel_l2[PINN, hard adiabatic sides]",
+   "value": 0.08447056422897815,
+   "unit": "",
+   "how": "200 points, 6 held-out cases"
+  }
+ ],
+ "checks": [
+  {
+   "name": "verifier detects every deliberately defective model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "verifier detects more defects than the physics loss or held-out error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "hard side condition credited to the architecture",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "surrogate on correlated data: low held-out error, rejected on interventions",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/detection.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "report": "docs/research/physics_condensation.md",
+  "script": "examples/physics_learning_verification/run_study.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "44f3d574",
+  "created": "2026-10-25T03:29:00Z",
+  "seconds": 0.258,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

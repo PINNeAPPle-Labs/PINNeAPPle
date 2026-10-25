@@ -18,26 +18,13 @@ import argparse
 import warnings
 
 import numpy as np
-import torch
 
 import pinneapple as pp
 from pinneapple_analysis.validation.gallery import conclude
-from pinneapple_neural.architectures.rom import POD, OperatorInference
+from pinneapple_neural.architectures.rom.steppers import pod_opinf_stepper
 from pinneapple_physics.advection_diffusion_1d import AdvectionDiffusion1D
 
 FAMILY, PHYSICS, CATCHES = "rom", "advection", "rollout.spectrum"
-
-
-def rom(train: np.ndarray, energy: float):
-    X = torch.tensor(train, dtype=torch.float64)
-    pod = POD(r=train.shape[-1], center=True, energy=energy).fit(X)
-    a = pod.encode(X).reshape(train.shape[0], train.shape[1], -1)
-    op = OperatorInference(a.shape[-1], use_quadratic=False, use_bias=False, center=False).fit(a)
-
-    def step(u):
-        a1 = op.rollout(pod.encode(torch.tensor(u[None], dtype=torch.float64)), 1)[:, -1]
-        return pod.decode(a1)[0].numpy()
-    return step, a.shape[-1]
 
 
 def run(smoke: bool = True, out_dir=None):
@@ -47,8 +34,8 @@ def run(smoke: bool = True, out_dir=None):
     ref = P.exact(P.random_case(np.random.default_rng(99), nu=0.005, c=1.0, n_modes=6))
     problem = {"rollout": {"ndim": 1, "dt": float(P.t[1]), "conserved": ["mass"], "steps": len(ref) - 1},
                "name": "periodic advection-diffusion (tracer in a uniform wind)"}
-    good_step, r_good = rom(train, energy=1.0 - 1e-10)
-    bad_step, r_bad = rom(train, energy=0.95)
+    good_step, r_good = pod_opinf_stepper(train, energy=1.0 - 1e-10)
+    bad_step, r_bad = pod_opinf_stepper(train, energy=0.95)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         good = pp.validate(good_step, problem, data={"u0": ref[0], "reference": ref}, level="standard")

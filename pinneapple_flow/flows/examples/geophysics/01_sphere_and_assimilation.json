@@ -1,0 +1,48 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-geophysics",
+ "name": "Earth-system blocks: sphere, 4D-Var, infiltration",
+ "description": "The Rossby-Haurwitz wave (Williamson case 6) at T42 for 4 days with the drift of mass, energy and potential enstrophy; 4D-Var on Lorenz-96; Richards infiltration after 6, 12 and 24 h (examples/geophysics/01_sphere_and_assimilation.py; nothing committed: the script prints the drifts, RMSEs and the mass-balance ratio).",
+ "nodes": [
+  {
+   "id": "earth",
+   "type": "geo.earth_system",
+   "params": {},
+   "label": "Earth-system blocks",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "earth system"
+   },
+   "label": "Report",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "earth",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "earth.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "geophysics",
+  "domain": "geophysics",
+  "scripts": [
+   "01_sphere_and_assimilation.py"
+  ],
+  "quick": {}
+ }
+}

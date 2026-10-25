@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 426,
+  "tool": 428,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 181
+  "example": 183
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 426,
+   "tool": 428,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 181
+   "example": 183
   },
   "subkind": {
    "library call": 249,
-   "flow node": 92,
+   "flow node": 94,
    "recipe": 47,
    "function": 21,
    "agent tool (MCP)": 17
@@ -145,9 +145,9 @@
    "validation and benchmarks": 46,
    "data": 41,
    "system dynamics": 41,
-   "heat transfer": 28,
+   "heat transfer": 30,
    "science / physics.electromagnetism": 20,
-   "electromagnetics": 14,
+   "electromagnetics": 16,
    "vehicle dynamics": 14,
    "time series": 9,
    "flight dynamics": 8,
@@ -201,7 +201,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 561,
+   "not graded": 565,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -2564,6 +2564,178 @@
     "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "node:condense.package_thermal",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "condense.package_thermal",
+   "title": "Chip package thermal by condensation",
+   "summary": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve the hotspot power map, and report the peak junction temperature, the…",
+   "description": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve\nthe hotspot power map, and report the peak junction temperature, the heat through the TIM and the lid and the\nenergy balance; optionally against the fine reference.",
+   "domain": "heat transfer",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "condensation",
+    "fd",
+    "fem",
+    "numerical",
+    "reduced order",
+    "semiconductor packaging",
+    "simulation",
+    "solvers",
+    "thermal"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"condense.package_thermal\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=condense.package_thermal",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/condense.py#L11"
+   },
+   "extra": {
+    "calls": "pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "blocks",
+      "kind": "int",
+      "default": 64,
+      "help": "blocks per side (one microbump + TSV each)",
+      "choices": null,
+      "minimum": 2,
+      "maximum": 512,
+      "advanced": false
+     },
+     {
+      "name": "modes",
+      "kind": "int",
+      "default": 8,
+      "help": "interface modes per face",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": false
+     },
+     {
+      "name": "power_density",
+      "kind": "float",
+      "default": 1000000.0,
+      "help": "mean heat flux over the die [W/m^2]",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "hotspots",
+      "kind": "int",
+      "default": 3,
+      "help": "",
+      "choices": null,
+      "minimum": 0,
+      "maximum": 20,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "reference",
+      "kind": "bool",
+      "default": false,
+      "help": "also solve the fine finite-volume reference (small only)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "blocks": {
+       "title": "blocks",
+       "description": "blocks per side (one microbump + TSV each)",
+       "x-kind": "int",
+       "default": 64,
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 512
+      },
+      "modes": {
+       "title": "modes",
+       "description": "interface modes per face",
+       "x-kind": "int",
+       "default": 8,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      },
+      "power_density": {
+       "title": "power density",
+       "description": "mean heat flux over the die [W/m^2]",
+       "x-kind": "float",
+       "default": 1000000.0,
+       "type": "number"
+      },
+      "hotspots": {
+       "title": "hotspots",
+       "description": "",
+       "x-kind": "int",
+       "default": 3,
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "reference": {
+       "title": "reference",
+       "description": "also solve the fine finite-volume reference (small only)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "a616b1c55bca6203"
    }
   },
   {
@@ -11111,6 +11283,166 @@
    }
   },
   {
+   "id": "node:query.package",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "query.package",
+   "title": "Physics queries on a chip package",
+   "summary": "Build the condensed package once (a calibration solve of its own power map), then answer each query by the cheapest method that meets the target -- a read of a solved state, a…",
+   "description": "Build the condensed package once (a calibration solve of its own power map), then answer each query by the\ncheapest method that meets the target -- a read of a solved state, a rigorous monotone bound, superposition of\nsolved states, a new condensed solve -- and say which, with the uncertainty and whether it was read or\npredicted.",
+   "domain": "heat transfer",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "fd",
+    "fem",
+    "numerical",
+    "provenance",
+    "query",
+    "semiconductor packaging",
+    "simulation",
+    "solvers",
+    "thermal",
+    "uncertainty"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"query.package\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=query.package",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/query.py#L13"
+   },
+   "extra": {
+    "calls": "pinneapple_condense.query.package_engine / pinneapple_query.Engine.query",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "blocks",
+      "kind": "int",
+      "default": 32,
+      "help": "blocks per side (one microbump + TSV each)",
+      "choices": null,
+      "minimum": 2,
+      "maximum": 256,
+      "advanced": false
+     },
+     {
+      "name": "queries",
+      "kind": "list",
+      "default": [
+       "Tj_max region:die",
+       "T die@0.5,0.5",
+       "q interface:die/tim",
+       "q ubump[3,4]",
+       "T die@0.25,0.75,0.5"
+      ],
+      "help": "'<quantity> <where>' (T, Tj_max, q, R_ja; die@u,v[,w], region:die[...], ubump[I,J], interface:die/tim, lid:top)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "accuracy",
+      "kind": "float",
+      "default": 0.1,
+      "help": "absolute target (K for temperatures; 0: most accurate)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "rigorous",
+      "kind": "bool",
+      "default": false,
+      "help": "only guaranteed intervals",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "blocks": {
+       "title": "blocks",
+       "description": "blocks per side (one microbump + TSV each)",
+       "x-kind": "int",
+       "default": 32,
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 256
+      },
+      "queries": {
+       "title": "queries",
+       "description": "'<quantity> <where>' (T, Tj_max, q, R_ja; die@u,v[,w], region:die[...], ubump[I,J], interface:die/tim, lid:top)",
+       "x-kind": "list",
+       "default": [
+        "Tj_max region:die",
+        "T die@0.5,0.5",
+        "q interface:die/tim",
+        "q ubump[3,4]",
+        "T die@0.25,0.75,0.5"
+       ],
+       "type": "array"
+      },
+      "accuracy": {
+       "title": "accuracy",
+       "description": "absolute target (K for temperatures; 0: most accurate)",
+       "x-kind": "float",
+       "default": 0.1,
+       "type": "number"
+      },
+      "rigorous": {
+       "title": "rigorous",
+       "description": "only guaranteed intervals",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "f3c9ad8ecaa118e0"
+   }
+  },
+  {
    "id": "node:benchmark.arena",
    "kind": "tool",
    "subkind": "flow node",
@@ -18355,7 +18687,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/PINNeAPPle/.claude/worktrees/agent-a5be1241782143e39/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/pq-t2/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {
@@ -30956,7 +31288,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.get_spec",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L26"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:get_spec",
@@ -35318,7 +35650,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.list_specs",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L33"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:list_specs",
@@ -37876,7 +38208,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.ocr_available",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/ocr.py#L31"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:ocr_available",
@@ -64115,6 +64447,82 @@
    }
   },
   {
+   "id": "example:compact_range_qz",
+   "kind": "example",
+   "name": "compact_range_qz",
+   "title": "Compact range quiet zone: feed gain x reflector size",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Gaussian process",
+    "physical optics"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/compact_range"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/compact_range\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "po_disk_max_rel_error",
+      "value": 0.001108988630067284,
+      "unit": "",
+      "how": "PO disk on axis vs closed form, lambda/16 mesh"
+     },
+     {
+      "name": "po_vs_go_rms_dB",
+      "value": 0.4959877175658075,
+      "unit": "dB",
+      "how": "smooth PO QZ amplitude vs GO taper"
+     },
+     {
+      "name": "reference_ripple_pp_dB",
+      "value": 2.5141311501880343,
+      "unit": "dB",
+      "how": "PO, reference design"
+     },
+     {
+      "name": "reference_usable_diameter_m",
+      "value": 0.13324109244444446,
+      "unit": "m",
+      "how": "within +-0.5 dB / +-5 deg"
+     },
+     {
+      "name": "evaluation_s_median",
+      "value": 28.125999999999998,
+      "unit": "s",
+      "how": "PO mesh + QZ field per design"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/compact_range/qz_reference.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.15.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#compact_range_qz"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "8cc985c59c7b05a8"
+   }
+  },
+  {
    "id": "example:examples/systems",
    "kind": "example",
    "name": "examples/systems",
@@ -84430,6 +84838,81 @@
     "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "example:unit_cell_benchmark",
+   "kind": "example",
+   "name": "unit_cell_benchmark",
+   "title": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Bayesian optimisation",
+    "FEM (EMerge, Floquet)",
+    "FNO"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/unit_cell"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/unit_cell\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "cell_wall_s_median",
+      "value": 93.0,
+      "unit": "s",
+      "how": "one EMerge process per cell: 7 frequencies x 4 scans"
+     },
+     {
+      "name": "cell_max_rss_mb",
+      "value": 2039.0,
+      "unit": "MB",
+      "how": "peak RSS of a cell process"
+     },
+     {
+      "name": "fno_heldout_rmse_dB",
+      "value": 2.264688414031629,
+      "unit": "dB",
+      "how": "16 unseen cells"
+     },
+     {
+      "name": "fno_optimizer_best_dB",
+      "value": -6.543068986377335,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     },
+     {
+      "name": "bayesian_best_dB",
+      "value": -6.720940250952603,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/unit_cell/unit_cell_benchmark.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#unit_cell_benchmark"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "2994e0f247402c82"
    }
   },
   {

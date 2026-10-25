@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     methods,
     presets,
     problem,
+    query,
     reason,
     science,
     solvers,

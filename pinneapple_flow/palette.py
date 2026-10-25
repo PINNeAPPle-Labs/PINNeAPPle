@@ -78,6 +78,7 @@ SECTION_OF: dict[str, str] = {
     "lib.worldmodel.inspection_sample": "surrogates",
     "lib.worldmodel.arm_camera": "surrogates",
     "condense.package_thermal": "solvers",
+    "query.package": "solvers",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

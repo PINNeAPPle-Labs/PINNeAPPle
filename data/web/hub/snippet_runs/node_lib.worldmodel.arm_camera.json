@@ -1,0 +1,12 @@
+{
+ "code_hash": "b86b6007198f3deb",
+ "figures": [],
+ "id": "node:lib.worldmodel.arm_camera",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Labelled robot camera sample (USD) -> pinneapple_worldmodel.robot_perception:arm_camera_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'seed': 0, 'occluder': False, 'usd_path': 'arm_camera_sample.usda'}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "0237e13d2f69690b",
+ "figures": [],
+ "id": "example:examples/physics_optimizer",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PhysicsOptimizer | numerical methods | not curated",
+ "timed_out": false
+}

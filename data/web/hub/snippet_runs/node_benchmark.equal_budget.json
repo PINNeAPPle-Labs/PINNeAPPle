@@ -1,0 +1,12 @@
+{
+ "code_hash": "f0215b813ef72e90",
+ "figures": [],
+ "id": "node:benchmark.equal_budget",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Equal-budget benchmark (pp.benchmark.run) -> pinneapple_analysis.benchmark.run (pp.benchmark.run), ComputeBudget, BenchmarkResult.table / diagnostics / report\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'problems': ['burgers'], 'methods': ['pinn', 'fno', 'deeponet'], 'wall_s': 300.0, 'budget_levels': [0.1111111111111111, 0.3333333333333333, 1.0], 'seeds': 3, 'n_trials': 4, 'search_fraction': 0.3333333333333333, 'equal_flops': True, 'n_workers': 4, 'threads_per_run': 1, 'smoke': False}",
+ "timed_out": false
+}

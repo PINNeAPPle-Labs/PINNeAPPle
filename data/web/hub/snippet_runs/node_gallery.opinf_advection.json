@@ -1,0 +1,12 @@
+{
+ "code_hash": "a0863af6596d1953",
+ "figures": [],
+ "id": "node:gallery.opinf_advection",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation gallery 06: POD + operator inference on advection (basis cut at 95 %) -> pinneapple_physics.advection_diffusion_1d.AdvectionDiffusion1D; pinneapple_neural.architectures.rom.steppers.pod_opinf_stepper; pp.validate; gallery.conclude\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'n_train': 12, 'energy_bad': 0.95}",
+ "timed_out": false
+}

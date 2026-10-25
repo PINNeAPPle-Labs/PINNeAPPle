@@ -1,0 +1,12 @@
+{
+ "code_hash": "ebe24eb431a47110",
+ "figures": [],
+ "id": "dataset:airfoil_rans_cst_re4e6_fields",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Airfoil RANS flow fields, CST shapes, Re 4e6 (436 OpenFOAM runs, 20064-cell O-grid)\n{'train': 340, 'test': 60, 'naca_reference': 36} cc-by-4.0",
+ "timed_out": false
+}

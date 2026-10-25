@@ -1,0 +1,12 @@
+{
+ "code_hash": "244056a5d192053c",
+ "figures": [],
+ "id": "node:auto.design.fitmesh.parse",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.29,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemContext\nProblemContext(text='', facts={'accuracy': Fact(value='design', source='default')})",
+ "timed_out": false
+}

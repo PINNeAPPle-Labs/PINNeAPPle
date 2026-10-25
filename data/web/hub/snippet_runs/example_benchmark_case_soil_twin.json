@@ -1,0 +1,12 @@
+{
+ "code_hash": "d84ce69ab81a727f",
+ "figures": [],
+ "id": "example:benchmark_case/soil_twin",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - physics ode beats persistence 6h",
+ "timed_out": false
+}

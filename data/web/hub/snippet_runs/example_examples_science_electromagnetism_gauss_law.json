@@ -1,0 +1,12 @@
+{
+ "code_hash": "af71dd783cc4d31b",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/gauss_law",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Gauss's law (3D, 2D) | science / physics.electromagnetism | not curated\nrel_error[3D: flux through the cube x eps0] 0.0 -\n3D: flux_times_eps0 1.5000000000000002e-09 C\nrel_error[2D: flux per unit length x eps0] 2.0679515313825694e-16 -",
+ "timed_out": false
+}

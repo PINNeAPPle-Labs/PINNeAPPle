@@ -1,0 +1,12 @@
+{
+ "code_hash": "91131ee998dce031",
+ "figures": [],
+ "id": "node:autolab.pipe_twin",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 8.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
+ "timed_out": false
+}

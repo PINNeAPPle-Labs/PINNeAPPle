@@ -1,0 +1,12 @@
+{
+ "code_hash": "ec55baeb0f33103e",
+ "figures": [],
+ "id": "node:auto.systems.process_components.beam_column_moment_amplification_factor",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(1.112744599959518)",
+ "timed_out": false
+}

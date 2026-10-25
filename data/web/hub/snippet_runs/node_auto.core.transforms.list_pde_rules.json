@@ -1,0 +1,12 @@
+{
+ "code_hash": "e174d1d5a415f7ca",
+ "figures": [],
+ "id": "node:auto.core.transforms.list_pde_rules",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['burgers', 'heat_equation', 'laplace', 'poisson', 'wave_equation']",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8e0107241dcbaee",
+ "figures": [],
+ "id": "recipe:agents-dashboard-of-a-time-dependent-result",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "",
+ "timed_out": false
+}

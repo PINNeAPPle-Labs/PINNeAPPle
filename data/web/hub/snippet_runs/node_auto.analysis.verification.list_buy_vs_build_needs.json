@@ -1,0 +1,12 @@
+{
+ "code_hash": "4e4753f403551ced",
+ "figures": [],
+ "id": "node:auto.analysis.verification.list_buy_vs_build_needs",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['CFD_high_fidelity', 'FEM_structural', 'GPU_native_physics_ai', 'commercial_engineering_workflow_integration', 'digital_twin_platform', 'fast_surrogate_inference', 'hpc_infrastructure', 'mesh_generation', 'ml_surrogate_landscape_comparison', 'multiphysics_coupling', 'uncertainty_quantification', 'visualization']",
+ "timed_out": false
+}

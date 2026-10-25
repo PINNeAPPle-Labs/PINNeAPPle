@@ -1,0 +1,12 @@
+{
+ "code_hash": "fc4db2be66323b2d",
+ "figures": [],
+ "id": "example:examples/industrial_presets/ipm_traction_motor",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão | Eletromagnetismo / mobilidade elétrica | not curated\nrel_error[torque máximo da curva T(ângulo) a 250 A] 0.03511391427243841 -\nrel_error[curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo] 0.03376705963443254 -\nrel_error[ângulo de torque máximo (Phi0)] 0.0 -\nrel_error[torque: tensor de Maxwell vs co-energia (250 A, 50°)] 0.009883900864553579 -\nsurrogate_holdout_max_rel_err 0.058393295555846436 -",
+ "timed_out": false
+}

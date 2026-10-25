@@ -1,0 +1,12 @@
+{
+ "code_hash": "fb5fcbd5908856f1",
+ "figures": [],
+ "id": "example:calculix_case/l_bracket",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 1.09,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - bending vs Mc/I · mesh converged",
+ "timed_out": false
+}

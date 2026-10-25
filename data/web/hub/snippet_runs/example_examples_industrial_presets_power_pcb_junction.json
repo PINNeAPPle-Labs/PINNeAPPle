@@ -1,0 +1,12 @@
+{
+ "code_hash": "53da7db601d6cde2",
+ "figures": [],
+ "id": "example:examples/industrial_presets/power_pcb_junction",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Temperatura de junção numa placa de potência (conversor DC-DC 4 camadas) | Térmica / eletrônica | not curated\nrel_error[theta_JA TO-263 D2PAK na placa JEDEC 2s2p] 0.0075139540549168755 -\nrel_error[theta_JA QFN-32 5x5 na placa JEDEC 2s2p] 0.005776877924571159 -\nrel_error[theta_JA SOIC-8 na placa JEDEC 2s2p] 0.0009251485243855958 -\nsurrogate_holdout_max_rel_err 0.021588065186892432 -\ninversion_rel_err 0.01197085295079133 -",
+ "timed_out": false
+}

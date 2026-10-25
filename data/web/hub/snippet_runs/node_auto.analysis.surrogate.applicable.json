@@ -1,0 +1,12 @@
+{
+ "code_hash": "74c689efacb24938",
+ "figures": [],
+ "id": "node:auto.analysis.surrogate.applicable",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'ridge': None, 'gp': None, 'gbt': None, 'mlp': None, 'fno': 'FNO maps parameters to a field; the outputs here are scalars', 'deeponet': 'DeepONet maps parameters to a field; the outputs here are scalars', 'pinn': 'a PINN needs a field over coordinates (the outputs here are scalars)'}",
+ "timed_out": false
+}

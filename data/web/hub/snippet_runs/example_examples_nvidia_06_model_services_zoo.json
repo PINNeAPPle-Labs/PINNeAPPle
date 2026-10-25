@@ -1,0 +1,12 @@
+{
+ "code_hash": "14bf80c381610546",
+ "figures": [],
+ "id": "example:examples/nvidia/06_model_services_zoo",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Zoo surrogates as NIM-compatible services with a trust report per answer | physics AI | not curated\nlatency_median_ms 35.379128999920795 ms\ncl_naca2412_4deg 0.6615029102991399",
+ "timed_out": false
+}

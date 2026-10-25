@@ -1,0 +1,12 @@
+{
+ "code_hash": "fcaddfe0917fd7e8",
+ "figures": [],
+ "id": "node:auto.tools.benchmark_suite.list_backends",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['deepxde', 'jax_pinn', 'physicsnemo_sym', 'pinneapple_models', 'pinneapple_native']",
+ "timed_out": false
+}

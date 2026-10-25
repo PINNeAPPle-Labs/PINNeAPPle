@@ -1,0 +1,12 @@
+{
+ "code_hash": "c2040dfb10bfd7e7",
+ "figures": [],
+ "id": "example:benchmark_case/terramechanics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - hard constraints hold · Mohr-Coulomb and torque, built in",
+ "timed_out": false
+}

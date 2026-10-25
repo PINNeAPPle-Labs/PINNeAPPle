@@ -1,0 +1,12 @@
+{
+ "code_hash": "6da03e766551a6d7",
+ "figures": [],
+ "id": "example:cylinder_lbm",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - steady below onset · no shedding expected below Re ~ 47",
+ "timed_out": false
+}

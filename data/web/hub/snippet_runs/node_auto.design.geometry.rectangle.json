@@ -1,0 +1,12 @@
+{
+ "code_hash": "25d68a181888c9b0",
+ "figures": [],
+ "id": "node:auto.design.geometry.rectangle",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "SDF\n<pinneapple_design.geometry.gen.sdf_shapes.SDF object at 0x7f429594aa50>",
+ "timed_out": false
+}

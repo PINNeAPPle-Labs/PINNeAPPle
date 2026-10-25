@@ -1,0 +1,12 @@
+{
+ "code_hash": "41c3fe633c89b789",
+ "figures": [],
+ "id": "node:auto.tools.automation.example_workflow",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "example workflow -> pinneapple_tools.automation:example_workflow\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "33482ed4c1124891",
+ "figures": [],
+ "id": "node:auto.data.synth.has_pinnego_physical_sample",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nTrue",
+ "timed_out": false
+}

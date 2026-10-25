@@ -1,0 +1,12 @@
+{
+ "code_hash": "b7c8debcfa16f833",
+ "figures": [],
+ "id": "mcp:design",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "design(text: 'str', answers: 'Mapping[str, Any] | None' = None, verify: 'bool' = True, seed: 'int' = 0, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+ "timed_out": false
+}

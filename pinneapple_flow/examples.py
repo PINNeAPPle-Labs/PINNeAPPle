@@ -7,8 +7,9 @@
 * :data:`MEASURED` (``flows/examples/measured.json``) is written by :func:`run_example`: the outcome of each flow run
   (full or quick), its seconds and the ``examples.compare`` rows, flow number against the example's committed one;
 * :func:`scan` lists the library calls of an example's scripts and whether a node's declared calls cover them;
-* :func:`markdown` renders ``docs/flow_studio/EXAMPLES_AS_FLOWS.md`` from these three; :func:`problems` is the CI
-  gate (an example folder with neither a flow nor a stated reason).
+* :func:`markdown` renders ``docs/flow_studio/EXAMPLES_AS_FLOWS.md`` from these three (git-ignored: the docs build
+  generates it, ``tools/gen_flow_docs.py``); :func:`problems` is the CI gate (an example folder with neither a flow
+  nor a stated reason).
 
     python -m pinneapple_flow example-flows list
     python -m pinneapple_flow example-flows run flight_dynamics/03_takeoff [--quick]

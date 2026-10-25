@@ -1,0 +1,12 @@
+{
+ "code_hash": "db20e144b40a7d07",
+ "figures": [],
+ "id": "geometry:quadrotor_drone",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Quadcopter drone (F450 frame class) | aircraft\nquadrotor_drone.light.stl 398084 bytes",
+ "timed_out": false
+}

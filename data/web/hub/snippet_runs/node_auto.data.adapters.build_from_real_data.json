@@ -1,0 +1,12 @@
+{
+ "code_hash": "d1e887653cf3466f",
+ "figures": [],
+ "id": "node:auto.data.adapters.build_from_real_data",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build from real data -> pinneapple_data.adapters:build_from_real_data\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'adapter_cfg': {}}",
+ "timed_out": false
+}

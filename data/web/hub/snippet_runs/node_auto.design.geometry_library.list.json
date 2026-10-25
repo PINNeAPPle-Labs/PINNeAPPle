@@ -1,0 +1,12 @@
+{
+ "code_hash": "229116dbead6e321",
+ "figures": [],
+ "id": "node:auto.design.geometry_library.list",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['airliner_a320', 'aortic_arch', 'caarc_building', 'centrifugal_impeller', 'container_ship_kcs', 'f1_car', 'falcon9_booster', 'helicopter_h145', 'high_speed_train', 'launch_vehicle_two_stage', 'pin_fin_heatsink', 'quadrotor_drone', 'road_car', 'turboprop_atr72', 'viper_rover', 'wigley_hull', 'wind_turbine_nrel5mw']",
+ "timed_out": false
+}

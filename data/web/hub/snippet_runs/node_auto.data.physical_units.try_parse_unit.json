@@ -1,0 +1,12 @@
+{
+ "code_hash": "4ed0850f18ce7fdf",
+ "figures": [],
+ "id": "node:auto.data.physical_units.try_parse_unit",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

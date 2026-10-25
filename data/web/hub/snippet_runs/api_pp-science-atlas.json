@@ -1,0 +1,12 @@
+{
+ "code_hash": "801ddf3e9f309c34",
+ "figures": [],
+ "id": "api:pp-science-atlas",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.science.atlas(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'\nThe atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned",
+ "timed_out": false
+}

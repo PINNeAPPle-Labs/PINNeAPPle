@@ -1,0 +1,12 @@
+{
+ "code_hash": "e3b96f2a81d6f0a4",
+ "figures": [],
+ "id": "node:auto.physics.astro.seasons",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.4,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "seasons -> pinneapple_physics.astro:seasons\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

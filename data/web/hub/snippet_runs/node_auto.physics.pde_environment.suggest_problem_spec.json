@@ -1,0 +1,12 @@
+{
+ "code_hash": "f933b54a46e951b3",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.suggest_problem_spec",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.33,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'kind': 'custom', 'fields': ['u'], 'coords': ['x', 't'], 'default_params': {}, 'tags': [], 'confidence': 0.0}",
+ "timed_out": false
+}

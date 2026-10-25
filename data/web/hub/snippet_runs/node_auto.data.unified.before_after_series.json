@@ -1,0 +1,12 @@
+{
+ "code_hash": "ab30942dc196701d",
+ "figures": [],
+ "id": "node:auto.data.unified.before_after_series",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "before after series -> pinneapple_data.unified:before_after_series\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'result': {}, 'k': 500}",
+ "timed_out": false
+}

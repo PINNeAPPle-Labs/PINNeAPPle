@@ -1,0 +1,12 @@
+{
+ "code_hash": "aa9ebafeb09c6157",
+ "figures": [],
+ "id": "node:validate.arena",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation arena: red team / blue team -> pinneapple_analysis.validation.arena.run_arena\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'problem': 'darcy_2d', 'budget': 'small', 'rounds': 2, 'alpha': 0.01, 'method': 'de', 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "757758433f968c44",
+ "figures": [],
+ "id": "node:auto.systems.process_components.acid_fraction",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n0.5",
+ "timed_out": false
+}

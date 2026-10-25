@@ -1,0 +1,12 @@
+{
+ "code_hash": "1000ed777be8e5d6",
+ "figures": [],
+ "id": "node:em.spm_machine",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surface-PM machine: cogging, torque, back-EMF, losses -> pinneapple_simulation.electromagnetics.machine.SPMMachine (cogging, torque, torque_coenergy, torque_vs_current_angle, no_load_flux, losses) + postprocess.back_emf / IronLossModel\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'n_theta': 360, 'slot_opening': 0.13333333333333333, 'slot_width': 0.4, 'I_rated': 30.0, 'rpm': 1500.0, 'cogging_points': 16, 'emf_steps': 72, 'loss_steps': 24, 'iron_loss': {'k_h': 0.02, 'alpha': 1.0, 'beta': 2.0, 'k_c': 5e-05, 'k_e': 0.0001, 'density': 7650.0}}",
+ "timed_out": false
+}

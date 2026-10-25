@@ -1,0 +1,12 @@
+{
+ "code_hash": "020f34ae115c2181",
+ "figures": [],
+ "id": "node:auto.systems.process_components.compressible_mass_flow",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.36,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ValveFlowResult\nValveFlowResult(mass_flow_kg_s=0.0, choked=False, x=0.0, Y=1.0, Cv_effective_us=1.0)",
+ "timed_out": false
+}

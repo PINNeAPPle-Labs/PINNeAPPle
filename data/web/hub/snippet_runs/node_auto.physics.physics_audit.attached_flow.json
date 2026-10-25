@@ -1,0 +1,12 @@
+{
+ "code_hash": "229864727a522c3a",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.attached_flow",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='attached_flow', description='attached flow over the wing or airfoil (no stall, linear lift)', conditions=(Condition(feature='alpha_deg', lo=-12.0, hi=12.0, band=1.5, log=False),), breaks_into='flow separation and stall', missing_mechanism='separated flow')",
+ "timed_out": false
+}

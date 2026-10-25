@@ -1,0 +1,12 @@
+{
+ "code_hash": "814b994b3ea28b43",
+ "figures": [],
+ "id": "node:gnn.meshgraphnet",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MeshGraphNet (mesh dynamics) -> pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN + train_dynamics + eval_rollout\ninputs: []\noutputs: [('metrics', 'metrics'), ('architecture', 'architecture')]\ndefaults: {'n_train': 12, 'n_test': 3, 'n_points': 100, 'steps': 1200, 'rollout': 10, 'hidden': 32, 'message_passing': 4}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6114c5789dcaad6b",
+ "figures": [],
+ "id": "example:examples/pinneapple_and_physicsnemo",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pinneapple and physicsnemo | physics AI | curated\ntest_mse_u_VanillaPINN 0.0001490869908593595 \ntest_mse_u_VPINN 7.62357643679934e-08 \ntest_mse_u_PINNsFormer 0.006393932271748781 \ntest_mse_u_PIELM_wrap_ 0.004979216493666172 \ntrain_time_VanillaPINN 44.164775133132935 s",
+ "timed_out": false
+}

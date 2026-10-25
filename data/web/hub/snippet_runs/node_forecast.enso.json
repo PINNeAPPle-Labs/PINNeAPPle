@@ -1,0 +1,12 @@
+{
+ "code_hash": "6bb918b4cd21ba82",
+ "figures": [],
+ "id": "node:forecast.enso",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "El Nino forecast (ENSO models) -> pinneapple_systems.time_series.enso: dataset.build_dataset + to_series, study.protocol + run_model, pipeline.skill_against + enso_scores; forecast_lab.study.merge_zoo\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'models': ['persistence', 'climatology', 'ar', 'ro', 'delayed_oscillator', 'lim', 'gbm'], 'quick': True, 'test_start': '2012-01', 'leads': [3, 6, 9, 12]}",
+ "timed_out": false
+}

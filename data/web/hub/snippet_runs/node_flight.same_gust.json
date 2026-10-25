@@ -1,0 +1,12 @@
+{
+ "code_hash": "c8476469196e5bfb",
+ "figures": [],
+ "id": "node:flight.same_gust",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "The same 1-cosine gust for every aircraft -> pinneapple_simulation.flight.simulate.simulate (StickFixed) + turbulence.DiscreteGust + pratt_gust_load; encounter.gust_sensitivity; trim.trim + stability_derivatives\ninputs: [('aircraft', 'aircraft')]\noutputs: [('metrics', 'metrics'), ('runs', 'flight_run')]\ndefaults: {'amplitude': 7.62, 'half_length': 50.0, 'altitude': 3000.0, 'lead': 1.5, 'dt': 0.005}",
+ "timed_out": false
+}

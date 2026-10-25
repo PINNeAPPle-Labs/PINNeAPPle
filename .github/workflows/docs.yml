@@ -11,6 +11,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      PINNEAPPLE_DOCS_STRICT: "1"     # a generated page that fails to render fails the build (and the deploy)
 
     steps:
       - name: Checkout
@@ -21,10 +23,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install docs dependencies
+      # The package itself (CPU torch) renders the generated pages: tools/gen_flow_docs.py writes
+      # flow_studio/COVERAGE.md and flow_studio/EXAMPLES_AS_FLOWS.md into the site (they are not committed).
+      - name: Install docs dependencies and the package
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-docs.txt
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[flow]" -r requirements-docs.txt
 
       - name: Refresh the open-issues snapshot of the contribute page
         env:

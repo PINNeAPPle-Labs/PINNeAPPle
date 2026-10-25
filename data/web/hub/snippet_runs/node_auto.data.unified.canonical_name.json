@@ -1,0 +1,12 @@
+{
+ "code_hash": "aaf3c237169022bd",
+ "figures": [],
+ "id": "node:auto.data.unified.canonical_name",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'value'",
+ "timed_out": false
+}

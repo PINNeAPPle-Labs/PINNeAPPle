@@ -1,0 +1,12 @@
+{
+ "code_hash": "81faf3c85c0f8106",
+ "figures": [],
+ "id": "example:examples/physics_db",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Quickstart: discover a dataset via CMR/earthaccess and inspect variables | numerical methods | not curated",
+ "timed_out": false
+}

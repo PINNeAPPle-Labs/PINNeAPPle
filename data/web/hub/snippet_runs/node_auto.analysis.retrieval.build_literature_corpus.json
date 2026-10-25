@@ -1,0 +1,12 @@
+{
+ "code_hash": "b07d882358c9debc",
+ "figures": [],
+ "id": "node:auto.analysis.retrieval.build_literature_corpus",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "build_literature_corpus: fetching topic 'physics informed neural networks' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'fourier neural operator' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'deep operator network' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'uncertainty quantification scientific machine learning' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'turbulence closure machine learning' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'digital twin physics simulation' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'inverse problems deep learning PDE' failed, skipping it: <urlopen error [Errno -2] Name or service not known>\nbuild_literature_corpus: fetching topic 'graph neural network mesh simulation' failed, skipping it: <urlopen error [Errno -2] Name or service not known>",
+ "stdout": "list\n[]",
+ "timed_out": false
+}

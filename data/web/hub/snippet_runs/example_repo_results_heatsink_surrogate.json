@@ -1,0 +1,12 @@
+{
+ "code_hash": "07c92fc013ce9086",
+ "figures": [],
+ "id": "example:repo_results/heatsink_surrogate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - forced Rth mean error below 2pct · 900 held-out designs (never…",
+ "timed_out": false
+}

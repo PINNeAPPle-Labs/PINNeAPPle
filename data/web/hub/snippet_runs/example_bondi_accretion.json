@@ -1,0 +1,12 @@
+{
+ "code_hash": "8cef16b8b61709d1",
+ "figures": [],
+ "id": "example:bondi_accretion",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - steady accretion rate",
+ "timed_out": false
+}

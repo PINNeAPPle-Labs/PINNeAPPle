@@ -1,0 +1,12 @@
+{
+ "code_hash": "b2cda11c82525432",
+ "figures": [],
+ "id": "api:pp-design",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.design(text: 'str', *, answers: 'dict[str, Any] | None' = None, llm: 'IntentLLM | None' = None, template: 'str | None' = None, seed: 'int' = 0, out_dir: 'str | None' = None, verify: 'bool' = True, n_screen: 'int' = 2000, budget: 'int' = 600, n_candidates: 'int' = 3, robust_samples: 'int' = 2000, progress: 'Callable[[str], None] | None' = None) -> 'DesignPackage | NeedsInput | OutOfScope'\nDesign from a plain-language goal.",
+ "timed_out": false
+}

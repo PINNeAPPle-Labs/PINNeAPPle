@@ -1,0 +1,968 @@
+[
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "neuraloperator",
+  "mode": "b",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 335.2220816659992,
+  "cpu_s": 330.701238675,
+  "loadavg_before": [
+   1.0,
+   0.97,
+   1.03
+  ],
+  "loadavg_after": [
+   1.99,
+   1.6,
+   1.29
+  ],
+  "versions": {
+   "neuraloperator": "2.0.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "neuralop.models.FNO",
+    "n_modes": [
+     24,
+     22
+    ],
+    "hidden_channels": 32,
+    "n_layers": 4,
+    "projection_channel_ratio": 2,
+    "positional_embedding": "grid"
+   }
+  },
+  "source": "neuraloperator 2.0.0 examples/models/plot_FNO_darcy.py",
+  "epochs": 12,
+  "n_parameters": 1192801,
+  "n_parameters_real": 2372449,
+  "epoch_wall_s": [
+   28.28479631400114,
+   27.37759889299923,
+   27.61494711100022,
+   29.036447308999414,
+   27.890402580000227,
+   28.509971191999284,
+   27.591861478000283,
+   26.437217193000834,
+   26.007969012000103,
+   26.16027291499995,
+   28.61539937999987,
+   27.02021409900044
+  ],
+  "epoch_cpu_s": [
+   27.753991937,
+   27.12999248,
+   27.313966667999992,
+   28.756529364000002,
+   27.610943428000013,
+   28.114265108000012,
+   27.31116555700001,
+   25.714216757999992,
+   25.73725207199999,
+   25.809098447000025,
+   28.243054823000023,
+   26.622417589999998
+  ],
+  "latency_batch1_s": 0.014985707500272838,
+  "latency_batch20_s": 0.16526717099986854,
+  "val_metrics": {
+   "rel_l2_mean": 0.06833901259258898,
+   "rel_l2_median": 0.061095592546818366,
+   "rel_l2_max": 0.2281879410658154,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 346.1069253320002,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 350.77260875701904
+  },
+  "run_id": "B_darcy_neuraloperator_s0",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.06953278794113195,
+   "rel_l2_median": 0.060688865031885496,
+   "rel_l2_max": 0.23351265680502287,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "neuraloperator",
+  "mode": "b",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 334.3978735180008,
+  "cpu_s": 330.55596642499995,
+  "loadavg_before": [
+   3.05,
+   2.71,
+   2.06
+  ],
+  "loadavg_after": [
+   2.02,
+   2.35,
+   2.11
+  ],
+  "versions": {
+   "neuraloperator": "2.0.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "neuralop.models.FNO",
+    "n_modes": [
+     24,
+     22
+    ],
+    "hidden_channels": 32,
+    "n_layers": 4,
+    "projection_channel_ratio": 2,
+    "positional_embedding": "grid"
+   }
+  },
+  "source": "neuraloperator 2.0.0 examples/models/plot_FNO_darcy.py",
+  "epochs": 12,
+  "n_parameters": 1192801,
+  "n_parameters_real": 2372449,
+  "epoch_wall_s": [
+   29.188046854000277,
+   28.757946844998514,
+   28.904622129000927,
+   27.937708383000427,
+   28.348040397999284,
+   27.53628380200098,
+   27.490549875999932,
+   27.301315665999937,
+   27.220731393999813,
+   26.167343414999777,
+   25.304477907000546,
+   25.441370419999657
+  ],
+  "epoch_cpu_s": [
+   28.809513048,
+   28.279797631,
+   28.555546174,
+   27.577532121999994,
+   28.078344252999997,
+   27.284165717999997,
+   27.15050625799998,
+   27.015370104,
+   26.86834599399998,
+   25.895071153000004,
+   25.07822996599998,
+   25.246072246999972
+  ],
+  "latency_batch1_s": 0.012739075499666797,
+  "latency_batch20_s": 0.15531752450078784,
+  "val_metrics": {
+   "rel_l2_mean": 0.07394335011917531,
+   "rel_l2_median": 0.06659089762685506,
+   "rel_l2_max": 0.240393815713453,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 342.43345745199986,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 347.1153140068054
+  },
+  "run_id": "B_darcy_neuraloperator_s1",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.0768745334460973,
+   "rel_l2_median": 0.06713113009667931,
+   "rel_l2_max": 0.24563956605643822,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "neuraloperator",
+  "mode": "b",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 384.51685441600057,
+  "cpu_s": 381.10681896299997,
+  "loadavg_before": [
+   2.14,
+   2.21,
+   2.13
+  ],
+  "loadavg_after": [
+   2.0,
+   2.05,
+   2.07
+  ],
+  "versions": {
+   "neuraloperator": "2.0.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "neuralop.models.FNO",
+    "n_modes": [
+     24,
+     22
+    ],
+    "hidden_channels": 32,
+    "n_layers": 4,
+    "projection_channel_ratio": 2,
+    "positional_embedding": "grid"
+   }
+  },
+  "source": "neuraloperator 2.0.0 examples/models/plot_FNO_darcy.py",
+  "epochs": 12,
+  "n_parameters": 1192801,
+  "n_parameters_real": 2372449,
+  "epoch_wall_s": [
+   28.879492412999753,
+   29.547958076000214,
+   30.05883915999948,
+   32.198132577999786,
+   33.523151151001,
+   35.40645725699869,
+   32.65643925599943,
+   31.85407447200123,
+   32.600395057999776,
+   32.246218922999105,
+   30.89583727199897,
+   29.86746150699946
+  ],
+  "epoch_cpu_s": [
+   28.501310787999998,
+   29.295749641,
+   29.798294053000006,
+   31.951797487999997,
+   33.12384400899998,
+   35.24022079299999,
+   32.38560682100001,
+   31.681005288000023,
+   32.27508356499999,
+   32.024238674,
+   30.501777137999966,
+   29.603709993999985
+  ],
+  "latency_batch1_s": 0.013768624500698934,
+  "latency_batch20_s": 0.19541375900007552,
+  "val_metrics": {
+   "rel_l2_mean": 0.06918135294855814,
+   "rel_l2_median": 0.06413465717027424,
+   "rel_l2_max": 0.21296841755707713,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 394.0265406620001,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 398.9834535121918
+  },
+  "run_id": "B_darcy_neuraloperator_s2",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.07002113742206274,
+   "rel_l2_median": 0.06105319246191067,
+   "rel_l2_max": 0.2201752335711645,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "physicsnemo",
+  "mode": "b",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 551.083297446,
+  "cpu_s": 544.272172532,
+  "loadavg_before": [
+   1.0,
+   0.72,
+   1.08
+  ],
+  "loadavg_after": [
+   1.0,
+   0.97,
+   1.03
+  ],
+  "versions": {
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "physicsnemo.models.fno.FNO",
+    "latent_channels": 32,
+    "num_fno_modes": 12,
+    "num_fno_layers": 4,
+    "decoder_layers": 1,
+    "decoder_layer_size": 32,
+    "padding": 9,
+    "coord_features": true
+   }
+  },
+  "source": "NVIDIA/physicsnemo v2.2.2 examples/cfd/darcy_fno",
+  "epochs": 12,
+  "n_parameters": 2365217,
+  "n_parameters_real": 2365217,
+  "epoch_wall_s": [
+   46.44978486199943,
+   43.00725285599947,
+   44.38077049899948,
+   42.75877034900077,
+   44.84776117100046,
+   44.440141617000336,
+   46.63030650499968,
+   47.477788894000696,
+   45.391960536000624,
+   45.44945177900081,
+   45.82012515899987,
+   44.16760227499981
+  ],
+  "epoch_cpu_s": [
+   45.303690258,
+   42.52084214599999,
+   43.850891424,
+   42.36453820700001,
+   44.32321289500001,
+   44.029393575,
+   45.713034643000015,
+   46.942861564,
+   45.09063507600001,
+   44.965007086000014,
+   45.33629024300001,
+   43.72271485800002
+  ],
+  "latency_batch1_s": 0.022904229999767267,
+  "latency_batch20_s": 0.37993526449918136,
+  "val_metrics": {
+   "rel_l2_mean": 0.05180553736711589,
+   "rel_l2_median": 0.046369285680547684,
+   "rel_l2_max": 0.17284943131378466,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 571.8989951379999,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 578.4373066425323
+  },
+  "run_id": "B_darcy_physicsnemo_s0",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.05203281372090852,
+   "rel_l2_median": 0.04656870300250312,
+   "rel_l2_max": 0.16827740059819074,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "physicsnemo",
+  "mode": "b",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 527.0539819149999,
+  "cpu_s": 519.9587202519999,
+  "loadavg_before": [
+   1.92,
+   1.72,
+   1.4
+  ],
+  "loadavg_after": [
+   2.96,
+   2.67,
+   2.03
+  ],
+  "versions": {
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "physicsnemo.models.fno.FNO",
+    "latent_channels": 32,
+    "num_fno_modes": 12,
+    "num_fno_layers": 4,
+    "decoder_layers": 1,
+    "decoder_layer_size": 32,
+    "padding": 9,
+    "coord_features": true
+   }
+  },
+  "source": "NVIDIA/physicsnemo v2.2.2 examples/cfd/darcy_fno",
+  "epochs": 12,
+  "n_parameters": 2365217,
+  "n_parameters_real": 2365217,
+  "epoch_wall_s": [
+   42.710381079999934,
+   42.701357605999874,
+   43.62044880800022,
+   41.656977478000044,
+   42.24814626300031,
+   43.41779057799977,
+   42.22145094100051,
+   44.53948581000077,
+   44.96029343100054,
+   43.86739092500102,
+   43.67429669300145,
+   42.76164417799919
+  ],
+  "epoch_cpu_s": [
+   42.186102316,
+   42.198381376,
+   43.13916414299999,
+   41.284526954,
+   41.64245770299999,
+   42.84398320300002,
+   41.684680741999955,
+   43.87387243200004,
+   44.311744417,
+   42.90876793800004,
+   43.02929172800003,
+   42.28862029600003
+  ],
+  "latency_batch1_s": 0.024058742999841343,
+  "latency_batch20_s": 0.36434913050015894,
+  "val_metrics": {
+   "rel_l2_mean": 0.048193895843857026,
+   "rel_l2_median": 0.04332446971832908,
+   "rel_l2_max": 0.1624974781947759,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 544.5676758749996,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 550.4750843048096
+  },
+  "run_id": "B_darcy_physicsnemo_s1",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.048628352075189236,
+   "rel_l2_median": 0.04337811126126542,
+   "rel_l2_max": 0.15773612339046358,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "physicsnemo",
+  "mode": "b",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 551.8473239970008,
+  "cpu_s": 545.350867108,
+  "loadavg_before": [
+   2.0,
+   2.17,
+   2.08
+  ],
+  "loadavg_after": [
+   2.2,
+   2.22,
+   2.13
+  ],
+  "versions": {
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "physicsnemo.models.fno.FNO",
+    "latent_channels": 32,
+    "num_fno_modes": 12,
+    "num_fno_layers": 4,
+    "decoder_layers": 1,
+    "decoder_layer_size": 32,
+    "padding": 9,
+    "coord_features": true
+   }
+  },
+  "source": "NVIDIA/physicsnemo v2.2.2 examples/cfd/darcy_fno",
+  "epochs": 12,
+  "n_parameters": 2365217,
+  "n_parameters_real": 2365217,
+  "epoch_wall_s": [
+   43.24165693900068,
+   44.451862047999384,
+   43.10545324499981,
+   45.302676210001664,
+   44.98191860600127,
+   45.466808874998605,
+   46.53399952000109,
+   48.105177315999754,
+   46.159937774000355,
+   44.8300860420004,
+   44.8312981250001,
+   44.280453852999926
+  ],
+  "epoch_cpu_s": [
+   42.674589497,
+   43.956259638000006,
+   42.606295402,
+   44.690413398000004,
+   44.36814156199998,
+   44.94605424599999,
+   46.038757691,
+   47.44242351300005,
+   45.715819291,
+   44.356665018,
+   44.34957375900001,
+   43.749009324999975
+  ],
+  "latency_batch1_s": 0.023783573499713384,
+  "latency_batch20_s": 0.3902128130002893,
+  "val_metrics": {
+   "rel_l2_mean": 0.05380823600505452,
+   "rel_l2_median": 0.04933295898532693,
+   "rel_l2_max": 0.17232044474512906,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 570.8076479009997,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 577.2536702156067
+  },
+  "run_id": "B_darcy_physicsnemo_s2",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.05414119511686927,
+   "rel_l2_median": 0.048309590020147536,
+   "rel_l2_max": 0.17326729309949496,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "pinneapple",
+  "mode": "b",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 191.94020574499973,
+  "cpu_s": 188.39195544,
+  "loadavg_before": [
+   0.31,
+   0.32,
+   1.07
+  ],
+  "loadavg_after": [
+   1.0,
+   0.7,
+   1.08
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "pinneapple_neural.architectures.neural_operators.fno.FNO2d",
+    "width": 32,
+    "modes": 12,
+    "layers": 4,
+    "use_grid": true
+   }
+  },
+  "source": "PINNeAPPle FNO2d at the commit under test",
+  "epochs": 12,
+  "n_parameters": 1184033,
+  "n_parameters_real": 2363681,
+  "epoch_wall_s": [
+   16.152716194000277,
+   14.82065558800059,
+   14.977671227999963,
+   15.048090445000526,
+   15.806114179999895,
+   17.04969917699964,
+   16.16510788100004,
+   15.521926055999756,
+   15.264801932999944,
+   15.309871372999623,
+   14.848779061000641,
+   15.97580937299972
+  ],
+  "epoch_cpu_s": [
+   14.536114375999999,
+   14.667070447000004,
+   14.812773150000005,
+   14.879488324,
+   15.688197734,
+   16.925900176,
+   15.98303553400001,
+   15.360404486999997,
+   15.115986469000006,
+   15.176996396999982,
+   14.673179291999986,
+   15.782119267000013
+  ],
+  "latency_batch1_s": 0.014478061999852798,
+  "latency_batch20_s": 0.09295864099976825,
+  "val_metrics": {
+   "rel_l2_mean": 0.037375548366292144,
+   "rel_l2_median": 0.03392927252901898,
+   "rel_l2_max": 0.11380187223143308,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 203.83297704600045,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 209.91859364509583
+  },
+  "run_id": "B_darcy_pinneapple_s0",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.036236063946714955,
+   "rel_l2_median": 0.0341417905103059,
+   "rel_l2_max": 0.1140342874040177,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "pinneapple",
+  "mode": "b",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 172.4608030519994,
+  "cpu_s": 170.27219168599999,
+  "loadavg_before": [
+   2.0,
+   1.62,
+   1.3
+  ],
+  "loadavg_after": [
+   1.81,
+   1.68,
+   1.38
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "pinneapple_neural.architectures.neural_operators.fno.FNO2d",
+    "width": 32,
+    "modes": 12,
+    "layers": 4,
+    "use_grid": true
+   }
+  },
+  "source": "PINNeAPPle FNO2d at the commit under test",
+  "epochs": 12,
+  "n_parameters": 1184033,
+  "n_parameters_real": 2363681,
+  "epoch_wall_s": [
+   13.922437306000575,
+   14.537799697000082,
+   13.828915308000433,
+   14.717522914001165,
+   14.87100334599927,
+   13.529153945000871,
+   14.01799936200041,
+   13.36284323200016,
+   14.098978054000327,
+   14.228341646001354,
+   13.70937442399918,
+   13.86015088700151
+  ],
+  "epoch_cpu_s": [
+   13.780258664,
+   14.391681529,
+   13.669988173,
+   14.554707971,
+   14.719642745000002,
+   13.406181286999995,
+   13.830190513999995,
+   13.218292090000006,
+   13.761190107000004,
+   14.043394075000009,
+   13.531568711000006,
+   13.632823383999977
+  ],
+  "latency_batch1_s": 0.009084461499696772,
+  "latency_batch20_s": 0.08489987699977064,
+  "val_metrics": {
+   "rel_l2_mean": 0.04513788165100532,
+   "rel_l2_median": 0.0405775523230085,
+   "rel_l2_max": 0.14940330281293707,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 178.952902989,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 183.31754517555237
+  },
+  "run_id": "B_darcy_pinneapple_s1",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.044749319172930555,
+   "rel_l2_median": 0.04000844777938353,
+   "rel_l2_max": 0.15603158761364042,
+   "n_test": 200,
+   "finite": true
+  }
+ },
+ {
+  "track": "B",
+  "problem": "darcy",
+  "framework": "pinneapple",
+  "mode": "b",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 540,
+  "wall_s": 170.85513031700066,
+  "cpu_s": 169.132456576,
+  "loadavg_before": [
+   1.94,
+   2.32,
+   2.1
+  ],
+  "loadavg_after": [
+   2.0,
+   2.17,
+   2.08
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "resolution": 64,
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "batch_size": 20,
+   "lr": 0.001,
+   "weight_decay": 0.0001,
+   "loss": "per-sample relative L2, averaged over the batch",
+   "schedule": "cosine over all steps",
+   "epochs": 12,
+   "n_train": 1000,
+   "model": {
+    "class": "pinneapple_neural.architectures.neural_operators.fno.FNO2d",
+    "width": 32,
+    "modes": 12,
+    "layers": 4,
+    "use_grid": true
+   }
+  },
+  "source": "PINNeAPPle FNO2d at the commit under test",
+  "epochs": 12,
+  "n_parameters": 1184033,
+  "n_parameters_real": 2363681,
+  "epoch_wall_s": [
+   13.480215603000033,
+   13.042017309000585,
+   13.211316887998692,
+   14.086647144999006,
+   14.097961231000227,
+   14.017198137999003,
+   13.907122591999723,
+   14.721086085000934,
+   14.19587732599939,
+   14.28745671300021,
+   14.306088149000061,
+   13.93963996399907
+  ],
+  "epoch_cpu_s": [
+   13.321955851,
+   12.908584015000002,
+   13.100811894000003,
+   13.935026366000002,
+   13.949250157999998,
+   13.86085851,
+   13.762220318000004,
+   14.579963539000005,
+   14.081197376000006,
+   14.111321815999986,
+   14.184762038999992,
+   13.802296734999999
+  ],
+  "latency_batch1_s": 0.010042399000667501,
+  "latency_batch20_s": 0.07887493100042775,
+  "val_metrics": {
+   "rel_l2_mean": 0.03854960390145603,
+   "rel_l2_median": 0.03438626661523718,
+   "rel_l2_max": 0.121722486439272,
+   "n_test": 100,
+   "finite": true
+  },
+  "process_wall_s": 177.12197407700114,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 181.64446353912354
+  },
+  "run_id": "B_darcy_pinneapple_s2",
+  "schema_missing": [],
+  "loss_history_len": 12,
+  "metrics": {
+   "rel_l2_mean": 0.036573753937055996,
+   "rel_l2_median": 0.033564297060953284,
+   "rel_l2_max": 0.1187170157250952,
+   "n_test": 200,
+   "finite": true
+  }
+ }
+]

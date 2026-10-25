@@ -79,6 +79,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
+  and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
+  `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
+  PDE loss fell and traded data fit for a smaller residual. On the benchmark's inverse Burgers problem (ν from 2000
+  samples with 1 % noise, 5 seeds, 3000 iterations, `benchmarks/vs_frameworks/REPORT.md` track C) the ν relative error
+  was 12.5 [11.0, 13.7] with adaptive weighting and is 3.41 [2.99, 3.90] with the new default (median [min, max]);
+  the field error went from 0.384 to 0.112. The ENSO PINNs in `pinneapple_systems.time_series.enso.pinn` pass
+  `weighting="adaptive"`, so their results are unchanged.
 - **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
   "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
 - **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first
@@ -88,6 +96,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   gates (AGENTS.md, "Generated files").
 
 ### Fixed
+- Bugs found by the cross-framework benchmark (`benchmarks/vs_frameworks/REPORT.md`):
+  - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) early stopping watched the weighted total,
+    which its adaptive PDE/data balancing re-weights every step, so it compared losses under different weights (it
+    stopped while no term got worse, and never stopped on a true plateau). It now watches the unweighted
+    `L_pde + L_data`; `patience=None` turns it off. The last step is now recorded in the history.
+  - **Behavior:** `InversePINN` caught every exception of `residual_fn`, logged it and trained with a zero PDE loss
+    (a silent data-only fit). The exception now propagates.
+  - **Behavior:** `ModelRegistry.build` / `build_with_report` dropped `hidden_dim` / `n_layers` for architectures
+    that name their size differently, so `vanilla_pinn`, `vpinn`, `xpinn`, `inverse_pinn` (`hidden=[...]`) and the
+    `bench_*` MLPs (`width` / `depth`) built their default 4 x 128 net. They are now translated to the class's own
+    arguments (`hidden=[hidden_dim] * n_layers`, `width`, `depth`, `n_hidden`); the class's own size arguments win
+    when given. Through `pp.solve(..., "pinn")` these architectures now get its documented 64 x 4 default.
+  - **Behavior:** `pp.solve(problem, "pinn", ...)` raises `TypeError` on an unknown option (it swallowed any, e.g.
+    `n_epochs=` or a preset parameter, and trained with defaults), and warns when an explicit `hidden_dim` /
+    `n_layers` cannot be applied to the architecture (`elm`, `rbf`, `xtfc`, ...). The other built-in methods warn (`UserWarning`) on options they ignore,
+    except `seed`. Preset parameters go in `preset_kwargs={...}`.
+  - `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym` imported `ModulusConfig`, which
+    nvidia-physicsnemo.sym 2.4.0 does not have, and reported the package as missing. It now uses the 2.4.0 API
+    (`PointwiseConstraint.from_numpy`, `Activation`, a config composed from `physicsnemo_default`, `cuda_graphs`
+    off on CPU), returns `model` and `predict_fn`, and a missing package raises `ImportError` naming it.
 - `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
   (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
   `cw_exact_velocity` (its results do not change: it uses vx0 = 0).

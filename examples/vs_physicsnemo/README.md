@@ -1,5 +1,10 @@
 # PINNeAPPle vs PhysicsNeMo — Comparison & Integration Guide
 
+> As linhas marcadas como medidas vêm do benchmark entre frameworks
+> ([`benchmarks/vs_frameworks/REPORT.md`](../../benchmarks/vs_frameworks/REPORT.md)): só CPU (Intel Xeon, 1 thread por run),
+> 3 a 5 seeds, nvidia-physicsnemo 2.2.2 e nvidia-physicsnemo.sym 2.4.0. Nada foi medido em GPU, que é onde o
+> PhysicsNeMo é otimizado. As outras linhas descrevem funcionalidades e não foram medidas.
+
 ## Resumo executivo
 
 | Pergunta | Ferramenta |
@@ -10,7 +15,7 @@
 | Preciso de FNO/AFNO para operator learning em larga escala? | **PhysicsNeMo** |
 | Preciso de meta-aprendizado para famílias paramétricas de PDEs? | **PINNeAPPle** |
 | Preciso de MeshGraphNet para malhas não-estruturadas >200k nós? | **PhysicsNeMo** |
-| Preciso de collocação adaptativa (RAR/RAD)? | **PINNeAPPle** |
+| Preciso de collocação adaptativa (RAR/RAD)? | **Ambos**: PINNeAPPle (RAR, RAD); PhysicsNeMo-Sym (amostragem por importância); DeepXDE também tem RAR |
 | Preciso de FourCastNet / SFNO para previsão climática global? | **PhysicsNeMo** |
 | Preciso de XPINN com decomposição de domínio? | **PINNeAPPle** |
 | Preciso de assimilação de dados (EKF/EnKF)? | **PINNeAPPle** |
@@ -43,8 +48,8 @@
 
 | Feature | PINNeAPPle | PhysicsNeMo | Notas |
 |---|---|---|---|
-| **Arquiteturas PINN** | 8 variantes (ver catálogo abaixo) | FullyConnected (via Sym) | PINNeAPPle mais variado |
-| **Operadores neurais** | FNO, DeepONet, GNO, PINO, UNO, MultiScale-DeepONet | FNO, AFNO, SFNO, FNO-2D/3D | PhysicsNeMo mais otimizado |
+| **Arquiteturas PINN** | 8 variantes (ver catálogo abaixo) | PhysicsNeMo-Sym 2.4.0 (`physicsnemo/sym/models/`): fully connected, Fourier features, modified Fourier, multiscale Fourier, highway Fourier, SiReN, DGM, multiplicative filter, hash encoding, radial basis, fused MLP | Ambos têm várias; "mais variado" não foi medido. Com a mesma rede, pontos e perda (trilha A1) PINNeAPPle, DeepXDE e Sym dão os mesmos erros |
+| **Operadores neurais** | FNO, DeepONet, GNO, PINO, UNO, MultiScale-DeepONet | FNO, AFNO, SFNO, FNO-2D/3D (o Sym tem também DeepONet, FNO, AFNO) | Medido só em CPU, 1 thread, Darcy 64×64, 12 épocas, mesmo bloco espectral (~2,36M parâmetros): o `FNO` do PhysicsNeMo levou 3,2× o tempo por época e 2,4–4,5× a latência de inferência do `FNO2d` do PINNeAPPle, com erro 1,4× maior. Velocidade em GPU e ranking na convergência não medidos ([trilha B](../../benchmarks/vs_frameworks/REPORT.md#b-fno-on-darcy-64-x-64-3-seeds-12-epochs-the-same-training-loop-and-data-for-the-three-models)) |
 | **GNN** | GNN, EGNN, GNN-ODE, STGNN, GraphCast | MeshGraphNet, AeroGraphNet, X-MeshGraphNet, DoMINO | PhysicsNeMo especializado para CFD |
 | **ROMs** | POD, DMD, HAVOK, OpInf, DeepUQROM | ❌ | PINNeAPPle exclusivo |
 | **Neural ODEs** | NeuralODE, LatentODE, HNN, SymplecticODE, NeuralSDE | ❌ | PINNeAPPle exclusivo |
@@ -57,8 +62,8 @@
 | **Digital Twin** | Streams MQTT/Kafka/HTTP/Mock, EKF/EnKF, anomalia | ❌ | PINNeAPPle exclusivo |
 | **Meta-aprendizado** | MAML, Reptile, PDETaskSampler | ❌ | PINNeAPPle exclusivo |
 | **Transfer Learning** | TransferTrainer, ParametricFamilyTransfer | ❌ | PINNeAPPle exclusivo |
-| **Active Learning** | RAR, RAD, CombinedAL, AdaptiveCollocationTrainer | ❌ | PINNeAPPle exclusivo |
-| **Ajuste de pesos** | SA-PINN, GradNorm, NTK, LossRatio | ❌ | PINNeAPPle exclusivo |
+| **Active Learning** | RAR, RAD, CombinedAL, AdaptiveCollocationTrainer | PhysicsNeMo-Sym: amostragem por importância nas restrições contínuas (`importance_measure`, `domain/constraint/continuous.py`) | Não é exclusivo; DeepXDE também tem RAR (exemplo `Burgers_RAR.py`). Não medido |
+| **Ajuste de pesos** | SA-PINN, GradNorm, NTK, LossRatio | PhysicsNeMo-Sym: agregadores `grad_norm`, `res_norm`, `homoscedastic`, `lr_annealing`, `soft_adapt`, `relobralo` e opção NTK (`training.ntk`) | Não é exclusivo. Medido: o balanceamento adaptativo do `InversePINN` (hoje opcional, `weighting="adaptive"`) era a causa principal do seu erro de ν no problema inverso ([trilha C](../../benchmarks/vs_frameworks/REPORT.md#c-inverse-burgers-ν-from-2000-samples-with-1--noise-5-seeds-3000-iterations)) |
 | **Validação física** | ConservationCheck, BoundaryCheck, SymmetryCheck | ❌ | PINNeAPPle exclusivo |
 | **Problem design** | ProblemBuilder → ProblemSpec → Arena pipeline | Scripts Python | PINNeAPPle exclusivo |
 | **Presets** | 35+ (CFD, estrutural, térmico, finanças, fármacos…) | CFD focado | PINNeAPPle mais amplo |
@@ -66,6 +71,46 @@
 | **Export** | ONNX, TorchScript, checkpoint | ONNX, TensorRT, Triton | PhysicsNeMo melhor deploy NVIDIA |
 | **Solvers** | FEniCS, OpenFOAM, FDM, FEM, SPH, LBM | OpenFOAM (básico) | PINNeAPPle mais completo |
 | **Licença** | Open source (Apache 2.0) | Open source (Apache 2.0) | Ambos abertos |
+
+---
+
+## O que o benchmark mediu
+
+Resumo de [`benchmarks/vs_frameworks/REPORT.md`](../../benchmarks/vs_frameworks/REPORT.md) (mediana [mín, máx] sobre seeds; CPU, 1 thread):
+
+* **Mesma configuração (A1: mesma rede 4×50, pesos iniciais, pontos e perda, 2000 iterações).** PINNeAPPle, DeepXDE
+  e PhysicsNeMo-Sym fazem a mesma conta: mesma perda inicial até 6 dígitos e erros iguais dentro da dispersão entre
+  seeds. Custo por iteração: PINNeAPPle e DeepXDE a 4–11 % um do outro; Sym 1,4–1,9× mais caro em CPU.
+* **Receita de cada framework (A2, 240 s de CPU).** Com os padrões de `pp.solve`, o PINNeAPPle teve o menor erro em
+  Poisson (0,0013 contra 0,0134 do DeepXDE) e Helmholtz (0,0036 contra 0,0085), empatou em Burgers (0,020 contra
+  0,017) e foi pior em Allen-Cahn (0,59 contra 0,49; todos falham). A receita oficial do Sym (rede 6×512) roda só
+  70–94 passos em 240 s de CPU e falha nos quatro problemas; isso diz respeito à CPU, não à GPU.
+* **FNO em Darcy (B, 12 épocas).** Ver a linha "Operadores neurais" acima.
+* **Problema inverso (C, ν de Burgers a partir de 2000 amostras com 1 % de ruído, 3000 iterações).** O PINNeAPPle é
+  claramente pior: o `InversePINN` erra ν por 12× (erro relativo 12,5 [11,0, 13,6]), contra 2,16 [1,90, 2,74] do
+  DeepXDE e 1,32 [0,24, 1,83] do Sym (cujo ν é a média de um campo aprendido, negativa em 4 de 5 seeds). Depois das
+  correções do `InversePINN` (parada antecipada sobre a perda não ponderada, sem fallback silencioso do resíduo) o
+  resultado com os padrões é o mesmo: 12,5 [11,0, 13,7]. O diagnóstico aponta o balanceamento adaptativo PDE/dados
+  como causa. Por isso o `InversePINN` passou a usar pesos fixos iguais por padrão (`weighting="equal"`; o esquema
+  adaptativo continua como `weighting="adaptive"`). Rodada de novo com o novo padrão (5 seeds, 3000 iterações, mesmo
+  harness): erro de ν 3,41 [2,99, 3,90] e erro do campo 0,112 [0,103, 0,133], contra 12,5 e 0,38 antes. Mais perto do
+  DeepXDE (2,16; campo 0,079), mas ainda atrás: ν continua 4,4× grande demais.
+
+## Estado da integração com PhysicsNeMo
+
+* `pinneapple_neural.physicsnemo_bridge`: adaptadores para um modelo treinado no PhysicsNeMo (padrões 1 e 2 abaixo:
+  UQ, digital twin, pontos de active learning), com testes próprios (`tests/test_physicsnemo_bridge.py`). Não foi
+  exercitado pelo benchmark.
+* `pinneapple_tools.nvidia.physicsnemo.MLPSurrogate`: surrogates tabulares `physicsnemo.models.mlp.FullyConnected`
+  treinados e verificados pelo PINNeAPPle.
+* `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym`: não importava com o PhysicsNeMo-Sym 2.4.0 (importava
+  `ModulusConfig`, que não existe mais), dizia que o pacote não estava instalado e não devolvia um preditor.
+  Corrigido; hoje é verificado só por um teste de fumaça de 3 passos em CPU
+  (`tests/pinneapple_tools/test_physicsnemo_sym_backend.py`). A acurácia não foi medida.
+* Não há caminho que resolva um `pp.PhysicalProblem` com o solver do PhysicsNeMo-Sym: `pp.solve` não tem método
+  PhysicsNeMo, e o benchmark precisou de um runner próprio para cada framework.
+* O padrão 3 (MeshGraphNet validado pelo PINNeAPPle) existe só como script de exemplo
+  (`06_combined_meshgraphnet_valid/`).
 
 ---
 
@@ -303,5 +348,6 @@ pip install matplotlib scipy
 > **PINNeAPPle** é um pipeline completo de pesquisa à produção, com UQ, digital twins, meta-aprendizado
 > e validação física — cobrindo domínios muito além de CFD.
 >
-> **Juntos são mais fortes**: PhysicsNeMo treina rápido e barato; PINNeAPPle transforma o modelo
-> em um digital twin inteligente com incerteza quantificada e validação física.
+> **Juntos**: o PhysicsNeMo é feito para treinar rápido em GPUs NVIDIA (não medido aqui); o PINNeAPPle adiciona
+> incerteza quantificada, digital twin e validação física a um modelo treinado. As medições em CPU estão em
+> [`benchmarks/vs_frameworks/REPORT.md`](../../benchmarks/vs_frameworks/REPORT.md).

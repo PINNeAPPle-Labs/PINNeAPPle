@@ -108,6 +108,12 @@
   "domain": "CFD",
   "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"
  },
+ "freecad_openfoam": {
+  "domain": "CFD",
+  "needs": "FreeCAD (freecadcmd) + OpenFOAM",
+  "reason": "three mesh studies (up to 921k cells, about an hour on 4 cores) and a 20-case sweep; the same chain is in the bundled flows freecad_openfoam_bend (cfd.study -> cfd.geometry / cfd.run) and freecad_openfoam_sweep (cfd.sweep -> cfd.surrogate)",
+  "status": "needs"
+ },
  "geomechanics": {
   "domain": "geomechanics",
   "notes": "no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md)"

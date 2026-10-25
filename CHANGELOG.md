@@ -13,6 +13,39 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Added
+- `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
+  `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
+  - **Package and baselines:** a synthetic multilayer package with repeated microbump/TSV blocks, a fine FV reference
+    and the Keff baseline.
+  - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field
+    snapshot modes, a residual error estimate, p- and full refinement, and an exact CG correction; nested condensation
+    with memoised identical subtrees (262 k blocks, 3.9e8 fine-cell equivalent, in this container).
+  - **Extensions:** learned block operators with an out-of-box/deviation fallback and verification against exact
+    condensation; Craig-Bampton transients.
+  - **Track 1b, meshless:** RBF-FD / GFDM on point clouds from the implicit geometry, with interface pairs, mirror
+    sides and least squares. Measured not to converge reliably on this multi-material benchmark.
+  - **Track 1c:** a prior plus residual-selected exception patches with an energy correction.
+  - **Flow node** `condense.package_thermal`.
+- `pinneapple_simulation.meshless.stencils`: RBF-FD and GFDM stencil weights in any dimension (eval, gradient,
+  Laplacian), exact on polynomials up to the degree.
+
+### Added
+- `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
+  verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
+  `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,
+  `reflex_port`) with triangle meshes of the parts (`meshes`). Imported from PINNeAPPle-apps.
+- `pinneapple_design.thermal.fin_cell.solve_fin_cell`: 2-D finite-volume conduction in one fin pitch (energy balance,
+  grid-refinement check), an independent check of the fin-array formula.
+- `pinneapple_design.geometry.bodies.annulus`; `apps/_shared/static/shared/stl.js` (binary STL to three.js geometry).
+- Apps HeatSink Design AI (`apps/heatsink_inverse_ai`), BrakeCool AI (`apps/brakecool_ai`), PatchDose AI
+  (`apps/patchdose_ai`), RideTune AI (`apps/ridetune_ai`) and SoundShape AI (`apps/soundshape_ai`), with Dockerfiles,
+  tests and deploy entries (ports 8160-8164).
+
+### Changed
+- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
+  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+
 ### Fixed
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
   system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
@@ -26,6 +59,47 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- Reflector antennas and compact ranges by physical optics (`pinneapple_simulation.electromagnetics.reflector`):
+  offset paraboloid sections with superellipse junctions and blended rolled edges, `cos^q` feeds (Ludwig-3, 1 W),
+  PO currents and their exact near field (dyadic Green's function), quiet-zone metrics (taper, ripple, phase, usable
+  diameter within ±0.5 dB / ±5°), checks against the closed-form PO disk field and the GO aperture taper, a feed gain ×
+  reflector size × rolled-edge sweep with Gaussian-process surrogates (random and leave-one-size-out held-out errors)
+  and trade-off maps; example `examples/use_cases/antennas/compact_range_qz.py`, guide `docs/guides/compact_range.md`.
+- Periodic unit cells (`pinneapple_simulation.electromagnetics.periodic`): a generic TCDA cell for EMerge Floquet runs
+  (periodic boundaries with the scan phase, one mesh for every scan angle), DOE campaigns through the runner, the
+  (frequency × scan) dataset, an FNO with held-out error (`pinneapple_analysis.surrogate`), and the equal-budget
+  comparison of FNO + optimiser against Bayesian optimisation on the solver; example
+  `examples/use_cases/antennas/unit_cell_benchmark.py`, guide `docs/guides/unit_cell_benchmark.md`.
+  `GPModel(features=...)` and `surrogates.columns` fit the antenna GP on any design space; `CLISimulator(extra_args=)`.
+- `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
+  `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
+  status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that
+  already cover them; `pp.science.validate()` checks every pointer. A common **experiment** abstraction: area,
+  level (academic / research), kind (theory / practice), dimensions (0D, 1D, 2D, 3D, 3D+t); every result carries
+  comparisons with cited references and the measured error, physics checks, a trust report, figures (an animation
+  for 3D+t), the Lab manifest and seal. **Electromagnetism**, academic level, on `pp.em` and `pp.maxwell`: Coulomb
+  and superposition, Gauss's law, the parallel-plate capacitor with its edge effect (2-D strips vs Palmer, 3-D
+  discs vs Kirchhoff), Biot-Savart (wire, loop, solenoid), Ampere's law (linking numbers), Faraday's law with a
+  magnet falling through a loop (3D+t, animated), RC / RL / RLC circuits, the Hall effect, dipole radiation (3D and
+  3D+t), a plane wave in a lossy medium, Fresnel and Snell (Bloch-periodic FDTD), waveguide modes, cavity
+  resonances, Mie scattering; and two virtual benches with instruments, GUM uncertainty budgets and a Monte Carlo
+  check of their coverage (mu0 from a solenoid against CODATA 2022, C from an RC discharge on an oscilloscope).
+  `python -m pinneapple_science atlas | list | run | report`, Flow Studio nodes `science.run` and
+  `science.atlas`, results in `examples/science/`, guide `docs/guides/science.md`.
+- `pp.science` electromagnetism, research level: `em.research_fdtd_3d` (a configurable 3-D + time FDTD study,
+  `pinneapple_science.em.fdtd_study.FDTDConfig` / `run_fdtd`: sources and materials from a dict, refinement
+  ladder with observed order, Richardson extrapolation and GCI, radiated power by the near-to-far-field transform,
+  Maxwell residuals of the field in x, y, z, t, an MP4 of the 3-D field in time and a single-file three.js
+  viewer), `em.research_uq_waveguide` (Monte Carlo tolerances vs first-order GUM), `em.research_inverse_permittivity`
+  (eps_r and sigma from an FDTD reflection spectrum with noise, with the covariance; the transfer-matrix model's
+  bias, about one standard uncertainty, is removed by simulating the instrument at the fitted point, and the coverage
+  and centring of the stated u are checked) and
+  `em.research_surrogate_hall` (Gaussian process with hold-out error and leave-one-out calibrated variance,
+  `pinneapple_science.numerics.gp_loo_scale`).
+- `pp.em.statics.vector_potential` (exact A of straight filaments) and `pp.em.statics.flux_through_path` (flux by
+  Stokes' theorem, accurate when a filament pierces the spanning surface).
+- AGENTS.md: `pp.science` in the API table and the "Science by area" example (run by `tests/test_agents_md.py`);
+  Hub: `pp.science` API and recipe entries in the verification category.
 - `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
   reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
   acceptance tolerances, fixed conditions, hypotheses) goes through plan -> checked build -> simulate -> learn
@@ -41,6 +115,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
   missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
   `docs/guides/autonomous_lab.md`.
+- `pinneapple_autolab.dashboard`: four synchronised areas (geometry, physics, models, decisions) over a lab session,
+  read from its files (`ledger.json`, `events.jsonl`, `snapshot_live.json` written by the lab after every assessment
+  and simulation): static page with a replay of the recorded events, live server (`serve`, `/state.json`),
+  screenshot and replay video (`capture`, `record_replay`). In a replay a design, render or figure appears only once
+  its run exists; failed runs, training and unverified candidates are shown as such. Race car:
+  `domains.racecar.build_dashboard`, `recorded_dashboard`, `cycles_renders` (Blender Cycles), `render_run` adds the
+  surface mesh, Cp ±0.5, mid-plane Cp and wake vorticity. Flow Studio node `autolab.aerodynamicist` (recorded session
+  or a live run), listed in the Hub with both examples. `render_scene(wireframe=...)` in the PyVista bridge.
 - `pinneapple_autolab.agent`: a mission in words read into objectives, limits and a budget with what was read from
   which words and what was assumed (refusing operating points the solver is not set up for and requests with no
   objective); the lab as a closed toolbox (`lab_toolbox`); a deterministic step planner (`LabPlanner`) and a language
@@ -1585,6 +1667,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
+  scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
+- Small scikit-learn fits no longer oversubscribe a loaded machine. `ParametricPOD(regressor="gpr")` fits each
+  per-coefficient GP with one BLAS thread (the ROM Lab beam example: 182 s -> about 30 s on a loaded 4-CPU host), and
+  `run_regime_arena(threads=...)` holds the numpy / scikit-learn pools to the declared thread count as it does torch,
+  so the one-shot fits (GP, ridge) are timed on the compute the protocol records.
 - `external_flow.run_case`: a step made of two commands (`reconstructParMesh; reconstructPar`) wrote the first one's
   output to the terminal instead of its log.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs

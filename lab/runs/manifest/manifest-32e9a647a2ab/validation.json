@@ -1,0 +1,51 @@
+[
+ {
+  "name": "[3D] mu0 (bench) vs CODATA 2022",
+  "passed": true,
+  "value": 1.251688783171391e-06,
+  "reference": 1.25663706127e-06,
+  "rtol": 0.010344414975036447,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "CODATA 2022 (Mohr et al., Rev. Mod. Phys. 97, 025002, 2025)",
+  "label": "mu0 (bench) vs CODATA 2022 vs codata",
+  "kind": "reference"
+ },
+ {
+  "name": "[3D] stated uncertainty covers the truth about 95 % of the time",
+  "passed": true,
+  "value": 0.9666666666666667,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "290/300, Wilson 95 % interval 0.940-0.982; std of the normalised errors 0.99 (1 if the budget is right)",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] the helix is close to a current sheet at the centre (systematic below 0.1 %)",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Biot-Savart of the helix vs Griffiths prob. 5.11",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

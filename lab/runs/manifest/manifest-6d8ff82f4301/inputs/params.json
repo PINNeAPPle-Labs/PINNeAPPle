@@ -1,0 +1,9 @@
+{
+ "level": "academic",
+ "kind": "theory",
+ "dims": [
+  "3D",
+  "3D+t"
+ ],
+ "quick": false
+}

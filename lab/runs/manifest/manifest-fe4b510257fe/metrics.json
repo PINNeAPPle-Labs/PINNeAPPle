@@ -1,0 +1,6 @@
+{
+ "rel_error[1D: attenuation constant alpha]": 0.0024846262581074657,
+ "rel_error[1D: phase constant beta]": 0.0006294979019896493,
+ "1D: skin_depth": 0.09795905204560379,
+ "1D: observed_order": 2.0163082553332172
+}

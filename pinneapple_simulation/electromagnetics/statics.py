@@ -18,7 +18,8 @@ from .constants import EPS0, MU0
 
 __all__ = [
     "parallel_plate_capacitance", "coax_capacitance", "coax_inductance", "spherical_capacitance",
-    "point_charge_field", "line_charge_field", "infinite_wire_B", "biot_savart", "polyline_segments",
+    "point_charge_field", "line_charge_field", "infinite_wire_B", "biot_savart", "vector_potential",
+    "flux_through_path", "polyline_segments",
     "circle_segments", "helix_segments", "loop_field", "loop_on_axis_B", "finite_solenoid_on_axis_B",
     "helmholtz_coil_center_B", "mutual_inductance_coaxial_loops", "loop_self_inductance", "filament_inductance",
 ]
@@ -132,6 +133,44 @@ def biot_savart(points, starts, ends, current: float | Sequence[float] = 1.0, ch
             f = np.where(on_line, 0.0, f)
         out[i0:i0 + chunk] = MU0 / (4.0 * math.pi) * np.einsum("ij,ijk->ik", f * Iseg[None], cr)
     return out.reshape(shape)
+
+
+def vector_potential(points, starts, ends, current: float | Sequence[float] = 1.0, chunk: int = 4096):
+    """A (T m) at ``points`` (..., 3) from straight filament segments ``starts -> ends`` (Coulomb gauge), exact
+    per segment: ``A = mu0 I / (4 pi) u ln((d1 + d2 + L) / (d1 + d2 - L))`` with ``u`` the unit vector of the
+    segment, ``L`` its length and ``d1``, ``d2`` the distances to its ends (Hanson and Hirshman, Phys. Plasmas
+    9, 3681 (2002), eq. 4). Away from the filaments; ``curl A`` is :func:`biot_savart`."""
+    P = np.asarray(points, float)
+    shape = P.shape
+    P = P.reshape(-1, 3)
+    s = np.asarray(starts, float)
+    e = np.asarray(ends, float)
+    Iseg = np.broadcast_to(np.asarray(current, float), (len(s),))
+    d = e - s
+    L = np.linalg.norm(d, axis=1)
+    u = d / L[:, None]
+    out = np.zeros_like(P)
+    for i0 in range(0, len(P), chunk):
+        p = P[i0:i0 + chunk, None, :]
+        d1 = np.linalg.norm(s[None] - p, axis=-1)
+        d2 = np.linalg.norm(e[None] - p, axis=-1)
+        g = np.log((d1 + d2 + L[None]) / (d1 + d2 - L[None]))
+        out[i0:i0 + chunk] = MU0 / (4.0 * math.pi) * (g * Iseg[None]) @ u
+    return out.reshape(shape)
+
+
+def flux_through_path(path_starts, path_ends, starts, ends, current: float | Sequence[float] = 1.0,
+                      gauss: int = 4) -> float:
+    """Magnetic flux (Wb) of filaments ``starts -> ends`` through a closed polygonal path, by Stokes' theorem
+    ``Phi = oint A . dl`` (Gauss-Legendre with ``gauss`` points per path segment). Unlike a surface integral of B
+    it stays accurate when a filament pierces the spanning surface."""
+    x, w = np.polynomial.legendre.leggauss(gauss)
+    a = np.asarray(path_starts, float)
+    b = np.asarray(path_ends, float)
+    t = 0.5 * (x + 1)
+    pts = a[:, None, :] + (b - a)[:, None, :] * t[None, :, None]
+    A = vector_potential(pts, starts, ends, current)
+    return float(np.einsum("ijk,ik,j->", A, b - a, 0.5 * w))
 
 
 def loop_on_axis_B(z, radius: float, current: float):

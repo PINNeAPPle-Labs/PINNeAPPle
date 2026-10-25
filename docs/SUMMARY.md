@@ -93,8 +93,11 @@
     * [Autonomous Physics Lab: an AI that manages evidence for engineering decisions](guides/autonomous_lab.md)
     * [The rover that learns the planet: drive, stall, learn the soil, replan, verify](guides/rover_learns_the_planet.md)
     * [Industrial presets: engineering cases set up, solved and validated](guides/industrial_presets.md)
+    * [Science by area: experiments in 0-D to 3-D + time, and the atlas](guides/science.md)
     * [Autonomous Physics Lab: missions planned and run through controlled tools](guides/autonomous_physics_lab.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
+* Research
+    * [Adaptive Physics Condensation: chip-package thermal without simulating every element](research/physics_condensation.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)
     * [Parameter Identifiability Lab (day 25)](apps/identifiability_lab.md)
@@ -102,6 +105,8 @@
     * [PhysicsNeMo trains, PINNeAPPle says when to trust](guides/physicsnemo_trust.md)
     * [Electromagnetics and electrodynamics](guides/electromagnetics.md)
     * [Antenna design: end-fire Vivaldi with an external FEM solver](guides/antenna_design.md)
+    * [Compact range quiet zone: feed gain x reflector size](guides/compact_range.md)
+    * [Periodic unit cell: FNO vs Bayesian optimisation at equal budget](guides/unit_cell_benchmark.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
     * [Topology optimisation](guides/topology_optimization.md)
     * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)

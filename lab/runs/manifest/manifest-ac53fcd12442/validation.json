@@ -1,0 +1,52 @@
+[
+ {
+  "name": "[2D] hold-out: worst surrogate G vs solver G",
+  "passed": true,
+  "value": 0.5103575989461944,
+  "reference": 0.5099547996437066,
+  "rtol": 0.01,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the finite-difference solver on held-out inputs",
+  "label": "hold-out: worst surrogate G vs solver G vs convergence",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] solver: long bar G(L/W = 8) -> 1",
+  "passed": true,
+  "value": 0.9999942567015431,
+  "reference": 1.0,
+  "rtol": 0.001,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Popovic sec. 4.2: G -> 1 for L/W >> 1",
+  "label": "solver: long bar G(L/W = 8) -> 1 vs limit",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] +-2 sigma coverage of the hold-out at least 80 %",
+  "passed": true,
+  "value": 0.8,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "physics"
+ },
+ {
+  "name": "[2D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

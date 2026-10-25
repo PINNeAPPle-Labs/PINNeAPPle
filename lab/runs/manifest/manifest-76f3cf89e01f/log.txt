@@ -1,0 +1,10 @@
+[16:51:20] check [2D] TE10 cut-off frequency: PASS Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)
+[16:51:20] check [2D] TE20 cut-off frequency: PASS Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)
+[16:51:20] check [2D] TE01 cut-off frequency: PASS Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)
+[16:51:20] check [2D] TE11 cut-off frequency: PASS Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)
+[16:51:20] check [2D] TE30 cut-off frequency: PASS Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)
+[16:51:20] check [2D] TM mode 1 cut-off frequency: PASS Pozar eq. 3.106
+[16:51:20] check [2D] TM mode 2 cut-off frequency: PASS Pozar eq. 3.106
+[16:51:20] check [2D] TM mode 3 cut-off frequency: PASS Pozar eq. 3.106
+[16:51:20] check [2D] second-order convergence: PASS 
+[16:51:20] check [2D] trust report: PASS decision APPROVED

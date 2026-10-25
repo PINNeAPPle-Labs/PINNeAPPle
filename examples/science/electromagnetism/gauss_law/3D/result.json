@@ -1,0 +1,142 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.gauss_law",
+ "title": "Gauss's law",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "3D",
+ "params": {
+  "ladder": [
+   4,
+   8,
+   16,
+   32
+  ],
+  "L": 1.0
+ },
+ "values": {
+  "flux_times_eps0": {
+   "value": 1.5000000000000002e-09,
+   "unit": "C",
+   "how": "composite Gauss-Legendre, 32x4 points per face edge"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "flux through the cube x eps0",
+   "computed": 1.5000000000000002e-09,
+   "reference": 1.5000000000000002e-09,
+   "rel_error": 0.0,
+   "tol": 1e-06,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Gauss's law: oint E.dA = Q_enc / eps0 (Griffiths eq. 2.13)",
+   "unit": "C",
+   "how": "2 charges inside, 2 outside (one 0.4 L from a face)",
+   "abs_error": 0.0,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "charges outside contribute zero flux",
+   "passed": true,
+   "value": 0.0,
+   "limit": 1e-06,
+   "critical": false,
+   "detail": "the outside charges are summed into every face",
+   "source": "physics"
+  },
+  {
+   "name": "div E = rho/eps0, Gaussian cloud on a 41^3 grid (pp.maxwell.gauss_electric)",
+   "passed": true,
+   "value": 0.004823425444233279,
+   "limit": 0.05,
+   "critical": false,
+   "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.00482; r(2h)/r(h) = 3.98: discretisation error (the field obeys the law); extrapolated residual 2.77e-05",
+   "source": "pinneapple_physics.maxwell_checks"
+  },
+  {
+   "name": "the same check rejects a 20 % wrong charge density",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "residual 0.0912 > limit 0.05: rejected",
+   "source": "pinneapple_physics.maxwell_checks"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "flux through the cube x eps0 vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-06,
+    "source": "Gauss's law: oint E.dA = Q_enc / eps0 (Griffiths eq. 2.13)",
+    "reason": "computed 1.5e-09, reference 1.5e-09 C"
+   },
+   {
+    "name": "charges outside contribute zero flux",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-06,
+    "source": "physics",
+    "reason": "the outside charges are summed into every face"
+   },
+   {
+    "name": "div E = rho/eps0, Gaussian cloud on a 41^3 grid (pp.maxwell.gauss_electric)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.004823425444233279,
+    "limit": 0.05,
+    "source": "pinneapple_physics.maxwell_checks",
+    "reason": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.00482; r(2h)/r(h) = 3.98: discretisation error (the field obeys the law); extrapolated residual 2.77e-05"
+   },
+   {
+    "name": "the same check rejects a 20 % wrong charge density",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "pinneapple_physics.maxwell_checks",
+    "reason": "residual 0.0912 > limit 0.05: rejected"
+   }
+  ]
+ },
+ "data": {
+  "convergence": {
+   "points_per_edge": [
+    16,
+    32,
+    64,
+    128
+   ],
+   "rel_error": [
+    5.007763894449013e-06,
+    8.494770442624144e-10,
+    8.376632720796806e-13,
+    0.0
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "gauss_cube.png"
+ ],
+ "movies": [],
+ "wall_time_s": 0.2377809960007653
+}

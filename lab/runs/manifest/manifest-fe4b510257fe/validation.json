@@ -1,0 +1,52 @@
+[
+ {
+  "name": "[1D] attenuation constant alpha",
+  "passed": true,
+  "value": 10.20834705030078,
+  "reference": 10.183045986854326,
+  "rtol": 0.005,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Pozar eq. 1.49: gamma = alpha + j beta = j omega sqrt(mu eps (1 - j sigma/(omega eps)))",
+  "label": "attenuation constant alpha vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[1D] phase constant beta",
+  "passed": true,
+  "value": 43.163229087045465,
+  "reference": 43.136075018321364,
+  "rtol": 0.005,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Pozar eq. 1.49",
+  "label": "phase constant beta vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[1D] error falls with the grid",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "20 cells/lambda: 5.3e-02, 40 cells/lambda: 1.3e-02, 80 cells/lambda: 3.1e-03",
+  "kind": "physics"
+ },
+ {
+  "name": "[1D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

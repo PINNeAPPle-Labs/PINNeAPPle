@@ -27,8 +27,8 @@ The learned operator is never trusted blindly. :func:`solve_adaptive`:
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 import numpy as np
 import scipy.linalg as sla
@@ -87,7 +87,7 @@ class LearnedBlocks:
         self.Phi = sla.block_diag(basis["x"], basis["x"], basis["y"], basis["y"])
         self.d = self.Phi.shape[1]
         self.n2 = self.stack.n ** 2
-        self.n_obs = base.O.shape[0]
+        self.n_obs = base.Om.shape[0]
 
     @property
     def lo(self) -> np.ndarray:
@@ -147,9 +147,9 @@ class LearnedBlocks:
 
 def _face_dofs(shape: tuple[int, int], m: int) -> np.ndarray:
     nbx, nby = shape
-    I, J = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
+    bi, bj = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
     nxf = (nbx + 1) * nby
-    F = np.stack([I * nby + J, (I + 1) * nby + J, nxf + I * (nby + 1) + J, nxf + I * (nby + 1) + J + 1], -1)
+    F = np.stack([bi * nby + bj, (bi + 1) * nby + bj, nxf + bi * (nby + 1) + bj, nxf + bi * (nby + 1) + bj + 1], -1)
     return (F[..., :, None] * m + np.arange(m)).reshape(nbx * nby, 4 * m), nxf + nbx * (nby + 1)
 
 
@@ -228,7 +228,7 @@ def solve_adaptive(learned: LearnedBlocks, theta: np.ndarray, power: np.ndarray,
     failed = []
     tim["solve"] = tim["verify"] = 0.0
     audit_effects: list[float] = []
-    for rnd in range(1, max_rounds + 1):
+    for rnd in range(1, max_rounds + 1):  # noqa: B007 (reported after the loop)
         t2 = time.perf_counter()
         tb, info = solve_blocks(ops, pb, dofs, nf * learned.m)
         obs = block_observables(ops, tb, pb, n2)

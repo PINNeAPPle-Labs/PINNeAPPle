@@ -1,0 +1,142 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/hall_effect",
+ "title": "Hall effect (2D)",
+ "description": "A current through a semiconductor bar in a perpendicular field B: the 2-D potential with the Drude conductivity tensor (insulating edges carry the Hall condition), the Hall voltage at mid-length and the Hall coefficient against 1/(n q); the contacts short the Hall field in a short bar, shown by sweeping the length.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.hall_effect"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "2D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: Hall coefficient R_H = E_y / (J_x B)]",
+   "value": 0.0006311593065709672,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Drude: R_H = 1/(n q) (Ashcroft & Mermin eq. 1.15))"
+  },
+  {
+   "name": "2D: current",
+   "value": -0.004483704244207688,
+   "unit": "A",
+   "how": "integral of J_x across the mid-section x thickness"
+  },
+  {
+   "name": "2D: hall_voltage",
+   "value": -0.013983708841637132,
+   "unit": "V",
+   "how": "phi(top) - phi(bottom) at mid-length"
+  },
+  {
+   "name": "2D: hall_angle_deg",
+   "value": 4.004172940709388,
+   "unit": "deg",
+   "how": "atan(mu B)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] Hall coefficient R_H = E_y / (J_x B)",
+   "passed": true,
+   "value": -0.000623756968792137,
+   "reference": -0.0006241509074460763,
+   "rtol": 0.002,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Drude: R_H = 1/(n q) (Ashcroft & Mermin eq. 1.15)",
+   "label": "Hall coefficient R_H = E_y / (J_x B) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] R_H error falls with the grid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "10 cells: 6.8e-04, 20 cells: 6.4e-04, 40 cells: 6.3e-04",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] sign of V_H gives the carrier sign",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "electrons: R_H < 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] contacts short the Hall voltage in short bars (G rises with L/W)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "L/W=0.5: G=0.369, L/W=1: G=0.675, L/W=1.5: G=0.848, L/W=2: G=0.930, L/W=3: G=0.985, L/W=5: G=0.999",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "2D/hall_effect.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "2D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Ashcroft & Mermin, Solid State Physics (1976), ch. 1, eqs. 1.15-1.19 (Drude Hall coefficient)",
+  "Popovic, Hall Effect Devices, 2nd ed. (2004), sec. 4.2 (geometrical factor)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:48:39Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -1,0 +1,221 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/coulomb_superposition",
+ "title": "Coulomb's law and superposition (3D, 2D)",
+ "description": "A charged ring (3-D) and a pair of finite line charges (2-D cross-section) built from N point charges by superposition, against the closed forms; the error falls as N grows.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.coulomb_superposition"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "3D",
+   "2D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: ring potential at s = 0.6 R, z = 0.3 R]",
+   "value": 6.207024832406532e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))"
+  },
+  {
+   "name": "rel_error[3D: axial field E_z(z = 0.75 R)]",
+   "value": 6.588211790636253e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))"
+  },
+  {
+   "name": "rel_error[3D: far field -> point charge (r = 40 R)]",
+   "value": 0.0009367681118060166,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: Coulomb's law, multipole limit r >> R)"
+  },
+  {
+   "name": "3D: max_rel_error_potential",
+   "value": 2.886579864025407e-15,
+   "unit": "-",
+   "how": "max over 14 off-axis points, N = 256 charges"
+  },
+  {
+   "name": "3D: convergence_rate",
+   "value": -1.3785116232537298,
+   "unit": "-",
+   "how": "observed order of the potential error in N (exponential convergence shows as a growing order)"
+  },
+  {
+   "name": "rel_error[2D: line-pair field E_x at (0, d/2)]",
+   "value": 3.8085783611433454e-10,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)"
+  },
+  {
+   "name": "rel_error[2D: finite line -> infinite line (s = 0.01 m, L = 1 m)]",
+   "value": 4.999625031209285e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: Gauss's law for an infinite line: lam / (2 pi eps0 s))"
+  },
+  {
+   "name": "2D: max_rel_error_field",
+   "value": 6.080898865734387e-09,
+   "unit": "-",
+   "how": "max over 55 points, 1024 charges per line"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] ring potential at s = 0.6 R, z = 0.3 R",
+   "passed": true,
+   "value": 183.1583420257372,
+   "reference": 183.1583420257373,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2)",
+   "label": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] axial field E_z(z = 0.75 R)",
+   "passed": true,
+   "value": 1380.487954357481,
+   "reference": 1380.4879543574818,
+   "rtol": 1e-10,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2))",
+   "label": "axial field E_z(z = 0.75 R) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] far field -> point charge (r = 40 R)",
+   "passed": true,
+   "value": 2.2447831335662563,
+   "reference": 2.2468879465453813,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Coulomb's law, multipole limit r >> R",
+   "label": "far field -> point charge (r = 40 R) vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] error falls to round-off (below 1e-12) as N grows",
+   "passed": true,
+   "value": 2.886579864025407e-15,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  },
+  {
+   "name": "[2D] line-pair field E_x at (0, d/2)",
+   "passed": true,
+   "value": 898.3958924464091,
+   "reference": 898.395892104248,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed",
+   "label": "line-pair field E_x at (0, d/2) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] finite line -> infinite line (s = 0.01 m, L = 1 m)",
+   "passed": true,
+   "value": 1797.4204884585458,
+   "reference": 1797.5103572363048,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Gauss's law for an infinite line: lam / (2 pi eps0 s)",
+   "label": "finite line -> infinite line (s = 0.01 m, L = 1 m) vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] worst error over the 55 points below 1e-6",
+   "passed": true,
+   "value": 6.080898865734387e-09,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any power until the charges are closer than the points are to the line)",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D/coulomb_ring.png",
+   "2D/coulomb_lines_2d.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "3D/result.json",
+   "2D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Griffiths, Introduction to Electrodynamics, 4th ed., ex. 2.2 (finite line) and ex. 2.5 (ring)",
+  "Jackson, Classical Electrodynamics, 3rd ed., sec. 3.3 (ring potential, elliptic integral)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "204e481e",
+  "created": "2026-10-24T17:52:39Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

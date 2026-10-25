@@ -1,0 +1,7 @@
+[16:47:43] check [3D+t] peak EMF: PASS Maxwell (1873) art. 701: M of coaxial circles (pp.em.statics.mutual_inductance_coaxial_loops), summed over the rings, differentiated in time
+[16:47:43] check [3D+t] flux at the centre crossing: PASS Maxwell (1873) art. 701, summed over the rings
+[16:47:43] check [3D+t] time of the EMF sign change: PASS free fall from rest: z0 = g t^2 / 2 (the flux is largest with the magnet centred)
+[16:47:43] check [3D+t] net EMF integral = -(Phi_end - Phi_start): PASS integral of EMF dt over the fall against the flux change, relative to the peak flux
+[16:47:43] check [3D+t] Lenz: EMF < 0 wherever the flux grows: PASS 33 instants with dPhi/dt > 5 % of its peak
+[16:47:43] check [3D+t] div B = 0 above the magnet (pp.maxwell.gauss_magnetic): PASS div B: ||sum of terms|| / sum of ||term|| = 0.0173; r(2h)/r(h) = 3.52: discretisation error (the field obeys the law); extrapolated residual 0.00279
+[16:47:43] check [3D+t] trust report: PASS decision APPROVED

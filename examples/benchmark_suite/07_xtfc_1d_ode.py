@@ -72,8 +72,7 @@ print("=" * 50)
 xtfc = build_xtfc(
     in_dim=1,
     out_dim=1,
-    rf_dim=512,
-    activation="tanh",
+    rf_dim=512,                 # default rf_kind="rff": cos/sin Fourier features (no activation)
     freeze_random=True,
     g_fn=g_fn,
     B_fn=B_fn,

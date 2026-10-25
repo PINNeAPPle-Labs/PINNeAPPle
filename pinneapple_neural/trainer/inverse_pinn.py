@@ -14,7 +14,8 @@ catalog of problem types.
 
 Robustness features (built in, not opt-in extras):
 - Gradient clipping applied to both network weights and inverse parameters
-- Early stopping on loss plateau
+- Early stopping on a plateau of the unweighted loss ``L_pde + L_data`` (see
+  ``InversePINN``'s ``patience``)
 - Adaptive PDE-vs-data loss weighting via an EMA of each loss's own
   magnitude (mirrors `pinneapple_neural.trainer.graybox`'s balancing rule --
   prevents whichever term is larger from dominating training)
@@ -75,7 +76,14 @@ class InverseParam(nn.Module):
 class InversePINN:
     """Jointly optimizes network weights (theta) and unknown physical
     parameters (lambda) from sparse sensor observations plus a caller-
-    supplied PDE/ODE residual (see module docstring)."""
+    supplied PDE/ODE residual (see module docstring).
+
+    ``patience``: early stopping after this many steps without a new best
+    value of the unweighted sum ``L_pde + L_data``. The optimised total is
+    re-weighted every step by the adaptive balancing, so totals of different
+    steps are not comparable and are not used for stopping. ``None`` turns
+    early stopping off. Exceptions raised by ``residual_fn`` propagate: a
+    broken residual is an error, not a silent data-only fit."""
 
     def __init__(
         self,
@@ -90,7 +98,7 @@ class InversePINN:
         lr_params: float = 1e-2,
         device: str = "cpu",
         sampling_method: str = "uniform",
-        patience: int = 300,
+        patience: Optional[int] = 300,
     ):
         self.model = model
         self.inverse_params = nn.ModuleList(inverse_params)
@@ -148,15 +156,11 @@ class InversePINN:
             x_col = self._sample_collocation().requires_grad_(True)
             param_values = {p.name: p.value for p in self.inverse_params}
 
-            L_pde = torch.tensor(0.0, device=self.device)
-            try:
-                res = self.residual_fn(self.model, x_col, param_values)
-                if isinstance(res, (list, tuple)):
-                    L_pde = sum(r.pow(2).mean() for r in res)
-                else:
-                    L_pde = res.pow(2).mean()
-            except Exception:
-                logger.warning("PDE residual failed at epoch %d", epoch, exc_info=True)
+            res = self.residual_fn(self.model, x_col, param_values)
+            if isinstance(res, (list, tuple)):
+                L_pde = sum(r.pow(2).mean() for r in res)
+            else:
+                L_pde = res.pow(2).mean()
 
             pred_sensor = self.model(self.sensor_points)
             L_data = ((pred_sensor - self.sensor_values) ** 2).mean()
@@ -178,20 +182,22 @@ class InversePINN:
             self.optimizer.step()
 
             loss_val = float(total.item())
-            if loss_val < best_loss - 1e-7:
-                best_loss = loss_val
-                no_improve = 0
-            else:
-                no_improve += 1
-            if no_improve >= self.patience:
-                logger.info("Early stopping at epoch %d", epoch)
-                break
-
             history["total"].append(loss_val)
             history["pde"].append(float(L_pde.item()))
             history["data"].append(float(L_data.item()))
             for p in self.inverse_params:
                 history["params"][p.name].append(float(p.value.item()))
+
+            # stop on the unweighted sum: the weighted total changes with the weights, not only with the fit
+            monitor = float(L_pde.item()) + float(L_data.item())
+            if monitor < best_loss - 1e-7:
+                best_loss = monitor
+                no_improve = 0
+            else:
+                no_improve += 1
+            if self.patience is not None and no_improve >= self.patience:
+                logger.info("Early stopping at epoch %d", epoch)
+                break
 
         return history
 

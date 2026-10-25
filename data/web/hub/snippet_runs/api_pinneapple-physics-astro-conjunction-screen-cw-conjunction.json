@@ -1,0 +1,12 @@
+{
+ "code_hash": "6b8beb3c268e2eeb",
+ "figures": [],
+ "id": "api:pinneapple-physics-astro-conjunction-screen-cw-conjunction",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 3.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_physics.astro.conjunction.screen_cw_conjunction(n: 'float', state0, *, duration_s: 'float | None' = None, n_samples: 'int' = 2000, hard_body_radius_km: 'float' = 0.01, sigma_km: 'float' = 1.0) -> 'dict'\nClosest approach + collision probability for one CW encounter (one reference period by default).",
+ "timed_out": false
+}

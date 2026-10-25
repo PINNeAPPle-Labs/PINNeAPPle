@@ -34,6 +34,8 @@ REASONS: dict[str, str] = {
     "pinneapple_blender": "needs Blender's bpy; viz.render uses it when installed",
     "pinneapple_twin3d": "3-D twin scene server; viz.field3d gives the in-studio 3-D view",
     "pinneapple_hub": "Hugging Face Hub transfers (network access and credentials, not a computation step)",
+    "pinneapple_hub.verified_card": "trains or loads a model and issues its model card (a publication step, served "
+                                    "by apps/governed_card); the guardrail it runs is reached by the check nodes",
     "pinneapple_hub.library": "the Hub's catalogue of ready-made items (index, snippets, composer); it lists these "
                               "nodes rather than adding steps",
     "pinneapple_catalog": "method / resource catalogue with license gates (read by the planner and docs)",

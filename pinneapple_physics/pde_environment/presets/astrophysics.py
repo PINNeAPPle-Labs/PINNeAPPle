@@ -226,6 +226,25 @@ def _cw_exact_state(t: np.ndarray, n: float, x0: float, y0: float, z0: float,
     return {"x": x, "y": y, "z": z}
 
 
+def cw_exact_velocity(t: np.ndarray, n: float, x0: float, y0: float, z0: float,
+                      vx0: float, vy0: float, vz0: float) -> Dict[str, np.ndarray]:
+    """Time derivative of :func:`_cw_exact_state` (Clohessy-Wiltshire relative velocity, closed form).
+
+    Term by term: vx = 3 n s x0 + c vx0 + 2 s vy0, vy = 6 n (c - 1) x0 - 2 s vx0 + (4 c - 3) vy0,
+    vz = -n s z0 + c vz0 with s = sin(n t), c = cos(n t). Checked against a central finite difference of the
+    position solution in ``tests/test_astro_conjunction.py``; that check also fails the ``+2 s vx0`` sign that
+    ``examples/pde_environment/06_space_debris_cw_validation.py`` carried before (it used the velocity only as
+    training data, and validated position only).
+    """
+    t = np.asarray(t, dtype=np.float64).reshape(-1)
+    nt = n * t
+    s, c = np.sin(nt), np.cos(nt)
+    vx = 3 * n * s * x0 + c * vx0 + 2 * s * vy0
+    vy = 6 * n * (c - 1) * x0 - 2 * s * vx0 + (4 * c - 3) * vy0
+    vz = -z0 * n * s + c * vz0
+    return {"vx": vx, "vy": vy, "vz": vz}
+
+
 @register_preset("space_debris_cw_relative_motion")
 def space_debris_cw_relative_motion(
     n: float = 0.0011,   # mean motion of reference orbit, rad/s (~ISS altitude)

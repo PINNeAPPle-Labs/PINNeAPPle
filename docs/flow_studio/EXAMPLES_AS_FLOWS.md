@@ -9,7 +9,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | needs | 6 |
 | not yet run | 2 |
 | not_convertible | 16 |
-| runs | 38 |
+| runs | 39 |
 | runs-quick | 14 |
 
 | example | domain | flow(s) | status | same numbers | notes |
@@ -62,6 +62,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `pde_environment` | PINN | `pde_environment/07_tagged_presets_real_geometry` | runs-quick |  | 07_tagged_presets_real_geometry is a flow (pde_env.tagged_preset: build_tag_batch + per_tag_losses, moved from the script into presets.tag_geometry, + solve_pde); nothing committed to compare, the before-training losses equal the script's. 01, 02 and 03_ns2d evaluate compile_problem once on a batch the script samples and assembles by hand; 03_elasticity3d and 04_heat3d need trimesh and STL files; 05_kepler and 06_space_debris train with a nondimensionalisation wrapper and a loop written in the script |
 | `physics_audit` | physics audit | - | not_convertible |  | the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call |
 | `physics_check` | validation | `physics_check/fail_and_pass` | runs | 3 / 3 match | the torch/ fixtures (a zoo model) and generate.py (regenerates the fixtures with OpenFOAM) are not flows; workflow.yml is a GitHub Action template |
+| `physics_condensation` | heat transfer | `physics_condensation/hierarchy_64` | runs | 1 / 1 match | hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script. |
 | `physics_db` | data | - | needs earthaccess + NASA Earthdata login / network |  | 00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script |
 | `physics_ensemble` | ensembles | - | not_convertible |  | the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours |
 | `physics_module` | hybrid models | `physics_module/01_coarse_fem_plus_neural_correction` | runs | 2 / 2 match | compared with the numbers of docs/core_concepts/model.md |
@@ -153,6 +154,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `openfoam_campaign` | `cfd.campaign` | first |
 | `pde_environment` | `pde_env.tagged_preset` | first |
 | `physics_check` | `check.physics` | first |
+| `physics_condensation` | - | falls short: no capability registered, generic flows only |
 | `physics_module` | `core.hybrid_fem` | first |
 | `physics_optimizer` | `core.torsion_optimizer` | first |
 | `pinn_solver` | `pinn_solver.factory_loss` | first |
@@ -1408,6 +1410,22 @@ done in 7 s (commit 5e891c36, 2026-10-19); 3 of 3 numbers match.
 | `failing.targets_with_violations` | `node:failing.targets_expected_to_fail` | 23 | 23 | 0 | match |
 | `passing.violations` | `node:passing.targets_expected_to_fail` | 0 | 0 | 0 | match |
 
+### `physics_condensation/hierarchy_64` (full)
+
+done in 12 s (commit eae78c33, 2026-10-25); 1 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `flat.Tmax_rise_K` | `results/scaling_hierarchy_64.json:hierarchy.Tmax` | 73.0705 | 73.0705 | 0 | match |
+
+### `physics_condensation/hierarchy_64` (quick)
+
+done in 6 s (commit eae78c33, 2026-10-25); 1 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `flat.Tmax_rise_K` | `results/scaling_hierarchy_16.json:hierarchy.Tmax` | 66.8551 | 66.8551 | 0 | match |
+
 ### `physics_module/01_coarse_fem_plus_neural_correction` (full)
 
 done in 80 s (commit ee5fd359, 2026-10-24); 2 of 2 numbers match.
@@ -2548,6 +2566,14 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `pass/models/drag_surrogate.py` | - | - |
 | `pass/models/kovasznay_pinn.py` | - | - |
 | `pass/surrogates/peak_temperature.py` | - | - |
+
+</details>
+
+<details><summary><code>physics_condensation</code></summary>
+
+| script | covered by a node | not covered |
+|---|---|---|
+| `run_benchmark.py` | `pinneapple_condense.benchmark`, `pinneapple_condense.figures` | - |
 
 </details>
 

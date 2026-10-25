@@ -7647,6 +7647,56 @@
    "status": "done"
   }
  },
+ "physics_condensation/hierarchy_64": {
+  "full": {
+   "commit": "eae78c33",
+   "comparisons": [
+    {
+     "flow": "flat.Tmax_rise_K",
+     "outcome": "match",
+     "ref": "results/scaling_hierarchy_64.json:hierarchy.Tmax",
+     "reference": 73.07051936838775,
+     "rel_diff": 0.0,
+     "value": 73.07051936838775
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-25",
+   "manifest": "manifest /tmp/claude-0/fw5/example.physics_condensation.hierarchy_64.experiment.json, Lab item manifest/flow/example.physics_condensation.hierarchy_64",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "flat": "done",
+    "solve": "done"
+   },
+   "seconds": 12.1,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "eae78c33",
+   "comparisons": [
+    {
+     "flow": "flat.Tmax_rise_K",
+     "outcome": "match",
+     "ref": "results/scaling_hierarchy_16.json:hierarchy.Tmax",
+     "reference": 66.85512279945337,
+     "rel_diff": 0.0,
+     "value": 66.85512279945337
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-25",
+   "manifest": "manifest /tmp/claude-0/fw6/example.physics_condensation.hierarchy_64-quick.experiment.json, Lab item manifest/flow/example.physics_condensation.hierarchy_64-quick",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "flat": "done",
+    "solve": "done"
+   },
+   "seconds": 6.3,
+   "status": "done"
+  }
+ },
  "physics_module/01_coarse_fem_plus_neural_correction": {
   "full": {
    "commit": "ee5fd359",

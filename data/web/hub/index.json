@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 523,
+  "tool": 524,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 21,
-  "example": 183
+  "example": 184
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 523,
+   "tool": 524,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 21,
-   "example": 183
+   "example": 184
   },
   "subkind": {
    "library call": 249,
-   "flow node": 187,
+   "flow node": 188,
    "recipe": 47,
    "function": 23,
    "agent tool (MCP)": 17
@@ -145,7 +145,7 @@
    "numerical methods": 50,
    "system dynamics": 43,
    "data": 41,
-   "heat transfer": 32,
+   "heat transfer": 34,
    "electromagnetics": 28,
    "science / physics.electromagnetism": 20,
    "flight dynamics": 16,
@@ -201,7 +201,7 @@
    "automation": 29
   },
   "quality": {
-   "not graded": 665,
+   "not graded": 667,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -5367,6 +5367,186 @@
     "stderr": "",
     "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:condense.package_thermal",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "condense.package_thermal",
+   "title": "Chip package thermal by condensation",
+   "summary": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve the hotspot power map, and report the peak junction temperature, the…",
+   "description": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve\nthe hotspot power map, and report the peak junction temperature, the heat through the TIM and the lid and the\nenergy balance; optionally against the fine reference.",
+   "domain": "heat transfer",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "condensation",
+    "fd",
+    "fem",
+    "numerical",
+    "reduced order",
+    "semiconductor packaging",
+    "simulation",
+    "solvers",
+    "thermal"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"condense.package_thermal\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=condense.package_thermal",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/condense.py#L11"
+   },
+   "extra": {
+    "calls": "pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "blocks",
+      "kind": "int",
+      "default": 64,
+      "help": "blocks per side (one microbump + TSV each)",
+      "choices": null,
+      "minimum": 2,
+      "maximum": 512,
+      "advanced": false
+     },
+     {
+      "name": "modes",
+      "kind": "int",
+      "default": 8,
+      "help": "interface modes per face",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": false
+     },
+     {
+      "name": "power_density",
+      "kind": "float",
+      "default": 1000000.0,
+      "help": "mean heat flux over the die [W/m^2]",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "hotspots",
+      "kind": "int",
+      "default": 3,
+      "help": "",
+      "choices": null,
+      "minimum": 0,
+      "maximum": 20,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "reference",
+      "kind": "bool",
+      "default": false,
+      "help": "also solve the fine finite-volume reference (small only)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "blocks": {
+       "title": "blocks",
+       "description": "blocks per side (one microbump + TSV each)",
+       "x-kind": "int",
+       "default": 64,
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 512
+      },
+      "modes": {
+       "title": "modes",
+       "description": "interface modes per face",
+       "x-kind": "int",
+       "default": 8,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      },
+      "power_density": {
+       "title": "power density",
+       "description": "mean heat flux over the die [W/m^2]",
+       "x-kind": "float",
+       "default": 1000000.0,
+       "type": "number"
+      },
+      "hotspots": {
+       "title": "hotspots",
+       "description": "",
+       "x-kind": "int",
+       "default": 3,
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "reference": {
+       "title": "reference",
+       "description": "also solve the fine finite-volume reference (small only)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "ok": true,
+    "stdout": "Chip package thermal by condensation -> pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'blocks': 64, 'modes': 8, 'power_density': 1000000.0, 'hotspots': 3, 'seed': 0, 'reference': False}",
+    "stderr": "",
+    "seconds": 5.12,
+    "timed_out": false,
+    "code_hash": "a616b1c55bca6203",
+    "figures": [],
+    "recorded": "2026-10-25",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -75308,6 +75488,114 @@
     "stderr": "",
     "stdout": "B - mass budget",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/physics_condensation",
+   "kind": "example",
+   "name": "examples/physics_condensation",
+   "title": "Adaptive Physics Condensation: chip-package thermal",
+   "summary": "Hierarchical static condensation of repeated blocks (microbumps, TSVs) with reduced interfaces, error-driven refinement and learned block operators, against a fine finite-volume…",
+   "description": "Hierarchical static condensation of repeated blocks (microbumps, TSVs) with reduced interfaces, error-driven refinement and learned block operators, against a fine finite-volume reference and Keff homogenisation.",
+   "domain": "heat transfer",
+   "tags": [
+    "Craig-Bampton",
+    "POD-GPR",
+    "finite volumes",
+    "nested dissection",
+    "static condensation"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/physics_condensation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/physics_condensation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/physics_condensation/run_benchmark.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "err_Tmax_m8",
+      "value": 0.004695839999996565,
+      "unit": "K",
+      "how": "|Tmax condensed m=8 - fine FV|, [12, 12] blocks"
+     },
+     {
+      "name": "transient_err_Tmax",
+      "value": 0.001935563937912832,
+      "unit": "K",
+      "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
+     },
+     {
+      "name": "largest_blocks",
+      "value": 65536.0,
+      "unit": "blocks",
+      "how": "largest package solved by the hierarchy, m=12"
+     },
+     {
+      "name": "largest_build_s",
+      "value": 43.746866945999955,
+      "unit": "s",
+      "how": "hierarchy build, fresh process"
+     },
+     {
+      "name": "largest_solve_s",
+      "value": 3.3815957900001195,
+      "unit": "s",
+      "how": "one power map, after the build"
+     },
+     {
+      "name": "largest_peak_rss",
+      "value": 7.608628,
+      "unit": "GB",
+      "how": "peak RSS of the process"
+     },
+     {
+      "name": "learned_32_speedup",
+      "value": 44.41025206966396,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     },
+     {
+      "name": "learned_64_speedup",
+      "value": 38.99521182109361,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     }
+    ],
+    "figures": [
+     "examples/physics_condensation/figures/accuracy_vs_modes.png",
+     "examples/physics_condensation/figures/keff_vs_fine.png",
+     "examples/physics_condensation/figures/refinement.png",
+     "examples/physics_condensation/figures/transient.png",
+     "examples/physics_condensation/figures/scaling.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/physics_condensation/run_benchmark.py",
+    "lab": "lab/index.html#examples/physics_condensation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Adaptive Physics Condensation: chip-package thermal | heat transfer | not curated\nerr_Tmax_m8 0.004695839999996565 K\ntransient_err_Tmax 0.001935563937912832 K\nlargest_blocks 65536.0 blocks\nlargest_build_s 43.746866945999955 s\nlargest_solve_s 3.3815957900001195 s",
+    "stderr": "",
+    "seconds": 0.69,
+    "timed_out": false,
+    "code_hash": "b1f14338741a3fea",
+    "figures": [],
+    "recorded": "2026-10-25",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },

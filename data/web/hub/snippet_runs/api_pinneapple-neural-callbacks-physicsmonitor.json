@@ -1,0 +1,12 @@
+{
+ "code_hash": "c076836e3ba499f8",
+ "figures": [],
+ "id": "api:pinneapple-neural-callbacks-physicsmonitor",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 3.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_neural.callbacks.PhysicsMonitor(problem, data=None, *, reference=None, query=None, level: 'str' = 'quick', every: 'int' = 100, patience: 'int' = 3, action: 'str' = 'warn', watch: 'Sequence[str] | None' = None, model_fn: 'Callable[[Any], Any] | None' = None, tolerances: 'Mapping[str, float] | None' = None, report_path: 'str | Path | None' = None, seed: 'int' = 0)\nThe checks of ``pp.validate(model, problem, data, reference, query, level)`` as training metrics.",
+ "timed_out": false
+}

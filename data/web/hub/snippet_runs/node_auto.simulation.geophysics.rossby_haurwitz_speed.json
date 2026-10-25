@@ -1,0 +1,12 @@
+{
+ "code_hash": "5ebc241782cddee5",
+ "figures": [],
+ "id": "node:auto.simulation.geophysics.rossby_haurwitz_speed",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.36,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n2.4634666666666672e-06",
+ "timed_out": false
+}

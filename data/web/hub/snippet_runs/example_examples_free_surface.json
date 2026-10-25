@@ -1,0 +1,12 @@
+{
+ "code_hash": "287886df7c5c3beb",
+ "figures": [],
+ "id": "example:examples/free_surface",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Free-surface flow (interFoam, VOF) | fluid dynamics | not curated",
+ "timed_out": false
+}

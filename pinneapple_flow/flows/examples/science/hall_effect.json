@@ -1,0 +1,67 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.science.hall_effect",
+ "name": "Science: hall effect",
+ "description": "pinneapple_science experiment em.hall_effect in 2D at the committed resolution, every computed quantity against its cited reference (examples/science/electromagnetism/hall_effect); compared with the committed result.json of each dimension.",
+ "nodes": [
+  {
+   "id": "run_2d",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.hall_effect",
+    "dim": "2D",
+    "quick": false
+   },
+   "label": "hall_effect 2D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "science",
+    "comparisons": [
+     {
+      "flow": "run_2d.rel_error[Hall coefficient R_H = E_y / (J_x B)]",
+      "ref": "electromagnetism/hall_effect/2D/result.json:comparisons.0.rel_error"
+     }
+    ],
+    "tolerance_source": "deterministic numerics at the committed resolution: 1e-6 relative on each relative error"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run_2d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_2d.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "science",
+  "domain": "science",
+  "scripts": [
+   "electromagnetism/hall_effect/README.md"
+  ],
+  "quick": {
+   "run_2d": {
+    "quick": true
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: reduced sizes, not the committed resolution"
+   }
+  }
+ }
+}

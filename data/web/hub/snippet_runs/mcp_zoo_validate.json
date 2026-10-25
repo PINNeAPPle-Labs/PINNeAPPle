@@ -1,0 +1,12 @@
+{
+ "code_hash": "e9162d950a2711bc",
+ "figures": [],
+ "id": "mcp:zoo_validate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "zoo_validate(name: 'str', inputs: 'Mapping[str, Any] | None' = None) -> 'dict[str, Any]'",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d93628fde1c445b",
+ "figures": [],
+ "id": "example:examples/nvidia/02_physicsnemo_plume_rollout",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Plume forecast: PhysicsNeMo FNO rollout with PINNeAPPle rollout validation | transport | not curated\none_step_rel_l2 0.01804893909474389 \ntrust_horizon_steps 10.0 steps\nmass_drift 0.04480531539697272",
+ "timed_out": false
+}

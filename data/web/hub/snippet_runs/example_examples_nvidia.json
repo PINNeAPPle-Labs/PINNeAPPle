@@ -1,0 +1,12 @@
+{
+ "code_hash": "919bba4381b00794",
+ "figures": [],
+ "id": "example:examples/nvidia",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNeAPPle with the NVIDIA stack | physics AI | not curated\ncoldplate_fno_test_rel_l2 0.017551220805002144 \npipeline_max_pressure_60s_closure 14.65695471406468 bar\nplume_fno_one_step_rel_l2 0.01804893909474389 \nplume_fno_trust_horizon 10.0 steps",
+ "timed_out": false
+}

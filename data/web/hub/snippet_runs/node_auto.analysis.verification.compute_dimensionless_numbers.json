@@ -1,0 +1,12 @@
+{
+ "code_hash": "f2d26488b490f8bb",
+ "figures": [],
+ "id": "node:auto.analysis.verification.compute_dimensionless_numbers",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "DimensionlessNumbers\nDimensionlessNumbers(reynolds=None, prandtl=None, peclet_heat=None, peclet_mass=None, mach=None, froude=None, weber=None, damkohler=None, nusselt_correlation=None, nusselt_correlation_name=None, notes={})",
+ "timed_out": false
+}

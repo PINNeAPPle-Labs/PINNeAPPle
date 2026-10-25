@@ -1,0 +1,12 @@
+{
+ "code_hash": "83f04ce786c10cab",
+ "figures": [],
+ "id": "node:inspection.eddy_current",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Eddy-current inspection PINN -> pinneapple_analysis.inspection.generate_eddy_current_synthetic (eddy_current_fdm) + train_eddy_current (InspectionPINN with a Helmholtz physics loss)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'nr': 24, 'nz': 40, 'scan': [-0.01, 0.01, 9], 'hidden': [64, 64, 64], 'epochs': 60, 'lr': 0.001, 'batch_size': 32}",
+ "timed_out": false
+}

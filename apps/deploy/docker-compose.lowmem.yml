@@ -82,6 +82,11 @@ services:
     mem_limit: 1g               # one worker already (torch ~400 MB idle, a study adds ~300 MB)
   arena:
     mem_limit: 1g               # one worker, one benchmark at a time (ARN_MAX_JOBS=1)
+  pinnarena:
+    environment:
+      PINN_ARENA_MAX_RUNNING: 1  # one experiment training at a time
+      PINN_ARENA_MAX_ARCHITECTURES: 4
+    mem_limit: 1500m            # one worker (torch ~400 MB idle, an experiment with a few architectures adds ~500 MB)
   models:
     mem_limit: 1g               # one worker already (torch + the zoo models ~500 MB)
   twin:

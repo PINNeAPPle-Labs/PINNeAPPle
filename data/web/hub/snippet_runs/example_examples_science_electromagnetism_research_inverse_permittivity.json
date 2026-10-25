@@ -1,0 +1,12 @@
+{
+ "code_hash": "a24dde2773f1dfcf",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/research_inverse_permittivity",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse problem: permittivity of a slab from its reflection spectrum (1D) | science / physics.electromagnetism | not curated\nrel_error[1D: eps_r recovered vs truth] 0.00046638233769686537 -\nrel_error[1D: sigma recovered vs truth] 0.05813692688169756 -\n1D: eps_r_recovered 3.7017256146494786 -\n1D: sigma_recovered 0.01883726146236605 S/m\n1D: eps_sigma_correlation -2.4858965827697875e-08 -",
+ "timed_out": false
+}

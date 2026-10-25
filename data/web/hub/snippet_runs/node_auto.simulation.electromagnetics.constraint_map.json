@@ -1,0 +1,12 @@
+{
+ "code_hash": "c98ff94ecf906a49",
+ "figures": [],
+ "id": "node:auto.simulation.electromagnetics.constraint_map",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(<Compressed Sparse Row sparse matrix of dtype 'float64'\n\twith 1 stored elements and shape (1, 1)>, array([0.]))",
+ "timed_out": false
+}

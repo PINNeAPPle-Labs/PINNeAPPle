@@ -1,0 +1,12 @@
+{
+ "code_hash": "22cb382f6ddbc3d7",
+ "figures": [],
+ "id": "example:benchmark_case/pdr",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - network beats raw imu",
+ "timed_out": false
+}

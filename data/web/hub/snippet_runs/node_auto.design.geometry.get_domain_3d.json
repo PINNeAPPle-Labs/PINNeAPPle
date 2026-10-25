@@ -1,0 +1,12 @@
+{
+ "code_hash": "2fda5358db378374",
+ "figures": [],
+ "id": "node:auto.design.geometry.get_domain_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get domain 3d -> pinneapple_design.geometry:get_domain_3d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

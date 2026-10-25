@@ -13,7 +13,53 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Added
+- `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
+  `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
+- `pinneapple_analysis.validation.physics_learning`: physics learning verification of learned thermal models (track 3):
+  discrete residual, interface flux, boundary, energy, symmetry and scaling checks and causal interventions against a
+  finite-volume reference, point sufficiency, informative points, architecture-vs-learned provenance, `TrustReport`.
+  Detects 22/22 deliberately defective models (physics loss: 12, held-out L2: 5); `examples/physics_learning_verification`.
+  - **Package and baselines:** a synthetic multilayer package with repeated microbump/TSV blocks, a fine FV reference
+    and the Keff baseline.
+  - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field
+    snapshot modes, a residual error estimate, p- and full refinement, and an exact CG correction; nested condensation
+    with memoised identical subtrees (65,536 blocks / 9.6e7 fine cells at m=12 built in 44 s and 7.6 GB in this container; the
+    interface-reduction error grows with package size: 27 mK at 1,024 blocks, 0.37 K at 4,096).
+  - **Extensions:** learned block operators with an out-of-box/deviation fallback and verification against exact
+    condensation; Craig-Bampton transients.
+  - **Track 1b, meshless:** RBF-FD / GFDM on point clouds from the implicit geometry, with interface pairs, mirror
+    sides and least squares. Measured not to converge reliably on this multi-material benchmark.
+  - **Track 1c:** a prior plus residual-selected exception patches with an energy correction.
+  - **Flow node** `condense.package_thermal`.
+- `pinneapple_simulation.meshless.stencils`: RBF-FD and GFDM stencil weights in any dimension (eval, gradient,
+  Laplacian), exact on polynomials up to the degree.
+
+### Added
+- `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
+  verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
+  `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,
+  `reflex_port`) with triangle meshes of the parts (`meshes`). Imported from PINNeAPPle-apps.
+- `pinneapple_design.thermal.fin_cell.solve_fin_cell`: 2-D finite-volume conduction in one fin pitch (energy balance,
+  grid-refinement check), an independent check of the fin-array formula.
+- `pinneapple_design.geometry.bodies.annulus`; `apps/_shared/static/shared/stl.js` (binary STL to three.js geometry).
+- Apps HeatSink Design AI (`apps/heatsink_inverse_ai`), BrakeCool AI (`apps/brakecool_ai`), PatchDose AI
+  (`apps/patchdose_ai`), RideTune AI (`apps/ridetune_ai`) and SoundShape AI (`apps/soundshape_ai`), with Dockerfiles,
+  tests and deploy entries (ports 8160-8164).
+
+### Changed
+- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
+  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+- **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first
+  `pinneapple_hub.library.load_index()` (and at `docker build` of `apps/hub`), `docs/flow_studio/COVERAGE.md` and
+  `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
+  file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
+  gates (AGENTS.md, "Generated files").
+
 ### Fixed
+- `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
+  (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
+  `cw_exact_velocity` (its results do not change: it uses vx0 = 0).
 - `pinneapple_physics.solve_pde` computed `model(x_col)` every step and passed it to the compiled loss, which never
   reads it (the loss evaluates the model on its own gradient-tracking copy): one wasted forward pass per step,
   removed. Losses are unchanged.
@@ -29,6 +75,52 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- Every `examples/*` study as a flow: domain nodes in `pinneapple_flow/nodes_ext` (`flight.*`, `render.blender_clip` /
+  `render.clip_grid`, `em.*`, `examples.compare`), flows in `pinneapple_flow/flows/examples/<domain>/` with a quick
+  configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
+  finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
+  the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
+- Reflector antennas and compact ranges by physical optics (`pinneapple_simulation.electromagnetics.reflector`):
+  offset paraboloid sections with superellipse junctions and blended rolled edges, `cos^q` feeds (Ludwig-3, 1 W),
+  PO currents and their exact near field (dyadic Green's function), quiet-zone metrics (taper, ripple, phase, usable
+  diameter within ±0.5 dB / ±5°), checks against the closed-form PO disk field and the GO aperture taper, a feed gain ×
+  reflector size × rolled-edge sweep with Gaussian-process surrogates (random and leave-one-size-out held-out errors)
+  and trade-off maps; example `examples/use_cases/antennas/compact_range_qz.py`, guide `docs/guides/compact_range.md`.
+- Periodic unit cells (`pinneapple_simulation.electromagnetics.periodic`): a generic TCDA cell for EMerge Floquet runs
+  (periodic boundaries with the scan phase, one mesh for every scan angle), DOE campaigns through the runner, the
+  (frequency × scan) dataset, an FNO with held-out error (`pinneapple_analysis.surrogate`), and the equal-budget
+  comparison of FNO + optimiser against Bayesian optimisation on the solver; example
+  `examples/use_cases/antennas/unit_cell_benchmark.py`, guide `docs/guides/unit_cell_benchmark.md`.
+  `GPModel(features=...)` and `surrogates.columns` fit the antenna GP on any design space; `CLISimulator(extra_args=)`.
+- PINNeAPPle Arena app (`apps/pinn_arena`, port 8130, prefix `PINN_ARENA`, imported from PINNeAPPle-arena): train
+  registry architectures head to head on 34 problems, a leaderboard of the server's own runs (starts empty), optional
+  GitHub sign-in, React frontend built in the Dockerfile; deploy service `pinnarena`.
+- `pinneapple_arena.pointwise`: the arena's problems, reference data, PDE residuals, pointwise / closed-form model
+  adapters, training protocol, field metrics, leaderboard aggregation and upload parsing. An architecture the
+  registry can not build is reported as failed (`ArchitectureUnavailable`), never replaced by a stand-in model.
+- `pinneapple_arena.external`: references to 95 third-party physics-ML libraries (repository, licence with the file
+  or metadata it was read from, citation, install) and the glue runners that import them at run time, with an honest
+  status per result; `python -m pinneapple_arena.external`.
+- Eleven products imported from PINNeAPPle-apps as apps, each a thin HTTP layer over the library: Text2Part
+  (`apps/text2part`), MeshBridge (`apps/meshbridge`), PhysicsCopilot (`apps/physics_copilot`), VerifiedPhysics
+  (`apps/verified_physics`), SatScreen (`apps/satscreen`), FlowTrace (`apps/flowtrace`), NozzleScreen
+  (`apps/nozzle_screen`), RoverMobility (`apps/rover_mobility`), GovernedCard (`apps/governed_card`), HelioTFC
+  (`apps/helio_tfc`) and OrbitWatch (`apps/orbitwatch`), with appkit login / metering / job queue, Dockerfiles, tests
+  (`tests/test_app_*.py`) and, for the eight that need no LLM, services in `apps/deploy`. Their READMEs state the
+  known limitations (unchecked preset choice, the nozzle PINN's disagreement, Text2Part's compound-part errors).
+- `pinneapple_analysis.verification.pipeline` (`analyze`, `rank_key`): description -> LLM-drafted preset -> PINN ->
+  guardrail -> physics-aware pick, with provenance; `run_intervention` now uses it (it imported a private app).
+  The source app's eight verification test files are `tests/pinneapple_analysis/test_verification_*.py`.
+- `pinneapple_analysis.verification.nozzle_crosscheck.screen_nozzle` and `pp.closed_form.rocket_nozzle` (exit Mach
+  from the area ratio, choked mass flow, c*, C_F, Isp).
+- `pinneapple_physics.astro.conjunction`: CW closest approach, 2-D Gaussian collision probability (checked against
+  the Rayleigh closed form and Monte Carlo), two-body + J2 propagation; `presets.astrophysics.cw_exact_velocity`.
+- `pinneapple_simulation.terramechanics.mobility` (Bekker-Wong surrogate screening with R1-R4 checked one by one),
+  `pinneapple_hub.verified_card` (model cards only from a guardrail run), `pinneapple_perception.piv_tools`,
+  `pinneapple_perception.change_detection` and `.sentinel2`, `pinneapple_systems.time_series.solar_cycle`,
+  `external_solvers.cfd_formats.convert`, `pinneapple_llm.draft_preset_kwargs` / `check_kwargs_in_bounds` /
+  `draft_part` / `measure_part`, and `presets.tag_geometry.tag_solve_kwargs` (boundary geometry of tagged presets
+  for `solve_pde`).
 - Cross-framework benchmark against PhysicsNeMo / PhysicsNeMo-Sym, DeepXDE and neuraloperator
   (`benchmarks/vs_frameworks/`: protocol, one runner per framework and track, driver, results, report). Its neutral
   parts are a library module, `pinneapple_tools.benchmark_suite.crossframework`: problems with checked references

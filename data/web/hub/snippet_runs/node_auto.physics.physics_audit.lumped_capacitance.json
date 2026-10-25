@@ -1,0 +1,12 @@
+{
+ "code_hash": "c4f9199d392845d5",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.lumped_capacitance",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='lumped_capacitance', description='uniform temperature inside the body', conditions=(Condition(feature='Bi', lo=-inf, hi=0.1, band=0.15, log=None),), breaks_into='internal temperature gradients', missing_mechanism='internal conduction')",
+ "timed_out": false
+}

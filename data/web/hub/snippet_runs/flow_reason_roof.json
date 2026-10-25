@@ -1,0 +1,12 @@
+{
+ "code_hash": "56342b91f1f6cbc9",
+ "figures": [],
+ "id": "flow:reason_roof",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Roof: chain of whys - 7 nodes\nissues: []",
+ "timed_out": false
+}

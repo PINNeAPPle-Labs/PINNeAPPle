@@ -1,0 +1,12 @@
+{
+ "code_hash": "b948a3860baab4a0",
+ "figures": [],
+ "id": "example:examples/nvidia/05_brep_plate_with_hole",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+ "timed_out": false
+}

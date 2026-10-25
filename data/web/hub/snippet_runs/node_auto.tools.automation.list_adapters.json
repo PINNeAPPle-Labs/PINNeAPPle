@@ -1,0 +1,12 @@
+{
+ "code_hash": "9877faca0cafe774",
+ "figures": [],
+ "id": "node:auto.tools.automation.list_adapters",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'verify': <pinneapple_tools.automation.adapters.checks.VerifyAdapter object at 0x7fd0d0816a50>, 'web': <pinneapple_tools.automation.adapters.checks.WebAdapter object at 0x7fd0d08174d0>, 'freecad': <pinneapple_tools.automation.adapters.freecad.FreeCADAdapter object at 0x7fd0d08178c0>, 'cfdof': <pinneapple_tools.automation.adapters.freecad.CfdOFAdapter object at 0x7fd0d0817a10>, 'openfoam': <pinneapple_tools.automation.adapters.openfoam.OpenFOAMAdapter object at 0x7fd0d0817cb0>, 'paraview': <pinneapple_tools.automation.adapters.paraview.ParaViewAdapter object at 0x7fd0d0817e00>}",
+ "timed_out": false
+}

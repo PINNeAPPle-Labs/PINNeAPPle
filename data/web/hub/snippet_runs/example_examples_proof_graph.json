@@ -1,0 +1,12 @@
+{
+ "code_hash": "f1b26cb0d5c40794",
+ "figures": [],
+ "id": "example:examples/proof_graph",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.93,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Proof graphs: mathematics with the same evidence discipline | validation and benchmarks | not curated",
+ "timed_out": false
+}

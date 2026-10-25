@@ -1,0 +1,350 @@
+[
+ {
+  "blocks": 16,
+  "cells": 23552,
+  "reference": {
+   "seconds": 2.1523902489998363,
+   "method": "direct",
+   "iterations": 0,
+   "Tmax": 65.91030677421011,
+   "peak_rss_gb": 0.158496
+  },
+  "flat": {
+   "prepare_s": 0.49146981600006256,
+   "solve_s": 0.00019745500003409688,
+   "dofs": 480,
+   "Tmax": 65.9101213651502,
+   "timings": {
+    "blocks": 0.14277361499989638,
+    "distinct_blocks": 1,
+    "reduce": 0.3458964440001182,
+    "assemble": 0.0011086180002166657,
+    "factor": 0.0016601869997430185,
+    "prepare": 0.49146981600006256
+   },
+   "peak_rss_gb": 0.192556
+  },
+  "hierarchy": {
+   "prepare_s": 0.3237510310000289,
+   "solve_s": 0.0010570419999567093,
+   "Tmax": 65.91012136474842,
+   "timings": {
+    "blocks": 0.17268087200000082,
+    "reduce": 0.13762264900014998,
+    "merges": 0.0094258379999701,
+    "distinct_nodes": 5,
+    "distinct_merges": 4,
+    "root": 0.004007923000244773,
+    "prepare": 0.3237510310000289,
+    "root_ports": 192
+   },
+   "energy_balance": -2.2419743839208195e-10,
+   "peak_rss_gb": 0.192244
+  }
+ },
+ {
+  "blocks": 64,
+  "cells": 94208,
+  "reference": {
+   "seconds": 15.954352537999966,
+   "method": "amg",
+   "iterations": 101,
+   "Tmax": 66.18220167359492,
+   "peak_rss_gb": 0.139784
+  },
+  "flat": {
+   "prepare_s": 0.28281055900015417,
+   "solve_s": 0.0009006239997688681,
+   "dofs": 1728,
+   "Tmax": 66.18131944956355,
+   "timings": {
+    "blocks": 0.12655570200013244,
+    "distinct_blocks": 1,
+    "reduce": 0.13534446799985744,
+    "assemble": 0.006844015000297077,
+    "factor": 0.014027017999978852,
+    "prepare": 0.28281055900015417
+   },
+   "peak_rss_gb": 0.192652
+  },
+  "hierarchy": {
+   "prepare_s": 0.29237379500000316,
+   "solve_s": 0.0021170480004002457,
+   "Tmax": 66.18131944911063,
+   "timings": {
+    "blocks": 0.11882464600012099,
+    "reduce": 0.14388232200008133,
+    "merges": 0.026956255000186502,
+    "distinct_nodes": 7,
+    "distinct_merges": 6,
+    "root": 0.0026931749998766463,
+    "prepare": 0.29237379500000316,
+    "root_ports": 384
+   },
+   "energy_balance": -2.2580870506772044e-10,
+   "peak_rss_gb": 0.192292
+  }
+ },
+ {
+  "blocks": 256,
+  "cells": 376832,
+  "reference": {
+   "seconds": 53.32191839299958,
+   "method": "amg",
+   "iterations": 115,
+   "Tmax": 66.85656137817575,
+   "peak_rss_gb": 0.346008
+  },
+  "flat": {
+   "prepare_s": 0.3390986750000593,
+   "solve_s": 0.0031310370000028342,
+   "dofs": 6528,
+   "Tmax": 66.85512280001423,
+   "timings": {
+    "blocks": 0.12776404599981106,
+    "distinct_blocks": 1,
+    "reduce": 0.12637825799993152,
+    "assemble": 0.02236947500023234,
+    "factor": 0.06255124200015416,
+    "prepare": 0.3390986750000593
+   },
+   "peak_rss_gb": 0.192688
+  },
+  "hierarchy": {
+   "prepare_s": 0.6321463939998466,
+   "solve_s": 0.00696260600034293,
+   "Tmax": 66.85512279945337,
+   "timings": {
+    "blocks": 0.12545323499989536,
+    "reduce": 0.15130882199991902,
+    "merges": 0.22632310500011954,
+    "distinct_nodes": 9,
+    "distinct_merges": 8,
+    "root": 0.1290291789996445,
+    "prepare": 0.6321463939998466,
+    "root_ports": 768
+   },
+   "energy_balance": -2.2546453593008664e-10,
+   "peak_rss_gb": 0.192524
+  }
+ },
+ {
+  "blocks": 1024,
+  "cells": 1507328,
+  "reference": {
+   "seconds": 85.75377229300011,
+   "method": "amg",
+   "iterations": 128,
+   "Tmax": 68.64430878308511,
+   "peak_rss_gb": 1.001856
+  },
+  "flat": {
+   "prepare_s": 1.1079276830000708,
+   "solve_s": 0.014591694000046118,
+   "dofs": 25344,
+   "Tmax": 68.62835416518593,
+   "timings": {
+    "blocks": 0.11304558300025747,
+    "distinct_blocks": 1,
+    "reduce": 0.19976305000000139,
+    "assemble": 0.339193712999986,
+    "factor": 0.4558899859998746,
+    "prepare": 1.1079276830000708
+   },
+   "peak_rss_gb": 0.382376
+  },
+  "hierarchy": {
+   "prepare_s": 0.6668266510000649,
+   "solve_s": 0.19833629000004294,
+   "Tmax": 68.6283541645364,
+   "timings": {
+    "blocks": 0.13121614100009538,
+    "reduce": 0.1601975130001847,
+    "merges": 0.3361451709997709,
+    "distinct_nodes": 11,
+    "distinct_merges": 10,
+    "root": 0.0392368460002217,
+    "prepare": 0.6668266510000649,
+    "root_ports": 1536
+   },
+   "energy_balance": -2.2577539837698168e-10,
+   "peak_rss_gb": 0.277992
+  }
+ },
+ {
+  "blocks": 2304,
+  "cells": 3391488,
+  "reference": {
+   "seconds": 212.8743239399996,
+   "method": "amg",
+   "iterations": 135,
+   "Tmax": 70.7518853877321,
+   "peak_rss_gb": 2.173292
+  }
+ },
+ {
+  "blocks": 4096,
+  "cells": 6029312,
+  "flat": {
+   "prepare_s": 5.811233033000008,
+   "solve_s": 0.07641954400014583,
+   "dofs": 99840,
+   "Tmax": 73.070519369102,
+   "timings": {
+    "blocks": 0.11227369900007034,
+    "distinct_blocks": 1,
+    "reduce": 0.1323144709999724,
+    "assemble": 1.4899932200000876,
+    "factor": 4.076615914000286,
+    "prepare": 5.811233033000008
+   },
+   "peak_rss_gb": 0.994616
+  },
+  "hierarchy": {
+   "prepare_s": 2.2870278239997788,
+   "solve_s": 0.2464695529997698,
+   "Tmax": 73.07051936838775,
+   "timings": {
+    "blocks": 0.11605953999969643,
+    "reduce": 0.12280807400020421,
+    "merges": 1.8699581770001714,
+    "distinct_nodes": 13,
+    "distinct_merges": 12,
+    "root": 0.1772419449998779,
+    "prepare": 2.2870278239997788,
+    "root_ports": 3072
+   },
+   "energy_balance": -2.2569590640841852e-10,
+   "peak_rss_gb": 0.666516
+  },
+  "hierarchy_m6": {
+   "prepare_s": 0.7648936209998283,
+   "solve_s": 0.09900084800028708,
+   "Tmax": 72.09944305768387,
+   "timings": {
+    "blocks": 0.15976685999976326,
+    "reduce": 0.13145064499985892,
+    "merges": 0.366279774999839,
+    "distinct_nodes": 13,
+    "distinct_merges": 12,
+    "root": 0.10734083600027589,
+    "prepare": 0.7648936209998283,
+    "root_ports": 1536
+   },
+   "energy_balance": -2.2482127270961882e-10,
+   "peak_rss_gb": 0.27932
+  }
+ },
+ {
+  "blocks": 16384,
+  "cells": 24117248,
+  "flat": {
+   "prepare_s": 46.63324356799967,
+   "solve_s": 0.4207192369999575,
+   "dofs": 396288,
+   "Tmax": 84.75397665549228,
+   "timings": {
+    "blocks": 0.11778902499963806,
+    "distinct_blocks": 1,
+    "reduce": 0.19449377700038895,
+    "assemble": 9.152268232000097,
+    "factor": 37.16865632400004,
+    "prepare": 46.63324356799967
+   },
+   "peak_rss_gb": 4.097504
+  },
+  "hierarchy": {
+   "prepare_s": 8.4724886099998,
+   "solve_s": 0.8764656019998256,
+   "Tmax": 84.75397665472151,
+   "timings": {
+    "blocks": 0.15295619999960763,
+    "reduce": 0.1948967520002043,
+    "merges": 7.537952514000153,
+    "distinct_nodes": 15,
+    "distinct_merges": 14,
+    "root": 0.5854797249999137,
+    "prepare": 8.4724886099998,
+    "root_ports": 6144
+   },
+   "energy_balance": -2.256788089738393e-10,
+   "peak_rss_gb": 2.049268
+  },
+  "hierarchy_m6": {
+   "prepare_s": 1.8607432879998669,
+   "solve_s": 0.2727464510003301,
+   "Tmax": 81.79510975588094,
+   "timings": {
+    "blocks": 0.1478021230000195,
+    "reduce": 0.16163873999994394,
+    "merges": 1.4447114849999707,
+    "distinct_nodes": 15,
+    "distinct_merges": 14,
+    "root": 0.10628330000008646,
+    "prepare": 1.8607432879998669,
+    "root_ports": 3072
+   },
+   "energy_balance": -2.2483859218880298e-10,
+   "peak_rss_gb": 0.645224
+  }
+ },
+ {
+  "blocks": 65536,
+  "cells": 96468992,
+  "hierarchy": {
+   "prepare_s": 43.746866945999955,
+   "solve_s": 3.3815957900001195,
+   "Tmax": 107.91825607221354,
+   "timings": {
+    "blocks": 0.11544966800011025,
+    "reduce": 0.13603081100018244,
+    "merges": 40.34656971000004,
+    "distinct_nodes": 17,
+    "distinct_merges": 16,
+    "root": 3.1438556309999512,
+    "prepare": 43.746866945999955,
+    "root_ports": 12288
+   },
+   "energy_balance": -2.2568635849040675e-10,
+   "peak_rss_gb": 7.608628
+  },
+  "hierarchy_m6": {
+   "prepare_s": 5.513732763999997,
+   "solve_s": 1.1738736239999525,
+   "Tmax": 101.89168131418856,
+   "timings": {
+    "blocks": 0.11942492500020307,
+    "reduce": 0.1520026850002978,
+    "merges": 4.547365622000143,
+    "distinct_nodes": 17,
+    "distinct_merges": 16,
+    "root": 0.6936930470001244,
+    "prepare": 5.513732763999997,
+    "root_ports": 6144
+   },
+   "energy_balance": -2.2484480943774088e-10,
+   "peak_rss_gb": 2.080884
+  }
+ },
+ {
+  "blocks": 262144,
+  "cells": 385875968,
+  "hierarchy_m6": {
+   "prepare_s": 39.52440245199978,
+   "solve_s": 4.025996056000167,
+   "Tmax": 137.34419952608042,
+   "timings": {
+    "blocks": 0.14960793399995964,
+    "reduce": 0.16421059699996476,
+    "merges": 35.960636560999774,
+    "distinct_nodes": 19,
+    "distinct_merges": 18,
+    "root": 3.2429194830001506,
+    "prepare": 39.52440245199978,
+    "root_ports": 12288
+   },
+   "energy_balance": -2.2485002748595662e-10,
+   "peak_rss_gb": 7.7256
+  }
+ }
+]

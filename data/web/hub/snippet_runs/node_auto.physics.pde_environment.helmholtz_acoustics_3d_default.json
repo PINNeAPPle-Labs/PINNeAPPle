@@ -1,0 +1,12 @@
+{
+ "code_hash": "37144f10fc79bb5c",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.helmholtz_acoustics_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='helmholtz_acoustics_3d_default', dim=3, coords=('x', 'y', 'z'), fields=('u',), pde=PDETermSpec(kind='helmholtz', fields=('u',), coords=('x', 'y', 'z'), params={'k': 10.0}, meta={'industry': 'acoustics', 'note': \"Provide ctx['source_fn']=f(x) if needed.\"}), conditions=(ConditionSpec(name='u_boundary', kind='dirichlet', fields=('u',), selector_type='tag', selector={'tag': 'boundary'}, value_fn=<function helmholtz_acoustics_3d_default.<locals>.<lambda> at 0x7f8077ca27a0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 220000, 'n_bc': 70000, 'n_ic': 0, 'n_data': 0}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ranges={'u': (-1.0, 1.0)}, references=('Helmholtz (acoust",
+ "timed_out": false
+}

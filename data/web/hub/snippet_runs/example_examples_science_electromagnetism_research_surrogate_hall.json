@@ -1,0 +1,12 @@
+{
+ "code_hash": "c546277a863b9679",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/research_surrogate_hall",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate of the Hall geometrical factor with hold-out error (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: hold-out: worst surrogate G vs solver G] 0.0007898725588408868 -\nrel_error[2D: solver: long bar G(L/W = 8) -> 1] 5.743298456928336e-06 -\n2D: holdout_max_rel_error 0.0007898725588408873 -\n2D: holdout_mean_rel_error 0.00011898346609119 -\n2D: coverage_2sigma 0.8 -",
+ "timed_out": false
+}

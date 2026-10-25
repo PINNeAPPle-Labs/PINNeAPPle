@@ -1,0 +1,12 @@
+{
+ "code_hash": "50de6c823ab423eb",
+ "figures": [],
+ "id": "node:lib.antenna.render_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Vivaldi in 3-D: balloon, near field, renders -> pinneapple_simulation.electromagnetics.antenna.study:render_3d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'out': None, 'freqs': [2.0, 2.5, 3.0, 3.5, 4.0], 'res': 0.25, 'nf_step': 2.0, 'timeout': 3600.0, 'render': True, 'samples': 32, 'size': [960, 540]}",
+ "timed_out": false
+}

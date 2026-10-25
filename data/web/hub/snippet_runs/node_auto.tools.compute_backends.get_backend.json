@@ -1,0 +1,12 @@
+{
+ "code_hash": "e99f491975be5d22",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.get_backend",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'torch'",
+ "timed_out": false
+}

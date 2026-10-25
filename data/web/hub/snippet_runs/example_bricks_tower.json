@@ -1,0 +1,12 @@
+{
+ "code_hash": "e265c2c88c66a15a",
+ "figures": [],
+ "id": "example:bricks/tower",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - best build passes rigid-body statics",
+ "timed_out": false
+}

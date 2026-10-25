@@ -1,0 +1,12 @@
+{
+ "code_hash": "32e61852e453fd6d",
+ "figures": [],
+ "id": "example:examples/science",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Science experiments and atlas | science | not curated\ncomparisons 78.0 \ncomparisons_passed 78.0",
+ "timed_out": false
+}

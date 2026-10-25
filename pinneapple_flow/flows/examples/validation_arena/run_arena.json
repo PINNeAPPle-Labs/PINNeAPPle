@@ -1,0 +1,125 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-validation-arena",
+ "name": "Validation arena: red team / blue team on Darcy and Burgers",
+ "description": "Two rounds of red team (escapes, false alarms) and blue team (a calibrated combined test, new checks) on Darcy 2-D and Burgers 1-D at alpha 1 %, then the reference solver audited through the hardened defence (examples/validation_arena; numbers in docs/guides/validation_arena.md).",
+ "nodes": [
+  {
+   "id": "darcy",
+   "type": "validate.arena",
+   "params": {
+    "problem": "darcy_2d",
+    "budget": "full"
+   },
+   "label": "Arena: Darcy 2-D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "burgers",
+   "type": "validate.arena",
+   "params": {
+    "problem": "burgers_1d",
+    "budget": "full"
+   },
+   "label": "Arena: Burgers 1-D",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "audit",
+   "type": "validate.audit_model",
+   "params": {
+    "problem": "darcy_2d"
+   },
+   "label": "Audit the reference solver",
+   "position": {
+    "x": 40.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "validation_arena",
+    "comparisons": [
+     {
+      "flow": "darcy.round0.escapes_found",
+      "ref": "doc:docs/guides/validation_arena.md|escapes found at round 0 (true error \u2265 10 %, every check passes)|Darcy 2-D"
+     },
+     {
+      "flow": "burgers.round0.escapes_found",
+      "ref": "doc:docs/guides/validation_arena.md|escapes found at round 0 (true error \u2265 10 %, every check passes)|Burgers 1-D"
+     },
+     {
+      "flow": "darcy.round0.heldout_false_alarm_before",
+      "ref": "doc:docs/guides/validation_arena.md|held-out false-alarm rate, hand tolerances \u2192 combined test|Darcy 2-D",
+      "scale": 100
+     },
+     {
+      "flow": "burgers.round0.heldout_false_alarm_after",
+      "ref": "text:docs/guides/validation_arena.md|0\\.00 % \u2192 (\\d+\\.\\d+) %",
+      "scale": 100
+     }
+    ],
+    "tolerance_source": "the guide's table (seed 0, alpha 1 %, 2 rounds, full budget), rounded: half a unit of its last digit"
+   },
+   "label": "Same numbers as examples/validation_arena",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "darcy",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "darcy.metrics->compare.metrics"
+  },
+  {
+   "source": "burgers",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "burgers.metrics->compare.metrics"
+  },
+  {
+   "source": "audit",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "audit.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "validation_arena",
+  "domain": "validation",
+  "scripts": [
+   "run_arena.py",
+   "external_model.py"
+  ],
+  "quick": {
+   "darcy": {
+    "budget": "small",
+    "rounds": 1
+   },
+   "burgers": {
+    "budget": "small",
+    "rounds": 1
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: the small budget, not the guide's"
+   }
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6bb3589620816750",
+ "figures": [],
+ "id": "flow:burgers_1d",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Burgers 1D: PINN vs finite differences vs Cole-Hopf - 8 nodes\nissues: []",
+ "timed_out": false
+}

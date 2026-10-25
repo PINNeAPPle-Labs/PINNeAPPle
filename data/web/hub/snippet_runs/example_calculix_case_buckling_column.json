@@ -1,0 +1,12 @@
+{
+ "code_hash": "3ffb7fad50e9a608",
+ "figures": [],
+ "id": "example:calculix_case/buckling_column",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - buckling load vs Euler",
+ "timed_out": false
+}

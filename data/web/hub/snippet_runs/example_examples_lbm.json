@@ -1,0 +1,12 @@
+{
+ "code_hash": "9b195823d0898426",
+ "figures": [],
+ "id": "example:examples/lbm",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lattice Boltzmann wind tunnel and the FluidX3D bridge | fluid dynamics | not curated",
+ "timed_out": false
+}

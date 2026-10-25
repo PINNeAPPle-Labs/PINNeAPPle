@@ -1,0 +1,12 @@
+{
+ "code_hash": "cf77c4920ef8efc6",
+ "figures": [],
+ "id": "node:auto.design.qualitative.parse_objective",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "parse objective -> pinneapple_design.qualitative:parse_objective\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'objective': ''}",
+ "timed_out": false
+}

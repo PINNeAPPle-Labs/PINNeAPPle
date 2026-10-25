@@ -1,0 +1,12 @@
+{
+ "code_hash": "36b6781e3681341a",
+ "figures": [],
+ "id": "node:lib.uq.sobol",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Sobol indices (any surrogate) -> pinneapple_analysis.sensitivity:sobol_indices\ninputs: [('model', 'model')]\noutputs: [('result', 'metrics')]\ndefaults: {'n': 1024, 'second_order': False, 'n_boot': 200, 'level': 0.95, 'seed': 0}",
+ "timed_out": false
+}

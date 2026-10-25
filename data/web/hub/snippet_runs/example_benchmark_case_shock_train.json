@@ -1,0 +1,12 @@
+{
+ "code_hash": "857320f90b345f28",
+ "figures": [],
+ "id": "example:benchmark_case/shock_train",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - shock moves upstream with back pressure · shock-train leading…",
+ "timed_out": false
+}

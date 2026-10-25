@@ -1,0 +1,12 @@
+{
+ "code_hash": "7187fdc91b6ef3ce",
+ "figures": [],
+ "id": "example:examples/hpo_experiments",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.93,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_researcher examples | validation and benchmarks | not curated",
+ "timed_out": false
+}

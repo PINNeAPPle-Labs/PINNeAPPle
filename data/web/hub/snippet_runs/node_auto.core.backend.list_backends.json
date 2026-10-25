@@ -1,0 +1,12 @@
+{
+ "code_hash": "8ac933484853101b",
+ "figures": [],
+ "id": "node:auto.core.backend.list_backends",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['jax', 'torch']",
+ "timed_out": false
+}

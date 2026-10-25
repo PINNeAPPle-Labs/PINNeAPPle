@@ -1,0 +1,11 @@
+{
+ "blocks": 16,
+ "cells": 23552,
+ "reference": {
+  "seconds": 2.1523902489998363,
+  "method": "direct",
+  "iterations": 0,
+  "Tmax": 65.91030677421011
+ },
+ "peak_rss_gb": 0.158496
+}

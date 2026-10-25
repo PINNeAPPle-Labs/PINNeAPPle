@@ -1,0 +1,12 @@
+{
+ "code_hash": "31d0950d8489895d",
+ "figures": [],
+ "id": "node:auto.physics.non_hermitian.feedback_coupling",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.0,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(1.414213562373095, 6)",
+ "timed_out": false
+}

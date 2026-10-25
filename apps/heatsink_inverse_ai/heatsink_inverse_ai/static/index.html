@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>HeatSink Design AI</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0b0d; --card:#14161c; --border:#232630; --text:#e8e9ec; --dim:#8b8f9a; --faint:#5b5f6b; --accent:#5b8def; --green:#3ecf8e; --green-dim:#123024; --amber:#e8b44a; --amber-dim:#332711; --red:#ef5b5b; --red-dim:#3a1717; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13.5px; margin-bottom: 20px; line-height: 1.5; max-width: 800px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--dim); margin: 0 0 14px; font-weight: 650; }
+  label { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 4px; }
+  .slider-row { margin-bottom: 16px; }
+  .slider-row .value { color: var(--accent); font-weight: 650; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  input[type=number], select { background: #0e1015; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 7px; font-size: 13.5px; width: 100%; }
+  button { background: var(--accent); color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 650; width: 100%; }
+  button:disabled { opacity: 0.5; }
+  #viewer { width: 100%; height: 420px; border-radius: 12px; border: 1px solid var(--border); background: #050608; position: relative; overflow: hidden; }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--faint); font-size: 11px; }
+  #viewer .loading { position: absolute; top: 10px; left: 12px; color: var(--amber); font-size: 11px; display: none; }
+  .colorbar { position: absolute; top: 12px; right: 14px; width: 150px; display: none; }
+  .colorbar-grad { height: 10px; border-radius: 5px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--dim); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .colorbar-title { font-size: 10px; color: var(--faint); text-align: right; margin-top: 1px; }
+  .fea-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .fea-row:last-child { border-bottom: none; }
+  .fea-row .lbl { color: var(--dim); }
+  .flow-caption { font-size: 12px; color: var(--dim); line-height: 1.55; margin: 8px 2px 14px; }
+  .flow-caption b { color: var(--text); }
+  .live-readout { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .readout-item .num { font-size: 26px; font-weight: 700; }
+  .readout-item .lbl { color: var(--dim); font-size: 11.5px; }
+  .readout-item .num.hot { color: var(--red); } .readout-item .num.cool { color: var(--green); } .readout-item .num.warn { color: var(--amber); }
+  .verdict-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+  .v-PASS { background: var(--green-dim); color: var(--green); }
+  .v-WARNING { background: var(--amber-dim); color: var(--amber); }
+  .v-FAIL { background: var(--red-dim); color: var(--red); }
+  .check-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .detail { color: var(--dim); flex: 1; }
+  .trust-score { font-size: 34px; font-weight: 750; }
+  .footer-note { color: var(--faint); font-size: 11px; margin-top: 20px; line-height: 1.6; }
+  .badge { display:inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background:#1e2129; color: var(--dim); margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔥 HeatSink Design AI</h1>
+  <div class="sub">The heat sink as a triangle mesh, rebuilt as you drag the sliders (the temperature comes from the server's fin-array formula, nothing is computed in the page). "Optimize with AI" trains nothing new: it descends through the surrogate trained at start-up, then re-checks the design against the formula. Fixed convection coefficient per fan profile; no airflow model, no measurement.</div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Operating conditions</h2>
+        <div class="slider-row">
+          <label>Power to dissipate (W)</label>
+          <input type="number" id="power" value="65" min="1" max="400" />
+        </div>
+        <div class="slider-row">
+          <label>Cooling profile</label>
+          <select id="profile">
+            <option value="quiet_fan">Quiet fan</option>
+            <option value="standard_fan" selected>Standard fan</option>
+            <option value="high_static_pressure_fan">High static-pressure fan</option>
+          </select>
+        </div>
+        <button id="btn-optimize">Optimize with AI</button>
+      </div>
+
+      <div class="card">
+        <h2>Fin geometry <span class="badge">manual explore</span></h2>
+        <div class="slider-row">
+          <label>Fin count: <span class="value" id="v-count">20</span></label>
+          <input type="range" id="s-count" min="3" max="60" step="1" value="20" />
+        </div>
+        <div class="slider-row">
+          <label>Fin height (mm): <span class="value" id="v-height">25.0</span></label>
+          <input type="range" id="s-height" min="5" max="45" step="0.5" value="25" />
+        </div>
+        <div class="slider-row">
+          <label>Fin thickness (mm): <span class="value" id="v-thickness">1.00</span></label>
+          <input type="range" id="s-thickness" min="0.4" max="3" step="0.05" value="1.0" />
+        </div>
+        <div class="live-readout">
+          <div class="readout-item"><div class="num" id="live-temp">--</div><div class="lbl">junction temp (fin-array formula)</div></div>
+        </div>
+        <div class="footer-note" id="constraint-note"></div>
+      </div>
+
+      <div class="card">
+        <h2>Formula cross-check <span class="badge">2-D finite volume</span></h2>
+        <div class="footer-note" style="margin-top:0;">Solves conduction in one fin pitch (base strip + fin, convection on the exposed faces, symmetry at the sides) by finite volumes and compares it with the 1-D fin formula above. Same h as the formula: it checks the fin theory, not the airflow.</div>
+        <button id="btn-fea" style="margin-top:10px;">Run the cross-check</button>
+        <div id="fea-result"></div>
+      </div>
+    </div>
+
+    <div>
+      <div id="viewer">
+        <div class="loading" id="loading-note">regenerating mesh…</div>
+        <div class="hint">drag to rotate · scroll to zoom</div>
+        <div class="colorbar" id="colorbar">
+          <div class="colorbar-grad"></div>
+          <div class="colorbar-labels"><span id="cb-min">25°C</span><span id="cb-max">48°C</span></div>
+          <div class="colorbar-title">temperature (1-D fin profile)</div>
+        </div>
+      </div>
+      <div class="flow-caption">🔴 <b>Heat enters here</b> (base plate, from the CPU below) → conducts upward through the base → <b>exits via convection</b> across every fin surface (the red-to-blue colours are the 1-D fin temperature profile: hottest at the fin root, coolest at the tip).</div>
+      <div id="result"></div>
+      <div class="footer-note" id="status-note"></div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+import { parseBinarySTL } from "/shared/stl.js";
+let scene, camera, renderer, controls, currentMesh;
+let lastDesign = { fin_count: 20, fin_height_m: 0.025, fin_thickness_m: 0.001 };
+let lastThermalField = null;
+const BASE_THICKNESS_M = 0.003; // matches physics.BASE_THICKNESS_M, needed to locate the fin root in the raw (uncentered) STL geometry
+
+// 4-stop thermal colormap (blue -> cyan -> yellow -> red), matching the colorbar gradient in the CSS above.
+function tempToColor(t, tmin, tmax) {
+  let f = (t - tmin) / Math.max(tmax - tmin, 1e-6);
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]],
+    [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]],
+    [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+
+// Colors each vertex of the mesh by the analytical fin-temperature
+// profile (heatsink_fins.fin_temperature_at_height_c) evaluated at that vertex's
+// height above the base plate -- must run BEFORE geom.center() re-origins the
+// vertex positions, since it needs the true physical z (base plate at z=0..base_t,
+// fins above it), the same convention the mesh builder (surrogate_inverse.meshes) builds the solid in.
+function colorGeometryByTemperature(geom, field) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const colors = new Float32Array(n * 3);
+  const baseTMm = BASE_THICKNESS_M * 1000;
+  const tMin = field.t_ambient_c;
+  const tMax = field.t_ambient_c + field.theta_fin_base_c;
+  const ml = field.m * field.lc_m;
+  for (let i = 0; i < n; i++) {
+    const zMm = pos.getZ(i);
+    const zAboveRootM = Math.max((zMm - baseTMm / 2.0) / 1000.0, 0);
+    let theta;
+    if (ml <= 1e-9) {
+      theta = field.theta_fin_base_c;
+    } else {
+      const zClamped = Math.min(zAboveRootM, field.lc_m);
+      theta = field.theta_fin_base_c * Math.cosh(field.m * (field.lc_m - zClamped)) / Math.cosh(ml);
+    }
+    const t = field.t_ambient_c + theta;
+    const [r, g, b] = tempToColor(t, tMin, tMax);
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-min").textContent = tMin.toFixed(0) + "°C";
+  document.getElementById("cb-max").textContent = tMax.toFixed(0) + "°C";
+  document.getElementById("colorbar").style.display = "block";
+}
+
+function initViewer() {
+  const el = document.getElementById("viewer");
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(90, 90, 90);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(60, 120, 80);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x6688ff, 0.4 * Math.PI);
+  dir2.position.set(-60, 40, -80);
+  scene.add(dir2);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 15, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+async function reloadMesh(design) {
+  document.getElementById("loading-note").style.display = "block";
+  const res = await fetch("/api/mesh.stl", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, power_w: 65, cooling_profile: "standard_fan" }),
+  });
+  const buf = await res.arrayBuffer();
+  const geom = parseBinarySTL(buf);
+
+  let useVertexColors = false;
+  if (lastThermalField) {
+    colorGeometryByTemperature(geom, lastThermalField); // must run before center() -- see function docstring
+    useVertexColors = true;
+  }
+  geom.center();
+  geom.computeVertexNormals();
+  geom.computeBoundingBox();
+
+  if (currentMesh) scene.remove(currentMesh);
+  const material = new THREE.MeshStandardMaterial({
+    color: useVertexColors ? 0xffffff : 0x5b8def,
+    vertexColors: useVertexColors,
+    metalness: 0.25, roughness: 0.55,
+  });
+  currentMesh = new THREE.Mesh(geom, material);
+  currentMesh.rotation.x = -Math.PI / 2;
+
+  // Flow-direction indicator: heat enters at the base (the CPU sits under
+  // it), so the arrow points from below straight up into the base plate, in the
+  // geometry's own local (pre-rotation) Z axis -- added as a child of currentMesh
+  // so it inherits the same rotation/position and is cleaned up automatically
+  // on the next scene.remove(currentMesh).
+  const bbox = geom.boundingBox;
+  const arrowLen = Math.max((bbox.max.z - bbox.min.z) * 0.35, 10);
+  const arrowOrigin = new THREE.Vector3(0, 0, bbox.min.z - arrowLen - 4);
+  const heatArrow = new THREE.ArrowHelper(
+    new THREE.Vector3(0, 0, 1), arrowOrigin, arrowLen, 0xff5533, arrowLen * 0.35, arrowLen * 0.22,
+  );
+  currentMesh.add(heatArrow);
+
+  scene.add(currentMesh);
+  document.getElementById("loading-note").style.display = "none";
+}
+
+async function liveEvaluate() {
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  const design = {
+    fin_count: Number(document.getElementById("s-count").value),
+    fin_height_m: Number(document.getElementById("s-height").value) / 1000,
+    fin_thickness_m: Number(document.getElementById("s-thickness").value) / 1000,
+  };
+  lastDesign = design;
+  const res = await fetch("/api/evaluate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, power_w, cooling_profile }),
+  });
+  const data = await res.json();
+  lastThermalField = data.thermal_field;
+  const el = document.getElementById("live-temp");
+  el.textContent = data.junction_temperature_c.toFixed(1) + "°C";
+  el.className = "num " + (data.violated_constraints.length ? "warn" : (data.junction_temperature_c > 90 ? "hot" : "cool"));
+  document.getElementById("constraint-note").textContent = data.violated_constraints.length
+    ? `Violated constraints: ${data.violated_constraints.join(", ")}`
+    : "";
+}
+
+let debounceTimer;
+function onSliderChange() {
+  document.getElementById("v-count").textContent = document.getElementById("s-count").value;
+  document.getElementById("v-height").textContent = Number(document.getElementById("s-height").value).toFixed(1);
+  document.getElementById("v-thickness").textContent = Number(document.getElementById("s-thickness").value).toFixed(2);
+  liveEvaluate();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => reloadMesh(lastDesign), 180);
+}
+
+["s-count", "s-height", "s-thickness"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", onSliderChange);
+});
+document.getElementById("power").addEventListener("change", liveEvaluate);
+document.getElementById("profile").addEventListener("change", liveEvaluate);
+
+async function loadStatus() {
+  const s = await (await fetch("/api/status")).json();
+  document.getElementById("status-note").textContent = s.surrogate_trained
+    ? `Surrogate trained at server startup (held-out error on the temperature rise: mean ${(s.validation_relative_error*100).toFixed(1)}%, p95 ${(s.validation_p95_relative_error*100).toFixed(1)}%). Ground truth: fin-array formula (Incropera & DeWitt), aluminium k = 205 W/m·K.`
+    : "Training…";
+}
+
+async function runOptimize() {
+  const btn = document.getElementById("btn-optimize");
+  btn.disabled = true; btn.textContent = "Optimizing…";
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  try {
+    const res = await fetch("/api/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ power_w, cooling_profile }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+
+    // Snap the sliders/3D view to the optimized design.
+    const d = data.optimized.design;
+    document.getElementById("s-count").value = d.fin_count_rounded;
+    document.getElementById("s-height").value = (d.fin_height_m * 1000).toFixed(1);
+    document.getElementById("s-thickness").value = (d.fin_thickness_m * 1000).toFixed(2);
+    onSliderChange();
+
+    renderVerification(data);
+  } catch (e) {
+    document.getElementById("result").innerHTML = `<div class="card">Error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Optimize with AI"; }
+}
+
+function renderVerification(data) {
+  const v = data.verification;
+  const checksHtml = v.checks.map(c => `<div class="check-row"><span>${c.name}</span><span class="detail">${c.detail}</span><span class="verdict-pill v-${c.verdict}">${c.verdict}</span></div>`).join("");
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h2>AI result vs. baseline</h2>
+      <div style="font-size:14px; margin-bottom:10px;">Baseline: ${data.baseline.junction_temperature_c.toFixed(1)}°C &rarr; AI-optimized (re-verified): <b style="color:var(--green)">${v.real_temperature_c.toFixed(1)}°C</b> (${data.temp_reduction_c.toFixed(1)}°C reduction)</div>
+      <div style="display:flex; align-items:center; gap:20px; margin: 14px 0;">
+        <div class="trust-score" style="color:${v.overall_verdict==='PASS'?'var(--green)':v.overall_verdict==='WARNING'?'var(--amber)':'var(--red)'}">${v.trust_score}</div>
+        <div><div class="verdict-pill v-${v.overall_verdict}">${v.overall_verdict}</div><div style="color:var(--dim); font-size:12px; margin-top:4px;">trust score &middot; coverage ${(v.coverage*100).toFixed(0)}%</div></div>
+      </div>
+      <div style="color:var(--dim); font-size:12px; margin-bottom:12px;">${v.coverage_note}</div>
+      ${checksHtml}
+    </div>
+  `;
+}
+
+async function runFeaVerify() {
+  const btn = document.getElementById("btn-fea");
+  btn.disabled = true; btn.textContent = "Solving…";
+  const power_w = Number(document.getElementById("power").value);
+  const cooling_profile = document.getElementById("profile").value;
+  try {
+    const res = await fetch("/api/cross_check", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...lastDesign, power_w, cooling_profile }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+    const a = data.analytical, f = data.finite_volume, ag = data.agreement;
+    document.getElementById("fea-result").innerHTML = `
+      <div class="fea-row"><span class="lbl">T junction</span><span>${a.t_junction_c.toFixed(2)}°C analytical &nbsp;vs&nbsp; ${f.t_junction_c.toFixed(2)}°C finite volume <span style="color:var(--dim)">(${(ag.t_junction_relative_diff*100).toFixed(2)}% diff)</span></span></div>
+      <div class="fea-row"><span class="lbl">T fin root</span><span>${a.t_fin_root_c.toFixed(2)}°C &nbsp;vs&nbsp; ${f.t_fin_root_c.toFixed(2)}°C <span style="color:var(--dim)">(${(ag.t_fin_root_relative_diff*100).toFixed(2)}% diff)</span></span></div>
+      <div class="fea-row"><span class="lbl">T fin tip</span><span>${a.t_fin_tip_c.toFixed(2)}°C &nbsp;vs&nbsp; ${f.t_fin_tip_c.toFixed(2)}°C <span style="color:var(--dim)">(${(ag.t_fin_tip_relative_diff*100).toFixed(2)}% diff)</span></span></div>
+      <div class="footer-note">${f.n_cells.toLocaleString()} cells; energy balance error ${f.energy_balance_rel_error.toExponential(1)}; change with a grid twice as fine ${(f.grid_change_rel*100).toFixed(3)}%. ${data.method_note}</div>
+    `;
+  } catch (e) {
+    document.getElementById("fea-result").innerHTML = `<div class="footer-note" style="color:var(--red)">Cross-check error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Run the cross-check"; }
+}
+
+document.getElementById("btn-optimize").onclick = runOptimize;
+document.getElementById("btn-fea").onclick = runFeaVerify;
+initViewer();
+loadStatus();
+liveEvaluate().then(() => reloadMesh(lastDesign));
+</script>
+</body>
+</html>

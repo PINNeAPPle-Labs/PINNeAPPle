@@ -1,0 +1,12 @@
+{
+ "code_hash": "5883cb31749ccf83",
+ "figures": [],
+ "id": "node:auto.analysis.verification.get_tools_by_category",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.69,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[]",
+ "timed_out": false
+}

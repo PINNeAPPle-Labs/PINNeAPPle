@@ -1,4 +1,4 @@
-"""The Hub index (pinneapple_hub.library): generated from the sources and current, every snippet has a passing
+"""The Hub index (pinneapple_hub.library): generated from the sources (never committed), every snippet has a passing
 recorded run of its current code (and a sample per kind runs again here; PINNEAPPLE_HUB_RUN_SNIPPETS=1 runs all
 of them), every file, figure and link it points to exists, search and filters, the composer, My Hub, the sandbox."""
 from __future__ import annotations
@@ -11,22 +11,44 @@ import pytest
 from pinneapple_hub import library as hub
 from pinneapple_hub.library.sandbox import code_hash, run_snippet
 
-INDEX = hub.load_index()
-ITEMS = INDEX["items"]
 
-
-def test_index_is_generated_and_current():
+def _fresh_index():
     from pinneapple_flow import REGISTRY
     test_nodes = {f"node:{s.type}" for s in REGISTRY.specs()     # registered by other test modules in this process
                   if getattr(s.fn, "__module__", "").startswith(("test_", "tests."))}
-    fresh = hub.build()
-    fresh["items"] = [i for i in fresh["items"] if i["id"] not in test_nodes]
-    assert [i["id"] for i in fresh["items"]] == [i["id"] for i in ITEMS], "python -m pinneapple_hub.library build"
-    for a, b in zip(fresh["items"], ITEMS, strict=True):
-        assert a["code"] == b["code"], f"{a['id']}: snippet changed; rebuild and re-run the index"
-        assert a.get("category") == b.get("category"), f"{a['id']}: category rules changed; rebuild the index"
+    index = hub.build()
+    index["items"] = [i for i in index["items"] if i["id"] not in test_nodes]
+    return index
+
+
+INDEX = _fresh_index()
+ITEMS = INDEX["items"]
+
+
+def test_index_is_generated_and_cached(tmp_path, monkeypatch):
     assert len({i["id"] for i in ITEMS}) == len(ITEMS)
     assert INDEX["schema"] == hub.SCHEMA
+    # the default index is a git-ignored cache: built when missing or asked for, read as is otherwise
+    built = []
+    monkeypatch.setattr(hub, "INDEX", tmp_path / "index.json")
+    monkeypatch.setattr(hub, "build", lambda: built.append(1) or {"schema": hub.SCHEMA, "items": []})
+    assert hub.load_index(hub.INDEX)["items"] == [] and built == [1]
+    assert hub.load_index(hub.INDEX) and built == [1]
+    assert hub.load_index(hub.INDEX, rebuild=True) and built == [1, 1]
+    other = tmp_path / "other.json"
+    other.write_text('{"items": [1]}')
+    assert hub.load_index(other)["items"] == [1] and built == [1, 1]
+
+
+def test_recorded_runs_are_one_file_per_item(tmp_path):
+    rec = {"code_hash": "h", "ok": True, "stdout": "x", "seconds": 0.1, "figures": []}
+    f = hub.write_run("tool:a/b c", rec, tmp_path)
+    assert f.name == "tool_a_b_c.json"
+    hub.write_run("model:z", {**rec, "ok": False}, tmp_path)
+    assert hub.read_runs(tmp_path) == {"tool:a/b c": rec, "model:z": {**rec, "ok": False}}
+    runs = hub.read_runs()
+    assert len(runs) == len(list(hub.RUNS.glob("*.json"))) > 0
+    assert all(hub.run_file(k).is_file() for k in runs)
 
 
 def test_every_tool_is_in_exactly_one_of_20_task_categories():

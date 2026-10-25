@@ -1,0 +1,35 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.benchmark_suite.02_arena_from_yaml",
+ "name": "Arena experiment from YAML: three MLP PINNs on Burgers",
+ "description": "run_arena_experiment on configs/experiment_burgers_1d.yaml: the Burgers 1-D preset (nu 0.01) with reference data from the built-in solver, MLPs of three sizes trained 500 epochs each on the same points (examples/benchmark_suite/02_arena_from_yaml.py). Quick: 100 epochs.",
+ "nodes": [
+  {
+   "id": "arena",
+   "type": "benchmark.arena_yaml",
+   "params": {
+    "config": "benchmark_suite/configs/experiment_burgers_1d.yaml",
+    "epochs": 0
+   },
+   "label": "Arena experiment (YAML)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "benchmark_suite",
+  "domain": "benchmarks",
+  "scripts": [
+   "02_arena_from_yaml.py"
+  ],
+  "quick": {
+   "arena": {
+    "epochs": 100
+   }
+  }
+ }
+}

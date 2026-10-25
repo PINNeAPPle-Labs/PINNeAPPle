@@ -1,0 +1,12 @@
+{
+ "code_hash": "e182032ce5be6390",
+ "figures": [],
+ "id": "node:auto.data.validators.assert_valid_physical_sample",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "assert valid physical sample -> pinneapple_data.validators:assert_valid_physical_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

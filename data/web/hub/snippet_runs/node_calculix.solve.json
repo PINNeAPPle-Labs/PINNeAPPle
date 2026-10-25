@@ -1,0 +1,12 @@
+{
+ "code_hash": "20cdc5ce881f3249",
+ "figures": [],
+ "id": "node:calculix.solve",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CalculiX solve (ccx) -> pinneapple_simulation.external_solvers.calculix.run_ccx (native ccx or the Docker image)\ninputs: [('deck', 'ccx_deck')]\noutputs: [('deck', 'ccx_deck'), ('metrics', 'metrics')]\ndefaults: {'threads': 1}",
+ "timed_out": false
+}

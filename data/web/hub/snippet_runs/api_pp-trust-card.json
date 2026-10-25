@@ -1,0 +1,12 @@
+{
+ "code_hash": "0cb09a44c3310f79",
+ "figures": [],
+ "id": "api:pp-trust-card",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.trust_card(grid: 'Mapping[str, Sequence[float]]', values: 'Any', *, name: 'str' = 'field', is_ml: 'bool' = True, limitations: 'Sequence[str]' = (), min_coverage: 'float' = 0.5, **kwargs: 'Any') -> 'FieldTrustCard'\nRun ``field_checks`` and turn them into a trust card: the deploy decision (``TrustReport``: a failing",
+ "timed_out": false
+}

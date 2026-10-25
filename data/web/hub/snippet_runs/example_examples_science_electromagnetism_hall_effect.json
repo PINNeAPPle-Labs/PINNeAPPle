@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8a41ea82f9e5cf4",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/hall_effect",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Hall effect (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: Hall coefficient R_H = E_y / (J_x B)] 0.0006311593065709672 -\n2D: current -0.004483704244207688 A\n2D: hall_voltage -0.013983708841637132 V\n2D: hall_angle_deg 4.004172940709388 deg",
+ "timed_out": false
+}

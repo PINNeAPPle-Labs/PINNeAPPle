@@ -386,6 +386,18 @@
 	}
 }
 
+{$PINN_ARENA_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy pinnarena:8130 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
 {$MDL_DOMAIN} {
 	import common
 	request_body {
@@ -466,6 +478,162 @@
 	reverse_proxy hub:8116 {
 		transport http {
 			read_timeout 120s
+		}
+	}
+}
+
+{$HSD_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy hsdesign:8160 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$BRAKE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy brakecool:8161 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$PATCH_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy patchdose:8162 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$RIDE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy ridetune:8163 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$SOUND_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy soundshape:8164 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$MBR_DOMAIN} {
+	import common
+	request_body {
+		max_size 210MB
+	}
+	reverse_proxy meshbridge:8141 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$SATSCREEN_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy satscreen:8144 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$FLOWTRACE_DOMAIN} {
+	import common
+	request_body {
+		max_size 210MB
+	}
+	reverse_proxy flowtrace:8145 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$NOZZLE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy nozzle:8146 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$ROVERMOB_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy rovermob:8147 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$GCARD_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy gcard:8148 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$HELIO_DOMAIN} {
+	import common
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy helio:8149 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$ORBITWATCH_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy orbitwatch:8150 {
+		transport http {
+			read_timeout 300s
 		}
 	}
 }

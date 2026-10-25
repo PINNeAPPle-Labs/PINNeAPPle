@@ -1,0 +1,12 @@
+{
+ "code_hash": "60a3ee7873e3261f",
+ "figures": [],
+ "id": "node:autolab.board_cooling",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 9.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
+ "timed_out": false
+}

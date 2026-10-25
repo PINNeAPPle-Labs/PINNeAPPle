@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.problem_designer.03_offline_spec_to_report",
+ "name": "Design report from a spec, offline",
+ "description": "A partly known heat-exchanger forecasting spec: validators, the FNO-first plan and the Markdown / JSON design report, with no LLM (examples/problem_designer/03_offline_spec_to_report.py).",
+ "nodes": [
+  {
+   "id": "report",
+   "type": "problemdesign.offline_report",
+   "params": {},
+   "label": "Heat-exchanger design report",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "problem_designer",
+  "domain": "problem design",
+  "scripts": [
+   "03_offline_spec_to_report.py"
+  ],
+  "quick": {}
+ }
+}

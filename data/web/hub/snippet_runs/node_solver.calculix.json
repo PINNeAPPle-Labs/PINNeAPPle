@@ -1,0 +1,12 @@
+{
+ "code_hash": "deff0189e68cf05b",
+ "figures": [],
+ "id": "node:solver.calculix",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CalculiX cantilever -> pinneapple_flow.wrappers:calculix_cantilever pinneapple_simulation.external_solvers\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'length_m': 1.0, 'b_m': 0.1, 'h_m': 0.1, 'nx': 20, 'element_type': 'C3D20R', 'run': True}",
+ "timed_out": false
+}

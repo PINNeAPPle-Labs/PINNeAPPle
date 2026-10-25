@@ -1,0 +1,12 @@
+{
+ "code_hash": "8e6ed8855f70157c",
+ "figures": [],
+ "id": "example:particle_suspension",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - vs Zwietering and Schiller–Naumann",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "68ef7cead94cbf5e",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.constant_properties",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.0,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='constant_properties', description='viscosity, conductivity and heat capacity independent of temperature', conditions=(Condition(feature='dT_over_T', lo=-inf, hi=0.1, band=0.15, log=None),), breaks_into='temperature-dependent properties', missing_mechanism='property variation with temperature')",
+ "timed_out": false
+}

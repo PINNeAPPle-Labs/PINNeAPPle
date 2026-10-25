@@ -1,0 +1,12 @@
+{
+ "code_hash": "c0ff0d823522a521",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.ns_incompressible_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='ns_incompressible_3d_default', dim=3, coords=('x', 'y', 'z', 't'), fields=('u', 'v', 'w', 'p'), pde=PDETermSpec(kind='navier_stokes_incompressible', fields=('u', 'v', 'w', 'p'), coords=('x', 'y', 'z', 't'), params={'Re': 100.0}, meta={'note': 'Requires tags: inlet/outlet/walls. Inlet uses Poiseuille-like profile; outlet uses Neumann dp/dn=0 by default.'}), conditions=(ConditionSpec(name='walls', kind='dirichlet', fields=('u', 'v', 'w'), selector_type='tag', selector={'tag': 'walls'}, value_fn=<function ns_incompressible_3d_default.<locals>.<lambda> at 0x7fa1d30a27a0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='inlet', kind='dirichlet', fields=('u', 'v', 'w'), selector_ty",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6dd07e1ade8611ee",
+ "figures": [],
+ "id": "example:solid_fem/torsion",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - vs Saint-Venant and CalculiX",
+ "timed_out": false
+}

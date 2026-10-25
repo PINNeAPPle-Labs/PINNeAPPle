@@ -1,0 +1,12 @@
+{
+ "code_hash": "c3a378f428abd567",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.transient_heat_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='transient_heat_3d_default', dim=3, coords=('x', 'y', 'z', 't'), fields=('T',), pde=PDETermSpec(kind='heat_equation', fields=('T',), coords=('x', 'y', 'z', 't'), params={'alpha': 0.001}, meta={'industry': 'thermal', 'note': \"Provide ctx['source_fn'] for heat source q(x,t).\"}), conditions=(ConditionSpec(name='T_init', kind='initial', fields=('T',), selector_type='callable', selector=<function transient_heat_3d_default.<locals>.<lambda> at 0x7fd2a6a827a0>, value_fn=<function transient_heat_3d_default.<locals>.<lambda> at 0x7fd29e138ae0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='T_boundary', kind='dirichlet', fields=('T',), selector_type='tag', selector={'tag': 'boundary'}",
+ "timed_out": false
+}

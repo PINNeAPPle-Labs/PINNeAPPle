@@ -1,0 +1,12 @@
+{
+ "code_hash": "53b5faa67772e2af",
+ "figures": [],
+ "id": "example:examples/near_random_forecasting",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Forecasting near-random series without overfitting | time series | curated",
+ "timed_out": false
+}

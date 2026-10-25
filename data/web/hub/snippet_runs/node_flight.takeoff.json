@@ -1,0 +1,12 @@
+{
+ "code_hash": "f80835aba8539059",
+ "figures": [],
+ "id": "node:flight.takeoff",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Aircraft take-off (6-DOF) -> pinneapple_simulation.flight.takeoff.simulate_takeoff + takeoff_metrics + raymer_variants; pinneapple_simulation.flight.visuals.flight_scene + pinneapple_tools.visualization.studio.blender.render_animation / render_still\ninputs: []\noutputs: [('metrics', 'metrics'), ('series', 'series'), ('figure', 'figure')]\ndefaults: {'aircraft': 'light_ga', 'kind': 'light', 'render': 'none', 'camera': 'side', 'frames': 24, 'samples': 8}",
+ "timed_out": false
+}

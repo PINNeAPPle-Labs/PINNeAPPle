@@ -2,7 +2,8 @@
 
 :func:`coverage` walks every ``pinneapple*`` package and its first-level modules, maps the registered node types onto
 them (by the library calls each node declares) and attaches a curated reason (:data:`REASONS`) to whatever has no
-node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table.
+node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table (git-ignored: the docs
+build generates it, ``tools/gen_flow_docs.py``) and exits 1 when a module has neither a node nor a reason.
 """
 from __future__ import annotations
 
@@ -33,13 +34,19 @@ REASONS: dict[str, str] = {
     "pinneapple_blender": "needs Blender's bpy; viz.render uses it when installed",
     "pinneapple_twin3d": "3-D twin scene server; viz.field3d gives the in-studio 3-D view",
     "pinneapple_hub": "Hugging Face Hub transfers (network access and credentials, not a computation step)",
+    "pinneapple_hub.verified_card": "trains or loads a model and issues its model card (a publication step, served "
+                                    "by apps/governed_card); the guardrail it runs is reached by the check nodes",
     "pinneapple_hub.library": "the Hub's catalogue of ready-made items (index, snippets, composer); it lists these "
                               "nodes rather than adding steps",
     "pinneapple_catalog": "method / resource catalogue with license gates (read by the planner and docs)",
     "pinneapple_decision": "experiment-selection loop driven by an LLM backend; the planner covers routing",
     "pinneapple_arena": "YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes",
+    "pinneapple_arena.pointwise": "the PINNeAPPle Arena app's training protocol (minutes-long multi-architecture experiments run by apps/pinn_arena); single trainings are pinn / solve nodes",
+    "pinneapple_arena.external": "references to third-party libraries run through their own packages (mostly not installed); not a computation step of a flow",
     "pinneapple_pdb": "dataset builder for benchmark publication (sharding, upload)",
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
+    "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
+                                           "(seconds to minutes of MLP training); served by the apps/*_ai apps",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "
@@ -56,6 +63,18 @@ REASONS: dict[str, str] = {
     "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
     "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",
     "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
+    "pinneapple_condense.benchmark": "the measured studies of the condensation report (subprocesses, up to an hour; "
+                                     "run by examples/physics_condensation)",
+    "pinneapple_condense.figures": "figures of the condensation report, drawn from the benchmark JSON",
+    "pinneapple_condense.homogenize": "the Keff baseline, compared in the condensation benchmark",
+    "pinneapple_condense.learned": "learned block operators (training is a campaign of block condensations); "
+                                   "measured in the condensation benchmark",
+    "pinneapple_condense.package": "the package description behind condense.package_thermal",
+    "pinneapple_condense.substructure": "block condensation behind condense.package_thermal (via the hierarchy)",
+    "pinneapple_condense.transient": "Craig-Bampton transient, measured in the condensation benchmark",
+    "pinneapple_condense.meshless": "meshless (RBF-FD / GFDM) solution of the package, measured in the condensation "
+                                    "benchmark (minutes per point cloud)",
+    "pinneapple_condense.exceptions": "prior + exception patches, measured in the condensation benchmark",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

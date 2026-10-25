@@ -1,0 +1,12 @@
+{
+ "code_hash": "70e76dca27a07893",
+ "figures": [],
+ "id": "node:core.torsion_optimizer",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Constrained shape optimization, six methods -> pinneapple_core.Mesh.structured + fem.solve_poisson / integrate_p1 + optim.PhysicsOptimizer.compare (eq constraint, an adjoint from torch.func.grad)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'n': 10, 'start': [1.6, 0.8], 'bounds': [0.5, 2.0]}",
+ "timed_out": false
+}

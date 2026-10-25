@@ -1,0 +1,12 @@
+{
+ "code_hash": "f062d687c3581fe8",
+ "figures": [],
+ "id": "geometry:launch_vehicle_two_stage",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Two-stage launch vehicle with fins | space\nlaunch_vehicle_two_stage.light.stl 1718484 bytes",
+ "timed_out": false
+}

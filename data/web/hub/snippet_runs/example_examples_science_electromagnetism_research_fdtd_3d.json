@@ -1,0 +1,12 @@
+{
+ "code_hash": "66a7fcae3001864c",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/research_fdtd_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FDTD in 3-D + time: configurable sources and materials, mesh convergence (3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D+t: radiated power, dipole in vacuum (finest grid)] 0.0032881391345897406 -\nrel_error[3D+t: P / P_closed_form, Richardson-extrapolated] 0.0010628076372023454 -\nrel_error[3D+t: far-field pattern max |U/Umax - sin^2|] 0.008562273035930712 -\n3D+t: observed_order_vacuum 2.6470695868421656 -\n3D+t: gci_fine_vacuum 0.0027725478486505992 -",
+ "timed_out": false
+}

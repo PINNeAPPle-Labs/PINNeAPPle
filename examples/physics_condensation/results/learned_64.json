@@ -1,0 +1,46 @@
+{
+ "blocks": 4096,
+ "n_train": 48,
+ "build_s": 17.198420521000003,
+ "train": {
+  "train_condensations": 11.435240620999991,
+  "fit": 2.197466587000008
+ },
+ "rank": 12,
+ "adaptive": {
+  "timings": {
+   "predict": 7.382175520000004,
+   "exact_condensations": 2.270089409999997,
+   "solve": 4.761357609999976,
+   "verify": 36.65224264,
+   "total": 51.06730508199999
+  },
+  "exact_blocks": 4,
+  "checked": 24,
+  "failed_per_round": [
+   0
+  ],
+  "flagged_std": 0,
+  "flagged_ood": 4,
+  "estimate": {
+   "unchecked_blocks": 4068,
+   "mean_effect_K": 1.579695724256369e-05,
+   "max_effect_K": 3.607600754458451e-05,
+   "additive_estimate_K": 0.0642620220627491
+  }
+ },
+ "learned_only_s": 14.216014059999964,
+ "exact_s": 1991.380378805,
+ "Tmax_exact": 89.56344010126286,
+ "adaptive_err": {
+  "err_Tmax": 6.198483715991188e-05,
+  "err_Tj_max": 0.0045868805063236096,
+  "err_q_tim": 0.00043320824370667526
+ },
+ "learned_only_err": {
+  "err_Tmax": 6.198483715991188e-05,
+  "err_Tj_max": 0.0045868805063236096,
+  "err_q_tim": 0.00043320824370667526
+ },
+ "peak_rss_gb": 2.27254
+}

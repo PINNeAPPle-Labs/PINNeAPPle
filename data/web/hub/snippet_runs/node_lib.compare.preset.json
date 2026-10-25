@@ -1,0 +1,12 @@
+{
+ "code_hash": "f655cce55f1bf408",
+ "figures": [],
+ "id": "node:lib.compare.preset",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.21,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compare methods on a preset -> pinneapple_flow.wrappers:compare_preset pinneapple pinneapple.compare\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'preset': 'burgers_1d', 'methods': ['analytic', 'pinn'], 'reference': 'analytic', 'architecture': 'modified_mlp', 'epochs': 50, 'n_points': 2048}",
+ "timed_out": false
+}

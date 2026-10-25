@@ -1,0 +1,12 @@
+{
+ "code_hash": "ea4511928dbf7efb",
+ "figures": [],
+ "id": "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
+ "timed_out": false
+}

@@ -1,0 +1,85 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-physics-check",
+ "name": "Physics checks in CI: pass and fail fixtures",
+ "description": "pinneapple check on the fixtures of examples/physics_check: every rule passes on pass/ and each target of fail/ breaks exactly the rules listed in fail/expected.json (OpenFOAM cases, fields, QoI tables, surrogates, models).",
+ "nodes": [
+  {
+   "id": "passing",
+   "type": "check.physics",
+   "params": {
+    "path": "physics_check/pass",
+    "expected": ""
+   },
+   "label": "pass/ fixtures",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "failing",
+   "type": "check.physics",
+   "params": {
+    "path": "physics_check/fail"
+   },
+   "label": "fail/ fixtures",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "physics_check",
+    "comparisons": [
+     {
+      "flow": "failing.targets_matching_expected",
+      "ref": "node:failing.targets_compared"
+     },
+     {
+      "flow": "failing.targets_with_violations",
+      "ref": "node:failing.targets_expected_to_fail"
+     },
+     {
+      "flow": "passing.violations",
+      "ref": "node:passing.targets_expected_to_fail"
+     }
+    ],
+    "tolerance_source": "exact: each fail/ target breaks exactly its rules, pass/ has none"
+   },
+   "label": "Same numbers as examples/physics_check",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "passing",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "passing.metrics->compare.metrics"
+  },
+  {
+   "source": "failing",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "failing.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "physics_check",
+  "domain": "validation",
+  "scripts": [
+   "generate.py"
+  ],
+  "quick": {}
+ }
+}

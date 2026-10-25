@@ -374,6 +374,359 @@
  {
   "track": "A",
   "problem": "allen_cahn",
+  "framework": "physicsnemo_sym_matched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 137,
+  "wall_s": 243.4849642600002,
+  "cpu_s": 241.103760585,
+  "loadavg_before": [
+   3.98,
+   3.42,
+   2.78
+  ],
+  "loadavg_after": [
+   4.04,
+   3.77,
+   3.08
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Allen-Cahn example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 512,
+    "BC": 512,
+    "interior": 2048
+   },
+   "variant": "points per step matched to pp.solve (2048 interior, 512 per condition)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100
+  ],
+  "final_loss": 0.3349,
+  "n_parameters": 1318401,
+  "cap_used_s": 241.104269738,
+  "step_cpu_s_median": 1.7188917735000047,
+  "first_step_cpu_s": 3.284236056000001,
+  "arch": {
+   "layer_size": 512,
+   "nr_layers": 6,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 254.89435255099852,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 261.91998624801636
+  },
+  "run_id": "A2_allen_cahn_physicsnemo_sym_matched_s2",
+  "schema_missing": [],
+  "loss_history_len": 2,
+  "metrics": {
+   "n_test": 102912,
+   "rel_l2": 1.111386618771561,
+   "max_abs": 1.9920137160558746,
+   "finite": true,
+   "residual_rms": 0.16141236596698777,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "allen_cahn",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1903,
+  "wall_s": 242.79808849499932,
+  "cpu_s": 240.036739992,
+  "loadavg_before": [
+   3.99,
+   3.48,
+   2.82
+  ],
+  "loadavg_after": [
+   3.76,
+   3.73,
+   3.09
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Allen-Cahn example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.03799,
+  "n_parameters": 12993,
+  "cap_used_s": 240.037435688,
+  "step_cpu_s_median": 0.12093130249999717,
+  "first_step_cpu_s": 0.4917568079999999,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.51100030199996,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.3727252483368
+  },
+  "run_id": "A2_allen_cahn_physicsnemo_sym_netmatched_s0",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 102912,
+   "rel_l2": 1.2128576577172365,
+   "max_abs": 1.998768406413919,
+   "finite": true,
+   "residual_rms": 0.10288667878956433,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "allen_cahn",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1981,
+  "wall_s": 242.54271233600048,
+  "cpu_s": 240.013466226,
+  "loadavg_before": [
+   1.62,
+   2.6,
+   2.85
+  ],
+  "loadavg_after": [
+   1.01,
+   1.69,
+   2.41
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Allen-Cahn example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.01628,
+  "n_parameters": 12993,
+  "cap_used_s": 240.014459472,
+  "step_cpu_s_median": 0.11809645399999624,
+  "first_step_cpu_s": 0.47194685500000055,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.02205692999996,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 257.1458079814911
+  },
+  "run_id": "A2_allen_cahn_physicsnemo_sym_netmatched_s1",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 102912,
+   "rel_l2": 1.1300830238011876,
+   "max_abs": 1.9883937481725207,
+   "finite": true,
+   "residual_rms": 0.05613014976024093,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "allen_cahn",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1852,
+  "wall_s": 242.5166813830001,
+  "cpu_s": 240.02920192300002,
+  "loadavg_before": [
+   1.0,
+   1.04,
+   1.58
+  ],
+  "loadavg_after": [
+   1.0,
+   1.01,
+   1.43
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Allen-Cahn example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800
+  ],
+  "final_loss": 0.03792,
+  "n_parameters": 12993,
+  "cap_used_s": 240.03017111,
+  "step_cpu_s_median": 0.12310796599999208,
+  "first_step_cpu_s": 0.6789765249999995,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.81767720900098,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.9974217414856
+  },
+  "run_id": "A2_allen_cahn_physicsnemo_sym_netmatched_s2",
+  "schema_missing": [],
+  "loss_history_len": 19,
+  "metrics": {
+   "n_test": 102912,
+   "rel_l2": 1.212568855205781,
+   "max_abs": 1.9979928066096369,
+   "finite": true,
+   "residual_rms": 0.08946891345827175,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "allen_cahn",
   "framework": "physicsnemo_sym",
   "mode": "a2",
   "seed": 0,
@@ -1181,6 +1534,360 @@
  {
   "track": "A",
   "problem": "burgers",
+  "framework": "physicsnemo_sym_matched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 139,
+  "wall_s": 243.50302618800015,
+  "cpu_s": 241.19793836099998,
+  "loadavg_before": [
+   2.0,
+   2.06,
+   2.08
+  ],
+  "loadavg_after": [
+   2.96,
+   2.5,
+   2.24
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Burgers example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 512,
+    "BC": 512,
+    "interior": 2048
+   },
+   "variant": "points per step matched to pp.solve (2048 interior, 512 per condition)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100
+  ],
+  "final_loss": 0.2502,
+  "n_parameters": 1318401,
+  "cap_used_s": 241.198456061,
+  "step_cpu_s_median": 1.7034212794999952,
+  "first_step_cpu_s": 3.1491698369999988,
+  "arch": {
+   "layer_size": 512,
+   "nr_layers": 6,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.4937283140007,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 259.76907420158386
+  },
+  "run_id": "A2_burgers_physicsnemo_sym_matched_s2",
+  "schema_missing": [],
+  "loss_history_len": 2,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.48625980722556866,
+   "max_abs": 0.9333085912751332,
+   "finite": true,
+   "residual_rms": 0.2003806606761572,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1890,
+  "wall_s": 242.23297181599992,
+  "cpu_s": 240.048998575,
+  "loadavg_before": [
+   1.93,
+   2.03,
+   2.07
+  ],
+  "loadavg_after": [
+   2.98,
+   2.55,
+   2.27
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Burgers example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800
+  ],
+  "final_loss": 0.1724,
+  "n_parameters": 12993,
+  "cap_used_s": 240.049643994,
+  "step_cpu_s_median": 0.12173570100000575,
+  "first_step_cpu_s": 0.5267566289999994,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.16404734199932,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.1276993751526
+  },
+  "run_id": "A2_burgers_physicsnemo_sym_netmatched_s0",
+  "schema_missing": [],
+  "loss_history_len": 19,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.4274704611048208,
+   "max_abs": 0.954645271439209,
+   "finite": true,
+   "residual_rms": 0.19268308270122725,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1902,
+  "wall_s": 242.42194608499995,
+  "cpu_s": 240.021851136,
+  "loadavg_before": [
+   3.52,
+   3.67,
+   3.08
+  ],
+  "loadavg_after": [
+   2.96,
+   3.21,
+   3.01
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Burgers example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.1831,
+  "n_parameters": 12993,
+  "cap_used_s": 240.022757412,
+  "step_cpu_s_median": 0.12082209299999391,
+  "first_step_cpu_s": 0.5030981150000002,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.1092080469989,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.0692172050476
+  },
+  "run_id": "A2_burgers_physicsnemo_sym_netmatched_s1",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.4321344379631745,
+   "max_abs": 0.9145184781337187,
+   "finite": true,
+   "residual_rms": 0.1895572158376126,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2079,
+  "wall_s": 242.68372580999858,
+  "cpu_s": 240.03754798499997,
+  "loadavg_before": [
+   1.0,
+   1.66,
+   2.39
+  ],
+  "loadavg_after": [
+   1.0,
+   1.29,
+   2.06
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/wave_equation/wave_1d.py (structure; no Burgers example)",
+   "max_steps": 10000,
+   "decay_steps": 100,
+   "batch": {
+    "IC": 315,
+    "BC": 200,
+    "interior": 3150
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900,
+   2000
+  ],
+  "final_loss": 0.1702,
+  "n_parameters": 12993,
+  "cap_used_s": 240.038224636,
+  "step_cpu_s_median": 0.11292538749999892,
+  "first_step_cpu_s": 0.45435962899999893,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.11849290600003,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 257.4748115539551
+  },
+  "run_id": "A2_burgers_physicsnemo_sym_netmatched_s2",
+  "schema_missing": [],
+  "loss_history_len": 21,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.42486588447705914,
+   "max_abs": 0.9344117689417977,
+   "finite": true,
+   "residual_rms": 0.19159095744976673,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
   "framework": "physicsnemo_sym",
   "mode": "a2",
   "seed": 0,
@@ -1974,6 +2681,344 @@
  {
   "track": "A",
   "problem": "helmholtz",
+  "framework": "physicsnemo_sym_matched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 141,
+  "wall_s": 242.79053044900138,
+  "cpu_s": 240.303759829,
+  "loadavg_before": [
+   2.91,
+   2.77,
+   2.43
+  ],
+  "loadavg_after": [
+   3.98,
+   3.39,
+   2.76
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 512,
+    "interior": 2048
+   },
+   "variant": "points per step matched to pp.solve (2048 interior, 512 per condition)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100
+  ],
+  "final_loss": 8094.0,
+  "n_parameters": 1318401,
+  "cap_used_s": 240.304285133,
+  "step_cpu_s_median": 1.6809018470000012,
+  "first_step_cpu_s": 3.028747308,
+  "arch": {
+   "layer_size": 512,
+   "nr_layers": 6,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 251.9335250919994,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.3759789466858
+  },
+  "run_id": "A2_helmholtz_physicsnemo_sym_matched_s2",
+  "schema_missing": [],
+  "loss_history_len": 2,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 2.192172349753216,
+   "max_abs": 3.9313063621520996,
+   "finite": true,
+   "residual_rms": 58.69775449007432,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1558,
+  "wall_s": 242.676472389001,
+  "cpu_s": 240.178971482,
+  "loadavg_before": [
+   2.66,
+   2.72,
+   2.43
+  ],
+  "loadavg_after": [
+   3.99,
+   3.45,
+   2.8
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500
+  ],
+  "final_loss": 3.624,
+  "n_parameters": 12993,
+  "cap_used_s": 240.179917652,
+  "step_cpu_s_median": 0.14918903800000294,
+  "first_step_cpu_s": 0.6788877419999988,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.38638669000102,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 258.9728696346283
+  },
+  "run_id": "A2_helmholtz_physicsnemo_sym_netmatched_s0",
+  "schema_missing": [],
+  "loss_history_len": 16,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.20212570100556915,
+   "max_abs": 0.8962733149528503,
+   "finite": true,
+   "residual_rms": 2.4979764180049773,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1570,
+  "wall_s": 242.31551469900114,
+  "cpu_s": 240.00451833900001,
+  "loadavg_before": [
+   2.97,
+   3.08,
+   3.0
+  ],
+  "loadavg_after": [
+   1.79,
+   2.68,
+   2.88
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500
+  ],
+  "final_loss": 2.02,
+  "n_parameters": 12993,
+  "cap_used_s": 240.005143503,
+  "step_cpu_s_median": 0.14635986199999707,
+  "first_step_cpu_s": 0.6203532149999997,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 253.30490631000066,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 260.20657229423523
+  },
+  "run_id": "A2_helmholtz_physicsnemo_sym_netmatched_s1",
+  "schema_missing": [],
+  "loss_history_len": 16,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.12608280374380026,
+   "max_abs": 0.5866121053695679,
+   "finite": true,
+   "residual_rms": 2.1677245410990964,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1594,
+  "wall_s": 242.85727279799903,
+  "cpu_s": 240.07181751099998,
+  "loadavg_before": [
+   1.0,
+   1.11,
+   1.78
+  ],
+  "loadavg_after": [
+   1.0,
+   1.04,
+   1.59
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500
+  ],
+  "final_loss": 5.263,
+  "n_parameters": 12993,
+  "cap_used_s": 240.072449176,
+  "step_cpu_s_median": 0.14669611500000457,
+  "first_step_cpu_s": 0.6305972139999998,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.99098805099857,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 259.42331552505493
+  },
+  "run_id": "A2_helmholtz_physicsnemo_sym_netmatched_s2",
+  "schema_missing": [],
+  "loss_history_len": 16,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.13881673403170677,
+   "max_abs": 0.4573003649711609,
+   "finite": true,
+   "residual_rms": 2.4204483914442765,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
   "framework": "physicsnemo_sym",
   "mode": "a2",
   "seed": 0,
@@ -2753,6 +3798,345 @@
    "max_abs": 0.24388769268989563,
    "finite": true,
    "residual_rms": 0.6432527588515551,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym_matched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 140,
+  "wall_s": 243.02821331700034,
+  "cpu_s": 240.480224388,
+  "loadavg_before": [
+   2.97,
+   2.53,
+   2.26
+  ],
+  "loadavg_after": [
+   2.99,
+   2.78,
+   2.43
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py (structure; no Poisson example)",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 512,
+    "interior": 2048
+   },
+   "variant": "points per step matched to pp.solve (2048 interior, 512 per condition)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100
+  ],
+  "final_loss": 0.1092,
+  "n_parameters": 1318401,
+  "cap_used_s": 240.480818533,
+  "step_cpu_s_median": 1.6881619670000134,
+  "first_step_cpu_s": 3.0314397779999993,
+  "arch": {
+   "layer_size": 512,
+   "nr_layers": 6,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.78288539200003,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 260.34910893440247
+  },
+  "run_id": "A2_poisson_physicsnemo_sym_matched_s2",
+  "schema_missing": [],
+  "loss_history_len": 2,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.13943387024062948,
+   "max_abs": 0.2641955018043518,
+   "finite": true,
+   "residual_rms": 0.6489365248244924,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1555,
+  "wall_s": 242.8445782359995,
+  "cpu_s": 240.013933452,
+  "loadavg_before": [
+   2.97,
+   2.58,
+   2.28
+  ],
+  "loadavg_after": [
+   2.65,
+   2.72,
+   2.42
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py (structure; no Poisson example)",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500
+  ],
+  "final_loss": 0.002285,
+  "n_parameters": 12993,
+  "cap_used_s": 240.014586132,
+  "step_cpu_s_median": 0.149063710500009,
+  "first_step_cpu_s": 0.6651698409999991,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 253.6029713750013,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 260.02536249160767
+  },
+  "run_id": "A2_poisson_physicsnemo_sym_netmatched_s0",
+  "schema_missing": [],
+  "loss_history_len": 16,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.01574996309816296,
+   "max_abs": 0.022542688995599656,
+   "finite": true,
+   "residual_rms": 0.15345182145132655,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1517,
+  "wall_s": 242.22606544600058,
+  "cpu_s": 240.02793024300001,
+  "loadavg_before": [
+   3.04,
+   3.21,
+   3.02
+  ],
+  "loadavg_after": [
+   2.96,
+   3.08,
+   3.0
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py (structure; no Poisson example)",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500
+  ],
+  "final_loss": 0.001106,
+  "n_parameters": 12993,
+  "cap_used_s": 240.028567183,
+  "step_cpu_s_median": 0.15043510649999803,
+  "first_step_cpu_s": 0.606412271,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.3314097830007,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 259.3434329032898
+  },
+  "run_id": "A2_poisson_physicsnemo_sym_netmatched_s1",
+  "schema_missing": [],
+  "loss_history_len": 16,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.017642445181283786,
+   "max_abs": 0.01499842551406455,
+   "finite": true,
+   "residual_rms": 0.0791393397085902,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym_netmatched",
+  "mode": "a2",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 1650,
+  "wall_s": 243.02407202199902,
+  "cpu_s": 240.098458995,
+  "loadavg_before": [
+   1.0,
+   1.27,
+   2.04
+  ],
+  "loadavg_after": [
+   1.0,
+   1.11,
+   1.79
+  ],
+  "versions": {
+   "torch": "2.14.1"
+  },
+  "config": {
+   "recipe": "official example",
+   "cap_s": 240.0,
+   "cap_kind": "cpu",
+   "example": "examples/helmholtz/helmholtz.py (structure; no Poisson example)",
+   "max_steps": 20000,
+   "decay_steps": 200,
+   "batch": {
+    "wall": 800,
+    "interior": 4000
+   },
+   "variant": "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)",
+   "torch_threads": 1
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600
+  ],
+  "final_loss": 0.005921,
+  "n_parameters": 12993,
+  "cap_used_s": 240.099199882,
+  "step_cpu_s_median": 0.14276756199998886,
+  "first_step_cpu_s": 0.560213559000001,
+  "arch": {
+   "layer_size": 64,
+   "nr_layers": 4,
+   "activation_fn": "silu",
+   "weight_norm": true
+  },
+  "process_wall_s": 252.496677146999,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 1,
+   "elapsed_s": 259.2474136352539
+  },
+  "run_id": "A2_poisson_physicsnemo_sym_netmatched_s2",
+  "schema_missing": [],
+  "loss_history_len": 17,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.021059478165758053,
+   "max_abs": 0.02575923129916181,
+   "finite": true,
+   "residual_rms": 0.07318279939124464,
    "n_residual": 2000
   }
  },

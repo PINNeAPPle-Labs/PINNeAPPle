@@ -1,8 +1,8 @@
 """Tables and figures of the cross-framework benchmark, generated from ``results/*.json``.
 
-    python -m benchmarks.vs_frameworks.make_report      # writes results/TABLES.md and figures/*.png
+    python -m benchmarks.vs_frameworks.make_report      # writes REPORT.md, results/TABLES.md, figures/*.png
 
-``REPORT.md`` (the narrative) quotes these tables; every number in it comes from here.
+``REPORT.md`` is rendered from ``report_text.py`` (the narrative), which quotes these tables.
 """
 from __future__ import annotations
 
@@ -24,7 +24,11 @@ LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early sto
          "physicsnemo_sym_netmatched": "Sym recipe, network matched to PINNeAPPle A2",
          "physicsnemo": "PhysicsNeMo", "neuraloperator": "neuraloperator"}
 ORDER = ["pinneapple", "pinneapple_nostop", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo_sym_netmatched", "physicsnemo", "neuraloperator"]
-EXACT_FD_FLOOR = {}
+#: short tick labels for the figures
+SHORT = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle\nno stop", "deepxde": "DeepXDE",
+         "physicsnemo_sym": "Sym", "physicsnemo_sym_matched": "Sym\npts-matched",
+         "physicsnemo_sym_netmatched": "Sym\nnet-matched", "physicsnemo": "PhysicsNeMo",
+         "neuraloperator": "neuralop"}
 
 
 def load(track):
@@ -190,7 +194,7 @@ def figure_pinn(track, rows):
     if not probs:
         return None
     fws = [f for f in _fws(rows)]
-    fig, axes = plt.subplots(1, len(probs), figsize=(3.2 * len(probs), 3.2), squeeze=False)
+    fig, axes = plt.subplots(1, len(probs), figsize=(4.0 * len(probs), 3.4), squeeze=False)
     for ax, p in zip(axes[0], probs, strict=True):
         for i, fw in enumerate(fws):
             vals = [metric(r, "rel_l2") for r in g.get((p, fw), [])]
@@ -202,8 +206,7 @@ def figure_pinn(track, rows):
         allv = [v for v in allv if np.isfinite(v) and v > 0]
         if allv and max(allv) / min(allv) > 5:
             ax.set_yscale("log")
-        ax.set_xticks(range(len(fws)), [LABEL[f].replace("PhysicsNeMo-Sym", "PNeMo-Sym") for f in fws],
-                      fontsize=8)
+        ax.set_xticks(range(len(fws)), [SHORT[f] for f in fws], fontsize=7)
         ax.set_title(p, fontsize=10)
         ax.grid(axis="y", color="#e4e3df", linewidth=0.8)
         ax.set_axisbelow(True)
@@ -247,6 +250,8 @@ def main():
         lines += table_c(rows) + [""]
     lines += table_d()
     (RESULTS / "TABLES.md").write_text("\n".join(lines) + "\n")
+    from benchmarks.vs_frameworks.report_text import NARRATIVE
+    (HERE / "REPORT.md").write_text(NARRATIVE.lstrip())
     print("\n".join(lines))
 
 

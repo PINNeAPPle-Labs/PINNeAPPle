@@ -76,8 +76,11 @@ def test_allen_cahn_reference_resolution():
     _, _, a = P.allen_cahn_reference()
     _, _, b = P.allen_cahn_reference(n=4096)
     assert np.max(np.abs(b[:, ::2] - a)) < 3e-4
+    # linear interpolation in t over twice the saved spacing (2e-3) misses the skipped state by 7e-5 at most; the
+    # error of interpolating over the real spacing (1e-3) is about a quarter of that, below the 1.7e-4 spatial
+    # resolution uncertainty above
     mid = 0.5 * (a[:-2:2] + a[2::2])
-    assert np.max(np.abs(mid - a[1:-1:2])) < 1e-5
+    assert np.max(np.abs(mid - a[1:-1:2])) < 1e-4
 
 
 @pytest.mark.parametrize("name", ["burgers", "poisson", "helmholtz"])

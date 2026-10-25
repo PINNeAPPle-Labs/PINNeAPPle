@@ -1,0 +1,12 @@
+{
+ "code_hash": "3aaabd1f8cf7d7e9",
+ "figures": [],
+ "id": "node:cfd.sweep",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.88,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Parameter sweep (FreeCAD -> OpenFOAM) -> pinneapple_simulation.pipelines.freecad_openfoam.sweep (doe, Sweep)\ninputs: [('study', 'params')]\noutputs: [('dataset', 'dataset'), ('metrics', 'metrics')]\ndefaults: {'bounds': {'Rc': [20, 80]}, 'n': 8, 'method': 'lhs', 'fixed': {}, 'parallel': 1, 'seed': 0}",
+ "timed_out": false
+}

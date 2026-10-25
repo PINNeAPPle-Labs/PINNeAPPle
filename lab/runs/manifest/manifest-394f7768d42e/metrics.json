@@ -1,0 +1,12 @@
+{
+ "pipe_bend_straight": 0.3209807777504656,
+ "pipe_bend_straight_richardson": 0.3223034319423697,
+ "pipe_bend_bend": 1.4375374593561443,
+ "pipe_bend_bend_richardson": 1.3579687002807075,
+ "heated_pipe_Nu": 4.678594323676027,
+ "heated_pipe_Nu_richardson": 4.659717896700646,
+ "sphere_drag_CD": 1.086615926059062,
+ "sphere_drag_Re_50_CD": 1.5688735632467348,
+ "sphere_drag_Re_200_CD": 0.7774858690466071,
+ "surrogate_heldout_nrmse": 0.0206303365728198
+}

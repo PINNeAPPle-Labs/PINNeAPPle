@@ -1,0 +1,12 @@
+{
+ "code_hash": "a9cdb3918bd3ab4e",
+ "figures": [],
+ "id": "example:examples/freecad_openfoam",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FreeCAD -> OpenFOAM pipelines (bend, heated pipe, sphere) | computational fluid dynamics | not curated\npipe_bend_straight 0.3209807777504656 -\npipe_bend_straight_richardson 0.3223034319423697 -\npipe_bend_bend 1.4375374593561443 -\npipe_bend_bend_richardson 1.3579687002807075 -\nheated_pipe_Nu 4.678594323676027 -",
+ "timed_out": false
+}

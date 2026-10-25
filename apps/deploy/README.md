@@ -77,6 +77,12 @@ At your DNS provider, create two **A** records (and AAAA records if you use IPv6
 | `patchdose` | A | `<server IPv4>` |
 | `ridetune` | A | `<server IPv4>` |
 | `soundshape` | A | `<server IPv4>` |
+| `vgap` | A | `<server IPv4>` |
+| `dopt` | A | `<server IPv4>` |
+| `mbench` | A | `<server IPv4>` |
+| `pdisc` | A | `<server IPv4>` |
+| `ptwin` | A | `<server IPv4>` |
+| `sspeed` | A | `<server IPv4>` |
 | `arena` | A | `<server IPv4>` |
 | `pinnarena` | A | `<server IPv4>` |
 | `models` | A | `<server IPv4>` |
@@ -176,7 +182,7 @@ Caddy. Start only the apps, attached to that proxy's Docker network, and add two
 ```bash
 docker inspect <proxy container> --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 PROXY_NETWORK=<that network> docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml \
-  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena pinnarena surrogate twin anomaly control optimize design hsdesign brakecool patchdose ridetune soundshape meshbridge satscreen flowtrace nozzle rovermob gcard helio orbitwatch
+  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena pinnarena surrogate twin anomaly control optimize design hsdesign brakecool patchdose ridetune soundshape meshbridge satscreen flowtrace nozzle rovermob gcard helio orbitwatch vgap dopt mbench pdisc ptwin sspeed
 ```
 
 Caddyfile blocks for the existing proxy (then `caddy validate` and `caddy reload` inside its container):
@@ -349,6 +355,54 @@ ridetune.example.org {
 soundshape.example.org {
 	encode zstd gzip
 	reverse_proxy pinneapple-soundshape:8164
+}
+vgap.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-vgap:8180 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+dopt.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-dopt:8181 {
+		transport http {
+			read_timeout 600s
+		}
+	}
+}
+mbench.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-mbench:8182 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+pdisc.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-pdisc:8183 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+ptwin.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-ptwin:8184 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+sspeed.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-sspeed:8185 {
+		transport http {
+			read_timeout 60s
+		}
+	}
 }
 surrogate.example.org {
 	encode zstd gzip
@@ -843,6 +897,22 @@ torch process). Logins: `HSD_`, `BRAKE_`, `PATCH_`, `RIDE_`, `SOUND_` + `USER` /
 
 ```bash
 docker compose up -d --build hsdesign brakecool patchdose ridetune soundshape caddy
+```
+
+## PINNeAPPle-apps case studies (`vgap`, `dopt`, `mbench`, `pdisc`, `ptwin`, `sspeed`)
+
+Six single-page case studies (one fixed scenario each, computation in the library): Verification Gap (`vgap`, 8180),
+Design Optimization (`dopt`, 8181), Model Benchmarking (`mbench`, 8182), Parameter Discovery (`pdisc`, 8183),
+Predictive Twin (`ptwin`, 8184) and Surrogate Speed (`sspeed`, 8185); each README under `apps/<folder>/` says what it
+computes and what was measured. Logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD(_HASH)` with the prefixes `VGAP`, `DOPT`,
+`MBENCH`, `PDISC`, `PTWIN`, `SSPEED`; domains `<PREFIX>_DOMAIN`. No volumes: results live in memory. `mbench`, `pdisc`
+and `sspeed` start a run at startup (`<PREFIX>_AUTOSTART=0` to wait for a click); a full `mbench` run keeps one core
+busy for several minutes (`MBENCH_EPOCH_SCALE=0.1` for a quick demo). `dopt` trains a surrogate on every page load
+(`DOPT_MAX_HEAVY` at once, the rest get 429). `ptwin` downloads public USGS data on each load (cached 90 s), so it
+needs outbound HTTPS to waterservices.usgs.gov; `PTWIN_OFFLINE=1` serves a labelled synthetic record instead.
+
+```bash
+docker compose up -d --build vgap dopt mbench pdisc ptwin sspeed caddy
 ```
 
 ## PINNeAPPle Lab catalogue (`lab`)

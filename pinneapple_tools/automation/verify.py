@@ -12,6 +12,8 @@ kind               what is computed
                    incompressible solvers (kinematic p); passes when ``min_pa`` <= dp <= ``max_pa``
 ``converged``      the named step ran and its "solver converged" and "solver finished" checks held
 ``artifact``       a file or folder of the run exists and is not empty
+``metric``         a numeric ``output`` of a passed ``step`` lies within [``min``, ``max``] (either may be omitted),
+                   e.g. a reference error or the largest Courant number
 ``physics_lint``   ``pinneapple check`` on the case (conservation, divergence, boundary conditions); passes when it
                    reports no error
 =================  ==========================================================================================
@@ -141,6 +143,19 @@ def evaluate_criterion(kind: str, params: dict[str, Any], run_dir: Path, previou
             return Check("solver converged", ok, "; ".join(c.detail for c in need if c), value=need[1].value
                          if need[1] else None, threshold=need[1].threshold if need[1] else None,
                          source=f"step {params['step']}")
+        if kind == "metric":
+            rec = previous.get(params["step"])
+            if rec is None or rec.state != "passed":
+                return Check(params["output"], False, f"step {params['step']} did not pass")
+            v = rec.outputs.get(params["output"])
+            if not isinstance(v, (int, float)) or isinstance(v, bool):
+                return Check(params["output"], False, f"step {params['step']} has no numeric output "
+                                                      f"{params['output']!r}")
+            lo = -np.inf if params.get("min") is None else float(params["min"])
+            hi = np.inf if params.get("max") is None else float(params["max"])
+            ok = bool(lo <= v <= hi)
+            return Check(params["output"], ok, f"{params['output']} = {v:.6g}, required [{lo:g}, {hi:g}]", value=v,
+                         threshold=[params.get("min"), params.get("max")], source=f"step {params['step']}")
         if kind == "artifact":
             p = Path(params["path"])
             p = p if p.is_absolute() else run_dir / p

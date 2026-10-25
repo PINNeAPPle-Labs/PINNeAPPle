@@ -352,9 +352,10 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     bs.render.filepath = os.path.abspath(out)
     bpy.ops.render.render(write_still=True)
     if bar and colorbar_on:
-        colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt, stops=stops(cmap) if field else None)
+        colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt, stops=stops(cmap) if field else None,
+                 dark=background == "dark")
     if bar2 and colorbar_on:
-        colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3])
+        colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3], dark=background == "dark")
     return out
 
 

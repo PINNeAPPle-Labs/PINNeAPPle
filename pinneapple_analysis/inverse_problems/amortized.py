@@ -176,12 +176,15 @@ def _fit_mdn(simulate, d, noise, prior, n_sims, K, hidden, depth, budget_s, lr, 
                                    "steps": run.steps, "train_s": round(run.wall_s, 2), "best_val_nll": best["loss"]})
 
 
-def hdi(samples: np.ndarray, level: float = 0.9) -> list[list[float]]:
+def hdi(samples: np.ndarray, level: float = 0.9, bins: int = 60) -> list[list[float]]:
     """Highest-density set of 1-D samples as a list of intervals (several when the posterior is multimodal), from a
-    histogram: the smallest set of bins holding ``level`` of the mass."""
+    histogram: the smallest set of bins holding ``level`` of the mass. Bins are ranked by a [1, 2, 1]/4-smoothed
+    count (so sampling noise does not punch one-bin holes into a mode) while the mass is counted from the raw
+    histogram; intervals separated by a single bin are merged."""
     s = np.asarray(samples, float)
-    h, e = np.histogram(s, bins=60, range=(0.0, 1.0) if s.min() >= 0 and s.max() <= 1 else None)
-    order = np.argsort(h)[::-1]
+    h, e = np.histogram(s, bins=bins, range=(0.0, 1.0) if s.min() >= 0 and s.max() <= 1 else None)
+    rank = np.convolve(h, [0.25, 0.5, 0.25], mode="same")
+    order = np.lexsort((-h, -rank))                              # by smoothed density, ties by raw count
     keep = np.zeros(len(h), bool)
     tot = 0
     for i in order:
@@ -189,6 +192,9 @@ def hdi(samples: np.ndarray, level: float = 0.9) -> list[list[float]]:
         tot += h[i]
         if tot >= level * h.sum():
             break
+    for i in range(1, len(keep) - 1):                             # a one-bin hole between kept bins is noise
+        if keep[i - 1] and keep[i + 1] and not keep[i]:
+            keep[i] = True
     out, start = [], None
     for i, k in enumerate(np.r_[keep, False]):
         if k and start is None:

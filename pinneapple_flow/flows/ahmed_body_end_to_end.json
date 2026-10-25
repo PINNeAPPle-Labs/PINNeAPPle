@@ -85,6 +85,16 @@
     "y": 360.0
    },
    "label": "Digital twin"
+  },
+  {
+   "id": "report",
+   "type": "study.report",
+   "params": {},
+   "position": {
+    "x": 1100.0,
+    "y": 360.0
+   },
+   "label": "Evidence report"
   }
  ],
  "edges": [

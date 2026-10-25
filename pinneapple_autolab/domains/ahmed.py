@@ -35,7 +35,7 @@ from pinneapple_design.design_optimizer.study import Variable
 
 from ..simulator import SimOutcome, Simulator
 
-__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "AHMED_1984_CD", "AHMED_1984_SOURCE", "MESHES", "mesh_family",
+__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "AHMED_1984_CD", "AHMED_1984_SOURCE", "MEASUREMENTS", "MESHES", "mesh_family",
            "AhmedAero", "make_body", "field_vertices", "region_of", "REGIONS", "solver_log_summary",
            "force_convergence", "qa_checks", "run_trust_report", "LENGTH", "WIDTH", "HEIGHT", "NOSE_RADIUS",
            "template_faces", "pressure_drag_from_cp", "prediction_checks", "unit_to_params", "params_to_unit",
@@ -58,6 +58,38 @@ AHMED_1984_CD = {0.0: 0.250, 12.5: 0.230, 25.0: 0.285, 30.0: 0.378, 35.0: 0.260,
 AHMED_1984_SOURCE = ("Ahmed, S.R., Ramm, G., Faltin, G. (1984). Some salient features of the time-averaged ground "
                      "vehicle wake. SAE Technical Paper 840300. Values as transcribed in "
                      "examples/qualitative/03_ahmed_slant.py (60 m/s, Re 4.29e6 on the length).")
+
+# Every wind-tunnel data set the study is compared with and inverted on: the conditions it was taken at, the drag
+# coefficient per slant angle (empty when the numbers could not be obtained), its source, and how far the numbers
+# were verified from this repository (the SAE papers and the ERCOFTAC database were not reachable; what was checked
+# came from secondary sources found by web search on 2026-10-25 and is listed value by value).
+MEASUREMENTS: dict[str, dict[str, Any]] = {
+    "ahmed_1984": {
+        "label": "Ahmed, Ramm & Faltin (1984)", "speed": 60.0, "clearance": 0.05, "Re_length": 4.29e6,
+        "CD": AHMED_1984_CD, "source": AHMED_1984_SOURCE,
+        "verification": {
+            "12.5": "0.230 quoted as Ahmed et al. (1984) in a published grid-independence table (secondary source)",
+            "25.0": "0.285 quoted for the 25 deg body by CFD benchmark pages citing SAE 840300 (secondary sources)",
+            "30.0": "the drag maximum at 30 deg is confirmed qualitatively; the value 0.378 is the transcription only",
+            "35.0": "0.26 quoted as Ahmed's (1984) figure in a turbulence-model comparison (secondary source)",
+            "0.0": "transcription only", "40.0": "transcription only",
+            "Re": "4.29e6 on the model length confirmed (secondary source)"},
+    },
+    "lienhart_becker_2003": {
+        "label": "Lienhart & Becker (2003)", "speed": 40.0, "clearance": 0.05, "Re_length": 40.0 * LENGTH / 1.5e-5,
+        "CD": {}, "slants_measured_deg": [25.0, 35.0],
+        "source": ("Lienhart, H., Becker, S. (2003). Flow and turbulence structure in the wake of a simplified car "
+                   "model. SAE Technical Paper 2003-01-0656 (LSTM Erlangen low-speed wind tunnel, bulk velocity "
+                   "40 m/s, slant 25 and 35 deg; LDA and surface-pressure data in the ERCOFTAC database, case 082 / "
+                   "KB wiki AC1-05)."),
+        "verification": {
+            "conditions": "40 m/s and the two slant angles confirmed by secondary sources (web search)",
+            "CD": "not obtained: kbwiki.ercoftac.org, cfd.mace.manchester.ac.uk and the SAE paper are not reachable "
+                  "from this environment, and the drag values quoted by third parties could not be attributed to this "
+                  "paper rather than to Ahmed et al. (1984); the set therefore carries no CD and the inverse stage "
+                  "reports it as not measured here"},
+    },
+}
 
 # Meshes: one geometric family (background cells per body length grow by sqrt(2), the surface and refinement-box
 # levels stay the same, so every cell shrinks by the same ratio; five prism layers sized relative to the surface
@@ -407,7 +439,8 @@ def pressure_drag_from_cp(params: Mapping[str, float], cp: np.ndarray) -> float:
 
 
 def prediction_checks(bounds: Mapping[str, tuple[float, float]], *, n: int = 256, seed: int = 0,
-                      cp_max: float = 1.05, integral_tol: float = 0.03, cd_pressure: Callable | None = None):
+                      cp_max: float = 1.05, integral_tol: float = 0.03, cd_pressure: Callable | None = None,
+                      n_integral: int = 128):
     """Physics checks for surrogate predictions, as ``{target: [check(predict) -> Check]}`` for
     :func:`pinneapple_autolab.study.benchmark.benchmark`, on a scrambled Sobol sample of the training region:
 
@@ -416,8 +449,24 @@ def prediction_checks(bounds: Mapping[str, tuple[float, float]], *, n: int = 256
       >= 90 % of the sample);
     * Cp <= ``cp_max`` everywhere (incompressible stagnation: Cp = 1 at most, plus a margin for wall-function noise),
       and the nose's maximum Cp >= 0.9 (the stagnation point is there);
-    * Cp integrated over the surface gives the pressure drag predicted by ``cd_pressure(U) -> mean`` (the selected
-      scalar model) within ``integral_tol``: the field and the scalar model tell the same story.
+    * ``cp_integral_matches_CD_pressure``: the field and the scalar model tell the same story. On ``n_integral``
+      Sobol points, ``D = |pressure drag integrated from the predicted Cp - CD_pressure of the selected scalar
+      model|`` (``cd_pressure(U) -> (mean, 90 % half width)``) is compared with the two uncertainties that are not
+      the field's: the CFD's own template gap (``integral_tol``: the 95th percentile over every CFD case of the
+      pressure drag of the CFD Cp on the 1751 template points against the CFD's CD_pressure, measured by
+      :func:`~pinneapple_autolab.domains.ahmed_study.template_integral`) and the scalar model's calibrated half
+      width at that point, added in quadrature as independent bounds. The check passes when the 95th percentile of
+      ``D / sqrt(integral_tol^2 + half_width^2)`` over the sample is <= 1.
+
+      Why this statistic and not the maximum: the tolerance is a 95th percentile of the CFD data, so the field is
+      held to the same quantile; a maximum over the sample against a p95 fails even the CFD's own Cp fields (their
+      largest template gap, 0.069 on the 54 campaign cases, is above the p95 + 0.01 margin of 0.052 that was used
+      before). The scalar model's half width enters because the comparison target is itself a prediction with a
+      stated, calibrated uncertainty: without it the check would blame the field for the scalar model's error (the
+      selected CD_pressure model's test RMSE is 0.010, its mean half width 0.045); in quadrature rather than
+      subtracted, because a 90 % bound is not a typical error (subtracting it let a field whose gap is twice the
+      CFD's pass). The former +0.01 margin is dropped (it was not measured); the raw p95 and maximum of ``D`` are
+      reported in the check's reason.
     """
     from scipy.stats import qmc
 
@@ -456,15 +505,21 @@ def prediction_checks(bounds: Mapping[str, tuple[float, float]], *, n: int = 256
     checks = {"CD": [positive("CD")], "CD_pressure": [positive("CD_pressure")],
               "CD_friction": [friction_falls], "cp": [cp_bounds]}
     if cd_pressure is not None:
-        P = unit_to_params(U[:48], bounds)
+        Ui = qmc.Sobol(len(VARIABLES), seed=seed + 1).random(n_integral)
+        P = unit_to_params(Ui, bounds)
 
         def integral(predict):
-            m, _ = predict(U[:48])
+            m, _ = predict(Ui)
             cdp_field = np.array([pressure_drag_from_cp(p, cp) for p, cp in zip(P, m, strict=False)])
-            cdp = np.asarray(cd_pressure(U[:48]))
-            err = float(np.max(np.abs(cdp_field - cdp)))
-            return _c("cp_integral_matches_CD_pressure", err <= integral_tol, err, integral_tol,
-                      "max |pressure drag of the predicted Cp field - predicted CD_pressure|")
+            cdp, hw = (np.asarray(v, float).ravel() for v in cd_pressure(Ui))
+            D = np.abs(cdp_field - cdp)
+            ratio = D / np.sqrt(integral_tol ** 2 + hw ** 2)
+            p95 = float(np.quantile(ratio, 0.95))
+            return _c("cp_integral_matches_CD_pressure", p95 <= 1.0, p95, 1.0,
+                      f"p95 over {n_integral} Sobol points of |pressure drag of the predicted Cp - predicted "
+                      f"CD_pressure| / sqrt(gap^2 + half width^2), gap = {integral_tol:.4f} (the CFD's own template "
+                      f"gap at the 95th percentile), half width = the scalar model's 90 % interval (mean "
+                      f"{hw.mean():.4f}); raw |difference| p95 {np.quantile(D, 0.95):.4f}, max {D.max():.4f}")
         checks["cp"].append(integral)
     return checks
 

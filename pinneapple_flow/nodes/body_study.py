@@ -206,4 +206,22 @@ def twin(ctx, inputs, params):
     return {"report": artifact(page, "html")}
 
 
-__all__ = ["ahmed_geometry", "cfd_campaign", "grid_validation", "dataset", "surrogates", "inverse", "twin"]
+@node("study.report", "Evidence report, costs and summary of the study", category="Reporting",
+      outputs=[Port("report", "report"), Port("metrics", "metrics")], params=[_FOLDER],
+      calls="pinneapple_autolab.domains.ahmed_study.study_report (pinneapple_autolab.study.report)", tags=_TAGS)
+def report(ctx, inputs, params):
+    """One HTML page from the JSON files the other stages wrote (a stage without its file reads as not measured),
+    the hashed evidence package, the cost table and the summary of measured numbers with units."""
+    from pinneapple_autolab.domains import ahmed_study as S
+    base, runs, res = _folders(params)
+    summ = S.study_report(S.load_records(str(runs)), str(res), str(Path(ctx.workdir) / "report.html"))
+    for m in summ["metrics"][:40]:
+        ctx.metric(m["name"], m["value"], m["how"])
+    if summ["not_measured"]:
+        ctx.warn("not measured: " + ", ".join(summ["not_measured"]))
+    ctx.view("html", {"path": str((Path(ctx.workdir) / "report.html").resolve()), "title": "Ahmed body: evidence report"})
+    return {"report": artifact(str(Path(ctx.workdir) / "report.html"), "html"),
+            "metrics": {m["name"]: m["value"] for m in summ["metrics"]}}
+
+
+__all__ = ["ahmed_geometry", "cfd_campaign", "grid_validation", "dataset", "surrogates", "inverse", "twin", "report"]

@@ -256,7 +256,61 @@ def test_ahmed_study_stages(tmp_path):
     assert {"val_00.0", "val_12.5", "val_25.0", "val_30.0"} <= set(ds.split["test"])
     assert {"val_35.0", "val_40.0"} <= set(ds.split["extrapolation"])
     integ = S.template_integral(ds)
-    assert np.isfinite(integ["tolerance"])
+    assert np.isfinite(integ["tolerance"]) and integ["tolerance"] == pytest.approx(integ["abs_gap_p95"])
+    summ = S.study_report(recs, str(tmp_path / "res"))
+    assert os.path.exists(tmp_path / "res" / "report.html") and os.path.exists(tmp_path / "res" / "evidence.zip")
+    assert summ["evidence_problems"] == [] and "surrogate benchmark" in summ["not_measured"]
+    names = {m["name"] for m in summ["metrics"]}
+    assert {"cd_baseline_L1", "validation_cd_rel_error_max", "cfd_cpu_hours"} <= names
+    assert all(m["unit"] and m["how"] for m in summ["metrics"])
+    page = open(tmp_path / "res" / "report.html").read()
+    assert "Mesh convergence" in page and "not measured" in page.lower()
+
+
+def test_measurement_sets_and_integral_check():
+    for name, ms in A.MEASUREMENTS.items():
+        assert {"label", "speed", "clearance", "CD", "source", "verification"} <= set(ms), name
+    assert A.MEASUREMENTS["ahmed_1984"]["CD"] == A.AHMED_1984_CD
+    assert A.MEASUREMENTS["lienhart_becker_2003"]["CD"] == {} and "not obtained" in \
+        A.MEASUREMENTS["lienhart_becker_2003"]["verification"]["CD"]
+    # the field-scalar check: the part of the disagreement the scalar model's own interval does not explain
+    bounds = {v.name: (v.lower, v.upper) for v in A.VARIABLES}
+    lab = A.region_of(A.field_vertices(A.BASELINE), A.BASELINE)
+    front = (lab == "front").astype(float)
+    cdp_front = A.pressure_drag_from_cp(A.BASELINE, front)              # the same template for every design
+
+    def predict(U):
+        U = np.atleast_2d(U)
+        return np.tile(front, (len(U), 1)), np.full((len(U), len(front)), 0.01)
+    cases = {"exact": (lambda U: (np.full(len(U), cdp_front), np.zeros(len(U))), True),
+             "off by 0.2, no interval": (lambda U: (np.full(len(U), cdp_front + 0.2), np.zeros(len(U))), False),
+             "off by 0.2 inside a 0.3 interval": (lambda U: (np.full(len(U), cdp_front + 0.2), np.full(len(U), 0.3)), True)}
+    for label, (cdp, expect) in cases.items():
+        chk = A.prediction_checks(bounds, cd_pressure=cdp, integral_tol=0.05, n_integral=8)["cp"][-1](predict)
+        assert chk.name == "cp_integral_matches_CD_pressure" and (chk.status == "supports") is expect, label
+        assert "p95" in chk.reason and chk.limit == 1.0
+
+
+def test_captions_and_cards(tmp_path):
+    from pinneapple_tools.visualization.studio import captions as CP
+    card = CP.title_card(str(tmp_path / "t.png"), (320, 180), "Ahmed body", ["line one", "line two"],
+                         kicker="study", footer="measured")
+    out = CP.caption(card, "shot", sub="detail", out=str(tmp_path / "c.jpg"), progress=0.5, footer="1 / 2")
+    from PIL import Image
+    a, b = np.asarray(Image.open(card).convert("RGB")), np.asarray(Image.open(out).convert("RGB"))
+    assert a.shape == (180, 320, 3) and b.shape == (180, 320, 3) and (a != b).any()
+    accent = np.array([int(CP.STYLE["accent"][j:j + 2], 16) for j in (1, 3, 5)])
+    assert (np.abs(b[-1, :160].astype(int) - accent).sum(1) < 30).mean() > 0.9     # the progress bar, half way
+    import shutil
+    if shutil.which("espeak-ng") and shutil.which("ffmpeg"):
+        wav = CP.narrate("one two three", str(tmp_path / "n.wav"))
+        assert CP.audio_duration(wav) > 0.3
+        from pinneapple_tools.visualization.studio.blender import _encode
+        mp4 = _encode([card] * 12, str(tmp_path / "v.mp4"), 12)
+        assert os.path.getsize(CP.mux_audio(mp4, [(0.0, wav)], str(tmp_path / "vv.mp4"))) > 0
+    else:
+        with pytest.raises(RuntimeError):
+            CP.narrate("x", str(tmp_path / "n.wav"), exe="no-such-binary")
 
 
 def test_report_and_evidence_package(tmp_path):

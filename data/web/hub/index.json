@@ -35227,7 +35227,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/pv-t3/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {

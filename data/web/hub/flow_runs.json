@@ -35,7 +35,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 16.26,
+  "seconds": 18.69,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -61,7 +61,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 3.49,
+  "seconds": 5.83,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -86,7 +86,7 @@
      "nfev": 310
     },
     "status": "done",
-    "summary": "FD on 513x51 points in 0.11 s",
+    "summary": "FD on 513x51 points in 0.12 s",
     "type": "solver.classical"
    },
    "geo": {
@@ -101,7 +101,7 @@
    "lab": {
     "error": "",
     "metrics": {
-     "lab_run_id": "flow_burgers_1d_pinn_vs_finite_differences_vs_cole_ho_lab-58288aae14d7",
+     "lab_run_id": "flow_burgers_1d_pinn_vs_finite_differences_vs_cole_ho_lab-69620baffbe0",
      "lab_status": "failed_validation"
     },
     "status": "done",
@@ -120,12 +120,12 @@
    "pinn": {
     "error": "",
     "metrics": {
-     "final_loss": 2.6086716388817877e-05,
+     "final_loss": 2.1044690583948977e-05,
      "n_parameters": 4353,
      "validation": "fail"
     },
     "status": "done",
-    "summary": "PINN trained in 488.2 s; validation failed",
+    "summary": "PINN trained in 568.9 s; validation failed",
     "type": "train.pinn"
    },
    "render": {
@@ -140,15 +140,15 @@
    "validate": {
     "error": "",
     "metrics": {
-     "best": "PINN"
+     "best": "FD"
     },
     "status": "done",
-    "summary": "FD: 5.09e-03, PINN: 3.89e-03 (vs exact solution)",
+    "summary": "FD: 5.09e-03, PINN: 8.04e-03 (vs exact solution)",
     "type": "validate.compare"
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 508.64,
+  "seconds": 587.77,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -172,7 +172,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 4.9,
+  "seconds": 6.49,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "failed"
  },
@@ -202,7 +202,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 3.96,
+  "seconds": 4.39,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -232,7 +232,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 3.27,
+  "seconds": 4.26,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -272,7 +272,7 @@
    "lab": {
     "error": "",
     "metrics": {
-     "lab_run_id": "flow_heat_1d_pinn_vs_finite_differences_vs_exact_lab-5c814d337c91",
+     "lab_run_id": "flow_heat_1d_pinn_vs_finite_differences_vs_exact_lab-496132dbf2ff",
      "lab_status": "completed"
     },
     "status": "done",
@@ -291,12 +291,12 @@
    "pinn": {
     "error": "",
     "metrics": {
-     "final_loss": 4.0356844692723826e-06,
+     "final_loss": 5.103921466798056e-06,
      "n_parameters": 3297,
      "validation": "pass"
     },
     "status": "done",
-    "summary": "PINN trained in 73.0 s; validation passed",
+    "summary": "PINN trained in 75.3 s; validation passed",
     "type": "train.pinn"
    },
    "plot": {
@@ -312,12 +312,12 @@
      "best": "FD"
     },
     "status": "done",
-    "summary": "FD: 6.58e-06, PINN: 1.79e-04 (vs exact solution)",
+    "summary": "FD: 6.58e-06, PINN: 2.33e-04 (vs exact solution)",
     "type": "validate.compare"
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 78.55,
+  "seconds": 81.86,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -352,7 +352,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 23.91,
+  "seconds": 22.71,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -387,7 +387,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 25.09,
+  "seconds": 29.06,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -420,7 +420,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 17.44,
+  "seconds": 15.82,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -453,7 +453,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 17.91,
+  "seconds": 17.18,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -490,7 +490,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 18.72,
+  "seconds": 17.0,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -502,7 +502,7 @@
     "metrics": {
      "alpha_estimate": 0.09998336456072479,
      "alpha_relative_error": 0.0001663543927521438,
-     "calibration_seconds": 0.95,
+     "calibration_seconds": 0.98,
      "forward_solves": 31
     },
     "status": "done",
@@ -512,13 +512,13 @@
    "discover": {
     "error": "",
     "metrics": {
-     "alpha_estimate": 0.10011787712574005,
-     "final_loss": 9.649766434449703e-05,
+     "alpha_estimate": 0.10016123950481415,
+     "final_loss": 7.702390576014295e-05,
      "n_parameters": 3297,
      "validation": "pass"
     },
     "status": "done",
-    "summary": "alpha = 0.10012",
+    "summary": "alpha = 0.10016",
     "type": "inverse.discover"
    },
    "fd": {
@@ -529,7 +529,7 @@
      "nfev": 44
     },
     "status": "done",
-    "summary": "FD on 101x41 points in 0.04 s",
+    "summary": "FD on 101x41 points in 0.03 s",
     "type": "solver.classical"
    },
    "inv_eq": {
@@ -600,7 +600,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 83.94,
+  "seconds": 84.59,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -632,7 +632,7 @@
     "error": "",
     "metrics": {},
     "status": "done",
-    "summary": "8.63 m in 45 s, mean slip 0.018, max sinkage 36.6 mm, 92 J/m (109 s)",
+    "summary": "8.63 m in 45 s, mean slip 0.018, max sinkage 36.6 mm, 92 J/m (115 s)",
     "type": "vehicle.simulate"
    },
    "site": {
@@ -672,7 +672,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 120.74,
+  "seconds": 127.83,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -744,7 +744,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 45.35,
+  "seconds": 47.0,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -754,7 +754,7 @@
    "data": {
     "error": "",
     "metrics": {
-     "generation_seconds": 13.91,
+     "generation_seconds": 14.23,
      "samples": 512
     },
     "status": "done",
@@ -792,7 +792,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 333.7,
+  "seconds": 349.06,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -814,7 +814,7 @@
     "error": "",
     "metrics": {
      "alerts": 1,
-     "assimilation_seconds": 3.12,
+     "assimilation_seconds": 4.1,
      "readings": 721
     },
     "status": "done",
@@ -823,7 +823,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 7.25,
+  "seconds": 11.68,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -895,7 +895,7 @@
    "sweep": {
     "error": "",
     "metrics": {
-     "generation_seconds": 4.34,
+     "generation_seconds": 4.7,
      "outputs_per_sample": 81,
      "samples": 96
     },
@@ -905,7 +905,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 35.62,
+  "seconds": 38.27,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -967,7 +967,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 6.47,
+  "seconds": 8.1,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -993,7 +993,7 @@
      "residual_inf": 1.6981971384666394e-12
     },
     "status": "done",
-    "summary": "FD on 65x65 points in 0.34 s",
+    "summary": "FD on 65x65 points in 0.36 s",
     "type": "solver.classical"
    },
    "fem": {
@@ -1002,7 +1002,7 @@
      "n_dof": 625
     },
     "status": "done",
-    "summary": "FEM on 25x25 points in 0.12 s",
+    "summary": "FEM on 25x25 points in 0.15 s",
     "type": "solver.classical"
    },
    "geo": {
@@ -1017,7 +1017,7 @@
    "lab": {
     "error": "",
     "metrics": {
-     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_lab-081fc6d6fba0",
+     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_lab-99e4694b40ab",
      "lab_status": "completed"
     },
     "status": "done",
@@ -1036,12 +1036,12 @@
    "pinn": {
     "error": "",
     "metrics": {
-     "final_loss": 5.31831246917136e-05,
+     "final_loss": 3.740585088962689e-05,
      "n_parameters": 3297,
      "validation": "pass"
     },
     "status": "done",
-    "summary": "PINN trained in 162.4 s; validation passed",
+    "summary": "PINN trained in 176.9 s; validation passed",
     "type": "train.pinn"
    },
    "plot": {
@@ -1068,7 +1068,7 @@
      "best": "FD"
     },
     "status": "done",
-    "summary": "FD: 2.01e-04, FEM: 7.15e-03, PINN: 1.03e-03 (vs exact solution)",
+    "summary": "FD: 2.01e-04, FEM: 7.15e-03, PINN: 7.55e-04 (vs exact solution)",
     "type": "validate.compare"
    },
    "view3d": {
@@ -1082,7 +1082,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 169.01,
+  "seconds": 184.16,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1108,7 +1108,7 @@
      "residual_inf": 2.4513724383723456e-13
     },
     "status": "done",
-    "summary": "FD on 21x21x21 points in 21.41 s",
+    "summary": "FD on 21x21x21 points in 21.33 s",
     "type": "solver.classical"
    },
    "fem": {
@@ -1117,7 +1117,7 @@
      "n_dof": 1331
     },
     "status": "done",
-    "summary": "FEM on 11x11x11 points in 0.14 s",
+    "summary": "FEM on 11x11x11 points in 0.24 s",
     "type": "solver.classical"
    },
    "geo": {
@@ -1132,7 +1132,7 @@
    "lab": {
     "error": "",
     "metrics": {
-     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-356cc3bd6109",
+     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-31719cdc09f1",
      "lab_status": "failed_validation"
     },
     "status": "done",
@@ -1151,12 +1151,12 @@
    "pinn": {
     "error": "",
     "metrics": {
-     "final_loss": 0.0029394603334367275,
+     "final_loss": 0.003046154510229826,
      "n_parameters": 3329,
      "validation": "fail"
     },
     "status": "done",
-    "summary": "PINN trained in 198.9 s; validation failed",
+    "summary": "PINN trained in 147.1 s; validation failed",
     "type": "train.pinn"
    },
    "plot": {
@@ -1183,7 +1183,7 @@
      "best": "FD"
     },
     "status": "done",
-    "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 3.06e-02 (vs exact solution)",
+    "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 2.90e-02 (vs exact solution)",
     "type": "validate.compare"
    },
    "view3d": {
@@ -1197,7 +1197,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 227.49,
+  "seconds": 175.61,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1223,7 +1223,7 @@
      "residual_inf": 6.217248937900877e-13
     },
     "status": "done",
-    "summary": "FD on 41x41 points in 0.13 s",
+    "summary": "FD on 41x41 points in 0.14 s",
     "type": "solver.classical"
    },
    "fem": {
@@ -1232,7 +1232,7 @@
      "n_dof": 1681
     },
     "status": "done",
-    "summary": "FEM on 41x41 points in 0.24 s",
+    "summary": "FEM on 41x41 points in 0.31 s",
     "type": "solver.classical"
    },
    "geo": {
@@ -1247,7 +1247,7 @@
    "lab": {
     "error": "",
     "metrics": {
-     "lab_run_id": "flow_poisson_2d_fem_fd_and_pinn_with_the_trust_card_lab-d130d220698f",
+     "lab_run_id": "flow_poisson_2d_fem_fd_and_pinn_with_the_trust_card_lab-350ca37b10c3",
      "lab_status": "completed"
     },
     "status": "done",
@@ -1266,12 +1266,12 @@
    "pinn": {
     "error": "",
     "metrics": {
-     "final_loss": 3.044793993467465e-05,
+     "final_loss": 5.0393675337545574e-05,
      "n_parameters": 3297,
      "validation": "pass"
     },
     "status": "done",
-    "summary": "PINN trained in 102.4 s; validation passed",
+    "summary": "PINN trained in 93.0 s; validation passed",
     "type": "train.pinn"
    },
    "validate": {
@@ -1280,7 +1280,7 @@
      "best": "FD"
     },
     "status": "done",
-    "summary": "FD: 5.14e-04, FEM: 1.55e-03, PINN: 7.46e-04 (vs exact solution)",
+    "summary": "FD: 5.14e-04, FEM: 1.55e-03, PINN: 8.06e-04 (vs exact solution)",
     "type": "validate.compare"
    },
    "view3d": {
@@ -1294,7 +1294,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 109.09,
+  "seconds": 99.15,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1354,7 +1354,7 @@
    }
   },
   "recorded": "2026-10-25",
-  "seconds": 4.71,
+  "seconds": 4.24,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  }

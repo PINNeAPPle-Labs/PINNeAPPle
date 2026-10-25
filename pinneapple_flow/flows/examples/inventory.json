@@ -252,6 +252,10 @@
   "domain": "optimization",
   "notes": "compared with the table of docs/core_concepts/physics_optimizer.md"
  },
+ "physics_query": {
+  "domain": "heat transfer",
+  "reason": "the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted"
+ },
  "pinn_solver": {
   "domain": "PINN",
   "notes": "01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts"

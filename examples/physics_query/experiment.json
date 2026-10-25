@@ -1,0 +1,96 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_query",
+ "title": "Physics query engine on a chip package",
+ "description": "query(quantity, where, conditions, accuracy) answered by the cheapest valid method -- read a solved state, superpose solved states, a rigorous monotone bound, a new condensed solve -- with uncertainty, validity and provenance, against the fine finite-volume reference.",
+ "domain": "heat transfer",
+ "methods": [
+  "static condensation",
+  "superposition",
+  "M-matrix bounds"
+ ],
+ "modules": [
+  "pinneapple_query",
+  "pinneapple_condense.query"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "queries",
+   "value": 5115.0,
+   "unit": "",
+   "how": "queries answered in the demo"
+  },
+  {
+   "name": "build_s",
+   "value": 11.906592649999993,
+   "unit": "s",
+   "how": "hierarchies at m and 2m plus the calibration solve"
+  },
+  {
+   "name": "reference_solve_s",
+   "value": 191.16682713700015,
+   "unit": "s",
+   "how": "fine FV, AMG-CG, median"
+  },
+  {
+   "name": "error_within_uncertainty",
+   "value": 1.0,
+   "unit": "fraction",
+   "how": "5113/5113 answers"
+  }
+ ],
+ "checks": [
+  {
+   "name": "rigorous intervals contain the fine reference",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "501/501",
+   "kind": "verification"
+  },
+  {
+   "name": "at least 99 % of answers within their stated uncertainty",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5113/5113",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/latency_vs_error.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "report": "docs/research/physics_condensation.md",
+  "script": "examples/physics_query/run_demo.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "c1468334",
+  "created": "2026-10-25T11:30:15Z",
+  "seconds": 0.525,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -14,6 +14,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
+  accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
+  predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
+  `pinneapple_condense.query` (read, superposition, rigorous M-matrix bound, condensed solve, fine reference); Flow
+  node `query.package`; measured demo `examples/physics_query`.
 - Condensation falsification campaign (`docs/research/condensation_falsification.md`, pre-registered hypotheses with
   kill criteria; `examples/condensation_falsification`). New `pinneapple_condense.algebraic` (exact condensation of
   any sparse operator, identical blocks found by content, POD-reduced faces), `pinneapple_condense.flow` (steady MAC

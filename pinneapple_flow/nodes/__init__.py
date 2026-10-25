@@ -11,6 +11,7 @@ from . import (  # noqa: F401
     physics_learning,
     presets,
     problem,
+    query,
     reason,
     science,
     solvers,

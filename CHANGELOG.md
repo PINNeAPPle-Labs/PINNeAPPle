@@ -26,6 +26,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- `pinneapple_analysis.reproduction`: one neutral evaluator for the errors papers report (`rel_l2` = rRMSE, `rmae`,
+  `max_abs`, `mean_abs`, `mse`, `rmse`), seed statistics that keep diverged seeds (`seed_stats`) and the status rule
+  of the paper-reproduction protocol (`status`), for `examples/paper_reproductions`.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that
@@ -1801,6 +1804,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   CVEs to none).
 - `apps/deploy/check_server.sh` (read-only host check), fail2ban filters and jail for Caddy and the app auth events,
   host hardening guide `docs/security/server.md`, `tests/test_deploy_security.py`.
+
+### Known issues
+- `PINNsFormer` is not pointwise: it splits a flat batch into sequences of unrelated collocation points and
+  attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
+  up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
+  Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
 
 ## [0.7.0] - 2026-10-13
 

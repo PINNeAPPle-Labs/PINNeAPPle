@@ -56,6 +56,8 @@ REASONS: dict[str, str] = {
     "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
     "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",
     "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
+    "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
+                                        "scoring of committed seed results, not a flow step)",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

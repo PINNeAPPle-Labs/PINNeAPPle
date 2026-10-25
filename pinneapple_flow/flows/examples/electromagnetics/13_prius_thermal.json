@@ -1,0 +1,127 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-prius-thermal",
+ "name": "Prius thermal network over WLTC, demagnetisation (13)",
+ "description": "Magnet temperature sweep, a lumped thermal network driven by the losses of four WLTC class 3b cycles, the time to 180 C at peak load, demagnetisation margins per NdFeB grade at the hottest magnet temperature (examples/electrodynamics/13_prius_thermal.py; the flux map of 11).",
+ "nodes": [
+  {
+   "id": "fluxmap",
+   "type": "em.prius_flux_map",
+   "params": {
+    "source": "example"
+   },
+   "label": "Flux map (from 11)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "thermal",
+   "type": "em.prius_thermal",
+   "params": {},
+   "label": "Thermal + demagnetisation",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "thermal.peak_temperatures_C.yoke",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.yoke"
+     },
+     {
+      "flow": "thermal.peak_temperatures_C.teeth",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.teeth"
+     },
+     {
+      "flow": "thermal.peak_temperatures_C.winding",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.winding"
+     },
+     {
+      "flow": "thermal.peak_temperatures_C.end_winding",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.end_winding"
+     },
+     {
+      "flow": "thermal.peak_temperatures_C.rotor",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.rotor"
+     },
+     {
+      "flow": "thermal.peak_temperatures_C.magnets",
+      "ref": "results/13_prius_thermal.json:peak_temperatures_C.magnets"
+     },
+     {
+      "flow": "thermal.peak_load.torque_Nm",
+      "ref": "results/13_prius_thermal.json:peak_load.torque_Nm"
+     },
+     {
+      "flow": "thermal.peak_load.time_to_180C_winding_s",
+      "ref": "results/13_prius_thermal.json:peak_load.time_to_180C_winding_s"
+     },
+     {
+      "flow": "thermal.demagnetisation.magnet_temperature_C",
+      "ref": "results/13_prius_thermal.json:demagnetisation.magnet_temperature_C"
+     },
+     {
+      "flow": "thermal.demagnetisation.short_circuit_peak_estimate_A",
+      "ref": "results/13_prius_thermal.json:demagnetisation.short_circuit_peak_estimate_A"
+     },
+     {
+      "flow": "thermal.sweep_20C.torque_Nm",
+      "ref": "results/13_prius_thermal.json:magnet_temperature_sweep.0.torque_Nm"
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "fluxmap",
+   "source_port": "flux_map",
+   "target": "thermal",
+   "target_port": "flux_map",
+   "id": "fluxmap.flux_map->thermal.flux_map"
+  },
+  {
+   "source": "thermal",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "thermal.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "13_prius_thermal.py"
+  ],
+  "quick": {
+   "thermal": {
+    "n_gap": 480,
+    "magnet_temperatures": [
+     20.0
+    ],
+    "cycles": 1,
+    "refinement": false
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: n_gap 480 and one cycle, not comparable"
+   }
+  }
+ }
+}

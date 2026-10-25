@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "inverse-design-suspension-arm",
+ "name": "Suspension arm of minimum mass for a fatigue life (inverse design)",
+ "description": "pinneapple_design.surrogate_inverse.suspension_arm: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/ridetune_ai).",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "design.surrogate_inverse",
+   "params": {
+    "case": "suspension_arm"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Suspension arm of minimum mass for a fatigue life"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Suspension arm of minimum mass for a fatigue life (inverse design)"
+   },
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "design.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

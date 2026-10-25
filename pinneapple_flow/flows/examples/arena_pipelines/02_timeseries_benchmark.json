@@ -1,0 +1,229 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.arena_pipelines.02_timeseries_benchmark",
+ "name": "Time-series benchmark specs: Lorenz-63, sunspots, air passengers, spring-mass",
+ "description": "TimeSeriesBenchmarkSpec four times: Lorenz-63 (LSTM, TCN, N-BEATS), sunspots (LSTM, Transformer), air passengers (LSTM, N-BEATS) and the 2-DOF spring-mass system (GRU, Transformer) (examples/arena_pipelines/02_timeseries_benchmark.py; the real series may need the network). Quick: 10 epochs each.",
+ "nodes": [
+  {
+   "id": "lorenz63",
+   "type": "arena.timeseries_spec",
+   "params": {
+    "label": "lorenz63",
+    "spec": {
+     "source": "lorenz63",
+     "models": [
+      "lstm",
+      "tcn",
+      "nbeats"
+     ],
+     "metrics": [
+      "mse",
+      "mae",
+      "rmse"
+     ],
+     "horizon": 20,
+     "lookback": 50,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 60,
+     "lr": 0.001,
+     "seed": 42
+    }
+   },
+   "label": "lorenz63",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "sunspots",
+   "type": "arena.timeseries_spec",
+   "params": {
+    "label": "sunspots",
+    "spec": {
+     "source": "sunspots",
+     "models": [
+      "lstm",
+      "transformer"
+     ],
+     "metrics": [
+      "mse",
+      "rmse",
+      "mae"
+     ],
+     "horizon": 12,
+     "lookback": 60,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 80,
+     "lr": 0.001,
+     "seed": 0
+    }
+   },
+   "label": "sunspots",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "air_passengers",
+   "type": "arena.timeseries_spec",
+   "params": {
+    "label": "air_passengers",
+    "spec": {
+     "source": "air_passengers",
+     "models": [
+      "lstm",
+      "nbeats"
+     ],
+     "metrics": [
+      "mse",
+      "rmse",
+      "mape"
+     ],
+     "horizon": 12,
+     "lookback": 24,
+     "test_size": 0.25,
+     "plots": true,
+     "epochs": 100,
+     "lr": 0.0005,
+     "seed": 1
+    }
+   },
+   "label": "air passengers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "spring_mass",
+   "type": "arena.timeseries_spec",
+   "params": {
+    "label": "spring_mass",
+    "spec": {
+     "source": "spring_mass_2dof",
+     "models": [
+      "gru",
+      "transformer"
+     ],
+     "metrics": [
+      "mse",
+      "mae"
+     ],
+     "target_cols": null,
+     "horizon": 20,
+     "lookback": 40,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 80,
+     "lr": 0.001,
+     "seed": 42
+    }
+   },
+   "label": "spring mass",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "arena_pipelines",
+  "domain": "time series",
+  "scripts": [
+   "02_timeseries_benchmark.py"
+  ],
+  "quick": {
+   "lorenz63": {
+    "spec": {
+     "source": "lorenz63",
+     "models": [
+      "lstm",
+      "tcn",
+      "nbeats"
+     ],
+     "metrics": [
+      "mse",
+      "mae",
+      "rmse"
+     ],
+     "horizon": 20,
+     "lookback": 50,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 10,
+     "lr": 0.001,
+     "seed": 42
+    }
+   },
+   "sunspots": {
+    "spec": {
+     "source": "sunspots",
+     "models": [
+      "lstm",
+      "transformer"
+     ],
+     "metrics": [
+      "mse",
+      "rmse",
+      "mae"
+     ],
+     "horizon": 12,
+     "lookback": 60,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 10,
+     "lr": 0.001,
+     "seed": 0
+    }
+   },
+   "air_passengers": {
+    "spec": {
+     "source": "air_passengers",
+     "models": [
+      "lstm",
+      "nbeats"
+     ],
+     "metrics": [
+      "mse",
+      "rmse",
+      "mape"
+     ],
+     "horizon": 12,
+     "lookback": 24,
+     "test_size": 0.25,
+     "plots": true,
+     "epochs": 10,
+     "lr": 0.0005,
+     "seed": 1
+    }
+   },
+   "spring_mass": {
+    "spec": {
+     "source": "spring_mass_2dof",
+     "models": [
+      "gru",
+      "transformer"
+     ],
+     "metrics": [
+      "mse",
+      "mae"
+     ],
+     "target_cols": null,
+     "horizon": 20,
+     "lookback": 40,
+     "test_size": 0.2,
+     "plots": true,
+     "epochs": 10,
+     "lr": 0.001,
+     "seed": 42
+    }
+   }
+  }
+ }
+}

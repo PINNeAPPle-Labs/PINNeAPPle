@@ -69,6 +69,27 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
       "lib:pinneapple_core.", "lib:pinneapple_analysis.study_models")),
 ]
 
+#: the node types of the example flows (pinneapple_flow.nodes_ext, one module per examples/* domain), by category
+EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
+    "problem": ("node:problemdesign.",),
+    "equations": ("node:nonhermitian.", "node:pde_env."),
+    "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
+                  "node:aero.", "node:md.", "node:newton.", "node:swe."),
+    "pinn": ("node:architectures.", "node:pinn.", "node:pinn_solver."),
+    "surrogates": ("node:core.hybrid_fem", "node:worldmodel."),
+    "zoo": ("node:zoo.",),
+    "checks": ("node:gallery.", "node:check.", "node:proof."),
+    "verification": ("node:examples.",),
+    "benchmarks": ("node:arena.",),
+    "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative."),
+    "systems": ("node:systems.",),
+    "electromagnetics": ("node:em.", "node:inspection.", "node:antenna."),
+    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso."),
+    "reports": ("node:render.",),
+    "automation": ("node:security.",),
+}
+CATEGORIES = [(s, t, d, ps + EXAMPLE_NODES.get(s, ())) for s, t, d, ps in CATEGORIES]
+
 SLUGS = [c[0] for c in CATEGORIES]
 
 #: recipe id -> category; a new recipe in a README fails the test until it is added here

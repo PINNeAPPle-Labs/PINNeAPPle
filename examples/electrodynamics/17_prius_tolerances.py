@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pinneapple_analysis.uncertainty.tolerance import propagate
+from pinneapple_analysis.uncertainty.tolerance import propagate, src
 from pinneapple_simulation.electromagnetics.machines import prius_2004
 from pinneapple_simulation.electromagnetics.machines.robustness import (
     TOLERANCE_VARIABLES,
@@ -31,16 +31,6 @@ OUT = Path(__file__).parent / "results"
 NOMINAL = np.array([1.0, 0.0065, 0.0189, 0.00075])
 SIGMA = np.array([0.01, 0.025e-3, 0.05e-3, 0.025e-3])
 UNITS = ("-", "m", "m", "m")
-
-
-def src(X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
-    """Standardised regression coefficients of ``y`` on the columns of ``X`` and the R^2 of the linear fit."""
-    Xs = (X - X.mean(0)) / X.std(0, ddof=1)
-    ys = (y - y.mean()) / y.std(ddof=1)
-    A = np.column_stack([np.ones(len(ys)), Xs])
-    coef, *_ = np.linalg.lstsq(A, ys, rcond=None)
-    r2 = 1.0 - np.sum((ys - A @ coef) ** 2) / np.sum(ys ** 2)
-    return coef[1:], float(r2)
 
 
 def main(quick: bool) -> dict:

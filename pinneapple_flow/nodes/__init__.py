@@ -22,3 +22,5 @@ from . import (  # noqa: F401
 
 for _spec in library_specs() + auto_specs():
     REGISTRY.register(_spec)
+
+from .. import nodes_ext  # noqa: E402,F401 - the example-domain nodes (pinneapple_flow/nodes_ext)

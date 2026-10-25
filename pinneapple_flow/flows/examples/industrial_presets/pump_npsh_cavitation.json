@@ -1,0 +1,133 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.pump_npsh_cavitation",
+ "name": "Industrial preset: pump npsh cavitation",
+ "description": "pinneapple_presets.load('pump_npsh_cavitation').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/pump_npsh_cavitation), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "pump_npsh_cavitation"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "pump_npsh_cavitation"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.q",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.q"
+     },
+     {
+      "flow": "run.head",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.head"
+     },
+     {
+      "flow": "run.npsha",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.npsha"
+     },
+     {
+      "flow": "run.npsh3",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.npsh3"
+     },
+     {
+      "flow": "run.ratio",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.ratio"
+     },
+     {
+      "flow": "run.margin",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.margin"
+     },
+     {
+      "flow": "run.v_suction",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.v_suction"
+     },
+     {
+      "flow": "run.max_lift",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.max_lift"
+     },
+     {
+      "flow": "run.h_suction_loss",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.h_suction_loss"
+     },
+     {
+      "flow": "run.h_discharge_loss",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.h_discharge_loss"
+     },
+     {
+      "flow": "run.p_atm",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.p_atm"
+     },
+     {
+      "flow": "run.p_vapour",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.p_vapour"
+     },
+     {
+      "flow": "run.rho",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.rho"
+     },
+     {
+      "flow": "run.re_suction",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.re_suction"
+     },
+     {
+      "flow": "run.system_balance",
+      "ref": "pump_npsh_cavitation/results/result.json:outputs.system_balance",
+      "atol": 1e-12
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "pump_npsh_cavitation/README.md"
+  ],
+  "quick": {}
+ }
+}

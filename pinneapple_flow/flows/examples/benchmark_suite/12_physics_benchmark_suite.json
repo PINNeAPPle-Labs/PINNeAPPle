@@ -1,0 +1,57 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.benchmark_suite.12_physics_benchmark_suite",
+ "name": "PINN arena: six architectures on six problems",
+ "description": "PINNArenaBenchmark: the benchmark MLP, residual MLP, Fourier-feature MLP and SIREN on Burgers, Poisson, heat, wave, Allen-Cahn and Taylor-Green Navier-Stokes, 5000 epochs, 4000 collocation points, BC/IC weight 10; relative L2 and rank per problem (examples/benchmark_suite/12_physics_benchmark_suite.py; the script imports pinneapple_arena.benchmark, now pinneapple_tools.benchmark_suite.benchmark, whose default() takes every pointwise model of the registry; the VanillaPINN_S..SIREN names of its docstring are no longer registered). Quick: the script's --fast 100 epochs on heat and Burgers with the MLP and SIREN.",
+ "nodes": [
+  {
+   "id": "arena",
+   "type": "benchmark.arena",
+   "params": {
+    "problems": [
+     "burgers_1d",
+     "poisson_2d",
+     "heat_1d",
+     "wave_1d",
+     "allen_cahn_1d",
+     "ns_tgv_2d"
+    ],
+    "models": [
+     "bench_mlp",
+     "bench_res_mlp",
+     "bench_fourier_mlp",
+     "bench_siren"
+    ],
+    "epochs": 5000,
+    "n_col": 4000
+   },
+   "label": "PINN arena",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "benchmark_suite",
+  "domain": "benchmarks",
+  "scripts": [
+   "12_physics_benchmark_suite.py"
+  ],
+  "quick": {
+   "arena": {
+    "epochs": 100,
+    "problems": [
+     "heat_1d",
+     "burgers_1d"
+    ],
+    "models": [
+     "bench_mlp",
+     "bench_siren"
+    ]
+   }
+  }
+ }
+}

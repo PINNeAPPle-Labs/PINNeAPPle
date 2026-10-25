@@ -1,0 +1,505 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.bricks.self_modifying_bricks",
+ "name": "Self-modifying brick builds",
+ "description": "Brick physics checked against closed forms and Newton, then NSGA-II and a GP-surrogate search at the same budget and seeds for the longest cantilever, the leanest bridge and the tallest tower (examples/bricks/self_modifying_bricks.py; the committed summary is --full: 400 evaluations x 5 seeds).",
+ "nodes": [
+  {
+   "id": "val",
+   "type": "bricks.validate",
+   "params": {},
+   "label": "physics checks",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "cantilever",
+   "type": "bricks.search",
+   "params": {
+    "goal": "cantilever",
+    "budget": 400,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "label": "cantilever search",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "bridge",
+   "type": "bricks.search",
+   "params": {
+    "goal": "bridge",
+    "budget": 400,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "label": "bridge search",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "tower",
+   "type": "bricks.search",
+   "params": {
+    "goal": "tower",
+    "budget": 400,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "label": "tower search",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "bricks",
+    "comparisons": [
+     {
+      "flow": "val.check.0",
+      "ref": "_out/summary.json:validation.0.simulated"
+     },
+     {
+      "flow": "val.check.1",
+      "ref": "_out/summary.json:validation.1.simulated"
+     },
+     {
+      "flow": "val.check.2",
+      "ref": "_out/summary.json:validation.2.simulated"
+     },
+     {
+      "flow": "val.check.3",
+      "ref": "_out/summary.json:validation.3.simulated"
+     },
+     {
+      "flow": "val.check.4",
+      "ref": "_out/summary.json:validation.4.simulated"
+     },
+     {
+      "flow": "val.check.5",
+      "ref": "_out/summary.json:validation.5.simulated"
+     },
+     {
+      "flow": "val.check.6",
+      "ref": "_out/summary.json:validation.6.simulated"
+     },
+     {
+      "flow": "val.check.7",
+      "ref": "_out/summary.json:validation.7.simulated"
+     },
+     {
+      "flow": "val.check.8",
+      "ref": "_out/summary.json:validation.8.simulated"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.best_median",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.best_median"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.best_mean",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.best_mean"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.best_min",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.best_min"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.best_max",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.best_max"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.success_rate",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.success_rate"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed0",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.0"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed1",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.1"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed2",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.2"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed3",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.3"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed4",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.4"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.best_median",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.best_median"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.best_mean",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.best_mean"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.best_min",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.best_min"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.best_max",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.best_max"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.success_rate",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.success_rate"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.0"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed1",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.1"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed2",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.2"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed3",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.3"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed4",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.4"
+     },
+     {
+      "flow": "cantilever.cantilever.best.score",
+      "ref": "_out/summary.json:best.cantilever.score"
+     },
+     {
+      "flow": "cantilever.cantilever.best.n_bricks",
+      "ref": "_out/summary.json:best.cantilever.n_bricks"
+     },
+     {
+      "flow": "bridge.bridge.evolution.best_median",
+      "ref": "_out/summary.json:comparison.bridge.evolution.best_median"
+     },
+     {
+      "flow": "bridge.bridge.evolution.best_mean",
+      "ref": "_out/summary.json:comparison.bridge.evolution.best_mean"
+     },
+     {
+      "flow": "bridge.bridge.evolution.best_min",
+      "ref": "_out/summary.json:comparison.bridge.evolution.best_min"
+     },
+     {
+      "flow": "bridge.bridge.evolution.best_max",
+      "ref": "_out/summary.json:comparison.bridge.evolution.best_max"
+     },
+     {
+      "flow": "bridge.bridge.evolution.success_rate",
+      "ref": "_out/summary.json:comparison.bridge.evolution.success_rate"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed0",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.0"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed1",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.1"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed2",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.2"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed3",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.3"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed4",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.4"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.best_median",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.best_median"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.best_mean",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.best_mean"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.best_min",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.best_min"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.best_max",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.best_max"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.success_rate",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.success_rate"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.per_seed.0"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.seed2",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.per_seed.2"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.seed4",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.per_seed.4"
+     },
+     {
+      "flow": "bridge.bridge.best.score",
+      "ref": "_out/summary.json:best.bridge.score"
+     },
+     {
+      "flow": "bridge.bridge.best.n_bricks",
+      "ref": "_out/summary.json:best.bridge.n_bricks"
+     },
+     {
+      "flow": "tower.tower.evolution.best_median",
+      "ref": "_out/summary.json:comparison.tower.evolution.best_median"
+     },
+     {
+      "flow": "tower.tower.evolution.best_mean",
+      "ref": "_out/summary.json:comparison.tower.evolution.best_mean"
+     },
+     {
+      "flow": "tower.tower.evolution.best_min",
+      "ref": "_out/summary.json:comparison.tower.evolution.best_min"
+     },
+     {
+      "flow": "tower.tower.evolution.best_max",
+      "ref": "_out/summary.json:comparison.tower.evolution.best_max"
+     },
+     {
+      "flow": "tower.tower.evolution.success_rate",
+      "ref": "_out/summary.json:comparison.tower.evolution.success_rate"
+     },
+     {
+      "flow": "tower.tower.evolution.seed0",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.0"
+     },
+     {
+      "flow": "tower.tower.evolution.seed1",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.1"
+     },
+     {
+      "flow": "tower.tower.evolution.seed2",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.2"
+     },
+     {
+      "flow": "tower.tower.evolution.seed3",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.3"
+     },
+     {
+      "flow": "tower.tower.evolution.seed4",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.4"
+     },
+     {
+      "flow": "tower.tower.surrogate.best_median",
+      "ref": "_out/summary.json:comparison.tower.surrogate.best_median"
+     },
+     {
+      "flow": "tower.tower.surrogate.best_mean",
+      "ref": "_out/summary.json:comparison.tower.surrogate.best_mean"
+     },
+     {
+      "flow": "tower.tower.surrogate.best_min",
+      "ref": "_out/summary.json:comparison.tower.surrogate.best_min"
+     },
+     {
+      "flow": "tower.tower.surrogate.best_max",
+      "ref": "_out/summary.json:comparison.tower.surrogate.best_max"
+     },
+     {
+      "flow": "tower.tower.surrogate.success_rate",
+      "ref": "_out/summary.json:comparison.tower.surrogate.success_rate"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.0"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed1",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.1"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed2",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.2"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed3",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.3"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed4",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.4"
+     },
+     {
+      "flow": "tower.tower.best.score",
+      "ref": "_out/summary.json:best.tower.score"
+     },
+     {
+      "flow": "tower.tower.best.n_bricks",
+      "ref": "_out/summary.json:best.tower.n_bricks"
+     }
+    ],
+    "tolerance_source": "deterministic (seeded searches, closed forms): 1e-6 relative"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  },
+  {
+   "source": "cantilever",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "cantilever.metrics->compare.metrics"
+  },
+  {
+   "source": "bridge",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "bridge.metrics->compare.metrics"
+  },
+  {
+   "source": "tower",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "tower.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "bricks",
+  "domain": "design",
+  "scripts": [
+   "self_modifying_bricks.py"
+  ],
+  "quick": {
+   "cantilever": {
+    "seeds": [
+     0
+    ]
+   },
+   "bridge": {
+    "seeds": [
+     0
+    ]
+   },
+   "tower": {
+    "seeds": [
+     0
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "val.check.0",
+      "ref": "_out/summary.json:validation.0.simulated"
+     },
+     {
+      "flow": "val.check.1",
+      "ref": "_out/summary.json:validation.1.simulated"
+     },
+     {
+      "flow": "val.check.2",
+      "ref": "_out/summary.json:validation.2.simulated"
+     },
+     {
+      "flow": "val.check.3",
+      "ref": "_out/summary.json:validation.3.simulated"
+     },
+     {
+      "flow": "val.check.4",
+      "ref": "_out/summary.json:validation.4.simulated"
+     },
+     {
+      "flow": "val.check.5",
+      "ref": "_out/summary.json:validation.5.simulated"
+     },
+     {
+      "flow": "val.check.6",
+      "ref": "_out/summary.json:validation.6.simulated"
+     },
+     {
+      "flow": "val.check.7",
+      "ref": "_out/summary.json:validation.7.simulated"
+     },
+     {
+      "flow": "val.check.8",
+      "ref": "_out/summary.json:validation.8.simulated"
+     },
+     {
+      "flow": "cantilever.cantilever.evolution.seed0",
+      "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.0"
+     },
+     {
+      "flow": "cantilever.cantilever.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.0"
+     },
+     {
+      "flow": "bridge.bridge.evolution.seed0",
+      "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.0"
+     },
+     {
+      "flow": "bridge.bridge.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.bridge.surrogate.per_seed.0"
+     },
+     {
+      "flow": "tower.tower.evolution.seed0",
+      "ref": "_out/summary.json:comparison.tower.evolution.per_seed.0"
+     },
+     {
+      "flow": "tower.tower.surrogate.seed0",
+      "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.0"
+     }
+    ],
+    "tolerance_source": "quick: seed 0 of each search (the seeds are independent runs at the full budget of 400) and the physics checks"
+   }
+  }
+ }
+}

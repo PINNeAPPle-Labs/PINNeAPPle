@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.geometry_library.03_airliner_vlm",
+ "name": "Airliner vortex lattice and drag",
+ "description": "The library A320: lift slope, neutral point, cruise trim and induced drag by vortex lattice; zero-lift drag from the mesh's wetted area; L/D (examples/geometry_library/03_airliner_vlm.py).",
+ "nodes": [
+  {
+   "id": "vlm",
+   "type": "aero.airliner_vlm",
+   "params": {},
+   "label": "A320 vortex lattice",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "geometry_library",
+  "domain": "aerodynamics",
+  "scripts": [
+   "03_airliner_vlm.py"
+  ],
+  "quick": {}
+ }
+}

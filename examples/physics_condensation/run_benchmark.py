@@ -43,10 +43,12 @@ QUICK = {"accuracy": ("accuracy_vs_modes", {"shape": [6, 6], "ms": [2, 8]}),
          "keff": ("homogenization_study", {"shape": [6, 6]})}
 
 
-def run(name, func, kw, force):
+def run(name, func, kw, force, cached=False):
     path = os.path.join(RES, f"{name}.json")
     if os.path.exists(path) and not force:
         return json.load(open(path))
+    if cached:                                 # --cached: the manifest of what is measured so far, nothing run
+        return None
     print(f"-- {name}: {func}({kw})", flush=True)
     try:
         r = B.isolated(func, **kw)
@@ -60,6 +62,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--force", default="")
+    ap.add_argument("--cached", action="store_true", help="run nothing: write the manifest from results/ as it is")
     a = ap.parse_args()
     os.makedirs(RES, exist_ok=True)
     os.makedirs(FIG, exist_ok=True)
@@ -75,7 +78,8 @@ def main():
             modules=["pinneapple_condense"], out_dir=HERE, register=False,
             links={"report": "docs/research/physics_condensation.md",
                    "script": "examples/physics_condensation/run_benchmark.py"}) as ex:
-        R = {k: run(k, f, kw, "all" in force or k in force) for k, (f, kw) in studies.items()}
+        R = {k: run(k, f, kw, "all" in force or k in force, a.cached) for k, (f, kw) in studies.items()}
+        R = {k: r for k, r in R.items() if r is not None}
         if "accuracy" in R:
             acc = R["accuracy"]
             ex.add_file(F.accuracy(acc, os.path.join(FIG, "accuracy_vs_modes.png")))
@@ -102,7 +106,10 @@ def main():
                           "hier": meth.startswith("hierarchy")}
                     if meth == "hierarchy_m6":
                         kw["m"] = 6
-                    r = run(f"scaling_{meth}_{nb}", "scaling_point", kw, "all" in force or "scaling" in force)
+                    r = run(f"scaling_{meth}_{nb}", "scaling_point", kw, "all" in force or "scaling" in force,
+                            a.cached)
+                    if r is None:
+                        continue
                     p = pts.setdefault(nb, {"blocks": nb * nb})
                     if "failed" in r:
                         p[meth] = {"failed": r["failed"]}
@@ -111,6 +118,7 @@ def main():
                     key = "hierarchy" if meth.startswith("hierarchy") else meth
                     p[meth] = dict(r[key], peak_rss_gb=r["peak_rss_gb"])
             pts = [pts[k] for k in sorted(pts)]
+        if not a.quick and pts:
             json.dump(pts, open(os.path.join(RES, "scaling.json"), "w"), indent=1)
             ex.add_file(F.scaling(pts, os.path.join(FIG, "scaling.png")))
             big = [p for p in pts if "prepare_s" in p.get("hierarchy", {})][-1]
@@ -123,6 +131,7 @@ def main():
                     ex.check(f"hierarchy m=12 Tmax within 0.5 K of the fine reference ({p['blocks']} blocks)",
                              abs(p["hierarchy"]["Tmax"] - p["reference"]["Tmax"]) < 0.5, kind="verification",
                              detail=f"{p['hierarchy']['Tmax']:.3f} vs {p['reference']['Tmax']:.3f} K")
+        if not a.quick:
             for k in ("learned_32", "learned_64"):
                 if k in R and "adaptive_err" in R[k]:
                     ex.check(f"{k}: learned + verified Tmax within 0.05 K of all-exact condensation",

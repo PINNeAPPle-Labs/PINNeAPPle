@@ -1,0 +1,106 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_condensation",
+ "title": "Adaptive Physics Condensation: chip-package thermal",
+ "description": "Hierarchical static condensation of repeated blocks (microbumps, TSVs) with reduced interfaces, error-driven refinement and learned block operators, against a fine finite-volume reference and Keff homogenisation.",
+ "domain": "heat transfer",
+ "methods": [
+  "finite volumes",
+  "static condensation",
+  "nested dissection",
+  "Craig-Bampton",
+  "POD-GPR"
+ ],
+ "modules": [
+  "pinneapple_condense"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "err_Tmax_m8",
+   "value": 0.004695839999996565,
+   "unit": "K",
+   "how": "|Tmax condensed m=8 - fine FV|, [12, 12] blocks"
+  },
+  {
+   "name": "transient_err_Tmax",
+   "value": 0.001935563937912832,
+   "unit": "K",
+   "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
+  },
+  {
+   "name": "learned_32_speedup",
+   "value": 44.41025206966396,
+   "unit": "x",
+   "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "energy balance with reduced interfaces",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "estimator effectivity in [0.5, 2] for m >= 4",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "learned_32: learned + verified Tmax within 0.05 K of all-exact condensation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/accuracy_vs_modes.png",
+   "figures/keff_vs_fine.png",
+   "figures/refinement.png",
+   "figures/transient.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "report": "docs/research/physics_condensation.md",
+  "script": "examples/physics_condensation/run_benchmark.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "5e63494a",
+  "created": "2026-10-25T03:27:12Z",
+  "seconds": 1.64,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

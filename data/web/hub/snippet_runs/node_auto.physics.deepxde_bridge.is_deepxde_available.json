@@ -1,0 +1,12 @@
+{
+ "code_hash": "7fe52f1c95e474ac",
+ "figures": [],
+ "id": "node:auto.physics.deepxde_bridge.is_deepxde_available",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nFalse",
+ "timed_out": false
+}

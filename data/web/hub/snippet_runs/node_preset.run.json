@@ -1,0 +1,12 @@
+{
+ "code_hash": "bba0de31568ad645",
+ "figures": [],
+ "id": "node:preset.run",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 8.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Industrial preset -> pinneapple_presets.load(name).run(**overrides)\ninputs: [('params', 'params')]\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'preset': 'water_hammer_valve_closure', 'overrides': {}, 'fidelity': 'solver'}",
+ "timed_out": false
+}

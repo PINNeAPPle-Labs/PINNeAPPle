@@ -1,0 +1,12 @@
+{
+ "code_hash": "8767280abbcbb9fe",
+ "figures": [],
+ "id": "example:examples/security",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Security for scientific and industrial Physics AI (`pinneapple_security`) | security | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,5 @@
+# on top of `pip install .` (PINNeAPPle core: numpy, scipy, torch, pandas, matplotlib)
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+requests>=2.31  # the Ollama HTTP API (description mode only)

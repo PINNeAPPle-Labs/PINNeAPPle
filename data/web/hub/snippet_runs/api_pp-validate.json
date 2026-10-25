@@ -1,0 +1,12 @@
+{
+ "code_hash": "9d7ca349bbee8dbc",
+ "figures": [],
+ "id": "api:pp-validate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.validate(*args, **kwargs) -> 'ValidationReport'\nValidate ``model`` on ``problem``.",
+ "timed_out": false
+}

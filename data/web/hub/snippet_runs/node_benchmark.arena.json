@@ -1,0 +1,12 @@
+{
+ "code_hash": "052bc2cf35d19967",
+ "figures": [],
+ "id": "node:benchmark.arena",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINN benchmark arena -> pinneapple_tools.benchmark_suite.benchmark.PINNArenaBenchmark\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'problems': ['heat_1d', 'burgers_1d'], 'models': ['bench_mlp', 'bench_siren'], 'epochs': 200, 'n_col': 512}",
+ "timed_out": false
+}

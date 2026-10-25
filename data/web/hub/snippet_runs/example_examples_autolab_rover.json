@@ -1,0 +1,12 @@
+{
+ "code_hash": "91af0919ac3497cb",
+ "figures": [],
+ "id": "example:examples/autolab_rover",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Autonomous Physics Lab: the rover that learns the planet | vehicle dynamics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
+ "timed_out": false
+}

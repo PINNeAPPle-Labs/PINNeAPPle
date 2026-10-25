@@ -1,0 +1,12 @@
+{
+ "code_hash": "296426546caac78d",
+ "figures": [],
+ "id": "example:examples/getting_started",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Getting Started Examples — Tier 1: Explorer | general | curated\nscript_seconds 94.8 \nexit_code 0 \nstdout.relative_l2_error 0.915 \nfiles_produced 1",
+ "timed_out": false
+}

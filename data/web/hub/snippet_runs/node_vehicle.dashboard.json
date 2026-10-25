@@ -1,0 +1,12 @@
+{
+ "code_hash": "0cd4a42852b17748",
+ "figures": [],
+ "id": "node:vehicle.dashboard",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rover dashboard (animation + charts) -> pinneapple_simulation.vehicle.dashboard.render_frames + vehicle_dashboard (to_html / to_png / to_video); pinneapple_simulation.vehicle.viz.frame_view + follow_camera; pinneapple_tools.visualization.studio.planetary.border_visibility\ninputs: [('run', 'vehicle_run'), ('model', 'model'), ('surrogate', 'model')]\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'frames': 150, 'width': 1280, 'height': 720, 'field': 'normal_stress', 'clim_low': 5.0, 'clim_high': 95.0, 'field_alpha': 0.45, 'field_glow': 0.05, 'field_saturation': 0.6, 'sun_azimuth_deg': 160.0, 'title': 'NASA VIPER crossing a lunar crater', 'subtitle': 'Multibody dynamics, Wong-Reece wheels with slip-sinkage on GRC-1 (lunar g); 3-D ruts coloured by normal stress; zoo PINN surrogate; low Sun (12 deg)', 'footer': 'PINNeAPPle: pinneapple_simulation.vehicle, .terramechanics; pinneapple_tools.visualization.dashboard. VIPER geometry from public NASA figures (estimates listed in VIPER_SOURCES).', 'video': 'mp4+gif', 'fps': 12, 'gif_every': 2, 'horizon_check': True}",
+ "timed_out": false
+}

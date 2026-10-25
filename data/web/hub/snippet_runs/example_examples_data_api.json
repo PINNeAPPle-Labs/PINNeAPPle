@@ -1,0 +1,12 @@
+{
+ "code_hash": "19b2665872820999",
+ "figures": [],
+ "id": "example:examples/data_api",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Training Pipeline | data | not curated",
+ "timed_out": false
+}

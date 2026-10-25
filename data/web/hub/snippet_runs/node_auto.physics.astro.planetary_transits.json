@@ -1,0 +1,12 @@
+{
+ "code_hash": "8add4631133bcbc2",
+ "figures": [],
+ "id": "node:auto.physics.astro.planetary_transits",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "planetary transits -> pinneapple_physics.astro:planetary_transits\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

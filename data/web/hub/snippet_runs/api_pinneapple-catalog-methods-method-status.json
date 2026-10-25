@@ -1,0 +1,12 @@
+{
+ "code_hash": "4786827a23a8cd00",
+ "figures": [],
+ "id": "api:pinneapple-catalog-methods-method-status",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 3.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_catalog.methods.method_status() -> 'Dict[str, Dict]'\n``{id: {\"status\": ..., \"reference_tests\": [...], \"other_tests\": [...]}}`` from the last scan.",
+ "timed_out": false
+}

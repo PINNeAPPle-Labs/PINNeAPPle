@@ -1,0 +1,12 @@
+{
+ "code_hash": "6cb8841764a089fe",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.linear_elasticity_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.27,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='linear_elasticity_3d', dim=3, coords=('x', 'y', 'z'), fields=('ux', 'uy', 'uz'), pde=PDETermSpec(kind='linear_elasticity', fields=('ux', 'uy', 'uz'), coords=('x', 'y', 'z'), params={'E': 210000000000.0, 'nu': 0.3, 'lambda': 121153846153.84615, 'mu': 80769230769.23077}, meta={'formulation': '3d_elasticity'}), conditions=(ConditionSpec(name='fixed', kind='dirichlet', fields=('ux', 'uy', 'uz'), selector_type='tag', selector={'tag': 'fixed'}, value_fn=<function linear_elasticity_3d.<locals>.<lambda> at 0x7f6da3d867a0>, weight=50.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='traction', kind='neumann', fields=('ux', 'uy', 'uz'), selector_type='tag', selector={'tag': 'load'}, value_fn=<func",
+ "timed_out": false
+}

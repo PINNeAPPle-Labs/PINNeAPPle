@@ -1,0 +1,12 @@
+{
+ "code_hash": "b7275b3456af01fd",
+ "figures": [],
+ "id": "node:auto.systems.process_components.herschel_bulkley_stress",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(2.0)",
+ "timed_out": false
+}

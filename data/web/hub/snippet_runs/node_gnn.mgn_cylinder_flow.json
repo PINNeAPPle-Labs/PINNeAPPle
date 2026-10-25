@@ -1,0 +1,12 @@
+{
+ "code_hash": "277877b9caa3adc3",
+ "figures": [],
+ "id": "node:gnn.mgn_cylinder_flow",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MeshGraphNet on DeepMind cylinder flow (vortex shedding) -> pinneapple_data.datasets.deepmind_mgn.download_prefix / read_trajectories / cylinder_flow_to_tensors + pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN / train_dynamics / eval_rollout / frozen_ic_rmse\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'train_mb': 400, 'valid_mb': 60, 'steps': 3000, 'hidden': 64, 'message_passing': 6, 'rollout': 50, 'lr': 0.001, 'lr_final': 1e-05, 'noise': 0.003, 'seed': 0, 'data_dir': 'examples/meshgraphnet/_data/cylinder_flow'}",
+ "timed_out": false
+}

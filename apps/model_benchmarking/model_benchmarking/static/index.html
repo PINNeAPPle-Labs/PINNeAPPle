@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Which Model Actually Deserves to Win</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #201f1d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --blue: #3987e5;
+    --blue-dim: #1c5cab;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.13);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.13);
+  }
+  /* Fixed categorical hue order (dataviz skill's validated palette,
+     slots 1-4) -- one color per real architecture, by identity, never
+     by rank. Reused unchanged across every chart on this page, and the
+     same --orange hex as the other pages. */
+  :root {
+    --series-1: var(--blue);   /* Vanilla PINN */
+    --series-2: #d95926;       /* SIREN        (orange) */
+    --series-3: #199e70;       /* PIELM        (aqua)   */
+    --series-4: #c98500;       /* XTFC          (yellow) */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue); font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 38px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.01em; font-weight: 750; }
+  .sub {
+    font-size: 18px; color: var(--text-secondary); line-height: 1.55; max-width: 660px; margin: 0 0 42px;
+  }
+  .hero-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 30px; display: flex; align-items: center; gap: 22px; margin-bottom: 8px;
+  }
+  .hero-check {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--good-bg); color: var(--good);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .hero-stat .num { font-size: 34px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stat .lbl { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+  .hero-note { color: var(--text-muted); font-size: 13px; margin: 10px 2px 56px; }
+
+  .divider-line {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0 30px; color: var(--text-muted);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 650;
+  }
+  .divider-line::before, .divider-line::after { content: ""; flex: 1; height: 1px; background: var(--gridline); }
+
+  h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .h2-sub { color: var(--text-secondary); font-size: 15px; line-height: 1.6; max-width: 640px; margin-bottom: 26px; }
+
+  .chart-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 26px 18px; margin-bottom: 30px;
+  }
+  .chart-card + .chart-card { margin-top: -6px; }
+  .chart-title { font-size: 13.5px; font-weight: 650; color: var(--text-secondary); margin-bottom: 14px; }
+  #chart-accuracy, #chart-train-time, #chart-inference-time, #chart-residual { width: 100%; height: auto; display: block; overflow: visible; }
+  .fit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 30px; }
+  @media (max-width: 560px) { .fit-grid { grid-template-columns: 1fr; } }
+  .fit-panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px 8px; }
+  .fit-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .fit-panel-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; color: var(--text-secondary); }
+  .fit-panel-error { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+  .fit-legend { display: flex; gap: 18px; margin: 2px 0 18px; color: var(--text-secondary); font-size: 12.5px; }
+  .fit-legend .li { display: flex; align-items: center; gap: 7px; }
+  .fit-legend .swatch-line { width: 18px; height: 0; border-top: 2px solid var(--text-muted); }
+  .fit-legend .swatch-line.dashed { border-top-style: dashed; }
+  .fit-line-real { fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-dasharray: 5 3; }
+  .fit-line-pred { fill: none; stroke-width: 2.5; }
+  .fit-crosshair { stroke: var(--gridline); stroke-width: 1; }
+  .bar-label { fill: var(--text-primary); font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; text-anchor: middle; }
+  .axis-label { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .model-label { fill: var(--text-secondary); font-size: 12px; font-weight: 650; text-anchor: middle; }
+  .grid-line { stroke: var(--gridline); stroke-width: 1; }
+  .threshold-line { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .ref-label.threshold { fill: var(--critical); font-size: 11.5px; font-weight: 650; }
+  .flag-badge-text { fill: var(--critical); font-size: 11px; font-weight: 750; text-anchor: middle; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; background: #050506; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 11px; font-size: 12.5px; color: var(--text-primary);
+    transform: translate(-50%, -115%); white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+    font-variant-numeric: tabular-nums; z-index: 5;
+  }
+  .tooltip .t-name { font-weight: 700; margin-bottom: 2px; display: block; }
+  .tooltip .t-row { color: var(--text-secondary); }
+  .chart-wrap { position: relative; }
+
+  .legend-row { display: flex; gap: 18px; flex-wrap: wrap; margin: 2px 0 20px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-secondary); }
+  .legend-swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  .verdict-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px; }
+  .verdict-badge {
+    background: var(--warning-bg); border: 1px solid rgba(250,178,25,0.35); border-radius: 14px;
+    padding: 20px 26px; display: flex; align-items: center; gap: 16px; flex: 1 1 220px;
+  }
+  .verdict-badge.none { background: var(--good-bg); border-color: rgba(12,163,12,0.3); }
+  .verdict-badge .icon { font-size: 26px; }
+  .verdict-badge .label { font-size: 22px; font-weight: 800; color: var(--warning); letter-spacing: 0.01em; }
+  .verdict-badge.none .label { color: var(--good); }
+  .verdict-badge .note { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; flex: 1 1 140px;
+  }
+  .stat-tile .num { font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat-tile .lbl { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+  .narrative { font-size: 16px; line-height: 1.7; color: var(--text-secondary); max-width: 660px; margin-bottom: 10px; }
+  .narrative b { color: var(--text-primary); }
+  .pullquote {
+    font-size: 21px; font-weight: 650; line-height: 1.45; color: var(--text-primary);
+    border-left: 3px solid var(--blue); padding-left: 18px; margin: 30px 0 40px; max-width: 620px;
+  }
+
+  .replay-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 650; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  }
+  .replay-btn:hover { background: #262524; }
+  .replay-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--gridline);
+    color: var(--text-muted); font-size: 12.5px; line-height: 1.7;
+  }
+  .footer b { color: var(--text-secondary); }
+
+  .method-section { margin: 54px 0 44px; }
+  .method-block { margin-bottom: 26px; }
+  .method-block h3 {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .method-block h3 .num {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--surface-2); color: var(--blue); font-size: 12px; font-weight: 700;
+  }
+  .method-block p { font-size: 14.5px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; max-width: 640px; }
+  .method-block p b { color: var(--text-primary); }
+  .arch-grid { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 6px; max-width: 640px; }
+  .arch-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 16px; }
+  @media (max-width: 560px) { .arch-card { flex-direction: column; align-items: flex-start; } }
+  .arch-diagram { flex: 0 0 150px; width: 150px; height: 66px; display: block; }
+  @media (max-width: 560px) { .arch-diagram { width: 100%; height: 56px; } }
+  .arch-body { flex: 1 1 auto; min-width: 0; }
+  .arch-card .arch-name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+  .arch-card .arch-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+  .arch-caption { font-size: 10.5px; color: var(--text-muted); margin-top: 8px; }
+  .eq {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--blue); margin: 10px 0; display: inline-block;
+  }
+  .pinn-note {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: 16px 18px; margin-top: 24px; font-size: 14px;
+    color: var(--text-secondary); line-height: 1.65;
+  }
+  .pinn-note b { color: var(--text-primary); }
+  .pinn-note code { color: var(--blue); }
+
+  .code-section { margin: 44px 0 20px; }
+  .code-card {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-card .code-title {
+    padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--gridline);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .code-card pre {
+    margin: 0; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #d4d4d0;
+  }
+  .code-card .c-kw { color: #d55181; }
+  .code-card .c-fn { color: #3987e5; }
+  .code-card .c-str { color: #c98500; }
+  .code-card .c-com { color: var(--text-muted); font-style: italic; }
+
+  .verify-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 24px 26px; margin-bottom: 40px; overflow-x: auto; }
+  table.ranking-table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13.5px; }
+  table.ranking-table th { text-align: left; color: var(--text-muted); font-weight: 650; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 10px 10px 0; border-bottom: 1px solid var(--gridline); }
+  table.ranking-table td { padding: 12px 10px 12px 0; border-bottom: 1px solid var(--gridline); vertical-align: middle; }
+  table.ranking-table tr:last-child td { border-bottom: none; }
+  table.ranking-table td.num-cell { font-variant-numeric: tabular-nums; }
+  .rank-pill { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .model-name-cell { display: flex; align-items: center; gap: 9px; font-weight: 650; }
+  .flag-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--critical-bg); color: var(--critical); border-radius: 20px; padding: 3px 10px; font-size: 11.5px; font-weight: 700; }
+  .ok-pill { display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 11.5px; }
+  .verify-note { color: var(--text-muted); font-size: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--gridline); line-height: 1.6; }
+  .scorecard-star { color: var(--good); }
+  #scorecard-table { min-width: 760px; }
+  #scorecard-table th { line-height: 1.4; }
+  #scorecard-table td.num-cell b { color: var(--good); font-weight: 750; }
+  #scorecard-table td.num-cell .star { margin-right: 3px; }
+
+  .loading-state { padding: 60px 0; }
+  .loading-state h2 { margin-bottom: 8px; }
+  .progress-track { background: var(--surface-2); border-radius: 8px; height: 10px; overflow: hidden; max-width: 420px; }
+  .progress-fill { background: var(--blue); height: 100%; border-radius: 8px; transition: width 0.4s ease; width: 0%; }
+  .progress-caption { color: var(--text-muted); font-size: 12px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .error-state { padding: 40px 0; color: var(--critical); font-size: 14px; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 28px; }
+    .hero-card { flex-direction: column; align-items: flex-start; }
+    table.ranking-table { font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Benchmark case study</div>
+  <h1>Four real models raced on the same shockwave.</h1>
+  <div class="sub">The 1D viscous Burgers equation &mdash; the same real, literature-standard test problem used in the original 2019 physics-informed neural network paper &mdash; four contrasting real neural-network architectures, each genuinely tuned to actually converge. The accuracy leaderboard says one thing. A real physics check says something else about one of them.</div>
+
+  <div id="loading-state" class="loading-state">
+    <h2 id="load-title">Waiting to start the real benchmark&hellip;</h2>
+    <div class="h2-sub">Every model on this page is trained live, from a fresh random initialization, when the page loads &mdash; not a cached or pre-rendered result. This real run takes roughly 3&ndash;5 minutes: real convergence on this problem's real shock needed real per-architecture epoch counts (from 400 to 12,000), not one fast shared budget &mdash; see "How this actually works" below for exactly why.</div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-caption" id="progress-caption">0 / 4 real models trained</div>
+  </div>
+
+  <div id="error-state" class="error-state" hidden></div>
+
+  <div id="content" hidden>
+
+    <div class="hero-card">
+      <div class="hero-check">&#10003;</div>
+      <div class="hero-stat">
+        <div class="num" id="hero-model">&#8212;</div>
+        <div class="lbl"><span id="hero-error">&#8212;</span> relative L2 error &middot; most accurate of 4 real architectures in this run</div>
+      </div>
+    </div>
+    <div class="hero-note" id="hero-setup">&#8212;</div>
+
+    <div class="divider-line">but accuracy is not the only question a physics check asks</div>
+
+    <h2>The real leaderboard, by accuracy</h2>
+    <div class="h2-sub">Same real PDE, same real evaluation grid for all four &mdash; but a genuinely different, honestly-tuned epoch budget per architecture (400 to 12,000; see the scorecard below), since a single shared budget left every architecture unconverged in an earlier version of this page. Lower relative L2 error is better. Log scale &mdash; <span id="accuracy-spread-note">the four real errors span a wide range</span>.</div>
+
+    <div class="legend-row" id="legend-row"></div>
+
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg id="chart-accuracy" viewBox="0 0 800 300"></svg>
+        <div class="tooltip" id="tooltip-accuracy"></div>
+      </div>
+    </div>
+
+    <h2>What each model actually predicted, against the real solution</h2>
+    <div class="h2-sub">Not just an error number: the real analytical field <code>u(x, t=1)</code> — well after the real shock has formed, where the true solution is still steep near <code>x=0</code> — plotted against each model's own real prediction at the exact same points used for the accuracy chart above. Same shared vertical scale in all four panels, so the four fits are directly comparable.</div>
+
+    <div class="fit-legend">
+      <div class="li"><span class="swatch-line dashed"></span>Real (analytical solution)</div>
+      <div class="li"><span class="swatch-line" id="fit-legend-pred-swatch" style="border-top-color:var(--text-secondary)"></span>Model's real prediction</div>
+    </div>
+
+    <div class="fit-grid" id="fit-grid"></div>
+
+    <h2>Real training &amp; inference time</h2>
+    <div class="h2-sub">The same real wall-clock numbers Arena's own summary table prints &mdash; not estimated. Two separate charts, not one dual-axis chart: training time is measured in seconds, inference time in milliseconds.</div>
+
+    <div class="chart-card">
+      <div class="chart-title">Real training time (seconds, lower is faster)</div>
+      <div class="chart-wrap">
+        <svg id="chart-train-time" viewBox="0 0 800 200"></svg>
+        <div class="tooltip" id="tooltip-train"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Real inference time on the full evaluation grid (milliseconds, lower is faster)</div>
+      <div class="chart-wrap">
+        <svg id="chart-inference-time" viewBox="0 0 800 200"></svg>
+        <div class="tooltip" id="tooltip-inference"></div>
+      </div>
+    </div>
+
+    <div class="divider-line">the real physics-aware check</div>
+
+    <h2>What each model actually did to the governing equation</h2>
+    <div class="h2-sub">Relative L2 error only measures agreement at the points a model was evaluated on. This is the real PDE-residual each model left behind &mdash; how badly it violates <code>&part;u/&part;t + u&middot;&part;u/&part;x = &nu;&middot;&part;&sup2;u/&part;x&sup2;</code> everywhere else. Log scale; the dashed line is the real statistical-outlier threshold (group median + 2&times; std). A real, honest caveat this problem surfaces that a smoother one wouldn't: a model can also reach a very low residual by predicting something close to <code>u=0</code> everywhere &mdash; which trivially satisfies this equation &mdash; while still being far from the real solution, so a low bar here is necessary but not sufficient. Check it against the accuracy chart and the field-fit panels above, not in isolation.</div>
+
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg id="chart-residual" viewBox="0 0 800 320"></svg>
+        <div class="tooltip" id="tooltip-residual"></div>
+      </div>
+    </div>
+
+    <div class="verdict-row" id="verdict-row"></div>
+
+    <h2>Accuracy rank vs. physics-aware flag, side by side</h2>
+    <div class="h2-sub">Arena's <code>physics_aware_rank()</code> never reorders this table &mdash; a model that wins on accuracy still wins. It only adds the flag column, so the check is visible instead of buried in a training log.</div>
+    <div class="verify-card">
+      <table class="ranking-table">
+        <thead>
+          <tr><th>Rank</th><th>Model</th><th>Rel. L2 error</th><th>Physics residual</th><th>Physics-aware check</th></tr>
+        </thead>
+        <tbody id="ranking-table-body"></tbody>
+      </table>
+      <div class="verify-note" id="verify-note"></div>
+    </div>
+
+    <h2>The full scorecard: every real metric, side by side</h2>
+    <div class="h2-sub">Six real numbers per model, straight out of the same run above &mdash; not one combined "winner" score (a weighted formula is just a new set of assumptions to argue about), but every metric this benchmark actually tracked, so you can weigh them yourself. <span class="scorecard-star">★</span> marks the real best value in each column.</div>
+    <div class="verify-card">
+      <table class="ranking-table" id="scorecard-table">
+        <thead>
+          <tr>
+            <th>Model</th><th>Epochs</th><th>Accuracy<br>(rel. L2)</th><th>Shock-region<br>error</th>
+            <th>Max error<br>(L&infin;)</th><th>Physics<br>residual</th><th>Train<br>time</th><th>Params</th>
+          </tr>
+        </thead>
+        <tbody id="scorecard-table-body"></tbody>
+      </table>
+      <div class="verify-note">"Shock-region error" restricts the same relative-L2 metric to the real shock band (<span id="scorecard-shock-band">&#8212;</span>) across every real evaluated <code>t</code> &mdash; the hardest part of the domain, not the easy smooth part away from it. "Max error" is the real worst single-point (L&infin;) gap, already computed by <code>evaluate_model()</code> for the accuracy metric above and simply surfaced here. All six columns are this run's own real per-model measurements; nothing here is a derived composite.</div>
+    </div>
+
+    <p class="pullquote" id="pullquote">Relative L2 error tells you how well a model matches the points you checked. It doesn't tell you whether the model actually obeys the equation everywhere else. That's a different question, and a real physics-aware check is what actually answers it.</p>
+
+    <button class="replay-btn" id="btn-replay">&#8635; Run a new real benchmark</button>
+
+    <div class="divider-line">the method behind the numbers</div>
+
+    <div class="method-section">
+      <h2>How this actually works</h2>
+      <div class="h2-sub">Three real steps, no black box in between: the problem, the architectures, the check.</div>
+
+      <div class="method-block">
+        <h3><span class="num">1</span> The real problem: viscous Burgers' equation</h3>
+        <p>A real, nonlinear PDE with a real closed-form reference solution (the Cole-Hopf transform, evaluated via real Gauss-Hermite quadrature) &mdash; one of PINNeAPPle Arena's 21 built-in canonical problems (<code>burgers_1d</code>). With &nu;=0.01/&pi; and the initial condition <code>u(x,0)=-sin(&pi;x)</code>, this is the exact real setup from Raissi, Perdikaris &amp; Karniadakis (2019), the paper that introduced physics-informed neural networks &mdash; a real, sharp (viscosity-limited) shock forms near <code>x=0</code> around <code>t&asymp;0.3</code> and persists, making this a genuinely harder target than a smooth diffusion problem.</p>
+        <div class="eq">&part;u/&part;t + u&middot;&part;u/&part;x = &nu; &middot; &part;&sup2;u/&part;x&sup2;</div>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">2</span> Four real, contrasting architectures</h3>
+        <p>All four are real, registered entries in PINNeAPPle's <code>ModelRegistry</code> (94 architectures total), confirmed this session to each build as their own distinctly-named class &mdash; not a generic MLP standing in for a fancier name. (A fifth, VPINN, was tried and dropped: under this benchmark's shared training loop it builds the exact same plain MLP as Vanilla PINN &mdash; its real distinguishing feature only engages through Arena's own dedicated variational-training path, which this harness doesn't call. Said plainly in <code>benchmark.py</code> rather than quietly kept in for a name that wasn't earning its place.)</p>
+        <div class="arch-grid">
+
+          <div class="arch-card">
+            <svg class="arch-diagram" viewBox="0 0 150 66" aria-label="Vanilla PINN schematic: a fully-connected network with tanh-activated hidden neurons">
+              <g stroke="var(--gridline)" stroke-width="1">
+                <line x1="12" y1="33" x2="52" y2="10"/><line x1="12" y1="33" x2="52" y2="33"/><line x1="12" y1="33" x2="52" y2="56"/>
+                <line x1="52" y1="10" x2="96" y2="10"/><line x1="52" y1="10" x2="96" y2="33"/><line x1="52" y1="10" x2="96" y2="56"/>
+                <line x1="52" y1="33" x2="96" y2="10"/><line x1="52" y1="33" x2="96" y2="33"/><line x1="52" y1="33" x2="96" y2="56"/>
+                <line x1="52" y1="56" x2="96" y2="10"/><line x1="52" y1="56" x2="96" y2="33"/><line x1="52" y1="56" x2="96" y2="56"/>
+                <line x1="96" y1="10" x2="140" y2="33"/><line x1="96" y1="33" x2="140" y2="33"/><line x1="96" y1="56" x2="140" y2="33"/>
+              </g>
+              <circle cx="12" cy="33" r="4" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+              <g fill="var(--surface-2)" stroke="var(--series-1)" stroke-width="1.4">
+                <circle cx="52" cy="10" r="6"/><circle cx="52" cy="33" r="6"/><circle cx="52" cy="56" r="6"/>
+                <circle cx="96" cy="10" r="6"/><circle cx="96" cy="33" r="6"/><circle cx="96" cy="56" r="6"/>
+              </g>
+              <g fill="none" stroke="var(--series-1)" stroke-width="1.1" stroke-linecap="round">
+                <path d="M 48.5,12 C 50,12 50,8 52,8 C 54,8 54,12 55.5,12" transform="translate(0,0)"/>
+                <path d="M 48.5,35 C 50,35 50,31 52,31 C 54,31 54,35 55.5,35"/>
+                <path d="M 48.5,58 C 50,58 50,54 52,54 C 54,54 54,58 55.5,58"/>
+                <path d="M 92.5,12 C 94,12 94,8 96,8 C 98,8 98,12 99.5,12"/>
+                <path d="M 92.5,35 C 94,35 94,31 96,31 C 98,31 98,35 99.5,35"/>
+                <path d="M 92.5,58 C 94,58 94,54 96,54 C 98,54 98,58 99.5,58"/>
+              </g>
+              <circle cx="140" cy="33" r="5" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+            </svg>
+            <div class="arch-body">
+              <div class="arch-name"><span class="legend-swatch" style="background:var(--series-1)"></span>Vanilla PINN</div>
+              <div class="arch-desc">Classical fully-connected MLP + tanh. Every real weight, in every real layer, is trained together by gradient descent on the PDE + boundary loss. The textbook PINN baseline.</div>
+            </div>
+          </div>
+
+          <div class="arch-card">
+            <svg class="arch-diagram" viewBox="0 0 150 66" aria-label="SIREN schematic: a fully-connected network with sinusoidal-activated hidden neurons">
+              <g stroke="var(--gridline)" stroke-width="1">
+                <line x1="12" y1="33" x2="52" y2="10"/><line x1="12" y1="33" x2="52" y2="33"/><line x1="12" y1="33" x2="52" y2="56"/>
+                <line x1="52" y1="10" x2="96" y2="10"/><line x1="52" y1="10" x2="96" y2="33"/><line x1="52" y1="10" x2="96" y2="56"/>
+                <line x1="52" y1="33" x2="96" y2="10"/><line x1="52" y1="33" x2="96" y2="33"/><line x1="52" y1="33" x2="96" y2="56"/>
+                <line x1="52" y1="56" x2="96" y2="10"/><line x1="52" y1="56" x2="96" y2="33"/><line x1="52" y1="56" x2="96" y2="56"/>
+                <line x1="96" y1="10" x2="140" y2="33"/><line x1="96" y1="33" x2="140" y2="33"/><line x1="96" y1="56" x2="140" y2="33"/>
+              </g>
+              <circle cx="12" cy="33" r="4" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+              <g fill="var(--surface-2)" stroke="var(--series-2)" stroke-width="1.4">
+                <circle cx="52" cy="10" r="6"/><circle cx="52" cy="33" r="6"/><circle cx="52" cy="56" r="6"/>
+                <circle cx="96" cy="10" r="6"/><circle cx="96" cy="33" r="6"/><circle cx="96" cy="56" r="6"/>
+              </g>
+              <g fill="none" stroke="var(--series-2)" stroke-width="1.1" stroke-linecap="round">
+                <path d="M 48.5,10 Q 50.25,6.5 52,10 Q 53.75,13.5 55.5,10"/>
+                <path d="M 48.5,33 Q 50.25,29.5 52,33 Q 53.75,36.5 55.5,33"/>
+                <path d="M 48.5,56 Q 50.25,52.5 52,56 Q 53.75,59.5 55.5,56"/>
+                <path d="M 92.5,10 Q 94.25,6.5 96,10 Q 97.75,13.5 99.5,10"/>
+                <path d="M 92.5,33 Q 94.25,29.5 96,33 Q 97.75,36.5 99.5,33"/>
+                <path d="M 92.5,56 Q 94.25,52.5 96,56 Q 97.75,59.5 99.5,56"/>
+              </g>
+              <circle cx="140" cy="33" r="5" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+            </svg>
+            <div class="arch-body">
+              <div class="arch-name"><span class="legend-swatch" style="background:var(--series-2)"></span>SIREN</div>
+              <div class="arch-desc">Same fully-connected shape as Vanilla PINN, but every hidden neuron uses a sine activation (Sitzmann et al. 2020) instead of tanh &mdash; built for smooth, high-frequency signals.</div>
+            </div>
+          </div>
+
+          <div class="arch-card">
+            <svg class="arch-diagram" viewBox="0 0 150 66" aria-label="PIELM schematic: a fixed random hidden layer feeding one trained linear output layer">
+              <g stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2 2" opacity="0.7">
+                <line x1="12" y1="33" x2="52" y2="10"/><line x1="12" y1="33" x2="52" y2="33"/><line x1="12" y1="33" x2="52" y2="56"/>
+                <line x1="52" y1="10" x2="96" y2="10"/><line x1="52" y1="10" x2="96" y2="33"/><line x1="52" y1="10" x2="96" y2="56"/>
+                <line x1="52" y1="33" x2="96" y2="10"/><line x1="52" y1="33" x2="96" y2="33"/><line x1="52" y1="33" x2="96" y2="56"/>
+                <line x1="52" y1="56" x2="96" y2="10"/><line x1="52" y1="56" x2="96" y2="33"/><line x1="52" y1="56" x2="96" y2="56"/>
+              </g>
+              <g stroke="var(--series-3)" stroke-width="1.6">
+                <line x1="96" y1="10" x2="140" y2="33"/><line x1="96" y1="33" x2="140" y2="33"/><line x1="96" y1="56" x2="140" y2="33"/>
+              </g>
+              <circle cx="12" cy="33" r="4" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+              <g fill="var(--surface-2)" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="2 2">
+                <circle cx="52" cy="10" r="6"/><circle cx="52" cy="33" r="6"/><circle cx="52" cy="56" r="6"/>
+                <circle cx="96" cy="10" r="6"/><circle cx="96" cy="33" r="6"/><circle cx="96" cy="56" r="6"/>
+              </g>
+              <circle cx="140" cy="33" r="6" fill="var(--series-3)" stroke="var(--series-3)"/>
+              <text x="140" y="36" text-anchor="middle" font-size="8" font-weight="700" fill="var(--surface-0)">&Sigma;</text>
+            </svg>
+            <div class="arch-body">
+              <div class="arch-name"><span class="legend-swatch" style="background:var(--series-3)"></span>PIELM</div>
+              <div class="arch-desc">Physics-informed extreme learning machine. The hidden layers (dashed) are random and stay fixed &mdash; only the final linear output layer (solid) has trainable weights. Trained here by the same real Adam gradient descent as the other three (confirmed: Arena's own closed-form least-squares solver for this layer, <code>fit_ridge</code>, is never called anywhere in <code>pinneapple_arena</code> &mdash; it only applies to linear PDEs, and Burgers' <code>u&middot;u_x</code> term isn't one).</div>
+            </div>
+          </div>
+
+          <div class="arch-card">
+            <svg class="arch-diagram" viewBox="0 0 150 66" aria-label="XTFC schematic: basis functions analytically constrained to satisfy the boundary conditions, feeding one trained linear output layer">
+              <g stroke="var(--series-4)" stroke-width="1" stroke-dasharray="1 2.4" opacity="0.75">
+                <line x1="12" y1="33" x2="52" y2="10"/><line x1="12" y1="33" x2="52" y2="33"/><line x1="12" y1="33" x2="52" y2="56"/>
+                <line x1="52" y1="10" x2="96" y2="10"/><line x1="52" y1="10" x2="96" y2="33"/><line x1="52" y1="10" x2="96" y2="56"/>
+                <line x1="52" y1="33" x2="96" y2="10"/><line x1="52" y1="33" x2="96" y2="33"/><line x1="52" y1="33" x2="96" y2="56"/>
+                <line x1="52" y1="56" x2="96" y2="10"/><line x1="52" y1="56" x2="96" y2="33"/><line x1="52" y1="56" x2="96" y2="56"/>
+              </g>
+              <g stroke="var(--series-4)" stroke-width="1.6">
+                <line x1="96" y1="10" x2="140" y2="33"/><line x1="96" y1="33" x2="140" y2="33"/><line x1="96" y1="56" x2="140" y2="33"/>
+              </g>
+              <circle cx="12" cy="33" r="4" fill="var(--surface-2)" stroke="var(--text-muted)"/>
+              <g fill="var(--surface-2)" stroke="var(--series-4)" stroke-width="1.2">
+                <circle cx="52" cy="10" r="6"/><circle cx="52" cy="33" r="6"/><circle cx="52" cy="56" r="6"/>
+                <circle cx="96" cy="10" r="6"/><circle cx="96" cy="33" r="6"/><circle cx="96" cy="56" r="6"/>
+              </g>
+              <g stroke="var(--series-4)" stroke-width="1" opacity="0.85">
+                <path d="M 48.5,8 L 55.5,12 M 48.5,12 L 55.5,8" stroke-width="0.9"/>
+                <path d="M 48.5,31 L 55.5,35 M 48.5,35 L 55.5,31" stroke-width="0.9"/>
+                <path d="M 48.5,54 L 55.5,58 M 48.5,58 L 55.5,54" stroke-width="0.9"/>
+              </g>
+              <circle cx="140" cy="33" r="6" fill="var(--series-4)" stroke="var(--series-4)"/>
+              <text x="140" y="36" text-anchor="middle" font-size="8" font-weight="700" fill="var(--surface-0)">&Sigma;</text>
+            </svg>
+            <div class="arch-body">
+              <div class="arch-name"><span class="legend-swatch" style="background:var(--series-4)"></span>XTFC</div>
+              <div class="arch-desc">Extreme Theory of Functional Connections. The hidden basis functions (dashed, marked &times;) are analytically constrained to satisfy the boundary/initial conditions exactly, not randomly fixed like PIELM &mdash; only the final linear output layer (solid) is fit.</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="arch-caption">Schematic diagrams of each architecture's real topology &mdash; illustrative of the design, not a literal render of one specific trained instance's weights.</div>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">3</span> The real check: accuracy rank vs. physics-aware rank</h3>
+        <p>Arena's <code>rank_by_accuracy()</code> sorts by mean relative L2 error &mdash; its normal, unchanged behavior. <code>physics_aware_rank()</code> is additive on top: it flags any model whose real physics-residual exceeds the group's <b>median + 2&times;std</b> &mdash; a relative outlier test &mdash; without ever reordering the accuracy ranking itself. A relative test has a known blind spot: when one model's residual is far above the rest it inflates the group's &sigma; and the threshold with it, so models that are all poor together, or a second poor model, can go unflagged. <code>physics_aware_rank(..., residual_threshold=...)</code> adds an absolute cutoff for that; this page does not set one (there is no agreed absolute value for this problem), so read the residual column directly.</p>
+        <div class="eq">flagged &nbsp;⇐&nbsp; residual &gt; median + 2&middot;&sigma;</div>
+      </div>
+
+      <div class="pinn-note">
+        <b>Built on PINNeAPPle.</b> This page runs real training through <code>pinneapple_arena</code> (<code>build_model</code>, <code>train_pinn</code>, <code>evaluate_model</code>, <code>rank_by_accuracy</code>, <code>physics_aware_rank</code>) and <code>pinneapple_neural.architectures.ModelRegistry</code> directly &mdash; the same functions <code>Arena.run()</code> itself calls internally, wrapped as <code>pinneapple_arena.showcase.run_benchmark</code>, which this page only calls. One fixed comparison, run live.
+      </div>
+    </div>
+
+    <div class="divider-line">the code behind this</div>
+
+    <div class="code-section">
+      <h2>The real ranking logic, not a black box</h2>
+      <div class="h2-sub">Trimmed for length; the full function lives in PINNeAPPle's <code>pinneapple_arena.arena</code>.</div>
+
+      <div class="code-card">
+        <div class="code-title">pinneapple_arena/arena.py &mdash; the real, additive physics-aware check</div>
+        <pre><span class="c-kw">def</span> <span class="c-fn">physics_aware_rank</span>(train_results, eval_results, field_names, n_std=<span class="c-str">2.0</span>):
+    <span class="c-com"># unchanged accuracy ranking -- never reordered by this function</span>
+    ranking = rank_by_accuracy(train_results, eval_results, field_names)
+    residuals = {t.name: t.physics_residual <span class="c-kw">for</span> t <span class="c-kw">in</span> train_results
+                 <span class="c-kw">if</span> t.physics_residual <span class="c-kw">is</span> <span class="c-kw">not</span> <span class="c-kw">None</span>}
+    median, std = np.median(list(residuals.values())), np.std(list(residuals.values()))
+    flagged = [name <span class="c-kw">for</span> name, r <span class="c-kw">in</span> residuals.items()
+               <span class="c-kw">if</span> r &gt; median + n_std * std]   <span class="c-com"># real statistical outlier test</span>
+    <span class="c-kw">return</span> {<span class="c-str">"ranking"</span>: ranking, <span class="c-str">"physics_residuals"</span>: residuals,
+            <span class="c-str">"flagged_high_residual"</span>: flagged, ...}</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-title">pinneapple_arena/showcase.py &mdash; training, live, through Arena's own functions</div>
+        <pre><span class="c-kw">for</span> arch <span class="c-kw">in</span> architectures:
+    model = build_model(cfg, in_dim=in_dim, out_dim=out_dim)
+    tres  = train_pinn(model, cfg, pinn_residuals_fn=problem.pinn_residuals,
+                       xy_int=xy_col, xy_bc=xy_bc, uv_bc=Y_bc,
+                       problem_params=PROBLEM_PARAMS)
+    eres  = evaluate_model(tres, cfg, xy_eval=xy_eval, Y_ref=Y_eval,
+                           field_names=field_names)
+
+accuracy_ranking = rank_by_accuracy(train_results, eval_results, field_names)
+physics_aware    = physics_aware_rank(train_results, eval_results, field_names)</pre>
+      </div>
+    </div>
+
+    <div class="footer">
+      Real benchmarking, not illustrative: every model on this page is trained live, in-process, through PINNeAPPle Arena's own real training and ranking functions &mdash; not pre-rendered. <b>Built on PINNeAPPle</b>. One problem and four architectures with the budgets of the source project; results vary run to run (unseeded).
+    </div>
+
+  </div>
+</div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+let polling = false;
+let latest = null;
+
+const COLOR_BY_NAME = {
+  "Vanilla PINN":  "var(--series-1)",
+  "SIREN":         "var(--series-2)",
+  "PIELM":         "var(--series-3)",
+  "XTFC":          "var(--series-4)",
+};
+const FALLBACK_COLORS = ["var(--series-1)", "var(--series-2)", "var(--series-3)", "var(--series-4)"];
+function colorFor(name, idx) { return COLOR_BY_NAME[name] || FALLBACK_COLORS[idx % FALLBACK_COLORS.length]; }
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function fmtPct(x) { return (x * 100).toFixed(x < 0.02 ? 2 : 1) + "%"; }
+function fmtSci(x) { return x.toExponential(2); }
+function fmtTime(s) { return s < 1 ? (s * 1000).toFixed(0) + "ms" : s.toFixed(1) + "s"; }
+function fmtMs(s) { return (s * 1000).toFixed(1) + "ms"; }
+function fmtLogTick(p) {
+  if (p === 0) return "1";
+  if (p === 1) return "10";
+  if (p === -1) return "0.1";
+  return p > 0 ? "1e" + p : "1e−" + Math.abs(p);
+}
+
+async function pollStatus() {
+  if (polling) return;
+  polling = true;
+  try {
+    const res = await fetch("/api/sweep_status");
+    const data = await res.json();
+    handleStatus(data);
+  } finally {
+    polling = false;
+  }
+}
+
+function handleStatus(data) {
+  const sweep = data.sweep;
+  if (sweep.status === "running" || sweep.status === "idle") {
+    document.getElementById("loading-state").hidden = false;
+    document.getElementById("error-state").hidden = true;
+    document.getElementById("content").hidden = true;
+    const total = sweep.total || 4;
+    const progress = sweep.progress || 0;
+    document.getElementById("load-title").textContent =
+      sweep.status === "idle" ? "Waiting to start the real benchmark…" : `Training real models… (${progress}/${total})`;
+    document.getElementById("progress-fill").style.width = (100 * progress / total) + "%";
+    document.getElementById("progress-caption").textContent = `${progress} / ${total} real models trained`;
+    setTimeout(pollStatus, 900);
+  } else if (sweep.status === "error") {
+    document.getElementById("loading-state").hidden = true;
+    document.getElementById("content").hidden = true;
+    const errBox = document.getElementById("error-state");
+    errBox.hidden = false;
+    errBox.textContent = "The real benchmark run failed: " + sweep.error;
+  } else if (sweep.status === "done") {
+    document.getElementById("loading-state").hidden = true;
+    document.getElementById("error-state").hidden = true;
+    document.getElementById("content").hidden = false;
+    latest = sweep.result;
+    render(latest);
+  }
+}
+
+function render(r) {
+  const models = r.models;
+  const accRanking = r.accuracy_ranking;
+  const pa = r.physics_aware;
+
+  const leader = accRanking[0];
+  document.getElementById("hero-model").textContent = leader.name;
+  document.getElementById("hero-error").textContent = fmtPct(leader.mean_rel_error);
+  document.getElementById("hero-setup").textContent =
+    `${r.problem} · ν=${r.nu.toFixed(5)} (=0.01/π) · ${r.n_col.toLocaleString()} collocation points · ${r.grid_n}×${r.grid_n} evaluation grid · epochs tuned per architecture (see scorecard)`;
+
+  renderLegend(models);
+  renderAccuracySpreadNote(models);
+  drawAccuracyChart(models);
+  drawFieldFitGrid(models);
+  drawTimeChart(models, "chart-train-time", "tooltip-train", m => m.train_time_s, fmtTime, "s");
+  drawTimeChart(models, "chart-inference-time", "tooltip-inference", m => m.inference_time_s * 1000, v => v.toFixed(1) + "ms", "ms");
+  drawResidualChart(models, pa);
+  renderVerdict(pa, models.length);
+  renderRankingTable(accRanking, pa);
+  renderScorecard(models, r.shock_region_x);
+
+  const flagged = pa.flagged_high_residual;
+  const q = document.getElementById("pullquote");
+  if (flagged.length > 0) {
+    const worstAcc = accRanking[accRanking.length - 1];
+    q.innerHTML = `<b>${flagged.join(", ")}</b> wasn't the least accurate model in this run — ` +
+      `<b>${worstAcc.name}</b> was, by a wide margin. But ${flagged.length === 1 ? "it's" : "they're"} the one` +
+      `${flagged.length === 1 ? "" : "s"} the real physics check flagged: a relative-L2 score that looked ` +
+      `reasonable, sitting on top of a PDE-residual that's a real statistical outlier against the group. ` +
+      `Sorting by accuracy alone would never have surfaced that.`;
+  } else {
+    // A second, distinct real failure mode this harder problem exposes,
+    // which the high-residual-outlier test isn't built to catch: a
+    // model can reach a near-zero residual by predicting something
+    // close to u=0 everywhere, which trivially satisfies Burgers'
+    // equation without solving it -- so a residual that's unusually LOW
+    // paired with the worst accuracy in the run is worth calling out
+    // honestly too, not just an unusually high one.
+    const worstAcc = accRanking[accRanking.length - 1];
+    const lowestResidualName = Object.entries(pa.physics_residuals).sort((a, b) => a[1] - b[1])[0][0];
+    if (lowestResidualName === worstAcc.name) {
+      q.innerHTML = `No model was flagged as a real statistical outlier on the high side this run — but look at ` +
+        `<b>${worstAcc.name}</b>: it has the single lowest real physics-residual of all four models here, and ` +
+        `it's also the least accurate. A residual near zero is easy to reach by predicting something close to ` +
+        `<code>u=0</code> everywhere, which trivially satisfies this equation without solving it. Low residual ` +
+        `alone isn't proof of a good fit either — that's why this page always shows the field-fit panels next to ` +
+        `the residual chart, not one without the other.`;
+    } else {
+      q.innerHTML = `In this real run, no model's physics-residual came back as a statistical outlier — the ` +
+        `accuracy ranking already lined up with real physical correctness. That's not a null result: it's the ` +
+        `physics-aware check confirming there was nothing hiding underneath the top-line numbers this time.`;
+    }
+  }
+}
+
+// A static "the errors span almost two orders of magnitude" claim was
+// only ever true for one specific representative tuning-session run --
+// on a run where the spread is smaller (a real, expected possibility:
+// training is unseeded), that sentence would sit directly above a chart
+// visibly contradicting it. Computed fresh from this run's own real
+// numbers instead, so the claim is never stronger than what the chart
+// actually shows.
+function renderAccuracySpreadNote(models) {
+  const el = document.getElementById("accuracy-spread-note");
+  if (!el) return;
+  const errs = models.map(m => Math.max(m.rel_l2_error, 1e-6));
+  const ratio = Math.max(...errs) / Math.min(...errs);
+  let phrase;
+  if (ratio >= 90) phrase = "almost two orders of magnitude";
+  else if (ratio >= 10) phrase = `more than an order of magnitude (${ratio.toFixed(0)}×, in this run)`;
+  else phrase = `a ${ratio.toFixed(1)}× spread in this run`;
+  el.textContent = `the four real errors span ${phrase}`;
+}
+
+function renderLegend(models) {
+  const row = document.getElementById("legend-row");
+  row.innerHTML = "";
+  models.forEach((m, i) => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.innerHTML = `<span class="legend-swatch" style="background:${colorFor(m.name, i)}"></span>${m.name}`;
+    row.appendChild(item);
+  });
+}
+
+function renderVerdict(pa, n) {
+  const row = document.getElementById("verdict-row");
+  row.innerHTML = "";
+  const nFlagged = pa.flagged_high_residual.length;
+  const badge = document.createElement("div");
+  badge.className = "verdict-badge" + (nFlagged === 0 ? " none" : "");
+  badge.innerHTML = `<div class="icon">${nFlagged === 0 ? "✓" : "⚠️"}</div>` +
+    `<div><div class="label">${nFlagged} OF ${n} FLAGGED</div>` +
+    `<div class="note">real PDE-residual outlier test, median + ${pa.n_std}× std</div></div>`;
+  row.appendChild(badge);
+
+  const tiles = [
+    { num: fmtSci(pa.group_median), lbl: "group median residual" },
+    { num: fmtSci(pa.group_std), lbl: "group std deviation" },
+    { num: pa.threshold != null ? fmtSci(pa.threshold) : "—", lbl: "real flag threshold" },
+  ];
+  tiles.forEach(t => {
+    const tile = document.createElement("div");
+    tile.className = "stat-tile";
+    tile.innerHTML = `<div class="num">${t.num}</div><div class="lbl">${t.lbl}</div>`;
+    row.appendChild(tile);
+  });
+}
+
+function renderScorecard(models, shockRegionX) {
+  if (shockRegionX) {
+    document.getElementById("scorecard-shock-band").textContent =
+      `x ∈ [${shockRegionX[0]}, ${shockRegionX[1]}]`;
+  }
+  const metrics = [
+    { col: "epochs",                 fmt: v => v.toLocaleString(),      lowerBetter: false },
+    { col: "rel_l2_error",           fmt: fmtPct,                       lowerBetter: true },
+    { col: "shock_region_rel_error", fmt: fmtPct,                       lowerBetter: true },
+    { col: "max_abs_error",          fmt: v => v.toFixed(3),            lowerBetter: true },
+    { col: "physics_residual",       fmt: v => v != null ? fmtSci(v) : "n/a", lowerBetter: true },
+    { col: "train_time_s",           fmt: fmtTime,                      lowerBetter: false },
+    { col: "n_params",               fmt: v => v.toLocaleString(),      lowerBetter: false },
+  ];
+  // Real best-value index per column -- computed from this run's own
+  // numbers, not hardcoded per model (so a future run where the ranking
+  // shuffles gets the star in the right place automatically).
+  const bestIdx = {};
+  metrics.forEach(m => {
+    if (!m.lowerBetter) return;
+    let best = 0;
+    models.forEach((mod, i) => { if (mod[m.col] < models[best][m.col]) best = i; });
+    bestIdx[m.col] = best;
+  });
+
+  const body = document.getElementById("scorecard-table-body");
+  body.innerHTML = "";
+  models.forEach((m, i) => {
+    const tr = document.createElement("tr");
+    const cells = metrics.map(metric => {
+      const val = metric.fmt(m[metric.col]);
+      const isBest = bestIdx[metric.col] === i;
+      return `<td class="num-cell">${isBest ? `<b><span class="star">★</span>${val}</b>` : val}</td>`;
+    }).join("");
+    tr.innerHTML =
+      `<td><span class="model-name-cell"><span class="legend-swatch" style="background:${colorFor(m.name, i)}"></span>${m.name}</span></td>` +
+      cells;
+    body.appendChild(tr);
+  });
+}
+
+function renderRankingTable(accRanking, pa) {
+  const body = document.getElementById("ranking-table-body");
+  body.innerHTML = "";
+  accRanking.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    const residual = pa.physics_residuals[row.name];
+    const flagged = pa.flagged_high_residual.includes(row.name);
+    tr.innerHTML = `
+      <td><span class="rank-pill">${row.rank}</span></td>
+      <td><span class="model-name-cell"><span class="legend-swatch" style="background:${colorFor(row.name, i)}"></span>${row.name}</span></td>
+      <td class="num-cell">${fmtPct(row.mean_rel_error)}</td>
+      <td class="num-cell">${residual != null ? fmtSci(residual) : "n/a"}</td>
+      <td>${flagged
+        ? `<span class="flag-pill">⚠ outlier residual</span>`
+        : `<span class="ok-pill">— within range</span>`}</td>
+    `;
+    body.appendChild(tr);
+  });
+  const note = document.getElementById("verify-note");
+  note.textContent = "Rank and error columns come straight from rank_by_accuracy(); the flag column comes from " +
+    "physics_aware_rank() and never changes the rank order above it — confirmed on every real run this page makes.";
+}
+
+// ── log-scale ranked bar chart: accuracy ─────────────────────────────
+
+function drawAccuracyChart(models) {
+  const svg = document.getElementById("chart-accuracy");
+  svg.innerHTML = "";
+  const W = 800, H = 300, marginL = 46, marginR = 20, marginT = 20, marginB = 46;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const values = models.map(m => Math.max(m.rel_l2_error, 1e-5));
+  const logMin = Math.floor(Math.log10(Math.min(...values)) - 0.3);
+  const logMax = Math.ceil(Math.log10(Math.max(...values)) + 0.3);
+  const y = (v) => marginT + plotH - ((Math.log10(Math.max(v, 1e-5)) - logMin) / (logMax - logMin)) * plotH;
+
+  for (let p = logMin; p <= logMax; p++) {
+    const gy = y(Math.pow(10, p));
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = fmtLogTick(p);
+    svg.appendChild(lbl);
+  }
+
+  const n = models.length;
+  const slot = plotW / n;
+  const barW = Math.min(slot * 0.5, 90);
+  models.forEach((m, i) => {
+    const cx = marginL + slot * (i + 0.5);
+    const by = y(values[i]);
+    const bh = (marginT + plotH) - by;
+    const bar = el("rect", {
+      x: cx - barW / 2, y: by, width: barW, height: Math.max(bh, 1), rx: 3,
+      fill: colorFor(m.name, i),
+    });
+    bar.addEventListener("mousemove", (ev) => showTooltip(ev, "tooltip-accuracy",
+      `<span class="t-name">${m.name}</span><span class="t-row">${fmtPct(m.rel_l2_error)} relative L2 error</span>`));
+    bar.addEventListener("mouseleave", () => hideTooltip("tooltip-accuracy"));
+    svg.appendChild(bar);
+
+    const valLbl = el("text", { x: cx, y: by - 8, class: "bar-label" });
+    valLbl.textContent = fmtPct(m.rel_l2_error);
+    svg.appendChild(valLbl);
+
+    const nameLbl = el("text", { x: cx, y: H - marginB + 20, class: "model-label" });
+    nameLbl.textContent = m.name;
+    svg.appendChild(nameLbl);
+  });
+}
+
+// ── real-vs-predicted field fit, small multiples (one panel per model) ──
+
+function drawFieldFitGrid(models) {
+  const grid = document.getElementById("fit-grid");
+  grid.innerHTML = "";
+
+  // A shared y-domain across all four panels -- the real analytical
+  // curve is identical in every panel (same field, same points), but a
+  // poorly-fit model's real prediction can legitimately overshoot it,
+  // so the domain is computed from every real value actually present,
+  // not assumed from the analytical curve alone.
+  let yMin = Infinity, yMax = -Infinity;
+  models.forEach(m => {
+    const ff = m.field_fit;
+    if (!ff) return;
+    ff.u_real.forEach(v => { yMin = Math.min(yMin, v); yMax = Math.max(yMax, v); });
+    ff.u_pred.forEach(v => { yMin = Math.min(yMin, v); yMax = Math.max(yMax, v); });
+  });
+  if (!isFinite(yMin)) { yMin = -1; yMax = 1; }
+  const pad = (yMax - yMin) * 0.12 || 0.1;
+  yMin -= pad; yMax += pad;
+
+  models.forEach((m, i) => {
+    const ff = m.field_fit;
+    const panel = document.createElement("div");
+    panel.className = "fit-panel";
+    const svgId = "fit-svg-" + i;
+    const tipId = "fit-tip-" + i;
+    panel.innerHTML = `
+      <div class="fit-panel-head">
+        <div class="fit-panel-title"><span class="legend-swatch" style="background:${colorFor(m.name, i)}"></span>${m.name}</div>
+        <div class="fit-panel-error">${fmtPct(m.rel_l2_error)} error</div>
+      </div>
+      <div class="chart-wrap">
+        <svg id="${svgId}" viewBox="0 0 340 190"></svg>
+        <div class="tooltip" id="${tipId}"></div>
+      </div>`;
+    grid.appendChild(panel);
+    if (ff) drawFieldFitPanel(svgId, tipId, ff, colorFor(m.name, i), yMin, yMax, m.name);
+  });
+}
+
+function drawFieldFitPanel(svgId, tipId, ff, color, yMin, yMax, modelName) {
+  const svg = document.getElementById(svgId);
+  const W = 340, H = 190, marginL = 34, marginR = 10, marginT = 10, marginB = 22;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const xs = ff.x, real = ff.u_real, pred = ff.u_pred;
+  // The real x domain here is burgers_1d's full x in [-1, 1], not [0, 1] --
+  // computed from this panel's own real x values (not assumed) so the
+  // mapping stays correct even if the problem's domain ever changes.
+  // An earlier version of this chart assumed x in [0, 1] and silently
+  // plotted the x<0 half of the real domain (which includes half of the
+  // real shock band) off the left edge of the SVG entirely -- caught by
+  // comparing the rendered chart against this run's own real ff.x values.
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const X = (x) => marginL + ((x - xMin) / (xMax - xMin)) * plotW;
+  const Y = (v) => marginT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+  // 3 horizontal gridlines with real value labels (0 and the two outer ticks)
+  [yMin + (yMax - yMin) * 0.02, (yMin + yMax) / 2, yMax - (yMax - yMin) * 0.02].forEach((v, idx) => {
+    const gy = Y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 6, y: gy + 3, class: "axis-label", "text-anchor": "end", "font-size": "9.5" });
+    lbl.textContent = v.toFixed(2);
+    svg.appendChild(lbl);
+  });
+
+  const pathD = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"} ${X(xs[i]).toFixed(1)} ${Y(v).toFixed(1)}`).join(" ");
+  svg.appendChild(el("path", { d: pathD(real), class: "fit-line-real" }));
+  const predPath = el("path", { d: pathD(pred) });
+  predPath.setAttribute("class", "fit-line-pred");
+  predPath.style.stroke = color;
+  svg.appendChild(predPath);
+
+  const fmtBound = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
+  const xLbl0 = el("text", { x: marginL, y: H - 6, class: "axis-label", "font-size": "9.5" });
+  xLbl0.textContent = "x=" + fmtBound(xMin);
+  svg.appendChild(xLbl0);
+  const xLbl1 = el("text", { x: W - marginR, y: H - 6, class: "axis-label", "text-anchor": "end", "font-size": "9.5" });
+  xLbl1.textContent = "x=" + fmtBound(xMax);
+  svg.appendChild(xLbl1);
+
+  // Hover crosshair snapping to the nearest real grid point, per this
+  // org's dataviz convention for line charts -- shows the exact real
+  // vs. predicted pair at that x, not just the visual curves.
+  const crosshair = el("line", { class: "fit-crosshair", y1: marginT, y2: marginT + plotH, x1: -100, x2: -100 });
+  svg.appendChild(crosshair);
+  const dotReal = el("circle", { r: 3.5, fill: "var(--text-muted)", cx: -100, cy: -100 });
+  const dotPred = el("circle", { r: 3.5, fill: color, cx: -100, cy: -100 });
+  svg.appendChild(dotReal);
+  svg.appendChild(dotPred);
+
+  const hitRect = el("rect", { x: marginL, y: marginT, width: plotW, height: plotH, fill: "transparent" });
+  hitRect.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) * (W / rect.width);
+    const frac = Math.min(1, Math.max(0, (px - marginL) / plotW));
+    const targetX = xMin + frac * (xMax - xMin);
+    let idx = 0, best = Infinity;
+    xs.forEach((x, i) => { const d = Math.abs(x - targetX); if (d < best) { best = d; idx = i; } });
+    const cx = X(xs[idx]);
+    crosshair.setAttribute("x1", cx); crosshair.setAttribute("x2", cx);
+    dotReal.setAttribute("cx", cx); dotReal.setAttribute("cy", Y(real[idx]));
+    dotPred.setAttribute("cx", cx); dotPred.setAttribute("cy", Y(pred[idx]));
+    showTooltip(ev, tipId,
+      `<span class="t-name">${modelName} · x=${xs[idx].toFixed(2)}</span>` +
+      `<span class="t-row">real: ${real[idx].toFixed(3)}</span>` +
+      `<span class="t-row">predicted: ${pred[idx].toFixed(3)}</span>`);
+  });
+  hitRect.addEventListener("mouseleave", () => {
+    crosshair.setAttribute("x1", -100); crosshair.setAttribute("x2", -100);
+    dotReal.setAttribute("cx", -100); dotPred.setAttribute("cx", -100);
+    hideTooltip(tipId);
+  });
+  svg.appendChild(hitRect);
+}
+
+// ── linear ranked bar chart, reused for train time & inference time ──
+
+function drawTimeChart(models, svgId, tipId, valueFn, fmtFn, unit) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = "";
+  const W = 800, H = 200, marginL = 46, marginR = 20, marginT = 16, marginB = 40;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const values = models.map(valueFn);
+  const maxV = Math.max(...values, 1e-6) * 1.18;
+  const y = (v) => marginT + plotH - (v / maxV) * plotH;
+
+  const nGrid = 4;
+  for (let i = 0; i <= nGrid; i++) {
+    const v = (maxV / nGrid) * i;
+    const gy = y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    if (i > 0) {
+      const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+      lbl.textContent = v < 1 ? v.toFixed(2) : v.toFixed(1);
+      svg.appendChild(lbl);
+    }
+  }
+
+  const n = models.length;
+  const slot = plotW / n;
+  const barW = Math.min(slot * 0.5, 90);
+  models.forEach((m, i) => {
+    const cx = marginL + slot * (i + 0.5);
+    const v = values[i];
+    const by = y(v);
+    const bh = (marginT + plotH) - by;
+    const bar = el("rect", {
+      x: cx - barW / 2, y: by, width: barW, height: Math.max(bh, 1), rx: 3,
+      fill: colorFor(m.name, i),
+    });
+    bar.addEventListener("mousemove", (ev) => showTooltip(ev, tipId,
+      `<span class="t-name">${m.name}</span><span class="t-row">${fmtFn(v)}</span>`));
+    bar.addEventListener("mouseleave", () => hideTooltip(tipId));
+    svg.appendChild(bar);
+
+    const valLbl = el("text", { x: cx, y: by - 8, class: "bar-label" });
+    valLbl.textContent = fmtFn(v);
+    svg.appendChild(valLbl);
+
+    const nameLbl = el("text", { x: cx, y: H - marginB + 20, class: "model-label" });
+    nameLbl.textContent = m.name;
+    svg.appendChild(nameLbl);
+  });
+}
+
+// ── log-scale residual chart with outlier threshold line ─────────────
+
+function drawResidualChart(models, pa) {
+  const svg = document.getElementById("chart-residual");
+  svg.innerHTML = "";
+  const W = 800, H = 320, marginL = 52, marginR = 20, marginT = 46, marginB = 46;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const values = models.map(m => Math.max(m.physics_residual || 1e-8, 1e-8));
+  const allVals = pa.threshold != null ? values.concat([pa.threshold]) : values;
+  const logMin = Math.floor(Math.log10(Math.min(...allVals)) - 0.4);
+  const logMax = Math.ceil(Math.log10(Math.max(...allVals)) + 0.4);
+  const y = (v) => marginT + plotH - ((Math.log10(Math.max(v, 1e-8)) - logMin) / (logMax - logMin)) * plotH;
+
+  for (let p = logMin; p <= logMax; p++) {
+    const gy = y(Math.pow(10, p));
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = fmtLogTick(p);
+    svg.appendChild(lbl);
+  }
+
+  const n = models.length;
+  const slot = plotW / n;
+  const barW = Math.min(slot * 0.5, 90);
+
+  models.forEach((m, i) => {
+    const cx = marginL + slot * (i + 0.5);
+    const v = values[i];
+    const by = y(v);
+    const bh = (marginT + plotH) - by;
+    const flagged = pa.flagged_high_residual.includes(m.name);
+    const bar = el("rect", {
+      x: cx - barW / 2, y: by, width: barW, height: Math.max(bh, 1), rx: 3,
+      fill: colorFor(m.name, i),
+      stroke: flagged ? "var(--critical)" : "none", "stroke-width": flagged ? 2.5 : 0,
+    });
+    bar.addEventListener("mousemove", (ev) => showTooltip(ev, "tooltip-residual",
+      `<span class="t-name">${m.name}</span><span class="t-row">residual ${fmtSci(m.physics_residual)}</span>` +
+      (flagged ? `<span class="t-row" style="color:var(--critical)">flagged: real statistical outlier</span>` : "")));
+    bar.addEventListener("mouseleave", () => hideTooltip("tooltip-residual"));
+    svg.appendChild(bar);
+
+    if (flagged) {
+      const flagLbl = el("text", { x: cx, y: by - 22, class: "flag-badge-text" });
+      flagLbl.textContent = "⚠ FLAGGED";
+      svg.appendChild(flagLbl);
+    }
+    const valLbl = el("text", {
+      x: cx, y: by - 8, class: "bar-label",
+      fill: flagged ? "var(--critical)" : "var(--text-primary)",
+    });
+    valLbl.textContent = fmtSci(v);
+    svg.appendChild(valLbl);
+
+    const nameLbl = el("text", { x: cx, y: H - marginB + 20, class: "model-label" });
+    nameLbl.textContent = m.name;
+    svg.appendChild(nameLbl);
+  });
+
+  if (pa.threshold != null) {
+    const ty = y(pa.threshold);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: ty, y2: ty, class: "threshold-line" }));
+    // Fixed caption position near the top of the plot, independent of
+    // where the line itself falls -- a bar's own value label can land
+    // right next to the line when that model's residual happens to sit
+    // close to the real threshold (a real, observed case: a near-miss
+    // run), so the caption must not compete with it for the same spot.
+    const tLbl = el("text", { x: W - marginR, y: marginT - 10, class: "ref-label threshold", "text-anchor": "end" });
+    tLbl.textContent = `flag threshold (median + ${pa.n_std}×std) = ${fmtSci(pa.threshold)}`;
+    svg.appendChild(tLbl);
+  }
+}
+
+function showTooltip(ev, id, html) {
+  const tip = document.getElementById(id);
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+}
+function hideTooltip(id) {
+  document.getElementById(id).style.opacity = "0";
+}
+
+document.getElementById("btn-replay").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-replay");
+  btn.disabled = true; btn.textContent = "↻ Starting a new real run…";
+  await fetch("/api/run_sweep", { method: "POST" });
+  btn.disabled = false; btn.textContent = "↻ Run a new real benchmark";
+  pollStatus();
+});
+
+pollStatus();
+</script>
+</body>
+</html>

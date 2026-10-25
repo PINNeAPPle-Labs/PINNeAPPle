@@ -1,0 +1,12 @@
+{
+ "code_hash": "451a229272f98929",
+ "figures": [],
+ "id": "node:geometry.mesh",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Mesh / grid -> structured grid for pinneapple_simulation.numerical_solvers.symbolic_fd\ninputs: [('geometry', 'geometry')]\noutputs: [('mesh', 'mesh')]\ndefaults: {'n': 64, 'n_t': 41}",
+ "timed_out": false
+}

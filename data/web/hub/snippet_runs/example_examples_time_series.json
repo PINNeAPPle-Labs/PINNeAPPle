@@ -1,0 +1,12 @@
+{
+ "code_hash": "1108c66749e3945a",
+ "figures": [],
+ "id": "example:examples/time_series",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNeAPPle Time Series Examples | time series | not curated",
+ "timed_out": false
+}

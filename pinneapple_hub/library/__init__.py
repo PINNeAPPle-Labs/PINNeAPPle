@@ -3,13 +3,13 @@ recipes, MCP tools), trained models, geometries, datasets, flows and examples --
 with a runnable snippet whose recorded run is checked by a test.
 
     from pinneapple_hub import library as hub
-    index = hub.load_index()                              # data/web/hub/index.json (generated, committed)
+    index = hub.load_index()                              # data/web/hub/index.json (generated, not committed)
     hits = hub.search(index, "airfoil", kind="model")     # ranked items
     item = hub.get(index, "geometry:f1_car")
     item["code"], item["run"]["stdout"], item["files"], item["links"]["guide"]
 
     python -m pinneapple_hub.library build              # regenerate index.json from the sources
-    python -m pinneapple_hub.library run [--stale]      # run every snippet, record output and figures (runs.json)
+    python -m pinneapple_hub.library run [--stale]      # run every snippet, record its output (snippet_runs/)
     python -m pinneapple_hub.library check              # index is current, every run ok, files and links exist
 
 An item: ``id`` (``<kind-prefix>:<name>``), ``kind`` (tool, model, geometry, dataset, flow, example; tools have a
@@ -20,6 +20,10 @@ An item: ``id`` (``<kind-prefix>:<name>``), ``kind`` (tool, model, geometry, dat
 ``examples`` (ids of related items), ``files`` (repo paths and download URLs), ``links`` (guide, reference, source,
 Flow Studio). Where each kind comes from: :mod:`.sources`. "Create your own": :mod:`.compose`. Saved items:
 :mod:`.myhub`. Snippet runner: :mod:`.sandbox`.
+
+``index.json`` is derived and git-ignored: :func:`load_index` builds and caches it on first use, the Hub image
+builds it at ``docker build``. The recorded runs it attaches are committed, one file per item under
+``snippet_runs/``, so two pull requests that record different snippets never touch the same file.
 """
 from __future__ import annotations
 
@@ -35,7 +39,7 @@ from .sandbox import code_hash, run_snippet
 ROOT = Path(__file__).resolve().parents[2]
 WEB = ROOT / "data" / "web" / "hub"
 INDEX = WEB / "index.json"
-RUNS = WEB / "runs.json"
+RUNS = WEB / "snippet_runs"
 FIGURES = WEB / "figures"
 SCHEMA = "pinneapple-hub/1"
 KINDS = {"tool": "Tools", "model": "Trained models", "geometry": "Geometries", "dataset": "Datasets",
@@ -67,11 +71,28 @@ def collect(only: list[str] | None = None) -> list[dict[str, Any]]:
     return sorted(items.values(), key=lambda i: (order.index(i["kind"]), i.get("subkind", ""), i["title"].lower()))
 
 
+def run_file(item_id: str, runs: Path = RUNS) -> Path:
+    """The file holding the recorded run of one item: ``snippet_runs/<id with unsafe characters as _>.json``."""
+    return Path(runs) / (re.sub(r"[^A-Za-z0-9_.-]+", "_", item_id) + ".json")
+
+
 def read_runs(path: Path = RUNS) -> dict[str, Any]:
-    try:
-        return json.loads(Path(path).read_text())
-    except (OSError, ValueError):
-        return {}
+    """Every recorded run, by item id (each file under ``snippet_runs/`` carries its item's ``id``)."""
+    out: dict[str, Any] = {}
+    for f in sorted(Path(path).glob("*.json")):
+        try:
+            rec = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        out[rec.pop("id")] = rec
+    return out
+
+
+def write_run(item_id: str, rec: dict[str, Any], runs: Path = RUNS) -> Path:
+    f = run_file(item_id, runs)
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps({"id": item_id, **rec}, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    return f
 
 
 def attach_runs(items: list[dict[str, Any]], runs: dict[str, Any]) -> None:
@@ -141,8 +162,13 @@ def write_index(index: dict[str, Any], path: Path = INDEX) -> Path:
     return path
 
 
-def load_index(path: Path | str = INDEX) -> dict[str, Any]:
-    return json.loads(Path(path).read_text())
+def load_index(path: Path | str = INDEX, *, rebuild: bool = False) -> dict[str, Any]:
+    """The index at ``path``. The default index is a cache: built from the sources (and written) when it is missing
+    or ``rebuild`` is set; rebuild it after changing a source with ``python -m pinneapple_hub.library build``."""
+    path = Path(path)
+    if path == INDEX and (rebuild or not path.is_file()):
+        write_index(build(), path)
+    return json.loads(path.read_text())
 
 
 def get(index: dict[str, Any], item_id: str) -> dict[str, Any]:
@@ -206,8 +232,8 @@ def search(index: dict[str, Any], query: str = "", *, kind: str | None = None, d
 def record_runs(items: list[dict[str, Any]], *, stale_only: bool = False, timeout: float = 300.0,
                 ids: list[str] | None = None, workers: int = 4, log=print) -> dict[str, Any]:
     """Run the snippets (all, the ones not recorded for their current code, or ``ids``) in ``workers`` parallel
-    interpreters, save their figures under ``data/web/hub/figures`` and write ``runs.json``. Recipes the module
-    reference already ran are reused."""
+    interpreters, save their figures under ``data/web/hub/figures`` and write one ``snippet_runs/<id>.json``
+    each. Recipes the module reference already ran are reused."""
     from concurrent.futures import ThreadPoolExecutor
     runs = read_runs()
     FIGURES.mkdir(parents=True, exist_ok=True)
@@ -235,13 +261,13 @@ def record_runs(items: list[dict[str, Any]], *, stale_only: bool = False, timeou
             figs.append(p.relative_to(ROOT).as_posix())
         runs[it["id"]] = {**r, "figures": figs, "recorded": time.strftime("%Y-%m-%d", time.gmtime()),
                           "source": "python -m pinneapple_hub.library run"}
+        write_run(it["id"], runs[it["id"]])
         log(f"{'ok  ' if r['ok'] else 'FAIL'} {r['seconds']:7.1f}s {it['id']}")
         if not r["ok"]:
             log("     " + (r["stderr"].splitlines() or [""])[-1])
 
     with ThreadPoolExecutor(max(1, workers)) as pool:
         list(pool.map(one, todo))
-    RUNS.write_text(json.dumps(runs, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
     return runs
 
 
@@ -272,5 +298,5 @@ def check(index: dict[str, Any]) -> list[str]:
 
 
 __all__ = ["build", "collect", "write_index", "load_index", "get", "search", "score", "facets", "featured",
-           "record_runs", "read_runs", "attach_runs", "check", "quality_key", "run_snippet", "code_hash", "KINDS",
-           "INDEX", "RUNS"]
+           "record_runs", "read_runs", "write_run", "run_file", "attach_runs", "check", "quality_key", "run_snippet",
+           "code_hash", "KINDS", "INDEX", "RUNS"]

@@ -1,0 +1,12 @@
+{
+ "code_hash": "3c0ad76f6556adb4",
+ "figures": [],
+ "id": "node:auto.analysis.verification.classify_flow_regime",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'laminar (Re=1 < 2300, internal pipe flow)'",
+ "timed_out": false
+}

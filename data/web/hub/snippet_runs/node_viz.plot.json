@@ -1,0 +1,12 @@
+{
+ "code_hash": "e0a3180181ac2bb3",
+ "figures": [],
+ "id": "node:viz.plot",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Plot -> matplotlib (pinneapple_flow.nodes._common.plot_solution)\ninputs: [('solution', 'solution')]\noutputs: [('figure', 'figure')]\ndefaults: {'field': 0}",
+ "timed_out": false
+}

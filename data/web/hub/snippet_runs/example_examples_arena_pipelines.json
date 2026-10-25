@@ -1,0 +1,12 @@
+{
+ "code_hash": "1f1b241a5fed1887",
+ "figures": [],
+ "id": "example:examples/arena_pipelines",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "00_list_datasets.py — List and inspect all available PINNeAPPle datasets | fluid dynamics | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "bece7a9c69409576",
+ "figures": [],
+ "id": "flow:freecad_openfoam_sweep",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.64,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FreeCAD -> OpenFOAM: sweep and surrogate - 3 nodes\nissues: []",
+ "timed_out": false
+}

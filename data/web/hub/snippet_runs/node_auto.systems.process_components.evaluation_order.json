@@ -1,0 +1,12 @@
+{
+ "code_hash": "1e809eff65ed27a7",
+ "figures": [],
+ "id": "node:auto.systems.process_components.evaluation_order",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[]",
+ "timed_out": false
+}

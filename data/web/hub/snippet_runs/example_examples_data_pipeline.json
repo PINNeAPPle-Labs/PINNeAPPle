@@ -1,0 +1,12 @@
+{
+ "code_hash": "ec5e9aea4a821b19",
+ "figures": [],
+ "id": "example:examples/data_pipeline",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Project Layout | fluid dynamics | not curated",
+ "timed_out": false
+}

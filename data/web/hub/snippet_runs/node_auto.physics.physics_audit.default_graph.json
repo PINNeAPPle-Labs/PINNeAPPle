@@ -1,0 +1,12 @@
+{
+ "code_hash": "ad4bafd6eb2aa1d3",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.default_graph",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PhysicsKnowledgeGraph\n<pinneapple_physics.physics_audit.knowledge.PhysicsKnowledgeGraph object at 0x7f3b913763c0>",
+ "timed_out": false
+}

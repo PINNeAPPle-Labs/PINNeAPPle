@@ -1,0 +1,12 @@
+{
+ "code_hash": "a052877f0ea29863",
+ "figures": [],
+ "id": "node:auto.design.geometry.list_domains",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['annular_2d', 'channel_2d', 'channel_with_obstacle_2d', 'l_shape_2d', 'lid_driven_cavity_2d', 'multi_obstacle_2d', 't_junction_2d']",
+ "timed_out": false
+}

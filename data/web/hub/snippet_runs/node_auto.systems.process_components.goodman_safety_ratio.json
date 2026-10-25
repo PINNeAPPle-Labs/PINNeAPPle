@@ -1,0 +1,12 @@
+{
+ "code_hash": "cd00c9ab36dbeb3e",
+ "figures": [],
+ "id": "node:auto.systems.process_components.goodman_safety_ratio",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(2.0)",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "9e8aa0934d57b519",
+ "figures": [],
+ "id": "example:examples/pinneapple_cosim",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "01_spring_mass_pinn.py — 2-DOF Coupled Spring-Mass System with Two PINN Models Physical system… | system dynamics | not curated",
+ "timed_out": false
+}

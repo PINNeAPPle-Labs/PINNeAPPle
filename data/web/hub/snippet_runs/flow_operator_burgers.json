@@ -1,0 +1,12 @@
+{
+ "code_hash": "6ebef511a529f6a6",
+ "figures": [],
+ "id": "flow:operator_burgers",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Neural operators: DeepONet and FNO on Burgers - 4 nodes\nissues: []",
+ "timed_out": false
+}

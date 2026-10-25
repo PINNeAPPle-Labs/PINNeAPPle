@@ -1,0 +1,12 @@
+{
+ "code_hash": "5039ebbcfea4e56c",
+ "figures": [],
+ "id": "example:examples/geomechanics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Geomechanics with the material point method | structural mechanics | not curated",
+ "timed_out": false
+}

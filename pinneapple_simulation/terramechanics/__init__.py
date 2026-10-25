@@ -9,7 +9,8 @@ deformable terrain with ruts, a single-wheel testbed with published data, and PI
 Modules: :mod:`.soils` (database), :mod:`.wheel`, :mod:`.wong_reece` (stresses and forces: Bekker pressure-sinkage,
 Janosi-Hanamoto shear, slip-sinkage, grousers, multi-pass, bulldozing, lateral force), :mod:`.terrain`
 (deformable heightmap with ruts and grouser imprints), :mod:`.testbed` (single-wheel validation),
-:mod:`.surrogate` (PINN training for the wheel-soil contact). See ``docs/core_concepts/lunar_rover_terramechanics.md``.
+:mod:`.surrogate` (PINN training for the wheel-soil contact), :mod:`.mobility` (screening with the
+``bekker_wong_surrogate_2d`` PINN: drawbar pull against slip, constraints R1-R4 checked one by one). See ``docs/core_concepts/lunar_rover_terramechanics.md``.
 """
 from .soils import SOILS, Soil, get_soil, list_soils, register_soil
 from .wheel import Grousers, Wheel
@@ -30,6 +31,6 @@ __all__ = ["Soil", "SOILS", "get_soil", "list_soils", "register_soil", "Wheel", 
 
 def __getattr__(name):
     import importlib
-    if name in ("testbed", "surrogate", "terrain"):
+    if name in ("testbed", "surrogate", "terrain", "mobility"):
         return importlib.import_module(f".{name}", __name__)
     raise AttributeError(name)

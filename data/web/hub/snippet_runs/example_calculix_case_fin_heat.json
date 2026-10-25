@@ -1,0 +1,12 @@
+{
+ "code_hash": "6b529fef305b3a72",
+ "figures": [],
+ "id": "example:calculix_case/fin_heat",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - temperature vs 1-D fin solution",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "bbfa0e2469e7f669",
+ "figures": [],
+ "id": "example:bricks/cantilever",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - best build passes rigid-body statics",
+ "timed_out": false
+}

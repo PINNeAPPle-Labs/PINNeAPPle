@@ -1,0 +1,12 @@
+{
+ "code_hash": "8f1b7c78f1919489",
+ "figures": [],
+ "id": "node:em.prius_drive",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius drive: envelope, efficiency map, WLTC energy -> pinneapple_simulation.electromagnetics.machines.drive: Drive(FluxMap, prius_phase_resistance, v_max_svpwm).max_torque / efficiency_map, Vehicle, cycle_energy(wltc_class3b)\ninputs: [('flux_map', 'flux_map')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'I_max': 250.0, 'V_dc': 500.0, 'n_d': 241, 'envelope_speeds': 25, 'map_speeds': 23, 'map_fractions': 25, 'vehicle': {'mass': 1450.0, 'c_rr': 0.009, 'cd_a': 0.58, 'wheel_radius': 0.3, 'gear_ratio': 4.113, 'gear_efficiency': 0.97}}",
+ "timed_out": false
+}

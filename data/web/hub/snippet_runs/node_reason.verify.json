@@ -1,0 +1,12 @@
+{
+ "code_hash": "859dd97e3f8126da",
+ "figures": [],
+ "id": "node:reason.verify",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 15.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
+ "timed_out": false
+}

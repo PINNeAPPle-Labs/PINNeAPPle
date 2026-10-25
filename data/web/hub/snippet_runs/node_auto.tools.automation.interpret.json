@@ -1,0 +1,12 @@
+{
+ "code_hash": "e09e8e11a1db36c4",
+ "figures": [],
+ "id": "node:auto.tools.automation.interpret",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "interpret -> pinneapple_tools.automation:interpret\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'task': '', 'catalog': {}, 'min_score': 0.15}",
+ "timed_out": false
+}

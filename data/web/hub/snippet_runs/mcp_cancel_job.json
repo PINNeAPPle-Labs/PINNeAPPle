@@ -1,0 +1,12 @@
+{
+ "code_hash": "b66dba94d0e6814b",
+ "figures": [],
+ "id": "mcp:cancel_job",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "cancel_job(job_id: 'str') -> 'dict[str, Any]'",
+ "timed_out": false
+}

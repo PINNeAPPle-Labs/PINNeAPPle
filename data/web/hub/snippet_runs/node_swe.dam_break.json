@@ -1,0 +1,12 @@
+{
+ "code_hash": "d9820b21cff40c26",
+ "figures": [],
+ "id": "node:swe.dam_break",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.69,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Shallow-water dam break with a gate and an obstacle -> pinneapple_simulation.numerical_solvers.shallow_water_fv.ShallowWater2D (add_gate, add_wall, run, health_report)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'nx': 120, 'ny': 30, 'length': 3.0, 'reservoir_depth': 0.5, 'gate_x': 1.0, 'release_time': 0.1, 'obstacle': [2.2, 2.4, 0.3, 0.6], 't_end': 1.2, 'snapshots': 30}",
+ "timed_out": false
+}

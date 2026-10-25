@@ -1,0 +1,12 @@
+{
+ "code_hash": "d42aaf7e72762e96",
+ "figures": [],
+ "id": "example:examples/use_cases",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lunar rover terramechanics in 3D | general | curated",
+ "timed_out": false
+}

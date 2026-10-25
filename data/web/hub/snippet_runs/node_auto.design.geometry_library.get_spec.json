@@ -1,0 +1,12 @@
+{
+ "code_hash": "f9303b9597a0d941",
+ "figures": [],
+ "id": "node:auto.design.geometry_library.get_spec",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get spec -> pinneapple_design.geometry_library:get_spec\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

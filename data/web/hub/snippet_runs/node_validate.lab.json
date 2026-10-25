@@ -1,0 +1,12 @@
+{
+ "code_hash": "912a226f46548d6f",
+ "figures": [],
+ "id": "node:validate.lab",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lab curation + seal -> pinneapple_lab.runner.run + curation.curate (letters A-F) + curation.next_steps + seal.seal_for / stamp_figure\ninputs: [('validation', 'metrics')]\noutputs: [('report', 'report'), ('figure', 'figure')]\ndefaults: {'title': '', 'baseline_check': True}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "ed9098432309a1d7",
+ "figures": [],
+ "id": "node:lbm.sphere_drag",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Sphere drag coefficient in a wind tunnel, FP32 and FP16 (lattice Boltzmann) -> pinneapple_simulation.numerical_solvers.lbm_tunnel.WindTunnelLBM (storage, add_solid, run, force_on_solid, fields, bytes_per_cell) + sphere + drag_sphere_schiller_naumann\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'D': 8.0, 'U': 0.05, 'Re': 20.0, 'shape': [96, 48, 48], 'center': [24.0, 23.5, 23.5], 'storages': ['fp32', 'fp16s'], 'steps': 3600, 'every': 200, 'average_last': 4, 'threads': 4}",
+ "timed_out": false
+}

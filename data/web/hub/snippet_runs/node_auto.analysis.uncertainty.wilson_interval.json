@@ -1,0 +1,12 @@
+{
+ "code_hash": "661fb0c6bc942357",
+ "figures": [],
+ "id": "node:auto.analysis.uncertainty.wilson_interval",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.42,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(0.20654931437723745, 1.0)",
+ "timed_out": false
+}

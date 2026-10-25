@@ -1,0 +1,12 @@
+{
+ "code_hash": "50e4c51bb9fe50a9",
+ "figures": [],
+ "id": "node:lib.tools.availability",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "External tools available? -> pinneapple_flow.wrappers:openfoam_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

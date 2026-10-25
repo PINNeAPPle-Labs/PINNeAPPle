@@ -1,0 +1,12 @@
+{
+ "code_hash": "10fc3de4ed5aaf21",
+ "figures": [],
+ "id": "node:em.prius_machine",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius IPM motor: no-load, torque vs angle, MTPA, losses -> pinneapple_simulation.electromagnetics.machines.IPMMachine(prius_2004()): no_load, back_emf, mtpa, operating_point, inductances, losses; machines.verification.prius_torque_curve / yang_comparison / run; fit_iron_loss(M400_50A)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'n_gap': 960, 'cogging_positions': 24, 'flux_positions': 120, 'mtpa_currents': [50.0, 100.0, 150.0, 200.0, 250.0], 'operating_positions': 12, 'loss_steps': 48, 'verification': True, 'quick': False}",
+ "timed_out": false
+}

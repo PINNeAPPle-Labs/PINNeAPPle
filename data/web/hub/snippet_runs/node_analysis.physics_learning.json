@@ -1,0 +1,12 @@
+{
+ "code_hash": "d316c595265a7580",
+ "figures": [],
+ "id": "node:analysis.physics_learning",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 8.32,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics learning verification of a learned thermal model -> pinneapple_analysis.validation.physics_learning.verify / detection_study\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'model': 'smoothed interfaces', 'severity': 1.0, 'points': 48, 'seed': 0}",
+ "timed_out": false
+}

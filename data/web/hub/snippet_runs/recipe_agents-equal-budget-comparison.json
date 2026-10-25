@@ -1,0 +1,12 @@
+{
+ "code_hash": "8df6ecc6936a5651",
+ "figures": [],
+ "id": "recipe:agents-equal-budget-comparison",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 31.28,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Comparison on 'burgers_1d_default' against 'analytic' at 4096 points\nmethod          kind       status     train [s]  infer [us/pt]  ref sims  relL2(u)\npinn            neural     ok              17.2          0.189         0  7.026e-01\npinn (2)        neural     ok              3.84          0.178         0  6.239e-01\npinn (3)        neural     ok               1.2           7.74         0  8.903e-01\npinn (4)        neural     ok              3.13           5.36         0  8.721e-01",
+ "timed_out": false
+}

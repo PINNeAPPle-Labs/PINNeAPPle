@@ -1,0 +1,12 @@
+{
+ "code_hash": "7b62b3db3b732d07",
+ "figures": [],
+ "id": "node:architectures.pod_dmd",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "POD compression + DMD rollout of a linear system -> pinneapple_neural.architectures.rom.toy_systems.make_linear_system / generate_sequences + rom.pod.POD (fit, encode, decode) + rom.dmd.DynamicModeDecomposition\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'trajectories': 16, 'steps': 60, 'state_dim': 128, 'rank': 12, 'noise': 0.01, 'seed': 0}",
+ "timed_out": false
+}

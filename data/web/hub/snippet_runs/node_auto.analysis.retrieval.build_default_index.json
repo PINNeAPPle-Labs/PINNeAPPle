@@ -1,0 +1,12 @@
+{
+ "code_hash": "c680a1bac206b6f1",
+ "figures": [],
+ "id": "node:auto.analysis.retrieval.build_default_index",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build default index -> pinneapple_analysis.retrieval:build_default_index\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model_name': 'all-MiniLM-L6-v2', 'include_literature': False, 'literature_k_per_topic': 5}",
+ "timed_out": false
+}

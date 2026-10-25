@@ -1,0 +1,12 @@
+{
+ "code_hash": "913671f54bac51fa",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.get_pde_family",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

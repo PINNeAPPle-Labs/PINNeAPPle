@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e800fea9b525c37",
+ "figures": [],
+ "id": "api:pp-zoo-list",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.zoo.list(task: 'str | None' = None) -> 'builtins.list'\nNames of the shipped models (optionally only those whose task or tags mention ``task``).",
+ "timed_out": false
+}

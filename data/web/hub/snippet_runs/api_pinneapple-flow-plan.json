@@ -1,0 +1,12 @@
+{
+ "code_hash": "7cb9921117ba5c3f",
+ "figures": [],
+ "id": "api:pinneapple-flow-plan",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_flow.plan(text: 'str', **kw)\nProposals for a problem description (see :func:`pinneapple_flow.planner.plan`).",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "1e632adb55510109",
+ "figures": [],
+ "id": "node:inverse.pin_fin",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Convection coefficient of a pin fin from thermocouples (PINN) -> pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory / PINN / NeuralNetwork (inverse_params) + pinneapple_physics.closed_form.heat.pin_fin_theta / pin_fin_heat\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'k': 16.0, 'D': 0.005, 'L': 0.05, 'T_base': 80.0, 'T_air': 25.0, 'h_true': 25.0, 'h_guess': 100.0, 'sensors_mm': [10.0, 20.0, 30.0, 40.0, 50.0], 'noise_C': 0.5, 'draws': 10, 'steps': 2500}",
+ "timed_out": false
+}

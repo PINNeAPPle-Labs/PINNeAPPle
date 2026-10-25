@@ -1,0 +1,12 @@
+{
+ "code_hash": "4e59db4a5ea8da69",
+ "figures": [],
+ "id": "node:pde_env.tagged_preset",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Tagged preset on its real geometry: per-tag losses before and after training -> pinneapple_physics.get_preset + pde_environment.presets.tag_geometry.build_tag_batch / per_tag_losses / solve_pde_kwargs_from_batch + pinneapple_physics.solve_pde + ModelRegistry.build('modified_mlp')\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'preset': 'laplace_2d', 'epochs': 200, 'hidden_dim': 32, 'n_layers': 4, 'n_col': 4000, 'n_bc_per_face': 500, 'lr': 0.001, 'seed': 1}",
+ "timed_out": false
+}

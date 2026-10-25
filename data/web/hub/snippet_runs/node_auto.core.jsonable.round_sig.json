@@ -1,0 +1,12 @@
+{
+ "code_hash": "7a483a1974f84f52",
+ "figures": [],
+ "id": "node:auto.core.jsonable.round_sig",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n1.0",
+ "timed_out": false
+}

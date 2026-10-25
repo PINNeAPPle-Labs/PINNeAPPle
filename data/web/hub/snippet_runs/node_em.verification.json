@@ -1,0 +1,12 @@
+{
+ "code_hash": "3f4e4eed93a69bd5",
+ "figures": [],
+ "id": "node:em.verification",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Electromagnetics verification table -> pinneapple_simulation.electromagnetics.verification.run + to_markdown\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'quick': False}",
+ "timed_out": false
+}

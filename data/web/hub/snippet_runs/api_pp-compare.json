@@ -1,0 +1,12 @@
+{
+ "code_hash": "f87ebb760fb28ffa",
+ "figures": [],
+ "id": "api:pp-compare",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.compare(problem: 'Union[PhysicalProblem, Any, str]', methods: 'Sequence[Union[str, Callable[..., Solution], Solution]]', *, reference: 'Union[str, Solution]' = 'reference', options: 'Optional[Mapping[str, Mapping[str, Any]]]' = None, points: 'Optional[np.ndarray]' = None, n_points: 'int' = 4096, seed: 'int' = 0, metric_names: 'Sequence[str]' = ('relative_l2', 'rmse', 'max_abs'), preset_kwargs: 'Optional[Mapping[str, Any]]' = None) -> 'Comparison'\nSolve or reuse each method and score it against ``reference`` at the same points.",
+ "timed_out": false
+}

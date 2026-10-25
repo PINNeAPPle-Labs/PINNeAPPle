@@ -1,0 +1,12 @@
+{
+ "code_hash": "743d48dc84922105",
+ "figures": [],
+ "id": "example:examples/numerical_solvers",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.88,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_solvers examples | numerical methods | not curated",
+ "timed_out": false
+}

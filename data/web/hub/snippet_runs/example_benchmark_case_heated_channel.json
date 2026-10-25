@@ -1,0 +1,12 @@
+{
+ "code_hash": "ff2a358396633217",
+ "figures": [],
+ "id": "example:benchmark_case/heated_channel",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - cfd nusselt vs reference · Nu = 5.385, fully developed",
+ "timed_out": false
+}

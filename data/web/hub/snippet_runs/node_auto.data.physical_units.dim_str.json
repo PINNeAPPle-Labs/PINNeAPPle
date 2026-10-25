@@ -1,0 +1,12 @@
+{
+ "code_hash": "50d74f7d4117804b",
+ "figures": [],
+ "id": "node:auto.data.physical_units.dim_str",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'dimensionless'",
+ "timed_out": false
+}

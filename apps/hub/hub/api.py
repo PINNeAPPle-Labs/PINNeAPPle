@@ -4,8 +4,8 @@ model, and compose your own tool from existing blocks.
 
 Run:  uvicorn hub.api:app --port 8116     (from apps/hub)
 
-Everything shown comes from the generated index of :mod:`pinneapple_hub.library` (``data/web/hub/index.json``);
-composing, validating and saving a tool are :mod:`pinneapple_hub.library.compose`, ``.sandbox`` and ``.myhub``.
+Everything shown comes from the generated index of :mod:`pinneapple_hub.library` (``data/web/hub/index.json``,
+built at ``docker build`` or on first load, never committed); composing, validating and saving a tool are :mod:`pinneapple_hub.library.compose`, ``.sandbox`` and ``.myhub``.
 This file is only routes.
 
 Environment (all optional; runtime and security variables in apps/_shared/README.md):

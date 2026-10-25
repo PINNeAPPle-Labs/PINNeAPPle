@@ -1,0 +1,12 @@
+{
+ "code_hash": "1bf970132cd5696a",
+ "figures": [],
+ "id": "example:examples/qualitative",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Qualitative preview: physical impact of geometry changes before the numbers | general | not curated",
+ "timed_out": false
+}

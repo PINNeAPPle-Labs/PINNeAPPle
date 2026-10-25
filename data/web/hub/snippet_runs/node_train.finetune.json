@@ -1,0 +1,12 @@
+{
+ "code_hash": "8f777f17222ef1b9",
+ "figures": [],
+ "id": "node:train.finetune",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Fine-tuning -> pinneapple_flow.learn.fit(init_from=model) with frozen layers\ninputs: [('model', 'model'), ('data', 'dataset')]\noutputs: [('model', 'model'), ('metrics', 'metrics')]\ndefaults: {'epochs': 200, 'lr': 0.0003, 'freeze': 'none', 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "ab935c47cc1a8695",
+ "figures": [],
+ "id": "geometry:turboprop_atr72",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Regional twin turboprop (ATR 72-600 class) | aircraft\nturboprop_atr72.light.stl 938884 bytes",
+ "timed_out": false
+}

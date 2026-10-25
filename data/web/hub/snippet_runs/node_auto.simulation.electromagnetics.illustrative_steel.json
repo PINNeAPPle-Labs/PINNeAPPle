@@ -1,0 +1,12 @@
+{
+ "code_hash": "fb22518b1e79b552",
+ "figures": [],
+ "id": "node:auto.simulation.electromagnetics.illustrative_steel",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "BHCurve\n<pinneapple_simulation.electromagnetics.materials.BHCurve object at 0x7fde3b965160>",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f08eecb7f27175b1",
+ "figures": [],
+ "id": "node:auto.design.geometry.channel_with_hole",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CSGDifference\n<pinneapple_design.geometry.csg.CSGDifference object at 0x7fca28932cf0>",
+ "timed_out": false
+}

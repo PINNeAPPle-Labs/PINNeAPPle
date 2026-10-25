@@ -1,0 +1,12 @@
+{
+ "code_hash": "6c1a74ed563c5c29",
+ "figures": [],
+ "id": "example:examples/nvidia/07_omniverse_physicsnemo_coldplate",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene | heat transfer | not curated\ntest_rel_l2 0.017551220805002144 \nmax_hotspot_error_K 0.23619471814862428 K\ntrain_wall_s 153.67537451800104 s",
+ "timed_out": false
+}

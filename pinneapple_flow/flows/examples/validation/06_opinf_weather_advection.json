@@ -1,0 +1,31 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.validation.06_opinf_weather_advection",
+ "name": "Validation gallery 06: POD + operator inference, advection",
+ "description": "Periodic advection-diffusion of a tracer: POD + linear operator inference with the full basis and with the basis cut at 95 % of the energy, rolled out against the exact solution (mass conserved) through pp.validate; rollout.spectrum must catch the smeared small scales (examples/validation/06_opinf_weather_advection.py; smoke and full sizes are the same).",
+ "nodes": [
+  {
+   "id": "gallery",
+   "type": "gallery.opinf_advection",
+   "params": {
+    "n_train": 12,
+    "energy_bad": 0.95
+   },
+   "label": "POD + OpInf + broken ROM",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "validation",
+  "domain": "validation",
+  "scripts": [
+   "06_opinf_weather_advection.py"
+  ],
+  "quick": {}
+ }
+}

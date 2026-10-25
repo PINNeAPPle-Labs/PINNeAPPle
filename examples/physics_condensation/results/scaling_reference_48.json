@@ -1,0 +1,11 @@
+{
+ "blocks": 2304,
+ "cells": 3391488,
+ "reference": {
+  "seconds": 212.8743239399996,
+  "method": "amg",
+  "iterations": 135,
+  "Tmax": 70.7518853877321
+ },
+ "peak_rss_gb": 2.173292
+}

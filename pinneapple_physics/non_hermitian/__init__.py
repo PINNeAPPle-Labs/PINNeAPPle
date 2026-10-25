@@ -14,6 +14,7 @@ from .ep_tuning import (
     EPTuningReport,
     analyze_ep_tuning,
     classify_coupling,
+    coupling_classes,
     design_features,
     feedback_coupling,
     route_a_sqrt_coupling,
@@ -23,5 +24,5 @@ from .ep_tuning import (
 from .pt_dimer import PTChain, PTDimer, eigenvector_overlap, petermann_factor, pt_violation
 
 __all__ = ["PTDimer", "PTChain", "pt_violation", "eigenvector_overlap", "petermann_factor", "EPTuningReport",
-           "analyze_ep_tuning", "classify_coupling", "route_a_sqrt_coupling", "route_c_asymmetric",
+           "analyze_ep_tuning", "classify_coupling", "coupling_classes", "route_a_sqrt_coupling", "route_c_asymmetric",
            "feedback_coupling", "theorem_profile", "design_features", "THEOREM_ASSUMPTIONS"]

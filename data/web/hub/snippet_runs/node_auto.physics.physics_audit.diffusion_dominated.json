@@ -1,0 +1,12 @@
+{
+ "code_hash": "8afb0878736d133d",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.diffusion_dominated",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.28,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='diffusion_dominated', description='transport dominated by diffusion; advection is a small correction', conditions=(Condition(feature='Pe', lo=-inf, hi=1.0, band=0.3, log=None),), breaks_into='advection-dominated transport', missing_mechanism='advective transport, sharp fronts')",
+ "timed_out": false
+}

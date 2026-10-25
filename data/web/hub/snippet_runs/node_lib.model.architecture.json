@@ -1,0 +1,12 @@
+{
+ "code_hash": "0b6dced5ba1ad4ab",
+ "figures": [],
+ "id": "node:lib.model.architecture",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Any registry model: build + size -> pinneapple_flow.wrappers:model_architecture pinneapple_neural.architectures.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': 'fno', 'in_dim': 1, 'out_dim': 1, 'hidden': 64}",
+ "timed_out": false
+}

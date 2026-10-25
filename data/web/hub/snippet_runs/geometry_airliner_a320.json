@@ -1,0 +1,12 @@
+{
+ "code_hash": "f08697e88e995ad2",
+ "figures": [],
+ "id": "geometry:airliner_a320",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Single-aisle airliner (A320 class) | aircraft\nairliner_a320.light.stl 1728084 bytes",
+ "timed_out": false
+}

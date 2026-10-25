@@ -1,0 +1,12 @@
+{
+ "code_hash": "07cb65b66b265c4a",
+ "figures": [],
+ "id": "node:science.atlas",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Science atlas -> pinneapple_science.atlas.load().to_html(path)\ninputs: []\noutputs: [('report', 'report')]\ndefaults: {'status': 'any'}",
+ "timed_out": false
+}

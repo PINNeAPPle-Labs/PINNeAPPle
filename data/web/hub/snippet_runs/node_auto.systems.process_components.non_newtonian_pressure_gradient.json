@@ -1,0 +1,12 @@
+{
+ "code_hash": "c8db88675ed75969",
+ "figures": [],
+ "id": "node:auto.systems.process_components.non_newtonian_pressure_gradient",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(10.30999999999975)",
+ "timed_out": false
+}

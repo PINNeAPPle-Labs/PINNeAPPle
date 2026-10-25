@@ -1,0 +1,12 @@
+{
+ "code_hash": "b389f82bc39648fd",
+ "figures": [],
+ "id": "node:terramechanics.soil",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Soil (terramechanics) -> pinneapple_simulation.terramechanics.get_soil\ninputs: []\noutputs: [('soil', 'soil')]\ndefaults: {'preset': 'GRC-1', 'c': None, 'phi_deg': None, 'K': None, 'k_c': None, 'k_phi': None, 'n0': None, 'n1': None, 'rho': None}",
+ "timed_out": false
+}

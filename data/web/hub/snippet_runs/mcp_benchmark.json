@@ -1,0 +1,12 @@
+{
+ "code_hash": "05df92b6b381f6e5",
+ "figures": [],
+ "id": "mcp:benchmark",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "benchmark(problem: 'Mapping[str, Any]', methods: 'Sequence[str]' = ('pinn', 'fem'), budget: 'Mapping[str, Any] | None' = None, seeds: 'int' = 1, reference: 'str | None' = None, options: 'Mapping[str, Mapping[str, Any]] | None' = None, grid_points_per_axis: 'int' = 41, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+ "timed_out": false
+}

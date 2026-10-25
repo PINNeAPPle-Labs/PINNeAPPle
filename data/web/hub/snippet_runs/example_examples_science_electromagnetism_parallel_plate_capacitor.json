@@ -1,0 +1,12 @@
+{
+ "code_hash": "1f36370e96b4c6f6",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/parallel_plate_capacitor",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Parallel-plate capacitor with edge effect (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: C per unit length (extrapolated)] 0.003927955814044814 -\n2D: C_per_length_fine 1.0359258574773179e-10 F/m\n2D: observed_order 1.026059908461316 -\n2D: gci_fine 0.0019096326452605714 -\n2D: fringe_excess 0.16819666397174937 -",
+ "timed_out": false
+}

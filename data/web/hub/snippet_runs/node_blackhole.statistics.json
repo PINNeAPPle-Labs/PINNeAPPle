@@ -1,0 +1,12 @@
+{
+ "code_hash": "a675ca70b6dd9a38",
+ "figures": [],
+ "id": "node:blackhole.statistics",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Accretion-run statistics (time window) -> pinneapple_physics.blackhole.convergence.run_statistics\ninputs: [('run', 'bh_run')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'t0': 2000.0, 't1': 10000.0}",
+ "timed_out": false
+}

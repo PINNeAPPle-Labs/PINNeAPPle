@@ -1,0 +1,12 @@
+{
+ "code_hash": "2ff370fb370fa22d",
+ "figures": [],
+ "id": "node:calculix.deck",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CalculiX deck -> pinneapple_simulation.external_solvers.calculix.cantilever_hex_mesh + write_inp / read_inp\ninputs: []\noutputs: [('deck', 'ccx_deck'), ('metrics', 'metrics')]\ndefaults: {'source': 'example', 'length': 1.0, 'b': 0.1, 'h': 0.1, 'nx': 20, 'element_type': 'C3D20R'}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e1f34a7f20a8964",
+ "figures": [],
+ "id": "node:check.physics",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics checks of results and models (pinneapple check) -> pinneapple_check.engine.run (Report.violations, exit_code)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'path': 'physics_check/fail', 'expected': 'expected.json'}",
+ "timed_out": false
+}

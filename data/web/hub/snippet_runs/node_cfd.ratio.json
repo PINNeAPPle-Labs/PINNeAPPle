@@ -1,0 +1,12 @@
+{
+ "code_hash": "2af8d40e36f0c5ea",
+ "figures": [],
+ "id": "node:cfd.ratio",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ratios of a metric to a baseline case -> arithmetic on the upstream metrics (no library call)\ninputs: [('metrics', 'metrics')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'metric': 'k_zone_mean', 'baseline': '+0 deg'}",
+ "timed_out": false
+}

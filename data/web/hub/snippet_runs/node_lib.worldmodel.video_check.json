@@ -1,0 +1,12 @@
+{
+ "code_hash": "716a93f13970d35b",
+ "figures": [],
+ "id": "node:lib.worldmodel.video_check",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.5,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics check of a synthetic video -> pinneapple_worldmodel.physical_world:video_check\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'seed': 0, 'edit': 'none'}",
+ "timed_out": false
+}

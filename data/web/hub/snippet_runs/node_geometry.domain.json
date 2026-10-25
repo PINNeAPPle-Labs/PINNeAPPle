@@ -1,0 +1,12 @@
+{
+ "code_hash": "f747e7bc62d4d2c7",
+ "figures": [],
+ "id": "node:geometry.domain",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Domain -> pinneapple_flow.nodes.problem.geometry_doc\ninputs: []\noutputs: [('geometry', 'geometry')]\ndefaults: {'dimension': 2, 'shape': 'box', 'x_range': [0.0, 1.0], 'y_range': [0.0, 1.0], 'z_range': [0.0, 1.0], 'time_dependent': True, 't_range': [0.0, 1.0]}",
+ "timed_out": false
+}

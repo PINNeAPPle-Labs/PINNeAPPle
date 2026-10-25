@@ -703,6 +703,20 @@ def build_tag_batch(
     raise ValueError(f"Unknown fixture shape {fixture['shape']!r} for preset {name!r}")
 
 
+def tag_solve_kwargs(name: str, spec: ProblemSpec, *, n_bc_per_face: int = 1_000, seed: int = 7) -> Dict[str, Any]:
+    """The extra ``solve_pde`` keyword arguments preset ``name`` needs: ``{}`` when ``spec`` has no
+    ``selector_type="tag"`` condition, the :func:`build_tag_batch` geometry when it has a fixture here, and
+    ``KeyError`` otherwise (the honest failure: no geometry is invented)::
+
+        pp.solve_pde(spec, model, epochs=..., **tag_solve_kwargs(name, spec))
+    """
+    if not any(getattr(c, "selector_type", None) == "tag" for c in spec.conditions):
+        return {}
+    if name not in TAG_GEOMETRY_FIXTURES:
+        raise KeyError(f"preset {name!r} has tag conditions and no geometry fixture: pass x_bc / masks yourself")
+    return solve_pde_kwargs_from_batch(build_tag_batch(name, spec, n_col=1, n_bc_per_face=n_bc_per_face, seed=seed))
+
+
 def solve_pde_kwargs_from_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
     """Strip the ``x_col`` key (``solve_pde`` samples its own collocation
     points from ``spec.domain_bounds`` and doesn't accept one) and convert
@@ -720,3 +734,24 @@ def solve_pde_kwargs_from_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
             continue
         out[k] = torch.as_tensor(np.asarray(v), dtype=torch.bool if k.startswith("mask_") else torch.float32)
     return out
+
+
+def per_tag_losses(spec, model, batch: dict[str, Any], *, w_pde: float = 1.0, w_bc: float = 10.0) -> dict[str, float]:
+    """Every loss term of ``compile_problem(spec)`` for ``model`` on a :func:`build_tag_batch` batch, as floats:
+    ``total``, ``pde`` and one entry per boundary condition (``bc_<name>``), so the per-tag masking can be seen to
+    do distinct work. Numpy arrays of the batch are converted to torch tensors (``mask_*`` as booleans)."""
+    import numpy as np
+    import torch
+
+    from ...pinn_solver.compiler.compile import compile_problem
+    from ...pinn_solver.compiler.loss import LossWeights
+
+    loss_fn = compile_problem(spec, weights=LossWeights(w_pde=w_pde, w_bc=w_bc))
+    tb = {}
+    for k, v in batch.items():
+        if k == "ctx":
+            tb[k] = v
+            continue
+        tb[k] = torch.as_tensor(np.asarray(v), dtype=torch.bool if k.startswith("mask_") else torch.float32)
+    out = loss_fn(model, None, tb)
+    return {k: float(v.detach()) for k, v in out.items()}

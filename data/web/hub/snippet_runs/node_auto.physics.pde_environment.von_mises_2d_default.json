@@ -1,0 +1,12 @@
+{
+ "code_hash": "05156362928a0a98",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.von_mises_2d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='von_mises_2d_default', dim=2, coords=('x', 'y'), fields=('ux', 'uy', 'vm'), pde=PDETermSpec(kind='linear_elasticity_plane_stress', fields=('ux', 'uy'), coords=('x', 'y'), params={'E': 210000000000.0, 'nu': 0.3, 'lambda': 121153846153.84615, 'mu': 80769230769.23077}, meta={'formulation': 'plane_stress_von_mises', 'derived_fields': {'vm': 'von_mises_stress'}, 'note': 'vm is computed from ux, uy via Cauchy stress formula; not a direct PDE unknown.'}), conditions=(ConditionSpec(name='fixed', kind='dirichlet', fields=('ux', 'uy'), selector_type='tag', selector={'tag': 'fixed'}, value_fn=<function von_mises_2d_default.<locals>.<lambda> at 0x7fed6b02e7a0>, weight=50.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None)",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "98a5defb8f3b8e17",
+ "figures": [],
+ "id": "node:auto.analysis.benchmark.methods",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['deeponet', 'fno', 'mgn', 'mlp', 'mlp_fields', 'pinn', 'pinn_rans']",
+ "timed_out": false
+}

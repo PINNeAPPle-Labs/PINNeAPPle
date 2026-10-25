@@ -1,0 +1,12 @@
+{
+ "code_hash": "bf79a3e951f7496d",
+ "figures": [],
+ "id": "node:auto.physics.astro.planet_events",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "planet events -> pinneapple_physics.astro:planet_events\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'body': '', 'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

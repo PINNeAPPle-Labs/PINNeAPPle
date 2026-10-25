@@ -1,0 +1,12 @@
+{
+ "code_hash": "14e3d1f673348150",
+ "figures": [],
+ "id": "example:examples/solvers",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Examples: time-series decomposition solvers | numerical methods | not curated",
+ "timed_out": false
+}

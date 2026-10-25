@@ -1,0 +1,12 @@
+{
+ "code_hash": "8054ac36aa97183e",
+ "figures": [],
+ "id": "node:auto.design.geometry.t_junction",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CSGUnion\n<pinneapple_design.geometry.csg.CSGUnion object at 0x7efe03dd2ba0>",
+ "timed_out": false
+}

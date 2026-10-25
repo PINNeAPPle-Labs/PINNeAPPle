@@ -30,7 +30,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["EPTuningReport", "analyze_ep_tuning", "classify_coupling", "route_a_sqrt_coupling",
+__all__ = ["EPTuningReport", "analyze_ep_tuning", "classify_coupling", "coupling_classes", "route_a_sqrt_coupling",
            "route_c_asymmetric", "feedback_coupling", "theorem_profile", "design_features", "THEOREM_ASSUMPTIONS"]
 
 
@@ -134,6 +134,23 @@ def analyze_ep_tuning(b_ab, b_ba=None, target=None, lam=None, dimension: int = 2
         notes.append("the theorem is proved for dimers only; for chains see PTChain (the trimer's EP3 also sits "
                      "at gamma^2 = 2|b|^2, quadratic in b)")
     return EPTuningReport(law, target, residual, exact, degree, cls, assumptions, applies, routes, notes)
+
+
+def coupling_classes() -> list[tuple[str, str, Any, Any]]:
+    """The paper's four coupling classes as sympy laws in the module's symbols (``_symbols()``), one tuple
+    ``(key, title, b_ab, b_ba)`` each (``b_ba`` None: reciprocal), ready for :func:`analyze_ep_tuning`:
+
+    * ``reciprocal_linear``: b = J + c lam (the no-go case, ``c`` a free complex symbol);
+    * ``phase_only``: b = J exp(i lam) (the EP does not move);
+    * ``route_a``: b = sqrt(J^2 + lam J G) (exact, PT symmetric);
+    * ``route_c``: b_ab = J, b_ba = J + lam G (exact, non-reciprocal)."""
+    import sympy as sp
+
+    lam, J, G = _symbols()
+    return [("reciprocal_linear", "reciprocal linear coupling b = J + c lam", J + sp.Symbol("c") * lam, None),
+            ("phase_only", "phase-only coupling b = J exp(i lam)", J * sp.exp(sp.I * lam), None),
+            ("route_a", "route A: b = sqrt(J^2 + lam J G)", sp.sqrt(J ** 2 + lam * J * G), None),
+            ("route_c", "route C: b_ab = J, b_ba = J + lam G", J, J + lam * G)]
 
 
 def route_a_sqrt_coupling(J: float, G: float) -> Callable[[float], complex]:

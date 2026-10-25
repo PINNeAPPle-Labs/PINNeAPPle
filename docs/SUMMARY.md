@@ -97,6 +97,8 @@
     * [Science by area: experiments in 0-D to 3-D + time, and the atlas](guides/science.md)
     * [Autonomous Physics Lab: missions planned and run through controlled tools](guides/autonomous_physics_lab.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
+* Research
+    * [Adaptive Physics Condensation: chip-package thermal without simulating every element](research/physics_condensation.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)
     * [Parameter Identifiability Lab (day 25)](apps/identifiability_lab.md)

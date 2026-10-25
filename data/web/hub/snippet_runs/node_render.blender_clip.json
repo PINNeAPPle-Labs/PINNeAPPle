@@ -1,0 +1,12 @@
+{
+ "code_hash": "7b06068348adcc1c",
+ "figures": [],
+ "id": "node:render.blender_clip",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Blender clip (Cycles) -> pinneapple_tools.visualization.studio.blender.render_animation + render_still\ninputs: [('scene', 'anim_scene')]\noutputs: [('clip', 'clip'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'preset': 'auto', 'frames': 72, 'width': 720, 'height': 405, 'samples': 12, 'fps': 12, 'haze': 0.8, 'still': True, 'still_width': 1920, 'still_height': 1080, 'still_samples': 48, 'only': []}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "197d2f014d02c2e6",
+ "figures": [],
+ "id": "node:auto.data.unified.conversion_text",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'empty unit'",
+ "timed_out": false
+}

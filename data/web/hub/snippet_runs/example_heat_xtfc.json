@@ -1,0 +1,12 @@
+{
+ "code_hash": "5732fa5d39cc68a5",
+ "figures": [],
+ "id": "example:heat_xtfc",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 1.04,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - rel l2 below 1e-3",
+ "timed_out": false
+}

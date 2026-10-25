@@ -1,0 +1,12 @@
+{
+ "code_hash": "b7618be8079fea9e",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.hydraulically_smooth",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='hydraulically_smooth', description='smooth wall: roughness inside the viscous sublayer', conditions=(Condition(feature='eps_plus', lo=-inf, hi=5.0, band=0.15, log=None),), breaks_into='rough-wall turbulence', missing_mechanism='wall roughness')",
+ "timed_out": false
+}

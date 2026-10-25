@@ -1,0 +1,12 @@
+{
+ "code_hash": "3722c2934690600e",
+ "figures": [],
+ "id": "node:lib.antenna.package",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reproduce an antenna study package -> pinneapple_simulation.electromagnetics.antenna.study:package_study\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'out': None, 'rerun': None, 'rerun_freqs': 1, 'interpolated': False, 'timeout': 3600.0, 'target_dbi': 10.0}",
+ "timed_out": false
+}

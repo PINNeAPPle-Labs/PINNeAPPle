@@ -1,0 +1,12 @@
+{
+ "code_hash": "a83bf4b8e6c4347c",
+ "figures": [],
+ "id": "node:auto.tools.automation.known_actions",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "set\n{'freecad.macro', 'openfoam.mesh', 'paraview.export', 'freecad.open', 'openfoam.solve', 'cfdof.setup', 'verify.criteria', 'web.capture'}",
+ "timed_out": false
+}

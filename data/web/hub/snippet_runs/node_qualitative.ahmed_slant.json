@@ -1,0 +1,12 @@
+{
+ "code_hash": "e25b2283228d84ad",
+ "figures": [],
+ "id": "node:qualitative.ahmed_slant",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Qualitative drag preview of the Ahmed slant, checked against the wind tunnel -> pinneapple_design.geometry.bodies.ahmed_body + pinneapple_design.qualitative.preview + QualitativePreview.quantify / figure\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'measured_cd': {'0': 0.25, '12.5': 0.23, '25': 0.285, '30': 0.378, '35': 0.26, '40': 0.25}, 'U': 60.0, 'lang': 'en'}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "d3a5dc9c2bcba7d1",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/ampere_law",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ampere's law (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: circle around the conductor / mu0] 7.611895146119556e-05 -\nrel_error[2D: square around the conductor / mu0] 8.146090524811754e-05 -\nrel_error[2D: circle enclosing nothing / mu0] 3.805556177511095e-05 -\n2D: imposed_current 10.208333333333341 A\nrel_error[3D: circle around one side] 0.0 -",
+ "timed_out": false
+}

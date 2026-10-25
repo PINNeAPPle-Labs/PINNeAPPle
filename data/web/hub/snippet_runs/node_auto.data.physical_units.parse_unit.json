@@ -1,0 +1,12 @@
+{
+ "code_hash": "91730eb0495835c0",
+ "figures": [],
+ "id": "node:auto.data.physical_units.parse_unit",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "parse unit -> pinneapple_data.physical_units:parse_unit\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': ''}",
+ "timed_out": false
+}

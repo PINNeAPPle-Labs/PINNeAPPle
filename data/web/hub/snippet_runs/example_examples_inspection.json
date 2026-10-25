@@ -1,0 +1,12 @@
+{
+ "code_hash": "1f2725b2e2427b47",
+ "figures": [],
+ "id": "example:examples/inspection",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_analysis.inspection example 01: eddy-current NDE end to end | structural mechanics | not curated",
+ "timed_out": false
+}

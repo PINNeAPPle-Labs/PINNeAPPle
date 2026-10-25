@@ -1,0 +1,12 @@
+{
+ "code_hash": "e8e585ebbf2d5baa",
+ "figures": [],
+ "id": "example:examples/nvidia/11_model_services_physicsnemo_operator",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback | heat transfer | not curated\nsurrogate_rel_l2_in-distribution 0.01893316941816208 \nsurrogate_rel_l2_higher 0.25346193616601387 \nsurrogate_rel_l2_finer 0.019041764851127442",
+ "timed_out": false
+}

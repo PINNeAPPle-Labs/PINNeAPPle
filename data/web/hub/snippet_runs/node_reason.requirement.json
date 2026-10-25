@@ -1,0 +1,12 @@
+{
+ "code_hash": "d14e858dd2d812a1",
+ "figures": [],
+ "id": "node:reason.requirement",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Requirement -> pinneapple_reason.cases / pinneapple_reason.chain.Requirement\ninputs: []\noutputs: [('requirement', 'requirement')]\ndefaults: {'case': 'roof', 'custom': []}",
+ "timed_out": false
+}

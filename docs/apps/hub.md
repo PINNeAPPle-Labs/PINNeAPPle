@@ -111,12 +111,15 @@ follow the system, the moon button switches and remembers. Works from 340 px wid
 
 ## The index
 
-`data/web/hub/index.json` is generated, never written by hand:
+`data/web/hub/index.json` is generated and git-ignored, never committed or written by hand: `hub.load_index()`
+builds it on first use (a cache; `build` refreshes it after you change a source), and the Hub image builds it at
+`docker build`. What is committed are the recorded runs, one file per item under `data/web/hub/snippet_runs/`, so
+pull requests that record different snippets never conflict.
 
 ```bash
-python -m pinneapple_hub.library build              # collect every item from the sources
+python -m pinneapple_hub.library build              # collect every item from the sources (refresh the cache)
 python -m pinneapple_hub.library run --stale        # run new or changed snippets, record output and figures
-python -m pinneapple_hub.library check              # current, every run passing, every file and link present
+python -m pinneapple_hub.library check              # build; every run passing, every file and link present
 python -m pinneapple_hub.library flowruns           # run the bundled flows headless, record each node's metrics
 ```
 

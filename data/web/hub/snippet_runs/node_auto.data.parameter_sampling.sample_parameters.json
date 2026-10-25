@@ -1,0 +1,12 @@
+{
+ "code_hash": "79d2fe52f6f03426",
+ "figures": [],
+ "id": "node:auto.data.parameter_sampling.sample_parameters",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[{}]",
+ "timed_out": false
+}

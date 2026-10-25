@@ -50,11 +50,23 @@ def bundled_flows_using(type_: str) -> list[str]:
     return out
 
 
+def _example_flows_using(type_: str) -> list[tuple[str, Path]]:
+    """The example flows (``pinneapple_flow/flows/examples``, one per ``examples/*`` study) that contain ``type_``."""
+    try:
+        from pinneapple_flow.examples import flow_path, flows
+    except ImportError:
+        return []
+    return [(f"examples/{f['name']}", flow_path(f["name"])) for f in flows()
+            if any(n.get("type") == type_ for n in json.loads(flow_path(f["name"]).read_text()).get("nodes", []))]
+
+
 def _from_bundled(type_: str) -> tuple[dict[str, Any], str, str] | None:
-    """The node and its ancestors (nodes, edges, parameters) from the first bundled flow that uses it."""
+    """The node and its ancestors (nodes, edges, parameters) from the first bundled flow that uses it, else from the
+    first example flow that does (the example-domain nodes are wired there)."""
     from pinneapple_flow.schema import as_flow
-    for name in bundled_flows_using(type_):
-        flow = as_flow(json.loads((_flows_dir() / f"{name}.json").read_text()))
+    found = [(name, _flows_dir() / f"{name}.json") for name in bundled_flows_using(type_)]
+    for name, path in found + _example_flows_using(type_):
+        flow = as_flow(json.loads(path.read_text()))
         node = next(n for n in flow.nodes if n.type == type_)
         keep = flow.ancestors(node.id) | {node.id}
         doc = flow.to_dict()

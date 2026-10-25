@@ -1,0 +1,12 @@
+{
+ "code_hash": "475c13e37dddf202",
+ "figures": [],
+ "id": "dataset:rover_contact_grc1_viper",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "2000 rows; ['Fx_N', 'Fz_N', 'My_Nm', 'sinkage_m', 'slip']\ncc-by-4.0",
+ "timed_out": false
+}

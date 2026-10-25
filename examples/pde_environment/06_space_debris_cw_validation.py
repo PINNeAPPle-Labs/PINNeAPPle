@@ -45,20 +45,8 @@ from pinneapple_physics.pinn_solver.compiler.compile import compile_problem
 from pinneapple_physics.pde_environment.presets.astrophysics import (
     space_debris_cw_relative_motion,
     _cw_exact_state,
+    cw_exact_velocity,  # the library's; the inline copy here had vy's 2 s vx0 term with the wrong sign
 )
-
-
-def _cw_exact_velocity(t, n, x0, y0, z0, vx0, vy0, vz0):
-    """Analytic derivative of `_cw_exact_state`'s closed form (not
-    re-exported from astrophysics.py -- reference/data-generation-only
-    helper, matching the module's own convention of doing this inline in
-    _kepler_exact_torch/_cw_exact_torch for the Tier B tests)."""
-    nt = n * t
-    s, c = np.sin(nt), np.cos(nt)
-    vx = 3 * n * s * x0 + c * vx0 + 2 * s * vy0
-    vy = 6 * n * (c - 1) * x0 + 2 * s * vx0 + (4 * c - 3) * vy0
-    vz = -z0 * n * s + c * vz0
-    return vx, vy, vz
 
 
 class _Nondimensionalized(nn.Module):
@@ -92,7 +80,8 @@ def main():
     n_data = 12
     t_data_np = np.linspace(0.0, period, n_data, endpoint=False).astype(np.float32)[:, None]
     exact_data = _cw_exact_state(t_data_np[:, 0], n_mm, x0, y0, z0, vx0, vy0, vz0)
-    vx_ex, vy_ex, vz_ex = _cw_exact_velocity(t_data_np[:, 0], n_mm, x0, y0, z0, vx0, vy0, vz0)
+    vel_ex = cw_exact_velocity(t_data_np[:, 0], n_mm, x0, y0, z0, vx0, vy0, vz0)
+    vx_ex, vy_ex, vz_ex = vel_ex["vx"], vel_ex["vy"], vel_ex["vz"]
     y_data_np = np.stack(
         [exact_data["x"], exact_data["y"], exact_data["z"], vx_ex, vy_ex, vz_ex], axis=1
     ).astype(np.float32)

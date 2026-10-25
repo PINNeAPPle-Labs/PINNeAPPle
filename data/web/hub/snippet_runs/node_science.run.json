@@ -1,0 +1,12 @@
+{
+ "code_hash": "f34e15e27dee4ae5",
+ "figures": [],
+ "id": "node:science.run",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Science experiment -> pinneapple_science.registry.run(name, dim) over the pinneapple_science.em experiments (pinneapple_science.core.Result, pinneapple_science.instruments, pinneapple_science.numerics, pinneapple_science.plots)\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'experiment': 'em.faraday_induction', 'dim': 'first', 'quick': True}",
+ "timed_out": false
+}

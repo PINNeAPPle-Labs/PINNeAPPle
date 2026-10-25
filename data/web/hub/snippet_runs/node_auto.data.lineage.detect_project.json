@@ -1,0 +1,12 @@
+{
+ "code_hash": "de0d7299cf597c83",
+ "figures": [],
+ "id": "node:auto.data.lineage.detect_project",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lineage\n<pinneapple_data.lineage.graph.Lineage object at 0x7ff20f20f0e0>",
+ "timed_out": false
+}

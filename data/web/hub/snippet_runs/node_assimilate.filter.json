@@ -1,0 +1,12 @@
+{
+ "code_hash": "e2650550ae523e0d",
+ "figures": [],
+ "id": "node:assimilate.filter",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Kalman filter (EKF / EnKF) -> pinneapple_analysis.state_estimation.kalman.ExtendedKalmanFilter / EnsembleKalmanFilter\ninputs: [('series', 'series')]\noutputs: [('series', 'series'), ('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'method': 'ekf', 'model': 'constant_velocity', 'obs_std': 0.0, 'process_std': 0.0, 'n_ens': 100}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "0514e252187fa5cc",
+ "figures": [],
+ "id": "example:lorenz_discovery",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - exact structure · {'x'",
+ "timed_out": false
+}

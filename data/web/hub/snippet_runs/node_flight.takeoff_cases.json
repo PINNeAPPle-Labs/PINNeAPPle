@@ -1,0 +1,12 @@
+{
+ "code_hash": "99c3909380e28250",
+ "figures": [],
+ "id": "node:flight.takeoff_cases",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Take-off: nominal, crosswind, gust at rotation -> pinneapple_simulation.flight.takeoff.simulate_takeoff + takeoff_metrics + raymer_variants; turbulence.ShearWind / DiscreteGust; figures.takeoff_figure / lateral_figure\ninputs: [('aircraft', 'aircraft')]\noutputs: [('metrics', 'metrics'), ('runs', 'flight_run'), ('figure', 'figure')]\ndefaults: {'cases': ['nominal'], 'crosswind_kt': 15.0, 'gust_amplitude': 4.0, 'gust_length': 30.0, 'record_gamma': True}",
+ "timed_out": false
+}

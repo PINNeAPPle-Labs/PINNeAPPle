@@ -1,0 +1,12 @@
+{
+ "code_hash": "fd93966a4c5b982a",
+ "figures": [],
+ "id": "node:lib.robot.arm_check",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
+ "timed_out": false
+}

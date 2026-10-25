@@ -1,0 +1,12 @@
+{
+ "code_hash": "a5a599d39b473664",
+ "figures": [],
+ "id": "dataset:burgers_1d_li2021",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.17,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "1-D viscous Burgers, Li et al. (2021) operator-learning benchmark (1200 trajectories, 1024 points)\n{'train': 1000, 'test': 200} cc-by-4.0",
+ "timed_out": false
+}

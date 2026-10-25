@@ -1,0 +1,12 @@
+{
+ "code_hash": "24fb9f805a78bf3e",
+ "figures": [],
+ "id": "geometry:helicopter_h145",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Light twin helicopter (H145 class) | rotorcraft\nhelicopter_h145.light.stl 607484 bytes",
+ "timed_out": false
+}

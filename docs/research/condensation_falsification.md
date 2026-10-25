@@ -105,8 +105,145 @@ Each hypothesis gets one verdict, based only on its kill criterion and the measu
 
 ## Results
 
-Appended after the runs.
+Measured in this container on 25 October 2026 (4 cores, 15 GB). Code: `pinneapple_condense.falsify`, run by
+`examples/condensation_falsification/run.py`.
+- Raw results: `results/*.json`.
+- Verdicts: `results/verdicts.json`, computed by `verdicts()` in the runner from the kill criteria above.
+- Figures: `figures/`.
+
+Several runs shared the machine (two runners at a time), so wall times carry that load. Every cost comparison below
+was measured inside one process, under the same load on both sides.
+
+### Verdicts
+
+VERDICT_TABLE
+
+Summary: VERDICT_COUNTS.
+
+### What holds
+
+- **Exactness everywhere.**
+  - Exact condensation, block-wise or algebraic, reproduces the global solve to round-off on every operator tried:
+    - symmetric conduction with conductivity contrasts up to 1e5, anisotropy 100 and 0.01, 1-µm layers, alternating
+      pitch: 1e-9 to 6e-8 K;
+    - non-symmetric advection–diffusion up to Pe_b = 1000: 1e-13;
+    - Stokes saddle points with one pressure unknown per block: 1e-12;
+    - Picard-linearised Navier–Stokes and conjugate heat transfer up to Re 100: 1e-14;
+    - meshless matrices: 1e-9.
+  - So the algebra is never the problem.
+- **Reduced interfaces degrade gracefully with physics.** Contrast, anisotropy and thin layers change the m = 12
+  error by at most 2.2×.
+  - For advection–diffusion the modes needed for 1 % grow only from 2 (Pe_b ≤ 10) to 3 (Pe_b 100–1000).
+  - For Stokes 2 modes suffice, and for the Re 100 cold plate 3.
+  - Recirculation crossing block faces is real but small at these Reynolds numbers: 4.5 % of the face flux at Re 100.
+- **Far field (T1).**
+  - At fixed m the error grows about 3× for every 4× more blocks: m = 12 gives 1.4 mK at 256 blocks, 16 mK at 1,024,
+    52 mK at 4,096 and 0.21 K at 16,384.
+  - The m needed for 0.1 K went 6 → 12 → 12 → 24. That is exactly the pre-registered limit of 2×, on a coarse m
+    grid.
+  - The exact correction fixes it at moderate cost:
+    - PCG iterations to 1 mK are 2, 8, 8 and 32;
+    - time to 1 mK is 5 s against 481 s for one fine AMG solve at 4,096 blocks.
+
+### What breaks, and why
+
+1. **Cost whenever blocks stop repeating (T4, T5, T6, T7, F1, F3).**
+   - The method's advantage is reuse. With random variants the memoised hierarchy is slower than the flat
+     condensation from V = 4 on (20 s against 4.9 s; 61 s against 6.6 s at V = 256), because almost no subtree
+     repeats.
+   - With every block distinct (T4), the exact path costs more than the fine solve. At 32 × 32 it did not fit in
+     memory: one dense block model per distinct block.
+   - Non-linear material laws make every block distinct at every Picard iteration: 4.4× (T6) and 4.5× (T7) slower
+     than the fine non-linear solve, at the same accuracy.
+   - A numerically computed velocity field differs bit by bit between "periodic" blocks. Content-identical reuse then
+     finds nothing (80 of 80, 44 of 44 blocks distinct), and condensed Picard is about 2× slower than the full one
+     (F3).
+2. **Cost against a sparse direct solver in 2-D (F2, M4).**
+   - Even with 9 distinct of 288 blocks, condensing a 2-D Stokes system was 4.6× slower than one sparse direct
+     solve.
+   - The factorisation of the separator dominates (its dense blocks fill in).
+   - In 2-D, nested dissection is already near-optimal, so there is little left to win for a single right-hand
+     side.
+3. **Sub-pitch features the modes cannot represent (T8).**
+   - A single-cell power spike gives 1.66 K with 12 modes. The other adversarial maps (checkerboards, noise,
+     corners) stay below 10 mK.
+   - The estimator is not fooled: its effectivity stays in 1.4–1.8. It flags the problem, and refinement or the
+     exact correction has to act on it.
+4. **Heterogeneous blocks with base-stack modes (T4).**
+   - On a package where every block differs (voids, delamination ×30), the m-mode interfaces are off by 0.68 K at
+     8 × 8 blocks. On uniform packages they are off by 2–16 mK.
+   - The learned-operator study of the track 1 report compared the learned path with *all-exact blocks on the same
+     m-mode interfaces*, not with the fine solution. Its 4 mK agreement did not include this 0.68 K.
+5. **The generic algebraic layer in 3-D (T6, T7, T10 at 16 × 16).**
+   - The separator factorisation ran out of memory.
+   - The port-based block condensation of `pinneapple_condense.substructure` does not have this problem: it keeps
+     faces separate.
+   - The generic layer is a correctness tool here, not a fast one.
+6. **Meshless (M1–M4).**
+   - RBF-FD converges for advection–diffusion but is 28–32× less accurate than FV at equal unknowns at low Pe. It is
+     only competitive at Pe_b = 100.
+   - GFDM is unstable (errors up to 1e9).
+   - Collocated meshless Stokes does not converge reliably: RBF-FD goes 46 %, 50 %, 18 %; GFDM decreases but
+     stagnates at 35 %.
+   - The FV-at-interfaces hybrid removes the interface failure of the report (its error is now spread over the band
+     and the points alike), but stays 6–8× worse than FV everywhere. Its largest errors sit at the meshless points
+     near the domain boundary and the band edge.
+   - Meshless blocks condense exactly and, with deterministic neighbour selection, are found identical. Condensation
+     is still slower than one direct solve.
+7. **Prior + exception patches on transport (E1).**
+   - On advection-dominated fields the residual of a coarse prior is no better than random at choosing where to
+     solve, and its selected blocks overlap the true top-error blocks by at most 0.69.
+   - The error of a coarse prior is carried downstream, away from where the residual is large.
+   - In the thermal case of track 1c (diffusive, local defects) the same method worked.
+
+### Where the idea stands
+
+Condensation is **exact and robust as algebra**. Its accuracy-per-mode survives contrast, anisotropy, thin layers,
+moderate Péclet and Reynolds numbers. Its growth with package size is real but controllable (m doubling per 16×
+blocks, or the exact correction).
+
+Its **speed comes only from repetition**, and the campaign shows how fragile that is:
+- random variants;
+- non-linear material laws;
+- computed advection fields;
+- 2-D problems where sparse direct solvers are already efficient.
+
+Each of these removes the gain, sometimes entirely. A practical method needs:
+- identical-up-to-tolerance block matching, not bit-identical (computed velocities, temperature-dependent k);
+- parametric block operators (the learned path, with interface modes trained for heterogeneity);
+- H-matrix arithmetic for the separators.
+
+None of these is implemented here.
+
+## Deviations from the pre-registration
+
+Listed here instead of changing the hypotheses above.
+
+1. **F0, Poiseuille.** The pre-registered criterion expected an exact parabola (1e-6). The ghost-cell wall treatment
+   is O(h²) for curved profiles; the observed order is 2. That sub-criterion is met (refuted) as written.
+2. **F2 / F3 metric.** The velocity inlet fixes the flow rate, so the pressure drop at that flow rate (the
+   equivalent permeability measure) replaces the flow-rate error.
+3. **T7 law.** "β such that R_c doubles over the range" is implemented as a linear rise from R_0 at the coolest to
+   2 R_0 at the hottest interface temperature of the linear solution, saturating at 2 R_0.
+   - An unsaturated law ran away: R up → T up → R up.
+   - A first run took the range from the die-top cells instead of the interface the law is applied to. That made
+     the law inert, and it was corrected and re-run.
+4. **Reduced scales (memory).**
+   - T4 at 16 × 16 instead of 32 × 32 (killed at 13 GB).
+   - T6, T7 and T10 at 8 × 8 instead of 16 × 16: the separator factorisation of the generic layer ran out of memory.
+     Those failures are kept as results.
+   - T1 has no m = 48 point at 16,384 blocks (beyond 15 GB).
+5. **T4 "exact path"** is the condensation of every block followed by the PCG correction to the fine solution. The
+   all-exact-blocks solve of the learned study still uses m-mode interfaces (item 4 of "What breaks").
+6. **Implementation defects found and fixed during the runs; affected studies re-run.**
+   - The block count of the algebraic partition counted unknowns on the far boundary as a new block (F1–F3 re-run;
+     verdicts unchanged).
+   - The meshless k-nearest-neighbour search broke ties differently in different blocks. M4 first measured 16 of 16
+     blocks distinct and a speedup of 0.26; after the fix, 9 of 16 distinct and 0.16.
+7. **E1 budgets** select a fraction of blocks; with one ring of halo the solved fraction is larger. It is reported
+   as such.
 
 ## Change log
 
 - 2026-10-25: pre-registered.
+- 2026-10-25: results and deviations appended after the runs; the hypotheses and kill criteria above are unchanged.

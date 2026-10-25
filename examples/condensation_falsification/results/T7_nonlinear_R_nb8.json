@@ -1,25 +1,29 @@
 {
  "case": "R",
  "blocks": 64,
- "Tmax_fine_nonlinear": 132.36440334747047,
- "Tmax_condensed_nonlinear": 132.3644033432941,
- "err": 4.176371248831856e-09,
- "Tmax_linear": 132.36440334714075,
+ "Tmax_fine_nonlinear": 141.32483735792823,
+ "Tmax_condensed_nonlinear": 141.32483735472104,
+ "err": 3.2071909572550794e-09,
+ "Tmax_linear": 132.36440334722087,
  "fine": {
-  "iterations": 2,
-  "seconds": 19.377346966000005,
+  "iterations": 4,
+  "seconds": 39.03452257900062,
   "history": [
    1.0,
-   1.1814070953470683e-12
+   0.03896081822718958,
+   0.027733019431947142,
+   1.9254184273180965e-12
   ]
  },
  "condensed": {
-  "iterations": 2,
-  "seconds": 67.86898177600006,
+  "iterations": 4,
+  "seconds": 176.2749047059997,
   "history": [
    1.0,
+   0.038955358136048814,
+   0.02770437225771281,
    0.0
   ]
  },
- "peak_rss_gb": 1.98284
+ "peak_rss_gb": 2.668008
 }

@@ -20,7 +20,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
     and the Keff baseline.
   - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field
     snapshot modes, a residual error estimate, p- and full refinement, and an exact CG correction; nested condensation
-    with memoised identical subtrees (262 k blocks, 3.9e8 fine-cell equivalent, in this container).
+    with memoised identical subtrees (65,536 blocks / 9.6e7 fine cells at m=12 built in 44 s and 7.6 GB in this container; the
+    interface-reduction error grows with package size: 27 mK at 1,024 blocks, 0.37 K at 4,096).
   - **Extensions:** learned block operators with an out-of-box/deviation fallback and verification against exact
     condensation; Craig-Bampton transients.
   - **Track 1b, meshless:** RBF-FD / GFDM on point clouds from the implicit geometry, with interface pairs, mirror

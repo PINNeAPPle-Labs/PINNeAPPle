@@ -369,7 +369,54 @@ the millikelvin level for about the cost of one more solve.
 
 ### 4.4 Cost against package size
 
-SCALING_PLACEHOLDER
+`examples/physics_condensation/results/scaling.json`. Each point ran in a fresh process; the peak memory is that
+process's. All points use the same package family: uniform 40 µm unit cells, hotspot power, 1,472 fine cells per
+block.
+
+| blocks | fine cells | fine FV reference (AMG) | flat condensation, m=12: build / solve / RAM | hierarchy, m=12: build / solve / RAM | hierarchy, m=6: build / solve / RAM |
+|---|---|---|---|---|---|
+| 16 | 2.4e4 | 2.2 s | 0.49 s / 0.4 ms / 0.19 GB | 0.32 s / 1 ms / 0.19 GB | |
+| 256 | 3.8e5 | 53 s, 0.35 GB | 0.34 s / 3 ms / 0.19 GB | 0.63 s / 7 ms / 0.19 GB | |
+| 1,024 | 1.5e6 | 86 s, 1.0 GB | 1.1 s / 15 ms / 0.38 GB | 0.67 s / 0.20 s / 0.28 GB | |
+| 2,304 | 3.4e6 | 213 s, 2.2 GB | | | |
+| 4,096 | 6.0e6 | | 5.8 s / 76 ms / 1.0 GB | 2.3 s / 0.25 s / 0.67 GB | 0.76 s / 0.10 s / 0.28 GB |
+| 16,384 | 2.4e7 | | 47 s / 0.42 s / 4.1 GB | 8.5 s / 0.88 s / 2.0 GB | 1.9 s / 0.27 s / 0.65 GB |
+| 65,536 | 9.6e7 | | | **44 s / 3.4 s / 7.6 GB** | 5.5 s / 1.2 s / 2.1 GB |
+| 262,144 | 3.9e8 | | | | 40 s / 4.0 s / 7.7 GB |
+
+![scaling](../../examples/physics_condensation/figures/scaling.png)
+
+**Accuracy along the curve.**
+- Where the fine reference fits (up to 1,024 blocks), the m=12 hierarchy's Tmax is within 16 mK of it. The flat and
+  hierarchical condensations give the same Tmax to 1 mK at every size: they solve the same reduced problem.
+- **m=6 is not accurate at scale, and its error grows with the package.** Its Tmax departs from m=12 by −0.97 K
+  (4,096 blocks), −2.96 K (16,384) and −6.03 K (65,536). The 262,144-block point shows that the method *runs* at
+  that size in 7.7 GB. It does not show an accurate answer there: from that trend the error is likely 10 K or more,
+  and nothing here measures it.
+- **The m=12 error grows with size too, more slowly.** Against the fine reference it is 2.4 mK at 144 blocks,
+  27 mK at 1,024 (Section 4.2) and 0.37 K at 4,096 (Section 4.5, two maps).
+- So the 65,536-block m=12 point (44 s build, 3.4 s per map) has an error that is not measured, likely above 1 K
+  given that trend. The cost table is a cost result, not an accuracy result beyond 4,096 blocks.
+- The far-field snapshots cover 16 x 16 blocks (Section 3.3). Larger packages have longer-range interface modes
+  that 12 modes do not hold. More modes for larger packages, or the exact correction (Section 4.3: 0.13 K to 1.9 mK
+  in 10 iterations at 1,024 blocks), are the measured ways to control it.
+
+**Cost.**
+- The hierarchy's build grows about 4–5× per 4× blocks (2.3 → 8.5 → 44 s), dominated by the dense merges at the top
+  separators. Thanks to memoisation there are only 15–17 distinct merges.
+- The flat condensation grows faster, about 8× per 4× (5.8 → 47 s), dominated by the sparse factorisation of the
+  interface system. It was not run beyond 16,384 blocks.
+- The fine AMG reference grows about linearly in cells, but with a large constant: 213 s at 3.4e6 cells.
+- A new power map costs one up-and-down pass: 3.4 s at 65,536 blocks, against a build of 44 s.
+
+**Compressibility of the top operator** (`results/root_ranks.json`, 64 x 64 blocks, m=12, 3,072 root ports, 768 per
+side, singular values above 1e-8 of the largest):
+- coupling between adjacent sides: rank 74 of 768 (10%);
+- coupling between opposite sides: rank 16;
+- a quarter of a side against the far half: rank 10 of 192.
+
+The top blocks are therefore strongly data-sparse, which is the case for H-matrix or HSS arithmetic (Section 2). It
+would remove the cubic growth of the top merges, but it is not implemented here.
 
 ### 4.5 Cost to build against cost per configuration
 

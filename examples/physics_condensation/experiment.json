@@ -30,8 +30,38 @@
    "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
   },
   {
+   "name": "largest_blocks",
+   "value": 65536.0,
+   "unit": "blocks",
+   "how": "largest package solved by the hierarchy, m=12"
+  },
+  {
+   "name": "largest_build_s",
+   "value": 43.746866945999955,
+   "unit": "s",
+   "how": "hierarchy build, fresh process"
+  },
+  {
+   "name": "largest_solve_s",
+   "value": 3.3815957900001195,
+   "unit": "s",
+   "how": "one power map, after the build"
+  },
+  {
+   "name": "largest_peak_rss",
+   "value": 7.608628,
+   "unit": "GB",
+   "how": "peak RSS of the process"
+  },
+  {
    "name": "learned_32_speedup",
    "value": 44.41025206966396,
+   "unit": "x",
+   "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+  },
+  {
+   "name": "learned_64_speedup",
+   "value": 38.99521182109361,
    "unit": "x",
    "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
   }
@@ -62,7 +92,67 @@
    "kind": "verification"
   },
   {
+   "name": "hierarchy m=12 Tmax within 0.5 K of the fine reference (16 blocks)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "65.910 vs 65.910 K",
+   "kind": "verification"
+  },
+  {
+   "name": "hierarchy m=12 Tmax within 0.5 K of the fine reference (64 blocks)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "66.181 vs 66.182 K",
+   "kind": "verification"
+  },
+  {
+   "name": "hierarchy m=12 Tmax within 0.5 K of the fine reference (256 blocks)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "66.855 vs 66.857 K",
+   "kind": "verification"
+  },
+  {
+   "name": "hierarchy m=12 Tmax within 0.5 K of the fine reference (1024 blocks)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "68.628 vs 68.644 K",
+   "kind": "verification"
+  },
+  {
    "name": "learned_32: learned + verified Tmax within 0.05 K of all-exact condensation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "learned_64: learned + verified Tmax within 0.05 K of all-exact condensation",
    "passed": true,
    "value": null,
    "reference": null,
@@ -79,7 +169,8 @@
    "figures/accuracy_vs_modes.png",
    "figures/keff_vs_fine.png",
    "figures/refinement.png",
-   "figures/transient.png"
+   "figures/transient.png",
+   "figures/scaling.png"
   ],
   "videos": [],
   "viewers": [],
@@ -94,9 +185,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "5e63494a",
-  "created": "2026-10-25T03:27:12Z",
-  "seconds": 1.64,
+  "git": "37dbe0d2",
+  "created": "2026-10-25T02:54:39Z",
+  "seconds": 2711.17,
   "error": null,
   "environment": {
    "python": "3.13.17",

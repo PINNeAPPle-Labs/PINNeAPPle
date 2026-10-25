@@ -74,12 +74,32 @@ def grid_and_validation(recs, res: str, campaign_mesh: str = "L1", tol: float = 
         FG.grid_convergence(_fig(res, "grid_convergence_cd.png"), study, "CD", measured=A.AHMED_1984_CD[25.0],
                             title="Baseline CD against cell size (25 deg, 60 m/s)")
     names = [m["name"] for m in study.get("meshes", [])]
-    l1_err = None
-    if campaign_mesh in names and study["CD"].get("extrapolated") is not None:
-        l1_err = study["CD"]["error_vs_extrapolated"][names.index(campaign_mesh)]
+    l1_err, basis = None, ""
+    if campaign_mesh in names:
+        i = names.index(campaign_mesh)
+        if study["CD"].get("extrapolated") is not None:
+            l1_err, basis = study["CD"]["error_vs_extrapolated"][i], "Richardson extrapolation"
+        else:
+            l1_err, basis = study["CD"]["error_vs_finest"][i], f"finest mesh {names[-1]} (oscillatory: no extrapolation)"
+    rows = _val_rows(by, "val_")
+    fine = _val_rows(by, "valL2_")
+    val = {"source": A.AHMED_1984_SOURCE, "rows": rows, "rows_L2": fine, "campaign_mesh": campaign_mesh,
+           "grid_uncertainty_fine_mesh": (study.get("CD") or {}).get("gci_fine"),
+           "campaign_mesh_error": l1_err, "campaign_mesh_error_basis": basis}
+    _dump(res, "validation.json", val)
+    if rows:
+        series = {f"OpenFOAM k-omega SST, {campaign_mesh} (campaign)": [(r["slant_deg"], r["CD_cfd"]) for r in rows]}
+        if fine:
+            series["OpenFOAM k-omega SST, L2"] = [(r["slant_deg"], r["CD_cfd"]) for r in fine]
+        FG.validation(_fig(res, "validation_cd.png"), A.AHMED_1984_CD, series, source="Ahmed et al. 1984",
+                      title="Drag against slant angle: CFD and wind tunnel")
+    return {"mesh_study": study, "validation": val}
+
+
+def _val_rows(by, prefix):
     rows = []
     for k in sorted(by):
-        if not k.startswith("val_"):
+        if not k.startswith(prefix):
             continue
         r = by[k]
         s = r.params["slant_deg"]
@@ -89,16 +109,8 @@ def grid_and_validation(recs, res: str, campaign_mesh: str = "L1", tol: float = 
                      "CD_breakdown": {x: r.outputs[f"CD_{x}"] for x in A.REGIONS} | {"friction": r.outputs["CD_friction"]},
                      "iteration_std": r.meta["iteration_std"]["CD"], "trust": A.run_trust_report(r.meta).decisao,
                      "failed_checks": [c.name for c in A.qa_checks(r.meta) if c.status == "contradicts"],
-                     "yplus_median_band": [r.meta["yplus"]["p05"], r.meta["yplus"]["p95"]]})
-    val = {"source": A.AHMED_1984_SOURCE, "rows": rows, "campaign_mesh": campaign_mesh,
-           "grid_uncertainty_fine_mesh": (study.get("CD") or {}).get("gci_fine"),
-           "campaign_mesh_error_vs_richardson": l1_err}
-    _dump(res, "validation.json", val)
-    if rows:
-        FG.validation(_fig(res, "validation_cd.png"), A.AHMED_1984_CD,
-                      {"OpenFOAM k-omega SST (campaign mesh)": [(r["slant_deg"], r["CD_cfd"]) for r in rows]},
-                      band=l1_err, source="Ahmed et al. 1984", title="Drag against slant angle: CFD and wind tunnel")
-    return {"mesh_study": study, "validation": val}
+                     "yplus_p05_p95": [r.meta["yplus"]["p05"], r.meta["yplus"]["p95"]], "cells": r.meta.get("cells")})
+    return rows
 
 
 # ---------------------------------------------------------------------- 2. dataset

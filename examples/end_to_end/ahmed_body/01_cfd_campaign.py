@@ -9,7 +9,8 @@ Stages (default: all, in this order; each is resumable, finished runs are skippe
 * ``validation`` the slant angles Ahmed et al. (1984) measured, at their 60 m/s and 50 mm, on the campaign mesh;
 * ``doe``        48 maximin Latin-hypercube designs over slant 0-40 deg, clearance 30-80 mm, speed 20-60 m/s;
 * ``cad_run``    the imported CAD body at the baseline, to compare with the parametric one;
-* ``mesh_fine``  the L3 mesh (1.3 M cells, about an hour on 4 cores) for the asymptotic-range check.
+* ``mesh_fine``  the L3 mesh (about 1.4 M cells, over an hour on 4 cores) for the asymptotic-range check;
+* ``validation_fine``  the validation sweep again on L2, to tell the mesh's part of the error from the model's.
 
 Everything goes to ``_runs/cfd`` (records, fields, flow scenes; not committed) and the DOE plan to
 ``results/doe_plan.json``. Needs OpenFOAM (``FOAM_BASHRC``) and, for ``cad``, the gmsh binary.
@@ -67,6 +68,9 @@ for st in stages:
         print(f"DOE: discrepancy {cov['discrepancy']:.4f} (random {rnd['discrepancy']:.4f}), "
               f"min distance {cov['min_distance']:.3f} (random {rnd['min_distance']:.3f})")
         run(A.AhmedAero(procs=procs), plan["cases"], "doe")
+    elif st == "validation_fine":
+        cases = [{"id": f"valL2_{s:04.1f}", "slant_deg": s, "clearance": 0.05, "speed": 60.0} for s in A.AHMED_1984_CD]
+        run(A.AhmedAero(mesh="L2", procs=procs), cases, "probe")
     elif st == "cad_run":
         body = cad()
         sim = A.AhmedAero(procs=procs, geometry=lambda p, b=body: (b["V"], b["F"]))

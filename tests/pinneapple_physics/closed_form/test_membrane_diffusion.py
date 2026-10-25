@@ -14,7 +14,18 @@ RESERVOIR_THICKNESS_M = 0.001
 def test_release_rate_matches_patchdose_ai_baseline():
     """patchdose_ai's baseline patch: 20cm^2 (20e-4 m^2), 80um membrane, 60 kg/m^3 reservoir."""
     rate = md.steady_state_release_rate_mg_day(D, K, 60.0, 20e-4, 80e-6)
-    assert abs(rate - 0.0648) < 0.001  # matches patchdose_ai's own reported ~0.0648 mg/day
+    # by hand: D K C / L = 5e-13 * 60 / 80e-6 = 3.75e-7 kg/(m^2 s); x A = 7.5e-10 kg/s = 7.5e-4 mg/s = 64.8 mg/day
+    # (patchdose_ai reported 0.0648 "mg/day": its kg -> mg factor was 1e3, i.e. grams)
+    assert abs(rate - 64.8) < 1e-9 * 64.8 + 1e-9
+
+
+def test_released_mass_over_the_depletion_time_equals_the_reservoir_mass():
+    """Rate x t_dep = C A L_res (units must close: 60 kg/m^3 x 20 cm^2 x 1 mm = 120 mg)."""
+    rate = md.steady_state_release_rate_mg_day(D, K, 60.0, 20e-4, 80e-6)
+    t_dep = md.depletion_time_days(D, K, 80e-6, RESERVOIR_THICKNESS_M)
+    assert abs(rate * t_dep - 120.0) < 1e-9
+    points = md.simulate_release_timeseries(D, K, 60.0, 20e-4, 80e-6, RESERVOIR_THICKNESS_M, n_points=3)
+    assert abs(points[0]["reservoir_remaining_mg"] - 120.0) < 1e-9
 
 
 def test_depletion_time_independent_of_area():

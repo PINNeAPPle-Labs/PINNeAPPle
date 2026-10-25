@@ -8,6 +8,8 @@ coefficients of a shell-and-tube exchanger.
 * LMTD correction factor F of a 1-2 exchanger (Bowman, Mueller & Nagle 1940; Incropera Fig. 11S.1).
 * Tube side: Gnielinski (1976), ``Nu = (f/8)(Re-1000)Pr / (1 + 12.7 sqrt(f/8)(Pr^(2/3)-1))`` with Petukhov's
   ``f = (0.790 ln Re - 1.64)^-2``, valid for 3000 <= Re <= 5e6 and 0.5 <= Pr <= 2000. Laminar: Nu = 3.66.
+* Laminar thermal entry, constant wall temperature, developed velocity: Hausen (1943), mean
+  ``Nu_D = 3.66 + 0.0668 Gz / (1 + 0.04 Gz^(2/3))``, ``Gz = (D / L) Re Pr`` (Incropera eq. 8.57).
 * Shell side: Kern (1950), *Process Heat Transfer*, eq. 7.3, ``Nu = 0.36 Re^0.55 Pr^(1/3)`` (with the viscosity
   correction dropped), on the shell equivalent diameter. Valid for 2e3 < Re < 1e6 with 25 % segmental baffles.
   This is the standard first estimate. Bell-Delaware gives lower and more accurate values.
@@ -23,7 +25,7 @@ import math
 import numpy as np
 
 __all__ = ["effectiveness", "ntu_from_effectiveness", "lmtd_correction_1_2", "gnielinski", "kern_shell",
-           "one_two_exchanger_ode"]
+           "one_two_exchanger_ode", "hausen_mean_nusselt", "mean_nusselt_from_temperatures"]
 
 
 def effectiveness(ntu: float, cr: float, arrangement: str = "counterflow", n_shell: int = 1) -> float:
@@ -85,6 +87,23 @@ def gnielinski(re: float, pr: float) -> dict[str, float]:
     f = (0.790 * math.log(re) - 1.64) ** -2
     nu = (f / 8) * (re - 1000) * pr / (1 + 12.7 * math.sqrt(f / 8) * (pr ** (2 / 3) - 1))
     return {"nu": nu, "f": f, "regime": "turbulent" if re >= 3000 else "transitional"}
+
+
+def hausen_mean_nusselt(re: float, pr: float, d_over_l: float) -> float:
+    """Mean Nusselt number over a heated length L of a tube at constant wall temperature, laminar, velocity already
+    developed (thermal entry): Hausen (1943), Incropera 6th ed. eq. 8.57. Tends to 3.66 for a long tube."""
+    if not (re > 0 and pr > 0 and d_over_l > 0):
+        raise ValueError("re, pr and d_over_l must be positive")
+    gz = d_over_l * re * pr
+    return 3.66 + 0.0668 * gz / (1.0 + 0.04 * gz ** (2.0 / 3.0))
+
+
+def mean_nusselt_from_temperatures(re: float, pr: float, d_over_l: float, t_wall: float, t_in: float,
+                                   t_out: float) -> float:
+    """Mean Nusselt number of a tube at constant wall temperature from its bulk inlet and outlet temperatures:
+    the energy balance ``ln((Tw - Ti) / (Tw - To)) = 4 (L / D) Nu_m / (Re Pr)`` (Incropera eq. 8.41b with
+    h_m = Nu_m k / D)."""
+    return re * pr * d_over_l / 4.0 * math.log((t_wall - t_in) / (t_wall - t_out))
 
 
 def kern_shell(m_dot: float, mu: float, k: float, cp: float, *, shell_id: float, baffle_spacing: float,

@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Design That Almost Passed</title>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #201f1d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --blue: #3987e5;
+    --blue-dim: #1c5cab;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.13);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.13);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue); font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 40px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.01em; font-weight: 750; }
+  .sub {
+    font-size: 18px; color: var(--text-secondary); line-height: 1.55; max-width: 640px; margin: 0 0 42px;
+  }
+  .hero-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 30px; display: flex; align-items: center; gap: 22px; margin-bottom: 8px;
+  }
+  .hero-check {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--good-bg); color: var(--good);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .hero-stat .num { font-size: 38px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stat .lbl { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+  .hero-note { color: var(--text-muted); font-size: 13px; margin: 10px 2px 56px; }
+
+  .divider-line {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0 30px; color: var(--text-muted);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 650;
+  }
+  .divider-line::before, .divider-line::after { content: ""; flex: 1; height: 1px; background: var(--gridline); }
+
+  h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .h2-sub { color: var(--text-secondary); font-size: 15px; line-height: 1.6; max-width: 620px; margin-bottom: 26px; }
+
+  .chart-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 26px 18px; margin-bottom: 30px;
+  }
+  #chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .bar { fill: var(--blue); transition: fill 0.15s; }
+  .bar:hover { fill: #5da3f2; }
+  .bar.past-limit { fill: var(--critical); }
+  .axis-label { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grid-line { stroke: var(--gridline); stroke-width: 1; }
+  .limit-line { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .p95-line { stroke: var(--warning); stroke-width: 1.5; stroke-dasharray: 2 3; }
+  .ref-label { font-size: 12px; font-weight: 650; }
+  .ref-label.limit { fill: var(--critical); }
+  .ref-label.p95 { fill: var(--warning); }
+  .margin-callout { fill: var(--text-secondary); font-size: 12.5px; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; background: #050506; border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: var(--text-primary);
+    transform: translate(-50%, -115%); white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-wrap { position: relative; }
+
+  .verdict-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px; }
+  .verdict-badge {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px 26px; display: flex; align-items: center; gap: 16px; flex: 1 1 220px;
+  }
+  .verdict-badge .icon { font-size: 26px; }
+  .verdict-badge .label { font-size: 22px; font-weight: 800; letter-spacing: 0.01em; }
+  .verdict-badge .note { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; }
+  /* Verdict-specific coloring -- set by JS from the real, live summary.verdict
+     (never assume MARGINAL: this badge used to be static HTML that couldn't
+     reflect a ROBUST or FRAGILE result from a fresh Monte Carlo batch). */
+  .verdict-badge.v-ROBUST { background: var(--good-bg); border-color: rgba(12,163,12,0.35); }
+  .verdict-badge.v-ROBUST .label { color: var(--good); }
+  .verdict-badge.v-MARGINAL { background: var(--warning-bg); border-color: rgba(250,178,25,0.35); }
+  .verdict-badge.v-MARGINAL .label { color: var(--warning); }
+  .verdict-badge.v-FRAGILE { background: var(--critical-bg); border-color: rgba(230,103,103,0.35); }
+  .verdict-badge.v-FRAGILE .label { color: var(--critical); }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; flex: 1 1 140px;
+  }
+  .stat-tile .num { font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat-tile .lbl { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+  .narrative { font-size: 16px; line-height: 1.7; color: var(--text-secondary); max-width: 640px; margin-bottom: 10px; }
+  .narrative b { color: var(--text-primary); }
+  .pullquote {
+    font-size: 21px; font-weight: 650; line-height: 1.45; color: var(--text-primary);
+    border-left: 3px solid var(--blue); padding-left: 18px; margin: 30px 0 40px; max-width: 600px;
+  }
+
+  .replay-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 650; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  }
+  .replay-btn:hover { background: #262524; }
+  .replay-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--gridline);
+    color: var(--text-muted); font-size: 12.5px; line-height: 1.7;
+  }
+  .footer b { color: var(--text-secondary); }
+
+  #viewer-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px 20px 14px; margin-bottom: 42px;
+  }
+  #viewer {
+    width: 100%; height: 340px; border-radius: 12px; background: #050506;
+    position: relative; overflow: hidden;
+  }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--text-muted); font-size: 11px; }
+  .viewer-caption { color: var(--text-muted); font-size: 12.5px; margin-top: 12px; line-height: 1.6; }
+
+  .method-section { margin: 54px 0 44px; }
+  .method-block { margin-bottom: 26px; }
+  .method-block h3 {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .method-block h3 .num {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--surface-2); color: var(--blue); font-size: 12px; font-weight: 700;
+  }
+  .method-block p { font-size: 14.5px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; max-width: 620px; }
+  .method-block p b { color: var(--text-primary); }
+  .eq {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--blue); margin: 10px 0; display: inline-block;
+  }
+  .pinn-note {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: 16px 18px; margin-top: 24px; font-size: 14px;
+    color: var(--text-secondary); line-height: 1.65;
+  }
+  .pinn-note b { color: var(--text-primary); }
+
+  .code-section { margin: 44px 0 20px; }
+  .code-card {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-card .code-title {
+    padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--gridline);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .code-card pre {
+    margin: 0; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #d4d4d0;
+  }
+  .code-card .c-kw { color: #d55181; }
+  .code-card .c-fn { color: #3987e5; }
+  .code-card .c-str { color: #c98500; }
+  .code-card .c-com { color: var(--text-muted); font-style: italic; }
+
+  /* Two-scenario 3D comparison */
+  .viewer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+  @media (max-width: 700px) { .viewer-grid { grid-template-columns: 1fr; } }
+  .viewer-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .viewer-label { font-size: 13px; color: var(--text-secondary); font-weight: 650; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .badge-this { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-2); color: var(--text-muted); padding: 2px 7px; border-radius: 8px; font-weight: 700; }
+  .viewer-box { width: 100%; height: 240px; border-radius: 10px; background: #050506; position: relative; overflow: hidden; }
+  .viewer-box .hint { position: absolute; bottom: 6px; right: 10px; color: var(--text-muted); font-size: 10px; }
+  .viewer-temp { text-align: center; font-size: 22px; font-weight: 750; margin-top: 10px; font-variant-numeric: tabular-nums; }
+  .viewer-caption { color: var(--text-muted); font-size: 12.5px; margin: 14px 2px 40px; line-height: 1.6; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+  .dot.city { background: var(--critical); } .dot.highway { background: var(--blue); }
+  .colorbar { position: absolute; top: 10px; right: 10px; width: 110px; }
+  .colorbar-grad { height: 8px; border-radius: 4px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Uncertainty gauge */
+  .gauge-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 22px 26px 16px; margin-bottom: 34px; }
+  #gauge { width: 100%; height: auto; overflow: visible; }
+  .gauge-legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); margin-top: 10px; }
+  .gauge-legend div { display: flex; align-items: center; gap: 6px; }
+  .gauge-legend .dot.nominal { background: var(--good); }
+  .gauge-legend .dot.mean { background: var(--blue); }
+  .gauge-legend .dot.p95 { background: var(--warning); }
+  .gauge-legend .dot.limit { background: var(--critical); }
+
+  /* Itemized verification card */
+  .verify-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 24px 26px; margin-bottom: 40px; }
+  .verify-top { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
+  .trust-score { font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .verdict-pill { display: inline-block; padding: 4px 13px; border-radius: 20px; font-size: 12.5px; font-weight: 750; letter-spacing: 0.03em; }
+  .v-PASS { background: var(--good-bg); color: var(--good); }
+  .v-WARNING { background: var(--warning-bg); color: var(--warning); }
+  .v-FAIL { background: var(--critical-bg); color: var(--critical); }
+  .verify-coverage { color: var(--text-muted); font-size: 12px; margin-top: 5px; }
+  .check-row {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+    padding: 12px 0; border-bottom: 1px solid var(--gridline); font-size: 13px;
+  }
+  .check-row .verdict-pill { flex-shrink: 0; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .check-name { font-weight: 650; min-width: 170px; }
+  .check-row .check-detail { color: var(--text-secondary); flex: 1; }
+  .verify-note { color: var(--text-muted); font-size: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--gridline); line-height: 1.6; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 30px; }
+    .hero-card { flex-direction: column; align-items: flex-start; }
+    .check-row { flex-direction: column; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Verification case study</div>
+  <h1>A design that passed its safety check.</h1>
+  <div class="sub">A vented brake rotor's cooling vanes, checked against a real thermal limit under sustained high-power braking. The nominal design came in comfortably under the line.</div>
+
+  <div class="hero-card">
+    <div class="hero-check">✓</div>
+    <div class="hero-stat">
+      <div class="num" id="nominal-temp">--°C</div>
+      <div class="lbl">nominal rotor temperature &middot; <span id="nominal-margin">--</span> under the 500°C safety limit</div>
+    </div>
+  </div>
+  <div class="hero-note">36 cooling vanes &middot; 8.0mm vent gap &middot; 4.0mm vane thickness &middot; 1480W sustained braking load</div>
+
+  <h2>The real physics, on the real part — under two conditions</h2>
+  <div class="h2-sub">Same rotor, same 1480W braking load. Only the cooling airflow changes. The color is the real predicted temperature field (hottest at each vane's inner edge, coolest at its outer edge) — not a decoration.</div>
+
+  <div class="viewer-grid">
+    <div class="viewer-card">
+      <div class="viewer-label"><span class="dot city"></span> Low-speed / stop-and-go <span class="badge-this">this scenario</span></div>
+      <div class="viewer-box" id="viewer-city"><div class="hint">drag &middot; scroll</div>
+        <div class="colorbar" id="colorbar-city"><div class="colorbar-grad"></div><div class="colorbar-labels"><span id="cb-city-min">--</span><span id="cb-city-max">--</span></div></div>
+      </div>
+      <div class="viewer-temp" id="viewer-city-temp">--°C</div>
+    </div>
+    <div class="viewer-card">
+      <div class="viewer-label"><span class="dot highway"></span> Highway-speed ram air</div>
+      <div class="viewer-box" id="viewer-highway"><div class="hint">drag &middot; scroll</div>
+        <div class="colorbar" id="colorbar-highway"><div class="colorbar-grad"></div><div class="colorbar-labels"><span id="cb-highway-min">--</span><span id="cb-highway-max">--</span></div></div>
+      </div>
+      <div class="viewer-temp" id="viewer-highway-temp">--°C</div>
+    </div>
+  </div>
+  <div class="viewer-caption">Two real CadQuery solids (identical geometry — two friction rings + 36 radial cooling vanes, exported as real binary STL), each colored by the real analytical temperature profile for that airflow condition. This is the whole point: the geometry doesn't change — only the real physics does. A weaker convective coefficient is the entire reason this scenario's margin is thin. (The color scale tops out a few degrees below the 495.9°C headline number on purpose — that number is the friction surface, where the pad clamps; the color shows the vane root a real conduction step further along, cooler by design.)</div>
+
+  <div class="divider-line">but no two manufactured parts are identical</div>
+
+  <h2>What 200 real manufacturing variations look like</h2>
+  <div class="h2-sub">Every vane comes off the line at ±0.05mm from its nominal thickness, every vent gap at ±0.1mm — real, unavoidable machining tolerance. Propagate that real variance through the exact same physics the nominal number came from, and a single point becomes a distribution.</div>
+
+  <div class="chart-card">
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 800 320"></svg>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+  </div>
+
+  <div class="verdict-row">
+    <div class="verdict-badge v-MARGINAL" id="verdict-badge">
+      <div class="icon" id="verdict-icon">⚠️</div>
+      <div>
+        <div class="label" id="verdict-label">MARGINAL</div>
+        <div class="note" id="verdict-note">95th percentile sits within 5% of the real safety limit</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-mean">--°C</div>
+      <div class="lbl">mean across 200 samples</div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-p95">--°C</div>
+      <div class="lbl">95th percentile (worst realistic case)</div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-margin">--°C</div>
+      <div class="lbl">real margin left at p95</div>
+    </div>
+  </div>
+
+  <h2>How close, exactly?</h2>
+  <div class="h2-sub">The histogram shows the distribution's shape. This is the same numbers as one direct read: where nominal, mean, and the worst realistic case actually sit against the real limit.</div>
+  <div class="gauge-card">
+    <svg id="gauge" viewBox="0 0 800 100"></svg>
+    <div class="gauge-legend">
+      <div><span class="dot nominal"></span> Nominal</div>
+      <div><span class="dot mean"></span> Mean of 200</div>
+      <div><span class="dot p95"></span> p95 (worst realistic case)</div>
+      <div><span class="dot limit"></span> Safety limit</div>
+    </div>
+  </div>
+
+  <p class="narrative">The nominal design reports <b>495.9°C</b> — a comfortable-looking <b>4.1°C</b> under the 500°C limit. But once real manufacturing tolerance is propagated through the same physics via Monte Carlo, the worst realistic 5% of manufactured units land as close as <b id="narrative-margin">1.9°C</b> from that same line. <span id="narrative-safety-clause">Every single sample in this batch stayed technically safe — <b><span id="narrative-fail-count">0</span> failures out of <span id="narrative-n-samples">200</span></b></span> — but "technically safe" and "comfortably safe" turned out to be two very different claims once real-world variance entered the picture.</p>
+
+  <h2>Verification, itemized</h2>
+  <div class="h2-sub">Not a single opaque "trust me" number — every real check this result supports, run and shown, with what it covers and what it doesn't.</div>
+  <div class="verify-card">
+    <div class="verify-top">
+      <div class="trust-score" id="trust-score" title="TrustReport decision (pinneapple_analysis.trust)">--</div>
+      <div>
+        <div class="verdict-pill" id="verify-pill">—</div>
+        <div class="verify-coverage" id="verify-coverage">coverage —</div>
+      </div>
+    </div>
+    <div id="checks-list"></div>
+    <div class="verify-note" id="verify-note"></div>
+  </div>
+
+  <p class="pullquote">A number that passes on paper isn't the same as a margin that holds up in the real world. The gap between them is exactly what verification is for.</p>
+
+  <button class="replay-btn" id="btn-replay">↻ Run a new batch of 200</button>
+
+  <div class="divider-line">the method behind the number</div>
+
+  <div class="method-section">
+    <h2>How this actually works</h2>
+    <div class="h2-sub">Three real steps, no black box in between: the physics, the propagation, the verdict.</div>
+
+    <div class="method-block">
+      <h3><span class="num">1</span> The physics: extended-surface conduction</h3>
+      <p>A vented brake rotor's radial cooling vanes are, physically, the same kind of extended-surface (fin) heat exchanger as a CPU heatsink's fins — just cast iron instead of aluminum, and radial instead of straight. Heat generated at the friction surface (where the pad clamps the rotor) conducts through the friction ring, into the vanes, and out via convection into the air moving through the vent gap. The closed-form result (Incropera & DeWitt, <i>Fundamentals of Heat and Mass Transfer</i>) computes a fin efficiency and an effective convective area from the real vane geometry, giving a thermal resistance network from the friction surface to ambient air:</p>
+      <div class="eq">T_rotor = T_ambient + Q &middot; (R_base + R_conv)</div>
+      <p>where <b>R_base</b> is 1D conduction through the friction-ring thickness and <b>R_conv</b> comes from the vane array's real fin efficiency (<code>tanh(mL)/mL</code>) and effective convective area. This is the exact same real formula this scenario's nominal 495.9°C comes from.</p>
+    </div>
+
+    <div class="method-block">
+      <h3><span class="num">2</span> The propagation: real Monte Carlo, not a fudge factor</h3>
+      <p>A "safety margin" is meaningless without knowing what actually varies. Real vanes come off the line within a real machining tolerance band — here, ±0.05mm on thickness and ±0.1mm on the vent gap, sampled uniformly (no process-capability data available to justify a narrower Gaussian assumption, so uniform is the honest, more conservative choice). Every one of the 200 samples on this page is a real, independent draw from that tolerance band, run through <b>the exact same closed-form solver</b> as the nominal number — not a faster approximation, not a surrogate. That's what turns one point into the real distribution you see above.</p>
+    </div>
+
+    <div class="method-block">
+      <h3><span class="num">3</span> The verdict: a real, defensible threshold rule</h3>
+      <p>The 95th percentile of the distribution is treated as the "worst realistic case." If it exceeds the real safety limit, the design is <b>FRAGILE</b>. If it stays under but within 5% of the limit, it's <b>MARGINAL</b> — technically safe, but with too little real margin to call it robust. Only when p95 sits comfortably clear of the limit is a design called <b>ROBUST</b>. The 5% band is a design choice of this study (<code>marginal_fraction</code> in <code>pinneapple_analysis.uncertainty.margin.margin_study</code>), not a standard.</p>
+    </div>
+
+    <div class="pinn-note">
+      <b>Built on PINNeAPPle.</b> The rotor model is <code>pinneapple_design.surrogate_inverse.brake_rotor</code> on top of <code>fin_array_conduction</code>; the sampling, the corner stack-up and the six checks are <code>pinneapple_analysis.uncertainty.margin.margin_study</code> (which draws with <code>pp.propagate_tolerances</code>), and the decision is a <code>TrustReport</code>. This page only calls them.
+    </div>
+  </div>
+
+  <div class="divider-line">the code behind this</div>
+
+  <div class="code-section">
+    <h2>The real formulas, not a black box</h2>
+    <div class="h2-sub">Trimmed for length; the full module lives in PINNeAPPle's <code>pinneapple_physics.closed_form.fin_array_conduction</code>.</div>
+
+    <div class="code-card">
+      <div class="code-title">fin_array_conduction.py — the shared PINNeAPPle physics</div>
+      <pre><span class="c-kw">def</span> <span class="c-fn">fin_array_base_temperature_c</span>(params, t_ambient_c, power_w):
+    <span class="c-com"># the real, closed-form ground truth every sample on this page uses</span>
+    <span class="c-kw">return</span> t_ambient_c + power_w * params[<span class="c-str">"r_base"</span>] + params[<span class="c-str">"theta_fin_base_c"</span>]
+
+<span class="c-kw">def</span> <span class="c-fn">fin_array_profile_params</span>(k_material_w_mk, h_conv_w_m2k, n_fins,
+                            fin_thickness_m, fin_length_m,
+                            transverse_extent_m, spacing_extent_m,
+                            base_thickness_m, power_w):
+    lc = fin_length_m + fin_thickness_m / <span class="c-str">2.0</span>
+    m = math.sqrt(<span class="c-str">2.0</span> * h_conv_w_m2k / (k_material_w_mk * fin_thickness_m))
+    eta_fin = math.tanh(m * lc) / (m * lc)  <span class="c-com"># real fin efficiency</span>
+    <span class="c-com"># ... effective area, R_conv, R_base from the real geometry ...</span></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-title">the Monte Carlo margin study (pinneapple_analysis.uncertainty.margin)</div>
+      <pre><span class="c-kw">from</span> pinneapple_analysis.uncertainty.margin <span class="c-kw">import</span> margin_study
+<span class="c-kw">from</span> pinneapple_design.surrogate_inverse.brake_rotor <span class="c-kw">import</span> RotorDesign, rotor_temperature_c
+
+<span class="c-kw">def</span> <span class="c-fn">temperature</span>(X):           <span class="c-com"># rows: (vane thickness, vent gap); 36 cast-iron vanes</span>
+    <span class="c-kw">return</span> [rotor_temperature_c(RotorDesign(<span class="c-str">36</span>, g, t), <span class="c-str">1480</span>, <span class="c-str">40</span>) <span class="c-kw">for</span> t, g <span class="c-kw">in</span> X]
+
+study = margin_study(temperature, [<span class="c-str">0.004</span>, <span class="c-str">0.008</span>], [<span class="c-str">0.05e-3</span>, <span class="c-str">0.1e-3</span>], limit=<span class="c-str">500</span>, n=<span class="c-str">200</span>)
+study[<span class="c-str">"summary"</span>][<span class="c-str">"verdict"</span>], study[<span class="c-str">"decision"</span>]   <span class="c-com"># MARGINAL, REVIEW</span></pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    Real physics, not illustrative: closed-form extended-surface (fin-array) conduction, the same equations used for real heatsink and heat-exchanger design, run live for every sample in this page — not pre-rendered. <b>Built on PINNeAPPle</b>. One fixed worked case (steady state, closed-form model, stated tolerances), not a qualification of a real rotor.
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+
+const NS = "http://www.w3.org/2000/svg";
+let scenario = null;
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function fmt1(x) { return x.toFixed(1); }
+
+const viewers = {}; // { city: {scene,camera,renderer,controls}, highway: {...} }
+let rawMeshBuffer = null;
+
+// Real 4-stop thermal colormap (blue -> cyan -> yellow -> red).
+function tempToColor(t, tmin, tmax) {
+  let f = (t - tmin) / Math.max(tmax - tmin, 1e-6);
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]], [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]], [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+
+// Colors each vertex by the real radial temperature profile
+// (physics.vane_temperature_at_radial_position_c) for the given
+// condition's thermal_field params -- computed from each vertex's real
+// distance from the rotor's center axis (its true local X/Y, before any
+// scene rotation), matching geometry.py's real coordinate convention.
+function colorGeometryByTemperature(geom, field) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const rOuter = field.r_outer_mm, rInner = field.r_inner_mm;
+  const ml = field.m * field.lc_radial_m;
+
+  // Real per-vertex temperature, computed once and cached -- reused below
+  // both for coloring and for finding the REAL min/max actually reached on
+  // this mesh (not the theoretical ambient asymptote, which a real design
+  // never reaches: the cosh profile decays fast, so scaling the colorbar
+  // all the way down to t_ambient compresses most of a genuinely hot part
+  // into the cool end of the gradient -- confusing, even though technically
+  // honest). Scaling to the real observed range is the more honest choice:
+  // it reflects what's actually on the part, not a value that's never there.
+  const temps = new Float32Array(n);
+  let tMin = Infinity, tMax = -Infinity;
+  for (let i = 0; i < n; i++) {
+    const px = pos.getX(i), py = pos.getY(i);
+    const r = Math.sqrt(px * px + py * py);
+    // r_fraction=0 at the inner edge (hottest), 1 at the outer edge (coolest) -- vertices
+    // on the flat friction rings sit near r_inner/r_outer too, which is a real, honest
+    // approximation (the rings are the real boundary condition, not a separate profile).
+    const rFrac = Math.min(Math.max((r - rInner) / Math.max(rOuter - rInner, 1e-6), 0), 1);
+    const x = rFrac * field.radial_flow_length_m;
+    let theta;
+    if (ml <= 1e-9) { theta = field.theta_vane_base_c; }
+    else { theta = field.theta_vane_base_c * Math.cosh(field.m * (field.lc_radial_m - x)) / Math.cosh(ml); }
+    const t = field.t_ambient_c + theta;
+    temps[i] = t;
+    if (t < tMin) tMin = t;
+    if (t > tMax) tMax = t;
+  }
+
+  const colors = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const [r_, g_, b_] = tempToColor(temps[i], tMin, tMax);
+    colors[i * 3] = r_; colors[i * 3 + 1] = g_; colors[i * 3 + 2] = b_;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  return { tMin, tMax };
+}
+
+function showViewerFallback(containerId) {
+  const el = document.getElementById(containerId);
+  const msg = document.createElement("div");
+  msg.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"
+    + "text-align:center;padding:22px;color:var(--text-muted);font-size:12px;line-height:1.6;";
+  msg.textContent = "3D preview needs WebGL, unavailable in this browser session. The real temperature numbers below are unaffected.";
+  el.appendChild(msg);
+}
+
+function makeViewerScene(containerId) {
+  const el = document.getElementById(containerId);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(200, 170, 200);
+  // A real, observed failure mode: WebGL context creation can fail (headless
+  // browsers, some locked-down/sandboxed environments, older GPU drivers).
+  // Without this guard, an uncaught error here used to abort this whole
+  // top-level script -- silently blanking the histogram, the gauge, the
+  // verification checks and every stat tile, not just the 3D viewer.
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+  } catch (e) {
+    showViewerFallback(containerId);
+    return null;
+  }
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.insertBefore(renderer.domElement, el.firstChild);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(150, 220, 150);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x6688ff, 0.4 * Math.PI);
+  dir2.position.set(-120, 60, -150);
+  scene.add(dir2);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  return { scene, camera, renderer, controls, el };
+}
+
+function animateViewers() {
+  requestAnimationFrame(animateViewers);
+  for (const key in viewers) {
+    const v = viewers[key];
+    if (!v) continue; // WebGL unavailable for this viewer -- see makeViewerScene
+    v.controls.update();
+    v.renderer.render(v.scene, v.camera);
+  }
+}
+
+function initViewers() {
+  viewers.city = makeViewerScene("viewer-city");
+  viewers.highway = makeViewerScene("viewer-highway");
+  animateViewers();
+}
+
+async function loadMeshes(comparison) {
+  if (!rawMeshBuffer) {
+    const res = await fetch("/api/mesh.json");
+    rawMeshBuffer = await res.json();
+  }
+  for (const key of ["city", "highway"]) {
+    const v = viewers[key];
+    // Real data first, independent of whether WebGL is available -- a
+    // rendering failure should never hide a real number the rest of the
+    // page already computed.
+    document.getElementById(`viewer-${key}-temp`).textContent = fmt1(comparison[key].temp_c) + "°C";
+    if (!v) continue; // WebGL unavailable for this viewer -- see makeViewerScene
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.Float32BufferAttribute(rawMeshBuffer.positions, 3));
+    geom.setIndex(rawMeshBuffer.indices);
+    const { tMin, tMax } = colorGeometryByTemperature(geom, comparison[key].thermal_field);
+    geom.center();
+    geom.computeVertexNormals();
+    if (v.mesh) v.scene.remove(v.mesh);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, metalness: 0.25, roughness: 0.55 });
+    v.mesh = new THREE.Mesh(geom, material);
+    v.mesh.rotation.x = -Math.PI / 2;
+    v.scene.add(v.mesh);
+    document.getElementById(`cb-${key}-min`).textContent = fmt1(tMin) + "°C";
+    document.getElementById(`cb-${key}-max`).textContent = fmt1(tMax) + "°C";
+  }
+}
+
+async function loadScenario() {
+  const btn = document.getElementById("btn-replay");
+  btn.disabled = true; btn.textContent = "↻ Running 200 real samples…";
+  const res = await fetch("/api/scenario");
+  scenario = await res.json();
+  render();
+  btn.disabled = false; btn.textContent = "↻ Run a new batch of 200";
+}
+
+// Icon + short note per real verdict -- the label/color themselves come
+// straight from summary.verdict, never assumed. Status color + icon + text
+// label together (never color alone), matching the check-row pills below.
+const VERDICT_META = {
+  ROBUST: { icon: "✓", note: "95th percentile sits comfortably clear of the real safety limit" },
+  MARGINAL: { icon: "⚠️", note: "95th percentile sits within 5% of the real safety limit" },
+  FRAGILE: { icon: "✕", note: "95th percentile exceeds the real safety limit" },
+};
+
+function renderVerdictBadge(summary) {
+  const meta = VERDICT_META[summary.verdict] || VERDICT_META.MARGINAL;
+  document.getElementById("verdict-badge").className = "verdict-badge v-" + summary.verdict;
+  document.getElementById("verdict-icon").textContent = meta.icon;
+  document.getElementById("verdict-label").textContent = summary.verdict;
+  document.getElementById("verdict-note").textContent = meta.note;
+}
+
+function render() {
+  const s = scenario;
+  document.getElementById("nominal-temp").textContent = fmt1(s.nominal_c) + "°C";
+  document.getElementById("nominal-margin").textContent = fmt1(s.safety_limit_c - s.nominal_c) + "°C";
+  document.getElementById("stat-mean").textContent = fmt1(s.summary.mean_c) + "°C";
+  document.getElementById("stat-p95").textContent = fmt1(s.summary.p95_c) + "°C";
+  document.getElementById("stat-margin").textContent = fmt1(s.summary.margin_at_p95_c) + "°C";
+  document.getElementById("narrative-margin").textContent = fmt1(s.summary.margin_at_p95_c) + "°C";
+  // Real failure count from this actual batch, not a hardcoded "0" -- this
+  // scenario's tolerance band happens to make failures mathematically
+  // impossible (the deterministic worst-case corner stays under the limit),
+  // but the number on the page should say so because it's really true, not
+  // because it's spelled out in the HTML.
+  const nFail = Math.round(s.summary.n_samples * (1 - s.summary.safe_fraction));
+  document.getElementById("narrative-fail-count").textContent = nFail;
+  document.getElementById("narrative-n-samples").textContent = s.summary.n_samples;
+  renderVerdictBadge(s.summary);
+  drawChart(s);
+  drawGauge(s);
+  renderChecks(s.verification);
+  loadMeshes(s.comparison);
+}
+
+function drawGauge(s) {
+  const svg = document.getElementById("gauge");
+  svg.innerHTML = "";
+  const W = 800, H = 100, marginX = 20, y0 = 55;
+  const domainMin = Math.min(s.summary.mean_c, s.nominal_c) - 3;
+  const domainMax = s.safety_limit_c + 3;
+  const x = (t) => marginX + ((t - domainMin) / (domainMax - domainMin)) * (W - marginX * 2);
+
+  svg.appendChild(el("line", { x1: marginX, x2: W - marginX, y1: y0, y2: y0, class: "grid-line" }));
+  for (let t = Math.ceil(domainMin); t <= domainMax; t += 2) {
+    const tick = el("line", { x1: x(t), x2: x(t), y1: y0 - 4, y2: y0 + 4, class: "grid-line" });
+    svg.appendChild(tick);
+    if (Math.round(t) % 4 === 0) {
+      const lbl = el("text", { x: x(t), y: y0 + 20, class: "axis-label", "text-anchor": "middle" });
+      lbl.textContent = Math.round(t);
+      svg.appendChild(lbl);
+    }
+  }
+
+  const markers = [
+    { v: s.nominal_c, color: "var(--good)", label: "nominal", labelY: y0 - 34 },
+    { v: s.summary.mean_c, color: "var(--blue)", label: "mean", labelY: y0 - 50 },
+    { v: s.summary.p95_c, color: "var(--warning)", label: "p95", labelY: y0 + 34 },
+  ];
+  markers.forEach(m => {
+    const mx = x(m.v);
+    svg.appendChild(el("line", { x1: mx, x2: mx, y1: y0 - 14, y2: y0 + 14, stroke: m.color, "stroke-width": 2.5 }));
+    svg.appendChild(el("circle", { cx: mx, cy: y0, r: 5, fill: m.color }));
+    const lbl = el("text", { x: mx, y: m.labelY, class: "ref-label", fill: m.color, "text-anchor": "middle" });
+    lbl.textContent = m.label + " " + fmt1(m.v) + "°C";
+    svg.appendChild(lbl);
+  });
+
+  const limitX = x(s.safety_limit_c);
+  svg.appendChild(el("line", { x1: limitX, x2: limitX, y1: 8, y2: H - 8, class: "limit-line" }));
+  const limitLbl = el("text", { x: limitX, y: H - 2, class: "ref-label limit", "text-anchor": "end" });
+  limitLbl.textContent = s.safety_limit_c.toFixed(0) + "°C limit";
+  svg.appendChild(limitLbl);
+}
+
+function renderChecks(v) {
+  document.getElementById("trust-score").textContent = v.decision;
+  document.getElementById("trust-score").style.color =
+    v.overall_verdict === "PASS" ? "var(--good)" : v.overall_verdict === "WARNING" ? "var(--warning)" : "var(--critical)";
+  document.getElementById("verify-pill").textContent = v.overall_verdict;
+  document.getElementById("verify-pill").className = "verdict-pill v-" + v.overall_verdict;
+  document.getElementById("verify-coverage").textContent = `coverage ${(v.coverage * 100).toFixed(0)}%`;
+  document.getElementById("verify-note").textContent = v.coverage_note;
+  const list = document.getElementById("checks-list");
+  list.innerHTML = "";
+  v.checks.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "check-row";
+    row.innerHTML = `<span class="check-name">${c.name}</span><span class="check-detail">${c.detail}</span><span class="verdict-pill v-${c.verdict}">${c.verdict}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function drawChart(s) {
+  const svg = document.getElementById("chart");
+  svg.innerHTML = "";
+  const W = 800, H = 320;
+  const marginL = 36, marginR = 24, marginT = 38, marginB = 40;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const temps = s.samples_c;
+  const domainMin = Math.floor(Math.min(...temps) - 0.5);
+  const domainMax = Math.ceil(s.safety_limit_c + 1.0);
+  const binWidth = 0.3;
+  const nBins = Math.ceil((domainMax - domainMin) / binWidth);
+  const bins = new Array(nBins).fill(0);
+  temps.forEach(t => {
+    let idx = Math.floor((t - domainMin) / binWidth);
+    if (idx >= nBins) idx = nBins - 1;
+    if (idx < 0) idx = 0;
+    bins[idx]++;
+  });
+  const maxCount = Math.max(...bins, 1);
+
+  const x = (t) => marginL + ((t - domainMin) / (domainMax - domainMin)) * plotW;
+  const y = (c) => marginT + plotH - (c / maxCount) * plotH;
+
+  // gridlines
+  const nGrid = 4;
+  for (let i = 0; i <= nGrid; i++) {
+    const c = (maxCount / nGrid) * i;
+    const gy = y(c);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    if (i > 0) {
+      const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+      lbl.textContent = Math.round(c);
+      svg.appendChild(lbl);
+    }
+  }
+
+  // bars
+  const barW = Math.max((plotW / nBins) - 2, 1);
+  bins.forEach((count, i) => {
+    if (count === 0) return;
+    const binCenter = domainMin + (i + 0.5) * binWidth;
+    const bx = x(domainMin + i * binWidth) + 1;
+    const by = y(count);
+    const bh = (marginT + plotH) - by;
+    const bar = el("rect", {
+      x: bx, y: by, width: barW, height: bh, rx: 2,
+      class: "bar" + (binCenter >= s.safety_limit_c ? " past-limit" : ""),
+      "data-count": count, "data-center": binCenter.toFixed(2),
+    });
+    bar.addEventListener("mousemove", (ev) => showTooltip(ev, count, binCenter));
+    bar.addEventListener("mouseleave", hideTooltip);
+    svg.appendChild(bar);
+  });
+
+  // x axis ticks
+  const tickStep = Math.ceil((domainMax - domainMin) / 8);
+  for (let t = Math.ceil(domainMin / tickStep) * tickStep; t <= domainMax; t += tickStep) {
+    const lbl = el("text", { x: x(t), y: H - marginB + 18, class: "axis-label", "text-anchor": "middle" });
+    lbl.textContent = t + "°C";
+    svg.appendChild(lbl);
+  }
+
+  // safety limit reference line (topmost label, clear of the plot)
+  const limitX = x(s.safety_limit_c);
+  const p95X = x(s.summary.p95_c);
+  svg.appendChild(el("line", { x1: limitX, x2: limitX, y1: marginT - 4, y2: marginT + plotH, class: "limit-line" }));
+  const limitLbl = el("text", { x: limitX, y: 14, class: "ref-label limit", "text-anchor": "end" });
+  limitLbl.textContent = "500°C limit";
+  svg.appendChild(limitLbl);
+
+  // margin callout bridging p95 and limit -- sits just below the limit label
+  const midX = (p95X + limitX) / 2;
+  const bridgeY = marginT - 14;
+  svg.appendChild(el("line", { x1: p95X, x2: limitX, y1: bridgeY, y2: bridgeY, class: "grid-line" }));
+  const marginLbl = el("text", { x: midX, y: bridgeY - 5, class: "margin-callout", "text-anchor": "middle" });
+  marginLbl.textContent = fmt1(s.summary.margin_at_p95_c) + "°C margin";
+  svg.appendChild(marginLbl);
+
+  // p95 reference line -- label sits inside the plot, clear of the top cluster
+  svg.appendChild(el("line", { x1: p95X, x2: p95X, y1: marginT - 4, y2: marginT + plotH, class: "p95-line" }));
+  const p95Lbl = el("text", { x: p95X, y: marginT + 16, class: "ref-label p95", "text-anchor": "middle" });
+  p95Lbl.textContent = "p95";
+  svg.appendChild(p95Lbl);
+}
+
+function showTooltip(ev, count, center) {
+  const tip = document.getElementById("tooltip");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  tip.textContent = count + " sample" + (count === 1 ? "" : "s") + " near " + center.toFixed(1) + "°C";
+  tip.style.opacity = "1";
+}
+function hideTooltip() {
+  document.getElementById("tooltip").style.opacity = "0";
+}
+
+document.getElementById("btn-replay").addEventListener("click", loadScenario);
+initViewers();
+loadScenario();
+</script>
+</body>
+</html>

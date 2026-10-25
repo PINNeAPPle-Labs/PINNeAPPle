@@ -1,5 +1,5 @@
 """Adapters: one per application. Importing this package registers all of them."""
-from . import checks, freecad, openfoam, paraview  # noqa: F401  (registration)
+from . import checks, freecad, openfoam, paraview, pipeline  # noqa: F401  (registration)
 from .base import (
                    ActionFailed,
                    ActionResult,

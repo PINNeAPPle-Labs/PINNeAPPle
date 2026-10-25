@@ -1,0 +1,69 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "freecad-openfoam-bend",
+ "name": "FreeCAD -> OpenFOAM: pipe bend",
+ "description": "A parametric FreeCAD pipe bend run headless: the geometry with its named patches (works without FreeCAD through the NumPy stand-in), then CAD -> snappyHexMesh -> laminar simpleFoam -> pressures, sections and the checks against Hagen-Poiseuille and White (1929).",
+ "nodes": [
+  {
+   "id": "study",
+   "type": "cfd.study",
+   "params": {
+    "study": "pipe_bend",
+    "resolution": 16,
+    "backend": "auto"
+   },
+   "position": {
+    "x": 40,
+    "y": 120
+   },
+   "label": ""
+  },
+  {
+   "id": "geom",
+   "type": "cfd.geometry",
+   "params": {
+    "parameters": {
+     "Rc": 40,
+     "angle": 180
+    }
+   },
+   "position": {
+    "x": 340,
+    "y": 40
+   },
+   "label": ""
+  },
+  {
+   "id": "run",
+   "type": "cfd.run",
+   "params": {
+    "inputs": {
+     "Rc": 40,
+     "Re": 200
+    }
+   },
+   "position": {
+    "x": 340,
+    "y": 240
+   },
+   "label": ""
+  }
+ ],
+ "edges": [
+  {
+   "source": "study",
+   "source_port": "study",
+   "target": "geom",
+   "target_port": "study",
+   "id": "study.study->geom.study"
+  },
+  {
+   "source": "study",
+   "source_port": "study",
+   "target": "run",
+   "target_port": "study",
+   "id": "study.study->run.study"
+  }
+ ],
+ "meta": {}
+}

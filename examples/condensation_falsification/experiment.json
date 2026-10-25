@@ -31,13 +31,13 @@
   },
   {
    "name": "hypotheses_refuted",
-   "value": 10.0,
+   "value": 11.0,
    "unit": "",
    "how": "pre-registered hypotheses with this verdict"
   },
   {
    "name": "hypotheses_not_tested",
-   "value": 1.0,
+   "value": 0.0,
    "unit": "",
    "how": "pre-registered hypotheses with this verdict"
   }
@@ -112,7 +112,7 @@
    "atol": null,
    "max": null,
    "min": null,
-   "detail": "not tested: no result",
+   "detail": "refuted: 32 x 32 (pre-registered): killed out of memory at 13 GB (one dense model per distinct block); 16 x 16: fine FV 67 s; exact path (all blocks + PCG) 395 s; learned 27 s (+82 s training), error 0.46 K; m-mode interfaces alone off by 0.46 K on these heterogeneous blocks",
    "kind": "verification"
   },
   {
@@ -340,9 +340,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "dc75a188",
-  "created": "2026-10-25T17:09:50Z",
-  "seconds": 2.157,
+  "git": "42762e1a",
+  "created": "2026-10-25T17:26:23Z",
+  "seconds": 2.078,
   "error": null,
   "environment": {
    "python": "3.13.17",

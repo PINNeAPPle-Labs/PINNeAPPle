@@ -116,9 +116,33 @@ was measured inside one process, under the same load on both sides.
 
 ### Verdicts
 
-VERDICT_TABLE
+| id | verdict | evidence (measured) |
+|---|---|---|
+| T1 | validated | smallest m (of 6, 12, 24, 48) with /dTmax/ <= 0.1 K: {'256': 6, '1024': 12, '4096': 12, '16384': 24} blocks -> m; kill if m(16,384) > 2 m(1,024) |
+| T1b | validated | PCG iterations to 1 mK: 8 at 1,024 and 32 at 16,384 blocks (limit 4x); time to 1 mK 5.0 s vs fine AMG 481 s at 4,096 blocks |
+| T2 | validated | exact vs fine <= 6.5e-09 K; worst m=12 error 1.09x the baseline (16.0 mK) |
+| T3 | validated | exact vs fine <= 5.8e-08 K; worst m=12 error 1.00x the baseline (16.0 mK) |
+| T9 | validated | exact vs fine <= 6.7e-09 K; worst m=12 error 2.20x the baseline (1.4 mK) |
+| T4 | **refuted** | 32 x 32 (pre-registered): killed out of memory at 13 GB (one dense model per distinct block); 16 x 16: fine FV 67 s; exact path (all blocks + PCG) 395 s; learned 27 s (+82 s training), error 0.46 K; m-mode interfaces alone off by 0.46 K on these heterogeneous blocks |
+| T5 | **refuted** | V=1: hierarchy 2.7 s / flat 5.8 s; V=4: hierarchy 20.3 s / flat 4.9 s; V=16: hierarchy 21.2 s / flat 5.0 s; V=64: hierarchy 27.1 s / flat 4.6 s; V=256: hierarchy 61.1 s / flat 6.6 s |
+| T6 | **refuted** | 16 x 16 (pre-registered): out of memory in the separator factorisation of the generic layer; 8 x 8: error 0.51 mK, 5 Picard iterations, 430 s vs fine 97 s (nonlinear - linear Tmax 1.20 K) |
+| T7 | **refuted** | 16 x 16 (pre-registered): out of memory in the separator factorisation of the generic layer; 8 x 8: error 3.2e-06 mK, 4 Picard iterations, 176 s vs fine 39 s (nonlinear - linear Tmax 8.96 K) |
+| T8 | **refuted** | worst map 'single-cell spike': 1.66 K; others <= 9.3 mK; effectivity 1.37-1.77 |
+| T10 | partially validated | 16 x 16 (pre-registered): out of memory in the generic layer; 8 x 8: exact vs fine 2.9e-09 K; m=12 error 1.4e-06 K (uniform 1.8e-06 K) |
+| F0 | partially validated | Poiseuille max rel. error 3.2e-03 (pre-registered as exact, 1e-6: refuted -- the ghost-cell wall is O(h^2), observed order 2); cavity Re 100 vs Ghia 0.49 % of U (limit 2 %); Nu error 0.081 % |
+| F1 | validated | max relative difference 1.5e-13 over Pe_b 0.1-1000; blocks distinct by content: 80 of 80 (the computed velocity differs per block) |
+| F1r | validated | Pe_b = 100: m = 3 for 1 % (14.2 unknowns per face, compression 4.74); Pe_b 0.1: m 2, Pe_b 1: m 2, Pe_b 10: m 2, Pe_b 100: m 3, Pe_b 1000: m 3 |
+| F2 | **refuted** | exact to 1.3e-12; 9 distinct of 288 blocks; direct 2.5 s vs condensed 11.5 s (speedup 0.22, limit 2) |
+| F2r | validated | m = 2 for 1 % on the pressure drop (compression 7.21) |
+| F3 | **refuted** | error <= 5.5e-11; condensed Picard slower than full at Re [1, 10, 50, 100] Re 1: 9 vs 4 s, Re 10: 11 vs 6 s, Re 50: 16 vs 8 s, Re 100: 19 vs 11 s |
+| F3r | validated | Re 100: m = 3 for 1 % (compression 4.86); reversed block-face flux 4.5 % |
+| M1 | **refuted** | rbf_fd Pe 1: monotone, up to 31.5x FV; gfdm Pe 1: monotone, up to 2.86e+03x FV; rbf_fd Pe 10: monotone, up to 27.6x FV; gfdm Pe 10: NOT monotone, up to 4.5e+03x FV; rbf_fd Pe 100: monotone, up to 2.28x FV; gfdm Pe 100: NOT monotone, up to 2.02e+11x FV |
+| M2 | partially validated | pressure-drop error over densities 8, 16, 32 -- rbf_fd: 46 %, 50 %, 18 % (not converging); gfdm: 103 %, 38 %, 35 % (decreasing); FV: 36 %, 19 %, 7 % |
+| M3 | **refuted** | density 16: hybrid 3.91 % vs FV 0.49 %; density 32: hybrid 1.06 % vs FV 0.18 % |
+| M4 | **refuted** | exact to 1.5e-09; hybrid: 9 distinct of 16 blocks, speedup 0.16; advection: 24 of 24, speedup 0.22 |
+| E1 | **refuted** | advection Pe_b=100: to reach 0.075 residual solves 85%, random 90%; overlap with top-error blocks 0.00-0.67; cold-plate energy Re=50: to reach 0.231 residual solves 73%, random 89%; overlap with top-error blocks 0.00-0.69 |
 
-Summary: VERDICT_COUNTS.
+Summary: 23 hypotheses: 9 validated, 3 partially validated, 11 refuted.
 
 ### What holds
 
@@ -170,8 +194,8 @@ Summary: VERDICT_COUNTS.
    - The estimator is not fooled: its effectivity stays in 1.4–1.8. It flags the problem, and refinement or the
      exact correction has to act on it.
 4. **Heterogeneous blocks with base-stack modes (T4).**
-   - On a package where every block differs (voids, delamination ×30), the m-mode interfaces are off by 0.68 K at
-     8 × 8 blocks. On uniform packages they are off by 2–16 mK.
+   - On a package where every block differs (voids, delamination ×30), the m-mode interfaces are off by 0.46 K at
+     16 × 16 blocks (0.68 K at 8 × 8). On uniform packages they are off by 2–16 mK.
    - The learned-operator study of the track 1 report compared the learned path with *all-exact blocks on the same
      m-mode interfaces*, not with the fine solution. Its 4 mK agreement did not include this 0.68 K.
 5. **The generic algebraic layer in 3-D (T6, T7, T10 at 16 × 16).**

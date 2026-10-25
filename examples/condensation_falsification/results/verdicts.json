@@ -26,8 +26,8 @@
  },
  {
   "id": "T4",
-  "verdict": "not tested",
-  "evidence": "no result"
+  "verdict": "refuted",
+  "evidence": "32 x 32 (pre-registered): killed out of memory at 13 GB (one dense model per distinct block); 16 x 16: fine FV 67 s; exact path (all blocks + PCG) 395 s; learned 27 s (+82 s training), error 0.46 K; m-mode interfaces alone off by 0.46 K on these heterogeneous blocks"
  },
  {
   "id": "T5",

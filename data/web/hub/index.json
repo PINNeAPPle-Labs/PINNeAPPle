@@ -58430,8 +58430,38 @@
       "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
      },
      {
+      "name": "largest_blocks",
+      "value": 65536.0,
+      "unit": "blocks",
+      "how": "largest package solved by the hierarchy, m=12"
+     },
+     {
+      "name": "largest_build_s",
+      "value": 43.746866945999955,
+      "unit": "s",
+      "how": "hierarchy build, fresh process"
+     },
+     {
+      "name": "largest_solve_s",
+      "value": 3.3815957900001195,
+      "unit": "s",
+      "how": "one power map, after the build"
+     },
+     {
+      "name": "largest_peak_rss",
+      "value": 7.608628,
+      "unit": "GB",
+      "how": "peak RSS of the process"
+     },
+     {
       "name": "learned_32_speedup",
       "value": 44.41025206966396,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     },
+     {
+      "name": "learned_64_speedup",
+      "value": 38.99521182109361,
       "unit": "x",
       "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
      }
@@ -58440,7 +58470,8 @@
      "examples/physics_condensation/figures/accuracy_vs_modes.png",
      "examples/physics_condensation/figures/keff_vs_fine.png",
      "examples/physics_condensation/figures/refinement.png",
-     "examples/physics_condensation/figures/transient.png"
+     "examples/physics_condensation/figures/transient.png",
+     "examples/physics_condensation/figures/scaling.png"
     ],
     "videos": []
    },

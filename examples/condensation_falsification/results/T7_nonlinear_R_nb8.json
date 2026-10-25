@@ -1,0 +1,25 @@
+{
+ "case": "R",
+ "blocks": 64,
+ "Tmax_fine_nonlinear": 132.36440334747047,
+ "Tmax_condensed_nonlinear": 132.3644033432941,
+ "err": 4.176371248831856e-09,
+ "Tmax_linear": 132.36440334714075,
+ "fine": {
+  "iterations": 2,
+  "seconds": 19.377346966000005,
+  "history": [
+   1.0,
+   1.1814070953470683e-12
+  ]
+ },
+ "condensed": {
+  "iterations": 2,
+  "seconds": 67.86898177600006,
+  "history": [
+   1.0,
+   0.0
+  ]
+ },
+ "peak_rss_gb": 1.98284
+}

@@ -463,37 +463,52 @@ def t9_thin(nb: int = 16, m: int = 12, seed: int = 2) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------------- T4 / T5
-def t4_no_repetition(nb: int = 32, seed: int = 1) -> dict:
-    """T4: every block distinct (the continuous random variants of the learned-operator study). Exact per-block
-    condensation and the learned path (:func:`.benchmark.learned_study`), against one fine FV solve of the same
-    package."""
-    from . import benchmark as B
+def _t4_package(nb, seed):
     from .learned import default_variant, variant_field
     from .package import Package, hotspot_power, reference_stack
-    r = B.learned_study(nb=nb, seed=seed)
     st = reference_stack()
     shape = (nb, nb)
     theta = variant_field(shape, seed=seed, defects=0)
     rng = np.random.default_rng(seed)
     idx = rng.choice(nb * nb, 4, replace=False)
     th = theta.reshape(-1, 3)
-    th[idx[:2], 0] = 0.05
-    th[idx[2:], 1] = 30.0
+    th[idx[:2], 0] = 0.05                             # nearly open microbumps
+    th[idx[2:], 1] = 30.0                             # delaminated TIM
     p = hotspot_power(st, shape, 1e6 * nb * nb * st.pitch ** 2, seed=seed + 3)
-    pkg = Package(st, np.arange(nb * nb).reshape(shape), [default_variant(t) for t in th], p)
+    return Package(st, np.arange(nb * nb).reshape(shape), [default_variant(t) for t in th], p), theta
+
+
+def t4_no_repetition(nb: int = 32, m: int = 12, seed: int = 1, n_train: int = 48) -> dict:
+    """T4: every block distinct (continuous random variants, four defects). Against one fine FV solve: the exact
+    path (every block condensed, m-mode interfaces, then the PCG correction to the fine solution), and the learned
+    path (:func:`.learned.solve_adaptive`, training timed separately)."""
+    from .learned import LearnedBlocks, solve_adaptive
+    pkg, theta = _t4_package(nb, seed)
     t0 = time.perf_counter()
     T, info = fv.solve_package(pkg)
     t_fine = time.perf_counter() - t0
     tm = float(reference_observables(pkg, T)["Tj"].max())
-    exact_total = r["exact_s"]
-    learned_total = r["adaptive"]["timings"]["total"]
-    return {"blocks": nb * nb, "fine_s": t_fine, "fine_method": info.method, "Tmax_fine": tm,
-            "exact_condensation_s": exact_total, "Tmax_exact_condensation": r["Tmax_exact"],
-            "exact_vs_fine": abs(r["Tmax_exact"] - tm),
-            "learned_s": learned_total, "learned_training_s": r["build_s"],
-            "learned_err_vs_exact": r["adaptive_err"]["err_Tmax"],
-            "learned_err_vs_fine_bound": abs(r["Tmax_exact"] - tm) + r["adaptive_err"]["err_Tmax"],
-            "learned_study": r}
+    del T
+    t0 = time.perf_counter()
+    c = Condensed(pkg, m).prepare()
+    st = c.solve()
+    t_build = time.perf_counter() - t0
+    t_red = float(c.observables(st)["Tj"].max())
+    r = c.correct(st, rtol=1e-8, maxiter=3000)
+    t_ex = float(c.observables_fine(r["U"], r["pb"])["Tj"].max())
+    exact = {"build_s": t_build, "Tmax_reduced": t_red, "err_reduced": abs(t_red - tm), "correct_s": r["seconds"],
+             "correct_iterations": r["iterations"], "Tmax_corrected": t_ex, "err_corrected": abs(t_ex - tm),
+             "total_s": t_build + r["seconds"]}
+    del c, st, r
+    t0 = time.perf_counter()
+    L = LearnedBlocks(pkg.stack, m=m, n_train=n_train, seed=seed).fit()
+    t_train = time.perf_counter() - t0
+    ra = solve_adaptive(L, theta, pkg.power)
+    tl = float(ra.obs["Tj"].max())
+    learned = {"training_s": t_train, "solve_s": ra.timings["total"], "Tmax": tl, "err": abs(tl - tm),
+               "exact_blocks": int(ra.exact_blocks.sum())}
+    return {"blocks": nb * nb, "fine_s": t_fine, "fine_method": info.method, "Tmax_fine": tm, "exact": exact,
+            "learned": learned}
 
 
 def t5_variants(nb: int = 64, Vs=(1, 4, 16, 64, 256), m: int = 12, seed: int = 0) -> dict:
@@ -598,14 +613,15 @@ def t6_t7_nonlinear(nb: int = 16, case: str = "k", seed: int = 2, power_scale: f
         k_of_T, R_of_T = _k_of_T(), ident_R
     else:
         st = pkg.stack
-        T_lin, _ = fv.solve_package(pkg)
+        T_lin = fv.solve_package(pkg)[0].reshape(pkg.shape[0] * st.n, pkg.shape[1] * st.n, st.nz)
         die_top = st.layer_slices()["die"].stop - 1
-        lo, hi = 300.0 + float(T_lin[..., die_top].min()), 300.0 + float(T_lin[..., die_top].max())
+        Ti_lin = 0.5 * (T_lin[..., die_top] + T_lin[..., die_top + 1])   # the interface temperature R_c sees
+        lo, hi = 300.0 + float(Ti_lin.min()), 300.0 + float(Ti_lin.max())
         beta = 1.0 / max(hi - lo, 1e-9)
 
         def R_of_T(R0, Tabs, lo=lo, beta=beta):
             out = R0.copy()
-            # rises linearly from R_0 at the coolest to 2 R_0 at the hottest die-top temperature of the linear
+            # rises linearly from R_0 at the coolest to 2 R_0 at the hottest interface temperature of the linear
             # solution, and saturates there (unbounded growth runs away: R up -> T up -> R up)
             out[..., die_top] = R0[..., die_top] * np.clip(1 + beta * (Tabs[..., die_top] - lo), 1.0, 2.0)
             return out
@@ -619,7 +635,7 @@ def t6_t7_nonlinear(nb: int = 16, case: str = "k", seed: int = 2, power_scale: f
     st = pkg.stack
     tj_f = float(Tf[..., st.active_k].max())
     tj_c = float(Tc[..., st.active_k].max())
-    T_lin, _ = fv.solve_package(pkg)
+    T_lin = fv.solve_package(pkg)[0].reshape(pkg.shape[0] * st.n, pkg.shape[1] * st.n, st.nz)
     return {"case": case, "blocks": nb * nb, "Tmax_fine_nonlinear": tj_f, "Tmax_condensed_nonlinear": tj_c,
             "err": abs(tj_c - tj_f), "Tmax_linear": float(T_lin[..., st.active_k].max()),
             "fine": {"iterations": len(hf), "seconds": t_fine, "history": hf},
@@ -840,7 +856,8 @@ def m3_hybrid(pins: int = 2, densities=(8, 16, 32), truth_cells: int = 64, k_pin
             e = np.abs(T - truth(X)) / scale
             rows.append({"density": c, "method": f"hybrid n={nn} p={deg}", "unknowns": int(len(T)),
                          "fv_fraction": float((kind == 0).mean()), "err": float(e.max()),
-                         "err_band": float(e[kind == 0].max()), "err_points": float(e[kind == 1].max())})
+                         "err_band": float(e[kind == 0].max()) if (kind == 0).any() else None,
+                         "err_points": float(e[kind == 1].max()) if (kind == 1).any() else None})
     return {"pins": pins * pins, "rows": rows}
 
 

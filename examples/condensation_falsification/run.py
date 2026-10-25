@@ -35,11 +35,15 @@ def plan() -> dict[str, list[tuple[str, str, dict]]]:
                "T3": [("T3_anisotropy", "t3_anisotropy", {})],
                "T4": [("T4_no_repetition", "t4_no_repetition", {})],
                "T5": [("T5_variants", "t5_variants", {})],
-               "T6": [("T6_nonlinear_k", "t6_t7_nonlinear", {"case": "k"})],
-               "T7": [("T7_nonlinear_R", "t6_t7_nonlinear", {"case": "R"})],
+               # 16 x 16 (pre-registered) ran out of memory in the separator factorisation of the generic layer (kept
+               # as a measured failure); 8 x 8 is the reduced scale that fits
+               "T6": [("T6_nonlinear_k", "t6_t7_nonlinear", {"case": "k"}),
+                      ("T6_nonlinear_k_nb8", "t6_t7_nonlinear", {"case": "k", "nb": 8})],
+               "T7": [("T7_nonlinear_R", "t6_t7_nonlinear", {"case": "R"}),
+                      ("T7_nonlinear_R_nb8", "t6_t7_nonlinear", {"case": "R", "nb": 8})],
                "T8": [("T8_adversarial", "t8_adversarial", {})],
                "T9": [("T9_thin", "t9_thin", {})],
-               "T10": [("T10_pitch", "t10_pitch", {})]}
+               "T10": [("T10_pitch", "t10_pitch", {}), ("T10_pitch_nb8", "t10_pitch", {"nb": 8})]}
     meshless = {"M1": [("M1_advection", "m1_advection", {})],
                 "M2": [("M2_stokes", "m2_stokes", {})],
                 "M3": [("M3_hybrid", "m3_hybrid", {})],

@@ -98,10 +98,23 @@ def snap_to_box(X, box, h):
     return _round(X)
 
 
+def knn(X, Q, n, tree=None):
+    """The ``n`` nearest nodes of each query point, ties broken by the offset (not by the k-d tree's traversal
+    order): a block replicated by an integer shift then gets the same stencils, so the same matrix."""
+    tree = tree or cKDTree(X)
+    k = min(len(X), n + 8)
+    d, idx = tree.query(Q, k=k)
+    off = np.round((X[idx] - Q[:, None, :]) / _Q).astype(np.int64)
+    dq = np.round(d / (1e-9 * max(np.abs(X).max(), 1.0))).astype(np.int64)
+    out = np.empty((len(Q), n), np.int64)
+    for i in range(len(Q)):
+        o = np.lexsort((off[i, :, 1], off[i, :, 0], dq[i]))
+        out[i] = idx[i, o[:n]]
+    return out
+
+
 def _neighbours(X, n):
-    tree = cKDTree(X)
-    _, idx = tree.query(X, k=n)
-    return idx
+    return knn(X, X, n)
 
 
 def _boundary_masks(X, box, h):
@@ -255,14 +268,14 @@ def hybrid_conduction(pins, cells: int, pin_frac: float, k_pin: float, k_mat: fl
                 ghost_g.append(gface)
     if ghosts:
         G = np.array(ghosts)
-        _, gi = tree.query(G, k=n)
+        gi = knn(X, G, n, tree)
         we = stencil_weights(X, G, gi, ("eval",), method="rbf_fd", degree=degree)["eval"]
         for r, g_, cols, wts in zip(ghost_rows, ghost_g, gi, we, strict=True):
             R.extend([r] * len(cols))
             C.extend(cols.tolist())
             V.extend((-g_ * wts).tolist())
     # point rows: k lap T = -q with k constant around the point (no interface inside the stencil, by the band)
-    _, pi = tree.query(Xp, k=n)
+    pi = knn(X, Xp, n, tree)
     wl = stencil_weights(X, Xp, pi, ("lap", "d0", "d1"), method="rbf_fd", degree=degree)
     top = Xp[:, 1] >= pins[1] - 1e-9
     side = ((Xp[:, 0] <= 1e-9) | (Xp[:, 0] >= pins[0] - 1e-9)) & ~top

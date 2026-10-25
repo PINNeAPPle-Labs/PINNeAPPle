@@ -1,0 +1,110 @@
+{
+ "blocks": 64,
+ "pitches": [
+  4e-05,
+  2e-05
+ ],
+ "uniform": {
+  "Tmax_fine": 66.182201670865,
+  "fine_s": 64.73858381699984,
+  "Tmax_exact": 66.1822016719514,
+  "exact_vs_fine": 1.086405632122478e-09,
+  "distinct_blocks": 9,
+  "rows": [
+   {
+    "m": 2,
+    "Tmax": 66.1924788287072,
+    "reduced_dofs": 8533,
+    "unseen_faces": 0,
+    "err": 0.010277157842196516
+   },
+   {
+    "m": 4,
+    "Tmax": 66.18225717544068,
+    "reduced_dofs": 13685,
+    "unseen_faces": 0,
+    "err": 5.550457568403999e-05
+   },
+   {
+    "m": 8,
+    "Tmax": 66.18220351100899,
+    "reduced_dofs": 21833,
+    "unseen_faces": 0,
+    "err": 1.84014399451371e-06
+   },
+   {
+    "m": 12,
+    "Tmax": 66.18220351100899,
+    "reduced_dofs": 21833,
+    "unseen_faces": 0,
+    "err": 1.84014399451371e-06
+   },
+   {
+    "m": 16,
+    "Tmax": 66.18220351100899,
+    "reduced_dofs": 21833,
+    "unseen_faces": 0,
+    "err": 1.84014399451371e-06
+   },
+   {
+    "m": 24,
+    "Tmax": 66.18220351100899,
+    "reduced_dofs": 21833,
+    "unseen_faces": 0,
+    "err": 1.84014399451371e-06
+   }
+  ]
+ },
+ "alternating": {
+  "Tmax_fine": 88.21472313183169,
+  "fine_s": 61.47468873999992,
+  "Tmax_exact": 88.21472313472114,
+  "exact_vs_fine": 2.889450456677878e-09,
+  "distinct_blocks": 12,
+  "rows": [
+   {
+    "m": 2,
+    "Tmax": 88.212447834208,
+    "reduced_dofs": 8533,
+    "unseen_faces": 0,
+    "err": 0.002275297623683059
+   },
+   {
+    "m": 4,
+    "Tmax": 88.21471198391951,
+    "reduced_dofs": 13685,
+    "unseen_faces": 0,
+    "err": 1.114791217560196e-05
+   },
+   {
+    "m": 8,
+    "Tmax": 88.21472455969895,
+    "reduced_dofs": 21875,
+    "unseen_faces": 0,
+    "err": 1.4278672608725174e-06
+   },
+   {
+    "m": 12,
+    "Tmax": 88.21472455969895,
+    "reduced_dofs": 21875,
+    "unseen_faces": 0,
+    "err": 1.4278672608725174e-06
+   },
+   {
+    "m": 16,
+    "Tmax": 88.21472455969895,
+    "reduced_dofs": 21875,
+    "unseen_faces": 0,
+    "err": 1.4278672608725174e-06
+   },
+   {
+    "m": 24,
+    "Tmax": 88.21472455969895,
+    "reduced_dofs": 21875,
+    "unseen_faces": 0,
+    "err": 1.4278672608725174e-06
+   }
+  ]
+ },
+ "peak_rss_gb": 4.189652
+}

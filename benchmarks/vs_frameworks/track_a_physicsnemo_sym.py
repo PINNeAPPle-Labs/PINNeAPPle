@@ -77,13 +77,19 @@ class _StepCounter:
     asks to stop once the time cap (if any) is used up."""
 
     def __init__(self, cap=None):
-        self.calls, self.cap = 0, cap
+        self.calls, self.cap, self.stamps = 0, cap, []
 
     def __call__(self) -> bool:
+        self.stamps.append(time.process_time())
         if self.cap is not None and self.cap.expired():
             return True
         self.calls += 1
         return False
+
+    def step_cpu_s(self):
+        """CPU time between consecutive steps (from the second step on: the first includes the loop's setup)."""
+        d = np.diff(self.stamps)
+        return [float(x) for x in d[1:]] if len(d) > 1 else [float(x) for x in d]
 
 
 class _LossLog(logging.Handler):
@@ -176,10 +182,17 @@ def run_a2(args, prob, meta, workdir):
     from physicsnemo.sym.solver import Solver
     from sympy import Symbol
 
-    rc = RECIPES[prob.name]
+    rc = {**RECIPES[prob.name], "batch": dict(RECIPES[prob.name]["batch"])}
+    if getattr(args, "matched_batch", False):
+        # labelled variant: the official recipe with the points per step of PINNeAPPle's pp.solve default (2048
+        # interior, 512 per boundary / initial condition), everything else unchanged
+        rc["batch"] = {k: (2048 if k == "interior" else 512) for k in rc["batch"]}
+        rc["variant"] = "points per step matched to pp.solve (2048 interior, 512 per condition)"
     meta["config"].update(rc)
     cfg = compose_cfg([f"training.max_steps={rc['max_steps']}", f"scheduler.decay_steps={rc['decay_steps']}",
-                       f"network_dir={workdir}", f"device={args.device}"], device=args.device)
+                       f"network_dir={workdir}", f"device={args.device}"] + list(getattr(args, "overrides", [])),
+                      device=args.device)
+    meta["config"]["torch_threads"] = torch.get_num_threads()
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     ca, cb = prob.coords
@@ -231,20 +244,28 @@ def run_a2(args, prob, meta, workdir):
     with R.Clock() as clk:
         cap.restart()
         slv.solve(sigterm_handler=steps)
+    st = steps.step_cpu_s()
     meta.update(iterations=steps.calls, loss_history=log.loss,
                 loss_steps=log.steps, final_loss=log.loss[-1] if log.loss else None,
                 n_parameters=W.count_parameters(net), cap_used_s=cap.used(),
+                step_cpu_s_median=float(np.median(st)) if st else None,
+                first_step_cpu_s=float(steps.stamps[1] - steps.stamps[0]) if len(steps.stamps) > 1 else None,
                 arch={k: cfg.arch.fully_connected[k] for k in ("layer_size", "nr_layers", "activation_fn",
                                                                "weight_norm")})
     return clk, net
 
 
 def main(argv=None):
-    args = proto.runner_parser("PhysicsNeMo-Sym, track A").parse_args(argv)
+    parser = proto.runner_parser("PhysicsNeMo-Sym, track A")
+    parser.add_argument("--matched-batch", action="store_true",
+                        help="A2 variant: points per step matched to pp.solve's default (labelled separately)")
+    parser.add_argument("--overrides", nargs="*", default=[], help="extra Hydra overrides (profiling only)")
+    args = parser.parse_args(argv)
     R.setup_threads(args.threads)
     prob = P.get_problem(args.problem)
     cfg = dict(proto.A1) if args.mode == "a1" else {"recipe": "official example", **proto.A2, "cap_s": args.cap_s}
-    meta = proto.base_meta(args, track="A", framework="physicsnemo_sym", source=SOURCE, config=cfg)
+    fw = "physicsnemo_sym_matched" if args.matched_batch else "physicsnemo_sym"
+    meta = proto.base_meta(args, track="A", framework=fw, source=SOURCE, config=cfg)
     t0 = time.perf_counter()
     try:
         import torch

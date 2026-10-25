@@ -18,10 +18,11 @@ RESULTS = HERE / "results"
 FIGS = HERE / "figures"
 #: the first three slots of the validated categorical palette (all-pairs safe), fixed per framework family
 COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
-          "physicsnemo_sym": "#1baf7a", "physicsnemo": "#1baf7a"}
+          "physicsnemo_sym": "#1baf7a", "physicsnemo_sym_matched": "#1baf7a", "physicsnemo": "#1baf7a"}
 LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early stopping off (patience = iterations)", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
+         "physicsnemo_sym_matched": "PhysicsNeMo-Sym, points per step matched to pp.solve",
          "physicsnemo": "PhysicsNeMo", "neuraloperator": "neuraloperator"}
-ORDER = ["pinneapple", "pinneapple_nostop", "deepxde", "physicsnemo_sym", "physicsnemo", "neuraloperator"]
+ORDER = ["pinneapple", "pinneapple_nostop", "deepxde", "physicsnemo_sym", "physicsnemo_sym_matched", "physicsnemo", "neuraloperator"]
 EXACT_FD_FLOOR = {}
 
 

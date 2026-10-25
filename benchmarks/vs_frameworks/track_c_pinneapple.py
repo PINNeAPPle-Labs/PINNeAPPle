@@ -22,9 +22,12 @@ SOURCE = "PINNeAPPle pinneapple_neural.trainer.inverse_pinn.InversePINN at the c
 
 
 def main(argv=None):
-    args = proto.runner_parser("PINNeAPPle, track C").parse_args(argv)
+    parser = proto.runner_parser("PINNeAPPle, track C")
+    parser.add_argument("--patience", type=int, default=None,
+                        help="diagnostic only: InversePINN early-stopping patience (default: the library's 300)")
+    args = parser.parse_args(argv)
     R.setup_threads(args.threads)
-    cfg = {**proto.C, "iters": args.iters, "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
+    cfg = {**proto.C, "iters": args.iters, "patience": args.patience or "library default (300)", "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
            "collocation": "10000 fresh uniform points per step (InversePINN's only mode)"}
     meta = proto.base_meta(args, track="C", framework="pinneapple", source=SOURCE, config=cfg)
     t0 = time.perf_counter()
@@ -57,7 +60,7 @@ def main(argv=None):
         nu = InverseParam(initial_value=proto.C["nu_init"], log_space=True, name="nu")
         trainer = InversePINN(model, [nu], residual_fn, torch.from_numpy(obs["X"]), torch.from_numpy(obs["u"]),
                               domain_bounds=[(-1.0, 1.0), (0.0, 1.0)], n_col=proto.C["n_interior"], lr=proto.C["lr"],
-                              device=args.device)
+                              device=args.device, **({"patience": args.patience} if args.patience else {}))
         with R.Clock() as clk:
             hist = trainer.train(n_epochs=args.iters)
         nu_hat = trainer.get_identified_params()["nu"]

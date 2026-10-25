@@ -1,0 +1,164 @@
+[
+ {
+  "problem": "burgers",
+  "framework": "deepxde",
+  "iterations": 200,
+  "wall_s": 18.90103630600001,
+  "cpu_s": 18.68237645,
+  "loadavg_before": [
+   1.17,
+   0.56,
+   0.22
+  ],
+  "loadavg_after": [
+   1.13,
+   0.58,
+   0.23
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "burgers",
+  "framework": "physicsnemo_sym",
+  "iterations": 200,
+  "wall_s": 39.179734604999965,
+  "cpu_s": 37.78293666,
+  "loadavg_before": [
+   1.49,
+   0.77,
+   0.32
+  ],
+  "loadavg_after": [
+   1.95,
+   0.98,
+   0.41
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "burgers",
+  "framework": "pinneapple",
+  "iterations": 200,
+  "wall_s": 28.337411360999994,
+  "cpu_s": 19.531998309,
+  "loadavg_before": [
+   0.99,
+   0.42,
+   0.16
+  ],
+  "loadavg_after": [
+   1.13,
+   0.51,
+   0.2
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "helmholtz",
+  "framework": "deepxde",
+  "iterations": 200,
+  "wall_s": 26.14067688099999,
+  "cpu_s": 25.894644977000002,
+  "loadavg_before": [
+   1.71,
+   1.33,
+   0.64
+  ],
+  "loadavg_after": [
+   1.75,
+   1.36,
+   0.67
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym",
+  "iterations": 200,
+  "wall_s": 37.90824097999996,
+  "cpu_s": 37.434233586999994,
+  "loadavg_before": [
+   1.79,
+   1.39,
+   0.69
+  ],
+  "loadavg_after": [
+   1.78,
+   1.43,
+   0.74
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "helmholtz",
+  "framework": "pinneapple",
+  "iterations": 200,
+  "wall_s": 24.10175399100001,
+  "cpu_s": 23.93640529,
+  "loadavg_before": [
+   1.73,
+   1.28,
+   0.6
+  ],
+  "loadavg_after": [
+   1.84,
+   1.34,
+   0.64
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "poisson",
+  "framework": "deepxde",
+  "iterations": 200,
+  "wall_s": 27.462077781000005,
+  "cpu_s": 27.086836163,
+  "loadavg_before": [
+   2.08,
+   1.14,
+   0.49
+  ],
+  "loadavg_after": [
+   2.03,
+   1.22,
+   0.54
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "poisson",
+  "framework": "physicsnemo_sym",
+  "iterations": 200,
+  "wall_s": 35.64213157099999,
+  "cpu_s": 35.100655901,
+  "loadavg_before": [
+   2.02,
+   1.25,
+   0.56
+  ],
+  "loadavg_after": [
+   1.68,
+   1.25,
+   0.59
+  ],
+  "status": "ok"
+ },
+ {
+  "problem": "poisson",
+  "framework": "pinneapple",
+  "iterations": 200,
+  "wall_s": 24.792341953000005,
+  "cpu_s": 24.459298675000003,
+  "loadavg_before": [
+   2.04,
+   1.03,
+   0.44
+  ],
+  "loadavg_after": [
+   2.08,
+   1.12,
+   0.48
+  ],
+  "status": "ok"
+ }
+]

@@ -110,12 +110,18 @@ def run_a2(args, prob, meta):
     opts = {"seed": args.seed, "device": args.device}
     if ctx:
         opts["ctx"] = ctx
-    probe_epochs = 100
-    cap = R.TimeCap(1e9, args.cap_kind)
-    pp.solve(problem, "pinn", epochs=probe_epochs, **opts)
-    per_epoch = cap.used() / probe_epochs
-    epochs = max(1, int(args.cap_s / per_epoch))
-    meta["config"].update(probe_epochs=probe_epochs, probe_s_per_epoch=per_epoch, epochs=epochs)
+    # Two probes (50 and 150 epochs): the slope is the cost per epoch, the intercept the fixed setup cost, so the
+    # epochs fill the cap (a single probe counted the setup as per-epoch cost and used only ~80 % of the cap).
+    times = {}
+    for n in (50, 150):
+        cap = R.TimeCap(1e9, args.cap_kind)
+        pp.solve(problem, "pinn", epochs=n, **opts)
+        times[n] = cap.used()
+    per_epoch = max((times[150] - times[50]) / 100.0, 1e-6)
+    setup = max(times[50] - 50 * per_epoch, 0.0)
+    epochs = max(1, int((args.cap_s - setup) / per_epoch))
+    meta["config"].update(probe_epochs=[50, 150], probe_s=times, probe_s_per_epoch=per_epoch, probe_setup_s=setup,
+                          epochs=epochs)
     with R.Clock() as clk:
         sol = pp.solve(problem, "pinn", epochs=epochs, **opts)
     hist = sol.history.get("loss", [])

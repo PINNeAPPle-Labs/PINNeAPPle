@@ -7,6 +7,7 @@ one neutral evaluator.
     python -m benchmarks.vs_frameworks.driver run --track B --epochs 30 --seeds 0 1 2
     python -m benchmarks.vs_frameworks.driver run --track C --iters 10000 --seeds 0 1 2 3 4
     python -m benchmarks.vs_frameworks.driver collect                   # results/*.json from the exports
+    python -m benchmarks.vs_frameworks.driver timing --work W           # results/timing.json (quiet-machine runs)
 
 Runs are resumable (a run whose result exists with status "ok" or "failed" is not repeated; ``--rerun`` repeats
 it). Raw exports (.npz) stay in ``--work`` (default: $VS_FRAMEWORKS_WORK or ./_work); the scored records, one per
@@ -181,10 +182,21 @@ def cmd_collect(args) -> None:
         print(f"{track}: {len(rows)} runs -> {RESULTS / (track + '.json')}")
 
 
+def cmd_timing(args) -> None:
+    """results/timing.json from a work dir of short A1 runs taken one at a time on a quiet machine."""
+    w = work_dir(args)
+    keep = ("problem", "framework", "iterations", "wall_s", "cpu_s", "loadavg_before", "loadavg_after", "status")
+    rows = [{k: m.get(k) for k in keep} for m in (json.loads(f.read_text()) for f in sorted((w / "runs").glob("*.json")))
+            if m.get("status") == "ok"]
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    (RESULTS / "timing.json").write_text(json.dumps(rows, indent=1))
+    print(f"{len(rows)} timing runs -> {RESULTS / 'timing.json'}")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("env", "run", "collect"):
+    for name in ("env", "run", "collect", "timing"):
         p = sub.add_parser(name)
         p.add_argument("--work", default=None)
         p.add_argument("--threads", type=int, default=1)
@@ -203,7 +215,7 @@ def main(argv=None):
             p.add_argument("--timeout", type=float, default=3 * 3600)
             p.add_argument("--rerun", action="store_true")
     args = ap.parse_args(argv)
-    {"env": cmd_env, "run": cmd_run, "collect": cmd_collect}[args.cmd](args)
+    {"env": cmd_env, "run": cmd_run, "collect": cmd_collect, "timing": cmd_timing}[args.cmd](args)
 
 
 if __name__ == "__main__":

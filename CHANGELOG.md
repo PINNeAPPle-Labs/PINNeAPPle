@@ -14,6 +14,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Fixed
+- `examples/benchmark_suite/07_xtfc_1d_ode.py` solved u'' + u = (pi^2 - 1) sin(pi x), whose solution is
+  -sin(pi x), but scored against +sin(pi x), so both methods printed relative L2 = 2.0. The right-hand side is now
+  (1 - pi^2) sin(pi x), which +sin(pi x) solves.
 - `XTFC` no longer reports a formulation it did not run: `extras["tfc_mode"]` is True only when the tfc
   constrained expression actually produced the output (new `extras["tfc_attached"]` says one is attached). A failing
   tfc call now warns (`RuntimeWarning`) instead of falling back silently; with every tfc version checked it fails,
@@ -1816,9 +1819,6 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   host hardening guide `docs/security/server.md`, `tests/test_deploy_security.py`.
 
 ### Known issues
-- `examples/benchmark_suite/07_xtfc_1d_ode.py` solves u'' + u = (pi^2 - 1) sin(pi x), whose solution is
-  -sin(pi x), but scores against +sin(pi x); both methods print relative L2 = 2.0 for that reason. The right-hand
-  side should be (1 - pi^2) sin(pi x).
 - `PINNsFormer` is not pointwise: it splits a flat batch into sequences of unrelated collocation points and
   attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
   up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.

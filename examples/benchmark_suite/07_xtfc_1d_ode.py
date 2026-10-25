@@ -16,7 +16,7 @@ Analytic solution:
   u(x) = (e^x - e^{x-1} / (e - 1/e)) * ... (see Leake & Mortari 2020)
 
 For this demo we use a simplified linear ODE:
-  u'' + u = f(x) = sin(pi*x) * pi^2 - sin(pi*x) = sin(pi*x) * (pi^2 - 1)
+  u'' + u = f(x) = -pi^2 sin(pi*x) + sin(pi*x) = sin(pi*x) * (1 - pi^2)
   u(0) = 0,  u(1) = 0
   Exact: u(x) = sin(pi*x)
 
@@ -48,7 +48,7 @@ print(f"[TFC library] Available: {tfc_available()}")
 # ------------------------------------------------------------------
 # Problem setup:  u'' + u = f(x), u(0)=u(1)=0, exact: u=sin(πx)
 # ------------------------------------------------------------------
-f_fn   = lambda x: np.sin(np.pi * x) * (np.pi**2 - 1)   # RHS
+f_fn   = lambda x: np.sin(np.pi * x) * (1 - np.pi**2)   # RHS
 u_exact = lambda x: np.sin(np.pi * x)
 
 # Particular solution (for the g + B * N fallback)

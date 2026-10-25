@@ -14,6 +14,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
+  space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
+  (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families
+  at equal data and budget with cross-conformal intervals, physics checks on predictions and a written selection
+  rule (`benchmark`: GP, MLP ensemble, response surface, POD-GP, POD-MLP, POD-RBF, DeepONet ensemble), Sobol indices,
+  NSGA-II with an uncertainty constraint and acquisition by uncertainty (`extras`), a digital-twin page (`twin`),
+  figures (`figures`) and the HTML evidence report with the VeriPhysics package (`report`).
+- `pinneapple_autolab.domains.ahmed` (`AhmedAero`: the Ahmed body in OpenFOAM with prism layers, per-run checks
+  and drag breakdown by region; `ahmed_cad` / `import_body`: OpenCASCADE CAD through gmsh and STL import with
+  checks and named patches; prediction checks) and `.ahmed_study` (the study's stages); the example
+  `examples/end_to_end/ahmed_body`, the app `apps/ahmed_twin`, the Flow nodes `study.*` and the flow
+  `ahmed_body_end_to_end.json`; guide `docs/guides/ahmed_body_end_to_end.md`.
+- `pinneapple_analysis.inverse_problems.amortized`: mixture density network posterior (`fit_mdn`, `MDN.sample`,
+  `posterior_coverage`, `hdi`) trained under a `ComputeBudget`.
+- `ExternalFlow`: prism layers (`layers`, `layer_expansion`, `layer_final_thickness`), `cells_per_length` (mesh
+  families with a constant refinement ratio) and the first-cell y+ of every wall face (`surface["yplus"]`).
+- `pp.viz.render`: `background="dark"` (near-black stage with key, rim and fill lights), `cmap` for the surface
+  field and `floor` (a glossy floor).
+- `ahmed_body`: `n_body`, `n_slant`, `n_corner` (sampling; the vertex count never depends on the slant) and
+  `slant_length`.
 - `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
   verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
   `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,

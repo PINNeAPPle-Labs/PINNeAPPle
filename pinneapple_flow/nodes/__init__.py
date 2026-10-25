@@ -4,6 +4,7 @@ from ..registry import REGISTRY
 from . import (  # noqa: F401
     analysis,
     autolab,
+    body_study,
     data,
     methods,
     presets,

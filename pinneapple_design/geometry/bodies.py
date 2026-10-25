@@ -59,13 +59,22 @@ def _rounded_rect(w: float, h: float, r: float, n_corner: int = 8) -> np.ndarray
     return np.array(pts)
 
 
-def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0.05, n_nose: int = 10) -> Mesh:
+def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0.05, n_nose: int = 10,
+               n_body: int = 5, n_slant: int = 6, n_corner: int = 4, slant_length: float = 0.222) -> Mesh:
     """The Ahmed body (Ahmed, Ramm & Faltin 1984): 1.044 x 0.389 x 0.288 m, front corners rounded with 0.1 m radius,
     a 0.222 m long rear slant at ``slant_deg``. Its lower face sits ``clearance`` above z = 0 (the road; the stilts
-    are left out). Nose at x = 0. The classic drag coefficient at 25 degrees is about 0.285 (with ground, Re 4.3e6)."""
-    L, W, H, R, Ls = 1.044, 0.389, 0.288, 0.100, 0.222
+    are left out). Nose at x = 0. The classic drag coefficient at 25 degrees is about 0.285 (with ground, Re 4.3e6).
+
+    ``n_body`` / ``n_slant`` sections along the straight part and the slant, ``n_corner`` points per rounded long
+    edge: the vertex count depends only on these (and ``n_nose``), never on the slant angle, so vertex ``i`` is the
+    same material point on every variant (fields on the body can be compared vertex by vertex)."""
+    L, W, H, R, Ls = 1.044, 0.389, 0.288, 0.100, float(slant_length)
+    if not 0.0 < Ls < L - R:
+        raise ValueError(f"slant_length must be in (0, {L - R:g}) m, got {Ls:g}")
+    if Ls * math.tan(math.radians(slant_deg)) >= H:
+        raise ValueError(f"a {Ls:g} m slant at {slant_deg:g} deg cuts through the {H:g} m high body")
     zc = clearance + H / 2
-    out = _rounded_rect(W, H, 0.02, 4)                     # the long edges are slightly rounded in the original
+    out = _rounded_rect(W, H, 0.02, n_corner)              # the long edges are slightly rounded in the original
     rings = []
     for k in range(n_nose + 1):                             # front edges rounded with radius R: theta 0 -> 90 deg
         th = math.pi / 2 * k / n_nose
@@ -73,7 +82,7 @@ def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0
         sc = np.c_[out[:, 0] * (W / 2 - inset) / (W / 2), out[:, 1] * (H / 2 - inset) / (H / 2)]
         rings.append(np.c_[np.full(len(sc), x), sc[:, 0], sc[:, 1] + zc])
     t = math.tan(math.radians(slant_deg))
-    for x in np.r_[np.linspace(R, L - Ls, 6)[1:], np.linspace(L - Ls, L, 7)[1:]]:
+    for x in np.r_[np.linspace(R, L - Ls, n_body + 1)[1:], np.linspace(L - Ls, L, n_slant + 1)[1:]]:
         top = H / 2 - max(0.0, x - (L - Ls)) * t
         s = out.copy()
         s[:, 1] = np.minimum(s[:, 1], top)

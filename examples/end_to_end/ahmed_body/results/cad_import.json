@@ -1,0 +1,32 @@
+{
+ "files": {
+  "geo": "results/cad/ahmed.geo",
+  "step": "results/cad/ahmed.step",
+  "stl": "results/cad/ahmed.stl"
+ },
+ "issues": [],
+ "triangles": 9570,
+ "volume_m3": 0.1099318915213166,
+ "parametric_volume_m3": 0.10958966987187772,
+ "symmetry_mm": 1.0098354458184409,
+ "bounds": [
+  [
+   0.0,
+   -0.1945,
+   0.05
+  ],
+  [
+   1.044,
+   0.1945,
+   0.338
+  ]
+ ],
+ "patches": {
+  "front": 1238,
+  "roof": 1734,
+  "slant": 620,
+  "base": 466,
+  "side": 3270,
+  "underbody": 2242
+ }
+}

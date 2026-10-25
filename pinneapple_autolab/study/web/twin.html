@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surrogate Twin</title>
+<style>
+:root { --bg:#0b0f14; --panel:#121820; --ink:#e6edf3; --muted:#8b98a5; --line:#243040; --accent:#76b900;
+        --warn:#f5a524; --bad:#ef4444; --band:rgba(118,185,0,.22); }
+:root[data-theme="light"] { --bg:#f6f8fa; --panel:#ffffff; --ink:#0d1117; --muted:#57606a; --line:#d0d7de;
+        --accent:#4e7d00; --warn:#b45309; --bad:#b91c1c; --band:rgba(78,125,0,.18); }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display:flex; align-items:baseline; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+header h1 { font-size:16px; margin:0; font-weight:650; }
+header .sub { color:var(--muted); font-size:12px; }
+main { display:grid; grid-template-columns:minmax(260px, 330px) 1fr; gap:0; min-height:calc(100vh - 50px); }
+aside { border-right:1px solid var(--line); padding:14px 16px; overflow:auto; }
+#view { position:relative; min-height:420px; }
+canvas { display:block; }
+.slider { margin:0 0 14px; }
+.slider label { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); }
+.slider label b { color:var(--ink); font-variant-numeric:tabular-nums; }
+input[type=range] { width:100%; accent-color:var(--accent); }
+.cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
+.card .k { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+.card .v { font-size:18px; font-variant-numeric:tabular-nums; font-weight:600; }
+.card .u { font-size:12px; color:var(--muted); }
+#trust { border-radius:8px; padding:8px 10px; margin:10px 0; font-size:13px; border:1px solid var(--line); }
+#trust.ok { border-color:var(--accent); }
+#trust.out { border-color:var(--warn); background:color-mix(in srgb, var(--warn) 12%, transparent); }
+button { background:var(--accent); color:#0b0f14; border:0; border-radius:6px; padding:8px 12px; font-weight:650; cursor:pointer; width:100%; }
+button:disabled { opacity:.5; cursor:default; }
+#verify-out { font-size:12px; color:var(--muted); margin-top:8px; white-space:pre-wrap; }
+#chart { width:100%; height:170px; }
+.legend { position:absolute; right:14px; bottom:14px; background:color-mix(in srgb, var(--panel) 85%, transparent);
+          border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; }
+.legend .bar { width:220px; height:10px; border-radius:3px; margin:4px 0; }
+.legend .ticks { display:flex; justify-content:space-between; color:var(--muted); font-variant-numeric:tabular-nums; }
+.toggle { display:flex; gap:6px; margin:6px 0 0; }
+.toggle button { background:var(--panel); color:var(--ink); border:1px solid var(--line); font-weight:500; }
+.toggle button.on { border-color:var(--accent); color:var(--accent); }
+small { color:var(--muted); }
+@media (max-width: 760px) { main { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } #view { height:60vh; } }
+</style>
+</head>
+<body>
+<header><h1 id="title">Surrogate twin</h1><span class="sub" id="subtitle"></span></header>
+<main>
+  <aside>
+    <div id="sliders"></div>
+    <div id="trust"></div>
+    <div class="cards" id="cards"></div>
+    <svg id="chart" role="img" aria-label="prediction along the first input with its 90% band"></svg>
+    <small id="chart-note"></small>
+    <div style="margin-top:12px"><button id="verify">Run a verifying CFD here</button></div>
+    <div id="verify-out"></div>
+    <p><small id="errs"></small></p>
+  </aside>
+  <div id="view">
+    <div class="legend"><div id="leg-title"></div><div class="bar" id="leg-bar"></div><div class="ticks"><span id="leg-lo"></span><span id="leg-hi"></span></div>
+      <div class="toggle"><button id="show-mean" class="on">mean</button><button id="show-hw">90 % half width</button></div></div>
+  </div>
+</main>
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/controls/OrbitControls.js":"./vendor/three/OrbitControls.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+const API = "__API__";
+const T = await (await fetch("twin.json")).json();
+document.getElementById("title").textContent = T.title;
+document.getElementById("subtitle").textContent = T.meta.subtitle || "";
+const ins = T.inputs, D = ins.length;
+const u = ins.map(() => 0.5);
+if (T.meta.baseline) ins.forEach((p, j) => { if (p.name in T.meta.baseline) u[j] = (T.meta.baseline[p.name] - p.low) / (p.high - p.low); });
+// ---------- multilinear interpolation on the payload grid
+const shape = ins.map(p => p.n);
+function corners(uu, dims) {          // dims: indices of the axes, shape per axis
+  let out = [{w: 1, idx: 0}];
+  let stride = 1;
+  const strides = []; for (let j = dims.length - 1; j >= 0; j--) { strides[j] = stride; stride *= shape[dims[j]]; }
+  dims.forEach((d, j) => {
+    const n = shape[d], x = Math.min(Math.max(uu[d], 0), 1) * (n - 1), i0 = Math.min(Math.floor(x), n - 2), t = x - i0;
+    out = out.flatMap(c => [{w: c.w * (1 - t), idx: c.idx + i0 * strides[j]}, {w: c.w * t, idx: c.idx + (i0 + 1) * strides[j]}]);
+  });
+  return out;
+}
+const allDims = ins.map((_, j) => j);
+function scalar(name, uu) {
+  const s = T.scalars[name]; let m = 0, h = 0;
+  for (const c of corners(uu, allDims)) { m += c.w * s.mean[c.idx]; h += c.w * s.half_width[c.idx]; }
+  return [m, h];
+}
+function trustAt(uu) { let d = 0; for (const c of corners(uu, allDims)) d += c.w * T.trust.distance[c.idx]; return d; }
+const F = T.field, r = F ? F.modes.length : 0, NP = F ? F.mean.length : 0;
+function field(uu) {
+  const coef = new Float64Array(r); let sc = 0;
+  for (const c of corners(uu, allDims)) { const row = F.coeffs[c.idx]; for (let k = 0; k < r; k++) coef[k] += c.w * row[k]; sc += c.w * F.half_width_scale[c.idx]; }
+  const v = new Float64Array(NP);
+  for (let i = 0; i < NP; i++) { let s = F.mean[i]; for (let k = 0; k < r; k++) s += coef[k] * F.modes[k][i]; v[i] = s; }
+  const hw = F.half_width_mean.map(x => x * sc);
+  return [v, hw];
+}
+const G = T.geometry, gd = G.shape_inputs.map(n => ins.findIndex(p => p.name === n));
+function verts(uu) {
+  const n = G.vertices[0].length, out = new Float32Array(n * 3);
+  const cs = gd.length ? corners(uu, gd) : [{w: 1, idx: 0}];
+  for (const c of cs) { const V = G.vertices[c.idx]; for (let i = 0; i < n; i++) { out[3*i] += c.w * V[i][0]; out[3*i+1] += c.w * V[i][1]; out[3*i+2] += c.w * V[i][2]; } }
+  return out;
+}
+// ---------- UI
+const sl = document.getElementById("sliders");
+ins.forEach((p, j) => {
+  const d = document.createElement("div"); d.className = "slider";
+  d.innerHTML = `<label>${p.name} <b id="val${j}"></b></label><input type="range" min="0" max="1" step="0.001" value="${u[j]}" id="s${j}" aria-label="${p.name}">`;
+  sl.appendChild(d);
+  d.querySelector("input").addEventListener("input", e => { u[j] = +e.target.value; update(); });
+});
+const val = j => ins[j].low + u[j] * (ins[j].high - ins[j].low);
+// ---------- 3D
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({antialias: true}); renderer.setPixelRatio(devicePixelRatio);
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const cssBg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0b0f14";
+scene.background = new THREE.Color(cssBg);
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100); camera.up.set(0, 0, 1);
+camera.position.set(2.1, -1.3, 0.85);
+const controls = new OrbitControls(camera, renderer.domElement); controls.target.set(0.52, 0, 0.17);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 1.1));
+const dl = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(-2, -3, 4); scene.add(dl);
+const grid = new THREE.GridHelper(4, 40, 0x335533, 0x223322); grid.rotation.x = Math.PI / 2; grid.position.set(0.8, 0, 0); scene.add(grid);
+// full body = template half + its mirror (y -> -y), triangles given on the full closed body
+const nHalf = G.vertices[0].length;
+const geo = new THREE.BufferGeometry();
+const pos = new Float32Array(nHalf * 3 * 2), col = new Float32Array(nHalf * 3 * 2);
+geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+geo.setIndex(G.faces.flat());
+const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({vertexColors: true, roughness: .45, metalness: .1, side: THREE.DoubleSide}));
+scene.add(mesh);
+let rampKind = "div";
+function cmap(t) {                       // diverging blue - gray - red for signed fields, one-hue blue for magnitudes
+  const S = rampKind === "div" ? [[0.110,0.361,0.671],[0.427,0.655,0.925],[0.941,0.937,0.925],[0.937,0.533,0.533],[0.722,0.180,0.180]]
+                               : [[0.804,0.886,0.984],[0.427,0.655,0.925],[0.165,0.471,0.839],[0.110,0.361,0.671],[0.051,0.212,0.420]];
+  t = Math.min(Math.max(t, 0), 1) * (S.length - 1); const i = Math.min(Math.floor(t), S.length - 2), f = t - i;
+  return S[i].map((a, k) => a + f * (S[i+1][k] - a));
+}
+function legendBar() { document.getElementById("leg-bar").style.background = `linear-gradient(90deg, ${[0,.25,.5,.75,1].map(t => `rgb(${cmap(t).map(c => Math.round(255*c)).join(",")})`).join(",")})`; }
+let mode = "mean";
+document.getElementById("show-mean").onclick = () => { mode = "mean"; setToggle(); update(); };
+document.getElementById("show-hw").onclick = () => { mode = "hw"; setToggle(); update(); };
+function setToggle() { document.getElementById("show-mean").classList.toggle("on", mode === "mean"); document.getElementById("show-hw").classList.toggle("on", mode === "hw"); }
+function resize() { const w = view.clientWidth, h = Math.max(view.clientHeight, 420); renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+addEventListener("resize", resize);
+// ---------- chart: first input sweep with 90 % band
+const chart = document.getElementById("chart"), key = T.meta.chart_output || Object.keys(T.scalars)[0];
+function drawChart() {
+  const W = chart.clientWidth || 300, H = 170, pad = 30, n = 60, rows = [];
+  for (let i = 0; i <= n; i++) { const uu = u.slice(); uu[0] = i / n; const [m, h] = scalar(key, uu); rows.push([i / n, m, h]); }
+  const lo = Math.min(...rows.map(r => r[1] - r[2])), hi = Math.max(...rows.map(r => r[1] + r[2]));
+  const X = t => pad + t * (W - pad - 8), Y = v => H - 20 - (v - lo) / (hi - lo || 1) * (H - 30);
+  const band = rows.map(r => `${X(r[0])},${Y(r[1] + r[2])}`).concat(rows.slice().reverse().map(r => `${X(r[0])},${Y(r[1] - r[2])}`)).join(" ");
+  const line = rows.map(r => `${X(r[0])},${Y(r[1])}`).join(" ");
+  const [m0] = scalar(key, u);
+  chart.innerHTML = `<polygon points="${band}" fill="var(--band)"/><polyline points="${line}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="${X(u[0])}" x2="${X(u[0])}" y1="8" y2="${H-20}" stroke="var(--muted)" stroke-dasharray="3 3"/>
+    <circle cx="${X(u[0])}" cy="${Y(m0)}" r="4" fill="var(--accent)"/>
+    <text x="${W - 8}" y="12" text-anchor="end" fill="var(--muted)" font-size="11">${T.scalars[key].label}</text>
+    <text x="${pad}" y="${H-4}" fill="var(--muted)" font-size="11">${ins[0].name}: ${ins[0].low} to ${ins[0].high} ${ins[0].unit}</text>
+    <text x="4" y="${Y(hi)+4}" fill="var(--muted)" font-size="10">${hi.toFixed(3)}</text><text x="4" y="${Y(lo)}" fill="var(--muted)" font-size="10">${lo.toFixed(3)}</text>`;
+  document.getElementById("chart-note").textContent = `Mean and calibrated 90 % band along ${ins[0].name}, others fixed at the sliders.`;
+}
+function update() {
+  ins.forEach((p, j) => document.getElementById("val" + j).textContent = `${val(j).toFixed(p.high - p.low > 5 ? 1 : 3)} ${p.unit}`);
+  const cards = document.getElementById("cards"); cards.innerHTML = "";
+  for (const k of Object.keys(T.scalars)) { const [m, h] = scalar(k, u); cards.innerHTML += `<div class="card"><div class="k">${T.scalars[k].label}</div><div class="v">${m.toFixed(4)}</div><div class="u">± ${h.toFixed(4)} (90 %)</div></div>`; }
+  const d = trustAt(u), out = d > T.max_distance, tr = document.getElementById("trust");
+  tr.className = out ? "out" : "ok";
+  tr.textContent = out ? `Out of the trust region: the nearest training case is ${d.toFixed(2)} away (unit cube; limit ${T.max_distance}). Treat the numbers as a guess and run a verifying CFD.`
+                       : `Inside the trust region (nearest training case ${d.toFixed(2)} away, limit ${T.max_distance}).`;
+  const V = verts(u);
+  for (let i = 0; i < nHalf; i++) { pos.set([V[3*i], V[3*i+1], V[3*i+2]], 3*i); pos.set([V[3*i], -V[3*i+1], V[3*i+2]], 3*(i + nHalf)); }
+  if (F) {
+    const [v, hw] = field(u), vals = mode === "mean" ? v : hw;
+    const amp = Math.max(Math.abs(F.range[0]), Math.abs(F.range[1]));
+    rampKind = mode === "mean" ? "div" : "seq"; legendBar();
+    const lo = mode === "mean" ? -amp : 0, hi = mode === "mean" ? amp : Math.max(...F.half_width_mean) * 1.5;
+    for (let i = 0; i < nHalf; i++) { const c = cmap((vals[i] - lo) / (hi - lo)); col.set(c, 3*i); col.set(c, 3*(i + nHalf)); }
+    document.getElementById("leg-title").textContent = mode === "mean" ? `${F.label} (surrogate mean)` : `${F.label}: 90 % half width`;
+    document.getElementById("leg-lo").textContent = lo.toFixed(2); document.getElementById("leg-hi").textContent = hi.toFixed(2);
+  }
+  geo.attributes.position.needsUpdate = true; geo.attributes.color.needsUpdate = true; geo.computeVertexNormals();
+  drawChart();
+}
+const e = T.interpolation_error; document.getElementById("errs").textContent =
+  "Page interpolation vs the models (max abs, 256 random designs): " + Object.entries(e).map(([k, v]) => `${k} ${v.toExponential(1)}`).join(", ") + ". " + (T.meta.note || "");
+// ---------- verifying CFD (needs the app)
+const vb = document.getElementById("verify"), vo = document.getElementById("verify-out");
+if (!API) { vb.disabled = true; vo.textContent = "Verifying CFD needs the twin app (apps/ahmed_twin), which runs OpenFOAM."; }
+vb.onclick = async () => {
+  const params = Object.fromEntries(ins.map((p, j) => [p.name, val(j)])), pred = Object.fromEntries(Object.keys(T.scalars).map(k => [k, scalar(k, u)]));
+  vb.disabled = true; vo.textContent = "Submitting...";
+  try {
+    const r = await (await fetch(`${API}/verify`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({params, predicted: pred})})).json();
+    const poll = async () => { const s = await (await fetch(`${API}/verify/${r.id}`)).json(); vo.textContent = s.text || s.status; if (s.status === "running" || s.status === "queued") setTimeout(poll, 5000); else vb.disabled = false; };
+    poll();
+  } catch (err) { vo.textContent = "Could not reach the app: " + err; vb.disabled = false; }
+};
+resize(); update();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>

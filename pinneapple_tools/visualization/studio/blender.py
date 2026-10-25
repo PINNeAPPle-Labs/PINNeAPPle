@@ -134,16 +134,18 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
            background: str = "studio", samples: int = 96, size: Tuple[int, int] = (1600, 900),
            title: Optional[str] = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
            sun_elevation: float = 40.0, ghost: Optional[bool] = None,
-           surface_fields: dict | None = None) -> str:
+           surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
     field: colour the surfaces by this per-vertex field (surfaces without it are grey). lines: True (all) or the
     name of a Lines set, coloured by their values. slice: name of a Slice. background: "studio" (light gradient,
-    true colours), "sky" (Nishita sky, filmic) or a lunar preset of :mod:`.lighting` ("lunar_south_pole",
+    true colours), "dark" (near-black stage, key, rim and fill area lights, AgX: the product-shot look), "sky"
+    (Nishita sky, filmic) or a lunar preset of :mod:`.lighting` ("lunar_south_pole",
     "lunar_low_sun", "lunar_day": black sky, one Sun lamp with the Sun's angular size). ghost: draw the surfaces translucent (default: when a slice is
     shown). surface_fields: {surface name: (field, lo, hi, cmap, title)} colours that surface by its own field
     on ``cmap`` (one of :data:`.compose.CMAPS`: "jet", or a diverging "rdbu" / "coolwarm" / "bwr") and adds a
-    second colour bar (bottom left) for it."""
+    second colour bar (bottom left) for it. cmap: the colour map of ``field`` (one of :data:`.compose.CMAPS`).
+    floor: a glossy floor under the geometry (its reflection; with "dark")."""
     import bpy
     from mathutils import Vector
 
@@ -181,7 +183,7 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     if field:
         attr = "_" + field.upper().lstrip("_")
         lo, hi = field_range or (sc.field_range(field) if sc else (0.0, 1.0))
-        fm, grey = ramp_material(field, attr, lo, hi), plain("grey", (0.35, 0.37, 0.4))
+        fm, grey = ramp_material(field, attr, lo, hi, cmap), plain("grey", (0.35, 0.37, 0.4))
         for o in objs:
             o.data.materials.clear()
             o.data.materials.append(fm if attr in o.data.attributes else grey)
@@ -297,6 +299,8 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     if background.startswith("lunar"):                  # black sky, one hard Sun (lighting.PRESETS)
         from .lighting import blender_world
         blender_world(background, bpy)
+    elif background == "dark":
+        _dark_stage(bpy, bs, centre, size_l, mins.z if floor else None)
     else:
         _world(bpy, bs, studio, sun_elevation)
 
@@ -348,7 +352,7 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     bs.render.filepath = os.path.abspath(out)
     bpy.ops.render.render(write_still=True)
     if bar and colorbar_on:
-        colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt)
+        colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt, stops=stops(cmap) if field else None)
     if bar2 and colorbar_on:
         colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3])
     return out
@@ -395,6 +399,55 @@ def _plain(bpy, name, rgb, alpha=1.0):
         if hasattr(m, "blend_method"):
             m.blend_method = "BLEND"
     return m
+
+
+def _dark_stage(bpy, bs, centre, size_l, floor_z=None):
+    """Near-black gradient world, a warm key, a cool rim and a soft fill (area lights sized to the model), AgX view
+    transform; with ``floor_z`` a dark glossy floor that reflects the model."""
+    import math
+
+    from mathutils import Vector
+    world = bpy.data.worlds.new("world")
+    bs.world = world
+    world.use_nodes = True
+    wn = world.node_tree
+    grad, tc, mp = wn.nodes.new("ShaderNodeTexGradient"), wn.nodes.new("ShaderNodeTexCoord"), wn.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, math.radians(-90), 0)
+    cr = wn.nodes.new("ShaderNodeValToRGB")
+    cr.color_ramp.elements[0].color = (0.004, 0.005, 0.007, 1)
+    cr.color_ramp.elements[1].color = (0.035, 0.042, 0.055, 1)
+    wn.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    wn.links.new(mp.outputs["Vector"], grad.inputs["Vector"])
+    wn.links.new(grad.outputs["Fac"], cr.inputs["Fac"])
+    wn.links.new(cr.outputs["Color"], wn.nodes["Background"].inputs["Color"])
+    wn.nodes["Background"].inputs["Strength"].default_value = 1.0
+    names = [i.identifier for i in bs.view_settings.bl_rna.properties["view_transform"].enum_items]
+    bs.view_settings.view_transform = "AgX" if "AgX" in names else "Filmic"
+    bs.view_settings.exposure = 0.0
+    L = float(size_l)
+    for name, off, energy, col, sz in (("key", (-0.6, -1.0, 0.9), 40.0, (1.0, 0.95, 0.88), 0.9),
+                                       ("rim", (0.9, 0.8, 0.6), 55.0, (0.75, 0.85, 1.0), 0.6),
+                                       ("fill", (-0.4, 1.0, 0.3), 10.0, (0.9, 0.95, 1.0), 1.4)):
+        light = bpy.data.lights.new(name, "AREA")
+        light.energy, light.color, light.size = energy * L * L, col, sz * L
+        ob = bpy.data.objects.new(name, light)
+        ob.location = centre + Vector(tuple(np.array(off) * 1.6 * L))
+        ob.rotation_euler = (centre - ob.location).to_track_quat("-Z", "Y").to_euler()
+        bs.collection.objects.link(ob)
+    if floor_z is not None:
+        me = bpy.data.meshes.new("floor")
+        R = 6.0 * L
+        me.from_pydata([(centre.x - R, centre.y - R, floor_z), (centre.x + R, centre.y - R, floor_z),
+                        (centre.x + R, centre.y + R, floor_z), (centre.x - R, centre.y + R, floor_z)], [],
+                       [(0, 1, 2, 3)])
+        m = bpy.data.materials.new("floor")
+        m.use_nodes = True
+        b = m.node_tree.nodes["Principled BSDF"]
+        b.inputs["Base Color"].default_value = (0.012, 0.014, 0.018, 1)
+        b.inputs["Roughness"].default_value = 0.18
+        me.materials.append(m)
+        fo = bpy.data.objects.new("floor", me)
+        bs.collection.objects.link(fo)
 
 
 def _world(bpy, bs, studio, sun_elevation):

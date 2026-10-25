@@ -91,6 +91,7 @@
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)
     * [Autonomous Physics Lab: an AI that manages evidence for engineering decisions](guides/autonomous_lab.md)
+    * [End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)](guides/ahmed_body_end_to_end.md)
     * [The rover that learns the planet: drive, stall, learn the soil, replan, verify](guides/rover_learns_the_planet.md)
     * [Industrial presets: engineering cases set up, solved and validated](guides/industrial_presets.md)
     * [Science by area: experiments in 0-D to 3-D + time, and the atlas](guides/science.md)

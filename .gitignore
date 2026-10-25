@@ -80,3 +80,7 @@ examples/flow_studio/_runs/
 examples/flight_dynamics/_out/
 examples/flight_dynamics/_*.log
 examples/autolab_rover/_out/
+
+# Ahmed-body end-to-end study: OpenFOAM runs and fields (results/ is committed)
+examples/end_to_end/ahmed_body/_runs/
+examples/end_to_end/ahmed_body/results/cad/*.stl

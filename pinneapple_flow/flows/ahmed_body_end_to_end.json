@@ -1,0 +1,118 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "ahmed-body-end-to-end",
+ "name": "Ahmed body: CFD to surrogate twin",
+ "description": "The Ahmed body from geometry (parametric and OpenCASCADE CAD) through an OpenFOAM campaign (k-omega SST, prism layers, checks per run), grid convergence and validation against Ahmed et al. (1984), a dataset with a held-out region, surrogate families with calibrated intervals and physics checks, the slant angle inferred from a drag measurement, and a digital twin page.",
+ "nodes": [
+  {
+   "id": "geometry",
+   "type": "study.ahmed_geometry",
+   "params": {
+    "slant_deg": 25.0,
+    "clearance": 0.05,
+    "cad": true
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Geometry (parametric + CAD)"
+  },
+  {
+   "id": "cfd",
+   "type": "study.cfd_campaign",
+   "params": {
+    "source": "recorded"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 200.0
+   },
+   "label": "CFD campaign"
+  },
+  {
+   "id": "grid",
+   "type": "study.grid_validation",
+   "params": {},
+   "position": {
+    "x": 310.0,
+    "y": 120.0
+   },
+   "label": "Grid convergence + validation"
+  },
+  {
+   "id": "data",
+   "type": "study.dataset",
+   "params": {},
+   "position": {
+    "x": 310.0,
+    "y": 280.0
+   },
+   "label": "Dataset"
+  },
+  {
+   "id": "models",
+   "type": "study.surrogates",
+   "params": {
+    "budget_s": 30.0
+   },
+   "position": {
+    "x": 580.0,
+    "y": 280.0
+   },
+   "label": "Surrogates"
+  },
+  {
+   "id": "inverse",
+   "type": "study.inverse",
+   "params": {
+    "cd": 0.285,
+    "clearance": 0.05,
+    "speed": 60.0
+   },
+   "position": {
+    "x": 850.0,
+    "y": 200.0
+   },
+   "label": "Inverse (slant from CD)"
+  },
+  {
+   "id": "twin",
+   "type": "study.twin",
+   "params": {},
+   "position": {
+    "x": 850.0,
+    "y": 360.0
+   },
+   "label": "Digital twin"
+  }
+ ],
+ "edges": [
+  {
+   "source": "cfd",
+   "source_port": "runs",
+   "target": "grid",
+   "target_port": "runs",
+   "id": "cfd.runs->grid.runs"
+  },
+  {
+   "source": "cfd",
+   "source_port": "runs",
+   "target": "data",
+   "target_port": "runs",
+   "id": "cfd.runs->data.runs"
+  },
+  {
+   "source": "data",
+   "source_port": "dataset",
+   "target": "models",
+   "target_port": "dataset",
+   "id": "data.dataset->models.dataset"
+  }
+ ],
+ "meta": {
+  "title": "Ahmed body: CFD to surrogate twin",
+  "family": "surrogates",
+  "example": "examples/end_to_end/ahmed_body"
+ }
+}

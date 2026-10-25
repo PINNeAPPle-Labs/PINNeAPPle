@@ -609,18 +609,25 @@ def visuals(recs, runs: str, res: str, *, rid: str = "val_25.0", samples: int = 
                              lines or ["see results/report.html"], kicker="what the study found",
                              footer="results/report.html, apps/ahmed_twin")
         segments.append(("outro", [tail] * (4 * fps)))
-        cues, frames, t_cursor = [], [], 0.0
+        cues, frames, t_seg, t_voice = [], [], 0.0, 0.0
         narrated = False
         if narrate:
             try:
-                for key, segf in segments:
+                # each line starts at its shot (or when the previous line has ended) and may run into the next
+                # shot; a shot is held only when its line could not start inside it, and the last one until the
+                # voice ends
+                for k, (key, segf) in enumerate(segments):
                     wav = CP.narrate(NARRATION[key], os.path.join(tmp, f"{key}.wav"))
-                    need = int(np.ceil((CP.audio_duration(wav) + 0.6) * fps))
+                    dur = CP.audio_duration(wav)
+                    start = max(t_seg + 0.3, t_voice + 0.4)
+                    end_needed = start + (dur + 0.6 if k == len(segments) - 1 else 1.0)
+                    need = int(np.ceil((end_needed - t_seg) * fps))
                     if segf and len(segf) < need:
                         segf += [segf[-1]] * (need - len(segf))
-                    cues.append((t_cursor + 0.3, wav))
+                    cues.append((start, wav))
+                    t_voice = start + dur
                     frames += segf
-                    t_cursor += len(segf) / fps
+                    t_seg += len(segf) / fps
                 narrated = True
             except RuntimeError as e:
                 log(f"no narration: {e}")

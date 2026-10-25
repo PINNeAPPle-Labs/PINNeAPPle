@@ -1,0 +1,393 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.getting_started.04_wave_equation_1d",
+ "name": "Wave equation 1-D: PINNs for three wave speeds",
+ "description": "examples/getting_started/04_wave_equation_1d.py: u_tt = c^2 u_xx on [0, 1] x [0, 1], u(x, 0) = sin(pi x), u_t(x, 0) = 0, fixed ends, for c = 1, 2, 4; each PINN (3 x 128 tanh, 10000 Adam steps at lr 5e-4, 5000 collocation points, seed 3 as in the script) against u = sin(pi x) cos(c pi t) on a 60 x 60 grid. The script trains its own torch loop with a hard x(1 - x) boundary factor; here train.pinn enforces the ends as a penalty. Nothing committed: the script prints the relative L2 per c.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     1.0
+    ]
+   },
+   "label": "string x time",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 60,
+    "n_t": 60
+   },
+   "label": "60 x 60 grid",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "eq_c1",
+   "type": "equations.system",
+   "params": {
+    "template": "wave",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_tt = c**2*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u_t = 0"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "c": 1.0
+    },
+    "exact": "cos(c*pi*t)*sin(pi*x)"
+   },
+   "label": "equations (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_c1",
+   "type": "train.pinn",
+   "params": {
+    "width": 128,
+    "depth": 3,
+    "adam_steps": 10000,
+    "lbfgs_steps": 0,
+    "lr": 0.0005,
+    "n_collocation": 5000,
+    "seed": 3
+   },
+   "label": "PINN (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_c1",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "eq_c2",
+   "type": "equations.system",
+   "params": {
+    "template": "wave",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_tt = c**2*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u_t = 0"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "c": 2.0
+    },
+    "exact": "cos(c*pi*t)*sin(pi*x)"
+   },
+   "label": "equations (c = 2)",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_c2",
+   "type": "train.pinn",
+   "params": {
+    "width": 128,
+    "depth": 3,
+    "adam_steps": 10000,
+    "lbfgs_steps": 0,
+    "lr": 0.0005,
+    "n_collocation": 5000,
+    "seed": 3
+   },
+   "label": "PINN (c = 2)",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_c2",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (c = 2)",
+   "position": {
+    "x": 620.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "eq_c4",
+   "type": "equations.system",
+   "params": {
+    "template": "wave",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_tt = c**2*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u_t = 0"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "c": 4.0
+    },
+    "exact": "cos(c*pi*t)*sin(pi*x)"
+   },
+   "label": "equations (c = 4)",
+   "position": {
+    "x": 910.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_c4",
+   "type": "train.pinn",
+   "params": {
+    "width": 128,
+    "depth": 3,
+    "adam_steps": 10000,
+    "lbfgs_steps": 0,
+    "lr": 0.0005,
+    "n_collocation": 5000,
+    "seed": 3
+   },
+   "label": "PINN (c = 4)",
+   "position": {
+    "x": 910.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_c4",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (c = 4)",
+   "position": {
+    "x": 910.0,
+    "y": 380.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_c1",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_c1.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_c1",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_c1.mesh"
+  },
+  {
+   "source": "eq_c1",
+   "source_port": "problem",
+   "target": "pinn_c1",
+   "target_port": "problem",
+   "id": "eq_c1.problem->pinn_c1.problem"
+  },
+  {
+   "source": "pinn_c1",
+   "source_port": "solution",
+   "target": "val_c1",
+   "target_port": "candidates",
+   "id": "pinn_c1.solution->val_c1.candidates"
+  },
+  {
+   "source": "eq_c1",
+   "source_port": "problem",
+   "target": "val_c1",
+   "target_port": "problem",
+   "id": "eq_c1.problem->val_c1.problem"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_c2",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_c2.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_c2",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_c2.mesh"
+  },
+  {
+   "source": "eq_c2",
+   "source_port": "problem",
+   "target": "pinn_c2",
+   "target_port": "problem",
+   "id": "eq_c2.problem->pinn_c2.problem"
+  },
+  {
+   "source": "pinn_c2",
+   "source_port": "solution",
+   "target": "val_c2",
+   "target_port": "candidates",
+   "id": "pinn_c2.solution->val_c2.candidates"
+  },
+  {
+   "source": "eq_c2",
+   "source_port": "problem",
+   "target": "val_c2",
+   "target_port": "problem",
+   "id": "eq_c2.problem->val_c2.problem"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_c4",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_c4.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_c4",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_c4.mesh"
+  },
+  {
+   "source": "eq_c4",
+   "source_port": "problem",
+   "target": "pinn_c4",
+   "target_port": "problem",
+   "id": "eq_c4.problem->pinn_c4.problem"
+  },
+  {
+   "source": "pinn_c4",
+   "source_port": "solution",
+   "target": "val_c4",
+   "target_port": "candidates",
+   "id": "pinn_c4.solution->val_c4.candidates"
+  },
+  {
+   "source": "eq_c4",
+   "source_port": "problem",
+   "target": "val_c4",
+   "target_port": "problem",
+   "id": "eq_c4.problem->val_c4.problem"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "getting_started",
+  "domain": "PINN",
+  "scripts": [
+   "04_wave_equation_1d.py"
+  ],
+  "quick": {
+   "pinn_c1": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   },
+   "pinn_c2": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   },
+   "pinn_c4": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   }
+  }
+ }
+}

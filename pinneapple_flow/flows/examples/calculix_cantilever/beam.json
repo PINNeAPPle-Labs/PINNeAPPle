@@ -1,0 +1,121 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-calculix-cantilever",
+ "name": "Cantilever beam with CalculiX",
+ "description": "The committed CalculiX deck (1.0 x 0.1 x 0.1 m, C3D20R, 621 nodes, fixed root, 1000 N at the tip) solved with ccx; the tip deflection and the peak bending stress against the committed beam.frd and against Euler-Bernoulli beam theory (examples/calculix_cantilever).",
+ "nodes": [
+  {
+   "id": "deck",
+   "type": "calculix.deck",
+   "params": {
+    "source": "example"
+   },
+   "label": "Deck (beam.inp)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "solve",
+   "type": "calculix.solve",
+   "params": {},
+   "label": "ccx",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "results",
+   "type": "calculix.results",
+   "params": {},
+   "label": "Results of this run",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "committed",
+   "type": "calculix.results",
+   "params": {
+    "example_frd": "calculix_cantilever/beam.frd"
+   },
+   "label": "Committed beam.frd",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "calculix_cantilever",
+    "comparisons": [
+     {
+      "flow": "results.tip_uz_m",
+      "ref": "node:committed.tip_uz_m"
+     },
+     {
+      "flow": "results.tip_uz_mean_m",
+      "ref": "node:committed.tip_uz_mean_m"
+     },
+     {
+      "flow": "results.max_abs_sxx_Pa",
+      "ref": "node:committed.max_abs_sxx_Pa"
+     },
+     {
+      "flow": "results.nodes",
+      "ref": "node:committed.nodes"
+     }
+    ],
+    "tolerance_source": "the same deck through the same solver; the .frd stores 5 significant digits (rounding of the committed file)",
+    "rtol": 0.0001
+   },
+   "label": "Same numbers as examples/calculix_cantilever",
+   "position": {
+    "x": 910.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "deck",
+   "source_port": "deck",
+   "target": "solve",
+   "target_port": "deck",
+   "id": "deck.deck->solve.deck"
+  },
+  {
+   "source": "solve",
+   "source_port": "deck",
+   "target": "results",
+   "target_port": "deck",
+   "id": "solve.deck->results.deck"
+  },
+  {
+   "source": "results",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "results.metrics->compare.metrics"
+  },
+  {
+   "source": "committed",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "committed.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "calculix_cantilever",
+  "domain": "structures",
+  "scripts": [],
+  "quick": {}
+ }
+}

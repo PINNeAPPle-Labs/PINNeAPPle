@@ -1,0 +1,76 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.benchmark_suite.13_transfer_meta_benchmark",
+ "name": "Transfer learning and meta-learning on PDE families",
+ "description": "TransferBenchmarkPipeline (pre-train 3000 epochs on a source member, fine-tune 1000 on two targets per family with each freezing strategy) and MetaBenchmarkPipeline (MAML / Reptile, 500 meta-epochs, K-shot adaptation up to 200 steps) on the Burgers nu, heat alpha and wave c families (examples/benchmark_suite/13_transfer_meta_benchmark.py; it imports pinneapple_arena.transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite). Quick: the script's --fast sizes.",
+ "nodes": [
+  {
+   "id": "transfer",
+   "type": "benchmark.transfer",
+   "params": {
+    "scenarios": [
+     "burgers_nu",
+     "heat_alpha",
+     "wave_c"
+    ],
+    "epochs_source": 3000,
+    "epochs_finetune": 1000
+   },
+   "label": "transfer learning",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "meta",
+   "type": "benchmark.meta",
+   "params": {
+    "families": [
+     "burgers_nu",
+     "heat_alpha",
+     "wave_c"
+    ],
+    "n_meta_epochs": 500,
+    "k_shots": [
+     1,
+     5,
+     10,
+     20,
+     50,
+     100,
+     200
+    ]
+   },
+   "label": "meta-learning",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "benchmark_suite",
+  "domain": "benchmarks",
+  "scripts": [
+   "13_transfer_meta_benchmark.py"
+  ],
+  "quick": {
+   "transfer": {
+    "epochs_source": 100,
+    "epochs_finetune": 50
+   },
+   "meta": {
+    "n_meta_epochs": 30,
+    "k_shots": [
+     1,
+     5,
+     10,
+     20
+    ]
+   }
+  }
+ }
+}

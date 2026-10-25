@@ -39,6 +39,7 @@ from pinneapple_simulation.electromagnetics.machines.thermal import (
     demagnetisation_margin,
     demagnetisation_refinement,
     intrinsic_coercivity,
+    iron_split,
     machine_network,
     magnet_temperature_sweep,
 )
@@ -46,25 +47,6 @@ from pinneapple_simulation.electromagnetics.machines.thermal import (
 OUT = Path(__file__).parent / "results"
 BETA_HCJ = -0.0055
 N_GAP = 960
-
-
-def iron_split(m: IPMMachine) -> dict:
-    """Fractions of the iron loss in the stator yoke, teeth and rotor at 250 A MTPA (50.3 deg), 1500 rpm."""
-    gm = math.radians(50.3)
-    r = m.losses(1500.0, -250 * math.sin(gm), 250 * math.cos(gm), steps=24)
-    mesh = m.mm.mesh(0.0)
-    area = mesh.areas()
-    c = mesh.centroids()
-    rc = np.hypot(c[:, 0], c[:, 1])
-    st = m._stator_iron
-    s = m.geometry.stator
-    r_slot_bot = s.r_in + s.H0 + s.H1 + s.H2
-    dens = r["stator_loss_density"]
-    yoke = float(np.sum((area[st] * dens)[rc[st] >= r_slot_bot]))
-    teeth = float(np.sum((area[st] * dens)[rc[st] < r_slot_bot]))
-    rotor = float(np.sum(area[m._rotor_iron] * r["rotor_loss_density"]))
-    tot = yoke + teeth + rotor
-    return {"yoke": yoke / tot, "teeth": teeth / tot, "rotor": rotor / tot}
 
 
 def main() -> dict:

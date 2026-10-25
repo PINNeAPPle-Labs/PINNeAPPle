@@ -1,0 +1,109 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-topology-rotor",
+ "name": "Reluctance-rotor iron for torque (03)",
+ "description": "4-pole reluctance rotor core, 4-fold rotational symmetry, density filter, projection, MMA at volume 0.5 for the mean Maxwell-stress torque at three rotor positions; re-evaluated with nonlinear iron and the co-energy torque (examples/topology_optimization/03_reluctance_rotor.py).",
+ "nodes": [
+  {
+   "id": "rotor",
+   "type": "design.reluctance_rotor",
+   "params": {},
+   "label": "Reluctance rotor",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "topology_optimization",
+    "comparisons": [
+     {
+      "flow": "rotor.design_variables",
+      "ref": "results/reluctance_rotor_summary.json:design_variables"
+     },
+     {
+      "flow": "rotor.optimized_mean_torque_linear_Nm",
+      "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_linear_Nm"
+     },
+     {
+      "flow": "rotor.coenergy_torque_at_5deg_Nm",
+      "ref": "results/reluctance_rotor_summary.json:coenergy_torque_at_5deg_Nm"
+     },
+     {
+      "flow": "rotor.optimized_mean_torque_nonlinear_Nm",
+      "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_nonlinear_Nm"
+     },
+     {
+      "flow": "rotor.iterations",
+      "ref": "results/reluctance_rotor_summary.json:iterations"
+     },
+     {
+      "flow": "rotor.volume_fraction",
+      "ref": "results/reluctance_rotor_summary.json:volume_fraction"
+     },
+     {
+      "flow": "rotor.torque_linear_0deg_Nm",
+      "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.0"
+     },
+     {
+      "flow": "rotor.torque_linear_5deg_Nm",
+      "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.1"
+     },
+     {
+      "flow": "rotor.torque_linear_10deg_Nm",
+      "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2"
+     },
+     {
+      "flow": "rotor.solid_round_rotor_torque_Nm",
+      "ref": "results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm",
+      "atol": 1e-08
+     }
+    ],
+    "tolerance_source": "deterministic optimization: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding; the solid rotor's torque is zero up to 1e-8 N m"
+   },
+   "label": "Same numbers as examples/topology_optimization",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "rotor",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "rotor.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "topology_optimization",
+  "domain": "design",
+  "scripts": [
+   "03_reluctance_rotor.py"
+  ],
+  "quick": {
+   "rotor": {
+    "max_iter": 20
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "rotor.design_variables",
+      "ref": "results/reluctance_rotor_summary.json:design_variables"
+     },
+     {
+      "flow": "rotor.solid_round_rotor_torque_Nm",
+      "ref": "results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm",
+      "atol": 1e-08
+     }
+    ]
+   }
+  }
+ }
+}

@@ -42,6 +42,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- Every `examples/*` study as a flow: domain nodes in `pinneapple_flow/nodes_ext` (`flight.*`, `render.blender_clip` /
+  `render.clip_grid`, `em.*`, `examples.compare`), flows in `pinneapple_flow/flows/examples/<domain>/` with a quick
+  configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
+  finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
+  the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
 - Six apps from PINNeAPPle-apps (the `poc_*` case studies), each a page plus routes over library code:
   `apps/verification_gap`, `apps/design_optimization`, `apps/model_benchmarking`, `apps/parameter_discovery`,
   `apps/predictive_twin`, `apps/surrogate_speed` (ports 8180-8185; logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD`).

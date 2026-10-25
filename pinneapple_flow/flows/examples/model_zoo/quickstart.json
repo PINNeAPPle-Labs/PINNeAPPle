@@ -1,0 +1,75 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-model-zoo",
+ "name": "Model zoo quickstart: the verified airfoil surrogate",
+ "description": "Evaluate the shipped airfoil surrogate against its card's held-out metrics and the XFOIL polar, validate it (physics checks, validity range: 18 deg is outside), fine-tune with a held-out guard (examples/model_zoo/quickstart.py).",
+ "nodes": [
+  {
+   "id": "zoo",
+   "type": "zoo.evaluate",
+   "params": {},
+   "label": "Zoo: evaluate / validate / fine-tune",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "model_zoo",
+    "comparisons": [
+     {
+      "flow": "zoo.eval.test/Cl_mae",
+      "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cl_mae"
+     },
+     {
+      "flow": "zoo.eval.test/Cd_mape_pct",
+      "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cd_mape_pct"
+     },
+     {
+      "flow": "zoo.eval.naca_reference/Cd_mape_pct",
+      "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.naca_reference/Cd_mape_pct"
+     },
+     {
+      "flow": "zoo.eval.xfoil_naca2412/Cd_mape_pct",
+      "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.xfoil_naca2412/Cd_mape_pct"
+     },
+     {
+      "flow": "zoo.eval.test/Cm_mae",
+      "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cm_mae"
+     }
+    ],
+    "tolerance_source": "the model card's validation metrics (pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json): the same weights and data, 1e-6 relative"
+   },
+   "label": "Same numbers as examples/model_zoo",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "zoo",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "zoo.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "model_zoo",
+  "domain": "validation",
+  "scripts": [
+   "quickstart.py"
+  ],
+  "quick": {
+   "zoo": {
+    "finetune_split": ""
+   }
+  }
+ }
+}

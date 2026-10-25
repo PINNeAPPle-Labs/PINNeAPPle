@@ -12,7 +12,7 @@ from ..registry import Param, Port, node
 from ..runtime import artifact, load_artifact
 
 _STUDIES = ["pipe_bend", "heated_pipe", "sphere"]
-_TAGS = ("section:simulation", "cfd", "openfoam", "freecad", "cad")
+_TAGS = ("cfd", "openfoam", "freecad", "cad")
 
 
 def _openfoam_available():

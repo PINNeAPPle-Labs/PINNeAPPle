@@ -12,5 +12,7 @@ from pinneapple_autolab.domains import ahmed_study as S
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS, RES = os.path.join(HERE, "_runs", "cfd"), os.path.join(HERE, "results")
+if not os.path.isdir(RUNS):                       # a fresh checkout: the committed copy of the records
+    RUNS = os.path.join(RES, "cfd_runs")
 print(S.twin(S.load_records(RUNS, ok_only=True), RES, os.path.join(RES, "twin")))
 os._exit(0)

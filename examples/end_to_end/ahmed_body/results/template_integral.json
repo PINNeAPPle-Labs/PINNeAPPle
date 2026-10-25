@@ -1,0 +1,7 @@
+{
+ "abs_gap_mean": 0.012215233461722062,
+ "abs_gap_max": 0.06894571056016385,
+ "abs_gap_p95": 0.04153226824437442,
+ "tolerance": 0.05153226824437442,
+ "how": "pressure_drag_from_cp of the CFD Cp on the template vs the CFD CD_pressure, every case"
+}

@@ -16,6 +16,8 @@ from pinneapple_autolab.study.dataset import StudyDataset
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS, RES = os.path.join(HERE, "_runs", "cfd"), os.path.join(HERE, "results")
+if not os.path.isdir(RUNS):                       # a fresh checkout: the committed copy of the records
+    RUNS = os.path.join(RES, "cfd_runs")
 ds = StudyDataset.load(os.path.join(RES, "dataset", "ahmed_body"))
 out = S.inverse(ds, S.load_records(RUNS, ok_only=True), RES)
 print(json.dumps({k: out[k] for k in ("heldout_inside_hdi90", "sigma_d_all")}, indent=1))

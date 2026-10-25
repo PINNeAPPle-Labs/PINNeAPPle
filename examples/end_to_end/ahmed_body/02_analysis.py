@@ -16,6 +16,8 @@ from pinneapple_autolab.domains import ahmed_study as S
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS, RES = os.path.join(HERE, "_runs", "cfd"), os.path.join(HERE, "results")
+if not os.path.isdir(RUNS):                       # a fresh checkout: the committed copy of the records
+    RUNS = os.path.join(RES, "cfd_runs")
 
 recs = S.load_records(RUNS)
 print("fields re-sampled on the template:", S.refresh_fields(recs, RUNS))

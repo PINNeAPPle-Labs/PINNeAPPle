@@ -18,6 +18,8 @@ from pinneapple_autolab.study.dataset import StudyDataset
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS, RES = os.path.join(HERE, "_runs", "cfd"), os.path.join(HERE, "results")
+if not os.path.isdir(RUNS):                       # a fresh checkout: the committed copy of the records
+    RUNS = os.path.join(RES, "cfd_runs")
 plan = json.load(open(os.path.join(RES, "next_runs.json")))
 keys = [v.name for v in A.VARIABLES]
 

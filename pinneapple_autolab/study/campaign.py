@@ -99,6 +99,10 @@ def load_records(folder: str, purposes: Sequence[str] | None = None, ok_only: bo
     d = os.path.join(folder, "results")
     recs = [RunRecord(**json.load(open(os.path.join(d, f)))) for f in sorted(os.listdir(d)) if f.endswith(".json")] \
         if os.path.isdir(d) else []
+    for r in recs:                                # a copied folder: the fields sit next to the records
+        local = _path(folder, "fields", r.id, "npz")
+        if r.fields_path and not os.path.exists(r.fields_path) and os.path.exists(local):
+            r.fields_path = local
     return [r for r in recs if (purposes is None or r.purpose in purposes) and (r.ok or not ok_only)]
 
 

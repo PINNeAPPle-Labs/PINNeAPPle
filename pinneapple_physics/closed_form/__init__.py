@@ -45,6 +45,8 @@ heat
     Transient 1-D slab conduction (Fourier series, Carslaw & Jaeger).
 compressible
     Isentropic ratios, normal shock, Pitot pressure, modified-Newtonian Cp_max.
+rocket_nozzle
+    Ideal rocket nozzle: exit Mach from the area ratio, choked mass flow, c*, thrust coefficient, Isp.
 """
 from __future__ import annotations
 
@@ -59,7 +61,9 @@ from . import (
     pcb_thermal,
     pipe_flow,
     plate_fin_heatsink,
+    rocket_nozzle,
 )
 
 __all__ = ["fin_array_conduction", "plate_fin_heatsink", "cantilever_fatigue", "membrane_diffusion",
-           "helmholtz_resonator", "pcb_thermal", "burgers", "pipe_flow", "heat", "compressible"]
+           "helmholtz_resonator", "pcb_thermal", "burgers", "pipe_flow", "heat", "compressible",
+           "rocket_nozzle"]

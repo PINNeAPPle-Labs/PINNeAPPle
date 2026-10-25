@@ -579,3 +579,54 @@ def export_recipe(result: CadRecipeResult, out_path: str, *, fmt: Optional[str] 
         return str(export_cadquery(built, out_path, fmt=fmt))
 
     raise ValueError(f"unknown CadRecipeResult.kind: {result.kind!r}")
+
+
+def measure_part(result: CadRecipeResult) -> Dict[str, Any]:
+    """Build a ``"mesh_recipe"`` and measure it: volume, bounding-box extents, watertightness, and whether a
+    boolean engine was available. Without one (``manifold3d``, extra ``geometry``) ``build_mesh`` replaces every
+    cut/union by a concatenation of the parts (a UserWarning only), so a washer comes out as a disk plus its
+    hole cylinder: measured here as +82 % volume, against 0.6 % (faceting) with the engine."""
+    import trimesh
+
+    from pinneapple_design.geometry.gen.primitives import _boolean_engines_available
+
+    md = build_recipe(result)
+    tm = trimesh.Trimesh(vertices=md.vertices, faces=md.faces, process=False)
+    lo, hi = tm.bounds
+    return {"volume": float(tm.volume), "extents": [float(v) for v in hi - lo],
+            "bounds": [[float(v) for v in lo], [float(v) for v in hi]], "watertight": bool(tm.is_watertight),
+            "n_faces": int(len(tm.faces)), "boolean_engines": list(_boolean_engines_available())}
+
+
+def draft_part(
+    description: str,
+    *,
+    tier: str = "quick",
+    provider: str = "ollama",
+    model: Optional[str] = None,
+    api_key: Optional[str] = None,
+    max_attempts: int = 4,
+) -> tuple:
+    """Draft a buildable part, retrying refused drafts: ``tier="quick"`` asks :func:`draft_mesh_recipe` (CSG of
+    primitives), ``tier="engineering"`` asks :func:`draft_cadquery_template` (parametric CadQuery template).
+
+    A draft that names something outside the registry (``ValueError``) or judges that nothing fits counts as
+    one refused attempt. Returns ``(CadRecipeResult, attempts_used)``; raises ``ValueError`` listing the last
+    refusal after ``max_attempts``. Only the recipe is checked: whether the built part has the requested
+    dimensions is not (compare its measured size before trusting it).
+    """
+    if tier not in ("quick", "engineering"):
+        raise ValueError(f"tier must be 'quick' or 'engineering', not {tier!r}")
+    fn = draft_mesh_recipe if tier == "quick" else draft_cadquery_template
+    last = "no attempt made"
+    for attempt in range(1, max_attempts + 1):
+        try:
+            result = fn(description, provider=provider, model=model, api_key=api_key)
+        except ValueError as e:
+            last = str(e)
+            continue
+        if (result.recipe if tier == "quick" else result.name) is None:
+            last = f"model judged nothing fit: {result.reasoning}"
+            continue
+        return result, attempt
+    raise ValueError(f"no valid part after {max_attempts} attempts; last: {last}")

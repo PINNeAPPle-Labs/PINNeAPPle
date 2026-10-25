@@ -179,8 +179,8 @@ def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
     cases["sub-pitch hotspot"] = hot
     void = uniform_package(shape, seed=seed)
     void.variants.append(Variant(inclusion_k=(("ubump", 0.05),)))
-    I, J = np.unravel_index(np.argmax(void.block_power().sum(-1)), shape)
-    void.layout[max(0, I - 1):I + 2, max(0, J - 1):J + 2] = 1
+    bi, bj = np.unravel_index(np.argmax(void.block_power().sum(-1)), shape)
+    void.layout[max(0, bi - 1):bi + 2, max(0, bj - 1):bj + 2] = 1
     cases["voided microbumps at the hotspot"] = void
     for name, pkg in cases.items():
         T, ref, info = _ref(pkg)
@@ -189,16 +189,16 @@ def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
         th = time.perf_counter() - t0
         hom = H.homogenized_observables(pkg, Th, sysm, 1)
         r = H.compare(pkg, ref, hom)
-        c = Condensed(pkg, 8).prepare()
+        c = Condensed(pkg, 12).prepare()
         st = c.solve()
         e = errors(c.observables(st), ref, pkg.power.sum())
         if name == "sub-pitch hotspot":
             n = pkg.stack.n
             out["maps"] = {"fine": T[:, :, pkg.stack.active_k].tolist(),
                            "hom": np.kron(hom["Tj_mean"], np.ones((n, n))).tolist()}
-        r.update({"reference_s": info.seconds, "homogenized_s": th, "condensed_m8_err_Tmax": e["err_Tmax"],
-                  "condensed_m8_err_Tj_max": e["err_Tj_max"], "condensed_m8_err_q_ubump": e["err_q_ubump"],
-                  "condensed_m8_s": c.timings["prepare"] + st.seconds})
+        r.update({"reference_s": info.seconds, "homogenized_s": th, "condensed_m12_err_Tmax": e["err_Tmax"],
+                  "condensed_m12_err_Tj_max": e["err_Tj_max"], "condensed_m12_err_q_ubump": e["err_q_ubump"],
+                  "condensed_m12_s": c.timings["prepare"] + st.seconds})
         out[name] = r
     return out
 
@@ -334,3 +334,61 @@ def root_compressibility(nb: int = 64, m: int = 12, tol: float = 1e-8) -> dict:
 
 if __name__ == "__main__":
     print(json.dumps(isolated(sys.argv[1], **json.loads(sys.argv[2] if len(sys.argv) > 2 else "{}")), indent=1))
+
+
+def meshless_study(nb: int = 2, hfs=(6, 8, 10, 12), methods=("gfdm", "rbf_fd"), interfaces=("pairs", "naive"),
+                   ls_hfs=(8, 10), seed: int = 1, keep_fields: int = 8) -> dict:
+    """Track 1b: RBF-FD and GFDM point clouds from the implicit geometry against the fine FV reference, for a range
+    of spacings ``pitch / hf``, interface treatments (node pairs with flux continuity and the contact law, or the
+    naive single-node collocation), and least-squares collocation (``ls_hfs``). Keeps the junction map and a
+    vertical slice of the point cloud for ``hf = keep_fields`` (figures)."""
+    from . import meshless as ML
+    pkg = uniform_package((nb, nb), seed=seed)
+    st = pkg.stack
+    t0 = time.perf_counter()
+    T, info = fv.solve_package(pkg, method="direct")
+    t_ref = time.perf_counter() - t0
+    ref = reference_observables(pkg, T)
+    tj_ref = T[:, :, st.active_k]
+    qref = float(ref["q_tim"].sum())
+    rows, fields = [], {}
+    configs = [(hf, m, itf, False) for hf in hfs for m in methods for itf in interfaces]
+    configs += [(hf, m, "pairs", True) for hf in ls_hfs for m in methods]
+    for hf, m, itf, ls in configs:
+        row = {"hf": hf, "method": m, "interface": itf, "least_squares": ls}
+        try:
+            cl = ML.point_cloud(pkg, h_xy=st.pitch / hf, interface=itf)
+            sol = ML.solve(pkg, cl, method=m, interface=itf, oversample=ls, condition=cl.n <= 60_000 and not ls)
+            o = ML.observables(sol, pkg)
+            row.update({"nodes": cl.n, "Tmax": o["Tmax"], "err_Tmax": o["Tmax"] - float(tj_ref.max()),
+                        "err_Tj_max": float(np.abs(o["Tj"] - tj_ref).max()),
+                        "err_q_tim": (o["q_tim"] - qref) / qref, "energy_balance": o["energy_balance"],
+                        "points_s": sol.timings["points_s"], "assemble_s": sol.timings["assemble_s"],
+                        "solve_s": sol.timings["solve_s"], "cond1_est": sol.timings.get("cond1_est")})
+            if hf == keep_fields and itf == "pairs" and not ls:
+                X = cl.X
+                sl = np.abs(X[:, 1] - st.pitch * nb / 2) < st.pitch / hf / 2
+                fields[m] = {"Tj": o["Tj"].tolist(), "slice_x": X[sl, 0].tolist(), "slice_z": X[sl, 2].tolist(),
+                             "slice_T": sol.T[sl].tolist(), "slice_kind": cl.kind[sl].tolist()}
+        except Exception as e:                       # a failed solve is a result
+            row.update({"failed": repr(e)[:200]})
+        rows.append(row)
+    return {"blocks": nb * nb, "fv_cells": int(T.size), "fv_s": t_ref, "Tmax_ref": float(tj_ref.max()),
+            "q_tim_ref": qref, "Tj_ref": tj_ref.tolist(), "rows": rows, "fields": fields}
+
+
+def exceptions_study(shape=(12, 12), seed: int = 1, budgets=(0.0, 0.02, 0.05, 0.1, 0.2, 0.4)) -> dict:
+    """Track 1c: the Keff prior plus residual-selected exception patches against random patches at the same
+    budget, on a smooth power map and on one with a sub-pitch hotspot; and the 1-D column prior for comparison."""
+    from . import exceptions as EX
+    out = {}
+    for name in ("smooth power", "sub-pitch hotspot"):
+        pkg = uniform_package(shape, seed=seed)
+        if name == "sub-pitch hotspot":
+            p = pkg.power.copy()
+            p[p.shape[0] // 3, p.shape[1] // 2] += 0.2 * p.sum()
+            pkg.power = p
+        out[name] = EX.pareto(pkg, budgets=budgets, halos=(0, 1))
+        col = EX.pareto(pkg, budgets=(0.0,), halos=(0,), selects=("residual",), prior_kind="column")
+        out[name]["column_prior"] = col["rows"][0]
+    return out

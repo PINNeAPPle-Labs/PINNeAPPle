@@ -1,0 +1,4 @@
+[16:44:41] check [3D] mu0 (bench) vs CODATA 2022: PASS CODATA 2022 (Mohr et al., Rev. Mod. Phys. 97, 025002, 2025)
+[16:44:41] check [3D] stated uncertainty covers the truth about 95 % of the time: PASS 290/300, Wilson 95 % interval 0.940-0.982; std of the normalised errors 0.99 (1 if the budget is right)
+[16:44:41] check [3D] the helix is close to a current sheet at the centre (systematic below 0.1 %): PASS Biot-Savart of the helix vs Griffiths prob. 5.11
+[16:44:41] check [3D] trust report: PASS decision APPROVED

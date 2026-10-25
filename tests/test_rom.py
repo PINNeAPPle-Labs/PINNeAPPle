@@ -71,6 +71,26 @@ def test_parametric_pod_beats_nearest_design():
     assert np.median(e1) < np.median(e0)
 
 
+def test_parametric_gpr_fits_with_single_threaded_blas(monkeypatch):
+    """The per-coefficient GP fits are on tiny kernel matrices: multithreaded BLAS only slows them down (on a loaded
+    4-CPU machine each fit was ~15x slower and the 100-design app example timed out), so fit runs with 1 BLAS thread."""
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from threadpoolctl import threadpool_info
+
+    seen, orig = [], GaussianProcessRegressor.fit
+
+    def spy(self, X, y):
+        seen.append(max(i["num_threads"] for i in threadpool_info() if i["user_api"] == "blas"))
+        return orig(self, X, y)
+
+    monkeypatch.setattr(GaussianProcessRegressor, "fit", spy)
+    x = np.linspace(0, 1, 50)
+    P, _ = latin_hypercube(30, {"c": (0.2, 0.8)}, 0)
+    rom = ParametricPOD(regressor="gpr", r=3, energy=None).fit(P, np.exp(-((x[None] - P) / 0.2) ** 2))
+    assert len(seen) == 3 and set(seen) == {1}
+    assert np.isfinite(rom.predict(P[:2])).all()
+
+
 def test_opinf_continuous_recovers_linear_operator():
     A = np.array([[-0.1, -2.0], [2.0, -0.1]])
     dt, T = 1e-3, 4000

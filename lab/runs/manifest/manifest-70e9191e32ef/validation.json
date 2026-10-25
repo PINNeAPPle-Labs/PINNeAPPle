@@ -1,0 +1,52 @@
+[
+ {
+  "name": "[0D] C (bench) vs the capacitor's true value",
+  "passed": true,
+  "value": 4.303707232979946e-07,
+  "reference": 4.310510217115007e-07,
+  "rtol": 0.0028911840152057037,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the value the virtual bench was built with (drawn within the 10 % tolerance, hidden from the fit)",
+  "label": "C (bench) vs the capacitor's true value vs ground truth",
+  "kind": "reference"
+ },
+ {
+  "name": "[0D] C vs the nominal label (470 nF +- 10 %)",
+  "passed": true,
+  "value": 4.303707232979946e-07,
+  "reference": 4.7e-07,
+  "rtol": 0.1,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "manufacturer's tolerance band",
+  "label": "C vs the nominal label (470 nF +- 10 %) vs ground truth",
+  "kind": "reference"
+ },
+ {
+  "name": "[0D] stated uncertainty covers the truth about 95 % of the time",
+  "passed": true,
+  "value": 0.9533333333333334,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "286/300, Wilson 95 % interval 0.923-0.972; std of the normalised errors 0.98",
+  "kind": "physics"
+ },
+ {
+  "name": "[0D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

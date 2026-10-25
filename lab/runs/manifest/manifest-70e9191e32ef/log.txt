@@ -1,0 +1,4 @@
+[16:44:43] check [0D] C (bench) vs the capacitor's true value: PASS the value the virtual bench was built with (drawn within the 10 % tolerance, hidden from the fit)
+[16:44:43] check [0D] C vs the nominal label (470 nF +- 10 %): PASS manufacturer's tolerance band
+[16:44:43] check [0D] stated uncertainty covers the truth about 95 % of the time: PASS 286/300, Wilson 95 % interval 0.923-0.972; std of the normalised errors 0.98
+[16:44:43] check [0D] trust report: PASS decision APPROVED

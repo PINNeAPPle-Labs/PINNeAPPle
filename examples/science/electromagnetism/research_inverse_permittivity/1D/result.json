@@ -1,0 +1,356 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.research_inverse_permittivity",
+ "title": "Inverse problem: permittivity of a slab from its reflection spectrum",
+ "area": "physics.electromagnetism",
+ "topic": "inverse problems",
+ "level": "research",
+ "kind": "theory",
+ "dim": "1D",
+ "params": {
+  "eps_true": 3.7,
+  "sigma_true": 0.02,
+  "eps_design": 4.0,
+  "thickness": 0.01,
+  "f_min": 2000000000.0,
+  "f_max": 12000000000.0,
+  "n_freq": 41,
+  "noise": 0.004,
+  "cells_per_wavelength": 60,
+  "repeats": 100,
+  "seed": 5
+ },
+ "values": {
+  "eps_r_fit_uncorrected": {
+   "value": 3.7015707000741167,
+   "unit": "",
+   "how": "least squares on the noisy FDTD reflection spectrum",
+   "uncertainty": 0.0016776549971665783
+  },
+  "eps_r_model_bias": {
+   "value": 0.0017474588265828928,
+   "unit": "",
+   "how": "fit of the noiseless FDTD spectrum simulated at the fitted point, minus that point (the transfer-matrix model lacks the FDTD dispersion)",
+   "uncertainty": 1.206175689327793e-06
+  },
+  "eps_r_recovered": {
+   "value": 3.699823241247534,
+   "unit": "",
+   "how": "fit minus the model bias; u combines the fit and the bias",
+   "uncertainty": 0.0016776554307657413
+  },
+  "sigma_recovered": {
+   "value": 0.01894747759545276,
+   "unit": "S/m",
+   "how": "same, for the conductivity",
+   "uncertainty": 0.0006453877203767756
+  },
+  "eps_sigma_correlation": {
+   "value": -2.5400064232097324e-08,
+   "unit": "",
+   "how": "from the Jacobian covariance"
+  },
+  "model_error_max": {
+   "value": 0.0008928066603502518,
+   "unit": "",
+   "how": "max |r_FDTD - r_model| at the true parameters (no noise)"
+  },
+  "coverage_2u_eps_uncorrected": {
+   "value": 0.9,
+   "unit": "",
+   "how": "fraction of 100 noise realisations within 2 u, fit alone (no bias correction)"
+  },
+  "mean_z_uncorrected": {
+   "value": 0.8621961011818255,
+   "unit": "",
+   "how": "mean of (eps_fit - eps_true) / u_fit"
+  },
+  "coverage_2u_eps": {
+   "value": 0.97,
+   "unit": "",
+   "how": "fraction of 100 noise realisations within 2 u, bias corrected"
+  },
+  "mean_z": {
+   "value": -0.10833509202789741,
+   "unit": "",
+   "how": "mean of (eps_corrected - eps_true) / u, bias corrected"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "eps_r recovered vs truth",
+   "computed": 3.699823241247534,
+   "reference": 3.7,
+   "rel_error": 4.777263580172056e-05,
+   "tol": 0.0009068407733868872,
+   "passed": true,
+   "kind": "ground_truth",
+   "source": "the permittivity the FDTD measurement was generated with (hidden from the fit)",
+   "unit": "",
+   "how": "compatibility within 2 u (k = 2)",
+   "abs_error": 0.00017675875246636608,
+   "atol": 0.0
+  },
+  {
+   "quantity": "sigma recovered vs truth",
+   "computed": 0.01894747759545276,
+   "reference": 0.02,
+   "rel_error": 0.05262612022736198,
+   "tol": 0.06453877203767755,
+   "passed": true,
+   "kind": "ground_truth",
+   "source": "as above",
+   "unit": "S/m",
+   "how": "",
+   "abs_error": 0.0010525224045472396,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "FDTD measurement and transfer-matrix model agree below the noise",
+   "passed": true,
+   "value": 0.0008928066603502518,
+   "limit": 0.004,
+   "critical": false,
+   "detail": "",
+   "source": "physics"
+  },
+  {
+   "name": "bias-corrected z centred (|mean z| < 0.3)",
+   "passed": true,
+   "value": -0.10833509202789741,
+   "limit": 0.3,
+   "critical": false,
+   "detail": "without the correction mean z = 0.86",
+   "source": "physics"
+  },
+  {
+   "name": "stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+   "passed": true,
+   "value": 0.9177316565494786,
+   "limit": null,
+   "critical": false,
+   "detail": "z = (eps_corrected - eps_true) / u; its std is 1 when u is right",
+   "source": "physics"
+  },
+  {
+   "name": "2 u covers the truth about 95 % of the time",
+   "passed": true,
+   "value": 0.97,
+   "limit": null,
+   "critical": false,
+   "detail": "97/100, Wilson 95 % interval 0.915-0.990; without the bias correction 0.90",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "eps_r recovered vs truth vs ground truth",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 4.777263580172056e-05,
+    "limit": 0.0009068407733868872,
+    "source": "the permittivity the FDTD measurement was generated with (hidden from the fit)",
+    "reason": "computed 3.69982, reference 3.7"
+   },
+   {
+    "name": "sigma recovered vs truth vs ground truth",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.05262612022736198,
+    "limit": 0.06453877203767755,
+    "source": "as above",
+    "reason": "computed 0.0189475, reference 0.02 S/m"
+   },
+   {
+    "name": "FDTD measurement and transfer-matrix model agree below the noise",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0008928066603502518,
+    "limit": 0.004,
+    "source": "physics",
+    "reason": ""
+   },
+   {
+    "name": "bias-corrected z centred (|mean z| < 0.3)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": -0.10833509202789741,
+    "limit": 0.3,
+    "source": "physics",
+    "reason": "without the correction mean z = 0.86"
+   },
+   {
+    "name": "stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.9177316565494786,
+    "limit": null,
+    "source": "physics",
+    "reason": "z = (eps_corrected - eps_true) / u; its std is 1 when u is right"
+   },
+   {
+    "name": "2 u covers the truth about 95 % of the time",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.97,
+    "limit": null,
+    "source": "physics",
+    "reason": "97/100, Wilson 95 % interval 0.915-0.990; without the bias correction 0.90"
+   }
+  ]
+ },
+ "data": {
+  "spectrum": {
+   "f": [
+    2000000000.0,
+    2250000000.0,
+    2500000000.0,
+    2750000000.0,
+    3000000000.0,
+    3250000000.0,
+    3500000000.0,
+    3750000000.0,
+    4000000000.0,
+    4250000000.0,
+    4500000000.0,
+    4750000000.0,
+    5000000000.0,
+    5250000000.0,
+    5500000000.0,
+    5750000000.0,
+    6000000000.0,
+    6250000000.0,
+    6500000000.0,
+    6750000000.0,
+    7000000000.0,
+    7250000000.0,
+    7500000000.0,
+    7750000000.0,
+    8000000000.0,
+    8250000000.0,
+    8500000000.0,
+    8750000000.0,
+    9000000000.0,
+    9250000000.0,
+    9500000000.0,
+    9750000000.0,
+    10000000000.0,
+    10250000000.0,
+    10500000000.0,
+    10750000000.0,
+    11000000000.0,
+    11250000000.0,
+    11500000000.0,
+    11750000000.0,
+    12000000000.0
+   ],
+   "abs_r": [
+    0.44210009130783795,
+    0.4793608329426297,
+    0.5002408397243348,
+    0.5216898450739809,
+    0.5357351919462977,
+    0.5513070675855085,
+    0.5624633351593609,
+    0.567082108640588,
+    0.5633261598745943,
+    0.5579272237501116,
+    0.5533530463184377,
+    0.5472120047248366,
+    0.5287403340037317,
+    0.50231991288891,
+    0.47952171521407516,
+    0.45682487561960466,
+    0.41531959433544563,
+    0.37919785923112903,
+    0.3263379457252661,
+    0.272832493488364,
+    0.21408459212923833,
+    0.1455754309093025,
+    0.0812096961708159,
+    0.021494703685963193,
+    0.059703895617719716,
+    0.12445705952735753,
+    0.1920671270843055,
+    0.24925734991522003,
+    0.3081639814534596,
+    0.3561159291140395,
+    0.40163867233139794,
+    0.4374195182051327,
+    0.4716634470181123,
+    0.49718180444135357,
+    0.524027166545146,
+    0.5396161679913508,
+    0.5545689784432918,
+    0.5632401067209171,
+    0.5642525201844304,
+    0.5689830845080047,
+    0.5594361996967739
+   ],
+   "abs_r_fit": [
+    0.441865854532358,
+    0.47372933091574804,
+    0.5003948593146148,
+    0.5221519848987626,
+    0.5392863443595768,
+    0.5520511999842123,
+    0.5606489703221852,
+    0.5652199022859198,
+    0.5658355842623921,
+    0.5624957257873059,
+    0.5551273906412745,
+    0.5435866296551095,
+    0.5276632295194726,
+    0.5070900894147706,
+    0.48155952543022673,
+    0.45074944121248484,
+    0.4143624708702972,
+    0.3721803573496838,
+    0.32413331486379443,
+    0.2703796047487804,
+    0.21138534762050612,
+    0.14799687212868645,
+    0.0815742277059051,
+    0.017383397335337412,
+    0.058538200160528985,
+    0.1253329213017697,
+    0.18972742433282444,
+    0.2500734947301966,
+    0.3054124046104532,
+    0.35518994051587666,
+    0.39917761726995366,
+    0.4373938275953455,
+    0.4700234509422438,
+    0.49734589233990006,
+    0.5196773590948187,
+    0.5373284386709967,
+    0.5505751261042604,
+    0.5596402962713137,
+    0.564682601302634,
+    0.5657903245205924,
+    0.562978476629643
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "inverse_permittivity.png"
+ ],
+ "movies": [],
+ "viewers": [],
+ "wall_time_s": 26.87009638799998
+}

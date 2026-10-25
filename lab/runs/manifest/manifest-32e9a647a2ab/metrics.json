@@ -1,0 +1,13 @@
+{
+ "rel_error[3D: mu0 (bench) vs CODATA 2022]": 0.003937714596454831,
+ "3D: mu0_measured": 1.251688783171391e-06,
+ "3D: expanded_uncertainty_k2": 1.2947988192723286e-08,
+ "3D: earth_field_intercept": 2.772951635444727e-05,
+ "3D: reduced_chi2": 2.040666467076056,
+ "3D: u_rel[fit slope (type A)]": 0.0005312108045381583,
+ "3D: u_rel[Hall probe gain (type B)]": 0.005,
+ "3D: u_rel[ammeter gain (type B)]": 0.001,
+ "3D: u_rel[length L (caliper)]": 0.0006495264137160462,
+ "3D: u_rel[radius R (caliper)]": 0.00021831356569546802,
+ "3D: coverage_k2": 0.9666666666666667
+}

@@ -1,0 +1,153 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-70e9191e32ef",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/bench_rc_discharge",
+  "path": "examples/science/electromagnetism/bench_rc_discharge/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[0D: C (bench) vs the capacitor's true value]",
+   "value": 0.0015782317619964959,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: C vs the nominal label (470 nF +- 10 %)]",
+   "value": 0.08431761000426682,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: C_measured",
+   "value": 4.303707232979946e-07,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: expanded_uncertainty_k2",
+   "value": 1.2442809558116788e-09,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: tau_fit",
+   "value": 0.004200150233336449,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: u_rel[fit tau (type A)]",
+   "value": 0.000916371241607485,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: u_rel[ohmmeter (type B)]",
+   "value": 0.001,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: u_rel[time base (type B)]",
+   "value": 0.0005,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: coverage_k2",
+   "value": 0.9533333333333334,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[0D] C (bench) vs the capacitor's true value",
+   "passed": true,
+   "value": 4.303707232979946e-07,
+   "reference": 4.310510217115007e-07,
+   "rtol": 0.0028911840152057037,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the value the virtual bench was built with (drawn within the 10 % tolerance, hidden from the fit)",
+   "label": "C (bench) vs the capacitor's true value vs ground truth",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] C vs the nominal label (470 nF +- 10 %)",
+   "passed": true,
+   "value": 4.303707232979946e-07,
+   "reference": 4.7e-07,
+   "rtol": 0.1,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "manufacturer's tolerance band",
+   "label": "C vs the nominal label (470 nF +- 10 %) vs ground truth",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] stated uncertainty covers the truth about 95 % of the time",
+   "passed": true,
+   "value": 0.9533333333333334,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "286/300, Wilson 95 % interval 0.923-0.972; std of the normalised errors 0.98",
+   "kind": "physics"
+  },
+  {
+   "name": "[0D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/0D__bench_rc.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-70e9191e32ef",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.017,
+  "created": "2026-10-24T16:44:43Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

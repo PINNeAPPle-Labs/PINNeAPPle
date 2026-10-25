@@ -1,0 +1,9 @@
+[16:44:54] check [3D] finite wire B (midpoint rule): PASS Griffiths eq. 5.37: B = mu0 I/(4 pi s) (sin t2 - sin t1)
+[16:44:54] check [3D] loop B, 5 points on and off axis (worst): PASS Jackson sec. 5.5: loop field with complete elliptic integrals (pp.em.statics.loop_field)
+[16:44:54] check [3D] loop centre B: PASS Griffiths ex. 5.6: B = mu0 I / (2 R)
+[16:44:54] check [3D] solenoid centre B (helix): PASS Griffiths prob. 5.11: mu0 n I / 2 (cos a2 - cos a1), current sheet
+[16:44:54] check [3D] solenoid end B (helix): PASS Griffiths prob. 5.11 at z = L/2 (about half the centre value)
+[16:44:54] check [3D] long-solenoid limit mu0 n I: PASS Ampere's law for an infinite solenoid (Griffiths ex. 5.9); L/R = 8 gives a finite-length deficit
+[16:44:54] check [3D] polygon loop converges at second order: PASS 
+[16:44:54] check [3D] div B = 0 near the loop (pp.maxwell.gauss_magnetic): PASS div B: ||sum of terms|| / sum of ||term|| = 0.000625; r(2h)/r(h) = 3.99: discretisation error (the field obeys the law); extrapolated residual 2.86e-06
+[16:44:54] check [3D] trust report: PASS decision APPROVED

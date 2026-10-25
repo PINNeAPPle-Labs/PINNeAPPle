@@ -1,0 +1,10 @@
+{
+ "rel_error[3D: finite wire B (midpoint rule)]": 4.378055846970315e-08,
+ "rel_error[3D: loop B, 5 points on and off axis (worst)]": 0.00017134170173127572,
+ "rel_error[3D: loop centre B]": 5.020242805417446e-05,
+ "rel_error[3D: solenoid centre B (helix)]": 8.393451798928599e-05,
+ "rel_error[3D: solenoid end B (helix)]": 2.1949656525125107e-05,
+ "rel_error[3D: long-solenoid limit mu0 n I]": 0.029857499854668314,
+ "3D: wire_observed_order": 1.9999277134775242,
+ "3D: loop_observed_order": 1.9995110543652364
+}

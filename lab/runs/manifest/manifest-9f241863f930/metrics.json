@@ -1,0 +1,14 @@
+{
+ "rel_error[1D: eps_r recovered vs truth]": 4.777263580172056e-05,
+ "rel_error[1D: sigma recovered vs truth]": 0.05262612022736198,
+ "1D: eps_r_fit_uncorrected": 3.7015707000741167,
+ "1D: eps_r_model_bias": 0.0017474588265828928,
+ "1D: eps_r_recovered": 3.699823241247534,
+ "1D: sigma_recovered": 0.01894747759545276,
+ "1D: eps_sigma_correlation": -2.5400064232097324e-08,
+ "1D: model_error_max": 0.0008928066603502518,
+ "1D: coverage_2u_eps_uncorrected": 0.9,
+ "1D: mean_z_uncorrected": 0.8621961011818255,
+ "1D: coverage_2u_eps": 0.97,
+ "1D: mean_z": -0.10833509202789741
+}

@@ -1,0 +1,5 @@
+[16:48:39] check [2D] Hall coefficient R_H = E_y / (J_x B): PASS Drude: R_H = 1/(n q) (Ashcroft & Mermin eq. 1.15)
+[16:48:39] check [2D] R_H error falls with the grid: PASS 10 cells: 6.8e-04, 20 cells: 6.4e-04, 40 cells: 6.3e-04
+[16:48:39] check [2D] sign of V_H gives the carrier sign: PASS electrons: R_H < 0
+[16:48:39] check [2D] contacts short the Hall voltage in short bars (G rises with L/W): PASS L/W=0.5: G=0.369, L/W=1: G=0.675, L/W=1.5: G=0.848, L/W=2: G=0.930, L/W=3: G=0.985, L/W=5: G=0.999
+[16:48:39] check [2D] trust report: PASS decision APPROVED

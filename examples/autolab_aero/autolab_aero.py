@@ -25,7 +25,13 @@ import numpy as np
 import pinneapple_lab
 from pinneapple_autolab import AutonomousLab
 from pinneapple_autolab import report as R
-from pinneapple_autolab.domains.racecar import BASELINE, RaceCarAero, flagship_mission, render_run
+from pinneapple_autolab.domains.racecar import (
+    BASELINE,
+    RaceCarAero,
+    cycles_renders,
+    flagship_mission,
+    render_run,
+)
 from pinneapple_autolab.lab import showcase
 from pinneapple_autolab.qualification import solver_qualification
 
@@ -45,6 +51,9 @@ def main() -> None:
     ap.add_argument("--no-qualify", action="store_true")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--report-only", action="store_true", help="rebuild figures and report from _out/*.json")
+    ap.add_argument("--dashboard", action="store_true",
+                    help="build the four-area dashboard (replay of the session) in _work/dashboard, with screenshots "
+                         "and a replay video in _out/figures (needs playwright and ffmpeg)")
     ap.add_argument("--confirm-fine", action="store_true",
                     help="also simulate the recommended design on the fine mesh (outside the budget)")
     a = ap.parse_args()
@@ -128,6 +137,10 @@ def main() -> None:
                 for k, v in render_run(run["params"], npz, os.path.join(figs, tag),
                                        f"{tag}: {run['id']} (CFD)").items():
                     F[f"{tag}_{k}"] = ex.add_file(v)
+                if a.dashboard:                                  # Blender Cycles, when bpy is installed
+                    for k, v in cycles_renders(run["params"], npz, os.path.join(figs, tag),
+                                               f"{'original' if tag == 'baseline' else 'recommended'} {run['id']} (CFD)").items():
+                        F[f"{tag}_{k}"] = ex.add_file(v)
         extra = ""
         if fine and summary.get("improvement"):
             def fine_noise(q):            # iteration std of the fine run, from its ledger (older files lack it inline)
@@ -175,6 +188,20 @@ def main() -> None:
                   "iterations of that run. A verdict with |margin / noise| < 2 is within the solver's noise.\n\n"
                   "| run | output | margin | noise | margin / noise | verdict |\n|---|---|---|---|---|---|\n"
                   + "\n".join(rows))
+        if os.path.exists(os.path.join(a.work, "events.jsonl")):          # the session's event stream, for replays
+            import shutil
+            shutil.copy(os.path.join(a.work, "events.jsonl"), os.path.join(a.out, "events.jsonl"))
+        held_run = held[-1]["run"] if held else None
+        json.dump({"cp": held_run}, open(os.path.join(figs, "figures.json"), "w"))   # the run each figure shows
+        if a.dashboard:
+            from pinneapple_autolab.dashboard import capture, record_replay
+            from pinneapple_autolab.domains.racecar import build_dashboard
+            page = build_dashboard(a.work, os.path.join(a.work, "dashboard"), summary, results_dir=a.out,
+                                   figures={"cp": F.get("cp"), **{k: v for k, v in F.items() if "cycles" in k}},
+                                   figure_runs={"cp": held_run} if held_run else None, renders=True)
+            F["dashboard"] = ex.add_file(capture(page, os.path.join(figs, "dashboard.png")))
+            R.shrink_png(F["dashboard"])
+            ex.add_file(record_replay(page, os.path.join(figs, "dashboard_replay.mp4")))
         R.write_report(summary, os.path.join(a.out, "report.md"), F, qual, extra)
 
         # ------------------------------------------------------------------ evidence for the lab manifest

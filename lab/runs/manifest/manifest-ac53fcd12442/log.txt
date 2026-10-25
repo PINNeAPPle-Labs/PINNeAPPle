@@ -1,0 +1,4 @@
+[17:28:55] check [2D] hold-out: worst surrogate G vs solver G: PASS the finite-difference solver on held-out inputs
+[17:28:55] check [2D] solver: long bar G(L/W = 8) -> 1: PASS Popovic sec. 4.2: G -> 1 for L/W >> 1
+[17:28:55] check [2D] +-2 sigma coverage of the hold-out at least 80 %: PASS 
+[17:28:55] check [2D] trust report: PASS decision APPROVED

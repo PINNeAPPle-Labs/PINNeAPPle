@@ -1,0 +1,215 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-5ef7c46f61df",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/parallel_plate_capacitor",
+  "path": "examples/science/electromagnetism/parallel_plate_capacitor/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: C per unit length (extrapolated)]",
+   "value": 0.003927955814044814,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: C_per_length_fine",
+   "value": 1.0359258574773179e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: observed_order",
+   "value": 1.026059908461316,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: gci_fine",
+   "value": 0.0019096326452605714,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: fringe_excess",
+   "value": 0.16819666397174937,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: C, 3-D Cartesian (finest) vs axisymmetric]",
+   "value": 0.0023933094036951204,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: C, axisymmetric (extrapolated)]",
+   "value": 0.008166506876191646,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: C_cartesian_4_cells",
+   "value": 3.262481569788474e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: C_cartesian_6_cells",
+   "value": 3.25962419114377e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: C_cartesian_8_cells",
+   "value": 3.262468946141227e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: C_cartesian_fine",
+   "value": 3.262468946141227e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: C_axisymmetric_extrapolated",
+   "value": 3.270295775774252e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: fringe_excess",
+   "value": 0.175678105636071,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] C per unit length (extrapolated)",
+   "passed": true,
+   "value": 1.0343432672089114e-10,
+   "reference": 1.030296308832444e-10,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]",
+   "label": "C per unit length (extrapolated) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] solution in the asymptotic range (Roache)",
+   "passed": true,
+   "value": 1.026059908461316,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  },
+  {
+   "name": "[3D] C, 3-D Cartesian (finest) vs axisymmetric",
+   "passed": true,
+   "value": 3.262468946141227e-10,
+   "reference": 3.270295775774252e-10,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)",
+   "label": "C, 3-D Cartesian (finest) vs axisymmetric vs convergence",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] C, axisymmetric (extrapolated)",
+   "passed": true,
+   "value": 3.270295775774252e-10,
+   "reference": 3.2438052181551613e-10,
+   "rtol": 0.015,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a",
+   "label": "C, axisymmetric (extrapolated) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Kirchhoff's error falls as a/d grows (asymptotic formula)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/2D__capacitor_2d.png",
+   "figures/3D__capacitor_3d.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-5ef7c46f61df",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.014,
+  "created": "2026-10-24T16:51:18Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

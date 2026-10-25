@@ -70,7 +70,7 @@ def cb_block(pkg_stack, variant, Phi_f: np.ndarray, k: int) -> CBBlock:
     M[:d, d:], M[d:, :d], M[d:, d:] = B.T, B, np.eye(k)
     CZ = c[:, None] * bm.Z
     G = np.vstack([Psi.T @ CZ, Phi.T @ CZ])
-    Ot = np.hstack([bm.O_t @ Phi_f, np.asarray(bm.O @ Phi)])
+    Ot = np.hstack([bm.O_t @ Phi_f, np.asarray(bm.Om @ Phi)])
     return CBBlock(K, M, Phi_f.T @ bm.W, G, Ot, bm.O_p, lam)
 
 

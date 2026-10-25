@@ -40,3 +40,9 @@ td.num { white-space: nowrap; }
 .hscroll { overflow-x: auto; }
 table.ext th.reg { white-space: normal; min-width: 92px; max-width: 130px; vertical-align: bottom; }
 table.ext td.cell { font-size: 12px; }
+/* the result of a private benchmark sits beside the 380 px form: keep it inside its column (no page-wide
+   horizontal scroll at 1440 px): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean */
+.layout > * { min-width: 0; }
+#runview { overflow-x: auto; }
+#runview .grid2 { grid-template-columns: 1fr; }
+#runview table.matrix td.cell .sd { display: block; }

@@ -10,6 +10,7 @@ from . import (  # noqa: F401
     presets,
     problem,
     reason,
+    science,
     solvers,
     surrogates,
     systems,

@@ -1,0 +1,88 @@
+[
+ {
+  "name": "[1D] eps_r recovered vs truth",
+  "passed": true,
+  "value": 3.699823241247534,
+  "reference": 3.7,
+  "rtol": 0.0009068407733868872,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the permittivity the FDTD measurement was generated with (hidden from the fit)",
+  "label": "eps_r recovered vs truth vs ground truth",
+  "kind": "reference"
+ },
+ {
+  "name": "[1D] sigma recovered vs truth",
+  "passed": true,
+  "value": 0.01894747759545276,
+  "reference": 0.02,
+  "rtol": 0.06453877203767755,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "as above",
+  "label": "sigma recovered vs truth vs ground truth",
+  "kind": "reference"
+ },
+ {
+  "name": "[1D] FDTD measurement and transfer-matrix model agree below the noise",
+  "passed": true,
+  "value": 0.0008928066603502518,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "physics"
+ },
+ {
+  "name": "[1D] bias-corrected z centred (|mean z| < 0.3)",
+  "passed": true,
+  "value": -0.10833509202789741,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "without the correction mean z = 0.86",
+  "kind": "physics"
+ },
+ {
+  "name": "[1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+  "passed": true,
+  "value": 0.9177316565494786,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "z = (eps_corrected - eps_true) / u; its std is 1 when u is right",
+  "kind": "physics"
+ },
+ {
+  "name": "[1D] 2 u covers the truth about 95 % of the time",
+  "passed": true,
+  "value": 0.97,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "97/100, Wilson 95 % interval 0.915-0.990; without the bias correction 0.90",
+  "kind": "physics"
+ },
+ {
+  "name": "[1D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

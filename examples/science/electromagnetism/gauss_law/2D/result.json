@@ -1,0 +1,98 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.gauss_law",
+ "title": "Gauss's law",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "ladder": [
+   4,
+   8,
+   16,
+   32
+  ],
+  "L": 1.0
+ },
+ "values": {},
+ "comparisons": [
+  {
+   "quantity": "flux per unit length x eps0",
+   "computed": 2e-09,
+   "reference": 1.9999999999999997e-09,
+   "rel_error": 2.0679515313825694e-16,
+   "tol": 1e-06,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Gauss's law in 2-D: oint E.n dl = lam_enc / eps0",
+   "unit": "C/m",
+   "how": "2 line charges inside, 1 outside",
+   "abs_error": 4.1359030627651384e-25,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "error decreases with quadrature points",
+   "passed": true,
+   "value": 2.220446049250313e-16,
+   "limit": null,
+   "critical": false,
+   "detail": "",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "flux per unit length x eps0 vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 2.0679515313825694e-16,
+    "limit": 1e-06,
+    "source": "Gauss's law in 2-D: oint E.n dl = lam_enc / eps0",
+    "reason": "computed 2e-09, reference 2e-09 C/m"
+   },
+   {
+    "name": "error decreases with quadrature points",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.220446049250313e-16,
+    "limit": null,
+    "source": "physics",
+    "reason": ""
+   }
+  ]
+ },
+ "data": {
+  "convergence": {
+   "points_per_side": [
+    16,
+    32,
+    64,
+    128
+   ],
+   "rel_error": [
+    3.609400794468698e-06,
+    2.4910151830148664e-08,
+    9.644507414918735e-13,
+    2.220446049250313e-16
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "gauss_square_2d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 0.1534284529998331
+}

@@ -1,0 +1,8 @@
+{
+ "rel_error[3D: radiated power through the sphere kr = 0.3]": 3.9519594232013053e-16,
+ "rel_error[3D: radiated power through the sphere kr = 1]": 9.879898558003263e-16,
+ "rel_error[3D: radiated power through the sphere kr = 3]": 9.879898558003263e-16,
+ "rel_error[3D: radiated power through the sphere kr = 30]": 5.927939134801958e-16,
+ "rel_error[3D: directivity]": 4.440892098500626e-16,
+ "rel_error[3D+t: energy through the sphere r = lambda in one period]": 9.20137256197935e-16
+}

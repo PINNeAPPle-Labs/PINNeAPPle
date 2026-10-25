@@ -1,0 +1,51 @@
+{
+ "run_id": "manifest-309839870296",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/science/electromagnetism/gauss_law",
+  "path": "examples/science/electromagnetism/gauss_law/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792860517.6131456,
+ "tags": [
+  "manifest"
+ ],
+ "git": "9847a3ef",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792860517.6290565,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/3D__gauss_cube.png",
+   "figures/2D__gauss_square_2d.png"
+  ]
+ },
+ "validation": {
+  "total": 8,
+  "failed": 0
+ },
+ "seconds": 0.016,
+ "datasets": {}
+}

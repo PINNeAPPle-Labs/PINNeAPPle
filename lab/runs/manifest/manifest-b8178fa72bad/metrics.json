@@ -1,0 +1,6 @@
+{
+ "rel_error[2D: Hall coefficient R_H = E_y / (J_x B)]": 0.0006311593065709672,
+ "2D: current": -0.004483704244207688,
+ "2D: hall_voltage": -0.013983708841637132,
+ "2D: hall_angle_deg": 4.004172940709388
+}

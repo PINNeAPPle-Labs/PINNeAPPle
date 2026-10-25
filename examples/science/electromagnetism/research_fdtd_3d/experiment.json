@@ -1,0 +1,282 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/research_fdtd_3d",
+ "title": "FDTD in 3-D + time: configurable sources and materials, mesh convergence (3D+t)",
+ "description": "A 3-D FDTD study configured by a plain dict (domain, cells per wavelength, sources, materials). The default runs a Hertzian dipole in vacuum on a refinement ladder: the radiated power (near-to-far-field transform) against the closed form, with the observed order, the Richardson-extrapolated value and the GCI; the Maxwell residuals of the field in x, y, z and t (pp.maxwell); then the configured case (the dipole beside a dielectric sphere) on the same ladder: no closed form exists, so it reports its extrapolated value, observed order and GCI against a declared accuracy target. The 3-D field in time is the animation and an interactive three.js viewer.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.research_fdtd_3d"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "research",
+  "kind": "theory",
+  "dims": [
+   "3D+t"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D+t: radiated power, dipole in vacuum (finest grid)]",
+   "value": 0.0032881391345897406,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Balanis eq. 4-16 with the current moment the grid actually drove)"
+  },
+  {
+   "name": "rel_error[3D+t: P / P_closed_form, Richardson-extrapolated]",
+   "value": 0.0010628076372023454,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Balanis eq. 4-16)"
+  },
+  {
+   "name": "rel_error[3D+t: far-field pattern max |U/Umax - sin^2|]",
+   "value": 0.008562273035930712,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+  },
+  {
+   "name": "3D+t: observed_order_vacuum",
+   "value": 2.6470695868421656,
+   "unit": "-",
+   "how": "Roache three-grid observed order of P/P_ref"
+  },
+  {
+   "name": "3D+t: gci_fine_vacuum",
+   "value": 0.0027725478486505992,
+   "unit": "-",
+   "how": "grid convergence index of the finest grid (Fs = 1.25)"
+  },
+  {
+   "name": "3D+t: power_error_10cpw",
+   "value": 0.015002142821609832,
+   "unit": "-",
+   "how": "|P_FDTD / P_closed - 1|"
+  },
+  {
+   "name": "3D+t: power_error_14cpw",
+   "value": 0.006783268019676436,
+   "unit": "-",
+   "how": "|P_FDTD / P_closed - 1|"
+  },
+  {
+   "name": "3D+t: power_error_20cpw",
+   "value": 0.003288139134589807,
+   "unit": "-",
+   "how": "|P_FDTD / P_closed - 1|"
+  },
+  {
+   "name": "3D+t: power_ratio_configured",
+   "value": 1.0640679545249574,
+   "unit": "-",
+   "how": "P with the materials / P of the same dipole in vacuum (closed form), finest grid"
+  },
+  {
+   "name": "3D+t: power_ratio_configured_extrapolated",
+   "value": 1.0398748138061105,
+   "unit": "-",
+   "how": "Richardson extrapolation of the three grids (Roache)"
+  },
+  {
+   "name": "3D+t: observed_order_configured",
+   "value": 1.0502456678085508,
+   "unit": "-",
+   "how": "Roache observed order (the sphere is a staircase with fill-fraction averaging: first order is expected)"
+  },
+  {
+   "name": "3D+t: gci_fine_configured",
+   "value": 0.028420577623784925,
+   "unit": "-",
+   "how": "grid convergence index of the finest grid (Fs = 1.25)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D+t] radiated power, dipole in vacuum (finest grid)",
+   "passed": true,
+   "value": 1.5901486488397682e-26,
+   "reference": 1.5849371549546963e-26,
+   "rtol": 0.02,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16 with the current moment the grid actually drove",
+   "label": "radiated power, dipole in vacuum (finest grid) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] P / P_closed_form, Richardson-extrapolated",
+   "passed": true,
+   "value": 1.0010628076372023,
+   "reference": 1.0,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16",
+   "label": "P / P_closed_form, Richardson-extrapolated vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] far-field pattern max |U/Umax - sin^2|",
+   "passed": true,
+   "value": 0.008562273035930712,
+   "reference": 0.0,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a)",
+   "label": "far-field pattern max |U/Umax - sin^2| vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] error falls with the grid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "1.50e-02, 6.78e-03, 3.29e-03",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] configured case: GCI of the finest grid within the target 0.05",
+   "passed": true,
+   "value": 0.028420577623784925,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; observed order 1.05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] configured case: ratios converge monotonically",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "10: 1.0900, 14: 1.0751, 20: 1.0641",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Gauss's law div D = rho (x, y, z, t block 7^3 x 24, FDTD)",
+   "passed": true,
+   "value": 0.021524325359571977,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.0215; r(2h)/r(h) = 3.81: discretisation error (the field obeys the law); extrapolated residual 0.00136",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Gauss's law for B, div B = 0 (x, y, z, t block 7^3 x 24, FDTD)",
+   "passed": true,
+   "value": 2.376091928886487e-14,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div B: ||sum of terms|| / sum of ||term|| = 2.38e-14; r(2h)/r(h) = 2554791058411.38: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Faraday's law curl E = -dB/dt (x, y, z, t block 7^3 x 24, FDTD)",
+   "passed": true,
+   "value": 0.005775008490042781,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl E + dB/dt: ||sum of terms|| / sum of ||term|| = 0.00578; r(2h)/r(h) = 13.39: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Ampere-Maxwell law curl H = J + dD/dt (x, y, z, t block 7^3 x 24, FDTD)",
+   "passed": true,
+   "value": 0.013480634711984123,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl H - J - dD/dt: ||sum of terms|| / sum of ||term|| = 0.0135; r(2h)/r(h) = 5.30: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] discrete energy bounded after the source (CPML absorbs, no growth)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "final / max energy 6.63e-09",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D_plus_t/fdtd_convergence.png"
+  ],
+  "videos": [
+   "3D_plus_t/fdtd_3d_t.mp4",
+   "3D_plus_t/fdtd_3d_t.gif"
+  ],
+  "viewers": [
+   "3D_plus_t/fdtd_viewer.html"
+  ],
+  "data": [
+   "3D_plus_t/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Taflove & Hagness, Computational Electrodynamics, 3rd ed. (2005), ch. 3-4, 7, 8",
+  "Balanis, Antenna Theory, 3rd ed., eq. 4-16 (Hertzian dipole power)",
+  "Roache, ASME J. Fluids Eng. 116, 405 (1994) (GCI)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "204e481e",
+  "created": "2026-10-24T17:28:17Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

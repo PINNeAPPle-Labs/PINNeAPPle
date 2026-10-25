@@ -213,8 +213,8 @@ class Hierarchy:
                 crow = self._row[lev + 1]
             for key, nodes in groups.items():
                 if not is_inner[nodes[0]]:
-                    I, J = R[nodes, 0], R[nodes, 2]
-                    out[key] = pb[I, J] @ self.leaf[key]["Wr"].T
+                    bi, bj = R[nodes, 0], R[nodes, 2]
+                    out[key] = pb[bi, bj] @ self.leaf[key]["Wr"].T
                     continue
                 op = self.ops[key]
                 p = pos[nodes]
@@ -284,7 +284,7 @@ class Hierarchy:
             res[name] = out[..., n2 + i]
         return res
 
-    def block_ports(self, sol: dict, I: int, J: int) -> np.ndarray:
+    def block_ports(self, sol: dict, bi: int, bj: int) -> np.ndarray:
         """Reduced port values of block ``(I, J)`` by the downward pass along its root-to-leaf path only (needs the
         upward pass of ``sol``; one small dense product per level instead of the whole tree)."""
         to, node = sol["t_root"], 0
@@ -300,23 +300,23 @@ class Hierarchy:
             ta = np.concatenate([to, ti])
             a, b = par["A"][i], par["B"][i]
             ra = self.levels[lev + 1][a]
-            if ra[0] <= I < ra[1] and ra[2] <= J < ra[3]:
+            if ra[0] <= bi < ra[1] and ra[2] <= bj < ra[3]:
                 to, node = ta[op.mapA], a
             else:
                 to, node = ta[op.mapB], b
         return to
 
-    def recover(self, sol: dict, I: int, J: int, tb: np.ndarray | None = None) -> np.ndarray:
+    def recover(self, sol: dict, bi: int, bj: int, tb: np.ndarray | None = None) -> np.ndarray:
         """Cell temperatures of block ``(I, J)`` (path-only downward pass unless ``tb`` is given)."""
-        t = self.block_ports(sol, I, J) if tb is None else tb
-        return self.models[self.pkg.layout[I, J]].recover(self.Phi @ t, sol["pb"][I, J])
+        t = self.block_ports(sol, bi, bj) if tb is None else tb
+        return self.models[self.pkg.layout[bi, bj]].recover(self.Phi @ t, sol["pb"][bi, bj])
 
 
 def _face_layout(shape: tuple[int, int]):
     nbx, nby = shape
-    I, J = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
+    bi, bj = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
     nxf = (nbx + 1) * nby
-    faces = np.stack([I * nby + J, (I + 1) * nby + J, nxf + I * (nby + 1) + J, nxf + I * (nby + 1) + J + 1], -1)
+    faces = np.stack([bi * nby + bj, (bi + 1) * nby + bj, nxf + bi * (nby + 1) + bj, nxf + bi * (nby + 1) + bj + 1], -1)
     n = nxf + nbx * (nby + 1)
     sides = np.full(n, 2)
     fx = np.arange(nxf).reshape(nbx + 1, nby)

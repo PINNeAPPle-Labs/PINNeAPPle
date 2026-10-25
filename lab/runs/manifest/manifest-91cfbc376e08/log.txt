@@ -1,0 +1,13 @@
+[16:45:11] check [2D] TM11 resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [2D] TM21 resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [2D] TM12 resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [2D] TM31 resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [2D] TM22 resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [2D] frequency error falls with the grid (numerical dispersion ~ h^2): PASS 7.4e-04, 1.9e-04
+[16:45:11] check [2D] trust report: PASS decision APPROVED
+[16:45:11] check [3D] (110) resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [3D] (101) resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [3D] (011) resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [3D] (111) resonance: PASS Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)
+[16:45:11] check [3D] frequency error falls with the grid (numerical dispersion ~ h^2): PASS 2.8e-03, 7.0e-04
+[16:45:11] check [3D] trust report: PASS decision APPROVED

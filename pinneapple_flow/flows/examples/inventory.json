@@ -215,6 +215,10 @@
   "domain": "validation",
   "notes": "the torch/ fixtures (a zoo model) and generate.py (regenerates the fixtures with OpenFOAM) are not flows; workflow.yml is a GitHub Action template"
  },
+ "physics_condensation": {
+  "domain": "heat transfer",
+  "notes": "hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script."
+ },
  "physics_db": {
   "domain": "data",
   "needs": "earthaccess + NASA Earthdata login / network",

@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 521,
+  "tool": 522,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 21,
-  "example": 183
+  "example": 184
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 521,
+   "tool": 522,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 21,
-   "example": 183
+   "example": 184
   },
   "subkind": {
    "library call": 249,
-   "flow node": 187,
+   "flow node": 188,
    "recipe": 47,
    "function": 21,
    "agent tool (MCP)": 17
@@ -145,7 +145,7 @@
    "numerical methods": 50,
    "system dynamics": 43,
    "data": 41,
-   "heat transfer": 32,
+   "heat transfer": 34,
    "electromagnetics": 28,
    "science / physics.electromagnetism": 20,
    "flight dynamics": 16,
@@ -201,7 +201,7 @@
    "automation": 29
   },
   "quality": {
-   "not graded": 663,
+   "not graded": 665,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -996,7 +996,7 @@
    "name": "solvers.poisson_fdm_spectral",
    "title": "2-D Poisson: SOR finite differences against the periodic FFT solver",
    "summary": "examples/solvers/03_poisson_solvers.py: the source f with u = 0 on the boundary (SOR) and with periodic boundaries (FFT), their mean squared difference as the script prints it,…",
-   "description": "examples/solvers/03_poisson_solvers.py: the source f with u = 0 on the boundary (SOR) and with periodic\n    boundaries (FFT), their mean squared difference as the script prints it, and each against the exact solution of\n    its own equation: the registry's FDM solver solves lap(u) = -f (u = f / (2 (k pi)^2)), the spectral one\n    lap(u) = f (u = -f / (2 (k pi)^2)).",
+   "description": "examples/solvers/03_poisson_solvers.py: the source f with u = 0 on the boundary (SOR) and with periodic\nboundaries (FFT), their mean squared difference as the script prints it, and each against the exact solution of\nits own equation: the registry's FDM solver solves lap(u) = -f (u = f / (2 (k pi)^2)), the spectral one\nlap(u) = f (u = -f / (2 (k pi)^2)).",
    "domain": "numerical methods",
    "tags": [
     "Numerical solvers",
@@ -1303,7 +1303,7 @@
    "name": "blackhole.statistics",
    "title": "Accretion-run statistics (time window)",
    "summary": "Mean accretion rate, density and specific angular momentum profiles and the persistence error at leads of 20, 100 and 1000 M over the window (the quantities of the resolution…",
-   "description": "Mean accretion rate, density and specific angular momentum profiles and the persistence error at leads of\n    20, 100 and 1000 M over the window (the quantities of the resolution study, results/convergence.json).",
+   "description": "Mean accretion rate, density and specific angular momentum profiles and the persistence error at leads of\n20, 100 and 1000 M over the window (the quantities of the resolution study, results/convergence.json).",
    "domain": "astrophysics",
    "tags": [
     "Astrophysics",
@@ -1409,7 +1409,7 @@
    "name": "ts.adaptive",
    "title": "Adaptive forecasting across regime changes",
    "summary": "Experts weighted by their recent errors on a seasonal -> trend -> random-walk series: the ensemble's MAE against every expert, the 90 % interval coverage and when the leading…",
-   "description": "Experts weighted by their recent errors on a seasonal -> trend -> random-walk series: the ensemble's MAE\n    against every expert, the 90 % interval coverage and when the leading model changes\n    (examples/time_series/adaptive_forecasting.py).",
+   "description": "Experts weighted by their recent errors on a seasonal -> trend -> random-walk series: the ensemble's MAE\nagainst every expert, the 90 % interval coverage and when the leading model changes\n(examples/time_series/adaptive_forecasting.py).",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -1655,7 +1655,7 @@
    "name": "flight.takeoff",
    "title": "Aircraft take-off (6-DOF)",
    "summary": "Simulate a take-off with the 6-DOF flight library (vortex lattice in the loop) and compare the distance with Raymer's closed form.",
-   "description": "Simulate a take-off with the 6-DOF flight library (vortex lattice in the loop) and compare the distance\n    with Raymer's closed form.",
+   "description": "Simulate a take-off with the 6-DOF flight library (vortex lattice in the loop) and compare the distance\nwith Raymer's closed form.",
    "domain": "flight dynamics",
    "tags": [
     "Systems",
@@ -1887,7 +1887,7 @@
    "name": "aero.airliner_vlm",
    "title": "Airliner vortex lattice + friction drag (geometry library)",
    "summary": "Lift slope, neutral point (wing + tail), trim at the cruise lift coefficient, induced drag; CD0 from the library mesh; L/D. Published A320 class: CL_alpha about 5.5-6 /rad,…",
-   "description": "Lift slope, neutral point (wing + tail), trim at the cruise lift coefficient, induced drag; CD0 from the\n    library mesh; L/D. Published A320 class: CL_alpha about 5.5-6 /rad, cruise L/D about 16-18.",
+   "description": "Lift slope, neutral point (wing + tail), trim at the cruise lift coefficient, induced drag; CD0 from the\nlibrary mesh; L/D. Published A320 class: CL_alpha about 5.5-6 /rad, cruise L/D about 16-18.",
    "domain": "fluid dynamics",
    "tags": [
     "Aerodynamics",
@@ -2391,7 +2391,7 @@
    "name": "benchmark.arena_yaml",
    "title": "Arena experiment from a YAML config (benchmark suite)",
    "summary": "The problem preset, its reference data from the built-in solver, every model of the config trained on the same points; per model the best validation loss, the metrics on the…",
-   "description": "The problem preset, its reference data from the built-in solver, every model of the config trained on the\n    same points; per model the best validation loss, the metrics on the reference points and the time.",
+   "description": "The problem preset, its reference data from the built-in solver, every model of the config trained on the\nsame points; per model the best validation loss, the metrics on the reference points and the time.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -2491,7 +2491,7 @@
    "name": "arena.run",
    "title": "Arena: several models on one physics problem (PINN, SIREN, FNO, MeshGraphNet, ...)",
    "summary": "Data from the problem's reference, every model trained and evaluated on the same points; per model the L2 and relative error of each field, the training time and (PINN family)…",
-   "description": "Data from the problem's reference, every model trained and evaluated on the same points; per model the\n    L2 and relative error of each field, the training time and (PINN family) the final physics residual.",
+   "description": "Data from the problem's reference, every model trained and evaluated on the same points; per model the\nL2 and relative error of each field, the training time and (PINN family) the final physics residual.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -2649,8 +2649,8 @@
    "extra": {
     "calls": "pinneapple_simulation.robot_sim.checks:arm_pick_and_place",
     "category": "Solvers",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install newton-physics",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -2946,7 +2946,7 @@
    "name": "validate.audit_model",
    "title": "Audit a model through the arena's defence",
    "summary": "The reference solver itself judged by the shipped defence: it should have no escapes and no false alarms (examples/validation_arena/external_model.py).",
-   "description": "The reference solver itself judged by the shipped defence: it should have no escapes and no false alarms\n    (examples/validation_arena/external_model.py).",
+   "description": "The reference solver itself judged by the shipped defence: it should have no escapes and no false alarms\n(examples/validation_arena/external_model.py).",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -3234,7 +3234,7 @@
    "name": "blackhole.simulate",
    "title": "Black-hole accretion flow (RIAF torus)",
    "summary": "Evolve the viscous, radiatively inefficient flow that forms from an equilibrium torus (Paczynski-Wiita potential), saving the primitives every ``every`` M…",
-   "description": "Evolve the viscous, radiatively inefficient flow that forms from an equilibrium torus (Paczynski-Wiita\n    potential), saving the primitives every ``every`` M (examples/black_hole_weather/simulate.py).",
+   "description": "Evolve the viscous, radiatively inefficient flow that forms from an equilibrium torus (Paczynski-Wiita\npotential), saving the primitives every ``every`` M (examples/black_hole_weather/simulate.py).",
    "domain": "astrophysics",
    "tags": [
     "Astrophysics",
@@ -3532,8 +3532,8 @@
    "extra": {
     "calls": "pinneapple_tools.visualization.studio.blender.render_animation + render_still",
     "category": "Visualization",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install Blender",
     "auto": false,
     "inputs": [
      {
@@ -3818,7 +3818,7 @@
    "name": "bricks.validate",
    "title": "Brick physics against closed forms and Newton (trust report)",
    "summary": "Every check's simulated value (``check.<i>``, in the library's order, the check named in the note), whether it passed, and the trust decision.",
-   "description": "Every check's simulated value (``check.<i>``, in the library's order, the check named in the note), whether it\n    passed, and the trust decision.",
+   "description": "Every check's simulated value (``check.<i>``, in the library's order, the check named in the note), whether it\npassed, and the trust decision.",
    "domain": "structural mechanics",
    "tags": [
     "Design",
@@ -3897,7 +3897,7 @@
    "name": "architectures.forward",
    "title": "Build a registry model and run a forward pass",
    "summary": "One registry model built by name and run on dummy tensors. Reports the output shape, the parameter count, the losses it returns and, on request, the input-gradient norm (gradient…",
-   "description": "One registry model built by name and run on dummy tensors. Reports the output shape, the parameter count,\n    the losses it returns and, on request, the input-gradient norm (gradient flow for PINN use).",
+   "description": "One registry model built by name and run on dummy tensors. Reports the output shape, the parameter count,\nthe losses it returns and, on request, the input-gradient norm (gradient flow for PINN use).",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -4116,7 +4116,7 @@
    "name": "pinn.burgers_first",
    "title": "Burgers PINN against the exact solution (first example)",
    "summary": "examples/first_example/first_example.py: u_t + u u_x = nu u_xx on [-1, 1]; the PINN's profile at t = 0.75 (the steep front) against the Cole-Hopf closed form.",
-   "description": "examples/first_example/first_example.py: u_t + u u_x = nu u_xx on [-1, 1]; the PINN's profile at t = 0.75 (the\n    steep front) against the Cole-Hopf closed form.",
+   "description": "examples/first_example/first_example.py: u_t + u u_x = nu u_xx on [-1, 1]; the PINN's profile at t = 0.75 (the\nsteep front) against the Cole-Hopf closed form.",
    "domain": "physics AI",
    "tags": [
     "PINN",
@@ -4614,7 +4614,7 @@
    "name": "calculix.results",
    "title": "CalculiX results (.frd)",
    "summary": "Tip deflection (the most negative u_z at the free end), the largest |sigma_xx|, and the Euler-Bernoulli tip deflection P L^3 / (3 E I) of the same beam.",
-   "description": "Tip deflection (the most negative u_z at the free end), the largest |sigma_xx|, and the Euler-Bernoulli tip\n    deflection P L^3 / (3 E I) of the same beam.",
+   "description": "Tip deflection (the most negative u_z at the free end), the largest |sigma_xx|, and the Euler-Bernoulli tip\ndeflection P L^3 / (3 E I) of the same beam.",
    "domain": "structural mechanics",
    "tags": [
     "Structures",
@@ -4815,8 +4815,8 @@
    "extra": {
     "calls": "pinneapple_simulation.external_solvers.calculix.run_ccx (native ccx or the Docker image)",
     "category": "Structures",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install CalculiX",
     "auto": false,
     "inputs": [
      {
@@ -4884,7 +4884,7 @@
    "name": "inverse.calibrate",
    "title": "Calibration (classical forward model)",
    "summary": "Least-squares calibration of the unknown coefficients with the finite-difference solver as forward model (the library's calibration: identifiability, intervals, fit metrics).",
-   "description": "Least-squares calibration of the unknown coefficients with the finite-difference solver as forward model\n    (the library's calibration: identifiability, intervals, fit metrics).",
+   "description": "Least-squares calibration of the unknown coefficients with the finite-difference solver as forward model\n(the library's calibration: identifiability, intervals, fit metrics).",
    "domain": "numerical methods",
    "tags": [
     "Inverse",
@@ -5073,7 +5073,7 @@
    "name": "reason.chain",
    "title": "Chain of whys",
    "summary": "From the naive concept, check, find the first failure, apply the best countermeasure, check again, until every requirement passes.",
-   "description": "From the naive concept, check, find the first failure, apply the best countermeasure, check again, until every\n    requirement passes.",
+   "description": "From the naive concept, check, find the first failure, apply the best countermeasure, check again, until every\nrequirement passes.",
    "domain": "design and geometry",
    "tags": [
     "Design",
@@ -5368,6 +5368,178 @@
     "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "node:condense.package_thermal",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "condense.package_thermal",
+   "title": "Chip package thermal by condensation",
+   "summary": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve the hotspot power map, and report the peak junction temperature, the…",
+   "description": "Build the synthetic multilayer package, condense the repeated blocks once (identical subtrees reused), solve\nthe hotspot power map, and report the peak junction temperature, the heat through the TIM and the lid and the\nenergy balance; optionally against the fine reference.",
+   "domain": "heat transfer",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "condensation",
+    "fd",
+    "fem",
+    "numerical",
+    "reduced order",
+    "semiconductor packaging",
+    "simulation",
+    "solvers",
+    "thermal"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"condense.package_thermal\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=condense.package_thermal",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/condense.py#L11"
+   },
+   "extra": {
+    "calls": "pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "blocks",
+      "kind": "int",
+      "default": 64,
+      "help": "blocks per side (one microbump + TSV each)",
+      "choices": null,
+      "minimum": 2,
+      "maximum": 512,
+      "advanced": false
+     },
+     {
+      "name": "modes",
+      "kind": "int",
+      "default": 8,
+      "help": "interface modes per face",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": false
+     },
+     {
+      "name": "power_density",
+      "kind": "float",
+      "default": 1000000.0,
+      "help": "mean heat flux over the die [W/m^2]",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "hotspots",
+      "kind": "int",
+      "default": 3,
+      "help": "",
+      "choices": null,
+      "minimum": 0,
+      "maximum": 20,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "reference",
+      "kind": "bool",
+      "default": false,
+      "help": "also solve the fine finite-volume reference (small only)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "blocks": {
+       "title": "blocks",
+       "description": "blocks per side (one microbump + TSV each)",
+       "x-kind": "int",
+       "default": 64,
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 512
+      },
+      "modes": {
+       "title": "modes",
+       "description": "interface modes per face",
+       "x-kind": "int",
+       "default": 8,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      },
+      "power_density": {
+       "title": "power density",
+       "description": "mean heat flux over the die [W/m^2]",
+       "x-kind": "float",
+       "default": 1000000.0,
+       "type": "number"
+      },
+      "hotspots": {
+       "title": "hotspots",
+       "description": "",
+       "x-kind": "int",
+       "default": 3,
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "reference": {
+       "title": "reference",
+       "description": "also solve the fine finite-volume reference (small only)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "a616b1c55bca6203"
    }
   },
   {
@@ -5819,7 +5991,7 @@
    "name": "render.clip_grid",
    "title": "Clip grid with one colour bar",
    "summary": "The clips side by side (e.g. the four aircraft through the same gust) with labels and one colour bar; the still grid uses each clip's marked frame (the gust peak).",
-   "description": "The clips side by side (e.g. the four aircraft through the same gust) with labels and one colour bar; the\n    still grid uses each clip's marked frame (the gust peak).",
+   "description": "The clips side by side (e.g. the four aircraft through the same gust) with labels and one colour bar; the\nstill grid uses each clip's marked frame (the gust peak).",
    "domain": "general",
    "tags": [
     "3d",
@@ -6027,7 +6199,7 @@
    "name": "core.hybrid_fem",
    "title": "Coarse FEM plus a learned correction",
    "summary": "-(k(x) u')' = 1 with k = 1 + 0.8 sin(2 pi f x + phase): a 6-cell FEM and a dilated Conv1d corrector trained end to end against a 128-cell FEM; held-out relative error of the…",
-   "description": "-(k(x) u')' = 1 with k = 1 + 0.8 sin(2 pi f x + phase): a 6-cell FEM and a dilated Conv1d corrector trained\n    end to end against a 128-cell FEM; held-out relative error of the coarse FEM alone and of the hybrid\n    (examples/physics_module/01_coarse_fem_plus_neural_correction.py).",
+   "description": "-(k(x) u')' = 1 with k = 1 + 0.8 sin(2 pi f x + phase): a 6-cell FEM and a dilated Conv1d corrector trained\nend to end against a 128-cell FEM; held-out relative error of the coarse FEM alone and of the hybrid\n(examples/physics_module/01_coarse_fem_plus_neural_correction.py).",
    "domain": "structural mechanics",
    "tags": [
     "Hybrid models",
@@ -6214,7 +6386,7 @@
    "name": "antenna.compact_range",
    "title": "Compact-range quiet zone by physical optics",
    "summary": "The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet zone (ripple, taper, usable diameter, cross-polar), the validation…",
-   "description": "The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet\n    zone (ripple, taper, usable diameter, cross-polar), the validation and the design sweep.",
+   "description": "The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet\nzone (ripple, taper, usable diameter, cross-polar), the validation and the design sweep.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -6861,7 +7033,7 @@
    "name": "systems.component_fit",
    "title": "Component library: build and fit a component",
    "summary": "examples/systems/01_component_library_toolbox.py: the registered components and toolboxes, one component built and fitted. The example fits random targets (a demonstration of the…",
-   "description": "examples/systems/01_component_library_toolbox.py: the registered components and toolboxes, one component\n    built and fitted. The example fits random targets (a demonstration of the API, not of the physics); this node\n    seeds them.",
+   "description": "examples/systems/01_component_library_toolbox.py: the registered components and toolboxes, one component\nbuilt and fitted. The example fits random targets (a demonstration of the API, not of the physics); this node\nseeds them.",
    "domain": "system dynamics",
    "tags": [
     "Systems",
@@ -7213,7 +7385,7 @@
    "name": "core.torsion_optimizer",
    "title": "Constrained shape optimization, six methods",
    "summary": "Maximise the torsional rigidity of an a x b rectangle with a b = 1 by SLSQP, the adjoint, a penalty, an augmented Lagrangian, differential evolution and Bayesian optimisation…",
-   "description": "Maximise the torsional rigidity of an a x b rectangle with a b = 1 by SLSQP, the adjoint, a penalty, an\n    augmented Lagrangian, differential evolution and Bayesian optimisation (examples/physics_optimizer).",
+   "description": "Maximise the torsional rigidity of an a x b rectangle with a b = 1 by SLSQP, the adjoint, a penalty, an\naugmented Lagrangian, differential evolution and Bayesian optimisation (examples/physics_optimizer).",
    "domain": "design and geometry",
    "tags": [
     "Optimization",
@@ -7340,7 +7512,7 @@
    "name": "control.compare",
    "title": "Controllers: PID, rules, MPC",
    "summary": "Closed-loop comparison of controllers on the library's heated-tank plant (simulation only: no command path to equipment).",
-   "description": "Closed-loop comparison of controllers on the library's heated-tank plant (simulation only: no command path\n    to equipment).",
+   "description": "Closed-loop comparison of controllers on the library's heated-tank plant (simulation only: no command path\nto equipment).",
    "domain": "heat transfer",
    "tags": [
     "Systems",
@@ -7427,7 +7599,7 @@
    "name": "inverse.pin_fin",
    "title": "Convection coefficient of a pin fin from thermocouples (PINN)",
    "summary": "examples/use_cases/fin_convection_inverse/fin_convection_inverse.py: theta'' - m^2 theta = 0, theta(0) = 1, -k theta'(L) = h theta(L); h and the field learned together from the…",
-   "description": "examples/use_cases/fin_convection_inverse/fin_convection_inverse.py: theta'' - m^2 theta = 0, theta(0) = 1,\n    -k theta'(L) = h theta(L); h and the field learned together from the fin equation and the readings, against a\n    least-squares fit of the closed form; the heat the fin dissipates from the network's own derivative.",
+   "description": "examples/use_cases/fin_convection_inverse/fin_convection_inverse.py: theta'' - m^2 theta = 0, theta(0) = 1,\n-k theta'(L) = h theta(L); h and the field learned together from the fin equation and the readings, against a\nleast-squares fit of the closed form; the heat the fin dissipates from the network's own derivative.",
    "domain": "heat transfer",
    "tags": [
     "Inverse problems",
@@ -8272,7 +8444,7 @@
    "name": "design.from_intent",
    "title": "Design from a plain-language goal",
    "summary": "A goal in plain language to a verified, buildable design, the questions it needs, or a refusal saying what is missing (examples/design_from_intent/design_from_intent.py).",
-   "description": "A goal in plain language to a verified, buildable design, the questions it needs, or a refusal saying what\n    is missing (examples/design_from_intent/design_from_intent.py).",
+   "description": "A goal in plain language to a verified, buildable design, the questions it needs, or a refusal saying what\nis missing (examples/design_from_intent/design_from_intent.py).",
    "domain": "design and geometry",
    "tags": [
     "Design",
@@ -8725,7 +8897,7 @@
    "name": "twin.auto",
    "title": "Digital twin (automatic)",
    "summary": "Build the twin from the identified equations: the PDE on a coarse grid as the fast model, the coefficients as calibrated states, the ensemble Kalman filter for the state, alerts…",
-   "description": "Build the twin from the identified equations: the PDE on a coarse grid as the fast model, the coefficients\n    as calibrated states, the ensemble Kalman filter for the state, alerts when a coefficient leaves its band or the\n    data stop agreeing with the model; dashboard and the estimated field (for the 3-D view).",
+   "description": "Build the twin from the identified equations: the PDE on a coarse grid as the fast model, the coefficients\nas calibrated states, the ensemble Kalman filter for the state, alerts when a coefficient leaves its band or the\ndata stop agreeing with the model; dashboard and the estimated field (for the 3-D view).",
    "domain": "time series",
    "tags": [
     "Digital twin",
@@ -8953,7 +9125,7 @@
    "name": "twin.connect",
    "title": "Digital twin (stream -> twin runtime)",
    "summary": "Feed a stream of sensor readings into the twin runtime (an ensemble Kalman filter on the heated-tank model): state estimates with uncertainty, hidden states (leak flow, heater…",
-   "description": "Feed a stream of sensor readings into the twin runtime (an ensemble Kalman filter on the heated-tank model):\n    state estimates with uncertainty, hidden states (leak flow, heater efficiency), alerts, a forecast.",
+   "description": "Feed a stream of sensor readings into the twin runtime (an ensemble Kalman filter on the heated-tank model):\nstate estimates with uncertainty, hidden states (leak flow, heater efficiency), alerts, a forecast.",
    "domain": "geophysics and climate",
    "tags": [
     "Digital twin",
@@ -9236,7 +9408,7 @@
    "name": "autolab.pipe_twin",
    "title": "Digital twin that knows when it is wrong (pipe loop)",
    "summary": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from a model outside its domain on three events, ask the physics where…",
-   "description": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from\n    a model outside its domain on three events, ask the physics where the model is out of its domain, and measure the\n    diagnosis on controlled cases (confusion matrix) with its trust report.",
+   "description": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from\na model outside its domain on three events, ask the physics where the model is out of its domain, and measure the\ndiagnosis on controlled cases (confusion matrix) with its trust report.",
    "domain": "fluid dynamics",
    "tags": [
     "Design",
@@ -9407,7 +9579,7 @@
    "name": "nonhermitian.hypothesis_map",
    "title": "Does the no-go theorem constrain a design? (physics audit)",
    "summary": "Three designs audited against the theorem's assumptions: all VALID means linear tuning is out of reach; a VIOLATED assumption names the route that opened up.",
-   "description": "Three designs audited against the theorem's assumptions: all VALID means linear tuning is out of reach; a\n    VIOLATED assumption names the route that opened up.",
+   "description": "Three designs audited against the theorem's assumptions: all VALID means linear tuning is out of reach; a\nVIOLATED assumption names the route that opened up.",
    "domain": "structural mechanics",
    "tags": [
     "Non-Hermitian physics",
@@ -9929,7 +10101,7 @@
    "name": "geo.earth_system",
    "title": "Earth-system blocks: sphere, 4D-Var, infiltration",
    "summary": "examples/geophysics/01_sphere_and_assimilation.py: the Rossby-Haurwitz wave (Williamson case 6) and the drift of its conserved quantities, 4D-Var on Lorenz-96 (background and…",
-   "description": "examples/geophysics/01_sphere_and_assimilation.py: the Rossby-Haurwitz wave (Williamson case 6) and the drift\n    of its conserved quantities, 4D-Var on Lorenz-96 (background and analysis RMSE), Richards infiltration (Celia et\n    al. 1990) and its mass-balance ratio.",
+   "description": "examples/geophysics/01_sphere_and_assimilation.py: the Rossby-Haurwitz wave (Williamson case 6) and the drift\nof its conserved quantities, 4D-Var on Lorenz-96 (background and analysis RMSE), Richards infiltration (Celia et\nal. 1990) and its mass-balance ratio.",
    "domain": "geophysics and climate",
    "tags": [
     "Geophysics",
@@ -10105,7 +10277,7 @@
    "name": "inspection.eddy_current",
    "title": "Eddy-current inspection PINN",
    "summary": "A synthetic probe scan from the axisymmetric complex-Helmholtz FDM solver, then an InspectionPINN trained on it (examples/inspection/01_eddy_current_pinn.py).",
-   "description": "A synthetic probe scan from the axisymmetric complex-Helmholtz FDM solver, then an InspectionPINN trained on\n    it (examples/inspection/01_eddy_current_pinn.py).",
+   "description": "A synthetic probe scan from the axisymmetric complex-Helmholtz FDM solver, then an InspectionPINN trained on\nit (examples/inspection/01_eddy_current_pinn.py).",
    "domain": "structural mechanics",
    "tags": [
     "Inspection",
@@ -10308,7 +10480,7 @@
    "name": "forecast.enso",
    "title": "El Nino forecast (ENSO models)",
    "summary": "Forecast the Nino 3.4 index with the ENSO library's models under its protocol (tuned on the development period, scored on the untouched test period): RMSE skill against…",
-   "description": "Forecast the Nino 3.4 index with the ENSO library's models under its protocol (tuned on the development\n    period, scored on the untouched test period): RMSE skill against climatology and persistence with Holm-adjusted\n    Diebold-Mariano tests, and the anomaly correlation per lead. The observations (OISST, WOD thermocline, ERA5\n    wind stress) are downloaded once into the PINNeAPPle data cache.",
+   "description": "Forecast the Nino 3.4 index with the ENSO library's models under its protocol (tuned on the development\nperiod, scored on the untouched test period): RMSE skill against climatology and persistence with Holm-adjusted\nDiebold-Mariano tests, and the anomaly correlation per lead. The observations (OISST, WOD thermocline, ERA5\nwind stress) are downloaded once into the PINNeAPPle data cache.",
    "domain": "geophysics and climate",
    "tags": [
     "Time series",
@@ -10486,7 +10658,7 @@
    "name": "em.verification",
    "title": "Electromagnetics verification table",
    "summary": "Every electromagnetics solver and reference against an independent result: errors and observed orders (examples/electrodynamics/07_em_verification.py).",
-   "description": "Every electromagnetics solver and reference against an independent result: errors and observed orders\n    (examples/electrodynamics/07_em_verification.py).",
+   "description": "Every electromagnetics solver and reference against an independent result: errors and observed orders\n(examples/electrodynamics/07_em_verification.py).",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -10747,7 +10919,7 @@
    "name": "enso.solver_checks",
    "title": "ENSO model checks against theory",
    "summary": "The intermediate coupled model's shallow-water solver (Kelvin and Rossby wave speeds, convergence order, the Gill steady response against the analytic solution) and the recharge…",
-   "description": "The intermediate coupled model's shallow-water solver (Kelvin and Rossby wave speeds, convergence order, the\n    Gill steady response against the analytic solution) and the recharge / delayed oscillators against their\n    eigenvalues (examples/enso_forecasting/run_study.py, results/solver_checks.json). No observations needed.",
+   "description": "The intermediate coupled model's shallow-water solver (Kelvin and Rossby wave speeds, convergence order, the\nGill steady response against the analytic solution) and the recharge / delayed oscillators against their\neigenvalues (examples/enso_forecasting/run_study.py, results/solver_checks.json). No observations needed.",
    "domain": "geophysics and climate",
    "tags": [
     "Time series",
@@ -10812,7 +10984,7 @@
    "name": "nonhermitian.ep_numeric",
    "title": "EP location from the matrix: linear coupling, routes A, B and C",
    "summary": "gamma_EP^2 found from the Hamiltonian alone (route C: closed form, the matrix is not PT symmetric) against the target J^2 + lam J G, and the route-B feedback fixed point.",
-   "description": "gamma_EP^2 found from the Hamiltonian alone (route C: closed form, the matrix is not PT symmetric) against the\n    target J^2 + lam J G, and the route-B feedback fixed point.",
+   "description": "gamma_EP^2 found from the Hamiltonian alone (route C: closed form, the matrix is not PT symmetric) against the\ntarget J^2 + lam J G, and the route-B feedback fixed point.",
    "domain": "structural mechanics",
    "tags": [
     "Non-Hermitian physics",
@@ -10970,7 +11142,7 @@
    "name": "nonhermitian.ep_figure",
    "title": "EP tuning figure and PT-chain thresholds",
    "summary": "The four-panel figure (spectrum across the EP, EP laws by coupling class, coupling plane, chains) and, for uniform chains with |b| = 1, the PT-breaking threshold kappa_N^2 =…",
-   "description": "The four-panel figure (spectrum across the EP, EP laws by coupling class, coupling plane, chains) and, for\n    uniform chains with |b| = 1, the PT-breaking threshold kappa_N^2 = gamma_EP^2 and the order of the EP there.",
+   "description": "The four-panel figure (spectrum across the EP, EP laws by coupling class, coupling plane, chains) and, for\nuniform chains with |b| = 1, the PT-breaking threshold kappa_N^2 = gamma_EP^2 and the order of the EP there.",
    "domain": "structural mechanics",
    "tags": [
     "Non-Hermitian physics",
@@ -11100,7 +11272,7 @@
    "name": "nonhermitian.ep_laws",
    "title": "EP tuning laws checked against the no-go theorem (symbolic)",
    "summary": "Per coupling class: the EP law gamma_EP^2(lam), whether it equals the linear target J^2 + lam J G exactly, its degree in lam, the four assumptions (A PT symmetry, B dimension 2,…",
-   "description": "Per coupling class: the EP law gamma_EP^2(lam), whether it equals the linear target J^2 + lam J G exactly, its\n    degree in lam, the four assumptions (A PT symmetry, B dimension 2, C polynomial coupling, D reciprocity) and\n    whether the theorem applies.",
+   "description": "Per coupling class: the EP law gamma_EP^2(lam), whether it equals the linear target J^2 + lam J G exactly, its\ndegree in lam, the four assumptions (A PT symmetry, B dimension 2, C polynomial coupling, D reciprocity) and\nwhether the theorem applies.",
    "domain": "structural mechanics",
    "tags": [
     "Non-Hermitian physics",
@@ -11191,7 +11363,7 @@
    "name": "benchmark.equal_budget",
    "title": "Equal-budget benchmark (pp.benchmark.run)",
    "summary": "Every method on every problem under the same ComputeBudget, the same hyper-parameter search effort and seeds; the result table (mean over seeds at the full budget), the…",
-   "description": "Every method on every problem under the same ComputeBudget, the same hyper-parameter search effort and\n    seeds; the result table (mean over seeds at the full budget), the correctness gates and the advisor's\n    diagnostics. The run folder is the node's (config.yaml, prepared/, runs/, table.md, summary.json, figures/).",
+   "description": "Every method on every problem under the same ComputeBudget, the same hyper-parameter search effort and\nseeds; the result table (mean over seeds at the full budget), the correctness gates and the advisor's\ndiagnostics. The run folder is the node's (config.yaml, prepared/, runs/, table.md, summary.json, figures/).",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -11473,7 +11645,7 @@
    "name": "equations.system",
    "title": "Equations",
    "summary": "The equation system: PDEs, boundary and initial conditions, coefficients. The text is parsed by a safe parser and validated (unknown names, missing values, conditions on unknown…",
-   "description": "The equation system: PDEs, boundary and initial conditions, coefficients. The text is parsed by a safe\n    parser and validated (unknown names, missing values, conditions on unknown faces); the inferred family is shown.",
+   "description": "The equation system: PDEs, boundary and initial conditions, coefficients. The text is parsed by a safe\nparser and validated (unknown names, missing values, conditions on unknown faces); the inferred family is shown.",
    "domain": "numerical methods",
    "tags": [
     "Problem",
@@ -12169,7 +12341,7 @@
    "name": "security.fdi_benchmark",
    "title": "False-data-injection benchmark: physics residuals vs data-driven detectors",
    "summary": "Per detector, regime and attack: episode AUC, detection rate, median delay (minutes, median over the seeds' medians) and localisation, averaged over the seeds as the example…",
-   "description": "Per detector, regime and attack: episode AUC, detection rate, median delay (minutes, median over the seeds'\n    medians) and localisation, averaged over the seeds as the example script prints them; false alarms per day on\n    clean data. The isolation forest needs scikit-learn (skipped by the library without it).",
+   "description": "Per detector, regime and attack: episode AUC, detection rate, median delay (minutes, median over the seeds'\nmedians) and localisation, averaged over the seeds as the example script prints them; false alarms per day on\nclean data. The isolation forest needs scikit-learn (skipped by the library without it).",
    "domain": "validation and benchmarks",
    "tags": [
     "Security",
@@ -12292,7 +12464,7 @@
    "name": "pinn.poisson_fem_vs_pinn",
    "title": "FEM and PINN on the manufactured Poisson problem (pp.compare)",
    "summary": "examples/solver_api/01_classical_vs_pinn.py: laplace(u) = f on the unit square with u = sin(pi x) sin(pi y), one call for both methods against the exact solution.",
-   "description": "examples/solver_api/01_classical_vs_pinn.py: laplace(u) = f on the unit square with u = sin(pi x) sin(pi y),\n    one call for both methods against the exact solution.",
+   "description": "examples/solver_api/01_classical_vs_pinn.py: laplace(u) = f on the unit square with u = sin(pi x) sin(pi y),\none call for both methods against the exact solution.",
    "domain": "physics AI",
    "tags": [
     "PINN",
@@ -12409,7 +12581,7 @@
    "name": "train.finetune",
    "title": "Fine-tuning",
    "summary": "Continue training a surrogate on new data (all layers, or only the last one), reporting the error on the new data's held-out split before and after.",
-   "description": "Continue training a surrogate on new data (all layers, or only the last one), reporting the error on the new\n    data's held-out split before and after.",
+   "description": "Continue training a surrogate on new data (all layers, or only the last one), reporting the error on the new\ndata's held-out split before and after.",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -12677,7 +12849,7 @@
    "name": "flight.scene",
    "title": "Flight scene and three.js viewer",
    "summary": "Animated 3-D scenes of the kept flights (aircraft, lattice loading, n_z trail, the gust field), as three.js viewers (examples/flight_dynamics/08_viewers.py) and as the input of…",
-   "description": "Animated 3-D scenes of the kept flights (aircraft, lattice loading, n_z trail, the gust field), as three.js\n    viewers (examples/flight_dynamics/08_viewers.py) and as the input of the Blender render nodes.",
+   "description": "Animated 3-D scenes of the kept flights (aircraft, lattice loading, n_z trail, the gust field), as three.js\nviewers (examples/flight_dynamics/08_viewers.py) and as the input of the Blender render nodes.",
    "domain": "flight dynamics",
    "tags": [
     "Flight dynamics",
@@ -12864,7 +13036,7 @@
    "name": "forecast.lab",
    "title": "Forecast lab (near-random series)",
    "summary": "Predictability first (surrogate tests, entropy), then a zoo of forecasters on purged walk-forward folds with an untouched test period; skill against persistence per horizon.",
-   "description": "Predictability first (surrogate tests, entropy), then a zoo of forecasters on purged walk-forward folds with\n    an untouched test period; skill against persistence per horizon.",
+   "description": "Predictability first (surrogate tests, entropy), then a zoo of forecasters on purged walk-forward folds with\nan untouched test period; skill against persistence per horizon.",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -13082,7 +13254,7 @@
    "name": "cfd.trough_jet",
    "title": "Free-surface trough with a jet (interFoam)",
    "summary": "examples/free_surface/01_runner_slope_study.py for one slope: time-mean k a few cm above the floor in the impact zone, its peak, the depth under the jet and how settled the…",
-   "description": "examples/free_surface/01_runner_slope_study.py for one slope: time-mean k a few cm above the floor in the\n    impact zone, its peak, the depth under the jet and how settled the liquid volume is.",
+   "description": "examples/free_surface/01_runner_slope_study.py for one slope: time-mean k a few cm above the floor in the\nimpact zone, its peak, the depth under the jet and how settled the liquid volume is.",
    "domain": "fluid dynamics",
    "tags": [
     "CFD",
@@ -13106,8 +13278,8 @@
    "extra": {
     "calls": "pinneapple_design.geometry.trough.TroughSection + pinneapple_simulation.numerical_solvers.free_surface.FreeSurfaceFlow (write, run, profiles) + external_solvers.openfoam.campaign.parse_solver_log",
     "category": "CFD",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install OpenFOAM",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -13438,7 +13610,7 @@
    "name": "problem.generic",
    "title": "Generic problem (identify the equations)",
    "summary": "Describe any problem (and optionally give data): the governing equations are identified with a confidence, the reasoning and their references (conservation law, constitutive…",
-   "description": "Describe any problem (and optionally give data): the governing equations are identified with a confidence,\n    the reasoning and their references (conservation law, constitutive relation, dimension, conditions,\n    coefficients). Accept a candidate or edit it; with data the equations are also discovered from the data and\n    compared with the candidates.",
+   "description": "Describe any problem (and optionally give data): the governing equations are identified with a confidence,\nthe reasoning and their references (conservation law, constitutive relation, dimension, conditions,\ncoefficients). Accept a candidate or edit it; with data the equations are also discovered from the data and\ncompared with the candidates.",
    "domain": "design and geometry",
    "tags": [
     "Problem",
@@ -13778,7 +13950,7 @@
    "name": "geo.column_collapse",
    "title": "Granular column collapse (MPM)",
    "summary": "Columns of dry cohesionless sand against a back wall on a rough floor, released at t = 0; the final runout against the law Lube et al. measured, the final height…",
-   "description": "Columns of dry cohesionless sand against a back wall on a rough floor, released at t = 0; the final runout\n    against the law Lube et al. measured, the final height (examples/geomechanics/01_granular_column_collapse.py).",
+   "description": "Columns of dry cohesionless sand against a back wall on a rough floor, released at t = 0; the final runout\nagainst the law Lube et al. measured, the final height (examples/geomechanics/01_granular_column_collapse.py).",
    "domain": "structural mechanics",
    "tags": [
     "Geomechanics",
@@ -13947,7 +14119,7 @@
    "name": "verify.convergence",
    "title": "Grid convergence (Richardson, GCI)",
    "summary": "Solve the problem by finite differences on three nested grids (ratio 2), measure the observed order of a scalar of the solution, extrapolate it (Richardson) and give the grid…",
-   "description": "Solve the problem by finite differences on three nested grids (ratio 2), measure the observed order of a\n    scalar of the solution, extrapolate it (Richardson) and give the grid convergence index; with an exact solution\n    also the error on each grid and the order it implies.",
+   "description": "Solve the problem by finite differences on three nested grids (ratio 2), measure the observed order of a\nscalar of the solution, extrapolate it (Richardson) and give the grid convergence index; with an exact solution\nalso the error on each grid and the order it implies.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -14084,7 +14256,7 @@
    "name": "forecast_lab.overfitting",
    "title": "How cross-validation schemes fool you (overfitting study)",
    "summary": "Shuffled k-fold, walk-forward without purge, purged walk-forward and purged k-fold scores of deliberately overfitting and regularised variants, against the untouched test score.",
-   "description": "Shuffled k-fold, walk-forward without purge, purged walk-forward and purged k-fold scores of deliberately\n    overfitting and regularised variants, against the untouched test score.",
+   "description": "Shuffled k-fold, walk-forward without purge, purged walk-forward and purged k-fold scores of deliberately\noverfitting and regularised variants, against the untouched test score.",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -14235,7 +14407,7 @@
    "name": "surrogate.hpo",
    "title": "Hyperparameter search",
    "summary": "Search architecture and training settings on the validation split, then retrain the best with the full budget and report its held-out test error (the test split is never used in…",
-   "description": "Search architecture and training settings on the validation split, then retrain the best with the full\n    budget and report its held-out test error (the test split is never used in the search).",
+   "description": "Search architecture and training settings on the validation split, then retrain the best with the full\nbudget and report its held-out test error (the test split is never used in the search).",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -14915,7 +15087,7 @@
    "name": "assimilate.filter",
    "title": "Kalman filter (EKF / EnKF)",
    "summary": "Estimate the underlying states of noisy channels with the library's Kalman filters (each channel a random walk, or position + rate); reports the innovation statistics and the…",
-   "description": "Estimate the underlying states of noisy channels with the library's Kalman filters (each channel a random\n    walk, or position + rate); reports the innovation statistics and the filtered series.",
+   "description": "Estimate the underlying states of noisy channels with the library's Kalman filters (each channel a random\nwalk, or position + rate); reports the innovation statistics and the filtered series.",
    "domain": "time series",
    "tags": [
     "Digital twin",
@@ -15093,7 +15265,7 @@
    "name": "validate.lab",
    "title": "Lab curation + seal",
    "summary": "Record the validation as a PINNeAPPle Lab run, grade it (letter A-F: reference, baseline, physics checks, reproducibility, assets, documentation) and, for tiers A and B only,…",
-   "description": "Record the validation as a PINNeAPPle Lab run, grade it (letter A-F: reference, baseline, physics checks,\n    reproducibility, assets, documentation) and, for tiers A and B only, stamp the quality seal on the figure.",
+   "description": "Record the validation as a PINNeAPPle Lab run, grade it (letter A-F: reference, baseline, physics checks,\nreproducibility, assets, documentation) and, for tiers A and B only, stamp the quality seal on the figure.",
    "domain": "physics AI",
    "tags": [
     "Validation",
@@ -15597,7 +15769,7 @@
    "name": "md.lj_gas",
    "title": "Lennard-Jones gas (NVE molecular dynamics)",
    "summary": "Particles on a lattice at the LJ well separation with a small random kick; velocity-Verlet steps; total energy against its initial value…",
-   "description": "Particles on a lattice at the LJ well separation with a small random kick; velocity-Verlet steps; total\n    energy against its initial value (examples/numerical_solvers/12_molecular_dynamics_lj_gas.py).",
+   "description": "Particles on a lattice at the LJ well separation with a small random kick; velocity-Verlet steps; total\nenergy against its initial value (examples/numerical_solvers/12_molecular_dynamics_lj_gas.py).",
    "domain": "structural mechanics",
    "tags": [
     "Particles",
@@ -15841,7 +16013,7 @@
    "name": "data.stream",
    "title": "Live data (sensors)",
    "summary": "Sensor readings for a twin: simulated on the model of the asset (with an optional injected change), read from a file, or listened to live on MQTT / OPC UA.",
-   "description": "Sensor readings for a twin: simulated on the model of the asset (with an optional injected change), read from\n    a file, or listened to live on MQTT / OPC UA.",
+   "description": "Sensor readings for a twin: simulated on the model of the asset (with an optional injected change), read from\na file, or listened to live on MQTT / OPC UA.",
    "domain": "data",
    "tags": [
     "Digital twin",
@@ -16216,7 +16388,7 @@
    "name": "forecast_lab.lyapunov",
    "title": "Mackey-Glass Lyapunov exponent: convergence",
    "summary": "Benettin estimate of the largest Lyapunov exponent of Mackey-Glass (tau = 17) against the step, the length of the run and the seed (results/lyapunov_mackey_glass.json).",
-   "description": "Benettin estimate of the largest Lyapunov exponent of Mackey-Glass (tau = 17) against the step, the length\n    of the run and the seed (results/lyapunov_mackey_glass.json).",
+   "description": "Benettin estimate of the largest Lyapunov exponent of Mackey-Glass (tau = 17) against the step, the length\nof the run and the seed (results/lyapunov_mackey_glass.json).",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -16568,7 +16740,7 @@
    "name": "gnn.meshgraphnet",
    "title": "MeshGraphNet (mesh dynamics)",
    "summary": "Train a MeshGraphNet to step a diffusion field on random unstructured meshes and roll it out on unseen meshes, against the frozen-initial-state baseline (the library's synthetic…",
-   "description": "Train a MeshGraphNet to step a diffusion field on random unstructured meshes and roll it out on unseen\n    meshes, against the frozen-initial-state baseline (the library's synthetic mesh-dynamics benchmark).",
+   "description": "Train a MeshGraphNet to step a diffusion field on random unstructured meshes and roll it out on unseen\nmeshes, against the frozen-initial-state baseline (the library's synthetic mesh-dynamics benchmark).",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -16768,7 +16940,7 @@
    "name": "gnn.mgn_cylinder_flow",
    "title": "MeshGraphNet on DeepMind cylinder flow (vortex shedding)",
    "summary": "Next-step velocity of vortex shedding behind a cylinder on irregular triangle meshes, rolled out autoregressively on the validation trajectories; against the velocity frozen at t…",
-   "description": "Next-step velocity of vortex shedding behind a cylinder on irregular triangle meshes, rolled out\n    autoregressively on the validation trajectories; against the velocity frozen at t = 0.",
+   "description": "Next-step velocity of vortex shedding behind a cylinder on irregular triangle meshes, rolled out\nautoregressively on the validation trajectories; against the velocity frozen at t = 0.",
    "domain": "fluid dynamics",
    "tags": [
     "Neural operators",
@@ -16791,8 +16963,8 @@
    "extra": {
     "calls": "pinneapple_data.datasets.deepmind_mgn.download_prefix / read_trajectories / cylinder_flow_to_tensors + pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN / train_dynamics / eval_rollout / frozen_ic_rmse",
     "category": "Neural operators",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install the",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -17226,7 +17398,7 @@
    "name": "benchmark.meta",
    "title": "Meta-learning benchmark (MAML / Reptile, K-shot adaptation)",
    "summary": "Meta-train on each PDE family, adapt K steps to held-out members against training from scratch; relative L2 per family, algorithm and K.",
-   "description": "Meta-train on each PDE family, adapt K steps to held-out members against training from scratch; relative\n    L2 per family, algorithm and K.",
+   "description": "Meta-train on each PDE family, adapt K steps to held-out members against training from scratch; relative\nL2 per family, algorithm and K.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -17366,7 +17538,7 @@
    "name": "meta.learn",
    "title": "Meta-learning over a coefficient (Reptile / MAML)",
    "summary": "Meta-learn a PINN initialisation over a family of problems (one coefficient varied), then adapt it to an unseen coefficient and compare the physics loss with a random…",
-   "description": "Meta-learn a PINN initialisation over a family of problems (one coefficient varied), then adapt it to an\n    unseen coefficient and compare the physics loss with a random initialisation after the same number of steps.",
+   "description": "Meta-learn a PINN initialisation over a family of problems (one coefficient varied), then adapt it to an\nunseen coefficient and compare the physics loss with a random initialisation after the same number of steps.",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -17573,7 +17745,7 @@
    "name": "architectures.registry",
    "title": "Model registry and catalog listing",
    "summary": "The registry's families and models, a few model specs and the catalog by family. This is what the registry tour and the model list print.",
-   "description": "The registry's families and models, a few model specs and the catalog by family. This is what the registry\n    tour and the model list print.",
+   "description": "The registry's families and models, a few model specs and the catalog by family. This is what the registry\ntour and the model list print.",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -17699,7 +17871,7 @@
    "name": "zoo.evaluate",
    "title": "Model zoo: evaluate, validate, fine-tune",
    "summary": "examples/model_zoo/quickstart.py: the card's held-out metrics reproduced, the physics checks and validity range, the comparison with XFOIL, and a guarded fine-tune.",
-   "description": "examples/model_zoo/quickstart.py: the card's held-out metrics reproduced, the physics checks and validity\n    range, the comparison with XFOIL, and a guarded fine-tune.",
+   "description": "examples/model_zoo/quickstart.py: the card's held-out metrics reproduced, the physics checks and validity\nrange, the comparison with XFOIL, and a guarded fine-tune.",
    "domain": "physics AI",
    "tags": [
     "Validation",
@@ -18179,7 +18351,7 @@
    "name": "ts.naive_baselines",
    "title": "Naive forecasting baselines (quickstart)",
    "summary": "examples/time_series/00_quickstart.py: a seasonal + trend + noise series, time-ordered train / validation windows, the naive, seasonal-naive and drift baselines and their errors.",
-   "description": "examples/time_series/00_quickstart.py: a seasonal + trend + noise series, time-ordered train / validation\n    windows, the naive, seasonal-naive and drift baselines and their errors.",
+   "description": "examples/time_series/00_quickstart.py: a seasonal + trend + noise series, time-ordered train / validation\nwindows, the naive, seasonal-naive and drift baselines and their errors.",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -18328,7 +18500,7 @@
    "name": "forecast_lab.case",
    "title": "Near-random series: predictability, model zoo, surrogate twins",
    "summary": "examples/near_random_forecasting/run_study.py for one case: predictability first, then every model under the purged walk-forward protocol with an untouched test period.",
-   "description": "examples/near_random_forecasting/run_study.py for one case: predictability first, then every model under the\n    purged walk-forward protocol with an untouched test period.",
+   "description": "examples/near_random_forecasting/run_study.py for one case: predictability first, then every model under the\npurged walk-forward protocol with an untouched test period.",
    "domain": "time series",
    "tags": [
     "Time series",
@@ -18538,7 +18710,7 @@
    "name": "surrogate.train",
    "title": "Neural operator / surrogate",
    "summary": "Train a surrogate on a dataset: the suggested architecture (preview: layer graph + parameter count) or the edited one; errors on held-out validation and test samples.",
-   "description": "Train a surrogate on a dataset: the suggested architecture (preview: layer graph + parameter count) or the\n    edited one; errors on held-out validation and test samples.",
+   "description": "Train a surrogate on a dataset: the suggested architecture (preview: layer graph + parameter count) or the\nedited one; errors on held-out validation and test samples.",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -18763,7 +18935,7 @@
    "name": "examples.flatten",
    "title": "Numbers of an upstream result",
    "summary": "Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a node that returns its numbers in an output instead of recording them;…",
-   "description": "Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a\n    node that returns its numbers in an output instead of recording them; strings and booleans are kept too.",
+   "description": "Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a\nnode that returns its numbers in an output instead of recording them; strings and booleans are kept too.",
    "domain": "general",
    "tags": [
     "Examples",
@@ -19132,7 +19304,7 @@
    "name": "solver.openfoam",
    "title": "OpenFOAM case",
    "summary": "Run an OpenFOAM case with the workflow engine's OpenFOAM adapter (blockMesh + solver) and read the solver log health. Needs OpenFOAM on PATH.",
-   "description": "Run an OpenFOAM case with the workflow engine's OpenFOAM adapter (blockMesh + solver) and read the solver\n    log health. Needs OpenFOAM on PATH.",
+   "description": "Run an OpenFOAM case with the workflow engine's OpenFOAM adapter (blockMesh + solver) and read the solver\nlog health. Needs OpenFOAM on PATH.",
    "domain": "fluid dynamics",
    "tags": [
     "Solvers",
@@ -19156,8 +19328,8 @@
    "extra": {
     "calls": "pinneapple_core.workflows.OpenFOAMAdapter",
     "category": "Solvers",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "needs OpenFOAM (blockMesh, icoFoam on PATH)",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -19232,7 +19404,7 @@
    "name": "cfd.campaign",
    "title": "OpenFOAM run campaign (plan file)",
    "summary": "examples/openfoam_campaign: the base case written by the library, then each run of the plan (jet speed and angle) with its health (Courant, phase bounds, volume) and the sampled…",
-   "description": "examples/openfoam_campaign: the base case written by the library, then each run of the plan (jet speed and\n    angle) with its health (Courant, phase bounds, volume) and the sampled profiles.",
+   "description": "examples/openfoam_campaign: the base case written by the library, then each run of the plan (jet speed and\nangle) with its health (Courant, phase bounds, volume) and the sampled profiles.",
    "domain": "fluid dynamics",
    "tags": [
     "CFD",
@@ -19256,8 +19428,8 @@
    "extra": {
     "calls": "pinneapple_simulation.external_solvers.openfoam.campaign.Campaign.from_json + run (parse_solver_log, LiveLineSampler); base case: TroughSection + FreeSurfaceFlow.write",
     "category": "CFD",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install OpenFOAM",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -19425,7 +19597,7 @@
    "name": "data.grf_burgers",
    "title": "Operator set: random initial data -> Burgers",
    "summary": "The classic operator-learning benchmark: Gaussian-random-field initial conditions mapped to the viscous Burgers solution at ``t_end`` (pseudo-spectral reference solver).",
-   "description": "The classic operator-learning benchmark: Gaussian-random-field initial conditions mapped to the viscous\n    Burgers solution at ``t_end`` (pseudo-spectral reference solver).",
+   "description": "The classic operator-learning benchmark: Gaussian-random-field initial conditions mapped to the viscous\nBurgers solution at ``t_end`` (pseudo-spectral reference solver).",
    "domain": "data",
    "tags": [
     "Data",
@@ -20271,7 +20443,7 @@
    "name": "arena.physics_spec",
    "title": "Physics benchmark spec (PINN models on a physics problem)",
    "summary": "Every model of the spec on the problem (forward or inverse), metrics against the reference, a leaderboard and, for an inverse run, the identified parameters.",
-   "description": "Every model of the spec on the problem (forward or inverse), metrics against the reference, a leaderboard\n    and, for an inverse run, the identified parameters.",
+   "description": "Every model of the spec on the problem (forward or inverse), metrics against the reference, a leaderboard\nand, for an inverse run, the identified parameters.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -20484,7 +20656,7 @@
    "name": "check.physics",
    "title": "Physics checks of results and models (pinneapple check)",
    "summary": "Run every rule on the declared targets (OpenFOAM cases, fields, QoI tables, surrogates, models) and compare the rules each target breaks with the example's list…",
-   "description": "Run every rule on the declared targets (OpenFOAM cases, fields, QoI tables, surrogates, models) and compare\n    the rules each target breaks with the example's list (examples/physics_check, the CI gate's fixtures).",
+   "description": "Run every rule on the declared targets (OpenFOAM cases, fields, QoI tables, surrogates, models) and compare\nthe rules each target breaks with the example's list (examples/physics_check, the CI gate's fixtures).",
    "domain": "fluid dynamics",
    "tags": [
     "Validation",
@@ -20584,7 +20756,7 @@
    "name": "worldmodel.specialists",
    "title": "Physics world model: generate, train specialists, benchmark",
    "summary": "Per scenario: parameters of the specialist and, per benchmark task of that scenario, next-step and rollout RMSE, relative L2, the divergence step and the overall score.",
-   "description": "Per scenario: parameters of the specialist and, per benchmark task of that scenario, next-step and rollout\n    RMSE, relative L2, the divergence step and the overall score.",
+   "description": "Per scenario: parameters of the specialist and, per benchmark task of that scenario, next-step and rollout\nRMSE, relative L2, the divergence step and the overall score.",
    "domain": "physics AI",
    "tags": [
     "Neural operators",
@@ -20795,7 +20967,7 @@
    "name": "benchmark.arena",
    "title": "PINN benchmark arena",
    "summary": "The same problems, collocation budget and epochs for every model; relative L2 against each problem's reference and the rank per problem.",
-   "description": "The same problems, collocation budget and epochs for every model; relative L2 against each problem's\n    reference and the rank per problem.",
+   "description": "The same problems, collocation budget and epochs for every model; relative L2 against each problem's\nreference and the rank per problem.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -20943,7 +21115,7 @@
    "name": "train.pinn",
    "title": "PINN training",
    "summary": "Train a physics-informed network on the edited equations (Adam then L-BFGS), optionally with observations, and validate it at fresh points (residual, boundary, initial, trivial…",
-   "description": "Train a physics-informed network on the edited equations (Adam then L-BFGS), optionally with observations,\n    and validate it at fresh points (residual, boundary, initial, trivial solution, causality, spectrum, exact).",
+   "description": "Train a physics-informed network on the edited equations (Adam then L-BFGS), optionally with observations,\nand validate it at fresh points (residual, boundary, initial, trivial solution, causality, spectrum, exact).",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -21364,7 +21536,7 @@
    "name": "architectures.pod_dmd",
    "title": "POD compression + DMD rollout of a linear system",
    "summary": "POD reconstruction and POD + DMD rollout errors on a synthetic linear system. Trajectories of a contractive random linear system are compressed by POD (rank r), advanced by DMD…",
-   "description": "POD reconstruction and POD + DMD rollout errors on a synthetic linear system. Trajectories of a contractive\n    random linear system are compressed by POD (rank r), advanced by DMD on the POD coefficients and decoded.",
+   "description": "POD reconstruction and POD + DMD rollout errors on a synthetic linear system. Trajectories of a contractive\nrandom linear system are compressed by POD (rank r), advanced by DMD on the POD coefficients and decoded.",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -21787,7 +21959,7 @@
    "name": "em.prius_drive",
    "title": "Prius drive: envelope, efficiency map, WLTC energy",
    "summary": "examples/electrodynamics/11_prius_drive.py: MTPA + flux weakening envelope, the efficiency map and the battery energy over the WLTC class 3b cycle.",
-   "description": "examples/electrodynamics/11_prius_drive.py: MTPA + flux weakening envelope, the efficiency map and the\n    battery energy over the WLTC class 3b cycle.",
+   "description": "examples/electrodynamics/11_prius_drive.py: MTPA + flux weakening envelope, the efficiency map and the\nbattery energy over the WLTC class 3b cycle.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -22028,8 +22200,8 @@
    "extra": {
     "calls": "pinneapple_simulation.electromagnetics.machines.endwinding.end_winding_inductance + getdp.end_leakage_3d (gmsh + GetDP) + drive.Drive(L_end) + IPMMachine.mtpa / no_load",
     "category": "Electromagnetics",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install gmsh",
     "auto": false,
     "inputs": [
      {
@@ -22159,7 +22331,7 @@
    "name": "em.prius_getdp_crosscheck",
    "title": "Prius FEA against gmsh + GetDP",
    "summary": "examples/electrodynamics/14_prius_getdp_crosscheck.py: torque against current angle, cogging, back-EMF and apparent inductances, PINNeAPPle's FEA against an independent gmsh +…",
-   "description": "examples/electrodynamics/14_prius_getdp_crosscheck.py: torque against current angle, cogging, back-EMF and\n    apparent inductances, PINNeAPPle's FEA against an independent gmsh + GetDP model of the same machine.",
+   "description": "examples/electrodynamics/14_prius_getdp_crosscheck.py: torque against current angle, cogging, back-EMF and\napparent inductances, PINNeAPPle's FEA against an independent gmsh + GetDP model of the same machine.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -22183,8 +22355,8 @@
    "extra": {
     "calls": "pinneapple_simulation.electromagnetics.machines.getdp.solve (gmsh + GetDP) against IPMMachine.solve; machine.belt_winding; verification.YANG_2013_*",
     "category": "Electromagnetics",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install gmsh",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -22518,7 +22690,7 @@
    "name": "em.prius_machine",
    "title": "Prius IPM motor: no-load, torque vs angle, MTPA, losses",
    "summary": "examples/electrodynamics/10_pmsm_prius.py: the 2004 Prius motor (48 slots, 8 poles, V-shaped NdFeB, M400-50A), torque against current angle compared with Yang et al. (IEMDC 2013).",
-   "description": "examples/electrodynamics/10_pmsm_prius.py: the 2004 Prius motor (48 slots, 8 poles, V-shaped NdFeB, M400-50A),\n    torque against current angle compared with Yang et al. (IEMDC 2013).",
+   "description": "examples/electrodynamics/10_pmsm_prius.py: the 2004 Prius motor (48 slots, 8 poles, V-shaped NdFeB, M400-50A),\ntorque against current angle compared with Yang et al. (IEMDC 2013).",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -22744,7 +22916,7 @@
    "name": "em.prius_tolerances",
    "title": "Prius manufacturing tolerances (Monte Carlo FEA)",
    "summary": "examples/electrodynamics/17_prius_tolerances.py: torque and ripple spread from the tolerances of the magnet remanence, thickness, width and the air gap; standardised regression…",
-   "description": "examples/electrodynamics/17_prius_tolerances.py: torque and ripple spread from the tolerances of the magnet\n    remanence, thickness, width and the air gap; standardised regression coefficients; probability within spec.",
+   "description": "examples/electrodynamics/17_prius_tolerances.py: torque and ripple spread from the tolerances of the magnet\nremanence, thickness, width and the air gap; standardised regression coefficients; probability within spec.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -22958,7 +23130,7 @@
    "name": "em.prius_rotor_design",
    "title": "Prius rotor design: GP-surrogate NSGA-II against FEA-only",
    "summary": "examples/electrodynamics/12_prius_rotor_design.py: hypervolume and FEA calls of the hybrid search against FEA-only, the hybrid front re-evaluated on a finer FEA, and the Prius…",
-   "description": "examples/electrodynamics/12_prius_rotor_design.py: hypervolume and FEA calls of the hybrid search against\n    FEA-only, the hybrid front re-evaluated on a finer FEA, and the Prius rotor through the same evaluators.",
+   "description": "examples/electrodynamics/12_prius_rotor_design.py: hypervolume and FEA calls of the hybrid search against\nFEA-only, the hybrid front re-evaluated on a finer FEA, and the Prius rotor through the same evaluators.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -23137,7 +23309,7 @@
    "name": "em.prius_skew",
    "title": "Prius step skew (multi-slice FEA)",
    "summary": "examples/electrodynamics/15_prius_skew.py: cogging, torque and ripple against the step skew, and the skewed back-EMF harmonics against the closed-form skew factor (the 3-D VTU…",
-   "description": "examples/electrodynamics/15_prius_skew.py: cogging, torque and ripple against the step skew, and the skewed\n    back-EMF harmonics against the closed-form skew factor (the 3-D VTU export is left to the script).",
+   "description": "examples/electrodynamics/15_prius_skew.py: cogging, torque and ripple against the step skew, and the skewed\nback-EMF harmonics against the closed-form skew factor (the 3-D VTU export is left to the script).",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -23310,7 +23482,7 @@
    "name": "em.prius_thermal",
    "title": "Prius thermal network over WLTC, demagnetisation",
    "summary": "examples/electrodynamics/13_prius_thermal.py: magnet temperature sweep, a lumped thermal network driven by the WLTC losses (peak node temperatures), the time to 180 C at peak…",
-   "description": "examples/electrodynamics/13_prius_thermal.py: magnet temperature sweep, a lumped thermal network driven by\n    the WLTC losses (peak node temperatures), the time to 180 C at peak load, and demagnetisation margins per NdFeB\n    grade at the hottest magnet temperature.",
+   "description": "examples/electrodynamics/13_prius_thermal.py: magnet temperature sweep, a lumped thermal network driven by\nthe WLTC losses (peak node temperatures), the time to 180 C at peak load, and demagnetisation margins per NdFeB\ngrade at the hottest magnet temperature.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -23478,7 +23650,7 @@
    "name": "proof.pt_chain",
    "title": "Proof graph: the PT-chain no-go question",
    "summary": "A graph of assumptions, lemmas and a theorem with exact (sympy) and numerical checks: does the no-go theorem for linear exceptional-point tuning extend to PT tetramers…",
-   "description": "A graph of assumptions, lemmas and a theorem with exact (sympy) and numerical checks: does the no-go theorem\n    for linear exceptional-point tuning extend to PT tetramers (examples/proof_graph/pt_chain_no_go.py)?",
+   "description": "A graph of assumptions, lemmas and a theorem with exact (sympy) and numerical checks: does the no-go theorem\nfor linear exceptional-point tuning extend to PT tetramers (examples/proof_graph/pt_chain_no_go.py)?",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -23601,7 +23773,7 @@
    "name": "qualitative.ahmed_slant",
    "title": "Qualitative drag preview of the Ahmed slant, checked against the wind tunnel",
    "summary": "examples/qualitative/03_ahmed_slant.py: the preview's expected drag change per slant against the measured one, its direction and the rank correlation; low confidence near the…",
-   "description": "examples/qualitative/03_ahmed_slant.py: the preview's expected drag change per slant against the measured\n    one, its direction and the rank correlation; low confidence near the separation angle.",
+   "description": "examples/qualitative/03_ahmed_slant.py: the preview's expected drag change per slant against the measured\none, its direction and the rank correlation; low confidence near the separation angle.",
    "domain": "fluid dynamics",
    "tags": [
     "Design",
@@ -23956,7 +24128,7 @@
    "name": "rom.fit",
    "title": "Reduced-order models (POD, DMD, OpInf)",
    "summary": "Fit reduced-order models to the solution's snapshots (the last ``test_fraction`` of the time steps held out) and compare their forecast errors at equal budget.",
-   "description": "Fit reduced-order models to the solution's snapshots (the last ``test_fraction`` of the time steps held out)\n    and compare their forecast errors at equal budget.",
+   "description": "Fit reduced-order models to the solution's snapshots (the last ``test_fraction`` of the time steps held out)\nand compare their forecast errors at equal budget.",
    "domain": "time series",
    "tags": [
     "Learning",
@@ -24100,7 +24272,7 @@
    "name": "design.reluctance_rotor",
    "title": "Reluctance-rotor iron for torque (topology optimization)",
    "summary": "examples/topology_optimization/03_reluctance_rotor.py: 4-pole rotor core, 4-fold symmetry, adjoint sensitivities; the final design re-evaluated with nonlinear iron and with the…",
-   "description": "examples/topology_optimization/03_reluctance_rotor.py: 4-pole rotor core, 4-fold symmetry, adjoint\n    sensitivities; the final design re-evaluated with nonlinear iron and with the co-energy torque.",
+   "description": "examples/topology_optimization/03_reluctance_rotor.py: 4-pole rotor core, 4-fold symmetry, adjoint\nsensitivities; the final design re-evaluated with nonlinear iron and with the co-energy torque.",
    "domain": "design and geometry",
    "tags": [
     "Design",
@@ -24295,7 +24467,7 @@
    "name": "viz.render",
    "title": "Render (Blender-style)",
    "summary": "A rendered still (and an animation over time) of a 2-D field as a lit surface: Blender Cycles when the bpy module is installed, otherwise a matplotlib shaded surface; the report…",
-   "description": "A rendered still (and an animation over time) of a 2-D field as a lit surface: Blender Cycles when the bpy\n    module is installed, otherwise a matplotlib shaded surface; the report says which renderer was used.",
+   "description": "A rendered still (and an animation over time) of a 2-D field as a lit surface: Blender Cycles when the bpy\nmodule is installed, otherwise a matplotlib shaded surface; the report says which renderer was used.",
    "domain": "general",
    "tags": [
     "3d",
@@ -25097,8 +25269,8 @@
    "extra": {
     "calls": "pinneapple_flow.wrappers:newton_validate pinneapple_simulation.external_solvers",
     "category": "Solvers",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install newton-physics",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -25213,8 +25385,8 @@
    "extra": {
     "calls": "pinneapple_simulation.external_solvers.newton_physics.RigidScene (ground, box, sphere, revolute) + simulate",
     "category": "Particles",
-    "available": true,
-    "install": "",
+    "available": false,
+    "install": "pip install NVIDIA",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -25479,7 +25651,7 @@
    "name": "vehicle.spec",
    "title": "Rover (vehicle preset)",
    "summary": "A rover from the vehicle library (NASA VIPER: four corner modules, wheel geometry from public NASA figures) with its mass and wheel size editable.",
-   "description": "A rover from the vehicle library (NASA VIPER: four corner modules, wheel geometry from public NASA figures)\n    with its mass and wheel size editable.",
+   "description": "A rover from the vehicle library (NASA VIPER: four corner modules, wheel geometry from public NASA figures)\nwith its mass and wheel size editable.",
    "domain": "fluid dynamics",
    "tags": [
     "Problem",
@@ -25661,7 +25833,7 @@
    "name": "vehicle.dashboard",
    "title": "Rover dashboard (animation + charts)",
    "summary": "The animation-centred dashboard: the planetary render of the traverse (ruts coloured by the field, low Sun, lunar horizon) with charts synced to its time cursor (testbed curves,…",
-   "description": "The animation-centred dashboard: the planetary render of the traverse (ruts coloured by the field, low Sun,\n    lunar horizon) with charts synced to its time cursor (testbed curves, sinkage and load per wheel, speed and\n    slip, the zoo PINN against the run's Wong-Reece model), KPI tiles and the parameters; interactive HTML, PNG,\n    MP4 / GIF and one rendered frame.",
+   "description": "The animation-centred dashboard: the planetary render of the traverse (ruts coloured by the field, low Sun,\nlunar horizon) with charts synced to its time cursor (testbed curves, sinkage and load per wheel, speed and\nslip, the zoo PINN against the run's Wong-Reece model), KPI tiles and the parameters; interactive HTML, PNG,\nMP4 / GIF and one rendered frame.",
    "domain": "fluid dynamics",
    "tags": [
     "3d",
@@ -26118,7 +26290,7 @@
    "name": "rover.learn_planet",
    "title": "Rover that learns the planet (autonomous lab)",
    "summary": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil learned from the wheels (iterated EKF) -> replanned route -> drive ->…",
-   "description": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil\n    learned from the wheels (iterated EKF) -> replanned route -> drive -> trust report, on a synthetic site whose\n    true soils are known (so the error of the learned soil is measured).",
+   "description": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil\nlearned from the wheels (iterated EKF) -> replanned route -> drive -> trust report, on a synthetic site whose\ntrue soils are known (so the error of the learned soil is measured).",
    "domain": "vehicle dynamics",
    "tags": [
     "Solvers",
@@ -26268,7 +26440,7 @@
    "name": "vehicle.simulate",
    "title": "Rover traverse (multibody + terramechanics)",
    "summary": "Drive the rover across the site: multibody dynamics with Wong-Reece wheels (slip-sinkage, multipass, ruts stamped into the deformable terrain); the run's summary() as metrics.",
-   "description": "Drive the rover across the site: multibody dynamics with Wong-Reece wheels (slip-sinkage, multipass, ruts\n    stamped into the deformable terrain); the run's summary() as metrics.",
+   "description": "Drive the rover across the site: multibody dynamics with Wong-Reece wheels (slip-sinkage, multipass, ruts\nstamped into the deformable terrain); the run's summary() as metrics.",
    "domain": "fluid dynamics",
    "tags": [
     "Solvers",
@@ -26757,7 +26929,7 @@
    "name": "bricks.search",
    "title": "Self-modifying brick search: NSGA-II vs GP surrogate",
    "summary": "Both strategies on every seed at the same budget: best score per seed, median (a seed with no feasible build counts as the worst), mean, spread, success rate; and the best build…",
-   "description": "Both strategies on every seed at the same budget: best score per seed, median (a seed with no feasible build\n    counts as the worst), mean, spread, success rate; and the best build found.",
+   "description": "Both strategies on every seed at the same budget: best score per seed, median (a seed with no feasible build\ncounts as the worst), mean, spread, success rate; and the best build found.",
    "domain": "structural mechanics",
    "tags": [
     "Design",
@@ -26891,7 +27063,7 @@
    "name": "autolab.board_cooling",
    "title": "Self-optimizing engineer (board cooling)",
    "summary": "Read the request, solve the bare board, try still air, learn the temperature field from reference solves (hold-out measured), find the lightest heat sink and fan speed under the…",
-   "description": "Read the request, solve the bare board, try still air, learn the temperature field from reference solves\n    (hold-out measured), find the lightest heat sink and fan speed under the limits, confirm it on the reference,\n    verify it on finer grids and write the report with its trust report.",
+   "description": "Read the request, solve the bare board, try still air, learn the temperature field from reference solves\n(hold-out measured), find the lightest heat sink and fan speed under the limits, confirm it on the reference,\nverify it on finer grids and write the report with its trust report.",
    "domain": "heat transfer",
    "tags": [
     "Design",
@@ -27062,7 +27234,7 @@
    "name": "uq.sensitivity",
    "title": "Sensitivity (Sobol)",
    "summary": "Sobol indices (first order and total) of a quantity of the field with respect to the surrogate's input parameters, over the ranges it was trained on (with bootstrap confidence…",
-   "description": "Sobol indices (first order and total) of a quantity of the field with respect to the surrogate's input\n    parameters, over the ranges it was trained on (with bootstrap confidence intervals).",
+   "description": "Sobol indices (first order and total) of a quantity of the field with respect to the surrogate's input\nparameters, over the ranges it was trained on (with bootstrap confidence intervals).",
    "domain": "physics AI",
    "tags": [
     "Analysis",
@@ -27214,7 +27386,7 @@
    "name": "data.observe",
    "title": "Sensor observations",
    "summary": "Point observations from a solution (synthetic sensors), with optional noise; keeps the true coefficients of the problem that produced them so an inverse node can report its error.",
-   "description": "Point observations from a solution (synthetic sensors), with optional noise; keeps the true coefficients of\n    the problem that produced them so an inverse node can report its error.",
+   "description": "Point observations from a solution (synthetic sensors), with optional noise; keeps the true coefficients of\nthe problem that produced them so an inverse node can report its error.",
    "domain": "data",
    "tags": [
     "Data",
@@ -27363,7 +27535,7 @@
    "name": "swe.dam_break",
    "title": "Shallow-water dam break with a gate and an obstacle",
    "summary": "examples/numerical_solvers/13_shallow_water_twin3d_browser_demo.py without the Twin3D export and its blocking server: the run and its health report (volume conservation,…",
-   "description": "examples/numerical_solvers/13_shallow_water_twin3d_browser_demo.py without the Twin3D export and its blocking\n    server: the run and its health report (volume conservation, positivity, finiteness).",
+   "description": "examples/numerical_solvers/13_shallow_water_twin3d_browser_demo.py without the Twin3D export and its blocking\nserver: the run and its health report (volume conservation, positivity, finiteness).",
    "domain": "structural mechanics",
    "tags": [
     "Numerical solvers",
@@ -27872,7 +28044,7 @@
    "name": "terramechanics.soil",
    "title": "Soil (terramechanics)",
    "summary": "A soil of the terramechanics database (Bekker / Wong-Reece parameters with their sources); any parameter can be overridden.",
-   "description": "A soil of the terramechanics database (Bekker / Wong-Reece parameters with their sources); any parameter can\n    be overridden.",
+   "description": "A soil of the terramechanics database (Bekker / Wong-Reece parameters with their sources); any parameter can\nbe overridden.",
    "domain": "vehicle dynamics",
    "tags": [
     "Problem",
@@ -28369,7 +28541,7 @@
    "name": "lbm.sphere_drag",
    "title": "Sphere drag coefficient in a wind tunnel, FP32 and FP16 (lattice Boltzmann)",
    "summary": "Inlet at x-, outlet at x+, open sides; Cd from the mean of the last force samples, against Schiller & Naumann (1933); with both storages, the relative Cd difference and the…",
-   "description": "Inlet at x-, outlet at x+, open sides; Cd from the mean of the last force samples, against Schiller &\n    Naumann (1933); with both storages, the relative Cd difference and the largest velocity difference.",
+   "description": "Inlet at x-, outlet at x+, open sides; Cd from the mean of the last force samples, against Schiller &\nNaumann (1933); with both storages, the relative Cd difference and the largest velocity difference.",
    "domain": "fluid dynamics",
    "tags": [
     "Lattice Boltzmann",
@@ -28637,7 +28809,7 @@
    "name": "lbm.sphere_stokes",
    "title": "Stokes drag on a sphere (lattice Boltzmann)",
    "summary": "A sphere in a cube whose six sides hold the analytic Stokes far field, started from that field; the momentum-exchange drag against F = 6 pi rho nu R U.",
-   "description": "A sphere in a cube whose six sides hold the analytic Stokes far field, started from that field; the\n    momentum-exchange drag against F = 6 pi rho nu R U.",
+   "description": "A sphere in a cube whose six sides hold the analytic Stokes far field, started from that field; the\nmomentum-exchange drag against F = 6 pi rho nu R U.",
    "domain": "fluid dynamics",
    "tags": [
     "Lattice Boltzmann",
@@ -28810,7 +28982,7 @@
    "name": "em.spm_machine",
    "title": "Surface-PM machine: cogging, torque, back-EMF, losses",
    "summary": "examples/motor_magnetics/01_spm_cogging_and_torque.py: 4 poles, 24 slots, nonlinear iron; torque by Maxwell stress (Arkkio) and by virtual work, side by side.",
-   "description": "examples/motor_magnetics/01_spm_cogging_and_torque.py: 4 poles, 24 slots, nonlinear iron; torque by Maxwell\n    stress (Arkkio) and by virtual work, side by side.",
+   "description": "examples/motor_magnetics/01_spm_cogging_and_torque.py: 4 poles, 24 slots, nonlinear iron; torque by Maxwell\nstress (Arkkio) and by virtual work, side by side.",
    "domain": "electromagnetics",
    "tags": [
     "Electromagnetics",
@@ -29059,7 +29231,7 @@
    "name": "pinn_solver.factory_loss",
    "title": "Symbolic PINN loss (PINNFactory) on the zero field",
    "summary": "A PINNFactory loss evaluated for the zero field. The residual strings are compiled by SymPy into a torch loss and evaluated at random collocation points: the total and each…",
-   "description": "A PINNFactory loss evaluated for the zero field. The residual strings are compiled by SymPy into a torch\n    loss and evaluated at random collocation points: the total and each component.",
+   "description": "A PINNFactory loss evaluated for the zero field. The residual strings are compiled by SymPy into a torch\nloss and evaluated at random collocation points: the total and each component.",
    "domain": "physics AI",
    "tags": [
     "PINN",
@@ -29389,7 +29561,7 @@
    "name": "pde_env.tagged_preset",
    "title": "Tagged preset on its real geometry: per-tag losses before and after training",
    "summary": "Per-tag loss terms of a tagged preset before and after training on its real geometry. The boundary points per tag come from the preset's box / cylinder fixture, a modified MLP is…",
-   "description": "Per-tag loss terms of a tagged preset before and after training on its real geometry. The boundary points\n    per tag come from the preset's box / cylinder fixture, a modified MLP is trained on them with ``solve_pde``,\n    and every compiled loss term (``pde``, ``bc_<tag>``, ``total``) is reported before and after.",
+   "description": "Per-tag loss terms of a tagged preset before and after training on its real geometry. The boundary points\nper tag come from the preset's box / cylinder fixture, a modified MLP is trained on them with ``solve_pde``,\nand every compiled loss term (``pde``, ``bc_<tag>``, ``total``) is reported before and after.",
    "domain": "numerical methods",
    "tags": [
     "PINN",
@@ -29596,7 +29768,7 @@
    "name": "flight.takeoff_cases",
    "title": "Take-off: nominal, crosswind, gust at rotation",
    "summary": "examples/flight_dynamics/03_takeoff.py: ground roll, rotation, lift-off, climb over the 35 ft screen, Raymer's closed form, a crosswind and a down-gust case.",
-   "description": "examples/flight_dynamics/03_takeoff.py: ground roll, rotation, lift-off, climb over the 35 ft screen,\n    Raymer's closed form, a crosswind and a down-gust case.",
+   "description": "examples/flight_dynamics/03_takeoff.py: ground roll, rotation, lift-off, climb over the 35 ft screen,\nRaymer's closed form, a crosswind and a down-gust case.",
    "domain": "flight dynamics",
    "tags": [
     "Flight dynamics",
@@ -29766,7 +29938,7 @@
    "name": "scenario.site",
    "title": "Terrain scenario",
    "summary": "A deformable terrain: a crater with its rim and a rock on the path, scenery craters and rocks out to the lunar horizon (crater_site), or a plain slope (flat_site).",
-   "description": "A deformable terrain: a crater with its rim and a rock on the path, scenery craters and rocks out to the lunar\n    horizon (crater_site), or a plain slope (flat_site).",
+   "description": "A deformable terrain: a crater with its rim and a rock on the path, scenery craters and rocks out to the lunar\nhorizon (crater_site), or a plain slope (flat_site).",
    "domain": "design and geometry",
    "tags": [
     "Problem",
@@ -29996,7 +30168,7 @@
    "name": "autolab.aerodynamicist",
    "title": "The AI Aerodynamicist (race-car CFD lab)",
    "summary": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the aero balance, OpenFOAM as the reference, surrogates compared on held-out…",
-   "description": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the\n    aero balance, OpenFOAM as the reference, surrogates compared on held-out runs, every candidate triaged\n    (favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the answer audited. Returns the\n    four-area dashboard (geometry, physics, models, decisions) with the replay of the session.",
+   "description": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the\naero balance, OpenFOAM as the reference, surrogates compared on held-out runs, every candidate triaged\n(favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the answer audited. Returns the\nfour-area dashboard (geometry, physics, models, decisions) with the replay of the session.",
    "domain": "fluid dynamics",
    "tags": [
     "Design",
@@ -30153,7 +30325,7 @@
    "name": "flight.same_gust",
    "title": "The same 1-cosine gust for every aircraft",
    "summary": "examples/flight_dynamics/07_same_gust.py: peak load factor at the CG and in the cabin, pitch and height excursions, the quasi-steady and Pratt estimates for this gust.",
-   "description": "examples/flight_dynamics/07_same_gust.py: peak load factor at the CG and in the cabin, pitch and height\n    excursions, the quasi-steady and Pratt estimates for this gust.",
+   "description": "examples/flight_dynamics/07_same_gust.py: peak load factor at the CG and in the cabin, pitch and height\nexcursions, the quasi-steady and Pratt estimates for this gust.",
    "domain": "flight dynamics",
    "tags": [
     "Flight dynamics",
@@ -30439,7 +30611,7 @@
    "name": "solvers.decompose",
    "title": "Time-series decompositions from the solver registry",
    "summary": "A sum of sines plus Gaussian noise decomposed by each registered solver (examples/solvers/ 01_time_series_decompositions.py, with a seeded noise draw). Per solver: the output…",
-   "description": "A sum of sines plus Gaussian noise decomposed by each registered solver (examples/solvers/\n    01_time_series_decompositions.py, with a seeded noise draw). Per solver: the output shape and, for the additive\n    decompositions (EEMD, CEEMDAN, VMD, SSA, STL), how far the sum of the components is from the signal. A solver\n    whose optional dependency is missing is skipped with a warning.",
+   "description": "A sum of sines plus Gaussian noise decomposed by each registered solver (examples/solvers/\n01_time_series_decompositions.py, with a seeded noise draw). Per solver: the output shape and, for the additive\ndecompositions (EEMD, CEEMDAN, VMD, SSA, STL), how far the sum of the components is from the signal. A solver\nwhose optional dependency is missing is skipped with a warning.",
    "domain": "numerical methods",
    "tags": [
     "Time series",
@@ -31067,7 +31239,7 @@
    "name": "design.topology_gradcheck",
    "title": "Topology sensitivities against finite differences",
    "summary": "The adjoint sensitivities of the filtered, projected MBB compliance against central differences on the largest components (examples/topology_optimization/01_mbb_beam.py).",
-   "description": "The adjoint sensitivities of the filtered, projected MBB compliance against central differences on the\n    largest components (examples/topology_optimization/01_mbb_beam.py).",
+   "description": "The adjoint sensitivities of the filtered, projected MBB compliance against central differences on the\nlargest components (examples/topology_optimization/01_mbb_beam.py).",
    "domain": "structural mechanics",
    "tags": [
     "Design",
@@ -31251,7 +31423,7 @@
    "name": "transfer.pinn",
    "title": "Transfer a PINN to a new problem",
    "summary": "Fine-tune a trained PINN on the target problem's physics and compare with training the same network from a random initialisation for the same epochs (loss, and the error against…",
-   "description": "Fine-tune a trained PINN on the target problem's physics and compare with training the same network from a\n    random initialisation for the same epochs (loss, and the error against the target's exact solution if any).",
+   "description": "Fine-tune a trained PINN on the target problem's physics and compare with training the same network from a\nrandom initialisation for the same epochs (loss, and the error against the target's exact solution if any).",
    "domain": "physics AI",
    "tags": [
     "Learning",
@@ -31411,7 +31583,7 @@
    "name": "benchmark.transfer",
    "title": "Transfer-learning benchmark on parametric PDE families",
    "summary": "Pre-train on a source member of each family, fine-tune on targets with each freezing strategy (and from scratch); relative L2 per scenario, target and strategy.",
-   "description": "Pre-train on a source member of each family, fine-tune on targets with each freezing strategy (and from\n    scratch); relative L2 per scenario, target and strategy.",
+   "description": "Pre-train on a source member of each family, fine-tune on targets with each freezing strategy (and from\nscratch); relative L2 per scenario, target and strategy.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -31536,7 +31708,7 @@
    "name": "flight.trim_stability",
    "title": "Trim, stability derivatives and modes",
    "summary": "Trim at the cruise point, non-dimensional derivatives of the full model and the eigenvalues of the 12-state linearisation (examples/flight_dynamics/02_trim_and_stability.py).",
-   "description": "Trim at the cruise point, non-dimensional derivatives of the full model and the eigenvalues of the 12-state\n    linearisation (examples/flight_dynamics/02_trim_and_stability.py).",
+   "description": "Trim at the cruise point, non-dimensional derivatives of the full model and the eigenvalues of the 12-state\nlinearisation (examples/flight_dynamics/02_trim_and_stability.py).",
    "domain": "flight dynamics",
    "tags": [
     "Flight dynamics",
@@ -31629,7 +31801,7 @@
    "name": "flight.turbulence_encounter",
    "title": "Turbulence encounter (MIL-F-8785C)",
    "summary": "examples/flight_dynamics/04_turbulence_encounters.py: each aircraft at its own speed through the same turbulence; dnz, roll and pitch excursions, cabin accelerations, as the mean…",
-   "description": "examples/flight_dynamics/04_turbulence_encounters.py: each aircraft at its own speed through the same\n    turbulence; dnz, roll and pitch excursions, cabin accelerations, as the mean over the realisations.",
+   "description": "examples/flight_dynamics/04_turbulence_encounters.py: each aircraft at its own speed through the same\nturbulence; dnz, roll and pitch excursions, cabin accelerations, as the mean over the realisations.",
    "domain": "flight dynamics",
    "tags": [
     "Flight dynamics",
@@ -31884,7 +32056,7 @@
    "name": "uq.propagate",
    "title": "Uncertainty propagation (Monte Carlo / PCE)",
    "summary": "Propagate uniform uncertainty over the surrogate's input ranges to its output (the mean of the predicted field): sampled (Latin hypercube, Monte Carlo, Sobol) or by polynomial…",
-   "description": "Propagate uniform uncertainty over the surrogate's input ranges to its output (the mean of the predicted\n    field): sampled (Latin hypercube, Monte Carlo, Sobol) or by polynomial chaos.",
+   "description": "Propagate uniform uncertainty over the surrogate's input ranges to its output (the mean of the predicted\nfield): sampled (Latin hypercube, Monte Carlo, Sobol) or by polynomial chaos.",
    "domain": "physics AI",
    "tags": [
     "Analysis",
@@ -32133,7 +32305,7 @@
    "name": "validate.arena",
    "title": "Validation arena: red team / blue team",
    "summary": "The red team looks for wrong outputs that pass every check (escapes) and correct ones that fail (false alarms); the blue team calibrates a combined test and adds checks until…",
-   "description": "The red team looks for wrong outputs that pass every check (escapes) and correct ones that fail (false\n    alarms); the blue team calibrates a combined test and adds checks until every stored escape is caught\n    (examples/validation_arena/run_arena.py).",
+   "description": "The red team looks for wrong outputs that pass every check (escapes) and correct ones that fail (false\nalarms); the blue team calibrates a combined test and adds checks until every stored escape is caught\n(examples/validation_arena/run_arena.py).",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -32322,7 +32494,7 @@
    "name": "gallery.pinn_heat",
    "title": "Validation gallery 01: PINN on steady heat conduction (boundary loss removed)",
    "summary": "-lap T = q on the unit square, T = 0 on the walls (manufactured source): the PINN as trained and the same PINN trained with boundary weight 0, both through ``pp.validate(net,…",
-   "description": "-lap T = q on the unit square, T = 0 on the walls (manufactured source): the PINN as trained and the same PINN\n    trained with boundary weight 0, both through ``pp.validate(net, {\"pinn\": problem})``; ``pinn.boundary`` must\n    catch the second.",
+   "description": "-lap T = q on the unit square, T = 0 on the walls (manufactured source): the PINN as trained and the same PINN\ntrained with boundary weight 0, both through ``pp.validate(net, {\"pinn\": problem})``; ``pinn.boundary`` must\ncatch the second.",
    "domain": "heat transfer",
    "tags": [
     "Validation",
@@ -32444,7 +32616,7 @@
    "name": "gallery.pod_dmd_wake",
    "title": "Validation gallery 05: POD + DMD of a cylinder wake (fitted on the growing transient)",
    "summary": "POD + DMD fitted on the saturated wake (good) and on the growing transient (broken), rolled out from the same frame against the LBM reference; ``rollout.invariants`` must catch…",
-   "description": "POD + DMD fitted on the saturated wake (good) and on the growing transient (broken), rolled out from the\n    same frame against the LBM reference; ``rollout.invariants`` must catch the amplifying ROM.",
+   "description": "POD + DMD fitted on the saturated wake (good) and on the growing transient (broken), rolled out from the\nsame frame against the LBM reference; ``rollout.invariants`` must catch the amplifying ROM.",
    "domain": "fluid dynamics",
    "tags": [
     "Validation",
@@ -32566,7 +32738,7 @@
    "name": "gallery.opinf_advection",
    "title": "Validation gallery 06: POD + operator inference on advection (basis cut at 95 %)",
    "summary": "Periodic advection-diffusion of a tracer: ROMs with the full basis (good) and cut at ``energy_bad`` (broken), rolled out against the exact solution with mass conserved;…",
-   "description": "Periodic advection-diffusion of a tracer: ROMs with the full basis (good) and cut at ``energy_bad`` (broken),\n    rolled out against the exact solution with mass conserved; ``rollout.spectrum`` must catch the smearing.",
+   "description": "Periodic advection-diffusion of a tracer: ROMs with the full basis (good) and cut at ``energy_bad`` (broken),\nrolled out against the exact solution with mass conserved; ``rollout.spectrum`` must catch the smearing.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -32671,7 +32843,7 @@
    "name": "gallery.zoo_range",
    "title": "Validation gallery 07: zoo heat-sink MLP queried outside its card's range",
    "summary": "The zoo model on test designs of its dataset (good) and on two of them moved to a velocity and power outside the card's validity range (broken); ``applicability.range`` must…",
-   "description": "The zoo model on test designs of its dataset (good) and on two of them moved to a velocity and power outside\n    the card's validity range (broken); ``applicability.range`` must catch the second.",
+   "description": "The zoo model on test designs of its dataset (good) and on two of them moved to a velocity and power outside\nthe card's validity range (broken); ``applicability.range`` must catch the second.",
    "domain": "heat transfer",
    "tags": [
     "Validation",
@@ -32827,7 +32999,7 @@
    "name": "validate.compare",
    "title": "Validation vs reference",
    "summary": "Measure every candidate against the reference on the same points (relative L2, max and RMS error) and, where it applies, the trust card's physics checks; one row per candidate.",
-   "description": "Measure every candidate against the reference on the same points (relative L2, max and RMS error) and, where\n    it applies, the trust card's physics checks; one row per candidate.",
+   "description": "Measure every candidate against the reference on the same points (relative L2, max and RMS error) and, where\nit applies, the trust card's physics checks; one row per candidate.",
    "domain": "validation and benchmarks",
    "tags": [
     "Validation",
@@ -33259,7 +33431,7 @@
    "name": "solvers.sph_box",
    "title": "Weakly compressible SPH: a fluid block in a box",
    "summary": "examples/solvers/02_sph_box.py: the trajectory, the final bounding box and the fraction of particles still inside the box (a warning when particles leave it: the run is then not…",
-   "description": "examples/solvers/02_sph_box.py: the trajectory, the final bounding box and the fraction of particles still\n    inside the box (a warning when particles leave it: the run is then not a valid fluid simulation).",
+   "description": "examples/solvers/02_sph_box.py: the trajectory, the final bounding box and the fraction of particles still\ninside the box (a warning when particles leave it: the run is then not a valid fluid simulation).",
    "domain": "numerical methods",
    "tags": [
     "Particles",
@@ -33781,7 +33953,7 @@
    "name": "terramechanics.zoo_surrogate",
    "title": "Wheel-contact PINN (model zoo)",
    "summary": "The pre-trained wheel-contact PINN of the model zoo (downloaded once, checksum-verified), with its held-out errors from the model card and a check that it was trained on the same…",
-   "description": "The pre-trained wheel-contact PINN of the model zoo (downloaded once, checksum-verified), with its held-out\n    errors from the model card and a check that it was trained on the same physics as the run's wheel model.",
+   "description": "The pre-trained wheel-contact PINN of the model zoo (downloaded once, checksum-verified), with its held-out\nerrors from the model card and a check that it was trained on the same physics as the run's wheel model.",
    "domain": "vehicle dynamics",
    "tags": [
     "Learning",
@@ -33903,7 +34075,7 @@
    "name": "terramechanics.wheel_model",
    "title": "Wheel-soil contact (Wong-Reece)",
    "summary": "The Wong-Reece wheel model of the run (stress distribution under a rigid grousered wheel); its single-wheel testbed curves at the static wheel load.",
-   "description": "The Wong-Reece wheel model of the run (stress distribution under a rigid grousered wheel); its single-wheel\n    testbed curves at the static wheel load.",
+   "description": "The Wong-Reece wheel model of the run (stress distribution under a rigid grousered wheel); its single-wheel\ntestbed curves at the static wheel load.",
    "domain": "vehicle dynamics",
    "tags": [
     "Solvers",
@@ -47498,7 +47670,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.get_spec",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L26"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:get_spec",
@@ -51860,7 +52032,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.list_specs",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L33"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:list_specs",
@@ -54418,7 +54590,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.ocr_available",
-    "source": ""
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/ocr.py#L31"
    },
    "extra": {
     "calls": "pinneapple_data.formfill:ocr_available",
@@ -75213,6 +75385,106 @@
     "stdout": "B - mass budget",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/physics_condensation",
+   "kind": "example",
+   "name": "examples/physics_condensation",
+   "title": "Adaptive Physics Condensation: chip-package thermal",
+   "summary": "Hierarchical static condensation of repeated blocks (microbumps, TSVs) with reduced interfaces, error-driven refinement and learned block operators, against a fine finite-volume…",
+   "description": "Hierarchical static condensation of repeated blocks (microbumps, TSVs) with reduced interfaces, error-driven refinement and learned block operators, against a fine finite-volume reference and Keff homogenisation.",
+   "domain": "heat transfer",
+   "tags": [
+    "Craig-Bampton",
+    "POD-GPR",
+    "finite volumes",
+    "nested dissection",
+    "static condensation"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/physics_condensation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/physics_condensation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/physics_condensation/run_benchmark.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "err_Tmax_m8",
+      "value": 0.004695839999996565,
+      "unit": "K",
+      "how": "|Tmax condensed m=8 - fine FV|, [12, 12] blocks"
+     },
+     {
+      "name": "transient_err_Tmax",
+      "value": 0.001935563937912832,
+      "unit": "K",
+      "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
+     },
+     {
+      "name": "largest_blocks",
+      "value": 65536.0,
+      "unit": "blocks",
+      "how": "largest package solved by the hierarchy, m=12"
+     },
+     {
+      "name": "largest_build_s",
+      "value": 43.746866945999955,
+      "unit": "s",
+      "how": "hierarchy build, fresh process"
+     },
+     {
+      "name": "largest_solve_s",
+      "value": 3.3815957900001195,
+      "unit": "s",
+      "how": "one power map, after the build"
+     },
+     {
+      "name": "largest_peak_rss",
+      "value": 7.608628,
+      "unit": "GB",
+      "how": "peak RSS of the process"
+     },
+     {
+      "name": "learned_32_speedup",
+      "value": 44.41025206966396,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     },
+     {
+      "name": "learned_64_speedup",
+      "value": 38.99521182109361,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     }
+    ],
+    "figures": [
+     "examples/physics_condensation/figures/accuracy_vs_modes.png",
+     "examples/physics_condensation/figures/keff_vs_fine.png",
+     "examples/physics_condensation/figures/refinement.png",
+     "examples/physics_condensation/figures/transient.png",
+     "examples/physics_condensation/figures/scaling.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/physics_condensation/run_benchmark.py",
+    "lab": "lab/index.html#examples/physics_condensation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "b1f14338741a3fea"
    }
   },
   {

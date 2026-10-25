@@ -142,10 +142,11 @@ def _p7_exact(X):
 
 
 def p7_rhs(X):
-    Xr = X.detach().clone().requires_grad_(True)
-    f = _p7_exact(Xr)
-    g = torch.autograd.grad(f.sum(), Xr, create_graph=True)[0]
-    ftt = torch.autograd.grad(g[:, 3].sum(), Xr)[0][:, 3]
+    with torch.enable_grad():
+        Xr = X.detach().clone().requires_grad_(True)
+        f = _p7_exact(Xr)
+        g = torch.autograd.grad(f.sum(), Xr, create_graph=True)[0]
+        ftt = torch.autograd.grad(g[:, 3].sum(), Xr)[0][:, 3]
     return (g[:, 0] * g[:, 1] * g[:, 2] + ftt).detach()
 
 

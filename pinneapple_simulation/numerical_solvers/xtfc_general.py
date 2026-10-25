@@ -192,6 +192,30 @@ class XTFCResult:
         A, c = _affine(self._problem, self._basis, self._terms, X, f, a)
         return A @ self.beta[f] + c
 
+    def residual(self, X) -> list[np.ndarray]:
+        """The problem's residual(s) at ``X`` (fresh points: a physics check, not the training loss)."""
+        X = np.atleast_2d(np.asarray(X, dtype=np.float64))
+        D = {(f, tuple(a)): torch.tensor(self.predict(X, f, tuple(a)), dtype=torch.float64)
+             for f, a in self._problem.derivatives}
+        with torch.no_grad():
+            R = self._problem.residual(torch.tensor(X, dtype=torch.float64), D)
+        return [r.numpy() for r in ([R] if isinstance(R, torch.Tensor) else R)]
+
+    def constraint_error(self, n: int = 200, seed: int = 0) -> float:
+        """Max |D^order u - D^order h| over ``n`` random points on every constrained face, all fields."""
+        p = self._problem
+        lo, hi = np.array(p.bounds, dtype=np.float64).T
+        rng = np.random.default_rng(seed)
+        worst = 0.0
+        for f, cs in p.fields.items():
+            for c in cs:
+                X = lo + (hi - lo) * rng.random((n, p.ndim))
+                X[:, c.dim] = c.at
+                a = tuple(c.order if d == c.dim else 0 for d in range(p.ndim))
+                ref = _torch_derivative(p.constraint_fn[f], X, a)
+                worst = max(worst, float(np.max(np.abs(self.predict(X, f, a) - ref))))
+        return worst
+
 
 def _affine(problem: XTFCProblem, basis: _Basis, terms: dict, X: np.ndarray, f: str, alpha: Alpha):
     """``D^alpha u_f = A beta_f + c`` at ``X``."""

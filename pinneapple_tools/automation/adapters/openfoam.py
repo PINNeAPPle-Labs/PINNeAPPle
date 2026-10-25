@@ -5,6 +5,8 @@ convergence message, checkMesh quality).
 
 * ``openfoam.mesh``: ``Allmesh`` in the mesh case, then ``checkMesh``. Checks: a polyMesh exists, checkMesh says
   "Mesh OK".
+* ``openfoam.prepare`` / ``openfoam.post``: the case and the post-processing of the FreeCAD -> OpenFOAM pipeline
+  (:mod:`pinneapple_simulation.pipelines.freecad_openfoam`).
 * ``openfoam.solve``: ``Allrun`` (or ``commands``) in the case. Checks: the solver reached ``End`` without a fatal
   error or floating-point exception, and either OpenFOAM's residual control stopped it ("SIMPLE solution converged")
   or every initial residual of the last iteration is below ``residual_tol``. Evidence: the residual history plot.
@@ -75,7 +77,9 @@ def solver_log(case: Path) -> tuple[Path | None, dict[str, Any]]:
     """The solver log of a case (log.simpleFoam, log.foamRun, ...) and its parsed content."""
     from pinneapple_data.simulation_metadata.openfoam import parse_log
     skip = {"log.createPatch", "log.renumberMesh", "log.potentialFoam", "log.checkMesh", "log.gmshToFoam",
-            "log.transformPoints", "log.foamToSurface", "log.decomposePar", "log.reconstructPar"}
+            "log.transformPoints", "log.foamToSurface", "log.decomposePar", "log.reconstructPar",
+            "log.scalarTransport", "log.blockMesh", "log.snappyHexMesh", "log.surfaceFeatureExtract",
+            "log.decomposePar.mesh", "log.reconstructParMesh"}
     logs = [p for p in sorted(case.glob("log.*")) if p.name not in skip and not p.name.startswith("log.gmsh")]
     if not logs:
         return None, {}
@@ -118,7 +122,7 @@ class OpenFOAMAdapter(Adapter):
     name = "openfoam"
     mode = "api"
     requires = ("openfoam",)
-    actions = ("mesh", "solve")
+    actions = ("mesh", "solve", "prepare", "post")
 
     def _bash(self, ctx: StepContext, script: str) -> str:
         return f'source "{ctx.toolchain.foam_bashrc}" >/dev/null 2>&1; {script}'
@@ -198,6 +202,21 @@ class OpenFOAMAdapter(Adapter):
             res.artifacts.append(times[-1])
         res.artifacts.append(log)
         return res
+
+
+    def do_prepare(self, params: dict[str, Any], ctx: StepContext) -> ActionResult:
+        """Mesh dictionaries and case of the FreeCAD -> OpenFOAM pipeline (``steps.prepare_step``)."""
+        from pinneapple_simulation.pipelines.freecad_openfoam.steps import prepare_step
+
+        from .pipeline import pipeline_call
+        return pipeline_call(prepare_step, params, ctx)
+
+    def do_post(self, params: dict[str, Any], ctx: StepContext) -> ActionResult:
+        """Measured quantities, figures and reference errors of the pipeline (``steps.post_step``)."""
+        from pinneapple_simulation.pipelines.freecad_openfoam.steps import post_step
+
+        from .pipeline import pipeline_call
+        return pipeline_call(post_step, params, ctx)
 
 
 register(OpenFOAMAdapter())

@@ -124,6 +124,15 @@ def run_a2(args, prob, meta):
                           epochs=epochs)
     with R.Clock() as clk:
         sol = pp.solve(problem, "pinn", epochs=epochs, **opts)
+    # pp.solve cannot stop at a time budget: if the run missed the cap by more than 10 % (probe noise, contention),
+    # repeat it once with the epochs scaled by cap / used and keep that one (the first attempt is recorded).
+    used = clk.cpu_s if args.cap_kind == "cpu" else clk.wall_s
+    if abs(used - args.cap_s) > 0.10 * args.cap_s:
+        meta["discarded_attempt"] = {"epochs": epochs, "cpu_s": clk.cpu_s, "wall_s": clk.wall_s}
+        epochs = max(1, int(epochs * args.cap_s / used))
+        meta["config"]["epochs"] = epochs
+        with R.Clock() as clk:
+            sol = pp.solve(problem, "pinn", epochs=epochs, **opts)
     hist = sol.history.get("loss", [])
     meta.update(iterations=len(hist), loss_history=hist[:: max(1, len(hist) // 200)],
                 final_loss=hist[-1] if hist else None, n_parameters=sol.info.get("n_parameters"),

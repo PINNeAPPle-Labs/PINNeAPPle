@@ -35,6 +35,7 @@ RUNNERS = {
     ("B", "neuraloperator"): "track_b_neuraloperator",
     ("C", "pinneapple"): "track_c_pinneapple", ("C", "deepxde"): "track_c_deepxde",
     ("C", "physicsnemo_sym"): "track_c_physicsnemo_sym",
+    ("C", "pinneapple_nostop"): "track_c_pinneapple",
 }
 DEFAULT_PROBLEMS = {"A1": ["burgers", "poisson", "helmholtz"], "A2": ["burgers", "poisson", "helmholtz", "allen_cahn"],
                     "B": ["darcy"], "C": ["burgers_inverse"]}
@@ -67,6 +68,8 @@ def job_cmd(args, track, problem, fw, seed):
         cmd += ["--mode", "b", "--epochs", str(args.epochs), "--n-train", str(args.n_train)]
     elif track == "C":
         cmd += ["--mode", "c", "--iters", str(args.iters)]
+        if fw == "pinneapple_nostop":                  # equal budget: InversePINN early stopping off
+            cmd += ["--patience", str(args.iters + 1)]
     return cmd
 
 

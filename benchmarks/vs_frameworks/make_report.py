@@ -17,11 +17,11 @@ HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
 FIGS = HERE / "figures"
 #: the first three slots of the validated categorical palette (all-pairs safe), fixed per framework family
-COLORS = {"pinneapple": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
+COLORS = {"pinneapple": "#2a78d6", "pinneapple_nostop": "#2a78d6", "deepxde": "#eb6834", "neuraloperator": "#eb6834",
           "physicsnemo_sym": "#1baf7a", "physicsnemo": "#1baf7a"}
-LABEL = {"pinneapple": "PINNeAPPle", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
+LABEL = {"pinneapple": "PINNeAPPle", "pinneapple_nostop": "PINNeAPPle, early stopping off (patience = iterations)", "deepxde": "DeepXDE", "physicsnemo_sym": "PhysicsNeMo-Sym",
          "physicsnemo": "PhysicsNeMo", "neuraloperator": "neuraloperator"}
-ORDER = ["pinneapple", "deepxde", "physicsnemo_sym", "physicsnemo", "neuraloperator"]
+ORDER = ["pinneapple", "pinneapple_nostop", "deepxde", "physicsnemo_sym", "physicsnemo", "neuraloperator"]
 EXACT_FD_FLOOR = {}
 
 

@@ -29,7 +29,9 @@ def main(argv=None):
     R.setup_threads(args.threads)
     cfg = {**proto.C, "iters": args.iters, "patience": args.patience or "library default (300)", "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
            "collocation": "10000 fresh uniform points per step (InversePINN's only mode)"}
-    meta = proto.base_meta(args, track="C", framework="pinneapple", source=SOURCE, config=cfg)
+    # with --patience the run is the equal-budget variant (early stopping off), kept apart from the default recipe
+    fw = "pinneapple_nostop" if args.patience else "pinneapple"
+    meta = proto.base_meta(args, track="C", framework=fw, source=SOURCE, config=cfg)
     t0 = time.perf_counter()
     arrays = {}
     try:

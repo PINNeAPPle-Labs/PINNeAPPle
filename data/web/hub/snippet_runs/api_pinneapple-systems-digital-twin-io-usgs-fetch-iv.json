@@ -1,0 +1,12 @@
+{
+ "code_hash": "f617e5305606c430",
+ "figures": [],
+ "id": "api:pinneapple-systems-digital-twin-io-usgs-fetch-iv",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_systems.digital_twin.io.usgs.fetch_iv(site_id: 'str', parameter_cd: 'str' = '00060', period: 'str' = 'P5D', timeout_s: 'float' = 10.0, cache_ttl_s: 'float' = 90.0) -> 'Series'\nDownload one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``\"P5D\"``).",
+ "timed_out": false
+}

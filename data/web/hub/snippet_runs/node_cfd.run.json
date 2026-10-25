@@ -1,0 +1,12 @@
+{
+ "code_hash": "8c83f81ad5f0d4a9",
+ "figures": [],
+ "id": "node:cfd.run",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Run FreeCAD -> OpenFOAM -> pinneapple_simulation.pipelines.freecad_openfoam.run_pipeline (pinneapple_tools.automation.Runner)\ninputs: [('study', 'params')]\noutputs: [('metrics', 'metrics'), ('report', 'report'), ('figure', 'figure')]\ndefaults: {'inputs': {}}",
+ "timed_out": false
+}

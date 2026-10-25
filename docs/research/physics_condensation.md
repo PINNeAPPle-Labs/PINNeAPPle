@@ -579,6 +579,22 @@ spread out. Hotspots on an interface are the default here, since the heated row 
 - It works for local defects only. A prior with the right far field, and a fine correction only near features, is
   what condensation does exactly.
 
+**Falsification campaign.** [condensation_falsification.md](condensation_falsification.md) pre-registered 23
+hypotheses, each with a kill criterion, and tested them. Each verdict is computed from the measured results.
+
+What holds:
+- Exactness held on every operator tried: contrast 1e5, anisotropy, thin layers, advection to Pe 1000, Stokes,
+  Picard Navier–Stokes and CHT to Re 100, and meshless matrices.
+- Reduced interfaces needed only 2–3 modes per face for 1 % on the CFD cases.
+
+What was refuted:
+- The far-field error grows about 3× per 4× blocks at fixed m.
+- The speed gain vanishes without repetition: random variants, non-linear k(T) and R_c(T), computed velocity
+  fields, and 2-D Stokes against a sparse direct solve.
+- A single-cell power spike gives 1.7 K with 12 modes.
+- The meshless and hybrid discretisations stay several times less accurate than FV.
+- The residual of a coarse prior does not find the regions that need solving in transport problems.
+
 **Freedom to operate.** This work did not examine any patent, including WO2026064513A1, beyond the brief's
 description. An IP specialist must review freedom to operate.
 
@@ -705,3 +721,91 @@ of 25 ms per model with 48 points.
   calibrated threshold per quantity of interest would turn REVIEW/REJECT into an error bar.
 - The defects are synthetic and each has one cause. Real models mix them; the per-check report still names each
   failure, but the defect-type attribution has not been tested on mixtures.
+
+## 7. Physics query engine (track 2)
+
+**Question.** An engineer asks about a quantity at a place, under conditions, to an accuracy. Can a system answer
+with the cheapest method that is valid, and say:
+- the value and units;
+- the uncertainty;
+- under which conditions the answer holds;
+- where it came from;
+- whether it *read* a solved state or *predicted* an unsolved one?
+
+**Interface.** `pinneapple_query`: `Engine.query(quantity, where, time=None, conditions={}, accuracy=None,
+rigorous=False)` returns an `Answer`:
+- `value`, `unit`, `uncertainty`;
+- `kind`: `read`, `predicted` or `solved`;
+- `method`, `validity`, `provenance`, `seconds`;
+- `rigorous`, and `interval` when the bound is guaranteed.
+
+Locations are stable physical references, not mesh nodes: `die@u,v` (junction under a point), `die@u,v,w` (height
+fraction through the die), `region:die[i0:i1,j0:j1]`, `ubump[I,J]`, `tsv[I,J]`, `interface:die/tim`, `lid:top`.
+They survive a change of mesh or of the number of interface modes.
+
+**Planner.** Every method makes an `Offer`: expected cost, error bound, rigorous or not, valid or not. The planner
+takes the cheapest valid offer whose bound meets the target. With no target, it takes the default target (0.1 K for
+temperatures) or, for heat, the most accurate offer. With `rigorous=True` it takes only guaranteed intervals.
+
+**Methods on the chip package** (`pinneapple_condense.query`), from cheapest to most expensive:
+- *Read* a stored state. Its uncertainty is that of the solve that made it: |T_m − T_2m| for a condensed solve,
+  per observable.
+- *Superposition* of solved states. Conduction is linear in the power, so the coefficients come from least squares
+  on the power maps. The uncertainty is the residual map's effect plus the states' own uncertainties weighted by
+  |c|.
+- *Monotone bound.* The FV matrix is a nonsingular M-matrix, so its inverse is entrywise non-negative (Berman and
+  Plemmons, *Nonnegative Matrices in the Mathematical Sciences*, SIAM, 1994, ch. 6). Any map with
+  p_min ≤ p ≤ p_max is therefore bracketed by the uniform-map solutions, which for identical blocks are one block
+  with adiabatic sides. This gives a *rigorous* interval for one block solve, ever.
+- *Condensed* solve with the memoised hierarchy at m and 2m. It returns the 2m value with |T_m − T_2m| as its
+  uncertainty and stores the state for later reads.
+- *Fine FV reference*, only where it fits.
+
+### 7.1 Measured demo
+
+`examples/physics_query/run_demo.py`, `results/query_demo.json`.
+
+The package has 48 x 48 blocks (3.4 M fine cells). Building the engine takes 11.9 s: the hierarchies at m = 12 and
+24, plus a calibration solve of the package's own map.
+
+There are 5,115 queries. Every answer is compared with a fine FV solve of the same conditions, which takes 190–218 s
+each (AMG-CG), and the process peaks at 2.9 GB.
+
+| phase | queries | method picked | kind | latency (median) | error vs fine FV (max) | error ≤ stated uncertainty |
+|---|---|---|---|---|---|---|
+| own map, junction points | 2,000 | cached | read | 0.10 ms | 26 mK | 2,000 / 2,000 |
+| own map, die-interior points | 100 | cached (block rebuilt on its root-to-leaf path) | read | 56 ms | 26 mK | 100 / 100 |
+| own map, Tj_max, die/TIM heat, lid heat, one bump | 4 | cached | read | 0.9 ms | 20 mK; heat within its stated uncertainty | 4 / 4 |
+| 0.5 P0 + 0.3 P1 + 0.2 P2, junction points | 500 | superposition | predicted | 4.1 ms | 35 mK | 500 / 500 |
+| same map, regions and interfaces | 4 | superposition | predicted | 5.0 ms | 16 mK | 4 / 4 |
+| unseen single-hotspot map, rigorous interval asked | 501 | bound | predicted | 0.2 ms | interval half-width ≈ 2,550 K | 501 / 501 inside |
+| same unseen map, target 0.5 K | 2,004 | condensed once (3.4 s), then cached | solved, then read | 0.12 ms (reads) | 15 mK (solved point), 0.17 K (reads) | 2,004 / 2,004 |
+
+![latency against error](../../examples/physics_query/figures/latency_vs_error.png)
+
+**What this shows.**
+- **Reading against predicting is explicit.** A read costs 0.1 ms. A prediction from superposition costs 4 ms and is
+  labelled `predicted`, with its uncertainty and the states and coefficients it used. A new map with a tight target
+  costs one condensed solve (3.4 s, against 190–218 s for the fine solve), after which the same map is read.
+- **Stated uncertainties held:** 5,113 of 5,113 non-rigorous answers were within them, and 501 of 501 rigorous
+  intervals contained the fine value.
+- **This needed a fix found by the demo.** In the first run, superposition answered heat queries with an uncertainty
+  of 1e-15 W. It treated linear combination as exact and ignored the error of the condensed states it combined; 3 of
+  4 heat answers were outside their uncertainty.
+  - States now carry per-observable uncertainties.
+  - Superposition and reads propagate them.
+  - `tests/test_query.py::test_heat_from_condensed_states_carries_their_uncertainty` fails without the fix.
+
+### 7.2 Limitations (track 2)
+
+- **The monotone bound is rigorous and useless for hotspot maps.** Its width is set by p_max / p_min over the map:
+  2,550 K for a single hotspot at 1.3 times the nominal power. It is informative only for near-uniform maps. A
+  tighter rigorous bound needs a decay estimate of the Green's function, which is not implemented.
+- **Uncertainties are estimates, not bounds.** |T_m − T_2m| is an estimate. It held on every query here, but
+  Section 4.4 shows the reduction error growing with package size, and the estimate has not been tested beyond
+  2,304 blocks.
+- **Conditions are only the power map.** Changes of material, contact resistance or cooling invalidate every stored
+  state (they are different keys) and need a new condensed solve. A parametric learned operator (Section 3.5) would
+  be the cheaper method to offer there, and it is not wired in.
+- **Steady state only.** The `time` argument is accepted but no transient method is registered (Craig–Bampton,
+  Section 3.6, would be the one).

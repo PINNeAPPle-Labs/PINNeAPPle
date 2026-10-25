@@ -1,0 +1,12 @@
+{
+ "code_hash": "8ed06b0bb874cc25",
+ "figures": [],
+ "id": "api:pinneapple-condense-query-package-engine",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_condense.query.package_engine(pkg: 'Package', m: 'int' = 12, reference_cells: 'int' = 2000000, calibrate: 'bool' = True) -> 'tuple[Engine, PackageModel]'\nA query engine over a package with the methods of this module. ``calibrate``: solve the package's own power",
+ "timed_out": false
+}

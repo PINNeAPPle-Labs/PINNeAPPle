@@ -468,6 +468,7 @@ packages = [
   "pinneapple_presets",      # industrial presets: engineering cases set up, solved, validated (pp.presets)
   "pinneapple_science",      # science by area: experiments in 0-D to 3-D + time, and the atlas (pp.science)
   "pinneapple_autolab",      # Autonomous Physics Lab: mission -> plan of controlled library calls -> evidence
+  "pinneapple_query",        # Physics Query Engine: query(quantity, where, time, conditions, accuracy) with a planner
   "pinneapple_condense",     # Adaptive Physics Condensation: repeated-block static condensation, reduced interfaces
 
   # ── arena + compatibility shims ───────────────────────────────────────────
@@ -527,6 +528,7 @@ include = [
   "pinneapple_science/**",
   "pinneapple_autolab/**",
   "pinneapple_condense/**",
+  "pinneapple_query/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

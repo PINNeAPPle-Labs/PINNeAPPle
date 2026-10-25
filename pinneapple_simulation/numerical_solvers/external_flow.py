@@ -75,9 +75,10 @@ def flow_directions(alpha_deg: float, beta_deg: float = 0.0) -> Tuple[np.ndarray
 def write_flow_fields(case: str, speed: float, alpha_deg: float, beta_deg: float, nu: float, iterations: int,
                       procs: int, walls: str, symmetry: bool, ground: Optional[str] = None,
                       ground_velocity: Optional[Sequence[float]] = None, turbulence_intensity: float = 0.001,
-                      write_interval: Optional[int] = None) -> None:
+                      write_interval: Optional[int] = None, turbulence: str = "kOmegaSST") -> None:
     """0/ fields, physical properties, controlDict, schemes and solvers of a steady external-flow case. ``walls`` is
-    the patch group of the bodies; ``ground``: name of a road patch (moving with ``ground_velocity``)."""
+    the patch group of the bodies; ``ground``: name of a road patch (moving with ``ground_velocity``);
+    ``turbulence``: kOmegaSST (wall functions) or laminar (no k, omega, nut fields)."""
     d, _, _ = flow_directions(alpha_deg, beta_deg)
     Uv = d * speed
     U = f"({Uv[0]:.8f} {Uv[1]:.8f} {Uv[2]:.8f})"
@@ -100,14 +101,18 @@ def write_flow_fields(case: str, speed: float, alpha_deg: float, beta_deg: float
         f"        type fixedValue;\n        value uniform ({gv[0]} {gv[1]} {gv[2]});\n"))
     _w(case, "0/p", "volScalarField", "dimensions [0 2 -2 0 0 0 0];\ninternalField uniform 0;\n" + bf(
         "        type zeroGradient;\n", "        type freestreamPressure;\n        freestreamValue uniform 0;\n"))
-    _w(case, "0/k", "volScalarField", f"dimensions [0 2 -2 0 0 0 0];\ninternalField uniform {k:.6g};\n" + bf(
-        f"        type kqRWallFunction;\n        value uniform {k:.6g};\n", io(f"{k:.6g}")))
-    _w(case, "0/omega", "volScalarField", f"dimensions [0 0 -1 0 0 0 0];\ninternalField uniform {omega:.6g};\n" + bf(
-        f"        type omegaWallFunction;\n        value uniform {omega:.6g};\n", io(f"{omega:.6g}")))
-    _w(case, "0/nut", "volScalarField", "dimensions [0 2 -1 0 0 0 0];\ninternalField uniform 0;\n" + bf(
-        "        type nutkWallFunction;\n        value uniform 0;\n", "        type calculated;\n        value uniform 0;\n"))
+    if turbulence not in ("kOmegaSST", "laminar"):
+        raise ValueError(f"turbulence {turbulence!r} is not kOmegaSST or laminar")
+    lam = turbulence == "laminar"
+    if not lam:
+        _w(case, "0/k", "volScalarField", f"dimensions [0 2 -2 0 0 0 0];\ninternalField uniform {k:.6g};\n" + bf(
+            f"        type kqRWallFunction;\n        value uniform {k:.6g};\n", io(f"{k:.6g}")))
+        _w(case, "0/omega", "volScalarField", f"dimensions [0 0 -1 0 0 0 0];\ninternalField uniform {omega:.6g};\n" + bf(
+            f"        type omegaWallFunction;\n        value uniform {omega:.6g};\n", io(f"{omega:.6g}")))
+        _w(case, "0/nut", "volScalarField", "dimensions [0 2 -1 0 0 0 0];\ninternalField uniform 0;\n" + bf(
+            "        type nutkWallFunction;\n        value uniform 0;\n", "        type calculated;\n        value uniform 0;\n"))
     _w(case, "constant/transportProperties", "dictionary", f"transportModel Newtonian;\nnu [0 2 -1 0 0 0 0] {nu};\n")
-    _w(case, "constant/turbulenceProperties", "dictionary",
+    _w(case, "constant/turbulenceProperties", "dictionary", "simulationType laminar;\n" if lam else
        "simulationType RAS;\nRAS\n{\n    RASModel kOmegaSST;\n    turbulence on;\n    printCoeffs off;\n}\n")
     _w(case, "system/controlDict", "dictionary", f"""application simpleFoam;
 startFrom latestTime;
@@ -484,6 +489,9 @@ class ExternalFlow:
     n_lines: int = 40
     wake_planes: Tuple[float, ...] = (0.25, 0.5, 1.0, 1.5)   # cross-flow slices, body lengths behind the bodies
     title: str = "External flow"
+    turbulence: str = "kOmegaSST"                  # or "laminar" (low Reynolds numbers)
+    domain: Optional[Tuple[float, float, float, float]] = None   # upstream, downstream, half width, half height in
+    #                                                body lengths (default 1.5, 4, max(2.2, 1.6 W/L), max(1.7, 1.3 W/L))
 
     def __post_init__(self):
         if not self.bodies:
@@ -517,11 +525,12 @@ class ExternalFlow:
         lev = self.surface_level or lev
         h = L / per_len
         ctr = (lo + hi) / 2
-        x0, x1 = lo[0] - 1.5 * L, hi[0] + 4.0 * L
-        yspan = max(2.2 * L, 1.6 * Wd)
+        up, down, ys, zs = self.domain or (1.5, 4.0, max(2.2, 1.6 * Wd / L), max(1.7, 1.3 * Wd / L))
+        x0, x1 = lo[0] - up * L, hi[0] + down * L
+        yspan = ys * L
         y0, y1 = (0.0, max(hi[1], 0) + yspan) if self.half_model else (ctr[1] - yspan, ctr[1] + yspan)
-        z0 = self.ground_z if self.ground_z is not None else ctr[2] - max(1.7 * L, 1.3 * Wd)
-        z1 = (hi[2] + 1.7 * L) if self.ground_z is not None else ctr[2] + max(1.7 * L, 1.3 * Wd)
+        z0 = self.ground_z if self.ground_z is not None else ctr[2] - zs * L
+        z1 = (hi[2] + zs * L) if self.ground_z is not None else ctr[2] + zs * L
         nx, ny, nz = (max(4, int(round((b - a) / h))) for a, b in ((x0, x1), (y0, y1), (z0, z1)))
         far = ["(1 2 6 5)", "(0 4 7 3)", "(3 7 6 2)", "(4 5 6 7)"]           # outlet, inlet, y max, z max
         sym = "(0 1 5 4)"
@@ -571,11 +580,12 @@ mergePatchPairs ();
         gv = flow_directions(self.alpha, self.beta)[0] * self.speed if self.ground_moving else (0.0, 0.0, 0.0)
         write_flow_fields(case, self.speed, self.alpha, self.beta, self.nu, self.iterations, procs, "bodies",
                           self.half_model, "ground" if self.ground_z is not None else None, tuple(float(v) for v in gv),
-                          write_interval=self.write_every)
+                          write_interval=self.write_every, turbulence=self.turbulence)
         info = {"title": self.title, "speed": self.speed, "alpha": self.alpha, "beta": self.beta, "nu": self.nu,
                 "rho": self.rho, "ref_area": self.ref_area, "ref_length": self.L, "half_model": self.half_model,
                 "ground": self.ground_z, "bodies": names, "bounds": [lo.tolist(), hi.tolist()],
-                "Re": self.speed * self.L / self.nu, "background_cell": h, "surface_level": list(lev),
+                "Re": self.speed * self.L / self.nu, "background_cell": h, "turbulence": self.turbulence,
+                "domain": [float(v) for v in (up, down, ys, zs)], "surface_level": list(lev),
                 "body_levels": {b: list(v) for b, v in blev.items()},
                 "layers": int(self.layers), "cells_per_length": per_len,
                 "refine_boxes": [[list(map(float, a)), list(map(float, b)), int(c)] for a, b, c in self.refine_boxes]}

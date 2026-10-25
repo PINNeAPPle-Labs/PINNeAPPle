@@ -52,6 +52,10 @@
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
  },
+ "condensation_falsification": {
+  "domain": "heat transfer",
+  "reason": "a falsification campaign: dozens of pre-registered studies run in subprocesses (minutes to an hour each, up to 7.6 GB), judged by their kill criteria in run.py; the condensation itself is the Flow node condense.package_thermal (examples/physics_condensation)"
+ },
  "core_primitives": {
   "domain": "core",
   "reason": "demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate)",
@@ -107,6 +111,12 @@
  "free_surface": {
   "domain": "CFD",
   "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"
+ },
+ "freecad_openfoam": {
+  "domain": "CFD",
+  "needs": "FreeCAD (freecadcmd) + OpenFOAM",
+  "reason": "three mesh studies (up to 921k cells, about an hour on 4 cores) and a 20-case sweep; the same chain is in the bundled flows freecad_openfoam_bend (cfd.study -> cfd.geometry / cfd.run) and freecad_openfoam_sweep (cfd.sweep -> cfd.surrogate)",
+  "status": "needs"
  },
  "geomechanics": {
   "domain": "geomechanics",
@@ -241,6 +251,10 @@
  "physics_optimizer": {
   "domain": "optimization",
   "notes": "compared with the table of docs/core_concepts/physics_optimizer.md"
+ },
+ "physics_query": {
+  "domain": "heat transfer",
+  "reason": "the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted"
  },
  "pinn_solver": {
   "domain": "PINN",

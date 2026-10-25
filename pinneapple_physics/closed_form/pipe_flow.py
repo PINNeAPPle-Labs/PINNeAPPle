@@ -11,12 +11,16 @@ laminar    64 / Re (Hagen-Poiseuille)           Re < 2300
 blasius    0.316 Re^-1/4 (Blasius 1913)         smooth pipe, 4e3 <= Re <= 1e5
 colebrook  implicit (Colebrook 1939)            turbulent, Re >= 4e3
 haaland    explicit (Haaland 1983)              4e3 <= Re <= 1e8, eps/D <= 0.05
+curved_    White (1929) laminar curved pipe,    11.6 < De < 2000 (De = Re sqrt(D / 2 Rc))
+pipe_ratio fully developed f_curved / f_straight
 ========== ==================================== =========================================
 
 References: C. F. Colebrook, "Turbulent flow in pipes...", J. Inst. Civil Eng. 11 (1939) 133-156;
 S. E. Haaland, "Simple and explicit formulas for the friction factor in turbulent pipe flow", J. Fluids Eng. 105
 (1983) 89-90; H. Blasius, "Das Aehnlichkeitsgesetz bei Reibungsvorgaengen in Fluessigkeiten", Forschungsheft 131,
-VDI (1913); F. M. White, *Fluid Mechanics*, 7th ed. (2011), §6.4-6.8.
+VDI (1913); F. M. White, *Fluid Mechanics*, 7th ed. (2011), §6.4-6.8; C. M. White, "Streamline flow through
+curved pipes", Proc. R. Soc. Lond. A 123 (1929) 645-663 (the correlation as given in P. Naphon and S. Wongwises,
+"A review of flow and heat transfer characteristics in curved tubes", Renew. Sustain. Energy Rev. 10 (2006) 463-490).
 """
 from __future__ import annotations
 
@@ -24,7 +28,7 @@ import math
 import warnings
 
 __all__ = ["laminar", "blasius", "colebrook", "haaland", "friction_factor", "darcy_pressure_drop",
-           "parallel_plates_pressure_drop", "first_cell_height"]
+           "parallel_plates_pressure_drop", "first_cell_height", "dean_number", "curved_pipe_ratio"]
 
 RE_LAMINAR_MAX = 2300.0     # upper limit of laminar pipe flow (White §6.2)
 RE_TURBULENT_MIN = 4000.0   # lower limit of the turbulent correlations (Moody chart)
@@ -96,6 +100,27 @@ def haaland(Re: float, rel_rough: float = 0.0) -> float:
     if rel_rough > 0.05:
         _warn("haaland", f"eps/D = {rel_rough:g} is outside its range (<= 0.05)")
     return (-1.8 * math.log10((rel_rough / 3.7) ** 1.11 + 6.9 / Re)) ** -2
+
+
+def dean_number(Re: float, D: float, Rc: float) -> float:
+    """Dean number ``De = Re sqrt(D / (2 Rc))`` of a pipe of diameter D bent to a centre-line radius Rc (same
+    units)."""
+    if not (D > 0 and Rc > 0):
+        raise ValueError("D and Rc must be positive")
+    return Re * math.sqrt(D / (2.0 * Rc))
+
+
+def curved_pipe_ratio(De: float) -> float:
+    """Fully developed laminar friction factor of a curved pipe over that of a straight one at the same Re, White
+    (1929): ``f_c / f_s = 1 / (1 - (1 - (11.6 / De)^0.45)^(1 / 0.45))``; 1 for De <= 11.6. Warns above De = 2000
+    (beyond White's data)."""
+    if not De >= 0:
+        raise ValueError(f"De must be non-negative, got {De}")
+    if De <= 11.6:
+        return 1.0
+    if De > 2000:
+        _warn("curved_pipe_ratio", f"De = {De:g} is above the range of White's data (<= 2000)")
+    return 1.0 / (1.0 - (1.0 - (11.6 / De) ** 0.45) ** (1.0 / 0.45))
 
 
 def friction_factor(Re: float, rel_rough: float = 0.0) -> float:

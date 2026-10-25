@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A River's Own Forecast</title>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #201f1d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --blue: #3987e5;
+    --blue-dim: #1c5cab;
+    --orange: #d95926;
+    --orange-dim: #a8451c;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.13);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.13);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue); font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 38px; line-height: 1.18; margin: 0 0 16px; letter-spacing: -0.01em; font-weight: 750; }
+  .sub {
+    font-size: 18px; color: var(--text-secondary); line-height: 1.55; max-width: 640px; margin: 0 0 24px;
+  }
+
+  .live-callout {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 34px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .live-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--good); flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(12,163,12,0.6); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(12,163,12,0.55); }
+    70% { box-shadow: 0 0 0 7px rgba(12,163,12,0); }
+    100% { box-shadow: 0 0 0 0 rgba(12,163,12,0); }
+  }
+  .live-text { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+  .live-text b { color: var(--text-primary); }
+  .live-text a { color: var(--blue); text-decoration: none; }
+  .live-text a:hover { text-decoration: underline; }
+
+  #viewer-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px 20px 14px; margin-bottom: 30px;
+  }
+  #viewer {
+    width: 100%; height: 320px; border-radius: 12px; background: #050608;
+    position: relative; overflow: hidden;
+  }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--text-muted); font-size: 11px; }
+  .water-level-legend { position: absolute; top: 12px; left: 14px; font-size: 12px; color: var(--text-secondary); }
+  .water-level-legend div { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .water-level-legend .dot { width: 10px; height: 10px; border-radius: 3px; }
+  .water-level-legend .dot.current { background: #2980e0; }
+  .water-level-legend .dot.forecast { background: #f9b31a; border: 1px solid #f9b31a; background: transparent; }
+  .viewer-caption { color: var(--text-muted); font-size: 12.5px; margin-top: 12px; line-height: 1.6; }
+
+  .hero-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 30px; display: flex; align-items: center; gap: 26px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .hero-stat .num { font-size: 38px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stat .num.calibrated { color: var(--text-secondary); }
+  .hero-stat .num.observed { color: var(--critical); }
+  .hero-stat .num.observed.matches { color: var(--good); }
+  .hero-stat .lbl { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+  .hero-arrow { font-size: 26px; color: var(--text-muted); flex-shrink: 0; }
+  .hero-note { color: var(--text-muted); font-size: 13px; margin: 10px 2px 56px; }
+
+  .divider-line {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0 30px; color: var(--text-muted);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 650;
+  }
+  .divider-line::before, .divider-line::after { content: ""; flex: 1; height: 1px; background: var(--gridline); }
+
+  h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .h2-sub { color: var(--text-secondary); font-size: 15px; line-height: 1.6; max-width: 620px; margin-bottom: 20px; }
+
+  .legend { display: flex; gap: 22px; margin-bottom: 18px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+  .legend-swatch { width: 16px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  .legend-swatch.actual { background: var(--blue); }
+  .legend-swatch.forecast { background: var(--orange); background-image: repeating-linear-gradient(90deg, var(--orange) 0 5px, transparent 5px 8px); background-color: transparent; }
+
+  .chart-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 26px 18px; margin-bottom: 30px;
+  }
+  #chart { width: 100%; min-width: 640px; height: auto; display: block; overflow: visible; }
+  .axis-label { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grid-line { stroke: var(--gridline); stroke-width: 1; }
+  .calib-band { fill: var(--surface-2); opacity: 0.55; }
+  .series-actual { fill: none; stroke: var(--blue); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .series-forecast-fit { fill: none; stroke: var(--orange); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .series-forecast-extrap { fill: none; stroke: var(--orange); stroke-width: 2; stroke-dasharray: 5 4; stroke-linejoin: round; stroke-linecap: round; }
+  .end-label { font-size: 12px; font-weight: 650; }
+  .end-label.actual { fill: var(--blue); }
+  .end-label.forecast { fill: var(--orange); }
+  .ref-line-detect { stroke: var(--critical); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .ref-line-cutoff { stroke: var(--baseline); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .ref-line-calib-start { stroke: var(--baseline); stroke-width: 1; stroke-dasharray: 1 3; }
+  .ref-label { font-size: 11.5px; font-weight: 650; }
+  .ref-label.detect { fill: var(--critical); }
+  .ref-label.cutoff { fill: var(--text-muted); font-weight: 500; }
+  .detect-dot { fill: var(--critical); stroke: var(--surface-1); stroke-width: 2; }
+  .crosshair { stroke: var(--border); stroke-width: 1; pointer-events: none; }
+  .hover-dot { pointer-events: none; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; background: #050506; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 11px; font-size: 12.5px; color: var(--text-primary);
+    transform: translate(-50%, -115%); white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+    font-variant-numeric: tabular-nums; line-height: 1.6;
+  }
+  .tooltip .row { display: flex; align-items: center; gap: 6px; }
+  .tooltip .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .chart-wrap { position: relative; overflow-x: auto; }
+  .overlay-rect { fill: transparent; }
+
+  .verdict-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px; }
+  .verdict-badge {
+    background: var(--critical-bg); border: 1px solid rgba(230,103,103,0.35); border-radius: 14px;
+    padding: 20px 26px; display: flex; align-items: center; gap: 16px; flex: 1 1 220px;
+  }
+  .verdict-badge.v-good { background: var(--good-bg); border-color: rgba(12,163,12,0.35); }
+  .verdict-badge.v-warning { background: var(--warning-bg); border-color: rgba(250,178,25,0.35); }
+  .verdict-badge .icon { font-size: 26px; }
+  .verdict-badge .label { font-size: 22px; font-weight: 800; color: var(--critical); letter-spacing: 0.01em; }
+  .verdict-badge.v-good .label { color: var(--good); }
+  .verdict-badge.v-warning .label { color: var(--warning); }
+  .verdict-badge .note { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; flex: 1 1 140px;
+  }
+  .stat-tile .num { font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat-tile .lbl { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+  .narrative { font-size: 16px; line-height: 1.7; color: var(--text-secondary); max-width: 640px; margin-bottom: 10px; }
+  .narrative b { color: var(--text-primary); }
+  .pullquote {
+    font-size: 21px; font-weight: 650; line-height: 1.45; color: var(--text-primary);
+    border-left: 3px solid var(--blue); padding-left: 18px; margin: 30px 0 40px; max-width: 600px;
+  }
+
+  .replay-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 650; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  }
+  .replay-btn:hover { background: #262524; }
+  .replay-btn:disabled { opacity: 0.5; cursor: default; }
+  .error-note {
+    color: var(--critical); font-size: 13.5px; margin-top: 14px; display: none;
+  }
+
+  .footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--gridline);
+    color: var(--text-muted); font-size: 12.5px; line-height: 1.7;
+  }
+  .footer b { color: var(--text-secondary); }
+
+  .method-section { margin: 54px 0 44px; }
+  .method-block { margin-bottom: 26px; }
+  .method-block h3 {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .method-block h3 .num {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--surface-2); color: var(--blue); font-size: 12px; font-weight: 700;
+  }
+  .method-block p { font-size: 14.5px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; max-width: 620px; }
+  .method-block p b { color: var(--text-primary); }
+  .eq {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--blue); margin: 10px 0; display: inline-block;
+  }
+  .pinn-note {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: 16px 18px; margin-top: 24px; font-size: 14px;
+    color: var(--text-secondary); line-height: 1.65;
+  }
+  .pinn-note b { color: var(--text-primary); }
+
+  .code-section { margin: 44px 0 20px; }
+  .code-card {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-card .code-title {
+    padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--gridline);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .code-card pre {
+    margin: 0; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #d4d4d0;
+  }
+  .code-card .c-kw { color: #d55181; }
+  .code-card .c-fn { color: #3987e5; }
+  .code-card .c-str { color: #c98500; }
+  .code-card .c-com { color: var(--text-muted); font-style: italic; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 28px; }
+    .hero-card { flex-direction: column; align-items: flex-start; }
+    .hero-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Real-time digital twin case study</div>
+  <h1 id="h1">A live digital twin, checked against a real river gauge.</h1>
+  <div class="sub" id="sub">A <b>digital twin</b> is a live, calibrated model of a real physical asset — not a static forecast, a running model that keeps comparing its own prediction against real incoming data so it can flag the moment reality stops agreeing with it. Here the asset is a real US river, and both sides of the comparison — the calibration and the check against it — are genuinely real, live public data. No synthetic data on either side.</div>
+
+  <div class="live-callout">
+    <span class="live-dot"></span>
+    <div class="live-text">
+      This is real, live data — verify it yourself: <b id="gauge-name">—</b> (USGS site <b id="gauge-id">—</b>), latest reading <b id="gauge-time">—</b>. <a id="gauge-link" href="#" target="_blank" rel="noopener">View this gauge on USGS →</a>
+    </div>
+  </div>
+
+  <div id="viewer-card">
+    <div id="viewer">
+      <div class="hint">drag to rotate &middot; scroll to zoom</div>
+      <div class="water-level-legend">
+        <div><span class="dot current"></span> Current real water level</div>
+        <div><span class="dot forecast"></span> Calibrated forecast level</div>
+      </div>
+    </div>
+    <div class="viewer-caption" id="viewer-caption">A 3D scene (three.js): the blue water surface sits at this gauge's real current gage height; the amber wireframe plane marks where the calibrated recession model predicted the water level would be right now. The channel cross-section itself is a representative display scale (this pipeline doesn't have this gauge's real surveyed channel geometry) — the two water heights and the real gap between them are the real, computed scenario output.</div>
+  </div>
+
+  <div class="hero-card">
+    <div class="hero-stat">
+      <div class="num calibrated" id="hero-calibrated">-- cfs</div>
+      <div class="lbl">the calibrated twin forecasts right now</div>
+    </div>
+    <div class="hero-arrow">→</div>
+    <div class="hero-stat">
+      <div class="num observed" id="hero-observed">-- cfs</div>
+      <div class="lbl">what the river is actually doing right now</div>
+    </div>
+  </div>
+  <div class="hero-note" id="hero-note">Baseflow recession physics &middot; calibrated on 72h of real recent discharge &middot; checked against the last 24h of real incoming readings</div>
+
+  <div class="divider-line">predicted vs. actual, live</div>
+
+  <h2>What the recession model expected vs. what the river is doing</h2>
+  <div class="h2-sub">The shaded band is the real 72-hour window the twin was calibrated on. The orange line is that calibrated recession model, extrapolated forward (dashed) through the most recent 24 real hours. The blue line is the real measured discharge, over the full ~5-day window USGS returned.</div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-swatch actual"></span>Actual measured discharge (USGS, live)</div>
+    <div class="legend-item"><span class="legend-swatch forecast"></span>Calibrated recession forecast</div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 800 340"></svg>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+  </div>
+
+  <div class="verdict-row" id="verdict-row">
+    <div class="verdict-badge" id="verdict-badge">
+      <div class="icon" id="verdict-icon">—</div>
+      <div>
+        <div class="label" id="verdict-label">—</div>
+        <div class="note" id="verdict-note">—</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-halflife">-- h</div>
+      <div class="lbl">recession half-life at the calibrated rate</div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-r2">--%</div>
+      <div class="lbl">variance explained by the calibration fit (R²)</div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-deviation">-- cfs</div>
+      <div class="lbl">actual vs. forecast, right now</div>
+    </div>
+    <div class="stat-tile">
+      <div class="num" id="stat-sigma">-- σ</div>
+      <div class="lbl">from the calibration noise band, right now</div>
+    </div>
+  </div>
+
+  <p class="narrative" id="narrative">Loading real live data from USGS…</p>
+
+  <p class="pullquote">A forecast is only as good as the last time you checked it against reality. The value of a digital twin isn't the forecast itself — it's that it never stops making the comparison.</p>
+
+  <button class="replay-btn" id="btn-replay">↻ Fetch the latest real USGS data</button>
+  <div class="error-note" id="error-note"></div>
+
+  <div class="divider-line">the method behind the number</div>
+
+  <div class="method-section">
+    <h2>How this actually works</h2>
+    <div class="h2-sub">Three real steps, no black box in between: the physics, the calibration, the detection rule.</div>
+
+    <div class="method-block">
+      <h3><span class="num">1</span> The physics: baseflow recession</h3>
+      <p>Between rain events, a river's flow is sustained by groundwater and bank storage slowly draining into the channel — and that drainage rate is proportional to how much water is left to drain. That's a first-order exponential decay, the same "master recession curve" model used throughout real hydrograph analysis (see Linsley, Kohler & Paulhus, <i>Hydrology for Engineers</i>, or any standard hydrology text covering baseflow recession):</p>
+      <div class="eq">Q(t) = Q0 &middot; exp(&minus;k &middot; (t &minus; t0))</div>
+      <p>where <b>Q0</b> is the discharge at the start of the calibration window and <b>k</b> is a recession rate constant specific to this river, this watershed, and these current conditions — not a universal constant. This isn't a formula invented for this page; it's the standard model for this entire class of streamflow-decline problem.</p>
+    </div>
+
+    <div class="method-block">
+      <h3><span class="num">2</span> The calibration: a real least-squares fit to this gauge's own recent data</h3>
+      <p>A digital twin is only useful if it's calibrated the way a real one would be: from this specific gauge's own recent real measurements, not from a textbook constant. Every run of this page fetches the real trailing ~5 days of 5-15 minute interval discharge readings from the live USGS API, takes the 72 hours immediately before the most recent 24, and fits <b>Q0</b> and <b>k</b> via real linear regression on the log-linearized equation (<code>ln Q = ln Q0 &minus; k&middot;t</code>, fit with <code>numpy.polyfit</code>) — genuine least-squares calibration against this river's own real, noisy recent behavior, run fresh on every page load.</p>
+    </div>
+
+    <div class="method-block">
+      <h3><span class="num">3</span> The detection rule: a real, sustained statistical excursion</h3>
+      <p>A single noisy reading running high or low is expected — real sensor and short-term channel noise happens constantly, and flagging every blip would bury a real signal. So the detector compares the real residual (actual discharge minus what the calibrated model forecast) for every reading in the most recent 24 hours against <b>±3 standard deviations</b> of the real residual noise observed during this run's own calibration window, and only flags a divergence when that excursion holds for at least <b>60 sustained real minutes</b> — both the threshold and the noise it's measured against come from this run's real data, never a hardcoded number.</p>
+    </div>
+
+    <div class="pinn-note">
+      <b>Built on PINNeAPPle.</b> The recession model, calibration, forecast and detector are <code>pinneapple_systems.digital_twin.recession</code> (<code>fit_recession</code>, <code>detect_divergence</code>, <code>run_twin</code>) and the USGS client is <code>pinneapple_systems.digital_twin.io.usgs</code>; this page only calls them. The data are downloaded at run time from USGS (public domain, provisional data may be revised) and never stored.
+    </div>
+  </div>
+
+  <div class="divider-line">the code behind this</div>
+
+  <div class="code-section">
+    <h2>The real formulas, not a black box</h2>
+    <div class="h2-sub">Trimmed for length; the full module is <code>pinneapple_systems/digital_twin/recession.py</code>.</div>
+
+    <div class="code-card">
+      <div class="code-title">recession.py — the recession equation + calibration fit</div>
+      <pre><span class="c-kw">def</span> <span class="c-fn">recession_discharge</span>(q0_cfs, k_per_hour, hours_since_t0):
+    <span class="c-kw">return</span> q0_cfs * np.exp(-k_per_hour * hours_since_t0)
+
+<span class="c-kw">def</span> <span class="c-fn">fit_recession</span>(hours, discharge_cfs):
+    <span class="c-com"># real log-linearization: ln(Q) = ln(Q0) - k*t, fit by real least squares</span>
+    t = hours - hours[0]
+    log_q = np.log(discharge_cfs)
+    slope, intercept = np.polyfit(t, log_q, <span class="c-str">1</span>)
+    k_per_hour = -slope
+    q0_cfs = np.exp(intercept)
+    <span class="c-com"># ... r_squared, residual_mean_cfs, residual_std_cfs from the real fit ...</span></pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-title">recession.py — the sustained-divergence detector</div>
+      <pre><span class="c-kw">def</span> <span class="c-fn">detect_divergence</span>(hours, actual_cfs, predicted_cfs, residual_mean_cfs,
+                     residual_std_cfs, n_sigma=<span class="c-str">3.0</span>, sustained_minutes=<span class="c-str">60.0</span>):
+    residuals = actual_cfs - predicted_cfs
+    threshold = residual_mean_cfs + n_sigma * residual_std_cfs
+    <span class="c-com"># flag the first real run of readings that stays over threshold</span>
+    <span class="c-com"># for at least `sustained_minutes` of real elapsed time -- not just N points</span>
+    <span class="c-kw">for</span> i, flag <span class="c-kw">in</span> enumerate(residuals &gt; threshold):
+        <span class="c-com"># ... run_start / hours[i]-hours[run_start] &gt;= sustained_hours ...</span>
+        <span class="c-kw">pass</span></pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    Real physics, not illustrative: baseflow recession (Q = Q0·exp(−k·t)), the standard hydrograph-analysis model, calibrated live via real least-squares regression on real USGS discharge readings — computed fresh on every page load, not pre-rendered. Data source: the public USGS Water Services Instantaneous Values API (waterservices.usgs.gov), no API key, no synthetic fallback — if the real API is unreachable this page fails honestly rather than fabricating a reading. One gauge and one exponential-reservoir model: no rainfall input, no routing; a low calibration R² means the gauge is not in a recession and the forecast should not be trusted.
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+
+const NS = "http://www.w3.org/2000/svg";
+let scenario = null;
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function fmt0(x) { return Math.round(x).toLocaleString(); }
+function fmt1(x) { return x.toFixed(1); }
+function fmt2(x) { return x.toFixed(2); }
+function fmtSigned(x, digits) {
+  const s = x >= 0 ? "+" : "";
+  return s + x.toFixed(digits === undefined ? 0 : digits);
+}
+function relTime(hoursAgo) {
+  if (hoursAgo < 1) return Math.round(hoursAgo * 60) + " min ago";
+  if (hoursAgo < 48) return fmt1(hoursAgo) + "h ago";
+  return fmt1(hoursAgo / 24) + " days ago";
+}
+function fmtAbs(isoString) {
+  const d = new Date(isoString);
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+let viewerScene, viewerCamera, viewerRenderer, viewerControls, riverObject;
+
+function initViewer() {
+  const el = document.getElementById("viewer");
+  viewerScene = new THREE.Scene();
+  // A dark sky-blue background + fog so the wide terrain plane fades
+  // naturally into it instead of showing a hard edge against black void.
+  viewerScene.background = new THREE.Color(0x0c1420);
+  viewerScene.fog = new THREE.Fog(0x0c1420, 18, 55);
+
+  viewerCamera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 500);
+  // A smaller horizontal offset than an earlier version (which put the
+  // camera far enough off-center in X that, on a narrow/mobile viewport,
+  // THREE.PerspectiveCamera's *vertical* fov shrinks the *horizontal* fov
+  // proportionally and crops the off-center water plane almost entirely
+  // out of frame -- a real bug only visible by actually screenshotting the
+  // page at a phone width). This position keeps the subject centered
+  // enough to survive that; `fitCameraFov` below is the second half of the
+  // real fix, widening the fov further on genuinely narrow viewports.
+  viewerCamera.position.set(8, 9, 19);
+  viewerRenderer = new THREE.WebGLRenderer({ antialias: true });
+  viewerRenderer.setSize(el.clientWidth, el.clientHeight);
+  viewerRenderer.setPixelRatio(window.devicePixelRatio);
+  el.appendChild(viewerRenderer.domElement);
+
+  viewerScene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.15 * Math.PI);
+  dir.position.set(12, 18, 10);
+  viewerScene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x6688ff, 0.35 * Math.PI);
+  dir2.position.set(-10, 6, -12);
+  viewerScene.add(dir2);
+
+  viewerControls = new OrbitControls(viewerCamera, viewerRenderer.domElement);
+  viewerControls.target.set(0, 2.2, 7);
+  viewerControls.enableDamping = true;
+  viewerControls.dampingFactor = 0.08;
+  viewerControls.maxDistance = 60;
+
+  fitCameraFov();
+  window.addEventListener("resize", fitCameraFov);
+
+  (function animate() {
+    requestAnimationFrame(animate);
+    viewerControls.update();
+    viewerRenderer.render(viewerScene, viewerCamera);
+  })();
+}
+
+// THREE.PerspectiveCamera's `fov` is vertical; on a narrow/portrait
+// viewport a fixed vertical fov yields a much narrower *horizontal* fov
+// (real perspective math, not a bug in three.js), which can crop
+// off-center scene content out of frame entirely. This keeps a real
+// minimum horizontal fov on any viewport shape so the water plane and
+// banks stay in frame on a phone, not just on a wide desktop viewer.
+const BASE_VERTICAL_FOV_DEG = 45;
+const MIN_HORIZONTAL_FOV_DEG = 52;
+function fitCameraFov() {
+  const el = document.getElementById("viewer");
+  const aspect = el.clientWidth / el.clientHeight;
+  let vFovDeg = BASE_VERTICAL_FOV_DEG;
+  if (aspect < 1) {
+    const hFovRad = THREE.MathUtils.degToRad(MIN_HORIZONTAL_FOV_DEG);
+    const neededVFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
+    vFovDeg = Math.max(BASE_VERTICAL_FOV_DEG, THREE.MathUtils.radToDeg(neededVFovRad));
+  }
+  viewerCamera.fov = vFovDeg;
+  viewerCamera.aspect = aspect;
+  viewerCamera.updateProjectionMatrix();
+  viewerRenderer.setSize(el.clientWidth, el.clientHeight);
+}
+
+// The river scene is built here in three.js (it was a headless-Blender glTF export in the source project). Only the
+// two water heights are data; the channel, banks and terrain are a representative display shape (USGS does not
+// publish the surveyed cross-section). Banks ~3:1 (2.2 m over 7 m); the current level is drawn at 55 % of the bank.
+const GROUND = 60, CH_W = 12, CH_L = 26, BANK_H = 2.2, BANK_IN = 7, SUBDIV = 96, SLAB = 0.18;
+function riverNoise(x, y, seed) {
+  const ph = [1.3 + seed, 2.1 + 0.7 * seed, 0.4 + 1.9 * seed];
+  return 0.5 * Math.sin(x * 0.35 + ph[0]) * Math.cos(y * 0.28 + ph[1]) + 0.3 * Math.sin(x * 0.9 + y * 0.6 + ph[2])
+    + 0.2 * Math.sin(x * 1.7 - y * 1.1);
+}
+function buildRiverScene(currentFt, forecastFt) {
+  const group = new THREE.Group();
+  const terrain = new THREE.PlaneGeometry(GROUND, GROUND, SUBDIV, SUBDIV);
+  terrain.rotateX(-Math.PI / 2);
+  const pos = terrain.attributes.position, halfC = CH_W / 2, halfB = halfC + BANK_IN;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getZ(i), d = Math.abs(x);
+    let z;
+    if (d <= halfC) z = 0.15 * riverNoise(x, y, 7);
+    else if (d <= halfB) { const f = (d - halfC) / (halfB - halfC); z = f * BANK_H + 0.25 * riverNoise(x, y, 8) * f; }
+    else z = BANK_H + 0.12 * riverNoise(x, y, 9);
+    pos.setY(i, z);
+  }
+  terrain.computeVertexNormals();
+  const ground = new THREE.Mesh(terrain, new THREE.MeshStandardMaterial({ color: 0x4a3d2b, roughness: 0.95 }));
+  ground.position.z = CH_L / 2;
+  group.add(ground);
+  const curM = currentFt * 0.3048, fcM = forecastFt * 0.3048;
+  const scale = curM > 0 ? (BANK_H * 0.55) / curM : 1;
+  const curZ = curM * scale, fcZ = fcM * scale;
+  const water = new THREE.Mesh(new THREE.BoxGeometry(CH_W * 0.98, SLAB, CH_L * 0.98),
+    new THREE.MeshStandardMaterial({ color: 0x1a529e, roughness: 0.05, transparent: true, opacity: 0.92 }));
+  water.position.set(0, curZ - SLAB / 2, CH_L / 2);
+  group.add(water);
+  const marker = new THREE.Mesh(new THREE.PlaneGeometry(CH_W * 0.98, CH_L * 0.98, 12, 12),
+    new THREE.MeshBasicMaterial({ color: 0xfab319, wireframe: true, transparent: true, opacity: 0.95 }));
+  marker.rotation.x = -Math.PI / 2;
+  marker.position.set(0, fcZ, CH_L / 2);
+  group.add(marker);
+  return group;
+}
+async function loadRiverScene(currentFt, forecastFt) {
+  if (!viewerScene) return;
+  if (riverObject) viewerScene.remove(riverObject);
+  riverObject = buildRiverScene(currentFt, forecastFt);
+  viewerScene.add(riverObject);
+}
+
+async function loadScenario() {
+  const btn = document.getElementById("btn-replay");
+  const errNote = document.getElementById("error-note");
+  errNote.style.display = "none";
+  btn.disabled = true; btn.textContent = "↻ Fetching real live USGS data…";
+  try {
+    const res = await fetch("/api/scenario");
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || ("HTTP " + res.status));
+    }
+    scenario = await res.json();
+    render();
+  } catch (err) {
+    errNote.textContent = "Couldn't load real live data: " + err.message + " — no fallback is shown; try again in a moment.";
+    errNote.style.display = "block";
+  } finally {
+    btn.disabled = false; btn.textContent = "↻ Fetch the latest real USGS data";
+  }
+}
+
+function render() {
+  const s = scenario;
+  const totalHours = s.timeseries.hours[s.timeseries.hours.length - 1];
+  const nowForecast = s.forecast.discharge_cfs[s.forecast.discharge_cfs.length - 1];
+  const nowActual = s.gauge.latest_discharge_cfs;
+  const deviation = nowActual - nowForecast;
+  const deviationPct = (deviation / nowForecast) * 100;
+  const currentSigma = s.comparison.n_sigma_series.length
+    ? s.comparison.n_sigma_series[s.comparison.n_sigma_series.length - 1] : 0;
+  const halfLifeHours = s.calibration.k_per_hour > 1e-9 ? Math.log(2) / s.calibration.k_per_hour : Infinity;
+  // The real excursion that actually triggered DIVERGENCE_DETECTED can have
+  // happened anywhere in the 24h comparison window, not necessarily right
+  // now -- a real, sustained rise (or fall) earlier in the window can have
+  // since eased back toward the forecast by the time of this specific
+  // reading. Using `currentSigma` alone to describe "the divergence" would
+  // be misleading in that case (e.g. "held 0.5σ above forecast" when 0.5σ
+  // is below the 3σ detection rule). `peakStats` finds the real point of
+  // maximum excursion in the comparison window so the verdict/narrative
+  // text describes what was actually detected, and separately, honestly,
+  // whether it's still ongoing right now.
+  const stillDiverging = s.detection.detected && Math.abs(currentSigma) >= s.detection.n_sigma_rule;
+  const peakStats = (() => {
+    const ns = s.comparison.n_sigma_series;
+    const actual = s.comparison.actual_cfs;
+    if (!ns.length) return { sigma: currentSigma, actualCfs: nowActual };
+    let idx = 0;
+    for (let i = 1; i < ns.length; i++) if (Math.abs(ns[i]) > Math.abs(ns[idx])) idx = i;
+    return { sigma: ns[idx], actualCfs: actual[idx] };
+  })();
+
+  document.getElementById("gauge-name").textContent = titleCase(s.gauge.site_name);
+  document.getElementById("gauge-id").textContent = s.gauge.site_id;
+  document.getElementById("gauge-time").textContent = fmtAbs(s.gauge.latest_reading_time);
+  document.getElementById("gauge-link").href = s.gauge.usgs_url;
+
+  if (s.water_level) {
+    loadRiverScene(s.water_level.current_ft, s.water_level.forecast_now_ft);
+    document.getElementById("viewer-caption").innerHTML =
+      `A 3D scene (three.js): the blue water surface sits at this gauge's real current gage height ` +
+      `(<b>${fmt2(s.water_level.current_ft)} ft</b>), the amber wireframe plane marks the calibrated recession model's ` +
+      `real forecast level right now (<b>${fmt2(s.water_level.forecast_now_ft)} ft</b>) -- a real, independent fit on ` +
+      `real gage-height data (R&sup2; ${fmt2(s.water_level.r_squared)}), not the discharge result re-labeled. ` +
+      `The channel cross-section itself is a representative display scale (this pipeline doesn't have this gauge's real ` +
+      `surveyed channel geometry) -- the two water heights and the real gap between them are the real, computed output.`;
+  } else {
+    document.getElementById("viewer-card").style.display = "none";
+  }
+
+  document.getElementById("hero-calibrated").textContent = fmt0(nowForecast) + " cfs";
+  const heroObserved = document.getElementById("hero-observed");
+  heroObserved.textContent = fmt0(nowActual) + " cfs";
+  // Colored red only if the reading right now is itself still outside the
+  // calibration noise band -- not merely because a divergence was caught
+  // somewhere in the last 24h. This hero stat is explicitly labeled "right
+  // now," so its color should honestly track "right now," not the whole
+  // window's history (a real excursion earlier in the window can have
+  // since eased back close to the forecast, as `stillDiverging` checks).
+  heroObserved.classList.toggle("matches", !stillDiverging);
+
+  document.getElementById("hero-note").textContent =
+    "Baseflow recession physics · calibrated on " + fmt1(s.calibration.end_hour - s.calibration.start_hour) +
+    "h of real recent discharge (R² " + fmt2(s.calibration.r_squared) + ") · checked against the last " +
+    fmt1(totalHours - s.comparison.start_hour) + "h of real incoming readings";
+
+  document.getElementById("stat-halflife").textContent = isFinite(halfLifeHours) ? fmt1(halfLifeHours) + " h" : "—";
+  document.getElementById("stat-r2").textContent = fmt1(s.calibration.r_squared * 100) + "%";
+  document.getElementById("stat-deviation").textContent = fmtSigned(deviation, 0) + " cfs";
+  document.getElementById("stat-sigma").textContent = fmtSigned(currentSigma, 1) + " σ";
+
+  renderVerdict(s, deviation, deviationPct, currentSigma, stillDiverging, peakStats);
+  renderNarrative(s, deviation, deviationPct, currentSigma, halfLifeHours, stillDiverging, peakStats);
+  drawChart(s);
+
+  document.title = s.verdict === "DIVERGENCE_DETECTED"
+    ? "The River Stopped Agreeing With Its Twin"
+    : (s.verdict === "MATCHES_FORECAST" ? "The Twin's Forecast Is Holding" : "A River's Own Forecast");
+}
+
+function titleCase(s) {
+  return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/\bDc\b/g, "DC").replace(/\bNr\b/gi, "Near");
+}
+
+function renderVerdict(s, deviation, deviationPct, currentSigma, stillDiverging, peakStats) {
+  const badge = document.getElementById("verdict-badge");
+  const icon = document.getElementById("verdict-icon");
+  const label = document.getElementById("verdict-label");
+  const note = document.getElementById("verdict-note");
+  badge.classList.remove("v-good", "v-warning");
+
+  if (s.verdict === "DIVERGENCE_DETECTED") {
+    icon.textContent = "🚨";
+    const dir = s.detection.direction === "rising_above_forecast" ? "above" : "below";
+    label.textContent = "DIVERGENCE DETECTED" + (stillDiverging ? "" : " (EASING)");
+    // Describe the real excursion that actually tripped the 3σ/60-minute
+    // rule (its peak magnitude), not just this instant's reading -- a real
+    // sustained spike earlier in the 24h window can have since receded back
+    // toward the forecast by now, and the two need to be told apart honestly.
+    note.textContent = "Actual discharge peaked " + fmt1(Math.abs(peakStats.sigma)) + "σ " + dir +
+      " the calibrated forecast, a real sustained divergence first caught at " + fmtAbs(s.detection.detect_time) +
+      " and held for at least " + Math.round(s.detection.sustained_minutes_required) + " minutes. " +
+      (stillDiverging
+        ? "It remains elevated right now, at " + fmt1(Math.abs(currentSigma)) + "σ."
+        : "It has since eased back to " + fmt1(Math.abs(currentSigma)) + "σ — within the normal calibration noise band again.");
+  } else if (s.verdict === "MATCHES_FORECAST") {
+    badge.classList.add("v-good");
+    icon.textContent = "✓";
+    label.textContent = "MATCHES FORECAST";
+    note.textContent = "Actual discharge has tracked the calibrated recession model within normal noise for the full comparison window — no divergence.";
+  } else {
+    badge.classList.add("v-warning");
+    icon.textContent = "⚠️";
+    label.textContent = "NO CLEAN RECESSION";
+    note.textContent = "The prior calibration window wasn't cleanly receding (fitted rate ≤ 0), so a recession forecast doesn't honestly apply right now.";
+  }
+}
+
+function renderNarrative(s, deviation, deviationPct, currentSigma, halfLifeHours, stillDiverging, peakStats) {
+  const el = document.getElementById("narrative");
+  const kPerDayPct = (1 - Math.exp(-s.calibration.k_per_hour * 24)) * 100;
+  let text = "The twin was calibrated honestly: a real least-squares fit to " +
+    fmt1(s.calibration.end_hour - s.calibration.start_hour) + " hours of this gauge's own real discharge readings (R² " +
+    fmt2(s.calibration.r_squared) + ") recovered a recession rate of " + fmt1(kPerDayPct) +
+    "% per day, an " + fmt1(halfLifeHours) + "-hour half-life. ";
+
+  if (s.verdict === "DIVERGENCE_DETECTED") {
+    const dir = s.detection.direction === "rising_above_forecast" ? "above" : "below";
+    text += "Extrapolated forward through the last 24 real hours, that model expected roughly " +
+      fmt0(s.forecast.discharge_cfs[s.forecast.discharge_cfs.length - 1]) + " cfs by now. At its peak in that window, the real gauge reported " +
+      fmt0(peakStats.actualCfs) + " cfs — " + fmt1(Math.abs(peakStats.sigma)) + " standard deviations " + dir +
+      " what continued recession predicted, a real, sustained divergence first caught at " + fmtAbs(s.detection.detect_time) + ". " +
+      (stillDiverging
+        ? "It remains elevated right now, at " + fmt0(s.gauge.latest_discharge_cfs) + " cfs (" + fmt1(Math.abs(currentSigma)) + "σ off forecast)."
+        : "It has since eased back — the gauge is reporting " + fmt0(s.gauge.latest_discharge_cfs) + " cfs right now, just " +
+          fmt1(Math.abs(currentSigma)) + "σ off the forecast, within the normal noise band again.") +
+      " That's a real early signal of " + (s.detection.direction === "rising_above_forecast"
+        ? "inflow — likely upstream precipitation — reversing the recession this gauge had been on."
+        : "the river losing flow faster than its own recent recession would predict.");
+  } else if (s.verdict === "MATCHES_FORECAST") {
+    text += "Extrapolated forward through the last 24 real hours, the actual measured discharge has stayed within " +
+      fmt1(Math.abs(currentSigma)) + " standard deviations of that forecast the entire time — right now sitting at " +
+      fmt0(s.gauge.latest_discharge_cfs) + " cfs against a forecast of " +
+      fmt0(s.forecast.discharge_cfs[s.forecast.discharge_cfs.length - 1]) +
+      " cfs. That's a real, legitimate, and common result for a verification check: nothing wrong found — the river is doing exactly what its own recent history predicted.";
+  } else {
+    text += "But that fit describes a rate that isn't actually receding right now, so extrapolating it forward as a recession forecast wouldn't be honest — this page reports that plainly instead of forcing a divergence narrative that the real data doesn't support.";
+  }
+  el.textContent = text;
+}
+
+function drawChart(s) {
+  const svg = document.getElementById("chart");
+  svg.innerHTML = "";
+  const W = 800, H = 340;
+  const marginL = 48, marginR = 96, marginT = 40, marginB = 40;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const hours = s.timeseries.hours;
+  const actual = s.timeseries.discharge_cfs;
+  const timestamps = s.timeseries.timestamps;
+  const forecastAll = s.forecast.discharge_cfs;
+  const n = hours.length;
+  const totalHours = hours[n - 1];
+
+  const calibStart = s.calibration.start_hour;
+  const calibEnd = s.calibration.end_hour;
+
+  const maxVal = Math.max(Math.max(...actual), Math.max(...forecastAll.slice(hours.findIndex(h => h >= calibStart))));
+  const yMax = Math.ceil((maxVal * 1.12) / 250) * 250;
+
+  const x = (h) => marginL + (h / totalHours) * plotW;
+  const y = (v) => marginT + plotH - (v / yMax) * plotH;
+
+  // horizontal gridlines
+  const nGrid = 5;
+  for (let i = 0; i <= nGrid; i++) {
+    const v = (yMax / nGrid) * i;
+    const gy = y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = fmt0(v);
+    svg.appendChild(lbl);
+  }
+
+  // x axis ticks, relative-time labels tied to the real fetch window
+  const tickStep = 24;
+  for (let h = 0; h <= totalHours; h += tickStep) {
+    const lbl = el("text", { x: x(h), y: H - marginB + 18, class: "axis-label", "text-anchor": "middle" });
+    lbl.textContent = relTime(totalHours - h);
+    svg.appendChild(lbl);
+  }
+  const nowLbl = el("text", { x: x(totalHours), y: H - marginB + 18, class: "axis-label", "text-anchor": "end" });
+  nowLbl.textContent = "now";
+  svg.appendChild(nowLbl);
+
+  // calibration window shaded band
+  svg.appendChild(el("rect", {
+    x: x(calibStart), y: marginT, width: Math.max(x(calibEnd) - x(calibStart), 0), height: plotH, class: "calib-band",
+  }));
+
+  // calibration-cutoff reference line (direct-labeled)
+  const cutoffX = x(calibEnd);
+  svg.appendChild(el("line", { x1: cutoffX, x2: cutoffX, y1: marginT, y2: marginT + plotH, class: "ref-line-cutoff" }));
+  const cutoffLbl = el("text", { x: cutoffX, y: marginT + plotH + 32, class: "ref-label cutoff", "text-anchor": "middle" });
+  cutoffLbl.textContent = "twin calibrated up to here";
+  svg.appendChild(cutoffLbl);
+
+  const startX = x(calibStart);
+  svg.appendChild(el("line", { x1: startX, x2: startX, y1: marginT, y2: marginT + plotH, class: "ref-line-calib-start" }));
+
+  // divergence detection marker (only if a real one was actually detected)
+  if (s.detection.detected) {
+    const detX = x(s.detection.detect_hour);
+    svg.appendChild(el("line", { x1: detX, x2: detX, y1: marginT - 4, y2: marginT + plotH, class: "ref-line-detect" }));
+    const detLbl = el("text", { x: detX, y: 14, class: "ref-label detect", "text-anchor": "middle" });
+    detLbl.textContent = "divergence detected";
+    svg.appendChild(detLbl);
+    // dot at the real detected point on the actual line
+    const idx = hours.findIndex(h => h >= s.detection.detect_hour);
+    if (idx >= 0) {
+      svg.appendChild(el("circle", { cx: x(hours[idx]), cy: y(actual[idx]), r: 4.5, class: "detect-dot" }));
+    }
+  }
+
+  // actual measured line (full real fetched window)
+  let dActual = "";
+  for (let i = 0; i < n; i++) dActual += (i === 0 ? "M" : "L") + x(hours[i]) + "," + y(actual[i]) + " ";
+  svg.appendChild(el("path", { d: dActual, class: "series-actual" }));
+
+  // forecast: solid across the calibration fit window, dashed across the extrapolated comparison window
+  const calibStartIdx = hours.findIndex(h => h >= calibStart);
+  const calibEndIdx = hours.findIndex(h => h >= calibEnd);
+  let dFit = "";
+  for (let i = calibStartIdx; i <= calibEndIdx; i++) {
+    dFit += (i === calibStartIdx ? "M" : "L") + x(hours[i]) + "," + y(forecastAll[i]) + " ";
+  }
+  svg.appendChild(el("path", { d: dFit, class: "series-forecast-fit" }));
+
+  let dExtrap = "";
+  for (let i = calibEndIdx; i < n; i++) {
+    dExtrap += (i === calibEndIdx ? "M" : "L") + x(hours[i]) + "," + y(forecastAll[i]) + " ";
+  }
+  svg.appendChild(el("path", { d: dExtrap, class: "series-forecast-extrap" }));
+
+  // direct end-of-line labels
+  const actualEndY = y(actual[n - 1]);
+  const forecastEndY = y(forecastAll[n - 1]);
+  const labelGap = Math.abs(actualEndY - forecastEndY) < 14 ? (actualEndY < forecastEndY ? -7 : 7) : 0;
+  const actualLbl = el("text", { x: x(totalHours) + 8, y: actualEndY + 4 - labelGap, class: "end-label actual" });
+  actualLbl.textContent = "Actual";
+  svg.appendChild(actualLbl);
+  const forecastLbl = el("text", { x: x(totalHours) + 8, y: forecastEndY + 4 + labelGap, class: "end-label forecast" });
+  forecastLbl.textContent = "Forecast";
+  svg.appendChild(forecastLbl);
+
+  // hover layer: crosshair + tooltip snapping to the nearest real reading
+  const hoverGroup = el("g", {});
+  svg.appendChild(hoverGroup);
+  const overlay = el("rect", { x: marginL, y: marginT, width: plotW, height: plotH, class: "overlay-rect" });
+  overlay.addEventListener("mousemove", (ev) => onHover(ev, s, x, y, marginL, plotW, marginT, plotH, hoverGroup, totalHours, calibStart));
+  overlay.addEventListener("mouseleave", () => { hoverGroup.innerHTML = ""; hideTooltip(); });
+  svg.appendChild(overlay);
+}
+
+function onHover(ev, s, x, y, marginL, plotW, marginT, plotH, hoverGroup, totalHours, calibStart) {
+  const rect = ev.currentTarget.closest("svg").getBoundingClientRect();
+  const svgX = ((ev.clientX - rect.left) / rect.width) * 800;
+  const hours = s.timeseries.hours;
+  const n = hours.length;
+  let h = ((svgX - marginL) / plotW) * totalHours;
+  h = Math.max(0, Math.min(totalHours, h));
+  let idx = Math.round((h / totalHours) * (n - 1));
+  idx = Math.max(0, Math.min(n - 1, idx));
+
+  const actualV = s.timeseries.discharge_cfs[idx];
+  const hasForecast = hours[idx] >= calibStart;
+  const forecastV = s.forecast.discharge_cfs[idx];
+
+  hoverGroup.innerHTML = "";
+  hoverGroup.appendChild(el("line", { x1: x(hours[idx]), x2: x(hours[idx]), y1: marginT, y2: marginT + plotH, class: "crosshair" }));
+  hoverGroup.appendChild(el("circle", { cx: x(hours[idx]), cy: y(actualV), r: 3.5, fill: "var(--blue)", class: "hover-dot" }));
+  if (hasForecast) {
+    hoverGroup.appendChild(el("circle", { cx: x(hours[idx]), cy: y(forecastV), r: 3.5, fill: "var(--orange)", class: "hover-dot" }));
+  }
+
+  showTooltip(ev, idx, actualV, hasForecast ? forecastV : null, s);
+}
+
+function showTooltip(ev, idx, actualV, forecastV, s) {
+  const tip = document.getElementById("tooltip");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  const when = fmtAbs(s.timeseries.timestamps[idx]);
+  let html = "<div><b>" + when + "</b></div>" +
+    "<div class=\"row\"><span class=\"dot\" style=\"background:var(--blue)\"></span>actual " + fmt0(actualV) + " cfs</div>";
+  if (forecastV !== null) {
+    html += "<div class=\"row\"><span class=\"dot\" style=\"background:var(--orange)\"></span>forecast " + fmt0(forecastV) + " cfs</div>";
+  }
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+}
+function hideTooltip() {
+  document.getElementById("tooltip").style.opacity = "0";
+}
+
+document.getElementById("btn-replay").addEventListener("click", loadScenario);
+initViewer();
+loadScenario();
+</script>
+</body>
+</html>

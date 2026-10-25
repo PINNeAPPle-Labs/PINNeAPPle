@@ -386,6 +386,18 @@
 	}
 }
 
+{$PINN_ARENA_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy pinnarena:8130 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
 {$MDL_DOMAIN} {
 	import common
 	request_body {

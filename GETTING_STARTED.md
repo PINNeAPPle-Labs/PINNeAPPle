@@ -12,6 +12,10 @@ python -c "import pinneapple as pp; pp.info()"
 The scripts are in [`examples/quickstart/`](examples/quickstart/); each is self-contained
 and run from the repository root. Everything they write goes to `runs/` (git-ignored).
 
+**Prefer a notebook?** [`notebooks/colab/06_quickstart_ten_recipes.ipynb`](notebooks/colab/06_quickstart_ten_recipes.ipynb)
+is this page as a Colab notebook — same ten recipes, every cell executed, outputs kept.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/06_quickstart_ten_recipes.ipynb)
+
 | # | Recipe | Answers |
 |---|--------|---------|
 | 01 | [First look](#01--first-look) | What do I have installed, and what is already solved for me? |

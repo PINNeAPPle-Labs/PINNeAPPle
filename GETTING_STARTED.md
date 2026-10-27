@@ -13,7 +13,7 @@ The scripts are in [`examples/quickstart/`](examples/quickstart/); each is self-
 and run from the repository root. Everything they write goes to `runs/` (git-ignored).
 
 **Prefer a notebook?** [`notebooks/colab/06_quickstart_ten_recipes.ipynb`](notebooks/colab/06_quickstart_ten_recipes.ipynb)
-is this page as a Colab notebook — same ten recipes, every cell executed, outputs kept.
+is this page as a Colab notebook — the same thirteen recipes, every cell executed, outputs kept.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/06_quickstart_ten_recipes.ipynb)
 
 | # | Recipe | Answers |

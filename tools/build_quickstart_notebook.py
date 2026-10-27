@@ -32,11 +32,11 @@ def code(text: str) -> None:
 
 
 # --------------------------------------------------------------------------- 0
-md(f"""# Ten recipes: from `pip install` to a live digital twin
+md(f"""# Thirteen recipes: from `pip install` to a live digital twin
 
 {BADGE}
 
-This is the notebook version of [`GETTING_STARTED.md`](../../GETTING_STARTED.md): the same ten recipes, in the order
+This is the notebook version of [`GETTING_STARTED.md`](../../GETTING_STARTED.md): the same thirteen recipes, in the order
 a new user needs them, each one printing the numbers it produced. Every cell below was executed before the notebook
 was committed, and the outputs you see are what it printed.
 
@@ -50,6 +50,9 @@ was committed, and the outputs you see are what it printed.
 8. uncertainty and validation
 9. a ready-made industrial case
 10. a digital twin on a sensor stream
+11. 1-D, 2-D, 3-D and 4-D (animated) visualisation
+12. one sentence -> quantities -> 3-D geometry -> solver -> surrogate -> twin
+13. geometry variants -> benchmark -> inverse model -> verification
 
 Run it top to bottom (Runtime > Run all). On a free Colab CPU it takes a few minutes; on a T4 GPU, less.""")
 
@@ -77,6 +80,9 @@ EPOCHS_SHORT = 100 if SMOKE else 400      # recipe 6 and 10
 EPOCHS_PINN = 150 if SMOKE else 800       # recipe 2 and 8
 EPOCHS_LONG = 300 if SMOKE else 2000      # recipe 4
 ARENA_EPOCHS = 50 if SMOKE else 600       # recipe 7
+TRAINER_EPOCHS = 12 if SMOKE else 150     # recipe 12
+VARIANT_EPOCHS = 10 if SMOKE else 80      # recipe 13
+N_VARIANTS = 2 if SMOKE else 4            # recipe 13
 GRID = 21 if SMOKE else 41                # points per axis of a checking grid
 print(f"SMOKE={SMOKE}  epochs: short={EPOCHS_SHORT} pinn={EPOCHS_PINN} long={EPOCHS_LONG} arena={ARENA_EPOCHS}")''')
 
@@ -415,6 +421,285 @@ print(f"anomalies       : {len(events)}")
 for event in events[-3:]:
     print(f"  {event.field_name}: observed {event.observed:.3f}, predicted {event.predicted:.3f}, "
           f"score {event.score:.2f} ({event.detector})")''')
+
+
+# --------------------------------------------------------------------------- 12 (viz)
+md("""## 11. Visualisation: 1-D, 2-D, 3-D and 4-D
+
+Each block writes a file under `visualisation/`. The 4-D case is the interesting one: a field
+that depends on `(x, y, t)` is *frames plus a time axis*, not a 3-D scatter — `Dashboard` takes
+the frames as RGB arrays and writes a GIF with the charts beside them.""")
+
+code('''import os
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+OUT_VIS = "visualisation"
+os.makedirs(OUT_VIS, exist_ok=True)
+
+# --- 1-D: a PINN profile against the closed form -------------------------------------
+pinn_v = pp.solve("burgers_1d", method="pinn", epochs=EPOCHS_PINN)
+closed_v = pp.solve("burgers_1d", method="analytic")
+
+x = np.linspace(-1.0, 1.0, 300, dtype=np.float32)
+fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
+for ax, tk in zip(axes, (0.25, 0.75)):
+    X = np.column_stack([x, np.full_like(x, tk)])
+    ax.plot(x, closed_v.predict(X).ravel(), "k-", lw=2, label="Cole-Hopf (exact)")
+    ax.plot(x, pinn_v.predict(X).ravel(), "C3--", lw=2, label="PINN")
+    ax.set_title(f"u(x, t={tk})"); ax.set_xlabel("x"); ax.grid(alpha=0.3)
+axes[0].set_ylabel("u"); axes[0].legend()
+fig.savefig(f"{OUT_VIS}/01_field_1d.png", dpi=120, bbox_inches="tight"); plt.close(fig)
+print("1-D ->", f"{OUT_VIS}/01_field_1d.png")
+
+# --- 2-D: the field and its error map -----------------------------------------------
+# A sourced Poisson problem, solved with finite elements (same problem object as recipe 2).
+from pinneapple_physics import ProblemBuilder
+
+src2 = lambda X, ctx=None: -2.0 * np.pi**2 * np.sin(np.pi * X[:, 0]) * np.sin(np.pi * X[:, 1])
+b2 = ProblemBuilder("poisson_showcase").domain(x=(0, 1), y=(0, 1)).fields("u").pde("poisson")
+for face in (("x", "min"), ("x", "max"), ("y", "min"), ("y", "max")):
+    b2 = b2.bc(kind="dirichlet", field="u", value=0.0, on=face)
+fem = pp.solve(b2.build(), method="fem", ctx={"source_fn": src2}, n=16 if SMOKE else 64)
+
+gx2 = np.linspace(0.0, 1.0, GRID); gy2 = np.linspace(0.0, 1.0, GRID)
+GX, GY = np.meshgrid(gx2, gy2, indexing="ij")
+pts2 = np.column_stack([GX.ravel(), GY.ravel()])
+fld = fem.predict(pts2).reshape(GX.shape)
+ref2 = np.sin(np.pi * GX) * np.sin(np.pi * GY)
+
+fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+im0 = axes[0].pcolormesh(GX, GY, fld, shading="auto", cmap="viridis"); axes[0].set_title("u(x, y) — FEM")
+fig.colorbar(im0, ax=axes[0])
+im1 = axes[1].pcolormesh(GX, GY, np.abs(fld - ref2), shading="auto", cmap="magma"); axes[1].set_title("|error|")
+fig.colorbar(im1, ax=axes[1])
+for ax in axes: ax.set_aspect("equal"); ax.set_xlabel("x")
+axes[0].set_ylabel("y")
+fig.savefig(f"{OUT_VIS}/02_field_2d.png", dpi=120, bbox_inches="tight"); plt.close(fig)
+print(f"2-D -> {OUT_VIS}/02_field_2d.png   max |error| = {np.max(np.abs(fld - ref2)):.2e}")
+
+# --- 3-D: three orthogonal slices through a solver volume ---------------------------
+from pinneapple_simulation.numerical_solvers import HeatConduction3D, HeatConfig3D
+
+n3 = 16 if SMOKE else 28
+vol = HeatConduction3D(HeatConfig3D(nx=n3, ny=n3, nz=n3, nt=20 if SMOKE else 60, dt=2e-3,
+                                    alpha=0.01, source_fn=lambda X, Y, Z, t: 1.0)).solve()
+Tv = vol.u[-1]; k = Tv.shape[2] // 2
+fig, axes = plt.subplots(1, 3, figsize=(13, 3.8))
+for ax, plane, label in ((axes[0], Tv[:, :, k].T, f"z = {k}"),
+                         (axes[1], Tv[:, k, :].T, f"y = {k}"),
+                         (axes[2], Tv[k, :, :].T, f"x = {k}")):
+    im = ax.imshow(plane, origin="lower", cmap="inferno"); ax.set_title(f"slice at {label}")
+    fig.colorbar(im, ax=ax, fraction=0.046)
+fig.savefig(f"{OUT_VIS}/03_volume_3d.png", dpi=120, bbox_inches="tight"); plt.close(fig)
+print(f"3-D -> {OUT_VIS}/03_volume_3d.png   volume {np.shape(Tv)}, T in [{Tv.min():.4f}, {Tv.max():.4f}]")
+
+# --- 4-D: (x, y, t) as an animated GIF ----------------------------------------------
+from pinneapple_tools.visualization.dashboard import Chart, Dashboard, Series, Tile
+
+nxy = 32 if SMOKE else 48
+xs4 = np.linspace(-1.0, 1.0, nxy); X4, Y4 = np.meshgrid(xs4, xs4, indexing="ij")
+t4 = np.linspace(0.0, 1.0, 8 if SMOKE else 24)
+frames4, peaks4 = [], []
+for tk in t4:
+    width = 0.25 + 0.35 * np.sqrt(tk)
+    Z4 = np.exp(-((X4 - 0.3) ** 2 + (Y4 - 0.2) ** 2) / (2 * width ** 2)) * np.exp(-tk)
+    peaks4.append(float(Z4.max()))
+    Z4 = (Z4 - Z4.min()) / (Z4.max() - Z4.min() + 1e-12)
+    frames4.append((plt.get_cmap("viridis")(Z4)[..., :3] * 255).astype(np.uint8))
+
+db = Dashboard("Diffusing blobs", t4, frames4,
+               subtitle="T(x, y, t): a Gaussian blob diffusing and decaying",
+               charts=[Chart("peak amplitude", "amplitude [a.u.]", "time [s]",
+                             [Series("peak", np.asarray(peaks4))])],
+               tiles=[Tile("final peak", peaks4[-1], "a.u."), Tile("frames", len(frames4), "")])
+written = db.to_video(gif=f"{OUT_VIS}/04_field_4d.gif")
+print("4-D ->", {k: v for k, v in written.items()})''')
+
+# --------------------------------------------------------------------------- 13 (text->twin)
+md("""## 12. One sentence to a live digital twin
+
+Text -> the quantities it extracts (with provenance) -> a 3-D geometry -> a 3-D solve -> a
+training set -> a surrogate -> a twin. The parser is offline and rule-based: a keyword score
+picks the template, and it asks for the one slot it cannot default.""")
+
+code('''import time
+from pinneapple_neural import Trainer, TrainConfig
+from pinneapple_design.intent import select_template
+from pinneapple_systems.digital_twin import build_digital_twin
+from pinneapple_systems.digital_twin.io import MockStream
+
+REQUEST = "size a heat sink for a 50 W chip in still air, keep it under 60 mm wide"
+print("request :", REQUEST)
+print("template:", select_template(REQUEST)[:3])
+
+needs = pp.design(REQUEST, out_dir="text_to_twin", verify=False, n_candidates=5, budget=10)
+print("asks    :", [q.text for q in needs.questions] if hasattr(needs, "questions") else needs)
+
+# this slot is in kelvin: 70 degC = 343.15 K
+design = pp.design(REQUEST, answers={"t_limit": 343.15}, out_dir="text_to_twin",
+                   verify=False, n_candidates=10, budget=20)
+print("geometry:", design.geometry)
+for q in design.spec.values.values():
+    shown = "-" if q.value is None else f"{q.value:.6g}"
+    print(f"  {q.name:<14} {shown:<10} {str(q.unit):<8} [{q.provenance}]")''')
+
+code('''import torch.nn.functional as F
+from torch.utils.data import DataLoader, TensorDataset
+
+cfg12 = HeatConfig3D(nx=14, ny=14, nz=14, nt=20 if SMOKE else 40, dt=2e-3, alpha=0.02,
+                     source_fn=lambda X, Y, Z, t: 1.0)
+u12 = HeatConduction3D(cfg12).solve().u
+print("solver :", u12.shape, f"T in [{u12.min():.3f}, {u12.max():.3f}]")
+
+nt12, nx12, ny12, nz12 = u12.shape
+ax12 = [np.linspace(0.0, 1.0, n) for n in (nt12, nx12, ny12, nz12)]
+T12, X12, Y12, Z12 = np.meshgrid(*ax12, indexing="ij")
+Xa = np.column_stack([X12.ravel(), Y12.ravel(), Z12.ravel(), T12.ravel()]).astype(np.float32)
+ya = u12.reshape(-1, 1).astype(np.float32)
+
+rng12 = np.random.default_rng(0)
+keep = min(3000 if SMOKE else 40000, len(Xa))
+sel = rng12.choice(len(Xa), size=keep, replace=False)
+Xa, ya = Xa[sel], ya[sel]
+cut = int(0.85 * keep)
+tr_dl = DataLoader(TensorDataset(torch.tensor(Xa[:cut]), torch.tensor(ya[:cut])), batch_size=1024, shuffle=True)
+va_dl = DataLoader(TensorDataset(torch.tensor(Xa[cut:]), torch.tensor(ya[cut:])), batch_size=2048)
+
+sur = build_model("vanilla_pinn", in_dim=4, out_dim=1, hidden_dim=48, n_layers=3)
+tr12 = Trainer(sur, loss_fn=lambda m, yh, b: F.mse_loss(yh, b["y"]))
+hist12 = tr12.fit(tr_dl, va_dl, TrainConfig(epochs=TRAINER_EPOCHS, lr=2e-3, device="cpu", log_dir="text_to_twin"))
+last12 = hist12["history"][-1]
+print(f"training: epoch {last12['epoch']}, train MSE {last12['train_total']:.3e}, val MSE {last12['val_total']:.3e}")
+
+with torch.no_grad():
+    pred12 = sur(torch.tensor(Xa[cut:])).y.numpy()
+print(f"held-out relative L2: {float(np.linalg.norm(pred12 - ya[cut:]) / np.linalg.norm(ya[cut:])):.3e}")''')
+
+code('''twin = build_digital_twin(sur, field_names=["T"], coord_names=["x", "y", "z", "t"],
+                          update_interval=0.1, anomaly_z_threshold=3.0)
+g12 = np.array(np.meshgrid(np.linspace(0, 1, 6), np.linspace(0, 1, 6), np.linspace(0, 1, 6),
+                           np.linspace(0, 1, 3), indexing="ij")).reshape(4, -1)
+twin.set_domain_coords({n: g12[i] for i, n in enumerate(["x", "y", "z", "t"])})
+
+probe = (0.5, 0.5, 0.5, 1.0)
+def sensor(t):
+    with torch.no_grad():
+        base = float(sur(torch.tensor([probe], dtype=torch.float32)).y)
+    return {"T": base + (0.6 if t > 1.2 else 0.0)}
+
+twin.add_stream(MockStream("die", ["T"], sensor,
+                           coords={"x": probe[0], "y": probe[1], "z": probe[2], "t": probe[3]}))
+with twin:
+    time.sleep(2.5)
+events12 = twin.anomaly_monitor.recent_events()
+print(f"twin    : {len(twin.get_history_df())} updates, field mean {float(np.mean(twin.state.fields['T'])):.4f}, "
+      f"{len(events12)} anomalies")
+for ev in events12[-2:]:
+    print(f"  {ev.field_name}: observed {ev.observed:.3f}, predicted {ev.predicted:.3f}, z {ev.score:.2f}")''')
+
+# --------------------------------------------------------------------------- 14 (variants)
+md("""## 13. Geometry variants, benchmark, inverse model, verification
+
+Sweep a design parameter, simulate each variant, assemble the runs into one dataset that
+carries the parameter, train three architectures on the same data and budget, keep the best,
+and recover the parameter from a handful of probe readings.""")
+
+code('''from pinneapple_design.geometry import sdf3d_sphere
+from pinneapple_analysis.inverse_problems import EnsembleKalmanInversion, EKIConfig
+
+RADII = [0.12, 0.18, 0.24, 0.30][:N_VARIANTS]
+
+def run_case(r):
+    cfg = HeatConfig3D(nx=12, ny=12, nz=12, nt=15 if SMOKE else 30, dt=2e-3, alpha=0.02,
+        source_fn=lambda X, Y, Z, t, r=r: (sdf3d_sphere(
+            np.column_stack([X.ravel(), Y.ravel(), Z.ravel()]), (0.5, 0.5, 0.5), r) <= 0.0
+        ).reshape(np.shape(X)).astype(float))
+    return HeatConduction3D(cfg).solve().u
+
+fields13 = {}
+for r in RADII:
+    fields13[r] = run_case(r)
+    print(f"  r={r:.2f}: field {fields13[r].shape}, final peak T {fields13[r][-1].max():.4f}")''')
+
+code('''u13 = fields13[RADII[0]]
+nt13, nx13, ny13, nz13 = u13.shape
+ax13 = [np.linspace(0.0, 1.0, n) for n in (nt13, nx13, ny13, nz13)]
+T13, X13, Y13, Z13 = np.meshgrid(*ax13, indexing="ij")
+c13 = np.column_stack([X13.ravel(), Y13.ravel(), Z13.ravel(), T13.ravel()]).astype(np.float32)
+
+Xs13, ys13 = [], []
+rng13 = np.random.default_rng(0)
+per = 2000 if SMOKE else 8000
+for r in RADII:
+    rows = rng13.choice(len(c13), size=min(per, len(c13)), replace=False)
+    Xs13.append(np.column_stack([c13[rows], np.full(len(rows), r, dtype=np.float32)]))
+    ys13.append(fields13[r].reshape(-1, 1)[rows].astype(np.float32))
+
+X13a, y13a = np.concatenate(Xs13), np.concatenate(ys13)
+print("dataset:", X13a.shape, "(x, y, z, t, r) -> T")
+
+perm = rng13.permutation(len(X13a)); cut13 = int(0.85 * len(X13a))
+tr13, va13 = perm[:cut13], perm[cut13:]
+trdl = DataLoader(TensorDataset(torch.tensor(X13a[tr13]), torch.tensor(y13a[tr13])), batch_size=1024, shuffle=True)
+vadl = DataLoader(TensorDataset(torch.tensor(X13a[va13]), torch.tensor(y13a[va13])), batch_size=2048)
+
+results = {}
+for arch in ("vanilla_pinn", "siren", "modified_mlp"):
+    m13 = build_model(arch, in_dim=5, out_dim=1, hidden_dim=40, n_layers=3)
+    tr = Trainer(m13, loss_fn=lambda mm, yh, b: F.mse_loss(yh, b["y"]))
+    h13 = tr.fit(trdl, vadl, TrainConfig(epochs=VARIANT_EPOCHS, lr=2e-3, device="cpu", log_dir=f"variants/{arch}"))
+    with torch.no_grad():
+        p13 = m13(torch.tensor(X13a[va13])).y.numpy()
+    rel13 = float(np.linalg.norm(p13 - y13a[va13]) / np.linalg.norm(y13a[va13]))
+    results[arch] = (rel13, m13)
+    print(f"  {arch:<14} held-out rel L2 {rel13:.3e}")
+
+best13 = min(results, key=lambda k: results[k][0])
+sur13 = results[best13][1]
+print(f"  best: {best13}")''')
+
+code('''probes13 = np.array([[0.5, 0.5, 0.5, 1.0], [0.6, 0.5, 0.5, 1.0], [0.5, 0.6, 0.5, 1.0],
+                        [0.5, 0.5, 0.6, 1.0], [0.5, 0.5, 0.5, 0.5], [0.7, 0.5, 0.5, 0.5]], dtype=np.float32)
+R_TRUE = RADII[-2] if len(RADII) > 2 else RADII[-1]
+
+def forward13(theta):
+    theta = np.asarray(theta, dtype=np.float32).reshape(-1, 1)
+    n = len(theta)
+    pts = np.hstack([np.tile(probes13, (n, 1)), np.repeat(theta, len(probes13), axis=0)])
+    with torch.no_grad():
+        return sur13(torch.tensor(pts, dtype=torch.float32)).y.numpy().reshape(n, len(probes13))
+
+y_obs13 = forward13(np.array([R_TRUE]))[0]
+eki = EnsembleKalmanInversion(forward13, EKIConfig(n_ensemble=40, n_iterations=25, noise_std=0.005, seed=0))
+hist13 = eki.run(y_obs13, theta_init=np.array([0.16]),
+                 ensemble=np.linspace(0.10, 0.35, 40).reshape(-1, 1))
+r_hat = float(np.mean(hist13.theta_mean_history[-1]))
+print(f"true r = {R_TRUE:.4f}  recovered r = {r_hat:.4f}  error {100 * (r_hat - R_TRUE) / R_TRUE:+.2f} %")''')
+
+code('''from pinneapple_decision import VeriPhysicsVerifier, ThresholdVerifier, ExecutionResult
+
+grid13 = {"x": ax13[1], "y": ax13[2], "z": ax13[3]}
+gx13, gy13, gz13 = np.meshgrid(grid13["x"], grid13["y"], grid13["z"], indexing="ij")
+gp = np.column_stack([gx13.ravel(), gy13.ravel(), gz13.ravel(),
+                      np.ones(gx13.size, dtype=np.float32), np.full(gx13.size, R_TRUE, dtype=np.float32)])
+with torch.no_grad():
+    field13 = sur13(torch.tensor(gp, dtype=torch.float32)).y.numpy().reshape(gx13.shape)
+
+card13 = pp.trust_card(grid13, field13, reference=fields13[R_TRUE][-1],
+                       train_bounds={"x": (0, 1), "y": (0, 1), "z": (0, 1)})
+print("trust card (surrogate field vs solver field):", card13.decision)
+
+verifier = VeriPhysicsVerifier(min_trust=70.0, min_coverage=0.5,
+                               fallback=ThresholdVerifier(thresholds={"rel_l2": 0.15}))
+result13 = ExecutionResult(status="ok",
+                           metrics={"rel_l2": results[best13][0],
+                                    "theta_error_pct": abs(100 * (r_hat - R_TRUE) / R_TRUE)},
+                           diagnostics={}, artifacts={}, decision_id="inverse-r")
+verification = verifier.verify(result13, {"name": "sphere_radius_inverse"})
+print("VeriPhysics installed:", verifier.veriphysics_installed())
+print("decision:", verification.passed, "| source:", verification.source)''')
 
 # --------------------------------------------------------------------------- 12
 md(f"""## Where to go next

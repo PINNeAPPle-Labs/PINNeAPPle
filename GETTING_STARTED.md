@@ -552,9 +552,9 @@ all of them cost an hour if you meet them blind.
 * **`Arena` cannot build `ModifiedMLP`** in 0.7.0: its factory passes `hidden=`, which
   `ModifiedMLP.__init__` does not accept (it takes `hidden_dim=` in `build_model`). Other
   families build fine.
-* **`industrial_furnace_thermal` does not compile** (its hot face combines convection and
-  radiation, which `thermal_bc` does not support), and the `reference` method for
-  `burgers_1d` is refused because the FDM grid covers `x` only — use `method="analytic"`.
+* **The `reference` method for `burgers_1d` is refused** — the FDM solver returns a grid
+  over `x` only, and comparing a partial grid at the wrong points is worse than failing.
+  Use `method="analytic"` for that preset.
 
 ---
 

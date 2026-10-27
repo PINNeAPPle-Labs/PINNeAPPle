@@ -17,6 +17,20 @@
 
 ---
 
+## Start here
+
+**[→ Getting started: ten runnable recipes](GETTING_STARTED.md)** — install, solve and compare a
+problem, decide whether a field can be trusted, describe your own PDE and generate its training
+data, recover an unknown parameter from measurements, benchmark architectures, and put a model
+live as a digital twin. Every recipe shows the output it actually prints.
+
+```bash
+pip install pinneapple
+python -c "import pinneapple as pp; pp.info()"
+```
+
+---
+
 ## Statement of need
 
 Physics-informed neural networks, neural operators (DeepONet, FNO), graph networks on meshes and classical solvers each

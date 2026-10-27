@@ -28,6 +28,9 @@ is this page as a Colab notebook — same ten recipes, every cell executed, outp
 | 08 | [Uncertainty and validation](#08--uncertainty-and-validation) | How much should I trust a prediction? |
 | 09 | [Industrial preset](#09--industrial-preset) | Is there a ready-made case close to mine? |
 | 10 | [Digital twin](#10--digital-twin) | How do I put a trained model live on a sensor stream? |
+| 11 | [Visualisation](#11--visualisation-1-d-2-d-3-d-and-4-d) | How do I plot a field in 1-D, 2-D, 3-D, and animate it over time? |
+| 12 | [Text to twin](#12--one-sentence-to-a-live-digital-twin) | How do I go from a sentence to a trained model and a live twin? |
+| 13 | [Variants to verified inverse](#13--geometry-variants-benchmark-inverse-verification) | How do I sweep a geometry, pick the best model, and recover a parameter? |
 
 ---
 
@@ -520,6 +523,172 @@ model instead of only comparing them.
 
 ---
 
+## 11 — Visualisation: 1-D, 2-D, 3-D and 4-D
+
+Each block writes a real file under `runs/visualisation/`.
+
+```python
+# 1-D: a solved profile against the closed form
+pinn   = pp.solve("burgers_1d", method="pinn", epochs=800)
+closed = pp.solve("burgers_1d", method="analytic")
+
+# 2-D: the field and its error map
+fem = pp.solve(spec, method="fem", ctx={"source_fn": source}, n=64)
+
+# 3-D: three orthogonal slices through a solver output
+vol = HeatConduction3D(HeatConfig3D(nx=28, ny=28, nz=28, nt=60, dt=2e-3, alpha=0.01,
+                                    source_fn=lambda X, Y, Z, t: 1.0)).solve()
+
+# 4-D: (x, y, t) as an animated GIF, with a chart and tiles beside it
+dashboard = Dashboard("Diffusing blobs", t, frames,
+                      charts=[Chart("peak amplitude", "amplitude [a.u.]", "time [s]",
+                                    [Series("peak", peaks)])],
+                      tiles=[Tile("final peak", peaks[-1], "a.u.")])
+dashboard.to_video(gif="runs/visualisation/04_field_4d.gif")
+```
+
+```text
+[1-D] solving burgers_1d with a PINN and plotting it against the Cole-Hopf solution
+      -> runs/visualisation/01_field_1d.png
+[2-D] FEM on a sourced Poisson problem, field and error map
+      max |error| = 6.02e-04  -> runs/visualisation/02_field_2d.png
+[3-D] 3-D heat conduction (fdm3d), three orthogonal slices
+      volume (28, 28, 28), T in [0.0000, 1.0258]
+      -> runs/visualisation/03_volume_3d.png
+[4-D] a field that depends on space and time, animated
+      gif: runs/visualisation/04_field_4d.gif (747 kB)
+      frames: 24
+
+all figures in runs/visualisation
+```
+
+The 4-D case is the interesting one: a field that depends on `(x, y, t)` is *frames plus
+time*, not a 3-D scatter. `Dashboard` takes the frames as RGB arrays and the time axis,
+draws the charts and tiles next to them, and writes a GIF (or an MP4) with the frames in
+sync. `pp.viz.field_view` and `pp.viz.serve` do the interactive version in a browser.
+
+---
+
+## 12 — One sentence to a live digital twin
+
+The whole chain, with nothing hidden in the middle: text → quantities → 3-D geometry →
+3-D solve → training set → surrogate → twin.
+
+```python
+from pinneapple_design.intent import select_template
+
+REQUEST = "size a heat sink for a 50 W chip in still air, keep it under 60 mm wide"
+print(select_template(REQUEST))                    # [('heatsink', 3.7), ...]
+
+needs  = pp.design(REQUEST, out_dir=OUT, verify=False)      # asks what it cannot default
+design = pp.design(REQUEST, answers={"t_limit": 343.15}, out_dir=OUT, verify=False)
+
+twin = build_digital_twin(surrogate, field_names=["T"], coord_names=["x", "y", "z", "t"])
+```
+
+```text
+request : size a heat sink for a 50 W chip in still air, keep it under 60 mm wide
+template: heatsink (keyword score 3.70); runner-ups none
+
+the parser needs one thing it cannot default: NeedsInput
+  asks: What is the highest allowed temperature of the chip's case (or source)?
+
+status  : designed
+geometry: Geometry('heatsink', lod=light, bodies=5, triangles=60, L x W x H = 0.033 x 0.094 x 0.0365 m)
+  air_velocity   0          m/s      [stated] user
+  power          50         W        [stated] user
+  max_width      0.06       m        [stated] user
+  t_limit        343.15     K        [answered] user (follow-up)
+  t_ambient      298.15     K        [defaulted] template default: room temperature 25 °C (state yours)
+  ...
+  material       -                   [missing]
+
+3-D domain: 33 x 94 x 36 mm, source 50 W
+solver    : (41, 24, 24, 24) (t, x, y, z), T in [0.000, 0.982]
+dataset   : 566784 points of (x, y, z, t) -> T
+split     : 51000 train / 9000 validation
+training  : epoch 149, train MSE 1.857e-04, val MSE 1.684e-04
+held-out relative L2: 6.091e-02
+
+twin      : 25 updates, field mean 0.1039, 1 anomalies
+  T: observed 1.589, predicted 0.989, z 3.33
+```
+
+Three things worth noticing:
+
+* every quantity carries its **provenance** — `stated` (read from your sentence, with the
+  quote), `answered` (the follow-up), `defaulted` (with the source of the default) or
+  `missing`. You can see exactly which numbers are yours and which are the template's;
+* the step is **offline and rule-based**: `select_template` is a keyword score, no API key,
+  no model download. An LLM can replace the parser (`pp.design(..., llm=...)`) but nothing
+  in this chain needs one;
+* `t_limit` is in **kelvin** for this slot. `70` means 70 K and is rejected with
+  "outside the range this template covers (30 to 200 °C)"; `343.15` is 70 °C. The follow-up
+  question says °C, which is a trap — [#953](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/953).
+
+---
+
+## 13 — Geometry variants, benchmark, inverse, verification
+
+The loop an engineer runs when a design parameter is unknown: sweep it, simulate, train,
+benchmark, invert, verify.
+
+```python
+from pinneapple_design.geometry import sdf3d_sphere
+from pinneapple_analysis.inverse_problems import EnsembleKalmanInversion, EKIConfig
+
+RADII = [0.12, 0.18, 0.24, 0.30]              # the design parameter
+fields = {r: run_case(r) for r in RADII}      # one 3-D solve per variant
+
+# benchmark three architectures on the same data, same budget, same seed
+for arch in ("vanilla_pinn", "siren", "modified_mlp"):
+    model = build_model(arch, in_dim=5, out_dim=1, hidden_dim=48, n_layers=3)
+    Trainer(model, loss_fn=lambda m, yh, b: F.mse_loss(yh, b["y"])).fit(
+        train_loader, val_loader, TrainConfig(epochs=80, lr=2e-3, device="cpu"))
+
+# inverse: recover r from six probe readings
+eki = EnsembleKalmanInversion(forward, EKIConfig(n_ensemble=60, n_iterations=40, noise_std=0.005))
+history = eki.run(y_obs, theta_init=np.array([0.18]), ensemble=np.linspace(0.10, 0.35, 60).reshape(-1, 1))
+```
+
+```text
+geometry: sphere of radius r at the centre of a unit box
+  r=0.12:    8 of 1728 sampled points inside the sphere
+  r=0.18:   32 of 1728 sampled points inside the sphere
+  r=0.24:   88 of 1728 sampled points inside the sphere
+  r=0.30:  160 of 1728 sampled points inside the sphere
+
+2. running one 3-D solve per variant
+  r=0.12: field (31, 20, 20, 20), final peak T 0.9514
+  ...
+3. dataset: X (32000, 5) (x, y, z, t, r) -> T (32000, 1)
+
+4. benchmarking architectures on the same data, same budget, same seed
+  vanilla_pinn   val MSE 2.588e-04   held-out rel L2 8.287e-02
+  siren          val MSE 5.435e-05   held-out rel L2 3.797e-02
+  modified_mlp   val MSE 1.377e-04   held-out rel L2 6.043e-02
+  best: siren (held-out relative L2 3.797e-02)
+
+5. inverse: recover the radius from 6 probe readings of the true field
+  true r = 0.2400   recovered r = 0.2407   error +0.31 %   final misfit 9.906e-04
+
+6. verification
+  trust card, surrogate field vs solver field: APPROVED (3 of 5 checks pass, the rest are N/A)
+  VeriPhysics installed: False
+  decision: True | source: fallback:threshold (no VeriPhysics artifact in result) | tags: []
+```
+
+**On VeriPhysics.** The engine lives in its own package (`pinneapple-veriphysics`), not in
+the core install. `VeriPhysicsVerifier` reports `veriphysics_installed() = False` and falls
+back to `ThresholdVerifier`, saying so in `source` — so the decision above is a threshold
+check, not a VeriPhysics artifact. Install the engine and the same call uses it.
+
+**On the benchmark.** `Arena` (recipe 07) benchmarks architectures on *its* registered
+problems. Here the benchmark runs on the dataset you generated, which is the common case:
+same data, same budget, same seed, ranked by held-out error. SIREN wins by a factor of two.
+
+---
+
 ## Where to go next
 
 | I want to... | Start here |
@@ -573,4 +742,4 @@ pip install -e ".[dev]"
 for f in examples/quickstart/*.py; do python "$f"; done
 ```
 
-Recipes 02, 04, 07, 08 and 10 train for 20–70 s each on CPU; the rest finish in seconds.
+Recipes 02, 04, 07, 08, 12 and 13 train or solve for 15–70 s each on CPU; the rest finish in seconds.

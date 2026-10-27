@@ -544,17 +544,17 @@ all of them cost an hour if you meet them blind.
   deliberate refusal: fabricating the mask would produce a physically invalid condition.
 * **`pp.validate(net, {"pinn": ...})` wants a preset name**, not a bare `ProblemSpec`
   (`AttributeError: 'ProblemSpec' object has no attribute 'mesh'`). For a custom problem,
-  use `pp.trust_card` on the field instead.
+  use `pp.trust_card` on the field instead. — [#939](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/939)
 * **`Domain(bounds, shape=...)` samples the bounding box**, not the CSG shape — use
-  `shape.sample_interior` / `shape.sample_boundary`.
+  `shape.sample_interior` / `shape.sample_boundary`. — [#938](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/938)
 * **A checkpoint needs the same constructor kwargs** (`hidden_dim`, `n_layers`) to reload;
-  `class_name` is recorded but is the dotted path, not the registry key.
+  `class_name` is recorded but is the dotted path, not the registry key. — [#941](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/941)
 * **`Arena` cannot build `ModifiedMLP`** in 0.7.0: its factory passes `hidden=`, which
   `ModifiedMLP.__init__` does not accept (it takes `hidden_dim=` in `build_model`). Other
-  families build fine.
+  families build fine. — [#940](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/940)
 * **The `reference` method for `burgers_1d` is refused** — the FDM solver returns a grid
   over `x` only, and comparing a partial grid at the wrong points is worse than failing.
-  Use `method="analytic"` for that preset.
+  Use `method="analytic"` for that preset. — [#942](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/942)
 
 ---
 

@@ -10,6 +10,10 @@ it, each usable alone and all speaking ``pinneapple_data.contracts``:
 * :mod:`.control`  -- model predictive control (linear and nonlinear) against PID and rule-based baselines, in
                       simulation / recommendation mode only.
 
+:mod:`.exchanger` is a second reference plant — a counterflow water/water exchanger whose unmeasured
+fouling resistance a twin has to recover — used by the commissioning layer in
+:mod:`pinneapple_systems.digital_twin.product`.
+
 :mod:`.rom` fits input-driven reduced models (operator inference with inputs), :mod:`.series` chains the days
 13-31 apps (campaign -> surrogate -> uncertainty -> optimizer -> twin) and :mod:`.contracts` converts models and
 studies to ``ModelRef`` / ``StudyResult``. The embedded MQTT broker lives in
@@ -28,6 +32,14 @@ from .anomaly import (
     score_events,
     tank_balance_rules,
     tank_constants,
+)
+from .exchanger import (
+    OperatingPoint,
+    PlantConfig,
+    exchanger_model,
+    fouling_at,
+    generate_history,
+    plant_outlets,
 )
 from .control import (
     MODE,
@@ -64,6 +76,12 @@ from .twin import (
 )
 
 __all__ = [
+    "OperatingPoint",
+    "PlantConfig",
+    "exchanger_model",
+    "plant_outlets",
+    "fouling_at",
+    "generate_history",
     "TankParams", "Fault", "Scenario", "SensorNoise", "TankSimulator", "simulate", "demo_scenario", "steady_state",
     "mass_balance_residual", "energy_balance_residual",
     "ControlledOpInf", "fit_controlled_opinf", "residual_sigma",

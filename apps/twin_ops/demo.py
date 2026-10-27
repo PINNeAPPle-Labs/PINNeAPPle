@@ -24,16 +24,13 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 sys.path.insert(0, str(REPO))      # the library, uninstalled
-sys.path.insert(0, str(HERE))      # twin_ops
 
 from pinneapple_systems.digital_twin.product import (  # noqa: E402
     TwinSpec,
     commission,
     run_live,
 )
-
-from twin_ops.exchanger import (  # noqa: E402
-    OperatingPoint,
+from pinneapple_systems.operations import (  # noqa: E402
     PlantConfig,
     exchanger_model,
     fouling_at,

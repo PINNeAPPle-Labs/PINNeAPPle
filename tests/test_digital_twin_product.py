@@ -34,8 +34,6 @@ from pinneapple_systems.digital_twin.product import (
 
 REPO = Path(__file__).resolve().parents[1]
 APP = REPO / "apps" / "twin_ops"
-if str(APP) not in sys.path:
-    sys.path.insert(0, str(APP))
 
 
 # ---------------------------------------------------------------------------
@@ -308,8 +306,7 @@ def test_drift_monitor_walks_the_ladder_and_needs_hysteresis_to_come_back():
 @pytest.mark.skipif(not (APP / "spec_hx201.yaml").exists(), reason="reference app not present")
 def test_hx201_commissions_end_to_end():
     from pinneapple_systems.digital_twin.product import TwinSpec as TS
-
-    from twin_ops.exchanger import exchanger_model, generate_history
+    from pinneapple_systems.operations import exchanger_model, generate_history
 
     spec = TS.from_yaml(APP / "spec_hx201.yaml")
     hist = generate_history(hours=36.0, sampling_s=600.0)

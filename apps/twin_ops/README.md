@@ -20,12 +20,14 @@ has, and says how far it is from the limit and how long that took to become true
 | file | what it is |
 |---|---|
 | `spec_hx201.yaml` | the contract: fields, sensors in which units, drivers, acceptance gates. It has a digest; every report is filed under it. |
-| `twin_ops/exchanger.py` | the plant (ε-NTU with fouling, plus a flow-dependent UA the model ignores) and a 72 h history generator |
+| `pinneapple_systems/operations/exchanger.py` | the plant (ε-NTU with fouling, plus a flow-dependent UA the model ignores) and a 72 h history generator — in the library, because it is reusable |
 | `demo.py` | commission → put on line → write evidence |
 | `twin_evidence_hx201.json` | the artifact you hand over |
 
-The reusable machinery lives in the library:
-`pinneapple_systems/digital_twin/product/`.
+The reusable machinery lives in the library: the commissioning layer in
+`pinneapple_systems/digital_twin/product/`, the plant in
+`pinneapple_systems/operations/exchanger.py`. This app is the spec and a script that composes
+those calls — which is all an app in this repository is allowed to be.
 
 ## How this relates to `apps/twin_runtime`
 

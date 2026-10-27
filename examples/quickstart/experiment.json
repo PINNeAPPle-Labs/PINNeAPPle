@@ -1,8 +1,8 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/quickstart",
- "title": "Quickstart \u2014 ten recipes from install to a live digital twin",
- "description": "Ten self-contained scripts that answer what a new user asks first: what is installed, how to solve and compare methods, how to decide whether a field can be trusted (trust card), how to describe your own problem and generate training data, how to recover an unknown parameter from measurements, how to predict with and export a trained model, how to benchmark architectures, how much to trust a prediction, how to run a ready-made industrial case, and how to wrap a model as a digital twin. Every script prints the numbers quoted in GETTING_STARTED.md.",
+ "title": "Quickstart — thirteen recipes from install to a live digital twin",
+ "description": "Thirteen self-contained scripts that answer what a new user asks first: what is installed, how to solve and compare methods, how to decide whether a field can be trusted (trust card), how to describe your own problem and generate training data, how to recover an unknown parameter from measurements, how to predict with and export a trained model, how to benchmark architectures, how much to trust a prediction, how to run a ready-made industrial case, how to wrap a model as a digital twin, how to plot 1-D/2-D/3-D and animate a 4-D field, how to go from one sentence to a trained surrogate and a live twin, and how to sweep a geometry into a benchmarked, inverted and verified model. Every script prints the numbers quoted in GETTING_STARTED.md.",
  "domain": "general",
  "methods": [
   "pinn",
@@ -36,7 +36,10 @@
   "07_benchmark_models.py",
   "08_uncertainty_and_validation.py",
   "09_industrial_preset.py",
-  "10_digital_twin.py"
+  "10_digital_twin.py",
+  "11_visualisation.py",
+  "12_text_to_twin.py",
+  "13_variants_benchmark_inverse.py"
  ],
  "metrics": [],
  "checks": [],

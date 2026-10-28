@@ -1,0 +1,56 @@
+# HX-201 — the contract, signed before commissioning.
+# Every number here is a claim that commissioning will confirm or refuse.
+asset:
+  id: HX-201
+  name: Trocador casco-e-tubo HX-201
+  type: shell-and-tube heat exchanger
+  unit: P-101
+coord_names: [position]
+
+fields:
+  - name: T_ho
+    unit: "°C"
+    kind: state
+    lo: 35
+    hi: 75
+    alarm_above: 60.0        # limite de processo no lado quente
+  - name: T_co
+    unit: "°C"
+    kind: state
+    lo: 45
+    hi: 75
+    alarm_below: 57.8        # abaixo disso a carga a jusante não fecha
+  - name: R_f                 # o que o modelo não sabe: incrustação
+    unit: "m2K/W"
+    kind: parameter
+    lo: 0.0
+    hi: 0.0025
+
+sensors:
+  # entradas do modelo (ponto de operação)
+  - {sensor_id: TT-101, unit: "°C",  driver: true, lo: 80,  hi: 110, at: [0.0]}
+  - {sensor_id: TT-102, unit: "°C",  driver: true, lo: 15,  hi: 45,  at: [0.0]}
+  - {sensor_id: FT-101, unit: "kg/s", driver: true, lo: 0.5, hi: 2.0, at: [0.0]}
+  - {sensor_id: FT-102, unit: "kg/s", driver: true, lo: 0.5, hi: 2.5, at: [0.0]}
+  # medições assimiladas
+  - {sensor_id: TT-103, field: T_ho, unit: "°C", lo: 30, hi: 80, at: [1.0], noise_sigma: 0.15}
+  - {sensor_id: TT-104, field: T_co, unit: "°C", lo: 40, hi: 80, at: [2.0], noise_sigma: 0.15}
+  # elemento redundante na saída quente: só compara, nunca entra no filtro
+  - {sensor_id: TT-105, field: T_ho, unit: "°C", lo: 30, hi: 80, at: [1.0], noise_sigma: 0.15, holdout: true}
+
+model:
+  model_id: exchanger-ntu
+  version: "1.0"
+  accuracy_floor: 1.0        # erro declarado do modelo, em °C
+  validity:
+    T_hi: [80, 110]
+    m_h: [0.5, 2.0]
+
+sampling_s: 300
+horizon_s: 259200            # 72 h
+
+gates:
+  max_rmse_frac: 0.025       # 1,0 °C no span de 40 °C do T_ho
+  max_bias_frac: 0.01
+  min_coverage: 0.90
+  min_alarm_lead_s: 3600     # o gêmeo tem de avisar 1 h antes

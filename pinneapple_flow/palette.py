@@ -47,6 +47,7 @@ SECTION_OF: dict[str, str] = {
     "study.surrogates": "surrogates",
     "study.inverse": "inverse",
     "study.twin": "twin",
+    "study.report": "export",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",

@@ -713,7 +713,7 @@ def study_report(recs, res: str, out: str | None = None, title: str = "Ahmed bod
         f"k-omega SST with wall functions in OpenFOAM simpleFoam; design variables "
         + ", ".join(f"{v.name} {v.lower:g}-{v.upper:g} {v.unit}" for v in A.VARIABLES)
         + f".\n\nRuns: {len(ok)} successful of {len(recs)} recorded on "
-        + (f"{env.get('cpu', 'unknown CPU')} ({env.get('cpu_count', '?')} cores, OpenFOAM via {env.get('git_commit', '')[:8]})"
+        + (f"{env.get('cpu', 'unknown CPU')} ({env.get('cpu_count', '?')} cores; code at git {env.get('git_commit', '')[:8]})"
            if env else "an unrecorded machine") + ". Every number below was measured by the scripts in "
         "examples/end_to_end/ahmed_body; a stage without its JSON file reads as not measured.")})
     # 2. geometry
@@ -743,7 +743,7 @@ def study_report(recs, res: str, out: str | None = None, title: str = "Ahmed bod
                                    else cd["error_vs_finest"], strict=False)]
         basis = "Richardson value" if cd.get("extrapolated") else "finest mesh"
         text = (f"Mesh family with a constant refinement ratio sqrt(2) at the baseline (25 deg, 50 mm, 60 m/s, 1000 "
-                f"iterations). CD convergence: {cd['status']}; {cd.get('note') or ''} "
+                f"iterations). CD convergence: {cd['status']}; {cd.get('note') or ''}. "
                 + (f"Observed order p = {cd['p']:.2f}, Richardson value {cd['extrapolated']:.4f}, GCI on the finest "
                    f"mesh {cd['gci_fine']:.2%}." if cd.get("extrapolated") else "")
                 + " Triplets: " + "; ".join(f"{'-'.join(t['meshes'])}: {t.get('status')}"

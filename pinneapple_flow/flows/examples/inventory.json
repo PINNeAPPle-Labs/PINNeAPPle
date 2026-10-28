@@ -287,6 +287,11 @@
   "domain": "design",
   "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
  },
+ "quickstart": {
+  "domain": "getting started",
+  "status": "not_convertible",
+  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+ },
  "rigid_body": {
   "domain": "multibody",
   "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"

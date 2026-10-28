@@ -1,0 +1,230 @@
+{
+ "metrics": [
+  {
+   "name": "cad_vs_parametric_cd_rel",
+   "value": 0.012767096863239846,
+   "unit": "1",
+   "how": "CD of the imported CAD body over the parametric body, baseline, L1 mesh, OpenFOAM"
+  },
+  {
+   "name": "cd_baseline_L0",
+   "value": 0.28899965610083705,
+   "unit": "1",
+   "how": "OpenFOAM, 84223 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "cd_baseline_L1",
+   "value": 0.29656455281749244,
+   "unit": "1",
+   "how": "OpenFOAM, 207080 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "cd_baseline_L2",
+   "value": 0.2707438409326792,
+   "unit": "1",
+   "how": "OpenFOAM, 534472 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "validation_cd_rel_error_median",
+   "value": 0.10913102977129793,
+   "unit": "1",
+   "how": "median |CD_cfd / CD_measured - 1| over the six slant angles of Ahmed et al. (1984), L1 mesh"
+  },
+  {
+   "name": "validation_cd_rel_error_max",
+   "value": 0.47505500955349184,
+   "unit": "1",
+   "how": "largest of the same"
+  },
+  {
+   "name": "doe_discrepancy",
+   "value": 0.003926490735626897,
+   "unit": "1",
+   "how": "centred L2 discrepancy of the 48-point maximin LHS"
+  },
+  {
+   "name": "doe_discrepancy_random",
+   "value": 0.014111927749649977,
+   "unit": "1",
+   "how": "median over 20 random designs of 48 points"
+  },
+  {
+   "name": "CD_mlp_ensemble_test_rmse",
+   "value": 0.0058077897236236955,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_mlp_ensemble_test_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_mlp_ensemble_extrapolation_rmse",
+   "value": 0.05490579162829671,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CL_gp_test_rmse",
+   "value": 0.020438322550755707,
+   "unit": "1",
+   "how": "gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CL_gp_test_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CL_gp_extrapolation_rmse",
+   "value": 0.18406611561935646,
+   "unit": "1",
+   "how": "gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CL_gp_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_test_rmse",
+   "value": 0.009961853559193186,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_extrapolation_rmse",
+   "value": 0.06157521532942428,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_test_rmse",
+   "value": 0.0010223555361808779,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_extrapolation_rmse",
+   "value": 0.0011313648702502251,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_extrapolation_coverage90",
+   "value": 1.0,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "sobol_total_CD_slant_deg",
+   "value": 0.9617356167204382,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_clearance",
+   "value": 0.05327907219339082,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_speed",
+   "value": 0.014496346344442041,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_slant_deg",
+   "value": 0.9424178498381871,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_clearance",
+   "value": 0.06049314764729285,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_speed",
+   "value": 6.8917946376608565e-06,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_slant_deg",
+   "value": 0.08895820794407246,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_clearance",
+   "value": 0.039027944734399765,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_speed",
+   "value": 0.9298479677451612,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "cfd_cpu_hours",
+   "value": 19.859739196524448,
+   "unit": "h",
+   "how": "sum over CFD purposes of wall time x MPI processes"
+  }
+ ],
+ "not_measured": [
+  "extra CFD (acquisition, random, Pareto verification)",
+  "inverse",
+  "twin page",
+  "visuals"
+ ],
+ "report": "../../../../../../../tmp/claude-0/-home-user-PINNeAPPle/2533bd30-fd71-5cff-b40e-0327badcab8f/scratchpad/report_try.html",
+ "evidence_zip": "evidence.zip",
+ "evidence_problems": [],
+ "sections": [
+  "The case",
+  "Geometry and CAD import",
+  "Mesh convergence",
+  "Validation against the wind tunnel",
+  "Design of experiments and run checks",
+  "Dataset",
+  "Surrogates at equal data and budget, with calibrated uncertainty",
+  "The field-scalar consistency check and its tolerance",
+  "Global sensitivity (Sobol indices on the selected surrogates)",
+  "Cost accounting",
+  "Not measured, and limits"
+ ]
+}

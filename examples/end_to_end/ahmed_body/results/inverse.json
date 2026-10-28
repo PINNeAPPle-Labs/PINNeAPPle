@@ -1,0 +1,1096 @@
+{
+ "selected_CD_family": "mlp_ensemble",
+ "sigma_d_all": 0.058607259262900516,
+ "calibration_on_draws": {
+  "n": 300,
+  "coverage": {
+   "0.5": [
+    0.55,
+    0.8133333333333334,
+    0.75
+   ],
+   "0.8": [
+    0.8166666666666667,
+    0.9466666666666667,
+    0.93
+   ],
+   "0.9": [
+    0.9,
+    0.9833333333333333,
+    0.98
+   ],
+   "0.95": [
+    0.94,
+    0.9933333333333333,
+    0.9933333333333333
+   ]
+  },
+  "rank_hist": [
+   [
+    40,
+    31,
+    16,
+    31,
+    29,
+    34,
+    42,
+    36,
+    26,
+    15
+   ],
+   [
+    5,
+    17,
+    17,
+    42,
+    61,
+    68,
+    42,
+    25,
+    12,
+    11
+   ],
+   [
+    12,
+    12,
+    31,
+    26,
+    54,
+    54,
+    48,
+    30,
+    24,
+    9
+   ]
+  ],
+  "mean_abs_error": [
+   0.19852329093275203,
+   0.0005967272105092157,
+   0.0013425959807154512
+  ]
+ },
+ "heldout_cfd": [
+  {
+   "id": "doe001",
+   "slant_deg": 17.75709437161431,
+   "clearance": 0.06675851309770112,
+   "speed": 29.56247346178423,
+   "CD": 0.27589953886293045,
+   "median": 16.01978608745764,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     31.333333333333332
+    ],
+    [
+     32.0,
+     34.0
+    ],
+    [
+     34.66666666666667,
+     35.33333333333333
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe004",
+   "slant_deg": 24.96014532305995,
+   "clearance": 0.07876708147020198,
+   "speed": 50.27402424770449,
+   "CD": 0.30105130267152436,
+   "median": 16.97217966978659,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     32.0
+    ],
+    [
+     32.666666666666664,
+     34.0
+    ],
+    [
+     34.66666666666667,
+     35.33333333333333
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe011",
+   "slant_deg": 28.542426425438965,
+   "clearance": 0.06392697062060487,
+   "speed": 46.84798361000405,
+   "CD": 0.3264002732276887,
+   "median": 21.332060124979563,
+   "hdi90": [
+    [
+     5.333333333333333,
+     38.666666666666664
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe021",
+   "slant_deg": 22.84647644849175,
+   "clearance": 0.05649978931246212,
+   "speed": 58.884731371328755,
+   "CD": 0.2768883614527723,
+   "median": 16.127722549282588,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     30.666666666666664
+    ],
+    [
+     31.333333333333332,
+     33.333333333333336
+    ],
+    [
+     34.0,
+     34.66666666666667
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe026",
+   "slant_deg": 14.023348960699904,
+   "clearance": 0.03899868631977776,
+   "speed": 47.95770410253371,
+   "CD": 0.2523143089587154,
+   "median": 14.99960140510493,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     30.0
+    ],
+    [
+     30.666666666666664,
+     32.0
+    ],
+    [
+     32.666666666666664,
+     33.333333333333336
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe040",
+   "slant_deg": 11.932529448274584,
+   "clearance": 0.04451906254153055,
+   "speed": 40.96760202995081,
+   "CD": 0.25567763584005604,
+   "median": 15.213532668585625,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     30.0
+    ],
+    [
+     30.666666666666664,
+     32.0
+    ],
+    [
+     32.666666666666664,
+     33.333333333333336
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "val_00.0",
+   "slant_deg": 0.0,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.2692701796397162,
+   "median": 15.043131292510687,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     30.0
+    ],
+    [
+     30.666666666666664,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     34.0
+    ]
+   ],
+   "inside": false,
+   "split": "test"
+  },
+  {
+   "id": "val_12.5",
+   "slant_deg": 12.5,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.25572677605998007,
+   "median": 13.923919335193753,
+   "hdi90": [
+    [
+     0.0,
+     29.333333333333332
+    ],
+    [
+     30.0,
+     32.0
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "val_25.0",
+   "slant_deg": 25.0,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.29727774864524137,
+   "median": 17.77516625355654,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     17.333333333333336
+    ],
+    [
+     18.0,
+     20.0
+    ],
+    [
+     20.666666666666664,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     36.0
+    ],
+    [
+     36.666666666666664,
+     37.333333333333336
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "val_30.0",
+   "slant_deg": 30.0,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.33777833866973556,
+   "median": 22.608592402338502,
+   "hdi90": [
+    [
+     3.333333333333333,
+     4.0
+    ],
+    [
+     4.666666666666667,
+     11.333333333333332
+    ],
+    [
+     12.0,
+     13.333333333333332
+    ],
+    [
+     14.0,
+     39.33333333333333
+    ]
+   ],
+   "inside": true,
+   "split": "test"
+  },
+  {
+   "id": "doe003",
+   "slant_deg": 34.16312608785059,
+   "clearance": 0.03803446230644045,
+   "speed": 34.87975720570836,
+   "CD": 0.34997106056555355,
+   "median": 24.94018647411279,
+   "hdi90": [
+    [
+     4.666666666666667,
+     5.333333333333333
+    ],
+    [
+     6.0,
+     12.0
+    ],
+    [
+     12.666666666666666,
+     13.333333333333332
+    ],
+    [
+     14.0,
+     39.33333333333333
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe017",
+   "slant_deg": 37.0781564407402,
+   "clearance": 0.07124516736735749,
+   "speed": 37.48057159699793,
+   "CD": 0.4721654134093224,
+   "median": 35.60241943527821,
+   "hdi90": [
+    [
+     22.0,
+     22.666666666666664
+    ],
+    [
+     24.0,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe018",
+   "slant_deg": 38.881028204045876,
+   "clearance": 0.06459158042335755,
+   "speed": 46.14650885828146,
+   "CD": 0.36179886366484026,
+   "median": 25.956980904987503,
+   "hdi90": [
+    [
+     7.333333333333333,
+     13.333333333333332
+    ],
+    [
+     14.0,
+     39.33333333333333
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe023",
+   "slant_deg": 39.606982843999376,
+   "clearance": 0.04462498748672272,
+   "speed": 54.17764630544715,
+   "CD": 0.42044319167019883,
+   "median": 33.40599395121074,
+   "hdi90": [
+    [
+     14.666666666666666,
+     16.0
+    ],
+    [
+     16.666666666666668,
+     18.0
+    ],
+    [
+     18.666666666666668,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe028",
+   "slant_deg": 34.61192187241621,
+   "clearance": 0.06057271610566567,
+   "speed": 55.108957921908356,
+   "CD": 0.3732272020309825,
+   "median": 27.375987076565863,
+   "hdi90": [
+    [
+     6.0,
+     6.666666666666666
+    ],
+    [
+     8.666666666666668,
+     9.333333333333334
+    ],
+    [
+     10.0,
+     10.666666666666666
+    ],
+    [
+     11.333333333333332,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe036",
+   "slant_deg": 35.49040164423054,
+   "clearance": 0.03457899225993608,
+   "speed": 51.64101356804214,
+   "CD": 0.4043152968672738,
+   "median": 31.12667866685267,
+   "hdi90": [
+    [
+     10.666666666666666,
+     11.333333333333332
+    ],
+    [
+     12.0,
+     13.333333333333332
+    ],
+    [
+     14.0,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe042",
+   "slant_deg": 38.200420250231026,
+   "clearance": 0.031267571394357686,
+   "speed": 56.19917351455781,
+   "CD": 0.4511407994043024,
+   "median": 35.19101086227575,
+   "hdi90": [
+    [
+     17.333333333333336,
+     18.666666666666668
+    ],
+    [
+     19.333333333333332,
+     20.666666666666664
+    ],
+    [
+     21.333333333333332,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "doe045",
+   "slant_deg": 36.07241690874895,
+   "clearance": 0.03708152747842527,
+   "speed": 58.14858550437466,
+   "CD": 0.42692160581130406,
+   "median": 33.65046023373988,
+   "hdi90": [
+    [
+     11.333333333333332,
+     12.0
+    ],
+    [
+     14.666666666666666,
+     15.333333333333332
+    ],
+    [
+     16.666666666666668,
+     18.0
+    ],
+    [
+     18.666666666666668,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "val_35.0",
+   "slant_deg": 35.0,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.3835143024839079,
+   "median": 28.570214431907047,
+   "hdi90": [
+    [
+     6.0,
+     6.666666666666666
+    ],
+    [
+     8.666666666666668,
+     9.333333333333334
+    ],
+    [
+     10.0,
+     10.666666666666666
+    ],
+    [
+     11.333333333333332,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "split": "extrapolation"
+  },
+  {
+   "id": "val_40.0",
+   "slant_deg": 40.0,
+   "clearance": 0.05,
+   "speed": 60.0,
+   "CD": 0.3005108912019697,
+   "median": 18.12598330245393,
+   "hdi90": [
+    [
+     0.6666666666666666,
+     1.3333333333333333
+    ],
+    [
+     2.0,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     36.0
+    ]
+   ],
+   "inside": false,
+   "split": "extrapolation"
+  }
+ ],
+ "heldout_inside_hdi90": 0.9,
+ "measurements": [
+  {
+   "slant_deg": 0.0,
+   "CD_measured": 0.25,
+   "sigma_d": 0.06362000504009112,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 12.686874158379943,
+   "mdn_hdi90": [
+    [
+     0.0,
+     26.666666666666664
+    ],
+    [
+     27.333333333333336,
+     29.333333333333332
+    ],
+    [
+     30.0,
+     32.0
+    ],
+    [
+     32.666666666666664,
+     33.333333333333336
+    ]
+   ],
+   "inside": true,
+   "least_squares": [
+    9.93,
+    40.0
+   ],
+   "mcmc": {
+    "median": 14.85810561063808,
+    "lo90": 1.4019866706867032,
+    "hi90": 31.651197608260023,
+    "acceptance": 0.5305
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  },
+  {
+   "slant_deg": 12.5,
+   "CD_measured": 0.23,
+   "sigma_d": 0.0631616941245446,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 13.652352581582843,
+   "mdn_hdi90": [
+    [
+     0.0,
+     27.333333333333336
+    ],
+    [
+     28.0,
+     30.0
+    ],
+    [
+     30.666666666666664,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     34.0
+    ]
+   ],
+   "inside": true,
+   "least_squares": [
+    9.93,
+    40.0
+   ],
+   "mcmc": {
+    "median": 13.536427792421737,
+    "lo90": 1.4460211324999617,
+    "hi90": 29.05564579764579,
+    "acceptance": 0.5251666666666667
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  },
+  {
+   "slant_deg": 25.0,
+   "CD_measured": 0.285,
+   "sigma_d": 0.06396580636255171,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 17.051725062670513,
+   "mdn_hdi90": [
+    [
+     0.0,
+     16.666666666666668
+    ],
+    [
+     17.333333333333336,
+     19.333333333333332
+    ],
+    [
+     20.0,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     34.66666666666667
+    ],
+    [
+     35.33333333333333,
+     36.0
+    ],
+    [
+     38.0,
+     38.666666666666664
+    ]
+   ],
+   "inside": true,
+   "least_squares": [
+    0.0,
+    23.47,
+    40.0
+   ],
+   "mcmc": {
+    "median": 17.28950797360607,
+    "lo90": 1.7449681489712836,
+    "hi90": 36.16650751573516,
+    "acceptance": 0.5301666666666667
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  },
+  {
+   "slant_deg": 30.0,
+   "CD_measured": 0.378,
+   "sigma_d": 0.06162967303123802,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 28.543574918550522,
+   "mdn_hdi90": [
+    [
+     8.666666666666668,
+     9.333333333333334
+    ],
+    [
+     10.0,
+     11.333333333333332
+    ],
+    [
+     12.0,
+     40.0
+    ]
+   ],
+   "inside": true,
+   "least_squares": [
+    0.0,
+    35.4
+   ],
+   "mcmc": {
+    "median": 31.448992228886887,
+    "lo90": 5.6305432261855755,
+    "hi90": 39.229589822093864,
+    "acceptance": 0.38066666666666665
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  },
+  {
+   "slant_deg": 35.0,
+   "CD_measured": 0.26,
+   "sigma_d": 0.032720275401551056,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 11.760262335169056,
+   "mdn_hdi90": [
+    [
+     0.6666666666666666,
+     26.0
+    ],
+    [
+     26.666666666666664,
+     28.666666666666668
+    ],
+    [
+     29.333333333333332,
+     30.0
+    ]
+   ],
+   "inside": false,
+   "least_squares": [
+    5.07,
+    15.15,
+    40.0
+   ],
+   "mcmc": {
+    "median": 12.458750833625524,
+    "lo90": 1.2510098879428728,
+    "hi90": 25.246848092040103,
+    "acceptance": 0.5591666666666667
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  },
+  {
+   "slant_deg": 40.0,
+   "CD_measured": 0.25,
+   "sigma_d": 0.06009578171525154,
+   "sigma_d_basis": "leave-one-out over the validation sweep",
+   "mdn_median": 14.92524390384739,
+   "mdn_hdi90": [
+    [
+     0.0,
+     30.0
+    ],
+    [
+     30.666666666666664,
+     32.666666666666664
+    ],
+    [
+     33.333333333333336,
+     34.0
+    ]
+   ],
+   "inside": false,
+   "least_squares": [
+    9.93,
+    40.0
+   ],
+   "mcmc": {
+    "median": 14.470192896546504,
+    "lo90": 1.2752176500468353,
+    "hi90": 31.302355029274825,
+    "acceptance": 0.5295
+   },
+   "measurement_within_model_reach": true,
+   "surrogate_CD_range": [
+    0.2552232713501271,
+    0.3706450340102186
+   ]
+  }
+ ],
+ "measurement_sets": {
+  "ahmed_1984": {
+   "label": "Ahmed, Ramm & Faltin (1984)",
+   "speed": 60.0,
+   "clearance": 0.05,
+   "source": "Ahmed, S.R., Ramm, G., Faltin, G. (1984). Some salient features of the time-averaged ground vehicle wake. SAE Technical Paper 840300. Values as transcribed in examples/qualitative/03_ahmed_slant.py (60 m/s, Re 4.29e6 on the length).",
+   "verification": {
+    "12.5": "0.230 quoted as Ahmed et al. (1984) in a published grid-independence table (secondary source)",
+    "25.0": "0.285 quoted for the 25 deg body by CFD benchmark pages citing SAE 840300 (secondary sources)",
+    "30.0": "the drag maximum at 30 deg is confirmed qualitatively; the value 0.378 is the transcription only",
+    "35.0": "0.26 quoted as Ahmed's (1984) figure in a turbulence-model comparison (secondary source)",
+    "0.0": "transcription only",
+    "40.0": "transcription only",
+    "Re": "4.29e6 on the model length confirmed (secondary source)"
+   },
+   "status": "measured",
+   "rows": [
+    {
+     "slant_deg": 0.0,
+     "CD_measured": 0.25,
+     "sigma_d": 0.06362000504009112,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 12.686874158379943,
+     "mdn_hdi90": [
+      [
+       0.0,
+       26.666666666666664
+      ],
+      [
+       27.333333333333336,
+       29.333333333333332
+      ],
+      [
+       30.0,
+       32.0
+      ],
+      [
+       32.666666666666664,
+       33.333333333333336
+      ]
+     ],
+     "inside": true,
+     "least_squares": [
+      9.93,
+      40.0
+     ],
+     "mcmc": {
+      "median": 14.85810561063808,
+      "lo90": 1.4019866706867032,
+      "hi90": 31.651197608260023,
+      "acceptance": 0.5305
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    },
+    {
+     "slant_deg": 12.5,
+     "CD_measured": 0.23,
+     "sigma_d": 0.0631616941245446,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 13.652352581582843,
+     "mdn_hdi90": [
+      [
+       0.0,
+       27.333333333333336
+      ],
+      [
+       28.0,
+       30.0
+      ],
+      [
+       30.666666666666664,
+       32.666666666666664
+      ],
+      [
+       33.333333333333336,
+       34.0
+      ]
+     ],
+     "inside": true,
+     "least_squares": [
+      9.93,
+      40.0
+     ],
+     "mcmc": {
+      "median": 13.536427792421737,
+      "lo90": 1.4460211324999617,
+      "hi90": 29.05564579764579,
+      "acceptance": 0.5251666666666667
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    },
+    {
+     "slant_deg": 25.0,
+     "CD_measured": 0.285,
+     "sigma_d": 0.06396580636255171,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 17.051725062670513,
+     "mdn_hdi90": [
+      [
+       0.0,
+       16.666666666666668
+      ],
+      [
+       17.333333333333336,
+       19.333333333333332
+      ],
+      [
+       20.0,
+       32.666666666666664
+      ],
+      [
+       33.333333333333336,
+       34.66666666666667
+      ],
+      [
+       35.33333333333333,
+       36.0
+      ],
+      [
+       38.0,
+       38.666666666666664
+      ]
+     ],
+     "inside": true,
+     "least_squares": [
+      0.0,
+      23.47,
+      40.0
+     ],
+     "mcmc": {
+      "median": 17.28950797360607,
+      "lo90": 1.7449681489712836,
+      "hi90": 36.16650751573516,
+      "acceptance": 0.5301666666666667
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    },
+    {
+     "slant_deg": 30.0,
+     "CD_measured": 0.378,
+     "sigma_d": 0.06162967303123802,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 28.543574918550522,
+     "mdn_hdi90": [
+      [
+       8.666666666666668,
+       9.333333333333334
+      ],
+      [
+       10.0,
+       11.333333333333332
+      ],
+      [
+       12.0,
+       40.0
+      ]
+     ],
+     "inside": true,
+     "least_squares": [
+      0.0,
+      35.4
+     ],
+     "mcmc": {
+      "median": 31.448992228886887,
+      "lo90": 5.6305432261855755,
+      "hi90": 39.229589822093864,
+      "acceptance": 0.38066666666666665
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    },
+    {
+     "slant_deg": 35.0,
+     "CD_measured": 0.26,
+     "sigma_d": 0.032720275401551056,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 11.760262335169056,
+     "mdn_hdi90": [
+      [
+       0.6666666666666666,
+       26.0
+      ],
+      [
+       26.666666666666664,
+       28.666666666666668
+      ],
+      [
+       29.333333333333332,
+       30.0
+      ]
+     ],
+     "inside": false,
+     "least_squares": [
+      5.07,
+      15.15,
+      40.0
+     ],
+     "mcmc": {
+      "median": 12.458750833625524,
+      "lo90": 1.2510098879428728,
+      "hi90": 25.246848092040103,
+      "acceptance": 0.5591666666666667
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    },
+    {
+     "slant_deg": 40.0,
+     "CD_measured": 0.25,
+     "sigma_d": 0.06009578171525154,
+     "sigma_d_basis": "leave-one-out over the validation sweep",
+     "mdn_median": 14.92524390384739,
+     "mdn_hdi90": [
+      [
+       0.0,
+       30.0
+      ],
+      [
+       30.666666666666664,
+       32.666666666666664
+      ],
+      [
+       33.333333333333336,
+       34.0
+      ]
+     ],
+     "inside": false,
+     "least_squares": [
+      9.93,
+      40.0
+     ],
+     "mcmc": {
+      "median": 14.470192896546504,
+      "lo90": 1.2752176500468353,
+      "hi90": 31.302355029274825,
+      "acceptance": 0.5295
+     },
+     "measurement_within_model_reach": true,
+     "surrogate_CD_range": [
+      0.2552232713501271,
+      0.3706450340102186
+     ]
+    }
+   ],
+   "inside_hdi90": 0.6666666666666666
+  },
+  "lienhart_becker_2003": {
+   "label": "Lienhart & Becker (2003)",
+   "speed": 40.0,
+   "clearance": 0.05,
+   "source": "Lienhart, H., Becker, S. (2003). Flow and turbulence structure in the wake of a simplified car model. SAE Technical Paper 2003-01-0656 (LSTM Erlangen low-speed wind tunnel, bulk velocity 40 m/s, slant 25 and 35 deg; LDA and surface-pressure data in the ERCOFTAC database, case 082 / KB wiki AC1-05).",
+   "verification": {
+    "conditions": "40 m/s and the two slant angles confirmed by secondary sources (web search)",
+    "CD": "not obtained: kbwiki.ercoftac.org, cfd.mace.manchester.ac.uk and the SAE paper are not reachable from this environment, and the drag values quoted by third parties could not be attributed to this paper rather than to Ahmed et al. (1984); the set therefore carries no CD and the inverse stage reports it as not measured here"
+   },
+   "status": "not measured here: the set carries no drag values (see verification)",
+   "rows": []
+  }
+ },
+ "mdn": {
+  "n_sims": 40000,
+  "K": 6,
+  "hidden": 64,
+  "depth": 3,
+  "steps": 22485,
+  "train_s": 60.0,
+  "best_val_nll": -8.755194664001465
+ },
+ "seconds": 365.7858028411865
+}

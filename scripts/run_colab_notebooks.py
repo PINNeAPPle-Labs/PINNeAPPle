@@ -28,6 +28,17 @@ def notebooks(filters):
     return [p for p in paths if not filters or any(f in os.path.basename(p) for f in filters)]
 
 
+def keeps_outputs(nb) -> bool:
+    """A notebook may opt in to carrying its outputs, with ``metadata.pinneapple.keep_outputs``.
+
+    The default is no outputs: a committed output makes every other open pull request
+    conflict on the next merge, so ``--check-clean`` fails on one. A notebook that *is* the
+    deliverable -- the quickstart tour, where the printed numbers are the point -- sets the
+    flag and is executed before every commit instead of being cleared.
+    """
+    return bool((nb.get("metadata") or {}).get("pinneapple", {}).get("keep_outputs"))
+
+
 def has_outputs(nb) -> bool:
     return any(c.get("outputs") or c.get("execution_count") for c in nb.cells if c.cell_type == "code")
 
@@ -58,15 +69,22 @@ def main(argv=None) -> int:
         return 1
     if a.check_clean or a.clear:
         dirty = []
+        kept = []
         for p in paths:
             nb = nbformat.read(p, as_version=4)
-            if has_outputs(nb):
-                dirty.append(os.path.relpath(p, ROOT))
-                if a.clear:
-                    nbformat.write(clear(nb), p)
+            if not has_outputs(nb):
+                continue
+            if keeps_outputs(nb):
+                kept.append(os.path.relpath(p, ROOT))
+                continue
+            dirty.append(os.path.relpath(p, ROOT))
+            if a.clear:
+                nbformat.write(clear(nb), p)
         if dirty and not a.clear:
             print("notebooks with outputs (run with --clear):\n  " + "\n  ".join(dirty), file=sys.stderr)
             return 1
+        if kept:
+            print("outputs kept by request (metadata.pinneapple.keep_outputs): " + ", ".join(kept))
         print(("cleared: " + ", ".join(dirty)) if dirty and a.clear else "all notebooks are clean")
         return 0
 

@@ -1,0 +1,202 @@
+{
+  "asset_id": "HX-201",
+  "spec_digest": "6b86712f52ed2644",
+  "model_id": "exchanger-ntu 1.0",
+  "created_unix": 1793119128.405646,
+  "commissioned": true,
+  "preflight": {
+    "title": "Preflight \u2014 HX-201 (spec 6b86712f52ed2644)",
+    "passed": true,
+    "counts": {
+      "PASS": 11,
+      "INFO": 0,
+      "WARN": 0,
+      "FAIL": 0
+    },
+    "items": [
+      {
+        "check_id": "P01",
+        "status": "PASS",
+        "title": "every sensor declares the unit of its field",
+        "detail": "7 sensors (4 driver, 3 predicted)",
+        "why": "",
+        "fix": "",
+        "source": "spec.sensors[].unit"
+      },
+      {
+        "check_id": "P02",
+        "status": "PASS",
+        "title": "every predicted field has at least one assimilated sensor",
+        "detail": "2 assimilated, 1 held out",
+        "why": "",
+        "fix": "",
+        "source": "spec.sensors[].holdout"
+      },
+      {
+        "check_id": "P02b",
+        "status": "PASS",
+        "title": "estimate is over-determined",
+        "detail": "2 sensors for 1 unknowns",
+        "why": "redundancy is what lets the backtest disagree with the filter",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P03",
+        "status": "PASS",
+        "title": "timestamps are monotonic",
+        "detail": "864 frames",
+        "why": "",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P04",
+        "status": "PASS",
+        "title": "no duplicate timestamps",
+        "detail": "",
+        "why": "",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P05",
+        "status": "PASS",
+        "title": "declared sampling rate matches the history",
+        "detail": "median \u0394t 300 s",
+        "why": "",
+        "fix": "",
+        "source": "spec.sampling_s"
+      },
+      {
+        "check_id": "P06",
+        "status": "PASS",
+        "title": "every declared sensor reports",
+        "detail": "7 channels",
+        "why": "",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P07",
+        "status": "PASS",
+        "title": "no stuck channel detected",
+        "detail": "",
+        "why": "",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P08",
+        "status": "PASS",
+        "title": "all readings inside the declared envelope",
+        "detail": "",
+        "why": "",
+        "fix": "",
+        "source": ""
+      },
+      {
+        "check_id": "P09",
+        "status": "PASS",
+        "title": "acceptance gates are meaningful",
+        "detail": "RMSE \u2264 2.5% of span, bias \u2264 1.0%, coverage \u2265 90%",
+        "why": "",
+        "fix": "",
+        "source": "spec.gates"
+      },
+      {
+        "check_id": "P10",
+        "status": "PASS",
+        "title": "the model declares an accuracy floor",
+        "detail": "1 \u00b0C (exchanger-ntu)",
+        "why": "",
+        "fix": "",
+        "source": "spec.model.accuracy_floor"
+      }
+    ]
+  },
+  "tracking": {
+    "passed": true,
+    "n_steps": 852,
+    "gates": {
+      "max_rmse_frac": 0.025,
+      "max_bias_frac": 0.01,
+      "min_coverage": 0.9,
+      "min_alarm_lead_s": 3600
+    },
+    "breaches": [],
+    "alarm_lead_s": {
+      "T_ho": 9300.0
+    },
+    "forecast_error_s": {
+      "T_ho": 3900.0
+    },
+    "final_latent": {
+      "R_f": {
+        "value": 0.0016517697598000974,
+        "std": 9.471486880806596e-06,
+        "unit": "m2K/W"
+      }
+    },
+    "metrics": [
+      {
+        "field_name": "T_ho",
+        "unit": "\u00b0C",
+        "n": 852,
+        "rmse": 0.21575651585103514,
+        "mae": 0.1677336525135625,
+        "bias": -0.01048867798436878,
+        "p95_abs": 0.4315289452619932,
+        "coverage": 0.9553990610328639,
+        "span": 40.0,
+        "window_s": 255300.0,
+        "coverage_raw": 0.863849765258216,
+        "band_scale": 1.3361684802410412,
+        "calibration_s": 127500.0,
+        "rmse_frac": 0.005393912896275879,
+        "bias_frac": -0.0002622169496092195
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "t": 1767397500.0,
+      "from": "NORMAL",
+      "to": "WATCH",
+      "coverage": 0.8333,
+      "step": 0
+    },
+    {
+      "t": 1767444600.0,
+      "from": "WATCH",
+      "to": "NORMAL",
+      "coverage": 0.9333,
+      "step": 1
+    },
+    {
+      "t": 1767483300.0,
+      "from": "NORMAL",
+      "to": "WATCH",
+      "coverage": 0.8667,
+      "step": 2
+    }
+  ],
+  "unverified": [
+    "the band is a state-uncertainty band scaled once on a held-out window; it is not a prediction interval for a change of regime",
+    "commissioned on 7 channels within the declared envelope only; no claim is made outside the stated operating range",
+    "the first 12 frames were assimilated but excluded from the metrics",
+    "T_ho: the band was scaled \u00d71.34 on the first 35.4 h of the window and scored on the rest; the raw ensemble band would have covered 86.4% of the scored part",
+    "tracking error includes the model's own error; the spec claims a floor of 1 \u00b0C",
+    "no alarm lead measured for R_f: no engineering limit was declared",
+    "the alarm lead comes from a linear extrapolation of the latent state; its error against the crossing that actually happened is reported, and it grows with any change of regime",
+    "the model was not re-fitted during commissioning; this is the twin as shipped"
+  ],
+  "initial_state": {
+    "R_f": {
+      "value": 0.0016517697598000974,
+      "std": 9.471486880806596e-06,
+      "unit": "m2K/W"
+    }
+  },
+  "notes": "demo on synthetic history; not a plant commissioning record\non-line run: 302 steps, final mode WATCH, rolling coverage 0.850"
+}

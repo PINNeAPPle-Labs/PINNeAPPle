@@ -1,0 +1,12 @@
+{
+ "code_hash": "1762255f7eea4391",
+ "figures": [],
+ "id": "dataset:airfoil_rans_cst_re4e6",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "60 rows; ['Cd', 'Cl', 'Cm', 'M0', 'M1', 'M2', 'T0', 'T1']\ncc-by-4.0",
+ "timed_out": false
+}

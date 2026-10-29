@@ -1,0 +1,12 @@
+{
+ "code_hash": "3f1cfb0dac467747",
+ "figures": [],
+ "id": "example:examples/autolab",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8cbce4befaaa6a23",
+ "figures": [],
+ "id": "node:data.ingest",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Data ingest (CSV) -> csv -> arrays; files only from PINNEAPPLE_FLOW_DATA (pinneapple_flow.config.safe_data_path)\ninputs: []\noutputs: [('data', 'dataset'), ('series', 'series')]\ndefaults: {'source': 'inline', 'csv': '', 'file': '', 'inputs': ['x', 't'], 'outputs': ['u']}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8a299191f8f637d0",
+ "figures": [],
+ "id": "node:meta.learn",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Meta-learning over a coefficient (Reptile / MAML) -> pinneapple_adaptation.meta_learning.meta_train + PDETaskSampler (tasks: the problem with one coefficient varied)\ninputs: [('problem', 'problem')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'coefficient': '', 'range': [], 'algorithm': 'reptile', 'meta_epochs': 40, 'inner_steps': 5, 'adapt_steps': 20, 'width': 32}",
+ "timed_out": false
+}

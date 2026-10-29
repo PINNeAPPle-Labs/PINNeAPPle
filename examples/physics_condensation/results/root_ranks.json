@@ -1,0 +1,16 @@
+{
+ "blocks": 4096,
+ "root_ports": 3072,
+ "side_dofs": 768,
+ "ranks": {
+  "WE": 16,
+  "WS": 74,
+  "WN": 74,
+  "ES": 74,
+  "EN": 74,
+  "SN": 17,
+  "W_near_far_quarter": 10
+ },
+ "quarter_dofs": 192,
+ "peak_rss_gb": 0.666172
+}

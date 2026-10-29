@@ -1,0 +1,12 @@
+{
+ "code_hash": "17bb5547256aa500",
+ "figures": [],
+ "id": "node:nonhermitian.hypothesis_map",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Does the no-go theorem constrain a design? (physics audit) -> pinneapple_physics.physics_audit.audit_assumptions + non_hermitian.theorem_profile, design_features, PTDimer, PTChain, route_c_asymmetric\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'dimer_b': [1.0, 0.3], 'gamma': 0.5, 'J': 1.0, 'G': 0.5, 'route_c_lam': 1.0, 'chain_n': 3, 'chain_b': 1.0}",
+ "timed_out": false
+}

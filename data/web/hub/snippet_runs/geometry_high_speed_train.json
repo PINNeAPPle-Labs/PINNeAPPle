@@ -1,0 +1,12 @@
+{
+ "code_hash": "118c26515629f944",
+ "figures": [],
+ "id": "geometry:high_speed_train",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "High-speed train (ICE 3 / CRH3 class) | rail\nhigh_speed_train.light.stl 645684 bytes",
+ "timed_out": false
+}

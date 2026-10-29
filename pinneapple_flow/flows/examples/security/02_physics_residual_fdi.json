@@ -1,0 +1,591 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.security.02_physics_residual_fdi",
+ "name": "Physics residuals against false data injection",
+ "description": "Three-tank water network: a grey-box physics twin against an AR twin, PCA and an isolation forest, six attacks, nominal and shifted operating regimes, mean of three seeds (examples/security/02_physics_residual_fdi.py).",
+ "nodes": [
+  {
+   "id": "fdi",
+   "type": "security.fdi_benchmark",
+   "params": {
+    "seeds": [
+     0,
+     1,
+     2
+    ]
+   },
+   "label": "FDI benchmark (3 seeds)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "security",
+    "comparisons": [
+     {
+      "flow": "fdi.nominal.physics.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.bias.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.bias.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.bias.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.bias.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.bias.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.bias.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.bias.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.bias.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.bias.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.bias.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.ramp.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.ramp.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.ramp.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.ramp.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.ramp.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.ramp.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.ramp.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.ramp.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.ramp.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.ramp.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.stuck.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.stuck.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.stuck.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.stuck.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.stuck.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.stuck.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.stuck.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.stuck.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.stuck.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.stuck.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.delayed.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.delayed.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.delayed.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.delayed.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.delayed.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.delayed.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.delayed.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.delayed.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.delayed.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.delayed.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.scaling.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.scaling.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.scaling.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.scaling.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.scaling.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.scaling.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.scaling.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.scaling.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.scaling.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.scaling.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.coordinated_replay.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.coordinated_replay.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.coordinated_replay.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.coordinated_replay.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.coordinated_replay.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.pca.coordinated_replay.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.coordinated_replay.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.coordinated_replay.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.bias.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.bias.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.bias.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.bias.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.ramp.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.ramp.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.ramp.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.ramp.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.stuck.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.stuck.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.stuck.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.stuck.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.delayed.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.delayed.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.delayed.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.delayed.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.scaling.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.scaling.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.scaling.localisation",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.scaling.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.coordinated_replay.detection_rate",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.physics.coordinated_replay.delay_min",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.pca.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.coordinated_replay.auc",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)"
+     },
+     {
+      "flow": "fdi.nominal.physics.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?physics ([\\d.]+)"
+     },
+     {
+      "flow": "fdi.shifted.physics.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?physics \\**(\\d+(?:\\.\\d+)?)"
+     },
+     {
+      "flow": "fdi.nominal.ar_twin.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?AR twin ([\\d.]+)"
+     },
+     {
+      "flow": "fdi.shifted.ar_twin.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?AR twin \\**(\\d+(?:\\.\\d+)?)"
+     },
+     {
+      "flow": "fdi.nominal.pca.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?PCA ([\\d.]+)"
+     },
+     {
+      "flow": "fdi.shifted.pca.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?PCA \\**(\\d+(?:\\.\\d+)?)"
+     },
+     {
+      "flow": "fdi.nominal.iforest.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?isolation forest ([\\d.]+)"
+     },
+     {
+      "flow": "fdi.shifted.iforest.false_alarms_per_day",
+      "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?isolation forest \\**(\\d+(?:\\.\\d+)?)"
+     }
+    ],
+    "tolerance_source": "the guide's table (mean of seeds 0 1 2): half a unit of the last written digit"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "fdi",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "fdi.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "security",
+  "domain": "security",
+  "scripts": [
+   "02_physics_residual_fdi.py"
+  ],
+  "quick": {
+   "fdi": {
+    "seeds": [
+     0
+    ]
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: seed 0 only (the guide is the mean of three seeds)"
+   }
+  }
+ }
+}

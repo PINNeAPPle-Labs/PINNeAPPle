@@ -1,0 +1,12 @@
+{
+ "code_hash": "89d5ec2af555f898",
+ "figures": [],
+ "id": "example:examples/industrial_presets/water_distribution_network",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo | Fluidos / saneamento | not curated\nrel_error[pressão no nó 3, Hazen-Williams] 1.0963156043483382e-05 -\nrel_error[pressão no nó 6, Hazen-Williams] 8.604211536602683e-06 -\nrel_error[pressão no nó 3, Darcy-Weisbach] 0.004225301457298413 -\nrel_error[pressão no nó 6, Darcy-Weisbach] 0.002865155312762607 -\nrel_error[custo da solução publicada] 0.0 -",
+ "timed_out": false
+}

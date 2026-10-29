@@ -1,0 +1,12 @@
+{
+ "code_hash": "7b70b08f88d713b6",
+ "figures": [],
+ "id": "node:auto.core.backend.use_backend",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "_GeneratorContextManager\n<contextlib._GeneratorContextManager object at 0x7f9a25ce68b0>",
+ "timed_out": false
+}

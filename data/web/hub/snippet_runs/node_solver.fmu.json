@@ -1,0 +1,12 @@
+{
+ "code_hash": "88fbe53ef40e34cd",
+ "figures": [],
+ "id": "node:solver.fmu",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Simulate an FMU (FMI) -> pinneapple_flow.wrappers:fmu_simulate pinneapple_simulation.external_solvers.modelica\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'file': '', 'stop_time': 1.0, 'step_size': 0.01}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "93310ca77c0e9b71",
+ "figures": [],
+ "id": "recipe:agents-pre-trained-models-and-datasets",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 6.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "['airfoil_cst_rans_mlp', 'heatsink_forced_mlp', 'heatsink_natural_mlp', 'rover_contact_grc1_viper'] ['airfoil_rans_cst_re4e6', 'airfoil_rans_cst_re4e6_fields', 'blackhole_riaf_density_256', 'burgers_1d_li2021', 'cylinder_wake_lbm', 'darcy_2d_li2021', 'heatsink_forced_convection', 'heatsink_natural_convection', 'navier_stokes_2d_li2021_nu1e-3', 'rover_contact_grc1_viper', 'single_wheel_tests', 'thermal_channel_cfd']\n[0.66150291] [0.00085025]\n60 ['Cd', 'Cl', 'Cm', 'M0']",
+ "timed_out": false
+}

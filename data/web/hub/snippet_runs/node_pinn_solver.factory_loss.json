@@ -1,0 +1,12 @@
+{
+ "code_hash": "a7f7338d2ac2b5bc",
+ "figures": [],
+ "id": "node:pinn_solver.factory_loss",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Symbolic PINN loss (PINNFactory) on the zero field -> pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec + PINNFactory.generate_loss_function\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'residuals': ['Derivative(u(t,x), t) + u(t,x)'], 'independent_vars': ['t', 'x'], 'dependent_vars': ['u'], 'n_points': 32, 'seed': 0}",
+ "timed_out": false
+}

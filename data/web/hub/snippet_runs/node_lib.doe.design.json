@@ -1,0 +1,12 @@
+{
+ "code_hash": "5b1f4f5beda2eda9",
+ "figures": [],
+ "id": "node:lib.doe.design",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.29,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design of experiments -> pinneapple_flow.wrappers:doe_design pinneapple_data.contracts pinneapple_data.doe.coverage pinneapple_data.doe.designs\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'parameters': None, 'n': 16, 'method': 'lhs', 'seed': 0}",
+ "timed_out": false
+}

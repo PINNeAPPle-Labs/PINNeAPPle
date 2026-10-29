@@ -1,0 +1,12 @@
+{
+ "code_hash": "a809a7183e355457",
+ "figures": [],
+ "id": "node:auto.pp.check.get_rule",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get rule -> pinneapple.check:get_rule\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'rule_id': ''}",
+ "timed_out": false
+}

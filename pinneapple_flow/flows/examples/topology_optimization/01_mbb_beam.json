@@ -1,0 +1,195 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-topology-mbb",
+ "name": "Topology optimization: MBB beam and cantilever (01)",
+ "description": "Half MBB beam 60 x 20 at volume 0.5 with a density filter, OC and MMA, then with Heaviside projection and beta continuation; a cantilever 80 x 40 at volume 0.4; the adjoint sensitivities against finite differences (examples/topology_optimization/01_mbb_beam.py).",
+ "nodes": [
+  {
+   "id": "grad",
+   "type": "design.topology_gradcheck",
+   "params": {},
+   "label": "Sensitivity check",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mbb_oc",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "mbb",
+    "method": "oc",
+    "label": "MBB, OC, filter"
+   },
+   "label": "MBB, OC, filter",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mbb_mma",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "mbb",
+    "method": "mma",
+    "label": "MBB, MMA, filter"
+   },
+   "label": "MBB, MMA, filter",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "mbb_proj",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "mbb",
+    "method": "mma",
+    "projection": true,
+    "label": "MBB, MMA, filter + projection"
+   },
+   "label": "MBB, MMA, filter + projection",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "cant",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "cantilever",
+    "nelx": 80,
+    "nely": 40,
+    "volume": 0.4,
+    "rmin": 2.0,
+    "method": "mma",
+    "projection": true,
+    "label": "Cantilever, MMA, projection"
+   },
+   "label": "Cantilever, MMA, projection",
+   "position": {
+    "x": 330.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "topology_optimization",
+    "comparisons": [
+     {
+      "flow": "grad.gradient_check_max_rel_err",
+      "ref": "results/mbb_summary.json:gradient_check_max_rel_err",
+      "rtol": 0.5,
+      "atol": 1e-06
+     },
+     {
+      "flow": "mbb_oc.MBB, OC, filter.objective",
+      "ref": "results/mbb_summary.json:MBB, OC, filter.compliance"
+     },
+     {
+      "flow": "mbb_oc.MBB, OC, filter.iterations",
+      "ref": "results/mbb_summary.json:MBB, OC, filter.iterations"
+     },
+     {
+      "flow": "mbb_oc.MBB, OC, filter.gray_fraction",
+      "ref": "results/mbb_summary.json:MBB, OC, filter.gray_fraction"
+     },
+     {
+      "flow": "mbb_mma.MBB, MMA, filter.objective",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter.compliance"
+     },
+     {
+      "flow": "mbb_mma.MBB, MMA, filter.iterations",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter.iterations"
+     },
+     {
+      "flow": "mbb_mma.MBB, MMA, filter.gray_fraction",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter.gray_fraction"
+     },
+     {
+      "flow": "mbb_proj.MBB, MMA, filter + projection.objective",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.compliance"
+     },
+     {
+      "flow": "mbb_proj.MBB, MMA, filter + projection.iterations",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.iterations"
+     },
+     {
+      "flow": "mbb_proj.MBB, MMA, filter + projection.gray_fraction",
+      "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.gray_fraction"
+     },
+     {
+      "flow": "cant.Cantilever, MMA, projection.objective",
+      "ref": "results/mbb_summary.json:Cantilever, MMA, projection.compliance"
+     },
+     {
+      "flow": "cant.Cantilever, MMA, projection.iterations",
+      "ref": "results/mbb_summary.json:Cantilever, MMA, projection.iterations"
+     },
+     {
+      "flow": "cant.Cantilever, MMA, projection.gray_fraction",
+      "ref": "results/mbb_summary.json:Cantilever, MMA, projection.gray_fraction"
+     }
+    ],
+    "tolerance_source": "deterministic optimization: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding; the gradient-check error is a round-off-level number (1e-6): 50 % or 1e-6 absolute"
+   },
+   "label": "Same numbers as examples/topology_optimization",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "grad",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "grad.metrics->compare.metrics"
+  },
+  {
+   "source": "mbb_oc",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "mbb_oc.metrics->compare.metrics"
+  },
+  {
+   "source": "mbb_mma",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "mbb_mma.metrics->compare.metrics"
+  },
+  {
+   "source": "mbb_proj",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "mbb_proj.metrics->compare.metrics"
+  },
+  {
+   "source": "cant",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "cant.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "topology_optimization",
+  "domain": "design",
+  "scripts": [
+   "01_mbb_beam.py"
+  ],
+  "quick": {}
+ }
+}

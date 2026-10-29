@@ -1,0 +1,12 @@
+{
+ "code_hash": "7164a68770a9937b",
+ "figures": [],
+ "id": "node:auto.analysis.verification.richardson_extrapolate",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "richardson extrapolate -> pinneapple_analysis.verification:richardson_extrapolate\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'f_coarse': 1.0, 'f_medium': 1.0, 'f_fine': 1.0, 'r': 1.0, 'p_assumed': None, 'safety_factor': 1.25, 'asymptotic_tolerance': 0.1}",
+ "timed_out": false
+}

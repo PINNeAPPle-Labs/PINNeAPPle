@@ -1,0 +1,12 @@
+{
+ "code_hash": "a755594c87ee67c5",
+ "figures": [],
+ "id": "node:design.topology2d",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Topology optimization (2-D SIMP) -> pinneapple_design.topology: Compliance2D.mbb / .cantilever, ThermalCompliance2D, StokesDissipation2D.double_pipe, DensityFilter.grid, optimize (oc / mma, beta continuation)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'problem': 'mbb', 'nelx': 60, 'nely': 20, 'volume': 0.5, 'rmin': 2.4, 'method': 'oc', 'max_iter': 300, 'projection': False, 'beta0': 1.0, 'beta_max': 16.0, 'beta_every': 40, 'move': 0.2, 'tol': 0.01, 'sink_fraction': 0.1, 'length': 1.0, 'q': [0.01, 0.1], 'label': ''}",
+ "timed_out": false
+}

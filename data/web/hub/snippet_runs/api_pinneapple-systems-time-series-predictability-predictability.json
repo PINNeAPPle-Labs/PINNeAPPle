@@ -1,0 +1,12 @@
+{
+ "code_hash": "b21f59ac2e1ccd6f",
+ "figures": [],
+ "id": "api:pinneapple-systems-time-series-predictability-predictability",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.33,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_systems.time_series.predictability.predictability_report(x, *, horizons=(1, 2, 4, 8, 16, 32), dt: 'float' = 1.0, max_ar_order: 'int' = 20, pe_order: 'int' = 5, embed_dim: 'int' = 4, n_surrogates: 'int' = 99, seed: 'int' = 0, lyapunov: 'bool' = True, lyapunov_kwargs: 'dict | None' = None, difference_if_unit_root: 'bool' = True) -> 'dict[str, object]'\nPredictability of a scalar series before any modelling.",
+ "timed_out": false
+}

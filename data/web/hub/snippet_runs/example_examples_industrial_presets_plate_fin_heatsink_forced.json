@@ -1,0 +1,12 @@
+{
+ "code_hash": "5c02f81d956057e8",
+ "figures": [],
+ "id": "example:examples/industrial_presets/plate_fin_heatsink_forced",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Dissipador de aletas planas com ventilação forçada (módulo de potência) | Térmica / eletrônica de potência | not curated\nrel_error[R convecção das aletas a 1 m/s vs correlação independente] 0.05525099931556328 -\nrel_error[R convecção das aletas a 3 m/s vs correlação independente] 0.07461974656182968 -\nrel_error[R convecção das aletas a 6 m/s vs correlação independente] 0.07347242370718365 -\nrel_error[limite plenamente desenvolvido Nu = Re* Pr / 2 (Re* pequeno)] 0.0009964914814574696 -\nrel_error[espalhamento + base: FVM 3-D vs teoria] 0.023678552647287184 -",
+ "timed_out": false
+}

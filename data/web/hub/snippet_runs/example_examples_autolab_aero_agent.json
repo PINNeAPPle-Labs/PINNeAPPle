@@ -1,0 +1,12 @@
+{
+ "code_hash": "3f0f030410fd8957",
+ "figures": [],
+ "id": "example:examples/autolab_aero_agent",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+ "timed_out": false
+}

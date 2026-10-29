@@ -1,0 +1,12 @@
+{
+ "code_hash": "b35ab6bf007a64e9",
+ "figures": [],
+ "id": "node:lib.solver.beam",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Beam deflection (FD) -> pinneapple_flow.wrappers:beam_deflection pinneapple_simulation.numerical_solvers.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'L_m': 1.0, 'E_Pa': 200000000000.0, 'I_m4': 8.33e-06, 'q_N_per_m': 1000.0, 'nx': 200, 'bc_type': 0}",
+ "timed_out": false
+}

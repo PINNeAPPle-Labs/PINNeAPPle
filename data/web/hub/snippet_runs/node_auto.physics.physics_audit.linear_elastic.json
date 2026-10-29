@@ -1,0 +1,12 @@
+{
+ "code_hash": "494d28913f08addf",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.linear_elastic",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='linear_elastic', description='stress below yield: linear elastic material', conditions=(Condition(feature='stress_ratio', lo=-inf, hi=1.0, band=0.08, log=None),), breaks_into='plasticity', missing_mechanism='plastic flow')",
+ "timed_out": false
+}

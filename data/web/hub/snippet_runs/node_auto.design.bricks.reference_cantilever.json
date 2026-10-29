@@ -1,0 +1,12 @@
+{
+ "code_hash": "89cb4acc5c477f51",
+ "figures": [],
+ "id": "node:auto.design.bricks.reference_cantilever",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'single_block': 31.9, 'harmonic_unconnected': 31.9, 'com_bound': 31.9}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f7d60393bc3abcf4",
+ "figures": [],
+ "id": "node:validate.audit_model",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Audit a model through the arena's defence -> pinneapple_analysis.validation.arena.audit_model + fault_injection.get_problem(...).predict_reference\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'problem': 'darcy_2d', 'n_cases': 20, 'seed': 0}",
+ "timed_out": false
+}

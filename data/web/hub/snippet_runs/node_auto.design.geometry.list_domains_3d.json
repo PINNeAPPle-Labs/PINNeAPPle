@@ -1,0 +1,12 @@
+{
+ "code_hash": "753941beaa2aaba6",
+ "figures": [],
+ "id": "node:auto.design.geometry.list_domains_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['channel_3d', 'lid_driven_cavity_3d', 'pipe_flow_3d']",
+ "timed_out": false
+}

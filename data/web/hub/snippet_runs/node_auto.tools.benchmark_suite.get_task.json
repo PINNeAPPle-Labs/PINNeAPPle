@@ -1,0 +1,12 @@
+{
+ "code_hash": "d5c3ca94cee296f2",
+ "figures": [],
+ "id": "node:auto.tools.benchmark_suite.get_task",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get task -> pinneapple_tools.benchmark_suite:get_task\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'task_id': ''}",
+ "timed_out": false
+}

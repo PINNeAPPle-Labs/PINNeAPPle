@@ -1,0 +1,12 @@
+{
+ "code_hash": "d8c85855f4abdcf8",
+ "figures": [],
+ "id": "example:examples/industrial_presets/eddy_current_skin_inspection",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento | Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás) | not curated\nrel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)] 0.004556780826434239 -\nrel_error[placa de 10 delta = semi-espaço] 3.5127381771509463e-10 -\nrel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)] 0.007164850368795491 -\ninversion_rel_err 0.0008745368406067657 -",
+ "timed_out": false
+}

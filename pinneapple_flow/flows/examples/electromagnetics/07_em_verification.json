@@ -1,0 +1,243 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-verification",
+ "name": "Electromagnetics verification table (07)",
+ "description": "Every electromagnetics solver and reference against an independent result (FEM, Biot-Savart, Mie, Fresnel, dipoles, dispersive media, hysteresis): errors and observed orders (examples/electrodynamics/07_em_verification.py).",
+ "nodes": [
+  {
+   "id": "verif",
+   "type": "em.verification",
+   "params": {},
+   "label": "EM verification",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "verif.case0.error",
+      "ref": "results/em_verification.json:0.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case1.error",
+      "ref": "results/em_verification.json:1.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case2.error",
+      "ref": "results/em_verification.json:2.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case3.error",
+      "ref": "results/em_verification.json:3.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case4.error",
+      "ref": "results/em_verification.json:4.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case5.error",
+      "ref": "results/em_verification.json:5.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case6.error",
+      "ref": "results/em_verification.json:6.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case7.error",
+      "ref": "results/em_verification.json:7.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case8.error",
+      "ref": "results/em_verification.json:8.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case9.error",
+      "ref": "results/em_verification.json:9.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case10.error",
+      "ref": "results/em_verification.json:10.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case11.error",
+      "ref": "results/em_verification.json:11.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case12.error",
+      "ref": "results/em_verification.json:12.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case13.error",
+      "ref": "results/em_verification.json:13.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case14.error",
+      "ref": "results/em_verification.json:14.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case15.error",
+      "ref": "results/em_verification.json:15.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case16.error",
+      "ref": "results/em_verification.json:16.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case17.error",
+      "ref": "results/em_verification.json:17.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case18.error",
+      "ref": "results/em_verification.json:18.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case19.error",
+      "ref": "results/em_verification.json:19.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case20.error",
+      "ref": "results/em_verification.json:20.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case21.error",
+      "ref": "results/em_verification.json:21.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case22.error",
+      "ref": "results/em_verification.json:22.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case23.error",
+      "ref": "results/em_verification.json:23.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case24.error",
+      "ref": "results/em_verification.json:24.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case25.error",
+      "ref": "results/em_verification.json:25.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case26.error",
+      "ref": "results/em_verification.json:26.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case27.error",
+      "ref": "results/em_verification.json:27.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case28.error",
+      "ref": "results/em_verification.json:28.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case29.error",
+      "ref": "results/em_verification.json:29.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case30.error",
+      "ref": "results/em_verification.json:30.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     },
+     {
+      "flow": "verif.case31.error",
+      "ref": "results/em_verification.json:31.error",
+      "rtol": 1e-06,
+      "atol": 1e-12
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding; errors below 1e-12 absolute are round-off"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "verif",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "verif.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "07_em_verification.py"
+  ],
+  "quick": {}
+ }
+}

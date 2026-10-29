@@ -1,0 +1,2036 @@
+[
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 210.4858938340003,
+  "cpu_s": 208.082280078,
+  "loadavg_before": [
+   0.48,
+   0.68,
+   2.67
+  ],
+  "loadavg_after": [
+   2.59,
+   1.6,
+   2.63
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.009676232933998108,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 212.10276678900118,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 216.63734245300293
+  },
+  "run_id": "A1_burgers_deepxde_s0",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.17358181878710485,
+   "max_abs": 1.42248142837244,
+   "finite": true,
+   "residual_rms": 0.07536063272359143,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 199.72996587700072,
+  "cpu_s": 197.748346802,
+  "loadavg_before": [
+   2.2,
+   2.3,
+   2.51
+  ],
+  "loadavg_after": [
+   2.01,
+   2.15,
+   2.41
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.023623235523700714,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 202.2879646549991,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 208.59760189056396
+  },
+  "run_id": "A1_burgers_deepxde_s1",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.24719095152762746,
+   "max_abs": 1.5639854720340167,
+   "finite": true,
+   "residual_rms": 0.12051875559674748,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 211.5513421480009,
+  "cpu_s": 209.100970477,
+  "loadavg_before": [
+   3.06,
+   3.03,
+   2.87
+  ],
+  "loadavg_after": [
+   3.06,
+   3.06,
+   2.93
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.013623947277665138,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 213.24600819900115,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 218.35762429237366
+  },
+  "run_id": "A1_burgers_deepxde_s2",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.16004303071854836,
+   "max_abs": 1.1557142962473466,
+   "finite": true,
+   "residual_rms": 0.08512210860243312,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 398.11212770100065,
+  "cpu_s": 393.397812434,
+  "loadavg_before": [
+   2.59,
+   1.6,
+   2.63
+  ],
+  "loadavg_after": [
+   2.39,
+   2.14,
+   2.52
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.01233,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 405.38654400700034,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 411.71851348876953
+  },
+  "run_id": "A1_burgers_physicsnemo_sym_s0",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.3147052042782166,
+   "max_abs": 1.8092498682648679,
+   "finite": true,
+   "residual_rms": 0.08636247343588534,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 409.4780632889997,
+  "cpu_s": 405.325446429,
+  "loadavg_before": [
+   2.06,
+   2.23,
+   2.46
+  ],
+  "loadavg_after": [
+   2.96,
+   2.48,
+   2.45
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.03823,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 417.2300889680009,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 424.3267569541931
+  },
+  "run_id": "A1_burgers_physicsnemo_sym_s1",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.2638769302597241,
+   "max_abs": 1.6027948125563596,
+   "finite": true,
+   "residual_rms": 0.1115524712848613,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 400.09929323600227,
+  "cpu_s": 395.568993629,
+  "loadavg_before": [
+   3.03,
+   3.03,
+   2.88
+  ],
+  "loadavg_after": [
+   3.11,
+   3.06,
+   2.97
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.01599,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 407.378691164,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 414.0833852291107
+  },
+  "run_id": "A1_burgers_physicsnemo_sym_s2",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.21673911281922503,
+   "max_abs": 1.6479450779548244,
+   "finite": true,
+   "residual_rms": 0.0825775449544442,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 201.81263606100038,
+  "cpu_s": 199.218980179,
+  "loadavg_before": [
+   0.48,
+   0.68,
+   2.67
+  ],
+  "loadavg_after": [
+   2.69,
+   1.58,
+   2.63
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.013299794867634773,
+  "n_parameters": 7851,
+  "process_wall_s": 201.84798674299964,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 1,
+   "jobs_setting": 2,
+   "elapsed_s": 206.40585446357727
+  },
+  "run_id": "A1_burgers_pinneapple_s0",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.36897413051916905,
+   "max_abs": 1.8605342873795587,
+   "finite": true,
+   "residual_rms": 0.10196765160904547,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 230.92076506500052,
+  "cpu_s": 228.84125591699998,
+  "loadavg_before": [
+   2.05,
+   2.42,
+   2.58
+  ],
+  "loadavg_after": [
+   2.08,
+   2.24,
+   2.47
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.02639898657798767,
+  "n_parameters": 7851,
+  "process_wall_s": 230.94590377399982,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 235.31457805633545
+  },
+  "run_id": "A1_burgers_pinneapple_s1",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.263232592030485,
+   "max_abs": 1.5655817468746043,
+   "finite": true,
+   "residual_rms": 0.11091892041876736,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "burgers",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 207.2167139990015,
+  "cpu_s": 204.961772934,
+  "loadavg_before": [
+   3.01,
+   3.01,
+   2.82
+  ],
+  "loadavg_after": [
+   3.08,
+   3.03,
+   2.87
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "f5154ce09db2e073ba44b3899d3a8edd12d8d539137e71b93c4bc7c583b44f80"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.012492619454860687,
+  "n_parameters": 7851,
+  "process_wall_s": 207.23821160499938,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 211.7739703655243
+  },
+  "run_id": "A1_burgers_pinneapple_s2",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 25600,
+   "rel_l2": 0.15390782361819233,
+   "max_abs": 1.1594730843561722,
+   "finite": true,
+   "residual_rms": 0.08191340612797156,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 322.28680016,
+  "cpu_s": 318.828974287,
+  "loadavg_before": [
+   3.21,
+   3.0,
+   2.77
+  ],
+  "loadavg_after": [
+   2.05,
+   2.43,
+   2.59
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 2.616828441619873,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 323.92961148500035,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 328.60801219940186
+  },
+  "run_id": "A1_helmholtz_deepxde_s0",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.0364889029391098,
+   "max_abs": 1.6109681129455562,
+   "finite": true,
+   "residual_rms": 1.4054000206780046,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 304.19333823099987,
+  "cpu_s": 300.916604448,
+  "loadavg_before": [
+   3.0,
+   2.91,
+   2.69
+  ],
+  "loadavg_after": [
+   3.01,
+   3.01,
+   2.81
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 2.7742905616760254,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 305.9675678200001,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 310.71390557289124
+  },
+  "run_id": "A1_helmholtz_deepxde_s1",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.1511156950168109,
+   "max_abs": 1.845353603363037,
+   "finite": true,
+   "residual_rms": 1.4070307893257714,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 321.8407697360017,
+  "cpu_s": 317.06500233500003,
+  "loadavg_before": [
+   3.21,
+   3.09,
+   3.02
+  ],
+  "loadavg_after": [
+   3.03,
+   3.06,
+   3.01
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 1.6783673763275146,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 323.50475877400095,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 328.2155170440674
+  },
+  "run_id": "A1_helmholtz_deepxde_s2",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.1660283131604465,
+   "max_abs": 2.234939575195312,
+   "finite": true,
+   "residual_rms": 0.9464170967731267,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 422.38491898199936,
+  "cpu_s": 418.210572479,
+  "loadavg_before": [
+   3.09,
+   2.99,
+   2.78
+  ],
+  "loadavg_after": [
+   2.05,
+   2.27,
+   2.5
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 1.747,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 429.7000481840005,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 437.7876558303833
+  },
+  "run_id": "A1_helmholtz_physicsnemo_sym_s0",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.0331392073130545,
+   "max_abs": 1.6221625804901119,
+   "finite": true,
+   "residual_rms": 0.9955909100711032,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 402.9641654549996,
+  "cpu_s": 398.06373254700003,
+  "loadavg_before": [
+   3.12,
+   3.02,
+   2.77
+  ],
+  "loadavg_after": [
+   3.03,
+   3.03,
+   2.88
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 4.59,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 410.5734003890011,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 417.36593198776245
+  },
+  "run_id": "A1_helmholtz_physicsnemo_sym_s1",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.1530806327528726,
+   "max_abs": 1.8558967113494869,
+   "finite": true,
+   "residual_rms": 1.0927857929488216,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 409.9235418799981,
+  "cpu_s": 404.812528417,
+  "loadavg_before": [
+   3.11,
+   3.09,
+   3.02
+  ],
+  "loadavg_after": [
+   2.01,
+   2.43,
+   2.75
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 1.626,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 417.65977267999915,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 425.0527741909027
+  },
+  "run_id": "A1_helmholtz_physicsnemo_sym_s2",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.156935169694498,
+   "max_abs": 2.230711936950683,
+   "finite": true,
+   "residual_rms": 0.8720695446703915,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 277.4422333950006,
+  "cpu_s": 272.036290618,
+  "loadavg_before": [
+   2.89,
+   2.4,
+   2.54
+  ],
+  "loadavg_after": [
+   3.02,
+   2.97,
+   2.77
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 1.5473942756652832,
+  "n_parameters": 7851,
+  "process_wall_s": 277.4681194099994,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 282.0717236995697
+  },
+  "run_id": "A1_helmholtz_pinneapple_s0",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.033012497356411,
+   "max_abs": 1.6277446746826167,
+   "finite": true,
+   "residual_rms": 0.9913491581737408,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 279.938866348999,
+  "cpu_s": 276.597502475,
+  "loadavg_before": [
+   3.01,
+   2.85,
+   2.63
+  ],
+  "loadavg_after": [
+   3.16,
+   3.02,
+   2.77
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 1.9068212509155273,
+  "n_parameters": 7851,
+  "process_wall_s": 279.95583029999943,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 284.62856125831604
+  },
+  "run_id": "A1_helmholtz_pinneapple_s1",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.1486890378506713,
+   "max_abs": 1.8487176895141597,
+   "finite": true,
+   "residual_rms": 1.0472443209911473,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "helmholtz",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 276.80089089800094,
+  "cpu_s": 273.489820625,
+  "loadavg_before": [
+   3.07,
+   3.05,
+   3.0
+  ],
+  "loadavg_after": [
+   3.13,
+   3.09,
+   3.02
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "e5f227bc41bac9c9c373c2c6b1b8c41c80950c21c16cc73421f32332870f7676"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 1.492685317993164,
+  "n_parameters": 7851,
+  "process_wall_s": 276.8173825649974,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 281.32521629333496
+  },
+  "run_id": "A1_helmholtz_pinneapple_s2",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 1.1611413065701708,
+   "max_abs": 2.2300910949707027,
+   "finite": true,
+   "residual_rms": 0.8462904269964275,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 306.79583410399937,
+  "cpu_s": 303.163301155,
+  "loadavg_before": [
+   2.13,
+   2.0,
+   2.53
+  ],
+  "loadavg_after": [
+   2.88,
+   2.39,
+   2.54
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.007425149902701378,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 308.4288722300007,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 313.083616733551
+  },
+  "run_id": "A1_poisson_deepxde_s0",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09758398165494139,
+   "max_abs": 0.1810598522424698,
+   "finite": true,
+   "residual_rms": 0.0360489789612578,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 316.32789024199883,
+  "cpu_s": 312.78462984699996,
+  "loadavg_before": [
+   2.94,
+   2.44,
+   2.44
+  ],
+  "loadavg_after": [
+   3.02,
+   2.85,
+   2.63
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.006804221775382757,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 317.7890280949996,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 322.7913570404053
+  },
+  "run_id": "A1_poisson_deepxde_s1",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09419308756814787,
+   "max_abs": 0.18983161449432373,
+   "finite": true,
+   "residual_rms": 0.0337938669766609,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "deepxde",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 312.4093332099983,
+  "cpu_s": 309.03037152999997,
+  "loadavg_before": [
+   3.09,
+   3.06,
+   2.97
+  ],
+  "loadavg_after": [
+   3.08,
+   3.06,
+   3.0
+  ],
+  "versions": {
+   "deepxde": "1.15.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "DeepXDE 1.15.0 examples/pinn_forward/{Burgers,Poisson_Lshape,Helmholtz_Dirichlet_2d,Allen_Cahn}.py",
+  "final_loss": 0.00779362116008997,
+  "n_parameters": 7851,
+  "n_train_points": 10400,
+  "process_wall_s": 314.39506756599803,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 319.4023542404175
+  },
+  "run_id": "A1_poisson_deepxde_s2",
+  "schema_missing": [],
+  "loss_history_len": 3,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09813555011675384,
+   "max_abs": 0.1662367880344391,
+   "finite": true,
+   "residual_rms": 0.036160705423065535,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 409.1958227310006,
+  "cpu_s": 402.324799519,
+  "loadavg_before": [
+   2.33,
+   2.13,
+   2.51
+  ],
+  "loadavg_after": [
+   3.44,
+   3.04,
+   2.78
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.007801,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 416.33985042699896,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 422.9749848842621
+  },
+  "run_id": "A1_poisson_physicsnemo_sym_s0",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.0975832383861997,
+   "max_abs": 0.18231144547462463,
+   "finite": true,
+   "residual_rms": 0.03617981201867659,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 414.47450579699944,
+  "cpu_s": 409.788651855,
+  "loadavg_before": [
+   3.05,
+   2.52,
+   2.47
+  ],
+  "loadavg_after": [
+   3.0,
+   2.91,
+   2.69
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.007202,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 422.02449578400046,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 429.0967833995819
+  },
+  "run_id": "A1_poisson_physicsnemo_sym_s1",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09443031998887969,
+   "max_abs": 0.19025030732154846,
+   "finite": true,
+   "residual_rms": 0.03389211586159771,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "physicsnemo_sym",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 381.4396519910006,
+  "cpu_s": 376.999722439,
+  "loadavg_before": [
+   3.11,
+   3.06,
+   2.98
+  ],
+  "loadavg_after": [
+   3.25,
+   3.1,
+   3.02
+  ],
+  "versions": {
+   "nvidia-physicsnemo.sym": "2.4.0",
+   "nvidia-physicsnemo": "2.2.2",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PhysicsNeMo-Sym 2.4.0 examples/helmholtz/helmholtz.py (helmholtz, poisson) and examples/wave_equation/wave_1d.py (burgers, allen_cahn)",
+  "loss_steps": [
+   0,
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   1100,
+   1200,
+   1300,
+   1400,
+   1500,
+   1600,
+   1700,
+   1800,
+   1900
+  ],
+  "final_loss": 0.008176,
+  "n_parameters": 7851,
+  "cfg_resolved": {
+   "jit": true,
+   "cuda_graphs": false
+  },
+  "process_wall_s": 389.5484007390005,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 396.50735783576965
+  },
+  "run_id": "A1_poisson_physicsnemo_sym_s2",
+  "schema_missing": [],
+  "loss_history_len": 20,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09815215868085474,
+   "max_abs": 0.1658647060394287,
+   "finite": true,
+   "residual_rms": 0.03621034042275862,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 0,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 262.56983995799965,
+  "cpu_s": 259.663332802,
+  "loadavg_before": [
+   2.54,
+   1.61,
+   2.62
+  ],
+  "loadavg_after": [
+   2.15,
+   2.0,
+   2.54
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.01650737039744854,
+  "n_parameters": 7851,
+  "process_wall_s": 262.58917979500075,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 267.0122158527374
+  },
+  "run_id": "A1_poisson_pinneapple_s0",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.1014032091195928,
+   "max_abs": 0.17428281903266907,
+   "finite": true,
+   "residual_rms": 0.06260670239348581,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 1,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 273.0203629489988,
+  "cpu_s": 270.14102592200004,
+  "loadavg_before": [
+   2.01,
+   2.15,
+   2.4
+  ],
+  "loadavg_after": [
+   2.93,
+   2.43,
+   2.44
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.006785623263567686,
+  "n_parameters": 7851,
+  "process_wall_s": 273.03609726600007,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 277.7290163040161
+  },
+  "run_id": "A1_poisson_pinneapple_s1",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09412717018102336,
+   "max_abs": 0.18901030719280243,
+   "finite": true,
+   "residual_rms": 0.03389653495869749,
+   "n_residual": 2000
+  }
+ },
+ {
+  "track": "A",
+  "problem": "poisson",
+  "framework": "pinneapple",
+  "mode": "a1",
+  "seed": 2,
+  "threads": 1,
+  "device": "cpu",
+  "status": "ok",
+  "iterations": 2000,
+  "wall_s": 271.64388413800043,
+  "cpu_s": 268.611021621,
+  "loadavg_before": [
+   3.05,
+   3.06,
+   2.93
+  ],
+  "loadavg_after": [
+   3.14,
+   3.07,
+   2.98
+  ],
+  "versions": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1"
+  },
+  "config": {
+   "width": 50,
+   "depth": 4,
+   "activation": "tanh",
+   "init": "xavier_uniform (shared arrays per seed), zero bias",
+   "dtype": "float32",
+   "optimizer": "adam",
+   "lr": 0.001,
+   "n_interior": 10000,
+   "n_boundary": 400,
+   "loss_weights": 1.0,
+   "loss": "mean squared PDE residual + mean squared BC error (+ mean squared IC error)",
+   "batch": "full batch, the same points every iteration",
+   "grad_clip": null,
+   "lr_schedule": "constant",
+   "point_seed": 20260,
+   "point_set_sha256": "0eef1c06f6d5e0fd10004425102298cff7bc0186ed7896fd3782c3fbee7b24d2"
+  },
+  "source": "PINNeAPPle at the commit under test: pp.solve(problem, 'pinn') defaults (A2), pinneapple_physics.solve_pde with fixed points (A1)",
+  "final_loss": 0.007806691341102123,
+  "n_parameters": 7851,
+  "process_wall_s": 271.65946917399924,
+  "driver": {
+   "returncode": 0,
+   "concurrent_jobs_at_start": 2,
+   "jobs_setting": 2,
+   "elapsed_s": 276.53790640830994
+  },
+  "run_id": "A1_poisson_pinneapple_s2",
+  "schema_missing": [],
+  "loss_history_len": 200,
+  "metrics": {
+   "n_test": 10201,
+   "rel_l2": 0.09811325986010073,
+   "max_abs": 0.16679911315441132,
+   "finite": true,
+   "residual_rms": 0.036304337550390336,
+   "n_residual": 2000
+  }
+ }
+]

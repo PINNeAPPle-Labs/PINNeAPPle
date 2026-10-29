@@ -29,6 +29,8 @@ export const api = {
   setPalettePrefs: (prefs: { favourites?: string[]; recent?: string[] }) =>
     call<{ favourites: string[]; recent: string[] }>("/api/palette/prefs", { method: "PUT", body: JSON.stringify(prefs) }),
   plan: (text: string, backend: string) => post<PlanResult>("/api/plan", { text, backend }),
+  capabilities: () => call<{ capabilities: any[]; steps: any[] }>("/api/capabilities"),
+  wizard: (answers: Record<string, any>) => post<PlanResult & { wizard?: { description: string } }>("/api/wizard", answers),
   validate: (flow: FlowDoc) => post<{ valid: boolean; issues: { level: string; message: string; node: string; edge: string }[] }>("/api/validate", flow),
   previewEquations: (geometry: unknown, equations: unknown) =>
     post<{ ok: boolean; error?: string; system?: any; resolved?: any; geometry?: any }>("/api/preview/equations", { geometry, equations }),
@@ -37,8 +39,8 @@ export const api = {
   flows: () => call<{ id: string; name: string; latest_version: number; updated: number }[]>("/api/flows"),
   getFlow: (id: string) => call<FlowDoc>(`/api/flows/${encodeURIComponent(id)}`),
   saveFlow: (flow: FlowDoc, note = "") => post<{ id: string; version: number }>("/api/flows", { flow, note }),
-  examples: () => call<{ name: string; title: string; description: string; nodes: number }[]>("/api/examples"),
-  example: (name: string) => call<FlowDoc>(`/api/examples/${encodeURIComponent(name)}`),
+  examples: () => call<{ name: string; title: string; description: string; nodes: number; group?: string; example?: string; quick?: boolean }[]>("/api/examples"),
+  example: (name: string) => call<FlowDoc>(`/api/examples/${name.split("/").map(encodeURIComponent).join("/")}`),
   run: (flow: FlowDoc, from_node?: string) => post<{ run_id: string }>("/api/runs", { flow, from_node }),
   status: (runId: string) => call<RunStatus>(`/api/runs/${runId}`),
   cancel: (runId: string) => post<{ cancelled: boolean }>(`/api/runs/${runId}/cancel`, {}),
@@ -57,3 +59,4 @@ export const api = {
 
 export const artifactUrl = (path: string) => `/api/artifact?path=${encodeURIComponent(path)}`;
 export const htmlArtifactUrl = (path: string) => `/api/artifact/html?path=${encodeURIComponent(path)}`;
+export const runFileUrl = (path: string) => `/api/runfile${path.split("/").map(encodeURIComponent).join("/")}`;

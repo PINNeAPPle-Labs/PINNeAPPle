@@ -8,6 +8,7 @@ import { FlowNode, type FlowNodeData } from "./components/FlowNode";
 import { Palette } from "./components/Palette";
 import { ParamPanel } from "./components/ParamPanel";
 import { PlannerDialog } from "./components/PlannerDialog";
+import { NewFlowDialog } from "./components/NewFlowDialog";
 import { CustomNodeDialog } from "./components/CustomNodeDialog";
 import { DecisionList } from "./components/DecisionsPanel";
 import { ResultPanel } from "./components/ResultPanel";
@@ -41,6 +42,7 @@ function Studio() {
   const [issues, setIssues] = useState<{ level: string; message: string; node: string }[]>([]);
   const [toast, setToast] = useState("");
   const [showPlanner, setShowPlanner] = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [lists, setLists] = useState<{ examples: any[]; flows: any[] } | null>(null);
   // a node the PINNeAPPle Hub asked to add (?add=<type>&params=<base64url JSON>): the Open dialog picks the flow
   const [pendingAdd, setPendingAdd] = useState<{ type: string; params: Record<string, any> } | null>(null);
@@ -311,7 +313,7 @@ function Studio() {
         <button className="btn" onClick={save} data-testid="save">Save</button>
         <button className="btn" onClick={exportJson} title="Download the flow as JSON">Export</button>
         <label className="btn cursor-pointer">Import<input type="file" accept=".json" hidden onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} /></label>
-        <button className="btn" onClick={() => load({ schema: SCHEMA, id: "untitled", name: "Untitled flow", description: "", nodes: [], edges: [], meta: {} })}>New</button>
+        <button className="btn" onClick={() => setShowNew(true)} data-testid="new">New…</button>
         <button className="btn" onClick={() => setShowDecisions(true)} data-testid="open-decisions" title="Decisions and references of this flow">
           Decisions{decisions?.summary.no_reference ? ` (${decisions.summary.no_reference} ⚠)` : ""}
         </button>
@@ -389,6 +391,9 @@ function Studio() {
           )}
         </aside>
       </div>
+      {showNew && <NewFlowDialog onClose={() => setShowNew(false)} onOpen={(f) => { load(f); setShowNew(false); }}
+        onDescribe={() => { setShowNew(false); setShowPlanner(true); }}
+        onBlank={() => { load({ schema: SCHEMA, id: "untitled", name: "Untitled flow", description: "", nodes: [], edges: [], meta: {} }); setShowNew(false); }} />}
       {showPlanner && <PlannerDialog planners={info?.planners || ["heuristic"]} onClose={() => setShowPlanner(false)} onOpen={(f) => { load(f); setShowPlanner(false); }} />}
       {lists && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-16" onClick={() => setLists(null)}>
@@ -404,11 +409,16 @@ function Studio() {
               </div>
             )}
             <h2 className="font-semibold mb-2">Examples</h2>
-            {lists.examples.map((x) => (
-              <button key={x.name} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm" data-testid={`example-${x.name}`}
-                onClick={async () => pick(await api.example(x.name))}>
-                <b>{x.title}</b> <span className="text-slate-500 text-[12px]">{x.description.slice(0, 110)}</span>
-              </button>
+            {Array.from(new Set(lists.examples.map((x) => x.group || "Flow Studio"))).map((g) => (
+              <div key={g} data-testid={`example-group-${g}`}>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500 mt-3 mb-1">{g}</div>
+                {lists.examples.filter((x) => (x.group || "Flow Studio") === g).map((x) => (
+                  <button key={x.name} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm" data-testid={`example-${x.name}`}
+                    onClick={async () => pick(await api.example(x.name))}>
+                    <b>{x.title}</b> <span className="text-slate-500 text-[12px]">{x.description.slice(0, 110)}</span>
+                  </button>
+                ))}
+              </div>
             ))}
             <h2 className="font-semibold mt-4 mb-2">Saved flows</h2>
             {lists.flows.length === 0 && <div className="text-sm text-slate-400">none yet</div>}

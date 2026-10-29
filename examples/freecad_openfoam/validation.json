@@ -1,0 +1,326 @@
+{
+ "mesh_studies": [
+  {
+   "study": "pipe_bend",
+   "title": "Laminar pipe bend: pressure drop and Dean-flow friction",
+   "quantity": "straight",
+   "rows": [
+    {
+     "resolution": 16,
+     "h": 0.0625,
+     "state": "rejected",
+     "cells": 117181,
+     "measured": 0.31959623667874903,
+     "reference": 0.320636252253965,
+     "error": 0.003243599461710993,
+     "tol": 0.03,
+     "source": "Hagen-Poiseuille, f = 64 / Re",
+     "wall_s": 48.44134712219238,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r16",
+     "iterations": 137
+    },
+    {
+     "resolution": 24,
+     "h": 0.041666666666666664,
+     "state": "rejected",
+     "cells": 383891,
+     "measured": 0.32052288517886107,
+     "reference": 0.3203534785590951,
+     "error": 0.0005288115506907136,
+     "tol": 0.03,
+     "source": "Hagen-Poiseuille, f = 64 / Re",
+     "wall_s": 169.88278651237488,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r24",
+     "iterations": 164
+    },
+    {
+     "resolution": 32,
+     "h": 0.03125,
+     "state": "passed",
+     "cells": 921481,
+     "measured": 0.3209807777504656,
+     "reference": 0.3202145888380032,
+     "error": 0.0023927358064563383,
+     "tol": 0.03,
+     "source": "Hagen-Poiseuille, f = 64 / Re",
+     "wall_s": 388.69727420806885,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r32",
+     "iterations": 207
+    }
+   ],
+   "inputs": {
+    "D": 10.0,
+    "Rc": 40.0,
+    "angle": 180.0,
+    "L_in": 200.0,
+    "L_out": 30.0,
+    "Re": 200.0
+   },
+   "extrapolated": 0.3223034319423697,
+   "observed_order": 1.0333630313760602,
+   "gci_fine": 0.005150830998251973,
+   "asymptotic": true,
+   "extrapolated_error": 0.006523260267268053,
+   "citation": "Roache, P.J., 'Perspective: A Method for Uniform Reporting of Grid Refinement Studies', ASME J. Fluids Eng., 116(3), 405-413, 1994."
+  },
+  {
+   "study": "pipe_bend",
+   "title": "Laminar pipe bend: pressure drop and Dean-flow friction",
+   "quantity": "bend",
+   "rows": [
+    {
+     "resolution": 16,
+     "h": 0.0625,
+     "state": "rejected",
+     "cells": 117181,
+     "measured": 1.5440628617893233,
+     "reference": 1.372902085119694,
+     "error": 0.12467078207890325,
+     "tol": 0.05,
+     "source": "White (1929) curved-pipe friction",
+     "wall_s": 48.44134712219238,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r16",
+     "iterations": 137
+    },
+    {
+     "resolution": 24,
+     "h": 0.041666666666666664,
+     "state": "rejected",
+     "cells": 383891,
+     "measured": 1.4711793647619893,
+     "reference": 1.3732625063207806,
+     "error": 0.07130236061242631,
+     "tol": 0.05,
+     "source": "White (1929) curved-pipe friction",
+     "wall_s": 169.88278651237488,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r24",
+     "iterations": 164
+    },
+    {
+     "resolution": 32,
+     "h": 0.03125,
+     "state": "passed",
+     "cells": 921481,
+     "measured": 1.4375374593561443,
+     "reference": 1.3734397186528322,
+     "error": 0.046669496908232515,
+     "tol": 0.05,
+     "source": "White (1929) curved-pipe friction",
+     "wall_s": 388.69727420806885,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/bend/r32",
+     "iterations": 207
+    }
+   ],
+   "inputs": {
+    "D": 10.0,
+    "Rc": 40.0,
+    "angle": 180.0,
+    "L_in": 200.0,
+    "L_out": 30.0,
+    "Re": 200.0
+   },
+   "extrapolated": 1.3579687002807075,
+   "observed_order": 1.2257587886494654,
+   "gci_fine": 0.06918842232385602,
+   "asymptotic": true,
+   "extrapolated_error": 0.011264432040235303,
+   "citation": "Roache, P.J., 'Perspective: A Method for Uniform Reporting of Grid Refinement Studies', ASME J. Fluids Eng., 116(3), 405-413, 1994."
+  },
+  {
+   "study": "heated_pipe",
+   "title": "Heated pipe: laminar thermal entry, mean Nusselt number",
+   "quantity": "Nu",
+   "rows": [
+    {
+     "resolution": 12,
+     "h": 0.08333333333333333,
+     "state": "passed",
+     "cells": 21504,
+     "measured": 4.764078361397343,
+     "reference": 4.691881333239061,
+     "error": 0.015387650076912849,
+     "tol": 0.05,
+     "source": "Hausen (1943), Incropera eq. 8.57",
+     "wall_s": 13.607189655303955,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/heated_pipe/r12",
+     "iterations": 130
+    },
+    {
+     "resolution": 16,
+     "h": 0.0625,
+     "state": "passed",
+     "cells": 53248,
+     "measured": 4.711042125070809,
+     "reference": 4.691881333239061,
+     "error": 0.0040838185092205385,
+     "tol": 0.05,
+     "source": "Hausen (1943), Incropera eq. 8.57",
+     "wall_s": 19.4465491771698,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/heated_pipe/r16",
+     "iterations": 116
+    },
+    {
+     "resolution": 24,
+     "h": 0.041666666666666664,
+     "state": "passed",
+     "cells": 172032,
+     "measured": 4.678594323676027,
+     "reference": 4.691881333239061,
+     "error": 0.0028319150931852798,
+     "tol": 0.05,
+     "source": "Hausen (1943), Incropera eq. 8.57",
+     "wall_s": 58.50403428077698,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/heated_pipe/r24",
+     "iterations": 157
+    }
+   ],
+   "inputs": {
+    "D": 10.0,
+    "L_entry": 60.0,
+    "L_heated": 100.0,
+    "Re": 100.0,
+    "Pr": 2.0
+   },
+   "extrapolated": 4.659717896700646,
+   "observed_order": 2.466917658207706,
+   "gci_fine": 0.005043295504340294,
+   "asymptotic": true,
+   "extrapolated_error": 0.0068551257489308124,
+   "citation": "Roache, P.J., 'Perspective: A Method for Uniform Reporting of Grid Refinement Studies', ASME J. Fluids Eng., 116(3), 405-413, 1994."
+  },
+  {
+   "study": "sphere_drag",
+   "title": "Sphere in a uniform stream: drag coefficient",
+   "quantity": "CD",
+   "rows": [
+    {
+     "resolution": 3,
+     "h": 0.125,
+     "state": "passed",
+     "cells": 102308,
+     "measured": 1.0833136050349579,
+     "reference": 1.0870171641572397,
+     "error": 0.0034070843077746377,
+     "tol": 0.05,
+     "source": "Clift, Grace & Weber (1978), Table 5.2",
+     "wall_s": 44.89444422721863,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/sphere/r3",
+     "iterations": 356
+    },
+    {
+     "resolution": 4,
+     "h": 0.0625,
+     "state": "passed",
+     "cells": 124291,
+     "measured": 1.0842154834106827,
+     "reference": 1.0870171641572397,
+     "error": 0.002577402490906469,
+     "tol": 0.05,
+     "source": "Clift, Grace & Weber (1978), Table 5.2",
+     "wall_s": 61.865456342697144,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/sphere/r4",
+     "iterations": 380
+    },
+    {
+     "resolution": 5,
+     "h": 0.03125,
+     "state": "passed",
+     "cells": 216328,
+     "measured": 1.086615926059062,
+     "reference": 1.0870171641572397,
+     "error": 0.00036911845682656956,
+     "tol": 0.05,
+     "source": "Clift, Grace & Weber (1978), Table 5.2",
+     "wall_s": 123.20135450363159,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/sphere/r5",
+     "iterations": 432
+    }
+   ],
+   "inputs": {
+    "D": 10.0,
+    "L": 10.0,
+    "Re": 100.0
+   },
+   "richardson_note": "observed order -1.41 <= 0: the three meshes are not in the asymptotic range (changes below the discretisation noise)"
+  },
+  {
+   "study": "sphere_drag Re 50",
+   "title": "Sphere in a uniform stream: drag coefficient",
+   "quantity": "CD",
+   "rows": [
+    {
+     "resolution": 4,
+     "h": 0.25,
+     "state": "passed",
+     "cells": 124291,
+     "measured": 1.5688735632467348,
+     "reference": 1.5742657203722197,
+     "error": 0.0034251886804789133,
+     "tol": 0.05,
+     "source": "Clift, Grace & Weber (1978), Table 5.2",
+     "wall_s": 76.58045554161072,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/sphere_Re50/r4",
+     "iterations": 471
+    }
+   ],
+   "inputs": {
+    "Re": 50.0
+   }
+  },
+  {
+   "study": "sphere_drag Re 200",
+   "title": "Sphere in a uniform stream: drag coefficient",
+   "quantity": "CD",
+   "rows": [
+    {
+     "resolution": 4,
+     "h": 0.25,
+     "state": "passed",
+     "cells": 124291,
+     "measured": 0.7774858690466071,
+     "reference": 0.7756342422322543,
+     "error": 0.0023872422251806093,
+     "tol": 0.05,
+     "source": "Clift, Grace & Weber (1978), Table 5.2",
+     "wall_s": 61.79645657539368,
+     "folder": "/home/user/PINNeAPPle/examples/freecad_openfoam/_work/sphere_Re200/r4",
+     "iterations": 343
+    }
+   ],
+   "inputs": {
+    "Re": 200.0
+   }
+  }
+ ],
+ "surrogate": {
+  "best": "mlp",
+  "ranking": [
+   {
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error": 0.01455806268949167,
+    "spread": 0.0
+   },
+   {
+    "method": "gp",
+    "title": "Gaussian process",
+    "error": 0.0159158665524887,
+    "spread": 0.0
+   },
+   {
+    "method": "mlp",
+    "title": "MLP",
+    "error": 0.0206303365728198,
+    "spread": 0.0
+   },
+   {
+    "method": "gbt",
+    "title": "Gradient-boosted trees",
+    "error": 0.8895672792617123,
+    "spread": 0.0
+   }
+  ],
+  "trust": "REVIEW",
+  "n_cases": 20
+ }
+}

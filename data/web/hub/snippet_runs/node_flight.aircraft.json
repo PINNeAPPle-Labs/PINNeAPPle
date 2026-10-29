@@ -1,0 +1,12 @@
+{
+ "code_hash": "a76dd1042133d4dd",
+ "figures": [],
+ "id": "node:flight.aircraft",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Aircraft (flight catalog) -> pinneapple_simulation.flight.catalog.build\ninputs: []\noutputs: [('aircraft', 'aircraft'), ('metrics', 'metrics')]\ndefaults: {'aircraft': ['light_ga', 'regional_turboprop', 'a320', 'motor_glider']}",
+ "timed_out": false
+}

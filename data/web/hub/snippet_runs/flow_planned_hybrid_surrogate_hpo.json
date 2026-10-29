@@ -1,0 +1,12 @@
+{
+ "code_hash": "6532fbf4450a3cf0",
+ "figures": [],
+ "id": "flow:planned_hybrid_surrogate_hpo",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Fast surrogate (neural operator) - 7 nodes\nissues: []",
+ "timed_out": false
+}

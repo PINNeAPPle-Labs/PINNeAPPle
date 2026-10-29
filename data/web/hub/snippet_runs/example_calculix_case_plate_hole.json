@@ -1,0 +1,12 @@
+{
+ "code_hash": "55b0c58b34a0bf01",
+ "figures": [],
+ "id": "example:calculix_case/plate_hole",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - stress vs Heywood",
+ "timed_out": false
+}

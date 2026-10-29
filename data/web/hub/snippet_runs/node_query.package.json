@@ -1,0 +1,12 @@
+{
+ "code_hash": "f3c9ad8ecaa118e0",
+ "figures": [],
+ "id": "node:query.package",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 7.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics queries on a chip package -> pinneapple_condense.query.package_engine / pinneapple_query.Engine.query\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'blocks': 32, 'queries': ['Tj_max region:die', 'T die@0.5,0.5', 'q interface:die/tim', 'q ubump[3,4]', 'T die@0.25,0.75,0.5'], 'accuracy': 0.1, 'rigorous': False, 'seed': 0}",
+ "timed_out": false
+}

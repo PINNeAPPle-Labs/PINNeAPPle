@@ -1,0 +1,12 @@
+{
+ "code_hash": "a13b003b54d2ca30",
+ "figures": [],
+ "id": "example:examples/benchmark",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Running a benchmark | validation and benchmarks | not curated",
+ "timed_out": false
+}

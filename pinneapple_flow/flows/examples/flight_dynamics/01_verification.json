@@ -1,0 +1,203 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-flight-verification",
+ "name": "Flight library verification (01)",
+ "description": "MIL-F-8785C turbulence variances and spectra, trim held 10 s stick fixed, energy / angular-momentum conservation, lattice in the loop against the steady lattice (examples/flight_dynamics/01_verification.py).",
+ "nodes": [
+  {
+   "id": "verif",
+   "type": "flight.verification",
+   "params": {},
+   "label": "Verification",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "flight_dynamics",
+    "comparisons": [
+     {
+      "flow": "verif.energy_rel_error_dt0.02",
+      "ref": "manifest:energy_rel_error_dt0.02",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.01",
+      "ref": "manifest:energy_rel_error_dt0.01",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.005",
+      "ref": "manifest:energy_rel_error_dt0.005",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_u",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_v",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_w",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_u",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_v",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_w",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_u",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_v",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_w",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_u",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_v",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_w",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_w",
+      "rtol": 1e-06
+     }
+    ],
+    "tolerance_source": "deterministic simulation: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding; the energy errors are round-off (1e-10..1e-12): 50% relative or 1e-11 absolute"
+   },
+   "label": "Same numbers as examples/flight_dynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "flight verification"
+   },
+   "label": "Report",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "verif",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "verif.metrics->compare.metrics"
+  },
+  {
+   "source": "compare",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "compare.metrics->report.items"
+  },
+  {
+   "source": "verif",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "verif.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "flight_dynamics",
+  "domain": "flight dynamics",
+  "scripts": [
+   "01_verification.py"
+  ],
+  "quick": {}
+ }
+}

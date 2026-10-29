@@ -1,0 +1,12 @@
+{
+ "code_hash": "11e444d81362e659",
+ "figures": [],
+ "id": "example:examples/modelica",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Modelica models as Physics AI data | system dynamics | not curated",
+ "timed_out": false
+}

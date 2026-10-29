@@ -1,0 +1,12 @@
+{
+ "code_hash": "8c0a41822458b9fe",
+ "figures": [],
+ "id": "node:inverse.calibrate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Calibration (classical forward model) -> pinneapple_analysis.inverse_problems.calibrate with a CallableModel around symbolic_fd.solve_fd\ninputs: [('problem', 'problem'), ('data', 'dataset')]\noutputs: [('params', 'params'), ('metrics', 'metrics')]\ndefaults: {'bounds': {}, 'initial_guess': {}, 'n': 41, 'bootstrap': 0, 'max_nfev': 60}",
+ "timed_out": false
+}

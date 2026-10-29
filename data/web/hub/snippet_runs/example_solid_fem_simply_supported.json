@@ -1,0 +1,12 @@
+{
+ "code_hash": "8a54d5099bcb6a3d",
+ "figures": [],
+ "id": "example:solid_fem/simply_supported",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - deflection vs Timoshenko and CalculiX",
+ "timed_out": false
+}

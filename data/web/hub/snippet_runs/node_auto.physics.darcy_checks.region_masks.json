@@ -1,0 +1,12 @@
+{
+ "code_hash": "3e1ddef7d5e49b9e",
+ "figures": [],
+ "id": "node:auto.physics.darcy_checks.region_masks",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'wall': array([[ True]]), 'interior': array([[False]])}",
+ "timed_out": false
+}

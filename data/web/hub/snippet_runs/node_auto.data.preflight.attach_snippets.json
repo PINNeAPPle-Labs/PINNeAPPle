@@ -1,0 +1,12 @@
+{
+ "code_hash": "ead6d075f0893045",
+ "figures": [],
+ "id": "node:auto.data.preflight.attach_snippets",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "attach snippets -> pinneapple_data.preflight:attach_snippets\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'report': {}, 'fs': {}, 'context': 4, 'width': 160}",
+ "timed_out": false
+}

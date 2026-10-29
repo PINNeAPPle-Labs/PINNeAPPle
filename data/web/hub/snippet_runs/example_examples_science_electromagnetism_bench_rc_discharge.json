@@ -1,0 +1,12 @@
+{
+ "code_hash": "658ac5cb04bdeda2",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/bench_rc_discharge",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Bench: capacitance from an RC discharge on an oscilloscope (0D) | science / physics.electromagnetism | not curated\nrel_error[0D: C (bench) vs the capacitor's true value] 0.0015782317619964959 -\nrel_error[0D: C vs the nominal label (470 nF +- 10 %)] 0.08431761000426682 -\n0D: C_measured 4.303707232979946e-07 F\n0D: expanded_uncertainty_k2 1.2442809558116788e-09 F\n0D: tau_fit 0.004200150233336449 s",
+ "timed_out": false
+}

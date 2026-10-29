@@ -1,0 +1,12 @@
+{
+ "code_hash": "565ba3f909ecb915",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.get_assumption",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get assumption -> pinneapple_physics.physics_audit:get_assumption\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'a': ''}",
+ "timed_out": false
+}

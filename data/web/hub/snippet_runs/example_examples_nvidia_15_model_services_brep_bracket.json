@@ -1,0 +1,12 @@
+{
+ "code_hash": "17b57b9c8721d115",
+ "figures": [],
+ "id": "example:examples/nvidia/15_model_services_brep_bracket",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.93,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification | structural mechanics | not curated\nthickness_mm 10.0 mm\nbracket_mass 369.9879538393715 g",
+ "timed_out": false
+}

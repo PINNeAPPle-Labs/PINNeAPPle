@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d02c774cfec0dd2",
+ "figures": [],
+ "id": "example:examples/industrial_presets/pump_npsh_cavitation",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação | Fluidos / bombeamento (saneamento, processo, utilidades) | not curated\nrel_error[pressão de saturação a 300 K] 8.519538172126368e-10 -\nrel_error[pressão de saturação a 500 K] 1.4122479672402738e-09 -\nrel_error[pressão de saturação a 600 K] 1.7516852474095862e-09 -\nrel_error[pressão atmosférica a 1000 m] 4.4030956171667256e-07 -\nrel_error[pressão atmosférica a 2000 m] 3.226243583987093e-08 -",
+ "timed_out": false
+}

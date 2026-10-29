@@ -1,0 +1,12 @@
+{
+ "code_hash": "c40ce86973a5ddc4",
+ "figures": [],
+ "id": "node:auto.design.geometry.capsule2d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "SDF\n<pinneapple_design.geometry.gen.sdf_shapes.SDF object at 0x7f7dec90eba0>",
+ "timed_out": false
+}

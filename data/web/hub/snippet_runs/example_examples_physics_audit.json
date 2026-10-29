@@ -1,0 +1,12 @@
+{
+ "code_hash": "b8a676dc1d20015a",
+ "figures": [],
+ "id": "example:examples/physics_audit",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics audit: which model to use, when to trust it, when to revisit the physics | validation and benchmarks | not curated",
+ "timed_out": false
+}

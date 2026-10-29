@@ -1,0 +1,12 @@
+{
+ "code_hash": "531e7a525c6b11c0",
+ "figures": [],
+ "id": "node:pinn.poisson_fem_vs_pinn",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FEM and PINN on the manufactured Poisson problem (pp.compare) -> pinneapple_physics.pde_environment.builder.ProblemBuilder + pinneapple.PhysicalProblem.from_pde_spec + pinneapple.compare (fem, pinn, reference exact) + pinneapple.solve(...).metadata\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'epochs': 2000, 'hidden_dim': 32, 'n_layers': 3}",
+ "timed_out": false
+}

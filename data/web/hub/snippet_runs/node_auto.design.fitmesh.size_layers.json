@@ -1,0 +1,12 @@
+{
+ "code_hash": "ff608fcd983aee3c",
+ "figures": [],
+ "id": "node:auto.design.fitmesh.size_layers",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "size layers -> pinneapple_design.fitmesh:size_layers\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'first_height': 1.0, 'expansion': None, 'n_layers': None, 'total_thickness': None}",
+ "timed_out": false
+}

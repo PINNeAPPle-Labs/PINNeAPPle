@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d6e48c06577298f",
+ "figures": [],
+ "id": "example:solid_fem/cantilever",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - deflection vs Timoshenko and CalculiX",
+ "timed_out": false
+}

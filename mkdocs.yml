@@ -44,6 +44,7 @@ plugins:
   - gen-files:
       scripts:
         - tools/gen_api_docs.py
+        - tools/gen_flow_docs.py
   - literate-nav:
       nav_file: SUMMARY.md
   - mkdocstrings:

@@ -1,0 +1,12 @@
+{
+ "code_hash": "dbef4f7ddfb5fcce",
+ "figures": [],
+ "id": "node:geo.earth_system",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Earth-system blocks: sphere, 4D-Var, infiltration -> pinneapple_simulation.geophysics.SphericalHarmonics + williamson_case6 + solve_richards (CELIA_1990_SOIL, Boundary); pinneapple_analysis.data_assimilation.twin_experiment\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'days': 4.0, 'truncation': 42, 'dt': 600.0, 'da_n': 40, 'da_window': 20, 'seed': 0}",
+ "timed_out": false
+}

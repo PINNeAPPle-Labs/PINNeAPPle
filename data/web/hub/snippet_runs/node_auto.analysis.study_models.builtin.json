@@ -1,0 +1,12 @@
+{
+ "code_hash": "b64d23e0f69bd5e2",
+ "figures": [],
+ "id": "node:auto.analysis.study_models.builtin",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "builtin -> pinneapple_analysis.study_models:builtin\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

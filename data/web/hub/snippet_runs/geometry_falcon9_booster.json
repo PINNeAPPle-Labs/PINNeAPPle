@@ -1,0 +1,12 @@
+{
+ "code_hash": "eb87986c798e2ca8",
+ "figures": [],
+ "id": "geometry:falcon9_booster",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Two-stage launcher (Falcon 9 Block 5 class) | space\nfalcon9_booster.light.stl 567884 bytes",
+ "timed_out": false
+}

@@ -1,0 +1,63 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-sports-ball-flight-inverse",
+ "name": "Ball flight inverse problem on simulated kicks",
+ "description": "Simulated kicks (drag crisis, random spin, 0.2 m noise) fitted back with the drag-Magnus ODE: drag-coefficient error and the coverage of its 95 % intervals; 3-D against 2-D identifiability (examples/sports/01_ball_flight.py, results/ball_flight.json). No data download.",
+ "nodes": [
+  {
+   "id": "ball",
+   "type": "football.ball_flight_inverse",
+   "params": {
+    "n": 60,
+    "noise": 0.2,
+    "seed": 0
+   },
+   "label": "Ball flight inverse problem on simulated kicks",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "sports",
+    "comparisons": [
+     {
+      "flow": "ball.cd_mae",
+      "ref": "manifest:ball_cd_mae_synthetic"
+     }
+    ],
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding; the manifest stores rounded numbers (5 significant digits): each matches within half a unit of its last digit"
+   },
+   "label": "Same numbers as examples/sports",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "ball",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "ball.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "sports",
+  "domain": "sports",
+  "scripts": [
+   "01_ball_flight.py"
+  ],
+  "quick": {
+   "ball": {
+    "n": 8
+   }
+  }
+ }
+}

@@ -14,11 +14,11 @@ producing it.
 (Ollama + a SQLite conversation log, no hosted API, no data leaving your
 machine); ``finetune.py`` fine-tunes a local model on that logged data.
 """
-from .draft import draft_problem, DraftResult
+from .draft import draft_problem, DraftResult, DraftRejected, check_kwargs_in_bounds, draft_preset_kwargs
 from .catalog_match import resolve_problem, ResolveResult
 from .geometry_draft import draft_geometry, GeometryDraftResult
 from .cad_draft import (
-    draft_mesh_recipe, draft_cadquery_template, build_recipe, export_recipe, CadRecipeResult,
+    draft_mesh_recipe, draft_cadquery_template, build_recipe, export_recipe, CadRecipeResult, draft_part, measure_part,
 )
 from .twin_draft import draft_digital_twin, build_3d_live_twin, TwinDraftResult
 from .research import search_literature, ResearchReport
@@ -27,6 +27,11 @@ from .guardrail import PhysicsGuardrail, GuardrailReport, CheckResult
 from .conversation_store import ConversationStore, ConversationRecord
 from ._dispatch import call_llm
 from .agent_loop import AgentStep, AgentLoopResult, run_agent_loop
+
+# Quality-assurance pipeline (spec -> static/sandbox/scientific validation ->
+# reference comparison -> bounded repair -> Q0-Q4). Additive: nothing above
+# changed, and importing it costs numpy, which is a core dependency.
+from . import qa
 
 try:
     from . import local_llm
@@ -39,10 +44,10 @@ except Exception:
     FinetuneConfig = prepare_dataset = finetune_lora = None  # type: ignore
 
 __all__ = [
-    "draft_problem", "DraftResult",
+    "draft_problem", "DraftResult", "DraftRejected", "check_kwargs_in_bounds", "draft_preset_kwargs",
     "resolve_problem", "ResolveResult",
     "draft_geometry", "GeometryDraftResult",
-    "draft_mesh_recipe", "draft_cadquery_template", "build_recipe", "export_recipe", "CadRecipeResult",
+    "draft_mesh_recipe", "draft_cadquery_template", "build_recipe", "export_recipe", "CadRecipeResult", "draft_part", "measure_part",
     "draft_digital_twin", "build_3d_live_twin", "TwinDraftResult",
     "search_literature", "ResearchReport",
     "answer_with_context", "OrgAnswer",
@@ -51,4 +56,5 @@ __all__ = [
     "call_llm", "local_llm",
     "AgentStep", "AgentLoopResult", "run_agent_loop",
     "FinetuneConfig", "prepare_dataset", "finetune_lora",
+    "qa",
 ]

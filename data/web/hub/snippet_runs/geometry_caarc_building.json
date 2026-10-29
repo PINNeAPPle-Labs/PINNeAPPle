@@ -1,0 +1,12 @@
+{
+ "code_hash": "3027ea65da5c35b1",
+ "figures": [],
+ "id": "geometry:caarc_building",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CAARC standard tall building | civil\ncaarc_building.light.stl 831884 bytes",
+ "timed_out": false
+}

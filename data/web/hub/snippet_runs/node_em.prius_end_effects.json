@@ -1,0 +1,12 @@
+{
+ "code_hash": "d70a2c63f9f2fc98",
+ "figures": [],
+ "id": "node:em.prius_end_effects",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius end effects: end-winding inductance, 3-D magnet end leakage -> pinneapple_simulation.electromagnetics.machines.endwinding.end_winding_inductance + getdp.end_leakage_3d (gmsh + GetDP) + drive.Drive(L_end) + IPMMachine.mtpa / no_load\ninputs: [('flux_map', 'flux_map')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'leakage_levels': [[144, 4, 4, 0.04], [240, 6, 6, 0.04], [336, 8, 8, 0.04], [240, 6, 9, 0.06]], 'finest_level': 2}",
+ "timed_out": false
+}

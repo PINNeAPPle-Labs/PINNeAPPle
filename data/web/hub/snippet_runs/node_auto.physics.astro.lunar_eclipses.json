@@ -1,0 +1,12 @@
+{
+ "code_hash": "484d198c9517eeb8",
+ "figures": [],
+ "id": "node:auto.physics.astro.lunar_eclipses",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "lunar eclipses -> pinneapple_physics.astro:lunar_eclipses\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

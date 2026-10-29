@@ -17,27 +17,12 @@ from __future__ import annotations
 import argparse
 import warnings
 
-import numpy as np
-import torch
-
 import pinneapple as pp
 from pinneapple_analysis.validation.gallery import conclude
 from pinneapple_lab.experiments.rom import _wake
-from pinneapple_neural.architectures.rom import POD, DynamicModeDecomposition
+from pinneapple_neural.architectures.rom.steppers import pod_dmd_stepper
 
 FAMILY, PHYSICS, CATCHES = "rom", "incompressible-flow", "rollout.invariants"
-
-
-def pod_dmd(snapshots: np.ndarray, r: int = 8):
-    X = torch.tensor(snapshots.reshape(len(snapshots), -1), dtype=torch.float64)
-    pod = POD(r=r, center=True).fit(X)
-    dmd = DynamicModeDecomposition(r=r, center=False).fit(pod.encode(X)[None])
-    shape = snapshots.shape[1:]
-
-    def step(u):
-        a = pod.encode(torch.tensor(u.reshape(1, -1), dtype=torch.float64))
-        return pod.decode(dmd.rollout(a, 1)[:, -1]).numpy().reshape(shape)
-    return step, float(np.abs(np.asarray(dmd.eig()[0])).max())
 
 
 def run(smoke: bool = True, out_dir=None):
@@ -47,8 +32,8 @@ def run(smoke: bool = True, out_dir=None):
         _, uy, _, meta = _wake(60.0, steps, 50, D=D)
     n = len(uy)                                                          # frames 50 LBM steps apart
     sat, grow, test = slice(int(0.58 * n), int(0.75 * n)), slice(int(0.31 * n), int(0.48 * n)), int(0.75 * n)
-    good_step, lam_good = pod_dmd(uy[sat])
-    bad_step, lam_bad = pod_dmd(uy[grow])
+    good_step, lam_good = pod_dmd_stepper(uy[sat])
+    bad_step, lam_bad = pod_dmd_stepper(uy[grow])
     ref = uy[test:]
     problem = {"rollout": {"ndim": 2, "dt": 1.0, "periodic": False, "steps": len(ref) - 1},
                "name": "cylinder wake, Re 60 (LBM), cross-stream velocity"}

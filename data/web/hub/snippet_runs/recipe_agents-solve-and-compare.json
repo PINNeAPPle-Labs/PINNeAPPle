@@ -1,0 +1,12 @@
+{
+ "code_hash": "cc1fa88ce1a0d893",
+ "figures": [],
+ "id": "recipe:agents-solve-and-compare",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 23.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Comparison on 'poisson' against 'exact' at 4096 points\nmethod          kind       status     train [s]  infer [us/pt]  ref sims  relL2(u)\nfem             classical  ok             0.193           8.24         0  7.540e-03\npinn            neural     ok              16.7          0.206         0  5.637e-02",
+ "timed_out": false
+}

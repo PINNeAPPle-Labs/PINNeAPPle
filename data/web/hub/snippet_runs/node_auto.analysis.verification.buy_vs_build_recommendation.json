@@ -1,0 +1,12 @@
+{
+ "code_hash": "5a2c09f3e60e368a",
+ "figures": [],
+ "id": "node:auto.analysis.verification.buy_vs_build_recommendation",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

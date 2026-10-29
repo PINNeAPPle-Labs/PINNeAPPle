@@ -1,0 +1,12 @@
+{
+ "code_hash": "42ec5e3496721995",
+ "figures": [],
+ "id": "node:lib.rom.parametric_pod",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Parametric POD -> pinneapple_flow.wrappers:parametric_pod pinneapple_neural.architectures.rom\ninputs: [('data', 'dataset')]\noutputs: [('result', 'metrics')]\ndefaults: {'r': 16, 'regressor': 'rbf', 'test_fraction': 0.2, 'seed': 0}",
+ "timed_out": false
+}

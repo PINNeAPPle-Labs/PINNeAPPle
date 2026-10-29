@@ -184,7 +184,7 @@ def identify_recharge(T: np.ndarray, h: np.ndarray, month: np.ndarray | None = N
         return [(dX[:, 0] - fT) / sdt[0], (dX[:, 1] - fh) / sdt[1]]
 
     ip = InversePINN(model, params, residual, s_obs, y_obs, domain_bounds=[(0.0, 1.0)], n_col=n_col, lr=lr,
-                     lr_params=5e-3, patience=epochs)
+                     lr_params=5e-3, patience=epochs, weighting="adaptive")
     ip.rng = np.random.default_rng(seed)
     hist = ip.train(n_epochs=epochs)
     got = ip.get_identified_params()
@@ -365,7 +365,8 @@ class PINNExtrapolationForecaster(Forecaster):
 
         dummy = InverseParam(0.0, name="unused")
         ip = InversePINN(model, [dummy], residual, tau_obs, y_obs, domain_bounds=[(-1.0, H / W)], n_col=self.n_col,
-                         lr=3e-3, lr_params=0.0, patience=self.epochs)
+                         lr=3e-3, lr_params=0.0, patience=self.epochs,
+                         weighting="adaptive")
         ip.rng = np.random.default_rng(self.seed)
         hist = ip.train(n_epochs=self.epochs)
         tau_f = torch.as_tensor((self.horizons / W)[:, None], dtype=torch.float32)
@@ -573,7 +574,7 @@ class EquatorialWavePINN:
         Y = torch.as_tensor(V[ok], dtype=torch.float32) / sc_obs
         P_learn = [p.name for p in params]
         ip = InversePINN(model, params, residual, P_obs[ok], Y, domain_bounds=[(0.0, 1.0), (0.0, 1.0)], n_col=n_col,
-                         lr=lr, lr_params=5e-3, patience=epochs)
+                         lr=lr, lr_params=5e-3, patience=epochs, weighting="adaptive")
         ip.rng = np.random.default_rng(self.seed)
         hist = ip.train(n_epochs=epochs)
         got = ip.get_identified_params()

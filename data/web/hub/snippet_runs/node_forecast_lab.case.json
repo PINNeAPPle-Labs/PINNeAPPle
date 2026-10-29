@@ -1,0 +1,12 @@
+{
+ "code_hash": "1d5aa97ab27e80a3",
+ "figures": [],
+ "id": "node:forecast_lab.case",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Near-random series: predictability, model zoo, surrogate twins -> pinneapple_systems.time_series.forecast_lab.pipeline.run_case (presets.case, predictability_report, study.run_zoo, surrogate_trained, fan_panels); forecast_lab.plots.plot_skill_vs_horizon\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'case': 'lorenz63_noise0.1', 'n': 6000, 'budget': 8, 'n_surrogates': 99, 'seed': 0, 'models': []}",
+ "timed_out": false
+}

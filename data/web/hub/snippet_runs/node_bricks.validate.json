@@ -1,0 +1,12 @@
+{
+ "code_hash": "c3edfd9ebf080334",
+ "figures": [],
+ "id": "node:bricks.validate",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Brick physics against closed forms and Newton (trust report) -> pinneapple_design.bricks.validation.validate (harmonic stacking, tipping, stud cantilever, tower push, beam reactions, voxel FEA vs Timoshenko, Newton replays)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'fea': True}",
+ "timed_out": false
+}

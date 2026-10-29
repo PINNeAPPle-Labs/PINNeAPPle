@@ -191,6 +191,8 @@ def _load(part):
 
 def report():
     elm, dnn, base = _load("elm"), _load("dnn"), _load("baselines")
+    with open(os.path.join(HERE, "all_runs.json"), "w") as fh:        # runs/ is a git-ignored cache; this is committed
+        json.dump({"elm": elm, "dnn": dnn, "baselines": base}, fh, separators=(",", ":"))
     rows = ["| ν | Method | Neurons | Seeds | max: paper / ours median [min, max] | mean: paper / ours | "
             "ε_G: paper / ours | ε_T ours | solve | Status (max) |", "|" + "---|" * 10]
     statuses = {}

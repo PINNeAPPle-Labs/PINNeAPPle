@@ -76,6 +76,11 @@ jobs:
           pip install scikit-learn
           pytest tests/test_football_physics.py -q -p no:warnings
 
+      - name: Derivative trees (pp.potential) — closed forms, Peng-Robinson vs CoolProp, SPM co-energy torque (must pass)
+        run: |
+          pip install ".[potential]"
+          pytest tests/test_potential.py -q -p no:warnings
+
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
           python scripts/check_experiment_manifests.py

@@ -76,6 +76,12 @@ check = [
 sports = [
   "scikit-learn>=1.3",
 ]
+# Derivative trees from a potential (pinneapple_physics.potential): symbolic trees and Legendre transforms (SymPy),
+# real-fluid reference data and the Peng-Robinson check (CoolProp)
+potential = [
+  "sympy>=1.12",
+  "CoolProp>=6.6",
+]
 # Electromagnetics: independent Mie implementation for the cross-check (pinneapple_simulation.electromagnetics)
 em = [
   "miepython>=3.0",

@@ -1,0 +1,59 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions",
+ "title": "Paper reproductions: biology",
+ "description": "BINNs (Lagergren et al. 2020) and SBINN (Daneker et al. 2022) under the reproduction protocol: targets quoted in TARGETS.md before any run, scored by pinneapple_analysis.reproduction.",
+ "domain": "biology",
+ "methods": [
+  "generalized least squares",
+  "method of lines",
+  "SBINN",
+  "BINN"
+ ],
+ "modules": [
+  "pinneapple_physics.biology.cell_migration",
+  "pinneapple_analysis.inverse_problems.sbinn",
+  "pinneapple_analysis.inverse_problems.binn",
+  "pinneapple_analysis.reproduction"
+ ],
+ "params": {},
+ "scripts": [
+  "binns_lagergren2020/classical.py",
+  "binns_lagergren2020/binn.py",
+  "sbinn_daneker2022/run.py"
+ ],
+ "metrics": [
+  {
+   "name": "binns_fkpp_gls_10000",
+   "value": 787.29,
+   "unit": "",
+   "how": "classical FKPP fitted by L-BFGS-B from 9 neutral starts (paper Table 2: 786.80)"
+  },
+  {
+   "name": "binns_fkpp_targets_reproduced",
+   "value": 6.0,
+   "unit": "data sets",
+   "how": "GLS and D, r within the factor-2 band of reproduction.status, all six densities"
+  },
+  {
+   "name": "binns_porous_fkpp_targets_reproduced",
+   "value": 2.0,
+   "unit": "data sets",
+   "how": "10,000 and 12,000 cells per well; the other four not run yet"
+  }
+ ],
+ "files": {
+  "data": [
+   "binns_lagergren2020/results/classical.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/bio_informed.md"
+ },
+ "references": [
+  "Lagergren et al. PLoS Comput Biol 2020 (arXiv:2005.13073)",
+  "Daneker et al. arXiv:2202.01723",
+  "Jin et al. J Theor Biol 2016"
+ ],
+ "status": "not curated"
+}

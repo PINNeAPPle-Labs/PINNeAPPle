@@ -19,7 +19,12 @@ import os
 
 import numpy as np
 
-from pinneapple_analysis.inverse_problems.forward import Observations, Parameter, ParameterSet, jacobian
+from pinneapple_analysis.inverse_problems.forward import (
+    Observations,
+    Parameter,
+    ParameterSet,
+    jacobian,
+)
 from pinneapple_analysis.inverse_problems.identifiability import analyze_identifiability
 from pinneapple_analysis.inverse_problems.ode_model import ODEForwardModel
 from pinneapple_physics.biology.models import ULTRADIAN_SEARCH_RANGE, ultradian_glucose_insulin

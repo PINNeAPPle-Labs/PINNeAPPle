@@ -59,8 +59,11 @@ def test_binn_runs_and_returns_terms():
 
 
 def test_eikonal_pinn_beats_nothing_on_a_planar_wave():
-    from pinneapple_analysis.inverse_problems.activation_mapping import (EikonalPINN, EikonalPINNConfig,
-                                                                         interpolate_baseline)
+    from pinneapple_analysis.inverse_problems.activation_mapping import (
+        EikonalPINN,
+        EikonalPINNConfig,
+        interpolate_baseline,
+    )
 
     torch.set_num_threads(1)
     rng = np.random.default_rng(0)

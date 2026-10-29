@@ -18,8 +18,11 @@ import os
 
 import numpy as np
 
-from pinneapple_analysis.inverse_problems.activation_mapping import (EikonalPINN, EikonalPINNConfig,
-                                                                     interpolate_baseline)
+from pinneapple_analysis.inverse_problems.activation_mapping import (
+    EikonalPINN,
+    EikonalPINNConfig,
+    interpolate_baseline,
+)
 from pinneapple_physics.biology.excitable import Stimulus, aliev_panfilov_2d, conduction_velocity
 
 HERE = os.path.dirname(os.path.abspath(__file__))

@@ -18,8 +18,6 @@ import json
 import os
 import time
 
-import numpy as np
-
 HERE = os.path.dirname(os.path.abspath(__file__))
 UM2_HR = 1e6 / 24          # mm^2/day -> um^2/hr
 PER_HR = 1 / 24            # 1/day -> 1/hr
@@ -47,7 +45,11 @@ def main(argv=None):
     ap.add_argument("--out", default=os.path.join(HERE, "results", "classical.json"))
     ap.add_argument("--models", default="fkpp,porous_fkpp,delay_reaction_diffusion")
     a = ap.parse_args(argv)
-    from pinneapple_physics.biology.cell_migration import DENSITIES, fit_mechanistic, load_scratch_assay
+    from pinneapple_physics.biology.cell_migration import (
+        DENSITIES,
+        fit_mechanistic,
+        load_scratch_assay,
+    )
 
     results = {}
     if os.path.exists(a.out):

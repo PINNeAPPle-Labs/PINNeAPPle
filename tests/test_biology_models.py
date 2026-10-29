@@ -2,13 +2,26 @@
 import numpy as np
 import pytest
 
-from pinneapple_analysis.inverse_problems.forward import Observations, Parameter, ParameterSet, jacobian
+from pinneapple_analysis.inverse_problems.forward import (
+    Observations,
+    Parameter,
+    ParameterSet,
+    jacobian,
+)
 from pinneapple_analysis.inverse_problems.identifiability import analyze_identifiability
 from pinneapple_analysis.inverse_problems.ode_model import ODEForwardModel
 from pinneapple_physics.biology import ODESystem
-from pinneapple_physics.biology.excitable import (activation_times, aliev_panfilov_2d, conduction_velocity,
-                                                  fitzhugh_nagumo_1d)
-from pinneapple_physics.biology.models import minimal_pbpk, pk_one_compartment_mm, ultradian_glucose_insulin
+from pinneapple_physics.biology.excitable import (
+    activation_times,
+    aliev_panfilov_2d,
+    conduction_velocity,
+    fitzhugh_nagumo_1d,
+)
+from pinneapple_physics.biology.models import (
+    minimal_pbpk,
+    pk_one_compartment_mm,
+    ultradian_glucose_insulin,
+)
 
 
 def _fisher(system, names, t, observable, sigma=1.0):
@@ -109,8 +122,10 @@ def test_activation_times_interpolates_crossing():
 
 
 def test_reaction_diffusion_2d_preset_has_the_reaction():
-    from pinneapple_physics.pde_environment.presets.industry import (reaction_diffusion_2d_default,
-                                                                     reaction_diffusion_2d_exact)
+    from pinneapple_physics.pde_environment.presets.industry import (
+        reaction_diffusion_2d_default,
+        reaction_diffusion_2d_exact,
+    )
 
     spec = reaction_diffusion_2d_default()
     assert spec.pde.kind == "reaction_diffusion_2d" and spec.pde.params["lambda"] == 0.5

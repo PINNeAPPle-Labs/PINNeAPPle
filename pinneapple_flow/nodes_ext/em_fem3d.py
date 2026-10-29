@@ -1,7 +1,8 @@
-"""The 3-D edge-element solver of :mod:`pinneapple_simulation.electromagnetics.fem3d` as a flow node: the verification
-of ``examples/electrodynamics/19_edge3d_verification.py`` (sphere in a uniform field under mesh refinement, the
-GetDP cross-check on the same meshes, the manufactured solution and the conducting slab). Metric names follow the
-example's results JSON."""
+"""The 3-D edge-element solver of :mod:`pinneapple_simulation.electromagnetics.fem3d` and the 3-D machines of
+:mod:`pinneapple_simulation.electromagnetics.machines3d` as flow nodes: the verification of
+``examples/electrodynamics/19_edge3d_verification.py`` (sphere in a uniform field under mesh refinement, the GetDP
+cross-check on the same meshes, the manufactured solution and the conducting slab) and the skew study of
+``20_spm_skew_3d.py``. Metric names follow the examples' results JSON."""
 from __future__ import annotations
 
 import shutil
@@ -78,6 +79,37 @@ def edge3d_verification(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"]}
 
 
+@node("em.spm_skew_3d", "Skew of a surface-PM machine: 3-D cogging against multi-slice 2-D",
+      category="Electromagnetics", outputs=[Port("metrics", "metrics")],
+      params=[Param("totals_deg", "list", [0, 4, 8, 10, 12, 14], help="total skews (deg)"),
+              Param("kinds", "list", ["step2", "step3", "continuous"]),
+              Param("n_theta", "int", 360, minimum=24, help="angular steps (multiple of slots and poles)"),
+              Param("stack_layers", "int", 12, minimum=1), Param("end_length", "float", 0.02, minimum=0.0),
+              Param("end_layers", "int", 3, minimum=0), Param("mu_r_iron", "float", 1000.0, minimum=1.0)],
+      calls="pinneapple_simulation.electromagnetics.machines3d: SPM3D (extruded polar mesh, magnet skew, end "
+            "regions, Arkkio torque, multislice), skew.skew_study")
+def spm_skew_3d(ctx, inputs, params):
+    """examples/electrodynamics/20_spm_skew_3d.py: cogging peak-to-peak against total skew for step and continuous
+    skew, in 3-D and in multi-slice 2-D on the same mesh."""
+    import math
+
+    from pinneapple_simulation.electromagnetics.machine import SPMMachine
+    from pinneapple_simulation.electromagnetics.machines3d import SPM3D
+    from pinneapple_simulation.electromagnetics.machines3d.skew import skew_study
+    from pinneapple_simulation.electromagnetics.materials import LinearMaterial
+    n = int(params["n_theta"])
+    m = SPMMachine(iron=LinearMaterial(mu_r=float(params["mu_r_iron"])), n_theta=n)
+    model = SPM3D(m, n_theta=n, stack_layers=int(params["stack_layers"]), end_length=float(params["end_length"]),
+                  end_layers=int(params["end_layers"]), mu_r_iron=float(params["mu_r_iron"]))
+    res = skew_study(model, [math.radians(float(v)) for v in params["totals_deg"]], kinds=list(params["kinds"]),
+                     progress=ctx.log)
+    for r in res["rows"]:
+        key = f"{r['kind']}.{math.degrees(r['total']):g}deg"
+        ctx.metric(f"{key}.pkpk_3d", r["pkpk_3d"], "N m")
+        ctx.metric(f"{key}.pkpk_ms", r["pkpk_ms"], "N m")
+    return {"metrics": ctx.report["metrics"]}
+
+
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
@@ -89,6 +121,14 @@ def _register_capabilities():
         nodes=("em.edge3d_verification",), references=("jin2014fem", "bossavit1998"),
         template="electromagnetics/19_edge3d_verification", quick=True,
         description="examples/electrodynamics/19_edge3d_verification.py"))
+    register_capability(Capability(
+        id="em.spm_skew_3d", title="Skew of a PM machine: 3-D cogging against multi-slice 2-D",
+        domain="electromagnetics", example="electrodynamics",
+        keywords={"skew": 3, "cogging": 2, "multi-slice": 2, "multislice": 2, "3-d": 1, "3d": 1, "step skew": 3},
+        requires_all=(("motor", "machine", "pm", "spm", "rotor", "magnet"),), min_score=4,
+        nodes=("em.spm_skew_3d",), references=("jin2014fem", "bossavit1998"),
+        template="electromagnetics/20_spm_skew_3d", quick=True,
+        description="examples/electrodynamics/20_spm_skew_3d.py"))
 
 
 _register_capabilities()

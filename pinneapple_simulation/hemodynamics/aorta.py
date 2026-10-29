@@ -207,9 +207,25 @@ class CoupledRun:
     dt_couple: float = 0.01
     keep_every: float = 0.05
     history: list[dict[str, Any]] = field(default_factory=list)
+    history_path: Path | None = None        # when set: written after every window, and read back to resume
 
     def __post_init__(self):
         self.case = Path(self.case)
+        if self.history_path is not None:
+            self.history_path = Path(self.history_path)
+            if self.history_path.exists() and not self.history:
+                self.history = json.loads(self.history_path.read_text())
+                last = self.history[-1]
+                for k, w in self.windkessels.items():   # restore each Windkessel from the last window
+                    w.Pc = last[f"P_wk_{k}"] - w.Rp * last[f"Q_{k}"]
+                # drop time folders written after the last recorded window (a run killed mid-window)
+                for tt in self._times():
+                    if tt > last["t"] + 1e-9:
+                        shutil.rmtree(self.case / self._name(tt), ignore_errors=True)
+            elif not self.history:
+                for tt in self._times():               # a fresh start: only the initial time
+                    if tt > 0:
+                        shutil.rmtree(self.case / self._name(tt), ignore_errors=True)
 
     def _times(self) -> list[float]:
         out = []
@@ -277,6 +293,10 @@ class CoupledRun:
             for k, v in P_new.items():
                 rec[f"P_wk_{k}"] = v
             self.history.append(rec)
+            if self.history_path is not None:
+                tmp = self.history_path.with_suffix(".tmp")
+                tmp.write_text(json.dumps(self.history))
+                tmp.replace(self.history_path)
             if verbose:
                 print({k: (round(v, 6) if isinstance(v, float) else v) for k, v in rec.items()
                        if k in ("t", "Q_inlet", "p_inlet", "mass_imbalance", "seconds")}, flush=True)

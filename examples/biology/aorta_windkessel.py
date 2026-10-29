@@ -43,16 +43,11 @@ def main(argv=None):
     info = json.loads((case / "setup.json").read_text())
     diam = {k: v["diameter"] for k, v in info["geometry"]["caps"].items() if k.startswith("outlet")}
     wk = split_rcr(diam)
-    run = CoupledRun(case, wk, rho=info["physics"]["rho"])
-    hist_file = out / "history.json"
-    if hist_file.exists():
-        run.history = json.loads(hist_file.read_text())
-        for k, w in wk.items():                     # restore the Windkessel states from the last window
-            r = run.history[-1]
-            w.Pc = r[f"P_wk_{k}"] - w.Rp * r[f"Q_{k}"]
-    for c in range(len(run.history) // 100, a.cycles):
+    run = CoupledRun(case, wk, rho=info["physics"]["rho"], history_path=out / "history.json")
+    while not run.history or run.history[-1]["t"] < a.cycles * period - 1e-9:
+        t_done = run.history[-1]["t"] if run.history else 0.0
+        c = int(round(t_done / period, 6))
         run.run((c + 1) * period, verbose=False)
-        hist_file.write_text(json.dumps(run.history))
         print(f"cycle {c + 1}: p_inlet range "
               f"{min(r['p_inlet'] for r in run.history[-100:]) / MMHG:.1f}-"
               f"{max(r['p_inlet'] for r in run.history[-100:]) / MMHG:.1f} mmHg", flush=True)

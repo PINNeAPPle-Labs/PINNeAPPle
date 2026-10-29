@@ -1,0 +1,452 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions/xtfc_schiassi2021",
+ "title": "X-TFC reproduction (Schiassi et al.)",
+ "description": "The ODE and PDE problems of arXiv:2005.10632v1 solved by X-TFC at the paper's settings, many seeds, scored by the neutral evaluator against the frozen targets of TARGETS.md.",
+ "domain": "physics-informed ML",
+ "methods": [
+  "X-TFC"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.xtfc_general",
+  "pinneapple_physics.paper_problems_xtfc",
+  "pinneapple_analysis.reproduction"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "ode1_y_median_test_max",
+   "value": 4.440892098500626e-16,
+   "unit": "abs error",
+   "how": "median over 1000 seeds of max |u - exact| on paper_points_max"
+  },
+  {
+   "name": "ode2_y1_median_test_max",
+   "value": 0.9075531208488127,
+   "unit": "abs error",
+   "how": "median over 1000 seeds of max |u - exact| on paper_points_max"
+  },
+  {
+   "name": "ode2_y2_median_test_max",
+   "value": 2.5884488609153777,
+   "unit": "abs error",
+   "how": "median over 1000 seeds of max |u - exact| on paper_points_max"
+  },
+  {
+   "name": "pde1_f_median_test_max",
+   "value": 1.3652967645327863e-13,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde2_f_median_test_max",
+   "value": 7.132627821704318e-12,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde3_f_median_test_max",
+   "value": 2.3395035908535533e-10,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde4_f_median_test_max",
+   "value": 6.537011714713437e-07,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde5_f_median_test_max",
+   "value": 0.0007259401034279134,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde6_z_median_test_max",
+   "value": 5.447004451930582e-06,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  },
+  {
+   "name": "pde7_f_median_test_max",
+   "value": 2.3465885550241067e-05,
+   "unit": "abs error",
+   "how": "median over 10 seeds of max |u - exact| on test_max"
+  }
+ ],
+ "checks": [
+  {
+   "name": "ode1/y: reproduced (ours 4.44e-16 vs paper 6.661e-16)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "ode1: constraints hold exactly (max 0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "ode1: fresh-point residual median 1.6e-12",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "ode2/y1: not reproduced (ours 0.908 vs paper 5.543e-10)",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "ode2/y2: not reproduced (ours 2.59 vs paper 1.581e-09)",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "ode2: constraints hold exactly (max 0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "ode2: fresh-point residual median 0.025",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde1/f: reproduced (ours 1.37e-13 vs paper 5.054e-13)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde1: constraints hold exactly (max 4e-14)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde1: fresh-point residual median 1.4e-10",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde2/f: reproduced (ours 7.13e-12 vs paper 7.581e-12)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde2: constraints hold exactly (max 4.2e-13)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde2: fresh-point residual median 4.4e-09",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde3/f: reproduced (ours 2.34e-10 vs paper 8.977e-11)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde3: constraints hold exactly (max 3.1e-09)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde3: fresh-point residual median 1e-07",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde4/f: reproduced (ours 6.54e-07 vs paper 5.785e-07)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde4: constraints hold exactly (max 2.1e-09)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde4: fresh-point residual median 3.9e-05",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde5/f: reproduced (ours 0.000726 vs paper 0.0004025)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde5: constraints hold exactly (max 3.2e-07)",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde5: fresh-point residual median 0.088",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde6/z: not reproduced (ours 5.45e-06 vs paper 1.657e-08)",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde6: constraints hold exactly (max 4e-09)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde6: fresh-point residual median 8.2e-05",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde7/f: reproduced (ours 2.35e-05 vs paper 2.978e-05)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pde7: constraints hold exactly (max 5.1e-11)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "pde7: fresh-point residual median 0.0011",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "targets_vs_ours.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "targets": "examples/reproductions/xtfc_schiassi2021/TARGETS.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "82c3f2d",
+  "created": "2026-10-25T11:03:58Z",
+  "seconds": 530.364,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

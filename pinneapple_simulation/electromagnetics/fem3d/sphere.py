@@ -53,9 +53,10 @@ def mesh_sphere(path, h: float, case: SphereCase, h_out: float | None = None) ->
     import gmsh
 
     path = Path(path)
-    gmsh.initialize(["-v", "0"]) if not gmsh.isInitialized() else None
-    gmsh.clear()
+    if not gmsh.isInitialized():
+        gmsh.initialize(["-v", "0"], interruptible=False)   # no signal handler: runs off the main thread
     gmsh.option.setNumber("General.Terminal", 0)
+    gmsh.clear()
     gmsh.model.add("sphere")
     occ = gmsh.model.occ
     s_in = occ.addSphere(0, 0, 0, case.a)

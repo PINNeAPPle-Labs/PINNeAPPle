@@ -16,6 +16,7 @@ from . import (  # noqa: F401
     design,
     electromagnetics,
     em_antenna,
+    em_fem3d,
     em_prius,
     examples,
     flight,

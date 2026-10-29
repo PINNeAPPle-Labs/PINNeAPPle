@@ -42,7 +42,7 @@ import scipy.sparse.linalg as spla
 from .mesh import LOCAL_EDGES, TetMesh
 
 __all__ = ["MU0", "NU0", "EdgeSpace", "MagnetostaticSolution3D", "EddySolution3D", "solve_magnetostatic",
-           "solve_eddy", "tree_gauge", "cocg", "nodal_interpolation", "AuxiliarySpacePreconditioner"]
+           "solve_eddy", "tree_gauge", "cocg"]
 
 MU0 = 4e-7 * math.pi
 NU0 = 1.0 / MU0
@@ -268,58 +268,6 @@ def cocg(A, b, M_inv, rtol: float = 1e-9, maxiter: int = 20000):
     raise RuntimeError(f"COCG did not converge in {maxiter} iterations (residual {np.linalg.norm(r) / nb:.2e})")
 
 
-# ---------------------------------------------------------------------------------------------- preconditioner
-def nodal_interpolation(space: EdgeSpace) -> sp.csr_matrix:
-    """``Pi`` (edges x 3N): edge circulations of a P1 vector field, ``((v_i + v_j) / 2) . (x_j - x_i)``."""
-    m = space.mesh
-    E = m.edges
-    t = m.nodes[E[:, 1]] - m.nodes[E[:, 0]]
-    n = len(E)
-    rows = np.repeat(np.arange(n), 6)
-    cols = np.column_stack([3 * E[:, 0], 3 * E[:, 0] + 1, 3 * E[:, 0] + 2,
-                            3 * E[:, 1], 3 * E[:, 1] + 1, 3 * E[:, 1] + 2]).ravel()
-    vals = 0.5 * np.column_stack([t, t]).ravel()
-    return sp.csr_matrix((vals, (rows, cols)), shape=(n, 3 * len(m.nodes)))
-
-
-class AuxiliarySpacePreconditioner:
-    """Hiptmair-Xu auxiliary-space preconditioner for ``curl(nu curl) + beta`` on edge elements (R. Hiptmair and
-    J. Xu, SIAM J. Numer. Anal. 45 (2007) 2483-2509; T. Kolev and P. Vassilevski, J. Comput. Math. 27 (2009)
-    604-623): a Jacobi sweep on the edges plus corrections in the gradients of nodal functions,
-    ``G (G^T A G)^-1 G^T``, and in nodal vector fields, ``Pi (Pi^T A Pi)^-1 Pi^T``, each auxiliary problem
-    approximated by one smoothed-aggregation AMG V-cycle (pyamg). Built from a real SPD matrix ``A`` (for eddy
-    currents ``curl nu curl + omega sigma`` plus a small regularisation in air) and applied to real and
-    imaginary parts separately."""
-
-    def __init__(self, A: sp.csr_matrix, G: sp.csr_matrix, Pi: sp.csr_matrix):
-        import pyamg
-
-        A = A.tocsr()
-        self.n = A.shape[0]
-        self.dinv = 1.0 / A.diagonal()
-        self.G, self.Pi = G.tocsr(), Pi.tocsr()
-        AG = (self.G.T @ A @ self.G).tocsr()
-        APi = (self.Pi.T @ A @ self.Pi).tocsr()
-        self.mlG = pyamg.smoothed_aggregation_solver(AG, max_coarse=500)
-        self.mlPi = pyamg.smoothed_aggregation_solver(APi, B=np.kron(np.ones((APi.shape[0] // 3, 1)), np.eye(3)),
-                                                      max_coarse=500)
-        self.A = A
-
-    def _real(self, r: np.ndarray) -> np.ndarray:
-        z = self.dinv * r
-        z = z + self.G @ self.mlG.solve(self.G.T @ r, maxiter=1, cycle="V", tol=1e-30)
-        z = z + self.Pi @ self.mlPi.solve(self.Pi.T @ r, maxiter=1, cycle="V", tol=1e-30)
-        return z
-
-    def __call__(self, r: np.ndarray) -> np.ndarray:
-        if np.iscomplexobj(r):
-            return self._real(np.ascontiguousarray(r.real)) + 1j * self._real(np.ascontiguousarray(r.imag))
-        return self._real(r)
-
-    def operator(self, dtype=complex) -> spla.LinearOperator:
-        return spla.LinearOperator((self.n, self.n), matvec=self, dtype=dtype)
-
-
 # ---------------------------------------------------------------------------------------------- magnetostatics
 @dataclass
 class MagnetostaticSolution3D:
@@ -506,14 +454,16 @@ class EddySolution3D:
 
 def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
                dirichlet: tuple[np.ndarray, np.ndarray] | None = None, space: EdgeSpace | None = None,
-               gauge: str = "none", rtol: float = 1e-9) -> EddySolution3D:
+               gauge: str = "tree", rtol: float = 1e-9) -> EddySolution3D:
     """Time-harmonic eddy currents with the modified vector potential ``A*`` (linear media).
 
     nu, sigma: per tetrahedron (or scalars); J: source current density phasor (M, 3) or callable, zero in the
     conductors. The tree gauge spans the non-conducting nodes only (conductor nodes are roots), so ``A*`` is
-    unique in the conductors and carries the electric scalar potential there. ``gauge="none"`` (default) keeps
-    every edge and solves with COCG and a Jacobi preconditioner (the source is discretely solenoidal, so the
-    singular part in air stays unexcited); ``gauge="tree"`` factorises the tree-gauged system."""
+    unique in the conductors and carries the electric scalar potential there. ``gauge="tree"`` (default)
+    factorises the tree-gauged system (sparse LU: small cases, up to some 1e4 unknowns in seconds);
+    ``gauge="none"`` keeps every edge and solves with COCG and a Jacobi preconditioner, which is fast where it
+    converges but stalls and diverges on stiff cases (measured on TEAM problem 7: residual 2e-2 after 300
+    iterations, then growth), so it is opt-in."""
     t0 = time.perf_counter()
     sp_ = space or EdgeSpace(mesh)
     M = len(mesh.tets)

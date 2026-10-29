@@ -5,8 +5,9 @@
   ``B_x(z) = B0 cosh(k z) / cosh(k d)``, ``k = (1 + j) / delta``, ``delta = sqrt(2 / (omega mu0 sigma))``
   (e.g. Lammeraner and Stafl, *Eddy Currents*, Iliffe, 1966, ch. 2); with ``A* = y a(z)``,
   ``a = -B0 sinh(k z) / (k cosh(k d))`` inside and ``a = -B0 (z - d sgn z) - B0 tanh(k d) / k sgn z`` outside.
-  Time-averaged loss per unit face area: ``B0^2 / (2 mu0^2 sigma delta) (sinh(2d/delta) - sin(2d/delta)) /
-  (cosh(2d/delta) + cos(2d/delta))`` for both faces of a slab of thickness ``2d``.
+  Time-averaged loss per unit area of the slab (thickness ``2d``, both faces): ``B0^2 / (mu0^2 sigma delta)
+  (sinh(2d/delta) - sin(2d/delta)) / (cosh(2d/delta) + cos(2d/delta))``, checked against the integral of
+  ``sigma omega^2 |a|^2 / 2`` across the slab.
 """
 from __future__ import annotations
 
@@ -86,8 +87,8 @@ def slab_eddy(nz: int, d: float = 0.01, sigma: float = 3.5e7, f: float = 200.0, 
                                            + np.abs(sol.B[:, 2]) ** 2))
         n2 += QUAD4_W[q] * np.sum(sp.vol * np.abs(Be) ** 2)
     t = 2 * d / delta
-    p_exact = B0 ** 2 / (2 * MU0 ** 2 * sigma * delta) * (math.sinh(t) - math.sin(t)) / (math.cosh(t) + math.cos(t))
-    zz = np.linspace(-d, d, 20001)[1:-1]
+    p_exact = B0 ** 2 / (MU0 ** 2 * sigma * delta) * (math.sinh(t) - math.sin(t)) / (math.cosh(t) + math.cos(t))
+    zz = np.linspace(-d, d, 20001)
     p_quad = float(np.trapezoid(0.5 * sigma * omega ** 2 * np.abs(a(zz)) ** 2, zz))
     p = sol.loss / L ** 2
     return {"delta": delta, "error_B": math.sqrt(e2 / n2), "loss_per_area": p, "loss_exact": p_exact,

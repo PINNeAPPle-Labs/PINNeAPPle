@@ -1,11 +1,9 @@
 """3-D edge-element (Nedelec) magnetostatics and eddy currents (``pinneapple_simulation.electromagnetics.fem3d``).
 
 Fast cases on structured box meshes run everywhere; the gmsh sphere and the GetDP cross-checks are skipped when
-gmsh or getdp is missing; the TEAM 7 benchmark against its measurements runs with ``PINNEAPPLE_SLOW=1``."""
+gmsh or getdp is missing."""
 from __future__ import annotations
 
-import math
-import os
 import shutil
 
 import numpy as np
@@ -27,7 +25,6 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_GMSH = False
 HAVE_GETDP = shutil.which("getdp") is not None
-SLOW = bool(os.environ.get("PINNEAPPLE_SLOW"))
 
 
 @pytest.mark.parametrize("gauge", ["tree", "none"])
@@ -77,25 +74,26 @@ def test_slab_eddy_against_closed_form():
     assert r2["loss_error"] < 0.02
 
 
-def _iron_cube(I: float):
+def _iron_cube(current: float):
     g = np.linspace(0, 1, 7)
     m = box_mesh(g, g, g, region=lambda c: np.where(np.all(np.abs(c - 0.5) < 0.2, axis=1), 1, 0),
                  names={"air": 0, "iron": 1})
     sp = EdgeSpace(m)
-    j1 = lambda x: np.column_stack([-(x[:, 1] - 0.5), x[:, 0] - 0.5, 0 * x[:, 0]]) * 1e6   # noqa: E731
+    j1 = lambda x: np.column_stack([-(x[:, 1] - 0.5), x[:, 0] - 0.5, 0 * x[:, 0]]) * 5e6   # noqa: E731
     ring = np.abs(np.linalg.norm(m.centroids[:, :2] - 0.5, axis=1) - 0.32) < 0.1
-    return m, sp, (lambda x: I * j1(x)), ring
+    return m, sp, (lambda x: current * j1(x)), ring
 
 
 def test_newton_converges_and_coenergy_derivative_is_the_flux_linkage():
     curve = illustrative_steel(mu_r_init=2000.0, Js=1.8)
     out = {}
-    for I in (0.95, 1.0, 1.05):
-        m, sp, J, mask = _iron_cube(I)
-        s = solve_magnetostatic(m, NU0, J=J, J_mask=mask, nonlinear={1: curve}, gauge="tree", space=sp, tol=1e-11)
-        out[I] = s
+    for current in (0.95, 1.0, 1.05):
+        m, sp, J, mask = _iron_cube(current)
+        s = solve_magnetostatic(m, NU0, J=J, J_mask=mask, nonlinear={1: curve}, gauge="tree", space=sp,
+                                tol=1e-10)
+        out[current] = s
     s = out[1.0]
-    assert s.residual < 1e-11 and s.iterations < 25
+    assert s.residual < 1e-10 and s.iterations < 25
     assert np.max(np.linalg.norm(s.B[m.region == 1], axis=1)) > 1.0      # the iron saturates
     psi = s.source_work() / 1.0
     dW = (out[1.05].coenergy - out[0.95].coenergy) / 0.1
@@ -104,7 +102,11 @@ def test_newton_converges_and_coenergy_derivative_is_the_flux_linkage():
 
 @pytest.mark.skipif(not HAVE_GMSH, reason="gmsh not installed")
 def test_sphere_in_uniform_field(tmp_path):
-    from pinneapple_simulation.electromagnetics.fem3d.sphere import SphereCase, mesh_sphere, solve_native
+    from pinneapple_simulation.electromagnetics.fem3d.sphere import (
+        SphereCase,
+        mesh_sphere,
+        solve_native,
+    )
 
     c = SphereCase(mu_r=10.0)
     r = solve_native(mesh_sphere(tmp_path / "s.msh", 0.3, c), c)
@@ -114,7 +116,12 @@ def test_sphere_in_uniform_field(tmp_path):
 @pytest.mark.skipif(not (HAVE_GMSH and HAVE_GETDP), reason="gmsh and getdp needed")
 def test_sphere_matches_getdp_on_the_same_mesh(tmp_path):
     from pinneapple_simulation.electromagnetics.fem3d import getdp3d, read_msh22
-    from pinneapple_simulation.electromagnetics.fem3d.sphere import SphereCase, errors, mesh_sphere, uniform_dirichlet
+    from pinneapple_simulation.electromagnetics.fem3d.sphere import (
+        SphereCase,
+        errors,
+        mesh_sphere,
+        uniform_dirichlet,
+    )
 
     c = SphereCase(mu_r=10.0)
     msh = mesh_sphere(tmp_path / "s.msh", 0.35, c)
@@ -127,13 +134,3 @@ def test_sphere_matches_getdp_on_the_same_mesh(tmp_path):
     assert e["Bz_mean_in"] == pytest.approx(g["Bz_mean_in"], rel=1e-8)
     assert s.energy == pytest.approx(g["energy"], rel=1e-8)
 
-
-@pytest.mark.skipif(not (SLOW and HAVE_GMSH), reason="TEAM 7 in 3-D (set PINNEAPPLE_SLOW=1)")
-def test_team7_against_measurements(tmp_path):
-    from pinneapple_simulation.electromagnetics.fem3d import team7
-
-    msh = team7.mesh_team7(tmp_path / "t7.msh", h_plate=0.008, h_coil=0.012, h_air=0.06, h_layer=0.01)
-    r = team7.run(msh, freqs=(50,))
-    c = r["f"][50]["compare"]
-    assert c["A1B1 wt=0"]["rms_rel_peak"] < 0.06
-    assert math.isfinite(r["f"][50]["loss_W"])

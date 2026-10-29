@@ -2105,6 +2105,22 @@
    "status": "done"
   }
  },
+ "electromagnetics/19_edge3d_verification": {
+  "full": {
+   "commit": "777c488b",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-29",
+   "manifest": "skipped: the run is failed",
+   "matched": 0,
+   "nodes": {
+    "compare": "cancelled",
+    "v3d": "failed: ValueError: signal only works in main thread of the main interpreter"
+   },
+   "seconds": 5.1,
+   "status": "failed"
+  }
+ },
  "electromagnetics/motor_spm_cogging_and_torque": {
   "full": {
    "commit": "c94c53c7",

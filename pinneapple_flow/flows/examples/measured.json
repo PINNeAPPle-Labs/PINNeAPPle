@@ -2107,18 +2107,179 @@
  },
  "electromagnetics/19_edge3d_verification": {
   "full": {
-   "commit": "777c488b",
-   "comparisons": [],
+   "commit": "2a28ffc8",
+   "comparisons": [
+    {
+     "flow": "v3d.sphere.0.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.0.mean_in",
+     "reference": 0.03909976503196548,
+     "rel_diff": 0.0,
+     "value": 0.03909976503196548
+    },
+    {
+     "flow": "v3d.sphere.0.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.0.l2_all",
+     "reference": 0.05684368118458091,
+     "rel_diff": 0.0,
+     "value": 0.05684368118458091
+    },
+    {
+     "flow": "v3d.sphere.1.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.1.mean_in",
+     "reference": 0.01883433655038449,
+     "rel_diff": 0.0,
+     "value": 0.01883433655038449
+    },
+    {
+     "flow": "v3d.sphere.1.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.1.l2_all",
+     "reference": 0.0382027294399824,
+     "rel_diff": 0.0,
+     "value": 0.0382027294399824
+    },
+    {
+     "flow": "v3d.sphere.2.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.2.mean_in",
+     "reference": 0.0090356810718174,
+     "rel_diff": 0.0,
+     "value": 0.0090356810718174
+    },
+    {
+     "flow": "v3d.sphere.2.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.2.l2_all",
+     "reference": 0.02617302705254959,
+     "rel_diff": 0.0,
+     "value": 0.02617302705254959
+    },
+    {
+     "flow": "v3d.sphere.3.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.3.mean_in",
+     "reference": 0.004552771944430422,
+     "rel_diff": 0.0,
+     "value": 0.004552771944430422
+    },
+    {
+     "flow": "v3d.sphere.3.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.3.l2_all",
+     "reference": 0.01849736411989214,
+     "rel_diff": 0.0,
+     "value": 0.01849736411989214
+    },
+    {
+     "flow": "v3d.sphere.4.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.4.mean_in",
+     "reference": 0.002245995852741186,
+     "rel_diff": 0.0,
+     "value": 0.002245995852741186
+    },
+    {
+     "flow": "v3d.sphere.4.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.4.l2_all",
+     "reference": 0.012935158131514385,
+     "rel_diff": 0.0,
+     "value": 0.012935158131514385
+    },
+    {
+     "flow": "v3d.getdp.0.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.0.rel_diff_Bz",
+     "reference": 2.0304333003060817e-14,
+     "rel_diff": 0.0,
+     "value": 2.0304333003060817e-14
+    },
+    {
+     "flow": "v3d.getdp.1.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.1.rel_diff_Bz",
+     "reference": 9.385315154498802e-14,
+     "rel_diff": 0.0,
+     "value": 9.385315154498802e-14
+    },
+    {
+     "flow": "v3d.getdp.2.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.2.rel_diff_Bz",
+     "reference": 6.944926891682894e-14,
+     "rel_diff": 0.0,
+     "value": 6.944926891682894e-14
+    },
+    {
+     "flow": "v3d.manufactured.0.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.0.error",
+     "reference": 0.21486189597262292,
+     "rel_diff": 0.0,
+     "value": 0.21486189597262292
+    },
+    {
+     "flow": "v3d.manufactured.1.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.1.error",
+     "reference": 0.10639019608557883,
+     "rel_diff": 0.0,
+     "value": 0.10639019608557883
+    },
+    {
+     "flow": "v3d.manufactured.2.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.2.error",
+     "reference": 0.05289508176745312,
+     "rel_diff": 0.0,
+     "value": 0.05289508176745312
+    },
+    {
+     "flow": "v3d.manufactured.3.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.3.error",
+     "reference": 0.026372260982482253,
+     "rel_diff": 0.0,
+     "value": 0.026372260982482253
+    },
+    {
+     "flow": "v3d.slab.0.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.0.loss_error",
+     "reference": 0.2419977351657335,
+     "rel_diff": 0.0,
+     "value": 0.2419977351657335
+    },
+    {
+     "flow": "v3d.slab.1.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.1.loss_error",
+     "reference": 0.061587539154531905,
+     "rel_diff": 0.0,
+     "value": 0.061587539154531905
+    },
+    {
+     "flow": "v3d.slab.2.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.2.loss_error",
+     "reference": 0.015307405275600707,
+     "rel_diff": 0.0,
+     "value": 0.015307405275600707
+    }
+   ],
    "configuration": "full",
    "date": "2026-10-29",
-   "manifest": "skipped: the run is failed",
-   "matched": 0,
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-edge3d-verification.experiment.json, Lab item manifest/flow/example-em-edge3d-verification",
+   "matched": 20,
    "nodes": {
-    "compare": "cancelled",
-    "v3d": "failed: ValueError: signal only works in main thread of the main interpreter"
+    "compare": "done",
+    "v3d": "done"
    },
-   "seconds": 5.1,
-   "status": "failed"
+   "seconds": 238.1,
+   "status": "done"
   }
  },
  "electromagnetics/motor_spm_cogging_and_torque": {

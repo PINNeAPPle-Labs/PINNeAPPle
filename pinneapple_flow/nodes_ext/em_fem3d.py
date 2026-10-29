@@ -33,8 +33,15 @@ def _gmsh_available():
 def edge3d_verification(ctx, inputs, params):
     """examples/electrodynamics/19_edge3d_verification.py."""
     from pinneapple_simulation.electromagnetics.fem3d import getdp3d, read_msh22
-    from pinneapple_simulation.electromagnetics.fem3d.cases import manufactured_magnetostatic, slab_eddy
-    from pinneapple_simulation.electromagnetics.fem3d.nedelec import NU0, EdgeSpace, solve_magnetostatic
+    from pinneapple_simulation.electromagnetics.fem3d.cases import (
+        manufactured_magnetostatic,
+        slab_eddy,
+    )
+    from pinneapple_simulation.electromagnetics.fem3d.nedelec import (
+        NU0,
+        EdgeSpace,
+        solve_magnetostatic,
+    )
     from pinneapple_simulation.electromagnetics.fem3d.sphere import (
         SphereCase,
         errors,

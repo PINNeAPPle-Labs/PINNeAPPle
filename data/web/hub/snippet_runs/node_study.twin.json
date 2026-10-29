@@ -1,0 +1,12 @@
+{
+ "code_hash": "ff9fec492863cbe5",
+ "figures": [],
+ "id": "node:study.twin",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 6.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate digital twin (sliders, 3-D Cp, band, trust region) -> pinneapple_autolab.domains.ahmed_study.twin (pinneapple_autolab.study.twin)\ninputs: []\noutputs: [('report', 'report')]\ndefaults: {'folder': ''}",
+ "timed_out": false
+}

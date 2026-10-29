@@ -91,6 +91,8 @@ REASONS: dict[str, str] = {
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
+    "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
+                                              "examples/reproductions/xtfc_schiassi2021 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

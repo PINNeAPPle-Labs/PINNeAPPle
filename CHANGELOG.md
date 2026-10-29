@@ -14,6 +14,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
+  fields, value and derivative constraints on faces, and linear or non-linear residuals.
+  - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an
+    `XTFCProblem` and `Constraint`.
+  - The multivariate TFC constrained expression is built dimension by dimension, and the ELM derivatives are
+    analytic.
+  - Non-linear residuals are solved by Gauss-Newton with `lstsq`.
+  - `XTFCResult.residual` and `XTFCResult.constraint_error` are the physics checks.
+- `pinneapple_physics.paper_problems_xtfc`: the 2 ODE and 7 PDE problems of Schiassi et al. (arXiv:2005.10632v1),
+  with the paper's settings.
+- `examples/reproductions/xtfc_schiassi2021`: the X-TFC reproduction. It has frozen targets (`TARGETS.md`), a
+  runner and the measured results.
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
   predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in

@@ -1,0 +1,12 @@
+{
+ "code_hash": "a8099c4af3faaa66",
+ "figures": [],
+ "id": "example:examples/reproductions/xtfc_schiassi2021",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.64,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "X-TFC reproduction (Schiassi et al.) | physics-informed ML | not curated\node1_y_median_test_max 4.440892098500626e-16 abs error\node2_y1_median_test_max 0.9075531208488127 abs error\node2_y2_median_test_max 2.5884488609153777 abs error\npde1_f_median_test_max 1.3652967645327863e-13 abs error\npde2_f_median_test_max 7.132627821704318e-12 abs error",
+ "timed_out": false
+}

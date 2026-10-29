@@ -149,8 +149,19 @@ def list_kinds() -> Dict[str, List[str]]:
     return out
 
 
+def _warn_unused(method: str, unknown: Mapping[str, Any]) -> None:
+    """Warn about options a deterministic method does not use (``seed`` is accepted by every method)."""
+    extra = sorted(k for k in unknown if k != "seed")
+    if extra:
+        import warnings
+        warnings.warn(f"method '{method}' ignores option(s) {extra}; preset parameters go in preset_kwargs={{...}}",
+                      UserWarning, stacklevel=4)
+
+
 @register_method("exact", kind="analytic")
-def _exact(problem: PhysicalProblem, *, fn: Optional[Callable[[np.ndarray], np.ndarray]] = None, **_: Any) -> Solution:
+def _exact(problem: PhysicalProblem, *, fn: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+           **unknown: Any) -> Solution:
+    _warn_unused("exact", unknown)
     if fn is None:
         raise MethodNotAvailable("method 'exact' needs fn=callable(X) -> values of shape (N, n_fields)")
     return Solution(problem, "exact", fn, 0.0, info={"source": getattr(fn, "__qualname__", "callable")})
@@ -197,7 +208,8 @@ _register_closed_forms()
 
 
 @register_method("analytic", kind="analytic")
-def _analytic(problem: PhysicalProblem, **_: Any) -> Solution:
+def _analytic(problem: PhysicalProblem, **unknown: Any) -> Solution:
+    _warn_unused("analytic", unknown)
     for name, matcher, factory in _ANALYTIC:
         if matcher(problem):
             return Solution(problem, "analytic", factory(problem), 0.0, info={"solution": name})
@@ -207,7 +219,8 @@ def _analytic(problem: PhysicalProblem, **_: Any) -> Solution:
 
 @register_method("reference", kind="classical")
 def _reference(problem: PhysicalProblem, *, solver_config: Optional[Mapping[str, Any]] = None, seed: int = 0,
-               **_: Any) -> Solution:
+               **unknown: Any) -> Solution:
+    _warn_unused("reference", unknown)
     from pinneapple_simulation.numerical_solvers.problem_runner import _run_reference_solver
 
     if not problem.reference_solver:
@@ -256,19 +269,33 @@ def _grid_solution(problem: PhysicalProblem, ref: Mapping[str, Any], solver_name
 
 
 @register_method("pinn", kind="neural")
-def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidden_dim: int = 64, n_layers: int = 4,
-          epochs: int = 2000, lr: float = 1e-3, n_collocation: int = 2048, seed: int = 0, device: str = "cpu",
-          weights=None, ctx: Optional[Mapping[str, Any]] = None, cache_derivatives: bool = False,
-          **_: Any) -> Solution:
+def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidden_dim: Optional[int] = None,
+          n_layers: Optional[int] = None, epochs: int = 2000, lr: float = 1e-3, n_collocation: int = 2048,
+          seed: int = 0, device: str = "cpu", weights=None, ctx: Optional[Mapping[str, Any]] = None,
+          cache_derivatives: bool = False, **unknown: Any) -> Solution:
+    """A registry architecture of ``hidden_dim`` x ``n_layers`` (default 64 x 4) trained with ``solve_pde``.
+
+    An unknown option raises ``TypeError``, and an explicit size the architecture cannot take (``n_layers`` for the
+    single-layer ``elm``, both for ``rbf``, ...) warns: a silently ignored option trains a different model from the
+    one asked for."""
     import torch
     import pinneapple_neural.architectures  # noqa: F401  (registers the model zoo)
     from pinneapple_neural.architectures.registry import ModelRegistry
     from . import solve_pde
 
+    if unknown:
+        raise TypeError(f"method 'pinn' got unknown option(s) {sorted(unknown)}; it takes {sorted(_PINN_OPTIONS)}")
     spec = problem.to_pde_spec()
     torch.manual_seed(seed)
-    model = ModelRegistry.build(architecture, in_dim=len(problem.coords), out_dim=len(problem.fields),
-                                hidden_dim=hidden_dim, n_layers=n_layers)
+    model, report = ModelRegistry.build_with_report(
+        architecture, in_dim=len(problem.coords), out_dim=len(problem.fields),
+        hidden_dim=64 if hidden_dim is None else hidden_dim, n_layers=4 if n_layers is None else n_layers)
+    ignored = sorted(k for k, v in (("hidden_dim", hidden_dim), ("n_layers", n_layers))
+                     if v is not None and k in report.dropped)
+    if ignored:
+        import warnings
+        warnings.warn(f"architecture '{architecture}' does not take {ignored}: they are ignored and it builds its own "
+                      f"size", UserWarning, stacklevel=3)
     t0 = time.perf_counter()
     out = solve_pde(spec, model, epochs=epochs, device=device, lr=lr, n_collocation=n_collocation, seed=seed,
                     weights=weights, ctx=dict(ctx) if ctx else None, cache_derivatives=cache_derivatives)
@@ -289,9 +316,13 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
                           "n_collocation": n_collocation, "seed": seed, "n_parameters": n_par}, kind="neural")
 
 
+_PINN_OPTIONS = ("architecture", "hidden_dim", "n_layers", "epochs", "lr", "n_collocation", "seed", "device", "weights",
+                 "ctx", "cache_derivatives")
+
+
 @register_method("fem", kind="classical")
 def _fem(problem: PhysicalProblem, *, n: Union[int, Sequence[int], None] = None, ctx: Optional[Mapping[str, Any]] = None,
-         max_dofs: int = 6000, **_: Any) -> Solution:
+         max_dofs: int = 6000, **unknown: Any) -> Solution:
     """P1 finite elements for ``laplace(u) = f`` on a box with Dirichlet conditions (``poisson`` / ``laplace``).
 
     ``n`` is the number of cells per axis (default 32 in 1D/2D, 12 in 3D). Dense linear algebra: refuses more than
@@ -301,6 +332,8 @@ def _fem(problem: PhysicalProblem, *, n: Union[int, Sequence[int], None] = None,
     import torch
     from pinneapple_core import Mesh
     from pinneapple_core.fem import solve_poisson
+
+    _warn_unused("fem", unknown)
 
     if problem.pde is None or problem.pde.kind not in ("poisson", "laplace"):
         raise MethodNotAvailable(f"method 'fem' handles steady poisson/laplace problems, not "
@@ -361,10 +394,11 @@ def _fem(problem: PhysicalProblem, *, n: Union[int, Sequence[int], None] = None,
 
 @register_method("external", kind="external")
 def _external(problem: PhysicalProblem, *, runner: Optional[Callable[[PhysicalProblem], Mapping[str, Any]]] = None,
-              name: str = "external", **_: Any) -> Solution:
+              name: str = "external", **unknown: Any) -> Solution:
     """Any code that solves the problem and returns grid fields: ``runner(problem) -> {"coords": {coord: axis},
     field: array}``, arrays indexed in the order of ``coords``. Use it to put OpenFOAM, FEniCS, a legacy code or a
     script behind the same ``solve``/``compare`` calls."""
+    _warn_unused("external", unknown)
     if runner is None:
         raise MethodNotAvailable("method 'external' needs runner=callable(problem) -> {'coords': {...}, field: array}")
     t0 = time.perf_counter()

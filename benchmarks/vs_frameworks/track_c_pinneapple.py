@@ -25,12 +25,16 @@ def main(argv=None):
     parser = proto.runner_parser("PINNeAPPle, track C")
     parser.add_argument("--patience", type=int, default=None,
                         help="diagnostic only: InversePINN early-stopping patience (default: the library's 300)")
+    parser.add_argument("--framework", default=None,
+                        help="label of the result row (default: pinneapple, or pinneapple_nostop with --patience)")
     args = parser.parse_args(argv)
     R.setup_threads(args.threads)
-    cfg = {**proto.C, "iters": args.iters, "patience": args.patience or "library default (300)", "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
-           "collocation": "10000 fresh uniform points per step (InversePINN's only mode)"}
     # with --patience the run is the equal-budget variant (early stopping off), kept apart from the default recipe
-    fw = "pinneapple_nostop" if args.patience else "pinneapple"
+    fw = args.framework or ("pinneapple_nostop" if args.patience else "pinneapple")
+    cfg = {**proto.C, "iters": args.iters, "patience": args.patience or "library default (300)",
+           "early_stopping_on": ("unweighted L_pde + L_data" if fw in ("pinneapple_fixed", "pinneapple_equal")
+                                 else "weighted total"), "nu_param": "InverseParam(log_space=True)", "lr_params": 1e-2,
+           "collocation": "10000 fresh uniform points per step (InversePINN's only mode)"}
     meta = proto.base_meta(args, track="C", framework=fw, source=SOURCE, config=cfg)
     t0 = time.perf_counter()
     arrays = {}
@@ -63,6 +67,7 @@ def main(argv=None):
         trainer = InversePINN(model, [nu], residual_fn, torch.from_numpy(obs["X"]), torch.from_numpy(obs["u"]),
                               domain_bounds=[(-1.0, 1.0), (0.0, 1.0)], n_col=proto.C["n_interior"], lr=proto.C["lr"],
                               device=args.device, **({"patience": args.patience} if args.patience else {}))
+        meta["config"]["weighting"] = getattr(trainer, "weighting", "adaptive (no option at that commit)")
         with R.Clock() as clk:
             hist = trainer.train(n_epochs=args.iters)
         nu_hat = trainer.get_identified_params()["nu"]
@@ -77,7 +82,8 @@ def main(argv=None):
         meta.update(status="ok", wall_s=clk.wall_s, cpu_s=clk.cpu_s, loadavg_before=clk.loadavg_before,
                     loadavg_after=clk.loadavg_after, iterations=n_it, early_stopped=n_it < args.iters,
                     nu_hat=nu_hat, nu_history=hist["params"]["nu"][:: max(1, n_it // 200)],
-                    loss_history=hist["total"][:: max(1, n_it // 200)])
+                    loss_history=hist["total"][:: max(1, n_it // 200)],
+                    pde_history=hist["pde"][:: max(1, n_it // 200)], data_history=hist["data"][:: max(1, n_it // 200)])
     except Exception as exc:  # noqa: BLE001 - a failure is a result
         import traceback
         meta.update(status="failed", error=f"{type(exc).__name__}: {exc}", traceback=traceback.format_exc()[-4000:])

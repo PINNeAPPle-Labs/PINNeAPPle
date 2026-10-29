@@ -28,6 +28,11 @@ from .conversation_store import ConversationStore, ConversationRecord
 from ._dispatch import call_llm
 from .agent_loop import AgentStep, AgentLoopResult, run_agent_loop
 
+# Quality-assurance pipeline (spec -> static/sandbox/scientific validation ->
+# reference comparison -> bounded repair -> Q0-Q4). Additive: nothing above
+# changed, and importing it costs numpy, which is a core dependency.
+from . import qa
+
 try:
     from . import local_llm
 except Exception:
@@ -51,4 +56,5 @@ __all__ = [
     "call_llm", "local_llm",
     "AgentStep", "AgentLoopResult", "run_agent_loop",
     "FinetuneConfig", "prepare_dataset", "finetune_lora",
+    "qa",
 ]

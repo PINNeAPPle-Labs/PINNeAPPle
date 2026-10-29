@@ -292,10 +292,15 @@
   "domain": "design",
   "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
  },
+ "quickstart": {
+  "domain": "getting started",
+  "status": "not_convertible",
+  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+ },
  "reproductions": {
-  "domain": "biology",
-  "reason": "paper reproductions scored against frozen targets (TARGETS.md) by pinneapple_analysis.reproduction; hours-long trainings with checkpoints and data downloaded at run time, not flow steps",
-  "status": "not_convertible"
+  "domain": "physics-informed ML",
+  "status": "not_convertible",
+  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run"
  },
  "rigid_body": {
   "domain": "multibody",
@@ -316,6 +321,10 @@
  "solvers": {
   "domain": "numerical solvers",
   "notes": "three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation"
+ },
+ "sports": {
+  "domain": "sports",
+  "notes": "ball_flight_inverse: football.ball_flight_inverse (simulated kicks, no download); pass_pitch_control: football.pass_pitch_control (Metrica sample data). 01_ball_flight.py's SkillCorner audit and hold-out (1.8 GB of tracking, ~1 h), 03 and 04 (StatsBomb, ~3 GB) run as scripts; 05_verdict.py builds the verdict table from their results."
  },
  "studio": {
   "domain": "visualization",

@@ -13,6 +13,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Security
+
+- Caddy images (`apps/deploy` proxy and `apps/playground`): the pinned bases still ship `brotli-libs` 1.2.0-r0
+  (CVE-2026-111497, critical, fixed in Alpine 1.2.1-r0), and no upstream rebuild has it yet. Both images now upgrade
+  that package at build time (`apps/deploy/caddy.Dockerfile`, a build step in the playground Dockerfile), and the
+  Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
+
 ### Added
 - `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
   fields, value and derivative constraints on faces, and linear or non-linear residuals.

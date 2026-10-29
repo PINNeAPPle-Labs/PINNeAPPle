@@ -78,7 +78,7 @@ class ConvexityReport:
                     end = i if b else i - 1
                     runs.append((float(ax[start]), float(ax[end])))
                     start = None
-            out.append(({n: float(self.axes[n][c]) for n, c in zip(others, combo)}, runs))
+            out.append(({n: float(self.axes[n][c]) for n, c in zip(others, combo, strict=False)}, runs))
         return out
 
     def __str__(self) -> str:
@@ -103,7 +103,7 @@ def convexity(potential: Potential, variables, bounds: Mapping[str, tuple[float,
     if missing:
         raise ValueError(f"give bounds or fixed values for {missing}")
     mesh = np.meshgrid(*axes.values(), indexing="ij")
-    point = {k: m for k, m in zip(axes, mesh)}
+    point = {k: m for k, m in zip(axes, mesh, strict=False)}
     point.update({k: np.full(mesh[0].shape, float(v)) for k, v in fixed.items()})
     z, bshape = potential._prepare(point)
     d, _ = potential.derivatives(z, 2)
@@ -153,19 +153,26 @@ def _symbolic(potential, swap, signs, negate):
     """Symbolic transform when s dPhi/dx = y has exactly one solution; else (None, reason)."""
     import sympy as sp
 
-    syms = dict(zip(potential.variables, potential.symbols))
+    syms = dict(zip(potential.variables, potential.symbols, strict=False))
     xs = [syms[x] for x in swap]
     ys = [sp.Symbol(y, real=True) for y in swap.values()]
-    eqs = [signs[x] * sp.diff(potential.expr, syms[x]) - y for x, y in zip(swap, ys)]
+    eqs = [signs[x] * sp.diff(potential.expr, syms[x]) - y for x, y in zip(swap, ys, strict=False)]
     try:
-        sols = sp.solve(eqs, xs, dict=True)
+        linear = all(sp.Poly(e, *xs).total_degree() <= 1 for e in eqs)
+    except sp.PolynomialError:
+        linear = False
+    try:
+        if linear:  # a quadratic potential in the swapped variables (a Lagrangian): one linear solve
+            sols = [dict(zip(xs, s, strict=False)) for s in sp.linsolve(eqs, xs)]
+        else:
+            sols = sp.solve(eqs, xs, dict=True)
     except (NotImplementedError, ValueError) as exc:  # pragma: no cover - sympy limits
         return None, f"symbolic solve failed ({exc})"
     if len(sols) != 1:
         return None, f"{len(sols)} symbolic roots of the conjugate equation; numerical transform used"
     sol = sols[0]
-    psi = potential.expr - sum(syms[x] * y / signs[x] for x, y in zip(swap, ys))
-    psi = sp.simplify(psi.subs(sol))
+    psi = potential.expr - sum(syms[x] * y / signs[x] for x, y in zip(swap, ys, strict=False))
+    psi = psi.subs(sol)  # no simplify: it can take minutes on float-coefficient trigonometric expressions
     if negate:
         psi = -psi
     new_syms = [ys[list(swap).index(k)] if k in swap else s for k, s in syms.items()]

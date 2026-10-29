@@ -165,7 +165,7 @@ class Potential:
             out = f(*[x[n] for n in names])
             return out if torch.is_tensor(out) else torch.full_like(ref, float(out))
 
-        return cls(fn, {n: u for n, u in zip(names, units)}, expr=e, symbols=syms, **kwargs)
+        return cls(fn, {n: u for n, u in zip(names, units, strict=False)}, expr=e, symbols=syms, **kwargs)
 
     def key(self, k) -> tuple[str, ...]:
         """A derivative key in canonical (variable) order."""
@@ -248,7 +248,7 @@ class Potential:
                 if not val.requires_grad:
                     g = torch.zeros_like(z)
                 else:
-                    (g,) = torch.autograd.grad(val.sum(), z, create_graph=keep, allow_unused=True)
+                    (g,) = torch.autograd.grad(val.sum(), z, create_graph=keep, retain_graph=True, allow_unused=True)
                     if g is None:
                         g = torch.zeros_like(z)
                 start = idx[-1] if idx else 0
@@ -275,7 +275,7 @@ class Potential:
         ranges = [range(self.variables[v].size) for v in key]
         vals = []
         for comb in itertools.product(*ranges):
-            idx = tuple(sorted(self._offsets[v] + c for v, c in zip(key, comb)))
+            idx = tuple(sorted(self._offsets[v] + c for v, c in zip(key, comb, strict=False)))
             vals.append(flat[idx])
         shape = sum((self.variables[v].shape for v in key), ())
         return torch.stack(vals, dim=1).reshape((n,) + shape)
@@ -308,19 +308,25 @@ class Node:
     symbol: str
     unit: str
     depth: int
-    value: np.ndarray | None = None
+    raw: np.ndarray | None = None
     sign: float = 1.0
     expr: Any = None
-    symbolic_value: np.ndarray | None = None
+    symbolic_value: np.ndarray | None = None  # of the raw derivative
     description: str = ""
+
+    @property
+    def value(self) -> np.ndarray | None:
+        """The named quantity, ``sign * raw`` (the raw derivative when the node has no name)."""
+        return None if self.raw is None else self.sign * self.raw
 
 
 @dataclass
 class DerivativeTree:
     """The derivative tree of a potential evaluated at a set of points.
 
-    ``tree[key]`` with a key tuple returns the raw derivative; ``tree[symbol]`` a named quantity or response (with
-    its sign applied). ``nodes`` holds every raw derivative, ``responses`` the derived quantities."""
+    ``tree[key]`` with a key tuple returns the raw derivative ``d^k Phi/dx...``; ``tree[symbol]`` a named quantity
+    or response (with its sign applied: ``tree["p"] == -tree[("V",)]`` for a Helmholtz energy). ``nodes`` holds
+    every raw derivative, ``quantities`` the named quantities and responses."""
 
     potential: Potential
     depth: int
@@ -333,7 +339,7 @@ class DerivativeTree:
             return self.quantities[k]
         if isinstance(k, str) and k not in self.potential.variables:
             raise KeyError(f"{k!r}: not a named quantity of {self.potential.name}; known: {sorted(self.quantities)}")
-        return self.nodes[self.potential.key(k)].value
+        return self.nodes[self.potential.key(k)].raw
 
     def __contains__(self, k) -> bool:
         try:
@@ -352,7 +358,7 @@ class DerivativeTree:
         for n in self.nodes.values():
             if n.symbolic_value is None:
                 continue
-            a, s = np.asarray(n.value, float), np.asarray(n.symbolic_value, float)
+            a, s = np.asarray(n.raw, float), np.asarray(n.symbolic_value, float)
             scale = max(np.abs(s).max(), np.abs(a).max(), 1e-300)
             out[n.symbol] = float(np.abs(a - s).max() / scale)
         return out

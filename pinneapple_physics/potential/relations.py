@@ -42,13 +42,17 @@ class Identity:
     """An identity ``lhs(D) = rhs(D)`` between quantities and their derivatives.
 
     ``D(q, *vars)`` is the derivative of quantity ``q`` with respect to the listed natural variables (the others
-    held constant); ``D.x(var)`` is the value of a variable. ``needs`` lists the quantities it reads."""
+    held constant); ``D.x(var)`` is the value of a variable. ``needs`` lists the quantities it reads. ``scale(D)``,
+    when given, is the natural magnitude the violation is measured against (for identities whose two sides can both
+    vanish, like ``(dc_v/dv)_T = T (d2p/dT2)_v`` for a van der Waals fluid); otherwise the typical size of the two
+    sides is used."""
 
     name: str
     text: str
     lhs: Callable[[Derivatives], np.ndarray]
     rhs: Callable[[Derivatives], np.ndarray]
     needs: tuple[str, ...]
+    scale: Callable[[Derivatives], np.ndarray] | None = None
 
 
 @dataclass
@@ -229,7 +233,7 @@ def consistency_check(model, family, at: Mapping[str, Any] | None = None, *, var
     if isinstance(model, Mapping):
         grid = model
         mesh = np.meshgrid(*grid["axes"].values(), indexing="ij")
-        at = {k: m for k, m in zip(grid["axes"], mesh)}
+        at = {k: m for k, m in zip(grid["axes"], mesh, strict=False)}
         values, available = None, set(grid["values"])
         variables = list(grid["axes"])
     else:
@@ -251,13 +255,22 @@ def consistency_check(model, family, at: Mapping[str, Any] | None = None, *, var
             skipped.append(f"{ident.name}: needs {', '.join(miss)}")
             continue
         lhs, rhs = np.asarray(ident.lhs(D), float), np.asarray(ident.rhs(D), float)
+        lhs, rhs = np.broadcast_arrays(lhs, rhs)
+        nat = (np.broadcast_to(np.abs(np.asarray(ident.scale(D), float)), lhs.shape)
+               if ident.scale is not None else None)
         if grid is not None:  # one-sided differences at the edges are less accurate: score the interior
             sl = tuple(slice(2, -2) if n > 4 else slice(None) for n in lhs.shape)
             lhs, rhs = lhs[sl], rhs[sl]
+            nat = nat[sl] if nat is not None else None
         lhs, rhs = lhs.reshape(-1), rhs.reshape(-1)
         ok_pts = np.isfinite(lhs) & np.isfinite(rhs)
         lhs, rhs = lhs[ok_pts], rhs[ok_pts]
-        scale = float(np.median(0.5 * (np.abs(lhs) + np.abs(rhs)))) if lhs.size else float("nan")
+        if not lhs.size:
+            scale = float("nan")
+        elif nat is not None:
+            scale = float(np.median(nat.reshape(-1)[ok_pts]))
+        else:
+            scale = float(np.median(0.5 * (np.abs(lhs) + np.abs(rhs))))
         rel = np.abs(lhs - rhs) / max(scale, 1e-300)
         row = {"name": ident.name, "text": ident.text, "n": int(rel.size),
                "rel_median": float(np.median(rel)) if rel.size else float("nan"),

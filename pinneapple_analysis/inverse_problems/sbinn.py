@@ -193,7 +193,12 @@ class SBINN:
             out["ode"] = torch.cat(res, dim=1).mean(dim=0).sum()
         return out
 
-    def fit(self, verbose: bool = False) -> SBINNResult:
+    def fit(self, verbose: bool = False, checkpoint: str | None = None, checkpoint_every: int = 10_000
+            ) -> SBINNResult:
+        """Train. With ``checkpoint`` (a file path) the network, parameters, optimiser and history are saved every
+        ``checkpoint_every`` epochs and a run restarts from the file when it exists (long runs survive restarts)."""
+        import os
+
         torch = self.torch
         cfg = self.cfg
         w = {"data": 1.0, "ode": 1.0, "aux": 1.0, **cfg.weights}
@@ -201,11 +206,24 @@ class SBINN:
         start = time.time()
         stopped = False
         epochs_run = 0
-        stages = [(cfg.epochs_data, False), (cfg.epochs, True)]
-        for n_ep, with_ode in stages:
+        elapsed0 = 0.0
+        state = None
+        if checkpoint and os.path.exists(checkpoint):
+            state = torch.load(checkpoint, weights_only=False)
+            self.net.body.load_state_dict(state["net"])
+            with torch.no_grad():
+                for k, v in state["raw"].items():
+                    self.raw[k].copy_(torch.as_tensor(v, dtype=self.dt))
+            history, epochs_run, elapsed0 = state["history"], state["epoch"], state["seconds"]
+        stages = [(0, cfg.epochs_data, False), (cfg.epochs_data, cfg.epochs, True)]
+        for offset, n_ep, with_ode in stages:
+            if epochs_run >= offset + n_ep:
+                continue
             params = list(self.net.body.parameters()) + (list(self.raw.values()) if with_ode else [])
             opt = torch.optim.Adam(params, lr=cfg.lr)
-            for ep in range(n_ep):
+            if state is not None and state.get("stage") == (2 if with_ode else 1):
+                opt.load_state_dict(state["opt"])
+            for ep in range(epochs_run - offset, n_ep):
                 opt.zero_grad()
                 L = self._losses(with_ode)
                 loss = sum(w[k] * v for k, v in L.items())
@@ -215,18 +233,26 @@ class SBINN:
                 if epochs_run % cfg.record_every == 0 or (with_ode and ep == n_ep - 1):
                     rec = {"epoch": epochs_run, "stage": 2 if with_ode else 1,
                            **{f"loss_{k}": float(v.detach()) for k, v in L.items()},
-                           **{k: float(v.detach()) for k, v in self.theta().items()}, "seconds": time.time() - start}
+                           **{k: float(v.detach()) for k, v in self.theta().items()},
+                           "seconds": elapsed0 + time.time() - start}
                     history.append(rec)
                     if verbose:
                         print(rec, flush=True)
+                if checkpoint and epochs_run % checkpoint_every == 0:
+                    tmp = checkpoint + ".tmp"
+                    torch.save({"net": self.net.body.state_dict(), "raw": {k: v.detach() for k, v in self.raw.items()},
+                                "opt": opt.state_dict(), "stage": 2 if with_ode else 1, "epoch": epochs_run,
+                                "history": history, "seconds": elapsed0 + time.time() - start}, tmp)
+                    os.replace(tmp, checkpoint)
                 if time.time() - start > cfg.time_budget:
                     stopped = True
                     break
+            state = None
             if stopped:
                 break
         theta = {k: float(v.detach()) for k, v in self.theta().items()}
-        return SBINNResult({**self.system.parameters, **theta}, history, epochs_run, stopped, time.time() - start,
-                           cfg, self)
+        return SBINNResult({**self.system.parameters, **theta}, history, epochs_run, stopped,
+                           elapsed0 + time.time() - start, cfg, self)
 
     def predict(self, t) -> dict[str, np.ndarray]:
         torch = self.torch

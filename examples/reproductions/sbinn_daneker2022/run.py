@@ -60,7 +60,8 @@ def main(argv=None):
     sb = SBINN(system, FREE, ULTRADIAN_SEARCH_RANGE, {"G": (t[idx], traj["G"][idx])}, t_collocation=t,
                aux={s: [traj[s][0], traj[s][-1]] for s in system.states}, aux_times=[t[0], t[-1]], config=cfg)
     t0 = time.time()
-    res = sb.fit()
+    os.makedirs(a.out, exist_ok=True)
+    res = sb.fit(checkpoint=os.path.join(a.out, f"seed{a.seed}.ckpt"))
     # forward check: integrate with the inferred parameters on [0, 1800] and forecast the meal at 2000 min
     fc = res.forward_check(system, t, observed=["G"], data={"G": traj["G"]}, max_step=1.0)
     from pinneapple_physics.biology.models import ultradian_glucose_insulin

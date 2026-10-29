@@ -162,7 +162,7 @@ class ReactionDiffusionBINN(NeuralTermDiscovery):
             else:
                 since += 1
             if it % 1000 == 0:
-                rec = {"iter": it, "gls": float(l_gls), "pde": float(l_pde), "constraints": float(l_c),
+                rec = {"iter": it, "gls": float(l_gls.detach()), "pde": float(l_pde.detach()), "constraints": float(l_c.detach()),
                        "val": l_val, "seconds": time.time() - start}
                 self.history.append(rec)
                 if verbose:

@@ -14,6 +14,20 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
+  simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
+  `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
+  L3 core without libsbml; events, algebraic rules, delays refused), six shipped CC0 BioModels entries checked against
+  libRoadRunner (max relative error 5e-6), models `ultradian_glucose_insulin`, `pk_one_compartment_mm` (Michaelis-
+  Menten, effect compartment, sigmoid Emax), `minimal_pbpk`, `excitable` (FitzHugh-Nagumo 1-D, Aliev-Panfilov 2-D,
+  activation times, conduction velocity), `cell_migration` (scratch-assay data with a restricted unpickler, the
+  Lagergren et al. forward solver, GLS error, FKPP / Porous-FKPP / delay models and their fits).
+  `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` (exact sensitivities for identifiability and
+  calibration), `sbinn.SBINN` (systems-biology informed networks, checkpoint / resume), `binn.ReactionDiffusionBINN`
+  (BINNs as a `NeuralTermDiscovery` with state-dependent terms), `activation_mapping.EikonalPINN`.
+  `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
+  (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
+  `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
   predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
@@ -88,6 +102,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   gates (AGENTS.md, "Generated files").
 
 ### Fixed
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
 - `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
   (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
   `cw_exact_velocity` (its results do not change: it uses vx0 = 0).

@@ -1,0 +1,12 @@
+{
+ "code_hash": "9dca8a5056118ad4",
+ "figures": [],
+ "id": "node:study.report",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 11.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Evidence report, costs and summary of the study -> pinneapple_autolab.domains.ahmed_study.study_report (pinneapple_autolab.study.report)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'folder': ''}",
+ "timed_out": false
+}

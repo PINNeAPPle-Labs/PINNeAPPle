@@ -73,3 +73,14 @@ def test_multislice_is_the_mean_of_the_slices(machine, one_layer):
     assert ms[0] == pytest.approx(ref, rel=1e-6)                 # CG tolerance 1e-10 on each solve
     sk = m3.cogging(th, step_skew(total, 2, machine.length))   # the 3-D model with the same segments
     assert np.isfinite(sk[0]) and abs(sk[0]) < 2 * abs(ref) + 1e-3
+
+
+def test_cogging_period_needs_an_even_number_of_steps(machine, one_layer):
+    from pinneapple_simulation.electromagnetics.machines3d.skew import skew_study
+
+    with pytest.raises(ValueError, match="even number of steps"):      # 72 steps: a slot pitch of 3 steps
+        skew_study(one_layer, [0.0], kinds=("step2",))
+    m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=144)       # 6 steps per slot pitch
+    s = SPM3D(m, n_theta=144, stack_layers=1)
+    a, b = s.cogging([s.step, 7 * s.step])
+    assert a == pytest.approx(b, rel=1e-6)                               # the discrete machine repeats every period

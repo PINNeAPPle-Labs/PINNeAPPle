@@ -1,12 +1,14 @@
 """Skew of a surface-PM machine: cogging in 3-D (edge elements) against multi-slice 2-D on the same mesh.
 
 Machine: the default ``SPMMachine`` (24 slots, 4 poles, rotor radius 40 mm, 4 mm magnets, 1 mm gap, stack 50 mm),
-linear iron (mu_r = 1000). The 3-D model has 12 layers in the stack and 20 mm of air beyond each end; magnet skew
-by step (2 or 3 segments) or continuous (one offset per stack layer, 1 degree steps). The multi-slice model is the
+linear iron (mu_r = 1000). The 3-D model has 720 angular steps (30 per slot pitch: the polar mesh repeats every
+two steps, so a slot pitch of an odd number of steps would not be a symmetry), 8 layers in the stack and 20 mm of
+air beyond each end; magnet skew by step (2 or 3 segments) or continuous (one offset per stack layer, 0.5 degree
+steps); cogging over a whole period every 1.5 degrees. The multi-slice model is the
 mean of straight one-layer models at the same offsets: the difference measures the axial flux between segments
 and the end leakage that multi-slice neglects.
 
-    python examples/electrodynamics/20_spm_skew_3d.py            # about 45 min; PARDISO (pypardiso) if installed
+    python examples/electrodynamics/20_spm_skew_3d.py            # about 1 h; PARDISO (pypardiso) if installed
 """
 from __future__ import annotations
 
@@ -18,26 +20,26 @@ from pathlib import Path
 import numpy as np
 
 from pinneapple_simulation.electromagnetics.machine import SPMMachine
+from pinneapple_simulation.electromagnetics.machines.robustness import step_skew_factor
 from pinneapple_simulation.electromagnetics.machines3d import SPM3D
 from pinneapple_simulation.electromagnetics.machines3d.skew import continuous_factor, skew_study
-from pinneapple_simulation.electromagnetics.machines.robustness import step_skew_factor
 from pinneapple_simulation.electromagnetics.materials import LinearMaterial
 
 OUT = Path(__file__).parent / "results"
-TOTALS_DEG = (0, 4, 8, 10, 12, 14)
+TOTALS_DEG = (0, 5, 8, 10, 15)
+N_THETA = 720
 
 
 def main() -> dict:
     t0 = time.perf_counter()
-    m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=360)
-    model = SPM3D(m, n_theta=360, stack_layers=12, end_length=0.02, end_layers=3)
+    m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=N_THETA)
+    model = SPM3D(m, n_theta=N_THETA, stack_layers=8, end_length=0.02, end_layers=2)
     print(f"3-D model: {model.mesh.summary()['tets']} tetrahedra", flush=True)
-    res = skew_study(model, np.radians(TOTALS_DEG), progress=lambda s: print(s, flush=True))
-    extra = skew_study(model, [math.radians(15.0)], kinds=("continuous",), progress=lambda s: print(s, flush=True))
-    res["rows"] += extra["rows"]
+    thetas = np.radians(np.arange(0.0, 15.0, 1.5))
+    res = skew_study(model, np.radians(TOTALS_DEG), thetas=thetas, progress=lambda s: print(s, flush=True))
     # 2-D reference of the straight machine with the 2-D code (its own polar mesh with a shaft region)
     th = np.asarray(res["thetas"])
-    two_d = [m.torque(m.solve(x)) for x in th]
+    two_d = [m.torque(m.solve(x)) for x in th]     # the 2-D code's own polar mesh (shaft region, sparse core rings)
     rows = res["rows"]
     st = next(r for r in rows if r["kind"] == "straight")
     lam = res["period"]
@@ -55,7 +57,7 @@ def main() -> dict:
            "model": {**model.mesh.summary(), "stack_layers": model.stack_layers, "end_length_m": model.end_length,
                      "n_theta": model.n_theta},
            "thetas_deg": np.degrees(th).tolist(), "two_d_code_straight": two_d,
-           "two_d_code_pkpk": float(2 * np.abs(two_d).max()), "rows": rows,
+           "two_d_code_pkpk": float(np.max(two_d) - np.min(two_d)), "rows": rows,
            "seconds": time.perf_counter() - t0, "date": time.strftime("%Y-%m-%d")}
     OUT.mkdir(exist_ok=True)
     (OUT / "20_spm_skew_3d.json").write_text(json.dumps(out, indent=1))
@@ -88,7 +90,7 @@ def figure(out: dict) -> None:
         ax[1].plot(th, r["cogging_3d"], "-o", color=colours[kind], lw=2, ms=5,
                    label=f"{kind} {math.degrees(r['total']):.0f} deg, 3-D")
         ax[1].plot(th, r["cogging_ms"], "--", color=colours[kind], lw=1.5)
-    ax[1].set(xlabel="rotor angle (deg)", ylabel="cogging torque (N m)", title="Half a cogging period (odd curves)")
+    ax[1].set(xlabel="rotor angle (deg)", ylabel="cogging torque (N m)", title="One cogging period")
     ax[1].legend(frameon=False, fontsize=8)
     for a in ax:
         a.set_facecolor("#fcfcfb")

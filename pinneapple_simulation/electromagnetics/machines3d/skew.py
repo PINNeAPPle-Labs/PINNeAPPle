@@ -48,15 +48,17 @@ def slice_offsets(model: SPM3D, kind: str, total: float) -> np.ndarray:
 def skew_study(model: SPM3D, totals: Sequence[float], kinds: Sequence[str] = ("step2", "step3", "continuous"),
                thetas: Sequence[float] | None = None, slice_model: SPM3D | None = None,
                progress: Callable[[str], None] | None = None) -> dict:
-    """Cogging against total skew (radians) for each kind, 3-D and multi-slice. ``thetas`` default: half a
-    cogging period in angular steps of the model. Returns ``{"thetas", "period", "rows": [...]}`` with, per row,
-    the kind, the total skew, both cogging curves, their peak-to-peak (twice the largest magnitude: the curves are
-    odd) and seconds."""
+    """Cogging against total skew (radians) for each kind, 3-D and multi-slice. ``thetas`` default: one cogging
+    period in angular steps of the model (end point excluded). Returns ``{"thetas", "period", "rows": [...]}`` with,
+    per row, the kind, the total skew, both cogging curves, their peak-to-peak (``max - min``) and seconds."""
     m = model.machine
     period = 2 * math.pi / math.lcm(m.slots, 2 * m.pole_pairs)
+    steps = int(round(period / model.step))
+    if steps % 2:
+        raise ValueError(f"a cogging period of {steps} angular steps is not a symmetry of the polar mesh (its "
+                         "triangulation repeats every two steps): use an even number of steps per period")
     if thetas is None:
-        n = int(round(period / 2 / model.step))
-        thetas = np.arange(n + 1) * model.step
+        thetas = np.arange(steps) * model.step
     thetas = np.asarray(thetas, float)
     sm = slice_model or model.slice_model()
     rows = []
@@ -73,7 +75,7 @@ def skew_study(model: SPM3D, totals: Sequence[float], kinds: Sequence[str] = ("s
             row = {"kind": kind if total else "straight", "total": float(total),
                    "offsets_deg": np.degrees(off).round(6).tolist(),
                    "cogging_3d": c3.tolist(), "cogging_ms": ms.tolist(),
-                   "pkpk_3d": float(2 * np.abs(c3).max()), "pkpk_ms": float(2 * np.abs(ms).max()),
+                   "pkpk_3d": float(c3.max() - c3.min()), "pkpk_ms": float(ms.max() - ms.min()),
                    "seconds_3d": t1 - t0, "seconds_ms": time.perf_counter() - t1}
             rows.append(row)
             if progress:

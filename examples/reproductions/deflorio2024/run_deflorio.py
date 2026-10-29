@@ -220,7 +220,7 @@ def report():
                         f"{pmean:.3g} / {st['mean'].median:.3g} | {peg:.3g} / {st['eps_G'].median:.3g} | "
                         f"{st['eps_T'].median:.3g} | {st['solve_s'].median:.1f} s | **{stat}** |")
     drows = ["| ν | Method | width x depth | Seeds | max after Adam: paper / ours | max after L-BFGS: paper / ours | "
-             "learned? paper / ours | train time |", "|" + "---|" * 8]
+             "learned? paper / ours | train time | Status |", "|" + "---|" * 9]
     for nu in NUS:
         for j, m in enumerate(("pinn", "deeptfc")):
             rs = [r for r in dnn if r["method"] == m and r["nu"] == nu]

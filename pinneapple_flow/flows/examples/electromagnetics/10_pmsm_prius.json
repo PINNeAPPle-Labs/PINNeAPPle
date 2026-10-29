@@ -1,0 +1,199 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-prius-machine",
+ "name": "2004 Prius IPM motor: nonlinear 2-D FEA (10)",
+ "description": "48 slots, 8 poles, V-shaped NdFeB, M400-50A: no-load cogging and back-EMF, torque against current angle compared with Yang et al. (IEMDC 2013), MTPA, frozen-permeability L_d / L_q, iron (table and Bertotti fit) and magnet losses, machine verification (examples/electrodynamics/10_pmsm_prius.py).",
+ "nodes": [
+  {
+   "id": "prius",
+   "type": "em.prius_machine",
+   "params": {},
+   "label": "Prius FEA",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "prius.elements",
+      "ref": "results/10_pmsm_prius.json:elements"
+     },
+     {
+      "flow": "prius.no_load.cogging_peak_to_peak_Nm",
+      "ref": "results/10_pmsm_prius.json:no_load.cogging_peak_to_peak_Nm"
+     },
+     {
+      "flow": "prius.no_load.psi_pm_peak_Wb",
+      "ref": "results/10_pmsm_prius.json:no_load.psi_pm_peak_Wb"
+     },
+     {
+      "flow": "prius.no_load.emf_phase_fundamental_peak_V_at_1000rpm",
+      "ref": "results/10_pmsm_prius.json:no_load.emf_phase_fundamental_peak_V_at_1000rpm"
+     },
+     {
+      "flow": "prius.no_load.emf_thd_phase",
+      "ref": "results/10_pmsm_prius.json:no_load.emf_thd_phase"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi60_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.0"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi70_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.1"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi80_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.2"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi90_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.3"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi100_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.4"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi110_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.5"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi120_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.6"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi130_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.7"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi140_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.8"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi150_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.9"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi160_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.10"
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi170_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.11"
+     },
+     {
+      "flow": "prius.mtpa_50A.torque_Nm",
+      "ref": "results/10_pmsm_prius.json:mtpa.0.torque_Nm"
+     },
+     {
+      "flow": "prius.mtpa_100A.torque_Nm",
+      "ref": "results/10_pmsm_prius.json:mtpa.1.torque_Nm"
+     },
+     {
+      "flow": "prius.mtpa_150A.torque_Nm",
+      "ref": "results/10_pmsm_prius.json:mtpa.2.torque_Nm"
+     },
+     {
+      "flow": "prius.mtpa_200A.torque_Nm",
+      "ref": "results/10_pmsm_prius.json:mtpa.3.torque_Nm"
+     },
+     {
+      "flow": "prius.mtpa_250A.torque_Nm",
+      "ref": "results/10_pmsm_prius.json:mtpa.4.torque_Nm"
+     },
+     {
+      "flow": "prius.mtpa_50A.L_d_mH",
+      "ref": "results/10_pmsm_prius.json:mtpa.0.L_d_mH"
+     },
+     {
+      "flow": "prius.mtpa_100A.L_d_mH",
+      "ref": "results/10_pmsm_prius.json:mtpa.1.L_d_mH"
+     },
+     {
+      "flow": "prius.mtpa_150A.L_d_mH",
+      "ref": "results/10_pmsm_prius.json:mtpa.2.L_d_mH"
+     },
+     {
+      "flow": "prius.mtpa_200A.L_d_mH",
+      "ref": "results/10_pmsm_prius.json:mtpa.3.L_d_mH"
+     },
+     {
+      "flow": "prius.mtpa_250A.L_d_mH",
+      "ref": "results/10_pmsm_prius.json:mtpa.4.L_d_mH"
+     },
+     {
+      "flow": "prius.bertotti_fit.rms_rel_error",
+      "ref": "results/10_pmsm_prius.json:bertotti_fit.rms_rel_error"
+     },
+     {
+      "flow": "prius.losses_1500rpm.stator_iron_W_table",
+      "ref": "results/10_pmsm_prius.json:losses.1500rpm_250A.stator_iron_W_table"
+     },
+     {
+      "flow": "prius.losses_1500rpm.magnet_W_table",
+      "ref": "results/10_pmsm_prius.json:losses.1500rpm_250A.magnet_W"
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "prius",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "prius.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "10_pmsm_prius.py"
+  ],
+  "quick": {
+   "prius": {
+    "n_gap": 480,
+    "cogging_positions": 12,
+    "flux_positions": 48,
+    "mtpa_currents": [
+     100.0,
+     250.0
+    ],
+    "operating_positions": 6,
+    "loss_steps": 24,
+    "quick": true
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "prius.no_load.psi_pm_peak_Wb",
+      "ref": "results/10_pmsm_prius.json:no_load.psi_pm_peak_Wb",
+      "rtol": 0.01
+     },
+     {
+      "flow": "prius.torque_vs_angle.phi140_Nm",
+      "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.8",
+      "rtol": 0.02
+     }
+    ],
+    "tolerance_source": "quick: n_gap 480 instead of 960 (coarser air-gap mesh); 1-2 % against the full run"
+   }
+  }
+ }
+}

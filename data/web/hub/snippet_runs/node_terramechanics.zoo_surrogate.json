@@ -1,0 +1,12 @@
+{
+ "code_hash": "80ab1d81a9c339b9",
+ "figures": [],
+ "id": "node:terramechanics.zoo_surrogate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wheel-contact PINN (model zoo) -> pinneapple_hub.zoo.load + pinneapple_simulation.terramechanics.surrogate.ZooContactSurrogate (check_physics)\ninputs: [('model', 'model')]\noutputs: [('surrogate', 'model'), ('metrics', 'metrics')]\ndefaults: {'zoo_name': 'rover_contact_grc1_viper'}",
+ "timed_out": false
+}

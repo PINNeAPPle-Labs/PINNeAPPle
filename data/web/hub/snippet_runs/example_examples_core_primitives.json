@@ -1,0 +1,12 @@
+{
+ "code_hash": "f51d7ac2120da226",
+ "figures": [],
+ "id": "example:examples/core_primitives",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Core primitives: Domain, Geometry, Mesh, Field | general | not curated",
+ "timed_out": false
+}

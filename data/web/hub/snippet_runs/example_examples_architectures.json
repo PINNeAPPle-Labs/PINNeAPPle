@@ -1,0 +1,12 @@
+{
+ "code_hash": "179413b1d9450aac",
+ "figures": [],
+ "id": "example:examples/architectures",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pinneapple Models — Showcase Examples | physics AI | not curated",
+ "timed_out": false
+}

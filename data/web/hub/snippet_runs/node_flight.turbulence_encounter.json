@@ -1,0 +1,12 @@
+{
+ "code_hash": "5aa739c0f3f2460e",
+ "figures": [],
+ "id": "node:flight.turbulence_encounter",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.28,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Turbulence encounter (MIL-F-8785C) -> pinneapple_simulation.flight.encounter.turbulence_encounter + turbulence.turbulence_spec; verification.ENCOUNTER_SPEED; figures.encounter_bars_figure\ninputs: [('aircraft', 'aircraft')]\noutputs: [('metrics', 'metrics'), ('runs', 'flight_run'), ('figure', 'figure')]\ndefaults: {'severity': 'severe', 'altitude': 3000.0, 'controllers': ['stick_fixed', 'autopilot'], 'seeds': [0, 1, 2], 'duration': 120.0, 'field': '3d', 'keep': 'autopilot_seed0', 'workers': 4}",
+ "timed_out": false
+}

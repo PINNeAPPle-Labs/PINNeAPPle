@@ -1,0 +1,375 @@
+{
+ "architectures": {
+  "domain": "neural architectures",
+  "notes": "00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist"
+ },
+ "arena_pipelines": {
+  "domain": "benchmarks",
+  "notes": "flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare"
+ },
+ "autolab": {
+  "domain": "design",
+  "notes": "self_optimizing_engineer: autolab.board_cooling (#867) + examples.flatten, compared with the committed _out/self_optimizing_engineer/summary.json (heat-sink mass, fan power, pessimistic junction temperatures)"
+ },
+ "autolab_aero": {
+  "domain": "aerodynamics",
+  "notes": "autolab.aerodynamicist (#881): the full configuration runs the OpenFOAM campaign (20 simpleFoam runs, hours) and is compared with _out/summary.json (drag improvement); the quick configuration shows the dashboard of the recorded session, which recomputes nothing and so compares nothing"
+ },
+ "autolab_aero_agent": {
+  "domain": "aerodynamics",
+  "reason": "agent_mission.py drives pinneapple_autolab.agent.run_agent with a ReplaySimulator over stage 1's ledger and two refusal cases, arranged in the script; no node wraps the replayed agent session (autolab.aerodynamicist runs the agent on live OpenFOAM instead, see autolab_aero), and an LLM provider is optional",
+  "status": "not_convertible"
+ },
+ "autolab_digital_twin": {
+  "domain": "digital twin",
+  "notes": "twin_knows_when_wrong: autolab.pipe_twin (#869) + examples.flatten, compared with the committed _out/summary.json (diagnosis accuracy, cases with a false alarm)"
+ },
+ "autolab_rover": {
+  "domain": "vehicles",
+  "notes": "rover_learns_planet: rover.learn_planet (#871), compared with results/summary.json (learned soil-parameter errors, multibody distance, energy, slip and sinkage of routes A and B)"
+ },
+ "benchmark": {
+  "domain": "benchmarks",
+  "notes": "01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare"
+ },
+ "benchmark_suite": {
+  "domain": "benchmarks",
+  "notes": "flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare"
+ },
+ "black_hole_weather": {
+  "domain": "astrophysics",
+  "notes": "the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows"
+ },
+ "bricks": {
+  "domain": "design",
+  "notes": "compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes"
+ },
+ "calculix_cantilever": {
+  "domain": "structures",
+  "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
+ },
+ "chain_of_whys": {
+  "domain": "design reasoning",
+  "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
+ },
+ "condensation_falsification": {
+  "domain": "heat transfer",
+  "reason": "a falsification campaign: dozens of pre-registered studies run in subprocesses (minutes to an hour each, up to 7.6 GB), judged by their kill criteria in run.py; the condensation itself is the Flow node condense.package_thermal (examples/physics_condensation)"
+ },
+ "core_primitives": {
+  "domain": "core",
+  "reason": "demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate)",
+  "status": "not_convertible"
+ },
+ "data_api": {
+  "domain": "core",
+  "reason": "demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows",
+  "status": "not_convertible"
+ },
+ "data_pipeline": {
+  "domain": "data",
+  "reason": "API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed",
+  "status": "not_convertible"
+ },
+ "design_from_intent": {
+  "domain": "design",
+  "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
+ },
+ "electrodynamics": {
+  "domain": "electromagnetics",
+  "notes": "01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with"
+ },
+ "end_to_end": {
+  "domain": "data",
+  "reason": "legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh",
+  "status": "not_convertible"
+ },
+ "enso_forecasting": {
+  "domain": "time series",
+  "flow_status": {
+   "enso_forecasting/forecast": {
+    "needs": "the ENSO observations (~92 GB streamed on first use)",
+    "reason": "dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them",
+    "status": "needs"
+   }
+  },
+  "notes": "the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet"
+ },
+ "first_example": {
+  "domain": "PINN",
+  "notes": "nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75"
+ },
+ "flight_dynamics": {
+  "domain": "flight dynamics",
+  "notes": "06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports."
+ },
+ "flow_studio": {
+  "domain": "flows",
+  "reason": "already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step",
+  "status": "not_convertible"
+ },
+ "free_surface": {
+  "domain": "CFD",
+  "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"
+ },
+ "freecad_openfoam": {
+  "domain": "CFD",
+  "needs": "FreeCAD (freecadcmd) + OpenFOAM",
+  "reason": "three mesh studies (up to 921k cells, about an hour on 4 cores) and a 20-case sweep; the same chain is in the bundled flows freecad_openfoam_bend (cfd.study -> cfd.geometry / cfd.run) and freecad_openfoam_sweep (cfd.sweep -> cfd.surrogate)",
+  "status": "needs"
+ },
+ "geomechanics": {
+  "domain": "geomechanics",
+  "notes": "no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md)"
+ },
+ "geometry": {
+  "domain": "geometry",
+  "reason": "small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes",
+  "status": "not_convertible"
+ },
+ "geometry_library": {
+  "domain": "geometry",
+  "notes": "03_airliner_vlm: the friction-drag build-up moved from the script into pinneapple_design.aero.buildup.friction_drag (same printed numbers); nothing committed to compare, the published A320-class values (CL_alpha 5.5-6 /rad, L/D 16-18) are in the metric notes. 01 needs OpenFOAM and hours of CPU; 02's BEM lives in the script"
+ },
+ "geophysics": {
+  "domain": "geophysics",
+  "notes": "nothing committed to compare: the script prints the drifts, RMSEs and the mass-balance ratio"
+ },
+ "getting_started": {
+  "domain": "PINN",
+  "notes": "03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension)"
+ },
+ "handoff_cases": {
+  "domain": "CFD",
+  "needs": "OpenFOAM (+ xfoil)",
+  "reason": "the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders",
+  "status": "needs"
+ },
+ "hpo_experiments": {
+  "domain": "tools",
+  "reason": "imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic",
+  "status": "not_convertible"
+ },
+ "industrial_presets": {
+  "domain": "engineering presets",
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs"
+ },
+ "inspection": {
+  "domain": "inspection",
+  "notes": "nothing committed to compare: the script prints the losses"
+ },
+ "latent": {
+  "domain": "physics AI",
+  "reason": "the study's full-order model (upwind finite-difference advection-diffusion-reaction operator, solve and residual), the envelope / hole / beyond-box samplers and the gate / AUC / coverage statistics (about 130 lines) exist only in trusted_latent_surrogate.py; the library has ParametricPOD and TrustedLatentSurrogate but no function that runs this study",
+  "status": "not_convertible"
+ },
+ "lbm": {
+  "domain": "fluid dynamics",
+  "notes": "lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here"
+ },
+ "meshgraphnet": {
+  "domain": "neural operators",
+  "notes": "02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"
+ },
+ "model_zoo": {
+  "domain": "validation",
+  "notes": "compared with the model card's validation metrics (pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json); the pp.zoo.benchmark step needs pp.benchmark and is not a node"
+ },
+ "modelica": {
+  "domain": "systems",
+  "needs": "OpenModelica (omc) + fmpy",
+  "reason": "every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs",
+  "status": "needs"
+ },
+ "molecular": {
+  "domain": "molecular",
+  "needs": "OpenMM + pdbfixer + an input PDB",
+  "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
+  "status": "needs"
+ },
+ "motor_magnetics": {
+  "domain": "electromagnetics"
+ },
+ "near_random_forecasting": {
+  "domain": "time series",
+  "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1)"
+ },
+ "non_hermitian": {
+  "domain": "non-Hermitian physics",
+  "notes": "ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5)"
+ },
+ "numerical_solvers": {
+  "domain": "numerical solvers",
+  "notes": "flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate"
+ },
+ "nvidia": {
+  "domain": "NVIDIA stack",
+  "needs": "usd-core (pxr), nvidia-physicsnemo and usd-brep",
+  "reason": "01, 07, 12-14 and 16-18 write USD stages (usd-core); 02, 07-11, 16 and 18 train NVIDIA PhysicsNeMo models; 05, 10 and 14-16 build B-rep geometry with usd-brep: none of the three is installed here. 03 (robot sim), 04 (world model physics video) and 06 (model services) run on PINNeAPPle alone, but each study is arranged in its run.py main() (datasets, training, verdict rates) with no library entry point a node could call",
+  "status": "needs"
+ },
+ "openfoam_campaign": {
+  "domain": "CFD",
+  "notes": "no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt"
+ },
+ "pde_environment": {
+  "domain": "PINN",
+  "notes": "07_tagged_presets_real_geometry is a flow (pde_env.tagged_preset: build_tag_batch + per_tag_losses, moved from the script into presets.tag_geometry, + solve_pde); nothing committed to compare, the before-training losses equal the script's. 01, 02 and 03_ns2d evaluate compile_problem once on a batch the script samples and assembles by hand; 03_elasticity3d and 04_heat3d need trimesh and STL files; 05_kepler and 06_space_debris train with a nondimensionalisation wrapper and a loop written in the script"
+ },
+ "physics_audit": {
+  "domain": "physics audit",
+  "reason": "the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call",
+  "status": "not_convertible"
+ },
+ "physics_check": {
+  "domain": "validation",
+  "notes": "the torch/ fixtures (a zoo model) and generate.py (regenerates the fixtures with OpenFOAM) are not flows; workflow.yml is a GitHub Action template"
+ },
+ "physics_condensation": {
+  "domain": "heat transfer",
+  "notes": "hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script."
+ },
+ "physics_db": {
+  "domain": "data",
+  "needs": "earthaccess + NASA Earthdata login / network",
+  "reason": "00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script",
+  "status": "needs"
+ },
+ "physics_ensemble": {
+  "domain": "ensembles",
+  "reason": "the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours",
+  "status": "not_convertible"
+ },
+ "physics_learning_verification": {
+  "domain": "verification",
+  "notes": "detection: analysis.physics_learning running the detection study (seconds), compared with the committed results/detection.json. The real-model study (POD-GPR surrogates, PINNs trained for minutes) is measured by run_study.py; single surrogates can be checked with the same node."
+ },
+ "physics_module": {
+  "domain": "hybrid models",
+  "notes": "compared with the numbers of docs/core_concepts/model.md"
+ },
+ "physics_optimizer": {
+  "domain": "optimization",
+  "notes": "compared with the table of docs/core_concepts/physics_optimizer.md"
+ },
+ "physics_query": {
+  "domain": "heat transfer",
+  "reason": "the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted"
+ },
+ "pinn_solver": {
+  "domain": "PINN",
+  "notes": "01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts"
+ },
+ "pinneapple_and_physicsnemo": {
+  "domain": "PINN",
+  "reason": "pinneapple/pinneapple.py writes its own sampling, Adam loop, test metrics, PIELM gradient wrapper and output adapter (about 200 lines) around PINNFactory, so no library call reproduces the committed JSON; physicsnemo/ and both/ need NVIDIA PhysicsNeMo-Sym, which is not installed",
+  "status": "not_convertible"
+ },
+ "pinneapple_benchmark": {
+  "domain": "benchmarks",
+  "reason": "two hand-written PINN benchmarks (760 lines of sampling, residuals and training loops around the architecture classes); nothing committed",
+  "status": "not_convertible"
+ },
+ "pinneapple_cosim": {
+  "domain": "co-simulation",
+  "reason": "imports pinneapple_cosim, which no longer exists (moved to pinneapple_systems.cosimulation without a shim), and trains in the script",
+  "status": "not_convertible"
+ },
+ "problem_designer": {
+  "domain": "design",
+  "notes": "03_offline_spec_to_report: nothing numeric committed; the flow writes the same report as the script (5 plan steps, no validator warnings). 01 and 02 call Gemini over the network; 04 and 05 use a mock LLM provider defined in the scripts"
+ },
+ "proof_graph": {
+  "domain": "validation",
+  "notes": "status counts compared with the committed report docs/assets/proof_graph/pt_chain_no_go_report.md"
+ },
+ "qualitative": {
+  "domain": "design",
+  "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
+ },
+ "quickstart": {
+  "domain": "getting started",
+  "status": "not_convertible",
+  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+ },
+ "reproductions": {
+  "domain": "physics-informed ML",
+  "status": "not_convertible",
+  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run"
+ },
+ "rigid_body": {
+  "domain": "multibody",
+  "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
+ },
+ "science": {
+  "domain": "science",
+  "notes": "one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes"
+ },
+ "security": {
+  "domain": "security",
+  "notes": "02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script"
+ },
+ "solver_api": {
+  "domain": "PINN",
+  "notes": "compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md"
+ },
+ "solvers": {
+  "domain": "numerical solvers",
+  "notes": "three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation"
+ },
+ "sports": {
+  "domain": "sports",
+  "notes": "ball_flight_inverse: football.ball_flight_inverse (simulated kicks, no download); pass_pitch_control: football.pass_pitch_control (Metrica sample data). 01_ball_flight.py's SkillCorner audit and hold-out (1.8 GB of tracking, ~1 h), 03 and 04 (StatsBomb, ~3 GB) run as scripts; 05_verdict.py builds the verdict table from their results."
+ },
+ "studio": {
+  "domain": "visualization",
+  "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
+ },
+ "systems": {
+  "domain": "systems",
+  "notes": "the example fits random targets (an API demonstration); nothing to compare"
+ },
+ "time_series": {
+  "domain": "time series",
+  "notes": "flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script"
+ },
+ "topology_optimization": {
+  "domain": "design"
+ },
+ "trainer": {
+  "domain": "training",
+  "reason": "demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch",
+  "status": "not_convertible"
+ },
+ "use_cases": {
+  "domain": "use cases",
+  "notes": "fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas: compact_range_qz (#887) is a flow (antenna.compact_range over pinneapple_simulation.electromagnetics.reflector) compared with results/compact_range/summary.json; unit_cell_benchmark (#887) and the Vivaldi full-wave runs need EMerge (pip install emerge, not installed here); the Vivaldi limits are the bundled flow antenna_vivaldi_limits (lib.antenna.limits)"
+ },
+ "validation": {
+  "domain": "validation",
+  "notes": "01, 05, 06 and 07 through pp.validate + gallery.conclude (the 05 / 06 ROM steppers moved to pinneapple_neural.architectures.rom.steppers; 06 prints the same output, 05's stepper is bitwise equal to the script's on test snapshots); 05 compared with the guide's |lambda| = 1.008. 02, 03, 04, 08, 09, 10 and 12 build their models, data or wrappers with helpers written in the scripts; 11 needs PhysicsNeMo"
+ },
+ "validation_arena": {
+  "domain": "validation",
+  "notes": "compared with the table of docs/guides/validation_arena.md (full budget, seed 0, alpha 1 %, 2 rounds)"
+ },
+ "visualizations": {
+  "domain": "visualization",
+  "reason": "hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows",
+  "status": "not_convertible"
+ },
+ "vs_physicsnemo": {
+  "domain": "validation",
+  "notes": "the flow replays 07's committed predictions through pinneapple check against check/expected.json; training (07 run.py train) needs NVIDIA PhysicsNeMo and a dataset download; 01-06 hold their models and training loops in the scripts (02 uses no library call at all)"
+ },
+ "weather_forecasting": {
+  "domain": "weather",
+  "needs": "ERA5 store (5 GB) + a trained model",
+  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed)",
+  "status": "needs"
+ },
+ "worldmodel": {
+  "domain": "world model",
+  "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
+ }
+}

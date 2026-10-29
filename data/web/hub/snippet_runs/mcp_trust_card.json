@@ -1,0 +1,12 @@
+{
+ "code_hash": "b300bf509be1b1c0",
+ "figures": [],
+ "id": "mcp:trust_card",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "trust_card(file: 'str | None' = None, field: 'str | None' = None, grid: 'Mapping[str, Sequence[float]] | None' = None, values: 'Any | None' = None, pde: 'str | None' = None, source: 'str | None' = None, alpha: 'float' = 1.0, dirichlet: 'Mapping[str, Any] | None' = None, reference: 'str | None' = None, reference_file: 'str | None' = None, value_range: 'Sequence[float] | None' = None, train_bounds: 'Mapping[str, Sequence[float]] | None' = None, tolerances: 'Mapping[str, float] | None' = None, name: 'str' = 'field') -> 'dict[str, Any]'",
+ "timed_out": false
+}

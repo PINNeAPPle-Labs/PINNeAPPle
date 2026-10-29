@@ -1,0 +1,144 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-topology-heat-stokes",
+ "name": "Topology optimization: heat conduction and Stokes pipes (02)",
+ "description": "Thermal compliance of a 60 x 60 plate with a heat sink on the left edge; the double-pipe Stokes dissipation problem in 1 x 1 and 1.5 x 1 boxes with continuation on the Brinkman parameter (examples/topology_optimization/02_heat_and_stokes_flow.py).",
+ "nodes": [
+  {
+   "id": "heat",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "thermal",
+    "nelx": 60,
+    "nely": 60,
+    "volume": 0.3,
+    "rmin": 1.5,
+    "method": "mma",
+    "max_iter": 150,
+    "projection": true,
+    "beta_max": 8.0,
+    "label": "thermal"
+   },
+   "label": "Heat conduction",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pipe10",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "double_pipe",
+    "nely": 40,
+    "length": 1.0,
+    "volume": 0.3333333333333333,
+    "rmin": 1.5,
+    "method": "mma",
+    "max_iter": 300,
+    "move": 0.1,
+    "label": "double_pipe_L1.0"
+   },
+   "label": "Double pipe 1.0 x 1",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "pipe15",
+   "type": "design.topology2d",
+   "params": {
+    "problem": "double_pipe",
+    "nely": 40,
+    "length": 1.5,
+    "volume": 0.3333333333333333,
+    "rmin": 1.5,
+    "method": "mma",
+    "max_iter": 300,
+    "move": 0.1,
+    "label": "double_pipe_L1.5"
+   },
+   "label": "Double pipe 1.5 x 1",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "topology_optimization",
+    "comparisons": [
+     {
+      "flow": "heat.thermal.objective",
+      "ref": "results/heat_stokes_summary.json:thermal.optimized"
+     },
+     {
+      "flow": "heat.thermal.uniform",
+      "ref": "results/heat_stokes_summary.json:thermal.uniform"
+     },
+     {
+      "flow": "heat.thermal.iterations",
+      "ref": "results/heat_stokes_summary.json:thermal.iterations"
+     },
+     {
+      "flow": "pipe10.double_pipe_L1.0.objective",
+      "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.optimized"
+     },
+     {
+      "flow": "pipe10.double_pipe_L1.0.uniform",
+      "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.uniform"
+     },
+     {
+      "flow": "pipe15.double_pipe_L1.5.objective",
+      "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.optimized"
+     },
+     {
+      "flow": "pipe15.double_pipe_L1.5.uniform",
+      "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.uniform"
+     }
+    ],
+    "tolerance_source": "deterministic optimization: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/topology_optimization",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "heat",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "heat.metrics->compare.metrics"
+  },
+  {
+   "source": "pipe10",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "pipe10.metrics->compare.metrics"
+  },
+  {
+   "source": "pipe15",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "pipe15.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "topology_optimization",
+  "domain": "design",
+  "scripts": [
+   "02_heat_and_stokes_flow.py"
+  ],
+  "quick": {}
+ }
+}

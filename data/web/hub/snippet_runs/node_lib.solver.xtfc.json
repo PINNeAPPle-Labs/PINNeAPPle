@@ -1,0 +1,12 @@
+{
+ "code_hash": "8a39cc25fc8ae4f2",
+ "figures": [],
+ "id": "node:lib.solver.xtfc",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "X-TFC PDE solver -> pinneapple_flow.wrappers:xtfc_pde pinneapple_simulation.numerical_solvers.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'pde': 'burgers_1d', 'n_basis': 60, 'n_query': 40}",
+ "timed_out": false
+}

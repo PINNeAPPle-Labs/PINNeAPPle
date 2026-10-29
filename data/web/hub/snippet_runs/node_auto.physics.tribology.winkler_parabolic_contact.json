@@ -1,0 +1,12 @@
+{
+ "code_hash": "bed5407302482aec",
+ "figures": [],
+ "id": "node:auto.physics.tribology.winkler_parabolic_contact",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'delta_mm': 0.6551853485522241, 'half_width_mm': 1.1447142425533319, 'p_max_MPa': 0.6551853485522241}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "dcb8ae7fe6f5cb0f",
+ "figures": [],
+ "id": "api:pp-physicalproblem-from-preset",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.PhysicalProblem.from_preset(name: 'str', **overrides: 'Any') -> \"'PhysicalProblem'\"\nFrom a named preset (``pp.list_presets()``); keyword overrides go to the preset, e.g. ``nu=0.01``.",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "c3f9ae8975de4cac",
+ "figures": [],
+ "id": "example:bar_wear_ranking",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - ranking follows archard K · simulated steady wear rates order…",
+ "timed_out": false
+}

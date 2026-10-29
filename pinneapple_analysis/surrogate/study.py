@@ -261,7 +261,8 @@ def _run(data, methods, budget, seeds, splits, split_options, pde, target, optio
     sp = splits or make_splits(data, seed=seeds[0], **dict(split_options or {}))
     decl = pde if pde is not None else data.meta.get("pde")
     P = parse_pde(decl, data.coord_names, data.input_names) if kind == "field" else None
-    flat = lambda idx: data.Y[idx].reshape(len(idx), -1)  # noqa: E731
+    width = int(np.prod(data.Y.shape[1:]))                 # explicit: an empty split (no shift set) has no -1
+    flat = lambda idx: data.Y[idx].reshape(len(idx), width)  # noqa: E731
     Xtr, Ytr, Xva, Yva = data.X[sp.train], flat(sp.train), data.X[sp.val], flat(sp.val)
     Xte, Yte, Xsh, Ysh = data.X[sp.test], flat(sp.test), data.X[sp.shift], flat(sp.shift)
     scale = Ytr.std(0) + 1e-12

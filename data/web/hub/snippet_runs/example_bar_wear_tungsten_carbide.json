@@ -1,0 +1,12 @@
+{
+ "code_hash": "fd7dbf7b7cc7ac00",
+ "figures": [],
+ "id": "example:bar_wear/tungsten carbide",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - contact vs Winkler · Archard",
+ "timed_out": false
+}

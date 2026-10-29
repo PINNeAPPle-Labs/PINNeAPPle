@@ -1,0 +1,140 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.lbm.01_sphere_wind_tunnel",
+ "name": "Lattice Boltzmann sphere in a wind tunnel",
+ "description": "3-D lattice Boltzmann (D3Q19, PyTorch): Stokes drag on a sphere of radius 5 cells against 6 pi rho nu R U, and the drag coefficient at Re = 20 (D = 8 cells, 96 x 48 x 48 tunnel) against Schiller & Naumann (1933) with FP32 and FP16 storage of the distributions (examples/lbm/01_sphere_wind_tunnel.py, about an hour on 4 CPU cores; the quick configuration shrinks both cases to check the pipeline only).",
+ "nodes": [
+  {
+   "id": "stokes",
+   "type": "lbm.sphere_stokes",
+   "params": {},
+   "label": "Stokes drag (R = 5)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "drag",
+   "type": "lbm.sphere_drag",
+   "params": {},
+   "label": "Re = 20, FP32 + FP16",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "lbm",
+    "comparisons": [
+     {
+      "flow": "stokes.error",
+      "scale": 100,
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|R = 5 cells: \\+(\\d[\\d.]*) %"
+     },
+     {
+      "flow": "drag.fp32.Cd",
+      "ref": "doc:docs/core_concepts/lbm_wind_tunnel.md|Sphere at Re = 20, D = 8 cells, 96 \u00d7 48 \u00d7 48 tunnel, FP32|Result"
+     },
+     {
+      "flow": "drag.fp32.error",
+      "scale": 100,
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|gives 2\\.61 \\(\\+(\\d+) %\\)"
+     },
+     {
+      "flow": "drag.fp16s.Cd",
+      "ref": "doc:docs/core_concepts/lbm_wind_tunnel.md|Same, FP16 storage, half the memory (38 instead of 76 B/cell)|Result"
+     },
+     {
+      "flow": "drag.Cd_schiller_naumann",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|Schiller & Naumann \\(1933\\) gives (\\d[\\d.]*)"
+     },
+     {
+      "flow": "drag.fp32.bytes_per_cell",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|instead of (\\d+) B/cell",
+      "rounded": false
+     },
+     {
+      "flow": "drag.fp16s.bytes_per_cell",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|\\((\\d+) instead of",
+      "rounded": false
+     }
+    ],
+    "tolerance_source": "deterministic solver; the guide rounds its numbers, so each matches within half a unit of its last digit"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "stokes",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "stokes.metrics->compare.metrics"
+  },
+  {
+   "source": "drag",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "drag.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "lbm",
+  "domain": "fluid dynamics",
+  "scripts": [
+   "01_sphere_wind_tunnel.py"
+  ],
+  "quick": {
+   "stokes": {
+    "radius": 3.0,
+    "steps": 200
+   },
+   "drag": {
+    "D": 4.0,
+    "shape": [
+     48,
+     24,
+     24
+    ],
+    "center": [
+     12.0,
+     11.5,
+     11.5
+    ],
+    "steps": 150,
+    "every": 50,
+    "average_last": 2
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "drag.Cd_schiller_naumann",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|Schiller & Naumann \\(1933\\) gives (\\d[\\d.]*)"
+     },
+     {
+      "flow": "drag.fp32.bytes_per_cell",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|instead of (\\d+) B/cell",
+      "rounded": false
+     },
+     {
+      "flow": "drag.fp16s.bytes_per_cell",
+      "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|\\((\\d+) instead of",
+      "rounded": false
+     }
+    ],
+    "tolerance_source": "quick: smaller sphere, tunnel and run, so only the configuration-independent numbers (the correlation, bytes per cell) are compared"
+   }
+  }
+ }
+}

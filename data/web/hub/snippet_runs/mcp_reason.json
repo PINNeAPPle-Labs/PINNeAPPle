@@ -1,0 +1,12 @@
+{
+ "code_hash": "1d9d990b2edc1455",
+ "figures": [],
+ "id": "mcp:reason",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "reason(case: 'str | None' = None, requirements: 'Sequence[Mapping[str, Any]] | None' = None, concept: 'Mapping[str, Any] | None' = None, lang: 'str' = 'pt', max_steps: 'int' = 12, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+ "timed_out": false
+}

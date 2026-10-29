@@ -1,0 +1,12 @@
+{
+ "code_hash": "32a08689abcc1983",
+ "figures": [],
+ "id": "node:design.surrogate_inverse",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse design through a frozen surrogate, re-checked -> pinneapple_design.surrogate_inverse.<case>.train_surrogate / optimize_design / verify_design (core.fit_surrogate, core.descend, core.VerificationCard)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'heatsink_fins', 'inputs': {}, 'n_samples': 6000, 'epochs': 1500, 'seed': 0}",
+ "timed_out": false
+}

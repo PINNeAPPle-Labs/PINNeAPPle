@@ -1,0 +1,12 @@
+{
+ "code_hash": "9977077ca436ccaf",
+ "figures": [],
+ "id": "node:auto.design.geometry.csg_annulus",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.57,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "csg annulus -> pinneapple_design.geometry:csg_annulus\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'cx': 1.0, 'cy': 1.0, 'r_inner': 1.0, 'r_outer': 1.0}",
+ "timed_out": false
+}

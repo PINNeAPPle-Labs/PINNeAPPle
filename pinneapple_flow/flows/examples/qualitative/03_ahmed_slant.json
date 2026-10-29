@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.qualitative.03_ahmed_slant",
+ "name": "Ahmed slant: qualitative preview against the wind tunnel",
+ "description": "The qualitative drag preview of six Ahmed-body slant angles against Ahmed, Ramm & Faltin (1984): direction of each change, rank correlation, confidence (examples/qualitative/03_ahmed_slant.py).",
+ "nodes": [
+  {
+   "id": "ahmed",
+   "type": "qualitative.ahmed_slant",
+   "params": {},
+   "label": "Ahmed slant preview",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "qualitative",
+  "domain": "design",
+  "scripts": [
+   "03_ahmed_slant.py"
+  ],
+  "quick": {}
+ }
+}

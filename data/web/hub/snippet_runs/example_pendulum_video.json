@@ -1,0 +1,12 @@
+{
+ "code_hash": "9922603208440dbc",
+ "figures": [],
+ "id": "example:pendulum_video",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - g within 2pct",
+ "timed_out": false
+}

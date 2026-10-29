@@ -1,0 +1,120 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.airfoil_section_re4e6",
+ "name": "Industrial preset: airfoil section re4e6",
+ "description": "pinneapple_presets.load('airfoil_section_re4e6').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/airfoil_section_re4e6), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "airfoil_section_re4e6"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "airfoil_section_re4e6"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.Cl",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl"
+     },
+     {
+      "flow": "run.Cd",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cd"
+     },
+     {
+      "flow": "run.Cm",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cm"
+     },
+     {
+      "flow": "run.LD",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.LD"
+     },
+     {
+      "flow": "run.Cl_std",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_std"
+     },
+     {
+      "flow": "run.Cd_std",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cd_std"
+     },
+     {
+      "flow": "run.Cl_inviscid",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid"
+     },
+     {
+      "flow": "run.Cl_inviscid_pressure",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid_pressure"
+     },
+     {
+      "flow": "run.thickness",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.thickness"
+     },
+     {
+      "flow": "run.camber",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.camber"
+     },
+     {
+      "flow": "run.reynolds",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.reynolds"
+     },
+     {
+      "flow": "run.lift_per_span",
+      "ref": "airfoil_section_re4e6/results/result.json:outputs.lift_per_span"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "airfoil_section_re4e6/README.md"
+  ],
+  "quick": {}
+ }
+}

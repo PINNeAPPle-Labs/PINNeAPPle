@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8e193cfffbbbae9",
+ "figures": [],
+ "id": "example:examples/industrial_presets/spm_servo_motor",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging | Eletromagnetismo / máquinas elétricas | not curated\nrel_error[torque: tensor de Maxwell vs co-energia] 0.00015335654237919993 -\nrel_error[torque - cogging vs i.e/w (balanço de potência)] 0.020903837001168817 -\nrel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)] 0.028223139241408575 -\nsurrogate_holdout_max_rel_err 0.010298457639493648 -\ninversion_rel_err 0.000972648928707076 -",
+ "timed_out": false
+}

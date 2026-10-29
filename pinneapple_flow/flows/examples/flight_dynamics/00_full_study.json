@@ -1,0 +1,1708 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-flight-full",
+ "name": "Aircraft: the whole flight-dynamics study",
+ "description": "Every study of examples/flight_dynamics on one canvas: verification, trim and stability, take-off with crosswind and gust cases, severe turbulence for the four aircraft, Pratt, the same-gust comparison, three.js viewers and Blender Cycles clips, each number checked against the committed results.",
+ "nodes": [
+  {
+   "id": "aircraft",
+   "type": "flight.aircraft",
+   "params": {
+    "aircraft": [
+     "light_ga",
+     "regional_turboprop",
+     "a320",
+     "motor_glider"
+    ]
+   },
+   "label": "Four aircraft",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "verif",
+   "type": "flight.verification",
+   "params": {},
+   "label": "Verification",
+   "position": {
+    "x": 40.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "stab",
+   "type": "flight.trim_stability",
+   "params": {},
+   "label": "Trim + stability",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "takeoff",
+   "type": "flight.takeoff_cases",
+   "params": {
+    "cases": [
+     "nominal",
+     "crosswind",
+     "gust_at_rotation"
+    ]
+   },
+   "label": "Take-off cases",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "severe",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "duration": 120.0
+   },
+   "label": "Severe turbulence",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "pratt",
+   "type": "flight.pratt",
+   "params": {},
+   "label": "Pratt check",
+   "position": {
+    "x": 330.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "gust",
+   "type": "flight.same_gust",
+   "params": {},
+   "label": "Same gust",
+   "position": {
+    "x": 330.0,
+    "y": 720.0
+   }
+  },
+  {
+   "id": "sc_to",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 72,
+    "arrows": false,
+    "only": [
+     "light_ga_takeoff",
+     "regional_turboprop_takeoff",
+     "a320_takeoff",
+     "motor_glider_takeoff"
+    ]
+   },
+   "label": "Take-off scenes",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "sc_tu",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 72,
+    "arrows": false,
+    "wisps": "on"
+   },
+   "label": "Turbulence scenes",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "sc_g",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 120,
+    "arrows": false,
+    "wisps": "on"
+   },
+   "label": "Gust scenes",
+   "position": {
+    "x": 620.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "r_to",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "takeoff"
+   },
+   "label": "Take-off clips",
+   "position": {
+    "x": 910.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "r_tu",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "turbulence"
+   },
+   "label": "Turbulence clips",
+   "position": {
+    "x": 910.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "r_g",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "gust",
+    "frames": 120,
+    "still": false
+   },
+   "label": "Gust clips",
+   "position": {
+    "x": 910.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "grid",
+   "type": "render.clip_grid",
+   "params": {
+    "labels": {
+     "light_ga_gust_same": "Light GA (C172 class)",
+     "regional_turboprop_gust_same": "Turboprop (ATR 72 class)",
+     "a320_gust_same": "Airliner (A320 class)",
+     "motor_glider_gust_same": "Motor glider (AR 28)"
+    }
+   },
+   "label": "Same-gust grid",
+   "position": {
+    "x": 1200.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "flight_dynamics",
+    "comparisons": [
+     {
+      "flow": "verif.energy_rel_error_dt0.02",
+      "ref": "manifest:energy_rel_error_dt0.02",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.01",
+      "ref": "manifest:energy_rel_error_dt0.01",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.005",
+      "ref": "manifest:energy_rel_error_dt0.005",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_u",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_v",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_dryden_w",
+      "ref": "manifest:turbulence_sigma_FrozenLine_dryden_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_u",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_v",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenLine_von_karman_w",
+      "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_u",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_v",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_DrydenFilter_dryden_w",
+      "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_u",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_u",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_v",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_v",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_w",
+      "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_w",
+      "rtol": 1e-06
+     },
+     {
+      "flow": "stab.light_ga.CL_alpha",
+      "ref": "results/stability.json:light_ga.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.light_ga.static_margin",
+      "ref": "results/stability.json:light_ga.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.light_ga.Cm_alpha",
+      "ref": "results/stability.json:light_ga.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.light_ga.Cm_q",
+      "ref": "results/stability.json:light_ga.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.light_ga.Cl_beta",
+      "ref": "results/stability.json:light_ga.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.light_ga.Cn_beta",
+      "ref": "results/stability.json:light_ga.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.light_ga.Cl_p",
+      "ref": "results/stability.json:light_ga.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.light_ga.Cn_r",
+      "ref": "results/stability.json:light_ga.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.regional_turboprop.CL_alpha",
+      "ref": "results/stability.json:regional_turboprop.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.regional_turboprop.static_margin",
+      "ref": "results/stability.json:regional_turboprop.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cm_alpha",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cm_q",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cl_beta",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cn_beta",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cl_p",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cn_r",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.a320.CL_alpha",
+      "ref": "results/stability.json:a320.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.a320.static_margin",
+      "ref": "results/stability.json:a320.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.a320.Cm_alpha",
+      "ref": "results/stability.json:a320.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.a320.Cm_q",
+      "ref": "results/stability.json:a320.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.a320.Cl_beta",
+      "ref": "results/stability.json:a320.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.a320.Cn_beta",
+      "ref": "results/stability.json:a320.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.a320.Cl_p",
+      "ref": "results/stability.json:a320.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.a320.Cn_r",
+      "ref": "results/stability.json:a320.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.motor_glider.CL_alpha",
+      "ref": "results/stability.json:motor_glider.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.motor_glider.static_margin",
+      "ref": "results/stability.json:motor_glider.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.motor_glider.Cm_alpha",
+      "ref": "results/stability.json:motor_glider.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.motor_glider.Cm_q",
+      "ref": "results/stability.json:motor_glider.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.motor_glider.Cl_beta",
+      "ref": "results/stability.json:motor_glider.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.motor_glider.Cn_beta",
+      "ref": "results/stability.json:motor_glider.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.motor_glider.Cl_p",
+      "ref": "results/stability.json:motor_glider.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.motor_glider.Cn_r",
+      "ref": "results/stability.json:motor_glider.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.light_ga.mode0_wn",
+      "ref": "results/stability.json:light_ga.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.regional_turboprop.mode0_wn",
+      "ref": "results/stability.json:regional_turboprop.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.a320.mode0_wn",
+      "ref": "results/stability.json:a320.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.motor_glider.mode0_wn",
+      "ref": "results/stability.json:motor_glider.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "takeoff.light_ga.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.light_ga.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.light_ga.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.light_ga.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.light_ga.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.light_ga.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.light_ga.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.light_ga.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "manifest:distance_35ft_light_ga"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.light_ga.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.regional_turboprop.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "manifest:distance_35ft_regional_turboprop"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.regional_turboprop.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.a320.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.a320.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.a320.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.a320.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.a320.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.a320.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.a320.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.a320.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.a320.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "manifest:distance_35ft_a320"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.a320.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.a320.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.a320.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.motor_glider.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.motor_glider.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.motor_glider.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.motor_glider.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "manifest:distance_35ft_motor_glider"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "severe.light_ga.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "pratt.light_ga.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim"
+     },
+     {
+      "flow": "pratt.light_ga.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt"
+     },
+     {
+      "flow": "pratt.light_ga.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt"
+     },
+     {
+      "flow": "pratt.regional_turboprop.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g"
+     },
+     {
+      "flow": "pratt.a320.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim"
+     },
+     {
+      "flow": "pratt.a320.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt"
+     },
+     {
+      "flow": "pratt.a320.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].K_g"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt"
+     },
+     {
+      "flow": "pratt.motor_glider.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g"
+     },
+     {
+      "flow": "gust.light_ga.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.light_ga.dnz_cg_max"
+     },
+     {
+      "flow": "gust.light_ga.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.light_ga.t_peak_s"
+     },
+     {
+      "flow": "gust.light_ga.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.light_ga.theta_max_deg"
+     },
+     {
+      "flow": "gust.light_ga.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.light_ga.dh_max_m"
+     },
+     {
+      "flow": "gust.light_ga.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.light_ga.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.light_ga.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.light_ga.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.regional_turboprop.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.dnz_cg_max"
+     },
+     {
+      "flow": "gust.regional_turboprop.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.t_peak_s"
+     },
+     {
+      "flow": "gust.regional_turboprop.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.theta_max_deg"
+     },
+     {
+      "flow": "gust.regional_turboprop.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.dh_max_m"
+     },
+     {
+      "flow": "gust.regional_turboprop.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.regional_turboprop.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.a320.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.a320.dnz_cg_max"
+     },
+     {
+      "flow": "gust.a320.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.a320.t_peak_s"
+     },
+     {
+      "flow": "gust.a320.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.a320.theta_max_deg"
+     },
+     {
+      "flow": "gust.a320.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.a320.dh_max_m"
+     },
+     {
+      "flow": "gust.a320.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.a320.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.a320.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.a320.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.motor_glider.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.motor_glider.dnz_cg_max"
+     },
+     {
+      "flow": "gust.motor_glider.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.motor_glider.t_peak_s"
+     },
+     {
+      "flow": "gust.motor_glider.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.motor_glider.theta_max_deg"
+     },
+     {
+      "flow": "gust.motor_glider.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.motor_glider.dh_max_m"
+     },
+     {
+      "flow": "gust.motor_glider.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.motor_glider.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.motor_glider.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.motor_glider.pratt_dn_for_this_gust"
+     }
+    ],
+    "tolerance_source": "deterministic simulation: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding; stochastic turbulence fields: the tolerance of each mean is the spread over the three seeds that results/turbulence.json reports for it"
+   },
+   "label": "Same numbers as examples/flight_dynamics",
+   "position": {
+    "x": 1200.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "flight dynamics"
+   },
+   "label": "Report",
+   "position": {
+    "x": 1490.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "stab",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->stab.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "takeoff",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->takeoff.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "severe",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->severe.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "pratt",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->pratt.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "gust",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->gust.aircraft"
+  },
+  {
+   "source": "takeoff",
+   "source_port": "runs",
+   "target": "sc_to",
+   "target_port": "runs",
+   "id": "takeoff.runs->sc_to.runs"
+  },
+  {
+   "source": "severe",
+   "source_port": "runs",
+   "target": "sc_tu",
+   "target_port": "runs",
+   "id": "severe.runs->sc_tu.runs"
+  },
+  {
+   "source": "gust",
+   "source_port": "runs",
+   "target": "sc_g",
+   "target_port": "runs",
+   "id": "gust.runs->sc_g.runs"
+  },
+  {
+   "source": "sc_to",
+   "source_port": "scene",
+   "target": "r_to",
+   "target_port": "scene",
+   "id": "sc_to.scene->r_to.scene"
+  },
+  {
+   "source": "sc_tu",
+   "source_port": "scene",
+   "target": "r_tu",
+   "target_port": "scene",
+   "id": "sc_tu.scene->r_tu.scene"
+  },
+  {
+   "source": "sc_g",
+   "source_port": "scene",
+   "target": "r_g",
+   "target_port": "scene",
+   "id": "sc_g.scene->r_g.scene"
+  },
+  {
+   "source": "r_g",
+   "source_port": "clip",
+   "target": "grid",
+   "target_port": "clip",
+   "id": "r_g.clip->grid.clip"
+  },
+  {
+   "source": "verif",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "verif.metrics->compare.metrics"
+  },
+  {
+   "source": "stab",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "stab.metrics->compare.metrics"
+  },
+  {
+   "source": "takeoff",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "takeoff.metrics->compare.metrics"
+  },
+  {
+   "source": "severe",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "severe.metrics->compare.metrics"
+  },
+  {
+   "source": "pratt",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "pratt.metrics->compare.metrics"
+  },
+  {
+   "source": "gust",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "gust.metrics->compare.metrics"
+  },
+  {
+   "source": "compare",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "compare.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "flight_dynamics",
+  "domain": "flight dynamics",
+  "scripts": [
+   "01_verification.py",
+   "02_trim_and_stability.py",
+   "03_takeoff.py",
+   "04_turbulence_encounters.py",
+   "05_render_clips.py",
+   "07_same_gust.py",
+   "08_viewers.py"
+  ],
+  "quick": {
+   "severe": {
+    "seeds": [
+     0
+    ],
+    "duration": 30.0
+   },
+   "verif": {
+    "parts": [
+     "conservation",
+     "lattice"
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "verif.energy_rel_error_dt0.02",
+      "ref": "manifest:energy_rel_error_dt0.02",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.01",
+      "ref": "manifest:energy_rel_error_dt0.01",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.energy_rel_error_dt0.005",
+      "ref": "manifest:energy_rel_error_dt0.005",
+      "rtol": 0.5,
+      "atol": 1e-11
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_light_ga_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_light_ga_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_regional_turboprop_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_a320_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_a320_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha0.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha0.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "verif.lattice_rel_diff_motor_glider_alpha4.0",
+      "ref": "manifest:lattice_rel_diff_motor_glider_alpha4.0",
+      "rtol": 0.0001,
+      "atol": 1e-09
+     },
+     {
+      "flow": "stab.light_ga.CL_alpha",
+      "ref": "results/stability.json:light_ga.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.light_ga.static_margin",
+      "ref": "results/stability.json:light_ga.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.light_ga.Cm_alpha",
+      "ref": "results/stability.json:light_ga.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.light_ga.Cm_q",
+      "ref": "results/stability.json:light_ga.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.light_ga.Cl_beta",
+      "ref": "results/stability.json:light_ga.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.light_ga.Cn_beta",
+      "ref": "results/stability.json:light_ga.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.light_ga.Cl_p",
+      "ref": "results/stability.json:light_ga.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.light_ga.Cn_r",
+      "ref": "results/stability.json:light_ga.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.regional_turboprop.CL_alpha",
+      "ref": "results/stability.json:regional_turboprop.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.regional_turboprop.static_margin",
+      "ref": "results/stability.json:regional_turboprop.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cm_alpha",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cm_q",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cl_beta",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cn_beta",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cl_p",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.regional_turboprop.Cn_r",
+      "ref": "results/stability.json:regional_turboprop.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.a320.CL_alpha",
+      "ref": "results/stability.json:a320.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.a320.static_margin",
+      "ref": "results/stability.json:a320.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.a320.Cm_alpha",
+      "ref": "results/stability.json:a320.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.a320.Cm_q",
+      "ref": "results/stability.json:a320.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.a320.Cl_beta",
+      "ref": "results/stability.json:a320.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.a320.Cn_beta",
+      "ref": "results/stability.json:a320.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.a320.Cl_p",
+      "ref": "results/stability.json:a320.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.a320.Cn_r",
+      "ref": "results/stability.json:a320.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.motor_glider.CL_alpha",
+      "ref": "results/stability.json:motor_glider.derivatives.CL_alpha"
+     },
+     {
+      "flow": "stab.motor_glider.static_margin",
+      "ref": "results/stability.json:motor_glider.derivatives.static_margin"
+     },
+     {
+      "flow": "stab.motor_glider.Cm_alpha",
+      "ref": "results/stability.json:motor_glider.derivatives.Cm_alpha"
+     },
+     {
+      "flow": "stab.motor_glider.Cm_q",
+      "ref": "results/stability.json:motor_glider.derivatives.Cm_q"
+     },
+     {
+      "flow": "stab.motor_glider.Cl_beta",
+      "ref": "results/stability.json:motor_glider.derivatives.Cl_beta"
+     },
+     {
+      "flow": "stab.motor_glider.Cn_beta",
+      "ref": "results/stability.json:motor_glider.derivatives.Cn_beta"
+     },
+     {
+      "flow": "stab.motor_glider.Cl_p",
+      "ref": "results/stability.json:motor_glider.derivatives.Cl_p"
+     },
+     {
+      "flow": "stab.motor_glider.Cn_r",
+      "ref": "results/stability.json:motor_glider.derivatives.Cn_r"
+     },
+     {
+      "flow": "stab.light_ga.mode0_wn",
+      "ref": "results/stability.json:light_ga.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.regional_turboprop.mode0_wn",
+      "ref": "results/stability.json:regional_turboprop.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.a320.mode0_wn",
+      "ref": "results/stability.json:a320.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "stab.motor_glider.mode0_wn",
+      "ref": "results/stability.json:motor_glider.modes.oscillatory[0].wn"
+     },
+     {
+      "flow": "takeoff.light_ga.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.light_ga.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.light_ga.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.light_ga.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.light_ga.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.light_ga.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.light_ga.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.light_ga.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "manifest:distance_35ft_light_ga"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.light_ga.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.regional_turboprop.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "manifest:distance_35ft_regional_turboprop"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.regional_turboprop.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.a320.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.a320.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.a320.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.a320.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.a320.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.a320.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.a320.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.a320.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.a320.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "manifest:distance_35ft_a320"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.a320.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.a320.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.a320.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.motor_glider.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.motor_glider.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.motor_glider.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.motor_glider.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "manifest:distance_35ft_motor_glider"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "pratt.light_ga.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim"
+     },
+     {
+      "flow": "pratt.light_ga.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt"
+     },
+     {
+      "flow": "pratt.light_ga.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt"
+     },
+     {
+      "flow": "pratt.regional_turboprop.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g"
+     },
+     {
+      "flow": "pratt.a320.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim"
+     },
+     {
+      "flow": "pratt.a320.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt"
+     },
+     {
+      "flow": "pratt.a320.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].K_g"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt"
+     },
+     {
+      "flow": "pratt.motor_glider.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g"
+     },
+     {
+      "flow": "gust.light_ga.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.light_ga.dnz_cg_max"
+     },
+     {
+      "flow": "gust.light_ga.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.light_ga.t_peak_s"
+     },
+     {
+      "flow": "gust.light_ga.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.light_ga.theta_max_deg"
+     },
+     {
+      "flow": "gust.light_ga.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.light_ga.dh_max_m"
+     },
+     {
+      "flow": "gust.light_ga.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.light_ga.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.light_ga.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.light_ga.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.regional_turboprop.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.dnz_cg_max"
+     },
+     {
+      "flow": "gust.regional_turboprop.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.t_peak_s"
+     },
+     {
+      "flow": "gust.regional_turboprop.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.theta_max_deg"
+     },
+     {
+      "flow": "gust.regional_turboprop.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.dh_max_m"
+     },
+     {
+      "flow": "gust.regional_turboprop.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.regional_turboprop.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.regional_turboprop.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.a320.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.a320.dnz_cg_max"
+     },
+     {
+      "flow": "gust.a320.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.a320.t_peak_s"
+     },
+     {
+      "flow": "gust.a320.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.a320.theta_max_deg"
+     },
+     {
+      "flow": "gust.a320.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.a320.dh_max_m"
+     },
+     {
+      "flow": "gust.a320.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.a320.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.a320.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.a320.pratt_dn_for_this_gust"
+     },
+     {
+      "flow": "gust.motor_glider.dnz_cg_max",
+      "ref": "results/same_gust.json:aircraft.motor_glider.dnz_cg_max"
+     },
+     {
+      "flow": "gust.motor_glider.t_peak_s",
+      "ref": "results/same_gust.json:aircraft.motor_glider.t_peak_s"
+     },
+     {
+      "flow": "gust.motor_glider.theta_max_deg",
+      "ref": "results/same_gust.json:aircraft.motor_glider.theta_max_deg"
+     },
+     {
+      "flow": "gust.motor_glider.dh_max_m",
+      "ref": "results/same_gust.json:aircraft.motor_glider.dh_max_m"
+     },
+     {
+      "flow": "gust.motor_glider.quasi_steady_dn",
+      "ref": "results/same_gust.json:aircraft.motor_glider.quasi_steady_dn"
+     },
+     {
+      "flow": "gust.motor_glider.pratt_dn_for_this_gust",
+      "ref": "results/same_gust.json:aircraft.motor_glider.pratt_dn_for_this_gust"
+     }
+    ]
+   },
+   "r_to": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16,
+    "only": [
+     "a320_takeoff"
+    ]
+   },
+   "r_tu": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16,
+    "only": [
+     "a320_turbulence"
+    ]
+   },
+   "r_g": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16
+   },
+   "sc_to": {
+    "n_frames": 24
+   },
+   "sc_tu": {
+    "n_frames": 24
+   },
+   "sc_g": {
+    "n_frames": 24
+   }
+  }
+ }
+}

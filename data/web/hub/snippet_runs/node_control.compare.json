@@ -1,0 +1,12 @@
+{
+ "code_hash": "4f37bd9f65ac7f0e",
+ "figures": [],
+ "id": "node:control.compare",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Controllers: PID, rules, MPC -> pinneapple_systems.operations.control.compare_controllers\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'controllers': ['pid', 'rules', 'lmpc']}",
+ "timed_out": false
+}

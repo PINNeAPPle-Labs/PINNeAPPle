@@ -1,0 +1,99 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-physics-optimizer",
+ "name": "Constrained shape: six optimization methods",
+ "description": "Maximise the torsional rigidity of an a x b rectangle under a b = 1 with SLSQP, an adjoint gradient, a penalty, an augmented Lagrangian, differential evolution and Bayesian optimisation (examples/physics_optimizer; numbers in docs/core_concepts/physics_optimizer.md).",
+ "nodes": [
+  {
+   "id": "opt",
+   "type": "core.torsion_optimizer",
+   "params": {},
+   "label": "Six methods",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "physics_optimizer",
+    "comparisons": [
+     {
+      "flow": "opt.slsqp.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|slsqp|value"
+     },
+     {
+      "flow": "opt.slsqp.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|slsqp|evaluations"
+     },
+     {
+      "flow": "opt.adjoint.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|adjoint|value"
+     },
+     {
+      "flow": "opt.adjoint.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|adjoint|evaluations"
+     },
+     {
+      "flow": "opt.penalty.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|penalty|value"
+     },
+     {
+      "flow": "opt.penalty.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|penalty|evaluations"
+     },
+     {
+      "flow": "opt.augmented_lagrangian.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|augmented_lagrangian|value"
+     },
+     {
+      "flow": "opt.augmented_lagrangian.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|augmented_lagrangian|evaluations"
+     },
+     {
+      "flow": "opt.differential_evolution.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|differential_evolution|value"
+     },
+     {
+      "flow": "opt.differential_evolution.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|differential_evolution|evaluations"
+     },
+     {
+      "flow": "opt.bayesian.value",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|bayesian|value"
+     },
+     {
+      "flow": "opt.bayesian.evaluations",
+      "ref": "doc:docs/core_concepts/physics_optimizer.md|bayesian|evaluations"
+     }
+    ],
+    "tolerance_source": "the guide's table (rounded to its printed digits): half a unit of the last digit"
+   },
+   "label": "Same numbers as examples/physics_optimizer",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "opt",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "opt.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "physics_optimizer",
+  "domain": "optimization",
+  "scripts": [
+   "01_constrained_shape_six_methods.py"
+  ],
+  "quick": {}
+ }
+}

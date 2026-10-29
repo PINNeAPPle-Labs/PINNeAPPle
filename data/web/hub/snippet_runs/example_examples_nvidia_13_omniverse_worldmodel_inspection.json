@@ -1,0 +1,12 @@
+{
+ "code_hash": "24640eefa28db282",
+ "figures": [],
+ "id": "example:examples/nvidia/13_omniverse_worldmodel_inspection",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b8d156279798fc23",
+ "figures": [],
+ "id": "node:antenna.compact_range",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.17,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compact-range quiet zone by physical optics -> pinneapple_simulation.electromagnetics.reflector.CompactRange / evaluate + reflector.study.validate / qz_figure / qz_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'validate': True, 'study': True, 'coarse_mesh': False, 'gains_dbi': [8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0], 'sides_m': [0.9, 1.05, 1.2, 1.35, 1.5, 1.65], 'rolls': ['none', 'reference'], 'mesh_densities': [8, 12, 16], 'rolls_wl': [3.0, 6.0]}",
+ "timed_out": false
+}

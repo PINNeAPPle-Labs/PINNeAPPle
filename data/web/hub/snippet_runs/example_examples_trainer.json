@@ -1,0 +1,12 @@
+{
+ "code_hash": "adb3caabc1095722",
+ "figures": [],
+ "id": "example:examples/trainer",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.69,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_train example 02: DataModule + robust preprocessing | physics AI | not curated",
+ "timed_out": false
+}

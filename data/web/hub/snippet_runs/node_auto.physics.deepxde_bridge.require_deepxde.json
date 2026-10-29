@@ -1,0 +1,12 @@
+{
+ "code_hash": "1af1b436c8276d09",
+ "figures": [],
+ "id": "node:auto.physics.deepxde_bridge.require_deepxde",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.33,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "require deepxde -> pinneapple_physics.deepxde_bridge:require_deepxde\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

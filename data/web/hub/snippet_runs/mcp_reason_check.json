@@ -1,0 +1,12 @@
+{
+ "code_hash": "a8b539ccc9327924",
+ "figures": [],
+ "id": "mcp:reason_check",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "reason_check(mode: 'str', params: 'Mapping[str, Any]', elements: 'Sequence[str]' = (), limits: 'Mapping[str, float] | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
+ "timed_out": false
+}

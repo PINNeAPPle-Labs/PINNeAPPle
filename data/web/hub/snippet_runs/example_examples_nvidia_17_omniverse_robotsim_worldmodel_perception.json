@@ -1,0 +1,12 @@
+{
+ "code_hash": "eec2510014e55f95",
+ "figures": [],
+ "id": "example:examples/nvidia/17_omniverse_robotsim_worldmodel_perception",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN | robotics | not curated\nangle_rms_visible 0.2288505947426688 rad",
+ "timed_out": false
+}

@@ -80,6 +80,21 @@ def create_app(service: FlowService | None = None) -> FastAPI:
         except ValueError as exc:
             bad(exc)
 
+    @app.get("/api/capabilities")
+    def capabilities():
+        """The planner's registered domain capabilities and the guided wizard's steps."""
+        from pinneapple_flow.planner.extensions import describe
+        from pinneapple_flow.planner.wizard import STEPS
+        return {"capabilities": describe(), "steps": STEPS}
+
+    @app.post("/api/wizard")
+    def wizard(body: JSONBody):
+        from pinneapple_flow.planner.wizard import plan_from_answers
+        try:
+            return plan_from_answers(dict(body))
+        except ValueError as exc:
+            bad(exc)
+
     @app.post("/api/validate")
     def validate(body: JSONBody):
         return svc.validate(body)
@@ -178,7 +193,7 @@ def create_app(service: FlowService | None = None) -> FastAPI:
     def examples():
         return svc.examples()
 
-    @app.get("/api/examples/{name}")
+    @app.get("/api/examples/{name:path}")
     def example(name: str):
         try:
             return svc.example(name)
@@ -233,6 +248,14 @@ def create_app(service: FlowService | None = None) -> FastAPI:
     def artifact(path: str):
         try:
             return FileResponse(svc.artifact_path(path))
+        except PermissionError:
+            return JSONResponse({"detail": "not a run artifact"}, status_code=403)
+
+    @app.get("/api/runfile/{path:path}")
+    def runfile(path: str):
+        """A file of a run folder by path (a three.js viewer page and the files it links relatively)."""
+        try:
+            return FileResponse(svc.artifact_path("/" + path))
         except PermissionError:
             return JSONResponse({"detail": "not a run artifact"}, status_code=403)
 

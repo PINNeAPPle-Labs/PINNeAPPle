@@ -1,0 +1,12 @@
+{
+ "code_hash": "9f9d1f91b415ec4e",
+ "figures": [],
+ "id": "example:rom_study/beam_parametric",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - displacement rom beats nearest design · median relative L2…",
+ "timed_out": false
+}

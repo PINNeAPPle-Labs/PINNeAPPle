@@ -1,0 +1,12 @@
+{
+ "code_hash": "8b1082ec3dac7c11",
+ "figures": [],
+ "id": "example:examples/model_zoo",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.91,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pre-trained models and datasets (`pp.zoo`, `pp.datasets`) | physics AI | not curated",
+ "timed_out": false
+}

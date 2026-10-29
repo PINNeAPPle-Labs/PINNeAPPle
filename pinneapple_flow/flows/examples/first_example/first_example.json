@@ -1,0 +1,32 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-first-example",
+ "name": "Your first PINNeAPPle result: Burgers PINN",
+ "description": "u_t + u u_x = nu u_xx with nu = 0.01 / pi: a PINN trained with pp.solve (1500 epochs) against the Cole-Hopf closed form at t = 0.75 (examples/first_example/first_example.py; nothing committed: the script prints the relative L2).",
+ "nodes": [
+  {
+   "id": "burgers",
+   "type": "pinn.burgers_first",
+   "params": {},
+   "label": "Burgers PINN vs exact",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "first_example",
+  "domain": "PINN",
+  "scripts": [
+   "first_example.py"
+  ],
+  "quick": {
+   "burgers": {
+    "epochs": 200
+   }
+  }
+ }
+}

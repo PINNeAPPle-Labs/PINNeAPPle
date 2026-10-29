@@ -1,13 +1,8 @@
 """pinneapple_analysis.verification -- Physics verification building blocks.
 
-Relocated from ``saas/physics_verification_engine/core/*.py`` (a single
-standalone FastAPI microservice) so any use case -- ``examples/``,
-templates, or any other ``saas/`` app -- can import this real,
-already-tested logic directly, instead of it being locked inside one
-app. ``saas/physics_verification_engine/core/*.py`` now contain thin
-re-export shims pointing back here (the same convention as
-``pinneapple_models/registry.py`` / ``pinneapple_solvers/fft.py``), so
-every existing caller keeps working unchanged.
+Moved here from the PINNeAPPle-apps ``physics_verification_engine`` product
+(``core/*.py``) so any code can import it; the HTTP service over these
+modules is ``apps/verified_physics``.
 
 Sub-modules
 -----------
@@ -86,6 +81,13 @@ uncertainty_inverse
     scheme (needed because the real solver only ever optimises a model's
     ``inverse_params``, never its field weights) with parametric-bootstrap
     parameter uncertainty.
+
+pipeline
+    ``analyze(description, ...)``: dimensional analysis, an LLM-drafted
+    registered preset (``pinneapple_llm.draft_problem``), PINN training per
+    candidate architecture, ``PhysicsGuardrail`` re-check and
+    physics-aware selection (``rank_key``: trustworthy first, then the
+    re-computed residual, then the loss), with a ``ProvenanceRecord``.
 
 provenance
     A structured, JSON-serializable ``ProvenanceRecord`` for one analysis
@@ -212,6 +214,12 @@ from pinneapple_analysis.verification.uncertainty_inverse import (
     solve_inverse_problem,
 )
 from pinneapple_analysis.verification.provenance import ProvenanceRecord
+from pinneapple_analysis.verification.pipeline import (
+    AnalysisResult,
+    CandidateResult,
+    analyze,
+    rank_key,
+)
 from pinneapple_analysis.verification.tool_recommendation import (
     ExternalTool,
     TOOL_CATALOG,
@@ -317,6 +325,11 @@ __all__ = [
     "solve_inverse_problem",
     # provenance
     "ProvenanceRecord",
+    # pipeline
+    "AnalysisResult",
+    "CandidateResult",
+    "analyze",
+    "rank_key",
     # tool_recommendation
     "ExternalTool",
     "TOOL_CATALOG",

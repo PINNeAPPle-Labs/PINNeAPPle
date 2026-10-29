@@ -1,0 +1,12 @@
+{
+ "code_hash": "560a42ebad01df21",
+ "figures": [],
+ "id": "node:equations.system",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Equations -> pinneapple_physics.symbolic_pde.text.parse_system (safe AST parser, no eval)\ninputs: [('geometry', 'geometry'), ('mesh', 'mesh')]\noutputs: [('problem', 'problem'), ('equations', 'equations')]\ndefaults: {'template': 'custom', 'follow_template': False, 'fields': ['u'], 'pdes': [], 'conditions': [], 'coefficients': {}, 'unknowns': [], 'exact': ''}",
+ "timed_out": false
+}

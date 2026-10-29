@@ -1,0 +1,12 @@
+{
+ "code_hash": "4260279347bcd388",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.small_strain",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.32,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='small_strain', description='small deformations: linear strain measure, undeformed geometry', conditions=(Condition(feature='strain', lo=-inf, hi=0.01, band=0.15, log=None),), breaks_into='large deformation', missing_mechanism='geometric nonlinearity')",
+ "timed_out": false
+}

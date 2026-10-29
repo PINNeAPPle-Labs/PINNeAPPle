@@ -1,0 +1,12 @@
+{
+ "code_hash": "0d0536ff2ea7a9db",
+ "figures": [],
+ "id": "example:examples/pinneapple_benchmark",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "01_pde_comparison.py — PINNeAPPle PDE Architecture Benchmark Three canonical PDEs, three… | physics AI | not curated",
+ "timed_out": false
+}

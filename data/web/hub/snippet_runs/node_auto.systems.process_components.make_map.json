@@ -1,0 +1,12 @@
+{
+ "code_hash": "3ed166524e000375",
+ "figures": [],
+ "id": "node:auto.systems.process_components.make_map",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "make map -> pinneapple_systems.process_components:make_map\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'D2_m': 1.0, 'phi_ref_bep': 1.0, 'psi_ref_bep': 1.0, 'psi0': 1.0, 'eta_p_max': 1.0, 'eta_p_shape_b': 1.0, 'phi_surge': 1.0, 'phi_choke': 1.0, 'Mu2_ref': 1.0, 'n_stages': 1}",
+ "timed_out": false
+}

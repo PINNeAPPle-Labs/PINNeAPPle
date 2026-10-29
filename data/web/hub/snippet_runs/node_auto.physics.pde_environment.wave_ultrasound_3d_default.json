@@ -1,0 +1,12 @@
+{
+ "code_hash": "60ea23fb53864ae7",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.wave_ultrasound_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='wave_ultrasound_3d_default', dim=3, coords=('x', 'y', 'z', 't'), fields=('u',), pde=PDETermSpec(kind='wave_equation', fields=('u',), coords=('x', 'y', 'z', 't'), params={'c': 1.0}, meta={'industry': 'ultrasound_vibration', 'note': \"Provide ctx['source_fn']=f(x,t) if needed.\"}), conditions=(ConditionSpec(name='u_init', kind='initial', fields=('u',), selector_type='callable', selector=<function wave_ultrasound_3d_default.<locals>.<lambda> at 0x7f667e4627a0>, value_fn=<function wave_ultrasound_3d_default.<locals>.<lambda> at 0x7f6675af0ae0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='u_boundary', kind='dirichlet', fields=('u',), selector_type='tag', selector={'tag': 'bounda",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8f35c37e60ff6edb",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.linear_elasticity_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='linear_elasticity_3d_default', dim=3, coords=('x', 'y', 'z'), fields=('ux', 'uy', 'uz'), pde=PDETermSpec(kind='linear_elasticity', fields=('ux', 'uy', 'uz'), coords=('x', 'y', 'z'), params={'lambda': 1.0, 'mu': 1.0}, meta={'industry': 'solid_mechanics', 'note': \"Use ctx['body_force_fn'] to provide b(x).\"}), conditions=(ConditionSpec(name='fixed_support', kind='dirichlet', fields=('ux', 'uy', 'uz'), selector_type='tag', selector={'tag': 'fixed'}, value_fn=<function linear_elasticity_3d_default.<locals>.<lambda> at 0x7f8fcd7a67a0>, weight=50.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 220000, 'n_bc': 80000, 'n_ic': 0, 'n_data': 0}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), f",
+ "timed_out": false
+}

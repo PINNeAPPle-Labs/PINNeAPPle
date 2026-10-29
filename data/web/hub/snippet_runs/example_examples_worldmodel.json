@@ -1,0 +1,12 @@
+{
+ "code_hash": "c48fc74fd01c8ca1",
+ "figures": [],
+ "id": "example:examples/worldmodel",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics World Model — end-to-end example | physics AI | not curated",
+ "timed_out": false
+}

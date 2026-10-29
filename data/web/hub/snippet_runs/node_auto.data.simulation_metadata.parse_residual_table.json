@@ -1,0 +1,12 @@
+{
+ "code_hash": "c7860eb96e123f5e",
+ "figures": [],
+ "id": "node:auto.data.simulation_metadata.parse_residual_table",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

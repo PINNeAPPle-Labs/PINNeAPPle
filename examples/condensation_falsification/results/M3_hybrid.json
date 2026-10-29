@@ -1,0 +1,105 @@
+{
+ "pins": 4,
+ "rows": [
+  {
+   "density": 8,
+   "method": "fv",
+   "unknowns": 256,
+   "err": 0.012764979283451215
+  },
+  {
+   "density": 8,
+   "method": "hybrid n=12 p=2",
+   "unknowns": 256,
+   "fv_fraction": 1.0,
+   "err": 0.012764979283451215,
+   "err_band": 0.012764979283451215,
+   "err_points": null
+  },
+  {
+   "density": 8,
+   "method": "hybrid n=20 p=2",
+   "unknowns": 256,
+   "fv_fraction": 1.0,
+   "err": 0.012764979283451215,
+   "err_band": 0.012764979283451215,
+   "err_points": null
+  },
+  {
+   "density": 8,
+   "method": "hybrid n=20 p=3",
+   "unknowns": 256,
+   "fv_fraction": 1.0,
+   "err": 0.012764979283451215,
+   "err_band": 0.012764979283451215,
+   "err_points": null
+  },
+  {
+   "density": 16,
+   "method": "fv",
+   "unknowns": 1024,
+   "err": 0.004867761263375764
+  },
+  {
+   "density": 16,
+   "method": "hybrid n=12 p=2",
+   "unknowns": 912,
+   "fv_fraction": 0.5614035087719298,
+   "err": 0.039126920296800066,
+   "err_band": 0.033573734244184084,
+   "err_points": 0.039126920296800066
+  },
+  {
+   "density": 16,
+   "method": "hybrid n=20 p=2",
+   "unknowns": 912,
+   "fv_fraction": 0.5614035087719298,
+   "err": 0.055567369326063015,
+   "err_band": 0.05208177389645468,
+   "err_points": 0.055567369326063015
+  },
+  {
+   "density": 16,
+   "method": "hybrid n=20 p=3",
+   "unknowns": 912,
+   "fv_fraction": 0.5614035087719298,
+   "err": 0.05699487978381866,
+   "err_band": 0.04505739419347924,
+   "err_points": 0.05699487978381866
+  },
+  {
+   "density": 32,
+   "method": "fv",
+   "unknowns": 4096,
+   "err": 0.0017540948580952957
+  },
+  {
+   "density": 32,
+   "method": "hybrid n=12 p=2",
+   "unknowns": 3856,
+   "fv_fraction": 0.26556016597510373,
+   "err": 0.010582073539406196,
+   "err_band": 0.00803062137925975,
+   "err_points": 0.010582073539406196
+  },
+  {
+   "density": 32,
+   "method": "hybrid n=20 p=2",
+   "unknowns": 3856,
+   "fv_fraction": 0.26556016597510373,
+   "err": 0.0139324584926225,
+   "err_band": 0.0139324584926225,
+   "err_points": 0.013404353421794081
+  },
+  {
+   "density": 32,
+   "method": "hybrid n=20 p=3",
+   "unknowns": 3856,
+   "fv_fraction": 0.26556016597510373,
+   "err": 0.5199509952509154,
+   "err_band": 0.19245577528571528,
+   "err_points": 0.5199509952509154
+  }
+ ],
+ "peak_rss_gb": 0.628144
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6a7ff58becc18b6a",
+ "figures": [],
+ "id": "node:arena.physics_spec",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics benchmark spec (PINN models on a physics problem) -> pinneapple_tools.benchmark_suite.PhysicsBenchmarkSpec (physics_pipeline.PhysicsPipeline).run\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'label': 'burgers_1d', 'spec': {'problem': 'burgers_1d', 'models': ['vanilla_pinn'], 'epochs': 1500}}",
+ "timed_out": false
+}

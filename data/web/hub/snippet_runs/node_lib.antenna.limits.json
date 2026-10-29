@@ -1,0 +1,12 @@
+{
+ "code_hash": "035eafaa4037263e",
+ "figures": [],
+ "id": "node:lib.antenna.limits",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "End-fire gain limits (antenna length) -> pinneapple_simulation.electromagnetics.antenna.study:limits_report\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'target_dbi': 10.0, 'f_min_ghz': 2.0, 'f_max_ghz': 4.0, 'n': 5, 'lengths_mm': [150.0, 206.0, 260.0]}",
+ "timed_out": false
+}

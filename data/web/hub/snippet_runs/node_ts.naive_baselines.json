@@ -1,0 +1,12 @@
+{
+ "code_hash": "d81dd91f536292cb",
+ "figures": [],
+ "id": "node:ts.naive_baselines",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Naive forecasting baselines (quickstart) -> pinneapple_systems.time_series.TimeSeriesSpec + TSDataModule + NaiveForecaster / SeasonalNaiveForecaster / DriftForecaster; metrics_ext.point.mae / rmse / smape\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'T': 4000, 'seed': 7, 'input_len': 96, 'horizon': 24, 'season': 24}",
+ "timed_out": false
+}

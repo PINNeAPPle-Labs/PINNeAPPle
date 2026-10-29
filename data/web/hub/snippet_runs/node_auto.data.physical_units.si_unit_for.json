@@ -1,0 +1,12 @@
+{
+ "code_hash": "01c9708660a86970",
+ "figures": [],
+ "id": "node:auto.data.physical_units.si_unit_for",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.91,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "si unit for -> pinneapple_data.physical_units:si_unit_for\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'quantity': ''}",
+ "timed_out": false
+}

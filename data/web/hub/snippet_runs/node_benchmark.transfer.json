@@ -1,0 +1,12 @@
+{
+ "code_hash": "c1ba8a8b33cf6f4b",
+ "figures": [],
+ "id": "node:benchmark.transfer",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Transfer-learning benchmark on parametric PDE families -> pinneapple_tools.benchmark_suite.transfer_benchmark.TransferBenchmarkPipeline.default / run\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'scenarios': ['burgers_nu', 'heat_alpha', 'wave_c'], 'epochs_source': 3000, 'epochs_finetune': 1000}",
+ "timed_out": false
+}

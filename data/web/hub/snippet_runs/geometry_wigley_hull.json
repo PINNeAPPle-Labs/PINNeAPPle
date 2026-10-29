@@ -1,0 +1,12 @@
+{
+ "code_hash": "59ddce7dfb36a9ed",
+ "figures": [],
+ "id": "geometry:wigley_hull",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.42,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wigley parabolic hull | marine\nwigley_hull.light.stl 197984 bytes",
+ "timed_out": false
+}

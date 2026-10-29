@@ -55,6 +55,7 @@
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
+    * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)
     * [Pre-trained models and datasets (pp.zoo)](guides/model_zoo.md)
     * [Zoo catalogue](guides/zoo_catalogue.md)
     * [Geometry library](guides/geometry_library.md)
@@ -96,6 +97,8 @@
     * [Science by area: experiments in 0-D to 3-D + time, and the atlas](guides/science.md)
     * [Autonomous Physics Lab: missions planned and run through controlled tools](guides/autonomous_physics_lab.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
+* Research
+    * [Adaptive Physics Condensation: chip-package thermal without simulating every element](research/physics_condensation.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)
     * [Parameter Identifiability Lab (day 25)](apps/identifiability_lab.md)
@@ -111,6 +114,7 @@
     * [Engineering Evidence Report (day 30)](apps/evidence_report.md)
     * [Physics Validation Lab (day 24)](apps/validation_lab.md)
     * [Forecasting near-random series without overfitting](guides/near_random_forecasting.md)
+    * [Football: where physics helps on public tracking data](guides/football_physics.md)
     * [Uncertainty and sensitivity studies on any model](guides/uncertainty_and_sensitivity.md)
     * [Engineering Sensitivity Lab](guides/sensitivity_lab.md)
     * [Engineering Uncertainty Lab](guides/uncertainty_lab.md)

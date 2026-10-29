@@ -1,0 +1,12 @@
+{
+ "code_hash": "764f57d0bfb9c547",
+ "figures": [],
+ "id": "node:reason.report",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.61,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reasoning report -> pinneapple_reason.report.write_report (timeline, margins; pinneapple_reason.trust card)\ninputs: [('chain', 'chain')]\noutputs: [('report', 'report'), ('figure', 'figure')]\ndefaults: {'lang': 'pt'}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f4f6212293f434dd",
+ "figures": [],
+ "id": "node:solver.openfoam",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "OpenFOAM case -> pinneapple_core.workflows.OpenFOAMAdapter\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': '', 'solver': 'icoFoam'}",
+ "timed_out": false
+}

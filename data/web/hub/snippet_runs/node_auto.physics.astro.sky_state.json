@@ -1,0 +1,12 @@
+{
+ "code_hash": "7fdf4f40c21981aa",
+ "figures": [],
+ "id": "node:auto.physics.astro.sky_state",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'day'",
+ "timed_out": false
+}

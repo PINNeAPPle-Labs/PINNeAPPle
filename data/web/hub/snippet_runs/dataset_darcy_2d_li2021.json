@@ -1,0 +1,12 @@
+{
+ "code_hash": "a6002e816299e132",
+ "figures": [],
+ "id": "dataset:darcy_2d_li2021",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "2-D Darcy flow, Li et al. (2021) operator-learning benchmark (1200 coefficient / pressure pairs, 128 x 128)\n{'train': 1000, 'test': 200} cc-by-4.0",
+ "timed_out": false
+}

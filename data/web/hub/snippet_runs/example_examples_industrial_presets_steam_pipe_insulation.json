@@ -1,0 +1,12 @@
+{
+ "code_hash": "b0b0f52ff9ad8365",
+ "figures": [],
+ "id": "example:examples/industrial_presets/steam_pipe_insulation",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica | Processo e energia / utilidades | not curated\nrel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)] 4.955861856334466e-08 -\nrel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)] 1.621445256408362e-07 -\nrel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)] 4.960096946394748e-07 -\nrel_error[k constante: resistências em série (Incropera eq. 3.27)] 1.6599341602614414e-16 -\nrel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert] 0.06208249860123212 -",
+ "timed_out": false
+}

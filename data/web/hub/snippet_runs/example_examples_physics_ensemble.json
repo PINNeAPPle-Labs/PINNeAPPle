@@ -1,0 +1,12 @@
+{
+ "code_hash": "2243648d9fcabda3",
+ "figures": [],
+ "id": "example:examples/physics_ensemble",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multiscale ensembles: scales, filters and closures | numerical methods | not curated",
+ "timed_out": false
+}

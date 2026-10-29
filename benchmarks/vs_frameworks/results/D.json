@@ -1,0 +1,61 @@
+{
+ "pinneapple": {
+  "loc": {
+   "A": 126,
+   "B": 12,
+   "C": 67
+  },
+  "install_mb": 25.724351,
+  "import_s": 4.214439082999888,
+  "dists": {
+   "pinneapple": "0.7.0"
+  },
+  "module": "pinneapple"
+ },
+ "deepxde": {
+  "loc": {
+   "A": 161,
+   "C": 53
+  },
+  "install_mb": 1.617944,
+  "import_s": 3.146982919999573,
+  "dists": {
+   "deepxde": "1.15.0"
+  },
+  "module": "deepxde"
+ },
+ "physicsnemo_sym": {
+  "loc": {
+   "A": 243,
+   "C": 93
+  },
+  "install_mb": 4.269619,
+  "import_s": 3.0286948020002455,
+  "dists": {
+   "nvidia-physicsnemo.sym": "2.4.0"
+  },
+  "module": "physicsnemo.sym"
+ },
+ "physicsnemo": {
+  "loc": {
+   "B": 14
+  },
+  "install_mb": 20.30683,
+  "import_s": 6.696309235001536,
+  "dists": {
+   "nvidia-physicsnemo": "2.2.2"
+  },
+  "module": "physicsnemo.models.fno"
+ },
+ "neuraloperator": {
+  "loc": {
+   "B": 13
+  },
+  "install_mb": 1.904867,
+  "import_s": 2.2079736149989913,
+  "dists": {
+   "neuraloperator": "2.0.0"
+  },
+  "module": "neuralop"
+ }
+}

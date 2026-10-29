@@ -1,0 +1,38 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.validation.07_mlp_zoo_heatsink_convection",
+ "name": "Validation gallery 07: zoo MLP, heat-sink convection",
+ "description": "The zoo's heatsink_forced_mlp on 64 test designs of its dataset, then two of them at 0.2 m/s and 600 W, outside the card's range, through pp.validate; applicability.range must catch them (examples/validation/07_mlp_zoo_heatsink_convection.py --full). Quick: the script's smoke size (8 designs).",
+ "nodes": [
+  {
+   "id": "gallery",
+   "type": "gallery.zoo_range",
+   "params": {
+    "model": "heatsink_forced_mlp",
+    "dataset": "heatsink_forced_convection",
+    "n_query": 64,
+    "air_velocity_m_s": 0.2,
+    "power_w": 600.0
+   },
+   "label": "zoo model + out-of-range queries",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "validation",
+  "domain": "validation",
+  "scripts": [
+   "07_mlp_zoo_heatsink_convection.py"
+  ],
+  "quick": {
+   "gallery": {
+    "n_query": 8
+   }
+  }
+ }
+}

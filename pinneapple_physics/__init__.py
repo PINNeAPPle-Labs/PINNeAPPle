@@ -204,9 +204,15 @@ def solve_pde(
     x_data=None, y_data=None,
     ctx=None,
     cache_derivatives: bool = False,
+    x_col=None,
     **cond_masks,
 ):
     """One-shot: compile physics losses and train *model* on a ProblemSpec.
+
+    ``x_col`` (optional, ``(N, len(spec.coords))`` tensor or array): fixed collocation points used at every step
+    instead of ``n_collocation`` fresh samples (a fixed training set, as in the original PINN formulation and in
+    cross-framework comparisons that must train every library on the same points). Default ``None``: fresh
+    samples every step, as before.
 
     Was previously broken in two ways at once: ``TrainConfig(n_epochs=...)``
     (the field is ``epochs``, not ``n_epochs``), and
@@ -357,9 +363,18 @@ def solve_pde(
     cond_rng = np.random.default_rng(seed)
     n_condition_points = max(64, n_collocation // 4)
     history = {"loss": []}
+    x_col_fixed = None
+    if x_col is not None:
+        x_col_fixed = torch.as_tensor(np.asarray(x_col, dtype=np.float32) if not torch.is_tensor(x_col) else x_col,
+                                      dtype=torch.float32, device=device_t)
+        if x_col_fixed.ndim != 2 or x_col_fixed.shape[1] != len(coords):
+            raise ValueError(f"x_col must have shape (N, {len(coords)}), got {tuple(x_col_fixed.shape)}")
     for _epoch in range(epochs):
         opt.zero_grad(set_to_none=True)
-        x_col = _sample_domain(n_collocation).requires_grad_(True)
+        if x_col_fixed is not None:
+            x_col = x_col_fixed.detach().clone().requires_grad_(True)
+        else:
+            x_col = _sample_domain(n_collocation).requires_grad_(True)
 
         buckets = {"bc": ([], []), "ic": ([], []), "data": ([], [])}
         bc_normals = []                       # one row per auto-sampled bc point, aligned with buckets["bc"]
@@ -453,8 +468,9 @@ def solve_pde(
             "x_data": x_data_t, "y_data": y_data_t,
             **mask_tensors,
         }
-        y_hat = model(x_col)
-        out = loss_fn(model, y_hat, batch)
+        # compile_problem's loss evaluates the model on its own (gradient-tracking) copy of x_col and never reads
+        # y_hat; computing model(x_col) here was a wasted forward pass every step.
+        out = loss_fn(model, None, batch)
         loss = out["total"] if isinstance(out, dict) else out
         loss.backward()
         opt.step()

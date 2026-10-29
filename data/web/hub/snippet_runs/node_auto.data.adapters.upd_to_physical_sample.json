@@ -1,0 +1,12 @@
+{
+ "code_hash": "789fd0c6d241c2d5",
+ "figures": [],
+ "id": "node:auto.data.adapters.upd_to_physical_sample",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "upd to physical sample -> pinneapple_data.adapters:upd_to_physical_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'upd': [], 'schema_override': None, 'provenance_extra': None}",
+ "timed_out": false
+}

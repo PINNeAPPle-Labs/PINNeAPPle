@@ -1,0 +1,12 @@
+{
+ "code_hash": "9313f7934df4a52f",
+ "figures": [],
+ "id": "node:auto.design.bricks.stack",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "stack -> pinneapple_design.bricks:stack\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'part_name': '', 'n': 1, 'colours': ['red']}",
+ "timed_out": false
+}

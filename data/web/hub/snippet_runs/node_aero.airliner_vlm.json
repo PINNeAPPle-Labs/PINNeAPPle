@@ -1,0 +1,12 @@
+{
+ "code_hash": "47092942285c66d7",
+ "figures": [],
+ "id": "node:aero.airliner_vlm",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.17,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Airliner vortex lattice + friction drag (geometry library) -> pinneapple.geometries.build + pinneapple_design.aero.airliner.Airliner + pinneapple_design.aero.vlm.solve (CL, neutral_point, trim, coefficients) + pinneapple_design.aero.buildup.friction_drag\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'entry': 'airliner_a320', 'mass_kg': 64000.0, 'mach': 0.78, 'T_K': 216.65, 'rho': 0.3639, 'a_mps': 295.07, 'span_efficiency': 0.85}",
+ "timed_out": false
+}

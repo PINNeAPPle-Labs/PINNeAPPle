@@ -1,0 +1,12 @@
+{
+ "code_hash": "873d18baa72f6ce0",
+ "figures": [],
+ "id": "example:examples/bricks",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.88,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Self-modifying brick builds | structural mechanics | curated",
+ "timed_out": false
+}

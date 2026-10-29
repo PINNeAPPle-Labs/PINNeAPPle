@@ -1,0 +1,12 @@
+{
+ "code_hash": "dc9e5fa240fd309f",
+ "figures": [],
+ "id": "node:render.clip_grid",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Clip grid with one colour bar -> pinneapple_tools.visualization.studio.compose.compose_grid + compose_grid_video\ninputs: [('clip', 'clip')]\noutputs: [('figure', 'figure'), ('clip', 'clip')]\ndefaults: {'ncols': 2, 'colorbar_title': 'Vertical gust w [m/s] (up +), wisps', 'colorbar_min': -7.62, 'colorbar_max': 7.62, 'cmap': 'coolwarm', 'labels': {}, 'crf': 27}",
+ "timed_out": false
+}

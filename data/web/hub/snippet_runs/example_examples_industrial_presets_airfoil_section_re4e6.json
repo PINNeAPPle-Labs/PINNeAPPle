@@ -1,0 +1,12 @@
+{
+ "code_hash": "cfaf27e490f8e51e",
+ "figures": [],
+ "id": "example:examples/industrial_presets/airfoil_section_re4e6",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS) | Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica | not curated\nrel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl] 0.003231396365459536 -\nrel_error[Cd vs naca_reference: erro = erro relativo médio] 0.0061563188229423905 -\nrel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl] 0.010092481383557984 -\nrel_error[Cd vs xfoil_naca2412: erro = erro relativo médio] 0.02812720929821659 -\nrel_error[ângulo de sustentação nula do NACA 2412] 0.03635566045042856 -",
+ "timed_out": false
+}

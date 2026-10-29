@@ -1,0 +1,12 @@
+{
+ "code_hash": "46efa7086737abcd",
+ "figures": [],
+ "id": "node:auto.systems.process_components.metzner_reed_friction_factor",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ndarray\narray(15.99999984)",
+ "timed_out": false
+}

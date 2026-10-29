@@ -1,0 +1,12 @@
+{
+ "code_hash": "4b60e7fc2877f51a",
+ "figures": [],
+ "id": "node:benchmark.meta",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Meta-learning benchmark (MAML / Reptile, K-shot adaptation) -> pinneapple_tools.benchmark_suite.meta_benchmark.MetaBenchmarkPipeline.default / run\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'families': ['burgers_nu', 'heat_alpha', 'wave_c'], 'n_meta_epochs': 500, 'k_shots': [1, 5, 10, 20, 50, 100, 200]}",
+ "timed_out": false
+}

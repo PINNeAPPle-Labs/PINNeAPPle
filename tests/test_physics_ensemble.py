@@ -222,10 +222,10 @@ def test_adapters_for_pinn_solution_and_graph_network():
     from pinneapple_neural.architectures.graphnn.base import GraphBatch
     from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
 
-    sol = pp.solve("burgers_1d", "analytic", nu=0.01 / np.pi)
+    sol = pp.solve("burgers_1d", "analytic", preset_kwargs={"nu": 0.01 / np.pi})
     X = np.column_stack([np.linspace(-1, 1, 50), np.full(50, 0.5)])
     e1 = from_solution("analytic", sol, points=lambda q: X, shape=lambda q: (50,))
-    pinn = pp.solve("burgers_1d", "pinn", nu=0.01 / np.pi, epochs=20)
+    pinn = pp.solve("burgers_1d", "pinn", preset_kwargs={"nu": 0.01 / np.pi}, epochs=20)
     e2 = from_solution("pinn", pinn, points=lambda q: X, shape=lambda q: (50,))
     assert e1.predict(None).shape == e2.predict(None).shape == (50,)
 

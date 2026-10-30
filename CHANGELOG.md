@@ -33,6 +33,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Known-answer tests in `tests/test_potential.py`: closed forms, CoolProp's Peng-Robinson backend (agreement to
   1e-13 relative where installed), and the surface-PM machine torque from co-energy against Maxwell stress (16.854
   vs 16.837 N m). Flow nodes `potential.*`; extra `pinneapple[potential]` (SymPy, CoolProp).
+- `pinneapple_simulation.numerical_solvers.gated_xtfc`: Gated X-TFC (Dwivedi, Schiassi et al., arXiv:2510.01039)
+  for 1D second-order linear BVPs with sharp layers.
+  - The basis is Gaussian RBFs; a soft split sets their centres and widths, blended by logistic gates
+    (`gated_layout`).
+  - `solve_forward` does the forward solve.
+  - `search_gates_nested` (one split) and `search_gates_bo` (several splits) search for the gates.
+  - `fit_inverse` infers the parameter by maximising the evidence with the library's Bayesian optimiser.
+- `examples/reproductions/gated_xtfc_dwivedi2025`: the Gated X-TFC reproduction, with frozen targets, a runner and
+  measured results. 2 of 9 targets are reproduced.
 - `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
   fields, value and derivative constraints on faces, and linear or non-linear residuals.
   - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an

@@ -1,0 +1,252 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions/gated_xtfc_dwivedi2025",
+ "title": "Gated X-TFC reproduction (Dwivedi et al.)",
+ "description": "Forward, inverse and twin-boundary-layer cases of arXiv:2510.01039v1 against the frozen targets of TARGETS.md, with equal-budget X-TFC / PIELM baselines.",
+ "domain": "physics-informed ML",
+ "methods": [
+  "Gated X-TFC",
+  "X-TFC",
+  "PIELM"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.gated_xtfc",
+  "pinneapple_analysis.reproduction"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "forward_max_abs_nu_0.01",
+   "value": 0.0006714307326383085,
+   "unit": "abs error",
+   "how": "max |u - exact| on 2e4 points"
+  },
+  {
+   "name": "forward_max_abs_nu_0.001",
+   "value": 0.002387207906728528,
+   "unit": "abs error",
+   "how": "max |u - exact| on 2e4 points"
+  },
+  {
+   "name": "forward_max_abs_nu_0.0001",
+   "value": 0.03880860848393608,
+   "unit": "abs error",
+   "how": "max |u - exact| on 2e4 points"
+  }
+ ],
+ "checks": [
+  {
+   "name": "F nu=0.01: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "F nu=0.001: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "F nu=0.0001: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "F4: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "I nu=0.1: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "I nu=0.01: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "I nu=0.005: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "I nu=0.001: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "T1: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "forward nu=0.01: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "forward nu=0.01: fresh-point residual max 2.7e+02",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded, no threshold in the paper",
+   "kind": "physics"
+  },
+  {
+   "name": "forward nu=0.001: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "forward nu=0.001: fresh-point residual max 8.3e+02",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded, no threshold in the paper",
+   "kind": "physics"
+  },
+  {
+   "name": "forward nu=0.0001: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "forward nu=0.0001: fresh-point residual max 2e+03",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded, no threshold in the paper",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "targets": "examples/reproductions/gated_xtfc_dwivedi2025/TARGETS.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "13a2c752",
+  "created": "2026-10-29T14:21:20Z",
+  "seconds": 0.012,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

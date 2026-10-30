@@ -116,3 +116,39 @@ def synthetic_data(model: EpiModel, delta: float, seed: int = 0, n: int | None =
     clean = sol.y.T
     noisy = clean + delta * np.random.default_rng(seed).uniform(-1.0, 1.0, size=clean.shape)
     return t, clean, noisy
+
+
+def fit_shooting(model: EpiModel, t: np.ndarray, y: np.ndarray, p0: dict[str, float]) -> dict:
+    """Baseline: the unknown parameters by nonlinear least squares on the integrated model (single shooting,
+    ``scipy.optimize.least_squares`` around ``solve_ivp``; the initial state is known, as in the X-TFC fit).
+
+    The rates are bounded to ``[0, 10]`` and the start ``p0`` is clipped into ``[1e-3, 10]``: a negative rate makes
+    the model blow up and the integrator crawl. An integration that leaves ``1e6`` times the initial population is
+    stopped and scored as a large misfit."""
+    import time
+
+    from scipy.optimize import least_squares
+
+    names = list(model.unknowns)
+    limit = 1e6 * sum(abs(v) for v in model.y0)
+
+    def blowup(_t, s):
+        return limit - np.abs(s).sum()
+    blowup.terminal = True
+
+    def resid(x):
+        p = {**model.known, **dict(zip(names, x, strict=True))}
+        sol = solve_ivp(lambda _t, s: model.rhs(s, p), (t[0], t[-1]), model.y0, t_eval=t, method="DOP853",
+                        rtol=1e-10, atol=1e-10, events=blowup)
+        if sol.status != 0 or sol.y.shape[1] != len(t):
+            return np.full(y.size, 1e6)
+        return (sol.y.T - y).ravel()
+
+    t0 = time.perf_counter()
+    x0 = np.clip([p0[k] for k in names], 1e-3, 10.0)
+    out = least_squares(resid, x0, bounds=(0.0, 10.0), method="trf", xtol=1e-12, ftol=1e-12, gtol=1e-12)
+    return {"params": dict(zip(names, map(float, out.x), strict=True)), "nfev": int(out.nfev),
+            "seconds": time.perf_counter() - t0}
+
+
+__all__.append("fit_shooting")

@@ -36,6 +36,7 @@ class InverseXTFCResult:
     stop_reason: str
     loss_rms: list[float]
     seconds: float
+    params_init: dict[str, float]
     _problem: XTFCProblem = field(repr=False)
     _basis: _Basis = field(repr=False)
     _terms: dict = field(repr=False)
@@ -123,6 +124,7 @@ def solve_xtfc_inverse(problem: XTFCProblem, points, data: Mapping[str, tuple[np
         dp = np.linalg.lstsq(J[rows, nb:], -res[rows], rcond=None)[0]
         params = {p: params[p] + float(dp[k]) for k, p in enumerate(unknowns)}
 
+    params_init = dict(params)
     J, res = losses(beta, params)
     history = [float(np.sqrt(np.mean(res * res)))]
     reason, it = "max_iter", 0
@@ -140,5 +142,5 @@ def solve_xtfc_inverse(problem: XTFCProblem, points, data: Mapping[str, tuple[np
             break
         beta, params, J, res = new_beta, new_params, J2, res2
         history.append(rms)
-    return InverseXTFCResult(params, beta, it, reason, history, time.perf_counter() - t_start, problem, basis,
-                             terms)
+    return InverseXTFCResult(params, beta, it, reason, history, time.perf_counter() - t_start, params_init, problem,
+                             basis, terms)

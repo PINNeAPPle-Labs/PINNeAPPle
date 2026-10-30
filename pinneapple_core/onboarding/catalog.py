@@ -245,6 +245,7 @@ class Card:
     error: str = ""
     requires: str = ""
     fallback: str = ""
+    geometry: str = ""
 
     def as_dict(self) -> Dict[str, Any]:
         return {
@@ -255,7 +256,7 @@ class Card:
             "conditions": list(self.conditions), "solver": self.solver, "method": self.method,
             "snippet": self.snippet, "related": list(self.related), "available": self.available,
             "error": self.error, "requires": self.requires,
-            "fallback": self.fallback,
+            "fallback": self.fallback, "geometry": self.geometry,
         }
 
     def format(self) -> str:
@@ -313,9 +314,31 @@ def tag_names(name: str) -> Tuple[str, ...]:
     return tuple(dict.fromkeys(tags))
 
 
+def default_geometry_note(name: str) -> str:
+    """Which canonical geometry the preset supplies for its tagged boundaries, or ``""``."""
+    try:
+        from pinneapple_physics.pde_environment.presets.tag_geometry import default_geometry_report
+
+        return default_geometry_report(_spec(name))
+    except Exception:
+        return ""
+
+
 def trainable(name: str) -> bool:
-    """Can a network be trained on this preset with nothing but its name?"""
-    return not needs_geometry_tags(name)
+    """Can a network be trained on this preset with nothing but its name?
+
+    A preset that binds its boundaries to geometry tags can, when it declares its own box or cylinder
+    for those tags (``pde_environment/presets/tag_geometry.py``): ``pp.solve`` sends that geometry
+    automatically. When it does not, the tags have to come from the user's mesh.
+    """
+    if not needs_geometry_tags(name):
+        return True
+    try:
+        from pinneapple_physics.pde_environment.presets.tag_geometry import has_default_geometry
+
+        return bool(has_default_geometry(_spec(name)))
+    except Exception:
+        return False
 
 
 #: Solvers that are pure Python inside the library: cheap enough to try, so the card can say whether
@@ -323,30 +346,61 @@ def trainable(name: str) -> bool:
 _CHEAP_SOLVERS = frozenset({"fdm", "scipy", "spectral", "analytical", "analytic", ""})
 
 _RUNNABLE: Dict[str, Tuple[bool, str]] = {}
+#: The method that actually produced a field for this preset here, once probed.
+_PROBED_METHOD: Dict[str, str] = {}
 
 
-def probe(name: str, *, timeout_note: str = "") -> Tuple[bool, str]:
+def probe(name: str) -> Tuple[bool, str]:
     """Try the cheapest method for this preset once and report whether it worked, with the reason.
 
     Cached per process. Only pure-library solvers are attempted: an OpenFOAM or FEniCS campaign is
-    never started from a card, its presence is checked instead. This is what lets ``pp.card`` say
-    "this runs here" or "this does not, and why" instead of offering a program that may fail.
+    never started from a card, its presence is checked instead. When the classical solver refuses a
+    problem it does not cover and the preset can be trained instead (including its own geometry for
+    tagged boundaries), this returns success and records ``pinn`` as the method that works: what the
+    card then prints is what will run, not what the preset would prefer.
     """
     if name in _RUNNABLE:
         return _RUNNABLE[name]
     method = best_method(name)
     if method == "pinn":
-        # Training is minutes, so it is never probed: report what is known instead.
-        result = (trainable(name), "" if trainable(name) else
-                  f"trains only with the geometry tags it names: {', '.join(tag_names(name))}")
-        _RUNNABLE[name] = result
-        return result
+        # Training is minutes, so it is never trained here. What can be checked cheaply is the part
+        # that usually fails first: whether the preset's tagged boundaries can be built at all. When
+        # it declares its own box or cylinder, build that geometry and check every mask has points.
+        if not trainable(name):
+            _RUNNABLE[name] = (False, f"trains only with the geometry tags it names: "
+                                      f"{', '.join(tag_names(name))}")
+            return _RUNNABLE[name]
+        if needs_geometry_tags(name):
+            try:
+                import numpy as np
+
+                from pinneapple_physics.pde_environment.presets.tag_geometry import default_geometry
+
+                kwargs = default_geometry(_spec(name), n_bc_per_face=32)
+                masks = (kwargs.get("ctx") or {}).get("tag_masks") or {}
+                empty = [k for k, v in masks.items() if int(np.asarray(v).sum()) == 0]
+                if empty or not masks:
+                    _RUNNABLE[name] = (False, f"the preset's geometry leaves tag(s) {empty or 'all'} empty")
+                else:
+                    _RUNNABLE[name] = (True, "")
+            except Exception as e:  # the fixture could not build: say so, do not claim a pass
+                _RUNNABLE[name] = (False, f"{type(e).__name__}: {e}")
+            return _RUNNABLE[name]
+        _RUNNABLE[name] = (True, "")
+        return _RUNNABLE[name]
     solver = _solver_of(name)
     if solver and solver.lower() not in _CHEAP_SOLVERS:
         available = solver_available(solver)
-        result = (available, "" if available else solver_requirement(solver))
-        _RUNNABLE[name] = result
-        return result
+        if available:
+            _RUNNABLE[name] = (True, "")
+            return _RUNNABLE[name]
+        # The classical solver is missing; training is the fallback when the preset can be trained.
+        if trainable(name):
+            _PROBED_METHOD[name] = "pinn"
+            _RUNNABLE[name] = (True, "")
+        else:
+            _RUNNABLE[name] = (False, solver_requirement(solver))
+        return _RUNNABLE[name]
     try:
         import numpy as np
 
@@ -356,17 +410,27 @@ def probe(name: str, *, timeout_note: str = "") -> Tuple[bool, str]:
         bounds = getattr(sol.problem, "domain_bounds", {}) or {}
         point = [[(bounds[c][0] + bounds[c][1]) / 2.0 if c in bounds else 0.5 for c in sol.problem.coords]]
         sol.predict(np.asarray(point))
-        result = (True, "")
-    except Exception as e:  # it did not run: the message is the reason, and it goes into the card
-        result = (False, f"{type(e).__name__}: {e}")
-    _RUNNABLE[name] = result
-    return result
+        _RUNNABLE[name] = (True, "")
+    except Exception as e:
+        if trainable(name):
+            # The classical method could not cover the problem; a trained network can, and the card
+            # must say so instead of reporting the preset as unusable.
+            _PROBED_METHOD[name] = "pinn"
+            _RUNNABLE[name] = (True, "")
+        else:  # it did not run and nothing else can: the message is the reason, and it goes into the card
+            _RUNNABLE[name] = (False, f"{type(e).__name__}: {e}")
+    return _RUNNABLE[name]
 
 
 def runnable(name: str) -> bool:
     """True when this preset produces a field on this machine right now, without the user adding
     geometry or installing a solver."""
     return probe(name)[0]
+
+
+def working_method(name: str) -> str:
+    """The method that works here for this preset: the probed one after a fallback, else the preferred."""
+    return _PROBED_METHOD.get(name) or best_method(name)
 
 
 #: What an external reference solver needs before it can run. A solver missing from this table is
@@ -448,8 +512,10 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
         pass
     point = ", ".join(f"{(bounds[c][0] + bounds[c][1]) / 2.0:.3g}" if c in bounds else "0.5" for c in coords) or "0.5"
     labels = ", ".join(coords) if coords else "coordinates"
-    cannot_train = needs_geometry_tags(name)
+    tagged = needs_geometry_tags(name)
+    cannot_train = not trainable(name)          # tagged and with no geometry of its own
     need = solver_requirement(_solver_of(name))
+    geometry = default_geometry_note(name)
     advice = (f"install its solver first: {need}" if need
               else "its solver does not cover every field of this problem; pp.doctor('cfd') shows what is missing")
     lines = ["import numpy as np", "import pinneapple as pp", ""]
@@ -463,6 +529,9 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
                   "except pp.MethodNotAvailable as e:",
                   f"    raise SystemExit({advice!r}) from e"]
     elif train or method == "pinn":
+        if geometry:
+            lines.append(f"# tagged boundaries come from the preset's own {geometry}: no mesh needed")
+            lines.append("# (pde_environment/presets/tag_geometry.py)")
         lines.append(f"sol = pp.solve({name!r}, method='pinn', epochs=2000)   # trains; minutes on a laptop")
     else:
         # The classical method is the cheap one, but it can refuse a problem its solver does not
@@ -472,8 +541,13 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
             "try:",
             f"    sol = pp.solve({name!r}, method={method!r})   # the classical answer: seconds",
             "except pp.MethodNotAvailable:   # no solver here covers every field of this problem",
-            f"    sol = pp.solve({name!r}, method='pinn', epochs=2000)   # train instead: minutes",
         ]
+        if tagged and not geometry:
+            lines.append("    raise   # training needs the geometry tags this preset names")
+        else:
+            if geometry:
+                lines.append(f"    # tagged boundaries come from the preset's own {geometry}: no mesh needed")
+            lines.append(f"    sol = pp.solve({name!r}, method='pinn', epochs=2000)   # train instead: minutes")
     lines += [
         "print(sol.method, sol.metadata())   # which method actually ran",
         "",
@@ -557,6 +631,7 @@ def card(name: str, *, with_related: bool = True, check: bool = True) -> Card:
     if not description:
         description = f"{kind.replace('_', ' ')} in {spatial}-D" + (" + time" if transient else "")
     ok, why = probe(name) if check else (True, "")
+    method = working_method(name) if check else best_method(name)
     return Card(
         name=name,
         domain=domain or (kind.split("_")[0] if kind else "general"),
@@ -569,10 +644,11 @@ def card(name: str, *, with_related: bool = True, check: bool = True) -> Card:
         domain_bounds={k: tuple(v) for k, v in (getattr(spec, "domain_bounds", {}) or {}).items()},
         conditions=conditions,
         solver=solver,
-        method=best_method(name),
-        snippet=snippet(name),
+        method=method,
+        snippet=snippet(name, method),
         related=_related(name, tags, domain) if with_related else (),
         requires=solver_requirement(solver),
+        geometry=default_geometry_note(name) if needs_geometry_tags(name) else "",
         available=ok,
         error="" if ok else why,
         fallback="" if ok else standalone_snippet(name),
@@ -629,6 +705,8 @@ def format_card(c: Card, width: int = 78) -> str:
         out.append(f"  domain   : {bounds}")
     if c.conditions:
         out.append(f"  applies  : {', '.join(c.conditions)}")
+    if c.geometry:
+        out.append(f"  geometry : {c.geometry}, from the preset's own parameters")
     out.append(f"  method   : {c.method}" + (f"   (solver: {c.solver})" if c.solver else ""))
     if not c.available:
         first = (c.error or "it did not run here").splitlines()[0][:120]

@@ -26,6 +26,29 @@ from pinneapple_core.onboarding.doctor import profiles as doctor_profiles
 SAMPLE = ("burgers_1d", "poisson_2d", "cpu_heatsink_thermal", "pipe_flow_3d", "transient_heat_3d")
 
 
+def test_tagged_presets_with_their_own_geometry_are_runnable(checked_cards):
+    """A preset whose tags map onto its own box or cylinder needs nothing from the user.
+
+    ``pipe_flow_3d`` and ``transient_heat_3d`` bind their boundaries to named tags and are not in the
+    set the classical solver covers; they used to be reported as unusable. ``pp.solve`` now sends the
+    geometry the preset already declares (pde_environment/presets/tag_geometry.py).
+    """
+    for name in ("pipe_flow_3d", "transient_heat_3d"):
+        card = checked_cards[name]
+        assert card.available, f"{name}: {card.error}"
+        assert card.geometry, name
+        assert card.method == "pinn", name
+        assert "no mesh needed" in card.snippet, name
+
+
+def test_a_tagged_preset_trains_from_its_own_geometry():
+    """The claim the card makes, trained for a handful of epochs: it really produces a field."""
+    sol = pp.solve("transient_heat_3d", method="pinn", epochs=3)
+    assert sol.info.get("geometry", "").startswith("box")
+    values = sol.predict(np.array([[0.5] * len(sol.problem.coords)]))
+    assert values.shape == (1, len(sol.problem.fields))
+
+
 @pytest.fixture(scope="session")
 def checked_cards():
     """The sample presets as cards, with runnability probed once for the whole test session."""

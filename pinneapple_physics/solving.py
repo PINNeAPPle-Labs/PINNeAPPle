@@ -302,13 +302,27 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
     single-layer ``elm``, both for ``rbf``, ...) warns: a silently ignored option trains a different model from the
     one asked for."""
     import torch
+
     import pinneapple_neural.architectures  # noqa: F401  (registers the model zoo)
     from pinneapple_neural.architectures.registry import ModelRegistry
+
     from . import solve_pde
 
     if unknown:
         raise TypeError(f"method 'pinn' got unknown option(s) {sorted(unknown)}; it takes {sorted(_PINN_OPTIONS)}")
     spec = problem.to_pde_spec()
+    # A preset whose boundaries are named geometry tags cannot be trained from its name alone, unless
+    # the preset declares a canonical box or cylinder that the tags map onto unambiguously. That is
+    # the preset's own geometry (pde_environment/presets/tag_geometry.py), not one invented here: when
+    # there is no fixture the call still raises TagConditionsUnresolved with its instructions.
+    geometry: Dict[str, Any] = {}
+    try:
+        from .pde_environment.presets.tag_geometry import default_geometry, default_geometry_report
+
+        geometry = dict(default_geometry(spec))
+        geometry_note = default_geometry_report(spec) if geometry else ""
+    except Exception:  # the fixtures are optional: never let them break a plain solve
+        geometry_note = ""
     torch.manual_seed(seed)
     model, report = ModelRegistry.build_with_report(
         architecture, in_dim=len(problem.coords), out_dim=len(problem.fields),
@@ -320,8 +334,14 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
         warnings.warn(f"architecture '{architecture}' does not take {ignored}: they are ignored and it builds its own "
                       f"size", UserWarning, stacklevel=3)
     t0 = time.perf_counter()
+    # The fixture brings its own ctx (the tag masks); a caller's ctx must not drop it, and the two
+    # must not arrive as two keyword arguments.
+    call_ctx: Optional[Dict[str, Any]] = None
+    if ctx or "ctx" in geometry:
+        call_ctx = dict(geometry.pop("ctx", {}) or {})
+        call_ctx.update(dict(ctx or {}))
     out = solve_pde(spec, model, epochs=epochs, device=device, lr=lr, n_collocation=n_collocation, seed=seed,
-                    weights=weights, ctx=dict(ctx) if ctx else None, cache_derivatives=cache_derivatives)
+                    weights=weights, ctx=call_ctx, cache_derivatives=cache_derivatives, **geometry)
     elapsed = time.perf_counter() - t0
     trained = out["model"]
     trained.eval()
@@ -334,9 +354,12 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
             return y.detach().cpu().numpy()
 
     n_par = int(sum(p.numel() for p in trained.parameters()))
+    info = {"backend": "pinneapple.pinn", "architecture": architecture, "epochs": epochs,
+            "n_collocation": n_collocation, "seed": seed, "n_parameters": n_par}
+    if geometry_note:
+        info["geometry"] = geometry_note
     return Solution(problem, "pinn", predict, elapsed, history=out.get("history", {}), model=trained,
-                    info={"backend": "pinneapple.pinn", "architecture": architecture, "epochs": epochs,
-                          "n_collocation": n_collocation, "seed": seed, "n_parameters": n_par}, kind="neural")
+                    info=info, kind="neural")
 
 
 _PINN_OPTIONS = ("architecture", "hidden_dim", "n_layers", "epochs", "lr", "n_collocation", "seed", "device", "weights",
@@ -353,6 +376,7 @@ def _fem(problem: PhysicalProblem, *, n: Union[int, Sequence[int], None] = None,
     a function of the points, ...); ``tag`` selectors name regions of a real mesh and are refused, as in the PINN.
     """
     import torch
+
     from pinneapple_core import Mesh
     from pinneapple_core.fem import solve_poisson
 

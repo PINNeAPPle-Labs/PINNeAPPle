@@ -3281,7 +3281,11 @@ def main():
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_decision` é uma camada de decisão probabilística sobre o pipeline de Physics AI do PINNeAPPle. Ela não prevê resultados físicos: decide qual experimento rodar a seguir (qual modelo, qual estratégia de treino, como validar). Um LLM ou um backend de regras offline dá escores a um conjunto fechado de opções; não há geração nem interpretação de texto livre.
+
+O fluxo é OBSERVAR -> ENTENDER -> DECIDIR -> EXECUTAR -> VALIDAR -> APRENDER. O `adapter` converte o problema (um `ProblemSpec` de `pinneapple_problemdesign` ou um dict livre) em fatos canônicos com proveniência. As restrições excluem opções inviáveis com motivo (geometria não suportada, sem implementação no PINNeAPPle, fora do orçamento, licença só para pesquisa em modo comercial, já falhou). O `PhysicsDecider` pontua as opções restantes e remove viés de posição e de rótulo sem rótulos (nível L0, inspirado no AnyJev). Cada resultado executado passa por um verificador (por limiares ou VeriPhysics) e só resultados verificados viram evidência.
+
+O pacote liga-se ao resto pelo `pp.decide` (API em `api.py`), pela recomendação de arquitetura de `pinneapple_analysis` (carregada de forma preguiçosa pelo `ModelSelector`) e pelo VeriPhysics como verificador. A árvore `physics_ai_tree` encadeia perguntas de fato (há solução analítica? há dados de referência?) com escolhas e validações. Importar o pacote não carrega torch.
 
 ### Números do inventário
 
@@ -3293,17 +3297,17 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `adapter` |  | 1 | 2 | 0 |
-| `api` |  | 1 | 5 | 16 |
-| `backends` |  | 1 | 3 | 0 |
-| `constraints` |  | 1 | 5 | 0 |
-| `debias` |  | 1 | 8 | 21 |
-| `decider` |  | 1 | 1 | 0 |
-| `loop` |  | 1 | 7 | 0 |
-| `schema` |  | 1 | 10 | 0 |
-| `selectors` |  | 1 | 4 | 0 |
-| `tree` |  | 1 | 9 | 0 |
-| `verifiers` |  | 1 | 3 | 0 |
+| `adapter` | Converte `ProblemSpec` e dicts livres em fatos canônicos com proveniência. | 1 | 2 | 0 |
+| `api` | API `pp.decide`/`execute`/`verify`/`run_tree` sobre um motor padrão. | 1 | 5 | 16 |
+| `backends` | Backends de pontuação por regras ou por log-probabilidade de LLM. | 1 | 3 | 0 |
+| `constraints` | Restrições duras que excluem opções com motivo. | 1 | 5 | 0 |
+| `debias` | Remoção de viés L0 por rotações cíclicas e prior. | 1 | 8 | 21 |
+| `decider` | Decisor que combina restrições, pontuação e remoção de viés. | 1 | 1 | 0 |
+| `loop` | Laço decidir-executar-verificar e fachada `PhysicsDecisionEngine`. | 1 | 7 | 0 |
+| `schema` | Tipos de escolha, decisão, resultado, verificação e evidência. | 1 | 10 | 0 |
+| `selectors` | Seletores de modelo, treino e validação, e perguntas de fato. | 1 | 4 | 0 |
+| `tree` | Árvore de decisão declarativa do fluxo de Physics AI. | 1 | 9 | 0 |
+| `verifiers` | Verificadores por limiar e via VeriPhysics. | 1 | 3 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3311,169 +3315,186 @@ _Sem texto de objetivo._
 
 #### `pinneapple_decision`
 
-pinneapple_decision -- probabilistic decision layer over the Physics AI pipeline.
+Fachada do pacote: reexporta tipos, decisor, backends, laço de decisão, seletores, árvore, verificadores e a API `decide`/`execute`/`verify`/`run_tree`; importar o pacote não carrega torch.
 
 <small>`pinneapple_decision/__init__.py` · 116 linhas · testes: 44</small>
 
 #### `pinneapple_decision.adapter`
 
-Problem adapter: real ``ProblemSpec`` objects and free-form dicts -> decision state.
+Adaptador de problema: converte `ProblemSpec` reais e dicts livres (por exemplo `reynolds`, `geometry`, `target`) nas chaves canônicas que regras e restrições leem, registrando o que foi dado, inferido (com a regra) ou desconhecido. [sem teste direto]
 
 <small>`pinneapple_decision/adapter.py` · 508 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AdaptedProblem` | classe | `(problem, given, inferred, unknown, unrecognized, source)` | Result of :func:`adapt_problem`. |
-| `adapt_problem` | função | `(obj) -> AdaptedProblem` | Adapt a ``ProblemSpec``, a free-form dict, or ``None`` to the decision layer. |
+| `AdaptedProblem` | classe | `(problem, given, inferred, unknown, unrecognized, source)` | Resultado da adaptação: problema canônico e o que foi dado, inferido, desconhecido ou não reconhecido, com relatório de proveniência. |
+| `adapt_problem` | função | `(obj) -> AdaptedProblem` | Adapta um `ProblemSpec`, um dict livre ou None para a camada de decisão; é idempotente em dicts canônicos. |
 
 #### `pinneapple_decision.api`
 
-Module-level API used by ``import pinneapple as pp; pp.decide(...)``.
+API de nível de módulo usada por `pp.decide(...)`: mantém um motor padrão e expõe `decide`, `execute`, `verify` e `run_tree`.
 
 <small>`pinneapple_decision/api.py` · 59 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `decision_engine` | função | `(executor=None, verifier=None, decider=None, store=None, *, reset=False) -> PhysicsDecisi…)` | Return the default engine. Passing any argument (or ``reset=True``) replaces it with a new engine built from those arguments (evidence is not carried over). |
-| `decide` | função | `(problem=None, objective=None, *, state=None, choice=None, engine=None) -> Decision` | Decide which experiment to run next. ``problem`` may be a ``ProblemSpec`` or a free-form dict (see ``adapter.py``). Facts that could not be determined are listed in ``decision.diagnostics["problem_facts"]["unknown"]``. |
-| `execute` | função | `(decision, problem=None, *, engine=None) -> ExecutionResult` | Execute a decision issued by the same engine (constraints are re-checked first). |
-| `verify` | função | `(result, *, engine=None) -> Verification` | Verify a result; only verified results become evidence for the next decision. |
-| `run_tree` | função | `(problem, tree=None, *, max_experiments=3, engine=None)` | Walk the physics-AI decision tree (``tree.physics_ai_tree()`` by default). |
+| `decision_engine` | função | `(executor=None, verifier=None, decider=None, store=None, *, reset=False) -> PhysicsDecisi…)` | Devolve o motor padrão; qualquer argumento (ou `reset=True`) cria um novo, sem carregar a evidência antiga. |
+| `decide` | função | `(problem=None, objective=None, *, state=None, choice=None, engine=None) -> Decision` | Decide qual experimento rodar a seguir para o problema e objetivo dados. |
+| `execute` | função | `(decision, problem=None, *, engine=None) -> ExecutionResult` | Executa uma decisão emitida pelo mesmo motor, rechecando as restrições antes. |
+| `verify` | função | `(result, *, engine=None) -> Verification` | Verifica um resultado; só resultados verificados viram evidência. |
+| `run_tree` | função | `(problem, tree=None, *, max_experiments=3, engine=None)` | Percorre a árvore de decisão de Physics AI (por padrão `physics_ai_tree()`). |
 
 #### `pinneapple_decision.backends`
 
-Scoring backends: turn (state, choice, options in a given order) into scores.
+Backends de pontuação: transformam (estado, escolha, opções em ordem) em um escore por opção, por regras determinísticas ou por log-probabilidade de um LLM; nunca geram texto. [sem teste direto]
 
 <small>`pinneapple_decision/backends.py` · 153 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ScoringBackend` | classe | `(name, has_label_prior)` |  |
-| `RuleBasedBackend` | classe | `(rules=None)` | Deterministic backend over per-choice rule functions (see ``selectors.py``). |
-| `LogProbLLMBackend` | classe | `(logprob_fn, *, template=DEFAULT_TEMPLATE, name='llm-logprob')` | Scores options by next-token log-probability of their letter label. |
+| `ScoringBackend` | classe | `(name, has_label_prior)` | Protocolo de backend: `score` devolve um escore por opção na ordem mostrada e `rationale` explica. |
+| `RuleBasedBackend` | classe | `(rules=None)` | Backend determinístico e offline que usa as regras dos seletores; invariante à ordem e sem prior de rótulo. |
+| `LogProbLLMBackend` | classe | `(logprob_fn, *, template=DEFAULT_TEMPLATE, name='llm-logprob')` | Pontua cada opção pela log-probabilidade do próximo token da sua letra num prompt; `from_transformers` cria um a partir de um LM local do Hugging Face (opcional). |
 
 #### `pinneapple_decision.constraints`
 
-Hard constraints on options: physics/geometry, resources, implementation.
+Restrições duras sobre opções (geometria suportada, implementação existente, orçamento, licença comercial, falha anterior): excluem com motivo legível, nunca reordenam; rodam antes da pontuação e antes da execução. [sem teste direto]
 
 <small>`pinneapple_decision/constraints.py` · 137 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Constraint` | classe | `(name, check)` |  |
-| `NoFeasibleOptionError` | classe | `(choice, excluded)` |  |
-| `ConstraintViolationError` | classe | `()` | Raised when a decision is about to be executed but its option no longer passes. |
-| `resolve` | função | `(constraint) -> Constraint` |  |
-| `apply_constraints` | função | `(choice, state) -> Tuple[List[str], Dict[str, str]]` | Return ``(feasible_options, {excluded_option: reason})`` in the choice's option order. |
+| `Constraint` | classe | `(name, check)` | Restrição nomeada com uma função `check` que devolve None (mantém) ou um motivo (exclui). |
+| `NoFeasibleOptionError` | classe | `(choice, excluded)` | Erro quando todas as opções de uma escolha foram excluídas pelas restrições. |
+| `ConstraintViolationError` | classe | `()` | Erro quando a opção de uma decisão deixa de passar nas restrições no momento da execução. |
+| `resolve` | função | `(constraint) -> Constraint` | Converte um nome de restrição registrado (ou um objeto) em `Constraint`. |
+| `apply_constraints` | função | `(choice, state) -> Tuple[List[str], Dict[str, str]]` | Devolve as opções viáveis na ordem da escolha e um dict de opções excluídas com o motivo. |
 
 #### `pinneapple_decision.debias`
 
-L0 debiasing without labels (AnyJev-like; own implementation, see README).
+Remoção de viés nível L0 sem rótulos (inspirada no AnyJev, implementação própria): média sobre rotações cíclicas da ordem das opções e correção por prior.
 
 <small>`pinneapple_decision/debias.py` · 161 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BatchPrior` | classe | `(min_prior_n=8)` | Running mean of L0 distributions per (choice name, feasible option set). |
-| `log_softmax` | função | `(xs) -> List[float]` |  |
-| `softmax_dict` | função | `(logits) -> Dict[str, float]` |  |
-| `normalize` | função | `(p) -> Dict[str, float]` |  |
-| `rotations` | função | `(options, max_permutations=None) -> List[List[str]]` |  |
-| `raw_distribution` | função | `(score_fn, options) -> Dict[str, float]` |  |
-| `permutation_marginalized` | função | `(score_fn, options, *, combine='geometric', max_permutations=None) -> Tuple[Dict[str, flo…)` | Distribution averaged over cyclic rotations of the option order. |
-| `apply_prior` | função | `(dist, prior, strength=1.0) -> Dict[str, float]` |  |
+| `BatchPrior` | classe | `(min_prior_n=8)` | Média corrente das distribuições L0 por (escolha, conjunto de opções viáveis), usada como prior a partir de um mínimo de amostras. |
+| `log_softmax` | função | `(xs) -> List[float]` | Log-softmax numericamente estável de uma lista de escores. |
+| `softmax_dict` | função | `(logits) -> Dict[str, float]` | Softmax de um dict opção -> logit. |
+| `normalize` | função | `(p) -> Dict[str, float]` | Normaliza um dict de pesos para somar 1. |
+| `rotations` | função | `(options, max_permutations=None) -> List[List[str]]` | Lista as rotações cíclicas da ordem das opções, opcionalmente limitadas e igualmente espaçadas. |
+| `raw_distribution` | função | `(score_fn, options) -> Dict[str, float]` | Distribuição de uma única ordem das opções (softmax dos escores), sem remoção de viés. |
+| `permutation_marginalized` | função | `(score_fn, options, *, combine='geometric', max_permutations=None) -> Tuple[Dict[str, flo…)` | Distribuição média sobre rotações cíclicas, combinando por média geométrica (padrão) ou aritmética, com diagnósticos. |
+| `apply_prior` | função | `(dist, prior, strength=1.0) -> Dict[str, float]` | Corrige uma distribuição dividindo por um prior elevado a `strength` e renormalizando. |
 
 #### `pinneapple_decision.decider`
 
-PhysicsDecider: constraints -> scoring -> L0 debiasing -> Decision.
+`PhysicsDecider`: aplica restrições, pontua, remove viés (L0) e produz uma `Decision` com distribuição sobre as opções viáveis. [sem teste direto]
 
 <small>`pinneapple_decision/decider.py` · 119 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsDecider` | classe | `(backend=None, *, debias=True, prior='content_free', prior_strength=1.0, combine='geometr…)` | Decide which option of a :class:`PhysicsChoice` to run next. |
+| `PhysicsDecider` | classe | `(backend=None, *, debias=True, prior='content_free', prior_strength=1.0, combine='geometr…)` | Decide a opção de uma `PhysicsChoice`: restrições, pontuação pelo backend, L0 (ou raw) e montagem da `Decision`. |
 
 #### `pinneapple_decision.loop`
 
-OBSERVE -> UNDERSTAND -> DECIDE -> EXECUTE -> VALIDATE -> LEARN.
+Laço OBSERVAR -> ENTENDER -> DECIDIR -> EXECUTAR -> VALIDAR -> APRENDER, com garantias: só decisões emitidas pelo laço executam, restrições são rechecadas e só resultados verificados viram evidência. [sem teste direto]
 
 <small>`pinneapple_decision/loop.py` · 215 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ValidationRequiredError` | classe | `()` | A result was offered as evidence before it was verified. |
-| `Executor` | classe | `()` |  |
-| `CallableExecutor` | classe | `(fn)` | Wrap ``fn(decision, problem) -> ExecutionResult \| dict``. |
-| `EvidenceStore` | classe | `(path=None)` | In-memory evidence log, optionally persisted as JSON. |
-| `DecisionLoop` | classe | `(executor=None, verifier=None, decider=None, store=None)` |  |
-| `PhysicsDecisionEngine` | classe | `()` | High-level facade: ``decide(problem, objective=...)`` / ``decide(state={...})``, ``execute(decision)``, ``verify(result)``. |
-| `choice_for_objective` | função | `(objective, has_previous_result=False) -> PhysicsChoice` |  |
+| `ValidationRequiredError` | classe | `()` | Erro quando um resultado é oferecido como evidência antes de ser verificado. |
+| `Executor` | classe | `()` | Protocolo de executor: `execute(decision, problem)` devolve um `ExecutionResult`. |
+| `CallableExecutor` | classe | `(fn)` | Executor que embrulha uma função `fn(decision, problem)` que devolve `ExecutionResult` ou dict. |
+| `EvidenceStore` | classe | `(path=None)` | Registro de evidências em memória, opcionalmente salvo em JSON. |
+| `DecisionLoop` | classe | `(executor=None, verifier=None, decider=None, store=None)` | Laço completo decidir/executar/verificar com histórico de evidências, execução em passos e percurso de árvore. |
+| `PhysicsDecisionEngine` | classe | `()` | Fachada de alto nível: `decide(problem, objective=...)` ou `decide(state=...)`, mais `execute` e `verify`. |
+| `choice_for_objective` | função | `(objective, has_previous_result=False) -> PhysicsChoice` | Escolhe a `PhysicsChoice` adequada a partir do texto do objetivo (padrão: modelo, ou estratégia de treino se já há resultado). |
 
 #### `pinneapple_decision.schema`
 
-Core types of the decision layer: choices, decisions, evidence.
+Tipos centrais da camada de decisão: níveis de decisão, metadados de opção, escolhas, resultados de execução, verificações, decisões, evidências e estado. [sem teste direto]
 
 <small>`pinneapple_decision/schema.py` · 284 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DecisionLevel` | classe | `()` | What was done to the backend's scores before reading them. |
-| `OptionInfo` | classe | `(name, description, implementation, representations, supports_varying_geometry, relative_…)` | Metadata of one option, used by rules and constraints (never by the LLM to decide). |
-| `PhysicsChoice` | classe | `(name, question, options, constraints, option_info)` | A typed question with a closed set of options. |
-| `ExecutionResult` | classe | `(status, metrics, diagnostics, artifacts, decision_id)` | What an executor returns. ``diagnostics`` are short tags a rule or LLM can read on the next decision (e.g. ``"residual_localized"``, ``"late_time_error"``). |
-| `Verification` | classe | `(passed, checks, tags, source, notes)` | Outcome of verifying one :class:`ExecutionResult`. |
-| `Decision` | classe | `(choice, question, selected, probabilities, level, requires_validation, calibrated_confid…)` |  |
-| `Evidence` | classe | `(decision, result, verification)` | One OBSERVE -> DECIDE -> EXECUTE -> VALIDATE record. |
-| `DecisionState` | classe | `(problem, previous_result, verification, history, facts)` | Everything a backend may look at: the problem plus the evidence so far. |
-| `problem_from_spec` | função | `(spec) -> Dict[str, Any]` | Map a ``pinneapple_problemdesign.ProblemSpec`` to this module's problem dict. |
-| `dumps` | função | `(obj) -> str` |  |
+| `DecisionLevel` | classe | `()` | Nível de leitura dos escores: RAW (ranking), L0 (sem viés, sem rótulos), L1 (calibrado, ainda não implementado) e FACT (resposta lida do problema). |
+| `OptionInfo` | classe | `(name, description, implementation, representations, supports_varying_geometry, relative_…)` | Metadados de uma opção (implementação real, representações de geometria, custo relativo, fonte, licença), usados por regras e restrições. |
+| `PhysicsChoice` | classe | `(name, question, options, constraints, option_info)` | Pergunta tipada com conjunto fechado de opções e restrições. |
+| `ExecutionResult` | classe | `(status, metrics, diagnostics, artifacts, decision_id)` | O que um executor devolve: status, métricas, tags de diagnóstico, artefatos e id da decisão. |
+| `Verification` | classe | `(passed, checks, tags, source, notes)` | Resultado de verificar uma execução: passou ou não, checagens que de fato rodaram, tags, fonte e notas. |
+| `Decision` | classe | `(choice, question, selected, probabilities, level, requires_validation, calibrated_confid…)` | Decisão: opção escolhida, probabilidades, nível, exclusões, justificativa e diagnósticos; `calibrated_confidence` só é aceito no nível L1. |
+| `Evidence` | classe | `(decision, result, verification)` | Um registro decisão + resultado + verificação. |
+| `DecisionState` | classe | `(problem, previous_result, verification, history, facts)` | Tudo que um backend pode ver: o problema adaptado, o resultado anterior, sua verificação e o histórico. |
+| `problem_from_spec` | função | `(spec) -> Dict[str, Any]` | Mapeia um `ProblemSpec` de `pinneapple_problemdesign` para o dict de problema, sem inventar valores numéricos. |
+| `dumps` | função | `(obj) -> str` | Serializa objetos da camada de decisão em JSON. |
 
 #### `pinneapple_decision.selectors`
 
-The three MVP decisions: model, training strategy, validation strategy.
+As três decisões do MVP (modelo, estratégia de treino, estratégia de validação) e perguntas de fato da árvore, cada uma com opções, metadados e regras de pontuação. [sem teste direto]
 
 <small>`pinneapple_decision/selectors.py` · 358 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelSelector` | classe | `()` |  |
-| `TrainingStrategySelector` | classe | `()` |  |
-| `ValidationStrategySelector` | classe | `()` |  |
-| `FactQuestion` | classe | `(name, question, fact, hints=None)` | A yes/no question whose answer is a *fact* about the problem (decision tree). |
+| `ModelSelector` | classe | `()` | Escolha do modelo físico (PINN, XPINN, DeepONet, FNO, PINO, MeshGraphNet etc.) com metadados por opção e regras. |
+| `TrainingStrategySelector` | classe | `()` | Escolha da próxima estratégia de treino a partir dos diagnósticos do resultado anterior. |
+| `ValidationStrategySelector` | classe | `()` | Escolha da estratégia de validação do resultado. |
+| `FactQuestion` | classe | `(name, question, fact, hints=None)` | Pergunta sim/não sobre um fato do problema; as regras só rodam quando o fato não é conhecido. |
 
 #### `pinneapple_decision.tree`
 
-Declarative decision tree walked by :class:`~pinneapple_decision.loop.DecisionLoop`.
+Árvore de decisão declarativa do fluxo de Physics AI (solução analítica? dados de referência? ...), percorrida pelo `DecisionLoop`; nós de fato são respondidos pelo problema quando conhecido. [sem teste direto]
 
 <small>`pinneapple_decision/tree.py` · 297 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ChoiceNode` | classe | `(id, choice, edges, fact, fact_options, plan_key, plan_updates)` |  |
-| `ExecuteNode` | classe | `(id, next, plan_updates)` |  |
-| `ValidateNode` | classe | `(id, on_pass, on_fail, plan_updates)` |  |
-| `TerminalNode` | classe | `(id, outcome, plan_updates)` |  |
-| `DecisionTree` | classe | `(name, root, nodes)` |  |
-| `TreeStep` | classe | `(node, kind, selected, resolved_by, decision_id, passed, note)` |  |
-| `TreeRun` | classe | `(tree, outcome, path, plan, experiments, evidence, facts)` |  |
-| `physics_ai_tree` | função | `() -> DecisionTree` | The tree proposed for the physics-AI workflow (see module docstring). |
-| `run_tree` | função | `(loop, problem, tree=None, *, max_experiments=3, max_steps=200) -> TreeRun` | Walk ``tree`` with ``loop`` (a :class:`DecisionLoop`). See the module docstring. |
+| `ChoiceNode` | classe | `(id, choice, edges, fact, fact_options, plan_key, plan_updates)` | Nó da árvore que faz uma escolha (ou lê um fato) e segue a aresta da opção selecionada. |
+| `ExecuteNode` | classe | `(id, next, plan_updates)` | Nó da árvore que executa o plano atual. |
+| `ValidateNode` | classe | `(id, on_pass, on_fail, plan_updates)` | Nó da árvore que verifica o último resultado e segue para `on_pass` ou `on_fail`. |
+| `TerminalNode` | classe | `(id, outcome, plan_updates)` | Nó final da árvore com o desfecho. |
+| `DecisionTree` | classe | `(name, root, nodes)` | Árvore de decisão: nome, nó raiz e nós por id. |
+| `TreeStep` | classe | `(node, kind, selected, resolved_by, decision_id, passed, note)` | Um passo do percurso: nó, tipo, opção escolhida, quem resolveu (fato ou decisor) e resultado da validação. |
+| `TreeRun` | classe | `(tree, outcome, path, plan, experiments, evidence, facts)` | Resultado do percurso: desfecho, caminho, plano, experimentos, evidências e fatos. |
+| `physics_ai_tree` | função | `() -> DecisionTree` | Constrói a árvore padrão do fluxo de Physics AI descrita no docstring do módulo. |
+| `run_tree` | função | `(loop, problem, tree=None, *, max_experiments=3, max_steps=200) -> TreeRun` | Percorre uma árvore com um `DecisionLoop`, até um nó terminal ou os limites de experimentos e passos. |
 
 #### `pinneapple_decision.verifiers`
 
-Verifiers: turn an ExecutionResult into a Verification.
+Verificadores que transformam `ExecutionResult` em `Verification`: por limiares de métricas ou a partir de um registro do VeriPhysics/`PhysicsConfidenceScore`. [sem teste direto]
 
 <small>`pinneapple_decision/verifiers.py` · 92 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Verifier` | classe | `()` |  |
-| `ThresholdVerifier` | classe | `(thresholds=None)` |  |
-| `VeriPhysicsVerifier` | classe | `(min_trust=70.0, min_coverage=0.5, fallback=None)` |  |
+| `Verifier` | classe | `()` | Protocolo de verificador: `verify(result)` devolve uma `Verification`. |
+| `ThresholdVerifier` | classe | `(thresholds=None)` | Exige cada métrica configurada <= seu limiar; métrica ausente é checagem que não rodou, e nenhuma checagem significa não aprovado. |
+| `VeriPhysicsVerifier` | classe | `(min_trust=70.0, min_coverage=0.5, fallback=None)` | Lê um registro do VeriPhysics ou um `PhysicsConfidenceScore` nos artefatos e aprova por confiança e cobertura mínimas; sem esse artefato usa o verificador de fallback. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Restrição de geometria exclui FNO/PINO** — `tests/test_decision_adapter_tree_arena.py`
+
+```python
+def test_user_airfoil_example_excludes_fno_pino_with_reason():
+    d = PhysicsDecider().decide(USER_AIRFOIL, ModelSelector.choice())
+    for opt in ("fno", "pino"):
+        assert opt in d.excluded and opt not in d.probabilities
+        assert "must_support_geometry" in d.excluded[opt]
+```
+
+**Motor de decisão com executor próprio** — `pinneapple_decision/README.md`
+
+```python
+engine = PhysicsDecisionEngine(executor=CallableExecutor(run_experiment))  # your function
+d = engine.decide(airfoil, objective="choose physics model")
+result = engine.execute(d)             # constraints are re-checked here
+verification = engine.verify(result)   # ThresholdVerifier or VeriPhysicsVerifier
+```
 
 ### Testes e status de validação
 
@@ -3482,7 +3503,12 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O nível L1 (confiança calibrada em resultados rotulados) não está implementado; as probabilidades L0 não são confiança calibrada.
+- Pacote descrito como MVP no README: só três decisões (modelo, estratégia de treino, estratégia de validação) além das perguntas de fato da árvore.
+- `LogProbLLMBackend.from_transformers` depende de um LM local do Hugging Face (opcional); o backend padrão é o de regras.
+- `VeriPhysicsVerifier` só lê um registro já presente nos artefatos do resultado; sem ele, recorre ao verificador de fallback (`ThresholdVerifier` por padrão) e diz isso em `source`.
+- Opções sem implementação no PINNeAPPle são excluídas pela restrição `requires_implementation`.
+- A maioria dos módulos não tem teste direto; os testes importam o pacote pela fachada e cobrem sobretudo `api` e `debias`.
 
 ## 6. `pinneapple_reason`
 

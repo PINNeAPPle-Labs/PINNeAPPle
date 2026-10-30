@@ -2212,7 +2212,9 @@ def test_sentence_picks_the_workflow_and_converts_units():
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_blender` leva resultados do PINNeAPPle para o Blender. O lado Python puro (`export`) grava uma nuvem de pontos com um ou mais campos, opcionalmente em vários passos de tempo, como uma sequência de arquivos `.ply` com cores por mapa de cores. O importador nativo do Blender abre esses arquivos sem add-on.
+
+Há duas formas de usar o Blender de verdade. `render.build_scene` chama uma instalação local do Blender em modo headless (`blender --background --python ...`), que roda o script `blender_addon/import_pinneapple_sequence.py` dentro do `bpy` do próprio Blender. O script importa cada quadro como um objeto e anima a visibilidade, e o resultado pode ser salvo em `.blend`. É o mesmo padrão de subprocesso usado pelo leitor de `.odb` do Abaqus em `cfd_formats`. Já `cycles` usa o módulo `bpy` instalado por pip, no mesmo processo, para montar cenas pequenas a partir de arrays NumPy (superfícies, tubos, pontos, planos, faixas, texto, câmera, luzes) e renderizar com Cycles na CPU. `frames_to_video` junta os quadros num MP4 com ffmpeg. Ele é usado pelos visuais de `examples/near_random_forecasting`.
 
 ### Números do inventário
 
@@ -2224,10 +2226,10 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `blender_addon` |  | 1 | 1 | 0 |
-| `cycles` |  | 1 | 3 | 8 |
-| `export` |  | 1 | 3 | 7 |
-| `render` |  | 1 | 1 | 7 |
+| `blender_addon` | Script que roda dentro do Python do Blender para importar a sequência `.ply` e animar a visibilidade dos quadros. | 1 | 1 | 0 |
+| `cycles` | Renderizador Cycles no mesmo processo via `bpy`: monta cenas a partir de arrays e gera imagens e vídeo. | 1 | 3 | 8 |
+| `export` | Grava pontos e campos como sequência de `.ply` coloridos, sem precisar do Blender. | 1 | 3 | 7 |
+| `render` | Ponte por subprocesso para uma instalação local do Blender, que monta e salva a cena. | 1 | 1 | 7 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2235,57 +2237,81 @@ _Sem texto de objetivo._
 
 #### `pinneapple_blender`
 
-Blender bridge: export a PINNeAPPle field/trajectory as a ``.ply`` sequence (``export.py``, pure Python + numpy, no Blender needed), and optionally build/save a Blender scene from it via a real local Blender installation (``render.py``, subprocess bridge to Blender's own ``bpy``, mirroring the …
+Pacote da ponte com o Blender; só o docstring descrevendo `export` e `render`. [sem teste direto]
 
 <small>`pinneapple_blender/__init__.py` · 15 linhas · **sem teste direto**</small>
 
 #### `pinneapple_blender.blender_addon.import_pinneapple_sequence`
 
-Runs INSIDE Blender's own Python (``bpy``) -- never imported by regular PINNeAPPle code, same reasoning as ``cfd_formats/abaqus_reader.py``'s ``_abaqus_odb_export_script.py``: ``bpy`` is Blender's bundled interpreter, not pip-installable into a normal environment, so this is launched as a …
+Roda dentro do `bpy` do Blender (nunca importado pelo código normal): importa cada `frame_XXXX.ply` como objeto e põe keyframes de visibilidade; pode salvar `.blend`. [sem teste direto; exercitado pelos testes que exigem Blender]
 
 <small>`pinneapple_blender/blender_addon/import_pinneapple_sequence.py` · 95 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `()` |  |
+| `main` | função | `()` | Lê os argumentos depois de `--`, importa os quadros `.ply`, anima a visibilidade e salva o `.blend` se pedido. |
 
 #### `pinneapple_blender.cycles`
 
-In-process Cycles renderer: build a small scene from NumPy arrays and render it with Blender's ``bpy`` module.
+`CyclesScene` monta uma cena Blender nova a partir de NumPy (malhas, superfícies, planos, tubos, pontos, faixas, texto, câmera, luzes) e renderiza com Cycles na CPU; exige `pip install bpy`.
 
 <small>`pinneapple_blender/cycles.py` · 292 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CyclesScene` | classe | `(resolution=(960, 540), samples=64, background=(0.97, 0.97, 0.96), ambient=0.6, transpare…)` | A fresh Blender scene rendered with Cycles on the CPU. |
-| `available` | função | `() -> bool` | True when the ``bpy`` module can be imported. |
-| `frames_to_video` | função | `(frames, path, *, fps=24, crf=28) -> str` | Assemble PNG frames (named ``frame_%04d.png`` in one directory) into an H.264 MP4 with ffmpeg. |
+| `CyclesScene` | classe | `(resolution=(960, 540), samples=64, background=(0.97, 0.97, 0.96), ambient=0.6, transpare…)` | Cena Blender renderizada com Cycles na CPU, com métodos para adicionar geometria, materiais, câmera, luzes e renderizar quadros. |
+| `available` | função | `() -> bool` | Diz se o módulo `bpy` pode ser importado. |
+| `frames_to_video` | função | `(frames, path, *, fps=24, crf=28) -> str` | Junta quadros PNG `frame_%04d.png` num MP4 H.264 com ffmpeg. |
 
 #### `pinneapple_blender.export`
 
-Export a PINNeAPPle result (a point cloud + one or more scalar/vector fields, optionally over several time steps) to a sequence of ``.ply`` files Blender can import natively (built-in importer, no add-on required just to look at one frame) -- the PINNeAPPle-side half of the Blender bridge; …
+Grava nuvens de pontos com campos escalares/vetoriais como `.ply` só de vértices, com cores por colormap e campos extras como propriedades, um arquivo por quadro.
 
 <small>`pinneapple_blender/export.py` · 153 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `write_ply` | função | `(path, points, colors=None, scalar_fields=None) -> None` | Write a point cloud (no faces -- a vertex-only PLY, which Blender's importer turns into a mesh with only vertices, ready for a Point Cloud Visualizer-style geometry-nodes setup, or straightforward as a particle/point render). ``colors``: (N,3) uint8 RGB, optional. ``scalar_fields``: extra named … |
-| `export_scene` | função | `(points, field, out_dir, *, field_name='field', cmap='viridis', frame_index=0, extra_fiel…)` | Export one frame (one time instant / one realisation) as ``<out_dir>/frame_<NNNN>.ply``. Call once per frame with increasing ``frame_index`` to build a sequence -- see :func:`export_trajectory` for the common "I already have every frame's arrays" case in one call. |
-| `export_trajectory` | função | `(points, fields_over_time, out_dir, *, field_name='field', cmap='viridis') -> list` | Export a whole sequence at once: ``points`` fixed (N, 3), one ``field`` array (N,) per frame in ``fields_over_time``. This is the natural shape for a PINN surrogate's own output -- evaluate the model at the same spatial points across a range of ``t`` values and pass the resulting list of (N,) … |
+| `write_ply` | função | `(path, points, colors=None, scalar_fields=None) -> None` | Grava uma nuvem de pontos PLY só de vértices, com cores e campos escalares opcionais. |
+| `export_scene` | função | `(points, field, out_dir, *, field_name='field', cmap='viridis', frame_index=0, extra_fiel…)` | Exporta um quadro como `<out_dir>/frame_<NNNN>.ply` colorido pelo campo. |
+| `export_trajectory` | função | `(points, fields_over_time, out_dir, *, field_name='field', cmap='viridis') -> list` | Exporta uma sequência inteira: pontos fixos e um campo por quadro. |
 
 #### `pinneapple_blender.render`
 
-Subprocess bridge to a real local Blender installation -- same pattern as ``cfd_formats.abaqus_reader.export_odb_fields``: never guess at Blender's internals from outside, shell out to Blender's own bundled Python (``blender --background --python <script>``) running genuine ``bpy`` code …
+Executa o Blender headless com o script do add-on para importar uma sequência `.ply` e opcionalmente salvar `.blend`; levanta erro claro se o executável não existe ou o Blender falha.
 
 <small>`pinneapple_blender/render.py` · 61 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_scene` | função | `(ply_dir, *, output_blend=None, blender_executable='blender', timeout=600) -> str` | Run Blender headless to import a ``.ply`` sequence (as written by ``pinneapple_blender.export``) into a scene, optionally saving it as a ``.blend`` file. |
+| `build_scene` | função | `(ply_dir, *, output_blend=None, blender_executable='blender', timeout=600) -> str` | Roda o Blender headless para importar a sequência `.ply` numa cena e opcionalmente salvar `.blend`. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Exportar uma sequência .ply** — `tests/test_blender_bridge.py`
+
+```python
+def test_export_trajectory_writes_valid_ply_sequence_with_real_colors(tmp_path):
+    rng = np.random.default_rng(0)
+    points = rng.uniform(-1, 1, size=(20, 3)).astype(np.float32)
+    fields = [np.sin(points[:, 0] + t) for t in np.linspace(0, np.pi, 3)]
+    paths = export_trajectory(points, fields, str(tmp_path), field_name="u")
+
+    assert len(paths) == 3
+    for p in paths:
+        assert Path(p).exists()
+```
+
+**Cena Cycles a partir de arrays** — `pinneapple_blender/cycles.py`
+
+```python
+    from pinneapple_blender.cycles import CyclesScene, available
+    if available():
+        sc = CyclesScene(resolution=(960, 540), samples=64)
+        sc.add_surface(X, Y, Z, colors)               # (ny, nx) grids, colors (ny, nx, 3) in 0..1
+        sc.add_plane(z=0.0, size=(10, 6), color=(0.1, 0.3, 0.6), alpha=0.35)
+        sc.camera(location=(8, -9, 6), look_at=(0, 0, 0))
+        sc.render("landscape.png")
+```
 
 ### Testes e status de validação
 
@@ -2294,7 +2320,11 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `render` precisa de um executável `blender` instalado localmente; os testes que o usam são pulados quando ele não existe.
+- `cycles` precisa do módulo `bpy` (pip) e renderiza só na CPU; `frames_to_video` precisa do ffmpeg.
+- Os `.ply` são só de vértices (sem faces); para ver como superfície é preciso montar geometry nodes no Blender.
+- O docstring do add-on cita `render.render_sequence`, mas a função existente em `render.py` é `build_scene`.
+- O `__init__` e o script do add-on não têm teste direto pelo inventário.
 
 ## 3. `pinneapple_flow`
 
@@ -5953,7 +5983,11 @@ summary = lab.run()
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_app` é o aplicativo web de referência do PINNeAPPle: um backend FastAPI (`pinneapple_app/backend`) e um frontend React/Vite (`pinneapple_app/frontend`), com Dockerfiles, docker-compose, nginx e manifestos de deploy (Helm, k8s, monitoramento Prometheus). Ele deixa um usuário escolher um problema (preset do ambiente de EDPs ou equações próprias), gerar pontos de colocação e dados de referência, treinar vários modelos lado a lado e comparar os resultados.
+
+O fluxo do backend é: `problem` define o problema; `collocation` e `data_pipeline` geram pontos e, opcionalmente, rodam solvers de `pinneapple_simulation`; `physics_adapter` transforma o problema em perda física (presets via `compile_problem`, equações customizadas via `SymbolicPDE` de `pinneapple_physics`); `experiment` treina cada modelo do `ModelRegistry` de `pinneapple_neural`, podendo re-treinar com o `TrainingAdvisor`; `surrogate_report` e `benchmark` produzem leaderboard, gráficos e um veredito de confiança medido em dados que o modelo não viu.
+
+Os routers expõem isso como API REST e WebSocket (`/api/problems`, `/api/models`, `/api/experiments`), e um router admin protegido por token liga o app ao registro de artefatos (`pinneapple_registry`) para promover versões de modelo. É uma aplicação de demonstração: o armazenamento de experimentos é em memória e a autenticação admin é deliberadamente mínima.
 
 ### Números do inventário
 
@@ -5965,7 +5999,7 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `backend` |  | 18 | 82 | 41 |
+| `backend` | Backend FastAPI: lógica de problemas, colocação, dados, física, experimentos e relatórios (`core`) e os routers da API (`routers`). | 18 | 82 | 41 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5973,242 +6007,246 @@ _Sem texto de objetivo._
 
 #### `pinneapple_app.backend`
 
-_Módulo sem docstring e sem texto._
+Pacote do backend FastAPI do app (arquivo `__init__` vazio). [sem teste direto]
 
 <small>`pinneapple_app/backend/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_app.backend.core`
 
-_Módulo sem docstring e sem texto._
+Subpacote com a lógica do backend: problemas, colocação, dados, física, experimentos, catálogo de modelos e relatórios (arquivo `__init__` vazio). [sem teste direto]
 
 <small>`pinneapple_app/backend/core/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_app.backend.core.admin_auth`
 
-pinneapple_app.backend.core.admin_auth — a minimal, generic admin gate.
+Portão de administração mínimo: um token compartilhado lido de `PINNEAPPLE_ADMIN_TOKEN`; sem a variável, as rotas admin respondem 503. [sem teste direto; exercitado via `tests/test_admin_router.py`]
 
 <small>`pinneapple_app/backend/core/admin_auth.py` · 31 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `require_admin` | função | `(x_admin_token=Header(default='')) -> None` | FastAPI dependency: raises 401 unless ``X-Admin-Token`` matches ``PINNEAPPLE_ADMIN_TOKEN``. If that env var is unset, admin routes are refused entirely (503) rather than silently open — there is no "admin token not configured, so let everyone in" fallback. |
+| `require_admin` | função | `(x_admin_token=Header(default='')) -> None` | Dependência FastAPI que exige o cabeçalho `X-Admin-Token` igual a `PINNEAPPLE_ADMIN_TOKEN` (401 se diferente, 503 se não configurado). |
 
 #### `pinneapple_app.backend.core.benchmark`
 
-Benchmark report generator — produces plots and tables from ExperimentResult.
+Gera o payload do benchmark de um `ExperimentResult`: leaderboard, gráficos PNG em base64 (matplotlib) e resumo em texto, trocando NaN/Inf por null. [sem teste]
 
 <small>`pinneapple_app/backend/core/benchmark.py` · 208 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_benchmark_payload` | função | `(result) -> Dict[str, Any]` | Convert an ExperimentResult into a JSON-serialisable benchmark payload. |
+| `build_benchmark_payload` | função | `(result) -> Dict[str, Any]` | Converte um `ExperimentResult` em dict JSON com leaderboard, gráficos em base64 e resumo. |
 
 #### `pinneapple_app.backend.core.collocation`
 
-Collocation point generation strategies for pinneapple_app.
+Geração de pontos de colocação (interior, contorno, inicial) num domínio caixa por uniforme, LHS, Sobol, Halton ou grade, ou por rejeição dentro de uma SDF.
 
 <small>`pinneapple_app/backend/core/collocation.py` · 208 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CollocationConfig` | classe | `(strategy, n_interior, n_boundary, n_initial, seed, use_geometry, geometry_sdf_fn, domain…)` | Configuration for collocation point generation. |
-| `generate_points` | função | `(config, bounds, *, include_time=False, t_range=(0.0, 1.0)) -> Dict[str, np.ndarray]` | Generate collocation points from a config and domain bounds. |
+| `CollocationConfig` | classe | `(strategy, n_interior, n_boundary, n_initial, seed, use_geometry, geometry_sdf_fn, domain…)` | Configuração da colocação: estratégia, quantidades de pontos, semente, uso de geometria/SDF, resolução de grade e parâmetros adaptativos. |
+| `generate_points` | função | `(config, bounds, *, include_time=False, t_range=(0.0, 1.0)) -> Dict[str, np.ndarray]` | Gera pontos interiores, de contorno (com rótulo da face) e iniciais a partir da configuração e dos limites do domínio. |
 
 #### `pinneapple_app.backend.core.data_pipeline`
 
-Data generation pipeline — runs a solver to produce synthetic training data.
+Pipeline de dados: opcionalmente roda um solver de `pinneapple_simulation` para gerar referência e amostra os pontos de colocação, devolvendo um `DataBundle`.
 
 <small>`pinneapple_app/backend/core/data_pipeline.py` · 163 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DataConfig` | classe | `(solver_key, n_snapshots, grid_resolution, t_end, use_solver)` | Configuration for synthetic data generation. |
-| `DataBundle` | classe | `(x_col, x_bnd, x_ic, u_ref, solver_outputs, meta)` | Output of the data pipeline, consumed by ExperimentRunner. |
-| `run_data_pipeline` | função | `(problem, collocation_cfg, data_cfg, *, device='cpu', verbose=True) -> DataBundle` | Execute data generation: (optionally) run solver + sample collocation pts. |
+| `DataConfig` | classe | `(solver_key, n_snapshots, grid_resolution, t_end, use_solver)` | Configuração da geração de dados: chave do solver, número de snapshots, resolução, tempo final e se usa o solver. |
+| `DataBundle` | classe | `(x_col, x_bnd, x_ic, u_ref, solver_outputs, meta)` | Saída do pipeline: pontos de colocação, contorno e iniciais, referência interpolada, saídas do solver e metadados. |
+| `run_data_pipeline` | função | `(problem, collocation_cfg, data_cfg, *, device='cpu', verbose=True) -> DataBundle` | Roda o solver (se pedido) e amostra os pontos, devolvendo um `DataBundle`. |
 
 #### `pinneapple_app.backend.core.experiment`
 
-Experiment runner: trains multiple models on the same problem and collects results.
+Executor de experimentos: treina vários modelos no mesmo problema, transmite progresso por gerador assíncrono, pode re-treinar com sugestões do `TrainingAdvisor` e mede tudo em dados separados.
 
 <small>`pinneapple_app/backend/core/experiment.py` · 475 linhas · testes: 7 · palavras-chave no código (heurística; o texto acima diz o status real): experimental</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelRunConfig` | classe | `(name, extra_kwargs, weight_override)` |  |
-| `ExperimentConfig` | classe | `(experiment_id, problem_name, models, metrics, epochs, lr, device, batch_size, seed, grad…)` | Full configuration for one experimental run (one problem, N models). |
-| `ModelResult` | classe | `(name, metrics, loss_history, physics_loss_history, bc_loss_history, train_time_s, n_para…)` |  |
-| `ExperimentResult` | classe | `(experiment_id, config, model_results, completed_at)` |  |
-| `ExperimentRunner` | classe | `(config, data_bundle, problem)` | Trains all configured models and streams progress via an async generator. |
+| `ModelRunConfig` | classe | `(name, extra_kwargs, weight_override)` | Configuração de um modelo dentro do experimento: nome, kwargs extras e sobrescrita de pesos. |
+| `ExperimentConfig` | classe | `(experiment_id, problem_name, models, metrics, epochs, lr, device, batch_size, seed, grad…)` | Configuração completa de um experimento: problema, modelos, métricas, épocas, taxa, dispositivo, semente e opções de re-treino automático. |
+| `ModelResult` | classe | `(name, metrics, loss_history, physics_loss_history, bc_loss_history, train_time_s, n_para…)` | Resultado de um modelo: métricas, históricos de perda, tempo, número de parâmetros, estado, erro, rodadas de re-treino, diagnóstico e relatório. |
+| `ExperimentResult` | classe | `(experiment_id, config, model_results, completed_at)` | Resultado do experimento com os resultados por modelo; `leaderboard` ordena por L2 relativo em dados separados e depois por resíduo em pontos não vistos. |
+| `ExperimentRunner` | classe | `(config, data_bundle, problem)` | Treina todos os modelos configurados e emite eventos de progresso por um gerador assíncrono. |
 
 #### `pinneapple_app.backend.core.model_catalog`
 
-Model catalog: lists available models, enriches with metadata, and recommends.
+Catálogo de modelos: lista arquiteturas do `ModelRegistry` enriquecidas com metadados estáticos (família, descrição, suporte a perda física) e recomenda por família de problema. [sem teste]
 
 <small>`pinneapple_app/backend/core/model_catalog.py` · 195 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelEntry` | classe | `(name, family, description, supports_physics_loss, tags, recommended_for)` |  |
-| `list_models` | função | `(family=None) -> List[ModelEntry]` | Return all available models, optionally filtered by family. |
-| `recommend_for_problem` | função | `(problem_family, n=5) -> List[str]` | Return top-N recommended model names for a given problem family. |
-| `get_model_info` | função | `(name) -> Optional[ModelEntry]` |  |
+| `ModelEntry` | classe | `(name, family, description, supports_physics_loss, tags, recommended_for)` | Entrada do catálogo: nome, família, descrição, suporte a perda física, tags e problemas recomendados. |
+| `list_models` | função | `(family=None) -> List[ModelEntry]` | Lista os modelos disponíveis, opcionalmente filtrando por família. |
+| `recommend_for_problem` | função | `(problem_family, n=5) -> List[str]` | Devolve os N modelos recomendados para uma família de problema. |
+| `get_model_info` | função | `(name) -> Optional[ModelEntry]` | Devolve a entrada de um modelo pelo nome, ou None. |
 
 #### `pinneapple_app.backend.core.physics_adapter`
 
-Physics adapters: turn a ``ProblemDefinition`` into a trainable physics loss.
+Transforma um `ProblemDefinition` numa perda física treinável: `PresetPhysics` monta o lote que `compile_problem` espera e `CustomPhysics` compila equações do usuário com `SymbolicPDE` e impõe condições Dirichlet/Neumann/iniciais; substitui um antigo placeholder que zerava a física.
 
 <small>`pinneapple_app/backend/core/physics_adapter.py` · 552 linhas · testes: 7 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring; levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConditionInfo` | classe | `(key, name, kind, fields, weight, n_points, how, target_rms)` |  |
-| `PhysicsAdapter` | classe | `()` | Shared interface used by the experiment runner and the report. |
-| `PresetPhysics` | classe | `(spec, *, w_physics=None, w_bc=None)` |  |
-| `CustomPhysics` | classe | `(problem, *, w_physics=None, w_bc=None)` |  |
-| `unwrap` | função | `(out) -> torch.Tensor` | Model output -> plain (N, F) tensor (PINNOutput/ModelOutput carry ``.y``). |
-| `spatial_coords` | função | `(coords) -> List[str]` |  |
-| `all_faces` | função | `(coords) -> List[Face]` |  |
-| `faces_for_tag` | função | `(tag, coords) -> Optional[List[Face]]` | Box-face convention for the tags in ``_BOX_TAGS``; ``None`` otherwise. |
-| `sample_faces` | função | `(bounds, coords, faces, n, rng) -> Tuple[np.ndarray, np.ndarray]` | Uniform points on the given box faces, with outward unit normals. |
-| `sample_initial` | função | `(bounds, coords, n, rng) -> np.ndarray` |  |
-| `sample_interior` | função | `(bounds, coords, n, rng) -> np.ndarray` |  |
-| `characteristic_length` | função | `(bounds, coords) -> float` | Mean spatial extent (time extent for ODE-only problems). |
-| `parse_equation` | função | `(expr, coords, fields)` | ``"u_t + u*u_x - 0.01*u_xx"`` -> SymPy expression in u(x, t). |
-| `parse_location` | função | `(location, bounds, coords) -> List[Face]` | ``""``/``"all"``/``"boundary"``, ``"x=0"``, ``"x_min"``, ``"left"``... |
-| `build_physics` | função | `(problem, *, weight_override=None) -> Optional[PhysicsAdapter]` | Adapter for the problem, or ``None`` when it defines no physics at all. |
+| `ConditionInfo` | classe | `(key, name, kind, fields, weight, n_points, how, target_rms)` | Descrição de uma condição de contorno/inicial aplicada: chave, tipo, campos, peso, número de pontos, como foi imposta e RMS-alvo. |
+| `PhysicsAdapter` | classe | `()` | Interface comum de física usada pelo executor e pelo relatório; `build_batch` e `loss` levantam NotImplementedError na base. |
+| `PresetPhysics` | classe | `(spec, *, w_physics=None, w_bc=None)` | Adaptador para presets: monta o lote esperado por `compile_problem` com pontos exatamente nas faces da caixa e máscaras por condição. |
+| `CustomPhysics` | classe | `(problem, *, w_physics=None, w_bc=None)` | Adaptador para problemas customizados: compila as equações com `SymbolicPDE` e impõe BCs Dirichlet/Neumann e ICs. |
+| `unwrap` | função | `(out) -> torch.Tensor` | Converte a saída do modelo (tensor ou objeto com `.y`) num tensor (N, F). |
+| `spatial_coords` | função | `(coords) -> List[str]` | Lista as coordenadas espaciais (exclui o tempo). |
+| `all_faces` | função | `(coords) -> List[Face]` | Lista todas as faces min/max da caixa espacial. |
+| `faces_for_tag` | função | `(tag, coords) -> Optional[List[Face]]` | Traduz tags de contorno conhecidas em faces da caixa; None para tags que não seguem essa convenção. |
+| `sample_faces` | função | `(bounds, coords, faces, n, rng) -> Tuple[np.ndarray, np.ndarray]` | Amostra pontos uniformes nas faces dadas, proporcionais à área, com normais unitárias externas. |
+| `sample_initial` | função | `(bounds, coords, n, rng) -> np.ndarray` | Amostra pontos no instante inicial do domínio. |
+| `sample_interior` | função | `(bounds, coords, n, rng) -> np.ndarray` | Amostra pontos uniformes no interior do domínio. |
+| `characteristic_length` | função | `(bounds, coords) -> float` | Extensão espacial média do domínio (extensão do tempo para EDOs). |
+| `parse_equation` | função | `(expr, coords, fields)` | Converte uma string como `u_t + u*u_x - 0.01*u_xx` numa expressão SymPy. |
+| `parse_location` | função | `(location, bounds, coords) -> List[Face]` | Converte descrições de local (`all`, `x=0`, `x_min`, `left`...) em faces da caixa. |
+| `build_physics` | função | `(problem, *, weight_override=None) -> Optional[PhysicsAdapter]` | Escolhe e cria o adaptador de física do problema, ou None quando ele não define física. |
 
 #### `pinneapple_app.backend.core.problem`
 
-Problem definition layer for pinneapple_app.
+Camada de definição de problema: carrega presets do ambiente de EDPs de `pinneapple_physics` ou monta problemas customizados a partir de equações em texto, BCs e ICs.
 
 <small>`pinneapple_app/backend/core/problem.py` · 184 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BoundaryConditionSpec` | classe | `(kind, location, value, field)` | Human-readable BC for custom problems. |
-| `InitialConditionSpec` | classe | `(expression, field)` | Human-readable IC for custom problems. |
-| `EquationSpec` | classe | `(expression, label, field)` | A single PDE residual equation (string or SymPy expression). |
-| `ProblemDefinition` | classe | `(kind, name, spec, dim, domain_bounds, pde_family, is_time_dependent, preset_name, equati…)` | Unified problem container used throughout pinneapple_app. |
-| `load_preset` | função | `(preset_name) -> ProblemDefinition` | Load a ProblemDefinition from the environment preset registry. |
-| `define_custom` | função | `(name, equations, bcs, ics=None, domain_bounds=None, dim=2, pde_family=FAMILY_GENERIC, is…)` | Build a ProblemDefinition from user-supplied equations, BCs, and ICs. |
+| `BoundaryConditionSpec` | classe | `(kind, location, value, field)` | Condição de contorno legível para problemas customizados: tipo, local, valor e campo. |
+| `InitialConditionSpec` | classe | `(expression, field)` | Condição inicial legível: expressão e campo. |
+| `EquationSpec` | classe | `(expression, label, field)` | Uma equação de resíduo da EDP (string ou SymPy), com rótulo e campo. |
+| `ProblemDefinition` | classe | `(kind, name, spec, dim, domain_bounds, pde_family, is_time_dependent, preset_name, equati…)` | Contêiner único de problema do app (preset ou customizado): domínio, família, dependência do tempo, equações, BCs e ICs. |
+| `load_preset` | função | `(preset_name) -> ProblemDefinition` | Carrega um `ProblemDefinition` a partir do registro de presets de `pinneapple_physics.pde_environment`. |
+| `define_custom` | função | `(name, equations, bcs, ics=None, domain_bounds=None, dim=2, pde_family=FAMILY_GENERIC, is…)` | Monta um `ProblemDefinition` a partir de equações, BCs e ICs do usuário, sem exigir `ProblemSpec`. |
 
 #### `pinneapple_app.backend.core.problem_registry`
 
-Problem registry: metadata, solver recommendations, and model suggestions per preset.
+Registro estático de metadados por preset (família, descrição, tags, solver e modelos recomendados), com valores padrão para presets desconhecidos. [sem teste]
 
 <small>`pinneapple_app/backend/core/problem_registry.py` · 469 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `get_problem_meta` | função | `(preset_name) -> Dict[str, Any]` | Return metadata dict for a preset, with sensible defaults for unknowns. |
-| `recommend_models` | função | `(preset_name) -> list` |  |
-| `recommended_solver` | função | `(preset_name) -> str` |  |
-| `all_problems` | função | `() -> list` |  |
+| `get_problem_meta` | função | `(preset_name) -> Dict[str, Any]` | Devolve os metadados de um preset, com padrões para presets desconhecidos. |
+| `recommend_models` | função | `(preset_name) -> list` | Lista de modelos recomendados para o preset. |
+| `recommended_solver` | função | `(preset_name) -> str` | Chave do solver recomendado para o preset. |
+| `all_problems` | função | `() -> list` | Lista todos os presets com metadados. |
 
 #### `pinneapple_app.backend.core.surrogate_report`
 
-Surrogate quality report: the "can I trust this model?" section of a run.
+Relatório "posso confiar neste modelo?": erro em teste separado, convergência, generalização, variáveis, pesos, incerteza (ensemble de snapshots e conformal) e checagens físicas, com veredito final.
 
 <small>`pinneapple_app/backend/core/surrogate_report.py` · 552 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `error_section` | função | `(model, fields, X_test, Y_test, reference_source) -> Dict[str, Any]` |  |
-| `convergence_section` | função | `(loss_history) -> Dict[str, Any]` |  |
-| `generalization_section` | função | `(model, X_train, Y_train, X_test, Y_test, res_train, res_unseen) -> Dict[str, Any]` |  |
-| `variables_section` | função | `(model, adapter, X_eval, supervised) -> Dict[str, Any]` |  |
-| `weights_section` | função | `(model, adapter, final_raw, w_data, data_loss) -> Dict[str, Any]` |  |
-| `uncertainty_section` | função | `(model, snapshots, fields, X_eval, X_cal, Y_cal, X_test, Y_test, coverage=0.9) -> Dict[st…)` |  |
-| `field_scales` | função | `(adapter, pred) -> np.ndarray` | Per-field magnitude: max of the predicted spread, the declared range and the RMS of the Dirichlet/initial values imposed on that field. |
-| `residual_scale` | função | `(model, adapter, X, pred) -> float` | Typical size of the PDE's individual terms, to normalise its residual. |
-| `physics_checks_section` | função | `(model, adapter, X_eval, raw_unseen, raw_initial, pred_eval) -> List[Dict[str, Any]]` |  |
-| `verdict` | função | `(report) -> Dict[str, Any]` |  |
-| `build_report` | função | `(*, model, adapter, loss_history, final_raw_train, raw_initial, raw_unseen, res_train, X_…)` | Assemble all sections. ``split`` holds numpy/tensor train/cal/test arrays. |
+| `error_section` | função | `(model, fields, X_test, Y_test, reference_source) -> Dict[str, Any]` | Seção de erro: L2 relativo e erro absoluto por campo contra a referência no split de teste. |
+| `convergence_section` | função | `(loss_history) -> Dict[str, Any]` | Seção de convergência: classifica o histórico de perda (convergiu, estagnou, divergiu, ainda melhorando, oscilando). |
+| `generalization_section` | função | `(model, X_train, Y_train, X_test, Y_test, res_train, res_unseen) -> Dict[str, Any]` | Seção de generalização: erro treino vs teste e resíduo da EDP em treino vs pontos não vistos. |
+| `variables_section` | função | `(model, adapter, X_eval, supervised) -> Dict[str, Any]` | Seção de variáveis: entradas, saídas, faixas previstas e sensibilidade às entradas. |
+| `weights_section` | função | `(model, adapter, final_raw, w_data, data_loss) -> Dict[str, Any]` | Seção de pesos: pesos dos termos de perda, participação de cada termo e saúde dos parâmetros da rede. |
+| `uncertainty_section` | função | `(model, snapshots, fields, X_eval, X_cal, Y_cal, X_test, Y_test, coverage=0.9) -> Dict[st…)` | Seção de incerteza: dispersão de snapshots de pesos do fim do treino e intervalos conformal com cobertura medida. |
+| `field_scales` | função | `(adapter, pred) -> np.ndarray` | Escala de cada campo: máximo entre a dispersão prevista, a faixa declarada e o RMS dos valores impostos. |
+| `residual_scale` | função | `(model, adapter, X, pred) -> float` | Tamanho típico dos termos da EDP, para normalizar o resíduo. |
+| `physics_checks_section` | função | `(model, adapter, X_eval, raw_unseen, raw_initial, pred_eval) -> List[Dict[str, Any]]` | Checagens físicas (resíduo, condições de contorno/iniciais, conservação de massa, balanço de energia, limites físicos) com pass/warn/fail. |
+| `verdict` | função | `(report) -> Dict[str, Any]` | Veredito final (`trustworthy`, `use_with_caution` ou `not_trustworthy`) com as razões. |
+| `build_report` | função | `(*, model, adapter, loss_history, final_raw_train, raw_initial, raw_unseen, res_train, X_…)` | Monta todas as seções do relatório e o veredito. |
 
 #### `pinneapple_app.backend.main`
 
-FastAPI application entry point for PINNeAPPle App.
+Ponto de entrada FastAPI: registra os routers, expõe `/api/health`, `/api/metrics` (Prometheus feito à mão) e `/api/info`, e serve o frontend React compilado quando existe.
 
 <small>`pinneapple_app/backend/main.py` · 112 linhas · testes: 41</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `health` | função | `()` |  |
-| `metrics` | função | `() -> str` | Prometheus text-exposition format — deliberately hand-rolled (no new dependency) rather than pulling in ``prometheus-client`` for two gauges. See ``pinneapple_app/deploy/monitoring/prometheus.yml`` for the scrape config pointed at this endpoint. |
-| `info` | função | `()` | Return library capabilities summary. |
+| `health` | função | `()` | Endpoint de saúde do servidor. |
+| `metrics` | função | `() -> str` | Endpoint Prometheus com tempo de atividade e total de requisições. |
+| `info` | função | `()` | Resumo das capacidades: número de modelos e problemas, famílias e lista de recursos. |
 
 #### `pinneapple_app.backend.routers`
 
-_Módulo sem docstring e sem texto._
+Subpacote dos routers da API (arquivo `__init__` vazio). [sem teste direto]
 
 <small>`pinneapple_app/backend/routers/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_app.backend.routers.admin`
 
-pinneapple_app.backend.routers.admin — internal curation/status view: cross-references the problem catalog, the model registry (``pinneapple_registry.ArtifactRegistry``), and dataset scenarios into one dashboard-ready payload. Gated by ``core.admin_auth.require_admin`` (a generic bearer token, see …
+Router admin protegido por `require_admin`: resumo cruzando catálogo de problemas, registro de modelos (`pinneapple_registry`) e cenários de dados, e promoção de versão de modelo. [sem teste direto; exercitado via `tests/test_admin_router.py`]
 
 <small>`pinneapple_app/backend/routers/admin.py` · 84 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelSummaryItem` | classe | `(problem_id, latest_model_version, stage, dataset_scenarios)` |  |
-| `AdminSummaryResponse` | classe | `(registry_root, n_presets, n_architectures, models)` |  |
-| `PromoteRequest` | classe | `(problem_id, version, stage)` |  |
-| `admin_summary` | função | `() -> AdminSummaryResponse` |  |
-| `promote_model` | função | `(req) -> Dict[str, Any]` | Promotes a stored model version to a new stage. Being behind ``require_admin`` already IS the confirmation gate here (unlike ``pinneapple_orchestration``'s flow-level ``confirm=True`` flag, which guards an unattended pipeline step instead of a human clicking a button in an admin UI). |
+| `ModelSummaryItem` | classe | `(problem_id, latest_model_version, stage, dataset_scenarios)` | Item do resumo admin: problema, última versão de modelo, estágio e cenários de dados. |
+| `AdminSummaryResponse` | classe | `(registry_root, n_presets, n_architectures, models)` | Resposta do resumo admin: raiz do registro, número de presets e arquiteturas, e modelos. |
+| `PromoteRequest` | classe | `(problem_id, version, stage)` | Pedido de promoção: problema, versão e novo estágio. |
+| `admin_summary` | função | `() -> AdminSummaryResponse` | Monta o resumo admin cruzando presets, registro de modelos e cenários. |
+| `promote_model` | função | `(req) -> Dict[str, Any]` | Promove uma versão de modelo armazenada para um novo estágio no `ArtifactRegistry`. |
 
 #### `pinneapple_app.backend.routers.experiments`
 
-Experiments API router — launch, monitor, and retrieve experiments.
+Router de experimentos: lança em background, consulta status e resultados, lista e transmite progresso por WebSocket; guarda tudo num dict em memória. [sem teste direto]
 
 <small>`pinneapple_app/backend/routers/experiments.py` · 266 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CollocationRequest` | classe | `(strategy, n_interior, n_boundary, n_initial, seed, use_geometry, domain_name)` |  |
-| `DataRequest` | classe | `(solver_key, n_snapshots, grid_resolution, t_end, use_solver)` |  |
-| `ModelRequest` | classe | `(name, extra_kwargs)` |  |
-| `ExperimentRequest` | classe | `(problem_name, custom_problem, collocation, data, models, metrics, epochs, lr, device, se…)` |  |
-| `ExperimentStatusResponse` | classe | `(experiment_id, status, progress, message)` |  |
-| `launch_experiment` | função | `(req, background_tasks)` | Launch a new experiment asynchronously. Returns experiment_id immediately. |
-| `get_status` | função | `(experiment_id)` |  |
-| `get_results` | função | `(experiment_id)` |  |
-| `list_experiments` | função | `()` |  |
-| `experiment_ws` | função | `(websocket, experiment_id)` | WebSocket endpoint — streams training progress events as JSON. |
+| `CollocationRequest` | classe | `(strategy, n_interior, n_boundary, n_initial, seed, use_geometry, domain_name)` | Corpo da requisição para configurar a colocação. |
+| `DataRequest` | classe | `(solver_key, n_snapshots, grid_resolution, t_end, use_solver)` | Corpo da requisição para configurar a geração de dados. |
+| `ModelRequest` | classe | `(name, extra_kwargs)` | Corpo da requisição para um modelo do experimento. |
+| `ExperimentRequest` | classe | `(problem_name, custom_problem, collocation, data, models, metrics, epochs, lr, device, se…)` | Corpo completo para lançar um experimento (problema preset ou customizado, colocação, dados, modelos, métricas, treino). |
+| `ExperimentStatusResponse` | classe | `(experiment_id, status, progress, message)` | Resposta de status: id, estado, progresso e mensagem. |
+| `launch_experiment` | função | `(req, background_tasks)` | Lança um experimento em background e devolve o id na hora. |
+| `get_status` | função | `(experiment_id)` | Devolve o status de um experimento. |
+| `get_results` | função | `(experiment_id)` | Devolve os resultados de um experimento concluído. |
+| `list_experiments` | função | `()` | Lista os experimentos guardados em memória. |
+| `experiment_ws` | função | `(websocket, experiment_id)` | WebSocket que transmite eventos de progresso do treino em JSON. |
 
 #### `pinneapple_app.backend.routers.models`
 
-Models API router.
+Router de modelos: lista modelos e famílias, recomenda por família, lista métricas e devolve metadados de um modelo. [sem teste direto]
 
 <small>`pinneapple_app/backend/routers/models.py` · 84 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelListItem` | classe | `(name, family, description, supports_physics_loss, tags, recommended_for)` |  |
-| `MetricItem` | classe | `(key, label)` |  |
-| `list_models` | função | `(family=None)` | Return all available models, optionally filtered by family. |
-| `list_families` | função | `()` | Return all model families. |
-| `recommend_models` | função | `(problem_family, n=5)` | Return top-N recommended model names for a problem family. |
-| `list_metrics` | função | `()` | Return all available evaluation metrics. |
-| `get_model` | função | `(name)` | Return metadata for a single model. |
+| `ModelListItem` | classe | `(name, family, description, supports_physics_loss, tags, recommended_for)` | Item da lista de modelos na resposta da API. |
+| `MetricItem` | classe | `(key, label)` | Métrica disponível (chave e rótulo). |
+| `list_models` | função | `(family=None)` | Lista modelos, opcionalmente por família. |
+| `list_families` | função | `()` | Lista as famílias de modelos. |
+| `recommend_models` | função | `(problem_family, n=5)` | Devolve os N modelos recomendados para uma família de problema. |
+| `list_metrics` | função | `()` | Lista as métricas de avaliação disponíveis. |
+| `get_model` | função | `(name)` | Devolve metadados de um modelo (404 se não existir). |
 
 #### `pinneapple_app.backend.routers.problems`
 
-Problems API router.
+Router de problemas: lista presets com metadados, detalha um preset e valida um problema customizado sem rodá-lo. [sem teste direto]
 
 <small>`pinneapple_app/backend/routers/problems.py` · 86 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PresetListItem` | classe | `(name, family, description, tags, time_dependent, recommended_models, recommended_solver)` |  |
-| `CustomProblemRequest` | classe | `(name, equations, boundary_conditions, initial_conditions, domain_bounds, dim, pde_family…)` |  |
-| `list_problems` | função | `()` | Return all available preset problems with metadata. |
-| `get_problem` | função | `(name)` | Return metadata for a single preset problem. |
-| `validate_custom_problem` | função | `(req)` | Validate a custom problem definition without running it. |
+| `PresetListItem` | classe | `(name, family, description, tags, time_dependent, recommended_models, recommended_solver)` | Item da lista de presets: nome, família, descrição, tags, dependência do tempo e recomendações. |
+| `CustomProblemRequest` | classe | `(name, equations, boundary_conditions, initial_conditions, domain_bounds, dim, pde_family…)` | Corpo para definir um problema customizado (equações, BCs, ICs, domínio, dimensão, família). |
+| `list_problems` | função | `()` | Lista todos os presets com metadados. |
+| `get_problem` | função | `(name)` | Devolve os metadados de um preset. |
+| `validate_custom_problem` | função | `(req)` | Valida a definição de um problema customizado sem rodá-lo. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Métricas e portão admin pela API** — `tests/test_admin_router.py`
+
+```python
+resp = client.get("/api/admin/summary", headers={"X-Admin-Token": "test-token"})
+```
 
 ### Testes e status de validação
 
@@ -6217,4 +6255,10 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Os experimentos ficam num dict em memória (`_EXPERIMENTS`); o próprio código diz para trocar por banco de dados em produção.
+- A autenticação admin é um único token compartilhado em variável de ambiente; o docstring recomenda um provedor de autenticação real para uso multiusuário.
+- `collocation.STRATEGIES` lista `adaptive` e `meshfree`, mas a amostragem interior só implementa uniforme, LHS, Sobol, Halton e grade; outras estratégias caem em LHS.
+- Condições de contorno que nomeiam geometria real (tags fora da convenção de faces da caixa) não são aplicadas; ficam listadas como `unresolved` para o relatório.
+- `PhysicsAdapter` é base abstrata (`build_batch` e `loss` levantam NotImplementedError).
+- Vários módulos não têm teste direto (`benchmark`, `model_catalog`, `problem_registry` e os routers de experimentos, modelos e problemas).
+- Depende de FastAPI; gráficos do benchmark usam matplotlib; o frontend só é servido se `frontend/dist` tiver sido compilado.

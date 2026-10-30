@@ -182,9 +182,9 @@ Em palavras:
 | `pp.datasets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo.datasets` | `pp.datasets`: datasets verificados em uma linha, guardados como npz sem pickle; os pequenos vêm no pacote, os outros são baixados do Hub, conferidos por SHA-256 e cacheados. |
 | `pp.DDPPINNTrainer` | import direto | `pinneapple_neural.trainer.DDPPINNTrainer` |  |
 | `pp.DDPTrainerConfig` | import direto | `pinneapple_neural.trainer.DDPTrainerConfig` |  |
-| `pp.decide` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.decide` | Decide which experiment to run next. ``problem`` may be a ``ProblemSpec`` or a free-form dict (see ``adapter.py``). Facts that could not be determined are listed in ``decision.diagnostics["problem_facts"]["unknown"]``. |
-| `pp.decision` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_decision` | pinneapple_decision -- probabilistic decision layer over the Physics AI pipeline. |
-| `pp.decision_engine` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.decision_engine` | Return the default engine. Passing any argument (or ``reset=True``) replaces it with a new engine built from those arguments (evidence is not carried over). |
+| `pp.decide` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.decide` | Decide qual experimento rodar a seguir para o problema e objetivo dados. |
+| `pp.decision` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_decision` | Fachada do pacote: reexporta tipos, decisor, backends, laço de decisão, seletores, árvore, verificadores e a API `decide`/`execute`/`verify`/`run_tree`; importar o pacote não carrega torch. |
+| `pp.decision_engine` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.decision_engine` | Devolve o motor padrão; qualquer argumento (ou `reset=True`) cria um novo, sem carregar a evidência antiga. |
 | `pp.DEFAULT_MODELS` | import direto | `pinneapple_tools.benchmark_suite.DEFAULT_MODELS` |  |
 | `pp.design` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_design.intent.design` |  |
 | `pp.design_opt` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.design_optimizer` | Ponto de entrada do otimizador de projeto: reexporta o laço fechado (espaço de parâmetros, surrogate, otimizador, refinamento por PINN, Pareto) e a camada de estudos de projeto. |
@@ -211,7 +211,7 @@ Em palavras:
 | `pp.EnsembleUQ` | import direto | `pinneapple_analysis.uncertainty.EnsembleUQ` |  |
 | `pp.env` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.pde_environment` | Ponto de entrada do ambiente de problemas: reexporta `ProblemSpec`, `PDETermSpec`, as condições de contorno, `ProblemBuilder`, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de `try/except ImportError`. [sem teste direto] |
 | `pp.excitation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.excitation` | Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleatória, PRBS, chirp, dente de serra, passeio aleatório suavizado, pulsos gaussianos, AM de dois tons) para identificação de sistemas e treino de surrogates; separa famílias de treino e famílias reservadas (`TRAIN_FAMILIES`, `HELDOUT_FAMILIES`). |
-| `pp.execute` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.execute` | Execute a decision issued by the same engine (constraints are re-checked first). |
+| `pp.execute` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.execute` | Executa uma decisão emitida pelo mesmo motor, rechecando as restrições antes. |
 | `pp.Experiment` | import direto | `pinneapple_physics.experiment.Experiment` | Método aplicado a um problema com semente, opções e referência opcional; `run` executa de forma reprodutível. |
 | `pp.ExperimentResult` | import direto | `pinneapple_physics.experiment.ExperimentResult` | Registro de uma execução: config, fingerprint, solução, métricas, tempo, ambiente; salva e carrega em JSON. |
 | `pp.export` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.model_export` | Exportação de modelos `nn.Module` para TorchScript e ONNX e de arrays de coordenadas/campos para CSV e NPZ. [sem teste] |
@@ -327,7 +327,7 @@ Em palavras:
 | `pp.profiles` | import direto | `pinneapple_core.onboarding.profiles` |  |
 | `pp.propagate_tolerances` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate` | Propaga tolerâncias independentes por `fn` via Monte Carlo. |
 | `pp.propagate_uncertainty` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate_space` | Propaga entradas com qualquer distribuição por `fn`. |
-| `pp.qualitative` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.qualitative` |  |
+| `pp.qualitative` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.qualitative` | Reexporta `preview`, `part_sensitivity`, `Assembly` e os modelos qualitativos. |
 | `pp.Quantity` | import direto | `pinneapple_physics.physical_problem.Quantity` | Quantidade de interesse que o usuário quer da solução, com unidade e campo de origem. |
 | `pp.quantum` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_quantum` | pinneapple_quantum — PINNeAPPle Quantum Module (PQM). |
 | `pp.quickstart` | definido em `pinneapple/__init__.py` | `pinneapple.quickstart` | Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec. |
@@ -341,7 +341,7 @@ Em palavras:
 | `pp.RigidBodyState` | import direto | `pinneapple_simulation.particle_dynamics.RigidBodyState` |  |
 | `pp.RigidBodySystem` | import direto | `pinneapple_simulation.particle_dynamics.RigidBodySystem` |  |
 | `pp.run_parallel_sweep` | import direto | `pinneapple_neural.trainer.run_parallel_sweep` |  |
-| `pp.run_tree` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.run_tree` | Walk the physics-AI decision tree (``tree.physics_ai_tree()`` by default). |
+| `pp.run_tree` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.run_tree` | Percorre a árvore de decisão de Physics AI (por padrão `physics_ai_tree()`). |
 | `pp.science` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_science` | Ponto de entrada (`pp.science`): reexporta `atlas`, `experiments`, `run` e os tipos centrais. |
 | `pp.score_against_reference` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.verification.physics_confidence_score.score_against_reference` | Pontua as predições de vários modelos contra um conjunto de referência separado. |
 | `pp.security` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_security` | Ponto de entrada do pacote; o docstring é o índice das capacidades e diz as dependências (biblioteca padrão e NumPy; PyTorch para DP-SGD e carga segura; `cryptography` para Ed25519 e AES-GCM). |
@@ -399,7 +399,7 @@ Em palavras:
 | `pp.validate` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.validation.validate.pp_validate` |  |
 | `pp.validate_model` | import direto | `pinneapple_analysis.validation.validate_model` |  |
 | `pp.vehicle` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.vehicle` | Veículos planetários com rodas: descrição (chassi + módulos de canto) com CAD, modelo multicorpo construído a partir dela e simulador em terreno deformável com rodas de Wong-Reece. |
-| `pp.verify` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.verify` | Verify a result; only verified results become evidence for the next decision. |
+| `pp.verify` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.verify` | Verifica um resultado; só resultados verificados viram evidência. |
 | `pp.veriphysics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_veriphysics` | Camada de verificação e evidência do Veriphysics dentro do PINNeAPPle; o `__init__` só documenta os submódulos (decisão, relatório, aplicabilidade, escopo, robustez, recomendação, ledger, Validation Lab). |
 | `pp.viz` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.studio` | Studio do PINNeAPPle: visualização 3D realista de qualquer geometria e sua física (cena, visualizador web, Blender, PyVista); exporta `Scene` e atalhos de render. |
 | `pp.vmap_residual` | import direto | `pinneapple_tools.compute_backends.vmap_residual` |  |

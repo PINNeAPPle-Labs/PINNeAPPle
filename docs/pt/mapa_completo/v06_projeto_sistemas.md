@@ -26,6 +26,8 @@ O `__init__` reexporta `geometry` e `design_optimizer` e oferece `build_domain`,
 
 Esta parte cobre cinco submódulos de `pinneapple_design`. `aero` faz o projeto aerodinâmico completo (perfis CST, casos OpenFOAM, surrogates MLP e MeshGraphNet, aeronave leve e avião comercial, busca NSGA-II e verificação por CFD). `design_optimizer` é o núcleo genérico de otimização de projeto: problemas com variáveis, objetivos, restrições e avaliadores, métodos comparáveis sob o mesmo orçamento, verificação em alta fidelidade e presets. `geometry_library` é a biblioteca de geometrias 3D paramétricas exposta como `pp.geometries`. `intent` transforma uma meta em linguagem natural (`pp.design`) num pacote de projeto verificado, usando `design_optimizer` e a biblioteca de geometrias. `surrogate_inverse` traz cinco casos didáticos de projeto inverso por surrogate sobre fórmulas de `pinneapple_physics.closed_form`, servidos por apps.
 
+Esta parte cobre três submódulos do `pinneapple_design`. `fitmesh` leva de uma descrição em texto a CAD verificado, malhas planejadas para o propósito e um relatório único, com ajuda opcional de modelo de linguagem. `qualitative` faz uma prévia física qualitativa de geometrias e mudanças de peças antes da simulação, e depois a confere quantitativamente. `topology` faz otimização topológica por densidade (SIMP, filtro, projeção de Heaviside, OC e MMA) em problemas estruturais, térmicos, de Stokes e de rotor de máquina elétrica.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -41,14 +43,14 @@ Pasta de testes dedicada: `tests/pinneapple_design` (88 funções de teste).
 | `aero` | Projeto aerodinâmico de ponta a ponta: perfis CST, malha O-grid e casos OpenFOAM, surrogates (MLP e MeshGraphNet), desempenho da aeronave leve e do avião comercial, busca NSGA-II e verificação por CFD. | 23 | 111 | 72 |
 | `bricks` | Blocos de montar: geometria, estática, dinâmica, FEA, metas, busca automática de projetos e visualizações. | 14 | 108 | 24 |
 | `design_optimizer` | Otimização de projeto guiada por física: espaço de parâmetros, objetivos e restrições, otimizadores (gradiente, bayesiano, evolutivo), estudos de projeto com orçamento de avaliações, verificação em alta fidelidade e presets de dissipador e perfil. | 18 | 98 | 179 |
-| `fitmesh` |  | 12 | 38 | 21 |
+| `fitmesh` | Geometria e malha adequadas ao propósito: lê o problema, sugere geometrias de referência, gera CAD checado, planeja e gera malhas e escreve um relatório. | 12 | 38 | 21 |
 | `geometry` | Base geométrica: SDFs, CSG, domínios físicos, malhas, E/S de CAD, operações de malha, amostradores e CAD paramétrico de veículos. | 56 | 255 | 195 |
 | `geometry_library` | Biblioteca de geometrias 3D paramétricas e realistas (aeronaves, veículos, navios, turbinas, prédios, anatomia) com registro, construtores, checagens de malha, exportadores (STL, OBJ, glTF, USD, STEP), renderizador por software e arquivos pré-gerados no Hugging Face Hub. | 15 | 91 | 42 |
 | `intent` | Projeto a partir da intenção: uma meta em linguagem natural vira especificação com unidades, plano de física, otimização multifidelidade, verificação com solver completo, robustez e um pacote de projeto com relatório, geometria e arquivos de checagem. | 19 | 84 | 24 |
-| `qualitative` |  | 5 | 25 | 13 |
+| `qualitative` | Prévia qualitativa de como cada geometria ou mudança de peça afeta o resultado, por modelos físicos baratos, com checagem quantitativa. | 5 | 25 | 13 |
 | `surrogate_inverse` | Projeto inverso guiado por surrogate em física de forma fechada: amostra, treina uma MLP pequena, desce o gradiente no design pela rede congelada e reconfere o resultado contra a física; cinco casos resolvidos. | 8 | 104 | 94 |
 | `thermal` | Projeto térmico: motor e dimensionador de dissipadores, surrogates e o estudo de resfriamento de placa. | 19 | 75 | 46 |
-| `topology` |  | 6 | 17 | 9 |
+| `topology` | Otimização topológica baseada em densidade com filtros, projeção, OC e MMA. | 6 | 17 | 9 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -871,146 +873,146 @@ Confirmação em alta fidelidade dos designs otimizados e otimização assistida
 
 #### `pinneapple_design.fitmesh`
 
-Fit-for-purpose geometry and mesh: from a problem description to checked CAD, planned meshes and one report.
+Reexporta a sessão e as etapas do fluxo fitmesh: leitura do problema, catálogo, sugestões, CAD, plano e geração de malha, relatório.
 
 <small>`pinneapple_design/fitmesh/__init__.py` · 26 linhas · testes: 21</small>
 
 #### `pinneapple_design.fitmesh.api`
 
-HTTP API over :class:`FitMeshSession`: one session per study, one call per step, the files and the report.
+API HTTP (FastAPI) sobre `FitMeshSession`: uma sessão por estudo, uma chamada por etapa, mais arquivos e relatório.
 
 <small>`pinneapple_design/fitmesh/api.py` · 146 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `create_app` | função | `(root='fitmesh_runs')` |  |
+| `create_app` | função | `(root='fitmesh_runs')` | Cria o app FastAPI das sessões fitmesh numa pasta raiz. |
 
 #### `pinneapple_design.fitmesh.cad`
 
-Build the CAD variants, export STEP and STL, and check each one before it is meshed.
+Constrói as variantes em CadQuery, exporta STEP e STL e verifica cada uma (limites, BRep válido, volume exato, STL fechado, caixa, comparação com referências publicadas). [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/cad.py` · 115 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CadVariant` | classe | `(index, params, step, stl, checks, comparison, volume, area, bbox)` |  |
-| `build_variant` | função | `(tpl, params, out_dir, index, accuracy='design') -> CadVariant` |  |
-| `compare_with_references` | função | `(tpl, params) -> list[dict[str, Any]]` | Relative difference of each shared dimension with each published reference object. |
+| `CadVariant` | classe | `(index, params, step, stl, checks, comparison, volume, area, bbox)` | Uma variante CAD construída: parâmetros, arquivos STEP/STL, checagens, comparação, volume, área e caixa, com `verdict`. |
+| `build_variant` | função | `(tpl, params, out_dir, index, accuracy='design') -> CadVariant` | Constrói uma variante a partir do modelo e dos parâmetros, exporta e roda as checagens. |
+| `compare_with_references` | função | `(tpl, params) -> list[dict[str, Any]]` | Diferença relativa de cada dimensão compartilhada com cada objeto de referência publicado. |
 
 #### `pinneapple_design.fitmesh.catalog`
 
-Parametric geometry templates with the references that make them checkable.
+Catálogo de modelos de geometria paramétricos (asa NACA, corpo de Ahmed, cilindro, esfera, curva de tubo, degrau, placa com furo, viga, dissipador) com parâmetros, limites e referências publicadas. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/catalog.py` · 460 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Param` | classe | `(name, value, unit, typical, limits, role, sensitivity)` |  |
-| `Reference` | classe | `(citation, what, params)` |  |
-| `Template` | classe | `(key, title, physics, keywords, description, params, references, quantities, build, volum…)` |  |
-| `naca4_points` | função | `(m, p, t, chord, n=80) -> np.ndarray` | Closed NACA 4-digit section (x, z), trailing edge closed (a4 = -0.1036), cosine spacing. |
-| `polygon_area` | função | `(pts) -> float` |  |
+| `Param` | classe | `(name, value, unit, typical, limits, role, sensitivity)` | Parâmetro de modelo com valor de referência, unidade, faixa típica, limites, papel e sensibilidade. |
+| `Reference` | classe | `(citation, what, params)` | Objeto de referência publicado: citação, o que foi medido e suas dimensões. |
+| `Template` | classe | `(key, title, physics, keywords, description, params, references, quantities, build, volum…)` | Modelo de geometria paramétrico com física, palavras-chave, parâmetros, referências, construtor CadQuery, volume exato e comprimentos característicos. |
+| `naca4_points` | função | `(m, p, t, chord, n=80) -> np.ndarray` | Pontos de uma seção NACA 4 dígitos fechada com espaçamento cosseno. |
+| `polygon_area` | função | `(pts) -> float` | Área de um polígono 2D. |
 
 #### `pinneapple_design.fitmesh.context`
 
-Read a problem description into the facts the geometry and mesh choices depend on, and ask for what is missing.
+Lê uma descrição livre (inglês ou português) em fatos com fonte (física, fluido, velocidade, tamanho, propósito) e gera as perguntas do que falta; calcula a altura da primeira célula para um y+.
 
 <small>`pinneapple_design/fitmesh/context.py` · 208 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Fact` | classe | `(value, source)` |  |
-| `ProblemContext` | classe | `(text, facts)` |  |
-| `parse` | função | `(text, llm=None) -> ProblemContext` | Facts from a free-text problem description (English or Portuguese). |
-| `wall_unit_height` | função | `(y_plus, speed, length, nu, re, internal=False) -> dict[str, float]` | First-cell height for a target y+ from flat-plate skin friction at the reference length. |
+| `Fact` | classe | `(value, source)` | Um fato do problema com valor e fonte (texto, resposta, padrão). |
+| `ProblemContext` | classe | `(text, facts)` | Fatos lidos do problema, com física, precisão, propriedades do fluido, Reynolds e perguntas pendentes. |
+| `parse` | função | `(text, llm=None) -> ProblemContext` | Extrai fatos de uma descrição livre em inglês ou português, opcionalmente com um LLM. |
+| `wall_unit_height` | função | `(y_plus, speed, length, nu, re, internal=False) -> dict[str, float]` | Altura da primeira célula para um y+ alvo pelo atrito de placa plana. |
 
 #### `pinneapple_design.fitmesh.layers`
 
-Prism (inflation) layer sizing: a geometric stack of wall layers.
+Dimensiona camadas prismáticas como pilha geométrica, resolvendo a quantidade que falta. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/layers.py` · 81 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `layer_total` | função | `(first_height, expansion, n_layers) -> float` | Total thickness ``h1 (r^n - 1) / (r - 1)`` of ``n`` layers (``n h1`` when ``r = 1``). |
-| `size_layers` | função | `(first_height, expansion=None, n_layers=None, total_thickness=None) -> dict[str, float]` | Solve the geometric layer stack for the one missing quantity among ``expansion``, ``n_layers`` and ``total_thickness`` (exactly one must be ``None``). |
+| `layer_total` | função | `(first_height, expansion, n_layers) -> float` | Espessura total de n camadas em progressão geométrica. |
+| `size_layers` | função | `(first_height, expansion=None, n_layers=None, total_thickness=None) -> dict[str, float]` | Resolve a pilha de camadas para a quantidade que falta (razão, número ou espessura total). |
 
 #### `pinneapple_design.fitmesh.llm`
 
-Optional language-model help for every step, with a local model if you like (Ollama via ``pinneapple_llm``).
+Ajuda opcional de modelo de linguagem (Ollama local, Anthropic ou OpenAI) em cada etapa; tudo que volta é validado, e código CadQuery livre roda em processo isolado com lista de imports e timeout.
 
 <small>`pinneapple_design/fitmesh/llm.py` · 251 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LLMAssist` | classe | `(provider, model, api_key, conversation_store, call, provider_kwargs)` | Which model to ask. ``provider``: "ollama" (local), "anthropic" or "openai"; ``call`` overrides everything (a function ``(prompt, system) -> str`` returning JSON), which is how tests and custom backends plug in. |
-| `read_problem` | função | `(llm, text) -> dict[str, Any]` |  |
-| `rank_geometries` | função | `(llm, ctx) -> dict[str, Any]` |  |
-| `propose_parameters` | função | `(llm, tpl, ctx, base) -> list[dict[str, Any]]` |  |
-| `free_geometry` | função | `(llm, description) -> dict[str, Any]` | A CadQuery script from the model, checked statically; run it with :func:`run_free_geometry`. |
-| `check_code` | função | `(code) -> list[str]` | Static checks before anything runs: syntax, imports on the allow-list, no dunder or I/O names, build(). |
-| `run_free_geometry` | função | `(code, params, out_dir, tol, timeout=120) -> dict[str, Any]` | Run model-written CadQuery in a separate isolated interpreter (``python -I``), with a timeout. |
-| `review_mesh_plan` | função | `(llm, plan, ctx) -> MeshPlan` |  |
+| `LLMAssist` | classe | `(provider, model, api_key, conversation_store, call, provider_kwargs)` | Escolha do modelo de linguagem (provedor, modelo, chave ou função `call` própria). |
+| `read_problem` | função | `(llm, text) -> dict[str, Any]` | Pede ao LLM os fatos de um texto livre. |
+| `rank_geometries` | função | `(llm, ctx) -> dict[str, Any]` | Pede ao LLM para escolher modelos do catálogo real (chaves desconhecidas são descartadas). |
+| `propose_parameters` | função | `(llm, tpl, ctx, base) -> list[dict[str, Any]]` | Pede ao LLM parâmetros e faixas, cortados nos limites do modelo. |
+| `free_geometry` | função | `(llm, description) -> dict[str, Any]` | Pede ao LLM um script CadQuery quando nenhum modelo serve, checado estaticamente. |
+| `check_code` | função | `(code) -> list[str]` | Checagens estáticas do código: sintaxe, imports permitidos, sem dunder ou E/S, presença de `build()`. |
+| `run_free_geometry` | função | `(code, params, out_dir, tol, timeout=120) -> dict[str, Any]` | Roda o CadQuery escrito pelo modelo num interpretador isolado (`python -I`) com timeout. |
+| `review_mesh_plan` | função | `(llm, plan, ctx) -> MeshPlan` | Pede ao LLM sugestões sobre o plano de malha; só alguns campos podem mudar. |
 
 #### `pinneapple_design.fitmesh.mesh_gen`
 
-Generate the planned meshes and measure their quality.
+Gera as malhas planejadas com Gmsh (sólidos e seções 2D) ou OpenFOAM blockMesh+snappyHexMesh (escoamento 3D) e mede a qualidade via `pinneapple_data.cae`. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/mesh_gen.py` · 407 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshResult` | classe | `(variant, level, tool, path, files, cells, seconds, quality, layers, error)` |  |
-| `generate` | função | `(tpl, var, plan, out_dir, level=1.0, procs=1, max_cells=3000000.0, log=print) -> MeshResu…)` | Mesh one CAD variant at ``level`` x the planned sizes (1.0 = the plan; 1.5, 2.25 = the coarser family). |
-| `quality` | função | `(path, target) -> dict[str, Any]` |  |
+| `MeshResult` | classe | `(variant, level, tool, path, files, cells, seconds, quality, layers, error)` | Resultado de uma malha: ferramenta, arquivos, células, tempo, qualidade, camadas e erro, com `verdict`. |
+| `generate` | função | `(tpl, var, plan, out_dir, level=1.0, procs=1, max_cells=3000000.0, log=print) -> MeshResu…)` | Gera a malha de uma variante num nível de refinamento do plano. |
+| `quality` | função | `(path, target) -> dict[str, Any]` | Mede a qualidade de uma malha contra o alvo. |
 
 #### `pinneapple_design.fitmesh.mesh_plan`
 
-Recommend a mesh that is fit for the purpose: fine enough for the quantities that matter, no finer.
+Recomenda uma malha adequada ao propósito (triagem, projeto, verificação): método, tamanhos, camadas por y+, domínio, estimativa de células e custo e família para GCI. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/mesh_plan.py` · 264 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshPlan` | classe | `(kind, tool, elements, purpose, sizes, layers, domain, estimated_cells, estimated_cost, f…)` |  |
-| `mesh_kind` | função | `(tpl, ctx) -> str` |  |
-| `plan_mesh` | função | `(tpl, params, ctx, budget_cells=5000000.0) -> MeshPlan` |  |
+| `MeshPlan` | classe | `(kind, tool, elements, purpose, sizes, layers, domain, estimated_cells, estimated_cost, f…)` | Plano de malha: tipo, ferramenta, elementos, tamanhos, camadas, domínio, estimativas, família e justificativa. |
+| `mesh_kind` | função | `(tpl, ctx) -> str` | Escolhe o tipo de malha (sólido, escoamento 3D, seção 2D) para o modelo e o contexto. |
+| `plan_mesh` | função | `(tpl, params, ctx, budget_cells=5000000.0) -> MeshPlan` | Monta o plano de malha adequado ao propósito dentro do orçamento de células. |
 
 #### `pinneapple_design.fitmesh.report`
 
-One final trust report for the whole study, plus the grid-convergence calculation it relies on.
+Calcula o índice de convergência de malha (GCI) e monta o relatório final JSON+HTML com veredito por etapa. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/report.py` · 226 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `gci` | função | `(values, sizes, safety=None) -> dict[str, Any]` | Grid-convergence index from three meshes (Roache 1994; procedure of Celik et al. 2008, J. Fluids Eng. 130). |
-| `build_report` | função | `(session) -> dict[str, Any]` | Collect every stage of a :class:`FitMeshSession` into one report with a verdict per stage. |
-| `render_html` | função | `(rep) -> str` |  |
-| `write_report` | função | `(rep, stem) -> dict[str, str]` |  |
+| `gci` | função | `(values, sizes, safety=None) -> dict[str, Any]` | Índice de convergência de malha a partir de três malhas (Roache; Celik et al. 2008). |
+| `build_report` | função | `(session) -> dict[str, Any]` | Reúne todas as etapas de uma sessão num relatório com veredito por etapa. |
+| `render_html` | função | `(rep) -> str` | Renderiza o relatório em HTML. |
+| `write_report` | função | `(rep, stem) -> dict[str, str]` | Grava o relatório em JSON e HTML. |
 
 #### `pinneapple_design.fitmesh.session`
 
-The interactive study: describe the problem, answer the questions, choose, and get one final report.
+`FitMeshSession`: o estudo interativo passo a passo, da descrição ao relatório. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/fitmesh/session.py` · 295 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FitMeshSession` | classe | `(text, out_dir, llm=None, log=print)` |  |
+| `FitMeshSession` | classe | `(text, out_dir, llm=None, log=print)` | Estudo interativo: perguntas, escolha de geometria e parâmetros, CAD, plano, malhas, resultados e relatório. |
 
 #### `pinneapple_design.fitmesh.suggest`
 
-Rank geometry templates for a problem and propose the parameters to vary, their ranges and the samples.
+Ranqueia modelos de geometria para o problema e propõe parâmetros a variar, faixas e amostras por hipercubo latino.
 
 <small>`pinneapple_design/fitmesh/suggest.py` · 94 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `suggest_geometries` | função | `(ctx, top=3) -> list[dict[str, Any]]` | Templates ranked by physics match and keyword hits, each with why it was picked and its references. |
-| `scale_to_context` | função | `(tpl, ctx) -> dict[str, float]` | Reference values, scaled so the reference length matches the size given in the problem (if any). |
-| `suggest_parameters` | função | `(tpl, ctx, base=None) -> list[dict[str, Any]]` | Every parameter with a vary / keep recommendation, a proposed range and the reason. |
-| `sample` | função | `(tpl, base, ranges, n, seed=0, include_base=True) -> list[dict[str, float]]` | Latin hypercube over the selected ranges (scipy.stats.qmc); integer parameters are rounded. |
+| `suggest_geometries` | função | `(ctx, top=3) -> list[dict[str, Any]]` | Modelos ranqueados por física e palavras-chave, com o motivo e as referências. |
+| `scale_to_context` | função | `(tpl, ctx) -> dict[str, float]` | Valores de referência escalados para o tamanho dado no problema. |
+| `suggest_parameters` | função | `(tpl, ctx, base=None) -> list[dict[str, Any]]` | Cada parâmetro com recomendação de variar ou manter, faixa proposta e motivo. |
+| `sample` | função | `(tpl, base, ranges, n, seed=0, include_base=True) -> list[dict[str, float]]` | Amostras por hipercubo latino nas faixas escolhidas, com a base primeiro. |
 
 #### `pinneapple_design.geometry`
 
@@ -2206,70 +2208,70 @@ Template do carrinho no loop: raio, entrada em clotoide, velocidade de lançamen
 
 #### `pinneapple_design.qualitative`
 
-Qualitative physics preview of geometries and geometry changes, before the quantitative analysis.
+Reexporta `preview`, `part_sensitivity`, `Assembly` e os modelos qualitativos.
 
 <small>`pinneapple_design/qualitative/__init__.py` · 36 linhas · testes: 13</small>
 
 #### `pinneapple_design.qualitative.descriptors`
 
-Geometric descriptors of closed triangulated bodies and assemblies of named parts.
+Descritores geométricos de corpos triangulados fechados (volume, área molhada, área frontal, esbeltez, perfil de seções) e `Assembly` de peças nomeadas. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/qualitative/descriptors.py` · 259 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Descriptors` | classe | `(volume, wetted_area, centroid, extents, length, frontal_area, equivalent_diameter, slend…)` | Geometric descriptors of one body (SI units). ``direction`` is the flow / load reference direction. |
-| `Assembly` | classe | `(parts)` | Named parts of one geometry. Parts are treated as touching, not overlapping (areas add). |
-| `as_mesh` | função | `(geom) -> tuple[np.ndarray, np.ndarray]` | ``(vertices, faces)`` from a tuple, a trimesh-like object (``.vertices``/``.faces``) or an ``Assembly``. |
-| `extrude` | função | `(polygon, depth=1.0, axis='y') -> tuple[np.ndarray, np.ndarray]` | Closed prism from a counter-clockwise 2-D polygon (n, 2) in the (x, z) plane, extruded along ``axis`` by ``depth`` (centred), so 2-D sections can be compared with the same models. |
-| `face_geometry` | função | `(V, F)` | Per-face area, unit normal and centroid. |
-| `describe` | função | `(geom, direction=(1.0, 0.0, 0.0)) -> Descriptors` | Descriptors of a closed, outward-oriented triangulated body. The projected area is ``0.5 * sum \|n . d\| A`` (exact for convex bodies, an upper bound otherwise). |
-| `section_profile` | função | `(geom, axis=0, n_slices=40, n_grid=48)` | Section properties along ``axis`` from a voxelization by ray parity: slice positions ``x`` (centres), area ``A(x)``, centroid of each section in the two other coordinates, second moments ``I(x)`` about the section's centroidal axes (``I_a``: about the first remaining axis, i.e. bending in the … |
+| `Descriptors` | classe | `(volume, wetted_area, centroid, extents, length, frontal_area, equivalent_diameter, slend…)` | Descritores geométricos de um corpo (volume, áreas, centroide, extensões, esbeltez, esfericidade e outros). |
+| `Assembly` | classe | `(parts)` | Peças nomeadas de uma geometria que podem ser escaladas, movidas, removidas ou trocadas. |
+| `as_mesh` | função | `(geom) -> tuple[np.ndarray, np.ndarray]` | Obtém `(vértices, faces)` de tupla, objeto tipo trimesh ou `Assembly`. |
+| `extrude` | função | `(polygon, depth=1.0, axis='y') -> tuple[np.ndarray, np.ndarray]` | Prisma fechado a partir de um polígono 2D, para tratar seções 2D como corpos. |
+| `face_geometry` | função | `(V, F)` | Área, normal unitária e centroide de cada face. |
+| `describe` | função | `(geom, direction=(1.0, 0.0, 0.0)) -> Descriptors` | Calcula os `Descriptors` de um corpo fechado para uma direção de escoamento. |
+| `section_profile` | função | `(geom, axis=0, n_slices=40, n_grid=48)` | Propriedades de seção ao longo de um eixo por voxelização. |
 
 #### `pinneapple_design.qualitative.models`
 
-Cheap physical models that turn a geometry into first estimates, the mechanisms behind them and a surface map.
+Modelos físicos baratos avaliados face a face: escoamento externo (Newtoniano modificado e atrito), resfriamento convectivo, viga engastada e fórmulas do usuário; a classe base levanta `NotImplementedError` em `evaluate` (interface). [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/qualitative/models.py` · 501 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Quantity` | classe | `(name, unit, better, pt, en)` |  |
-| `Evaluation` | classe | `(quantities, terms, by_part, face_field, field_label, notes, caveats, mesh, extra)` | Result of one model on one geometry. |
-| `QualitativeModel` | classe | `(**conditions)` |  |
-| `ExternalFlow` | classe | `()` |  |
-| `ConvectiveCooling` | classe | `()` |  |
-| `Cantilever` | classe | `()` |  |
-| `ScalingModel` | classe | `(formulas, better=None, direction=(1.0, 0.0, 0.0), **conditions)` | User formulas of the geometric descriptors, e.g. ``ScalingModel({"conduction_resistance": lambda d, c: d.length / (c["k"] * d.frontal_area)}, better={"conduction_resistance": "min"}, k=200)``. The mechanisms are the descriptors: each one's share of a change comes from swapping it alone (in log … |
-| `sheltered_faces` | função | `(V, F, normals, centroids, direction, grid=96, tol=0.05) -> np.ndarray` | Windward faces hidden behind other surfaces seen from upstream (in the wake of something in front of them): the windward triangles are rasterized on the plane normal to the flow, keeping the most upstream depth per cell; a windward face whose cell has a surface more than ``tol`` x body length … |
+| `Quantity` | classe | `(name, unit, better, pt, en)` | Quantidade de um modelo qualitativo com unidade, sentido de melhora e nomes pt/en. |
+| `Evaluation` | classe | `(quantities, terms, by_part, face_field, field_label, notes, caveats, mesh, extra)` | Resultado de um modelo numa geometria: quantidades, termos, contribuição por peça, campo na superfície e ressalvas. |
+| `QualitativeModel` | classe | `(**conditions)` | Classe base dos modelos qualitativos com condições padrão; `evaluate` é abstrato. |
+| `ExternalFlow` | classe | `()` | Arrasto e sustentação estimados por pressão Newtoniana modificada, separação e atrito de placa plana. |
+| `ConvectiveCooling` | classe | `()` | Estimativa do calor dissipado por convecção de um corpo. |
+| `Cantilever` | classe | `()` | Estimativa da deflexão de viga engastada com carga na ponta. |
+| `ScalingModel` | classe | `(formulas, better=None, direction=(1.0, 0.0, 0.0), **conditions)` | Modelo com fórmulas do usuário em função dos descritores geométricos. |
+| `sheltered_faces` | função | `(V, F, normals, centroids, direction, grid=96, tol=0.05) -> np.ndarray` | Marca faces de barlavento escondidas atrás de outras superfícies vistas de montante. |
 
 #### `pinneapple_design.qualitative.preview`
 
-Qualitative preview: how each geometry, or each change to a part, should affect the result, before any simulation; then the quantitative check.
+Compara geometrias ou mudanças de peça para um objetivo, com direção, mecanismo, confiança e mapa na superfície; `quantify` roda a conta exata só onde vale e confere a leitura qualitativa.
 
 <small>`pinneapple_design/qualitative/preview.py` · 523 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Objective` | classe | `(quantity, sense, model)` |  |
-| `VariantPreview` | classe | `(name, evaluation, change, mechanisms, parts, confidence, reasons, good)` |  |
-| `QualitativePreview` | classe | `(model, objective, baseline, variants, geometries, lang)` |  |
-| `QuantitativeCheck` | classe | `(preview, values, seconds)` |  |
-| `PartSensitivity` | classe | `(objective, model, base_value, rows, lang)` |  |
-| `parse_objective` | função | `(objective, model=None) -> Objective` | ``"minimizar arrasto"``, ``"maximize heat rejection"``, ``("tip_deflection", "min")`` or an ``Objective``. Downforce means lift with sense "min". |
-| `preview` | função | `(geometries, objective, conditions=None, baseline=None, model=None, lang='pt') -> Qualita…)` | Qualitative comparison of ``geometries`` (name -> mesh tuple, trimesh-like object or ``Assembly``) for an ``objective`` such as "minimizar arrasto", "maximize heat rejection", "aumentar rigidez por massa" or ``("tip_deflection", "min")``. ``conditions`` are the model's operating conditions (speed, … |
-| `part_sensitivity` | função | `(assembly, objective, conditions=None, step=0.2, model=None, lang='pt', axes='xyz', about…)` | For each part: grow it by ``step`` along each axis (about its minimum corner by default, i.e. away from where it is usually attached) and remove it; the change of the objective ranks where to act first. |
+| `Objective` | classe | `(quantity, sense, model)` | Objetivo: quantidade, sentido (min/max) e modelo. |
+| `VariantPreview` | classe | `(name, evaluation, change, mechanisms, parts, confidence, reasons, good)` | Prévia de uma variante: avaliação, mudança, mecanismos, peças, confiança e se é boa. |
+| `QualitativePreview` | classe | `(model, objective, baseline, variants, geometries, lang)` | Comparação qualitativa de geometrias com ranking, texto, figura e `quantify`. |
+| `QuantitativeCheck` | classe | `(preview, values, seconds)` | Confere a prévia contra valores quantitativos: concordância de direção e correlação de ranking. |
+| `PartSensitivity` | classe | `(objective, model, base_value, rows, lang)` | Sensibilidade do objetivo a crescer cada peça em cada eixo. |
+| `parse_objective` | função | `(objective, model=None) -> Objective` | Interpreta objetivos como "minimizar arrasto" ou `("tip_deflection", "min")`. |
+| `preview` | função | `(geometries, objective, conditions=None, baseline=None, model=None, lang='pt') -> Qualita…)` | Compara geometrias para um objetivo e devolve a `QualitativePreview`. |
+| `part_sensitivity` | função | `(assembly, objective, conditions=None, step=0.2, model=None, lang='pt', axes='xyz', about…)` | Mede quanto o objetivo muda ao crescer cada peça de um `Assembly`. |
 
 #### `pinneapple_design.qualitative.quantitative`
 
-Quantitative counterparts of the qualitative models, for ``QualitativePreview.quantify``.
+Contrapartes quantitativas: elasticidade 3D por FEM em voxels com hexaedros de modos incompatíveis de Wilson, para checar prévias de viga engastada.
 
 <small>`pinneapple_design/qualitative/quantitative.py` · 132 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `hex8_incompatible_stiffness` | função | `(size, E, nu) -> np.ndarray` | 24 x 24 stiffness of a rectangular brick ``size = (hx, hy, hz)`` with Wilson's incompatible modes condensed. |
-| `voxel_fem_cantilever` | função | `(geom, E=70000000000.0, nu=0.3, load=1000.0, axis=None, load_axis=2, clamp='min', n_slice…)` | Tip deflection, stiffness, maximum von Mises stress and mass of a body clamped at one end of ``axis`` (default the longest) with ``load`` (N) along ``load_axis`` spread over the other end face. ``cells_across``: voxels along the larger section dimension (the other is scaled to keep the voxels near … |
+| `hex8_incompatible_stiffness` | função | `(size, E, nu) -> np.ndarray` | Rigidez 24×24 de um tijolo com modos incompatíveis de Wilson condensados. |
+| `voxel_fem_cantilever` | função | `(geom, E=70000000000.0, nu=0.3, load=1000.0, axis=None, load_axis=2, clamp='min', n_slice…)` | Deflexão na ponta, rigidez e tensão de von Mises de uma viga engastada voxelizada por FEM 3D. |
 
 #### `pinneapple_design.surrogate_inverse`
 
@@ -2683,71 +2685,71 @@ Relatório de confiança dos surrogates de dissipador (erros, convergência, cob
 
 #### `pinneapple_design.topology`
 
-Density-based topology optimization: SIMP, density filter, Heaviside projection, OC and MMA.
+Reexporta problemas, filtros, otimizadores e o driver de otimização topológica.
 
 <small>`pinneapple_design/topology/__init__.py` · 19 linhas · testes: 9</small>
 
 #### `pinneapple_design.topology.driver`
 
-Optimization loop: design variables -> (symmetry) -> density filter -> Heaviside projection -> problem.
+Laço de otimização: variáveis → simetria → filtro de densidade → projeção de Heaviside → problema, com adjunto, continuação de beta e checagem por diferenças finitas. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/topology/driver.py` · 127 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DesignChain` | classe | `(n_el, filt=None, symmetry=None, beta=0.0, eta=0.5)` | ``x_phys = H_beta(W (S x))`` and its adjoint (chain rule). |
-| `TopOptResult` | classe | `(x, x_phys, objective, history)` |  |
-| `optimize` | função | `(problem, volfrac, filt=None, optimizer='oc', max_iter=200, tol=0.01, x0=None, symmetry=N…)` | Run density-based topology optimization of ``problem`` (see module docstring). |
-| `finite_difference_check` | função | `(fun, x, idx, h=1e-06) -> np.ndarray` | Relative errors ``\|g_adj - g_fd\| / max(\|g_fd\|, tiny)`` of the gradient of ``fun`` (returning ``(value, gradient)``) at the entries ``idx``, central differences with step ``h``. |
+| `DesignChain` | classe | `(n_el, filt=None, symmetry=None, beta=0.0, eta=0.5)` | Cadeia `x_phys = H_beta(W (S x))` e seu adjunto. |
+| `TopOptResult` | classe | `(x, x_phys, objective, history)` | Resultado: densidades de projeto e físicas, objetivo e histórico. |
+| `optimize` | função | `(problem, volfrac, filt=None, optimizer='oc', max_iter=200, tol=0.01, x0=None, symmetry=N…)` | Roda a otimização topológica com fração de volume, filtro, OC ou MMA, simetria e continuação de beta. |
+| `finite_difference_check` | função | `(fun, x, idx, h=1e-06) -> np.ndarray` | Erro relativo do gradiente adjunto contra diferenças centrais em entradas escolhidas. |
 
 #### `pinneapple_design.topology.filters`
 
-Density filter and Heaviside projection for density-based topology optimization.
+Filtro linear de densidade, mapa de simetria e projeção de Heaviside com derivadas. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/topology/filters.py` · 115 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DensityFilter` | classe | `(centroids, r_min, volumes=None)` | Linear density filter ``x_tilde = W x`` with ``W = diag(1/(H v)) H diag(v)``. |
-| `SymmetryMap` | classe | `(S)` | Element densities from fewer design variables: ``x_elem = S x_var`` (a 0/1 sparse matrix). |
-| `heaviside` | função | `(x, beta, eta=0.5) -> np.ndarray` |  |
-| `heaviside_derivative` | função | `(x, beta, eta=0.5) -> np.ndarray` |  |
+| `DensityFilter` | classe | `(centroids, r_min, volumes=None)` | Filtro linear de densidade com raio `r_min`, com construtor para grades e adjunto. |
+| `SymmetryMap` | classe | `(S)` | Mapa 0/1 de poucas variáveis de projeto para densidades de elemento (identidade, rotacional). |
+| `heaviside` | função | `(x, beta, eta=0.5) -> np.ndarray` | Projeção de Heaviside suave com nitidez beta e limiar eta. |
+| `heaviside_derivative` | função | `(x, beta, eta=0.5) -> np.ndarray` | Derivada da projeção de Heaviside. |
 
 #### `pinneapple_design.topology.magnetic`
 
-Topology optimization of rotor iron for torque, on the 2D A_z machine model.
+Otimiza o ferro do rotor para torque no modelo 2D A_z de `pinneapple_simulation.electromagnetics`, com sensibilidade por adjunto em cada ângulo.
 
 <small>`pinneapple_design/topology/magnetic.py` · 79 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RotorTorqueProblem` | classe | `(machine, thetas, I_peak, gamma, objective='mean', T_ref=1.0)` |  |
+| `RotorTorqueProblem` | classe | `(machine, thetas, I_peak, gamma, objective='mean', T_ref=1.0)` | Problema de ferro do rotor: torque médio ou ripple sobre ângulos, com restrição de torque médio. |
 
 #### `pinneapple_design.topology.optimizers`
 
-Design-update rules: optimality criteria (OC) and the method of moving asymptotes (MMA).
+Regras de atualização: critério de otimalidade (OC) e método das assíntotas móveis (MMA). [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/topology/optimizers.py` · 117 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MMA` | classe | `(n, m, xmin=0.0, xmax=1.0, move=0.5, asyinit=0.5, asyincr=1.2, asydecr=0.7, c=1000.0, d=1…)` | Method of moving asymptotes for ``min f0(x)  s.t.  f_i(x) <= 0,  xmin <= x <= xmax``. |
-| `oc_update` | função | `(x, dfdx, dvdx, volume_target, volume_of, move=0.2, eta=0.5, xmin=0.0, xmax=1.0)` | One OC step: ``x_new = clip(x (max(-df/dx, 0) / (lambda dv/dx))^eta)`` with ``volume_of(x_new) = volume_target`` found by bisection on ``lambda``. ``volume_of`` maps design variables to the volume. |
+| `MMA` | classe | `(n, m, xmin=0.0, xmax=1.0, move=0.5, asyinit=0.5, asyincr=1.2, asydecr=0.7, c=1000.0, d=1…)` | Método das assíntotas móveis para problemas com restrições de desigualdade e limites. |
+| `oc_update` | função | `(x, dfdx, dvdx, volume_target, volume_of, move=0.2, eta=0.5, xmin=0.0, xmax=1.0)` | Um passo do critério de otimalidade com bisseção no multiplicador de volume. |
 
 #### `pinneapple_design.topology.problems`
 
-Density-based topology-optimization problems on structured grids of square bilinear (Q4) elements.
+Problemas em grades de elementos Q4: compliance estrutural (MBB, viga engastada), compliance térmica e dissipação de Stokes com penalização de Brinkman. [sem teste direto pelo inventário]
 
 <small>`pinneapple_design/topology/problems.py` · 264 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Q4Grid` | classe | `(nelx, nely, h=1.0)` |  |
-| `Compliance2D` | classe | `(nelx, nely, fixed_dofs, loads, penal=3.0, E0=1.0, Emin=1e-09, nu=0.3)` |  |
-| `ThermalCompliance2D` | classe | `(nelx=60, nely=60, sink_fraction=0.1, q=1.0, penal=3.0, kmin=0.001)` | Square plate, uniform heat source ``q`` per unit area, ``T = 0`` on the middle ``sink_fraction`` of the left edge, insulated elsewhere. |
-| `StokesDissipation2D` | classe | `(nelx, nely, inlets, outlets, mu=1.0, alpha_max=None, alpha_min=None, q=0.1, penalty=1000…)` | Velocity-driven Stokes flow with Brinkman penalization on a ``Lx x 1`` box. |
-| `elasticity_ke` | função | `(nu=0.3, E=1.0, h=1.0, thickness=1.0) -> np.ndarray` | 8x8 plane-stress stiffness of a square Q4 element, dofs (ux, uy) per node. |
-| `conduction_ke` | função | `(h=1.0) -> np.ndarray` | 4x4 conduction matrix (unit conductivity) of a square Q4 element. |
+| `Q4Grid` | classe | `(nelx, nely, h=1.0)` | Grade estruturada de elementos Q4 quadrados com numeração e montagem. |
+| `Compliance2D` | classe | `(nelx, nely, fixed_dofs, loads, penal=3.0, E0=1.0, Emin=1e-09, nu=0.3)` | Compliance estrutural em estado plano de tensão com SIMP; construtores `mbb` e `cantilever`. |
+| `ThermalCompliance2D` | classe | `(nelx=60, nely=60, sink_fraction=0.1, q=1.0, penal=3.0, kmin=0.001)` | Placa com fonte de calor uniforme e sumidouro numa parte da borda esquerda; minimiza a compliance térmica. |
+| `StokesDissipation2D` | classe | `(nelx, nely, inlets, outlets, mu=1.0, alpha_max=None, alpha_min=None, q=0.1, penalty=1000…)` | Escoamento de Stokes com penalização de Brinkman minimizando a dissipação. |
+| `elasticity_ke` | função | `(nu=0.3, E=1.0, h=1.0, thickness=1.0) -> np.ndarray` | Rigidez 8×8 de um elemento Q4 em estado plano de tensão. |
+| `conduction_ke` | função | `(h=1.0) -> np.ndarray` | Matriz de condução 4×4 de um elemento Q4. |
 
 ### Exemplos de uso reais do repositório
 
@@ -2860,6 +2862,12 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - `bricks.parts.JointModel` usa encaixe de 0,98 N por pino com faixa assumida (0,5 a 1,5 vez); os resultados da estática dependem dessa hipótese, e `bricks.report.sensitivity` existe para medi-la. `dynamics.friction_creep` documenta um artefato do atrito XPBD.
 - `domains3d.get_pinn_batch` devolve alvos de contorno zerados (marcação), não valores físicos; o `STLDomainBatchBuilder` recentraliza a malha, o que quebra funções de valor que assumem coordenadas literais (motivo de existir `analytic_domain_batch_builder`).
 - Os surrogates de `thermal.heatsink` só servem para triagem: `load_surrogates` só carrega o que existir em `ARTIFACTS` (`apps/heatsink_sizer/artifacts` ou `PINNEAPPLE_HEATSINK_ARTIFACTS`), e todo projeto recomendado é reverificado pelo motor físico.
+- `fitmesh` depende de ferramentas externas opcionais: CadQuery e trimesh para CAD, Gmsh e OpenFOAM (blockMesh, snappyHexMesh, checkMesh) para malhas, FastAPI para a API.
+- O docstring de `mesh_gen` avisa que camadas do snappyHexMesh podem colapsar perto de arestas vivas ou folgas finas.
+- Geometria livre escrita por LLM roda em processo isolado com lista de imports e timeout, e fica marcada como sem referência publicada.
+- Os modelos qualitativos são estimativas baratas (Newtoniano modificado, correlações), feitas para direção e ordem de grandeza; a área projetada é exata só para corpos convexos (limite superior nos demais).
+- A otimização topológica usa grades estruturadas de Q4 em 2D; `oc` só trata a restrição de volume, outras restrições exigem `mma`.
+- Muitos módulos não têm teste direto pelo inventário: em `fitmesh` (`cad`, `catalog`, `layers`, `mesh_gen`, `mesh_plan`, `report`, `session`), em `qualitative` (`descriptors`, `models`) e em `topology` (`driver`, `filters`, `optimizers`, `problems`); são exercitados via os `__init__` em `tests/test_fitmesh.py`, `tests/test_qualitative_preview.py` e nos testes de topologia.
 
 ## 2. `pinneapple_systems`
 
@@ -2875,6 +2883,8 @@ O pacote se apoia no resto do repositório: usa `pinneapple_neural` (arquitetura
 
 Esta parte de `pinneapple_systems` cobre quatro submódulos voltados a sistemas em operação. `digital_twin` é o runtime genérico de gêmeo digital (fluxos de sensores, filtros de Kalman, anomalias, prognóstico, padrões industriais) mais a camada de comissionamento `product` (contrato, preflight, backtest, evidência, política de deriva) e duas demos completas (`pipe_loop`, o gêmeo que sabe quando errou, e `recession`, o gêmeo de rio com dados do USGS). `operations` reúne uma planta de referência (tanque aquecido) e três ferramentas sobre ela (runtime de gêmeo com EnKF, detecção física de anomalias, MPC contra PID), usadas pelos apps `twin_runtime`, `anomaly_detector`, `control_lab` e `predictive_twin`. `process_components` traz modelos físicos de operações unitárias independentes (gás real via CoolProp, turbomáquinas, válvulas, trocadores, tubulações, vigas, cinética, golpe de aríete). `sports` aplica física a dados públicos de futebol e compara com baselines só de dados.
 
+Esta parte cobre dois submódulos do `pinneapple_systems`. `component_library` é um registro de componentes de planta nomeados (tubo, trocador de calor, tanque, célula de bateria, bomba, válvula). Cada componente junta uma arquitetura já existente do `ModelRegistry` com uma restrição física opcional (`Physics`), e os componentes são agrupados em toolboxes versionadas e instaláveis. `component_modeling` traz ferramentas que funcionam com qualquer modelo diferenciável, seja qual for a física que ele representa: controle PID e MPC, incerteza (SWAG, ensemble profundo, MC-Dropout), resíduos físicos genéricos por autograd e empacotamento ONNX para borda com runtime sem torch.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -2885,8 +2895,8 @@ Esta parte de `pinneapple_systems` cobre quatro submódulos voltados a sistemas 
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `component_library` |  | 7 | 15 | 36 |
-| `component_modeling` |  | 8 | 12 | 165 |
+| `component_library` | Registro de componentes de planta nomeados, com restrição física, benchmark por tipo e toolboxes instaláveis. | 7 | 15 | 36 |
+| `component_modeling` | Controle, incerteza, resíduos físicos e exportação para borda para qualquer modelo diferenciável. | 8 | 12 | 165 |
 | `cosimulation` | Motor de co-simulação diferenciável em grafo: nós com portas, conexões, motor por passos de tempo com laços algébricos, gravador, perdas e treinador por BPTT. | 10 | 23 | 151 |
 | `digital_twin` | Runtime de gêmeo digital (fluxos, assimilação, anomalias, RUL, reconstrução, padrões AAS/DTDL/NGSI-LD/Ditto/OPC UA), camada de comissionamento `product` e as demos `pipe_loop` e `recession`. | 33 | 129 | 172 |
 | `excitation` | Sinais de excitação de atuador em NumPy para identificação de sistemas e treino de surrogates. | 1 | 12 | 6 |
@@ -2912,159 +2922,159 @@ Raiz do pacote de sistemas multi-componente: importa os submódulos (`time_serie
 
 #### `pinneapple_systems.component_library`
 
-pinneapple_systems.component_library — the piece ``pinneapple_systems.component_modeling``'s own docstring says pinneapple deliberately did NOT build: a registry of NAMED PLANT COMPONENTS (keyed by ``component_type``, e.g. "pipe"/"pump"/"valve"), each pairing an existing …
+Reexporta `ComponentRegistry`, `ComponentModel`, `Physics`, `Toolbox`, `ToolboxRegistry` e o benchmark, e registra os seis componentes de referência ao ser importado.
 
 <small>`pinneapple_systems/component_library/__init__.py` · 44 linhas · testes: 36</small>
 
 #### `pinneapple_systems.component_library.base`
 
-pinneapple_systems.component_library.base — ``ComponentModel``: a ``BaseModel`` that additionally knows its physical constraint (a ``Physics``) and offers single-call ``.fit()``/``.evaluate()`` convenience, closing the two real gaps found against a plain ``BaseModel``/``PINNBase``:
+`ComponentModel`: um `BaseModel` que envolve uma arquitetura registrada, conhece sua `Physics` e oferece `fit` e `evaluate` (RMSE, MAPE, R²) em uma chamada. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/base.py` · 173 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ComponentModel` | classe | `(*, architecture, architecture_kwargs=None, physics=None)` | A named plant component: an existing architecture + an optional ``Physics`` constraint. |
+| `ComponentModel` | classe | `(*, architecture, architecture_kwargs=None, physics=None)` | Componente de planta nomeado: arquitetura existente + `Physics` opcional, com `fit` e `evaluate`. |
 
 #### `pinneapple_systems.component_library.benchmark`
 
-pinneapple_systems.component_library.benchmark — train every architecture registered under one ``component_type`` and rank by final validation loss (real numbers from ``ComponentModel.fit()``, not a display placeholder).
+Treina todas as arquiteturas registradas sob um `component_type` e as ranqueia pela perda final de validação. A marca 'placeholder' do inventário é falso positivo: o docstring diz 'not a display placeholder'. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/benchmark.py` · 77 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ComponentBenchmarkResult` | classe | `(component_type, ranked)` |  |
-| `benchmark_component_type` | função | `(component_type, train_loader, val_loader=None, *, epochs=50, lr=0.001, eval_coords=None,…)` | Trains every architecture registered for ``component_type`` on the same data and ranks them by final validation loss (ascending — lower is better). If ``eval_coords``/``eval_targets`` are given, also attaches RMSE/MAPE/R² per architecture via ``ComponentModel.evaluate()``. |
+| `ComponentBenchmarkResult` | classe | `(component_type, ranked)` | Ranking das arquiteturas de um tipo de componente, com `best`. |
+| `benchmark_component_type` | função | `(component_type, train_loader, val_loader=None, *, epochs=50, lr=0.001, eval_coords=None,…)` | Treina cada arquitetura de um `component_type` e ranqueia pela perda de validação. |
 
 #### `pinneapple_systems.component_library.components`
 
-pinneapple_systems.component_library.components — six reference plant components. Deliberately six, not padded to ten: each pairs a genuinely different (physics shortcut, backbone architecture, component_type) combination rather than near-duplicating the others.
+Seis componentes de referência (tubo, trocador de calor, casco de tanque, célula de bateria, bomba, válvula), cada um com uma combinação diferente de física e arquitetura (`vanilla_pinn` ou `modified_mlp`); a válvula é só por dados. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/components.py` · 126 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PipeVanillaPINN` | classe | `(in_dim=3, out_dim=3, hidden=(128, 128, 128, 128), **kwargs)` |  |
-| `HeatExchangerVanillaPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), **kwargs)` |  |
-| `TankShellVanillaPINN` | classe | `(in_dim=2, out_dim=2, hidden=(64, 64, 64), **kwargs)` |  |
-| `BatteryCellVanillaPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), **kwargs)` |  |
-| `PumpModifiedMLP` | classe | `(in_dim=3, out_dim=3, hidden_dim=128, n_layers=6, **kwargs)` |  |
-| `ValveModifiedMLP` | classe | `(in_dim=2, out_dim=1, hidden_dim=64, n_layers=3, **kwargs)` |  |
+| `PipeVanillaPINN` | classe | `(in_dim=3, out_dim=3, hidden=(128, 128, 128, 128), **kwargs)` | Componente tubo: VanillaPINN com restrição de escoamento incompressível. |
+| `HeatExchangerVanillaPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), **kwargs)` | Componente trocador de calor: VanillaPINN com resíduo de condução de calor. |
+| `TankShellVanillaPINN` | classe | `(in_dim=2, out_dim=2, hidden=(64, 64, 64), **kwargs)` | Componente casco de tanque: VanillaPINN com resíduo de elasticidade linear. |
+| `BatteryCellVanillaPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), **kwargs)` | Componente célula de bateria: VanillaPINN com resíduo de difusão de espécies. |
+| `PumpModifiedMLP` | classe | `(in_dim=3, out_dim=3, hidden_dim=128, n_layers=6, **kwargs)` | Componente bomba: ModifiedMLP com restrição de escoamento incompressível. |
+| `ValveModifiedMLP` | classe | `(in_dim=2, out_dim=1, hidden_dim=64, n_layers=3, **kwargs)` | Componente válvula: ModifiedMLP só com dados, sem restrição física. |
 
 #### `pinneapple_systems.component_library.physics`
 
-pinneapple_systems.component_library.physics — ``Physics``: the thin attachment layer between a named plant component and the constraint it must satisfy.
+`Physics`: liga um componente à sua restrição, reduzida a uma `loss_fn` no formato do `Trainer`, com parâmetros guardados para inspeção. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/physics.py` · 88 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Physics` | classe | `(name, loss_fn, params)` | A named physical constraint, reduced to a single ``Trainer``-shaped loss_fn. ``params`` is kept alongside for introspection (e.g. shown on a Toolbox/Component detail view) even though it is already baked into ``loss_fn`` via closure. |
+| `Physics` | classe | `(name, loss_fn, params)` | Restrição física nomeada reduzida a uma `loss_fn`, com parâmetros para inspeção. |
 
 #### `pinneapple_systems.component_library.registry`
 
-pinneapple_systems.component_library.registry — ``ComponentRegistry``: a registry of NAMED PLANT COMPONENTS keyed by ``component_type`` (e.g. "pipe", "pump", "valve") — several competing architectures may register under the same ``component_type``, mirroring how …
+`ComponentRegistry` guarda componentes por `component_type`, permitindo várias arquiteturas concorrentes no mesmo tipo, e os constrói por nome. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/registry.py` · 122 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ComponentSpec` | classe | `(component_type, name, cls, physics, description, tags)` |  |
-| `ComponentRegistry` | classe | `(_REGISTRY)` | Central registry for named plant components. |
-| `register_component` | função | `(*, component_type, name, physics=None, description='', tags=None)` | Module-level alias for ``ComponentRegistry.register`` — reads better as a bare decorator: ``@register_component(component_type=..., name=...)``. |
+| `ComponentSpec` | classe | `(component_type, name, cls, physics, description, tags)` | Registro de um componente: tipo, nome, classe, física, descrição e tags. |
+| `ComponentRegistry` | classe | `(_REGISTRY)` | Registro central de componentes: registra, lista por tipo, dá a spec e constrói. |
+| `register_component` | função | `(*, component_type, name, physics=None, description='', tags=None)` | Decorador de módulo equivalente a `ComponentRegistry.register`. |
 
 #### `pinneapple_systems.component_library.toolbox`
 
-pinneapple_systems.component_library.toolbox — ``Toolbox``: a named, versioned, installable bundle of ``component_type``s (e.g. "Fluid Mechanics Toolbox v1.0" bundling pipe+pump+valve).
+`Toolbox`: pacote nomeado e versionado de tipos de componentes com dependências; `ToolboxRegistry` registra e mantém o conjunto instalado. Registra a 'Fluid Mechanics Toolbox' e a 'Process Equipment Toolbox'. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_library/toolbox.py` · 110 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Toolbox` | classe | `(name, version, component_types, description, depends_on)` |  |
-| `ToolboxRegistry` | classe | `(_REGISTRY, _INSTALLED)` | Registry of :class:`Toolbox` bundles, plus a tiny installed-set. |
+| `Toolbox` | classe | `(name, version, component_types, description, depends_on)` | Pacote nomeado e versionado de tipos de componentes, com dependências e lista de componentes. |
+| `ToolboxRegistry` | classe | `(_REGISTRY, _INSTALLED)` | Registro de toolboxes com instalar, desinstalar e consultar as instaladas. |
 
 #### `pinneapple_systems.component_modeling`
 
-pinneapple_systems.component_modeling — control, optimization, and uncertainty-quantification tooling that operates on ANY differentiable component model, independent of what that component represents physically.
+Reexporta controle, MPC, SWAG, ensemble, MC-Dropout, resíduos físicos e exportação para borda; o docstring explica que registro, classe base e geração de malha ficam em outros pacotes. [sem teste direto do `__init__`]
 
 <small>`pinneapple_systems/component_modeling/__init__.py` · 60 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.component_modeling.bayesian`
 
-pinneapple_systems.component_modeling.bayesian — SWAGApproximation: a real, architecture-agnostic approximate Bayesian posterior over a model's weights, via SWAG (Stochastic Weight Averaging Gaussian — Maddox et al. 2019, "A Simple Baseline for Bayesian Uncertainty in Deep Learning").
+`SWAGApproximation`: posterior Gaussiana diagonal sobre os pesos via SWAG, a partir de snapshots ao longo do treino, com previsão por amostragem de pesos.
 
 <small>`pinneapple_systems/component_modeling/bayesian.py` · 127 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SWAGApproximation` | classe | `(model)` |  |
+| `SWAGApproximation` | classe | `(model)` | Posterior aproximada SWAG (diagonal) sobre os pesos de um modelo, com `fit` e `predict_with_uncertainty`. |
 
 #### `pinneapple_systems.component_modeling.control`
 
-pinneapple_systems.component_modeling.control — PID feedback control for an arbitrary differentiable or black-box component.
+Controlador PID discreto com limites de saída e um executor de malha fechada para planta diferenciável ou caixa-preta, com ruído de processo e medição e observador opcional.
 
 <small>`pinneapple_systems/component_modeling/control.py` · 113 linhas · testes: 165</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PIDController` | classe | `(kp, ki, kd, setpoint, output_limits=None, bias=0.0)` | Standard discrete-time PID: u = bias + Kp*e + Ki*integral(e) + Kd*de/dt, e = setpoint - measurement. |
-| `run_closed_loop` | função | `(plant, *, setpoint, kp=1.0, ki=0.1, kd=0.0, steps=50, dt=0.1, process_noise=0.0, measure…)` | Closes a discrete-time control loop around ``plant``. |
+| `PIDController` | classe | `(kp, ki, kd, setpoint, output_limits=None, bias=0.0)` | PID discreto padrão com bias e limites de saída. |
+| `run_closed_loop` | função | `(plant, *, setpoint, kp=1.0, ki=0.1, kd=0.0, steps=50, dt=0.1, process_noise=0.0, measure…)` | Fecha uma malha de controle PID em torno de uma planta e devolve os históricos. |
 
 #### `pinneapple_systems.component_modeling.edge`
 
-pinneapple_systems.component_modeling.edge — package a trained model as a self-contained edge-deployment bundle (ONNX graph + manifest.json zipped together), and a minimal runtime that can execute that bundle with onnxruntime + numpy alone (no torch/pinneapple import at all).
+Exporta um modelo para ONNX e compacta com `manifest.json` num zip; `EdgeRuntime` roda esse pacote só com onnxruntime e NumPy.
 
 <small>`pinneapple_systems/component_modeling/edge.py` · 96 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EdgeRuntime` | classe | `(zip_path)` | Minimal edge-device inference runtime — onnxruntime + numpy only, no torch/pinneapple import at all. Loads an ``export_edge_package()`` zip and runs real ONNX inference. |
-| `export_edge_package` | função | `(model, output_dir, *, name, sample_input, opset_version=17, extra_manifest=None) -> Dict…)` | Exports `model` to ONNX and zips it with a manifest.json into a self-contained edge deployment package. Returns {"manifest": {...}, "onnx_path": ..., "zip_path": ...}. |
+| `EdgeRuntime` | classe | `(zip_path)` | Runtime mínimo de borda que carrega o zip exportado e roda inferência ONNX sem torch. |
+| `export_edge_package` | função | `(model, output_dir, *, name, sample_input, opset_version=17, extra_manifest=None) -> Dict…)` | Exporta o modelo para ONNX e compacta com um manifesto num pacote de borda. |
 
 #### `pinneapple_systems.component_modeling.ensemble`
 
-pinneapple_systems.component_modeling.ensemble — DeepEnsemble: N independently-initialized copies of the same architecture, trained separately, combined at inference time.
+`DeepEnsemble`: N cópias da mesma arquitetura com inicializações diferentes, treinadas separadamente; a média e o desvio entre membros dão a incerteza epistêmica.
 
 <small>`pinneapple_systems/component_modeling/ensemble.py` · 84 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DeepEnsemble` | classe | `(model_factory, n_members=5, base_seed=0)` |  |
+| `DeepEnsemble` | classe | `(model_factory, n_members=5, base_seed=0)` | Ensemble profundo com `fit` e `predict` devolvendo média e desvio entre membros. |
 
 #### `pinneapple_systems.component_modeling.mc_dropout`
 
-pinneapple_systems.component_modeling.mc_dropout — MC-Dropout epistemic uncertainty: n_samples stochastic forward passes with dropout kept active, reduced to a (mean, std) estimate.
+Incerteza por MC-Dropout: várias passagens com dropout ativo, reduzidas a média e desvio; erro se o modelo não tem dropout. [sem teste direto]
 
 <small>`pinneapple_systems/component_modeling/mc_dropout.py` · 41 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mc_dropout_uncertainty` | função | `(model, x, n_samples=50) -> Tuple[torch.Tensor, torch.Tensor]` | Returns (mean, std) over `n_samples` stochastic forward passes with dropout active. Raises ValueError if `model` has no `nn.Dropout` submodule (nothing would actually be stochastic). |
+| `mc_dropout_uncertainty` | função | `(model, x, n_samples=50) -> Tuple[torch.Tensor, torch.Tensor]` | Média e desvio de várias passagens com dropout ativo. |
 
 #### `pinneapple_systems.component_modeling.mpc`
 
-pinneapple_systems.component_modeling.mpc — Model Predictive Control (receding horizon) around an arbitrary differentiable component.
+MPC de horizonte deslizante baseado em gradiente em torno de um componente diferenciável. [sem teste direto pelo inventário]
 
 <small>`pinneapple_systems/component_modeling/mpc.py` · 119 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_mpc` | função | `(plant, *, in_dim, setpoint, control_input_index=0, observed_output_index=0, horizon=10, …)` | Receding-horizon MPC: at each of ``steps`` outer steps, optimize a length-``horizon`` control sequence (Adam, ``opt_iters`` iterations, gradients flowing through ``plant`` itself) minimizing:: |
+| `run_mpc` | função | `(plant, *, in_dim, setpoint, control_input_index=0, observed_output_index=0, horizon=10, …)` | MPC de horizonte deslizante que otimiza a entrada de controle por gradiente a cada passo. |
 
 #### `pinneapple_systems.component_modeling.physics_residuals`
 
-pinneapple_systems.component_modeling.physics_residuals — generic, closed-form PDE residuals for a handful of standard physical constraints, computed via autograd against any differentiable model's coordinate -> field(s) map.
+Resíduos de EDP fechados por autograd para qualquer modelo coordenadas→campos: continuidade incompressível, condução de calor, elasticidade linear e difusão de espécies; saídas insuficientes levantam `NotImplementedError`.
 
 <small>`pinneapple_systems/component_modeling/physics_residuals.py` · 126 linhas · testes: 8 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `incompressible_continuity_residual` | função | `(model, coords) -> torch.Tensor` | Mass-conservation (div(u) = 0) residual for a velocity-field output. Assumes the model's first `dim` output columns are velocity components aligned with the first `dim` coordinate axes (u, v, [w]). |
-| `heat_conduction_residual` | função | `(model, coords, *, k=50.0, Q=0.0) -> torch.Tensor` | Steady-state heat diffusion residual: k*laplacian(T) + Q, T = model's first output column, laplacian summed over every axis of `coords` (works for any spatial dimension). |
-| `linear_elasticity_residual` | função | `(model, coords, *, E=210000000000.0, nu=0.3) -> torch.Tensor` | Navier-Lame equilibrium (isotropic linear elasticity, no body force): (lambda+mu)*grad(div(u)) + mu*laplacian(u) = 0. Assumes the model's first `dim` output columns are displacement components [u, v, (w)]. Works in 2D or 3D. |
-| `species_diffusion_residual` | função | `(model, coords, *, D=1e-05, k=0.0) -> torch.Tensor` | Simplified steady-state diffusion-reaction (Fick's second law at steady state, first-order decay): D*laplacian(C) - k*C = 0. Assumes the model's first output column is concentration. A generic Fickian diffusion-reaction constraint — not tied to any specific transport system. |
+| `incompressible_continuity_residual` | função | `(model, coords) -> torch.Tensor` | Resíduo de div(u) = 0 para as primeiras saídas de velocidade. |
+| `heat_conduction_residual` | função | `(model, coords, *, k=50.0, Q=0.0) -> torch.Tensor` | Resíduo estacionário k·ΔT + Q. |
+| `linear_elasticity_residual` | função | `(model, coords, *, E=210000000000.0, nu=0.3) -> torch.Tensor` | Resíduo de equilíbrio de Navier-Lamé sem força de corpo. |
+| `species_diffusion_residual` | função | `(model, coords, *, D=1e-05, k=0.0) -> torch.Tensor` | Resíduo estacionário de difusão-reação D·ΔC − k·C. |
 
 #### `pinneapple_systems.cosimulation`
 
@@ -5387,6 +5397,12 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - Escopos declarados nos docstrings: `pipe_network_1d` cobre um único segmento de tubo; o transporte de `reaction_kinetics` só aceita grade periódica; `curved_path_geometry` é só 2D (o caso 3D não está implementado); `recession` é um só reservatório exponencial, sem chuva nem roteamento.
 - A política de deriva de `product` detecta que o gêmeo errou, não o porquê, e nunca re-treina sozinha; a spec não valida a física, só que existe uma afirmação falsificável.
 - Futebol: os dados (Metrica, SkillCorner, StatsBomb) são baixados em tempo de execução e têm termos de uso próprios (StatsBomb não comercial). O veredito gravado em `docs/guides/football_physics.md` registra que a física não ajudou no xG nem no ponto de aterrissagem contra árvores treinadas.
+- `physics_residuals` levanta `NotImplementedError` quando o modelo não tem saídas suficientes para o resíduo pedido; os resíduos são estacionários e simplificados (sem força de corpo, decaimento de primeira ordem).
+- `SWAGApproximation` usa só a variância diagonal, não a parte de baixo posto do SWAG completo.
+- `edge` exige onnx/onnxruntime; `EdgeRuntime` não importa torch nem pinneapple.
+- Os seis componentes de referência são exemplos de arquitetura e física, sem dados reais; o exemplo usa alvos sintéticos aleatórios.
+- O conjunto de toolboxes instaladas vive só na memória do processo (`ToolboxRegistry`).
+- Sem teste direto pelo inventário: todos os módulos de `component_library` exceto o `__init__`, e `component_modeling` `mc_dropout`, `mpc` e o `__init__`.
 
 ## 3. `pinneapple_twin3d`
 

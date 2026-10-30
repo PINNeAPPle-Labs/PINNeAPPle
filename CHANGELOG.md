@@ -157,6 +157,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
   file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
   gates (AGENTS.md, "Generated files").
+- Presets whose boundaries are named geometry tags now train from their own name. Thirty-two of the forty declare a
+  canonical box or cylinder that the tags map onto without guessing (`pde_environment/presets/tag_geometry.py`, which
+  already existed); `pp.solve(preset, method="pinn")` sends that geometry automatically and records it in
+  `Solution.info["geometry"]`. `get_preset` now stamps the spec with its registry key (`problem_id`, `meta["preset"]`)
+  so a solver can find the fixture and a report can name the case; `ProblemSpec` is frozen, so this is a copy. The
+  eight presets that describe a real airfoil, car body or furnace still raise `TagConditionsUnresolved`, which is the
+  honest answer. `pp.card` prints the geometry a preset uses, and reports "runs here" for the ones this enables.
 - **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
   of the first hour and no longer need `pinneapple[pinn]`.
 - `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call

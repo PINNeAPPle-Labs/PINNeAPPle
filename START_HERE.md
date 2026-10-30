@@ -201,8 +201,11 @@ Said here rather than discovered later:
 - **Eighteen presets name FEniCS as their solver**, among them `cpu_heatsink_thermal` and
   `plane_stress_2d`. Nine name OpenFOAM. Without them the card says so, and hands over the same
   physics written for a box you define.
-- **Forty presets bind their boundaries to named geometry tags** (a real mesh, not a box). Their own
-  solver is the supported route; training them needs that geometry. `pp.card(name)` lists the tags.
+- **Forty presets bind their boundaries to named geometry tags.** Thirty-two of them declare a
+  canonical box or cylinder that the tags map onto unambiguously, and `pp.solve` sends it for you, so
+  they train out of the box; the card prints which geometry it used. The other eight describe a real
+  airfoil, car body or furnace, where inventing a box would produce a plausible but meaningless run:
+  for those the card lists the tags and hands over the box version of the same equation.
 - **The reference solver covers the fields it computes.** When it returns a partial field,
   `pp.solve` raises `MethodNotAvailable` instead of a wrong answer, which is what `pp.card` reports.
 - **`pp.recommend` is keyword matching**, not a model. It shows the terms that matched so you can

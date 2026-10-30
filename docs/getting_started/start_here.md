@@ -53,6 +53,8 @@ paths to use and why.
 ## What "it runs" means here
 
 `pp.card(name)` tries the cheapest method once and says whether the preset produced a field on this
-machine. When it did not, the card names what is missing (FEniCS, OpenFOAM, a geometry with tags) and
-hands over `standalone_snippet(name)`: the same equation and fields, on a box, with boundaries you
-set. `pp.recommend(text)` prefers a preset that runs and says which closer one it passed over.
+machine. Thirty-two of the forty presets whose boundaries are named geometry tags declare the box or
+cylinder those tags map onto, and `pp.solve` sends it for you, so they train from their name alone.
+When a preset still cannot run, the card names what is missing (FEniCS, OpenFOAM) and hands over
+`standalone_snippet(name)`: the same equation and fields, on a box, with boundaries you set.
+`pp.recommend(text)` prefers a preset that runs and says which closer one it passed over.

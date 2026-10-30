@@ -548,18 +548,19 @@ def build_tag_batch(
     GEOMETRY`` presets, or an untagged preset that needs no fixture at all).
     """
     from pinneapple_design.geometry.builders.analytic_domain_batch_builder import (
-        sample_box_tag_batch,
-        sample_cylinder_tag_batch,
-        sample_axisymmetric_wall_tag_batch,
-        sample_box_with_curve_tag_batch,
         sample_annulus_tag_batch,
+        sample_axisymmetric_wall_tag_batch,
+        sample_box_tag_batch,
+        sample_box_with_curve_tag_batch,
+        sample_cylinder_tag_batch,
     )
+
     from ._curve_geometry import (
-        circular_arc_cascade_blade_points,
         ahmed_body_polygon,
+        circular_arc_cascade_blade_points,
         naca4_symmetric_polygon,
-        polygon_perimeter_sample,
         polygon_contains,
+        polygon_perimeter_sample,
     )
 
     fixture = TAG_GEOMETRY_FIXTURES[name]
@@ -755,3 +756,60 @@ def per_tag_losses(spec, model, batch: dict[str, Any], *, w_pde: float = 1.0, w_
         tb[k] = torch.as_tensor(np.asarray(v), dtype=torch.bool if k.startswith("mask_") else torch.float32)
     out = loss_fn(model, None, tb)
     return {k: float(v.detach()) for k, v in out.items()}
+
+
+# ---------------------------------------------------------------------------
+# The preset's own geometry, for callers that only have a spec
+# ---------------------------------------------------------------------------
+
+def preset_name(spec: ProblemSpec) -> str:
+    """The registry key this spec came from: ``problem_id``, the ``meta["preset"]`` stamp
+    :func:`~pinneapple_physics.pde_environment.presets.registry.get_preset` writes, or ``""``."""
+    pid = str(getattr(spec, "problem_id", "") or "")
+    if pid and pid in TAG_GEOMETRY_FIXTURES:
+        return pid
+    stamped = str((getattr(spec, "meta", {}) or {}).get("preset", "") or "")
+    if stamped:
+        return stamped
+    return pid
+
+
+def has_default_geometry(spec: ProblemSpec) -> bool:
+    """True when this spec's tag conditions can be satisfied by its own fixture."""
+    if not any(getattr(c, "selector_type", None) == "tag" for c in getattr(spec, "conditions", ())):
+        return True                       # nothing to supply
+    return preset_name(spec) in TAG_GEOMETRY_FIXTURES
+
+
+def default_geometry(spec: ProblemSpec, *, n_bc_per_face: int = 1_000,
+                     seed: int = 7) -> Dict[str, Any]:
+    """The ``solve_pde`` keyword arguments that satisfy this spec's tag conditions with the preset's
+    own box or cylinder geometry, or ``{}`` when the spec has no fixture.
+
+    This is the difference between ``pp.solve("pipe_flow_3d", method="pinn")`` working out of the box
+    and raising ``TagConditionsUnresolved``: the geometry is the one the preset already declares
+    (see :data:`TAG_GEOMETRY_FIXTURES`), nothing is invented here.
+
+    >>> import pinneapple as pp
+    >>> from pinneapple_physics.pde_environment.presets.tag_geometry import default_geometry
+    >>> kw = default_geometry(pp.get_preset("poisson_2d"))     # {'x_bc': ..., 'ctx': {...}, ...}
+    >>> sorted(kw)[:2]
+    ['ctx', 'x_bc']
+    """
+    name = preset_name(spec)
+    if name not in TAG_GEOMETRY_FIXTURES:
+        return {}
+    if not any(getattr(c, "selector_type", None) == "tag" for c in getattr(spec, "conditions", ())):
+        return {}
+    return tag_solve_kwargs(name, spec, n_bc_per_face=n_bc_per_face, seed=seed)
+
+
+def default_geometry_report(spec: ProblemSpec) -> str:
+    """One line for a card or a log: which geometry a preset uses for its tagged boundaries."""
+    name = preset_name(spec)
+    fixture = TAG_GEOMETRY_FIXTURES.get(name)
+    if not fixture:
+        return ""
+    shape = str(fixture.get("shape", ""))
+    tags = ", ".join(sorted(fixture.get("tag_faces", {}) or {}))
+    return f"{shape} ({tags})"

@@ -26,6 +26,29 @@ from pinneapple_core.onboarding.doctor import profiles as doctor_profiles
 SAMPLE = ("burgers_1d", "poisson_2d", "cpu_heatsink_thermal", "pipe_flow_3d", "transient_heat_3d")
 
 
+def test_tagged_presets_with_their_own_geometry_are_runnable(checked_cards):
+    """A preset whose tags map onto its own box or cylinder needs nothing from the user.
+
+    ``pipe_flow_3d`` and ``transient_heat_3d`` bind their boundaries to named tags and are not in the
+    set the classical solver covers; they used to be reported as unusable. ``pp.solve`` now sends the
+    geometry the preset already declares (pde_environment/presets/tag_geometry.py).
+    """
+    for name in ("pipe_flow_3d", "transient_heat_3d"):
+        card = checked_cards[name]
+        assert card.available, f"{name}: {card.error}"
+        assert card.geometry, name
+        assert card.method == "pinn", name
+        assert "no mesh needed" in card.snippet, name
+
+
+def test_a_tagged_preset_trains_from_its_own_geometry():
+    """The claim the card makes, trained for a handful of epochs: it really produces a field."""
+    sol = pp.solve("transient_heat_3d", method="pinn", epochs=3)
+    assert sol.info.get("geometry", "").startswith("box")
+    values = sol.predict(np.array([[0.5] * len(sol.problem.coords)]))
+    assert values.shape == (1, len(sol.problem.fields))
+
+
 @pytest.fixture(scope="session")
 def checked_cards():
     """The sample presets as cards, with runnability probed once for the whole test session."""
@@ -287,3 +310,34 @@ def test_cli_new_dry_run_writes_nothing(tmp_path, monkeypatch, capsys):
     assert cli.main(["new", "demo", "--dry-run"]) == 0
     assert not (tmp_path / "demo").exists()
     assert "would create" in capsys.readouterr().out
+
+# ------------------------------------------------------------------ the preset set
+
+def test_most_presets_produce_a_field_without_extra_work():
+    """A floor under the onboarding promise, checked without running any solver.
+
+    Before the preset geometry was wired into ``pp.solve``, 15 of 72 presets could produce a field
+    here. The number is not the point; that it must not silently fall back is. This counts what the
+    library can reach today: a closed form, a solver this machine has, or a preset geometry it can
+    train with.
+    """
+    from pinneapple_core.onboarding import catalog as catalog_mod
+    from pinneapple_physics.solving import analytic_for
+
+    names = pp.list_presets()
+    reachable = [n for n in names
+                 if analytic_for(n)
+                 or catalog_mod.solver_available(catalog_mod._solver_of(n))
+                 or catalog_mod.trainable(n)]
+    assert len(reachable) >= 60, f"only {len(reachable)} of {len(names)} presets are reachable"
+
+
+def test_a_preset_knows_which_preset_it_is():
+    """The solver needs the registry key to find a preset's geometry fixtures."""
+    spec = pp.get_preset("poisson_2d")
+    assert spec.problem_id == "poisson_2d"
+    assert spec.meta["preset"] == "poisson_2d"
+    spec = pp.get_preset("burgers_1d", nu=0.02)          # with arguments, still identifiable
+    assert spec.problem_id == "burgers_1d"
+    problem = pp.PhysicalProblem.from_preset("transient_heat_3d")
+    assert problem.to_pde_spec().meta["preset"] == "transient_heat_3d"

@@ -44,7 +44,7 @@ Pasta de testes dedicada: `tests/pinneapple_design` (88 funções de teste).
 | `geometry_library` | Biblioteca de geometrias 3D paramétricas e realistas (aeronaves, veículos, navios, turbinas, prédios, anatomia) com registro, construtores, checagens de malha, exportadores (STL, OBJ, glTF, USD, STEP), renderizador por software e arquivos pré-gerados no Hugging Face Hub. | 15 | 91 | 42 |
 | `intent` | Projeto a partir da intenção: uma meta em linguagem natural vira especificação com unidades, plano de física, otimização multifidelidade, verificação com solver completo, robustez e um pacote de projeto com relatório, geometria e arquivos de checagem. | 19 | 84 | 24 |
 | `qualitative` |  | 5 | 25 | 13 |
-| `surrogate_inverse` |  | 8 | 104 | 94 |
+| `surrogate_inverse` | Projeto inverso guiado por surrogate em física de forma fechada: amostra, treina uma MLP pequena, desce o gradiente no design pela rede congelada e reconfere o resultado contra a física; cinco casos resolvidos. | 8 | 104 | 94 |
 | `thermal` | Projeto térmico: motor e dimensionador de dissipadores, surrogates e o estudo de resfriamento de placa. | 19 | 75 | 46 |
 | `topology` |  | 6 | 17 | 9 |
 
@@ -2271,176 +2271,176 @@ Quantitative counterparts of the qualitative models, for ``QualitativePreview.qu
 
 #### `pinneapple_design.surrogate_inverse`
 
-Surrogate-driven inverse design on closed-form physics, with the answer re-checked against the physics.
+Projeto inverso por surrogate com cinco casos (dissipador, disco de freio, adesivo transdérmico, braço de suspensão, duto bass-reflex) que compartilham o mesmo método e são servidos por apps em `apps/`.
 
 <small>`pinneapple_design/surrogate_inverse/__init__.py` · 38 linhas · testes: 91</small>
 
 #### `pinneapple_design.surrogate_inverse.brake_rotor`
 
-Vented brake rotor: the radial vanes between the two friction rings, as a fin array, under a sustained load.
+Caso do disco de freio ventilado: as aletas radiais entre os anéis tratadas como arranjo de aletas (ferro fundido) sob carga contínua, com Monte Carlo das tolerâncias de usinagem.
 
 <small>`pinneapple_design/surrogate_inverse/brake_rotor.py` · 269 linhas · testes: 94</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RotorDesign` | classe | `(vane_count, vane_gap_m, vane_thickness_m)` |  |
-| `OptimizationResult` | classe | `(design, surrogate_predicted_temp_c)` |  |
-| `profile_params` | função | `(design, power_w, h_conv) -> dict[str, float]` | Formula quantities, plus ``theta_vane_base_c`` (alias of the fin-root rise) and ``lc_radial_m`` (corrected length along the vane's radial extent, for the radial colour profile). |
-| `rotor_temperature_c` | função | `(design, power_w, h_conv) -> float` | Ground truth: friction-ring temperature under a sustained heat input. |
-| `thermal_resistance_k_w` | função | `(design, h_conv) -> float` |  |
-| `vane_temperature_at_radial_position_c` | função | `(design, power_w, h_conv, r_fraction) -> float` | The fin profile (same ``m`` and root rise) along the vane's radial extent: hottest at the inner edge (``r_fraction = 0``), coolest at the outer edge. Used to colour the vanes; the scalar model integrates over the gap direction, this profile is a display of the same fin parameters along the radius. |
-| `thermal_field` | função | `(design, power_w, h_conv) -> dict[str, float]` |  |
-| `constraint_violations` | função | `(design) -> dict[str, float]` |  |
-| `design_to_dict` | função | `(design) -> dict` |  |
-| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` |  |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` |  |
-| `predict_temperature_c` | função | `(surrogate, design, power_w, h_conv) -> float` |  |
-| `optimize_design` | função | `(surrogate, power_w, h_conv, steps=400, lr=0.05, penalty_weight=100.0) -> OptimizationRes…)` | Minimise the surrogate's rotor temperature over (N, gap, t): same loss form (``log R`` plus the relative spacing shortfall), sigmoid-bounded descent and integer rounding as :func:`.heatsink_fins.optimize_design`. |
-| `verify_design` | função | `(design, power_w, h_conv, surrogate_predicted_temp_c) -> VerificationCard` |  |
-| `monte_carlo_uncertainty` | função | `(design, power_w, h_conv, safety_threshold_c, n_samples=200, seed=None, thickness_toleran…)` | Vane thickness and gap drawn uniformly within their tolerance bands (vane count is a part count and stays fixed), each sample through the formula (never the surrogate). Verdict on the 95th percentile ``p95``: FRAGILE if above the threshold, MARGINAL within 5 % below it, ROBUST otherwise. … |
-| `mesh` | função | `(design) -> meshes.Mesh` | Two friction rings and the radial vanes, in millimetres. |
-| `export_stl_bytes` | função | `(design) -> bytes` |  |
+| `RotorDesign` | classe | `(vane_count, vane_gap_m, vane_thickness_m)` | Design do disco: número, vão e espessura das aletas radiais, com espaçamento derivado. |
+| `OptimizationResult` | classe | `(design, surrogate_predicted_temp_c)` | Resultado da otimização do disco: design e temperatura prevista. |
+| `profile_params` | função | `(design, power_w, h_conv) -> dict[str, float]` | Grandezas da fórmula com elevação na raiz da aleta e comprimento radial corrigido. |
+| `rotor_temperature_c` | função | `(design, power_w, h_conv) -> float` | Verdade: temperatura do anel de atrito sob calor contínuo. |
+| `thermal_resistance_k_w` | função | `(design, h_conv) -> float` | Resistência térmica do disco (elevação por watt). |
+| `vane_temperature_at_radial_position_c` | função | `(design, power_w, h_conv, r_fraction) -> float` | Perfil de temperatura ao longo da aleta, da borda interna (mais quente) à externa. |
+| `thermal_field` | função | `(design, power_w, h_conv) -> dict[str, float]` | Parâmetros para colorir as aletas pelo perfil radial. |
+| `constraint_violations` | função | `(design) -> dict[str, float]` | Violações com sinal (espaçamento mínimo, limites de vão e espessura). |
+| `design_to_dict` | função | `(design) -> dict` | Dicionário do design com contagem arredondada e espaçamento. |
+| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Designs aleatórios com perfis de resfriamento, rotulados pela fórmula. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | Treina a MLP (saída em log) no dataset do disco. |
+| `predict_temperature_c` | função | `(surrogate, design, power_w, h_conv) -> float` | Temperatura do disco prevista pelo surrogate. |
+| `optimize_design` | função | `(surrogate, power_w, h_conv, steps=400, lr=0.05, penalty_weight=100.0) -> OptimizationRes…)` | Minimiza a temperatura prevista sobre (N, vão, t), como no caso do dissipador. |
+| `verify_design` | função | `(design, power_w, h_conv, surrogate_predicted_temp_c) -> VerificationCard` | Reconfere o design com a fórmula e as regras de projeto. |
+| `monte_carlo_uncertainty` | função | `(design, power_w, h_conv, safety_threshold_c, n_samples=200, seed=None, thickness_toleran…)` | Monte Carlo das tolerâncias de espessura e vão pela fórmula, com veredito no percentil 95. |
+| `mesh` | função | `(design) -> meshes.Mesh` | Malha dos dois anéis e das aletas, em milímetros. |
+| `export_stl_bytes` | função | `(design) -> bytes` | Bytes STL do disco ventilado. |
 
 #### `pinneapple_design.surrogate_inverse.core`
 
-The machinery shared by every case: a small MLP surrogate, gradient descent on the design through the frozen surrogate, and a verification card that re-checks the answer against the ground truth.
+Maquinário comum: MLP surrogate com entradas normalizadas, treino, congelamento, descida Adam nas variáveis de projeto e cartão de verificação que reconfere contra a verdade de forma fechada.
 
 <small>`pinneapple_design/surrogate_inverse/core.py` · 267 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MLPSurrogate` | classe | `(bounds, hidden=48, n_layers=3, log_output=False)` | ``tanh`` MLP with its inputs mapped from their bounds to [-1, 1] and its output standardised. |
-| `SurrogateFit` | classe | `(model, val_mean_rel_err, val_p95_rel_err, val_max_rel_err, n_train, n_val, epochs, secon…)` | A trained surrogate with its held-out errors (relative, on rows it never trained on). |
-| `CheckResult` | classe | `(name, verdict, detail, value, limit)` |  |
-| `VerificationCard` | classe | `(checks, values, covered, not_covered)` | The final design re-checked against the ground truth (never the surrogate grading itself). |
-| `fit_surrogate` | função | `(X, y, bounds, *, hidden=48, n_layers=3, epochs=1500, lr=0.003, seed=0, log_output=False,…)` | Full-batch Adam with a cosine learning-rate decay on ``(X, y)``; the last ``val_fraction`` of the rows (the data are expected in random order) is held out and scored as ``\|pred - y\| / max(\|y\|, rel_floor)``. |
-| `freeze` | função | `(model) -> nn.Module` | Stop gradients into the weights: from here on only the design moves. |
-| `descend` | função | `(loss_fn, x0, *, bounds, steps=400, lr=0.01, reparam='clamp', project=None) -> dict[str, …)` | Adam on the design variables ``x0`` to minimise ``loss_fn(values)``. |
-| `banded` | função | `(name, error, pass_limit, warn_limit, *, pass_text, warn_text, fail_text) -> CheckResult` | PASS when ``error <= pass_limit``, WARNING up to ``warn_limit``, FAIL above. |
-| `relative_error` | função | `(predicted, reference, floor) -> float` |  |
-| `constraint_checks` | função | `(violations, ok_text=…, skip=()) -> list[CheckResult]` | One check per signed violation (``<= 0`` is satisfied). |
+| `MLPSurrogate` | classe | `(bounds, hidden=48, n_layers=3, log_output=False)` | MLP `tanh` com entradas mapeadas dos limites para [-1, 1] e saída padronizada (opcionalmente em log). |
+| `SurrogateFit` | classe | `(model, val_mean_rel_err, val_p95_rel_err, val_max_rel_err, n_train, n_val, epochs, secon…)` | Surrogate treinado com seus erros relativos em linhas separadas. |
+| `CheckResult` | classe | `(name, verdict, detail, value, limit)` | Resultado de uma checagem: nome, veredito (PASS, WARNING, FAIL), detalhe, valor e limite. |
+| `VerificationCard` | classe | `(checks, values, covered, not_covered)` | Design final reconferido contra a verdade de forma fechada, com veredito geral, cobertura explícita e `TrustReport`. |
+| `fit_surrogate` | função | `(X, y, bounds, *, hidden=48, n_layers=3, epochs=1500, lr=0.003, seed=0, log_output=False,…)` | Treina a MLP com Adam em lote cheio e decaimento cosseno, separando as últimas linhas para validação. |
+| `freeze` | função | `(model) -> nn.Module` | Congela os pesos do surrogate para que só o design se mova. |
+| `descend` | função | `(loss_fn, x0, *, bounds, steps=400, lr=0.01, reparam='clamp', project=None) -> dict[str, …)` | Adam nas variáveis de projeto para minimizar uma perda, com reparametrização por clamp ou sigmoide. |
+| `banded` | função | `(name, error, pass_limit, warn_limit, *, pass_text, warn_text, fail_text) -> CheckResult` | Veredito por faixas: PASS até `pass_limit`, WARNING até `warn_limit`, FAIL acima. |
+| `relative_error` | função | `(predicted, reference, floor) -> float` | Erro relativo \|previsto - referência\| / max(\|referência\|, piso). |
+| `constraint_checks` | função | `(violations, ok_text=…, skip=()) -> list[CheckResult]` | Uma checagem por violação com sinal (<= 0 satisfeita). |
 
 #### `pinneapple_design.surrogate_inverse.heatsink_fins`
 
-Straight-fin CPU heat sink: fin count, height and thickness on a fixed 80 x 80 mm aluminium base.
+Caso do dissipador de CPU com aletas retas em base fixa de alumínio: fórmula 1-D de arranjo de aletas como verdade, surrogate na resistência térmica e checagem por volumes finitos 2-D numa célula de aleta.
 
 <small>`pinneapple_design/surrogate_inverse/heatsink_fins.py` · 264 linhas · testes: 91</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HeatsinkDesign` | classe | `(fin_count, fin_height_m, fin_thickness_m)` |  |
-| `OptimizationResult` | classe | `(design, surrogate_predicted_temp_c, steps_run)` |  |
-| `profile_params` | função | `(design, power_w, h_conv) -> dict[str, float]` | The fin-array formula's intermediate quantities (``m``, ``lc_m``, resistances, fin-root rise). |
-| `junction_temperature_c` | função | `(design, power_w, h_conv) -> float` | Ground truth: base (junction) temperature. Used for the training labels and for the verification. |
-| `thermal_resistance_k_w` | função | `(design, h_conv) -> float` | ``(T_j - T_amb) / P``: independent of the power in this model. |
-| `fin_temperature_at_height_c` | função | `(design, power_w, h_conv, z_above_root_m) -> float` | The 1-D fin profile ``theta(z) = theta_root cosh(m (Lc - z)) / cosh(m Lc)`` of the same formula. |
-| `thermal_field` | função | `(design, power_w, h_conv) -> dict[str, float]` | What a viewer needs to colour the fins with the fin profile (evaluated per vertex). |
-| `constraint_violations` | função | `(design) -> dict[str, float]` | Signed violations (``<= 0`` satisfied). |
-| `design_to_dict` | função | `(design) -> dict` |  |
-| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Uniform designs, ``h`` spread around the fan profiles; label = thermal resistance from the formula. |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | MLP on ``log R``; ``fit.val_mean_rel_err`` is the held-out error on ``R``, i.e. on the temperature rise. |
-| `predict_temperature_c` | função | `(surrogate, design, power_w, h_conv) -> float` |  |
-| `optimize_design` | função | `(surrogate, power_w, h_conv, steps=400, lr=0.05, penalty_weight=100.0) -> OptimizationRes…)` | Minimise the surrogate's junction temperature over (N, H, t) from the baseline. |
-| `verify_design` | função | `(design, power_w, h_conv, surrogate_predicted_temp_c) -> VerificationCard` | Re-run the formula on the final design: surrogate error on the temperature rise (PASS <= 5 %, WARNING <= 15 %), every design rule, and a plausibility bound on the temperature. |
-| `fin_cell_check` | função | `(design, power_w, h_conv) -> dict` | The formula against 2-D finite-volume conduction in one fin pitch (same h, same power per fin). |
-| `mesh` | função | `(design) -> meshes.Mesh` | Base plate plus fins, in millimetres. |
-| `export_stl_bytes` | função | `(design) -> bytes` |  |
+| `HeatsinkDesign` | classe | `(fin_count, fin_height_m, fin_thickness_m)` | Design do dissipador: número, altura e espessura das aletas, com espaçamento derivado. |
+| `OptimizationResult` | classe | `(design, surrogate_predicted_temp_c, steps_run)` | Resultado da otimização do dissipador: design, temperatura prevista e passos. |
+| `profile_params` | função | `(design, power_w, h_conv) -> dict[str, float]` | Grandezas intermediárias da fórmula de aletas (m, comprimento corrigido, resistências, elevação na raiz). |
+| `junction_temperature_c` | função | `(design, power_w, h_conv) -> float` | Verdade: temperatura da base (junção), usada nos rótulos e na verificação. |
+| `thermal_resistance_k_w` | função | `(design, h_conv) -> float` | Resistência térmica (T_j - T_amb) / P, independente da potência neste modelo. |
+| `fin_temperature_at_height_c` | função | `(design, power_w, h_conv, z_above_root_m) -> float` | Perfil 1-D de temperatura ao longo da altura da aleta. |
+| `thermal_field` | função | `(design, power_w, h_conv) -> dict[str, float]` | O que um visualizador precisa para colorir as aletas pelo perfil. |
+| `constraint_violations` | função | `(design) -> dict[str, float]` | Violações com sinal das regras de projeto (<= 0 satisfeita). |
+| `design_to_dict` | função | `(design) -> dict` | Dicionário do design com contagem arredondada e espaçamento. |
+| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Designs uniformes rotulados com a resistência térmica da fórmula. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | Treina a MLP em log R. |
+| `predict_temperature_c` | função | `(surrogate, design, power_w, h_conv) -> float` | Temperatura de junção prevista pelo surrogate. |
+| `optimize_design` | função | `(surrogate, power_w, h_conv, steps=400, lr=0.05, penalty_weight=100.0) -> OptimizationRes…)` | Minimiza a temperatura prevista sobre (N, H, t) a partir da base. |
+| `verify_design` | função | `(design, power_w, h_conv, surrogate_predicted_temp_c) -> VerificationCard` | Reroda a fórmula no design final: erro do surrogate, regras de projeto e limite de plausibilidade. |
+| `fin_cell_check` | função | `(design, power_w, h_conv) -> dict` | Compara a fórmula com condução por volumes finitos 2-D num passo de aleta. |
+| `mesh` | função | `(design) -> meshes.Mesh` | Malha da placa base com as aletas, em milímetros. |
+| `export_stl_bytes` | função | `(design) -> bytes` | Bytes STL do dissipador. |
 
 #### `pinneapple_design.surrogate_inverse.meshes`
 
-Triangle meshes of the five designs, in millimetres, for a 3-D viewer or an STL download.
+Malhas triangulares das cinco peças em milímetros (para visualizador ou STL), como corpos fechados concatenados, sem união booleana.
 
 <small>`pinneapple_design/surrogate_inverse/meshes.py` · 93 linhas · testes: 88</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `merge` | função | `(parts) -> Mesh` | Concatenate meshes (faces re-indexed). |
-| `bbox_size` | função | `(mesh) -> tuple[float, float, float]` |  |
-| `to_stl` | função | `(mesh, name) -> bytes` | Binary STL (the header starts with the part name, never with ``solid``). |
-| `fin_array` | função | `(base_w_mm, base_d_mm, base_t_mm, n_fins, fin_h_mm, fin_t_mm) -> Mesh` | Base plate (centred on the origin, top face at ``z = base_t / 2``) with ``n_fins`` straight fins spread evenly across its width, first and last flush with the edges. |
-| `vented_rotor` | função | `(r_mean_mm, radial_len_mm, ring_t_mm, gap_mm, n_vanes, vane_t_mm, n=96) -> Mesh` | Two annular friction rings (z = 0 to ``ring_t`` and above the vent gap) joined by ``n_vanes`` radial vane blocks in the gap, around the z axis. |
-| `layered_disc` | função | `(radius_mm, layer_thicknesses_mm, n=96) -> Mesh` | Stacked coaxial discs (z up from 0), e.g. a drug reservoir under a rate-controlling membrane. |
-| `rectangular_beam` | função | `(width_mm, thickness_mm, length_mm) -> Mesh` | A plain box: x = width, y = thickness (the bending axis), z = length, centred on the origin (12 triangles). |
-| `flanged_tube` | função | `(radius_mm, length_mm, flange_radius_mm, flange_t_mm, n=64) -> Mesh` | A port: a cylinder of ``radius`` x ``length`` along z from 0, with a flange disc at its base. |
+| `merge` | função | `(parts) -> Mesh` | Concatena malhas reindexando as faces. |
+| `bbox_size` | função | `(mesh) -> tuple[float, float, float]` | Tamanho da caixa envolvente (x, y, z) da malha. |
+| `to_stl` | função | `(mesh, name) -> bytes` | STL binário com cabeçalho iniciado pelo nome da peça. |
+| `fin_array` | função | `(base_w_mm, base_d_mm, base_t_mm, n_fins, fin_h_mm, fin_t_mm) -> Mesh` | Placa base com aletas retas distribuídas na largura. |
+| `vented_rotor` | função | `(r_mean_mm, radial_len_mm, ring_t_mm, gap_mm, n_vanes, vane_t_mm, n=96) -> Mesh` | Dois anéis de atrito unidos por aletas radiais no vão de ventilação. |
+| `layered_disc` | função | `(radius_mm, layer_thicknesses_mm, n=96) -> Mesh` | Discos coaxiais empilhados (ex.: reservatório sob membrana). |
+| `rectangular_beam` | função | `(width_mm, thickness_mm, length_mm) -> Mesh` | Caixa simples representando a viga. |
+| `flanged_tube` | função | `(radius_mm, length_mm, flange_radius_mm, flange_t_mm, n=64) -> Mesh` | Duto cilíndrico com disco de flange na base. |
 
 #### `pinneapple_design.surrogate_inverse.reflex_port`
 
-Bass-reflex port: radius and length that tune a cabinet to a target frequency, and the trade-off between a small port and an accurate tuning.
+Caso do duto bass-reflex: raio e comprimento que sintonizam a caixa numa frequência (ressonador de Helmholtz), com varredura do trade-off volume x precisão.
 
 <small>`pinneapple_design/surrogate_inverse/reflex_port.py` · 232 linhas · testes: 88</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PortDesign` | classe | `(radius_m, length_m)` |  |
-| `OptimizationResult` | classe | `(design, surrogate_predicted_freq_hz)` |  |
-| `FrontierPoint` | classe | `(volume_weight, design, surrogate_predicted_freq_hz, real_achieved_freq_hz, real_freq_err…)` |  |
-| `resonant_frequency_hz` | função | `(design, cabinet_volume_l) -> float` | Ground truth (training labels and verification). |
-| `acoustic_field` | função | `(design, cabinet_volume_l) -> dict[str, float]` | One value per design (the lumped model has no field along the port): the tuning within the target range. |
-| `constraint_violations` | função | `(design, cabinet_volume_l) -> dict[str, float]` |  |
-| `design_to_dict` | função | `(design) -> dict` |  |
-| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` |  |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` |  |
-| `predict_frequency_hz` | função | `(surrogate, design, cabinet_volume_l) -> float` |  |
-| `optimize_design` | função | `(surrogate, cabinet_volume_l, target_freq_hz, steps=400, lr=0.05, penalty_weight=100.0) -…)` | Minimise ``((f_surrogate - f_target) / f_target)^2`` plus a penalty on the port-volume rule, from the baseline, in the sigmoid-bounded space of :func:`.core.descend` (radius and length bounded, comparable step sizes). |
-| `sweep_pareto_frontier` | função | `(surrogate, cabinet_volume_l, target_freq_hz, n_points=8, steps=400, lr=0.05, penalty_wei…)` | Volume-vs-accuracy trade-off for ``lambda`` in ``linspace(0.05, 0.95, n_points)``. |
-| `verify_design` | função | `(design, cabinet_volume_l, target_freq_hz, surrogate_predicted_freq_hz) -> VerificationCa…)` |  |
-| `mesh` | função | `(design) -> meshes.Mesh` | Port tube with its flange, in millimetres. |
-| `export_stl_bytes` | função | `(design) -> bytes` |  |
+| `PortDesign` | classe | `(radius_m, length_m)` | Design do duto: raio e comprimento. |
+| `OptimizationResult` | classe | `(design, surrogate_predicted_freq_hz)` | Resultado da otimização do duto. |
+| `FrontierPoint` | classe | `(volume_weight, design, surrogate_predicted_freq_hz, real_achieved_freq_hz, real_freq_err…)` | Um ponto da varredura volume x precisão. |
+| `resonant_frequency_hz` | função | `(design, cabinet_volume_l) -> float` | Verdade: frequência de ressonância de Helmholtz. |
+| `acoustic_field` | função | `(design, cabinet_volume_l) -> dict[str, float]` | Um valor por design (o modelo concentrado não tem campo): a sintonia dentro da faixa alvo. |
+| `constraint_violations` | função | `(design, cabinet_volume_l) -> dict[str, float]` | Violações com sinal das regras do duto. |
+| `design_to_dict` | função | `(design) -> dict` | Dicionário do design do duto. |
+| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Designs aleatórios rotulados com a frequência de Helmholtz. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | Treina a MLP que prevê a frequência. |
+| `predict_frequency_hz` | função | `(surrogate, design, cabinet_volume_l) -> float` | Frequência prevista pelo surrogate. |
+| `optimize_design` | função | `(surrogate, cabinet_volume_l, target_freq_hz, steps=400, lr=0.05, penalty_weight=100.0) -…)` | Minimiza o erro relativo de frequência ao quadrado mais penalidade de volume do duto. |
+| `sweep_pareto_frontier` | função | `(surrogate, cabinet_volume_l, target_freq_hz, n_points=8, steps=400, lr=0.05, penalty_wei…)` | Varre o peso lambda e monta o trade-off volume x precisão. |
+| `verify_design` | função | `(design, cabinet_volume_l, target_freq_hz, surrogate_predicted_freq_hz) -> VerificationCa…)` | Reconfere o design com a fórmula de Helmholtz e as regras. |
+| `mesh` | função | `(design) -> meshes.Mesh` | Malha do duto com flange, em milímetros. |
+| `export_stl_bytes` | função | `(design) -> bytes` | Bytes STL do duto. |
 
 #### `pinneapple_design.surrogate_inverse.suspension_arm`
 
-Suspension arm as a rectangular cantilever: the lightest width x thickness that still reaches a fatigue life.
+Caso do braço de suspensão como viga em balanço retangular: menor largura x espessura que atinge uma vida à fadiga (lei de Basquin), com sensibilidades locais.
 
 <small>`pinneapple_design/surrogate_inverse/suspension_arm.py` · 255 linhas · testes: 88</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ArmDesign` | classe | `(width_m, thickness_m)` |  |
-| `OptimizationResult` | classe | `(design, surrogate_predicted_stress_pa)` |  |
-| `SensitivityResult` | classe | `(width_m, thickness_m, load_n, life_cycles, mass_kg, d_life_d_width, d_life_d_thickness, …)` |  |
-| `bending_stress_pa` | função | `(design, load_n) -> float` | Ground truth: bending stress at the clamped root, where the moment is largest. |
-| `bending_stress_at_position_pa` | função | `(design, load_n, x_from_root_m) -> float` | ``sigma(x) = 6 F (L - x) / (w t^2)``: largest at the root, zero at the loaded tip. |
-| `fatigue_life_cycles` | função | `(design, load_n) -> float` |  |
-| `allowable_stress_for_life_pa` | função | `(target_life_cycles) -> float` |  |
-| `stress_field` | função | `(design, load_n) -> dict[str, float]` |  |
-| `constraint_violations` | função | `(design, load_n, target_life_cycles) -> dict[str, float]` |  |
-| `design_to_dict` | função | `(design) -> dict` |  |
-| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` |  |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | MLP on ``log sigma`` (the stress spans about 30 MPa to 6 GPa over the space). |
-| `predict_stress_pa` | função | `(surrogate, design, load_n) -> float` |  |
-| `optimize_design` | função | `(surrogate, load_n, target_life_cycles, steps=500, lr=0.0006, penalty_weight=5e-11) -> Op…)` | Minimise ``w t`` (mass at fixed length and density) plus ``penalty_weight * max(0, sigma - sigma_allow)^2`` through the surrogate's stress, from the baseline, clamped to the bounds. |
-| `verify_design` | função | `(design, load_n, target_life_cycles, surrogate_predicted_stress_pa) -> VerificationCard` |  |
-| `compute_sensitivity` | função | `(width_m, thickness_m, load_n, step_m=H_M) -> SensitivityResult` | Derivatives of life and mass at the design point by central differences on the closed form (never the surrogate), with a step of ``step_m`` metres. |
-| `sensitivity_to_dict` | função | `(r) -> dict` |  |
-| `mesh` | função | `(design) -> meshes.Mesh` | The beam as a plain box in millimetres (x width, y thickness, z length): the model has no fillets or holes. |
-| `export_stl_bytes` | função | `(design) -> bytes` |  |
+| `ArmDesign` | classe | `(width_m, thickness_m)` | Design do braço: largura e espessura da seção retangular. |
+| `OptimizationResult` | classe | `(design, surrogate_predicted_stress_pa)` | Resultado da otimização do braço. |
+| `SensitivityResult` | classe | `(width_m, thickness_m, load_n, life_cycles, mass_kg, d_life_d_width, d_life_d_thickness, …)` | Sensibilidades locais (elasticidades) de vida e massa em relação a largura e espessura. |
+| `bending_stress_pa` | função | `(design, load_n) -> float` | Verdade: tensão de flexão na raiz engastada. |
+| `bending_stress_at_position_pa` | função | `(design, load_n, x_from_root_m) -> float` | Tensão de flexão ao longo do braço, máxima na raiz e nula na ponta. |
+| `fatigue_life_cycles` | função | `(design, load_n) -> float` | Vida à fadiga em ciclos pela lei de Basquin. |
+| `allowable_stress_for_life_pa` | função | `(target_life_cycles) -> float` | Tensão admissível para atingir a vida alvo. |
+| `stress_field` | função | `(design, load_n) -> dict[str, float]` | Dados para colorir o braço pela tensão ao longo do comprimento. |
+| `constraint_violations` | função | `(design, load_n, target_life_cycles) -> dict[str, float]` | Violações com sinal das regras do braço. |
+| `design_to_dict` | função | `(design) -> dict` | Dicionário do design do braço. |
+| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Designs aleatórios rotulados com a tensão de flexão. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | Treina a MLP em log da tensão. |
+| `predict_stress_pa` | função | `(surrogate, design, load_n) -> float` | Tensão prevista pelo surrogate. |
+| `optimize_design` | função | `(surrogate, load_n, target_life_cycles, steps=500, lr=0.0006, penalty_weight=5e-11) -> Op…)` | Minimiza w t mais penalidade quando a tensão prevista passa da admissível. |
+| `verify_design` | função | `(design, load_n, target_life_cycles, surrogate_predicted_stress_pa) -> VerificationCard` | Reconfere o design com a forma fechada e as regras. |
+| `compute_sensitivity` | função | `(width_m, thickness_m, load_n, step_m=H_M) -> SensitivityResult` | Derivadas de vida e massa por diferenças centrais na forma fechada (nunca no surrogate). |
+| `sensitivity_to_dict` | função | `(r) -> dict` | Dicionário das sensibilidades com um resumo em texto. |
+| `mesh` | função | `(design) -> meshes.Mesh` | Malha do braço como caixa simples em milímetros (sem filetes nem furos). |
+| `export_stl_bytes` | função | `(design) -> bytes` | Bytes STL do braço. |
 
 #### `pinneapple_design.surrogate_inverse.transdermal_patch`
 
-Membrane-controlled release patch: area, membrane thickness and reservoir concentration for a target release rate and wear time, with the smallest area.
+Caso do adesivo de liberação controlada por membrana (lei de Fick): área, espessura da membrana e concentração para uma taxa alvo e tempo de uso, com a menor área.
 
 <small>`pinneapple_design/surrogate_inverse/transdermal_patch.py` · 249 linhas · testes: 88</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PatchDesign` | classe | `(area_m2, membrane_thickness_m, reservoir_conc_kg_m3)` |  |
-| `OptimizationResult` | classe | `(design, surrogate_predicted_rate_mg_day)` |  |
-| `release_rate_mg_day` | função | `(design) -> float` | Ground truth: steady release rate (training labels and verification). |
-| `depletion_time_days` | função | `(design) -> float` |  |
-| `reservoir_mass_mg` | função | `(design) -> float` |  |
-| `concentration_at_membrane_depth` | função | `(design, z_from_reservoir_m) -> float` | Linear steady profile ``C(z) = K C_res (1 - z / L)`` (sink at the outer face). |
-| `decay_rate_constant_per_day` | função | `(design) -> float` | First-order constant of the tail after depletion, ``k = D K / (L L_res) = 1 / t_dep`` (area cancels). |
-| `simulate_release_timeseries` | função | `(design, duration_days=None, n_points=100) -> list[dict[str, float]]` | Rate, cumulative release and nominal reservoir left over time (default: 1.5 x the depletion time). |
-| `concentration_field` | função | `(design) -> dict[str, float]` |  |
-| `constraint_violations` | função | `(design, target_wear_days) -> dict[str, float]` |  |
-| `design_to_dict` | função | `(design) -> dict` |  |
-| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` |  |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | MLP on ``log rate`` (the rate spans about 0.5 to 2600 mg/day over the design space). |
-| `predict_rate_mg_day` | função | `(surrogate, design) -> float` |  |
-| `optimize_design` | função | `(surrogate, target_rate_mg_day, target_wear_days, steps=1200, lr=0.15, weight_rate=80.0, …)` | Minimise ``A / A_max + w_r (rel. rate error)^2 + w_w (rel. wear shortfall)^2`` in a sigmoid-bounded space (area, membrane and concentration differ by six orders of magnitude; in that space one learning rate moves all three). The wear term uses the closed-form depletion time and aims 3 % above the … |
-| `verify_design` | função | `(design, target_rate_mg_day, target_wear_days, surrogate_predicted_rate_mg_day) -> Verifi…)` |  |
-| `mesh` | função | `(design) -> meshes.Mesh` | Reservoir disc with the membrane on top, in millimetres (radius from the area). |
-| `export_stl_bytes` | função | `(design) -> bytes` |  |
+| `PatchDesign` | classe | `(area_m2, membrane_thickness_m, reservoir_conc_kg_m3)` | Design do adesivo: área, espessura da membrana e concentração do reservatório. |
+| `OptimizationResult` | classe | `(design, surrogate_predicted_rate_mg_day)` | Resultado da otimização do adesivo. |
+| `release_rate_mg_day` | função | `(design) -> float` | Verdade: taxa de liberação estacionária. |
+| `depletion_time_days` | função | `(design) -> float` | Tempo até esgotar o reservatório. |
+| `reservoir_mass_mg` | função | `(design) -> float` | Massa de fármaco no reservatório. |
+| `concentration_at_membrane_depth` | função | `(design, z_from_reservoir_m) -> float` | Perfil linear estacionário de concentração na membrana. |
+| `decay_rate_constant_per_day` | função | `(design) -> float` | Constante de primeira ordem da cauda após o esgotamento. |
+| `simulate_release_timeseries` | função | `(design, duration_days=None, n_points=100) -> list[dict[str, float]]` | Série temporal de taxa, liberação acumulada e reservatório restante. |
+| `concentration_field` | função | `(design) -> dict[str, float]` | Dados para colorir a membrana pelo perfil de concentração. |
+| `constraint_violations` | função | `(design, target_wear_days) -> dict[str, float]` | Violações com sinal (taxa, tempo de uso, limites). |
+| `design_to_dict` | função | `(design) -> dict` | Dicionário do design do adesivo. |
+| `generate_dataset` | função | `(n_samples, seed=0) -> tuple[torch.Tensor, torch.Tensor]` | Designs aleatórios rotulados com a taxa de liberação. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0) -> SurrogateFit` | Treina a MLP em log da taxa. |
+| `predict_rate_mg_day` | função | `(surrogate, design) -> float` | Taxa prevista pelo surrogate. |
+| `optimize_design` | função | `(surrogate, target_rate_mg_day, target_wear_days, steps=1200, lr=0.15, weight_rate=80.0, …)` | Minimiza área relativa mais erros de taxa e de tempo de uso num espaço limitado por sigmoide. |
+| `verify_design` | função | `(design, target_rate_mg_day, target_wear_days, surrogate_predicted_rate_mg_day) -> Verifi…)` | Reconfere o design com a lei de Fick e as regras. |
+| `mesh` | função | `(design) -> meshes.Mesh` | Malha do disco do reservatório com a membrana, em milímetros. |
+| `export_stl_bytes` | função | `(design) -> bytes` | Bytes STL do adesivo. |
 
 #### `pinneapple_design.thermal`
 
@@ -2819,6 +2819,10 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - As propriedades de materiais são valores típicos de datasheet, não admissíveis de norma, como o próprio módulo avisa.
 - O LLM é opcional (via `IntentLLM`/`CallLLM`); o parser determinístico não adivinha valores e transforma slots críticos ausentes em perguntas.
 - A maior parte dos módulos de `intent` (api, cli, pipeline, package, spec, template, templates) não tem teste direto pela contagem do inventário.
+- Os cinco casos usam fórmulas de livro texto com hipóteses declaradas; o docstring do pacote diz que nenhum foi validado contra medições.
+- Constantes de material são genéricas: aço de mola com valores típicos de tabela no braço, D e K de ordem de grandeza no adesivo, sem dados de um fármaco real.
+- Modelos simplificados: o duto ignora modos da caixa e compressão do ar; o braço não tem limite de endurança nem concentradores de tensão; o freio é estacionário (calor contínuo, não uma frenagem brusca).
+- As malhas de `meshes` são corpos fechados concatenados, não uma união booleana; para CNC ou FEM é preciso fundi-los (ex.: com `manifold3d`).
 - `sample_domain` chama `domain.sample_boundary`, mas `PhysicsDomain2D`/`PhysicsDomain3D` só têm `sample_boundary_region`; com os domínios de `build_domain` a chamada deve falhar (o exemplo da documentação usa exatamente esse caminho).
 - `geometry.io.__init__` tenta importar `build_parametric_part` de `cadquery_bridge`, que não define esse nome; o valor fica sempre `None`.
 - `gen.primitives.project_points_to_surface` é marcado como placeholder; o docstring diz que deveria levantar erro, mas devolve uma tupla `(pontos, distâncias)` em vez de um array.
@@ -2832,7 +2836,13 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_systems` reúne as ferramentas para sistemas físicos com vários componentes que evoluem no tempo. O docstring do pacote lista cinco submódulos: `time_series` (previsão de sinais físicos, antigo `pinneapple_timeseries`), `cosimulation` (co-simulação diferenciável em grafo, antigo `pinneapple_cosim`), `digital_twin` (gêmeo digital com streams de sensores, filtros de Kalman e detecção de anomalias), `component_modeling` (controle, MPC, incerteza, resíduos de PDE e empacotamento ONNX) e `process_components` (modelos de operações unitárias de planta). Há também o módulo `excitation`, com sinais de excitação de atuador.
+
+O problema que o pacote resolve é juntar, num só lugar, modelos aprendidos e modelos físicos de partes diferentes de um sistema. A co-simulação liga nós (redes PyTorch, PINNs com resíduo físico, funções analíticas, caixas-pretas, modelos do `ModelRegistry`, PDEs em SymPy, previsores de séries) por portas nomeadas, executa o grafo no tempo resolvendo laços algébricos e treina tudo junto por retropropagação no tempo. A parte de séries temporais vai do preparo dos dados (imputação, outliers, reamostragem, EDA, auditoria estatística) a modelos (baselines, ML tabular, LSTM/GRU, N-BEATS, TCN, TFT, FNO, decomposição FFT/HHT, ARIMA, modelos fundacionais Chronos e TimesFM), validação temporal sem vazamento, métricas e visualização.
+
+Dentro de `time_series` há dois laboratórios de estudo maiores. O `forecast_lab` define uma interface comum e um protocolo rígido (teste fixado antes, tuning em walk-forward com purga, testes de Diebold-Mariano com correção de comparações múltiplas) para comparar baselines, modelos físicos, modelos de dados e híbridos em séries quase aleatórias; ele usa `synthetic` e `predictability`. O subpacote `enso` aplica esse protocolo à previsão do El Niño, com dados abertos baixados e verificados por hash, osciladores conceituais, um modelo acoplado intermediário e PINNs.
+
+O pacote se apoia no resto do repositório: usa `pinneapple_neural` (arquiteturas, `ModelRegistry`, `Trainer`, `TrainConfig`, `WeightScheduler`, `InversePINN`), `pinneapple_physics` (compilação de `ProblemSpec` em perda física), `pinneapple_simulation.numerical_solvers` (decomposições clássicas), `pinneapple_analysis` (regressão por quantis) e os renderizadores Blender (`pinneapple_blender`, `pinneapple_tools`). A raiz oferece os atalhos `forecast` e `cosim_from_models`, e mantém os aliases antigos `timeseries` e `cosim`.
 
 ### Números do inventário
 
@@ -2846,13 +2856,13 @@ _Sem texto de objetivo._
 |---|---|---:|---:|---:|
 | `component_library` |  | 7 | 15 | 36 |
 | `component_modeling` |  | 8 | 12 | 165 |
-| `cosimulation` |  | 10 | 23 | 151 |
+| `cosimulation` | Motor de co-simulação diferenciável em grafo: nós com portas, conexões, motor por passos de tempo com laços algébricos, gravador, perdas e treinador por BPTT. | 10 | 23 | 151 |
 | `digital_twin` |  | 33 | 129 | 172 |
-| `excitation` |  | 1 | 12 | 6 |
+| `excitation` | Sinais de excitação de atuador em NumPy para identificação de sistemas e treino de surrogates. | 1 | 12 | 6 |
 | `operations` |  | 10 | 73 | 25 |
 | `process_components` |  | 17 | 112 | 171 |
 | `sports` |  | 12 | 87 | 16 |
-| `time_series` |  | 83 | 351 | 151 |
+| `time_series` | Previsão de séries temporais de ponta a ponta: preparo, EDA, modelos, decomposição, validação, métricas, previsibilidade, previsão adaptativa e os estudos `forecast_lab` e `enso`. | 83 | 351 | 151 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2860,14 +2870,14 @@ _Sem texto de objetivo._
 
 #### `pinneapple_systems`
 
-pinneapple_systems — Multi-component physical systems (time series, co-simulation, digital twins).
+Raiz do pacote de sistemas multi-componente: importa os submódulos (`time_series`, `cosimulation`, `digital_twin`, `component_modeling`, `process_components`), reexporta seus nomes públicos, cria aliases antigos (`timeseries`, `cosim`) e define os atalhos `forecast` e `cosim_from_models`. [sem teste direto]
 
 <small>`pinneapple_systems/__init__.py` · 280 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `cosim_from_models` | função | `(models_dict, connections) -> 'CoSimGraph'` | Build a CoSimGraph from a dict of named nn.Module instances. |
-| `forecast` | função | `(data, horizon, *, model='auto', **kwargs)` | Quick time-series forecast with auto model selection. |
+| `cosim_from_models` | função | `(models_dict, connections) -> 'CoSimGraph'` | Atalho que embrulha cada `nn.Module` de um dicionário num `PINNeAPPleModelNode` com portas fixas `input`/`output` e liga as conexões dadas como pares de strings. |
+| `forecast` | função | `(data, horizon, *, model='auto', **kwargs)` | Atalho de previsão: escolhe uma classe por nome (`lstm`, `gru`, `nbeats`, `tft`, `tcn`, `xgboost`; `auto` vira `lstm`), chama `fit(data)` e `predict(horizon)`. |
 
 #### `pinneapple_systems.component_library`
 
@@ -3027,113 +3037,113 @@ pinneapple_systems.component_modeling.physics_residuals — generic, closed-form
 
 #### `pinneapple_systems.cosimulation`
 
-PINNeAPPle native co-simulation engine.
+Motor nativo de co-simulação diferenciável: nós com portas nomeadas, conexões, grafo com análise de topologia, motor por passos de tempo, gravador de trajetórias, perdas e treinador; o `__init__` só reexporta. [sem teste direto do `__init__`]
 
 <small>`pinneapple_systems/cosimulation/__init__.py` · 86 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.cosimulation.adapters`
 
-Adapters connecting pinneapple_cosim to PINNeAPPle's model and problem ecosystems.
+Nós de co-simulação que ligam o motor ao resto do PINNeAPPle: problema físico compilado (`ProblemSpec`), modelos do `ModelRegistry`, PDE simbólica em SymPy e modelos de séries temporais.
 
 <small>`pinneapple_systems/cosimulation/adapters.py` · 432 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNeProblemNode` | classe | `(name, model, spec, compiled_fn, coord_ports, field_ports, extra_input_ports=None, physic…)` | Co-sim node backed by a PINNeAPPle ProblemSpec + compiled physics loss. |
-| `PINNeAPPleModelNode` | classe | `(name, model, input_ports, output_ports, batch_port_map=None) -> None` | Wraps any ``BaseModel`` from ModelRegistry as a co-sim node. |
-| `SymbolicPDENode` | classe | `(name, model, symbolic_pde, coord_ports, field_ports, physics_weight=1.0) -> None` | Co-sim node whose physics residual is defined by a SymPy expression. |
-| `TimeSeriesCoSimNode` | classe | `(name, model, input_len, horizon, extra_input_ports=None, extra_output_ports=None) -> None` | Wraps a PINNeAPPle ``TSModelBase`` as a co-simulation node. |
+| `PINNeProblemNode` | classe | `(name, model, spec, compiled_fn, coord_ports, field_ports, extra_input_ports=None, physic…)` | Nó apoiado num `ProblemSpec` do PINNeAPPle e na perda física compilada por `compile_problem`; separa portas de coordenadas e de campos e expõe `physics_loss`. |
+| `PINNeAPPleModelNode` | classe | `(name, model, input_ports, output_ports, batch_port_map=None) -> None` | Embrulha qualquer `BaseModel` (ou `nn.Module`) do `ModelRegistry` como nó, mapeando portas de entrada e saída para o batch do modelo; `from_registry` constrói pelo nome. |
+| `SymbolicPDENode` | classe | `(name, model, symbolic_pde, coord_ports, field_ports, physics_weight=1.0) -> None` | Nó cujo resíduo físico é uma expressão SymPy convertida em resíduo com autograd sobre as portas de coordenadas e campos. |
+| `TimeSeriesCoSimNode` | classe | `(name, model, input_len, horizon, extra_input_ports=None, extra_output_ports=None) -> None` | Embrulha um `TSModelBase` (LSTM, TFT, FFT+LSTM...) como nó: recebe uma janela de `input_len` e devolve a previsão de `horizon` passos. |
 
 #### `pinneapple_systems.cosimulation.connection`
 
-Connection dataclass for co-simulation graphs.
+Define `Connection`, a aresta imutável `no.porta -> no.porta` do grafo de co-simulação, com parser de strings. [sem teste direto]
 
 <small>`pinneapple_systems/cosimulation/connection.py` · 81 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Connection` | classe | `(src_node, src_port, dst_node, dst_port)` | Immutable directed edge between two node ports. |
+| `Connection` | classe | `(src_node, src_port, dst_node, dst_port)` | Aresta dirigida e imutável entre a porta de saída de um nó e a porta de entrada de outro; `parse` lê strings `no.porta`. |
 
 #### `pinneapple_systems.cosimulation.engine`
 
-Co-simulation engine: time-stepped execution with algebraic-loop iteration.
+`CoSimEngine`: executa o grafo passo a passo no tempo, na ordem das componentes fortemente conexas, iterando laços algébricos com Gauss-Seidel ou Jacobi e preservando o grafo do autograd.
 
 <small>`pinneapple_systems/cosimulation/engine.py` · 257 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoSimEngine` | classe | `(graph, recorder=None, loop_solver='gauss_seidel', max_iter=50, tol=1e-06, retain_graph=F…)` | Time-stepped co-simulation engine over a ``CoSimGraph``. |
+| `CoSimEngine` | classe | `(graph, recorder=None, loop_solver='gauss_seidel', max_iter=50, tol=1e-06, retain_graph=F…)` | Motor de co-simulação por passos de tempo sobre um `CoSimGraph`: inicializa portas, executa cada passo (com iteração de laço até `tol` ou `max_iter`) e grava no `TrajectoryRecorder`. |
 
 #### `pinneapple_systems.cosimulation.graph`
 
-Co-simulation graph: node registry, connection management, topology analysis.
+`CoSimGraph`: registro de nós e conexões com validação de portas, ordem de execução em cache e detecção de ciclos e laços algébricos.
 
 <small>`pinneapple_systems/cosimulation/graph.py` · 187 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoSimGraph` | classe | `() -> None` | Registry of nodes and connections with lazy topology caching. |
+| `CoSimGraph` | classe | `() -> None` | Registro de nós e conexões com cache de topologia: ordem de execução, ciclos, laços algébricos, conexões de entrada/saída e parâmetros treináveis. |
 
 #### `pinneapple_systems.cosimulation.losses`
 
-Composite loss functions for training differentiable co-simulation graphs.
+Perdas compostas para treinar grafos de co-simulação: ajuste a dados, resíduos físicos dos nós PINN e consistência entre portas conectadas.
 
 <small>`pinneapple_systems/cosimulation/losses.py` · 225 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DataLoss` | classe | `(weight=1.0) -> None` | MSE between predicted port values and observations. |
-| `PhysicsLoss` | classe | `(weight=1.0) -> None` | Sum of physics residuals from all PINNNodes in the graph. |
-| `CouplingLoss` | classe | `(weight=0.1) -> None` | Penalise interface inconsistencies between connected ports. |
-| `CoSimLoss` | classe | `(data_weight=1.0, physics_weight=1.0, coupling_weight=0.1) -> None` | Composite loss: data fidelity + physics residuals + coupling consistency. |
+| `DataLoss` | classe | `(weight=1.0) -> None` | Erro quadrático médio entre valores previstos nas portas e observações. |
+| `PhysicsLoss` | classe | `(weight=1.0) -> None` | Soma dos resíduos físicos (`physics_loss`) de todos os nós PINN do grafo. |
+| `CouplingLoss` | classe | `(weight=0.1) -> None` | Penaliza inconsistências entre os valores das portas ligadas por uma conexão. |
+| `CoSimLoss` | classe | `(data_weight=1.0, physics_weight=1.0, coupling_weight=0.1) -> None` | Perda composta e ponderada: dados + física + acoplamento. |
 
 #### `pinneapple_systems.cosimulation.node`
 
-Co-simulation node abstractions.
+Abstrações de nó: base abstrata `CoSimNode` e nós concretos para `nn.Module`, função Python/NumPy, PINN com resíduo físico e caixa-preta sem gradiente.
 
 <small>`pinneapple_systems/cosimulation/node.py` · 291 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoSimNode` | classe | `(name, input_ports, output_ports) -> None` | Abstract base class for all co-simulation nodes. |
-| `TorchNode` | classe | `(name, model, input_ports, output_ports) -> None` | Wraps a ``nn.Module``; gradients flow through ``step()``. |
-| `AnalyticalNode` | classe | `(name, fn, input_ports, output_ports) -> None` | Wraps a pure Python/NumPy callable.  No autograd — outputs are detached. |
-| `PINNNode` | classe | `(name, model, input_ports, output_ports, physics_fn, physics_weight=1.0) -> None` | ``TorchNode`` extended with a physics-residual loss. |
-| `BlackBoxNode` | classe | `(name, fn, input_ports, output_ports) -> None` | Opaque callable node — fully detached from autograd. |
-| `split_output_ports` | função | `(out, ports) -> Dict[str, torch.Tensor]` | Split *out*'s last dimension evenly across *ports*. |
+| `CoSimNode` | classe | `(name, input_ports, output_ports) -> None` | Classe base abstrata de todo nó: nome, portas de entrada e saída, `step`, `reset`, `physics_loss` e `parameters`. |
+| `TorchNode` | classe | `(name, model, input_ports, output_ports) -> None` | Nó que embrulha um `nn.Module`; os gradientes passam por `step()`. |
+| `AnalyticalNode` | classe | `(name, fn, input_ports, output_ports) -> None` | Nó que embrulha uma função Python/NumPy pura; as saídas saem desligadas do autograd. |
+| `PINNNode` | classe | `(name, model, input_ports, output_ports, physics_fn, physics_weight=1.0) -> None` | `TorchNode` com uma função de resíduo físico e peso próprio, usada pela `PhysicsLoss`. |
+| `BlackBoxNode` | classe | `(name, fn, input_ports, output_ports) -> None` | Nó opaco (por exemplo um simulador externo) totalmente desligado do autograd. |
+| `split_output_ports` | função | `(out, ports) -> Dict[str, torch.Tensor]` | Divide a última dimensão de um tensor de saída igualmente entre as portas dadas. |
 
 #### `pinneapple_systems.cosimulation.recorder`
 
-Trajectory recording for co-simulation runs.
+Gravação de trajetórias no tempo por (nó, porta) durante uma execução de co-simulação, com acesso como listas, arrays ou tensores.
 
 <small>`pinneapple_systems/cosimulation/recorder.py` · 177 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Trajectory` | classe | `(node, port) -> None` | Time series for a single (node, port) signal. |
-| `TrajectoryRecorder` | classe | `() -> None` | Records time-stamped port outputs from multiple nodes. |
+| `Trajectory` | classe | `(node, port) -> None` | Série temporal de um único sinal (nó, porta), com tempos e valores como arrays ou tensor. |
+| `TrajectoryRecorder` | classe | `() -> None` | Grava saídas de portas com carimbo de tempo para vários nós; permite escolher o que observar e resumir as trajetórias. |
 
 #### `pinneapple_systems.cosimulation.trainer`
 
-CoSimTrainer — trains co-simulation graphs using PINNeAPPle's training stack.
+`CoSimTrainer`: treina por BPTT (desenrolando `n_unroll` passos) todos os parâmetros do grafo com `TrainConfig`, `WeightScheduler`, parada antecipada e checkpoint de `pinneapple_neural`.
 
 <small>`pinneapple_systems/cosimulation/trainer.py` · 331 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoSimTrainer` | classe | `(graph, engine, criterion=None, weight_scheduler_cfg=None, early_stopping=None, checkpoin…)` | Trains a differentiable co-simulation graph with PINNeAPPle's training stack. |
+| `CoSimTrainer` | classe | `(graph, engine, criterion=None, weight_scheduler_cfg=None, early_stopping=None, checkpoin…)` | Treina um grafo de co-simulação diferenciável com a pilha de treino do PINNeAPPle (BPTT, balanceamento de pesos, parada antecipada, checkpoint) e guarda o histórico. |
 
 #### `pinneapple_systems.cosimulation.utils`
 
-Graph algorithms for co-simulation topology analysis.
+Algoritmos de grafo para a topologia da co-simulação: Tarjan (componentes fortemente conexas), ordem por condensação e ordenação topológica. [sem teste direto]
 
 <small>`pinneapple_systems/cosimulation/utils.py` · 180 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `tarjan_scc` | função | `(adj) -> List[List[str]]` | Find all Strongly Connected Components using Tarjan's algorithm. |
-| `condensation_order` | função | `(adj) -> Tuple[List[List[str]], List[List[str]]]` | Compute execution order via SCC condensation. |
-| `topological_sort` | função | `(adj) -> List[str]` | Topological sort for pure DAGs (no cycles). |
+| `tarjan_scc` | função | `(adj) -> List[List[str]]` | Encontra as componentes fortemente conexas de um grafo de adjacência com o algoritmo de Tarjan. |
+| `condensation_order` | função | `(adj) -> Tuple[List[List[str]], List[List[str]]]` | Calcula a ordem de execução pela condensação das componentes fortemente conexas e devolve também os laços. |
+| `topological_sort` | função | `(adj) -> List[str]` | Ordenação topológica para grafos acíclicos (DAG). |
 
 #### `pinneapple_systems.digital_twin`
 
@@ -3542,24 +3552,24 @@ Core DigitalTwin class.
 
 #### `pinneapple_systems.excitation`
 
-Actuator excitation signals for system identification and surrogate training (numpy).
+Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleatória, PRBS, chirp, dente de serra, passeio aleatório suavizado, pulsos gaussianos, AM de dois tons) para identificação de sistemas e treino de surrogates; separa famílias de treino e famílias reservadas (`TRAIN_FAMILIES`, `HELDOUT_FAMILIES`).
 
 <small>`pinneapple_systems/excitation.py` · 152 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `shape_step` | função | `(tau, t0=0.3, **_)` | Unit step at ``tau = t0``. |
-| `shape_ramp` | função | `(tau, t1=0.8, **_)` | Linear ramp from 0 at ``tau = 0`` to 1 at ``tau = t1``, then held. |
-| `shape_sinusoid` | função | `(tau, freq=2.0, phase=0.0, **_)` | ``0.5 + 0.5 sin(2 pi freq tau + phase)`` (``freq`` in cycles per unit ``tau``). |
-| `shape_piecewise_constant` | função | `(tau, rng=None, n_seg=5, **_)` | Random staircase: ``n_seg`` levels ~ U(0, 1) between sorted random edges in ``[0.05, 0.95]``. |
-| `shape_prbs` | função | `(tau, rng=None, dwell=0.08, **_)` | Pseudo-random binary sequence in ``{0, 1}``. |
-| `shape_chirp` | função | `(tau, f0=0.5, f1=6.0, **_)` | Linear chirp ``0.5 + 0.5 sin(phi)``, instantaneous frequency ``f0 + (f1 - f0) tau`` (cycles per unit tau). |
-| `shape_sawtooth` | função | `(tau, freq=3.0, **_)` | Rising sawtooth ``(freq * tau) mod 1``. |
-| `shape_smoothed_random_walk` | função | `(tau, rng=None, **_)` | Gaussian random walk smoothed by a 15-sample moving average, rescaled to ``[0, 1]``. |
-| `shape_gaussian_bumps` | função | `(tau, rng=None, n_bumps=4, width=0.05, **_)` | Sum of ``n_bumps`` Gaussians (centres ~ U(0.1, 0.9), amplitudes ~ U(0.5, 1), std ``width``), peak-normalised. |
-| `shape_am_two_tone` | função | `(tau, f_carrier=5.0, f_mod=0.7, **_)` | Amplitude modulation: ``(0.5 + 0.5 sin 2 pi f_carrier tau) (0.5 + 0.5 sin 2 pi f_mod tau)``. |
-| `rate_limit` | função | `(series, tau_steps) -> np.ndarray` | First-order low-pass ``y[i] = y[i-1] + (x[i] - y[i-1]) / tau_steps`` (time constant ``tau_steps`` samples). |
-| `actuator_series` | função | `(shape, n_steps, *, lo=0.0, hi=1.0, seed=0, rate_limit_steps=0, **kwargs) -> np.ndarray` | Sample one excitation on ``n_steps`` uniform points of ``tau`` in ``[0, 1]``, scaled to ``[lo, hi]``. |
+| `shape_step` | função | `(tau, t0=0.3, **_)` | Degrau unitário em `tau = t0`. |
+| `shape_ramp` | função | `(tau, t1=0.8, **_)` | Rampa linear de 0 em `tau = 0` até 1 em `tau = t1`, depois constante. |
+| `shape_sinusoid` | função | `(tau, freq=2.0, phase=0.0, **_)` | Senoide `0.5 + 0.5 sin(2 pi freq tau + phase)`. |
+| `shape_piecewise_constant` | função | `(tau, rng=None, n_seg=5, **_)` | Escada aleatória com `n_seg` níveis uniformes entre bordas aleatórias ordenadas. |
+| `shape_prbs` | função | `(tau, rng=None, dwell=0.08, **_)` | Sequência binária pseudoaleatória (PRBS) em {0, 1}, trocando de nível só nos instantes do relógio `dwell`. |
+| `shape_chirp` | função | `(tau, f0=0.5, f1=6.0, **_)` | Chirp linear com frequência instantânea de `f0` a `f1` ao longo de `tau`. |
+| `shape_sawtooth` | função | `(tau, freq=3.0, **_)` | Dente de serra crescente `(freq * tau) mod 1`. |
+| `shape_smoothed_random_walk` | função | `(tau, rng=None, **_)` | Passeio aleatório gaussiano suavizado por média móvel e reescalado para [0, 1]. |
+| `shape_gaussian_bumps` | função | `(tau, rng=None, n_bumps=4, width=0.05, **_)` | Soma de `n_bumps` gaussianas com centros e amplitudes aleatórios, normalizada pelo pico. |
+| `shape_am_two_tone` | função | `(tau, f_carrier=5.0, f_mod=0.7, **_)` | Modulação em amplitude: produto de uma portadora e de uma moduladora senoidais. |
+| `rate_limit` | função | `(series, tau_steps) -> np.ndarray` | Filtro passa-baixa de primeira ordem que limita a taxa de variação do sinal (constante de tempo em amostras). |
+| `actuator_series` | função | `(shape, n_steps, *, lo=0.0, hi=1.0, seed=0, rate_limit_steps=0, **kwargs) -> np.ndarray` | Amostra uma forma (pelo nome em `SHAPES` ou callable) em `n_steps` pontos, escala para `[lo, hi]` e opcionalmente aplica `rate_limit`. |
 
 #### `pinneapple_systems.operations`
 
@@ -4174,1051 +4184,1090 @@ Expected goals with and without physics: a standard shot-geometry baseline again
 
 #### `pinneapple_systems.time_series`
 
-_Módulo sem docstring e sem texto._
+Previsão de séries temporais de sinais físicos (antigo `pinneapple_timeseries`): o `__init__` reexporta specs, datamodule, catálogo, validação, auditoria, features, baselines, previsão adaptativa, wrappers clássicos, preparação, EDA, modelos, decomposição, tuning e visualização.
 
 <small>`pinneapple_systems/time_series/__init__.py` · 108 linhas · testes: 90</small>
 
 #### `pinneapple_systems.time_series.adapters`
 
-_Módulo sem docstring e sem texto._
+Pacote vazio que agrupa adaptadores de forma. [sem teste]
 
 <small>`pinneapple_systems/time_series/adapters/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.adapters.shape`
 
-Shape adapters for time series models (e.g. LastStepToHorizon).
+Adaptador `LastStepToHorizon`, que repete uma saída de um passo ao longo do horizonte. [sem teste]
 
 <small>`pinneapple_systems/time_series/adapters/shape.py` · 14 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LastStepToHorizon` | classe | `(model, horizon)` |  |
+| `LastStepToHorizon` | classe | `(model, horizon)` | Módulo que repete a saída de um passo do modelo interno `horizon` vezes, para obter a forma (B, H, C). |
 
 #### `pinneapple_systems.time_series.adaptive`
 
-Adaptive forecasting: switch between and combine forecasting models online, using only past out-of-sample errors.
+Previsão adaptativa online: especialistas baratos (suavização exponencial, Holt, Holt-Winters, Theta, média móvel, AR ridge, regressor sobre defasagens) combinados ou alternados por pesos Fixed-Share calculados só com erros fora da amostra (prequencial), com intervalos conformais.
 
 <small>`pinneapple_systems/time_series/adaptive.py` · 447 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SimpleExpSmoothing` | classe | `(alpha, level_)` |  |
-| `HoltDamped` | classe | `(alpha, beta, phi, level_, trend_)` | Holt's linear trend with damping phi (Gardner & McKenzie 1985). |
-| `HoltWintersAdditive` | classe | `(season_length, alpha, beta, gamma, level_, trend_, seasonal_, n_)` |  |
-| `Theta` | classe | `(alpha, level_, slope_, n_)` | Theta method as SES with drift equal to half the regression slope (Assimakopoulos & Nikolopoulos 2000; Hyndman & Billah 2003, Int. J. Forecasting 19:287). |
-| `MovingAverage` | classe | `(window, value_)` |  |
-| `RidgeAR` | classe | `(p, window, ridge, coef_, tail_)` | Autoregression of order p with an intercept, ridge-regularised, fitted on the last ``window`` points; multi-step forecasts are recursive. |
-| `LagRegressorExpert` | classe | `(estimator, n_lags=12, refit_every=24, window=500)` | Any tabular regressor (scikit-learn style ``fit(X, y)`` / ``predict(X)``, including the ML forecasters of ``pinneapple_systems.time_series.models``) as an expert: lagged values as features, recursive multi-step forecasts. The estimator is refitted every ``refit_every`` calls (on the last ``window`` … |
-| `AdaptiveRun` | classe | `(origins, forecast, expert_forecasts, lower, upper, weights, active, expert_names, y)` | Result of :meth:`AdaptiveForecaster.run`: one row per forecast origin t (forecasts for t+1..t+H). |
-| `AdaptiveForecaster` | classe | `(experts, horizon=1, mode='combine', etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05), loss…)` | Online selection and combination of forecasting models. |
-| `default_experts` | função | `(season_length=1) -> dict[str, Any]` | A diverse, cheap pool. Hyper-parameter variants are separate experts, so choosing a smoothing constant is part of the online selection instead of an in-sample fit. |
+| `SimpleExpSmoothing` | classe | `(alpha, level_)` | Especialista de suavização exponencial simples (previsão plana no nível). |
+| `HoltDamped` | classe | `(alpha, beta, phi, level_, trend_)` | Especialista de Holt com tendência amortecida por `phi`. |
+| `HoltWintersAdditive` | classe | `(season_length, alpha, beta, gamma, level_, trend_, seasonal_, n_)` | Especialista Holt-Winters aditivo com sazonalidade de comprimento `season_length`. |
+| `Theta` | classe | `(alpha, level_, slope_, n_)` | Especialista Theta: suavização exponencial com deriva igual à metade da inclinação da regressão. |
+| `MovingAverage` | classe | `(window, value_)` | Especialista que prevê a média das últimas `window` observações. |
+| `RidgeAR` | classe | `(p, window, ridge, coef_, tail_)` | Especialista autorregressivo de ordem p com intercepto e regularização ridge, previsão recursiva. |
+| `LagRegressorExpert` | classe | `(estimator, n_lags=12, refit_every=24, window=500)` | Transforma qualquer regressor tabular estilo scikit-learn em especialista sobre defasagens, com reajuste periódico. |
+| `AdaptiveRun` | classe | `(origins, forecast, expert_forecasts, lower, upper, weights, active, expert_names, y)` | Resultado de `AdaptiveForecaster.run`: previsões, previsões por especialista, intervalos, pesos e especialista ativo por origem; calcula erros, cobertura e trocas. |
+| `AdaptiveForecaster` | classe | `(experts, horizon=1, mode='combine', etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05), loss…)` | Seleção e combinação online de previsores por pesos exponenciais Fixed-Share por horizonte, com intervalos conformais adaptativos. |
+| `default_experts` | função | `(season_length=1) -> dict[str, Any]` | Conjunto diverso e barato de especialistas, com variantes de hiperparâmetros como especialistas separados. |
 
 #### `pinneapple_systems.time_series.audit`
 
-_Módulo sem docstring e sem texto._
+Pacote de auditoria estatística de séries; reexporta `AuditReport`, `AuditSection` e `TSAuditor`. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/audit/__init__.py` · 4 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.audit.report`
 
-_Módulo sem docstring e sem texto._
+Contêineres serializáveis (`AuditReport`, `AuditSection`) para os resultados dos diagnósticos. [sem teste]
 
 <small>`pinneapple_systems/time_series/audit/report.py` · 28 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AuditSection` | classe | `(name, results)` |  |
-| `AuditReport` | classe | `(meta, sections)` | Serializable container for time-series diagnostic outputs. |
+| `AuditSection` | classe | `(name, results)` | Seção nomeada de um relatório de auditoria, com dicionário de resultados. |
+| `AuditReport` | classe | `(meta, sections)` | Contêiner serializável dos diagnósticos de uma série, organizado por seções. |
 
 #### `pinneapple_systems.time_series.audit.tests`
 
-_Módulo sem docstring e sem texto._
+Testes diagnósticos de séries (ADF, KPSS, Phillips-Perron, ARCH, ACF/PACF, Chow, pontos de mudança via `ruptures`) que devolvem dicionários com `ok`/erro em vez de levantar exceção; depende de `statsmodels`. [sem teste]
 
 <small>`pinneapple_systems/time_series/audit/tests.py` · 315 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSAuditor` | classe | `(nlags, arch_lags)` |  |
-| `adf_test` | função | `(y, *, autolag='AIC', min_n=20) -> Dict[str, Any]` |  |
-| `kpss_test` | função | `(y, *, regression='c', nlags='auto', min_n=20) -> Dict[str, Any]` |  |
-| `pp_test` | função | `(y, min_n=20) -> Dict[str, Any]` | Phillips–Perron test. |
-| `arch_test` | função | `(y, *, lags=12, min_n=30) -> Dict[str, Any]` |  |
-| `acf_pacf` | função | `(y, *, nlags=40, min_n=50) -> Dict[str, Any]` |  |
-| `chow_test_mean_shift` | função | `(y, break_idx, min_n=20) -> Dict[str, Any]` | Simple Chow test for a mean shift using an intercept-only model. |
-| `changepoints_ruptures` | função | `(y, *, model='l2', max_breaks=5, min_n=50) -> Dict[str, Any]` | Multi-break approximation via `ruptures` (if installed). |
+| `TSAuditor` | classe | `(nlags, arch_lags)` | Roda a bateria de diagnósticos (estacionariedade, heterocedasticidade, autocorrelação, quebras de regime) e devolve um `AuditReport`. |
+| `adf_test` | função | `(y, *, autolag='AIC', min_n=20) -> Dict[str, Any]` | Teste de raiz unitária Augmented Dickey-Fuller via `statsmodels`. |
+| `kpss_test` | função | `(y, *, regression='c', nlags='auto', min_n=20) -> Dict[str, Any]` | Teste de estacionariedade KPSS via `statsmodels`. |
+| `pp_test` | função | `(y, min_n=20) -> Dict[str, Any]` | Teste de Phillips-Perron; devolve erro explicativo se a versão do `statsmodels` não tiver a função. |
+| `arch_test` | função | `(y, *, lags=12, min_n=30) -> Dict[str, Any]` | Teste ARCH de heterocedasticidade condicional. |
+| `acf_pacf` | função | `(y, *, nlags=40, min_n=50) -> Dict[str, Any]` | Calcula autocorrelação e autocorrelação parcial até `nlags`. |
+| `chow_test_mean_shift` | função | `(y, break_idx, min_n=20) -> Dict[str, Any]` | Teste de Chow simples para mudança de média num índice de quebra. |
+| `changepoints_ruptures` | função | `(y, *, model='l2', max_breaks=5, min_n=50) -> Dict[str, Any]` | Detecção aproximada de múltiplos pontos de mudança com `ruptures`, se instalado. |
 
 #### `pinneapple_systems.time_series.base`
 
-Base TSOutput and TSModelBase for time series models.
+Tipos base: `TSOutput` (saída padrão com `y_hat`) e `TSModelBase` (`nn.Module` cujo `forward` levanta `NotImplementedError`). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/base.py` · 26 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSOutput` | classe | `(y_hat, extras)` | Standard output for time series model predictions. |
-| `TSModelBase` | classe | `()` | Base opcional para modelos TS. |
+| `TSOutput` | classe | `(y_hat, extras)` | Saída padrão dos modelos de séries: `y_hat` e um dicionário `extras`. |
+| `TSModelBase` | classe | `()` | Base opcional (`nn.Module`) para modelos de séries; seu `forward` levanta `NotImplementedError`. |
 
 #### `pinneapple_systems.time_series.baselines`
 
-_Módulo sem docstring e sem texto._
+Reexporta as baselines ingênuas (`NaiveForecaster`, `SeasonalNaiveForecaster`, `DriftForecaster`). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/baselines/__init__.py` · 2 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.baselines.naive`
 
-_Módulo sem docstring e sem texto._
+Baselines sem aprendizado: último valor, sazonal ingênuo e deriva linear, com interface `fit`/`predict`. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/baselines/naive.py` · 71 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NaiveForecaster` | classe | `(last_value_)` | Predicts the last observed value for all future steps. |
-| `SeasonalNaiveForecaster` | classe | `(season_length, history_)` | Repeats the value from the same season in the last cycle. |
-| `DriftForecaster` | classe | `(first_, last_, n_)` | Linearly extrapolates from the first to the last training point. |
+| `NaiveForecaster` | classe | `(last_value_)` | Prevê o último valor observado para todos os passos futuros. |
+| `SeasonalNaiveForecaster` | classe | `(season_length, history_)` | Repete o valor da mesma estação no último ciclo. |
+| `DriftForecaster` | classe | `(first_, last_, n_)` | Extrapola linearmente do primeiro ao último ponto de treino. |
 
 #### `pinneapple_systems.time_series.classical_wrappers`
 
-Real wrappers around the classical statistical forecasting libraries.
+Wrappers reais dos pacotes estatísticos clássicos: ARIMA/SARIMA de `statsmodels` e `pmdarima.auto_arima`, com intervalos de previsão.
 
 <small>`pinneapple_systems/time_series/classical_wrappers.py` · 244 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StatsmodelsARIMAForecaster` | classe | `(order, seasonal_order, trend, enforce_stationarity, enforce_invertibility, fit_kwargs)` | Real ARIMA/SARIMA forecaster wrapping `statsmodels`. |
-| `AutoARIMAForecaster` | classe | `(seasonal, m, max_p, max_q, max_d, max_P, max_Q, max_D, stepwise, suppress_warnings, auto…)` | Real forecaster wrapping `pmdarima.auto_arima`. |
+| `StatsmodelsARIMAForecaster` | classe | `(order, seasonal_order, trend, enforce_stationarity, enforce_invertibility, fit_kwargs)` | Previsor ARIMA/SARIMA real sobre `statsmodels` SARIMAX, com intervalos e resumo. |
+| `AutoARIMAForecaster` | classe | `(seasonal, m, max_p, max_q, max_d, max_P, max_Q, max_D, stepwise, suppress_warnings, auto…)` | Previsor sobre `pmdarima.auto_arima`, que escolhe a ordem automaticamente. |
 
 #### `pinneapple_systems.time_series.csv_loader`
 
-CSV → tensor loader for time series datasets.
+Carrega um CSV de série temporal em tensores de treino/validação/teste (com preenchimento, normalização por canal e divisão cronológica) e gera um CSV sintético. [sem teste]
 
 <small>`pinneapple_systems/time_series/csv_loader.py` · 322 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesScaler` | classe | `() -> None` | Channel-wise z-score scaler: fit on training data, apply to all splits. |
-| `load_timeseries_csv` | função | `(path, *, target_cols=None, feature_cols=None, time_col=None, fill_method='ffill', normal…)` | Load a CSV file and return train / val / test tensors ready for PINNeAPPle. |
-| `generate_synthetic_csv` | função | `(path, T=1000, seed=42, freq='D') -> Path` | Generate a synthetic multivariate time series CSV and save it to *path*. |
+| `TimeSeriesScaler` | classe | `() -> None` | Normalizador z-score por canal: ajusta no treino e aplica a todas as partições. |
+| `load_timeseries_csv` | função | `(path, *, target_cols=None, feature_cols=None, time_col=None, fill_method='ffill', normal…)` | Lê um CSV e devolve tensores de treino, validação e teste prontos para o PINNeAPPle. |
+| `generate_synthetic_csv` | função | `(path, T=1000, seed=42, freq='D') -> Path` | Gera e salva um CSV sintético multivariado de série temporal. |
 
 #### `pinneapple_systems.time_series.datamodule`
 
-Time series DataModule with deterministic, time-ordered splits and index-based loaders.
+`TSDataModule`: monta o dataset em janelas e loaders com divisões determinísticas e ordenadas no tempo (por índices ou holdout sequencial).
 
 <small>`pinneapple_systems/time_series/datamodule.py` · 80 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSDataModule` | classe | `(series, spec, batch_size, val_ratio, num_workers, pin_memory)` |  |
+| `TSDataModule` | classe | `(series, spec, batch_size, val_ratio, num_workers, pin_memory)` | Monta o dataset em janelas e os DataLoaders de treino/validação em ordem temporal. |
 
 #### `pinneapple_systems.time_series.datasets`
 
-_Módulo sem docstring e sem texto._
+Pacote vazio que agrupa os datasets. [sem teste]
 
 <small>`pinneapple_systems/time_series/datasets/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.datasets.public`
 
-Openly licensed real series, downloaded from a pinned commit and checked against a SHA-256.
+Séries reais de licença aberta baixadas de um commit fixo e verificadas por SHA-256 (câmbio USD/EUR diário, manchas solares anuais via `statsmodels`, agregados diários de vídeos em alta do YouTube EUA).
 
 <small>`pinneapple_systems/time_series/datasets/public.py` · 183 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PublicSeries` | classe | `(name, time, values, source)` |  |
-| `YouTubeDaily` | classe | `(dates, n_entries, total_views, total_likes, category_counts, source)` | One row per trending day: the date, the number of trending entries, their total views and likes, and the number of entries per YouTube category id. |
-| `fetch_pinned` | função | `(key, cache_dir=None, *, local=None) -> bytes` | Bytes of the pinned file ``key`` (from ``local``, the cache, or the network), checksum verified. |
-| `load_usd_eur_daily` | função | `(cache_dir=None) -> PublicSeries` | U.S. dollars per euro on business days (days without a quote are dropped). |
-| `load_sunspots_yearly` | função | `(cache_dir=None) -> PublicSeries` |  |
-| `log_returns` | função | `(values) -> np.ndarray` |  |
-| `youtube_daily_aggregates` | função | `(csv_text) -> YouTubeDaily` | Aggregate the rows of a trending-videos CSV (columns ``trending_date`` as yy.dd.mm, ``category_id``, ``views``, ``likes``) to one row per trending day, in date order. |
-| `load_youtube_trending_us` | função | `(cache_dir=None) -> YouTubeDaily` |  |
+| `PublicSeries` | classe | `(name, time, values, source)` | Série pública carregada: nome, tempos, valores e fonte. |
+| `YouTubeDaily` | classe | `(dates, n_entries, total_views, total_likes, category_counts, source)` | Agregados diários dos vídeos em alta: data, número de entradas, visualizações, curtidas e contagem por categoria. |
+| `fetch_pinned` | função | `(key, cache_dir=None, *, local=None) -> bytes` | Bytes de um arquivo fixado (de arquivo local, cache ou rede), com SHA-256 verificado. |
+| `load_usd_eur_daily` | função | `(cache_dir=None) -> PublicSeries` | Carrega a taxa USD por EUR em dias úteis (dias sem cotação são descartados). |
+| `load_sunspots_yearly` | função | `(cache_dir=None) -> PublicSeries` | Carrega a série anual de manchas solares distribuída com `statsmodels`. |
+| `log_returns` | função | `(values) -> np.ndarray` | Calcula os retornos logarítmicos de uma série de valores. |
+| `youtube_daily_aggregates` | função | `(csv_text) -> YouTubeDaily` | Agrega as linhas de um CSV de vídeos em alta para uma linha por dia. |
+| `load_youtube_trending_us` | função | `(cache_dir=None) -> YouTubeDaily` | Baixa (fixado e verificado) e agrega o CSV de vídeos em alta dos EUA. |
 
 #### `pinneapple_systems.time_series.datasets.windowed`
 
-Windowed time series dataset for input/horizon pairs.
+`WindowedTimeSeriesDataset`: corta uma série (T, F) em pares (janela de entrada, horizonte) com passo e deslocamento. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/datasets/windowed.py` · 41 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WindowedTimeSeriesDataset` | classe | `(series, spec)` | series: (T, F) x: (L_in, F) y: (H, C)   (aqui C = F por padrão) |
+| `WindowedTimeSeriesDataset` | classe | `(series, spec)` | Dataset PyTorch de pares (janela de entrada, horizonte) cortados de uma série (T, F). |
 
 #### `pinneapple_systems.time_series.decomposition`
 
-_Módulo sem docstring e sem texto._
+Reexporta os previsores por decomposição (FFT, FFT+NN, HHT+NN, FFT+LSTM, HHT+LSTM) e tenta reexportar solvers clássicos de decomposição de `pinneapple_simulation.numerical_solvers` (FFT, wavelet, HHT, EEMD, CEEMDAN, VMD, SSA, SST, STL). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/decomposition/__init__.py` · 53 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.decomposition.fft_forecaster`
 
-Pure FFT forecaster: fits dominant sinusoids and extrapolates.
+Previsor só com FFT: ajusta as K frequências dominantes (com remoção de tendência opcional) e extrapola as senoides.
 
 <small>`pinneapple_systems/time_series/decomposition/fft_forecaster.py` · 86 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FFTForecaster` | classe | `(n_harmonics=10, detrend=True)` | Fits a signal using its top-K dominant frequency components (via FFT) and extrapolates them forward. |
+| `FFTForecaster` | classe | `(n_harmonics=10, detrend=True)` | Ajusta as K componentes de frequência dominantes via FFT e as extrapola. |
 
 #### `pinneapple_systems.time_series.decomposition.fft_lstm`
 
-Hybrid FFT decomposition + LSTM residual forecaster (multivariate-ready).
+Híbrido FFT + LSTM multivariado: um `FFTForecaster` por canal captura a parte periódica e uma LSTM prevê o resíduo; `FFTLSTMPipeline` orquestra os dois. [sem teste]
 
 <small>`pinneapple_systems/time_series/decomposition/fft_lstm.py` · 335 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FFTDecomposer` | classe | `(n_harmonics=10, detrend=True, auto_harmonics=True, auto_threshold=0.05) -> None` | Fits one FFTForecaster per channel; computes residuals and extrapolations. |
-| `ResidualLSTMConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_layers, dropout, layer_norm)` | Hyperparameters for ResidualLSTMForecaster. |
-| `ResidualLSTMForecaster` | classe | `(cfg=None, **kw)` | LSTM forecaster trained on FFT residuals. |
-| `FFTLSTMPipeline` | classe | `(*, n_harmonics=10, detrend=True, auto_harmonics=True, auto_threshold=0.05, input_len=64,…)` | Orchestrates the two-stage hybrid FFT + LSTM pipeline. |
+| `FFTDecomposer` | classe | `(n_harmonics=10, detrend=True, auto_harmonics=True, auto_threshold=0.05) -> None` | Ajusta um `FFTForecaster` por canal e calcula resíduos e extrapolações. |
+| `ResidualLSTMConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_layers, dropout, layer_norm)` | Hiperparâmetros do `ResidualLSTMForecaster`. |
+| `ResidualLSTMForecaster` | classe | `(cfg=None, **kw)` | LSTM treinada sobre os resíduos da FFT. |
+| `FFTLSTMPipeline` | classe | `(*, n_harmonics=10, detrend=True, auto_harmonics=True, auto_threshold=0.05, input_len=64,…)` | Orquestra decomposição FFT, treino da LSTM nos resíduos e recomposição da previsão. |
 
 #### `pinneapple_systems.time_series.decomposition.fft_nn`
 
-FFT + Neural Network on residual decomposition forecaster.
+Previsor em dois estágios: FFT para a parte periódica global e uma rede neural treinada no resíduo.
 
 <small>`pinneapple_systems/time_series/decomposition/fft_nn.py` · 100 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FFTNNForecaster` | classe | `(n_harmonics=10, detrend=True, input_len=32, horizon=16, nn_model=None, nn_epochs=50, nn_…)` | Two-stage forecaster: 1. FFT component captures global periodicity / trend. 2. A neural network (default: MLP) models the residual. |
+| `FFTNNForecaster` | classe | `(n_harmonics=10, detrend=True, input_len=32, horizon=16, nn_model=None, nn_epochs=50, nn_…)` | Previsor em dois estágios: FFT para a parte periódica e rede neural no resíduo. |
 
 #### `pinneapple_systems.time_series.decomposition.hht_lstm`
 
-Hilbert-Huang Transform (EMD-based) + LSTM residual forecaster (multivariate-ready).
+Híbrido Hilbert-Huang (EMD) + LSTM multivariado: IMFs dominantes por canal são extrapoladas e a LSTM prevê o resíduo; precisa de `PyEMD`. [sem teste]
 
 <small>`pinneapple_systems/time_series/decomposition/hht_lstm.py` · 341 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HHTDecomposer` | classe | `(n_imfs=6, dominant_energy_ratio=0.8, detrend=True) -> None` | Fits one EMD decomposer per channel; computes residuals and extrapolations. |
-| `HHTLSTMPipeline` | classe | `(n_imfs=6, dominant_energy_ratio=0.8, detrend=True, input_len=64, horizon=16, n_features=…)` | Orchestrates HHTDecomposer + LSTM residual forecasting. |
+| `HHTDecomposer` | classe | `(n_imfs=6, dominant_energy_ratio=0.8, detrend=True) -> None` | Ajusta um decompositor EMD por canal, calcula resíduos e extrapola as IMFs dominantes. |
+| `HHTLSTMPipeline` | classe | `(n_imfs=6, dominant_energy_ratio=0.8, detrend=True, input_len=64, horizon=16, n_features=…)` | Orquestra decomposição HHT, LSTM nos resíduos e recomposição. |
 
 #### `pinneapple_systems.time_series.decomposition.hht_nn`
 
-Hilbert-Huang Transform + Neural Network on residual decomposition forecaster.
+Previsor em dois estágios: EMD separa IMFs, as dominantes são extrapoladas e uma rede neural prevê o resto; precisa de `PyEMD`.
 
 <small>`pinneapple_systems/time_series/decomposition/hht_nn.py` · 172 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HHTNNForecaster` | classe | `(n_imfs=5, input_len=32, horizon=16, nn_model=None, nn_epochs=50, nn_lr=0.001)` | Two-stage forecaster: 1. EMD (Empirical Mode Decomposition) decomposes the signal into IMFs. Dominant IMFs are extrapolated via Hilbert instantaneous frequency. 2. A neural network models the residual (sum of discarded IMFs + trend). |
+| `HHTNNForecaster` | classe | `(n_imfs=5, input_len=32, horizon=16, nn_model=None, nn_epochs=50, nn_lr=0.001)` | Previsor em dois estágios: IMFs dominantes da EMD extrapoladas e rede neural no restante. |
 
 #### `pinneapple_systems.time_series.eda`
 
-_Módulo sem docstring e sem texto._
+Reexporta as dez ferramentas gráficas de análise exploratória de `eda.plots`. [sem teste]
 
 <small>`pinneapple_systems/time_series/eda/__init__.py` · 26 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.eda.plots`
 
-10 EDA tools for time series analysis.
+Dez gráficos de EDA em matplotlib: tendência, rastreio de setpoint, estatísticas móveis, resposta ao degrau, espectro, ACF/PACF, testes de estacionariedade, pontos de mudança, correlação cruzada e matriz RGA. [sem teste]
 
 <small>`pinneapple_systems/time_series/eda/plots.py` · 463 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_trend` | função | `(y, *, window=24, title='Trend Analysis', figsize=(12, 6), show=False) -> Figure` | Raw series + rolling mean + rolling std band. |
-| `track_setpoint` | função | `(actual, setpoint, *, tolerance=0.05, title='Setpoint Tracking', figsize=(12, 5), show=Fa…)` | Actual vs setpoint with deviation shading and tolerance band. |
-| `rolling_statistics` | função | `(y, windows=(8, 24, 96), *, stats=('mean', 'std'), title='Rolling Statistics', figsize=(1…)` | Multi-window rolling statistics overlay. |
-| `step_response` | função | `(y, step_idx=None, *, title='Step Response', figsize=(12, 5), show=False) -> Figure` | Visualize system response to a detected or specified step. Estimates: steady-state gain, rise time (10%→90%), settling time (±2%). |
-| `power_spectrum` | função | `(y, *, fs=1.0, n_top=5, title='FFT Power Spectrum', figsize=(12, 5), show=False) -> Figure` | Log-scale FFT power spectrum with top-N dominant frequencies annotated. |
-| `plot_acf_pacf` | função | `(y, nlags=40, *, alpha=0.05, title='ACF / PACF', figsize=(12, 5), show=False) -> Figure` | Side-by-side ACF and PACF with confidence bounds. |
-| `stationarity_report` | função | `(y, *, title='Stationarity Tests', figsize=(10, 4), show=False) -> Figure` | Runs ADF, KPSS, and PP tests and renders a summary table. |
-| `changepoint_plot` | função | `(y, n_bkps=3, *, model='rbf', title='Change Point Detection', figsize=(12, 5), show=False…)` | Visualize change points detected via the ruptures library. |
-| `cross_correlation` | função | `(df, cols=None, max_lag=20, *, title='Cross-Correlation', figsize=(12, 6), show=False) ->…)` | Heatmap of peak cross-correlation values and lag at peak between all column pairs. |
-| `rga_matrix` | função | `(K, mv_labels=None, cv_labels=None, *, title='Relative Gain Array (RGA)', figsize=(8, 6),…)` | Compute and visualize the Bristol Relative Gain Array. |
+| `plot_trend` | função | `(y, *, window=24, title='Trend Analysis', figsize=(12, 6), show=False) -> Figure` | Série bruta com média móvel e faixa de desvio-padrão móvel. |
+| `track_setpoint` | função | `(actual, setpoint, *, tolerance=0.05, title='Setpoint Tracking', figsize=(12, 5), show=Fa…)` | Valor real contra setpoint, com sombreamento do desvio e faixa de tolerância. |
+| `rolling_statistics` | função | `(y, windows=(8, 24, 96), *, stats=('mean', 'std'), title='Rolling Statistics', figsize=(1…)` | Sobreposição de estatísticas móveis em várias janelas. |
+| `step_response` | função | `(y, step_idx=None, *, title='Step Response', figsize=(12, 5), show=False) -> Figure` | Mostra a resposta a um degrau (detectado ou dado) e estima ganho, tempo de subida e outras métricas. |
+| `power_spectrum` | função | `(y, *, fs=1.0, n_top=5, title='FFT Power Spectrum', figsize=(12, 5), show=False) -> Figure` | Espectro de potência da FFT em escala log, anotando as frequências dominantes. |
+| `plot_acf_pacf` | função | `(y, nlags=40, *, alpha=0.05, title='ACF / PACF', figsize=(12, 5), show=False) -> Figure` | ACF e PACF lado a lado com bandas de confiança. |
+| `stationarity_report` | função | `(y, *, title='Stationarity Tests', figsize=(10, 4), show=False) -> Figure` | Roda ADF, KPSS e PP e mostra uma tabela-resumo. |
+| `changepoint_plot` | função | `(y, n_bkps=3, *, model='rbf', title='Change Point Detection', figsize=(12, 5), show=False…)` | Mostra pontos de mudança detectados com `ruptures`. |
+| `cross_correlation` | função | `(df, cols=None, max_lag=20, *, title='Cross-Correlation', figsize=(12, 6), show=False) ->…)` | Mapa de calor da correlação cruzada máxima e da defasagem do pico entre pares de colunas. |
+| `rga_matrix` | função | `(K, mv_labels=None, cv_labels=None, *, title='Relative Gain Array (RGA)', figsize=(8, 6),…)` | Calcula e mostra a Relative Gain Array (Bristol) de uma matriz de ganhos. |
 
 #### `pinneapple_systems.time_series.enso`
 
-ENSO prediction: data, physical models, physics-informed and data-driven forecasters, evaluation.
+Pacote do estudo de previsão do ENSO (El Niño): dados, modelos físicos, previsores informados por física e por dados, e avaliação; o `__init__` só tem o docstring.
 
 <small>`pinneapple_systems/time_series/enso/__init__.py` · 2 linhas · testes: 22</small>
 
 #### `pinneapple_systems.time_series.enso.data`
 
-Openly licensed ENSO observations, downloaded once, reduced to monthly tropical-Pacific products and cached with the SHA-256 of every source file.
+Baixa observações abertas do ENSO (OISST, ERA5 do WeatherBench 2, perfis WOD, conteúdo de calor NCEI, Niño 1+2 do `statsmodels`), reduz para produtos mensais do Pacífico tropical e grava em cache com o SHA-256 de cada arquivo-fonte num manifesto; precisa de rede na primeira execução.
 
 <small>`pinneapple_systems/time_series/enso/data.py` · 674 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Manifest` | classe | `(path, expected=None)` | URL -> {sha256, bytes} of every source file of a product. ``expected`` (an earlier manifest) pins hashes. |
-| `Gridded` | classe | `(time, lat, lon, values, source)` | Monthly fields (nt, ny, nx) on a regular lat/lon grid (cell centres, lon in 0-360). |
-| `manifests` | função | `(cache_dir=None) -> dict[str, Path]` | The manifests written so far in the cache: product -> path of ``manifest_<product>.json``. |
-| `fetch` | função | `(url, *, timeout=300, retries=4) -> bytes` | Bytes at ``url`` (through the environment's proxy settings), retried with exponential backoff. |
-| `month_range` | função | `(start, end) -> list[str]` | 'YYYY-MM' strings from ``start`` to ``end`` inclusive. |
-| `oisst_monthly` | função | `(start='1981-09', end=None, *, lat=(-30.0, 30.0), lon=(100.0, 300.0), res=1.0, cache_dir=…)` | Monthly mean OISST v2.1 SST [deg C] in ``res``-degree cells (a multiple of 0.25) over ``lat`` x ``lon``. |
-| `box_mean` | função | `(g, var, box) -> np.ndarray` | cos(latitude)-weighted mean of ``g.values[var]`` over cells whose centres lie in ``box``. |
-| `nino_indices` | função | `(g, var='sst') -> dict[str, np.ndarray]` | Nino 3.4, 3, 4 and 1+2 box means (not anomalies) of ``g``. |
-| `coarsen` | função | `(g, ky, kx) -> Gridded` | Block means of ky x kx cells (NaN-aware; trailing cells that do not fill a block are dropped). |
-| `anomalies` | função | `(x, time, base) -> tuple[np.ndarray, np.ndarray]` | Anomalies from the calendar-month climatology of the period ``base`` = ('YYYY-MM', 'YYYY-MM') inclusive. |
-| `d20_from_profile` | função | `(z, T, *, iso=20.0, max_gap=60.0) -> float` | Depth [m] where the profile first crosses ``iso`` going down (linear interpolation between the bracketing levels), or NaN when the profile does not start above ``iso`` within the top 30 m, does not reach below it, or the bracketing levels are more than ``max_gap`` m apart. |
-| `fetch_to_file` | função | `(url, path, *, timeout=1800, retries=4, chunk=1 << 22) -> str` | Stream ``url`` to ``path`` and return its SHA-256 (large files never sit in memory). |
-| `wod_d20_casts` | função | `(years, kinds=('mrb',), *, lat=(-8.0, 8.0), lon=(120.0, 280.0), cache_dir=None, manifest=…)` | D20 of every quality-controlled WOD cast (flags 0) in the box, from the yearly files ``wod_<kind>_<year>.nc`` (``kind`` in mrb = moored buoys, xbt, pfl = profiling floats, ctd, ...). |
-| `d20_monthly` | função | `(casts, months, *, lat=(-5.0, 5.0), lon_edges=tuple(range(130, 281, 10)), min_casts=1, da…)` | Monthly mean D20 [m] per longitude bin (``len(lon_edges) - 1`` bins) for casts with latitude in ``lat``; NaN where a bin has fewer than ``min_casts`` casts. Each cast counts once (a mooring reporting daily weighs as much as 30 XBT drops); ``daily_per_platform`` is kept for the record (WOD moored … |
-| `d20_climatology` | função | `(casts, lon_edges, lat_edges, base) -> np.ndarray` | Mean D20 [m] of the casts in each (lat, lon) bin over the months of ``base`` (each calendar month weighted equally); NaN where a bin has no cast. Shape (len(lat_edges) - 1, len(lon_edges) - 1). |
-| `era5_monthly` | função | `(variables=…, *, cache_dir=None, manifest=None, workers=8, derived=True, log=print) -> Gr…)` | Monthly means of 6-hourly ERA5 fields on the 64 x 32 WeatherBench 2 grid, 1959-01 to 2022-12, global. |
-| `wind_stress` | função | `(u, v, rho_air=1.2, cd=0.0013)` | Bulk wind stress tau = rho_air C_D \|U\| U [N m-2] from 10 m wind components [m/s] (constant C_D; Large & Pond 1981 give 1.1e-3 to 1.5e-3 for 4-11 m/s). |
-| `soi_from_mslp` | função | `(g, var='mean_sea_level_pressure', base=None) -> np.ndarray` | Tahiti (17.5S, 149.6W) minus Darwin (12.4S, 130.9E) sea-level pressure, each standardised per calendar month over ``base`` (default: the whole record), the difference standardised again (the CPC/BoM construction) -- taken at the nearest cells of ``g``, so on a coarse grid it is a proxy of the … |
-| `ncei_heat_content` | função | `(box=(-5.0, 5.0, 120.0, 280.0), *, cache_dir=None, manifest=None) -> dict[str, Any]` | Sum of the NCEI 0-700 m heat-content anomaly [1e18 J] over the 1-deg cells in ``box``, 3-month means (JFM, AMJ, JAS, OND) 1955-2020; ``mid_month`` is the centre month 'YYYY-MM' of each season. |
-| `statsmodels_nino12` | função | `() -> dict[str, Any]` | Monthly Nino 1+2 SST [deg C] 1950-2010 as shipped with statsmodels (NOAA CPC); time as 'YYYY-MM'. |
+| `Manifest` | classe | `(path, expected=None)` | Manifesto URL -> {sha256, bytes} de cada arquivo-fonte de um produto; um manifesto anterior fixa os hashes esperados. |
+| `Gridded` | classe | `(time, lat, lon, values, source)` | Campos mensais (nt, ny, nx) numa grade regular lat/lon, com seleção de região. |
+| `manifests` | função | `(cache_dir=None) -> dict[str, Path]` | Lista os manifestos já gravados no cache, por produto. |
+| `fetch` | função | `(url, *, timeout=300, retries=4) -> bytes` | Baixa os bytes de uma URL (respeitando o proxy), com novas tentativas e espera exponencial. |
+| `month_range` | função | `(start, end) -> list[str]` | Lista de strings 'YYYY-MM' entre duas datas, inclusive. |
+| `oisst_monthly` | função | `(start='1981-09', end=None, *, lat=(-30.0, 30.0), lon=(100.0, 300.0), res=1.0, cache_dir=…)` | Médias mensais de TSM do OISST v2.1 numa grade e região dadas. |
+| `box_mean` | função | `(g, var, box) -> np.ndarray` | Média ponderada por cos(latitude) de uma variável dentro de uma caixa. |
+| `nino_indices` | função | `(g, var='sst') -> dict[str, np.ndarray]` | Médias das caixas Niño 3.4, 3, 4 e 1+2 (não anomalias). |
+| `coarsen` | função | `(g, ky, kx) -> Gridded` | Médias em blocos de ky x kx células, tolerante a NaN. |
+| `anomalies` | função | `(x, time, base) -> tuple[np.ndarray, np.ndarray]` | Anomalias em relação à climatologia mensal de um período base. |
+| `d20_from_profile` | função | `(z, T, *, iso=20.0, max_gap=60.0) -> float` | Profundidade em que um perfil de temperatura cruza a isoterma de 20 °C (D20), por interpolação linear. |
+| `fetch_to_file` | função | `(url, path, *, timeout=1800, retries=4, chunk=1 << 22) -> str` | Grava uma URL em arquivo por streaming e devolve o SHA-256. |
+| `wod_d20_casts` | função | `(years, kinds=('mrb',), *, lat=(-8.0, 8.0), lon=(120.0, 280.0), cache_dir=None, manifest=…)` | D20 de cada perfil com controle de qualidade do World Ocean Database dentro da caixa. |
+| `d20_monthly` | função | `(casts, months, *, lat=(-5.0, 5.0), lon_edges=tuple(range(130, 281, 10)), min_casts=1, da…)` | D20 média mensal por faixa de longitude a partir dos perfis. |
+| `d20_climatology` | função | `(casts, lon_edges, lat_edges, base) -> np.ndarray` | Climatologia da D20 por célula (lat, lon) no período base. |
+| `era5_monthly` | função | `(variables=…, *, cache_dir=None, manifest=None, workers=8, derived=True, log=print) -> Gr…)` | Médias mensais de campos ERA5 na grade do WeatherBench 2, com variáveis derivadas. |
+| `wind_stress` | função | `(u, v, rho_air=1.2, cd=0.0013)` | Tensão do vento pela fórmula bulk com coeficiente de arrasto constante. |
+| `soi_from_mslp` | função | `(g, var='mean_sea_level_pressure', base=None) -> np.ndarray` | Índice de Oscilação Sul (Taiti menos Darwin) a partir da pressão ao nível do mar. |
+| `ncei_heat_content` | função | `(box=(-5.0, 5.0, 120.0, 280.0), *, cache_dir=None, manifest=None) -> dict[str, Any]` | Soma da anomalia de conteúdo de calor 0-700 m do NCEI na caixa, em médias trimestrais. |
+| `statsmodels_nino12` | função | `() -> dict[str, Any]` | Série mensal Niño 1+2 distribuída com `statsmodels`. |
 
 #### `pinneapple_systems.time_series.enso.dataset`
 
-The ENSO study data set: monthly indices and maps built from the cached sources of :mod:`.data`.
+Monta o conjunto de dados do estudo a partir das fontes em cache (índices mensais, mapas de anomalia de TSM, profundidade D20 preenchida por EOF, tensão do vento) e o converte em `SeriesData` do `forecast_lab`.
 
 <small>`pinneapple_systems/time_series/enso/dataset.py` · 226 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EnsoDataset` | classe | `(months, indices, sst_maps, grid, d20_band, d20_eq, d20_lon, d20_observed, taux, base, cl…)` |  |
-| `eof_fill` | função | `(X, base_rows, n_eofs=4, ridge=0.1) -> np.ndarray` | Fill NaNs of each row of X (nt, nb) from its observed entries: least-squares amplitudes of the leading ``n_eofs`` EOFs (computed on the complete rows among ``base_rows``), ridge-regularised in units of the EOF variances. Observed entries are kept as they are. Rows with fewer observed entries than … |
-| `build_dataset` | função | `(start='1982-01', end='2024-12', base=('1982-01', '2011-12'), grid=None, *, cache_dir=Non…)` |  |
-| `to_series` | função | `(ds, columns=COLUMNS, name='enso')` | :class:`~pinneapple_systems.time_series.forecast_lab.SeriesData` with ``columns`` (target = first) and the maps in ``meta`` (``month_of_year``, ``sst_maps``, ``d20_band``, ``d20_eq``, ``d20_lon``, ``taux``, ``grid``, ``months``). |
+| `EnsoDataset` | classe | `(months, indices, sst_maps, grid, d20_band, d20_eq, d20_lon, d20_observed, taux, base, cl…)` | Conjunto de dados do estudo: meses, índices, mapas de anomalia de TSM, D20, tensão do vento, período base e checagens. |
+| `eof_fill` | função | `(X, base_rows, n_eofs=4, ridge=0.1) -> np.ndarray` | Preenche NaNs de cada linha com as EOFs dominantes por mínimos quadrados regularizados. |
+| `build_dataset` | função | `(start='1982-01', end='2024-12', base=('1982-01', '2011-12'), grid=None, *, cache_dir=Non…)` | Constrói o `EnsoDataset` a partir das fontes em cache para um intervalo de meses. |
+| `to_series` | função | `(ds, columns=COLUMNS, name='enso')` | Converte o `EnsoDataset` em `SeriesData` com as colunas pedidas e os mapas em `meta`. |
 
 #### `pinneapple_systems.time_series.enso.evaluation`
 
-ENSO-specific scores on top of the forecast_lab ones: anomaly correlation per lead, skill stratified by target calendar month (the spring predictability barrier), categorical El Nino / neutral / La Nina verification, and a blocked cross-validated hindcast that gives every year an out-of-sample …
+Escores específicos do ENSO sobre os do `forecast_lab`: correlação de anomalia por antecedência, skill por mês alvo (barreira de primavera), verificação categórica El Niño/neutro/La Niña e hindcast com validação cruzada em blocos.
 
 <small>`pinneapple_systems/time_series/enso/evaluation.py` · 96 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `acc` | função | `(mean, y) -> list[float]` | Anomaly correlation (Pearson, over origins) per horizon column. |
-| `by_target_month` | função | `(mean, y, origins, month_of_year, horizons, min_n=6) -> dict[str, Any]` | ACC and RMSE for each (target calendar month, horizon); NaN where fewer than ``min_n`` forecasts. |
-| `category` | função | `(x, threshold=0.5) -> np.ndarray` | -1 La Nina (x <= -threshold), 0 neutral, +1 El Nino (x >= threshold). |
-| `categorical` | função | `(mean, y, threshold=0.5) -> dict[str, Any]` | Per horizon: 3 x 3 contingency table (rows observed La Nina / neutral / El Nino, columns forecast), hit rate (probability of detection) of each category, false-alarm ratio of the warm and cold categories, accuracy, and the Heidke skill score (accuracy relative to random forecasts with the same … |
-| `blocked_hindcast` | função | `(make, data, horizons, *, block=48, first=36, last=None, val_frac=0.15) -> dict[str, Any]` | Out-of-sample forecasts for every origin in [first, last]: the origins are cut into blocks of ``block`` months; each block is forecast by a model fitted on all other origins whose targets end more than max(h) before the block or start after it (purged on both sides), with its last ``val_frac`` (in … |
+| `acc` | função | `(mean, y) -> list[float]` | Correlação de anomalia (Pearson sobre as origens) por coluna de horizonte. |
+| `by_target_month` | função | `(mean, y, origins, month_of_year, horizons, min_n=6) -> dict[str, Any]` | ACC e RMSE por (mês alvo, horizonte). |
+| `category` | função | `(x, threshold=0.5) -> np.ndarray` | Classifica em La Niña (-1), neutro (0) ou El Niño (+1) por um limiar. |
+| `categorical` | função | `(mean, y, threshold=0.5) -> dict[str, Any]` | Tabela de contingência 3 x 3 e taxas de acerto por categoria e horizonte. |
+| `blocked_hindcast` | função | `(make, data, horizons, *, block=48, first=36, last=None, val_frac=0.15) -> dict[str, Any]` | Previsões fora da amostra para cada origem com validação cruzada em blocos. |
 
 #### `pinneapple_systems.time_series.enso.forecasters`
 
-ENSO forecasters with the :class:`~pinneapple_systems.time_series.forecast_lab.Forecaster` interface, so the forecast_lab protocol (purged walk-forward tuning, untouched test period, DM tests) applies to them unchanged.
+Previsores do ENSO com a interface `Forecaster` do `forecast_lab`: oscilador de recarga, modelo linear inverso (LIM), CNN sobre mapas, modelo intermediário acoplado com EnKF e ensemble; `ColumnSubset._fit` levanta `NotImplementedError` porque `fit` é sobrescrito.
 
 <small>`pinneapple_systems/time_series/enso/forecasters.py` · 683 linhas · testes: 22 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ColumnSubset` | classe | `(inner, cols, name=None, family=None)` | Wrap ``inner`` so that it sees only ``cols`` (names in ``data.meta["columns"]``; the target must be one). |
-| `RechargeOscillatorForecaster` | classe | `(h_col='wwv', seasonal=(), multiplicative=False, stochastic=True, n_members=200, sub=4, s…)` | Jin's recharge oscillator on (T, h) = (``target`` column, ``h_col``), fitted on the training segment. |
-| `LIMForecaster` | classe | `(n_eofs=10, extra_cols=('wwv',), tau0=1, name=None)` | Linear inverse model dx/dt = L x + noise on x = (leading ``n_eofs`` PCs of the SST anomaly maps, the ``extra_cols`` indices), each standardised; L = log(C(tau0) C(0)^-1) / tau0 from the training segment; the target is read out by least squares on x. Forecast mean a . exp(L h) x(t), variance a . … |
-| `MapCNNForecaster` | classe | `(n_lags=3, pool=2, scalar_cols=('wwv', 'h_west', 'h_east'), channels=(16, 32), hidden=64,…)` | CNN on the last ``n_lags`` monthly SST anomaly maps (coarsened by ``pool``) plus scalars (``scalar_cols`` at the origin and the sine / cosine of the origin month); outputs the standardised change of the target at every horizon (persistence = zero output). ``n_members`` seeds are averaged. |
-| `IntermediateModelForecaster` | classe | `(init='nudged', n_members=1, enkf_members=24, coupling=1.0, eps_a=0.1, c=2.7, r_days=900.…)` | The coupled intermediate model fitted on the training segment (:func:`fit_intermediate`). |
-| `EnsembleForecaster` | classe | `(members, n_draw=100, seed=0, name=None, family=None)` | Equal-weight mixture of fitted-together members: mean = mean of the members' means; samples = ``n_draw`` draws from each member's distribution (its samples, or its Gaussian). |
-| `box_index` | função | `(maps, grid, box=(-5.0, 5.0, 190.0, 240.0)) -> np.ndarray` | cos-latitude weighted box mean of maps (..., ny, nx) on ``grid`` (default the Nino 3.4 box). |
-| `ro_rhs` | função | `(x, R=-0.05, F1=0.02, F2=1.5, eps=0.03)` | Constant-coefficient recharge oscillator vector field on (T, h) for the forecast_lab ODE forecasters. |
-| `fit_intermediate` | função | `(meta, end, *, eps_a=0.1, c=2.7, r_days=900.0, coupling=1.0, window=4, ridge=0.001, L_T=6…)` | Fit the coupled model to the rows [0, end) of the study data (``meta`` of :func:`.dataset.to_series`). |
+| `ColumnSubset` | classe | `(inner, cols, name=None, family=None)` | Embrulha um previsor para que ele veja só algumas colunas. |
+| `RechargeOscillatorForecaster` | classe | `(h_col='wwv', seasonal=(), multiplicative=False, stochastic=True, n_members=200, sub=4, s…)` | Previsor pelo oscilador de recarga de Jin sobre (T, h), com ensemble estocástico opcional. |
+| `LIMForecaster` | classe | `(n_eofs=10, extra_cols=('wwv',), tau0=1, name=None)` | Modelo linear inverso sobre as PCs dos mapas de TSM e índices extras. |
+| `MapCNNForecaster` | classe | `(n_lags=3, pool=2, scalar_cols=('wwv', 'h_west', 'h_east'), channels=(16, 32), hidden=64,…)` | CNN sobre os últimos mapas mensais de anomalia de TSM mais escalares. |
+| `IntermediateModelForecaster` | classe | `(init='nudged', n_members=1, enkf_members=24, coupling=1.0, eps_a=0.1, c=2.7, r_days=900.…)` | Previsor pelo modelo intermediário acoplado ajustado no treino, iniciado por nudging ou EnKF. |
+| `EnsembleForecaster` | classe | `(members, n_draw=100, seed=0, name=None, family=None)` | Mistura de pesos iguais de membros ajustados juntos. |
+| `box_index` | função | `(maps, grid, box=(-5.0, 5.0, 190.0, 240.0)) -> np.ndarray` | Média ponderada por cos(lat) de mapas numa caixa (padrão Niño 3.4). |
+| `ro_rhs` | função | `(x, R=-0.05, F1=0.02, F2=1.5, eps=0.03)` | Campo vetorial do oscilador de recarga com coeficientes constantes, para os previsores de EDO. |
+| `fit_intermediate` | função | `(meta, end, *, eps_a=0.1, c=2.7, r_days=900.0, coupling=1.0, window=4, ridge=0.001, L_T=6…)` | Ajusta o modelo acoplado intermediário às linhas de treino do estudo. |
 
 #### `pinneapple_systems.time_series.enso.intermediate`
 
-An intermediate coupled model of the tropical Pacific in the spirit of Zebiak & Cane (1987, Mon. Wea. Rev. 115:2262), simplified, and the checks that every component is solved correctly.
+Modelo acoplado intermediário simplificado do Pacífico tropical, no espírito de Zebiak & Cane (1987): oceano de águas rasas em gravidade reduzida, atmosfera de Gill e equação de TSM, com testes de verificação (onda de Kelvin, Rossby, Gill analítico, convergência).
 
 <small>`pinneapple_systems/time_series/enso/intermediate.py` · 607 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OceanGrid` | classe | `(lon0, lon1, dlon, lat_max, dlat)` | C-grid: h and T at cell centres (ny, nx); u on the nx + 1 west/east faces; v on the ny + 1 south/north faces. |
-| `ShallowWaterOcean` | classe | `(grid=None, c=2.7, H=150.0, r_days=900.0, sponge_deg=5.0, sponge_days=5.0, dtype='float64…)` | Linear reduced-gravity shallow water on the equatorial beta-plane (dimensional, SI units). |
-| `GillAtmosphere` | classe | `(eps=0.1, c_a=60.0, n_modes=24, dlon=2.5, lon_offset=0.0)` | Gill (1980) long-wave response in Matsuno units (y in L_a = sqrt(c_a / beta), x in L_a, Q per unit heating). |
-| `CoupledParams` | classe | `(eps_T, gamma, kappa, mu, mu_y, L_T, noise_tau, noise_months, noise_lon, extra)` | Parameters of :class:`CoupledModel` (SST coefficients per ocean-grid longitude, in months). |
-| `CoupledModel` | classe | `(params, ocean=None, atmosphere=None, dt_hours=8.0, atm_every=3, closure=None, atm_lat=40…)` | Linear coupled ocean-atmosphere anomaly model on :class:`OceanGrid`; time in months for the SST equation and seconds inside the ocean step. ``closure(T, h)`` (optional) adds a learned SST tendency [K/month] -- the hybrid models train it. |
-| `gill_analytic` | função | `(x, y, L, eps, period) -> dict[str, np.ndarray]` | Closed-form long-wave Gill response on a periodic circle of length ``period`` (Matsuno units) to Q = F(x) exp(-y^2 / 2) with F = cos(pi x / (2 L)) for \|x\| < L, else 0. Kelvin part q0 = -int G_K(x - s) F(s) ds, Rossby part q2 = -1/2 int G_R(s - x) F(s) ds with the periodic Green's functions G(d) = … |
-| `sst_tendency` | função | `(T, h, taux_c, eps_T, gamma, kappa, S)` | dT/dt [K/month] = -eps_T T + gamma S h + kappa S tau_x (T, h, tau_x at cell centres; gamma, kappa per longitude; S the meridional structure (ny, 1)). |
-| `kelvin_wave_test` | função | `(grid=None, c=2.7, dt_hours=6.0, days=40.0, sigma_km=1500.0) -> dict` | Release an equatorial Kelvin wave (h = exp(-y^2 / 2 L^2 - (x - x0)^2 / 2 s^2), u = g' h / c, v = 0) in the western basin without damping; its speed is the slope of the tracked equatorial h peak. Theory: c; basin crossing time = basin width / c. |
-| `rossby_wave_test` | função | `(grid=None, c=2.7, dt_hours=6.0, days=150.0, sigma_km=2500.0) -> dict` | Release a long n = 1 Rossby wave (Matsuno structure u ~ (2 y^2 - 3), h ~ (2 y^2 + 1) times exp(-y^2 / 2) in units of L = sqrt(c / beta)) in the eastern basin; its h centroid moves west at c / 3 in the long-wave limit (finite width makes it slightly slower). |
-| `gill_test` | função | `(nlons=(72, 144, 288, 576), eps=0.1, L=2.0, n_modes=12) -> dict` | Numerical Gill response to Q = cos(pi x / 2L) exp(-y^2 / 2) on \|x\| < L against :func:`gill_analytic`, for several longitude resolutions (relative L2 error of u, v, p over the band \|y\| < 3). |
-| `convergence_study` | função | `(factors=(1, 2, 4), c=2.7) -> dict` | Kelvin-wave speed error under joint refinement of dx, dy and dt (factor f: dlon = 5/f deg, dlat = 2/f deg, dt = 12/f h). |
-| `forced_ocean_run` | função | `(ocean, taux, *, steps_per_month=91, tauy=None, state=None) -> tuple[np.ndarray, dict]` | Integrate the ocean alone under prescribed monthly stress ``taux`` (months, ny, nx + 1) [N m-2] (and ``tauy`` at v points); returns the monthly mean h (months, ny, nx) and the final state. NaN stress months are zero. |
+| `OceanGrid` | classe | `(lon0, lon1, dlon, lat_max, dlat)` | Grade C do oceano: h e T nos centros, u e v nas faces. |
+| `ShallowWaterOcean` | classe | `(grid=None, c=2.7, H=150.0, r_days=900.0, sponge_deg=5.0, sponge_days=5.0, dtype='float64…)` | Oceano linear de águas rasas em gravidade reduzida no plano beta equatorial. |
+| `GillAtmosphere` | classe | `(eps=0.1, c_a=60.0, n_modes=24, dlon=2.5, lon_offset=0.0)` | Resposta de onda longa de Gill (1980) a um aquecimento. |
+| `CoupledParams` | classe | `(eps_T, gamma, kappa, mu, mu_y, L_T, noise_tau, noise_months, noise_lon, extra)` | Parâmetros do modelo acoplado (coeficientes de TSM por longitude, ruído). |
+| `CoupledModel` | classe | `(params, ocean=None, atmosphere=None, dt_hours=8.0, atm_every=3, closure=None, atm_lat=40…)` | Modelo acoplado linear oceano-atmosfera de anomalias sobre a `OceanGrid`. |
+| `gill_analytic` | função | `(x, y, L, eps, period) -> dict[str, np.ndarray]` | Resposta de Gill em forma fechada, usada como referência. |
+| `sst_tendency` | função | `(T, h, taux_c, eps_T, gamma, kappa, S)` | Tendência de TSM a partir de T, h e tensão do vento. |
+| `kelvin_wave_test` | função | `(grid=None, c=2.7, dt_hours=6.0, days=40.0, sigma_km=1500.0) -> dict` | Teste: solta uma onda de Kelvin equatorial e mede sua velocidade. |
+| `rossby_wave_test` | função | `(grid=None, c=2.7, dt_hours=6.0, days=150.0, sigma_km=2500.0) -> dict` | Teste: solta uma onda de Rossby longa n = 1 e mede sua propagação. |
+| `gill_test` | função | `(nlons=(72, 144, 288, 576), eps=0.1, L=2.0, n_modes=12) -> dict` | Teste: compara a resposta numérica de Gill com a analítica em várias resoluções. |
+| `convergence_study` | função | `(factors=(1, 2, 4), c=2.7) -> dict` | Erro da velocidade da onda de Kelvin sob refinamento conjunto de dx, dy e dt. |
+| `forced_ocean_run` | função | `(ocean, taux, *, steps_per_month=91, tauy=None, state=None) -> tuple[np.ndarray, dict]` | Integra só o oceano sob tensão do vento mensal prescrita. |
 
 #### `pinneapple_systems.time_series.enso.oscillators`
 
-Conceptual ENSO models: the recharge oscillator and the delayed oscillator.
+Modelos conceituais do ENSO: oscilador de recarga (com coeficientes sazonais, ajuste e simulação estocástica) e oscilador com atraso (raízes por Lambert-W, método dos passos).
 
 <small>`pinneapple_systems/time_series/enso/oscillators.py` · 264 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ROParams` | classe | `(coef, sigma_T, sigma_h, B, info)` | Recharge-oscillator coefficients per month: ``coef[name] = (c0, c1, c2)`` (annual harmonics; c1 = c2 = 0 for a constant coefficient), noise amplitudes per sqrt(month), multiplicative noise B [1/K]. |
-| `ro_eigen` | função | `(R, F1, F2, eps) -> dict[str, float]` | Eigenvalues of the constant-coefficient recharge oscillator: growth rate [1/month], period [months] (inf when the eigenvalues are real) and the two eigenvalues. |
-| `ro_coefficients` | função | `(p, month) -> dict[str, np.ndarray]` | Coefficients at (fractional) calendar month(s) ``month`` (0 = mid-January... any real number, period 12). |
-| `ro_tendency` | função | `(p, X, month) -> np.ndarray` | Deterministic tendency (dT/dt, dh/dt) of states X (..., 2) at calendar month(s) ``month``. |
-| `simulate_recharge` | função | `(p, x0, n_months, *, month0=0.0, sub=10, n_members=1, stochastic=True, seed=0, method='rk…)` | Integrate from x0 ((2,) or (n, 2) states) for ``n_months``; returns (n_members, n, n_months + 1, 2) samples at month ends. Deterministic part: RK4 (``method="rk4"``) or Euler; noise: Euler-Maruyama with ``sub`` steps per month (Ito; the multiplicative factor is clipped at zero). ``month_offsets`` … |
-| `fit_recharge` | função | `(T, h, month=None, *, seasonal=(), multiplicative=False, lead=1, sub=4) -> ROParams` | Recharge oscillator fitted to monthly series T, h (pairs with a NaN are skipped). |
-| `do_rhs` | função | `(x, xt, a=1.0, b=0.75, c=1.0)` | Battisti-Hirst / Suarez-Schopf delayed oscillator dT/dt = a T - b T(t - tau) - c T^3. |
-| `do_roots` | função | `(a, b, tau, branches=(0, -1, 1)) -> list[complex]` | Roots of the linear characteristic equation lambda = a - b exp(-lambda tau) on Lambert-W ``branches``, sorted by decreasing real part. |
-| `simulate_delayed` | função | `(a, b, c, tau, history, n_steps, dt, method='rk4') -> np.ndarray` | Method of steps on a uniform grid (``tau`` a multiple of ``dt``): ``history`` holds the last tau / dt + 1 values (oldest first); returns the n_steps new values. RK4 uses the mean of the delayed values at the half step (second order in the delayed argument) unless the grid is refined. |
-| `oscillation_stats` | função | `(x, dt, *, skip=0) -> dict[str, float]` | Period (mean spacing of upward zero crossings, linearly interpolated) and growth rate (slope of log \|peak\| over successive extrema) of a linear oscillation sampled every ``dt``. |
+| `ROParams` | classe | `(coef, sigma_T, sigma_h, B, info)` | Coeficientes do oscilador de recarga por mês (harmônicos anuais) e amplitudes de ruído. |
+| `ro_eigen` | função | `(R, F1, F2, eps) -> dict[str, float]` | Autovalores, taxa de crescimento e período do oscilador de recarga com coeficientes constantes. |
+| `ro_coefficients` | função | `(p, month) -> dict[str, np.ndarray]` | Coeficientes do oscilador em meses do calendário (fracionários). |
+| `ro_tendency` | função | `(p, X, month) -> np.ndarray` | Tendência determinística (dT/dt, dh/dt) de estados num mês dado. |
+| `simulate_recharge` | função | `(p, x0, n_months, *, month0=0.0, sub=10, n_members=1, stochastic=True, seed=0, method='rk…)` | Integra o oscilador de recarga, determinístico ou estocástico, com vários membros. |
+| `fit_recharge` | função | `(T, h, month=None, *, seasonal=(), multiplicative=False, lead=1, sub=4) -> ROParams` | Ajusta o oscilador de recarga a séries mensais T e h. |
+| `do_rhs` | função | `(x, xt, a=1.0, b=0.75, c=1.0)` | Lado direito do oscilador com atraso de Battisti-Hirst / Suarez-Schopf. |
+| `do_roots` | função | `(a, b, tau, branches=(0, -1, 1)) -> list[complex]` | Raízes da equação característica linear do oscilador com atraso via Lambert-W. |
+| `simulate_delayed` | função | `(a, b, c, tau, history, n_steps, dt, method='rk4') -> np.ndarray` | Integra o oscilador com atraso pelo método dos passos. |
+| `oscillation_stats` | função | `(x, dt, *, skip=0) -> dict[str, float]` | Período e taxa de crescimento de uma série oscilante. |
 
 #### `pinneapple_systems.time_series.enso.pinn`
 
-Physics-informed networks for ENSO, trained with :class:`pinneapple_neural.trainer.inverse_pinn.InversePINN` (network weights and unknown physical parameters optimised together; data misfit plus ODE/PDE residual at random collocation points, adaptive weighting).
+Redes informadas por física para o ENSO, treinadas com `InversePINN` de `pinneapple_neural` (pesos e parâmetros físicos desconhecidos otimizados juntos): identificação do oscilador de recarga, previsão por extrapolação de PINN e PINN de ondas equatoriais.
 
 <small>`pinneapple_systems/time_series/enso/pinn.py` · 626 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierMLP` | classe | `(in_dim, out_dim, hidden=64, layers=3, n_freq=8, out_scale=None, freq_max=None)` | MLP on [x, sin(2 pi k x_j), cos(2 pi k x_j)] (k = 1..n_freq for each input j, inputs scaled to [0, 1]), tanh hidden layers; ``out_scale`` multiplies the outputs. |
-| `GroupedMLP` | classe | `(groups, in_dim, out_dim, hidden=32, layers=2, n_freq=4, freq_max=2.0, out_scale=None, se…)` | G independent Fourier MLPs evaluated on the same inputs: (B, in) -> (B, G * out) (group-major). |
-| `PINNRechargeForecaster` | classe | `(h_col='wwv', seasonal=(), closure=False, stochastic=False, n_members=200, epochs=4000, s…)` | Forecasts by integrating the recharge oscillator identified by :func:`identify_recharge` on the training segment (``closure``: with the learned thermocline-feedback network). ``stochastic``: ensemble with the noise of the one-month residuals; otherwise deterministic with a calibrated Gaussian … |
-| `PINNExtrapolationForecaster` | classe | `(h_col='wwv', window=24, epochs=3000, n_col=512, hidden=32, chunk=256, seed=0, name=None)` | For each origin t: a PINN X(tau), tau = (s - t) / window in [-1, max(h) / window], fitted to the observed (T, h) of the last ``window`` months and to the recharge-oscillator residual (coefficients fitted by least squares on the training segment, held fixed) on the whole interval; the forecast at t … |
-| `EquatorialWavePINN` | classe | `(lon_obs, h_obs, T_obs, lon_f, X0, X2, tau_eq, *, lon_w=120.0, lon_e=280.0, H=150.0, sst=…)` | PINN for the two-mode long-wave equatorial ocean plus an equatorial SST equation (see the module docstring). |
-| `identify_recharge` | função | `(T, h, month=None, *, seasonal=(), closure=False, epochs=4000, n_col=2048, hidden=64, lay…)` | PINN identification of the recharge oscillator on monthly series (T, h) of length n. |
-| `project_forcing` | função | `(taux, lat, c=2.7, H=150.0, rho=1025.0) -> tuple[np.ndarray, np.ndarray]` | Projections X0, X2 of X = tau_x / (rho H) [m s-2] (..., nlat, nx) on phi_0 = exp(-y^2/2) and phi_2 = (4 y^2 - 2) exp(-y^2/2), y = lat / L with L = sqrt(c / beta) (norms sqrt(pi) and 8 sqrt(pi)). |
+| `FourierMLP` | classe | `(in_dim, out_dim, hidden=64, layers=3, n_freq=8, out_scale=None, freq_max=None)` | MLP sobre features de Fourier das entradas. |
+| `GroupedMLP` | classe | `(groups, in_dim, out_dim, hidden=32, layers=2, n_freq=4, freq_max=2.0, out_scale=None, se…)` | G MLPs de Fourier independentes avaliadas em lote. |
+| `PINNRechargeForecaster` | classe | `(h_col='wwv', seasonal=(), closure=False, stochastic=False, n_members=200, epochs=4000, s…)` | Previsor que integra o oscilador de recarga identificado por PINN no treino. |
+| `PINNExtrapolationForecaster` | classe | `(h_col='wwv', window=24, epochs=3000, n_col=512, hidden=32, chunk=256, seed=0, name=None)` | Para cada origem, ajusta uma PINN aos últimos meses e às equações do oscilador e extrapola. |
+| `EquatorialWavePINN` | classe | `(lon_obs, h_obs, T_obs, lon_f, X0, X2, tau_eq, *, lon_w=120.0, lon_e=280.0, H=150.0, sst=…)` | PINN para o oceano equatorial de ondas longas em dois modos mais uma equação de TSM. |
+| `identify_recharge` | função | `(T, h, month=None, *, seasonal=(), closure=False, epochs=4000, n_col=2048, hidden=64, lay…)` | Identificação por PINN dos parâmetros do oscilador de recarga em séries mensais (T, h). |
+| `project_forcing` | função | `(taux, lat, c=2.7, H=150.0, rho=1025.0) -> tuple[np.ndarray, np.ndarray]` | Projeções da forçante do vento nas funções de Hermite de ordem 0 e 2. |
 
 #### `pinneapple_systems.time_series.enso.pipeline`
 
-Study-level steps of the ENSO study, each returning JSON-able results (the example script only calls these).
+Etapas do estudo ENSO que devolvem resultados serializáveis em JSON (checagens dos solvers, escores, painéis de casos, skill contra referência, barreira de primavera, retrato de fase, estudo PINN de águas rasas, quadros para render, tabelas Markdown).
 
 <small>`pinneapple_systems/time_series/enso/pipeline.py` · 419 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solver_checks` | função | `() -> dict[str, Any]` |  |
-| `enso_scores` | função | `(merged, month_of_year, threshold=0.5) -> dict[str, Any]` | ACC per lead, target-month stratified ACC / RMSE and categorical scores of every model in ``merged``. |
-| `case_panels` | função | `(parts, merged, data, *, families=…, events=None, months_before=18, leads=(1, 3, 6, 9, 12…)` | Plume panels: for every case-study origin, the representative of each family (from ``merged``) with its quantiles at the evaluated leads. ``parts[name]["_cases"]`` holds forecasts from origins after the development period; ``events[label][name]`` (from :func:`.study.event_hindcast`) those of … |
-| `skill_against` | função | `(merged, reference='climatology', alpha=0.05) -> dict[str, Any]` | RMSE skill 1 - RMSE / RMSE(reference) on the test period for every model of ``merged`` (with its kept forecasts), and one-sided Diebold-Mariano tests (squared errors, HLN, long-run variance over the h-step overlap) of each non-baseline model against the reference, Holm-adjusted across those models … |
-| `spring_barrier_hindcasts` | função | `(data, prot, makers, *, block=48) -> dict[str, Any]` | Blocked, purged cross-validated hindcasts over the development period for each maker; returns, per model, the target-month stratified ACC / RMSE and the ACC per lead. |
-| `phase_portrait` | função | `(data, prot, *, seasonal=('R', 'F1', 'F2', 'eps'), seed=0, onsets=…, n_path=48) -> dict[s…)` | Observed (h, T) over the record (and its 3-month running mean), the deterministic paths of the fitted recharge oscillators (constant and seasonal) for ``n_path`` months from the observed state at each El Nino onset in ``onsets``, and one stochastic realisation of each with the record's length; … |
-| `shallow_water_pinn_study` | função | `(ds, window=('1996-01', '1999-12'), *, epochs=6000, n_col=4096, pde_weight=100.0, spin_mo…)` | The equatorial-wave PINN (:class:`.pinn.EquatorialWavePINN`) on (a) synthetic equatorial h from the 2-D shallow-water model forced by ERA5 stress (known c = 2.7 m/s, r = 1/900 d, closed west wall) and (b) observed 2S-2N D20 and SST anomalies, both over ``window``; plus the Hovmoller fields … |
-| `slab_frames` | função | `(ds, oisst, casts, start, end, *, spin_months=36, lon=(121.0, 279.0), lat=(-19.5, 19.5)) …)` | Monthly frames for :func:`.render.render_frames`: full SST [deg C] from OISST (1 deg) and thermocline depth = the D20 climatology of the casts (2 deg lat x 10 deg lon bins, base period, smoothed and interpolated to the SST grid) plus the anomaly of the ERA5-forced 2-D ocean model, scaled to D20 by … |
-| `markdown_tables` | função | `(res, leads=(1, 3, 6, 9, 12, 18, 24)) -> dict[str, str]` | Markdown tables of the study from the stored results (``res``: the study JSON). |
+| `solver_checks` | função | `() -> dict[str, Any]` | Roda os testes de Kelvin, Rossby, convergência e Gill e compara o oscilador de recarga simulado com a teoria. |
+| `enso_scores` | função | `(merged, month_of_year, threshold=0.5) -> dict[str, Any]` | ACC por antecedência, skill por mês alvo e escores categóricos de cada modelo. |
+| `case_panels` | função | `(parts, merged, data, *, families=…, events=None, months_before=18, leads=(1, 3, 6, 9, 12…)` | Painéis de plumas para as origens dos estudos de caso, por família de modelo. |
+| `skill_against` | função | `(merged, reference='climatology', alpha=0.05) -> dict[str, Any]` | Skill de RMSE contra uma referência e testes de Diebold-Mariano com ajuste de Holm. |
+| `spring_barrier_hindcasts` | função | `(data, prot, makers, *, block=48) -> dict[str, Any]` | Hindcasts em blocos com purga no período de desenvolvimento, estratificados por mês alvo. |
+| `phase_portrait` | função | `(data, prot, *, seasonal=('R', 'F1', 'F2', 'eps'), seed=0, onsets=…, n_path=48) -> dict[s…)` | Retrato de fase (h, T) observado e trajetórias dos osciladores ajustados. |
+| `shallow_water_pinn_study` | função | `(ds, window=('1996-01', '1999-12'), *, epochs=6000, n_col=4096, pde_weight=100.0, spin_mo…)` | Estudo da PINN de ondas equatoriais em dados sintéticos e observados. |
+| `slab_frames` | função | `(ds, oisst, casts, start, end, *, spin_months=36, lon=(121.0, 279.0), lat=(-19.5, 19.5)) …)` | Quadros mensais (TSM e termoclina) para o render 3-D. |
+| `markdown_tables` | função | `(res, leads=(1, 3, 6, 9, 12, 18, 24)) -> dict[str, str]` | Tabelas Markdown do estudo a partir dos resultados gravados. |
 
 #### `pinneapple_systems.time_series.enso.plots`
 
-Figures of the ENSO study, in the style of :mod:`pinneapple_systems.time_series.forecast_lab.plots` (same family colours, grid and spines): forecast plumes, skill against lead, the spring-barrier heatmap, the recharge-oscillator phase portrait and Hovmoller diagrams.
+Figuras do estudo ENSO em matplotlib no estilo do `forecast_lab`: plumas, skill por antecedência, barreira de primavera, retrato de fase, Hovmöller e validação dos solvers. [sem teste]
 
 <small>`pinneapple_systems/time_series/enso/plots.py` · 217 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_plumes` | função | `(panels, path, *, ncols=3) -> str` | Forecast distributions at the evaluated leads from one origin per panel, one family per colour (median marker, 50 % thick and 90 % thin interval bars, slightly offset per family), observed Nino 3.4 in black. Each panel: ``title``, ``t_obs``/``y_obs`` (months as fractional years), ``origin_t``, and … |
-| `plot_skill_vs_lead` | função | `(curves, path, *, metrics=…, labels=None) -> str` | One panel per metric: each curve (``family``, ``horizons``, values, optional ``significant`` mask) against lead; baselines dashed grey. |
-| `plot_spring_barrier` | função | `(maps, path, *, ncols=3, key='acc') -> str` | Heatmaps of ``key`` (ACC) by target month (rows) and lead (columns), one per model; cells with too few forecasts are blank, the count range is in each title. |
-| `plot_phase_portrait` | função | `(traj, path) -> str` | (h, T) phase portraits: ``traj[name] = {"h", "T", "family" or "color", "lw", "alpha"}``; arrows show the direction of time on the first (observed) curve. |
-| `plot_hovmoller` | função | `(panels, path, *, ncols=3) -> str` | Hovmoller diagrams (longitude x time): each panel ``title``, ``lon``, ``t`` (fractional years), ``z`` (nt, nlon), ``vmax``, ``units``. |
-| `plot_validation` | função | `(kelvin, gill, conv, ro, path) -> str` | Solver checks: Kelvin-wave speed error under refinement, Gill error against resolution, recharge-oscillator period and growth (numerical vs analytic) against the time step. |
+| `plot_plumes` | função | `(panels, path, *, ncols=3) -> str` | Plumas de distribuição de previsão a partir de uma origem por painel. |
+| `plot_skill_vs_lead` | função | `(curves, path, *, metrics=…, labels=None) -> str` | Um painel por métrica com as curvas de skill contra antecedência. |
+| `plot_spring_barrier` | função | `(maps, path, *, ncols=3, key='acc') -> str` | Mapas de calor do ACC por mês alvo e antecedência, um por modelo. |
+| `plot_phase_portrait` | função | `(traj, path) -> str` | Retratos de fase (h, T) com setas de direção. |
+| `plot_hovmoller` | função | `(panels, path, *, ncols=3) -> str` | Diagramas de Hovmöller (longitude x tempo). |
+| `plot_validation` | função | `(kelvin, gill, conv, ro, path) -> str` | Figura das checagens dos solvers (Kelvin, Gill, convergência, oscilador). |
 
 #### `pinneapple_systems.time_series.enso.render`
 
-3-D renders of the tropical Pacific during an ENSO event with the library's Blender Cycles renderer (:func:`pinneapple_tools.visualization.studio.render`).
+Renders 3-D do Pacífico tropical durante um evento ENSO com o renderizador Blender Cycles da biblioteca (`pinneapple_tools.visualization.studio.render`) e codificação de vídeo com ffmpeg.
 
 <small>`pinneapple_systems/time_series/enso/render.py` · 131 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `slab_scene` | função | `(lon, lat, sst, d20, *, d20_anom=None, band_deg=2.0, z_per_100m=1.0, x_per_deg=0.06, y_pe…)` | Scene of SST [deg C] (ny, nx) and thermocline depth ``d20`` [m, positive down] (ny, nx) on the same (lat, lon) grid (lon 0-360). The sea surface north of ``band_deg`` N and the equatorial band (``band_deg`` S to N) carry ``sst``; the band's southern wall drops from the surface to the thermocline … |
-| `render_frames` | função | `(frames, out_dir, *, sst_range=(22.0, 31.0), size=(960, 540), samples=24, view=(-0.4, -1.…)` | Render ``frames`` (dicts with ``lon``, ``lat``, ``sst``, ``d20``, optionally ``d20_anom``, and a ``label``) to PNG files in ``out_dir``; ``interpolate`` > 1 inserts linearly interpolated frames between consecutive months. Needs ``bpy`` (``pip install bpy``) or a run inside Blender. |
-| `encode_video` | função | `(paths, out, fps=8, crf=30) -> str` | H.264 MP4 (yuv420p, even frame size) from PNG frames with ffmpeg. |
+| `slab_scene` | função | `(lon, lat, sst, d20, *, d20_anom=None, band_deg=2.0, z_per_100m=1.0, x_per_deg=0.06, y_pe…)` | Cena 3-D de uma fatia do oceano com TSM na superfície e termoclina em profundidade. |
+| `render_frames` | função | `(frames, out_dir, *, sst_range=(22.0, 31.0), size=(960, 540), samples=24, view=(-0.4, -1.…)` | Renderiza uma sequência de quadros mensais em PNG. |
+| `encode_video` | função | `(paths, out, fps=8, crf=30) -> str` | Codifica quadros PNG em vídeo MP4 H.264 com ffmpeg. |
 
 #### `pinneapple_systems.time_series.enso.study`
 
-The ENSO forecasting study: the protocol, the model zoo, and one call per model (so the zoo runs in parallel processes and is merged by :func:`~pinneapple_systems.time_series.forecast_lab.study.merge_zoo`).
+O estudo de previsão do ENSO: protocolo, zoo de modelos e uma chamada por modelo (para rodar em processos paralelos e juntar com `merge_zoo`), além de hindcasts de eventos. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/enso/study.py` · 173 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `protocol` | função | `(months, test_start='2012-01', horizons=HORIZONS, min_history=36) -> Protocol` |  |
-| `zoo` | função | `(quick=False) -> list[ModelSpec]` | The model zoo. ``quick``: tiny epochs / members for smoke runs. |
-| `spec` | função | `(name, quick=False) -> ModelSpec` |  |
-| `run_model` | função | `(name, data, prot, *, budget=FP.BUDGET, quick=False, case_origins=None, log=print, seed=0…)` | Tune, fit and score one spec under ``prot`` (forecasts kept for :func:`merge_zoo`), plus its forecasts from the case-study origins that lie after the development period (``_cases``: label -> origin -> Forecast). |
-| `event_hindcast` | função | `(name, data, event_start, origins, *, quick=False, horizons=HORIZONS, min_history=36, val…)` | Refit ``name`` (its first grid configuration) on data whose labels end before ``event_start`` and forecast from ``origins`` (for an event inside the development period, e.g. 1997/98, so no forecast uses a model that saw it). Returns the forecasts and the fitted model's description. |
+| `protocol` | função | `(months, test_start='2012-01', horizons=HORIZONS, min_history=36) -> Protocol` | Cria o `Protocol` do estudo ENSO (início do teste, horizontes, histórico mínimo). |
+| `zoo` | função | `(quick=False) -> list[ModelSpec]` | Lista de `ModelSpec` do zoo; `quick` reduz épocas e membros para testes rápidos. |
+| `spec` | função | `(name, quick=False) -> ModelSpec` | Devolve o `ModelSpec` de um modelo do zoo pelo nome. |
+| `run_model` | função | `(name, data, prot, *, budget=FP.BUDGET, quick=False, case_origins=None, log=print, seed=0…)` | Faz tuning, ajuste e avaliação de um modelo do zoo. |
+| `event_hindcast` | função | `(name, data, event_start, origins, *, quick=False, horizons=HORIZONS, min_history=36, val…)` | Reajusta um modelo e prevê a partir de origens próximas a um evento. |
 
 #### `pinneapple_systems.time_series.features`
 
-_Módulo sem docstring e sem texto._
+Reexporta o gerador de features (`TSFeatureEngineer`, defasagens, estatísticas móveis, Fourier). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/features/__init__.py` · 2 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.features.engineering`
 
-_Módulo sem docstring e sem texto._
+Engenharia de features para ML tabular: defasagens, estatísticas móveis, harmônicos de Fourier, diferenças e janelas deslizantes (X, y). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/features/engineering.py` · 110 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSFeatureEngineer` | classe | `(lags, rolling_windows, rolling_stats_set, fourier_periods, fourier_K)` | Convenience wrapper to generate a feature dictionary. |
-| `make_lags` | função | `(y, lags) -> Dict[str, np.ndarray]` | Create lag features for a 1D target series. |
-| `rolling_stats` | função | `(y, windows, stats=('mean', 'std', 'min', 'max')) -> Dict[str, np.ndarray]` | Compute rolling statistics over the target series. |
-| `fourier_features` | função | `(t, periods, K=1) -> Dict[str, np.ndarray]` | Fourier seasonality features: sin/cos harmonics for each period. |
-| `rate_of_change` | função | `(y, orders=(1, 2)) -> Dict[str, np.ndarray]` | First and higher-order differences (velocity, acceleration). |
-| `window_features` | função | `(y, input_len, horizon) -> tuple` | Build sliding-window (X, y_target) arrays for supervised ML. Returns: X      : (n_windows, input_len) y_out  : (n_windows, horizon) |
+| `TSFeatureEngineer` | classe | `(lags, rolling_windows, rolling_stats_set, fourier_periods, fourier_K)` | Wrapper que gera um dicionário de features (defasagens, estatísticas móveis, Fourier). |
+| `make_lags` | função | `(y, lags) -> Dict[str, np.ndarray]` | Cria features de defasagem de uma série 1D. |
+| `rolling_stats` | função | `(y, windows, stats=('mean', 'std', 'min', 'max')) -> Dict[str, np.ndarray]` | Calcula estatísticas móveis da série em várias janelas. |
+| `fourier_features` | função | `(t, periods, K=1) -> Dict[str, np.ndarray]` | Gera features de sazonalidade seno/cosseno para cada período. |
+| `rate_of_change` | função | `(y, orders=(1, 2)) -> Dict[str, np.ndarray]` | Diferenças de primeira e maior ordem (velocidade, aceleração). |
+| `window_features` | função | `(y, input_len, horizon) -> tuple` | Monta arrays de janelas deslizantes (X, y_alvo) para ML supervisionado. |
 
 #### `pinneapple_systems.time_series.forecast_lab`
 
-Forecasting near-random series without fooling yourself: one interface for baselines, data-driven, data + physics, physical and hybrid forecasters, and the protocol that compares them (purged walk-forward tuning, an untouched test period, point and probabilistic scores, Diebold-Mariano tests with …
+Laboratório para prever séries quase aleatórias sem se enganar: uma interface comum para baselines, previsores por dados, dados + física, físicos e híbridos, e o protocolo que os compara (tuning em walk-forward com purga, período de teste intocado, escores pontuais e probabilísticos, testes de Diebold-Mariano com controle de comparações múltiplas).
 
 <small>`pinneapple_systems/time_series/forecast_lab/__init__.py` · 44 linhas · testes: 50</small>
 
 #### `pinneapple_systems.time_series.forecast_lab.base`
 
-Common interface of the forecasters in :mod:`pinneapple_systems.time_series.forecast_lab`.
+Interface comum dos previsores do `forecast_lab`: `SeriesData`, `Forecast` (média com desvio gaussiano ou amostras) e a base `Forecaster`, cujo `_predict_mean` levanta `NotImplementedError` se não for implementado. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/forecast_lab/base.py` · 168 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SeriesData` | classe | `(obs, target, dt, name, meta)` | Observed series (T, d), the forecast target column, the sampling step and free-form metadata. |
-| `Forecast` | classe | `(mean, std, samples)` | Predictive distribution at (origin, horizon): a mean, and either a Gaussian ``std`` or ``samples`` (members, origins, horizons). |
-| `Forecaster` | classe | `()` | Base class: subclasses implement :meth:`_fit` and :meth:`_predict_mean` (or override :meth:`predict`). |
-| `train_end` | função | `(train_origins, horizons) -> int` | Exclusive end index of the data that a fit on these origins may use. |
-| `forecast_origins` | função | `(lo, hi, horizons, *, stride=1, min_history=0) -> np.ndarray` | Origins t with lo <= t, t >= min_history - 1 and t + max(h) < hi, every ``stride`` samples. |
-| `targets_at` | função | `(data, origins, horizons) -> np.ndarray` |  |
+| `SeriesData` | classe | `(obs, target, dt, name, meta)` | Série observada (T, d), coluna alvo, passo de amostragem e metadados livres. |
+| `Forecast` | classe | `(mean, std, samples)` | Distribuição preditiva em (origem, horizonte): média e desvio gaussiano ou amostras. |
+| `Forecaster` | classe | `()` | Classe base dos previsores: subclasses implementam `_fit` e `_predict_mean` (ou sobrescrevem `predict`). |
+| `train_end` | função | `(train_origins, horizons) -> int` | Índice final exclusivo dos dados que um ajuste nessas origens pode usar. |
+| `forecast_origins` | função | `(lo, hi, horizons, *, stride=1, min_history=0) -> np.ndarray` | Origens válidas de previsão dentro de um intervalo, com passo e histórico mínimo. |
+| `targets_at` | função | `(data, origins, horizons) -> np.ndarray` | Valores alvo observados em cada origem e horizonte. |
 
 #### `pinneapple_systems.time_series.forecast_lab.baselines`
 
-Baselines every other forecaster must beat: persistence, climatology, AR(p), ARIMA, exponential smoothing, and for (near-)periodic series the seasonal-naive forecast and a phase-aligned mean cycle.
+Baselines que todo previsor precisa vencer: persistência, climatologia, AR(p), ARIMA, suavização exponencial, ingênuo sazonal e climatologia alinhada pela fase. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/forecast_lab/baselines.py` · 278 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Persistence` | classe | `()` | y_{t+h} = y_t (the random-walk forecast). |
-| `Climatology` | classe | `()` | y_{t+h} = mean of the training segment, spread = its standard deviation. |
-| `ARForecaster` | classe | `(max_order=20, criterion='aic', difference=False)` | Least-squares AR(p) on the target, order by AIC up to ``max_order``, iterated to each horizon. |
-| `ARIMAForecaster` | classe | `(p=(0, 1, 2), d=(0, 1), q=(0, 1), max_fit_length=2000)` | ARIMA(p, d, q) (statsmodels SARIMAX), order by AIC over a small grid on the training segment; forecasts from every origin with the fitted parameters fixed, through the Kalman filter state at that origin (so a forecast uses data up to its origin only). The Gaussian predictive variance comes from the … |
-| `ExponentialSmoothing` | classe | `()` | Simple exponential smoothing l_t = alpha y_t + (1 - alpha) l_{t-1}, flat forecast l_t; alpha minimises the one-step squared error on the training segment. |
-| `SeasonalNaive` | classe | `(period=None)` | y_{t+h} = y_{t+h-kP} with k = ceil(h / P): the value one period (or the fewest whole periods) before the target. ``period`` in samples; by default the dominant period of the training segment (rounded to an integer number of samples). |
-| `PhaseClimatology` | classe | `(period=None, fit_cycles=1.0)` | The mean cycle, aligned to the phase of each origin. |
-| `dominant_period` | função | `(y, min_period=2.0, max_frac=0.25) -> float` | Period (in samples) of the highest periodogram peak of ``y`` after removing the mean and a linear trend, searched between ``min_period`` samples and ``max_frac`` of the series length. |
+| `Persistence` | classe | `()` | Previsão de passeio aleatório: o último valor. |
+| `Climatology` | classe | `()` | Média do treino, com dispersão igual ao seu desvio-padrão. |
+| `ARForecaster` | classe | `(max_order=20, criterion='aic', difference=False)` | AR(p) por mínimos quadrados com ordem por AIC. |
+| `ARIMAForecaster` | classe | `(p=(0, 1, 2), d=(0, 1), q=(0, 1), max_fit_length=2000)` | ARIMA via SARIMAX do `statsmodels`, ordem escolhida por AIC numa grade pequena. |
+| `ExponentialSmoothing` | classe | `()` | Suavização exponencial simples com alpha que minimiza o erro de um passo. |
+| `SeasonalNaive` | classe | `(period=None)` | Valor de um período (ou do menor número de períodos) antes do alvo. |
+| `PhaseClimatology` | classe | `(period=None, fit_cycles=1.0)` | Ciclo médio alinhado à fase de cada origem. |
+| `dominant_period` | função | `(y, min_period=2.0, max_frac=0.25) -> float` | Período do maior pico do periodograma. |
 
 #### `pinneapple_systems.time_series.forecast_lab.hybrid`
 
-Hybrid forecasters: a physical model plus something learned.
+Previsores híbridos: modelo físico mais algo aprendido (correção do resíduo por GBM ou rede, e equação diferencial universal com termo neural). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/forecast_lab/hybrid.py` · 181 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResidualCorrectionForecaster` | classe | `(physical, corrector='gbm', n_lags=8, lag_step=1, max_iter=200, learning_rate=0.05, max_l…)` | physical forecast + corrector(lags, physical forecast). ``corrector`` is ``"gbm"`` or ``"mlp"``. |
-| `UDEForecaster` | classe | `(physical, hidden=64, layers=2, window=4, epochs=200, patience=20, lr=0.001, weight_decay…)` | dx/dt = f_known(x; theta_hat) + s * g_NN((x - mu) / sd), trained through RK4 over ``window`` samples. |
+| `ResidualCorrectionForecaster` | classe | `(physical, corrector='gbm', n_lags=8, lag_step=1, max_iter=200, learning_rate=0.05, max_l…)` | Previsão física mais um corretor (GBM ou rede) treinado no resíduo. |
+| `UDEForecaster` | classe | `(physical, hidden=64, layers=2, window=4, epochs=200, patience=20, lr=0.001, weight_decay…)` | Equação diferencial universal: física conhecida mais um termo neural, treinada através de RK4. |
 
 #### `pinneapple_systems.time_series.forecast_lab.learned`
 
-Data-driven direct forecasters on lagged windows: gradient boosting and neural networks (MLP, LSTM, TCN, transformer), with optional physics-derived input features and, for the MLP, a physics residual penalty.
+Previsores diretos por dados sobre janelas defasadas: gradient boosting e redes neurais (MLP, LSTM, TCN, transformer), com features físicas opcionais e, para o MLP, perda física. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/forecast_lab/learned.py` · 355 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LagFeatures` | classe | `(n_lags=8, lag_step=1, cols=None, extra=None)` | Lagged windows of the observed columns, plus optional extra features ``extra(data, origins) -> (n, k)``. |
-| `GBMForecaster` | classe | `(n_lags=8, lag_step=1, max_iter=200, learning_rate=0.05, max_leaf_nodes=15, min_samples_l…)` | Histogram gradient boosting (scikit-learn), one regressor per horizon, on lag features. |
-| `NeuralForecaster` | classe | `(arch='mlp', n_lags=16, lag_step=1, hidden=64, layers=2, dropout=0.0, weight_decay=0.0, l…)` | Direct multi-horizon neural forecaster: ``arch`` in {"mlp", "lstm", "tcn", "transformer"}. |
-| `PhysicsLossMLP` | classe | `(physical, lam=0.1, **kw)` | MLP that predicts the whole observed state at every step 1..max(h) and is penalised for violating a known vector field: loss = MSE + ``lam`` * mean \|(X_{k+1} - X_k) / dt - f((X_{k+1} + X_k) / 2)\|^2 / scale^2 along the predicted path (implicit-midpoint residual, second order in dt; X_0 is the … |
-| `train_torch_regressor` | função | `(build, X_tr, Y_tr, X_va=None, Y_va=None, *, epochs=100, lr=0.001, weight_decay=0.0, batc…)` | Train ``build()`` on (X, Y) with :class:`pinneapple_neural.trainer.Trainer`. |
+| `LagFeatures` | classe | `(n_lags=8, lag_step=1, cols=None, extra=None)` | Janelas defasadas das colunas observadas, com features extras opcionais. |
+| `GBMForecaster` | classe | `(n_lags=8, lag_step=1, max_iter=200, learning_rate=0.05, max_leaf_nodes=15, min_samples_l…)` | Previsor direto com gradient boosting por histogramas do scikit-learn. |
+| `NeuralForecaster` | classe | `(arch='mlp', n_lags=16, lag_step=1, hidden=64, layers=2, dropout=0.0, weight_decay=0.0, l…)` | Previsor neural direto multi-horizonte (MLP, LSTM, TCN ou transformer). |
+| `PhysicsLossMLP` | classe | `(physical, lam=0.1, **kw)` | MLP que prevê todo o estado em cada passo e é penalizado por violar o modelo físico. |
+| `train_torch_regressor` | função | `(build, X_tr, Y_tr, X_va=None, Y_va=None, *, epochs=100, lr=0.001, weight_decay=0.0, batc…)` | Treina um regressor torch com o `Trainer` de `pinneapple_neural`. |
 
 #### `pinneapple_systems.time_series.forecast_lab.physical`
 
-Physical forecasters: the governing equations with parameters estimated from the training data only.
+Previsores físicos: equações governantes com parâmetros estimados só no treino (EDO, EDO com atraso, espaço de estados linear, deriva de EDE, EnKF, SINDy) e features físicas para modelos de dados.
 
 <small>`pinneapple_systems/time_series/forecast_lab/physical.py` · 564 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ODEForecaster` | classe | `(rhs, params, fit_params=None, sub=5, fit_steps=2, max_fit_origins=1500, divergence_facto…)` | dx/dt = rhs(x, **params) with every state variable observed (the columns of ``data.obs``). |
-| `DelayODEForecaster` | classe | `(rhs, params, tau, fit_params=None, dt_int=0.1, fit_steps=2, max_fit_origins=1500, diverg…)` | dx/dt = rhs(x, x(t - tau), **params) for a scalar series sampled every dt; integrated with RK4 at ``dt_int`` (dt and tau must be multiples of it), the history taken from the observations by linear interpolation. |
-| `LinearSSMForecaster` | classe | `(kind='ou', max_fit_length=4000, name=None, family=None)` | Linear Gaussian state-space model of a scalar observation y = mu + x_0 + noise. |
-| `SDEDriftForecaster` | classe | `(degree=3, n_samples=200, sub=10, closure=None, seed=0, name=None, family=None)` | dx = f(x) dt + sigma dW for a scalar series, f(x) = sum_k c_k x^k (k <= ``degree``) fitted to the increments, optionally plus a neural closure g(x) fitted to what the polynomial leaves (``closure=dict(hidden=.., epochs=..)``). Forecast: ``n_samples`` Euler-Maruyama paths with ``sub`` substeps per … |
-| `EnKFForecaster` | classe | `(physical, n_ens=50, inflation=1.02, q_frac=0.1, spinup=200, seed=0, name=None, family=No…)` | Stochastic EnKF over the observations with a fitted :class:`ODEForecaster` as the model. |
-| `SINDyForecaster` | classe | `(threshold=0.05, l2=0.0001, library='poly', sub=5, divergence_factor=5.0, name=None, fami…)` | Equations discovered by SINDy (STLSQ, polynomial library of degree 2) on the training trajectory of a fully observed state; forecasts integrate them (RK4, ``sub`` substeps per sample) from the observed state. |
-| `PhysicsFeatures` | classe | `(physical)` | Input features for a data-driven model computed by a physical forecaster (fitted on the training origins when the data model is fitted): its ``physics_features(data, origins)`` -- the fitted vector field or drift at the origin state, or the filtered state and energy of a linear model. |
+| `ODEForecaster` | classe | `(rhs, params, fit_params=None, sub=5, fit_steps=2, max_fit_origins=1500, divergence_facto…)` | Previsor por EDO `dx/dt = rhs(x)` com parâmetros ajustados no treino. |
+| `DelayODEForecaster` | classe | `(rhs, params, tau, fit_params=None, dt_int=0.1, fit_steps=2, max_fit_origins=1500, diverg…)` | Previsor por EDO com atraso, integrada por RK4. |
+| `LinearSSMForecaster` | classe | `(kind='ou', max_fit_length=4000, name=None, family=None)` | Modelo linear gaussiano de espaço de estados (por exemplo Ornstein-Uhlenbeck) com filtro de Kalman. |
+| `SDEDriftForecaster` | classe | `(degree=3, n_samples=200, sub=10, closure=None, seed=0, name=None, family=None)` | EDE com deriva polinomial ajustada aos incrementos, com fechamento neural opcional. |
+| `EnKFForecaster` | classe | `(physical, n_ens=50, inflation=1.02, q_frac=0.1, spinup=200, seed=0, name=None, family=No…)` | Filtro de Kalman por ensemble estocástico sobre um modelo físico. |
+| `SINDyForecaster` | classe | `(threshold=0.05, l2=0.0001, library='poly', sub=5, divergence_factor=5.0, name=None, fami…)` | Equações descobertas por SINDy na trajetória de treino, integradas para prever. |
+| `PhysicsFeatures` | classe | `(physical)` | Features de entrada para modelos de dados calculadas por um previsor físico. |
 
 #### `pinneapple_systems.time_series.forecast_lab.pipeline`
 
-One call per study case, and the tables of the guide, built from the stored results.
+Uma chamada por caso do estudo de séries quase aleatórias e as tabelas do guia, montadas a partir dos resultados gravados.
 
 <small>`pinneapple_systems/time_series/forecast_lab/pipeline.py` · 270 linhas · testes: 28</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fan_panels` | função | `(zoo, data, title, n_origins=2, families=('physical', 'hybrid', 'data')) -> list[dict]` | Fan-chart data for the representatives of ``families`` at ``n_origins`` test origins (spread over the test period). |
-| `surprise_record` | função | `(zoo, data, horizon_index=0) -> dict[str, Any] \| None` | Per test origin: the absolute error at one horizon of the best non-baseline model (by validation score) and of the best baseline at that horizon (by validation RMSE), with the target dates when ``data.meta["dates"]`` exists. Feeds :func:`~.plots.plot_surprise_calendar`. |
-| `run_case` | função | `(name, *, n=6000, budget=BUDGET, seed=0, cache_dir=None, n_surrogates=99, log=print) -> d…)` |  |
-| `run_overfitting` | função | `(name, *, n=6000, seed=0, cache_dir=None, schemes=…, log=print) -> dict[str, Any]` |  |
-| `lyapunov_study` | função | `(dt_ints=(0.1, 0.05), total_times=(10000.0, 50000.0, 200000.0), seeds=(0, 1, 2), log=prin…)` | Convergence of the Benettin estimate of the Mackey-Glass (tau = 17) largest Lyapunov exponent with the integration step, the length of the run and the seed (initial history and perturbation direction). |
-| `memorise_vs_learn` | função | `(name, variants=…, *, horizon_index=0, window=200, n=6000, seed=0, cache_dir=None) -> dic…)` | Refit two training variants of :func:`~.presets.overfitting_variants` on the final split of case ``name`` and return, for one horizon, the truth and both forecasts over the last ``window`` training origins and the first ``window`` test origins, with each variant's RMSE on the whole training and … |
-| `markdown_tables` | função | `(results, overfit=()) -> dict[str, str]` | Markdown tables: predictability, skill horizon per family, scores of the representatives, the zoo (wall time, parameters), surrogate-trained twins, and the overfitting study. |
+| `fan_panels` | função | `(zoo, data, title, n_origins=2, families=('physical', 'hybrid', 'data')) -> list[dict]` | Dados de gráfico em leque para os representantes de cada família. |
+| `surprise_record` | função | `(zoo, data, horizon_index=0) -> dict[str, Any] \| None` | Erro absoluto por origem de teste do melhor modelo e da melhor baseline. |
+| `run_case` | função | `(name, *, n=6000, budget=BUDGET, seed=0, cache_dir=None, n_surrogates=99, log=print) -> d…)` | Roda um caso completo: previsibilidade, zoo de modelos, gêmeos treinados em surrogates e leques. |
+| `run_overfitting` | função | `(name, *, n=6000, seed=0, cache_dir=None, schemes=…, log=print) -> dict[str, Any]` | Roda o estudo de sobreajuste de um caso com vários esquemas de validação. |
+| `lyapunov_study` | função | `(dt_ints=(0.1, 0.05), total_times=(10000.0, 50000.0, 200000.0), seeds=(0, 1, 2), log=prin…)` | Convergência da estimativa de Benettin do expoente de Lyapunov do Mackey-Glass. |
+| `memorise_vs_learn` | função | `(name, variants=…, *, horizon_index=0, window=200, n=6000, seed=0, cache_dir=None) -> dic…)` | Compara duas variantes de treino nas últimas origens de treino e nas primeiras de teste. |
+| `markdown_tables` | função | `(results, overfit=()) -> dict[str, str]` | Tabelas Markdown do guia a partir dos resultados gravados. |
 
 #### `pinneapple_systems.time_series.forecast_lab.plots`
 
-Figures of a forecasting study (matplotlib, static PNG).
+Figuras estáticas (matplotlib, PNG) de um estudo de previsão: skill por horizonte, sobreajuste, testes com surrogates, PIT, leques, memorizar contra aprender e calendário de surpresas.
 
 <small>`pinneapple_systems/time_series/forecast_lab/plots.py` · 268 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_skill_vs_horizon` | função | `(results, path, *, lyapunov=None, ncols=4, floor=-0.5, titles=None, reference='best_basel…)` | One panel per series: RMSE skill of each family's representative (chosen on the validation block) against the horizon, relative to ``reference`` -- ``"best_baseline"`` (at each horizon the baseline with the lowest validation RMSE) or ``"persistence"``; filled markers where the Holm-adjusted … |
-| `plot_overfitting` | função | `(studies, path) -> str` | Per series: train, validation and test error of every training variant (bars), and the cross-validation estimates of each scheme (markers) for the variants where they were computed. |
-| `plot_surrogate_tests` | função | `(reports, path, *, ncols=4) -> str` | Nonlinear prediction error of each series (vertical line) against its shuffled and IAAFT surrogates. |
-| `plot_pit` | função | `(entries, path, *, ncols=4) -> str` | PIT histograms. ``entries``: dicts with ``title``, ``freq`` (relative frequencies) and ``deviation``. |
-| `plot_fan_charts` | função | `(panels, path, *, ncols=2) -> str` | Forecast distributions on the test period, drawn only at the evaluated horizons: a marker at the median and error bars for the central 50 % (thick) and 90 % (thin) intervals, with no line joining the horizons (the forecasts are direct, made for those horizons only). Each panel: ``title``, … |
-| `plot_memorise_vs_learn` | função | `(records, path) -> str` | For each record of :func:`~.pipeline.memorise_vs_learn`: truth and the two variants' forecasts over the end of the training period (left) and the start of the untouched test period (right). One shared legend; each panel title carries the variants' RMSE on the whole training or test set. |
-| `calendar_grid` | função | `(dates, values) -> dict` | Arrange daily ``values`` on a week (column) x weekday (row) grid; days without a value are NaN. Returns the grid (7, n_weeks), the Monday of each week and the day range. |
-| `plot_surprise_calendar` | função | `(records, path, *, vmax=1.0) -> str` | Calendar heatmaps, one per record (``title``, ``dates``, ``abs_error_model``, ``abs_error_baseline``, ``model``, ``baseline``, ``horizon``): each day coloured by log2(\|error of the model\| / \|error of the best baseline\|) -- blue where the model was closer, red where the baseline was, grey midpoint … |
+| `plot_skill_vs_horizon` | função | `(results, path, *, lyapunov=None, ncols=4, floor=-0.5, titles=None, reference='best_basel…)` | Um painel por série com o skill contra o horizonte de cada família. |
+| `plot_overfitting` | função | `(studies, path) -> str` | Erros de treino, validação e teste de cada variante de treino. |
+| `plot_surrogate_tests` | função | `(reports, path, *, ncols=4) -> str` | Erro de previsão não linear da série contra seus surrogates. |
+| `plot_pit` | função | `(entries, path, *, ncols=4) -> str` | Histogramas de PIT. |
+| `plot_fan_charts` | função | `(panels, path, *, ncols=2) -> str` | Distribuições de previsão no período de teste nos horizontes avaliados. |
+| `plot_memorise_vs_learn` | função | `(records, path) -> str` | Verdade e previsões das duas variantes de `memorise_vs_learn`. |
+| `calendar_grid` | função | `(dates, values) -> dict` | Organiza valores diários numa grade semana x dia da semana. |
+| `plot_surprise_calendar` | função | `(records, path, *, vmax=1.0) -> str` | Mapas de calor em calendário dos erros do modelo e da baseline. |
 
 #### `pinneapple_systems.time_series.forecast_lab.presets`
 
-The series and model zoos of the near-random forecasting study (``examples/near_random_forecasting``).
+Os zoos de séries e de modelos do estudo de previsão quase aleatória (`examples/near_random_forecasting`).
 
 <small>`pinneapple_systems/time_series/forecast_lab/presets.py` · 345 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Case` | classe | `(name, data, protocol, specs, truth, title)` |  |
-| `lorenz63_missing_xz_rhs` | função | `(x, sigma=10.0, rho=28.0, beta=8.0 / 3.0)` | Lorenz-63 without the -x z term of dy/dt: a deliberately misspecified physical model. |
-| `baseline_specs` | função | `(arima=True) -> list[ModelSpec]` |  |
-| `data_specs` | função | `(lag_steps=(1,), lags=(8, 16), seq_lags=32, epochs=60, patience=8, max_train=3000, cols=N…)` | GBM, MLP, LSTM, TCN and transformer on lagged windows, each with a grid sampled to ``BUDGET`` configs. |
-| `case` | função | `(name, *, n=6000, seed=0, cache_dir=None) -> Case` | Build the study case ``name`` (one of :data:`CASES`); ``n`` is the length of the synthetic series. |
-| `overfitting_variants` | função | `(c, physics=False) -> dict[str, Any]` | Training variants of an MLP (and of gradient boosting) for :func:`~.study.overfitting_study`: from a deliberately overfit network (wide, deep, long window, no early stopping, no weight decay, 200 epochs) to small, regularised, early-stopped and ensembled ones. ``physics`` adds the physics-loss MLP … |
+| `Case` | classe | `(name, data, protocol, specs, truth, title)` | Caso do estudo: dados, protocolo, specs dos modelos, verdade e título. |
+| `lorenz63_missing_xz_rhs` | função | `(x, sigma=10.0, rho=28.0, beta=8.0 / 3.0)` | Lorenz-63 sem o termo -x z: modelo físico errado de propósito. |
+| `baseline_specs` | função | `(arima=True) -> list[ModelSpec]` | Lista de `ModelSpec` das baselines (ARIMA opcional). |
+| `data_specs` | função | `(lag_steps=(1,), lags=(8, 16), seq_lags=32, epochs=60, patience=8, max_train=3000, cols=N…)` | Specs de GBM, MLP, LSTM, TCN e transformer sobre janelas defasadas. |
+| `case` | função | `(name, *, n=6000, seed=0, cache_dir=None) -> Case` | Constrói um caso do estudo pelo nome. |
+| `overfitting_variants` | função | `(c, physics=False) -> dict[str, Any]` | Variantes de treino de um MLP (e de GBM), de muito sobreajustada a regularizada. |
 
 #### `pinneapple_systems.time_series.forecast_lab.renders`
 
-3-D renders of a forecasting study (Blender Cycles through :mod:`pinneapple_blender.cycles`).
+Renders 3-D de um estudo de previsão via Blender Cycles (`pinneapple_blender.cycles`): paisagem de skill, cones de previsão, atratores e fibras de ensemble.
 
 <small>`pinneapple_systems/time_series/forecast_lab/renders.py` · 314 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `landscape_tiles` | função | `(results, *, floor=-0.5, titles=None) -> list[dict[str, Any]]` | One tile per case result (from ``pipeline.run_case``): the families present, the horizon axis (log10 of Lyapunov times when the series is chaotic, else log10 of samples) and the skill against the best baseline of each family's representative at every horizon, clipped below at ``floor``. |
-| `render_landscape` | função | `(tiles, path, *, ncols=4, resolution=(1600, 1000), samples=64, height_scale=1.2) -> str` | Draw the tiles as surfaces (x: horizon, y: family, z: skill) on a grid of ``ncols`` columns over a dark studio floor, each with a translucent sea at skill 0 bounded by a glowing waterline. The families share one labelled axis per row (a tile with a single family is a narrow strip on that family's … |
-| `dense_forecast` | função | `(data, protocol, make, max_horizon, *, quantiles=(0.05, 0.25, 0.5, 0.75, 0.95)) -> dict[s…)` | Fit ``make()`` on the protocol's final split with horizons 1..``max_horizon`` (every step) and forecast every test origin. Returns the quantiles at all test origins and the empirical coverage of the 50 % and 90 % bands per horizon (measured on the test period). |
-| `render_cones` | função | `(lanes, path, *, resolution=(1280, 720), samples=64, frames_dir=None, n_frames=0, history…)` | Draw one lane per entry (``title``, ``dense`` from :func:`dense_forecast`, ``origin_pos`` index into its test origins, ``std`` for scaling), stacked vertically: the observed history as an emissive tube, the 90 % and 50 % bands as translucent ribbons, the median as a thin tube and what happened as a … |
-| `embedding_views` | função | `(x, *, delay=None, n_points=3000, seed=0) -> dict[str, Any]` | Delay embeddings (dimension 3) of ``x``, of an IAAFT surrogate and of a shuffled surrogate, each standardised, plus the nonlinear prediction error (h = 1, NN predictor) of the three series. |
-| `render_attractors` | função | `(views, path, *, resolution=(1280, 480), samples=64, titles=…) -> str` |  |
-| `ensemble_fibres` | função | `(step, x0, *, n_members=50, rel_perturbation=0.01, n_steps=300, scale=None, seed=0, compo…)` | Integrate ``n_members`` copies of a state, each perturbed by ``rel_perturbation`` x ``scale`` (per component, default 1), with ``step(states) -> states`` acting on a batch (m, d). Returns the two chosen components over time for every member and the ensemble spread (std across members of the first … |
-| `render_ensembles` | função | `(panels, path, *, resolution=(1280, 900), samples=48) -> str` | One lane per panel (``title``, ``fibres`` from :func:`ensemble_fibres`, ``times`` (n,), ``lt_time`` or None, ``family`` colour key), stacked vertically: members as thin tubes with time along x, the first component as height and the second as depth, and a translucent wall at one Lyapunov time. |
+| `landscape_tiles` | função | `(results, *, floor=-0.5, titles=None) -> list[dict[str, Any]]` | Um ladrilho por caso com o skill de cada família por horizonte. |
+| `render_landscape` | função | `(tiles, path, *, ncols=4, resolution=(1600, 1000), samples=64, height_scale=1.2) -> str` | Desenha os ladrilhos como superfícies 3-D de skill. |
+| `dense_forecast` | função | `(data, protocol, make, max_horizon, *, quantiles=(0.05, 0.25, 0.5, 0.75, 0.95)) -> dict[s…)` | Ajusta e prevê todas as origens de teste em todos os horizontes, com quantis e cobertura. |
+| `render_cones` | função | `(lanes, path, *, resolution=(1280, 720), samples=64, frames_dir=None, n_frames=0, history…)` | Desenha cones de previsão (faixas 50 % e 90 %) por raia. |
+| `embedding_views` | função | `(x, *, delay=None, n_points=3000, seed=0) -> dict[str, Any]` | Imersões por atraso da série e de seus surrogates. |
+| `render_attractors` | função | `(views, path, *, resolution=(1280, 480), samples=64, titles=…) -> str` | Renderiza as imersões por atraso como atratores 3-D. |
+| `ensemble_fibres` | função | `(step, x0, *, n_members=50, rel_perturbation=0.01, n_steps=300, scale=None, seed=0, compo…)` | Integra membros perturbados de um estado e devolve suas trajetórias e o espalhamento. |
+| `render_ensembles` | função | `(panels, path, *, resolution=(1280, 900), samples=48) -> str` | Desenha as fibras de ensemble com uma parede em um tempo de Lyapunov. |
 
 #### `pinneapple_systems.time_series.forecast_lab.study`
 
-The evaluation protocol: fix the test period first, tune on purged walk-forward folds of the rest, fit once, score once on the untouched test period, and test the differences.
+Protocolo de avaliação: fixa primeiro o período de teste, faz tuning em dobras walk-forward com purga no resto, ajusta uma vez, avalia uma vez no teste intocado e testa as diferenças.
 
 <small>`pinneapple_systems/time_series/forecast_lab/study.py` · 450 linhas · testes: 50</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Protocol` | classe | `(horizons, test_frac, val_frac, n_folds, fold_frac, inner_val_frac, min_history, test_str…)` | Split of a series of length ``n`` into development (train + validation) and an untouched test period. |
-| `ModelSpec` | classe | `(name, family, factory, grid)` | A forecaster in the zoo: ``factory(**config)`` builds an unfitted model; ``grid`` lists the configurations to try (one entry means no tuning). |
-| `tune` | função | `(spec, data, protocol, *, budget=None, seed=0) -> dict[str, Any]` | Score every configuration (or ``budget`` of them, drawn at random) by purged walk-forward CV. |
-| `evaluate` | função | `(model, data, origins, *, levels=LEVELS, keep=False) -> dict[str, Any]` | Point and probabilistic scores per horizon on ``origins``. |
-| `skill_horizon` | função | `(horizons, skill, p_values=None, alpha=0.05) -> int \| None` | Largest horizon h such that the skill is positive (and, with ``p_values``, significant) at every horizon up to h; None when there is no skill at the first horizon. |
-| `run_zoo` | função | `(data, specs, protocol, *, budget=None, keep_forecasts=(), keep_models=False, log=print, …)` | Tune, fit and score every model of the zoo on one series. Returns a JSON-able dict (``_forecasts`` holds the test forecasts of ``keep_forecasts`` for figures, ``_models`` the fitted models when ``keep_models``; both are dropped by ``to_jsonable(drop_private=True)``). Zoos run in parts (e.g. one … |
-| `merge_zoo` | função | `(parts) -> dict[str, Any]` | Combine :func:`run_zoo` results of the same series and protocol run in parts (each with its models' test forecasts kept): the models and forecasts are pooled and the comparisons (skill, DM tests against persistence and the best baseline, Holm and BH adjustments, family representatives) are … |
-| `overfitting_study` | função | `(data, protocol, variants, *, schemes=('purged_walk_forward',), schemes_for=None, log=pri…)` | For each training variant: its error on its training origins, on the validation block and on the untouched test period, the gap test - train, and the cross-validation estimate under each scheme with its optimism (test - CV). The error is the mean over horizons of RMSE / RMSE of persistence *on the … |
-| `surrogate_trained` | função | `(make, data, protocol, *, kind='iaaft', seed=0) -> dict[str, Any]` | Skill (vs persistence, mean over horizons and per horizon) on the real test period of a univariate model trained on the real development data and of the same model trained on a surrogate of it. |
+| `Protocol` | classe | `(horizons, test_frac, val_frac, n_folds, fold_frac, inner_val_frac, min_history, test_str…)` | Divisão de uma série em teste, validação e dobras de tuning, com horizontes e histórico mínimo. |
+| `ModelSpec` | classe | `(name, family, factory, grid)` | Um previsor do zoo: fábrica, família e grade de configurações. |
+| `tune` | função | `(spec, data, protocol, *, budget=None, seed=0) -> dict[str, Any]` | Avalia configurações nas dobras walk-forward com purga e escolhe a melhor. |
+| `evaluate` | função | `(model, data, origins, *, levels=LEVELS, keep=False) -> dict[str, Any]` | Escores pontuais e probabilísticos por horizonte nas origens dadas. |
+| `skill_horizon` | função | `(horizons, skill, p_values=None, alpha=0.05) -> int \| None` | Maior horizonte em que o skill é positivo (e significativo, se houver p-valores). |
+| `run_zoo` | função | `(data, specs, protocol, *, budget=None, keep_forecasts=(), keep_models=False, log=print, …)` | Faz tuning, ajuste e avaliação de todo o zoo e testa as diferenças. |
+| `merge_zoo` | função | `(parts) -> dict[str, Any]` | Junta resultados de `run_zoo` rodados em partes. |
+| `overfitting_study` | função | `(data, protocol, variants, *, schemes=('purged_walk_forward',), schemes_for=None, log=pri…)` | Compara erros de variantes de treino sob vários esquemas de validação. |
+| `surrogate_trained` | função | `(make, data, protocol, *, kind='iaaft', seed=0) -> dict[str, Any]` | Skill de um modelo treinado em surrogates da série (gêmeo sem estrutura). |
 
 #### `pinneapple_systems.time_series.foundation_models`
 
-Pretrained time-series *foundation model* forecasters.
+Wrappers de modelos fundacionais pré-treinados reais (Amazon Chronos e Google TimesFM) baixados do HuggingFace Hub, para previsão zero-shot; dependem de `chronos-forecasting` e `timesfm`.
 
 <small>`pinneapple_systems/time_series/foundation_models.py` · 379 linhas · testes: 14 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ChronosForecaster` | classe | `(model_id='amazon/chronos-t5-tiny', device_map='cpu', dtype=None, **pipeline_kwargs)` | Wraps Amazon's real, pretrained Chronos forecasting pipeline. |
-| `TimesFMForecaster` | classe | `(model_id=…, max_context=512, max_horizon=128, torch_compile=False, **forecast_config_kwa…)` | Wraps Google's real, pretrained TimesFM forecasting model. |
+| `ChronosForecaster` | classe | `(model_id='amazon/chronos-t5-tiny', device_map='cpu', dtype=None, **pipeline_kwargs)` | Wrapper do Chronos pré-treinado da Amazon (pacote `chronos-forecasting`), com previsão por quantis e amostras. |
+| `TimesFMForecaster` | classe | `(model_id=…, max_context=512, max_horizon=128, torch_compile=False, **forecast_config_kwa…)` | Wrapper do TimesFM pré-treinado do Google (pacote `timesfm`), com contexto e horizonte máximos. |
 
 #### `pinneapple_systems.time_series.losses`
 
-Time series forecast loss functions.
+Perda `mse_forecast` no formato de dicionário (`supervised`, `total`) usado pelos trainers. [sem teste]
 
 <small>`pinneapple_systems/time_series/losses.py` · 9 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mse_forecast` | função | `(model, y_hat, batch)` |  |
+| `mse_forecast` | função | `(model, y_hat, batch)` | Perda MSE entre `y_hat` e o alvo do batch, no formato de dicionário dos trainers. |
 
 #### `pinneapple_systems.time_series.metrics`
 
-Time series metrics for forecasting evaluation.
+Métricas de previsão em torch (MAE, MSE, RMSE, MAPE, sMAPE, R²) em duas assinaturas: `(y_hat, batch)` e `(y_hat, y)`. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/metrics.py` · 104 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mae` | função | `(y_hat, batch)` | Mean Absolute Error. |
-| `mse` | função | `(y_hat, batch)` | Mean Squared Error. |
-| `rmse` | função | `(y_hat, batch)` | Root Mean Squared Error. |
-| `mape` | função | `(y_hat, batch)` | Mean Absolute Percentage Error (%). |
-| `smape` | função | `(y_hat, batch)` | Symmetric Mean Absolute Percentage Error (%).  Bounded in [0, 200]. |
-| `r2` | função | `(y_hat, batch)` | Coefficient of determination R².  R²=1 → perfect; R²<0 → worse than mean. |
-| `mae_fn` | função | `(y_hat, y) -> torch.Tensor` |  |
-| `mse_fn` | função | `(y_hat, y) -> torch.Tensor` |  |
-| `rmse_fn` | função | `(y_hat, y) -> torch.Tensor` |  |
-| `mape_fn` | função | `(y_hat, y) -> torch.Tensor` | Mean Absolute Percentage Error (%). |
-| `smape_fn` | função | `(y_hat, y) -> torch.Tensor` |  |
-| `r2_fn` | função | `(y_hat, y) -> torch.Tensor` |  |
-| `default_ts_metrics` | função | `()` |  |
+| `mae` | função | `(y_hat, batch)` | Erro absoluto médio a partir de `(y_hat, batch)`. |
+| `mse` | função | `(y_hat, batch)` | Erro quadrático médio a partir de `(y_hat, batch)`. |
+| `rmse` | função | `(y_hat, batch)` | Raiz do erro quadrático médio a partir de `(y_hat, batch)`. |
+| `mape` | função | `(y_hat, batch)` | Erro percentual absoluto médio (%) a partir de `(y_hat, batch)`. |
+| `smape` | função | `(y_hat, batch)` | Erro percentual absoluto simétrico (%) a partir de `(y_hat, batch)`. |
+| `r2` | função | `(y_hat, batch)` | Coeficiente de determinação R² a partir de `(y_hat, batch)`. |
+| `mae_fn` | função | `(y_hat, y) -> torch.Tensor` | MAE entre dois tensores. |
+| `mse_fn` | função | `(y_hat, y) -> torch.Tensor` | MSE entre dois tensores. |
+| `rmse_fn` | função | `(y_hat, y) -> torch.Tensor` | RMSE entre dois tensores. |
+| `mape_fn` | função | `(y_hat, y) -> torch.Tensor` | MAPE (%) entre dois tensores. |
+| `smape_fn` | função | `(y_hat, y) -> torch.Tensor` | sMAPE (%) entre dois tensores. |
+| `r2_fn` | função | `(y_hat, y) -> torch.Tensor` | R² entre dois tensores. |
+| `default_ts_metrics` | função | `()` | Dicionário padrão das métricas `mae`, `mse`, `rmse`, `mape`, `smape` e `r2`. |
 
 #### `pinneapple_systems.time_series.metrics_ext`
 
-_Módulo sem docstring e sem texto._
+Reexporta métricas pontuais, probabilísticas e de comparação de previsões.
 
 <small>`pinneapple_systems/time_series/metrics_ext/__init__.py` · 28 linhas · testes: 20</small>
 
 #### `pinneapple_systems.time_series.metrics_ext.comparison`
 
-Comparing forecasts: skill scores, the Diebold-Mariano test and multiple-comparison control.
+Comparação de previsões: skill score, teste de Diebold-Mariano (com correção HLN) e correções de múltiplas comparações (Holm, Benjamini-Hochberg).
 
 <small>`pinneapple_systems/time_series/metrics_ext/comparison.py` · 127 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DMResult` | classe | `(statistic, p_value, p_value_better, mean_loss_difference, n, max_lag)` |  |
-| `skill_score` | função | `(score, reference) -> np.ndarray` | 1 - score / reference, elementwise (for errors and other negatively oriented scores). |
-| `diebold_mariano` | função | `(e1, e2, *, h=1, loss='se', max_lag=None, hln=True) -> DMResult` | Test E[L(e1)] = E[L(e2)] for two error series on the same targets (in time order). |
-| `holm` | função | `(p_values)` | Holm step-down adjusted p-values (same keys / order as given); NaNs are left out of the family. |
-| `benjamini_hochberg` | função | `(p_values)` | Benjamini-Hochberg adjusted p-values (q-values); NaNs are left out of the family. |
+| `DMResult` | classe | `(statistic, p_value, p_value_better, mean_loss_difference, n, max_lag)` | Resultado do teste de Diebold-Mariano: estatística, p-valores, diferença média de perda, n e defasagem. |
+| `skill_score` | função | `(score, reference) -> np.ndarray` | Skill `1 - score / referência`, elemento a elemento. |
+| `diebold_mariano` | função | `(e1, e2, *, h=1, loss='se', max_lag=None, hln=True) -> DMResult` | Teste de Diebold-Mariano de igualdade de perda esperada entre duas séries de erros. |
+| `holm` | função | `(p_values)` | P-valores ajustados pelo método step-down de Holm. |
+| `benjamini_hochberg` | função | `(p_values)` | P-valores ajustados por Benjamini-Hochberg (q-valores). |
 
 #### `pinneapple_systems.time_series.metrics_ext.point`
 
-_Módulo sem docstring e sem texto._
+Métricas pontuais em NumPy (MAE, RMSE, MAPE, sMAPE, MASE, MAE por horizonte) e o agregador `PointMetrics`.
 
 <small>`pinneapple_systems/time_series/metrics_ext/point.py` · 81 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PointMetrics` | classe | `(season_length)` |  |
-| `mae` | função | `(y_pred, y_true) -> float` |  |
-| `rmse` | função | `(y_pred, y_true) -> float` |  |
-| `mape` | função | `(y_pred, y_true, eps=1e-08) -> float` |  |
-| `smape` | função | `(y_pred, y_true, eps=1e-08) -> float` |  |
-| `mase` | função | `(y_pred, y_true, y_train, season_length=1, eps=1e-08) -> float` | Mean Absolute Scaled Error (MASE). |
-| `multi_horizon_mae` | função | `(y_pred, y_true) -> Dict[str, float]` | Overall MAE and MAE per horizon step for (N,H) or (N,H,C). |
+| `PointMetrics` | classe | `(season_length)` | Calcula de uma vez as métricas pontuais, incluindo MASE com `season_length`. |
+| `mae` | função | `(y_pred, y_true) -> float` | Erro absoluto médio em NumPy. |
+| `rmse` | função | `(y_pred, y_true) -> float` | Raiz do erro quadrático médio em NumPy. |
+| `mape` | função | `(y_pred, y_true, eps=1e-08) -> float` | Erro percentual absoluto médio em NumPy. |
+| `smape` | função | `(y_pred, y_true, eps=1e-08) -> float` | Erro percentual absoluto simétrico em NumPy. |
+| `mase` | função | `(y_pred, y_true, y_train, season_length=1, eps=1e-08) -> float` | Erro absoluto escalado (MASE) pelo erro do ingênuo sazonal no treino. |
+| `multi_horizon_mae` | função | `(y_pred, y_true) -> Dict[str, float]` | MAE global e por passo do horizonte. |
 
 #### `pinneapple_systems.time_series.metrics_ext.probabilistic`
 
-_Módulo sem docstring e sem texto._
+Métricas probabilísticas: pinball, cobertura, largura de intervalo, PIT gaussiano e de ensemble, histograma de PIT e `ProbabilisticMetrics`.
 
 <small>`pinneapple_systems/time_series/metrics_ext/probabilistic.py` · 109 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ProbabilisticMetrics` | classe | `(quantiles)` |  |
-| `pinball_loss` | função | `(y_pred_q, y_true, q) -> float` |  |
-| `coverage` | função | `(y_lo, y_hi, y_true) -> float` |  |
-| `mean_interval_width` | função | `(y_lo, y_hi) -> float` |  |
-| `pit_gaussian` | função | `(mu, sigma, y) -> np.ndarray` |  |
-| `pit_ensemble` | função | `(samples, y, rng=None) -> np.ndarray` | Randomised PIT of an ensemble (members on axis 0): ties and the discreteness of the empirical CDF are broken uniformly at random, so a calibrated ensemble gives exactly uniform values. |
-| `pit_histogram` | função | `(pit, n_bins=10) -> Dict[str, object]` | Relative frequencies of the PIT in ``n_bins`` equal bins and their mean absolute deviation from 1 / n_bins (0 for a perfectly flat histogram), divided by 1 / n_bins. |
-| `gaussian_interval_coverage` | função | `(mu, sigma, y, level=0.9) -> float` |  |
-| `ensemble_interval_coverage` | função | `(samples, y, level=0.9) -> float` |  |
+| `ProbabilisticMetrics` | classe | `(quantiles)` | Calcula de uma vez as métricas probabilísticas para uma lista de quantis. |
+| `pinball_loss` | função | `(y_pred_q, y_true, q) -> float` | Perda pinball de um quantil. |
+| `coverage` | função | `(y_lo, y_hi, y_true) -> float` | Fração das observações dentro do intervalo [lo, hi]. |
+| `mean_interval_width` | função | `(y_lo, y_hi) -> float` | Largura média dos intervalos. |
+| `pit_gaussian` | função | `(mu, sigma, y) -> np.ndarray` | Valores PIT para previsões gaussianas (média e desvio). |
+| `pit_ensemble` | função | `(samples, y, rng=None) -> np.ndarray` | PIT aleatorizado de um ensemble (membros no eixo 0). |
+| `pit_histogram` | função | `(pit, n_bins=10) -> Dict[str, object]` | Frequências relativas do PIT em classes iguais e seu desvio absoluto médio da uniforme. |
+| `gaussian_interval_coverage` | função | `(mu, sigma, y, level=0.9) -> float` | Cobertura empírica do intervalo gaussiano de nível dado. |
+| `ensemble_interval_coverage` | função | `(samples, y, level=0.9) -> float` | Cobertura empírica do intervalo de quantis de um ensemble. |
 
 #### `pinneapple_systems.time_series.models`
 
-_Módulo sem docstring e sem texto._
+Reexporta os modelos de previsão (clássicos de ML, LSTM/GRU, N-BEATS, TCN, TFT); o `FNOForecaster` é importado só se disponível. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/models/__init__.py` · 29 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.models.classical`
 
-Classical ML forecasting models: XGBoost, LightGBM, RandomForest, CatBoost, GPR.
+Previsores de ML tabular com interface `fit(X, y)`/`predict(X)`: XGBoost, LightGBM, RandomForest, CatBoost, GPR e MLP do scikit-learn; as bibliotecas são importadas sob demanda.
 
 <small>`pinneapple_systems/time_series/models/classical.py` · 315 linhas · testes: 151 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ForecastModel` | classe | `()` |  |
-| `XGBoostForecaster` | classe | `(n_estimators=300, max_depth=6, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, …)` | XGBoost multi-output regressor (wraps MultiOutputRegressor for horizon>1). |
-| `LightGBMForecaster` | classe | `(n_estimators=300, num_leaves=31, learning_rate=0.05, subsample=0.8, **kwargs)` |  |
-| `RandomForestForecaster` | classe | `(n_estimators=200, max_depth=None, min_samples_leaf=1, **kwargs)` |  |
-| `CatBoostForecaster` | classe | `(iterations=300, depth=6, learning_rate=0.05, **kwargs)` |  |
-| `GPRForecaster` | classe | `(kernel=None, alpha=0.0001, normalize_y=True, **kwargs)` | Gaussian Process Regressor — natively probabilistic. Best for small datasets (< ~5000 samples). Multi-output: one GP per output dimension. |
-| `MLPForecaster` | classe | `(hidden_layer_sizes=(128, 64), activation='relu', max_iter=1000, learning_rate_init=0.001…)` |  |
+| `ForecastModel` | classe | `()` | Base abstrata dos previsores tabulares (`fit`, `predict`, `predict_with_uncertainty`, `score`); o `fit` base levanta `NotImplementedError`. |
+| `XGBoostForecaster` | classe | `(n_estimators=300, max_depth=6, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8, …)` | Regressor multi-saída XGBoost como previsor. |
+| `LightGBMForecaster` | classe | `(n_estimators=300, num_leaves=31, learning_rate=0.05, subsample=0.8, **kwargs)` | Previsor sobre LightGBM. |
+| `RandomForestForecaster` | classe | `(n_estimators=200, max_depth=None, min_samples_leaf=1, **kwargs)` | Previsor RandomForest do scikit-learn, com incerteza pela dispersão das árvores. |
+| `CatBoostForecaster` | classe | `(iterations=300, depth=6, learning_rate=0.05, **kwargs)` | Previsor sobre CatBoost. |
+| `GPRForecaster` | classe | `(kernel=None, alpha=0.0001, normalize_y=True, **kwargs)` | Regressão por processo gaussiano, naturalmente probabilística, indicada para poucos dados. |
+| `MLPForecaster` | classe | `(hidden_layer_sizes=(128, 64), activation='relu', max_iter=1000, learning_rate_init=0.001…)` | Previsor MLP do scikit-learn (`MLPRegressor`). |
 
 #### `pinneapple_systems.time_series.models.fno_forecaster`
 
-FNO-1D forecaster for time series multi-horizon prediction.
+Previsor FNO-1D multi-horizonte sobre `FourierNeuralOperator` de `pinneapple_neural`, com histórico e preenchimento com zeros. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/models/fno_forecaster.py` · 73 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FNOForecastConfig` | classe | `(input_len, horizon, n_features, n_targets, width, modes, layers)` |  |
-| `FNOForecaster` | classe | `(cfg)` | Forecaster TS padrão usando FNO-1D. Convenção: x: (B, L_in, F) y_hat: (B, H, C) |
+| `FNOForecastConfig` | classe | `(input_len, horizon, n_features, n_targets, width, modes, layers)` | Configuração do `FNOForecaster` (comprimentos, features, largura, modos, camadas). |
+| `FNOForecaster` | classe | `(cfg)` | Previsor de séries com FNO-1D: entrada (B, L_in, F), saída (B, H, C). |
 
 #### `pinneapple_systems.time_series.models.nbeats`
 
-N-BEATS: Neural Basis Expansion Analysis for Time Series (Oreshkin et al., 2019).
+N-BEATS (Oreshkin et al., 2019) com pilhas de tendência, sazonalidade e genérica.
 
 <small>`pinneapple_systems/time_series/models/nbeats.py` · 127 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NBeatsConfig` | classe | `(input_len, horizon, n_features, stack_types, n_blocks, n_layers, layer_width, degree_of_…)` |  |
-| `NBeats` | classe | `(cfg=None, **kw)` | N-BEATS with trend + seasonality + generic stacks. Input  : (B, L, F) Output : TSOutput with y_hat (B, H, 1) |
+| `NBeatsConfig` | classe | `(input_len, horizon, n_features, stack_types, n_blocks, n_layers, layer_width, degree_of_…)` | Configuração do N-BEATS (pilhas, blocos, camadas, grau do polinômio, harmônicos). |
+| `NBeats` | classe | `(cfg=None, **kw)` | Rede N-BEATS com pilhas de tendência, sazonalidade e genérica que devolve `TSOutput`. |
 
 #### `pinneapple_systems.time_series.models.recurrent`
 
-LSTM and GRU forecasters (PyTorch, GPU-ready).
+Previsores LSTM e GRU em PyTorch que saem do último estado oculto para todo o horizonte.
 
 <small>`pinneapple_systems/time_series/models/recurrent.py` · 64 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RecurrentConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_layers, dropout, bidirection…)` |  |
-| `LSTMForecaster` | classe | `(cfg=None, **kw)` | LSTM-based multi-step forecaster. |
-| `GRUForecaster` | classe | `(cfg=None, **kw)` | GRU-based multi-step forecaster. |
+| `RecurrentConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_layers, dropout, bidirection…)` | Configuração dos previsores LSTM/GRU. |
+| `LSTMForecaster` | classe | `(cfg=None, **kw)` | Previsor multi-passo com LSTM (é um `nn.Module`, sem `fit`/`predict`). |
+| `GRUForecaster` | classe | `(cfg=None, **kw)` | Previsor multi-passo com GRU (é um `nn.Module`, sem `fit`/`predict`). |
 
 #### `pinneapple_systems.time_series.models.tcn`
 
-Temporal Convolutional Network (TCN) forecaster.
+Rede convolucional temporal (TCN) com dilatações exponenciais.
 
 <small>`pinneapple_systems/time_series/models/tcn.py` · 74 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TCNConfig` | classe | `(input_len, horizon, n_features, n_targets, n_channels, n_layers, kernel_size, dropout)` |  |
-| `TCNForecaster` | classe | `(cfg=None, **kw)` | TCN with exponentially increasing dilations (1,2,4,8,...). Input  : (B, L, F) Output : TSOutput with y_hat (B, H, n_targets) |
+| `TCNConfig` | classe | `(input_len, horizon, n_features, n_targets, n_channels, n_layers, kernel_size, dropout)` | Configuração da TCN. |
+| `TCNForecaster` | classe | `(cfg=None, **kw)` | TCN com dilatações exponenciais que devolve `TSOutput`. |
 
 #### `pinneapple_systems.time_series.models.tft`
 
-Temporal Fusion Transformer (Lim et al., 2021) — simplified, GPU-ready.
+Temporal Fusion Transformer (Lim et al., 2021) em versão simplificada.
 
 <small>`pinneapple_systems/time_series/models/tft.py` · 197 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TFTConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_heads, num_lstm_layers, drop…)` |  |
-| `TFTForecaster` | classe | `(cfg=None, **kw)` | Temporal Fusion Transformer. Input  : (B, L, F) Output : TSOutput with y_hat (B, H, n_targets) |
+| `TFTConfig` | classe | `(input_len, horizon, n_features, n_targets, hidden_size, num_heads, num_lstm_layers, drop…)` | Configuração do TFT. |
+| `TFTForecaster` | classe | `(cfg=None, **kw)` | Temporal Fusion Transformer simplificado que devolve `TSOutput`. |
 
 #### `pinneapple_systems.time_series.predictability`
 
-Is there anything to predict? Measures of predictability to compute before fitting any forecaster.
+Medidas de previsibilidade para calcular antes de ajustar qualquer modelo: AR, entropias, expoente de Lyapunov (Rosenstein), surrogates (embaralhado, fase aleatória, IAAFT), erro de previsão não linear e relatório consolidado.
 
 <small>`pinneapple_systems/time_series/predictability.py` · 350 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ARFit` | classe | `(order, intercept, coef, sigma, r2_one_step, criterion)` |  |
-| `SurrogateTest` | classe | `(statistic, kind, observed, surrogates, p_value, alternative, reject_at_0_05)` |  |
-| `fit_ar` | função | `(x, max_order=20, criterion='aic') -> ARFit` | Least-squares AR(p), p = 0..max_order, all fitted on the same sample (the first ``max_order`` values are dropped for every p) so the information criteria are comparable. |
-| `permutation_entropy` | função | `(x, order=5, delay=1, normalize=True) -> float` | Shannon entropy of the ordinal patterns of length ``order`` (ties broken by position). |
-| `sample_entropy` | função | `(x, m=2, r=None) -> float` | -log(A / B): B = template pairs of length m within tolerance r (Chebyshev), A = the same for m + 1; self matches excluded and the same N - m templates used for both lengths. ``r`` defaults to 0.2 std(x). |
-| `delay_embedding` | função | `(x, dim, delay) -> np.ndarray` |  |
-| `first_acf_zero` | função | `(x, max_lag=None) -> int` | First lag at which the autocorrelation drops below 1/e (a common embedding-delay rule). |
-| `rosenstein_lyapunov` | função | `(x, *, dim=5, delay=None, dt=1.0, min_tsep=None, n_steps=40, fit=(5, 30), max_points=3000…)` | Largest Lyapunov exponent per unit time from a scalar series. |
-| `shuffle_surrogate` | função | `(x, rng) -> np.ndarray` | Random permutation: keeps the amplitude distribution, destroys all temporal structure. |
-| `phase_randomized_surrogate` | função | `(x, rng) -> np.ndarray` | Fourier-transform surrogate: same power spectrum, random phases (a linear Gaussian process). |
-| `iaaft_surrogate` | função | `(x, rng, n_iter=200, tol=1e-08) -> np.ndarray` | Iterative amplitude-adjusted Fourier transform surrogate (Schreiber & Schmitz 1996): the same amplitude distribution as ``x`` exactly and nearly the same power spectrum. |
-| `nonlinear_prediction_error` | função | `(x, *, dim=4, delay=1, horizon=1, k=10, train_frac=0.5) -> float` | Out-of-sample error of a local-constant (nearest-neighbour) predictor, divided by std(x). |
-| `time_reversal_asymmetry` | função | `(x, lag=1) -> float` | Normalised third moment of the lag-``lag`` increments; 0 in expectation for any time-reversible process (every linear Gaussian process is). |
-| `surrogate_test` | função | `(x, statistic, *, kind='iaaft', n_surrogates=99, alternative='less', seed=0, name=None) -…)` | Rank test of ``statistic(x)`` against ``n_surrogates`` surrogates of the given ``kind``. |
-| `baseline_errors` | função | `(x, horizons, train_frac=0.8) -> dict[str, dict[int, float]]` | RMSE of persistence (x_{t+h} = x_t) and climatology (x_{t+h} = mean of the first ``train_frac``) on the last 1 - ``train_frac`` of the series, per horizon, both divided by std(x). |
-| `predictability_report` | função | `(x, *, horizons=(1, 2, 4, 8, 16, 32), dt=1.0, max_ar_order=20, pe_order=5, embed_dim=4, n…)` | Predictability of a scalar series before any modelling. |
+| `ARFit` | classe | `(order, intercept, coef, sigma, r2_one_step, criterion)` | Resultado do ajuste AR: ordem, coeficientes, sigma, R² de um passo e critério. |
+| `SurrogateTest` | classe | `(statistic, kind, observed, surrogates, p_value, alternative, reject_at_0_05)` | Resultado de um teste com surrogates: estatística observada, valores nos surrogates e p-valor. |
+| `fit_ar` | função | `(x, max_order=20, criterion='aic') -> ARFit` | AR(p) por mínimos quadrados com ordem escolhida por AIC/BIC na mesma amostra. |
+| `permutation_entropy` | função | `(x, order=5, delay=1, normalize=True) -> float` | Entropia de Shannon dos padrões ordinais. |
+| `sample_entropy` | função | `(x, m=2, r=None) -> float` | Entropia amostral `-log(A/B)`. |
+| `delay_embedding` | função | `(x, dim, delay) -> np.ndarray` | Imersão por atraso de uma série em dimensão e atraso dados. |
+| `first_acf_zero` | função | `(x, max_lag=None) -> int` | Primeira defasagem em que a autocorrelação cai abaixo de 1/e (regra para o atraso). |
+| `rosenstein_lyapunov` | função | `(x, *, dim=5, delay=None, dt=1.0, min_tsep=None, n_steps=40, fit=(5, 30), max_points=3000…)` | Maior expoente de Lyapunov estimado pelo método de Rosenstein. |
+| `shuffle_surrogate` | função | `(x, rng) -> np.ndarray` | Surrogate por permutação: mantém a distribuição e destrói a estrutura temporal. |
+| `phase_randomized_surrogate` | função | `(x, rng) -> np.ndarray` | Surrogate de Fourier: mesmo espectro, fases aleatórias. |
+| `iaaft_surrogate` | função | `(x, rng, n_iter=200, tol=1e-08) -> np.ndarray` | Surrogate IAAFT (amplitude e espectro preservados iterativamente). |
+| `nonlinear_prediction_error` | função | `(x, *, dim=4, delay=1, horizon=1, k=10, train_frac=0.5) -> float` | Erro fora da amostra de um previsor local por vizinhos mais próximos. |
+| `time_reversal_asymmetry` | função | `(x, lag=1) -> float` | Terceiro momento normalizado dos incrementos; zero em média para processos reversíveis. |
+| `surrogate_test` | função | `(x, statistic, *, kind='iaaft', n_surrogates=99, alternative='less', seed=0, name=None) -…)` | Teste de posto de uma estatística contra seus valores em surrogates. |
+| `baseline_errors` | função | `(x, horizons, train_frac=0.8) -> dict[str, dict[int, float]]` | RMSE da persistência e da climatologia por horizonte. |
+| `predictability_report` | função | `(x, *, horizons=(1, 2, 4, 8, 16, 32), dt=1.0, max_ar_order=20, pe_order=5, embed_dim=4, n…)` | Relatório consolidado de previsibilidade (AR, entropias, Lyapunov, surrogates, baselines). |
 
 #### `pinneapple_systems.time_series.preparation`
 
-_Módulo sem docstring e sem texto._
+Reexporta o pipeline de preparação (imputação, outliers, reamostragem). [sem teste direto]
 
 <small>`pinneapple_systems/time_series/preparation/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.preparation.imputer`
 
-Missing value treatment with layered interpolation strategies.
+`TimeSeriesImputer`: trata valores ausentes com estratégias de interpolação em camadas, respeitando um tamanho máximo de lacuna.
 
 <small>`pinneapple_systems/time_series/preparation/imputer.py` · 126 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesImputer` | classe | `(strategy='layered', max_gap=None, verbose=False)` | Layered missing-value imputer for time series. |
+| `TimeSeriesImputer` | classe | `(strategy='layered', max_gap=None, verbose=False)` | Imputador em camadas de valores ausentes de séries temporais. |
 
 #### `pinneapple_systems.time_series.preparation.outliers`
 
-Outlier detection and treatment for time series.
+`OutlierDetector`: detecta outliers (IQR móvel, z-score etc.) e os trata por interpolação, winsorização ou outra opção.
 
 <small>`pinneapple_systems/time_series/preparation/outliers.py` · 155 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OutlierDetector` | classe | `(method='rolling_iqr', window=20, iqr_factor=1.5, z_threshold=3.0, treatment='interpolate…)` | Outlier detection (Rolling IQR / Z-Score) with 6 treatment options. |
+| `OutlierDetector` | classe | `(method='rolling_iqr', window=20, iqr_factor=1.5, z_threshold=3.0, treatment='interpolate…)` | Detector e tratador de outliers em séries temporais. |
 
 #### `pinneapple_systems.time_series.preparation.resampler`
 
-Automatic upsampling / downsampling for numeric time-indexed DataFrames.
+`TimeSeriesResampler`: sobe ou desce a frequência de DataFrames numéricos indexados por tempo.
 
 <small>`pinneapple_systems/time_series/preparation/resampler.py` · 122 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesResampler` | classe | `(target_freq, time_col=None, agg_method='mean', upsample_method='linear', numeric_only=Tr…)` | Resample a time-indexed DataFrame to a target frequency. |
+| `TimeSeriesResampler` | classe | `(target_freq, time_col=None, agg_method='mean', upsample_method='linear', numeric_only=Tr…)` | Reamostra um DataFrame indexado por tempo para a frequência alvo. |
 
 #### `pinneapple_systems.time_series.problem`
 
-_Módulo sem docstring e sem texto._
+`ForecastProblemSpec`: definição formal e imutável do problema de previsão (colunas, horizonte, objetivo, métricas, quantis) a ser feita antes da modelagem. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/problem.py` · 54 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ForecastProblemSpec` | classe | `(freq, time_col, target_cols, feature_cols, exog_past_cols, exog_future_cols, input_len, …)` | Formal forecasting problem definition. |
+| `ForecastProblemSpec` | classe | `(freq, time_col, target_cols, feature_cols, exog_past_cols, exog_future_cols, input_len, …)` | Definição formal do problema de previsão; `to_timeseries_spec` gera o `TimeSeriesSpec` de janelamento. |
 
 #### `pinneapple_systems.time_series.registry`
 
-Time series model catalog and default FNO forecaster registration.
+Catálogo de modelos de séries (`TSModelCatalog`) sobre o `ModelRegistry` e registro idempotente do previsor padrão `ts_fno`.
 
 <small>`pinneapple_systems/time_series/registry.py` · 82 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSModelCatalog` | classe | `(families, default_name)` |  |
+| `TSModelCatalog` | classe | `(families, default_name)` | Catálogo que lista e constrói modelos de séries no `ModelRegistry` e monta o FNO padrão. |
 
 #### `pinneapple_systems.time_series.solar_cycle`
 
-Solar-cycle envelope from the daily sunspot number: (E)EMD, the IMF nearest 11 years, its Hilbert amplitude, and a fit of that amplitude by an extreme learning machine (ELM) with the end-point equality f(0) = f(1) built into the basis (a constrained expression of the Theory of Functional …
+Envelope do ciclo solar a partir do número diário de manchas (SILSO): EMD/EEMD, a IMF mais próxima de 11 anos, sua amplitude de Hilbert e ajuste por ELM com restrição de periodicidade (TFC), estendido além dos dados.
 
 <small>`pinneapple_systems/time_series/solar_cycle.py` · 274 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Decomposition` | classe | `(imfs, method, backend, trials, noise_width)` |  |
-| `HilbertResult` | classe | `(amplitude, phase, instantaneous_frequency)` |  |
-| `PeriodicFit` | classe | `(rmse, fitted, forecast_t, forecast, hidden_units, backend, endpoint_error)` |  |
-| `parse_silso_csv` | função | `(source)` | A SILSO daily CSV (path, file-like or bytes; ';'-separated, no header, -1 = missing) to a DataFrame with a DatetimeIndex and the non-missing ``Sunspot`` values. |
-| `fetch_silso_daily` | função | `(url=SILSO_DAILY_URL, timeout=30.0)` | Download and parse the current SILSO daily series (network; raises on failure, never substitutes data). |
-| `synthetic_daily` | função | `(start='2005-01-01', end='2025-06-30', *, period_years=11.0, peak=180.0, seed=0)` | A SILSO-shaped synthetic daily series: a sin^2 cycle of ``period_years`` (minima 3.9 years after ``start``, as 2008.9 is after 2005), ~27-day rotational modulation and multiplicative noise, clipped at 0. Not solar data; for tests and offline demos. |
-| `preprocess` | função | `(df)` | ``(t, y_scaled, (y_min, y_max))``: t = linspace(0, 1, N), y min-max scaled to [0, 1]. |
-| `decompose` | função | `(y, method='emd', *, max_imf=6, trials=16, noise_width=0.05, seed=0, backend='auto') -> D…)` | EMD (deterministic) or EEMD (noise-assisted ensemble of ``trials`` runs) of a 1-D series. |
-| `imf_statistics` | função | `(imfs, dt_days=1.0) -> list[dict[str, Any]]` | Per IMF: dominant period (days and years, from the median positive Hilbert instantaneous frequency), mean instantaneous amplitude and share of the variance of the summed signal. |
-| `closest_to_schwabe_cycle` | função | `(stats) -> tuple[dict \| None, str \| None]` | The IMF whose period is nearest 11 years, and a warning when it is more than 40 % off. |
-| `hilbert_analysis` | função | `(imf, t) -> HilbertResult` | Instantaneous amplitude, unwrapped phase and frequency of one IMF. |
-| `periodic_elm_fit` | função | `(t, y, *, hidden_units=50, forecast_horizon_frac=1.0, n_forecast_points=None, seed=0, bac…)` | Least-squares ELM fit of ``y(t)`` on t in [0, 1] with f(0) = f(1) exact, extended to [1, 1 + horizon]. |
-| `run_pipeline` | função | `(df, *, decomposition_method='emd', max_imf=6, eemd_trials=16, eemd_noise_width=0.05, imf…)` | Steps 1-4 of the module docstring on a daily DataFrame (``Sunspot`` column, DatetimeIndex). |
+| `Decomposition` | classe | `(imfs, method, backend, trials, noise_width)` | Resultado da decomposição: IMFs, método, backend, tentativas e ruído. |
+| `HilbertResult` | classe | `(amplitude, phase, instantaneous_frequency)` | Amplitude, fase e frequência instantâneas de uma IMF. |
+| `PeriodicFit` | classe | `(rmse, fitted, forecast_t, forecast, hidden_units, backend, endpoint_error)` | Resultado do ajuste ELM periódico: RMSE, curva ajustada, previsão e erro no ponto final. |
+| `parse_silso_csv` | função | `(source)` | Converte um CSV diário do SILSO em DataFrame com índice de datas. |
+| `fetch_silso_daily` | função | `(url=SILSO_DAILY_URL, timeout=30.0)` | Baixa e lê a série diária atual do SILSO (rede; falha se não conseguir). |
+| `synthetic_daily` | função | `(start='2005-01-01', end='2025-06-30', *, period_years=11.0, peak=180.0, seed=0)` | Série diária sintética com a forma da do SILSO, para testes e demos offline. |
+| `preprocess` | função | `(df)` | Normaliza tempo para [0, 1] e valores por min-max. |
+| `decompose` | função | `(y, method='emd', *, max_imf=6, trials=16, noise_width=0.05, seed=0, backend='auto') -> D…)` | Decomposição EMD (determinística) ou EEMD (com ruído). |
+| `imf_statistics` | função | `(imfs, dt_days=1.0) -> list[dict[str, Any]]` | Estatísticas por IMF, incluindo período dominante em dias e anos. |
+| `closest_to_schwabe_cycle` | função | `(stats) -> tuple[dict \| None, str \| None]` | Escolhe a IMF de período mais próximo de 11 anos e avisa se estiver longe. |
+| `hilbert_analysis` | função | `(imf, t) -> HilbertResult` | Amplitude, fase e frequência instantâneas de uma IMF pela transformada de Hilbert. |
+| `periodic_elm_fit` | função | `(t, y, *, hidden_units=50, forecast_horizon_frac=1.0, n_forecast_points=None, seed=0, bac…)` | Ajuste por mínimos quadrados de uma ELM com base que impõe f(0) = f(1), e extrapolação. |
+| `run_pipeline` | função | `(df, *, decomposition_method='emd', max_imf=6, eemd_trials=16, eemd_noise_width=0.05, imf…)` | Executa o pipeline completo: preparo, decomposição, escolha da IMF, Hilbert e ajuste ELM. |
 
 #### `pinneapple_systems.time_series.spec`
 
-Time series specification (input_len, horizon, stride, target_offset).
+`TimeSeriesSpec`: comprimento de entrada, horizonte, passo e deslocamento do alvo.
 
 <small>`pinneapple_systems/time_series/spec.py` · 13 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesSpec` | classe | `(input_len, horizon, stride, target_offset)` | Specification for time series input length, horizon, stride, and target offset. |
+| `TimeSeriesSpec` | classe | `(input_len, horizon, stride, target_offset)` | Especificação de janela: `input_len`, `horizon`, `stride` e `target_offset`. |
 
 #### `pinneapple_systems.time_series.synthetic`
 
-Synthetic time series with known ground truth, for forecasting studies.
+Séries sintéticas com verdade conhecida para estudos de previsão: Lorenz-63, Lorenz-96, Mackey-Glass, Ornstein-Uhlenbeck, oscilador estocástico, poço duplo, ruído branco e passeio aleatório, com expoentes de Lyapunov e steppers.
 
 <small>`pinneapple_systems/time_series/synthetic.py` · 364 linhas · testes: 50</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SyntheticSeries` | classe | `(name, t, state, obs, dt, target, observed, params, noise_std, noise_level, lyapunov, kin…)` | A synthetic series and its ground truth. |
-| `rk4_step` | função | `(f, x, dt)` | One classical Runge-Kutta step of ``dx/dt = f(x)`` (NumPy or torch, batched over leading axes). |
-| `lorenz63_rhs` | função | `(x, sigma=10.0, rho=28.0, beta=8.0 / 3.0)` |  |
-| `lorenz96_rhs` | função | `(x, F=8.0)` |  |
-| `mackey_glass_rhs` | função | `(x, x_tau, beta=0.2, gamma=0.1, n=10.0)` |  |
-| `double_well_drift` | função | `(x, a=1.0, b=1.0)` | Drift of a particle in the quartic potential V(x) = -a x^2 / 2 + b x^4 / 4 (minima at +-sqrt(a / b)). |
-| `mackey_glass_step` | função | `(hist, dt, beta=0.2, gamma=0.1, n=10.0) -> np.ndarray` | Advance Mackey-Glass histories by one RK4 step of size ``dt`` (method of steps). |
-| `largest_lyapunov_benettin` | função | `(step, x0, *, step_time, n_steps=20000, transient=2000, d0=1e-08, seed=0) -> float` | Largest Lyapunov exponent (per unit time) of a deterministic map ``x -> step(x)`` by two-trajectory renormalisation (Benettin, Galgani, Giorgilli & Strelcyn 1980, Meccanica 15:9). |
-| `mackey_glass_lyapunov` | função | `(*, dt_int=0.1, total_time=50000.0, transient_time=2000.0, tau=17.0, beta=0.2, gamma=0.1,…)` | Largest Lyapunov exponent (per unit time, natural log) of the Mackey-Glass delay equation. |
-| `lorenz63` | função | `(n=6000, *, dt=0.05, sub=5, noise=0.1, seed=0, sigma=10.0, rho=28.0, beta=8.0 / 3.0, obse…)` | Lorenz-63 sampled every ``dt`` (RK4 with ``sub`` substeps); observation noise ``noise`` x std per column. |
-| `lorenz96` | função | `(n=6000, *, K=40, F=8.0, dt=0.05, sub=5, noise=0.1, seed=0, lyapunov_steps=20000) -> Synt…)` | Lorenz-96 with ``K`` variables, every variable observed, target variable 0. |
-| `mackey_glass` | função | `(n=6000, *, dt=3.0, dt_int=0.1, tau=17.0, beta=0.2, gamma=0.1, n_exp=10.0, noise=0.1, see…)` | Mackey-Glass sampled every ``dt``, integrated with RK4 at ``dt_int`` (tau must be a multiple of dt_int). |
-| `ornstein_uhlenbeck` | função | `(n=6000, *, dt=0.1, theta=1.0, sigma=1.0, noise=0.1, seed=0) -> SyntheticSeries` | Exact sampling: x_{k+1} = e^{-theta dt} x_k + sqrt(sigma^2 (1 - e^{-2 theta dt}) / (2 theta)) eps. |
-| `oscillator_transition` | função | `(omega, zeta, sigma, dt)` | Exact discretisation of d[x, v] = A [x, v] dt + [0, sigma] dW with A = [[0, 1], [-omega^2, -2 zeta omega]]. |
-| `stochastic_oscillator` | função | `(n=6000, *, dt=0.25, omega=1.0, zeta=0.05, sigma=0.3, noise=0.1, seed=0) -> SyntheticSeri…)` | Damped oscillator driven by white noise, position observed with noise (velocity hidden). |
-| `double_well` | função | `(n=6000, *, dt=0.1, sigma=0.7, sub=100, a=1.0, b=1.0, noise=0.1, seed=0) -> SyntheticSeri…)` | Double-well Langevin dynamics (Euler-Maruyama with ``sub`` substeps per sample): two regimes at +-1. |
-| `white_noise` | função | `(n=6000, *, seed=0) -> SyntheticSeries` |  |
-| `random_walk` | função | `(n=6000, *, seed=0) -> SyntheticSeries` |  |
-| `ode_stepper` | função | `(rhs, dt, sub=1) -> Callable[[np.ndarray], np.ndarray]` | A map advancing a batch of states (m, d) of dx/dt = rhs(x) by ``dt`` (``sub`` RK4 substeps). |
-| `mackey_glass_stepper` | função | `(dt_int=0.1, sub=10, **params) -> Callable[[np.ndarray], np.ndarray]` | A map advancing Mackey-Glass histories (m, tau / dt_int + 1) by ``sub`` RK4 steps of ``dt_int``. |
-| `linear_sde_stepper` | função | `(Phi, Q, seed=0) -> Callable[[np.ndarray], np.ndarray]` | A map x -> Phi x + w for a batch of states, with one noise draw w ~ N(0, Q) per call shared by the whole batch: members that differ only in their initial state (sensitivity to initial conditions, same forcing). |
+| `SyntheticSeries` | classe | `(name, t, state, obs, dt, target, observed, params, noise_std, noise_level, lyapunov, kin…)` | Série sintética com sua verdade: estado, observação, parâmetros, ruído e expoente de Lyapunov. |
+| `rk4_step` | função | `(f, x, dt)` | Um passo de Runge-Kutta clássico (NumPy ou torch, em lote). |
+| `lorenz63_rhs` | função | `(x, sigma=10.0, rho=28.0, beta=8.0 / 3.0)` | Lado direito das equações de Lorenz-63. |
+| `lorenz96_rhs` | função | `(x, F=8.0)` | Lado direito das equações de Lorenz-96. |
+| `mackey_glass_rhs` | função | `(x, x_tau, beta=0.2, gamma=0.1, n=10.0)` | Lado direito da equação com atraso de Mackey-Glass. |
+| `double_well_drift` | função | `(x, a=1.0, b=1.0)` | Deriva de uma partícula no potencial quártico de poço duplo. |
+| `mackey_glass_step` | função | `(hist, dt, beta=0.2, gamma=0.1, n=10.0) -> np.ndarray` | Avança históricos de Mackey-Glass por um passo RK4 (método dos passos). |
+| `largest_lyapunov_benettin` | função | `(step, x0, *, step_time, n_steps=20000, transient=2000, d0=1e-08, seed=0) -> float` | Maior expoente de Lyapunov pelo método de Benettin. |
+| `mackey_glass_lyapunov` | função | `(*, dt_int=0.1, total_time=50000.0, transient_time=2000.0, tau=17.0, beta=0.2, gamma=0.1,…)` | Maior expoente de Lyapunov do Mackey-Glass. |
+| `lorenz63` | função | `(n=6000, *, dt=0.05, sub=5, noise=0.1, seed=0, sigma=10.0, rho=28.0, beta=8.0 / 3.0, obse…)` | Gera uma série de Lorenz-63 com ruído de observação. |
+| `lorenz96` | função | `(n=6000, *, K=40, F=8.0, dt=0.05, sub=5, noise=0.1, seed=0, lyapunov_steps=20000) -> Synt…)` | Gera uma série de Lorenz-96 com `K` variáveis. |
+| `mackey_glass` | função | `(n=6000, *, dt=3.0, dt_int=0.1, tau=17.0, beta=0.2, gamma=0.1, n_exp=10.0, noise=0.1, see…)` | Gera uma série de Mackey-Glass. |
+| `ornstein_uhlenbeck` | função | `(n=6000, *, dt=0.1, theta=1.0, sigma=1.0, noise=0.1, seed=0) -> SyntheticSeries` | Gera um processo de Ornstein-Uhlenbeck por amostragem exata. |
+| `oscillator_transition` | função | `(omega, zeta, sigma, dt)` | Discretização exata de um oscilador amortecido com ruído branco. |
+| `stochastic_oscillator` | função | `(n=6000, *, dt=0.25, omega=1.0, zeta=0.05, sigma=0.3, noise=0.1, seed=0) -> SyntheticSeri…)` | Gera um oscilador amortecido forçado por ruído branco. |
+| `double_well` | função | `(n=6000, *, dt=0.1, sigma=0.7, sub=100, a=1.0, b=1.0, noise=0.1, seed=0) -> SyntheticSeri…)` | Gera dinâmica de Langevin num poço duplo (Euler-Maruyama). |
+| `white_noise` | função | `(n=6000, *, seed=0) -> SyntheticSeries` | Gera ruído branco (sem nada a prever). |
+| `random_walk` | função | `(n=6000, *, seed=0) -> SyntheticSeries` | Gera um passeio aleatório. |
+| `ode_stepper` | função | `(rhs, dt, sub=1) -> Callable[[np.ndarray], np.ndarray]` | Mapa que avança um lote de estados de uma EDO por `dt` com RK4. |
+| `mackey_glass_stepper` | função | `(dt_int=0.1, sub=10, **params) -> Callable[[np.ndarray], np.ndarray]` | Mapa que avança históricos de Mackey-Glass. |
+| `linear_sde_stepper` | função | `(Phi, Q, seed=0) -> Callable[[np.ndarray], np.ndarray]` | Mapa `x -> Phi x + w` para uma EDE linear discretizada. |
 
 #### `pinneapple_systems.time_series.tuning`
 
-_Módulo sem docstring e sem texto._
+Reexporta os afinadores Optuna e `temporal_split`. [sem teste direto]
 
 <small>`pinneapple_systems/time_series/tuning/__init__.py` · 4 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.tuning.optuna_tuner`
 
-Optuna-based HPO for all timeseries forecasters (neural + classical).
+Busca de hiperparâmetros com Optuna para os previsores clássicos e neurais, com divisão temporal em três partes.
 
 <small>`pinneapple_systems/time_series/tuning/optuna_tuner.py` · 265 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ClassicalTuner` | classe | `(model_type='xgboost', n_trials=30, direction='minimize', metric='mae', timeout=None)` | Optuna HPO wrapper for classical ML forecasters. |
-| `NeuralTuner` | classe | `(model_type='lstm', n_trials=20, epochs_per_trial=20, lr=0.001, batch_size=64, input_len=…)` | Optuna HPO for PyTorch forecasters. |
-| `temporal_split` | função | `(X, y, val_frac=0.15, test_frac=0.15)` | Chronological 3-way split → (X_tr, y_tr, X_val, y_val, X_te, y_te). |
+| `ClassicalTuner` | classe | `(model_type='xgboost', n_trials=30, direction='minimize', metric='mae', timeout=None)` | Busca de hiperparâmetros com Optuna para previsores de ML clássicos. |
+| `NeuralTuner` | classe | `(model_type='lstm', n_trials=20, epochs_per_trial=20, lr=0.001, batch_size=64, input_len=…)` | Busca de hiperparâmetros com Optuna para previsores neurais (LSTM etc.). |
+| `temporal_split` | função | `(X, y, val_frac=0.15, test_frac=0.15)` | Divisão cronológica em treino, validação e teste. |
 
 #### `pinneapple_systems.time_series.uncertainty`
 
-_Módulo sem docstring e sem texto._
+Reexporta `QuantileConfig`, `QuantileHead` e `QuantileLoss`. [shim] [sem teste]
 
 <small>`pinneapple_systems/time_series/uncertainty/__init__.py` · 2 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.uncertainty.quantile`
 
-_Módulo sem docstring e sem texto._
+[shim] Reexporta a regressão por quantis de `pinneapple_analysis.uncertainty.quantile` para usuários antigos de `pinneapple_timeseries`. [sem teste]
 
 <small>`pinneapple_systems/time_series/uncertainty/quantile.py` · 8 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.validation`
 
-_Módulo sem docstring e sem texto._
+Reexporta os divisores de validação e o executor de backtest.
 
 <small>`pinneapple_systems/time_series/validation/__init__.py` · 16 linhas · testes: 20</small>
 
 #### `pinneapple_systems.time_series.validation.backtest`
 
-_Módulo sem docstring e sem texto._
+`BacktestRunner`: treina e avalia um modelo em cada dobra de validação temporal e agrega as métricas.
 
 <small>`pinneapple_systems/time_series/validation/backtest.py` · 111 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BacktestConfig` | classe | `(reset_model_each_fold, shuffle_train, val_batch_size)` | Backtesting settings. |
-| `BacktestResult` | classe | `(folds, agg)` |  |
-| `BacktestRunner` | classe | `(*, trainer_factory, model_factory, datamodule, splits, train_cfg, preprocess_factory=Non…)` | Train/evaluate a model across a sequence of time-series splits. |
+| `BacktestConfig` | classe | `(reset_model_each_fold, shuffle_train, val_batch_size)` | Configuração do backtest (reiniciar modelo por dobra, embaralhar treino, batch de validação). |
+| `BacktestResult` | classe | `(folds, agg)` | Resultado do backtest: métricas por dobra e agregadas. |
+| `BacktestRunner` | classe | `(*, trainer_factory, model_factory, datamodule, splits, train_cfg, preprocess_factory=Non…)` | Treina e avalia um modelo em cada dobra temporal. |
 
 #### `pinneapple_systems.time_series.validation.splitters`
 
-_Módulo sem docstring e sem texto._
+Divisores de validação temporal: janela expansiva, janela móvel, walk-forward e k-fold com purga/embargo, e k-fold embaralhado (mantido só para medir o otimismo).
 
 <small>`pinneapple_systems/time_series/validation/splitters.py` · 163 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Split` | classe | `(fold, train_idx, val_idx, test_idx)` | A single backtesting fold expressed as indices of the windowed dataset. |
-| `ExpandingWindowSplitter` | classe | `(initial_train_size, val_size, step_size, gap, max_folds)` | Walk-forward validation with an expanding training window. |
-| `RollingWindowSplitter` | classe | `(train_size, val_size, step_size, gap, max_folds)` | Walk-forward validation with a fixed-size rolling training window. |
-| `PurgedWalkForwardSplitter` | classe | `(n_folds, val_size, purge, embargo, window, min_train)` | Walk-forward (rolling-origin) validation over forecast origins with purge and embargo. |
-| `PurgedKFoldSplitter` | classe | `(n_folds, purge, embargo)` | K contiguous folds; training on both sides of the validation fold with purge before and embargo after. |
-| `ShuffledKFoldSplitter` | classe | `(n_folds, seed)` | Ordinary shuffled k-fold, which ignores time: kept to measure how optimistic it is on serial data. |
+| `Split` | classe | `(fold, train_idx, val_idx, test_idx)` | Uma dobra de backtest em índices do dataset em janelas. |
+| `ExpandingWindowSplitter` | classe | `(initial_train_size, val_size, step_size, gap, max_folds)` | Walk-forward com janela de treino crescente. |
+| `RollingWindowSplitter` | classe | `(train_size, val_size, step_size, gap, max_folds)` | Walk-forward com janela de treino de tamanho fixo. |
+| `PurgedWalkForwardSplitter` | classe | `(n_folds, val_size, purge, embargo, window, min_train)` | Walk-forward sobre origens de previsão com purga e embargo contra vazamento. |
+| `PurgedKFoldSplitter` | classe | `(n_folds, purge, embargo)` | K dobras contíguas com purga antes e embargo depois da validação. |
+| `ShuffledKFoldSplitter` | classe | `(n_folds, seed)` | K-fold embaralhado comum, que ignora o tempo; mantido só para medir o otimismo. |
 
 #### `pinneapple_systems.time_series.viz`
 
-_Módulo sem docstring e sem texto._
+Reexporta os gráficos de previsão e a animação. [sem teste]
 
 <small>`pinneapple_systems/time_series/viz/__init__.py` · 18 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.time_series.viz.animation`
 
-Animated rolling forecast visualization with optional MP4 export.
+Animação de previsão móvel com bandas de incerteza e exportação opcional para MP4. [sem teste]
 
 <small>`pinneapple_systems/time_series/viz/animation.py` · 114 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `animate_rolling_forecast` | função | `(y_true, y_pred_seq, y_std_seq=None, horizon=16, context_len=64, interval=80, sigmas=(1.0…)` | Create an animated rolling forecast. |
+| `animate_rolling_forecast` | função | `(y_true, y_pred_seq, y_std_seq=None, horizon=16, context_len=64, interval=80, sigmas=(1.0…)` | Anima a previsão móvel com bandas de incerteza; exporta MP4 opcionalmente. |
 
 #### `pinneapple_systems.time_series.viz.forecast`
 
-Forecast visualization: rolling predictions, confidence bands, parity plots.
+Gráficos de previsão: previsão móvel com bandas, horizonte com contexto, paridade, resíduos e comparação de backtests. [sem teste]
 
 <small>`pinneapple_systems/time_series/viz/forecast.py` · 209 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_rolling_forecast` | função | `(y_true, y_pred, y_std=None, sigmas=(1.0, 2.0, 3.0), title='Rolling Forecast', xlabel='Ti…)` | Plot actual vs. predicted with ±1σ/2σ/3σ confidence bands. |
-| `plot_forecast_horizon` | função | `(y_context, y_true, y_pred, y_std=None, sigmas=(1.0, 2.0), title='Forecast', figsize=(12,…)` | Plot context + future ground truth + forecast with confidence bands. |
-| `plot_parity` | função | `(y_true, y_pred, title='Parity Plot', figsize=(5, 5), ax=None)` | Scatter plot of actual vs. predicted with diagonal reference line. |
-| `plot_residuals` | função | `(y_true, y_pred, title='Residual Analysis', figsize=(14, 4))` | Three-panel: residuals vs time, histogram, Q-Q plot. |
-| `plot_backtest` | função | `(y_true, predictions, title='Backtest Comparison', figsize=(14, 5))` | Overlay multiple model predictions on ground truth. |
+| `plot_rolling_forecast` | função | `(y_true, y_pred, y_std=None, sigmas=(1.0, 2.0, 3.0), title='Rolling Forecast', xlabel='Ti…)` | Previsão móvel com bandas de 1, 2 e 3 sigmas. |
+| `plot_forecast_horizon` | função | `(y_context, y_true, y_pred, y_std=None, sigmas=(1.0, 2.0), title='Forecast', figsize=(12,…)` | Contexto, verdade futura e previsão com bandas. |
+| `plot_parity` | função | `(y_true, y_pred, title='Parity Plot', figsize=(5, 5), ax=None)` | Dispersão real contra previsto com diagonal de referência. |
+| `plot_residuals` | função | `(y_true, y_pred, title='Residual Analysis', figsize=(14, 4))` | Três painéis de resíduos: no tempo, histograma e Q-Q. |
+| `plot_backtest` | função | `(y_true, predictions, title='Backtest Comparison', figsize=(14, 5))` | Sobrepõe previsões de vários modelos à verdade. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Previsão adaptativa com especialistas padrão** — `examples/time_series/adaptive_forecasting.py`
+
+```python
+def main(out="adaptive_forecasting.png"):
+    y = make_series()
+    run = AdaptiveForecaster(default_experts(season_length=12), horizon=3).run(y, start=60)
+    err = run.errors(h=1)
+    for name in sorted(err, key=lambda k: err[k]["mae"]):
+        print(f"{name:26s} MAE {err[name]['mae']:.3f}")
+    print("interval coverage (90 % target):", round(run.coverage(1), 3))
+    print("leading model changes (first 10):", run.switches()[:10])
+```
+
+**Execução de um grafo de co-simulação com gravador** — `examples/pinneapple_cosim/01_spring_mass_pinn.py`
+
+```python
+engine_eval = CoSimEngine(
+    graph_eval, recorder=recorder, loop_solver="gauss_seidel", max_iter=1
+)
+engine_eval.reset()
+engine_eval.initialize_ports(_INIT_PORTS)
+
+with torch.no_grad():
+    engine_eval.run(T=T_END, dt=DT)
+
+traj_x1 = recorder.get("mass1", "x1")
+traj_v1 = recorder.get("mass1", "v1")
+```
+
+**Sinal PRBS de dois níveis** — `tests/test_excitation.py`
+
+```python
+def test_prbs_two_levels_and_switches_only_on_clock():
+    n, dwell, lo, hi = 1000, 0.05, -2.0, 3.0
+    u = actuator_series("prbs", n, lo=lo, hi=hi, seed=7, dwell=dwell)
+    assert set(np.unique(u)) == {lo, hi}
+    hold = int(round(dwell * n))
+    switches = np.flatnonzero(np.diff(u)) + 1           # first sample of each new level
+    assert switches.size > 0 and np.all(switches % hold == 0)
+```
 
 ### Testes e status de validação
 
@@ -5253,7 +5302,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O atalho `forecast` da raiz chama `cls(horizon=...)`, `fit(data)` e `predict(horizon)`, mas `LSTMForecaster`, `GRUForecaster`, `NBeats`, `TCNForecaster` e `TFTForecaster` são `nn.Module` sem `fit`/`predict`, e o padrão `auto` vira `lstm`; o atalho não tem teste e não parece funcionar como descrito.
+- `cosim_from_models` cria todos os nós com portas fixas `input` e `output`; conexões como `fluid.T` do exemplo no docstring falham na validação de portas.
+- Muitas dependências são opcionais e importadas sob demanda: `statsmodels`, `pmdarima`, `ruptures`, `PyEMD`, `xgboost`, `lightgbm`, `catboost`, `optuna`, `sympy`, `chronos-forecasting`, `timesfm`, Blender (`pinneapple_blender`) e ffmpeg; sem elas, as funções correspondentes falham ou devolvem erro.
+- Os módulos `enso.data`, `datasets.public`, `solar_cycle.fetch_silso_daily` e `foundation_models` precisam de rede para baixar dados ou pesos; os dados do SILSO têm licença não comercial (CC BY-NC 4.0).
+- `NotImplementedError`: `TSModelBase.forward`, `ForecastModel.fit`, `Forecaster._predict_mean` (base), `ColumnSubset._fit` (não usado) e `ChronosForecaster.predict_samples` para pipelines Chronos sem amostragem.
+- `uncertainty` e `uncertainty.quantile` são shims que reexportam de `pinneapple_analysis`; o docstring de `foundation_models` cita um `time_series.classical_ts` que não existe no pacote.
+- Vários módulos não têm teste direto: `cosimulation.connection`, `cosimulation.utils`, `audit`, `csv_loader`, `eda`, `viz`, `features`, `baselines.naive`, `fft_lstm`, `hht_lstm`, `metrics`, `enso.plots`, `enso.study` e partes do `forecast_lab` (`base`, `baselines`, `hybrid`, `learned`).
+- `registry` importa `fno_forecaster` sem `try/except`, então importar `time_series` exige `pinneapple_neural` com o FNO, embora `models/__init__` trate esse import como opcional.
 
 ## 3. `pinneapple_twin3d`
 

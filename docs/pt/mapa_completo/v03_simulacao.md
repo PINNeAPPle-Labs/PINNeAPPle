@@ -1834,7 +1834,7 @@ Modelos de piloto e piloto automático: atitude de arfagem, altitude, velocidade
 | `Autopilot` | classe | `(ac, trim, derivs, design=None, altitude=None, heading=None, speed=None, omega_h=0.25, ta…)` | Piloto automático com manutenção de altitude, asas niveladas/proa, amortecedor de guinada e manete automática. |
 | `TakeoffSchedule` | classe | `(V_R, theta_rotation, rotation_rate, V_climb, theta_max, theta_min, runway_heading, flap,…)` | Cronograma de decolagem: V_R, atitude e taxa de rotação, velocidade de subida, limites de arfagem, proa da pista, flap e manete. |
 | `TakeoffPilot` | classe | `(ac, sched, derivs, design=None)` | Piloto de decolagem: manete total e flap, mantém o eixo da pista no solo, roda em V_R e sobe na velocidade alvo. |
-| `wrap` | função | `(a) -> float` | Normaliza um ângulo para o intervalo (-pi, pi]. |
+| `wrap` | função | `(a) -> float` | Normaliza um ângulo para o intervalo [-pi, pi). |
 
 #### `pinneapple_simulation.flight.encounter`
 
@@ -2026,7 +2026,7 @@ Cenas 3-D de um voo (aeronave na trajetória, pista, rajadas como setas, carga d
 | `frame_indices` | função | `(hist, n_frames) -> np.ndarray` | Índices do histórico usados como quadros da animação. |
 | `flight_scene` | função | `(ac, hist, *, n_frames=240, wind=None, runway=True, runway_length=None, gust_grid=7, gust…)` | Cena 3-D animada de um voo, com pista, rajadas, carga e HUD opcionais. |
 | `gust_wisps` | função | `(ac, hist, wind, n_lat=5, n_vert=3, spacing=None, exaggeration=0.6, ahead=0.15)` | Linhas estáticas que mostram o campo de rajada congelado ao longo do trajeto. |
-| `scene_summary` | função | `(sc) -> dict[str, Any]` | Resumo em dicionário de uma cena gerada. |
+| `scene_summary` | função | `(sc) -> dict[str, Any]` | Resume uma cena gerada: número de superfícies, de triângulos e de quadros da animação. |
 
 #### `pinneapple_simulation.geophysics`
 
@@ -2082,91 +2082,91 @@ Equações de águas rasas na esfera em rotação: solver espectral (vorticidade
 
 #### `pinneapple_simulation.meshless`
 
-Meshless and mesh-based solvers of the same 2-D problems, and the study that compares them.
+Métodos sem malha e com malha para os mesmos problemas 2-D e o estudo que os compara; reexporta domínios, problemas, métodos e `meshless_study`.
 
 <small>`pinneapple_simulation/meshless/__init__.py` · 23 linhas · testes: 14</small>
 
 #### `pinneapple_simulation.meshless.contracts`
 
-A meshless study as the apps' ``StudyResult`` contract (``pinneapple_data.contracts``): one table row per method and spacing, the convergence and the winners as metrics, and checks that carry the value they were decided on.
+Converte um estudo meshless no contrato `StudyResult` dos apps (`pinneapple_data.contracts`): tabela por método e espaçamento, convergência, vencedores e checagens. [sem teste direto]
 
 <small>`pinneapple_simulation/meshless/contracts.py` · 50 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `meshless_checks` | função | `(res) -> list` | Observed order against the expected one where the solution is smooth enough to expect it, and stability. |
-| `study_result` | função | `(res, *, study_id, title, limits=(), app='meshless')` |  |
+| `meshless_checks` | função | `(res) -> list` | Checagens do estudo: ordem observada contra a esperada onde a solução é suave, e estabilidade. |
+| `study_result` | função | `(res, *, study_id, title, limits=(), app='meshless')` | Monta o `StudyResult` de um estudo meshless com tabela, métricas, checagens e proveniência. |
 
 #### `pinneapple_simulation.meshless.domains`
 
-2-D domains and node sets for the meshless study.
+Domínios 2-D (por SDF, polígonos com furos, presets ou nuvem de pontos enviada) e geração de conjuntos de nós para o estudo. [sem teste direto]
 
 <small>`pinneapple_simulation/meshless/domains.py` · 218 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NodeSet` | classe | `(X, boundary, h)` |  |
-| `Domain2D` | classe | `(name, sdf, pieces, lo, hi, description, cloud, eval_points)` |  |
-| `polygon_domain` | função | `(vertices, name='polygon', holes=()) -> Domain2D` | A simple polygon (vertices in order), optionally with circular holes ``((cx, cy), r)``. |
-| `domain` | função | `(name) -> Domain2D` | A preset: ``square``, ``lshape``, ``disk``, ``annulus``, ``plate_hole``. |
-| `point_cloud_domain` | função | `(X, boundary, *, eval_fraction=0.1, seed=0, name='point cloud') -> Domain2D` | An uploaded point cloud: nodes ``X`` (N, 2) with a boundary flag. ``eval_fraction`` of the interior points are held out as evaluation points (not used by any method). |
+| `NodeSet` | classe | `(X, boundary, h)` | Conjunto de nós com marca de contorno e espaçamento h. |
+| `Domain2D` | classe | `(name, sdf, pieces, lo, hi, description, cloud, eval_points)` | Domínio 2-D com SDF, contorno, caixa, nuvem opcional e pontos de avaliação, que gera nós e amostras. |
+| `polygon_domain` | função | `(vertices, name='polygon', holes=()) -> Domain2D` | Cria um domínio poligonal, opcionalmente com furos circulares. |
+| `domain` | função | `(name) -> Domain2D` | Devolve um domínio preset: square, lshape, disk, annulus ou plate_hole. |
+| `point_cloud_domain` | função | `(X, boundary, *, eval_fraction=0.1, seed=0, name='point cloud') -> Domain2D` | Cria um domínio a partir de uma nuvem de pontos enviada, separando uma fração para avaliação. |
 
 #### `pinneapple_simulation.meshless.methods`
 
-Five ways to solve the same 2-D problem on the same domain.
+Cinco formas de resolver o mesmo problema 2-D: Kansa (RBF global), RBF-FD, diferenças finitas com Shortley-Weller, FEM P1 e PINN, com custo de montagem, solve, número de condição e amplificação de ruído.
 
 <small>`pinneapple_simulation/meshless/methods.py` · 427 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Discretization` | classe | `(method, nodes, evaluate, setup_s, L, K, M, kansa, info, options)` |  |
-| `default_eps` | função | `(domain) -> float` | Shape parameter of the multiquadric: 3 / diameter (a fixed, not node-scaled, value: spectral convergence until the condition number stops it). |
-| `rbf_fd_weights` | função | `(X, Q, idx, op='lap', degree=4) -> np.ndarray` | RBF-FD weights (q, n) of the stencils ``idx`` (q, n) (rows of ``X``) for the operator ``op`` at the points ``Q``: ``lap`` (the Laplacian) or ``eval`` (interpolation). PHS r³ + all monomials up to ``degree``, in local coordinates centred at the point and scaled by the stencil radius. |
-| `fd_nodes` | função | `(domain, h)` | Grid nodes inside the domain and the points where grid lines cross the boundary. |
-| `discretize` | função | `(method, domain, nodes, **options) -> Discretization` | Build the operator of ``method`` on ``nodes`` (FD builds its own grid nodes at the same spacing). |
-| `solve` | função | `(problem, disc, *, seed=0) -> dict[str, Any]` | Solve on the discretization; returns ``u`` (nodal values, or the network for the PINN) and the costs. |
+| `Discretization` | classe | `(method, nodes, evaluate, setup_s, L, K, M, kansa, info, options)` | Operador discretizado de um método nos seus nós, com interpolador, matrizes, custo de montagem e informações. |
+| `default_eps` | função | `(domain) -> float` | Parâmetro de forma padrão da multiquádrica (3 / diâmetro do domínio). |
+| `rbf_fd_weights` | função | `(X, Q, idx, op='lap', degree=4) -> np.ndarray` | Pesos RBF-FD 2-D dos estênceis para o Laplaciano ou interpolação. |
+| `fd_nodes` | função | `(domain, h)` | Nós de grade dentro do domínio e cruzamentos das linhas de grade com o contorno. |
+| `discretize` | função | `(method, domain, nodes, **options) -> Discretization` | Monta o operador de um método sobre os nós (FD gera sua própria grade). |
+| `solve` | função | `(problem, disc, *, seed=0) -> dict[str, Any]` | Resolve o problema na discretização (permanente ou calor por Crank-Nicolson) e devolve valores e custos. |
 
 #### `pinneapple_simulation.meshless.pinn`
 
-PINN on the meshless node set: the interior nodes are the collocation points, the boundary nodes carry the Dirichlet condition, and training stops at a wall-clock budget (``pinneapple_analysis.cost.train_within_budget``), so the PINN is compared with the other methods at a stated cost. …
+PINN no conjunto de nós do estudo: nós internos como pontos de colocação, nós de contorno com Dirichlet, treino limitado por tempo de parede para comparar com os outros métodos no mesmo custo. [sem teste direto]
 
 <small>`pinneapple_simulation/meshless/pinn.py` · 89 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `train_pinn` | função | `(problem, disc, *, budget_s=5.0, width=32, depth=3, lr=0.002, bc_weight=10.0, n_times=8, …)` |  |
+| `train_pinn` | função | `(problem, disc, *, budget_s=5.0, width=32, depth=3, lr=0.002, bc_weight=10.0, n_times=8, …)` | Treina uma PINN nos nós do estudo dentro de um orçamento de tempo de parede. |
 
 #### `pinneapple_simulation.meshless.problems`
 
-Linear 2-D problems with Dirichlet conditions, defined by expressions in ``x``, ``y`` (and ``t``).
+Problemas lineares 2-D com Dirichlet (Poisson, Helmholtz, calor) definidos por expressões em x, y e t; com solução manufaturada, a fonte e o contorno saem por sympy.
 
 <small>`pinneapple_simulation/meshless/problems.py` · 147 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Problem` | classe | `(kind, exact, source, boundary, initial, k, alpha, t_end, n_steps)` |  |
+| `Problem` | classe | `(kind, exact, source, boundary, initial, k, alpha, t_end, n_steps)` | Problema linear 2-D (Poisson, Helmholtz ou calor) com solução exata opcional, fonte, contorno e condição inicial. |
 
 #### `pinneapple_simulation.meshless.stencils`
 
-Stencil weights in any dimension for meshless discretisations: RBF-FD and GFDM (weighted least squares).
+Pesos de estêncil em qualquer dimensão para discretizações sem malha: RBF-FD (spline poli-harmônica + polinômios) e GFDM (mínimos quadrados ponderados).
 
 <small>`pinneapple_simulation/meshless/stencils.py` · 105 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `monomials` | função | `(dim, degree) -> list[tuple[int, ...]]` | Exponent tuples of every monomial of total degree <= ``degree`` in ``dim`` variables (constant first). |
-| `stencil_weights` | função | `(X, Q, idx, ops=('lap',), *, method='rbf_fd', degree=2, batch=2000) -> dict[str, np.ndarr…)` | Weights ``{op: (q, n)}`` (see the module docstring). ``X``: (N, dim) nodes; ``Q``: (q, dim) query points; ``idx``: (q, n) stencil node indices. |
+| `monomials` | função | `(dim, degree) -> list[tuple[int, ...]]` | Lista os expoentes de todos os monômios de grau total até `degree` em `dim` variáveis. |
+| `stencil_weights` | função | `(X, Q, idx, ops=('lap',), *, method='rbf_fd', degree=2, batch=2000) -> dict[str, np.ndarr…)` | Calcula pesos de estêncil por operador (eval, derivadas, Laplaciano) por RBF-FD ou GFDM. |
 
 #### `pinneapple_simulation.meshless.study`
 
-Refinement study of meshless and mesh-based methods on one problem and one domain.
+Estudo de refinamento: para cada espaçamento e método mede erro, tempos, número de condição e amplificação de ruído, depois ordem de convergência, varredura do parâmetro de forma do Kansa e onde cada método vence. [sem teste direto, mas exercitado por `tests/test_meshless.py` via o pacote]
 
 <small>`pinneapple_simulation/meshless/study.py` · 258 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshlessStudy` | classe | `(problem, domain, rows, convergence, eps_sweep, wins, notes, reference, fields, skipped, …)` |  |
-| `meshless_study` | função | `(problem, dom, h=None, *, methods=…, options=None, pinn_levels='finest', n_eval=2000, tol…)` | Run every method at every spacing in ``h`` (default: three halvings from diameter / 10). ``options``: per method, e.g. ``{"kansa": {"eps": 2.0}, "rbf_fd": {"degree": 3}, "pinn": {"budget_s": 5}}``. ``pinn_levels``: ``finest`` (default, the PINN trains once) or ``all``. |
+| `MeshlessStudy` | classe | `(problem, domain, rows, convergence, eps_sweep, wins, notes, reference, fields, skipped, …)` | Resultado do estudo: linhas por método e espaçamento, convergência, varredura de forma, vencedores, notas, referência e campos. |
+| `meshless_study` | função | `(problem, dom, h=None, *, methods=…, options=None, pinn_levels='finest', n_eval=2000, tol…)` | Roda todos os métodos em todos os espaçamentos e monta o `MeshlessStudy`. |
 
 #### `pinneapple_simulation.multibody`
 
@@ -3248,182 +3248,182 @@ Dataclasses de parâmetros de solo e roda para a interação roda-solo de Bekker
 
 #### `pinneapple_simulation.pipelines`
 
-End-to-end pipelines that chain external tools (CAD, mesher, solver) into one checked, reproducible run.
+Pacote de pipelines de ponta a ponta que encadeiam ferramentas externas (CAD, malhador, solver). [sem teste direto do `__init__`]
 
 <small>`pinneapple_simulation/pipelines/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam`
 
-Headless, reproducible pipelines from a parametric FreeCAD model to a checked OpenFOAM result.
+Pipelines headless e reproduzíveis de um modelo FreeCAD paramétrico a um resultado OpenFOAM checado; reexporta especificação, estudos, varredura e surrogate.
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/__init__.py` · 29 linhas · testes: 14</small>
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.__main__`
 
-``python -m pinneapple_simulation.pipelines.freecad_openfoam``:
+Linha de comando `python -m pinneapple_simulation.pipelines.freecad_openfoam` com `run`, `sweep` e `build`. [sem teste]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/__main__.py` · 46 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Interpreta os subcomandos `run`, `sweep` e `build` e devolve o código de saída. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.cad`
 
-The FreeCAD step: a parametric document in, named boundary patches out.
+Passo de CAD: documento FreeCAD paramétrico de entrada, faces com patches de contorno nomeados por regras na saída, STL multirregião; backend real via `freecadcmd` ou um `FakeFreeCAD` em NumPy para testes.
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/cad.py` · 365 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PatchSpec` | classe | `(name, where, kind)` | One boundary patch: the rule that selects its faces and its kind (``inlet``, ``outlet``, ``wall``, ``symmetry``); a plain string is a rule, the kind then follows the name (inlet*, outlet*, else wall). |
-| `Face` | classe | `(index, type, area, centre, points, triangles)` |  |
-| `CadGeometry` | classe | `(faces, info)` | Faces of one solid in document units (mm), with what the backend reported (volume, validity, files). |
-| `FreeCADBackend` | classe | `(freecadcmd=None, timeout_s=600.0)` | FreeCAD through ``freecadcmd`` (headless). ``timeout_s`` per job. |
-| `FakeFreeCAD` | classe | `()` | The templates of :mod:`.models` built in NumPy: the same faces (types, centres, outward triangles) and spreadsheet parameters as the FreeCAD documents, without FreeCAD. Documents are JSON: ``{"fake_freecad": template, "parameters": {...}, "solid": name}``. |
-| `rule_eval` | função | `(expr, names, functions=None) -> Any` | Value of a patch rule: numbers, names, arithmetic, comparisons (chained), ``and or not`` and a few ``math`` functions (plus ``functions``); anything else raises ``ValueError``. |
-| `assign_patches` | função | `(geom, patches, parameters=None) -> dict[str, list[int]]` | Face indices of each patch: the first rule a face satisfies takes it; ``rest`` takes what is left. Raises ``ValueError`` when a face is left without a patch or a patch gets no face. |
-| `write_stl` | função | `(path, geom, assignment, scale=0.001) -> Path` | ASCII STL with one ``solid <patch>`` per patch (snappyHexMesh turns each into a region), points times ``scale`` (mm -> m by default), merged across faces so shared edges stay shared. |
-| `find_freecadcmd` | função | `() -> str \| None` | ``PINNEAPPLE_FREECADCMD``, the automation toolchain's FreeCAD (``/opt/freecad`` AppImage), or PATH. |
-| `get_backend` | função | `(name='auto')` | ``"freecad"``, ``"fake"``, or ``"auto"`` (FreeCAD when ``freecadcmd`` is found, else the fake). |
+| `PatchSpec` | classe | `(name, where, kind)` | Um patch de contorno: a regra que seleciona suas faces e o tipo (inlet, outlet, wall, symmetry). |
+| `Face` | classe | `(index, type, area, centre, points, triangles)` | Uma face do sólido exportado: tipo, área, centro, pontos e triângulos, com normal. |
+| `CadGeometry` | classe | `(faces, info)` | Faces de um sólido em mm com as informações do backend (volume, validade, arquivos). |
+| `FreeCADBackend` | classe | `(freecadcmd=None, timeout_s=600.0)` | Backend que roda o FreeCAD headless via `freecadcmd`, com timeout por tarefa. |
+| `FakeFreeCAD` | classe | `()` | Backend falso que constrói os modelos em NumPy com as mesmas faces e parâmetros, sem FreeCAD. |
+| `rule_eval` | função | `(expr, names, functions=None) -> Any` | Avalia uma regra de patch restrita (números, nomes, aritmética, comparações, lógica e algumas funções de `math`). |
+| `assign_patches` | função | `(geom, patches, parameters=None) -> dict[str, list[int]]` | Atribui cada face ao primeiro patch cuja regra ela satisfaz; falha se sobrar face sem patch. |
+| `write_stl` | função | `(path, geom, assignment, scale=0.001) -> Path` | Escreve um STL ASCII com um `solid` por patch, convertido de mm para m. |
+| `find_freecadcmd` | função | `() -> str \| None` | Procura o `freecadcmd` (variável de ambiente, AppImage em `/opt/freecad` ou PATH). |
+| `get_backend` | função | `(name='auto')` | Escolhe o backend 'freecad', 'fake' ou 'auto'. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.case`
 
-OpenFOAM case templates for the meshed geometry: steady ``simpleFoam`` or transient ``pimpleFoam``, incompressible, laminar or k-omega SST, with an optional passive scalar (a temperature at low heating, or a concentration).
+Modelos de caso OpenFOAM para a geometria malhada: `simpleFoam` ou `pimpleFoam` incompressível, laminar ou k-omega SST, com escalar passivo opcional.
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/case.py` · 221 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ScalarSpec` | classe | `(name, D, inlet, walls, initial)` | A passive scalar: ``D`` its diffusivity (m²/s; nu / Pr for a temperature), ``inlet`` its value on the inlets, ``walls`` patch -> fixed value or ``"zeroGradient"`` (walls not named: zero gradient). |
-| `Physics` | classe | `(velocity, nu, rho, turbulence, solver, iterations, residual_tol, end_time, dt, max_coura…)` | Incompressible flow: ``velocity`` (m/s, uniform on the inlets), ``nu`` (m²/s), ``rho`` (kg/m³, for forces and pressures in Pa), ``turbulence`` laminar \| kOmegaSST, ``solver`` simpleFoam \| pimpleFoam. Steady: ``iterations`` and ``residual_tol`` (residualControl). Transient: ``end_time``, ``dt``, … |
-| `write_internal_case` | função | `(case, kinds, inlet_normals, physics, procs=1, size=None) -> dict[str, Any]` | 0.orig fields, constant/ and system/ dictionaries and ``Allrun`` of an internal-flow case. |
+| `ScalarSpec` | classe | `(name, D, inlet, walls, initial)` | Escalar passivo: difusividade, valor na entrada, condições nas paredes e valor inicial. |
+| `Physics` | classe | `(velocity, nu, rho, turbulence, solver, iterations, residual_tol, end_time, dt, max_coura…)` | Física do escoamento incompressível: velocidade, viscosidade, densidade, turbulência, solver, iterações, passo e escalar. |
+| `write_internal_case` | função | `(case, kinds, inlet_normals, physics, procs=1, size=None) -> dict[str, Any]` | Escreve campos `0.orig`, dicionários de `constant/` e `system/` e o `Allrun` de um caso de escoamento interno. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.freecad_scripts.fc_job`
 
-_Módulo sem docstring e sem texto._
+Script que roda dentro do Python do FreeCAD (`freecadcmd`), sem importar o PINNeAPPle: constrói os documentos paramétricos dos modelos e exporta STEP e faces trianguladas. [sem teste]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/freecad_scripts/fc_job.py` · 175 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sheet` | função | `(doc, parameters)` |  |
-| `cylinder` | função | `(doc, name, radius, height, placement)` |  |
-| `build_pipe_bend` | função | `(doc, p)` | Straight inlet leg along +x ending at the origin, a bend of radius Rc (centre line) through `angle` degrees about the z axis, a straight outlet leg; diameter D. |
-| `build_heated_pipe` | função | `(doc, p)` | Straight pipe along +x of diameter D: an unheated entry length L_entry from x = 0, then a heated length L_heated (two cylinders, so the wall has one face per section). |
-| `build_spheroid` | função | `(doc, p)` | Spheroid centred at the origin, length L along x (the flow direction), diameter D across (L = D: sphere). |
-| `set_parameters` | função | `(doc, parameters)` |  |
-| `faces_of` | função | `(shape, tol)` |  |
-| `main` | função | `()` |  |
+| `sheet` | função | `(doc, parameters)` | Cria a planilha `Params` com um alias por parâmetro. |
+| `cylinder` | função | `(doc, name, radius, height, placement)` | Cria um `Part::Cylinder` com raio, altura e posição dados por expressões. |
+| `build_pipe_bend` | função | `(doc, p)` | Constrói o modelo de curva de tubo: perna reta, curva de raio Rc e perna de saída. |
+| `build_heated_pipe` | função | `(doc, p)` | Constrói o tubo reto com trecho de entrada não aquecido e trecho aquecido. |
+| `build_spheroid` | função | `(doc, p)` | Constrói um esferoide centrado na origem (esfera quando L = D). |
+| `set_parameters` | função | `(doc, parameters)` | Define os valores dos aliases das planilhas de um documento. |
+| `faces_of` | função | `(shape, tol)` | Triangula as faces de um sólido e devolve tipo, área, centro, pontos e triângulos. |
+| `main` | função | `()` | Lê a tarefa (build ou export) e grava o resultado em JSON. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.mesh`
 
-Meshing the exported geometry: blockMesh background + snappyHexMesh (always available), or cfMesh's ``cartesianMesh`` when it is installed (``mesher="auto"`` picks it then).
+Malha da geometria exportada: blockMesh + snappyHexMesh, ou `cartesianMesh` do cfMesh quando instalado, com decomposição e scripts `Allmesh`/`Allrun`.
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/mesh.py` · 193 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshSpec` | classe | `(cells_across, length, level, mesher, feature_angle, max_non_ortho)` | ``cells_across``: cells across ``length`` (a parameter name, mm, or a number in mm) near the walls; ``level``: snappyHexMesh surface level (the background is ``level`` times coarser by 2); ``mesher``: snappy, cfmesh or auto. ``max_non_ortho`` is the snappy quality limit. |
-| `has_cfmesh` | função | `(bashrc=None) -> bool` |  |
-| `split_procs` | função | `(procs, size) -> tuple[int, int, int]` | Split ``procs`` into (nx, ny, nz) along the longest sides of the box first. |
-| `decompose_dict` | função | `(case, procs, size) -> None` | hierarchical decomposition (scotch / metis can be stubs in some builds). |
-| `allmesh_script` | função | `(procs, mesher='snappy') -> str` |  |
-| `allrun_script` | função | `(solver, procs, scalar=False) -> str` | Copy ``0.orig`` to ``0`` and run ``solver`` (decomposed with MPI when ``procs > 1``, then the latest time reconstructed); the solver log is ``log.<solver>`` in the case. ``scalar``: then 20 steady iterations of ``scalarTransportFoam`` on the converged flow (log ``log.scalarTransport``). |
-| `write_internal_mesh` | função | `(case, stl, patches, inside, cell_size, spec, procs=1, bashrc=None) -> dict[str, Any]` | Dictionaries and ``Allmesh`` of an internal-flow mesh of the closed multi-solid ``stl`` (metres). |
+| `MeshSpec` | classe | `(cells_across, length, level, mesher, feature_angle, max_non_ortho)` | Especificação da malha: células através de um comprimento, nível de superfície, malhador, ângulo de feature e não ortogonalidade máxima. |
+| `has_cfmesh` | função | `(bashrc=None) -> bool` | Diz se o cfMesh (`cartesianMesh`) está instalado. |
+| `split_procs` | função | `(procs, size) -> tuple[int, int, int]` | Divide o número de processos em (nx, ny, nz) pelos lados mais longos da caixa. |
+| `decompose_dict` | função | `(case, procs, size) -> None` | Escreve um `decomposeParDict` hierárquico. |
+| `allmesh_script` | função | `(procs, mesher='snappy') -> str` | Gera o script `Allmesh` para snappyHexMesh ou cfMesh. |
+| `allrun_script` | função | `(solver, procs, scalar=False) -> str` | Gera o script `Allrun` que copia `0.orig` e roda o solver, em paralelo se pedido. |
+| `write_internal_mesh` | função | `(case, stl, patches, inside, cell_size, spec, procs=1, bashrc=None) -> dict[str, Any]` | Escreve os dicionários e o `Allmesh` de uma malha interna a partir do STL fechado. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.models`
 
-Parametric FreeCAD templates the pipeline ships, with their default patch rules and a NumPy twin for tests.
+Modelos FreeCAD paramétricos que o pipeline traz (pipe_bend, heated_pipe, spheroid), com regras de patch padrão e um gêmeo NumPy para testes. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/models.py` · 196 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Model` | classe | `(name, title, flow, solid, parameters, patches, fake)` |  |
-| `build_document` | função | `(template, output, parameters=None, backend='auto') -> dict[str, Any]` | Write the parametric document of ``template`` (defaults overridden by ``parameters``) with FreeCAD, or a fake document with :class:`~.cad.FakeFreeCAD` (``backend="fake"``, or ``"auto"`` without FreeCAD). |
+| `Model` | classe | `(name, title, flow, solid, parameters, patches, fake)` | Modelo paramétrico: nome, tipo de escoamento, sólido, parâmetros com limites, regras de patch e gêmeo falso. |
+| `build_document` | função | `(template, output, parameters=None, backend='auto') -> dict[str, Any]` | Escreve o documento paramétrico de um modelo com FreeCAD ou um documento falso. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.pipeline`
 
-A parametric FreeCAD model to a checked OpenFOAM result, as one reproducible workflow.
+Descreve um estudo FreeCAD -> OpenFOAM (`PipelineSpec`) e o transforma num workflow de `pinneapple_tools.automation` com passos cad, case, mesh, solve, post e verify, retomável. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/pipeline.py` · 231 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PipelineSpec` | classe | `(id, title, template, document, solid, flow, parameters, inputs, patches, physics, mesh, …)` | One FreeCAD -> OpenFOAM study. |
-| `evaluate` | função | `(expr, names) -> Any` | A number, or the value of an expression (see :func:`.cad.rule_eval`) with the reference functions. |
-| `resolve_physics` | função | `(physics, inputs) -> dict[str, Any]` | Physics values with expressions evaluated in order (a later key may use an earlier one, e.g. ``velocity = Re * nu / (D * 1e-3)``); nested dicts (the scalar) too. |
-| `run_pipeline` | função | `(spec, folder, inputs=None, approve=True, approver='pipeline')` | Run (or resume) the study in ``folder`` with ``inputs`` (document parameters and other inputs). ``approve``: every step is approved (the solver is ``expensive``; a resumed step overwrites its own earlier files); without it the run stops at the first step that asks. Returns the automation … |
+| `PipelineSpec` | classe | `(id, title, template, document, solid, flow, parameters, inputs, patches, physics, mesh, …)` | Um estudo FreeCAD -> OpenFOAM: modelo, parâmetros, patches, física, malha, seções, grandezas derivadas e referências. |
+| `evaluate` | função | `(expr, names) -> Any` | Avalia um número ou uma expressão com as funções de referência. |
+| `resolve_physics` | função | `(physics, inputs) -> dict[str, Any]` | Avalia em ordem as expressões dos valores físicos a partir das entradas. |
+| `run_pipeline` | função | `(spec, folder, inputs=None, approve=True, approver='pipeline')` | Roda ou retoma o estudo numa pasta com as entradas dadas e devolve o registro da rodada. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.post`
 
-Post-processing of a finished internal-flow case: what the pipeline reports and checks.
+Pós-processamento de um caso de escoamento interno terminado: pressões, fluxos, seções, forças, y+, Courant e figuras, lido com o leitor de volumes finitos de `pinneapple_check`. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/post.py` · 322 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Section` | classe | `(name, origin, normal, radius)` | A disc of ``radius`` (m) centred at ``origin`` (m) with unit ``normal`` (the positive flow direction). |
-| `CaseResult` | classe | `(case, scalar=None)` | Fields of the latest time of a case on its mesh: cell centres, volumes, U, p and the scalar, the boundary patches and their face values, with nearest-cell sampling. |
-| `section_average` | função | `(res, sec) -> dict[str, float]` | Area-averaged p (kinematic), flux and bulk scalar over the part of the disc inside the fluid. |
-| `wall_loads` | função | `(case, walls, nu, rho) -> dict[str, Any]` | Pressure and viscous force (N) on the wall patches and y+ of their first cells, from the written fields: :meth:`~pinneapple_simulation.numerical_solvers.external_flow.CaseFields.wall` (laminar sublayer, log law above y+ = 11.25), y+ = d u_tau / nu with d the wall distance of the first cell centre. |
-| `read_case` | função | `(case, kinds, rho, sections=(), scalar=None, nu=1e-06) -> dict[str, Any]` | Every measured quantity of a finished case (see the module docstring); pressures in Pa. |
-| `plane_figure` | função | `(res, path, origin, normal, title, rho, scalar_label=None, n=360) -> Path` | Speed, pressure (and the scalar) sampled on a plane through the domain; outside the fluid is blank. |
-| `mesh_figure` | função | `(res, path, origin, normal, title) -> Path` | The cells cut by a plane, each drawn as a square of its size at its centre (snappyHexMesh cells are cubes away from the walls), coloured by size. |
-| `geometry_figure` | função | `(geom, assignment, path, title) -> Path` | The exported solid with its faces coloured by patch (3-D, matplotlib). |
+| `Section` | classe | `(name, origin, normal, radius)` | Disco de amostragem (centro, normal, raio) para médias numa seção transversal. |
+| `CaseResult` | classe | `(case, scalar=None)` | Campos do último tempo de um caso na malha (centros, volumes, U, p, escalar, patches) com amostragem pela célula mais próxima. |
+| `section_average` | função | `(res, sec) -> dict[str, float]` | Médias de pressão, fluxo e escalar na parte do disco dentro do fluido. |
+| `wall_loads` | função | `(case, walls, nu, rho) -> dict[str, Any]` | Forças de pressão e viscosas nas paredes e y+ das primeiras células. |
+| `read_case` | função | `(case, kinds, rho, sections=(), scalar=None, nu=1e-06) -> dict[str, Any]` | Todas as grandezas medidas de um caso terminado (pressões em Pa). |
+| `plane_figure` | função | `(res, path, origin, normal, title, rho, scalar_label=None, n=360) -> Path` | Figura de velocidade, pressão e escalar num plano através do domínio. |
+| `mesh_figure` | função | `(res, path, origin, normal, title) -> Path` | Figura das células cortadas por um plano, coloridas pelo tamanho. |
+| `geometry_figure` | função | `(geom, assignment, path, title) -> Path` | Figura 3-D do sólido exportado com faces coloridas por patch. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.report`
 
-Validation of a study: the same case on successively finer meshes, Richardson extrapolation (Roache's GCI, :func:`pinneapple_analysis.verification.convergence.richardson_extrapolate`), the error of every mesh and of the extrapolated value against the reference, a table and figures.
+Validação de um estudo: o mesmo caso em malhas cada vez mais finas, extrapolação de Richardson (GCI), erro contra a referência, tabela e figuras. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/report.py` · 154 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mesh_study` | função | `(factory, resolutions, folder, reference, inputs=None, h_of=None, **kw) -> dict[str, Any]` | Run ``factory(resolution, **kw)`` for each resolution (coarse to fine) in ``folder/r<resolution>`` (resumed when already run) and extrapolate the measured value of reference ``reference``. ``h_of``: the cell size of a resolution (default 1 / resolution: cells across a length; for snappy surface … |
-| `mesh_study_figure` | função | `(studies, path, labels=None) -> Path` | One panel per mesh study: measured value against cell size, the reference and its tolerance band, the Richardson-extrapolated value at h = 0. |
-| `sweep_figure` | função | `(rows, inputs, output, study, path, unit='') -> Path` | The sweep (``output`` over the first two inputs) and the surrogate's predictions against the solver on the training and the held-out cases. |
-| `validation_markdown` | função | `(studies) -> str` | The measured validation table (one row per mesh, then the extrapolated value). |
+| `mesh_study` | função | `(factory, resolutions, folder, reference, inputs=None, h_of=None, **kw) -> dict[str, Any]` | Roda o caso em várias resoluções, faz extrapolação de Richardson e compara com a referência. |
+| `mesh_study_figure` | função | `(studies, path, labels=None) -> Path` | Figura por estudo de malha: valor contra tamanho de célula, referência, tolerância e valor extrapolado. |
+| `sweep_figure` | função | `(rows, inputs, output, study, path, unit='') -> Path` | Figura da varredura e das previsões do surrogate contra o solver nos casos de treino e de teste. |
+| `validation_markdown` | função | `(studies) -> str` | Tabela Markdown de validação (uma linha por malha e o valor extrapolado). |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.steps`
 
-The three pipeline actions that are not plain OpenFOAM commands, as functions of their parameters and a step folder. The automation adapters (``freecadcmd.export``, ``openfoam.prepare``, ``openfoam.post`` in :mod:`pinneapple_tools.automation.adapters.pipeline`) wrap them; each returns ``{"outputs", …
+As três ações do pipeline que não são comandos OpenFOAM puros (cad, prepare, post) como funções de parâmetros e pasta, embrulhadas pelos adaptadores de automação.
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/steps.py` · 340 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `point_inside` | função | `(V, F, p) -> bool` | Whether ``p`` is inside the closed triangle mesh (parity of crossings along three skew rays, majority). |
-| `auto_procs` | função | `(cells, cores=None, per_proc=20000.0) -> int` | Processes for a mesh of about ``cells`` cells: one per ``per_proc`` cells, at most the cores here. |
-| `cad_step` | função | `(params, step_dir) -> dict[str, Any]` | Set the parameters, recompute, export, assign patches, write ``geometry.stl`` (m) and ``geometry.png``. |
-| `prepare_step` | função | `(params, step_dir) -> dict[str, Any]` | Mesh dictionaries + case + ``Allmesh`` / ``Allrun`` in ``step_dir/case``. |
-| `post_step` | função | `(params, step_dir) -> dict[str, Any]` | Measured quantities, figures, derived quantities and reference errors of a finished case. |
+| `point_inside` | função | `(V, F, p) -> bool` | Diz se um ponto está dentro de uma malha triangular fechada (paridade de cruzamentos em três raios). |
+| `auto_procs` | função | `(cells, cores=None, per_proc=20000.0) -> int` | Número de processos para uma malha: um por bloco de células, no máximo os núcleos disponíveis. |
+| `cad_step` | função | `(params, step_dir) -> dict[str, Any]` | Define parâmetros, recalcula, exporta, atribui patches e grava `geometry.stl` e `geometry.png`. |
+| `prepare_step` | função | `(params, step_dir) -> dict[str, Any]` | Gera dicionários de malha, o caso e os scripts `Allmesh`/`Allrun`. |
+| `post_step` | função | `(params, step_dir) -> dict[str, Any]` | Grandezas medidas, figuras, grandezas derivadas e erros contra referências de um caso terminado. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.studies`
 
-The worked, validated studies of the pipeline, as :class:`~.pipeline.PipelineSpec` factories (generic geometry, no client data). Each compares a measured quantity with a closed form or a published correlation (:mod:`pinneapple_physics.closed_form`); the measured numbers are in …
+Estudos validados do pipeline como fábricas de `PipelineSpec` (curva de tubo, tubo aquecido, esfera), cada um comparado a forma fechada ou correlação publicada. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/studies.py` · 116 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pipe_bend` | função | `(cells_across=16, backend='auto', procs='auto', bend_window=True) -> PipelineSpec` | Laminar flow through a pipe bend; inputs: the FreeCAD parameters (D, Rc, angle, L_in, L_out) and Re. ``bend_window=False`` drops the sections inside the bend and the White (1929) reference, which need a bend of at least 165° (for sweeps over the angle). |
-| `heated_pipe` | função | `(cells_across=16, backend='auto', procs='auto') -> PipelineSpec` | Laminar thermal entry at constant wall temperature (passive scalar T, inlet 0, heated wall 1). |
-| `sphere` | função | `(surface_level=4, backend='auto', procs='auto') -> PipelineSpec` | Sphere (the spheroid template with L = D) in a uniform stream at low Reynolds number. |
+| `pipe_bend` | função | `(cells_across=16, backend='auto', procs='auto', bend_window=True) -> PipelineSpec` | Fábrica do estudo de escoamento laminar numa curva de tubo. |
+| `heated_pipe` | função | `(cells_across=16, backend='auto', procs='auto') -> PipelineSpec` | Fábrica do estudo de entrada térmica laminar com parede a temperatura constante. |
+| `sphere` | função | `(surface_level=4, backend='auto', procs='auto') -> PipelineSpec` | Fábrica do estudo de esfera em escoamento uniforme a baixo Reynolds. |
 
 #### `pinneapple_simulation.pipelines.freecad_openfoam.sweep`
 
-Parameter sweeps / designs of experiments over the inputs of a :class:`.pipeline.PipelineSpec`, and a surrogate of the results measured on held-out cases.
+Varreduras/DoE sobre as entradas de uma `PipelineSpec` e um surrogate dos resultados avaliado em casos separados. [sem teste direto]
 
 <small>`pinneapple_simulation/pipelines/freecad_openfoam/sweep.py` · 152 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Sweep` | classe | `(spec, design, folder, ids)` | ``spec`` run at every point of ``design`` (list of input dicts) under ``folder``. |
-| `doe` | função | `(bounds, n, method='lhs', seed=0, fixed=None) -> list[dict[str, float]]` | ``n`` points in the box ``bounds`` (name -> (low, high)): ``lhs`` (Latin hypercube), ``sobol`` or ``grid`` (``n`` levels per input, n**d points); ``fixed`` values are added to every point. |
-| `case_id` | função | `(i, inputs) -> str` |  |
-| `fit_surrogate` | função | `(rows, inputs, outputs, *, test_frac=0.25, val_frac=0.15, seed=0, budget=5.0, methods='au…)` | A surrogate of ``outputs`` from ``inputs`` on the finished cases: :func:`pinneapple_analysis.surrogate. run_study` with a random held-out test set (no distribution-shift split: sweeps are small). Returns the study; ``study.ranking("test")`` holds the held-out errors, ``study.model.predict`` the … |
+| `Sweep` | classe | `(spec, design, folder, ids)` | Uma `PipelineSpec` rodada em cada ponto de um desenho de experimentos, com salvar, carregar, estado, pendentes, execução e tabela. |
+| `doe` | função | `(bounds, n, method='lhs', seed=0, fixed=None) -> list[dict[str, float]]` | Gera n pontos numa caixa de parâmetros por hipercubo latino, Sobol ou grade. |
+| `case_id` | função | `(i, inputs) -> str` | Gera o id de um caso da varredura (`c000`, `c001`, ...). |
+| `fit_surrogate` | função | `(rows, inputs, outputs, *, test_frac=0.25, val_frac=0.15, seed=0, budget=5.0, methods='au…)` | Ajusta um surrogate das saídas a partir das entradas nos casos terminados, com conjunto de teste separado (`pinneapple_analysis.surrogate`). |
 
 #### `pinneapple_simulation.robot_sim`
 
@@ -3983,47 +3983,51 @@ def main(days: float = 4.0, out: str = "sphere_and_assimilation.png") -> dict:
     drift = {k: (d1[k] - d0[k]) / d0[k] for k in ("mass", "energy", "potential_enstrophy")}
 ```
 
-**Poisson por FDM e por FFT a partir do registro de solvers** — `examples/solvers/03_poisson_solvers.py`
+**Corpos rígidos com NVIDIA Newton: validar o solver e rodar uma cena** — `examples/rigid_body/newton_quickstart.py`
 
 ```python
-from pinneapple_simulation.numerical_solvers import SolverRegistry, register_all
+from pinneapple_simulation.external_solvers.newton_physics import RigidScene, simulate, validate
 
+# 1. the solver setting against closed-form results
+validate("xpbd")
 
-def main():
-    register_all()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    H = W = 64
-    ...
-    bc = torch.zeros_like(f)
-    fdm = SolverRegistry.build("fdm", iters=2000, omega=0.9).to(device)
-    u_fdm = fdm(f, bc, dx=1 / (W - 1), dy=1 / (H - 1)).result
-    print("u_fdm", u_fdm.shape)
-
-    # periodic spectral
-    spec = SolverRegistry.build("spectral").to(device)
-    u_spec = spec(f).result
+# 2. a crate sliding to rest next to a pendulum
+scene = RigidScene().ground(mu=0.4)
+scene.box("crate", (0.1, 0.1, 0.1), pos=(0, 0, 0.1), vel=(2.0, 0, 0), mu=0.4)
+a = np.radians(20)
+bob = scene.sphere("bob", 0.05, pos=(1.0 + np.sin(a), 0, 2.0 - np.cos(a)))
+scene.revolute(-1, bob, anchor=(1.0, 0, 2.0), axis=(0, 1, 0))
+traj = simulate(scene, duration=2.0, dt=1e-3)
 ```
 
-**Rede de distribuição de água: conservação de massa e energia** — `tests/test_presets.py`
+**Viga em balanço CalculiX: malha, .frd e leitura** — `examples/calculix_pyvista_cantilever.py`
 
 ```python
-def test_pipe_network_conserves_mass_and_energy():
-    from pinneapple_simulation.numerical_solvers.pipe_network import solve_network, two_loop_network
-    for hl in ("HW", "DW"):
-        r = solve_network(two_loop_network(headloss=hl))
-        assert r["continuity_residual"] < 1e-12 and r["energy_residual"] < 1e-6
-        assert r["supply"] == pytest.approx(1120 / 3600, rel=1e-12)
+from pinneapple_simulation.external_solvers.calculix import cantilever_hex_mesh, read_frd, write_frd
+
+L, B, H, E, P = 1.0, 0.1, 0.1, 210e9, 1000.0
+
+model = cantilever_hex_mesh(L, B, H, nx=20, ny=3, nz=3, element_type="C3D8")
+ids, xyz = model.node_array()
+x, z = xyz[:, 0], xyz[:, 2]
+inertia = B * H ** 3 / 12
+deflection = P * x ** 2 * (3 * L - x) / (6 * E * inertia)
+stress = np.zeros((len(ids), 6))
+stress[:, 0] = P * (L - x) * (z - H / 2) / inertia
+
+out = tempfile.mkdtemp()
+frd = read_frd(write_frd(os.path.join(out, "beam.frd"), ids, xyz, model.elements, "C3D8",
+                         {"DISP": np.stack([0 * x, 0 * x, -deflection], 1), "STRESS": stress}))
 ```
 
-**Rover passando pela borda de uma cratera** — `tests/test_lunar_rover.py`
+**Estudo meshless: ordens de convergência e vencedores** — `tests/test_meshless.py`
 
 ```python
-def test_crater_rim_crossing_keeps_every_wheel_loaded(rover):
-    t = LunarTerrain(craters=[Crater(1.3, 0.3, 2.0, rim_ratio=0.02, depth_ratio=0.1)])
-    tr = RoverSimulator(rover, t).run(distance=0.8, v=0.1, dt=0.5)
-    assert tr.failed_at is None
-    assert all(s.converged and (s.Fz > 0).all() for s in tr.states)
-    assert max(abs(math.degrees(s.pose.roll)) for s in tr.states) > 0.5      # off-centre path: the rover rolls
+def test_study_reports_orders_wins_and_the_kansa_sweep():
+    r = meshless_study(Problem("poisson", exact=U), domain("square"), h=[0.1, 0.05], methods=("kansa", "rbf_fd", "fem"))
+    d = r.to_dict()
+    assert {w["criterion"].split(" ")[0] for w in d["wins"]} >= {"Accuracy", "Cheapest", "Fastest", "Best", "Least"}
+    assert d["convergence"]["fem"]["order"] == pytest.approx(2.0, abs=0.3)
 ```
 
 ### Testes e status de validação
@@ -4079,6 +4083,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - Dados de aço e ímã (`machines.steel`) e as dimensões do Prius 2004 vêm do pyleecan; `materials.illustrative_steel` e os dados térmicos padrão de `machines.thermal` são ilustrativos/hipóteses, não dados de um fornecedor.
 - `electrostatics` é só planar (sem peso axisimétrico); `eddy` assume meios lineares.
 - Vários módulos não têm teste direto: `accelerated_foam.benchmark`, `antenna.plots`, `eddy`, `machines.mesher`, `machines.pmsm`, `machines.steel`, `reflector.study_report_figures`, `reflector.study_report_text`, `geophysics.energy_balance` e `geophysics.richards`.
+- Quase todas as pontes de `external_solvers` dependem de programas externos ou pacotes opcionais (OpenFOAM, CalculiX/Docker, Fluent, Abaqus, MATLAB, fmpy/OMPython/omc, MuJoCo/JAX, Genesis, Newton/Warp, FluidX3D com OpenCL, GeoTaichi/Taichi, FEniCS, turbodesigner); o `__init__` importa com `try/except` e deixa os nomes como None quando falta a dependência.
+- ANSYS Fluent nunca foi rodado de verdade: só a geração do journal e o erro de executável ausente são testados, e o journal cobre só velocity-inlet e pressure-outlet, sem seleção de modelos físicos.
+- Leitores de formato com escopo estreito: Fluent `.msh` só lê nós ASCII (resto levanta `NotImplementedError`), Exodus só NetCDF clássico e sem conectividade, STAR-CCM+ nativo `.sim`/`.ccm` não é suportado, e o leitor binário OpenFOAM recusa formato ASCII.
+- Vários módulos não têm teste direto: Genesis, MuJoCo, MATLAB (exceto via import amplo), TurboDesigner, OpenRadioss (deck, runner, vtk), boa parte de `openfoam` (runner, sampling, case_builder, export_bundle, binary_reader), `flight.aero/gear/mass/propulsion/encounter/verification` e grande parte de `pipelines.freecad_openfoam`.
+- `openfoam.export_bundle` e `openfoam.case_builder` têm nomes de arquivo e campos fixos de um projeto específico (canal com cilindro, problema térmico), não são genéricos.
+- `turbodesigner.run_turbodesigner` cai num cálculo analítico simplificado quando o pacote `turbodesigner` falta (`fallback_if_missing=True` por padrão), o que pode passar despercebido.
+- FluidX3D tem licença que proíbe uso comercial e militar, e GeoTaichi é GPL-3.0; o PINNeAPPle só os chama como programas separados, sem distribuir o código.
+- `newton_physics.simulate` levanta `NotImplementedError` para velocidades iniciais com solvers de coordenadas de junta (featherstone, mujoco); o catálogo de `flight` usa premissas declaradas em `Aircraft.info` e não é ajustado a ensaio em voo.
 - `simulate` passa os kwargs direto ao construtor da classe e só chama `run` se ela existir; as classes de `fdm3d` recebem `cfg` e têm `solve`, então o uso do docstring (`simulate("heat_3d", nx=32, ...)`) não bate com essas assinaturas. `simulate`/`generate_data` não têm teste direto.
 - Várias dependências são opcionais: OpenFOAM (`external_flow`, `internal_flow`, `free_surface`, `openfoam_bridge`), FEniCS/dolfinx, jax/jax_cfd, rebound, gmsh, trimesh, Blender `bpy` (`rover.autolab.render`). `stl` e `wavelet` importam statsmodels e pywt no topo; `register_all` captura e devolve essas falhas em vez de abortar.
 - Vários módulos se declaram MVP ou aproximados: `spectral`, `sph`, `sph_boundaries`, `sst`, `hilbert_huang`, `neighbors`, `ceemdan`, `adapters.upd_mesh`.

@@ -4983,7 +4983,13 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Objetivo
 
-_Sem texto de objetivo._
+O `pinneapple_worldmodel` tenta montar um "modelo de mundo" físico: uma rede que aprende `f(state_t, descritor) -> state_{t+1}`, onde o estado é um campo espacial (temperatura, velocidade, pressão) e o descritor resume a PDE, os parâmetros e o domínio. O fluxo principal é o `PhysicsAIPipeline`: gera dados de várias fontes (`PhysicsDatasetFactory`, com solvers clássicos, dados de PINN, PDE simbólica e colocação), treina um especialista por cenário (`SpecialistTrainer` -> `ModelZoo`), faz meta-aprendizado (`MetaLearner`, MAML/Reptile), monta um modelo de fundação (`WaMaModel` por média de pesos e `PhysicsFoundationModel`, um FNO com codificador de descritor e adaptadores LoRA) e avalia num `PhysicsBenchmark` com tarefas embutidas.
+
+A base é simples e roda em CPU: cenários embutidos (`BUILTIN_SCENARIOS`: `burgers_1d`, `wave_1d`, `heat_2d`, `advection_2d`, `ns2d_cavity`, `heat_multiscale`), o `PhysicsSimulator` (tenta solvers de `pinneapple_simulation` e cai para diferenças finitas em PyTorch), o `WorldModelDataset` de pares (estado, próximo estado) e o `PhysicsWorldModel` (FNO residual condicionado a contexto). Há ainda um orquestrador por ferramentas (`PhysicsOrchestrator` + `PhysicsToolRegistry`) que escolhe, por regras fixas para cada tipo de problema (forward, inverse, design, forecast, uncertainty, discovery, digital_twin, world_model), uma cadeia de chamadas a outros pacotes.
+
+Um segundo eixo é a fábrica de dados sintéticos para IA física (`SyntheticDataFactory`, "9 estágios"): cenário a partir de JSON ou de uma frase (`ScenarioGenerator`, extração por palavras-chave), solver (`PhysicsSolverBridge`), renderização em RGB/térmico/profundidade/IR (`PhysicsRenderer`), câmeras virtuais (`CameraSystem`), aleatorização para reduzir a diferença sim-real (`RealityRandomizer`), realce fotorrealista que nunca toca os campos físicos (`PhotorealisticEnhancer`), empacotamento em Zarr/vídeo/JSON (`DatasetPackager`) e datasets prontos para treino (`TrainingHooks`).
+
+Os módulos mais novos e mais testados são `physical_world` (vídeo sintético de uma bola quicando com rótulos exatos, um world model pequeno treinável em CPU e checagens físicas que julgam qualquer vídeo, inclusive de um modelo de fundação como NVIDIA Cosmos via `CosmosAdapter`), `inspection_data` (inspeção térmica sintética com rótulo físico e cenas OpenUSD) e `robot_perception` (movimentos de braço simulados no Robot Sim/Newton, vistos por câmera aleatorizada). Eles são usados pelos exemplos em `examples/nvidia/`. O pacote se apoia em `pinneapple_simulation`, `pinneapple_physics`, `pinneapple_analysis`, `pinneapple_neural`, `pinneapple_adaptation`, `pinneapple_data` e `pinneapple_tools`, quase sempre com import opcional e fallback.
 
 ### Números do inventário
 
@@ -4997,36 +5003,36 @@ Pasta de testes dedicada: `tests/pinneapple_worldmodel` (8 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `benchmark` |  | 1 | 3 | 0 |
-| `camera_system` |  | 1 | 3 | 0 |
-| `curriculum` |  | 1 | 3 | 0 |
-| `dataset` |  | 1 | 3 | 20 |
-| `dataset_factory` |  | 1 | 4 | 0 |
-| `dataset_packager` |  | 1 | 4 | 0 |
-| `generate_datasets` |  | 1 | 4 | 0 |
-| `geometry` |  | 1 | 17 | 0 |
-| `inspection_data` |  | 1 | 11 | 39 |
-| `mega_model` |  | 1 | 5 | 0 |
-| `meta_learning` |  | 1 | 3 | 0 |
-| `model` |  | 1 | 2 | 20 |
-| `model_zoo` |  | 1 | 4 | 0 |
-| `orchestrator` |  | 1 | 3 | 20 |
-| `photorealistic_enhancer` |  | 1 | 3 | 0 |
-| `physical_world` |  | 1 | 12 | 39 |
-| `physics_renderer` |  | 1 | 3 | 0 |
-| `physics_solver_bridge` |  | 1 | 4 | 0 |
-| `physics_tools` |  | 1 | 2 | 35 |
-| `pipeline` |  | 1 | 3 | 0 |
-| `reality_randomizer` |  | 1 | 2 | 0 |
-| `robot_perception` |  | 1 | 13 | 39 |
-| `scenario` |  | 1 | 1 | 0 |
-| `scenario_generator` |  | 1 | 2 | 0 |
-| `simulator` |  | 1 | 2 | 0 |
-| `specialist_trainer` |  | 1 | 2 | 0 |
-| `synthetic_factory` |  | 1 | 7 | 0 |
-| `train` |  | 1 | 5 | 0 |
-| `trainer` |  | 1 | 3 | 0 |
-| `training_hooks` |  | 1 | 6 | 0 |
+| `benchmark` | `PhysicsBenchmark`: avalia um modelo em tarefas embutidas com trajetórias de referência, RMSE, L2 relativo e checagens de conservação. | 1 | 3 | 0 |
+| `camera_system` | Câmeras virtuais (RGB, térmica, profundidade, IR) que projetam campos 2D em observações de sensor. | 1 | 3 | 0 |
+| `curriculum` | Treino em estágios de complexidade crescente, avançando quando a perda de validação atinge a meta. | 1 | 3 | 0 |
+| `dataset` | `WorldModelDataset` de pares (estado, contexto) -> próximo estado e o `DatasetBuilder` simulador -> dataset. | 1 | 3 | 20 |
+| `dataset_factory` | `PhysicsDatasetFactory`: gera dados de várias fontes (solver, PINN, simbólico, colocação) num `DatasetCatalog`. | 1 | 4 | 0 |
+| `dataset_packager` | Grava cada amostra na estrutura canônica de dataset de IA física (Zarr, vídeos, VTK, JSONs) com manifesto. | 1 | 4 | 0 |
+| `generate_datasets` | Funções e CLI para gerar e carregar catálogos de datasets do world model. | 1 | 4 | 0 |
+| `geometry` | Geometrias 2D/3D com CSG, regiões de contorno nomeadas e domínios prontos (cavidade, canal, cilindro, L, anel). | 1 | 17 | 0 |
+| `inspection_data` | Dados sintéticos de inspeção térmica com rótulo físico, variações de cena em OpenUSD e checagem do rótulo. | 1 | 11 | 39 |
+| `mega_model` | `PhysicsFoundationModel`: FNO com codificador de descritor por transformer e adaptadores LoRA. | 1 | 5 | 0 |
+| `meta_learning` | Meta-aprendizado MAML/Reptile sobre tarefas amostradas de um catálogo. | 1 | 3 | 0 |
+| `model` | `PhysicsWorldModel`: FNO residual condicionado a contexto, `(state_t, context) -> state_{t+1}`. | 1 | 2 | 20 |
+| `model_zoo` | Registro de especialistas treinados com consulta, checkpoints e ensembles (média de saídas ou de pesos). | 1 | 4 | 0 |
+| `orchestrator` | `PhysicsOrchestrator`: resolve um `ProblemStatement` encadeando ferramentas do registro por planos fixos por tipo de problema. | 1 | 3 | 20 |
+| `photorealistic_enhancer` | Realce visual de quadros renderizados sem tocar dados físicos; backend padrão é identidade. | 1 | 3 | 0 |
+| `physical_world` | Vídeo sintético com rótulos exatos, world model pequeno em CPU e checagens físicas de vídeo a partir dos pixels. | 1 | 12 | 39 |
+| `physics_renderer` | Renderiza trajetórias de campos em quadros RGB, térmicos, de profundidade e IR, e em vídeo ou PNG. | 1 | 3 | 0 |
+| `physics_solver_bridge` | Despacha um cenário para um backend de solver e empacota a saída como verdade de referência. | 1 | 4 | 0 |
+| `physics_tools` | Inventário das capacidades dos pacotes como ferramentas chamáveis (`PhysicsToolRegistry`). | 1 | 2 | 35 |
+| `pipeline` | `PhysicsAIPipeline`: ponto de entrada do fluxo dados -> especialistas -> meta -> fundação -> benchmark. | 1 | 3 | 0 |
+| `reality_randomizer` | Aumentos de realismo (ruído, JPEG, iluminação, sombras, oclusões, blur, distorção, vinheta) só nas imagens. | 1 | 2 | 0 |
+| `robot_perception` | Dados de percepção de robô: movimentos de braço simulados (Newton), linhas do tempo OpenUSD, câmera aleatorizada e checagens. | 1 | 13 | 39 |
+| `scenario` | `PhysicsScenario` e o registro `BUILTIN_SCENARIOS` de problemas para treinar o world model. | 1 | 1 | 0 |
+| `scenario_generator` | Converte JSON ou uma frase (por palavras-chave) num `ScenarioSpec` com geometria, contorno e sensores. | 1 | 2 | 0 |
+| `simulator` | `PhysicsSimulator`: gera trajetórias de um cenário com solvers do projeto ou diferenças finitas embutidas. | 1 | 2 | 0 |
+| `specialist_trainer` | Treina um `PhysicsWorldModel` por cenário e preenche o `ModelZoo`. | 1 | 2 | 0 |
+| `synthetic_factory` | `SyntheticDataFactory`: encadeia os estágios de cenário a dataset multimodal, com atalhos por caso. | 1 | 7 | 0 |
+| `train` | Entrada de treino com modos specialist, meta, foundation e pipeline (funções e CLI). | 1 | 5 | 0 |
+| `trainer` | Laço de treino do world model com perda de rollout multi-passo e perda física opcional. | 1 | 3 | 0 |
+| `training_hooks` | Datasets PyTorch sobre amostras empacotadas para codificador de vídeo, decodificador físico, PINN inversa e operador neural. | 1 | 6 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5034,422 +5040,450 @@ Pasta de testes dedicada: `tests/pinneapple_worldmodel` (8 funções de teste).
 
 #### `pinneapple_worldmodel`
 
-pinneapple_worldmodel — Generalist Physics AI World Model.
+Ponto de entrada do pacote: reexporta o pipeline, o orquestrador, cenários, modelos e fábricas; o docstring descreve o pipeline de cinco estágios do modelo de fundação física.
 
 <small>`pinneapple_worldmodel/__init__.py` · 409 linhas · testes: 11</small>
 
 #### `pinneapple_worldmodel.benchmark`
 
-Standard physics AI benchmark suite.
+Suíte de benchmark com tarefas embutidas (`BUILTIN_TASKS`, como `heat_2d_smooth`, `burgers_1d_shock`, `ns2d_lid_driven`) avaliadas por RMSE, L2 relativo, passo de divergência no rollout e checagens físicas. [sem teste direto]
 
 <small>`pinneapple_worldmodel/benchmark.py` · 564 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BenchmarkTask` | classe | `(name, scenario_name, n_trajectories, rollout_steps, seed, physics_checks, metrics, descr…)` | A single benchmark evaluation task. |
-| `BenchmarkResult` | classe | `(task_name, next_step_rmse, rollout_rmse, rel_l2, div_step, physics_scores, n_trajectorie…)` | Results for one BenchmarkTask. |
-| `PhysicsBenchmark` | classe | `(device='cpu', verbose=True) -> None` | Evaluate physics AI models on standard tasks. |
+| `BenchmarkTask` | classe | `(name, scenario_name, n_trajectories, rollout_steps, seed, physics_checks, metrics, descr…)` | Uma tarefa de benchmark: cenário, número de trajetórias, passos de rollout, semente, checagens físicas e métricas. |
+| `BenchmarkResult` | classe | `(task_name, next_step_rmse, rollout_rmse, rel_l2, div_step, physics_scores, n_trajectorie…)` | Resultado de uma tarefa: RMSE de um passo e de rollout, L2 relativo, passo de divergência e escores físicos. |
+| `PhysicsBenchmark` | classe | `(device='cpu', verbose=True) -> None` | Avalia modelos com `forward(state_t, descriptor)` nas tarefas do benchmark. |
 
 #### `pinneapple_worldmodel.camera_system`
 
-Stage 5 — Camera System.
+Estágio 5 da fábrica sintética: projeta campos 2D em observações de câmeras virtuais com pose, campo de visão, ruído e profundidade de bits. [sem teste direto]
 
 <small>`pinneapple_worldmodel/camera_system.py` · 392 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CameraConfig` | classe | `(name, sensor_type, position, look_at, fov_deg, resolution, fps, near_clip, far_clip, noi…)` | Single virtual camera / sensor configuration. |
-| `MultiCameraArray` | classe | `(cameras, sync_fps)` | A set of cameras sharing the same simulation field. |
-| `CameraSystem` | classe | `(array=None, domain_bounds=None) -> None` | Project physics fields to camera-plane observations. |
+| `CameraConfig` | classe | `(name, sensor_type, position, look_at, fov_deg, resolution, fps, near_clip, far_clip, noi…)` | Configuração de uma câmera virtual: tipo de sensor, pose, campo de visão, resolução, fps, ruído e bits. |
+| `MultiCameraArray` | classe | `(cameras, sync_fps)` | Conjunto de câmeras que observam o mesmo campo simulado, sincronizadas. |
+| `CameraSystem` | classe | `(array=None, domain_bounds=None) -> None` | Projeta campos físicos em observações no plano de cada câmera. |
 
 #### `pinneapple_worldmodel.curriculum`
 
-Curriculum learning for physics world models.
+Currículo de treino por estágios de cenários (de calor 2D a Navier-Stokes) que avança ao atingir a perda-alvo de validação. [sem teste direto]
 
 <small>`pinneapple_worldmodel/curriculum.py` · 283 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CurriculumStage` | classe | `(scenarios, n_samples, epochs, target_val_loss, lr, rollout_steps, description)` | One stage in the curriculum. |
-| `CurriculumConfig` | classe | `(stages, model_config, device, batch_size, patience, save_dir, verbose)` | Full curriculum configuration. |
-| `PhysicsCurriculum` | classe | `(config) -> None` | Train a world model through a staged physics curriculum. |
+| `CurriculumStage` | classe | `(scenarios, n_samples, epochs, target_val_loss, lr, rollout_steps, description)` | Um estágio do currículo: cenários, amostras, épocas, perda-alvo, taxa de aprendizado e passos de rollout. |
+| `CurriculumConfig` | classe | `(stages, model_config, device, batch_size, patience, save_dir, verbose)` | Configuração completa do currículo: estágios, modelo, dispositivo, lote, paciência e pasta de saída. |
+| `PhysicsCurriculum` | classe | `(config) -> None` | Treina um world model passando pelos estágios do currículo. |
 
 #### `pinneapple_worldmodel.dataset`
 
-World model dataset: (state_t, params) → state_{t+1} pairs.
+Transforma trajetórias simuladas em amostras `state_t`, `state_tp1`, `params`, `context` normalizadas; `DatasetBuilder` orquestra simulação e montagem.
 
 <small>`pinneapple_worldmodel/dataset.py` · 382 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WorldModelDataset` | classe | `(trajectories, *, horizon=1, normalize=True, transform=None) -> None` | One-step or multi-step prediction dataset from a list of trajectories. |
-| `DatasetConfig` | classe | `(scenarios, n_samples_per_scenario, horizon, normalize, validate_physics, save_dir, devic…)` | Configuration for :class:`DatasetBuilder`. |
-| `DatasetBuilder` | classe | `(config) -> None` | Orchestrates physics simulation → :class:`WorldModelDataset` assembly. |
+| `WorldModelDataset` | classe | `(trajectories, *, horizon=1, normalize=True, transform=None) -> None` | Dataset de previsão de um ou vários passos construído de uma lista de trajetórias. |
+| `DatasetConfig` | classe | `(scenarios, n_samples_per_scenario, horizon, normalize, validate_physics, save_dir, devic…)` | Configuração do `DatasetBuilder`: cenários, amostras por cenário, horizonte, normalização e validação física. |
+| `DatasetBuilder` | classe | `(config) -> None` | Orquestra simulação e montagem de um `WorldModelDataset`. |
 
 #### `pinneapple_worldmodel.dataset_factory`
 
-Multi-source physics dataset factory.
+Fábrica multi-fonte de dados (solver, PINN via `pinneapple_physics`, PDE simbólica, colocação de `pinneapple_data`) com catálogo por cenário e fonte; fontes indisponíveis são puladas. [sem teste direto]
 
 <small>`pinneapple_worldmodel/dataset_factory.py` · 725 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FactoryConfig` | classe | `(sources, scenarios, n_samples_per_scenario, horizon, validate_physics, device, save_dir,…)` | Configuration for :class:`PhysicsDatasetFactory`. |
-| `DatasetEntry` | classe | `(name, dataset, source, scenario, physics_tags, n_samples, generation_time_s, metadata)` | One dataset slice from the catalog. |
-| `DatasetCatalog` | classe | `() -> None` | Registry of all generated physics datasets. |
-| `PhysicsDatasetFactory` | classe | `(config) -> None` | Generate multi-source physics training datasets. |
+| `FactoryConfig` | classe | `(sources, scenarios, n_samples_per_scenario, horizon, validate_physics, device, save_dir,…)` | Configuração da `PhysicsDatasetFactory`: fontes, cenários, amostras, horizonte, validação e pasta. |
+| `DatasetEntry` | classe | `(name, dataset, source, scenario, physics_tags, n_samples, generation_time_s, metadata)` | Uma fatia do catálogo: dataset, fonte, cenário, tags físicas, número de amostras e tempo de geração. |
+| `DatasetCatalog` | classe | `() -> None` | Registro de todos os datasets gerados, consultável por cenário e fonte. |
+| `PhysicsDatasetFactory` | classe | `(config) -> None` | Gera datasets de treino combinando as fontes de dados disponíveis. |
 
 #### `pinneapple_worldmodel.dataset_packager`
 
-Stage 8 — Dataset Packager.
+Estágio 8: grava cada amostra em `sample_XXXXXX/` com campos em Zarr, vídeos, `mesh.vtk` e JSONs de metadados, PDE, contorno e câmera, mais um manifesto. [sem teste direto]
 
 <small>`pinneapple_worldmodel/dataset_packager.py` · 439 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PackagerConfig` | classe | `(output_dir, format, zarr_chunks, zarr_compressor, save_vtk, save_videos, sample_id_digit…)` | Controls how the packager writes the dataset. |
-| `PackagedSample` | classe | `(sample_id, sample_dir, field_paths, video_paths, metadata_path)` | Metadata for a single packaged sample. |
-| `DatasetManifest` | classe | `(output_dir) -> None` | Index of all samples in a Physical AI dataset. |
-| `DatasetPackager` | classe | `(config=None) -> None` | Write one physics sample to the canonical dataset structure. |
+| `PackagerConfig` | classe | `(output_dir, format, zarr_chunks, zarr_compressor, save_vtk, save_videos, sample_id_digit…)` | Como o empacotador escreve o dataset: formato, chunks e compressor Zarr, VTK, vídeos e sobrescrita. |
+| `PackagedSample` | classe | `(sample_id, sample_dir, field_paths, video_paths, metadata_path)` | Metadados de uma amostra empacotada: id, pasta e caminhos de campos, vídeos e metadados. |
+| `DatasetManifest` | classe | `(output_dir) -> None` | Índice de todas as amostras de um dataset de IA física. |
+| `DatasetPackager` | classe | `(config=None) -> None` | Escreve uma amostra física na estrutura canônica do dataset. |
 
 #### `pinneapple_worldmodel.generate_datasets`
 
-Dataset generation for Physics World Model training.
+Gera catálogos de trajetórias multi-fonte para treinar o world model, via funções ou `python -m pinneapple_worldmodel.generate_datasets`. [sem teste direto]
 
 <small>`pinneapple_worldmodel/generate_datasets.py` · 441 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `generate` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./data/worldmodel', device='cpu…)` | Generate multi-source physics datasets and return a DatasetCatalog. |
-| `generate_via_factory` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./data/worldmodel', device='cpu…)` | Generate datasets using the high-level PhysicsDatasetFactory. |
-| `load_catalog` | função | `(path) -> DatasetCatalog` | Load a previously saved DatasetCatalog from disk. |
-| `main` | função | `() -> None` |  |
+| `generate` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./data/worldmodel', device='cpu…)` | Gera datasets multi-fonte e devolve um `DatasetCatalog`. |
+| `generate_via_factory` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./data/worldmodel', device='cpu…)` | Gera datasets pela `PhysicsDatasetFactory` de alto nível. |
+| `load_catalog` | função | `(path) -> DatasetCatalog` | Carrega do disco um `DatasetCatalog` salvo. |
+| `main` | função | `() -> None` | Ponto de entrada da linha de comando de geração de datasets. |
 
 #### `pinneapple_worldmodel.geometry`
 
-Physical domain geometry for physics simulation and world model training.
+Sistema de geometria componível (primitivas 2D/3D, CSG, regiões de contorno, domínios prontos) usado pela fábrica de dados e pelo treinador; o docstring cita `make_pipe_bend`, que não existe no módulo. [sem teste direto]
 
 <small>`pinneapple_worldmodel/geometry.py` · 569 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometryBase` | classe | `()` | Abstract base class for all geometry objects. |
-| `Rectangle` | classe | `(lo, hi) -> None` | Axis-aligned rectangle ``[lo_x, hi_x] × [lo_y, hi_y]``. |
-| `Circle` | classe | `(center, radius) -> None` | 2-D filled circle. |
-| `Polygon` | classe | `(vertices) -> None` | 2-D filled polygon defined by ordered vertices. |
-| `Box3D` | classe | `(lo, hi) -> None` | Axis-aligned 3-D box. |
-| `Sphere` | classe | `(center, radius) -> None` | 3-D filled sphere. |
-| `Union` | classe | `(a, b) -> None` | CSG union: points inside *a* OR *b*. |
-| `Intersection` | classe | `(a, b) -> None` | CSG intersection: points inside *a* AND *b*. |
-| `Difference` | classe | `(a, b) -> None` | CSG difference: points inside *a* but NOT inside *b*. |
-| `BoundaryRegion` | classe | `(name, bc_type, value, sampler)` | A named subset of the domain boundary with its own BC type. |
-| `PhysicsDomain` | classe | `(geometry, boundaries, name, tags)` | Complete domain specification: geometry + boundary regions + metadata. |
-| `make_unit_square` | função | `(*, with_boundary_labels=True) -> PhysicsDomain` | Unit square [0,1]² — standard benchmark domain. |
-| `make_cavity` | função | `(L=1.0) -> PhysicsDomain` | Lid-driven cavity: unit square with moving lid (y=L, u=1). |
-| `make_channel` | função | `(length=4.0, height=1.0, *, inlet_velocity=1.0) -> PhysicsDomain` | Poiseuille channel flow domain. |
-| `make_channel_with_cylinder` | função | `(length=4.0, height=1.0, cyl_center=(1.0, 0.5), cyl_radius=0.1) -> PhysicsDomain` | 2-D channel with circular obstacle — classic benchmark. |
-| `make_l_shaped` | função | `() -> PhysicsDomain` | L-shaped domain (stress concentration benchmark). |
-| `make_annulus` | função | `(inner_r=0.3, outer_r=1.0, center=(0.0, 0.0)) -> PhysicsDomain` | Annular domain — useful for heat/EM problems in cylindrical geometry. |
+| `GeometryBase` | classe | `()` | Base abstrata das geometrias (pertinência e amostragem de interior e fronteira). |
+| `Rectangle` | classe | `(lo, hi) -> None` | Retângulo alinhado aos eixos. |
+| `Circle` | classe | `(center, radius) -> None` | Círculo 2D preenchido. |
+| `Polygon` | classe | `(vertices) -> None` | Polígono 2D preenchido definido por vértices ordenados. |
+| `Box3D` | classe | `(lo, hi) -> None` | Caixa 3D alinhada aos eixos. |
+| `Sphere` | classe | `(center, radius) -> None` | Esfera 3D preenchida. |
+| `Union` | classe | `(a, b) -> None` | União CSG: pontos dentro de *a* ou de *b*. |
+| `Intersection` | classe | `(a, b) -> None` | Interseção CSG: pontos dentro de *a* e de *b*. |
+| `Difference` | classe | `(a, b) -> None` | Diferença CSG: pontos dentro de *a* e fora de *b*. |
+| `BoundaryRegion` | classe | `(name, bc_type, value, sampler)` | Parte nomeada da fronteira com tipo e valor de condição de contorno e um amostrador. |
+| `PhysicsDomain` | classe | `(geometry, boundaries, name, tags)` | Domínio completo: geometria, regiões de contorno, nome e tags. |
+| `make_unit_square` | função | `(*, with_boundary_labels=True) -> PhysicsDomain` | Quadrado unitário com rótulos de contorno, domínio padrão de benchmark. |
+| `make_cavity` | função | `(L=1.0) -> PhysicsDomain` | Cavidade com tampa móvel (`u=1` em `y=L`). |
+| `make_channel` | função | `(length=4.0, height=1.0, *, inlet_velocity=1.0) -> PhysicsDomain` | Domínio de canal de Poiseuille com velocidade de entrada. |
+| `make_channel_with_cylinder` | função | `(length=4.0, height=1.0, cyl_center=(1.0, 0.5), cyl_radius=0.1) -> PhysicsDomain` | Canal 2D com obstáculo circular. |
+| `make_l_shaped` | função | `() -> PhysicsDomain` | Domínio em L (benchmark de concentração de tensão). |
+| `make_annulus` | função | `(inner_r=0.3, outer_r=1.0, center=(0.0, 0.0)) -> PhysicsDomain` | Domínio anular para problemas de calor ou eletromagnetismo em geometria cilíndrica. |
 
 #### `pinneapple_worldmodel.inspection_data`
 
-Synthetic thermal-inspection data with labels from physics, scene variations written as OpenUSD stages, and the check that an augmentation kept the label true.
+Inspeção térmica sintética: placa aquecida com vazio subsuperficial resolvida por volumes finitos, variações de câmera gravadas como estágios OpenUSD e verificação de que o aumento manteve o rótulo físico; precisa de `pxr`.
 
 <small>`pinneapple_worldmodel/inspection_data.py` · 224 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Variation` | classe | `(gain, offset, noise, blur, zoom, angle_deg, shift, glint)` |  |
-| `thermal_plate` | função | `(defect, n=48, *, k=1.0, k_void=0.15, q=1.0) -> dict` | Steady conduction on the unit square with a low-conductivity disk ``defect = (x, y, r)``. Returns the field, the defect-free field, the coefficient and the label (the cell where the void raises the temperature most). |
-| `sample_variation` | função | `(rng, *, glint_p=0.2) -> Variation` |  |
-| `camera_transform` | função | `(var, H, W)` | Plate unit square (u, v) -> image pixel (col, row) and its inverse, for the variation's camera. |
-| `write_variation_stage` | função | `(path, plate, var, *, cmap='gray') -> str` |  |
-| `thermal_image` | função | `(stage_path, var, H=64, W=64, seed=0) -> np.ndarray` | The camera image ``(H, W)`` of a variation stage. |
-| `nominal_image` | função | `(stage_path, plate, var, H=64, W=64) -> np.ndarray` | What the same camera would see on the defect-free plate (the inspector's reference): the nominal field through the variation's gain, offset, pose and blur, no glint, no noise. |
-| `label_check` | função | `(image, nominal, var, label_xy, *, tol=0.08) -> dict` | Does the image still show the physical anomaly where the label says? The residual against the nominal image, smoothed (2 px), its maximum mapped back to the plate; ``tol`` in plate units (0.08 = about 4 cells). A glint that outshines the defect moves the maximum and fails; so does a label on … |
-| `inspection_dataset` | função | `(n, seed, workdir, *, glint_p=0.25, H=64, W=64, keep_stages=0) -> dict` | ``n`` samples: a random subsurface void, its steady temperature field, a random camera variation written as a USD stage and rendered from it, the physical label in pixels, and the label check. Stages beyond the first ``keep_stages`` are deleted after rendering. |
-| `inspection_sample` | função | `(x=0.4, y=0.6, r=0.08, seed=0, glint=False, usd_path='inspection_sample.usda') -> dict` | One synthetic thermal-inspection sample: the plate with a void at ``(x, y)``, radius ``r`` (plate units), a random camera variation (with a specular glint if asked) written as a USD stage at ``usd_path``, and the label check of its image. |
-| `cleanup` | função | `(paths) -> None` |  |
+| `Variation` | classe | `(gain, offset, noise, blur, zoom, angle_deg, shift, glint)` | Parâmetros de uma variação da câmera sintética: ganho, offset, ruído, blur, zoom, ângulo, deslocamento e brilho especular. |
+| `thermal_plate` | função | `(defect, n=48, *, k=1.0, k_void=0.15, q=1.0) -> dict` | Condução estacionária no quadrado unitário com disco de baixa condutividade; devolve campo, campo sem defeito e o rótulo. |
+| `sample_variation` | função | `(rng, *, glint_p=0.2) -> Variation` | Sorteia uma `Variation`, com brilho especular com probabilidade `glint_p`. |
+| `camera_transform` | função | `(var, H, W)` | Transformação placa -> pixel e sua inversa para a câmera da variação. |
+| `write_variation_stage` | função | `(path, plate, var, *, cmap='gray') -> str` | Grava a placa e a variação como um estágio OpenUSD e devolve o caminho. |
+| `thermal_image` | função | `(stage_path, var, H=64, W=64, seed=0) -> np.ndarray` | Imagem `(H, W)` da câmera de um estágio de variação. |
+| `nominal_image` | função | `(stage_path, plate, var, H=64, W=64) -> np.ndarray` | Imagem que a mesma câmera veria na placa sem defeito, a referência do inspetor. |
+| `label_check` | função | `(image, nominal, var, label_xy, *, tol=0.08) -> dict` | Verifica se a imagem ainda mostra a anomalia física onde o rótulo indica, pelo resíduo contra a imagem nominal. |
+| `inspection_dataset` | função | `(n, seed, workdir, *, glint_p=0.25, H=64, W=64, keep_stages=0) -> dict` | Gera `n` amostras com vazio aleatório, campo térmico, variação em USD, rótulo em pixels e checagem do rótulo. |
+| `inspection_sample` | função | `(x=0.4, y=0.6, r=0.08, seed=0, glint=False, usd_path='inspection_sample.usda') -> dict` | Uma amostra de inspeção térmica com vazio em posição dada, variação de câmera e checagem do rótulo. |
+| `cleanup` | função | `(paths) -> None` | Remove os arquivos indicados que existirem. |
 
 #### `pinneapple_worldmodel.mega_model`
 
-Physics Foundation Model — the generalist mega-model.
+Modelo de fundação generalista: FNO com condicionamento FiLM por um codificador transformer de descritor físico e adaptadores LoRA; suporta grades 1D e 2D, 3D ainda não. [sem teste direto]
 
 <small>`pinneapple_worldmodel/mega_model.py` · 668 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FoundationConfig` | classe | `(n_modes, width, depth, context_dim, descriptor_vocab, n_heads, n_context_layers, lora_ra…)` | Hyper-parameter configuration for :class:`PhysicsFoundationModel`. |
-| `LoRALinear` | classe | `(in_features, out_features, rank=8) -> None` | Low-Rank Adaptation layer for fast domain adaptation. |
-| `PhysicsDescriptorEncoder` | classe | `(context_dim=64, max_scalar_features=32, n_heads=4, n_layers=2, dropout=0.1) -> None` | Encode a physics descriptor dict into a fixed-size context vector. |
-| `FoundationFNOBlock` | classe | `(width, n_modes, context_dim, lora_rank=8, dropout=0.1, spatial_dim=2) -> None` | One FNO block with context injection and optional LoRA. |
-| `PhysicsFoundationModel` | classe | `(config, *, n_fields=1, grid_shape=(64, 64)) -> None` | Generalist physics AI foundation model. |
+| `FoundationConfig` | classe | `(n_modes, width, depth, context_dim, descriptor_vocab, n_heads, n_context_layers, lora_ra…)` | Hiperparâmetros do `PhysicsFoundationModel` (modos, largura, profundidade, contexto, cabeças, posto LoRA, incerteza aleatória). |
+| `LoRALinear` | classe | `(in_features, out_features, rank=8) -> None` | Camada linear com adaptação de baixo posto para adaptação rápida de domínio. |
+| `PhysicsDescriptorEncoder` | classe | `(context_dim=64, max_scalar_features=32, n_heads=4, n_layers=2, dropout=0.1) -> None` | Codifica um dicionário descritor da física num vetor de contexto de tamanho fixo (transformer). |
+| `FoundationFNOBlock` | classe | `(width, n_modes, context_dim, lora_rank=8, dropout=0.1, spatial_dim=2) -> None` | Bloco FNO com injeção de contexto e LoRA opcional. |
+| `PhysicsFoundationModel` | classe | `(config, *, n_fields=1, grid_shape=(64, 64)) -> None` | Modelo de fundação generalista para previsão de campos condicionada a descritor. |
 
 #### `pinneapple_worldmodel.meta_learning`
 
-Meta-learning for the physics world model.
+Meta-aprendizado MAML/Reptile para adaptação rápida a novo domínio, com caminho opcional por `pinneapple_adaptation.meta_learning`; o docstring cita classes `MAMLWorldModel`/`ReptileWorldModel` que não existem no arquivo. [sem teste direto]
 
 <small>`pinneapple_worldmodel/meta_learning.py` · 512 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MetaConfig` | classe | `(algorithm, n_meta_epochs, n_inner_steps, inner_lr, outer_lr, n_tasks_per_batch, n_suppor…)` | Configuration for :class:`MetaLearner`. |
-| `TaskDistribution` | classe | `(catalog, n_support=32, n_query=32, device='cpu') -> None` | Sample physics tasks from a :class:`~.dataset_factory.DatasetCatalog`. |
-| `MetaLearner` | classe | `(config, model_config=None) -> None` | MAML / Reptile meta-learning for physics world models. |
+| `MetaConfig` | classe | `(algorithm, n_meta_epochs, n_inner_steps, inner_lr, outer_lr, n_tasks_per_batch, n_suppor…)` | Configuração do `MetaLearner`: algoritmo, épocas, passos internos, taxas e tamanhos de suporte e consulta. |
+| `TaskDistribution` | classe | `(catalog, n_support=32, n_query=32, device='cpu') -> None` | Sorteia tarefas (suporte, consulta) de um `DatasetCatalog`. |
+| `MetaLearner` | classe | `(config, model_config=None) -> None` | Meta-aprendizado MAML/Reptile de um world model. |
 
 #### `pinneapple_worldmodel.model`
 
-Physics World Model architecture.
+Arquitetura `PhysicsWorldModel`: codifica o contexto, concatena ao estado, aplica camadas de Fourier e prevê o incremento sobre o estado atual (1D com `rfft`, 2D com `rfft2`).
 
 <small>`pinneapple_worldmodel/model.py` · 320 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WorldModelConfig` | classe | `(n_modes, width, depth, context_dim, embed_dim, activation, dropout, rollout_steps)` | Hyperparameters for :class:`PhysicsWorldModel`. |
-| `PhysicsWorldModel` | classe | `(config, *, n_fields, grid_shape) -> None` | FNO-based physics world model: (state_t, context) → state_{t+1}. |
+| `WorldModelConfig` | classe | `(n_modes, width, depth, context_dim, embed_dim, activation, dropout, rollout_steps)` | Hiperparâmetros do `PhysicsWorldModel`. |
+| `PhysicsWorldModel` | classe | `(config, *, n_fields, grid_shape) -> None` | World model FNO: `(state_t, context) -> state_{t+1}` com formulação residual. |
 
 #### `pinneapple_worldmodel.model_zoo`
 
-Specialist model registry and checkpoint management.
+Registro de especialistas por cenário com consulta por nome, tag ou métrica, salvar/carregar e ensembles por média de saídas ou de pesos. [sem teste direto]
 
 <small>`pinneapple_worldmodel/model_zoo.py` · 494 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZooEntry` | classe | `(name, model, scenario, physics_tags, metrics, n_params, trained_at, checkpoint_path, met…)` | One entry in the :class:`ModelZoo`. |
-| `EnsembleModel` | classe | `(models, weights=None, aggregation='mean') -> None` | Averaging ensemble of multiple PhysicsWorldModel specialists. |
-| `WaMaModel` | classe | `()` | Model created by averaging the weights of multiple specialist models. |
-| `ModelZoo` | classe | `(root_dir=None) -> None` | Registry of trained specialist physics models. |
+| `ZooEntry` | classe | `(name, model, scenario, physics_tags, metrics, n_params, trained_at, checkpoint_path, met…)` | Entrada do zoo: modelo, cenário, tags, métricas, parâmetros, data de treino e checkpoint. |
+| `EnsembleModel` | classe | `(models, weights=None, aggregation='mean') -> None` | Ensemble que combina as saídas de vários especialistas `PhysicsWorldModel`. |
+| `WaMaModel` | classe | `()` | Modelo obtido pela média dos pesos de vários especialistas. |
+| `ModelZoo` | classe | `(root_dir=None) -> None` | Registro de especialistas treinados com consulta, persistência e ensembles. |
 
 #### `pinneapple_worldmodel.orchestrator`
 
-General-purpose physics problem solver — tool-based orchestrator.
+Orquestrador orientado a objetivo: escolhe um plano fixo por `kind` do `ProblemStatement` e executa as ferramentas do `PhysicsToolRegistry`, com um `tool_gate` opcional que só permite ou bloqueia chamadas.
 
 <small>`pinneapple_worldmodel/orchestrator.py` · 766 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ProblemStatement` | classe | `(kind, description, pde_hint, domain_hint, scenarios, params, observations, model, n_samp…)` | A high-level description of a physics problem to solve. |
-| `OrchestratorResult` | classe | `(kind, artifacts, plan, elapsed_s, logs)` | Output of :class:`PhysicsOrchestrator.solve`. |
-| `PhysicsOrchestrator` | classe | `(registry=None, verbose=True, tool_gate=None) -> None` | Solve arbitrary physics problems by chaining Pinneapple tools. |
+| `ProblemStatement` | classe | `(kind, description, pde_hint, domain_hint, scenarios, params, observations, model, n_samp…)` | Descrição de alto nível de um problema físico: tipo, descrição, dicas de PDE e domínio, cenários, parâmetros e saídas. |
+| `OrchestratorResult` | classe | `(kind, artifacts, plan, elapsed_s, logs)` | Saída de `PhysicsOrchestrator.solve`: artefatos, plano, tempo e logs. |
+| `PhysicsOrchestrator` | classe | `(registry=None, verbose=True, tool_gate=None) -> None` | Resolve problemas físicos encadeando ferramentas do registro segundo o tipo do problema. |
 
 #### `pinneapple_worldmodel.photorealistic_enhancer`
 
-Stage 7 — Photorealistic Enhancer.
+Estágio 7: realce de imagens que nunca lê campos físicos; o backend padrão `stub` devolve a entrada, `local_diffusion` precisa de `diffusers` e `cosmos` é [placeholder] ainda indisponível (cai para `stub`). [sem teste direto]
 
 <small>`pinneapple_worldmodel/photorealistic_enhancer.py` · 283 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EnhancerConfig` | classe | `(backend, strength, style_prompt, negative_prompt, model_id, device, batch_size, apply_to…)` | Configuration for the photorealistic enhancer. |
-| `PhotorealisticEnhancer` | classe | `(config=None) -> None` | Enhance visual realism of rendered frames WITHOUT touching physics data. |
-| `register_enhancer` | função | `(name, fn) -> None` | Register a custom enhancement backend. |
+| `EnhancerConfig` | classe | `(backend, strength, style_prompt, negative_prompt, model_id, device, batch_size, apply_to…)` | Configuração do realce: backend, intensidade, prompts, modelo, dispositivo e sensores. |
+| `PhotorealisticEnhancer` | classe | `(config=None) -> None` | Realça quadros renderizados sem tocar dados físicos, com fallback para o backend identidade. |
+| `register_enhancer` | função | `(name, fn) -> None` | Registra uma função de realce personalizada sob um nome. |
 
 #### `pinneapple_worldmodel.physical_world`
 
-PINNeAPPle World Model: physics-labelled synthetic video, a world model that trains on a CPU, and the physics checks that decide whether any video (simulated, predicted or generated by a foundation model such as NVIDIA Cosmos) is physically consistent.
+Vídeo sintético de bola quicando com física exata e aleatorização de domínio, um world model conv+GRU treinável em CPU, edições não-físicas e checagens físicas a partir dos pixels, além de um adaptador HTTP para NVIDIA Cosmos.
 
 <small>`pinneapple_worldmodel/physical_world.py` · 489 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Video` | classe | `(frames, dt, px_per_m, labels, params)` |  |
-| `WorldModel` | classe | `(H=64, W=96, latent=32, seed=0)` | Encoder (conv) -> latent ``z`` -> GRU dynamics -> decoder (deconv); trained to predict frame t+1 from frames <= t. Small enough to train on a CPU in minutes on 64 x 96 frames. |
-| `StateEncoder` | classe | `(H=64, W=96, seed=0)` | A small CNN that reads the object's centre (pixels) from a frame, trained on the exact labels of the synthetic videos (the labels are free because the frames come from a simulation). |
-| `CosmosAdapter` | classe | `(base_url, api_key=None, timeout=600.0)` | ``generate(prompt, frames=None, seed=0)`` on an NVIDIA Cosmos world foundation model NIM: ``POST {base}/infer`` with ``prompt``, ``video`` (base64 MP4 of ``frames`` when given), ``seed``, ``video_params``; the answer's ``b64_video`` is decoded to frames (needs ``imageio`` with an FFmpeg plugin). … |
-| `bouncing_ball_scene` | função | `(*, seed=0, T=48, fps=24.0, H=64, W=96, randomize=True, defect=False, e=None) -> Video` | A thrown ball bouncing on the floor, rendered with domain randomization; exact labels. |
-| `dataset` | função | `(n, *, seed=0, **kw) -> list[Video]` |  |
-| `track_object` | função | `(frames) -> dict[str, np.ndarray]` | Centre ``(cx, cy)`` [px] and area [px] of the brightest-contrast object per frame (NaN when none is found). |
-| `physics_checks` | função | `(video, *, dt=None, px_per_m=None, g=G, g_rtol=0.1, area_rtol=0.25, max_speed=10.0) -> di…)` | Physics checks of a ball video from its pixels; ``video`` is a :class:`Video` or frames (then give ``dt`` and ``px_per_m``). Returns ``{"checks": [...], "passed": bool, "track": ..., "g_fit": ...}``. |
-| `video_check` | função | `(seed=0, edit='none') -> dict[str, Any]` | A synthetic bouncing-ball video (exact physics, randomized camera), optionally edited (``"time_warp"``, ``"teleport"``, ``"fade"``, ``"gravity_flip"``), judged by :func:`physics_checks` from its pixels alone. |
-| `corrupt` | função | `(video, kind, seed=0) -> Video` | Non-physical edits: ``"time_warp"`` (motion played at a varying rate), ``"teleport"`` (frames swapped in the middle), ``"fade"`` (the object fades out), ``"gravity_flip"`` (the video played backwards in time after the first bounce, so the ball gains energy). |
-| `state_pairs` | função | `(videos) -> tuple[np.ndarray, np.ndarray]` | ``(s_t, s_t+1)`` with ``s = (x, y, vx, vy)`` in metres from the exact labels (the training data of a learned state dynamics). |
-| `render_like` | função | `(video, x_m, y_m) -> np.ndarray` | Frames of a trajectory ``(x_m, y_m)`` rendered with ``video``'s camera and appearance (its randomization parameters), noise from a fixed seed. |
+| `Video` | classe | `(frames, dt, px_per_m, labels, params)` | Uma cena: quadros `(T, H, W)`, passo de tempo, pixels por metro, rótulos e parâmetros. |
+| `WorldModel` | classe | `(H=64, W=96, latent=32, seed=0)` | Codificador conv, dinâmica latente GRU e decodificador, treinado para prever o próximo quadro; pequeno para CPU. |
+| `StateEncoder` | classe | `(H=64, W=96, seed=0)` | CNN pequena que lê o centro do objeto num quadro, treinada nos rótulos exatos. |
+| `CosmosAdapter` | classe | `(base_url, api_key=None, timeout=600.0)` | Cliente HTTP de um NIM NVIDIA Cosmos: envia prompt (e vídeo opcional) e decodifica o vídeo devolvido em quadros. |
+| `bouncing_ball_scene` | função | `(*, seed=0, T=48, fps=24.0, H=64, W=96, randomize=True, defect=False, e=None) -> Video` | Bola lançada quicando no chão, renderizada com aleatorização de domínio e rótulos exatos. |
+| `dataset` | função | `(n, *, seed=0, **kw) -> list[Video]` | Gera `n` vídeos de `bouncing_ball_scene` com sementes sucessivas. |
+| `track_object` | função | `(frames) -> dict[str, np.ndarray]` | Centro e área do objeto de maior contraste em cada quadro (NaN quando não há). |
+| `physics_checks` | função | `(video, *, dt=None, px_per_m=None, g=G, g_rtol=0.1, area_rtol=0.25, max_speed=10.0) -> di…)` | Checagens físicas de um vídeo de bola a partir dos pixels (gravidade ajustada, área, velocidade), com veredito. |
+| `video_check` | função | `(seed=0, edit='none') -> dict[str, Any]` | Gera um vídeo sintético, opcionalmente editado de forma não física, e o julga com `physics_checks`. |
+| `corrupt` | função | `(video, kind, seed=0) -> Video` | Edições não físicas: `time_warp`, `teleport`, `fade`, `gravity_flip`. |
+| `state_pairs` | função | `(videos) -> tuple[np.ndarray, np.ndarray]` | Pares `(s_t, s_t+1)` com posição e velocidade em metros tirados dos rótulos exatos. |
+| `render_like` | função | `(video, x_m, y_m) -> np.ndarray` | Renderiza uma trajetória com a câmera e a aparência de um vídeo dado. |
 
 #### `pinneapple_worldmodel.physics_renderer`
 
-Stage 4 — Physics Renderer.
+Estágio 4: converte campos em quadros RGB, térmicos, de profundidade e IR por colormaps e monta vídeos `.mp4` (PNG se não houver ffmpeg). [sem teste direto]
 
 <small>`pinneapple_worldmodel/physics_renderer.py` · 444 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RendererConfig` | classe | `(resolution, fps, sensors, colormap_rgb, colormap_thermal, colormap_depth, colormap_ir, d…)` | Configuration for the PhysicsRenderer. |
-| `RenderResult` | classe | `(frames, video_paths, png_dirs, field_stats)` | Output of PhysicsRenderer.render(). |
-| `PhysicsRenderer` | classe | `(config=None) -> None` | Render physical field trajectories into video frames. |
+| `RendererConfig` | classe | `(resolution, fps, sensors, colormap_rgb, colormap_thermal, colormap_depth, colormap_ir, d…)` | Configuração de renderização: resolução, fps, sensores, colormaps, dpi e qualidade de vídeo. |
+| `RenderResult` | classe | `(frames, video_paths, png_dirs, field_stats)` | Saída de `PhysicsRenderer.render()`: quadros, caminhos de vídeo e PNG e estatísticas de campo. |
+| `PhysicsRenderer` | classe | `(config=None) -> None` | Renderiza trajetórias de campos em quadros e vídeos por sensor. |
 
 #### `pinneapple_worldmodel.physics_solver_bridge`
 
-Stage 2 — Physics Solver Layer  +  Stage 3 — Physical Ground Truth Dataset.
+Estágios 2 e 3: despacha o cenário para `builtin` (PyTorch), OpenFOAM, FEniCS, PINN ou FNO, com aviso e retorno ao `builtin` quando o backend falta, e empacota a saída em Zarr (ou NumPy). [sem teste direto]
 
 <small>`pinneapple_worldmodel/physics_solver_bridge.py` · 837 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SolverOutput` | classe | `(fields, t_coords, x_coords, y_coords, z_coords, params, solver_name, metadata)` | Multivariate physical field history from one simulation run. |
-| `SolverBridgeConfig` | classe | `(solver, generate_temperature, generate_concentration, openfoam_case_dir, fenics_problem,…)` | Configuration for the PhysicsSolverBridge (Stage 2). |
-| `PhysicsSolverBridge` | classe | `(config=None) -> None` | Dispatch a physics scenario to the appropriate solver backend. |
-| `GroundTruthPackager` | classe | `(output_dir, format='zarr', zarr_chunks=None, overwrite=True) -> None` | Organise SolverOutput into the canonical Physical AI dataset structure. |
+| `SolverOutput` | classe | `(fields, t_coords, x_coords, y_coords, z_coords, params, solver_name, metadata)` | Histórico multivariado de campos (u, v, w, p, T, C) com coordenadas, parâmetros e nome do solver. |
+| `SolverBridgeConfig` | classe | `(solver, generate_temperature, generate_concentration, openfoam_case_dir, fenics_problem,…)` | Configuração do bridge: solver, campos extras, caso OpenFOAM, problema FEniCS, checkpoints PINN/FNO. |
+| `PhysicsSolverBridge` | classe | `(config=None) -> None` | Despacha um cenário para o backend de solver adequado. |
+| `GroundTruthPackager` | classe | `(output_dir, format='zarr', zarr_chunks=None, overwrite=True) -> None` | Organiza `SolverOutput` na estrutura canônica de dataset (Zarr ou NumPy). |
 
 #### `pinneapple_worldmodel.physics_tools`
 
-Pinneapple module capability inventory for tool-based orchestration.
+Cataloga capacidades dos pacotes como `PhysicsTool` com categoria, esquemas de entrada/saída e função, usadas pelo orquestrador; ferramentas cujo pacote falta ficam indisponíveis.
 
 <small>`pinneapple_worldmodel/physics_tools.py` · 983 linhas · testes: 35</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsTool` | classe | `(name, category, description, input_schema, output_schema, module_path, fn, tags)` | One registered physics capability. |
-| `PhysicsToolRegistry` | classe | `() -> None` | Catalogue of all Pinneapple capabilities as callable tools. |
+| `PhysicsTool` | classe | `(name, category, description, input_schema, output_schema, module_path, fn, tags)` | Uma capacidade registrada: nome, categoria, descrição, esquemas, módulo, função e tags. |
+| `PhysicsToolRegistry` | classe | `() -> None` | Catálogo das capacidades como ferramentas chamáveis, com busca por categoria, tag ou texto. |
 
 #### `pinneapple_worldmodel.pipeline`
 
-Physics AI Pipeline — unified entry point.
+`PhysicsAIPipeline`: roda os cinco estágios (dados, especialistas, meta-aprendizado, fundação, benchmark) a partir de um `PhysicsAIConfig`. [sem teste direto]
 
 <small>`pinneapple_worldmodel/pipeline.py` · 498 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAIConfig` | classe | `(scenarios, sources, n_samples, device, save_dir, specialist_epochs, specialist_lr, speci…)` | Complete configuration for :class:`PhysicsAIPipeline`. |
-| `PhysicsAIPipelineResult` | classe | `(catalog, zoo, meta_model, mega_model, benchmark, elapsed_s)` | All outputs of :class:`PhysicsAIPipeline.run`. |
-| `PhysicsAIPipeline` | classe | `(config) -> None` | Build a generalist physics AI world model using all Pinneapple tools. |
+| `PhysicsAIConfig` | classe | `(scenarios, sources, n_samples, device, save_dir, specialist_epochs, specialist_lr, speci…)` | Configuração completa do `PhysicsAIPipeline`. |
+| `PhysicsAIPipelineResult` | classe | `(catalog, zoo, meta_model, mega_model, benchmark, elapsed_s)` | Saídas do pipeline: catálogo, zoo, meta-modelo, mega-modelo, benchmark e tempo. |
+| `PhysicsAIPipeline` | classe | `(config) -> None` | Constrói o world model generalista rodando todos os estágios. |
 
 #### `pinneapple_worldmodel.reality_randomizer`
 
-Stage 6 — Reality Randomizer.
+Estágio 6: aplica aumentos de imagem com probabilidade e intensidade configuráveis, sem tocar os arrays físicos. [sem teste direto]
 
 <small>`pinneapple_worldmodel/reality_randomizer.py` · 328 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RandomizerConfig` | classe | `(seed, p_sensor_noise, gaussian_std, poisson_scale, p_jpeg, jpeg_quality_lo, jpeg_quality…)` | Controls which augmentations are applied and their strength. |
-| `RealityRandomizer` | classe | `(config=None) -> None` | Apply reality-gap augmentations to rendered image sequences. |
+| `RandomizerConfig` | classe | `(seed, p_sensor_noise, gaussian_std, poisson_scale, p_jpeg, jpeg_quality_lo, jpeg_quality…)` | Quais aumentos aplicar, com que probabilidade e intensidade. |
+| `RealityRandomizer` | classe | `(config=None) -> None` | Aplica aumentos de diferença sim-real a sequências de imagens. |
 
 #### `pinneapple_worldmodel.robot_perception`
 
-Robot perception data from the robot sim: arm motions simulated by PINNeAPPle Robot Sim (NVIDIA Newton), written as OpenUSD timelines with a camera, seen by a randomized synthetic camera, labelled with the simulator's exact joint angles, and checked for what a perception model of a robot must …
+Movimentos de braço de dois elos simulados no Robot Sim (NVIDIA Newton), gravados como linha do tempo OpenUSD, renderizados por câmera aleatorizada e rotulados com os ângulos exatos, com checagens de percepção.
 
 <small>`pinneapple_worldmodel/robot_perception.py` · 283 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CameraVariation` | classe | `(zoom, offset, gain, noise, blur, albedo, background, occluder)` |  |
-| `ImageRegressor` | classe | `(H, W, n_out, seed=0)` | A small CNN from a grey image ``(H, W)`` to ``n_out`` numbers. |
-| `forward_points` | função | `(arm, q) -> dict[str, np.ndarray]` | Elbow and tool point ``(T, 2)`` in the x-z plane for joint angles ``q (T, 2)`` (the simulator's convention: angles from the horizontal, positive turning x towards -z). |
-| `arm_motions` | função | `(arm, n, seed, *, duration=0.8, dt=0.001, fps=30.0, kp=(350.0, 110.0), kd=(5.0, 2.5), q_b…)` | ``n`` random point-to-point moves simulated in Newton, sampled at ``fps`` (or the given ``moves``: ``[(q_start, q_end)]``). |
-| `sample_camera` | função | `(rng, *, occluder_p=0.3) -> CameraVariation` |  |
-| `write_motion_stage` | função | `(path, arm, motion, var, *, payload=None) -> str` | ``payload``: ``(V, F, grey)``, a mesh carried at the tool point (in the tool frame: x along the forearm). |
-| `camera_frames` | função | `(path, arm, motion, var, H=72, W=72, seed=0) -> np.ndarray` | ``(T, H, W)`` grey frames of the stage at each recorded time. |
-| `visibility` | função | `(arm, motion, var, *, margin=0.03) -> np.ndarray` | Per frame: are the elbow and the tool point inside the image and not behind the occluder? |
-| `payload_track_check` | função | `(frames, arm, motion, var, *, tol_px=2.0, offset=(0.0, 0.0)) -> dict` | Does each frame show the carried part where the kinematics put it? The centroid of the pixels brighter than the links (the part is drawn white, the links grey: threshold half-way between the two after the camera's gamma and gain) against the tool point, plus the part's ``offset`` (x, z in the tool … |
-| `arm_camera_sample` | função | `(payload=5.0, seed=0, occluder=False, usd_path='arm_camera_sample.usda') -> dict` | One labelled perception sample: a random arm move in the robot sim (Newton), its USD timeline with a side camera (random variation, an occluder if asked) at ``usd_path``, the camera frames, and the label checks (the forward kinematics against the simulator's link poses, the frames that show the … |
-| `angle_features` | função | `(q) -> np.ndarray` |  |
-| `feature_angles` | função | `(f) -> np.ndarray` |  |
-| `perception_checks` | função | `(q_pred, motion, arm, *, qd_max=12.0) -> dict` | Errors of a predicted angle sequence for one motion, all frames visible. |
+| `CameraVariation` | classe | `(zoom, offset, gain, noise, blur, albedo, background, occluder)` | Variação da câmera sintética: zoom, offset, ganho, ruído, blur, albedo, fundo e oclusor. |
+| `ImageRegressor` | classe | `(H, W, n_out, seed=0)` | CNN pequena de uma imagem cinza para `n_out` números. |
+| `forward_points` | função | `(arm, q) -> dict[str, np.ndarray]` | Cotovelo e ponto da ferramenta no plano x-z para ângulos de junta dados. |
+| `arm_motions` | função | `(arm, n, seed, *, duration=0.8, dt=0.001, fps=30.0, kp=(350.0, 110.0), kd=(5.0, 2.5), q_b…)` | Gera `n` movimentos ponto a ponto aleatórios simulados no Newton, amostrados em `fps`. |
+| `sample_camera` | função | `(rng, *, occluder_p=0.3) -> CameraVariation` | Sorteia uma `CameraVariation`, com oclusor com probabilidade `occluder_p`. |
+| `write_motion_stage` | função | `(path, arm, motion, var, *, payload=None) -> str` | Grava o movimento como linha do tempo OpenUSD, com carga opcional presa à ferramenta. |
+| `camera_frames` | função | `(path, arm, motion, var, H=72, W=72, seed=0) -> np.ndarray` | Quadros cinza `(T, H, W)` do estágio em cada instante registrado. |
+| `visibility` | função | `(arm, motion, var, *, margin=0.03) -> np.ndarray` | Por quadro, se cotovelo e ferramenta estão na imagem e não atrás do oclusor. |
+| `payload_track_check` | função | `(frames, arm, motion, var, *, tol_px=2.0, offset=(0.0, 0.0)) -> dict` | Verifica se cada quadro mostra a peça carregada onde a cinemática a coloca. |
+| `arm_camera_sample` | função | `(payload=5.0, seed=0, occluder=False, usd_path='arm_camera_sample.usda') -> dict` | Uma amostra rotulada de percepção: movimento, estágio USD com câmera, quadros e checagens. |
+| `angle_features` | função | `(q) -> np.ndarray` | Converte ângulos de junta em features `sin`/`cos`. |
+| `feature_angles` | função | `(f) -> np.ndarray` | Inverso de `angle_features`: recupera os ângulos por `arctan2`. |
+| `perception_checks` | função | `(q_pred, motion, arm, *, qd_max=12.0) -> dict` | Erros de uma sequência de ângulos prevista para um movimento, com limite de velocidade de junta. |
 
 #### `pinneapple_worldmodel.scenario`
 
-Physics scenario definitions for world model training.
+Define `PhysicsScenario` (PDE, grade, tempo, faixas de parâmetros, CI/CC, solver) e o registro de cenários embutidos. [sem teste direto]
 
 <small>`pinneapple_worldmodel/scenario.py` · 253 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsScenario` | classe | `(name, pde_kind, grid_shape, t_span, n_steps, domain_bounds, param_ranges, ic_type, bc_ty…)` | Complete specification of a physics simulation problem. |
+| `PhysicsScenario` | classe | `(name, pde_kind, grid_shape, t_span, n_steps, domain_bounds, param_ranges, ic_type, bc_ty…)` | Especificação completa de um problema físico para o world model. |
 
 #### `pinneapple_worldmodel.scenario_generator`
 
-Stage 1 — Scenario Generator.
+Estágio 1: transforma JSON, nome ou frase (extração heurística por palavras-chave, por exemplo número de Reynolds) num `ScenarioSpec` completo. [sem teste direto]
 
 <small>`pinneapple_worldmodel/scenario_generator.py` · 360 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ScenarioSpec` | classe | `(scenario, domain, geometry, fluid, boundary_conditions, initial_conditions, sensor_confi…)` | Extended scenario specification produced by the generator. |
-| `ScenarioGenerator` | classe | `(default_grid_2d=(64, 64), default_n_steps=32, device='cpu') -> None` | Convert a user prompt or JSON dict into a :class:`ScenarioSpec`. |
+| `ScenarioSpec` | classe | `(scenario, domain, geometry, fluid, boundary_conditions, initial_conditions, sensor_confi…)` | Especificação estendida: cenário, domínio, geometria, fluido, contorno, condições iniciais e sensores. |
+| `ScenarioGenerator` | classe | `(default_grid_2d=(64, 64), default_n_steps=32, device='cpu') -> None` | Converte prompt, JSON, dicionário ou nome num `ScenarioSpec`. |
 
 #### `pinneapple_worldmodel.simulator`
 
-Physics trajectory simulator.
+Gera trajetórias `(T+1, C, *grid)` tentando solvers de `pinneapple_simulation` (FDM, LBM, FEM) e caindo para solvers PyTorch embutidos de calor, Burgers, onda, advecção e NS2D. [sem teste direto]
 
 <small>`pinneapple_worldmodel/simulator.py` · 630 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TrajectoryData` | classe | `(states, params, scenario_name, metadata)` | One physics trajectory: sequence of field snapshots + metadata. |
-| `PhysicsSimulator` | classe | `(scenario, *, device='cpu', verbose=False) -> None` | Generate physics trajectories from a :class:`PhysicsScenario`. |
+| `TrajectoryData` | classe | `(states, params, scenario_name, metadata)` | Uma trajetória: sequência de campos, parâmetros, cenário e metadados. |
+| `PhysicsSimulator` | classe | `(scenario, *, device='cpu', verbose=False) -> None` | Gera trajetórias de um `PhysicsScenario` com o backend disponível. |
 
 #### `pinneapple_worldmodel.specialist_trainer`
 
-Specialist model training using Pinneapple's full training stack.
+Treina um especialista por cenário com validação física opcional (`pinneapple_analysis.validation`) e transferência (`pinneapple_adaptation`); o docstring ainda cita pacotes com nomes antigos. [sem teste direto]
 
 <small>`pinneapple_worldmodel/specialist_trainer.py` · 423 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpecialistConfig` | classe | `(model, epochs, lr, batch_size, device, val_fraction, patience, grad_clip, rollout_steps,…)` | Training configuration for :class:`SpecialistTrainer`. |
-| `SpecialistTrainer` | classe | `(config, *, physics_loss_fn=None, pretrained_zoo=None) -> None` | Train specialist models and populate a :class:`~.model_zoo.ModelZoo`. |
+| `SpecialistConfig` | classe | `(model, epochs, lr, batch_size, device, val_fraction, patience, grad_clip, rollout_steps,…)` | Configuração do treino de especialistas (épocas, taxa, lote, paciência, rollout, transferência, UQ). |
+| `SpecialistTrainer` | classe | `(config, *, physics_loss_fn=None, pretrained_zoo=None) -> None` | Treina especialistas e preenche um `ModelZoo`. |
 
 #### `pinneapple_worldmodel.synthetic_factory`
 
-Physics Synthetic Data Factory for Physical AI.
+Fábrica de dados sintéticos de ponta a ponta (cenário, simulação, renderização, câmeras, aleatorização, realce, empacotamento, hooks de treino) com atalhos para tubo, cilindro, calor e mistura. [sem teste direto]
 
 <small>`pinneapple_worldmodel/synthetic_factory.py` · 525 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SyntheticFactoryConfig` | classe | `(scenario_input, n_samples, output_dir, device, render_fps, sensors, render_resolution, a…)` | Single configuration dataclass covering all 9 stages. |
-| `FactoryResult` | classe | `(config, spec, samples, output_dir, elapsed_s)` | Output of SyntheticDataFactory.generate_dataset(). |
-| `SyntheticDataFactory` | classe | `(config=None) -> None` | Physics Synthetic Data Factory for Physical AI. |
-| `generate_pipe_flow` | função | `(n_samples=20, output_dir='./pipe_dataset', **kw) -> FactoryResult` | Generate a pipe flow dataset (NS2D, Re=100-5000). |
-| `generate_cylinder_flow` | função | `(n_samples=20, output_dir='./cylinder_dataset', **kw) -> FactoryResult` | Generate flow-around-cylinder dataset (classic von Karman vortex shedding). |
-| `generate_heat_transfer` | função | `(n_samples=20, output_dir='./heat_dataset', **kw) -> FactoryResult` | Generate 2D heat conduction dataset. |
-| `generate_chemical_mixing` | função | `(n_samples=20, output_dir='./mixing_dataset', **kw) -> FactoryResult` | Generate chemical mixing / advection-diffusion dataset. |
+| `SyntheticFactoryConfig` | classe | `(scenario_input, n_samples, output_dir, device, render_fps, sensors, render_resolution, a…)` | Configuração única de todos os estágios da fábrica sintética. |
+| `FactoryResult` | classe | `(config, spec, samples, output_dir, elapsed_s)` | Saída de `SyntheticDataFactory.generate_dataset()`: configuração, spec, amostras, pasta e tempo. |
+| `SyntheticDataFactory` | classe | `(config=None) -> None` | Fábrica de dados sintéticos de ponta a ponta para IA física. |
+| `generate_pipe_flow` | função | `(n_samples=20, output_dir='./pipe_dataset', **kw) -> FactoryResult` | Gera um dataset de escoamento em tubo (NS2D, Re de 100 a 5000). |
+| `generate_cylinder_flow` | função | `(n_samples=20, output_dir='./cylinder_dataset', **kw) -> FactoryResult` | Gera um dataset de escoamento ao redor de cilindro (esteira de von Kármán). |
+| `generate_heat_transfer` | função | `(n_samples=20, output_dir='./heat_dataset', **kw) -> FactoryResult` | Gera um dataset de condução de calor 2D. |
+| `generate_chemical_mixing` | função | `(n_samples=20, output_dir='./mixing_dataset', **kw) -> FactoryResult` | Gera um dataset de mistura química (advecção-difusão). |
 
 #### `pinneapple_worldmodel.train`
 
-Physics World Model training entry point.
+Entrada de treino com quatro modos (specialist, meta, foundation, pipeline), como funções e CLI. [sem teste direto]
 
 <small>`pinneapple_worldmodel/train.py` · 593 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `train_specialist` | função | `(catalog, output_dir, *, epochs=50, batch_size=32, lr=0.001, device='cpu', patience=10, n…)` | Train one specialist model per scenario in the catalog. |
-| `train_meta` | função | `(catalog, output_dir, *, algorithm='reptile', n_meta_epochs=100, n_inner_steps=5, inner_l…)` | Meta-train a shared initialisation over the full scenario catalog. |
-| `train_foundation` | função | `(catalog, output_dir, *, base_ckpt=None, epochs=30, batch_size=16, lr=0.0005, device='cpu…)` | Build and fine-tune the PhysicsFoundationModel (mega-model with LoRA). |
-| `run_pipeline` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./checkpoints/worldmodel', devi…)` | Run the complete 5-stage Physics AI pipeline. |
-| `main` | função | `() -> None` |  |
+| `train_specialist` | função | `(catalog, output_dir, *, epochs=50, batch_size=32, lr=0.001, device='cpu', patience=10, n…)` | Treina um especialista por cenário do catálogo. |
+| `train_meta` | função | `(catalog, output_dir, *, algorithm='reptile', n_meta_epochs=100, n_inner_steps=5, inner_l…)` | Meta-treina uma inicialização compartilhada sobre o catálogo. |
+| `train_foundation` | função | `(catalog, output_dir, *, base_ckpt=None, epochs=30, batch_size=16, lr=0.0005, device='cpu…)` | Monta e ajusta o `PhysicsFoundationModel` com LoRA. |
+| `run_pipeline` | função | `(scenarios=None, sources=None, n_samples=100, output_dir='./checkpoints/worldmodel', devi…)` | Roda o pipeline completo de cinco estágios. |
+| `main` | função | `() -> None` | Ponto de entrada da linha de comando de treino. |
 
 #### `pinneapple_worldmodel.trainer`
 
-World model training loop.
+Laço de treino do `PhysicsWorldModel` com perda de rollout autoregressivo, perda física opcional e validação por RMSE e L2 relativo. [sem teste direto]
 
 <small>`pinneapple_worldmodel/trainer.py` · 421 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WorldModelLoss` | classe | `(rollout_steps=1, rollout_weight=0.5, physics_loss_fn=None, physics_weight=0.01) -> None` | Multi-step rollout loss for world model training. |
-| `WorldModelTrainConfig` | classe | `(epochs, lr, weight_decay, batch_size, val_fraction, device, amp, grad_clip, rollout_step…)` | Training hyperparameters for :class:`WorldModelTrainer`. |
-| `WorldModelTrainer` | classe | `(model, config, *, physics_loss_fn=None) -> None` | Train a :class:`PhysicsWorldModel` on a :class:`WorldModelDataset`. |
+| `WorldModelLoss` | classe | `(rollout_steps=1, rollout_weight=0.5, physics_loss_fn=None, physics_weight=0.01) -> None` | Perda de rollout multi-passo com termo físico opcional. |
+| `WorldModelTrainConfig` | classe | `(epochs, lr, weight_decay, batch_size, val_fraction, device, amp, grad_clip, rollout_step…)` | Hiperparâmetros do `WorldModelTrainer`. |
+| `WorldModelTrainer` | classe | `(model, config, *, physics_loss_fn=None) -> None` | Treina um `PhysicsWorldModel` num `WorldModelDataset`. |
 
 #### `pinneapple_worldmodel.training_hooks`
 
-Stage 9 — Model Training Layer.
+Estágio 9: datasets PyTorch sobre o dataset empacotado para quatro objetivos (codificador de vídeo, decodificador de campo, PINN inversa, operador neural); sem arquivo de embedding, o decodificador recebe embedding zero. [sem teste direto]
 
 <small>`pinneapple_worldmodel/training_hooks.py` · 478 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAIDataset` | classe | `(dataset_dir, fields=('u', 'v', 'p', 'T'), sensors=(), max_samples=None, device='cpu') ->…)` | Base dataset over a packaged Physical AI dataset directory. |
-| `CosmosEncoderDataset` | classe | `(dataset_dir, video_sensors=('rgb', 'thermal'), field_names=('u', 'v', 'p', 'T'), **kwarg…)` | Dataset for training a video → latent embedding encoder. |
-| `PhysicsDecoderDataset` | classe | `(dataset_dir, embedding_dim=512, field_names=('u', 'v', 'p', 'T'), device='cpu', max_samp…)` | Dataset for training a latent embedding → physical field decoder. |
-| `InversePINNDataset` | classe | `(dataset_dir, param_keys=None, video_sensor='rgb', **kwargs) -> None` | Dataset for inverse PINN training: video frames → physical parameters. |
-| `NeuralOperatorDataset` | classe | `(dataset_dir, field_names=('u', 'v', 'p'), horizon=1, subsample_t=1, device='cpu', max_sa…)` | Dataset for training neural operators on (state_t, state_{t+1}) pairs. |
-| `TrainingHooks` | classe | `(dataset_dir, device='cpu') -> None` | Convenience factory for all training dataset types. |
+| `PhysicsAIDataset` | classe | `(dataset_dir, fields=('u', 'v', 'p', 'T'), sensors=(), max_samples=None, device='cpu') ->…)` | Dataset base sobre as amostras empacotadas (campos e sensores escolhidos). |
+| `CosmosEncoderDataset` | classe | `(dataset_dir, video_sensors=('rgb', 'thermal'), field_names=('u', 'v', 'p', 'T'), **kwarg…)` | Dataset para treinar um codificador vídeo -> embedding latente. |
+| `PhysicsDecoderDataset` | classe | `(dataset_dir, embedding_dim=512, field_names=('u', 'v', 'p', 'T'), device='cpu', max_samp…)` | Dataset para treinar um decodificador embedding -> campos físicos (embedding zero se não houver arquivo). |
+| `InversePINNDataset` | classe | `(dataset_dir, param_keys=None, video_sensor='rgb', **kwargs) -> None` | Dataset para PINN inversa: quadros de vídeo -> parâmetros físicos. |
+| `NeuralOperatorDataset` | classe | `(dataset_dir, field_names=('u', 'v', 'p'), horizon=1, subsample_t=1, device='cpu', max_sa…)` | Dataset de pares (estado, próximo estado) para operadores neurais. |
+| `TrainingHooks` | classe | `(dataset_dir, device='cpu') -> None` | Fábrica de conveniência para todos os tipos de dataset de treino. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Gerar dados e treinar especialistas** — `examples/worldmodel/01_generate_train_evaluate.py`
+
+```python
+    from pinneapple_worldmodel import train_specialist
+
+    t0 = time.perf_counter()
+    zoo = train_specialist(
+        catalog      = catalog,
+        output_dir   = Path(cfg["output_dir"]) / "checkpoints",
+        epochs       = cfg["epochs"],
+        batch_size   = cfg["batch_size"],
+        lr           = cfg["lr"],
+        device       = cfg["device"],
+        patience     = max(cfg["epochs"] // 3, 5),
+        n_modes      = cfg["n_modes"],
+        width        = cfg["width"],
+```
+
+**Vídeo sintético julgado por checagens físicas** — `examples/nvidia/04_worldmodel_physics_video/run.py`
+
+```python
+        with info.step("synthetic videos (exact physics + randomization)"):
+            train = dataset(n_train, seed=100, defect=False)
+            test = [v for v in dataset(n_test, seed=5000)]
+            test_def = dataset(max(2, n_test // 5), seed=7000, defect=True)
+        with info.step("checks on ground truth and edits"):
+            gt = [physics_checks(v) for v in test + test_def]
+            bad = {k: [physics_checks(corrupt(v, k)) for v in test] for k in KINDS}
+```
 
 ### Testes e status de validação
 
@@ -5458,7 +5492,14 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- A maior parte dos módulos não tem teste que os importe diretamente; os testados são `physical_world`, `inspection_data`, `robot_perception`, `physics_tools`, `orchestrator`, `dataset` e `model`.
+- Os docstrings citam pacotes com nomes antigos que não existem no repositório (`pinneapple_pinn`, `pinneapple_symbolic`, `pinneapple_validate`, `pinneapple_uq`, `pinneapple_transfer`, `pinneapple_meta`); o código usa `pinneapple_physics`, `pinneapple_analysis`, `pinneapple_adaptation` e `pinneapple_simulation`. Também citam `MAMLWorldModel`, `ReptileWorldModel` e `make_pipe_bend`, que não existem.
+- `PhysicsFoundationModel` só suporta grades 1D e 2D (3D ainda não, segundo o docstring).
+- `PhotorealisticEnhancer`: o backend padrão é identidade, `local_diffusion` exige `diffusers` e `cosmos` é placeholder ainda indisponível; backends ausentes caem para identidade com aviso.
+- `PhysicsSolverBridge` e `PhysicsSimulator` caem para solvers PyTorch embutidos (com aviso) quando OpenFOAM, FEniCS ou checkpoints PINN/FNO não estão disponíveis.
+- `ScenarioGenerator.from_prompt` e o `PhysicsOrchestrator` usam heurísticas: extração por palavras-chave e um plano fixo por tipo de problema, sem modelo de linguagem.
+- `inspection_data` e `robot_perception` precisam de OpenUSD (`pxr`); `robot_perception` precisa do NVIDIA Newton; `CosmosAdapter` precisa de um endpoint NIM Cosmos e de `imageio` com ffmpeg.
+- Em `training_hooks`, `PhysicsDecoderDataset` devolve um embedding zero como placeholder quando os embeddings não foram pré-calculados.
 
 ## 7. `pinneapple_perception`
 

@@ -1100,7 +1100,7 @@ Pipeline de descoberta: busca artigos no arXiv e repositórios no GitHub sobre o
 
 #### `pinneapple_tools.hpo_experiments.pipelines.export_problemdesign`
 
-Exporta soluções extraídas num esquema estilo ProblemDesign em JSON; o arquivo complementar depende de `pinneapple_problemdesign`, que não está no repositório. [sem teste]
+Exporta soluções extraídas num esquema estilo ProblemDesign em JSON; o arquivo complementar só é escrito quando `pinneapple_problemdesign` pode ser importado. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/export_problemdesign.py` · 169 linhas · **sem teste direto**</small>
 
@@ -2196,7 +2196,7 @@ def test_sentence_picks_the_workflow_and_converts_units():
 - Os backends DeepXDE, JAX e PhysicsNeMo Sym dependem de pacotes opcionais e falham com `RuntimeError`/`ImportError` se eles não estiverem instalados; DeepXDE, JAX, nativo e multi-modelo não têm teste direto.
 - `BenchmarkTaskBase` levanta `NotImplementedError` nos métodos abstratos; os runners de linha de comando (`runner/*`), `physics_pipeline` e `timeseries_pipeline` não têm teste direto.
 - `hpo_experiments` não tem nenhum teste, depende de rede (arXiv, GitHub) e de uma chave da API Gemini, e o pipeline `reproduce` executa com `python run.py`/`main.py` código gerado por LLM, sem sandbox.
-- `export_problemdesign` só escreve o arquivo complementar se `pinneapple_problemdesign` existir; esse pacote não está no repositório.
+- `export_problemdesign` só escreve o arquivo complementar se `pinneapple_problemdesign` puder ser importado (o pacote existe no repositório; o import fica dentro de um try).
 - O docstring de `pinneapple_tools.nvidia` lista os módulos `nim`, `cosmos` e `testing`, que não existem na pasta; Isaac Sim, Omniverse Kit RTX e USD BRep (wheel CPython 3.12) são externos e opcionais.
 - Partes do `visualization` exigem pacotes opcionais (`bpy` para Blender, `pyvista`/`vtk`, `rerun-sdk`, `plotly`, `trame`, `playwright` para capturas, ffmpeg para MP4); muitos módulos de gráficos clássicos (`fields`, `pinn`, `solver`, `mesh`, `voxel`, `animation`, `style`) não têm teste direto.
 - `sandbox.custom_solver_runner` não é uma fronteira de segurança: só limita memória virtual, CPU e tempo de relógio; o script ainda acessa arquivos, rede e pode criar processos (aviso do próprio docstring).

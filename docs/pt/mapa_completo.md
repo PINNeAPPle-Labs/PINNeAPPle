@@ -210,7 +210,7 @@ Em palavras:
 | `pp.EnsembleKalmanInversion` | import direto | `pinneapple_analysis.inverse_problems.EnsembleKalmanInversion` |  |
 | `pp.EnsembleUQ` | import direto | `pinneapple_analysis.uncertainty.EnsembleUQ` |  |
 | `pp.env` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.pde_environment` | Ponto de entrada do ambiente de problemas: reexporta `ProblemSpec`, `PDETermSpec`, as condições de contorno, `ProblemBuilder`, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de `try/except ImportError`. [sem teste direto] |
-| `pp.excitation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.excitation` |  |
+| `pp.excitation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.excitation` | Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleatória, PRBS, chirp, dente de serra, passeio aleatório suavizado, pulsos gaussianos, AM de dois tons) para identificação de sistemas e treino de surrogates; separa famílias de treino e famílias reservadas (`TRAIN_FAMILIES`, `HELDOUT_FAMILIES`). |
 | `pp.execute` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.execute` | Execute a decision issued by the same engine (constraints are re-checked first). |
 | `pp.Experiment` | import direto | `pinneapple_physics.experiment.Experiment` | A method applied to a problem, with a seed, options and an optional reference to score against. |
 | `pp.ExperimentResult` | import direto | `pinneapple_physics.experiment.ExperimentResult` |  |
@@ -406,7 +406,7 @@ Em palavras:
 | `pp.WeightMinimizationObjective` | import direto | `pinneapple_design.design_optimizer.WeightMinimizationObjective` |  |
 | `pp.WeightScheduler` | import direto | `pinneapple_neural.trainer.WeightScheduler` |  |
 | `pp.WeightSchedulerConfig` | import direto | `pinneapple_neural.trainer.WeightSchedulerConfig` |  |
-| `pp.worldmodel` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_worldmodel` | pinneapple_worldmodel — Generalist Physics AI World Model. |
+| `pp.worldmodel` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_worldmodel` | Ponto de entrada do pacote: reexporta o pipeline, o orquestrador, cenários, modelos e fábricas; o docstring descreve o pipeline de cinco estágios do modelo de fundação física. |
 | `pp.WorldModelConfig` | import direto | `pinneapple_worldmodel.WorldModelConfig` |  |
 | `pp.WorldModelDataset` | import direto | `pinneapple_worldmodel.WorldModelDataset` |  |
 | `pp.WorldModelTrainer` | import direto | `pinneapple_worldmodel.WorldModelTrainer` |  |

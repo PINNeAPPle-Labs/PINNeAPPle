@@ -2823,7 +2823,11 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_problemdesign` ajuda a transformar uma descrição de problema em linguagem natural numa especificação estruturada e num plano de solução com o PINNeAPPle. O núcleo é o `DesignAgent`, que conversa com um LLM por estágios, preenche um `ProblemSpec` (dados, física, geometria, validação, implantação, restrições) e aplica uma política de não invenção: o que o usuário não informou vira `Gap` (pergunta) ou suposição marcada, nunca um valor inventado. O resultado é um `DesignReport` (Markdown ou JSON) com um plano FNO-first, PINN-first ou CFD-first.
+
+A partir do spec, `codegen.build_pinneapple_spec` gera um `PinneappleSpec` com tipo de EDP, campos, modelo e código de pipeline; `method_selection` sugere método numérico e fechamento de turbulência com base no regime de escoamento (usando `pinneapple_analysis` e o registro de solvers de `pinneapple_simulation`); `knowledge.physics_knowledge` liga fenômenos a equações e presets de `pinneapple_physics`; e `preset_authoring` deixa um LLM propor uma EDP nova, aceitando-a só se passar numa checagem por solução manufaturada.
+
+A parte agêntica compõe peças de outros pacotes sem alterá-las: `UnifiedPhysicsAgent` liga a elicitação ao `PhysicsOrchestrator` de `pinneapple_worldmodel`, e `AutonomousResearchAgent` roda iterações com memória de experimentos (`pinneapple_registry`) e validação por guardrail (`pinneapple_llm`). Tudo isso passa pela `ApprovalGate` de `autonomy`, que exige aprovação humana para ações consequentes (custo, ferramenta licenciada, efeitos fora do sandbox) em qualquer nível de autonomia. Os provedores de LLM incluídos são Gemini e um gateway HTTP (Cosmos); qualquer objeto com `generate` serve.
 
 ### Números do inventário
 
@@ -2835,24 +2839,24 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `agent` |  | 1 | 1 | 0 |
-| `autonomy` |  | 1 | 5 | 41 |
-| `cli` |  | 1 | 1 | 0 |
-| `codegen` |  | 1 | 1 | 0 |
-| `elicitation` |  | 4 | 3 | 0 |
-| `extractor` |  | 1 | 1 | 0 |
-| `knowledge` |  | 4 | 7 | 22 |
-| `merge` |  | 1 | 1 | 0 |
-| `method_selection` |  | 1 | 3 | 11 |
-| `policy` |  | 1 | 1 | 0 |
-| `preset_authoring` |  | 1 | 5 | 15 |
-| `protocol` |  | 1 | 4 | 20 |
-| `providers` |  | 2 | 3 | 0 |
-| `renderers` |  | 3 | 2 | 0 |
-| `research_loop` |  | 1 | 3 | 9 |
-| `schema` |  | 1 | 16 | 70 |
-| `state` |  | 1 | 2 | 0 |
-| `unified_agent` |  | 1 | 2 | 0 |
+| `agent` | Agente de elicitação `DesignAgent`. | 1 | 1 | 0 |
+| `autonomy` | Trava de aprovação humana para ações consequentes. | 1 | 5 | 41 |
+| `cli` | CLI interativa do agente com Gemini. | 1 | 1 | 0 |
+| `codegen` | Gera `PinneappleSpec` e código a partir do `ProblemSpec`. | 1 | 1 | 0 |
+| `elicitation` | Estágios, perguntas de lacuna e validadores da elicitação. | 4 | 3 | 0 |
+| `extractor` | Extração JSON de requisitos via LLM. | 1 | 1 | 0 |
+| `knowledge` | Construtores de plano, base de fenômenos físicos e mapa de capacidades. | 4 | 7 | 22 |
+| `merge` | Mescla de dados extraídos no spec. | 1 | 1 | 0 |
+| `method_selection` | Recomendação de método numérico e turbulência pelo regime. | 1 | 3 | 11 |
+| `policy` | Política de não invenção. | 1 | 1 | 0 |
+| `preset_authoring` | Rascunho de preset por LLM verificado por solução manufaturada. | 1 | 5 | 15 |
+| `protocol` | Protocolo de LLM e provedor Gemini. | 1 | 4 | 20 |
+| `providers` | Provedores de LLM adicionais (Cosmos). | 2 | 3 | 0 |
+| `renderers` | Relatórios em Markdown e JSON. | 3 | 2 | 0 |
+| `research_loop` | Agente de pesquisa autônomo sob a trava de aprovação. | 1 | 3 | 9 |
+| `schema` | Dataclasses do problema, plano e relatório. | 1 | 16 | 70 |
+| `state` | Estado da conversa de design. | 1 | 2 | 0 |
+| `unified_agent` | Elicitação + `PhysicsOrchestrator` num laço único. | 1 | 2 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2860,305 +2864,338 @@ _Sem texto de objetivo._
 
 #### `pinneapple_problemdesign`
 
-_Módulo sem docstring e sem texto._
+Reexporta o agente de design, o esquema do problema, o estado, o protocolo de LLM, o gerador de código e a trava de autonomia; `UnifiedPhysicsAgent` e `AutonomousResearchAgent` só são exportados se as dependências opcionais (`pinneapple_worldmodel`, `pinneapple_registry`) importarem.
 
 <small>`pinneapple_problemdesign/__init__.py` · 62 linhas · testes: 58</small>
 
 #### `pinneapple_problemdesign.agent`
 
-Design agent for interactive problem elicitation via LLM.
+`DesignAgent`: elicitação interativa do problema via LLM, com extração estruturada em JSON, mescla segura no `ProblemSpec` e política de não invenção (o que é desconhecido vira `Gap`). [sem teste direto]
 
 <small>`pinneapple_problemdesign/agent.py` · 194 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DesignAgent` | classe | `(llm, use_orchestrator_bridge=True)` | High-level flow: - ingest user message - structured extraction (json_mode=True) - safe merge into ProblemSpec - non-invention policy => unknown -> Gap, assumptions -> Assumption - stage-based gap generation - once sufficient => build plan (FNO-first) and render report |
+| `DesignAgent` | classe | `(llm, use_orchestrator_bridge=True)` | Agente que conduz a elicitação por estágios: ingere mensagens, extrai campos, gera perguntas de lacuna e, ao fim, o relatório. |
 
 #### `pinneapple_problemdesign.autonomy`
 
-Autonomy safety-boundary gate for the autonomous physics research loop.
+Trava de segurança do laço de pesquisa autônomo: classifica ações consequentes (custo, ferramenta licenciada, efeito fora do sandbox) e exige aprovação humana nelas em qualquer nível de autonomia, falhando fechado.
 
 <small>`pinneapple_problemdesign/autonomy.py` · 481 linhas · testes: 41</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AutonomyLevel` | classe | `()` | How much of the research loop's step-by-step decision-making runs without a human in the loop. |
-| `ConsequentialActionClassifier` | classe | `(*, name_patterns=None, category_patterns=None, tag_patterns=None, exceptions=None) -> No…)` | Explicit, inspectable (no ML/fuzzy matching) classifier for whether a tool call is "consequential": crosses outside pure sandboxed simulation/computation/validation because it costs real money, invokes a licensed external tool per-run, or would affect something outside this sandbox (an external … |
-| `ApprovalRequest` | classe | `(tool_name, tool_args, reason, autonomy_level, is_consequential)` | Everything a human approver needs to decide whether a gated action should proceed. Passed to ``approver_fn`` by :class:`ApprovalGate`. |
-| `ApprovalDecision` | classe | `(approved, reason, requires_human)` | The outcome of :meth:`ApprovalGate.check`. |
-| `ApprovalGate` | classe | `(autonomy_level, approver_fn=None, iteration_report_every=5, confidence_pause_threshold=N…)` | The gate itself: decides, per tool call, whether it may proceed autonomously or needs a human's explicit sign-off. |
+| `AutonomyLevel` | classe | `()` | Nível de autonomia do laço (`SUPERVISED`, `SEMI_AUTONOMOUS`, `FULL_AUTONOMOUS`). |
+| `ConsequentialActionClassifier` | classe | `(*, name_patterns=None, category_patterns=None, tag_patterns=None, exceptions=None) -> No…)` | Classificador explícito (por padrões de nome, categoria e tag, sem ML) que decide se uma chamada de ferramenta é consequente. |
+| `ApprovalRequest` | classe | `(tool_name, tool_args, reason, autonomy_level, is_consequential)` | Tudo que o aprovador humano precisa para decidir uma ação travada. |
+| `ApprovalDecision` | classe | `(approved, reason, requires_human)` | Resultado de `ApprovalGate.check`: aprovado, motivo e se exige humano. |
+| `ApprovalGate` | classe | `(autonomy_level, approver_fn=None, iteration_report_every=5, confidence_pause_threshold=N…)` | A trava: decide por chamada de ferramenta se pode prosseguir, pede aprovação quando necessário e falha fechado sem aprovador. |
 
 #### `pinneapple_problemdesign.cli`
 
-CLI for interactive Pinneapple Design agent.
+CLI interativa mínima do agente de design usando `GeminiProvider`. [sem teste direto]
 
 <small>`pinneapple_problemdesign/cli.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `()` |  |
+| `main` | função | `()` | Laço interativo no terminal com o `DesignAgent`. |
 
 #### `pinneapple_problemdesign.codegen`
 
-Code generation: translate elicited ProblemSpec → concrete Pinneapple API objects.
+Traduz um `ProblemSpec` elicitado num `PinneappleSpec` concreto (tipo de EDP, coordenadas, campos, modelo, treino) com código de pipeline gerado; o código gerado contém TODOs para valores e DataLoader não resolvidos. [sem teste direto]
 
 <small>`pinneapple_problemdesign/codegen.py` · 374 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_pinneapple_spec` | função | `(design_spec) -> PinneappleSpec` | Translate an elicited :class:`~pinneapple_problemdesign.schema.ProblemSpec` into a :class:`~pinneapple_problemdesign.schema.PinneappleSpec`. |
+| `build_pinneapple_spec` | função | `(design_spec) -> PinneappleSpec` | Traduz um `ProblemSpec` num `PinneappleSpec` com objetos e código do PINNeAPPle. |
 
 #### `pinneapple_problemdesign.elicitation`
 
-_Módulo sem docstring e sem texto._
+Subpacote de elicitação: reexporta `STAGES_ORDER`, `Stage`, `build_stage_gaps` e `validate_and_suggest`. [sem teste direto]
 
 <small>`pinneapple_problemdesign/elicitation/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_problemdesign.elicitation.questions`
 
-Stage-specific gap questions for problem elicitation.
+Perguntas de lacuna (`Gap`) específicas de cada estágio da elicitação. [sem teste direto]
 
 <small>`pinneapple_problemdesign/elicitation/questions.py` · 101 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_stage_gaps` | função | `(stage, spec_dict) -> List[Gap]` |  |
+| `build_stage_gaps` | função | `(stage, spec_dict) -> List[Gap]` | Lista as lacunas abertas de um estágio dado o spec atual. |
 
 #### `pinneapple_problemdesign.elicitation.stages`
 
-Elicitation stage definitions and STAGES_ORDER.
+Definição dos estágios da elicitação (intake, entradas/saídas e tempo, dados, ...) e da ordem `STAGES_ORDER`. [sem teste direto]
 
 <small>`pinneapple_problemdesign/elicitation/stages.py` · 76 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Stage` | classe | `(name, description, required_fields)` |  |
+| `Stage` | classe | `(name, description, required_fields)` | Um estágio de elicitação: nome, descrição e campos obrigatórios. |
 
 #### `pinneapple_problemdesign.elicitation.validators`
 
-Validation and suggestion for ProblemSpec (warnings, assumptions).
+Validação de um `ProblemSpec`: avisos e suposições sugeridas. [sem teste direto]
 
 <small>`pinneapple_problemdesign/elicitation/validators.py` · 42 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `validate_and_suggest` | função | `(spec) -> Tuple[List[str], List[Assumption]]` |  |
+| `validate_and_suggest` | função | `(spec) -> Tuple[List[str], List[Assumption]]` | Devolve avisos e suposições sugeridas para um `ProblemSpec`. |
 
 #### `pinneapple_problemdesign.extractor`
 
-JSON extraction from user text for requirements analysis.
+Extração em JSON de requisitos a partir do texto do usuário via LLM. [sem teste direto]
 
 <small>`pinneapple_problemdesign/extractor.py` · 140 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `extract_from_text` | função | `(llm, user_text) -> Tuple[Dict[str, Any], Dict[str, Any]]` |  |
+| `extract_from_text` | função | `(llm, user_text) -> Tuple[Dict[str, Any], Dict[str, Any]]` | Pede ao LLM um JSON estruturado a partir do texto do usuário e devolve o dicionário extraído e metadados. |
 
 #### `pinneapple_problemdesign.knowledge`
 
-_Módulo sem docstring e sem texto._
+Subpacote de conhecimento: reexporta `PINNEAPPLE_CAPABILITIES` e os construtores de plano. [sem teste direto]
 
 <small>`pinneapple_problemdesign/knowledge/__init__.py` · 10 linhas · **sem teste direto**</small>
 
 #### `pinneapple_problemdesign.knowledge.mapping`
 
-Plan builder: dispatches to FNO-first or PINN-first based on task_type.
+Construtor de plano: escolhe entre plano FNO-first, PINN-first ou CFD-first pelo `task_type`, e lista (só leitura) ferramentas registradas no `PhysicsOrchestrator` do `pinneapple_worldmodel` quando disponível.
 
 <small>`pinneapple_problemdesign/knowledge/mapping.py` · 483 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `available_orchestrator_tools` | função | `(spec) -> List[Dict[str, object]]` | Read-only lookup of real, currently-registered tools from ``pinneapple_worldmodel.orchestrator.PhysicsOrchestrator``'s ``PhysicsToolRegistry`` that are relevant to *spec*. |
-| `build_plan` | função | `(spec, gaps, use_orchestrator_bridge=True) -> Plan` | Dispatch to the appropriate plan builder based on spec.task_type. |
-| `build_plan_pinn_first` | função | `(spec, gaps) -> Plan` | Plan for PDE-solution and inverse-problem tasks via PINNFactory. |
-| `build_plan_fno_first` | função | `(spec, gaps) -> Plan` |  |
-| `build_plan_cfd_first` | função | `(spec, gaps) -> Plan` | Plan for external-aerodynamics/CFD/fluid-dynamics problems, using PINNeAPPle's Lattice-Boltzmann solver, RANS/LES turbulence-closure presets, vortex-identification post-processing, and (optionally) the OpenFOAM bridge, instead of defaulting to generic PINN/FNO advice. |
+| `available_orchestrator_tools` | função | `(spec) -> List[Dict[str, object]]` | Consulta só de leitura das ferramentas registradas no `PhysicsOrchestrator`. |
+| `build_plan` | função | `(spec, gaps, use_orchestrator_bridge=True) -> Plan` | Escolhe o construtor de plano pelo `task_type` do spec. |
+| `build_plan_pinn_first` | função | `(spec, gaps) -> Plan` | Plano para solução de EDP e problema inverso via `PINNFactory`. |
+| `build_plan_fno_first` | função | `(spec, gaps) -> Plan` | Plano FNO-first para previsão e aprendizado de operadores. |
+| `build_plan_cfd_first` | função | `(spec, gaps) -> Plan` | Plano para aerodinâmica externa/CFD com o solver Lattice-Boltzmann, presets RANS/LES e pós-processamento de vórtices. |
 
 #### `pinneapple_problemdesign.knowledge.physics_knowledge`
 
-Phenomenon -> governing-equation -> typical-parameters -> assumptions knowledge base for problem design.
+Base de conhecimento fenômeno -> equação governante -> parâmetros típicos -> suposições, cada entrada ligada a um preset real.
 
 <small>`pinneapple_problemdesign/knowledge/physics_knowledge.py` · 615 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhenomenonEntry` | classe | `(phenomenon, governing_equation, typical_parameters, assumptions, preset_module, preset_f…)` | One physics-knowledge record, traceable back to a real preset. |
-| `lookup_phenomenon` | função | `(name_or_keyword) -> List[PhenomenonEntry]` | Look up knowledge-base entries by a case-insensitive keyword. |
+| `PhenomenonEntry` | classe | `(phenomenon, governing_equation, typical_parameters, assumptions, preset_module, preset_f…)` | Um registro de conhecimento físico rastreável até um preset real. |
+| `lookup_phenomenon` | função | `(name_or_keyword) -> List[PhenomenonEntry]` | Busca entradas da base por palavra-chave, sem diferenciar maiúsculas. |
 
 #### `pinneapple_problemdesign.knowledge.pinneapple_capabilities`
 
-Mapping of Pinneapple module capabilities for plan generation.
+Dicionário `PINNEAPPLE_CAPABILITIES` com os módulos do PINNeAPPle por área (treino, modelos, séries temporais, CFD...) usado no texto dos planos. [sem teste direto]
 
 <small>`pinneapple_problemdesign/knowledge/pinneapple_capabilities.py` · 41 linhas · **sem teste direto**</small>
 
 #### `pinneapple_problemdesign.merge`
 
-Deep merge of extracted spec into existing ProblemSpec.
+Mescla profunda de um dicionário extraído dentro de um `ProblemSpec` existente. [sem teste direto]
 
 <small>`pinneapple_problemdesign/merge.py` · 33 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `merge_into_spec` | função | `(spec, partial) -> None` |  |
+| `merge_into_spec` | função | `(spec, partial) -> None` | Mescla um dicionário parcial no `ProblemSpec`, no lugar. |
 
 #### `pinneapple_problemdesign.method_selection`
 
-Recommend a numerical method + turbulence closure from a computed flow regime.
+Recomenda método numérico e fechamento de turbulência a partir do regime de escoamento calculado, com uma tabela de decisão explícita e heurística (o docstring avisa que não é sistema especialista validado); `recommend_method_from_spec` hoje sempre devolve None porque o `ProblemSpec` não guarda os números necessários.
 
 <small>`pinneapple_problemdesign/method_selection.py` · 346 linhas · testes: 11 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MethodRecommendation` | classe | `(numerical_method, turbulence_model, flow_regime, rationale, confidence)` | A recommended (numerical_method, turbulence_model) pair for a flow. |
-| `recommend_method` | função | `(velocity, length_scale, kinematic_viscosity, *, geometry='internal_pipe', compressible=F…)` | Recommend a numerical solver + turbulence closure for a flow. |
-| `recommend_method_from_spec` | função | `(spec) -> Optional[MethodRecommendation]` | Convenience wrapper: pull physical parameters out of a ``ProblemSpec`` and call :func:`recommend_method`, or return ``None`` if they aren't present. |
+| `MethodRecommendation` | classe | `(numerical_method, turbulence_model, flow_regime, rationale, confidence)` | Par recomendado (método numérico, modelo de turbulência) com regime, justificativa e confiança. |
+| `recommend_method` | função | `(velocity, length_scale, kinematic_viscosity, *, geometry='internal_pipe', compressible=F…)` | Recomenda solver e fechamento de turbulência a partir de velocidade, escala e viscosidade. |
+| `recommend_method_from_spec` | função | `(spec) -> Optional[MethodRecommendation]` | Extrai os parâmetros do `ProblemSpec` e chama `recommend_method`, ou devolve None se faltarem. |
 
 #### `pinneapple_problemdesign.policy`
 
-Non-invention policy: apply assumptions and gaps to design state.
+Política de não invenção: aplica suposições e lacunas sugeridas ao estado do design. [sem teste direto]
 
 <small>`pinneapple_problemdesign/policy.py` · 67 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `apply_non_invention_policy` | função | `(state, *, unknown_fields, assumptions_suggested, gaps_suggested) -> None` |  |
+| `apply_non_invention_policy` | função | `(state, *, unknown_fields, assumptions_suggested, gaps_suggested) -> None` | Registra campos desconhecidos como lacunas e suposições no estado, sem inventar valores. |
 
 #### `pinneapple_problemdesign.preset_authoring`
 
-LLM-assisted preset *drafting*, gated by a real, automatically-generated self-consistency check -- not a preset *authoring pipeline* in the sense of producing something trusted for production use.
+Rascunho de preset assistido por LLM: o LLM propõe uma EDP, ela é convertida em sympy e só é marcada verificada se passar num teste de solução manufaturada automático; não produz presets confiáveis para produção.
 
 <small>`pinneapple_problemdesign/preset_authoring.py` · 707 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PresetDraftError` | classe | `(stage, message, *, raw='') -> None` | Raised when the LLM's proposal cannot be turned into a real, checkable PDE. |
-| `ManufacturedSolutionCheck` | classe | `(exact_solution_used, residual_at_exact_solution, tolerance, passed, n_points, notes)` | One method-of-manufactured-solutions self-consistency check. |
-| `DraftedPreset` | classe | `(phenomenon_description, proposed_equation_latex_or_sympy, sympy_pde, proposed_bcs, propo…)` | An LLM-proposed PDE preset, together with the real verification that was run against it. See module docstring for the safety model. |
-| `run_manufactured_solution_check` | função | `(sympy_pde, coord_syms, field_syms, *, param_syms=None, params=None, tolerance=0.0001, n_…)` | Run a real method-of-manufactured-solutions self-consistency check against `sympy_pde`, the same technique as ``tests/test_manufactured_solutions.py``: compile `sympy_pde` with the real `pinneapple_physics.symbolic_pde` machinery, substitute a simple closed-form exact solution for every field … |
-| `draft_preset` | função | `(phenomenon_description, *, llm_provider='anthropic', model=None, use_knowledge_base=True…)` | Ask an LLM to draft a candidate governing PDE for `phenomenon_description`, then run a real manufactured-solution self-consistency check against it. |
+| `PresetDraftError` | classe | `(stage, message, *, raw='') -> None` | Erro quando a proposta do LLM não vira uma EDP real e checável. |
+| `ManufacturedSolutionCheck` | classe | `(exact_solution_used, residual_at_exact_solution, tolerance, passed, n_points, notes)` | Resultado de uma checagem por solução manufaturada: solução usada, resíduo, tolerância e se passou. |
+| `DraftedPreset` | classe | `(phenomenon_description, proposed_equation_latex_or_sympy, sympy_pde, proposed_bcs, propo…)` | Preset proposto pelo LLM com a EDP em sympy, condições, resultado da verificação e citações. |
+| `run_manufactured_solution_check` | função | `(sympy_pde, coord_syms, field_syms, *, param_syms=None, params=None, tolerance=0.0001, n_…)` | Roda uma checagem de autoconsistência por solução manufaturada sobre uma EDP sympy. |
+| `draft_preset` | função | `(phenomenon_description, *, llm_provider='anthropic', model=None, use_knowledge_base=True…)` | Pede a um LLM (padrão `anthropic`) uma EDP para um fenômeno e a verifica por solução manufaturada. |
 
 #### `pinneapple_problemdesign.protocol`
 
-LLMProvider protocol, LLMMessage, LLMResponse, GeminiProvider.
+Protocolo `LLMProvider`, mensagens/respostas e o `GeminiProvider` (SDK Google Generative AI).
 
 <small>`pinneapple_problemdesign/protocol.py` · 100 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LLMMessage` | classe | `(role, content)` |  |
-| `LLMResponse` | classe | `(text, raw)` |  |
-| `LLMProvider` | classe | `()` | Single interface for the module. |
-| `GeminiProvider` | classe | `(model='gemini-1.5-pro')` | Gemini provider using Google Generative AI SDK. |
+| `LLMMessage` | classe | `(role, content)` | Mensagem de LLM com papel e conteúdo. |
+| `LLMResponse` | classe | `(text, raw)` | Resposta de LLM com texto e objeto bruto. |
+| `LLMProvider` | classe | `()` | Interface única de provedor de LLM (`generate`). |
+| `GeminiProvider` | classe | `(model='gemini-1.5-pro')` | Provedor Gemini via SDK Google Generative AI. |
 
 #### `pinneapple_problemdesign.providers`
 
-_Módulo sem docstring e sem texto._
+Define outra interface `LLMProvider` (Protocol) para os provedores do pacote. [sem teste direto]
 
 <small>`pinneapple_problemdesign/providers/__init__.py` · 47 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LLMProvider` | classe | `()` | Provider interface used by pinneapple_problemdesign. |
+| `LLMProvider` | classe | `()` | Interface de provedor (Protocol) usada pelo pacote, duplicada em relação a `protocol.LLMProvider`. |
 
 #### `pinneapple_problemdesign.providers.cosmos_provider`
 
-Cosmos LLM provider for HTTP gateway access.
+Provedor LLM que chama um gateway HTTP (Cosmos) via `requests`. [sem teste direto]
 
 <small>`pinneapple_problemdesign/providers/cosmos_provider.py` · 187 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CosmosProviderConfig` | classe | `(base_url, api_key, timeout_s, route)` | Cosmos provider configuration. |
-| `CosmosProvider` | classe | `(base_url=None, *, api_key=None, timeout_s=None, route=None, session=None)` | Cosmos-backed LLM provider (via your gateway). |
+| `CosmosProviderConfig` | classe | `(base_url, api_key, timeout_s, route)` | Configuração do provedor Cosmos: URL, chave, timeout e rota. |
+| `CosmosProvider` | classe | `(base_url=None, *, api_key=None, timeout_s=None, route=None, session=None)` | Provedor LLM que chama um gateway HTTP Cosmos. |
 
 #### `pinneapple_problemdesign.renderers`
 
-_Módulo sem docstring e sem texto._
+Subpacote de renderizadores do `DesignReport` (Markdown e JSON). [sem teste direto]
 
 <small>`pinneapple_problemdesign/renderers/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_problemdesign.renderers.report_json`
 
-JSON renderer for DesignReport.
+Renderiza um `DesignReport` em JSON. [sem teste direto]
 
 <small>`pinneapple_problemdesign/renderers/report_json.py` · 35 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render_json_report` | função | `(report, *, indent=2) -> str` |  |
+| `render_json_report` | função | `(report, *, indent=2) -> str` | Serializa o `DesignReport` em JSON. |
 
 #### `pinneapple_problemdesign.renderers.report_md`
 
-Markdown renderer for DesignReport.
+Renderiza um `DesignReport` em Markdown com avisos. [sem teste direto]
 
 <small>`pinneapple_problemdesign/renderers/report_md.py` · 133 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render_markdown_report` | função | `(report, warnings) -> str` |  |
+| `render_markdown_report` | função | `(report, warnings) -> str` | Gera o relatório Markdown do design com os avisos. |
 
 #### `pinneapple_problemdesign.research_loop`
 
-``AutonomousResearchAgent``: the autonomous research cycle on top of ``UnifiedPhysicsAgent``.
+`AutonomousResearchAgent`: ciclo de pesquisa autônomo sobre o `UnifiedPhysicsAgent`, com `ApprovalGate` em cada iteração e ferramenta, memória de experimentos (`pinneapple_registry`) e validação por confiança física e guardrail.
 
 <small>`pinneapple_problemdesign/research_loop.py` · 423 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `IterationRecord` | classe | `(iteration, problem_description, approval, agent_result, guardrail_report, confidence, no…)` | What happened during one iteration of the loop -- kept in full so a human reviewing a run afterwards can see every decision, not just the final outcome. |
-| `ResearchLoopResult` | classe | `(status, iterations, final_confidence, final_result, memory_record_ids, prior_lessons)` | The full, inspectable outcome of an :meth:`AutonomousResearchAgent.run` call. |
-| `AutonomousResearchAgent` | classe | `(llm, *, autonomy_level=AutonomyLevel.SUPERVISED, approver_fn=None, memory=None, physics_…)` | The Phase B research loop: hypothesize (revise description) -> simulate (``UnifiedPhysicsAgent``) -> validate (``PhysicsGuardrail`` / ``PhysicsConfidenceScore``) -> decide (stop or revise) -> repeat, behind ``ApprovalGate``'s non-negotiable safety floor, with ``ExperimentMemory`` learning across … |
+| `IterationRecord` | classe | `(iteration, problem_description, approval, agent_result, guardrail_report, confidence, no…)` | O que aconteceu numa iteração do laço (aprovação, resultado, guardrail, confiança). |
+| `ResearchLoopResult` | classe | `(status, iterations, final_confidence, final_result, memory_record_ids, prior_lessons)` | Resultado completo de `AutonomousResearchAgent.run`: status, iterações, confiança final e memória. |
+| `AutonomousResearchAgent` | classe | `(llm, *, autonomy_level=AutonomyLevel.SUPERVISED, approver_fn=None, memory=None, physics_…)` | Agente de pesquisa autônomo que itera até a confiança alvo ou o limite de iterações, sob a trava de aprovação. |
 
 #### `pinneapple_problemdesign.schema`
 
-Problem design schema: Assumption, Risk, DataSpec, Gap, ProblemSpec.
+Esquema do design de problema: `ProblemSpec` e suas partes (dados, física, geometria, validação, implantação, restrições), `Gap`, `Plan`, `PinneappleSpec` e `DesignReport`.
 
 <small>`pinneapple_problemdesign/schema.py` · 290 linhas · testes: 70</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Assumption` | classe | `(text, confidence, needs_confirmation)` |  |
-| `Risk` | classe | `(text, level, mitigation)` |  |
-| `DataSpec` | classe | `(sources, format, sampling, variables_observed, target_variables, known_quality_issues, m…)` |  |
-| `PhysicsSpec` | classe | `(governing_equations, boundary_conditions, initial_conditions, constraints, parameters_kn…)` |  |
-| `GeometrySpec` | classe | `(domain, representation, sensors, coordinate_system, cad_format, voxel_resolution, aoa_sw…)` |  |
-| `ValidationSpec` | classe | `(primary_metrics, acceptance_criteria, robustness_tests, ood_scenarios)` |  |
-| `DeploymentSpec` | classe | `(environment, latency_budget_ms, update_policy, monitoring)` |  |
-| `ConstraintsSpec` | classe | `(hardware, max_training_time, interpretability, compliance)` |  |
-| `ProblemSpec` | classe | `(title, goal, task_type, inputs, outputs, horizon, input_window, frequency, domain_contex…)` |  |
-| `Gap` | classe | `(id, question, severity, rationale, how_to_obtain, resolved)` |  |
-| `PlanStep` | classe | `(title, why, actions, pinneapple_modules, exit_criteria)` |  |
-| `Plan` | classe | `(recommended_approach, alternatives, steps, go_no_go)` |  |
-| `PinneappleSpec` | classe | `(pde_kind, pde_confidence, coords, fields, pde_params, environment_kwargs, model_name, mo…)` | Concrete Pinneapple API objects derived from the elicited design spec. |
-| `DesignReport` | classe | `(spec, gaps, plan, pinneapple_spec, created_at)` |  |
-| `uses_pinn_approach` | função | `(spec) -> bool` | Whether ``spec`` should be solved with a PDE-residual PINN pipeline. |
-| `uses_cfd_approach` | função | `(spec) -> bool` | Whether ``spec`` describes an external-aerodynamics/CFD problem that should get the LBM/turbulence-closure/vortex-postprocessing plan (``knowledge.mapping.build_plan_cfd_first``) instead of generic PINN/FNO advice. |
+| `Assumption` | classe | `(text, confidence, needs_confirmation)` | Suposição com confiança e se precisa de confirmação. |
+| `Risk` | classe | `(text, level, mitigation)` | Risco com nível e mitigação. |
+| `DataSpec` | classe | `(sources, format, sampling, variables_observed, target_variables, known_quality_issues, m…)` | Especificação dos dados: fontes, formato, amostragem, variáveis, qualidade e divisão. |
+| `PhysicsSpec` | classe | `(governing_equations, boundary_conditions, initial_conditions, constraints, parameters_kn…)` | Especificação física: equações, condições, restrições, parâmetros, unidades, turbulência e método numérico. |
+| `GeometrySpec` | classe | `(domain, representation, sensors, coordinate_system, cad_format, voxel_resolution, aoa_sw…)` | Especificação da geometria: domínio, representação, sensores, CAD e varredura de ângulo de ataque. |
+| `ValidationSpec` | classe | `(primary_metrics, acceptance_criteria, robustness_tests, ood_scenarios)` | Especificação de validação: métricas, critérios de aceitação, robustez e cenários fora da distribuição. |
+| `DeploymentSpec` | classe | `(environment, latency_budget_ms, update_policy, monitoring)` | Especificação de implantação: ambiente, latência, atualização e monitoramento. |
+| `ConstraintsSpec` | classe | `(hardware, max_training_time, interpretability, compliance)` | Restrições: hardware, tempo de treino, interpretabilidade e conformidade. |
+| `ProblemSpec` | classe | `(title, goal, task_type, inputs, outputs, horizon, input_window, frequency, domain_contex…)` | Especificação completa do problema (objetivo, tipo de tarefa, entradas/saídas e todas as partes acima). |
+| `Gap` | classe | `(id, question, severity, rationale, how_to_obtain, resolved)` | Lacuna de informação com pergunta, severidade, justificativa e como obter. |
+| `PlanStep` | classe | `(title, why, actions, pinneapple_modules, exit_criteria)` | Passo de plano: título, motivo, ações, módulos PINNeAPPle e critério de saída. |
+| `Plan` | classe | `(recommended_approach, alternatives, steps, go_no_go)` | Plano: abordagem recomendada, alternativas, passos e critérios go/no-go. |
+| `PinneappleSpec` | classe | `(pde_kind, pde_confidence, coords, fields, pde_params, environment_kwargs, model_name, mo…)` | Objetos concretos da API do PINNeAPPle derivados do spec (EDP, campos, modelo, treino, código). |
+| `DesignReport` | classe | `(spec, gaps, plan, pinneapple_spec, created_at)` | Relatório final do design: spec, lacunas, plano e `PinneappleSpec`. |
+| `uses_pinn_approach` | função | `(spec) -> bool` | Diz se o spec deve ser resolvido com um pipeline PINN de resíduo de EDP. |
+| `uses_cfd_approach` | função | `(spec) -> bool` | Diz se o spec é um problema de aerodinâmica externa/CFD que recebe o plano CFD-first. |
 
 #### `pinneapple_problemdesign.state`
 
-DesignState, Turn for problem design conversation state.
+Estado da conversa de design (`DesignState`, `Turn`). [sem teste direto]
 
 <small>`pinneapple_problemdesign/state.py` · 33 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Turn` | classe | `(role, content)` |  |
-| `DesignState` | classe | `(spec, gaps, plan, history, stage, done)` |  |
+| `Turn` | classe | `(role, content)` | Um turno da conversa (papel, conteúdo). |
+| `DesignState` | classe | `(spec, gaps, plan, history, stage, done)` | Estado do design: spec, lacunas, plano, histórico, estágio e se terminou. |
 
 #### `pinneapple_problemdesign.unified_agent`
 
-Compose ``DesignAgent`` and ``PhysicsOrchestrator`` into one working loop.
+Compõe `DesignAgent` (elicitação) e `PhysicsOrchestrator` do `pinneapple_worldmodel` (execução de ferramentas) num laço único, sem mexer nos internos de nenhum dos dois. [sem teste direto]
 
 <small>`pinneapple_problemdesign/unified_agent.py` · 572 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnifiedAgentResult` | classe | `(status, design_report, problem_statement, execution_result, design_state, gaps, question…)` | Bundled result of :meth:`UnifiedPhysicsAgent.run`. |
-| `UnifiedPhysicsAgent` | classe | `(llm, *, use_orchestrator_bridge=True, orchestrator=None, orchestrator_verbose=True) -> N…)` | Compose a real ``DesignAgent`` with a real ``PhysicsOrchestrator``. |
+| `UnifiedAgentResult` | classe | `(status, design_report, problem_statement, execution_result, design_state, gaps, question…)` | Resultado agrupado de `UnifiedPhysicsAgent.run`. |
+| `UnifiedPhysicsAgent` | classe | `(llm, *, use_orchestrator_bridge=True, orchestrator=None, orchestrator_verbose=True) -> N…)` | Compõe um `DesignAgent` com um `PhysicsOrchestrator`: elicita o problema, monta o `ProblemStatement` e executa as ferramentas. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Relatório de design sem LLM** — `examples/problem_designer/03_offline_spec_to_report.py`
+
+```python
+    # 2) Run validators (warnings + safe assumptions)
+    warnings, assumptions = validate_and_suggest(spec)
+    spec.assumptions.extend(assumptions)
+
+    # 3) Build plan and report
+    gaps = []  # if you already know gaps, add them here; otherwise keep empty.
+    plan = build_plan_fno_first(spec, gaps)
+    report = DesignReport(spec=spec, gaps=gaps, plan=plan)
+
+    md = render_markdown_report(report, warnings)
+    js = render_json_report(report)
+```
+
+**CLI interativa do agente** — `pinneapple_problemdesign/cli.py`
+
+```python
+def main():
+    llm = GeminiProvider()
+    agent = DesignAgent(llm=llm)
+    state = agent.start()
+
+    print("Pinneapple Design CLI (type 'exit' to quit)\n")
+
+    while True:
+        user = input("You: ").strip()
+        if user.lower() in ("exit", "quit"):
+            break
+
+        agent.ingest_user_message(state, user)
+        out = agent.step(state)
+```
 
 ### Testes e status de validação
 
@@ -3167,7 +3204,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O agente depende de um LLM: `GeminiProvider` precisa do SDK Google Generative AI, `CosmosProvider` de um gateway HTTP com `requests`, `draft_preset` usa `anthropic` por padrão.
+- `UnifiedPhysicsAgent` e `AutonomousResearchAgent` dependem de `pinneapple_worldmodel` (e `pinneapple_registry`); se não importarem, o `__init__` simplesmente não os exporta.
+- `method_selection` é uma heurística explícita, não um sistema especialista validado (docstring); `recommend_method_from_spec` devolve None para todo spec atual porque o `ProblemSpec` não tem campos numéricos de velocidade, escala e viscosidade.
+- `preset_authoring` só rascunha presets: o docstring diz que não produz nada confiável para produção, e descoberta automática de física está fora de escopo.
+- O código gerado por `codegen` contém TODOs (valores físicos não resolvidos, DataLoader, tensor de teste) que o usuário precisa preencher.
+- Há duas interfaces `LLMProvider` (em `protocol` e em `providers`).
+- Muitos módulos não têm teste direto: `agent`, `codegen`, `unified_agent`, `elicitation.*`, `extractor`, `policy`, `merge`, `providers.*`, `renderers.*`, `state`, `cli`.
 
 ## 4. `pinneapple_science`
 
@@ -3436,7 +3479,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_condense` implementa a "Adaptive Physics Condensation" (o `__init__` diz "work in progress"): resolver problemas físicos grandes feitos de blocos repetidos sem montar e resolver a malha fina inteira. O caso de referência é um encapsulamento de chip sintético com várias camadas (substrato, bumps C4, interposer com TSVs, microbumps, die, TIM, tampa de cobre), montado a partir de uma célula unitária repetida. Os materiais são valores representativos, não dados de um produto real.
+
+A ideia central é a condensação estática (complemento de Schur): o interior de cada bloco é eliminado uma vez por tipo distinto de bloco, e o problema global fica só nas interfaces, que ainda podem ser reduzidas a poucos modos por face (POD ou modos de restrição). Sobre isso o pacote constrói uma hierarquia que reaproveita subárvores idênticas (`hierarchy`), um estimador de erro com refinamento por face, uma correção exata por PCG, uma versão transiente Craig-Bampton (`transient`), operadores de bloco aprendidos com verificação e fallback exato (`learned`), a homogeneização Keff como linha de base (`homogenize`), um método de "prior + patches de exceção" (`exceptions`) e uma versão algébrica que condensa qualquer matriz esparsa (`algebraic`).
+
+O pacote também tem as soluções de referência (volumes finitos de condução em `fv`, escoamento 2D em grade MAC em `flow`), discretizações sem malha RBF-FD/GFDM (`meshless`, `meshless2d`) e os estudos medidos: `benchmark` gera os números de `docs/research/physics_condensation.md` e `falsify` faz os testes pré-registrados de `docs/research/condensation_falsification.md`; `figures` desenha os gráficos.
+
+Liga-se ao resto do repositório por `query`, que fornece os métodos (cache, limite rigoroso, superposição, condensado, referência) do motor de consultas físicas `pinneapple_query.Engine`; pelos nós `condense.*` e `query` de `pinneapple_flow`; e por `pinneapple_analysis.validation`. Os exemplos `examples/physics_condensation` e `examples/condensation_falsification` rodam os estudos.
 
 ### Números do inventário
 
@@ -3448,23 +3497,23 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `algebraic` |  | 1 | 6 | 6 |
-| `benchmark` |  | 1 | 14 | 0 |
-| `exceptions` |  | 1 | 6 | 14 |
-| `falsify` |  | 1 | 21 | 6 |
-| `figures` |  | 1 | 8 | 0 |
-| `flow` |  | 1 | 9 | 6 |
-| `fv` |  | 1 | 8 | 21 |
-| `hierarchy` |  | 1 | 2 | 14 |
-| `homogenize` |  | 1 | 7 | 14 |
-| `learned` |  | 1 | 10 | 14 |
-| `meshless` |  | 1 | 9 | 14 |
-| `meshless2d` |  | 1 | 9 | 6 |
-| `package` |  | 1 | 7 | 27 |
-| `query` |  | 1 | 8 | 7 |
-| `query_benchmark` |  | 1 | 1 | 0 |
-| `substructure` |  | 1 | 15 | 21 |
-| `transient` |  | 1 | 4 | 14 |
+| `algebraic` | Condensação algébrica exata de qualquer operador esparso montado, particionado em blocos por posição, com faces reduzidas por modos POD. | 1 | 6 | 6 |
+| `benchmark` | Estudos medidos do benchmark de condensação (convergência, modos, refinamento, escala, aprendido, transiente), cada um devolvendo números em JSON. | 1 | 14 | 0 |
+| `exceptions` | Método "prior + patches de exceção": uma solução barata (Keff ou coluna 1D) corrigida exatamente só nos blocos de maior resíduo. | 1 | 6 | 14 |
+| `falsify` | Testes de falsificação pré-registrados do método (térmicos T1-T10, CFD F0-F3, sem malha M1-M4, patches E1). | 1 | 21 | 6 |
+| `figures` | Figuras matplotlib do benchmark a partir do JSON de `benchmark`. | 1 | 8 | 0 |
+| `flow` | Escoamento 2D incompressível e calor em grade escalonada (MAC) por volumes finitos: Stokes/Oseen, Picard para Navier-Stokes e equação escalar. | 1 | 9 | 6 |
+| `fv` | Volumes finitos centrados na célula para condução estacionária e transiente numa caixa de voxels, e o solver de referência. | 1 | 8 | 21 |
+| `hierarchy` | Condensação hierárquica aninhada com memoização de subárvores idênticas. | 1 | 2 | 14 |
+| `homogenize` | Homogeneização por condutividade efetiva (Keff), a linha de base que a condensação precisa superar. | 1 | 7 | 14 |
+| `learned` | Operador de bloco reduzido aprendido (POD + regressão GP) com indicadores de erro e fallback para condensação exata. | 1 | 10 | 14 |
+| `meshless` | Solução sem malha (RBF-FD/GFDM) do encapsulamento a partir da geometria implícita, com pares de nós nas interfaces. | 1 | 9 | 14 |
+| `meshless2d` | Discretizações 2D sem malha dos casos de CFD da falsificação (advecção-difusão, Stokes, condução híbrida FV/RBF-FD). | 1 | 9 | 6 |
+| `package` | Encapsulamento de chip multicamada sintético feito de um bloco repetido: camadas, variantes, mapas de potência. | 1 | 7 | 27 |
+| `query` | Métodos de consulta física sobre o encapsulamento para `pinneapple_query.Engine` (cache, limite, superposição, condensado, referência). | 1 | 8 | 7 |
+| `query_benchmark` | Demonstração medida do motor de consultas sobre o encapsulamento contra a referência fina. | 1 | 1 | 0 |
+| `substructure` | Condensação estática de blocos repetidos, interfaces reduzidas, recuperação sob demanda, estimativa de erro e refinamento. | 1 | 15 | 21 |
+| `transient` | Condução transiente com redução Craig-Bampton por bloco e Euler implícito, mais a referência fina. | 1 | 4 | 14 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3472,310 +3521,335 @@ _Sem texto de objetivo._
 
 #### `pinneapple_condense`
 
-Adaptive Physics Condensation (work in progress).
+Pacote da Adaptive Physics Condensation; o `__init__` só tem o docstring "work in progress" e não reexporta nada. [experimental]
 
 <small>`pinneapple_condense/__init__.py` · 2 linhas · testes: 27</small>
 
 #### `pinneapple_condense.algebraic`
 
-Algebraic condensation: the method of :mod:`.substructure` for *any* assembled sparse operator.
+Aplica o método de `substructure` a qualquer matriz esparsa (simétrica ou não, ponto de sela ou não): separadores pelo grafo de acoplamento, blocos comparados por conteúdo e faces reduzidas por modos.
 
 <small>`pinneapple_condense/algebraic.py` · 299 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Partition` | classe | `(block, sep, interiors, adjacent, shape, size, origin, coords, fieldid)` | Blocks of the unknowns: ``block`` per unknown (flat id), ``sep`` mask, and per block its interior and adjacent separator unknowns in canonical local order. |
-| `Condensation` | classe | `(A, part, timings)` | Exact algebraic condensation of ``A x = b`` over a :class:`Partition`. |
-| `Reduced` | classe | `(cond, fc, modes)` | Galerkin-reduced separator problem of a :class:`Condensation` (exact when every face keeps all its modes). |
-| `partition` | função | `(A, coords, block_size, origin=(0.0, 0.0), fieldid=None, primal=None, h=None) -> Partition` | Blocks of side ``block_size`` from ``origin``; separators from the coupling graph (see the module docstring). ``h``: a length below the smallest spacing (for the canonical rounding; default block size / 1e4). |
-| `faces` | função | `(part, A) -> dict` | Separator unknowns grouped by the set of blocks they couple to. Two blocks: a face, keyed by ``(orientation, field, length)`` (orientation 0: the two blocks are x-neighbours) with canonical positions along it; three or more blocks, or primal unknowns: kept full. |
-| `face_modes` | função | `(snapshots, fc, m) -> dict` | POD modes per face type from separator snapshots (full-length solution vectors of the snapshot problem with its face description ``fc``): the constant plus the ``m - 1`` leading left singular vectors of the constant-free face traces. |
+| `Partition` | classe | `(block, sep, interiors, adjacent, shape, size, origin, coords, fieldid)` | Partição das incógnitas: bloco de cada incógnita, máscara de separador e, por bloco, interiores e separadores adjacentes em ordem canônica. |
+| `Condensation` | classe | `(A, part, timings)` | Condensação algébrica exata de `A x = b` sobre uma `Partition`, fatorando uma vez cada bloco de conteúdo distinto. |
+| `Reduced` | classe | `(cond, fc, modes)` | Problema do separador reduzido por Galerkin sobre modos de face (exato quando cada face mantém todos os modos). |
+| `partition` | função | `(A, coords, block_size, origin=(0.0, 0.0), fieldid=None, primal=None, h=None) -> Partition` | Divide as incógnitas em blocos de lado `block_size` e define os separadores pelo grafo de acoplamento, com `primal` opcional. |
+| `faces` | função | `(part, A) -> dict` | Agrupa os separadores pelo conjunto de blocos que acoplam: faces entre dois blocos com posições canônicas; cantos e incógnitas primais ficam completos. |
+| `face_modes` | função | `(snapshots, fc, m) -> dict` | Modos POD por tipo de face a partir de snapshots: a constante mais os `m - 1` principais vetores singulares. |
 
 #### `pinneapple_condense.benchmark`
 
-The measured studies of the condensation benchmark (each returns plain JSON-able numbers).
+Estudos medidos do benchmark de condensação; cada função devolve números JSON e pode rodar num processo novo (`isolated`) para medir memória de pico. [sem teste]
 
 <small>`pinneapple_condense/benchmark.py` · 396 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `peak_rss_gb` | função | `() -> float` |  |
-| `isolated` | função | `(func, timeout=3600, module=…, **kwargs) -> dict` | Run ``<module>.<func>(**kwargs)`` (default: this module) in a fresh Python process; its result plus the peak RSS of that process (``peak_rss_gb``). |
-| `mesh_convergence` | função | `(shape=(8, 8), levels=((4, 1), (8, 2), (16, 4)), seed=1) -> dict` | Reference solutions at increasing resolution (cells per block side, vertical multiplier), the observed order from the last three levels, the Richardson extrapolation and the error of the default resolution (8, 1). |
-| `accuracy_vs_modes` | função | `(shape=(12, 12), ms=(1, 2, 4, 6, 8, 12, 16, 24), seed=1, modes='pod') -> dict` |  |
-| `refinement_study` | função | `(shape=(12, 12), m0=2, steps=6, seed=1, hot=True) -> dict` | Doerfler face refinement from ``m0`` modes (``p``: double the modes of marked faces; ``full``: un-reduce them) vs uniform ``m``; a power map with a sub-pitch hotspot (``hot``) makes the error local. |
-| `correction_study` | função | `(nb=32, ms=(6, 12), seed=0, power_scale=4.0, rtol=1e-09, every=10) -> dict` | The exact correction (:meth:`.substructure.Condensed.correct`) on a large hotspot case: iterations to the fine solution from each reduced model, and the Tmax error along the way (every ``every`` iterations). |
-| `homogenization_study` | função | `(shape=(12, 12), seed=1) -> dict` |  |
-| `scaling_point` | função | `(nb, m=12, reference=True, flat=True, hier=True, seed=2) -> dict` | One ``nb x nb`` package: wall time and result of each method that is asked for (call through :func:`isolated` per method for its own peak memory). |
-| `configurations` | função | `(nb=64, m=12, n_configs=20, seed=0, check=2) -> dict` | Build once, then solve ``n_configs`` new power maps; the first ``check`` are also solved by the reference. |
-| `learned_study` | função | `(nb=32, m=12, n_train=48, seed=1, defects=4, exact_reference=True, tol_T=0.01) -> dict` |  |
-| `transient_study` | função | `(shape=(6, 6), dt=0.0002, steps=150, mk=((8, 8), (16, 16), (32, 32)), seed=1) -> dict` |  |
-| `root_compressibility` | função | `(nb=64, m=12, tol=1e-08) -> dict` | Numerical rank (relative ``tol``) of the off-diagonal blocks between the four sides of the root Schur complement: how much an H-matrix representation of the top operator could save. |
-| `meshless_study` | função | `(nb=2, hfs=(6, 8, 10, 12), methods=('gfdm', 'rbf_fd'), interfaces=('pairs', 'naive'), ls_…)` | Track 1b: RBF-FD and GFDM point clouds from the implicit geometry against the fine FV reference, for a range of spacings ``pitch / hf``, interface treatments (node pairs with flux continuity and the contact law, or the naive single-node collocation), and least-squares collocation (``ls_hfs``). … |
-| `exceptions_study` | função | `(shape=(12, 12), seed=1, budgets=…) -> dict` | Track 1c: the Keff prior plus residual-selected exception patches against random patches at the same budget, on a smooth power map and on one with a sub-pitch hotspot; and the 1-D column prior for comparison. |
+| `peak_rss_gb` | função | `() -> float` | Memória residente de pico do processo atual, em GB. |
+| `isolated` | função | `(func, timeout=3600, module=…, **kwargs) -> dict` | Roda `<module>.<func>(**kwargs)` num processo Python novo e devolve o resultado mais o pico de memória desse processo. |
+| `mesh_convergence` | função | `(shape=(8, 8), levels=((4, 1), (8, 2), (16, 4)), seed=1) -> dict` | Soluções de referência em resoluções crescentes, ordem observada, extrapolação de Richardson e erro da resolução padrão. |
+| `accuracy_vs_modes` | função | `(shape=(12, 12), ms=(1, 2, 4, 6, 8, 12, 16, 24), seed=1, modes='pod') -> dict` | Compara o condensado com a referência (Tmax, campo de junção, calores de interface, balanço de energia, estimativa de erro) para vários números de modos `m`. |
+| `refinement_study` | função | `(shape=(12, 12), m0=2, steps=6, seed=1, hot=True) -> dict` | Refinamento de faces guiado pelo erro (Doerfler) contra aumentar `m` uniformemente, com hotspot menor que o passo. |
+| `correction_study` | função | `(nb=32, ms=(6, 12), seed=0, power_scale=4.0, rtol=1e-09, every=10) -> dict` | Correção exata (`Condensed.correct`) num caso grande com hotspot: iterações até a solução fina e erro de Tmax ao longo delas. |
+| `homogenization_study` | função | `(shape=(12, 12), seed=1) -> dict` | O que a homogeneização Keff apaga em três casos: potência suave, hotspot menor que o passo e bumps com vazios. |
+| `scaling_point` | função | `(nb, m=12, reference=True, flat=True, hier=True, seed=2) -> dict` | Um tamanho de encapsulamento `nb x nb`: tempo e resultado de referência, condensação plana e hierarquia. |
+| `configurations` | função | `(nb=64, m=12, n_configs=20, seed=0, check=2) -> dict` | Constrói uma vez e resolve vários mapas de potência novos, para separar custo de construção e custo por mapa. |
+| `learned_study` | função | `(nb=32, m=12, n_train=48, seed=1, defects=4, exact_reference=True, tol_T=0.01) -> dict` | Operadores de bloco aprendidos com verificação contra a condensação exata por bloco, com defeitos. |
+| `transient_study` | função | `(shape=(6, 6), dt=0.0002, steps=150, mk=((8, 8), (16, 16), (32, 32)), seed=1) -> dict` | Transiente Craig-Bampton contra a referência fina, com potência alternando entre dois mapas. |
+| `root_compressibility` | função | `(nb=64, m=12, tol=1e-08) -> dict` | Posto numérico dos blocos fora da diagonal do complemento de Schur raiz: quanto uma representação H-matriz economizaria. |
+| `meshless_study` | função | `(nb=2, hfs=(6, 8, 10, 12), methods=('gfdm', 'rbf_fd'), interfaces=('pairs', 'naive'), ls_…)` | Trilha 1b: nuvens RBF-FD e GFDM contra a referência FV para vários espaçamentos, tratamentos de interface e colocação por mínimos quadrados. |
+| `exceptions_study` | função | `(shape=(12, 12), seed=1, budgets=…) -> dict` | Trilha 1c: prior Keff com patches escolhidos por resíduo contra patches aleatórios no mesmo orçamento, e o prior de coluna 1D. |
 
 #### `pinneapple_condense.exceptions`
 
-Prior field plus exception patches (track 1c): solve exactly only where a cheap prior does not hold.
+Trilha 1c: um campo prior barato (Keff ou coluna 1D) e solução exata só nos patches de blocos onde o resíduo do prior é grande, com correção final de energia.
 
 <small>`pinneapple_condense/exceptions.py` · 190 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `prior` | função | `(pkg, kind='keff') -> tuple[np.ndarray, float]` | The prior on the fine cells ``(nx, ny, nz)`` and its cost (s). |
-| `block_indicator` | função | `(pkg, sysm, T, f) -> np.ndarray` | ``\|\|K T - f\|\|`` over the cells of each block (W), ``(nbx, nby)``. |
-| `correct` | função | `(pkg, T0, blocks, *, halo=1, blend='core', sysm=None, f=None) -> tuple[np.ndarray, dict]` | Solve the fine problem on the patches around ``blocks`` (boolean ``(nbx, nby)``) with ``T0`` outside. |
-| `energy_correct` | função | `(pkg, T, sysm) -> tuple[np.ndarray, float]` | Add ``alpha * phi`` (``phi``: the response to a uniform map, i.e. one block with adiabatic sides, by symmetry) so that the Robin outflow equals the power. |
-| `run` | função | `(pkg, *, budget=0.1, select='residual', halo=1, blend='core', prior_kind='keff', energy=T…)` | The whole method at one budget (fraction of blocks selected); returns the field and its costs. |
-| `pareto` | função | `(pkg, budgets=…, *, halos=(0, 1), selects=('residual', 'random'), prior_kind='keff', seed…)` | Error against the fraction of cells solved exactly, for each selection rule and halo; with the reference. |
+| `prior` | função | `(pkg, kind='keff') -> tuple[np.ndarray, float]` | Calcula o campo prior nas células finas e o seu custo em segundos. |
+| `block_indicator` | função | `(pkg, sysm, T, f) -> np.ndarray` | Norma do resíduo `K T - f` sobre as células de cada bloco. |
+| `correct` | função | `(pkg, T0, blocks, *, halo=1, blend='core', sysm=None, f=None) -> tuple[np.ndarray, dict]` | Resolve o problema fino nos patches em volta dos blocos escolhidos, com `T0` como dado de Dirichlet fora. |
+| `energy_correct` | função | `(pkg, T, sysm) -> tuple[np.ndarray, float]` | Soma `alpha * phi` (resposta a um mapa uniforme) para que o fluxo de saída Robin iguale a potência. |
+| `run` | função | `(pkg, *, budget=0.1, select='residual', halo=1, blend='core', prior_kind='keff', energy=T…)` | O método inteiro para um orçamento (fração de blocos escolhidos): campo e custos. |
+| `pareto` | função | `(pkg, budgets=…, *, halos=(0, 1), selects=('residual', 'random'), prior_kind='keff', seed…)` | Erro contra fração de células resolvidas exatamente, por regra de seleção e halo, com a referência. |
 
 #### `pinneapple_condense.falsify`
 
-Falsification studies of the condensation method (``docs/research/condensation_falsification.md``): each function is one pre-registered test, returns plain JSON-able numbers and is meant to run in a fresh process (:func:`.benchmark.isolated` with ``module="pinneapple_condense.falsify"``) so that …
+Estudos de falsificação pré-registrados do método de condensação; cada função é um teste que devolve números JSON e deve rodar num processo novo.
 
 <small>`pinneapple_condense/falsify.py` · 989 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `t1_reference` | função | `(nb, seed=2, m=12, rtol=1e-10, fine=True, maxiter=2000) -> dict` | Reference peak junction temperature of an ``nb x nb`` package: the fine AMG solve (``fine``) and the exact condensation (PCG on the unreduced interfaces, preconditioned by the m-mode model) with its convergence trail (T1b: iterations and time to 1 mK). |
-| `t1_point` | função | `(nb, m, seed=2) -> dict` | The memoised hierarchy with ``m`` interface modes: peak junction temperature, build and solve time. |
-| `f0_validation` | função | `(poiseuille=(16, 32, 64), cavity=(32, 64, 128), nusselt=(16, 32, 64)) -> dict` | The flow solver against plane Poiseuille flow, the Re = 100 cavity and the one-sided-flux parallel-plate Nusselt number (5.385). |
-| `f2_stokes` | função | `(n_pins=16, cells=16, pin=8, ms=(1, 2, 4, 8, 16), n_snap=24, seed=0) -> dict` | F2 / F2r: Stokes through an ``n_pins x n_pins`` pin array; exact algebraic condensation against the global direct solve, then reduced faces from snapshots of a 4 x 4 array with random smooth inlet profiles. |
-| `f1_advection` | função | `(n_pins=8, cells=16, pin=8, pes=(0.1, 1, 10, 100, 1000), ms=(1, 2, 4, 8, 16), n_snap=24, …)` | F1 / F1r: steady advection-diffusion through the pin array (velocity: the Stokes solution), block Peclet sweep; exact condensation of the non-symmetric operator, then reduced faces from a 4 x 4 snapshot problem with random pin sources and inlet profiles at the same Peclet number. |
-| `f3_cht` | função | `(n_pins=(8, 4), cells=16, pin=8, res=(1, 10, 50, 100), ms=(2, 4, 8, 16), n_snap=16, tol=1…)` | F3 / F3r: cold plate (fin array in a free-slip strip), Navier-Stokes by Picard, full solve against condensed Picard (every Oseen iterate condensed by content), then the conjugate energy equation; reduced faces for the flow at the largest Re; the fraction of reversed face flux on block faces. |
-| `thermal_case` | função | `(pkg, m=12, rtol=1e-10) -> dict` | One package: fine FV peak junction temperature; m-mode condensation (Tmax error, energy-norm effectivity of the residual estimate); exact condensation (PCG to ``rtol``) against the fine solve. |
-| `t2_contrast` | função | `(nb=32, ratios=(1000.0, 10000.0, 100000.0), m=12, seed=2) -> dict` | T2: the underfill conductivity lowered so that k_copper / k_underfill = ratio (baseline 401 / 0.5 = 802). |
-| `t3_anisotropy` | função | `(nb=32, factors=(100.0, 0.01), m=12, seed=2) -> dict` | T3: TIM and interposer with in-plane / through-thickness conductivity ratio ``factor``. |
-| `t8_adversarial` | função | `(nb=16, m=12, seed=2) -> dict` | T8: power maps unlike the snapshot set (same total power as the baseline hotspot map). |
-| `t9_thin` | função | `(nb=16, m=12, seed=2) -> dict` | T9: thin layers -- TIM 30 -> 3 -> 1 um (1 um with one cell row), die 100 -> 20 um. |
-| `t4_no_repetition` | função | `(nb=32, m=12, seed=1, n_train=48) -> dict` | T4: every block distinct (continuous random variants, four defects). Against one fine FV solve: the exact path (every block condensed, m-mode interfaces, then the PCG correction to the fine solution), and the learned path (:func:`.learned.solve_adaptive`, training timed separately). |
-| `t5_variants` | função | `(nb=64, Vs=(1, 4, 16, 64, 256), m=12, seed=0) -> dict` | T5: ``V`` discrete variants at random positions: hierarchy build (memoised subtrees) against the flat condensation build, both including the V block condensations. |
-| `t6_t7_nonlinear` | função | `(nb=16, case='k', seed=2, power_scale=2.0) -> dict` | T6 (``case="k"``: silicon and copper k(T)) or T7 (``case="R"``: R_c(T) = R_0 (1 + beta (T - T_0)) on the die/TIM contact, beta doubling R_c over the temperature range of the linear solution). |
-| `t10_pitch` | função | `(nb=16, pitches=(4e-05, 2e-05), ms=(2, 4, 8, 12, 16, 24), n_snap=24, seed=2) -> dict` | T10: columns of blocks alternating in pitch, through algebraic condensation (each pitch its own block operator, found by content); baseline: the uniform pitch through the same pipeline. Reduced faces from snapshots of a 4 x 4 package with the same column pattern and random power maps. |
-| `m1_advection` | função | `(pins=4, densities=(8, 16, 32), truth_cells=64, pes=(1, 10, 100), methods=('rbf_fd', 'gfd…)` | M1: meshless advection-diffusion on point clouds (velocity interpolated from the finest FV Stokes solution) against FV at equal unknowns; truth: FV at ``truth_cells`` per unit cell. |
-| `m2_stokes` | função | `(pins=4, densities=(8, 16, 32), truth_cells=64, methods=('rbf_fd', 'gfdm'), seed=0) -> di…)` | M2: collocated meshless Stokes on fluid points with pin-wall points; pressure drop against FV. |
-| `m3_hybrid` | função | `(pins=2, densities=(8, 16, 32), truth_cells=64, k_pin=400.0, k_mat=1.0, R_c=0.001, stenci…)` | M3: FV-at-interfaces hybrid against FV everywhere at equal unknowns (truth: FV at ``truth_cells``), with the error split between the FV band and the meshless points, and the stencil sensitivity. |
-| `m4_meshless_condensed` | função | `(pins=4, cells=16, seed=0) -> dict` | M4: meshless matrices condensed by :mod:`.algebraic`: the hybrid conduction (replicated point clouds and FV bands: identical blocks expected) and the meshless advection-diffusion (velocity differs per block). |
-| `exception_patches` | função | `(A, b, x0, x_true, block, nbshape, budgets, select='residual', halo=1, seed=0)` | Generic prior + exception patches: blocks ranked by the norm of ``b - A x0`` over their unknowns (or random), the patch (selected blocks + ``halo`` rings) solved with the prior as Dirichlet data outside. |
-| `e1_cfd` | função | `(n_pins=8, fine=16, coarse=4, budgets=…, Pe_b=100.0, Re=50.0, seed=0) -> dict` | E1: residual-selected against random exception patches on the advection-diffusion case (Pe_b = 100) and on the conjugate energy field of the cold plate (Re_fin = 50); prior: the same case on a 4x coarser grid. |
+| `t1_reference` | função | `(nb, seed=2, m=12, rtol=1e-10, fine=True, maxiter=2000) -> dict` | Temperatura de junção de pico de referência: solução fina por AMG e condensação exata por PCG com o histórico de convergência. |
+| `t1_point` | função | `(nb, m, seed=2) -> dict` | Hierarquia memoizada com `m` modos: temperatura de pico e tempos de construção e solução. |
+| `f0_validation` | função | `(poiseuille=(16, 32, 64), cavity=(32, 64, 128), nusselt=(16, 32, 64)) -> dict` | Valida o solver de escoamento contra Poiseuille plano, a cavidade com Re = 100 e o número de Nusselt de placas paralelas. |
+| `f2_stokes` | função | `(n_pins=16, cells=16, pin=8, ms=(1, 2, 4, 8, 16), n_snap=24, seed=0) -> dict` | F2/F2r: Stokes num arranjo de pinos, condensação algébrica exata contra solução direta global e depois faces reduzidas por snapshots. |
+| `f1_advection` | função | `(n_pins=8, cells=16, pin=8, pes=(0.1, 1, 10, 100, 1000), ms=(1, 2, 4, 8, 16), n_snap=24, …)` | F1/F1r: advecção-difusão estacionária no arranjo de pinos com varredura do número de Péclet, condensação exata do operador não simétrico e faces reduzidas. |
+| `f3_cht` | função | `(n_pins=(8, 4), cells=16, pin=8, res=(1, 10, 50, 100), ms=(2, 4, 8, 16), n_snap=16, tol=1…)` | F3/F3r: placa fria com aletas, Navier-Stokes por Picard com cada iterado condensado, depois a energia conjugada e faces reduzidas. |
+| `thermal_case` | função | `(pkg, m=12, rtol=1e-10) -> dict` | Um encapsulamento: referência FV, condensação com `m` modos (erro de Tmax, efetividade da estimativa) e condensação exata por PCG. |
+| `t2_contrast` | função | `(nb=32, ratios=(1000.0, 10000.0, 100000.0), m=12, seed=2) -> dict` | T2: aumenta o contraste de condutividade cobre/underfill para várias razões. |
+| `t3_anisotropy` | função | `(nb=32, factors=(100.0, 0.01), m=12, seed=2) -> dict` | T3: TIM e interposer com razão de condutividade no plano / através da espessura. |
+| `t8_adversarial` | função | `(nb=16, m=12, seed=2) -> dict` | T8: mapas de potência diferentes do conjunto de snapshots, com a mesma potência total. |
+| `t9_thin` | função | `(nb=16, m=12, seed=2) -> dict` | T9: camadas finas (TIM e die mais finos). |
+| `t4_no_repetition` | função | `(nb=32, m=12, seed=1, n_train=48) -> dict` | T4: todos os blocos diferentes; caminho exato (cada bloco condensado mais correção PCG) contra o caminho aprendido. |
+| `t5_variants` | função | `(nb=64, Vs=(1, 4, 16, 64, 256), m=12, seed=0) -> dict` | T5: `V` variantes discretas em posições aleatórias; construção da hierarquia contra a condensação plana. |
+| `t6_t7_nonlinear` | função | `(nb=16, case='k', seed=2, power_scale=2.0) -> dict` | T6 (condutividade k(T) de silício e cobre) ou T7 (resistência de contato R_c(T) entre die e TIM). |
+| `t10_pitch` | função | `(nb=16, pitches=(4e-05, 2e-05), ms=(2, 4, 8, 12, 16, 24), n_snap=24, seed=2) -> dict` | T10: colunas de blocos alternando o passo, por condensação algébrica, contra o passo uniforme. |
+| `m1_advection` | função | `(pins=4, densities=(8, 16, 32), truth_cells=64, pes=(1, 10, 100), methods=('rbf_fd', 'gfd…)` | M1: advecção-difusão sem malha em nuvens de pontos contra FV com o mesmo número de incógnitas. |
+| `m2_stokes` | função | `(pins=4, densities=(8, 16, 32), truth_cells=64, methods=('rbf_fd', 'gfdm'), seed=0) -> di…)` | M2: Stokes colocado sem malha nos pontos de fluido; queda de pressão contra FV. |
+| `m3_hybrid` | função | `(pins=2, densities=(8, 16, 32), truth_cells=64, k_pin=400.0, k_mat=1.0, R_c=0.001, stenci…)` | M3: híbrido FV nas interfaces + sem malha no resto contra FV em toda parte, com erro separado por região e sensibilidade ao estêncil. |
+| `m4_meshless_condensed` | função | `(pins=4, cells=16, seed=0) -> dict` | M4: matrizes sem malha condensadas por `algebraic` (condução híbrida e advecção-difusão). |
+| `exception_patches` | função | `(A, b, x0, x_true, block, nbshape, budgets, select='residual', halo=1, seed=0)` | Versão genérica de prior + patches de exceção para qualquer sistema `A x = b`, por resíduo ou aleatório. |
+| `e1_cfd` | função | `(n_pins=8, fine=16, coarse=4, budgets=…, Pe_b=100.0, Re=50.0, seed=0) -> dict` | E1: patches por resíduo contra aleatórios na advecção-difusão e no campo de energia da placa fria, com prior numa grade mais grossa. |
 
 #### `pinneapple_condense.figures`
 
-Figures of the condensation benchmark (matplotlib, from the JSON of :mod:`.benchmark`).
+Figuras matplotlib do benchmark de condensação, lidas do JSON de `benchmark`. [sem teste]
 
 <small>`pinneapple_condense/figures.py` · 214 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `scaling` | função | `(points, path) -> str` | Wall time and peak memory against the number of blocks (two panels, one quantity each). |
-| `accuracy` | função | `(res, path) -> str` |  |
-| `refinement` | função | `(res, path) -> str` |  |
-| `keff_maps` | função | `(maps, path) -> str` | Fine junction temperatures, the homogenised block averages, and their difference. |
-| `transient` | função | `(res, path) -> str` |  |
-| `meshless_convergence` | função | `(res, path, mesh_error=None) -> str` | \|Tmax error\| and \|energy balance\| against the number of nodes, per method and interface treatment. |
-| `meshless_fields` | função | `(res, method, path) -> str` | The point cloud on a vertical slice coloured by temperature, and the junction-temperature error map. |
-| `pareto` | função | `(res, path) -> str` | Error against the fraction of cells solved exactly (exception patches), per selection rule and halo. |
+| `scaling` | função | `(points, path) -> str` | Tempo e memória de pico contra o número de blocos (dois painéis). |
+| `accuracy` | função | `(res, path) -> str` | Gráfico dos erros do condensado contra o número de modos de interface. |
+| `refinement` | função | `(res, path) -> str` | Gráfico do erro contra graus de liberdade de interface, refinamento guiado contra uniforme. |
+| `keff_maps` | função | `(maps, path) -> str` | Mapas da temperatura de junção fina, das médias homogeneizadas por bloco e da diferença. |
+| `transient` | função | `(res, path) -> str` | Gráfico do transiente Craig-Bampton contra a referência. |
+| `meshless_convergence` | função | `(res, path, mesh_error=None) -> str` | Erro de Tmax e de balanço de energia contra número de nós, por método e tratamento de interface. |
+| `meshless_fields` | função | `(res, method, path) -> str` | Nuvem de pontos numa fatia vertical colorida pela temperatura e o mapa de erro da junção. |
+| `pareto` | função | `(res, path) -> str` | Erro contra fração de células resolvidas exatamente (patches de exceção), por regra e halo. |
 
 #### `pinneapple_condense.flow`
 
-Steady 2-D incompressible flow and heat on a staggered (MAC) finite-volume grid, assembled as one sparse system: the reference and the operator of the CFD falsification tests (``docs/research/condensation_falsification.md``).
+Escoamento 2D incompressível e calor em grade MAC por volumes finitos, montado como um sistema esparso: referência e operador dos testes de falsificação de CFD.
 
 <small>`pinneapple_condense/flow.py` · 330 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Grid` | classe | `(nx, ny, h, solid, walls, closed, lid, index)` |  |
-| `ScalarIndex` | classe | `(nx, ny)` |  |
-| `assemble_oseen` | função | `(g, nu, inlet=None, adv=None, force=(0.0, 0.0)) -> tuple[sp.csr_matrix, np.ndarray]` | The Oseen (Stokes when ``adv`` is None) system ``A x = b``; ``inlet``: u on the inlet faces (ny,); ``adv``: advecting face velocities ``(au (nx+1, ny), av (nx, ny+1))``; ``force``: body force per unit mass. |
-| `split` | função | `(g, x) -> tuple[np.ndarray, np.ndarray, np.ndarray]` |  |
-| `solve` | função | `(A, b) -> np.ndarray` |  |
-| `picard` | função | `(g, nu, inlet=None, tol=1e-08, maxiter=200, relax=1.0, linear_solver=None, force=(0.0, 0.…)` | Navier-Stokes by Picard (Oseen) iteration from Stokes: ``linear_solver(A, b) -> x`` (default: direct). Returns the solution, the iteration history of the relative velocity change and the per-iteration systems' solve times. |
-| `assemble_scalar` | função | `(g, u, v, k, rhoc, q, T_in=0.0, scheme='hybrid') -> tuple[sp.csr_matrix, np.ndarray]` | ``rho c (u . grad T) - div(k grad T) = q`` on every cell; ``k``, ``rhoc``, ``q`` are (nx, ny) cell fields (``rhoc`` zero in solids: no advection there; face velocities are zero on solid faces anyway). ``scheme``: "hybrid" or "upwind". |
-| `scalar_coords` | função | `(g) -> np.ndarray` |  |
-| `pin_array` | função | `(n_pins, cells, pin, h, inlet_cells=0, outlet_cells=0) -> np.ndarray` | Solid mask of an array of square pins: ``cells`` per unit cell side, a ``pin x pin`` pin centred in each, with ``inlet_cells`` / ``outlet_cells`` empty columns before and after. |
+| `Grid` | classe | `(nx, ny, h, solid, walls, closed, lid, index)` | Grade MAC: tamanho, espaçamento, células sólidas, tipo de paredes, cavidade fechada/tampa móvel e a numeração das incógnitas. |
+| `ScalarIndex` | classe | `(nx, ny)` | Numeração das incógnitas escalares por célula da grade. |
+| `assemble_oseen` | função | `(g, nu, inlet=None, adv=None, force=(0.0, 0.0)) -> tuple[sp.csr_matrix, np.ndarray]` | Monta o sistema de Oseen (Stokes quando `adv` é None) com perfil de entrada, velocidade advectiva e força de corpo. |
+| `split` | função | `(g, x) -> tuple[np.ndarray, np.ndarray, np.ndarray]` | Separa o vetor solução em `u`, `v` e `p` (NaN nas células sólidas). |
+| `solve` | função | `(A, b) -> np.ndarray` | Solução direta esparsa (`spsolve`) de `A x = b`. |
+| `picard` | função | `(g, nu, inlet=None, tol=1e-08, maxiter=200, relax=1.0, linear_solver=None, force=(0.0, 0.…)` | Navier-Stokes por iteração de Picard (Oseen) a partir de Stokes, com histórico da variação relativa e tempos por iteração. |
+| `assemble_scalar` | função | `(g, u, v, k, rhoc, q, T_in=0.0, scheme='hybrid') -> tuple[sp.csr_matrix, np.ndarray]` | Monta `rho c (u . grad T) - div(k grad T) = q` em todas as células, esquema híbrido ou upwind. |
+| `scalar_coords` | função | `(g) -> np.ndarray` | Coordenadas dos centros das células da grade. |
+| `pin_array` | função | `(n_pins, cells, pin, h, inlet_cells=0, outlet_cells=0) -> np.ndarray` | Máscara sólida de um arranjo de pinos quadrados, com colunas vazias opcionais antes e depois. |
 
 #### `pinneapple_condense.fv`
 
-Cell-centred finite volumes for steady and transient conduction on a voxel box, and the reference solver.
+Volumes finitos centrados na célula para condução estacionária e transiente numa caixa de voxels (contato, Robin, portas laterais), e o solver de referência.
 
 <small>`pinneapple_condense/fv.py` · 174 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `System` | classe | `(K, shape, ports, g_top, g_bottom, Gz, C)` | An assembled conduction operator: ``K`` (W/K), the cell count, the port blocks, the Robin conductances of the top and bottom cell rows (``(nx, ny)``) and the vertical face conductances ``Gz`` (``(nx, ny, nz - 1)``). |
-| `SolveInfo` | classe | `(method, seconds, iterations, residual)` |  |
-| `assemble` | função | `(k, dz, R, dx, h_top, h_bottom, *, ports=False, rho_c=None, dy=None) -> System` | Assemble the conduction operator of a voxel box (see the module docstring). ``k``: ``(nx, ny, nz)`` array or a ``(kx, ky, kz)`` tuple; ``R``: contact resistance of each horizontal face, ``(nz - 1,)`` or ``(nx, ny, nz - 1)``; ``rho_c``: volumetric heat capacity, returned as the diagonal ``C`` (J/K) … |
-| `assemble_package` | função | `(pkg, *, transient=False) -> System` | The whole package (:class:`.package.Package`) as one box, adiabatic on the sides: the reference model. |
-| `source_vector` | função | `(pkg, power=None) -> np.ndarray` | Heat source of every cell (W): the power map on the active cell row. |
-| `factor` | função | `(K)` | Sparse LU of a symmetric matrix (minimum degree on ``K + K^T``, symmetric pivoting). |
-| `solve` | função | `(K, f, *, method='auto', rtol=1e-11, maxiter=4000) -> tuple[np.ndarray, SolveInfo]` | Solve ``K T = f``. ``auto``: sparse direct (SuperLU, minimum-degree ordering on ``K + K^T``) up to 6e4 unknowns, else conjugate gradients with an algebraic multigrid preconditioner (``pyamg``, if installed; Jacobi otherwise) to relative residual ``rtol``. |
-| `solve_package` | função | `(pkg, power=None, **kw) -> tuple[np.ndarray, SolveInfo]` | Reference steady temperature rise of every cell, shape ``(nx, ny, nz)``. |
+| `System` | classe | `(K, shape, ports, g_top, g_bottom, Gz, C)` | Operador de condução montado: `K`, forma, blocos de portas, condutâncias Robin de topo e base, condutâncias verticais e capacidade `C`. |
+| `SolveInfo` | classe | `(method, seconds, iterations, residual)` | Informação de uma solução: método, segundos, iterações e resíduo. |
+| `assemble` | função | `(k, dz, R, dx, h_top, h_bottom, *, ports=False, rho_c=None, dy=None) -> System` | Monta o operador de condução de uma caixa de voxels (condutividade, espessuras, resistências de contato, Robin, portas e capacidade opcionais). |
+| `assemble_package` | função | `(pkg, *, transient=False) -> System` | O encapsulamento inteiro como uma caixa adiabática nos lados: o modelo de referência. |
+| `source_vector` | função | `(pkg, power=None) -> np.ndarray` | Vetor de fonte de calor (W) de cada célula: o mapa de potência na linha ativa. |
+| `factor` | função | `(K)` | LU esparsa de uma matriz simétrica (grau mínimo em `K + K^T`, pivoteamento simétrico). |
+| `solve` | função | `(K, f, *, method='auto', rtol=1e-11, maxiter=4000) -> tuple[np.ndarray, SolveInfo]` | Resolve `K T = f`: direto (SuperLU) até 6e4 incógnitas, senão gradientes conjugados com multigrid algébrico (`pyamg`) ou Jacobi. |
+| `solve_package` | função | `(pkg, power=None, **kw) -> tuple[np.ndarray, SolveInfo]` | Elevação de temperatura de referência de cada célula do encapsulamento. |
 
 #### `pinneapple_condense.hierarchy`
 
-Hierarchical (nested) condensation with reuse of identical subtrees.
+Condensação hierárquica: divide o arranjo de blocos ao meio recursivamente, funde filhos eliminando faces compartilhadas e memoiza operadores de subárvores idênticas.
 
 <small>`pinneapple_condense/hierarchy.py` · 356 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Hierarchy` | classe | `(pkg, m=6, *, modes='pod', keep_root=True)` | Nested condensation of a package (uniform ``m`` interface modes on every face). |
-| `estimate` | função | `(h, sol, chunk=4096) -> np.ndarray` | Per-face error indicator of a hierarchical solution, as :meth:`.substructure.Condensed.estimate`: the fine residual on the port nodes (interiors are exact) measured in the inverse two-sided face Schur complement. |
+| `Hierarchy` | classe | `(pkg, m=6, *, modes='pod', keep_root=True)` | Condensação aninhada de um encapsulamento com `m` modos por face: preparação, passagem para cima das cargas, solução, observáveis e recuperação de um bloco. |
+| `estimate` | função | `(h, sol, chunk=4096) -> np.ndarray` | Indicador de erro por face de uma solução hierárquica, como em `Condensed.estimate`. |
 
 #### `pinneapple_condense.homogenize`
 
-Effective-conductivity (Keff) homogenisation: the baseline every condensation must beat.
+Homogeneização Keff: cada camada com inclusões vira uma camada anisotrópica (regra paralela em z, limite de Hashin-Shtrikman no plano); é a linha de base que apaga o que ocorre dentro do bloco.
 
 <small>`pinneapple_condense/homogenize.py` · 121 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `effective_layer` | função | `(k_m, k_i, phi) -> tuple[float, float]` | (k_xy, k_z) of a layer with a volume fraction ``phi`` of aligned prisms of conductivity ``k_i``. |
-| `effective_properties` | função | `(stack, variant=BASE) -> dict[str, np.ndarray]` | Per z row of one block: ``kxy``, ``kz``, ``rho_c`` (volume average), ``dz`` and contact ``R``. |
-| `homogenized_system` | função | `(pkg, cells=1, transient=False)` | The homogenised package on ``cells x cells`` lateral cells per block (``n`` must be divisible by it). |
-| `coarse_power` | função | `(pkg, cells=1, power=None) -> np.ndarray` |  |
-| `solve_homogenized` | função | `(pkg, cells=1, power=None)` | Coarse temperature field ``(nbx * cells, nby * cells, nz)`` and the solve info. |
-| `homogenized_observables` | função | `(pkg, T, sysm, cells=1) -> dict[str, np.ndarray]` | Per block: mean junction temperature ``Tj_mean``, the die/TIM heat ``q_tim``, the heat down the microbump layer ``q_ubump_layer`` and the share a bump would take by the parallel rule (``q_ubump`` estimate). |
-| `compare` | função | `(pkg, ref, hom) -> dict[str, float]` | What homogenisation erases, against fine-scale reference observables (:func:`.substructure. reference_observables`): the peak junction temperature, block mean and block peak junction temperatures, the intra-block junction spread the coarse model cannot represent, and the interface heats. |
+| `effective_layer` | função | `(k_m, k_i, phi) -> tuple[float, float]` | Condutividades efetivas `(k_xy, k_z)` de uma camada com fração `phi` de prismas alinhados. |
+| `effective_properties` | função | `(stack, variant=BASE) -> dict[str, np.ndarray]` | Propriedades efetivas por linha z de um bloco: `kxy`, `kz`, `rho_c`, `dz` e resistência de contato. |
+| `homogenized_system` | função | `(pkg, cells=1, transient=False)` | Sistema do encapsulamento homogeneizado com `cells x cells` células laterais por bloco. |
+| `coarse_power` | função | `(pkg, cells=1, power=None) -> np.ndarray` | Mapa de potência agregado na grade grossa homogeneizada. |
+| `solve_homogenized` | função | `(pkg, cells=1, power=None)` | Campo de temperatura grosso e informação da solução. |
+| `homogenized_observables` | função | `(pkg, T, sysm, cells=1) -> dict[str, np.ndarray]` | Por bloco: temperatura média de junção, calor die/TIM, calor na camada de microbumps e estimativa do calor por bump. |
+| `compare` | função | `(pkg, ref, hom) -> dict[str, float]` | Mede o que a homogeneização apaga contra os observáveis de referência (pico, médias, espalhamento dentro do bloco, calores). |
 
 #### `pinneapple_condense.learned`
 
-Condensation with a learned block operator, error indicators and an error-driven fallback to exact condensation.
+Operador de bloco reduzido aprendido em função de parâmetros (POD + `ParametricPOD` com GP), nunca usado às cegas: blocos incertos ou fora da caixa de treino são condensados exatamente e uma auditoria verifica o resultado.
 
 <small>`pinneapple_condense/learned.py` · 310 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LearnedBlocks` | classe | `(stack, m, bounds, to_variant, n_train, regressor, seed, timings)` | A learned map ``theta -> reduced block operator``. ``fit()`` condenses ``n_train`` Latin-hypercube samples of ``bounds`` exactly and trains the regression. |
-| `AdaptiveResult` | classe | `(obs, tb, exact_blocks, checked, failed, rounds, timings, flagged_std, flagged_ood, estim…)` |  |
-| `default_variant` | função | `(theta) -> Variant` |  |
-| `reduced_block` | função | `(stack, variant, Phi) -> dict[str, np.ndarray]` | Exact reduced operator of one block on the interface modes ``Phi`` (no cache: one factorisation). |
-| `assemble_blocks` | função | `(Sr, dofs, n) -> sp.csc_matrix` | Global interface matrix from per-block reduced operators ``(N, d, d)`` and their dofs ``(N, d)``. |
-| `solve_blocks` | função | `(ops, pb, dofs, n)` | Assemble, factorise, solve; return the per-block reduced port values ``(N, d)`` and the timings. |
-| `block_observables` | função | `(ops, tb, pb, n2) -> dict[str, np.ndarray]` |  |
-| `solve_adaptive` | função | `(learned, theta, power, *, tol_std=0.05, tol_T=0.01, n_hot=8, n_audit=16, max_rounds=5, s…)` | Learned condensation with the verification loop of the module docstring. ``theta``: ``(nbx, nby, p)`` block parameters; ``power``: ``(nbx * n, nby * n)`` W per active cell. |
-| `solve_exact` | função | `(learned, theta, power) -> tuple[dict, float]` | Every block condensed exactly (one factorisation per block): the reference of the learned path. |
-| `variant_field` | função | `(shape, seed=0, *, defects=0, defect_k=0.05, bounds=None) -> np.ndarray` | Smooth random block parameters inside ``bounds`` (a degraded-TIM gradient, scattered bump voids, TSV quality) and ``defects`` nearly open microbumps (``ubump_k = defect_k``, outside the default training box). |
+| `LearnedBlocks` | classe | `(stack, m, bounds, to_variant, n_train, regressor, seed, timings)` | Mapa aprendido `theta -> operador reduzido do bloco`; `fit()` condensa exatamente amostras Latin hypercube e treina a regressão. |
+| `AdaptiveResult` | classe | `(obs, tb, exact_blocks, checked, failed, rounds, timings, flagged_std, flagged_ood, estim…)` | Resultado de `solve_adaptive`: observáveis, blocos exatos, verificados e reprovados, rodadas, tempos e estimativa. |
+| `default_variant` | função | `(theta) -> Variant` | Converte três parâmetros (microbump, contato die/TIM e TIM/tampa, interposer) numa `Variant`. |
+| `reduced_block` | função | `(stack, variant, Phi) -> dict[str, np.ndarray]` | Operador reduzido exato de um bloco sobre os modos de interface `Phi` (uma fatoração, sem cache). |
+| `assemble_blocks` | função | `(Sr, dofs, n) -> sp.csc_matrix` | Monta a matriz global de interface a partir dos operadores reduzidos por bloco e seus graus de liberdade. |
+| `solve_blocks` | função | `(ops, pb, dofs, n)` | Monta, fatora e resolve o problema de interface; devolve valores de porta por bloco e tempos. |
+| `block_observables` | função | `(ops, tb, pb, n2) -> dict[str, np.ndarray]` | Observáveis por bloco (temperaturas de junção e fluxos) a partir dos valores de porta e das potências. |
+| `solve_adaptive` | função | `(learned, theta, power, *, tol_std=0.05, tol_T=0.01, n_hot=8, n_audit=16, max_rounds=5, s…)` | Condensação aprendida com o laço de verificação: previsão, substituição por exato onde incerto, solução, auditoria e novas rodadas. |
+| `solve_exact` | função | `(learned, theta, power) -> tuple[dict, float]` | Todos os blocos condensados exatamente: a referência do caminho aprendido. |
+| `variant_field` | função | `(shape, seed=0, *, defects=0, defect_k=0.05, bounds=None) -> np.ndarray` | Parâmetros de bloco aleatórios e suaves dentro dos limites, com `defects` microbumps quase abertos fora da caixa de treino. |
 
 #### `pinneapple_condense.meshless`
 
-Meshless solution of the chip-package benchmark (track 1b): points straight from the implicit geometry, no volume mesh.
+Trilha 1b: solução sem malha do encapsulamento direto da geometria implícita (nuvem de pontos, pares de nós com continuidade de fluxo e lei de contato nas interfaces, estênceis RBF-FD ou GFDM).
 
 <small>`pinneapple_condense/meshless.py` · 637 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Cloud` | classe | `(X, region, kind, normal, partner, area, k, R, seconds, info)` |  |
-| `Geometry` | classe | `(pkg)` | Implicit description of a package: what material is at any point, and its surfaces. |
-| `MeshlessSolution` | classe | `(cloud, T, A, b, timings, stencils)` |  |
-| `point_cloud` | função | `(pkg, *, h_xy=None, per_layer=3, h_max=2.5e-05, per_feature=4, band_h=2.0, gap=0.3, jitte…)` | Nodes from the implicit geometry (see the module docstring); ``h_xy``: spacing cap (default: the pitch / 6); ``per_layer``: nodes across each layer; ``per_feature``: nodes across each inclusion. ``density``: an optional callable ``X -> factor in (0, 1]`` that thins the interior lattice (adaptive … |
-| `region_stencils` | função | `(X, region, Q, q_region, n, box, reach, normal=None)` | Stencils of the ``n`` nearest nodes of the same region for every query point. With ``box = (W0, W1)`` the package sides are mirror planes (adiabatic): nodes within ``reach`` of a side (or two) are reflected and a reflected copy stands for its original node. Returns ``(Xe, idx_e, col)``: the … |
-| `assemble` | função | `(cloud, pkg, *, method='rbf_fd', degree=2, n=None, interface='pairs', oversample=False)` | The collocation system of the module docstring. Returns ``(A, b, stencils)``. |
-| `solve` | função | `(pkg, cloud=None, *, method='rbf_fd', degree=2, n=None, interface='pairs', solver='auto',…)` | Point cloud (unless given), assembly, solve. ``solver``: sparse LU, or GMRES with an ILU preconditioner above 2e5 nodes. ``condition``: also a 1-norm condition-number estimate (an extra factorisation). |
-| `evaluate` | função | `(sol, pkg, P, *, degree=None) -> np.ndarray` | Temperature at points ``P`` (interpolated with stencils of the region each point lies in). |
-| `observables` | função | `(sol, pkg) -> dict` | Junction temperatures at the centres of the reference's active cells (``Tj`` as in :func:`.substructure.reference_observables`), the die/TIM heat, the outflows and the energy balance. |
+| `Cloud` | classe | `(X, region, kind, normal, partner, area, k, R, seconds, info)` | Nuvem de pontos: posições, região, tipo, normal, parceiro de interface, área, condutividade e resistência. |
+| `Geometry` | classe | `(pkg)` | Descrição implícita do encapsulamento: material em cada ponto, camada, bloco, inclusões e fontes. |
+| `MeshlessSolution` | classe | `(cloud, T, A, b, timings, stencils)` | Solução sem malha: nuvem, temperaturas, sistema montado, tempos e estênceis. |
+| `point_cloud` | função | `(pkg, *, h_xy=None, per_layer=3, h_max=2.5e-05, per_feature=4, band_h=2.0, gap=0.3, jitte…)` | Gera os nós a partir da geometria implícita (retículo com jitter por região, pares em interfaces, densidade adaptativa opcional). |
+| `region_stencils` | função | `(X, region, Q, q_region, n, box, reach, normal=None)` | Estênceis dos `n` vizinhos mais próximos da mesma região, com lados do encapsulamento como planos espelho. |
+| `assemble` | função | `(cloud, pkg, *, method='rbf_fd', degree=2, n=None, interface='pairs', oversample=False)` | Monta o sistema de colocação (`A`, `b`, estênceis) para o método e tratamento de interface escolhidos. |
+| `solve` | função | `(pkg, cloud=None, *, method='rbf_fd', degree=2, n=None, interface='pairs', solver='auto',…)` | Nuvem, montagem e solução (LU esparsa, ou GMRES com ILU acima de 2e5 nós), com estimativa de condicionamento opcional. |
+| `evaluate` | função | `(sol, pkg, P, *, degree=None) -> np.ndarray` | Temperatura em pontos quaisquer, interpolada com estênceis da região de cada ponto. |
+| `observables` | função | `(sol, pkg) -> dict` | Temperaturas de junção, calor die/TIM, fluxos de saída e balanço de energia da solução sem malha. |
 
 #### `pinneapple_condense.meshless2d`
 
-2-D meshless (RBF-FD / GFDM) discretisations of the CFD falsification cases (``docs/research/ condensation_falsification.md``, section C), on point clouds built from the implicit geometry of a square-pin array.
+Discretizações 2D sem malha (RBF-FD/GFDM) dos casos de CFD da falsificação, em nuvens de um arranjo de pinos quadrados construídas para dar matrizes idênticas em blocos idênticos.
 
 <small>`pinneapple_condense/meshless2d.py` · 339 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pin_sdf` | função | `(X, pins, pin_frac, offset=(1.0, 0.0))` | Signed distance to the nearest square pin (negative inside); unit cells of side 1 from ``offset``. |
-| `cloud` | função | `(pins, h, pin_frac=0.5, jitter=0.25, inlet_blocks=1, outlet_blocks=1, seed=0, fluid_only=…)` | Points over ``(inlet + pins_x + outlet) x pins_y`` unit cells: one jittered lattice of spacing ``h`` per unit cell, the same in every cell (shifted by integers). ``fluid_only`` drops the points inside (and within 0.3 h of) the pins; ``wall_points`` adds points on the pin walls (spacing ``h``). … |
-| `bilinear_mac` | função | `(g, u, v, X)` | Velocity of a MAC solution (grid ``g`` of :mod:`.flow`, lengths in unit cells) at points ``X``. |
-| `snap_to_box` | função | `(X, box, h)` | Points within h / 2 of the box moved onto it (boundary nodes: the conditions are collocated where they hold). |
-| `knn` | função | `(X, Q, n, tree=None)` | The ``n`` nearest nodes of each query point, ties broken by the offset (not by the k-d tree's traversal order): a block replicated by an integer shift then gets the same stencils, so the same matrix. |
-| `advection_diffusion` | função | `(X, box, h, vel, alpha, q, *, method='rbf_fd', n=15, degree=2)` | Collocated ``vel . grad T - alpha lap T = q``. Points within 3 h / 8 of the box carry the boundary condition: inlet ``T = 0``; outlet, top and bottom zero normal gradient. |
-| `stokes` | função | `(X, wall, box, h, nu=1.0, *, method='rbf_fd', n=20, degree=2)` | Collocated Stokes (u, v, p at every fluid point). Rows: momentum and continuity at interior points; no-slip on pin-wall points (continuity replaced by the normal momentum balance there is not used: pressure at wall points is left to the continuity equation); inlet u = 1, v = 0; outlet p = 0, du/dx … |
-| `hybrid_conduction` | função | `(pins, cells, pin_frac, k_pin, k_mat, R_c, *, band=2, point_h=None, jitter=0.25, n=12, de…)` | Conduction ``-div(k grad T) = q`` (source ``q_pin`` in the pins) in a pins_x x pins_y array of unit cells, adiabatic sides, cooled on top (Robin ``h_top``, T_inf = 0), with a contact resistance ``R_c`` on every pin wall. FV cells (``cells`` per unit cell side) within ``band`` cells of a pin wall; … |
-| `fv_conduction` | função | `(pins, cells, pin_frac, k_pin, k_mat, R_c, q_pin=1.0, h_top=1.0)` | The same conduction problem on finite volumes everywhere (the reference and the equal-unknowns baseline). |
+| `pin_sdf` | função | `(X, pins, pin_frac, offset=(1.0, 0.0))` | Distância com sinal ao pino quadrado mais próximo (negativa dentro). |
+| `cloud` | função | `(pins, h, pin_frac=0.5, jitter=0.25, inlet_blocks=1, outlet_blocks=1, seed=0, fluid_only=…)` | Pontos de retículo com jitter por célula unitária, iguais em todas as células, opcionalmente só fluido e com pontos de parede. |
+| `bilinear_mac` | função | `(g, u, v, X)` | Velocidade de uma solução MAC de `flow` interpolada em pontos. |
+| `snap_to_box` | função | `(X, box, h)` | Move para o contorno os pontos a menos de h/2 dele. |
+| `knn` | função | `(X, Q, n, tree=None)` | Os `n` vizinhos mais próximos de cada ponto, com desempate determinístico pelo deslocamento. |
+| `advection_diffusion` | função | `(X, box, h, vel, alpha, q, *, method='rbf_fd', n=15, degree=2)` | Monta `vel . grad T - alpha lap T = q` por colocação, com `T = 0` na entrada e gradiente normal zero no resto. |
+| `stokes` | função | `(X, wall, box, h, nu=1.0, *, method='rbf_fd', n=20, degree=2)` | Monta Stokes colocado (u, v, p) nos pontos de fluido, com não deslizamento nas paredes dos pinos. |
+| `hybrid_conduction` | função | `(pins, cells, pin_frac, k_pin, k_mat, R_c, *, band=2, point_h=None, jitter=0.25, n=12, de…)` | Condução com resistência de contato: FV numa faixa em volta das interfaces e RBF-FD no resto, acoplados por interpolação. |
+| `fv_conduction` | função | `(pins, cells, pin_frac, k_pin, k_mat, R_c, q_pin=1.0, h_top=1.0)` | O mesmo problema de condução só com volumes finitos (referência e linha de base). |
 
 #### `pinneapple_condense.package`
 
-A synthetic multilayer chip package built from one repeated unit cell (a *block*).
+Encapsulamento de chip multicamada sintético feito de um bloco repetido (um C4, um TSV, um microbump), com variantes de bloco e mapas de potência; materiais representativos, não de um produto real.
 
 <small>`pinneapple_condense/package.py` · 253 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Layer` | classe | `(name, thickness, nz, matrix, inclusion, side)` | One layer of the stack. ``inclusion``: material of the square inclusion centred in each block (bump, TSV), ``side``: its side as a fraction of the block pitch. |
-| `Variant` | classe | `(inclusion_k, removed, contact)` | What makes a block differ from the base block. ``inclusion_k``: ((layer, factor), ...) multiplies the inclusion conductivity of a layer (a void fraction lowers it); ``removed``: layers whose inclusion is missing (replaced by the matrix); ``contact``: ((lower, upper, factor), ...) multiplies a … |
-| `Stack` | classe | `(layers, pitch, n, contact, h_top, h_bottom, active, materials, anisotropy)` | The layers (bottom to top), the block pitch and lateral cells per block, contact resistances between layers (m^2 K / W), Robin coefficients on the top of the lid and the bottom of the substrate (W/m^2/K), and the layer whose bottom cell row is the active (heat-generating, junction) surface. |
-| `Package` | classe | `(stack, layout, variants, power)` | A lateral ``(nbx, nby)`` array of blocks over one stack. ``layout[I, J]`` indexes ``variants``; ``power`` is the heat (W) of every active cell, shape ``(nbx * n, nby * n)``. |
-| `reference_stack` | função | `(n=8, vertical=1) -> Stack` | The benchmark stack: 40 um block pitch (one microbump, one TSV and one C4 per block; a simplification: C4 pitch is usually larger than microbump pitch), ~1 mm total height, 8 x 8 cells per block side by default. |
-| `hotspot_power` | função | `(stack, shape, total, *, hotspots=3, background=0.4, width=0.08, seed=0, centres=None) ->…)` | A non-uniform power map on the active cells (W per cell): ``background`` of ``total`` spread uniformly, the rest in Gaussian hotspots (``width`` as a fraction of the die side) at random or given ``centres``. |
-| `uniform_package` | função | `(shape, stack=None, *, total_power=None, power_density=1000000.0, seed=0, hotspots=3) -> …)` | A package of identical blocks with a hotspot power map. ``power_density``: mean heat flux over the die (W/m^2; 1e6 W/m^2 = 100 W/cm^2) unless ``total_power`` is given. Change ``layout`` / ``variants`` afterwards for heterogeneous blocks. |
+| `Layer` | classe | `(name, thickness, nz, matrix, inclusion, side)` | Uma camada da pilha: nome, espessura, número de células em z, material da matriz, material e lado da inclusão. |
+| `Variant` | classe | `(inclusion_k, removed, contact)` | O que muda num bloco sem mudar a geometria: fator de condutividade da inclusão, inclusões removidas, fator de contato. |
+| `Stack` | classe | `(layers, pitch, n, contact, h_top, h_bottom, active, materials, anisotropy)` | A pilha de camadas com passo do bloco, células por bloco, resistências de contato, coeficientes Robin, camada ativa e materiais. |
+| `Package` | classe | `(stack, layout, variants, power)` | Arranjo lateral de blocos sobre uma pilha, com layout de variantes e potência por célula ativa. |
+| `reference_stack` | função | `(n=8, vertical=1) -> Stack` | A pilha do benchmark (passo de 40 um, cerca de 1 mm de altura, 8 x 8 células por lado de bloco por padrão). |
+| `hotspot_power` | função | `(stack, shape, total, *, hotspots=3, background=0.4, width=0.08, seed=0, centres=None) ->…)` | Mapa de potência não uniforme: fundo uniforme mais hotspots gaussianos. |
+| `uniform_package` | função | `(shape, stack=None, *, total_power=None, power_density=1000000.0, seed=0, hotspots=3) -> …)` | Encapsulamento de blocos idênticos com mapa de potência com hotspots. |
 
 #### `pinneapple_condense.query`
 
-Physics queries on a chip package (track 2): the methods behind :class:`pinneapple_query.Engine` for the package of :mod:`.package`.
+Trilha 2: métodos de consulta física sobre o encapsulamento para `pinneapple_query.Engine` (temperatura em ponto, pico em região, calor por feature, R_ja), do mais barato ao mais caro.
 
 <small>`pinneapple_condense/query.py` · 411 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `State` | classe | `(power, obs, method, uncertainty, seconds, solver=None, sol=None, field=None, obs_unc=Non…)` | A solved configuration: per-block observables, its source, its own uncertainty (K, the largest over the junction), the uncertainty of each observable (``obs_unc``: same keys as ``obs``, absolute; ``None`` for an exact state), and what is needed to read interior points (the hierarchy and its … |
-| `PackageModel` | classe | `(pkg, m=8, reference_cells=2000000)` | Shared machinery of the methods: the package, the stored states, the hierarchies, extraction of a quantity from a state. |
-| `Cached` | classe | `(model)` |  |
-| `Bound` | classe | `(model)` | Rigorous interval from the M-matrix monotonicity (see the module docstring). |
-| `Superposition` | classe | `(model, max_states=64)` | Linear combination of solved states (least squares on the power maps); the residual map bounded by monotonicity, plus the combined uncertainty of the states. |
-| `Condensed` | classe | `(model, expected_s=1.0)` | A new solve with the memoised hierarchy at ``m``; uncertainty \|T_m - T_2m\| (the 2m value is returned). |
-| `Reference` | classe | `(model)` | The fine finite-volume solve: the last resort. |
-| `package_engine` | função | `(pkg, m=12, reference_cells=2000000, calibrate=True) -> tuple[Engine, PackageModel]` | A query engine over a package with the methods of this module. ``calibrate``: solve the package's own power map once with the condensed method (part of the build cost), which gives the condensed method its uncertainty prior and the store its first state. |
+| `State` | classe | `(power, obs, method, uncertainty, seconds, solver=None, sol=None, field=None, obs_unc=Non…)` | Configuração resolvida: observáveis por bloco, método de origem, incerteza e o necessário para ler pontos internos. |
+| `PackageModel` | classe | `(pkg, m=8, reference_cells=2000000)` | Maquinário comum dos métodos: o encapsulamento, os estados guardados, as hierarquias e a extração de quantidades. |
+| `Cached` | classe | `(model)` | Método `cached`: lê um estado já resolvido com as mesmas condições, sem física nova. |
+| `Bound` | classe | `(model)` | Método `bound`: intervalo rigoroso pela monotonicidade da M-matriz de condução. |
+| `Superposition` | classe | `(model, max_states=64)` | Método `superposition`: combinação linear de estados resolvidos por mínimos quadrados nos mapas de potência, com resíduo limitado. |
+| `Condensed` | classe | `(model, expected_s=1.0)` | Método `condensed`: nova solução com a hierarquia memoizada em `m`, incerteza \|T_m - T_2m\|. |
+| `Reference` | classe | `(model)` | Método `reference`: solução fina por volumes finitos, o último recurso. |
+| `package_engine` | função | `(pkg, m=12, reference_cells=2000000, calibrate=True) -> tuple[Engine, PackageModel]` | Monta um motor de consultas sobre um encapsulamento com esses métodos, calibrando opcionalmente o método condensado. |
 
 #### `pinneapple_condense.query_benchmark`
 
-Measured demonstration of the physics query engine on the chip package (track 2).
+Demonstração medida do motor de consultas sobre o encapsulamento: milhares de consultas comparadas com a referência fina. [sem teste]
 
 <small>`pinneapple_condense/query_benchmark.py` · 125 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `query_demo` | função | `(nb=48, m=12, n_points=2000, n_interior=100, seed=0, reference=True) -> dict` |  |
+| `query_demo` | função | `(nb=48, m=12, n_points=2000, n_interior=100, seed=0, reference=True) -> dict` | Roda o conjunto de consultas e reporta latência por método, método escolhido, erro e se os intervalos rigorosos contêm a referência. |
 
 #### `pinneapple_condense.substructure`
 
-Static condensation of repeated blocks, reduced interfaces, on-demand recovery and an error-driven refinement.
+Condensação estática dos blocos repetidos (complemento de Schur por bloco distinto), interfaces reduzidas a poucos modos, recuperação sob demanda, estimativa de erro e refinamento.
 
 <small>`pinneapple_condense/substructure.py` · 661 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BlockModel` | classe | `(stack, variant, S, W, Y, Z, ports, Om, obs_names, seconds, O_p, O_t)` | The condensed form of one distinct block (see the module docstring for the symbols). |
-| `CondensedState` | classe | `(t, pb, seconds)` | A solved condensed configuration: the interface dofs and the block powers it was solved for. |
-| `Condensed` | classe | `(pkg, m=6, *, refined_x=None, refined_y=None, modes='pod', shift=0.0, face_m=None)` | The condensed package: block operators reused across identical blocks, ``m`` interface modes per face (``refined_x`` / ``refined_y``: faces kept exact; ``face_m``: modes of every face, x faces first), a global sparse interface system factorised once. |
-| `block_functionals` | função | `(stack, variant, sysb) -> tuple[sp.csr_matrix, list[str]]` | Rows of the linear observables of one block over its cells: the ``n * n`` junction temperatures, then the vertical heat (W, positive upwards) through the die/TIM interface, the microbump, the TSV and the C4 bump (each at the middle face of its layer, over the inclusion cells), and the Robin outflow … |
-| `block_model` | função | `(stack, variant=BASE, *, cache=True, shift=0.0) -> BlockModel` | Condense one block (cached per ``(stack, variant, shift)``). ``shift`` ``s`` condenses ``K + s C`` instead of ``K`` (the Laplace-domain operator at rate ``s`` [1/s]; one implicit-Euler step for ``s = 1/dt``). |
-| `clear_cache` | função | `() -> None` |  |
-| `face_weights` | função | `(stack) -> np.ndarray` | Area (m^2) of each port node of a face, order ``(lateral, k)``. |
-| `trace_snapshots` | função | `(stack, patch=4, shifts=(0.0,), *, global_size=16, global_maps=24) -> dict[str, np.ndarra…)` | Interface traces the face modes are built from (cached per stack), two groups of equal weight: |
-| `layered_modes` | função | `(stack, orient, m, shifts=(0.0,), *, groups='layer') -> np.ndarray` | ``m`` face modes that never tie two layers together: each layer gets its own constant, and the remaining ``m - n_layers`` modes are the leading per-layer POD modes of the traces (:func:`trace_snapshots`), allotted greedily by singular value across layers. A mode spanning several layers would fix … |
-| `interface_modes` | função | `(bm, orient, m, method='pod', shifts=(0.0,)) -> np.ndarray` | ``m`` modes of a shared face (``orient`` ``"x"`` or ``"y"``), columns orthonormal in the area-weighted inner product, the first one constant. ``method="pod"`` (default): the rest are the leading POD modes of the traces of :func:`trace_snapshots` (load-informed Ritz-type modes); ``"cc"``: the … |
-| `reference_observables` | função | `(pkg, T) -> dict[str, np.ndarray]` | The observables of :meth:`Condensed.observables` from a full cell field ``(nx, ny, nz)`` (same rows). |
-| `energy_norm` | função | `(K, e) -> float` |  |
-| `errors` | função | `(obs, ref, total_power) -> dict[str, float]` | Error of observables against a reference: Tmax and junction temperatures (K), interface heats relative to the reference total of that interface, and the energy balance (outflow - power, relative). |
-| `tmax_cells` | função | `(T, active_k) -> tuple[float, float]` | (max over every cell, max over the active row): equal when all heat is generated on the active row with non-negative power (discrete maximum principle: every other cell is a weighted mean of its neighbours). |
-| `iterate_refinement` | função | `(pkg, m, tol, *, fraction=0.5, max_steps=6, power=None)` | Solve, estimate, refine until ``sqrt(sum eta^2) <= tol * sqrt(t^T A t)`` (relative energy estimate). |
+| `BlockModel` | classe | `(stack, variant, S, W, Y, Z, ports, Om, obs_names, seconds, O_p, O_t)` | Forma condensada de um bloco distinto: complemento de Schur, mapas de carga e de recuperação e observáveis. |
+| `CondensedState` | classe | `(t, pb, seconds)` | Configuração condensada resolvida: graus de liberdade de interface e potências dos blocos. |
+| `Condensed` | classe | `(pkg, m=6, *, refined_x=None, refined_y=None, modes='pod', shift=0.0, face_m=None)` | O encapsulamento condensado: operadores reaproveitados, `m` modos por face, sistema global fatorado uma vez, com estimativa, correção e refinamento. |
+| `block_functionals` | função | `(stack, variant, sysb) -> tuple[sp.csr_matrix, list[str]]` | Linhas dos observáveis lineares de um bloco: temperaturas de junção e calores verticais em die/TIM, microbump, TSV, C4 e saída Robin. |
+| `block_model` | função | `(stack, variant=BASE, *, cache=True, shift=0.0) -> BlockModel` | Condensa um bloco (com cache por pilha, variante e `shift`). |
+| `clear_cache` | função | `() -> None` | Limpa o cache de modelos de bloco. |
+| `face_weights` | função | `(stack) -> np.ndarray` | Área (m²) de cada nó de porta de uma face. |
+| `trace_snapshots` | função | `(stack, patch=4, shifts=(0.0,), *, global_size=16, global_maps=24) -> dict[str, np.ndarra…)` | Traços de interface usados para construir os modos de face (com cache por pilha). |
+| `layered_modes` | função | `(stack, orient, m, shifts=(0.0,), *, groups='layer') -> np.ndarray` | `m` modos de face que nunca ligam duas camadas: uma constante por camada e modos POD por camada. |
+| `interface_modes` | função | `(bm, orient, m, method='pod', shifts=(0.0,)) -> np.ndarray` | `m` modos ortonormais (ponderados por área) de uma face compartilhada, o primeiro constante; POD por padrão. |
+| `reference_observables` | função | `(pkg, T) -> dict[str, np.ndarray]` | Os mesmos observáveis de `Condensed.observables` calculados a partir de um campo fino completo. |
+| `energy_norm` | função | `(K, e) -> float` | Norma de energia `sqrt(e^T K e)` de um vetor de erro. |
+| `errors` | função | `(obs, ref, total_power) -> dict[str, float]` | Erros dos observáveis contra uma referência: Tmax, temperaturas de junção, calores relativos e balanço de energia. |
+| `tmax_cells` | função | `(T, active_k) -> tuple[float, float]` | Máximo sobre todas as células e sobre a linha ativa (iguais pelo princípio do máximo discreto quando a potência é não negativa). |
+| `iterate_refinement` | função | `(pkg, m, tol, *, fraction=0.5, max_steps=6, power=None)` | Resolve, estima e refina faces até a estimativa relativa de energia ficar abaixo de `tol`. |
 
 #### `pinneapple_condense.transient`
 
-Transient conduction: Craig-Bampton condensation of the blocks, implicit Euler, and the fine reference.
+Condução transiente: redução Craig-Bampton de cada bloco (modos de restrição mais modos de interface fixa), Euler implícito com passo fixo, e a referência fina.
 
 <small>`pinneapple_condense/transient.py` · 199 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CBBlock` | classe | `(K, M, W, G, Ot, Op, lam)` |  |
-| `CBTransient` | classe | `(pkg, m=8, k=8, shifts=TRANSIENT_SHIFTS)` | Craig-Bampton model of a package (``m`` interface modes per face, ``k`` interior modes per block). |
-| `cb_block` | função | `(pkg_stack, variant, Phi_f, k) -> CBBlock` | Craig-Bampton reduction of one block onto ``Phi_f`` interface modes and ``k`` fixed-interface modes. |
-| `reference_transient` | função | `(pkg, powers, dt, every=1) -> dict` | Fine-grid implicit Euler with the same step (``C / dt + K`` factorised once, or AMG-CG for big grids). |
+| `CBBlock` | classe | `(K, M, W, G, Ot, Op, lam)` | Matrizes Craig-Bampton de um bloco (rigidez, massa, carga, acoplamentos, observáveis e autovalores). |
+| `CBTransient` | classe | `(pkg, m=8, k=8, shifts=TRANSIENT_SHIFTS)` | Modelo Craig-Bampton do encapsulamento com `m` modos de interface e `k` modos internos por bloco. |
+| `cb_block` | função | `(pkg_stack, variant, Phi_f, k) -> CBBlock` | Redução Craig-Bampton de um bloco sobre os modos de interface `Phi_f` e `k` modos de interface fixa. |
+| `reference_transient` | função | `(pkg, powers, dt, every=1) -> dict` | Euler implícito na grade fina com o mesmo passo (fatoração única ou AMG-CG para grades grandes). |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Condensação exata igual à referência fina** — `tests/test_condense.py`
+
+```python
+def test_exact_condensation_equals_reference(case):
+    pkg, T, ref = case
+    c = Condensed(pkg, m=10 ** 6).prepare()
+    st = c.solve()
+    assert np.abs(c.field(st) - T).max() < 1e-7 * T.max()
+    e = errors(c.observables(st), ref, pkg.power.sum())
+    assert e["err_Tmax"] < 1e-7 and e["err_q_ubump"] < 1e-7 and abs(e["energy_balance"]) < 1e-8
+    assert c.timings["distinct_blocks"] == 3                     # three variants, twelve blocks: three factorisations
+```
+
+**Estudos do benchmark rodados por nome** — `examples/physics_condensation/run_benchmark.py`
+
+```python
+from pinneapple_condense import benchmark as B
+from pinneapple_condense import figures as F
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+RES, FIG = os.path.join(HERE, "results"), os.path.join(HERE, "figures")
+
+FULL = {
+    "mesh": ("mesh_convergence", {}),
+    "accuracy": ("accuracy_vs_modes", {}),
+```
 
 ### Testes e status de validação
 
@@ -3784,7 +3858,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O próprio pacote se declara "work in progress"; o `__init__` não reexporta nada e cada submódulo é importado direto.
+- O caso de teste é um encapsulamento de chip sintético: geometria simplificada (inclusões quadradas, um C4 por bloco, tampa sem balanço) e materiais representativos, não de um produto real.
+- A reutilização de blocos depende de blocos idênticos; quando todos diferem, é preciso o caminho aprendido (`learned`) ou condensar cada bloco (mais caro).
+- Os estudos de `benchmark` e `falsify` são pesados (o exemplo cita cerca de uma hora em 4 núcleos e ~12 GB para o maior caso) e são pensados para rodar em processo isolado.
+- `fv.solve` usa `pyamg` para problemas grandes se estiver instalado; sem ele cai para gradientes conjugados com Jacobi.
+- `flow` e `meshless2d` são 2D e servem como referência e operador dos testes de falsificação, não como solver de CFD geral.
+- `benchmark`, `figures` e `query_benchmark` não têm teste direto.
 
 ## 6. `pinneapple_query`
 

@@ -48,10 +48,12 @@ def check(inv: dict, pkg: str) -> list[str]:
         raw = f.read_text(encoding="utf-8")
         if EXCLUDE_RE.search(raw):
             errs.append(f"{f.name}: contém termo de cliente proibido")
-    for k in REQUIRED:
-        if subs is None and k not in top and k not in ("exemplos",):
-            errs.append(f"{pkg}: campo '{k}' vazio")
     mods, syms = expected(inv, pkg)
+    optional = {"exemplos"} | ({"simbolos"} if not syms else set()) | ({"submodulos"} if not any(
+        "." in m for m in mods) else set())
+    for k in REQUIRED:
+        if subs is None and k not in top and k not in optional:
+            errs.append(f"{pkg}: campo '{k}' vazio")
     if subs is not None:
         keep = lambda n: (n.split(":")[0].split(".") + [""])[1] in subs
         mods = {m for m in mods if keep(m)}

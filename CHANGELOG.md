@@ -53,6 +53,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   for the surface field and `floor` (a glossy floor); `colormap.colorbar(..., dark=True)`.
 - `ahmed_body`: `n_body`, `n_slant`, `n_corner` (sampling; the vertex count never depends on the slant) and
   `slant_length`.
+- `pinneapple_simulation.numerical_solvers.gated_xtfc`: Gated X-TFC (Dwivedi, Schiassi et al., arXiv:2510.01039)
+  for 1D second-order linear BVPs with sharp layers.
+  - The basis is Gaussian RBFs; a soft split sets their centres and widths, blended by logistic gates
+    (`gated_layout`).
+  - `solve_forward` does the forward solve.
+  - `search_gates_nested` (one split) and `search_gates_bo` (several splits) search for the gates.
+  - `fit_inverse` infers the parameter by maximising the evidence with the library's Bayesian optimiser.
+- `examples/reproductions/gated_xtfc_dwivedi2025`: the Gated X-TFC reproduction, with frozen targets, a runner and
+  measured results. 2 of 9 targets are reproduced.
 - `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
   fields, value and derivative constraints on faces, and linear or non-linear residuals.
   - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an
@@ -217,6 +226,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
+  its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
 - `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
   `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
   (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that

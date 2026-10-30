@@ -297,6 +297,8 @@ class Experiment:
     params: dict[str, Any] = {}
     #: smaller parameters for tests and smoke runs (merged over ``params``)
     quick: dict[str, Any] = {}
+    #: what :meth:`run` returns; a layer built on this one (``pinneapple_futures``) supplies its own subclass
+    result_cls: type[Result] = Result
 
     def __init_subclass__(cls, **kw):
         super().__init_subclass__(**kw)
@@ -323,7 +325,7 @@ class Experiment:
         if unknown:
             raise TypeError(f"{self.name}: unknown parameters {sorted(unknown)}; known: {sorted(self.params)}")
         p = {**self.params, **(self.quick if quick else {}), **params}
-        res = Result(self.name, self.title, self.area, self.topic, self.level, self.kind, dim, jsonable(p))
+        res = self.result_cls(self.name, self.title, self.area, self.topic, self.level, self.kind, dim, jsonable(p))
         t0 = time.perf_counter()
         self._run(res, dim, p)
         res.wall_time_s = time.perf_counter() - t0

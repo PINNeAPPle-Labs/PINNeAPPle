@@ -69,6 +69,7 @@ watch:
   - pinneapple_blender
   - pinneapple_data
   - pinneapple_design
+  - pinneapple_futures
   - pinneapple_hub
   - pinneapple_llm
   - pinneapple_models

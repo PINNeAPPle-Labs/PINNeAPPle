@@ -7,6 +7,7 @@ from . import (  # noqa: F401
     cfd_pipeline,
     condense,
     data,
+    futures,
     methods,
     physics_learning,
     presets,

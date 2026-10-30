@@ -671,6 +671,9 @@ _SUBMODULES = {
     "presets":    "pinneapple_presets",
     # science by area: experiments (academic / research, theory / practice, 0-D to 3-D + time) and the atlas
     "science":    "pinneapple_science",
+    # speculative physics and engineering: what-if questions, plausibility classes and the Futures Lab's three
+    # demonstrators, built as an application layer on pinneapple_science
+    "futures":    "pinneapple_futures",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

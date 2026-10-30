@@ -21,6 +21,34 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_futures` (`pp.futures`): the Futures Lab, Speculative Physics & Engineering as an application layer
+  of the library -- a speculative system written down as physics and investigated with the same checks as
+  anything else.
+  - `pp.futures.ask("What if Earth's gravity were 2.5 times stronger?")` -> `Brief`: the scenario with the change
+    converted, the eight steps of the plan, and which equations contain the parameter (including when the honest
+    answer is "none of them"). It reads gravity, temperature, pressure, insolation and albedo, in English or
+    Portuguese; a question it cannot read says so and refuses to run.
+  - `pinneapple_futures.schema`: `Input` (a number with its provenance: constant, measured, design choice,
+    derivation or hypothesis), `Claim` and `Hypothesis` (with its falsifier), `Scenario`, `Proposal`, and four
+    epistemic classes -- `established`, `extrapolated`, `hypothetical`, `fictional` -- of which a proposal gets
+    the weakest.
+  - `pinneapple_futures.plausibility`: six evidence axes scored only from the checks a run recorded, an axis with
+    no evidence reported as *not assessed* (never zero, never one), and two independent verdicts (physics:
+    `SUPPORTED` / `CONDITIONAL` / `CONTRADICTED`; engineering: `FEASIBLE` / `CONDITIONAL` / `NOT FEASIBLE`). A
+    simulation cannot fill `technological_feasibility`.
+  - Three demonstrators, each compared with closed forms and with its observed order of convergence:
+    `futures.exoplanet_laboratory` (radiative equilibrium, the diffusive energy balance against its Legendre
+    solution, the scale height -- and that gravity leaves `T_eq` untouched), `futures.mars_habitat` (a three-layer
+    envelope against its resistance network, the heater budget, the radiative boundary against its linearisation,
+    the pressure hull and the shield load), `futures.programmable_matter` (`k(T)`, a graded `k(x)` and a switching
+    `k`, and the point where a material stops regulating because it stops conducting).
+  - `pp.futures.atlas()`: the eight directions of the Lab with their status and pointers, and
+    `pp.futures.validate()` checking every pointer against the code that exists.
+  - `python -m pinneapple_futures atlas | list | run | ask | publish`; `publish` writes a page per experiment with
+    its comparisons, checks, verdicts and a *What this does not show* section. Flow nodes `futures.ask`,
+    `futures.run`, `futures.atlas`. Guide: `docs/guides/futures_lab.md`.
+- `pinneapple_science.core.Experiment.result_cls`: what `run()` returns, so a layer built on the science
+  experiments can return its own result type (`pinneapple_futures` does). The default is unchanged.
 - `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
   fields, value and derivative constraints on faces, and linear or non-linear residuals.
   - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an

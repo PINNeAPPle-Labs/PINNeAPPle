@@ -66,7 +66,8 @@ _MODEL_META: Dict[str, Dict[str, Any]] = {
     },
     "pinnsformer": {
         "family": "transformers",
-        "description": "PINNsFormer — transformer-based PINN for time-dependent problems.",
+        "description": "Transformer over sequences of collocation points (not pointwise; the paper's PINNsFormer "
+                       "is pinnsformer_paper).",
         "recommended_for": ["fluid", "wave", "thermal"],
         "tags": ["transformer", "time-dependent", "pinn"],
     },

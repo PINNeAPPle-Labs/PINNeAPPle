@@ -5392,7 +5392,11 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_twin3d` é a camada de visualização 3D de gêmeos digitais do PINNeAPPle. Você monta uma `Scene` em Python (partes de malha, campos por vértice ao longo do tempo, movimentos, visibilidade, propriedades físicas e sensores com séries e envelopes de alarme) e exporta para uma pasta estática: `scene.json`, `geometry.glb`, `fields.bin` e o visualizador web embutido (pasta `viewer/`). `serve` abre essa pasta por HTTP.
+
+O pacote resolve o problema de mostrar resultados de simulação e de monitoramento sobre a geometria real, com o tempo como eixo. Há várias entradas de geometria: primitivas (`primitives`), a biblioteca de geometrias de `pinneapple_design` (`library`), casos OpenFOAM com valores por face (`openfoam`), scans limpos e cenas MuJoCo (`scan`). Além do glTF, `usd` exporta OpenUSD com campos como time samples e física `UsdPhysics`, para Omniverse e Isaac Sim; a cena também vira cena de `pp.viz` (`to_studio`) e pode ser renderizada no Blender.
+
+O subpacote `wear` é um gerador completo de gêmeos de desgaste de revestimento (refratário, liner, tubo): especificação do vaso por zonas de revolução, dataset de espessura, previsão linear de vida restante com intervalo e confiança, backtest, otimização de paradas de manutenção (apoio à decisão), calibração a partir de registros e campanhas sintéticas claramente rotuladas. Segundo o docstring do pacote, o visualizador fica na biblioteca para ser reaproveitado pelo PINNeAPPle-CFD, pelos apps e por `pinneapple_systems.digital_twin`.
 
 ### Números do inventário
 
@@ -5404,16 +5408,16 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `demo` |  | 1 | 1 | 6 |
-| `gallery` |  | 1 | 11 | 16 |
-| `library` |  | 1 | 0 | 0 |
-| `openfoam` |  | 1 | 6 | 6 |
-| `primitives` |  | 1 | 12 | 16 |
-| `scan` |  | 1 | 4 | 4 |
-| `scene` |  | 1 | 5 | 9 |
-| `serve` |  | 1 | 1 | 6 |
-| `usd` |  | 1 | 1 | 5 |
-| `wear` |  | 9 | 45 | 30 |
+| `demo` | Cena de demonstração de curva de tubo com desgaste ilustrativo. | 1 | 1 | 6 |
+| `gallery` | Galeria de peças variadas construídas com primitivas, com campos sintéticos. | 1 | 11 | 16 |
+| `library` | Alias da biblioteca de geometrias de `pinneapple_design`. | 1 | 0 | 0 |
+| `openfoam` | Leitura de casos OpenFOAM para cenas com valores por face. | 1 | 6 | 6 |
+| `primitives` | Primitivas de malha (revolução, varredura, loft, asa, caixa, cilindro). | 1 | 12 | 16 |
+| `scan` | Limpeza de malhas de scan e importação de cenas MuJoCo. | 1 | 4 | 4 |
+| `scene` | Modelo da cena e exportação para glTF + campos + visualizador. | 1 | 5 | 9 |
+| `serve` | Servidor HTTP da pasta exportada. | 1 | 1 | 6 |
+| `usd` | Exportação OpenUSD com campos no tempo e física. | 1 | 1 | 5 |
+| `wear` | Gerador de gêmeos de desgaste: modelo, previsão, otimização, calibração e presets. | 9 | 45 | 30 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5421,255 +5425,272 @@ _Sem texto de objetivo._
 
 #### `pinneapple_twin3d`
 
-3D digital-twin visualization: build a scene in Python, open it in the bundled web viewer.
+Fachada do pacote: reexporta `Scene` e `serve` para montar uma cena de gêmeo digital 3D em Python e abri-la no visualizador web embutido.
 
 <small>`pinneapple_twin3d/__init__.py` · 26 linhas · testes: 34</small>
 
 #### `pinneapple_twin3d.demo`
 
-Demo scene: a 90-degree pipe bend with erosion wear growing over time, plus two sensors.
+Cena de demonstração: curva de tubo de 90 graus com desgaste por erosão crescendo no tempo e dois sensores; o campo é ilustrativo, não resultado de CFD.
 
 <small>`pinneapple_twin3d/demo.py` · 68 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pipe_bend_scene` | função | `(years=(0, 1, 2, 3, 4, 5)) -> Scene` |  |
+| `pipe_bend_scene` | função | `(years=(0, 1, 2, 3, 4, 5)) -> Scene` | Monta a cena de demonstração da curva de tubo com campo de desgaste ilustrativo por ano e dois sensores. |
 
 #### `pinneapple_twin3d.gallery`
 
-Gallery: 3D twins of very different parts built from primitives, to exercise the generator beyond liners.
+Galeria de gêmeos 3D de peças muito diferentes (canal de corrida, tanque, oleoduto, avião, foguete, drone, rover lunar, turbina eólica, satélite) montados com primitivas e campos sintéticos.
 
 <small>`pinneapple_twin3d/gallery.py` · 438 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `get` | função | `(key) -> Scene` |  |
-| `runner_channel` | função | `() -> Scene` | Blast-furnace cast-house runner: refractory-lined U trough from the tap hole to the skimmer. |
-| `mixing_tank` | função | `() -> Scene` | Agitated tank: dished bottom, baffles, two-stage pitched-blade impeller; tracer blending over time. |
-| `oil_pipeline` | função | `() -> Scene` | Buried-style crude line with two bends and a sag: wall loss from corrosion/erosion over 20 years. |
-| `airliner` | função | `() -> Scene` | Narrow-body airliner: fuselage, swept wing, tail, two engines; skin temperature and wing-root load over a flight. |
-| `rocket` | função | `() -> Scene` | Launch vehicle: ogive nose, tank stack, bell nozzle, four fins; aero heating and nozzle ablation during ascent. |
-| `drone` | função | `() -> Scene` | Quadcopter: body, arms, motors, rotor discs, battery; motor and battery heating over a 20-minute flight. |
-| `lunar_rover` | função | `() -> Scene` | Six-wheel lunar rover over one lunar day-night cycle: chassis temperature and regolith wheel wear. |
-| `wind_turbine` | função | `() -> Scene` | Three-blade turbine: tapered tower, nacelle, twisted blades; leading-edge erosion and fatigue over 20 years. |
-| `satellite` | função | `() -> Scene` | Small satellite in LEO: bus, two solar wings, dish; thermal cycling through sunlight and eclipse. |
-| `export_all` | função | `(folder) -> str` | Export every gallery part to ``folder/<key>/`` and write ``folder/index.html`` linking them. |
+| `get` | função | `(key) -> Scene` | Retorna a cena da galeria pelo nome da função registrada; levanta KeyError para nome desconhecido. |
+| `runner_channel` | função | `() -> Scene` | Canal de corrida de alto-forno: calha em U revestida de refratário do furo de gusa ao skimmer. |
+| `mixing_tank` | função | `() -> Scene` | Tanque agitado com fundo abaulado, chicanas e impulsor de dois estágios; mistura de traçador no tempo. |
+| `oil_pipeline` | função | `() -> Scene` | Oleoduto com duas curvas e uma depressão; perda de parede por corrosão/erosão ao longo dos anos. |
+| `airliner` | função | `() -> Scene` | Avião de corredor único (fuselagem, asa enflechada, cauda, dois motores); temperatura de pele e carga na raiz da asa num voo. |
+| `rocket` | função | `() -> Scene` | Lançador com nariz ogival, tanques, bocal e aletas; aquecimento aerodinâmico e ablação do bocal na subida. |
+| `drone` | função | `() -> Scene` | Quadricóptero; aquecimento de motores e bateria durante um voo. |
+| `lunar_rover` | função | `() -> Scene` | Rover lunar de seis rodas num ciclo dia-noite lunar: temperatura do chassi e desgaste das rodas. |
+| `wind_turbine` | função | `() -> Scene` | Turbina de três pás; erosão de bordo de ataque e fadiga ao longo dos anos. |
+| `satellite` | função | `() -> Scene` | Satélite pequeno em órbita baixa; ciclos térmicos entre sol e eclipse. |
+| `export_all` | função | `(folder) -> str` | Exporta todas as peças da galeria em subpastas e grava um `index.html` com links para elas. |
 
 #### `pinneapple_twin3d.library`
 
-The geometry library from the twin side: ``pinneapple_twin3d.library.build("viper_rover").scene()``.
+[shim] Alias de `pinneapple_design.geometry_library`: expõe a biblioteca de geometrias do lado do gêmeo. [sem teste]
 
 <small>`pinneapple_twin3d/library.py` · 8 linhas · **sem teste direto**</small>
 
 #### `pinneapple_twin3d.openfoam`
 
-OpenFOAM case -> Twin3D scene: wall patches as surfaces, per-face values over time.
+Lê um caso OpenFOAM (pontos, faces, boundary, diretórios de tempo) e monta uma cena com os patches de parede como superfícies e valores por face ao longo do tempo, como mapas de erosão.
 
 <small>`pinneapple_twin3d/openfoam.py` · 215 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `read_points` | função | `(case) -> np.ndarray` |  |
-| `read_faces` | função | `(case) -> List[np.ndarray]` |  |
-| `read_boundary` | função | `(case) -> Dict[str, Dict[str, object]]` | ``{patch: {"type": str, "startFace": int, "nFaces": int}}`` in file order. |
-| `time_directories` | função | `(case) -> List[Tuple[float, str]]` |  |
-| `read_boundary_field` | função | `(path, patch, n_faces) -> Optional[np.ndarray]` | Per-face values of ``patch`` in a volScalarField/volVectorField file (vectors -> magnitude). |
-| `scene_from_case` | função | `(case, *, title=None, patches=None, face_values=None, units=None, boundary_fields=(), tim…)` | Build a Twin3D scene from an OpenFOAM case. |
+| `read_points` | função | `(case) -> np.ndarray` | Lê o arquivo `constant/polyMesh/points` do caso como array (N, 3). |
+| `read_faces` | função | `(case) -> List[np.ndarray]` | Lê `polyMesh/faces` como lista de arrays de índices de vértices. |
+| `read_boundary` | função | `(case) -> Dict[str, Dict[str, object]]` | Lê `polyMesh/boundary` e devolve tipo, face inicial e número de faces de cada patch. |
+| `time_directories` | função | `(case) -> List[Tuple[float, str]]` | Lista os diretórios de tempo numéricos do caso, ordenados, como (tempo, nome). |
+| `read_boundary_field` | função | `(path, patch, n_faces) -> Optional[np.ndarray]` | Lê os valores por face de um patch num arquivo volScalarField/volVectorField (vetores viram módulo). |
+| `scene_from_case` | função | `(case, *, title=None, patches=None, face_values=None, units=None, boundary_fields=(), tim…)` | Monta uma cena a partir de um caso OpenFOAM, com patches de parede como partes e campos vindos de valores por face ou de campos de contorno. |
 
 #### `pinneapple_twin3d.primitives`
 
-Mesh primitives for building twin parts without a CAD file: revolve, sweep, loft, box, cylinder.
+Primitivas de malha para montar peças sem CAD: revolução, varredura, loft, perfil de aerofólio, asa, caixa, cilindro, transformações, junção e checagem de qualidade.
 
 <small>`pinneapple_twin3d/primitives.py` · 183 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `revolve` | função | `(profile, n_theta=48, *, cap=False) -> Mesh` | Surface of revolution of ``(r, y)`` points around the y axis (``cap`` closes the ends with a fan). |
-| `sweep` | função | `(section, path, *, closed=True, up=(0, 1, 0)) -> Mesh` | Extrude a 2D section ``(u, v)`` along a 3D path. ``u`` runs along the frame normal (closest to ``up``), ``v`` along the binormal. ``closed=False`` leaves an open profile (e.g. a U-channel). |
-| `airfoil` | função | `(chord=1.0, thickness=0.12, n=24) -> np.ndarray` | Closed symmetric NACA 00xx outline, ``(2n, 2)``: x along the chord from the leading edge, y thickness. |
-| `loft` | função | `(rings) -> Mesh` | Skin through rings of equal point count ``(K, 3)`` (closed rings): wings, blades, fuselage sections. |
-| `wing` | função | `(span, root_chord, tip_chord, *, sweep_deg=0.0, dihedral_deg=0.0, twist_deg=0.0, thicknes…)` | Half wing / blade along +z from the root (z=0): chord along x (leading edge at -x), thickness along y. |
-| `box` | função | `(size, center=(0, 0, 0)) -> Mesh` |  |
-| `cylinder` | função | `(p0, p1, radius, n_theta=32, *, cap=True) -> Mesh` | Cylinder between two points (``radius`` may be a pair for a frustum). |
-| `rotation` | função | `(axis, angle_deg) -> np.ndarray` |  |
-| `transform` | função | `(mesh, *, R=None, t=(0, 0, 0), scale=1.0) -> Mesh` |  |
-| `mirror_z` | função | `(mesh) -> Mesh` |  |
-| `merge` | função | `(meshes) -> Mesh` |  |
-| `mesh_quality` | função | `(mesh) -> dict` | Sanity numbers used by the tests: finite coordinates, indices in range, degenerate-triangle share, bounds. |
+| `revolve` | função | `(profile, n_theta=48, *, cap=False) -> Mesh` | Superfície de revolução de um perfil (r, y) em torno do eixo y, com tampas opcionais. |
+| `sweep` | função | `(section, path, *, closed=True, up=(0, 1, 0)) -> Mesh` | Extruda uma seção 2D ao longo de um caminho 3D, aberta ou fechada. |
+| `airfoil` | função | `(chord=1.0, thickness=0.12, n=24) -> np.ndarray` | Contorno fechado de aerofólio simétrico NACA 00xx. |
+| `loft` | função | `(rings) -> Mesh` | Malha de pele através de anéis com o mesmo número de pontos. |
+| `wing` | função | `(span, root_chord, tip_chord, *, sweep_deg=0.0, dihedral_deg=0.0, twist_deg=0.0, thicknes…)` | Meia asa ou pá com enflechamento, diedro, torção e afilamento. |
+| `box` | função | `(size, center=(0, 0, 0)) -> Mesh` | Caixa com tamanho e centro dados. |
+| `cylinder` | função | `(p0, p1, radius, n_theta=32, *, cap=True) -> Mesh` | Cilindro (ou tronco de cone) entre dois pontos. |
+| `rotation` | função | `(axis, angle_deg) -> np.ndarray` | Matriz de rotação 3x3 em torno de um eixo, ângulo em graus. |
+| `transform` | função | `(mesh, *, R=None, t=(0, 0, 0), scale=1.0) -> Mesh` | Aplica rotação, translação e escala a uma malha. |
+| `mirror_z` | função | `(mesh) -> Mesh` | Espelha a malha no plano z=0, corrigindo a orientação das faces. |
+| `merge` | função | `(meshes) -> Mesh` | Junta várias malhas numa só, reindexando as faces. |
+| `mesh_quality` | função | `(mesh) -> dict` | Números de sanidade da malha (coordenadas finitas, índices válidos, fração de triângulos degenerados, limites) usados nos testes. |
 
 #### `pinneapple_twin3d.scan`
 
-Twin geometry from scans: cleaned scan meshes and MuJoCo scenes (e.g. LiteReality output).
+Geometria de gêmeo a partir de escaneamentos: limpa malhas de scan (vértices duplicados, fragmentos, buracos, alinhamento do piso, metros) e converte cenas MuJoCo MJCF em partes; exige `trimesh`.
 
 <small>`pinneapple_twin3d/scan.py` · 199 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ScanReport` | classe | `(vertices_in, faces_in, vertices_out, faces_out, components_dropped, holes_filled, watert…)` |  |
-| `clean_scan` | função | `(path_or_mesh, *, unit='m', min_component_fraction=0.01, fill_holes=True, target_faces=No…)` | Clean a scan mesh. Returns ``(trimesh.Trimesh, ScanReport)`` in metres. |
-| `add_scan` | função | `(scene, name, path_or_mesh, *, group='scan', **kw) -> ScanReport` |  |
-| `scene_from_mjcf` | função | `(path, *, title=None, include_primitives=True) -> Scene` | One Twin3D part per geom of a MuJoCo scene, in world coordinates. |
+| `ScanReport` | classe | `(vertices_in, faces_in, vertices_out, faces_out, components_dropped, holes_filled, watert…)` | Relatório da limpeza do scan: contagens antes/depois, fragmentos removidos, buracos preenchidos, estanqueidade e eixo vertical. |
+| `clean_scan` | função | `(path_or_mesh, *, unit='m', min_component_fraction=0.01, fill_holes=True, target_faces=No…)` | Limpa uma malha de scan e devolve (malha trimesh em metros, `ScanReport`). |
+| `add_scan` | função | `(scene, name, path_or_mesh, *, group='scan', **kw) -> ScanReport` | Limpa um scan e o adiciona como parte de uma cena, devolvendo o relatório. |
+| `scene_from_mjcf` | função | `(path, *, title=None, include_primitives=True) -> Scene` | Cria uma parte por geom de uma cena MuJoCo MJCF, em coordenadas do mundo. |
 
 #### `pinneapple_twin3d.scene`
 
-Build and export a 3D digital-twin scene: parts, fields over time, sensors.
+Núcleo do pacote: modelo da cena (partes, campos no tempo, movimentos, visibilidade, física, sensores) e exportação para `scene.json` + `geometry.glb` + `fields.bin` + visualizador, com USD opcional.
 
 <small>`pinneapple_twin3d/scene.py` · 360 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Part` | classe | `(name, vertices, faces, group, color, fields, motion, visibility, physics)` |  |
-| `PhysicsMaterial` | classe | `(name, static_friction, dynamic_friction, restitution, density)` | Contact material (UsdPhysics ``PhysicsMaterialAPI``). |
-| `PhysicsProps` | classe | `(rigid_body, collider, kinematic, mass, density, center_of_mass, approximation, material,…)` | How a part takes part in a physics simulation (OpenUSD ``UsdPhysics``). |
-| `Sensor` | classe | `(id, position, label, unit, quantity, series, envelope)` |  |
-| `Scene` | classe | `(title, *, length_unit='m', times=None, time_unit='s', source='')` | A digital-twin scene. Add parts, fields and sensors, then ``export`` to a folder. |
+| `Part` | classe | `(name, vertices, faces, group, color, fields, motion, visibility, physics)` | Uma parte da cena: vértices, faces, grupo, cor, campos, movimento, visibilidade e propriedades físicas. |
+| `PhysicsMaterial` | classe | `(name, static_friction, dynamic_friction, restitution, density)` | Material de contato (atrito estático e dinâmico, restituição, densidade) no estilo `UsdPhysics`. |
+| `PhysicsProps` | classe | `(rigid_body, collider, kinematic, mass, density, center_of_mass, approximation, material,…)` | Como a parte entra numa simulação física: corpo rígido, colisor, cinemático, massa, material e velocidades. |
+| `Sensor` | classe | `(id, position, label, unit, quantity, series, envelope)` | Sensor com id, posição, unidade, grandeza, série temporal e envelope de alarme. |
+| `Scene` | classe | `(title, *, length_unit='m', times=None, time_unit='s', source='')` | Cena de gêmeo digital: adiciona partes, campos, movimentos, física e sensores e exporta para pasta (com visualizador, USD opcional, render Blender). |
 
 #### `pinneapple_twin3d.serve`
 
-Serve an exported scene folder over HTTP (the viewer needs HTTP, not file://, to fetch its data).
+Serve por HTTP a pasta exportada (o visualizador precisa de HTTP, não `file://`).
 
 <small>`pinneapple_twin3d/serve.py` · 26 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `serve` | função | `(folder, port=8765, *, host='127.0.0.1', block=True)` | Serve ``folder`` at ``http://host:port/``. With ``block=False`` returns the running server. |
+| `serve` | função | `(folder, port=8765, *, host='127.0.0.1', block=True)` | Serve a pasta exportada em `http://host:port/`; com `block=False` devolve o servidor rodando. |
 
 #### `pinneapple_twin3d.usd`
 
-Export a Twin3D scene as OpenUSD (``.usda`` text), for Omniverse / Isaac Sim / usdview.
+Exporta a cena como OpenUSD texto (`.usda`) com campos por vértice como time samples, sensores como esferas e propriedades `UsdPhysics`, para Omniverse/Isaac Sim/usdview.
 
 <small>`pinneapple_twin3d/usd.py` · 209 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `export_usd` | função | `(scene, path) -> str` |  |
+| `export_usd` | função | `(scene, path) -> str` | Grava a cena em `.usda` e devolve o caminho. |
 
 #### `pinneapple_twin3d.wear`
 
-Generator of 3D wear (refractory / liner / pipe) digital twins from a spec.
+Gerador de gêmeos de desgaste (refratário, revestimento, tubo) a partir de uma especificação: spec -> dataset -> previsão -> otimização -> cena + relatório.
 
 <small>`pinneapple_twin3d/wear/__init__.py` · 21 linhas · testes: 30</small>
 
 #### `pinneapple_twin3d.wear.build`
 
-WearDataset -> Scene (3D viewer) + hub contract + forecast/optimizer report.
+Converte um `WearDataset` em cena 3D, contrato do hub (`wear_dataset.json`) e relatório de previsão/otimização (`report.json`). [sem teste direto]
 
 <small>`pinneapple_twin3d/wear/build.py` · 95 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `remaining_life_fields` | função | `(ds, cap, **kw) -> dict` | Per-cell remaining life at every reading, capped at ``cap`` (no trend -> cap; reading 0 -> cap). |
-| `scene_from_wear` | função | `(ds, *, life_cap=None, **fit_kw) -> Scene` |  |
-| `report` | função | `(ds, cfg=None, **fit_kw) -> dict` | Observed / predicted / recommended, kept apart on purpose. |
-| `export_wear_twin` | função | `(ds, folder, *, cfg=None, usd=False, **fit_kw) -> str` | Write the 3D viewer scene, ``wear_dataset.json`` (hub contract) and ``report.json`` to ``folder``. |
+| `remaining_life_fields` | função | `(ds, cap, **kw) -> dict` | Vida restante por célula em cada leitura, limitada a `cap`. |
+| `scene_from_wear` | função | `(ds, *, life_cap=None, **fit_kw) -> Scene` | Monta a cena 3D do dataset de desgaste, com campos de desgaste, fração e vida restante por célula. |
+| `report` | função | `(ds, cfg=None, **fit_kw) -> dict` | Relatório que mantém separados o observado, o previsto e o recomendado. |
+| `export_wear_twin` | função | `(ds, folder, *, cfg=None, usd=False, **fit_kw) -> str` | Grava cena 3D, `wear_dataset.json` e `report.json` numa pasta. |
 
 #### `pinneapple_twin3d.wear.calibrate`
 
-Calibrate the optimizer's assumptions from the plant's own records.
+Calibra as hipóteses do otimizador (horas de parada, custos, fração de recuperação) a partir de registros de paradas e do próprio dataset, informando a fonte e o erro padrão de cada parâmetro.
 
 <small>`pinneapple_twin3d/wear/calibrate.py` · 138 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StopRecord` | classe | `(zones, duration_h, cost, x)` |  |
-| `ParamReport` | classe | `(name, value, source, n, se, note)` |  |
-| `Calibration` | classe | `(cfg, report)` |  |
-| `estimate_recovery` | função | `(ds, repair_drop=0.08, min_cells=20)` | Median fraction of the usable thickness restored per repaired cell, and the number of cells used. |
-| `calibrate` | função | `(stops=(), ds=None, base=None) -> Calibration` |  |
+| `StopRecord` | classe | `(zones, duration_h, cost, x)` | Registro de uma parada de manutenção: zonas atendidas, duração, custo e posição x. |
+| `ParamReport` | classe | `(name, value, source, n, se, note)` | Relatório de um parâmetro calibrado: valor, fonte, tamanho de amostra, erro padrão e nota. |
+| `Calibration` | classe | `(cfg, report)` | Resultado da calibração: `OptimizerConfig` ajustado e relatório por parâmetro. |
+| `estimate_recovery` | função | `(ds, repair_drop=0.08, min_cells=20)` | Mediana da fração da espessura útil recuperada por célula reparada, e quantas células foram usadas. |
+| `calibrate` | função | `(stops=(), ds=None, base=None) -> Calibration` | Ajusta tempos e custos de parada por mínimos quadrados e a recuperação a partir do dataset, mantendo o padrão quando o ajuste não é confiável. |
 
 #### `pinneapple_twin3d.wear.forecast`
 
-Remaining-life forecast per cell: the model of the reference twins, plus confidence.
+Previsão de vida restante por célula por regressão linear da espessura residual numa janela recente, com intervalo t de Student de 90 % e índice de confiança; inclui histórico e backtest.
 
 <small>`pinneapple_twin3d/wear/forecast.py` · 185 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CellFit` | classe | `(remaining, remaining_lo, remaining_hi, slope, r2, n, confidence)` |  |
-| `ZoneForecast` | classe | `(zone, worst_fraction, n_over, min_remaining, rate, usable, critical_cell, confidence, r2…)` |  |
-| `t90` | função | `(df)` | Student-t 0.95 quantile (90 % two-sided interval) for ``df`` degrees of freedom (array ok). |
-| `confidence_index` | função | `(n, r2)` |  |
-| `fit_zone` | função | `(ds, zone, s, *, win_x=DEFAULT_WIN_X, min_pts=8, repair_drop=0.08) -> CellFit` |  |
-| `forecast` | função | `(ds, s=None, **kw) -> Dict[str, ZoneForecast]` |  |
-| `forecast_history` | função | `(ds, **kw) -> List[dict]` | Minimum predicted remaining life recomputed at every reading (how the forecast evolved). |
-| `backtest` | função | `(ds, **kw) -> dict` | Compare past predictions of 'x when the first cell hits the limit' with what happened. |
-| `status` | função | `(fraction) -> str` |  |
+| `CellFit` | classe | `(remaining, remaining_lo, remaining_hi, slope, r2, n, confidence)` | Ajuste de uma célula: vida restante com limites, inclinação, R2, número de pontos e confiança. |
+| `ZoneForecast` | classe | `(zone, worst_fraction, n_over, min_remaining, rate, usable, critical_cell, confidence, r2…)` | Previsão de uma zona: pior fração de desgaste, células acima do limite, menor vida restante, taxa, célula crítica e confiança. |
+| `t90` | função | `(df)` | Quantil t de Student para intervalo bilateral de 90 % por graus de liberdade, interpolado de uma tabela. |
+| `confidence_index` | função | `(n, r2)` | Índice de confiança 0-3 (n/a, baixa, média, alta) a partir do número de pontos e do R2. |
+| `fit_zone` | função | `(ds, zone, s, *, win_x=DEFAULT_WIN_X, min_pts=8, repair_drop=0.08) -> CellFit` | Ajuste linear por célula de uma zona na leitura `s`, parando no último reparo detectado. |
+| `forecast` | função | `(ds, s=None, **kw) -> Dict[str, ZoneForecast]` | Previsão por zona na leitura indicada (por padrão a última). |
+| `forecast_history` | função | `(ds, **kw) -> List[dict]` | Menor vida restante prevista recalculada em cada leitura, mostrando como a previsão evoluiu. |
+| `backtest` | função | `(ds, **kw) -> dict` | Compara previsões passadas de quando a primeira célula atinge o limite com o que de fato aconteceu. |
+| `status` | função | `(fraction) -> str` | Classifica a fração de desgaste em `normal`, `attention`, `alert` ou `critical`. |
 
 #### `pinneapple_twin3d.wear.geometry`
 
-Cell meshes for surfaces of revolution.
+Malhas de células para superfícies de revolução: amostragem do perfil, uma quad por célula, mapeamento célula->vértice e centros das células.
 
 <small>`pinneapple_twin3d/wear/geometry.py` · 62 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_profile` | função | `(profile, n_rows) -> np.ndarray` | (n_rows + 1, 2) points (r, y) equally spaced in arc length along the polyline. |
-| `cell_mesh` | função | `(zone) -> Tuple[np.ndarray, np.ndarray]` | Vertices (N*M*4, 3) and faces (N*M*2, 3) of the zone, one quad per cell. |
-| `cell_to_vertex` | função | `(values) -> np.ndarray` | Per-cell values (..., N, M) -> per-vertex (..., N*M*4) following ``cell_mesh``'s ordering. |
-| `cell_centers` | função | `(zone) -> np.ndarray` | (N, M, 3) world position of each cell centre (used to place sensors / hotspots). |
+| `sample_profile` | função | `(profile, n_rows) -> np.ndarray` | Pontos igualmente espaçados em comprimento de arco ao longo do perfil (r, y). |
+| `cell_mesh` | função | `(zone) -> Tuple[np.ndarray, np.ndarray]` | Vértices e faces de uma zona, uma quad (dois triângulos) por célula. |
+| `cell_to_vertex` | função | `(values) -> np.ndarray` | Converte valores por célula em valores por vértice na ordem de `cell_mesh`. |
+| `cell_centers` | função | `(zone) -> np.ndarray` | Posição no mundo do centro de cada célula, usada para posicionar sensores e pontos quentes. |
 
 #### `pinneapple_twin3d.wear.model`
 
-Data model of a wear twin: vessel spec (geometry + zones) and the wear dataset.
+Modelo de dados do gêmeo de desgaste: `ZoneSpec` (perfil de revolução cortado em células), `VesselSpec` e `WearDataset` (desgaste por zona no tempo, com contrato JSON e leitura de CSV). [sem teste direto]
 
 <small>`pinneapple_twin3d/wear/model.py` · 165 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZoneSpec` | classe | `(name, label, profile, n_rows, n_sectors, e0, emin, center, theta0, group)` |  |
-| `VesselSpec` | classe | `(key, title, zones, x_name, wear_unit, notes)` |  |
-| `WearDataset` | classe | `(spec, x, wear, origin, labels, note)` | Wear depth [mm] per zone: ``wear[zone]`` has shape (T, rows, sectors); NaN = no reading. |
+| `ZoneSpec` | classe | `(name, label, profile, n_rows, n_sectors, e0, emin, center, theta0, group)` | Zona de revolução: perfil, linhas e setores, espessura nova e mínima, centro e grupo; `usable` dá a espessura útil. |
+| `VesselSpec` | classe | `(key, title, zones, x_name, wear_unit, notes)` | Especificação do vaso: chave, título, zonas, nome da variável x e unidade de desgaste. |
+| `WearDataset` | classe | `(spec, x, wear, origin, labels, note)` | Desgaste em mm por zona com forma (T, linhas, setores), NaN sem leitura; converte de/para o contrato JSON do hub e lê CSV. |
 
 #### `pinneapple_twin3d.wear.optimize`
 
-Maintenance (gunning / repair) scheduling over the forecast. Decision support only.
+Agendamento de manutenção (gunning/reparo) sobre a previsão: simula políticas reativa, calendário fixo e preditiva agrupada e recomenda a mais barata sem violação; apoio à decisão apenas.
 
 <small>`pinneapple_twin3d/wear/optimize.py` · 166 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OptimizerConfig` | classe | `(horizon, heats_per_day, recovery_frac, setup_hours, hours_per_zone, cost_per_hour, cost_…)` |  |
-| `ZoneState` | classe | `(zone, deadline, life_full, ext)` |  |
-| `Policy` | classe | `(id, name, schedule, stops, zones_served, downtime_hours, breach, cost, window)` |  |
-| `OptimizationResult` | classe | `(cfg, zones, policies, recommended, baseline, notes)` |  |
-| `prepare` | função | `(zones, cfg) -> List[ZoneState]` |  |
-| `simulate` | função | `(zs, stops, cfg) -> dict` |  |
-| `fixed_policy` | função | `(zs, cfg) -> List[dict]` |  |
-| `predictive_policy` | função | `(zs, cfg, window) -> List[dict]` |  |
-| `optimize` | função | `(forecasts, cfg=None) -> OptimizationResult` |  |
-| `explain` | função | `(res) -> List[dict]` |  |
+| `OptimizerConfig` | classe | `(horizon, heats_per_day, recovery_frac, setup_hours, hours_per_zone, cost_per_hour, cost_…)` | Parâmetros do otimizador: horizonte, recuperação, horas e custos de parada, custo de violação, margem de segurança e janelas. |
+| `ZoneState` | classe | `(zone, deadline, life_full, ext)` | Estado de uma zona para o otimizador: prazo até o limite, vida completa e extensão por intervenção. |
+| `Policy` | classe | `(id, name, schedule, stops, zones_served, downtime_hours, breach, cost, window)` | Uma política simulada: agenda de paradas, zonas atendidas, horas paradas, violação e custo. |
+| `OptimizationResult` | classe | `(cfg, zones, policies, recommended, baseline, notes)` | Resultado: zonas, políticas simuladas, política recomendada, linha de base e notas. |
+| `prepare` | função | `(zones, cfg) -> List[ZoneState]` | Converte previsões de zona em `ZoneState` usando a configuração. |
+| `simulate` | função | `(zs, stops, cfg) -> dict` | Simula uma agenda de paradas e devolve custo, horas paradas e violação. |
+| `fixed_policy` | função | `(zs, cfg) -> List[dict]` | Gera a agenda de paradas em calendário fixo. |
+| `predictive_policy` | função | `(zs, cfg, window) -> List[dict]` | Gera paradas preditivas agrupando zonas cujos prazos caem dentro de uma janela. |
+| `optimize` | função | `(forecasts, cfg=None) -> OptimizationResult` | Simula as políticas reativa, fixa e preditiva e recomenda a mais barata sem violação (ou com menor violação). |
+| `explain` | função | `(res) -> List[dict]` | Explica em texto cada parada da política recomendada (zonas, prazo e margem). |
 
 #### `pinneapple_twin3d.wear.presets`
 
-The four reference use cases as specs: steel ladle, pig-iron ladle, BOF converter, RH degasser.
+Especificações indicativas dos casos de referência (panela de aço, panela de gusa, conversor BOF, desgaseificador RH) e de um reator genérico de redução-fusão.
 
 <small>`pinneapple_twin3d/wear/presets.py` · 176 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `get` | função | `(key)` |  |
-| `fill_level` | função | `(rin, y0, y1, rho, mass, n=300) -> float` | Bath level for ``mass`` [t] in a vessel of inner radius ``rin(y)`` (frustum integration). |
-| `steel_ladle` | função | `()` |  |
-| `pig_iron_ladle` | função | `()` |  |
-| `bof_converter` | função | `()` |  |
-| `rh_degasser` | função | `()` |  |
-| `smelting_reduction_reactor` | função | `()` | Generic smelting-reduction shaft reactor: shaft, tuyere zone, crucible, hearth. |
+| `get` | função | `(key)` | Retorna (spec, pontos quentes) do preset pelo nome da função; levanta KeyError se não existir. |
+| `fill_level` | função | `(rin, y0, y1, rho, mass, n=300) -> float` | Nível do banho para uma massa dada num vaso de raio interno variável, por integração em troncos. |
+| `steel_ladle` | função | `()` | Preset indicativo de panela de aço. |
+| `pig_iron_ladle` | função | `()` | Preset indicativo de panela de gusa. |
+| `bof_converter` | função | `()` | Preset indicativo de conversor BOF. |
+| `rh_degasser` | função | `()` | Preset indicativo de desgaseificador RH. |
+| `smelting_reduction_reactor` | função | `()` | Preset genérico de reator de redução-fusão: cuba, zona de ventaneiras, cadinho e soleira. |
 
 #### `pinneapple_twin3d.wear.synthetic`
 
-Synthetic wear campaigns: explicit hot spots + growth law + repairs. Always labelled SYNTHETIC.
+Campanhas de desgaste sintéticas (pontos quentes + lei de crescimento + reparos + ruído), sempre rotuladas SYNTHETIC; não são modelo físico. [sem teste direto]
 
 <small>`pinneapple_twin3d/wear/synthetic.py` · 80 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HotSpot` | classe | `(zone, s, theta_deg, ds, dtheta_deg, amp)` |  |
-| `base_pattern` | função | `(spec, hotspots, base) -> Dict[str, np.ndarray]` |  |
-| `synthetic_campaign` | função | `(spec, hotspots, *, n_readings=41, x_max=120.0, growth_power=1.0, base=0.2, noise=0.01, s…)` | ``noise`` is the sigma of additive measurement noise as a fraction of the usable thickness. Wear grows as ``(x/x_max)**growth_power`` towards ``pattern * usable``; at each ``repairs`` x the wear of ``repair_zones`` drops by ``repair_gain`` of its value (gunning), then resumes. |
+| `HotSpot` | classe | `(zone, s, theta_deg, ds, dtheta_deg, amp)` | Ponto quente de desgaste numa zona: posição relativa, ângulo, larguras e amplitude. |
+| `base_pattern` | função | `(spec, hotspots, base) -> Dict[str, np.ndarray]` | Padrão espacial de desgaste por zona a partir dos pontos quentes e de um nível base. |
+| `synthetic_campaign` | função | `(spec, hotspots, *, n_readings=41, x_max=120.0, growth_power=1.0, base=0.2, noise=0.01, s…)` | Gera um `WearDataset` sintético com crescimento, reparos e ruído de medição. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Gêmeo de desgaste para uma peça nova** — `examples/use_cases/refractory_wear_twin/custom_part.py`
+
+```python
+def build(out: str) -> str:
+    spec = tank_spec()
+    hot = (HotSpot("wall", 0.7, None, 0.1, amp=0.6),          # a band all around at 70 % of the height
+           HotSpot("floor", 0.4, 90, 0.3, 35, amp=0.7))      # an impact pad at 90 deg, 40 % of the radius
+    ds = synthetic_campaign(spec, hot, n_readings=25, x_max=80)
+    print({k: round(v.min_remaining, 1) for k, v in forecast(ds).items()}, "->", optimize(forecast(ds)).recommended.name)
+    return export_wear_twin(ds, out)
+```
+
+**Exportar e servir uma cena** — `tests/test_twin3d.py`
+
+```python
+sc.export(str(tmp_path))
+httpd = serve(str(tmp_path), port=0, block=False)
+```
 
 ### Testes e status de validação
 
@@ -5678,4 +5699,10 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- A previsão de desgaste é extrapolação linear: não antecipa mudança de regime; a confiança só avalia a qualidade do ajuste e o intervalo de 90 % é de ajuste, não de predição.
+- O otimizador de manutenção é apoio à decisão apenas; custos de violação e margem de segurança são entradas de negócio, nunca inferidas.
+- Os presets usam geometria indicativa, não desenhos de uma planta específica; as campanhas sintéticas e o campo da demo são ilustrativos, não modelos físicos.
+- `scan` exige `trimesh`; `render_blender` exige `bpy`.
+- O exemplo no docstring de `pinneapple_twin3d.wear` usa `presets.get("bof")`, mas a chave registrada é `bof_converter` (o nome da função), então aquele trecho levantaria KeyError.
+- Sem teste direto: `library`, `wear.build`, `wear.model` e `wear.synthetic` (são exercitados indiretamente pelos testes de `wear`).
+- O visualizador precisa ser servido por HTTP; abrir o `index.html` por `file://` não carrega os dados.

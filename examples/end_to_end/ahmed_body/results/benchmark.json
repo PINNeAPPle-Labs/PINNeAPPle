@@ -14,8 +14,8 @@
     "cv_coverage90_raw": 0.7941176470588235,
     "cv_half_width90": 0.02268578769716319,
     "scale": 0.03188029618401087,
-    "fit_s": 0.2080695720001131,
-    "cv_s": 0.984721970999999,
+    "fit_s": 0.18041202899996733,
+    "cv_s": 0.9957787109999572,
     "q": 2.8517119667362274,
     "test": {
      "n": 10,
@@ -61,7 +61,7 @@
       0.39773469324483035
      ]
     },
-    "infer_s": 0.0003194790001543879
+    "infer_s": 0.00037623399998665263
    },
    "CD/mlp_ensemble": {
     "cv_rmse": 0.007317498057458963,
@@ -69,8 +69,8 @@
     "cv_coverage90_raw": 0.7352941176470589,
     "cv_half_width90": 0.020952647787270032,
     "scale": 0.03188029618401087,
-    "fit_s": 1.1737630229999922,
-    "cv_s": 5.649178754999866,
+    "fit_s": 0.7625699820000591,
+    "cv_s": 3.3874104880000004,
     "q": 3.0413592446981528,
     "test": {
      "n": 10,
@@ -116,7 +116,7 @@
       0.4335842550600657
      ]
     },
-    "infer_s": 0.0008797430000413442
+    "infer_s": 0.0004753989999244368
    },
    "CD/quadratic": {
     "cv_rmse": 0.01140843322363201,
@@ -124,8 +124,8 @@
     "cv_coverage90_raw": 0.7647058823529411,
     "cv_half_width90": 0.019009879540045457,
     "scale": 0.03188029618401087,
-    "fit_s": 8.248700032709166e-05,
-    "cv_s": 0.001499152000178583,
+    "fit_s": 5.5546999988109746e-05,
+    "cv_s": 0.0010382750000417218,
     "q": 2.5099567619122043,
     "test": {
      "n": 10,
@@ -171,7 +171,7 @@
       0.4178960417486968
      ]
     },
-    "infer_s": 3.213299987692153e-05
+    "infer_s": 2.5969000034820056e-05
    },
    "CL/gp": {
     "cv_rmse": 0.021602288753329858,
@@ -179,8 +179,8 @@
     "cv_coverage90_raw": 0.9117647058823529,
     "cv_half_width90": 0.049903780815284494,
     "scale": 0.2066336361796549,
-    "fit_s": 0.08652638000012303,
-    "cv_s": 0.550878044000001,
+    "fit_s": 0.05772880000006353,
+    "cv_s": 0.45131199200000083,
     "q": 2.3350578461834957,
     "test": {
      "n": 10,
@@ -226,7 +226,7 @@
       0.4536106653521813
      ]
     },
-    "infer_s": 0.00027099599992652657
+    "infer_s": 0.00015302799999972194
    },
    "CL/mlp_ensemble": {
     "cv_rmse": 0.0368345820414376,
@@ -234,8 +234,8 @@
     "cv_coverage90_raw": 0.8235294117647058,
     "cv_half_width90": 0.06508941950381356,
     "scale": 0.2066336361796549,
-    "fit_s": 0.8481504080000377,
-    "cv_s": 3.9977518890000283,
+    "fit_s": 0.47012135399995714,
+    "cv_s": 2.364387445000034,
     "q": 2.213638502819519,
     "test": {
      "n": 10,
@@ -281,7 +281,7 @@
       0.368746356595777
      ]
     },
-    "infer_s": 0.0007138740002119448
+    "infer_s": 0.0005252300001075128
    },
    "CL/quadratic": {
     "cv_rmse": 0.024826947397612313,
@@ -289,8 +289,8 @@
     "cv_coverage90_raw": 0.9117647058823529,
     "cv_half_width90": 0.03647517932055572,
     "scale": 0.2066336361796549,
-    "fit_s": 0.00014071099985812907,
-    "cv_s": 0.001304990999869915,
+    "fit_s": 6.606300007661048e-05,
+    "cv_s": 0.0009820039999794972,
     "q": 1.7615989147599238,
     "test": {
      "n": 10,
@@ -336,7 +336,7 @@
       0.5067129612885951
      ]
     },
-    "infer_s": 3.529700006765779e-05
+    "infer_s": 2.2743000045011286e-05
    },
    "CD_pressure/gp": {
     "cv_rmse": 0.020038545809650032,
@@ -344,8 +344,8 @@
     "cv_coverage90_raw": 0.7647058823529411,
     "cv_half_width90": 0.07243737209029294,
     "scale": 0.03383230802956044,
-    "fit_s": 0.1296642190000057,
-    "cv_s": 0.5631113730000834,
+    "fit_s": 0.09178170699999555,
+    "cv_s": 0.41512788700003966,
     "q": 6.789823730899356,
     "test": {
      "n": 10,
@@ -391,7 +391,7 @@
       0.3611960108068484
      ]
     },
-    "infer_s": 0.00033000900020851986
+    "infer_s": 0.0001875469999959023
    },
    "CD_pressure/mlp_ensemble": {
     "cv_rmse": 0.01140468570195069,
@@ -399,8 +399,8 @@
     "cv_coverage90_raw": 0.7941176470588235,
     "cv_half_width90": 0.03443293918303648,
     "scale": 0.03383230802956044,
-    "fit_s": 1.0884122959996603,
-    "cv_s": 5.351837472999705,
+    "fit_s": 0.5981526290000829,
+    "cv_s": 3.574199550000003,
     "q": 3.556219515214819,
     "test": {
      "n": 10,
@@ -446,7 +446,7 @@
       0.3991370779889965
      ]
     },
-    "infer_s": 0.0008026149998840992
+    "infer_s": 0.0004860540000208857
    },
    "CD_pressure/quadratic": {
     "cv_rmse": 0.014220226113919557,
@@ -454,8 +454,8 @@
     "cv_coverage90_raw": 0.7647058823529411,
     "cv_half_width90": 0.03251081474148276,
     "scale": 0.03383230802956044,
-    "fit_s": 0.00016662300004099961,
-    "cv_s": 0.0012485709999054961,
+    "fit_s": 5.374300008043065e-05,
+    "cv_s": 0.0009813619999476941,
     "q": 3.2365597505506405,
     "test": {
      "n": 10,
@@ -501,7 +501,7 @@
       0.3838883905005731
      ]
     },
-    "infer_s": 3.6563999856298324e-05
+    "infer_s": 2.1751999952357437e-05
    },
    "CD_friction/gp": {
     "cv_rmse": 0.0014281374436595818,
@@ -509,8 +509,8 @@
     "cv_coverage90_raw": 0.8529411764705882,
     "cv_half_width90": 0.0023580010290785826,
     "scale": 0.0023599605371770137,
-    "fit_s": 0.12688567899976988,
-    "cv_s": 0.45580622900024537,
+    "fit_s": 0.1393950430000359,
+    "cv_s": 0.4120276589999321,
     "q": 2.5851332753901697,
     "test": {
      "n": 10,
@@ -556,7 +556,7 @@
       0.04041248494803926
      ]
     },
-    "infer_s": 0.00035951700010627974
+    "infer_s": 0.0003347120000398718
    },
    "CD_friction/mlp_ensemble": {
     "cv_rmse": 0.0010403328552405675,
@@ -564,8 +564,8 @@
     "cv_coverage90_raw": 0.8235294117647058,
     "cv_half_width90": 0.004032554559581189,
     "scale": 0.0023599605371770137,
-    "fit_s": 1.1327271609998206,
-    "cv_s": 5.484668306000003,
+    "fit_s": 0.7259043000000247,
+    "cv_s": 3.835528030999967,
     "q": 4.41134280295976,
     "test": {
      "n": 10,
@@ -611,7 +611,7 @@
       0.038414621156373674
      ]
     },
-    "infer_s": 0.0007012729997768474
+    "infer_s": 0.00046106299998882605
    },
    "CD_friction/quadratic": {
     "cv_rmse": 0.0008206179040733608,
@@ -619,8 +619,8 @@
     "cv_coverage90_raw": 0.8235294117647058,
     "cv_half_width90": 0.001986548044489948,
     "scale": 0.0023599605371770137,
-    "fit_s": 8.63089999256772e-05,
-    "cv_s": 0.001842865999606147,
+    "fit_s": 5.710899995392538e-05,
+    "cv_s": 0.0008193740000024263,
     "q": 2.9706322508018905,
     "test": {
      "n": 10,
@@ -666,7 +666,7 @@
       0.03741558925905283
      ]
     },
-    "infer_s": 2.8170999939902686e-05
+    "infer_s": 2.330899997105007e-05
    }
   },
   "q": {
@@ -803,8 +803,8 @@
     "cv_rel_l2": 0.11302135901168575,
     "cv_rmse": 0.05768866056864412,
     "cv_half_width90": 0.05822125441615831,
-    "fit_s": 0.7919120890001068,
-    "cv_s": 3.0270471569997426,
+    "fit_s": 0.713287709000042,
+    "cv_s": 2.6140858900000694,
     "q": 2.1849967541362116,
     "test": {
      "n": 10,
@@ -842,14 +842,14 @@
      },
      "pred": null
     },
-    "infer_s": 0.00343633000011323
+    "infer_s": 0.0028093929998931344
    },
    "cp/pod_mlp": {
     "cv_rel_l2": 0.13051613826106997,
     "cv_rmse": 0.06565368670859069,
     "cv_half_width90": 0.06050790486280069,
-    "fit_s": 18.890886983999735,
-    "cv_s": 90.79969032800045,
+    "fit_s": 12.359041595999997,
+    "cv_s": 58.90527518700003,
     "q": 1.688532213700946,
     "test": {
      "n": 10,
@@ -887,14 +887,14 @@
      },
      "pred": null
     },
-    "infer_s": 0.01007213499997306
+    "infer_s": 0.008540082999957122
    },
    "cp/pod_rbf": {
     "cv_rel_l2": 0.12862754999199344,
     "cv_rmse": 0.06652885267707603,
     "cv_half_width90": 0.05799531909582659,
-    "fit_s": 0.007922951000182366,
-    "cv_s": 0.035942097999850375,
+    "fit_s": 0.005635376999975961,
+    "cv_s": 0.02431332100002237,
     "q": 1.488615889934139,
     "test": {
      "n": 10,
@@ -932,59 +932,59 @@
      },
      "pred": null
     },
-    "infer_s": 0.00013123300004735938
+    "infer_s": 8.26730000653697e-05
    },
    "cp/deeponet": {
-    "cv_rel_l2": 0.12567344710908393,
-    "cv_rmse": 0.0649287586373499,
-    "cv_half_width90": 0.12159980211321532,
-    "fit_s": 30.153035057000125,
-    "cv_s": 151.96845485099993,
-    "q": 24.85176776815795,
+    "cv_rel_l2": 0.123934048187813,
+    "cv_rmse": 0.06388064750570051,
+    "cv_half_width90": 0.1143686254585985,
+    "fit_s": 30.129146475000084,
+    "cv_s": 152.24385471800008,
+    "q": 21.761726979965168,
     "test": {
      "n": 10,
-     "rel_l2_mean": 0.11610908942446119,
-     "rel_l2_max": 0.1666792197437107,
-     "rmse": 0.05873384643295499,
-     "max_abs": 0.8956727002176025,
-     "coverage90_conformal": 0.9058823529411765,
-     "coverage90_raw": 0.20571102227298688,
+     "rel_l2_mean": 0.11495631195587723,
+     "rel_l2_max": 0.1615235783144404,
+     "rmse": 0.05807022396143649,
+     "max_abs": 0.9112682602765084,
+     "coverage90_conformal": 0.8880639634494575,
+     "coverage90_raw": 0.2189605939463164,
      "regions": {
-      "front": 0.056276737455687634,
-      "roof": 0.049391098756045554,
-      "slant": 0.10028293402226565,
-      "base": 0.10046038599048433,
-      "side": 0.05832320140801581,
-      "underbody": 0.037171824504737834
+      "front": 0.056358198859278334,
+      "roof": 0.0490044832620179,
+      "slant": 0.09758344520009117,
+      "base": 0.10110466036580854,
+      "side": 0.05777629748508633,
+      "underbody": 0.03645413986827267
      },
      "pred": null
     },
     "extrapolation": {
      "n": 10,
-     "rel_l2_mean": 0.2921943035992599,
-     "rel_l2_max": 0.5594487704049935,
-     "rmse": 0.15231621674809556,
-     "max_abs": 1.4578181295196906,
-     "coverage90_conformal": 0.9761850371216447,
-     "coverage90_raw": 0.3123358081096516,
+     "rel_l2_mean": 0.2862402558691167,
+     "rel_l2_max": 0.5623396121728094,
+     "rmse": 0.14978923167124697,
+     "max_abs": 1.5337990988895331,
+     "coverage90_conformal": 0.9687035979440319,
+     "coverage90_raw": 0.31599086236436325,
      "regions": {
-      "front": 0.06382439943569125,
-      "roof": 0.06572271794091236,
-      "slant": 0.37715178555486056,
-      "base": 0.2680272939771281,
-      "side": 0.14670052245375667,
-      "underbody": 0.08597319855823622
+      "front": 0.06386614908775973,
+      "roof": 0.0706554220684334,
+      "slant": 0.3752759193978982,
+      "base": 0.25233400541709616,
+      "side": 0.1402116667369195,
+      "underbody": 0.08524947264124826
      },
      "pred": null
     },
-    "infer_s": 0.004331488999923749
+    "infer_s": 0.004784820999930162
    }
   },
   "q": {
    "cp/pod_gp": 2.1849967541362116,
    "cp/pod_mlp": 1.688532213700946,
    "cp/pod_rbf": 1.488615889934139,
-   "cp/deeponet": 24.85176776815795
+   "cp/deeponet": 21.761726979965168
   },
   "physics": {
    "cp/pod_gp": [
@@ -998,9 +998,9 @@
     {
      "name": "cp_integral_matches_CD_pressure",
      "passed": true,
-     "value": 0.004018969406036507,
-     "limit": 0.04153226824437442,
-     "reason": "p95 over 96 Sobol points of max(|pressure drag of the predicted Cp - predicted CD_pressure| - scalar 90 % half width, 0); raw |difference| p95 0.0536, max 0.0712; scalar half width mean 0.0455; limit = p95 of the CFD's own template gap"
+     "value": 0.5578958734121767,
+     "limit": 1.0,
+     "reason": "p95 over 128 Sobol points of |pressure drag of the predicted Cp - predicted CD_pressure| / sqrt(gap^2 + half width^2), gap = 0.0415 (the CFD's own template gap at the 95th percentile), half width = the scalar model's 90 % interval (mean 0.0448); raw |difference| p95 0.0443, max 0.0712"
     }
    ],
    "cp/pod_mlp": [
@@ -1014,9 +1014,9 @@
     {
      "name": "cp_integral_matches_CD_pressure",
      "passed": true,
-     "value": 0.008386314756316446,
-     "limit": 0.04153226824437442,
-     "reason": "p95 over 96 Sobol points of max(|pressure drag of the predicted Cp - predicted CD_pressure| - scalar 90 % half width, 0); raw |difference| p95 0.0374, max 0.0529; scalar half width mean 0.0455; limit = p95 of the CFD's own template gap"
+     "value": 0.6423527864557588,
+     "limit": 1.0,
+     "reason": "p95 over 128 Sobol points of |pressure drag of the predicted Cp - predicted CD_pressure| / sqrt(gap^2 + half width^2), gap = 0.0415 (the CFD's own template gap at the 95th percentile), half width = the scalar model's 90 % interval (mean 0.0448); raw |difference| p95 0.0377, max 0.0571"
     }
    ],
    "cp/pod_rbf": [
@@ -1030,25 +1030,25 @@
     {
      "name": "cp_integral_matches_CD_pressure",
      "passed": true,
-     "value": 0.007340612641468483,
-     "limit": 0.04153226824437442,
-     "reason": "p95 over 96 Sobol points of max(|pressure drag of the predicted Cp - predicted CD_pressure| - scalar 90 % half width, 0); raw |difference| p95 0.0425, max 0.0622; scalar half width mean 0.0455; limit = p95 of the CFD's own template gap"
+     "value": 0.5122126953561332,
+     "limit": 1.0,
+     "reason": "p95 over 128 Sobol points of |pressure drag of the predicted Cp - predicted CD_pressure| / sqrt(gap^2 + half width^2), gap = 0.0415 (the CFD's own template gap at the 95th percentile), half width = the scalar model's 90 % interval (mean 0.0448); raw |difference| p95 0.0439, max 0.0793"
     }
    ],
    "cp/deeponet": [
     {
      "name": "cp_stagnation_bound",
      "passed": true,
-     "value": 1.0160284756412004,
+     "value": 1.0170092186720272,
      "limit": 1.05,
-     "reason": "max predicted Cp 1.016 (<= 1.05); smallest nose maximum 0.996 (>= 0.9)"
+     "reason": "max predicted Cp 1.017 (<= 1.05); smallest nose maximum 0.996 (>= 0.9)"
     },
     {
      "name": "cp_integral_matches_CD_pressure",
-     "passed": true,
-     "value": 0.015723500669487127,
-     "limit": 0.04153226824437442,
-     "reason": "p95 over 96 Sobol points of max(|pressure drag of the predicted Cp - predicted CD_pressure| - scalar 90 % half width, 0); raw |difference| p95 0.0848, max 0.1464; scalar half width mean 0.0455; limit = p95 of the CFD's own template gap"
+     "passed": false,
+     "value": 1.0065330635475915,
+     "limit": 1.0,
+     "reason": "p95 over 128 Sobol points of |pressure drag of the predicted Cp - predicted CD_pressure| / sqrt(gap^2 + half width^2), gap = 0.0415 (the CFD's own template gap at the 95th percentile), half width = the scalar model's 90 % interval (mean 0.0448); raw |difference| p95 0.0809, max 0.1403"
     }
    ]
   },
@@ -1068,7 +1068,7 @@
     "cp": "pod_gp"
    },
    "reasons": {
-    "cp": "eligible ['pod_gp', 'pod_mlp', 'pod_rbf', 'deeponet']; CV cv_rel_l2 pod_gp 0.1130, deeponet 0.1257, pod_rbf 0.1286, pod_mlp 0.1305"
+    "cp": "eligible ['pod_gp', 'pod_mlp', 'pod_rbf']; CV cv_rel_l2 pod_gp 0.1130, pod_rbf 0.1286, pod_mlp 0.1305"
    }
   }
  },
@@ -1084,7 +1084,7 @@
   "CL": "eligible ['gp', 'mlp_ensemble', 'quadratic']; CV cv_rel_rmse gp 0.1045, quadratic 0.1201, mlp_ensemble 0.1783",
   "CD_pressure": "eligible ['gp', 'mlp_ensemble', 'quadratic']; CV cv_rel_rmse mlp_ensemble 0.3371, quadratic 0.4203, gp 0.5923",
   "CD_friction": "eligible ['gp', 'mlp_ensemble']; CV cv_rel_rmse mlp_ensemble 0.4408, gp 0.6052",
-  "cp": "eligible ['pod_gp', 'pod_mlp', 'pod_rbf', 'deeponet']; CV cv_rel_l2 pod_gp 0.1130, deeponet 0.1257, pod_rbf 0.1286, pod_mlp 0.1305"
+  "cp": "eligible ['pod_gp', 'pod_mlp', 'pod_rbf']; CV cv_rel_l2 pod_gp 0.1130, pod_rbf 0.1286, pod_mlp 0.1305"
  },
  "rule": "Eligible: every physics check on the family's predictions passes. Among the eligible families, the lowest cross-validated relative RMSE of the target wins; families within 5 % of the best CV error are tied and the one with the narrower cross-conformal 90 % interval wins. The test and extrapolation splits never enter the choice.",
  "split": {

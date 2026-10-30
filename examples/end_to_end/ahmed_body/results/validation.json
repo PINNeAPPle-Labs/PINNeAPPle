@@ -159,9 +159,165 @@
    "cells": 206983
   }
  ],
- "rows_L2": [],
+ "rows_L2": [
+  {
+   "slant_deg": 0.0,
+   "CD_cfd": 0.2547237598267277,
+   "CD_measured": 0.25,
+   "rel_error": 0.01889503930691072,
+   "CL_cfd": -0.22022847659112166,
+   "CD_breakdown": {
+    "front": 0.02018805753697416,
+    "roof": -0.00048446654161005457,
+    "slant": 0.0,
+    "base": 0.1945908477327369,
+    "side": -0.0006745844091458475,
+    "underbody": -0.0006810806826478747,
+    "friction": 0.04094480822339055
+   },
+   "iteration_std": 0.0006972326641219585,
+   "trust": "APPROVED",
+   "failed_checks": [],
+   "yplus_p05_p95": [
+    39.25542208478589,
+    164.7011762654137
+   ],
+   "cells": 537539
+  },
+  {
+   "slant_deg": 12.5,
+   "CD_cfd": 0.23994406507389757,
+   "CD_measured": 0.23,
+   "rel_error": 0.04323506553868503,
+   "CL_cfd": 0.02632928017698316,
+   "CD_breakdown": {
+    "front": 0.016061712431331615,
+    "roof": 0.0007153723463184164,
+    "slant": 0.04026193122675616,
+    "base": 0.14023069034443988,
+    "side": 0.000821467376787388,
+    "underbody": -0.0006859352556198061,
+    "friction": 0.04206140869146033
+   },
+   "iteration_std": 0.0011287877856180264,
+   "trust": "REVIEW",
+   "failed_checks": [
+    "residuals"
+   ],
+   "yplus_p05_p95": [
+    41.68821458316551,
+    176.72808504965985
+   ],
+   "cells": 534258
+  },
+  {
+   "slant_deg": 25.0,
+   "CD_cfd": 0.2715495134574859,
+   "CD_measured": 0.285,
+   "rel_error": -0.0471946896228564,
+   "CL_cfd": 0.29291580463255357,
+   "CD_breakdown": {
+    "front": 0.013583083503531858,
+    "roof": 0.002298443836318207,
+    "slant": 0.13992237695830917,
+    "base": 0.06825962221704181,
+    "side": 0.006463372275978853,
+    "underbody": -0.000686972012935547,
+    "friction": 0.04213256617753185
+   },
+   "iteration_std": 0.0023689139800657146,
+   "trust": "REVIEW",
+   "failed_checks": [
+    "residuals"
+   ],
+   "yplus_p05_p95": [
+    37.84635647660752,
+    179.04565308227504
+   ],
+   "cells": 534472
+  },
+  {
+   "slant_deg": 30.0,
+   "CD_cfd": 0.3184062689816505,
+   "CD_measured": 0.378,
+   "rel_error": -0.15765537306441674,
+   "CL_cfd": 0.37397767918388086,
+   "CD_breakdown": {
+    "front": 0.013885614514261107,
+    "roof": 0.0019191648263706398,
+    "slant": 0.22257923742396346,
+    "base": 0.038682787156006364,
+    "side": 0.009735005948317142,
+    "underbody": -0.0006854115739435052,
+    "friction": 0.040986330041592335
+   },
+   "iteration_std": 0.005528606372132158,
+   "trust": "REVIEW",
+   "failed_checks": [
+    "residuals"
+   ],
+   "yplus_p05_p95": [
+    45.807941555773795,
+    179.84772137891875
+   ],
+   "cells": 533562
+  },
+  {
+   "slant_deg": 35.0,
+   "CD_cfd": 0.4078829937723828,
+   "CD_measured": 0.26,
+   "rel_error": 0.5687807452783953,
+   "CL_cfd": 0.40496825432259004,
+   "CD_breakdown": {
+    "front": 0.014923504896854291,
+    "roof": -0.0004897064567106733,
+    "slant": 0.29476458321039256,
+    "base": 0.04549074507314958,
+    "side": 0.010554756114034159,
+    "underbody": -0.0006834576101742017,
+    "friction": 0.03948169554831587
+   },
+   "iteration_std": 0.00982271964544682,
+   "trust": "REVIEW",
+   "failed_checks": [
+    "residuals",
+    "force_convergence"
+   ],
+   "yplus_p05_p95": [
+    48.428902579447424,
+    177.02524282718608
+   ],
+   "cells": 535840
+  },
+  {
+   "slant_deg": 40.0,
+   "CD_cfd": 0.39583389220531434,
+   "CD_measured": 0.25,
+   "rel_error": 0.5833355688212574,
+   "CL_cfd": 0.2924648627138411,
+   "CD_breakdown": {
+    "front": 0.015026508931204288,
+    "roof": -0.0004897633896054467,
+    "slant": 0.2562262897850318,
+    "base": 0.045599892384172225,
+    "side": 0.00712319367861648,
+    "underbody": -0.0006861478303151514,
+    "friction": 0.038951391287705465
+   },
+   "iteration_std": 0.0229688047135153,
+   "trust": "REVIEW",
+   "failed_checks": [
+    "force_convergence"
+   ],
+   "yplus_p05_p95": [
+    33.310204302930565,
+    174.64881700902296
+   ],
+   "cells": 535694
+  }
+ ],
  "campaign_mesh": "L1",
- "grid_uncertainty_fine_mesh": null,
- "campaign_mesh_error": 0.09536952639758689,
- "campaign_mesh_error_basis": "finest mesh L2 (oscillatory: no extrapolation)"
+ "grid_uncertainty_fine_mesh": 0.010983516789688657,
+ "campaign_mesh_error": 0.13339682922976603,
+ "campaign_mesh_error_basis": "Richardson extrapolation"
 }

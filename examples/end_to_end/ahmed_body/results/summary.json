@@ -25,6 +25,18 @@
    "how": "OpenFOAM, 534472 cells, window mean of iterations 500-1000"
   },
   {
+   "name": "cd_baseline_L3",
+   "value": 0.2639794841992436,
+   "unit": "1",
+   "how": "OpenFOAM, 1398073 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "gci_cd_finest",
+   "value": 0.010983516789688657,
+   "unit": "1",
+   "how": "grid-convergence index of CD on the finest mesh (Celik 2008)"
+  },
+  {
    "name": "validation_cd_rel_error_median",
    "value": 0.10913102977129793,
    "unit": "1",
@@ -145,6 +157,30 @@
    "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
   },
   {
+   "name": "cp_pod_gp_test_rel_l2_mean",
+   "value": 0.09864566942506316,
+   "unit": "1",
+   "how": "pod_gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "cp_pod_gp_test_coverage90",
+   "value": 0.892175899486008,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "cp_pod_gp_extrapolation_rel_l2_mean",
+   "value": 0.19955394705004226,
+   "unit": "1",
+   "how": "pod_gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "cp_pod_gp_extrapolation_coverage90",
+   "value": 0.8336379211878926,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
    "name": "sobol_total_CD_slant_deg",
    "value": 0.9617356167204382,
    "unit": "1",
@@ -199,19 +235,52 @@
    "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
   },
   {
+   "name": "inverse_heldout_inside_hdi90",
+   "value": 0.95,
+   "unit": "1",
+   "how": "share of held-out CFD cases whose slant lies inside the MDN 90 % HDI from their CFD drag"
+  },
+  {
+   "name": "inverse_ahmed_1984_inside_hdi90",
+   "value": 0.6666666666666666,
+   "unit": "1",
+   "how": "share of the Ahmed, Ramm & Faltin (1984) measurements whose slant lies inside the MDN 90 % HDI"
+  },
+  {
+   "name": "twin_interpolation_error_CD",
+   "value": 0.013325495021121903,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_CL",
+   "value": 0.03301846244952328,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_field_Cp",
+   "value": 0.5826700799743834,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_field_Cp_pod_truncation",
+   "value": 3.552713678800501e-15,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
    "name": "cfd_cpu_hours",
-   "value": 19.859739196524448,
+   "value": 35.94793888632445,
    "unit": "h",
    "how": "sum over CFD purposes of wall time x MPI processes"
   }
  ],
  "not_measured": [
-  "extra CFD (acquisition, random, Pareto verification)",
-  "inverse",
-  "twin page",
-  "visuals"
+  "extra CFD (acquisition, random, Pareto verification)"
  ],
- "report": "../../../../../../../tmp/claude-0/-home-user-PINNeAPPle/2533bd30-fd71-5cff-b40e-0327badcab8f/scratchpad/report_try.html",
+ "report": "report.html",
  "evidence_zip": "evidence.zip",
  "evidence_problems": [],
  "sections": [
@@ -219,11 +288,17 @@
   "Geometry and CAD import",
   "Mesh convergence",
   "Validation against the wind tunnel",
+  "Validation sweep on the L2 mesh",
   "Design of experiments and run checks",
   "Dataset",
   "Surrogates at equal data and budget, with calibrated uncertainty",
   "The field-scalar consistency check and its tolerance",
   "Global sensitivity (Sobol indices on the selected surrogates)",
+  "Inverse problem: the slant angle from a drag measurement",
+  "Inverse on the measurements of Ahmed, Ramm & Faltin (1984) (60 m/s)",
+  "Inverse on the measurements of Lienhart & Becker (2003) (40 m/s)",
+  "Digital twin",
+  "Visuals",
   "Cost accounting",
   "Not measured, and limits"
  ]

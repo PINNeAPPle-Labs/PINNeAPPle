@@ -13,4 +13,4 @@ uvicorn ahmed_twin.api:app --port 8171        # then open http://localhost:8171
 
 The page is written at start-up by `pinneapple_autolab.domains.ahmed_study.twin` (library); this app only serves
 it and queues the verifying runs (`pinneapple_autolab.study.campaign.run_campaign`, one at a time). OpenFOAM is needed
-only for the button. A static copy of the page (button disabled) is in `examples/end_to_end/ahmed_body/results/twin`.
+only for the button. `python examples/end_to_end/ahmed_body/05_twin.py` writes a static copy (button disabled) to `examples/end_to_end/ahmed_body/results/twin` (not committed: 6 MB of model evaluations).

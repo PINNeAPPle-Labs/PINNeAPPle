@@ -27,6 +27,8 @@ Os atalhos da raiz (`build_model`, `train_model`, `predict`, `train_and_predict`
 
 O pacote é usado pelo resto da biblioteca: a fachada `pp.*` e os solvers montam modelos pelo registro, `pinneapple_systems.component_library` e `pinneapple_orchestration` treinam componentes com o mesmo `Trainer`, e os resultados de ROM viram contratos de `pinneapple_data.contracts` para os apps. Integrações com licença restrita (Noether/Emmi AI) são só para pesquisa e bloqueadas em modo comercial por `_licencas`.
 
+O submódulo `pinneapple_neural.trainer` reúne a maquinaria de treino do PINNeAPPle. O centro é o `Trainer` genérico (perdas, métricas, callbacks, checkpoint, auditoria, AMP e DDP), cercado por estratégias específicas de PINN: treino em duas fases, time-marching, treino causal, PINN inverso e gray-box, colocação adaptativa (RAR), balanceamento automático de pesos de perda (`loss_balancer`, `weight_scheduler`), otimizadores especiais (MultiAdam, quase-Newton auto-escalado, L-BFGS multi-rodada), reinícios múltiplos, incerteza heteroscedástica, restrições de monotonicidade e utilitários de paralelismo/HPC (DDP, FSDP, SLURM).
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -45,7 +47,7 @@ Pasta de testes dedicada: `tests/pinneapple_neural` (36 funções de teste).
 | `lpm` | Blocos de um 'Large Physics Model': codificação espacial, código de geometria, ensemble e sinal fora-da-distribuição. | 1 | 6 | 5 |
 | `physicsnemo_bridge` | Cola entre PhysicsNeMo e PINNeAPPle: UQ, gêmeo digital, active learning com retreino e operadores em grade. | 4 | 15 | 19 |
 | `predictor` | Inferência pós-treino em lote e em grade, e gráficos de campos, erros e escoamentos. | 4 | 27 | 0 |
-| `trainer` |  | 34 | 132 | 151 |
+| `trainer` | Treinadores, perdas, métricas, balanceadores de perda, otimizadores e utilitários de paralelismo/HPC para treinar PINNs e surrogates. | 34 | 132 | 151 |
 | `utils` | Helpers `as_tensor` (tensor de qualquer saída de modelo) e `fit_supervised` (laço Adam mínimo). | 1 | 2 | 5 |
 | `workflows` | Fluxos prontos de treino e previsão: FNO3d em volumes densos (simples e paramétrico) e surrogate híbrido com pós-modelo físico. | 4 | 21 | 10 |
 
@@ -1764,432 +1766,432 @@ Gráficos com matplotlib dos resultados de inferência: campos 1D/2D, mapas de e
 
 #### `pinneapple_neural.trainer`
 
-_Módulo sem docstring e sem texto._
+Fachada do subpacote: reexporta treinadores (`Trainer`, `TwoPhaseTrainer`, `TimeMarchingTrainer`, `CausalPINNTrainer`, `DDPPINNTrainer`), balanceadores de perda, otimizadores e utilitários de HPC num só lugar.
 
 <small>`pinneapple_neural/trainer/__init__.py` · 191 linhas · testes: 1</small>
 
 #### `pinneapple_neural.trainer.adaptive_sweep`
 
-Automatic (adaptive) hyperparameter search.
+Busca adaptativa de hiperparâmetros: usa TPE do Optuna (com poda opcional) quando o pacote está instalado e cai para busca aleatória sem ele. [sem teste]
 
 <small>`pinneapple_neural/trainer/adaptive_sweep.py` · 178 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AdaptiveSweepConfig` | classe | `(param_space, n_trials, direction, seed, pruning)` |  |
-| `run_adaptive_sweep` | função | `(trial_fn, cfg) -> List[Dict[str, Any]]` | Run an adaptive (Bayesian/TPE via Optuna, or random-search fallback) hyperparameter search. |
+| `AdaptiveSweepConfig` | classe | `(param_space, n_trials, direction, seed, pruning)` | Configuração da busca adaptativa: espaço de parâmetros, número de tentativas, direção (minimizar/maximizar), semente e poda. |
+| `run_adaptive_sweep` | função | `(trial_fn, cfg) -> List[Dict[str, Any]]` | Executa a busca adaptativa (TPE do Optuna ou busca aleatória como fallback) e devolve a lista de resultados por tentativa. |
 
 #### `pinneapple_neural.trainer.advisor`
 
-_Módulo sem docstring e sem texto._
+Diagnóstico de treino: lê históricos de perda e métricas finais, detecta sinais (platô, divergência, oscilação, desequilíbrio BC/física etc.) e devolve sugestões ordenadas com patches de configuração. [sem teste]
 
 <small>`pinneapple_neural/trainer/advisor.py` · 378 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Suggestion` | classe | `(code, priority, description, config_patch, rationale)` | A single actionable improvement recommendation. |
-| `DiagnosticReport` | classe | `(model_name, signals, suggestions, metrics_summary, diagnosis_text)` | Complete diagnostic output for one model run. |
-| `TrainingAdvisor` | classe | `(plateau_rel_std_thresh=0.005, divergence_rel_thresh=-0.05, slow_start_thresh=0.05, high_…)` | Inspects training histories and final metrics to produce ranked Suggestion objects for improving the next training run. |
+| `Suggestion` | classe | `(code, priority, description, config_patch, rationale)` | Uma recomendação acionável: código, prioridade, descrição, patch de configuração e justificativa. |
+| `DiagnosticReport` | classe | `(model_name, signals, suggestions, metrics_summary, diagnosis_text)` | Saída completa do diagnóstico de uma execução: sinais detectados, sugestões, resumo de métricas e texto de diagnóstico. |
+| `TrainingAdvisor` | classe | `(plateau_rel_std_thresh=0.005, divergence_rel_thresh=-0.05, slow_start_thresh=0.05, high_…)` | Analisa histórico de perda e métricas finais com limiares configuráveis e produz sugestões ordenadas; `apply_suggestions` aplica os patches a uma configuração. |
 
 #### `pinneapple_neural.trainer.audit`
 
-Auditability: seed, deterministic mode, RunLogger, env fingerprint.
+Auditabilidade: semente global, modo determinístico, impressão digital do ambiente e um logger JSONL por execução. [sem teste]
 
 <small>`pinneapple_neural/trainer/audit.py` · 76 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RunLogger` | classe | `(out_dir, run_name, flush_every)` | JSONL logger for industry-grade auditability. |
-| `set_seed` | função | `(seed) -> None` |  |
-| `set_deterministic` | função | `(deterministic=True) -> None` |  |
-| `env_fingerprint` | função | `() -> Dict[str, Any]` |  |
+| `RunLogger` | classe | `(out_dir, run_name, flush_every)` | Logger JSONL por execução que também salva a configuração e artefatos no diretório da execução. |
+| `set_seed` | função | `(seed) -> None` | Fixa a semente de `random`, NumPy e PyTorch (incluindo CUDA). |
+| `set_deterministic` | função | `(deterministic=True) -> None` | Liga ou desliga o modo determinístico do PyTorch/cuDNN. |
+| `env_fingerprint` | função | `() -> Dict[str, Any]` | Retorna um dict com versões de Python, plataforma, PyTorch e dados de CUDA para registrar o ambiente. |
 
 #### `pinneapple_neural.trainer.callbacks`
 
-Training callbacks: EarlyStopping and ModelCheckpoint.
+Callbacks simples de treino: parada antecipada (`EarlyStopping`) e salvamento do melhor modelo (`ModelCheckpoint`). [sem teste]
 
 <small>`pinneapple_neural/trainer/callbacks.py` · 67 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EarlyStopping` | classe | `(monitor, patience, min_delta, mode, best, bad_epochs, stop)` |  |
-| `ModelCheckpoint` | classe | `(path, monitor, mode, best)` |  |
+| `EarlyStopping` | classe | `(monitor, patience, min_delta, mode, best, bad_epochs, stop)` | Para o treino quando a métrica monitorada não melhora por `patience` épocas, com `min_delta` e modo min/max. |
+| `ModelCheckpoint` | classe | `(path, monitor, mode, best)` | Salva o `state_dict` do modelo no caminho dado sempre que a métrica monitorada melhora. |
 
 #### `pinneapple_neural.trainer.causal`
 
-Causal training for temporal PDEs.
+Treino causal para EDPs temporais (Wang et al. 2022): pesos exponencialmente decrescentes por fatia de tempo, conforme o resíduo acumulado nas fatias anteriores. [sem teste]
 
 <small>`pinneapple_neural/trainer/causal.py` · 408 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CausalWeightScheduler` | classe | `(n_time_chunks=100, epsilon=1.0, update_every=100)` | Compute per-point causal weights for temporal PDE training. |
-| `CausalPINNTrainer` | classe | `(model, epsilon=1.0, n_time_chunks=50, update_every=100)` | PINN trainer with causal weighting for temporal PDEs. |
+| `CausalWeightScheduler` | classe | `(n_time_chunks=100, epsilon=1.0, update_every=100)` | Calcula pesos causais por fatia de tempo, w_k = exp(-epsilon * soma das perdas das fatias anteriores), e a perda ponderada e uma métrica de violação de causalidade. |
+| `CausalPINNTrainer` | classe | `(model, epsilon=1.0, n_time_chunks=50, update_every=100)` | Treinador PINN que aplica os pesos causais ao resíduo da EDP junto com perdas de condição inicial/contorno; permite consultar e plotar os pesos. |
 
 #### `pinneapple_neural.trainer.checkpoint`
 
-Checkpoint save/load for model, optimizer, config, and normalizers.
+Salva e carrega um checkpoint com estado do modelo, do otimizador, configuração, metadados e normalizadores via `torch.save`.
 
 <small>`pinneapple_neural/trainer/checkpoint.py` · 40 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Checkpoint` | classe | `(model_state, optim_state, cfg, meta, normalizers)` |  |
-| `save_checkpoint` | função | `(path, ckpt) -> None` |  |
-| `load_checkpoint` | função | `(path) -> Checkpoint` |  |
+| `Checkpoint` | classe | `(model_state, optim_state, cfg, meta, normalizers)` | Dataclass com estado do modelo, estado do otimizador, configuração, metadados e normalizadores. |
+| `save_checkpoint` | função | `(path, ckpt) -> None` | Grava um `Checkpoint` em disco com `torch.save`, criando o diretório se preciso. |
+| `load_checkpoint` | função | `(path) -> Checkpoint` | Lê um arquivo salvo e reconstrói o `Checkpoint`. |
 
 #### `pinneapple_neural.trainer.collocation`
 
-Adaptive collocation point sampling for PINN training.
+Amostragem adaptativa de pontos de colocação (RAR): um conjunto ativo é reamostrado de um pool grande com densidade puxada para onde o resíduo da EDP é alto; inclui utilitários de escala por canal e filtragem de NaN. [sem teste]
 
 <small>`pinneapple_neural/trainer/collocation.py` · 413 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AdaptiveCollocationConfig` | classe | `(n_active, n_pool, resample_every, residual_frac, residual_batch, replace)` | Configuration for ``AdaptiveCollocationSampler``. |
-| `AdaptiveCollocationSampler` | classe | `(pool, config=None, residual_fn=None) -> None` | Residual-based Adaptive Refinement (RAR) for PINN collocation points. |
-| `estimate_channel_scales` | função | `(Y, quantile=0.95, min_scale=1e-06, channel_names=None) -> List[float]` | Estimate per-channel output scales as the q-th quantile of \|Y_i\|. |
-| `filter_nan_rows` | função | `(*tensors, warn=True) -> Tuple[torch.Tensor, ...]` | Remove rows where any tensor has NaN or Inf. |
+| `AdaptiveCollocationConfig` | classe | `(n_active, n_pool, resample_every, residual_frac, residual_batch, replace)` | Configuração do RAR: pontos ativos, tamanho do pool, frequência de reamostragem, fração guiada pelo resíduo e tamanho do lote de avaliação. |
+| `AdaptiveCollocationSampler` | classe | `(pool, config=None, residual_fn=None) -> None` | Mantém um pool de candidatos e um subconjunto ativo, reamostrado periodicamente com probabilidade proporcional ao resíduo ao quadrado misturada com uniforme. |
+| `estimate_channel_scales` | função | `(Y, quantile=0.95, min_scale=1e-06, channel_names=None) -> List[float]` | Estima a escala de cada canal de saída como o quantil q de \|Y\|, para normalizar canais de magnitudes muito diferentes. |
+| `filter_nan_rows` | função | `(*tensors, warn=True) -> Tuple[torch.Tensor, ...]` | Remove, de vários tensores ao mesmo tempo, as linhas onde algum tem NaN ou Inf. |
 
 #### `pinneapple_neural.trainer.datamodule`
 
-DataModule, loaders, and item adapters for training.
+Monta DataLoaders de treino/validação/teste com split consistente (`pinneapple_data.splits`), adaptadores de item e pipeline de pré-processamento. [sem teste]
 
 <small>`pinneapple_neural/trainer/datamodule.py` · 200 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ItemAdapter` | classe | `()` | Adapter that standardizes how we convert dataset items into dict batches. |
-| `FnAdapter` | classe | `(x_fn, y_fn, meta_fn=None)` | Convenience adapter for Pinneapple PhysicalSample-like objects (or any object). |
-| `AdaptedSequenceDataset` | classe | `(samples, adapter)` | Wrap a Python sequence and apply an adapter in __getitem__. Useful for: list[PhysicalSample] or list[dict] etc. |
-| `DataModule` | classe | `(dataset, split, group_ids, batch_size, num_workers, pin_memory, persistent_workers, drop…)` | Builds train/val/test DataLoaders with consistent split + preprocess. |
+| `ItemAdapter` | classe | `()` | Interface que converte itens do dataset em dicts de lote com `x` e, opcionalmente, `y`, `meta` e `physics`. |
+| `FnAdapter` | classe | `(x_fn, y_fn, meta_fn=None)` | Adaptador por funções: `x_fn`, `y_fn` e `meta_fn` opcional aplicados a cada amostra (por exemplo `PhysicalSample`). |
+| `AdaptedSequenceDataset` | classe | `(samples, adapter)` | Dataset que embrulha uma sequência Python e aplica o adaptador em `__getitem__`. |
+| `DataModule` | classe | `(dataset, split, group_ids, batch_size, num_workers, pin_memory, persistent_workers, drop…)` | Constrói e guarda em cache os DataLoaders de treino/validação/teste com split e pré-processamento consistentes. |
 
 #### `pinneapple_neural.trainer.distributed`
 
-Distributed Data Parallel (DDP) training for PINNeAPPle.
+Treino multi-GPU/multinó com DistributedDataParallel do PyTorch, lançado por `torchrun` ou por `mp.spawn`. [sem teste]
 
 <small>`pinneapple_neural/trainer/distributed.py` · 323 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DDPTrainerConfig` | classe | `(backend, world_size, master_addr, master_port, gradient_sync_every, find_unused_paramete…)` | Configuration for DDP training. |
-| `DDPPINNTrainer` | classe | `(model, config=None)` | Multi-GPU PINN trainer using PyTorch DDP. |
-| `is_distributed` | função | `() -> bool` | Return True when running inside an active distributed process group. |
-| `get_rank` | função | `() -> int` | Return the rank of the current process (0 when not distributed). |
-| `get_world_size` | função | `() -> int` | Return the total number of processes (1 when not distributed). |
+| `DDPTrainerConfig` | classe | `(backend, world_size, master_addr, master_port, gradient_sync_every, find_unused_paramete…)` | Configuração do treino DDP: backend, número de processos, endereço/porta do mestre, clip de gradiente, AMP e frequência de log. |
+| `DDPPINNTrainer` | classe | `(model, config=None)` | Treinador PINN multi-GPU com DDP: inicializa o grupo de processos, sincroniza gradientes e pode lançar workers via `mp.spawn`. |
+| `is_distributed` | função | `() -> bool` | Diz se há um grupo de processos distribuído ativo. |
+| `get_rank` | função | `() -> int` | Retorna o rank do processo atual (0 fora de modo distribuído). |
+| `get_world_size` | função | `() -> int` | Retorna o número total de processos (1 fora de modo distribuído). |
 
 #### `pinneapple_neural.trainer.graybox`
 
-Gray-box PINN training (AI-Aristotle style): a main network learns the state variables while one or more small auxiliary networks learn an unknown functional term in an otherwise-known governing equation.
+Treino PINN gray-box (estilo AI-Aristotle): rede principal aprende o estado e redes auxiliares pequenas aprendem um termo desconhecido da equação; opcionalmente destila esse termo em fórmula com PySR. [sem teste]
 
 <small>`pinneapple_neural/trainer/graybox.py` · 280 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GrayBoxNet` | classe | `(n_in=1, n_out=1, width=32, depth=3)` | Small network approximating an unknown functional term in a PDE/ODE. Kept shallow/narrow by design: if the term is later distilled into a closed-form expression (e.g. via symbolic regression), a simple network is much easier to distill accurately than a large one. |
-| `GrayBoxConfig` | classe | `(epochs_supervised, epochs_joint, lr_main, lr_graybox, lr_params, w_data, w_pde, pde_warm…)` |  |
-| `train_graybox` | função | `(main_model, graybox_nets, known_residual_fn, obs_coords, obs_values, collocation_sampler…)` | Two-phase gray-box training: Phase 1 fits `main_model` to (obs_coords, obs_values) alone; Phase 2 jointly trains `main_model`, the gray-box networks, and any unknown scalar parameters against a weighted sum of the data loss and `known_residual_fn`'s PDE residual, with the PDE weight auto-balanced … |
-| `distill_to_symbolic` | função | `(graybox_net, coord_bounds, n_samples=2000, var_names=None, n_iterations=40) -> Dict[str,…)` | Sample a trained gray-box network on its input domain and run PySR symbolic regression to recover a closed-form analytical expression for the unknown term it learned. Requires the optional `pysr` package. |
+| `GrayBoxNet` | classe | `(n_in=1, n_out=1, width=32, depth=3)` | MLP pequena e rasa que aproxima um termo funcional desconhecido de uma EDP/EDO, mantida simples para facilitar a destilação simbólica. |
+| `GrayBoxConfig` | classe | `(epochs_supervised, epochs_joint, lr_main, lr_graybox, lr_params, w_data, w_pde, pde_warm…)` | Configuração do treino gray-box: épocas das duas fases, taxas de aprendizado, pesos de dados e EDP, aquecimento da EDP, clip e EMA. |
+| `train_graybox` | função | `(main_model, graybox_nets, known_residual_fn, obs_coords, obs_values, collocation_sampler…)` | Treino em duas fases: ajusta a rede principal só aos dados e depois treina rede principal, redes gray-box e parâmetros desconhecidos contra dados + resíduo da EDP. |
+| `distill_to_symbolic` | função | `(graybox_net, coord_bounds, n_samples=2000, var_names=None, n_iterations=40) -> Dict[str,…)` | Amostra a rede gray-box no domínio e roda regressão simbólica PySR para obter uma expressão fechada; exige o pacote opcional `pysr`. |
 
 #### `pinneapple_neural.trainer.heteroscedastic`
 
-Heteroscedastic (input-dependent variance) uncertainty quantification.
+Quantificação de incerteza heteroscedástica: a rede prevê média e log-variância por ponto (perda NLL gaussiana) e, com MC-dropout, separa incerteza aleatória e epistêmica. [sem teste]
 
 <small>`pinneapple_neural/trainer/heteroscedastic.py` · 136 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HeteroscedasticWrapper` | classe | `(base_network, n_out_physical)` | Wraps a base network (output dim = 2 * n_out_physical) into a model exposing `.forward_uq(x) -> (mean, log_variance)`, each of shape (N, n_out_physical). `.forward(x)` returns the mean only, for drop-in compatibility with code expecting a single-prediction model. |
-| `init_logvar_bias` | função | `(output_layer, n_out_physical, bias_value=-4.6) -> None` | Bias-initialize a network's final linear layer's log-variance output columns (indices [n_out_physical:]) toward a small initial predicted uncertainty (log(sigma^2) ~= bias_value, i.e. sigma ~= exp(bias_value/2) ~= 0.1 at the default). Call once, right after constructing the base network and before … |
-| `heteroscedastic_nll_loss` | função | `(pred_mean, pred_logvar, target) -> torch.Tensor` | Gaussian negative log-likelihood: L = 0.5*(log(sigma^2) + (y-mu)^2/sigma^2), with log-variance clamped to [-10, 10] for numerical stability. |
-| `compute_aleatoric_epistemic_uq` | função | `(model, coords, n_mc=50, forward_kwargs=None) -> Dict[str, torch.Tensor]` | Decompose predictive uncertainty via the law of total variance: |
+| `HeteroscedasticWrapper` | classe | `(base_network, n_out_physical)` | Envolve uma rede com saída 2*n para expor `forward_uq` (média e log-variância); `forward` devolve só a média. |
+| `init_logvar_bias` | função | `(output_layer, n_out_physical, bias_value=-4.6) -> None` | Inicializa o viés das colunas de log-variância da última camada para começar com incerteza pequena. |
+| `heteroscedastic_nll_loss` | função | `(pred_mean, pred_logvar, target) -> torch.Tensor` | Perda NLL gaussiana com log-variância limitada a [-10, 10]. |
+| `compute_aleatoric_epistemic_uq` | função | `(model, coords, n_mc=50, forward_kwargs=None) -> Dict[str, torch.Tensor]` | Decompõe a incerteza preditiva em aleatória e epistêmica com amostras MC-dropout, pela lei da variância total. |
 
 #### `pinneapple_neural.trainer.hpc`
 
-Advanced HPC utilities for large-scale PINN training.
+Utilitários de HPC: FSDP, ZeRO-1, CUDA graphs, ganchos de compressão de gradiente (PowerSGD, Top-K), geração de comandos `torchrun` e scripts SLURM, profiler e busca de batch máximo. [sem teste]
 
 <small>`pinneapple_neural/trainer/hpc.py` · 819 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FSDPConfig` | classe | `(sharding_strategy, mixed_precision, min_num_params, activation_checkpointing, cpu_offloa…)` | Configuration for FSDP wrapping. |
-| `CUDAGraphModule` | classe | `(module, warmup_steps=3, device='cuda') -> None` | Wrap a module to use CUDA graph replay for static-shape inference. |
-| `TorchRunConfig` | classe | `(n_nodes, n_procs_per_node, master_addr, master_port, rdzv_backend, max_restarts)` | Configuration for a ``torchrun`` launch. |
-| `SLURMConfig` | classe | `(job_name, n_nodes, n_gpus_per_node, n_cpus_per_task, time_limit, partition, account, mem…)` | SLURM batch script configuration. |
-| `ProfilerConfig` | classe | `(trace_dir, record_shapes, profile_memory, with_flops, with_stack, schedule_wait, schedul…)` | Configuration for PINNeAPPleProfiler. |
-| `PINNeAPPleProfiler` | classe | `(config=None) -> None` | Context-manager profiler that wraps ``torch.profiler.profile``. |
-| `AutoBatchSizeFinder` | classe | `(trial_fn, lo=1, hi=8192, verbose=True) -> None` | Find the maximum batch size that fits in GPU memory via binary search. |
-| `wrap_fsdp` | função | `(model, cfg=None, *, process_group=None) -> nn.Module` | Wrap a model with Fully Sharded Data Parallel. |
-| `wrap_zero_optimizer` | função | `(optimizer_class, params, **optimizer_kwargs) -> torch.optim.Optimizer` | Wrap an optimizer with ZeroRedundancyOptimizer (ZeRO-1 sharding). |
-| `register_powersgd_hook` | função | `(model, *, matrix_approximation_rank=1, start_powersgd_iter=10, use_error_feedback=True) …)` | Register a PowerSGD gradient compression hook on a DDP model. |
-| `register_topk_hook` | função | `(model, *, compression_ratio=0.1) -> None` | Register a Top-K gradient sparsification hook on a DDP model. |
-| `build_torchrun_cmd` | função | `(script, cfg, *, script_args='') -> str` | Generate a ``torchrun`` launch command string. |
-| `build_slurm_script` | função | `(torchrun_cmd, slurm, *, output_dir='slurm_logs') -> str` | Generate a complete SLURM batch script as a string. |
+| `FSDPConfig` | classe | `(sharding_strategy, mixed_precision, min_num_params, activation_checkpointing, cpu_offloa…)` | Configuração do FSDP: estratégia de sharding, precisão mista, tamanho mínimo de módulo, checkpointing de ativações e offload para CPU. |
+| `CUDAGraphModule` | classe | `(module, warmup_steps=3, device='cuda') -> None` | Envolve um módulo para capturar e reexecutar um CUDA graph na inferência com formato de entrada fixo. |
+| `TorchRunConfig` | classe | `(n_nodes, n_procs_per_node, master_addr, master_port, rdzv_backend, max_restarts)` | Configuração de um lançamento `torchrun` (nós, processos por nó, endereço, porta, rendezvous, reinícios). |
+| `SLURMConfig` | classe | `(job_name, n_nodes, n_gpus_per_node, n_cpus_per_task, time_limit, partition, account, mem…)` | Configuração de um script batch SLURM (nome, nós, GPUs, CPUs, tempo, partição, conta, memória, módulos, ambiente conda). |
+| `ProfilerConfig` | classe | `(trace_dir, record_shapes, profile_memory, with_flops, with_stack, schedule_wait, schedul…)` | Configuração do `PINNeAPPleProfiler`: diretório de traces, o que registrar e agenda de profiling. |
+| `PINNeAPPleProfiler` | classe | `(config=None) -> None` | Context manager sobre `torch.profiler.profile` que registra tempo, memória e FLOPs por operador e exporta trace Chrome. |
+| `AutoBatchSizeFinder` | classe | `(trial_fn, lo=1, hi=8192, verbose=True) -> None` | Busca binária do maior tamanho de lote que cabe na memória da GPU, usando uma função de teste fornecida. |
+| `wrap_fsdp` | função | `(model, cfg=None, *, process_group=None) -> nn.Module` | Envolve um modelo com Fully Sharded Data Parallel; devolve o modelo sem mudança se FSDP não estiver disponível. |
+| `wrap_zero_optimizer` | função | `(optimizer_class, params, **optimizer_kwargs) -> torch.optim.Optimizer` | Cria um otimizador com `ZeroRedundancyOptimizer` (ZeRO-1), que divide o estado do otimizador entre ranks. |
+| `register_powersgd_hook` | função | `(model, *, matrix_approximation_rank=1, start_powersgd_iter=10, use_error_feedback=True) …)` | Registra no modelo DDP o gancho de compressão de gradiente PowerSGD (baixo posto). |
+| `register_topk_hook` | função | `(model, *, compression_ratio=0.1) -> None` | Registra no modelo DDP um gancho que envia só a fração Top-K de gradientes de maior módulo. |
+| `build_torchrun_cmd` | função | `(script, cfg, *, script_args='') -> str` | Gera a string de comando `torchrun` para um script de treino. |
+| `build_slurm_script` | função | `(torchrun_cmd, slurm, *, output_dir='slurm_logs') -> str` | Gera um script batch SLURM completo que executa um comando `torchrun`. |
 
 #### `pinneapple_neural.trainer.inference`
 
-Inference utilities: load_checkpoint and predict.
+Inferência mínima: carrega pesos de um checkpoint num modelo e faz predição em modo `eval` sem gradiente. [sem teste]
 
 <small>`pinneapple_neural/trainer/inference.py` · 22 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_checkpoint` | função | `(model, path, map_location='cpu') -> Dict[str, Any]` |  |
-| `predict` | função | `(model, x, device=None) -> torch.Tensor` |  |
+| `load_checkpoint` | função | `(model, path, map_location='cpu') -> Dict[str, Any]` | Carrega um checkpoint num modelo (aceita dict com `model_state` ou state_dict puro) e devolve o dict lido. |
+| `predict` | função | `(model, x, device=None) -> torch.Tensor` | Roda o modelo em modo `eval`, sem gradiente, no dispositivo indicado. |
 
 #### `pinneapple_neural.trainer.inverse_pinn`
 
-Inverse PINN: jointly optimize network weights and unknown scalar physical parameters from sparse sensor observations plus a PDE/ODE residual.
+PINN inverso: otimiza ao mesmo tempo os pesos da rede e parâmetros físicos escalares desconhecidos, a partir de sensores esparsos e de um resíduo de EDP/EDO fornecido pelo usuário.
 
 <small>`pinneapple_neural/trainer/inverse_pinn.py` · 218 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `InverseParam` | classe | `(initial_value, log_space=False, name='param')` | Wraps a scalar as a learnable parameter. Supports a log-space transform for positivity-constrained parameters (the raw trainable value is log(param); `.value` exponentiates it, so it is always > 0 and unconstrained-Adam-friendly even near 0). |
-| `InversePINN` | classe | `(model, inverse_params, residual_fn, sensor_points, sensor_values, domain_bounds, n_col=2…)` | Jointly optimizes network weights (theta) and unknown physical parameters (lambda) from sparse sensor observations plus a caller- supplied PDE/ODE residual (see module docstring). |
+| `InverseParam` | classe | `(initial_value, log_space=False, name='param')` | Escalar treinável, opcionalmente em espaço log para manter o parâmetro positivo. |
+| `InversePINN` | classe | `(model, inverse_params, residual_fn, sensor_points, sensor_values, domain_bounds, n_col=2…)` | Treina pesos da rede e parâmetros físicos desconhecidos contra resíduo nos pontos de colocação mais erro nos sensores, com parada antecipada. |
 
 #### `pinneapple_neural.trainer.lbfgs_finetune`
 
-Multi-round L-BFGS fine-tuning: resample-per-round quasi-Newton polish.
+Ajuste fino com L-BFGS em várias rodadas independentes, cada uma com um closure novo (novo mini-lote), em vez de uma fase longa única.
 
 <small>`pinneapple_neural/trainer/lbfgs_finetune.py` · 112 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LBFGSFinetuneResult` | classe | `(round_losses, round_iters)` | Per-round bookkeeping from :func:`multi_round_lbfgs`. |
-| `multi_round_lbfgs` | função | `(params, closure_builder, n_rounds, n_steps_per_round, lr=1.0, history_size=50, line_sear…)` | Run ``n_rounds`` independent :class:`torch.optim.LBFGS` phases, each ``max_iter=n_steps_per_round``, each against a freshly built closure (so a new mini-batch, if the caller's ``closure_builder`` resamples one) -- rather than one L-BFGS phase for the whole budget. |
+| `LBFGSFinetuneResult` | classe | `(round_losses, round_iters)` | Registro por rodada do L-BFGS multi-rodada (perdas e iterações), com a perda final. |
+| `multi_round_lbfgs` | função | `(params, closure_builder, n_rounds, n_steps_per_round, lr=1.0, history_size=50, line_sear…)` | Executa N fases L-BFGS independentes, cada uma com um closure recém-construído, com callbacks opcionais ao fim de cada rodada. |
 
 #### `pinneapple_neural.trainer.loss_balancer`
 
-Advanced automatic loss weight optimisation for PINNs.
+Balanceamento automático de pesos de perda para PINNs: ReLoBRaLo, SoftAdapt, Lagrangiano aumentado, Inverse Dirichlet, LR annealing, PCGrad, pesos conjuntos via softplus e um meta-agendador `AutoBalancer` que troca de método quando o treino estagna.
 
 <small>`pinneapple_neural/trainer/loss_balancer.py` · 1.229 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReLoBRaLo` | classe | `(loss_names, *, tau=0.1, alpha=0.999, update_every=1, clip_min=0.001, clip_max=1000.0, in…)` | Relative Loss Balancing via Residuals and Losses. |
-| `SoftAdapt` | classe | `(loss_names, *, tau=0.1, beta=0.0, normalized=True, update_every=1, clip_min=0.001, clip_…)` | SoftAdapt — Adaptive loss weighting via rates of change. |
-| `AugmentedLagrangian` | classe | `(loss_names, *, pde_key='pde', rho=0.1, lambda_init=1.0, lambda_min=0.0, lambda_max=10000…)` | Augmented Lagrangian method for PINN loss balancing. |
-| `InverseDirichlet` | classe | `(model, loss_names, *, shared_layer=None, update_every=50, alpha=0.9, clip_min=0.001, cli…)` | Inverse Dirichlet (gradient statistics) weighting. |
-| `LRAnnealing` | classe | `(model, loss_names, *, reference='pde', update_every=100, alpha=0.1, clip_min=0.001, clip…)` | Learning-rate annealing for PINN loss weights (Algorithm 1 of Wang, Teng & Perdikaris, 2021 — "Understanding and mitigating gradient flow pathologies in physics-informed neural networks", SIAM J. Sci. Comput. 43(5):A3055– A3081, doi:10.1137/20M1318043). Not the NTK paper cited for … |
-| `PCGrad` | classe | `(model, loss_names, *, update_every=1, weights=None) -> None` | PCGrad — Projecting Conflicting Gradients. |
-| `AutoBalancerConfig` | classe | `(method, check_every, health_window, plateau_rel_thresh, divergence_thresh, max_switches,…)` | Configuration for the AutoBalancer meta-scheduler. |
-| `AutoBalancer` | classe | `(model, loss_names, *, config=None, pde_key='pde') -> None` | Auto-balancing meta-scheduler for PINN loss weights. |
-| `JointAdaptiveWeights` | classe | `(loss_names, *, initial_weights=None, sp_beta=1.0, max_raw_init=20.0, scale=None) -> None` | Jointly-trained adaptive loss weights via softplus parameterisation. |
-| `AutoPDEWeightCalibrator` | classe | `(target_ratio=0.01, *, once=True, clip_min=1e-20, clip_max=1000000.0) -> None` | Automatically calibrates the PDE loss weight relative to BC/data losses. |
+| `ReLoBRaLo` | classe | `(loss_names, *, tau=0.1, alpha=0.999, update_every=1, clip_min=0.001, clip_max=1000.0, in…)` | Balanceamento ReLoBRaLo: pesos por softmax das razões de perda relativas, com memória aleatória (lookback) e suavização. |
+| `SoftAdapt` | classe | `(loss_names, *, tau=0.1, beta=0.0, normalized=True, update_every=1, clip_min=0.001, clip_…)` | SoftAdapt: pesos por softmax das taxas de variação de cada perda, opcionalmente normalizados. |
+| `AugmentedLagrangian` | classe | `(loss_names, *, pde_key='pde', rho=0.1, lambda_init=1.0, lambda_min=0.0, lambda_max=10000…)` | Trata a perda da EDP como restrição e atualiza multiplicadores de Lagrange com penalidade `rho`, após um aquecimento. |
+| `InverseDirichlet` | classe | `(model, loss_names, *, shared_layer=None, update_every=50, alpha=0.9, clip_min=0.001, cli…)` | Pesos a partir das estatísticas (variância) dos gradientes de cada termo numa camada compartilhada. |
+| `LRAnnealing` | classe | `(model, loss_names, *, reference='pde', update_every=100, alpha=0.1, clip_min=0.001, clip…)` | Algoritmo 1 de Wang, Teng & Perdikaris (2021): ajusta pesos pela razão entre o gradiente máximo do termo de referência e o gradiente médio de cada termo. |
+| `PCGrad` | classe | `(model, loss_names, *, update_every=1, weights=None) -> None` | PCGrad: projeta gradientes conflitantes entre termos de perda antes de combiná-los. |
+| `AutoBalancerConfig` | classe | `(method, check_every, health_window, plateau_rel_thresh, divergence_thresh, max_switches,…)` | Configuração do meta-agendador: método inicial, janela de saúde, limiares de platô e divergência, máximo de trocas e método de fallback. |
+| `AutoBalancer` | classe | `(model, loss_names, *, config=None, pde_key='pde') -> None` | Meta-agendador que monitora a saúde do treino e troca de método de balanceamento quando há platô ou divergência. |
+| `JointAdaptiveWeights` | classe | `(loss_names, *, initial_weights=None, sp_beta=1.0, max_raw_init=20.0, scale=None) -> None` | Pesos de perda treináveis junto com o modelo, parametrizados por softplus. |
+| `AutoPDEWeightCalibrator` | classe | `(target_ratio=0.01, *, once=True, clip_min=1e-20, clip_max=1000000.0) -> None` | Calibra o peso da perda da EDP para atingir uma razão-alvo em relação às perdas de contorno/dados. |
 
 #### `pinneapple_neural.trainer.losses`
 
-Loss functions for supervised and physics-aware training.
+Perdas supervisionadas e com física: perda supervisionada (MSE/MAE/Huber), gancho de perda física e combinação ponderada, com helper para a Arena. [sem teste]
 
 <small>`pinneapple_neural/trainer/losses.py` · 148 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SupervisedLoss` | classe | `(kind)` |  |
-| `PhysicsLossHook` | classe | `(physics_loss_fn)` |  |
-| `CombinedLoss` | classe | `(supervised, physics, w_supervised, w_physics)` |  |
-| `build_loss` | função | `(*, problem_spec, model_capabilities=None, weights=None, supervised_kind='mse', physics_l…)` | Helper to build a CombinedLoss for Arena. |
+| `SupervisedLoss` | classe | `(kind)` | Perda supervisionada configurável (`mse`, `mae`/`l1` ou `huber`/`smooth_l1`) entre predição e `y`. |
+| `PhysicsLossHook` | classe | `(physics_loss_fn)` | Gancho que chama uma função de perda física do usuário com modelo, predição e lote. |
+| `CombinedLoss` | classe | `(supervised, physics, w_supervised, w_physics)` | Soma ponderada da perda supervisionada e da física, devolvendo dict com `total` e componentes. |
+| `build_loss` | função | `(*, problem_spec, model_capabilities=None, weights=None, supervised_kind='mse', physics_l…)` | Monta um `CombinedLoss` para a Arena, ligando a física só quando o problema e o modelo a suportam. |
 
 #### `pinneapple_neural.trainer.metrics`
 
-Metrics for evaluation (MSE, MAE, RMSE, R2, MetricBundle).
+Métricas de avaliação (MSE, MAE, RMSE, R2, L2 relativo, erro máximo) e agregadores; as classes base `Metric` e `Metrics` levantam NotImplementedError por serem abstratas. [sem teste]
 
 <small>`pinneapple_neural/trainer/metrics.py` · 109 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Metric` | classe | `(name)` |  |
-| `MSE` | classe | `(name)` |  |
-| `MAE` | classe | `(name)` |  |
-| `RMSE` | classe | `(name)` |  |
-| `R2` | classe | `(name, eps)` |  |
-| `RelL2` | classe | `(name, eps)` |  |
-| `MaxError` | classe | `(name)` |  |
-| `Metrics` | classe | `()` |  |
-| `MetricBundle` | classe | `(metrics)` |  |
-| `RegressionMetrics` | classe | `(eps)` |  |
-| `default_metrics` | função | `() -> List[Metric]` |  |
-| `regression_metrics_bundle` | função | `() -> Metrics` |  |
+| `Metric` | classe | `(name)` | Classe base de métrica com `name`; `__call__` levanta NotImplementedError. |
+| `MSE` | classe | `(name)` | Erro quadrático médio. |
+| `MAE` | classe | `(name)` | Erro absoluto médio. |
+| `RMSE` | classe | `(name)` | Raiz do erro quadrático médio. |
+| `R2` | classe | `(name, eps)` | Coeficiente de determinação R2, com `eps` no denominador. |
+| `RelL2` | classe | `(name, eps)` | Erro L2 relativo, \|\|y_hat - y\|\| / \|\|y\|\|, com `eps`. |
+| `MaxError` | classe | `(name)` | Maior erro absoluto. |
+| `Metrics` | classe | `()` | Interface base de conjunto de métricas; `compute` levanta NotImplementedError. |
+| `MetricBundle` | classe | `(metrics)` | Aplica uma lista de `Metric` e devolve um dict nome -> valor. |
+| `RegressionMetrics` | classe | `(eps)` | Conjunto fixo de métricas de regressão (MSE, MAE, RMSE, R2) num único `compute`. |
+| `default_metrics` | função | `() -> List[Metric]` | Retorna a lista padrão de métricas. |
+| `regression_metrics_bundle` | função | `() -> Metrics` | Retorna um objeto `Metrics` padrão para regressão. |
 
 #### `pinneapple_neural.trainer.metrics_cfg`
 
-Build Metrics objects from YAML-driven configuration lists.
+Constrói um `MetricBundle` a partir de uma lista de nomes ou dicts vinda de configuração YAML. [sem teste]
 
 <small>`pinneapple_neural/trainer/metrics_cfg.py` · 81 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_metrics_from_cfg` | função | `(cfg) -> Metrics` | Build a MetricBundle from a list of metric names or config dicts. |
+| `build_metrics_from_cfg` | função | `(cfg) -> Metrics` | Converte nomes como `mse`, `rmse`, `rel_l2`, `r2`, `mae`, `max_error` (ou dicts com `name`) num `MetricBundle`. |
 
 #### `pinneapple_neural.trainer.monotonic`
 
-Monotonicity constraints for regression surrogates: a hinge penalty on input-output derivatives.
+Restrições de monotonicidade para surrogates de regressão: penalidade hinge sobre derivadas entrada-saída e medida da fração de violações.
 
 <small>`pinneapple_neural/trainer/monotonic.py` · 55 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `monotonicity_penalty` | função | `(model, z, cols, signs, *, scale=None, margin=0.0, output=0, create_graph=True) -> torch.…)` | Mean squared hinge on ``signs[j] * d out / d z[:, cols[j]] * scale[j] + margin`` (zero when every sampled derivative has the required sign with at least ``margin`` to spare). |
-| `monotone_violation_share` | função | `(model, z, cols, signs, output=0) -> list[float]` | Share of the rows of ``z`` where ``d out / d z[:, col]`` has the wrong sign, per constrained column. |
+| `monotonicity_penalty` | função | `(model, z, cols, signs, *, scale=None, margin=0.0, output=0, create_graph=True) -> torch.…)` | Penalidade hinge quadrática média que é zero quando cada derivada amostrada tem o sinal exigido com folga `margin`. |
+| `monotone_violation_share` | função | `(model, z, cols, signs, output=0) -> list[float]` | Fração de linhas onde a derivada da saída em cada coluna restrita tem o sinal errado. |
 
 #### `pinneapple_neural.trainer.multiadam`
 
-MultiAdam: Adam with separate moment statistics per loss term.
+Otimizador MultiAdam (Yao et al., ICML 2023): Adam com momentos separados por termo de perda, para que um termo muito grande não domine o passo.
 
 <small>`pinneapple_neural/trainer/multiadam.py` · 103 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MultiAdam` | classe | `(params, lr=0.001, betas=(0.99, 0.99), eps=1e-08)` | Adam with one ``(m, v)`` pair per loss term (Yao et al., ICML 2023). |
+| `MultiAdam` | classe | `(params, lr=0.001, betas=(0.99, 0.99), eps=1e-08)` | Otimizador Adam com um par de momentos (m, v) por termo de perda; `step` recebe a lista de perdas e calcula os gradientes. |
 
 #### `pinneapple_neural.trainer.multistart`
 
-Multi-restart PINN training with NaN watchdog and best-model selection.
+Treino com múltiplos reinícios (sementes diferentes), vigia de NaN e escolha do melhor modelo por uma função de score. [sem teste]
 
 <small>`pinneapple_neural/trainer/multistart.py` · 363 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MultiRestartConfig` | classe | `(n_restarts, seed_base, nan_patience, max_failed, verbose, keep_all)` | Configuration for ``MultiRestartTrainer``. |
-| `RestartResult` | classe | `(model, history, score, restart_idx, seed, nan_detected)` | Outcome of a single training restart. |
-| `MultiRestartResult` | classe | `(best, all_results, n_valid, n_nan)` | Aggregated output of ``MultiRestartTrainer.fit()``. |
-| `MultiRestartTrainer` | classe | `(model_factory, train_fn, *, config=None, score_fn=None, on_restart_end=None) -> None` | Runs a training function N times with different seeds, keeps the best. |
+| `MultiRestartConfig` | classe | `(n_restarts, seed_base, nan_patience, max_failed, verbose, keep_all)` | Configuração dos reinícios: número, semente base, paciência de NaN, máximo de falhas, verbosidade e se guarda todos os resultados. |
+| `RestartResult` | classe | `(model, history, score, restart_idx, seed, nan_detected)` | Resultado de um reinício: modelo, histórico, score, índice, semente e se houve NaN. |
+| `MultiRestartResult` | classe | `(best, all_results, n_valid, n_nan)` | Resultado agregado: melhor reinício, todos os resultados (opcional) e contagens de válidos e com NaN. |
+| `MultiRestartTrainer` | classe | `(model_factory, train_fn, *, config=None, score_fn=None, on_restart_end=None) -> None` | Roda uma função de treino várias vezes com sementes diferentes, descarta execuções com NaN e devolve a de menor score. |
 
 #### `pinneapple_neural.trainer.noether_trainer`
 
-Noether surrogate trainer for PINNeAPPle.
+Treinador para modelos Noether (UPT, AB-UPT, Transolver) com dados do PINNeAPPle, num loop PyTorch próprio ou delegando ao `HydraRunner` do Noether (dependência opcional).
 
 <small>`pinneapple_neural/trainer/noether_trainer.py` · 344 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NoetherTrainConfig` | classe | `(epochs, batch_size, lr, weight_decay, field_weights, loss_fn, warmup_steps, grad_clip, d…)` | Training configuration for NoetherSurrogateTrainer. |
-| `NoetherTrainResult` | classe | `(train_losses, val_losses, best_val_loss, best_epoch, checkpoint_path, extras)` | Summary returned by ``NoetherSurrogateTrainer.train()``. |
-| `NoetherSurrogateTrainer` | classe | `(model, train_loader, val_loader=None, config=None) -> None` | Train a Noether (UPT / AB-UPT / Transolver …) model with PINNeAPPle data and report training results in a PINNeAPPle-compatible way. |
+| `NoetherTrainConfig` | classe | `(epochs, batch_size, lr, weight_decay, field_weights, loss_fn, warmup_steps, grad_clip, d…)` | Configuração do treino Noether: épocas, lote, taxa de aprendizado, decaimento, pesos por campo, aquecimento, clip, rastreador e checkpoints. |
+| `NoetherTrainResult` | classe | `(train_losses, val_losses, best_val_loss, best_epoch, checkpoint_path, extras)` | Resumo do treino Noether: perdas de treino/validação, melhor perda e época, caminho do checkpoint e extras. |
+| `NoetherSurrogateTrainer` | classe | `(model, train_loader, val_loader=None, config=None) -> None` | Treina um modelo Noether (UPT, AB-UPT, Transolver) com DataLoaders do PINNeAPPle; `from_hydra_config` delega tudo ao HydraRunner do Noether. |
 
 #### `pinneapple_neural.trainer.normalizers`
 
-Normalizers — re-exported from pinneapple_data.transforms (single source of truth).
+[shim] Reexporta `Normalizer`, `StandardScaler` e `MinMaxScaler` de `pinneapple_data.transforms`. [sem teste]
 
 <small>`pinneapple_neural/trainer/normalizers.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.trainer.parallel`
 
-Parallelization and GPU optimization utilities for pinneapple training.
+Paralelismo e otimização de GPU: escolha de dispositivo, AMP, prefetch CUDA, acumulação de gradiente, `torch.compile`, DataParallel, sweep em grade paralelo, checkpointing de gradiente e monitor de throughput. [sem teste]
 
 <small>`pinneapple_neural/trainer/parallel.py` · 508 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AMPContext` | classe | `(device='cuda', dtype=torch.bfloat16, enabled=True) -> None` | Context manager for automatic mixed precision training. |
-| `CUDAPrefetcher` | classe | `(loader, device='cuda') -> None` | Asynchronous GPU prefetcher that overlaps CPU→GPU data transfer with GPU computation using CUDA streams. |
-| `GradAccumConfig` | classe | `(accumulate_steps, clip_grad_norm)` | Configuration for gradient accumulation. |
-| `GradAccumTrainer` | classe | `(model, optimizer, cfg=None, amp_ctx=None) -> None` | Mixin / wrapper that adds gradient accumulation to any training loop. |
-| `SweepConfig` | classe | `(param_grid, n_jobs, backend, timeout_per_trial)` | Hyperparameter sweep configuration. |
-| `ThroughputMonitor` | classe | `(device_index=0) -> None` | Training throughput and GPU health monitor. |
-| `best_device` | função | `(prefer_cuda=True, allow_mps=True) -> torch.device` | Return the best available device: CUDA, then Apple MPS (unless ``allow_mps=False``), then CPU. |
-| `count_gpus` | função | `() -> int` | Return the number of available CUDA GPUs. |
-| `gpu_info` | função | `() -> List[Dict[str, Any]]` | Return info dict for each available GPU. |
-| `maybe_compile` | função | `(model, *, mode='default', fullgraph=False, dynamic=False) -> nn.Module` | Wrap model with torch.compile() if supported (PyTorch >= 2.0). |
-| `wrap_data_parallel` | função | `(model, device_ids=None) -> nn.Module` | Wrap model in DataParallel if multiple GPUs are available. |
-| `unwrap_model` | função | `(model) -> nn.Module` | Unwrap DataParallel / DistributedDataParallel to get the raw model. |
-| `run_parallel_sweep` | função | `(trial_fn, cfg) -> List[Dict[str, Any]]` | Run a hyperparameter sweep in parallel. |
-| `enable_gradient_checkpointing` | função | `(model) -> nn.Module` | Enable gradient checkpointing on transformer / large MLP models. |
+| `AMPContext` | classe | `(device='cuda', dtype=torch.bfloat16, enabled=True) -> None` | Context manager de precisão mista (`torch.amp`), que vira no-op fora de CUDA. |
+| `CUDAPrefetcher` | classe | `(loader, device='cuda') -> None` | Pré-carrega o próximo lote para a GPU num stream CUDA separado, sobrepondo cópia e computação. |
+| `GradAccumConfig` | classe | `(accumulate_steps, clip_grad_norm)` | Configuração da acumulação de gradiente: número de passos e clip de norma. |
+| `GradAccumTrainer` | classe | `(model, optimizer, cfg=None, amp_ctx=None) -> None` | Acumula gradientes de micro-lotes e dá o passo do otimizador a cada N micro-lotes. |
+| `SweepConfig` | classe | `(param_grid, n_jobs, backend, timeout_per_trial)` | Configuração do sweep em grade: grade de parâmetros, número de jobs, backend (threads/processos) e timeout. |
+| `ThroughputMonitor` | classe | `(device_index=0) -> None` | Mede amostras/s, memória da GPU e utilização (com `pynvml`, se houver) por época. |
+| `best_device` | função | `(prefer_cuda=True, allow_mps=True) -> torch.device` | Retorna o melhor dispositivo disponível: CUDA, depois MPS (se permitido), depois CPU. |
+| `count_gpus` | função | `() -> int` | Retorna o número de GPUs CUDA disponíveis. |
+| `gpu_info` | função | `() -> List[Dict[str, Any]]` | Retorna um dict de informações por GPU disponível. |
+| `maybe_compile` | função | `(model, *, mode='default', fullgraph=False, dynamic=False) -> nn.Module` | Aplica `torch.compile` se o PyTorch suportar; caso contrário devolve o modelo original. |
+| `wrap_data_parallel` | função | `(model, device_ids=None) -> nn.Module` | Envolve o modelo em `DataParallel` quando há mais de uma GPU. |
+| `unwrap_model` | função | `(model) -> nn.Module` | Remove o invólucro DataParallel/DDP e devolve o modelo cru. |
+| `run_parallel_sweep` | função | `(trial_fn, cfg) -> List[Dict[str, Any]]` | Executa um sweep em grade em paralelo (threads ou processos) e devolve a lista de resultados. |
+| `enable_gradient_checkpointing` | função | `(model) -> nn.Module` | Liga checkpointing de gradiente em modelos que o suportam (estilo HuggingFace) ou envolvendo camadas. |
 
 #### `pinneapple_neural.trainer.preprocess`
 
-Preprocessing pipeline and preprocessing steps for training batches.
+Pipeline de pré-processamento de lotes com passos ajustados no fold de treino (normalização, preenchimento de NaN, winsorização, escala robusta, log, diferenciação, features de solver). [sem teste]
 
 <small>`pinneapple_neural/trainer/preprocess.py` · 445 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PreprocessStep` | classe | `()` |  |
-| `PreprocessPipeline` | classe | `(steps)` |  |
-| `NormalizeStep` | classe | `(key, dim, store_key, enabled, scaler)` | Fits a StandardScaler on `key` from train batches, then normalizes in apply(). Works for typical (B,T,D) or (B,D) tensors. |
-| `SolverFeatureStep` | classe | `(solver, mode, select_var_dim, reduce_fft_to, fit_noop)` |  |
-| `MissingValueStep` | classe | `(key, strategy, enabled)` | Fill missing values (NaNs) in x. |
-| `WinsorizeStep` | classe | `(key, q_low, q_high, enabled, low_, high_)` | Quantile clipping (winsorization) fit on the train fold. |
-| `RobustScaleStep` | classe | `(key, eps, enabled, median_, iqr_)` | Robust scaling: (x - median) / (IQR + eps), fit on the train fold. |
-| `LogStep` | classe | `(key, enabled, clamp_min)` | Optional log transform for non-negative signals (fold-safe). |
-| `DifferencingStep` | classe | `(key, time_dim, order, enabled, anchor_key)` | Differencing along the time axis to improve stationarity. |
+| `PreprocessStep` | classe | `()` | Protocolo de passo de pré-processamento com `fit` e `apply`. |
+| `PreprocessPipeline` | classe | `(steps)` | Sequência de passos ajustados nos lotes de treino e aplicados a cada lote, com `state_dict` para salvar. |
+| `NormalizeStep` | classe | `(key, dim, store_key, enabled, scaler)` | Ajusta um `StandardScaler` numa chave do lote no treino e normaliza em `apply`. |
+| `SolverFeatureStep` | classe | `(solver, mode, select_var_dim, reduce_fft_to, fit_noop)` | Calcula features com um solver (por exemplo FFT) a partir de `x` e as anexa ou substitui no lote. |
+| `MissingValueStep` | classe | `(key, strategy, enabled)` | Preenche NaN em `x` por forward fill, backward fill ou zero. |
+| `WinsorizeStep` | classe | `(key, q_low, q_high, enabled, low_, high_)` | Corta valores por quantis ajustados no fold de treino (winsorização). |
+| `RobustScaleStep` | classe | `(key, eps, enabled, median_, iqr_)` | Escala robusta (x - mediana) / (IQR + eps), ajustada no fold de treino. |
+| `LogStep` | classe | `(key, enabled, clamp_min)` | Transformação log opcional para sinais não negativos. |
+| `DifferencingStep` | classe | `(key, time_dim, order, enabled, anchor_key)` | Diferenciação ao longo do tempo para estacionariedade; reduz o comprimento da sequência em `order`. |
 
 #### `pinneapple_neural.trainer.self_scaled_qn`
 
-Self-scaled quasi-Newton optimizers: BFGS, SSBFGS and SSBroyden (dense inverse Hessian).
+Otimizadores quase-Newton auto-escalados (BFGS, SSBFGS, SSBroyden) com Hessiana inversa densa e busca de linha strong-Wolfe, conforme Urban et al. (JCP 2025).
 
 <small>`pinneapple_neural/trainer/self_scaled_qn.py` · 186 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SelfScaledQuasiNewton` | classe | `(params, variant='ssbroyden', max_iter=20, tolerance_grad=1e-12, tolerance_change=1e-14, …)` | Dense BFGS / SSBFGS / SSBroyden with strong-Wolfe line search (Urban et al., JCP 2025). |
-| `self_scaled_parameters` | função | `(s, y, g, alpha, Hy, n, variant)` | Return ``(tau, phi)`` for one update (eqs. 11-23). Tensors are 1-D, ``g`` is the old gradient. |
+| `SelfScaledQuasiNewton` | classe | `(params, variant='ssbroyden', max_iter=20, tolerance_grad=1e-12, tolerance_change=1e-14, …)` | Otimizador BFGS/SSBFGS/SSBroyden com Hessiana inversa densa e busca strong-Wolfe, usado como `torch.optim.LBFGS` com closure. |
+| `self_scaled_parameters` | função | `(s, y, g, alpha, Hy, n, variant)` | Calcula (tau, phi) de uma atualização auto-escalada, conforme as equações 11-23 do artigo. |
 
 #### `pinneapple_neural.trainer.splits`
 
-Train/val/test split strategies — re-exported from pinneapple_data.splits.
+[shim] Reexporta `SplitSpec` e `split_indices` de `pinneapple_data.splits`. [sem teste]
 
 <small>`pinneapple_neural/trainer/splits.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.trainer.time_marching`
 
-Sequential time-marching for stiff/long-horizon PDE problems.
+Time-marching sequencial (Wight & Zhao 2020): divide o tempo em janelas e treina uma rede por janela, usando a solução final de uma como condição inicial da próxima. [sem teste]
 
 <small>`pinneapple_neural/trainer/time_marching.py` · 388 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeMarchingTrainer` | classe | `(model_factory, t_start, t_end, n_windows=10, epochs_per_window=2000, n_col=1000, ic_weig…)` | Trains a PINN by marching sequentially through time windows. |
+| `TimeMarchingTrainer` | classe | `(model_factory, t_start, t_end, n_windows=10, epochs_per_window=2000, n_col=1000, ic_weig…)` | Treina uma rede por janela de tempo, congelando a predição no fim de cada janela como condição inicial da seguinte; avalia e plota o resultado completo. |
 
 #### `pinneapple_neural.trainer.trainer`
 
-Unified Trainer with physics-aware losses, callbacks, and audit logging.
+`Trainer` unificado para PINNs e modelos supervisionados: perdas que retornam tensor ou dict com `total`, AMP, DDP opcional, callbacks, checkpoint e log de auditoria.
 
 <small>`pinneapple_neural/trainer/trainer.py` · 397 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TrainConfig` | classe | `(epochs, lr, weight_decay, grad_clip, amp, device, seed, deterministic, log_dir, run_name…)` |  |
-| `Trainer` | classe | `(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None)` | Trainer for PINNs and general supervised models. |
+| `TrainConfig` | classe | `(epochs, lr, weight_decay, grad_clip, amp, device, seed, deterministic, log_dir, run_name…)` | Configuração do `Trainer`: épocas, taxa de aprendizado, clip, AMP, dispositivo, semente, determinismo, log, DDP e validação com física. |
+| `Trainer` | classe | `(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None)` | Treinador genérico: `fit(train_loader, val_loader, cfg)` roda épocas com perdas tensor/dict, métricas, early stopping, checkpoint e log JSONL. |
 
 #### `pinneapple_neural.trainer.two_phase`
 
-Two-phase PINN trainer: supervised (Phase 1) → physics (Phase 2).
+Treinador em duas fases: primeiro ajuste supervisionado a dados de solver/medição, depois imposição de resíduos da EDP e condições de contorno. [sem teste]
 
 <small>`pinneapple_neural/trainer/two_phase.py` · 414 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwoPhaseConfig` | classe | `(phase1_epochs, phase1_lr, phase2_epochs, phase2_lr, weight_decay, grad_clip, device, amp…)` |  |
-| `TwoPhaseHistory` | classe | `(phase1_epochs, phase1_loss, phase2_epochs, phase2_loss, phase2_pde_loss, phase2_bc_loss)` |  |
-| `TwoPhaseTrainer` | classe | `(model, supervised_loss_fn, physics_loss_fn, config=None)` | Auto-scheduled two-phase trainer for PINNs. |
-| `UnnormModel` | classe | `(model, Y_mean, Y_std)` | Wraps a normalised model to output physical-scale predictions. |
+| `TwoPhaseConfig` | classe | `(phase1_epochs, phase1_lr, phase2_epochs, phase2_lr, weight_decay, grad_clip, device, amp…)` | Configuração das duas fases: épocas e taxas de cada fase, modo combinado e rampa do peso da física. |
+| `TwoPhaseHistory` | classe | `(phase1_epochs, phase1_loss, phase2_epochs, phase2_loss, phase2_pde_loss, phase2_bc_loss)` | Histórico de perdas das duas fases (incluindo componentes EDP e contorno na fase 2). |
+| `TwoPhaseTrainer` | classe | `(model, supervised_loss_fn, physics_loss_fn, config=None)` | Executa a fase supervisionada e depois a fase de física, com otimizadores e históricos separados. |
+| `UnnormModel` | classe | `(model, Y_mean, Y_std)` | Envolve um modelo treinado em alvos normalizados para devolver predições na escala física (y * std + mean). |
 
 #### `pinneapple_neural.trainer.viz`
 
-Visualization utilities for training history.
+[shim] `plot_history` mantido por compatibilidade: delega a `pinneapple_viz.pinn` quando disponível e cai para um gráfico matplotlib mínimo. [sem teste]
 
 <small>`pinneapple_neural/trainer/viz.py` · 57 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): shim ou obsoleto</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_history` | função | `(history, keys=('train_total', 'val_total'), *, log_scale=True, show=True)` | Plot training history. |
+| `plot_history` | função | `(history, keys=('train_total', 'val_total'), *, log_scale=True, show=True)` | Plota o histórico de perdas em escala log, via `pinneapple_viz.pinn` quando disponível. |
 
 #### `pinneapple_neural.trainer.weight_scheduler`
 
-Automatic loss weight scheduling for PINN training.
+Agendamento automático de pesos de perda (SA-PINN, GradNorm, razão de perdas, NTK) com interface única `WeightScheduler`, que também despacha para os métodos de `loss_balancer`.
 
 <small>`pinneapple_neural/trainer/weight_scheduler.py` · 799 linhas · testes: 11</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WeightSchedulerConfig` | classe | `(method, initial_weights, update_every, lr, alpha, clip_min, clip_max, ema_decay)` | Configuration for automatic PINN loss weight scheduling. |
-| `SelfAdaptiveWeights` | classe | `(loss_names, config) -> None` | Learnable loss weights trained by gradient *ascent*. |
-| `GradNormBalancer` | classe | `(model, loss_names, shared_layer=None, config=None) -> None` | Gradient-norm-based weight balancing. |
-| `LossRatioBalancer` | classe | `(loss_names, target_ratios=None, config=None) -> None` | Keep loss component ratios near target values using EMA smoothing. |
-| `NTKWeightBalancer` | classe | `(model, loss_names, n_proj=50, config=None) -> None` | NTK-trace based weight balancing. |
-| `WeightScheduler` | classe | `(model, loss_names, config=None) -> None` | Unified interface for automatic PINN loss weight scheduling. |
+| `WeightSchedulerConfig` | classe | `(method, initial_weights, update_every, lr, alpha, clip_min, clip_max, ema_decay)` | Configuração do agendamento de pesos: método (de `self_adaptive` até `auto`), pesos iniciais, frequência, taxas, limites e decaimento EMA. |
+| `SelfAdaptiveWeights` | classe | `(loss_names, config) -> None` | Pesos de perda aprendíveis (SA-PINN) atualizados por subida de gradiente, crescendo nos termos mais difíceis. |
+| `GradNormBalancer` | classe | `(model, loss_names, shared_layer=None, config=None) -> None` | GradNorm: ajusta pesos para manter as normas de gradiente de cada termo numa camada compartilhada proporcionais à média. |
+| `LossRatioBalancer` | classe | `(loss_names, target_ratios=None, config=None) -> None` | Mantém as razões entre perdas (via EMA) próximas de valores-alvo em relação à perda da EDP. |
+| `NTKWeightBalancer` | classe | `(model, loss_names, n_proj=50, config=None) -> None` | Pesos inversamente proporcionais ao traço do NTK de cada termo, estimado por Hutchinson. |
+| `WeightScheduler` | classe | `(model, loss_names, config=None) -> None` | Interface única: `step(losses)` aplica os pesos atuais, atualiza conforme o método e expõe parâmetros aprendíveis quando houver. |
 
 #### `pinneapple_neural.utils`
 
@@ -2299,6 +2301,29 @@ def physicsnemo_loop(darcy, w, mon, steps=STEPS):
             if hook(net, step, loss) or step == steps:
 ```
 
+**Trainer com perda supervisionada + física** — `examples/end_to_end/03_pinn_physics_loss_training.py`
+
+```python
+combined = CombinedLoss(
+    supervised=SupervisedLoss("mse"),
+    physics=PhysicsLossHook(physics_loss_fn),
+    w_supervised=1.0,
+    w_physics=1.0,
+)
+
+def loss_fn(model, y_hat, batch):
+    return combined(model, y_hat, batch)
+
+trainer = Trainer(model=model, loss_fn=loss_fn, metrics=default_metrics())
+```
+
+**MultiAdam recebe os termos de perda no step** — `tests/test_multiadam.py`
+
+```python
+opt = MultiAdam([p])
+opt.step([p.sum() ** 2, (p - 1).sum() ** 2])
+```
+
 ### Testes e status de validação
 
 - Módulos com pelo menos um teste que os importa: 46 de 198.
@@ -2340,6 +2365,12 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - `register_all` ignora em silêncio (log em debug) famílias cujo import falha, então um modelo pode simplesmente não aparecer no registro.
 - A exportação ONNX de `ReducedModel` só cobre alguns métodos e opções e levanta `NotImplementedError` nos demais (por exemplo, RBF que não seja thin-plate spline).
 - O adaptador padrão de `adapters.base` usa `batch.get('x') or batch.get('x_col')`, o que falha com tensores de mais de um elemento; na prática ele depende de o modelo ter `forward_batch`.
+- Muitos módulos não têm teste direto (por exemplo `causal`, `time_marching`, `two_phase`, `hpc`, `distributed`, `parallel`, `collocation`, `multistart`, `graybox`, `heteroscedastic`).
+- `Metric` e `Metrics` em `metrics.py` são bases abstratas e levantam NotImplementedError.
+- Dependências opcionais: Optuna em `adaptive_sweep` (sem ele cai para busca aleatória), PySR em `distill_to_symbolic`, Noether em `noether_trainer`, matplotlib nos gráficos e `pynvml` no `ThroughputMonitor`.
+- O docstring de `hpc.py` cita `CUDAGraphContext`, `PowerSGDCompressor` e `TopKGradCompressor`, mas o módulo expõe só `CUDAGraphModule` e as funções `register_powersgd_hook`/`register_topk_hook`; o docstring também fala em estender `pinneapple_train.parallel`.
+- FSDP, ZeRO, CUDA graphs, DDP e ganchos de compressão exigem GPU e grupo de processos inicializado; fora disso há fallback ou nada acontece.
+- `normalizers.py`, `splits.py` e `viz.py` são shims de compatibilidade que reexportam ou delegam para `pinneapple_data` e `pinneapple_viz`.
 
 ## 2. `pinneapple_data`
 

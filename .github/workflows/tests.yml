@@ -132,7 +132,9 @@ jobs:
       # at the declared target version, so E9 here is the syntax gate for the floor. This step must
       # stay in front of the suite: a module that does not parse also breaks collection.
       - name: Syntax for the declared Python floor (must pass)
-        run: ruff check . --select E9 --target-version py310 --no-cache --output-format concise
+        run: |
+          pip install "ruff>=0.5"
+          ruff check . --select E9 --target-version py310 --no-cache --output-format concise
 
       # `--continue-on-collection-errors` because a single un-importable module used to abort the
       # whole step ("Interrupted: 5 errors during collection"), which with continue-on-error below

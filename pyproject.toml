@@ -41,6 +41,7 @@ dependencies = [
   "pydantic>=2.0",
   "matplotlib>=3.8",
   "torch>=2.2",
+  "sympy>=1.12",     # SymbolicPDE / ProblemBuilder: "describe your own PDE" is a base feature
   "xarray",
   "zarr",
   "tomli>=2.0; python_version < '3.11'",
@@ -57,6 +58,35 @@ pinneapple-workbench = "pinneapple_llm.workbench.__main__:main"
 pinneapple = "pinneapple_check.cli:main"
 
 [project.optional-dependencies]
+# ---- profiles: start from one of these instead of choosing among the extras below ----------
+# Geometry -> mesh -> an OpenFOAM or CalculiX campaign, plus 3-D viewing. `pinneapple doctor cfd`
+# checks the same set. OpenFOAM and CalculiX themselves are separate installs.
+cfd = [
+  "manifold3d>=2.4",
+  "huggingface_hub>=0.20",
+  "cadquery>=2.4",
+  "gmsh>=4.11",
+  "trimesh>=4.0",
+  "pyvista>=0.43",
+  "plotly>=5.18",
+  "meshio>=5.3",
+  "h5py>=3.8",
+]
+# Serving, signatures, the physics linter in CI, the model hub and the MCP server.
+# `pinneapple doctor enterprise` checks the same set.
+enterprise = [
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.29",
+  "cryptography>=41",
+  "argon2-cffi>=23.1",
+  "meshio>=5.3",
+  "h5py>=3.8",
+  "huggingface_hub>=0.24",
+  "pyarrow>=14",
+  "safetensors>=0.4",
+  "mcp>=1.10",
+]
+
 # MCP server for coding agents (pinneapple-mcp): official MCP Python SDK, 1.x or 2.x
 mcp = [
   "mcp>=1.10",

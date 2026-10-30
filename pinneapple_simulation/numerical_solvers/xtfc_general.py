@@ -55,7 +55,11 @@ def _act_polys(name: str, n: int) -> list[np.ndarray]:
 
 
 def activation_derivative(name: str, z: np.ndarray, n: int) -> np.ndarray:
-    """``d^n act / dz^n`` at ``z`` (``name`` in ``tanh``, ``logistic``, ``arctan``; ``arctan`` up to n = 3)."""
+    """``d^n act / dz^n`` at ``z`` (``name`` in ``tanh``, ``logistic``, ``gaussian`` = ``exp(-z^2)``, ``arctan``;
+    ``arctan`` up to n = 3)."""
+    if name == "gaussian":            # d^n/dz^n exp(-z^2) = (-1)^n H_n(z) exp(-z^2), physicists' Hermite H_n
+        from numpy.polynomial import hermite
+        return (-1) ** n * hermite.hermval(z, np.eye(n + 1)[n]) * np.exp(-z * z)
     if name == "arctan":
         q = 1.0 / (1.0 + z * z)
         derivs = (np.arctan(z), q, -2.0 * z * q * q, (6.0 * z * z - 2.0) * q ** 3)
@@ -234,7 +238,8 @@ def _affine(problem: XTFCProblem, basis: _Basis, terms: dict, X: np.ndarray, f: 
 def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str = "tanh",
                weight_range: tuple[float, float] = (-1.0, 1.0), seed: int = 0, max_iter: int | None = None,
                tol: float = 1e-14, beta0: float = 0.0, map_to_unit: bool = False,
-               constraints: str = "expression") -> XTFCResult:
+               constraints: str = "expression", weights: tuple[np.ndarray, np.ndarray] | None = None,
+               face_points=None, lstsq_driver: str | None = None) -> XTFCResult:
     """Solve ``problem`` on the training ``points`` (N, ndim) by X-TFC.
 
     Input weights and biases are drawn ``unif(weight_range)`` with ``numpy.random.default_rng(seed)``. Linear
@@ -244,7 +249,12 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
 
     ``constraints="expression"`` is X-TFC (constraints exact through the constrained expression). ``"rows"`` is the
     plain physics-informed ELM baseline (Dwivedi & Srinivasan, arXiv:1907.03507): ``u = g``, and each constraint
-    becomes least-squares rows at the training points that lie on its face, with weight 1.
+    becomes least-squares rows at the training points that lie on its face, with weight 1 (or at ``face_points``,
+    extra points used only for those rows).
+
+    ``weights=(W, b)`` gives the input weights ``(n_neurons, ndim)`` and biases instead of drawing them (e.g.
+    :func:`sample_calabro`). ``lstsq_driver`` selects ``scipy.linalg.lstsq``'s LAPACK driver (``"gelsy"``, ...);
+    ``None`` uses ``numpy.linalg.lstsq``.
     """
     if constraints not in ("expression", "rows"):
         raise ValueError(f"constraints must be 'expression' or 'rows', got {constraints!r}")
@@ -254,8 +264,12 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
         raise ValueError(f"points have {X.shape[1]} columns, the problem has {problem.ndim} dimensions")
     rng = np.random.default_rng(seed)
     lo, hi = weight_range
-    W = rng.uniform(lo, hi, size=(n_neurons, problem.ndim))
-    b = rng.uniform(lo, hi, size=n_neurons)
+    if weights is None:
+        W = rng.uniform(lo, hi, size=(n_neurons, problem.ndim))
+        b = rng.uniform(lo, hi, size=n_neurons)
+    else:
+        W = np.asarray(weights[0], dtype=np.float64).reshape(n_neurons, problem.ndim)
+        b = np.asarray(weights[1], dtype=np.float64).reshape(n_neurons)
     if map_to_unit:      # w . (2 (x - x0) / (x1 - x0) - 1) + b, written as W' x + b'
         x0, x1 = np.array(problem.bounds, dtype=np.float64).T
         scale = 2.0 / (x1 - x0)
@@ -269,11 +283,13 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
     if rows_mode:
         for j, f in enumerate(names):
             for c in problem.fields[f]:
-                sel = np.isclose(X[:, c.dim], c.at, rtol=0.0, atol=1e-12)
+                Xf = X if face_points is None else np.atleast_2d(np.asarray(face_points, dtype=np.float64))
+                sel = np.isclose(Xf[:, c.dim], c.at, rtol=0.0, atol=1e-12)
                 if not np.any(sel):
                     raise ValueError(f"no training point lies on the face of {c}")
                 a = tuple(c.order if d == c.dim else 0 for d in range(problem.ndim))
-                con_rows.append((j, basis.derivative(X[sel], a), _torch_derivative(problem.constraint_fn[f], X[sel], a)))
+                con_rows.append((j, basis.derivative(Xf[sel], a),
+                                 _torch_derivative(problem.constraint_fn[f], Xf[sel], a)))
     affine = {(f, a): _affine(problem, basis, terms, X, f, tuple(a)) for f, a in problem.derivatives}
     beta = {f: np.full(n_neurons, beta0) for f in names}
     max_iter = max_iter if max_iter is not None else (1 if problem.linear else 20)
@@ -306,7 +322,11 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
         J = np.vstack(rows_J)
         res = np.concatenate(rows_r)
         t0 = time.perf_counter()
-        delta = np.linalg.lstsq(J, -res, rcond=None)[0]
+        if lstsq_driver is None:
+            delta = np.linalg.lstsq(J, -res, rcond=None)[0]
+        else:
+            import scipy.linalg
+            delta = scipy.linalg.lstsq(J, -res, lapack_driver=lstsq_driver)[0]
         t_lstsq += time.perf_counter() - t0
         for j, f in enumerate(names):
             beta[f] = beta[f] + delta[j * n_neurons:(j + 1) * n_neurons]
@@ -319,6 +339,33 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
             break
     return XTFCResult(beta, it, converged, steps, t_lstsq, time.perf_counter() - t_start, n_neurons,
                       problem, basis, terms)
+
+
+class ConstrainedExpression1D(torch.nn.Module):
+    """Deep-TFC in 1D: ``u = g + (x_f - x)/(x_f - x_0) (u_0 - g(x_0)) + (x - x_0)/(x_f - x_0) (u_f - g(x_f))`` around
+    any network ``g`` (Dirichlet values at both ends exact for any weights; Leake & Mortari, arXiv:1812.08625)."""
+
+    def __init__(self, net: torch.nn.Module, x0: float, xf: float, u0: float, uf: float):
+        super().__init__()
+        self.net, self.x0, self.xf, self.u0, self.uf = net, x0, xf, u0, uf
+
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
+        g = self.net(X)
+        ends = torch.tensor([[self.x0], [self.xf]], dtype=X.dtype, device=X.device)
+        g0, gf = self.net(ends)
+        s = (X[:, :1] - self.x0) / (self.xf - self.x0)
+        return g + (1 - s) * (self.u0 - g0) + s * (self.uf - gf)
+
+
+def sample_calabro(n_neurons: int, rng: np.random.Generator, bounds: tuple[float, float] = (0.0, 1.0)):
+    """1D ELM weights of Calabrò, Fabiani & Siettos (arXiv:2012.05871, eq. 3.3): slopes
+    ``alpha ~ U(-((n - 10)/10 + 4), (n - 10)/10 + 4)`` (for a unit-length domain, rescaled by its length),
+    centers ``C ~ U(bounds)``, biases ``beta = -alpha C``. Returns ``(W (n, 1), b (n,))``."""
+    lo, hi = bounds
+    a = (n_neurons - 10) / 10 + 4
+    alpha = rng.uniform(-a, a, size=n_neurons) / (hi - lo)
+    centers = rng.uniform(lo, hi, size=n_neurons)
+    return alpha[:, None], -alpha * centers
 
 
 def grid(bounds: Sequence[tuple[float, float]], n: int | Sequence[int], kind: str = "uniform") -> np.ndarray:
@@ -337,4 +384,4 @@ def grid(bounds: Sequence[tuple[float, float]], n: int | Sequence[int], kind: st
     return np.array(list(itertools.product(*axes)))
 
 
-__all__.append("grid")
+__all__ += ["grid", "sample_calabro", "ConstrainedExpression1D"]

@@ -29,6 +29,21 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - `xtfc_general.activation_derivative`: `arctan`, up to order 3.
 - `examples/reproductions/schiassi_epi2020`: the reproduction of that paper, with frozen targets, a runner and
   measured results.
+  - 14 of 36 targets reproduced under the frozen protocol: all clean-data targets and most at noise 0.1. A post-hoc
+    multi-start reaches 23 of 36.
+  - A single-shooting baseline is 2.5 to 3 times more accurate on SIR, and within a factor of 2.5 on SEIR and SEIRS.
+- Additions for the De Florio 2024 reproduction:
+  - `solve_xtfc` now accepts explicit input weights (`weights=`), separate boundary rows (`face_points=`) and a
+    LAPACK driver (`lstsq_driver=`).
+  - New `gaussian` activation (exp(−z²)) with analytic derivatives.
+  - `sample_calabro`: the 1D ELM weight sampling of Calabrò, Fabiani & Siettos (arXiv:2012.05871).
+  - `ConstrainedExpression1D`: Deep-TFC in 1D.
+  - `pinneapple_analysis.validation.pinn.mlp(..., activation="gaussian")`.
+- `examples/reproductions/deflorio2024`: the reproduction of De Florio et al., J. Comput. Appl. Math. 436 (2024)
+  115396 (PINN, Deep-TFC, PIELM and X-TFC on the 1D advection-diffusion BVP).
+  - Frozen targets, a runner and measured results.
+  - For the PIELM and X-TFC columns: 7 of 10 targets reproduced and 3 partially reproduced. In the 3 partial
+    cases our error is lower than the paper's.
 - `pinneapple_simulation.numerical_solvers.gated_xtfc`: Gated X-TFC (Dwivedi, Schiassi et al., arXiv:2510.01039)
   for 1D second-order linear BVPs with sharp layers.
   - The basis is Gaussian RBFs; a soft split sets their centres and widths, blended by logistic gates

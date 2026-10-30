@@ -21,6 +21,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_analysis.dynamics.first_passage`: first-passage and hitting times, guide
+  `docs/guides/dynamics_first_passage.md`.
+  - `FirstPassageAnalyzer`: deterministic crossing of a trajectory (irregular grids, gaps, several thresholds,
+    level sets), Kaplan-Meier distributions from observed trajectories with their own censoring windows, and
+    Monte Carlo of an `SDE` with a Brownian-bridge correction and reflecting walls.
+  - `dt_convergence` and `sensitivity`, the latter covering parameters and noise hypotheses with common random
+    numbers.
+  - `HittingTimeDistribution`: survival function with Greenwood bands, `P(tau <= T)` with Wilson or
+    Kaplan-Meier intervals, quantiles, prediction intervals, and a restricted mean labelled as such.
+  - Closed forms: inverse Gaussian, interval exit (probability, mean, survival series) and the
+    Ornstein-Uhlenbeck mean first-passage time.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks first_passage`.
 - `pinneapple_analysis.dynamics`: the shared foundation of the dynamical-systems toolkit. No numerical method
   is in it yet; each framework arrives in its own pull request with its benchmarks.
   - A method contract: `MethodCard` (inputs, assumptions, config, outputs, role, failure conditions) and

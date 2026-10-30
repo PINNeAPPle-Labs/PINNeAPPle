@@ -1,138 +1,106 @@
-# pinneapple — Quickstart Guide
+# Quickstart
 
-## Installation
+Five minutes, four commands. If you want the version with thirteen worked recipes and the output
+each one prints, read [GETTING_STARTED.md](GETTING_STARTED.md). If you want to know which path is
+yours, read [START_HERE.md](START_HERE.md).
+
+## Install
 
 ```bash
-pip install -e .
-# Optional extras:
-pip install paho-mqtt kafka-python tqdm tfc  # digital twins + XtFC
-pip install gmsh triangle                    # advanced meshing
+pip install pinneapple
 ```
 
-## 5-minute tour
+Extras are opt-in. Two of them are bundles, named after the work they enable: `pinneapple[cfd]`
+(geometry, meshing, 3-D viewing) and `pinneapple[enterprise]` (serving, signatures, the CI linter,
+the hub, the MCP server). A research install is a few of the smaller ones:
+`pip install "pinneapple[pinn,uq,viz3d,jax_cfd]"`. `pp.doctor("all")` lists every extra and which
+ones are missing here.
 
 ```python
 import pinneapple as pp
 
-# 1. See what's available
-pp.info()               # device, GPU count, presets, models
-pp.list_presets()       # all pre-defined physics problems
-pp.list_models()        # all registered model architectures
-
-# 2. Load a problem
-spec = pp.get_preset("burgers_1d", nu=0.01)
-pp.quickstart("cpu_heatsink_thermal")   # prints summary + next steps
-
-# 3. Build a model
-model = pp.build_model("VanillaPINN", in_dim=2, out_dim=1, hidden=[64,64,64])
-
-# 4. Train with GPU + AMP
-from pinneapple_train import Trainer, TrainConfig, best_device
-cfg = TrainConfig(epochs=1000, lr=1e-3, device=str(pp.best_device()), amp=True)
-trainer = Trainer(model, loss_fn=my_pinn_loss)
-result = trainer.fit(train_loader, val_loader, cfg)
-
-# 5. Create a digital twin
-dt = pp.build_digital_twin(model, field_names=["u", "v", "p"])
-from pinneapple_systems.digital_twin import MockStream
-dt.add_stream(MockStream("inlet", ["u"], lambda t: {"u": 1.0 + 0.1*t}))
-with dt:
-    import time; time.sleep(5)
-print(dt.state.fields["u"].mean())
+pp.info()                 # version, device, what is installed
+pp.doctor("start")        # is this machine ready for the first week? fixes, one per line
 ```
 
-## Problem presets by domain
+## 1. Ask what to run
 
-| Domain | Preset name |
-|--------|------------|
-| Fluid mechanics | `ns_incompressible_2d`, `ns_incompressible_3d` |
-| Heat / Poisson | `laplace_2d`, `poisson_2d`, `heat_equation_steady` |
-| Wave / Burgers | `burgers_1d`, `wave_equation_1d` |
-| Structural | `plane_stress_2d`, `von_mises_2d`, `drill_pipe_torsion` |
-| Aerospace | `rocket_nozzle_cfd`, `aircraft_wing_aerodynamics`, `rocket_structural` |
-| Automotive | `car_external_aero`, `car_brake_thermal`, `car_suspension_fatigue` |
-| PC cooling | `cpu_heatsink_thermal`, `pcb_thermal`, `fan_cooler_cfd` |
-| Datacenter | `datacenter_airflow_2d`, `datacenter_server_thermal`, `datacenter_cfd_3d` |
-| Furnace | `industrial_furnace_thermal`, `refractory_lining`, `furnace_combustion_zone` |
-| Climate | `climate_atmosphere_2d`, `climate_ocean_gyre` |
-| Finance | `black_scholes_1d`, `heston_pde_2d` |
-| Pharma | `pk_two_compartment`, `drug_diffusion_tissue` |
-| Social | `sir_epidemic`, `opinion_dynamics_2d` |
+Describe the problem in a sentence, in English or Portuguese. You get a preset, a method that runs
+without training anything, a model for later, and the terms the ranking matched.
 
-## Model architectures
-
-| Family | Models |
-|--------|--------|
-| PINNs | `VanillaPINN`, `VPINN`, `XPINN`, `XtFC`, `PINN-LSTM`, `PINNsFormer` |
-| Neural Operators | `DeepONet`, `FNO`, `GNO` (Galerkin), `PINO`, `MultiScaleDeepONet` |
-| GNNs | `GNN`, `EquivariantGNN`, `SpatioTemporalGNN`, `GraphCast` |
-| Autoencoders | `DenseAE`, `VAE`, `KoopmanAE`, `ROM-Hybrid` |
-| Continuous | `NeuralODE`, `NeuralSDE`, `LagrangianNN`, `HamiltonianNN` |
-
-## Key workflows
-
-### 1. Pure PINN (physics loss only)
 ```python
-# See examples/03_pinn_burgers_full_pipeline.py
+import pinneapple as pp
+
+rec = pp.recommend("heat conduction in a heat sink cooled by a fan")
+print(rec.explain())
 ```
 
-### 2. Surrogate with solver data (OpenFOAM / FEniCS)
+## 2. Look before you run
+
 ```python
-# See examples/pinneapple_arena/configs/experiment_burgers_1d.yaml
-# pp.arena.run_full_pipeline("my_config.yaml")
+print(pp.card(rec.preset))     # coordinates, fields, conditions, method, and a program that runs
 ```
 
-### 3. Digital twin with real sensor data
+## 3. Solve it
+
 ```python
-# See examples/04_digital_twin_flow.py
-from pinneapple_systems.digital_twin import MQTTStream
-stream = MQTTStream("broker.local", "sensors/inlet", "inlet", ["u","v","p"])
-dt.add_stream(stream)
+import numpy as np
+import pinneapple as pp
+
+sol = pp.solve("poisson_2d", method="reference")   # the classical solver: instant
+print(sol.metadata())                       # what was solved, by which method, how long it took
+
+X = np.array([[0.5, 0.5]])                  # a point in (x, y)
+print(sol.predict(X))                       # one column per field
 ```
 
-### 4. Operator learning with DeepONet
+For the preset `recommend` gave you, `pp.card(rec.preset)` prints the same program with the right
+coordinates, the right number of fields and a fallback: the card tries the cheapest method once, and
+says whether it actually ran here. A partial answer is never returned in place of a full one, and a
+preset that cannot run on this machine comes with the same physics written for a box you define.
+
+## 4. Make it a project
+
 ```python
-# See examples/05_surrogate_deeponet_multifield.py
+path = pp.new("my_study", template="plain", preset="poisson_2d")
 ```
 
-### 5. Hyperparameter search
+```bash
+cd my_study
+python run.py
+```
+
+`case.yaml` is the only file you edit. `template="research"` adds metrics with their units, checks
+against the classical answer and an experiment manifest; `template="cfd"` sweeps a parameter
+through the reference solver into a CSV and a figure.
+
+## Nothing here? Tell it in a sentence you would say out loud
+
 ```python
-from pinneapple_train import run_parallel_sweep, SweepConfig
-results = run_parallel_sweep(
-    trial_fn,
-    SweepConfig({"lr": [1e-3, 1e-4], "hidden": [64, 128]}, n_jobs=4)
-)
+import pinneapple as pp
+
+rec = pp.recommend("conducao de calor em uma aleta de resfriamento")
+print(rec.preset, rec.method, rec.confidence)   # preset, method, how sure, and the matched terms
+print(rec.alternatives)                          # the near misses, and what they differ in
 ```
 
-## Extending the library
+## From the command line
 
-### Add a new problem preset
-```python
-from pinneapple_physics.pde_environment.presets.registry import register_preset
-from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
-from pinneapple_physics.pde_environment.conditions import DirichletBC
-
-@register_preset("my_problem")
-def my_problem(nu=0.01) -> ProblemSpec:
-    return ProblemSpec(
-        problem_id="my_problem",
-        pde=PDETermSpec(kind="my_pde", params={"nu": nu}),
-        fields=("u",),
-        coord_names=("x", "t"),
-        conditions={"bc": DirichletBC({"u": 0.0})},
-        domain_bounds={"x": (0, 1), "t": (0, 1)},
-    )
+```bash
+pinneapple doctor research                  # check this machine for a research install
+pinneapple recommend "pressure drop in a pipe"
+pinneapple card pipe_flow_3d
+pinneapple new my_study --template research --preset pipe_flow_3d
+pinneapple check results/                   # the physics linter, for results and models
 ```
 
-### Register a new model
-```python
-from pinneapple_models.registry import ModelRegistry
-@ModelRegistry.register(name="my_model", family="pinn")
-class MyModel(nn.Module):
-    ...
-```
+## Where to go next
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-Issues: https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues
+| I want | read |
+|---|---|
+| worked recipes with their real output | [GETTING_STARTED.md](GETTING_STARTED.md) |
+| to understand the five objects every run connects | [docs/getting_started/first_pinn.md](docs/getting_started/first_pinn.md) |
+| my own PDE, geometry and data | [examples/quickstart/04_own_problem_and_data.py](examples/quickstart/04_own_problem_and_data.py) |
+| to know which method family fits my problem | [docs/guides/choosing_a_method.md](docs/guides/choosing_a_method.md) |
+| to record an experiment so it can be graded | [docs/guides/adding_an_experiment.md](docs/guides/adding_an_experiment.md) |
+| the whole map of the library | [README.md](README.md) and [docs/index.md](docs/index.md) |

@@ -5,7 +5,8 @@ Three configurations, each over five seeds, every model with the same data, loss
 * ``all_properties``: the training samples carry p, s, u, c_v, c_p or w (mixed data);
 * ``without_cp``: the same without c_p samples (c_p is still scored: the potential predicts it from the other
   properties, the direct model's c_p output is never trained);
-* ``all_properties_3x``: the first configuration with three times the number of steps.
+* ``all_properties_3x``: the first configuration with three times the number of steps (three seeds, to fit the
+  time available).
 
 Writes ``results/<config>.json`` (raw runs and the summary with intervals). Needs CoolProp. About 1.5 h on one CPU;
 ``--smoke`` runs one seed with a few steps.
@@ -26,7 +27,7 @@ HERE = Path(__file__).resolve().parent
 CONFIGS = {
     "all_properties": {"props": cs.PROPERTIES, "epochs": 3000},
     "without_cp": {"props": ("p", "s", "u", "cv", "w"), "epochs": 3000},
-    "all_properties_3x": {"props": cs.PROPERTIES, "epochs": 9000},
+    "all_properties_3x": {"props": cs.PROPERTIES, "epochs": 9000, "n_seeds": 3},
 }
 
 
@@ -42,8 +43,9 @@ def main(argv=None) -> dict:
     for name, cfg in CONFIGS.items():
         if a.only and name not in a.only:
             continue
+        cfg = dict(cfg)
+        seeds = range(cfg.pop("n_seeds", 5))
         kw = dict(n_per_prop=200, hidden=32, layers=3, lr=1e-3, **cfg)
-        seeds = range(5)
         if a.smoke:
             kw.update(n_per_prop=20, epochs=20)
             seeds = range(1)

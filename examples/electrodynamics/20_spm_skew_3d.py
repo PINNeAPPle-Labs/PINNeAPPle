@@ -2,7 +2,7 @@
 
 Machine: the default ``SPMMachine`` (24 slots, 4 poles, rotor radius 40 mm, 4 mm magnets, 1 mm gap, stack 50 mm),
 linear iron (mu_r = 1000). The 3-D model has 720 angular steps (30 per slot pitch: the polar mesh repeats every
-two steps, so a slot pitch of an odd number of steps would not be a symmetry), 8 layers in the stack and 20 mm of
+two steps, so a slot pitch of an odd number of steps would not be a symmetry), 6 layers in the stack and 20 mm of
 air beyond each end; magnet skew by step (2 or 3 segments) or continuous (one offset per stack layer, 0.5 degree
 steps); cogging over a whole period every 1.5 degrees. The multi-slice model is the
 mean of straight one-layer models at the same offsets: the difference measures the axial flux between segments
@@ -33,7 +33,7 @@ N_THETA = 720
 def main() -> dict:
     t0 = time.perf_counter()
     m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=N_THETA)
-    model = SPM3D(m, n_theta=N_THETA, stack_layers=8, end_length=0.02, end_layers=2)
+    model = SPM3D(m, n_theta=N_THETA, stack_layers=6, end_length=0.02, end_layers=1)   # 1.18 M tetrahedra, 8 GB
     print(f"3-D model: {model.mesh.summary()['tets']} tetrahedra", flush=True)
     thetas = np.radians(np.arange(0.0, 15.0, 1.5))
     OUT.mkdir(exist_ok=True)

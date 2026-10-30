@@ -27,6 +27,8 @@ Esta parte do mapa cobre o `__init__` do pacote e os submódulos `closed_form`, 
 
 Esta parte cobre quatro submódulos de `pinneapple_physics`. `astro` é um observatório em NumPy próprio (escalas de tempo, efeméride JPL, posições aparentes, fenômenos, satélites, pequenos corpos, estrelas, lentes gravitacionais, fichas bilíngues) com modelos de IA conferidos contra referências independentes. `blackhole` simula acreção em torno de um buraco negro e treina um previsor de 'tempo do buraco negro' com horizonte de confiança. `pde_environment` define a linguagem de problemas do framework (`ProblemSpec`, condições, `ProblemBuilder`) e o catálogo de presets registrados usados por `get_preset` e pelos solvers. `symbolic_pde` compila EDPs escritas em SymPy ou em texto para resíduos PyTorch e condições de contorno, e liga sistemas de texto a um `PINNProblem`.
 
+Esta parte cobre a camada de uso direto do `pinneapple_physics`: a descrição única de um problema (`PhysicalProblem`), a porta de entrada `pp.solve`/`pp.compare` com registro de métodos, `pp.compile` (reuso de derivadas no resíduo), `Experiment` reprodutível com métricas padronizadas e envio a MLflow/W&B, ensembles adaptativos de modelos físicos com aprendizado online, geração de scripts FDM e FEniCS independentes, ponte para o DeepXDE, problemas de artigos (PINNsFormer, X-TFC) e módulos de domínio: térmica de placa de circuito (PCB Hotspot), elasticidade axissimétrica, desgaste de Archard e projeção conservativa.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -39,35 +41,35 @@ Pasta de testes dedicada: `tests/pinneapple_physics` (48 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `advection_diffusion_1d` |  | 1 | 1 | 13 |
+| `advection_diffusion_1d` | Banco de teste 1D periódico de advecção-difusão com solução exata espectral, esquemas de diferenças finitas e resíduo da EDP. | 1 | 1 | 13 |
 | `astro` | Astronomia posicional e astrofísica do observatório PINNeAPPle, validada contra NOVAS, Horizons e skyfield, com substitutos neurais e fichas para o público. | 24 | 216 | 71 |
 | `blackhole` | Simulação hidrodinâmica de acreção em buraco negro, dataset, previsor U-Net com horizonte de confiança, avaliação de habilidade, traçado de raios e visualização 3D. | 12 | 60 | 19 |
 | `closed_form` | Modelos de engenharia em forma fechada (aletas, vigas e fadiga, difusão em membrana, Helmholtz, dissipadores, PCB, escoamento em tubos, bocal de foguete, Burgers exato, etc.) para verdade de referência rápida sem resolver EDP. | 19 | 91 | 103 |
-| `codegen` |  | 3 | 4 | 13 |
-| `compile_api` |  | 1 | 3 | 5 |
-| `conservation` |  | 1 | 3 | 6 |
+| `codegen` | Gera arquivos Python independentes (FDM em NumPy ou FEniCS/dolfinx) a partir de um `ProblemSpec`. | 3 | 4 | 13 |
+| `compile_api` | `pp.compile`: prepara um problema para resolver mais rápido reaproveitando derivadas dentro de cada avaliação da perda. | 1 | 3 | 5 |
+| `conservation` | Projeção exata que força a integral ponderada da saída de um modelo a um valor conservado. | 1 | 3 | 6 |
 | `darcy_checks` | Verificações físicas sem referência de campos de Darcy 2-D (resíduo de volumes finitos, limites certificados de erro, balanço de fluxo, contorno, envelope de coeficientes) e decisão de implantação. | 1 | 31 | 26 |
-| `deepxde_bridge` |  | 2 | 4 | 9 |
-| `ensemble` |  | 1 | 9 | 68 |
-| `ensemble_viz` |  | 1 | 1 | 3 |
-| `experiment` |  | 1 | 3 | 0 |
+| `deepxde_bridge` | Traduz um `ProblemSpec` em objetos reais do DeepXDE e treina com ele, como backend alternativo. | 2 | 4 | 9 |
+| `ensemble` | Ensemble adaptativo de modelos físicos (PINN, operadores, GNN, solvers) escolhidos ou combinados online pelo erro observado. | 1 | 9 | 68 |
+| `ensemble_viz` | Gera um GIF animado de uma execução do ensemble adaptativo. | 1 | 1 | 3 |
+| `experiment` | `Experiment`: execução reprodutível de um método num problema, com métricas e proveniência. | 1 | 3 | 0 |
 | `maxwell_checks` | Verificações das equações de Maxwell e das leis de balanço (Gauss, Faraday, Ampère-Maxwell, continuidade, Poynting, PEC, reciprocidade, passividade) em campos de qualquer origem. | 1 | 19 | 51 |
-| `metrics` |  | 1 | 11 | 36 |
+| `metrics` | Métricas de erro padrão da biblioteca (`pp.metrics`), por campo e agregadas. | 1 | 11 | 36 |
 | `multiscale` | Física multiescala para ensembles adaptativos: filtros LES, solver de vorticidade 2-D, fechamentos de subfiltro, resíduos multiescala, consistência entre escalas e roteamento sensível à escala. | 11 | 76 | 45 |
 | `non_hermitian` | Dímeros e cadeias PT-simétricos, pontos excepcionais e a verificação simbólica de leis de sintonia do EP contra um teorema de impossibilidade. | 4 | 19 | 8 |
-| `online_learning` |  | 1 | 4 | 0 |
-| `paper_problems` |  | 1 | 7 | 5 |
-| `paper_problems_xtfc` |  | 1 | 4 | 10 |
-| `pcb` |  | 3 | 10 | 16 |
+| `online_learning` | Algoritmos de aprendizado online com especialistas (Fixed-Share, AdaHedge, conformal adaptativo) usados pelos métodos adaptativos. | 1 | 4 | 0 |
+| `paper_problems` | Problemas de teste do PINNsFormer em grade (x, t) com solução analítica. | 1 | 7 | 5 |
+| `paper_problems_xtfc` | Problemas de teste do artigo X-TFC com equação, domínio, solução exata e configurações relatadas. | 1 | 4 | 10 |
+| `pcb` | Modelo térmico de placa de circuito montada (motor do app PCB Hotspot): solver de volumes finitos, what-if e calibração. | 3 | 10 | 16 |
 | `pde_environment` | Especificação de problemas (`ProblemSpec`, condições, `ProblemBuilder`), catálogo de presets por domínio, resíduos de turbulência e base de famílias de EDP. | 28 | 154 | 154 |
-| `physical_problem` |  | 1 | 3 | 12 |
+| `physical_problem` | `PhysicalProblem`: descrição única de um problema físico com parâmetros, unidades, quantidades de interesse e fingerprint. | 1 | 3 | 12 |
 | `physics_audit` | Auditoria física de modelos: premissas e condições de validade, números adimensionais, monitor de validade sem verdade de referência, atribuição de falhas, recomendações, grafo de conhecimento e roteamento. | 8 | 65 | 37 |
 | `pinn_solver` | Compilador de PINN: traduz um `ProblemSpec` em funções de perda, mais DoMINO (decomposição de domínio), PINN estocástico, fábrica SymPy legada e leitura de dados UPD. | 19 | 41 | 121 |
-| `solid` |  | 2 | 6 | 8 |
-| `solving` |  | 1 | 12 | 71 |
+| `solid` | Pós-processamento de mecânica dos sólidos por autograd (deformações, tensões, resíduo de equilíbrio, von Mises). | 2 | 6 | 8 |
+| `solving` | `pp.solve` e `pp.compare`: ponto de entrada único para resolver um problema por qualquer método registrado e comparar métodos. | 1 | 12 | 71 |
 | `symbolic_pde` | Compilador de EDPs simbólicas (SymPy e texto) para resíduos PyTorch, com condições de contorno rígidas e suaves e ponte para PINN. | 6 | 24 | 17 |
-| `tracking` |  | 1 | 3 | 3 |
-| `tribology` |  | 2 | 3 | 20 |
+| `tracking` | Adaptador que envia um `ExperimentResult` ao MLflow ou ao Weights & Biases. | 1 | 3 | 3 |
+| `tribology` | Desgaste por deslizamento de uma barra contra contraface pela lei de Archard. | 2 | 3 | 20 |
 | `weather` | Caso de uso de previsão do tempo global: dados ERA5 do WeatherBench2, U-Net esférica, treino por rollout, métricas de habilidade, eventos extremos e animações. | 7 | 38 | 8 |
 
 \* maior número de testes que importam um módulo do submódulo.
@@ -92,13 +94,13 @@ Ponto de entrada do pacote: reexporta `pde_environment`, `pinn_solver`, `symboli
 
 #### `pinneapple_physics.advection_diffusion_1d`
 
-Periodic 1-D advection-diffusion u_t + c u_x = nu u_xx on [0, 2 pi): exact solution, classical finite-difference schemes and the PDE residual of any predicted space-time field.
+Advecção-difusão periódica 1D em [0, 2π) com solução exata por modos de Fourier, esquemas upwind e Lax-Wendroff e resíduo da EDP de qualquer campo previsto; serve de banco de teste para ensembles.
 
 <small>`pinneapple_physics/advection_diffusion_1d.py` · 80 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AdvectionDiffusion1D` | classe | `(nx, nt, t_end)` |  |
+| `AdvectionDiffusion1D` | classe | `(nx, nt, t_end)` | Banco de teste: sorteia casos, dá a solução exata, roda esquemas FD e calcula o resíduo da EDP de um campo previsto. |
 
 #### `pinneapple_physics.astro`
 
@@ -955,55 +957,55 @@ Aerodinâmica 2-D fechada: sustentação de linha média NACA de 4 dígitos pela
 
 #### `pinneapple_physics.codegen`
 
-pinneapple_physics.codegen — automatic physical-code generation.
+Pacote que reexporta os geradores de scripts FDM e FEniCS; os scripts gerados expõem `solve(params) -> dict` e rodam sem importar a biblioteca. [sem teste direto do `__init__`]
 
 <small>`pinneapple_physics/codegen/__init__.py` · 51 linhas · **sem teste direto**</small>
 
 #### `pinneapple_physics.codegen.fdm_script_generator`
 
-Standalone finite-difference *script* generator for PINNeAPPle.
+Gera um script NumPy de diferenças finitas explícitas para três formas curadas (calor 1D, Burgers 1D, Poisson/Laplace 2D); formas fora disso levantam `NotImplementedError`.
 
 <small>`pinneapple_physics/codegen/fdm_script_generator.py` · 548 linhas · testes: 13 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PDEParser` | classe | `()` | Classify a ``pinneapple_physics.pde_environment.ProblemSpec`` (or any duck-typed object exposing ``.pde.kind``, ``.coords``, ``.fields``, ``.domain_bounds``, ``.pde.params``) into one of the three curated FDM templates ``FDMScriptGenerator`` knows how to render. |
-| `FDMScriptGenerator` | classe | `(parser=None) -> None` | Renders a curated PDE description into a standalone, runnable FDM Python script (source text, not an in-memory callable). |
+| `PDEParser` | classe | `()` | Classifica um `ProblemSpec` (ou objeto equivalente) num dos três modelos FDM suportados, levantando `NotImplementedError` fora deles. |
+| `FDMScriptGenerator` | classe | `(parser=None) -> None` | Renderiza o texto de um script FDM independente e executável (`generate`) ou grava em disco (`write`). |
 
 #### `pinneapple_physics.codegen.fenics_script_generator`
 
-Standalone UFL/dolfinx *script* generator for PINNeAPPle.
+Gera scripts UFL/dolfinx para difusão linear, Stokes (Taylor-Hood) ou elasticidade linear com contato por penalidade, escolhidos por uma heurística de 3 vias.
 
 <small>`pinneapple_physics/codegen/fenics_script_generator.py` · 614 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FEniCSScriptGenerator` | classe | `()` | Renders a curated set of UFL/dolfinx finite-element physics problems into standalone, runnable Python scripts, chosen by inspecting a ProblemSpec-like object's physics shape (see ``classify_physics_shape`` / the module docstring). |
-| `classify_physics_shape` | função | `(spec) -> str` | Classify a ProblemSpec-like object into "diffusion" \| "stokes" \| "elasticity" — see module docstring for the exact heuristic. |
+| `FEniCSScriptGenerator` | classe | `()` | Renderiza scripts dolfinx independentes para difusão, Stokes ou elasticidade conforme a forma física do problema. |
+| `classify_physics_shape` | função | `(spec) -> str` | Heurística que devolve "diffusion", "stokes" ou "elasticity" a partir de `pde.kind` e dos campos; o padrão é difusão. |
 
 #### `pinneapple_physics.compile_api`
 
-``pp.compile``: optimise a physics problem once, solve it faster, with the same results.
+`pp.compile`: memoriza derivadas de primeira ordem dentro de uma avaliação da perda, para cada campo ser derivado uma vez por passo; as perdas são as mesmas. Fusão de operadores e planejamento de memória não são feitos.
 
 <small>`pinneapple_physics/compile_api.py` · 137 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Benchmark` | classe | `(problem, epochs, repeats, baseline_s, compiled_s, speedup, max_param_diff, max_param_abs…)` |  |
-| `CompiledProblem` | classe | `(problem, optimize='physics') -> None` | A problem with its optimisations decided. ``solve`` and ``loss_fn`` use them. |
-| `compile` | função | `(problem, optimize='physics', **preset_kwargs) -> CompiledProblem` | Prepare a problem (a ``PhysicalProblem``, a ``ProblemSpec`` or a preset name) for faster solving. |
+| `Benchmark` | classe | `(problem, epochs, repeats, baseline_s, compiled_s, speedup, max_param_diff, max_param_abs…)` | Resultado de `CompiledProblem.benchmark`: tempos base e compilado, speedup, diferença dos pesos e chamadas de derivada economizadas. |
+| `CompiledProblem` | classe | `(problem, optimize='physics') -> None` | Problema com as otimizações decididas; seus `solve` e `loss_fn` usam o cache de derivadas. |
+| `compile` | função | `(problem, optimize='physics', **preset_kwargs) -> CompiledProblem` | Prepara um `PhysicalProblem`, `ProblemSpec` ou nome de preset para resolver mais rápido. |
 
 #### `pinneapple_physics.conservation`
 
-Conservation as a hard constraint on model outputs: project a predicted field so that its weighted integral (total mass, energy, charge, water) equals a prescribed value exactly.
+Conservação como restrição dura: projeta a saída de um modelo (aditiva ou multiplicativamente) para que a integral ponderada iguale um total prescrito.
 
 <small>`pinneapple_physics/conservation.py` · 83 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConservationProjection` | classe | `(model, weights, mode='additive', target_fn=None)` | ``model`` followed by an exact projection. ``target_fn(x, y_pred)`` gives the conserved total for each batch entry (e.g. ``lambda x, y: integral(x_state, w)`` for a closed system); by default the integral of the input field ``x`` itself (same grid as the output). |
-| `integral` | função | `(field, weights, dims=1) -> Tensor` | Weighted sum over the last ``dims`` dimensions (``weights`` has that trailing shape). |
-| `project_integral` | função | `(field, weights, target, mode='additive', dims=None, eps=1e-30) -> Tensor` | Return ``field`` corrected so that ``integral(field, weights) == target`` (per leading batch entry). |
+| `ConservationProjection` | classe | `(model, weights, mode='additive', target_fn=None)` | Módulo torch que aplica um modelo e projeta a saída para conservar exatamente o total dado por `target_fn`. |
+| `integral` | função | `(field, weights, dims=1) -> Tensor` | Soma ponderada nas últimas `dims` dimensões de um campo. |
+| `project_integral` | função | `(field, weights, target, mode='additive', dims=None, eps=1e-30) -> Tensor` | Corrige um campo (modo aditivo ou multiplicativo) para que sua integral ponderada iguale o alvo. |
 
 #### `pinneapple_physics.darcy_checks`
 
@@ -1047,62 +1049,62 @@ Verificações físicas de campos de Darcy 2-D (`-div(a grad u) = f`, `u = 0` no
 
 #### `pinneapple_physics.deepxde_bridge`
 
-pinneapple_physics.deepxde_bridge -- DeepXDE <-> PINNeAPPle integration glue.
+Pacote da ponte DeepXDE ↔ PINNeAPPle; reexporta `solve_with_deepxde` e utilitários do `adapter`.
 
 <small>`pinneapple_physics/deepxde_bridge/__init__.py` · 60 linhas · testes: 9</small>
 
 #### `pinneapple_physics.deepxde_bridge.adapter`
 
-``ProblemSpec`` -> real DeepXDE ``dde.Model`` translation and training.
+Traduz `ProblemSpec` em geometria, dados, rede `FNN` e `dde.Model` reais do DeepXDE e chama o treino do DeepXDE; só `burgers` e `poisson` são traduzidos, o resto levanta `NotImplementedError`. DeepXDE é dependência opcional. [sem teste direto]
 
 <small>`pinneapple_physics/deepxde_bridge/adapter.py` · 468 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DeepXDESolveResult` | classe | `(deepxde_model, spec, final_loss, train_time_s)` | Outcome of :func:`solve_with_deepxde`. |
-| `require_deepxde` | função | `() -> Any` | Import ``deepxde``. |
-| `is_deepxde_available` | função | `() -> bool` | Return ``True`` if ``deepxde`` can be imported. |
-| `solve_with_deepxde` | função | `(spec, *, n_domain=2000, n_boundary=200, n_initial=100, layers=(50, 50, 50, 50), epochs=1…)` | Translate ``spec`` into a real DeepXDE problem and train it for real. |
+| `DeepXDESolveResult` | classe | `(deepxde_model, spec, final_loss, train_time_s)` | Resultado de `solve_with_deepxde`: o modelo DeepXDE, o spec, a perda final e o tempo de treino. |
+| `require_deepxde` | função | `() -> Any` | Importa `deepxde` ou levanta erro claro se não estiver instalado. |
+| `is_deepxde_available` | função | `() -> bool` | Diz se o `deepxde` pode ser importado. |
+| `solve_with_deepxde` | função | `(spec, *, n_domain=2000, n_boundary=200, n_initial=100, layers=(50, 50, 50, 50), epochs=1…)` | Traduz o `spec` num problema DeepXDE e o treina de verdade com os hiperparâmetros dados. |
 
 #### `pinneapple_physics.ensemble`
 
-Adaptive ensembles of physics models: PINNs, neural operators (FNO, DeepONet...), GNNs (MeshGraphNet...), numerical solvers and closed forms, selected and combined online from the errors they make on new cases.
+Ensemble adaptativo de especialistas físicos: pesos atualizados online por erro contra referência, resíduo físico e custo, nos modos `select` ou `combine`, com intervalos conformais e detecção de suspeitos.
 
 <small>`pinneapple_physics/ensemble.py` · 636 linhas · testes: 68</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Expert` | classe | `(name, predict, cost, kind)` | ``predict(query) -> array`` of the common output shape; ``cost``: fixed cost per call (any unit), or None to use the measured wall time. |
-| `EnsembleRun` | classe | `(names, errors, ensemble_errors, weights, active, coverage, costs, predictions, suspect)` |  |
-| `PhysicsEnsemble` | classe | `(experts, mode='combine', etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05), point_weights=N…)` | Online selection / combination of physics models. |
-| `relative_l2` | função | `(pred, ref, weights=None) -> float` |  |
-| `from_callable` | função | `(name, fn, cost=None, kind='numerical') -> Expert` |  |
-| `from_solution` | função | `(name, solution, points, cost=None, shape=None) -> Expert` | A ``pp.solve`` result (PINN, FEM, analytic, external solver...): evaluated at ``points(query)``. |
-| `from_torch` | função | `(name, model, to_input, from_output=None, cost=None, kind='neural') -> Expert` | Any ``torch.nn.Module`` (FNO, DeepONet, MeshGraphNet, a PINN network...): ``to_input(query)`` builds its input (tensor, GraphBatch...), the output's ``.y`` is used if present, and ``from_output(y, query)`` maps it to the common points (e.g. drop the batch and channel axes). |
-| `residual_baseline` | função | `(experts, domain_queries, residual_fn) -> dict[str, float]` | Median physics residual of each expert on queries from its own domain (its training or validation cases), known before operation: the reference for ``PhysicsEnsemble(residual_baseline=...)``. Experts missing from ``domain_queries`` are left out (they fall back to their recent history). |
-| `fit_static_weights` | função | `(predictions, references, n_folds=5, point_weights=None, seed=0) -> dict[str, Any]` | Offline ensemble: convex weights (>= 0, sum 1) minimising the summed squared error on a validation set. |
+| `Expert` | classe | `(name, predict, cost, kind)` | Um especialista do ensemble: nome, função `predict(query)`, custo por chamada e tipo. |
+| `EnsembleRun` | classe | `(names, errors, ensemble_errors, weights, active, coverage, costs, predictions, suspect)` | Histórico de uma execução do ensemble (erros, pesos, ativo, cobertura, custos, suspeitos) com `summary` e `switches`. |
+| `PhysicsEnsemble` | classe | `(experts, mode='combine', etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05), point_weights=N…)` | Seleção ou combinação online de modelos físicos com pesos Fixed-Share/AdaHedge, resíduo físico, custo e intervalos conformais. |
+| `relative_l2` | função | `(pred, ref, weights=None) -> float` | Erro L2 relativo, com pesos por ponto opcionais. |
+| `from_callable` | função | `(name, fn, cost=None, kind='numerical') -> Expert` | Cria um `Expert` a partir de uma função qualquer. |
+| `from_solution` | função | `(name, solution, points, cost=None, shape=None) -> Expert` | Cria um `Expert` a partir de um resultado de `pp.solve`, avaliado nos pontos de cada consulta. |
+| `from_torch` | função | `(name, model, to_input, from_output=None, cost=None, kind='neural') -> Expert` | Cria um `Expert` a partir de um `torch.nn.Module` (FNO, DeepONet, MeshGraphNet, PINN) com adaptadores de entrada e saída. |
+| `residual_baseline` | função | `(experts, domain_queries, residual_fn) -> dict[str, float]` | Resíduo físico mediano de cada especialista em casos do seu próprio domínio, referência para `PhysicsEnsemble(residual_baseline=...)`. |
+| `fit_static_weights` | função | `(predictions, references, n_folds=5, point_weights=None, seed=0) -> dict[str, Any]` | Ensemble offline: pesos convexos que minimizam o erro quadrático num conjunto de validação, com validação cruzada. |
 
 #### `pinneapple_physics.ensemble_viz`
 
-Animated view of an adaptive physics ensemble: prediction against the reference field, case by case, with the model the ensemble chose and how its weights moved.
+Anima com matplotlib uma `EnsembleRun`: previsão vs. referência caso a caso, modelo escolhido e evolução dos pesos, gravando um GIF.
 
 <small>`pinneapple_physics/ensemble_viz.py` · 131 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `animate_ensemble` | função | `(run, references, path='ensemble.gif', *, x=None, times=None, frames_per_case=4, fps=10, …)` | Write a GIF of the ensemble run. ``cases``: subset of case indices to animate (default: all). ``regimes``: ``[(first_case, label), ...]`` drawn as dashed lines on the timeline. Returns the path written. |
+| `animate_ensemble` | função | `(run, references, path='ensemble.gif', *, x=None, times=None, frames_per_case=4, fps=10, …)` | Grava um GIF da execução do ensemble e devolve o caminho. |
 
 #### `pinneapple_physics.experiment`
 
-``Experiment``: one reproducible run of a method on a problem, with its metrics and provenance.
+`Experiment` fixa as sementes (Python, NumPy, PyTorch determinístico), resolve, pontua contra uma referência e grava registro JSON com fingerprint, versões e máquina. [sem teste direto pelo inventário; testado via `pp.Experiment`]
 
 <small>`pinneapple_physics/experiment.py` · 174 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExperimentResult` | classe | `(config, problem_fingerprint, solution, metrics, wall_time_s, started_at, environment, n_…)` |  |
-| `Experiment` | classe | `(problem, method, options, seed, reference, reference_options, n_eval, metric_names, name…)` | A method applied to a problem, with a seed, options and an optional reference to score against. |
-| `run_all` | função | `(experiments) -> Dict[str, ExperimentResult]` | Run several experiments; keyed by experiment name. |
+| `ExperimentResult` | classe | `(config, problem_fingerprint, solution, metrics, wall_time_s, started_at, environment, n_…)` | Registro de uma execução: config, fingerprint, solução, métricas, tempo, ambiente; salva e carrega em JSON. |
+| `Experiment` | classe | `(problem, method, options, seed, reference, reference_options, n_eval, metric_names, name…)` | Método aplicado a um problema com semente, opções e referência opcional; `run` executa de forma reprodutível. |
+| `run_all` | função | `(experiments) -> Dict[str, ExperimentResult]` | Roda vários experimentos e devolve os resultados por nome. |
 
 #### `pinneapple_physics.maxwell_checks`
 
@@ -1134,23 +1136,23 @@ Verificações das equações de Maxwell sobre campos numa grade (de PINN, FNO, 
 
 #### `pinneapple_physics.metrics`
 
-``pp.metrics``: the error metrics used everywhere in the library, with one convention.
+`pp.metrics`: L2, L2 relativo, RMSE, MAE, erro máximo, L∞ relativo e R² por campo, mais resumo, métrica agregada para rankings e erro de rollout temporal.
 
 <small>`pinneapple_physics/metrics.py` · 182 linhas · testes: 36</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `l2` | função | `(pred, true)` | Euclidean norm of the error, per field: ``\|\|pred - true\|\|_2``. |
-| `relative_l2` | função | `(pred, true)` | ``\|\|pred - true\|\|_2 / \|\|true\|\|_2`` per field (``nan`` where ``\|\|true\|\| = 0``). |
-| `rmse` | função | `(pred, true)` | Root mean square error per field. |
-| `mae` | função | `(pred, true)` | Mean absolute error per field. |
-| `max_abs` | função | `(pred, true)` | Largest absolute error per field (the L-infinity norm of the error). |
-| `relative_linf` | função | `(pred, true)` | ``max\|pred - true\| / max\|true\|`` per field (``nan`` where ``max\|true\| = 0``). |
-| `r2` | função | `(pred, true)` | Coefficient of determination per field (``nan`` when ``true`` is constant). |
-| `per_field` | função | `(metric, pred, true, fields) -> dict[str, float]` | ``{field: value}`` for an ``(N, F)`` comparison. |
-| `summary` | função | `(pred, true, fields, names=…) -> dict[str, dict[str, float]]` | ``{metric: {field: value}}`` for several metrics at once (the shape benchmark tables use). |
-| `pooled` | função | `(pred, true) -> dict[str, float]` | One number per metric over every entry, all fields together: ``relative_l2``, ``rmse``, ``mse``, ``max_abs``, ``r2``. For leaderboards that rank models by a single value; use the per-field functions for anything reported per quantity. When the shapes differ, a 1-D side gets a trailing axis and the … |
-| `rollout_relative_l2` | função | `(pred_seq, true_seq, *, aggregate='steps') -> float` | Relative L2 error of a time rollout: ``pred_seq`` and ``true_seq`` have shape ``(T, ...)``, axis 0 is time. |
+| `l2` | função | `(pred, true)` | Norma euclidiana do erro por campo. |
+| `relative_l2` | função | `(pred, true)` | Erro L2 relativo por campo (`nan` quando a referência é nula). |
+| `rmse` | função | `(pred, true)` | Raiz do erro quadrático médio por campo. |
+| `mae` | função | `(pred, true)` | Erro absoluto médio por campo. |
+| `max_abs` | função | `(pred, true)` | Maior erro absoluto por campo (norma L∞ do erro). |
+| `relative_linf` | função | `(pred, true)` | Erro máximo relativo ao máximo da referência, por campo. |
+| `r2` | função | `(pred, true)` | Coeficiente de determinação por campo. |
+| `per_field` | função | `(metric, pred, true, fields) -> dict[str, float]` | Aplica uma métrica e devolve `{campo: valor}`. |
+| `summary` | função | `(pred, true, fields, names=…) -> dict[str, dict[str, float]]` | Várias métricas de uma vez no formato `{métrica: {campo: valor}}` das tabelas de benchmark. |
+| `pooled` | função | `(pred, true) -> dict[str, float]` | Um número por métrica sobre todos os campos juntos, para rankings. |
+| `rollout_relative_l2` | função | `(pred_seq, true_seq, *, aggregate='steps') -> float` | Erro L2 relativo de um rollout temporal (eixo 0 é o tempo), agregado por passos ou no total. |
 
 #### `pinneapple_physics.multiscale`
 
@@ -1378,79 +1380,79 @@ Figuras matplotlib para dímeros PT e sintonia de EP.
 
 #### `pinneapple_physics.online_learning`
 
-Online learning with expert advice, shared by every adaptive method in the library (time-series forecasting in ``pinneapple_systems.time_series.adaptive`` and physics-model ensembles in ``pinneapple_physics.ensemble``).
+Fixed-Share, AdaHedge, inferência conformal adaptativa e grade de Fixed-Share ponderada por AdaHedge, compartilhados por previsão de séries e ensembles físicos; decisões só com perdas já observadas. [sem teste direto]
 
 <small>`pinneapple_physics/online_learning.py` · 126 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FixedShare` | classe | `(n, eta, alpha)` | Exponentially weighted average with fixed share (one per horizon). |
-| `AdaHedge` | classe | `(k)` | Parameter-free Hedge: follow the leader while it works, hedge with eta = ln K / Delta otherwise. |
-| `AdaptiveConformal` | classe | `(level=0.9, gamma=0.01, window=500)` | Adaptive conformal inference on absolute residuals: alpha_{t+1} = alpha_t + gamma (alpha - err_t). |
-| `FixedShareGrid` | classe | `(n, etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05))` | Fixed-Share aggregators over ``n`` experts for every (eta, alpha) in the grid, weighted by AdaHedge. |
+| `FixedShare` | classe | `(n, eta, alpha)` | Média exponencialmente ponderada com fixed share, que acompanha a melhor sequência de especialistas. |
+| `AdaHedge` | classe | `(k)` | Hedge sem parâmetros que ajusta a taxa de aprendizado sozinho. |
+| `AdaptiveConformal` | classe | `(level=0.9, gamma=0.01, window=500)` | Inferência conformal adaptativa sobre resíduos absolutos, mantendo a cobertura sob mudança de distribuição. |
+| `FixedShareGrid` | classe | `(n, etas=(0.5, 2.0, 8.0), alphas=(0.0, 0.01, 0.05))` | Grade de agregadores Fixed-Share (eta, alpha) ponderada por AdaHedge. |
 
 #### `pinneapple_physics.paper_problems`
 
-Test problems of published physics-ML papers, as the papers (or, where the paper is silent, their official code) define them: domain, equation, initial / boundary data, training and test grids, and a reference solution.
+Problemas do PINNsFormer (convecção, reação, onda) como o código oficial os define: domínio, grade de treino e teste e solução analítica.
 
 <small>`pinneapple_physics/paper_problems.py` · 114 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GridCase` | classe | `(name, equation, x_range, t_range, exact, n_train, n_test, bc, lbfgs_steps, coef, source)` | One test problem on a tensor (x, t) grid with an analytic reference. |
-| `tensor_grid` | função | `(x_range, t_range, nx, nt) -> dict[str, np.ndarray]` | The official ``get_data`` grid: ``meshgrid(x, t)`` ('xy' indexing, rows are times), flattened row-major. |
-| `time_sequence` | função | `(points, k=5, dt=0.0001) -> np.ndarray` | PINNsFormer's pseudo-sequence: each (x, t) repeated k times with t + i*dt, i = 0..k-1 -> (N, k, 2). |
-| `convection_exact` | função | `(x, t, beta=50.0)` | u_t + beta u_x = 0, u(x, 0) = sin x, periodic on [0, 2 pi]: u = sin(x - beta t). |
-| `reaction_exact` | função | `(x, t, rho=5.0)` | u_t = rho u (1 - u), u(x, 0) = h(x) = exp(-(x - pi)^2 / (2 (pi/4)^2)): logistic solution u = h e^{rho t} / (h e^{rho t} + 1 - h). |
-| `wave_exact` | função | `(x, t, c2=4.0)` | u_tt = c2 u_xx on [0, 1], u(0) = u(1) = 0, u(x, 0) = sin(pi x) + 0.5 sin(3 pi x), u_t(x, 0) = 0: u = sin(pi x) cos(c pi t) + 0.5 sin(3 pi x) cos(3 c pi t), c = sqrt(c2). |
-| `pinnsformer_case` | função | `(name) -> GridCase` |  |
+| `GridCase` | classe | `(name, equation, x_range, t_range, exact, n_train, n_test, bc, lbfgs_steps, coef, source)` | Um problema de teste em grade tensorial (x, t) com referência analítica e grades de treino e teste. |
+| `tensor_grid` | função | `(x_range, t_range, nx, nt) -> dict[str, np.ndarray]` | Grade `meshgrid(x, t)` achatada como no `get_data` oficial do PINNsFormer. |
+| `time_sequence` | função | `(points, k=5, dt=0.0001) -> np.ndarray` | Pseudo-sequência do PINNsFormer: repete cada (x, t) k vezes com t + i·dt. |
+| `convection_exact` | função | `(x, t, beta=50.0)` | Solução exata da convecção u = sin(x − βt). |
+| `reaction_exact` | função | `(x, t, rho=5.0)` | Solução logística exata da equação de reação. |
+| `wave_exact` | função | `(x, t, c2=4.0)` | Solução exata da equação da onda 1D do PINNsFormer. |
+| `pinnsformer_case` | função | `(name) -> GridCase` | Devolve o `GridCase` do PINNsFormer pelo nome. |
 
 #### `pinneapple_physics.paper_problems_xtfc`
 
-The test problems of the X-TFC paper (Schiassi et al., arXiv:2005.10632v1), as the paper states them: equation, domain, constraints, exact solution and the run settings it reports (neurons, activation, weight range, training grid). No result of the paper is in this module; the targets live in …
+Problemas do artigo X-TFC (Schiassi et al.) com resíduo, solução exata e configurações relatadas; não contém resultados do artigo.
 
 <small>`pinneapple_physics/paper_problems_xtfc.py` · 214 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `XTFCCase` | classe | `(name, problem, exact, n_train, n_neurons, activation, weight_range, paper_iterations, pa…)` |  |
-| `p6_rhs` | função | `(X)` |  |
-| `p7_rhs` | função | `(X)` |  |
-| `xtfc_case` | função | `(name) -> XTFCCase` |  |
+| `XTFCCase` | classe | `(name, problem, exact, n_train, n_neurons, activation, weight_range, paper_iterations, pa…)` | Um problema do X-TFC: problema, solução exata, pontos de treino, neurônios, ativação e configurações do artigo. |
+| `p6_rhs` | função | `(X)` | Termo fonte do problema 6 do X-TFC. |
+| `p7_rhs` | função | `(X)` | Termo fonte do problema 7 do X-TFC. |
+| `xtfc_case` | função | `(name) -> XTFCCase` | Devolve o `XTFCCase` pelo nome. |
 
 #### `pinneapple_physics.pcb`
 
-Populated-PCB thermal model (the engine of the PCB Hotspot app).
+Reexporta `Board`, `Component`, `solve`, `evaluate`, `what_if`, `calibrate` do modelo térmico de PCB.
 
 <small>`pinneapple_physics/pcb/__init__.py` · 16 linhas · testes: 10</small>
 
 #### `pinneapple_physics.pcb.engine`
 
-PCB Hotspot engine: evaluation, what-if studies and calibration to measurements.
+Motor do PCB Hotspot: avaliação com faixa de incerteza do coeficiente de convecção, estudos what-if, escopo do modelo e calibração por Ensemble Kalman Inversion; sem surrogate aprendido.
 
 <small>`pinneapple_physics/pcb/engine.py` · 392 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `model_scope` | função | `(comps, env) -> Dict[str, Any]` | What the model covers, which way each simplification errs, what to do about it today and what is planned -- shown in every report. |
-| `evaluate` | função | `(board, comps, env, *, quick=False, n_cells=60) -> Dict[str, Any]` | ``quick``: one solve on a coarser grid (interactive dragging). Full: band + checks. |
-| `field_3d` | função | `(board, out) -> Dict[str, Any]` |  |
-| `what_if` | função | `(board, comps, env, n_cells=48) -> Dict[str, Any]` | Re-solve the board with common fixes and report the effect on the critical component (and on every junction). |
-| `calibrate` | função | `(board, comps, env, measurements, *, noise_std_c=1.0, n_ensemble=16, n_iterations=8, seed…)` | Fit surface-cooling and in-plane-spreading scale factors to measured temperatures with PINNeAPPle's Ensemble Kalman Inversion. |
+| `model_scope` | função | `(comps, env) -> Dict[str, Any]` | Lista o que o modelo cobre, para que lado cada simplificação erra e o que fazer, para aparecer em todo relatório. |
+| `evaluate` | função | `(board, comps, env, *, quick=False, n_cells=60) -> Dict[str, Any]` | Avalia a placa: solve rápido em grade grossa ou completo com faixa de incerteza e verificações. |
+| `field_3d` | função | `(board, out) -> Dict[str, Any]` | Monta o campo de temperatura 3D da placa para visualização a partir da saída do solver. |
+| `what_if` | função | `(board, comps, env, n_cells=48) -> Dict[str, Any]` | Resolve de novo com correções comuns e mostra o efeito no componente crítico e nas junções. |
+| `calibrate` | função | `(board, comps, env, measurements, *, noise_std_c=1.0, n_ensemble=16, n_iterations=8, seed…)` | Ajusta fatores de resfriamento superficial e espalhamento no plano a temperaturas medidas por Ensemble Kalman Inversion. |
 
 #### `pinneapple_physics.pcb.solver`
 
-3D finite-volume thermal model of a populated PCB.
+Modelo térmico 3D de volumes finitos de uma PCB em camadas com componentes JEDEC de dois resistores, vias térmicas, convecção+radiação iterada e contato com chassi; resolve com CG precondicionado por AMG.
 
 <small>`pinneapple_physics/pcb/solver.py` · 341 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Component` | classe | `(name, x_mm, y_mm, power_w, package, side, tj_max_c, theta_jb, theta_jc, w_mm, d_mm, h_mm…)` |  |
-| `Board` | classe | `(width_mm, depth_mm, n_copper, thickness_mm, outer_oz, inner_oz, outer_coverage, inner_co…)` |  |
-| `validate` | função | `(board, comps) -> List[str]` |  |
-| `overlaps` | função | `(comps) -> List[str]` | Same-side component pairs whose footprints overlap (a layout error the heat model would otherwise silently superpose). |
-| `solve` | função | `(board, comps, env, *, n_cells=60, h_override=None, k_xy_scale=1.0, h_scale=1.0, max_iter…)` | Steady temperatures. ``h_override`` fixes {'top','bottom'} coefficients (tests / calibration); ``k_xy_scale`` / ``h_scale`` scale the in-plane conductivity and the surface coefficients (calibration / uncertainty). |
+| `Component` | classe | `(name, x_mm, y_mm, power_w, package, side, tj_max_c, theta_jb, theta_jc, w_mm, d_mm, h_mm…)` | Componente montado: posição, potência, encapsulamento, lado, resistências térmicas, dimensões e vias. |
+| `Board` | classe | `(width_mm, depth_mm, n_copper, thickness_mm, outer_oz, inner_oz, outer_coverage, inner_co…)` | Placa: dimensões, camadas de cobre, espessura, cobertura de cobre e contato com chassi nas bordas. |
+| `validate` | função | `(board, comps) -> List[str]` | Lista problemas de entrada da placa e dos componentes. |
+| `overlaps` | função | `(comps) -> List[str]` | Pares de componentes do mesmo lado cujas pegadas se sobrepõem. |
+| `solve` | função | `(board, comps, env, *, n_cells=60, h_override=None, k_xy_scale=1.0, h_scale=1.0, max_iter…)` | Temperaturas em regime permanente da placa, das junções e balanço de energia. |
 
 #### `pinneapple_physics.pde_environment`
 
@@ -1848,15 +1850,15 @@ Seletor unificado de modelo de turbulência: só despacho e validação sobre os
 
 #### `pinneapple_physics.physical_problem`
 
-``PhysicalProblem``: one description of a physics problem for every part of the library.
+`PhysicalProblem` reúne geometria, EDP, condições, parâmetros com unidade e papel, quantidades de interesse e fingerprint; adapta de/para `ProblemSpec`, `PhysicsCase` e o `ProblemSpec` do problem design.
 
 <small>`pinneapple_physics/physical_problem.py` · 534 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Parameter` | classe | `(name, value, unit, role, bounds, distribution, description)` | A named physical parameter. |
-| `Quantity` | classe | `(name, unit, field, description)` | A quantity of interest: what the user actually wants out of the solution (a field, a coefficient, a peak value). ``field`` names the model output it derives from, when there is one. |
-| `PhysicalProblem` | classe | `(name, coords, fields, pde, conditions, domain_bounds, geometry, geometry_kind, parameter…)` | A complete physics problem: geometry, physics, conditions, parameters, solver choice and intent. |
+| `Parameter` | classe | `(name, value, unit, role, bounds, distribution, description)` | Parâmetro físico nomeado com valor, unidade, papel (fixo, projeto, incerto, desconhecido), limites e distribuição. |
+| `Quantity` | classe | `(name, unit, field, description)` | Quantidade de interesse que o usuário quer da solução, com unidade e campo de origem. |
+| `PhysicalProblem` | classe | `(name, coords, fields, pde, conditions, domain_bounds, geometry, geometry_kind, parameter…)` | Problema físico completo (geometria, EDP, condições, parâmetros, solver, intenção) com validação, serialização, fingerprint e adaptadores. |
 
 #### `pinneapple_physics.physics_audit`
 
@@ -2194,45 +2196,45 @@ Treino de PINN estocástico condicionado por código latente: a rede aprende uma
 
 #### `pinneapple_physics.solid`
 
-Solid mechanics post-processing (strains, stresses, equilibrium residuals, von Mises) by autograd.
+Reexporta as funções de elasticidade axissimétrica. [sem teste direto do `__init__`]
 
 <small>`pinneapple_physics/solid/__init__.py` · 13 linhas · **sem teste direto**</small>
 
 #### `pinneapple_physics.solid.axisymmetric`
 
-Axisymmetric linear elasticity in cylindrical coordinates ``(r, z)``, by autograd.
+Elasticidade linear axissimétrica em (r, z) por autograd: deformações, tensões, resíduo de equilíbrio e von Mises, com torção opcional.
 
 <small>`pinneapple_physics/solid/axisymmetric.py` · 122 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `lame_parameters` | função | `(E, nu) -> tuple[float, float]` | ``(lambda, mu)`` from Young's modulus ``E`` and Poisson's ratio ``nu`` (isotropic). |
-| `strains_rz` | função | `(u, x, *, r_min=None, create_graph=True) -> dict[str, torch.Tensor]` | Small strains ``e_rr, e_tt, e_zz, e_rz`` (and ``e_rt, e_tz`` when ``u`` has ``u_theta``), each ``(N, 1)``. |
-| `stresses_rz` | função | `(u, x, E, nu, *, r_min=None, create_graph=True) -> dict[str, torch.Tensor]` | Stresses ``s_rr, s_tt, s_zz, s_rz`` (and ``s_rt, s_tz`` with torsion), each ``(N, 1)``, by Hooke's law. |
-| `equilibrium_residual_rz` | função | `(u, x, E, nu, *, r_min=None) -> torch.Tensor` | Pointwise equilibrium residual ``[R_r, R_z]`` (``(N, 2)``), plus ``R_theta`` (``(N, 3)``) with torsion. |
-| `von_mises_from_components` | função | `(s_rr, s_zz, s_tt, s_rz=0.0, s_rt=0.0, s_tz=0.0) -> Any` | Von Mises stress ``sqrt(((s_rr-s_zz)^2 + (s_zz-s_tt)^2 + (s_tt-s_rr)^2 + 6 (s_rz^2 + s_rt^2 + s_tz^2)) / 2)``. |
-| `von_mises_rz` | função | `(u, x, E, nu, *, r_min=None, create_graph=False) -> torch.Tensor` | Von Mises stress ``(N, 1)`` of ``u`` (all six stress components when ``u`` has ``u_theta``). |
+| `lame_parameters` | função | `(E, nu) -> tuple[float, float]` | Calcula (λ, μ) a partir de E e ν. |
+| `strains_rz` | função | `(u, x, *, r_min=None, create_graph=True) -> dict[str, torch.Tensor]` | Deformações pequenas em (r, z) por autograd, com componentes de torção quando há `u_theta`. |
+| `stresses_rz` | função | `(u, x, E, nu, *, r_min=None, create_graph=True) -> dict[str, torch.Tensor]` | Tensões pela lei de Hooke a partir das deformações. |
+| `equilibrium_residual_rz` | função | `(u, x, E, nu, *, r_min=None) -> torch.Tensor` | Resíduo pontual das equações de equilíbrio axissimétricas. |
+| `von_mises_from_components` | função | `(s_rr, s_zz, s_tt, s_rz=0.0, s_rt=0.0, s_tz=0.0) -> Any` | Tensão de von Mises a partir das componentes de tensão. |
+| `von_mises_rz` | função | `(u, x, E, nu, *, r_min=None, create_graph=False) -> torch.Tensor` | Tensão de von Mises de um campo de deslocamento `u`. |
 
 #### `pinneapple_physics.solving`
 
-``pp.solve`` and ``pp.compare``: one entry point to solve a problem by any method and compare methods.
+`pp.solve`/`pp.compare` com registro de métodos (`pinn`, `fem`, `analytic`, `reference`, `exact`, `external`) e de soluções analíticas; toda `Solution` tem `predict` e `metadata` uniformes.
 
 <small>`pinneapple_physics/solving.py` · 594 linhas · testes: 71</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MethodNotAvailable` | classe | `()` | The requested method cannot solve this problem (missing solver output, missing option, ...). |
-| `Solution` | classe | `(problem, method, predict_fn, wall_time_s, history, info, model, grid, kind)` |  |
-| `Comparison` | classe | `(problem, reference, n_points, rows)` |  |
-| `as_problem` | função | `(problem, **preset_kwargs) -> PhysicalProblem` | ``PhysicalProblem`` from a ``PhysicalProblem``, a PDE ``ProblemSpec`` or a preset name. |
-| `register_method` | função | `(name, kind='custom')` | Decorator registering ``fn(problem, **options) -> Solution`` under ``name`` for ``solve``/``compare``. ``kind`` labels the family of the method (``classical``, ``neural``, ...) in every Solution it returns. |
-| `list_methods` | função | `(kind=None) -> List[str]` | Registered method names, optionally only those of one ``kind``. |
-| `list_kinds` | função | `() -> Dict[str, List[str]]` | Methods grouped by kind. |
-| `register_analytic` | função | `(name, matcher)` | Decorator: ``factory(problem) -> fn(X)`` is the exact solution for every problem where ``matcher`` is True. |
-| `list_analytic` | função | `() -> List[str]` |  |
-| `analytic_for` | função | `(problem) -> Optional[str]` | Name of the closed-form solution this library knows for ``problem``, or ``None``. |
-| `solve` | função | `(problem, method='pinn', *, preset_kwargs=None, **options) -> Solution` | Solve ``problem`` with ``method`` (a registered name or a callable ``(problem, **options) -> Solution``). |
-| `compare` | função | `(problem, methods, *, reference='reference', options=None, points=None, n_points=4096, se…)` | Solve or reuse each method and score it against ``reference`` at the same points. |
+| `MethodNotAvailable` | classe | `()` | Exceção: o método pedido não pode resolver este problema. |
+| `Solution` | classe | `(problem, method, predict_fn, wall_time_s, history, info, model, grid, kind)` | Resultado de `solve`: função `predict`, tempo, histórico, modelo, grade e tipo do método, com `metadata` uniforme. |
+| `Comparison` | classe | `(problem, reference, n_points, rows)` | Tabela de `compare`: métricas de cada método contra a referência nos mesmos pontos, com `best`. |
+| `as_problem` | função | `(problem, **preset_kwargs) -> PhysicalProblem` | Converte preset, `ProblemSpec` ou `PhysicalProblem` em `PhysicalProblem`. |
+| `register_method` | função | `(name, kind='custom')` | Decorador que registra um método de solução sob um nome e um tipo. |
+| `list_methods` | função | `(kind=None) -> List[str]` | Nomes dos métodos registrados, opcionalmente filtrados por tipo. |
+| `list_kinds` | função | `() -> Dict[str, List[str]]` | Métodos agrupados por tipo. |
+| `register_analytic` | função | `(name, matcher)` | Decorador que registra uma solução fechada para os problemas em que `matcher` é verdadeiro. |
+| `list_analytic` | função | `() -> List[str]` | Nomes das soluções analíticas registradas. |
+| `analytic_for` | função | `(problem) -> Optional[str]` | Nome da solução fechada conhecida para o problema, ou `None`. |
+| `solve` | função | `(problem, method='pinn', *, preset_kwargs=None, **options) -> Solution` | Resolve o problema com o método pedido (nome registrado ou callable). |
+| `compare` | função | `(problem, methods, *, reference='reference', options=None, points=None, n_points=4096, se…)` | Resolve ou reaproveita cada método e pontua contra a referência nos mesmos pontos. |
 
 #### `pinneapple_physics.symbolic_pde`
 
@@ -2311,33 +2313,33 @@ Equações como texto, analisadas com segurança para SymPy via `ast` (sem `eval
 
 #### `pinneapple_physics.tracking`
 
-Experiment tracking adapter: send an ``ExperimentResult`` to MLflow or Weights & Biases.
+Envia parâmetros, métricas, tempo e o registro de um `ExperimentResult` ao MLflow, W&B ou a um callable; os trackers são dependências opcionais.
 
 <small>`pinneapple_physics/tracking.py` · 82 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `flat_metrics` | função | `(result) -> Dict[str, float]` |  |
-| `flat_params` | função | `(result) -> Dict[str, str]` |  |
-| `log_result` | função | `(result, tracker, **kw) -> Any` | Send ``result`` to ``tracker``; returns the tracker's run id (or what the callable returns). |
+| `flat_metrics` | função | `(result) -> Dict[str, float]` | Achata as métricas de um resultado em chaves `<métrica>/<campo>`. |
+| `flat_params` | função | `(result) -> Dict[str, str]` | Achata a config de um resultado em parâmetros texto. |
+| `log_result` | função | `(result, tracker, **kw) -> Any` | Envia o resultado ao tracker ("mlflow", "wandb" ou callable) e devolve o id da execução. |
 
 #### `pinneapple_physics.tribology`
 
-Tribology: sliding wear of a bar against a counterface (Archard's law with contact-pressure redistribution).
+Reexporta o modelo de desgaste de Archard.
 
 <small>`pinneapple_physics/tribology/__init__.py` · 5 linhas · testes: 20</small>
 
 #### `pinneapple_physics.tribology.archard`
 
-Sliding wear of a bar end pressed against a rigid, flat counterface.
+Desgaste de uma barra abaulada contra contraface rígida: lei de Archard local com pressão de camada de Winkler redistribuída a cada passo, do running-in ao desgaste estacionário. [sem teste direto pelo inventário]
 
 <small>`pinneapple_physics/tribology/archard.py` · 136 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WearMaterial` | classe | `(name, k, hardness_MPa, E_GPa)` |  |
-| `BarWear` | classe | `(material, load_N, length_mm, width_mm, crown_radius_mm, layer_mm, nx)` | A bar of section length (along sliding, crowned) x width, end radius R, pressed with load F. |
-| `winkler_parabolic_contact` | função | `(F_N, width_mm, R_mm, k_w) -> dict[str, float]` | Closed form for a parabolic gap g = x² / (2R) on a Winkler layer of modulus k_w (MPa/mm), load F over a width b: p = k_w (δ - x²/2R) on \|x\| < a, a = sqrt(2 R δ), F = (4/3) b k_w a δ. |
+| `WearMaterial` | classe | `(name, k, hardness_MPa, E_GPa)` | Material de desgaste com coeficiente k, dureza e módulo; `K` dá a taxa específica de desgaste. |
+| `BarWear` | classe | `(material, load_N, length_mm, width_mm, crown_radius_mm, layer_mm, nx)` | Barra abaulada pressionada com carga F; `run` integra o desgaste ao longo da distância de deslizamento. |
+| `winkler_parabolic_contact` | função | `(F_N, width_mm, R_mm, k_w) -> dict[str, float]` | Solução fechada do contato de folga parabólica numa camada de Winkler. |
 
 #### `pinneapple_physics.weather`
 
@@ -2541,6 +2543,13 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - `tag_geometry` só fornece geometria para presets com domínio de caixa ou cilindro; os outros presets com condições por tag continuam levantando `TagConditionsUnresolved` de propósito.
 - `astroml_bridge` está marcado como deprecated no inventário: os periodogramas do astroML delegam ao `astropy` e emitem avisos de depreciação, que o módulo silencia.
 - Aproximações declaradas nos docstrings: magnitude de Saturno sem o termo dos anéis, nutação truncada (IAU 1980, termos acima de 5 mas), brilho do crepúsculo por ajuste linear, correção bolométrica de corpo negro; `capabilities.identify_pde` usa só contagem de palavras-chave.
+- `codegen.fdm_script_generator` cobre só calor 1D, Burgers 1D e Poisson/Laplace 2D; outras formas levantam `NotImplementedError`. O gerador FEniCS escolhe por heurística e cai em difusão por padrão; os scripts FEniCS precisam do dolfinx instalado para rodar.
+- `deepxde_bridge` traduz apenas `burgers` e `poisson`; outros tipos de EDP e condições não suportadas levantam `NotImplementedError`. DeepXDE é dependência opcional e o `adapter` não tem teste direto.
+- `pp.compile` só reaproveita derivadas de primeira ordem; fusão de operadores, batching de kernel e planejamento de memória não são feitos (dito no docstring).
+- O método `reference` de `pp.solve` levanta `MethodNotAvailable` se o solver clássico não devolve campo em grade sobre todas as coordenadas.
+- `tracking` depende de MLflow ou W&B instalados e configurados; são importados só quando usados.
+- O modelo de PCB assume placa em ar livre, coeficientes de convecção com faixa de ±20 % assumida e valores típicos de encapsulamento quando faltam θJB/θJC; `model_scope` lista essas simplificações.
+- Sem teste direto pelo inventário: `experiment`, `online_learning`, `deepxde_bridge.adapter`, `tribology.archard`, `codegen/__init__`, `solid/__init__` (vários são testados indiretamente via os pacotes que os reexportam).
 
 ## 2. `pinneapple_presets`
 

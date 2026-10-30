@@ -5625,7 +5625,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_autolab` é o "Autonomous Physics Lab": uma IA que administra evidências para tomar decisões de engenharia com um simulador de referência caro. Em vez de confiar num surrogate, o laboratório separa o que foi simulado (evidência) do que foi só previsto (rotulado como previsão até uma simulação confirmar), e entrega como recomendação sempre um projeto simulado, com o seu relatório de confiança e o livro de registro (ledger).
+
+O pacote tem duas camadas. A primeira é o laço de agente (`core`): uma missão em linguagem natural vira um plano de chamadas controladas de biblioteca (`Tool`, `Toolbox`, `Step`), escolhidas por um planejador determinístico (`TemplatePlanner`) ou por um modelo de linguagem (`LLMPlanner`, `LLMStepPlanner`), e cada chamada fica registrada como `Evidence`. A segunda é o ciclo científico (`lab.AutonomousLab`): planejar, checar geometria e condições de contorno, simular, aprender (famílias de surrogates comparadas por validação cruzada, com incerteza), otimizar (NSGA-II sobre o surrogate), avaliar cada candidato (domínio validado, probabilidade de cumprir os limites, erro de campo esperado na região crítica), escolher a próxima simulação pelo que ainda é desconhecido, verificar e entregar.
+
+As regras são impostas em código: orçamento de simulações com reserva para verificação (`Budget`, `BudgetExhaustedError`), limites relativos ao baseline que só valem depois de o baseline ser simulado (`UnresolvedLimitError`), condições de operação que o laboratório não pode mudar, e uma auditoria (`agent.audit_claims`) que exige que todo número da resposta final venha das ferramentas. O domínio de exemplo é `domains.racecar`: um carro de fórmula paramétrico (não o carro de nenhuma equipe) simulado em OpenFOAM, com a missão "menos arrasto mantendo a downforce".
+
+Liga-se ao resto do repositório pelas variáveis e objetivos de `pinneapple_design.design_optimizer.study`, pela geometria `pinneapple_design.geometry.vehicles3d.FormulaCar`, pelo `TrustReport` de `pinneapple_analysis.trust`, por `pinneapple_llm` nos planejadores com LLM e pelo extrator `pinneapple_design.intent` na leitura de missões. É usado pelo nó `autolab` de `pinneapple_flow`, por agentes em `pinneapple_design.thermal.board_cooling` e `pinneapple_systems.digital_twin.pipe_loop`, e pelos exemplos `examples/autolab*`.
 
 ### Números do inventário
 
@@ -5637,20 +5643,20 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `agent` |  | 1 | 9 | 6 |
-| `core` |  | 1 | 13 | 0 |
-| `dashboard` |  | 1 | 5 | 5 |
-| `domain` |  | 1 | 2 | 0 |
-| `domains` |  | 2 | 11 | 11 |
-| `lab` |  | 1 | 2 | 10 |
-| `ledger` |  | 1 | 4 | 0 |
-| `mission` |  | 1 | 4 | 0 |
-| `qualification` |  | 1 | 1 | 0 |
-| `replay` |  | 1 | 1 | 6 |
-| `report` |  | 1 | 8 | 0 |
-| `simulator` |  | 1 | 3 | 0 |
-| `surrogates` |  | 1 | 9 | 0 |
-| `trust` |  | 1 | 5 | 0 |
+| `agent` | O laboratório dirigido por um agente: texto da missão -> `Mission` -> chamadas de ferramentas sobre o laboratório -> resposta auditada. | 1 | 9 | 6 |
+| `core` | Laço de agente genérico: ferramentas, caixa de ferramentas, planejadores (modelo fixo ou LLM), execução e registro de evidências. | 1 | 13 | 0 |
+| `dashboard` | Painel HTML com quatro áreas sincronizadas (geometria, física, modelos, decisões) sobre o estado real de uma sessão, estático, ao vivo ou em replay. | 1 | 5 | 5 |
+| `domain` | Domínio validado: diz se um projeto está perto o bastante dos projetos simulados para a previsão valer. | 1 | 2 | 0 |
+| `domains` | Simuladores e missões do laboratório, um módulo por domínio físico (hoje `racecar`). | 2 | 11 | 11 |
+| `lab` | O laboratório autônomo: o ciclo planejar -> simular -> aprender -> otimizar -> avaliar -> verificar -> entregar sobre qualquer simulador. | 1 | 2 | 10 |
+| `ledger` | Livro de registro de evidências: cada simulação e cada evento da sessão, em ordem, com orçamento. | 1 | 4 | 0 |
+| `mission` | A missão em números: variáveis, objetivos, limites, baseline, orçamento e tolerâncias de aceitação. | 1 | 4 | 0 |
+| `qualification` | Qualificação do solver antes da campanha: quanto da resposta depende da malha e do número de iterações. | 1 | 1 | 0 |
+| `replay` | Simulador que responde a partir de um ledger gravado quando o projeto é exatamente o mesmo, e roda o real caso contrário. | 1 | 1 | 6 |
+| `report` | Figuras e relatório de engenharia em Markdown de uma sessão, feitos só a partir do snapshot. | 1 | 8 | 0 |
+| `simulator` | Interface do simulador de referência (`check`, `run`) e um simulador a partir de função Python. | 1 | 3 | 0 |
+| `surrogates` | Surrogates do solver (GP, ensemble de MLP, superfície de resposta quadrática, POD de campo) comparados por validação cruzada. | 1 | 9 | 0 |
+| `trust` | Triagem dos candidatos do otimizador (favorável, incerto, fora do domínio, improvável) e a regra de escolha da próxima simulação. | 1 | 5 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5658,222 +5664,244 @@ _Sem texto de objetivo._
 
 #### `pinneapple_autolab`
 
-pinneapple_autolab -- the Autonomous Physics Lab: an AI that manages evidence to make engineering decisions.
+Ponto de entrada do Autonomous Physics Lab: reexporta missão, ledger, laboratório, simuladores, surrogates, domínio validado e triagem.
 
 <small>`pinneapple_autolab/__init__.py` · 70 linhas · testes: 31</small>
 
 #### `pinneapple_autolab.agent`
 
-The lab driven by an agent: a mission in words -> a Mission -> tool calls on the lab -> an audited answer.
+Laboratório dirigido por agente: lê a missão em texto, expõe uma caixa fechada de ferramentas (sem ferramenta para mudar condições, limites ou solver) e audita a resposta final.
 
 <small>`pinneapple_autolab/agent.py` · 488 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MissionRefused` | classe | `()` | The request cannot be run as written (with the reason and what is needed). |
-| `MissionDomain` | classe | `(title, variables, baseline, output_words, units, operating_point, acceptance, conditions…)` | What a simulator can be asked: its variables and baseline, outputs by the words that name them, the fixed operating point, default acceptance tolerances. ``output_words``: output -> words (e.g. "drag_N": ["drag"]); ``operating_point``: name -> (value, unit, regex capturing the value in a request). |
-| `MissionReading` | classe | `(mission, readings, assumptions)` |  |
-| `LabPlanner` | classe | `(lab, n_doe=None)` | Deterministic step planner over :func:`lab_toolbox` (no network): read the mission, plan, baseline, space-filling designs, then (learn, assess, follow the lab's rule, simulate) until only the verification reserve is left, verify, read the status, answer. A stand-in for a language model, not a … |
-| `AgentResult` | classe | `(reading, refused, answer, audit, run, summary, wall_s, planner)` |  |
-| `interpret_mission` | função | `(text, dom, llm=None) -> MissionReading` | Read ``text`` into a Mission over ``dom``. ``llm`` (optional) has ``extract(text, schema) -> dict`` (e.g. :class:`pinneapple_design.intent.CallLLM`); its answer is accepted only where it names closed options and quotes words present in the text. |
-| `lab_toolbox` | função | `(lab, reading=None) -> Toolbox` | The closed tool set an agent drives ``lab`` with. Every tool returns what the lab measured or predicted (predictions are labelled), rounded to 5 significant digits; ``answer`` records the final answer. |
-| `audit_claims` | função | `(answer, tool_log, lab, recommended_run=None, rtol=0.005) -> dict[str, Any]` | Every number in ``answer`` must match (within ``rtol``, or as a rounding) a number the tools returned or a run id/variable/budget figure; the recommended run must exist, have succeeded and meet every limit. |
-| `run_agent` | função | `(text, simulator, folder, *, domain, planner=None, provider=None, model=None, llm=None, m…)` | Interpret ``text``, build the lab and let the agent drive it through :func:`lab_toolbox`. Planner: the given ``planner``, else an :class:`~pinneapple_autolab.core.LLMStepPlanner` when ``provider`` or ``llm`` is given ("anthropic", "openai", "openai_compatible", "ollama"), else :class:`LabPlanner`. |
+| `MissionRefused` | classe | `()` | Exceção: o pedido não pode ser executado como escrito; traz o motivo e o que falta. |
+| `MissionDomain` | classe | `(title, variables, baseline, output_words, units, operating_point, acceptance, conditions…)` | O que um simulador pode receber como pedido: variáveis, baseline, palavras que nomeiam saídas, ponto de operação fixo e tolerâncias padrão. |
+| `MissionReading` | classe | `(mission, readings, assumptions)` | Resultado da leitura de uma missão: a `Mission`, os trechos lidos e as suposições feitas. |
+| `LabPlanner` | classe | `(lab, n_doe=None)` | Planejador determinístico de passos sobre `lab_toolbox` (sem rede): baseline, projetos que preenchem o espaço, ciclos aprender/avaliar/simular, verificação e resposta. |
+| `AgentResult` | classe | `(reading, refused, answer, audit, run, summary, wall_s, planner)` | Resultado de `run_agent`: leitura da missão, recusa, resposta, auditoria, execução, resumo, tempo e planejador usado. |
+| `interpret_mission` | função | `(text, dom, llm=None) -> MissionReading` | Lê o texto numa `Mission` sobre o domínio dado; um LLM opcional só é aceito onde escolhe opções fechadas e cita palavras do texto. |
+| `lab_toolbox` | função | `(lab, reading=None) -> Toolbox` | Caixa fechada de ferramentas com que o agente dirige o laboratório; cada ferramenta devolve o medido ou o previsto (rotulado). |
+| `audit_claims` | função | `(answer, tool_log, lab, recommended_run=None, rtol=0.005) -> dict[str, Any]` | Confere se cada número da resposta aparece no que as ferramentas devolveram e se o run recomendado existe, teve sucesso e cumpre os limites. |
+| `run_agent` | função | `(text, simulator, folder, *, domain, planner=None, provider=None, model=None, llm=None, m…)` | Interpreta o texto, monta o laboratório e deixa o agente dirigi-lo (planejador dado, LLM se houver provedor, senão `LabPlanner`). |
 
 #### `pinneapple_autolab.core`
 
-Mission -> plan -> controlled tool calls -> evidence: the agent loop of the Autonomous Physics Lab.
+Laço de agente missão -> plano -> chamadas controladas -> evidência: o agente nunca roda código próprio, só ferramentas registradas com argumentos checados. [sem teste direto]
 
 <small>`pinneapple_autolab/core.py` · 297 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Tool` | classe | `(name, fn, description, inputs, summary)` | A library call the agent may make: ``fn(state, **args) -> dict`` (the dict lands in ``state[name]``). ``inputs``: argument name -> description (the only arguments accepted); ``summary``: result -> short dict for the evidence log (default: the scalar entries of the result). |
-| `Toolbox` | classe | `(kind, tools=None)` | The controlled set of tools of one mission kind. |
-| `Step` | classe | `(tool, args, why)` |  |
-| `Plan` | classe | `(mission, steps, planner, notes)` |  |
-| `Planner` | classe | `()` |  |
-| `TemplatePlanner` | classe | `(steps)` | The fixed sequence of steps of a mission kind. |
-| `LLMPlanner` | classe | `(fallback, *, provider='anthropic', model=None, llm=None, required=())` | A language model orders the toolbox's tools into a plan; the template plan is the fallback. |
-| `Evidence` | classe | `(step, tool, args, why, summary, seconds, ok, error)` |  |
-| `Run` | classe | `(plan, state, evidence)` |  |
-| `StepPlanner` | classe | `(name)` | Chooses the next step after seeing every result so far (``None``: done). |
-| `LLMStepPlanner` | classe | `(*, provider='anthropic', model=None, llm=None, rules='')` | A language model chooses each next step from the toolbox, seeing the mission, the tools and the evidence so far (summaries only: the numbers the tools returned). It answers ``{"tool", "args", "why"}`` or ``{"done": true}``. An unknown tool or argument is not run: the refusal is recorded as evidence … |
-| `execute` | função | `(plan, toolbox, state=None, *, stop_on_error=True, log=None) -> Run` | Run the plan's steps in order through the toolbox only. Each tool sees the shared ``state`` (earlier outputs by tool name, plus whatever the caller put there; ``_plan`` and ``_evidence`` hold the plan and the evidence so far) and returns a dict stored under its name. |
-| `act` | função | `(mission, toolbox, planner, state=None, *, max_steps=200, max_refusals=5, log=None) -> Run` | Decide-then-act loop: ask ``planner`` for one step, check it against the toolbox, run it, record the evidence, repeat until the planner is done, ``max_steps`` or ``max_refusals`` consecutive refused / failed steps. Same :class:`Tool` / :class:`Evidence` contract as :func:`execute`; the returned … |
+| `Tool` | classe | `(name, fn, description, inputs, summary)` | Uma chamada de biblioteca permitida: `fn(state, **args) -> dict`, descrição, entradas aceitas e resumo para o log. |
+| `Toolbox` | classe | `(kind, tools=None)` | Conjunto controlado de ferramentas de um tipo de missão (`add`, `names`, `check`, `describe`). |
+| `Step` | classe | `(tool, args, why)` | Um passo do plano: ferramenta, argumentos e justificativa. |
+| `Plan` | classe | `(mission, steps, planner, notes)` | Plano de uma missão: passos, planejador usado e notas. |
+| `Planner` | classe | `()` | Interface base de planejador que produz um `Plan`. |
+| `TemplatePlanner` | classe | `(steps)` | Planejador determinístico com a sequência fixa de passos de um tipo de missão. |
+| `LLMPlanner` | classe | `(fallback, *, provider='anthropic', model=None, llm=None, required=())` | Um modelo de linguagem ordena as ferramentas num plano JSON; ferramenta ou argumento desconhecido faz cair no plano modelo. |
+| `Evidence` | classe | `(step, tool, args, why, summary, seconds, ok, error)` | Registro de uma chamada: passo, ferramenta, argumentos, justificativa, resumo do resultado, tempo, sucesso e erro. |
+| `Run` | classe | `(plan, state, evidence)` | Resultado de uma execução: plano, estado com as saídas por ferramenta e a lista de evidências. |
+| `StepPlanner` | classe | `(name)` | Interface de planejador que escolhe o próximo passo depois de ver os resultados (None quando termina). |
+| `LLMStepPlanner` | classe | `(*, provider='anthropic', model=None, llm=None, rules='')` | Um modelo de linguagem escolhe cada próximo passo vendo missão, ferramentas e evidências; passo inválido é recusado e registrado. |
+| `execute` | função | `(plan, toolbox, state=None, *, stop_on_error=True, log=None) -> Run` | Executa os passos do plano em ordem, só pela caixa de ferramentas, com estado compartilhado. |
+| `act` | função | `(mission, toolbox, planner, state=None, *, max_steps=200, max_refusals=5, log=None) -> Run` | Laço decidir-e-agir: pede um passo, checa, executa, registra, até o planejador terminar ou atingir os limites de passos ou recusas. |
 
 #### `pinneapple_autolab.dashboard`
 
-The lab's dashboard: four synchronised areas over the real state of a session.
+Painel da sessão a partir dos arquivos (`ledger.json`, `events.jsonl`, snapshot, resumo): página estática, servidor ao vivo, screenshot e vídeo do replay.
 
 <small>`pinneapple_autolab/dashboard.py` · 233 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `live_state` | função | `(folder, out_dir=None, tail=120) -> dict[str, Any]` | The session's state from its files: ``ledger.json`` (runs), ``events.jsonl`` (what is happening), ``snapshot.json`` / ``summary.json`` when written (in ``folder`` or ``out_dir``). ``status`` says what is going on now: ``running`` (the run being simulated), ``training``, ``phase`` (last stage), … |
-| `build_dashboard` | função | `(folder, out_dir, *, scenes=None, title='', state=None, live=False, replay=False, figures…)` | Write ``out_dir/index.html``: the dashboard with the current state embedded (``live=True``: it also polls ``state.json`` next to it, see :func:`serve`; ``replay=True``: a slider and a play button step through the recorded events, every number the recorded one). ``scenes``: name -> studio Scene … |
-| `serve` | função | `(folder, out_dir, port=8120, host='127.0.0.1', block=True, **kw)` | Serve the dashboard of ``folder`` live: ``/`` the page (rebuilt once), ``/state.json`` the state read from the session's files at every request. ``block=False`` returns the server (``.shutdown()`` to stop). |
-| `capture` | função | `(html, png, *, width=1600, height=1100, full_page=True, replay_to=None, wait_ms=5000) -> …)` | Screenshot of a dashboard page (``replay_to``: the replay at that event). Needs ``playwright``. |
-| `record_replay` | função | `(html, mp4, *, frames=60, fps=4.0, hold_s=3.0, width=1600, height=2040, out_width=1280, c…)` | An MP4 of the dashboard's replay (the recorded events, evenly sampled), via ffmpeg. Needs ``playwright``. |
+| `live_state` | função | `(folder, out_dir=None, tail=120) -> dict[str, Any]` | Estado da sessão lido dos arquivos, com um `status` do que está acontecendo agora. |
+| `build_dashboard` | função | `(folder, out_dir, *, scenes=None, title='', state=None, live=False, replay=False, figures…)` | Grava `index.html` do painel com o estado embutido, opcionalmente ao vivo (polling de `state.json`) ou com replay. |
+| `serve` | função | `(folder, out_dir, port=8120, host='127.0.0.1', block=True, **kw)` | Serve o painel ao vivo: a página e `/state.json` relido a cada requisição. |
+| `capture` | função | `(html, png, *, width=1600, height=1100, full_page=True, replay_to=None, wait_ms=5000) -> …)` | Screenshot de uma página do painel (precisa de `playwright`). |
+| `record_replay` | função | `(html, mp4, *, frames=60, fps=4.0, hold_s=3.0, width=1600, height=2040, out_width=1280, c…)` | Vídeo MP4 do replay do painel via ffmpeg (precisa de `playwright`). |
 
 #### `pinneapple_autolab.domain`
 
-Where the surrogate has evidence: the validated domain of a set of simulated designs.
+Domínio validado: distância de um projeto ao projeto simulado mais próximo, em unidades do espaçamento típico dos simulados, mais a faixa coberta por variável. [sem teste direto]
 
 <small>`pinneapple_autolab/domain.py` · 72 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DomainVerdict` | classe | `(inside, ratio, nearest, reasons)` |  |
-| `ValidatedDomain` | classe | `(U, names=None, bounds=None, max_ratio=1.5, margin=0.05)` |  |
+| `DomainVerdict` | classe | `(inside, ratio, nearest, reasons)` | Veredito de domínio: dentro ou fora, razão de distância, vizinho mais próximo e motivos em palavras. |
+| `ValidatedDomain` | classe | `(U, names=None, bounds=None, max_ratio=1.5, margin=0.05)` | Domínio dos projetos simulados; `assess` diz se um projeto está dentro (razão até `max_ratio` e variáveis na faixa com margem). |
 
 #### `pinneapple_autolab.domains`
 
-Simulators and missions of the Autonomous Physics Lab, one module per physical domain.
+Pacote dos simuladores e missões por domínio físico. [sem teste direto]
 
 <small>`pinneapple_autolab/domains/__init__.py` · 2 linhas · **sem teste direto**</small>
 
 #### `pinneapple_autolab.domains.racecar`
 
-The AI Aerodynamicist's simulator: a parametric open-wheel racing car in OpenFOAM, and its flagship mission.
+Simulador do "AI Aerodynamicist": carro de fórmula paramétrico (`FormulaCar`, não de nenhuma equipe) em OpenFOAM (snappyHexMesh + simpleFoam k-omega SST), com a missão principal e o painel da sessão.
 
 <small>`pinneapple_autolab/domains/racecar.py` · 464 linhas · testes: 11</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RaceCarAero` | classe | `(resolution='campaign', iterations=800, procs=4, n_lines=40, keep_cases=False, conditions…)` | OpenFOAM external aerodynamics of :class:`FormulaCar`. ``resolution``: a key of :data:`MESHES` ("coarse" 0.14 M cells, "medium" 0.21 M, "fine" 0.82 M cells at the baseline, "campaign": medium with the wings and the floor at the fine levels); ``iterations`` of simpleFoam. Forces are written every … |
-| `make_car` | função | `(params)` |  |
-| `force_convergence` | função | `(history, window=2) -> dict[str, float]` | Relative change of drag and downforce over the last ``window`` written intervals (e.g. the last 200 iterations when forces are written every 100). |
-| `solver_log_summary` | função | `(case) -> dict[str, Any]` | Last iteration, final initial residuals per field, whether checkMesh passed, snappy cells and timings. |
-| `render_run` | função | `(params, flow_npz, out_prefix, title='', size=(1200, 675)) -> dict[str, str]` | PyVista renders of one simulated design from its saved flow scene: surface Cp (jet, from above and below) and the streamlines coloured by speed. Returns {name: path}. |
-| `cycles_renders` | função | `(params, flow_npz, out_prefix, title='', samples=64, size=(1600, 900)) -> dict[str, str]` | Blender Cycles renders of a simulated design (needs ``bpy``): the streamlines coloured by speed on black, and the surface Cp in the studio, each with its jet colour bar. Returns {} without ``bpy``. |
-| `flow_scene` | função | `(params, flow_npz, title='')` | The studio Scene of a simulated design (car parts + skin Cp/Cf, streamlines, slices) from its flow file. |
-| `build_dashboard` | função | `(work, out_dir, summary, *, figures=None, figure_runs=None, viewers=True, replay=True, re…)` | The lab dashboard of a race-car session: renders of the original and the recommended design (surface Cp, surface mesh, streamlines, mid-plane Cp, wake vorticity) from their saved flow files, their 3-D studio viewers, and the recorded session (``work``: the lab folder with ledger.json and … |
-| `recorded_dashboard` | função | `(results_dir, out_dir) -> str` | The dashboard of a recorded session from its committed files only (``ledger.json``, ``events.jsonl``, ``summary.json``, ``snapshot.json`` and the renders in ``figures/``): no OpenFOAM, no flow files, so no 3-D viewer; the replay steps through the recorded events. |
-| `racecar_domain` | função | `()` | What the race-car simulator can be asked, for :func:`pinneapple_autolab.agent.interpret_mission`. |
-| `flagship_mission` | função | `(budget=30, reserve_verify=3) -> Mission` | "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD." |
+| `RaceCarAero` | classe | `(resolution='campaign', iterations=800, procs=4, n_lines=40, keep_cases=False, conditions…)` | Simulador de aerodinâmica externa do carro em OpenFOAM: checa o projeto, roda o caso e devolve forças, balanço e Cp de superfície por região. |
+| `make_car` | função | `(params)` | Constrói um `FormulaCar` a partir dos parâmetros. |
+| `force_convergence` | função | `(history, window=2) -> dict[str, float]` | Variação relativa de arrasto e downforce nos últimos intervalos gravados. |
+| `solver_log_summary` | função | `(case) -> dict[str, Any]` | Resumo do log: última iteração, resíduos finais, se o checkMesh passou, células e tempos. |
+| `render_run` | função | `(params, flow_npz, out_prefix, title='', size=(1200, 675)) -> dict[str, str]` | Renders PyVista de um projeto simulado: Cp de superfície e linhas de corrente. |
+| `cycles_renders` | função | `(params, flow_npz, out_prefix, title='', samples=64, size=(1600, 900)) -> dict[str, str]` | Renders Blender Cycles de um projeto simulado (precisa de `bpy`; sem ele devolve {}). |
+| `flow_scene` | função | `(params, flow_npz, title='')` | Cena do estúdio 3D de um projeto simulado (partes do carro, Cp/Cf, linhas de corrente, fatias). |
+| `build_dashboard` | função | `(work, out_dir, summary, *, figures=None, figure_runs=None, viewers=True, replay=True, re…)` | Painel de uma sessão do carro com renders do projeto original e do recomendado, visualizadores 3D e a sessão gravada. |
+| `recorded_dashboard` | função | `(results_dir, out_dir) -> str` | Painel de uma sessão gravada só a partir dos arquivos versionados, sem OpenFOAM e sem visualizador 3D. |
+| `racecar_domain` | função | `()` | Descrição `MissionDomain` do que o simulador do carro pode receber, para `interpret_mission`. |
+| `flagship_mission` | função | `(budget=30, reserve_verify=3) -> Mission` | A missão principal: menor arrasto a 70 m/s mantendo a downforce, dentro das restrições geométricas, validado por CFD. |
 
 #### `pinneapple_autolab.lab`
 
-The autonomous physics lab: plan -> build -> simulate -> learn -> optimise -> verify -> deliver, on any simulator.
+O laboratório autônomo sobre qualquer simulador, com cada etapa disponível como método e registrada no ledger; impõe orçamento, checagens antes de simular e recomendação só de projeto simulado.
 
 <small>`pinneapple_autolab/lab.py` · 546 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AutonomousLab` | classe | `(mission, simulator, folder, *, families=…, field_family='gp', seed=0, nsga_budget=3000, …)` | ``critical_region``: name of a simulator region whose field error decides the trust in a constraint (e.g. the diffuser for downforce); ``field_tol``: the tolerated predicted std of that field there. ``probe(params, **options)`` runs another fidelity (e.g. a finer mesh) that never joins the training … |
-| `showcase` | função | `(decisions, baseline) -> dict[str, dict[str, Any]]` | Three simulated designs the lab judged differently before simulating them, by a fixed rule: |
+| `AutonomousLab` | classe | `(mission, simulator, folder, *, families=…, field_family='gp', seed=0, nsga_budget=3000, …)` | O laboratório: missão, simulador, pasta, famílias de surrogates, região crítica e tolerância de campo; métodos para cada etapa do ciclo e `run()` para o ciclo inteiro. |
+| `showcase` | função | `(decisions, baseline) -> dict[str, dict[str, Any]]` | Escolhe por regra fixa três projetos simulados que o laboratório julgou de forma diferente antes de simular (incerto, favorável, fora do domínio). |
 
 #### `pinneapple_autolab.ledger`
 
-The evidence ledger: every simulation the lab ran (why, with what, what it cost, what came out) and every event of the session, in the order they happened.
+Livro de evidências: cada simulação (por quê, com o quê, custo, resultado) e cada evento, em ordem; é a única fonte de números para relatório, painel e agente. [sem teste direto]
 
 <small>`pinneapple_autolab/ledger.py` · 185 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BudgetExhaustedError` | classe | `()` | The mission's simulation budget has been spent. |
-| `RunRecord` | classe | `(id, purpose, params, ok, outputs, message, cost_s, started, reason, predicted, meta, fie…)` | One reference simulation. ``outputs`` holds only what the solver produced (empty when it failed); ``predicted`` what the surrogate said before the run (for the held-out error), ``reason`` why it was run. |
-| `Ledger` | classe | `(folder, max_runs=None, max_wall_s=None, listeners=None)` | Runs and events of one lab session, kept in ``folder``. ``listeners``: callables ``f(event_dict)`` called on every event (a live dashboard, a test). |
-| `environment` | função | `(extra=None) -> dict[str, Any]` | Hardware and software of this machine: CPU, cores, memory, OS, Python and package versions, git commit. |
+| `BudgetExhaustedError` | classe | `()` | Exceção: o orçamento de simulações da missão acabou. |
+| `RunRecord` | classe | `(id, purpose, params, ok, outputs, message, cost_s, started, reason, predicted, meta, fie…)` | Uma simulação de referência: id, propósito, parâmetros, sucesso, saídas, mensagem, custo, motivo e o que o surrogate previa antes. |
+| `Ledger` | classe | `(folder, max_runs=None, max_wall_s=None, listeners=None)` | Runs e eventos de uma sessão numa pasta, com controle de orçamento, `events.jsonl` incremental e `ledger.json`. |
+| `environment` | função | `(extra=None) -> dict[str, Any]` | Hardware e software da máquina: CPU, núcleos, memória, sistema, versões de Python e pacotes, commit do git. |
 
 #### `pinneapple_autolab.mission`
 
-A mission as numbers: what to improve, what must hold, what may change, how much simulation it may spend.
+Missão em números: variáveis, objetivos, limites (absolutos ou relativos ao baseline), baseline, orçamento, aceitação e condições fixas. [sem teste direto]
 
 <small>`pinneapple_autolab/mission.py` · 161 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnresolvedLimitError` | classe | `()` | A limit relative to the baseline was used before the baseline was simulated. |
-| `Budget` | classe | `(max_runs, reserve_verify, max_wall_s)` | Simulation budget. ``max_runs`` reference simulations in total, of which ``reserve_verify`` are kept for the final verification of the chosen designs; ``max_wall_s`` (optional) caps the summed solver wall time. |
-| `Limit` | classe | `(name, lower, upper, lower_frac_of_baseline, upper_frac_of_baseline, unit, kind, label)` | ``lower <= output <= upper``; a bound can instead be a fraction of the baseline's value (``lower_frac_of_baseline=1.0``: at least the baseline's). ``kind``: "physical", "geometry", "validity". |
-| `Mission` | classe | `(title, statement, variables, objectives, constraints, baseline, budget, acceptance, cond…)` | What the lab is asked to do. ``acceptance``: relative tolerance per output for a prediction to count as confirmed by the reference solver (\|prediction - reference\| / \|reference\| <= tol). ``conditions``: the fixed operating and boundary conditions (speed, ground, ...); the lab never changes them. |
+| `UnresolvedLimitError` | classe | `()` | Exceção: um limite relativo ao baseline foi usado antes de o baseline ser simulado. |
+| `Budget` | classe | `(max_runs, reserve_verify, max_wall_s)` | Orçamento: máximo de simulações, reserva para a verificação final e tempo total opcional. |
+| `Limit` | classe | `(name, lower, upper, lower_frac_of_baseline, upper_frac_of_baseline, unit, kind, label)` | Limite `lower <= saída <= upper`, absoluto ou como fração do baseline, com unidade e tipo (físico, geometria, validade). |
+| `Mission` | classe | `(title, statement, variables, objectives, constraints, baseline, budget, acceptance, cond…)` | O que o laboratório deve fazer; resolve limites relativos com as saídas do baseline e serializa de/para dict. |
 
 #### `pinneapple_autolab.qualification`
 
-Before a campaign: how much of the reference solver's answer is the mesh and the iteration count?
+Qualificação do solver: roda o mesmo projeto em variantes de malha/iterações (fora do orçamento) e mede a diferença relativa de cada saída contra a referência. [sem teste direto]
 
 <small>`pinneapple_autolab/qualification.py` · 49 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solver_qualification` | função | `(sim, params, variants, folder, reference, campaign, outputs=None) -> dict[str, Any]` |  |
+| `solver_qualification` | função | `(sim, params, variants, folder, reference, campaign, outputs=None) -> dict[str, Any]` | Roda as variantes num ledger próprio e devolve, por saída, a diferença relativa de cada variante em relação à `reference`. |
 
 #### `pinneapple_autolab.replay`
 
-A simulator that answers from a ledger of measured runs when it holds the exact design, and runs the real simulator otherwise.
+Simulador de replay: devolve a medição gravada quando o projeto está no ledger (sem interpolar) e roda o simulador real caso contrário.
 
 <small>`pinneapple_autolab/replay.py` · 68 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReplaySimulator` | classe | `(simulator, ledger_path, fields_dir=None, atol=1e-09)` |  |
+| `ReplaySimulator` | classe | `(simulator, ledger_path, fields_dir=None, atol=1e-09)` | Envolve um simulador real e um ledger gravado; marca a origem do replay em `meta`. |
 
 #### `pinneapple_autolab.report`
 
-Figures and the engineering report of a lab session, drawn only from its snapshot (ledger runs, candidates, model board, decisions): nothing here computes a physical number.
+Figuras e relatório de engenharia de uma sessão, só a partir do snapshot; nada aqui calcula um número físico. [sem teste direto]
 
 <small>`pinneapple_autolab/report.py` · 348 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `shrink_png` | função | `(path, colors=256) -> str` | Re-save a PNG with an adaptive palette of ``colors`` (renders and dense scatter plots shrink 3-4x). |
-| `pareto_front` | função | `(F) -> np.ndarray` | Indices of the non-dominated rows of ``F`` (all columns minimised), sorted by the first column. |
-| `fig_pareto` | função | `(snap, path, x='drag_N', y='downforce_N', scale=0.001, units='kN', annotate=None) -> str` |  |
-| `fig_models` | função | `(snap, path, outputs, labels=None, scale=None) -> str` |  |
-| `fig_learning` | função | `(snap, path, outputs, objective, acceptance) -> str` |  |
-| `fig_field_triptych` | função | `(points, ref, pred, path, title='', clim=(-1.5, 1.0), err_max=0.3, label='Cp', mirror=Tru…)` | Reference \| prediction \| \|error\| from above and from below (half-model points mirrored), colormap jet. |
-| `fig_trust_cards` | função | `(cards, path, outputs, units=None) -> str` | One panel per card: ``{"tag", "label", "reasons", "predicted", "std", "reference", "decision", "action"}``; bars = prediction +- 1.96 std, diamond = reference (when simulated). |
-| `write_report` | função | `(summary, path, figures=None, qualification=None, extra='') -> str` | The engineering report in Markdown: mission, plan, solver qualification, budget, models, decisions, recommendation (a simulated design), environment. |
+| `shrink_png` | função | `(path, colors=256) -> str` | Regrava um PNG com paleta adaptativa para reduzir o tamanho. |
+| `pareto_front` | função | `(F) -> np.ndarray` | Índices das linhas não dominadas (todas as colunas minimizadas), ordenados pela primeira coluna. |
+| `fig_pareto` | função | `(snap, path, x='drag_N', y='downforce_N', scale=0.001, units='kN', annotate=None) -> str` | Figura arrasto x downforce com candidatos, frente do surrogate, projetos simulados, baseline e limite. |
+| `fig_models` | função | `(snap, path, outputs, labels=None, scale=None) -> str` | Figura das previsões por validação cruzada contra a referência, com intervalos de 95 %, e notas das famílias. |
+| `fig_learning` | função | `(snap, path, outputs, objective, acceptance) -> str` | Figura do erro de cada previsão feita antes da simulação e do melhor objetivo viável contra simulações gastas. |
+| `fig_field_triptych` | função | `(points, ref, pred, path, title='', clim=(-1.5, 1.0), err_max=0.3, label='Cp', mirror=Tru…)` | Referência \| previsão \| \|erro\| de um campo de superfície, vistas de cima e de baixo. |
+| `fig_trust_cards` | função | `(cards, path, outputs, units=None) -> str` | Um painel por caso de confiança: previsão ± 1,96 std, referência quando simulada e decisão. |
+| `write_report` | função | `(summary, path, figures=None, qualification=None, extra='') -> str` | Relatório de engenharia em Markdown: missão, plano, qualificação, orçamento, modelos, decisões, recomendação e ambiente. |
 
 #### `pinneapple_autolab.simulator`
 
-The reference simulator the lab calls: a solver run on one design, its checks before it runs, its cost after.
+Contrato do simulador de referência (`check` antes, `run` com custo depois; falha nunca devolve saídas inventadas) e um simulador de função para testes. Os métodos da base levantam `NotImplementedError` (abstratos). [sem teste direto]
 
 <small>`pinneapple_autolab/simulator.py` · 91 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SimOutcome` | classe | `(outputs, ok, message, cost_s, fields, meta)` |  |
-| `Simulator` | classe | `(name, fidelity, outputs, field_names, regions)` | Base class: set ``name``, ``fidelity``, ``outputs`` (and ``field_names`` / ``field_points`` / ``regions`` if it returns fields), implement :meth:`check` and :meth:`run`. |
-| `FunctionSimulator` | classe | `(fn, outputs, *, name='function', checker=None, fail=None, field_names=(), regions=None, …)` | ``fn(params) -> {output: value}`` (optionally also ``"__fields__": {name: array}``); ``checker(params) -> list[str]``; ``fail(params) -> str \| None`` makes a run fail with that message (to test failure paths). |
+| `SimOutcome` | classe | `(outputs, ok, message, cost_s, fields, meta)` | Resultado de uma simulação: saídas, sucesso, mensagem, custo, campos opcionais e metadados. |
+| `Simulator` | classe | `(name, fidelity, outputs, field_names, regions)` | Classe base: define nome, fidelidade, saídas, campos e regiões; subclasses implementam `check` e `run`. |
+| `FunctionSimulator` | classe | `(fn, outputs, *, name='function', checker=None, fail=None, field_names=(), regions=None, …)` | Simulador a partir de `fn(params) -> {saída: valor}`, com checador e falha simulada opcionais (testes, problemas analíticos). |
 
 #### `pinneapple_autolab.surrogates`
 
-Surrogates of the reference solver, compared on data they did not see, each with an uncertainty.
+Surrogates com incerteza (GP Matern 5/2, ensemble de MLP, superfície quadrática, POD de campo) e a comparação por validação cruzada k-fold; a base `_Model` é abstrata (`NotImplementedError`). [sem teste direto]
 
 <small>`pinneapple_autolab/surrogates.py` · 260 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GPModel` | classe | `(restarts=1, seed=0)` |  |
-| `MLPEnsemble` | classe | `(n=5, hidden=(32, 32), seed=0, max_iter=600)` |  |
-| `QuadraticRSM` | classe | `(alpha=1e-06)` |  |
-| `ModelBoard` | classe | `(table, chosen, models, cv_pred, n_train, cv_y)` | Cross-validated scores of every family on every output, the choice per output and the fitted models. |
-| `FieldSurrogate` | classe | `(family='gp', energy=0.99, max_modes=12)` | POD + per-mode regression of fields sampled on fixed points. ``energy``: fraction of the snapshot variance the retained modes keep (capped at ``max_modes`` and at n_snapshots - 1). |
-| `make_model` | função | `(family, **kw) -> _Model` |  |
-| `cross_validate` | função | `(family, U, y, k=5, seed=0) -> dict[str, Any]` | k-fold cross-validation of one family on one output; returns the metrics and the held-out predictions. |
-| `compare_models` | função | `(U, Y, families=…, k=5, seed=0, select='rmse') -> ModelBoard` | Cross-validate every family on every output, choose the lowest held-out ``select`` metric per output (a family whose 95 % interval holds fewer than half the held-out points is only chosen if nothing else is available), refit the chosen family on all data. |
-| `field_errors` | função | `(pred, ref, regions=None, std=None) -> dict[str, dict[str, float]]` | RMSE, max error and (with ``std``) the 95 % coverage of a predicted field, overall and per region. |
+| `GPModel` | classe | `(restarts=1, seed=0)` | Processo gaussiano Matern 5/2 com escalas ARD (scikit-learn), com desvio padrão preditivo. |
+| `MLPEnsemble` | classe | `(n=5, hidden=(32, 32), seed=0, max_iter=600)` | `n` MLPs pequenos em reamostragens bootstrap (scikit-learn); desvio = espalhamento dos membros. |
+| `QuadraticRSM` | classe | `(alpha=1e-06)` | Regressão ridge numa base quadrática completa; desvio = desvio residual do próprio ajuste. |
+| `ModelBoard` | classe | `(table, chosen, models, cv_pred, n_train, cv_y)` | Tabela de notas por validação cruzada, família escolhida por saída e modelos ajustados. |
+| `FieldSurrogate` | classe | `(family='gp', energy=0.99, max_modes=12)` | POD de campos em pontos fixos mais uma regressão por modo; desvio do campo vem dos modos. |
+| `make_model` | função | `(family, **kw) -> _Model` | Cria um modelo da família pedida; família desconhecida levanta `ValueError`. |
+| `cross_validate` | função | `(family, U, y, k=5, seed=0) -> dict[str, Any]` | Validação cruzada k-fold de uma família numa saída: métricas e previsões fora da amostra. |
+| `compare_models` | função | `(U, Y, families=…, k=5, seed=0, select='rmse') -> ModelBoard` | Valida todas as famílias em todas as saídas, escolhe a de menor métrica por saída (penalizando as mal calibradas) e reajusta. |
+| `field_errors` | função | `(pred, ref, regions=None, std=None) -> dict[str, dict[str, float]]` | RMSE, erro máximo e cobertura de 95 % de um campo previsto, no total e por região. |
 
 #### `pinneapple_autolab.trust`
 
-Can this prediction be used for a decision? Triage of surrogate candidates and the choice of the next simulation.
+Triagem de candidatos: probabilidade de viabilidade, melhoria esperada restrita, domínio validado e erro de campo na região crítica, com quatro rótulos e a regra da próxima simulação. [sem teste direto]
 
 <small>`pinneapple_autolab/trust.py` · 262 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CandidateAssessment` | classe | `(index, params, predicted, std, p_feasible, cei, domain, label, reasons, report, critical…)` |  |
-| `NextExperiment` | classe | `(candidate, rule, reason, alternatives)` |  |
-| `assess_candidates` | função | `(X, names, pred, objectives, constraints, domain_verdicts, best_value, acceptance, model_…)` | Assess candidates ``X`` (physical units, columns ``names``). ``pred``: output -> (mean, std) arrays; ``best_value``: the best simulated feasible value of the first objective (None: no feasible simulation yet, then the EI is replaced by the predicted improvement over the candidates' worst); … |
-| `choose_next` | função | `(cands, objective, exclude=()) -> NextExperiment` | The next simulation, by the written rule in the module docstring. |
-| `verification_checks` | função | `(c, reference, ok, acceptance, constraints, message='') -> CandidateAssessment` | Update an assessment with the reference result: measured relative errors, the confirmation check and the feasibility under the reference values. |
+| `CandidateAssessment` | classe | `(index, params, predicted, std, p_feasible, cei, domain, label, reasons, report, critical…)` | Avaliação de um candidato: previsão e desvio, P(viável), EI restrita, domínio, rótulo, motivos, relatório e, depois, a referência. |
+| `NextExperiment` | classe | `(candidate, rule, reason, alternatives)` | A próxima simulação escolhida: candidato, regra, motivo e alternativas. |
+| `assess_candidates` | função | `(X, names, pred, objectives, constraints, domain_verdicts, best_value, acceptance, model_…)` | Avalia os candidatos do otimizador e atribui `favourable`, `uncertain`, `out_of_domain` ou `unlikely`. |
+| `choose_next` | função | `(cands, objective, exclude=()) -> NextExperiment` | Escolhe a próxima simulação pela regra escrita no docstring do módulo. |
+| `verification_checks` | função | `(c, reference, ok, acceptance, constraints, message='') -> CandidateAssessment` | Atualiza uma avaliação com o resultado de referência: erros relativos medidos, confirmação e viabilidade real. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Missão de brinquedo com simulador analítico** — `tests/test_autolab.py`
+
+```python
+def toy_sim(**kw):
+    return FunctionSimulator(toy, ["drag", "down"], field_names=["cp"], regions={"tail": PTS > 0.7}, **kw)
+
+
+def toy_mission(runs=12, reserve=1):
+    return Mission("toy", "lower drag, keep downforce", [Variable("a", 0, 1), Variable("b", 0, 1)],
+                   [Objective("drag", "min")], [Limit("down", lower_frac_of_baseline=1.0)],
+                   baseline={"a": 0.5, "b": 0.5}, budget=Budget(runs, reserve),
+                   acceptance={"drag": 0.03, "down": 0.03})
+```
+
+**O laboratório na missão do carro (docstring do pacote)** — `pinneapple_autolab/__init__.py`
+
+```python
+from pinneapple_autolab import AutonomousLab
+from pinneapple_autolab.domains.racecar import RaceCarAero, flagship_mission
+
+lab = AutonomousLab(flagship_mission(), RaceCarAero(), "runs/aero", critical_region="diffuser")
+summary = lab.run()
+```
 
 ### Testes e status de validação
 
@@ -5882,7 +5910,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `domains.racecar` precisa de OpenFOAM (snappyHexMesh, simpleFoam); a campanha completa do exemplo leva horas em 4 núcleos (docstring de `examples/autolab_aero/autolab_aero.py`). Renders pedem PyVista e, para Cycles, `bpy`.
+- `dashboard.capture` e `dashboard.record_replay` precisam de `playwright` (e ffmpeg para o vídeo).
+- Os planejadores com LLM (`LLMPlanner`, `LLMStepPlanner`, `run_agent` com `provider`) precisam de chave/serviço de um provedor; sem isso usa-se o planejador determinístico.
+- `LabPlanner` é declarado como substituto de um modelo de linguagem, não um agente inteligente: segue uma sequência fixa de etapas.
+- `Simulator` e a base dos surrogates são abstratos (`NotImplementedError`); cada domínio novo precisa implementar `check` e `run`.
+- Os surrogates dependem de scikit-learn; a recomendação final é sempre um projeto simulado, então o orçamento de simulações limita o que pode ser recomendado.
+- `core`, `domain`, `ledger`, `mission`, `qualification`, `report`, `simulator`, `surrogates` e `trust` não têm teste direto (são exercitados pelos testes que importam o pacote raiz).
 
 ## 9. `pinneapple_app`
 

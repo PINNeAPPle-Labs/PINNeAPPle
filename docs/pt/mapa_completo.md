@@ -152,9 +152,9 @@ Em palavras:
 | `pp.closed_form` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.closed_form` | Subpacote de modelos físicos em forma fechada (sem EDP), portados de ferramentas de produtos para serem compartilhados e testados; o `__init__` importa só parte dos módulos (não importa `eddy_coil`, `electromagnetics`, `heat_exchanger`, `pipe_insulation`, `pump_npsh`, `thin_airfoil`). |
 | `pp.CollocationConfig` | import direto | `pinneapple_data.CollocationConfig` |  |
 | `pp.CollocationSampler` | import direto | `pinneapple_data.CollocationSampler` |  |
-| `pp.compare` | import direto | `pinneapple_physics.solving.compare` | Solve or reuse each method and score it against ``reference`` at the same points. |
-| `pp.Comparison` | import direto | `pinneapple_physics.solving.Comparison` |  |
-| `pp.compile` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_physics.compile_api.compile` | Prepare a problem (a ``PhysicalProblem``, a ``ProblemSpec`` or a preset name) for faster solving. |
+| `pp.compare` | import direto | `pinneapple_physics.solving.compare` | Resolve ou reaproveita cada método e pontua contra a referência nos mesmos pontos. |
+| `pp.Comparison` | import direto | `pinneapple_physics.solving.Comparison` | Tabela de `compare`: métricas de cada método contra a referência nos mesmos pontos, com `best`. |
+| `pp.compile` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_physics.compile_api.compile` | Prepara um `PhysicalProblem`, `ProblemSpec` ou nome de preset para resolver mais rápido. |
 | `pp.ComposedObsOperator` | import direto | `pinneapple_analysis.inverse_problems.ComposedObsOperator` |  |
 | `pp.CompositeObjective` | import direto | `pinneapple_design.design_optimizer.CompositeObjective` |  |
 | `pp.CompositeRegularizer` | import direto | `pinneapple_analysis.inverse_problems.CompositeRegularizer` |  |
@@ -206,14 +206,14 @@ Em palavras:
 | `pp.EKIConfig` | import direto | `pinneapple_analysis.inverse_problems.EKIConfig` |  |
 | `pp.ellipse` | import direto | `pinneapple_design.geometry.ellipse` |  |
 | `pp.em` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.electromagnetics` | Pacote de eletromagnetismo em SI: referências em forma fechada, materiais, solvers FEM 2-D em A_z, FDTD, ondas e máquinas elétricas; reexporta as classes e funções principais dos submódulos. |
-| `pp.ensemble` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.ensemble` |  |
+| `pp.ensemble` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.ensemble` | Ensemble adaptativo de especialistas físicos: pesos atualizados online por erro contra referência, resíduo físico e custo, nos modos `select` ou `combine`, com intervalos conformais e detecção de suspeitos. |
 | `pp.EnsembleKalmanInversion` | import direto | `pinneapple_analysis.inverse_problems.EnsembleKalmanInversion` |  |
 | `pp.EnsembleUQ` | import direto | `pinneapple_analysis.uncertainty.EnsembleUQ` |  |
 | `pp.env` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.pde_environment` | Ponto de entrada do ambiente de problemas: reexporta `ProblemSpec`, `PDETermSpec`, as condições de contorno, `ProblemBuilder`, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de `try/except ImportError`. [sem teste direto] |
 | `pp.excitation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.excitation` | Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleatória, PRBS, chirp, dente de serra, passeio aleatório suavizado, pulsos gaussianos, AM de dois tons) para identificação de sistemas e treino de surrogates; separa famílias de treino e famílias reservadas (`TRAIN_FAMILIES`, `HELDOUT_FAMILIES`). |
 | `pp.execute` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.execute` | Execute a decision issued by the same engine (constraints are re-checked first). |
-| `pp.Experiment` | import direto | `pinneapple_physics.experiment.Experiment` | A method applied to a problem, with a seed, options and an optional reference to score against. |
-| `pp.ExperimentResult` | import direto | `pinneapple_physics.experiment.ExperimentResult` |  |
+| `pp.Experiment` | import direto | `pinneapple_physics.experiment.Experiment` | Método aplicado a um problema com semente, opções e referência opcional; `run` executa de forma reprodutível. |
+| `pp.ExperimentResult` | import direto | `pinneapple_physics.experiment.ExperimentResult` | Registro de uma execução: config, fingerprint, solução, métricas, tempo, ambiente; salva e carrega em JSON. |
 | `pp.export` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.model_export` | Exportação de modelos `nn.Module` para TorchScript e ONNX e de arrays de coordenadas/campos para CSV e NPZ. [sem teste] |
 | `pp.export_csv` | import direto | `pinneapple_tools.model_export.export_csv` | Grava coordenadas e campos num arquivo CSV com cabeçalho. |
 | `pp.export_npz` | import direto | `pinneapple_tools.model_export.export_npz` | Grava coordenadas e campos num `.npz` comprimido do NumPy. |
@@ -267,7 +267,7 @@ Em palavras:
 | `pp.LCurveSelector` | import direto | `pinneapple_analysis.inverse_problems.LCurveSelector` |  |
 | `pp.LidDrivenCavityDomain2D` | import direto | `pinneapple_design.geometry.LidDrivenCavityDomain2D` |  |
 | `pp.LinearObsOperator` | import direto | `pinneapple_analysis.inverse_problems.LinearObsOperator` |  |
-| `pp.list_methods` | import direto | `pinneapple_physics.solving.list_methods` | Registered method names, optionally only those of one ``kind``. |
+| `pp.list_methods` | import direto | `pinneapple_physics.solving.list_methods` | Nomes dos métodos registrados, opcionalmente filtrados por tipo. |
 | `pp.list_models` | definido em `pinneapple/__init__.py` | `pinneapple.list_models` |  |
 | `pp.list_pde_families` | import direto | `pinneapple_physics.pde_environment.list_pde_families` |  |
 | `pp.list_presets` | import direto | `pinneapple_physics.pde_environment.list_presets` |  |
@@ -285,8 +285,8 @@ Em palavras:
 | `pp.MetaBenchmarkFamily` | import direto | `pinneapple_tools.benchmark_suite.MetaBenchmarkFamily` |  |
 | `pp.MetaBenchmarkPipeline` | import direto | `pinneapple_tools.benchmark_suite.MetaBenchmarkPipeline` |  |
 | `pp.MetaBenchmarkResult` | import direto | `pinneapple_tools.benchmark_suite.MetaBenchmarkResult` |  |
-| `pp.MethodNotAvailable` | import direto | `pinneapple_physics.solving.MethodNotAvailable` | The requested method cannot solve this problem (missing solver output, missing option, ...). |
-| `pp.metrics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.metrics` |  |
+| `pp.MethodNotAvailable` | import direto | `pinneapple_physics.solving.MethodNotAvailable` | Exceção: o método pedido não pode resolver este problema. |
+| `pp.metrics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.metrics` | `pp.metrics`: L2, L2 relativo, RMSE, MAE, erro máximo, L∞ relativo e R² por campo, mais resumo, métrica agregada para rankings e erro de rollout temporal. |
 | `pp.ModelRegistry` | import direto | `pinneapple_neural.architectures.ModelRegistry` |  |
 | `pp.models` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_models` | [shim] Reexporta registro, catálogo e arquiteturas de `pinneapple_neural.architectures` para código legado; marcado como obsoleto (use `pinneapple_neural.architectures`). [sem teste direto] |
 | `pp.ModelSpec` | import direto | `pinneapple_tools.benchmark_suite.ModelSpec` |  |
@@ -302,12 +302,12 @@ Em palavras:
 | `pp.non_hermitian` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.non_hermitian` | Física não hermitiana: dímeros e cadeias PT-simétricos, pontos excepcionais (EPs) e se eles podem ser sintonizados; numpy, sympy para a parte simbólica e matplotlib para as figuras. |
 | `pp.NSFlowSolver` | import direto | `pinneapple_simulation.numerical_solvers.NSFlowSolver` |  |
 | `pp.NTKWeightBalancer` | import direto | `pinneapple_neural.trainer.NTKWeightBalancer` |  |
-| `pp.Parameter` | import direto | `pinneapple_physics.physical_problem.Parameter` | A named physical parameter. |
+| `pp.Parameter` | import direto | `pinneapple_physics.physical_problem.Parameter` | Parâmetro físico nomeado com valor, unidade, papel (fixo, projeto, incerto, desconhecido), limites e distribuição. |
 | `pp.ParetoFront` | import direto | `pinneapple_design.design_optimizer.ParetoFront` |  |
 | `pp.ParticleSystem` | import direto | `pinneapple_simulation.particle_dynamics.ParticleSystem` |  |
 | `pp.pde_from_sympy` | import direto | `pinneapple_physics.symbolic_pde.pde_from_sympy` |  |
 | `pp.PeriodicBC` | import direto | `pinneapple_physics.symbolic_pde.PeriodicBC` |  |
-| `pp.PhysicalProblem` | import direto | `pinneapple_physics.physical_problem.PhysicalProblem` | A complete physics problem: geometry, physics, conditions, parameters, solver choice and intent. |
+| `pp.PhysicalProblem` | import direto | `pinneapple_physics.physical_problem.PhysicalProblem` | Problema físico completo (geometria, EDP, condições, parâmetros, solver, intenção) com validação, serialização, fingerprint e adaptadores. |
 | `pp.physics_audit` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.physics_audit` | Auditoria física: qual modelo usar, quando confiar nele e quando sua formulação física deve ser revista; `diagnose` junta avaliação e diagnóstico num caso. Numpy puro, sem torch. |
 | `pp.PhysicsDomain2D` | import direto | `pinneapple_design.geometry.PhysicsDomain2D` |  |
 | `pp.PhysicsModule` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.module.PhysicsModule` | Classe base de modelos e solvers com `kind`, `describe()`, `num_parameters()` e um `fit` simples. |
@@ -328,12 +328,12 @@ Em palavras:
 | `pp.propagate_tolerances` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate` | Propaga tolerâncias independentes por `fn` via Monte Carlo. |
 | `pp.propagate_uncertainty` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate_space` | Propaga entradas com qualquer distribuição por `fn`. |
 | `pp.qualitative` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.qualitative` |  |
-| `pp.Quantity` | import direto | `pinneapple_physics.physical_problem.Quantity` | A quantity of interest: what the user actually wants out of the solution (a field, a coefficient, a peak value). ``field`` names the model output it derives from, when there is one. |
+| `pp.Quantity` | import direto | `pinneapple_physics.physical_problem.Quantity` | Quantidade de interesse que o usuário quer da solução, com unidade e campo de origem. |
 | `pp.quantum` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_quantum` | pinneapple_quantum — PINNeAPPle Quantum Module (PQM). |
 | `pp.quickstart` | definido em `pinneapple/__init__.py` | `pinneapple.quickstart` | Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec. |
 | `pp.recommend` | import direto | `pinneapple_core.onboarding.recommend` | `pp.recommend`: transforma uma frase em preset, método e modelo, com o motivo e os termos que casaram; é pontuação por palavras-chave e pode errar. [sem teste direto] |
 | `pp.rectangle` | import direto | `pinneapple_design.geometry.rectangle` |  |
-| `pp.register_method` | import direto | `pinneapple_physics.solving.register_method` | Decorator registering ``fn(problem, **options) -> Solution`` under ``name`` for ``solve``/``compare``. ``kind`` labels the family of the method (``classical``, ``neural``, ...) in every Solution it returns. |
+| `pp.register_method` | import direto | `pinneapple_physics.solving.register_method` | Decorador que registra um método de solução sob um nome e um tipo. |
 | `pp.register_preset` | import direto | `pinneapple_physics.pde_environment.register_preset` |  |
 | `pp.reporting` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.reporting` | Relatórios: estilo de figuras e construtor de PDF (`paperkit`) e datasheet técnico (`datasheet`); não é importado automaticamente pelo pacote. |
 | `pp.ResidualBasedAL` | import direto | `pinneapple_data.ResidualBasedAL` |  |
@@ -353,8 +353,8 @@ Em palavras:
 | `pp.SineLayer` | import direto | `pinneapple_neural.architectures.SineLayer` |  |
 | `pp.SIREN` | import direto | `pinneapple_neural.architectures.SIREN` |  |
 | `pp.sobol_indices` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.sensitivity.sobol.sobol_indices` | Índices de Sobol de primeira ordem e totais (e de segunda ordem, opcional) de `fn`. |
-| `pp.Solution` | import direto | `pinneapple_physics.solving.Solution` |  |
-| `pp.solve` | import direto | `pinneapple_physics.solving.solve` | Solve ``problem`` with ``method`` (a registered name or a callable ``(problem, **options) -> Solution``). |
+| `pp.Solution` | import direto | `pinneapple_physics.solving.Solution` | Resultado de `solve`: função `predict`, tempo, histórico, modelo, grade e tipo do método, com `metadata` uniforme. |
+| `pp.solve` | import direto | `pinneapple_physics.solving.solve` | Resolve o problema com o método pedido (nome registrado ou callable). |
 | `pp.SolverModule` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.module.SolverModule` | Um solver como componente, com parâmetros treináveis opcionais; `from_method` usa um backend de `pp.solve` (não diferenciável). |
 | `pp.solvers` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_solvers` | [shim] Pacote de compatibilidade (obsoleto) que reexporta os solvers de `pinneapple_simulation.numerical_solvers`; os solvers opcionais viram `None` se o import falhar. [sem teste direto do `__init__`] |
 | `pp.SpalartAllmarasResiduals` | import direto | `pinneapple_physics.pde_environment.SpalartAllmarasResiduals` |  |

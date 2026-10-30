@@ -2846,26 +2846,12 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 - `aero.case`, `aero.case3d`, `aero.dataset` e `aero.verify` precisam do OpenFOAM instalado para rodar; `render_blender` precisa do `bpy` (Blender).
 - Os modelos de aeronave são de ordem reduzida (polar elíptica, build-up de Raymer, vortex lattice com esteira plana sem roll-up); o docstring de `vlm.streamlines` avisa que a esteira não mostra o enrolamento.
-- Os surrogates de perfil valem só dentro da caixa de treino dos pesos CST (`BOUNDS`); `out_of_bounds` existe para sinalizar isso.
-- Vários módulos de `aero` não têm teste direto: `airliner`, `airliner3d`, `buildup`, `case3d`, `optimize_airliner`, `render_blender`, `verify`.
 - Dependências opcionais mudam o que roda: `pymoo-nsga2` exige pymoo, o otimizador evolutivo usa `cma` se houver, o bayesiano e o `GPSurrogate` usam scikit-learn; métodos impossíveis voltam com status `skipped`.
 - `Evaluator.torch` e os avaliadores não diferenciáveis levantam `NotImplementedError` (métodos por gradiente só funcionam com avaliadores diferenciáveis, como a fidelidade surrogate do dissipador).
-- Os objetivos de `objective.py` (arrasto, eficiência térmica, tensão, peso) são proxies sobre o campo previsto, não grandezas físicas exatas.
-- O preset de perfil não traz solver de referência: os candidatos ficam como 'só surrogate' até serem verificados com OpenFOAM fora do pacote; o modelo de custo do dissipador é uma suposição do usuário, não dado de mercado.
 - `meshops.union` exige `manifold3d`; `exporters.step_check` exige `cadquery` (OpenCASCADE); o carregamento do Hub depende de rede (há modo offline e reconstrução pelo código).
-- As dimensões das entradas vêm de dados publicados, mas algumas são estimativas: `Source(estimate=True)` marca valores escolhidos por julgamento.
-- O STEP gerado é um B-rep facetado (triângulos planos), não superfícies NURBS exatas.
-- Os módulos de `entries` e o renderizador por software não têm teste direto.
-- A verificação completa depende de programas externos: CalculiX e gmsh para o suporte, NVIDIA Newton para o loop; sem eles o veredito fica como não verificado.
-- Só há quatro templates embutidos (loop, suporte, dissipador, asa de planador); pedidos fora deles voltam como `OutOfScope`. A mola é só exemplo e não é registrada.
+- A verificação completa do `intent` depende de programas externos: CalculiX e gmsh para o suporte, NVIDIA Newton para o loop; sem eles o relatório de confiança diz que a checagem completa não rodou.
 - No template da asa de planador, a fidelidade 'full' é um vortex lattice fino; o docstring diz que um modelo RANS seria o próximo passo e não roda aqui.
-- As propriedades de materiais são valores típicos de datasheet, não admissíveis de norma, como o próprio módulo avisa.
-- O LLM é opcional (via `IntentLLM`/`CallLLM`); o parser determinístico não adivinha valores e transforma slots críticos ausentes em perguntas.
-- A maior parte dos módulos de `intent` (api, cli, pipeline, package, spec, template, templates) não tem teste direto pela contagem do inventário.
 - Os cinco casos usam fórmulas de livro texto com hipóteses declaradas; o docstring do pacote diz que nenhum foi validado contra medições.
-- Constantes de material são genéricas: aço de mola com valores típicos de tabela no braço, D e K de ordem de grandeza no adesivo, sem dados de um fármaco real.
-- Modelos simplificados: o duto ignora modos da caixa e compressão do ar; o braço não tem limite de endurança nem concentradores de tensão; o freio é estacionário (calor contínuo, não uma frenagem brusca).
-- As malhas de `meshes` são corpos fechados concatenados, não uma união booleana; para CNC ou FEM é preciso fundi-los (ex.: com `manifold3d`).
 - `sample_domain` chama `domain.sample_boundary`, mas `PhysicsDomain2D`/`PhysicsDomain3D` só têm `sample_boundary_region`; com os domínios de `build_domain` a chamada deve falhar (o exemplo da documentação usa exatamente esse caminho).
 - `geometry.io.__init__` tenta importar `build_parametric_part` de `cadquery_bridge`, que não define esse nome; o valor fica sempre `None`.
 - `gen.primitives.project_points_to_surface` é marcado como placeholder; o docstring diz que deveria levantar erro, mas devolve uma tupla `(pontos, distâncias)` em vez de um array.

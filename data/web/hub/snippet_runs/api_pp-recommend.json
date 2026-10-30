@@ -4,7 +4,7 @@
  "id": "api:pp-recommend",
  "ok": true,
  "recorded": "2026-10-30",
- "seconds": 24.55,
+ "seconds": 9.53,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
  "stdout": "pp.recommend(text: 'str', *, top: 'int' = 3) -> 'Recommendation'\nTurn a problem description into a preset, a method and a model, with the reasons.",

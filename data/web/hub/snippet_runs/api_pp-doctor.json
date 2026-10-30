@@ -4,7 +4,7 @@
  "id": "api:pp-doctor",
  "ok": true,
  "recorded": "2026-10-30",
- "seconds": 25.03,
+ "seconds": 9.65,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
  "stdout": "pp.doctor(profile: 'str' = 'start', *, verbose: 'bool' = True) -> 'DoctorReport'\nCheck this installation against a profile and, with ``verbose``, print the report.",

@@ -4,7 +4,7 @@
  "id": "api:pp-new",
  "ok": true,
  "recorded": "2026-10-30",
- "seconds": 25.04,
+ "seconds": 9.48,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
  "stdout": "pp.new(name: 'str', **kwargs)\nCreate a project of your own, outside this repository.",

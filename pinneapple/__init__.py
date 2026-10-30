@@ -451,8 +451,8 @@ def quickstart(problem_id: str = "burgers_1d", **problem_kwargs):
         return
 
     border = "=" * 60
-    title = getattr(spec, "problem_id", "") or getattr(spec, "name", "") or problem_id
-    name = getattr(spec, "problem_id", "") or problem_id
+    # a preset built with default arguments may carry no id: show the name the user typed
+    title = getattr(spec, "problem_id", "") or problem_id or getattr(spec, "name", "")
     coords = tuple(getattr(spec, "coords", ()) or ())
     fields = tuple(getattr(spec, "fields", ()) or ())
     print(border)

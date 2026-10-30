@@ -13,9 +13,11 @@ applicability) before anyone uses it.
 ## Install
 
 ```bash
-pip install pinneapple                 # core: numpy, scipy, torch, matplotlib
-pip install "pinneapple[mcp]"          # + the MCP server (pinneapple-mcp)
+pip install pinneapple                 # core: numpy, scipy, torch, sympy, matplotlib
+pip install "pinneapple[cfd]"          # + geometry, meshing, 3-D viewing (OpenFOAM and CalculiX are separate installs)
+pip install "pinneapple[enterprise]"   # + serving, signatures, the CI linter, the hub, the MCP server
 pip install -e ".[dev]"                # from a checkout, with pytest and ruff
+pinneapple doctor start                # what this machine still needs, with the fix per line
 ```
 
 On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) install it in their first cell.
@@ -24,10 +26,15 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 
 | Task | API |
 |---|---|
+| Is this installation ready for the work intended (`start`, `cfd`, `research`, `enterprise`, `all`) | `pp.doctor(profile)` -> report with `ok`, one fix per missing item |
+| Which preset, method and model for a problem described in a sentence (English or Portuguese), and why | `pp.recommend("...")` -> `Recommendation` (`.preset`, `.method`, `.model`, `.explain()`) |
+| What a preset takes, what it gives back, and the smallest program that uses it | `pp.card(name)` -> `Card` (`.coordinates`, `.fields`, `.snippet`, `.requires`) |
+| A project of the user's own, outside this repository (`plain` / `research` / `cfd`) | `pp.new("name", template=..., preset=...)`, `pinneapple new`; `pp.new` refuses to overwrite |
 | Use a pre-trained, verified model or a dataset | `pp.zoo.list()`, `pp.zoo.load(name).predict(...)`, `pp.zoo.validate(name, inputs)`, `pp.datasets.load(name, split=...)` |
 | Find a ready-made tool, trained model, geometry, dataset, flow or example with code that runs; compose a custom tool from nodes | `pinneapple_hub.library.search(load_index(), q, kind=...)`, `pinneapple_hub.library.compose.compose({...})`; the Hub app `apps/hub` ([docs](docs/apps/hub.md)) |
 | Describe a problem | `pp.PhysicalProblem.from_preset(name)`, `ProblemBuilder(...)...build()` + `pp.PhysicalProblem.from_pde_spec`, `pp.list_presets()` |
 | Solve it | `pp.solve(problem, method, **options)`: `"pinn"`, `"fem"`, `"analytic"`, `"reference"`, `"exact"`, `"external"` (`pp.list_methods()`) |
+| A preset whose boundaries are named geometry tags | `pp.solve(preset, method="pinn")` sends the preset's own box or cylinder (`pde_environment/presets/tag_geometry.py`, 32 of the 40 tagged presets) and records it in `Solution.info["geometry"]`; the other 8 describe a real airfoil/car body/furnace and still raise `TagConditionsUnresolved` |
 | Compare methods on the same points | `pp.compare(problem, methods, reference=...)` |
 | Check a result | `pp.trust_card(grid, values, pde=..., dirichlet=..., reference=..., train_bounds=...)` (decision APPROVED / REVIEW / REJECT) |
 | Validate a model (zoo, PyTorch, ONNX, callable) | `pp.validate(model, problem, data=..., query=..., level="quick" / "standard" / "thorough")` (credibility per factor, decision pass / warn / fail; [docs](docs/guides/pp_validate.md)) |
@@ -92,6 +99,19 @@ report = pp.zoo.validate("airfoil_cst_rans_mlp", inputs={**naca2412, "alpha_deg"
 assert report.decisao == "APPROVED"                     # card metrics reproduced, physics checks, validity range
 test = pp.datasets.load("airfoil_rans_cst_re4e6", split="test")
 print(test.n_rows, test.columns[:4])
+```
+
+### Before any physics: is this machine ready, and what should I run
+
+```python
+import pinneapple as pp
+
+report = pp.doctor("start", verbose=False)          # start | cfd | research | enterprise | all
+assert report.ok, [c.name for c in report.failures]  # each failure carries the command that fixes it
+
+rec = pp.recommend("heat conduction in a heat sink cooled by a fan")
+print(rec.preset, rec.method, rec.confidence, rec.matched)   # a preset, a method that runs, the terms matched
+print(pp.card(rec.preset))                           # what it takes, what it gives back, the program to run
 ```
 
 ### Solve and compare

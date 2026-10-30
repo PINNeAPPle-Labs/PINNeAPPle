@@ -9,6 +9,9 @@ errors measured honestly, the design loop and a trust card per prediction.
 Everything lives in `pinneapple_simulation.electromagnetics.antenna`; the example
 `examples/use_cases/antennas/vivaldi_2to4ghz.py` only calls it.
 
+The same audit written as a datasheet -- the external solver's table read back, checked against the end-fire
+bound, and rendered to PDF without a new solve -- is the pattern in [Design reports](design_report.md).
+
 ```bash
 pip install emerge                                                         # GPL-2.0, called, never copied
 python examples/use_cases/antennas/vivaldi_2to4ghz.py --quick              # 3 designs x 2 frequencies, ~3 min

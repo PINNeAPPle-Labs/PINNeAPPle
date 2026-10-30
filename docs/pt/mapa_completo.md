@@ -16,7 +16,8 @@ Como o texto passa de 150 páginas, ele está dividido em volumes por camada. Es
 | [Volume 6 — Projeto e sistemas](mapa_completo/v06_projeto_sistemas.md) | Geometria, otimização de projeto, projeto a partir de intenção, sistemas dinâmicos, séries temporais, co-simulação e gêmeos digitais. | `pinneapple_design`, `pinneapple_systems`, `pinneapple_twin3d` |
 | [Volume 7 — Ferramentas, orquestração e produtos](mapa_completo/v07_ferramentas_produtos.md) | Ferramentas (benchmarks, exportação, visualização, automação de GUIs de engenharia, NVIDIA), o Flow, o Hub, o Lab, os LLMs, o servidor MCP, o laboratório autônomo e o app web. | `pinneapple_tools`, `pinneapple_blender`, `pinneapple_flow`, `pinneapple_hub`, `pinneapple_lab`, `pinneapple_llm`, `pinneapple_mcp`, `pinneapple_autolab`, `pinneapple_app` |
 | [Volume 8 — Apps, exemplos, reproduções, scripts e CI](mapa_completo/v08_apps_exemplos_ci.md) | 64 apps, 88 entradas de exemplos, reproduções de papers, scripts, benchmarks e 12 workflows de CI. | — |
-| [Volume 9 — Índice alfabético, glossário e apêndice numérico](mapa_completo/v09_indice_glossario_apendice.md) | Índice de todas as classes e funções públicas, glossário e números. | — |
+| [Volume 9 — Índice alfabético](mapa_completo/v09_indice.md) | Índice de todas as classes e funções públicas, com o caminho. | — |
+| [Volume 10 — Glossário e apêndice numérico](mapa_completo/v10_glossario_apendice.md) | Glossário em português e números do inventário (módulos, funções, testes, extras, métodos). | — |
 
 ## Visão geral
 

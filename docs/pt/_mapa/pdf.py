@@ -44,6 +44,8 @@ ul { margin: 2px 0 8px; }
 nav#TOC { font-size: 8.5pt; }
 nav#TOC ul { list-style: none; padding-left: 14px; }
 .mermaid { text-align: center; margin: 10px 0; }
+.indice ul { columns: 2; column-gap: 14px; font-size: 7.2pt; line-height: 1.25; padding-left: 12px; margin: 0; }
+.indice li { break-inside: avoid; }
 """
 
 NODE = r"""

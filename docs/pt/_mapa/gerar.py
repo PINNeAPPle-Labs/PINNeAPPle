@@ -63,7 +63,8 @@ VOLUMES = [
       "pinneapple_llm", "pinneapple_mcp", "pinneapple_autolab", "pinneapple_app"]),
 ]
 VOL_APPS = ("v08_apps_exemplos_ci", "Volume 8 — Apps, exemplos, reproduções, scripts e CI")
-VOL_INDEX = ("v09_indice_glossario_apendice", "Volume 9 — Índice alfabético, glossário e apêndice numérico")
+VOL_INDEX = ("v09_indice", "Volume 9 — Índice alfabético")
+VOL_GLOS = ("v10_glossario_apendice", "Volume 10 — Glossário e apêndice numérico")
 
 FLAG_PT = {"experimental": "experimental", "placeholder": "placeholder/stub citado no docstring",
            "deprecated": "shim ou obsoleto", "raises_NotImplementedError": "levanta `NotImplementedError` em algum caminho"}
@@ -297,8 +298,7 @@ def apps_volume(inv, apps) -> list[str]:
 
 
 def index_volume(inv, prosa, glos) -> list[str]:
-    L = volume_header(VOL_INDEX[1], "Índice de todas as classes e funções públicas de nível de módulo, o glossário e "
-                                    "os números do inventário.", inv)
+    L = volume_header(VOL_INDEX[1], "Índice de todas as classes e funções públicas de nível de módulo.", inv)
     entries = []
     for name, rec in inv["modules"].items():
         for c in rec["classes"]:
@@ -316,10 +316,13 @@ def index_volume(inv, prosa, glos) -> list[str]:
         if not first.isalpha():
             first = "#"
         if first != letter:
+            if letter is not None:
+                L += ["", "</div>"]
             letter = first
-            L += ["", f"### {letter}", ""]
+            L += ["", f"### {letter}", "", '<div class="indice">', ""]
         pkg = mod.split(".")[0]
         L.append(f"- `{name}` {kind} — `{mod}` ({vol_of.get(pkg, '')[:3]})")
+    L += ["", "</div>"]
     L += ["", "## 2. Glossário", "", "| termo | significado |", "|---|---|"]
     for t in sorted(glos, key=lambda g: g["termo"].lower()):
         L.append(f"| **{esc(t['termo'])}** | {esc(t['definicao'])} |")
@@ -432,8 +435,10 @@ def main():
     L.append(f"| [{VOL_APPS[1]}](mapa_completo/{VOL_APPS[0]}.md) | {len(inv['apps'])} apps, "
              f"{len(inv['examples'])} entradas de exemplos, reproduções de papers, scripts, benchmarks e "
              f"{len(inv['workflows'])} workflows de CI. | — |")
-    L.append(f"| [{VOL_INDEX[1]}](mapa_completo/{VOL_INDEX[0]}.md) | Índice de todas as classes e funções públicas, "
-             "glossário e números. | — |")
+    L.append(f"| [{VOL_INDEX[1]}](mapa_completo/{VOL_INDEX[0]}.md) | Índice de todas as classes e funções "
+             "públicas, com o caminho. | — |")
+    L.append(f"| [{VOL_GLOS[1]}](mapa_completo/{VOL_GLOS[0]}.md) | Glossário em português e números do "
+             "inventário (módulos, funções, testes, extras, métodos). | — |")
     L += ["", visao.replace("{{PP_TABLE}}", "\n".join(pp_table(inv, prosa))), ""]
     L += ["## Como este documento foi feito", "",
           "1. `docs/pt/_mapa/inventario.py` percorre o repositório por AST e grava `inventario.json`.",
@@ -451,7 +456,16 @@ def main():
                 V += chapter(inv, prosa, pkg, i, leads)
         (OUT_DIR / f"{key}.md").write_text("\n".join(V), encoding="utf-8")
     (OUT_DIR / f"{VOL_APPS[0]}.md").write_text("\n".join(apps_volume(inv, apps)), encoding="utf-8")
-    (OUT_DIR / f"{VOL_INDEX[0]}.md").write_text("\n".join(index_volume(inv, prosa, glos)), encoding="utf-8")
+    # o índice sozinho já passa de 100 páginas: glossário e apêndice vão para um volume próprio
+    full = index_volume(inv, prosa, glos)
+    cut = full.index("## 2. Glossário")
+    (OUT_DIR / f"{VOL_INDEX[0]}.md").write_text("\n".join(full[:cut]), encoding="utf-8")
+    rest = [ln.replace("## 2. Glossário", "## 1. Glossário").replace("## 3. Apêndice", "## 2. Apêndice")
+            .replace("### 3.", "### 2.") for ln in full[cut:]]
+    glos_head = volume_header(VOL_GLOS[1], "Glossário em português e os números do inventário.", inv)
+    (OUT_DIR / f"{VOL_GLOS[0]}.md").write_text("\n".join(glos_head + rest), encoding="utf-8")
+    for old in OUT_DIR.glob("v09_indice_glossario_apendice.md"):
+        old.unlink()
     allp = {p for v in VOLUMES for p in v[3]}
     missing = set(inv["packages"]) - allp
     if missing:

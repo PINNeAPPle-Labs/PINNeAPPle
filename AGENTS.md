@@ -34,6 +34,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Find a ready-made tool, trained model, geometry, dataset, flow or example with code that runs; compose a custom tool from nodes | `pinneapple_hub.library.search(load_index(), q, kind=...)`, `pinneapple_hub.library.compose.compose({...})`; the Hub app `apps/hub` ([docs](docs/apps/hub.md)) |
 | Describe a problem | `pp.PhysicalProblem.from_preset(name)`, `ProblemBuilder(...)...build()` + `pp.PhysicalProblem.from_pde_spec`, `pp.list_presets()` |
 | Solve it | `pp.solve(problem, method, **options)`: `"pinn"`, `"fem"`, `"analytic"`, `"reference"`, `"exact"`, `"external"` (`pp.list_methods()`) |
+| A preset whose boundaries are named geometry tags | `pp.solve(preset, method="pinn")` sends the preset's own box or cylinder (`pde_environment/presets/tag_geometry.py`, 32 of the 40 tagged presets) and records it in `Solution.info["geometry"]`; the other 8 describe a real airfoil/car body/furnace and still raise `TagConditionsUnresolved` |
 | Compare methods on the same points | `pp.compare(problem, methods, reference=...)` |
 | Check a result | `pp.trust_card(grid, values, pde=..., dirichlet=..., reference=..., train_bounds=...)` (decision APPROVED / REVIEW / REJECT) |
 | Validate a model (zoo, PyTorch, ONNX, callable) | `pp.validate(model, problem, data=..., query=..., level="quick" / "standard" / "thorough")` (credibility per factor, decision pass / warn / fail; [docs](docs/guides/pp_validate.md)) |

@@ -35,10 +35,11 @@ TARGETS = {
     ("wave", "pinn"): (1.93e-2, 0.326, 0.335), ("wave", "pinnsformer"): (1.38e-2, 0.270, 0.283),
 }
 SEEDS = {"convection": (0, 1, 2), "reaction": (0, 1, 2), "wave": (0, 1)}   # wave seed 1 only if time allows
-# two workers (TARGETS.md amendment 1); cheapest first, so early results arrive early
-QUEUES = {"table1": [(c, m, s) for c in ("reaction", "convection") for s in SEEDS[c] for m in ("pinn", "pinnsformer")],
-          "wave": [("wave", m, s) for s in SEEDS["wave"] for m in ("pinn", "pinnsformer")]}
-QUEUE = QUEUES["table1"] + QUEUES["wave"]
+# seed-major order (TARGETS.md amendment 2): every cell gets seed 0 before any cell gets seed 1
+_T1 = [(c, m, s) for s in SEEDS["reaction"] for c in ("reaction", "convection") for m in ("pinn", "pinnsformer")]
+_WAVE = [("wave", m, s) for s in SEEDS["wave"] for m in ("pinn", "pinnsformer")]
+QUEUES = {"table1": _T1, "wave": _WAVE}
+QUEUE = _T1[:4] + _WAVE[:2] + _T1[4:] + _WAVE[2:]
 K, DT = 5, 1e-4
 
 

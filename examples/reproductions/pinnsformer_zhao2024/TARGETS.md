@@ -160,3 +160,18 @@ That makes **18 scored targets**.
   Table 1 keeps seeds 0, 1 and 2.
 - Two workers with 2 threads each run in parallel: one for Table 1, one for wave.
 - Nothing else changes.
+
+## Amendment 2 (2026-10-30, before any run finished; no test error had been computed)
+
+- The first steps ran slower than amendment 1 assumed: the PINNs reaction run took about 14 s per outer step
+  with 2 threads. At that rate, Table 1 with 3 seeds alone would take about 50 h.
+- The runs therefore go in one queue, **seed-major**:
+  1. seed 0 of the four Table 1 runs;
+  2. wave seed 0 (PINNs, then PINNsFormer);
+  3. Table 1 seeds 1 and 2;
+  4. wave seed 1.
+- The queue runs with 3 threads.
+- Every cell then has the same number of seeds whenever the compute stops. The README states how many seeds each
+  number rests on.
+- **Targets that get no run are reported as "not attempted".**
+- The order does not change any run: each run is fixed by its seed.

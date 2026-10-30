@@ -1,0 +1,58 @@
+{
+ "stages": {
+  "acquisition": {
+   "runs": 3,
+   "failed": 0,
+   "wall_h": 0.44536114077833344,
+   "cpu_h": 1.7814445631133338
+  },
+  "probe": {
+   "runs": 11,
+   "failed": 0,
+   "wall_h": 4.228413683515278,
+   "cpu_h": 16.91365473406111
+  },
+  "doe": {
+   "runs": 48,
+   "failed": 0,
+   "wall_h": 3.8573804715883337,
+   "cpu_h": 15.429521886353335
+  },
+  "baseline": {
+   "runs": 6,
+   "failed": 0,
+   "wall_h": 0.45582942569916673,
+   "cpu_h": 1.823317702796667
+  },
+  "surrogates (fit + CV, 1 core)": {
+   "runs": 0,
+   "failed": 0,
+   "wall_h": 0.07651681426583347,
+   "cpu_h": 0.07651681426583347
+  },
+  "inverse (MDN + baselines, 1 core)": {
+   "runs": 0,
+   "failed": 0,
+   "wall_h": 0.09932824949423472,
+   "cpu_h": 0.09932824949423472
+  },
+  "visuals (Cycles renders, 4 cores)": {
+   "runs": 0,
+   "failed": 0,
+   "wall_h": 1.2320124281777276,
+   "cpu_h": 1.2320124281777276
+  }
+ },
+ "total": {
+  "runs": 68.0,
+  "failed": 0.0,
+  "wall_h": 10.394842213518908,
+  "cpu_h": 37.35579637826224
+ },
+ "environment": {
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "mem_gb": 15.7,
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+ }
+}

@@ -1,0 +1,190 @@
+{
+ "id": "val_40.0",
+ "purpose": "baseline",
+ "params": {
+  "slant_deg": 40.0,
+  "clearance": 0.05,
+  "speed": 60.0
+ },
+ "ok": true,
+ "outputs": {
+  "CD": 0.3005108912019697,
+  "CL": -0.02600199490780942,
+  "CD_front": 0.026247711277933003,
+  "CD_roof": 7.012197653832328e-05,
+  "CD_slant": 0.16261963955013883,
+  "CD_base": 0.057362443534256985,
+  "CD_side": 0.0063297377202398055,
+  "CD_underbody": 1.296999180689504e-05,
+  "CD_pressure": 0.25264262405091387,
+  "CD_friction": 0.0371246540219518,
+  "drag_N": 74.23537373972165,
+  "lift_N": -6.4232873631933085
+ },
+ "message": "",
+ "cost_s": 278.0813585820006,
+ "started": "2026-10-25T12:12:52",
+ "reason": "",
+ "predicted": {},
+ "meta": {
+  "mesh": "campaign",
+  "iterations_requested": 800,
+  "procs": 4,
+  "params": {
+   "slant_deg": 40.0,
+   "clearance": 0.05,
+   "speed": 60.0
+  },
+  "Re": 4176000.0,
+  "timings_s": {
+   "blockMesh": 0.2,
+   "surfaceFeatureExtract": 0.1,
+   "decomposePar": 0.1,
+   "snappyHexMesh": 28.8,
+   "checkMesh": 0.7,
+   "fields": 0.0,
+   "simpleFoam": 223.6,
+   "reconstruct": 2.4
+  },
+  "iterations": 800,
+  "final_residuals": {
+   "omega": 7.5879147e-05,
+   "k": 0.0013547177,
+   "Ux": 0.0022974488,
+   "Uy": 0.004376267,
+   "Uz": 0.0093107461,
+   "p": 0.00027759657
+  },
+  "simpleFoam_end": true,
+  "fatal": false,
+  "mesh_ok": true,
+  "cells": 206983,
+  "mesh_failed_checks": 0,
+  "max_non_orthogonality": 59.070491,
+  "max_skewness": 1.8762448,
+  "max_aspect_ratio": 13.264266,
+  "mass_balance": {
+   "net_m3_s": 0.0,
+   "inflow_m3_s": 0.0,
+   "imbalance": 0.0,
+   "source": "phi"
+  },
+  "iteration_std": {
+   "CD": 0.014464202929131798,
+   "CL": 0.01879468266407492
+  },
+  "averaged_iterations": [
+   400.0,
+   450.0,
+   500.0,
+   550.0,
+   600.0,
+   650.0,
+   700.0,
+   750.0,
+   800.0
+  ],
+  "force_history": [
+   {
+    "iteration": 50.0,
+    "CD": 0.4044460174998442,
+    "CL": 0.4447916444213183
+   },
+   {
+    "iteration": 100.0,
+    "CD": 0.45470568363417163,
+    "CL": 0.3768177720012503
+   },
+   {
+    "iteration": 150.0,
+    "CD": 0.43504943567577575,
+    "CL": 0.3278270205560494
+   },
+   {
+    "iteration": 200.0,
+    "CD": 0.42780992632767195,
+    "CL": 0.24054577523198364
+   },
+   {
+    "iteration": 250.0,
+    "CD": 0.3771833196635362,
+    "CL": 0.16359272991120555
+   },
+   {
+    "iteration": 300.0,
+    "CD": 0.3497554680588227,
+    "CL": 0.07791109078036211
+   },
+   {
+    "iteration": 350.0,
+    "CD": 0.340862750983143,
+    "CL": 0.05470967284099836
+   },
+   {
+    "iteration": 400.0,
+    "CD": 0.3338860057341618,
+    "CL": 0.013226625412732299
+   },
+   {
+    "iteration": 450.0,
+    "CD": 0.3165749348528851,
+    "CL": -0.035021275916528545
+   },
+   {
+    "iteration": 500.0,
+    "CD": 0.29413799672961144,
+    "CL": -0.01311677276903829
+   },
+   {
+    "iteration": 550.0,
+    "CD": 0.30130166883238807,
+    "CL": -0.053121598727770176
+   },
+   {
+    "iteration": 600.0,
+    "CD": 0.29062742832763766,
+    "CL": -0.02148332581697629
+   },
+   {
+    "iteration": 650.0,
+    "CD": 0.2898666742743609,
+    "CL": -0.02245666814929733
+   },
+   {
+    "iteration": 700.0,
+    "CD": 0.29988015743689656,
+    "CL": -0.04912652148451615
+   },
+   {
+    "iteration": 750.0,
+    "CD": 0.28855587655691994,
+    "CL": -0.01977798859617081
+   },
+   {
+    "iteration": 800.0,
+    "CD": 0.2897672780728658,
+    "CL": -0.03314042812271946
+   }
+  ],
+  "convergence": {
+   "CD_rel_change": 0.0029684174848603096,
+   "CL_rel_change": 0.040229187999660326,
+   "over_iterations": 200.0,
+   "CD_mean_drift": 0.06567372158988168,
+   "CD_window_std": 0.014464202929131798,
+   "window_writes": 9
+  },
+  "yplus": {
+   "mean": 118.5300389842182,
+   "p05": 40.32216374172723,
+   "p95": 256.46509278935696,
+   "max": 1061.3184288453938,
+   "frac_30_300": 0.9518753211166295,
+   "frac_below_11": 0.0005137866072957698
+  },
+  "CD_final": 0.2897672780728658,
+  "CL_final": -0.03314042812271946,
+  "flow_npz": "/home/user/PINNeAPPle/examples/end_to_end/ahmed_body/_runs/cfd/cases/val_40.0.flow.npz"
+ },
+ "fields_path": "/home/user/PINNeAPPle/examples/end_to_end/ahmed_body/_runs/cfd/fields/val_40.0.npz"
+}

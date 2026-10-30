@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e6cdc3ae56ff909",
+ "figures": [],
+ "id": "api:pp-card",
+ "ok": true,
+ "recorded": "2026-10-30",
+ "seconds": 9.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.card(name: 'str', *, with_related: 'bool' = True, check: 'bool' = True) -> 'Card'\nDescribe one preset. Raises ``KeyError`` for an unknown name, with the near misses.",
+ "timed_out": false
+}

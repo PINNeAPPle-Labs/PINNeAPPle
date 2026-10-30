@@ -25,6 +25,7 @@ OUT = ROOT / "docs" / "pt" / "mapa_completo.pdf"
 
 CSS = """
 @page { size: A4; margin: 14mm 12mm 16mm 12mm; }
+html, body { max-width: none !important; margin: 0 !important; padding: 0 !important; }
 body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 9.5pt; line-height: 1.35; color: #111; }
 h1 { font-size: 20pt; page-break-before: always; border-bottom: 2px solid #c8a200; padding-bottom: 4px; }
 h1:first-of-type { page-break-before: avoid; }

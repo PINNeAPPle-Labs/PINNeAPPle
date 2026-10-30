@@ -5686,7 +5686,11 @@ Estágio 9: datasets PyTorch sobre o dataset empacotado para quatro objetivos (c
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_perception` extrai observações físicas de imagens, vídeo e áudio para usar como alvos de `DataConstraint` ou como geometria de contorno no resto do PINNeAPPle. É a direção inversa de `pinneapple_worldmodel`, que renderiza simulações em imagens: aqui dados reais entram e saem campos de velocidade, contornos e frequências modais.
+
+As três técnicas centrais dependem só de numpy/scipy. `video_piv` faz PIV por correlação cruzada (a técnica padrão da mecânica dos fluidos experimental), e o resultado (x, y, u, v) entra direto em `solve_pde`/`compile_problem` como restrição de dados, por exemplo num preset de Navier-Stokes incompressível. `image_geometry` extrai contornos de fotos ou scans de seções de peças para `pinneapple_design.geometry`. `audio_modal` encontra frequências de ressonância de um teste de impacto para calibrar presets de dinâmica estrutural.
+
+Há também ferramentas de apoio e um fluxo de sensoriamento remoto: `piv_tools` lê vídeos com ffmpeg e orienta a escolha de parâmetros do PIV; `sentinel2` busca imagens Sentinel-2 no Google Earth Engine e `change_detection` compara datas por banda e por NDVI e gera relatório HTML. Esse fluxo veio de um produto de monitoramento por satélite dos PINNeAPPle-apps, com correções documentadas no docstring.
 
 ### Números do inventário
 
@@ -5698,12 +5702,12 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `audio_modal` |  | 1 | 1 | 0 |
-| `change_detection` |  | 1 | 10 | 13 |
-| `image_geometry` |  | 1 | 2 | 0 |
-| `piv_tools` |  | 1 | 6 | 6 |
-| `sentinel2` |  | 1 | 4 | 13 |
-| `video_piv` |  | 1 | 2 | 6 |
+| `audio_modal` | Frequências dominantes de vibração a partir de áudio. | 1 | 1 | 0 |
+| `change_detection` | Detecção de mudança multiespectral (bandas e NDVI) com figura e relatório. | 1 | 10 | 13 |
+| `image_geometry` | Contorno e ajuste de círculo a partir de imagem. | 1 | 2 | 0 |
+| `piv_tools` | Leitura de vídeo, grade, resumo e guia de parâmetros para PIV. | 1 | 6 | 6 |
+| `sentinel2` | Busca de imagens Sentinel-2 no Google Earth Engine. | 1 | 4 | 13 |
+| `video_piv` | PIV por correlação cruzada para campos de velocidade. | 1 | 2 | 6 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5711,92 +5715,109 @@ _Sem texto de objetivo._
 
 #### `pinneapple_perception`
 
-pinneapple_perception — extract physics observations from images, video, and audio, for use as `DataConstraint` targets or boundary geometry anywhere else in PINNeAPPle.
+Fachada do pacote: reexporta PIV (`piv_velocity_field`, `piv_velocity_sequence`), extração de contorno de imagem e frequências dominantes de áudio. O sinalizador 'experimental' do inventário vem da expressão 'experimental fluid dynamics' no docstring, não de um aviso.
 
 <small>`pinneapple_perception/__init__.py` · 55 linhas · testes: 23 · palavras-chave no código (heurística; o texto acima diz o status real): experimental</small>
 
 #### `pinneapple_perception.audio_modal`
 
-Extract dominant vibration/acoustic frequencies from an audio recording (e.g. a struck beam, plate, or shell's impulse response) via FFT peak-picking with sub-bin parabolic frequency refinement. Depends only on numpy/scipy (already core PINNeAPPle dependencies).
+Extrai as frequências dominantes de vibração/acústica de uma gravação por picos da FFT com refinamento parabólico sub-bin, para calibrar presets de dinâmica estrutural. [sem teste direto; exercitado via `tests/test_perception.py`]
 
 <small>`pinneapple_perception/audio_modal.py` · 95 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `extract_dominant_frequencies` | função | `(waveform, sample_rate, n_peaks=5, min_freq=0.0, max_freq=None, window='hann') -> List[Tu…)` | Return the `n_peaks` most prominent frequency components of `waveform`, as a list of (frequency_Hz, amplitude) tuples sorted by descending amplitude. |
+| `extract_dominant_frequencies` | função | `(waveform, sample_rate, n_peaks=5, min_freq=0.0, max_freq=None, window='hann') -> List[Tu…)` | Devolve os N picos de frequência mais proeminentes como (frequência em Hz, amplitude), ordenados por amplitude. |
 
 #### `pinneapple_perception.change_detection`
 
-Change detection between two multispectral images of the same place: per-band mean absolute reflectance change and NDVI change against thresholds, a comparison figure and a self-contained HTML report.
+Detecção de mudança entre duas imagens multiespectrais do mesmo local: diferença média por banda em refletância, mudança de NDVI com banda NIR real, figura de comparação e relatório HTML. O módulo remove o NIR inventado (placeholder) do notebook original; não é ele próprio um placeholder.
 
 <small>`pinneapple_perception/change_detection.py` · 288 linhas · testes: 13 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BandChangeResult` | classe | `(band, mean_abs_diff_raw, mean_abs_diff_reflectance, threshold, exceeds_threshold)` |  |
-| `NdviChangeResult` | classe | `(mean_abs_diff, threshold, exceeds_threshold)` |  |
-| `PairAnalysis` | classe | `(date_a, date_b, band_results, ndvi_result, any_change, narrative_html)` |  |
-| `band_difference` | função | `(img_a, img_b, band_index, band_name, threshold=DEFAULT_BAND_DIFF_THRESHOLD, reflectance_…)` | Real per-band mean-absolute-difference change check, same computation as the original notebook's `detecta_mudanca` (mean of \|img_b - img_a\| for one band, normalized, compared to a threshold), but with an explicit, physically-meaningful `reflectance_scale` (default the real Sentinel-2 SR scale, … |
-| `compute_ndvi` | função | `(red, nir, eps=1e-06) -> np.ndarray` | Real NDVI: (NIR - RED) / (NIR + RED + eps). `red` and `nir` must both be REAL band arrays (Sentinel-2 B4 and B8 respectively) -- this function has no fallback that fabricates either band. Same formula as the original notebook's `calcula_ndvi`, applied to a real NIR input instead of the original's … |
-| `ndvi_change` | função | `(ndvi_a, ndvi_b, threshold=DEFAULT_NDVI_THRESHOLD) -> NdviChangeResult` |  |
-| `analyze_pair` | função | `(rgb_a, rgb_b, date_a, date_b, nir_a=None, nir_b=None, band_diff_threshold=DEFAULT_BAND_D…)` | Real per-pair change analysis: three band-difference checks (red/green/blue) always run; NDVI is computed and checked only if real `nir_a`/`nir_b` arrays are supplied (never fabricated). `date_a` should chronologically precede `date_b` -- the caller is responsible for ordering (this fixes a real, … |
-| `rgb_preview_stretch` | função | `(img, normalizer=…) -> np.ndarray` | Purely a display contrast stretch (clip to [0,1] after dividing by a fixed constant) -- matches the original notebook's `img/3000` preview trick. This has NO physical-reflectance meaning (see this module's docstring); it is only ever used for the RGB preview panels, never for the quantitative … |
-| `render_comparison_figure` | função | `(rgb_a, rgb_b, date_a, date_b, ndvi_a=None, ndvi_b=None) -> bytes` | Render the same-style comparison grid the original notebook produced (RGB pair + diff, per-band diff maps, and -- when real NDVI arrays are supplied -- an NDVI before/after/delta row), as real PNG bytes (matplotlib `Agg` backend, no display needed). |
-| `render_html_report` | função | `(pairs, images_png, lon, lat, buffer_m, has_ndvi) -> str` |  |
+| `BandChangeResult` | classe | `(band, mean_abs_diff_raw, mean_abs_diff_reflectance, threshold, exceeds_threshold)` | Resultado da checagem de uma banda: diferença média bruta e em refletância, limiar e se foi excedido. |
+| `NdviChangeResult` | classe | `(mean_abs_diff, threshold, exceeds_threshold)` | Resultado da mudança de NDVI: diferença média absoluta, limiar e se foi excedido. |
+| `PairAnalysis` | classe | `(date_a, date_b, band_results, ndvi_result, any_change, narrative_html)` | Análise de um par de datas: resultados por banda, resultado de NDVI (se houver), se houve mudança e narrativa HTML. |
+| `band_difference` | função | `(img_a, img_b, band_index, band_name, threshold=DEFAULT_BAND_DIFF_THRESHOLD, reflectance_…)` | Diferença média absoluta de uma banda entre duas imagens, convertida em refletância e comparada ao limiar. |
+| `compute_ndvi` | função | `(red, nir, eps=1e-06) -> np.ndarray` | NDVI = (NIR − RED) / (NIR + RED + eps) a partir de bandas reais; não fabrica nenhuma banda. |
+| `ndvi_change` | função | `(ndvi_a, ndvi_b, threshold=DEFAULT_NDVI_THRESHOLD) -> NdviChangeResult` | Compara dois mapas de NDVI pela diferença média absoluta contra um limiar. |
+| `analyze_pair` | função | `(rgb_a, rgb_b, date_a, date_b, nir_a=None, nir_b=None, band_diff_threshold=DEFAULT_BAND_D…)` | Analisa um par de imagens: sempre as três bandas RGB e o NDVI só quando há NIR real das duas datas. |
+| `rgb_preview_stretch` | função | `(img, normalizer=…) -> np.ndarray` | Contraste de exibição para prévias RGB (divide por constante e corta em [0, 1]); sem significado físico. |
+| `render_comparison_figure` | função | `(rgb_a, rgb_b, date_a, date_b, ndvi_a=None, ndvi_b=None) -> bytes` | Gera em PNG a grade de comparação (par RGB e diferença, mapas por banda e, se houver, NDVI antes/depois/delta). |
+| `render_html_report` | função | `(pairs, images_png, lon, lat, buffer_m, has_ndvi) -> str` | Monta um relatório HTML autocontido com as análises dos pares e as figuras. |
 
 #### `pinneapple_perception.image_geometry`
 
-Extract boundary/geometry point clouds from an image -- e.g. a photo or scan of a physical part's cross-section -- for use as a domain boundary in `pinneapple_design.geometry` or as boundary-condition selector data. Depends only on numpy/scipy (already core PINNeAPPle dependencies).
+Extrai uma nuvem de pontos de contorno de uma imagem (foto ou scan de seção de peça) e ajusta um círculo por mínimos quadrados, para usar como geometria de domínio. [sem teste direto; exercitado via `tests/test_perception.py`]
 
 <small>`pinneapple_perception/image_geometry.py` · 114 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `extract_boundary_points` | função | `(image, threshold=None, units_per_pixel=1.0, ordered=True) -> np.ndarray` | Extract the boundary of the foreground region(s) in `image` as a point cloud. |
-| `estimate_bounding_circle` | função | `(points) -> Tuple[float, float, float]` | Least-squares circle fit (algebraic Kasa method) to a boundary point cloud -- a quick, standard way to validate/characterize a roughly-circular extracted boundary (e.g. a pipe or shaft cross-section). Returns (center_x, center_y, radius). |
+| `extract_boundary_points` | função | `(image, threshold=None, units_per_pixel=1.0, ordered=True) -> np.ndarray` | Extrai o contorno da região de primeiro plano da imagem como nuvem de pontos, opcionalmente ordenada e em unidades físicas. |
+| `estimate_bounding_circle` | função | `(points) -> Tuple[float, float, float]` | Ajuste algébrico de círculo (método de Kasa) a uma nuvem de pontos de contorno; devolve centro e raio. |
 
 #### `pinneapple_perception.piv_tools`
 
-Around :mod:`.video_piv`: reading frames from a video or image files, the vector-grid size a setting gives, a summary of a PIV result, and window / search-margin advice from the expected displacement.
+Utilitários em volta do PIV: decodifica vídeo (ffmpeg/ffprobe) ou arquivos de imagem em quadros, calcula a grade de vetores, resume um resultado e sugere janela/margem a partir do deslocamento esperado.
 
 <small>`pinneapple_perception/piv_tools.py` · 128 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FFmpegMissing` | classe | `()` | ``ffmpeg`` or ``ffprobe`` is not on PATH. |
-| `decode_video` | função | `(path) -> np.ndarray` | (T, H, W) float64 grayscale frames of the video at ``path`` (ffprobe for the size, ffmpeg for the pixels). |
-| `decode_image_frames` | função | `(files) -> np.ndarray` | (T, H, W) grayscale frames from ``(file name, bytes)`` pairs, sorted by file name (use zero-padded names). |
-| `piv_grid_count` | função | `(height, width, window_size, search_margin, step=None, *, margin=None) -> tuple[int, int]` | (rows, cols) of interrogation windows ``piv_velocity_field`` uses on an H x W frame. |
-| `summarize_piv` | função | `(seq, frame_shape, window_size, search_margin, step=None) -> dict` | Counts and speeds of a ``piv_velocity_sequence`` result on frames of shape (T, H, W). |
-| `piv_parameter_guide` | função | `(displacement_px, width_px, height_px) -> dict` | Window size, search margin and step for an expected displacement (px per frame), with warnings. |
+| `FFmpegMissing` | classe | `()` | Erro quando `ffmpeg` ou `ffprobe` não está no PATH. |
+| `decode_video` | função | `(path) -> np.ndarray` | Lê um vídeo como quadros em tons de cinza (T, H, W) usando ffprobe e ffmpeg. |
+| `decode_image_frames` | função | `(files) -> np.ndarray` | Converte pares (nome, bytes) de imagens em quadros em tons de cinza, ordenados pelo nome. |
+| `piv_grid_count` | função | `(height, width, window_size, search_margin, step=None, *, margin=None) -> tuple[int, int]` | Número de linhas e colunas de janelas de interrogação que o PIV usa num quadro H x W. |
+| `summarize_piv` | função | `(seq, frame_shape, window_size, search_margin, step=None) -> dict` | Resume contagens e velocidades de um resultado de `piv_velocity_sequence`. |
+| `piv_parameter_guide` | função | `(displacement_px, width_px, height_px) -> dict` | Sugere janela, margem de busca e passo para um deslocamento esperado em pixels por quadro, com avisos. |
 
 #### `pinneapple_perception.sentinel2`
 
-Sentinel-2 surface-reflectance images of a point from Google Earth Engine, as arrays for :mod:`pinneapple_perception.change_detection` (bands B4, B3, B2 and the real NIR band B8).
+Busca imagens Sentinel-2 de refletância de superfície de um ponto no Google Earth Engine (bandas B4, B3, B2 e o NIR real B8) para `change_detection`; exige `earthengine-api` e credenciais.
 
 <small>`pinneapple_perception/sentinel2.py` · 136 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EarthEngineUnavailable` | classe | `()` | Raised when ee.Initialize() genuinely fails -- no credential, no project, or the Earth Engine API not enabled for the given project. Carries the real underlying exception's message plus the concrete remediation steps from this module's docstring, so a caller sees exactly what a real deployment … |
-| `Sentinel2Frame` | classe | `(date, rgb, nir)` |  |
-| `ee_initialize` | função | `(project=None) -> None` | Real ee.Initialize() call. Tries a service account credential if EE_SERVICE_ACCOUNT_EMAIL + EE_SERVICE_ACCOUNT_KEY_FILE are set (the real, non-interactive path for a server deployment); otherwise falls through to ee's default persistent-credential lookup (populated by a prior real `earthengine … |
-| `fetch_sentinel2_sequence` | função | `(lon, lat, buffer_m=5000.0, start_date='2024-01-01', end_date='2025-07-27', max_cloud_pct…)` | Real fetch of the n_images most recent, least-cloudy Sentinel-2 SR images intersecting a buffered point, returned oldest-to-newest (chronological order -- the original notebook fetched newest-first and then had two of its own cells label "before/after" in opposite directions for the same pairs; … |
+| `EarthEngineUnavailable` | classe | `()` | Erro quando `ee.Initialize()` falha (sem credencial, sem projeto ou API desativada), com a mensagem real e os passos de correção. |
+| `Sentinel2Frame` | classe | `(date, rgb, nir)` | Uma imagem Sentinel-2: data, array RGB e banda NIR. |
+| `ee_initialize` | função | `(project=None) -> None` | Inicializa o Earth Engine com conta de serviço (variáveis de ambiente) ou com a credencial persistente padrão. |
+| `fetch_sentinel2_sequence` | função | `(lon, lat, buffer_m=5000.0, start_date='2024-01-01', end_date='2025-07-27', max_cloud_pct…)` | Busca as N imagens mais recentes e com menos nuvens em torno de um ponto e as devolve como `Sentinel2Frame`. |
 
 #### `pinneapple_perception.video_piv`
 
-Extract a velocity field from a video (image pair/sequence) using cross-correlation Particle Image Velocimetry (PIV) -- the actual standard technique experimental fluid dynamicists use to turn a video of a seeded/textured flow into a velocity field, not a generic computer- vision optical-flow …
+Velocimetria por imagem de partículas (PIV) por correlação cruzada via FFT com refinamento sub-pixel: transforma quadros de vídeo de um escoamento em campo de velocidade pronto para `DataConstraint`.
 
 <small>`pinneapple_perception/video_piv.py` · 221 linhas · testes: 6 · palavras-chave no código (heurística; o texto acima diz o status real): experimental</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `piv_velocity_field` | função | `(frame_a, frame_b, window_size=32, search_margin=16, step=None, dt=1.0, units_per_pixel=1…)` | Cross-correlation PIV velocity field between two grayscale frames. |
-| `piv_velocity_sequence` | função | `(frames, dt=1.0, **piv_kwargs) -> Dict[str, np.ndarray]` | Run `piv_velocity_field` on every consecutive pair in a video (`frames`: (T, H, W) array) and stack the results with a `t` column, ready for a 3D (x, y, t) `DataConstraint`. |
+| `piv_velocity_field` | função | `(frame_a, frame_b, window_size=32, search_margin=16, step=None, dt=1.0, units_per_pixel=1…)` | Campo de velocidade PIV entre dois quadros: janelas, correlação cruzada normalizada, pico sub-pixel e conversão por `dt` e `units_per_pixel`. |
+| `piv_velocity_sequence` | função | `(frames, dt=1.0, **piv_kwargs) -> Dict[str, np.ndarray]` | Roda o PIV em cada par consecutivo de quadros e empilha os resultados com uma coluna de tempo `t`. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**PIV entre dois quadros** — `pinneapple_perception/__init__.py`
+
+```python
+>>> from pinneapple_perception import piv_velocity_field
+>>> field = piv_velocity_field(frame_a, frame_b, dt=1/30, units_per_pixel=1e-3)
+>>> # field["x"], field["y"], field["u"], field["v"] -- feed directly into
+>>> # a DataConstraint on a navier_stokes_incompressible-family preset.
+```
+
+**Frequências modais conhecidas recuperadas** — `tests/test_perception.py`
+
+```python
+peaks = extract_dominant_frequencies(waveform, sr, n_peaks=2)
+assert len(peaks) == 2
+freqs_found = sorted(p[0] for p in peaks)
+assert abs(freqs_found[0] - f1) < 0.1, f"expected ~{f1} Hz, got {freqs_found[0]}"
+assert abs(freqs_found[1] - f2) < 0.1, f"expected ~{f2} Hz, got {freqs_found[1]}"
+```
 
 ### Testes e status de validação
 
@@ -5805,7 +5826,12 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `sentinel2` exige o pacote `earthengine-api` (`ee`), credenciais e um projeto com a API do Earth Engine ativada; sem isso levanta `EarthEngineUnavailable`.
+- `piv_tools.decode_video` exige `ffmpeg` e `ffprobe` no PATH (senão levanta `FFmpegMissing`).
+- `compute_ndvi` exige a banda NIR real (B8): não há fallback que invente NIR; sem NIR o NDVI simplesmente não é calculado.
+- O limiar quantitativo de mudança usa escala de refletância 10000 por padrão; `reflectance_scale=3000` reproduz o comportamento antigo do notebook, que o docstring chama de fisicamente inconsistente.
+- `extract_boundary_points` usa por padrão a média da imagem como limiar, adequado só para imagens aproximadamente bimodais.
+- `audio_modal` e `image_geometry` não têm teste que os importe pelo caminho do módulo; são testados pela fachada em `tests/test_perception.py`.
 
 ## 8. `pinneapple_quantum`
 

@@ -69,6 +69,24 @@ FLAG_PT = {"experimental": "experimental", "placeholder": "placeholder/stub cita
            "deprecated": "shim ou obsoleto", "raises_NotImplementedError": "levanta `NotImplementedError` em algum caminho"}
 
 
+# Nomes de `pp.*` definidos dentro de blocos try em `pinneapple/__init__.py` ou reexportados com outro nome,
+# que a busca automática não acha; texto escrito lendo o código citado.
+PP_EXTRA = {
+    "build_model": "Constrói um modelo pelo nome no `ModelRegistry` (`ModelRegistry.build(name, **kwargs)`).",
+    "list_models": "Lista em ordem os nomes de modelos registrados no `ModelRegistry`.",
+    "new": "Cria um projeto do usuário fora do repositório (`pinneapple_core.onboarding.new_project`); recusa sobrescrever.",
+    "batched_inference": "Inferência em lotes de um modelo sobre um tensor grande (`pinneapple_neural.predictor.infer`), "
+                         "com tamanho de lote, dispositivo e AMP opcionais.",
+    "csg_annulus": "Alias de `annulus` em `pinneapple_design.geometry`: domínio CSG em forma de coroa circular.",
+    "DEFAULT_MODELS": "Lista padrão de `ModelSpec` usada pela suíte de benchmarks "
+                      "(`pinneapple_tools.benchmark_suite.benchmark`).",
+    "naca_parametric": "Gera a superfície de um aerofólio NACA de 4 dígitos como coordenadas de pontos de controle "
+                       "(`pinneapple_design.geometry.gen.airfoil`).",
+    "validate": "Uma chamada, um relatório de validação de um modelo (zoo, PyTorch, ONNX ou função) contra um problema, "
+                "com credibilidade por fator e decisão pass / warn / fail (`pp_validate = _PPValidate()`).",
+}
+
+
 # ---------------------------------------------------------------- utilidades
 def esc(s: str) -> str:
     """Escapa texto para uma célula de tabela Markdown."""
@@ -375,6 +393,10 @@ def pp_table(inv, prosa) -> list[str]:
     for k, (how, src) in sorted(rows.items(), key=lambda kv: kv[0].lower()):
         mod, _, attr = src.rpartition(".")
         desc = allsym.get(f"{mod}:{attr}") or allsym.get(src) or ""
+        if not desc:  # nome reexportado: procura a definição dentro do módulo de origem
+            hits = sorted(k for k in allsym if k.endswith(":" + attr) and k.split(":")[0].startswith(mod + "."))
+            if hits:
+                desc = allsym[hits[0]]
         if not desc:
             rec = inv["modules"].get(mod)
             if rec:
@@ -383,6 +405,7 @@ def pp_table(inv, prosa) -> list[str]:
                         desc = s["doc1"]
             elif src in inv["modules"]:
                 desc = inv["modules"][src]["doc1"]
+        desc = desc or PP_EXTRA.get(k, "")
         L.append(f"| `pp.{k}` | {how} | `{src}` | {esc(safe(desc))} |")
     return L + [""]
 

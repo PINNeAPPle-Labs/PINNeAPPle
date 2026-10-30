@@ -400,11 +400,17 @@ def _numbers(obj: Any) -> list[float]:
     return out
 
 
+_RUN_FACTS = ("params", "outputs", "predicted")
+
+
 def audit_claims(answer: str, tool_log: Sequence[Mapping[str, Any]], lab: AutonomousLab,
                  recommended_run: str | None = None, rtol: float = 5e-3) -> dict[str, Any]:
     """Every number in ``answer`` must match (within ``rtol``, or as a rounding) a number the tools returned or a
     run id/variable/budget figure; the recommended run must exist, have succeeded and meet every limit."""
-    known = _numbers([e.get("result") for e in tool_log if "result" in e]) + _numbers(lab.ledger.to_dict()["runs"])
+    # facts of a run are its inputs, outputs and the surrogate's predictions; never its provenance (start time,
+    # wall time, messages, paths, metadata), whose digits would support an invented number by coincidence
+    runs = [{k: r.get(k) for k in _RUN_FACTS} for r in lab.ledger.to_dict()["runs"]]
+    known = _numbers([e.get("result") for e in tool_log if "result" in e]) + _numbers(runs)
     known_arr = np.array(known) if known else np.zeros(1)
     unsupported = []
     for tok in _NUM.findall(re.sub(r"run\d+-\w+", "", answer)):

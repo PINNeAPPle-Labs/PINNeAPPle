@@ -124,3 +124,46 @@ def test_rows_mode_is_the_elm_baseline_and_misses_constraints_slightly():
     assert r.constraint_error() > 1e-14                   # but the boundary is only fitted, not exact
     with pytest.raises(ValueError):
         solve_xtfc(case.problem, X, n_neurons=10, constraints="penalty")
+
+
+def test_gaussian_activation_derivatives():
+    z = np.linspace(-2, 2, 9)
+    h = 1e-5
+    for n in range(1, 4):
+        fd = (activation_derivative("gaussian", z + h, n - 1) - activation_derivative("gaussian", z - h, n - 1)) / (2 * h)
+        assert np.allclose(activation_derivative("gaussian", z, n), fd, atol=1e-6)
+    assert np.allclose(activation_derivative("gaussian", z, 0), np.exp(-z * z))
+
+
+def test_calabro_sampling_ranges():
+    from pinneapple_simulation.numerical_solvers.xtfc_general import sample_calabro
+    W, b = sample_calabro(100, np.random.default_rng(0))
+    assert W.shape == (100, 1) and np.all(np.abs(W) <= 13.0)          # (100 - 10)/10 + 4 = 13
+    C = -b / W[:, 0]
+    assert np.all((C >= 0) & (C <= 1))
+
+
+def test_explicit_weights_face_points_and_gelsy():
+    from pinneapple_simulation.numerical_solvers.xtfc_general import sample_calabro
+    nu = 0.1
+    prob = XTFCProblem([(0.0, 1.0)], {"u": [Constraint(0, 0.0), Constraint(0, 1.0)]},
+                       {"u": lambda X: 1 - X[:, 0]},
+                       lambda X, D: D[("u", (2,))] - D[("u", (1,))] / nu, [("u", (1,)), ("u", (2,))], linear=True)
+    pe = 1 / nu
+    exact = lambda x: (1 - np.exp(pe * (x - 1))) / (1 - np.exp(-pe))  # noqa: E731
+    X = (np.arange(1, 201) / 201)[:, None]
+    w = sample_calabro(100, np.random.default_rng(1))
+    x = np.linspace(0, 1, 101)[:, None]
+    for mode in ("expression", "rows"):
+        r = solve_xtfc(prob, X, n_neurons=100, activation="gaussian", weights=w, constraints=mode,
+                       face_points=np.array([[0.0], [1.0]]), lstsq_driver="gelsy")
+        assert np.abs(r.predict(x) - exact(x[:, 0])).max() < 1e-8
+
+
+def test_deep_tfc_wrapper_meets_the_boundary_values():
+    from pinneapple_analysis.validation.pinn import mlp
+    from pinneapple_simulation.numerical_solvers.xtfc_general import ConstrainedExpression1D
+    torch.manual_seed(0)
+    net = ConstrainedExpression1D(mlp(1, 1, 8, 3, activation="gaussian"), 0.0, 1.0, 1.0, 0.0)
+    out = net(torch.tensor([[0.0], [1.0], [0.4]]))
+    assert abs(float(out[0]) - 1.0) < 1e-6 and abs(float(out[1])) < 1e-6

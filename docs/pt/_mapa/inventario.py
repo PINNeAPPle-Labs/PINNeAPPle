@@ -226,7 +226,7 @@ def count_tests(tree) -> list[str]:
 def top_api() -> dict:
     """Nomes de ``pp.*``: imports diretos, funções de topo e ``_LAZY_ATTRS``."""
     src, tree = parse(ROOT / "pinneapple" / "__init__.py")
-    eager, lazy, defs = {}, {}, []
+    eager, lazy, subs, defs = {}, {}, {}, []
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module and node.level == 0 and \
                 node.module.startswith("pinneapple"):
@@ -241,6 +241,13 @@ def top_api() -> dict:
                     lazy[key] = ".".join(x for x in val if x) if isinstance(val, (tuple, list)) else str(val)
                 except Exception:
                     pass
+        elif isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "_SUBMODULES"
+                                                  for t in node.targets) and isinstance(node.value, ast.Dict):
+            for k, v in zip(node.value.keys, node.value.values):
+                try:
+                    subs[ast.literal_eval(k)] = ast.literal_eval(v)
+                except Exception:
+                    pass
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and is_public(node.name):
             defs.append(node.name)
@@ -250,6 +257,7 @@ def top_api() -> dict:
                 if isinstance(b, (ast.FunctionDef, ast.ClassDef)) and is_public(b.name):
                     defs.append(b.name)
     return {"eager": dict(sorted(eager.items())), "lazy": dict(sorted(lazy.items())),
+            "submodules": dict(sorted(subs.items())),
             "defined_here": sorted(set(defs)),
             "version": re.search(r'__version__\s*=\s*"([^"]+)"', src).group(1)}
 
@@ -484,7 +492,8 @@ def main(argv=None):
         "methods": len(methods),
         "methods_by_status": {s: sum(1 for m in methods.values() if m["status"] == s)
                               for s in sorted({m["status"] for m in methods.values()})},
-        "pp_names": len(inv["top_api"]["eager"]) + len(inv["top_api"]["lazy"]),
+        "pp_names": len(set(inv["top_api"]["eager"]) | set(inv["top_api"]["lazy"])
+                        | set(inv["top_api"]["submodules"]) | set(inv["top_api"]["defined_here"])),
     }
     Path(args.out).write_text(json.dumps(inv, ensure_ascii=False, indent=1, sort_keys=False), encoding="utf-8")
     print(json.dumps(inv["totals"], indent=1))

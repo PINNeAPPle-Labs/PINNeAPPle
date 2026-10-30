@@ -147,3 +147,13 @@ def test_equal_accuracy_interpolates_between_measured_runs_only():
             for e, n, t, g in [(1e-2, 100, 1.0, 0.1), (1e-3, 1000, 10.0, 1.0)]]
     t = equal_accuracy(rows, targets=(np.sqrt(1e-5), 1e-4))
     assert np.isclose(t[0]["dofs"], np.sqrt(1e5)) and np.isnan(t[1]["dofs"])
+
+
+@pytest.mark.parametrize("order", [1, 2])
+def test_ghost_nitsche_matrix_stays_positive_definite_on_slivers(order):
+    from pinneapple_simulation.immersed.heat import assemble_heat
+    case = V.manufactured(2, "ball")
+    for off in (0.1, 0.01, 1e-3, 1e-4):                                 # beta = 40 in Q2 went indefinite at 0.01
+        disc = im.Discretization(case.geometry, case.size / 10, order=order, pad=1 - off, jitter=False)
+        A, _, _ = assemble_heat(disc, 1.0, case.source, case.bcs)
+        assert np.linalg.eigvalsh(A.toarray())[0] > 0

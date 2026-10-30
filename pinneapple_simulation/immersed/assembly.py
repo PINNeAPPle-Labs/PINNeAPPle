@@ -260,8 +260,8 @@ def solve_linear(A: sparse.spmatrix, b: np.ndarray, solver: str = "auto", tol: f
     t0 = time.perf_counter()
     A = sparse.csr_matrix(A)
     n = A.shape[0]
-    if solver == "auto":                       # sparse LU fills in badly on 3-D Q2 couplings: AMG-CG beyond small sizes
-        solver = "direct" if n <= 20_000 else "amg"
+    if solver == "auto":                       # sparse LU fills in badly on 3-D couplings: AMG-CG beyond small systems
+        solver = "direct" if A.nnz <= 300_000 else "amg"
     info = {"solver": solver}
     if solver == "amg":
         try:

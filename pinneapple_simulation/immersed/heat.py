@@ -166,7 +166,7 @@ def assemble_heat(disc: Discretization, conductivity: float = 1.0, source: Any =
                 gN = sm.vector("g", N)
                 cells = sm.cells
                 if not eig:
-                    bb = 10.0 * p ** 2 if beta is None else beta
+                    bb = default_beta(p) if beta is None else beta
                     gamma = np.full(len(cells), bb * k / h)
                 else:
                     B = sum((1 if a == c else 2) * sm.outer(f"n{a}{c}", G[:, :, a], G[:, :, c])
@@ -192,6 +192,13 @@ def default_ghost(order: int) -> float:
     coefficient sweep of the report), 0.1 for Q1 and 0.01 for Q2 keep the error within 25 % of the finite cell
     method's at a condition number below 3e4, whatever the cut."""
     return 0.1 if order == 1 else 0.01
+
+
+def default_beta(order: int) -> float:
+    """Nitsche penalty (times k / h) with ghost penalty: 10 for Q1 and 100 for Q2. With the Q2 ghost coefficient
+    0.01, beta = 40 left the matrix indefinite on a 4e-6 sliver (2-D disk, verification.conditioning offset 0.01);
+    100 is positive definite at every offset from 0.3 to 1e-4."""
+    return 10.0 if order == 1 else 100.0
 
 
 def _max_eig(B: np.ndarray, A: np.ndarray) -> float:

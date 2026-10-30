@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions",
+ "title": "Paper reproductions",
+ "description": "Reproductions of published physics-ML papers: targets quoted and frozen in TARGETS.md before any run, measured with the neutral evaluator (pinneapple_analysis.reproduction). One folder per paper.",
+ "domain": "physics-informed ML",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "82c3f2d"
+ }
+}

@@ -1,13 +1,24 @@
 # Getting started with PINNeAPPle
 
+**Not sure this is the right page?** [START_HERE.md](START_HERE.md) takes two minutes and picks the
+door for you: an engineer with a problem and no Python, someone learning physics-AI, a researcher
+who wants pipelines and papers, or a team putting this behind a product.
+
 Ten runnable recipes, each with the output it actually prints. Every command below was
 executed against `pinneapple 0.7.0` (Python 3.14, PyTorch 2.x, Apple MPS backend) right
 before this page was written. The numbers are real; timings will differ on your hardware.
 
 ```bash
 pip install pinneapple            # or: pip install -e ".[dev]" from a clone
+pinneapple doctor start           # is this machine ready? fix commands, one per line
 python -c "import pinneapple as pp; pp.info()"
 ```
+
+The four commands that come before the recipes: `pinneapple doctor [profile]` (is this
+installation ready), `pinneapple recommend "<problem>"` (which preset, method and model, and why),
+`pinneapple card <preset>` (what it takes and gives back, plus a program that runs) and
+`pinneapple new <name>` (a project of your own). Each is also `pp.doctor`, `pp.recommend`,
+`pp.card` and `pp.new` in Python.
 
 The scripts are in [`examples/quickstart/`](examples/quickstart/); each is self-contained
 and run from the repository root. Everything they write goes to `runs/` (git-ignored).

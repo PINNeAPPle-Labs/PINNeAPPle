@@ -47,7 +47,18 @@ def main(argv=None) -> dict:
         if a.smoke:
             kw.update(n_per_prop=20, epochs=20)
             seeds = range(1)
-        res = cs.run_study(seeds, grids=grids, **kw)
+        # one file per seed, so an interrupted study resumes where it stopped
+        seed_dir = out_dir / name
+        seed_dir.mkdir(exist_ok=True)
+        runs = []
+        for s in seeds:
+            f = seed_dir / f"seed{s}.json"
+            if not f.exists():
+                f.write_text(json.dumps(to_jsonable(cs.run_seed(s, grids=grids, **kw))))
+            runs.append(json.loads(f.read_text()))
+        cfg = {"regions": cs.REGIONS, "grid_points": {g: int(len(v["T"])) for g, v in grids.items()}, **kw,
+               "seeds": list(seeds), "data": "CoolProp HEOS CO2 (Span & Wagner 1996)"}
+        res = {"config": cfg, "runs": runs, "summary": cs.summarize(runs)}
         (out_dir / f"{name}.json").write_text(json.dumps(to_jsonable(res), indent=1))
         s = res["summary"]["models"]
         print(name, {m: round(v["interp"]["nrmse_mean"]["mean"], 4) for m, v in s.items()}, flush=True)

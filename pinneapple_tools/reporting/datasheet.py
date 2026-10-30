@@ -35,6 +35,7 @@ import html as _html
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass, field
 from typing import Any, Sequence
@@ -503,19 +504,34 @@ class Datasheet:
         chrome = find_chrome()
         if not chrome:
             return None
-        tmp = tempfile.mkdtemp(prefix="ppds-")
-        try:
-            cmd = [chrome, "--headless", "--disable-gpu", "--no-sandbox", "--no-first-run",
-                   "--disable-extensions", "--virtual-time-budget=4000",
-                   "--run-all-compositor-stages-before-draw",
-                   f"--user-data-dir={tmp}", "--no-pdf-header-footer",
-                   f"--print-to-pdf={os.path.abspath(path)}", os.path.abspath(src)]
-            subprocess.run(cmd, check=True, capture_output=True, timeout=180)
-        except Exception:
-            return None
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
-        return path if os.path.exists(path) else None
+        target = os.path.abspath(path)
+        if os.path.exists(target):
+            os.remove(target)
+        reason = "no attempt"
+        for _ in (1, 2):                                        # the failure is transient under load
+            tmp = tempfile.mkdtemp(prefix="ppds-")
+            try:
+                cmd = [chrome, "--headless", "--disable-gpu", "--no-sandbox", "--no-first-run",
+                       "--disable-extensions", "--virtual-time-budget=8000",
+                       "--run-all-compositor-stages-before-draw",
+                       f"--user-data-dir={tmp}", "--no-pdf-header-footer",
+                       f"--print-to-pdf={target}", os.path.abspath(src)]
+                run = subprocess.run(cmd, capture_output=True, timeout=240)
+                # Chromium writes the file and then exits non-zero when its teardown watchdog fires on macOS,
+                # so the file is what says whether the print worked, not the exit code.
+                if os.path.exists(target):
+                    with open(target, "rb") as fh:
+                        if fh.read(5) == b"%PDF-":
+                            return target
+                reason = f"exit {run.returncode}"
+            except subprocess.TimeoutExpired:
+                reason = "timed out after 240 s"
+            except Exception as exc:                            # noqa: BLE001 - reported, not swallowed
+                reason = f"{type(exc).__name__}: {exc}"
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+        print(f"datasheet: the PDF was not written ({reason}); the HTML is at {src}", file=sys.stderr)
+        return None
 
     def to_markdown(self, path: str | None = None) -> str:
         out = [f"# {self.title}", "", self.subtitle, ""]

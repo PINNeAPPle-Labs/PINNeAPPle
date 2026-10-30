@@ -275,6 +275,11 @@
   "reason": "imports pinneapple_cosim, which no longer exists (moved to pinneapple_systems.cosimulation without a shim), and trains in the script",
   "status": "not_convertible"
  },
+ "potential_co2": {
+  "domain": "thermodynamics",
+  "status": "runs-quick",
+  "notes": "surrogate_study: potential.co2_surrogates at one seed and a reduced budget (no comparison with the committed numbers, which are means over five seeds at 3000 and 9000 steps); the full study (5 seeds x 3 configurations, about 1.5 h on CPU) runs as 01_run_study.py and 02_report.py builds the figures, report and manifest."
+ },
  "problem_designer": {
   "domain": "design",
   "notes": "03_offline_spec_to_report: nothing numeric committed; the flow writes the same report as the script (5 plan steps, no validator warnings). 01 and 02 call Gemini over the network; 04 and 05 use a mock LLM provider defined in the scripts"

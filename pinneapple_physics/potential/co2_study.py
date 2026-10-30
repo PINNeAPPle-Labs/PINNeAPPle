@@ -38,7 +38,7 @@ from .surrogate import (
     n_parameters,
 )
 
-__all__ = ["T_CRIT", "RHO_CRIT", "REGIONS", "MODELS", "co2_properties", "make_mixed", "region_grid", "default_grids",
+__all__ = ["T_CRIT", "RHO_CRIT", "REGIONS", "MODELS", "ISO_T", "ISO_RHO", "co2_properties", "make_mixed", "region_grid", "default_grids",
            "run_seed", "run_study", "summarize", "interval"]
 
 T_CRIT, RHO_CRIT = 304.1282, 467.6  # K, kg/m3 (Span & Wagner 1996)
@@ -51,6 +51,10 @@ REGIONS = {
 }
 
 MODELS = ("direct", "potential", "potential_icnn")
+
+#: isotherms stored with every run for the figures: inside the training region (310 K) and extrapolated (350 K)
+ISO_T = (310.0, 350.0)
+ISO_RHO = np.linspace(100.0, 950.0, 86)
 
 
 def co2_properties(T, rho) -> dict[str, np.ndarray]:
@@ -143,6 +147,9 @@ def run_seed(seed: int, *, n_per_prop: int = 200, epochs: int = 3000, hidden: in
                "loss_curve": h["loss"][:: max(1, epochs // 100)]}
         for g, grid in grids.items():
             res[g] = _scores(model, grid, sd)
+        res["isotherms"] = {f"{T:g}": {k: v.tolist() for k, v in model.predict(np.full(ISO_RHO.size, T),
+                                                                                    ISO_RHO).items()}
+                            for T in ISO_T}
         out["models"][kind] = res
     return out
 
@@ -163,7 +170,8 @@ def summarize(runs: Sequence[dict], baseline: str = "direct") -> dict:
     """Intervals over seeds for every model, region and metric, and paired differences against ``baseline``
     (log10 ratio of normalised errors: negative means the model beats the baseline)."""
     models = list(runs[0]["models"])
-    regions = [k for k in runs[0]["models"][models[0]] if isinstance(runs[0]["models"][models[0]][k], dict)]
+    first = runs[0]["models"][models[0]]
+    regions = [k for k, v in first.items() if isinstance(v, dict) and "nrmse" in v]
     out = {"seeds": [r["seed"] for r in runs], "models": {}, "paired": {}}
     for m in models:
         rm = {"parameters": runs[0]["models"][m]["parameters"],

@@ -2330,6 +2330,14 @@ def test_export_trajectory_writes_valid_ply_sequence_with_real_colors(tmp_path):
 
 ### Objetivo
 
+`pinneapple_flow` representa fluxos de engenharia como grafos de nós tipados. Cada nó chama a biblioteca PINNeAPPle: geometria, equações, solvers clássicos, PINNs, operadores neurais, validação, gêmeos digitais, design. Um fluxo é um documento JSON (`pinneapple-flow/1`) com nós, arestas e parâmetros. Ele pode ser planejado a partir de uma descrição em texto (`pf.plan`), validado, executado sem interface (`pf.run` ou `python -m pinneapple_flow run`) ou editado e executado no Flow Studio (`apps/flow_studio`, servido por `python -m pinneapple_flow studio`).
+
+O problema que ele resolve é ligar as muitas capacidades da biblioteca num caminho reprodutível e explicável, de 'o que eu quero' até métricas e figuras. A execução usa o motor de `pinneapple_core.workflows` (cache, logs, retentativas). Cada nó grava artefatos na pasta da execução, e o `FlowStore` guarda fluxos, versões, execuções e saídas por nó em SQLite ou em qualquer banco SQLAlchemy. Cada decisão automática do planejador ou dos nós segue uma regra heurística registrada (`rules`), que cita referências do registro curado (`references`) ou diz por que não tem citação. Essas regras e evidências são checadas por teste.
+
+O pacote se liga ao resto pelos nós: chamadas curadas da biblioteca (`libcalls_catalog`, por exemplo `pp.solve` e `pp.compare`), nós gerados da API pública (`autocalls`) e nós que reproduzem estudos de `examples/*`. O módulo `coverage` mostra, para cada pacote e módulo `pinneapple*`, que nós o alcançam ou por que não há nó (shims, infraestrutura como `pinneapple_registry` e `pinneapple_mcp`). Outros pacotes e apps podem estender o fluxo com tipos de porta (`register_port_type`), referências e regras próprias. `FlowService` reúne as operações que o Flow Studio e outros front ends (como o app PINNeAPPle-CFD) expõem por HTTP.
+
+Esta parte cobre a superfície do pacote (`__init__`), a CLI, a configuração por ambiente, a cobertura, o catálogo de chamadas, as regras, o serviço, o armazenamento, os modelos de equações e os tipos de porta. O motor, os nós e o planejador estão descritos em outra parte.
+
 Esta parte cobre o núcleo do motor de fluxos do `pinneapple_flow` e os seus nós: o documento de fluxo (`schema`), o registro de tipos de nó com portas tipadas e formulários de parâmetros (`registry`), a execução sobre o motor de workflows de `pinneapple_core.workflows` (`runtime`), os nós embutidos (`nodes`) e os nós que reproduzem os estudos de `examples/*` (`nodes_ext`), os nós gerados a partir da API pública (`libcalls`, `autocalls`, `wrappers`), o planejador que transforma uma descrição em texto em propostas de fluxo (`planner`), a paleta do Flow Studio (`palette`, `studio`), os registros de decisão com referências checadas (`decisions`, `references`), a identificação de equações e o gêmeo digital automático (`identify`, `twin`), os surrogates treináveis (`learn`) e a ligação com o selo do PINNeAPPle Lab (`lab_status`, `examples`).
 
 ### Números do inventário
@@ -2342,32 +2350,32 @@ Esta parte cobre o núcleo do motor de fluxos do `pinneapple_flow` e os seus nó
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 10 | 10 |
+| `__main__` | CLI `python -m pinneapple_flow`: run, plan, validate, catalog, schema, examples, coverage, references, autocalls e studio. | 1 | 10 | 10 |
 | `autocalls` | Gera nós `auto.<módulo>.<função>` a partir das funções públicas da biblioteca que podem ser chamadas com segurança por um formulário, gravados em `autocalls.json`. | 1 | 6 | 10 |
-| `config` |  | 1 | 5 | 0 |
-| `coverage` |  | 1 | 6 | 10 |
+| `config` | Configurações por ambiente e `.env`: provedor de LLM, URL do banco, pastas e endereço do servidor. | 1 | 5 | 0 |
+| `coverage` | Tabela de quais módulos da biblioteca são alcançados por nós de fluxo e o motivo dos que não são. | 1 | 6 | 10 |
 | `decisions` | Registros de decisão de um fluxo (quem decidiu, por quê, com quais referências e evidências, com que confiança) e a seção de relatório em Markdown/HTML. | 1 | 11 | 22 |
 | `examples` | Inventário de `examples/*` como fluxos: configurações rápidas, execução, comparações medidas e o documento `EXAMPLES_AS_FLOWS.md`. | 1 | 15 | 8 |
 | `identify` | Identifica as equações que governam um problema a partir do texto (heurística offline ou LLM) e as descobre a partir de dados por regressão esparsa. | 1 | 4 | 7 |
 | `lab_status` | Lê o selo do PINNeAPPle Lab de um item validado e diz que nós inserir no fluxo para subir de letra. | 1 | 5 | 9 |
 | `learn` | Surrogates para nós de fluxo (blocos MLP, DeepONet, FNO, POD + MLP): construção, prévia como grafo de camadas, treino e busca de hiperparâmetros. | 1 | 14 | 0 |
 | `libcalls` | Lista curada de chamadas públicas da biblioteca expostas como nós, com formulários gerados por introspecção e tipos de nó definidos pelo usuário. | 1 | 10 | 10 |
-| `libcalls_catalog` |  | 1 | 0 | 0 |
+| `libcalls_catalog` | Lista curada de chamadas da biblioteca expostas como nós `lib.<chave>`. | 1 | 0 | 0 |
 | `nodes` | Tipos de nó embutidos: problema, dados, solvers, PINN, surrogates, métodos, validação, sistemas, raciocínio, veículo, visualização. | 20 | 91 | 27 |
 | `nodes_ext` | Tipos de nó que reproduzem os estudos de `examples/*` como fluxos, um módulo por domínio, e as capacidades do planejador para eles. | 38 | 112 | 8 |
 | `palette` | A paleta de nós do Flow Studio: seções em ordem de fluxo de engenharia, títulos legíveis, resumos e ranking de busca. | 1 | 12 | 29 |
 | `planner` | Planejador: de uma descrição do problema a propostas de fluxo, por heurística offline, por LLM validado ou pelo assistente guiado. | 6 | 23 | 16 |
 | `references` | Registro curado de referências (`references.yaml`) e a checagem (registro, DOI/URL) por que passa toda referência citada. | 1 | 10 | 13 |
 | `registry` | Tipos de nó: portas tipadas, esquemas de parâmetros, a chamada de biblioteca de cada um e o decorador `node` que os registra. | 1 | 6 | 46 |
-| `rules` |  | 1 | 3 | 13 |
+| `rules` | Regras heurísticas por trás de cada decisão automática, com as referências e evidências que as sustentam. | 1 | 3 | 13 |
 | `runtime` | Executa um fluxo sobre o motor de workflows de `pinneapple_core.workflows`, com cache, re-execução parcial, artefatos e ganchos de fim de execução. | 1 | 15 | 9 |
 | `schema` | O documento de fluxo `pinneapple-flow/1` (nós, arestas, metadados): carregar, salvar, validar e JSON Schema. | 1 | 9 | 27 |
-| `service` |  | 1 | 1 | 29 |
-| `store` |  | 1 | 3 | 23 |
+| `service` | `FlowService`: as operações do Flow Studio como métodos simples (planejar, validar, salvar, executar, resultados). | 1 | 1 | 29 |
+| `store` | `FlowStore`: fluxos, versões, execuções, decisões e saídas por nó em SQLite ou banco SQLAlchemy. | 1 | 3 | 23 |
 | `studio` | Sobe o Flow Studio (`apps/flow_studio`, FastAPI + frontend React) em localhost, exigindo login para outros endereços. | 1 | 3 | 38 |
-| `templates` |  | 1 | 2 | 0 |
+| `templates` | Modelos de equações por família de EDP e dimensão, com condições, coeficientes e solução exata. | 1 | 2 | 0 |
 | `twin` | Gêmeo digital montado automaticamente a partir de um sistema de equações identificado, sobre o `TwinRuntime` (filtro de Kalman por ensemble). | 1 | 3 | 7 |
-| `types` |  | 1 | 2 | 7 |
+| `types` | Tipos de porta do grafo e a regra de quais saídas podem alimentar quais entradas. | 1 | 2 | 7 |
 | `wrappers` | Pontos de entrada com argumentos JSON para capacidades da biblioteca cuja API recebe objetos, para virarem nós de chamada de biblioteca. | 1 | 18 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
@@ -2376,36 +2384,36 @@ Esta parte cobre o núcleo do motor de fluxos do `pinneapple_flow` e os seus nó
 
 #### `pinneapple_flow`
 
-PINNeAPPle Flow: engineering flows as typed node graphs, planned from a description, run headless or in Flow Studio.
+Superfície pública: `Flow`, `Node`, `Edge`, validação e schema, `REGISTRY` e `@node`, tipos de porta, e atalhos `run`, `plan`, `catalog`, `register_references`, `register_rule`; `FlowStore`, `Rule` e `NotRun` são carregados sob demanda.
 
 <small>`pinneapple_flow/__init__.py` · 91 linhas · testes: 231</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_references` | função | `(entries)` | Add curated references for another package's rules (see :func:`pinneapple_flow.references.register_references`). |
-| `register_rule` | função | `(r)` | Add a heuristic rule that cites registered references (see :func:`pinneapple_flow.rules.register_rule`). |
-| `run` | função | `(flow, **kw)` | Run a flow headless (see :func:`pinneapple_flow.runtime.run`). |
-| `plan` | função | `(text, **kw)` | Proposals for a problem description (see :func:`pinneapple_flow.planner.plan`). |
-| `catalog` | função | `() -> list[dict]` | Every node type as JSON (ports, parameter schema, availability). |
+| `register_references` | função | `(entries)` | Adiciona referências curadas para regras de outro pacote. |
+| `register_rule` | função | `(r)` | Adiciona uma regra heurística que cita referências registradas. |
+| `run` | função | `(flow, **kw)` | Executa um fluxo sem interface (via `runtime.run`). |
+| `plan` | função | `(text, **kw)` | Gera propostas de fluxo para uma descrição (via `planner.plan`). |
+| `catalog` | função | `() -> list[dict]` | Devolve todos os tipos de nó em JSON (portas, schema de parâmetros, disponibilidade). |
 
 #### `pinneapple_flow.__main__`
 
-Command line: ``python -m pinneapple_flow <command>``.
+CLI com subcomandos `run`, `plan`, `validate`, `catalog`, `schema`, `examples`, `example-flows`, `coverage`, `references`, `autocalls` e `studio`, imprimindo o estado por nó.
 
 <small>`pinneapple_flow/__main__.py` · 212 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `cmd_run` | função | `(a) -> int` |  |
-| `cmd_plan` | função | `(a) -> int` |  |
-| `cmd_validate` | função | `(a) -> int` |  |
-| `cmd_catalog` | função | `(a) -> int` |  |
-| `cmd_examples` | função | `(a) -> int` |  |
-| `cmd_coverage` | função | `(a) -> int` |  |
-| `cmd_autocalls` | função | `(a) -> int` |  |
-| `cmd_references` | função | `(a) -> int` |  |
-| `cmd_studio` | função | `(a) -> int` |  |
-| `main` | função | `(argv=None) -> int` |  |
+| `cmd_run` | função | `(a) -> int` | Subcomando `run`: executa um fluxo de arquivo ou embutido e imprime estado, tempo e métricas por nó. |
+| `cmd_plan` | função | `(a) -> int` | Subcomando `plan`: propostas para uma descrição, opcionalmente gravando o fluxo. |
+| `cmd_validate` | função | `(a) -> int` | Subcomando `validate`: valida um arquivo de fluxo e lista os problemas. |
+| `cmd_catalog` | função | `(a) -> int` | Subcomando `catalog`: lista os tipos de nó, em texto ou JSON. |
+| `cmd_examples` | função | `(a) -> int` | Subcomando `examples`: lista os fluxos de exemplo embutidos. |
+| `cmd_coverage` | função | `(a) -> int` | Subcomando `coverage`: escreve a tabela de cobertura em markdown. |
+| `cmd_autocalls` | função | `(a) -> int` | Subcomando `autocalls`: regenera os nós gerados da API pública (`autocalls.json`). |
+| `cmd_references` | função | `(a) -> int` | Subcomando `references`: lista o registro de referências; `--verify` resolve os DOIs online. |
+| `cmd_studio` | função | `(a) -> int` | Subcomando `studio`: serve o backend e o frontend do Flow Studio. |
+| `main` | função | `(argv=None) -> int` | Ponto de entrada da CLI: monta os subcomandos e despacha. |
 
 #### `pinneapple_flow.autocalls`
 
@@ -2424,32 +2432,32 @@ Varre os módulos públicos que nenhum nó curado cobre e gera nós `auto.*` só
 
 #### `pinneapple_flow.config`
 
-Settings from the environment (and an optional ``.env`` file): LLM provider, database URL, folders, server.
+`Settings` lido de variáveis `PINNEAPPLE_FLOW_*` (home, banco, pasta de dados, host/porta, LLM), leitor de `.env` e `safe_data_path`, que impede caminhos fora da pasta de dados. [sem teste direto pelo inventário]
 
 <small>`pinneapple_flow/config.py` · 99 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Settings` | classe | `(host, port, db_url, llm_provider, llm_model, llm_base_url, llm_api_key)` |  |
-| `load_dotenv` | função | `(path='.env', *, override=False) -> dict[str, str]` | Read ``KEY=value`` lines (``#`` comments, optional quotes) into ``os.environ``; returns what was read. |
-| `home` | função | `() -> Path` |  |
-| `data_root` | função | `() -> Path` |  |
-| `safe_data_path` | função | `(name) -> Path` | A path inside the data folder (no absolute paths elsewhere, no ``..`` escapes). |
+| `Settings` | classe | `(host, port, db_url, llm_provider, llm_model, llm_base_url, llm_api_key)` | Configurações do servidor e do LLM lidas do ambiente; `public` mascara a chave e a senha do banco. |
+| `load_dotenv` | função | `(path='.env', *, override=False) -> dict[str, str]` | Lê linhas `KEY=value` de um `.env` para `os.environ`. |
+| `home` | função | `() -> Path` | Pasta base do Flow (`PINNEAPPLE_FLOW_HOME`, padrão `~/.pinneapple_flow`). |
+| `data_root` | função | `() -> Path` | Única pasta de onde nós de ingestão podem ler arquivos. |
+| `safe_data_path` | função | `(name) -> Path` | Caminho dentro da pasta de dados, recusando caminhos absolutos fora dela e `..`. |
 
 #### `pinneapple_flow.coverage`
 
-Which PINNeAPPle capabilities are flow nodes, and why the others are not.
+Percorre todos os pacotes `pinneapple*` e seus módulos de primeiro nível, mapeia os nós que os chamam e anexa um motivo curado (`REASONS`) aos sem nó; gera tabela markdown e falha se faltar nó e motivo.
 
 <small>`pinneapple_flow/coverage.py` · 183 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `packages` | função | `() -> list[str]` |  |
-| `modules` | função | `(pkg) -> list[str]` |  |
-| `node_targets` | função | `(auto=True) -> dict[str, set[str]]` | module path -> node types that call into it (``auto``: with the nodes generated from the public API). |
-| `coverage` | função | `(auto=True) -> list[dict[str, str]]` | One row per package and first-level module: the node types that reach it, or why there are none (a curated reason, or the one the public-API scan of :mod:`pinneapple_flow.autocalls` recorded). |
-| `counts` | função | `(rows=None) -> dict[str, int]` |  |
-| `markdown` | função | `() -> str` |  |
+| `packages` | função | `() -> list[str]` | Lista os pacotes `pinneapple*` do repositório. |
+| `modules` | função | `(pkg) -> list[str]` | Lista os módulos de primeiro nível de um pacote. |
+| `node_targets` | função | `(auto=True) -> dict[str, set[str]]` | Mapa módulo → tipos de nó que o chamam. |
+| `coverage` | função | `(auto=True) -> list[dict[str, str]]` | Uma linha por pacote e módulo com os nós que o alcançam ou o motivo de não haver. |
+| `counts` | função | `(rows=None) -> dict[str, int]` | Contagens resumidas das linhas de cobertura. |
+| `markdown` | função | `() -> str` | Tabela de cobertura em markdown. |
 
 #### `pinneapple_flow.decisions`
 
@@ -2566,7 +2574,7 @@ Mantém `CALLS`, a lista de chamadas permitidas; gera o esquema de parâmetros a
 
 #### `pinneapple_flow.libcalls_catalog`
 
-The curated allowlist of library calls exposed as nodes (``lib.<key>``). Parameter forms come from the signatures; this file only says which callable, where it sits in the palette, which inputs come from ports and which references back it. Add a capability by adding an entry.
+Registra com `add(LibCall(...))` as chamadas curadas da biblioteca expostas como nós (solvers, comparação, validação etc.), com categoria na paleta, entradas por porta e referências; os formulários de parâmetros vêm das assinaturas. [sem teste direto pelo inventário]
 
 <small>`pinneapple_flow/libcalls_catalog.py` · 119 linhas · **sem teste direto**</small>
 
@@ -3420,15 +3428,15 @@ Define `Port`, `Param`, `NodeSpec` e `Registry` e o decorador `node`, que regist
 
 #### `pinneapple_flow.rules`
 
-The heuristic rules behind every automatic decision of a flow, with the references they rest on.
+`RULES`: regras heurísticas (equações, condições de contorno, dimensão, método, arquitetura, hiperparâmetros, validação, gêmeo digital) que citam chaves do registro de referências ou dizem por que não citam, com evidências no repositório; `tests/test_flow_decisions.py` confere citações e caminhos.
 
 <small>`pinneapple_flow/rules.py` · 208 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Rule` | classe | `(id, description, cites, uncited, evidence, topic)` |  |
-| `register_rule` | função | `(r) -> Rule` | Add a heuristic rule (another package's decisions). It must cite registered references (:func:`pinneapple_flow.references.register_references` first) or say why it has none; an existing id is refused unless the rule is the same. |
-| `rule` | função | `(rule_id) -> Rule` |  |
+| `Rule` | classe | `(id, description, cites, uncited, evidence, topic)` | Regra heurística: id, descrição, citações ou motivo sem citação, evidências e tópico. |
+| `register_rule` | função | `(r) -> Rule` | Registra uma regra de outro pacote, exigindo referências registradas ou um motivo e recusando id repetido diferente. |
+| `rule` | função | `(rule_id) -> Rule` | Busca uma regra pelo id. |
 
 #### `pinneapple_flow.runtime`
 
@@ -3474,25 +3482,25 @@ O documento de fluxo `pinneapple-flow/1` com `Flow`, `Node`, `Edge` e `Issue`; `
 
 #### `pinneapple_flow.service`
 
-The operations Flow Studio (or any other front end, e.g. the PINNeAPPle-CFD app) exposes, as plain methods.
+`FlowService` reúne catálogo, paleta e preferências, plano, validação, prévia de equações e arquitetura, decisões, referências, selo do Lab, nós customizados, fluxos versionados, execuções em segundo plano com estado ao vivo e acesso seguro a artefatos.
 
 <small>`pinneapple_flow/service.py` · 352 linhas · testes: 29</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FlowService` | classe | `(*, db_url=None, workdir=None, settings=None, max_runs=1)` |  |
+| `FlowService` | classe | `(*, db_url=None, workdir=None, settings=None, max_runs=1)` | Operações do Flow Studio como métodos: catálogo, plano, validação, armazenamento, execuções e artefatos. |
 
 #### `pinneapple_flow.store`
 
-Where flows, their versions, runs and per-node outputs live: SQLite by default, any SQLAlchemy URL otherwise.
+`FlowStore` em SQLAlchemy (SQLite com WAL por padrão, Postgres opcional) com fluxos versionados, preferências, nós customizados, decisões e execuções; artefatos ficam em disco e o store guarda os caminhos.
 
 <small>`pinneapple_flow/store.py` · 261 linhas · testes: 23</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FlowStore` | classe | `(url=None, *, table_prefix=None)` | ``table_prefix``: put the tables under a prefix (``flow_`` -> ``flow_flows``, ``flow_runs``, ...) when they share an application's database; default ``$PINNEAPPLE_FLOW_TABLE_PREFIX`` or none. |
-| `default_url` | função | `() -> str` |  |
-| `redact` | função | `(url) -> str` | The URL with any password replaced (for logs and the GUI). |
+| `FlowStore` | classe | `(url=None, *, table_prefix=None)` | Armazenamento de fluxos, versões, execuções, decisões e saídas por nó num banco SQLAlchemy, com prefixo de tabela opcional. |
+| `default_url` | função | `() -> str` | URL padrão do banco: `PINNEAPPLE_FLOW_DB_URL` ou o SQLite na pasta home. |
+| `redact` | função | `(url) -> str` | A URL com a senha substituída, para logs e a interface. |
 
 #### `pinneapple_flow.studio`
 
@@ -3508,14 +3516,14 @@ Serve o app `apps/flow_studio` com uvicorn; recusa ouvir fora de localhost sem `
 
 #### `pinneapple_flow.templates`
 
-Equation templates per PDE family and dimension: the PDEs, conditions, coefficients and (when one is known) the exact solution a planner proposes and a user then edits.
+Modelos de equações em texto (gramática de `symbolic_pde.text`) para calor, onda, Poisson, Laplace, Helmholtz, Burgers, advecção-difusão e reação-difusão em 1 a 3 dimensões, e troca de dimensão. [sem teste direto pelo inventário]
 
 <small>`pinneapple_flow/templates.py` · 114 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `template` | função | `(family, dimension=1) -> dict[str, Any]` | PDEs, conditions, coefficients, domain and exact solution for ``family`` in ``dimension`` (1-3) spatial dimensions. ValueError for an unknown family or a dimension the family does not have here. |
-| `retarget` | função | `(equations, dimension) -> dict[str, Any]` | The equations of a template family moved to another dimension (the 2-D <-> 3-D switch). PDEs written with ``lap()`` keep their text; conditions on ``boundary`` stay; a known template is rebuilt for the new dimension. |
+| `template` | função | `(family, dimension=1) -> dict[str, Any]` | PDEs, condições, coeficientes, domínio e solução exata de uma família numa dimensão. |
+| `retarget` | função | `(equations, dimension) -> dict[str, Any]` | Leva as equações de um modelo para outra dimensão (troca 2D ↔ 3D). |
 
 #### `pinneapple_flow.twin`
 
@@ -3531,14 +3539,14 @@ Equation templates per PDE family and dimension: the PDEs, conditions, coefficie
 
 #### `pinneapple_flow.types`
 
-Port types of the flow graph and the rule that says which output may feed which input.
+`PORT_TYPES` (geometry, mesh, equations, problem, solution, model, dataset, twin, vehicle, chain e outros), `CONVERSIONS` entre tipos diferentes e registro de novos tipos por outros pacotes.
 
 <small>`pinneapple_flow/types.py` · 71 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compatible` | função | `(source, target) -> bool` | True when an output of type ``source`` may feed an input of type ``target``. |
-| `register_port_type` | função | `(name, description, *, converts_to=(), converts_from=()) -> None` | Add a port type (for another package's node types, e.g. a CFD case). ``converts_to`` / ``converts_from``: existing types it may feed / be fed from although the names differ. Re-registering the same description is a no-op; a different one for an existing name is refused, so documents stay portable. |
+| `compatible` | função | `(source, target) -> bool` | Diz se uma saída de um tipo pode alimentar uma entrada de outro. |
+| `register_port_type` | função | `(name, description, *, converts_to=(), converts_from=()) -> None` | Adiciona um tipo de porta com as conversões permitidas, para nós de outros pacotes. |
 
 #### `pinneapple_flow.wrappers`
 
@@ -3609,6 +3617,38 @@ def test_unavailable_node_finishes_not_run_and_downstream_too(tmp_path):
     assert r.nodes["b"]["status"] == "not_run" and "did not run" in r.report("b")["not_run_reason"]
 ```
 
+**Planejar e executar um gêmeo digital a partir de texto** — `tests/test_flow_generic.py`
+
+```python
+    text = ("digital twin of a heated rod (1D) from 4 temperature sensors; detect if its thermal diffusivity "
+            "changes")
+    res = pf.plan(text, backend="heuristic")
+    p = res["proposals"][0]
+    types = [n["type"] for n in p["flow"]["nodes"]]
+    assert types[:3] == ["problem.generic", "data.stream", "twin.auto"]
+    flow = pf.Flow.from_dict(p["flow"])
+    ...
+    r = pf.run(flow, workdir=tmp_path)
+    assert r.status == "done", {k: v["error"] for k, v in r.nodes.items()}
+    m = r.report("twin")["metrics"]
+```
+
+**Executar um fluxo de exemplo** — `examples/flow_studio/run_examples.py`
+
+```python
+def run_one(name: str, cache: bool = False) -> dict:
+    flow = pf.Flow.load(FLOWS_DIR / f"{name}.json")
+    t0 = time.time()
+    res = pf.run(flow, workdir=WORK, cache=cache)
+```
+
+**Uso pela linha de comando** — `pinneapple_flow/__init__.py`
+
+```python
+    python -m pinneapple_flow run flow.json        # the same, from the shell
+    python -m pinneapple_flow studio               # the GUI on http://127.0.0.1:8765
+```
+
 ### Testes e status de validação
 
 - Módulos com pelo menos um teste que os importa: 31 de 89.
@@ -3624,6 +3664,13 @@ def test_unavailable_node_finishes_not_run_and_downstream_too(tmp_path):
 - Os nós de `nodes_ext` e `examples.example_dir` precisam da pasta `examples` de um checkout (ou `PINNEAPPLE_REPO`); numa wheel instalada eles falham. `studio.load_app` também depende do checkout com `apps/flow_studio`.
 - `studio.serve` recusa ouvir fora de localhost sem `FLOW_USER` e hash de senha, salvo `allow_insecure` explícito.
 - `learn` e `planner.llm` não têm teste direto; o planejador LLM depende de um provedor configurado e volta para a heurística quando falha.
+- O Flow Studio e o servidor exigem o extra `pinneapple[flow]`; Postgres exige `psycopg`. Quando o servidor escuta fora de localhost, valem as proteções de `appkit` (usuário/senha, limites, CSRF).
+- O planejador por LLM depende de um provedor configurado (`ollama`, `openai`, `openai_compatible`, `anthropic`); sem ele resta o planejador heurístico offline.
+- Nós de ingestão só leem arquivos dentro de `PINNEAPPLE_FLOW_DATA` (`safe_data_path`); o acesso a artefatos fica restrito à pasta da execução.
+- `templates` cobre só oito famílias de EDP em 1 a 3 dimensões; outras famílias ou dimensões levantam `ValueError`.
+- Uma chamada da biblioteca só vira nó se estiver em `libcalls_catalog` ou nos `autocalls` gerados; `coverage` lista o que fica de fora e o motivo.
+- `register_rule` recusa regras que citam referências não registradas ou que não têm citação nem motivo.
+- Sem teste direto pelo inventário: `config`, `libcalls_catalog` e `templates` (exercitados indiretamente pelos testes de fluxo).
 
 ## 4. `pinneapple_hub`
 

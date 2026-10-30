@@ -329,7 +329,7 @@ Em palavras:
 | `pp.propagate_uncertainty` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate_space` | Propaga entradas com qualquer distribuição por `fn`. |
 | `pp.qualitative` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.qualitative` | Reexporta `preview`, `part_sensitivity`, `Assembly` e os modelos qualitativos. |
 | `pp.Quantity` | import direto | `pinneapple_physics.physical_problem.Quantity` | Quantidade de interesse que o usuário quer da solução, com unidade e campo de origem. |
-| `pp.quantum` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_quantum` | pinneapple_quantum — PINNeAPPle Quantum Module (PQM). |
+| `pp.quantum` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_quantum` | Fachada do Módulo Quântico (PQM): reexporta configuração de circuito, backends, modelos, perdas de Schrödinger, datasets, treinador e presets, e oferece os atalhos `build_circuit` e `backend_info`. [experimental] [sem teste] |
 | `pp.quickstart` | definido em `pinneapple/__init__.py` | `pinneapple.quickstart` | Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec. |
 | `pp.recommend` | import direto | `pinneapple_core.onboarding.recommend` | `pp.recommend`: transforma uma frase em preset, método e modelo, com o motivo e os termos que casaram; é pontuação por palavras-chave e pode errar. [sem teste direto] |
 | `pp.rectangle` | import direto | `pinneapple_design.geometry.rectangle` |  |

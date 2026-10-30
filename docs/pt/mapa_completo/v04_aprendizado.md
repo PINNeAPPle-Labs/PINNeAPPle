@@ -5811,7 +5811,11 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_quantum` (PINNeAPPle Quantum Module, versão 0.1.0) é uma extensão experimental de aprendizado de máquina informado por física híbrido clássico-quântico. Ele usa circuitos quânticos variacionais (VQC) como ansatz de função de onda, ou como camada dentro de uma rede clássica, e os treina com perdas da equação de Schrödinger.
+
+Os fluxos previstos são: VQ-PINN (o circuito é ψ(x) e a perda é o quociente de Rayleigh, como no VQE), PINN híbrida (MLP clássica + circuito), aprendizado de Hamiltoniana a partir de energias medidas e kernel quântico para métodos de kernel clássicos. `pipeline.presets.solve()` imita a API `solve` do PINNeAPPle para esses casos.
+
+A execução pode usar PennyLane, Qiskit/Aer ou um simulador clássico de vetor de estado em PyTorch. Se as bibliotecas quânticas não estiverem instaladas, o pacote cai automaticamente para o simulador clássico, então a API toda continua disponível. O pacote é isolado do resto do repositório: não importa outros pacotes `pinneapple_*` e nenhum teste o importa.
 
 ### Números do inventário
 
@@ -5823,13 +5827,13 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `backends` |  | 2 | 7 | 0 |
-| `circuits` |  | 2 | 4 | 0 |
-| `data` |  | 2 | 7 | 0 |
-| `loss` |  | 2 | 10 | 0 |
-| `models` |  | 3 | 2 | 0 |
-| `pipeline` |  | 2 | 5 | 0 |
-| `training` |  | 2 | 4 | 0 |
+| `backends` | Backends PennyLane, Qiskit e simulador clássico. | 2 | 7 | 0 |
+| `circuits` | Configuração e construção de circuitos variacionais. | 2 | 4 | 0 |
+| `data` | Estados, observáveis, datasets e amostradores de domínio. | 2 | 7 | 0 |
+| `loss` | Perdas da equação de Schrödinger e potenciais. | 2 | 10 | 0 |
+| `models` | `QuantumModel` e `HybridModel` como módulos PyTorch. | 3 | 2 | 0 |
+| `pipeline` | Presets de alto nível e `solve()`. | 2 | 5 | 0 |
+| `training` | Treinador híbrido e gradiente parameter-shift. | 2 | 4 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5837,171 +5841,189 @@ _Sem texto de objetivo._
 
 #### `pinneapple_quantum`
 
-pinneapple_quantum — PINNeAPPle Quantum Module (PQM).
+Fachada do Módulo Quântico (PQM): reexporta configuração de circuito, backends, modelos, perdas de Schrödinger, datasets, treinador e presets, e oferece os atalhos `build_circuit` e `backend_info`. [experimental] [sem teste]
 
 <small>`pinneapple_quantum/__init__.py` · 210 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_circuit` | função | `(n_qubits=4, depth=2, ansatz='hardware_efficient', encoding='angle', n_observables=1, bac…)` | Shortcut to build a :class:`QuantumModel` from flat arguments. |
-| `backend_info` | função | `(provider='pennylane') -> dict` | Return info dict for the specified backend. |
+| `build_circuit` | função | `(n_qubits=4, depth=2, ansatz='hardware_efficient', encoding='angle', n_observables=1, bac…)` | Atalho que monta um `QuantumModel` a partir de argumentos simples (qubits, profundidade, ansatz, codificação, backend). |
+| `backend_info` | função | `(provider='pennylane') -> dict` | Devolve o dict de informações do backend pedido (ou do fallback resolvido). |
 
 #### `pinneapple_quantum.backends`
 
-_Módulo sem docstring e sem texto._
+Subpacote dos backends de execução quântica (reexporta `backend`). [sem teste]
 
 <small>`pinneapple_quantum/backends/__init__.py` · 4 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.backends.backend`
 
-Quantum backend adapter — PennyLane, Qiskit, or classical simulator.
+Adaptador de backend quântico: PennyLane, Qiskit/Aer ou simulador clássico de vetor de estado em PyTorch; `get_backend` cai para o clássico se a biblioteca não estiver instalada. A base `QuantumBackend` levanta NotImplementedError. [sem teste]
 
 <small>`pinneapple_quantum/backends/backend.py` · 324 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BackendConfig` | classe | `(provider, device_name, diff_method, shots)` | Configuration for the quantum execution backend. |
-| `QuantumBackend` | classe | `(config)` | Abstract base for quantum backends. |
-| `PennyLaneBackend` | classe | `()` | PennyLane backend (supports CPU/GPU simulators and real QPUs). |
-| `QiskitBackend` | classe | `()` | Qiskit / Aer backend. |
-| `ClassicalBackend` | classe | `()` | Classical state-vector simulator. |
-| `ClassicalQNode` | classe | `(circuit_fn, n_qubits)` | Callable that executes a quantum circuit description on the classical engine. |
-| `get_backend` | função | `(config=None) -> 'QuantumBackend'` | Instantiate the correct backend from a config (or defaults). |
+| `BackendConfig` | classe | `(provider, device_name, diff_method, shots)` | Configuração do backend: provedor, nome do dispositivo, método de diferenciação e número de shots. |
+| `QuantumBackend` | classe | `(config)` | Base abstrata de backend; `name` e `build_qnode` levantam NotImplementedError. |
+| `PennyLaneBackend` | classe | `()` | Backend PennyLane (simuladores CPU/GPU e QPUs reais). |
+| `QiskitBackend` | classe | `()` | Backend Qiskit/Aer via plugin PennyLane-Qiskit; sem ele, usa o backend clássico. |
+| `ClassicalBackend` | classe | `()` | Simulador clássico de vetor de estado em PyTorch, sem dependências quânticas. |
+| `ClassicalQNode` | classe | `(circuit_fn, n_qubits)` | Executa uma descrição de circuito gravada aplicando as portas como unitárias complexas a um vetor de estado. |
+| `get_backend` | função | `(config=None) -> 'QuantumBackend'` | Cria o backend a partir da configuração, caindo para o clássico se PennyLane ou Qiskit não estiverem instalados. |
 
 #### `pinneapple_quantum.circuits`
 
-_Módulo sem docstring e sem texto._
+Subpacote de construção de circuitos (reexporta `base`). [sem teste]
 
 <small>`pinneapple_quantum/circuits/__init__.py` · 8 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.circuits.base`
 
-Quantum circuit builder — ansatz and encoding definitions.
+Define o circuito variacional (ansatz e codificação) e o constrói como QNode do PennyLane ou como gravação de portas para o simulador clássico; inclui `ClassicalVQC`, uma aproximação por MLP. [sem teste]
 
 <small>`pinneapple_quantum/circuits/base.py` · 300 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `QuantumCircuitConfig` | classe | `(n_qubits, depth, ansatz, encoding, n_observables)` | Full specification for a variational quantum circuit (VQC). |
-| `ClassicalVQC` | classe | `(config)` | Variational quantum circuit **approximated** entirely in PyTorch. |
-| `build_pennylane_circuit` | função | `(config, backend)` | Construct a PennyLane QNode implementing the given circuit config. |
-| `build_classical_circuit` | função | `(config, backend)` | Construct the same circuit as :func:`build_pennylane_circuit`, but recorded against a gate-recorder protocol (``recorder.rx/ry/rz/cnot/hadamard/cz/ measure_z``) that :class:`~pinneapple_quantum.backends.backend.ClassicalQNode` replays on an exact state-vector engine — used when no quantum package … |
+| `QuantumCircuitConfig` | classe | `(n_qubits, depth, ansatz, encoding, n_observables)` | Especificação do circuito variacional: qubits, profundidade, ansatz (`hardware_efficient`, `strongly_entangling`, `efficient_su2`), codificação (`angle`, `amplitude`, `iqp`) e número de observáveis. |
+| `ClassicalVQC` | classe | `(config)` | Aproximação por MLP de um circuito variacional, com saída em [-1, 1]; o próprio docstring diz que não reproduz a dinâmica das portas. |
+| `build_pennylane_circuit` | função | `(config, backend)` | Constrói um QNode do PennyLane para a configuração dada. |
+| `build_classical_circuit` | função | `(config, backend)` | Constrói o mesmo circuito gravando as portas num protocolo que o `ClassicalQNode` executa. |
 
 #### `pinneapple_quantum.data`
 
-_Módulo sem docstring e sem texto._
+Subpacote de dados quânticos (reexporta `quantum_dataset`). [sem teste]
 
 <small>`pinneapple_quantum/data/__init__.py` · 20 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.data.quantum_dataset`
 
-Quantum dataset layer — states, operators, measurements, and domain samplers.
+Camada de dados quânticos: estados, observáveis, datasets de colocação e de cadeia de spins (Ising), amostradores de domínio 1D/2D e autoestados analíticos do oscilador harmônico. [sem teste]
 
 <small>`pinneapple_quantum/data/quantum_dataset.py` · 290 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `QuantumState` | classe | `(coords, psi_real, psi_imag, meta)` | A pure quantum state ψ(x) over a spatial domain. |
-| `QuantumObservable` | classe | `(expectation, variance, operator_names)` | A measured observable produced by a quantum circuit. |
-| `QuantumCollocationDataset` | classe | `(x_col, x_bc, psi_exact=None, batch_size=256)` | Dataset of domain collocation points for quantum PINN training. |
-| `SpinChainDataset` | classe | `(n_spins=4, n_samples=1024, J=1.0, h=0.5, seed=42)` | Dataset of spin-chain configurations and their energy labels. |
-| `sample_domain_1d` | função | `(x_min=0.0, x_max=1.0, n_col=1000, n_bc=50, device='cpu', dtype=torch.float32) -> Tuple[t…)` | Sample collocation and boundary points for a 1D quantum domain. |
-| `sample_domain_2d` | função | `(x_min=-2.0, x_max=2.0, y_min=-2.0, y_max=2.0, n_col=4096, n_bc=200, device='cpu', dtype=…)` | Sample collocation and boundary points for a 2D quantum domain. |
-| `exact_eigenstates_1d_harmonic` | função | `(x, n_state=0, omega=1.0, hbar=1.0, mass=1.0) -> Tuple[torch.Tensor, float]` | Analytically compute the n-th eigenstate of the 1D harmonic oscillator. |
+| `QuantumState` | classe | `(coords, psi_real, psi_imag, meta)` | Estado quântico puro psi(x) sobre um domínio espacial, com partes real e imaginária e norma. |
+| `QuantumObservable` | classe | `(expectation, variance, operator_names)` | Observável medido: valor esperado, variância e nomes dos operadores. |
+| `QuantumCollocationDataset` | classe | `(x_col, x_bc, psi_exact=None, batch_size=256)` | Dataset de pontos de colocação e de contorno para treinar PINNs quânticas, com solução exata opcional. |
+| `SpinChainDataset` | classe | `(n_spins=4, n_samples=1024, J=1.0, h=0.5, seed=42)` | Configurações aleatórias de spins ±1 com energia de Ising (acoplamento J e campo h). |
+| `sample_domain_1d` | função | `(x_min=0.0, x_max=1.0, n_col=1000, n_bc=50, device='cpu', dtype=torch.float32) -> Tuple[t…)` | Amostra pontos de colocação e de contorno num intervalo 1D. |
+| `sample_domain_2d` | função | `(x_min=-2.0, x_max=2.0, y_min=-2.0, y_max=2.0, n_col=4096, n_bc=200, device='cpu', dtype=…)` | Amostra pontos de colocação e de contorno num retângulo 2D. |
+| `exact_eigenstates_1d_harmonic` | função | `(x, n_state=0, omega=1.0, hbar=1.0, mass=1.0) -> Tuple[torch.Tensor, float]` | Calcula o n-ésimo autoestado analítico do oscilador harmônico 1D e sua energia. |
 
 #### `pinneapple_quantum.loss`
 
-_Módulo sem docstring e sem texto._
+Subpacote de perdas físicas (reexporta `schrodinger`). [sem teste]
 
 <small>`pinneapple_quantum/loss/__init__.py` · 26 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.loss.schrodinger`
 
-Physics losses for the Schrödinger equation and quantum Hamiltonians.
+Perdas físicas para a equação de Schrödinger: potenciais prontos, energia variacional (quociente de Rayleigh), resíduo forte independente e dependente do tempo, normalização e valor esperado de Hamiltoniana matricial. [sem teste]
 
 <small>`pinneapple_quantum/loss/schrodinger.py` · 344 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `harmonic_potential` | função | `(x, omega=1.0, mass=1.0) -> torch.Tensor` | V(x) = ½mω²‖x‖² — quantum harmonic oscillator. |
-| `infinite_well_potential` | função | `(x, width=1.0) -> torch.Tensor` | V(x) = 0 inside (0, L), handled via Dirichlet BCs. Returns 0 in domain. |
-| `coulomb_potential` | função | `(x, charge=1.0, eps=0.001) -> torch.Tensor` | V(r) = −e²/r — hydrogen-like atom potential (regularized at origin). |
-| `double_well_potential` | função | `(x, a=1.0, b=0.0) -> torch.Tensor` | V(x) = (x² − a)² + bx — symmetric / asymmetric double well. |
-| `get_potential` | função | `(name_or_fn) -> Callable` | Resolve a potential by name string or return it directly if callable. |
-| `energy_loss` | função | `(model, x, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_kwargs) -> Tu…)` | Variational energy (Rayleigh quotient) for the time-independent Schrödinger equation. |
-| `pde_residual_loss` | função | `(model, x, eigenvalue, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_k…)` | Strong-form PDE residual for the time-independent Schrödinger equation. |
-| `time_dependent_loss` | função | `(model, x, t, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_kwargs) ->…)` | PDE residual for the time-dependent Schrödinger equation. |
-| `normalization_loss` | função | `(model, x, domain_volume=1.0) -> torch.Tensor` | Soft constraint enforcing wavefunction normalization: ∫\|ψ\|² dx ≈ 1. |
-| `hamiltonian_expectation` | função | `(model, x, H_matrix) -> torch.Tensor` | Discrete Hamiltonian expectation ⟨ψ\|H\|ψ⟩ for matrix Hamiltonians. |
+| `harmonic_potential` | função | `(x, omega=1.0, mass=1.0) -> torch.Tensor` | Potencial do oscilador harmônico, V = ½ m ω² \|x\|². |
+| `infinite_well_potential` | função | `(x, width=1.0) -> torch.Tensor` | Poço infinito: V = 0 no domínio, com as paredes impostas por condições de Dirichlet. |
+| `coulomb_potential` | função | `(x, charge=1.0, eps=0.001) -> torch.Tensor` | Potencial coulombiano regularizado na origem (átomo hidrogenoide). |
+| `double_well_potential` | função | `(x, a=1.0, b=0.0) -> torch.Tensor` | Poço duplo (x² − a)² + b x, simétrico ou assimétrico. |
+| `get_potential` | função | `(name_or_fn) -> Callable` | Resolve um potencial pelo nome ou devolve a função se já for chamável. |
+| `energy_loss` | função | `(model, x, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_kwargs) -> Tu…)` | Energia variacional (quociente de Rayleigh) da equação de Schrödinger independente do tempo; devolve energia e norma. |
+| `pde_residual_loss` | função | `(model, x, eigenvalue, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_k…)` | Resíduo forte −(ħ²/2m)∇²ψ + Vψ − Eψ para um autovalor dado. |
+| `time_dependent_loss` | função | `(model, x, t, potential='harmonic_oscillator', hbar=1.0, mass=1.0, **potential_kwargs) ->…)` | Resíduo da equação de Schrödinger dependente do tempo, com ψ complexo como duas saídas. |
+| `normalization_loss` | função | `(model, x, domain_volume=1.0) -> torch.Tensor` | Restrição suave para ∫\|ψ\|² dx ≈ 1. |
+| `hamiltonian_expectation` | função | `(model, x, H_matrix) -> torch.Tensor` | Valor esperado discreto ⟨ψ\|H\|ψ⟩ para Hamiltonianas em forma de matriz. |
 
 #### `pinneapple_quantum.models`
 
-_Módulo sem docstring e sem texto._
+Subpacote de modelos (reexporta `QuantumModel` e `HybridModel`). [sem teste]
 
 <small>`pinneapple_quantum/models/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.models.hybrid_model`
 
-HybridModel — classical neural network + variational quantum circuit.
+`HybridModel`: combina uma rede clássica e um `QuantumModel` num grafo diferenciável, em série (clássico primeiro ou quântico primeiro) ou em paralelo com fusão linear. [sem teste]
 
 <small>`pinneapple_quantum/models/hybrid_model.py` · 112 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HybridModel` | classe | `(classical_net, quantum_model, mode='classical_first', out_dim=None)` | Classical–quantum hybrid model that combines an ``nn.Module`` with a :class:`QuantumModel` into a single differentiable computational graph. |
+| `HybridModel` | classe | `(classical_net, quantum_model, mode='classical_first', out_dim=None)` | Modelo híbrido que compõe rede clássica e circuito quântico em modo `classical_first`, `quantum_first` ou `parallel`. |
 
 #### `pinneapple_quantum.models.quantum_model`
 
-QuantumModel — variational quantum circuit as a PyTorch nn.Module.
+`QuantumModel`: circuito variacional exposto como `nn.Module` do PyTorch, devolvendo valores esperados de Pauli-Z por amostra. [sem teste]
 
 <small>`pinneapple_quantum/models/quantum_model.py` · 133 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `QuantumModel` | classe | `(circuit_config, backend_config=None, output_scale=1.0)` | A variational quantum circuit (VQC) exposed as a standard PyTorch ``nn.Module``. |
+| `QuantumModel` | classe | `(circuit_config, backend_config=None, output_scale=1.0)` | Circuito variacional como `nn.Module`, com pesos treináveis e escala de saída. |
 
 #### `pinneapple_quantum.pipeline`
 
-_Módulo sem docstring e sem texto._
+Subpacote de presets de alto nível (reexporta `presets`). [sem teste]
 
 <small>`pinneapple_quantum/pipeline/__init__.py` · 16 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.pipeline.presets`
 
-High-level pipeline presets for common quantum ML workflows.
+Presets prontos: VQ-PINN, PINN híbrido, aprendizado de Hamiltoniana, kernel quântico e um `solve()` que imita a API do PINNeAPPle. [sem teste]
 
 <small>`pinneapple_quantum/pipeline/presets.py` · 490 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `vq_pinn` | função | `(equation='schrodinger_1d', potential='harmonic_oscillator', n_qubits=4, depth=3, ansatz=…)` | Build and train a Variational Quantum PINN (VQ-PINN). |
-| `hybrid_pinn` | função | `(classical_in=1, classical_hidden=32, n_qubits=4, depth=2, potential='harmonic_oscillator…)` | Hybrid PINN: classical MLP pre-encodes features → quantum circuit → output. |
-| `learn_hamiltonian` | função | `(data, labels, n_spins=4, epochs=2000, lr=0.001, device='cpu', seed=42) -> Dict[str, Any]` | Learn a matrix Hamiltonian from energy measurement data. |
-| `quantum_kernel` | função | `(x_train, x_test=None, n_qubits=4, encoding='angle', backend='pennylane') -> torch.Tensor` | Compute a quantum-feature-map kernel matrix K(xᵢ, xⱼ) for use with classical kernel methods (SVM, GP regression) in an elevated feature space. |
-| `solve` | função | `(problem='quantum', equation='schrodinger', potential='harmonic', method='vq_pinn', backe…)` | High-level entry-point that mirrors the PINNeAPPle ``solve()`` API. |
+| `vq_pinn` | função | `(equation='schrodinger_1d', potential='harmonic_oscillator', n_qubits=4, depth=3, ansatz=…)` | Monta e treina uma VQ-PINN para Schrödinger com o potencial escolhido e devolve resultados (energia estimada e exata, histórico, modelo). |
+| `hybrid_pinn` | função | `(classical_in=1, classical_hidden=32, n_qubits=4, depth=2, potential='harmonic_oscillator…)` | Treina uma PINN híbrida: MLP clássica codifica a entrada para o circuito quântico. |
+| `learn_hamiltonian` | função | `(data, labels, n_spins=4, epochs=2000, lr=0.001, device='cpu', seed=42) -> Dict[str, Any]` | Ajusta uma matriz Hamiltoniana simétrica tal que ⟨ψ\|H\|ψ⟩ aproxime as energias medidas. |
+| `quantum_kernel` | função | `(x_train, x_test=None, n_qubits=4, encoding='angle', backend='pennylane') -> torch.Tensor` | Matriz de kernel a partir das expectativas de Pauli-Z do circuito (cosseno ao quadrado); no backend clássico usa um kernel RBF. |
+| `solve` | função | `(problem='quantum', equation='schrodinger', potential='harmonic', method='vq_pinn', backe…)` | Ponto de entrada no estilo `solve()` do PINNeAPPle que despacha para `vq_pinn` ou `hybrid_pinn`. |
 
 #### `pinneapple_quantum.training`
 
-_Módulo sem docstring e sem texto._
+Subpacote de treino (reexporta `trainer`). [sem teste]
 
 <small>`pinneapple_quantum/training/__init__.py` · 9 linhas · **sem teste direto**</small>
 
 #### `pinneapple_quantum.training.trainer`
 
-Quantum-aware hybrid trainer with parameter-shift support.
+Treinador híbrido clássico-quântico com perda física, de contorno e de normalização; a opção de gradiente por parameter-shift não está implementada e cai para backprop com aviso. [sem teste]
 
 <small>`pinneapple_quantum/training/trainer.py` · 345 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `QTrainerConfig` | classe | `(epochs, lr, optimizer, quantum_gradient, lambda_norm, lambda_bc, print_every, device)` | Configuration for the quantum-aware trainer. |
-| `QTrainHistory` | classe | `(epochs, total_loss, pde_loss, energy, norm_sq)` | Training history container. |
-| `QTrainer` | classe | `(model, physics_loss_fn, bc_loss_fn=None, config=None)` | Hybrid classical-quantum trainer. |
-| `parameter_shift_gradient` | função | `(loss_fn, weights, shift=math.pi / 2) -> torch.Tensor` | Compute exact gradient of ``loss_fn`` w.r.t. ``weights`` using the parameter-shift rule. |
+| `QTrainerConfig` | classe | `(epochs, lr, optimizer, quantum_gradient, lambda_norm, lambda_bc, print_every, device)` | Configuração do treinador quântico: épocas, taxa, otimizador, modo de gradiente quântico e pesos de normalização e contorno. |
+| `QTrainHistory` | classe | `(epochs, total_loss, pde_loss, energy, norm_sq)` | Histórico do treino: perda total, perda da EDP, energia e norma por época. |
+| `QTrainer` | classe | `(model, physics_loss_fn, bc_loss_fn=None, config=None)` | Treinador híbrido que minimiza perda física + contorno + normalização sobre pontos de colocação. |
+| `parameter_shift_gradient` | função | `(loss_fn, weights, shift=math.pi / 2) -> torch.Tensor` | Gradiente exato de `loss_fn` em relação a `weights` pela regra parameter-shift. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Quick start do docstring do pacote** — `pinneapple_quantum/__init__.py`
+
+```python
+>>> cfg = pqm.QuantumCircuitConfig(n_qubits=4, depth=3)
+>>> model = pqm.QuantumModel(cfg)
+
+>>> # Physics loss
+>>> x = torch.linspace(-3, 3, 500).unsqueeze(-1)
+>>> energy, norm = pqm.loss.energy_loss(model, x, "harmonic_oscillator")
+
+>>> # One-line solve
+>>> result = pqm.solve(
+...     problem="quantum",
+...     equation="schrodinger",
+...     potential="harmonic",
+...     method="vq_pinn",
+...     n_qubits=4, depth=3, epochs=2000,
+... )
+```
 
 ### Testes e status de validação
 
@@ -6010,4 +6032,9 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Nenhum módulo do pacote tem teste.
+- `QTrainerConfig.quantum_gradient='parameter_shift'` não está implementado no treino: o `QTrainer` emite aviso e usa backprop comum, porque a reconstrução anterior dava gradientes errados com o termo laplaciano de `energy_loss`.
+- `quantum_kernel` não calcula a fidelidade exata |⟨φ(xi)|φ(xj)⟩|², e sim um proxy pelas expectativas de Pauli-Z; no backend clássico troca por um kernel RBF.
+- `ClassicalVQC` é uma aproximação por MLP, não uma simulação fiel; a simulação fiel é o `ClassicalQNode` (vetor de estado).
+- PennyLane e Qiskit/Aer são opcionais; sem eles tudo roda no simulador clássico, que avalia amostra por amostra.
+- `QuantumBackend` é base abstrata (`name` e `build_qnode` levantam NotImplementedError).

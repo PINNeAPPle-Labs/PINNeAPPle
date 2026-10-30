@@ -89,6 +89,8 @@ REASONS: dict[str, str] = {
     "pinneapple_condense.falsify": "the pre-registered falsification studies (subprocesses, minutes to an hour)",
     "pinneapple_condense.flow": "steady MAC-grid flow and heat assembler behind the CFD falsification tests",
     "pinneapple_condense.meshless2d": "2-D meshless discretisations of the CFD falsification tests",
+    "pinneapple_analysis.dynamics": "foundation of the dynamics toolkit (method contract, trajectories, adapters); "
+                                    "no analysis method yet, its frameworks add nodes as they land",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "

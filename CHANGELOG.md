@@ -21,6 +21,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_analysis.dynamics`: the shared foundation of the dynamical-systems toolkit. No numerical method
+  is in it yet; each framework arrives in its own pull request with its benchmarks.
+  - A method contract: `MethodCard` (inputs, assumptions, config, outputs, role, failure conditions) and
+    `DynamicsResult` (estimate, uncertainty, checked and unchecked assumptions, diagnostics, convergence,
+    applicability, reproducibility record, `to_study_result()`).
+  - Backend detection that imports nothing (`capabilities`, `require`, `to_numpy`).
+  - `Trajectory` / `TrajectoryEnsemble`: irregular sampling, missing values, right-censored windows, and
+    interpolation that never extrapolates.
+  - Adapters from arrays, tables and CSV files (units read from the headers), `pp.solve` solutions, callables,
+    and PDE / FNO / DeepONet snapshots.
+  - Guide: `docs/guides/dynamics_toolkit.md`.
 - `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
   fields, value and derivative constraints on faces, and linear or non-linear residuals.
   - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an

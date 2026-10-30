@@ -773,7 +773,11 @@ def test_status_covers_every_item_and_validated_is_a_subset():
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_registry` é um registro local de artefatos, que roda sem rede: guarda modelos versionados (com estágios e relatório de confiança), datasets de simulação, execuções de experimentos num SQLite e o histórico de definições de problemas. Também gera repositórios de modelo para o Triton Inference Server a partir de modelos exportados em ONNX.
+
+Ele complementa o `pinneapple_hub`. O hub publica um modelo pronto no Hugging Face Hub, o que exige rede e autenticação. O registro versiona cada checkpoint intermediário no disco local, junto com datasets e execuções, e um modelo feito aqui pode depois ser enviado ao hub com `pinneapple_hub.push_to_hub`. `ArtifactRegistry` junta os quatro stores (`ModelStore`, `DatasetStore`, `ExperimentStore`, `ProblemStore`) sob uma mesma raiz.
+
+A outra metade do pacote é o gateway de modelos. `ModelGateway` publica modelos físicos como endpoints versionados: surrogates do Surrogate Studio/arena (`pinneapple_analysis.surrogate`), modelos do zoo (`pp.zoo`), grafos ONNX e modelos remotos. Todos rodam por um único `predict` com política para entradas fora da distribuição (avisar ou recusar), e cada chamada é registrada. `gateway_api` dá a forma REST (FastAPI, `/v1/models/...`) usada pelos apps que servem modelos, e `GatewayClient` chama essa API de Python só com a biblioteca padrão. A regra de confiança vem do `ModelStore`: um relatório de confiança com decisão REJECT bloqueia a publicação em `staging`/`production`, a não ser que haja uma justificativa registrada.
 
 ### Números do inventário
 
@@ -785,15 +789,15 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `dataset_store` |  | 1 | 1 | 0 |
-| `experiment_memory` |  | 1 | 2 | 19 |
-| `experiment_store` |  | 1 | 1 | 10 |
-| `gateway` |  | 1 | 2 | 10 |
-| `gateway_api` |  | 1 | 2 | 10 |
-| `gateway_client` |  | 1 | 2 | 10 |
-| `model_store` |  | 1 | 1 | 13 |
-| `problem_store` |  | 1 | 1 | 0 |
-| `registry` |  | 1 | 1 | 0 |
+| `dataset_store` | Guarda arrays de uma simulação (coordenadas e campos) por problema e cenário, com estatísticas automáticas. | 1 | 1 | 0 |
+| `experiment_memory` | Memória persistente de tentativas anteriores para um loop de pesquisa autônomo, com busca léxica de casos semelhantes. | 1 | 2 | 19 |
+| `experiment_store` | Rastreador de execuções em SQLite: início, métricas por passo, fim e melhor execução. | 1 | 1 | 10 |
+| `gateway` | `ModelGateway`: publica modelos como endpoints versionados, roda com política OOD e registra cada chamada. | 1 | 2 | 10 |
+| `gateway_api` | Roteador FastAPI com a forma REST `/v1/models/...` do gateway. | 1 | 2 | 10 |
+| `gateway_client` | Cliente Python (só `urllib`) para qualquer servidor com a API do gateway. | 1 | 2 | 10 |
+| `model_store` | Store local e versionado de modelos treinados, com estágios, relatório de confiança e exportação ONNX. | 1 | 1 | 13 |
+| `problem_store` | Definições de problemas versionadas, por preset (reconstruível) ou snapshot (só histórico). | 1 | 1 | 0 |
+| `registry` | `ArtifactRegistry`: une os quatro stores sob uma raiz e gera repositório do Triton. | 1 | 1 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -801,107 +805,131 @@ _Sem texto de objetivo._
 
 #### `pinneapple_registry`
 
-pinneapple_registry — a local, self-hosted artifact registry: versioned model storage, dataset storage, experiment tracking, and problem-spec history, plus Triton Inference Server export.
+Reexporta `ArtifactRegistry`, `ModelStore`, `ModelGateway`, `DatasetStore`, `ExperimentStore`, `ExperimentMemory`, `ExperimentRecord`, `ProblemStore` e `VALID_STAGES`.
 
 <small>`pinneapple_registry/__init__.py` · 45 linhas · testes: 50</small>
 
 #### `pinneapple_registry.dataset_store`
 
-pinneapple_registry.dataset_store — ``DatasetStore``: local, per- problem/scenario storage for simulation datasets (coords + field arrays), with auto-computed summary statistics.
+`DatasetStore` grava coordenadas e campos de uma execução por problema/cenário em disco com estatísticas resumo; é o complemento leve do pipeline Zarr de `pinneapple_data`. [sem teste direto pelo inventário]
 
 <small>`pinneapple_registry/dataset_store.py` · 99 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DatasetStore` | classe | `(root)` |  |
+| `DatasetStore` | classe | `(root)` | Store de datasets de simulação por problema e cenário, com `save`, `load`, `list_scenarios` e `stats`. |
 
 #### `pinneapple_registry.experiment_memory`
 
-pinneapple_registry.experiment_memory -- ``ExperimentMemory``: persistent cross-run memory for an (separately built, not part of this repo) autonomous research loop.
+`ExperimentMemory` registra tentativas (`ExperimentRecord`) no `ExperimentStore` e busca tentativas parecidas por similaridade TF-IDF do texto (léxica, não semântica); serve a um loop de pesquisa autônomo que não está neste repositório.
 
 <small>`pinneapple_registry/experiment_memory.py` · 252 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExperimentRecord` | classe | `(problem_description, physics_domain, approach_summary, outcome, confidence_score, metric…)` | One logged attempt at solving a physics problem. |
-| `ExperimentMemory` | classe | `(store=None, *, db_path=None)` | Persistent memory of past experiment attempts, backed by the real ``ExperimentStore``. |
+| `ExperimentRecord` | classe | `(problem_description, physics_domain, approach_summary, outcome, confidence_score, metric…)` | Uma tentativa registrada de resolver um problema: descrição, domínio, abordagem, resultado, confiança, métricas e lições. |
+| `ExperimentMemory` | classe | `(store=None, *, db_path=None)` | Memória persistente de tentativas sobre o `ExperimentStore`, com busca de casos semelhantes e lições por domínio. |
 
 #### `pinneapple_registry.experiment_store`
 
-pinneapple_registry.experiment_store — ``ExperimentStore``: a SQLite- backed run tracker. Closes the one gap ``pinneapple_hub`` genuinely has no answer for: it publishes finished models to the Hugging Face Hub, but nothing in the repo durably records *runs* (start/metrics-per-epoch/finish) …
+`ExperimentStore`: rastreador de execuções em SQLite com experimentos, execuções, métricas por passo e métricas finais.
 
 <small>`pinneapple_registry/experiment_store.py` · 144 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExperimentStore` | classe | `(db_path)` |  |
+| `ExperimentStore` | classe | `(db_path)` | Rastreador de execuções em SQLite: cria experimentos e execuções, grava métricas e acha a melhor execução. |
 
 #### `pinneapple_registry.gateway`
 
-``ModelGateway``: publish physical models as versioned endpoints, run them, and record every run.
+`ModelGateway` serve surrogates, modelos do zoo, ONNX e modelos remotos por um `predict` com política OOD (`warn`/`refuse`), cache, log em `_runs.jsonl`, métricas de latência e exportação; tipos sem exportação levantam `NotImplementedError`.
 
 <small>`pinneapple_registry/gateway.py` · 457 linhas · testes: 10 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelGateway` | classe | `(root, *, cache_size=8)` |  |
-| `ood_verdict` | função | `(flag, policy='warn') -> str` | What ``predict`` does with one assessed row under ``policy``: ``"in range"`` (predicted), ``"warn"`` (predicted and flagged as an extrapolation) or ``"refuse"`` (no prediction). |
+| `ModelGateway` | classe | `(root, *, cache_size=8)` | Publica, resolve, roda, registra e exporta modelos versionados com política OOD. |
+| `ood_verdict` | função | `(flag, policy='warn') -> str` | Decide o que `predict` faz com uma linha avaliada: "in range", "warn" ou "refuse". |
 
 #### `pinneapple_registry.gateway_api`
 
-The gateway's REST shape (FastAPI), shared by every app that serves models: ``/v1/models/...``.
+Monta um `APIRouter` FastAPI com listagem, descrição, predição, log de execuções, métricas e exportação, mapeando erros para 404/422/403/409.
 
 <small>`pinneapple_registry/gateway_api.py` · 144 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `count_rows` | função | `(inputs) -> int` | Rows a request asks for, before the model is loaded. |
-| `gateway_router` | função | `(gateway, *, prefix='/v1', on_rows=None, caller=None, max_rows=10000, tags=('models',))` |  |
+| `count_rows` | função | `(inputs) -> int` | Conta as linhas que uma requisição pede, antes de carregar o modelo (para medição). |
+| `gateway_router` | função | `(gateway, *, prefix='/v1', on_rows=None, caller=None, max_rows=10000, tags=('models',))` | Cria o roteador FastAPI do gateway com prefixo, hook de medição, identificação do chamador e limite de linhas. |
 
 #### `pinneapple_registry.gateway_client`
 
-``GatewayClient``: call any server that exposes the gateway API (``/v1/models/...``) from Python.
+`GatewayClient` chama `/v1/models/...` com `urllib` e levanta `GatewayError` com status HTTP e mensagem.
 
 <small>`pinneapple_registry/gateway_client.py` · 83 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GatewayError` | classe | `(status, message)` |  |
-| `GatewayClient` | classe | `(base_url, *, api_key=None, timeout=30.0, headers=None)` |  |
+| `GatewayError` | classe | `(status, message)` | Erro de uma chamada ao gateway, com status HTTP e mensagem do servidor. |
+| `GatewayClient` | classe | `(base_url, *, api_key=None, timeout=30.0, headers=None)` | Cliente HTTP da API do gateway: `models`, `describe`, `predict`, `runs`, `metrics`. |
 
 #### `pinneapple_registry.model_store`
 
-pinneapple_registry.model_store — ``ModelStore``: a local, filesystem- backed, versioned store for trained models, paralleling (not replacing) ``pinneapple_hub`` — see the package docstring in ``pinneapple_registry/__init__.py`` for why both exist.
+`ModelStore` grava modelos em `<root>/<problema>/v<data_hora>/` com `metadata.json`, ponteiro `latest`, estágios, relatório de confiança (REJECT bloqueia publicação) e exportação ONNX.
 
 <small>`pinneapple_registry/model_store.py` · 246 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelStore` | classe | `(root)` |  |
+| `ModelStore` | classe | `(root)` | Store versionado de modelos com estágios, comparação por métrica, relatório de confiança e exportação ONNX. |
 
 #### `pinneapple_registry.problem_store`
 
-pinneapple_registry.problem_store — ``ProblemStore``: versioned problem definitions with history.
+`ProblemStore` versiona problemas: por preset (reconstruído com `get_preset`) ou snapshot em dict, que não é garantido voltar a ser `ProblemSpec`. [sem teste direto pelo inventário]
 
 <small>`pinneapple_registry/problem_store.py` · 98 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ProblemStore` | classe | `(root)` |  |
+| `ProblemStore` | classe | `(root)` | Store versionado de definições de problemas, por preset ou snapshot, com histórico. |
 
 #### `pinneapple_registry.registry`
 
-pinneapple_registry.registry — ``ArtifactRegistry``: unifies ``ModelStore``/``DatasetStore``/``ExperimentStore``/``ProblemStore`` under one root, plus a Triton Inference Server model-repository generator.
+`ArtifactRegistry` cria os quatro stores sob uma raiz, resume o conteúdo e exporta um modelo como diretório do Triton (`config.pbtxt` + `1/model.onnx`). [sem teste direto pelo inventário; testado via o pacote]
 
 <small>`pinneapple_registry/registry.py` · 131 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ArtifactRegistry` | classe | `(root)` | One root directory, four sub-stores, one experiment-tracking DB:: |
+| `ArtifactRegistry` | classe | `(root)` | Raiz única com os stores de modelos, datasets, experimentos e problemas, mais exportação para Triton e resumo. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Publicar e servir um modelo no gateway** — `docs/guides/surrogates_arena_gateway.md`
+
+```python
+from pinneapple_registry import ModelGateway
+
+gw = ModelGateway("./models")
+v = gw.publish("airfoil-cl-cd", "airfoil_model", ood_policy="refuse")      # or a SurrogateModel
+gw.publish("airfoil-zoo", "airfoil_cst_rans_mlp", kind="pinneapple.zoo")    # zoo models too
+r = gw.predict("airfoil-cl-cd", [{"T0": 0.15, "T1": 0.12, "T2": 0.13, "M0": 0.02, "M1": 0.05, "M2": 0.04,
+                                  "alpha_deg": 4.0}])
+print(r["outputs"], r["ood"], r["latency_ms"], gw.metrics()["by_version"])
+gw.export("airfoil-cl-cd", None, "onnx", "airfoil.onnx")                    # PyTorch surrogates only
+```
+
+**Versionar e promover um modelo** — `tests/test_artifact_registry.py`
+
+```python
+    reg = _registry()
+    model = ComponentRegistry.build("HeatExchangerVanillaPINN", in_dim=2, out_dim=1, hidden=(8, 8))
+    v1 = reg.models.save("heat_exchanger_demo", model, metadata={"metrics": {"rmse": 0.5}})
+    v2 = reg.models.save("heat_exchanger_demo", model, metadata={"metrics": {"rmse": 0.1}})
+    assert reg.models.latest("heat_exchanger_demo") == v2
+    reg.models.promote("heat_exchanger_demo", v2, "production")
+    assert reg.models.metadata("heat_exchanger_demo", v2)["stage"] == "production"
+```
 
 ### Testes e status de validação
 
@@ -910,7 +938,12 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `ProblemStore.save_snapshot` não garante reconstruir um `ProblemSpec`: `load_snapshot` devolve só o dict.
+- `ExperimentMemory.query_similar` é similaridade léxica (TF-IDF, via scikit-learn), não semântica; o loop de pesquisa autônomo que a usa não está no repositório.
+- `ModelGateway.export` só exporta surrogates PyTorch e ONNX; outros tipos levantam `NotImplementedError`. ONNX exige `onnxruntime`; `gateway_api` exige FastAPI.
+- Um surrogate é desserializado (pickle) depois de checar o sha256 do cartão: o docstring avisa para nunca publicar um diretório que você não produziu, e publicar um modelo remoto faz o servidor chamar a URL dada (só chamadores confiáveis devem publicar).
+- A exportação para Triton só gera o diretório (`config.pbtxt` com tipo FP32 + ONNX); não roda nem testa um servidor Triton.
+- Sem teste direto pelo inventário: `dataset_store`, `problem_store`, `registry` (cobertos indiretamente por `tests/test_artifact_registry.py` via o pacote).
 
 ## 5. `pinneapple_orchestration`
 

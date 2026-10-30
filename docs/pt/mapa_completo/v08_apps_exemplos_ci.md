@@ -172,7 +172,20 @@ O que cada app, exemplo, reprodução de paper, script, benchmark e workflow de 
 
 ## 3. Reproduções de papers
 
-_Sem texto._
+### `examples/reproductions/xtfc_schiassi2021`
+
+- **Paper:** E. Schiassi, C. Leake, M. De Florio, H. Johnston, R. Furfaro, D. Mortari, "Extreme Theory of Functional Connections: A Physics-Informed Neural Network Method for Solving Parametric Differential Equations", arXiv:2005.10632v1, 2020 (versão de periódico: Neurocomputing 457, 2021, que não foi lida)
+- **Resultado gravado:** Os alvos foram congelados em `TARGETS.md` antes de qualquer run, e a regra de status é `pinneapple_analysis.reproduction.status`. Segundo `examples/reproductions/xtfc_schiassi2021/README.md` e `RESULTS.md`, 7 de 10 alvos foram reproduzidos, em escala completa e em CPU. Exemplos: ODE 1 com erro máximo mediano 4.4e-16 contra 6.66e-16 do paper; PDE 1 com 1.4e-13 contra 5.05e-13; PDE 7 (não linear 3D + t) com 2.4e-5 contra 2.98e-5. Não reproduzidos: ODE 2 (y1 mediano 0.91 contra 5.54e-10; a iteração de Gauss-Newton diverge na maioria das seeds) e PDE 6 (5.5e-6 contra 1.66e-8). Dados brutos em `results.json` e `baselines.json`.
+
+### `examples/reproductions/gated_xtfc_dwivedi2025`
+
+- **Paper:** V. Dwivedi, E. Schiassi, M. Sigovan, B. Sixou, "Gated X-TFC: Soft Domain Decomposition for Forward and Inverse Problems in Sharp-Gradient PDEs", arXiv:2510.01039v1, 2025
+- **Resultado gravado:** Alvos congelados em `TARGETS.md` antes de rodar; tudo medido por `run_gated.py`. Segundo `examples/reproductions/gated_xtfc_dwivedi2025/README.md`, só 2 de 9 alvos foram reproduzidos (faixa de fator 2): o problema direto com ν = 1e-2 (6.7e-4 contra 4.95e-4 do paper) e a camada-limite dupla com ν = 1e-4 (5.0e-3 contra 2.97e-3). Falharam os casos diretos com ν ≤ 1e-3 (por exemplo 3.9e-2 contra 5.86e-4 em ν = 1e-4) e os quatro casos inversos (por exemplo 41 % de erro em ν̂ contra 10.3 % em ν = 0.1). O README atribui a diferença a detalhes que o paper deixa em aberto (λ de Tikhonov, tipo de solução, apêndice ausente). Dados brutos em `part_*.json`.
+
+### `examples/black_hole_weather`
+
+- **Paper:** Duarte, Nemmen & Navarro, "Black hole weather forecasting with deep learning: a pilot study", MNRAS 512, 5848, 2022 (arXiv:2102.06242)
+- **Resultado gravado:** Reprodução e extensão (o README diz as duas coisas). Os dados PLUTO do paper não estavam acessíveis, então as simulações 2.5-D foram refeitas com `pinneapple_physics.blackhole`, e a U-Net do paper foi portada camada por camada (com 16 filtros em vez de 32). Segundo `examples/black_hole_weather/README.md`, a porta fiel não bate a persistência no espaçamento de quadros usado aqui (erro 0.038 contra 0.0137 da persistência em +1200 M), enquanto a variante residual, que é adição do PINNeAPPle, bate a persistência em todo o rollout (0.0076 em +1200 M, com correlação de tendência 0.61). Resumos por modelo ficam em `examples/black_hole_weather/results/`.
 
 ## 4. Scripts (`scripts/`)
 

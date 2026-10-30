@@ -84,3 +84,18 @@ def test_cogging_period_needs_an_even_number_of_steps(machine, one_layer):
     s = SPM3D(m, n_theta=144, stack_layers=1)
     a, b = s.cogging([s.step, 7 * s.step])
     assert a == pytest.approx(b, rel=1e-6)                               # the discrete machine repeats every period
+
+
+def test_skew_study_resumes_from_its_checkpoint(tmp_path):
+    from pinneapple_simulation.electromagnetics.machines3d.skew import skew_study
+
+    m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=144)
+    s = SPM3D(m, n_theta=144, stack_layers=2)
+    ck = tmp_path / "rows.jsonl"
+    th = [s.step, 2 * s.step]
+    a = skew_study(s, [0.0, 2 * s.step], kinds=("step2",), thetas=th, checkpoint=ck)
+    assert len(ck.read_text().splitlines()) == 2
+    msgs = []
+    b = skew_study(s, [0.0, 2 * s.step], kinds=("step2",), thetas=th, checkpoint=ck, progress=msgs.append)
+    assert all("checkpoint" in x for x in msgs) and len(msgs) == 2
+    assert [r["pkpk_3d"] for r in a["rows"]] == [r["pkpk_3d"] for r in b["rows"]]

@@ -36,7 +36,9 @@ def main() -> dict:
     model = SPM3D(m, n_theta=N_THETA, stack_layers=8, end_length=0.02, end_layers=2)
     print(f"3-D model: {model.mesh.summary()['tets']} tetrahedra", flush=True)
     thetas = np.radians(np.arange(0.0, 15.0, 1.5))
-    res = skew_study(model, np.radians(TOTALS_DEG), thetas=thetas, progress=lambda s: print(s, flush=True))
+    OUT.mkdir(exist_ok=True)
+    res = skew_study(model, np.radians(TOTALS_DEG), thetas=thetas, progress=lambda s: print(s, flush=True),
+                     checkpoint=OUT / "20_spm_skew_3d.rows.jsonl")      # resumes an interrupted run
     # 2-D reference of the straight machine with the 2-D code (its own polar mesh with a shaft region)
     th = np.asarray(res["thetas"])
     two_d = [m.torque(m.solve(x)) for x in th]     # the 2-D code's own polar mesh (shaft region, sparse core rings)

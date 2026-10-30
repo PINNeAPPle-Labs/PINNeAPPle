@@ -12,6 +12,7 @@ multiplies it by ``sin(h pi s / lam) / (h pi s / lam)``; ``K`` steps over a tota
 """
 from __future__ import annotations
 
+import json
 import math
 import time
 from collections.abc import Callable, Sequence
@@ -47,10 +48,12 @@ def slice_offsets(model: SPM3D, kind: str, total: float) -> np.ndarray:
 
 def skew_study(model: SPM3D, totals: Sequence[float], kinds: Sequence[str] = ("step2", "step3", "continuous"),
                thetas: Sequence[float] | None = None, slice_model: SPM3D | None = None,
-               progress: Callable[[str], None] | None = None) -> dict:
+               progress: Callable[[str], None] | None = None, checkpoint=None) -> dict:
     """Cogging against total skew (radians) for each kind, 3-D and multi-slice. ``thetas`` default: one cogging
     period in angular steps of the model (end point excluded). Returns ``{"thetas", "period", "rows": [...]}`` with,
-    per row, the kind, the total skew, both cogging curves, their peak-to-peak (``max - min``) and seconds."""
+    per row, the kind, the total skew, both cogging curves, their peak-to-peak (``max - min``) and seconds.
+    ``checkpoint``: a JSON-lines file; each finished row is appended to it, and rows already there for the same
+    angles are reused, so an interrupted study resumes where it stopped."""
     m = model.machine
     period = 2 * math.pi / math.lcm(m.slots, 2 * m.pole_pairs)
     steps = int(round(period / model.step))
@@ -61,10 +64,17 @@ def skew_study(model: SPM3D, totals: Sequence[float], kinds: Sequence[str] = ("s
         thetas = np.arange(steps) * model.step
     thetas = np.asarray(thetas, float)
     sm = slice_model or model.slice_model()
+    done = _load_checkpoint(checkpoint, thetas)
     rows = []
     for kind in kinds:
         for total in totals:
             if total == 0 and rows and any(r["total"] == 0 for r in rows):
+                continue
+            key = (kind if total else "straight", round(float(total), 12))
+            if key in done:
+                rows.append(done[key])
+                if progress:
+                    progress(f"{key[0]} {math.degrees(total):.2f} deg: from the checkpoint")
                 continue
             t0 = time.perf_counter()
             f = skew_function(kind, total, m.length)
@@ -76,9 +86,29 @@ def skew_study(model: SPM3D, totals: Sequence[float], kinds: Sequence[str] = ("s
                    "offsets_deg": np.degrees(off).round(6).tolist(),
                    "cogging_3d": c3.tolist(), "cogging_ms": ms.tolist(),
                    "pkpk_3d": float(c3.max() - c3.min()), "pkpk_ms": float(ms.max() - ms.min()),
-                   "seconds_3d": t1 - t0, "seconds_ms": time.perf_counter() - t1}
+                   "seconds_3d": t1 - t0, "seconds_ms": time.perf_counter() - t1,
+                   "thetas": thetas.tolist()}
             rows.append(row)
+            if checkpoint is not None:
+                with open(checkpoint, "a") as fh:
+                    fh.write(json.dumps(row) + "\n")
             if progress:
                 progress(f"{row['kind']} {math.degrees(total):.2f} deg: pk-pk 3-D {row['pkpk_3d']:.4f}, "
                          f"multi-slice {row['pkpk_ms']:.4f} N m ({row['seconds_3d']:.0f} s)")
     return {"thetas": thetas.tolist(), "period": period, "rows": rows}
+
+
+def _load_checkpoint(path, thetas: np.ndarray) -> dict:
+    """Rows of a checkpoint file computed at the same angles, keyed by (kind, total)."""
+    from pathlib import Path
+
+    if path is None or not Path(path).exists():
+        return {}
+    out = {}
+    for line in Path(path).read_text().splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        if len(r.get("thetas", [])) == len(thetas) and np.allclose(r["thetas"], thetas):
+            out[(r["kind"], round(float(r["total"]), 12))] = r
+    return out

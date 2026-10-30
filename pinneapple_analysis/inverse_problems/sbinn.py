@@ -193,10 +193,11 @@ class SBINN:
             out["ode"] = torch.cat(res, dim=1).mean(dim=0).sum()
         return out
 
-    def fit(self, verbose: bool = False, checkpoint: str | None = None, checkpoint_every: int = 10_000
-            ) -> SBINNResult:
+    def fit(self, verbose: bool = False, checkpoint: str | None = None, checkpoint_every: int = 10_000,
+            checkpoint_seconds: float = 300.0) -> SBINNResult:
         """Train. With ``checkpoint`` (a file path) the network, parameters, optimiser and history are saved every
-        ``checkpoint_every`` epochs and a run restarts from the file when it exists (long runs survive restarts)."""
+        ``checkpoint_every`` epochs or ``checkpoint_seconds``, whichever comes first, and a run restarts from the file
+        when it exists (long runs survive restarts)."""
         import os
 
         torch = self.torch
@@ -207,6 +208,7 @@ class SBINN:
         stopped = False
         epochs_run = 0
         elapsed0 = 0.0
+        last_ckpt = time.time()
         state = None
         if checkpoint and os.path.exists(checkpoint):
             state = torch.load(checkpoint, weights_only=False)
@@ -238,7 +240,9 @@ class SBINN:
                     history.append(rec)
                     if verbose:
                         print(rec, flush=True)
-                if checkpoint and epochs_run % checkpoint_every == 0:
+                if checkpoint and (epochs_run % checkpoint_every == 0
+                                   or time.time() - last_ckpt > checkpoint_seconds or ep == n_ep - 1):
+                    last_ckpt = time.time()
                     tmp = checkpoint + ".tmp"
                     torch.save({"net": self.net.body.state_dict(), "raw": {k: v.detach() for k, v in self.raw.items()},
                                 "opt": opt.state_dict(), "stage": 2 if with_ode else 1, "epoch": epochs_run,

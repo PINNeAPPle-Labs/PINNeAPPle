@@ -73,7 +73,9 @@ def main(argv=None):
     fit4 = true4.simulate(tf, {k: res.parameters[k] for k in FREE}, max_step=1.0)
     w = tf >= 1800
     forecast = float(np.linalg.norm(fit4["G"][w] - ref["G"][w]) / np.linalg.norm(ref["G"][w]))
-    out = {"seed": a.seed, "units": a.units, "weights": weights, "epochs_data": a.epochs_data, "epochs": a.epochs, "epochs_run": res.epochs_run,
+    total = a.epochs_data + a.epochs
+    scale = "full" if total >= 610_000 else f"reduced-scale ({total // 1000}k of 610k epochs)"
+    out = {"scale": scale, "seed": a.seed, "units": a.units, "weights": weights, "epochs_data": a.epochs_data, "epochs": a.epochs, "epochs_run": res.epochs_run,
            "stopped_by_budget": res.stopped_by_budget, "seconds": time.time() - t0, "threads": a.threads,
            "torch": torch.__version__, "inferred": {k: res.parameters[k] for k in FREE},
            "true": {k: system.parameters[k] for k in FREE},

@@ -62,7 +62,7 @@ def main(argv=None):
     h = run.history
     pin = np.array([r["p_inlet"] for r in h]) / MMHG
     last, prev = pin[-100:], pin[-200:-100]
-    res = {"mesh": info["mesh"], "physics": info["physics"], "cycles": a.cycles, "check": chk,
+    res = {"scale": "full" if a.cycles >= 4 else f"reduced-scale ({a.cycles} of 4 cycles)", "mesh": info["mesh"], "physics": info["physics"], "cycles": a.cycles, "check": chk,
            "systolic_mmHg": float(last.max()), "diastolic_mmHg": float(last.min()),
            "mean_inlet_mmHg": float(last.mean()),
            "periodicity_max_change_mmHg": float(np.max(np.abs(last - prev))) if len(prev) == 100 else None,

@@ -19,7 +19,13 @@ Arquiteturas e treino de redes (PINN, operadores neurais, grafos), dados e amost
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_neural` é o pacote de redes neurais do PINNeAPPle. Ele junta três antigos pacotes: `architectures` (antes `pinneapple_models`) com o zoológico de modelos, `trainer` (antes `pinneapple_train`) com o laço de treino e utilitários de HPC, e `predictor` (antes `pinneapple_inference`) com inferência e gráficos. Os nomes antigos `models`, `train` e `inference` continuam como apelidos.
+
+O problema que resolve é dar uma porta única para construir, treinar e usar modelos de física com IA. As arquiteturas cobrem PINNs (vanilla, inverso, bayesiano, X-TFC, XPINN, difusão informada por física), operadores neurais (FNO 1D/2D/3D, DeepONet, U-NO, Transolver, PINO), redes em grafo (MeshGraphNet e dinâmica em malha), modelos de tempo contínuo, séries temporais, computação de reservatório, autoencoders e modelos de ordem reduzida (POD, DMD, OpInf, SINDy e o estudo `rom_study`). Cada família tem um catálogo próprio e se registra no `ModelRegistry` global quando `architectures` é importado; `ModelRegistry.build(nome, **kwargs)` normaliza nomes de argumentos entre famílias.
+
+Os atalhos da raiz (`build_model`, `train_model`, `predict`, `train_and_predict`) encadeiam registro, `Trainer` e inferência em lote. Em volta disso há peças mais novas: `callbacks` leva os checks de `pp.validate` para dentro do treino em Lightning, PhysicsNeMo e Hugging Face; `physicsnemo_bridge` liga modelos treinados no PhysicsNeMo às ferramentas de UQ, gêmeo digital e checagem do PINNeAPPle; `lpm` traz blocos de um modelo para um espaço de projeto inteiro; `workflows` oferece fluxos prontos (FNO3d em volumes densos, versão paramétrica e surrogate híbrido com pós-modelo físico).
+
+O pacote é usado pelo resto da biblioteca: a fachada `pp.*` e os solvers montam modelos pelo registro, `pinneapple_systems.component_library` e `pinneapple_orchestration` treinam componentes com o mesmo `Trainer`, e os resultados de ROM viram contratos de `pinneapple_data.contracts` para os apps. Integrações com licença restrita (Noether/Emmi AI) são só para pesquisa e bloqueadas em modo comercial por `_licencas`.
 
 ### Números do inventário
 
@@ -33,15 +39,15 @@ Pasta de testes dedicada: `tests/pinneapple_neural` (36 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `_licencas` |  | 1 | 4 | 20 |
-| `architectures` |  | 147 | 270 | 64 |
-| `callbacks` |  | 1 | 3 | 4 |
-| `lpm` |  | 1 | 6 | 5 |
-| `physicsnemo_bridge` |  | 4 | 15 | 19 |
-| `predictor` |  | 4 | 27 | 0 |
+| `_licencas` | Guardas de licença: avisa quando um componente só para pesquisa é usado e o bloqueia com `PINNEAPPLE_COMMERCIAL_MODE=1`. | 1 | 4 | 20 |
+| `architectures` | Zoológico de arquiteturas por família, com catálogos, adaptadores de batch e o `ModelRegistry` global. | 147 | 270 | 64 |
+| `callbacks` | Checks físicos de `pp.validate` como métricas de treino em Lightning, PhysicsNeMo e Hugging Face. | 1 | 3 | 4 |
+| `lpm` | Blocos de um 'Large Physics Model': codificação espacial, código de geometria, ensemble e sinal fora-da-distribuição. | 1 | 6 | 5 |
+| `physicsnemo_bridge` | Cola entre PhysicsNeMo e PINNeAPPle: UQ, gêmeo digital, active learning com retreino e operadores em grade. | 4 | 15 | 19 |
+| `predictor` | Inferência pós-treino em lote e em grade, e gráficos de campos, erros e escoamentos. | 4 | 27 | 0 |
 | `trainer` |  | 34 | 132 | 151 |
-| `utils` |  | 1 | 2 | 5 |
-| `workflows` |  | 4 | 21 | 10 |
+| `utils` | Helpers `as_tensor` (tensor de qualquer saída de modelo) e `fit_supervised` (laço Adam mínimo). | 1 | 2 | 5 |
+| `workflows` | Fluxos prontos de treino e previsão: FNO3d em volumes densos (simples e paramétrico) e surrogate híbrido com pós-modelo físico. | 4 | 21 | 10 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -49,1712 +55,1712 @@ Pasta de testes dedicada: `tests/pinneapple_neural` (36 funções de teste).
 
 #### `pinneapple_neural`
 
-pinneapple_neural — Neural network architectures, training, and inference.
+Raiz do pacote: importa `architectures`, `trainer` e `predictor`, mantém os apelidos antigos `models`, `train` e `inference`, reexporta os símbolos principais e define os atalhos `build_model`, `train_model`, `predict` e `train_and_predict`.
 
 <small>`pinneapple_neural/__init__.py` · 256 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_model` | função | `(name, **kwargs)` | Build a model from the registry by name. |
-| `train_model` | função | `(model, loss_fn, train_loader, val_loader=None, *, epochs=5000, device='cpu', **cfg_kwarg…)` | Train a model with the given loss function. |
-| `predict` | função | `(model, x, *, device='cpu', batch_size=4096)` | Run batched inference on input ``x``. |
-| `train_and_predict` | função | `(model, loss_fn, train_loader, x_test, *, val_loader=None, epochs=5000, device='cpu')` | Convenience: train then evaluate on test points. |
+| `build_model` | função | `(name, **kwargs)` | Atalho para `ModelRegistry.build(name, **kwargs)`. |
+| `train_model` | função | `(model, loss_fn, train_loader, val_loader=None, *, epochs=5000, device='cpu', **cfg_kwarg…)` | Atalho que monta um `TrainConfig` e chama `Trainer.fit`; usa o loader de treino como validação se nenhum for dado. |
+| `predict` | função | `(model, x, *, device='cpu', batch_size=4096)` | Move modelo e entrada para o dispositivo e roda `batched_inference`. |
+| `train_and_predict` | função | `(model, loss_fn, train_loader, x_test, *, val_loader=None, epochs=5000, device='cpu')` | Treina com `train_model` e prevê em `x_test`; devolve um dicionário com os dois resultados. |
 
 #### `pinneapple_neural._licencas`
 
-License guards for optional third-party integrations.
+Guardas de licença para integrações de terceiros só para pesquisa (hoje, Noether/Emmi AI): avisa com `ResearchOnlyWarning` e bloqueia com `ResearchOnlyError` quando `PINNEAPPLE_COMMERCIAL_MODE=1`.
 
 <small>`pinneapple_neural/_licencas.py` · 44 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResearchOnlyWarning` | classe | `()` | A research-only (non-production / non-commercial) component was used. |
-| `ResearchOnlyError` | classe | `()` | A research-only component was requested in commercial mode. |
-| `commercial_mode` | função | `() -> bool` |  |
-| `require_research_use` | função | `(component, notice=NOETHER_NOTICE) -> None` | Block ``component`` in commercial mode; otherwise warn that it is research only. |
+| `ResearchOnlyWarning` | classe | `()` | Aviso emitido quando um componente só para pesquisa é instanciado. |
+| `ResearchOnlyError` | classe | `()` | Erro levantado ao pedir um componente só para pesquisa em modo comercial. |
+| `commercial_mode` | função | `() -> bool` | Diz se a variável `PINNEAPPLE_COMMERCIAL_MODE` vale `1`. |
+| `require_research_use` | função | `(component, notice=NOETHER_NOTICE) -> None` | Levanta `ResearchOnlyError` em modo comercial; fora dele, emite `ResearchOnlyWarning` com o aviso de licença. |
 
 #### `pinneapple_neural.architectures`
 
-_Módulo sem docstring e sem texto._
+Subpacote de arquiteturas (antigo `pinneapple_models`): reexporta `BaseModel`, `ModelRegistry`, `ModelCatalog`, `select_adapter`, SIREN, ModifiedMLP, HashGridMLP, AFNO e MeshGraphNet, e chama `register_all()` ao ser importado para popular o registro global.
 
 <small>`pinneapple_neural/architectures/__init__.py` · 43 linhas · testes: 28</small>
 
 #### `pinneapple_neural.architectures._registry_bridge`
 
-_Módulo sem docstring e sem texto._
+Função auxiliar que copia um dicionário `nome -> classe` de uma família para o `ModelRegistry` global, pulando apelidos da mesma classe. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/_registry_bridge.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_family_registry` | função | `(family_registry, *, family, description_getter=None, tags_getter=None, capabilities_gett…)` | Registers a dictionary-like family registry into the global ModelRegistry. |
+| `register_family_registry` | função | `(family_registry, *, family, description_getter=None, tags_getter=None, capabilities_gett…)` | Registra cada classe de um dicionário de família no `ModelRegistry`, com descrição, tags e capacidades opcionais. |
 
 #### `pinneapple_neural.architectures.adapters`
 
-_Módulo sem docstring e sem texto._
+Adaptadores que chamam qualquer modelo a partir de um batch em dicionário, sem refatorar cada implementação; usados pela Arena via `select_adapter`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/__init__.py` · 27 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.adapters.ae`
 
-_Módulo sem docstring e sem texto._
+Adaptador para autoencoders: lê `batch['x']` como entrada a reconstruir. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/ae.py` · 28 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AutoEncoderAdapter` | classe | `()` | Adapter for autoencoders. |
+| `AutoEncoderAdapter` | classe | `()` | Adaptador que chama autoencoders com `batch['x']`. |
 
 #### `pinneapple_neural.architectures.adapters.base`
 
-_Módulo sem docstring e sem texto._
+Define o protocolo `ModelAdapter`, um adaptador padrão (usa `forward_batch` ou `model(x)`) e `select_adapter`, que testa os adaptadores em ordem. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/base.py` · 63 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelAdapter` | classe | `()` | Protocol for model adapters. |
-| `select_adapter` | função | `(spec) -> ModelAdapter` | Pick an adapter based on model spec. |
+| `ModelAdapter` | classe | `()` | Protocolo de adaptador: `can_handle(spec)` e `forward_batch(model, batch)`. |
+| `select_adapter` | função | `(spec) -> ModelAdapter` | Devolve o primeiro adaptador que aceita o `ModelSpec`, ou o adaptador padrão. |
 
 #### `pinneapple_neural.architectures.adapters.conv`
 
-_Módulo sem docstring e sem texto._
+Adaptador para modelos de grade (Conv1D/2D/3D, AFNO, UNO em modo grade) que lê `batch['u_grid']`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/conv.py` · 31 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConvAdapter` | classe | `()` | Adapter for grid/raster models (Conv1D/2D/3D, AFNO, UNO-grid-mode). |
+| `ConvAdapter` | classe | `()` | Adaptador para modelos de grade que lê `u_grid`. |
 
 #### `pinneapple_neural.architectures.adapters.dynamics`
 
-_Módulo sem docstring e sem texto._
+Adaptador para modelos de evolução no tempo (Neural ODE, Latent ODE, ODE-RNN, CDE, SDE, Symplectic RNN) que lê `x0` e `t`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/dynamics.py` · 32 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DynamicsAdapter` | classe | `()` | Adapter for time-evolution / neural-ODE-style models. |
+| `DynamicsAdapter` | classe | `()` | Adaptador para modelos de dinâmica que chama `forward(x0, t)`. |
 
 #### `pinneapple_neural.architectures.adapters.gnn`
 
-_Módulo sem docstring e sem texto._
+Adaptador para modelos em grafo/malha: passa `batch['graph']` ou os tensores `x`/`edge_index`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/gnn.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GNNAdapter` | classe | `()` | Adapter for graph/mesh-based models. |
+| `GNNAdapter` | classe | `()` | Adaptador para modelos em grafo ou malha. |
 
 #### `pinneapple_neural.architectures.adapters.operators`
 
-_Módulo sem docstring e sem texto._
+Adaptador para operadores neurais (DeepONet, FNO-1D, GNO, UNO, PINO) que escolhe as chaves do batch conforme o tipo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/operators.py` · 49 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OperatorAdapter` | classe | `()` | Forward adapter for Neural Operators. |
+| `OperatorAdapter` | classe | `()` | Adaptador para operadores neurais que monta a chamada certa para DeepONet, FNO, GNO, UNO ou PINO. |
 
 #### `pinneapple_neural.architectures.adapters.pinn`
 
-_Módulo sem docstring e sem texto._
+Adaptador para PINNs pontuais: usa `batch['x']` ou `batch['x_col']`, ou delega a `forward_batch`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/pinn.py` · 37 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNAdapter` | classe | `()` | Adapter for pointwise coordinate PINNs. |
+| `PINNAdapter` | classe | `()` | Adaptador para PINNs pontuais (entrada `x` ou `x_col`). |
 
 #### `pinneapple_neural.architectures.adapters.ts`
 
-_Módulo sem docstring e sem texto._
+Adaptador para modelos de série temporal: lê o histórico `x` (B, T, D) e chaves opcionais como `x_mark` e `y0`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/adapters/ts.py` · 44 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesAdapter` | classe | `()` | Adapter for time-series models. |
+| `TimeSeriesAdapter` | classe | `()` | Adaptador para modelos de série temporal (histórico `x` e chaves opcionais). |
 
 #### `pinneapple_neural.architectures.afno`
 
-_Módulo sem docstring e sem texto._
+Adaptive Fourier Neural Operator (Guibas et al.) para campos 2D em grade `(B, H, W, C)`: mistura de tokens bloco-diagonal no espaço de Fourier mais MLP de canais. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/afno.py` · 264 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AFNOLayer` | classe | `(hidden_dim, n_modes_h=12, n_modes_w=12, mlp_ratio=4.0, dropout=0.0, num_blocks=8, hidden…)` | Single AFNO layer: block-diagonal token mixing in Fourier space + channel MLP. |
-| `AFNO` | classe | `(in_channels, out_channels, hidden_dim=64, n_layers=4, n_modes_h=12, n_modes_w=12, mlp_ra…)` | Adaptive Fourier Neural Operator for structured-grid PDEs. |
+| `AFNOLayer` | classe | `(hidden_dim, n_modes_h=12, n_modes_w=12, mlp_ratio=4.0, dropout=0.0, num_blocks=8, hidden…)` | Uma camada AFNO: mistura bloco-diagonal no espaço de Fourier com limiar de esparsidade mais MLP de canais. |
+| `AFNO` | classe | `(in_channels, out_channels, hidden_dim=64, n_layers=4, n_modes_h=12, n_modes_w=12, mlp_ra…)` | Operador AFNO completo para campos 2D `(B, H, W, C)`: projeção de entrada, camadas AFNO e projeção de saída. |
 
 #### `pinneapple_neural.architectures.autoencoders`
 
-_Módulo sem docstring e sem texto._
+Família de autoencoders; reexporta `AutoencoderCatalog`, `AEBase` e `AEOutput`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.autoencoders.ae_2d`
 
-_Módulo sem docstring e sem texto._
+Autoencoder convolucional 2D para imagens e campos 2D, com saída redimensionada para (H, W) por interpolação. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/ae_2d.py` · 133 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Autoencoder2D` | classe | `(in_channels, latent_dim, img_size, base_channels=32, norm='group', gn_groups=8, output_a…)` | Conv2D autoencoder for images / 2D fields. |
+| `Autoencoder2D` | classe | `(in_channels, latent_dim, img_size, base_channels=32, norm='group', gn_groups=8, output_a…)` | Autoencoder Conv2D para campos 2D, com latente vetorial. |
 
 #### `pinneapple_neural.architectures.autoencoders.ae_rom_hybrid`
 
-_Módulo sem docstring e sem texto._
+Autoencoder denso com dinâmica linear contínua no latente (dz/dt = K z + c, passo de Euler), perdas de previsão, rollout e estabilidade. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/ae_rom_hybrid.py` · 320 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AEROMHybrid` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', rom_weight=1.0, pred_weight…)` | AE-ROM Hybrid (Koopman/latent linear dynamics) com: - AE denso (encoder/decoder) - Dinâmica contínua linear no latente: dz/dt = K z + c - Passo discreto via Euler: z_next_pred = z + dt*(K z + c) - Loss de previsão em x (decode do z_next_pred) - Rollout multi-step (latente e x) - Regularização de … |
+| `AEROMHybrid` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', rom_weight=1.0, pred_weight…)` | Autoencoder com dinâmica latente linear (K, c), ajuste por mínimos quadrados e penalidade de estabilidade. |
 
 #### `pinneapple_neural.architectures.autoencoders.base`
 
-_Módulo sem docstring e sem texto._
+Contrato comum dos autoencoders: `encode`, `decode`, `forward` e `loss_from_parts`; os dois primeiros levantam `NotImplementedError` na base (classe abstrata).
 
 <small>`pinneapple_neural/architectures/autoencoders/base.py` · 51 linhas · testes: 5 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AEOutput` | classe | `(x_hat, z, losses, extras)` | Standardized output for all AEs. |
-| `AEBase` | classe | `()` | Base class for all autoencoders in Pinneapple. |
+| `AEOutput` | classe | `(x_hat, z, losses, extras)` | Saída padronizada dos autoencoders: `x_hat`, `z`, perdas e extras. |
+| `AEBase` | classe | `()` | Classe base abstrata dos autoencoders (encode/decode/forward/perdas). |
 
 #### `pinneapple_neural.architectures.autoencoders.dense_ae`
 
-_Módulo sem docstring e sem texto._
+Autoencoder MLP simples para vetores, com decoder espelhado. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/dense_ae.py` · 54 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DenseAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu')` | Plain MLP autoencoder for vector inputs. |
+| `DenseAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu')` | Autoencoder MLP para vetores. |
 
 #### `pinneapple_neural.architectures.autoencoders.kae`
 
-_Módulo sem docstring e sem texto._
+Autoencoder estilo MMD-WAE: penalidade MMD (kernel RBF, sem viés) no latente para casar com um prior simples. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/kae.py` · 177 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KAEAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', mmd_weight=1.0, mmd_sigma=1…)` | Practical MMD-WAE style Autoencoder: - Dense AE - MMD penalty on latent space to match a simple prior. |
+| `KAEAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', mmd_weight=1.0, mmd_sigma=1…)` | Autoencoder com penalidade MMD no latente (um ou vários kernels RBF; banda pela mediana se `mmd_sigma <= 0`). |
 
 #### `pinneapple_neural.architectures.autoencoders.koopman_pi_ae`
 
-_Módulo sem docstring e sem texto._
+Autoencoder de Koopman: operador linear treinável no latente, opção de gerador contínuo (expm(A*dt)), perdas de latente, previsão e rollout. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/koopman_pi_ae.py` · 331 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsInformedKoopmanAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', koopman_weight=1.0, *, pred…)` | Koopman AE (prático / literature-grade): - Dense AE - Operador linear treinável no latente (K, opcionalmente com bias b) - Suporte explícito a dt via gerador contínuo A (K_eff = expm(A*dt)) se desejado - Loss no latente: \|\|z_next - K_eff z\|\|^2 - Loss de previsão no espaço original: \|\|x_next - … |
+| `PhysicsInformedKoopmanAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), activation='gelu', koopman_weight=1.0, *, pred…)` | Autoencoder de Koopman com operador linear no latente e perdas de consistência e previsão. |
 
 #### `pinneapple_neural.architectures.autoencoders.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família de autoencoders (com apelidos) e `AutoencoderCatalog`; registra no `ModelRegistry` com `input_kind='autoencoder'`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/registry.py` · 70 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AutoencoderCatalog` | classe | `(registry)` | Group entrypoint: cat = AutoencoderCatalog() model = cat.build("vae", input_dim=..., latent_dim=...) |
-| `register_into_global` | função | `() -> None` |  |
+| `AutoencoderCatalog` | classe | `(registry)` | Catálogo da família: `list`, `get` e `build` por nome. |
+| `register_into_global` | função | `() -> None` | Registra os autoencoders no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.autoencoders.vae`
 
-_Módulo sem docstring e sem texto._
+Autoencoder variacional MLP (beta-VAE) para vetores, com log-variância limitada. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/autoencoders/vae.py` · 122 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VariationalAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), beta=1.0, activation='gelu', clamp_logvar=(-10…)` | MLP VAE for vector inputs. |
+| `VariationalAutoencoder` | classe | `(input_dim, latent_dim, hidden=(512, 256), beta=1.0, activation='gelu', clamp_logvar=(-10…)` | VAE MLP com reparametrização e peso `beta` no termo KL. |
 
 #### `pinneapple_neural.architectures.base`
 
-BaseModel and ModelOutput for Pinneapple model family.
+Contrato mínimo dos modelos: `ModelOutput` e `BaseModel` com `forward` (abstrato, levanta `NotImplementedError`), `forward_batch` padrão e checkpoints.
 
 <small>`pinneapple_neural/architectures/base.py` · 93 linhas · testes: 5 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelOutput` | classe | `(y, losses, extras)` |  |
-| `BaseModel` | classe | `(family, name)` | Unified base class for all Pinneapple models. |
+| `ModelOutput` | classe | `(y, losses, extras)` | Saída padrão de modelo: `y`, perdas e extras. |
+| `BaseModel` | classe | `(family, name)` | Classe base de todos os modelos: `forward` abstrato, `forward_batch` padrão e salvar/carregar checkpoint. |
 
 #### `pinneapple_neural.architectures.benchmarks`
 
-_Módulo sem docstring e sem texto._
+Família de modelos de referência para benchmarks (MLPs genéricos). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/benchmarks/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.benchmarks.generic_pinn_models`
 
-_Módulo sem docstring e sem texto._
+Modelos-base genéricos para comparar arquiteturas: MLP, MLP com Fourier features, SIREN, MLP residual e linear. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/benchmarks/generic_pinn_models.py` · 122 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierFeatures` | classe | `(in_dim, num_f=64, scale=10.0)` |  |
-| `GenericMLP` | classe | `(in_dim=3, out_dim=1, width=128, depth=4, act='tanh')` |  |
-| `GenericFourierMLP` | classe | `(in_dim=3, out_dim=1, num_f=64, scale=10.0, width=128, depth=4)` |  |
-| `Sine` | classe | `(w0=30.0)` |  |
-| `GenericSIREN` | classe | `(in_dim=3, out_dim=1, width=128, depth=4, w0=30.0)` |  |
-| `GenericResMLP` | classe | `(in_dim=3, out_dim=1, width=128, depth=6)` |  |
-| `GenericLinear` | classe | `(in_dim=3, out_dim=1)` |  |
+| `FourierFeatures` | classe | `(in_dim, num_f=64, scale=10.0)` | Camada de features aleatórias de Fourier com escala fixa. |
+| `GenericMLP` | classe | `(in_dim=3, out_dim=1, width=128, depth=4, act='tanh')` | MLP genérico de referência (tanh por padrão). |
+| `GenericFourierMLP` | classe | `(in_dim=3, out_dim=1, num_f=64, scale=10.0, width=128, depth=4)` | MLP genérico com Fourier features na entrada. |
+| `Sine` | classe | `(w0=30.0)` | Ativação seno com frequência `w0`. |
+| `GenericSIREN` | classe | `(in_dim=3, out_dim=1, width=128, depth=4, w0=30.0)` | SIREN genérica de referência. |
+| `GenericResMLP` | classe | `(in_dim=3, out_dim=1, width=128, depth=6)` | MLP residual genérico de referência. |
+| `GenericLinear` | classe | `(in_dim=3, out_dim=1)` | Modelo linear de referência. |
 
 #### `pinneapple_neural.architectures.benchmarks.registry`
 
-_Módulo sem docstring e sem texto._
+Registra os modelos de benchmark no `ModelRegistry` como `bench_mlp`, `bench_fourier_mlp`, `bench_siren`, `bench_res_mlp` e `bench_linear`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/benchmarks/registry.py` · 32 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_into_global` | função | `() -> None` | Register benchmark models into the global ModelRegistry. |
+| `register_into_global` | função | `() -> None` | Registra os cinco modelos de benchmark no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.catalog`
 
-_Módulo sem docstring e sem texto._
+`ModelCatalog`: agrega os catálogos de todas as famílias num único objeto. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/catalog.py` · 33 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelCatalog` | classe | `(autoencoders, pinns, transformers, recurrent, convolutions, neural_operators, continuous…)` |  |
+| `ModelCatalog` | classe | `(autoencoders, pinns, transformers, recurrent, convolutions, neural_operators, continuous…)` | Dataclass com um catálogo por família (autoencoders, pinns, transformers, recurrent, convolutions, neural_operators, continuous, graphnn, reservoir_computing, classical_ts, rom, physics_aware). |
 
 #### `pinneapple_neural.architectures.classical_ts`
 
-_Módulo sem docstring e sem texto._
+Família de modelos clássicos de série temporal e filtragem. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.classical_ts.arima`
 
-_Módulo sem docstring e sem texto._
+ARIMA(p,d,q) implementado sem dependências externas, ajustado por regressão. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/arima.py` · 250 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ARIMA` | classe | `(dim=1, p=3, d=0, q=0, l2=1e-06, use_bias=True)` | ARIMA(p,d,q) MVP without external deps: |
+| `ARIMA` | classe | `(dim=1, p=3, d=0, q=0, l2=1e-06, use_bias=True)` | Modelo ARIMA(p,d,q) com `fit`, `forecast` e `forward`, sem bibliotecas externas. |
 
 #### `pinneapple_neural.architectures.classical_ts.base`
 
-_Módulo sem docstring e sem texto._
+Saída `ClassicalTSOutput` e base `ClassicalTSBase` com `mse` para a família. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/base.py` · 34 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ClassicalTSOutput` | classe | `(y, losses, extras)` | Output for classical time-series / filtering models. |
-| `ClassicalTSBase` | classe | `()` |  |
+| `ClassicalTSOutput` | classe | `(y, losses, extras)` | Saída padrão dos modelos clássicos de série temporal. |
+| `ClassicalTSBase` | classe | `()` | Base da família com o helper `mse`. |
 
 #### `pinneapple_neural.architectures.classical_ts.ekf`
 
-_Módulo sem docstring e sem texto._
+Filtro de Kalman estendido em lote, com funções de transição/observação e jacobianos dados pelo usuário. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/ekf.py` · 125 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExtendedKalmanFilter` | classe | `(f, h, Q, R, F_jac, H_jac)` | EKF (robust MVP): x_t = f(x_{t-1}, u_t) + w y_t = h(x_t) + v |
+| `ExtendedKalmanFilter` | classe | `(f, h, Q, R, F_jac, H_jac)` | Filtro de Kalman estendido com jacobianos `F_jac` e `H_jac`. |
 
 #### `pinneapple_neural.architectures.classical_ts.enkf`
 
-_Módulo sem docstring e sem texto._
+Filtro de Kalman por ensemble (EnKF). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/enkf.py` · 122 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EnsembleKalmanFilter` | classe | `(f, h, Q, R, *, ensemble_size=64)` | Ensemble Kalman Filter (EnKF) MVP: |
+| `EnsembleKalmanFilter` | classe | `(f, h, Q, R, *, ensemble_size=64)` | Filtro de Kalman por ensemble com `ensemble_size` membros. |
 
 #### `pinneapple_neural.architectures.classical_ts.kalman`
 
-_Módulo sem docstring e sem texto._
+Filtro de Kalman linear em lote, com controle `B` opcional. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/kalman.py` · 130 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KalmanFilter` | classe | `(A, H, Q, R, *, B=None)` | Linear Kalman Filter (batch, robust): |
+| `KalmanFilter` | classe | `(A, H, Q, R, *, B=None)` | Filtro de Kalman linear em lote. |
 
 #### `pinneapple_neural.architectures.classical_ts.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `classical_ts` e `ClassicalTSCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/registry.py` · 67 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ClassicalTSCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `ClassicalTSCatalog` | classe | `(registry)` | Catálogo da família `classical_ts`. |
+| `register_into_global` | função | `() -> None` | Registra a família `classical_ts` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.classical_ts.tcn`
 
-_Módulo sem docstring e sem texto._
+Rede convolucional temporal (TCN) para regressão sequência a sequência. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/tcn.py` · 89 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TCN` | classe | `(in_dim, out_dim, *, channels=(64, 64, 64), kernel=3, dropout=0.1)` | TCN for sequence-to-sequence regression. |
+| `TCN` | classe | `(in_dim, out_dim, *, channels=(64, 64, 64), kernel=3, dropout=0.1)` | Rede convolucional temporal para regressão sequência a sequência. |
 
 #### `pinneapple_neural.architectures.classical_ts.ukf`
 
-_Módulo sem docstring e sem texto._
+Filtro de Kalman unscented (pontos sigma) em lote, com jitter crescente na fatoração de Cholesky. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/ukf.py` · 254 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnscentedKalmanFilter` | classe | `(f, h, Q, R, *, alpha=0.001, beta=2.0, kappa=0.0, jitter=1e-06, jitter_growth=10.0, max_c…)` | UKF (sigma-point filter), batch-friendly. |
+| `UnscentedKalmanFilter` | classe | `(f, h, Q, R, *, alpha=0.001, beta=2.0, kappa=0.0, jitter=1e-06, jitter_growth=10.0, max_c…)` | Filtro de Kalman unscented em lote. |
 
 #### `pinneapple_neural.architectures.classical_ts.var`
 
-_Módulo sem docstring e sem texto._
+Modelo VAR(p) ajustado por regressão ridge em forma fechada. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/classical_ts/var.py` · 165 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VAR` | classe | `(dim, p=1, l2=1e-06, use_bias=True)` | VAR(p) with ridge regression (closed form). |
+| `VAR` | classe | `(dim, p=1, l2=1e-06, use_bias=True)` | Modelo VAR(p) ajustado por ridge em forma fechada. |
 
 #### `pinneapple_neural.architectures.continuous`
 
-_Módulo sem docstring e sem texto._
+Família de modelos de tempo contínuo e probabilísticos (ODE/SDE/CDE neurais, hamiltonianos, GP neural). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.continuous.base`
 
-_Módulo sem docstring e sem texto._
+Saída `ContOutput` e base `ContinuousModelBase` com `mse` e `gaussian_nll`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/base.py` · 38 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ContOutput` | classe | `(y, losses, extras)` | Standard output for continuous-time / probabilistic dynamics models. |
-| `ContinuousModelBase` | classe | `()` |  |
+| `ContOutput` | classe | `(y, losses, extras)` | Saída padrão dos modelos de tempo contínuo. |
+| `ContinuousModelBase` | classe | `()` | Base da família com `mse` e `gaussian_nll`. |
 
 #### `pinneapple_neural.architectures.continuous.bayesian_rnn`
 
-_Módulo sem docstring e sem texto._
+RNN bayesiana aproximada por MC Dropout, com dropout travado ao longo do tempo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/bayesian_rnn.py` · 200 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LockedDropout` | classe | `(p=0.0)` | Locked (aka variational) dropout for sequences: uses the same dropout mask across the time dimension T. |
-| `BayesianRNN` | classe | `(input_dim, out_dim, hidden_dim=128, num_layers=2, dropout=0.1, cell='gru', min_logvar=-1…)` | Bayesian RNN (MVP via MC Dropout / variational dropout approximation). |
+| `LockedDropout` | classe | `(p=0.0)` | Dropout com a mesma máscara em todos os passos de tempo. |
+| `BayesianRNN` | classe | `(input_dim, out_dim, hidden_dim=128, num_layers=2, dropout=0.1, cell='gru', min_logvar=-1…)` | RNN (GRU/LSTM) com média e log-variância; `predict_mc` faz amostragem por MC Dropout. |
 
 #### `pinneapple_neural.architectures.continuous.deep_state_space`
 
-_Módulo sem docstring e sem texto._
+Modelo de espaço de estados profundo variacional (filtragem), com NLL gaussiana e KL entre gaussianas diagonais. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/deep_state_space.py` · 214 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ContOutput` | classe | `(y, losses, extras)` |  |
-| `DeepStateSpaceModel` | classe | `(input_dim, out_dim, latent_dim=32, hidden_dim=128, mlp_depth=2, min_logvar=-10.0, max_lo…)` | Variational Deep State Space Model (DSSM / deep SSM) - MVP (filtering): |
-| `gaussian_nll_diag` | função | `(mu, logvar, y) -> torch.Tensor` |  |
-| `kl_diag_gaussians` | função | `(mu_q, logvar_q, mu_p, logvar_p) -> torch.Tensor` |  |
+| `ContOutput` | classe | `(y, losses, extras)` | Cópia local da saída padrão (`y`, perdas, extras) usada pelo modelo de espaço de estados. |
+| `DeepStateSpaceModel` | classe | `(input_dim, out_dim, latent_dim=32, hidden_dim=128, mlp_depth=2, min_logvar=-10.0, max_lo…)` | Modelo de espaço de estados profundo variacional treinado por ELBO (NLL + `beta_kl` * KL). |
+| `gaussian_nll_diag` | função | `(mu, logvar, y) -> torch.Tensor` | NLL de uma gaussiana diagonal. |
+| `kl_diag_gaussians` | função | `(mu_q, logvar_q, mu_p, logvar_p) -> torch.Tensor` | Divergência KL entre duas gaussianas diagonais. |
 
 #### `pinneapple_neural.architectures.continuous.hamiltonian`
 
-_Módulo sem docstring e sem texto._
+Hamiltonian Neural Network: aprende H(q,p) e deriva a dinâmica por autograd. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/hamiltonian.py` · 69 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HamiltonianNeuralNetwork` | classe | `(dim_q, hidden=128, num_layers=3)` | HNN MVP: - Learn Hamiltonian H(q,p) - Dynamics: dq/dt = dH/dp, dp/dt = -dH/dq |
+| `HamiltonianNeuralNetwork` | classe | `(dim_q, hidden=128, num_layers=3)` | Rede que aprende H(q,p) e devolve dq/dt = dH/dp, dp/dt = -dH/dq. |
 
 #### `pinneapple_neural.architectures.continuous.latent_ode`
 
-_Módulo sem docstring e sem texto._
+Latent ODE: encoder GRU-ODE para tempos irregulares, dinâmica latente por ODE neural e decoder gaussiano. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/latent_ode.py` · 249 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LatentODE` | classe | `(obs_dim, latent_dim=32, hidden=128, *, ode_method='dopri5', enc_method='dopri5', min_log…)` | Latent ODE (improved, literature-aligned): - Encoder: GRU-ODE recognition model (handles irregular t) - Latent dynamics: NeuralODE with adaptive solver (default dopri5) - Decoder: Gaussian likelihood (mu_x, log_sigma_x) -> NLL |
+| `LatentODE` | classe | `(obs_dim, latent_dim=32, hidden=128, *, ode_method='dopri5', enc_method='dopri5', min_log…)` | Latent ODE com `forward` (reconstrução e NLL) e `forecast`. |
 
 #### `pinneapple_neural.architectures.continuous.neural_cde`
 
-_Módulo sem docstring e sem texto._
+Equação diferencial controlada neural (CDE) sem depender de `torchcde`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/neural_cde.py` · 156 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralCDE` | classe | `(input_dim, hidden_dim, out_dim, *, f_hidden=128, g_hidden=128, num_layers=2, activation=…)` | Neural CDE (literature-style MVP, no torchcde): |
+| `NeuralCDE` | classe | `(input_dim, hidden_dim, out_dim, *, f_hidden=128, g_hidden=128, num_layers=2, activation=…)` | CDE neural com solver Euler por padrão. |
 
 #### `pinneapple_neural.architectures.continuous.neural_gp`
 
-_Módulo sem docstring e sem texto._
+Processo gaussiano neural: features aleatórias de Fourier e cabeça linear bayesiana com posterior condicionável. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/neural_gp.py` · 248 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralGaussianProcess` | classe | `(in_dim, out_dim, *, embed_dim=64, mlp_hidden=128, mlp_layers=2, rff_features=512, rff_le…)` | Neural Gaussian Process (RFF + Bayesian Linear head): |
+| `NeuralGaussianProcess` | classe | `(in_dim, out_dim, *, embed_dim=64, mlp_hidden=128, mlp_layers=2, rff_features=512, rff_le…)` | GP neural com features RFF e cabeça linear bayesiana; `condition` atualiza o posterior. |
 
 #### `pinneapple_neural.architectures.continuous.neural_ode`
 
-_Módulo sem docstring e sem texto._
+Neural ODE simples integrada numa grade de tempos com Euler ou RK4. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/neural_ode.py` · 91 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralODE` | classe | `(state_dim, hidden=128, num_layers=3, method='rk4')` | Neural ODE MVP: dy/dt = f(t, y) where f is a neural net. Integrate over time grid with Euler or RK4. |
+| `NeuralODE` | classe | `(state_dim, hidden=128, num_layers=3, method='rk4')` | ODE neural dy/dt = f(t, y) integrada com Euler ou RK4. |
 
 #### `pinneapple_neural.architectures.continuous.neural_sde`
 
-_Módulo sem docstring e sem texto._
+SDE neural integrada por Euler–Maruyama, com difusão diagonal ou completa e vários caminhos. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/neural_sde.py` · 264 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralSDE` | classe | `(state_dim, *, hidden=128, num_layers=3, diffusion='diag', activation='tanh', sigma_eps=1…)` | Neural SDE (Euler–Maruyama) for *solving* problems via simulation: |
+| `NeuralSDE` | classe | `(state_dim, *, hidden=128, num_layers=3, diffusion='diag', activation='tanh', sigma_eps=1…)` | SDE neural com deriva e difusão aprendidas, simulada por Euler–Maruyama. |
 
 #### `pinneapple_neural.architectures.continuous.ode_rnn`
 
-_Módulo sem docstring e sem texto._
+ODE-RNN: integra o estado oculto entre observações e atualiza com `GRUCell`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/ode_rnn.py` · 54 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ODERNN` | classe | `(input_dim, hidden_dim=128)` | ODE-RNN MVP: - Integrate hidden state with Neural ODE between observation times - Update with GRUCell when observation arrives |
+| `ODERNN` | classe | `(input_dim, hidden_dim=128)` | ODE-RNN para séries com observações irregulares. |
 
 #### `pinneapple_neural.architectures.continuous.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `continuous` e `ContinuousCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/registry.py` · 80 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ContinuousCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `ContinuousCatalog` | classe | `(registry)` | Catálogo da família `continuous`. |
+| `register_into_global` | função | `() -> None` | Registra a família `continuous` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.continuous.symplectic_ode`
 
-_Módulo sem docstring e sem texto._
+Symplectic ODE-Net: hamiltoniano aprendido com passo simplético e rollout. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/symplectic_ode.py` · 147 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SymplecticODENet` | classe | `(dim_q, hidden=128)` | Symplectic ODE-Net: |
+| `SymplecticODENet` | classe | `(dim_q, hidden=128)` | Rede com hamiltoniano aprendido, campo vetorial, passo simplético e `rollout`. |
 
 #### `pinneapple_neural.architectures.continuous.symplectic_rnn`
 
-_Módulo sem docstring e sem texto._
+RNN simplética com atualização tipo leapfrog (energias cinética e potencial separadas). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/continuous/symplectic_rnn.py` · 128 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SymplecticRNN` | classe | `(dim_q, *, hidden=128, num_layers=2, activation='tanh')` | Symplectic RNN (MVP, leapfrog-style update): |
+| `SymplecticRNN` | classe | `(dim_q, *, hidden=128, num_layers=2, activation='tanh')` | RNN simplética com gradientes de T(p) e V(q) aprendidos. |
 
 #### `pinneapple_neural.architectures.convolutions`
 
-_Módulo sem docstring e sem texto._
+Família de modelos convolucionais 1D/2D/3D. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.convolutions.base`
 
-_Módulo sem docstring e sem texto._
+Saída `ConvOutput` e base `ConvModelBase` com `mse`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/base.py` · 36 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConvOutput` | classe | `(y, losses, extras)` | Standard output for convolutional models in Pinneapple. |
-| `ConvModelBase` | classe | `()` | Base class for convolution models. |
+| `ConvOutput` | classe | `(y, losses, extras)` | Saída padrão dos modelos convolucionais. |
+| `ConvModelBase` | classe | `()` | Base da família convolucional com `mse`. |
 
 #### `pinneapple_neural.architectures.convolutions.conv1d`
 
-_Módulo sem docstring e sem texto._
+Modelo Conv1D flexível: previsão causal, remoção de ruído, aprendizado de operador e surrogate de EDP 1D. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/conv1d.py` · 265 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Conv1DModel` | classe | `(in_channels, out_channels, *, mode='denoise', cond_channels=0, hidden_channels=64, num_b…)` | Flexible 1D Conv model supporting: - causal forecasting - denoising - operator learning - PDE 1D surrogate |
+| `Conv1DModel` | classe | `(in_channels, out_channels, *, mode='denoise', cond_channels=0, hidden_channels=64, num_b…)` | Modelo Conv1D com modos `denoise`, causal, operador e surrogate de EDP 1D. |
 
 #### `pinneapple_neural.architectures.convolutions.conv2d`
 
-_Módulo sem docstring e sem texto._
+Rede Conv2D residual (estilo ResNet) para regressão de campos. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/conv2d.py` · 148 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Conv2DModel` | classe | `(in_channels, out_channels, hidden_channels=32, num_blocks=4, kernel_size=3, dropout=0.0,…)` | Conv2D regression model (ResNet-like CNN). |
+| `Conv2DModel` | classe | `(in_channels, out_channels, hidden_channels=32, num_blocks=4, kernel_size=3, dropout=0.0,…)` | CNN 2D residual para regressão. |
 
 #### `pinneapple_neural.architectures.convolutions.conv3d`
 
-_Módulo sem docstring e sem texto._
+Rede Conv3D residual para regressão de volumes, com skip global opcional. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/conv3d.py` · 174 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResidualBlock3D` | classe | `(channels, kernel_size=3, dropout=0.0, norm_groups=8) -> None` | A stable 3D residual block: Conv -> GroupNorm -> GELU -> Dropout -> Conv -> GroupNorm -> GELU Residual is applied outside (so the caller can scale it). |
-| `Conv3DModel` | classe | `(in_channels, out_channels, hidden_channels=32, num_blocks=4, kernel_size=3, dropout=0.0,…)` | Conv3D regression model. |
+| `ResidualBlock3D` | classe | `(channels, kernel_size=3, dropout=0.0, norm_groups=8) -> None` | Bloco residual 3D (Conv, GroupNorm, GELU, Dropout); a soma residual fica a cargo de quem chama. |
+| `Conv3DModel` | classe | `(in_channels, out_channels, hidden_channels=32, num_blocks=4, kernel_size=3, dropout=0.0,…)` | CNN 3D residual para regressão de volumes. |
 
 #### `pinneapple_neural.architectures.convolutions.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `convolutions` e `ConvolutionCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/convolutions/registry.py` · 60 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConvolutionCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `ConvolutionCatalog` | classe | `(registry)` | Catálogo da família `convolutions`. |
+| `register_into_global` | função | `() -> None` | Registra a família `convolutions` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.graphnn`
 
-_Módulo sem docstring e sem texto._
+Família de redes em grafo; reexporta `GraphModelBase`, `GraphBatch`, `GraphOutput`, `MeshGraphNet`, `MeshDynamicsMGN`, `MeshGraph`, `Normalizer` e `GraphCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/__init__.py` · 8 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.graphnn.base`
 
-_Módulo sem docstring e sem texto._
+Formato mínimo de batch de grafo (`GraphBatch`, sem dependências externas), saída `GraphOutput` e base `GraphModelBase`.
 
 <small>`pinneapple_neural/architectures/graphnn/base.py` · 54 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GraphBatch` | classe | `(x, edge_index, pos, edge_attr, mask)` | Minimal graph batch format (no external deps). |
-| `GraphOutput` | classe | `(y, losses, extras)` | Standard output for GNN family. y: - node-level: (B, N, out_dim) - graph-level: (B, out_dim) (not used in this MVP) |
-| `GraphModelBase` | classe | `()` | Base for graph models. |
+| `GraphBatch` | classe | `(x, edge_index, pos, edge_attr, mask)` | Batch de grafo com `x`, `edge_index` e, opcionalmente, `pos`, `edge_attr` e `mask`. |
+| `GraphOutput` | classe | `(y, losses, extras)` | Saída padrão das GNNs: `y` por nó, perdas e extras. |
+| `GraphModelBase` | classe | `()` | Base das redes em grafo com `mse`. |
 
 #### `pinneapple_neural.architectures.graphnn.equivariant_gnn`
 
-_Módulo sem docstring e sem texto._
+GNN E(n)-equivariante no estilo EGNN, que pode atualizar as posições dos nós.
 
 <small>`pinneapple_neural/architectures/graphnn/equivariant_gnn.py` · 229 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EquivariantGNN` | classe | `(node_dim, pos_dim, out_dim, *, hidden=128, layers=4, edge_dim=0, dropout=0.0, update_pos…)` | EGNN-style MVP (E(n)-equivariant): |
+| `EquivariantGNN` | classe | `(node_dim, pos_dim, out_dim, *, hidden=128, layers=4, edge_dim=0, dropout=0.0, update_pos…)` | GNN E(n)-equivariante (EGNN) com atualização opcional das posições. |
 
 #### `pinneapple_neural.architectures.graphnn.gnn`
 
-_Módulo sem docstring e sem texto._
+Rede de passagem de mensagens (MPNN) simples para previsão por nó.
 
 <small>`pinneapple_neural/architectures/graphnn/gnn.py` · 123 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GraphNeuralNetwork` | classe | `(node_dim, out_dim, *, edge_dim=0, hidden=128, layers=4, dropout=0.0)` | Message Passing Neural Network (MVP). |
+| `GraphNeuralNetwork` | classe | `(node_dim, out_dim, *, edge_dim=0, hidden=128, layers=4, dropout=0.0)` | MPNN simples com features de aresta opcionais. |
 
 #### `pinneapple_neural.architectures.graphnn.gnn_ode`
 
-_Módulo sem docstring e sem texto._
+ODE neural em grafo: o campo vetorial é uma GNN, com features de Fourier do tempo opcionais; os métodos `dopri5`/`adams` exigem `torchdiffeq`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/gnn_ode.py` · 212 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierTimeFeatures` | classe | `(n_frequencies, *, max_frequency=10.0)` | Fourier features for scalar time t. Produces [sin(2π f_i t), cos(2π f_i t)] features. |
-| `GraphNeuralODE` | classe | `(node_dim, *, edge_dim=0, hidden=128, layers=3, method='rk4', time_features=0, time_max_f…)` | Graph Neural ODE (MVP): |
+| `FourierTimeFeatures` | classe | `(n_frequencies, *, max_frequency=10.0)` | Features [sin, cos](2π f t) do tempo escalar. |
+| `GraphNeuralODE` | classe | `(node_dim, *, edge_dim=0, hidden=128, layers=3, method='rk4', time_features=0, time_max_f…)` | ODE neural em grafo integrada com RK4 por padrão ou com `torchdiffeq` (`dopri5`, `adams`, adjunto opcional). |
 
 #### `pinneapple_neural.architectures.graphnn.graphcast`
 
-_Módulo sem docstring e sem texto._
+Rede inspirada no GraphCast (encoder, processador em malha, decoder) para malha fixa ou grafos variáveis. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/graphcast.py` · 289 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GraphCast` | classe | `(node_in, out_dim, *, hidden=256, processor_blocks=8, pos_dim=0, edge_dim=0, dropout=0.0)` | GraphCast-inspired MVP (fixed mesh + variable graph support). |
+| `GraphCast` | classe | `(node_in, out_dim, *, hidden=256, processor_blocks=8, pos_dim=0, edge_dim=0, dropout=0.0)` | Modelo inspirado no GraphCast com blocos de processamento em malha. |
 
 #### `pinneapple_neural.architectures.graphnn.mesh_graph_net`
 
-MeshGraphNet — Encoder-Process-Decoder GNN for mesh-based simulation.
+MeshGraphNet (Pfaff et al., ICLR 2021) encoder-processador-decoder com um único tipo de aresta (malha fixa); o conjunto de arestas no espaço do mundo, usado para contato, não está implementado. O inventário marca 'placeholder', mas o código é uma implementação real.
 
 <small>`pinneapple_neural/architectures/graphnn/mesh_graph_net.py` · 375 linhas · testes: 15 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshGraphNet` | classe | `(node_in_dim, out_dim, *, edge_in_dim=0, pos_dim=0, hidden_dim=128, n_layers=2, n_message…)` | Encoder-Process-Decoder GNN for unstructured mesh simulation. |
+| `MeshGraphNet` | classe | `(node_in_dim, out_dim, *, edge_in_dim=0, pos_dim=0, hidden_dim=128, n_layers=2, n_message…)` | GNN encoder-processador-decoder para simulação em malha não estruturada com conectividade fixa. |
 
 #### `pinneapple_neural.architectures.graphnn.mgn_dynamics`
 
-Transient mesh dynamics on top of :class:`MeshGraphNet`.
+Dinâmica transiente sobre `MeshGraphNet`: malha estática, normalizadores, passo autorregressivo de (velocidade, pressão), treino de um passo e avaliação de rollout.
 
 <small>`pinneapple_neural/architectures/graphnn/mgn_dynamics.py` · 270 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshGraph` | classe | `(edge_index, edge_attr, node_type)` | One static mesh: topology, raw edge features and node types. |
-| `Normalizer` | classe | `(dim, eps=1e-08) -> None` | Per-feature standardiser with fixed statistics (stored as buffers). |
-| `MeshDynamicsMGN` | classe | `(vel_dim=2, num_node_types=4, edge_dim=3, out_p=True, **mgn_kwargs) -> None` | Autoregressive MeshGraphNet for fields ``(vel, p)`` on a transient mesh. |
-| `triangles_to_edges` | função | `(cells) -> torch.Tensor` | Bidirectional, de-duplicated edge_index (2, E) from triangle ``cells`` (T, 3). |
-| `edge_features` | função | `(pos, edge_index) -> torch.Tensor` | Relative displacement (dst - src) and its norm → (E, pos_dim + 1). |
-| `train_dynamics` | função | `(model, data, *, steps, lr=0.0001, lr_final=1e-06, noise_std=0.02, device='cpu', log_ever…)` | One-step training on random ``(trajectory, time)`` pairs with Adam and exponential LR decay. |
-| `eval_rollout` | função | `(model, data, *, n_steps, device='cpu', normal_type=0) -> dict[str, float]` | Velocity RMSE on NORMAL nodes: mean over trajectories of the ``n_steps`` free rollout and of one step. |
-| `frozen_ic_rmse` | função | `(data, *, n_steps, normal_type=0) -> float` | Baseline for :func:`eval_rollout`: velocity RMSE on NORMAL nodes when the velocity stays at its t = 0 value over the same horizon, mean over trajectories. |
+| `MeshGraph` | classe | `(edge_index, edge_attr, node_type)` | Uma malha estática: topologia, features brutas das arestas e tipo de cada nó; `from_mesh` monta a partir de triângulos. |
+| `Normalizer` | classe | `(dim, eps=1e-08) -> None` | Padronizador por feature com estatísticas fixas guardadas como buffers. |
+| `MeshDynamicsMGN` | classe | `(vel_dim=2, num_node_types=4, edge_dim=3, out_p=True, **mgn_kwargs) -> None` | MeshGraphNet autorregressivo para (velocidade, pressão) em malha transiente: `step`, `loss` e `rollout`. |
+| `triangles_to_edges` | função | `(cells) -> torch.Tensor` | Gera `edge_index` bidirecional e sem duplicatas a partir de triângulos. |
+| `edge_features` | função | `(pos, edge_index) -> torch.Tensor` | Deslocamento relativo entre nós da aresta e sua norma. |
+| `train_dynamics` | função | `(model, data, *, steps, lr=0.0001, lr_final=1e-06, noise_std=0.02, device='cpu', log_ever…)` | Treino de um passo em pares (trajetória, tempo) aleatórios, com Adam, ruído de entrada e decaimento exponencial da taxa de aprendizado. |
+| `eval_rollout` | função | `(model, data, *, n_steps, device='cpu', normal_type=0) -> dict[str, float]` | RMSE da velocidade nos nós NORMAL, em rollout livre e em um passo, média sobre trajetórias. |
+| `frozen_ic_rmse` | função | `(data, *, n_steps, normal_type=0) -> float` | RMSE de referência quando a velocidade fica congelada no valor inicial. |
 
 #### `pinneapple_neural.architectures.graphnn.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `graphnn` e `GraphCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/registry.py` · 64 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GraphCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `GraphCatalog` | classe | `(registry)` | Catálogo da família `graphnn`. |
+| `register_into_global` | função | `() -> None` | Registra a família `graphnn` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.graphnn.spatiotemporal_gnn`
 
-_Módulo sem docstring e sem texto._
+GNN espaço-temporal: GNN em cada instante seguida de uma GRU por nó ao longo do tempo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/spatiotemporal_gnn.py` · 117 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpatiotemporalGNN` | classe | `(node_in, out_dim, *, edge_dim=0, spatial_hidden=128, spatial_layers=3, temporal_hidden=1…)` | Spatiotemporal GNN (MVP): |
+| `SpatiotemporalGNN` | classe | `(node_in, out_dim, *, edge_dim=0, spatial_hidden=128, spatial_layers=3, temporal_hidden=1…)` | GNN espacial em cada instante, GRU por nó ao longo do tempo e cabeça por nó. |
 
 #### `pinneapple_neural.architectures.graphnn.utils`
 
-_Módulo sem docstring e sem texto._
+Utilitários de scatter-add e de achatamento de vários grafos num grafo único com deslocamento de índices. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/graphnn/utils.py` · 84 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `scatter_add` | função | `(src, index, dim_size) -> torch.Tensor` | Scatter-add with shared-graph batching. |
-| `scatter_add_flat` | função | `(src, index, dim_size) -> torch.Tensor` | Flattened variable-graph batching. src: (E_total, F) index: (E_total,) destination indices [0..N_total-1] returns: (N_total, F) where out[index[e], :] += src[e, :] |
-| `flatten_graph_batch` | função | `(x_list, edge_index_list, pos_list=None, edge_attr_list=None)` | Turns per-sample graphs into a single flattened graph with node index offsets. |
+| `scatter_add` | função | `(src, index, dim_size) -> torch.Tensor` | Scatter-add para grafos compartilhados no batch. |
+| `scatter_add_flat` | função | `(src, index, dim_size) -> torch.Tensor` | Scatter-add para um grafo achatado (batch de grafos variáveis). |
+| `flatten_graph_batch` | função | `(x_list, edge_index_list, pos_list=None, edge_attr_list=None)` | Junta grafos por amostra num único grafo, deslocando os índices dos nós. |
 
 #### `pinneapple_neural.architectures.group_b_registry`
 
-_Módulo sem docstring e sem texto._
+Registro do 'grupo B' (SIREN, ModifiedMLP, HashGridMLP, AFNO) com apelidos e capacidades; MeshGraphNet fica na família `graphnn`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/group_b_registry.py` · 86 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GroupBCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `GroupBCatalog` | classe | `(registry)` | Catálogo do grupo B (SIREN, ModifiedMLP, HashGridMLP, AFNO). |
+| `register_into_global` | função | `() -> None` | Registra o grupo B no `ModelRegistry` com a família `group_b`. |
 
 #### `pinneapple_neural.architectures.hash_grid`
 
-_Módulo sem docstring e sem texto._
+Codificação multirresolução por tabela hash (estilo Instant-NGP) e MLP que a usa para campos 3D. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/hash_grid.py` · 219 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HashGridEncoding` | classe | `(in_dim=3, n_levels=16, n_features_per_level=2, log2_hashmap_size=19, base_resolution=16,…)` | Multi-resolution hash grid encoding (Instant-NGP style). |
-| `HashGridMLP` | classe | `(in_dim=3, out_dim=1, hidden_dim=64, n_hidden=2, n_levels=8, n_features_per_level=2, log2…)` | MLP with multi-resolution hash grid encoding for fast 3-D field representation. |
+| `HashGridEncoding` | classe | `(in_dim=3, n_levels=16, n_features_per_level=2, log2_hashmap_size=19, base_resolution=16,…)` | Codificação hash multirresolução com interpolação entre os cantos do voxel em cada nível. |
+| `HashGridMLP` | classe | `(in_dim=3, out_dim=1, hidden_dim=64, n_hidden=2, n_levels=8, n_features_per_level=2, log2…)` | MLP pequeno sobre a codificação hash, para representar campos 3D. |
 
 #### `pinneapple_neural.architectures.instantiate`
 
-Model instantiation helpers.
+Normaliza nomes de kwargs entre famílias (`in_dim`, `input_dim`, `in_channels`...), traduz `hidden_dim`/`n_layers` para os nomes de cada classe e descarta argumentos não aceitos. [sem teste direto, mas usado por `ModelRegistry.build`]
 
 <small>`pinneapple_neural/architectures/instantiate.py` · 173 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `InstantiateReport` | classe | `(original, normalized, dropped, used_aliases)` | Diagnostics about how kwargs were normalized. |
-| `normalize_kwargs` | função | `(kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]` | Normalize user kwargs to a canonical set. |
-| `filter_supported_kwargs` | função | `(model_cls, kwargs) -> Tuple[Dict[str, Any], Dict[str, Any]]` | Keep only kwargs accepted by ``model_cls.__init__``. |
-| `instantiate` | função | `(model_cls, kwargs=None, *, strict=False) -> Tuple[BaseModel, InstantiateReport]` | Instantiate a model class with normalized kwargs. |
+| `InstantiateReport` | classe | `(original, normalized, dropped, used_aliases)` | Diagnóstico da normalização: kwargs originais, normalizados, descartados e apelidos usados. |
+| `normalize_kwargs` | função | `(kwargs) -> Tuple[Dict[str, Any], Dict[str, str]]` | Converte apelidos de kwargs para os nomes canônicos. |
+| `filter_supported_kwargs` | função | `(model_cls, kwargs) -> Tuple[Dict[str, Any], Dict[str, Any]]` | Mantém só os kwargs aceitos por `model_cls.__init__` (nenhum é descartado se ele aceita `**kwargs`). |
+| `instantiate` | função | `(model_cls, kwargs=None, *, strict=False) -> Tuple[BaseModel, InstantiateReport]` | Instancia a classe com kwargs normalizados e devolve o modelo e um `InstantiateReport`; com `strict=True` falha se algo for descartado. |
 
 #### `pinneapple_neural.architectures.modified_mlp`
 
-_Módulo sem docstring e sem texto._
+MLP modificado (Wang et al.): embedding de Fourier aleatório e conexões tipo highway U/V. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/modified_mlp.py` · 136 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierFeatureEmbedding` | classe | `(in_dim, n_fourier=64, sigma=1.0, trainable=False)` | Random Fourier feature embedding for coordinate inputs. |
-| `ModifiedMLP` | classe | `(in_dim, out_dim, hidden_dim=128, n_layers=6, n_fourier=32, sigma=1.0, activation=nn.Tanh…)` | Modified MLP with Fourier feature embedding and highway U/V connections. |
+| `FourierFeatureEmbedding` | classe | `(in_dim, n_fourier=64, sigma=1.0, trainable=False)` | Embedding [cos, sin](2π B x) com matriz `B` aleatória ou treinável. |
+| `ModifiedMLP` | classe | `(in_dim, out_dim, hidden_dim=128, n_layers=6, n_fourier=32, sigma=1.0, activation=nn.Tanh…)` | MLP com Fourier features e portas U/V tipo highway em cada camada. |
 
 #### `pinneapple_neural.architectures.neural_operators`
 
-_Módulo sem docstring e sem texto._
+Família de operadores neurais; reexporta FNO, FNO2d, MLPFNOSurrogate, Transolver e as classes Noether (que ficam `None` se `emmiai-noether` não estiver instalado).
 
 <small>`pinneapple_neural/architectures/neural_operators/__init__.py` · 51 linhas · testes: 2</small>
 
 #### `pinneapple_neural.architectures.neural_operators.base`
 
-_Módulo sem docstring e sem texto._
+Saída `OperatorOutput` e base `NeuralOperatorBase` com `mse`.
 
 <small>`pinneapple_neural/architectures/neural_operators/base.py` · 40 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OperatorOutput` | classe | `(y, losses, extras)` | Standard output for neural operators. |
-| `NeuralOperatorBase` | classe | `()` | Base class for Neural Operators. |
+| `OperatorOutput` | classe | `(y, losses, extras)` | Saída padrão dos operadores neurais. |
+| `NeuralOperatorBase` | classe | `()` | Base dos operadores neurais com `mse`. |
 
 #### `pinneapple_neural.architectures.neural_operators.deeponet`
 
-DeepONet operator learning with branch-trunk architecture (Lu et al., Nat. Mach. Intell. 3, 2021).
+DeepONet não empilhado (Lu et al. 2021): rede branch e rede trunk, um conjunto de coeficientes por canal de saída.
 
 <small>`pinneapple_neural/architectures/neural_operators/deeponet.py` · 79 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DeepONet` | classe | `(branch_dim, trunk_dim, out_dim, hidden=128, modes=64, depth=1, trunk_activation=False)` | Unstacked DeepONet, one set of branch coefficients per output channel: |
-| `mlp` | função | `(in_dim, hidden, out_dim, depth=1, act=nn.GELU, last_act=False) -> nn.Sequential` | MLP with hidden widths ``hidden`` (a list) or ``depth`` layers of width ``hidden`` (an int). |
+| `DeepONet` | classe | `(branch_dim, trunk_dim, out_dim, hidden=128, modes=64, depth=1, trunk_activation=False)` | DeepONet branch-trunk não empilhado, com um conjunto de coeficientes por canal de saída. |
+| `mlp` | função | `(in_dim, hidden, out_dim, depth=1, act=nn.GELU, last_act=False) -> nn.Sequential` | Monta um MLP a partir de uma lista de larguras ou de `depth` camadas de largura fixa. |
 
 #### `pinneapple_neural.architectures.neural_operators.fno`
 
-_Módulo sem docstring e sem texto._
+Fourier Neural Operators 1D, 2D e 3D e um híbrido FNO + decoder MLP para avaliar em pontos espalhados.
 
 <small>`pinneapple_neural/architectures/neural_operators/fno.py` · 530 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierNeuralOperator` | classe | `(in_channels, out_channels, width=64, modes=16, layers=4, *, use_grid=False)` | FNO-1D (MVP) - extendable to 2D/3D by changing spectral conv + projections. |
-| `FNO2d` | classe | `(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True)` | FNO-2D: Fourier Neural Operator for 2D spatial fields. |
-| `FNO3d` | classe | `(in_channels, out_channels, width=32, modes1=8, modes2=8, modes3=8, layers=4, *, use_grid…)` | FNO-3D: Fourier Neural Operator for 3D spatial (or 2D-space + time) fields -- the natural fit for a structured, periodic-in-2-of-3-axes domain like a periodic channel (matches the setup FNO was originally demonstrated on: Li et al. 2020, Navier-Stokes on a periodic torus). |
-| `MLPFNOSurrogate` | classe | `(in_channels, out_channels, fno_width=32, fno_modes=12, fno_layers=4, mlp_hidden=128, mlp…)` | Hybrid FNO backbone + MLP decoder for scattered-point evaluation. |
+| `FourierNeuralOperator` | classe | `(in_channels, out_channels, width=64, modes=16, layers=4, *, use_grid=False)` | FNO 1D. |
+| `FNO2d` | classe | `(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True)` | FNO 2D para campos em grade, com canais de coordenadas opcionais. |
+| `FNO3d` | classe | `(in_channels, out_channels, width=32, modes1=8, modes2=8, modes3=8, layers=4, *, use_grid…)` | FNO 3D para campos 3D ou 2D + tempo. |
+| `MLPFNOSurrogate` | classe | `(in_channels, out_channels, fno_width=32, fno_modes=12, fno_layers=4, mlp_hidden=128, mlp…)` | Backbone FNO com decoder MLP para avaliar em pontos espalhados. |
 
 #### `pinneapple_neural.architectures.neural_operators.fno_export`
 
-ONNX export of Fourier neural operators.
+Exportação ONNX de FNOs: troca as convoluções espectrais 2D por versões em aritmética real e confere a saída com `onnxruntime`.
 
 <small>`pinneapple_neural/architectures/neural_operators/fno_export.py` · 121 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RealSpectralConv2d` | classe | `(conv, H, W)` | Real-arithmetic equivalent of :class:`~.fno._SpectralConv2d` on an ``H x W`` grid. |
-| `to_exportable` | função | `(model, grid) -> nn.Module` | A copy of ``model`` with every 2-D spectral convolution in real arithmetic for an ``H x W`` grid. |
-| `export_onnx` | função | `(model, example, path, *, grid=None, opset=17, atol=0.0001) -> float` | Export ``model`` (an FNO, or any module containing 2-D spectral convolutions) to ONNX at ``path`` with a dynamic batch axis, check onnxruntime against PyTorch on ``example`` and return the largest absolute difference (raises when it exceeds ``atol`` times the output scale). ``grid`` defaults to the … |
+| `RealSpectralConv2d` | classe | `(conv, H, W)` | Convolução espectral 2D reescrita em aritmética real para uma grade H x W fixa (exportável para ONNX). |
+| `to_exportable` | função | `(model, grid) -> nn.Module` | Copia o modelo trocando cada convolução espectral 2D pela versão real. |
+| `export_onnx` | função | `(model, example, path, *, grid=None, opset=17, atol=0.0001) -> float` | Exporta para ONNX com eixo de batch dinâmico, compara com `onnxruntime` e devolve a maior diferença absoluta (falha acima de `atol`). |
 
 #### `pinneapple_neural.architectures.neural_operators.gno`
 
-_Módulo sem docstring e sem texto._
+Galerkin Neural Operator em malha: aprende uma base Φ(x), projeta com pesos de quadratura, aplica o operador nos coeficientes e reconstrói. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/neural_operators/gno.py` · 146 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GalerkinNeuralOperator` | classe | `(in_dim, out_dim, basis_dim=64, basis_hidden=128, op_hidden=128, op_depth=2, orthonormali…)` | Galerkin Neural Operator (mesh-based, 1D/2D/3D): - Learn a basis Phi(x) from coords (x in R^d, d can be 1,2,3) - Project u -> coefficients using quadrature/lumped-mass weights - Apply operator in coefficient space - Reconstruct y = Phi * c_out |
+| `GalerkinNeuralOperator` | classe | `(in_dim, out_dim, basis_dim=64, basis_hidden=128, op_hidden=128, op_depth=2, orthonormali…)` | Operador de Galerkin com base aprendida e projeção por quadratura. |
 
 #### `pinneapple_neural.architectures.neural_operators.ms_deeponet`
 
-Multi-scale DeepONet: one trunk per spatial scale, each seeing the coordinates stretched by its own factor (the MscaleDNN idea, Liu, Cai and Xu 2020), so high-frequency parts of the output are learned by trunks that see them as low frequencies. The branch gives the coefficients of all scales.
+DeepONet multiescala: um trunk por escala com coordenadas esticadas (ideia do MscaleDNN).
 
 <small>`pinneapple_neural/architectures/neural_operators/ms_deeponet.py` · 69 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MultiScaleDeepONet` | classe | `(branch_dim, trunk_dim, out_dim, *, hidden=128, scales=(32, 64, 128), scale_factors=None,…)` | y(u, x) = sum_s < B_s(u), T_s(c_s x) > + bias |
+| `MultiScaleDeepONet` | classe | `(branch_dim, trunk_dim, out_dim, *, hidden=128, scales=(32, 64, 128), scale_factors=None,…)` | DeepONet com um trunk por escala espacial e branch comum. |
 
 #### `pinneapple_neural.architectures.neural_operators.noether_bridge`
 
-Noether (Emmi AI) architecture bridge for PINNeAPPle.
+[experimental; só pesquisa] Envolve os modelos de `emmiai-noether` (UPT, AB-UPT, Transformer, Transolver e variantes aero) como `NeuralOperatorBase`; cada instância passa por `require_research_use` e é recusada em modo comercial.
 
 <small>`pinneapple_neural/architectures/neural_operators/noether_bridge.py` · 296 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NoetherModelConfig` | classe | `(model_name, config_kwargs, device)` | Minimal config wrapper forwarded verbatim to noether's own config classes. |
-| `NoetherUPT` | classe | `(**config_kwargs)` | Universal Physics Transformer (Noether/Emmi AI). |
-| `NoetherABUPT` | classe | `(**config_kwargs)` | Anchored-Branched Universal Physics Transformer (Noether/Emmi AI). |
-| `NoetherTransformer` | classe | `(**config_kwargs)` | Vanilla Transformer backbone from Noether. |
-| `NoetherTransolver` | classe | `(**config_kwargs)` | Transolver / Transolver++ Physics-Attention backbone (Noether/Emmi AI). |
-| `NoetherAeroUPT` | classe | `(**config_kwargs)` | AeroUPT — UPT with surface/volume domain routing for aerodynamics. |
-| `NoetherAeroABUPT` | classe | `(**config_kwargs)` | AeroABUPT — AB-UPT with surface/volume domain routing. |
-| `NoetherAeroTransformer` | classe | `(**config_kwargs)` | AeroTransformer — Transformer for CFD aerodynamics. |
-| `NoetherAeroTransolver` | classe | `(**config_kwargs)` | AeroTransolver — Transolver for CFD aerodynamics. |
+| `NoetherModelConfig` | classe | `(model_name, config_kwargs, device)` | Config mínima repassada sem mudanças às classes de config do Noether. |
+| `NoetherUPT` | classe | `(**config_kwargs)` | Wrapper do Universal Physics Transformer do Noether (só pesquisa). |
+| `NoetherABUPT` | classe | `(**config_kwargs)` | Wrapper do AB-UPT do Noether (só pesquisa; pesos CC BY-NC). |
+| `NoetherTransformer` | classe | `(**config_kwargs)` | Wrapper do Transformer simples do Noether (só pesquisa). |
+| `NoetherTransolver` | classe | `(**config_kwargs)` | Wrapper do Transolver do Noether (só pesquisa). |
+| `NoetherAeroUPT` | classe | `(**config_kwargs)` | Wrapper do UPT com roteamento superfície/volume para aerodinâmica (só pesquisa). |
+| `NoetherAeroABUPT` | classe | `(**config_kwargs)` | Wrapper do AB-UPT com roteamento superfície/volume (só pesquisa). |
+| `NoetherAeroTransformer` | classe | `(**config_kwargs)` | Wrapper do Transformer para CFD aerodinâmico (só pesquisa). |
+| `NoetherAeroTransolver` | classe | `(**config_kwargs)` | Wrapper do Transolver para CFD aerodinâmico (só pesquisa). |
 
 #### `pinneapple_neural.architectures.neural_operators.pino`
 
-_Módulo sem docstring e sem texto._
+PINO: wrapper que soma perdas físicas a um operador, mais derivadas espectrais/diferenças finitas em grade uniforme e uma perda de resíduo genérica. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/neural_operators/pino.py` · 232 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsInformedNeuralOperator` | classe | `(operator, *, lambda_pde=1.0, lambda_bc=1.0, lambda_ic=1.0, lambda_physics=1.0, prefix='p…)` | Generic PINO wrapper. |
-| `GridSpec` | classe | `(L, dims)` | Descreve grid uniforme (PINO clássico). L: tamanho físico por eixo (mesmo length de dims). dims: quais dims de u correspondem aos eixos (ex.: (-2, -1) para 2D). |
-| `ResidualSpec` | classe | `(residual, orders, method)` | Spec genérico para PDE residual. residual(u=..., deriv=..., params=..., **extra) -> r onde deriv é o dict retornado por compute_derivatives. |
-| `pino_physics_fn` | função | `(u, *, grid, spec, params=None, bc_mask=None, bc_value=None, ic_mask=None, ic_value=None,…)` | Generic PINO physics loss: - computes derivatives on grid (FFT/FD) - evaluates residual r - returns pde/bc/ic + physics_total |
-| `spectral_derivative` | função | `(u, *, dim, L, order=1) -> torch.Tensor` |  |
-| `fd_derivative` | função | `(u, *, dim, dx, order=1) -> torch.Tensor` |  |
-| `compute_derivatives` | função | `(u, *, grid, orders=(1, 2), method='spectral') -> Dict[Tuple[int, int], torch.Tensor]` | Retorna derivadas por eixo e ordem: key = (axis_index, order) onde axis_index é o índice dentro de grid.dims/grid.L. |
+| `PhysicsInformedNeuralOperator` | classe | `(operator, *, lambda_pde=1.0, lambda_bc=1.0, lambda_ic=1.0, lambda_physics=1.0, prefix='p…)` | Wrapper PINO: roda o operador e soma as perdas físicas (EDP, contorno, inicial) pesadas. |
+| `GridSpec` | classe | `(L, dims)` | Descreve a grade uniforme: tamanho físico por eixo e quais dimensões de `u` são eixos. |
+| `ResidualSpec` | classe | `(residual, orders, method)` | Especifica o resíduo da EDP, as ordens de derivada e o método (espectral ou diferenças finitas). |
+| `pino_physics_fn` | função | `(u, *, grid, spec, params=None, bc_mask=None, bc_value=None, ic_mask=None, ic_value=None,…)` | Calcula derivadas na grade, avalia o resíduo e devolve as perdas `pde`, `bc`, `ic` e `physics_total`. |
+| `spectral_derivative` | função | `(u, *, dim, L, order=1) -> torch.Tensor` | Derivada de ordem `order` ao longo de um eixo via FFT (domínio periódico). |
+| `fd_derivative` | função | `(u, *, dim, dx, order=1) -> torch.Tensor` | Derivada por diferenças finitas ao longo de um eixo. |
+| `compute_derivatives` | função | `(u, *, grid, orders=(1, 2), method='spectral') -> Dict[Tuple[int, int], torch.Tensor]` | Dicionário de derivadas por (eixo, ordem), pelo método espectral ou de diferenças finitas. |
 
 #### `pinneapple_neural.architectures.neural_operators.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `neural_operators` com capacidades por chave (tipo de entrada e chaves esperadas); `transolver` fica reservado para o bridge Noether.
 
 <small>`pinneapple_neural/architectures/neural_operators/registry.py` · 123 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralOperatorCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `NeuralOperatorCatalog` | classe | `(registry)` | Catálogo da família `neural_operators`. |
+| `register_into_global` | função | `() -> None` | Registra os operadores no `ModelRegistry` com tipo de entrada e chaves esperadas por modelo. |
 
 #### `pinneapple_neural.architectures.neural_operators.transolver`
 
-_Módulo sem docstring e sem texto._
+Transolver nativo em PyTorch (Physics-Attention por fatias) para nuvens de pontos, e uma versão leve `TransolverLite`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/neural_operators/transolver.py` · 145 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAttention` | classe | `(dim, heads=8, slices=32, dropout=0.0)` | Multi-head Physics-Attention (slice -> attend -> deslice). |
-| `TransolverBlock` | classe | `(dim, heads, slices, mlp_ratio=2, dropout=0.0)` |  |
-| `Transolver` | classe | `(in_dim, out_dim, dim=128, depth=4, heads=8, slices=32, mlp_ratio=2, dropout=0.0)` | Point-cloud operator: (B, N, in_dim) -> (B, N, out_dim). |
-| `TransolverLite` | classe | `(in_dim=5, out_dim=101, d_model=64, n_heads=4, n_slices=8, n_blocks=3, dropout=0.1)` | Linear input projection -> ``n_blocks`` slice-attention blocks -> per-node linear head. |
+| `PhysicsAttention` | classe | `(dim, heads=8, slices=32, dropout=0.0)` | Atenção física multi-cabeça: agrupa pontos em fatias, atende entre fatias e devolve aos pontos. |
+| `TransolverBlock` | classe | `(dim, heads, slices, mlp_ratio=2, dropout=0.0)` | Bloco Transolver: Physics-Attention mais MLP com normalização. |
+| `Transolver` | classe | `(in_dim, out_dim, dim=128, depth=4, heads=8, slices=32, mlp_ratio=2, dropout=0.0)` | Operador em nuvem de pontos (B, N, in_dim) -> (B, N, out_dim). |
+| `TransolverLite` | classe | `(in_dim=5, out_dim=101, d_model=64, n_heads=4, n_slices=8, n_blocks=3, dropout=0.1)` | Versão leve: projeção linear, alguns blocos de atenção por fatias e cabeça linear por nó. |
 
 #### `pinneapple_neural.architectures.neural_operators.uno`
 
-_Módulo sem docstring e sem texto._
+U-NO (operador em forma de U) para grades 1D/2D/3D e para pontos irregulares via kNN, unificado em `UniversalUNO`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/neural_operators/uno.py` · 494 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpectralConvND` | classe | `(dim, in_channels, out_channels, modes)` | Spectral convolution generalized to 1D/2D/3D (rfftn). Applies a learned complex linear map on low-frequency modes. |
-| `OperatorBlockND` | classe | `(dim, width, modes)` |  |
-| `DownBlockND` | classe | `(dim, in_ch, out_ch, modes, depth)` |  |
-| `UpBlockND` | classe | `(dim, in_ch, skip_ch, out_ch, modes, depth)` |  |
-| `UNONdGrid` | classe | `(dim, in_channels, out_channels, width=64, levels=3, depth_per_level=2, modes=None, add_c…)` | U-shaped Neural Operator for regular grids (1D/2D/3D). Input:  (B, Cin, *spatial) Output: (B, Cout, *spatial) |
-| `PointKernelOperator` | classe | `(dim, in_ch, out_ch, hidden=64, k=16)` | Continuous operator on irregular points using kNN message passing with a learned kernel. x:      (B, N, Cin) coords: (B, N, dim) out:    (B, N, Cout) |
-| `PointOperatorBlock` | classe | `(dim, width, k=16)` |  |
-| `UNONdPoints` | classe | `(dim, in_channels, out_channels, width=128, levels=3, depth_per_level=2, k=16, pool_ratio…)` | U-shaped operator for irregular meshes (points). This builds a multi-scale pyramid by subsampling points and using kNN operators. Input:  x      (B,N,Cin) coords (B,N,dim) Output: y      (B,N,Cout) |
-| `UniversalUNO` | classe | `(dim, in_channels, out_channels, *, mesh_mode='auto', width_grid=64, levels_grid=3, depth…)` | Unified U-NO module: - grid mode: (B,C,*spatial) -> (B,Cout,*spatial) - points mode: (B,N,Cin) + coords(B,N,dim) -> (B,N,Cout) |
+| `SpectralConvND` | classe | `(dim, in_channels, out_channels, modes)` | Convolução espectral 1D/2D/3D (rfftn) nos modos de baixa frequência. |
+| `OperatorBlockND` | classe | `(dim, width, modes)` | Bloco de operador espectral com caminho local. |
+| `DownBlockND` | classe | `(dim, in_ch, out_ch, modes, depth)` | Bloco de descida (redução de resolução) do U-NO em grade. |
+| `UpBlockND` | classe | `(dim, in_ch, skip_ch, out_ch, modes, depth)` | Bloco de subida com skip do U-NO em grade. |
+| `UNONdGrid` | classe | `(dim, in_channels, out_channels, width=64, levels=3, depth_per_level=2, modes=None, add_c…)` | U-NO para grades regulares (B, Cin, *espaço) -> (B, Cout, *espaço). |
+| `PointKernelOperator` | classe | `(dim, in_ch, out_ch, hidden=64, k=16)` | Operador contínuo em pontos irregulares por passagem de mensagens kNN com kernel aprendido. |
+| `PointOperatorBlock` | classe | `(dim, width, k=16)` | Bloco residual de operador em pontos. |
+| `UNONdPoints` | classe | `(dim, in_channels, out_channels, width=128, levels=3, depth_per_level=2, k=16, pool_ratio…)` | U-NO para pontos irregulares com pirâmide multiescala por subamostragem. |
+| `UniversalUNO` | classe | `(dim, in_channels, out_channels, *, mesh_mode='auto', width_grid=64, levels_grid=3, depth…)` | U-NO unificado que escolhe o modo grade ou pontos (`mesh_mode='auto'`). |
 
 #### `pinneapple_neural.architectures.physics_aware`
 
-_Módulo sem docstring e sem texto._
+Família de redes com estrutura física (PANN, SPN). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/physics_aware/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.physics_aware.base`
 
-_Módulo sem docstring e sem texto._
+Saída `PhysicsAwareOutput` e base `PhysicsAwareBase` com `mse`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/physics_aware/base.py` · 25 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAwareOutput` | classe | `(y, losses, extras)` |  |
-| `PhysicsAwareBase` | classe | `()` |  |
+| `PhysicsAwareOutput` | classe | `(y, losses, extras)` | Saída padrão da família `physics_aware`. |
+| `PhysicsAwareBase` | classe | `()` | Base da família com `mse`. |
 
 #### `pinneapple_neural.architectures.physics_aware.pann`
 
-_Módulo sem docstring e sem texto._
+Envolve um backbone e soma uma perda física opcional, com componentes prefixados por `physics/`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/physics_aware/pann.py` · 135 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAwareNeuralNetwork` | classe | `(backbone, *, physics_loss_fn=None, physics_weight=1.0, physics_components_prefix='physic…)` | Physics-Aware Neural Network: |
+| `PhysicsAwareNeuralNetwork` | classe | `(backbone, *, physics_loss_fn=None, physics_weight=1.0, physics_components_prefix='physic…)` | Backbone com função de perda física opcional e peso `physics_weight`. |
 
 #### `pinneapple_neural.architectures.physics_aware.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `physics_aware` e `PhysicsAwareCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/physics_aware/registry.py` · 47 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsAwareCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `PhysicsAwareCatalog` | classe | `(registry)` | Catálogo da família `physics_aware`. |
+| `register_into_global` | função | `() -> None` | Registra a família `physics_aware` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.physics_aware.spn`
 
-_Módulo sem docstring e sem texto._
+Rede que aplica um projetor à saída do backbone para preservar uma estrutura (por exemplo, uma restrição). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/physics_aware/spn.py` · 53 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StructurePreservingNetwork` | classe | `(backbone, *, projector)` | Structure-Preserving Network (MVP): |
+| `StructurePreservingNetwork` | classe | `(backbone, *, projector)` | Backbone seguido de um `projector` que impõe uma estrutura à saída. |
 
 #### `pinneapple_neural.architectures.pinns`
 
-_Módulo sem docstring e sem texto._
+Família de PINNs; reexporta Vanilla, Inverse, PIELM, PINN-LSTM, PINNsFormer, VPINN, XPINN, XTFC, PINN bayesiano e difusão informada por física. [sem teste direto do `__init__`]
 
 <small>`pinneapple_neural/architectures/pinns/__init__.py` · 57 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.pinns.base`
 
-_Módulo sem docstring e sem texto._
+Saída `PINNOutput` e base `PINNBase` com gradientes por autograd, derivada normal, `physics_loss` e exportação TorchScript/ONNX.
 
 <small>`pinneapple_neural/architectures/pinns/base.py` · 261 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNOutput` | classe | `(y, losses, extras)` | Standard output for all PINN-family models. |
-| `PINNBase` | classe | `()` | Base class for all PINN-family models. |
+| `PINNOutput` | classe | `(y, losses, extras)` | Saída padrão dos PINNs: `y`, perdas e extras. |
+| `PINNBase` | classe | `()` | Base dos PINNs com gradiente, derivada normal, `predict`, `physics_loss` e exportação TorchScript/ONNX. |
 
 #### `pinneapple_neural.architectures.pinns.bpinn`
 
-_Módulo sem docstring e sem texto._
+PINN bayesiano por inferência variacional de campo médio (camadas lineares bayesianas, ELBO, previsão por ensemble). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/bpinn.py` · 389 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BayesianLinear` | classe | `(in_features, out_features, *, prior_std=1.0, init_rho=-3.0, bias=True)` | Linear layer whose weights are Gaussian random variables. |
-| `BPINNConfig` | classe | `(in_dim, out_dim, hidden, activation, prior_std, init_rho, noise_pde, noise_obs, kl_weigh…)` | Configuration for BayesianPINN. |
-| `BayesianPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), activation='tanh', *, config=None, prior_std=1…)` | Bayesian Physics-Informed Neural Network via mean-field VI. |
+| `BayesianLinear` | classe | `(in_features, out_features, *, prior_std=1.0, init_rho=-3.0, bias=True)` | Camada linear com pesos gaussianos (média e rho), amostragem e termo KL. |
+| `BPINNConfig` | classe | `(in_dim, out_dim, hidden, activation, prior_std, init_rho, noise_pde, noise_obs, kl_weigh…)` | Configuração do `BayesianPINN` (arquitetura, prior, ruídos, peso do KL, parâmetros inversos). |
+| `BayesianPINN` | classe | `(in_dim=2, out_dim=1, hidden=(64, 64, 64), activation='tanh', *, config=None, prior_std=1…)` | PINN bayesiano por VI de campo médio, com `elbo_loss` e previsão por ensemble (média e desvio). |
 
 #### `pinneapple_neural.architectures.pinns.inverse`
 
-_Módulo sem docstring e sem texto._
+PINN inverso do catálogo, com parâmetros físicos treináveis e gancho de compatibilidade com `PINNFactory`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/inverse.py` · 118 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `InversePINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', inverse_params=None, in…)` | Catalog InversePINN (returns PINNOutput), with a compatibility hook for PINNFactory. |
+| `InversePINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', inverse_params=None, in…)` | PINN com parâmetros físicos desconhecidos treináveis; `as_factory_model` o adapta ao `PINNFactory`. |
 
 #### `pinneapple_neural.architectures.pinns.physics_diffusion`
 
-_Módulo sem docstring e sem texto._
+Modelo de difusão informado por física: escalonadores VP e EDM, denoiser MLP, perda de score matching e guias por resíduo de EDP ou dados. As bases `NoiseSchedulerBase` e `GuidanceBase` levantam `NotImplementedError` (são abstratas). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/physics_diffusion.py` · 787 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NoiseSchedulerBase` | classe | `()` | Protocol for noise schedulers. |
-| `VPNoiseScheduler` | classe | `(T=1000, beta_min=0.0001, beta_max=0.02)` | Variance-preserving (VP-DDPM) linear beta schedule. |
-| `EDMNoiseScheduler` | classe | `(sigma_min=0.002, sigma_max=80.0, rho=7.0)` | Elucidated Diffusion Model (EDM) schedule. |
-| `SinusoidalEmbedding` | classe | `(dim)` | Sinusoidal positional embedding for noise level / timestep. |
-| `FiLMLayer` | classe | `(feat_dim, cond_dim)` | Feature-wise Linear Modulation — conditions activations on noise level. |
-| `MLPDenoiser` | classe | `(x_dim, t_emb_dim=64, hidden=(256, 256, 256), activation='gelu', predict_x0=False)` | Time-conditioned MLP denoiser for 1-D physics fields. |
-| `DSMLoss` | classe | `(denoiser, scheduler, loss_weight_fn=None)` | Denoising score-matching loss. |
-| `GuidanceBase` | classe | `()` | Protocol for DPS-style guidance. |
-| `PDEResidualGuidance` | classe | `(residual_fn, weight=0.1)` | Physics-constrained guidance via PDE residual. |
-| `DataConsistencyGuidance` | classe | `(mask, y_obs, weight=0.5)` | DPS guidance for data assimilation / inverse problems. |
-| `ComposedGuidance` | classe | `(*guidances)` | Sum of multiple guidance terms. |
-| `PIDiffConfig` | classe | `(x_dim, t_emb_dim, hidden, activation, scheduler_type, T, beta_min, beta_max, sigma_min, …)` |  |
-| `PhysicsInformedDiffusion` | classe | `(x_dim=64, hidden=(256, 256, 256), activation='gelu', *, denoiser=None, scheduler=None, c…)` | Physics-Informed Diffusion Model. |
+| `NoiseSchedulerBase` | classe | `()` | Protocolo de escalonador de ruído; os métodos levantam `NotImplementedError`. |
+| `VPNoiseScheduler` | classe | `(T=1000, beta_min=0.0001, beta_max=0.02)` | Escalonador VP-DDPM com beta linear. |
+| `EDMNoiseScheduler` | classe | `(sigma_min=0.002, sigma_max=80.0, rho=7.0)` | Escalonador EDM (Karras et al.) com sigmas entre `sigma_min` e `sigma_max`. |
+| `SinusoidalEmbedding` | classe | `(dim)` | Embedding senoidal do nível de ruído ou passo de tempo. |
+| `FiLMLayer` | classe | `(feat_dim, cond_dim)` | Modulação FiLM das ativações condicionada ao nível de ruído. |
+| `MLPDenoiser` | classe | `(x_dim, t_emb_dim=64, hidden=(256, 256, 256), activation='gelu', predict_x0=False)` | Denoiser MLP condicionado no tempo para campos 1D. |
+| `DSMLoss` | classe | `(denoiser, scheduler, loss_weight_fn=None)` | Perda de denoising score matching. |
+| `GuidanceBase` | classe | `()` | Protocolo de guia tipo DPS; o gradiente levanta `NotImplementedError` na base. |
+| `PDEResidualGuidance` | classe | `(residual_fn, weight=0.1)` | Guia que empurra a amostra para reduzir o resíduo de uma EDP. |
+| `DataConsistencyGuidance` | classe | `(mask, y_obs, weight=0.5)` | Guia de consistência com observações mascaradas (assimilação de dados, problemas inversos). |
+| `ComposedGuidance` | classe | `(*guidances)` | Soma de várias guias. |
+| `PIDiffConfig` | classe | `(x_dim, t_emb_dim, hidden, activation, scheduler_type, T, beta_min, beta_max, sigma_min, …)` | Configuração do `PhysicsInformedDiffusion`. |
+| `PhysicsInformedDiffusion` | classe | `(x_dim=64, hidden=(256, 256, 256), activation='gelu', *, denoiser=None, scheduler=None, c…)` | Modelo de difusão com amostragem, ensemble, perda de treino e previsão guiada por física. |
 
 #### `pinneapple_neural.architectures.pinns.pielm`
 
-_Módulo sem docstring e sem texto._
+Extreme learning machine informada por física: camada oculta aleatória fixa e saída ajustada por ridge. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/pielm.py` · 141 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PIELM` | classe | `(in_dim, out_dim, hidden_dim=1024, activation='tanh', freeze_random=True)` |  |
-| `PIELMFactoryAdapter` | classe | `(pielm, *, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)` |  |
+| `PIELM` | classe | `(in_dim, out_dim, hidden_dim=1024, activation='tanh', freeze_random=True)` | ELM informada por física: camada oculta aleatória e `fit_ridge` para a saída. |
+| `PIELMFactoryAdapter` | classe | `(pielm, *, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)` | Adapta um `PIELM` à interface do `PINNFactory`, com ajuste ridge a partir das entradas. |
 
 #### `pinneapple_neural.architectures.pinns.pinn_lstm`
 
-_Módulo sem docstring e sem texto._
+Híbrido PINN-LSTM que reorganiza os pontos em sequências e aplica um LSTM. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/pinn_lstm.py` · 75 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNLSTM` | classe | `(in_dim, out_dim, *, seq_len, hidden_dim=128, num_layers=2, dropout=0.0, inverse_params_n…)` |  |
+| `PINNLSTM` | classe | `(in_dim, out_dim, *, seq_len, hidden_dim=128, num_layers=2, dropout=0.0, inverse_params_n…)` | PINN que passa pontos agrupados em sequências de `seq_len` por um LSTM. |
 
 #### `pinneapple_neural.architectures.pinns.pinnsformer`
 
-_Módulo sem docstring e sem texto._
+PINNsFormer: PINN baseado em Transformer que trata pontos como sequência.
 
 <small>`pinneapple_neural/architectures/pinns/pinnsformer.py` · 212 linhas · testes: 1</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNsFormer` | classe | `(in_dim, out_dim, *, seq_len=32, d_model=128, nhead=4, num_layers=4, dim_feedforward=256,…)` | Transformer-based PINN. |
+| `PINNsFormer` | classe | `(in_dim, out_dim, *, seq_len=32, d_model=128, nhead=4, num_layers=4, dim_feedforward=256,…)` | PINN Transformer com embedding posicional e máscaras configuráveis. |
 
 #### `pinneapple_neural.architectures.pinns.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `pinns` e `PINNCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/registry.py` · 78 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `PINNCatalog` | classe | `(registry)` | Catálogo da família `pinns`. |
+| `register_into_global` | função | `() -> None` | Registra a família `pinns` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.pinns.vanilla`
 
-_Módulo sem docstring e sem texto._
+PINN MLP básico (forma forte), com parâmetros inversos opcionais exigidos pela perda do `PINNFactory`.
 
 <small>`pinneapple_neural/architectures/pinns/vanilla.py` · 94 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VanillaPINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', *, inverse_params_names…)` |  |
+| `VanillaPINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', *, inverse_params_names…)` | PINN MLP com ativação configurável e parâmetros inversos opcionais. |
 
 #### `pinneapple_neural.architectures.pinns.vpinn`
 
-_Módulo sem docstring e sem texto._
+PINN variacional (forma fraca) e um adaptador de perda para o `PINNFactory`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/vpinn.py` · 119 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VPINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128), activation='tanh', *, inverse_params_names=None…)` |  |
-| `pinn_factory_adapter` | função | `(loss_fn)` |  |
+| `VPINN` | classe | `(in_dim, out_dim, hidden=(128, 128, 128), activation='tanh', *, inverse_params_names=None…)` | PINN variacional (forma fraca). |
+| `pinn_factory_adapter` | função | `(loss_fn)` | Converte uma função de perda em `physics_fn` no formato esperado pelo `PINNFactory`. |
 
 #### `pinneapple_neural.architectures.pinns.xpinn`
 
-_Módulo sem docstring e sem texto._
+XPINN: uma sub-rede por subdomínio, com perdas de interface (valor e fluxo). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/pinns/xpinn.py` · 126 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SubnetWrapper` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh')` |  |
-| `XPINN` | classe | `(n_subdomains, in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', interface…)` |  |
+| `SubnetWrapper` | classe | `(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh')` | Sub-rede de um subdomínio (um `VanillaPINN` envolvido). |
+| `XPINN` | classe | `(n_subdomains, in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', interface…)` | PINN com decomposição de domínio: uma sub-rede por subdomínio e perdas de interface. |
 
 #### `pinneapple_neural.architectures.pinns.xtfc`
 
-_Módulo sem docstring e sem texto._
+X-TFC: features aleatórias com saída ajustada por ridge e expressões restritas (biblioteca `tfc`, opcional) que satisfazem contorno/condição inicial exatamente.
 
 <small>`pinneapple_neural/architectures/pinns/xtfc.py` · 681 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TFCConstrainedExpression` | classe | `(tfc_obj, dim=1)` | Wraps the `tfc` library to create constrained expressions for 1D or nD problems that exactly satisfy boundary/initial conditions. |
-| `XTFCConfig` | classe | `(in_dim, out_dim, rf_dim, activation, freeze_random, rf_kind, rff_sigma, use_bias, init_s…)` |  |
-| `XTFC` | classe | `(in_dim, out_dim, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=None,…)` | XtFC — eXtreme Theory of Functional Connections PINN. |
-| `XTFCFactoryModel` | classe | `(xtfc, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)` | Thin wrapper around XTFC that exposes a standard ``forward(x) -> Tensor`` interface compatible with PINNFactory and the Trainer. |
-| `tfc_available` | função | `() -> bool` | Return True if the `tfc` library is installed. |
-| `build_xtfc` | função | `(in_dim, out_dim, *, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=No…)` | Convenience constructor for XTFC. |
+| `TFCConstrainedExpression` | classe | `(tfc_obj, dim=1)` | Envolve a biblioteca `tfc` para montar expressões restritas 1D ou nD que cumprem exatamente as condições. |
+| `XTFCConfig` | classe | `(in_dim, out_dim, rf_dim, activation, freeze_random, rf_kind, rff_sigma, use_bias, init_s…)` | Configuração do `XTFC` (features aleatórias, regularização, uso de TFC). |
+| `XTFC` | classe | `(in_dim, out_dim, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=None,…)` | PINN X-TFC: features aleatórias congeladas, saída por ridge e forma restrita g + B·N. |
+| `XTFCFactoryModel` | classe | `(xtfc, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)` | Wrapper com `forward(x) -> Tensor` compatível com o `PINNFactory` e o `Trainer`. |
+| `tfc_available` | função | `() -> bool` | Diz se a biblioteca `tfc` está instalada. |
+| `build_xtfc` | função | `(in_dim, out_dim, *, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=No…)` | Construtor de conveniência do `XTFC`, com TFC opcional. |
 
 #### `pinneapple_neural.architectures.recurrent`
 
-_Módulo sem docstring e sem texto._
+Família de modelos recorrentes de previsão (GRU, LSTM, Seq2Seq). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.recurrent.base`
 
-_Módulo sem docstring e sem texto._
+Saída `RNNOutput` e base `RecurrentModelBase` com `mse`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/base.py` · 36 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RNNOutput` | classe | `(y, losses, extras)` | Standard output for recurrent models in Pinneapple. |
-| `RecurrentModelBase` | classe | `()` | Base class for time-series recurrent models. |
+| `RNNOutput` | classe | `(y, losses, extras)` | Saída padrão dos modelos recorrentes. |
+| `RecurrentModelBase` | classe | `()` | Base dos modelos recorrentes com `mse`. |
 
 #### `pinneapple_neural.architectures.recurrent.gru`
 
-_Módulo sem docstring e sem texto._
+Previsores GRU e GRU bidirecional com horizonte fixo, pooling e embedding de tempo opcionais. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/gru.py` · 199 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GRUModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | GRU forecaster (baseline+). |
-| `BiGRUModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Bidirectional GRU forecaster (baseline+). |
+| `GRUModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Previsor GRU para `horizon` passos. |
+| `BiGRUModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Previsor GRU bidirecional. |
 
 #### `pinneapple_neural.architectures.recurrent.lstm`
 
-_Módulo sem docstring e sem texto._
+Previsores LSTM e LSTM bidirecional com horizonte fixo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/lstm.py` · 201 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LSTMModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | LSTM forecaster (baseline+). |
-| `BiLSTMModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Bidirectional LSTM forecaster (baseline+). |
+| `LSTMModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Previsor LSTM para `horizon` passos. |
+| `BiLSTMModel` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, *, pool='last', tim…)` | Previsor LSTM bidirecional. |
 
 #### `pinneapple_neural.architectures.recurrent.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `recurrent` e `RecurrentCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/registry.py` · 57 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RecurrentCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `RecurrentCatalog` | classe | `(registry)` | Catálogo da família `recurrent`. |
+| `register_into_global` | função | `() -> None` | Registra a família `recurrent` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.recurrent.seq2seq`
 
-_Módulo sem docstring e sem texto._
+Previsor Seq2Seq (encoder-decoder GRU ou LSTM) com covariáveis futuras opcionais. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/recurrent/seq2seq.py` · 215 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Seq2SeqRNN` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, cell='gru', future_…)` | Seq2Seq RNN forecaster. |
+| `Seq2SeqRNN` | classe | `(in_dim, out_dim, horizon, hidden_dim=128, num_layers=2, dropout=0.0, cell='gru', future_…)` | Previsor encoder-decoder recorrente. |
 
 #### `pinneapple_neural.architectures.register_all`
 
-_Módulo sem docstring e sem texto._
+Popula o `ModelRegistry` importando o registro de cada família; idempotente, ignora famílias com dependência faltando (log em debug) e só avisa em colisão de nomes. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/register_all.py` · 44 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_all` | função | `() -> None` | Populate ModelRegistry with every family. Idempotent — safe to call multiple times. |
+| `register_all` | função | `() -> None` | Chama `register_into_global` de cada família uma única vez. |
 
 #### `pinneapple_neural.architectures.registry`
 
-ModelRegistry and ModelSpec for model registration and lookup.
+`ModelSpec` e `ModelRegistry`: registro central por nome, com família, tags, tipo de entrada e chaves esperadas; `build` passa pela normalização de kwargs de `instantiate`.
 
 <small>`pinneapple_neural/architectures/registry.py` · 101 linhas · testes: 64</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelSpec` | classe | `(name, family, cls, description, tags, input_kind, supports_physics_loss, expects, predic…)` |  |
-| `ModelRegistry` | classe | `(_REGISTRY)` | Central registry for all Pinneapple models. |
+| `ModelSpec` | classe | `(name, family, cls, description, tags, input_kind, supports_physics_loss, expects, predic…)` | Ficha de um modelo registrado: nome, família, classe, descrição, tags, tipo de entrada, suporte a perda física, chaves esperadas e campos previstos. |
+| `ModelRegistry` | classe | `(_REGISTRY)` | Registro central por nome: `register` (decorador), `list`, `families`, `spec`, `build` e `build_with_report`. |
 
 #### `pinneapple_neural.architectures.reservoir_computing`
 
-_Módulo sem docstring e sem texto._
+Família de computação de reservatório e modelos de features aleatórias com saída por ridge (ELM, ESN, RBF, Koopman/EDMD). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.reservoir_computing.base`
 
-_Módulo sem docstring e sem texto._
+Saída `RCOutput` e base `RCBase` com `mse` e solução ridge. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/base.py` · 48 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RCOutput` | classe | `(y, losses, extras)` | Standard output for reservoir computing models. |
-| `RCBase` | classe | `()` |  |
+| `RCOutput` | classe | `(y, losses, extras)` | Saída padrão dos modelos de reservatório. |
+| `RCBase` | classe | `()` | Base com `mse` e `ridge_solve`. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.elm`
 
-_Módulo sem docstring e sem texto._
+Extreme Learning Machine: camada oculta aleatória e saída por ridge em forma fechada. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/elm.py` · 88 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExtremeLearningMachine` | classe | `(in_dim, out_dim, hidden_dim=1024, activation='tanh', l2=1e-06, freeze_random=True)` | Extreme Learning Machine (ELM): - Random hidden layer features: H = phi(X W + b) - Solve output weights with ridge regression (closed-form) |
+| `ExtremeLearningMachine` | classe | `(in_dim, out_dim, hidden_dim=1024, activation='tanh', l2=1e-06, freeze_random=True)` | ELM com `fit` por ridge e `forward`. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.esn`
 
-_Módulo sem docstring e sem texto._
+Echo State Network com reservatório vazado (leak), saída por ridge e previsão autorregressiva. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/esn.py` · 340 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EchoStateNetwork` | classe | `(in_dim, out_dim, reservoir_dim=1024, spectral_radius=0.9, leak=1.0, input_scale=1.0, l2=…)` | Echo State Network (ESN): h_t = (1-leak)*h_{t-1} + leak*tanh(x_t W_in + h_{t-1} W) y_t = phi(h_t, x_t) W_out  (W_out trained by ridge) |
+| `EchoStateNetwork` | classe | `(in_dim, out_dim, reservoir_dim=1024, spectral_radius=0.9, leak=1.0, input_scale=1.0, l2=…)` | ESN com `fit` por ridge e `predict_autoregressive`. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.esn_rc`
 
-_Módulo sem docstring e sem texto._
+Variante de ESN com leitura aumentada por termos polinomiais do estado. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/esn_rc.py` · 113 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ESNRC` | classe | `(in_dim, out_dim, reservoir_dim=1024, *, spectral_radius=0.9, leak=1.0, input_scale=1.0, …)` | ESN-RC (Reservoir Computing) variant: - Uses ESN reservoir but augments readout with nonlinear transforms (e.g., h, h^2, h^3) to approximate richer dynamics while keeping closed-form ridge training. |
+| `ESNRC` | classe | `(in_dim, out_dim, reservoir_dim=1024, *, spectral_radius=0.9, leak=1.0, input_scale=1.0, …)` | ESN com leitura polinomial do estado. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.hybrid_rbf`
 
-_Módulo sem docstring e sem texto._
+Rede RBF híbrida: y = [Φ(x), x, 1] W, resolvida num único sistema ridge. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/hybrid_rbf.py` · 158 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HybridRBFNetwork` | classe | `(in_dim, out_dim, num_centers=512, sigma=None, l2=1e-06, learn_centers=False, use_linear=…)` | Hybrid RBF Network: y = [Phi(x), x, 1] W where W is solved by ridge regression in a single linear system. |
+| `HybridRBFNetwork` | classe | `(in_dim, out_dim, num_centers=512, sigma=None, l2=1e-06, learn_centers=False, use_linear=…)` | Rede RBF com termos linear e bias, resolvida por ridge. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.koopman`
 
-_Módulo sem docstring e sem texto._
+Operador de Koopman estilo EDMD num espaço elevado (RFF ou polinomial), ajustado por ridge. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/koopman.py` · 155 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KoopmanOperator` | classe | `(in_dim, *, lift_dim=1024, lift='rff', poly_degree=2, rff_lengthscale=1.0, l2=1e-06, use_…)` | Koopman Operator (EDMD-style MVP): |
+| `KoopmanOperator` | classe | `(in_dim, *, lift_dim=1024, lift='rff', poly_degree=2, rff_lengthscale=1.0, l2=1e-06, use_…)` | Operador de Koopman EDMD: eleva x, ajusta K por ridge e faz rollout. |
 
 #### `pinneapple_neural.architectures.reservoir_computing.rbf`
 
-_Módulo sem docstring e sem texto._
+Rede RBF gaussiana com leitura por ridge e opção de ajuste por gradiente. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/rbf.py` · 263 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RBFNetwork` | classe | `(in_dim, out_dim, num_centers=512, sigma=None, l2=1e-06, learn_centers=False, *, normaliz…)` | RBF Network (Gaussian features) + ridge-regression readout. |
-| `sigma_is_default` | função | `(log_sigma, eps=1e-06) -> bool` |  |
+| `RBFNetwork` | classe | `(in_dim, out_dim, num_centers=512, sigma=None, l2=1e-06, learn_centers=False, *, normaliz…)` | Rede RBF gaussiana com `fit` (ridge) e `fit_gd` (gradiente). |
+| `sigma_is_default` | função | `(log_sigma, eps=1e-06) -> bool` | Diz se a largura `log_sigma` ainda está no valor padrão (sem ajuste). |
 
 #### `pinneapple_neural.architectures.reservoir_computing.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `reservoir_computing` e `ReservoirCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/reservoir_computing/registry.py` · 70 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReservoirCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `ReservoirCatalog` | classe | `(registry)` | Catálogo da família `reservoir_computing`. |
+| `register_into_global` | função | `() -> None` | Registra a família `reservoir_computing` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.rom`
 
-_Módulo sem docstring e sem texto._
+Família de modelos de ordem reduzida (POD, DMD, HAVOK, OpInf, SINDy, Koopman, ROM neural, POD paramétrico) e o estudo `rom_study`.
 
 <small>`pinneapple_neural/architectures/rom/__init__.py` · 39 linhas · testes: 25</small>
 
 #### `pinneapple_neural.architectures.rom.base`
 
-_Módulo sem docstring e sem texto._
+Saída `ROMOutput` e base `ROMBase` com `mse`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/base.py` · 31 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ROMOutput` | classe | `(y, losses, extras)` | Output for Reduced Order Models. |
-| `ROMBase` | classe | `()` |  |
+| `ROMOutput` | classe | `(y, losses, extras)` | Saída padrão dos ROMs. |
+| `ROMBase` | classe | `()` | Base dos ROMs com `mse`. |
 
 #### `pinneapple_neural.architectures.rom.contracts`
 
-ROM study results as the apps' open contracts (``pinneapple_data.contracts``): a ``ModelRef`` per exported reduced model and a ``StudyResult`` for the study, so a ROM built in the ROM Lab is an input of the uncertainty, optimisation, twin or gateway apps.
+Converte resultados do estudo de ROM nos contratos abertos de `pinneapple_data.contracts` (`ModelRef`, `StudyResult`), para outros apps usarem o ROM. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/contracts.py` · 120 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `model_ref` | função | `(rm, *, name, uri, payload=None, row=None, split='test', dataset_hash='', dataset_name=''…)` | ``ModelRef`` of a ``ReducedModel``: inputs with their training range, outputs (the fields), the held-out metrics of its study row and the SHA-256 of the file at ``uri`` (``payload``: its bytes). |
-| `rom_checks` | função | `(res, tolerance) -> list` | Checks of a study, each with its value: the best ROM against its baseline (nearest snapshot or persistence), against the tolerance, and divergence of the time steppers. |
-| `study_result` | função | `(res, *, study_id, title, tolerance, models=(), artifacts=(), limits=(), app='rom', datas…)` | ``StudyResult`` of a ROM study: one table row per (method, rank), the best model, checks with values. |
+| `model_ref` | função | `(rm, *, name, uri, payload=None, row=None, split='test', dataset_hash='', dataset_name=''…)` | Monta o `ModelRef` de um `ReducedModel`: entradas com faixa de treino, saídas, métricas e SHA-256 do arquivo. |
+| `rom_checks` | função | `(res, tolerance) -> list` | Lista os checks do estudo com valores: melhor ROM contra o baseline, contra a tolerância e divergência dos passos no tempo. |
+| `study_result` | função | `(res, *, study_id, title, tolerance, models=(), artifacts=(), limits=(), app='rom', datas…)` | Monta o `StudyResult` do estudo: uma linha por (método, posto), o melhor modelo e os checks. |
 
 #### `pinneapple_neural.architectures.rom.deep_uq_rom`
 
-_Módulo sem docstring e sem texto._
+[placeholder] Esqueleto ('MVP scaffold' no docstring) de preditor latente que devolve média e log-variância. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/deep_uq_rom.py` · 61 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DeepUQROM` | classe | `(r, hidden=256, layers=2, dropout=0.0)` | Deep UQ-ROM (MVP scaffold): - A small latent predictor that outputs mean and log-variance. |
+| `DeepUQROM` | classe | `(r, hidden=256, layers=2, dropout=0.0)` | Preditor latente pequeno que devolve média e log-variância (esqueleto). |
 
 #### `pinneapple_neural.architectures.rom.dmd`
 
-Dynamic Mode Decomposition (DMD) — batch-capable, stabilised, with spectral analysis.
+Decomposição em modos dinâmicos truncada (em lote, estabilizada, com análise espectral) e DMD com controle (DMDc, NumPy). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/dmd.py` · 346 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DynamicModeDecomposition` | classe | `(r=64, center='global', l2=0.0)` | Truncated (rank-r) DMD in reduced space. |
-| `DMDc` | classe | `(affine=False)` | Dynamic Mode Decomposition with control (Proctor, Brunton & Kutz 2016), NumPy. |
+| `DynamicModeDecomposition` | classe | `(r=64, center='global', l2=0.0)` | DMD truncada de posto r com autovalores, frequências e rollout. |
+| `DMDc` | classe | `(affine=False)` | DMD com controle (Proctor, Brunton & Kutz 2016) em NumPy. |
 
 #### `pinneapple_neural.architectures.rom.havok`
 
-_Módulo sem docstring e sem texto._
+HAVOK: embedding de Hankel, SVD e dinâmica linear por DMD no subespaço. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/havok.py` · 225 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HAVOK` | classe | `(delays=50, r=64, center=True, svd_eps=1e-12, decode_mode='last')` | HAVOK (MVP-ish, closer to literature): 1) build Hankel (delay embedding) from scalar or low-dim observations 2) center + SVD of Hankel and project to low-rank subspace (HAVOK core) 3) fit linear dynamics in that subspace via DMD (no forced stitching across trajectories) 4) rollout in subspace; … |
+| `HAVOK` | classe | `(delays=50, r=64, center=True, svd_eps=1e-12, decode_mode='last')` | Modelo HAVOK com `fit` e `forward` (rollout no subespaço). |
 
 #### `pinneapple_neural.architectures.rom.koopman`
 
-_Módulo sem docstring e sem texto._
+Operador de Koopman treinável (completo ou em blocos) e autoencoder de Koopman profundo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/koopman.py` · 269 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KoopmanOperator` | classe | `(k_dim, structure='full', num_blocks=4)` | Learnable Koopman operator K. |
-| `KoopmanAutoencoder` | classe | `(in_dim, k_dim=128, hidden=128, n_layers=3, activation='tanh', k_structure='full', num_bl…)` | Deep Koopman autoencoder: learned lifting + linear dynamics. |
+| `KoopmanOperator` | classe | `(k_dim, structure='full', num_blocks=4)` | Matriz de Koopman treinável, completa ou bloco-diagonal. |
+| `KoopmanAutoencoder` | classe | `(in_dim, k_dim=128, hidden=128, n_layers=3, activation='tanh', k_structure='full', num_bl…)` | Autoencoder de Koopman profundo com perdas de reconstrução, previsão e linearidade. |
 
 #### `pinneapple_neural.architectures.rom.neural_rom`
 
-_Módulo sem docstring e sem texto._
+ROM totalmente neural: encoder não linear, dinâmica latente (MLP) e decoder. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/neural_rom.py` · 237 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralROM` | classe | `(in_dim, r=32, hidden_enc=128, n_layers_enc=3, dynamics='mlp', hidden_dyn=128, n_layers_d…)` | Fully neural ROM: nonlinear encoder + latent dynamics + nonlinear decoder. |
+| `NeuralROM` | classe | `(in_dim, r=32, hidden_enc=128, n_layers_enc=3, dynamics='mlp', hidden_dyn=128, n_layers_d…)` | ROM neural com encoder, dinâmica latente, decoder e rollout. |
 
 #### `pinneapple_neural.architectures.rom.opinf`
 
-_Módulo sem docstring e sem texto._
+Operator Inference para dinâmica latente (termos linear, quadrático e bias, com regularização), em tempo discreto ou contínuo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/opinf.py` · 387 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OperatorInference` | classe | `(r, *, use_quadratic=True, use_bias=True, l2_linear=1e-06, l2_quad=1e-06, l2_bias=0.0, ce…)` | Operator Inference (OpInf) for latent dynamics. |
+| `OperatorInference` | classe | `(r, *, use_quadratic=True, use_bias=True, l2_linear=1e-06, l2_quad=1e-06, l2_bias=0.0, ce…)` | Operator Inference com operadores A, H e b, ajuste discreto ou contínuo e rollout. |
 
 #### `pinneapple_neural.architectures.rom.parametric`
 
-Parametric reduced-order models: design parameters -> full field, without running the solver.
+ROM paramétrico: parâmetros de projeto -> campo completo sem rodar o solver (base POD + regressão dos coeficientes) e amostragem por hipercubo latino. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/parametric.py` · 198 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ParametricPOD` | classe | `(r, energy, regressor, kernel, smoothing, normalize, seed, mean_, basis_, sv_)` | POD basis + coefficient regression. ``r``: largest number of modes; ``energy``: keep the modes holding this fraction of the snapshot variance (whichever is smaller). Parameters are scaled to [0, 1] on the training box. ``normalize``: split each snapshot into its amplitude (its L2 norm, regressed as … |
-| `latin_hypercube` | função | `(n, bounds, seed=0) -> tuple[np.ndarray, list[str]]` | ``n`` points of a Latin hypercube in the box ``bounds`` (name -> (lo, hi)). Returns (points, names). |
+| `ParametricPOD` | classe | `(r, energy, regressor, kernel, smoothing, normalize, seed, mean_, basis_, sv_)` | Base POD com regressão dos coeficientes nos parâmetros (RBF ou GP), com predição, erro de projeção e serialização em arrays. |
+| `latin_hypercube` | função | `(n, bounds, seed=0) -> tuple[np.ndarray, list[str]]` | `n` pontos de hipercubo latino numa caixa de parâmetros; devolve pontos e nomes. |
 
 #### `pinneapple_neural.architectures.rom.pod`
 
-_Módulo sem docstring e sem texto._
+POD por SVD completa ou randomizada, com ajuste incremental, para compressão. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/pod.py` · 252 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `POD` | classe | `(r=64, center=True, energy=None, randomised=False, random_seed=0)` | POD via full or randomised truncated SVD for ROM compression. |
+| `POD` | classe | `(r=64, center=True, energy=None, randomised=False, random_seed=0)` | POD por SVD completa ou randomizada, com `encode`, `decode` e erro de reconstrução. |
 
 #### `pinneapple_neural.architectures.rom.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `rom` e `ROMCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/registry.py` · 82 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ROMCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `ROMCatalog` | classe | `(registry)` | Catálogo da família `rom`. |
+| `register_into_global` | função | `() -> None` | Registra a família `rom` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.rom.rom_hybrid`
 
-_Módulo sem docstring e sem texto._
+ROM híbrido: POD, Operator Inference no latente e corretor neural do erro de truncamento. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/rom_hybrid.py` · 177 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ROMHybrid` | classe | `(field_dim, r=64, l2=1e-06, use_corrector=True, corrector_hidden=64)` | Hybrid ROM combining three components: |
+| `ROMHybrid` | classe | `(field_dim, r=64, l2=1e-06, use_corrector=True, corrector_hidden=64)` | ROM híbrido POD + OpInf + corretor MLP. |
 
 #### `pinneapple_neural.architectures.rom.sindy`
 
-_Módulo sem docstring e sem texto._
+SINDy para dinâmica latente: biblioteca de funções e regressão esparsa (STLSQ). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/sindy.py` · 323 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SINDy` | classe | `(r, *, library='poly', poly_degree=2, threshold=0.05, n_iter=10, l2=0.0001, solver='stlsq…)` | SINDy for latent dynamics. |
+| `SINDy` | classe | `(r, *, library='poly', poly_degree=2, threshold=0.05, n_iter=10, l2=0.0001, solver='stlsq…)` | SINDy no latente com biblioteca polinomial, limiar de esparsidade e integrador RK4. |
 
 #### `pinneapple_neural.architectures.rom.steppers`
 
-One-step rollout functions of linear reduced-order models fitted on snapshot trajectories: ``step(u) -> u_next`` in the full space, the shape ``pp.validate(step, {"rollout": ...})`` audits (horizon, drift, spectrum, invariants).
+Funções de passo `step(u) -> u_next` de ROMs lineares (POD+DMD, POD+OpInf) no formato que `pp.validate` audita em rollout. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/steppers.py` · 48 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pod_dmd_stepper` | função | `(snapshots, r=8)` | POD (rank ``r``, centred) of ``snapshots`` ``(n_t, *shape)`` and exact DMD of its coefficients. Returns ``(step, max_abs_eig)``: ``step(u)`` advances one snapshot interval in the full space; ``max_abs_eig`` is the largest DMD eigenvalue modulus (above 1: the ROM amplifies). |
-| `pod_opinf_stepper` | função | `(train, energy) -> tuple[Callable[[np.ndarray], np.ndarray], int]` | POD of ``train`` ``(n_traj, n_t, n_x)`` keeping ``energy`` of the snapshot energy, and linear operator inference (no quadratic term, no bias) on the coefficient trajectories. Returns ``(step, rank)``. |
+| `pod_dmd_stepper` | função | `(snapshots, r=8)` | Monta o passo POD + DMD exata e devolve também o maior módulo de autovalor (acima de 1, o ROM amplifica). |
+| `pod_opinf_stepper` | função | `(train, energy) -> tuple[Callable[[np.ndarray], np.ndarray], int]` | Monta o passo POD + OpInf linear e devolve o posto escolhido pela energia. |
 
 #### `pinneapple_neural.architectures.rom.study`
 
-Reduced-order model study: which ROM, at which rank, for which error and speed, measured on held-out snapshots.
+Estudo de ROM: ajusta vários métodos e postos em snapshots de treino e mede erro, tempo e ganho de velocidade em snapshots separados. Exportação ONNX levanta `NotImplementedError` para métodos e opções sem suporte.
 
 <small>`pinneapple_neural/architectures/rom/study.py` · 787 linhas · testes: 11 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Split` | classe | `(train, test, how)` |  |
-| `ReducedModel` | classe | `(method, mode, rank, arrays, config, fit_s, _cache)` | A fitted ROM: ``predict`` and a portable ``.npz`` form (``to_bytes`` / ``from_bytes``). |
-| `ROMStudyResult` | classe | `(mode, split, singular_values, rows, projection, skipped, budget_s, hf_seconds, metric, m…)` |  |
-| `default_ranks` | função | `(n_train, n_values, sv=None, max_rank=64) -> list[int]` | 1, 2, 4, 8, ... up to the data's rank, plus the ranks holding 99 %, 99.9 % and 99.99 % of the energy. |
-| `split_snapshots` | função | `(snaps, *, how='auto', test_fraction=0.2, seed=0, test_idx=None) -> Split` | Held-out snapshots. Time series: ``forecast`` (the last ``test_fraction`` of the times, default) or ``interleaved`` (every k-th time inside the window). Parametric: ``random`` (seeded). ``test_idx`` overrides. |
-| `field_scales` | função | `(snaps, train) -> np.ndarray` | One positive scale per value: the RMS of each field over the training snapshots, so fields in different units (a displacement in mm and a stress in MPa) weigh the same in the POD. |
-| `fit_reduced_model` | função | `(snaps, train, method, rank=None, *, budget_s=5.0, seed=0, mode=None, scale='auto', log_p…)` | Fit one ROM on the snapshots ``train`` (indices). ``rank``: number of POD modes (ignored by ``nearest`` and the parametric ``neural``). ``budget_s``: wall-clock budget of the neural surrogate. ``scale``: ``"auto"`` (each field divided by its training RMS when there are several fields), … |
-| `rom_study` | função | `(snaps, *, methods=None, ranks=None, split='auto', test_fraction=0.2, test_idx=None, budg…)` | Fit every method at every rank on the training snapshots and score it on the held-out ones (see the module docstring). ``hf_seconds``: wall time of the full-order model per snapshot (default: ``snaps.meta``). ``scale``: with several fields (``"auto"``) each is divided by its training RMS before the … |
+| `Split` | classe | `(train, test, how)` | Índices de treino e teste e o modo de separação. |
+| `ReducedModel` | classe | `(method, mode, rank, arrays, config, fit_s, _cache)` | ROM ajustado com `predict`, manifesto, forma portátil `.npz` e exportação ONNX quando suportada. |
+| `ROMStudyResult` | classe | `(mode, split, singular_values, rows, projection, skipped, budget_s, hf_seconds, metric, m…)` | Resultado do estudo: linhas por método e posto, valores singulares, erro de projeção, melhor modelo e frente de Pareto. |
+| `default_ranks` | função | `(n_train, n_values, sv=None, max_rank=64) -> list[int]` | Postos padrão: potências de 2 até o posto dos dados, mais os postos que guardam 99 %, 99,9 % e 99,99 % da energia. |
+| `split_snapshots` | função | `(snaps, *, how='auto', test_fraction=0.2, seed=0, test_idx=None) -> Split` | Separa snapshots de teste (previsão, intercalado ou aleatório para dados paramétricos). |
+| `field_scales` | função | `(snaps, train) -> np.ndarray` | Uma escala por valor: o RMS de cada campo nos snapshots de treino. |
+| `fit_reduced_model` | função | `(snaps, train, method, rank=None, *, budget_s=5.0, seed=0, mode=None, scale='auto', log_p…)` | Ajusta um ROM de um método e posto nos snapshots de treino. |
+| `rom_study` | função | `(snaps, *, methods=None, ranks=None, split='auto', test_fraction=0.2, test_idx=None, budg…)` | Ajusta todos os métodos em todos os postos e pontua cada um nos snapshots separados. |
 
 #### `pinneapple_neural.architectures.rom.toy_systems`
 
-Synthetic linear dynamical systems for ROM demonstrations and tests (POD compression, DMD rollout).
+Sistemas lineares sintéticos para demos e testes de ROM. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/rom/toy_systems.py` · 27 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `make_linear_system` | função | `(D, seed=0) -> torch.Tensor` | A contractive random linear operator ``A`` of shape ``(D, D)``: a Gaussian matrix scaled by ``1 / sqrt(D)`` whose singular values are rescaled to a largest value of 0.95 (so ``x_{k+1} = A x_k`` decays). |
-| `generate_sequences` | função | `(B, T, D, A, noise=0.01, seed=123) -> torch.Tensor` | ``B`` trajectories of ``T`` steps of ``x_{k+1} = A x_k + noise * N(0, I)`` from Gaussian initial states in ``D`` dimensions, shape ``(B, T, D)``; deterministic for a given ``seed``. |
+| `make_linear_system` | função | `(D, seed=0) -> torch.Tensor` | Operador linear aleatório contrativo (maior valor singular 0,95). |
+| `generate_sequences` | função | `(B, T, D, A, noise=0.01, seed=123) -> torch.Tensor` | Gera trajetórias ruidosas de x_{k+1} = A x_k, determinísticas para uma `seed`. |
 
 #### `pinneapple_neural.architectures.rom.trusted`
 
-Latent surrogate that says when not to trust it: error bounds, envelope check and physics residual per query.
+Surrogate latente que diz quando não confiar: limite de erro conformal, teste de envelope e resíduo físico por consulta, convertidos num `TrustReport`.
 
 <small>`pinneapple_neural/architectures/rom/trusted.py` · 192 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TrustedLatentSurrogate` | classe | `(rom, spread, members, subsample, neighbours, alpha, alpha_envelope, alpha_residual, resi…)` | POD latent surrogate + per-query error bound, envelope p-value and physics residual. |
+| `TrustedLatentSurrogate` | classe | `(rom, spread, members, subsample, neighbours, alpha, alpha_envelope, alpha_residual, resi…)` | POD latente com limite de erro, p-valor de envelope e resíduo físico por consulta; `trust_report` gera o relatório de confiança. |
 
 #### `pinneapple_neural.architectures.rom.views`
 
-A held-out snapshot on its body: the full-order field, a prediction (a ROM, a surrogate) and their difference on the mesh, with the deformed shape when the snapshots carry a displacement, the boundary-condition and load regions of the dataset, the error hotspots and a short text on where the error …
+Visão de um snapshot separado na malha: campo de referência, previsão, diferença, regiões de contorno e carga, pontos de maior erro e um texto curto.
 
 <small>`pinneapple_neural/architectures/rom/views.py` · 122 linhas · testes: 11</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `zones` | função | `(snaps, points, grow=0.1) -> dict[str, np.ndarray]` | The dataset's named node sets grown by ``grow`` times the body size ("clamp zone", "loaded tip zone") and the remaining nodes ("rest of the body"): the regions errors are compared over. |
-| `reconstruction_view` | função | `(snaps, model, index, *, reported=None, grow=0.1, max_faces=None, n_hotspots=3, full_labe…)` | View of snapshot ``index`` of ``snaps`` against ``model`` (a ``ReducedModel``): :func:`prediction_view` of the model's prediction at the snapshot's time or parameters. |
-| `prediction_view` | função | `(snaps, index, pred, *, label='Prediction', note='', reported=None, grow=0.1, max_faces=N…)` | View of snapshot ``index`` of ``snaps`` against ``pred``, a predicted snapshot row in the layout of ``snaps`` (a ROM, a surrogate). Named node sets of the dataset become markers (kind ``bc`` / ``load`` / ``region``) and, grown by ``grow`` times the body size, the regions the error is compared over … |
+| `zones` | função | `(snaps, points, grow=0.1) -> dict[str, np.ndarray]` | Regiões de comparação do erro: conjuntos nomeados de nós crescidos (zona de engaste, de carga) e o resto do corpo. |
+| `reconstruction_view` | função | `(snaps, model, index, *, reported=None, grow=0.1, max_faces=None, n_hotspots=3, full_labe…)` | Visão de um snapshot contra a previsão de um `ReducedModel`. |
+| `prediction_view` | função | `(snaps, index, pred, *, label='Prediction', note='', reported=None, grow=0.1, max_faces=N…)` | Visão de um snapshot contra uma previsão qualquer, com marcadores, regiões e pontos de maior erro. |
 
 #### `pinneapple_neural.architectures.siren`
 
-_Módulo sem docstring e sem texto._
+SIREN (Sitzmann et al. 2020): MLP com ativação seno e inicialização própria, para campos de alta frequência. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/siren.py` · 135 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SineLayer` | classe | `(in_features, out_features, bias=True, is_first=False, omega_0=30.0)` | Single sinusoidal layer with principled weight initialization. |
-| `SIREN` | classe | `(in_dim, out_dim, hidden_dim=256, n_layers=5, omega_0=30.0, outermost_linear=True, final_…)` | Sinusoidal Representation Network for physics-informed learning. |
+| `SineLayer` | classe | `(in_features, out_features, bias=True, is_first=False, omega_0=30.0)` | Camada senoidal com inicialização de pesos de Sitzmann et al. |
+| `SIREN` | classe | `(in_dim, out_dim, hidden_dim=256, n_layers=5, omega_0=30.0, outermost_linear=True, final_…)` | Rede SIREN com `omega_0` configurável e última camada linear por padrão. |
 
 #### `pinneapple_neural.architectures.transformers`
 
-_Módulo sem docstring e sem texto._
+Família de Transformers para séries temporais (Autoformer, FEDformer, Informer, TFT, TimesNet, Transformer). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.architectures.transformers.autoformer`
 
-_Módulo sem docstring e sem texto._
+Autoformer mínimo: decomposição tendência/sazonal e auto-correlação via FFT. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/autoformer.py` · 367 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SeriesDecomp` | classe | `(kernel_size=25)` | Moving-average decomposition: x = seasonal + trend. |
-| `AutoCorrelation` | classe | `(topk_factor=1.0, dropout=0.0)` | Autoformer-style Auto-Correlation: - compute cross-correlation between Q and K via FFT - pick top-k delays - aggregate V by shifting (time-delay aggregation) |
-| `AutoCorrelationLayer` | classe | `(d_model, nhead, topk_factor=1.0, dropout=0.0)` | Multi-head wrapper with projections like attention. |
-| `EncoderLayer` | classe | `(d_model, nhead, d_ff, kernel_size, dropout, topk_factor)` |  |
-| `DecoderLayer` | classe | `(d_model, nhead, d_ff, kernel_size, dropout, topk_factor)` |  |
-| `Autoformer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_layers=2, kernel_size=25, dropout=0.…)` | Autoformer (minimal faithful): - Decompose input into seasonal/trend - Encoder: AutoCorrelation + decomposition - Decoder: AutoCorrelation (self + cross) + decomposition, accumulates trend - Output: y = seasonal_out + trend_out (projected to out_dim) |
+| `SeriesDecomp` | classe | `(kernel_size=25)` | Decomposição por média móvel: sazonal + tendência. |
+| `AutoCorrelation` | classe | `(topk_factor=1.0, dropout=0.0)` | Auto-correlação via FFT com agregação por atraso top-k. |
+| `AutoCorrelationLayer` | classe | `(d_model, nhead, topk_factor=1.0, dropout=0.0)` | Camada multi-cabeça de auto-correlação com projeções. |
+| `EncoderLayer` | classe | `(d_model, nhead, d_ff, kernel_size, dropout, topk_factor)` | Camada de encoder do Autoformer. |
+| `DecoderLayer` | classe | `(d_model, nhead, d_ff, kernel_size, dropout, topk_factor)` | Camada de decoder do Autoformer que acumula a tendência. |
+| `Autoformer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_layers=2, kernel_size=25, dropout=0.…)` | Modelo Autoformer completo para previsão de `horizon` passos. |
 
 #### `pinneapple_neural.architectures.transformers.base`
 
-_Módulo sem docstring e sem texto._
+Saída `TSOutput` e base `TimeSeriesModelBase`, cujo `forward` levanta `NotImplementedError` (abstrata). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/base.py` · 48 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TSOutput` | classe | `(y, losses, extras)` | Standard output for time-series transformers in Pinneapple. |
-| `TimeSeriesModelBase` | classe | `()` | Base class for sequence forecasting models. |
+| `TSOutput` | classe | `(y, losses, extras)` | Saída padrão dos Transformers de série temporal. |
+| `TimeSeriesModelBase` | classe | `()` | Base abstrata de previsão de sequências com `mse`. |
 
 #### `pinneapple_neural.architectures.transformers.fedformer`
 
-_Módulo sem docstring e sem texto._
+Modelo rápido inspirado no FEDformer: seleção de frequências top-k e MLP. Não é o FEDformer completo. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/fedformer.py` · 89 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FEDformer` | classe | `(in_dim, out_dim, horizon, d_model=128, topk_freq=32)` | Fast baseline inspired by FEDformer ideas: - learn a 1D projection for spectral features (cheap multivariate proxy) - select top-k frequency bins (batch-consistent) - mix last-token embedding + spectral features with a small MLP - horizon embedding to avoid constant repeated outputs |
+| `FEDformer` | classe | `(in_dim, out_dim, horizon, d_model=128, topk_freq=32)` | Modelo rápido inspirado no FEDformer (frequências top-k e MLP). |
 
 #### `pinneapple_neural.architectures.transformers.informer`
 
-_Módulo sem docstring e sem texto._
+Encoder Transformer com destilação opcional, inspirado no Informer (usa atenção padrão, não ProbSparse). [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/informer.py` · 132 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SinusoidalPositionalEncoding` | classe | `(d_model, max_len=10000)` |  |
-| `Informer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropo…)` | Efficient encoder-only baseline: - Transformer encoder (standard attention) - Optional distilling (Conv1d stride=2) on early layers only - Attention pooling to get sequence context - Forecast head uses context + (optional) known future covariates per horizon |
+| `SinusoidalPositionalEncoding` | classe | `(d_model, max_len=10000)` | Codificação posicional senoidal. |
+| `Informer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropo…)` | Encoder Transformer com destilação opcional e cabeça de previsão. |
 
 #### `pinneapple_neural.architectures.transformers.registry`
 
-_Módulo sem docstring e sem texto._
+Registro da família `transformers` e `TransformerCatalog`. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/registry.py` · 61 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TransformerCatalog` | classe | `(registry)` |  |
-| `register_into_global` | função | `() -> None` |  |
+| `TransformerCatalog` | classe | `(registry)` | Catálogo da família `transformers`. |
+| `register_into_global` | função | `() -> None` | Registra a família `transformers` no `ModelRegistry` global. |
 
 #### `pinneapple_neural.architectures.transformers.tft`
 
-_Módulo sem docstring e sem texto._
+Versão leve do Temporal Fusion Transformer: seleção de variáveis por grupo, encoder causal, decoder com consultas futuras e portas GRN/GLU. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/tft.py` · 254 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GRN` | classe | `(d, hidden, dropout=0.0)` | Gated Residual Network (lite): y = LayerNorm(x + sigmoid(Wg x) * Drop( W2 gelu(W1 x) )) |
-| `GLU` | classe | `(d)` | Gated Linear Unit used for skip gating. |
-| `GroupVSN` | classe | `(d_model, num_groups, hidden, dropout=0.0)` | Variable selection network (lite) over groups, not per-variable. |
-| `TemporalFusionTransformer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_enc_layers=2, num_dec_layers=2, drop…)` | TFT-lite (strong, honest): - Input projection - Grouped variable selection (past groups + optional future group) - Causal TransformerEncoder over past - TransformerDecoder with learnable future queries (multi-step) attending to past memory - GRN/GLU gating around blocks for stability and TFT-like … |
+| `GRN` | classe | `(d, hidden, dropout=0.0)` | Gated Residual Network simplificada. |
+| `GLU` | classe | `(d)` | Gated Linear Unit para portas de skip. |
+| `GroupVSN` | classe | `(d_model, num_groups, hidden, dropout=0.0)` | Rede de seleção de variáveis por grupo. |
+| `TemporalFusionTransformer` | classe | `(in_dim, out_dim, horizon, d_model=128, nhead=4, num_enc_layers=2, num_dec_layers=2, drop…)` | TFT simplificado para previsão multi-passo. |
 
 #### `pinneapple_neural.architectures.transformers.timesnet`
 
-_Módulo sem docstring e sem texto._
+Previsor no estilo TimesNet: períodos por FFT, mapas 2D e blocos inception. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/timesnet.py` · 199 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimesNet` | classe | `(in_dim, out_dim, horizon, d_model=128, num_blocks=2, top_k_periods=3, head_window=64, dr…)` | TimesNet-like forecasting: 1) FFT period discovery (Top-K) 2) Reshape into 2D maps per period 3) 2D inception blocks (multi-scale) 4) Weighted aggregation across periods 5) Flatten head for horizon prediction |
+| `TimesNet` | classe | `(in_dim, out_dim, horizon, d_model=128, num_blocks=2, top_k_periods=3, head_window=64, dr…)` | Previsor no estilo TimesNet. |
 
 #### `pinneapple_neural.architectures.transformers.transformer`
 
-_Módulo sem docstring e sem texto._
+Encoder Transformer causal para previsão autorregressiva. [sem teste direto]
 
 <small>`pinneapple_neural/architectures/transformers/transformer.py` · 113 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VanillaTransformer` | classe | `(in_dim, out_dim, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.1, p…)` | Causal Transformer encoder for autoregressive forecasting. |
+| `VanillaTransformer` | classe | `(in_dim, out_dim, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.1, p…)` | Encoder Transformer causal com codificação posicional aprendida ou senoidal. |
 
 #### `pinneapple_neural.callbacks`
 
-Physics checks during training in PyTorch Lightning, PhysicsNeMo and Hugging Face (#704).
+Roda os checks de `pp.validate` durante o treino em PyTorch Lightning, PhysicsNeMo e Hugging Face: registra métricas a cada N passos, avisa (ou para) quando uma métrica física piora enquanto a perda cai e grava relatório e trust card no fim.
 
 <small>`pinneapple_neural/callbacks.py` · 274 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsWarning` | classe | `()` | A physics metric worsened for several consecutive checks while the training loss improved. |
-| `PhysicsMonitor` | classe | `(problem, data=None, *, reference=None, query=None, level='quick', every=100, patience=3,…)` | The checks of ``pp.validate(model, problem, data, reference, query, level)`` as training metrics. |
-| `PhysicsNeMoHook` | classe | `(monitor)` | For a PhysicsNeMo training loop: ``hook(model, step, loss, log=...)`` after each optimiser step. |
+| `PhysicsWarning` | classe | `()` | Aviso: uma métrica física piorou em vários checks seguidos enquanto a perda de treino melhorava. |
+| `PhysicsMonitor` | classe | `(problem, data=None, *, reference=None, query=None, level='quick', every=100, patience=3,…)` | Núcleo sem framework: roda os checks de `pp.validate` a cada `every` passos, acompanha as métricas e avisa ou para após `patience` pioras. |
+| `PhysicsNeMoHook` | classe | `(monitor)` | Gancho para um laço de treino PhysicsNeMo, chamado após cada passo do otimizador. |
 
 #### `pinneapple_neural.lpm`
 
-Large Physics Model (LPM) building blocks: one model for a whole design space.
+Blocos de um 'Large Physics Model': um modelo para um espaço de projeto inteiro, com codificação de Fourier, vizinhança multiescala, código de geometria (DeepSets), cabeças em ensemble para incerteza e sinal fora-da-distribuição.
 
 <small>`pinneapple_neural/lpm.py` · 212 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierEncoding` | classe | `(n_freq=6, include_input=True)` | x -> [x, sin(2^k pi x), cos(2^k pi x)] for k = 0..n_freq-1 (per coordinate). |
-| `GeometryEncoder` | classe | `(d, width=64, code=32)` | DeepSets: per-point MLP on (position, normal) then mean+max pooling -> geometry code. |
-| `Design` | classe | `(points, normals, query, params, target)` | One simulation of the design space: its geometry, operating point and a target field. |
-| `LargePhysicsModel` | classe | `(dim, n_fields, n_params=0, radii=(0.1, 0.4, 1.2), n_freq=6, width=128, code=32, n_heads=…)` |  |
-| `multiscale_neighbourhood` | função | `(query, points, normals, radii)` | Per query point and radius: mean offset to neighbours, mean neighbour normal, occupancy. |
-| `fit` | função | `(model, designs, *, epochs=2000, lr=0.002, freeze_geometry=False, seed=0) -> list[float]` | Train (or fine-tune with ``freeze_geometry=True``) on a list of designs. |
+| `FourierEncoding` | classe | `(n_freq=6, include_input=True)` | Codificação posicional [x, sin(2^k π x), cos(2^k π x)] por coordenada. |
+| `GeometryEncoder` | classe | `(d, width=64, code=32)` | Encoder DeepSets: MLP por ponto em (posição, normal) e pooling média + máximo para um código de geometria. |
+| `Design` | classe | `(points, normals, query, params, target)` | Uma simulação do espaço de projeto: geometria, parâmetros de operação, pontos de consulta e campo-alvo; `ellipse` e `square` criam exemplos. |
+| `LargePhysicsModel` | classe | `(dim, n_fields, n_params=0, radii=(0.1, 0.4, 1.2), n_freq=6, width=128, code=32, n_heads=…)` | Modelo que combina codificação local, código de geometria e parâmetros num tronco com várias cabeças; `predict` dá média e dispersão e `ood` mede distância aos projetos de treino. |
+| `multiscale_neighbourhood` | função | `(query, points, normals, radii)` | Para cada ponto de consulta e raio: deslocamento médio aos vizinhos, normal média e ocupação. |
+| `fit` | função | `(model, designs, *, epochs=2000, lr=0.002, freeze_geometry=False, seed=0) -> list[float]` | Treina ou faz fine-tuning (com `freeze_geometry=True`) numa lista de projetos, cada cabeça num reamostra bootstrap. |
 
 #### `pinneapple_neural.physicsnemo_bridge`
 
-pinneapple_neural.physicsnemo_bridge -- PhysicsNeMo <-> PINNeAPPle integration glue.
+Integração PhysicsNeMo <-> PINNeAPPle, promovida de `examples/vs_physicsnemo/` e `examples/pinneapple_and_physicsnemo/`: adaptadores (UQ, gêmeo digital), laço de active learning + retreino e operadores de campo em grade.
 
 <small>`pinneapple_neural/physicsnemo_bridge/__init__.py` · 86 linhas · testes: 19</small>
 
 #### `pinneapple_neural.physicsnemo_bridge.active_learning_bridge`
 
-PINNeAPPle active learning -> PhysicsNeMo retrain bridge.
+Laço 'active learning seleciona -> retreina -> seleciona' (padrão 2 do README de exemplos), com a seleção delegada a `ResidualBasedAL` de `pinneapple_data`.
 
 <small>`pinneapple_neural/physicsnemo_bridge/active_learning_bridge.py` · 226 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RetrainConfig` | classe | `(n_rounds, n_epochs_per_round, batch_size, lr, selection_mode, device, verbose)` | Configuration for the "retrain" half of the AL <-> retrain loop. |
-| `ALRoundResult` | classe | `(round_index, n_points_added, n_points_total, mean_train_loss, train_losses)` | Bookkeeping for a single AL-select + retrain round. |
-| `ALRetrainResult` | classe | `(rounds, x_collocation, final_loss)` | Full result of :func:`active_learning_retrain_loop`. |
-| `active_learning_retrain_loop` | função | `(model, loss_fn, residual_fn, bounds, *, x_initial=None, al_config=None, retrain_config=N…)` | Run the "AL selects -> retrains -> AL selects -> ..." loop (Padrao 2). |
+| `RetrainConfig` | classe | `(n_rounds, n_epochs_per_round, batch_size, lr, selection_mode, device, verbose)` | Configuração da parte de retreino do laço (rodadas, épocas por rodada, batch, taxa, modo de seleção). |
+| `ALRoundResult` | classe | `(round_index, n_points_added, n_points_total, mean_train_loss, train_losses)` | Registro de uma rodada: pontos adicionados, total e perdas de treino. |
+| `ALRetrainResult` | classe | `(rounds, x_collocation, final_loss)` | Resultado do laço completo: rodadas, pontos de colocação finais e perda final. |
+| `active_learning_retrain_loop` | função | `(model, loss_fn, residual_fn, bounds, *, x_initial=None, al_config=None, retrain_config=N…)` | Alterna retreino do modelo nos pontos atuais e seleção de novos pontos por resíduo. |
 
 #### `pinneapple_neural.physicsnemo_bridge.adapters`
 
-PhysicsNeMo -> PINNeAPPle model adapters (UQ + Digital Twin).
+Adaptadores para usar um modelo treinado no PhysicsNeMo em PINNeAPPle: UQ por MC Dropout e `DigitalTwin`; o import de `physicsnemo` é opcional e feito só onde é preciso. [sem teste direto]
 
 <small>`pinneapple_neural/physicsnemo_bridge/adapters.py` · 254 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsNemoModelAdapter` | classe | `(model, field_names) -> None` | Wrap a trained model so its ``forward()`` output is one plain tensor. |
-| `is_physicsnemo_available` | função | `() -> bool` | Return ``True`` if ``physicsnemo`` (or the legacy ``modulus`` name) can be imported. |
-| `require_physicsnemo_model` | função | `(model) -> Any` | Validate that ``model`` is a physicsnemo-compatible trained model. |
-| `wrap_for_uq` | função | `(model, field_names=None, *, mc_dropout_config=None) -> MCDropoutWrapper` | Wrap a trained model for MC-Dropout uncertainty quantification. |
-| `build_digital_twin_for_model` | função | `(model, field_names, coord_names=None, *, config=None) -> DigitalTwin` | Wrap a trained model into a :class:`DigitalTwin`. |
+| `PhysicsNemoModelAdapter` | classe | `(model, field_names) -> None` | Envolve um modelo para que `forward` devolva um único tensor (junta saídas em dicionário). |
+| `is_physicsnemo_available` | função | `() -> bool` | Diz se `physicsnemo` (ou o nome antigo `modulus`) pode ser importado. |
+| `require_physicsnemo_model` | função | `(model) -> Any` | Confere que o modelo é compatível com PhysicsNeMo; exige o pacote instalado. |
+| `wrap_for_uq` | função | `(model, field_names=None, *, mc_dropout_config=None) -> MCDropoutWrapper` | Envolve um modelo treinado num `MCDropoutWrapper` para quantificar incerteza. |
+| `build_digital_twin_for_model` | função | `(model, field_names, coord_names=None, *, config=None) -> DigitalTwin` | Envolve um modelo treinado num `DigitalTwin`. |
 
 #### `pinneapple_neural.physicsnemo_bridge.field_operators`
 
-PhysicsNeMo field operators on a structured grid -> PINNeAPPle predictors (pattern 1: PhysicsNeMo trains, PINNeAPPle checks).
+Constrói FNO e MeshGraphNet do próprio PhysicsNeMo numa grade n x n, treina sob um `ComputeBudget` e expõe como preditor NumPy `predict(a) -> u` para os checks de PINNeAPPle.
 
 <small>`pinneapple_neural/physicsnemo_bridge/field_operators.py` · 241 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GridFieldPredictor` | classe | `(module, config, name)` | A trained PhysicsNeMo model on an ``n x n`` grid as a NumPy predictor ``predict(a) -> u``. |
-| `TrainingResult` | classe | `(run, epochs, final_loss, history)` | What :func:`train_grid_operator` spent and reached. |
-| `grid_graph` | função | `(n) -> tuple[np.ndarray, np.ndarray]` | Graph of an ``n x n`` cell-centred grid: ``edge_index (2, E)`` (both directions, node ``i * n + j``) and ``edge_attr (E, 3)`` = ``(dx, dy, \|d\|)`` of each edge in cell units. |
-| `physicsnemo_fno` | função | `(n, *, latent_channels=32, num_fno_layers=4, num_fno_modes=12, decoder_layers=1, decoder_…)` | A 2-D ``physicsnemo.models.fno.FNO`` (coefficient -> solution) wrapped as a :class:`GridFieldPredictor`. |
-| `physicsnemo_meshgraphnet` | função | `(n, *, processor_size=15, hidden_dim=64, aggregation='sum', seed=0) -> GridFieldPredictor` | A ``physicsnemo.models.meshgraphnet.MeshGraphNet`` on the graph of the ``n x n`` grid (:func:`grid_graph`). |
-| `train_grid_operator` | função | `(pred, a, u, budget, *, batch_size=8, lr=0.001, weight_decay=1e-05, seed=0, evaluate=None…)` | Train ``pred`` on ``(a, u)`` pairs until ``budget`` (a ``ComputeBudget``) is spent. |
+| `GridFieldPredictor` | classe | `(module, config, name)` | Modelo PhysicsNeMo treinado numa grade n x n exposto como preditor NumPy, com normalização, salvar e carregar. |
+| `TrainingResult` | classe | `(run, epochs, final_loss, history)` | O que `train_grid_operator` gastou e alcançou (épocas, perda final, histórico). |
+| `grid_graph` | função | `(n) -> tuple[np.ndarray, np.ndarray]` | Grafo de uma grade n x n centrada nas células: `edge_index` bidirecional e `edge_attr` (dx, dy, \|d\|). |
+| `physicsnemo_fno` | função | `(n, *, latent_channels=32, num_fno_layers=4, num_fno_modes=12, decoder_layers=1, decoder_…)` | Cria um FNO 2D do PhysicsNeMo (coeficiente -> solução) como `GridFieldPredictor`. |
+| `physicsnemo_meshgraphnet` | função | `(n, *, processor_size=15, hidden_dim=64, aggregation='sum', seed=0) -> GridFieldPredictor` | Cria um MeshGraphNet do PhysicsNeMo sobre o grafo da grade. |
+| `train_grid_operator` | função | `(pred, a, u, budget, *, batch_size=8, lr=0.001, weight_decay=1e-05, seed=0, evaluate=None…)` | Treina o preditor em pares (a, u) até gastar o `ComputeBudget`, com perda L2 relativa por amostra. |
 
 #### `pinneapple_neural.predictor`
 
-_Módulo sem docstring e sem texto._
+Inferência pós-treino (antigo `pinneapple_inference`): reexporta inferência em lote e em grade, gráficos de campos, erro, perda, comparação, fluxo 3D e otimização de projeto. [sem teste direto]
 
 <small>`pinneapple_neural/predictor/__init__.py` · 69 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.predictor.infer`
 
-Inference utilities for trained PINN and neural network models.
+Inferência em lote para evitar falta de memória, inferência com NumPy e avaliação em grades 1D+tempo e 2D, com o contêiner `InferenceResult`. [sem teste direto]
 
 <small>`pinneapple_neural/predictor/infer.py` · 190 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `InferenceResult` | classe | `(coords, fields, grid_shape, model_id, metadata)` | Container for model inference output. |
-| `batched_inference` | função | `(model, x, *, batch_size=4096, device=None, use_amp=False, amp_dtype=torch.float16) -> to…)` | Run model inference over a large tensor in batches to avoid OOM. |
-| `infer` | função | `(model, x, *, device='cpu', field_names=None) -> np.ndarray` | Run a forward pass on numpy input. |
-| `infer_on_grid_1d` | função | `(model, x_range, t_range, *, nx=200, nt=200, device='cpu', field_names=None, coord_names=…)` | Inference on a 1D+time rectangular grid. |
-| `infer_on_grid_2d` | função | `(model, x_range, y_range, *, nx=100, ny=100, device='cpu', field_names=None, coord_names=…)` | Inference on a 2D rectangular grid. |
+| `InferenceResult` | classe | `(coords, fields, grid_shape, model_id, metadata)` | Contêiner da inferência: coordenadas, campos, forma da grade, id do modelo e metadados. |
+| `batched_inference` | função | `(model, x, *, batch_size=4096, device=None, use_amp=False, amp_dtype=torch.float16) -> to…)` | Roda o modelo em lotes sobre um tensor grande, com AMP opcional. |
+| `infer` | função | `(model, x, *, device='cpu', field_names=None) -> np.ndarray` | Passo direto com entrada NumPy e saída NumPy. |
+| `infer_on_grid_1d` | função | `(model, x_range, t_range, *, nx=200, nt=200, device='cpu', field_names=None, coord_names=…)` | Avalia o modelo numa grade retangular x-t. |
+| `infer_on_grid_2d` | função | `(model, x_range, y_range, *, nx=100, ny=100, device='cpu', field_names=None, coord_names=…)` | Avalia o modelo numa grade retangular x-y. |
 
 #### `pinneapple_neural.predictor.postprocess`
 
-Production-quality 3D field visualization: streamlines, isosurfaces, volume rendering.
+Visualização 3D de campos: linhas de corrente por RK4, isosuperfícies (marching cubes, exige `scikit-image`), fatias de volume e a classe `FlowVisualizer`. [sem teste direto]
 
 <small>`pinneapple_neural/predictor/postprocess.py` · 762 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FlowVisualizer` | classe | `(model, coord_ranges, device='cpu') -> None` | High-level flow visualization class. |
-| `compute_streamlines` | função | `(u_field, v_field, x_grid, y_grid, seed_points=None, n_seeds=20, max_length=1.0, dt=0.01)…)` | Compute 2D streamlines via RK4 integration. |
-| `compute_isosurface` | função | `(field_3d, x, y, z, level=0.0) -> Tuple[np.ndarray, np.ndarray]` | Extract isosurface from 3D scalar field using marching cubes. |
-| `plot_streamlines_2d_from_model` | função | `(model, x_range=(0.0, 1.0), y_range=(0.0, 1.0), n_grid=50, n_seeds=30, figsize=(10, 6), t…)` | Plot 2D streamlines of velocity field predicted by a PINN model. |
-| `plot_isosurface_3d` | função | `(model, x_range=(0.0, 1.0), y_range=(0.0, 1.0), z_range=(0.0, 1.0), n_grid=30, level=0.0,…)` | Plot 3D isosurface of a scalar field predicted by a PINN model. |
-| `plot_volume_slice` | função | `(model, axis='z', slice_val=0.5, x_range=(0.0, 1.0), y_range=(0.0, 1.0), z_range=(0.0, 1.…)` | Plot a 2D slice of a 3D field predicted by a PINN model. |
+| `FlowVisualizer` | classe | `(model, coord_ranges, device='cpu') -> None` | Classe de alto nível com linhas de corrente, contornos de pressão, módulo de velocidade e vorticidade a partir de um modelo. |
+| `compute_streamlines` | função | `(u_field, v_field, x_grid, y_grid, seed_points=None, n_seeds=20, max_length=1.0, dt=0.01)…)` | Linhas de corrente 2D por integração RK4. |
+| `compute_isosurface` | função | `(field_3d, x, y, z, level=0.0) -> Tuple[np.ndarray, np.ndarray]` | Isosuperfície de um campo 3D por marching cubes (exige `scikit-image`). |
+| `plot_streamlines_2d_from_model` | função | `(model, x_range=(0.0, 1.0), y_range=(0.0, 1.0), n_grid=50, n_seeds=30, figsize=(10, 6), t…)` | Desenha linhas de corrente do campo de velocidade previsto por um modelo. |
+| `plot_isosurface_3d` | função | `(model, x_range=(0.0, 1.0), y_range=(0.0, 1.0), z_range=(0.0, 1.0), n_grid=30, level=0.0,…)` | Desenha a isosuperfície 3D de um campo escalar previsto. |
+| `plot_volume_slice` | função | `(model, axis='z', slice_val=0.5, x_range=(0.0, 1.0), y_range=(0.0, 1.0), z_range=(0.0, 1.…)` | Desenha uma fatia 2D de um campo 3D previsto. |
 
 #### `pinneapple_neural.predictor.visualize`
 
-Visualization utilities for PINN inference results.
+Gráficos com matplotlib dos resultados de inferência: campos 1D/2D, mapas de erro, curvas de perda, comparação de modelos, fatias de velocidade e vorticidade, perfil de linha central, convergência e frente de Pareto. [sem teste direto]
 
 <small>`pinneapple_neural/predictor/visualize.py` · 1.103 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_field_1d` | função | `(result, field_name, *, ax=None, title=None, cmap='RdBu_r', save_path=None, show=False) -…)` | 2D colormesh plot of a 1D+time field (x vs t). |
-| `plot_field_2d` | função | `(result, field_name, *, ax=None, title=None, cmap='viridis', save_path=None, show=False) …)` | Colormesh plot of a 2D field (x vs y). |
-| `plot_error_map_1d` | função | `(result, reference, field_name, *, ax=None, title=None, save_path=None, show=False) -> Any` | Plot absolute error \|prediction - reference\| on a 1D+time grid. |
-| `plot_error_map_2d` | função | `(result, reference, field_name, *, ax=None, title=None, save_path=None, show=False) -> Any` | Plot absolute error for a 2D field. |
-| `plot_loss_curve` | função | `(history, *, keys=None, ax=None, title='Training loss', log_scale=True, save_path=None, s…)` | Plot training/validation loss curves from a history list. |
-| `plot_model_comparison_1d` | função | `(results, field_name, *, reference=None, title=None, cmap='RdBu_r', save_path=None, show=…)` | Side-by-side comparison of multiple models on a 1D+time field. |
-| `plot_model_comparison_2d` | função | `(results, field_name, *, reference=None, title=None, cmap='viridis', save_path=None, show…)` | Side-by-side comparison for 2D fields. |
-| `render_visualizations` | função | `(viz_cfgs, *, model_results, problem_spec=None, reference_result=None, out_dir='.') -> Di…)` | Dispatch visualization from YAML-driven config list. |
-| `plot_velocity_slice` | função | `(u, x, y, z, *, slice_axis='z', slice_idx=None, component=0, title=None, cmap='RdBu_r', a…)` | 2D colormesh of a velocity slice through a 3D field. |
-| `plot_velocity_magnitude_slice` | função | `(u, x, y, z, *, slice_axis='z', slice_idx=None, title=None, cmap='viridis', ax=None, save…)` | Plot \|u\| = sqrt(u^2 + v^2 + w^2) on a 2D slice. |
-| `plot_streamlines_2d` | função | `(u, v, x, y, *, density=1.5, title=None, background_field=None, cmap='viridis', ax=None, …)` | Streamline plot for 2D velocity field. |
-| `plot_centerline_velocity` | função | `(u_centerline, coord, *, reference_coord=None, reference_u=None, reference_label='Ghia et…)` | 1D centerline velocity profile with optional literature reference overlay. |
-| `plot_vorticity_slice` | função | `(u, v, x, y, z, *, slice_axis='z', slice_idx=None, title=None, cmap='RdBu_r', ax=None, sa…)` | Plot z-component of vorticity (omega_z = dv/dx - du/dy) on a 2D slice. |
-| `plot_internal_flow_summary` | função | `(solver_output, *, time_step=-1, slice_axis='z', title='Internal Flow Summary', save_path…)` | Multi-panel summary figure for 3D internal flow (LDC or channel). |
-| `plot_design_opt_convergence` | função | `(history_objectives, *, title=…, xlabel='Iteration', ylabel='Objective', log_scale=False,…)` | Plot convergence curve of objective function over optimization iterations. |
-| `plot_pareto_front_2d` | função | `(objectives, pareto_mask, *, xlabel='Objective 1', ylabel='Objective 2', title='Pareto Fr…)` | Scatter plot with Pareto-optimal points highlighted. |
+| `plot_field_1d` | função | `(result, field_name, *, ax=None, title=None, cmap='RdBu_r', save_path=None, show=False) -…)` | Mapa de cores x vs t de um campo 1D+tempo. |
+| `plot_field_2d` | função | `(result, field_name, *, ax=None, title=None, cmap='viridis', save_path=None, show=False) …)` | Mapa de cores x vs y de um campo 2D. |
+| `plot_error_map_1d` | função | `(result, reference, field_name, *, ax=None, title=None, save_path=None, show=False) -> Any` | Erro absoluto contra uma referência numa grade x-t. |
+| `plot_error_map_2d` | função | `(result, reference, field_name, *, ax=None, title=None, save_path=None, show=False) -> Any` | Erro absoluto contra uma referência numa grade 2D. |
+| `plot_loss_curve` | função | `(history, *, keys=None, ax=None, title='Training loss', log_scale=True, save_path=None, s…)` | Curvas de perda de treino e validação a partir do histórico. |
+| `plot_model_comparison_1d` | função | `(results, field_name, *, reference=None, title=None, cmap='RdBu_r', save_path=None, show=…)` | Comparação lado a lado de vários modelos num campo 1D+tempo. |
+| `plot_model_comparison_2d` | função | `(results, field_name, *, reference=None, title=None, cmap='viridis', save_path=None, show…)` | Comparação lado a lado de vários modelos num campo 2D. |
+| `render_visualizations` | função | `(viz_cfgs, *, model_results, problem_spec=None, reference_result=None, out_dir='.') -> Di…)` | Gera os gráficos pedidos numa lista de configuração (YAML) e devolve os caminhos dos arquivos. |
+| `plot_velocity_slice` | função | `(u, x, y, z, *, slice_axis='z', slice_idx=None, component=0, title=None, cmap='RdBu_r', a…)` | Fatia 2D de um componente da velocidade num campo 3D. |
+| `plot_velocity_magnitude_slice` | função | `(u, x, y, z, *, slice_axis='z', slice_idx=None, title=None, cmap='viridis', ax=None, save…)` | Fatia 2D do módulo da velocidade. |
+| `plot_streamlines_2d` | função | `(u, v, x, y, *, density=1.5, title=None, background_field=None, cmap='viridis', ax=None, …)` | Linhas de corrente de um campo de velocidade 2D com fundo opcional. |
+| `plot_centerline_velocity` | função | `(u_centerline, coord, *, reference_coord=None, reference_u=None, reference_label='Ghia et…)` | Perfil de velocidade na linha central com referência da literatura opcional. |
+| `plot_vorticity_slice` | função | `(u, v, x, y, z, *, slice_axis='z', slice_idx=None, title=None, cmap='RdBu_r', ax=None, sa…)` | Vorticidade ω_z = dv/dx - du/dy numa fatia 2D. |
+| `plot_internal_flow_summary` | função | `(solver_output, *, time_step=-1, slice_axis='z', title='Internal Flow Summary', save_path…)` | Figura de vários painéis para escoamento interno 3D (cavidade, canal). |
+| `plot_design_opt_convergence` | função | `(history_objectives, *, title=…, xlabel='Iteration', ylabel='Objective', log_scale=False,…)` | Curva de convergência do objetivo ao longo das iterações de otimização. |
+| `plot_pareto_front_2d` | função | `(objectives, pareto_mask, *, xlabel='Objective 1', ylabel='Objective 2', title='Pareto Fr…)` | Dispersão com os pontos Pareto-ótimos destacados. |
 
 #### `pinneapple_neural.trainer`
 
@@ -2187,72 +2193,111 @@ Automatic loss weight scheduling for PINN training.
 
 #### `pinneapple_neural.utils`
 
-Small helpers shared by trainers, solvers and examples.
+Helpers comuns: `as_tensor` extrai o tensor de previsão de qualquer saída de modelo e `fit_supervised` é um laço Adam mínimo em pares (x, y).
 
 <small>`pinneapple_neural/utils.py` · 92 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `as_tensor` | função | `(out, *, attrs=OUTPUT_TENSOR_ATTRS) -> torch.Tensor` | Return the prediction Tensor of a model output. |
-| `fit_supervised` | função | `(model, x, y, *, steps=1000, lr=0.001, batch=32, loss='mse', weight_decay=0.0, seed=0, fo…)` | Train ``model`` to map ``x`` to ``y`` (tensors or arrays, first axis = samples) with Adam on random mini-batches for ``steps`` steps; returns the loss history. ``loss``: ``"mse"`` or ``"rel_l2"`` (per-sample relative L2, for fields). ``forward(model, xb)`` overrides the call (default … |
+| `as_tensor` | função | `(out, *, attrs=OUTPUT_TENSOR_ATTRS) -> torch.Tensor` | Extrai o tensor de previsão de um Tensor, dicionário de campos, tupla ou objeto de saída (`PINNOutput`, `ModelOutput` etc.). |
+| `fit_supervised` | função | `(model, x, y, *, steps=1000, lr=0.001, batch=32, loss='mse', weight_decay=0.0, seed=0, fo…)` | Treina o modelo para mapear x em y com Adam em mini-batches aleatórios (perda MSE ou L2 relativa) e devolve o histórico. |
 
 #### `pinneapple_neural.workflows`
 
-End-to-end train/predict workflows over PINNeAPPle's neural architectures -- reusable, product-facing entry points (as opposed to ``pinneapple_neural.architectures``/``trainer``, which expose the lower-level building blocks these workflows compose).
+Workflows prontos de treino e previsão sobre as arquiteturas: operador de volume denso (simples e paramétrico) e surrogate híbrido com pós-modelo físico. [sem teste direto do `__init__`]
 
 <small>`pinneapple_neural/workflows/__init__.py` · 56 linhas · **sem teste direto**</small>
 
 #### `pinneapple_neural.workflows.dense_volume_operator`
 
-A reusable train/predict workflow for a grid-based neural operator (:class:`~pinneapple_neural.architectures.neural_operators.fno.FNO3d`) trained on a DENSE-in-time real volume time series -- e.g. the output of :func:`pinneapple_data.adapters.load_dense_volumes` from a ``.splash`` OpenFOAM archive, …
+Workflow de treino/previsão de um `FNO3d` em série temporal real de volumes `(T, C, D, H, W)`, com o truque de pushforward para estabilizar o rollout autorregressivo.
 
 <small>`pinneapple_neural/workflows/dense_volume_operator.py` · 248 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DenseVolumeOperatorConfig` | classe | `(in_channels, out_channels, width, modes, layers, epochs, lr, val_frac, batch_size, rollo…)` |  |
-| `train_dense_volume_operator` | função | `(frames, cfg, *, seed=0) -> Tuple[Checkpoint, List[Dict[str, Any]]]` | Train an :class:`FNO3d` on a real dense volume time series. |
-| `load_dense_volume_operator` | função | `(checkpoint, *, device='cpu') -> nn.Module` | Reconstruct the real ``FNO3d`` from a checkpoint produced by :func:`train_dense_volume_operator` (or the same-shaped legacy checkpoints ``train_fno3d.py`` already produced before this module existed -- both save the same ``meta`` keys). |
-| `predict_single_step` | função | `(checkpoint, input_frame, *, device='cpu') -> np.ndarray` | One forward pass: ``input_frame`` (C, D, H, W), real (not normalized) units in, real units out. This is the regime the network is most accurate in -- see the module docstring. |
-| `rollout_dense_volume_operator` | função | `(checkpoint, initial_frame, n_steps, *, device='cpu') -> np.ndarray` | Autoregressive rollout from a real starting frame. Returns ``(n_steps + 1, C, D, H, W)`` real-unit frames, index 0 = the given ``initial_frame`` unchanged, indices 1..n_steps = the model's own successive predictions fed back in as input. |
+| `DenseVolumeOperatorConfig` | classe | `(in_channels, out_channels, width, modes, layers, epochs, lr, val_frac, batch_size, rollo…)` | Configuração do treino do `FNO3d` em volumes densos (largura, modos, camadas, épocas, validação, rollout, pushforward). |
+| `train_dense_volume_operator` | função | `(frames, cfg, *, seed=0) -> Tuple[Checkpoint, List[Dict[str, Any]]]` | Treina um `FNO3d` numa série de volumes e devolve o checkpoint e o histórico. |
+| `load_dense_volume_operator` | função | `(checkpoint, *, device='cpu') -> nn.Module` | Reconstrói o `FNO3d` a partir do checkpoint (também dos checkpoints antigos de mesmo formato). |
+| `predict_single_step` | função | `(checkpoint, input_frame, *, device='cpu') -> np.ndarray` | Um passo de previsão em unidades reais, o regime em que a rede é mais precisa. |
+| `rollout_dense_volume_operator` | função | `(checkpoint, initial_frame, n_steps, *, device='cpu') -> np.ndarray` | Rollout autorregressivo a partir de um quadro real; devolve n_steps + 1 quadros. |
 
 #### `pinneapple_neural.workflows.hybrid_surrogate_physics`
 
-Hybrid model: a data-driven surrogate for intermediate quantities + an explicit physics post-model.
+Modelo híbrido: um surrogate aprende só as grandezas intermediárias e um pós-modelo físico explícito (nunca treinado, trocável sem retreino) calcula a grandeza derivada; a incerteza passa por Monte Carlo. Só NumPy (scikit-learn opcional).
 
 <small>`pinneapple_neural/workflows/hybrid_surrogate_physics.py` · 517 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsPostModel` | classe | `(name, source)` | An explicit physics model applied to the surrogate's intermediate quantities. |
-| `CallablePostModel` | classe | `(fn, name, source)` | Wrap a plain function as a :class:`PhysicsPostModel`. |
-| `SurrogatePrediction` | classe | `(mean, std, sampler)` | Predictive distribution of a surrogate over ``m`` flat outputs at ``n`` points. |
-| `Surrogate` | classe | `()` | Minimal surrogate interface: ``fit(X, Y)`` with X (n, d), Y (n, m); ``predict(X)`` returns a :class:`SurrogatePrediction`, a ``(mean, std)`` tuple (std may be None) or a mean array. |
-| `GaussianProcessSurrogate` | classe | `(*, n_restarts=2, random_state=0, use_sklearn=None)` | One independent Gaussian process per output column. |
-| `PCASurrogate` | classe | `(base, *, n_components=None, variance=None)` | Reduce the outputs with PCA, fit ``base`` on the scores, map predictions back. |
-| `TransformedSurrogate` | classe | `(base, forward, inverse, name='transform')` | Fit ``base`` on ``forward(Y)``; predictions are mapped back with ``inverse``. |
-| `PerQuantitySurrogate` | classe | `(blocks)` | One surrogate per block of output columns (e.g. one per intermediate quantity). |
-| `HybridPrediction` | classe | `(intermediates, derived_at_mean, derived_mean, derived_std, derived_lower, derived_upper,…)` | Output of :meth:`HybridSurrogatePhysics.predict`. |
-| `HybridSurrogatePhysics` | classe | `(surrogate, post_model, *, param_names=None)` | Surrogate of intermediate quantities composed with an explicit :class:`PhysicsPostModel`. |
+| `PhysicsPostModel` | classe | `(name, source)` | Pós-modelo físico explícito, com nome e fonte científica, aplicado às grandezas intermediárias. |
+| `CallablePostModel` | classe | `(fn, name, source)` | Envolve uma função simples como `PhysicsPostModel`. |
+| `SurrogatePrediction` | classe | `(mean, std, sampler)` | Distribuição preditiva do surrogate: média, desvio e amostrador opcional. |
+| `Surrogate` | classe | `()` | Interface mínima de surrogate: `fit(X, Y)` e `predict(X)`. |
+| `GaussianProcessSurrogate` | classe | `(*, n_restarts=2, random_state=0, use_sklearn=None)` | Um processo gaussiano por coluna de saída (scikit-learn se houver, senão um GP em NumPy). |
+| `PCASurrogate` | classe | `(base, *, n_components=None, variance=None)` | Reduz as saídas por PCA, ajusta o surrogate base nos escores e volta ao espaço original. |
+| `TransformedSurrogate` | classe | `(base, forward, inverse, name='transform')` | Ajusta o surrogate base em `forward(Y)` e desfaz com `inverse` na previsão. |
+| `PerQuantitySurrogate` | classe | `(blocks)` | Um surrogate por bloco de colunas de saída. |
+| `HybridPrediction` | classe | `(intermediates, derived_at_mean, derived_mean, derived_std, derived_lower, derived_upper,…)` | Saída do híbrido: intermediárias, grandeza derivada na média, média e desvio por Monte Carlo e intervalo. |
+| `HybridSurrogatePhysics` | classe | `(surrogate, post_model, *, param_names=None)` | Compõe o surrogate com o pós-modelo; `with_post_model` troca a física sem retreinar. |
 
 #### `pinneapple_neural.workflows.parametric_dense_volume_operator`
 
-A joint, multi-case extension of :mod:`dense_volume_operator`: one :class:`~pinneapple_neural.architectures.neural_operators.fno.FNO3d` trained across SEVERAL real dense-in-time volume time series that share the same physical problem but differ in a scalar (or low-dim) physical parameter ``theta`` …
+Extensão multicaso de `dense_volume_operator`: um `FNO3d` treinado em vários casos que diferem num parâmetro físico `theta`, usado como canal constante de entrada, com normalização global.
 
 <small>`pinneapple_neural/workflows/parametric_dense_volume_operator.py` · 382 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ParametricCase` | classe | `(name, frames, theta)` | One real training case: a dense-in-time volume sequence plus the scalar (or low-dim) physical parameter(s) that produced it. |
-| `ParametricDenseVolumeOperatorConfig` | classe | `(state_channels, theta_dim, width, modes, layers, epochs, lr, val_frac, batch_size, rollo…)` |  |
-| `train_parametric_dense_volume_operator` | função | `(cases, cfg, *, seed=0) -> Tuple[Checkpoint, List[Dict[str, Any]]]` | Jointly train one theta-conditioned :class:`FNO3d` across ``cases``. |
-| `load_parametric_dense_volume_operator` | função | `(checkpoint, *, device='cpu') -> nn.Module` |  |
-| `predict_single_step_parametric` | função | `(checkpoint, input_frame, theta, *, device='cpu') -> np.ndarray` | One forward pass at a given (possibly never-trained-on) ``theta``. ``input_frame``: (state_c, D, H, W), real units in, real units out. |
-| `rollout_parametric_dense_volume_operator` | função | `(checkpoint, initial_frame, theta, n_steps, *, device='cpu') -> np.ndarray` | Autoregressive rollout at a given ``theta``, re-attaching the (constant) theta channel after every step -- see module docstring ("theta is a condition, not a predicted state"). Returns ``(n_steps + 1, state_c, D, H, W)``, index 0 = ``initial_frame``. |
+| `ParametricCase` | classe | `(name, frames, theta)` | Um caso de treino: sequência de volumes e o parâmetro físico `theta` que a gerou. |
+| `ParametricDenseVolumeOperatorConfig` | classe | `(state_channels, theta_dim, width, modes, layers, epochs, lr, val_frac, batch_size, rollo…)` | Configuração do treino paramétrico (canais de estado, dimensão de theta, escala log de theta, pushforward). |
+| `train_parametric_dense_volume_operator` | função | `(cases, cfg, *, seed=0) -> Tuple[Checkpoint, List[Dict[str, Any]]]` | Treina um `FNO3d` condicionado em theta em todos os casos juntos. |
+| `load_parametric_dense_volume_operator` | função | `(checkpoint, *, device='cpu') -> nn.Module` | Reconstrói o `FNO3d` paramétrico a partir do checkpoint. |
+| `predict_single_step_parametric` | função | `(checkpoint, input_frame, theta, *, device='cpu') -> np.ndarray` | Um passo de previsão num `theta` dado, inclusive não visto no treino. |
+| `rollout_parametric_dense_volume_operator` | função | `(checkpoint, initial_frame, theta, n_steps, *, device='cpu') -> np.ndarray` | Rollout autorregressivo num `theta` dado, recolocando o canal de theta a cada passo. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Montar um modelo pelo registro com tamanho genérico** — `tests/pinneapple_neural/test_registry_size_kwargs.py`
+
+```python
+@pytest.mark.parametrize("name", ["vanilla_pinn", "bench_mlp"])
+def test_size_kwargs_are_honoured(name):
+    model, report = ModelRegistry.build_with_report(name, in_dim=2, out_dim=1, hidden_dim=16, n_layers=2)
+    assert not ({"hidden_dim", "n_layers"} & set(report.dropped)), report.dropped
+    assert _linears(model) == [(2, 16), (16, 16), (16, 1)]            # two hidden layers of width 16
+```
+
+**Estudo de ROM em snapshots separados** — `tests/test_rom_study.py`
+
+```python
+def test_dmd_and_opinf_forecast_a_linear_wave_and_time_interpolation_cannot():
+    r = rom_study(_wave(), ranks=[2, 4, 8], methods=["persistence", "pod_rbf", "dmd", "opinf"], timing_repeats=2)
+    err = {(x["method"], x["rank"]): x["error_mean"] for x in r.rows}
+    assert err[("persistence", None)] > 0.5                          # the waves move: the last snapshot is wrong
+    assert err[("opinf", 4)] < 1e-3          # rank 4 holds the two waves (OpInf works on centred coefficients)
+    assert err[("dmd", 8)] < 1e-3            # uncentred DMD: the mean is one more mode
+    assert err[("dmd", 4)] > 0.1 and err[("opinf", 2)] > 0.1
+```
+
+**Checks físicos num laço de treino PhysicsNeMo** — `tests/test_training_callbacks.py`
+
+```python
+
+def physicsnemo_loop(darcy, w, mon, steps=STEPS):
+    a, u, RL = darcy
+    net = fno(u)
+    opt = torch.optim.Adam(net.parameters(), 3e-3)
+    hook, u2, step = PhysicsNeMoHook(mon), float((u[:64] ** 2).mean()), 0
+    while step < steps:
+        for batch in loader(a, u):
+            loss = loss_fn(net, batch, RL, w, u2)
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+            step += 1
+            if hook(net, step, loss) or step == steps:
+```
 
 ### Testes e status de validação
 
@@ -2287,7 +2332,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Boa parte das arquiteturas não tem teste direto (testes=0 no inventário): famílias inteiras como `recurrent`, `transformers`, `reservoir_computing`, `classical_ts`, `continuous` e `convolutions`, além de `predictor`, `siren`, `hash_grid`, `afno` e `modified_mlp`.
+- Muitos modelos se descrevem como 'MVP' no docstring (filtros de Kalman, ARIMA, Neural ODE/SDE/CDE, GNNs, Koopman); `rom.deep_uq_rom` é explicitamente um esqueleto ('scaffold').
+- Dependências opcionais: `emmiai-noether` (bridge Noether), `physicsnemo` (field_operators e `require_physicsnemo_model`), `tfc` (X-TFC), `torchdiffeq` (métodos `dopri5`/`adams` de `GraphNeuralODE`), `onnxruntime` (`export_onnx`), `scikit-image` (isosuperfícies), `matplotlib` (gráficos), `lightning`/`transformers` (callbacks).
+- O bridge Noether é só para pesquisa: emite `ResearchOnlyWarning` sempre e levanta `ResearchOnlyError` com `PINNEAPPLE_COMMERCIAL_MODE=1`; as classes viram `None` se o pacote não estiver instalado.
+- `MeshGraphNet` implementa só o tipo de aresta da malha; o conjunto de arestas no espaço do mundo (contato) do artigo original não existe.
+- `register_all` ignora em silêncio (log em debug) famílias cujo import falha, então um modelo pode simplesmente não aparecer no registro.
+- A exportação ONNX de `ReducedModel` só cobre alguns métodos e opções e levanta `NotImplementedError` nos demais (por exemplo, RBF que não seja thin-plate spline).
+- O adaptador padrão de `adapters.base` usa `batch.get('x') or batch.get('x_col')`, o que falha com tensores de mais de um elemento; na prática ele depende de o modelo ter `forward_batch`.
 
 ## 2. `pinneapple_data`
 

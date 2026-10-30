@@ -3599,7 +3599,11 @@ def test_unavailable_node_finishes_not_run_and_downstream_too(tmp_path):
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_hub` reúne tudo o que o PINNeAPPle publica e distribui pronto: modelos treinados e verificados, datasets verificados, cartões de modelo e o índice do Hub de ferramentas. O pacote raiz expõe só o cliente genérico de hub: `push_to_hub` e `from_pretrained` sobre a infraestrutura do Hugging Face Hub (sem hospedagem própria), mais o `ModelCard`, contrato de reprodutibilidade em que `validation_metrics` calculadas são obrigatórias. `verified_card` cria esses cartões só a partir de uma rodada do `PhysicsGuardrail` de `pinneapple_llm`.
+
+O subpacote `zoo` é o que aparece como `pp.zoo` e `pp.datasets`: modelos pré-treinados (aerofólio, dissipadores de calor, contato de roda de rover) com faixa de validade, métricas contra referência guardada, checagens físicas que alimentam um `TrustReport` de `pinneapple_analysis`, fine-tune com guarda no conjunto de teste original e benchmark via `pp.benchmark`. Os arquivos são verificados por SHA-256 contra o `manifest.json`, cacheados e baixados sob demanda do Hugging Face Hub. O zoo também exporta ONNX (com as checagens por consulta dentro do grafo), safetensors, Parquet para o visualizador de datasets do Hub, cartões README, o Space estático de demonstração e o pacote web do Playground.
+
+O subpacote `library` gera o índice do Hub (app `apps/hub`): coleta ferramentas (funções públicas, nós do Flow Studio, receitas, ferramentas MCP), modelos, geometrias, datasets, fluxos e exemplos do repositório, cada item com um snippet executável cuja saída gravada é conferida por teste. Ele se liga a `pinneapple_flow` (nós, fluxos embutidos, links para o Flow Studio, composição de ferramentas próprias) e a `pinneapple_design` (biblioteca de geometrias).
 
 ### Números do inventário
 
@@ -3611,11 +3615,11 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `hub` |  | 1 | 2 | 0 |
-| `library` |  | 10 | 64 | 22 |
-| `model_card` |  | 1 | 1 | 21 |
-| `verified_card` |  | 1 | 4 | 6 |
-| `zoo` |  | 17 | 121 | 125 |
+| `hub` | `push_to_hub` e `from_pretrained`: envio e reconstrução de modelos no Hugging Face Hub com config e cartão. | 1 | 2 | 0 |
+| `library` | Índice do Hub de ferramentas: coleta de itens, snippets executáveis, execuções gravadas, busca, composição e links com o Flow Studio. | 10 | 64 | 22 |
+| `model_card` | `ModelCard`: contrato de reprodutibilidade com métricas de validação obrigatórias. | 1 | 1 | 21 |
+| `verified_card` | Cartões de modelo cujas métricas vêm só de uma rodada do guardrail físico; recusa os demais. | 1 | 4 | 6 |
+| `zoo` | `pp.zoo` e `pp.datasets`: modelos e datasets verificados, com checagens, exportação e publicação no Hugging Face Hub. | 17 | 121 | 125 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3623,475 +3627,510 @@ _Sem texto de objetivo._
 
 #### `pinneapple_hub`
 
-Model hub client: ``push_to_hub``/``from_pretrained`` + ``ModelCard``.
+Pacote raiz: reexporta `ModelCard`, `push_to_hub` e `from_pretrained`.
 
 <small>`pinneapple_hub/__init__.py` · 12 linhas · testes: 122</small>
 
 #### `pinneapple_hub.hub`
 
-``push_to_hub`` / ``from_pretrained`` for PINNeAPPle models, built on the Hugging Face Hub's own storage/auth/versioning infrastructure rather than a new hosting service this repository would have to build, operate, and secure itself. This is a deliberate, common pattern (many domain-specific …
+Envio e download de modelos PINNeAPPle no Hugging Face Hub, com o arquivo lateral `pinneapple_config.json` que permite reconstruir a arquitetura; exige o extra `hub` (`huggingface_hub`). [sem teste]
 
 <small>`pinneapple_hub/hub.py` · 151 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `push_to_hub` | função | `(model, repo_id, model_card, *, architecture=None, architecture_config=None, private=Fals…)` | Upload a trained model's weights + architecture config + model card to a Hugging Face Hub model repo. |
-| `from_pretrained` | função | `(repo_id, *, revision='main', device='cpu', token=None)` | Download and reconstruct a model pushed with :func:`push_to_hub`. |
+| `push_to_hub` | função | `(model, repo_id, model_card, *, architecture=None, architecture_config=None, private=Fals…)` | Envia pesos, config de arquitetura e cartão de modelo de um modelo treinado para um repositório do Hugging Face Hub. |
+| `from_pretrained` | função | `(repo_id, *, revision='main', device='cpu', token=None)` | Baixa e reconstrói, via `ModelRegistry`, um modelo enviado com `push_to_hub`. |
 
 #### `pinneapple_hub.library`
 
-The PINNeAPPle Hub index: every ready-made thing in the repository -- tools (public functions, Flow Studio nodes, recipes, MCP tools), trained models, geometries, datasets, flows and examples -- as one generated list, each item with a runnable snippet whose recorded run is checked by a test.
+Índice do Hub: todos os itens prontos do repositório numa lista gerada (`data/web/hub/index.json`), com busca, facetas, destaques, execução e verificação dos snippets.
 
 <small>`pinneapple_hub/library/__init__.py` · 303 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `collect` | função | `(only=None) -> list[dict[str, Any]]` | Items from every source (:data:`.sources.COLLECTORS`), ids unique, sorted by kind then title. |
-| `run_file` | função | `(item_id, runs=RUNS) -> Path` | The file holding the recorded run of one item: ``snippet_runs/<id with unsafe characters as _>.json``. |
-| `read_runs` | função | `(path=RUNS) -> dict[str, Any]` | Every recorded run, by item id (each file under ``snippet_runs/`` carries its item's ``id``). |
-| `write_run` | função | `(item_id, rec, runs=RUNS) -> Path` |  |
-| `attach_runs` | função | `(items, runs) -> None` | Set ``run`` on each item: the recorded run of its current snippet (same code hash), else the module reference's own run of a recipe, else ``{"status": "not run"}``. |
-| `facets` | função | `(items) -> dict[str, Any]` |  |
-| `quality_key` | função | `(it) -> str` | The filter value of an item's quality: a Lab letter, a zoo decision, or "not graded". |
-| `featured` | função | `(items, n=8) -> list[str]` | Highlights, by a fixed rule: approved zoo models, A-sealed examples with figures, geometries with a thumbnail, then flows; each with a passing recorded run. |
-| `build` | função | `(only=None, runs=None) -> dict[str, Any]` | The whole index (not written; see :func:`write_index`). |
-| `write_index` | função | `(index, path=INDEX) -> Path` |  |
-| `load_index` | função | `(path=INDEX, *, rebuild=False) -> dict[str, Any]` | The index at ``path``. The default index is a cache: built from the sources (and written) when it is missing or ``rebuild`` is set; rebuild it after changing a source with ``python -m pinneapple_hub.library build``. |
-| `get` | função | `(index, item_id) -> dict[str, Any]` |  |
-| `score` | função | `(it, query) -> float` | Relevance of an item to a query; 0 = no match. Every query word must match: title weighs most, then name and tags, then summary, domain and description. |
-| `search` | função | `(index, query='', *, kind=None, domain=None, quality=None, subkind=None, category=None, l…)` | Items matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in lower case, or "not graded"), best first; without a query, in index order. |
-| `record_runs` | função | `(items, *, stale_only=False, timeout=300.0, ids=None, workers=4, log=print) -> dict[str, …)` | Run the snippets (all, the ones not recorded for their current code, or ``ids``) in ``workers`` parallel interpreters, save their figures under ``data/web/hub/figures`` and write one ``snippet_runs/<id>.json`` each. Recipes the module reference already ran are reused. |
-| `check` | função | `(index) -> list[str]` | Problems of an index: a snippet without a passing run of its current code, a file or link path that does not exist in the repository, an example id that is not an item. |
+| `collect` | função | `(only=None) -> list[dict[str, Any]]` | Itens de todas as fontes (`sources.COLLECTORS`), ids únicos, ordenados por tipo e título. |
+| `run_file` | função | `(item_id, runs=RUNS) -> Path` | Arquivo que guarda a execução gravada de um item (`snippet_runs/<id>.json`). |
+| `read_runs` | função | `(path=RUNS) -> dict[str, Any]` | Todas as execuções gravadas, por id de item. |
+| `write_run` | função | `(item_id, rec, runs=RUNS) -> Path` | Grava a execução de um item no seu arquivo em `snippet_runs/`. |
+| `attach_runs` | função | `(items, runs) -> None` | Liga a cada item a execução gravada do snippet atual (mesmo hash), senão a do exemplo da referência, senão `not run`. |
+| `facets` | função | `(items) -> dict[str, Any]` | Contagens por tipo, subtipo, domínio, categoria e qualidade, para os filtros. |
+| `quality_key` | função | `(it) -> str` | Valor de filtro da qualidade de um item: nota do Lab, decisão do zoo ou "not graded". |
+| `featured` | função | `(items, n=8) -> list[str]` | Destaques por regra fixa: modelos aprovados do zoo, exemplos com selo A e figuras, geometrias com miniatura, depois fluxos. |
+| `build` | função | `(only=None, runs=None) -> dict[str, Any]` | Monta o índice inteiro em memória (sem gravar). |
+| `write_index` | função | `(index, path=INDEX) -> Path` | Grava o índice em JSON. |
+| `load_index` | função | `(path=INDEX, *, rebuild=False) -> dict[str, Any]` | Lê o índice; o padrão é um cache reconstruído das fontes quando falta ou com `rebuild=True`. |
+| `get` | função | `(index, item_id) -> dict[str, Any]` | Devolve um item do índice pelo id. |
+| `score` | função | `(it, query) -> float` | Relevância de um item para uma consulta (0 = sem match); todas as palavras devem casar, com peso maior no título. |
+| `search` | função | `(index, query='', *, kind=None, domain=None, quality=None, subkind=None, category=None, l…)` | Itens que casam com a consulta e os filtros (tipo, domínio, qualidade, subtipo, categoria), ordenados por relevância. |
+| `record_runs` | função | `(items, *, stale_only=False, timeout=300.0, ids=None, workers=4, log=print) -> dict[str, …)` | Roda os snippets (todos, só os desatualizados ou ids escolhidos) em paralelo no sandbox e grava as saídas. |
+| `check` | função | `(index) -> list[str]` | Problemas de um índice: snippet sem execução aprovada do código atual, arquivo ou link inexistente, entre outros. |
 
 #### `pinneapple_hub.library.__main__`
 
-``python -m pinneapple_hub.library build | run [--stale] [ids ...] | check`` (see the package docstring).
+Linha de comando `python -m pinneapple_hub.library build | run | check` (e `flowruns`). [sem teste]
 
 <small>`pinneapple_hub/library/__main__.py` · 47 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Ponto de entrada da linha de comando do índice do Hub. |
 
 #### `pinneapple_hub.library.categories`
 
-The 20 task categories of the Hub's tools. Every tool gets exactly one, by the longest rule prefix that matches its key; the key names where the tool comes from (``node:<flow node type>``, ``lib:<module>:<function>`` for a generated library call, ``fn:<dotted name>``, ``mcp:<agent tool>``). Recipes …
+As categorias de tarefa das ferramentas do Hub: cada ferramenta recebe exatamente uma, pela regra de prefixo mais longa sobre a chave de origem; receitas são listadas uma a uma.
 
 <small>`pinneapple_hub/library/categories.py` · 174 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `key` | função | `(it) -> str` | Where a tool comes from, as the prefix rules read it. |
-| `category_of` | função | `(it) -> str \| None` | The slug of a tool's category, or None when no rule matches (a test forbids that). |
-| `table` | função | `() -> list[dict[str, str]]` |  |
+| `key` | função | `(it) -> str` | Chave de origem de uma ferramenta, no formato que as regras de prefixo leem (`node:`, `lib:`, `fn:`, `mcp:`). |
+| `category_of` | função | `(it) -> str \| None` | Slug da categoria de uma ferramenta, ou `None` se nenhuma regra casa (um teste proíbe isso). |
+| `table` | função | `() -> list[dict[str, str]]` | Tabela das categorias (slug, título e descrição). |
 
 #### `pinneapple_hub.library.compose`
 
-"Create your own": a custom tool composed from existing blocks (Flow Studio node types, optionally a bundled flow to start from and a library geometry), returned as a flow document and the Python that runs it.
+"Crie a sua": compõe uma ferramenta a partir de blocos existentes (tipos de nó do Flow Studio, fluxo inicial opcional, geometria) e devolve o documento de fluxo e o Python que o roda.
 
 <small>`pinneapple_hub/library/compose.py` · 191 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ComposeError` | classe | `()` |  |
-| `blocks` | função | `() -> list[dict[str, Any]]` | The blocks the composer offers: every node type of Flow Studio's palette (curated nodes first, then the generated library calls), by palette section, with its ports and parameters. |
-| `compose` | função | `(spec) -> dict[str, Any]` | See the module doc. ``spec``: ``name``, ``description``, ``blocks`` ([{type, params}]), optional ``start`` (a bundled flow name to append the blocks to) and ``geometry`` (a geometry library entry the code loads). |
-| `code_for` | função | `(doc, *, geometry='', workdir='hub_tool', expose=None) -> str` | Python that rebuilds the flow, validates it, runs it headless and prints what each node measured; exposed parameters are variables set before the run. |
+| `ComposeError` | classe | `()` | Erro de composição (`ValueError`): especificação inválida ou blocos demais. |
+| `blocks` | função | `() -> list[dict[str, Any]]` | Blocos que o compositor oferece: todos os tipos de nó da paleta do Flow Studio, curados primeiro. |
+| `compose` | função | `(spec) -> dict[str, Any]` | Monta o fluxo a partir da especificação (nome, blocos, início, parâmetros expostos), liga entradas e valida. |
+| `code_for` | função | `(doc, *, geometry='', workdir='hub_tool', expose=None) -> str` | Python que reconstrói o fluxo, valida, roda sem interface e imprime as métricas de cada nó. |
 
 #### `pinneapple_hub.library.flowlink`
 
-The Hub and Flow Studio on one registry: a ready flow around any node type, and links between the two apps.
+Liga o Hub ao Flow Studio sobre o mesmo registro: monta um fluxo pronto em volta de qualquer tipo de nó e gera links entre os dois apps.
 
 <small>`pinneapple_hub/library/flowlink.py` · 173 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FlowLinkError` | classe | `()` |  |
-| `bundled_flows_using` | função | `(type_) -> list[str]` | Names of the bundled flows that contain a node of ``type_``. |
-| `flow_for_node` | função | `(type_, params=None, *, report=True) -> dict[str, Any]` | See the module doc. Raises :class:`FlowLinkError` for an unknown type; parameter problems and unwired inputs come back in ``issues``. |
-| `b64url` | função | `(obj) -> str` |  |
-| `from_b64url` | função | `(text) -> Any` |  |
-| `flow_link` | função | `(flow, *, base) -> str` | Flow Studio URL that opens ``flow`` (``?flow=``). |
-| `add_link` | função | `(type_, params=None, *, base) -> str` | Flow Studio URL that adds a node of ``type_`` (with ``params``) to a flow the user picks (``?add=``). |
+| `FlowLinkError` | classe | `()` | Erro ao montar um fluxo para um tipo de nó (por exemplo tipo desconhecido). |
+| `bundled_flows_using` | função | `(type_) -> list[str]` | Nomes dos fluxos embutidos que contêm um nó do tipo dado. |
+| `flow_for_node` | função | `(type_, params=None, *, report=True) -> dict[str, Any]` | Monta entradas → ferramenta → relatório para um tipo de nó, reaproveitando um fluxo embutido ou escolhendo produtores para as entradas. |
+| `b64url` | função | `(obj) -> str` | Codifica um objeto JSON em base64 para URL. |
+| `from_b64url` | função | `(text) -> Any` | Decodifica o base64 de URL de volta para o objeto JSON. |
+| `flow_link` | função | `(flow, *, base) -> str` | URL do Flow Studio que abre um fluxo (`?flow=`). |
+| `add_link` | função | `(type_, params=None, *, base) -> str` | URL do Flow Studio que adiciona um nó a um fluxo escolhido pelo usuário (`?add=`). |
 
 #### `pinneapple_hub.library.flowruns`
 
-Recorded runs of the bundled flows (``pinneapple_flow/flows``), shown in the Hub on each flow's page and on the page of every node type the flow uses.
+Execuções gravadas dos fluxos embutidos (`pinneapple_flow/flows`), mostradas na página de cada fluxo e de cada tipo de nó usado; válidas enquanto o SHA-256 do arquivo do fluxo não muda.
 
 <small>`pinneapple_hub/library/flowruns.py` · 109 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `flow_hash` | função | `(name) -> str` |  |
-| `read_flow_runs` | função | `(path=FLOW_RUNS) -> dict[str, Any]` |  |
-| `current` | função | `(runs, name) -> dict[str, Any] \| None` | The recorded run of ``name`` if it was recorded for the flow file as it is now. |
-| `record` | função | `(names=None, *, timeout=900.0, workers=2, log=print) -> dict[str, Any]` | Run the bundled flows (all, or ``names``) and write ``flow_runs.json``. |
-| `runs_for_node` | função | `(runs, type_) -> list[dict[str, Any]]` | Every node of ``type_`` in a current recorded flow run: flow, node id, status, metrics, summary. |
+| `flow_hash` | função | `(name) -> str` | Hash SHA-256 curto do arquivo JSON de um fluxo embutido. |
+| `read_flow_runs` | função | `(path=FLOW_RUNS) -> dict[str, Any]` | Lê `flow_runs.json` com as execuções gravadas. |
+| `current` | função | `(runs, name) -> dict[str, Any] \| None` | A execução gravada de um fluxo, só se foi gravada para o arquivo como está agora. |
+| `record` | função | `(names=None, *, timeout=900.0, workers=2, log=print) -> dict[str, Any]` | Roda os fluxos embutidos no sandbox e grava `flow_runs.json`. |
+| `runs_for_node` | função | `(runs, type_) -> list[dict[str, Any]]` | Cada nó de um tipo nas execuções atuais: fluxo, id do nó, status, métricas e resumo. |
 
 #### `pinneapple_hub.library.myhub`
 
-"My Hub": the tools a person composed and saved, as Hub items in a local folder (one JSON file each).
+"Meu Hub": ferramentas compostas e salvas por uma pessoa, como itens do Hub numa pasta local (um JSON cada).
 
 <small>`pinneapple_hub/library/myhub.py` · 87 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MyHubError` | classe | `()` |  |
-| `MyHub` | classe | `(root)` |  |
+| `MyHubError` | classe | `()` | Erro do Meu Hub (`ValueError`), por exemplo limite de ferramentas atingido ou ferramenta grande demais para salvar. |
+| `MyHub` | classe | `(root)` | Pasta local de ferramentas próprias com `save`, `list`, `get` e `delete`. |
 
 #### `pinneapple_hub.library.sandbox`
 
-Run a code snippet in a short-lived, separate interpreter and keep what it printed and drew.
+Roda um snippet num interpretador separado e de vida curta, guardando o que imprimiu e as figuras; tem limites de tempo e, em POSIX, de memória, CPU e arquivo, mas não bloqueia rede.
 
 <small>`pinneapple_hub/library/sandbox.py` · 104 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `code_hash` | função | `(code) -> str` | Short SHA-256 of a snippet: a recorded run is current only while its snippet has this hash. |
-| `run_snippet` | função | `(code, *, timeout=60.0, memory_mb=None, cpu_s=None, max_figures=4, env=None) -> dict[str,…)` | Run ``code`` (see the module doc). Returns ``ok``, ``stdout``, ``stderr`` (last lines), ``seconds``, ``timed_out``, ``code_hash`` and ``figures`` (a list of PNG ``bytes``, at most ``max_figures``). |
+| `code_hash` | função | `(code) -> str` | SHA-256 curto de um snippet; uma execução gravada só é atual enquanto o snippet tem esse hash. |
+| `run_snippet` | função | `(code, *, timeout=60.0, memory_mb=None, cpu_s=None, max_figures=4, env=None) -> dict[str,…)` | Executa o código em diretório temporário com matplotlib Agg, sem GPU e com limites, e devolve `ok`, stdout, segundos e figuras PNG. |
 
 #### `pinneapple_hub.library.snippets`
 
-The minimal, runnable code of each Hub item. Every snippet built here is run by ``python -m pinneapple_hub.library run`` (output recorded in ``data/web/hub/snippet_runs/``) and again by ``tests/test_hub_library.py``; keep them short, offline and fast.
+Código mínimo e executável de cada item do Hub, rodado por `python -m pinneapple_hub.library run` e pelos testes; curto, offline e rápido. [sem teste]
 
 <small>`pinneapple_hub/library/snippets.py` · 121 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `model` | função | `(name, example) -> str` |  |
-| `dataset` | função | `(name, split) -> str` |  |
-| `geometry` | função | `(name) -> str` |  |
-| `flow` | função | `(name) -> str` |  |
-| `node` | função | `(type_) -> str` |  |
-| `auto_call` | função | `(target, node_type, defaults=None) -> str` | A generated library call that runs with its defaults (the node's parameter form): call it with them and show what it returns. |
-| `api` | função | `(dotted) -> str` |  |
-| `mcp` | função | `(name, *, call) -> str` |  |
-| `example` | função | `(folder) -> str` |  |
-| `lab_item` | função | `(key) -> str` |  |
-| `symbols` | função | `(code) -> list[str]` | ``pp.xxx`` names a snippet calls (for tags and links). |
+| `model` | função | `(name, example) -> str` | Snippet de um modelo do zoo: carrega, prevê num exemplo e valida. |
+| `dataset` | função | `(name, split) -> str` | Snippet de um dataset: carrega um split ou mostra informações e licença. |
+| `geometry` | função | `(name) -> str` | Snippet de uma geometria da biblioteca de geometrias. |
+| `flow` | função | `(name) -> str` | Snippet que carrega e roda um fluxo embutido. |
+| `node` | função | `(type_) -> str` | Snippet de um tipo de nó do Flow Studio. |
+| `auto_call` | função | `(target, node_type, defaults=None) -> str` | Chamada gerada de uma função da biblioteca com os padrões do formulário do nó. |
+| `api` | função | `(dotted) -> str` | Snippet de uma função pública pelo nome pontilhado. |
+| `mcp` | função | `(name, *, call) -> str` | Snippet de uma ferramenta do servidor MCP. |
+| `example` | função | `(folder) -> str` | Snippet de uma pasta de exemplo. |
+| `lab_item` | função | `(key) -> str` | Snippet de um item do Lab. |
+| `symbols` | função | `(code) -> list[str]` | Nomes `pp.xxx` chamados por um snippet (para tags e links). |
 
 #### `pinneapple_hub.library.sources`
 
-Where the Hub's items come from. Each collector reads one existing source of the repository and returns items in the Hub format (see :mod:`pinneapple_hub.library`); nothing here is written by hand.
+Coletores dos itens do Hub: cada um lê uma fonte existente do repositório (manifesto do zoo, biblioteca de geometrias, fluxos, registro de nós, AGENTS.md, servidor MCP, exemplos); nada é escrito à mão. [sem teste]
 
 <small>`pinneapple_hub/library/sources.py` · 579 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `rel` | função | `(p) -> str` |  |
-| `domain` | função | `(name, tags=()) -> str` | The physical domain, by the Lab's own rule (``pinneapple_lab.manifest.domain_of``): on the first word of ``name`` (the item's own name) when that decides it, else on the whole text and the tags. |
-| `used_by_examples` | função | `(*needles) -> list[str]` | Example folders whose scripts contain one of ``needles`` as a quoted string or a call. |
-| `models` | função | `() -> list[dict[str, Any]]` |  |
-| `datasets` | função | `() -> list[dict[str, Any]]` |  |
-| `geometries` | função | `() -> list[dict[str, Any]]` |  |
-| `flows` | função | `() -> list[dict[str, Any]]` |  |
-| `nodes` | função | `() -> list[dict[str, Any]]` | Every node type of Flow Studio's palette (``pinneapple_flow.REGISTRY``: the curated nodes and the generated library calls), so the palette and the Hub list the same tools from the same registry. |
-| `node_for_callable` | função | `() -> dict[str, str]` | ``module:function`` -> the node type that wraps it (generated library calls by their target, curated nodes by the ``module:function`` or ``module.function`` they declare in ``calls``). |
-| `recipes` | função | `() -> list[dict[str, Any]]` |  |
-| `apis` | função | `() -> list[dict[str, Any]]` | One item per row of AGENTS.md's "Use these APIs first" table, for the functions that row names. |
-| `agent_tools` | função | `() -> list[dict[str, Any]]` | The MCP server's tools, read from the source (``@server.tool()`` functions). |
-| `examples` | função | `() -> list[dict[str, Any]]` |  |
+| `rel` | função | `(p) -> str` | Caminho relativo à raiz do repositório, em formato POSIX. |
+| `domain` | função | `(name, tags=()) -> str` | Domínio físico de um item pela regra do Lab (`pinneapple_lab.manifest.domain_of`). |
+| `used_by_examples` | função | `(*needles) -> list[str]` | Pastas de exemplo cujos scripts contêm um dos termos dados como string ou chamada. |
+| `models` | função | `() -> list[dict[str, Any]]` | Itens de modelos do zoo (manifesto, cartões, exemplo do teste, grafos ONNX do navegador). |
+| `datasets` | função | `() -> list[dict[str, Any]]` | Itens dos datasets do manifesto do zoo. |
+| `geometries` | função | `() -> list[dict[str, Any]]` | Itens da biblioteca de geometrias de `pinneapple_design`. |
+| `flows` | função | `() -> list[dict[str, Any]]` | Itens dos fluxos embutidos do Flow Studio. |
+| `nodes` | função | `() -> list[dict[str, Any]]` | Itens de cada tipo de nó da paleta do Flow Studio (curados e chamadas de biblioteca geradas). |
+| `node_for_callable` | função | `() -> dict[str, str]` | Mapa `módulo:função` → tipo de nó que a envolve. |
+| `recipes` | função | `() -> list[dict[str, Any]]` | Itens de receitas: blocos Python do AGENTS.md e exemplos da referência de módulos. |
+| `apis` | função | `() -> list[dict[str, Any]]` | Um item por linha da tabela "Use these APIs first" do AGENTS.md. |
+| `agent_tools` | função | `() -> list[dict[str, Any]]` | Ferramentas do servidor MCP, lidas do código-fonte (funções `@server.tool()`). |
+| `examples` | função | `() -> list[dict[str, Any]]` | Itens das pastas de exemplos. |
 
 #### `pinneapple_hub.model_card`
 
-``ModelCard``: the reproducibility contract every hub-pushed model carries.
+`ModelCard`: contrato de reprodutibilidade de todo modelo enviado ao hub (arquitetura, config de treino, linhagem dos dados, métricas de validação calculadas e decisão de confiança).
 
 <small>`pinneapple_hub/model_card.py` · 180 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelCard` | classe | `(name, description, task, version, inputs, outputs, validity_range, known_limitations, ar…)` |  |
+| `ModelCard` | classe | `(name, description, task, version, inputs, outputs, validity_range, known_limitations, ar…)` | Cartão de modelo com tarefa, entradas/saídas, faixa de validade, limitações, arquitetura, equações e métricas; `validate()` lista problemas e há exportação para dict, JSON e Markdown. |
 
 #### `pinneapple_hub.verified_card`
 
-Model cards whose ``validation_metrics`` come only from a guardrail run against the model, refused otherwise.
+Cartões de modelo cujas `validation_metrics` vêm só de uma rodada do `PhysicsGuardrail` contra o modelo; cartão que não passa em `ModelCard.validate()` é recusado.
 
 <small>`pinneapple_hub/verified_card.py` · 122 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CardRefused` | classe | `(problems)` | The card built from a guardrail run did not pass ``ModelCard.validate()``; ``.problems`` lists why. |
-| `validation_metrics_from_report` | função | `(report) -> dict[str, float]` | ``{check name: value}`` for numeric checks, ``{<name>_passed: 1.0 \| 0.0}`` for pass/fail-only checks. |
-| `card_from_guardrail` | função | `(spec, report, *, name, preset, preset_kwargs=None, architecture, architecture_config, tr…)` | A ``ModelCard`` for a model of preset ``preset`` from its guardrail ``report`` (not validated here). |
-| `certify_model` | função | `(preset, name, *, preset_kwargs=None, architecture='modified_mlp', architecture_config=No…)` | Train (or load ``state_dict``: a dict or ``torch.save`` bytes) a model of ``preset``, check it, build its card. |
+| `CardRefused` | classe | `(problems)` | Exceção: o cartão gerado do guardrail não passou em `ModelCard.validate()`; `.problems` diz por quê. |
+| `validation_metrics_from_report` | função | `(report) -> dict[str, float]` | Converte um relatório do guardrail em métricas: valor de cada checagem numérica e `<nome>_passed` (1.0/0.0) para as de passa/falha. |
+| `card_from_guardrail` | função | `(spec, report, *, name, preset, preset_kwargs=None, architecture, architecture_config, tr…)` | Monta um `ModelCard` a partir de um relatório do guardrail e levanta `CardRefused` se ele não valida. |
+| `certify_model` | função | `(preset, name, *, preset_kwargs=None, architecture='modified_mlp', architecture_config=No…)` | Constrói ou carrega um modelo para um preset, treina se não há pesos, roda o guardrail e devolve o cartão verificado. |
 
 #### `pinneapple_hub.zoo`
 
-``pp.zoo``: pre-trained, verified PINNeAPPle models in one line -- load, predict, evaluate against the stored reference, validate (physics checks + validity range), benchmark and fine-tune with a held-out guard.
+`pp.zoo`: modelos pré-treinados e verificados em uma linha (listar, carregar, prever, avaliar, validar, consultar checagens, exportar, fazer benchmark e fine-tune com guarda).
 
 <small>`pinneapple_hub/zoo/__init__.py` · 341 linhas · testes: 125</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FinetuneRejectedError` | classe | `()` | The fine-tuned model is worse than the original on the original test set (pass ``force=True`` to save it). |
-| `FinetuneResult` | classe | `(model, original, before, after, accepted, tolerance, history, new_data_metrics, saved_to)` |  |
-| `export_onnx` | função | `(name, path, *, checks=False, check_parity=True, offline=None) -> dict[str, Any]` | Export a model to ONNX (pre/post-processing included; parity with PyTorch checked to 1e-5). See :func:`pinneapple_hub.zoo.export.export_onnx`. |
-| `onnx_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> float` | Largest scaled difference between an ONNX graph and the PyTorch model (:mod:`pinneapple_hub.zoo.export`). |
-| `query_checks` | função | `(name, inputs=None, *, offline=None, **named) -> builtins.list` | Per-query trust checks and verdict for each input row (:mod:`pinneapple_hub.zoo.checks`). |
-| `check_spec` | função | `(name, *, offline=None) -> dict[str, Any]` | The declarative spec of a model's query checks (:func:`pinneapple_hub.zoo.checks.check_spec`). |
-| `export_web` | função | `(name, directory, *, offline=None) -> dict[str, Any]` | ONNX graph with query checks + JSON card/spec for the browser (:mod:`pinneapple_hub.zoo.web`). |
-| `list` | função | `(task=None) -> builtins.list` | Names of the shipped models (optionally only those whose task or tags mention ``task``). |
-| `info` | função | `(name, *, offline=None, version=None) -> ModelCard` | The model card (``ModelCard``): task, inputs/outputs with units, validity range, metrics against the reference, training data, licence, citation and the stored trust report. ``print(card.to_markdown())``. |
-| `load` | função | `(name, *, offline=None, version=None) -> ZooModel` | A ready-to-use predictor (weights verified against the manifest's SHA-256). ``version`` loads a superseded release (see :func:`versions`; a ``SupersededModelWarning`` says why it was superseded). |
-| `versions` | função | `(name) -> builtins.list[dict[str, str]]` | Every release of a model, newest first, with the reason each older one was superseded. |
-| `predict` | função | `(name, inputs=None, **named) -> dict[str, np.ndarray]` | ``load(name).predict(...)`` in one call. |
-| `catalogue` | função | `() -> str` | Markdown page of every model and dataset: metrics, trust decision, size, Hugging Face link (``docs/guides/zoo_catalogue.md`` is this page). |
-| `status` | função | `(name) -> dict[str, str]` | Where each file of a model resolves from right now (bundled \| cached \| remote), without downloading. |
-| `evaluate` | função | `(name, dataset=None, *, split=None, offline=None, rtol=None) -> dict[str, Any]` | Metrics of a model against reference cases. |
-| `validate` | função | `(name, inputs=None, *, offline=None)` | Trust report (``pinneapple_analysis.trust.TrustReport``) of a model: its card metrics reproduced on the stored reference, the acceptance limits of the zoo gate, the model's physics checks and -- if ``inputs`` are given -- whether they are inside the validity range (an out-of-range warning is raised … |
-| `finetune` | função | `(name, new_data, *, epochs=200, lr=0.0001, batch=256, weight_decay=0.0, tolerance=0.02, s…)` | Fine-tune a copy of a zoo model on ``new_data`` (``(inputs, outputs)``, a dataset split or a mapping of columns; NaN outputs are ignored) and check it on the model's ORIGINAL held-out test set. |
-| `benchmark` | função | `(name, *, budget_s=60.0, seeds=1, baselines=('retrain',), out_dir='zoo_benchmark', force=…)` | Benchmark a zoo model with ``pp.benchmark``: the shipped model against the same architecture retrained from scratch on the same training split under ``budget_s`` seconds (CPU), on the same held-out test set, with ``pp.benchmark``'s gates, report and trust card. Returns its ``BenchmarkResult``. … |
+| `FinetuneRejectedError` | classe | `()` | Exceção: o modelo ajustado ficou pior que o original no teste original (use `force=True` para salvar mesmo assim). |
+| `FinetuneResult` | classe | `(model, original, before, after, accepted, tolerance, history, new_data_metrics, saved_to)` | Resultado de `finetune`: modelo novo, original, métricas antes/depois, se foi aceito, tolerância, histórico e onde foi salvo. |
+| `export_onnx` | função | `(name, path, *, checks=False, check_parity=True, offline=None) -> dict[str, Any]` | Exporta um modelo para ONNX com pré e pós-processamento dentro do grafo e confere paridade com o PyTorch. |
+| `onnx_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> float` | Maior diferença escalada entre um grafo ONNX e o modelo PyTorch. |
+| `query_checks` | função | `(name, inputs=None, *, offline=None, **named) -> builtins.list` | Checagens de confiança e veredito para cada linha de entrada. |
+| `check_spec` | função | `(name, *, offline=None) -> dict[str, Any]` | Especificação declarativa das checagens por consulta de um modelo. |
+| `export_web` | função | `(name, directory, *, offline=None) -> dict[str, Any]` | Grafo ONNX com checagens mais o JSON de cartão e spec, para o navegador. |
+| `list` | função | `(task=None) -> builtins.list` | Nomes dos modelos publicados, com filtro opcional por tarefa ou tag. |
+| `info` | função | `(name, *, offline=None, version=None) -> ModelCard` | Cartão do modelo: tarefa, entradas/saídas com unidades, faixa de validade, métricas, dados de treino, licença e citação. |
+| `load` | função | `(name, *, offline=None, version=None) -> ZooModel` | Preditor pronto, com pesos conferidos pelo SHA-256 do manifesto; `version` carrega uma versão substituída. |
+| `versions` | função | `(name) -> builtins.list[dict[str, str]]` | Todas as versões de um modelo, da mais nova para a mais antiga, com o motivo de cada substituição. |
+| `predict` | função | `(name, inputs=None, **named) -> dict[str, np.ndarray]` | Atalho para `load(name).predict(...)`. |
+| `catalogue` | função | `() -> str` | Página Markdown com todos os modelos e datasets: métricas, decisão de confiança, tamanho e link do Hub. |
+| `status` | função | `(name) -> dict[str, str]` | De onde cada arquivo do modelo seria lido agora (bundled, cached ou remote), sem baixar. |
+| `evaluate` | função | `(name, dataset=None, *, split=None, offline=None, rtol=None) -> dict[str, Any]` | Métricas do modelo contra os casos de referência guardados. |
+| `validate` | função | `(name, inputs=None, *, offline=None)` | `TrustReport` do modelo: métricas do cartão reproduzidas, checagens físicas e faixa de validade. |
+| `finetune` | função | `(name, new_data, *, epochs=200, lr=0.0001, batch=256, weight_decay=0.0, tolerance=0.02, s…)` | Ajusta o modelo com dados novos e só aceita se não piorar no teste original além da tolerância (com replay opcional). |
+| `benchmark` | função | `(name, *, budget_s=60.0, seeds=1, baselines=('retrain',), out_dir='zoo_benchmark', force=…)` | Coloca o modelo do zoo em `pp.benchmark` contra a mesma arquitetura treinada do zero no orçamento dado. |
 
 #### `pinneapple_hub.zoo._artifacts`
 
-Artifact store of the zoo: manifest, SHA-256 checks, local cache and lazy download from the Hugging Face Hub.
+Armazém de artefatos do zoo: manifesto, checagem SHA-256, cache local e download preguiçoso do Hugging Face Hub.
 
 <small>`pinneapple_hub/zoo/_artifacts.py` · 237 linhas · testes: 81</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZooError` | classe | `()` | Base class of the zoo's errors. |
-| `ArtifactNotPublishedError` | classe | `()` | The artifact is in the manifest but not (yet) on the Hugging Face Hub. |
-| `ArtifactUnavailableError` | classe | `()` | The artifact is neither bundled nor cached and cannot be downloaded (offline or network error). |
-| `ChecksumMismatchError` | classe | `()` | A file's SHA-256 differs from the manifest: corrupt, truncated or tampered with. |
-| `sha256_file` | função | `(path, chunk=1 << 20) -> str` |  |
-| `manifest` | função | `() -> dict[str, Any]` | The parsed ``manifest.json`` (re-read when the file changes). |
-| `cache_dir` | função | `() -> Path` |  |
-| `is_offline` | função | `(offline=None) -> bool` |  |
-| `entry` | função | `(kind, name, version=None) -> dict[str, Any]` | The manifest entry of a model (``kind="models"``) or dataset (``kind="datasets"``); with ``version``, the entry of that release -- the current one or one listed under ``superseded`` (its files are on the Hub, under its own tag; the reason it was superseded is in ``superseded_reason``). |
-| `versions` | função | `(kind, name) -> list[dict[str, str]]` | Every release of an item, newest first: version, revision and, for older ones, why they were superseded. |
-| `revisions` | função | `(ent) -> list[str]` | Hub revisions holding an entry's files, in the order they are tried: its ``revision`` and, when that is a republication of the same files (``v1.0.0.post1``: new card, Parquet or safetensors copies), the tag of the version itself (``v1.0.0``). Every file is checked against the manifest's SHA-256 … |
-| `fetch` | função | `(kind, name, filename, *, offline=None, version=None) -> Path` | Local path of one file of a model or dataset (``version``: a superseded release instead of the current one), verified against the manifest's SHA-256. |
-| `status` | função | `(kind, name) -> dict[str, str]` | Where each file of an item currently resolves from without downloading: bundled \| cached \| remote. |
+| `ZooError` | classe | `()` | Classe base dos erros do zoo. |
+| `ArtifactNotPublishedError` | classe | `()` | O artefato está no manifesto mas ainda não está no Hugging Face Hub. |
+| `ArtifactUnavailableError` | classe | `()` | O artefato não está empacotado nem em cache e não pode ser baixado (offline ou erro de rede). |
+| `ChecksumMismatchError` | classe | `()` | O SHA-256 de um arquivo difere do manifesto: corrompido, truncado ou adulterado. |
+| `sha256_file` | função | `(path, chunk=1 << 20) -> str` | SHA-256 de um arquivo, lido em blocos. |
+| `manifest` | função | `() -> dict[str, Any]` | O `manifest.json` lido (relido quando o arquivo muda). |
+| `cache_dir` | função | `() -> Path` | Pasta de cache local dos artefatos. |
+| `is_offline` | função | `(offline=None) -> bool` | Diz se o zoo opera offline: pelo argumento, senão pelas variáveis `PINNEAPPLE_OFFLINE` ou `HF_HUB_OFFLINE`. |
+| `entry` | função | `(kind, name, version=None) -> dict[str, Any]` | Entrada do manifesto de um modelo ou dataset, opcionalmente de uma versão específica. |
+| `versions` | função | `(kind, name) -> list[dict[str, str]]` | Todas as versões de um item, da mais nova à mais antiga, com revisão e motivo de substituição. |
+| `revisions` | função | `(ent) -> list[str]` | Revisões do Hub que guardam os arquivos de uma entrada, na ordem em que são tentadas. |
+| `fetch` | função | `(kind, name, filename, *, offline=None, version=None) -> Path` | Caminho local de um arquivo de modelo ou dataset: empacotado, em cache ou baixado e conferido. |
+| `status` | função | `(kind, name) -> dict[str, str]` | De onde cada arquivo de um item seria lido agora (bundled, cached ou remote), sem baixar. |
 
 #### `pinneapple_hub.zoo._bench`
 
-``pp.zoo.benchmark``: a zoo model inside ``pp.benchmark`` (``pinneapple_analysis.benchmark``).
+`pp.zoo.benchmark`: compara o modelo publicado (sem treino) com a mesma arquitetura treinada do zero sob o `ComputeBudget` de `pinneapple_analysis.benchmark`. [sem teste]
 
 <small>`pinneapple_hub/zoo/_bench.py` · 224 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_benchmark` | função | `(model, *, budget_s, seeds, baselines, out_dir, force, log, **kwargs)` |  |
+| `run_benchmark` | função | `(model, *, budget_s, seeds, baselines, out_dir, force, log, **kwargs)` | Monta o problema a partir do dataset do modelo e roda `pp.benchmark` com os métodos `zoo_pretrained` e `zoo_retrain`. |
 
 #### `pinneapple_hub.zoo._catalog`
 
-Static description of every shipped model and dataset (the source of truth ``scripts/zoo/build_assets.py`` turns into ``manifest.json`` + ``model_card.json`` files). Only items that passed the zoo's gate are listed here; the candidates that did not, and why, are in …
+Descrição estática de todo modelo e dataset publicado (fonte de `manifest.json` e dos `model_card.json`); só entra o que passou no portão do zoo. [sem teste]
 
 <small>`pinneapple_hub/zoo/_catalog.py` · 715 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `hf_repo` | função | `(kind, name) -> str` | Hub repo of a model/dataset: PINNeAPPle-Labs/<name with dashes>. |
+| `hf_repo` | função | `(kind, name) -> str` | Repositório do Hub de um modelo/dataset: `PINNeAPPle-Labs/<nome com hífens>`. |
 
 #### `pinneapple_hub.zoo._models`
 
-Zoo model adapters: a ready-to-use predictor per shipped model, with its validity range, metrics against the stored reference, physics checks (feeding a ``TrustReport``) and the hooks fine-tuning needs.
+Adaptadores dos modelos do zoo: preditor com faixa de validade, métricas, checagens físicas e ganchos de fine-tune; a base `ZooModel` levanta `NotImplementedError` nos ganchos abstratos.
 
 <small>`pinneapple_hub/zoo/_models.py` · 657 linhas · testes: 7 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OutOfRangeWarning` | classe | `()` | Inputs outside the model's validity range (the prediction is an extrapolation). |
-| `ZooModel` | classe | `(name, card, config, state, spec)` | Base class: a loaded zoo model. Subclasses implement ``_build``, ``_encode``/``_decode`` and the metrics. |
-| `AirfoilMLP` | classe | `()` |  |
-| `AirfoilGNN` | classe | `()` | MeshGraphNet on the near field of the campaign's O-grid: p, Ux, Uy, log(1 + nut/nu) at the graph nodes and Cl, Cd, Cm from a pooled wall readout. Coefficient metrics and checks are the MLP adapter's; the field metrics are relative L2 errors on the held-out shapes of the field dataset (steady runs). |
-| `HeatsinkForced` | classe | `()` |  |
-| `HeatsinkNatural` | classe | `()` | Natural convection: no air velocity input and no pressure drop; trained with monotonicity constraints in conductivity and source width (``pinneapple_design.thermal.heatsink.monotone``). |
-| `RoverContact` | classe | `()` |  |
-| `SupersededModelWarning` | classe | `()` | A superseded release of a zoo model was loaded. |
-| `load_dir` | função | `(directory) -> ZooModel` | Load a model saved with :meth:`ZooModel.save` (e.g. a fine-tuned copy). |
-| `load_model` | função | `(name, *, offline=None, version=None) -> ZooModel` |  |
-| `copy_model` | função | `(m) -> ZooModel` |  |
-| `fit` | função | `(m, X, Y, *, epochs=300, lr=0.0001, batch=256, weight_decay=0.0, seed=0, progress=None) -…)` | Adam on the model's own normalised targets (NaN targets are masked); returns the loss per epoch. |
+| `OutOfRangeWarning` | classe | `()` | Aviso: entradas fora da faixa de validade (a previsão é extrapolação). |
+| `ZooModel` | classe | `(name, card, config, state, spec)` | Classe base de um modelo carregado: `predict`, `in_range`, `reference`, avaliação e `save`; subclasses implementam construção e métricas. |
+| `AirfoilMLP` | classe | `()` | Adaptador do ensemble MLP de aerofólio CST: prevê Cl, Cd, Cm e L/D com o desvio do ensemble. |
+| `AirfoilGNN` | classe | `()` | Adaptador MeshGraphNet do campo próximo do aerofólio (p, Ux, Uy, viscosidade turbulenta) e coeficientes; não há modelo com esse adaptador no manifesto atual. |
+| `HeatsinkForced` | classe | `()` | Adaptador do dissipador em convecção forçada: prevê resistência térmica e queda de pressão. |
+| `HeatsinkNatural` | classe | `()` | Adaptador do dissipador em convecção natural, sem velocidade do ar nem queda de pressão, treinado com restrições de monotonicidade. |
+| `RoverContact` | classe | `()` | Adaptador do contato roda-solo de rover: prevê Fx, Fz e My. |
+| `SupersededModelWarning` | classe | `()` | Aviso: foi carregada uma versão substituída de um modelo do zoo. |
+| `load_dir` | função | `(directory) -> ZooModel` | Carrega um modelo salvo com `ZooModel.save` (por exemplo uma cópia ajustada). |
+| `load_model` | função | `(name, *, offline=None, version=None) -> ZooModel` | Carrega um modelo do zoo pelo nome, verificando os arquivos. |
+| `copy_model` | função | `(m) -> ZooModel` | Cópia independente de um modelo carregado. |
+| `fit` | função | `(m, X, Y, *, epochs=300, lr=0.0001, batch=256, weight_decay=0.0, seed=0, progress=None) -…)` | Adam sobre os alvos normalizados do próprio modelo (alvos NaN ignorados); devolve o histórico de perda. |
 
 #### `pinneapple_hub.zoo.catalogue`
 
-The zoo catalogue: one Markdown page listing every model and dataset with its metrics, size and Hub link.
+Catálogo do zoo como uma página Markdown com métricas, tamanho e link do Hub de cada item. [sem teste]
 
 <small>`pinneapple_hub/zoo/catalogue.py` · 73 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `markdown` | função | `() -> str` | The catalogue page (Markdown). |
+| `markdown` | função | `() -> str` | Gera a página do catálogo em Markdown. |
 
 #### `pinneapple_hub.zoo.checks`
 
-Per-query trust checks of the zoo models, and the verdict they add up to.
+Checagens de confiança por consulta (faixa de validade, região esparsa, saída não física ou não finita, resíduo) com IDs de regra de `pinneapple check`, e o veredito pass/warn/fail que elas formam.
 
 <small>`pinneapple_hub/zoo/checks.py` · 358 linhas · testes: 34</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `has_query_checks` | função | `(zm) -> bool` | Whether the model has per-query checks (:func:`query_checks`); otherwise only ``in_range`` applies. |
-| `check_spec` | função | `(zm) -> dict[str, Any]` | The declarative description of a model's query checks: ``checks`` (one entry per column of the ``checks`` output: id, rule, name, op, limit, severity, kind, group, detail template), ``aux`` (names of the ``aux`` columns the templates use), ``groups`` (display name and rule of grouped checks) and … |
-| `checks_module` | função | `(zm, predictor=None)` | ``torch.nn.Module``: query rows (m, d) -> (values (m, C), aux (m, A)) of :func:`check_spec`. |
-| `check_values` | função | `(zm, X) -> tuple[np.ndarray, np.ndarray]` | (values, aux) of the query checks for rows ``X`` (physical inputs, card order). |
-| `compare` | função | `(value, op, limit) -> bool` | ``value op limit``; NaN never passes. |
-| `evaluate` | função | `(spec, values, aux) -> dict[str, Any]` | Statuses, details and the verdict for one row of check values (the browser does the same with the graph's outputs). |
-| `verdict` | função | `(checks) -> dict[str, str]` | The worst status of the trust checks (design constraints excluded) with its title and explanation. |
-| `query_checks` | função | `(model, inputs, *, offline=None) -> list[dict[str, Any]]` | The query checks and the verdict for each input row (a mapping of named columns or an (n, d) array). |
+| `has_query_checks` | função | `(zm) -> bool` | Diz se o modelo tem checagens por consulta; senão só `in_range` vale. |
+| `check_spec` | função | `(zm) -> dict[str, Any]` | Descrição declarativa das checagens de um modelo (uma entrada por coluna de saída). |
+| `checks_module` | função | `(zm, predictor=None)` | Módulo `torch` que mapeia linhas de consulta para valores das checagens; é o mesmo que vai para o grafo ONNX. |
+| `check_values` | função | `(zm, X) -> tuple[np.ndarray, np.ndarray]` | Valores e auxiliares das checagens para linhas `X` em unidades físicas. |
+| `compare` | função | `(value, op, limit) -> bool` | Compara `valor op limite`; NaN nunca passa. |
+| `evaluate` | função | `(spec, values, aux) -> dict[str, Any]` | Status, detalhes e veredito para uma linha de valores (o navegador faz o mesmo com as saídas do grafo). |
+| `verdict` | função | `(checks) -> dict[str, str]` | Pior status das checagens de confiança (restrições de projeto excluídas), com título e explicação. |
+| `query_checks` | função | `(model, inputs, *, offline=None) -> list[dict[str, Any]]` | Checagens e veredito para cada linha de entrada de um modelo. |
 
 #### `pinneapple_hub.zoo.datasets`
 
-``pp.datasets``: ready-made, verified datasets in one line.
+`pp.datasets`: datasets verificados em uma linha, guardados como npz sem pickle; os pequenos vêm no pacote, os outros são baixados do Hub, conferidos por SHA-256 e cacheados.
 
 <small>`pinneapple_hub/zoo/datasets.py` · 199 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DatasetInfo` | classe | `(name, version, title, description, license, source, verification, splits, columns, citat…)` |  |
-| `DatasetSplit` | classe | `(data, name, split, ds_info)` | One split: ``{column: np.ndarray}`` (all columns have ``n_rows`` entries) plus ``name``, ``split``, ``info``. |
-| `audit_card` | função | `(name) -> dict[str, Any] \| None` | The stored physics audit card of a dataset (``pinneapple_data.audit``), or None when it was not audited. |
-| `audit` | função | `(name, *, offline=None, save=False, **kw)` | Physics audit of a dataset (:func:`pinneapple_data.audit.audit_zoo_dataset`): residual of every sample against its PDE where one is stated, declared constraints, diversity, duplicates, train/test leakage and units. ``save=True`` stores the card with the package (shown in … |
-| `list` | função | `() -> builtins.list[str]` | Names of the shipped datasets. |
-| `info` | função | `(name) -> DatasetInfo` |  |
-| `split_files` | função | `(name, split=None) -> builtins.list[str]` | Files holding ``split`` (all files when None): ``data.npz``, or ``<split>.npz`` / ``<split>-NN.npz``. |
-| `load` | função | `(name, split=None, *, offline=None)` | A split (:class:`DatasetSplit`), or ``{split: DatasetSplit}`` for all of them when ``split`` is None. |
-| `status` | função | `(name) -> dict[str, str]` | Where the files resolve from right now (bundled \| cached \| remote), without downloading. |
+| `DatasetInfo` | classe | `(name, version, title, description, license, source, verification, splits, columns, citat…)` | Metadados de um dataset: versão, título, descrição, licença, fonte, verificação, splits, colunas, citação e repositório. |
+| `DatasetSplit` | classe | `(data, name, split, ds_info)` | Um split: `{coluna: array}` com nome, split e informações; tem ajudantes como `xy`. |
+| `audit_card` | função | `(name) -> dict[str, Any] \| None` | Cartão de auditoria física guardado de um dataset, ou `None` se não foi auditado. |
+| `audit` | função | `(name, *, offline=None, save=False, **kw)` | Auditoria física de um dataset via `pinneapple_data.audit.audit_zoo_dataset`. |
+| `list` | função | `() -> builtins.list[str]` | Nomes dos datasets publicados. |
+| `info` | função | `(name) -> DatasetInfo` | `DatasetInfo` de um dataset. |
+| `split_files` | função | `(name, split=None) -> builtins.list[str]` | Arquivos que guardam um split (`data.npz`, `<split>.npz` ou fragmentos `<split>-NN.npz`). |
+| `load` | função | `(name, split=None, *, offline=None)` | Carrega um split (`DatasetSplit`) ou todos como dict. |
+| `status` | função | `(name) -> dict[str, str]` | De onde os arquivos seriam lidos agora (bundled, cached ou remote), sem baixar. |
 
 #### `pinneapple_hub.zoo.demo`
 
-What the zoo's demo Space shows, computed by the library: each model's prediction along a sweep of each input, with its ensemble spread or conformal bound and where its query checks warn or fail, and the files of the static Space that shows them.
+Dados do Space estático de demonstração do zoo: varreduras de cada entrada com banda de incerteza e veredito das checagens, e a escrita dos arquivos do Space.
 
 <small>`pinneapple_hub/zoo/demo.py` · 189 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `models` | função | `() -> list[str]` | Names of the zoo models the demo offers. |
-| `trust` | função | `(name) -> dict[str, Any]` | The model's trust report as a whole (``pp.zoo.validate``): decision and the reasons. |
-| `controls` | função | `(name) -> list[dict[str, Any]]` | One entry per input of the model: name, unit, description, range (validity box, or the held-out span for inputs bounded only through derived quantities) and a starting value (the first held-out test case). |
-| `sweep` | função | `(name, values, vary, *, n=61, margin=0.15) -> dict[str, Any]` | Predictions and query checks at ``values`` and along ``vary`` from ``margin`` below to ``margin`` above its range (so the sweep shows where the model stops being trusted). |
-| `bands` | função | `(outputs) -> dict[str, dict[str, Any]]` | The main outputs of a model and how each one's uncertainty is drawn: ``{"std": "<name>_std"}`` (ensemble spread, drawn as +-2 std) or ``{"upper": "<name with upper95>"}`` (split-conformal 95 % upper bound). |
-| `precompute` | função | `(name, *, n=SWEEP_POINTS) -> dict[str, Any]` | Everything the static Space shows for one model without running it: the inputs (:func:`controls`), the outputs with units and bands (:func:`bands`), the model's trust decision (:func:`trust`), the prediction and the query checks at the held-out case, and one :func:`sweep` per input (x, every … |
-| `export_space` | função | `(directory, models_=None) -> dict[str, Any]` | Write the data and runtime of the static Space into ``directory``: ``models/<name>.{onnx,json,sweeps.json}``, ``lib/{onnx,zoo}.js`` and ``index.json`` (the models, in order, with their task and trust decision). |
+| `models` | função | `() -> list[str]` | Nomes dos modelos que a demonstração oferece. |
+| `trust` | função | `(name) -> dict[str, Any]` | Relatório de confiança do modelo como um todo: decisão e motivos. |
+| `controls` | função | `(name) -> list[dict[str, Any]]` | Uma entrada por variável de entrada: nome, unidade, descrição e faixa. |
+| `sweep` | função | `(name, values, vary, *, n=61, margin=0.15) -> dict[str, Any]` | Previsões e checagens ao varrer uma entrada um pouco além da faixa, com as outras fixas. |
+| `bands` | função | `(outputs) -> dict[str, dict[str, Any]]` | Saídas principais e como desenhar a incerteza de cada uma (desvio do ensemble ou limite conformal). |
+| `precompute` | função | `(name, *, n=SWEEP_POINTS) -> dict[str, Any]` | Tudo o que o Space mostra de um modelo sem rodá-lo: controles, saídas, varreduras e checagens. |
+| `export_space` | função | `(directory, models_=None) -> dict[str, Any]` | Grava dados e runtime do Space estático num diretório. |
 
 #### `pinneapple_hub.zoo.export`
 
-ONNX export of zoo models and their per-query trust checks.
+Exportação ONNX dos modelos do zoo com pré e pós-processamento no grafo e, opcionalmente, as checagens por consulta; também safetensors. Adaptador sem exportação levanta `NotImplementedError`.
 
 <small>`pinneapple_hub/zoo/export.py` · 317 linhas · testes: 55 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `predictor_module` | função | `(zm)` | ``torch.nn.Module`` mapping the card's inputs (n, d) to a tuple of outputs (see :func:`output_names`). |
-| `output_names` | função | `(zm) -> dict[str, list[str]]` | ONNX output -> the ``predict`` keys of its columns. |
-| `as_graph_outputs` | função | `(zm, pred) -> dict[str, np.ndarray]` | ``predict`` output laid out like the graph's outputs. |
-| `output_scale` | função | `(zm) -> dict[str, np.ndarray]` | Per column, the scale of the parity tolerance: NaN = relative to the value (positive, log-modelled outputs: Cd, R, dP; L/D relative to max(\|L/D\|, y_std(Cl) / Cd), the error a Cl within tolerance implies), otherwise the network's standardisation scale. |
-| `parity_error` | função | `(zm, ref, got) -> float` | Largest \|got - ref\| / scale over every output column (see :func:`output_scale`). Spreads (``std``, ``LD_std``) are measured relative to the quantity they spread around. |
-| `export_bytes` | função | `(zm, *, checks=False) -> bytes` | The ONNX graph of a loaded zoo model (see :func:`export_onnx`). |
-| `export_onnx` | função | `(name, path, *, checks=False, check_parity=True, offline=None) -> dict[str, Any]` | Export a zoo model to ONNX at ``path``. The graph maps the card's inputs (input ``x``, shape (n, d)) to its outputs; with ``checks=True`` it also takes ``query`` (m, d) and returns the query-check values (``checks``, ``aux``; see :func:`pinneapple_hub.zoo.checks.check_spec`). Unless … |
-| `parity_inputs` | função | `(zm, *, n_random=500, seed=7) -> np.ndarray` | The model's held-out and independent-reference inputs (every evaluation split) plus random points inside the validity box (when the box describes every input). |
-| `run_onnx` | função | `(data, X, query=None) -> dict[str, np.ndarray]` | Run a graph in onnxruntime (CPU, one thread) and return its outputs by name (float64). |
-| `onnx_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> float` | Largest scaled difference (:func:`parity_error`) between an exported graph's predictions and ``ZooModel.predict`` on ``X`` (default :func:`parity_inputs`). |
-| `checks_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> dict[str, float]` | Compare the query checks of a graph exported with ``checks=True`` with :func:`pinneapple_hub.zoo.checks.check_values`: the largest value difference (relative to max(\|value\|, 1)) and the number of rows where a status differs although the value is farther than ``CHECK_TOL`` from its limit (float32 … |
-| `export_safetensors` | função | `(name, path, *, offline=None) -> dict[str, Any]` | Write the model's weights (the tensors of ``weights.pt``) as safetensors at ``path``; the file's metadata names the model, its version and adapter. Returns ``{"path", "bytes", "sha256", "tensors"}``. |
-| `load_safetensors` | função | `(name, path, *, offline=None) -> ZooModel` | The zoo model ``name`` (config and card from the zoo) with its weights read from a safetensors file. |
+| `predictor_module` | função | `(zm)` | Módulo `torch` que leva as entradas do cartão às saídas, base do grafo ONNX. |
+| `output_names` | função | `(zm) -> dict[str, list[str]]` | Mapa saída ONNX → chaves de `predict` das suas colunas. |
+| `as_graph_outputs` | função | `(zm, pred) -> dict[str, np.ndarray]` | Saída de `predict` reorganizada como as saídas do grafo. |
+| `output_scale` | função | `(zm) -> dict[str, np.ndarray]` | Escala de tolerância de paridade por coluna (relativa para saídas positivas modeladas em log). |
+| `parity_error` | função | `(zm, ref, got) -> float` | Maior \|obtido - referência\| / escala sobre todas as colunas de saída. |
+| `export_bytes` | função | `(zm, *, checks=False) -> bytes` | Bytes do grafo ONNX de um modelo carregado. |
+| `export_onnx` | função | `(name, path, *, checks=False, check_parity=True, offline=None) -> dict[str, Any]` | Exporta um modelo do zoo para ONNX num caminho, com checagem de paridade opcional. |
+| `parity_inputs` | função | `(zm, *, n_random=500, seed=7) -> np.ndarray` | Entradas de teste e de referência independente do modelo mais pontos aleatórios dentro da faixa. |
+| `run_onnx` | função | `(data, X, query=None) -> dict[str, np.ndarray]` | Roda um grafo no onnxruntime (CPU, uma thread) e devolve as saídas em float64. |
+| `onnx_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> float` | Maior diferença escalada entre as previsões do grafo e as do modelo PyTorch. |
+| `checks_parity` | função | `(name, onnx_model, X=None, *, offline=None) -> dict[str, float]` | Compara as checagens de um grafo exportado com `checks=True` com as do Python. |
+| `export_safetensors` | função | `(name, path, *, offline=None) -> dict[str, Any]` | Grava os pesos do modelo como safetensors. |
+| `load_safetensors` | função | `(name, path, *, offline=None) -> ZooModel` | Carrega o modelo do zoo com pesos lidos de um arquivo safetensors. |
 
 #### `pinneapple_hub.zoo.hub_cards`
 
-The README cards of the zoo's Hugging Face repos: YAML front matter the Hub reads, and the text people read.
+Cartões README dos repositórios do zoo no Hugging Face: front matter YAML lido pelo Hub e o texto para pessoas.
 
 <small>`pinneapple_hub/zoo/hub_cards.py` · 368 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `space_url` | função | `() -> str` |  |
-| `front_matter` | função | `(meta) -> str` |  |
-| `parse_front_matter` | função | `(readme) -> dict[str, Any]` | The YAML block at the top of a README (``{}`` when there is none). |
-| `code_blocks` | função | `(readme, lang='python') -> list[str]` | The fenced code blocks of a README in language ``lang``. |
-| `split_order` | função | `(name) -> list[str]` | Splits of a dataset with train / val / cal / test first, then the others in manifest order. |
-| `dataset_card` | função | `(name, layout) -> str` | README of a dataset repo: front matter (configs, dataset_info, licence, task categories, sizes, tags) and the card. ``layout`` is what :func:`pinneapple_hub.zoo.parquet.write_dataset` returned for this dataset. |
-| `model_example` | função | `(zm) -> dict[str, Any]` | A held-out reference case of the model (first row of its ``test`` split): the inputs (6 significant digits), the model's outputs for exactly those inputs, the stored reference outputs, the query-check verdict and the model's trust decision. The "How to use" snippet prints these numbers and the … |
-| `model_card` | função | `(name, *, example, onnx_info=None, files=()) -> str` | README of a model repo. ``example``: :func:`model_example`; ``onnx_info``: what :func:`pinneapple_hub.zoo.export.export_onnx` returned (None: no ONNX file); ``files``: the derived files published next to the manifest's (``model.safetensors``, ``model.onnx``). |
-| `space_readme` | função | `() -> str` | README of the demo Space: the configuration of a static Space (``index.html``, no server), the models and datasets it shows, and what the page does. |
-| `example_json` | função | `(example) -> str` |  |
+| `space_url` | função | `() -> str` | URL do Space de demonstração do zoo. |
+| `front_matter` | função | `(meta) -> str` | Bloco YAML de front matter a partir de um dict. |
+| `parse_front_matter` | função | `(readme) -> dict[str, Any]` | Lê o bloco YAML do topo de um README (`{}` se não há). |
+| `code_blocks` | função | `(readme, lang='python') -> list[str]` | Blocos de código cercados de um README numa linguagem. |
+| `split_order` | função | `(name) -> list[str]` | Splits de um dataset com train/val/cal/test primeiro e os outros na ordem do manifesto. |
+| `dataset_card` | função | `(name, layout) -> str` | README de um repositório de dataset: front matter (configs, features, licença, tags) e o cartão. |
+| `model_example` | função | `(zm) -> dict[str, Any]` | Um caso de referência do teste do modelo: entradas, saídas do modelo e referência. |
+| `model_card` | função | `(name, *, example, onnx_info=None, files=()) -> str` | README de um repositório de modelo: metadados, uso, faixa de validade, cartão de confiança, relatório e arquivos. |
+| `space_readme` | função | `() -> str` | README do Space estático de demonstração. |
+| `example_json` | função | `(example) -> str` | Serializa o exemplo do modelo em JSON. |
 
 #### `pinneapple_hub.zoo.parquet`
 
-Parquet copies of the zoo datasets, for the Hugging Face dataset viewer and ``datasets.load_dataset``.
+Cópias Parquet determinísticas dos datasets do zoo para o visualizador do Hugging Face e `datasets.load_dataset`; os npz continuam a fonte de verdade.
 
 <small>`pinneapple_hub/zoo/parquet.py` · 281 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `read_npz` | função | `(paths) -> dict[str, dict[str, np.ndarray]]` | ``{split: {column: array}}`` from npz files whose arrays are named ``<split>__<column>``; a split spread over several files (shards ``<split>-NN.npz``, in the given order) is concatenated along the rows. |
-| `plan_split` | função | `(arrays, *, explode_row_bytes=EXPLODE_ROW_BYTES, max_shard_bytes=MAX_SHARD_BYTES, row_gro…)` | How one split is laid out: ``samples`` (npz rows), ``steps`` (0, or the length of the exploded axis), ``exploded`` columns, ``rows`` (Parquet rows), ``row_bytes`` and the rows per shard and per row group. |
-| `write_dataset` | função | `(name, data, out_dir, *, split_order=(), column_order=(), explode_row_bytes=EXPLODE_ROW_B…)` | Write ``{split: {column: array}}`` as Parquet under ``out_dir/data/<config>/`` and return the layout: ``{"configs": [{"name", "default", "columns", "features" (dataset_info YAML), "splits": [{"name", "samples", "steps", "exploded", "rows", "files" (relative to out_dir), "paths", "bytes"}]}]}``. |
-| `read_parquet` | função | `(paths) -> dict[str, np.ndarray]` | The npz arrays of one split back from its Parquet shards (in order): the inverse of :func:`write_dataset`. |
-| `parquet_files` | função | `(layout) -> list[str]` | Every Parquet file of a layout (paths relative to the dataset's root). |
-| `features_yaml` | função | `(schema) -> list[dict[str, Any]]` | The ``dataset_info.features`` list of a Parquet schema, as ``datasets.Features._to_yaml_list`` writes it. |
+| `read_npz` | função | `(paths) -> dict[str, dict[str, np.ndarray]]` | Lê npz com arrays `<split>__<coluna>` em `{split: {coluna: array}}`, juntando fragmentos. |
+| `plan_split` | função | `(arrays, *, explode_row_bytes=EXPLODE_ROW_BYTES, max_shard_bytes=MAX_SHARD_BYTES, row_gro…)` | Decide como um split vira Parquet (explodir amostras grandes, fragmentos, grupos de linhas). |
+| `write_dataset` | função | `(name, data, out_dir, *, split_order=(), column_order=(), explode_row_bytes=EXPLODE_ROW_B…)` | Escreve os arquivos Parquet de um dataset e devolve o layout. |
+| `read_parquet` | função | `(paths) -> dict[str, np.ndarray]` | Lê de volta os arrays npz de um split a partir dos fragmentos Parquet (inverso de `write_dataset`). |
+| `parquet_files` | função | `(layout) -> list[str]` | Todos os arquivos Parquet de um layout. |
+| `features_yaml` | função | `(schema) -> list[dict[str, Any]]` | Lista `dataset_info.features` de um schema Parquet, no formato que `datasets` escreve. |
 
 #### `pinneapple_hub.zoo.publish`
 
-Publish the zoo to the Hugging Face Hub and check what the Hub serves (``scripts/zoo/publish_to_hub.py`` is the command line, ``.github/workflows/publish-zoo.yml`` runs it).
+Publica o zoo no Hugging Face Hub (um repositório por item em `PINNeAPPle-Labs` mais o Space) e verifica o que o Hub serve; usado por `scripts/zoo/publish_to_hub.py` e pelo workflow de publicação.
 
 <small>`pinneapple_hub/zoo/publish.py` · 611 linhas · testes: 49</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plan` | função | `(staging=None, *, need_files=True, hub_fallback=False, work=None, only=()) -> list[dict]` | Every item to publish: ``kind``, ``name``, ``repo``, ``repo_type``, ``revision``, ``files`` (manifest files to upload: name -> local path), ``hub_only`` and ``source`` ("local", or "hub" for a Hub-only dataset converted from the Hub copy, prepared when it is published). Items with local files are … |
-| `prepare` | função | `(it, work) -> dict` | Write the item's derived files into ``work`` and its README: Parquet copies and the dataset card, or the safetensors and ONNX copies, the example and the model card. Fills ``it["derived"]`` (path in repo -> local path) and ``it["readme"]``. |
-| `publish` | função | `(items, token, *, work=None, tags=True) -> list[str]` | Upload every item (one commit each) and tag it with its revision; returns the items that failed (each failure is printed and the others are still published). A Hub-only dataset from the Hub copy is prepared here, one at a time, and its downloads deleted afterwards (the npz are already on the Hub, … |
-| `build_space` | função | `(out, app_dir, playground_dir, models=None) -> list[str]` | Write the static demo Space into ``out``: the data and runtime of :func:`pinneapple_hub.zoo.demo.export_space`, the page of ``app_dir`` (``apps/zoo_space``), the Playground's charts, widgets, styles and icon (``playground_dir`` = ``apps/playground/site``) and the README (Space configuration). … |
-| `publish_space` | função | `(token, app_dir, playground_dir, *, work=None, from_hub=True) -> list[str]` | Build the static demo Space (:func:`build_space`) and upload it in one commit, deleting the files of an earlier version that the new one does not have. With ``from_hub`` the sweeps are computed from the models and data downloaded from the Hub (the bundled copies ignored), i.e. from what was … |
-| `verify_files` | função | `(items, allow_unpublished=False) -> int` | Download every manifest file anonymously from the item's revision (or the version tag it republishes) and compare its SHA-256 with the manifest; returns the number of failures. With ``allow_unpublished``, a Hub-only item that is not on the Hub yet (HTTP 404) is reported but not counted; a wrong … |
-| `viewer_status` | função | `(repo, *, timeout=2400, interval=30, get=_get_json, sleep=time.sleep) -> dict[str, Any]` | The dataset viewer's state of one dataset repo: ``is-valid`` (polled until ``preview`` and ``viewer`` are true or ``timeout``), the configs and splits it found and, per split, the ``first-rows`` answer (rows, truncated cells, error). |
-| `verify_viewer` | função | `(names=None, *, timeout=2400, interval=30, get=_get_json, sleep=time.sleep) -> int` | Check the dataset viewer of every dataset (anonymous datasets-server API): ``is-valid`` must say preview and viewer, every split of the manifest must be listed, and ``first-rows`` of every split must return rows. Prints one block per dataset; returns the number of datasets that fail. |
-| `verify_model` | função | `(name, work) -> list[str]` | Problems found with the published model ``name`` (empty when none): it is loaded from the Hub with the zoo's loader (bundled copy ignored, fresh cache); its card metrics must be reproduced on the stored reference (``pp.zoo.evaluate``); the card's example must be reproduced by the PyTorch weights, … |
-| `verify_models` | função | `(names=None) -> int` | :func:`verify_model` for every model, anonymously (no token), with the bundled copies ignored and an empty cache; returns the number of models with problems. |
-| `verify_space` | função | `(*, timeout=2400, interval=30, runtime=None, fetch=_fetch, sleep=time.sleep) -> int` | Wait for the demo Space to run and serve its page; 0 when the stage is RUNNING and the page, ``index.json`` and every model's sweeps load (anonymously), 1 otherwise. Prints the stage, hardware and what was fetched. |
+| `plan` | função | `(staging=None, *, need_files=True, hub_fallback=False, work=None, only=()) -> list[dict]` | Lista de itens a publicar com tipo, nome, repositório, revisão e arquivos. |
+| `prepare` | função | `(it, work) -> dict` | Grava os arquivos derivados de um item (Parquet e cartão, ou safetensors, ONNX e exemplo) e o README. |
+| `publish` | função | `(items, token, *, work=None, tags=True) -> list[str]` | Envia cada item num commit, marca com a revisão e devolve os que falharam. |
+| `build_space` | função | `(out, app_dir, playground_dir, models=None) -> list[str]` | Monta o Space estático de demonstração num diretório. |
+| `publish_space` | função | `(token, app_dir, playground_dir, *, work=None, from_hub=True) -> list[str]` | Monta e envia o Space num commit. |
+| `verify_files` | função | `(items, allow_unpublished=False) -> int` | Baixa anonimamente cada arquivo do manifesto e confere o SHA-256. |
+| `viewer_status` | função | `(repo, *, timeout=2400, interval=30, get=_get_json, sleep=time.sleep) -> dict[str, Any]` | Estado do visualizador de datasets de um repositório, esperando até o tempo limite. |
+| `verify_viewer` | função | `(names=None, *, timeout=2400, interval=30, get=_get_json, sleep=time.sleep) -> int` | Confere o visualizador de todos os datasets. |
+| `verify_model` | função | `(name, work) -> list[str]` | Problemas encontrados ao carregar do Hub e checar um modelo publicado. |
+| `verify_models` | função | `(names=None) -> int` | `verify_model` para todos os modelos, anônimo, sem cópias empacotadas e com cache vazio. |
+| `verify_space` | função | `(*, timeout=2400, interval=30, runtime=None, fetch=_fetch, sleep=time.sleep) -> int` | Espera o Space rodar e servir a página; 0 quando está OK. |
 
 #### `pinneapple_hub.zoo.relations`
 
-Metamorphic relations the physics of each zoo model implies (#698), checked without any reference solution by :func:`check_zoo_relations` (``pinneapple_analysis.validation.metamorphic``).
+Relações metamórficas que a física de cada modelo do zoo implica (simetria, monotonicidade), checadas sem solução de referência via `pinneapple_analysis.validation.metamorphic`.
 
 <small>`pinneapple_hub/zoo/relations.py` · 95 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_zoo_relations` | função | `(model, name=None, *, n=64, seed=0, search='random', relations=None) -> MetamorphicReport` | Run the relations of a zoo model (``model``: a loaded zoo model or anything with the same ``predict``). |
+| `check_zoo_relations` | função | `(model, name=None, *, n=64, seed=0, search='random', relations=None) -> MetamorphicReport` | Roda as relações de um modelo do zoo e devolve um `MetamorphicReport`. |
 
 #### `pinneapple_hub.zoo.validation_reports`
 
-Stored validation reports of the zoo models (#706): one ``pp.validate`` report per model, kept with the package, shown in the model's Hub card, and compared with a fresh report before a release.
+Relatórios `pp.validate` guardados de cada modelo do zoo, mostrados no cartão e comparados com um novo antes de uma versão; uma checagem que deixa de passar bloqueia a publicação.
 
 <small>`pinneapple_hub/zoo/validation_reports.py` · 59 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build` | função | `(name)` | Validate the zoo model ``name`` and store its report. |
-| `stored` | função | `(name) -> dict[str, Any] \| None` |  |
-| `check_release` | função | `(name, model=None)` | ``(diff, fresh report)`` of the model as it is now (or ``model``, e.g. a new version) against its stored report; ``diff.regressed`` blocks the release. Without a stored report the diff is against an empty one. |
-| `card_section` | função | `(name) -> str` | The markdown block of the stored report for the model's Hub card ("" when none is stored). |
+| `build` | função | `(name)` | Valida o modelo e grava o relatório. |
+| `stored` | função | `(name) -> dict[str, Any] \| None` | Lê o relatório guardado de um modelo, ou `None`. |
+| `check_release` | função | `(name, model=None)` | Diferença entre o relatório atual (ou de um modelo novo) e o guardado, mais o relatório novo. |
+| `card_section` | função | `(name) -> str` | Bloco Markdown do relatório guardado para o cartão do Hub (vazio se não há). |
 
 #### `pinneapple_hub.zoo.web`
 
-Zoo models for the browser: ONNX graphs with their query checks, model cards and the JS runtime.
+Modelos do zoo para o navegador: grafos ONNX com checagens, cartões em JSON e o runtime JS (`onnx.js`, `zoo.js`) usado pelo Playground.
 
 <small>`pinneapple_hub/zoo/web/__init__.py` · 160 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `runtime_dir` | função | `() -> Path` | Folder of the JS runtime (``onnx.js``, ``zoo.js``). |
-| `reference_data` | função | `(zm) -> dict[str, Any]` | Reference points to plot next to the predictions: for the airfoil, the held-out OpenFOAM runs and the XFOIL polar of each NACA preset; for the rover, the held-out Wong-Reece states. |
-| `export_web` | função | `(name, directory, *, offline=None) -> dict[str, Any]` | Write ``<name>.onnx`` and ``<name>.json`` for the browser into ``directory``; returns the JSON content. |
-| `fixtures` | função | `(*, offline=None) -> dict[str, Any]` | Python answers for fixed inputs: predictions and query-check evaluations of each model (in range and out of range), and the geometry of a few CST shapes. The JS runtime tests and the Playground's browser test compare against these. |
-| `export_bundle` | função | `(directory, models=MODELS, *, offline=None) -> dict[str, Any]` | Everything the Playground loads: each model (:func:`export_web`), the CST geometry graphs and fixtures. |
+| `runtime_dir` | função | `() -> Path` | Pasta do runtime JS (`onnx.js`, `zoo.js`). |
+| `reference_data` | função | `(zm) -> dict[str, Any]` | Pontos de referência para plotar ao lado das previsões (por exemplo rodadas OpenFOAM e polar XFOIL no aerofólio). |
+| `export_web` | função | `(name, directory, *, offline=None) -> dict[str, Any]` | Grava `<nome>.onnx` e `<nome>.json` para o navegador e devolve o JSON. |
+| `fixtures` | função | `(*, offline=None) -> dict[str, Any]` | Respostas do Python para entradas fixas (dentro e fora da faixa), usadas nos testes JS. |
+| `export_bundle` | função | `(directory, models=MODELS, *, offline=None) -> dict[str, Any]` | Tudo o que o Playground carrega: cada modelo, grafos de geometria CST e `fixtures.json`. |
 
 #### `pinneapple_hub.zoo.web.__main__`
 
-python -m pinneapple_hub.zoo.web [DIR]: write the browser bundle of the zoo (default data/web/zoo).
+`python -m pinneapple_hub.zoo.web [DIR]`: grava o pacote web do zoo (padrão `data/web/zoo`). [sem teste]
 
 <small>`pinneapple_hub/zoo/web/__main__.py` · 23 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Ponto de entrada que chama `export_bundle` no diretório dado. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Quickstart do zoo: listar, carregar e prever** — `examples/model_zoo/quickstart.py`
+
+```python
+import pinneapple as pp
+
+print(pp.zoo.list())
+print(pp.datasets.list())
+card = pp.zoo.info("airfoil_cst_rans_mlp")
+print(card.task)
+
+model = pp.zoo.load("airfoil_cst_rans_mlp")
+naca2412 = dict(T0=0.169591, T1=0.144959, T2=0.131433, M0=0.024922, M1=0.071088, M2=0.058960)  # NACA 2412 (CST)
+alphas = np.array([0.0, 2.0, 4.0, 6.0])
+pred = model.predict(**naca2412, alpha_deg=alphas)
+```
+
+**Fine-tune com guarda no teste original** — `examples/model_zoo/quickstart.py`
+
+```python
+new = pp.datasets.load("airfoil_rans_cst_re4e6", split="naca_reference")    # stand-in for your own new runs
+ft = pp.zoo.finetune("airfoil_cst_rans_mlp", new, epochs=50, lr=1e-5)
+print(ft.summary())
+if ft.accepted:
+    ft.save(tempfile.mkdtemp())
+else:
+    print("not saved: the fine-tuned model is worse on the original test set (force=True overrides)")
+```
+
+**Busca no índice do Hub** — `pinneapple_hub/library/__init__.py`
+
+```python
+from pinneapple_hub import library as hub
+index = hub.load_index()                              # data/web/hub/index.json (generated, not committed)
+hits = hub.search(index, "airfoil", kind="model")     # ranked items
+item = hub.get(index, "geometry:f1_car")
+```
 
 ### Testes e status de validação
 
@@ -4100,7 +4139,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `push_to_hub`/`from_pretrained` exigem o extra `hub` (`huggingface_hub`) e, para enviar, uma conta e token do Hugging Face; o módulo `hub.py` não tem teste direto.
+- Datasets e modelos que não vêm empacotados precisam de rede no primeiro uso; offline, levantam `ArtifactUnavailableError`, e um arquivo com SHA-256 diferente do manifesto levanta `ChecksumMismatchError`.
+- Re-auditar um cartão existente só refaz a checagem de esquema: os pesos e os kwargs exatos do preset não viajam no JSON do cartão, então as alegações físicas não podem ser re-executadas a partir dele (docstring de `verified_card`).
+- O sandbox de snippets limita tempo e, em POSIX, memória, CPU e tamanho de arquivo, mas não bloqueia rede; o docstring pede rodar o app sem saída de rede quando os snippets vêm de visitantes.
+- `ZooModel` levanta `NotImplementedError` nos ganchos abstratos e `export.predictor_module` levanta `NotImplementedError` para adaptador sem exportação ONNX; o adaptador `AirfoilGNN` existe mas nenhum modelo do manifesto atual o usa.
+- Sem teste direto: `hub`, `library.snippets`, `library.sources`, `zoo._bench`, `zoo._catalog`, `zoo.catalogue` e as linhas de comando `__main__`.
+- Os cartões do Hub declaram `inference: false`: nenhum provedor de inferência do Hub roda esses modelos; o Space de demonstração é estático e avalia ONNX no navegador.
 
 ## 5. `pinneapple_lab`
 

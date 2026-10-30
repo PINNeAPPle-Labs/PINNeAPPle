@@ -119,7 +119,7 @@ Em palavras:
 | `pp.AFNO` | import direto | `pinneapple_neural.architectures.AFNO` |  |
 | `pp.annulus` | import direto | `pinneapple_design.geometry.annulus` |  |
 | `pp.arena` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_arena` | Pacote raiz: reexporta configuração, `Arena`, rankings, problemas, fábrica de modelos, treino, visualização, `define_problem`, `DatasetProblem`, presets de dataset, modo de decisão e NAS. |
-| `pp.as_tensor` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_neural.utils.as_tensor` | Return the prediction Tensor of a model output. |
+| `pp.as_tensor` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_neural.utils.as_tensor` | Extrai o tensor de previsão de um Tensor, dicionário de campos, tupla ou objeto de saída (`PINNOutput`, `ModelOutput` etc.). |
 | `pp.assess_drift` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.drift.assess_drift` | Checa um lote de predições quanto a perda de acurácia, má calibração, mudança de entrada e tendência do resíduo. |
 | `pp.assimilation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_analysis.data_assimilation` | Assimilação de dados: 4D-Var por autograd sobre os métodos de ensemble (EKI) e filtros de Kalman, mais reconstrução GP e posicionamento de sensores. |
 | `pp.astro` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.astro` | Pacote de astronomia posicional e astrofísica do observatório PINNeAPPle, em NumPy próprio e validado contra USNO NOVAS, JPL Horizons e skyfield; reexporta `Observer`, `Time`, `apparent` e afins. |
@@ -179,7 +179,7 @@ Em palavras:
 | `pp.curl` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.operators.curl` | Rotacional: vetor em 3D, escalar (componente z) em 2D. |
 | `pp.dashboard` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.dashboard` | Painéis centrados numa animação para qualquer simulação: animação no meio, gráficos sincronizados ao cursor de tempo, KPIs, parâmetros e barra de cor; exporta HTML interativo, PNG e GIF/MP4. |
 | `pp.data` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data` |  |
-| `pp.datasets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo.datasets` |  |
+| `pp.datasets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo.datasets` | `pp.datasets`: datasets verificados em uma linha, guardados como npz sem pickle; os pequenos vêm no pacote, os outros são baixados do Hub, conferidos por SHA-256 e cacheados. |
 | `pp.DDPPINNTrainer` | import direto | `pinneapple_neural.trainer.DDPPINNTrainer` |  |
 | `pp.DDPTrainerConfig` | import direto | `pinneapple_neural.trainer.DDPTrainerConfig` |  |
 | `pp.decide` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.decide` | Decide which experiment to run next. ``problem`` may be a ``ProblemSpec`` or a free-form dict (see ``adapter.py``). Facts that could not be determined are listed in ``decision.diagnostics["problem_facts"]["unknown"]``. |
@@ -250,7 +250,7 @@ Em palavras:
 | `pp.identify_pde` | import direto | `pinneapple_physics.pde_environment.identify_pde` |  |
 | `pp.infer_on_grid_1d` | import direto | `pinneapple_neural.predictor.infer_on_grid_1d` |  |
 | `pp.infer_on_grid_2d` | import direto | `pinneapple_neural.predictor.infer_on_grid_2d` |  |
-| `pp.inference` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_neural.predictor` |  |
+| `pp.inference` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_neural.predictor` | Inferência pós-treino (antigo `pinneapple_inference`): reexporta inferência em lote e em grade, gráficos de campos, erro, perda, comparação, fluxo 3D e otimização de projeto. [sem teste direto] |
 | `pp.info` | definido em `pinneapple/__init__.py` | `pinneapple.info` | Imprime versão, dispositivos, número de presets e modelos, pacotes importáveis e dependências opcionais com o extra de pip. |
 | `pp.IntegralObsOperator` | import direto | `pinneapple_analysis.inverse_problems.IntegralObsOperator` |  |
 | `pp.integrate` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.operators.integrate` | Integral sobre o suporte (trapézio na grade, P1 exato na malha, quadratura ou Monte Carlo na nuvem). |
@@ -410,7 +410,7 @@ Em palavras:
 | `pp.WorldModelConfig` | import direto | `pinneapple_worldmodel.WorldModelConfig` |  |
 | `pp.WorldModelDataset` | import direto | `pinneapple_worldmodel.WorldModelDataset` |  |
 | `pp.WorldModelTrainer` | import direto | `pinneapple_worldmodel.WorldModelTrainer` |  |
-| `pp.zoo` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo` |  |
+| `pp.zoo` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo` | `pp.zoo`: modelos pré-treinados e verificados em uma linha (listar, carregar, prever, avaliar, validar, consultar checagens, exportar, fazer benchmark e fine-tune com guarda). |
 
 
 

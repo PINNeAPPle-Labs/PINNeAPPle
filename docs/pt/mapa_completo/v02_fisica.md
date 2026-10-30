@@ -2588,7 +2588,7 @@ CLI `python -m pinneapple_presets` com os comandos list, card, run (opcionalment
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Interpreta os argumentos da CLI e executa o comando pedido, devolvendo o código de saída. |
 
 #### `pinneapple_presets.cases`
 

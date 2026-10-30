@@ -34,6 +34,7 @@
   "pinneapple_presets.viz3d": "Imagens 3D de resultados de presets na cena de estúdio da biblioteca: primitivas de malha (caixa, tubo, extrusão) e gravação de imagens e visualizador HTML. [sem teste direto]"
  },
  "simbolos": {
+  "pinneapple_presets.__main__:main": "Interpreta os argumentos da CLI e executa o comando pedido, devolvendo o código de saída.",
   "pinneapple_presets.cases.airfoil:AirfoilSection": "Preset do perfil de asa: modelo do zoo, forma NACA, solução, checagens, decisão, validação, otimização, inversão, variantes, figuras e cena.",
   "pinneapple_presets.cases.airfoil:PresetCache": "Cache em atributo de classe do modelo do zoo carregado, para não recarregá-lo a cada corrida.",
   "pinneapple_presets.cases.airfoil:thin_airfoil_zero_lift": "Ângulo de sustentação nula de uma linha de arqueamento NACA 4 dígitos pela teoria de perfil fino (quadratura numérica).",

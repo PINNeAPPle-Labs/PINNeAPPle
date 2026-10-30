@@ -5482,7 +5482,11 @@ python -m pinneapple_llm.workbench serve --workspace ~/code/my-project --languag
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_mcp` expõe o PINNeAPPle como servidor MCP (Model Context Protocol) via stdio. Qualquer agente de código que fale MCP pode resolver, comparar e validar problemas físicos com a biblioteca, e cada resultado volta com suas verificações físicas e um cartão de confiança (APPROVED / REVIEW / REJECT).
+
+As ferramentas ficam em `pinneapple_mcp.tools` como funções Python comuns, com argumentos e retornos em JSON, utilizáveis sem MCP. Elas chamam o resto da biblioteca: `pp.solve` e `pp.list_methods` (em `pinneapple_physics.solving`), o catálogo de métodos, os presets de problemas, `pp.zoo` e `pp.datasets`, o design por intenção (`pinneapple_design.intent`) e a cadeia de porquês (`pinneapple_reason`). Um problema pode ser um preset ou um 'problema em caixa' descrito campo a campo em JSON, com expressões das coordenadas analisadas por `ast` (nunca `eval`).
+
+O servidor tem padrões seguros (`config`): trabalho longo (`solve`, `benchmark`, `design`, `reason`) roda como job num processo separado com limite de tempo, limite de memória e rede desligada; resultados vão para um diretório de trabalho e só se leem arquivos de raízes permitidas. `import pinneapple_mcp` não importa o SDK MCP; ele só é carregado por `server` (SDK 1.x `FastMCP` ou 2.x `MCPServer`).
 
 ### Números do inventário
 
@@ -5494,13 +5498,13 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 0 | 0 |
-| `config` |  | 1 | 3 | 10 |
-| `expressions` |  | 1 | 2 | 10 |
-| `jobs` |  | 1 | 5 | 0 |
-| `problems` |  | 1 | 2 | 0 |
-| `server` |  | 1 | 2 | 10 |
-| `tools` |  | 1 | 17 | 30 |
+| `__main__` | Permite rodar o servidor com `python -m pinneapple_mcp`. | 1 | 0 | 0 |
+| `config` | Limites e locais do servidor (diretório de trabalho, tempo, memória, jobs, épocas, pontos, rede, raízes) com variáveis de ambiente. | 1 | 3 | 10 |
+| `expressions` | Compila expressões aritméticas seguras das coordenadas em funções NumPy, sem `eval`. | 1 | 2 | 10 |
+| `jobs` | Executa trabalho longo como jobs em processos separados, com estado gravado em disco. | 1 | 5 | 0 |
+| `problems` | Monta um problema físico a partir de JSON: preset ou problema em caixa com condições de contorno. | 1 | 2 | 0 |
+| `server` | Servidor MCP stdio que registra todas as ferramentas com assinaturas tipadas. | 1 | 2 | 10 |
+| `tools` | As ferramentas MCP como funções puras com entrada e saída JSON. | 1 | 17 | 30 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -5508,109 +5512,131 @@ _Sem texto de objetivo._
 
 #### `pinneapple_mcp`
 
-PINNeAPPle as an MCP server: solve, benchmark and validate physics problems from any coding agent.
+Ponto de entrada do pacote; `build_server` e `main` importam `server` só quando chamados, para não exigir o SDK MCP no import.
 
 <small>`pinneapple_mcp/__init__.py` · 34 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_server` | função | `(*args, **kwargs)` |  |
-| `main` | função | `(argv=None)` |  |
+| `build_server` | função | `(*args, **kwargs)` | Importa `server` sob demanda e devolve o objeto servidor MCP. |
+| `main` | função | `(argv=None)` | Importa `server` sob demanda e roda o servidor stdio. |
 
 #### `pinneapple_mcp.__main__`
 
-_Módulo sem docstring e sem texto._
+Chama `server.main()` para `python -m pinneapple_mcp`. [sem teste direto]
 
 <small>`pinneapple_mcp/__main__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_mcp.config`
 
-Limits and locations of the MCP server. Every value has a safe default and an environment variable.
+`Config` com padrões seguros, cada um sobrescrevível por variável de ambiente `PINNEAPPLE_MCP_*`; `get_config`/`set_config` mantêm a configuração global.
 
 <small>`pinneapple_mcp/config.py` · 91 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Config` | classe | `(workdir, max_seconds, max_memory_mb, max_jobs, max_epochs, max_points, max_file_mb, allo…)` |  |
-| `get_config` | função | `() -> Config` |  |
-| `set_config` | função | `(cfg) -> Config` |  |
+| `Config` | classe | `(workdir, max_seconds, max_memory_mb, max_jobs, max_epochs, max_points, max_file_mb, allo…)` | Configuração do servidor: diretório, tempo e memória por job, jobs simultâneos, épocas, pontos, tamanho de arquivo, rede e raízes de leitura. |
+| `get_config` | função | `() -> Config` | Devolve a configuração ativa. |
+| `set_config` | função | `(cfg) -> Config` | Define a configuração ativa e a devolve. |
 
 #### `pinneapple_mcp.expressions`
 
-Safe arithmetic expressions of the coordinates, e.g. ``"sin(pi*x)*sinh(pi*y)/sinh(pi)"``.
+Analisa texto com `ast` aceitando só números, nomes de coordenadas, `pi`/`e`, operadores aritméticos e uma lista fixa de funções NumPy; qualquer outra coisa levanta `ValueError`.
 
 <small>`pinneapple_mcp/expressions.py` · 105 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compile_expression` | função | `(text, coords) -> Callable[[np.ndarray], np.ndarray]` | ``f(X) -> (N,)`` for points ``X`` of shape ``(N, len(coords))``. Raises ``ValueError`` on anything that is not plain arithmetic of the coordinates. |
-| `value` | função | `(v, coords)` | A number stays a number; a string becomes ``compile_expression``. |
+| `compile_expression` | função | `(text, coords) -> Callable[[np.ndarray], np.ndarray]` | Compila o texto numa função `f(X) -> (N,)` das coordenadas, ou levanta `ValueError`. |
+| `value` | função | `(v, coords)` | Mantém números e compila strings como expressão. |
 
 #### `pinneapple_mcp.jobs`
 
-Long work as jobs: a separate process per job, with a wall-time limit, a memory limit and no network.
+Cada job roda num processo filho com `RLIMIT_AS`, conexões de rede não locais bloqueadas e diretório próprio com `request.json`, `status.json` e `log.txt`; o estado sobrevive a reinícios (job sem processo vira `lost`). [sem teste direto pelo inventário; exercitado por `tests/test_mcp_server.py` via `tools`]
 
 <small>`pinneapple_mcp/jobs.py` · 199 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `running` | função | `() -> list[str]` |  |
-| `submit` | função | `(kind, args, cfg, max_seconds=None) -> str` | Start job ``kind`` (a key of ``tools.JOB_KINDS``) in a new process; returns its id. |
-| `status` | função | `(job_id, cfg, wait_seconds=0.0) -> dict[str, Any]` | Status of a job (``queued``, ``running``, ``done``, ``failed``, ``timeout``, ``cancelled``, ``lost``), its result when done, and the files in its directory. ``wait_seconds`` waits up to that long for it to finish. |
-| `cancel` | função | `(job_id, cfg) -> dict[str, Any]` |  |
-| `list_jobs` | função | `(cfg, limit=20) -> list[dict[str, Any]]` |  |
+| `running` | função | `() -> list[str]` | Ids dos jobs com processo ainda vivo. |
+| `submit` | função | `(kind, args, cfg, max_seconds=None) -> str` | Inicia um job de um tipo de `tools.JOB_KINDS` num novo processo e devolve o id. |
+| `status` | função | `(job_id, cfg, wait_seconds=0.0) -> dict[str, Any]` | Estado de um job, seu resultado quando pronto e os arquivos do diretório, podendo esperar até `wait_seconds`. |
+| `cancel` | função | `(job_id, cfg) -> dict[str, Any]` | Mata o processo de um job em execução. |
+| `list_jobs` | função | `(cfg, limit=20) -> list[dict[str, Any]]` | Lista os jobs mais recentes com estado. |
 
 #### `pinneapple_mcp.problems`
 
-A physics problem from JSON: a preset, or a box problem described field by field.
+Constrói `BuiltProblem` a partir de JSON: preset com `preset_kwargs` ou problema em caixa (domínio, campos, EDP, fonte, condições de Dirichlet, solução exata). [sem teste direto pelo inventário]
 
 <small>`pinneapple_mcp/problems.py` · 156 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BuiltProblem` | classe | `(problem, ctx, exact, dirichlet, source, spec)` |  |
-| `build_problem` | função | `(spec) -> BuiltProblem` | ``BuiltProblem`` from the JSON description above. Raises ``ValueError`` with the reason on bad input. |
+| `BuiltProblem` | classe | `(problem, ctx, exact, dirichlet, source, spec)` | Problema montado: `PhysicalProblem`, contexto, solução exata, condições de Dirichlet e fonte; `check_pde` diz qual EDP estacionária pode ser verificada. |
+| `build_problem` | função | `(spec) -> BuiltProblem` | Monta um `BuiltProblem` a partir do JSON, ou levanta `ValueError` com o motivo. |
 
 #### `pinneapple_mcp.server`
 
-The stdio MCP server: ``pinneapple-mcp`` or ``python -m pinneapple_mcp``.
+Monta o servidor MCP (SDK 2.x `MCPServer` ou 1.x `FastMCP`) com todas as ferramentas e CLI `pinneapple-mcp` com opções de limites.
 
 <small>`pinneapple_mcp/server.py` · 284 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_server` | função | `(config=None)` | The MCP server object (SDK 2.x ``MCPServer`` or 1.x ``FastMCP``) with every PINNeAPPle tool. |
-| `main` | função | `(argv=None) -> None` |  |
+| `build_server` | função | `(config=None)` | Cria o objeto servidor MCP com todas as ferramentas do PINNeAPPle. |
+| `main` | função | `(argv=None) -> None` | CLI do servidor: lê opções de limites, ajusta a configuração e roda em stdio. |
 
 #### `pinneapple_mcp.tools`
 
-The MCP tools as plain functions: JSON-like arguments in, JSON-like dictionaries out.
+Implementa as ferramentas: capacidades, catálogo de métodos, presets, `trust_card`, `solve` e `benchmark` como jobs, zoo, jobs, `design` e as ferramentas de `pinneapple_reason`.
 
 <small>`pinneapple_mcp/tools.py` · 667 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `capabilities` | função | `() -> dict[str, Any]` | What this installation offers: version, optional APIs present, device, limits and the working directory. |
-| `list_methods` | função | `(category='all', validated_only=False) -> dict[str, Any]` | Solve methods usable by ``solve`` (grouped by kind) and the method catalog (solvers, training methods, equations, problems) with the validation status of each item. |
-| `describe_method` | função | `(method) -> dict[str, Any]` | A solve method (e.g. ``pinn``, ``fem``) with its options, or a catalog item (e.g. ``S2``) with its code, references, validation status and the tests that give it. |
-| `list_presets` | função | `(contains=None) -> dict[str, Any]` | Problem presets usable as ``{"preset": name}`` in ``solve`` and ``benchmark``. |
-| `trust_card` | função | `(file=None, field=None, grid=None, values=None, pde=None, source=None, alpha=1.0, dirichl…)` | Physics checks of a field on a grid and its trust card (decision APPROVED / REVIEW / REJECT). |
-| `solve` | função | `(problem, method='pinn', options=None, reference=None, reference_options=None, grid_point…)` | Solve ``problem`` with ``method`` in a job; the result carries metrics against the reference, the physics checks and the trust card, and the paths of the saved prediction and figures. Returns the job status (``wait_seconds`` > 0 waits for the result up to that long; otherwise poll ``job_status``). |
-| `benchmark` | função | `(problem, methods=('pinn', 'fem'), budget=None, seeds=1, reference=None, options=None, gr…)` | Run several methods on one problem with the same training budget (epochs, collocation points, seeds for every neural method) and score them on the same grid against one reference; each run gets a trust card. Returns the job status (see ``solve``). |
-| `zoo_list` | função | `(task=None) -> dict[str, Any]` | Pre-trained, verified models of the zoo (with what they predict, their validity range and held-out errors) and the datasets of the dataset hub. |
-| `zoo_predict` | função | `(name, inputs) -> dict[str, Any]` | Predictions of zoo model ``name`` for ``inputs`` ({input name: value or list}), with the mask of rows inside the model's validity range (rows outside it are reported, never silently extrapolated). |
-| `zoo_validate` | função | `(name, inputs=None) -> dict[str, Any]` | Trust report of zoo model ``name``: its card metrics reproduced on the stored reference, the zoo acceptance limits, the model's physics checks and, with ``inputs``, whether they are inside its validity range. |
-| `job_status` | função | `(job_id, wait_seconds=0.0) -> dict[str, Any]` | Status of a job and, when it is done, its result with the paths of its files. |
-| `list_jobs` | função | `(limit=20) -> dict[str, Any]` | The most recent jobs with their status. |
-| `cancel_job` | função | `(job_id) -> dict[str, Any]` | Stop a running job (its process is killed). |
-| `design` | função | `(text, answers=None, verify=True, seed=0, max_seconds=None, wait_seconds=0.0) -> dict[str…)` | Design from a plain-language goal. Out-of-scope requests and missing values are answered at once (status ``out_of_scope`` with what is needed, or ``needs_input`` with the questions); an in-scope request starts a job whose result is the design package (verdict, design, margins, verification, files). |
-| `reason` | função | `(case=None, requirements=None, concept=None, lang='pt', max_steps=12, max_seconds=None, w…)` | Chain of whys (pinneapple_reason): from a naive concept, check every requirement's failure modes, apply the best countermeasure for the first failure, repeat. Starts a job; its result is the path (version, failure found, countermeasure), the explanation and the report files. |
-| `reason_library` | função | `(domain=None, lang='pt') -> dict[str, Any]` | The failure modes (by physical domain) and countermeasures pinneapple_reason knows, and the worked cases. |
-| `reason_check` | função | `(mode, params, elements=(), limits=None, lang='pt') -> dict[str, Any]` | Run one failure mode of the library on the given parameters (SI units): demand, capacity, margin, the mechanism in words, every measured number, sources, applicability and self-checks. |
+| `capabilities` | função | `() -> dict[str, Any]` | Informa versão, APIs opcionais presentes, dispositivo, limites e diretório de trabalho. |
+| `list_methods` | função | `(category='all', validated_only=False) -> dict[str, Any]` | Métodos de `solve` agrupados por tipo e o catálogo de métodos com status de validação. |
+| `describe_method` | função | `(method) -> dict[str, Any]` | Descreve um método de `solve` com suas opções, ou um item do catálogo com código, referências e testes. |
+| `list_presets` | função | `(contains=None) -> dict[str, Any]` | Lista os presets de problema utilizáveis em `solve` e `benchmark`. |
+| `trust_card` | função | `(file=None, field=None, grid=None, values=None, pde=None, source=None, alpha=1.0, dirichl…)` | Verificações físicas de um campo em grade (inline ou arquivo) e o cartão de confiança com decisão. |
+| `solve` | função | `(problem, method='pinn', options=None, reference=None, reference_options=None, grid_point…)` | Resolve um problema com um método num job; o resultado traz métricas, verificações, cartão de confiança e arquivos. |
+| `benchmark` | função | `(problem, methods=('pinn', 'fem'), budget=None, seeds=1, reference=None, options=None, gr…)` | Roda vários métodos num problema com o mesmo orçamento de treino e pontua na mesma grade, num job. |
+| `zoo_list` | função | `(task=None) -> dict[str, Any]` | Lista modelos pré-treinados verificados do zoo e datasets do hub. |
+| `zoo_predict` | função | `(name, inputs) -> dict[str, Any]` | Previsões de um modelo do zoo, marcando as linhas fora da faixa de validade. |
+| `zoo_validate` | função | `(name, inputs=None) -> dict[str, Any]` | Relatório de confiança de um modelo do zoo, opcionalmente checando se entradas estão na faixa válida. |
+| `job_status` | função | `(job_id, wait_seconds=0.0) -> dict[str, Any]` | Estado de um job e, quando pronto, o resultado com os caminhos dos arquivos. |
+| `list_jobs` | função | `(limit=20) -> dict[str, Any]` | Jobs mais recentes com estado. |
+| `cancel_job` | função | `(job_id) -> dict[str, Any]` | Para um job em execução matando o processo. |
+| `design` | função | `(text, answers=None, verify=True, seed=0, max_seconds=None, wait_seconds=0.0) -> dict[str…)` | Design a partir de um objetivo em linguagem natural: responde na hora `out_of_scope` ou `needs_input`, senão inicia um job que gera o pacote de design. |
+| `reason` | função | `(case=None, requirements=None, concept=None, lang='pt', max_steps=12, max_seconds=None, w…)` | Roda a cadeia de porquês de `pinneapple_reason` num job, aplicando contramedidas até cada requisito passar. |
+| `reason_library` | função | `(domain=None, lang='pt') -> dict[str, Any]` | Lista os modos de falha por domínio físico, as contramedidas e os casos resolvidos de `pinneapple_reason`. |
+| `reason_check` | função | `(mode, params, elements=(), limits=None, lang='pt') -> dict[str, Any]` | Avalia um modo de falha nos parâmetros dados (SI): demanda, capacidade, margem, mecanismo e fontes. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Problema em caixa resolvido por FEM via ferramenta MCP** — `tests/test_mcp_server.py`
+
+```python
+PLATE = {"name": "plate", "domain": {"x": [0, 1], "y": [0, 1]}, "fields": ["T"], "pde": "laplace",
+         "bcs": [{"kind": "dirichlet", "field": "T", "on": "y_max", "value": "sin(pi*x)"},
+                 {"kind": "dirichlet", "field": "T", "on": "y_min", "value": 0},
+                 {"kind": "dirichlet", "field": "T", "on": "x_boundary", "value": 0}],
+         "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)"}
+...
+def test_solve_job_fem_with_checks(cfg):
+    st = tools.solve(PLATE, "fem", {"n": 24}, grid_points_per_axis=25, wait_seconds=180)
+    assert st["status"] == "done", st
+    res = st["result"]
+    assert res["reference"] == "exact" and res["metrics"]["relative_l2"]["T"] < 0.02
+    assert res["decision"] == "APPROVED", res["trust_cards"]
+```
+
+**Instalação e execução do servidor** — `docs/guides/mcp_server.md`
+
+```python
+pip install "pinneapple[mcp]"
+pinneapple-mcp --help            # or: python -m pinneapple_mcp
+```
 
 ### Testes e status de validação
 
@@ -5619,7 +5645,12 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O servidor precisa do extra `pinneapple[mcp]` (SDK MCP 1.x ou 2.x e `pydantic`); as ferramentas em `tools` funcionam sem ele.
+- Limites padrão por job: 600 s, 8192 MB de espaço de endereçamento, 2 jobs simultâneos, 20000 épocas, 250000 pontos e arquivos de até 200 MB; o limite de memória usa `resource` e é ignorado em plataformas sem ele.
+- A rede dentro dos jobs fica desligada substituindo `socket.connect` (só conexões locais e Unix passam), a menos que `PINNEAPPLE_MCP_ALLOW_NETWORK=1`.
+- Expressões aceitam só aritmética das coordenadas e uma lista fixa de funções NumPy; qualquer outra construção é recusada.
+- `problems.BuiltProblem.check_pde` só verifica resíduo para EDPs estacionárias `laplace`, `poisson` e `heat_equation`.
+- `jobs`, `problems` e `__main__` não têm teste direto pelo inventário (são exercitados indiretamente por `tests/test_mcp_server.py`).
 
 ## 8. `pinneapple_autolab`
 

@@ -138,7 +138,7 @@ Em palavras:
 | `pp.build_digital_twin` | import direto | `pinneapple_systems.digital_twin.build_digital_twin` |  |
 | `pp.build_model` | definido em `pinneapple/__init__.py` | `pinneapple.build_model` |  |
 | `pp.CADToCFDPipeline` | import direto | `pinneapple_simulation.numerical_solvers.CADToCFDPipeline` |  |
-| `pp.cae` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data.cae` |  |
+| `pp.cae` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data.cae` | Camada de dados CAE: lê malhas e resultados de OpenFOAM, CalculiX/Abaqus, Gmsh, VTK, STL e tabelas de pontos num único tipo `Mesh`, com qualidade de malha, Courant e distância à parede. |
 | `pp.card` | import direto | `pinneapple_core.onboarding.card` |  |
 | `pp.CauchyMisfit` | import direto | `pinneapple_analysis.inverse_problems.CauchyMisfit` |  |
 | `pp.CausalPINNTrainer` | import direto | `pinneapple_neural.trainer.CausalPINNTrainer` |  |
@@ -178,7 +178,7 @@ Em palavras:
 | `pp.CSGUnion` | import direto | `pinneapple_design.geometry.CSGUnion` |  |
 | `pp.curl` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.operators.curl` | Rotacional: vetor em 3D, escalar (componente z) em 2D. |
 | `pp.dashboard` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.dashboard` | Painéis centrados numa animação para qualquer simulação: animação no meio, gráficos sincronizados ao cursor de tempo, KPIs, parâmetros e barra de cor; exporta HTML interativo, PNG e GIF/MP4. |
-| `pp.data` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data` |  |
+| `pp.data` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data` | Raiz do pacote: importa, cada um dentro de `try/except` (falha silenciosa), STL, `PhysicalSample`, armazenamento Zarr, collate, colocação, active learning, normalizadores, tipos UPD, splits e construtores de batch; os `datasets` são importados sem proteção. |
 | `pp.datasets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo.datasets` | `pp.datasets`: datasets verificados em uma linha, guardados como npz sem pickle; os pequenos vêm no pacote, os outros são baixados do Hub, conferidos por SHA-256 e cacheados. |
 | `pp.DDPPINNTrainer` | import direto | `pinneapple_neural.trainer.DDPPINNTrainer` |  |
 | `pp.DDPTrainerConfig` | import direto | `pinneapple_neural.trainer.DDPTrainerConfig` |  |
@@ -344,7 +344,7 @@ Em palavras:
 | `pp.run_tree` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.run_tree` | Walk the physics-AI decision tree (``tree.physics_ai_tree()`` by default). |
 | `pp.science` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_science` | Ponto de entrada (`pp.science`): reexporta `atlas`, `experiments`, `run` e os tipos centrais. |
 | `pp.score_against_reference` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.verification.physics_confidence_score.score_against_reference` | Pontua as predições de vários modelos contra um conjunto de referência separado. |
-| `pp.security` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_security` | pinneapple_security — data and process security for scientific and industrial Physics AI. |
+| `pp.security` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_security` | Ponto de entrada do pacote; o docstring é o índice das capacidades e diz as dependências (biblioteca padrão e NumPy; PyTorch para DP-SGD e carga segura; `cryptography` para Ed25519 e AES-GCM). |
 | `pp.SelfAdaptiveWeights` | import direto | `pinneapple_neural.trainer.SelfAdaptiveWeights` |  |
 | `pp.sensitivity` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_analysis.sensitivity` | Análise de sensibilidade global e local; reexporta Sobol, Morris, curvas de efeito, o estudo completo e as funções de teste. |
 | `pp.Sequential` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.module.Sequential` | Encadeia componentes (módulos, solvers ou funções), a saída de um é a entrada do próximo. |

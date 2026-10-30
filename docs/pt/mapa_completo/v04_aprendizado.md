@@ -1804,7 +1804,7 @@ Auditabilidade: semente global, modo determinístico, impressão digital do ambi
 | `RunLogger` | classe | `(out_dir, run_name, flush_every)` | Logger JSONL por execução que também salva a configuração e artefatos no diretório da execução. |
 | `set_seed` | função | `(seed) -> None` | Fixa a semente de `random`, NumPy e PyTorch (incluindo CUDA). |
 | `set_deterministic` | função | `(deterministic=True) -> None` | Liga ou desliga o modo determinístico do PyTorch/cuDNN. |
-| `env_fingerprint` | função | `() -> Dict[str, Any]` | Retorna um dict com versões de Python, plataforma, PyTorch e dados de CUDA para registrar o ambiente. |
+| `env_fingerprint` | função | `() -> Dict[str, Any]` | Retorna um dict com versões de Python, plataforma, PyTorch e disponibilidade/versão de CUDA para registrar o ambiente. |
 
 #### `pinneapple_neural.trainer.callbacks`
 
@@ -1815,7 +1815,7 @@ Callbacks simples de treino: parada antecipada (`EarlyStopping`) e salvamento do
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
 | `EarlyStopping` | classe | `(monitor, patience, min_delta, mode, best, bad_epochs, stop)` | Para o treino quando a métrica monitorada não melhora por `patience` épocas, com `min_delta` e modo min/max. |
-| `ModelCheckpoint` | classe | `(path, monitor, mode, best)` | Salva o `state_dict` do modelo no caminho dado sempre que a métrica monitorada melhora. |
+| `ModelCheckpoint` | classe | `(path, monitor, mode, best)` | Salva o `state_dict` do modelo (com extras e melhor valor) no caminho dado sempre que a métrica monitorada melhora. |
 
 #### `pinneapple_neural.trainer.causal`
 
@@ -1936,7 +1936,7 @@ Inferência mínima: carrega pesos de um checkpoint num modelo e faz predição 
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_checkpoint` | função | `(model, path, map_location='cpu') -> Dict[str, Any]` | Carrega um checkpoint num modelo (aceita dict com `model_state` ou state_dict puro) e devolve o dict lido. |
+| `load_checkpoint` | função | `(model, path, map_location='cpu') -> Dict[str, Any]` | Carrega os pesos da chave `model` de um arquivo `torch.save` no modelo e devolve o dict lido. |
 | `predict` | função | `(model, x, device=None) -> torch.Tensor` | Roda o modelo em modo `eval`, sem gradiente, no dispositivo indicado. |
 
 #### `pinneapple_neural.trainer.inverse_pinn`
@@ -1982,13 +1982,13 @@ Balanceamento automático de pesos de perda para PINNs: ReLoBRaLo, SoftAdapt, La
 
 #### `pinneapple_neural.trainer.losses`
 
-Perdas supervisionadas e com física: perda supervisionada (MSE/MAE/Huber), gancho de perda física e combinação ponderada, com helper para a Arena. [sem teste]
+Perdas supervisionadas e com física: perda supervisionada (MSE/MAE), gancho de perda física e combinação ponderada, com helper para a Arena. [sem teste]
 
 <small>`pinneapple_neural/trainer/losses.py` · 148 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SupervisedLoss` | classe | `(kind)` | Perda supervisionada configurável (`mse`, `mae`/`l1` ou `huber`/`smooth_l1`) entre predição e `y`. |
+| `SupervisedLoss` | classe | `(kind)` | Perda supervisionada entre predição e `y`: MAE quando `kind` é `mae`, MSE nos demais casos. |
 | `PhysicsLossHook` | classe | `(physics_loss_fn)` | Gancho que chama uma função de perda física do usuário com modelo, predição e lote. |
 | `CombinedLoss` | classe | `(supervised, physics, w_supervised, w_physics)` | Soma ponderada da perda supervisionada e da física, devolvendo dict com `total` e componentes. |
 | `build_loss` | função | `(*, problem_spec, model_capabilities=None, weights=None, supervised_kind='mse', physics_l…)` | Monta um `CombinedLoss` para a Arena, ligando a física só quando o problema e o modelo a suportam. |
@@ -2376,7 +2376,13 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_data` é a camada de dados do PINNeAPPle. Ela define o formato comum de dados físicos, o UPD (Unified Physical Data), cujo contêiner é `PhysicalSample`: estado (de preferência um `xarray.Dataset`), geometria, esquema das equações, domínio e proveniência. Em volta desse formato há gravação e leitura (`serialization`, `zarr_store` e variantes com cache, shards e prefetch), `DataLoader`s do PyTorch, splits, normalizadores, validação e geração de pontos de colocação e batches para treinar PINNs (`collocation`, `active_learning`, `adapters.pinn_batch_builders`, `upd_types`).
+
+O pacote também concentra os datasets. `datasets` tem um registro de datasets prontos (física gerada analiticamente ou por solver, geometria, séries temporais), carregadores de dados reais da web e clientes de fontes externas; vários destes últimos caem em dados sintéticos quando a fonte não responde. Há ainda leitores de datasets públicos (DeepMind `meshgraphnets`), um amostrador de campos aleatórios gaussianos para benchmarks de operadores, geradores sintéticos (`synth`) e a auditoria física de datasets (`audit`), que verifica se os dados de fato resolvem a EDP declarada antes do treino.
+
+Uma terceira parte é a camada de dados de engenharia usada pelos apps (`apps/`): leitura de malhas e resultados CAE de OpenFOAM, CalculiX/Abaqus, Gmsh, VTK e STL (`cae`), qualidade de malha, comparação de resultados, pré-voo de simulações (`preflight`), extração de metadados e convergência (`simulation_metadata`), saúde de dados de sensores (`data_health`), padronização de unidades e fontes (`unified`, `physical_units`), snapshots para modelos de ordem reduzida, linhagem de modelos (`lineage`), preenchimento de datasheets e formulários a partir de documentos (`formfill`, `udr1`) e otimização de processo só com dados. Apps como `simulation_preflight`, `mesh_quality`, `data_health` e `model_lineage` importam estes módulos diretamente.
+
+Os contratos em `contracts` (`ParameterSpace`, `DatasetSpec`, `ModelRef`, `StudyResult`) e o design de experimentos em `doe` ligam os apps entre si: um desenho de experimentos vira campanha de simulação (`pinneapple_simulation.external_solvers.campaign_cases`), as execuções viram dataset e o dataset vira modelo substituto. O pacote se apoia em `pinneapple_design.geometry` para geometria, em `pinneapple_physics` para `ProblemSpec` e presets, e em `pinneapple_security.archives` para expandir uploads com segurança; `pinneapple_train` reexporta `splits` e `transforms`.
 
 ### Números do inventário
 
@@ -2390,54 +2396,54 @@ Pasta de testes dedicada: `tests/pinneapple_data` (33 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `active_learning` |  | 1 | 5 | 22 |
-| `adapters` |  | 5 | 19 | 0 |
-| `audit` |  | 1 | 10 | 49 |
-| `augmentation` |  | 1 | 3 | 0 |
-| `cache` |  | 1 | 2 | 0 |
-| `cache_bytes` |  | 1 | 3 | 1 |
-| `cae` |  | 13 | 74 | 62 |
-| `chunking` |  | 1 | 2 | 0 |
-| `collate` |  | 1 | 3 | 0 |
-| `collocation` |  | 1 | 2 | 7 |
-| `contracts` |  | 4 | 27 | 175 |
-| `data_health` |  | 1 | 6 | 37 |
-| `dataloaders` |  | 1 | 3 | 0 |
-| `datasets` |  | 9 | 28 | 10 |
-| `device` |  | 1 | 2 | 0 |
-| `doe` |  | 4 | 10 | 21 |
-| `expressions` |  | 1 | 5 | 22 |
-| `formfill` |  | 14 | 31 | 44 |
-| `geometry_features` |  | 1 | 3 | 0 |
-| `grf_sampler` |  | 1 | 5 | 0 |
-| `lineage` |  | 3 | 4 | 13 |
-| `noether_dataset` |  | 1 | 3 | 5 |
-| `parameter_sampling` |  | 1 | 2 | 5 |
-| `physical_sample` |  | 1 | 1 | 28 |
-| `physical_units` |  | 1 | 12 | 52 |
-| `physics_case` |  | 1 | 2 | 47 |
-| `prefetch_adaptive` |  | 1 | 2 | 0 |
-| `preflight` |  | 4 | 11 | 13 |
-| `process_optimizer` |  | 1 | 7 | 16 |
-| `serialization` |  | 1 | 9 | 11 |
-| `simulation_metadata` |  | 5 | 25 | 25 |
-| `snapshots` |  | 1 | 3 | 31 |
-| `splits` |  | 1 | 2 | 0 |
-| `stl_import` |  | 1 | 3 | 0 |
-| `synth` |  | 15 | 20 | 0 |
-| `transforms` |  | 1 | 3 | 2 |
-| `udr1` |  | 1 | 3 | 36 |
-| `unified` |  | 1 | 9 | 24 |
-| `upd_dataset` |  | 1 | 1 | 5 |
-| `upd_types` |  | 1 | 5 | 0 |
-| `validators` |  | 1 | 3 | 0 |
-| `zarr_cached_store` |  | 1 | 2 | 0 |
-| `zarr_cached_store_bytes` |  | 1 | 2 | 0 |
-| `zarr_iterable` |  | 1 | 1 | 0 |
-| `zarr_prefetch` |  | 1 | 2 | 0 |
-| `zarr_shard_iterable` |  | 1 | 2 | 0 |
-| `zarr_shards` |  | 1 | 2 | 0 |
-| `zarr_store` |  | 1 | 1 | 1 |
+| `active_learning` | Escolha adaptativa de pontos de colocação de PINN por resíduo, variância ou combinação. | 1 | 5 | 22 |
+| `adapters` | Adaptadores de geometria, shards UPD, batches PINN e arquivos `.splash` para o formato do pacote. | 5 | 19 | 0 |
+| `audit` | Auditoria física de datasets de treino: EDP satisfeita, vazamento, duplicatas, diversidade e restrições. | 1 | 10 | 49 |
+| `augmentation` | Aumento de nuvens de pontos com ruído, rotação/escala e interpolação. | 1 | 3 | 0 |
+| `cache` | Cache LRU em memória limitado por número de itens. | 1 | 2 | 0 |
+| `cache_bytes` | Cache LRU em memória limitado por bytes. | 1 | 3 | 1 |
+| `cae` | Leitura de malhas e resultados CAE (OpenFOAM, CalculiX/Abaqus, Gmsh, VTK, STL), qualidade de malha, comparação de resultados e exportação neutra. | 13 | 74 | 62 |
+| `chunking` | Fatiamento de tensores grandes em pedaços. | 1 | 2 | 0 |
+| `collate` | Collate e transferência de dispositivo de batches PINN e supervisionados. | 1 | 3 | 0 |
+| `collocation` | Geração de pontos de colocação a partir de limites, `ProblemSpec`, domínios, malhas ou STL. | 1 | 2 | 7 |
+| `contracts` | Contratos de dados abertos entre apps (`ParameterSpace`, `DatasetSpec`, `ModelRef`, `StudyResult`) e tabelas com sidecar. | 4 | 27 | 175 |
+| `data_health` | Relatório de qualidade física de dados de sensores, ensaios e planta. | 1 | 6 | 37 |
+| `dataloaders` | Construção de `DataLoader` do PyTorch para shards UPD e `PhysicalSample`. | 1 | 3 | 0 |
+| `datasets` | Registro de datasets prontos (física, geometria, séries temporais, reais e externos) e downloads. | 9 | 28 | 10 |
+| `device` | Pin de memória e troca de dispositivo de amostras. | 1 | 2 | 0 |
+| `doe` | Design de experimentos e planejamento de campanhas de simulação. | 4 | 10 | 21 |
+| `expressions` | Avaliador seguro de expressões de restrição, sem `eval`. | 1 | 5 | 22 |
+| `formfill` | Preenchimento de formulários e datasheets de engenharia a partir de documentos, com fonte de cada valor. | 14 | 31 | 44 |
+| `geometry_features` | Nuvem de pontos e grade SDF a partir de malha triangular. | 1 | 3 | 0 |
+| `grf_sampler` | Campos aleatórios gaussianos 1D/2D para funções de entrada de benchmarks de operador. | 1 | 5 | 0 |
+| `lineage` | Linhagem de modelos de engenharia (digital thread) com checagens e exportação PROV. | 3 | 4 | 13 |
+| `noether_dataset` | Ponte entre datasets do Noether e `PhysicalSample`. | 1 | 3 | 5 |
+| `parameter_sampling` | Amostragem de espaços de parâmetros (LHS, Sobol, Halton, Saltelli). | 1 | 2 | 5 |
+| `physical_sample` | Contêiner `PhysicalSample` alinhado ao UPD. | 1 | 1 | 28 |
+| `physical_units` | Unidades, conversão para SI e inferência de grandeza física, só com a biblioteca padrão. | 1 | 12 | 52 |
+| `physics_case` | `PhysicsCase`: geometria + spec + solver + resultados referenciados juntos. | 1 | 2 | 47 |
+| `prefetch_adaptive` | Streaming de store Zarr UPD com prefetch adaptativo. | 1 | 2 | 0 |
+| `preflight` | Checagem de casos OpenFOAM e decks CalculiX antes de rodar o solver. | 4 | 11 | 13 |
+| `process_optimizer` | Otimização de processo industrial só com dados (gradient boosting). | 1 | 7 | 16 |
+| `serialization` | Gravação e leitura de `PhysicalSample` em `.pt`, HDF5 e Zarr. | 1 | 9 | 11 |
+| `simulation_metadata` | Extração de metadados e avaliação de convergência de simulações OpenFOAM e CalculiX. | 5 | 25 | 25 |
+| `snapshots` | Matrizes de snapshots para modelos de ordem reduzida. | 1 | 3 | 31 |
+| `splits` | Divisão treino/validação/teste aleatória, temporal ou por grupo. | 1 | 2 | 0 |
+| `stl_import` | Leitor de STL sem dependências. | 1 | 3 | 0 |
+| `synth` | Geradores de dados sintéticos (EDP, distribuições, curvas, imagens, geometria). | 15 | 20 | 0 |
+| `transforms` | Normalizadores (`StandardScaler`, `MinMaxScaler`). | 1 | 3 | 2 |
+| `udr1` | Atalhos do formulário ASME U-DR-1 sobre `formfill`. | 1 | 3 | 36 |
+| `unified` | Padronização de várias fontes de dados de engenharia num esquema físico único. | 1 | 9 | 24 |
+| `upd_dataset` | Dataset UPD com validação e persistência. | 1 | 1 | 5 |
+| `upd_types` | Tipos puros do pipeline UPD (shard, amostragem, batch). | 1 | 5 | 0 |
+| `validators` | Validação de `PhysicalSample`. | 1 | 3 | 0 |
+| `zarr_cached_store` | Store Zarr UPD com cache LRU por contagem. | 1 | 2 | 0 |
+| `zarr_cached_store_bytes` | Store Zarr UPD com cache LRU por bytes. | 1 | 2 | 0 |
+| `zarr_iterable` | `IterableDataset` sobre store Zarr UPD com divisão por worker. | 1 | 1 | 0 |
+| `zarr_prefetch` | `IterableDataset` Zarr com prefetch em thread e transferência para GPU. | 1 | 2 | 0 |
+| `zarr_shard_iterable` | `IterableDataset` balanceado sobre stores Zarr fatiados em shards. | 1 | 2 | 0 |
+| `zarr_shards` | Escritor de stores Zarr UPD fatiados por chave. | 1 | 2 | 0 |
+| `zarr_store` | Store Zarr colunar do UPD. | 1 | 1 | 1 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2445,1376 +2451,1421 @@ Pasta de testes dedicada: `tests/pinneapple_data` (33 funções de teste).
 
 #### `pinneapple_data`
 
-_Módulo sem docstring e sem texto._
+Raiz do pacote: importa, cada um dentro de `try/except` (falha silenciosa), STL, `PhysicalSample`, armazenamento Zarr, collate, colocação, active learning, normalizadores, tipos UPD, splits e construtores de batch; os `datasets` são importados sem proteção.
 
 <small>`pinneapple_data/__init__.py` · 117 linhas · testes: 78</small>
 
 #### `pinneapple_data.active_learning`
 
-Active Learning for adaptive collocation in PINN training.
+Active learning para escolher pontos de colocação de PINN: seleção por resíduo (RAR/RAD), por variância de um modelo com incerteza, combinação ponderada com diversidade, e um treinador que refina a colocação a cada `al_every` épocas.
 
 <small>`pinneapple_data/active_learning.py` · 674 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ActiveLearningConfig` | classe | `(strategy, n_candidates, n_select, n_initial, n_iterations, exploitation_weight, seed)` |  |
-| `ResidualBasedAL` | classe | `(config, bounds) -> None` | Sample collocation points where PDE residual is highest (RAR/RAD). |
-| `VarianceBasedAL` | classe | `(config, bounds) -> None` | Sample where model output variance is highest (requires a UQ model). |
-| `CombinedAL` | classe | `(config, bounds, residual_weight=0.6, variance_weight=0.3, diversity_weight=0.1) -> None` | Weighted combination: exploit high residual + explore uncertain regions. |
-| `AdaptiveCollocationTrainer` | classe | `(model, physics_fn, sampler, al_config=None, optimizer=None, device='cpu') -> None` | Wraps a PINN model with active-learning collocation updates. |
+| `ActiveLearningConfig` | classe | `(strategy, n_candidates, n_select, n_initial, n_iterations, exploitation_weight, seed)` | Configuração do active learning: estratégia, número de candidatos, de pontos escolhidos por rodada, iniciais, iterações, peso de exploração e semente. |
+| `ResidualBasedAL` | classe | `(config, bounds) -> None` | Escolhe pontos de colocação onde o resíduo da EDP é maior, pegando os top-k (RAR) ou sorteando com peso proporcional ao resíduo (RAD). |
+| `VarianceBasedAL` | classe | `(config, bounds) -> None` | Escolhe pontos onde a variância da saída do modelo é maior; exige um modelo com incerteza que exponha `variance_fn` (ensemble, rede bayesiana). |
+| `CombinedAL` | classe | `(config, bounds, residual_weight=0.6, variance_weight=0.3, diversity_weight=0.1) -> None` | Pontua candidatos por soma ponderada de resíduo, variância e diversidade (distância aos pontos já escolhidos), todos normalizados. |
+| `AdaptiveCollocationTrainer` | classe | `(model, physics_fn, sampler, al_config=None, optimizer=None, device='cpu') -> None` | Envolve um PINN e uma função física, mantém o próprio conjunto de colocação e acrescenta pontos escolhidos pela estratégia de active learning durante o treino. |
 
 #### `pinneapple_data.adapters`
 
-_Módulo sem docstring e sem texto._
+Reexporta os adaptadores de geometria, de shards UPD, de batch PINN e de arquivos `.splash`; os de geometria e UPD ficam em `try/except`. [sem teste]
 
 <small>`pinneapple_data/adapters/__init__.py` · 63 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.adapters.geom_adapter`
 
-Geometry loading and attachment utilities for PhysicalSample via pinneapple_geom.
+Carrega geometria (arquivo, STL, objeto) como `GeometryAsset` via `pinneapple_design.geometry` e a anexa a um `PhysicalSample`; o docstring ainda usa o nome antigo `pinneapple_geom`. [sem teste]
 
 <small>`pinneapple_data/adapters/geom_adapter.py` · 286 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometryLoadOptions` | classe | `(scale, translate, rotate_euler_deg, repair, compute_normals, boundary_labels)` | Configuration container for geometry or mesh loading behavior. |
-| `load_geometry_asset` | função | `(geom, *, options=None) -> Any` | Load or construct a GeometryAsset via pinneapple_geom. |
-| `stl_to_upd` | função | `(path, *, repair=True, compute_normals=True, units='m') -> Any` | Load an STL and package it as a UPD-aligned PhysicalSample. |
-| `attach_geometry` | função | `(sample, geom_asset) -> Any` | Attach a GeometryAsset to a PhysicalSample-like structure. |
+| `GeometryLoadOptions` | classe | `(scale, translate, rotate_euler_deg, repair, compute_normals, boundary_labels)` | Opções de carga de geometria: escala, translação, rotação em graus de Euler, reparo, cálculo de normais e rótulos de contorno. |
+| `load_geometry_asset` | função | `(geom, *, options=None) -> Any` | Carrega ou monta um `GeometryAsset` a partir de caminho, STL ou especificação, delegando ao registro de geometria de `pinneapple_design`. |
+| `stl_to_upd` | função | `(path, *, repair=True, compute_normals=True, units='m') -> Any` | Lê um STL com `trimesh` e devolve um `PhysicalSample` de domínio malha com `vertices` e `faces` como tensores e a proveniência do arquivo. |
+| `attach_geometry` | função | `(sample, geom_asset) -> Any` | Anexa um `GeometryAsset` a uma amostra (dict ou objeto) e define o tipo de domínio como `mesh` se ainda não houver. |
 
 #### `pinneapple_data.adapters.pinn_batch_builders`
 
-PINN batch builders: convert various data sources into the unified dict-batch format.
+Converte fontes diferentes (bundle do Arena, solver, medições reais) para o batch em dict usado pelo compilador PINN (`x_col`, `x_bc`, `y_bc`, `x_ic`, `y_ic`, `x_data`, `y_data`, `ctx`). [sem teste]
 
 <small>`pinneapple_data/adapters/pinn_batch_builders.py` · 149 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNBatch` | classe | `(batch)` | In-memory PINN-ready batch (thin wrapper around the dict). |
-| `build_from_bundle` | função | `(bundle, *, n_collocation=4096, n_boundary=2048, n_data=2048, device=None, dtype=torch.fl…)` | Create a PINN-style batch from an Arena BundleData. |
-| `build_from_solver` | função | `(problem_spec, geometry, solver_cfg, *, device=None, dtype=torch.float32) -> PINNBatch` | Build a PINN batch by running a solver or using pre-computed tensors. |
-| `build_from_real_data` | função | `(adapter_cfg, *, device=None, dtype=torch.float32) -> PINNBatch` | Build a PINN batch from real measurement data. |
+| `PINNBatch` | classe | `(batch)` | Invólucro fino de um batch PINN em memória (o dict de tensores). |
+| `build_from_bundle` | função | `(bundle, *, n_collocation=4096, n_boundary=2048, n_data=2048, device=None, dtype=torch.fl…)` | Monta um batch PINN a partir de um `BundleData` de `pinneapple_arena`, sorteando pontos de colocação, contorno e dados. |
+| `build_from_solver` | função | `(problem_spec, geometry, solver_cfg, *, device=None, dtype=torch.float32) -> PINNBatch` | Monta um batch PINN chamando um `solver_fn` da configuração ou usando tensores já prontos nela. |
+| `build_from_real_data` | função | `(adapter_cfg, *, device=None, dtype=torch.float32) -> PINNBatch` | Monta um batch PINN a partir de medições reais, via `loader_fn` ou tensores `x_data`/`y_data` dados diretamente. |
 
 #### `pinneapple_data.adapters.splash_archive_adapter`
 
-Loader for a Splash-CFD ``.splash`` case (a zipped OpenFOAM case directory) into plain numpy arrays -- both a flat point-cloud form (for PINN-style training) and a dense structured-grid volume time series (for grid-based neural operators like :class:`~pinneapple_neural. …
+Lê um caso `.splash` (caso OpenFOAM zipado) para arrays NumPy: nuvem de pontos para PINN ou volumes densos em grade para operadores neurais como `FNO3d`; código promovido de um projeto derivado. [sem teste]
 
 <small>`pinneapple_data/adapters/splash_archive_adapter.py` · 315 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SplashMesh` | classe | `(n_cells, n_points, n_faces, n_internal_faces, cell_centers, cell_size, cell_delta, bound…)` |  |
-| `FieldSnapshot` | classe | `(time, fields)` |  |
-| `SplashCase` | classe | `(path, mesh, time_dirs, transport, meta)` |  |
-| `load_mesh` | função | `(zf, prefix='constant/polyMesh/') -> SplashMesh` | Build cell centers/sizes from the binary polyMesh inside a .splash zip. ``zf`` is an open ``zipfile.ZipFile``. |
-| `save_mesh_cache` | função | `(mesh, path) -> None` |  |
-| `load_mesh_cache` | função | `(path) -> SplashMesh` |  |
-| `open_case` | função | `(path, mesh_cache_dir=None) -> SplashCase` | Open a ``.splash`` file, reconstructing (or loading a cached) mesh. |
-| `load_dense_volumes` | função | `(splash_path, field_components, nx, ny, nz, *, mesh_cache_dir=None) -> Tuple[np.ndarray, …)` | Load every time directory of a ``.splash`` archive as a dense volume time series, for a structured single hex block mesh. |
+| `SplashMesh` | classe | `(n_cells, n_points, n_faces, n_internal_faces, cell_centers, cell_size, cell_delta, bound…)` | Malha reconstruída de um `.splash`: contagens de células, pontos e faces, centros e tamanhos de célula e limites do domínio. |
+| `FieldSnapshot` | classe | `(time, fields)` | Campos de um instante de tempo de um caso `.splash` (tempo + dict de arrays). |
+| `SplashCase` | classe | `(path, mesh, time_dirs, transport, meta)` | Caso `.splash` aberto: malha, diretórios de tempo e propriedades; lê campos, instantâneos, nuvem de pontos e volume denso. |
+| `load_mesh` | função | `(zf, prefix='constant/polyMesh/') -> SplashMesh` | Monta centros e tamanhos de célula a partir do polyMesh binário dentro do zip `.splash` aberto. |
+| `save_mesh_cache` | função | `(mesh, path) -> None` | Grava um `SplashMesh` num `.npz` comprimido para reaproveitar depois. |
+| `load_mesh_cache` | função | `(path) -> SplashMesh` | Lê de volta um `SplashMesh` gravado por `save_mesh_cache`. |
+| `open_case` | função | `(path, mesh_cache_dir=None) -> SplashCase` | Abre um arquivo `.splash`, reconstruindo a malha ou lendo-a do cache. |
+| `load_dense_volumes` | função | `(splash_path, field_components, nx, ny, nz, *, mesh_cache_dir=None) -> Tuple[np.ndarray, …)` | Lê todos os diretórios de tempo de um `.splash` como série temporal de volumes densos `nx×ny×nz`, para malha de um único bloco hexaédrico estruturado. |
 
 #### `pinneapple_data.adapters.upd_adapter`
 
-UPD shard loading and PhysicalSample conversion adapters.
+Carrega shards UPD (Zarr + JSON de metadados) como `xarray.Dataset` e os converte em `PhysicalSample` ou anexa o estado a uma amostra existente. [sem teste]
 
 <small>`pinneapple_data/adapters/upd_adapter.py` · 288 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_upd_item` | função | `(upd) -> Tuple[xr.Dataset, Dict[str, Any]]` | Load a UPD shard dataset and its associated metadata. |
-| `upd_to_physical_sample` | função | `(upd, *, schema_override=None, provenance_extra=None) -> Any` | Convert a UPD shard into a PhysicalSample instance. |
-| `attach_upd_state` | função | `(sample, upd) -> Any` | Attach UPD dataset state and metadata to an existing sample object. |
+| `load_upd_item` | função | `(upd) -> Tuple[xr.Dataset, Dict[str, Any]]` | Lê um shard UPD (par de caminhos, dict ou dataset pronto) e devolve o `xarray.Dataset` e os metadados. |
+| `upd_to_physical_sample` | função | `(upd, *, schema_override=None, provenance_extra=None) -> Any` | Converte um shard UPD em `PhysicalSample`, com esquema opcional sobrescrito e proveniência extra. |
+| `attach_upd_state` | função | `(sample, upd) -> Any` | Anexa estado, esquema, domínio e proveniência de um shard UPD a uma amostra existente (dict ou objeto). |
 
 #### `pinneapple_data.audit`
 
-Physics audit of a training dataset: does the data solve its PDE? Split leakage, near duplicates, diversity and units (#700). NumPy/SciPy only.
+Auditoria física de um dataset de treino só com NumPy/SciPy: verifica se os dados resolvem a própria EDP, vazamento entre splits, duplicatas, diversidade, restrições e unidades, e gera um cartão de auditoria.
 
 <small>`pinneapple_data/audit.py` · 519 linhas · testes: 49</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AuditCheck` | classe | `(id, status, summary, value, threshold, evidence)` |  |
-| `AuditCard` | classe | `(dataset, splits, physics, checks, tolerances)` |  |
-| `DatasetPhysics` | classe | `(name, columns, check, tolerances, units)` | Per-sample physics of a dataset. ``check(sample) -> {name: relative error}`` for one sample (a mapping of column -> array without the sample axis); ``tolerances`` maps each name to its limit (keys of :data:`DEFAULT_TOLERANCES` or numbers). |
-| `darcy_consistency` | função | `(a, u, f=1.0) -> dict[str, float]` | Darcy sample checks in the discretisation of ``operator_benchmarks.darcy_2d`` (cell-centred, ``h = 1/n``): ``solve`` = relative L2 distance of ``u`` to the solution of its own discrete problem; ``bc`` = RMS difference of the boundary values (linear extrapolation of the first two cells to each face) … |
-| `effective_sample_count` | função | `(x) -> float` | Participation ratio ``(sum l)^2 / sum l^2`` of the principal-component spectrum of the samples (rows): about the number of independent directions the samples span; 1 when every sample is a multiple of one pattern. |
-| `near_duplicates` | função | `(x, near=0.001) -> dict[str, Any]` | Exact and near duplicates inside one set (rows), relative to the median nearest-neighbour distance. |
-| `leakage` | função | `(train, test, near=0.001) -> dict[str, Any]` | Nearest training sample of each test sample; a test sample closer than ``near`` x the median training nearest-neighbour distance is a (near) copy. |
-| `constraint_mask` | função | `(expr, cols) -> np.ndarray` | Where the declared relation ``expr`` (``"Cd > 0"``, ``"abs(u) <= 1"``, ``"a == b * c"`` to 1e-6 relative) holds, element-wise over ``cols``: the evaluator the ``constraints`` check uses, for checking predictions too. |
-| `audit_dataset` | função | `(splits, *, name='dataset', physics=None, inputs=None, units=None, expected_units=None, c…)` | Audit ``splits`` (``{split: {column: array}}``). |
-| `audit_zoo_dataset` | função | `(name, *, offline=None, **kw) -> AuditCard` | Audit a ``pp.datasets`` entry with the physics and constraints its catalog entry states. |
+| `AuditCheck` | classe | `(id, status, summary, value, threshold, evidence)` | Resultado de uma verificação da auditoria: id, status (passa/falha/não se aplica), resumo, valor, limite e evidência. |
+| `AuditCard` | classe | `(dataset, splits, physics, checks, tolerances)` | Cartão de auditoria de um dataset com todas as verificações; dá a decisão geral e exporta para dict, JSON e Markdown. |
+| `DatasetPhysics` | classe | `(name, columns, check, tolerances, units)` | Física por amostra de um dataset: função `check(sample)` que devolve erros relativos por nome, e as tolerâncias de cada um. |
+| `darcy_consistency` | função | `(a, u, f=1.0) -> dict[str, float]` | Verifica uma amostra de Darcy na discretização de `operator_benchmarks.darcy_2d`: distância à solução do próprio problema discreto e erro nas condições de contorno. |
+| `effective_sample_count` | função | `(x) -> float` | Razão de participação do espectro de componentes principais das amostras: aproxima quantas direções independentes os dados cobrem. |
+| `near_duplicates` | função | `(x, near=0.001) -> dict[str, Any]` | Acha duplicatas exatas e quase duplicatas dentro de um conjunto, relativas à distância mediana ao vizinho mais próximo. |
+| `leakage` | função | `(train, test, near=0.001) -> dict[str, Any]` | Para cada amostra de teste acha a de treino mais próxima e marca como cópia (vazamento) as que ficam perto demais. |
+| `constraint_mask` | função | `(expr, cols) -> np.ndarray` | Avalia elemento a elemento onde uma relação declarada (como `"Cd > 0"` ou `"a == b * c"`) vale; serve também para checar predições. |
+| `audit_dataset` | função | `(splits, *, name='dataset', physics=None, inputs=None, units=None, expected_units=None, c…)` | Audita splits `{split: {coluna: array}}` com física, restrições, diversidade, vazamento e unidades, e devolve um `AuditCard`. |
+| `audit_zoo_dataset` | função | `(name, *, offline=None, **kw) -> AuditCard` | Audita uma entrada de `pp.datasets` usando a física e as restrições declaradas no seu catálogo. |
 
 #### `pinneapple_data.augmentation`
 
-Point-cloud dataset augmentation strategies for PDE/PINN training data.
+Aumento de dados para nuvens de pontos `(coords, fields)`: ruído gaussiano, rotação/escala de coordenadas e novos pontos por interpolação, sem acoplamento a framework. [sem teste]
 
 <small>`pinneapple_data/augmentation.py` · 139 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `augment_noise` | função | `(coords, fields, n_copies, std_fraction=0.05, seed=0) -> Dict[str, Any]` | Add Gaussian noise (scaled to each field's own std) to `n_copies` tiled copies of the dataset. Coordinates are unchanged; only field values are perturbed. |
-| `augment_transform` | função | `(coords, fields, n_copies, max_rotation_deg=15.0, scale_range=(0.9, 1.1), seed=0) -> Dict…)` | Random in-plane rotation (about the first two coordinate axes) plus isotropic scaling of the coordinate frame, `n_copies` times. Field values are treated as physical quantities sampled at each point, not coordinate-derived geometry — a rigid rotation/scale of the frame leaves field *values* … |
-| `augment_interpolation` | função | `(coords, fields, n_new_points, method='linear', seed=0) -> Dict[str, Any]` | Generate `n_new_points` new samples inside the convex hull of the original point cloud, with field values estimated via scattered-data interpolation (falling back to nearest-neighbor wherever the requested method produces NaN, e.g. outside the interpolation method's support). |
+| `augment_noise` | função | `(coords, fields, n_copies, std_fraction=0.05, seed=0) -> Dict[str, Any]` | Faz `n_copies` cópias do dataset somando ruído gaussiano proporcional ao desvio-padrão de cada campo; coordenadas ficam iguais. |
+| `augment_transform` | função | `(coords, fields, n_copies, max_rotation_deg=15.0, scale_range=(0.9, 1.1), seed=0) -> Dict…)` | Faz `n_copies` cópias com rotação no plano dos dois primeiros eixos e escala isotrópica das coordenadas; os campos não são rotacionados. |
+| `augment_interpolation` | função | `(coords, fields, n_new_points, method='linear', seed=0) -> Dict[str, Any]` | Gera pontos novos dentro do fecho convexo da nuvem e estima os campos por interpolação dispersa, com vizinho mais próximo onde a interpolação dá NaN. |
 
 #### `pinneapple_data.cache`
 
-Thread-safe LRU cache for in-memory data with configurable capacity.
+Cache LRU em memória, seguro para threads, limitado por número de itens. [sem teste]
 
 <small>`pinneapple_data/cache.py` · 120 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CacheStats` | classe | `(hits, misses, evictions)` | Statistics container for the LRUCache. |
-| `LRUCache` | classe | `(max_items=256)` | Thread-safe LRU cache. |
+| `CacheStats` | classe | `(hits, misses, evictions)` | Contadores do `LRUCache`: acertos, falhas e despejos. |
+| `LRUCache` | classe | `(max_items=256)` | Cache LRU seguro para threads limitado por `max_items`, com `get`, `put` e `clear`. |
 
 #### `pinneapple_data.cache_bytes`
 
-Byte-constrained LRU cache for memory-bounded caching of tensors and samples.
+Cache LRU seguro para threads limitado por bytes, para tensores e amostras.
 
 <small>`pinneapple_data/cache_bytes.py` · 179 linhas · testes: 1</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ByteCacheStats` | classe | `(hits, misses, evictions, bytes_in_use)` | Statistics container for the ByteLRUCache. |
-| `ByteLRUCache` | classe | `(max_bytes=512 * 1024 * 1024, weigher=default_weigher)` | Thread-safe LRU cache constrained by max_bytes (not max items). |
-| `default_weigher` | função | `(value) -> int` | Estimate memory usage in bytes. |
+| `ByteCacheStats` | classe | `(hits, misses, evictions, bytes_in_use)` | Contadores do `ByteLRUCache`: acertos, falhas, despejos e bytes em uso. |
+| `ByteLRUCache` | classe | `(max_bytes=512 * 1024 * 1024, weigher=default_weigher)` | Cache LRU que limita o total de bytes (`max_bytes`) em vez do número de itens, despejando os menos usados. |
+| `default_weigher` | função | `(value) -> int` | Estima o tamanho em bytes de um valor: `nbytes` de tensor, soma para dicts e amostras, e um valor fixo de reserva para o resto. |
 
 #### `pinneapple_data.cae`
 
-CAE data layer: read meshes and results from OpenFOAM, CalculiX/Abaqus, Gmsh, VTK, STL and point tables into one ``Mesh`` type; mesh quality (checkMesh-equivalent finite-volume metrics, element shape metrics, surface checks); per-cell Courant number and wall distance.
+Camada de dados CAE: lê malhas e resultados de OpenFOAM, CalculiX/Abaqus, Gmsh, VTK, STL e tabelas de pontos num único tipo `Mesh`, com qualidade de malha, Courant e distância à parede.
 
 <small>`pinneapple_data/cae/__init__.py` · 14 linhas · testes: 44</small>
 
 #### `pinneapple_data.cae.compare`
 
-Compare two results field by field: simulation vs simulation (different meshes or models), vs experiment (sensor tables), vs AI predictions (point tables or meshes), vs analytical or benchmark data.
+Compara dois resultados campo a campo (simulação, experimento, predição de IA ou referência analítica), interpolando o candidato nas posições da referência e calculando MAE, RMSE, erro máximo, viés, L2 relativo, NRMSE e R².
 
 <small>`pinneapple_data/cae/compare.py` · 420 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Interpolator` | classe | `(src_pts, dst_pts, method='auto')` | Values of a candidate field at query points: identical locations, linear (Delaunay), nearest outside. |
-| `locations` | função | `(m, field) -> Tuple[np.ndarray, str, Optional[np.ndarray]]` | (points where the field lives, 'cell'\|'point', weights). |
-| `cell_centres_volumes` | função | `(m) -> Tuple[np.ndarray, Optional[np.ndarray]]` |  |
-| `field_value` | função | `(m, f) -> np.ndarray` |  |
-| `fields_of` | função | `(m) -> Dict[str, Dict[str, Any]]` |  |
-| `match_fields` | função | `(ref, cand, mapping=None) -> List[Tuple[str, str]]` | Pairs (reference field, candidate field): explicit mapping first, then same name (case-insensitive), then aliases (U ~ velocity, p ~ pressure, T ~ temperature, DISP ~ displacement, ...). |
-| `tolerance_verdicts` | função | `(result, tolerance) -> Optional[str]` | Mark every field of a :func:`compare` result ``"pass"`` / ``"fail"`` by its relative L2 error against ``tolerance`` (a fraction, e.g. 0.05 for 5 %), in ``field["verdict"]``. Returns ``"PASS"`` when every judged field passes, ``"FAIL"`` otherwise, ``None`` when nothing was judged (no tolerance or no … |
-| `compare` | função | `(ref, cand, mapping=None, method='auto', fields=None) -> Dict[str, Any]` |  |
-| `surface` | função | `(m, max_tris=300000) -> Optional[Dict[str, Any]]` | Boundary surface for display: triangles with the cell each one belongs to. For 2D OpenFOAM cases (empty patches) only one of the two empty sides is kept. |
-| `views` | função | `(ref, res, max_points=60000) -> Dict[str, Any]` | Per-field display payload: a surface coloured per cell (or per node), a line plot, or a 2D/3D point map. |
+| `Interpolator` | classe | `(src_pts, dst_pts, method='auto')` | Interpola um campo candidato em pontos de consulta: cópia direta se as posições coincidem, linear (Delaunay) dentro do domínio e vizinho mais próximo fora. |
+| `locations` | função | `(m, field) -> Tuple[np.ndarray, str, Optional[np.ndarray]]` | Devolve onde um campo vive (centros de célula ou nós), o tipo de posição e os pesos (volumes de célula, se houver). |
+| `cell_centres_volumes` | função | `(m) -> Tuple[np.ndarray, Optional[np.ndarray]]` | Calcula (e guarda em cache na malha) centros e volumes de célula pela geometria de volumes finitos. |
+| `field_value` | função | `(m, f) -> np.ndarray` | Devolve os valores de um campo da malha, ou de uma componente dele quando o nome a indica. |
+| `fields_of` | função | `(m) -> Dict[str, Dict[str, Any]]` | Lista os campos de uma malha com posição (ponto/célula), número de componentes, unidade e tamanho. |
+| `match_fields` | função | `(ref, cand, mapping=None) -> List[Tuple[str, str]]` | Pareia campos de referência e candidato: mapeamento explícito, depois mesmo nome sem caixa, depois apelidos (U~velocity, p~pressure, T~temperature, DISP~displacement). |
+| `tolerance_verdicts` | função | `(result, tolerance) -> Optional[str]` | Marca cada campo de um resultado de `compare` como `pass`/`fail` pelo erro L2 relativo contra uma tolerância e devolve o veredito geral. |
+| `compare` | função | `(ref, cand, mapping=None, method='auto', fields=None) -> Dict[str, Any]` | Compara referência e candidato em todos os campos pareados e devolve métricas por campo e componente; levanta `ValueError` se não houver campo em comum. |
+| `surface` | função | `(m, max_tris=300000) -> Optional[Dict[str, Any]]` | Extrai a superfície de contorno em triângulos, com a célula de cada um, para exibição; em casos 2D do OpenFOAM mantém só um lado `empty`. |
+| `views` | função | `(ref, res, max_points=60000) -> Dict[str, Any]` | Monta o payload de exibição por campo: superfície colorida, gráfico de linha ou mapa de pontos 2D/3D. |
 
 #### `pinneapple_data.cae.dataset`
 
-Neutral physical dataset: any supported result (OpenFOAM, CalculiX, VTK/VTU, Gmsh, point tables) normalised into one representation (geometry, mesh, coordinates, fields with quantity and unit, metadata) and written to VTK (.vtu), HDF5, Parquet, CSV, NPZ, JSON or a PINNeAPPle dataset (UPD Zarr …
+Dataset físico neutro: normaliza qualquer resultado suportado em geometria, malha, coordenadas e campos com grandeza e unidade, e exporta para VTU, HDF5, Parquet, CSV, NPZ, JSON ou dataset PINNeAPPle (Zarr UPD).
 
 <small>`pinneapple_data/cae/dataset.py` · 507 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `quantity_of` | função | `(name) -> Tuple[Optional[str], Optional[str]]` |  |
-| `poly_cells` | função | `(m)` | OpenFOAM cells as VTK cells: hexahedra, wedges, tetrahedra and pyramids are rebuilt from their faces; any other cell becomes a VTK polyhedron (list of faces). Returns (blocks [(type, conn)], polyhedra faces, cell order). |
-| `field_scalar` | função | `(values) -> Tuple[Optional[np.ndarray], str]` | One scalar per point or cell: the value itself, the magnitude of a vector (up to 3 components) or the von Mises stress of a symmetric tensor in Voigt order ``xx yy zz xy yz zx``. Returns ``(scalar, kind)``; ``scalar`` is ``None`` for other shapes. |
-| `build_dataset` | função | `(m, *, unit_system='auto', to_si=False, rho=None, location='auto', files=None) -> Dict[st…)` | Normalise a Mesh into the neutral dataset (a dict holding numpy arrays and metadata). |
-| `describe` | função | `(ds) -> Dict[str, Any]` | JSON-safe description (the schema the user sees): no arrays. |
-| `export` | função | `(ds, fmt) -> Tuple[bytes, str, str]` | (content, media type, file extension). |
-| `write_vtu` | função | `(ds) -> bytes` |  |
-| `write_hdf5` | função | `(ds) -> bytes` |  |
-| `write_parquet` | função | `(ds) -> bytes` |  |
-| `write_csv` | função | `(ds) -> bytes` |  |
-| `write_npz` | função | `(ds) -> bytes` |  |
-| `write_json` | função | `(ds, max_values=2000000) -> bytes` |  |
-| `write_pinneapple` | função | `(ds) -> bytes` | A PINNeAPPle dataset: one PhysicalSample (state = coordinates and fields at the chosen location) written with the library's UPD Zarr store (pinneapple_data.serialization.save_zarr), zipped. Load it with ``load_zarr`` after unzipping; units, quantities and the source are in the sample's provenance. |
-| `preview` | função | `(ds, max_fields=6, max_tris=200000) -> Dict[str, Any]` | Display payload of a dataset from :func:`build_dataset`: the boundary surface (always, so a bare mesh shows too) coloured by the first ``max_fields`` fields reduced to one scalar each (:func:`field_scalar`), rounded to 5 significant digits. Empty dict when the mesh has no surface. |
+| `quantity_of` | função | `(name) -> Tuple[Optional[str], Optional[str]]` | Infere grandeza física e unidade a partir do nome de um campo, por padrões de nome. |
+| `poly_cells` | função | `(m)` | Converte células OpenFOAM em células VTK (hexaedro, prisma, tetraedro, pirâmide) e as demais em poliedros VTK. |
+| `field_scalar` | função | `(values) -> Tuple[Optional[np.ndarray], str]` | Reduz um campo a um escalar por ponto/célula: o próprio valor, a magnitude de um vetor ou a tensão de von Mises de um tensor simétrico. |
+| `build_dataset` | função | `(m, *, unit_system='auto', to_si=False, rho=None, location='auto', files=None) -> Dict[st…)` | Normaliza uma `Mesh` no dataset neutro (dict com arrays e metadados), com sistema de unidades, conversão opcional para SI e escolha de posição. |
+| `describe` | função | `(ds) -> Dict[str, Any]` | Descrição do dataset segura para JSON (o esquema mostrado ao usuário), sem arrays. |
+| `export` | função | `(ds, fmt) -> Tuple[bytes, str, str]` | Serializa o dataset no formato pedido e devolve (conteúdo, tipo de mídia, extensão). |
+| `write_vtu` | função | `(ds) -> bytes` | Escreve o dataset como VTK XML não estruturado (`.vtu`), incluindo poliedros quando a malha é OpenFOAM. |
+| `write_hdf5` | função | `(ds) -> bytes` | Escreve o dataset em HDF5 com malha, campos e metadados (requer `h5py`). |
+| `write_parquet` | função | `(ds) -> bytes` | Escreve o dataset como tabela Parquet com unidades nos metadados (requer `pandas` e `pyarrow`). |
+| `write_csv` | função | `(ds) -> bytes` | Escreve o dataset como CSV com unidades no cabeçalho e uma linha de comentário com esquema e origem. |
+| `write_npz` | função | `(ds) -> bytes` | Escreve pontos, centros de célula, campos e metadados num `.npz` comprimido. |
+| `write_json` | função | `(ds, max_values=2000000) -> bytes` | Escreve a descrição em JSON e inclui os valores só se o total couber em `max_values`. |
+| `write_pinneapple` | função | `(ds) -> bytes` | Escreve o dataset como um `PhysicalSample` num store Zarr UPD zipado, que se lê com `serialization.load_zarr`. |
+| `preview` | função | `(ds, max_fields=6, max_tris=200000) -> Dict[str, Any]` | Payload de exibição: superfície de contorno colorida pelos primeiros campos reduzidos a escalar. |
 
 #### `pinneapple_data.cae.foam`
 
-OpenFOAM readers: polyMesh (points, faces, owner, neighbour, boundary) and volume fields of a time directory.
+Leitores OpenFOAM: polyMesh (pontos, faces, owner, neighbour, boundary) e campos de volume de um diretório de tempo, em ASCII ou binário, com ou sem gzip; casos decompostos (`processor*`) não são remontados e nada é executado.
 
 <small>`pinneapple_data/cae/foam.py` · 372 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `header` | função | `(text) -> Dict[str, str]` |  |
-| `read_points` | função | `(b) -> np.ndarray` |  |
-| `read_labels` | função | `(b) -> np.ndarray` |  |
-| `read_faces` | função | `(b) -> Tuple[np.ndarray, np.ndarray]` | Faces as (flat node list, offsets). |
-| `read_boundary` | função | `(b) -> List[Dict[str, Any]]` |  |
-| `read_polymesh` | função | `(fs, root='') -> Mesh` |  |
-| `dims_unit` | função | `(dims) -> Optional[str]` |  |
-| `read_boundary_values` | função | `(b, mesh, width) -> Optional[np.ndarray]` | Value on every boundary face (NaN for empty patches), from the boundaryField of a field file: the written 'value' (uniform or a list), zero for noSlip, the owner-cell value where nothing is written (zeroGradient). |
-| `read_field` | função | `(b, n_cells) -> Tuple[np.ndarray, Optional[str], str]` | internalField of a vol*Field: (values per cell, unit, class). |
-| `time_dirs` | função | `(fs, root='') -> List[str]` | Numeric time directories under the case root, ascending. |
-| `read_time` | função | `(fs, mesh, root='', time=None, only=None) -> Dict[str, Any]` | Load the volume fields of one time directory (latest by default) into ``mesh.cell_data``. |
-| `boundary_conditions` | função | `(fs, mesh, root='', time=None) -> Dict[str, Dict[str, str]]` | Patch -> field -> condition as written in the boundaryField of each field of one time directory (the first, which holds the initial and boundary conditions, by default): ``"fixedValue uniform (1 0 0)"``, ``"noSlip"``, ``"zeroGradient"``. Empty patches are left out. |
+| `header` | função | `(text) -> Dict[str, str]` | Lê o cabeçalho `FoamFile` de um arquivo OpenFOAM como dict de texto. |
+| `read_points` | função | `(b) -> np.ndarray` | Lê o arquivo `points` do polyMesh (ASCII ou binário) como array (n, 3). |
+| `read_labels` | função | `(b) -> np.ndarray` | Lê uma lista de rótulos inteiros (como `owner` ou `neighbour`) do polyMesh. |
+| `read_faces` | função | `(b) -> Tuple[np.ndarray, np.ndarray]` | Lê o arquivo `faces` como lista plana de nós mais offsets (suporta `faceList` e `faceCompactList`). |
+| `read_boundary` | função | `(b) -> List[Dict[str, Any]]` | Lê o arquivo `boundary` e devolve os patches com nome, tipo, número de faces e face inicial. |
+| `read_polymesh` | função | `(fs, root='') -> Mesh` | Monta uma `Mesh` a partir de `constant/polyMesh` do upload; levanta `ValueError` se o polyMesh não estiver presente. |
+| `dims_unit` | função | `(dims) -> Optional[str]` | Converte o vetor de dimensões OpenFOAM (`[0 2 -1 0 0 0 0]`) em texto de unidade. |
+| `read_boundary_values` | função | `(b, mesh, width) -> Optional[np.ndarray]` | Valor em cada face de contorno lido do `boundaryField`: o `value` escrito, zero para `noSlip`, o valor da célula vizinha quando nada está escrito, NaN para patches `empty`. |
+| `read_field` | função | `(b, n_cells) -> Tuple[np.ndarray, Optional[str], str]` | Lê o `internalField` de um campo de volume: valores por célula, unidade e classe. |
+| `time_dirs` | função | `(fs, root='') -> List[str]` | Lista os diretórios de tempo numéricos do caso em ordem crescente. |
+| `read_time` | função | `(fs, mesh, root='', time=None, only=None) -> Dict[str, Any]` | Carrega os campos de volume de um diretório de tempo (o último, por padrão) em `mesh.cell_data`. |
+| `boundary_conditions` | função | `(fs, mesh, root='', time=None) -> Dict[str, Dict[str, str]]` | Devolve patch → campo → condição de contorno como escrita (por exemplo `fixedValue uniform (1 0 0)`, `noSlip`), por padrão do primeiro diretório de tempo. |
 
 #### `pinneapple_data.cae.frd`
 
-CalculiX result file (.frd, ASCII): nodes, elements and the result blocks (DISP, STRESS, NDTEMP, FLUX, ...).
+Leitor do arquivo de resultados CalculiX `.frd` (ASCII): nós, elementos e blocos de resultado (DISP, STRESS, NDTEMP, FLUX...); guarda o último incremento de cada resultado.
 
 <small>`pinneapple_data/cae/frd.py` · 117 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `read_frd` | função | `(b) -> Mesh` |  |
+| `read_frd` | função | `(b) -> Mesh` | Lê um `.frd` ASCII e devolve uma `Mesh` com os resultados do último incremento em `point_data` e a lista de incrementos em `source`. |
 
 #### `pinneapple_data.cae.geometry`
 
-Finite-volume geometry of any mesh, computed the way OpenFOAM does (primitiveMesh): face centres and area vectors by triangle decomposition about the face average point, cell centres and volumes by pyramid decomposition about the average of the face centres. FE volume meshes are turned into the …
+Geometria de volumes finitos de qualquer malha, calculada como o `primitiveMesh` do OpenFOAM (centros e vetores de área de face, centros e volumes de célula); converte malhas FE em faces/owner/neighbour. [sem teste direto]
 
 <small>`pinneapple_data/cae/geometry.py` · 249 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FaceMesh` | classe | `(points, face_nodes, face_offsets, owner, neighbour, n_cells, patch_of_face, patch_names,…)` |  |
-| `signed_volume_sign` | função | `(btype, pts, conn) -> np.ndarray` | Sign of a simple volume estimate of each element (tetra decomposition about its first corner). |
-| `oriented_blocks` | função | `(mesh) -> List[str]` | Element node-order conventions differ (VTK, Gmsh, Abaqus wedges...). If most elements of a block come out with negative volume, the whole block uses the opposite convention: flip it, so only truly inverted elements stay negative. Returns the names of the flipped blocks. |
-| `face_mesh` | função | `(mesh) -> FaceMesh` | OpenFOAM polyMesh as is; FE volume meshes converted (internal faces first, then boundary faces). |
-| `face_geometry` | função | `(fm) -> Dict[str, np.ndarray]` | Face centres (nf,3), area vectors (nf,3), and the per-face corner groups used later. |
-| `cell_geometry` | função | `(fm, fg) -> Dict[str, np.ndarray]` |  |
-| `cell_adjacency` | função | `(fm) -> sp.csr_matrix` |  |
-| `regions` | função | `(adj) -> np.ndarray` |  |
-| `element_adjacency_by_nodes` | função | `(mesh) -> sp.csr_matrix` | Cells sharing at least one node (for surface/planar meshes and the node-connectivity check). |
-| `solution_dirs` | função | `(fm, fg) -> Optional[np.ndarray]` | Directions with no 'empty' patch (OpenFOAM 2D/1D cases): boolean (3,). |
+| `FaceMesh` | classe | `(points, face_nodes, face_offsets, owner, neighbour, n_cells, patch_of_face, patch_names,…)` | Malha na forma de faces: nós de face, owner, neighbour, patches e tipos, faces não-manifold e blocos invertidos. |
+| `signed_volume_sign` | função | `(btype, pts, conn) -> np.ndarray` | Sinal de uma estimativa simples do volume de cada elemento, por decomposição em tetraedros a partir do primeiro canto. |
+| `oriented_blocks` | função | `(mesh) -> List[str]` | Inverte a ordem de nós de blocos inteiros cuja maioria dos elementos sai com volume negativo (convenções diferentes entre VTK, Gmsh e Abaqus) e devolve os nomes dos blocos invertidos. |
+| `face_mesh` | função | `(mesh) -> FaceMesh` | Devolve o polyMesh OpenFOAM como está, ou converte uma malha FE de volume em faces (internas primeiro, depois contorno). |
+| `face_geometry` | função | `(fm) -> Dict[str, np.ndarray]` | Calcula centros de face, vetores de área e os grupos de cantos por decomposição em triângulos. |
+| `cell_geometry` | função | `(fm, fg) -> Dict[str, np.ndarray]` | Calcula centros e volumes de célula por decomposição em pirâmides a partir das faces. |
+| `cell_adjacency` | função | `(fm) -> sp.csr_matrix` | Matriz esparsa de adjacência entre células que compartilham uma face interna. |
+| `regions` | função | `(adj) -> np.ndarray` | Rótulo de componente conexa de cada célula a partir da matriz de adjacência. |
+| `element_adjacency_by_nodes` | função | `(mesh) -> sp.csr_matrix` | Adjacência entre células que compartilham pelo menos um nó (para malhas de superfície e para a checagem de conectividade). |
+| `solution_dirs` | função | `(fm, fg) -> Optional[np.ndarray]` | Indica em quais direções não há patch `empty` (casos OpenFOAM 2D/1D). |
 
 #### `pinneapple_data.cae.inp`
 
-Abaqus / CalculiX input deck (.inp): keyword blocks, nodes, elements (to VTK types), node and element sets.
+Leitor de decks Abaqus/CalculiX `.inp`: blocos de palavra-chave com número de linha, nós, elementos em tipos VTK, conjuntos de nós e elementos e `*INCLUDE` resolvido a partir do upload.
 
 <small>`pinneapple_data/cae/inp.py` · 296 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Block` | classe | `(keyword, params, data, line, file)` |  |
-| `Deck` | classe | `(blocks, includes, missing_includes)` |  |
-| `vtk_type` | função | `(abq) -> Optional[str]` |  |
-| `read_deck` | função | `(text, name='model.inp', files=None, _depth=0) -> Deck` |  |
-| `resolve_sets` | função | `(deck, kind) -> Dict[str, List[str]]` | NSET or ELSET name (upper case) -> member labels; sets may contain other sets' names. |
-| `deck_mesh` | função | `(deck) -> Mesh` |  |
-| `deck_conditions` | função | `(deck) -> List[Dict[str, object]]` | The supports and loads of a deck as node ids (labels of ``*NODE``), one entry per keyword block and kind: ``*BOUNDARY`` (kind ``bc``: the constrained degrees of freedom and their values), ``*CLOAD`` / ``*CFLUX`` (kind ``load``: the sum of the nodal forces or fluxes per direction), ``*DLOAD`` / … |
+| `Block` | classe | `(keyword, params, data, line, file)` | Um bloco de palavra-chave do deck: palavra-chave, parâmetros, linhas de dados, linha e arquivo de origem. |
+| `Deck` | classe | `(blocks, includes, missing_includes)` | Deck lido: lista de blocos, includes resolvidos e includes faltantes; `find` busca blocos por palavra-chave. |
+| `vtk_type` | função | `(abq) -> Optional[str]` | Traduz um tipo de elemento Abaqus (como `C3D8`) para o tipo VTK correspondente, ou `None`. |
+| `read_deck` | função | `(text, name='model.inp', files=None, _depth=0) -> Deck` | Lê o texto de um deck em blocos, guardando o número de linha e resolvendo `*INCLUDE` a partir dos arquivos dados. |
+| `resolve_sets` | função | `(deck, kind) -> Dict[str, List[str]]` | Resolve conjuntos NSET ou ELSET (que podem conter outros conjuntos) em listas de rótulos de membros. |
+| `deck_mesh` | função | `(deck) -> Mesh` | Converte um `Deck` numa `Mesh` com nós, blocos de elementos e conjuntos. |
+| `deck_conditions` | função | `(deck) -> List[Dict[str, object]]` | Lista apoios e cargas do deck por nó: `*BOUNDARY` (graus de liberdade restritos) e `*CLOAD`/`*CFLUX` (soma de forças ou fluxos nodais), entre outros. |
 
 #### `pinneapple_data.cae.io`
 
-Read whatever was uploaded into a ``Mesh``: OpenFOAM case or polyMesh, Abaqus/CalculiX .inp, CalculiX .frd, STL, Gmsh .msh, VTK (.vtk/.vtu) and the other meshio formats, and point clouds with fields (CSV, HDF5, NPZ).
+Lê qualquer upload (dict caminho → bytes) para uma `Mesh`: caso OpenFOAM, `.inp`, `.frd`, STL, Gmsh/VTK e outros formatos do `meshio`, e tabelas de pontos; `read_any` escolhe o leitor. [sem teste direto]
 
 <small>`pinneapple_data/cae/io.py` · 296 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FormatError` | classe | `()` |  |
-| `kind_of` | função | `(fs) -> Tuple[str, Optional[str]]` | (kind, main file or case root). Kinds: openfoam, inp, frd, stl, meshio, points. |
-| `read_any` | função | `(fs, fields=True, time=None) -> Mesh` |  |
-| `read_stl` | função | `(b) -> Mesh` |  |
-| `read_meshio` | função | `(name, b) -> Mesh` |  |
-| `read_points` | função | `(name, b) -> Mesh` | A table of points with field columns (CSV/TXT, Parquet, NPZ, HDF5): a point cloud mesh with point_data. |
+| `FormatError` | classe | `()` | Erro para formato não reconhecido ou dependência faltando (por exemplo `meshio`). |
+| `kind_of` | função | `(fs) -> Tuple[str, Optional[str]]` | Detecta o tipo do upload (`openfoam`, `inp`, `frd`, `stl`, `meshio`, `points`) e o arquivo principal ou raiz do caso. |
+| `read_any` | função | `(fs, fields=True, time=None) -> Mesh` | Lê o upload com o leitor certo, incluindo os campos do último (ou do pedido) diretório de tempo no caso OpenFOAM. |
+| `read_stl` | função | `(b) -> Mesh` | Lê STL binário ou ASCII como `Mesh` de superfície de triângulos. |
+| `read_meshio` | função | `(name, b) -> Mesh` | Lê um formato suportado pelo `meshio` (Gmsh, VTK/VTU e outros) via arquivo temporário; levanta `FormatError` sem `meshio`. |
+| `read_points` | função | `(name, b) -> Mesh` | Lê uma tabela de pontos com colunas de campos (CSV/TXT, Parquet, NPZ, HDF5) como nuvem de pontos com `point_data`. |
 
 #### `pinneapple_data.cae.metrics`
 
-Per-cell flow metrics on a finite-volume mesh: Courant number and distance to the nearest wall.
+Métricas de escoamento por célula numa malha de volumes finitos: número de Courant e distância à parede mais próxima. [sem teste direto]
 
 <small>`pinneapple_data/cae/metrics.py` · 109 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `courant_number` | função | `(face_area_vectors, face_owner, face_neighbour, U, cell_volumes, dt, where='auto') -> np.…)` | Cell Courant number ``Co_P = 0.5 dt sum_f \|U_f . S_f\| / V_P`` over the faces f of cell P. |
-| `wall_distance` | função | `(cell_centres, wall_face_centres, wall_face_normals=None) -> np.ndarray` | Distance from each cell centre to the nearest wall face centre (``scipy.spatial.cKDTree`` query). |
-| `mesh_courant_number` | função | `(mesh, U, dt, where='auto') -> np.ndarray` | :func:`courant_number` on a :class:`Mesh` (cell or face velocity ``U``, see there). |
-| `mesh_wall_distance` | função | `(mesh, patches=None, project=True) -> np.ndarray` | :func:`wall_distance` of every cell of a :class:`Mesh` to the faces of ``patches`` (default: every patch of type ``wall``). ``project`` uses the face normals (see :func:`wall_distance`). |
+| `courant_number` | função | `(face_area_vectors, face_owner, face_neighbour, U, cell_volumes, dt, where='auto') -> np.…)` | Número de Courant por célula na forma de volumes finitos, `0.5 dt Σ\|U_f·S_f\| / V_P`. |
+| `wall_distance` | função | `(cell_centres, wall_face_centres, wall_face_normals=None) -> np.ndarray` | Distância de cada centro de célula ao centro de face de parede mais próximo (`cKDTree`), opcionalmente projetada na normal da face. |
+| `mesh_courant_number` | função | `(mesh, U, dt, where='auto') -> np.ndarray` | Aplica `courant_number` a uma `Mesh`, calculando antes a geometria das faces e células. |
+| `mesh_wall_distance` | função | `(mesh, patches=None, project=True) -> np.ndarray` | Aplica `wall_distance` a todas as células de uma `Mesh` em relação aos patches dados (padrão: todos os do tipo `wall`). |
 
 #### `pinneapple_data.cae.model`
 
-The mesh/result container shared by the CAE readers, the mesh-quality checks, the comparator and the interop export.
+Contêiner comum de malha e resultado (`Mesh`) usado pelos leitores CAE, pela qualidade de malha, pelo comparador e pela exportação; aceita células FE em blocos ou polyMesh OpenFOAM.
 
 <small>`pinneapple_data/cae/model.py` · 173 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CellBlock` | classe | `(type, conn, ids)` |  |
-| `PolyMesh` | classe | `(face_nodes, face_offsets, owner, neighbour, n_cells, patches)` | OpenFOAM polyMesh: faces (flat node list + offsets), owner/neighbour, boundary patches. |
-| `Mesh` | classe | `(points, blocks, poly, boundary_blocks, cell_sets, node_sets, point_data, cell_data, unit…)` |  |
+| `CellBlock` | classe | `(type, conn, ids)` | Bloco de células de um único tipo VTK com conectividade de nós; dá versão linear, cantos e dimensão. |
+| `PolyMesh` | classe | `(face_nodes, face_offsets, owner, neighbour, n_cells, patches)` | polyMesh OpenFOAM: faces (lista plana + offsets), owner/neighbour e patches de contorno. |
+| `Mesh` | classe | `(points, blocks, poly, boundary_blocks, cell_sets, node_sets, point_data, cell_data, unit…)` | Malha com resultados: pontos, blocos FE ou polyMesh, conjuntos, campos em pontos e células, unidades, valores de contorno e origem. |
 
 #### `pinneapple_data.cae.quality`
 
-Mesh quality: finite-volume metrics as OpenFOAM's checkMesh computes them, element shape metrics for finite-element meshes, connectivity, and surface (STL) checks; problem regions are clusters of bad cells.
+Qualidade de malha: métricas de volumes finitos como o `checkMesh` do OpenFOAM, métricas de forma para elementos FE, conectividade e checagens de superfície STL; cada métrica tem limite e fonte em `METRICS`.
 
 <small>`pinneapple_data/cae/quality.py` · 306 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fv_metrics` | função | `(mesh) -> Dict[str, Any]` |  |
-| `element_metrics` | função | `(mesh) -> Dict[str, np.ndarray]` | Scaled Jacobian, skewness and edge ratio for every cell of the mesh's top dimension (global cell order). |
-| `surface_checks` | função | `(mesh) -> Dict[str, Any]` | Triangle/quad surface (STL, shell mesh): open and non-manifold edges, orientation, degenerate faces, shells. |
+| `fv_metrics` | função | `(mesh) -> Dict[str, Any]` | Calcula as métricas de volumes finitos (não-ortogonalidade, skewness, razão de aspecto, volumes, entre outras) a partir da geometria de faces e células. |
+| `element_metrics` | função | `(mesh) -> Dict[str, np.ndarray]` | Calcula Jacobiano escalado, skewness e razão de arestas de cada célula da dimensão principal da malha. |
+| `surface_checks` | função | `(mesh) -> Dict[str, Any]` | Checa uma superfície de triângulos/quadriláteros: arestas abertas e não-manifold, orientação, faces degeneradas e cascas. |
 
 #### `pinneapple_data.cae.report`
 
-Mesh health report: checks with a verdict, statistics and histograms, problem regions (clusters of bad cells, with where they are) and what to do about each issue. Also the payload for a 3D view (boundary surface coloured by a metric, plus the bad cells).
+Relatório de saúde da malha: checagens com veredito, estatísticas e histogramas, regiões com problema (aglomerados de células ruins) e o que fazer; também o payload da vista 3D.
 
 <small>`pinneapple_data/cae/report.py` · 371 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build` | função | `(mesh, target='auto', max_regions=12) -> Dict[str, Any]` | target: 'cfd' (finite-volume thresholds lead), 'fea' (element-shape thresholds lead) or 'auto'. |
-| `view_payload` | função | `(mesh, rep, max_tris=250000) -> Dict[str, Any]` | Boundary surface (triangles) with each face's owner-cell metric values, and the problem regions' cells. |
-| `worst_cells` | função | `(mesh, rep, n=40) -> List[Dict[str, Any]]` | The ``n`` worst cells of every metric in a report from :func:`build`, worst first. |
+| `build` | função | `(mesh, target='auto', max_regions=12) -> Dict[str, Any]` | Monta o relatório de saúde da malha com limites de CFD (`cfd`), de elementos finitos (`fea`) ou escolhidos automaticamente. |
+| `view_payload` | função | `(mesh, rep, max_tris=250000) -> Dict[str, Any]` | Superfície de contorno com o valor da métrica da célula dona de cada face, mais as células das regiões com problema. |
+| `worst_cells` | função | `(mesh, rep, n=40) -> List[Dict[str, Any]]` | As `n` piores células de cada métrica do relatório, respeitando o sentido (maior ou menor é pior). |
 
 #### `pinneapple_data.cae.upload`
 
-Expand an upload (loose files and/or zip archives) into {relative path: bytes}, with limits.
+Expande um upload (arquivos soltos e zips) em `{caminho relativo: bytes}` com limites de tamanho, mantendo malhas e resultados e descartando lixo e pastas `processor*`.
 
 <small>`pinneapple_data/cae/upload.py` · 45 linhas · testes: 62</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `expand` | função | `(files, max_unzipped=MAX_UNZIPPED) -> Dict[str, bytes]` |  |
+| `expand` | função | `(files, max_unzipped=MAX_UNZIPPED) -> Dict[str, bytes]` | Expande arquivos e zips (via leitor seguro de `pinneapple_security.archives`) num dict caminho → bytes, respeitando `max_unzipped`. |
 
 #### `pinneapple_data.chunking`
 
-Chunking specifications and tensor iteration for streaming large arrays.
+Especificação de fatiamento (`ChunkSpec`) e iteração de tensores em pedaços ao longo de um ou mais eixos, para processar arrays grandes em streaming. [sem teste]
 
 <small>`pinneapple_data/chunking.py` · 112 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ChunkSpec` | classe | `(mode, chunk_size, dim, dims, chunk_sizes)` | Generic chunking specification for tensors. |
-| `iter_chunks` | função | `(x, spec) -> Iterator[torch.Tensor]` | Iterate over chunks of a tensor according to a ChunkSpec. |
+| `ChunkSpec` | classe | `(mode, chunk_size, dim, dims, chunk_sizes)` | Como fatiar um tensor: modo (`none`, `time`, `spatial`), tamanho do pedaço e eixo, ou vários eixos com tamanhos próprios. |
+| `iter_chunks` | função | `(x, spec) -> Iterator[torch.Tensor]` | Itera sobre os pedaços de um tensor conforme um `ChunkSpec`. |
 
 #### `pinneapple_data.collate`
 
-Collate functions for PINN batches and UPD supervision batches.
+Funções de collate: junta batches PINN (`collocation`, `conditions`, `data`, `meta`), move-os para um dispositivo e junta `PhysicalSample` para treino supervisionado. [sem teste]
 
 <small>`pinneapple_data/collate.py` · 132 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `collate_pinn_batches` | função | `(batches) -> Dict[str, Any]` | Collate a list of PINN batch dicts into a single batch dict. |
-| `move_batch_to_device` | função | `(batch, device) -> Dict[str, Any]` | Move all tensors in a collated PINN batch dict to *device*. Leaves ``meta`` unchanged. |
-| `collate_upd_supervised` | função | `(samples) -> Dict[str, Any]` | Collate a list of PhysicalSample objects for supervised training. |
+| `collate_pinn_batches` | função | `(batches) -> Dict[str, Any]` | Concatena uma lista de dicts de batch PINN num único dict (chaves `collocation`, `conditions`, `data`, `meta`). |
+| `move_batch_to_device` | função | `(batch, device) -> Dict[str, Any]` | Move todos os tensores de um batch PINN para o dispositivo dado, sem mexer em `meta`. |
+| `collate_upd_supervised` | função | `(samples) -> Dict[str, Any]` | Empilha `state['x']` e `state['y']` de uma lista de `PhysicalSample` em `{x, y, meta}` para treino supervisionado. |
 
 #### `pinneapple_data.collocation`
 
-Automated collocation point generation for PINN training.
+Geração automática de pontos de colocação para PINN a partir de limites, `ProblemSpec`, domínios de `pinneapple_design.geometry`, malhas ou STL, com estratégias `uniform`, `lhs`, `sobol` e `adaptive` (por resíduo).
 
 <small>`pinneapple_data/collocation.py` · 558 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CollocationConfig` | classe | `(n_col, n_bc, n_ic, n_data, strategy, seed, oversample_bc, include_time, t_range)` | Configuration for collocation point generation. |
-| `CollocationSampler` | classe | `(*, bounds, coord_names, sdf_fn=None, boundary_samplers=None, condition_value_fns=None, c…)` | Unified collocation point generator for PINN training. |
+| `CollocationConfig` | classe | `(n_col, n_bc, n_ic, n_data, strategy, seed, oversample_bc, include_time, t_range)` | Configuração da geração de colocação: estratégia e número de pontos interiores, de contorno e de condição inicial, entre outros. |
+| `CollocationSampler` | classe | `(*, bounds, coord_names, sdf_fn=None, boundary_samplers=None, condition_value_fns=None, c…)` | Gerador único de pontos de colocação: construtores `from_bounds`, `from_problem_spec`, `from_domain`, `from_mesh`, `from_stl`, e `sample`/`sample_adaptive` que devolvem o dict de batch PINN. |
 
 #### `pinneapple_data.contracts`
 
-Open data contracts shared by the PINNeAPPle apps: ``ParameterSpace``, ``DatasetSpec``, ``ModelRef``, ``StudyResult``.
+Contratos de dados abertos compartilhados pelos apps (`ParameterSpace`, `DatasetSpec`, `ModelRef`, `StudyResult`) e leitura/escrita de tabelas com sidecar `.contract.json`; o que um app exporta outro importa.
 
 <small>`pinneapple_data/contracts/__init__.py` · 51 linhas · testes: 175</small>
 
 #### `pinneapple_data.contracts.expressions`
 
-Safe evaluation of constraint expressions: re-exported from :mod:`pinneapple_data.expressions`, which needs only NumPy (``pinneapple check`` imports it without the contract models and their pydantic dependency).
+Reexporta a avaliação segura de expressões de `pinneapple_data.expressions` (que só depende de NumPy). [shim] [sem teste]
 
 <small>`pinneapple_data/contracts/expressions.py` · 12 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.contracts.models`
 
-The four data contracts shared by the PINNeAPPle apps and the library.
+Os quatro contratos como modelos pydantic com `kind` e `schema_version`: ida e volta em JSON/YAML, arquivos, JSON Schema e hash de conteúdo.
 
 <small>`pinneapple_data/contracts/models.py` · 675 linhas · testes: 40</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Contract` | classe | `(schema_version, metadata)` | Base of the four contracts: JSON round trip, files, schema. |
-| `Parameter` | classe | `(name, kind, low, high, values, value, unit, log, group, default, description)` |  |
-| `ParameterSpace` | classe | `(kind, name, description, parameters, constraints, budget)` | The parameters of a study and the constraints between them. |
-| `Column` | classe | `(name, role, unit, dtype, description)` |  |
-| `FileRef` | classe | `(path, format, sha256, size, rows, description)` |  |
-| `Provenance` | classe | `(app, study_id, source, run_ids, library_version, created, notes)` |  |
-| `Splits` | classe | `(train, val, test, seed, id_column)` | Either explicit row ids per split or fractions with a seed (and optionally the column holding ids). |
-| `DatasetSpec` | classe | `(kind, name, version, description, columns, files, n_rows, parameter_space, splits, prove…)` | A table of cases or samples: what the columns are, where the files are, how it is split. |
-| `Variable` | classe | `(name, unit, low, high, description)` |  |
-| `DatasetRef` | classe | `(name, version, content_hash, uri)` |  |
-| `ModelRef` | classe | `(kind, name, version, model_type, uri, sha256, framework, inputs, outputs, dataset, metri…)` | Where a trained model is and what it may be used for. |
-| `CheckRecord` | classe | `(name, status, value, threshold, evidence, detail)` | One check. PASS / FAIL / WARN need a record (value or evidence): a check is only reported as run if it ran. |
-| `Table` | classe | `(columns, file)` | Small tables inline (columns of equal length); large ones as a file. |
-| `StudyResult` | classe | `(kind, id, study_type, app, title, status, parameter_space, dataset, models, table, metri…)` | The outcome of a study, with what went in, what came out and which checks ran. |
-| `from_dict` | função | `(data) -> Contract` | Build the contract named by ``data["kind"]``. |
-| `load` | função | `(path) -> Contract` | Read a contract from JSON or YAML, whichever of the four it is. |
-| `validate` | função | `(data) -> list[str]` | Problems with a contract given as a dict (empty list when valid), one readable line each. |
-| `json_schemas` | função | `() -> dict[str, dict[str, Any]]` |  |
-| `export_schemas` | função | `(directory) -> list[Path]` | Write ``<Kind>.schema.json`` for each contract into ``directory``. |
-| `sha256_file` | função | `(path, chunk=1 << 20) -> str` |  |
+| `Contract` | classe | `(schema_version, metadata)` | Base dos contratos: conversão para/de dict e JSON, salvar/carregar arquivo, JSON Schema e hash do conteúdo. |
+| `Parameter` | classe | `(name, kind, low, high, values, value, unit, log, group, default, description)` | Um parâmetro de estudo: tipo, limites ou valores, unidade, escala log, grupo e padrão; converte entre coordenada unitária e valor. |
+| `ParameterSpace` | classe | `(kind, name, description, parameters, constraints, budget)` | Parâmetros de um estudo e restrições entre eles; converte de/para o cubo unitário, testa viabilidade e lê/escreve tabelas. |
+| `Column` | classe | `(name, role, unit, dtype, description)` | Coluna de um dataset: nome, papel (entrada, saída, id), unidade, tipo e descrição. |
+| `FileRef` | classe | `(path, format, sha256, size, rows, description)` | Referência a um arquivo do dataset com formato, SHA-256, tamanho e número de linhas; `of` preenche a partir do disco. |
+| `Provenance` | classe | `(app, study_id, source, run_ids, library_version, created, notes)` | De onde veio um contrato: app, id do estudo, fonte, ids de execução, versão da biblioteca, data e notas. |
+| `Splits` | classe | `(train, val, test, seed, id_column)` | Divisão em splits: ids explícitos por split ou frações com semente. |
+| `DatasetSpec` | classe | `(kind, name, version, description, columns, files, n_rows, parameter_space, splits, prove…)` | Tabela de casos ou amostras: colunas, arquivos, splits, espaço de parâmetros amostrado e proveniência; confere os hashes dos arquivos. |
+| `Variable` | classe | `(name, unit, low, high, description)` | Variável de entrada ou saída de um modelo com unidade e faixa. |
+| `DatasetRef` | classe | `(name, version, content_hash, uri)` | Referência ao dataset de treino de um modelo: nome, versão, hash e URI. |
+| `ModelRef` | classe | `(kind, name, version, model_type, uri, sha256, framework, inputs, outputs, dataset, metri…)` | Onde está um modelo treinado e para que pode ser usado: entradas, saídas, dataset, métricas e faixa de validade (`in_range`). |
+| `CheckRecord` | classe | `(name, status, value, threshold, evidence, detail)` | Registro de uma checagem; PASS/FAIL/WARN exigem valor ou evidência, para só contar como rodada se rodou. |
+| `Table` | classe | `(columns, file)` | Tabela pequena embutida (colunas de mesmo tamanho) ou referência a arquivo; converte para/de DataFrame. |
+| `StudyResult` | classe | `(kind, id, study_type, app, title, status, parameter_space, dataset, models, table, metri…)` | Resultado de um estudo (DOE, campanha, UQ, sensibilidade, otimização, calibração, validação): tabela, métricas, checagens e artefatos. |
+| `from_dict` | função | `(data) -> Contract` | Constrói o contrato indicado por `data['kind']`. |
+| `load` | função | `(path) -> Contract` | Lê um contrato de JSON ou YAML, qualquer que seja dos quatro. |
+| `validate` | função | `(data) -> list[str]` | Lista os problemas de um contrato dado como dict, uma linha legível por problema (vazia quando válido). |
+| `json_schemas` | função | `() -> dict[str, dict[str, Any]]` | Devolve o JSON Schema de cada contrato, por tipo. |
+| `export_schemas` | função | `(directory) -> list[Path]` | Grava `<Kind>.schema.json` de cada contrato no diretório dado. |
+| `sha256_file` | função | `(path, chunk=1 << 20) -> str` | Calcula o SHA-256 de um arquivo lendo em blocos. |
 
 #### `pinneapple_data.contracts.tables`
 
-Tables on disk with their contract: CSV, Parquet and HDF5, each with a JSON sidecar.
+Tabelas em disco com o contrato: CSV, Parquet e HDF5 com sidecar JSON; Parquet e HDF5 também guardam o contrato nos metadados. [sem teste direto]
 
 <small>`pinneapple_data/contracts/tables.py` · 150 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sidecar_path` | função | `(path) -> Path` |  |
-| `table_format` | função | `(path) -> str` |  |
-| `write_sidecar` | função | `(path, contract) -> Path` | Write ``<path>.contract.json``. |
-| `read_sidecar` | função | `(path) -> Contract \| None` |  |
-| `write_table` | função | `(df, path, contract=None) -> Path` | Write a DataFrame (or a dict of columns) as CSV / Parquet / HDF5 / JSON records, plus the sidecar. |
-| `read_table` | função | `(path)` | Read a table and its contract: ``(DataFrame, contract or None)``. |
-| `convert` | função | `(src, dst) -> Path` | Copy a table to another format (by suffix), carrying its contract along. |
+| `sidecar_path` | função | `(path) -> Path` | Caminho do sidecar `<arquivo>.contract.json` de uma tabela. |
+| `table_format` | função | `(path) -> str` | Deduz o formato da tabela (`csv`, `parquet`, `hdf5`, `json`) pela extensão. |
+| `write_sidecar` | função | `(path, contract) -> Path` | Grava o contrato em `<caminho>.contract.json`. |
+| `read_sidecar` | função | `(path) -> Contract \| None` | Lê o contrato do sidecar, ou `None` se não existe. |
+| `write_table` | função | `(df, path, contract=None) -> Path` | Grava um DataFrame (ou dict de colunas) como CSV, Parquet, HDF5 ou JSON, junto com o sidecar do contrato. |
+| `read_table` | função | `(path)` | Lê uma tabela e seu contrato, preferindo o sidecar aos metadados embutidos. |
+| `convert` | função | `(src, dst) -> Path` | Copia uma tabela para outro formato (pela extensão) levando o contrato junto. |
 
 #### `pinneapple_data.data_health`
 
-Engineering data health: a physics-aware quality report for sensor / test / plant data.
+Relatório de saúde de dados de engenharia (sensores, ensaios, planta): lê tabelas em vários formatos e verifica unidades, lacunas, eixo de tempo, valores fisicamente impossíveis, códigos de erro, unidade incoerente e outros problemas, com sugestões.
 
 <small>`pinneapple_data/data_health.py` · 998 linhas · testes: 37</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Issue` | classe | `(category, severity, title, detail, column, affected_fraction, count, spans, suggestion, …)` |  |
-| `LoadInfo` | classe | `(format, rows, columns, delimiter, decimal, encoding, sheet, sheets, units_from_file, tru…)` |  |
-| `load_table` | função | `(data, filename, sheet=None, max_rows=1000000) -> Tuple[pd.DataFrame, LoadInfo]` | Read an uploaded table. Supported: .csv .tsv .txt .xlsx .xlsm .xls .parquet .json .jsonl .h5 .hdf5 |
-| `detect_time_column` | função | `(df) -> Tuple[Optional[str], Optional[pd.Series], str]` |  |
-| `analyze` | função | `(df, units=None, time_column=None, n_bins=160, series_points=600) -> Dict[str, Any]` |  |
-| `example_chiller_plant` | função | `(seed=7, days=7, inject=True) -> Tuple[pd.DataFrame, Dict[str, Any]]` | One week of 1-minute data from a chilled-water plant, with eight realistic faults injected. |
+| `Issue` | classe | `(category, severity, title, detail, column, affected_fraction, count, spans, suggestion, …)` | Um problema encontrado: categoria, severidade, título, detalhe, coluna, fração afetada, trechos, sugestão e evidência. |
+| `LoadInfo` | classe | `(format, rows, columns, delimiter, decimal, encoding, sheet, sheets, units_from_file, tru…)` | Como a tabela foi lida: formato, linhas, colunas, delimitador, separador decimal, codificação, planilha, unidades do arquivo e notas. |
+| `load_table` | função | `(data, filename, sheet=None, max_rows=1000000) -> Tuple[pd.DataFrame, LoadInfo]` | Lê uma tabela enviada (CSV/TSV com detecção de delimitador e vírgula decimal, Excel, Parquet, JSON, HDF5) e devolve o DataFrame e um `LoadInfo`. |
+| `detect_time_column` | função | `(df) -> Tuple[Optional[str], Optional[pd.Series], str]` | Procura a coluna de tempo pelo nome e pelo conteúdo e devolve o nome, a série convertida e uma explicação. |
+| `analyze` | função | `(df, units=None, time_column=None, n_bins=160, series_points=600) -> Dict[str, Any]` | Gera o relatório de saúde de um DataFrame (pronto para JSON): unidades, completude, eixo de tempo, validade física, sinais travados e outros problemas; levanta `ValueError` para tabela vazia. |
+| `example_chiller_plant` | função | `(seed=7, days=7, inject=True) -> Tuple[pd.DataFrame, Dict[str, Any]]` | Gera uma semana de dados de minuto em minuto de uma planta de água gelada com falhas injetadas e devolve a tabela e o gabarito das falhas. |
 
 #### `pinneapple_data.dataloaders`
 
-DataLoader builders for UPD shards and PhysicalSample-based PINN training.
+Monta `DataLoader` do PyTorch a partir de um shard UPD (Zarr + JSON) ou de um `PhysicalSample` em grade; amostras em malha ainda não são suportadas. [sem teste]
 
 <small>`pinneapple_data/dataloaders.py` · 353 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DataLoaderSpec` | classe | `(batch_size, num_workers, shuffle, pin_memory, drop_last)` | Configuration container for torch.utils.data.DataLoader parameters. |
-| `build_upd_dataloader` | função | `(*, zarr_path, meta_path, mapping, sampling, loader=None, device='cpu', dtype=torch.float…)` | Construct a PyTorch DataLoader from a single UPD shard (Zarr + JSON). |
-| `build_physical_sample_dataloader` | função | `(sample, *, mapping, sampling, loader=None, device='cpu', dtype=torch.float32, length=100…)` | Construct a PyTorch DataLoader from a PhysicalSample instance. |
+| `DataLoaderSpec` | classe | `(batch_size, num_workers, shuffle, pin_memory, drop_last)` | Parâmetros do `DataLoader`: tamanho de batch, workers, shuffle, pin_memory, entre outros. |
+| `build_upd_dataloader` | função | `(*, zarr_path, meta_path, mapping, sampling, loader=None, device='cpu', dtype=torch.float…)` | Cria um `DataLoader` sobre um shard UPD, envolvendo-o num `Dataset` do Torch conforme o `DataLoaderSpec`. |
+| `build_physical_sample_dataloader` | função | `(sample, *, mapping, sampling, loader=None, device='cpu', dtype=torch.float32, length=100…)` | Cria um `DataLoader` a partir de um `PhysicalSample` em grade (xarray); levanta `ValueError` para casos não suportados, como malha. |
 
 #### `pinneapple_data.datasets`
 
-Pre-built datasets for PINNeAPPle — physics, geometry, and time series.
+Datasets prontos (física, geometria, séries temporais) num registro único, com `load_dataset`, `list_datasets`, `dataset_info` e `dataset_ids`; os módulos `real_world` e `external_sources` são opcionais e carregados em `try/except`.
 
 <small>`pinneapple_data/datasets/__init__.py` · 152 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_dataset` | função | `(dataset_id, **kwargs) -> Dict[str, np.ndarray]` | Load a pre-built dataset by ID. |
-| `list_datasets` | função | `(category=None, verbose=True) -> List[DatasetInfo]` | Print and return all registered datasets. |
-| `dataset_info` | função | `(dataset_id) -> DatasetInfo` | Return metadata for a specific dataset. |
-| `dataset_ids` | função | `(category=None) -> List[str]` | Return list of all registered dataset IDs. |
+| `load_dataset` | função | `(dataset_id, **kwargs) -> Dict[str, np.ndarray]` | Carrega um dataset registrado pelo id e devolve um dict de arrays NumPy; kwargs vão para o gerador. |
+| `list_datasets` | função | `(category=None, verbose=True) -> List[DatasetInfo]` | Lista (e imprime, se `verbose`) os datasets registrados, opcionalmente filtrando por categoria. |
+| `dataset_info` | função | `(dataset_id) -> DatasetInfo` | Devolve os metadados (`DatasetInfo`) de um dataset. |
+| `dataset_ids` | função | `(category=None) -> List[str]` | Devolve os ids registrados, opcionalmente por categoria. |
 
 #### `pinneapple_data.datasets.deepmind_mgn`
 
-DeepMind ``meshgraphnets`` datasets: partial download, TFRecord reader and conversion to tensors.
+Datasets `meshgraphnets` da DeepMind (Pfaff et al., ICLR 2021): download parcial de `meta.json` + prefixo do TFRecord, leitura de trajetórias e conversão de `cylinder_flow` para tensores; exige `tfrecord`.
 
 <small>`pinneapple_data/datasets/deepmind_mgn.py` · 116 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `download_prefix` | função | `(dataset, split, dest, nbytes) -> Path` | Download ``meta.json`` and the first ``nbytes`` of ``<split>.tfrecord`` of a DeepMind dataset into ``dest``. |
-| `read_trajectories` | função | `(data_dir, split, max_traj) -> list[dict[str, np.ndarray]]` | Read up to ``max_traj`` trajectories of ``<data_dir>/<split>.tfrecord`` as dicts of numpy arrays. |
-| `cylinder_flow_to_tensors` | função | `(traj, node_type_map=CYLINDER_TYPE_MAP) -> tuple[MeshGraph, torch.Tensor, torch.Tensor]` | ``cylinder_flow`` trajectory -> ``(MeshGraph, velocity (T, N, 2), pressure (T, N, 1))``. |
+| `download_prefix` | função | `(dataset, split, dest, nbytes) -> Path` | Baixa `meta.json` e os primeiros `nbytes` do TFRecord de um split; como o formato é sequencial, o prefixo contém trajetórias inteiras. |
+| `read_trajectories` | função | `(data_dir, split, max_traj) -> list[dict[str, np.ndarray]]` | Lê até `max_traj` trajetórias do TFRecord como dicts de arrays, com formas vindas de `meta.json`; descarta o último registro truncado. |
+| `cylinder_flow_to_tensors` | função | `(traj, node_type_map=CYLINDER_TYPE_MAP) -> tuple[MeshGraph, torch.Tensor, torch.Tensor]` | Converte uma trajetória `cylinder_flow` em `(MeshGraph, velocidade (T,N,2), pressão (T,N,1))`, agrupando tipos de nó. |
 
 #### `pinneapple_data.datasets.download`
 
-Download a URL once into a local cache, with retries (standard library only).
+Baixa uma URL uma vez para um cache local, com novas tentativas, só com a biblioteca padrão; escreve em arquivo temporário e renomeia ao terminar.
 
 <small>`pinneapple_data/datasets/download.py` · 85 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `cache_path` | função | `(url, cache_dir) -> Path` | The file :func:`fetch_cached` uses for ``url``: ``<cache_dir>/<md5(url)><ext>``. |
-| `fetch_cached` | função | `(url, cache_dir, *, tries=4, timeout=60, backoff=2.0) -> Path` | Return a local copy of ``url``, downloading it only if it is not cached yet. |
+| `cache_path` | função | `(url, cache_dir) -> Path` | Caminho do arquivo de cache de uma URL: `<cache_dir>/<md5(url)><ext>`. |
+| `fetch_cached` | função | `(url, cache_dir, *, tries=4, timeout=60, backoff=2.0) -> Path` | Devolve uma cópia local da URL, baixando só se ainda não estiver no cache. |
 
 #### `pinneapple_data.datasets.external_sources`
 
-External data source integrations for PINNeAPPle.
+Clientes de fontes externas (Materials Project, NOMAD, NASA, NOAA, Copernicus, Brazil Data Cube, CPTEC/INPE, ONS, NREL, DesignSafe, OpenFOAM, SU2, NASA POWER, Open-Meteo) que registram datasets; vários caem em dados sintéticos quando a fonte não está disponível.
 
 <small>`pinneapple_data/datasets/external_sources.py` · 1.168 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MaterialsProjectClient` | classe | `(api_key=None) -> None` | Client for the Materials Project API. |
-| `NOMADClient` | classe | `()` | Client for the NOMAD Laboratory REST API (public, no key needed). |
-| `NASAClient` | classe | `()` | Client for NASA Open Data Portal (data.nasa.gov). |
-| `NOAAClient` | classe | `()` | Client for NOAA NCEI / ERDDAP APIs. |
-| `CopernicusClient` | classe | `()` | Client for the Copernicus Data Space (CDS + CDSE). |
-| `BrazilDataCubeClient` | classe | `()` | Client for the Brazil Data Cube STAC API. |
-| `CPTECClient` | classe | `()` | Client for CPTEC/INPE weather and climate data. |
-| `ONSClient` | classe | `()` | Client for ONS (Brazilian National Grid Operator) open data. |
-| `NRELClient` | classe | `(api_key=None) -> None` | Client for NREL open data. |
-| `DesignSafeClient` | classe | `()` | Client for DesignSafe-CI (earthquake / structural data). |
-| `OpenFOAMClient` | classe | `(openfoam_data_dir=None) -> None` | Provides representative CFD data from OpenFOAM tutorial cases. |
-| `SU2Client` | classe | `(su2_results_dir=None) -> None` | Provides aerodynamic data representative of SU2 tutorial cases. |
-| `NASAPowerClient` | classe | `()` | Client for the NASA POWER daily point API (meteorology and solar resource, no API key). |
-| `OpenMeteoClient` | classe | `()` | Client for the Open-Meteo Historical Weather API (ERA5-based reanalysis, hourly, no API key; CC BY 4.0). |
+| `MaterialsProjectClient` | classe | `(api_key=None) -> None` | Cliente da API do Materials Project (requer `mp-api` e chave `MP_API_KEY`); sem acesso, devolve dados sintéticos marcados com `_synthetic`. |
+| `NOMADClient` | classe | `()` | Cliente da API REST pública do NOMAD (cálculos ab initio/DFT). |
+| `NASAClient` | classe | `()` | Cliente do portal de dados abertos da NASA: exoplanetas e temperatura GISS. |
+| `NOAAClient` | classe | `()` | Cliente NOAA NCEI/ERDDAP: temperatura da superfície do mar e anomalia de temperatura, com reserva sintética. |
+| `CopernicusClient` | classe | `()` | Cliente Copernicus (CDS): tenta `cdsapi` e, sem ele, gera dados sintéticos tipo ERA5 (`fetch_era5_synthetic`). |
+| `BrazilDataCubeClient` | classe | `()` | Cliente da API STAC do Brazil Data Cube: lista coleções; a série de NDVI é sintética. |
+| `CPTECClient` | classe | `()` | Cliente CPTEC/INPE; a série de precipitação devolvida é sintética. |
+| `ONSClient` | classe | `()` | Cliente de dados abertos do ONS; a carga elétrica devolvida é sintética, com sazonalidade diária e semanal. |
+| `NRELClient` | classe | `(api_key=None) -> None` | Cliente NREL para recurso solar e eólico (dados reais exigem `NREL_API_KEY`; sem ela, sintéticos). |
+| `DesignSafeClient` | classe | `()` | Cliente DesignSafe-CI para registros de terremoto/estrutural. |
+| `OpenFOAMClient` | classe | `(openfoam_data_dir=None) -> None` | Devolve dados sintéticos com as curvas típicas de tutoriais OpenFOAM (arrasto de cilindro, perfil de canal, cavidade) ou lê casos reais se `openfoam_data_dir` for dado. |
+| `SU2Client` | classe | `(su2_results_dir=None) -> None` | Devolve dados aerodinâmicos representativos de tutoriais SU2 (polar NACA 0012, Cp do RAE 2822) ou lê resultados reais de `su2_results_dir`. |
+| `NASAPowerClient` | classe | `()` | Cliente da API diária NASA POWER (meteorologia e recurso solar, sem chave); erros de rede são levantados; converte para arrays e `PhysicalSample`. |
+| `OpenMeteoClient` | classe | `()` | Cliente da API histórica Open-Meteo (reanálise ERA5 horária, sem chave); erros de rede são levantados. |
 
 #### `pinneapple_data.datasets.geometry`
 
-Pre-built geometry datasets for PINNeAPPle benchmarks.
+Datasets de geometria gerados analiticamente (pontos de contorno e interior): `naca0012`, `cylinder_2d`, `lshape_2d`, `channel_with_obstacle`. [sem teste direto]
 
 <small>`pinneapple_data/datasets/geometry.py` · 269 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.datasets.physics`
 
-Pre-built physics datasets for PINNeAPPle benchmarks.
+Datasets de física gerados analiticamente ou por método das linhas com SciPy (Burgers, calor, Poisson, onda, Kovasznay, Allen-Cahn, Helmholtz) e um solver pseudo-espectral de Burgers periódico para pares de operador.
 
 <small>`pinneapple_data/datasets/physics.py` · 450 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `burgers_periodic_solve` | função | `(u0, T, nu, *, length=1.0, refine=None, cfl=0.5) -> np.ndarray` | Solve periodic viscous Burgers ``u_t + (u^2/2)_x = nu u_xx`` from ``u0`` (``(..., nx)``) to time ``T``. |
-| `burgers_periodic_pairs` | função | `(n, nx=128, T=1.0, nu=0.01, seed=0, *, length=1.0, refine=None)` | ``n`` random pairs ``(u(x, 0), u(x, T))`` of periodic viscous Burgers on ``[0, length)`` (operator learning). |
+| `burgers_periodic_solve` | função | `(u0, T, nu, *, length=1.0, refine=None, cfl=0.5) -> np.ndarray` | Resolve Burgers viscoso periódico por pseudo-espectral de Fourier com regra 2/3 e Runge-Kutta de 4ª ordem com fator integrante. |
+| `burgers_periodic_pairs` | função | `(n, nx=128, T=1.0, nu=0.01, seed=0, *, length=1.0, refine=None)` | Gera `n` pares aleatórios `(u(x,0), u(x,T))` de Burgers periódico para aprendizado de operadores, com condições iniciais somas de senos. |
 
 #### `pinneapple_data.datasets.real_world`
 
-Real-world datasets loaded from the web or optional Python libraries.
+Datasets reais carregados da web ou de bibliotecas opcionais (sunspots, CO2, ETT, Jena, scikit-learn, seaborn, statsmodels...), com reserva sintética quando a fonte falha; alguns itens são sintéticos por natureza. [sem teste]
 
 <small>`pinneapple_data/datasets/real_world.py` · 1.665 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_real_dataset` | função | `(dataset_id) -> Dict[str, np.ndarray]` | Load a real-world dataset by ID. |
+| `load_real_dataset` | função | `(dataset_id) -> Dict[str, np.ndarray]` | Carrega um dataset real pelo id, baixando na primeira chamada e guardando em memória no processo. |
 
 #### `pinneapple_data.datasets.registry`
 
-Central registry for pre-built PINNeAPPle datasets.
+Registro central (`DatasetRegistry`) dos datasets prontos, com metadados `DatasetInfo`. [sem teste direto]
 
 <small>`pinneapple_data/datasets/registry.py` · 65 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DatasetInfo` | classe | `(id, name, category, description, fields, tags, license, reference)` |  |
-| `DatasetRegistry` | classe | `(_store)` | Central registry for pre-built PINNeAPPle datasets. |
+| `DatasetInfo` | classe | `(id, name, category, description, fields, tags, license, reference)` | Metadados de um dataset: id, nome, categoria, descrição, campos, tags, licença e referência. |
+| `DatasetRegistry` | classe | `(_store)` | Registro em nível de classe: `register`, `load`, `get_info`, `list_all` e `ids`. |
 
 #### `pinneapple_data.datasets.timeseries`
 
-Pre-built time-series datasets for PINNeAPPle benchmarks.
+Datasets de séries temporais gerados por EDOs ou funções sintéticas (Lorenz-63, massa-mola, Van der Pol, Rössler, pêndulo duplo, Lorenz-96, seno com ruído). [sem teste direto]
 
 <small>`pinneapple_data/datasets/timeseries.py` · 355 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.device`
 
-Device utilities for pinning and moving PhysicalSample tensors between CPU and GPU.
+Fixa em memória (pin) e move entre CPU e GPU todos os tensores de `fields` e `coords` de uma amostra tipo `PhysicalSample` (objeto ou dict). [sem teste]
 
 <small>`pinneapple_data/device.py` · 148 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pin_sample` | função | `(sample) -> Any` | Pin all tensor entries inside a PhysicalSample-like structure. |
-| `to_device_sample` | função | `(sample, device, *, dtype=None, non_blocking=True) -> Any` | Move all tensor entries inside a PhysicalSample-like structure to a target device. |
+| `pin_sample` | função | `(sample) -> Any` | Fixa em memória paginável (pinned) todos os tensores de `fields` e `coords` de uma amostra. |
+| `to_device_sample` | função | `(sample, device, *, dtype=None, non_blocking=True) -> Any` | Move todos os tensores de `fields` e `coords` de uma amostra para o dispositivo dado. |
 
 #### `pinneapple_data.doe`
 
-Design of experiments for simulation campaigns: designs, coverage, redundancy, priorities, campaign plans.
+Design de experimentos para campanhas de simulação: desenhos, cobertura, redundância, prioridade e plano de campanha, sobre os contratos `ParameterSpace`/`StudyResult`/`DatasetSpec` e `scipy.stats.qmc`.
 
 <small>`pinneapple_data/doe/__init__.py` · 20 linhas · testes: 21</small>
 
 #### `pinneapple_data.doe.campaign`
 
-Plan a simulation campaign: which cases to run, in which order, and what they add to what already ran.
+Planeja uma campanha de simulação: quais casos rodar, em que ordem, e o que acrescentam ao que já rodou; gera `StudyResult` e esqueleto de `DatasetSpec`. [sem teste direto]
 
 <small>`pinneapple_data/doe/campaign.py` · 174 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CampaignPlan` | classe | `(space, design, cases, unit, coverage_planned, coverage_existing, coverage_combined, redu…)` |  |
-| `plan_campaign` | função | `(space, n=None, method='lhs', *, existing=None, existing_id_column=None, outputs=(), seed…)` | Design ``n`` cases (default ``space.budget``), drop those repeating an existing run (``drop_repeats``), order the rest by priority and measure the coverage of the plan, of what exists, and of both together. Existing cases outside the space (bounds or constraints) are left out of the coverage and … |
+| `CampaignPlan` | classe | `(space, design, cases, unit, coverage_planned, coverage_existing, coverage_combined, redu…)` | Plano de campanha: casos com prioridade, cobertura antes/depois, redundâncias removidas; exporta resumo, checagens, `StudyResult` e esqueleto de `DatasetSpec`. |
+| `plan_campaign` | função | `(space, n=None, method='lhs', *, existing=None, existing_id_column=None, outputs=(), seed…)` | Desenha `n` casos, descarta os que repetem execuções existentes, ordena por prioridade e mede a cobertura do plano, do existente e de ambos. |
 
 #### `pinneapple_data.doe.coverage`
 
-How well a set of cases covers a parameter space, which planned cases repeat what already ran, and in which order to run them.
+Mede quão bem um conjunto de casos cobre o espaço de parâmetros (no cubo unitário), quais casos planejados repetem outros e em que ordem rodá-los.
 
 <small>`pinneapple_data/doe/coverage.py` · 119 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `coverage` | função | `(unit, names=None, *, n_probe=2 ** 14, seed=0, bins_2d=None, levels=None) -> dict[str, An…)` | Space-coverage metrics of points in [0, 1]^d. |
-| `redundancy` | função | `(planned_unit, existing_unit=None, *, tol=None, existing_ids=None) -> dict[str, Any]` | Which planned cases (nearly) repeat an existing case or another planned case. |
-| `prioritize` | função | `(planned_unit, existing_unit=None) -> dict[str, Any]` | Run order: greedy maximin over the planned cases, starting from what already exists, so every prefix of the list covers the space as evenly as possible (stop the campaign early and the cases run are still spread out). ``score`` is each case's distance to everything before it (existing included): … |
+| `coverage` | função | `(unit, names=None, *, n_probe=2 ** 14, seed=0, bins_2d=None, levels=None) -> dict[str, An…)` | Métricas de cobertura de pontos em [0,1]^d: discrepância L2 centrada, distância mínima, distância média ao vizinho e outras. |
+| `redundancy` | função | `(planned_unit, existing_unit=None, *, tol=None, existing_ids=None) -> dict[str, Any]` | Marca casos planejados que quase repetem um caso existente ou outro planejado, com o vizinho mais próximo e a distância. |
+| `prioritize` | função | `(planned_unit, existing_unit=None) -> dict[str, Any]` | Ordem de execução por maximin guloso a partir do que já existe, para que qualquer prefixo da lista cubra o espaço de forma espalhada. |
 
 #### `pinneapple_data.doe.designs`
 
-Designs of experiments over a :class:`~pinneapple_data.contracts.ParameterSpace`.
+Desenhos de experimentos sobre um `ParameterSpace`: `lhs`, `maximin`, `sobol`, `halton`, `random`, fatorial completo e fracionário, entre outros, filtrados por limites e restrições. [sem teste direto]
 
 <small>`pinneapple_data/doe/designs.py` · 283 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Design` | classe | `(cases, unit, method, info)` | The cases of a design: values (DataFrame with every parameter), unit coordinates and how they were made. |
-| `design` | função | `(space, n, method='lhs', *, seed=0, existing=None, outputs=(), levels=3, n_restarts=20, f…)` | ``n`` cases of ``space`` by ``method`` (see the module docstring). ``existing`` is a DataFrame of cases already run (a column per parameter, plus ``outputs`` for adaptive infill). |
-| `fractional_factorial_unit` | função | `(k, n) -> tuple[np.ndarray, dict]` | Two-level 2^(k-p) design with at least ``n`` runs (or 2^k if smaller): the first k-p factors are crossed in full, each further factor is the product of a distinct subset of them (largest subsets first, which keeps the resolution high). Returns unit coordinates (0 / 1) and the generators and … |
-| `greedy_maximin` | função | `(points, n, fixed=None, weights_fixed=None) -> np.ndarray` | Indices of ``n`` of ``points`` picked one by one, each the farthest from those already picked and from ``fixed``. ``weights_fixed`` (one per fixed point, >= 1) favours the neighbourhoods to refine: a candidate's distance to the fixed points is multiplied by the weight of its nearest fixed point. |
-| `min_distance` | função | `(unit) -> float` |  |
+| `Design` | classe | `(cases, unit, method, info)` | Casos de um desenho: valores (DataFrame com todos os parâmetros), coordenadas unitárias e como foram gerados. |
+| `design` | função | `(space, n, method='lhs', *, seed=0, existing=None, outputs=(), levels=3, n_restarts=20, f…)` | Gera `n` casos do espaço pelo método escolhido, considerando casos já existentes quando dados. |
+| `fractional_factorial_unit` | função | `(k, n) -> tuple[np.ndarray, dict]` | Desenho fatorial fracionário de dois níveis 2^(k-p) com pelo menos `n` execuções, em coordenadas unitárias. |
+| `greedy_maximin` | função | `(points, n, fixed=None, weights_fixed=None) -> np.ndarray` | Escolhe `n` pontos um a um, cada um o mais distante dos já escolhidos e dos fixos (com pesos opcionais). |
+| `min_distance` | função | `(unit) -> float` | Menor distância entre dois pontos de um conjunto (NaN se houver menos de dois). |
 
 #### `pinneapple_data.expressions`
 
-Safe evaluation of constraint expressions such as ``"chord - 2 * thickness >= 0.01"``.
+Avaliação segura de expressões de restrição (como `"chord - 2 * thickness >= 0.01"`): interpreta a árvore nó a nó, sem `eval`, só com aritmética, comparações, lógica, nomes de colunas e algumas funções matemáticas.
 
 <small>`pinneapple_data/expressions.py` · 131 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExpressionError` | classe | `()` | The expression uses something that is not allowed, or a name that is not a parameter. |
-| `names_in` | função | `(expression) -> set[str]` | Parameter names an expression refers to (function names excluded). |
-| `evaluate` | função | `(expression, values, functions=None) -> np.ndarray` | Evaluate ``expression`` with ``values`` (name -> scalar or column) and return a boolean (or numeric) array. ``functions``: the names it may call (default :data:`FUNCTIONS`). |
-| `check` | função | `(expression, names, functions=(), strings=False) -> None` | Raise :class:`ExpressionError` unless ``expression`` uses only the grammar above, the variables ``names`` and calls of ``functions`` (and no string literals unless ``strings``). |
-| `names_in_tree` | função | `(tree) -> set[str]` |  |
+| `ExpressionError` | classe | `()` | Erro para expressão com construção proibida ou nome que não é parâmetro. |
+| `names_in` | função | `(expression) -> set[str]` | Nomes de parâmetros usados numa expressão (sem os nomes de função). |
+| `evaluate` | função | `(expression, values, functions=None) -> np.ndarray` | Avalia a expressão com valores (escalares ou colunas) e devolve um array booleano ou numérico. |
+| `check` | função | `(expression, names, functions=(), strings=False) -> None` | Levanta `ExpressionError` se a expressão sair da gramática permitida, dos nomes dados ou das funções permitidas. |
+| `names_in_tree` | função | `(tree) -> set[str]` | Nomes de variáveis numa árvore AST, excluindo os nomes chamados como função. |
 
 #### `pinneapple_data.formfill`
 
-Fill engineering forms from the documents that hold the data: read datasheets and specifications, find every item a form asks for with its source, report conflicts between documents and missing data, and fill the fillable PDF.
+Preenche formulários de engenharia a partir dos documentos que têm os dados: lê datasheets e especificações, acha cada item com a fonte, relata conflitos e lacunas e preenche o PDF; modelo embutido ASME U-DR-1 e outros datasheets.
 
 <small>`pinneapple_data/formfill/__init__.py` · 28 linhas · testes: 44</small>
 
 #### `pinneapple_data.formfill.extract`
 
-Read datasheets and specifications, find each answer a form asks for, and keep where every value came from.
+Lê documentos (texto e tabelas via pdfplumber, OCR opcional), extrai candidatos pelos padrões do `FormSpec` e compila uma decisão por item, guardando documento, página e trecho de origem. [sem teste direto]
 
 <small>`pinneapple_data/formfill/extract.py` · 698 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Document` | classe | `(name, pages, tables, role, has_text, ocr_pages, ocr_conf, unread_pages)` |  |
-| `Candidate` | classe | `(key, value, raw, doc, page, snippet, method, confidence, unit, si, gauge, ocr)` |  |
-| `Decision` | classe | `(key, label, section, status, value, display, chosen, candidates, required, note)` |  |
-| `Compilation` | classe | `(decisions, tables, documents, spec)` |  |
-| `read_document` | função | `(source, name='', role='', ocr='auto', max_ocr_pages=30) -> Document` | A PDF (path or bytes) or plain text (``.txt``/``.md`` path, or bytes that are not a PDF). |
-| `parse_value` | função | `(f, text) -> Optional[Dict[str, Any]]` | Interpret ``text`` as an answer to ``f``; ``None`` when it does not look like one. |
-| `extract_rules` | função | `(doc, spec) -> List[Candidate]` | Candidates for every item of ``spec`` whose label appears in ``doc`` (tables first, then text lines), plus the rows of the spec's tables. |
-| `check_answer` | função | `(f, value) -> Any` | An engineer's answer for ``f``, validated (``ValueError`` names the accepted options). |
-| `compile` | função | `(docs, candidates, spec, overrides=None) -> Compilation` | One decision per item of ``spec``. Documents earlier in ``docs`` win conflicts (order = priority); the conflict is still reported with every source. ``overrides`` (an engineer's answers) win over everything and are marked as such. |
+| `Document` | classe | `(name, pages, tables, role, has_text, ocr_pages, ocr_conf, unread_pages)` | Documento lido: nome, texto por página, tabelas, papel, páginas por OCR e confiança, páginas não lidas. |
+| `Candidate` | classe | `(key, value, raw, doc, page, snippet, method, confidence, unit, si, gauge, ocr)` | Valor candidato para um item: valor, texto bruto, documento, página, trecho, método, confiança, unidade e valor em SI. |
+| `Decision` | classe | `(key, label, section, status, value, display, chosen, candidates, required, note)` | Decisão para um item: status, valor escolhido, candidatos, se é obrigatório e nota. |
+| `Compilation` | classe | `(decisions, tables, documents, spec)` | Resultado da compilação: decisões, tabelas, documentos; dá lacunas, conflitos, respostas, resumo e o registro para outros formulários. |
+| `read_document` | função | `(source, name='', role='', ocr='auto', max_ocr_pages=30) -> Document` | Lê um PDF (caminho ou bytes) ou texto puro; com `ocr='auto'` lê páginas escaneadas com Tesseract quando disponível. |
+| `parse_value` | função | `(f, text) -> Optional[Dict[str, Any]]` | Interpreta um texto como resposta a um campo (quantidade, número, booleano, escolha...) ou devolve `None`. |
+| `extract_rules` | função | `(doc, spec) -> List[Candidate]` | Gera candidatos para cada item do spec cujo rótulo aparece no documento (tabelas primeiro, depois linhas de texto), mais as linhas das tabelas do spec. |
+| `check_answer` | função | `(f, value) -> Any` | Valida a resposta de um engenheiro para um campo; `ValueError` cita as opções aceitas. |
+| `compile` | função | `(docs, candidates, spec, overrides=None) -> Compilation` | Uma decisão por item: documentos anteriores na lista vencem conflitos (que ainda são relatados) e respostas do engenheiro vencem tudo. |
 
 #### `pinneapple_data.formfill.fill`
 
-Write a compilation into the user's copy of a fillable PDF form.
+Escreve uma compilação na cópia do usuário de um PDF preenchível (via `pypdf`); itens em `spec.left_blank` (data, assinatura) nunca são preenchidos. [sem teste direto]
 
 <small>`pinneapple_data/formfill/fill.py` · 177 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pdf_widgets` | função | `(pdf) -> List[Dict[str, Any]]` | Every form widget of a PDF: qualified name, type (``/Tx``, ``/Btn``...), page, tooltip, button states and whether it belongs to a radio group. |
-| `form_values` | função | `(comp, spec=None) -> Tuple[Dict[str, str], Dict[str, str]]` | ``(text fields, button states)`` for the PDF, from the decisions and the table rows. |
-| `fill_pdf` | função | `(blank_pdf, comp, spec=None, extra_text=None) -> bytes` | The filled form as PDF bytes. ``blank_pdf`` is the user's copy of the fillable form ``spec`` describes. |
-| `read_filled` | função | `(pdf) -> Dict[str, Any]` | Field name -> value of a filled form (for checks and round trips). |
+| `pdf_widgets` | função | `(pdf) -> List[Dict[str, Any]]` | Lista os widgets de formulário de um PDF: nome qualificado, tipo, página, tooltip, estados de botão e grupo de rádio. |
+| `form_values` | função | `(comp, spec=None) -> Tuple[Dict[str, str], Dict[str, str]]` | Calcula `(campos de texto, estados de botão)` para o PDF a partir das decisões e linhas de tabela. |
+| `fill_pdf` | função | `(blank_pdf, comp, spec=None, extra_text=None) -> bytes` | Devolve o formulário preenchido como bytes de PDF. |
+| `read_filled` | função | `(pdf) -> Dict[str, Any]` | Lê nome do campo → valor de um formulário preenchido, para checagem e ida e volta. |
 
 #### `pinneapple_data.formfill.llm`
 
-Optional extraction with a local LLM served by Ollama, for documents the label rules cannot read (free-form specifications, odd layouts, forms whose items have no usual label).
+Extração opcional com um LLM local servido pelo Ollama: só aceita respostas cuja citação existe no texto do documento e contém o valor; o resto é rejeitado e listado. [sem teste direto]
 
 <small>`pinneapple_data/formfill/llm.py` · 230 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OllamaError` | classe | `()` |  |
-| `OllamaClient` | classe | `(url=None, model=None, timeout=600.0, num_ctx=16384)` | Minimal client for the Ollama HTTP API (``/api/chat``, ``/api/tags``). |
-| `document_text` | função | `(doc, pages=None) -> str` | Page-marked text of a document, its tables written as ``cell \| cell`` rows. |
-| `verify_quote` | função | `(doc, quote, page) -> Optional[int]` | Page (1-based) where ``quote`` occurs in the document text, preferring the stated page; ``None`` if absent. |
-| `extract_with_llm` | função | `(doc, spec, client=None, max_chars=24000) -> Tuple[List[Candidate], List[Dict[str, Any]]]` | ``(accepted candidates, rejected answers with the reason)`` for one document. |
+| `OllamaError` | classe | `()` | Erro de comunicação ou resposta inválida do servidor Ollama. |
+| `OllamaClient` | classe | `(url=None, model=None, timeout=600.0, num_ctx=16384)` | Cliente mínimo da API HTTP do Ollama (`/api/chat`, `/api/tags`), com chat em saída JSON estruturada. |
+| `document_text` | função | `(doc, pages=None) -> str` | Texto do documento com marcação de página e tabelas como linhas `célula \| célula`. |
+| `verify_quote` | função | `(doc, quote, page) -> Optional[int]` | Página onde a citação aparece no texto do documento (preferindo a página declarada), ou `None`. |
+| `extract_with_llm` | função | `(doc, spec, client=None, max_chars=24000) -> Tuple[List[Candidate], List[Dict[str, Any]]]` | Extrai candidatos de um documento com o LLM e devolve os aceitos e as respostas rejeitadas com o motivo. |
 
 #### `pinneapple_data.formfill.ocr`
 
-OCR for scanned pages (pages without a text layer), with Tesseract.
+OCR de páginas escaneadas com Tesseract: renderiza, corrige inclinação, apaga linhas de grade de tabela antes da leitura e recoloca cada palavra na célula; exige o programa `tesseract`. [sem teste direto]
 
 <small>`pinneapple_data/formfill/ocr.py` · 241 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OcrPage` | classe | `(lines, tables, confidence, word_conf, angle)` |  |
-| `ocr_available` | função | `() -> bool` |  |
-| `ocr_image` | função | `(img) -> OcrPage` | OCR one page image (PIL). |
-| `ocr_pdf_page` | função | `(pdf_bytes, index, dpi=DPI) -> OcrPage` | OCR page ``index`` (0-based) of a PDF. |
+| `OcrPage` | classe | `(lines, tables, confidence, word_conf, angle)` | Página lida por OCR: linhas de texto, tabelas, confiança média e por palavra e ângulo de correção. |
+| `ocr_available` | função | `() -> bool` | Diz se o executável do Tesseract está disponível. |
+| `ocr_image` | função | `(img) -> OcrPage` | Faz OCR de uma imagem de página (PIL). |
+| `ocr_pdf_page` | função | `(pdf_bytes, index, dpi=DPI) -> OcrPage` | Faz OCR da página `index` (base 0) de um PDF. |
 
 #### `pinneapple_data.formfill.pipeline`
 
-One call from source documents to a compiled form, and the helpers a front end needs around it.
+Uma chamada dos documentos ao formulário compilado (regras + LLM opcional) e utilitários de front-end: validar respostas do usuário e nome do arquivo de saída. [sem teste direto]
 
 <small>`pinneapple_data/formfill/pipeline.py` · 66 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compile_documents` | função | `(docs, spec, client=None, overrides=None, max_ocr_pages=None) -> Tuple[Compilation, List[…)` | Read every ``(name, data, role)`` document, extract candidates with the rules of ``spec`` (and with the local LLM ``client`` too, when given) and compile them into one decision per form item. |
-| `check_overrides` | função | `(spec, raw) -> Dict[str, Any]` | User answers ``{item key: value}`` checked against ``spec`` (:func:`check_answer`): empty values are dropped, an unknown key or an invalid value raises ``ValueError`` with a message for the user. |
-| `output_filename` | função | `(comp, prefix='', day=None) -> str` | File name for the filled form: ``<spec id>_<value of spec.filename_key or "filled">_<YYYYMMDD>.pdf``, made of safe characters only. |
+| `compile_documents` | função | `(docs, spec, client=None, overrides=None, max_ocr_pages=None) -> Tuple[Compilation, List[…)` | Lê cada documento `(nome, dados, papel)`, extrai candidatos por regras (e LLM, se houver) e compila; falha do LLM não derruba a chamada. |
+| `check_overrides` | função | `(spec, raw) -> Dict[str, Any]` | Valida as respostas do usuário contra o spec; chave desconhecida ou valor inválido levanta `ValueError`. |
+| `output_filename` | função | `(comp, prefix='', day=None) -> str` | Nome seguro do arquivo preenchido: `<spec id>_<valor da chave>_<AAAAMMDD>.pdf`. |
 
 #### `pinneapple_data.formfill.report`
 
-The compiled datasheet as a PDF (needs reportlab): every item of the spec with its value and source, the open items (missing required data, conflicts between documents) first, side-by-side columns where the spec has them (shell side | tube side), the table rows and the documents read.
+Gera o datasheet compilado em PDF com `reportlab` (itens com valor e fonte, pendências primeiro), marcado como rascunho para revisão de engenharia. [sem teste direto]
 
 <small>`pinneapple_data/formfill/report.py` · 166 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render_datasheet` | função | `(comp, spec=None, title=None) -> bytes` |  |
+| `render_datasheet` | função | `(comp, spec=None, title=None) -> bytes` | Renderiza uma `Compilation` como PDF de datasheet; exige `reportlab`. |
 
 #### `pinneapple_data.formfill.spec`
 
-What a form asks for, how documents phrase each item, and where each answer goes in the fillable PDF.
+Define o que um formulário pede (`FormSpec`, `Field`, `TableSpec`): rótulos, padrões de texto, tipo de campo, campo do PDF; specs vêm de modelos embutidos, JSON ou de qualquer PDF preenchível. [sem teste direto]
 
 <small>`pinneapple_data/formfill/spec.py` · 259 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Field` | classe | `(key, label, section, kind, pdf, states, patterns, quantity, required, source_hint, optio…)` |  |
-| `TableSpec` | classe | `(key, label, columns, header, combine, defaults, pdf_rows, description)` | A repeated-row item (nozzle schedule, line list...): found as a document table whose header matches ``header`` (every regex must match some header cell), filled into ``pdf_rows`` (one dict column -> PDF field per row). |
-| `FormSpec` | classe | `(id, title, fields, sections, tables, description, notes_field, left_blank, filename_key,…)` |  |
+| `Field` | classe | `(key, label, section, kind, pdf, states, patterns, quantity, required, source_hint, optio…)` | Um item do formulário: chave, rótulo, seção, tipo (`text`, `quantity`, `number`, `bool`, `choice`, `multi`), campo do PDF, padrões e opções. |
+| `TableSpec` | classe | `(key, label, columns, header, combine, defaults, pdf_rows, description)` | Item de linhas repetidas (lista de bocais, lista de linhas) achado como tabela cujo cabeçalho casa com os padrões e preenchido linha a linha no PDF. |
+| `FormSpec` | classe | `(id, title, fields, sections, tables, description, notes_field, left_blank, filename_key,…)` | Especificação completa de um formulário: campos, seções, tabelas e metadados; salva/carrega JSON e pode ser gerada de um PDF preenchível (`from_pdf`). |
 
 #### `pinneapple_data.formfill.specs`
 
-Built-in form templates. Add one by writing a module that builds a ``FormSpec`` and registering it here, or ship it as JSON and load it with ``FormSpec.load``.
+Registro dos modelos de formulário embutidos (`asme_u-dr-1`, `psv`, `shell_tube`, `tank`, `pump`), carregados sob demanda. [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/__init__.py` · 41 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `get_spec` | função | `(spec_id) -> FormSpec` |  |
-| `list_specs` | função | `() -> List[Dict[str, object]]` |  |
+| `get_spec` | função | `(spec_id) -> FormSpec` | Devolve o `FormSpec` de um modelo embutido pelo id; `KeyError` lista os ids conhecidos. |
+| `list_specs` | função | `() -> List[Dict[str, object]]` | Lista os modelos embutidos com título, norma, resumo, entradas, saída, número de itens, obrigatórios e tabelas. |
 
 #### `pinneapple_data.formfill.specs.asme_udr1`
 
-Built-in template: ASME BPVC Section VIII Division 1 Form U-DR-1, and where each answer goes in its fillable PDF.
+Modelo embutido do ASME BPVC Seção VIII Div. 1 Form U-DR-1: campos, padrões de texto e mapeamento para os campos do PDF preenchível (revisão 07/25). [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/asme_udr1.py` · 326 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.formfill.specs.psv`
 
-Built-in template: pressure relief valve datasheet, with the data API 520 Part I (sizing) and API 526 (flanged steel valves) ask for. The output is a compiled datasheet generated by the tool, not a reproduction of a standard's form.
+Modelo embutido de datasheet de válvula de alívio de pressão, com os dados pedidos por API 520 Parte I e API 526; a saída é um datasheet gerado pela ferramenta. [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/psv.py` · 115 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.formfill.specs.pump`
 
-Built-in template: centrifugal pump datasheet, with the data API 610 asks the purchaser for. The output is a compiled datasheet generated by the tool, not a reproduction of the standard's data sheet.
+Modelo embutido de datasheet de bomba centrífuga com os dados que a API 610 pede ao comprador. [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/pump.py` · 110 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.formfill.specs.shell_tube`
 
-Built-in template: shell-and-tube heat exchanger datasheet, with the data a TEMA specification sheet and API 660 ask for. The output is a compiled datasheet generated by the tool, not a reproduction of a standard's form.
+Modelo embutido de datasheet de trocador casco-tubo com os dados de uma folha TEMA e da API 660, lendo colunas de lado casco e lado tubo. [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/shell_tube.py` · 110 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.formfill.specs.tank`
 
-Built-in template: atmospheric storage tank datasheet, with the data API 650 asks the purchaser for (Annex L lists them). The output is a compiled datasheet generated by the tool, not a reproduction of the standard's data sheet.
+Modelo embutido de datasheet de tanque de armazenamento atmosférico com os dados que a API 650 pede (Anexo L). [sem teste direto]
 
 <small>`pinneapple_data/formfill/specs/tank.py` · 117 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.geometry_features`
 
-Geometry featurization: surface point-cloud sampling and a coarse signed-distance-field (SDF) grid from a triangle mesh — generic inputs (vertices/faces arrays, matching this package's own `stl_import.STLMesh` convention), no file-format or storage coupling. Useful as a preprocessing step for any …
+Features de geometria a partir de malha triangular: nuvem de pontos na superfície e grade grosseira de distância assinada (SDF), via `trimesh`. [sem teste]
 
 <small>`pinneapple_data/geometry_features.py` · 86 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_point_cloud` | função | `(vertices, faces, n_samples=2048) -> np.ndarray` | Sample `n_samples` points uniformly (area-weighted) from a mesh's surface. `n_samples` is silently capped at 3x the face count for a very coarse mesh, since sampling far more points than the mesh has resolution to support doesn't add real information. |
-| `compute_sdf_grid` | função | `(vertices, faces, grid_resolution=16, bounds=None) -> Dict[str, Any]` | Evaluate a signed distance field on a regular grid spanning the mesh's bounding box (or a caller-supplied `bounds` = [[xmin,ymin,zmin], [xmax,ymax,zmax]], e.g. to featurize several meshes on one shared grid). |
-| `featurize_mesh` | função | `(vertices, faces, n_point_cloud_samples=2048, sdf_grid_resolution=16) -> Dict[str, Any]` | Convenience wrapper: point cloud + SDF grid in one call, with per-stage errors reported rather than raised (a degenerate/non-watertight mesh may still yield a usable point cloud even if the SDF query fails). |
+| `sample_point_cloud` | função | `(vertices, faces, n_samples=2048) -> np.ndarray` | Amostra pontos uniformes (ponderados por área) na superfície da malha, limitando o número em malhas muito grosseiras. |
+| `compute_sdf_grid` | função | `(vertices, faces, grid_resolution=16, bounds=None) -> Dict[str, Any]` | Avalia a distância assinada numa grade regular sobre a caixa da malha (ou limites dados). |
+| `featurize_mesh` | função | `(vertices, faces, n_point_cloud_samples=2048, sdf_grid_resolution=16) -> Dict[str, Any]` | Nuvem de pontos + grade SDF numa chamada, relatando erros por etapa em vez de levantar. |
 
 #### `pinneapple_data.grf_sampler`
 
-Gaussian Random Field (GRF) input-function sampler, the standard way to draw random forcing/coefficient functions u(x) for operator-learning benchmarks (e.g. Lu, Jin & Karniadakis 2019, "DeepONet", arXiv:1910.03193, which draws every one of its input functions from a zero-mean GRF with an …
+Amostrador de campos aleatórios gaussianos (GRF) para funções de entrada de benchmarks de operador (como no DeepONet): 1D com uma única fatoração de Cholesky por lote e spline cúbica, 2D por síntese espectral com FFT. [sem teste]
 
 <small>`pinneapple_data/grf_sampler.py` · 177 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GRFDraw` | classe | `(x_grid, u_grid, spline)` | One sampled function u(x), x in [x_min, x_max]. |
-| `GRFDraw2D` | classe | `(x_grid, y_grid, u_grid, interp)` | One sampled 2D field u(x,y), (x,y) in [0,1]x[0,1] (normalized). |
-| `sample_grf_batch` | função | `(n_draws, x_min=0.0, x_max=1.0, n_grid=1000, length_scale=0.2, jitter=1e-10, seed=None) -…)` | Draw n_draws independent zero-mean GRF paths sharing ONE Cholesky factorization of the RBF covariance on a common fine grid. |
-| `sample_grf_paths` | função | `(n_draws, x_min=0.0, x_max=1.0, n_grid=1000, length_scale=0.2, jitter=1e-10, seed=None) -…)` | Alias for sample_grf_batch (kept for readability at call sites that draw a single small batch rather than a full dataset-generation pass). |
-| `sample_grf_2d_batch` | função | `(n_draws, nx=64, ny=64, length_scale=0.2, seed=None) -> List[GRFDraw2D]` | Draw n_draws independent zero-mean, unit-variance 2D GRF paths on the normalized [0,1]x[0,1] domain via FFT spectral synthesis (see module docstring above). One (nx,ny) white-noise draw + one 2D FFT + one inverse 2D FFT per sample — no shared factorization to amortize across draws the way … |
+| `GRFDraw` | classe | `(x_grid, u_grid, spline)` | Uma função amostrada u(x) em [x_min, x_max], consultável em qualquer ponto; `sensors` avalia nos sensores. |
+| `GRFDraw2D` | classe | `(x_grid, y_grid, u_grid, interp)` | Um campo 2D amostrado u(x,y) em [0,1]×[0,1]; `sensors` avalia nos pontos dados. |
+| `sample_grf_batch` | função | `(n_draws, x_min=0.0, x_max=1.0, n_grid=1000, length_scale=0.2, jitter=1e-10, seed=None) -…)` | Sorteia vários caminhos GRF 1D de média zero com covariância RBF, compartilhando uma fatoração de Cholesky numa grade fina. |
+| `sample_grf_paths` | função | `(n_draws, x_min=0.0, x_max=1.0, n_grid=1000, length_scale=0.2, jitter=1e-10, seed=None) -…)` | Apelido de `sample_grf_batch`. |
+| `sample_grf_2d_batch` | função | `(n_draws, nx=64, ny=64, length_scale=0.2, seed=None) -> List[GRFDraw2D]` | Sorteia vários campos GRF 2D de média zero e variância unitária por síntese espectral com FFT. |
 
 #### `pinneapple_data.lineage`
 
-Engineering model lineage (digital thread): artifacts and derivations, checks, questions, W3C PROV export, and auto-detection of the lineage from a project's files.
+Linhagem de modelos de engenharia (digital thread): artefatos e derivações, checagens, perguntas, exportação W3C PROV e detecção automática a partir dos arquivos de um projeto.
 
 <small>`pinneapple_data/lineage/__init__.py` · 7 linhas · testes: 13</small>
 
 #### `pinneapple_data.lineage.detect`
 
-Auto-detect a project's lineage from its files: OpenFOAM cases (blockMeshDict → mesh → run), Gmsh .geo → .msh, CalculiX decks and results, datasets exported by the Interoperability Hub (linked to their source files by sha256), Comparator / Mesh Quality / Preflight reports, PINNeAPPle model cards, …
+Detecta a linhagem de um projeto pelos arquivos: casos OpenFOAM, Gmsh `.geo`→`.msh`, decks e resultados CalculiX, datasets exportados (ligados por sha256), relatórios e model cards, mais um `lineage.json` declarado. [sem teste direto]
 
 <small>`pinneapple_data/lineage/detect.py` · 304 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `detect_project` | função | `(fs, project='') -> Lineage` |  |
+| `detect_project` | função | `(fs, project='') -> Lineage` | Monta um `Lineage` a partir de um dict caminho → bytes, ligando artefatos pelos arquivos e hashes. |
 
 #### `pinneapple_data.lineage.graph`
 
-Engineering model lineage: artifacts (CAD, mesh, simulation, dataset, model, prediction, ...) linked by "derived from" edges into a digital thread, with the checks that make it trustworthy and the questions it answers.
+Grafo de linhagem: artefatos (CAD, malha, simulação, dataset, modelo, predição...) ligados por arestas 'derivado de', com checagens (referências quebradas, ciclos, arquivos alterados, derivações velhas) e exportação PROV-JSON e Markdown. [sem teste direto]
 
 <small>`pinneapple_data/lineage/graph.py` · 365 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Artifact` | classe | `(id, kind, name, file, version, software, parameters, timestamp, hash, owner, origin, inp…)` |  |
-| `Lineage` | classe | `(artifacts=(), project='')` |  |
-| `sha256` | função | `(b) -> str` |  |
+| `Artifact` | classe | `(id, kind, name, file, version, software, parameters, timestamp, hash, owner, origin, inp…)` | Um artefato da linhagem: id, tipo, arquivo, versão, software, parâmetros, hash, dono, entradas; mede completude e verifica o hash. |
+| `Lineage` | classe | `(artifacts=(), project='')` | Grafo de artefatos: adiciona, lê/escreve JSON, navega a montante e a jusante, roda checagens e exporta relatório, PROV e Markdown. |
+| `sha256` | função | `(b) -> str` | SHA-256 em hexadecimal de bytes. |
 
 #### `pinneapple_data.noether_dataset`
 
-Noether ↔ PINNeAPPle data bridge.
+Ponte de dados entre o framework Noether e o PINNeAPPle: usa datasets do Noether (como DrivAerML) como `Dataset` do PyTorch e converte listas de `PhysicalSample` para o formato `{campo: tensor}` do Noether.
 
 <small>`pinneapple_data/noether_dataset.py` · 216 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NoetherDatasetBridge` | classe | `(noether_dataset, input_fields=None, target_fields=None, transform=None, device=None) -> …)` | Bridge a ``noether.data.base.Dataset`` to a plain PyTorch Dataset. |
-| `PhysicalSampleDataset` | classe | `(samples, input_fields=None, output_fields=None, include_coords=False, transform=None) ->…)` | Convert a list of PINNeAPPle ``PhysicalSample`` (UPD) to a Noether-compatible ``{field: tensor}`` PyTorch Dataset. |
-| `split_physical_samples` | função | `(samples, val_fraction=0.1, seed=42, **dataset_kwargs)` | Split a list of PhysicalSamples into train and validation datasets. |
+| `NoetherDatasetBridge` | classe | `(noether_dataset, input_fields=None, target_fields=None, transform=None, device=None) -> …)` | Envolve um dataset do Noether (ou qualquer dataset que devolva `{campo: tensor}`) como `torch.utils.data.Dataset` comum, sem Hydra. |
+| `PhysicalSampleDataset` | classe | `(samples, input_fields=None, output_fields=None, include_coords=False, transform=None) ->…)` | Dataset PyTorch em que cada `PhysicalSample` vira um item `{campo: tensor}`, com campos e coordenadas expostos. |
+| `split_physical_samples` | função | `(samples, val_fraction=0.1, seed=42, **dataset_kwargs)` | Divide uma lista de `PhysicalSample` em datasets de treino e validação com fração e semente. |
 
 #### `pinneapple_data.parameter_sampling`
 
-Design-of-experiments parameter-space sampling.
+Amostragem de espaços de parâmetros (constantes físicas, magnitudes de contorno, dimensões) por LHS, Sobol, Halton ou aleatória via `scipy.stats.qmc`, e conjunto tipo Saltelli para sensibilidade de Sobol sem SALib.
 
 <small>`pinneapple_data/parameter_sampling.py` · 118 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_parameters` | função | `(param_ranges, n_samples, method='lhs', seed=0) -> list[dict[str, float]]` | Sample `n_samples` points from a bounded parameter space. |
-| `saltelli_perturbation_sweep` | função | `(nominal, param_ranges, n_base=8, seed=0) -> list[dict[str, float]]` | Build a Saltelli-style sample set for first-order/total-order Sobol global sensitivity analysis, without requiring the SALib dependency. |
+| `sample_parameters` | função | `(param_ranges, n_samples, method='lhs', seed=0) -> list[dict[str, float]]` | Sorteia `n_samples` pontos de um espaço `{nome: (min, max)}` pelo método escolhido (`lhs` por padrão) e devolve uma lista de dicts. |
+| `saltelli_perturbation_sweep` | função | `(nominal, param_ranges, n_base=8, seed=0) -> list[dict[str, float]]` | Monta o conjunto de amostras no estilo Saltelli (matrizes A, B e trocas de coluna) para índices de Sobol de primeira ordem e total. |
 
 #### `pinneapple_data.physical_sample`
 
-PhysicalSample dataclass and training bridge for UPD-aligned physical data.
+Dataclass `PhysicalSample`, o contêiner padrão (alinhado ao UPD) de dados físicos: estado (xarray ou dict), geometria, esquema, domínio, proveniência e extras, com ponte para dict de treino.
 
 <small>`pinneapple_data/physical_sample.py` · 241 linhas · testes: 28</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicalSample` | classe | `(state, geometry, schema, domain, provenance, extras)` | Unified Physical Sample (UPD-aligned) used across Pinneapple. |
+| `PhysicalSample` | classe | `(state, geometry, schema, domain, provenance, extras)` | Amostra física unificada: estado, geometria, esquema de equações/condições, domínio e proveniência; diz o tipo de domínio, lista variáveis, resume e converte para dict de treino (`to_train_dict`). |
 
 #### `pinneapple_data.physical_units`
 
-Physical units and quantities for engineering data (PINNeAPPle Physical Data Layer).
+Unidades e grandezas físicas só com a biblioteca padrão: interpreta unidades de cabeçalhos, converte para SI, infere a grandeza de uma coluna e guarda limites físicos rígidos e típicos por grandeza.
 
 <small>`pinneapple_data/physical_units.py` · 436 linhas · testes: 52</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Unit` | classe | `(symbol, factor, dim, offset, gauge)` | A unit: ``SI value = value * factor + offset``. |
-| `UnitError` | classe | `()` |  |
-| `Quantity` | classe | `(name, si_unit, dim, keywords, hard, typical, display)` |  |
-| `QuantityGuess` | classe | `(quantity, confidence, reason, alternatives, is_difference)` |  |
-| `parse_unit` | função | `(text) -> Unit` | Parse a unit expression: ``°C``, ``kg/m^3``, ``W/(m·K)``, ``m³/h``, ``N*m``, ``psig``. |
-| `try_parse_unit` | função | `(text) -> Optional[Unit]` |  |
-| `convert` | função | `(values, src, dst, difference=False)` | Convert values (scalar or numpy array) from ``src`` to ``dst``. |
-| `dim_str` | função | `(dim) -> str` |  |
-| `split_header` | função | `(header) -> Tuple[str, Optional[str]]` | Split a column header into (name, unit text). ``"T_supply [°C]"`` -> ``("T_supply", "°C")``; also understands ``Pressure (bar)``, ``flow, m3/h``, ``power in kW`` and suffixes like ``T_inlet_degC``, ``pressure_bar`` or ``vibration_mm_s``. Returns ``(header, None)`` when no unit is found. A short … |
-| `infer_quantity` | função | `(name, unit=None) -> QuantityGuess` | Infer the physical quantity of a column from its unit dimension and name keywords. |
-| `describe_unit` | função | `(u) -> Dict[str, object]` |  |
-| `si_unit_for` | função | `(quantity) -> str` |  |
+| `Unit` | classe | `(symbol, factor, dim, offset, gauge)` | Uma unidade com fator e deslocamento para SI, vetor de dimensão e indicação de pressão manométrica; converte para/de SI. |
+| `UnitError` | classe | `()` | Erro de unidade desconhecida ou mal formada. |
+| `Quantity` | classe | `(name, si_unit, dim, keywords, hard, typical, display)` | Uma grandeza física: nome, unidade SI, dimensão, palavras-chave, limites rígidos, faixa típica e unidade de exibição. |
+| `QuantityGuess` | classe | `(quantity, confidence, reason, alternatives, is_difference)` | Palpite de grandeza para uma coluna: grandeza, confiança, motivo, alternativas e se é diferença. |
+| `parse_unit` | função | `(text) -> Unit` | Interpreta uma expressão de unidade (`°C`, `kg/m^3`, `W/(m·K)`, `psig`...) como `Unit`; levanta `UnitError` para token desconhecido. |
+| `try_parse_unit` | função | `(text) -> Optional[Unit]` | Como `parse_unit`, mas devolve `None` em vez de levantar erro. |
+| `convert` | função | `(values, src, dst, difference=False)` | Converte valores (escalar ou array) de uma unidade para outra, com opção para diferenças (sem deslocamento). |
+| `dim_str` | função | `(dim) -> str` | Texto legível de um vetor de dimensão (por exemplo `kg·m^-3`, ou `dimensionless`). |
+| `split_header` | função | `(header) -> Tuple[str, Optional[str]]` | Separa o cabeçalho de coluna em nome e texto de unidade (`[°C]`, `(bar)`, `, m3/h`, `in kW`, sufixos como `_degC`). |
+| `infer_quantity` | função | `(name, unit=None) -> QuantityGuess` | Infere a grandeza física de uma coluna combinando a dimensão da unidade com palavras-chave do nome. |
+| `describe_unit` | função | `(u) -> Dict[str, object]` | Descrição em dict de uma unidade: símbolo, fator e deslocamento SI, dimensão e se é manométrica. |
+| `si_unit_for` | função | `(quantity) -> str` | Unidade SI de uma grandeza registrada em `QUANTITIES`. |
 
 #### `pinneapple_data.physics_case`
 
-``PhysicsCase`` -- a minimal bridge between the three disjoint "partial canonical representations" of a physics problem already in this repo:
+`PhysicsCase`: ponte mínima que referencia juntos geometria, `ProblemSpec`, escolha de solver e resultados de um caso físico, e compara resultados com um benchmark sem emitir veredito.
 
 <small>`pinneapple_data/physics_case.py` · 405 linhas · testes: 47</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BenchmarkComparison` | classe | `(benchmark, x_vars, y_vars, n_reference_points, n_compared_points, rmse, relative_l2_erro…)` | Plain numeric comparison produced by ``PhysicsCase.validate_against_benchmark()``. |
-| `PhysicsCase` | classe | `(name, geometry, geometry_kind, physics, solver, solver_config, results, reference_benchm…)` | One physics case: geometry + physics spec + solver choice + results, referenced together. |
+| `BenchmarkComparison` | classe | `(benchmark, x_vars, y_vars, n_reference_points, n_compared_points, rmse, relative_l2_erro…)` | Comparação numérica (RMSE, erro relativo etc.) produzida por `validate_against_benchmark`; o critério de aprovação fica em outro pacote. |
+| `PhysicsCase` | classe | `(name, geometry, geometry_kind, physics, solver, solver_config, results, reference_benchm…)` | Um caso físico com campos opcionais (geometria, spec, solver, resultados, benchmark); valida contra benchmark e converte para/de dict. |
 
 #### `pinneapple_data.prefetch_adaptive`
 
-Adaptive prefetch IterableDataset for Zarr-backed UPD stores with configurable queue control.
+`IterableDataset` que lê amostras de um store Zarr UPD com cache e prefetch adaptativo: uma thread produtora ajusta quantas amostras mantém na fila. [sem teste]
 
 <small>`pinneapple_data/prefetch_adaptive.py` · 281 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AdaptivePrefetchConfig` | classe | `(queue_max, min_target_fill, max_target_fill, target_fill_init, control_period_s, increas…)` | Configuration for adaptive prefetching behavior. |
-| `AdaptivePrefetchZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, start=0, end=None, stride=1, sample_ctor=…)` | IterableDataset that streams samples from a cached Zarr-backed UPD store with adaptive prefetching. |
+| `AdaptivePrefetchConfig` | classe | `(queue_max, min_target_fill, max_target_fill, target_fill_init, control_period_s, increas…)` | Configuração do prefetch adaptativo: capacidade máxima da fila e faixa e passos do alvo de preenchimento. |
+| `AdaptivePrefetchZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, start=0, end=None, stride=1, sample_ctor=…)` | Itera amostras de um store Zarr UPD em cache com uma fila limitada abastecida por thread que ajusta o alvo conforme o consumo. |
 
 #### `pinneapple_data.preflight`
 
-Simulation pre-flight: check an OpenFOAM case or a CalculiX/Abaqus deck before spending solver hours on it.
+Pré-voo de simulação: checa um caso OpenFOAM ou um deck CalculiX/Abaqus antes de gastar horas de solver e devolve status PASS/WARNING/FAIL com achados que apontam arquivo e linha.
 
 <small>`pinneapple_data/preflight/__init__.py` · 74 linhas · testes: 13</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `preflight` | função | `(fs) -> Dict[str, Any]` |  |
-| `is_result_file` | função | `(path) -> bool` | A solver result rather than an input: inside an OpenFOAM time directory other than ``0`` (``0.5/U``, ``1e-3/p``) or a CalculiX / VTK result file. Not needed for a pre-flight; drop such files before checking. |
-| `drop_results` | função | `(fs) -> Dict[str, bytes]` | ``fs`` without the solver result files (:func:`is_result_file`). |
-| `attach_snippets` | função | `(report, fs, context=4, width=160) -> None` | Add to every finding that names a file and line the source lines around it, in place: ``finding["snippet"] = {"start": first line number, "lines": [...], "at": line}`` (``context`` lines on each side, each cut to ``width`` characters). File names are resolved against the case root of the report. |
+| `preflight` | função | `(fs) -> Dict[str, Any]` | Detecta se o upload é caso OpenFOAM ou deck `.inp` e roda as regras correspondentes, devolvendo o relatório. |
+| `is_result_file` | função | `(path) -> bool` | Diz se um arquivo é resultado de solver (diretório de tempo diferente de `0`, resultado CalculiX ou VTK) e não entrada. |
+| `drop_results` | função | `(fs) -> Dict[str, bytes]` | Remove do upload os arquivos de resultado de solver. |
+| `attach_snippets` | função | `(report, fs, context=4, width=160) -> None` | Acrescenta a cada achado com arquivo e linha as linhas de código ao redor (`snippet`). |
 
 #### `pinneapple_data.preflight.calculix`
 
-Pre-flight rules for CalculiX (and flat Abaqus) input decks: mesh, sections and materials, the properties each procedure needs, unit consistency, supports and loads, initial conditions and step settings.
+Regras de pré-voo para decks CalculiX/Abaqus planos: malha, seções e materiais, propriedades por procedimento, consistência de unidades, apoios e cargas, condições iniciais e passos; regras FAIL confirmadas rodando CalculiX em decks quebrados. [sem teste direto]
 
 <small>`pinneapple_data/preflight/calculix.py` · 450 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check` | função | `(fs, main) -> Report` |  |
+| `check` | função | `(fs, main) -> Report` | Lê o deck principal (com includes) e aplica todas as regras CalculiX, devolvendo um `Report`. |
 
 #### `pinneapple_data.preflight.common`
 
-Findings and the pre-flight report shared by the OpenFOAM and CalculiX rule sets.
+Tipos `Finding` e `Report` e utilitários de texto compartilhados pelas regras OpenFOAM e CalculiX. [sem teste direto]
 
 <small>`pinneapple_data/preflight/common.py` · 83 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Finding` | classe | `(section, status, title, detail, fix, file, line, entity, rule, evidence)` |  |
-| `Report` | classe | `(solver, findings, info)` |  |
-| `line_of` | função | `(text, pattern, flags=re.M) -> Optional[int]` |  |
-| `num` | função | `(v) -> Optional[float]` | Last number in an OpenFOAM entry ('nu [0 2 -1 0 0 0 0] 1e-05' -> 1e-05, 'uniform 0' -> 0). |
-| `vec` | função | `(v) -> Optional[List[float]]` |  |
+| `Finding` | classe | `(section, status, title, detail, fix, file, line, entity, rule, evidence)` | Um achado do pré-voo: seção, status, título, detalhe, correção sugerida, arquivo, linha, entidade, regra e evidência. |
+| `Report` | classe | `(solver, findings, info)` | Relatório de pré-voo: solver, lista de achados e informações; `add` acrescenta e `to_dict` calcula o status geral. |
+| `line_of` | função | `(text, pattern, flags=re.M) -> Optional[int]` | Número da linha onde um padrão regex aparece no texto, ou `None`. |
+| `num` | função | `(v) -> Optional[float]` | Último número de uma entrada OpenFOAM (`'nu [0 2 -1 0 0 0 0] 1e-05'` → `1e-05`). |
+| `vec` | função | `(v) -> Optional[List[float]]` | Lê um vetor entre parênteses de uma entrada OpenFOAM como lista de floats, ou `None`. |
 
 #### `pinneapple_data.preflight.openfoam`
 
-Pre-flight rules for OpenFOAM cases: mesh, transport/thermo properties, boundary and initial conditions, schemes, linear solvers and time stepping, checked before the solver runs.
+Regras de pré-voo para casos OpenFOAM: malha, propriedades de transporte/termo, condições de contorno e iniciais, esquemas, solvers lineares e passo de tempo; cada regra cita o que o OpenFOAM faz quando violada. [sem teste direto]
 
 <small>`pinneapple_data/preflight/openfoam.py` · 551 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check` | função | `(fs, root='') -> Report` |  |
+| `check` | função | `(fs, root='') -> Report` | Lê os dicionários do caso e aplica as regras do solver indicado no `controlDict` (ou só regras genéricas se o solver não está no conjunto). |
 
 #### `pinneapple_data.process_optimizer`
 
-Data-driven process optimization for industrial plants (plain machine learning, no physics model).
+Otimização de processo industrial só com dados (sem modelo físico): limpa o histórico com o relatório de saúde, treina um `HistGradientBoostingRegressor` do scikit-learn que prevê o KPI a partir das alavancas e do contexto, valida em divisão temporal e sugere ajustes das alavancas.
 
 <small>`pinneapple_data/process_optimizer.py` · 436 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `suggest_roles` | função | `(columns) -> Dict[str, Any]` | Guess target / levers / context from column names (to be reviewed by a person). |
-| `clean_for_modeling` | função | `(df, report) -> Tuple[pd.DataFrame, List[str]]` | Time-sorted numeric table with the problems found by the health report set to missing. |
-| `time_series_cv` | função | `(X, y, n_folds=4, l2_grid=L2_GRID, seed=0) -> Dict[str, Any]` | Forward-chaining cross-validation on the training period: fold k trains on the first k blocks and is scored on the next one (never on the past), for every L2 regularisation strength in ``l2_grid``. Picks the strength with the lowest mean validation MAE; the per-fold errors show how stable the model … |
-| `fit_and_optimize` | função | `(data, target, levers, context, goal='minimize', constraints=(), bounds=None, max_move=0.…)` | Train on the older part of the record, evaluate and optimize on the newest part. The L2 regularisation of the KPI model is chosen by forward-chaining cross-validation inside the training part (``cv_folds``; 0 keeps the default) and the fold errors go in the report under ``model.cv``. |
-| `plant_physics` | função | `(oat, rh, load, chws_sp, cws_sp, pump_pct)` | True plant behaviour used by the example (not visible to the ML model). |
-| `example_plant_operations` | função | `(seed=11, days=60) -> Tuple[pd.DataFrame, Dict[str, Any]]` | 60 days of 15-minute data from a chilled-water plant run by operators with manual setpoint habits. |
-| `true_saving` | função | `(result) -> Dict[str, Any]` | For the example: score the recommendations with the plant's true physics. |
+| `suggest_roles` | função | `(columns) -> Dict[str, Any]` | Sugere pelos nomes das colunas qual é o alvo, quais são alavancas e quais são contexto (para revisão humana). |
+| `clean_for_modeling` | função | `(df, report) -> Tuple[pd.DataFrame, List[str]]` | Tabela numérica ordenada no tempo com os problemas apontados pelo relatório de saúde marcados como ausentes. |
+| `time_series_cv` | função | `(X, y, n_folds=4, l2_grid=L2_GRID, seed=0) -> Dict[str, Any]` | Validação cruzada encadeada no tempo (cada dobra treina no passado e testa no bloco seguinte) para escolher a regularização L2. |
+| `fit_and_optimize` | função | `(data, target, levers, context, goal='minimize', constraints=(), bounds=None, max_move=0.…)` | Treina na parte antiga do histórico, avalia e otimiza as alavancas na parte mais recente e devolve modelo, métricas e recomendações. |
+| `plant_physics` | função | `(oat, rh, load, chws_sp, cws_sp, pump_pct)` | Comportamento 'verdadeiro' da planta do exemplo, oculto do modelo de ML. |
+| `example_plant_operations` | função | `(seed=11, days=60) -> Tuple[pd.DataFrame, Dict[str, Any]]` | Gera dados de exemplo de uma planta de água gelada operada com hábitos manuais de setpoint. |
+| `true_saving` | função | `(result) -> Dict[str, Any]` | No exemplo, mede a economia real das recomendações usando a física verdadeira da planta. |
 
 #### `pinneapple_data.serialization`
 
-Serialization utilities for PhysicalSample to/from PT, Zarr, and HDF5 formats.
+Grava e lê listas de `PhysicalSample` em `.pt` (com gzip opcional), HDF5 e Zarr (via `UPDZarrStore`), compatível com o formato UPD novo e o legado (`fields`/`coords`/`meta`).
 
 <small>`pinneapple_data/serialization.py` · 338 linhas · testes: 11</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `save_manifest` | função | `(path, manifest) -> None` |  |
-| `load_manifest` | função | `(path) -> Dict[str, Any]` |  |
-| `save_pt` | função | `(samples, path, *, compress=False) -> None` | Save a sequence of PhysicalSamples to a PyTorch (.pt) file. |
-| `load_pt` | função | `(path) -> List[PhysicalSample]` | Load PhysicalSamples from a PyTorch (.pt) file. |
-| `save_hdf5` | função | `(samples, path) -> None` | Save PhysicalSamples to an HDF5 file. |
-| `save_hdf5` | função | `(samples, path) -> None` |  |
-| `load_hdf5` | função | `(path) -> List[PhysicalSample]` |  |
-| `save_zarr` | função | `(samples, root, *, compressor='default') -> None` | Save PhysicalSamples to a Zarr directory store using UPDZarrStore. |
-| `load_zarr` | função | `(root)` | Load PhysicalSamples from a Zarr directory store using UPDZarrStore. |
+| `save_manifest` | função | `(path, manifest) -> None` | Grava um manifesto JSON, criando o diretório se preciso. |
+| `load_manifest` | função | `(path) -> Dict[str, Any]` | Lê um manifesto JSON. |
+| `save_pt` | função | `(samples, path, *, compress=False) -> None` | Grava amostras num arquivo PyTorch `.pt`, opcionalmente comprimido com gzip. |
+| `load_pt` | função | `(path) -> List[PhysicalSample]` | Lê amostras de um `.pt`, detectando sozinho se está comprimido. |
+| `save_hdf5` | função | `(samples, path) -> None` | Grava amostras em HDF5 como blobs serializados pelo torch, com atributos de manifesto (requer `h5py`); o nome aparece definido duas vezes no módulo e vale a segunda definição. |
+| `save_hdf5` | função | `(samples, path) -> None` | Grava amostras em HDF5 como blobs serializados pelo torch, com atributos de manifesto (requer `h5py`); o nome aparece definido duas vezes no módulo e vale a segunda definição. |
+| `load_hdf5` | função | `(path) -> List[PhysicalSample]` | Lê amostras de um HDF5 gravado por `save_hdf5` (requer `h5py`). |
+| `save_zarr` | função | `(samples, root, *, compressor='default') -> None` | Grava amostras num store Zarr de diretório via `UPDZarrStore` (versão corrigida; antes usava uma classe inexistente). |
+| `load_zarr` | função | `(root)` | Lê amostras de um store Zarr via `UPDZarrStore`. |
 
 #### `pinneapple_data.simulation_metadata`
 
-Simulation metadata extraction (PINNeAPPle): solver, mesh, time step, boundary conditions, parameters and convergence from the files a simulation leaves behind.
+Extrai metadados de simulação (solver, malha, passo de tempo, condições de contorno, parâmetros e convergência) dos arquivos de um caso OpenFOAM, deck CalculiX/Abaqus ou tabela de resíduos.
 
 <small>`pinneapple_data/simulation_metadata/__init__.py` · 346 linhas · testes: 25</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `read_upload` | função | `(files) -> dict[str, bytes]` | Turn uploaded files (zips are expanded, with size limits) into {relative path: bytes}. |
-| `parse_residual_table` | função | `(text) -> dict[str, Any] \| None` |  |
-| `extract` | função | `(fs) -> dict[str, Any]` |  |
+| `read_upload` | função | `(files) -> dict[str, bytes]` | Transforma arquivos enviados (zips expandidos com limites) em dict caminho relativo → bytes. |
+| `parse_residual_table` | função | `(text) -> dict[str, Any] \| None` | Lê uma tabela genérica de resíduos (exportada por outros solvers) achando o cabeçalho com a coluna de iteração; `None` se não reconhece. |
+| `extract` | função | `(fs) -> dict[str, Any]` | Monta o registro de metadados a partir do upload, detectando OpenFOAM, `.inp` ou tabela de resíduos; levanta `ValueError` sem arquivos. |
 
 #### `pinneapple_data.simulation_metadata.calculix`
 
-CalculiX / Abaqus input decks (.inp) and CalculiX run files (.sta, .cvg, .dat, solver output).
+Lê decks CalculiX/Abaqus (`.inp`) e arquivos de execução CalculiX (`.sta`, `.cvg`, `.dat`, log) e avalia a convergência. [sem teste direto]
 
 <small>`pinneapple_data/simulation_metadata/calculix.py` · 323 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `parse_inp` | função | `(text, include=None) -> Dict[str, Any]` | Parse an input deck into model / steps / materials / BCs / loads. ``include`` maps file names to the text of *INCLUDE'd files that were uploaded too. |
-| `parse_sta` | função | `(text) -> List[Dict[str, Any]]` |  |
-| `parse_cvg` | função | `(text) -> List[Dict[str, Any]]` |  |
-| `parse_dat` | função | `(text) -> Dict[str, Any]` | Largest printed displacement (or min/max of other printed results) at the last time of each set. |
-| `parse_ccx_log` | função | `(text) -> Dict[str, Any]` |  |
-| `assess` | função | `(sta, cvg, deck, log) -> Dict[str, Any]` |  |
+| `parse_inp` | função | `(text, include=None) -> Dict[str, Any]` | Interpreta um deck em modelo, passos, materiais, condições de contorno e cargas, resolvendo `*INCLUDE` enviados. |
+| `parse_sta` | função | `(text) -> List[Dict[str, Any]]` | Lê o arquivo `.sta` (incrementos por passo, tentativas, iterações, tempos). |
+| `parse_cvg` | função | `(text) -> List[Dict[str, Any]]` | Lê o arquivo `.cvg` (iterações com elementos de contato e resíduos de força). |
+| `parse_dat` | função | `(text) -> Dict[str, Any]` | Do `.dat`, maior deslocamento impresso (ou mín./máx. de outros resultados) no último tempo de cada conjunto. |
+| `parse_ccx_log` | função | `(text) -> Dict[str, Any]` | Do log do CalculiX: versão, se terminou, erros, número de avisos, tempo total e threads. |
+| `assess` | função | `(sta, cvg, deck, log) -> Dict[str, Any]` | Dá o status de uma execução CalculiX (`failed`, `completed`, `incomplete`...) com motivos e recomendações. |
 
 #### `pinneapple_data.simulation_metadata.convergence`
 
-Convergence assessment from residual histories: a verdict, the reasons and what to do next.
+Avalia convergência a partir de históricos de resíduos e devolve status (`converged`, `still_falling`, `stalled`, `diverged`, `crashed`...), motivos e o que fazer. [sem teste direto]
 
 <small>`pinneapple_data/simulation_metadata/convergence.py` · 228 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `downsample` | função | `(x, series, k=1500) -> Dict[str, Any]` |  |
-| `assess_steady` | função | `(log, targets) -> Dict[str, Any]` |  |
-| `assess_transient` | função | `(log, tolerances, max_co, algorithm, reached_end) -> Dict[str, Any]` |  |
-| `assess_table` | função | `(iters, residuals, is_log10) -> Dict[str, Any]` | Generic residual history (Fluent / STAR-CCM+ / SU2 exports). |
+| `downsample` | função | `(x, series, k=1500) -> Dict[str, Any]` | Reduz séries de resíduos a no máximo `k` pontos (sempre incluindo o último) para exibição. |
+| `assess_steady` | função | `(log, targets) -> Dict[str, Any]` | Avalia uma execução em regime permanente pelos resíduos contra as metas do `fvSolution`. |
+| `assess_transient` | função | `(log, tolerances, max_co, algorithm, reached_end) -> Dict[str, Any]` | Avalia uma execução transiente: se chegou ao fim, falhas, Courant máximo e tolerâncias dos solvers lineares. |
+| `assess_table` | função | `(iters, residuals, is_log10) -> Dict[str, Any]` | Avalia um histórico genérico de resíduos (exportações de Fluent, STAR-CCM+, SU2). |
 
 #### `pinneapple_data.simulation_metadata.foam_dict`
 
-A tolerant parser for OpenFOAM dictionary files (controlDict, fvSchemes, fvSolution, 0/U, ...).
+Parser tolerante de dicionários OpenFOAM (`controlDict`, `fvSchemes`, `fvSolution`, `0/U`...) em dicts aninhados; diretivas e macros são registradas, nunca executadas.
 
 <small>`pinneapple_data/simulation_metadata/foam_dict.py` · 176 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `parse` | função | `(text, max_list=2000) -> Dict[str, Any]` | Parse a FoamFile. Very long lists (mesh points, nonuniform fields) are summarised as ``"<list of N>"`` beyond ``max_list`` entries to keep the result small. |
-| `header` | função | `(text) -> Dict[str, str]` | The FoamFile header (class, object, format, note) without parsing the body. |
-| `scalar` | função | `(v) -> Optional[float]` | Last number in an entry: 'nu [0 2 -1 0 0 0 0] 1e-05' -> 1e-05; 'uniform 0' -> 0.0. |
-| `vector` | função | `(v) -> Optional[List[float]]` | 'uniform (10 0 0)' -> [10, 0, 0]. |
-| `words` | função | `(v) -> List[str]` |  |
-| `boundary` | função | `(text) -> List[Dict[str, Any]]` | Patches of a polyMesh/boundary file: name, type, nFaces, startFace, inGroups. |
+| `parse` | função | `(text, max_list=2000) -> Dict[str, Any]` | Interpreta um arquivo FoamFile em dicts aninhados, resumindo listas longas como `<list of N>`. |
+| `header` | função | `(text) -> Dict[str, str]` | Lê só o cabeçalho FoamFile (classe, objeto, formato, nota). |
+| `scalar` | função | `(v) -> Optional[float]` | Último número de uma entrada (`'uniform 0'` → `0.0`). |
+| `vector` | função | `(v) -> Optional[List[float]]` | Lê um vetor de uma entrada (`'uniform (10 0 0)'` → `[10, 0, 0]`). |
+| `words` | função | `(v) -> List[str]` | Separa uma entrada em palavras (lista vazia para `None` ou dict). |
+| `boundary` | função | `(text) -> List[Dict[str, Any]]` | Lê os patches de um arquivo `polyMesh/boundary`: nome, tipo, nFaces, startFace e grupos. |
 
 #### `pinneapple_data.simulation_metadata.openfoam`
 
-OpenFOAM case + log extraction for the simulation metadata record.
+Extração de caso e log OpenFOAM para o registro de metadados: log do solver, raiz do caso, tabelas de `postProcessing` e resumo por seções.
 
 <small>`pinneapple_data/simulation_metadata/openfoam.py` · 523 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `parse_log` | função | `(text) -> dict[str, Any]` | Parse an OpenFOAM solver log (or blockMesh / checkMesh log). |
-| `find_root` | função | `(fs) -> str \| None` | Case root: the directory that holds system/controlDict (shortest such path). |
-| `parse_dat` | função | `(text) -> tuple[list[str], np.ndarray]` | Parse an OpenFOAM function-object table (forceCoeffs.dat, forces.dat, probes, residuals.dat, ...). |
-| `read_dat` | função | `(path) -> tuple[list[str], np.ndarray]` | :func:`parse_dat` of the file at ``path`` (an OpenFOAM ``postProcessing/<name>/<time>/<table>.dat``). |
-| `extract_case` | função | `(fs, root) -> dict[str, Any]` |  |
-| `summarise` | função | `(case) -> dict[str, Any]` | Turn the raw case extraction into the record sections. |
+| `parse_log` | função | `(text) -> dict[str, Any]` | Interpreta um log de solver OpenFOAM (ou de blockMesh/checkMesh): passos, resíduos, Courant, erros. |
+| `find_root` | função | `(fs) -> str \| None` | Acha a raiz do caso: o diretório com `system/controlDict` de caminho mais curto, ou `None`. |
+| `parse_dat` | função | `(text) -> tuple[list[str], np.ndarray]` | Interpreta uma tabela de function object (`forceCoeffs.dat`, `probes`...) em nomes de coluna e array, expandindo vetores entre parênteses. |
+| `read_dat` | função | `(path) -> tuple[list[str], np.ndarray]` | Aplica `parse_dat` ao arquivo do caminho dado. |
+| `extract_case` | função | `(fs, root) -> dict[str, Any]` | Lê os arquivos do caso (controlDict, esquemas, solução, propriedades, malha, campos iniciais, logs) num registro bruto. |
+| `summarise` | função | `(case) -> dict[str, Any]` | Transforma a extração bruta do caso nas seções do registro de metadados. |
 
 #### `pinneapple_data.snapshots`
 
-Snapshot matrices for reduced-order models: many results of one model (time steps or parameter points) on one mesh, stacked into ``X`` with one row per snapshot.
+Matrizes de snapshots para modelos de ordem reduzida: vários resultados de um modelo (tempos ou pontos de parâmetro) na mesma malha empilhados em `X`, lidos de caso OpenFOAM, série de arquivos de malha ou arrays.
 
 <small>`pinneapple_data/snapshots.py` · 413 linhas · testes: 31</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SnapshotSet` | classe | `(X, fields, times, params, param_names, locations, source, meta, cells, snapshot_points)` | ``X`` (n_snapshots, n_values) plus what each row and column is. |
-| `snapshots_from_arrays` | função | `(arrays, *, times=None, params=None, param_names=None, locations=None, where=None, source…)` | Build a set from field arrays with the snapshots on the first axis: (n, m) scalars or (n, m, c) vectors (more axes are flattened into m). ``cells``: (VTK type, connectivity) of the point mesh; ``snapshot_points``: (n, m, 3) node coordinates per snapshot. |
-| `load_snapshots` | função | `(files, *, fields=None, param_columns=None) -> SnapshotSet` | Read an upload into a :class:`SnapshotSet` (see the module docstring for the formats). |
+| `SnapshotSet` | classe | `(X, fields, times, params, param_names, locations, source, meta, cells, snapshot_points)` | `X` (n_snapshots, n_values) com o significado de linhas e colunas: tempos, parâmetros, campos, malha; seleciona, resume e exporta `.npz`. |
+| `snapshots_from_arrays` | função | `(arrays, *, times=None, params=None, param_names=None, locations=None, where=None, source…)` | Monta um `SnapshotSet` a partir de arrays de campos com os snapshots no primeiro eixo, opcionalmente com malha. |
+| `load_snapshots` | função | `(files, *, fields=None, param_columns=None) -> SnapshotSet` | Lê um upload (lista de `(nome, bytes)`) num `SnapshotSet`, conforme os formatos do docstring do módulo. |
 
 #### `pinneapple_data.splits`
 
-Train/val/test split strategies (random, time, group).
+Estratégias de divisão treino/validação/teste (aleatória, temporal, por grupo); é a fonte única, `pinneapple_train.splits` reexporta daqui. [sem teste direto]
 
 <small>`pinneapple_data/splits.py` · 104 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SplitSpec` | classe | `(method, train, val, test, seed)` | Split strategies: - random: shuffle then split by ratios - time: keep order; split by ratios (train earliest, test latest) - group: ensure groups don't leak (requires group_ids) |
-| `split_indices` | função | `(n, spec, *, group_ids=None) -> Dict[str, np.ndarray]` |  |
+| `SplitSpec` | classe | `(method, train, val, test, seed)` | Estratégia de split: `random` (embaralha), `time` (mantém a ordem, teste no fim) ou `group` (sem vazamento entre grupos), com razões e semente. |
+| `split_indices` | função | `(n, spec, *, group_ids=None) -> Dict[str, np.ndarray]` | Devolve os índices de cada split para `n` amostras segundo o `SplitSpec` (exige `group_ids` na estratégia por grupo). |
 
 #### `pinneapple_data.stl_import`
 
-STL import utilities (ASCII + binary).
+Leitor de STL ASCII e binário sem dependências, com deduplicação de vértices, para ingestão em servidor. [sem teste direto]
 
 <small>`pinneapple_data/stl_import.py` · 93 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `STLMesh` | classe | `(verts, faces)` |  |
-| `load_stl_bytes` | função | `(data, *, dedup_eps=1e-06) -> STLMesh` |  |
-| `load_stl` | função | `(path, *, dedup_eps=1e-06) -> STLMesh` |  |
+| `STLMesh` | classe | `(verts, faces)` | Malha STL lida: vértices `(V,3)` float32 e faces `(F,3)` int64. |
+| `load_stl_bytes` | função | `(data, *, dedup_eps=1e-06) -> STLMesh` | Lê STL (binário ou ASCII) de bytes, deduplicando vértices com tolerância `dedup_eps`; levanta `ValueError` para dados curtos demais. |
+| `load_stl` | função | `(path, *, dedup_eps=1e-06) -> STLMesh` | Lê STL de um arquivo em disco via `load_stl_bytes`. |
 
 #### `pinneapple_data.synth`
 
-_Módulo sem docstring e sem texto._
+Geradores de dados sintéticos (EDP/EDO, EDP simbólica com diferenças finitas, distribuições, ajuste de curvas, imagens, geometria com trimesh e CadQuery) com interface comum e catálogo por nome. [sem teste]
 
 <small>`pinneapple_data/synth/__init__.py` · 38 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.synth.base`
 
-Base SynthConfig, SynthOutput, and SynthGenerator protocol for synthetic data generation.
+Tipos base dos geradores sintéticos: `SynthConfig`, `SynthOutput` e o protocolo `SynthGenerator`. [sem teste]
 
 <small>`pinneapple_data/synth/base.py` · 66 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SynthConfig` | classe | `(seed, device, dtype)` | Configuration container for synthetic data generation. |
-| `SynthOutput` | classe | `(samples, extras)` | Standard output structure for synthetic generators. |
-| `SynthGenerator` | classe | `()` | Protocol defining the interface for synthetic data generators. |
+| `SynthConfig` | classe | `(seed, device, dtype)` | Configuração comum dos geradores: semente, dispositivo e tipo de dado. |
+| `SynthOutput` | classe | `(samples, extras)` | Saída padrão de um gerador: lista de amostras e extras. |
+| `SynthGenerator` | classe | `()` | Protocolo de gerador sintético: precisa implementar `generate` devolvendo `SynthOutput`. |
 
 #### `pinneapple_data.synth.curvefit`
 
-Curve-fit synthetic generator for polynomial ridge regression and sample synthesis.
+Gerador que ajusta um polinômio com regularização ridge a dados 1D e sintetiza novas amostras com ruído. [sem teste]
 
 <small>`pinneapple_data/synth/curvefit.py` · 153 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CurveFitSynthGenerator` | classe | `(cfg=None)` | Synthetic generator that fits a polynomial trend to 1D data and synthesizes samples. |
+| `CurveFitSynthGenerator` | classe | `(cfg=None)` | Ajusta uma tendência polinomial (ridge) a pares (x, y) e gera novos y em novos x. |
 
 #### `pinneapple_data.synth.distributions`
 
-Distribution-based synthetic generator for Gaussian, uniform, and mixture-of-Gaussians sampling.
+Gerador que amostra entradas de distribuições simples: gaussiana, uniforme e mistura de gaussianas. [sem teste]
 
 <small>`pinneapple_data/synth/distributions.py` · 154 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DistributionSynthGenerator` | classe | `(cfg=None)` | Synthetic generator for sampling inputs from simple probability distributions. |
+| `DistributionSynthGenerator` | classe | `(cfg=None)` | Amostra de distribuição gaussiana, uniforme ou mistura de gaussianas com parâmetros configuráveis. |
 
 #### `pinneapple_data.synth.geometry`
 
-Geometry synthesis and mesh augmentation from trimesh-like inputs.
+Gerador de variantes de uma malha triangular existente (trimesh) por transformações aleatórias controladas. [sem teste]
 
 <small>`pinneapple_data/synth/geometry.py` · 221 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometrySynthGenerator` | classe | `(cfg=None)` | Geometry synthesis and augmentation from an existing triangle mesh. |
+| `GeometrySynthGenerator` | classe | `(cfg=None)` | Gera variantes de uma malha (escala, rotação, ruído etc.) que mantêm a forma geral. |
 
 #### `pinneapple_data.synth.geometry_cadquery`
 
-CadQuery-based geometry synthesis: parametric templates and STL-driven variants.
+Síntese de geometria com CadQuery: variantes de um modelo paramétrico e variantes guiadas por um STL modelo. [sem teste]
 
 <small>`pinneapple_data/synth/geometry_cadquery.py` · 532 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ParametricCadQuerySynthGenerator` | classe | `(cfg=None)` | Generate geometry variants from a parametric CadQuery template. |
-| `STLTemplateSynthGenerator` | classe | `(cfg=None)` | Synthetic geometry generator driven by an existing STL/mesh template. |
+| `ParametricCadQuerySynthGenerator` | classe | `(cfg=None)` | Sorteia parâmetros, constrói o sólido com `template_fn` do CadQuery, tessela em malha e devolve amostras tipo `PhysicalSample`. |
+| `STLTemplateSynthGenerator` | classe | `(cfg=None)` | Lê um STL/malha modelo, usa a caixa envolvente e, se houver CadQuery, gera primitivas (caixa, cilindro...) parecidas; senão, deforma a malha. |
 
 #### `pinneapple_data.synth.images`
 
-Image reconstruction and inpainting synthetic generator.
+Gerador de tarefas de reconstrução de imagem e inpainting: entrada corrompida e reconstrução como amostras tipo `PhysicalSample`. [sem teste]
 
 <small>`pinneapple_data/synth/images.py` · 262 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ImageReconstructionSynthGenerator` | classe | `(cfg=None)` | Synthetic generator for image reconstruction tasks. |
+| `ImageReconstructionSynthGenerator` | classe | `(cfg=None)` | Gera pares imagem corrompida / reconstruída em modos como inpainting suave dentro de uma máscara. |
 
 #### `pinneapple_data.synth.operators`
 
-_Módulo sem docstring e sem texto._
+Operadores pequenos usados pelos geradores sintéticos: ruído gaussiano, máscara de bloco e normalização para [0, 1]. [sem teste]
 
 <small>`pinneapple_data/synth/operators/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_data.synth.operators.masks`
 
-Random block mask generation for 2D grids.
+Gera máscara retangular aleatória numa grade 2D. [sem teste]
 
 <small>`pinneapple_data/synth/operators/masks.py` · 38 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `random_block_mask` | função | `(H, W, frac=0.2, seed=42) -> torch.Tensor` | Generate a random rectangular block mask within a 2D grid. |
+| `random_block_mask` | função | `(H, W, frac=0.2, seed=42) -> torch.Tensor` | Gera uma máscara booleana com um único bloco retangular ocupando a fração `frac` da altura e largura, em posição sorteada com gerador determinístico. |
 
 #### `pinneapple_data.synth.operators.noise`
 
-Gaussian noise addition for synthetic data augmentation.
+Soma ruído gaussiano a tensores com gerador determinístico. [sem teste]
 
 <small>`pinneapple_data/synth/operators/noise.py` · 28 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `add_gaussian_noise` | função | `(x, std=0.01, seed=42) -> torch.Tensor` | Add Gaussian noise to a tensor. |
+| `add_gaussian_noise` | função | `(x, std=0.01, seed=42) -> torch.Tensor` | Soma ruído normal de média zero e desvio `std` a um tensor. |
 
 #### `pinneapple_data.synth.operators.transforms`
 
-Tensor normalization transforms for synth operators.
+Normalização de tensores para [0, 1]. [sem teste]
 
 <small>`pinneapple_data/synth/operators/transforms.py` · 28 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `normalize_01` | função | `(x, eps=1e-08) -> torch.Tensor` | Normalize a tensor to the [0, 1] range. |
+| `normalize_01` | função | `(x, eps=1e-08) -> torch.Tensor` | Reescala um tensor para [0, 1] pelo mínimo e máximo globais, com epsilon para tensor constante. |
 
 #### `pinneapple_data.synth.pde`
 
-PDE/ODE synthetic generator for heat, advection, and logistic equations.
+Gerador sintético de EDP/EDO simples: calor 1D, advecção 1D e logística, com diferenças finitas. [sem teste]
 
 <small>`pinneapple_data/synth/pde.py` · 254 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SimplePhysicalSample` | classe | `(fields, coords, meta)` | MVP duck-typed PhysicalSample to keep synth module usable standalone. |
-| `PDESynthGenerator` | classe | `(cfg=None)` | PDE/ODE synthetic generator. |
+| `SimplePhysicalSample` | classe | `(fields, coords, meta)` | Contêiner mínimo com `fields`, `coords` e `meta`, para o módulo funcionar sem o `PhysicalSample` completo. |
+| `PDESynthGenerator` | classe | `(cfg=None)` | Gera trajetórias de calor 1D, advecção 1D ou EDO logística a partir de domínio, grade, tempo e condição inicial. |
 
 #### `pinneapple_data.synth.pde_symbolic`
 
-Symbolic PDE parser and finite-difference-based synthetic trajectory generator.
+Interpreta uma EDP escrita como texto (forma de resíduo, como `"u_t - alpha*u_xx"`) e gera trajetórias e resíduo com diferenças finitas. [sem teste]
 
 <small>`pinneapple_data/synth/pde_symbolic.py` · 498 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SymbolicFDSynthGenerator` | classe | `(cfg=None)` | Symbolic equation -> automatic finite difference operator -> synthetic dataset. |
-| `make_fd_residual_fn` | função | `(equation, *, parameters=None, bc='periodic')` | Create a residual evaluator using finite-difference approximations. |
+| `SymbolicFDSynthGenerator` | classe | `(cfg=None)` | Converte uma equação simbólica em operador de diferenças finitas e gera um dataset sintético de trajetórias. |
+| `make_fd_residual_fn` | função | `(equation, *, parameters=None, bc='periodic')` | Cria uma função que avalia o resíduo simbólico trocando `u_t`, `u_x`, `u_xx` por diferenças finitas. |
 
 #### `pinneapple_data.synth.registry`
 
-SynthCatalog factory for building synthetic generators by name from a registry.
+`SynthCatalog`: fábrica que constrói geradores sintéticos por nome a partir de um registro. [sem teste]
 
 <small>`pinneapple_data/synth/registry.py` · 73 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SynthCatalog` | classe | `(registry)` | Factory-style catalog for synthetic data generators. |
+| `SynthCatalog` | classe | `(registry)` | Registro nome → classe de gerador; `list` mostra os nomes e `build` instancia (levanta `KeyError` para nome desconhecido). |
 
 #### `pinneapple_data.synth.sample_adapter`
 
-PhysicalSample-like conversion and torchify utilities for synth module outputs.
+Converte saídas dos geradores sintéticos em `PhysicalSample` quando possível, ou num substituto mínimo. [sem teste]
 
 <small>`pinneapple_data/synth/sample_adapter.py` · 192 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicalSampleLike` | classe | `(fields, coords, meta)` | Protocol defining the minimal interface of a PhysicalSample-like object. |
-| `has_pinnego_physical_sample` | função | `() -> bool` | Check whether `pinneapple_data.physical_sample.PhysicalSample` is importable. |
-| `to_physical_sample` | função | `(sample_like, *, device=None, dtype=None) -> Any` | Best-effort conversion: - if already a PhysicalSample -> return - if duck-typed {fields, coords, meta} -> convert - else if dict with keys -> interpret |
+| `PhysicalSampleLike` | classe | `(fields, coords, meta)` | Protocolo mínimo de amostra: `fields`, `coords` e `meta`. |
+| `has_pinnego_physical_sample` | função | `() -> bool` | Diz se `pinneapple_data.physical_sample.PhysicalSample` pode ser importado (o nome da função ainda usa o nome antigo do projeto). |
+| `to_physical_sample` | função | `(sample_like, *, device=None, dtype=None) -> Any` | Conversão de melhor esforço para `PhysicalSample` (ou um dataclass substituto) a partir de objeto ou dict. |
 
 #### `pinneapple_data.transforms`
 
-Data transforms and normalizers for preprocessing pipelines.
+Normalizadores para pré-processamento (fonte única; `pinneapple_train.normalizers` e `pinneapple_train.preprocess` reexportam daqui): base abstrata, `StandardScaler` e `MinMaxScaler`.
 
 <small>`pinneapple_data/transforms.py` · 140 linhas · testes: 2 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Normalizer` | classe | `()` | Abstract base for all normalizers (fit / transform / inverse). |
-| `StandardScaler` | classe | `(eps, mean_, std_)` | Zero-mean unit-variance scaler. |
-| `MinMaxScaler` | classe | `(eps, min_, max_)` | Scales each feature to [0, 1]. |
+| `Normalizer` | classe | `()` | Base abstrata de normalizadores com `fit`/`transform`/`inverse` (e apelidos `encode`/`decode`) e estado serializável; os métodos base levantam `NotImplementedError`. |
+| `StandardScaler` | classe | `(eps, mean_, std_)` | Normaliza para média zero e variância unitária; aceita estilo de método de classe (`StandardScaler.fit(x)`) e de instância. |
+| `MinMaxScaler` | classe | `(eps, min_, max_)` | Reescala cada feature para [0, 1] e desfaz a escala com `inverse`. |
 
 #### `pinneapple_data.udr1`
 
-ASME Form U-DR-1 shortcuts over the generic ``pinneapple_data.formfill`` engine (template ``asme_u-dr-1``).
+Atalhos do ASME Form U-DR-1 sobre o motor genérico `formfill` (modelo `asme_u-dr-1`): extrair, compilar requisitos e preencher o formulário.
 
 <small>`pinneapple_data/udr1/__init__.py` · 30 linhas · testes: 36</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `extract_rules` | função | `(doc) -> List[Candidate]` |  |
-| `compile_requirements` | função | `(docs, candidates, overrides=None) -> Compilation` |  |
-| `fill_form` | função | `(blank_pdf, comp) -> bytes` |  |
+| `extract_rules` | função | `(doc) -> List[Candidate]` | Aplica `formfill.extract_rules` ao documento com o spec do U-DR-1. |
+| `compile_requirements` | função | `(docs, candidates, overrides=None) -> Compilation` | Compila os candidatos com o spec do U-DR-1, aceitando respostas do engenheiro como `overrides`. |
+| `fill_form` | função | `(blank_pdf, comp) -> bytes` | Preenche o PDF em branco do U-DR-1 com a compilação. |
 
 #### `pinneapple_data.unified`
 
-Engineering data standardizer: many files, many conventions -> one physical schema (PINNeAPPle UPD).
+Padronizador de dados de engenharia: vários arquivos com convenções diferentes viram um esquema físico único (UPD), com mapeamento revisado por pessoa, conversão exata de unidades, fusos para UTC e alinhamento num eixo de tempo comum.
 
 <small>`pinneapple_data/unified.py` · 584 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `canonical_name` | função | `(base, quantity) -> str` | 'CHW Supply Temp' + temperature -> 'chw_supply_temperature'; 'chws_temp' -> same. |
-| `conversion_text` | função | `(src, dst, difference=False) -> str` | Human-readable conversion, e.g. '°F → °C: (x − 32) × 0.5556'. |
-| `propose_mapping` | função | `(df, source, system='metric', time_column=None, units=None, tz=None) -> Dict[str, Any]` | Draft the mapping of one source from its headers (to be reviewed by a person). |
-| `make_recipe` | função | `(mappings, system='metric', resample='auto', layout='wide', agg='mean') -> Dict[str, Any]` |  |
-| `standardize` | função | `(sources, recipe) -> Dict[str, Any]` | Apply a recipe to sources [(file name, dataframe, raw bytes)]. Returns a dict with ``wide`` and ``long`` DataFrames, the ``manifest``, per-source notes and cross-source ``agreement``. |
-| `write` | função | `(result, fmt='csv', layout='wide') -> Tuple[bytes, str, str]` | Serialize a result. Returns (bytes, media type, file name). |
-| `to_physical_sample` | função | `(result)` | The wide table as a PINNeAPPle :class:`~pinneapple_data.physical_sample.PhysicalSample` (xarray Dataset on a ``time`` coordinate, units in attributes). |
-| `example_sources` | função | `(seed=3) -> List[Tuple[str, bytes]]` | The same chilled-water plant recorded by a building management system (CSV, local time, °C, semicolon + decimal comma), a SCADA REST API (JSON, Unix ms, °F, gpm, tons) and a test rig (Excel, ISO UTC, K, L/s, W). |
-| `before_after_series` | função | `(result, k=500) -> Dict[str, Any]` | Per variable of a :func:`standardize` result: the raw values of every source (in their original units) and the standardized values, on the common UTC time axis, downsampled to at most ``k`` evenly spaced points. |
+| `canonical_name` | função | `(base, quantity) -> str` | Gera o nome canônico de uma coluna a partir do cabeçalho e da grandeza (por exemplo `'CHW Supply Temp'` → `chw_supply_temperature`). |
+| `conversion_text` | função | `(src, dst, difference=False) -> str` | Texto legível de uma conversão de unidade, por exemplo `°F → °C: (x − 32) × 0.5556`. |
+| `propose_mapping` | função | `(df, source, system='metric', time_column=None, units=None, tz=None) -> Dict[str, Any]` | Rascunha o mapeamento de uma fonte a partir dos cabeçalhos (coluna de tempo, grandeza, unidade, nome e unidade alvo), para revisão humana. |
+| `make_recipe` | função | `(mappings, system='metric', resample='auto', layout='wide', agg='mean') -> Dict[str, Any]` | Monta a receita (`pinneapple.recipe/1`) a partir dos mapeamentos, com sistema alvo, reamostragem, layout e agregação. |
+| `standardize` | função | `(sources, recipe) -> Dict[str, Any]` | Aplica a receita às fontes e devolve tabelas larga e longa, manifesto, notas por fonte e concordância entre fontes. |
+| `write` | função | `(result, fmt='csv', layout='wide') -> Tuple[bytes, str, str]` | Serializa o resultado padronizado e devolve (bytes, tipo de mídia, nome de arquivo). |
+| `to_physical_sample` | função | `(result)` | Converte a tabela larga num `PhysicalSample` (xarray com coordenada `time` e unidades nos atributos). |
+| `example_sources` | função | `(seed=3) -> List[Tuple[str, bytes]]` | Três fontes de exemplo da mesma planta de água gelada (CSV de BMS, JSON de SCADA, Excel de bancada) com convenções diferentes. |
+| `before_after_series` | função | `(result, k=500) -> Dict[str, Any]` | Por variável, valores brutos de cada fonte e valores padronizados no eixo UTC comum, reduzidos a no máximo `k` pontos. |
 
 #### `pinneapple_data.upd_dataset`
 
-Hardened UPDDataset wrapper with validation, persistence, and save/load support.
+`UPDDataset` endurecido: lista de amostras com versão de esquema no manifesto, validação e salvar/carregar em pt, zarr ou hdf5.
 
 <small>`pinneapple_data/upd_dataset.py` · 192 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UPDDataset` | classe | `(samples, manifest)` | Hardened dataset wrapper. |
+| `UPDDataset` | classe | `(samples, manifest)` | Dataset de `PhysicalSample` com validação e persistência em `.pt`, Zarr ou HDF5. |
 
 #### `pinneapple_data.upd_types`
 
-Pure data-structure types for the UPD (Unified Physical Data) pipeline.
+Tipos de dados puros do pipeline UPD (shard, especificações de amostragem de condições, batch PINN) e conversão de `datetime64` para segundos; o docstring ainda cita o pacote antigo `pinneapple_pinn`. [sem teste]
 
 <small>`pinneapple_data/upd_types.py` · 103 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UPDItem` | classe | `(zarr_path, meta_path)` | One UPD shard item: points to a Zarr store and a JSON metadata file. |
-| `ConditionSpec` | classe | `(name, type, equation, n, options)` | Sampling definition for a single PINN condition. |
-| `SamplingSpec` | classe | `(n_collocation, conditions, n_data, replace, seed)` | Overall sampling plan for a UPD shard. |
-| `Batch` | classe | `(collocation, conditions, data)` | PINN-ready training batch. |
-| `seconds_since` | função | `(t, t0=None) -> np.ndarray` | Convert a ``datetime64`` array to float seconds elapsed since *t0*. |
+| `UPDItem` | classe | `(zarr_path, meta_path)` | Um item de shard UPD: caminho do store Zarr e do JSON de metadados; lê os metadados e abre o dataset. |
+| `ConditionSpec` | classe | `(name, type, equation, n, options)` | Como amostrar uma condição PINN: `initial`, `boundary`, `interior` ou `slice`, com número de pontos e variáveis. |
+| `SamplingSpec` | classe | `(n_collocation, conditions, n_data, replace, seed)` | Plano de amostragem de um shard UPD: pontos de colocação e lista de `ConditionSpec`. |
+| `Batch` | classe | `(collocation, conditions, data)` | Batch de treino PINN: tensores de colocação, de cada condição e pares de dados supervisionados. |
+| `seconds_since` | função | `(t, t0=None) -> np.ndarray` | Converte um array `datetime64` em segundos (float64) desde `t0` (padrão: o menor tempo). |
 
 #### `pinneapple_data.validators`
 
-PhysicalSample validation: units, ranges, non-negativity, and monotonic coordinate checks.
+Validação de `PhysicalSample`: unidades (política `strict`/`warn`/`off`), faixas, não negatividade e coordenadas monótonas. [sem teste]
 
 <small>`pinneapple_data/validators.py` · 161 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ValidationIssue` | classe | `(level, message, field)` | Single validation issue from validate_physical_sample. |
-| `validate_physical_sample` | função | `(sample, *, units_policy='warn', required_units=None, ranges=None, non_negative=None, mon…)` | Validate a PhysicalSample and return a list of issues. |
-| `assert_valid_physical_sample` | função | `(*args, **kwargs) -> None` | Validate a PhysicalSample and raise ValueError if any errors are found. |
+| `ValidationIssue` | classe | `(level, message, field)` | Um problema de validação: nível (`error` ou `warning`), mensagem e campo. |
+| `validate_physical_sample` | função | `(sample, *, units_policy='warn', required_units=None, ranges=None, non_negative=None, mon…)` | Valida uma amostra e devolve a lista de problemas encontrados. |
+| `assert_valid_physical_sample` | função | `(*args, **kwargs) -> None` | Valida uma amostra e levanta `ValueError` se houver algum erro. |
 
 #### `pinneapple_data.zarr_cached_store`
 
-Cached wrapper around UPDZarrStore with LRU sample and field-level caching.
+Envolve o `UPDZarrStore` com cache LRU por amostra e por campo, limitado por número de itens. [sem teste]
 
 <small>`pinneapple_data/zarr_cached_store.py` · 231 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZarrCacheConfig` | classe | `(max_samples, max_fields, enable_field_cache)` | Configuration for Zarr-backed cache limits. |
-| `CachedUPDZarrStore` | classe | `(root, *, cache=None, mode='r')` | Cached wrapper around UPDZarrStore. |
+| `ZarrCacheConfig` | classe | `(max_samples, max_fields, enable_field_cache)` | Limites do cache por contagem: máximo de amostras e de leituras de campo, e se o cache de campo está ligado. |
+| `CachedUPDZarrStore` | classe | `(root, *, cache=None, mode='r')` | Store Zarr UPD com cache LRU: `count`, `manifest`, `read_sample` e estatísticas do cache. |
 
 #### `pinneapple_data.zarr_cached_store_bytes`
 
-Byte-cached UPDZarrStore wrapper with configurable sample and field cache budgets.
+Envolve o `UPDZarrStore` com cache LRU limitado por bytes (`ByteLRUCache`) por amostra e por campo. [sem teste]
 
 <small>`pinneapple_data/zarr_cached_store_bytes.py` · 226 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZarrByteCacheConfig` | classe | `(max_sample_bytes, max_field_bytes, enable_field_cache)` | Configuration for byte-bounded Zarr cache limits. |
-| `CachedUPDZarrStoreBytes` | classe | `(root, *, cache=None, mode='r')` | Cached wrapper around UPDZarrStore using ByteLRUCache. |
+| `ZarrByteCacheConfig` | classe | `(max_sample_bytes, max_field_bytes, enable_field_cache)` | Limites do cache em bytes para amostras inteiras e para campos. |
+| `CachedUPDZarrStoreBytes` | classe | `(root, *, cache=None, mode='r')` | Store Zarr UPD com cache limitado por bytes: `count`, `manifest`, `read_sample` e estatísticas. |
 
 #### `pinneapple_data.zarr_iterable`
 
-IterableDataset for streaming PhysicalSamples from a UPDZarrStore with worker-aware sharding.
+`IterableDataset` que lê `PhysicalSample` de um `UPDZarrStore`, abrindo o store em cada worker e dividindo o trabalho entre workers. [sem teste]
 
 <small>`pinneapple_data/zarr_iterable.py` · 69 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ZarrUPDIterable` | classe | `(root, fields, coords, start, stop, step, shuffle, seed)` | IterableDataset over a UPDZarrStore. |
+| `ZarrUPDIterable` | classe | `(root, fields, coords, start, stop, step, shuffle, seed)` | Itera as amostras de um store Zarr UPD com divisão por worker do `DataLoader`, sem exigir `__len__`. |
 
 #### `pinneapple_data.zarr_prefetch`
 
-Prefetch IterableDataset for Zarr-backed UPD stores with background producer and optional GPU transfer.
+`IterableDataset` sobre store Zarr UPD com cache, thread produtora em segundo plano, memória fixada e transferência assíncrona para GPU. [sem teste]
 
 <small>`pinneapple_data/zarr_prefetch.py` · 205 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PrefetchConfig` | classe | `(prefetch, queue_max, use_sample_cache, pin_memory, target_device, transfer_non_blocking)` | Industrial prefetch controls. |
-| `PrefetchZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, start=0, end=None, stride=1, sample_ctor=…)` | Streaming dataset backed by Zarr with caching + background prefetch, plus pinned memory and async CPU->GPU transfer. |
+| `PrefetchConfig` | classe | `(prefetch, queue_max, use_sample_cache, pin_memory, target_device, transfer_non_blocking)` | Controles do prefetch: tamanho da fila, pin_memory, dispositivo alvo e transferência não bloqueante. |
+| `PrefetchZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, start=0, end=None, stride=1, sample_ctor=…)` | Lê amostras do Zarr numa thread produtora e entrega em CPU ou já movidas para a GPU. |
 
 #### `pinneapple_data.zarr_shard_iterable`
 
-Shard-aware IterableDataset for balanced iteration over multi-shard Zarr UPD stores.
+`IterableDataset` que lê o `index.json` de um store Zarr UPD fatiado em shards e distribui as partes entre os workers. [sem teste]
 
 <small>`pinneapple_data/zarr_shard_iterable.py` · 162 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ShardAwareConfig` | classe | `(pin_memory, target_device, transfer_non_blocking, use_sample_cache)` | Configuration for shard-aware iteration behavior. |
-| `ShardAwareZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, sample_ctor=None, cache=None, cfg=None)` | Shard-aware iterator: - reads root/index.json - balances shard parts across DataLoader workers - iterates each assigned zarr store sequentially |
+| `ShardAwareConfig` | classe | `(pin_memory, target_device, transfer_non_blocking, use_sample_cache)` | Configuração da iteração por shards: pin_memory, dispositivo, transferência não bloqueante e embaralhamento. |
+| `ShardAwareZarrUPDIterable` | classe | `(root, *, fields=None, coords=None, dtype=None, sample_ctor=None, cache=None, cfg=None)` | Itera as partes de shard atribuídas a cada worker, uma de cada vez, a partir do `index.json`. |
 
 #### `pinneapple_data.zarr_shards`
 
-Sharded Zarr writer for partitioning UPD samples by key with index-based discovery.
+Escritor de stores Zarr UPD fatiados por chave (tempo, região, regime) em `shards/<chave>/part=NNNN/data.zarr` com `index.json`. [sem teste]
 
 <small>`pinneapple_data/zarr_shards.py` · 154 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ShardSpec` | classe | `(key_fn, max_per_shard)` | Simple shard naming. |
-| `UPDZarrShardedWriter` | classe | `(root, shard_spec, *, shards_dirname='shards', index_filename='index.json')` | Writes multiple shards: root/ shards/ <key>/part=0000/data.zarr <key>/part=0001/data.zarr index.json |
+| `ShardSpec` | classe | `(key_fn, max_per_shard)` | Nomeação de shards: função `key_fn(sample)` que devolve a chave (por exemplo `time=2020-01`) e tamanho de parte. |
+| `UPDZarrShardedWriter` | classe | `(root, shard_spec, *, shards_dirname='shards', index_filename='index.json')` | Escreve amostras em vários shards por chave e partes numeradas, e grava o índice. |
 
 #### `pinneapple_data.zarr_store`
 
-Zarr-backed UPD store for PhysicalSample persistence with columnar layout.
+Store Zarr do UPD em layout colunar (cada campo empilhado entre amostras, coordenadas e manifesto opcionais) para persistir `PhysicalSample`.
 
 <small>`pinneapple_data/zarr_store.py` · 396 linhas · testes: 1</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UPDZarrStore` | classe | `(root, mode='r')` | Minimal UPD Zarr store: |
+| `UPDZarrStore` | classe | `(root, mode='r')` | Store Zarr UPD mínimo: escreve amostras, itera, conta, lista campos e coordenadas e lê o manifesto. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Criar um PhysicalSample em grade e convertê-lo para dict de treino** — `examples/data_pipeline/01_physical_sample_basics.py`
+
+```python
+from pinneapple_data.physical_sample import PhysicalSample
+
+ds = xr.Dataset(
+    data_vars=dict(
+        T2M=(("t","x"), np.random.randn(24, 16).astype("float32")),
+        U10M=(("t","x"), np.random.randn(24, 16).astype("float32")),
+    ),
+    coords=dict(t=np.arange(24), x=np.arange(16)),
+)
+
+sample = PhysicalSample(
+    state=ds,
+    domain={"type": "grid"},
+    schema={"governing": {"type": "PDE", "name": "toy"}},
+    provenance={"source": "demo"},
+)
+```
+
+**Planejar uma campanha que não repete execuções existentes** — `tests/pinneapple_data/test_doe.py`
+
+```python
+    plan = plan_campaign(space, method="maximin", seed=1, existing=existing, existing_id_column="run_id")
+    assert len(plan.cases) == 12 and list(plan.cases["priority"]) == list(range(1, 13))
+    assert plan.cases["case_id"].iloc[0] == "case_001"
+    s = plan.summary()
+    assert s["coverage"]["combined"]["fill_distance"] < s["coverage"]["existing"]["fill_distance"]
+    res = plan.study_result()
+    assert isinstance(res, StudyResult) and res.passed and res.status == "planned"
+    assert StudyResult.from_json(res.to_json()) == res
+    skel = plan.dataset_skeleton(outputs=["y"], units={"y": "K"})
+```
+
+**Pré-voo de um caso OpenFOAM ou deck CalculiX enviado** — `tests/test_preflight.py`
+
+```python
+from pinneapple_data.cae.upload import expand
+from pinneapple_data.preflight import preflight
+
+
+def _run(name):
+    with open(os.path.join(EX, name), "rb") as f:
+        return preflight(expand([(name, f.read())]))
+```
 
 ### Testes e status de validação
 
@@ -3823,13 +3874,24 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- A raiz do pacote importa quase tudo dentro de `try/except Exception: pass`: se uma dependência opcional faltar (xarray, zarr, torch), o nome simplesmente não existe em `pinneapple_data`, sem aviso.
+- Muitas dependências são opcionais e só exigidas pelo módulo que as usa: `trimesh` (geometria, `geometry_features`), `meshio`, `h5py`, `pyarrow`, `pydantic` (contratos), `pypdf`/`pdfplumber`/`reportlab` (formfill), o programa `tesseract` (OCR), `tfrecord` (DeepMind), `cadquery`, `mp-api`, `cdsapi`, e um servidor Ollama local para `formfill.llm`.
+- Vários clientes de `datasets.external_sources` e carregadores de `datasets.real_world` devolvem dados sintéticos quando a fonte não está disponível (marcados com `_synthetic` ou `source: synthetic`); alguns datasets de `real_world` são sintéticos por definição. Não use esses dados como medições reais sem conferir a marcação.
+- `dataloaders.build_physical_sample_dataloader` só aceita amostras em grade; amostras em malha ainda não são suportadas.
+- `transforms.Normalizer` é base abstrata: `fit`, `transform` e `inverse` levantam `NotImplementedError` e precisam de subclasse.
+- Há nomes antigos nos docstrings: `pinneapple_geom` (hoje `pinneapple_design.geometry`), `pinneapple_pinn` (citado em `upd_types` e `adapters.pinn_batch_builders`) e `pinnego` em `has_pinnego_physical_sample`. Em `serialization`, `save_hdf5` aparece definido duas vezes e vale a segunda definição. O exemplo de `formfill.pipeline` cita o id `api610_pump`, mas o registro usa `pump`.
+- Muitos módulos não têm teste direto: adaptadores, caches de Zarr, iteráveis e prefetch, `synth` inteiro, `augmentation`, `geometry_features`, `grf_sampler`, `validators`, `upd_types` e vários submódulos de `cae`, `formfill`, `preflight`, `lineage` e `simulation_metadata` (estes são exercitados pelos testes dos pacotes-pai e dos apps).
+- `cae.foam` não remonta casos decompostos (`processor*`), e `cae.upload` descarta essas pastas; diretivas OpenFOAM (`#include`, `#codeStream`) são registradas, não executadas.
 
 ## 3. `pinneapple_pdb`
 
 ### Objetivo
 
-_Sem texto de objetivo._
+O `pinneapple_pdb` (physics database) tem duas partes independentes. A primeira é o `PhysicalDatasetBuilder`, que monta datasets físicos a partir de hubs de dados da Terra (NASA CMR via `earthaccess`): busca coleções e granules, escolhe variáveis e janela espaço-temporal, abre os dados com xarray, padroniza dimensões, valida unidades, faixas e monotonicidade, acrescenta variáveis derivadas (vorticidade e divergência), fatia em janelas de tempo e blocos espaciais com tags de regime e grava tudo em Zarr no formato UPD, com um catálogo e um esquema físico (equações, contornos, política de unidades) vindo de templates como `atmosphere_reanalysis_v1`.
+
+A segunda parte é `benchmarks`, um catálogo pequeno e curado de datasets de referência resolvidos por nome (`get_benchmark("lane_emden_n1.5")`), no mesmo padrão `@register_x`/`get_x`/`list_x` do registro de presets de `pinneapple_physics`. Cada entrada é recalculada ao ser pedida (integração com SciPy ou solução fechada) e conferida contra um valor publicado ou uma solução exata; se a conferência falhar, a função levanta erro em vez de devolver um perfil não verificado. As entradas cobrem Lane-Emden (n=1.5 e n=3), sustentação de vórtice de Polhamus no ângulo de Concorde (teoria, não dado de voo), camada-limite de Blasius, condução transiente em parede plana com Bi=1 e três casos com as equações do PDEBench (advecção 1D, difusão-reação 1D, Darcy 2D) sem baixar as trajetórias do PDEBench.
+
+O catálogo de benchmarks é usado pelo guardrail físico de `pinneapple_llm` e por exemplos como `examples/use_cases/concorde_high_aoa`; o builder é usado pelos exemplos de `examples/physics_db/`. O pacote não tem CLI: o `pyproject.toml` registra que o antigo script `pinneapple_pdb.cli:main` foi removido por não existir.
 
 ### Números do inventário
 
@@ -3841,12 +3903,12 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `benchmarks` |  | 1 | 5 | 35 |
-| `builder` |  | 1 | 5 | 0 |
-| `derived` |  | 1 | 3 | 0 |
-| `shard` |  | 1 | 6 | 0 |
-| `templates` |  | 1 | 1 | 0 |
-| `validate` |  | 1 | 3 | 0 |
+| `benchmarks` | Catálogo curado, por nome, de datasets de referência (x, y) recalculados e verificados a cada uso. | 1 | 5 | 35 |
+| `builder` | `PhysicalDatasetBuilder`: busca dados em hubs da Terra (earthaccess/CMR), valida, deriva, fatia e grava Zarr UPD com catálogo. | 1 | 5 | 0 |
+| `derived` | Variáveis derivadas (vorticidade e divergência) a partir de U/V em grade lat/lon. | 1 | 3 | 0 |
+| `shard` | Fatiamento por janelas de tempo e blocos espaciais, com tags de regime (trópicos, polar). | 1 | 6 | 0 |
+| `templates` | Templates de esquema físico (por exemplo reanálise atmosférica). | 1 | 1 | 0 |
+| `validate` | Padronização de dimensões e validação de unidades, faixas e monotonicidade. | 1 | 3 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3854,90 +3916,120 @@ _Sem texto de objetivo._
 
 #### `pinneapple_pdb`
 
-_Módulo sem docstring e sem texto._
+Ponto de entrada: reexporta o builder e suas specs, `schema_templates` e a API do catálogo de benchmarks; não tem docstring de módulo.
 
 <small>`pinneapple_pdb/__init__.py` · 36 linhas · testes: 65</small>
 
 #### `pinneapple_pdb.benchmarks`
 
-A small, curated, NAME-based catalog of real benchmark datasets.
+Catálogo de referências por nome com oito entradas registradas, cada uma recalculada e conferida contra valor publicado ou solução exata (levanta erro se divergir); o docstring ainda fala em "FIVE entries", desatualizado.
 
 <small>`pinneapple_pdb/benchmarks.py` · 984 linhas · testes: 35</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BenchmarkEntry` | classe | `(name, description, reference_source, x_vars, y_vars, reference_x, reference_y, verificat…)` | A single named, real reference dataset: enough to plug directly into ``pinneapple_llm.guardrail.PhysicsGuardrail._check_reference`` as ``(reference_x, reference_y)``. |
-| `register_benchmark` | função | `(name)` | Decorator to register a zero-argument ``BenchmarkEntry`` factory under ``name`` -- mirrors ``pinneapple_physics.pde_environment.presets .registry.register_preset``'s decorator pattern. The factory is called fresh on every ``get_benchmark``/``benchmark_catalog`` lookup (not memoised), so the … |
-| `get_benchmark` | função | `(name) -> BenchmarkEntry` | Resolve a benchmark dataset by name. |
-| `list_benchmarks` | função | `() -> List[str]` | Return the sorted list of all registered benchmark dataset names. |
-| `benchmark_catalog` | função | `() -> Dict[str, BenchmarkEntry]` | Return name -> ``BenchmarkEntry`` for every registered benchmark, built (and independently re-verified) fresh. |
+| `BenchmarkEntry` | classe | `(name, description, reference_source, x_vars, y_vars, reference_x, reference_y, verificat…)` | Um dataset de referência nomeado: descrição, fonte, variáveis x/y, arrays de referência e nota de verificação. |
+| `register_benchmark` | função | `(name)` | Decorador que registra uma fábrica sem argumentos de `BenchmarkEntry` sob um nome. |
+| `get_benchmark` | função | `(name) -> BenchmarkEntry` | Resolve um benchmark pelo nome, construindo e verificando a entrada. |
+| `list_benchmarks` | função | `() -> List[str]` | Lista ordenada dos nomes de benchmarks registrados. |
+| `benchmark_catalog` | função | `() -> Dict[str, BenchmarkEntry]` | Dicionário nome -> `BenchmarkEntry` de todos os benchmarks, construídos e verificados de novo. |
 
 #### `pinneapple_pdb.builder`
 
-Builder for physical datasets from Earth data hubs (NASA CMR, earthaccess).
+Construtor de datasets físicos a partir de NASA CMR/`earthaccess` (extra opcional `pinneapple[earthdata]`, importado sob demanda): busca, inspeção de granule, seleção, validação, derivadas, fatiamento e escrita Zarr UPD com catálogo; `build` exige login no Earthdata. [sem teste direto]
 
 <small>`pinneapple_pdb/builder.py` · 539 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HubQuery` | classe | `(provider, short_name, keyword)` | Query parameters for Earth data hub search. |
-| `SpaceTime` | classe | `(time_start, time_end, bbox, stride, chunking)` | Temporal and spatial extent plus stride/chunking options. |
-| `VariableSelection` | classe | `(include, exclude, packs)` | Variable include/exclude/pack selection. |
-| `PhysicalSchema` | classe | `(physical_system, governing_equations, ics, bcs, forcings, units_policy, regime_tags, val…)` | Physical system metadata: equations, BCs, ICs, units policy, regime tags. |
-| `PhysicalDatasetBuilder` | classe | `(packs=None)` | MVP-1 builder: - time-window sharding (and optional spatial tiles) - derived: vorticity/divergence - validations: units/ranges/monotonic - CLI friendly |
+| `HubQuery` | classe | `(provider, short_name, keyword)` | Parâmetros de busca no hub: provedor, nome curto e palavra-chave. |
+| `SpaceTime` | classe | `(time_start, time_end, bbox, stride, chunking)` | Extensão temporal e espacial (bbox) com passo e chunking. |
+| `VariableSelection` | classe | `(include, exclude, packs)` | Seleção de variáveis por inclusão, exclusão e pacotes. |
+| `PhysicalSchema` | classe | `(physical_system, governing_equations, ics, bcs, forcings, units_policy, regime_tags, val…)` | Metadados físicos: sistema, equações, CI, CC, forçantes, política de unidades, tags e validade. |
+| `PhysicalDatasetBuilder` | classe | `(packs=None)` | Builder MVP: busca e inspeção de granules, sharding por tempo e blocos, derivadas e validações, saída Zarr com catálogo. |
 
 #### `pinneapple_pdb.derived`
 
-Derived variable computation (e.g. vorticity, divergence) for physical datasets.
+Calcula vorticidade e divergência de vento U/V numa grade lat/lon e aplica as derivadas pedidas numa spec. [sem teste direto]
 
 <small>`pinneapple_pdb/derived.py` · 116 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DerivedSpec` | classe | `(derived, u_name, v_name)` | Specification for derived variables to add (e.g. vorticity, divergence). |
-| `add_vorticity_divergence` | função | `(ds, u_name=None, v_name=None) -> xr.Dataset` | Add vorticity and divergence from U/V on lat/lon grid; returns new dataset. |
-| `apply_derived` | função | `(ds, spec) -> xr.Dataset` | Apply derived variables from spec to dataset; returns new dataset. |
+| `DerivedSpec` | classe | `(derived, u_name, v_name)` | Quais variáveis derivadas acrescentar e os nomes de U e V. |
+| `add_vorticity_divergence` | função | `(ds, u_name=None, v_name=None) -> xr.Dataset` | Acrescenta vorticidade e divergência calculadas de U/V em grade lat/lon. |
+| `apply_derived` | função | `(ds, spec) -> xr.Dataset` | Aplica as derivadas de uma spec e devolve um novo dataset. |
 
 #### `pinneapple_pdb.shard`
 
-Sharding and subsetting of physical datasets by time and spatial tiles.
+Gera janelas de tempo não sobrepostas e blocos lat/lon alinhados, recorta o dataset e marca tags `tropics`/`polar` pela latitude. [sem teste direto]
 
 <small>`pinneapple_pdb/shard.py` · 72 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ShardSpec` | classe | `(time_window, tile_deg, add_regime_tags)` | Specification for time-window and optional spatial tiling of datasets. |
-| `iter_time_windows` | função | `(time_values, window) -> Iterator[Tuple[pd.Timestamp, pd.Timestamp]]` | Yield (start, end) time pairs for non-overlapping windows over time_values. |
-| `subset_time` | função | `(ds, a, b) -> xr.Dataset` | Select time slice [a, b) from dataset. |
-| `iter_tiles` | função | `(lat_vals, lon_vals, dlat, dlon)` | Yield (lat0, lat1, lon0, lon1) tile bounds aligned to dlat/dlon grid. |
-| `subset_tile` | função | `(ds, lat0, lat1, lon0, lon1) -> xr.Dataset` | Select spatial tile [lat0,lat1] x [lon0,lon1]; assumes coords sorted. |
-| `regime_tags_for` | função | `(ds) -> list[str]` | Derive regime tags (e.g. tropics, polar) from dataset lat extent. |
+| `ShardSpec` | classe | `(time_window, tile_deg, add_regime_tags)` | Janela de tempo, tamanho de bloco em graus e se adiciona tags de regime. |
+| `iter_time_windows` | função | `(time_values, window) -> Iterator[Tuple[pd.Timestamp, pd.Timestamp]]` | Gera pares (início, fim) de janelas de tempo não sobrepostas. |
+| `subset_time` | função | `(ds, a, b) -> xr.Dataset` | Recorta o intervalo de tempo [a, b). |
+| `iter_tiles` | função | `(lat_vals, lon_vals, dlat, dlon)` | Gera limites de blocos lat/lon alinhados à grade de passos dados. |
+| `subset_tile` | função | `(ds, lat0, lat1, lon0, lon1) -> xr.Dataset` | Recorta um bloco espacial; supõe coordenadas ordenadas. |
+| `regime_tags_for` | função | `(ds) -> list[str]` | Tags de regime (`tropics`, `polar`) pela extensão em latitude. |
 
 #### `pinneapple_pdb.templates`
 
-Physical schema templates for common datasets (e.g. atmosphere reanalysis).
+Devolve o template `atmosphere_reanalysis_v1` (equações primitivas hidrostáticas); a política pede SI mas nenhuma conversão automática é feita. [sem teste direto]
 
 <small>`pinneapple_pdb/templates.py` · 28 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `schema_templates` | função | `() -> Dict[str, Dict[str, Any]]` | Return mapping of template_id -> PhysicalSchema-compatible dict. |
+| `schema_templates` | função | `() -> Dict[str, Dict[str, Any]]` | Mapa id de template -> dicionário compatível com `PhysicalSchema`. |
 
 #### `pinneapple_pdb.validate`
 
-Validation and standardization for physical datasets (UPD).
+Padroniza nomes e ordem de dimensões (time, lev, lat, lon) e devolve a lista de problemas de unidades, faixas e monotonicidade. [sem teste direto]
 
 <small>`pinneapple_pdb/validate.py` · 154 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ValidationSpec` | classe | `(require_units, ranges, enforce_lev_monotonic, enforce_time_monotonic)` | Specification for dataset validation (units, ranges, monotonicity). |
-| `standardize_dims` | função | `(ds) -> xr.Dataset` | Standardize dimension names and transpose data vars to canonical order (time, lev, lat, lon). |
-| `validate_dataset` | função | `(ds, spec) -> List[str]` | Validate dataset against spec; returns list of issue messages (empty if valid). |
+| `ValidationSpec` | classe | `(require_units, ranges, enforce_lev_monotonic, enforce_time_monotonic)` | Spec de validação: exigir unidades, faixas por variável e monotonicidade de nível e tempo. |
+| `standardize_dims` | função | `(ds) -> xr.Dataset` | Padroniza nomes de dimensões e transpõe variáveis para (time, lev, lat, lon). |
+| `validate_dataset` | função | `(ds, spec) -> List[str]` | Valida o dataset contra a spec e devolve as mensagens de problema (vazia se válido). |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Inspecionar um granule de um hub da Terra** — `examples/physics_db/00_quickstart_inspect.py`
+
+```python
+    b = PhysicalDatasetBuilder()
+
+    # 1) Search collections (keep keyword broad at first)
+    collections = b.list_collections(keyword="MERRA", limit=10)
+    print("\nTop matches:")
+    for c in collections[:10]:
+        print(f"- {c.get('short_name')} | provider={c.get('provider')} | {c.get('title','')[:80]}")
+
+    # 2) Pick one (edit as needed)
+    # Many users end up using MERRA-2 products; pick a short_name shown above.
+    b.set_dataset(provider=collections[0].get("provider"), short_name=collections[0].get("short_name"))
+```
+
+**Usar um benchmark do catálogo como referência teórica** — `examples/use_cases/concorde_high_aoa/concorde_high_aoa_pipeline.py`
+
+```python
+    bench = get_benchmark("concorde_high_aoa")
+
+    fig, ax = plt.subplots(figsize=(9, 5.5), facecolor=DARK_BG)
+    ax.set_facecolor(DARK_BG)
+    for spine in ax.spines.values():
+        spine.set_edgecolor("#444")
+    ax.tick_params(colors="white")
+
+    ax.plot(
+        bench.reference_x[:, 0], bench.reference_y[:, 0],
+        "-", color="white", lw=1.5,
+```
 
 ### Testes e status de validação
 
@@ -3946,7 +4038,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O builder depende do extra opcional `earthaccess` (`pip install pinneapple[earthdata]`), de acesso à rede e de login no Earthdata (`build` chama `login`); também usa xarray, pandas e um engine como `pydap`.
+- Os módulos do builder (`builder`, `derived`, `shard`, `templates`, `validate`) não têm teste que os importe diretamente; os testes do pacote cobrem sobretudo `benchmarks`.
+- O catálogo de benchmarks é pequeno e curado; as entradas PDEBench reproduzem só as equações e parâmetros de exemplo, não as trajetórias reais do PDEBench.
+- `concorde_high_aoa` é a teoria de Polhamus avaliada na razão de aspecto aproximada do Concorde, não dado de túnel de vento ou de voo.
+- O docstring de `benchmarks` diz "FIVE entries", mas há oito registradas; um dataset LES de canal citado no docstring não foi incluído por viver fora do repositório.
+- A política de unidades do template pede SI, mas nenhuma conversão é feita: as unidades dos granules são gravadas como vieram (`converted: False`).
+- Não há CLI: o script `pinneapple_pdb.cli:main` foi removido do `pyproject.toml` porque o módulo não existe.
 
 ## 4. `pinneapple_adaptation`
 

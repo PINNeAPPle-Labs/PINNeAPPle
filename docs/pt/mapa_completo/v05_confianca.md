@@ -2876,7 +2876,13 @@ Validation Lab: roda as checagens do `pinneapple check` sobre predições, resul
 
 ### Objetivo
 
-_Sem texto de objetivo._
+O `pinneapple_security` cuida da segurança de dados e de processo em IA física científica e industrial. Ele junta, num só pacote e quase só com a biblioteca padrão e NumPy, as peças que um projeto precisa para provar de onde vieram dados e modelos e quem mexeu neles: digests SHA-256 e manifestos Merkle (`integrity`), assinaturas Ed25519 ou HMAC em envelopes DSSE (`signing`), atestações in-toto/SLSA e SBOM CycloneDX (`attestation`), trilha de auditoria encadeada por hash com atributos ALCOA+ (`audit`) e criptografia AES-256-GCM em repouso (`encryption`).
+
+Para dados sensíveis há detecção e redação de dados pessoais (inclusive CPF e CNPJ com dígitos verificadores), pseudonimização com chave, k-anonimato e limpeza de logs (`privacy`), privacidade diferencial com contador RDP e DP-SGD para PyTorch (`dp`), rótulos de classificação e política de manuseio (`classification`) e um mapa de capacidades para controles de NIST CSF 2.0, IEC 62443, ISO 27001, 21 CFR Part 11, LGPD/GDPR, SSDF e SLSA (`compliance`), que mapeia evidências mas não certifica.
+
+Do lado de modelos e operação, `model_security` varre checkpoints pickle sem executá-los e carrega com `weights_only=True`, além de medir sensibilidade adversarial de surrogates; `anomaly` e `cps` detectam injeção de dados falsos em sensores industriais por resíduos físicos (balanços de massa, leis de vazão) com CUSUM, e `cps_bench` é um benchmark reprodutível de uma rede de água de três tanques comparando o detector físico com detectores só de dados.
+
+Ele se liga ao resto da biblioteca por `integrate` (versões assinadas no `ModelStore` de `pinneapple_registry`, model cards e TrustReports assinados, experimentos `pp.Experiment` atestados) e às apps web por `web` (cabeçalhos de segurança e CSP, limite de corpo, rate limit, bloqueio de login, IP por proxy confiável, CSRF, CORS, URLs de saída seguras), `passwords` (hash de senha scrypt/argon2id/bcrypt) e `archives` (extração de zip sem zip-slip nem zip bomb). Há também uma CLI: `python -m pinneapple_security`.
 
 ### Números do inventário
 
@@ -2890,25 +2896,25 @@ Pasta de testes dedicada: `tests/pinneapple_security` (60 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 1 | 10 |
-| `anomaly` |  | 1 | 3 | 6 |
-| `archives` |  | 1 | 7 | 22 |
-| `attestation` |  | 1 | 7 | 10 |
-| `audit` |  | 1 | 1 | 54 |
-| `classification` |  | 1 | 4 | 10 |
-| `compliance` |  | 1 | 3 | 10 |
-| `cps` |  | 1 | 9 | 5 |
-| `cps_bench` |  | 1 | 7 | 5 |
-| `dp` |  | 1 | 7 | 9 |
-| `encryption` |  | 1 | 9 | 6 |
-| `integrate` |  | 1 | 8 | 10 |
-| `integrity` |  | 1 | 8 | 14 |
-| `model_security` |  | 1 | 6 | 6 |
-| `passwords` |  | 1 | 4 | 56 |
-| `privacy` |  | 1 | 11 | 9 |
-| `secrets_scan` |  | 1 | 4 | 10 |
-| `signing` |  | 1 | 12 | 25 |
-| `web` |  | 1 | 15 | 40 |
+| `__main__` | CLI `python -m pinneapple_security`: manifestos, assinaturas, varreduras, limpeza de log, SBOM e hash de senha. | 1 | 1 | 10 |
+| `anomaly` | Detecção de dados de sensor manipulados por resíduo físico com CUSUM e detecção de replay. | 1 | 3 | 6 |
+| `archives` | Extração segura de zip: sem zip-slip, sem links e com limites contra zip bomb; gunzip limitado. | 1 | 7 | 22 |
+| `attestation` | Atestações in-toto/SLSA de execuções e experimentos e SBOM CycloneDX do ambiente. | 1 | 7 | 10 |
+| `audit` | Trilha de auditoria append-only em JSON lines encadeada por hash (ou HMAC). | 1 | 1 | 54 |
+| `classification` | Rótulos de dados (nível, dados pessoais, controle de exportação) e política de manuseio. | 1 | 4 | 10 |
+| `compliance` | Mapa capacidade -> controle de frameworks de auditoria e relatório de autoavaliação. | 1 | 3 | 10 |
+| `cps` | Resíduos físicos caixa-cinza (balanço de massa, leis de vazão) com CUSUM contra injeção de dados falsos. | 1 | 9 | 5 |
+| `cps_bench` | Benchmark reprodutível de rede de água de três tanques com ataques e detectores de base só de dados. | 1 | 7 | 5 |
+| `dp` | Privacidade diferencial: mecanismos de Laplace e Gauss, estatísticas privadas, contador RDP e DP-SGD. | 1 | 7 | 9 |
+| `encryption` | Criptografia AES-256-GCM em repouso para bytes, arquivos e arrays, com chave por scrypt ou aleatória. | 1 | 9 | 6 |
+| `integrate` | Integra a segurança ao `ModelStore`, aos model cards e aos experimentos (assinar, verificar, atestar). | 1 | 8 | 10 |
+| `integrity` | Digests SHA-256 de arquivos, arrays e registros e manifestos Merkle de pastas. | 1 | 8 | 14 |
+| `model_security` | Varredura de checkpoints por execução de código, carga segura e sensibilidade adversarial. | 1 | 6 | 6 |
+| `passwords` | Hash e verificação de senhas de login (scrypt, argon2id, bcrypt). | 1 | 4 | 56 |
+| `privacy` | Detecção e redação de PII, pseudonimização, k-anonimato e limpeza de logs. | 1 | 11 | 9 |
+| `secrets_scan` | Busca de credenciais em código, notebooks, configs e casos de solver. | 1 | 4 | 10 |
+| `signing` | Assinaturas Ed25519 ou HMAC-SHA256, envelopes DSSE e assinaturas destacadas de arquivo. | 1 | 12 | 25 |
+| `web` | Endurecimento HTTP das apps ASGI: cabeçalhos, CSP, limites, rate limit, login, CSRF, CORS e URLs de saída. | 1 | 15 | 40 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2916,310 +2922,344 @@ Pasta de testes dedicada: `tests/pinneapple_security` (60 funções de teste).
 
 #### `pinneapple_security`
 
-pinneapple_security — data and process security for scientific and industrial Physics AI.
+Ponto de entrada do pacote; o docstring é o índice das capacidades e diz as dependências (biblioteca padrão e NumPy; PyTorch para DP-SGD e carga segura; `cryptography` para Ed25519 e AES-GCM).
 
 <small>`pinneapple_security/__init__.py` · 67 linhas · testes: 64</small>
 
 #### `pinneapple_security.__main__`
 
-``python -m pinneapple_security <command>``: manifests, signatures, scans and log sanitising from the shell.
+CLI com comandos `manifest`, `verify-manifest`, `keygen`, `sign`, `verify`, `scan-model`, `scan-secrets`, `sanitize-log`, `sbom` e `hash-password`, com código de saída 1 quando algo falha.
 
 <small>`pinneapple_security/__main__.py` · 143 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Analisa os argumentos e executa o subcomando da CLI de segurança. |
 
 #### `pinneapple_security.anomaly`
 
-Physics-based detection of manipulated sensor data (false data injection, spoofing, replay) in industrial streams.
+Detecta injeção de dados falsos, spoofing e replay em fluxos industriais: CUSUM bilateral sobre o resíduo físico padronizado e um escore de replay por janelas repetidas.
 
 <small>`pinneapple_security/anomaly.py` · 102 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResidualCUSUM` | classe | `(k, h, mu, sigma, fitted, s_hi, s_lo, t, alarms)` |  |
-| `balance_residual` | função | `(inflows, outflows, accumulation=None) -> np.ndarray` | Conservation residual Σin − Σout − d(storage)/dt per sample (mass, energy or charge balance). |
-| `replay_score` | função | `(x, window=50) -> dict[str, Any]` | Smallest normalised distance between the last ``window`` samples and any earlier window. Near 0 → the latest data repeats an old recording sample for sample (replay attack) — live noise never matches that closely. |
+| `ResidualCUSUM` | classe | `(k, h, mu, sigma, fitted, s_hi, s_lo, t, alarms)` | CUSUM bilateral sobre um resíduo físico: aprende média e desvio de dados confiáveis e acusa alarmes. |
+| `balance_residual` | função | `(inflows, outflows, accumulation=None) -> np.ndarray` | Resíduo de conservação por amostra: soma das entradas menos saídas menos variação do armazenamento. |
+| `replay_score` | função | `(x, window=50) -> dict[str, Any]` | Menor distância normalizada entre a última janela e janelas anteriores; perto de 0 indica replay. |
 
 #### `pinneapple_security.archives`
 
-Open uploaded zip archives safely: no member outside the destination (zip-slip), no symbolic links, and limits on the number of members, the total uncompressed size, the size of one member and the compression ratio (zip bombs).
+Abre zips enviados com segurança: nomes relativos seguros, sem links simbólicos e com limites de membros, tamanho total, tamanho por membro e razão de compressão.
 
 <small>`pinneapple_security/archives.py` · 153 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnsafeArchive` | classe | `()` | The archive breaks a safety rule or a limit. |
-| `ArchiveLimits` | classe | `(max_members, max_total_bytes, max_member_bytes, max_ratio)` |  |
-| `check_member_name` | função | `(name) -> str` | The member name as a safe relative POSIX path, or :class:`UnsafeArchive`. |
-| `check_zip` | função | `(z, limits=DEFAULT_LIMITS) -> list[zipfile.ZipInfo]` | Check names, link entries and declared sizes; return the file members (directories left out). |
-| `safe_extract_zip` | função | `(source, dest, limits=DEFAULT_LIMITS) -> list[Path]` | Extract ``source`` (path, bytes, file object or ZipFile) under ``dest``; return the written files. |
-| `read_members` | função | `(source, limits=DEFAULT_LIMITS, skip=None) -> dict[str, bytes]` | All file members in memory, ``{safe name: bytes}``, under the same checks and counted limits. ``skip``: a predicate on the member name for members to leave out (not read, not counted). |
-| `gunzip` | função | `(data, max_bytes=1 << 30) -> bytes` | Decompress gzip ``data``, refusing output above ``max_bytes`` (a gzip bomb) without producing it first. |
+| `UnsafeArchive` | classe | `()` | Erro de arquivo compactado que quebra uma regra de segurança ou um limite. |
+| `ArchiveLimits` | classe | `(max_members, max_total_bytes, max_member_bytes, max_ratio)` | Limites de número de membros, bytes totais, bytes por membro e razão de compressão. |
+| `check_member_name` | função | `(name) -> str` | Devolve o nome do membro como caminho POSIX relativo seguro, ou levanta `UnsafeArchive`. |
+| `check_zip` | função | `(z, limits=DEFAULT_LIMITS) -> list[zipfile.ZipInfo]` | Checa nomes, links e tamanhos declarados e devolve os membros de arquivo. |
+| `safe_extract_zip` | função | `(source, dest, limits=DEFAULT_LIMITS) -> list[Path]` | Extrai um zip sob o destino com todas as checagens e devolve os arquivos escritos. |
+| `read_members` | função | `(source, limits=DEFAULT_LIMITS, skip=None) -> dict[str, bytes]` | Lê todos os membros em memória com as mesmas checagens e limites contados. |
+| `gunzip` | função | `(data, max_bytes=1 << 30) -> bytes` | Descompacta gzip recusando saída acima de `max_bytes` sem produzi-la antes. |
 
 #### `pinneapple_security.attestation`
 
-Provenance attestations (in-toto Statement v1 with a SLSA Provenance v1 predicate) and a CycloneDX SBOM.
+Gera declarações in-toto v1 com predicado SLSA Provenance v1 para arquivos e experimentos, com commit git, e um SBOM CycloneDX 1.5 das distribuições instaladas.
 
 <small>`pinneapple_security/attestation.py` · 153 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `subject` | função | `(name, path=None, sha256=None) -> dict[str, Any]` |  |
-| `git_commit` | função | `(path='.') -> dict[str, Any] \| None` | Commit of the repository containing ``path`` and whether the work tree is dirty (None outside git). |
-| `provenance` | função | `(external_parameters, dependencies=(), started_on=None, finished_on=None, builder_id=…, i…)` |  |
-| `statement` | função | `(subjects, predicate, predicate_type=SLSA_PROVENANCE) -> dict[str, Any]` |  |
-| `attest_files` | função | `(artifacts, parameters, inputs=(), repo='.') -> dict[str, Any]` | Statement for output files (``name → path`` or paths) built from input files with ``parameters``. |
-| `attest_experiment` | função | `(result, artifacts=(), inputs=(), repo='.') -> dict[str, Any]` | Statement for a ``pp.Experiment`` result: the record itself (by digest) and any saved files are the subjects, the config and problem fingerprint are the parameters, the metrics go in ``internalParameters``. |
-| `sbom` | função | `(name='pinneapple-environment', version='', packages=None) -> dict[str, Any]` | CycloneDX 1.5 SBOM of the installed distributions (all, or only ``packages``). |
+| `subject` | função | `(name, path=None, sha256=None) -> dict[str, Any]` | Monta um sujeito in-toto (nome e digest SHA-256). |
+| `git_commit` | função | `(path='.') -> dict[str, Any] \| None` | Commit do repositório que contém o caminho e se a árvore está suja (`None` fora do git). |
+| `provenance` | função | `(external_parameters, dependencies=(), started_on=None, finished_on=None, builder_id=…, i…)` | Monta o predicado SLSA Provenance v1 (parâmetros, dependências, construtor, tempos). |
+| `statement` | função | `(subjects, predicate, predicate_type=SLSA_PROVENANCE) -> dict[str, Any]` | Monta uma declaração in-toto v1 com sujeitos e predicado. |
+| `attest_files` | função | `(artifacts, parameters, inputs=(), repo='.') -> dict[str, Any]` | Declaração para arquivos de saída construídos de arquivos de entrada com parâmetros. |
+| `attest_experiment` | função | `(result, artifacts=(), inputs=(), repo='.') -> dict[str, Any]` | Declaração para o resultado de um `pp.Experiment` e seus arquivos salvos. |
+| `sbom` | função | `(name='pinneapple-environment', version='', packages=None) -> dict[str, Any]` | SBOM CycloneDX 1.5 das distribuições Python instaladas (todas ou as listadas). |
 
 #### `pinneapple_security.audit`
 
-Tamper-evident audit trail: an append-only JSON-lines log where every record carries the hash of the previous one.
+Trilha de auditoria append-only em que cada registro carrega o hash do anterior; com chave vira cadeia HMAC; é base para trilhas no estilo 21 CFR Part 11, não um sistema certificado.
 
 <small>`pinneapple_security/audit.py` · 133 linhas · testes: 54</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AuditLog` | classe | `(path, key=None)` |  |
+| `AuditLog` | classe | `(path, key=None)` | Log de auditoria em JSON lines encadeado por hash ou HMAC, com `append` e `verify`. |
 
 #### `pinneapple_security.classification`
 
-Data classification and handling policy for datasets, models and results.
+Rótulos de dados (`DataLabel`) e uma política padrão (`HandlingPolicy`) que diz se pode publicar, compartilhar, treinar, enviar à nuvem ou exportar, e por quê; o rótulo registra o que o dono declarou.
 
 <small>`pinneapple_security/classification.py` · 106 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DataLabel` | classe | `(level, owner, personal_data, export_control, licence, retention_days, allowed_countries,…)` |  |
-| `Decision` | classe | `(allowed, reasons, requires)` |  |
-| `HandlingPolicy` | classe | `(publish_levels, share_levels, cloud_levels)` | Default rules (organisation-specific: subclass or edit). ``approvals``: approvals the caller already holds, e.g. {"owner", "dpo", "export_officer"}. |
-| `combine` | função | `(labels) -> DataLabel` | Label of something derived from all ``labels``: strictest level, any personal data, every export control. |
+| `DataLabel` | classe | `(level, owner, personal_data, export_control, licence, retention_days, allowed_countries,…)` | Rótulo de um artefato: nível, dono, dados pessoais, controle de exportação, licença, retenção e países. |
+| `Decision` | classe | `(allowed, reasons, requires)` | Resposta da política: permitido ou não, motivos e aprovações exigidas. |
+| `HandlingPolicy` | classe | `(publish_levels, share_levels, cloud_levels)` | Regras padrão (editáveis) que decidem ações sobre um artefato rotulado. |
+| `combine` | função | `(labels) -> DataLabel` | Rótulo de algo derivado de vários: nível mais restrito e união de dados pessoais e controles. |
 
 #### `pinneapple_security.compliance`
 
-Which pinneapple_security capability produces evidence for which control of the frameworks industry and research are audited against — and a self-assessment report from the evidence a project actually has.
+Mapeia cada capacidade do pacote para controles de NIST CSF 2.0, IEC 62443-3-3, ISO/IEC 27001, 21 CFR Part 11, LGPD/GDPR, SSDF e SLSA e gera autoavaliação; mapeia, não certifica.
 
 <small>`pinneapple_security/compliance.py` · 106 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `controls_for` | função | `(capability) -> list[dict[str, Any]]` |  |
-| `assess` | função | `(evidence, frameworks=()) -> dict[str, Any]` | ``evidence``: capability → anything truthy (a path, a verification result with ``ok``, True). A control is ``covered`` when at least one of its capabilities has evidence, ``partial`` when some do but a verification failed. |
-| `report_markdown` | função | `(result, title=…) -> str` |  |
+| `controls_for` | função | `(capability) -> list[dict[str, Any]]` | Lista os controles de framework para os quais uma capacidade gera evidência. |
+| `assess` | função | `(evidence, frameworks=()) -> dict[str, Any]` | Autoavaliação: marca como coberto o controle com ao menos uma evidência válida. |
+| `report_markdown` | função | `(result, title=…) -> str` | Formata o resultado de `assess` como relatório Markdown. |
 
 #### `pinneapple_security.cps`
 
-Physics-residual detection of false data injection in cyber-physical systems (water, process, HVAC, grids).
+Detector caixa-cinza de injeção de dados falsos em sistemas ciberfísicos: componentes de resíduo físico com constantes identificadas de dados confiáveis, CUSUM por canal e limiar calibrado a um orçamento de falsos alarmes; a base `CusumAlarm` levanta `NotImplementedError`.
 
 <small>`pinneapple_security/cps.py` · 305 linhas · testes: 5 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResidualComponent` | classe | `(name)` |  |
-| `MassBalance` | classe | `(level, inflows, outflows, dt, window, area, name)` | Storage balance of one volume over a window of ``window`` samples: ``area * (level[t] - level[t-w]) - dt * sum(inflows - outflows)[t-w:t]``, in volume units (m^3 for water). |
-| `FlowLaw` | classe | `(flow, up, down, exponent, midpoint, coef, name)` | Flow through a valve, orifice, pipe or weir driven by a head difference: ``q^2 = a + b * (up - down)`` (turbulent square-root law, exponent 1/2; ``exponent`` 1 gives a linear laminar or pump-curve law). ``a`` absorbs the elevation offset between the two levels. Residual ``q - q_law`` in flow units. … |
-| `CusumAlarm` | classe | `(k, h, upper_only)` | Alarm logic shared by every detector here: standardised scores ``self.z(D)`` (T, m) → CUSUM → threshold calibrated to a false-alarm budget. Subclasses define ``z`` and ``channels``; ``upper_only`` for scores where only large values are suspicious. Physics and data-driven detectors use the same … |
-| `PhysicsResidualDetector` | classe | `(components, k, h, mu_, sigma_)` | Grey-box physics residuals + per-channel two-sided CUSUM, threshold calibrated to a false-alarm budget. |
-| `cusum` | função | `(z, k=0.5, h=None, upper_only=False) -> tuple[np.ndarray, list[int]]` | Two-sided CUSUM of standardised scores ``z`` (T,) or (T, m). Returns the statistic (T,), the maximum over channels and both sides, and the alarm times when ``h`` is given (the sums restart after each alarm, so the alarm count is a false-alarm count on clean data). NaNs (warm-up) leave the sums … |
-| `roc_auc` | função | `(scores, labels) -> float` | Area under the ROC curve (Mann-Whitney U with average ranks for ties). NaN scores are dropped. |
-| `window_auc` | função | `(stat_attacked, episodes, stat_clean) -> float` | Episode-level ROC AUC: the largest statistic inside each attack episode against the largest statistic in every non-overlapping window of the same length of a clean trace. Separability of attacked from clean windows, independent of any threshold. |
-| `episode_metrics` | função | `(alarms, episodes, n, samples_per_day=1440, grace=60) -> dict[str, Any]` | Detection rate and delay per attack episode ``(start, end)`` (end exclusive) and false alarms per day outside the episodes. An alarm in ``[start, end)`` detects the episode; the delay is in samples. Alarms in the ``grace`` samples after an episode (the attack being withdrawn is itself a … |
+| `ResidualComponent` | classe | `(name)` | Base de um componente que mapeia colunas de sensores a uma série de resíduo (`fit`, `residual`). |
+| `MassBalance` | classe | `(level, inflows, outflows, dt, window, area, name)` | Balanço de armazenamento de um volume numa janela: nível versus vazões integradas. |
+| `FlowLaw` | classe | `(flow, up, down, exponent, midpoint, coef, name)` | Lei de vazão por diferença de carga (válvula, orifício, tubo ou vertedouro) com constantes ajustadas. |
+| `CusumAlarm` | classe | `(k, h, upper_only)` | Lógica de alarme comum: escores padronizados, CUSUM e limiar calibrado; subclasses definem `z` e `channels`. |
+| `PhysicsResidualDetector` | classe | `(components, k, h, mu_, sigma_)` | Detector com resíduos físicos caixa-cinza e CUSUM bilateral por canal. |
+| `cusum` | função | `(z, k=0.5, h=None, upper_only=False) -> tuple[np.ndarray, list[int]]` | CUSUM bilateral de escores padronizados, com estatística, máximo entre canais e alarmes. |
+| `roc_auc` | função | `(scores, labels) -> float` | Área sob a curva ROC pelo U de Mann-Whitney, descartando NaN. |
+| `window_auc` | função | `(stat_attacked, episodes, stat_clean) -> float` | AUC por episódio: máximo da estatística em cada ataque contra o máximo em janelas limpas. |
+| `episode_metrics` | função | `(alarms, episodes, n, samples_per_day=1440, grace=60) -> dict[str, Any]` | Taxa e atraso de detecção por episódio de ataque e falsos alarmes por dia fora deles. |
 
 #### `pinneapple_security.cps_bench`
 
-Open, reproducible benchmark for false-data-injection detection: a three-tank gravity water network.
+Benchmark aberto de uma rede de água por gravidade de três tanques com seis ataques e três detectores de base sem física (PCA, AR, isolation forest), todos com o mesmo alarme CUSUM.
 
 <small>`pinneapple_security/cps_bench.py` · 331 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PCAResidualDetector` | classe | `(variance)` | Squared prediction error (Q statistic) of a PCA model of the sensors and their one-step increments. |
-| `ARResidualDetector` | classe | `(lags, ridge, upper_only)` | Data-driven linear twin: each sensor predicted from ``lags`` past samples of every sensor (ridge regression); per-sensor two-sided CUSUM of the standardised one-step prediction residuals. |
-| `IsolationForestDetector` | classe | `(n_estimators, seed, max_fit)` | Isolation forest (Liu, Ting & Zhou 2008) on sensors and their increments; needs scikit-learn. |
-| `simulate_three_tank` | função | `(days=7.0, seed=0, dt=60.0, substeps=12, demand_scale=1.0, pump_band=(1.0, 2.5)) -> dict[…)` | Simulate the plant; returns sensor columns (``SENSORS``) plus the true states ``true_h1..3``. ``demand_scale`` and ``pump_band`` (T1 levels that switch the pump on and off) change the operating regime without changing the physics: a detector that learned the physics should not care, one that … |
-| `inject` | função | `(D, kind, episodes) -> dict[str, np.ndarray]` | Copy of ``D`` with the reported readings rewritten in each ``(start, end)`` episode. |
-| `physics_detector` | função | `(dt=60.0, window=1, k=0.5) -> PhysicsResidualDetector` | Grey-box twin of the plant: three storage balances and two valve laws, constants identified from data. |
-| `run_benchmark` | função | `(seed=0, train_days=7.0, calib_days=7.0, test_days=10.0, episodes=20, length=240, false_a…)` | Fit every detector on a trusted trace, calibrate it to ``false_alarms_per_day`` on a second clean trace, then, for each operating regime (nominal, and a shifted regime the detectors never saw), score one clean test trace and one attacked copy per attack with ``episodes`` episodes of ``length`` … |
+| `PCAResidualDetector` | classe | `(variance)` | Detector de base pela estatística Q de um modelo PCA dos sensores e incrementos. |
+| `ARResidualDetector` | classe | `(lags, ridge, upper_only)` | Gêmeo linear só de dados: prevê cada sensor de defasagens de todos (ridge) e aplica CUSUM. |
+| `IsolationForestDetector` | classe | `(n_estimators, seed, max_fit)` | Isolation forest sobre sensores e incrementos; precisa de scikit-learn. |
+| `simulate_three_tank` | função | `(days=7.0, seed=0, dt=60.0, substeps=12, demand_scale=1.0, pump_band=(1.0, 2.5)) -> dict[…)` | Simula a planta de três tanques e devolve as colunas de sensores e a verdade. |
+| `inject` | função | `(D, kind, episodes) -> dict[str, np.ndarray]` | Cópia dos dados com as leituras reescritas em cada episódio de ataque. |
+| `physics_detector` | função | `(dt=60.0, window=1, k=0.5) -> PhysicsResidualDetector` | Gêmeo caixa-cinza da planta: três balanços de armazenamento e duas leis de válvula. |
+| `run_benchmark` | função | `(seed=0, train_days=7.0, calib_days=7.0, test_days=10.0, episodes=20, length=240, false_a…)` | Ajusta, calibra e testa todos os detectores contra todos os ataques nos regimes nominal e deslocado. |
 
 #### `pinneapple_security.dp`
 
-Differential privacy: noise mechanisms, private statistics, a privacy accountant and DP-SGD for PyTorch models.
+Privacidade diferencial: mecanismos de Laplace e Gauss, média e histograma privados, contador RDP do mecanismo gaussiano amostrado e DP-SGD com `torch.func`.
 
 <small>`pinneapple_security/dp.py` · 155 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RDPAccountant` | classe | `()` | Privacy spent by ``steps`` applications of the sampled Gaussian mechanism (sampling rate ``q``, noise multiplier ``sigma`` = noise std / clipping norm). |
-| `DPSGD` | classe | `(model, optimizer, loss_fn, noise_multiplier, max_grad_norm, sample_rate, seed=None)` | DP-SGD wrapper: ``step(xb, yb)`` computes per-sample gradients of ``loss_fn(model_output, y)`` (one scalar per sample), clips each to ``max_grad_norm``, adds N(0, (σ·C)²) noise to the sum and lets ``optimizer`` apply the noisy mean. ``sample_rate`` = batch size / dataset size (Poisson sampling is … |
-| `laplace_mechanism` | função | `(value, sensitivity, epsilon, rng=None) -> Any` |  |
-| `gaussian_sigma` | função | `(sensitivity, epsilon, delta) -> float` | σ = Δ₂ √(2 ln(1.25/δ)) / ε (Dwork & Roth Thm A.1; stated for ε ≤ 1). |
-| `gaussian_mechanism` | função | `(value, sensitivity, epsilon, delta, rng=None) -> Any` |  |
-| `dp_mean` | função | `(x, lower, upper, epsilon, rng=None) -> float` | ε-DP mean with values clipped to [lower, upper] and the record count treated as public. |
-| `dp_histogram` | função | `(x, bins, epsilon, rng=None) -> np.ndarray` | ε-DP counts per bin (one record changes one count by 1); negative noisy counts are set to 0. |
+| `RDPAccountant` | classe | `()` | Contador de privacidade Rényi do mecanismo gaussiano amostrado, convertido para (ε, δ). |
+| `DPSGD` | classe | `(model, optimizer, loss_fn, noise_multiplier, max_grad_norm, sample_rate, seed=None)` | Envoltório DP-SGD: gradientes por amostra recortados mais ruído gaussiano em cada `step`. |
+| `laplace_mechanism` | função | `(value, sensitivity, epsilon, rng=None) -> Any` | Mecanismo de Laplace (ε-DP puro). |
+| `gaussian_sigma` | função | `(sensitivity, epsilon, delta) -> float` | Desvio do ruído gaussiano para (ε, δ)-DP pela calibração clássica (válida para ε ≤ 1). |
+| `gaussian_mechanism` | função | `(value, sensitivity, epsilon, delta, rng=None) -> Any` | Mecanismo gaussiano ((ε, δ)-DP). |
+| `dp_mean` | função | `(x, lower, upper, epsilon, rng=None) -> float` | Média ε-DP com valores recortados a limites conhecidos. |
+| `dp_histogram` | função | `(x, bins, epsilon, rng=None) -> np.ndarray` | Contagens ε-DP por faixa, com contagens negativas zeradas. |
 
 #### `pinneapple_security.encryption`
 
-Encryption at rest: AES-256-GCM for bytes, files and arrays, with keys from a passphrase (scrypt) or random.
+AES-256-GCM para bytes, arquivos e arrays, com chave derivada de senha por scrypt ou aleatória; precisa de `cryptography`.
 
 <small>`pinneapple_security/encryption.py` · 106 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DecryptionError` | classe | `()` |  |
-| `derive_key` | função | `(passphrase, salt) -> bytes` |  |
-| `new_key` | função | `() -> bytes` |  |
-| `encrypt_bytes` | função | `(data, secret) -> bytes` |  |
-| `decrypt_bytes` | função | `(blob, secret) -> bytes` |  |
-| `encrypt_file` | função | `(path, secret, out=None, remove_plain=False) -> str` |  |
-| `decrypt_file` | função | `(path, secret, out=None) -> str` |  |
-| `encrypt_array` | função | `(a, secret) -> bytes` |  |
-| `decrypt_array` | função | `(blob, secret)` |  |
+| `DecryptionError` | classe | `()` | Erro de decriptação (chave errada ou dado adulterado). |
+| `derive_key` | função | `(passphrase, salt) -> bytes` | Deriva uma chave de 32 bytes de uma senha e um sal por scrypt. |
+| `new_key` | função | `() -> bytes` | Gera uma chave aleatória de 32 bytes. |
+| `encrypt_bytes` | função | `(data, secret) -> bytes` | Cifra bytes com AES-256-GCM. |
+| `decrypt_bytes` | função | `(blob, secret) -> bytes` | Decifra bytes cifrados por `encrypt_bytes`. |
+| `encrypt_file` | função | `(path, secret, out=None, remove_plain=False) -> str` | Cifra um arquivo, opcionalmente apagando o original. |
+| `decrypt_file` | função | `(path, secret, out=None) -> str` | Decifra um arquivo cifrado. |
+| `encrypt_array` | função | `(a, secret) -> bytes` | Cifra um array NumPy. |
+| `decrypt_array` | função | `(blob, secret)` | Decifra um array cifrado por `encrypt_array`. |
 
 #### `pinneapple_security.integrate`
 
-pinneapple_security in the rest of the library: signed model versions in the ModelStore, signed model cards and TrustReports, attested experiments, audited actions.
+Liga a segurança ao resto da biblioteca: salvar versões assinadas e varridas no `ModelStore`, reassinar e verificar versões, assinar model cards e atestar experimentos.
 
 <small>`pinneapple_security/integrate.py` · 134 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `secure_save` | função | `(store, problem_id, model, signing_key, *, metadata=None, stage='development', trust_repo…)` | ``ModelStore.save`` + a manifest of the version folder, signed, + a safety scan of the checkpoint + an audit record. Returns the version. |
-| `resign_version` | função | `(store, problem_id, version, signing_key, *, actor='', audit=None, reason='') -> str` | Re-sign a version after a legitimate change (e.g. ``ModelStore.promote`` rewrites metadata.json); the audit record keeps the old and new roots, so the change stays traceable. |
-| `verify_version` | função | `(store, problem_id, version, key) -> dict[str, Any]` | Signature valid, manifest matches the signed root, files match the manifest, checkpoint scan safe. |
-| `sign_record` | função | `(obj, key) -> dict[str, Any]` |  |
-| `verify_record` | função | `(envelope, key, expected=None) -> Any` |  |
-| `sign_model_card` | função | `(card, key, path=None) -> dict[str, Any]` | Envelope over ``card.to_dict()`` (TrustReport and override included); written next to the card if ``path``. |
-| `verify_model_card` | função | `(card, envelope, key) -> dict[str, Any]` |  |
-| `attest_and_sign_experiment` | função | `(result, key, directory=None, inputs=(), repo='.') -> dict[str, Any]` | In-toto/SLSA statement for a ``pp.Experiment`` result, signed. With ``directory``, the result is saved there first, its files become subjects, and ``attestation.json`` is written next to them. |
+| `secure_save` | função | `(store, problem_id, model, signing_key, *, metadata=None, stage='development', trust_repo…)` | `ModelStore.save` mais manifesto assinado, varredura do checkpoint e registro de auditoria. |
+| `resign_version` | função | `(store, problem_id, version, signing_key, *, actor='', audit=None, reason='') -> str` | Reassina uma versão após mudança legítima (por exemplo `promote`). |
+| `verify_version` | função | `(store, problem_id, version, key) -> dict[str, Any]` | Verifica assinatura, manifesto, arquivos e varredura do checkpoint de uma versão. |
+| `sign_record` | função | `(obj, key) -> dict[str, Any]` | Assina um registro JSON num envelope. |
+| `verify_record` | função | `(envelope, key, expected=None) -> Any` | Verifica um envelope de registro e devolve o conteúdo. |
+| `sign_model_card` | função | `(card, key, path=None) -> dict[str, Any]` | Assina um model card (com TrustReport) e grava ao lado do card se pedido. |
+| `verify_model_card` | função | `(card, envelope, key) -> dict[str, Any]` | Verifica a assinatura de um model card contra o card atual. |
+| `attest_and_sign_experiment` | função | `(result, key, directory=None, inputs=(), repo='.') -> dict[str, Any]` | Declaração in-toto/SLSA assinada para o resultado de um `pp.Experiment`. |
 
 #### `pinneapple_security.integrity`
 
-Integrity: content digests of files, arrays and records, and Merkle manifests of datasets and model folders.
+Digests SHA-256 de bytes, arquivos, registros (JSON canônico) e arrays, raiz Merkle e manifesto de pastas.
 
 <small>`pinneapple_security/integrity.py` · 139 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Manifest` | classe | `(files, algorithm, root)` | Files of a folder with their digests. ``files``: relative path (POSIX) → {"sha256", "size"}. |
-| `sha256_bytes` | função | `(data) -> str` |  |
-| `sha256_file` | função | `(path) -> str` |  |
-| `canonical_json` | função | `(obj) -> bytes` | Canonical JSON bytes (sorted keys, compact separators, UTF-8); non-JSON values go through ``str``. |
-| `digest_record` | função | `(obj) -> str` |  |
-| `digest_array` | função | `(a) -> str` | SHA-256 of an array's dtype, shape and C-ordered bytes (NumPy arrays and PyTorch tensors). |
-| `merkle_root` | função | `(leaves) -> str` | Merkle root (SHA-256) of hex leaf digests; an odd node is paired with itself. Empty input → hash of b''. |
-| `build_manifest` | função | `(folder, include=(), exclude=…) -> Manifest` | Manifest of every file under ``folder`` (glob ``include`` filters; ``exclude`` drops names, folders, paths). |
+| `Manifest` | classe | `(files, algorithm, root)` | Arquivos de uma pasta com digests e tamanhos e a raiz Merkle. |
+| `sha256_bytes` | função | `(data) -> str` | SHA-256 de bytes. |
+| `sha256_file` | função | `(path) -> str` | SHA-256 de um arquivo. |
+| `canonical_json` | função | `(obj) -> bytes` | JSON canônico em bytes (chaves ordenadas, separadores compactos, UTF-8). |
+| `digest_record` | função | `(obj) -> str` | SHA-256 do JSON canônico de um registro. |
+| `digest_array` | função | `(a) -> str` | SHA-256 de dtype, forma e bytes de um array NumPy ou tensor. |
+| `merkle_root` | função | `(leaves) -> str` | Raiz Merkle SHA-256 de digests folha. |
+| `build_manifest` | função | `(folder, include=(), exclude=…) -> Manifest` | Manifesto de todos os arquivos sob uma pasta, com filtros de inclusão e exclusão. |
 
 #### `pinneapple_security.model_security`
 
-Model security: scan checkpoints for code execution before loading, load safely, and measure adversarial sensitivity of surrogates.
+Lê os opcodes pickle sem executar e lista os globais importados, marca perigosos (`os`, `subprocess`, `eval`...), carrega com `torch.load(weights_only=True)` e mede sensibilidade adversarial por PGD.
 
 <small>`pinneapple_security/model_security.py` · 165 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnsafeModelError` | classe | `()` |  |
-| `ScanReport` | classe | `(path, globals, dangerous, unknown, errors)` |  |
-| `scan_pickle_bytes` | função | `(data, name='<bytes>') -> ScanReport` |  |
-| `scan_checkpoint` | função | `(path) -> ScanReport` | Scan a ``torch.save`` zip archive (every ``*.pkl`` member) or a legacy/plain pickle file. |
-| `safe_load` | função | `(path, map_location='cpu', expected_sha256=None)` | Verify the digest (if given), scan, then ``torch.load(weights_only=True)``. Raises :class:`UnsafeModelError`. |
-| `adversarial_sensitivity` | função | `(model, X, eps=0.01, steps=20, step_frac=0.25, input_range=None) -> dict[str, Any]` | Worst-case relative output change under an L∞ input perturbation of ``eps`` × the input range (per feature). |
+| `UnsafeModelError` | classe | `()` | Erro de checkpoint inseguro ou com digest divergente. |
+| `ScanReport` | classe | `(path, globals, dangerous, unknown, errors)` | Relatório da varredura: globais encontrados, perigosos, desconhecidos e erros. |
+| `scan_pickle_bytes` | função | `(data, name='<bytes>') -> ScanReport` | Varre um fluxo pickle em bytes sem executá-lo. |
+| `scan_checkpoint` | função | `(path) -> ScanReport` | Varre um arquivo `torch.save` (cada membro `.pkl`) ou um pickle simples. |
+| `safe_load` | função | `(path, map_location='cpu', expected_sha256=None)` | Verifica digest, varre e carrega com `torch.load(weights_only=True)`. |
+| `adversarial_sensitivity` | função | `(model, X, eps=0.01, steps=20, step_frac=0.25, input_range=None) -> dict[str, Any]` | Pior mudança relativa da saída sob perturbação L∞ de tamanho `eps` (busca PGD). |
 
 #### `pinneapple_security.passwords`
 
-Password hashing for logins: scrypt from the standard library by default, argon2id when ``argon2-cffi`` is installed, and verification of bcrypt hashes (``$2b$...``, as written by ``caddy hash-password`` or ``htpasswd -B``) when ``bcrypt`` is installed.
+Hash de senha com scrypt da biblioteca padrão por padrão, argon2id se `argon2-cffi` estiver instalado e verificação de hashes bcrypt.
 
 <small>`pinneapple_security/passwords.py` · 119 linhas · testes: 56</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `is_hash` | função | `(value) -> bool` | Whether ``value`` looks like a hash this module can verify (as opposed to a plain-text password). |
-| `hash_password` | função | `(password, scheme='auto') -> str` | A salted hash of ``password``. ``scheme``: ``"scrypt"``, ``"argon2"`` (needs argon2-cffi) or ``"auto"`` (argon2 when installed, else scrypt). |
-| `verify_password` | função | `(password, stored) -> bool` | Whether ``password`` matches the hash ``stored``. Unknown formats and missing libraries give False. |
-| `needs_rehash` | função | `(stored) -> bool` | True for a scrypt hash weaker than the current parameters (argon2: its own check). |
+| `is_hash` | função | `(value) -> bool` | Diz se o valor parece um hash verificável, e não uma senha em texto. |
+| `hash_password` | função | `(password, scheme='auto') -> str` | Hash salgado de uma senha por scrypt, argon2 ou o melhor disponível. |
+| `verify_password` | função | `(password, stored) -> bool` | Verifica uma senha contra o hash guardado; formatos desconhecidos dão `False`. |
+| `needs_rehash` | função | `(stored) -> bool` | Diz se o hash está mais fraco que os parâmetros atuais. |
 
 #### `pinneapple_security.privacy`
 
-Personal and sensitive data in text and tables: detection, redaction, pseudonymisation, k-anonymity, log sanitising.
+Encontra e-mails, telefones, IPs, cartões (Luhn), IBANs e CPF/CNPJ; redige, pseudonimiza por HMAC, mede k-anonimato e limpa logs; a detecção por regex tem falsos negativos.
 
 <small>`pinneapple_security/privacy.py` · 180 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Finding` | classe | `(kind, start, end, text)` |  |
-| `valid_cpf` | função | `(s) -> bool` |  |
-| `valid_cnpj` | função | `(s) -> bool` |  |
-| `luhn_ok` | função | `(s) -> bool` |  |
-| `iban_ok` | função | `(s) -> bool` |  |
-| `find_pii` | função | `(text, kinds=PII_KINDS) -> list[Finding]` | Non-overlapping findings, earlier kinds in ``PII_KINDS`` winning ties (a CNPJ is not also a phone). |
-| `redact` | função | `(text, kinds=PII_KINDS, label=…) -> str` |  |
-| `pseudonymize` | função | `(value, key, prefix='id_', length=16) -> str` | Keyed, deterministic token for ``value`` (HMAC-SHA256, truncated to ``length`` hex characters). |
-| `pseudonymize_column` | função | `(values, key, prefix='id_') -> list[str]` |  |
-| `k_anonymity` | função | `(rows, quasi_identifiers, k=5) -> dict[str, Any]` | ``rows``: a pandas DataFrame or a list of dicts. Returns the table's k, the groups smaller than ``k`` and the share of rows in them. |
-| `sanitize_log` | função | `(text, extra=(), keep_paths=True) -> tuple[str, dict[str, int]]` | Strip personal and infrastructure identifiers from a log. ``extra``: literal strings to hide too (project or client names). Returns the clean text and how many of each kind were replaced. |
+| `Finding` | classe | `(kind, start, end, text)` | Um achado de PII: tipo, posição e texto. |
+| `valid_cpf` | função | `(s) -> bool` | Valida os dígitos verificadores de um CPF. |
+| `valid_cnpj` | função | `(s) -> bool` | Valida os dígitos verificadores de um CNPJ. |
+| `luhn_ok` | função | `(s) -> bool` | Valida um número pelo algoritmo de Luhn. |
+| `iban_ok` | função | `(s) -> bool` | Valida um IBAN pelo módulo 97. |
+| `find_pii` | função | `(text, kinds=PII_KINDS) -> list[Finding]` | Achados de PII sem sobreposição num texto. |
+| `redact` | função | `(text, kinds=PII_KINDS, label=…) -> str` | Substitui cada achado de PII por um rótulo. |
+| `pseudonymize` | função | `(value, key, prefix='id_', length=16) -> str` | Token determinístico com chave (HMAC-SHA256 truncado) para um valor. |
+| `pseudonymize_column` | função | `(values, key, prefix='id_') -> list[str]` | Pseudonimiza uma coluna inteira. |
+| `k_anonymity` | função | `(rows, quasi_identifiers, k=5) -> dict[str, Any]` | Mede o k da tabela pelos quase-identificadores e lista os grupos menores que `k`. |
+| `sanitize_log` | função | `(text, extra=(), keep_paths=True) -> tuple[str, dict[str, int]]` | Remove de um log identificadores pessoais e de infraestrutura e conta o que trocou. |
 
 #### `pinneapple_security.secrets_scan`
 
-Find credentials committed to code, notebooks, configs and solver cases before they are shared or published.
+Procura credenciais em textos e árvores de arquivos por regras e por entropia de Shannon.
 
 <small>`pinneapple_security/secrets_scan.py` · 116 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SecretFinding` | classe | `(rule, path, line, excerpt)` |  |
-| `shannon_entropy` | função | `(s) -> float` |  |
-| `scan_text` | função | `(text, path='<text>', entropy_threshold=4.5) -> list[SecretFinding]` |  |
-| `scan_path` | função | `(root, exts=None, max_bytes=5000000, entropy_threshold=4.5) -> list[SecretFinding]` |  |
+| `SecretFinding` | classe | `(rule, path, line, excerpt)` | Um achado de credencial: regra, caminho, linha e trecho. |
+| `shannon_entropy` | função | `(s) -> float` | Entropia de Shannon de uma string. |
+| `scan_text` | função | `(text, path='<text>', entropy_threshold=4.5) -> list[SecretFinding]` | Procura credenciais num texto por regras e entropia. |
+| `scan_path` | função | `(root, exts=None, max_bytes=5000000, entropy_threshold=4.5) -> list[SecretFinding]` | Procura credenciais em todos os arquivos sob um caminho. |
 
 #### `pinneapple_security.signing`
 
-Signatures for artifacts and records: Ed25519 (public-key, needs ``cryptography``) or HMAC-SHA256 (shared key, stdlib).
+Assinaturas Ed25519 (precisa de `cryptography`) ou HMAC-SHA256 (biblioteca padrão) sobre bytes, JSON canônico em envelope DSSE e arquivos com assinatura `.sig` destacada.
 
 <small>`pinneapple_security/signing.py` · 189 linhas · testes: 25</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VerificationError` | classe | `()` |  |
-| `VerifyKey` | classe | `(algorithm, raw)` | Public half (Ed25519) or the shared secret (HMAC). ``raw``: 32 bytes. |
-| `SigningKey` | classe | `(algorithm, raw)` |  |
-| `pae` | função | `(payload_type, payload) -> bytes` | DSSE pre-authentication encoding. |
-| `generate_key` | função | `() -> SigningKey` | New Ed25519 key (needs ``cryptography``). |
-| `hmac_key` | função | `(secret=None) -> SigningKey` | Shared-secret key (stdlib only). Anyone who can verify can also sign: use it inside one organisation. |
-| `sign_bytes` | função | `(data, key) -> dict[str, str]` |  |
-| `verify_bytes` | função | `(data, signature, key) -> None` |  |
-| `sign_json` | função | `(payload, key, payload_type=PAYLOAD_TYPE) -> dict[str, Any]` | DSSE envelope over the canonical JSON of ``payload``. |
-| `verify_json` | função | `(envelope, key) -> Any` | Check the envelope with ``key``; returns the payload. Raises :class:`VerificationError`. |
-| `sign_file` | função | `(path, key, sig_path=None) -> str` | Detached signature ``<path>.sig`` (JSON) over the file's SHA-256 and name. |
-| `verify_file` | função | `(path, key, sig_path=None) -> dict[str, Any]` |  |
+| `VerificationError` | classe | `()` | Erro de assinatura inválida. |
+| `VerifyKey` | classe | `(algorithm, raw)` | Metade pública (Ed25519) ou segredo compartilhado (HMAC) para verificar. |
+| `SigningKey` | classe | `(algorithm, raw)` | Chave de assinatura Ed25519 ou HMAC, com `public()` e salvar/carregar. |
+| `pae` | função | `(payload_type, payload) -> bytes` | Codificação de pré-autenticação DSSE. |
+| `generate_key` | função | `() -> SigningKey` | Gera uma chave Ed25519 nova (precisa de `cryptography`). |
+| `hmac_key` | função | `(secret=None) -> SigningKey` | Chave de segredo compartilhado (biblioteca padrão); quem verifica também pode assinar. |
+| `sign_bytes` | função | `(data, key) -> dict[str, str]` | Assina bytes e devolve a assinatura em dicionário. |
+| `verify_bytes` | função | `(data, signature, key) -> None` | Verifica a assinatura de bytes ou levanta `VerificationError`. |
+| `sign_json` | função | `(payload, key, payload_type=PAYLOAD_TYPE) -> dict[str, Any]` | Envelope DSSE sobre o JSON canônico de um payload. |
+| `verify_json` | função | `(envelope, key) -> Any` | Verifica um envelope DSSE e devolve o payload. |
+| `sign_file` | função | `(path, key, sig_path=None) -> str` | Assinatura destacada `<path>.sig` sobre o SHA-256 e o nome do arquivo. |
+| `verify_file` | função | `(path, key, sig_path=None) -> dict[str, Any]` | Verifica a assinatura destacada de um arquivo. |
 
 #### `pinneapple_security.web`
 
-HTTP hardening for the PINNeAPPle web apps (ASGI: FastAPI / Starlette), with no dependency beyond the standard library at import time.
+Endurecimento HTTP das apps web ASGI (FastAPI/Starlette) sem dependências além da biblioteca padrão na importação: middlewares, rate limit, bloqueio de login, CSRF, CORS, CSP e checagem de URLs de saída contra SSRF.
 
 <small>`pinneapple_security/web.py` · 496 linhas · testes: 40</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SecurityHeaders` | classe | `(app, csp=None, hsts=…, frame_options='DENY', extra=None)` | ASGI middleware adding the security headers to every response (an existing header set by the route wins). |
-| `BodyLimit` | classe | `(app, max_bytes, limits=None)` | ASGI middleware: 413 for a request body above ``max_bytes`` (``Content-Length`` checked first, then the bytes actually received, so chunked uploads can not pass the limit). ``limits``: per path prefix overrides. |
-| `RateRule` | classe | `(name, count, seconds, methods, prefixes)` | ``count`` requests per ``seconds`` for requests whose method is in ``methods`` (empty: any) and whose path starts with one of ``prefixes`` (empty: any). |
-| `RateLimiter` | classe | `(rules=(), max_keys=50000, clock=time.monotonic)` | Token buckets per ``(rule, key)``: a burst up to ``count`` and a steady ``count/seconds`` refill. Memory is bounded (least recently used keys are dropped past ``max_keys``). Thread-safe. |
-| `LoginThrottle` | classe | `(max_failures, window, lock_seconds, clock, max_keys, _fails, _locked, _lock)` | Lock a client IP or a user name out for ``lock_seconds`` after ``max_failures`` failed logins within ``window`` seconds. A success clears the IP's and the user's failure count. |
-| `UnsafeURL` | classe | `()` | A URL the server must not fetch. |
-| `AuthAudit` | classe | `(app_name, path=None, key=None)` | Auth and admin events (login ok/failed/locked, API key created/revoked, admin denied, rate limited) as one JSON log line each on the ``pinneapple.security`` logger, and, with ``path``, in a hash-chained :class:`pinneapple_security.audit.AuditLog` (``key``: HMAC key for the chain). Secrets are never … |
-| `client_ip` | função | `(peer, forwarded_for, trusted=DEFAULT_TRUSTED_PROXIES) -> str` | The caller's address. ``X-Forwarded-For`` is used only when the direct peer is a trusted proxy (by default a loopback or private address: the Docker network Caddy sits on), and then the right-most entry that is not itself a trusted proxy is taken. A client that reaches the app directly from a … |
-| `inline_hashes` | função | `(page) -> tuple[set[str], set[str]]` | CSP hashes of the inline ``<script>`` blocks (including import maps) and of the inline event handlers (``onsubmit="..."``) of an HTML page. |
-| `build_csp` | função | `(script_hashes=(), handler_hashes=(), *, connect_src=(), img_src=(), frame_ancestors="'no…)` | The Content-Security-Policy of an app page: everything from the app's own origin, the app's own inline scripts by hash (no ``'unsafe-inline'`` for scripts), WebGL/three.js friendly (``blob:`` workers and images). ``frame_src``: other origins the page may embed; ``frame_ancestors``: who may embed it … |
-| `parse_rate` | função | `(spec, default=None) -> tuple[float, float] \| None` | ``"30/60"`` (30 requests per 60 s), ``"30/min"``, ``"5/s"``, ``"1000/h"``; ``off``/``0`` → None. |
-| `same_origin_ok` | função | `(method, headers, allowed_origins=()) -> bool` | False for a state-changing browser request coming from another site (cross-site request forgery: a page elsewhere posting to the app with the user's cached Basic-auth credentials). Uses the browser-set ``Sec-Fetch-Site`` header, then ``Origin`` compared with ``Host`` (``X-Forwarded-Host`` behind a … |
-| `check_cors_origins` | função | `(origins, allow_credentials) -> list[str]` | Validate a CORS allow-list: full ``scheme://host[:port]`` origins only, and no ``*`` with credentials. |
-| `check_frame_origins` | função | `(origins) -> list[str]` | Validate origins allowed to embed an app (``frame-ancestors``) or to be embedded by it (``frame-src``): full ``scheme://host[:port]`` origins only; no ``*``, no scheme wildcards, no paths. |
-| `check_outbound_url` | função | `(url, allow_hosts=(), resolve=None) -> str` | Refuse a URL a user asked the server to call unless it is http(s) to a public address, or its host is in ``allow_hosts`` (e.g. ``surrogate`` for an app on the same Docker network). Loopback, link-local (cloud metadata at 169.254.169.254), private, multicast and reserved addresses are refused, for … |
+| `SecurityHeaders` | classe | `(app, csp=None, hsts=…, frame_options='DENY', extra=None)` | Middleware ASGI que adiciona cabeçalhos de segurança (CSP, HSTS, frame, etc.) a toda resposta. |
+| `BodyLimit` | classe | `(app, max_bytes, limits=None)` | Middleware ASGI que responde 413 para corpo acima do limite, contando durante o streaming. |
+| `RateRule` | classe | `(name, count, seconds, methods, prefixes)` | Regra de taxa: `count` requisições por `seconds`, filtrada por método e prefixo de caminho. |
+| `RateLimiter` | classe | `(rules=(), max_keys=50000, clock=time.monotonic)` | Token buckets por regra e chave, com memória limitada. |
+| `LoginThrottle` | classe | `(max_failures, window, lock_seconds, clock, max_keys, _fails, _locked, _lock)` | Bloqueia IP ou usuário por um tempo após falhas de login repetidas numa janela. |
+| `UnsafeURL` | classe | `()` | Erro de URL que o servidor não deve buscar. |
+| `AuthAudit` | classe | `(app_name, path=None, key=None)` | Eventos de autenticação e administração como uma linha JSON de log cada. |
+| `client_ip` | função | `(peer, forwarded_for, trusted=DEFAULT_TRUSTED_PROXIES) -> str` | Endereço do cliente; `X-Forwarded-For` só vale vindo de proxy confiável. |
+| `inline_hashes` | função | `(page) -> tuple[set[str], set[str]]` | Hashes CSP dos scripts inline e dos handlers inline de uma página HTML. |
+| `build_csp` | função | `(script_hashes=(), handler_hashes=(), *, connect_src=(), img_src=(), frame_ancestors="'no…)` | Monta a Content-Security-Policy de uma página de app. |
+| `parse_rate` | função | `(spec, default=None) -> tuple[float, float] \| None` | Interpreta especificações de taxa como `30/60`, `30/min`, `5/s`; `off` dá `None`. |
+| `same_origin_ok` | função | `(method, headers, allowed_origins=()) -> bool` | Checagem CSRF: falso para requisição de mudança de estado vinda de outro site. |
+| `check_cors_origins` | função | `(origins, allow_credentials) -> list[str]` | Valida uma lista de origens CORS e recusa `*` com credenciais. |
+| `check_frame_origins` | função | `(origins) -> list[str]` | Valida origens permitidas para embutir ou ser embutido. |
+| `check_outbound_url` | função | `(url, allow_hosts=(), resolve=None) -> str` | Recusa URL que não seja http(s) para endereço público, salvo hosts permitidos (contra SSRF). |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Pipeline seguro: rotular, redigir, manifestar e cifrar** — `examples/security/01_secure_physics_ai_pipeline.py`
+
+```python
+    label = classification.DataLabel(level="confidential", owner="Plant A", personal_data=True)
+    print("publish raw data?", classification.HandlingPolicy().check("publish", label).reasons)
+    clean_notes = [privacy.redact(t) for t in notes]
+    data_dir = os.path.join(out_dir, "dataset")
+    os.makedirs(data_dir)
+    np.savez(os.path.join(data_dir, "ops.npz"), q_in=q_in, speed=speed, q_out=q_out)
+    with open(os.path.join(data_dir, "notes.txt"), "w") as f:
+        f.write("\n".join(clean_notes))
+    man = integrity.build_manifest(data_dir)
+    man.save(os.path.join(out_dir, "dataset.manifest.json"))
+    signing.sign_file(os.path.join(out_dir, "dataset.manifest.json"), key)
+    data_key = encryption.new_key()                       # held by the plant's key manager, not stored with the data
+    encryption.encrypt_file(os.path.join(data_dir, "ops.npz"), data_key, out=os.path.join(out_dir, "ops.npz.enc"))
+```
+
+**Benchmark de injeção de dados falsos (três tanques)** — `examples/security/02_physics_residual_fdi.py`
+
+```python
+from pinneapple_security.cps_bench import ATTACKS, run_benchmark
+
+
+def _fmt(v, nd=2):
+    return "  -  " if v is None else f"{v:.{nd}f}"
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--seeds", type=int, nargs="+", default=[0])
+    ap.add_argument("--out", default=None)
+    a = ap.parse_args()
+    runs = [run_benchmark(seed=s) for s in a.seeds]
+```
 
 ### Testes e status de validação
 
@@ -3228,7 +3268,14 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Ed25519 e AES-GCM precisam de `cryptography` (`pip install pinneapple[security]`); `DPSGD`, `safe_load` e `adversarial_sensitivity` precisam de PyTorch; argon2id precisa de `argon2-cffi`; `IsolationForestDetector` precisa de scikit-learn.
+- `compliance` mapeia capacidades para controles e gera autoavaliação, mas não certifica: os controles são cumpridos pelos processos da organização.
+- `audit` sem chave detecta acidentes e edições ingênuas, não um falsificador que recalcula todos os hashes; também não é um sistema certificado de 21 CFR Part 11.
+- A detecção de PII por regex tem falsos negativos (nomes e endereços em texto livre): é uma rede de segurança, não garantia de anonimato.
+- Com chave HMAC (`hmac_key`), quem pode verificar também pode assinar; o docstring recomenda usar só dentro de uma organização.
+- `gaussian_sigma`/`gaussian_mechanism` usam a calibração clássica, válida para ε ≤ 1; os limites de `dp_mean`/`dp_histogram` não podem vir dos próprios dados.
+- O ataque `coordinated_replay` do `cps_bench` é fisicamente consistente e invisível ao detector de resíduo físico (o docstring diz que é relatado para mostrar o limite e é pego por `anomaly.replay_score`).
+- `HandlingPolicy` traz regras padrão a ajustar por organização, e o `DataLabel` registra o que o dono declarou, sem decidir a classificação.
 
 ## 5. `pinneapple_decision`
 

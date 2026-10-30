@@ -122,20 +122,81 @@ def _from_payload(item: Dict[str, Any]) -> PhysicalSample:
 # -------------------------
 # PT
 # -------------------------
-def save_pt(samples: Sequence[PhysicalSample], path: str) -> None:
+def save_pt(samples: Sequence[PhysicalSample], path: str, *, compress: bool = False) -> None:
     """
     Save a sequence of PhysicalSamples to a PyTorch (.pt) file.
+
+    Parameters
+    ----------
+    samples:
+        Samples to write.
+    path:
+        Output path.
+    compress:
+        When ``True`` the payload is written gzip-compressed (``.pt.gz``).
+        Physics datasets are mostly raw float32 arrays, which gzip shrinks a
+        lot at no loss of precision. Left ``False`` the file is a plain
+        ``.pt``, byte-compatible with earlier versions of this module, so the
+        compressed form is strictly opt-in.
     """
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     payload = [_to_payload(s) for s in samples]
+    if compress:
+        import gzip
+
+        with gzip.open(path, "wb", compresslevel=6) as fh:
+            torch.save(payload, fh)
+        return
     torch.save(payload, path)
+
+
+def _is_gzip(path: str) -> bool:
+    """True when the file starts with the gzip magic bytes."""
+    try:
+        with open(path, "rb") as fh:
+            return fh.read(2) == b"\x1f\x8b"
+    except OSError:
+        return False
+
+
+def _torch_load(source):
+    """
+    ``torch.load`` for our own payload format.
+
+    PyTorch 2.6 changed the default of ``weights_only`` to ``True``, which
+    refuses the plain dicts and numpy/xarray objects this module stores (they
+    contain ``numpy._core.multiarray._reconstruct`` and similar). The safe
+    default is tried first; only a payload that provably is our own format is
+    re-read with ``weights_only=False``, so a checkpoint of plain tensors never
+    takes the permissive path.
+    """
+    try:
+        return torch.load(source, map_location="cpu")
+    except Exception as exc:  # UnpicklingError from weights_only, or a rewindable stream
+        message = str(exc)
+        if "Weights only load failed" not in message and "UnpicklingError" not in type(exc).__name__:
+            raise
+        if hasattr(source, "seek"):
+            source.seek(0)
+        return torch.load(source, map_location="cpu", weights_only=False)
 
 
 def load_pt(path: str) -> List[PhysicalSample]:
     """
     Load PhysicalSamples from a PyTorch (.pt) file.
+
+    Compressed files written by :func:`save_pt` are detected automatically, so
+    the caller does not need to remember whether the file was compressed.
     """
-    payload = torch.load(path, map_location="cpu")
+    if _is_gzip(path):
+        import gzip
+
+        with gzip.open(path, "rb") as fh:
+            payload = _torch_load(fh)
+    else:
+        with open(path, "rb") as fh:
+            payload = _torch_load(fh)
+
     out: List[PhysicalSample] = []
     for item in payload:
         if not isinstance(item, dict):
@@ -216,7 +277,7 @@ def load_hdf5(path: str) -> List[PhysicalSample]:
             for i in range(n):
                 raw = f["payload_bytes"][i]
                 buf = io.BytesIO(np.array(raw, dtype=np.uint8).tobytes())
-                item = torch.load(buf, map_location="cpu")
+                item = _torch_load(buf)
                 if not isinstance(item, dict):
                     raise TypeError("Invalid HDF5 payload: expected dict.")
                 out.append(_from_payload(item))

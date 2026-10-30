@@ -9,6 +9,7 @@ spec = get_preset("ns_incompressible_2d", Re=200.0)
 """
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any, Callable, Dict, List
 
 from ..spec import ProblemSpec
@@ -44,7 +45,16 @@ def get_preset(name: str, **kwargs: Any) -> ProblemSpec:
         raise KeyError(
             f"Unknown problem preset '{name}'. Available: {list_presets()}"
         )
-    return _REGISTRY[key](**kwargs)
+    spec = _REGISTRY[key](**kwargs)
+    # The factory knows its own name; the registry knows the key it was asked for. Keep both, so a
+    # solver downstream can find the preset's fixtures and a report can name the case a user ran.
+    # ProblemSpec is frozen, so this is a copy with the identity filled in, not a mutation.
+    changes = {}
+    if not getattr(spec, "problem_id", ""):
+        changes["problem_id"] = key
+    if "preset" not in (getattr(spec, "meta", {}) or {}):
+        changes["meta"] = {**(spec.meta or {}), "preset": key}
+    return replace(spec, **changes) if changes else spec
 
 
 def list_presets() -> List[str]:

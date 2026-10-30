@@ -2,21 +2,38 @@
 
 The model is the exchanger's own effectiveness-NTU solution. What it cannot know is the
 fouling resistance: it is not an input anybody measures, it builds up over months, and it is
-the number that decides when the exchanger is cleaned. That is the twin's job.
+the number that decides when the exchanger is cleaned. That makes the exchanger the reference
+asset for the twin commissioning layer in
+:mod:`pinneapple_systems.digital_twin.product`, where the fouling resistance is the latent
+state the ensemble Kalman filter has to recover.
 
-The *plant* is deliberately not exactly the model: the overall coefficient drifts a few
-percent with the flow, an effect the model ignores. Without that, a twin would be correct by
-construction and the coverage check would be meaningless.
+Two callables, deliberately different:
 
-Physical constants are ordinary engineering values for a shell-and-tube water exchanger; the
-fouling trajectory is an asymptotic (Kern-Seaton style) curve, not a lab dataset.
+* :func:`exchanger_model` is what a twin is given — ``model(X, theta)``, the clean rating plus
+  the fouling resistance in ``theta``;
+* :func:`plant_outlets` is the plant — the model plus a few percent of flow-dependent UA that
+  the model does not know. Without that gap a twin would be right by construction and the
+  coverage check would mean nothing.
+
+:func:`generate_history` produces a deterministic, clearly synthetic plant history so the
+commissioning layer can be exercised end to end without an exchanger. The fouling trajectory
+is an asymptotic (Kern-Seaton style) curve and the constants are ordinary engineering values
+for a shell-and-tube water exchanger — this is not a lab dataset.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator
 
 import numpy as np
+
+__all__ = [
+    "exchanger_model",
+    "plant_outlets",
+    "fouling_at",
+    "generate_history",
+    "OperatingPoint",
+    "PlantConfig",
+]
 
 CP_WATER = 4180.0          # J/(kg K)
 AREA = 12.0                # m2

@@ -1193,7 +1193,8 @@ services:
     cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
     read_only: true
     tmpfs: ["/tmp"]
-    image: caddy:2@sha256:685ae3d7c34d9b5f8caeddc5d14051db7bbd88ff1f5a2fa0c16bd8ca328fb7af   # pinned; Dependabot proposes updates
+    build: {context: ., dockerfile: caddy.Dockerfile}   # pinned caddy:2 + Alpine fix; Dependabot proposes base updates
+    image: pinneapple/caddy:latest
     restart: unless-stopped
     ports: ["80:80", "443:443", "443:443/udp"]
     environment:

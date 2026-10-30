@@ -13,7 +13,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Security
+
+- Caddy images (`apps/deploy` proxy and `apps/playground`): the pinned bases still ship `brotli-libs` 1.2.0-r0
+  (CVE-2026-111497, critical, fixed in Alpine 1.2.1-r0), and no upstream rebuild has it yet. Both images now upgrade
+  that package at build time (`apps/deploy/caddy.Dockerfile`, a build step in the playground Dockerfile), and the
+  Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
+
 ### Added
+- `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
+  fields, value and derivative constraints on faces, and linear or non-linear residuals.
+  - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an
+    `XTFCProblem` and `Constraint`.
+  - The multivariate TFC constrained expression is built dimension by dimension, and the ELM derivatives are
+    analytic.
+  - Non-linear residuals are solved by Gauss-Newton with `lstsq`.
+  - `XTFCResult.residual` and `XTFCResult.constraint_error` are the physics checks.
+- `pinneapple_physics.paper_problems_xtfc`: the 2 ODE and 7 PDE problems of Schiassi et al. (arXiv:2005.10632v1),
+  with the paper's settings.
+- `examples/reproductions/xtfc_schiassi2021`: the X-TFC reproduction. It has frozen targets (`TARGETS.md`), a
+  runner and the measured results.
 - Optional compressed persistence in `pinneapple_data`: `save_pt(samples, path, compress=True)` (and
   `UPDDataset.save(path, compress=True)`) writes the payload gzip-compressed, about 30% smaller on float32 field
   data with no loss of precision. It is opt-in: the default stays an uncompressed `.pt`, and `load_pt` /
@@ -43,19 +62,6 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `tests/test_onboarding.py` (the four commands promise only what they deliver, including a generated project that
   runs from another directory).
 
-### Changed
-- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
-  of the first hour and no longer need `pinneapple[pinn]`.
-- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
-  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
-- `pp.info()` ends with the four commands to try next.
-- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
-  (the registry is lowercase) and had been stale since September.
-- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
-  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
-- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
-  (OpenFOAM, FEniCS).
-- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
@@ -151,6 +157,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
   file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
   gates (AGENTS.md, "Generated files").
+- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
+  of the first hour and no longer need `pinneapple[pinn]`.
+- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
+  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
+- `pp.info()` ends with the four commands to try next.
+- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
+  (the registry is lowercase) and had been stale since September.
+- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
+  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
+- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
+  (OpenFOAM, FEniCS).
+- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
 - `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
@@ -2068,6 +2086,7 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
   up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
   Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
+
 
 ## [0.7.0] - 2026-10-13
 

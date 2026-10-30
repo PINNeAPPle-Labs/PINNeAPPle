@@ -97,6 +97,8 @@ REASONS: dict[str, str] = {
                                          "examples/paper_reproductions runners, not a flow step",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
                                               "examples/reproductions/xtfc_schiassi2021 runner, not a flow step",
+    "pinneapple_physics.paper_problems_epi": "the compartmental models of the X-TFC parameter-discovery paper, read "
+                                             "by the examples/reproductions/schiassi_epi2020 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

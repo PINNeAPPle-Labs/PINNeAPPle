@@ -35,6 +35,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
   (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
   `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
+- `pinneapple_simulation.numerical_solvers.xtfc_inverse`: X-TFC for data-driven parameter discovery
+  (`solve_xtfc_inverse`). It fits the fields and the unknown parameters of an ODE system together, by Gauss-Newton
+  on the stacked data and residual losses (Schiassi et al., arXiv:2008.05554). The initial values hold exactly.
+- `pinneapple_physics.paper_problems_epi`: that paper's SIR, SEIR and SEIRS models, with `synthetic_data` (noisy
+  data sets) and `fit_shooting` (a single-shooting least-squares baseline).
+- `xtfc_general.activation_derivative`: `arctan`, up to order 3.
+- `examples/reproductions/schiassi_epi2020`: the reproduction of that paper, with frozen targets, a runner and
+  measured results.
+  - 14 of 36 targets reproduced under the frozen protocol: all clean-data targets and most at noise 0.1. A post-hoc
+    multi-start reaches 23 of 36.
+  - A single-shooting baseline is 2.5 to 3 times more accurate on SIR, and within a factor of 2.5 on SEIR and SEIRS.
 - Additions for the De Florio 2024 reproduction:
   - `solve_xtfc` now accepts explicit input weights (`weights=`), separate boundary rows (`face_points=`) and a
     LAPACK driver (`lstsq_driver=`).

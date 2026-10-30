@@ -310,3 +310,34 @@ def test_cli_new_dry_run_writes_nothing(tmp_path, monkeypatch, capsys):
     assert cli.main(["new", "demo", "--dry-run"]) == 0
     assert not (tmp_path / "demo").exists()
     assert "would create" in capsys.readouterr().out
+
+# ------------------------------------------------------------------ the preset set
+
+def test_most_presets_produce_a_field_without_extra_work():
+    """A floor under the onboarding promise, checked without running any solver.
+
+    Before the preset geometry was wired into ``pp.solve``, 15 of 72 presets could produce a field
+    here. The number is not the point; that it must not silently fall back is. This counts what the
+    library can reach today: a closed form, a solver this machine has, or a preset geometry it can
+    train with.
+    """
+    from pinneapple_core.onboarding import catalog as catalog_mod
+    from pinneapple_physics.solving import analytic_for
+
+    names = pp.list_presets()
+    reachable = [n for n in names
+                 if analytic_for(n)
+                 or catalog_mod.solver_available(catalog_mod._solver_of(n))
+                 or catalog_mod.trainable(n)]
+    assert len(reachable) >= 60, f"only {len(reachable)} of {len(names)} presets are reachable"
+
+
+def test_a_preset_knows_which_preset_it_is():
+    """The solver needs the registry key to find a preset's geometry fixtures."""
+    spec = pp.get_preset("poisson_2d")
+    assert spec.problem_id == "poisson_2d"
+    assert spec.meta["preset"] == "poisson_2d"
+    spec = pp.get_preset("burgers_1d", nu=0.02)          # with arguments, still identifiable
+    assert spec.problem_id == "burgers_1d"
+    problem = pp.PhysicalProblem.from_preset("transient_heat_3d")
+    assert problem.to_pde_spec().meta["preset"] == "transient_heat_3d"

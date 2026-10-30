@@ -28,6 +28,8 @@ Três submódulos são sistemas inteiros. `automation` é o "agente de GUI de en
 
 O pacote se liga ao resto do repositório em vários pontos: `automation` usa `pinneapple_check` nas checagens, `pinneapple_simulation.pipelines.freecad_openfoam` nos adaptadores e `pinneapple_data.contracts.StudyResult` no relatório, e se registra como passo `guiagent` do runner de `pinneapple_core.workflows` (usado pelos apps `guiagent` e `simulation_runner`). `model_services` serve modelos de `pp.zoo` e checagens de `pinneapple_physics`. `rea_bridge.tools` registra ferramentas no `PhysicsToolRegistry` de `pinneapple_worldmodel` para o loop de agente de `pinneapple_llm`. `reporting` é usado por estudos de `pinneapple_simulation` e por `pinneapple_veriphysics`.
 
+Esta parte cobre quatro submódulos de `pinneapple_tools`. `benchmark_suite` (o "Arena") roda e compara modelos em problemas físicos: tarefas clássicas (Burgers, calor, onda, Poisson, Allen–Cahn, Taylor–Green, escoamentos), backends de treino (PyTorch nativo, registro de modelos, DeepXDE, JAX, PhysicsNeMo Sym), benchmarks de transferência e meta-aprendizado, pipelines declarativos e o protocolo do benchmark contra outros frameworks. `hpo_experiments` é, apesar do nome, o antigo pesquisador de literatura (arXiv, GitHub e um LLM Gemini). `nvidia` é a cola com PhysicsNeMo, OpenUSD/Omniverse, Isaac Sim e USD BRep. `visualization` reúne gráficos no estilo CFD, painéis animados, pontes para PyVista/Plotly/Rerun/Trame e o `studio` de cenas 3D.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -42,19 +44,19 @@ Pasta de testes dedicada: `tests/pinneapple_tools` (30 funções de teste).
 |---|---|---:|---:|---:|
 | `aero_coefficients` | Utilitários em NumPy para Cp, integração de forças de pressão/cisalhamento numa superfície triangulada e conversão para CL/CD/CM nos eixos do vento. | 1 | 4 | 7 |
 | `automation` | Agente de GUI de engenharia: executa workflows estruturados em FreeCAD, CfdOF, OpenFOAM, ParaView e interfaces web e entrega arquivos mais a evidência do que aconteceu. | 22 | 62 | 32 |
-| `benchmark_suite` |  | 52 | 118 | 155 |
+| `benchmark_suite` | Arena de benchmarks: tarefas físicas, backends de treino, comparação multi-modelo, transferência, meta-aprendizado, pipelines declarativos e o benchmark entre frameworks. | 52 | 118 | 155 |
 | `compute_backends` | Seletor global de backend (PyTorch por padrão, JAX opcional) e utilitários JAX de jit/vmap para resíduos de PINN. | 3 | 8 | 156 |
 | `dataset_quality` | Checagens estatísticas de qualidade de datasets em nuvem de pontos e curadoria de sequências com um modelo de visão-linguagem (VLM). | 3 | 16 | 16 |
-| `hpo_experiments` |  | 27 | 44 | 0 |
+| `hpo_experiments` | Pesquisador automático de literatura (antigo `pinneapple_researcher`): descoberta no arXiv/GitHub, base de conhecimento, extração e reprodução com LLM Gemini. | 27 | 44 | 0 |
 | `model_evaluation` | Métricas genéricas de avaliação de modelos (regressão, bootstrap, sensibilidade, calibração) e os gráficos correspondentes em matplotlib. | 3 | 12 | 5 |
 | `model_export` | Exportação de modelos para TorchScript e ONNX e de campos (coordenadas + valores) para CSV e NPZ. | 1 | 4 | 0 |
 | `model_services` | Modelos do PINNeAPPle servidos como microserviços HTTP com as rotas do NVIDIA NIM, cada resposta com relatório de confiança; inclui cliente e servidor. | 6 | 17 | 39 |
-| `nvidia` |  | 11 | 49 | 39 |
+| `nvidia` | Integração com a pilha NVIDIA: stages OpenUSD, robôs para Isaac Sim, surrogates PhysicsNeMo, geometria exata USD BRep, figuras e registro de execução. | 11 | 49 | 39 |
 | `rea_bridge` | Ponte para a ferramenta REA (engenharia reversa) com trava de licença, mapa de funcionalidades e livro de registro do que foi estudado. | 6 | 20 | 22 |
 | `reporting` | Estilo de figuras e construtores de relatório técnico: PDF com reportlab (`paperkit`) e datasheet HTML/PDF/Markdown (`datasheet`). | 3 | 14 | 14 |
 | `sandbox` | Executa um script de solver fornecido pelo usuário em outro processo com limites de recurso POSIX; não é uma fronteira de segurança. | 2 | 1 | 13 |
 | `surrogate_policy` | Decide, pelo tempo medido de uma solução real, se um problema precisa de surrogate treinado ou se o solver pode ser chamado direto. | 1 | 2 | 5 |
-| `visualization` |  | 35 | 165 | 46 |
+| `visualization` | Visualização no estilo CFD, painéis animados, pontes para visualizadores 3D externos e o studio de cenas 3D realistas (web, Blender, PyVista). | 35 | 165 | 46 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -335,565 +337,565 @@ Workflow estruturado em YAML/JSON: inputs com limites, passos com pré-condiçõ
 
 #### `pinneapple_tools.benchmark_suite`
 
-_Módulo sem docstring e sem texto._
+Ponto de entrada da suíte de benchmarks: reexporta `Arena`, `PINNArenaBenchmark`, registros de tarefas e backends, relatórios e, dentro de `try/except`, os pipelines de física, séries temporais, transferência e meta-aprendizado.
 
 <small>`pinneapple_tools/benchmark_suite/__init__.py` · 108 linhas · testes: 2</small>
 
 #### `pinneapple_tools.benchmark_suite.api`
 
-Arena — high-level API for running PINNeAPPle resolution pipelines.
+API de alto nível `Arena`: liga uma `ProblemSpec` (ou um preset, ou um YAML) ao pipeline de geração de dados, treino e métricas.
 
 <small>`pinneapple_tools/benchmark_suite/api.py` · 591 linhas · testes: 153</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ArenaResult` | classe | `(spec, model, history, metrics, artifacts, model_id, elapsed_s)` | Container returned by Arena.run() and Arena.compare(). |
-| `ArenaCompareResult` | classe | `(spec, results)` | Container returned by Arena.compare() with multiple models. |
-| `Arena` | classe | `(spec) -> None` | High-level runner that connects ``ProblemSpec`` to the training pipeline. |
+| `ArenaResult` | classe | `(spec, model, history, metrics, artifacts, model_id, elapsed_s)` | Resultado de `Arena.run()`: especificação, modelo treinado, histórico de perdas, métricas finais, artefatos e tempo gasto. |
+| `ArenaCompareResult` | classe | `(spec, results)` | Resultado de `Arena.compare()` com vários modelos, com `leaderboard()` para ordenar por métrica. |
+| `Arena` | classe | `(spec) -> None` | Executor de alto nível criado por `from_spec`, `from_preset` ou `from_yaml`, que treina um modelo (`run`) ou compara vários (`compare`). |
 
 #### `pinneapple_tools.benchmark_suite.backends`
 
-_Módulo sem docstring e sem texto._
+Pacote dos backends de treino do Arena; importa e reexporta os cinco backends e o protocolo `Backend`. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/backends/__init__.py` · 17 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.benchmark_suite.backends.base`
 
-_Módulo sem docstring e sem texto._
+Define o protocolo `Backend`: um objeto com `name` e um método `train(bundle, run_cfg)`.
 
 <small>`pinneapple_tools/benchmark_suite/backends/base.py` · 20 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Backend` | classe | `(name)` | Training backend protocol. |
+| `Backend` | classe | `(name)` | Protocolo de backend de treino: recebe um `BundleData` e uma configuração e devolve saídas de treino. |
 
 #### `pinneapple_tools.benchmark_suite.backends.deepxde_backend`
 
-_Módulo sem docstring e sem texto._
+Backend DeepXDE registrado como `deepxde`: baseline supervisionado nos sensores do bundle (x, y, u, v, p opcional). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/backends/deepxde_backend.py` · 113 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DeepXDEBackend` | classe | `(name)` | DeepXDE backend (baseline supervisionado em sensores). |
+| `DeepXDEBackend` | classe | `(name)` | Treina uma rede DeepXDE só com os dados de sensores e devolve `predict_fn` (N,2)->(N,3); falha com `RuntimeError` se `deepxde` não estiver instalado. |
 
 #### `pinneapple_tools.benchmark_suite.backends.jax_pinn`
 
-_Módulo sem docstring e sem texto._
+Backend PINN completo em JAX para o caso `FlowObstacle2D` (Navier–Stokes 2D estacionário), registrado como `jax_pinn`. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/backends/jax_pinn.py` · 335 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `JAXPINNBackend` | classe | `(name)` | Full PINN backend in JAX for FlowObstacle2D (steady 2D Navier–Stokes). |
+| `JAXPINNBackend` | classe | `(name)` | Treina em JAX com resíduo de momento e continuidade, perda de contorno e perda opcional em sensores; devolve `predict_fn` e métricas de teste. |
 
 #### `pinneapple_tools.benchmark_suite.backends.native_pinn`
 
-_Módulo sem docstring e sem texto._
+Backend PINN nativo em PyTorch para Navier–Stokes 2D estacionário, sem dependências externas além do torch. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/backends/native_pinn.py` · 287 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MLP` | classe | `(in_dim, out_dim, hidden, activation='tanh')` | Fully connected multilayer perceptron (MLP). |
-| `NativePINNBackend` | classe | `()` | Native PINN training backend for steady 2D Navier-Stokes problems. |
+| `MLP` | classe | `(in_dim, out_dim, hidden, activation='tanh')` | Perceptron multicamada totalmente conectado com ativação escolhida por nome (tanh, relu, gelu, silu). |
+| `NativePINNBackend` | classe | `()` | Treina um `MLP` em PyTorch com resíduo de Navier–Stokes nos pontos de colocação e perda de contorno do bundle. |
 
 #### `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym`
 
-_Módulo sem docstring e sem texto._
+Backend que monta um PINN de Navier–Stokes com as abstrações do PhysicsNeMo Sym (domínio, restrições, solver) e usa o laço de treino dele.
 
 <small>`pinneapple_tools/benchmark_suite/backends/physicsnemo_sym.py` · 240 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsNeMoSymBackend` | classe | `()` | Backend integration for PhysicsNeMo Sym (formerly Modulus Sym). |
+| `PhysicsNeMoSymBackend` | classe | `()` | Treina um PINN 2D estacionário com PhysicsNeMo Sym; exige `nvidia-physicsnemo.sym` e não garante devolver um modelo PyTorch. |
 
 #### `pinneapple_tools.benchmark_suite.backends.pinneapple_models_backend`
 
-_Módulo sem docstring e sem texto._
+Backend "multi-modelo" do Arena: treina qualquer modelo do `ModelRegistry` com batch unificado e perda física compilada quando suportada. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/backends/pinneapple_models_backend.py` · 200 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PinneappleModelsBackend` | classe | `()` | Train any model from ModelRegistry. |
+| `PinneappleModelsBackend` | classe | `()` | Carrega o bundle, monta o batch, compila a perda física se houver especificação, treina com o `Trainer` (opcionalmente DDP) e exporta previsões. |
 
 #### `pinneapple_tools.benchmark_suite.benchmark`
 
-PINN Arena — multi-architecture, multi-problem benchmark suite.
+PINN Arena: benchmark multi-problema e multi-arquitetura que treina vários modelos em várias tarefas físicas e gera ranking, tabelas e gráficos. A classe base de tarefa levanta `NotImplementedError` nos métodos abstratos.
 
 <small>`pinneapple_tools/benchmark_suite/benchmark.py` · 1.309 linhas · testes: 155 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BenchmarkConfig` | classe | `(n_col, n_bc, n_ic, epochs, lr, weight_pde, weight_bc, weight_ic, device, seed, n_eval, c…)` |  |
-| `ModelSpec` | classe | `(name, factory, description, input_kind, family)` |  |
-| `BenchmarkResult` | classe | `(problem_id, model_id, metrics, history, elapsed_s, n_params, rank)` |  |
-| `BenchmarkTaskBase` | classe | `(task_id, in_dim, out_dim)` | Abstract base for physics benchmark tasks. |
-| `NotApplicableError` | classe | `()` | Raised (by callers, not by this module) when a task can't build a batch for a given input_kind. ``run()`` doesn't raise this itself — it relies on ``task.build_batch()`` returning ``None`` — but callers that pre-check applicability (e.g. BiaML's ``run_benchmark()``) can use this to signal "not … |
-| `PINNArenaBenchmark` | classe | `(tasks, model_specs=None, config=None) -> None` | Multi-problem, multi-architecture PINN benchmark suite. |
-| `all_model_specs` | função | `() -> List[ModelSpec]` | Return a ModelSpec for every model in ``pinneapple_models``, tagged with its real ``input_kind`` (pointwise_coords / sequence / graph / grid* / dynamics / operator_branch_trunk / autoencoder — see ``pinneapple_neural.architectures.registry.ModelSpec.input_kind``, now accurately declared per family … |
+| `BenchmarkConfig` | classe | `(n_col, n_bc, n_ic, epochs, lr, weight_pde, weight_bc, weight_ic, device, seed, n_eval, c…)` | Configuração do benchmark: número de pontos de colocação/contorno/inicial, épocas, taxa de aprendizado, pesos das perdas, dispositivo, semente e limiar de convergência. |
+| `ModelSpec` | classe | `(name, factory, description, input_kind, family)` | Descrição de um modelo candidato: nome, fábrica que o constrói, descrição, tipo de entrada (`input_kind`) e família. |
+| `BenchmarkResult` | classe | `(problem_id, model_id, metrics, history, elapsed_s, n_params, rank)` | Resultado de um par (problema, modelo): métricas, histórico, tempo, número de parâmetros e posição no ranking. |
+| `BenchmarkTaskBase` | classe | `(task_id, in_dim, out_dim)` | Base abstrata de tarefa física: amostragem de colocação, contorno e condição inicial, resíduo da EDP, grade de avaliação e montagem de batch; os métodos abstratos levantam `NotImplementedError`. |
+| `NotApplicableError` | classe | `()` | Exceção para sinalizar que uma tarefa não monta batch para um dado `input_kind`; o próprio módulo não a levanta, só os chamadores. |
+| `PINNArenaBenchmark` | classe | `(tasks, model_specs=None, config=None) -> None` | Suíte que roda todas as combinações tarefa × modelo, monta leaderboard, melhor modelo por problema, tabela-resumo, gráficos e salva/carrega resultados. |
+| `all_model_specs` | função | `() -> List[ModelSpec]` | Gera um `ModelSpec` para cada modelo do registro de modelos, marcado com o `input_kind` real da família. |
 
 #### `pinneapple_tools.benchmark_suite.bundle`
 
-_Módulo sem docstring e sem texto._
+Pacote de leitura e validação de bundles de dados do Arena (reexporta `loader` e `schema`). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/bundle/__init__.py` · 7 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.benchmark_suite.bundle.loader`
 
-_Módulo sem docstring e sem texto._
+Carrega um bundle do disco (manifesto, condições, pontos de colocação e contorno, sensores) e o valida contra um esquema.
 
 <small>`pinneapple_tools/benchmark_suite/bundle/loader.py` · 149 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BundleData` | classe | `(root, manifest, conditions, points_collocation, points_boundary, sensors)` | Immutable container for a validated PINNeAPPle bundle. |
-| `load_bundle` | função | `(bundle_root, *, schema, require_sensors=False) -> BundleData` | Load and validate a PINNeAPPle bundle from disk. |
+| `BundleData` | classe | `(root, manifest, conditions, points_collocation, points_boundary, sensors)` | Contêiner imutável de um bundle validado: raiz, manifesto, condições, pontos de colocação, pontos de contorno e sensores. |
+| `load_bundle` | função | `(bundle_root, *, schema, require_sensors=False) -> BundleData` | Lê e valida um bundle no disco segundo um `BundleSchema`, exigindo sensores quando pedido. |
 
 #### `pinneapple_tools.benchmark_suite.bundle.schema`
 
-_Módulo sem docstring e sem texto._
+Esquema de validação de bundles lido de YAML: versão, arquivos, regiões, chaves do manifesto e colunas de sensores obrigatórias. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/bundle/schema.py` · 119 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BundleSchema` | classe | `(schema_version, required_files, required_regions, manifest_required_keys, sensors_requir…)` | Schema definition for validating a PINNeAPPle bundle. |
-| `load_bundle_schema` | função | `(path) -> BundleSchema` | Load a bundle schema definition from a YAML configuration file. |
+| `BundleSchema` | classe | `(schema_version, required_files, required_regions, manifest_required_keys, sensors_requir…)` | Definição do esquema de um bundle, com `validate_bundle_root` para verificar uma pasta. |
+| `load_bundle_schema` | função | `(path) -> BundleSchema` | Carrega um `BundleSchema` a partir de um arquivo YAML. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework`
 
-Neutral parts of the cross-framework benchmark (PINNeAPPle vs PhysicsNeMo / PhysicsNeMo-Sym, DeepXDE, neuraloperator): problem definitions and references, the shared point sets and initial weights, the one evaluator, statistics over seeds, run records and the operator-learning data and training …
+Partes neutras do benchmark entre frameworks (PINNeAPPle contra PhysicsNeMo/PhysicsNeMo-Sym, DeepXDE, neuraloperator): problemas, pontos e pesos compartilhados, avaliador único, estatísticas e registros de execução.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/__init__.py` · 17 linhas · testes: 20</small>
 
 #### `pinneapple_tools.benchmark_suite.crossframework.darcy`
 
-Track B of the cross-framework benchmark: the Darcy data, its normalisation and the one training loop.
+Trilha B do benchmark entre frameworks: dados de Darcy (`darcy_2d_li2021`), normalização e o laço único de treino de operadores. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/darcy.py` · 182 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DarcyData` | classe | `(a, u, a_mean, a_std, u_mean, u_std)` | The three splits and the training-split normalisation. |
-| `load_split` | função | `(split, resolution=64) -> tuple[np.ndarray, np.ndarray]` | ``(a, u)`` of ``split`` in ``("train", "val", "test")`` at ``resolution`` (float32, (n, r, r)). |
-| `load_darcy` | função | `(resolution=64, n_train=N_TRAIN) -> DarcyData` |  |
-| `train_operator` | função | `(model, data, *, epochs, seed, batch_size=20, lr=0.001, weight_decay=0.0001, log=None) ->…)` | Train ``model`` ((B, 1, r, r) -> (B, 1, r, r), normalised) with the protocol's loop. Returns the history (loss per epoch, wall and CPU time per epoch) and the decoded predictions on the validation and test splits. |
-| `run_track_b` | função | `(argv, *, framework, source, build, model_config) -> None` | Shared body of the three track-B runners: the runner only says how its library builds the FNO. |
-| `inference_latency` | função | `(model, data, batch, repeats=20, warmup=3) -> float` | Median wall time [s] of one forward pass on ``batch`` test inputs (no gradients). |
+| `DarcyData` | classe | `(a, u, a_mean, a_std, u_mean, u_std)` | As três partições (treino, validação, teste) de Darcy com a normalização calculada no treino; `x` normaliza entradas e `decode` desfaz a normalização. |
+| `load_split` | função | `(split, resolution=64) -> tuple[np.ndarray, np.ndarray]` | Devolve `(a, u)` de uma partição na resolução pedida, com média em blocos quando a resolução é menor. |
+| `load_darcy` | função | `(resolution=64, n_train=N_TRAIN) -> DarcyData` | Carrega as três partições de Darcy e monta um `DarcyData` normalizado. |
+| `train_operator` | função | `(model, data, *, epochs, seed, batch_size=20, lr=0.001, weight_decay=0.0001, log=None) ->…)` | Treina um operador (B,1,r,r)->(B,1,r,r) com o laço do protocolo e devolve histórico, tempos por época e previsões decodificadas. |
+| `run_track_b` | função | `(argv, *, framework, source, build, model_config) -> None` | Corpo comum dos três executores da trilha B: cada executor só informa como sua biblioteca constrói o FNO. |
+| `inference_latency` | função | `(model, data, batch, repeats=20, warmup=3) -> float` | Mediana do tempo de parede de uma passada direta sem gradientes sobre um lote de teste. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.evaluate`
 
-The one evaluator of the cross-framework benchmark, and the statistics over seeds.
+Avaliador único do benchmark entre frameworks (problemas diretos, inverso e operador) e estatísticas sobre sementes.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/evaluate.py` · 141 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `evaluate_pinn` | função | `(problem, u_test, u_stencil=None, *, reference=None) -> dict[str, float]` | Metrics of a forward run from its exported predictions. |
-| `evaluate_inverse` | função | `(nu_hat, nu_true, u_pred, u_ref) -> dict[str, float]` | Inverse run: relative error of the identified coefficient and the field error on the test points. |
-| `per_sample_rel_l2` | função | `(pred, ref) -> np.ndarray` | Per-sample relative L2 over all axes but the first (operator learning). |
-| `evaluate_operator` | função | `(pred, ref) -> dict[str, float]` | Operator run: mean, median and max of the per-sample relative L2 on the test split. |
-| `seed_stats` | função | `(values) -> dict[str, object]` | Median, min, max and n of the finite values; ``n_failed`` counts NaN / inf (failures are not dropped silently: they are counted, and the median is over the finite values only). |
-| `paired_ratio` | função | `(a, b) -> dict[str, object]` | Per-seed ratio ``a / b`` over the seeds both have (finite): median, min, max, and how many seeds ``a < b``. |
-| `sign_test_p` | função | `(k, n) -> float` | Two-sided exact sign test p-value for ``k`` successes in ``n`` paired trials (ties excluded beforehand). With n = 5 the smallest attainable p is 0.0625: five seeds cannot show significance at 0.05 by this test. |
-| `summarize` | função | `(rows, keys, by) -> list[dict[str, object]]` | Group ``rows`` by the ``by`` fields and give :func:`seed_stats` of each metric in ``keys``. |
+| `evaluate_pinn` | função | `(problem, u_test, u_stencil=None, *, reference=None) -> dict[str, float]` | Métricas de uma execução direta a partir das previsões exportadas (erro na grade de teste e resíduo pelo estêncil). |
+| `evaluate_inverse` | função | `(nu_hat, nu_true, u_pred, u_ref) -> dict[str, float]` | Execução inversa: erro relativo do coeficiente identificado e erro do campo nos pontos de teste. |
+| `per_sample_rel_l2` | função | `(pred, ref) -> np.ndarray` | Erro L2 relativo por amostra, sobre todos os eixos menos o primeiro (aprendizado de operadores). |
+| `evaluate_operator` | função | `(pred, ref) -> dict[str, float]` | Execução de operador: média, mediana e máximo do L2 relativo por amostra no teste. |
+| `seed_stats` | função | `(values) -> dict[str, object]` | Mediana, mínimo, máximo e n dos valores finitos, contando à parte as falhas (NaN/inf) em `n_failed`. |
+| `paired_ratio` | função | `(a, b) -> dict[str, object]` | Razão por semente `a / b` nas sementes em comum: mediana, extremos e quantas vezes `a < b`. |
+| `sign_test_p` | função | `(k, n) -> float` | Valor-p exato bilateral do teste do sinal; o docstring avisa que com 5 sementes o menor p possível é 0.0625. |
+| `summarize` | função | `(rows, keys, by) -> list[dict[str, object]]` | Agrupa linhas de resultado por campos e aplica `seed_stats` a cada métrica. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.inverse`
 
-Track C of the cross-framework benchmark: identify the viscosity of Burgers from noisy samples.
+Trilha C do benchmark entre frameworks: identificar a viscosidade de Burgers a partir de amostras ruidosas.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/inverse.py` · 28 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `observations` | função | `(n=C['n_obs'], noise_rel=C['noise_rel'], seed=C['obs_seed']) -> dict[str, np.ndarray]` | ``{"X", "u", "u_clean", "sigma"}``: points (n, 2) as (x, t), noisy and clean values (n, 1), float32. |
+| `observations` | função | `(n=C['n_obs'], noise_rel=C['noise_rel'], seed=C['obs_seed']) -> dict[str, np.ndarray]` | Gera as observações do problema inverso: pontos (x, t), valores ruidosos e limpos e o desvio do ruído, com semente fixa do protocolo. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.problems`
 
-The forward and inverse PINN problems of the cross-framework benchmark, with their references.
+Problemas PINN diretos e inverso do benchmark entre frameworks (Burgers, Poisson, Helmholtz, Allen–Cahn), com referências, conjuntos de pontos, grade de teste e resíduo por diferenças finitas.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/problems.py` · 314 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNProblem` | classe | `(name, coords, bounds, params, time_dependent, fd_step, citation, test_grid, extra)` | One benchmark problem. ``coords`` are ``("x", "t")`` or ``("x", "y")``; ``bounds`` one ``(lo, hi)`` each. |
-| `get_problem` | função | `(name) -> PINNProblem` |  |
-| `make_point_set` | função | `(problem, *, n_interior=10000, n_boundary=400, seed=20260) -> dict[str, np.ndarray]` | The training points every framework loads (protocol A1): ``X_f`` interior collocation points (uniform), ``X_b``/``u_b`` boundary points and values, and for time-dependent problems ``X_0``/``u_0`` initial points. |
-| `point_set_digest` | função | `(points) -> str` | SHA-256 over the arrays (sorted by name) so every run can record which point set it trained on. |
-| `save_point_set` | função | `(points, path) -> str` | Write the point set to ``path`` (.npz) and return its digest. |
-| `load_point_set` | função | `(path) -> dict[str, np.ndarray]` |  |
-| `test_points` | função | `(problem) -> np.ndarray` | The structured test grid (float64, N x 2): the same points for every framework. |
-| `residual_points` | função | `(problem, n=2000, seed=777) -> np.ndarray` | Fresh interior points (never used in training; a different generator stream) for the residual, kept one stencil step away from the boundary. |
-| `stencil` | função | `(problem, X) -> np.ndarray` | The 5-point stencil around each residual point: (N, 5, 2) = center, a+h, a-h, b+h, b-h. A runner predicts on ``stencil(...).reshape(-1, 2)`` and exports the values; :func:`residual_from_stencil` turns them into the residual. |
-| `residual_from_stencil` | função | `(problem, X, values) -> np.ndarray` | Residual at ``X`` from the stencil values (N, 5) by second-order central differences (float64). |
-| `allen_cahn_reference` | função | `(d=0.0001, n=2048, dt=0.0001, t_end=1.0, n_save=1000) -> tuple[np.ndarray, np.ndarray, np…)` | ``(x, t, u)`` of ``u_t = d u_xx + 5 u - 5 u^3``, periodic on ``[-1, 1)``, ``u(x, 0) = x^2 cos(pi x)``. |
-| `callable_exact` | função | `(problem) -> Callable[[np.ndarray], np.ndarray]` | ``X -> u`` column vector, for APIs that take a reference callable (``pp.compare(..., reference="exact")``). |
-| `describe` | função | `(problem) -> dict[str, object]` | JSON-ready description (stored in every result file). |
+| `PINNProblem` | classe | `(name, coords, bounds, params, time_dependent, fd_step, citation, test_grid, extra)` | Um problema do benchmark: coordenadas, limites, parâmetros, se depende do tempo, passo do estêncil, citação e grade de teste; expõe condição inicial, contorno, fonte, solução exata e resíduo. |
+| `get_problem` | função | `(name) -> PINNProblem` | Busca um problema por nome no dicionário `PROBLEMS`; levanta `KeyError` com a lista disponível se não existir. |
+| `make_point_set` | função | `(problem, *, n_interior=10000, n_boundary=400, seed=20260) -> dict[str, np.ndarray]` | Gera os pontos de treino que todo framework carrega (protocolo A1): colocação interna uniforme, pontos e valores de contorno e, se houver tempo, condição inicial. |
+| `point_set_digest` | função | `(points) -> str` | SHA-256 dos arrays do conjunto de pontos, para cada execução registrar em quais pontos treinou. |
+| `save_point_set` | função | `(points, path) -> str` | Grava o conjunto de pontos em `.npz` e devolve o seu digest. |
+| `load_point_set` | função | `(path) -> dict[str, np.ndarray]` | Lê um conjunto de pontos de um arquivo `.npz`. |
+| `test_points` | função | `(problem) -> np.ndarray` | Grade de teste estruturada (float64, N x 2), a mesma para todos os frameworks. |
+| `residual_points` | função | `(problem, n=2000, seed=777) -> np.ndarray` | Pontos internos novos, nunca usados no treino, para medir o resíduo, afastados do contorno por um passo de estêncil. |
+| `stencil` | função | `(problem, X) -> np.ndarray` | Estêncil de 5 pontos em torno de cada ponto de resíduo, no formato (N, 5, 2). |
+| `residual_from_stencil` | função | `(problem, X, values) -> np.ndarray` | Calcula o resíduo da EDP a partir dos valores no estêncil por diferenças centrais de segunda ordem. |
+| `allen_cahn_reference` | função | `(d=0.0001, n=2048, dt=0.0001, t_end=1.0, n_save=1000) -> tuple[np.ndarray, np.ndarray, np…)` | Solução de referência numérica de Allen–Cahn periódica em [-1, 1) com u(x,0) = x² cos(πx). |
+| `callable_exact` | função | `(problem) -> Callable[[np.ndarray], np.ndarray]` | Devolve a solução de referência como função `X -> u` (vetor coluna), para APIs que pedem um callable de referência. |
+| `describe` | função | `(problem) -> dict[str, object]` | Descrição do problema pronta para JSON, guardada em todo arquivo de resultado. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.protocol`
 
-Fixed settings of the cross-framework benchmark protocol and the export every runner produces.
+Configurações fixas do protocolo (trilhas A1, A2, B, C, lidas de `benchmarks/vs_frameworks/PROTOCOL.md`) e a exportação que todo executor produz.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/protocol.py` · 97 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `export_predictions` | função | `(problem, predict, batch=20000) -> dict[str, np.ndarray]` | ``{"u_test", "u_stencil"}`` from ``predict`` ((N, 2) float32 array -> (N,) or (N, 1)), evaluated in batches on the shared test grid and on the residual stencil. Every runner exports exactly this. |
-| `ensure_point_set` | função | `(problem, root) -> Path` | The A1 point set of ``problem`` under ``root/points/`` (created once; later calls load the same file). |
-| `runner_parser` | função | `(description)` | The command line every runner accepts (the driver calls runners only through it). |
-| `base_meta` | função | `(args, *, track, framework, source, config) -> dict` | Metadata every result starts from (the runner fills status, iterations and times). |
+| `export_predictions` | função | `(problem, predict, batch=20000) -> dict[str, np.ndarray]` | Avalia a função de previsão em lotes na grade de teste e no estêncil de resíduo e devolve `u_test` e `u_stencil`. |
+| `ensure_point_set` | função | `(problem, root) -> Path` | Cria uma única vez o conjunto de pontos A1 do problema em `root/points/` e reutiliza o mesmo arquivo depois. |
+| `runner_parser` | função | `(description)` | Parser de linha de comando comum a todos os executores (o driver só os chama por ele). |
+| `base_meta` | função | `(args, *, track, framework, source, config) -> dict` | Metadados iniciais de cada resultado (trilha, framework, fonte, configuração); o executor completa status, iterações e tempos. |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.records`
 
-Run records of the cross-framework benchmark: environment, threads, load, time caps, the result file schema.
+Registros de execução do benchmark entre frameworks: ambiente, threads, carga da máquina, limites de tempo e esquema do arquivo de resultado. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/records.py` · 166 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Clock` | classe | `(wall_s, cpu_s, loadavg_before, loadavg_after)` | Wall and process CPU time of a block, with the load average before and after. |
-| `TimeCap` | classe | `(seconds, kind='cpu')` | A per-run time budget, measured as process CPU time (``kind="cpu"``) or wall time (``kind="wall"``). |
-| `setup_threads` | função | `(n) -> None` | Pin the thread count of this process (call before importing torch / a framework): OMP / MKL / OpenBLAS environment variables and ``torch.set_num_threads``. |
-| `loadavg` | função | `() -> list` |  |
-| `cpu_model` | função | `() -> str` |  |
-| `package_versions` | função | `(names) -> dict[str, str \| None]` |  |
-| `environment` | função | `(threads) -> dict[str, Any]` | Machine and library record stored next to the results. |
-| `write_run` | função | `(out_dir, run_id, meta, arrays) -> Path` | Write ``<run_id>.json`` (metadata) and ``<run_id>.npz`` (exported predictions) into ``out_dir``. |
-| `read_run` | função | `(out_dir, run_id)` |  |
-| `validate_result` | função | `(meta) -> list` | Missing schema fields of a result (empty when valid). |
+| `Clock` | classe | `(wall_s, cpu_s, loadavg_before, loadavg_after)` | Tempo de parede e de CPU do processo de um bloco, com a carga média antes e depois. |
+| `TimeCap` | classe | `(seconds, kind='cpu')` | Orçamento de tempo por execução, medido em CPU do processo ou em tempo de parede, com `restart`, `used` e `expired`. |
+| `setup_threads` | função | `(n) -> None` | Fixa o número de threads do processo (variáveis OMP/MKL/OpenBLAS e `torch.set_num_threads`); deve ser chamado antes de importar o framework. |
+| `loadavg` | função | `() -> list` | Devolve a carga média do sistema operacional. |
+| `cpu_model` | função | `() -> str` | Devolve o nome do modelo de CPU da máquina. |
+| `package_versions` | função | `(names) -> dict[str, str \| None]` | Devolve a versão instalada de cada pacote pedido (None se ausente). |
+| `environment` | função | `(threads) -> dict[str, Any]` | Registro da máquina e das bibliotecas, guardado junto aos resultados. |
+| `write_run` | função | `(out_dir, run_id, meta, arrays) -> Path` | Grava `<run_id>.json` (metadados) e `<run_id>.npz` (previsões exportadas) na pasta de saída. |
+| `read_run` | função | `(out_dir, run_id)` | Lê de volta os metadados e as previsões de uma execução gravada. |
+| `validate_result` | função | `(meta) -> list` | Lista os campos obrigatórios ausentes nos metadados de um resultado (vazia quando válido). |
 
 #### `pinneapple_tools.benchmark_suite.crossframework.weights`
 
-Shared initial weights for the identical-configuration track (A1).
+Pesos iniciais compartilhados da trilha de configuração idêntica (A1), gerados em numpy e copiados para camadas PyTorch.
 
 <small>`pinneapple_tools/benchmark_suite/crossframework/weights.py` · 48 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `layer_sizes` | função | `(in_dim=2, out_dim=1, width=50, depth=4) -> list[int]` |  |
-| `xavier_uniform_init` | função | `(sizes, seed) -> list[tuple[np.ndarray, np.ndarray]]` | ``[(W, b), ...]`` with ``W`` of shape ``(fan_out, fan_in)`` (the ``torch.nn.Linear`` layout) drawn from ``U(-a, a)``, ``a = sqrt(6 / (fan_in + fan_out))`` (Glorot & Bengio 2010), and ``b = 0``; float32. |
-| `load_into_linears` | função | `(linears, params) -> None` | Copy ``params`` into a sequence of ``torch.nn.Linear`` modules (shapes must match exactly). |
-| `count_parameters` | função | `(module) -> int` |  |
+| `layer_sizes` | função | `(in_dim=2, out_dim=1, width=50, depth=4) -> list[int]` | Lista de tamanhos de camada de um MLP a partir da dimensão de entrada, saída, largura e profundidade. |
+| `xavier_uniform_init` | função | `(sizes, seed) -> list[tuple[np.ndarray, np.ndarray]]` | Gera pesos Xavier uniformes (Glorot & Bengio 2010) no layout de `torch.nn.Linear`, com bias zero, a partir de uma semente. |
+| `load_into_linears` | função | `(linears, params) -> None` | Copia os pesos gerados para uma sequência de `torch.nn.Linear` (as formas precisam bater exatamente). |
+| `count_parameters` | função | `(module) -> int` | Conta os parâmetros de um módulo PyTorch. |
 
 #### `pinneapple_tools.benchmark_suite.deeponet_ground_truth`
 
-The four canonical operator-learning ground-truth solvers from Lu, Jin & Karniadakis 2019 (DeepONet), arXiv:1910.03193, Section 4: given a GRF-sampled input function u(x) (`pinneapple_data.grf_sampler.GRFDraw`), each solver computes the TRUE solution of a different dynamical system driven by u. …
+Os quatro solvers de referência do artigo DeepONet (Lu, Jin & Karniadakis 2019): dada uma função de entrada amostrada de um GRF, calculam a solução verdadeira de cada sistema dinâmico. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/deeponet_ground_truth.py` · 155 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solve_ode_linear` | função | `(draw, x_query) -> np.ndarray` | Exact via the GRF spline's own antiderivative (piecewise-cubic, so integration is exact for the spline itself, not an ODE-solver approximation of it). |
-| `solve_ode_nonlinear` | função | `(draw, x_query) -> np.ndarray` |  |
-| `solve_pendulum` | função | `(draw, x_query, k=1.0) -> np.ndarray` | Returns s1 (angle) at each query point. |
-| `pendulum_rk4_reference` | função | `(draw, x_max, k, n_steps=20000) -> float` | Independent hand-written fixed-step RK4 integrator, useful ONLY to cross-check solve_ivp's adaptive integration in a validation script -- not meant for production use (solve_pendulum's adaptive RK45 is both faster and, by default tolerance, at least as accurate). |
-| `solve_diffusion_reaction` | função | `(draw, nx=100, nt=100, D=0.01, k=0.01, x_max=1.0, t_max=1.0) -> 'tuple[np.ndarray, np.nda…)` | Crank-Nicolson for the diffusion term + one Picard correction per step for the k*s^2 reaction term, tridiagonal (Thomas algorithm) solves. Returns (x_grid, t_grid, s) with s.shape == (nt, nx). |
+| `solve_ode_linear` | função | `(draw, x_query) -> np.ndarray` | Solução exata da EDO linear pela antiderivada do próprio spline do GRF. |
+| `solve_ode_nonlinear` | função | `(draw, x_query) -> np.ndarray` | Solução de referência da EDO não linear dirigida pela função de entrada, nos pontos pedidos. |
+| `solve_pendulum` | função | `(draw, x_query, k=1.0) -> np.ndarray` | Solução do pêndulo forçado pela função de entrada; devolve o ângulo em cada ponto de consulta. |
+| `pendulum_rk4_reference` | função | `(draw, x_max, k, n_steps=20000) -> float` | Integrador RK4 de passo fixo escrito à mão, só para conferir a integração adaptativa em scripts de validação (não para produção). |
+| `solve_diffusion_reaction` | função | `(draw, nx=100, nt=100, D=0.01, k=0.01, x_max=1.0, t_max=1.0) -> 'tuple[np.ndarray, np.nda…)` | Difusão-reação com Crank–Nicolson para a difusão, uma correção de Picard por passo para a reação e algoritmo de Thomas. |
 
 #### `pinneapple_tools.benchmark_suite.io`
 
-_Módulo sem docstring e sem texto._
+Pacote de entrada/saída da suíte; reexporta os utilitários YAML. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/io/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.benchmark_suite.io.yamlx`
 
-_Módulo sem docstring e sem texto._
+Funções finas para ler e escrever YAML como dicionário. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/io/yamlx.py` · 56 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_yaml` | função | `(path) -> Dict[str, Any]` | Load a YAML file and return its content as a dictionary. |
-| `dump_yaml` | função | `(obj) -> str` | Serialize a Python object into a YAML-formatted string. |
+| `load_yaml` | função | `(path) -> Dict[str, Any]` | Lê um arquivo YAML e devolve o conteúdo como dicionário. |
+| `dump_yaml` | função | `(obj) -> str` | Serializa um objeto Python para texto YAML. |
 
 #### `pinneapple_tools.benchmark_suite.meta_benchmark`
 
-Meta-Learning Benchmark for PINNs.
+Benchmark de meta-aprendizado para PINNs: treina MAML (primeira ordem) e Reptile em famílias paramétricas de EDPs e compara a adaptação em K passos com treino do zero.
 
 <small>`pinneapple_tools/benchmark_suite/meta_benchmark.py` · 937 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MetaBenchmarkConfig` | classe | `(n_meta_epochs, n_inner_steps, inner_lr, outer_lr, n_tasks_per_batch, k_shots, algorithms…)` |  |
-| `MetaBenchmarkFamily` | classe | `(name, train_task_factory, eval_task_factory, param_ranges, eval_params)` | A parametric PDE family for meta-learning. |
-| `MetaBenchmarkResult` | classe | `(family_name, eval_params, algorithm, k_shot, metrics, elapsed_s)` |  |
-| `MetaBenchmarkPipeline` | classe | `(families, config=None) -> None` | Meta-learning benchmark pipeline. |
-| `cfg_str` | função | `(results) -> str` |  |
+| `MetaBenchmarkConfig` | classe | `(n_meta_epochs, n_inner_steps, inner_lr, outer_lr, n_tasks_per_batch, k_shots, algorithms…)` | Configuração do benchmark de meta-aprendizado: épocas meta, passos internos, taxas de aprendizado, tarefas por lote, valores de K, algoritmos, pontos e pesos de perda. |
+| `MetaBenchmarkFamily` | classe | `(name, train_task_factory, eval_task_factory, param_ranges, eval_params)` | Uma família paramétrica de EDPs: fábricas de tarefas de treino e avaliação, faixas de parâmetros e parâmetros de avaliação. |
+| `MetaBenchmarkResult` | classe | `(family_name, eval_params, algorithm, k_shot, metrics, elapsed_s)` | Resultado de uma família, parâmetro de avaliação, algoritmo e valor de K: métricas e tempo. |
+| `MetaBenchmarkPipeline` | classe | `(families, config=None) -> None` | Pipeline que roda o meta-treino e a avaliação K-shot, monta leaderboard, curvas de erro por K e salva/carrega resultados. |
+| `cfg_str` | função | `(results) -> str` | Texto curto com o número de passos do baseline `scratch_full`, tirado dos resultados. |
 
 #### `pinneapple_tools.benchmark_suite.physics_pipeline`
 
-PhysicsPipeline — standard 6-step PINNeAPPle physics pipeline.
+`PhysicsPipeline`: pipeline físico padrão em 6 passos (problema, geometria, geração de pontos e perdas, solver de referência, modelos, treino e exportação com ranking). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/physics_pipeline.py` · 1.332 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsPipeline` | classe | `(problem, geometry=None, load_generate_data='generate', source=None, metrics='auto', coll…)` | Standard 6-step PINNeAPPle physics pipeline. |
+| `PhysicsPipeline` | classe | `(problem, geometry=None, load_generate_data='generate', source=None, metrics='auto', coll…)` | Pipeline declarativo que recebe um problema e uma lista de modelos, gera dados de referência com um solver numérico, treina cada modelo com a perda física e produz um `BenchmarkReport`. |
 
 #### `pinneapple_tools.benchmark_suite.pipeline.dataset_builder`
 
-Arena dataset builder — thin re-export from pinneapple_data.adapters.pinn_batch_builders.
+Reexportação fina de `pinneapple_data.adapters.pinn_batch_builders`, com o alias legado `BundleDataLike = PINNBatch`. [shim] [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/pipeline/dataset_builder.py` · 22 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.benchmark_suite.pipeline.model_selector`
 
-Model selection helpers.
+Ajudante para escolher modelos do `ModelRegistry` por tipo de entrada, chaves esperadas, suporte a perda física e tags. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/pipeline/model_selector.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `select_models` | função | `(*, input_kind, expects=None, supports_physics_loss=None, tags_any=None) -> List[str]` |  |
+| `select_models` | função | `(*, input_kind, expects=None, supports_physics_loss=None, tags_any=None) -> List[str]` | Lista os nomes de modelos registrados que batem com o `input_kind` e os filtros opcionais. |
 
 #### `pinneapple_tools.benchmark_suite.registry`
 
-_Módulo sem docstring e sem texto._
+Registros globais de tarefas e backends do Arena, com decoradores de registro e funções de busca. [sem teste direto]
 
 <small>`pinneapple_tools/benchmark_suite/registry.py` · 77 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_task` | função | `(task_cls) -> Type['ArenaTask']` | Decorator to register a task by its ``task_id``. |
-| `get_task` | função | `(task_id) -> Type['ArenaTask']` |  |
-| `list_tasks` | função | `() -> List[str]` |  |
-| `register_backend` | função | `(backend_cls) -> Type['Backend']` | Decorator to register a backend by its ``name``. |
-| `get_backend` | função | `(name) -> Type['Backend']` |  |
-| `list_backends` | função | `() -> List[str]` |  |
+| `register_task` | função | `(task_cls) -> Type['ArenaTask']` | Decorador que registra uma classe de tarefa pelo seu `task_id`. |
+| `get_task` | função | `(task_id) -> Type['ArenaTask']` | Devolve a classe de tarefa registrada com o id dado. |
+| `list_tasks` | função | `() -> List[str]` | Lista os ids de tarefas registradas. |
+| `register_backend` | função | `(backend_cls) -> Type['Backend']` | Decorador que registra uma classe de backend pelo seu `name`. |
+| `get_backend` | função | `(name) -> Type['Backend']` | Devolve a classe de backend registrada com o nome dado. |
+| `list_backends` | função | `() -> List[str]` | Lista os nomes de backends registrados. |
 
 #### `pinneapple_tools.benchmark_suite.report`
 
-Benchmark report: structured output for PhysicsBenchmarkSpec and TimeSeriesBenchmarkSpec.
+Relatório estruturado dos benchmarks de física e de séries temporais: resultados por modelo, leaderboard, melhor modelo e exportação JSON. [sem teste direto]
 
 <small>`pinneapple_tools/benchmark_suite/report.py` · 148 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ModelRunResult` | classe | `(model_id, n_params, training_time_s, metrics, history, param_estimates, rank, error_mess…)` |  |
-| `BenchmarkReport` | classe | `(benchmark_type, created_at, version, problem_info, config, model_results, leaderboard, b…)` |  |
+| `ModelRunResult` | classe | `(model_id, n_params, training_time_s, metrics, history, param_estimates, rank, error_mess…)` | Resultado de um modelo: id, número de parâmetros, tempo de treino, métricas, histórico, parâmetros estimados, posição e mensagem de erro. |
+| `BenchmarkReport` | classe | `(benchmark_type, created_at, version, problem_info, config, model_results, leaderboard, b…)` | Relatório completo de um benchmark, com `to_dict`, `to_json`, `save` e `print_summary`. |
 
 #### `pinneapple_tools.benchmark_suite.runner`
 
-_Módulo sem docstring e sem texto._
+Pacote dos executores de linha de comando do Arena (comparação, leaderboard, sweep, YAML, pipeline completo). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/__init__.py` · 25 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.benchmark_suite.runner.compare`
 
-Compare multiple trained model runs.
+Compara várias pastas de execução já concluídas, gerando tabela e gráficos. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/compare.py` · 151 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compare_runs` | função | `(run_dirs, *, out_dir='runs/arena_compare', title='arena_compare', make_plots=True) -> Di…)` | Compare completed run directories. |
+| `compare_runs` | função | `(run_dirs, *, out_dir='runs/arena_compare', title='arena_compare', make_plots=True) -> Di…)` | Lê as pastas de execução, junta métricas, escreve um resumo e, opcionalmente, gráficos de comparação. |
 
 #### `pinneapple_tools.benchmark_suite.runner.leaderboard`
 
-_Módulo sem docstring e sem texto._
+Leitura e atualização de um leaderboard em arquivo JSON. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/leaderboard.py` · 43 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_leaderboard` | função | `(path) -> List[Dict[str, Any]]` | Load a leaderboard JSON file. |
-| `update_leaderboard` | função | `(path, row) -> None` | Append a new entry to the leaderboard JSON file. |
+| `load_leaderboard` | função | `(path) -> List[Dict[str, Any]]` | Carrega o leaderboard de um arquivo JSON. |
+| `update_leaderboard` | função | `(path, row) -> None` | Acrescenta uma linha ao leaderboard em JSON. |
 
 #### `pinneapple_tools.benchmark_suite.runner.metrics`
 
-_Módulo sem docstring e sem texto._
+Utilitário pequeno para converter valores de métricas em float. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/metrics.py` · 30 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ensure_float_dict` | função | `(d) -> Dict[str, float]` | Convert dictionary values to floats when possible. |
+| `ensure_float_dict` | função | `(d) -> Dict[str, float]` | Converte para float os valores de um dicionário quando possível. |
 
 #### `pinneapple_tools.benchmark_suite.runner.report`
 
-_Módulo sem docstring e sem texto._
+Grava os artefatos de uma execução (relatório, métricas, resumo) em disco. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/report.py` · 67 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `write_run_artifacts` | função | `(*, artifacts_dir, run_id, report, metrics, summary) -> Path` | Persist run artifacts (report, metrics, summary) to disk. |
+| `write_run_artifacts` | função | `(*, artifacts_dir, run_id, report, metrics, summary) -> Path` | Persiste relatório, métricas e resumo de uma execução na pasta de artefatos e devolve o caminho. |
 
 #### `pinneapple_tools.benchmark_suite.runner.run_arena_yaml`
 
-Run a complete Arena experiment from a unified YAML config.
+Executa um experimento Arena completo a partir de um YAML unificado (preset do problema, vários modelos, métricas, inferência e visualização). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/run_arena_yaml.py` · 563 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_arena_experiment` | função | `(yaml_path, *, out_dir=None) -> Dict[str, Any]` | Run a complete Arena experiment from a YAML config file. |
-| `main` | função | `() -> None` |  |
+| `run_arena_experiment` | função | `(yaml_path, *, out_dir=None) -> Dict[str, Any]` | Lê o YAML, treina cada modelo do experimento, avalia e devolve um resumo por modelo. |
+| `main` | função | `() -> None` | Ponto de entrada de linha de comando para `run_arena_experiment`. |
 
 #### `pinneapple_tools.benchmark_suite.runner.run_benchmark`
 
-_Módulo sem docstring e sem texto._
+Executa um benchmark do Arena a partir de configurações de tarefa, execução e esquema de bundle. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/run_benchmark.py` · 132 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_benchmark` | função | `(*, artifacts_dir, task_cfg_path, run_cfg_path, bundle_schema_path) -> Dict[str, Any]` |  |
+| `run_benchmark` | função | `(*, artifacts_dir, task_cfg_path, run_cfg_path, bundle_schema_path) -> Dict[str, Any]` | Carrega o bundle, escolhe o backend, treina, calcula as métricas da tarefa e grava os artefatos. |
 
 #### `pinneapple_tools.benchmark_suite.runner.run_models_from_cfg`
 
-_Módulo sem docstring e sem texto._
+Treina um modelo do registro a partir de uma configuração de execução (usado pelo sweep). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/run_models_from_cfg.py` · 265 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_one` | função | `(*, run_cfg, run_dir, bundle_root=None) -> Dict[str, Any]` |  |
-| `main` | função | `()` |  |
+| `run_one` | função | `(*, run_cfg, run_dir, bundle_root=None) -> Dict[str, Any]` | Roda uma configuração de modelo numa pasta de execução e devolve as métricas. |
+| `main` | função | `()` | Ponto de entrada de linha de comando para `run_one`. |
 
 #### `pinneapple_tools.benchmark_suite.runner.run_pipeline`
 
-End-to-end pipeline: geometry → solver → dataset → train → predict → report.
+Pipeline de ponta a ponta configurado por YAML: geometria, malha, solver (OpenFOAM, FEniCS ou embutido), dataset, treino, inferência e relatório. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/run_pipeline.py` · 1.444 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_full_pipeline` | função | `(config_path_or_dict, *, out_dir=None) -> Dict[str, Any]` | Run the complete end-to-end pipeline. |
-| `main` | função | `() -> None` |  |
+| `run_full_pipeline` | função | `(config_path_or_dict, *, out_dir=None) -> Dict[str, Any]` | Executa todas as etapas do pipeline a partir de um caminho de config ou dicionário e devolve o resumo. |
+| `main` | função | `() -> None` | Ponto de entrada de linha de comando para `run_full_pipeline`. |
 
 #### `pinneapple_tools.benchmark_suite.runner.run_sweep`
 
-Run a benchmark sweep over multiple models.
+Sweep de benchmark sobre vários modelos, com paralelismo entre modelos (um processo por GPU, fila, ou DDP por modelo via torchrun). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/runner/run_sweep.py` · 208 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SweepJob` | classe | `(model_name, run_cfg)` |  |
-| `run_sweep` | função | `(*, models, base_run_cfg, bundle_root, out_dir='runs/arena_sweep', parallelism='process',…)` | Run a sweep. |
+| `SweepJob` | classe | `(model_name, run_cfg)` | Um trabalho do sweep: nome do modelo e sua configuração de execução. |
+| `run_sweep` | função | `(*, models, base_run_cfg, bundle_root, out_dir='runs/arena_sweep', parallelism='process',…)` | Distribui os modelos entre GPUs ou processos e produz uma pasta de execução por modelo. |
 
 #### `pinneapple_tools.benchmark_suite.tasks`
 
-_Módulo sem docstring e sem texto._
+Pacote das tarefas do Arena: reexporta `ArenaTask`, os casos de escoamento (obstáculo 2D, cavidade 3D) e as tarefas clássicas de benchmark.
 
 <small>`pinneapple_tools/benchmark_suite/tasks/__init__.py` · 29 linhas · testes: 2</small>
 
 #### `pinneapple_tools.benchmark_suite.tasks.allen_cahn_1d`
 
-Allen-Cahn 1D benchmark task.
+Tarefa de benchmark Allen–Cahn 1D com referência numérica opcional.
 
 <small>`pinneapple_tools/benchmark_suite/tasks/allen_cahn_1d.py` · 135 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AllenCahn1DTask` | classe | `(eps=0.01, build_reference=True) -> None` |  |
+| `AllenCahn1DTask` | classe | `(eps=0.01, build_reference=True) -> None` | Tarefa Allen–Cahn 1D: amostragem de pontos, condições de contorno e inicial, resíduo da EDP e grade de avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.base`
 
-_Módulo sem docstring e sem texto._
+Base das tarefas do Arena e o resultado padrão de uma avaliação.
 
 <small>`pinneapple_tools/benchmark_suite/tasks/base.py` · 53 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TaskResult` | classe | `(metrics, artifacts)` | Standard output for a task evaluation. |
-| `ArenaTask` | classe | `(task_id)` | Base class for Arena tasks. |
+| `TaskResult` | classe | `(metrics, artifacts)` | Saída padrão de uma avaliação de tarefa: métricas e artefatos. |
+| `ArenaTask` | classe | `(task_id)` | Classe base de tarefa do Arena; `compute_metrics` padrão calcula L2 relativo e erro máximo das saídas do backend. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.burgers_1d`
 
-Burgers 1D benchmark task.
+Tarefa de benchmark Burgers 1D (viscosidade padrão 0.01/π) com referência numérica opcional.
 
 <small>`pinneapple_tools/benchmark_suite/tasks/burgers_1d.py` · 152 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Burgers1DTask` | classe | `(nu=0.01 / np.pi, build_reference=True) -> None` |  |
+| `Burgers1DTask` | classe | `(nu=0.01 / np.pi, build_reference=True) -> None` | Tarefa Burgers 1D: amostragem, condições de contorno e inicial, resíduo, grade de avaliação e avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.flow_obstacle_2d`
 
-_Módulo sem docstring e sem texto._
+Tarefa de escoamento 2D estacionário em torno de obstáculo, avaliada por modelo torch, função de previsão ou arrays. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/tasks/flow_obstacle_2d.py` · 263 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FlowObstacle2DTask` | classe | `(task_id, n_collocation_eval, n_boundary_eval, n_sensors_eval)` | Task definition for the 2D steady flow around obstacle benchmark. |
+| `FlowObstacle2DTask` | classe | `(task_id, n_collocation_eval, n_boundary_eval, n_sensors_eval)` | Calcula resíduo de Navier–Stokes, erro de contorno e L2 em sensores conforme o que o backend devolveu. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.heat_1d`
 
-Heat equation 1D benchmark task.
+Tarefa de benchmark equação do calor 1D com solução exata.
 
 <small>`pinneapple_tools/benchmark_suite/tasks/heat_1d.py` · 85 linhas · testes: 153</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Heat1DTask` | classe | `(alpha=0.01) -> None` |  |
+| `Heat1DTask` | classe | `(alpha=0.01) -> None` | Tarefa do calor 1D: solução exata, amostragem, resíduo e grade de avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.lid_driven_cavity_3d`
 
-_Módulo sem docstring e sem texto._
+Benchmark de cavidade com tampa móvel 3D, com validação contra dados de linha central de Ghia et al. (1982). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/tasks/lid_driven_cavity_3d.py` · 394 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LidDrivenCavity3DTask` | classe | `(Re=100.0, size=1.0, lid_velocity=1.0) -> None` | 3D Lid-Driven Cavity Flow benchmark. |
+| `LidDrivenCavity3DTask` | classe | `(Re=100.0, size=1.0, lid_velocity=1.0) -> None` | Tarefa de cavidade 3D: métricas, perfil de referência da literatura (Re mais próximo entre os tabelados) e comparação com a previsão. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.navier_stokes_tgv_2d`
 
-Navier-Stokes 2D Taylor-Green Vortex benchmark task.
+Tarefa de benchmark Navier–Stokes 2D com o vórtice de Taylor–Green (solução exata). [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/tasks/navier_stokes_tgv_2d.py` · 183 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NavierStokesTGV2DTask` | classe | `(nu=0.01) -> None` |  |
+| `NavierStokesTGV2DTask` | classe | `(nu=0.01) -> None` | Tarefa Taylor–Green 2D: campos exatos u, v, p, amostragem, resíduo, grade e avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.poisson_2d`
 
-Poisson 2D benchmark task.
+Tarefa de benchmark Poisson 2D com solução exata e termo fonte. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/tasks/poisson_2d.py` · 98 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Poisson2DTask` | classe | `()` |  |
+| `Poisson2DTask` | classe | `()` | Tarefa Poisson 2D: solução exata, forçamento, amostragem, resíduo e grade de avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.tasks.wave_1d`
 
-Wave equation 1D benchmark task.
+Tarefa de benchmark equação da onda 1D com solução exata. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/tasks/wave_1d.py` · 103 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Wave1DTask` | classe | `(c=1.0) -> None` |  |
+| `Wave1DTask` | classe | `(c=1.0) -> None` | Tarefa da onda 1D: solução exata, amostragem, condições, resíduo e grade de avaliação. |
 
 #### `pinneapple_tools.benchmark_suite.timeseries_pipeline`
 
-TimeSeriesBenchmarkSpec — declarative time-series benchmark pipeline.
+`TimeSeriesBenchmarkSpec`: benchmark declarativo de séries temporais que reaproveita datasets, modelos, treino e métricas existentes. [sem teste]
 
 <small>`pinneapple_tools/benchmark_suite/timeseries_pipeline.py` · 579 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TimeSeriesBenchmarkSpec` | classe | `(source, models=('lstm',), metrics=('mse', 'mae', 'rmse'), target_cols=None, horizon=50, …)` | Declarative time-series benchmark pipeline. |
+| `TimeSeriesBenchmarkSpec` | classe | `(source, models=('lstm',), metrics=('mse', 'mae', 'rmse'), target_cols=None, horizon=50, …)` | Especificação declarativa (fonte, modelos, métricas, horizonte, janela) cujo `run()` treina cada modelo e devolve um `BenchmarkReport`. |
 
 #### `pinneapple_tools.benchmark_suite.transfer_benchmark`
 
-Transfer Learning Benchmark for PINNs.
+Benchmark de transferência para PINNs: treina um modelo fonte e o ajusta a problemas alvo com várias estratégias, comparando com treino do zero.
 
 <small>`pinneapple_tools/benchmark_suite/transfer_benchmark.py` · 798 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TransferBenchmarkConfig` | classe | `(n_source_epochs, lr_source, n_finetune_epochs, lr_finetune, lr_base, lr_scratch, strateg…)` |  |
-| `TransferScenario` | classe | `(name, source_task, target_tasks, source_label, target_labels)` | One transfer scenario: one source task and N target tasks. |
-| `TransferBenchmarkResult` | classe | `(scenario_name, target_label, strategy, metrics, history, elapsed_s, n_params_trainable, …)` |  |
-| `TransferBenchmarkPipeline` | classe | `(scenarios, config=None) -> None` | Benchmark comparing transfer learning strategies against from-scratch baselines. |
+| `TransferBenchmarkConfig` | classe | `(n_source_epochs, lr_source, n_finetune_epochs, lr_finetune, lr_base, lr_scratch, strateg…)` | Configuração: épocas e taxas da fonte e do ajuste fino, estratégias, aquecimento, pontos e pesos das perdas. |
+| `TransferScenario` | classe | `(name, source_task, target_tasks, source_label, target_labels)` | Um cenário de transferência: uma tarefa fonte e N tarefas alvo, com rótulos. |
+| `TransferBenchmarkResult` | classe | `(scenario_name, target_label, strategy, metrics, history, elapsed_s, n_params_trainable, …)` | Resultado de (cenário, alvo, estratégia): métricas, histórico, tempo e parâmetros treináveis e totais. |
+| `TransferBenchmarkPipeline` | classe | `(scenarios, config=None) -> None` | Pipeline que roda todas as estratégias de transferência e os baselines do zero, monta leaderboard, gráficos e salva/carrega resultados. |
 
 #### `pinneapple_tools.compute_backends`
 
@@ -969,266 +971,266 @@ Curadoria de datasets sintéticos com um modelo de visão-linguagem: julga a pla
 
 #### `pinneapple_tools.hpo_experiments`
 
-_Módulo sem docstring e sem texto._
+Pesquisador automático de literatura (antigo `pinneapple_researcher`, apesar do nome "hpo"): descobre artigos e repositórios sobre um tema, monta uma base de conhecimento, extrai problema/solução com LLM e tenta reproduzir. [experimental] [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/__init__.py` · 14 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.agents`
 
-_Módulo sem docstring e sem texto._
+Pacote dos agentes LLM do pesquisador (extrator, reprodutor, verificador). [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/agents/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.agents.extractor`
 
-ExtractorAgent for extracting problem/solution from KB artifacts.
+Agente que usa um LLM para extrair problema e solução estruturados dos artefatos da base de conhecimento. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/agents/extractor.py` · 101 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExtractorAgent` | classe | `(provider)` |  |
+| `ExtractorAgent` | classe | `(provider)` | Envia trechos de um artigo ou repositório ao provedor LLM e devolve um `ExtractedProblemSolution`. |
 
 #### `pinneapple_tools.hpo_experiments.agents.prompts`
 
-Agent system prompts for extract, reproduce, and verify.
+Textos de sistema (prompts) dos agentes de extração, reprodução e verificação. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/agents/prompts.py` · 125 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.agents.reproducer`
 
-ReproducerAgent for generating reproduction patches from repo/project.
+Agente que pede ao LLM os arquivos de um projeto de reprodução a partir de um item e de trechos da base. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/agents/reproducer.py` · 98 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReproduceResult` | classe | `(project_dir, run_instructions)` |  |
-| `ReproducerAgent` | classe | `(provider)` |  |
+| `ReproduceResult` | classe | `(project_dir, run_instructions)` | Resultado da reprodução: pasta do projeto gerado e instruções de execução. |
+| `ReproducerAgent` | classe | `(provider)` | Gera, via LLM, um projeto de reprodução numa pasta de saída. |
 
 #### `pinneapple_tools.hpo_experiments.agents.verifier`
 
-VerifierAgent for verifying project runnability and suggesting patches.
+Agente que lê a árvore do projeto e os logs de execução e propõe diagnóstico e patches. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/agents/verifier.py` · 75 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VerifyResult` | classe | `(status, diagnosis, patches, notes)` |  |
-| `VerifierAgent` | classe | `(provider)` |  |
+| `VerifyResult` | classe | `(status, diagnosis, patches, notes)` | Resposta do verificador: status, diagnóstico, lista de patches e notas. |
+| `VerifierAgent` | classe | `(provider)` | Pede ao LLM um diagnóstico de por que o projeto não roda e patches para corrigi-lo. |
 
 #### `pinneapple_tools.hpo_experiments.config`
 
-ResearcherConfig for topic, k_papers, k_repos, ranking weights.
+Configuração do pesquisador: tema, número de artigos e repositórios, pesos do ranking, filtros do GitHub e arXiv, pastas e chunking. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/config.py` · 42 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResearcherConfig` | classe | `(topic, k_papers, k_repos, w_lexical, w_signals, w_freshness, w_quality, github_min_stars…)` | Researcher configuration. |
+| `ResearcherConfig` | classe | `(topic, k_papers, k_repos, w_lexical, w_signals, w_freshness, w_quality, github_min_stars…)` | Dataclass com o tema da busca, quantidades, pesos heurísticos do ranking, filtros e diretórios de saída e cache. |
 
 #### `pinneapple_tools.hpo_experiments.kb`
 
-_Módulo sem docstring e sem texto._
+Pacote da base de conhecimento (chunking e armazenamento). [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/kb/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.kb.chunking`
 
-Text chunking for KB indexing with overlap.
+Divide texto em pedaços com sobreposição para indexação. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/kb/chunking.py` · 29 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TextChunk` | classe | `(chunk_id, text)` |  |
-| `chunk_text` | função | `(text, *, chunk_chars=1800, overlap=200) -> List[TextChunk]` |  |
+| `TextChunk` | classe | `(chunk_id, text)` | Um pedaço de texto com seu identificador. |
+| `chunk_text` | função | `(text, *, chunk_chars=1800, overlap=200) -> List[TextChunk]` | Corta um texto em pedaços de tamanho fixo em caracteres, com sobreposição entre eles. |
 
 #### `pinneapple_tools.hpo_experiments.kb.store`
 
-KB store for artifacts, indexing, and persistence.
+Armazenamento de uma execução da base: manifesto, artefatos (artigos e repositórios) e `chunks.jsonl` para RAG. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/kb/store.py` · 142 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KBStore` | classe | `(*, out_dir)` | Persists a KB run: - manifest.json (ranked items + metadata) - artifacts (papers/, repos/) - chunks.jsonl (chunked text for RAG) |
-| `slugify` | função | `(s) -> str` |  |
-| `ensure_dir` | função | `(p) -> str` |  |
+| `KBStore` | classe | `(*, out_dir)` | Persiste uma execução da base: cria a pasta, grava manifesto, textos dos artefatos, pedaços em JSONL e o índice. |
+| `slugify` | função | `(s) -> str` | Converte um texto num nome seguro para arquivo ou pasta. |
+| `ensure_dir` | função | `(p) -> str` | Cria a pasta se não existir e devolve o caminho. |
 
 #### `pinneapple_tools.hpo_experiments.models`
 
-RankedItem, DiscoveryResult data models for researcher output.
+Modelos de dados do pesquisador: itens ranqueados, resultado da descoberta, artefatos e índice da base, e problema/solução extraído. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/models.py` · 75 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RankedItem` | classe | `(type, id, title, url, score, why, meta)` |  |
-| `DiscoveryResult` | classe | `(topic, papers, repos, meta)` |  |
-| `KBArtifact` | classe | `(type, id, title, url, path, meta)` | A persisted artifact (paper/repo) stored inside a KB run folder. |
-| `KBIndex` | classe | `(topic, run_dir, chunks_path, manifest_path)` | A light-weight index pointing to chunked documents (JSONL). |
-| `ExtractedProblemSolution` | classe | `(source_type, source_id, title, problem, solution, equations, data_requirements, training…)` | Output of ExtractorAgent. Keep it generic but structured enough to map into pinneapple_problemdesign later. |
+| `RankedItem` | classe | `(type, id, title, url, score, why, meta)` | Um artigo ou repositório ranqueado: tipo, id, título, URL, pontuação, justificativa e metadados. |
+| `DiscoveryResult` | classe | `(topic, papers, repos, meta)` | Resultado da descoberta: tema, listas de artigos e de repositórios ranqueados e metadados. |
+| `KBArtifact` | classe | `(type, id, title, url, path, meta)` | Um artefato (artigo ou repositório) persistido dentro de uma execução da base. |
+| `KBIndex` | classe | `(topic, run_dir, chunks_path, manifest_path)` | Índice leve que aponta para a pasta da execução, o JSONL de pedaços e o manifesto. |
+| `ExtractedProblemSolution` | classe | `(source_type, source_id, title, problem, solution, equations, data_requirements, training…)` | Saída do `ExtractorAgent`: problema, solução, equações, requisitos de dados, receita de treino, métricas e limitações. |
 
 #### `pinneapple_tools.hpo_experiments.pipelines`
 
-_Módulo sem docstring e sem texto._
+Pacote dos pipelines do pesquisador (descoberta, base, extração, reprodução, exportação). [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/__init__.py` · 8 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.pipelines.build_kb`
 
-KB build pipeline: papers and repos to KBStore.
+Pipeline que baixa artigos (PDF do arXiv) e arquivos-chave de repositórios e grava tudo no `KBStore`. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/build_kb.py` · 141 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_kb` | função | `(cfg, discovery) -> KBIndex` |  |
+| `build_kb` | função | `(cfg, discovery) -> KBIndex` | Monta a base de conhecimento a partir do resultado da descoberta e devolve o `KBIndex`. |
 
 #### `pinneapple_tools.hpo_experiments.pipelines.discover`
 
-Discovery pipeline: papers and repos from topic query.
+Pipeline de descoberta: busca artigos no arXiv e repositórios no GitHub sobre o tema e os ranqueia por heurísticas. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/discover.py` · 201 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `discover` | função | `(cfg) -> DiscoveryResult` |  |
+| `discover` | função | `(cfg) -> DiscoveryResult` | Busca e ranqueia artigos e repositórios para a configuração dada e devolve um `DiscoveryResult`. |
 
 #### `pinneapple_tools.hpo_experiments.pipelines.export_problemdesign`
 
-Export extracted solutions to ProblemDesign format.
+Exporta soluções extraídas num esquema estilo ProblemDesign em JSON; o arquivo complementar depende de `pinneapple_problemdesign`, que não está no repositório. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/export_problemdesign.py` · 169 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `to_problemdesign_dict` | função | `(x) -> Dict[str, Any]` | ProblemDesign-like schema (stable, explicit): - source - problem - solution - benchmark - strengths - weaknesses - alternatives - future_improvements |
-| `export_problemdesign` | função | `(items, *, out_path) -> str` | Write researcher findings to *out_path* (JSON) and, when ``pinneapple_problemdesign`` is available, also write a companion ``*_pinneapple_spec.json`` with partial ``ProblemSpec`` mappings and generated Pinneapple API objects for any item that has enough physics info. |
+| `to_problemdesign_dict` | função | `(x) -> Dict[str, Any]` | Converte um problema/solução extraído num dicionário estável (fonte, problema, solução, benchmark, pontos fortes e fracos, alternativas, melhorias). |
+| `export_problemdesign` | função | `(items, *, out_path) -> str` | Grava os achados em JSON e, se `pinneapple_problemdesign` estiver disponível, um `*_pinneapple_spec.json` complementar. |
 
 #### `pinneapple_tools.hpo_experiments.pipelines.extract_problem_solutions`
 
-Extract problem/solution pairs from KB via ExtractorAgent.
+Pipeline que roda o `ExtractorAgent` sobre os itens da base. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/extract_problem_solutions.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `extract_problem_solutions` | função | `(*, kb_index, out_dir=None, max_items=20) -> List[ExtractedProblemSolution]` |  |
+| `extract_problem_solutions` | função | `(*, kb_index, out_dir=None, max_items=20) -> List[ExtractedProblemSolution]` | Extrai até `max_items` pares problema/solução da base e os grava opcionalmente numa pasta. |
 
 #### `pinneapple_tools.hpo_experiments.pipelines.reproduce`
 
-Reproduce pipeline: apply patches and verify project runnability.
+Pipeline de reprodução: gera um projeto via LLM, compila, roda `run.py`/`main.py` e aplica patches do verificador em laço. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/pipelines/reproduce.py` · 79 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `reproduce` | função | `(*, item, kb_index_dir, out_dir=None, max_fix_iters=2) -> str` |  |
+| `reproduce` | função | `(*, item, kb_index_dir, out_dir=None, max_fix_iters=2) -> str` | Gera e tenta fazer rodar um projeto de reprodução de um item, com até `max_fix_iters` rodadas de correção, e devolve a pasta. |
 
 #### `pinneapple_tools.hpo_experiments.providers`
 
-_Módulo sem docstring e sem texto._
+Pacote dos provedores de LLM (só Gemini). [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/providers/__init__.py` · 4 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.providers.gemini_provider`
 
-Gemini API provider for LLM calls.
+Provedor LLM que chama a API Gemini (`generateContent`) diretamente, com modo JSON, ou via um gateway legado. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/providers/gemini_provider.py` · 240 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeminiProviderConfig` | classe | `(api_base, api_version, model, api_key, timeout_s, gateway_base_url, gateway_route)` |  |
-| `GeminiProvider` | classe | `(*, api_key=None, model=None, api_base=None, api_version=None, timeout_s=None, gateway_ba…)` | Default: calls Gemini Developer API directly (models.generateContent). |
+| `GeminiProviderConfig` | classe | `(api_base, api_version, model, api_key, timeout_s, gateway_base_url, gateway_route)` | Configuração imutável do provedor: base e versão da API, modelo, chave, timeout e dados do gateway opcional. |
+| `GeminiProvider` | classe | `(*, api_key=None, model=None, api_base=None, api_version=None, timeout_s=None, gateway_ba…)` | Cliente Gemini com `generate`, que aceita um esquema JSON para respostas estruturadas; precisa de chave de API e de `requests`. |
 
 #### `pinneapple_tools.hpo_experiments.ranking`
 
-Ranking heuristics: lexical overlap, freshness, quality scores.
+Heurísticas de ranking: sobreposição léxica, frescor por decaimento exponencial e normalização. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/ranking.py` · 71 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `tokenize` | função | `(text) -> List[str]` |  |
-| `lexical_overlap_score` | função | `(query, doc) -> float` | v0.1 lexical overlap score (0..1). Simple: fraction of unique query tokens present in doc tokens. |
-| `safe_parse_iso8601` | função | `(dt) -> Optional[datetime]` |  |
-| `freshness_score` | função | `(dt, *, half_life_days=365.0) -> float` | Exponential decay freshness score (0..1). score=1 now, ~0.5 at half_life_days, decays afterwards. |
-| `normalize` | função | `(xs) -> List[float]` |  |
-| `sort_ranked` | função | `(items) -> List[RankedItem]` |  |
+| `tokenize` | função | `(text) -> List[str]` | Quebra um texto em tokens minúsculos. |
+| `lexical_overlap_score` | função | `(query, doc) -> float` | Fração dos tokens únicos da consulta presentes no documento (0 a 1). |
+| `safe_parse_iso8601` | função | `(dt) -> Optional[datetime]` | Converte uma data ISO 8601 em `datetime`, devolvendo None se falhar. |
+| `freshness_score` | função | `(dt, *, half_life_days=365.0) -> float` | Pontuação de frescor por decaimento exponencial: 1 hoje, cerca de 0.5 na meia-vida. |
+| `normalize` | função | `(xs) -> List[float]` | Normaliza uma lista de números para o intervalo [0, 1]. |
+| `sort_ranked` | função | `(items) -> List[RankedItem]` | Ordena itens ranqueados pela pontuação, do maior para o menor. |
 
 #### `pinneapple_tools.hpo_experiments.sources`
 
-_Módulo sem docstring e sem texto._
+Pacote das fontes externas (arXiv e GitHub). [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/sources/__init__.py` · 12 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.sources.arxiv_pdf`
 
-Arxiv PDF download and text extraction with section splitting.
+Baixa o PDF de um artigo do arXiv, extrai o texto e o divide em seções por heurística. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/sources/arxiv_pdf.py` · 79 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `arxiv_pdf_url` | função | `(arxiv_id, use_export_subdomain=True) -> str` |  |
-| `download_pdf` | função | `(url, out_path, timeout_s=60) -> str` |  |
-| `extract_pdf_text` | função | `(pdf_path) -> str` |  |
-| `split_sections` | função | `(text) -> Dict[str, str]` | Heuristic: find headings by keyword matches; slice between them. Works “ok” for many arXiv PDFs but not perfect (PDF layout can be messy). |
+| `arxiv_pdf_url` | função | `(arxiv_id, use_export_subdomain=True) -> str` | Monta a URL do PDF de um id do arXiv. |
+| `download_pdf` | função | `(url, out_path, timeout_s=60) -> str` | Baixa um PDF para um caminho local. |
+| `extract_pdf_text` | função | `(pdf_path) -> str` | Extrai o texto de um PDF. |
+| `split_sections` | função | `(text) -> Dict[str, str]` | Divide o texto em seções procurando títulos por palavras-chave; o docstring avisa que não é perfeito. |
 
 #### `pinneapple_tools.hpo_experiments.sources.arxiv_source`
 
-Arxiv API source for paper search and metadata.
+Busca mínima de artigos na API Atom do arXiv. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/sources/arxiv_source.py` · 90 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ArxivPaper` | classe | `(arxiv_id, title, summary, url, published, authors, categories)` |  |
-| `ArxivSource` | classe | `()` | Minimal arXiv Atom API search. |
+| `ArxivPaper` | classe | `(arxiv_id, title, summary, url, published, authors, categories)` | Metadados de um artigo do arXiv: id, título, resumo, URL, data, autores e categorias. |
+| `ArxivSource` | classe | `()` | Faz buscas na API Atom do arXiv e devolve `ArxivPaper`. |
 
 #### `pinneapple_tools.hpo_experiments.sources.github_fetcher`
 
-GitHub API fetcher for repo file tree and content.
+Lê README, árvore de arquivos e arquivos-chave de um repositório pela API REST do GitHub. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/sources/github_fetcher.py` · 179 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RepoFile` | classe | `(path, sha, size, url)` |  |
-| `GithubFetcher` | classe | `(token=None, api_base='https://api.github.com')` | Fetches README, repo tree, and key files using GitHub REST API. |
+| `RepoFile` | classe | `(path, sha, size, url)` | Um arquivo do repositório: caminho, sha, tamanho e URL. |
+| `GithubFetcher` | classe | `(token=None, api_base='https://api.github.com')` | Cliente da API REST do GitHub para branch padrão, README, árvore recursiva, texto de arquivos e escolha de arquivos-chave. |
 
 #### `pinneapple_tools.hpo_experiments.sources.github_source`
 
-GitHub API source for repository search.
+Busca de repositórios pela API de busca do GitHub. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/sources/github_source.py` · 90 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GithubRepo` | classe | `(full_name, title, url, description, stars, forks, language, updated_at, license)` |  |
-| `GithubSource` | classe | `(token=None)` | GitHub Search API wrapper (repos discovery). Token optional but recommended (GITHUB_TOKEN). |
+| `GithubRepo` | classe | `(full_name, title, url, description, stars, forks, language, updated_at, license)` | Metadados de um repositório: nome, URL, descrição, estrelas, forks, linguagem, data de atualização e licença. |
+| `GithubSource` | classe | `(token=None)` | Busca repositórios no GitHub; o token é opcional, mas recomendado (`GITHUB_TOKEN`). |
 
 #### `pinneapple_tools.hpo_experiments.utils`
 
-_Módulo sem docstring e sem texto._
+Pacote de utilitários do pesquisador. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/utils/__init__.py` · 10 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.hpo_experiments.utils.verify_runtime`
 
-Runtime verification: project tree, py_compile, smoke run.
+Verificação de execução de um projeto: árvore de arquivos, `py_compile` e execução rápida de `run.py` ou `main.py` em subprocesso. [sem teste]
 
 <small>`pinneapple_tools/hpo_experiments/utils/verify_runtime.py` · 74 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RunResult` | classe | `(ok, step, returncode, stdout, stderr)` |  |
-| `project_tree` | função | `(cwd, max_files=400) -> str` |  |
-| `py_compile_all` | função | `(cwd) -> RunResult` |  |
-| `smoke_run` | função | `(cwd, timeout_s=180) -> RunResult` |  |
+| `RunResult` | classe | `(ok, step, returncode, stdout, stderr)` | Resultado de uma etapa: ok, nome da etapa, código de retorno, stdout e stderr. |
+| `project_tree` | função | `(cwd, max_files=400) -> str` | Lista em texto os arquivos do projeto, até um limite. |
+| `py_compile_all` | função | `(cwd) -> RunResult` | Compila todos os `.py` do projeto com `python -m py_compile`. |
+| `smoke_run` | função | `(cwd, timeout_s=180) -> RunResult` | Executa `run.py` ou `main.py` com timeout; se não houver ponto de entrada, devolve ok sem rodar nada. |
 
 #### `pinneapple_tools.model_evaluation`
 
@@ -1349,148 +1351,148 @@ Servidor HTTP dos serviços só com a biblioteca padrão (`ThreadingHTTPServer`)
 
 #### `pinneapple_tools.nvidia`
 
-pinneapple_tools.nvidia -- PINNeAPPle with the NVIDIA stack (PhysicsNeMo, Omniverse / OpenUSD, Isaac Sim, Cosmos, NIM).
+Cola entre o PINNeAPPle e a pilha NVIDIA (PhysicsNeMo, Omniverse/OpenUSD, Isaac Sim, USD BRep): o PINNeAPPle fornece física, solvers de referência e checagens; o NVIDIA treina, mostra ou simula. Todas as dependências NVIDIA são opcionais.
 
 <small>`pinneapple_tools/nvidia/__init__.py` · 24 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.nvidia._brep_worker`
 
-USD BRep worker: builds a part from a recipe and measures it. Standalone (usd_brep + numpy + stdlib only), so it runs in whichever interpreter has ``usd-brep`` (its wheel is CPython 3.12):
+Processo auxiliar isolado que constrói uma peça a partir de uma receita com `usd_brep` e a mede; roda no interpretador que tiver `usd-brep` (wheel CPython 3.12). [sem teste]
 
 <small>`pinneapple_tools/nvidia/_brep_worker.py` · 157 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(req_path, out_path)` |  |
+| `main` | função | `(req_path, out_path)` | Lê a requisição JSON, constrói e mede a peça e grava o resultado no arquivo de saída. |
 
 #### `pinneapple_tools.nvidia.brep`
 
-Exact geometry with NVIDIA USD BRep (the SMLib NURBS B-rep kernel, ``pip install usd-brep``), measured for PINNeAPPle: mass properties of the exact solid, curvature of every face, tessellations at several chord tolerances with their measured deviation from the exact surfaces, and B-rep USD export.
+Geometria exata com NVIDIA USD BRep: propriedades de massa do sólido exato, curvatura das faces, tesselações em várias tolerâncias com desvio medido e checagens de confiança da geometria.
 
 <small>`pinneapple_tools/nvidia/brep.py` · 247 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PartRecipe` | classe | `(ops, result)` |  |
-| `BRepReport` | classe | `(raw, meshes, seconds)` |  |
-| `brep_python` | função | `() -> str \| None` | The interpreter that has ``usd_brep``: this one, else ``$PINNEAPPLE_BREP_PYTHON`` (if it exists). |
-| `brep_available` | função | `() -> bool` |  |
-| `evaluate_part` | função | `(recipe, *, chord_tolerances=(0.001, 0.0001), density=1.0, angle_deg=25.0, max_edge_lengt…)` | Build ``recipe`` with USD BRep and measure it (see the module docstring). ``vertex_curvature``: the exact surface curvature at every vertex of the finest mesh (``rep.vertex_curvature``, 1/m) and the B-rep face each vertex lies on (``rep.vertex_face``). |
-| `geometry_checks` | função | `(rep, *, element_size=None, points_per_radius=4.0, volume_rtol=0.001) -> list[dict[str, A…)` | Trust checks of the geometry handed to a solver or a surrogate (the finest tessellation): manifold solid, chord error below the tolerance asked, mesh volume and area against the exact solid, and (with ``element_size``) the element size against the smallest radius of curvature. |
-| `planar_face_mesh` | função | `(V, F, *, axis=2, value, atol=1e-09) -> tuple[np.ndarray, np.ndarray]` | The triangles of a tessellation lying in the plane ``x[axis] = value`` (e.g. the top face of a plate), as a 2-D mesh ``(V2 (n, 2), F2 (m, 3))`` in the other two coordinates, renumbered. |
-| `vertex_normals` | função | `(V, F) -> np.ndarray` | Area-weighted unit vertex normals (outward for a consistently oriented closed mesh). |
-| `mesh_thickness` | função | `(V, F, *, normals=None, eps=1e-07, chunk=256) -> np.ndarray` | Wall thickness at every vertex of a closed mesh: distance along the inward normal to the first triangle hit (Moller-Trumbore ray casting); ``inf`` where the ray leaves without a hit. |
-| `point_mesh_distance` | função | `(P, V, F, chunk=128) -> np.ndarray` | Distance from each point to the nearest triangle vertex or centroid (a cheap upper bound on the distance to the mesh, used to sample the deviation of a mesh from points of an exact surface). |
+| `PartRecipe` | classe | `(ops, result)` | Receita de peça como lista de operações (caixa, cilindro, esfera, união, diferença, transformações, filetes, extrusão), serializável em dicionário. |
+| `BRepReport` | classe | `(raw, meshes, seconds)` | Relatório da avaliação de uma peça: dados brutos, malhas por tolerância e tempo; dá raio mínimo de curvatura e acesso às malhas. |
+| `brep_python` | função | `() -> str \| None` | Caminho do interpretador que tem `usd_brep`: o atual ou o de `$PINNEAPPLE_BREP_PYTHON`, se existir. |
+| `brep_available` | função | `() -> bool` | Diz se há um interpretador com `usd_brep` disponível. |
+| `evaluate_part` | função | `(recipe, *, chord_tolerances=(0.001, 0.0001), density=1.0, angle_deg=25.0, max_edge_lengt…)` | Constrói a receita com USD BRep (via processo auxiliar) e mede massa, curvatura e tesselações nas tolerâncias pedidas. |
+| `geometry_checks` | função | `(rep, *, element_size=None, points_per_radius=4.0, volume_rtol=0.001) -> list[dict[str, A…)` | Checagens da geometria entregue a um solver ou surrogate: sólido manifold, erro de corda abaixo da tolerância, tamanho de malha e volume. |
+| `planar_face_mesh` | função | `(V, F, *, axis=2, value, atol=1e-09) -> tuple[np.ndarray, np.ndarray]` | Extrai os triângulos de uma tesselação que estão num plano `x[axis] = value`, como malha 2D. |
+| `vertex_normals` | função | `(V, F) -> np.ndarray` | Normais unitárias por vértice ponderadas pela área dos triângulos. |
+| `mesh_thickness` | função | `(V, F, *, normals=None, eps=1e-07, chunk=256) -> np.ndarray` | Espessura de parede em cada vértice de uma malha fechada por lançamento de raio (Möller–Trumbore) ao longo da normal interna. |
+| `point_mesh_distance` | função | `(P, V, F, chunk=128) -> np.ndarray` | Distância de cada ponto ao vértice ou centróide de triângulo mais próximo, um limite superior barato da distância à malha. |
 
 #### `pinneapple_tools.nvidia.diagram`
 
-Architecture diagrams of a PINNeAPPle + NVIDIA pipeline, drawn by code (matplotlib only, no graphviz).
+Desenha diagramas de arquitetura de um pipeline PINNeAPPle + NVIDIA só com matplotlib (sem graphviz).
 
 <small>`pinneapple_tools/nvidia/diagram.py` · 118 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Block` | classe | `(key, label, owner, col, row, ran)` |  |
-| `architecture_diagram` | função | `(title, blocks, edges, path, *, subtitle='', width=2.6, height=1.0, dpi=150) -> str` | Draw ``blocks`` and ``edges`` (``(src, dst)`` or ``(src, dst, label)``) and save a PNG at ``path``. |
+| `Block` | classe | `(key, label, owner, col, row, ran)` | Um bloco do diagrama: chave, rótulo, dono (PINNeAPPle ou NVIDIA), posição na grade e se a etapa rodou. |
+| `architecture_diagram` | função | `(title, blocks, edges, path, *, subtitle='', width=2.6, height=1.0, dpi=150) -> str` | Desenha blocos e arestas (com rótulo opcional) e salva um PNG. |
 
 #### `pinneapple_tools.nvidia.figures`
 
-Result figures shared by the NVIDIA examples: field panels, check tables, training curves.
+Figuras de resultado comuns aos exemplos NVIDIA: painéis de campos, gráfico de checagens e curvas de treino. [sem teste]
 
 <small>`pinneapple_tools/nvidia/figures.py` · 140 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `field_panels` | função | `(fields, titles, path, *, cmaps=None, extent=(0, 1, 0, 1), suptitle='', units=None, share…)` | ``fields[i][ix, iy]`` drawn with x to the right and y up; ``shared``: groups of panel indices on one range; ``ncols``: panels per row (default: one row). |
-| `check_rows` | função | `(checks) -> list[dict[str, Any]]` | Checks of any supported kind as ``[{name, value, limit, passed, detail}]``. |
-| `checks_figure` | função | `(checks, path, *, title='Physics checks', decision='', dpi=130) -> str` | Bar of value / limit per check (limit / value for a lower bound, ``"kind": "min"``; log scale; the dashed line is the limit). Checks without a limit are drawn as pass / fail markers. |
-| `curves_figure` | função | `(panels, path, *, suptitle='', dpi=130) -> str` | ``panels``: ``[{"title", "xlabel", "ylabel", "series": [(label, x, y, style?)], "logy"?, "hlines"?}]``. |
+| `field_panels` | função | `(fields, titles, path, *, cmaps=None, extent=(0, 1, 0, 1), suptitle='', units=None, share…)` | Desenha vários campos 2D lado a lado, com faixas de cor compartilhadas opcionais, e salva a figura. |
+| `check_rows` | função | `(checks) -> list[dict[str, Any]]` | Normaliza checagens de vários formatos em linhas `{name, value, limit, passed, detail}`. |
+| `checks_figure` | função | `(checks, path, *, title='Physics checks', decision='', dpi=130) -> str` | Gráfico de barras valor/limite por checagem em escala log, com linha tracejada no limite e decisão no título. |
+| `curves_figure` | função | `(panels, path, *, suptitle='', dpi=130) -> str` | Figura com vários painéis de curvas (séries, escala log opcional, linhas horizontais). |
 
 #### `pinneapple_tools.nvidia.heatsink`
 
-Plate-fin heat-sink designs evaluated two ways at once: the exact solid from NVIDIA USD BRep (volume, area, mass) and PINNeAPPle's closed-form thermal and hydraulic model (``pinneapple_physics.closed_form.plate_fin_heatsink``: Teertstra forced convection, fin efficiency, spreading resistance, …
+Projetos de dissipador de aletas planas avaliados de duas formas: sólido exato do USD BRep (volume, área, massa) e modelo térmico e hidráulico de forma fechada do PINNeAPPle.
 
 <small>`pinneapple_tools/nvidia/heatsink.py` · 113 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Duty` | classe | `(power_w, t_ambient_c, air_velocity_m_s, source, base_t, length, width, material, root_fi…)` |  |
-| `evaluate_design` | função | `(n_fins, fin_height, fin_t, duty=None, *, brep=True, chord_tolerances=()) -> dict` | One design: closed-form thermal / hydraulic result and (``brep``) the exact solid's volume, area, mass. |
-| `sample_designs` | função | `(n, *, n_range=(6, 20), h_range=(0.015, 0.045), t_range=(0.001, 0.003), min_gap=0.002, wi…)` | Latin-hypercube designs inside the ranges with at least ``min_gap`` between fins. |
-| `design_table` | função | `(designs, duty=None, *, brep=True) -> list[dict]` |  |
-| `verify` | função | `(n_fins, fin_height, fin_t, duty=None, **kw) -> dict` | Closed form + exact solid for a design a surrogate proposed (the evaluation that decides). |
-| `surrogate_service` | função | `(net, X_train, *, name=…, t_ambient=25.0)` | A heat-sink surrogate ``(n_fins, fin_height, fin_t) -> (T rise, dp, mass)`` as a PINNeAPPle Model Service. Inputs ``{"designs": [[n, H, t], ...]}``; the trust report flags designs outside the training box and outputs that break physics (a negative temperature rise, pressure drop or mass). |
+| `Duty` | classe | `(power_w, t_ambient_c, air_velocity_m_s, source, base_t, length, width, material, root_fi…)` | Condição de operação do dissipador: potência, temperatura ambiente, velocidade do ar, fonte, base, dimensões, material e filete de raiz. |
+| `evaluate_design` | função | `(n_fins, fin_height, fin_t, duty=None, *, brep=True, chord_tolerances=()) -> dict` | Avalia um projeto: resultado térmico/hidráulico de forma fechada e, com `brep`, volume, área e massa do sólido exato. |
+| `sample_designs` | função | `(n, *, n_range=(6, 20), h_range=(0.015, 0.045), t_range=(0.001, 0.003), min_gap=0.002, wi…)` | Amostra projetos por hipercubo latino dentro das faixas, com folga mínima entre aletas. |
+| `design_table` | função | `(designs, duty=None, *, brep=True) -> list[dict]` | Avalia uma lista de projetos e devolve uma linha por projeto. |
+| `verify` | função | `(n_fins, fin_height, fin_t, duty=None, **kw) -> dict` | Avaliação decisiva (forma fechada + sólido exato) de um projeto proposto por um surrogate. |
+| `surrogate_service` | função | `(net, X_train, *, name=…, t_ambient=25.0)` | Embala um surrogate de dissipador como Model Service do PINNeAPPle, com relatório de confiança que sinaliza projetos fora da região de treino. |
 
 #### `pinneapple_tools.nvidia.isaac`
 
-Isaac Sim-ready robots in OpenUSD (``UsdPhysics``), their checks, and the Isaac Sim script that replays a motion.
+Robôs prontos para Isaac Sim em OpenUSD (`UsdPhysics`), suas checagens e o script do Isaac Sim que reproduz um movimento; escrito para a API 5.x, que o 6.x ainda mantém como depreciada.
 
 <small>`pinneapple_tools/nvidia/isaac.py` · 239 linhas · testes: 39 · palavras-chave no código (heurística; o texto acima diz o status real): shim ou obsoleto</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `author_articulation` | função | `(stage, spec) -> str` | Write ``spec`` under ``/World/<name>``; returns that prim path. ``stage``: a ``FieldStage`` or ``Usd.Stage``. |
-| `validate_physics` | função | `(path, *, expect_bodies=None, expect_joints=None) -> dict` | :func:`validate_stage` plus the ``UsdPhysics`` parse and the mass / joint checks a simulator relies on. |
-| `isaac_replay_script` | função | `(usd_path, robot_prim, traj_npz, out_npz, *, mode='effort', physics_dt=1.0 / 600.0, headl…)` | Standalone Isaac Sim script (run with Isaac Sim's ``python.sh``). ``traj_npz`` holds ``t``, ``q`` [rad], ``tau`` [N m] (joint order of the USD articulation); ``mode="effort"`` applies ``tau`` open loop, ``"position"`` tracks ``q`` with the drives. Writes ``t``, ``q`` and ``effort`` … |
-| `compare_replay` | função | `(npz, t, q, tau) -> dict` | Max tracking error [rad] and RMS effort error relative to the peak torque, Isaac Sim replay vs PINNeAPPle. |
+| `author_articulation` | função | `(stage, spec) -> str` | Escreve uma articulação (corpos, juntas, massas) em `/World/<nome>` de um stage USD e devolve o caminho do prim. |
+| `validate_physics` | função | `(path, *, expect_bodies=None, expect_joints=None) -> dict` | `validate_stage` mais a leitura `UsdPhysics` e as checagens de massa e juntas de que o simulador depende. |
+| `isaac_replay_script` | função | `(usd_path, robot_prim, traj_npz, out_npz, *, mode='effort', physics_dt=1.0 / 600.0, headl…)` | Gera o script autônomo do Isaac Sim que reproduz uma trajetória (ângulos e torques) e grava o resultado; exige Isaac Sim com GPU RTX. |
+| `compare_replay` | função | `(npz, t, q, tau) -> dict` | Compara a reprodução do Isaac Sim com o PINNeAPPle: erro máximo de rastreamento e erro RMS de esforço relativo ao torque de pico. |
 
 #### `pinneapple_tools.nvidia.omniverse`
 
-PINNeAPPle results as OpenUSD stages for NVIDIA Omniverse (authored and checked with ``usd-core``).
+Resultados do PINNeAPPle como stages OpenUSD para o Omniverse (escritos e checados com `usd-core`): campos como primvars, validador de stage e pré-visualização lida de volta do disco.
 
 <small>`pinneapple_tools/nvidia/omniverse.py` · 646 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FieldStage` | classe | `(path, title='PINNeAPPle result', *, meters_per_unit=1.0, fps=24.0)` | A USD stage holding PINNeAPPle fields. ``save()`` writes it (``.usda`` text or ``.usd`` / ``.usdc``). |
-| `require_pxr` | função | `()` | ``pxr`` (OpenUSD), with an install hint when it is missing. |
-| `field_colors` | função | `(values, cmap='inferno', vrange=None) -> np.ndarray` | ``(n, 3)`` linear RGB of ``values`` through a matplotlib colour map (sRGB -> linear, as USD expects). |
-| `grid_surface` | função | `(X, Y, Z=None) -> tuple[np.ndarray, np.ndarray]` | Triangles of a structured ``(nx, ny)`` grid of points: ``(V (nx*ny, 3), F (2(nx-1)(ny-1), 3))``. |
-| `extrude_profile` | função | `(xy, length, n=2, axis=1) -> tuple[np.ndarray, np.ndarray]` | A closed 2-D profile ``(m, 2)`` (in the plane normal to ``axis``) extruded over ``[0, length]`` in ``n`` stations: the side wall as triangles. Vertex ``k * m + i`` is profile point ``i`` at station ``k``. |
-| `tube` | função | `(path, radius, n_around=12) -> tuple[np.ndarray, np.ndarray]` | A tube of ``radius`` around a polyline ``path (p, 3)``: vertex ``k * n_around + j`` is ring ``k``. |
-| `validate_stage` | função | `(path, *, required_primvars=None, compliance=True) -> dict[str, Any]` | Re-open a USD file and check it. Returns ``{"ok", "problems", "prims", "meshes", "curves", "points", "time_samples", "up_axis", "meters_per_unit", "compliance"}``. ``required_primvars``: prim path -> primvar names that must be there. |
-| `usd_validators` | função | `(stage) -> dict[str, Any]` | Every validator OpenUSD registers (``pxr.UsdValidation``: stage metadata, composition, shading, geometry subsets, and the ``UsdPhysics`` rigid-body, collider, joint and articulation checkers) run on ``stage``, or the legacy ``UsdUtils.ComplianceChecker`` on builds without ``UsdValidation``. |
-| `read_stage_geometry` | função | `(path, time=None, exclude=()) -> list[dict[str, Any]]` | Meshes and curves of a USD file as arrays: ``[{"path", "kind", "points", "faces" or "counts", "colors"}]`` (colours from ``displayColor`` at ``time``, a time code; default: the first sample). ``exclude``: prim path prefixes to leave out (e.g. a ground plane). |
-| `render_stage_png` | função | `(path, png, *, time=None, elev=28, azim=-60, title='', colorbar=None, size=(7.5, 5.5), dp…)` | Draw the meshes and curves of a USD file (read back from disk) in their ``displayColor``; ``colorbar``: ``(label, lo, hi, cmap)``; ``flat``: axes scaled to the data in x, y and a squashed z (long, low scenes such as a pipeline). A file check, not an Omniverse RTX render. |
-| `kit_render_script` | função | `(usd_path, png_path, *, frames=60) -> str` | Python to run inside Omniverse Kit / USD Composer (Window > Script Editor, or ``kit --exec``): opens the stage and writes an RTX viewport capture. Needs Omniverse with an RTX GPU; not runnable with ``usd-core`` alone. Save it next to the stage: the paths are resolved from the script's own folder. |
-| `render_stage_gif` | função | `(path, gif, times, *, fps=6.0, label=None, **kw) -> str` | An animated GIF of a time-sampled stage: :func:`render_stage_png` at each time code in ``times``; ``label(t)`` gives each frame's title. |
-| `rasterize_topdown` | função | `(path, H, W, *, bounds=None, time=None, exclude=(), background=(0.0, 0.0, 0.0), view='top…)` | An orthographic view of the meshes of a USD file, ``(H, W, 3)`` sRGB in [0, 1]: every triangle is filled with its vertices' ``displayColor`` interpolated (barycentric), nearest on top. ``view``: ``"top"`` (looking down -z: x right, y up) or ``"side"`` (looking along +y: x right, z up). ``bounds``: … |
+| `FieldStage` | classe | `(path, title='PINNeAPPle result', *, meters_per_unit=1.0, fps=24.0)` | Stage USD que guarda campos do PINNeAPPle (malhas, curvas, pontos, amostras no tempo, animação rígida e veredito de confiança) e é gravado com `save()`. |
+| `require_pxr` | função | `()` | Importa `pxr` (OpenUSD) ou falha com dica de instalação. |
+| `field_colors` | função | `(values, cmap='inferno', vrange=None) -> np.ndarray` | Cores RGB lineares de valores através de um mapa de cores do matplotlib (sRGB convertido para linear, como o USD espera). |
+| `grid_surface` | função | `(X, Y, Z=None) -> tuple[np.ndarray, np.ndarray]` | Triângulos de uma grade estruturada de pontos (vértices e faces). |
+| `extrude_profile` | função | `(xy, length, n=2, axis=1) -> tuple[np.ndarray, np.ndarray]` | Extruda um perfil 2D fechado ao longo de um eixo e devolve a parede lateral como triângulos. |
+| `tube` | função | `(path, radius, n_around=12) -> tuple[np.ndarray, np.ndarray]` | Tubo de raio dado em torno de uma polilinha 3D, como malha de triângulos. |
+| `validate_stage` | função | `(path, *, required_primvars=None, compliance=True) -> dict[str, Any]` | Reabre um arquivo USD e o checa (prims, malhas, curvas, amostras no tempo, eixo, unidade, primvars obrigatórios, conformidade). |
+| `usd_validators` | função | `(stage) -> dict[str, Any]` | Roda todos os validadores registrados no OpenUSD (`pxr.UsdValidation`), inclusive os de `UsdPhysics`, sobre um stage. |
+| `read_stage_geometry` | função | `(path, time=None, exclude=()) -> list[dict[str, Any]]` | Lê as malhas e curvas de um arquivo USD como arrays, com as cores `displayColor` num tempo dado. |
+| `render_stage_png` | função | `(path, png, *, time=None, elev=28, azim=-60, title='', colorbar=None, size=(7.5, 5.5), dp…)` | Desenha em PNG (matplotlib) as malhas e curvas de um USD lido do disco, com suas cores. |
+| `kit_render_script` | função | `(usd_path, png_path, *, frames=60) -> str` | Gera um script Python para rodar no Omniverse Kit/USD Composer que abre o stage e grava uma captura RTX; exige Omniverse com GPU RTX. |
+| `render_stage_gif` | função | `(path, gif, times, *, fps=6.0, label=None, **kw) -> str` | GIF animado de um stage com amostras no tempo, um `render_stage_png` por tempo. |
+| `rasterize_topdown` | função | `(path, H, W, *, bounds=None, time=None, exclude=(), background=(0.0, 0.0, 0.0), view='top…)` | Vista ortográfica (por padrão de cima) das malhas de um USD como imagem RGB (H, W, 3). |
 
 #### `pinneapple_tools.nvidia.parts`
 
-Parametric parts as :class:`~pinneapple_tools.nvidia.brep.PartRecipe` data, with their closed-form volumes so the exact solid can be checked against them.
+Peças paramétricas (suporte em L, dissipador de aletas) como `PartRecipe`, com volumes de forma fechada para checar o sólido exato.
 
 <small>`pinneapple_tools/nvidia/parts.py` · 68 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `l_bracket` | função | `(*, base=0.08, height=0.06, width=0.05, t=0.006, fillet=0.005, bolt_d=0.009, web_hole_d=0…)` | An L bracket: base plate and web of thickness ``t``, an inner fillet, two bolt holes in the base and one hole through the web (none when ``web_hole_d`` is 0). |
-| `l_bracket_volume` | função | `(*, base=0.08, height=0.06, width=0.05, t=0.006, fillet=0.005, bolt_d=0.009, web_hole_d=0…)` |  |
-| `heat_sink` | função | `(*, n_fins, fin_height, fin_t, base_t=0.005, length=0.1, width=0.1, root_fillet=0.0) -> P…)` | A plate-fin heat sink: a base ``length`` (along the fins, x) by ``width`` (y) and ``n_fins`` equally spaced fins of thickness ``fin_t`` and height ``fin_height`` on top; ``root_fillet`` rounds the inner fin roots (an extrusion has them; the closed-form thermal model does not). |
-| `heat_sink_geometry` | função | `(*, n_fins, fin_height, fin_t, base_t=0.005, length=0.1, width=0.1, root_fillet=0.0) -> d…)` | Closed-form volume and areas (``wetted_area``: fins and the exposed base top; ``total_area``: every face). The root fillets add ``r^2 (1 - pi/4)`` of section each to the volume; the areas ignore them. |
+| `l_bracket` | função | `(*, base=0.08, height=0.06, width=0.05, t=0.006, fillet=0.005, bolt_d=0.009, web_hole_d=0…)` | Receita de um suporte em L com filete interno, furos de parafuso na base e furo na alma. |
+| `l_bracket_volume` | função | `(*, base=0.08, height=0.06, width=0.05, t=0.006, fillet=0.005, bolt_d=0.009, web_hole_d=0…)` | Volume de forma fechada do suporte em L. |
+| `heat_sink` | função | `(*, n_fins, fin_height, fin_t, base_t=0.005, length=0.1, width=0.1, root_fillet=0.0) -> P…)` | Receita de um dissipador de aletas planas igualmente espaçadas sobre uma base. |
+| `heat_sink_geometry` | função | `(*, n_fins, fin_height, fin_t, base_t=0.005, length=0.1, width=0.1, root_fillet=0.0) -> d…)` | Volume e áreas de forma fechada do dissipador (área molhada e área total). |
 
 #### `pinneapple_tools.nvidia.physicsnemo`
 
-Small PhysicsNeMo surrogates for tabular physics (a few inputs -> a few outputs), trained and checked the PINNeAPPle way. Grid operators (FNO, MeshGraphNet) are in :mod:`pinneapple_neural.physicsnemo_bridge`.
+Surrogates pequenos do PhysicsNeMo (`FullyConnected`) para física tabular (poucas entradas, poucas saídas), treinados e checados à maneira do PINNeAPPle.
 
 <small>`pinneapple_tools/nvidia/physicsnemo.py` · 146 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MLPSurrogate` | classe | `(in_features, out_features, layer_size, num_layers, activation_fn, seed, x_lo, x_hi, y_lo…)` |  |
-| `sign_violations` | função | `(f, axes, axis, output, sign=1, *, tol=0.0) -> float` | Fraction of cells of the tensor grid ``axes`` (one 1-D array per input) where the forward difference of ``f(X)[:, output]`` along input ``axis`` has the sign opposite to ``sign`` by more than ``tol``. |
-| `relative_errors` | função | `(pred, ref) -> np.ndarray` | Per-output RMS error relative to the RMS of the reference output. |
+| `MLPSurrogate` | classe | `(in_features, out_features, layer_size, num_layers, activation_fn, seed, x_lo, x_hi, y_lo…)` | Surrogate MLP do PhysicsNeMo com normalização pela caixa de treino: `fit`, `predict`, `in_box` (domínio de validade), `save` e `load`. |
+| `sign_violations` | função | `(f, axes, axis, output, sign=1, *, tol=0.0) -> float` | Fração das células de uma grade onde a diferença finita de uma saída ao longo de uma entrada tem o sinal oposto ao esperado (checagem de monotonia). |
+| `relative_errors` | função | `(pred, ref) -> np.ndarray` | Erro RMS por saída relativo ao RMS da saída de referência. |
 
 #### `pinneapple_tools.nvidia.runinfo`
 
-What a run used: versions of the NVIDIA and PINNeAPPle packages, the hardware, and step timings.
+Registra o que uma execução usou: versões dos pacotes NVIDIA e PINNeAPPle, hardware e tempos por etapa.
 
 <small>`pinneapple_tools/nvidia/runinfo.py` · 89 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RunInfo` | classe | `(name='')` |  |
-| `environment` | função | `() -> dict[str, Any]` | Python, OS, CPU, GPU (CUDA through torch, if any) and the installed versions of the relevant packages. |
+| `RunInfo` | classe | `(name='')` | Registro de execução com tempos por etapa (`step`), marcação de componentes que rodaram ou não (`mark`), e exportação para dicionário ou arquivo. |
+| `environment` | função | `() -> dict[str, Any]` | Python, sistema, CPU, GPU (CUDA via torch, se houver) e versões dos pacotes relevantes. |
 
 #### `pinneapple_tools.rea_bridge`
 
@@ -1630,476 +1632,522 @@ Política baseada em tempo medido: decide se um problema precisa de surrogate cr
 
 #### `pinneapple_tools.visualization`
 
-pinneapple_viz — CFD-style visualisation for PINNeAPPle.
+Visualização no estilo CFD (antigo `pinneapple_viz`): reexporta estilo, campos 2D/3D, gráficos de PINN, saídas de solvers, animações, malhas, voxels e vórtices; os subpacotes `dashboard` e `studio` cobrem painéis animados e cenas 3D realistas.
 
 <small>`pinneapple_tools/visualization/__init__.py` · 116 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.visualization.animation`
 
-Time-evolution animations for PDE solutions — CFD style.
+Animações da evolução no tempo de soluções de EDP (campo escalar e linhas de corrente), salvas em GIF/MP4 com matplotlib. [sem teste]
 
 <small>`pinneapple_tools/visualization/animation.py` · 205 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `animate_scalar_field` | função | `(trajectory, x=None, y=None, *, t_vals=None, title='Field evolution', field_label='u', cm…)` | Animate a time series of 2-D scalar fields. |
-| `animate_streamlines` | função | `(u_traj, v_traj, x=None, y=None, *, speed_traj=None, t_vals=None, title='Velocity evoluti…)` | Animated streamline plot for a time series of 2-D velocity fields. |
-| `make_gif` | função | `(frames, x, y, save_path, *, t_vals=None, cmap=DEFAULT_CMAP, dpi=80, fps=10) -> None` | Convenience wrapper: save a list of 2-D field frames as a GIF. |
+| `animate_scalar_field` | função | `(trajectory, x=None, y=None, *, t_vals=None, title='Field evolution', field_label='u', cm…)` | Anima uma série temporal de campos escalares 2D com escala de cor fixa e salva opcionalmente. |
+| `animate_streamlines` | função | `(u_traj, v_traj, x=None, y=None, *, speed_traj=None, t_vals=None, title='Velocity evoluti…)` | Anima linhas de corrente de uma série temporal de campos de velocidade, coloridas pela velocidade. |
+| `make_gif` | função | `(frames, x, y, save_path, *, t_vals=None, cmap=DEFAULT_CMAP, dpi=80, fps=10) -> None` | Atalho que salva uma lista de quadros de campo 2D como GIF. |
 
 #### `pinneapple_tools.visualization.dashboard`
 
-Animation-centred dashboards for any simulation: an animation in the middle, charts synced to its time cursor, KPI tiles, a parameter panel and a colour bar; exported as interactive HTML (scrubbing a chart moves the animation), a static PNG and a dashboard GIF/MP4.
+Painéis centrados numa animação para qualquer simulação: animação no meio, gráficos sincronizados ao cursor de tempo, KPIs, parâmetros e barra de cor; exporta HTML interativo, PNG e GIF/MP4.
 
 <small>`pinneapple_tools/visualization/dashboard/__init__.py` · 18 linhas · testes: 16</small>
 
 #### `pinneapple_tools.visualization.dashboard.html`
 
-Interactive HTML export of a :class:`~.spec.Dashboard`: one self-contained file (no server, no internet).
+Exportação HTML interativa de um `Dashboard` num único arquivo autônomo (sem servidor, sem internet).
 
 <small>`pinneapple_tools/visualization/dashboard/html.py` · 429 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `payload` | função | `(db) -> dict` | Everything the page draws, as JSON-able data. |
-| `scene3d_payload` | função | `(bodies, poses, terrain=None, lighting=None, axes='z_up') -> dict` | Data for the live 3D view. |
-| `write_html` | função | `(db, path, *, fps=12, max_width=1280, quality=26) -> str` | Write the self-contained page; returns ``path``. |
+| `payload` | função | `(db) -> dict` | Converte tudo que a página desenha em dados serializáveis em JSON. |
+| `scene3d_payload` | função | `(bodies, poses, terrain=None, lighting=None, axes='z_up') -> dict` | Dados da vista 3D ao vivo (corpos, poses, terreno, iluminação) para a página. |
+| `write_html` | função | `(db, path, *, fps=12, max_width=1280, quality=26) -> str` | Grava a página HTML autônoma do painel e devolve o caminho. |
 
 #### `pinneapple_tools.visualization.dashboard.spec`
 
-What an animation-centred dashboard shows: an animation (frames), charts synced to its time cursor, KPI tiles, a parameter panel and a colour bar. Pure data (numpy arrays and strings); the exporters are in :mod:`.html` and :mod:`.static`.
+Modelo de dados puro (arrays numpy e textos) do painel: animação, gráficos, KPIs, parâmetros e barra de cor; os exportadores ficam em `html` e `static`. [sem teste direto]
 
 <small>`pinneapple_tools/visualization/dashboard/spec.py` · 190 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Series` | classe | `(label, y, color, dash, x, width)` | A line. ``y`` has one value per frame (series charts) or per ``x`` point (phase-chart curves). |
-| `Marker` | classe | `(label, x, y, color)` | A point that moves with the frames (phase charts): ``x[k], y[k]`` at frame k. |
-| `Chart` | classe | `(title, ylabel, xlabel, series, markers, x, kind, slot, ylim, note)` |  |
-| `Tile` | classe | `(label, value, unit, fmt, note)` | A KPI: a scalar, or one value per frame (the tile follows the cursor). |
-| `Param` | classe | `(label, value, unit)` |  |
-| `ColorBar` | classe | `(title, cmap, lo, hi, saturation)` | Colour bar beside the animation; ``saturation`` < 1 shows the colour map muted the way a semi-transparent, desaturated field overlay draws it (``studio.planetary.SurfaceView.field_saturation``). |
-| `Dashboard` | classe | `(title, t, frames, charts, tiles, params, subtitle, colorbar, footer, time_label, time_un…)` | ``frames``: a list of RGB arrays (H, W, 3) or image paths, one per entry of ``t`` [s]. |
+| `Series` | classe | `(label, y, color, dash, x, width)` | Uma linha de gráfico, com um valor por quadro ou por ponto `x`. |
+| `Marker` | classe | `(label, x, y, color)` | Um ponto que se move com os quadros num gráfico de fase. |
+| `Chart` | classe | `(title, ylabel, xlabel, series, markers, x, kind, slot, ylim, note)` | Um gráfico do painel: título, eixos, séries, marcadores, tipo, posição (slot), limites e nota. |
+| `Tile` | classe | `(label, value, unit, fmt, note)` | Um KPI: escalar fixo ou um valor por quadro que acompanha o cursor. |
+| `Param` | classe | `(label, value, unit)` | Um parâmetro mostrado no painel lateral (rótulo, valor, unidade). |
+| `ColorBar` | classe | `(title, cmap, lo, hi, saturation)` | Barra de cor ao lado da animação, com saturação ajustável para imitar uma sobreposição semitransparente. |
+| `Dashboard` | classe | `(title, t, frames, charts, tiles, params, subtitle, colorbar, footer, time_label, time_un…)` | O painel completo (título, tempos, quadros, gráficos, KPIs, parâmetros, barra de cor, cena 3D), com `to_html`, `to_png` e `to_video`. |
 
 #### `pinneapple_tools.visualization.dashboard.static`
 
-PNG and GIF/MP4 exports of a :class:`~.spec.Dashboard`, drawn with matplotlib in the studio's dark style.
+Exportações PNG e GIF/MP4 de um `Dashboard`, desenhadas com matplotlib no estilo escuro do studio.
 
 <small>`pinneapple_tools/visualization/dashboard/static.py` · 352 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `write_png` | função | `(db, path, k=None, size=(1920, 1080), dpi=100, font_scale=1.0) -> str` | The dashboard at frame ``k`` (default: the last) as a PNG. |
-| `write_gif` | função | `(path, frames, fps, colors=255, loop=0) -> str` | Animated GIF of RGB ``frames`` with one shared adaptive palette (octree quantisation of a few frames spread over the clip, which keeps small areas of distinct colour -- chart lines, a colour bar -- that a median cut merges away) and frame differencing: after the first frame, pixels whose palette … |
-| `hstack_gifs` | função | `(paths_or_frames, out, fps=10, colors=128, background='white', mismatch='error', loop=0)` | Several animations side by side in one GIF, frame by frame (e.g. two runs of the same case compared). |
-| `write_video` | função | `(db, gif=None, mp4=None, *, fps=12, size=(1920, 1080), gif_size=(1280, 720), gif_every=1,…)` | GIF and/or MP4 (H.264, ``size``) of the dashboard over ``frames`` (default all). The GIF keeps every ``gif_every``-th frame at the same playback speed. With ``gif_font_scale`` the GIF is laid out natively at ``gif_size`` with the text scaled by that factor (readable on small screens and social … |
+| `write_png` | função | `(db, path, k=None, size=(1920, 1080), dpi=100, font_scale=1.0) -> str` | Grava o painel num quadro dado (padrão: o último) como PNG. |
+| `write_gif` | função | `(path, frames, fps, colors=255, loop=0) -> str` | GIF animado de quadros RGB com uma paleta adaptativa única para todo o clipe. |
+| `hstack_gifs` | função | `(paths_or_frames, out, fps=10, colors=128, background='white', mismatch='error', loop=0)` | Junta várias animações lado a lado num só GIF, quadro a quadro (por exemplo, duas execuções comparadas). |
+| `write_video` | função | `(db, gif=None, mp4=None, *, fps=12, size=(1920, 1080), gif_size=(1280, 720), gif_every=1,…)` | Grava o painel animado como GIF e/ou MP4 (H.264). |
 
 #### `pinneapple_tools.visualization.electromagnetics`
 
-Figures and animations for electromagnetic fields: field maps with Poynting arrows, wave-propagation movies (GIF with Pillow, MP4 with ffmpeg) and radiation patterns.
+Figuras e animações de campos eletromagnéticos: mapas com setas de Poynting, filmes de propagação (GIF com Pillow, MP4 com ffmpeg) e diagramas de radiação. [sem teste]
 
 <small>`pinneapple_tools/visualization/electromagnetics.py` · 134 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `field_map` | função | `(field, extent, path=None, *, outline=None, vectors=None, title='', label='', cmap='RdBu_…)` | Draw one 2-D field (``[ix, iy]``) with an optional material outline and a vector field ``vectors = (vx, vy)`` (e.g. the time-averaged Poynting vector) as arrows every ``stride`` nodes. Returns the matplotlib figure; saves it when ``path`` is given. |
-| `field_movie` | função | `(frames, extent, path, *, times=None, outline=None, title='', label='', cmap='RdBu_r', fp…)` | Animate a list of 2-D fields with a fixed symmetric colour scale (set from all frames) and the geometry outline; ``.gif`` is written with Pillow, ``.mp4`` with ffmpeg. |
-| `radiation_pattern` | função | `(theta, values, path=None, *, reference=None, labels=('computed', 'analytic'), db=True, f…)` | Polar plot of a far-field pattern (normalised to its maximum), optionally against a reference; ``db`` plots ``20 log10 \|F\|`` clipped at ``floor_db``. |
+| `field_map` | função | `(field, extent, path=None, *, outline=None, vectors=None, title='', label='', cmap='RdBu_…)` | Desenha um campo 2D com contorno de material e setas opcionais, escala simétrica por padrão. |
+| `field_movie` | função | `(frames, extent, path, *, times=None, outline=None, title='', label='', cmap='RdBu_r', fp…)` | Anima uma lista de campos 2D com escala de cor simétrica fixa, calculada de todos os quadros. |
+| `radiation_pattern` | função | `(theta, values, path=None, *, reference=None, labels=('computed', 'analytic'), db=True, f…)` | Gráfico polar de um diagrama de campo distante normalizado, em dB opcional, contra uma referência opcional. |
 
 #### `pinneapple_tools.visualization.fields`
 
-2-D / 3-D scalar and vector field plots — CFD style.
+Gráficos de campos escalares e vetoriais 2D/3D no estilo CFD (contornos, fatias, setas, linhas de corrente, comparação e erro). [sem teste]
 
 <small>`pinneapple_tools/visualization/fields.py` · 361 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_scalar` | função | `(x, y, field, *, title='Scalar field', label='', cmap=DEFAULT_CMAP, n_levels=64, show_con…)` | Filled contour plot of a 2-D scalar field. |
-| `plot_scalar_3d` | função | `(x, y, z, field, *, slice_axis='z', slice_val=None, title='Scalar field (3-D slice)', cma…)` | Plot a 2-D slice of a 3-D scalar field. |
-| `plot_vectors` | função | `(x, y, u, v, *, title='Vector field', scale=None, density=20, color_by_mag=True, cmap='ra…)` | Quiver plot with optional background scalar field. |
-| `plot_streamlines` | função | `(x, y, u, v, *, title='Streamlines', density=1.5, color_by_mag=True, cmap='plasma', linew…)` | Streamline plot (requires structured or interpolated regular grid). Handles scattered points by interpolating onto a regular grid. |
-| `compare_fields` | função | `(x, y, fields, *, cmap=DEFAULT_CMAP, n_cols=3, figsize_per_panel=(5, 4), suptitle='', sho…)` | Side-by-side contour comparison of several fields. |
-| `plot_error` | função | `(x, y, pred, ref, *, relative=True, title='Prediction error', cmap='hot', show=False) -> …)` | Visualise pointwise \|pred - ref\| (or relative error) on the domain. |
+| `plot_scalar` | função | `(x, y, field, *, title='Scalar field', label='', cmap=DEFAULT_CMAP, n_levels=64, show_con…)` | Contorno preenchido de um campo escalar 2D, com linhas de contorno opcionais. |
+| `plot_scalar_3d` | função | `(x, y, z, field, *, slice_axis='z', slice_val=None, title='Scalar field (3-D slice)', cma…)` | Plota uma fatia 2D de um campo escalar 3D ao longo de um eixo. |
+| `plot_vectors` | função | `(x, y, u, v, *, title='Vector field', scale=None, density=20, color_by_mag=True, cmap='ra…)` | Gráfico de setas (quiver), coloridas pela magnitude, com campo escalar de fundo opcional. |
+| `plot_streamlines` | função | `(x, y, u, v, *, title='Streamlines', density=1.5, color_by_mag=True, cmap='plasma', linew…)` | Linhas de corrente de um campo de velocidade em grade estruturada, com fundo opcional. |
+| `compare_fields` | função | `(x, y, fields, *, cmap=DEFAULT_CMAP, n_cols=3, figsize_per_panel=(5, 4), suptitle='', sho…)` | Contornos de vários campos lado a lado para comparação. |
+| `plot_error` | função | `(x, y, pred, ref, *, relative=True, title='Prediction error', cmap='hot', show=False) -> …)` | Mostra o erro ponto a ponto \|pred − ref\| (ou relativo) no domínio. |
 
 #### `pinneapple_tools.visualization.integrations`
 
-Bridges from PINNeAPPle results to other 3-D viewers.
+Pontes dos resultados do PINNeAPPle para outros visualizadores 3D (Plotly, Rerun, Trame). [sem teste direto]
 
 <small>`pinneapple_tools/visualization/integrations/__init__.py` · 11 linhas · **sem teste direto**</small>
 
 #### `pinneapple_tools.visualization.integrations.plotly_export`
 
-Self-contained interactive 3-D HTML with Plotly: one file that opens in any browser (rotate, zoom, hover values), to share a result without a server or the PINNeAPPle viewer.
+HTML 3D interativo e autônomo com Plotly (girar, zoom, valores ao passar o mouse), para compartilhar um resultado sem servidor.
 
 <small>`pinneapple_tools/visualization/integrations/plotly_export.py` · 94 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `scene_html` | função | `(scene, path, field=None, cmap='Turbo', title='', include_plotlyjs=True) -> str` |  |
-| `molecule_html` | função | `(mol, path, xyz=None, slab=None, metal='Au', title='', include_plotlyjs=True) -> str` |  |
-| `field_slices_html` | função | `(x, y, z, values, path, iso=None, cmap='Viridis', title='', include_plotlyjs=True) -> str` | ``values[i, j, k]`` on the grid ``x[i], y[j], z[k]``: three mid-plane slices and, with ``iso``, an isosurface. |
+| `scene_html` | função | `(scene, path, field=None, cmap='Turbo', title='', include_plotlyjs=True) -> str` | Exporta uma cena 3D (superfícies, campo opcional) para HTML Plotly. |
+| `molecule_html` | função | `(mol, path, xyz=None, slab=None, metal='Au', title='', include_plotlyjs=True) -> str` | Exporta uma molécula, opcionalmente sobre uma placa metálica, para HTML Plotly. |
+| `field_slices_html` | função | `(x, y, z, values, path, iso=None, cmap='Viridis', title='', include_plotlyjs=True) -> str` | Exporta um campo 3D em grade como três fatias medianas e, com `iso`, uma isosuperfície, em HTML Plotly. |
 
 #### `pinneapple_tools.visualization.integrations.rerun_bridge`
 
-Rerun (rerun.io) bridge: stream PINNeAPPle results into the Rerun viewer, live or into an ``.rrd`` file.
+Ponte para o visualizador Rerun (rerun.io): envia resultados ao vivo ou grava num arquivo `.rrd`; exige `rerun-sdk`.
 
 <small>`pinneapple_tools/visualization/integrations/rerun_bridge.py` · 197 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RerunLogger` | classe | `(app_id='pinneapple', path=None, spawn=False, connect=None)` | ``path``: write an ``.rrd`` file; ``spawn``: open a live viewer; ``connect``: a gRPC URL of a running viewer. With none of them the data stay in memory (useful in tests). |
+| `RerunLogger` | classe | `(app_id='pinneapple', path=None, spawn=False, connect=None)` | Registrador Rerun que envia pontos, malhas, cenas, moléculas, escalares, conjuntos de execuções, grafos e texto, para arquivo, visualizador novo ou já aberto. |
 
 #### `pinneapple_tools.visualization.integrations.trame_app`
 
-Trame (Kitware) web app around a PyVista plotter: the VTK scene rendered on the server or in the browser, with a small control panel, served from Python (no JavaScript to write). Good for heavy meshes and fields that are too big for a standalone HTML file, inside a digital-twin dashboard or on a …
+App web Trame (Kitware) em volta de um plotter PyVista, servido a partir do Python, para malhas e campos grandes demais para um HTML autônomo.
 
 <small>`pinneapple_tools/visualization/integrations/trame_app.py` · 37 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_app` | função | `(plotter, title='PINNeAPPle', local_rendering=False, server_name=None)` | A trame server showing ``plotter``'s render window (``local_rendering``: vtk.js in the browser instead of images streamed from the server). Returns the server; call ``server.start()`` to serve it. |
+| `build_app` | função | `(plotter, title='PINNeAPPle', local_rendering=False, server_name=None)` | Cria um servidor trame que mostra a janela de render do plotter, com renderização no servidor ou no navegador (vtk.js). |
 
 #### `pinneapple_tools.visualization.mesh`
 
-Mesh and geometry visualisation utilities.
+Utilitários de visualização de malhas e geometria (malha 2D, grupos de contorno, nuvem de pontos). [sem teste]
 
 <small>`pinneapple_tools/visualization/mesh.py` · 137 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_mesh` | função | `(nodes, elems, *, node_values=None, cmap=DEFAULT_CMAP, edge_color='#4c9be8', edge_lw=0.5,…)` | Plot a 2-D mesh (triangles or quads). |
-| `plot_boundary` | função | `(nodes, boundary_groups, *, title='Boundary groups', show=False) -> Figure` | Visualise labelled boundary groups. |
-| `plot_point_cloud` | função | `(points, values=None, *, cmap='plasma', s=3.0, title='Point cloud', show=False, dim3=Fals…)` | 2-D (or 3-D) scatter of a point cloud, optionally coloured by values. |
+| `plot_mesh` | função | `(nodes, elems, *, node_values=None, cmap=DEFAULT_CMAP, edge_color='#4c9be8', edge_lw=0.5,…)` | Plota uma malha 2D de triângulos ou quadriláteros, com valores nodais opcionais. |
+| `plot_boundary` | função | `(nodes, boundary_groups, *, title='Boundary groups', show=False) -> Figure` | Mostra os grupos de contorno rotulados de uma malha. |
+| `plot_point_cloud` | função | `(points, values=None, *, cmap='plasma', s=3.0, title='Point cloud', show=False, dim3=Fals…)` | Dispersão 2D ou 3D de uma nuvem de pontos, colorida por valores opcionais. |
 
 #### `pinneapple_tools.visualization.molecular`
 
-Molecular visualisation: proteins and molecules, alone or adsorbed on metal surfaces, rendered as stills, MP4 trajectories, 3-D scenes (glTF for the PINNeAPPle web viewer) and MD dashboards.
+Visualização molecular: proteínas e moléculas, sozinhas ou adsorvidas em superfícies metálicas, como imagens, trajetórias MP4, cenas glTF e painéis de dinâmica molecular.
 
 <small>`pinneapple_tools/visualization/molecular.py` · 503 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Molecule` | classe | `(xyz, elements, names, resnames, resids, chains, frames)` |  |
-| `StepLog` | classe | `(title='', color=None, stream=None)` | Step-by-step console log of a pipeline: numbered steps, details indented under them, elapsed time, colour on a terminal (plain text otherwise or with ``color=False``); every line is also kept in ``lines``. |
-| `residue_class` | função | `(resname) -> str` |  |
-| `fcc_slab` | função | `(metal='Au', facet='111', nx=10, ny=10, layers=4, a=None) -> tuple[np.ndarray, np.ndarray]` | Atom positions (n, 3) of an fcc slab with the given top facet, top layer at z = 0, and the in-plane cell vectors (2, 3) of the periodic box it fills exactly (so the lattice is not strained by periodicity). |
-| `slab_for_footprint` | função | `(xyz, metal='Au', facet='111', padding=8.0, layers=4) -> tuple[np.ndarray, np.ndarray, tu…)` | A slab under a molecule: whole lattice repeats covering its x-y footprint plus ``padding`` on each side, centred under it. Returns (positions, cell, (nx, ny)). |
-| `orient_on_surface` | função | `(xyz, masses=None, active_site=None, gap=3.0, surface_z=0.0) -> np.ndarray` | Rotate a molecule so its thinnest principal direction is the surface normal (the broadest face lies on the surface), turn ``active_site`` atoms (indices) away from the surface (else the flatter side faces down), and place its lowest atom ``gap`` above ``surface_z``. |
-| `rmsd` | função | `(frames, ref, align=True) -> np.ndarray` | RMSD of each frame against ``ref`` (Kabsch-aligned when ``align``). |
-| `height_above` | função | `(frames, surface_z, masses=None) -> np.ndarray` | Height of the centre of mass above the surface plane, per frame. |
-| `contacts` | função | `(frames, surface_z, cutoff=3.5) -> np.ndarray` | Number of atoms within ``cutoff`` (A) of the surface plane, per frame. |
-| `render` | função | `(mol, path, *, xyz=None, slab=None, metal='Au', color_by='residue', style='spheres', size…)` | A still of ``mol`` (positions ``xyz`` or its own) on ``slab``. ``style``: "spheres" (space-filling) or "cartoon" (backbone tube and side-chain atoms); ``color_by``: residue class, element, chain or height. |
-| `render_frames` | função | `(mol, frames, out_dir, *, slab=None, metal='Au', color_by='residue', style='spheres', siz…)` | One PNG per frame, with a fixed camera (or a slow orbit of ``orbit_deg`` over the whole run) so motion is readable. Returns the paths. |
-| `encode_mp4` | função | `(pngs, out, fps=12, crf=22) -> str` | H.264 MP4 from PNG frames with the ffmpeg binary bundled by ``imageio-ffmpeg``. |
-| `md_dashboard` | função | `(path, t_ps, *, potential=None, temperature=None, rmsd_A=None, height_A=None, contacts_n=…)` | A panel per observable given, over time: potential energy (kJ/mol), temperature (K, with the target), backbone RMSD (A), height of the centre of mass above the surface (A), atoms in contact with the surface. |
-| `to_glb` | função | `(mol, path, *, xyz=None, slab=None, metal='Au', max_atoms=20000) -> str` | The scene as glTF binary: one low-poly sphere per atom, merged per residue class, and the slab as metal; opens in the PINNeAPPle web viewer and any glTF viewer. |
+| `Molecule` | classe | `(xyz, elements, names, resnames, resids, chains, frames)` | Molécula com posições, elementos, nomes, resíduos, cadeias e quadros; lê PDB ou mdtraj e dá massas, raios, classes e traço C-alfa. |
+| `StepLog` | classe | `(title='', color=None, stream=None)` | Log de console passo a passo de um pipeline: passos numerados, detalhes indentados, tempo decorrido e cor em terminal. |
+| `residue_class` | função | `(resname) -> str` | Classifica um resíduo pelo nome em hidrofóbico, polar, positivo, negativo, especial ou outro, para colorir. |
+| `fcc_slab` | função | `(metal='Au', facet='111', nx=10, ny=10, layers=4, a=None) -> tuple[np.ndarray, np.ndarray]` | Posições atômicas de uma placa cúbica de face centrada com a faceta dada no topo, e os vetores da célula no plano. |
+| `slab_for_footprint` | função | `(xyz, metal='Au', facet='111', padding=8.0, layers=4) -> tuple[np.ndarray, np.ndarray, tu…)` | Placa metálica que cobre a projeção x-y de uma molécula mais uma margem. |
+| `orient_on_surface` | função | `(xyz, masses=None, active_site=None, gap=3.0, surface_z=0.0) -> np.ndarray` | Gira a molécula para deitar sua face mais larga sobre a superfície e a posiciona a uma distância dada. |
+| `rmsd` | função | `(frames, ref, align=True) -> np.ndarray` | RMSD de cada quadro em relação a uma referência, com alinhamento de Kabsch opcional. |
+| `height_above` | função | `(frames, surface_z, masses=None) -> np.ndarray` | Altura do centro de massa acima do plano da superfície, por quadro. |
+| `contacts` | função | `(frames, surface_z, cutoff=3.5) -> np.ndarray` | Número de átomos a menos de um corte da superfície, por quadro. |
+| `render` | função | `(mol, path, *, xyz=None, slab=None, metal='Au', color_by='residue', style='spheres', size…)` | Gera uma imagem estática da molécula, opcionalmente sobre uma placa, com cores e estilo escolhidos. |
+| `render_frames` | função | `(mol, frames, out_dir, *, slab=None, metal='Au', color_by='residue', style='spheres', siz…)` | Gera um PNG por quadro de trajetória com câmera fixa ou em órbita lenta. |
+| `encode_mp4` | função | `(pngs, out, fps=12, crf=22) -> str` | Codifica PNGs em MP4 H.264 com o ffmpeg empacotado pelo `imageio-ffmpeg`. |
+| `md_dashboard` | função | `(path, t_ps, *, potential=None, temperature=None, rmsd_A=None, height_A=None, contacts_n=…)` | Figura com um painel por observável de dinâmica molecular ao longo do tempo (energia, temperatura, RMSD, altura, contatos). |
+| `to_glb` | função | `(mol, path, *, xyz=None, slab=None, metal='Au', max_atoms=20000) -> str` | Exporta a cena como glTF binário (esferas por átomo agrupadas por classe e placa metálica) para o visualizador web. |
 
 #### `pinneapple_tools.visualization.pinn`
 
-PINN-specific visualisations: training curves, residual fields, collocation points.
+Visualizações específicas de PINN: curvas de treino, campos de resíduo, pontos de colocação e comparação previsão × referência. [sem teste]
 
 <small>`pinneapple_tools/visualization/pinn.py` · 341 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_loss_history` | função | `(history, *, keys=None, log_scale=True, title='Training loss history', show=False) -> Fig…)` | Plot loss curves from a training history list. |
-| `plot_multi_loss` | função | `(history, *, groups=None, log_scale=True, title='Loss components', show=False) -> Figure` | Multi-panel loss breakdown. |
-| `plot_collocation` | função | `(interior_pts, boundary_pts=None, initial_pts=None, data_pts=None, *, title='Collocation …)` | Scatter plot of collocation point sets in 2-D. |
-| `plot_pinn_prediction` | função | `(x, y, pred, ref=None, *, field_name='u', cmap=DEFAULT_CMAP, show=False) -> Figure` | Two- or three-panel comparison: [Reference] [Prediction] [Error]. If ref is None, shows only the prediction. |
-| `plot_pde_residual` | função | `(x, y, residual, *, title='PDE residual', cmap='hot', log_scale=True, show=False) -> Figu…)` | Plot \|PDE residual\| at collocation points. Optionally log-scaled for better dynamic range. |
-| `plot_gradient_magnitude` | função | `(x, y, grad_x, grad_y, *, title='Gradient magnitude \|∇u\|', cmap='plasma', show=False) -> …)` | Plot \|∇u\| from separate partial derivative arrays. |
-| `predict_and_plot` | função | `(model, x_coords, y_coords, *, ref=None, field_name='u', device=None, cmap=DEFAULT_CMAP, …)` | Run model inference and immediately plot the prediction panel. |
+| `plot_loss_history` | função | `(history, *, keys=None, log_scale=True, title='Training loss history', show=False) -> Fig…)` | Plota curvas de perda de um histórico de treino, em escala log por padrão. |
+| `plot_multi_loss` | função | `(history, *, groups=None, log_scale=True, title='Loss components', show=False) -> Figure` | Painéis separados por grupos de componentes de perda. |
+| `plot_collocation` | função | `(interior_pts, boundary_pts=None, initial_pts=None, data_pts=None, *, title='Collocation …)` | Dispersão 2D dos conjuntos de pontos internos, de contorno, iniciais e de dados. |
+| `plot_pinn_prediction` | função | `(x, y, pred, ref=None, *, field_name='u', cmap=DEFAULT_CMAP, show=False) -> Figure` | Painéis referência, previsão e erro (ou só a previsão, sem referência). |
+| `plot_pde_residual` | função | `(x, y, residual, *, title='PDE residual', cmap='hot', log_scale=True, show=False) -> Figu…)` | Plota \|resíduo da EDP\| nos pontos de colocação, em escala log opcional. |
+| `plot_gradient_magnitude` | função | `(x, y, grad_x, grad_y, *, title='Gradient magnitude \|∇u\|', cmap='plasma', show=False) -> …)` | Plota \|∇u\| a partir das derivadas parciais. |
+| `predict_and_plot` | função | `(model, x_coords, y_coords, *, ref=None, field_name='u', device=None, cmap=DEFAULT_CMAP, …)` | Roda a inferência do modelo numa grade e plota o painel de previsão. |
 
 #### `pinneapple_tools.visualization.pyvista_bridge`
 
-PyVista bridge: turn PINNeAPPle meshes and fields into publication-quality 3-D images.
+Ponte PyVista: transforma malhas e campos do PINNeAPPle (inclusive resultados CalculiX e cenas `twin3d`) em imagens 3D de qualidade e arquivos VTK.
 
 <small>`pinneapple_tools/visualization/pyvista_bridge.py` · 195 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `von_mises` | função | `(stress6) -> np.ndarray` | Von Mises equivalent stress from CalculiX components ``[SXX, SYY, SZZ, SXY, SYZ, SZX]``. |
-| `grid_from_arrays` | função | `(points, cells, vtk_cell_type, point_data=None)` | Unstructured grid from ``points (N, 3)`` and ``cells (M, k)`` (0-based point indices). |
-| `calculix_grid` | função | `(model, frd=None, step=-1, warp=None)` | PyVista grid of a CalculiX model, with ``DISP``, ``\|U\|``, ``STRESS`` and ``VON_MISES`` if present. |
-| `scene_to_multiblock` | função | `(scene, time_index=0, field_name=None)` | ``pinneapple_twin3d.Scene`` to a ``pyvista.MultiBlock`` (one surface per part). |
-| `export_vtk` | função | `(mesh, path) -> str` | Write ``.vtu`` / ``.vtp`` / ``.vtk`` / ``.vtm`` (ParaView-ready); format chosen by extension. |
-| `can_render` | função | `() -> bool` | True if an off-screen OpenGL context can be created here. Probed in a subprocess (VTK crashes the interpreter instead of raising when there is none). |
-| `render_png` | função | `(mesh, path, *, scalars=None, cmap='turbo', title='', show_edges=False, window_size=(1400…)` | Render ``mesh`` (grid, PolyData or MultiBlock) to a PNG. ``scalars`` is a point/cell array name. |
-| `render_gif` | função | `(mesh, path, *, scalars=None, cmap='turbo', title='', n_frames=60, elevation=25.0, window…)` | Orbit camera around ``mesh`` and write an animated GIF (turntable). |
+| `von_mises` | função | `(stress6) -> np.ndarray` | Tensão equivalente de von Mises a partir das seis componentes do CalculiX. |
+| `grid_from_arrays` | função | `(points, cells, vtk_cell_type, point_data=None)` | Monta uma grade não estruturada a partir de pontos, células e tipo de célula VTK. |
+| `calculix_grid` | função | `(model, frd=None, step=-1, warp=None)` | Grade PyVista de um modelo CalculiX com deslocamento, \|U\|, tensões e von Mises, se presentes. |
+| `scene_to_multiblock` | função | `(scene, time_index=0, field_name=None)` | Converte uma `Scene` do `pinneapple_twin3d` num `pyvista.MultiBlock` (uma superfície por peça). |
+| `export_vtk` | função | `(mesh, path) -> str` | Grava `.vtu`, `.vtp`, `.vtk` ou `.vtm` (pronto para ParaView), com o formato escolhido pela extensão. |
+| `can_render` | função | `() -> bool` | Testa num subprocesso se dá para criar um contexto OpenGL fora da tela (o VTK derruba o interpretador em vez de levantar erro). |
+| `render_png` | função | `(mesh, path, *, scalars=None, cmap='turbo', title='', show_edges=False, window_size=(1400…)` | Renderiza uma malha em PNG fora da tela, com escalares, mapa de cor e câmera escolhidos. |
+| `render_gif` | função | `(mesh, path, *, scalars=None, cmap='turbo', title='', n_frames=60, elevation=25.0, window…)` | Gira a câmera em volta da malha e grava um GIF animado. |
 
 #### `pinneapple_tools.visualization.solver`
 
-Visualise SolverOutput objects from FDM / FEM / FVM / meshfree solvers.
+Visualiza objetos `SolverOutput` de solvers FDM, FEM, FVM e sem malha. [sem teste]
 
 <small>`pinneapple_tools/visualization/solver.py` · 198 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_solver_output` | função | `(output, *, x=None, y=None, title='Solver result', cmap=DEFAULT_CMAP, show=False) -> Figu…)` | Auto-plot a SolverOutput. |
-| `plot_fem_result` | função | `(output, *, component=0, title='FEM solution', cmap=DEFAULT_CMAP, show_mesh=True, show=Fa…)` | Plot FEM solution on its Q1 mesh. |
-| `plot_fvm_result` | função | `(output, *, frame=-1, title='FVM solution', cmap=DEFAULT_CMAP, show=False) -> Figure` | Plot a single time-step from an FVM trajectory. |
-| `plot_residuals` | função | `(output, *, title='Solver residuals', show=False) -> Figure` | Bar chart of named residual/loss values stored in output.losses. |
+| `plot_solver_output` | função | `(output, *, x=None, y=None, title='Solver result', cmap=DEFAULT_CMAP, show=False) -> Figu…)` | Escolhe automaticamente o gráfico adequado para um `SolverOutput`. |
+| `plot_fem_result` | função | `(output, *, component=0, title='FEM solution', cmap=DEFAULT_CMAP, show_mesh=True, show=Fa…)` | Plota uma solução FEM sobre sua malha Q1. |
+| `plot_fvm_result` | função | `(output, *, frame=-1, title='FVM solution', cmap=DEFAULT_CMAP, show=False) -> Figure` | Plota um passo de tempo de uma trajetória FVM. |
+| `plot_residuals` | função | `(output, *, title='Solver residuals', show=False) -> Figure` | Gráfico de barras dos resíduos/perdas guardados em `output.losses`. |
 
 #### `pinneapple_tools.visualization.studio`
 
-PINNeAPPle studio: realistic 3D visualisation of any geometry and its physics.
+Studio do PINNeAPPle: visualização 3D realista de qualquer geometria e sua física (cena, visualizador web, Blender, PyVista); exporta `Scene` e atalhos de render.
 
 <small>`pinneapple_tools/visualization/studio/__init__.py` · 47 linhas · testes: 41</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render` | função | `(*a, **kw)` | Blender Cycles render; see :func:`pinneapple_tools.visualization.studio.blender.render`. |
-| `web_viewer` | função | `(*a, **kw)` | Interactive page; see :func:`pinneapple_tools.visualization.studio.web.web_viewer`. |
-| `serve` | função | `(*a, **kw)` | Write the viewer to a temporary folder and serve it; see :func:`.web.serve`. |
+| `render` | função | `(*a, **kw)` | Atalho para o render Blender Cycles de `studio.blender.render`. |
+| `web_viewer` | função | `(*a, **kw)` | Atalho para a página interativa de `studio.web.web_viewer`. |
+| `serve` | função | `(*a, **kw)` | Atalho que grava o visualizador numa pasta temporária e o serve (`studio.web.serve`). |
 
 #### `pinneapple_tools.visualization.studio.animation`
 
-Time animation of a :class:`~.scene.Scene`: rigid bodies moving along a trajectory, per-frame arrows, trails, per-vertex fields and head-up numbers, for the browser viewer (:mod:`.web`) and Blender (:mod:`.blender`).
+Animação no tempo de uma `Scene`: corpos rígidos em trajetória, setas por quadro, rastros, campos por vértice e números na tela, para o visualizador web e o Blender.
 
 <small>`pinneapple_tools/visualization/studio/animation.py` · 434 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Animation` | classe | `(times, tracks, vectors, trails, surface_fields, hud, camera, follow_group, follow_offset…)` | Per-frame data on top of a static :class:`~.scene.Scene`; see the module docstring. |
-| `matrix_from_quat` | função | `(q) -> np.ndarray` | Rotation matrix (3, 3) (or (..., 3, 3)) of unit quaternion(s) ``[w, x, y, z]`` (normalised here). |
-| `quat_from_matrix` | função | `(R) -> np.ndarray` | Unit quaternion ``[w, x, y, z]`` (w >= 0) of a rotation matrix (3, 3) or a stack (..., 3, 3) (Shepperd's method: the largest of the four squared components is taken first, so it is stable). |
-| `slerp` | função | `(q0, q1, f) -> np.ndarray` | Spherical interpolation between unit quaternions ``[w, x, y, z]`` (shortest arc), f in [0, 1]. |
+| `Animation` | classe | `(times, tracks, vectors, trails, surface_fields, hud, camera, follow_group, follow_offset…)` | Dados por quadro sobre uma cena estática (trilhas, vetores, rastros, campos de superfície, HUD, câmera), com métodos para adicionar e consultar poses. |
+| `matrix_from_quat` | função | `(q) -> np.ndarray` | Matriz de rotação de um ou vários quaternions unitários [w, x, y, z]. |
+| `quat_from_matrix` | função | `(R) -> np.ndarray` | Quaternion unitário de uma matriz de rotação pelo método de Shepperd (estável numericamente). |
+| `slerp` | função | `(q0, q1, f) -> np.ndarray` | Interpolação esférica entre quaternions unitários pelo arco mais curto. |
 
 #### `pinneapple_tools.visualization.studio.blender`
 
-Blender Cycles renders of any :class:`~.scene.Scene` (``pip install bpy``, or run inside Blender).
+Renders Blender Cycles de qualquer `Scene` (exige `pip install bpy` ou rodar dentro do Blender): imagens estáticas, animações e quadros de alta qualidade.
 
 <small>`pinneapple_tools/visualization/studio/blender.py` · 1.296 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render` | função | `(scene, out, *, field=None, field_range=None, lines=False, line_range=None, slice=None, s…)` | Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``. |
-| `blender_axes` | função | `(axes) -> np.ndarray` | Rotation matrix scene axes -> Blender coordinates (what the glTF export + import does to the surfaces). |
-| `render_animation` | função | `(scene, out_dir, *, frames=None, size=(960, 540), samples=16, camera='chase', camera_offs…)` | Render ``scene.animation`` (an :class:`~.animation.Animation`) frame by frame with Cycles (CPU, denoised), burn the HUD into each PNG and encode an MP4 (and a GIF). Returns ``{"frames": [png, ...], "mp4": path \| None, "gif": path \| None}``. |
-| `render_still` | função | `(scene, out_png, frame, *, size=(1920, 1080), samples=64, **kw) -> str` | One high-quality frame of ``scene.animation`` (frame index ``frame``) as a PNG at ``out_png``; takes every option of :func:`render_animation` (camera, dof, motion_blur, haze, hud_keys, sparkline, trails, lines, ...). With motion blur the neighbouring frames are keyframed too, so the blur is that of … |
+| `render` | função | `(scene, out, *, field=None, field_range=None, lines=False, line_range=None, slice=None, s…)` | Renderiza uma cena (ou um `.glb`) em imagem com campos, linhas, fatias, vista e fundo escolhidos. |
+| `blender_axes` | função | `(axes) -> np.ndarray` | Matriz de rotação dos eixos da cena para as coordenadas do Blender. |
+| `render_animation` | função | `(scene, out_dir, *, frames=None, size=(960, 540), samples=16, camera='chase', camera_offs…)` | Renderiza a animação da cena quadro a quadro, com câmera de perseguição, HUD e sparklines opcionais. |
+| `render_still` | função | `(scene, out_png, frame, *, size=(1920, 1080), samples=64, **kw) -> str` | Renderiza um único quadro da animação em alta qualidade como PNG. |
 
 #### `pinneapple_tools.visualization.studio.colormap`
 
-The CFD colour scale (jet: blue = low, red = high) and a colour bar burnt into an image.
+Escala de cor CFD (jet) e barra de cor gravada numa imagem, com ticks idênticos aos do visualizador web.
 
 <small>`pinneapple_tools/visualization/studio/colormap.py` · 93 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `jet` | função | `(t) -> Tuple[float, float, float]` | sRGB jet colour for t in [0, 1], as floats in [0, 1]. |
-| `ramp` | função | `(t, stops=None) -> tuple[float, float, float]` | sRGB colour of a piecewise-linear scale (default :data:`JET`) at t in [0, 1], floats in [0, 1]. |
-| `decimals` | função | `(lo, hi) -> int` | Decimals that tell five ticks over [lo, hi] apart (same rule as studio-core.js). |
-| `fmt` | função | `(v, nd) -> str` | A tick label: fixed with ``nd`` decimals, exponent form beyond 1e4 or below 1e-3 (as JavaScript prints it). |
-| `ticks` | função | `(lo, hi, n=5, nd=None) -> List[str]` | Evenly spaced tick labels from lo to hi, identical to the browser viewer's. |
-| `colorbar` | função | `(path, title, lo, hi, nd=None, lo_txt='', hi_txt='', corner='bottom-right', stops=None) -…)` | Draw a colour bar (jet, or the scale ``stops`` such as :data:`RDBU`) with 5 ticks and a title in a corner of the image at ``path`` (overwritten). |
+| `jet` | função | `(t) -> Tuple[float, float, float]` | Cor sRGB jet para t em [0, 1]. |
+| `ramp` | função | `(t, stops=None) -> tuple[float, float, float]` | Cor sRGB de uma escala linear por partes (padrão jet) em t. |
+| `decimals` | função | `(lo, hi) -> int` | Número de casas decimais que distingue cinco ticks em [lo, hi] (mesma regra do JavaScript do studio). |
+| `fmt` | função | `(v, nd) -> str` | Formata um rótulo de tick como o JavaScript imprimiria (decimal fixo ou notação exponencial). |
+| `ticks` | função | `(lo, hi, n=5, nd=None) -> List[str]` | Rótulos de tick igualmente espaçados, idênticos aos do visualizador web. |
+| `colorbar` | função | `(path, title, lo, hi, nd=None, lo_txt='', hi_txt='', corner='bottom-right', stops=None) -…)` | Desenha uma barra de cor com 5 ticks e título num canto de uma imagem existente. |
 
 #### `pinneapple_tools.visualization.studio.compose`
 
-Colour maps for animations (jet and diverging blue-white-red), colour bars burnt into images, and multi-panel pictures and videos (a grid of renders with labels and one common colour bar).
+Mapas de cor para animações (jet e divergente), barras de cor gravadas em imagens e montagem de várias imagens ou vídeos em grade.
 
 <small>`pinneapple_tools/visualization/studio/compose.py` · 238 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `stops` | função | `(cmap)` |  |
-| `cmap_color` | função | `(cmap, t) -> tuple[float, float, float]` | sRGB colour (floats in [0, 1]) of ``cmap`` at t in [0, 1] (NaN -> 0). |
-| `symmetric_range` | função | `(values) -> tuple[float, float]` | (-m, m) with m the largest finite \|value\| (a diverging map keeps zero at its neutral midpoint). |
-| `default_range` | função | `(values, cmap='jet') -> tuple[float, float]` | min..max for jet, symmetric about zero for a diverging map. |
-| `colorbar_image` | função | `(width, title, lo, hi, cmap='jet', scale=1.0, background=(255, 255, 255, 225))` | A colour bar (title, gradient, five ticks) as an RGBA PIL image ``width`` pixels wide. |
-| `draw_colorbars` | função | `(path, bars, corner='bottom-right', width_frac=0.3) -> str` | Burn colour bars ``(title, lo, hi, cmap)`` into the image at ``path`` (overwritten), stacked from ``corner``. |
-| `compose_grid` | função | `(images, out_png, labels=None, ncols=2, colorbar=None, background=(233, 237, 242)) -> str` | One picture of ``images`` on a grid of ``ncols`` columns (every image scaled to the first one's size), a label in each cell's top-right corner and one common colour bar ``(title, lo, hi, cmap)`` under the grid. |
-| `compose_grid_video` | função | `(mp4_paths, out_mp4, labels=None, ncols=2, colorbar=None, crf=28, webm=False, fps=None, b…)` | A grid video of ``mp4_paths`` (ffmpeg ``xstack``; every clip scaled to the first one's size, the shorter ones hold their last frame), with the labels and one colour bar strip ``(title, lo, hi, cmap)`` burnt in. H.264 ``crf`` (yuv420p, even size, faststart); ``webm=True`` also writes a VP9 .webm … |
+| `stops` | função | `(cmap)` | Pontos de parada da escala de cor pedida. |
+| `cmap_color` | função | `(cmap, t) -> tuple[float, float, float]` | Cor sRGB de um mapa em t (NaN vira 0). |
+| `symmetric_range` | função | `(values) -> tuple[float, float]` | Faixa simétrica (−m, m) com m o maior \|valor\| finito, para mapas divergentes. |
+| `default_range` | função | `(values, cmap='jet') -> tuple[float, float]` | Faixa padrão: mín..máx para jet, simétrica em torno de zero para mapa divergente. |
+| `colorbar_image` | função | `(width, title, lo, hi, cmap='jet', scale=1.0, background=(255, 255, 255, 225))` | Barra de cor (título, gradiente, cinco ticks) como imagem RGBA do PIL. |
+| `draw_colorbars` | função | `(path, bars, corner='bottom-right', width_frac=0.3) -> str` | Grava várias barras de cor empilhadas num canto de uma imagem (sobrescreve o arquivo). |
+| `compose_grid` | função | `(images, out_png, labels=None, ncols=2, colorbar=None, background=(233, 237, 242)) -> str` | Monta várias imagens numa grade com rótulos e uma barra de cor comum. |
+| `compose_grid_video` | função | `(mp4_paths, out_mp4, labels=None, ncols=2, colorbar=None, crf=28, webm=False, fps=None, b…)` | Monta vários vídeos numa grade com ffmpeg `xstack`. |
 
 #### `pinneapple_tools.visualization.studio.fieldview`
 
-Fields on a mesh for the apps' 3-D views: the boundary surface of a ``pinneapple_data.cae`` mesh with several fields (values and errors), optional deformed shapes and marked regions, as a glTF plus a small JSON description.
+Campos sobre uma malha para as vistas 3D dos apps: superfície de contorno de uma malha `pinneapple_data.cae` com vários campos, deformação e regiões marcadas, como glTF e JSON.
 
 <small>`pinneapple_tools/visualization/studio/fieldview.py` · 179 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FieldView` | classe | `(scene, meta)` |  |
-| `colour_range` | função | `(values, kind='value') -> dict[str, Any]` | ``{"lo", "hi", "max", "clipped"}``: values span min..max; errors span 0..99th percentile (``clipped`` when the maximum is above it). |
-| `length_factor` | função | `(unit, to='m') -> float \| None` | Factor from ``unit`` to ``to`` when ``unit`` is a length (``mm`` -> m: 1e-3), else None. |
-| `displacement_factor` | função | `(name, unit, components, mesh_unit='m') -> float \| None` | If a nodal vector field is a displacement, the factor that converts it to the mesh's length unit: its unit is a length, or it has no unit and is named like one (``D``, ``U``, ``disp``, ``displacement``). Else None. |
-| `subsample` | função | `(points, n=MAX_MARKER_POINTS) -> np.ndarray` | At most ``n`` of the points, evenly spread over the array (markers do not need every node). |
-| `field_view` | função | `(mesh, fields, *, deform=None, markers=(), max_faces=VIEW_MAX_FACES, title='', axes='z_up…)` | Build the view. ``fields``: dicts with ``name``, ``values`` (one per point or per cell, vectors as magnitude, 6-component tensors as von Mises), optional ``where`` ("point" / "cell", from the length), ``label``, ``unit``, ``kind`` ("value" or "error"), ``group`` (shared colour range), ``deform`` (a … |
+| `FieldView` | classe | `(scene, meta)` | A vista pronta: cena e metadados, com `glb()` e `to_dict()`. |
+| `colour_range` | função | `(values, kind='value') -> dict[str, Any]` | Faixa de cor de um campo: valores de mín a máx; erros de 0 ao percentil 99, marcando quando houve corte. |
+| `length_factor` | função | `(unit, to='m') -> float \| None` | Fator de conversão de uma unidade de comprimento para outra (None se não for comprimento). |
+| `displacement_factor` | função | `(name, unit, components, mesh_unit='m') -> float \| None` | Se um campo vetorial nodal é um deslocamento, o fator que o converte para a unidade de comprimento da malha. |
+| `subsample` | função | `(points, n=MAX_MARKER_POINTS) -> np.ndarray` | No máximo n pontos espalhados por igual no array (para marcadores). |
+| `field_view` | função | `(mesh, fields, *, deform=None, markers=(), max_faces=VIEW_MAX_FACES, title='', axes='z_up…)` | Monta o `FieldView` de uma malha com campos, deformação e marcadores. |
 
 #### `pinneapple_tools.visualization.studio.lighting`
 
-Lighting and sky presets shared by the studio renderers (PyVista, Blender Cycles, three.js viewer).
+Presets de iluminação e céu compartilhados pelos renderizadores do studio (PyVista, Blender Cycles, three.js).
 
 <small>`pinneapple_tools/visualization/studio/lighting.py` · 171 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LightingPreset` | classe | `(name, sun_elevation_deg, sun_azimuth_deg, sun_intensity, sun_color, ambient, background_…)` |  |
-| `get_preset` | função | `(preset) -> LightingPreset` |  |
-| `apply_pyvista` | função | `(plotter, preset='lunar_south_pole', target=(0.0, 0.0, 0.0), extent=10.0, earth=None, sha…)` | Set the background, a directional Sun (with shadows when the preset asks for them), a weak fill light and, optionally, Earth in the sky of a PyVista ``plotter``. |
-| `add_earth_pyvista` | função | `(plotter, preset, target, extent)` | Earth as a shaded sphere far away, with the right angular size, lit from the Sun's direction. |
-| `threejs_config` | função | `(preset='lunar_south_pole') -> dict` | The preset as plain data for the browser viewers (background, sun direction and intensity, fill). |
-| `blender_world` | função | `(preset='lunar_south_pole', bpy=None)` | Configure the current Blender scene: world colour, one Sun lamp with the preset's angular size and strength, and (for black-sky presets) no world light. Returns the Sun object. |
+| `LightingPreset` | classe | `(name, sun_elevation_deg, sun_azimuth_deg, sun_intensity, sun_color, ambient, background_…)` | Um preset de luz: elevação, azimute, intensidade e cor do Sol, ambiente, fundo, sombras e Terra no céu. |
+| `get_preset` | função | `(preset) -> LightingPreset` | Devolve um `LightingPreset` pelo nome. |
+| `apply_pyvista` | função | `(plotter, preset='lunar_south_pole', target=(0.0, 0.0, 0.0), extent=10.0, earth=None, sha…)` | Aplica o preset a um plotter PyVista: fundo, Sol direcional com sombras e Terra opcional. |
+| `add_earth_pyvista` | função | `(plotter, preset, target, extent)` | Adiciona a Terra como esfera distante com o tamanho angular correto, iluminada pela direção do Sol. |
+| `threejs_config` | função | `(preset='lunar_south_pole') -> dict` | O preset como dados simples para os visualizadores no navegador. |
+| `blender_world` | função | `(preset='lunar_south_pole', bpy=None)` | Configura a cena do Blender: cor do mundo, lâmpada Sol com tamanho angular e intensidade do preset. |
 
 #### `pinneapple_tools.visualization.studio.particles`
 
-Particle animations: thousands of spheres coloured by a value (speed, temperature, species), inside glass or steel equipment that can move (a turning impeller), rendered frame by frame with Blender Cycles; then composed with live charts that draw themselves as time runs, a colour bar and a clock, …
+Animações de partículas (milhares de esferas coloridas por um valor) dentro de equipamentos que podem se mover, renderizadas com Blender Cycles e compostas com gráficos ao vivo. [sem teste]
 
 <small>`pinneapple_tools/visualization/studio/particles.py` · 323 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render_particle_frames` | função | `(frames, d, out_dir, *, equipment=None, field='speed', field_range=None, view=(-1.0, -1.2…)` | Render every ``every``-th frame to ``out_dir/frame_XXXX.png``; the camera frames the equipment (or the particles) once. Returns the PNG paths. |
-| `compose_video` | função | `(images, times, out, *, charts=(), colorbar=None, cmap='viridis', clock='Time: {t:.1f}', …)` | One composed frame per image: the render on the left, the ``charts`` (label, t, y) on the right drawn up to the current time (full axes from the start, so the line grows), a colour bar over the render and a clock. Writes a GIF to ``out``; with ``mp4`` also ``out`` with .mp4 through Blender's FFmpeg … |
-| `encode_mp4` | função | `(pngs, out, fps=10) -> str` | H.264 MP4 of a PNG sequence with Blender's sequencer (no ffmpeg binary needed). |
+| `render_particle_frames` | função | `(frames, d, out_dir, *, equipment=None, field='speed', field_range=None, view=(-1.0, -1.2…)` | Renderiza quadros de partículas com Blender Cycles, com equipamento, campo de cor e câmera. |
+| `compose_video` | função | `(images, times, out, *, charts=(), colorbar=None, cmap='viridis', clock='Time: {t:.1f}', …)` | Compõe cada imagem com gráficos que se desenham ao longo do tempo, barra de cor e relógio, em GIF ou MP4. |
+| `encode_mp4` | função | `(pngs, out, fps=10) -> str` | MP4 H.264 de uma sequência PNG usando o sequenciador do Blender (sem binário ffmpeg). |
 
 #### `pinneapple_tools.visualization.studio.planetary`
 
-Renders of a vehicle on a planetary surface with PyVista: heightfield terrain with baked photometry and hard Sun shadows (:mod:`.shadows`), vehicle parts with their studio materials, rocks, optional field colour maps on the terrain and on the parts (with a colour bar), Earth in the sky and a title.
+Renders PyVista de um veículo numa superfície planetária: terreno por mapa de alturas com fotometria e sombras do Sol, peças com materiais, rochas, mapas de campo e horizonte.
 
 <small>`pinneapple_tools/visualization/studio/planetary.py` · 348 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SurfaceView` | classe | `(X, Y, Z, parts, rocks, preset, terrain_field, field_alpha, field_glow, field_saturation,…)` |  |
-| `horizon_distance` | função | `(height, planet_radius=MOON_RADIUS) -> float` | Distance [m] to the horizon of a smooth sphere seen from ``height`` metres above it. |
-| `ring_height` | função | `(view, x, y)` | Height of the horizon annulus [m] at (x, y): ``far_fn`` (or the grid's edge level) blended into the edge level over ``horizon_blend`` metres, a long-wavelength relief faded in with distance, and the curvature drop. |
-| `terrain_height` | função | `(view, x, y)` | Height of the rendered ground at (x, y): the detailed patch, the far grid, then the horizon annulus. |
-| `border_points` | função | `(view, n=720) -> np.ndarray` | Points (n, 3) on the outer border of the rendered ground (the annulus rim, else the far grid's edge). |
-| `border_visibility` | função | `(view, camera, size=(1600, 900), view_angle=35.0, samples=400, margin=0.0) -> dict` | Is the outer border of the ground mesh visible from ``camera``? Every border point is projected through the camera; a point inside the frame (grown by ``margin`` pixels) counts as visible unless the ground between the camera and the point hides it (``samples`` steps along the sight line, geometric … |
-| `render_surface` | função | `(view, path, camera, *, size=(1600, 900), view_angle=35.0, title='', subtitle='', plotter…)` | Render ``view`` with ``camera = (position, focal_point[, up])``. Returns the image path or (with ``return_image``) the RGB array. |
+| `SurfaceView` | classe | `(X, Y, Z, parts, rocks, preset, terrain_field, field_alpha, field_glow, field_saturation,…)` | Descrição completa da vista de superfície: terreno, peças, rochas, preset de luz, campos, mapa de cor, exposição, Terra e terreno distante. |
+| `horizon_distance` | função | `(height, planet_radius=MOON_RADIUS) -> float` | Distância até o horizonte de uma esfera lisa vista de uma altura dada (padrão: raio da Lua). |
+| `ring_height` | função | `(view, x, y)` | Altura do anel de horizonte em (x, y), misturando o terreno distante com o nível da borda. |
+| `terrain_height` | função | `(view, x, y)` | Altura do solo renderizado em (x, y): trecho detalhado, grade distante e anel de horizonte. |
+| `border_points` | função | `(view, n=720) -> np.ndarray` | Pontos na borda externa do solo renderizado. |
+| `border_visibility` | função | `(view, camera, size=(1600, 900), view_angle=35.0, samples=400, margin=0.0) -> dict` | Verifica se a borda externa do solo aparece vista da câmera, projetando os pontos de borda. |
+| `render_surface` | função | `(view, path, camera, *, size=(1600, 900), view_angle=35.0, title='', subtitle='', plotter…)` | Renderiza a vista de superfície com uma câmera dada, em arquivo ou como imagem. |
 
 #### `pinneapple_tools.visualization.studio.pyvista_render`
 
-Off-screen renders of a studio :class:`~.scene.Scene` with PyVista (VTK): the Blender-free counterpart of :func:`pinneapple_tools.visualization.studio.render`, for machines without ``bpy``.
+Renders fora da tela de uma `Scene` do studio com PyVista (VTK), a alternativa sem Blender para máquinas sem `bpy`.
 
 <small>`pinneapple_tools/visualization/studio/pyvista_render.py` · 157 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `render_scene` | função | `(scene, path, *, field=None, cmap='jet', clim=None, lines=False, slice_name=None, view='i…)` | ``slice_crop``: (s0, s1, t0, t1), the part of the slice to show as fractions of its ``u`` and ``v`` edges. ``wireframe``: a colour (e.g. "#3B82F6") draws every surface as its mesh edges in that colour instead. ``bar_title``: a short colour-bar title with its units (e.g. "Cp"); by default the … |
+| `render_scene` | função | `(scene, path, *, field=None, cmap='jet', clim=None, lines=False, slice_name=None, view='i…)` | Renderiza a cena com campo, linhas, fatia, vista e chão opcionais num PNG. |
 
 #### `pinneapple_tools.visualization.studio.scene`
 
-A 3D scene for any geometry: surfaces with materials and per-vertex fields, streamlines, slice planes.
+Cena 3D para qualquer geometria: superfícies com materiais e campos por vértice, linhas de corrente e planos de fatia, com leitura (STL, OBJ, glTF, VTP) e escrita (glTF, USDA, STL).
 
 <small>`pinneapple_tools/visualization/studio/scene.py` · 682 linhas · testes: 46</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Surface` | classe | `(name, vertices, faces, material, fields, group)` | One triangulated surface. ``fields``: name -> one value per vertex. |
-| `Lines` | classe | `(points, values, name, label, cmap, alpha, radius, color_range)` | Polylines (e.g. streamlines), each with optional per-point values (e.g. speed). ``cmap``: "jet" or the diverging "coolwarm" / "bwr"; ``color_range`` (default: 1st..99th percentile, symmetric for a diverging map); ``alpha`` < 1 and ``radius`` (tube radius; default from the scene size) for soft … |
-| `Slice` | classe | `(name, origin, u, v, grid, label, group)` | A rectangular plane with a value grid: ``origin`` + s*``u`` + t*``v`` for s, t in [0, 1]. ``grid[j, i]``: row j along v, column i along u; NaN = no value (inside a body). |
-| `Scene` | classe | `(surfaces, lines, slices, axes, title, labels, lighting, materials, animation)` |  |
-| `decimate_surface` | função | `(srf, target_faces) -> 'Surface'` | Vertex clustering on a uniform grid whose cell size is searched (bisection) to land near ``target_faces``. Fast and robust for display; thin features below the cell size may close up. |
-| `scalar_of` | função | `(a) -> np.ndarray` | One value per entry: itself, the magnitude of a vector, the von Mises stress of a 6-component tensor (xx, yy, zz, xy, yz, zx). |
-| `vertex_normals` | função | `(V, F) -> np.ndarray` |  |
-| `read_stl` | função | `(path) -> List[Tuple[str, np.ndarray, np.ndarray]]` | (name, vertices, faces) per solid; duplicate vertices merged. |
-| `read_obj` | função | `(path) -> Tuple[np.ndarray, np.ndarray]` |  |
-| `read_gltf` | função | `(path, axes='z_up') -> List[Surface]` | Triangle meshes of a .glb/.gltf (embedded, data-URI or external buffers), node transforms applied, converted from glTF's y-up to the scene ``axes``. Float vertex attributes starting with ``_`` become fields (their original names when the file was written by this module). |
-| `read_vtp` | função | `(path, material='grey') -> Surface` | VTK PolyData (.vtp) with its point and cell data (vectors as magnitude). Needs ``pip install vtk``. |
-| `write_glb` | função | `(surfaces, T, materials, generator='PINNeAPPle', groups=None) -> bytes` | glTF 2.0 binary with PBR materials (clearcoat, transmission, emissive). Every per-vertex field becomes a float attribute ``_NAME`` (upper case; three.js reads it back as ``_name``). ``groups``: node name -> indices of surfaces to parent under one node (e.g. a propeller that spins). |
-| `write_usda` | função | `(surfaces, materials, title='scene', root='Scene') -> str` | OpenUSD text: one Mesh per surface with UsdPreviewSurface materials; z up, metres (Omniverse, usdview). Per-vertex fields become ``primvars:<name>`` (float, vertex interpolation). |
-| `write_stl` | função | `(surfaces, solid='scene') -> bytes` | Binary STL of all surfaces. |
+| `Surface` | classe | `(name, vertices, faces, material, fields, group)` | Uma superfície triangulada com material, campos por vértice e grupo. |
+| `Lines` | classe | `(points, values, name, label, cmap, alpha, radius, color_range)` | Polilinhas (por exemplo, linhas de corrente) com valores opcionais por ponto e mapa de cor. |
+| `Slice` | classe | `(name, origin, u, v, grid, label, group)` | Plano retangular com uma grade de valores (NaN onde não há valor). |
+| `Scene` | classe | `(surfaces, lines, slices, axes, title, labels, lighting, materials, animation)` | A cena completa (superfícies, linhas, fatias, eixos, iluminação, materiais, animação), criada de arrays, arquivo, malha ou peças, com dizimação e `save`. |
+| `decimate_surface` | função | `(srf, target_faces) -> 'Surface'` | Simplifica uma superfície por agrupamento de vértices numa grade, ajustada por bisseção para chegar perto do número de faces pedido. |
+| `scalar_of` | função | `(a) -> np.ndarray` | Um valor por entrada: o próprio, a magnitude de um vetor ou a tensão de von Mises de um tensor de 6 componentes. |
+| `vertex_normals` | função | `(V, F) -> np.ndarray` | Normais por vértice de uma malha de triângulos. |
+| `read_stl` | função | `(path) -> List[Tuple[str, np.ndarray, np.ndarray]]` | Lê um STL e devolve (nome, vértices, faces) por sólido, com vértices duplicados fundidos. |
+| `read_obj` | função | `(path) -> Tuple[np.ndarray, np.ndarray]` | Lê vértices e faces de um arquivo OBJ. |
+| `read_gltf` | função | `(path, axes='z_up') -> List[Surface]` | Lê as malhas de um `.glb`/`.gltf` com transformações aplicadas, convertidas para os eixos da cena. |
+| `read_vtp` | função | `(path, material='grey') -> Surface` | Lê um VTK PolyData (`.vtp`) com seus dados de ponto e célula; exige `vtk`. |
+| `write_glb` | função | `(surfaces, T, materials, generator='PINNeAPPle', groups=None) -> bytes` | Escreve glTF 2.0 binário com materiais PBR, e cada campo por vértice como atributo. |
+| `write_usda` | função | `(surfaces, materials, title='scene', root='Scene') -> str` | Escreve OpenUSD em texto: uma Mesh por superfície com materiais `UsdPreviewSurface` e campos como primvars. |
+| `write_stl` | função | `(surfaces, solid='scene') -> bytes` | Escreve um STL binário de todas as superfícies. |
 
 #### `pinneapple_tools.visualization.studio.shadows`
 
-Sun shadows and planetary-surface shading for heightfield terrains, independent of the renderer.
+Sombras do Sol e sombreamento de superfície planetária para terrenos por mapa de alturas, independentes do renderizador.
 
 <small>`pinneapple_tools/visualization/studio/shadows.py` · 171 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `terrain_self_shadow` | função | `(Z, cell, sun_dir, max_distance=None) -> np.ndarray` | Boolean (ny, nx): True where the heightfield ``Z`` (rows along y, columns along x, spacing ``cell``) hides the Sun (``sun_dir`` points from the ground to the Sun). |
-| `points_in_terrain_shadow` | função | `(P, X, Y, Z, sun_dir, step=None) -> np.ndarray` | Boolean per point (N, 3): the heightfield (X, Y, Z) blocks the Sun as seen from the point. |
-| `cast_shadow` | função | `(meshes, X, Y, Z, sun_dir, iterations=3, supersample=1) -> np.ndarray` | Boolean (ny, nx): cells of the regular grid (X, Y, Z) in the shadow of the triangle ``meshes`` [(V, F), ...]. |
-| `lunar_lambert` | função | `(normals, sun_dir, view_dir, L=1.0) -> np.ndarray` | McEwen (1991) Lunar-Lambert reflectance (without the albedo) for unit ``normals`` (N, 3); ``view_dir`` (3,) or (N, 3) points from the surface to the camera. |
-| `relief_noise` | função | `(X, Y, rms, wavelengths=(0.6, 8.0), n=40, seed=7, slope=1.2)` | World-anchored smooth random relief [m] at points (X, Y): a sum of ``n`` plane waves with random directions and phases, wavelengths log-spaced in ``wavelengths`` and amplitudes ~ wavelength^slope, scaled to ``rms``. The same (x, y) always gives the same height, so a moving window of terrain does … |
-| `grid_normals` | função | `(Z, cell) -> np.ndarray` |  |
-| `shade_terrain` | função | `(X, Y, Z, sun_dir, camera_position, albedo=(0.45, 0.44, 0.42), shadow=None, exposure=1.0,…)` | (ny, nx, 3) colours in [0, 1]: Lunar-Lambert photometry, shadows from ``shadow`` (bool grid or 0-1 fraction), a weak fill light, a filmic shoulder. ``tint`` (ny, nx, 3) multiplies the albedo (e.g. a field colour map). |
+| `terrain_self_shadow` | função | `(Z, cell, sun_dir, max_distance=None) -> np.ndarray` | Máscara booleana das células onde o próprio terreno esconde o Sol. |
+| `points_in_terrain_shadow` | função | `(P, X, Y, Z, sun_dir, step=None) -> np.ndarray` | Para cada ponto 3D, diz se o terreno bloqueia o Sol. |
+| `cast_shadow` | função | `(meshes, X, Y, Z, sun_dir, iterations=3, supersample=1) -> np.ndarray` | Máscara das células da grade que ficam na sombra de malhas de triângulos (por exemplo, um veículo). |
+| `lunar_lambert` | função | `(normals, sun_dir, view_dir, L=1.0) -> np.ndarray` | Refletância Lunar-Lambert de McEwen (1991), sem o albedo, para normais, Sol e direção de vista. |
+| `relief_noise` | função | `(X, Y, rms, wavelengths=(0.6, 8.0), n=40, seed=7, slope=1.2)` | Relevo aleatório suave ancorado no mundo, como soma de ondas planas com direções e fases aleatórias. |
+| `grid_normals` | função | `(Z, cell) -> np.ndarray` | Normais de um mapa de alturas em grade regular. |
+| `shade_terrain` | função | `(X, Y, Z, sun_dir, camera_position, albedo=(0.45, 0.44, 0.42), shadow=None, exposure=1.0,…)` | Cores do terreno com fotometria Lunar-Lambert, sombra, exposição e luz de preenchimento. |
 
 #### `pinneapple_tools.visualization.studio.solver_view`
 
-The result of a solver run as a 3-D view, to check it before its numbers are used: the mesh, its fields, the deformed shape (CalculiX displacement, with a scale factor) and the regions where the case defines its boundary conditions and loads.
+Resultado de uma execução de solver (CalculiX ou OpenFOAM) como vista 3D para conferir antes de usar os números: malha, campos, forma deformada e regiões de contorno e carga.
 
 <small>`pinneapple_tools/visualization/studio/solver_view.py` · 153 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `find_result` | função | `(folder) -> tuple[str, Path] \| None` | ``("calculix", <job>.frd)`` or ``("openfoam", <case dir>)`` for a step folder (or the case itself), else None. |
-| `solver_result_view` | função | `(folder, *, max_faces=VIEW_MAX_FACES) -> tuple[FieldView, dict[str, Any]]` | View of the CalculiX or OpenFOAM result in ``folder`` (see the module docstring). Raises ``ValueError`` when there is no result to show. |
+| `find_result` | função | `(folder) -> tuple[str, Path] \| None` | Identifica numa pasta um resultado CalculiX (`.frd`) ou um caso OpenFOAM; devolve None se não achar. |
+| `solver_result_view` | função | `(folder, *, max_faces=VIEW_MAX_FACES) -> tuple[FieldView, dict[str, Any]]` | Monta o `FieldView` e um resumo do resultado do solver na pasta; levanta `ValueError` quando não há resultado. |
 
 #### `pinneapple_tools.visualization.studio.web`
 
-Interactive browser view of a :class:`~.scene.Scene` (three.js, shipped with the library; no internet needed).
+Visualizador interativo de uma `Scene` no navegador (three.js embutido na biblioteca, sem internet).
 
 <small>`pinneapple_tools/visualization/studio/web.py` · 197 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `web_viewer` | função | `(scene, out_dir, title=None, max_faces=MAX_FACES, single_file=False, filename='index.html…)` | Write the viewer for ``scene`` into ``out_dir``; returns the path of its index.html. Surfaces above ``max_faces`` triangles in total are decimated for the page (the scene itself is not changed); None keeps all. ``single_file``: write only ``out_dir/filename``, with scene.json, scene.glb, the viewer … |
-| `serve` | função | `(scene, port=8000, open_browser=True, block=True, out_dir=None, max_faces=MAX_FACES)` | Write the viewer (to ``out_dir`` or a temporary folder) and serve it on ``port``. ``block=False`` returns the server (call ``.shutdown()``); otherwise serves until Ctrl+C. |
-| `screenshot` | função | `(viewer_dir, out_png, frame=None, size=(1280, 720), setup_js=None, timeout_ms=60000) -> s…)` | PNG of the viewer written by :func:`web_viewer` in ``viewer_dir`` (or of a single-file page: the path of the .html, opened from file://), taken in headless Chromium (needs ``pip install playwright``; ``PLAYWRIGHT_CHROMIUM`` or /opt/pw-browsers/chromium is used when the bundled browser is missing). … |
+| `web_viewer` | função | `(scene, out_dir, title=None, max_faces=MAX_FACES, single_file=False, filename='index.html…)` | Grava o visualizador da cena numa pasta (ou num arquivo único) e devolve o caminho do `index.html`. |
+| `serve` | função | `(scene, port=8000, open_browser=True, block=True, out_dir=None, max_faces=MAX_FACES)` | Grava o visualizador e o serve numa porta local, abrindo o navegador opcionalmente. |
+| `screenshot` | função | `(viewer_dir, out_png, frame=None, size=(1280, 720), setup_js=None, timeout_ms=60000) -> s…)` | Captura um PNG do visualizador gravado com navegador headless (Playwright); devolve None se não for possível. |
 
 #### `pinneapple_tools.visualization.style`
 
-CFD-style colour maps, themes and defaults for PINNeAPPle visualisation.
+Mapas de cor, temas escuro/claro e padrões de figura no estilo CFD. [sem teste]
 
 <small>`pinneapple_tools/visualization/style.py` · 118 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `use_cfd_style` | função | `(dark=True) -> None` | Apply CFD dark/light theme globally. |
-| `get_cmap` | função | `(name=DEFAULT_CMAP)` | Return a matplotlib colormap by PINNeAPPle alias or standard name. |
-| `make_figure` | função | `(nrows=1, ncols=1, **kwargs)` | Create a styled figure. |
+| `use_cfd_style` | função | `(dark=True) -> None` | Aplica globalmente o tema CFD escuro ou claro no matplotlib. |
+| `get_cmap` | função | `(name=DEFAULT_CMAP)` | Devolve um mapa de cor do matplotlib por apelido do PINNeAPPle ou nome padrão. |
+| `make_figure` | função | `(nrows=1, ncols=1, **kwargs)` | Cria uma figura matplotlib já estilizada. |
 
 #### `pinneapple_tools.visualization.trust_panels`
 
-Side-by-side field panels with a trust verdict under each model: the figure (and GIF) of "which prediction can I use, and where does it break the physics".
+Painéis de campo lado a lado com um veredito de confiança sob cada modelo: qual previsão dá para usar e onde ela quebra a física.
 
 <small>`pinneapple_tools/visualization/trust_panels.py` · 167 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Panel` | classe | `(title, values, kind, verdict, verdicts, note, inset)` | One field. ``kind``: ``"field"`` (shared linear scale per row), ``"residual"`` (log magnitude) or ``"error"`` (magnitude on a linear scale from 0 to ``error_max`` of :func:`trust_panels`). ``inset``: draw a dashed square that many cells inside the border (e.g. the edge of an interior region). |
-| `Row` | classe | `(label, panels)` |  |
-| `trust_panels` | função | `(rows, *, title='', footer='', cell=2.4, residual_range=None, error_max=None, error_label…)` | Figure with one row per :class:`Row`: its ``"field"`` panels, a colour bar, its ``"residual"`` / ``"error"`` panels and their colour bar (labelled ``error_label``); every row has the same number of panels of each group. |
-| `trust_panels_gif` | função | `(frames, path, *, duration_ms=1600, **kwargs) -> Path` | One :func:`trust_panels` figure per frame, written as a looping GIF. ``kwargs`` go to ``trust_panels`` (pass the same ``residual_range`` to every frame for a fixed residual scale). |
+| `Panel` | classe | `(title, values, kind, verdict, verdicts, note, inset)` | Um painel: campo, resíduo (log) ou erro (linear a partir de 0), com veredito e nota. |
+| `Row` | classe | `(label, panels)` | Uma linha da figura: rótulo e lista de painéis. |
+| `trust_panels` | função | `(rows, *, title='', footer='', cell=2.4, residual_range=None, error_max=None, error_label…)` | Figura com uma linha por `Row`: painéis de campo, barra de cor, resíduos e erros, com vereditos. |
+| `trust_panels_gif` | função | `(frames, path, *, duration_ms=1600, **kwargs) -> Path` | Uma figura `trust_panels` por quadro, gravada como GIF em laço. |
 
 #### `pinneapple_tools.visualization.vortex`
 
-Vortex identification and flow visualization — Q-criterion, λ₂, vorticity.
+Identificação de vórtices e visualização de escoamento: vorticidade, critério Q, λ₂, enstrofia, dissipação e painéis prontos (inclusive para LBM).
 
 <small>`pinneapple_tools/visualization/vortex.py` · 675 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compute_vorticity_2d` | função | `(u, v, dx=1.0, dy=1.0) -> np.ndarray` | z-component of vorticity: ω_z = ∂v/∂x − ∂u/∂y. |
-| `compute_q_criterion_2d` | função | `(u, v, dx=1.0, dy=1.0) -> np.ndarray` | Q-criterion for 2-D incompressible flow. |
-| `compute_vorticity_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | Full vorticity vector field ω = ∇×u for 3-D flow: ω_x = ∂w/∂y − ∂v/∂z ω_y = ∂u/∂z − ∂w/∂x ω_z = ∂v/∂x − ∂u/∂y |
-| `compute_strain_rate_tensor_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0)` | Symmetric strain-rate tensor S_ij = 0.5(∂u_i/∂x_j + ∂u_j/∂x_i) for 3-D flow. |
-| `compute_q_criterion_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | Q-criterion for 3-D flow:  Q = 0.5(‖Ω‖²_F − ‖S‖²_F) |
-| `compute_enstrophy` | função | `(vorticity) -> float` | Enstrophy: 0.5 * sum(\|ω\|²). |
-| `compute_dissipation_rate` | função | `(strain_rate_tensor_components, nu) -> np.ndarray` | Viscous/turbulent dissipation rate: ε = 2ν S_ij S_ij (double contraction of the strain-rate tensor). |
-| `compute_lambda2_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | λ₂ vortex criterion (Jeong & Hussain, 1995). Vortex core: λ₂ < 0. |
-| `plot_vorticity` | função | `(x, y, omega, *, title='Vorticity ω_z', cmap='RdBu_r', symmetric=True, obstacle_mask=None…)` | Coloured vorticity map, symmetric diverging colormap centred on zero. |
-| `plot_q_criterion_2d` | função | `(x, y, Q, vel_mag=None, *, title='Q-criterion', q_levels=30, highlight_positive=True, cma…)` | 2-D Q-criterion field. |
-| `plot_vortex_identification` | função | `(x, y, u, v, *, dx=1.0, dy=1.0, title=…, obstacle_mask=None, figsize=(11, 5), show=False)…)` | One-shot wrapper: compute Q from velocity field and plot. Also overlays streamlines on the Q background. |
-| `plot_q_criterion_3d` | função | `(x, y, z, Q, *, level=0.01, vel_mag=None, title='Q-criterion iso-surface', cmap='rainbow'…)` | 3-D Q-criterion iso-surface coloured by velocity magnitude. |
-| `plot_lbm_flow` | função | `(ux, uy, rho=None, obstacle_mask=None, *, dx=1.0, dy=1.0, title='LBM Flow Field', figsize…)` | 4-panel LBM dashboard: [0] Velocity magnitude  [1] Vorticity ω_z [2] Q-criterion         [3] Pressure (density proxy) Solid obstacles are masked in grey. |
-| `plot_flow_panel` | função | `(x, y, ux, uy, pressure=None, obstacle_mask=None, *, title='Flow Field Analysis', figsize…)` | 4-panel flow analysis: pressure, \|v\| + streamlines, Q-criterion, vorticity. Mirrors the post-processing style of commercial CFD dashboards. |
+| `compute_vorticity_2d` | função | `(u, v, dx=1.0, dy=1.0) -> np.ndarray` | Componente z da vorticidade ω_z = ∂v/∂x − ∂u/∂y por diferenças finitas. |
+| `compute_q_criterion_2d` | função | `(u, v, dx=1.0, dy=1.0) -> np.ndarray` | Critério Q para escoamento 2D incompressível. |
+| `compute_vorticity_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | Vetor vorticidade ω = ∇×u completo para escoamento 3D. |
+| `compute_strain_rate_tensor_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0)` | Tensor taxa de deformação simétrico S_ij para escoamento 3D. |
+| `compute_q_criterion_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | Critério Q 3D: Q = 0.5(‖Ω‖² − ‖S‖²). |
+| `compute_enstrophy` | função | `(vorticity) -> float` | Enstrofia: 0.5 vezes a soma de \|ω\|². |
+| `compute_dissipation_rate` | função | `(strain_rate_tensor_components, nu) -> np.ndarray` | Taxa de dissipação viscosa ε = 2ν S_ij S_ij. |
+| `compute_lambda2_3d` | função | `(u, v, w, dx=1.0, dy=1.0, dz=1.0) -> np.ndarray` | Critério λ₂ de Jeong & Hussain (1995); núcleo de vórtice onde λ₂ < 0. |
+| `plot_vorticity` | função | `(x, y, omega, *, title='Vorticity ω_z', cmap='RdBu_r', symmetric=True, obstacle_mask=None…)` | Mapa de vorticidade com mapa de cor divergente centrado em zero e máscara de obstáculo opcional. |
+| `plot_q_criterion_2d` | função | `(x, y, Q, vel_mag=None, *, title='Q-criterion', q_levels=30, highlight_positive=True, cma…)` | Gráfico do campo Q 2D, destacando regiões Q > 0, com velocidade de fundo opcional. |
+| `plot_vortex_identification` | função | `(x, y, u, v, *, dx=1.0, dy=1.0, title=…, obstacle_mask=None, figsize=(11, 5), show=False)…)` | Calcula Q a partir da velocidade e plota com linhas de corrente sobrepostas. |
+| `plot_q_criterion_3d` | função | `(x, y, z, Q, *, level=0.01, vel_mag=None, title='Q-criterion iso-surface', cmap='rainbow'…)` | Isosuperfície 3D do critério Q, colorida opcionalmente pela velocidade. |
+| `plot_lbm_flow` | função | `(ux, uy, rho=None, obstacle_mask=None, *, dx=1.0, dy=1.0, title='LBM Flow Field', figsize…)` | Painel de 4 gráficos para escoamento LBM: magnitude da velocidade, vorticidade, critério Q e pressão (via densidade), com obstáculos em cinza. |
+| `plot_flow_panel` | função | `(x, y, ux, uy, pressure=None, obstacle_mask=None, *, title='Flow Field Analysis', figsize…)` | Painel de 4 gráficos: pressão, \|v\| com linhas de corrente, critério Q e vorticidade. |
 
 #### `pinneapple_tools.visualization.voxel`
 
-Visualisation of VoxelGrid objects.
+Visualização de objetos `VoxelGrid` (fatias, ocupação 3D e histograma). [sem teste]
 
 <small>`pinneapple_tools/visualization/voxel.py` · 127 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_voxel_slice` | função | `(grid, *, axis='z', index=None, cmap=DEFAULT_CMAP, title='', show=False) -> Figure` | Plot a single 2-D slice through a 3-D VoxelGrid. |
-| `plot_voxel_3d` | função | `(grid, *, threshold=0.5, cmap=DEFAULT_CMAP, alpha=0.6, title='Voxel occupancy', show=Fals…)` | Scatter-based 3-D visualisation of occupied voxels. |
-| `plot_voxel_histogram` | função | `(grid, *, bins=50, title='Voxel value distribution', show=False) -> Figure` | Histogram of non-zero voxel values. |
+| `plot_voxel_slice` | função | `(grid, *, axis='z', index=None, cmap=DEFAULT_CMAP, title='', show=False) -> Figure` | Plota uma fatia 2D de uma `VoxelGrid` 3D ao longo de um eixo. |
+| `plot_voxel_3d` | função | `(grid, *, threshold=0.5, cmap=DEFAULT_CMAP, alpha=0.6, title='Voxel occupancy', show=Fals…)` | Dispersão 3D dos voxels ocupados acima de um limiar, limitada a um número máximo. |
+| `plot_voxel_histogram` | função | `(grid, *, bins=50, title='Voxel value distribution', show=False) -> Figure` | Histograma dos valores não nulos dos voxels. |
 
 ### Exemplos de uso reais do repositório
+
+**Experimento Arena a partir de YAML** — `examples/benchmark_suite/02_arena_from_yaml.py`
+
+```python
+from pinneapple_tools.benchmark_suite.runner.run_arena_yaml import run_arena_experiment
+
+
+def main() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    config_path = repo_root / "examples" / "benchmark_suite" / "configs" / "experiment_burgers_1d.yaml"
+    out_dir = repo_root / "data" / "artifacts" / "experiments" / "burgers_1d"
+    ...
+    result = run_arena_experiment(config_path, out_dir=out_dir)
+```
+
+**Campo de temperatura num stage OpenUSD, validado e pré-visualizado** — `examples/nvidia/07_omniverse_physicsnemo_coldplate/run.py`
+
+```python
+st = FieldStage(usd, "Cold plate, PhysicsNeMo FNO temperature")
+path = st.add_mesh("ColdPlate", V, F, fields={"temperature": T.ravel(), "conductivity": (a_te[i] * K0).ravel(),
+                                              "temperature_reference": (T_COOL + DT * u_te[i]).ravel(),
+                                              "estimated_error": (DT * np.abs(est)).ravel()},
+                   units={"temperature": "K", "conductivity": "W/m/K", "temperature_reference": "K",
+                          "estimated_error": "K"}, color_by="temperature")
+st.set_trust(path, decision, [c.to_dict() for c in checks], model="physicsnemo.models.fno.FNO",
+             solver="pinneapple finite volumes")
+st.save()
+v = validate_stage(usd, required_primvars={path: ["temperature", "conductivity"]})
+```
+
+**Painel animado de um campo no tempo** — `examples/quickstart/11_visualisation.py`
+
+```python
+from pinneapple_tools.visualization.dashboard import Chart, Dashboard, Series, Tile
+...
+dashboard = Dashboard(
+    "Diffusing blobs",
+    t,
+    frames,
+    subtitle="T(x, y, t): two Gaussian blobs diffusing and decaying",
+    charts=[Chart("peak amplitude", "amplitude [a.u.]", "time [s]",
+                  [Series("peak", np.asarray(peaks))])],
+    tiles=[Tile("final peak", peaks[-1], "a.u."), Tile("frames", len(frames), "")],
+)
+written = dashboard.to_video(gif=f"{OUT}/04_field_4d.gif")
+```
 
 **Coeficiente de pressão com `compute_cp`** — `tests/pinneapple_tools/test_aero_coefficients.py`
 
@@ -2143,6 +2191,14 @@ def test_sentence_picks_the_workflow_and_converts_units():
 
 ### Limitações conhecidas
 
+- `benchmark_suite/__init__.py` importa `PhysicsPipeline`, `TimeSeriesBenchmarkSpec`, `run_full_pipeline` e os benchmarks de transferência e meta-aprendizado dentro de `try/except Exception: pass`: se uma dependência falhar, o nome some sem aviso.
+- Vários docstrings da `benchmark_suite` ainda citam nomes antigos de pacotes (`pinneapple_arena`, `pinneapple_environment`, `pinneapple_pinn`, `examples/pinneapple_arena/`), embora o código já importe os pacotes atuais.
+- Os backends DeepXDE, JAX e PhysicsNeMo Sym dependem de pacotes opcionais e falham com `RuntimeError`/`ImportError` se eles não estiverem instalados; DeepXDE, JAX, nativo e multi-modelo não têm teste direto.
+- `BenchmarkTaskBase` levanta `NotImplementedError` nos métodos abstratos; os runners de linha de comando (`runner/*`), `physics_pipeline` e `timeseries_pipeline` não têm teste direto.
+- `hpo_experiments` não tem nenhum teste, depende de rede (arXiv, GitHub) e de uma chave da API Gemini, e o pipeline `reproduce` executa com `python run.py`/`main.py` código gerado por LLM, sem sandbox.
+- `export_problemdesign` só escreve o arquivo complementar se `pinneapple_problemdesign` existir; esse pacote não está no repositório.
+- O docstring de `pinneapple_tools.nvidia` lista os módulos `nim`, `cosmos` e `testing`, que não existem na pasta; Isaac Sim, Omniverse Kit RTX e USD BRep (wheel CPython 3.12) são externos e opcionais.
+- Partes do `visualization` exigem pacotes opcionais (`bpy` para Blender, `pyvista`/`vtk`, `rerun-sdk`, `plotly`, `trame`, `playwright` para capturas, ffmpeg para MP4); muitos módulos de gráficos clássicos (`fields`, `pinn`, `solver`, `mesh`, `voxel`, `animation`, `style`) não têm teste direto.
 - `sandbox.custom_solver_runner` não é uma fronteira de segurança: só limita memória virtual, CPU e tempo de relógio; o script ainda acessa arquivos, rede e pode criar processos (aviso do próprio docstring).
 - `automation` depende de aplicações externas (FreeCAD, CfdOF, OpenFOAM, gmsh, ParaView, Xvfb, xdotool, Playwright); sem elas os passos ficam bloqueados. `PywinautoDriver` só funciona no Windows. Os adaptadores, o runner, o display e o relatório não têm teste direto (os testes cobrem workflow/interpretação/registro/verificação por outros módulos).
 - As correções de compatibilidade em `adapters.openfoam` (`patch_cfdof_allmesh`, `patch_cfdof_inlet`) são específicas do OpenFOAM v1912 / versões ESI antigas com CfdOF.
@@ -2754,451 +2810,451 @@ Nós de visualização e exportação: gráficos, visualizador three.js, render 
 
 #### `pinneapple_flow.nodes_ext`
 
-Node types that reproduce the ``examples/*`` studies as flows, one module per domain, registered through the public API (:func:`pinneapple_flow.registry.node`, :func:`pinneapple_flow.types.register_port_type`). Each node wraps library calls; the flows that use them are under …
+Importa os módulos de nós por domínio que reproduzem `examples/*`, liga o gancho que grava execuções de exemplo como experimentos do Lab e coloca cada nó na seção da paleta da sua categoria. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/__init__.py` · 58 linhas · **sem teste direto**</small>
 
 #### `pinneapple_flow.nodes_ext.aero`
 
-Aircraft aerodynamics from the geometry library (``examples/geometry_library/03_airliner_vlm``): the vortex lattice of the ``airliner_a320`` entry (:func:`pinneapple_design.aero.vlm.solve`) and the friction-drag build-up of its mesh (:func:`pinneapple_design.aero.buildup.friction_drag`).
+Nó de aerodinâmica de avião do exemplo `geometry_library/03_airliner_vlm`: malha de vórtices do `airliner_a320` e arrasto de atrito. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/aero.py` · 71 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `airliner_vlm` | função | `(ctx, inputs, params)` | Lift slope, neutral point (wing + tail), trim at the cruise lift coefficient, induced drag; CD0 from the library mesh; L/D. Published A320 class: CL_alpha about 5.5-6 /rad, cruise L/D about 16-18. |
+| `airliner_vlm` | função | `(ctx, inputs, params)` | Nó `aero.airliner_vlm`: inclinação da sustentação, ponto neutro, trimagem, arrasto induzido, CD0 da malha e L/D. |
 
 #### `pinneapple_flow.nodes_ext.architectures`
 
-The model registry examples (``examples/architectures``): the registry and catalog listing (00, 01, the Group-B check of 60), building registry models by name with a forward pass on dummy tensors (00, 60) and POD compression with a DMD rollout on a synthetic linear system (30).
+Nós dos exemplos `examples/architectures`: listagem do registro de modelos, construção por nome com passagem direta em tensores falsos e compressão POD com rollout DMD. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/architectures.py` · 172 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `registry_listing` | função | `(ctx, inputs, params)` | The registry's families and models, a few model specs and the catalog by family. This is what the registry tour and the model list print. |
-| `forward` | função | `(ctx, inputs, params)` | One registry model built by name and run on dummy tensors. Reports the output shape, the parameter count, the losses it returns and, on request, the input-gradient norm (gradient flow for PINN use). |
-| `pod_dmd` | função | `(ctx, inputs, params)` | POD reconstruction and POD + DMD rollout errors on a synthetic linear system. Trajectories of a contractive random linear system are compressed by POD (rank r), advanced by DMD on the POD coefficients and decoded. |
+| `registry_listing` | função | `(ctx, inputs, params)` | Nó `architectures.registry`: famílias e modelos do registro e o catálogo por família. |
+| `forward` | função | `(ctx, inputs, params)` | Nó `architectures.forward`: um modelo do registro construído por nome e rodado em tensores falsos (forma de saída, parâmetros, perdas, gradiente). |
+| `pod_dmd` | função | `(ctx, inputs, params)` | Nó `architectures.pod_dmd`: erros de reconstrução POD e de rollout POD + DMD num sistema linear sintético. |
 
 #### `pinneapple_flow.nodes_ext.arena_pipelines`
 
-The Arena pipelines of ``examples/arena_pipelines``: the dataset registry (00), the physics and time-series benchmark specs (01, 02, :mod:`pinneapple_tools.benchmark_suite`) and the multi-model Arena run from a config (04, 05, :class:`pinneapple_arena.Arena`). Each run writes its figures and tables …
+Nós de `examples/arena_pipelines`: registro de datasets, especificações de benchmark físico e de séries temporais e a execução multi-modelo da `Arena`. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/arena_pipelines.py` · 205 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `datasets` | função | `(ctx, inputs, params)` | The dataset ids per category and, for each requested id, the arrays it loads (or the error). |
-| `physics_spec` | função | `(ctx, inputs, params)` | Every model of the spec on the problem (forward or inverse), metrics against the reference, a leaderboard and, for an inverse run, the identified parameters. |
-| `timeseries_spec` | função | `(ctx, inputs, params)` | Every forecasting model of the spec on the same lookback / horizon split, metrics on the test part. |
-| `arena_run` | função | `(ctx, inputs, params)` | Data from the problem's reference, every model trained and evaluated on the same points; per model the L2 and relative error of each field, the training time and (PINN family) the final physics residual. |
+| `datasets` | função | `(ctx, inputs, params)` | Nó `arena.datasets`: ids de datasets por categoria e os arrays que cada id carrega. |
+| `physics_spec` | função | `(ctx, inputs, params)` | Nó `arena.physics_spec`: todos os modelos da especificação num problema físico, métricas e leaderboard. |
+| `timeseries_spec` | função | `(ctx, inputs, params)` | Nó `arena.timeseries_spec`: todos os modelos de previsão da especificação no mesmo corte lookback/horizonte. |
+| `arena_run` | função | `(ctx, inputs, params)` | Nó `arena.run`: todos os modelos treinados e avaliados nos mesmos pontos, com erros por campo e tempo de treino. |
 
 #### `pinneapple_flow.nodes_ext.astro`
 
-Black-hole accretion nodes (``examples/black_hole_weather``): one RIAF torus simulation around a Schwarzschild black hole (:func:`pinneapple_physics.blackhole.runs.simulate_run`) and the time-window statistics the resolution study uses …
+Nós de acreção em buraco negro (`examples/black_hole_weather`): simulação de toro RIAF e estatísticas de janela do estudo de resolução. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/astro.py` · 117 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `simulate` | função | `(ctx, inputs, params)` | Evolve the viscous, radiatively inefficient flow that forms from an equilibrium torus (Paczynski-Wiita potential), saving the primitives every ``every`` M (examples/black_hole_weather/simulate.py). |
-| `statistics` | função | `(ctx, inputs, params)` | Mean accretion rate, density and specific angular momentum profiles and the persistence error at leads of 20, 100 and 1000 M over the window (the quantities of the resolution study, results/convergence.json). |
+| `simulate` | função | `(ctx, inputs, params)` | Nó `blackhole.simulate`: evolui o fluxo de acreção a partir de um toro de equilíbrio (potencial de Paczynski-Wiita). |
+| `statistics` | função | `(ctx, inputs, params)` | Nó `blackhole.statistics`: taxa média de acreção, perfis e erro de persistência na janela. |
 
 #### `pinneapple_flow.nodes_ext.autolab_caps`
 
-Planner capabilities for the example flows of nodes that live elsewhere: the industrial presets (:mod:`pinneapple_flow.nodes.presets`), the science experiments (:mod:`pinneapple_flow.nodes.science`) and the autonomous-lab missions (:mod:`pinneapple_flow.nodes.autolab`, ``rover.learn_planet``).
+Registra capacidades do planejador para fluxos de exemplo cujos nós vivem em outros módulos (presets industriais, experimentos de ciência, missões do laboratório autônomo). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/autolab_caps.py` · 42 linhas · **sem teste direto**</small>
 
 #### `pinneapple_flow.nodes_ext.benchmarks`
 
-Benchmark harnesses as flows: the equal-budget benchmark (``examples/benchmark``, :func:`pinneapple_analysis. benchmark.run`) and the benchmark suite of ``examples/benchmark_suite`` (:mod:`pinneapple_tools.benchmark_suite`): the Arena experiment from the example's YAML config (02), and the …
+Nós de benchmark: o benchmark de mesmo orçamento (`pinneapple_analysis.benchmark.run`) e a suíte de `examples/benchmark_suite` (Arena por YAML, transferência, meta-aprendizado). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/benchmarks.py` · 239 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `equal_budget` | função | `(ctx, inputs, params)` | Every method on every problem under the same ComputeBudget, the same hyper-parameter search effort and seeds; the result table (mean over seeds at the full budget), the correctness gates and the advisor's diagnostics. The run folder is the node's (config.yaml, prepared/, runs/, table.md, … |
-| `arena_yaml` | função | `(ctx, inputs, params)` | The problem preset, its reference data from the built-in solver, every model of the config trained on the same points; per model the best validation loss, the metrics on the reference points and the time. |
-| `transfer` | função | `(ctx, inputs, params)` | Pre-train on a source member of each family, fine-tune on targets with each freezing strategy (and from scratch); relative L2 per scenario, target and strategy. |
-| `meta` | função | `(ctx, inputs, params)` | Meta-train on each PDE family, adapt K steps to held-out members against training from scratch; relative L2 per family, algorithm and K. |
+| `equal_budget` | função | `(ctx, inputs, params)` | Nó `benchmark.equal_budget`: todos os métodos em todos os problemas com o mesmo `ComputeBudget`, busca e sementes. |
+| `arena_yaml` | função | `(ctx, inputs, params)` | Nó `benchmark.arena_yaml`: preset, dados de referência e todos os modelos do YAML treinados nos mesmos pontos. |
+| `transfer` | função | `(ctx, inputs, params)` | Nó `benchmark.transfer`: pré-treino numa fonte e fine-tuning com cada estratégia de congelamento contra treino do zero. |
+| `meta` | função | `(ctx, inputs, params)` | Nó `benchmark.meta`: meta-treino por família de EDP e adaptação em K passos contra treino do zero. |
 
 #### `pinneapple_flow.nodes_ext.bricks`
 
-Self-modifying interlocking-brick builds (``examples/bricks/self_modifying_bricks``): the closed-form and Newton checks that gate the loop (:func:`pinneapple_design.bricks.validation.validate`) and the two search strategies at the same evaluation budget and seeds …
+Nós dos tijolos encaixáveis auto-modificáveis (`examples/bricks`): checagens que controlam o laço e as duas estratégias de busca com o mesmo orçamento. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/bricks.py` · 83 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `validate` | função | `(ctx, inputs, params)` | Every check's simulated value (``check.<i>``, in the library's order, the check named in the note), whether it passed, and the trust decision. |
-| `search` | função | `(ctx, inputs, params)` | Both strategies on every seed at the same budget: best score per seed, median (a seed with no feasible build counts as the worst), mean, spread, success rate; and the best build found. |
+| `validate` | função | `(ctx, inputs, params)` | Nó `bricks.validate`: valor simulado de cada checagem, se passou, e a decisão de confiança. |
+| `search` | função | `(ctx, inputs, params)` | Nó `bricks.search`: as duas estratégias em cada semente com o mesmo orçamento e a melhor construção. |
 
 #### `pinneapple_flow.nodes_ext.cfd`
 
-CFD nodes on OpenFOAM: the free-surface trough of ``examples/free_surface`` (a 2-D section with a liquid bath fed by a jet, interFoam VOF with k-omega SST, :class:`pinneapple_simulation.numerical_solvers.free_surface.FreeSurfaceFlow`) and the run campaign of ``examples/openfoam_campaign`` …
+Nós de CFD com OpenFOAM: a calha de superfície livre com jato (interFoam) de `examples/free_surface` e a campanha de `examples/openfoam_campaign`. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/cfd.py` · 210 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `trough_jet` | função | `(ctx, inputs, params)` | examples/free_surface/01_runner_slope_study.py for one slope: time-mean k a few cm above the floor in the impact zone, its peak, the depth under the jet and how settled the liquid volume is. |
-| `ratio` | função | `(ctx, inputs, params)` | ``<case>.<metric> / <baseline>.<metric>`` for every upstream case (e.g. k relative to the 0 degree floor). |
-| `campaign` | função | `(ctx, inputs, params)` | examples/openfoam_campaign: the base case written by the library, then each run of the plan (jet speed and angle) with its health (Courant, phase bounds, volume) and the sampled profiles. |
+| `trough_jet` | função | `(ctx, inputs, params)` | Nó `cfd.trough_jet`: um caso de inclinação da calha com jato (k médio perto do fundo, pico, profundidade, volume). |
+| `ratio` | função | `(ctx, inputs, params)` | Nó `cfd.ratio`: razão de uma métrica de cada caso pela do caso base. |
+| `campaign` | função | `(ctx, inputs, params)` | Nó `cfd.campaign`: caso base e cada execução do plano com sua saúde e perfis amostrados. |
 
 #### `pinneapple_flow.nodes_ext.core_ts`
 
-Nodes for ``examples/geophysics`` (shallow water on the sphere, 4D-Var on Lorenz-96, Richards infiltration), ``examples/physics_optimizer`` (:class:`pinneapple_core.optim.PhysicsOptimizer` on a constrained shape), ``examples/physics_module`` (:class:`pinneapple_core.module.Hybrid`: a coarse FEM …
+Nós de geofísica (água rasa na esfera, 4D-Var em Lorenz-96, Richards), do `PhysicsOptimizer`, do híbrido FEM + correção neural e de séries temporais. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/core_ts.py` · 270 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `earth_system` | função | `(ctx, inputs, params)` | examples/geophysics/01_sphere_and_assimilation.py: the Rossby-Haurwitz wave (Williamson case 6) and the drift of its conserved quantities, 4D-Var on Lorenz-96 (background and analysis RMSE), Richards infiltration (Celia et al. 1990) and its mass-balance ratio. |
-| `torsion_optimizer` | função | `(ctx, inputs, params)` | Maximise the torsional rigidity of an a x b rectangle with a b = 1 by SLSQP, the adjoint, a penalty, an augmented Lagrangian, differential evolution and Bayesian optimisation (examples/physics_optimizer). |
-| `hybrid_fem` | função | `(ctx, inputs, params)` | -(k(x) u')' = 1 with k = 1 + 0.8 sin(2 pi f x + phase): a 6-cell FEM and a dilated Conv1d corrector trained end to end against a 128-cell FEM; held-out relative error of the coarse FEM alone and of the hybrid (examples/physics_module/01_coarse_fem_plus_neural_correction.py). |
-| `regime_series` | função | `(n=900, seed=0) -> np.ndarray` | The series of examples/time_series/adaptive_forecasting.py: seasonal, then a trend, then a random walk. |
-| `adaptive` | função | `(ctx, inputs, params)` | Experts weighted by their recent errors on a seasonal -> trend -> random-walk series: the ensemble's MAE against every expert, the 90 % interval coverage and when the leading model changes (examples/time_series/adaptive_forecasting.py). |
-| `naive_baselines` | função | `(ctx, inputs, params)` | examples/time_series/00_quickstart.py: a seasonal + trend + noise series, time-ordered train / validation windows, the naive, seasonal-naive and drift baselines and their errors. |
+| `earth_system` | função | `(ctx, inputs, params)` | Nó `geo.earth_system`: onda de Rossby-Haurwitz, 4D-Var em Lorenz-96 e infiltração de Richards com balanço de massa. |
+| `torsion_optimizer` | função | `(ctx, inputs, params)` | Nó `core.torsion_optimizer`: maximiza a rigidez torcional de um retângulo com vários otimizadores. |
+| `hybrid_fem` | função | `(ctx, inputs, params)` | Nó `core.hybrid_fem`: FEM grosseira com corretor Conv1d treinado contra FEM fina. |
+| `regime_series` | função | `(n=900, seed=0) -> np.ndarray` | Série do exemplo de previsão adaptativa: sazonal, depois tendência, depois passeio aleatório. |
+| `adaptive` | função | `(ctx, inputs, params)` | Nó `ts.adaptive`: especialistas ponderados pelos erros recentes, MAE do conjunto, cobertura do intervalo e trocas de líder. |
+| `naive_baselines` | função | `(ctx, inputs, params)` | Nó `ts.naive_baselines`: baselines ingênuo, sazonal ingênuo e drift numa série sintética. |
 
 #### `pinneapple_flow.nodes_ext.design`
 
-Design nodes: topology optimization (``examples/topology_optimization``) on :mod:`pinneapple_design.topology` (SIMP compliance of the MBB beam and the cantilever, thermal compliance, Stokes dissipation of the double pipe, the iron of a reluctance rotor for torque, the sensitivity check) and design …
+Nós de projeto: otimização topológica (`pinneapple_design.topology`), checagem de gradiente, rotor de relutância, projeto a partir de intenção e prévia qualitativa do Ahmed body. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/design.py` · 321 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `topology2d` | função | `(ctx, inputs, params)` | examples/topology_optimization/01_mbb_beam.py and 02_heat_and_stokes_flow.py. |
-| `topology_gradcheck` | função | `(ctx, inputs, params)` | The adjoint sensitivities of the filtered, projected MBB compliance against central differences on the largest components (examples/topology_optimization/01_mbb_beam.py). |
-| `reluctance_rotor` | função | `(ctx, inputs, params)` | examples/topology_optimization/03_reluctance_rotor.py: 4-pole rotor core, 4-fold symmetry, adjoint sensitivities; the final design re-evaluated with nonlinear iron and with the co-energy torque. |
-| `from_intent` | função | `(ctx, inputs, params)` | A goal in plain language to a verified, buildable design, the questions it needs, or a refusal saying what is missing (examples/design_from_intent/design_from_intent.py). |
-| `ahmed_slant` | função | `(ctx, inputs, params)` | examples/qualitative/03_ahmed_slant.py: the preview's expected drag change per slant against the measured one, its direction and the rank correlation; low confidence near the separation angle. |
+| `topology2d` | função | `(ctx, inputs, params)` | Nó `design.topology2d`: otimização topológica 2-D (viga MBB, balanço, térmica, Stokes). |
+| `topology_gradcheck` | função | `(ctx, inputs, params)` | Nó `design.topology_gradcheck`: sensibilidades adjuntas contra diferenças centrais. |
+| `reluctance_rotor` | função | `(ctx, inputs, params)` | Nó `design.reluctance_rotor`: núcleo de rotor de 4 polos por otimização topológica, reavaliado com ferro não linear. |
+| `from_intent` | função | `(ctx, inputs, params)` | Nó `design.from_intent`: de um objetivo em linguagem natural a um projeto verificado, perguntas ou recusa. |
+| `ahmed_slant` | função | `(ctx, inputs, params)` | Nó `qualitative.ahmed_slant`: variação de arrasto prevista por inclinação contra a medida, com baixa confiança perto da separação. |
 
 #### `pinneapple_flow.nodes_ext.electromagnetics`
 
-Electromagnetics nodes: the studies of ``examples/motor_magnetics`` and ``examples/electrodynamics`` on :mod:`pinneapple_simulation.electromagnetics` (the verification table, the surface-PM machine, the 2004 Prius interior-PM motor: no-load, torque against current angle and MTPA, flux map and drive …
+Nós dos estudos de `examples/motor_magnetics` e `examples/electrodynamics`: tabela de verificação, máquina de ímãs na superfície e o motor IPM do Prius 2004 (torque, mapa de fluxo, acionamento, skew, tolerâncias). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/electromagnetics.py` · 512 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `em_verification` | função | `(ctx, inputs, params)` | Every electromagnetics solver and reference against an independent result: errors and observed orders (examples/electrodynamics/07_em_verification.py). |
-| `spm_machine` | função | `(ctx, inputs, params)` | examples/motor_magnetics/01_spm_cogging_and_torque.py: 4 poles, 24 slots, nonlinear iron; torque by Maxwell stress (Arkkio) and by virtual work, side by side. |
-| `prius_machine` | função | `(ctx, inputs, params)` | examples/electrodynamics/10_pmsm_prius.py: the 2004 Prius motor (48 slots, 8 poles, V-shaped NdFeB, M400-50A), torque against current angle compared with Yang et al. (IEMDC 2013). |
-| `prius_flux_map` | função | `(ctx, inputs, params)` | psi_d, psi_q and torque on an i_d x i_q grid (and loss data on a coarser grid) of the Prius motor. |
-| `prius_drive` | função | `(ctx, inputs, params)` | examples/electrodynamics/11_prius_drive.py: MTPA + flux weakening envelope, the efficiency map and the battery energy over the WLTC class 3b cycle. |
-| `prius_skew` | função | `(ctx, inputs, params)` | examples/electrodynamics/15_prius_skew.py: cogging, torque and ripple against the step skew, and the skewed back-EMF harmonics against the closed-form skew factor (the 3-D VTU export is left to the script). |
-| `prius_tolerances` | função | `(ctx, inputs, params)` | examples/electrodynamics/17_prius_tolerances.py: torque and ripple spread from the tolerances of the magnet remanence, thickness, width and the air gap; standardised regression coefficients; probability within spec. |
+| `em_verification` | função | `(ctx, inputs, params)` | Nó `em.verification`: cada solver eletromagnético contra resultado independente, com erros e ordens observadas. |
+| `spm_machine` | função | `(ctx, inputs, params)` | Nó `em.spm_machine`: máquina de ímãs na superfície com torque por tensor de Maxwell e por trabalho virtual. |
+| `prius_machine` | função | `(ctx, inputs, params)` | Nó `em.prius_machine`: motor do Prius 2004, torque contra ângulo de corrente comparado com Yang et al. (IEMDC 2013). |
+| `prius_flux_map` | função | `(ctx, inputs, params)` | Nó `em.prius_flux_map`: psi_d, psi_q e torque numa grade i_d x i_q, com perdas. |
+| `prius_drive` | função | `(ctx, inputs, params)` | Nó `em.prius_drive`: envelope MTPA + enfraquecimento de campo, mapa de eficiência e energia no ciclo WLTC. |
+| `prius_skew` | função | `(ctx, inputs, params)` | Nó `em.prius_skew`: cogging, torque e ripple contra o skew em degraus e harmônicos da FEM contra o fator de skew. |
+| `prius_tolerances` | função | `(ctx, inputs, params)` | Nó `em.prius_tolerances`: dispersão de torque e ripple pelas tolerâncias dos ímãs e do entreferro. |
 
 #### `pinneapple_flow.nodes_ext.em_antenna`
 
-Antenna measurement ranges (``examples/use_cases/antennas/compact_range_qz``): the quiet zone of a compact range by physical optics (:mod:`pinneapple_simulation.electromagnetics.reflector`), its validation against the closed form and geometrical optics, and the feed gain x reflector size x rolled …
+Nó da zona quieta de um compact range de antenas por óptica física, com validação e varredura de projeto. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/em_antenna.py` · 67 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compact_range` | função | `(ctx, inputs, params)` | The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet zone (ripple, taper, usable diameter, cross-polar), the validation and the design sweep. |
+| `compact_range` | função | `(ctx, inputs, params)` | Nó `antenna.compact_range`: zona quieta do projeto de referência, validação e varredura de projeto. |
 
 #### `pinneapple_flow.nodes_ext.em_prius`
 
-The longer Prius-motor studies of ``examples/electrodynamics`` (12-14, 16) as nodes on :mod:`pinneapple_simulation.electromagnetics.machines`: rotor design (GP-surrogate NSGA-II against FEA-only), the thermal network over WLTC cycles with demagnetisation margins, the cross-check against gmsh + …
+Nós dos estudos longos do motor do Prius: projeto de rotor (NSGA-II com surrogate GP), rede térmica em ciclos WLTC, verificação cruzada com gmsh + GetDP e efeitos de extremidade; os dois últimos precisam de gmsh e GetDP. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/em_prius.py` · 315 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `rotor_design` | função | `(ctx, inputs, params)` | examples/electrodynamics/12_prius_rotor_design.py: hypervolume and FEA calls of the hybrid search against FEA-only, the hybrid front re-evaluated on a finer FEA, and the Prius rotor through the same evaluators. |
-| `prius_thermal` | função | `(ctx, inputs, params)` | examples/electrodynamics/13_prius_thermal.py: magnet temperature sweep, a lumped thermal network driven by the WLTC losses (peak node temperatures), the time to 180 C at peak load, and demagnetisation margins per NdFeB grade at the hottest magnet temperature. |
-| `getdp_crosscheck` | função | `(ctx, inputs, params)` | examples/electrodynamics/14_prius_getdp_crosscheck.py: torque against current angle, cogging, back-EMF and apparent inductances, PINNeAPPle's FEA against an independent gmsh + GetDP model of the same machine. |
-| `end_effects` | função | `(ctx, inputs, params)` | examples/electrodynamics/16_prius_end_effects.py. |
+| `rotor_design` | função | `(ctx, inputs, params)` | Nó `em.prius_rotor_design`: busca híbrida com surrogate contra só FEA (hipervolume e chamadas de FEA). |
+| `prius_thermal` | função | `(ctx, inputs, params)` | Nó `em.prius_thermal`: rede térmica concentrada com perdas WLTC e margens de desmagnetização por grau de NdFeB. |
+| `getdp_crosscheck` | função | `(ctx, inputs, params)` | Nó `em.prius_getdp_crosscheck`: FEA do PINNeAPPle contra um modelo independente gmsh + GetDP da mesma máquina. |
+| `end_effects` | função | `(ctx, inputs, params)` | Nó `em.prius_end_effects`: o estudo de efeitos de extremidade do exemplo 16 (precisa de gmsh e GetDP). |
 
 #### `pinneapple_flow.nodes_ext.examples`
 
-The node that checks a flow against the committed results of the example it reproduces (``examples/<name>``), and the helpers the example-domain nodes share (object artifacts, the checkout's ``examples`` folder).
+O nó `examples.compare`, que confere números do fluxo contra os resultados versionados do exemplo com tolerância `atol + rtol |ref|`, o nó `examples.flatten` e ajudantes comuns dos nós de exemplo.
 
 <small>`pinneapple_flow/nodes_ext/examples.py` · 309 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Written` | classe | `(text)` | A reference number with the text it was written as (``1.40`` keeps its two decimals). |
-| `save_object` | função | `(ctx, name, obj) -> dict[str, Any]` | A Python object (flight histories, wind fields, studio scenes) as a pickle artifact of this node. |
-| `load_object` | função | `(v) -> Any` | The object of an artifact written by :func:`save_object` (only artifacts a node of this run wrote). |
-| `examples_root` | função | `() -> Path \| None` | The checkout's ``examples`` folder (``$PINNEAPPLE_REPO/examples`` or next to the packages), None when this is an installed wheel without it. |
-| `example_dir` | função | `(name) -> Path` |  |
-| `doc_table_value` | função | `(ref) -> float` | ``doc:<path under docs/>\|<row key>\|<column header>``: the first number in that cell of a markdown table (the row whose first cell is the key; ``−`` and ``×`` are read as minus and nothing). |
-| `reference_value` | função | `(folder, ref) -> float` | The number ``ref`` names in an example folder (see the module docstring). |
-| `rounding_half_unit` | função | `(x) -> float` | Half a unit of the last digit of ``x`` as Python writes it (0.00147 -> 5e-6); 0 for a number written with 12 or more significant digits (not rounded). |
-| `metric_value` | função | `(reports, name) -> float` | ``node.metric`` from the reports of the upstream nodes (a metric with its ``how`` is ``{"value": ...}``). |
-| `compare` | função | `(ctx, inputs, params)` | Each comparison: the flow's measured number against the example's committed one, within the tolerance. |
-| `flatten` | função | `(ctx, inputs, params)` | Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a node that returns its numbers in an output instead of recording them; strings and booleans are kept too. |
+| `Written` | classe | `(text)` | Número de referência que guarda o texto como foi escrito (preserva as casas decimais para a tolerância de arredondamento). |
+| `save_object` | função | `(ctx, name, obj) -> dict[str, Any]` | Grava um objeto Python como artefato pickle do nó. |
+| `load_object` | função | `(v) -> Any` | Lê o objeto de um artefato de `save_object` (só artefatos escritos por nós desta execução). |
+| `examples_root` | função | `() -> Path \| None` | Pasta `examples` do checkout (`$PINNEAPPLE_REPO/examples` ou ao lado dos pacotes); `None` numa wheel instalada. |
+| `example_dir` | função | `(name) -> Path` | Pasta de um exemplo pelo nome, falhando se não existir ou se a pasta `examples` não estiver presente. |
+| `doc_table_value` | função | `(ref) -> float` | Primeiro número de uma célula de tabela Markdown em `docs/`, indicada por `doc:<caminho>\|<linha>\|<coluna>`. |
+| `reference_value` | função | `(folder, ref) -> float` | O número de referência que uma expressão `ref` aponta numa pasta de exemplo (arquivo de resultados, manifesto, nó ou tabela de doc). |
+| `rounding_half_unit` | função | `(x) -> float` | Meia unidade do último dígito de um número como o Python o escreve; zero com 12 ou mais dígitos significativos. |
+| `metric_value` | função | `(reports, name) -> float` | Valor de `node.metric` nos relatórios dos nós anteriores. |
+| `compare` | função | `(ctx, inputs, params)` | Nó `examples.compare`: compara cada número medido pelo fluxo com o versionado no exemplo, dentro da tolerância. |
+| `flatten` | função | `(ctx, inputs, params)` | Nó `examples.flatten`: transforma cada número de um resultado aninhado numa métrica para `examples.compare` checar. |
 
 #### `pinneapple_flow.nodes_ext.flight`
 
-Flight-dynamics nodes: the studies of ``examples/flight_dynamics`` (verification, trim and stability, take-off with crosswind and gust cases, turbulence encounters, the Pratt check, the same 1-cosine gust for every aircraft) as nodes on :mod:`pinneapple_simulation.flight`. Each study node takes the …
+Nós de dinâmica de voo (`examples/flight_dynamics`) sobre `pinneapple_simulation.flight`: aeronaves, verificação, trimagem, decolagem, turbulência, rajada e cenas 3-D. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/flight.py` · 588 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `aircraft` | função | `(ctx, inputs, params)` | The aircraft models (lattice wing and tail, fin, fuselage, gear, engines, mass properties with sources). |
-| `verification` | função | `(ctx, inputs, params)` | The checks of examples/flight_dynamics/01_verification.py, metric names as in its manifest. |
-| `trim_stability` | função | `(ctx, inputs, params)` | Trim at the cruise point, non-dimensional derivatives of the full model and the eigenvalues of the 12-state linearisation (examples/flight_dynamics/02_trim_and_stability.py). |
-| `takeoff_cases` | função | `(ctx, inputs, params)` | examples/flight_dynamics/03_takeoff.py: ground roll, rotation, lift-off, climb over the 35 ft screen, Raymer's closed form, a crosswind and a down-gust case. |
-| `turbulence_encounter` | função | `(ctx, inputs, params)` | examples/flight_dynamics/04_turbulence_encounters.py: each aircraft at its own speed through the same turbulence; dnz, roll and pitch excursions, cabin accelerations, as the mean over the realisations. |
-| `pratt` | função | `(ctx, inputs, params)` | Simulated peak dn for a 12.5-MAC 1-cosine gust against the Pratt-Walker formula (and unalleviated). |
-| `same_gust` | função | `(ctx, inputs, params)` | examples/flight_dynamics/07_same_gust.py: peak load factor at the CG and in the cabin, pitch and height excursions, the quasi-steady and Pratt estimates for this gust. |
-| `scene` | função | `(ctx, inputs, params)` | Animated 3-D scenes of the kept flights (aircraft, lattice loading, n_z trail, the gust field), as three.js viewers (examples/flight_dynamics/08_viewers.py) and as the input of the Blender render nodes. |
+| `aircraft` | função | `(ctx, inputs, params)` | Nó `flight.aircraft`: modelos de aeronave (asa e cauda em malha de vórtices, fuselagem, trem, motores, massas com fontes). |
+| `verification` | função | `(ctx, inputs, params)` | Nó `flight.verification`: as checagens do script de verificação do exemplo. |
+| `trim_stability` | função | `(ctx, inputs, params)` | Nó `flight.trim_stability`: trimagem em cruzeiro, derivadas adimensionais e autovalores da linearização de 12 estados. |
+| `takeoff_cases` | função | `(ctx, inputs, params)` | Nó `flight.takeoff_cases`: corrida, rotação, decolagem e subida, com forma fechada de Raymer, vento cruzado e rajada. |
+| `turbulence_encounter` | função | `(ctx, inputs, params)` | Nó `flight.turbulence_encounter`: cada aeronave na mesma turbulência, com fatores de carga e acelerações na cabine. |
+| `pratt` | função | `(ctx, inputs, params)` | Nó `flight.pratt`: pico de fator de carga numa rajada 1-cosseno contra a fórmula de Pratt-Walker. |
+| `same_gust` | função | `(ctx, inputs, params)` | Nó `flight.same_gust`: mesma rajada para todas as aeronaves, com picos no CG e na cabine e as estimativas quase-estática e de Pratt. |
+| `scene` | função | `(ctx, inputs, params)` | Nó `flight.scene`: cenas 3-D animadas dos voos como visualizadores three.js e entrada dos nós de render Blender. |
 
 #### `pinneapple_flow.nodes_ext.football`
 
-Football nodes: the ball-flight inverse problem and the player-tracking smoothing check of ``examples/sports`` (simulated data, no download), and pass-outcome pitch control on a Metrica sample match (downloads it once).
+Nós de futebol (`examples/sports`): problema inverso da trajetória da bola, suavização de rastreamento (dados simulados) e pitch control numa partida de amostra da Metrica (baixada uma vez). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/football.py` · 76 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `football_ball_flight_inverse` | função | `(ctx, inputs, params)` | Simulated kicks (drag crisis, random spin) observed with noise are fitted back with the drag-Magnus ODE: errors of launch speed and drag coefficient, coverage of the Laplace 95 % intervals, and the Cramer-Rao comparison of 3-D against 2-D tracking (no ball height: launch elevation and spin are not … |
-| `football_tracking_smoothing` | função | `(ctx, inputs, params)` | Simulated runs with known speed and acceleration, observed with noise: speed and metabolic-power error of raw differences, Savitzky-Golay and the constant-acceleration Kalman-RTS smoother (noise fitted by maximum likelihood), and the coverage of the smoother's 95 % velocity intervals. |
-| `football_pass_pitch_control` | função | `(ctx, inputs, params)` | Spearman-type pitch control (fitted on one Metrica sample match) against logistic regression and boosted trees on geometric features, scored on the passes of the other match (log-loss, Brier, AUC, calibration). |
+| `football_ball_flight_inverse` | função | `(ctx, inputs, params)` | Nó `football.ball_flight_inverse`: chutes simulados com ruído ajustados pela EDO de arrasto-Magnus, com cobertura dos intervalos e comparação de Cramér-Rao 3-D contra 2-D. |
+| `football_tracking_smoothing` | função | `(ctx, inputs, params)` | Nó `football.tracking_smoothing`: erro de velocidade e potência metabólica por diferenças, Savitzky-Golay e suavizador Kalman-RTS. |
+| `football_pass_pitch_control` | função | `(ctx, inputs, params)` | Nó `football.pass_pitch_control`: pitch control contra regressão logística e árvores em passes de partidas de amostra da Metrica. |
 
 #### `pinneapple_flow.nodes_ext.forecasting`
 
-Forecasting nodes: the ENSO solver checks of ``examples/enso_forecasting`` (no data needed) and the ``forecast_lab`` studies of ``examples/near_random_forecasting`` (one case: predictability, model zoo, surrogate-trained twins; the overfitting study; the Mackey-Glass Lyapunov convergence). The ENSO …
+Nós de previsão: checagens do solver de ENSO (sem dados) e estudos de `forecast_lab` (caso, sobreajuste, Lyapunov de Mackey-Glass); alguns casos precisam de download e terminam `not_run` sem ele. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/forecasting.py` · 201 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `enso_solver_checks` | função | `(ctx, inputs, params)` | The intermediate coupled model's shallow-water solver (Kelvin and Rossby wave speeds, convergence order, the Gill steady response against the analytic solution) and the recharge / delayed oscillators against their eigenvalues (examples/enso_forecasting/run_study.py, results/solver_checks.json). No … |
-| `forecast_case` | função | `(ctx, inputs, params)` | examples/near_random_forecasting/run_study.py for one case: predictability first, then every model under the purged walk-forward protocol with an untouched test period. |
-| `lyapunov` | função | `(ctx, inputs, params)` | Benettin estimate of the largest Lyapunov exponent of Mackey-Glass (tau = 17) against the step, the length of the run and the seed (results/lyapunov_mackey_glass.json). |
-| `overfitting` | função | `(ctx, inputs, params)` | Shuffled k-fold, walk-forward without purge, purged walk-forward and purged k-fold scores of deliberately overfitting and regularised variants, against the untouched test score. |
+| `enso_solver_checks` | função | `(ctx, inputs, params)` | Nó `enso.solver_checks`: velocidades de ondas, ordem de convergência e resposta de Gill do modelo acoplado, e osciladores contra seus autovalores. |
+| `forecast_case` | função | `(ctx, inputs, params)` | Nó `forecast_lab.case`: previsibilidade e todos os modelos num caso, com walk-forward purgado e teste intocado. |
+| `lyapunov` | função | `(ctx, inputs, params)` | Nó `forecast_lab.lyapunov`: estimativa de Benettin do maior expoente de Lyapunov de Mackey-Glass. |
+| `overfitting` | função | `(ctx, inputs, params)` | Nó `forecast_lab.overfitting`: pontuações de vários esquemas de validação em variantes sobreajustadas e regularizadas contra o teste intocado. |
 
 #### `pinneapple_flow.nodes_ext.geomechanics`
 
-Geomechanics, inspection and component-library nodes: the granular column collapse of ``examples/geomechanics`` (:class:`pinneapple_simulation.particle_dynamics.geo_mpm.GeoMPM`, MLS-MPM with Drucker-Prager sand, against the runout law of Lube et al. 2005), the eddy-current inspection PINN of …
+Nós de colapso de coluna granular (MPM contra a lei de Lube et al. 2005), PINN de inspeção por correntes parasitas e biblioteca de componentes. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/geomechanics.py` · 169 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `lube_2005` | função | `(a) -> float` | Lube et al. (2005) two-dimensional collapse runout (L_inf - L0) / L0: 1.2 a below a = 1.8, 1.9 a^(2/3) above 2.8, the mean of both in the transition (as examples/geomechanics/01_granular_column_collapse.py). |
-| `column_collapse` | função | `(ctx, inputs, params)` | Columns of dry cohesionless sand against a back wall on a rough floor, released at t = 0; the final runout against the law Lube et al. measured, the final height (examples/geomechanics/01_granular_column_collapse.py). |
-| `eddy_current` | função | `(ctx, inputs, params)` | A synthetic probe scan from the axisymmetric complex-Helmholtz FDM solver, then an InspectionPINN trained on it (examples/inspection/01_eddy_current_pinn.py). |
-| `component_fit` | função | `(ctx, inputs, params)` | examples/systems/01_component_library_toolbox.py: the registered components and toolboxes, one component built and fitted. The example fits random targets (a demonstration of the API, not of the physics); this node seeds them. |
+| `lube_2005` | função | `(a) -> float` | Lei de espalhamento do colapso 2-D de Lube et al. (2005) usada como referência. |
+| `column_collapse` | função | `(ctx, inputs, params)` | Nó `geo.column_collapse`: colapso de coluna de areia seca por MPM, espalhamento final contra a lei de Lube. |
+| `eddy_current` | função | `(ctx, inputs, params)` | Nó `inspection.eddy_current`: varredura sintética de sonda por FDM e uma `InspectionPINN` treinada nela. |
+| `component_fit` | função | `(ctx, inputs, params)` | Nó `systems.component_fit`: componentes e toolboxes registrados e um componente ajustado a alvos aleatórios com semente (demonstração da API, não da física). |
 
 #### `pinneapple_flow.nodes_ext.lbm`
 
-Lattice Boltzmann nodes (``examples/lbm/01_sphere_wind_tunnel.py``): drag on a sphere in the 3-D wind tunnel of :class:`pinneapple_simulation.numerical_solvers.lbm_tunnel.WindTunnelLBM`, against Stokes' law (:func:`~pinneapple_simulation.numerical_solvers.lbm_tunnel.stokes_sphere_field` far field …
+Nós de Lattice Boltzmann (`examples/lbm`): arrasto de esfera no túnel 3-D contra a lei de Stokes e contra Schiller & Naumann. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/lbm.py` · 153 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sphere_stokes` | função | `(ctx, inputs, params)` | A sphere in a cube whose six sides hold the analytic Stokes far field, started from that field; the momentum-exchange drag against F = 6 pi rho nu R U. |
-| `sphere_drag` | função | `(ctx, inputs, params)` | Inlet at x-, outlet at x+, open sides; Cd from the mean of the last force samples, against Schiller & Naumann (1933); with both storages, the relative Cd difference and the largest velocity difference. |
+| `sphere_stokes` | função | `(ctx, inputs, params)` | Nó `lbm.sphere_stokes`: esfera num cubo com campo de Stokes nas faces; arrasto por troca de momento contra 6 pi rho nu R U. |
+| `sphere_drag` | função | `(ctx, inputs, params)` | Nó `lbm.sphere_drag`: Cd da esfera no túnel contra Schiller & Naumann (1933). |
 
 #### `pinneapple_flow.nodes_ext.learned_sim`
 
-Learned mesh simulators on public data (``examples/meshgraphnet/02_cylinder_flow_deepmind``): MeshGraphNet on a byte prefix of DeepMind's ``cylinder_flow`` TFRecords (:mod:`pinneapple_data.datasets.deepmind_mgn`), trained and rolled out with …
+Nó de MeshGraphNet treinada num prefixo dos dados `cylinder_flow` da DeepMind, com rollout na validação. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/learned_sim.py` · 112 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mgn_cylinder_flow` | função | `(ctx, inputs, params)` | Next-step velocity of vortex shedding behind a cylinder on irregular triangle meshes, rolled out autoregressively on the validation trajectories; against the velocity frozen at t = 0. |
+| `mgn_cylinder_flow` | função | `(ctx, inputs, params)` | Nó `gnn.mgn_cylinder_flow`: velocidade no passo seguinte do desprendimento de vórtices, em rollout, contra a velocidade congelada. |
 
 #### `pinneapple_flow.nodes_ext.non_hermitian`
 
-Non-Hermitian physics nodes (``examples/non_hermitian/ep_tuning.py``): the no-go theorem for exceptional-point tuning in PT-symmetric dimers (Zenodo 23287622) checked symbolically (:func:`pinneapple_physics.non_hermitian.analyze_ep_tuning` on …
+Nós de física não-hermitiana (`examples/non_hermitian`): teorema no-go de sintonia de pontos excepcionais em dímeros PT-simétricos, checado simbólica e numericamente. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/non_hermitian.py` · 177 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ep_laws` | função | `(ctx, inputs, params)` | Per coupling class: the EP law gamma_EP^2(lam), whether it equals the linear target J^2 + lam J G exactly, its degree in lam, the four assumptions (A PT symmetry, B dimension 2, C polynomial coupling, D reciprocity) and whether the theorem applies. |
-| `ep_numeric` | função | `(ctx, inputs, params)` | gamma_EP^2 found from the Hamiltonian alone (route C: closed form, the matrix is not PT symmetric) against the target J^2 + lam J G, and the route-B feedback fixed point. |
-| `hypothesis_map` | função | `(ctx, inputs, params)` | Three designs audited against the theorem's assumptions: all VALID means linear tuning is out of reach; a VIOLATED assumption names the route that opened up. |
-| `ep_figure` | função | `(ctx, inputs, params)` | The four-panel figure (spectrum across the EP, EP laws by coupling class, coupling plane, chains) and, for uniform chains with \|b\| = 1, the PT-breaking threshold kappa_N^2 = gamma_EP^2 and the order of the EP there. |
+| `ep_laws` | função | `(ctx, inputs, params)` | Nó `nonhermitian.ep_laws`: lei do ponto excepcional por classe de acoplamento e se o teorema se aplica. |
+| `ep_numeric` | função | `(ctx, inputs, params)` | Nó `nonhermitian.ep_numeric`: gamma_EP² obtido do hamiltoniano contra o alvo linear e ponto fixo com realimentação. |
+| `hypothesis_map` | função | `(ctx, inputs, params)` | Nó `nonhermitian.hypothesis_map`: três projetos auditados contra as hipóteses do teorema. |
+| `ep_figure` | função | `(ctx, inputs, params)` | Nó `nonhermitian.ep_figure`: figura de quatro painéis e limiar de quebra PT em cadeias uniformes. |
 
 #### `pinneapple_flow.nodes_ext.pde_env`
 
-The PDE environment examples (``examples/pde_environment``): a ``selector_type="tag"`` preset trained through ``solve_pde`` on its analytic real-geometry fixture, with the per-tag loss terms before and after training (``07_tagged_presets_real_geometry``).
+Nó do exemplo `pde_environment`: preset com seletor por etiqueta treinado via `solve_pde`, termos de perda por etiqueta antes e depois. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/pde_env.py` · 76 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `tagged_preset` | função | `(ctx, inputs, params)` | Per-tag loss terms of a tagged preset before and after training on its real geometry. The boundary points per tag come from the preset's box / cylinder fixture, a modified MLP is trained on them with ``solve_pde``, and every compiled loss term (``pde``, ``bc_<tag>``, ``total``) is reported before … |
+| `tagged_preset` | função | `(ctx, inputs, params)` | Nó `pde_env.tagged_preset`: termos de perda por etiqueta de um preset antes e depois do treino na geometria real. |
 
 #### `pinneapple_flow.nodes_ext.pinn_examples`
 
-The one-call solver examples: ``examples/first_example`` (a Burgers PINN against the Cole-Hopf solution with ``pp.solve``) and ``examples/solver_api`` (a classical FEM and a PINN on the manufactured Poisson problem with ``pp.compare``).
+Nós dos exemplos de chamada única: PINN de Burgers contra Cole-Hopf com `pp.solve` e FEM contra PINN em Poisson com `pp.compare`. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/pinn_examples.py` · 99 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `burgers_first` | função | `(ctx, inputs, params)` | examples/first_example/first_example.py: u_t + u u_x = nu u_xx on [-1, 1]; the PINN's profile at t = 0.75 (the steep front) against the Cole-Hopf closed form. |
-| `poisson_fem_vs_pinn` | função | `(ctx, inputs, params)` | examples/solver_api/01_classical_vs_pinn.py: laplace(u) = f on the unit square with u = sin(pi x) sin(pi y), one call for both methods against the exact solution. |
+| `burgers_first` | função | `(ctx, inputs, params)` | Nó `pinn.burgers_first`: perfil da PINN de Burgers na frente íngreme contra a solução de Cole-Hopf. |
+| `poisson_fem_vs_pinn` | função | `(ctx, inputs, params)` | Nó `pinn.poisson_fem_vs_pinn`: FEM e PINN numa chamada contra a solução exata de Poisson. |
 
 #### `pinneapple_flow.nodes_ext.pinn_solver`
 
-The PINN-solver examples (``examples/pinn_solver``): the symbolic loss of ``PINNFactory`` evaluated on a field (``01_symbolic_loss_basic``). The compiler examples (Poisson 2-D, Burgers 1-D, wave 1-D) and the inverse heat problem are flows of the generic equations / train.pinn / inverse.discover …
+Nó que avalia a perda simbólica de `PINNFactory` num campo nulo (`examples/pinn_solver`). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/pinn_solver.py` · 57 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `factory_loss` | função | `(ctx, inputs, params)` | A PINNFactory loss evaluated for the zero field. The residual strings are compiled by SymPy into a torch loss and evaluated at random collocation points: the total and each component. |
+| `factory_loss` | função | `(ctx, inputs, params)` | Nó `pinn_solver.factory_loss`: perda de `PINNFactory` compilada pelo SymPy e avaliada no campo nulo. |
 
 #### `pinneapple_flow.nodes_ext.problemdesign`
 
-Problem design without an LLM (``examples/problem_designer/03_offline_spec_to_report``): a partly known :class:`pinneapple_problemdesign.schema.ProblemSpec`, its validators (warnings and safe assumptions), the FNO-first plan and the Markdown / JSON design report.
+Nó de projeto de problema sem LLM (`examples/problem_designer`): validadores, plano FNO-first e relatório de um `ProblemSpec` parcial. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/problemdesign.py` · 84 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `offline_report` | função | `(ctx, inputs, params)` | Validators, plan and report of a partly known spec, as in the example (gaps empty). |
+| `offline_report` | função | `(ctx, inputs, params)` | Nó `problemdesign.offline_report`: validadores, plano e relatório de uma especificação parcial. |
 
 #### `pinneapple_flow.nodes_ext.render`
 
-Render nodes for animated studio scenes: Blender Cycles clips and stills (:func:`pinneapple_tools.visualization.studio.blender.render_animation` / ``render_still``) and a labelled grid of clips with one colour bar (:mod:`pinneapple_tools.visualization.studio.compose`). They take the ``anim_scene`` …
+Nós de render de cenas animadas com Blender Cycles e grade de clipes com barra de cor; o `bpy` roda em processo separado e o vídeo precisa de ffmpeg. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/render.py` · 161 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `blender_clip` | função | `(ctx, inputs, params)` | Cycles (CPU, denoised) clip of each scene with the HUD burnt in, encoded to MP4, plus a still. |
-| `clip_grid` | função | `(ctx, inputs, params)` | The clips side by side (e.g. the four aircraft through the same gust) with labels and one colour bar; the still grid uses each clip's marked frame (the gust peak). |
+| `blender_clip` | função | `(ctx, inputs, params)` | Nó `render.blender_clip`: clipe Cycles de cada cena com HUD, em MP4, mais uma imagem. |
+| `clip_grid` | função | `(ctx, inputs, params)` | Nó `render.clip_grid`: clipes lado a lado com rótulos e uma barra de cor. |
 
 #### `pinneapple_flow.nodes_ext.render_worker`
 
-Blender rendering in its own process, for :mod:`pinneapple_flow.nodes_ext.render`: ``bpy`` is never imported by the flow engine or the Flow Studio server (a ``bpy`` wheel built against another numpy can crash the process that imports it, and Cycles holds the interpreter for minutes).
+Script que roda o Blender em processo próprio para `nodes_ext.render`, porque importar `bpy` pode derrubar o processo e o Cycles prende o interpretador por minutos. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/render_worker.py` · 74 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check` | função | `() -> int` |  |
-| `render` | função | `(scenes_pkl, options_json, out_dir) -> int` |  |
-| `main` | função | `(argv) -> int` |  |
+| `check` | função | `() -> int` | Confere se o `bpy` importa e funciona. |
+| `render` | função | `(scenes_pkl, options_json, out_dir) -> int` | Renderiza as cenas de um pickle com as opções JSON na pasta de saída. |
+| `main` | função | `(argv) -> int` | Entrada de linha de comando do worker (`--check` ou render). |
 
 #### `pinneapple_flow.nodes_ext.security`
 
-Cyber-physical security (``examples/security/02_physics_residual_fdi``): physics residuals against false data injection on the three-tank water network, against three data-driven detectors (:func:`pinneapple_security.cps_bench.run_benchmark`).
+Nó de segurança ciberfísica: resíduos físicos contra injeção de dados falsos na rede de três tanques, comparados com detectores baseados em dados. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/security.py` · 70 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fdi_benchmark` | função | `(ctx, inputs, params)` | Per detector, regime and attack: episode AUC, detection rate, median delay (minutes, median over the seeds' medians) and localisation, averaged over the seeds as the example script prints them; false alarms per day on clean data. The isolation forest needs scikit-learn (skipped by the library … |
+| `fdi_benchmark` | função | `(ctx, inputs, params)` | Nó `security.fdi_benchmark`: AUC, taxa de detecção, atraso e localização por detector, regime e ataque; a isolation forest precisa de scikit-learn. |
 
 #### `pinneapple_flow.nodes_ext.solver_registry`
 
-Nodes over the solver registry (``examples/solvers``): every solver built by name through :class:`pinneapple_simulation.numerical_solvers.SolverRegistry` after :func:`~pinneapple_simulation.numerical_solvers.register_all` -- the time-series decompositions (EEMD, VMD, wavelet, STL, SSA, …
+Nós sobre o `SolverRegistry` (`examples/solvers`): decomposições de séries temporais, caixa SPH e Poisson por FDM e espectral. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/solver_registry.py` · 211 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `decompose` | função | `(ctx, inputs, params)` | A sum of sines plus Gaussian noise decomposed by each registered solver (examples/solvers/ 01_time_series_decompositions.py, with a seeded noise draw). Per solver: the output shape and, for the additive decompositions (EEMD, CEEMDAN, VMD, SSA, STL), how far the sum of the components is from the … |
-| `sph_box` | função | `(ctx, inputs, params)` | examples/solvers/02_sph_box.py: the trajectory, the final bounding box and the fraction of particles still inside the box (a warning when particles leave it: the run is then not a valid fluid simulation). |
-| `poisson_fdm_spectral` | função | `(ctx, inputs, params)` | examples/solvers/03_poisson_solvers.py: the source f with u = 0 on the boundary (SOR) and with periodic boundaries (FFT), their mean squared difference as the script prints it, and each against the exact solution of its own equation: the registry's FDM solver solves lap(u) = -f (u = f / (2 (k … |
+| `decompose` | função | `(ctx, inputs, params)` | Nó `solvers.decompose`: soma de senos com ruído decomposta por cada solver registrado. |
+| `sph_box` | função | `(ctx, inputs, params)` | Nó `solvers.sph_box`: trajetória SPH, caixa final e fração de partículas dentro, com aviso se saírem. |
+| `poisson_fdm_spectral` | função | `(ctx, inputs, params)` | Nó `solvers.poisson_fdm_spectral`: Poisson por SOR e por FFT, a diferença entre eles e cada um contra a solução exata. |
 
 #### `pinneapple_flow.nodes_ext.solvers`
 
-Numerical-solver nodes from ``examples/numerical_solvers``: the NVE Lennard-Jones gas (:class:`pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator`, velocity Verlet, periodic box) and the shallow-water dam break with a gate and an obstacle …
+Nós de `examples/numerical_solvers` e `examples/rigid_body`: gás de Lennard-Jones, ruptura de barragem em água rasa e caixa com atrito (precisa do NVIDIA Newton). [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/solvers.py` · 172 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `lj_gas` | função | `(ctx, inputs, params)` | Particles on a lattice at the LJ well separation with a small random kick; velocity-Verlet steps; total energy against its initial value (examples/numerical_solvers/12_molecular_dynamics_lj_gas.py). |
-| `dam_break` | função | `(ctx, inputs, params)` | examples/numerical_solvers/13_shallow_water_twin3d_browser_demo.py without the Twin3D export and its blocking server: the run and its health report (volume conservation, positivity, finiteness). |
-| `crate_and_pendulum` | função | `(ctx, inputs, params)` | examples/rigid_body/newton_quickstart.py: where the crate stops against Coulomb friction, v0^2 / (2 mu g). |
+| `lj_gas` | função | `(ctx, inputs, params)` | Nó `md.lj_gas`: gás de Lennard-Jones com Verlet e energia total contra a inicial. |
+| `dam_break` | função | `(ctx, inputs, params)` | Nó `swe.dam_break`: ruptura de barragem em água rasa com relatório de saúde (volume, positividade, finitude). |
+| `crate_and_pendulum` | função | `(ctx, inputs, params)` | Nó `newton.crate_and_pendulum`: distância de parada da caixa com atrito de Coulomb contra v0²/(2 mu g); precisa do NVIDIA Newton. |
 
 #### `pinneapple_flow.nodes_ext.structures`
 
-Structures nodes: CalculiX (``examples/calculix_cantilever``) through :mod:`pinneapple_simulation.external_solvers.calculix`: a deck (the example's committed one or a cantilever written by the library), ``ccx`` (native or its Docker image), and the results of an ``.frd`` file (the run's or the …
+Nós do CalculiX (`examples/calculix_cantilever`): deck, execução do `ccx` (nativo ou Docker) e leitura do `.frd` com comparação com Euler-Bernoulli. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/structures.py` · 146 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `deck` | função | `(ctx, inputs, params)` | The input deck of the cantilever (mesh, material, fixed root, tip load). |
-| `solve` | função | `(ctx, inputs, params)` |  |
-| `results` | função | `(ctx, inputs, params)` | Tip deflection (the most negative u_z at the free end), the largest \|sigma_xx\|, and the Euler-Bernoulli tip deflection P L^3 / (3 E I) of the same beam. |
+| `deck` | função | `(ctx, inputs, params)` | Nó `calculix.deck`: deck de entrada da viga em balanço. |
+| `solve` | função | `(ctx, inputs, params)` | Nó `calculix.solve`: roda o `ccx` no deck e falha o passo se o retorno não for zero. |
+| `results` | função | `(ctx, inputs, params)` | Nó `calculix.results`: deflexão na ponta, maior \|sigma_xx\| e deflexão de Euler-Bernoulli P L³/(3 E I). |
 
 #### `pinneapple_flow.nodes_ext.surrogate_inverse`
 
-Surrogate-driven inverse design (:mod:`pinneapple_design.surrogate_inverse`, the five design tools of ``apps/*_ai``): sample the design space, label it with a closed form, train an MLP, descend through the frozen surrogate and re-check the final design against the closed form (verification card and …
+Nó de projeto inverso guiado por surrogate (`pinneapple_design.surrogate_inverse`, as ferramentas de `apps/*_ai`) com verificação na forma fechada. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/surrogate_inverse.py` · 59 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `surrogate_inverse` | função | `(ctx, inputs, params)` | Train the case's surrogate, optimise the design through it, verify it against the closed form. |
+| `surrogate_inverse` | função | `(ctx, inputs, params)` | Nó `design.surrogate_inverse`: treina o surrogate do caso, otimiza o projeto por ele e verifica na forma fechada. |
 
 #### `pinneapple_flow.nodes_ext.use_cases`
 
-Use-case nodes (``examples/use_cases``): the pin-fin inverse problem of ``fin_convection_inverse`` -- the convection coefficient h from five noisy thermocouples, by a PINN with h as a trainable parameter (:class:`pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`) and by a …
+Nó do problema inverso da aleta (`examples/use_cases/fin_convection_inverse`): coeficiente h por PINN e por mínimos quadrados. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/use_cases.py` · 137 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pin_fin` | função | `(ctx, inputs, params)` | examples/use_cases/fin_convection_inverse/fin_convection_inverse.py: theta'' - m^2 theta = 0, theta(0) = 1, -k theta'(L) = h theta(L); h and the field learned together from the fin equation and the readings, against a least-squares fit of the closed form; the heat the fin dissipates from the … |
+| `pin_fin` | função | `(ctx, inputs, params)` | Nó `inverse.pin_fin`: h e o campo da aleta aprendidos juntos por PINN contra ajuste de mínimos quadrados da forma fechada. |
 
 #### `pinneapple_flow.nodes_ext.validation`
 
-Validation nodes for ``examples/physics_check``, ``examples/vs_physicsnemo`` (07, the check replay), ``examples/model_zoo``, ``examples/proof_graph`` and ``examples/validation_arena``: the physics linter (:func:`pinneapple_check.run`) against the rules each fixture must break, the zoo's evaluate / …
+Nós de validação: linter físico `pinneapple_check`, avaliação do model zoo, grafo de prova PT, arena de validação red/blue team e auditoria do solver de referência. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/validation.py` · 213 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `physics_check` | função | `(ctx, inputs, params)` | Run every rule on the declared targets (OpenFOAM cases, fields, QoI tables, surrogates, models) and compare the rules each target breaks with the example's list (examples/physics_check, the CI gate's fixtures). |
-| `zoo_evaluate` | função | `(ctx, inputs, params)` | examples/model_zoo/quickstart.py: the card's held-out metrics reproduced, the physics checks and validity range, the comparison with XFOIL, and a guarded fine-tune. |
-| `pt_chain` | função | `(ctx, inputs, params)` | A graph of assumptions, lemmas and a theorem with exact (sympy) and numerical checks: does the no-go theorem for linear exceptional-point tuning extend to PT tetramers (examples/proof_graph/pt_chain_no_go.py)? |
-| `arena` | função | `(ctx, inputs, params)` | The red team looks for wrong outputs that pass every check (escapes) and correct ones that fail (false alarms); the blue team calibrates a combined test and adds checks until every stored escape is caught (examples/validation_arena/run_arena.py). |
-| `audit` | função | `(ctx, inputs, params)` | The reference solver itself judged by the shipped defence: it should have no escapes and no false alarms (examples/validation_arena/external_model.py). |
+| `physics_check` | função | `(ctx, inputs, params)` | Nó `check.physics`: roda todas as regras do linter físico nos alvos e compara as regras quebradas com a lista do exemplo. |
+| `zoo_evaluate` | função | `(ctx, inputs, params)` | Nó `zoo.evaluate`: reproduz as métricas do model card, checagens físicas, comparação com XFOIL e fine-tune protegido. |
+| `pt_chain` | função | `(ctx, inputs, params)` | Nó `proof.pt_chain`: grafo de hipóteses, lemas e teorema com checagens exatas e numéricas para tetrâmeros PT. |
+| `arena` | função | `(ctx, inputs, params)` | Nó `validate.arena`: red team procura saídas erradas que passam e blue team ajusta as checagens até pegar todas. |
+| `audit` | função | `(ctx, inputs, params)` | Nó `validate.audit_model`: o solver de referência julgado pela defesa entregue (sem escapes nem falsos alarmes). |
 
 #### `pinneapple_flow.nodes_ext.validation_gallery`
 
-The validation gallery (``examples/validation``) as flows: a model of one family on one physics, validated with ``pp.validate``, and a broken variant of it that one named check must catch (:func:`pinneapple_analysis.validation.gallery.conclude`: report, trust card, SARIF and the failure record).
+Nós da galeria de validação (`examples/validation`): um modelo bom e uma variante quebrada que uma checagem nomeada de `pp.validate` deve pegar. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/validation_gallery.py` · 197 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pinn_heat` | função | `(ctx, inputs, params)` | -lap T = q on the unit square, T = 0 on the walls (manufactured source): the PINN as trained and the same PINN trained with boundary weight 0, both through ``pp.validate(net, {"pinn": problem})``; ``pinn.boundary`` must catch the second. |
-| `pod_dmd_wake` | função | `(ctx, inputs, params)` | POD + DMD fitted on the saturated wake (good) and on the growing transient (broken), rolled out from the same frame against the LBM reference; ``rollout.invariants`` must catch the amplifying ROM. |
-| `opinf_advection` | função | `(ctx, inputs, params)` | Periodic advection-diffusion of a tracer: ROMs with the full basis (good) and cut at ``energy_bad`` (broken), rolled out against the exact solution with mass conserved; ``rollout.spectrum`` must catch the smearing. |
-| `zoo_range` | função | `(ctx, inputs, params)` | The zoo model on test designs of its dataset (good) and on two of them moved to a velocity and power outside the card's validity range (broken); ``applicability.range`` must catch the second. |
+| `pinn_heat` | função | `(ctx, inputs, params)` | Nó `gallery.pinn_heat`: PINN de calor e variante com peso de contorno zero, que `pinn.boundary` deve pegar. |
+| `pod_dmd_wake` | função | `(ctx, inputs, params)` | Nó `gallery.pod_dmd_wake`: POD + DMD bom e quebrado na esteira, que `rollout.invariants` deve pegar. |
+| `opinf_advection` | função | `(ctx, inputs, params)` | Nó `gallery.opinf_advection`: ROMs de advecção-difusão com base completa e cortada, que `rollout.spectrum` deve pegar. |
+| `zoo_range` | função | `(ctx, inputs, params)` | Nó `gallery.zoo_range`: modelo do zoo dentro e fora da faixa de validade, que `applicability.range` deve pegar. |
 
 #### `pinneapple_flow.nodes_ext.viz`
 
-Any result in 3-D (``examples/studio/01_any_result_in_3d``): a file ``pinneapple_data.cae`` reads (OpenFOAM case or zip, CalculiX .frd, Abaqus .inp, Gmsh, VTK) or STL / OBJ geometry, as a :class:`pinneapple.viz.Scene`, exported to glTF and USD, an interactive three.js viewer and, when bpy is …
+Nó "qualquer resultado em 3-D": lê arquivos CAE ou geometria, exporta glTF/USD, gera visualizador three.js e, com `bpy`, renderiza. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/viz.py` · 92 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `any_result_3d` | função | `(ctx, inputs, params)` | examples/studio/01_any_result_in_3d.py: load, export, view, render. |
+| `any_result_3d` | função | `(ctx, inputs, params)` | Nó `viz.any_result_3d`: carrega, exporta, visualiza e renderiza qualquer resultado em 3-D. |
 
 #### `pinneapple_flow.nodes_ext.worldmodel`
 
-Physics world model (``examples/worldmodel/01_generate_train_evaluate``): trajectory datasets from the built-in scenarios (:func:`pinneapple_worldmodel.generate_datasets`), one specialist FNO world model per scenario (:func:`pinneapple_worldmodel.train_specialist`) and the library's benchmark tasks …
+Nó do modelo de mundo físico (`pinneapple_worldmodel`): datasets dos cenários, um especialista FNO por cenário e as tarefas de benchmark. [sem teste direto]
 
 <small>`pinneapple_flow/nodes_ext/worldmodel.py` · 69 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `specialists` | função | `(ctx, inputs, params)` | Per scenario: parameters of the specialist and, per benchmark task of that scenario, next-step and rollout RMSE, relative L2, the divergence step and the overall score. |
+| `specialists` | função | `(ctx, inputs, params)` | Nó `worldmodel.specialists`: por cenário, parâmetros do especialista e erros de passo e rollout em cada tarefa. |
 
 #### `pinneapple_flow.palette`
 
@@ -3483,7 +3539,45 @@ Funções com argumentos JSON que montam os objetos com os construtores da próp
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Rodar um fluxo, reaproveitar o cache e re-executar a partir de um nó** — `tests/test_flow_runtime.py`
+
+```python
+def test_run_measures_against_exact_then_caches(home):
+    f = heat_flow()
+    r = pf.run(f, workdir=home / "w")
+    assert r.status == "done", {k: v["error"] for k, v in r.nodes.items()}
+    rel = r.report("val")["metrics"]["FD_rel_l2"]["value"]
+    assert rel < 1e-3
+    sol = r.load("fd", "solution")
+    assert sol["values"].shape == (41, 11, 1)
+    r2 = pf.run(f, workdir=home / "w")
+    assert {v["status"] for v in r2.nodes.values()} == {"cached"}
+    r3 = pf.run(f, workdir=home / "w", from_node="fd")
+    st = {k: v["status"] for k, v in r3.nodes.items()}
+    assert st["fd"] == "done" and st["val"] == "done" and st["geo"] == "cached"
+```
+
+**Toda proposta do planejador heurístico valida contra o catálogo** — `tests/test_flow_planner.py`
+
+```python
+def test_every_proposal_validates(text):
+    res = plan(text, backend="heuristic")
+    assert res["planner"] == "heuristic" and res["proposals"]
+    for p in res["proposals"]:
+        assert [i for i in pf.validate_flow(p["flow"]) if i.level == "error"] == []
+        assert p["flow"]["meta"]["planner"] == "heuristic"
+```
+
+**Nó indisponível termina not_run e propaga para baixo** — `tests/test_flow_extensions.py`
+
+```python
+def test_unavailable_node_finishes_not_run_and_downstream_too(tmp_path):
+    f = pf.Flow("x", nodes=[{"id": "a", "type": "test.missing_tool"}, {"id": "b", "type": "test.consumer"}],
+                edges=[E("a", "b")])
+    r = pf.run(f, workdir=tmp_path)
+    assert r.nodes["a"]["status"] == "not_run" and "footool" in r.report("a")["not_run_reason"]
+    assert r.nodes["b"]["status"] == "not_run" and "did not run" in r.report("b")["not_run_reason"]
+```
 
 ### Testes e status de validação
 
@@ -3492,7 +3586,14 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Quase todos os módulos de `nodes` e `nodes_ext` não têm teste que os importe diretamente; são exercitados pelos testes de fluxos de exemplo e de execução, não por testes unitários próprios.
+- Vários nós dependem de ferramentas externas e ficam indisponíveis sem elas: OpenFOAM (`solver.openfoam`, `cfd.*`), gmsh + GetDP (`em.prius_getdp_crosscheck`, `em.prius_end_effects`), NVIDIA Newton, Blender `bpy` e ffmpeg, CalculiX `ccx`, fmpy, scikit-learn, statsmodels.
+- Alguns nós baixam dados na primeira execução (ENSO, partidas de amostra da Metrica, casos de `forecast_lab`, PINN do model zoo) e terminam `not_run` quando o download não é possível.
+- `runtime.on_run_finished` diz que a exportação para o PINNeAPPle Lab só funciona quando `pinneapple_lab.manifest.from_flow_run` existe; senão `lab_export_status` informa que não está disponível e nada é gravado. `lab_status` também detecta a API do Lab em tempo de execução.
+- `twin.PDETwinModel` só aceita sistemas de primeira ordem no tempo.
+- Os nós de `nodes_ext` e `examples.example_dir` precisam da pasta `examples` de um checkout (ou `PINNEAPPLE_REPO`); numa wheel instalada eles falham. `studio.load_app` também depende do checkout com `apps/flow_studio`.
+- `studio.serve` recusa ouvir fora de localhost sem `FLOW_USER` e hash de senha, salvo `allow_insecure` explícito.
+- `learn` e `planner.llm` não têm teste direto; o planejador LLM depende de um provedor configurado e volta para a heurística quando falha.
 
 ## 4. `pinneapple_hub`
 
@@ -4640,7 +4741,13 @@ def test_run_records_everything_and_is_cached(tmp_path):
 
 ### Objetivo
 
-_Sem texto de objetivo._
+O `pinneapple_llm` usa modelos de linguagem (LLMs) para rascunhar partes de um pipeline de IA física, sempre atrás de uma camada de verificação com base física. A regra de projeto, repetida nos docstrings, é que o LLM só escolhe e parametriza algo que o PINNeAPPle já implementa e testa: um preset de `ProblemSpec` de `pinneapple_physics` (`draft_problem`), um gerador de geometria de `pinneapple_design.geometry` (`draft_geometry`, `draft_mesh_recipe`, `draft_cadquery_template`) ou os campos de `DigitalTwinConfig` de `pinneapple_systems` (`draft_digital_twin`). Ele nunca escreve física, CAD ou gêmeo digital do zero, e cada nome e argumento devolvido é conferido contra o registro real.
+
+O `PhysicsGuardrail` (`guardrail`) é o mecanismo anti-alucinação: recalcula sinais numéricos independentes (resíduo da EDP em pontos novos, sanidade dimensional dos parâmetros, balanço de conservação quando há forma fechada e erro contra dados de referência) e se recusa a chamar de confiável um resultado que não passa. O próprio docstring avisa que isso não garante que o resultado esteja certo. `research` busca artigos e repositórios reais no arXiv e GitHub (o LLM só resume), `org_knowledge` responde perguntas a partir de um índice de busca local de `pinneapple_analysis.retrieval`, e `agent_loop` roda um laço de agente que chama ferramentas reais de `pinneapple_worldmodel`.
+
+Todas as chamadas passam por `_dispatch.call_llm`, que fala com Anthropic, OpenAI (ou servidor compatível) e Ollama local. `local_llm` e `conversation_store` dão um caminho totalmente local (Ollama mais um log SQLite das conversas), e `finetune` faz fine-tuning LoRA de um modelo local com esse log.
+
+Dois subpacotes maiores completam o pacote. `qa` é um pipeline de garantia de qualidade em estágios A-G (especificação física tipada, geração, validação estática, execução em sandbox, validadores científicos, comparação com referência independente e reparo limitado), com relatório reprodutível e níveis Q0-Q4 dados pelo que de fato rodou. `workbench` é o Agent Workbench: uma equipe de agentes de código e engenharia rodando num modelo local, com app web (FastAPI), ferramentas confinadas a uma pasta, aprovações, banco SQLite/PostgreSQL e fine-tuning nas próprias sessões.
 
 ### Números do inventário
 
@@ -4654,21 +4761,21 @@ Pasta de testes dedicada: `tests/pinneapple_llm` (4 funções de teste).
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `_dispatch` |  | 1 | 1 | 0 |
-| `agent_loop` |  | 1 | 3 | 15 |
-| `cad_draft` |  | 1 | 7 | 22 |
-| `catalog_match` |  | 1 | 2 | 4 |
-| `conversation_store` |  | 1 | 2 | 0 |
-| `draft` |  | 1 | 5 | 23 |
-| `finetune` |  | 1 | 3 | 0 |
-| `geometry_draft` |  | 1 | 2 | 0 |
-| `guardrail` |  | 1 | 3 | 60 |
-| `local_llm` |  | 1 | 3 | 0 |
-| `org_knowledge` |  | 1 | 2 | 4 |
-| `qa` |  | 23 | 80 | 48 |
-| `research` |  | 1 | 2 | 0 |
-| `twin_draft` |  | 1 | 3 | 0 |
-| `workbench` |  | 12 | 47 | 37 |
+| `_dispatch` | Despacho de uma chamada de LLM para Anthropic, OpenAI/compatível ou Ollama, com log opcional. | 1 | 1 | 0 |
+| `agent_loop` | Laço de agente em vários passos em que o LLM escolhe, a cada turno, qual ferramenta real chamar. | 1 | 3 | 15 |
+| `cad_draft` | Rascunho de geometria nova pelo LLM: receitas CSG de primitivas ou templates paramétricos CadQuery. | 1 | 7 | 22 |
+| `catalog_match` | `resolve_problem`: pré-filtro por palavras-chave mais LLM para achar um preset de EDP, sem nunca levantar exceção. | 1 | 2 | 4 |
+| `conversation_store` | Log SQLite de todas as chamadas de LLM, para auditoria e como dataset de fine-tuning. | 1 | 2 | 0 |
+| `draft` | Rascunho de `ProblemSpec`: o LLM escolhe e parametriza um preset existente de `pinneapple_physics`. | 1 | 5 | 23 |
+| `finetune` | Fine-tuning LoRA de um modelo causal local (transformers + peft) com os dados do log de conversas. | 1 | 3 | 0 |
+| `geometry_draft` | Rascunho de geometria: o LLM escolhe um gerador existente de `pinneapple_design.geometry`. | 1 | 2 | 0 |
+| `guardrail` | `PhysicsGuardrail`: checagens numéricas recalculadas que decidem se um resultado pode ser chamado de confiável. | 1 | 3 | 60 |
+| `local_llm` | Provedor local Ollama: iniciar servidor, baixar modelo e fazer chamadas de chat. | 1 | 3 | 0 |
+| `org_knowledge` | Respostas do LLM fundamentadas nos resultados reais de um índice de busca local. | 1 | 2 | 4 |
+| `qa` | Pipeline de garantia de qualidade (estágios A-G e níveis Q0-Q4) para artefatos gerados por LLM. | 23 | 80 | 48 |
+| `research` | Busca real de literatura no arXiv e GitHub, com resumo opcional pelo LLM. | 1 | 2 | 0 |
+| `twin_draft` | Rascunho de configuração de gêmeo digital e montagem de um gêmeo 3-D ao vivo. | 1 | 3 | 0 |
+| `workbench` | Agent Workbench: equipe de agentes de código e engenharia em modelo local, com app web e fine-tuning. | 12 | 47 | 37 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -4676,598 +4783,639 @@ Pasta de testes dedicada: `tests/pinneapple_llm` (4 funções de teste).
 
 #### `pinneapple_llm`
 
-LLM-assisted physics-AI pipeline drafting, gated by a physics-grounded verification layer.
+Ponto de entrada do pacote: reexporta as funções de rascunho, o `PhysicsGuardrail`, a busca de literatura e o caminho local.
 
 <small>`pinneapple_llm/__init__.py` · 61 linhas · testes: 128</small>
 
 #### `pinneapple_llm._dispatch`
 
-Provider-agnostic LLM call dispatch, shared by ``draft.py``, ``geometry_draft.py``, ``research.py`` and ``twin_draft.py`` -- one place that knows how to reach Anthropic, OpenAI, or a local Ollama server, and one place that logs every call to a :class:`ConversationStore` when one is configured (see …
+Despacho de chamadas de LLM independente de provedor (`anthropic`, `openai`, `openai_compatible`, `ollama`), com log opcional por chamada num `ConversationStore`. [sem teste direto]
 
 <small>`pinneapple_llm/_dispatch.py` · 85 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `call_llm` | função | `(prompt, *, provider='anthropic', model=None, api_key=None, system='', json_mode=False, m…)` | Dispatch a single prompt to whichever provider is requested and return the raw text response. See individual provider modules for what ``**provider_kwargs`` accepts (``host``/``port``/``timeout`` for ``"ollama"``; ``base_url`` for ``"openai"`` / ``"openai_compatible"``, i.e. any server speaking the … |
+| `call_llm` | função | `(prompt, *, provider='anthropic', model=None, api_key=None, system='', json_mode=False, m…)` | Envia um prompt ao provedor pedido e devolve o texto bruto da resposta. |
 
 #### `pinneapple_llm.agent_loop`
 
-A genuine multi-step LLM agent loop: the LLM itself decides, turn by turn, which real tool to call next, observes the result, and decides the next step -- grounded in :func:`pinneapple_llm._dispatch.call_llm` (a real, single-call LLM dispatch across anthropic/openai/ollama) plus a real tool …
+Laço de agente em vários passos: o LLM decide a cada turno qual ferramenta real chamar (por padrão `PhysicsToolRegistry` de `pinneapple_worldmodel`), observa o resultado e segue.
 
 <small>`pinneapple_llm/agent_loop.py` · 331 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AgentStep` | classe | `(tool_name, tool_args, tool_result, error, llm_reasoning)` | One turn of the loop: the tool the LLM chose (or ``None`` for a final-answer / error turn that called no tool), the arguments it supplied, the real result of invoking that tool (or ``error`` set instead when invocation failed), and the LLM's stated reasoning for the turn, if the provider/prompt … |
-| `AgentLoopResult` | classe | `(steps, final_answer, stopped_reason)` | Full trace of a :func:`run_agent_loop` run. |
-| `run_agent_loop` | função | `(goal, tool_registry=None, *, llm_provider='anthropic', model=None, max_steps=8, llm_call…)` | Run a genuine multi-step agent loop toward *goal*. |
+| `AgentStep` | classe | `(tool_name, tool_args, tool_result, error, llm_reasoning)` | Um turno do laço: ferramenta escolhida, argumentos, resultado real (ou erro) e o raciocínio declarado pelo LLM. |
+| `AgentLoopResult` | classe | `(steps, final_answer, stopped_reason)` | Rastro completo de uma execução de `run_agent_loop`. |
+| `run_agent_loop` | função | `(goal, tool_registry=None, *, llm_provider='anthropic', model=None, max_steps=8, llm_call…)` | Roda o laço rumo a um objetivo: monta o prompt com histórico e ferramentas disponíveis, chama a ferramenta escolhida ou encerra com resposta final. |
 
 #### `pinneapple_llm.cad_draft`
 
-LLM-assisted CAD/geometry generation -- the same constrained pattern as ``draft.py``'s ``draft_problem`` and ``geometry_draft.py``'s ``draft_geometry``, extended to genuinely NEW (not just named-catalog) geometry: instead of picking one fixed preset name, the LLM composes a recipe out of …
+Geração de geometria nova pelo LLM a partir de blocos já existentes: receitas CSG de primitivas de malha ou templates paramétricos CadQuery (sólido B-rep exportável em STEP).
 
 <small>`pinneapple_llm/cad_draft.py` · 633 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CadRecipeResult` | classe | `(kind, recipe, name, params, reasoning, raw_response)` |  |
-| `draft_mesh_recipe` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Ask an LLM to compose a (possibly CSG-combined) geometry recipe for a natural-language description, e.g. "a box with a cylindrical hole through it" or "two overlapping spheres fused together". |
-| `draft_cadquery_template` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Ask an LLM to pick + parametrise a genuinely parametric CAD template (real B-rep solid, true STEP-exportable) for a natural-language description, e.g. "a cold plate with an internal cooling channel" or "a heat sink plate with 12 fins". |
-| `build_recipe` | função | `(result)` | Actually build the geometry a :class:`CadRecipeResult` describes. |
-| `export_recipe` | função | `(result, out_path, *, fmt=None) -> str` | Export a built recipe to a real CAD/mesh file on disk. |
-| `measure_part` | função | `(result) -> Dict[str, Any]` | Build a ``"mesh_recipe"`` and measure it: volume, bounding-box extents, watertightness, and whether a boolean engine was available. Without one (``manifold3d``, extra ``geometry``) ``build_mesh`` replaces every cut/union by a concatenation of the parts (a UserWarning only), so a washer comes out as … |
-| `draft_part` | função | `(description, *, tier='quick', provider='ollama', model=None, api_key=None, max_attempts=…)` | Draft a buildable part, retrying refused drafts: ``tier="quick"`` asks :func:`draft_mesh_recipe` (CSG of primitives), ``tier="engineering"`` asks :func:`draft_cadquery_template` (parametric CadQuery template). |
+| `CadRecipeResult` | classe | `(kind, recipe, name, params, reasoning, raw_response)` | Resultado de um rascunho de CAD: tipo (`mesh_recipe` ou `cadquery_template`), receita validada ou nome do template e parâmetros. |
+| `draft_mesh_recipe` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Pede ao LLM uma receita de geometria (possivelmente combinada por CSG) para uma descrição em linguagem natural; não constrói a malha. |
+| `draft_cadquery_template` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Pede ao LLM para escolher e parametrizar um template CadQuery paramétrico; requer `cadquery` opcional. |
+| `build_recipe` | função | `(result)` | Constrói a geometria descrita: `MeshData` para receita de malha ou objeto CadQuery para template. |
+| `export_recipe` | função | `(result, out_path, *, fmt=None) -> str` | Exporta a geometria construída para arquivo (STL via `trimesh`; STEP se `cadquery` estiver instalado). |
+| `measure_part` | função | `(result) -> Dict[str, Any]` | Constrói uma receita de malha e mede volume, extensão, estanqueidade e se havia motor booleano disponível. |
+| `draft_part` | função | `(description, *, tier='quick', provider='ollama', model=None, api_key=None, max_attempts=…)` | Rascunha uma peça construível, tentando de novo quando o rascunho é recusado; nível `quick` (CSG) ou `engineering` (CadQuery). |
 
 #### `pinneapple_llm.catalog_match`
 
-pinneapple_llm.catalog_match — ``resolve_problem()``: a two-stage, never-raises front end to ``draft_problem()``.
+Frente em dois estágios para `draft_problem`: pré-filtro por sobreposição de palavras-chave e depois o LLM; se o LLM falhar, devolve o melhor casamento por palavras. Nunca levanta exceção.
 
 <small>`pinneapple_llm/catalog_match.py` · 128 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResolveResult` | classe | `(preset, kwargs, reasoning, used_llm, shortlist)` |  |
-| `resolve_problem` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None,…)` | Resolve ``description`` to a registered PDE preset — the shortlist step always runs; the LLM step is attempted next and its result used if it succeeds, else the top keyword match is returned instead. Never raises. |
+| `ResolveResult` | classe | `(preset, kwargs, reasoning, used_llm, shortlist)` | Resultado da resolução: preset, kwargs, raciocínio, se o LLM foi usado e a lista curta. |
+| `resolve_problem` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None,…)` | Resolve uma descrição para um preset de EDP registrado, com fallback determinístico por palavras-chave. |
 
 #### `pinneapple_llm.conversation_store`
 
-SQLite-backed conversation log for every ``pinneapple_llm`` LLM call.
+Log SQLite (só biblioteca padrão) de cada chamada de LLM do pacote, para auditoria e como dataset de `finetune`. [sem teste direto]
 
 <small>`pinneapple_llm/conversation_store.py` · 120 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConversationRecord` | classe | `(id, timestamp, module, provider, model, system_prompt, user_prompt, response, metadata)` |  |
-| `ConversationStore` | classe | `(db_path=_DEFAULT_DB_PATH)` | Thin SQLite wrapper. Safe to construct repeatedly (opens/creates the DB file each time); not held open across calls, so it's safe to share a path across processes/threads without extra locking beyond what SQLite itself provides. |
+| `ConversationRecord` | classe | `(id, timestamp, module, provider, model, system_prompt, user_prompt, response, metadata)` | Um registro de conversa: horário, módulo, provedor, modelo, prompts, resposta e metadados. |
+| `ConversationStore` | classe | `(db_path=_DEFAULT_DB_PATH)` | Invólucro fino de SQLite que grava, consulta e exporta conversas como JSONL. |
 
 #### `pinneapple_llm.draft`
 
-LLM-assisted ``ProblemSpec`` drafting -- deliberately constrained to selecting and parametrising one of PINNeAPPle's own already-implemented, already-testable presets, never to inventing new PDE machinery from scratch.
+Rascunho de `ProblemSpec` restrito a escolher e parametrizar um preset existente de `pinneapple_physics.list_presets()`; nomes e argumentos inventados são rejeitados.
 
 <small>`pinneapple_llm/draft.py` · 231 linhas · testes: 23</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DraftResult` | classe | `(preset, kwargs, reasoning, raw_response)` |  |
-| `DraftRejected` | classe | `(message, attempts)` | No acceptable draft after every attempt; ``.attempts`` lists why each one was refused. |
-| `draft_problem` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Ask an LLM to pick + parametrise a ``ProblemSpec`` preset for a natural-language problem description. |
-| `check_kwargs_in_bounds` | função | `(kwargs, bounds) -> Dict[str, float]` | Coerce drafted kwargs to finite floats and check each one against ``bounds`` ({name: (lo, hi)}). |
-| `draft_preset_kwargs` | função | `(description, expected_preset, *, bounds=None, provider='ollama', model=None, api_key=Non…)` | Draft kwargs for ONE known preset: retry ``draft_problem`` until it picks ``expected_preset`` with kwargs that pass :func:`check_kwargs_in_bounds`. Returns ``(kwargs, reasoning, attempts_used)``; raises :class:`DraftRejected` after ``max_attempts`` refusals (a wrong preset, no fit, a hallucinated … |
+| `DraftResult` | classe | `(preset, kwargs, reasoning, raw_response)` | Resultado do rascunho: preset escolhido, kwargs, raciocínio e resposta bruta. |
+| `DraftRejected` | classe | `(message, attempts)` | Exceção quando nenhuma tentativa produziu rascunho aceitável; `.attempts` diz por que cada uma foi recusada. |
+| `draft_problem` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Pede ao LLM para escolher e parametrizar um preset para uma descrição em linguagem natural; não constrói o `ProblemSpec`. |
+| `check_kwargs_in_bounds` | função | `(kwargs, bounds) -> Dict[str, float]` | Converte kwargs rascunhados para floats finitos e confere cada um contra limites (lo, hi). |
+| `draft_preset_kwargs` | função | `(description, expected_preset, *, bounds=None, provider='ollama', model=None, api_key=Non…)` | Repete `draft_problem` até obter o preset esperado com kwargs dentro dos limites; levanta `DraftRejected` ao esgotar as tentativas. |
 
 #### `pinneapple_llm.finetune`
 
-LoRA fine-tuning of a local causal LM on data logged via ``conversation_store.ConversationStore``.
+Fine-tuning LoRA de um modelo causal local no formato Hugging Face (transformers + peft, extra `finetune`) com os pares registrados no log; não faz fine-tuning direto de modelo Ollama. [sem teste direto]
 
 <small>`pinneapple_llm/finetune.py` · 116 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FinetuneConfig` | classe | `(base_model, output_dir, lora_r, lora_alpha, lora_dropout, learning_rate, num_train_epoch…)` |  |
-| `prepare_dataset` | função | `(store, out_jsonl, *, module=None) -> str` | Export logged (prompt, response) pairs to a JSONL file, ready for :func:`finetune_lora`. Thin wrapper over ``ConversationStore .export_jsonl`` -- kept as a separate step (not folded into ``finetune_lora``) so the dataset can be inspected/filtered/versioned before spending any GPU time on it. |
-| `finetune_lora` | função | `(dataset_jsonl, cfg)` | Run a real LoRA fine-tune (``transformers.Trainer`` + ``peft .LoraConfig``) of ``cfg.base_model`` on the (prompt, response) pairs in ``dataset_jsonl`` (as written by :func:`prepare_dataset`). |
+| `FinetuneConfig` | classe | `(base_model, output_dir, lora_r, lora_alpha, lora_dropout, learning_rate, num_train_epoch…)` | Configuração do fine-tuning: modelo base, pasta de saída e hiperparâmetros de LoRA e treino. |
+| `prepare_dataset` | função | `(store, out_jsonl, *, module=None) -> str` | Exporta os pares (prompt, resposta) do log para JSONL, para inspeção antes de treinar. |
+| `finetune_lora` | função | `(dataset_jsonl, cfg)` | Roda um fine-tuning LoRA real com `transformers.Trainer` e `peft` sobre o JSONL preparado. |
 
 #### `pinneapple_llm.geometry_draft`
 
-LLM-assisted geometry drafting -- same constrained pattern as ``draft.py``'s ``draft_problem``, applied to CAD/domain generation instead of PDE problem specs: the LLM selects and parametrises one of ``pinneapple_design.geometry``'s own already-implemented generators …
+Rascunho de geometria: o LLM escolhe e parametriza um gerador existente (domínios 2-D/3-D nomeados ou `naca_parametric`), conferido contra o registro. [sem teste direto]
 
 <small>`pinneapple_llm/geometry_draft.py` · 121 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometryDraftResult` | classe | `(generator, kind, kwargs, reasoning, raw_response)` |  |
-| `draft_geometry` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Ask an LLM to pick + parametrise a geometry generator for a natural-language description (e.g. "a NACA 2412 airfoil" or "a lid driven cavity in 3D"). |
+| `GeometryDraftResult` | classe | `(generator, kind, kwargs, reasoning, raw_response)` | Resultado: gerador escolhido, tipo (`domain2d`, `domain3d`, `airfoil`), kwargs, raciocínio e resposta bruta. |
+| `draft_geometry` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Pede ao LLM para escolher e parametrizar um gerador de geometria; não constrói a geometria. |
 
 #### `pinneapple_llm.guardrail`
 
-``PhysicsGuardrail``: the actual anti-hallucination mechanism.
+`PhysicsGuardrail`: roda checagens independentes e recalculadas (sanidade de parâmetros, análise dimensional, resíduo da EDP, conservação de massa ou calor, erro contra referência) e só marca o resultado como confiável se passar. Não garante correção.
 
 <small>`pinneapple_llm/guardrail.py` · 1.069 linhas · testes: 60</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CheckResult` | classe | `(name, passed, detail, value, threshold)` |  |
-| `GuardrailReport` | classe | `(checks)` |  |
-| `PhysicsGuardrail` | classe | `(spec, *, residual_threshold=0.01, n_check_points=4096, conservation_n_points_per_face=20…)` | Runs a fixed sequence of independent checks against a trained model + the ``ProblemSpec`` it was trained on. |
+| `CheckResult` | classe | `(name, passed, detail, value, threshold)` | Resultado de uma checagem: nome, se passou, detalhe, valor e limite. |
+| `GuardrailReport` | classe | `(checks)` | Relatório do guardrail: checagens que rodaram, as puladas, veredito de confiança e resumo. |
+| `PhysicsGuardrail` | classe | `(spec, *, residual_threshold=0.01, n_check_points=4096, conservation_n_points_per_face=20…)` | Executa a sequência fixa de checagens contra um modelo treinado e o `ProblemSpec` em que ele foi treinado. |
 
 #### `pinneapple_llm.local_llm`
 
-Local LLM provider (Ollama) -- so ``pinneapple_llm`` doesn't require a paid API/external network call at all: run a model entirely on your own machine, no data leaves it.
+Provedor local Ollama via HTTP: iniciar `ollama serve`, baixar o modelo e fazer chamadas de chat sem dados saindo da máquina. [sem teste direto]
 
 <small>`pinneapple_llm/local_llm.py` · 119 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `start_server` | função | `(*, host='127.0.0.1', port=11434, wait_s=10.0) -> subprocess.Popen` | Launch ``ollama serve`` as a background subprocess (no-op / raises if ``ollama`` is not installed -- there is no bundled fallback, same reasoning as every other "requires the real local tool" bridge in this package). |
-| `ensure_model_pulled` | função | `(model, *, host='127.0.0.1', port=11434, timeout=3600) -> None` | ``ollama pull <model>`` if it isn't already present locally. Blocks until the pull completes (can be slow for a large model the first time -- ``timeout`` bounds it). |
-| `call_ollama` | função | `(prompt, model, api_key=None, system='', *, host='127.0.0.1', port=11434, timeout=300, js…)` | Chat-completion call against a local Ollama server. Raises a clear error (not a generic connection-refused traceback) if no server is reachable -- call :func:`start_server` first, or run ``ollama serve`` yourself. |
+| `start_server` | função | `(*, host='127.0.0.1', port=11434, wait_s=10.0) -> subprocess.Popen` | Inicia `ollama serve` como subprocesso em segundo plano; falha se o `ollama` não estiver instalado. |
+| `ensure_model_pulled` | função | `(model, *, host='127.0.0.1', port=11434, timeout=3600) -> None` | Roda `ollama pull` do modelo se ele ainda não estiver presente. |
+| `call_ollama` | função | `(prompt, model, api_key=None, system='', *, host='127.0.0.1', port=11434, timeout=300, js…)` | Chamada de chat a um servidor Ollama local, com erro claro se ele não estiver acessível. |
 
 #### `pinneapple_llm.org_knowledge`
 
-Grounded LLM answers over a real local :class:`pinneapple_analysis.retrieval.RetrievalIndex` -- the "local LLM that knows about the organisation's own code" building block, built for (and by) ``org-management``'s knowledge-base requirement, but placed here rather than in that downstream repo for …
+Respostas do LLM fundamentadas nos resultados reais de um `RetrievalIndex` local de `pinneapple_analysis.retrieval` ("LLM local que conhece o código da organização").
 
 <small>`pinneapple_llm/org_knowledge.py` · 133 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OrgAnswer` | classe | `(question, context_used, answer)` |  |
-| `answer_with_context` | função | `(question, retrieval_index, *, top_k=5, provider='ollama', model='llama3.2:3b', api_key=N…)` | Answer *question* grounded in *retrieval_index*'s real search results (any object exposing a ``search(query, top_k=...) -> List[SearchResult]`` method -- i.e. a real ``pinneapple_analysis.retrieval.RetrievalIndex``, matching that class's own interface). |
+| `OrgAnswer` | classe | `(question, context_used, answer)` | Resposta: pergunta, trechos de contexto realmente usados (fonte, título, score) e o texto da resposta. |
+| `answer_with_context` | função | `(question, retrieval_index, *, top_k=5, provider='ollama', model='llama3.2:3b', api_key=N…)` | Busca no índice e pede ao LLM uma resposta baseada só nesses resultados. |
 
 #### `pinneapple_llm.qa`
 
-Scientific and industrial quality assurance for ``pinneapple_llm`` artifacts.
+Garantia de qualidade científica e industrial para artefatos do `pinneapple_llm`: estágios A-G e níveis Q0-Q4.
 
 <small>`pinneapple_llm/qa/__init__.py` · 51 linhas · testes: 48</small>
 
 #### `pinneapple_llm.qa.examples`
 
-Runnable reference examples for the quality pipeline.
+Exemplos de referência executáveis do pipeline de qualidade (importados sob demanda).
 
 <small>`pinneapple_llm/qa/examples/__init__.py` · 10 linhas · testes: 39</small>
 
 #### `pinneapple_llm.qa.examples.pipe_wear_twin`
 
-End-to-end reference example: a 3D digital twin of a pipe under wall wear.
+Exemplo ponta a ponta: gêmeo digital 3-D de um tubo com desgaste de parede, construído com `pinneapple_twin3d` e passado pelos estágios A-G.
 
 <small>`pinneapple_llm/qa/examples/pipe_wear_twin.py` · 342 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `hollow_pipe_mesh` | função | `(*, radius=OUTER_DIAMETER_M / 2, thickness=WALL_THICKNESS_M, length=LENGTH_M, n_theta=64)…)` | A genuinely hollow pipe: outer wall, inner wall and two end annuli. |
-| `solid_pipe_mesh` | função | `(*, radius=OUTER_DIAMETER_M / 2, length=LENGTH_M, n_theta=64) -> Tuple[np.ndarray, np.nda…)` | A filled cylinder of the same outer dimensions. |
-| `build_spec` | função | `(*, anomaly=False) -> PhysicalSpecification` |  |
-| `build_twin` | função | `(*, anomaly=False) -> Dict[str, Any]` |  |
-| `export_twin` | função | `(bundle, output_dir=None) -> str` | Write the real viewer files and the hub contract; returns ``scene.json``. |
-| `analytical_reference` | função | `(bundle) -> ReferenceData` | Closed-form uniform-wear residual thickness, per cell and per time. |
-| `run_example` | função | `(*, output_dir=None, anomaly=False, write_report=True) -> Tuple[QualityReport, Dict[str, …)` | Run stages A-G over the synthetic pipe twin and return the report. |
+| `hollow_pipe_mesh` | função | `(*, radius=OUTER_DIAMETER_M / 2, thickness=WALL_THICKNESS_M, length=LENGTH_M, n_theta=64)…)` | Malha de tubo realmente oco (paredes externa e interna e duas coroas nas pontas) por revolução. |
+| `solid_pipe_mesh` | função | `(*, radius=OUTER_DIAMETER_M / 2, length=LENGTH_M, n_theta=64) -> Tuple[np.ndarray, np.nda…)` | Cilindro maciço com as mesmas medidas externas, usado nos testes como falha que o validador de geometria precisa pegar. |
+| `build_spec` | função | `(*, anomaly=False) -> PhysicalSpecification` | Monta a `PhysicalSpecification` do exemplo (com ou sem condição de anomalia). |
+| `build_twin` | função | `(*, anomaly=False) -> Dict[str, Any]` | Monta a cena do gêmeo de desgaste com malhas, campos e sensores. |
+| `export_twin` | função | `(bundle, output_dir=None) -> str` | Escreve os arquivos reais do visualizador e o contrato do hub; devolve o `scene.json`. |
+| `analytical_reference` | função | `(bundle) -> ReferenceData` | Espessura residual em forma fechada para desgaste uniforme; é verificação de fórmulas, não de física. |
+| `run_example` | função | `(*, output_dir=None, anomaly=False, write_report=True) -> Tuple[QualityReport, Dict[str, …)` | Roda os estágios A-G sobre o gêmeo sintético e devolve o relatório. |
 
 #### `pinneapple_llm.qa.examples.pipe_wear_twin_main`
 
-Run the reference example and print its quality report::
+Script que roda o exemplo de referência e imprime o relatório de qualidade; `--anomaly` demonstra a falha das invariantes. [sem teste direto]
 
 <small>`pinneapple_llm/qa/examples/pipe_wear_twin_main.py` · 37 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Lê argumentos, roda `run_example` e imprime o relatório; devolve 0 ou 1. |
 
 #### `pinneapple_llm.qa.generation`
 
-Stage B informed: the LLM's structured claims, and why they are not evidence.
+Estágio B: captura as alegações estruturadas do LLM (premissas, dependências, unidades, equações, limitações) e as confronta com a especificação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/generation.py` · 240 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeneratedArtifact` | classe | `(code, assumptions, dependencies, units, equations, limitations, provider, model, elapsed…)` | The LLM's proposal plus its structured claims. Untrusted by construction. |
-| `build_prompt` | função | `(spec) -> str` | A prompt carrying the specification, not a paraphrase of it. |
-| `parse_generation_response` | função | `(raw, *, provider='', model='', elapsed_s=0.0) -> Tuple[GeneratedArtifact, StaticResult]` | Parse and schema-check an LLM response. Never raises on malformed JSON. |
-| `check_claims` | função | `(artifact, spec) -> List[Finding]` | Confront the model's declarations with the specification and the unit table. |
-| `validate_generated` | função | `(artifact, spec, *, filename='artifact.py') -> Tuple[List[Finding], Any]` | Claim checks + the full static validation of the returned code. |
-| `generate_artifact` | função | `(spec, *, provider='anthropic', model=None, api_key=None, conversation_store=None) -> Gen…)` | Ask a provider for an artifact + envelope, through the existing dispatch. |
+| `GeneratedArtifact` | classe | `(code, assumptions, dependencies, units, equations, limitations, provider, model, elapsed…)` | Proposta do LLM mais suas alegações estruturadas; não confiável por construção. |
+| `build_prompt` | função | `(spec) -> str` | Monta um prompt que carrega a especificação inteira, não uma paráfrase. |
+| `parse_generation_response` | função | `(raw, *, provider='', model='', elapsed_s=0.0) -> Tuple[GeneratedArtifact, StaticResult]` | Faz parse e checa o esquema da resposta do LLM; não levanta exceção com JSON malformado. |
+| `check_claims` | função | `(artifact, spec) -> List[Finding]` | Confronta as declarações do modelo com a especificação e a tabela de unidades; devolve achados. |
+| `validate_generated` | função | `(artifact, spec, *, filename='artifact.py') -> Tuple[List[Finding], Any]` | Checa as alegações e roda a validação estática completa do código devolvido. |
+| `generate_artifact` | função | `(spec, *, provider='anthropic', model=None, api_key=None, conversation_store=None) -> Gen…)` | Pede a um provedor um artefato mais envelope de alegações, via `_dispatch.call_llm`. |
 
 #### `pinneapple_llm.qa.levels`
 
-Quality levels Q0-Q4, awarded from what actually ran -- never from an LLM.
+Níveis de qualidade Q0-Q4, cumulativos e dados só pelo que rodou; Q4 exige evidência operacional fornecida por humano. [sem teste direto]
 
 <small>`pinneapple_llm/qa/levels.py` · 182 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `evaluate_level` | função | `(report, spec=None) -> Tuple[str, List[str]]` | Return ``(level, reasons)`` -- the reasons explain why it stopped there. |
-| `blocking_reasons` | função | `(report) -> List[str]` | Human-readable reasons the report cannot be treated as approved. |
-| `level_description` | função | `(level) -> str` |  |
+| `evaluate_level` | função | `(report, spec=None) -> Tuple[str, List[str]]` | Devolve (nível, motivos), com os motivos de ter parado ali. |
+| `blocking_reasons` | função | `(report) -> List[str]` | Motivos legíveis pelos quais o relatório não pode ser tratado como aprovado. |
+| `level_description` | função | `(level) -> str` | Descrição textual de um nível. |
 
 #### `pinneapple_llm.qa.pipeline`
 
-The quality pipeline: stages A-G wired into one reproducible run.
+O pipeline de qualidade: liga os estágios A-G em uma execução reprodutível. [sem teste direto]
 
 <small>`pinneapple_llm/qa/pipeline.py` · 455 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PipelineConfig` | classe | `(validators, run_artifacts, source_name, static_policy, repair_attempts)` |  |
-| `QualityPipeline` | classe | `(spec, *, validators=None, sandbox=None, run_artifacts=False, static_policy=None, referen…)` |  |
+| `PipelineConfig` | classe | `(validators, run_artifacts, source_name, static_policy, repair_attempts)` | Configuração do pipeline: validadores, se roda artefatos, política estática e tentativas de reparo. |
+| `QualityPipeline` | classe | `(spec, *, validators=None, sandbox=None, run_artifacts=False, static_policy=None, referen…)` | Executa os estágios sobre uma especificação e um artefato e devolve o `QualityReport`. |
 
 #### `pinneapple_llm.qa.references`
 
-Stage F: comparison against independent reference data.
+Estágio F: comparação com dados de referência independentes; recusa inventar referência ou limite de aceitação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/references.py` · 202 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReferenceData` | classe | `(name, origin, version, values, unit, limitations, used_for_calibration)` | A reference the artifact is compared against -- never invented here. |
-| `compare` | função | `(predictions, reference, criteria, *, subset='validation', groups=None, baseline=None) ->…)` | Compare ``predictions`` with ``reference.values`` under ``criteria``. |
-| `split_mask` | função | `(n, holdout_fraction=0.3, seed=0) -> np.ndarray` | A deterministic boolean mask marking the validation (holdout) subset. |
+| `ReferenceData` | classe | `(name, origin, version, values, unit, limitations, used_for_calibration)` | Referência de comparação, com origem, versão e limitações obrigatórias. |
+| `compare` | função | `(predictions, reference, criteria, *, subset='validation', groups=None, baseline=None) ->…)` | Compara previsões com a referência sob critérios dados pelo chamador; só as métricas pedidas bloqueiam. |
+| `split_mask` | função | `(n, holdout_fraction=0.3, seed=0) -> np.ndarray` | Máscara booleana determinística que marca o subconjunto de validação (holdout). |
 
 #### `pinneapple_llm.qa.repair`
 
-Stage G: structured diagnosis and bounded automatic repair.
+Estágio G: diagnóstico estruturado e reparo automático limitado, que rejeita reparos que mudem os critérios da especificação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/repair.py` · 296 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Diagnosis` | classe | `(failed_steps, findings, confirmed_cause, probable_cause, constraints_to_preserve, tests_…)` | Why an attempt was rejected, in the form a repair step can consume. |
-| `RepairAttempt` | classe | `(attempt, accepted, status, diagnosis, diff, notes, duration_s)` |  |
-| `RepairOutcome` | classe | `(accepted, artifact, attempts, results, stopped_because)` |  |
-| `RepairLoop` | classe | `(*, evaluate, repair, spec=None, required=(), max_attempts=DEFAULT_MAX_ATTEMPTS, on_attem…)` | Bounded generate -> validate -> diagnose -> repair loop. |
-| `diagnose` | função | `(results, *, required=()) -> Diagnosis` | Turn failing validator results into one structured diagnosis. |
+| `Diagnosis` | classe | `(failed_steps, findings, confirmed_cause, probable_cause, constraints_to_preserve, tests_…)` | Por que uma tentativa foi rejeitada, num formato que o passo de reparo consome. |
+| `RepairAttempt` | classe | `(attempt, accepted, status, diagnosis, diff, notes, duration_s)` | Registro de uma tentativa de reparo: aceita ou não, status, diagnóstico e diff. |
+| `RepairOutcome` | classe | `(accepted, artifact, attempts, results, stopped_because)` | Resultado do laço de reparo: aceito, artefato final, tentativas e motivo da parada. |
+| `RepairLoop` | classe | `(*, evaluate, repair, spec=None, required=(), max_attempts=DEFAULT_MAX_ATTEMPTS, on_attem…)` | Laço limitado gerar -> validar -> diagnosticar -> reparar. |
+| `diagnose` | função | `(results, *, required=()) -> Diagnosis` | Junta os resultados de validadores que falharam num diagnóstico estruturado. |
 
 #### `pinneapple_llm.qa.report`
 
-Reproducible quality report -- the machine-readable output of every run.
+Relatório de qualidade reprodutível: status por estágio (sem booleano "ok"), hashes dos artefatos, versões e comando de reprodução. [sem teste direto]
 
 <small>`pinneapple_llm/qa/report.py` · 327 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Status` | classe | `()` |  |
-| `Finding` | classe | `(id, status, message, severity, evidence, justification, limitations)` | One observed fact, with the evidence that produced it. |
-| `StepOutcome` | classe | `(step, status, findings, duration_s, metadata)` | The result of one pipeline stage. |
-| `ArtifactRecord` | classe | `(name, kind, path, sha256, size_bytes, metadata)` |  |
-| `QualityReport` | classe | `(run_id, created_at, spec_id, spec_hash, criteria_hash, provider, model, steps, artifacts…)` | Everything one pipeline run observed, and what it is allowed to claim. |
-| `environment_snapshot` | função | `() -> Dict[str, Any]` | Versions and platform, so a report can be traced to an environment. |
+| `Status` | classe | `()` | Enum de status: PASS, FAIL, BLOCKED, NOT_RUN, NOT_APPLICABLE. |
+| `Finding` | classe | `(id, status, message, severity, evidence, justification, limitations)` | Um fato observado, com a evidência que o produziu. |
+| `StepOutcome` | classe | `(step, status, findings, duration_s, metadata)` | Resultado de um estágio do pipeline, com seus achados. |
+| `ArtifactRecord` | classe | `(name, kind, path, sha256, size_bytes, metadata)` | Registro de um artefato: nome, tipo, caminho, sha256, tamanho e metadados. |
+| `QualityReport` | classe | `(run_id, created_at, spec_id, spec_hash, criteria_hash, provider, model, steps, artifacts…)` | Tudo o que uma execução do pipeline observou e o que ela pode afirmar; serializa para JSON. |
+| `environment_snapshot` | função | `() -> Dict[str, Any]` | Versões e plataforma, para rastrear o relatório até um ambiente. |
 
 #### `pinneapple_llm.qa.sandbox`
 
-Stage D: controlled execution of generated artifacts.
+Estágio D: execução controlada de artefatos em subprocesso com ambiente limpo e limites de recursos POSIX; não é sandbox de sistema operacional. [sem teste direto]
 
 <small>`pinneapple_llm/qa/sandbox.py` · 389 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `IsolationLevel` | classe | `()` |  |
-| `SandboxLimits` | classe | `(timeout_s, cpu_s, memory_mb, file_size_mb, open_files, max_processes, write_bytes)` | Resource ceilings. ``None`` disables the corresponding limit. |
-| `SandboxResult` | classe | `(status, isolation, workdir, exit_code, stdout, stderr, duration_s, timed_out, violations…)` |  |
-| `SandboxExecutor` | classe | `(*, limits=None, allow_execution=False, allow_network=False, base_dir=None, keep_workdir=…)` | Run a generated Python artifact in a separate, limited process. |
-| `hash_bytes` | função | `(blob) -> str` |  |
+| `IsolationLevel` | classe | `()` | Enum do nível de isolamento: bloqueado ou subprocesso. |
+| `SandboxLimits` | classe | `(timeout_s, cpu_s, memory_mb, file_size_mb, open_files, max_processes, write_bytes)` | Tetos de recursos (CPU, memória, tamanho de arquivo etc.); None desliga o limite. |
+| `SandboxResult` | classe | `(status, isolation, workdir, exit_code, stdout, stderr, duration_s, timed_out, violations…)` | Resultado da execução: status, código de saída, saídas, tempo, timeout, violações e arquivos produzidos. |
+| `SandboxExecutor` | classe | `(*, limits=None, allow_execution=False, allow_network=False, base_dir=None, keep_workdir=…)` | Roda um artefato Python gerado num processo separado e limitado. |
+| `hash_bytes` | função | `(blob) -> str` | SHA-256 em hexadecimal de um bloco de bytes. |
 
 #### `pinneapple_llm.qa.spec`
 
-Typed, serializable physical specification -- stage A of the quality pipeline.
+Estágio A: especificação física tipada e serializável, separando o que veio do usuário, de fonte citada, de premissa ou de estimativa. [sem teste direto]
 
 <small>`pinneapple_llm/qa/spec.py` · 496 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Provenance` | classe | `()` |  |
-| `SpecError` | classe | `()` | Raised when a specification is structurally invalid. |
-| `Quantity` | classe | `(value, unit, provenance, source, uncertainty)` | A number with a unit, a provenance tag, and (optionally) an uncertainty. |
-| `Invariant` | classe | `(name, kind, target, params, severity, description)` | A physical constraint the artifact must satisfy. Declarative, not code. |
-| `Observation` | classe | `(sensor_id, quantity, unit, position, timestamps, time_unit, values, provenance, holdout)` | A sensor reading: where, what, when, and whether it may be used for validation. |
-| `GeometrySpec` | classe | `(kind, coordinate_system, dimensions, hollow, wall_thickness, notes)` | Geometry, domain and coordinate system, with units made explicit. |
-| `PhysicalSpecification` | classe | `(objective, phenomenon, geometry, independent_variables, dependent_variables, parameters,…)` | Stage A output: what the user asked for, expressed so it can be checked. |
-| `quantity_map` | função | `(**kwargs) -> Dict[str, Quantity]` | ``quantity_map(nu=(1e-6, "m^2/s"))`` -- small construction helper. |
+| `Provenance` | classe | `()` | Enum de proveniência: USER, SOURCE, ASSUMPTION, ESTIMATED. |
+| `SpecError` | classe | `()` | Erro para especificação estruturalmente inválida. |
+| `Quantity` | classe | `(value, unit, provenance, source, uncertainty)` | Número com unidade, proveniência e incerteza opcional. |
+| `Invariant` | classe | `(name, kind, target, params, severity, description)` | Restrição física declarativa (tipo mais parâmetros) que o artefato deve cumprir. |
+| `Observation` | classe | `(sensor_id, quantity, unit, position, timestamps, time_unit, values, provenance, holdout)` | Leitura de sensor: onde, o quê, quando e se pode ser usada para validação. |
+| `GeometrySpec` | classe | `(kind, coordinate_system, dimensions, hollow, wall_thickness, notes)` | Geometria, domínio e sistema de coordenadas com unidades explícitas. |
+| `PhysicalSpecification` | classe | `(objective, phenomenon, geometry, independent_variables, dependent_variables, parameters,…)` | Saída do estágio A: o pedido do usuário expresso de forma checável, com hash dos critérios. |
+| `quantity_map` | função | `(**kwargs) -> Dict[str, Quantity]` | Atalho para montar um dicionário de `Quantity` a partir de tuplas (valor, unidade). |
 
 #### `pinneapple_llm.qa.static`
 
-Stage C: static and structural validation of generated artifacts.
+Estágio C: validação estática por AST e introspecção real dos módulos PINNeAPPle (sintaxe, imports, contratos de API, assinaturas, segurança, esquema JSON). Não é sandbox nem prova de correção. [sem teste direto]
 
 <small>`pinneapple_llm/qa/static.py` · 596 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StaticPolicy` | classe | `(allowed_roots, forbidden_roots, forbidden_calls, forbidden_attr_calls, allowed_write_roo…)` |  |
-| `StaticResult` | classe | `(findings, resolved_imports)` |  |
-| `check_syntax` | função | `(source, filename='<artifact>') -> List[Finding]` | Compile-only check. A ``SyntaxError`` is reported, never raised. |
-| `check_imports` | função | `(source, policy) -> Tuple[List[Finding], Dict[str, Any]]` | Refuse forbidden imports; report unknown/unresolvable ones with evidence. |
-| `check_api_contracts` | função | `(source, resolved) -> List[Finding]` | Resolve every ``pinneapple_*`` attribute the artifact touches, for real. |
-| `check_signatures` | função | `(source, resolved) -> List[Finding]` | Compare literal call sites against the real ``inspect.signature``. |
-| `check_security` | função | `(source, policy, write_roots=()) -> List[Finding]` | Refuse process spawning, code execution, network and out-of-scope writes. |
-| `check_json_artifact` | função | `(data, schema=None, name='artifact') -> List[Finding]` | Validate a JSON artifact against a small, explicit schema subset. |
-| `validate_python_artifact` | função | `(source, *, policy=None, filename='<artifact>', write_roots=(), json_schema=None) -> Stat…)` | Run every static check and return one :class:`StaticResult`. |
-| `validate_json_artifact` | função | `(payload, schema=None, name='artifact') -> StaticResult` |  |
-| `load_json_file` | função | `(path) -> Any` |  |
+| `StaticPolicy` | classe | `(allowed_roots, forbidden_roots, forbidden_calls, forbidden_attr_calls, allowed_write_roo…)` | Política estática: raízes de import permitidas e proibidas, chamadas proibidas e pastas onde se pode escrever. |
+| `StaticResult` | classe | `(findings, resolved_imports)` | Resultado da validação estática: achados e imports resolvidos. |
+| `check_syntax` | função | `(source, filename='<artifact>') -> List[Finding]` | Checa a compilação; um `SyntaxError` vira achado. |
+| `check_imports` | função | `(source, policy) -> Tuple[List[Finding], Dict[str, Any]]` | Recusa imports proibidos e relata os desconhecidos. |
+| `check_api_contracts` | função | `(source, resolved) -> List[Finding]` | Resolve de verdade cada atributo `pinneapple_*` usado pelo artefato, pegando APIs inventadas. |
+| `check_signatures` | função | `(source, resolved) -> List[Finding]` | Compara chamadas literais com a `inspect.signature` real. |
+| `check_security` | função | `(source, policy, write_roots=()) -> List[Finding]` | Recusa criação de processos, execução de código, rede e escrita fora do escopo. |
+| `check_json_artifact` | função | `(data, schema=None, name='artifact') -> List[Finding]` | Valida um artefato JSON contra um subconjunto pequeno de JSON Schema. |
+| `validate_python_artifact` | função | `(source, *, policy=None, filename='<artifact>', write_roots=(), json_schema=None) -> Stat…)` | Roda todas as checagens estáticas e devolve um `StaticResult`. |
+| `validate_json_artifact` | função | `(payload, schema=None, name='artifact') -> StaticResult` | Valida um payload JSON e devolve um `StaticResult`. |
+| `load_json_file` | função | `(path) -> Any` | Lê um arquivo JSON. |
 
 #### `pinneapple_llm.qa.units`
 
-Dimensional analysis for the quality pipeline -- dependency-free, deliberately small.
+Análise dimensional sem dependências para o pipeline, com gramática e tabela de unidades fixas; unidade desconhecida levanta `UnitError`. [sem teste direto]
 
 <small>`pinneapple_llm/qa/units.py` · 327 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnitError` | classe | `()` | Raised for an unparsable unit string or an incompatible conversion. |
-| `Unit` | classe | `(name, dim, scale, offset)` | An SI-scaled unit: ``si_value = value * scale + offset``. |
-| `parse_unit` | função | `(text) -> Unit` | Parse a unit string into a :class:`Unit`. Raises :class:`UnitError`. |
-| `are_compatible` | função | `(a, b) -> bool` | True if two unit strings have the same physical dimension. |
-| `convert` | função | `(value, from_unit, to_unit) -> float` | Convert ``value`` between two compatible units. Raises on incompatibility. |
-| `dimension_of` | função | `(unit) -> Dim` |  |
-| `dimension_str` | função | `(unit) -> str` |  |
+| `UnitError` | classe | `()` | Erro de unidade não interpretável ou conversão incompatível. |
+| `Unit` | classe | `(name, dim, scale, offset)` | Unidade em escala SI (`si = valor * escala + offset`) com dimensão. |
+| `parse_unit` | função | `(text) -> Unit` | Converte texto de unidade num `Unit`. |
+| `are_compatible` | função | `(a, b) -> bool` | Diz se duas unidades têm a mesma dimensão física. |
+| `convert` | função | `(value, from_unit, to_unit) -> float` | Converte um valor entre unidades compatíveis. |
+| `dimension_of` | função | `(unit) -> Dim` | Devolve a dimensão de uma unidade. |
+| `dimension_str` | função | `(unit) -> str` | Devolve a dimensão de uma unidade como texto. |
 
 #### `pinneapple_llm.qa.validators`
 
-Scientific validators and their registry (stage E).
+Validadores científicos do estágio E e seu registro; os embutidos se registram na importação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/__init__.py` · 19 linhas · **sem teste direto**</small>
 
 #### `pinneapple_llm.qa.validators.base`
 
-Validator protocol, shared context and registry.
+Protocolo de validador, contexto compartilhado e registro; inaplicável vira NOT_APPLICABLE e falta de dado vira BLOCKED, nunca PASS. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/base.py` · 164 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SensorReading` | classe | `(id, position, unit, quantity, series, holdout, position_unit)` | One sensor: where, what unit, and the series over the artifact's time axis. |
-| `ValidationContext` | classe | `(spec, meshes, fields, field_units, times, time_unit, sensors, payload, model, extra)` | Everything a validator may look at. Absent data means "not supplied". |
-| `ValidatorResult` | classe | `(name, status, findings, evidence, limitations, duration_s)` |  |
-| `register` | função | `(name) -> Callable[[Validator], Validator]` |  |
-| `available` | função | `() -> List[str]` |  |
-| `get` | função | `(name) -> Validator` |  |
-| `run` | função | `(name, ctx) -> ValidatorResult` |  |
-| `not_applicable` | função | `(name, reason, **evidence) -> ValidatorResult` |  |
-| `blocked` | função | `(name, reason, **evidence) -> ValidatorResult` |  |
+| `SensorReading` | classe | `(id, position, unit, quantity, series, holdout, position_unit)` | Um sensor: posição, unidade e série no eixo de tempo do artefato. |
+| `ValidationContext` | classe | `(spec, meshes, fields, field_units, times, time_unit, sensors, payload, model, extra)` | Tudo o que um validador pode ver (especificação, malhas, campos, tempos, sensores, modelo). |
+| `ValidatorResult` | classe | `(name, status, findings, evidence, limitations, duration_s)` | Resultado de um validador: status, achados, evidência, limitações e tempo. |
+| `register` | função | `(name) -> Callable[[Validator], Validator]` | Decorador que registra um validador por nome; nome repetido dá erro. |
+| `available` | função | `() -> List[str]` | Lista os nomes dos validadores registrados. |
+| `get` | função | `(name) -> Validator` | Devolve o validador pelo nome, com erro claro se desconhecido. |
+| `run` | função | `(name, ctx) -> ValidatorResult` | Executa um validador pelo nome e mede o tempo. |
+| `not_applicable` | função | `(name, reason, **evidence) -> ValidatorResult` | Monta um resultado NOT_APPLICABLE com o motivo. |
+| `blocked` | função | `(name, reason, **evidence) -> ValidatorResult` | Monta um resultado BLOCKED com o motivo. |
 
 #### `pinneapple_llm.qa.validators.geometry`
 
-Geometry validation, including the hollow-body check the spec calls out.
+Validação de geometria, incluindo a checagem de corpo oco: compara o volume da malha com o implicado pelas dimensões da especificação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/geometry.py` · 206 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_geometry` | função | `(ctx) -> ValidatorResult` |  |
+| `check_geometry` | função | `(ctx) -> ValidatorResult` | Valida as malhas do artefato (volume, oco vs maciço); NOT_APPLICABLE sem malhas. |
 
 #### `pinneapple_llm.qa.validators.guardrail`
 
-Bridge to the existing :class:`pinneapple_llm.guardrail.PhysicsGuardrail`.
+Ponte para o `PhysicsGuardrail`: aplica-se só quando há modelo treinado e `ProblemSpec`. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/guardrail.py` · 70 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_guardrail` | função | `(ctx) -> ValidatorResult` |  |
+| `check_guardrail` | função | `(ctx) -> ValidatorResult` | Roda o `PhysicsGuardrail` e transforma cada checagem num achado. |
 
 #### `pinneapple_llm.qa.validators.numeric`
 
-Numeric integrity: finite values, shapes, degenerate fields.
+Integridade numérica: valores finitos, formas coerentes com tempos e malhas, campos degenerados. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/numeric.py` · 108 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_numeric` | função | `(ctx) -> ValidatorResult` |  |
+| `check_numeric` | função | `(ctx) -> ValidatorResult` | Checa finitude, forma e degenerescência dos campos numéricos do artefato. |
 
 #### `pinneapple_llm.qa.validators.physics`
 
-Physical invariants declared by the specification (stage E, part 3).
+Avalia as invariantes físicas declaradas na especificação sobre os arrays do artefato; alvo ausente vira BLOCKED. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/physics.py` · 203 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_physics` | função | `(ctx) -> ValidatorResult` |  |
+| `check_physics` | função | `(ctx) -> ValidatorResult` | Avalia cada invariante declarada contra os dados do artefato. |
 
 #### `pinneapple_llm.qa.validators.sensors`
 
-Sensor / observation consistency.
+Consistência de sensores: posição, tempo e grandeza existentes, e separação entre leituras de calibração e de validação. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/sensors.py` · 123 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_sensors` | função | `(ctx) -> ValidatorResult` |  |
+| `check_sensors` | função | `(ctx) -> ValidatorResult` | Confere as leituras de sensores contra o domínio, o eixo de tempo e as grandezas modeladas. |
 
 #### `pinneapple_llm.qa.validators.temporal`
 
-Temporal consistency: ordering, sample counts, validity window.
+Consistência temporal: ordenação, número de amostras e janela de validade. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/temporal.py` · 99 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_temporal` | função | `(ctx) -> ValidatorResult` |  |
+| `check_temporal` | função | `(ctx) -> ValidatorResult` | Confere o eixo de tempo e as contagens de amostras; NOT_APPLICABLE em artefato estacionário. |
 
 #### `pinneapple_llm.qa.validators.units`
 
-Dimensional consistency across geometry, parameters, fields and sensors.
+Consistência dimensional entre geometria, parâmetros, campos e sensores; não prova que as equações estão certas. [sem teste direto]
 
 <small>`pinneapple_llm/qa/validators/units.py` · 142 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_units` | função | `(ctx) -> ValidatorResult` |  |
+| `check_units` | função | `(ctx) -> ValidatorResult` | Confere que cada grandeza declarada tem unidade válida e compatível com a especificação. |
 
 #### `pinneapple_llm.research`
 
-Literature/repository search integrated with an LLM -- built entirely on PINNeAPPle's own already-existing, real API-backed search (``pinneapple_tools.hpo_experiments.sources.ArxivSource``/ ``GithubSource``, which call the real arXiv and GitHub search APIs), never an LLM asked to "recall" papers or …
+Busca de literatura e repositórios no arXiv e GitHub com as fontes reais de `pinneapple_tools.hpo_experiments.sources`; o LLM só resume ou ordena os resultados reais. [sem teste direto]
 
 <small>`pinneapple_llm/research.py` · 85 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ResearchReport` | classe | `(query, papers, repos, llm_summary)` |  |
-| `search_literature` | função | `(query, *, k_papers=5, k_repos=5, summarize=False, provider='anthropic', model=None, api_…)` | Search arXiv + GitHub for real papers/repositories matching ``query``, optionally with an LLM summary of the (real) results. |
+| `ResearchReport` | classe | `(query, papers, repos, llm_summary)` | Relatório de busca: consulta, artigos, repositórios e resumo opcional do LLM. |
+| `search_literature` | função | `(query, *, k_papers=5, k_repos=5, summarize=False, provider='anthropic', model=None, api_…)` | Busca artigos e repositórios reais e, opcionalmente, pede ao LLM um resumo deles. |
 
 #### `pinneapple_llm.twin_draft`
 
-LLM-assisted digital twin drafting -- same constrained pattern as ``draft.py``/``geometry_draft.py``: the LLM proposes values for ``pinneapple_systems.digital_twin.DigitalTwinConfig``'s own real, introspected fields (update interval, assimilation method, anomaly threshold, ...), never a free-form …
+Rascunho de gêmeo digital: o LLM propõe valores para os campos de `DigitalTwinConfig`; o gêmeo é sempre construído por `build_digital_twin`. [sem teste direto]
 
 <small>`pinneapple_llm/twin_draft.py` · 156 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwinDraftResult` | classe | `(config_kwargs, reasoning, raw_response)` |  |
-| `draft_digital_twin` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Ask an LLM to propose ``DigitalTwinConfig`` kwargs for a natural-language description (e.g. "a twin that re-infers every 100ms and flags anomalies aggressively"). |
-| `build_3d_live_twin` | função | `(model, field_names, *, export_dir, points, config_kwargs=None, **build_kwargs)` | Build a real ``DigitalTwin`` (``pinneapple_systems.digital_twin .build_digital_twin``) plus a bound "3D export" hook: every time the twin's own state updates, write the current field prediction at ``points`` as the next frame in a ``pinneapple_blender`` ``.ply`` sequence in ``export_dir`` -- so … |
+| `TwinDraftResult` | classe | `(config_kwargs, reasoning, raw_response)` | Resultado: kwargs de configuração propostos, raciocínio e resposta bruta. |
+| `draft_digital_twin` | função | `(description, *, provider='anthropic', model=None, api_key=None, conversation_store=None)…)` | Pede ao LLM kwargs de `DigitalTwinConfig` para uma descrição; não constrói o gêmeo. |
+| `build_3d_live_twin` | função | `(model, field_names, *, export_dir, points, config_kwargs=None, **build_kwargs)` | Constrói um `DigitalTwin` real com um gancho que grava cada atualização como quadro `.ply` para `pinneapple_blender`. |
 
 #### `pinneapple_llm.workbench`
 
-PINNeAPPle Agent Workbench: a team of coding and engineering agents running on a local model.
+Agent Workbench: um agente líder e especialistas (explorador, pesquisador, programador, testador, revisor, engenheiro de física, relator) num modelo local.
 
 <small>`pinneapple_llm/workbench/__init__.py` · 22 linhas · testes: 20</small>
 
 #### `pinneapple_llm.workbench.__main__`
 
-``python -m pinneapple_llm.workbench <command>`` (also ``pinneapple-workbench``).
+Linha de comando `python -m pinneapple_llm.workbench` (ou `pinneapple-workbench`): `serve`, `doctor`, `pull`, `run`, `eval`, `finetune`, `vscode`.
 
 <small>`pinneapple_llm/workbench/__main__.py` · 274 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `cmd_serve` | função | `(args)` |  |
-| `cmd_doctor` | função | `(args)` |  |
-| `cmd_pull` | função | `(args)` |  |
-| `cmd_run` | função | `(args)` |  |
-| `cmd_eval` | função | `(args)` |  |
-| `cmd_finetune` | função | `(args)` |  |
-| `cmd_vscode` | função | `(args)` |  |
-| `main` | função | `(argv=None)` |  |
+| `cmd_serve` | função | `(args)` | Sobe o app web com uvicorn. |
+| `cmd_doctor` | função | `(args)` | Verifica máquina, servidor de modelo e modelo e diz o que corrigir. |
+| `cmd_pull` | função | `(args)` | Baixa com Ollama o modelo recomendado (ou o indicado). |
+| `cmd_run` | função | `(args)` | Roda uma tarefa no terminal, sem navegador. |
+| `cmd_eval` | função | `(args)` | Mede um modelo nas tarefas embutidas de avaliação. |
+| `cmd_finetune` | função | `(args)` | Exporta o dataset do banco, treina um adaptador LoRA ou o serve. |
+| `cmd_vscode` | função | `(args)` | Instala a extensão do VS Code que abre o workbench ao lado do editor. |
+| `main` | função | `(argv=None)` | Monta o `argparse` dos subcomandos e despacha. |
 
 #### `pinneapple_llm.workbench.agents`
 
-The agent definitions: one Markdown file per agent, with a small front matter (name, title, description, tools) and the system prompt as the body. ``prompts/_common.md`` is appended to every agent.
+Definições dos agentes: um Markdown por agente com front matter e prompt; versões do usuário ou do projeto substituem as embutidas pelo nome.
 
 <small>`pinneapple_llm/workbench/agents.py` · 65 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Agent` | classe | `(name, title, description, tools, prompt, source, extra)` |  |
-| `parse_agent` | função | `(text, source='') -> Agent` |  |
-| `load_agents` | função | `(workspace=None, user_dir=USER_DIR) -> tuple[dict[str, Agent], str]` | All agents by name (built-in, then the user folder, then the workspace folder), and the common rules. |
+| `Agent` | classe | `(name, title, description, tools, prompt, source, extra)` | Um agente: nome, título, descrição, ferramentas e prompt de sistema. |
+| `parse_agent` | função | `(text, source='') -> Agent` | Lê um arquivo Markdown de agente (front matter mais corpo) num `Agent`. |
+| `load_agents` | função | `(workspace=None, user_dir=USER_DIR) -> tuple[dict[str, Agent], str]` | Carrega todos os agentes (embutidos, do usuário, do workspace) e as regras comuns. |
 
 #### `pinneapple_llm.workbench.backend`
 
-Chat-with-tools backends: Ollama, any OpenAI-compatible server (LM Studio, llama.cpp, vLLM, MLX), and a scripted backend for tests.
+Backends de chat com ferramentas: Ollama, qualquer servidor compatível com OpenAI e um backend roteirizado para testes; `Backend.chat` da base levanta `NotImplementedError`.
 
 <small>`pinneapple_llm/workbench/backend.py` · 262 linhas · testes: 20 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ToolCall` | classe | `(name, arguments, id)` |  |
-| `Reply` | classe | `(content, tool_calls, usage)` |  |
-| `Backend` | classe | `(model, tool_mode)` |  |
-| `OllamaBackend` | classe | `(model, host='http://127.0.0.1:11434', *, num_ctx=32768, temperature=0.2, tool_mode='nati…)` | ``/api/chat`` of a local Ollama server (``ollama serve``). |
-| `OpenAIBackend` | classe | `(model, base_url='http://127.0.0.1:1234/v1', api_key='local', *, temperature=0.2, tool_mo…)` | ``/v1/chat/completions`` of any OpenAI-compatible server: LM Studio, llama.cpp ``llama-server``, vLLM, ``mlx_lm.server``, or a hosted endpoint. |
-| `ScriptedBackend` | classe | `(script, model='scripted')` | Replays a list of replies, or calls ``fn(messages, tools) -> Reply``: for tests and demos without a model. |
-| `parse_json_tool_call` | função | `(text, tool_names) -> ToolCall \| None` | Read ``{"tool": ..., "arguments": {...}}`` (or ``name``/``args``) from a reply; None when there is none. |
-| `make_backend` | função | `(kind='ollama', model='', **kw) -> Backend` |  |
+| `ToolCall` | classe | `(name, arguments, id)` | Uma chamada de ferramenta pedida pelo modelo: nome, argumentos e id. |
+| `Reply` | classe | `(content, tool_calls, usage)` | Resposta do modelo: texto, chamadas de ferramenta e uso de tokens. |
+| `Backend` | classe | `(model, tool_mode)` | Interface base de backend (`chat`, `models`), com modo de ferramenta nativo ou JSON. |
+| `OllamaBackend` | classe | `(model, host='http://127.0.0.1:11434', *, num_ctx=32768, temperature=0.2, tool_mode='nati…)` | Backend sobre `/api/chat` de um servidor Ollama local. |
+| `OpenAIBackend` | classe | `(model, base_url='http://127.0.0.1:1234/v1', api_key='local', *, temperature=0.2, tool_mo…)` | Backend sobre `/v1/chat/completions` de servidor compatível com OpenAI (LM Studio, llama.cpp, vLLM, MLX ou hospedado). |
+| `ScriptedBackend` | classe | `(script, model='scripted')` | Backend que repete respostas roteirizadas ou chama uma função, para testes e demos sem modelo. |
+| `parse_json_tool_call` | função | `(text, tool_names) -> ToolCall \| None` | Lê uma chamada de ferramenta em JSON de uma resposta; None se não houver. |
+| `make_backend` | função | `(kind='ollama', model='', **kw) -> Backend` | Cria o backend pelo tipo (`ollama`, `openai`, `lmstudio`, `llamacpp`, `vllm`, `mlx`, ...). |
 
 #### `pinneapple_llm.workbench.evaluate`
 
-A small, checkable benchmark of the workbench on your machine and model.
+Benchmark pequeno e checável do workbench na sua máquina e modelo: cada tarefa monta um projeto mínimo e confere o resultado mecanicamente.
 
 <small>`pinneapple_llm/workbench/evaluate.py` · 128 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TaskResult` | classe | `(name, passed, seconds, model_calls, prompt_tokens, completion_tokens, detail)` |  |
-| `run_eval` | função | `(backend, names=None, on_event=None) -> list[TaskResult]` |  |
-| `format_results` | função | `(results, model) -> str` |  |
-| `as_dicts` | função | `(results) -> list[dict]` |  |
+| `TaskResult` | classe | `(name, passed, seconds, model_calls, prompt_tokens, completion_tokens, detail)` | Resultado de uma tarefa: passou, tempo, chamadas ao modelo e tokens. |
+| `run_eval` | função | `(backend, names=None, on_event=None) -> list[TaskResult]` | Roda as tarefas de avaliação com um backend e devolve os resultados. |
+| `format_results` | função | `(results, model) -> str` | Formata os resultados como tabela de texto. |
+| `as_dicts` | função | `(results) -> list[dict]` | Converte os resultados em lista de dicts. |
 
 #### `pinneapple_llm.workbench.finetune`
 
-Fine-tune the local model on your own workbench sessions.
+Fine-tuning do modelo local nas próprias sessões: exporta trajetórias do banco (com segredos mascarados) e treina LoRA com `mlx_lm` (Apple Silicon) ou TRL + PEFT (CUDA).
 
 <small>`pinneapple_llm/workbench/finetune.py` · 178 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TrainConfig` | classe | `(model, adapter_path, iters, batch_size, num_layers, learning_rate, max_seq_length, lora_…)` |  |
-| `redact` | função | `(text) -> str` |  |
-| `export_dataset` | função | `(store, out_dir, *, min_rating=0, mode='trajectories', agents=None, val_fraction=0.1, see…)` | Write ``train.jsonl`` / ``valid.jsonl``; returns the counts. |
-| `mlx_train_command` | função | `(data_dir, cfg) -> list[str]` |  |
-| `train_mlx` | função | `(data_dir, cfg=None, *, dry_run=False) -> str` | LoRA fine-tune with ``mlx_lm`` on Apple Silicon; returns the adapter folder. ``--mask-prompt`` trains on the final assistant turn of each example. |
-| `serve_mlx_command` | função | `(cfg=None, port=8080) -> list[str]` |  |
-| `train_peft` | função | `(data_dir, cfg) -> str` | LoRA fine-tune with Hugging Face TRL + PEFT (CUDA). ``cfg.model`` is a Hugging Face model id; returns the adapter folder. |
+| `TrainConfig` | classe | `(model, adapter_path, iters, batch_size, num_layers, learning_rate, max_seq_length, lora_…)` | Configuração do treino: modelo, pasta do adaptador e hiperparâmetros de LoRA. |
+| `redact` | função | `(text) -> str` | Mascara tokens e chaves que parecem segredos num texto. |
+| `export_dataset` | função | `(store, out_dir, *, min_rating=0, mode='trajectories', agents=None, val_fraction=0.1, see…)` | Escreve `train.jsonl` e `valid.jsonl` a partir do banco, filtrando por avaliação; devolve as contagens. |
+| `mlx_train_command` | função | `(data_dir, cfg) -> list[str]` | Monta a linha de comando de `mlx_lm.lora`. |
+| `train_mlx` | função | `(data_dir, cfg=None, *, dry_run=False) -> str` | Faz fine-tuning LoRA com `mlx_lm` e devolve a pasta do adaptador. |
+| `serve_mlx_command` | função | `(cfg=None, port=8080) -> list[str]` | Monta a linha de comando de `mlx_lm.server` com o adaptador. |
+| `train_peft` | função | `(data_dir, cfg) -> str` | Faz fine-tuning LoRA com TRL + PEFT e devolve a pasta do adaptador. |
 
 #### `pinneapple_llm.workbench.models`
 
-Which local model to run, from the machine's memory.
+Escolhe o modelo local a partir da memória da máquina.
 
 <small>`pinneapple_llm/workbench/models.py` · 75 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Machine` | classe | `(system, arch, memory_gb, apple_silicon)` |  |
-| `Recommendation` | classe | `(min_memory_gb, model, approx_size_gb, context, note)` |  |
-| `detect_machine` | função | `() -> Machine` |  |
-| `recommend` | função | `(memory_gb=None) -> Recommendation` | The default model for a machine with ``memory_gb`` of memory (detected when omitted). |
+| `Machine` | classe | `(system, arch, memory_gb, apple_silicon)` | Dados da máquina: sistema, arquitetura, memória e se é Apple Silicon. |
+| `Recommendation` | classe | `(min_memory_gb, model, approx_size_gb, context, note)` | Recomendação de modelo: memória mínima, tag Ollama, tamanho, contexto e nota. |
+| `detect_machine` | função | `() -> Machine` | Detecta sistema, arquitetura e memória da máquina. |
+| `recommend` | função | `(memory_gb=None) -> Recommendation` | Modelo padrão para a memória dada (ou detectada). |
 
 #### `pinneapple_llm.workbench.runtime`
 
-The agent loop: the lead talks to you, calls tools, keeps a plan and delegates parts of the work to the specialist agents, each running its own loop with its own prompt and tools.
+O laço de agentes: o líder conversa, chama ferramentas, mantém um plano e delega a especialistas; cada passo vira evento armazenado. (A marca de placeholder vem da ferramenta `todo`, não de código incompleto.)
 
 <small>`pinneapple_llm/workbench/runtime.py` · 301 linhas · testes: 20 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Cancelled` | classe | `()` |  |
-| `SessionSettings` | classe | `(max_steps, max_depth, context_chars, keep_recent, language)` |  |
-| `Session` | classe | `(backend, workspace, *, policy=None, settings=None, on_event=None, agents=None, common=No…)` |  |
+| `Cancelled` | classe | `()` | Exceção usada para cancelar um turno em andamento. |
+| `SessionSettings` | classe | `(max_steps, max_depth, context_chars, keep_recent, language)` | Limites da sessão: passos por agente, profundidade de delegação, tamanho de contexto e compactação. |
+| `Session` | classe | `(backend, workspace, *, policy=None, settings=None, on_event=None, agents=None, common=No…)` | Uma sessão de trabalho: envia mensagens, roda o laço do líder, atende aprovações e perguntas e pode ser cancelada. |
 
 #### `pinneapple_llm.workbench.server`
 
-The workbench web app: FastAPI routes over :class:`~.runtime.Session` and the :class:`~.store.Store`, plus the static single-page frontend in ``static/`` (no build step).
+App web FastAPI sobre `Session` e `Store`, com frontend estático; escuta em 127.0.0.1 por padrão e aceita token de acesso.
 
 <small>`pinneapple_llm/workbench/server.py` · 318 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Manager` | classe | `(store, backend_factory, default_workspace, language='')` | Live sessions (one worker thread per running turn) over the store. |
-| `create_app` | função | `(*, backend='ollama', model='', host='', base_url='', api_key='', workspace='.', db=DEFAU…)` |  |
+| `Manager` | classe | `(store, backend_factory, default_workspace, language='')` | Gerencia sessões vivas (uma thread por turno) sobre o banco. |
+| `create_app` | função | `(*, backend='ollama', model='', host='', base_url='', api_key='', workspace='.', db=DEFAU…)` | Cria o app FastAPI com as rotas da API e o frontend. |
 
 #### `pinneapple_llm.workbench.store`
 
-The workbench database: a local SQLite file, or a PostgreSQL server you already run.
+Banco do workbench (SQLite local ou PostgreSQL): sessões, eventos, chamadas ao modelo e avaliações para fine-tuning. [sem teste direto]
 
 <small>`pinneapple_llm/workbench/store.py` · 158 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Store` | classe | `(url=DEFAULT_DB)` |  |
+| `Store` | classe | `(url=DEFAULT_DB)` | Acesso ao banco: cria e lista sessões, grava eventos, chamadas ao modelo e feedback, e dá estatísticas. |
 
 #### `pinneapple_llm.workbench.tools`
 
-The tools the agents use, confined to one workspace folder.
+Ferramentas dos agentes confinadas a uma pasta: arquivos, busca, comandos, jobs em segundo plano, internet, GitHub e exibição de arquivos, com política de aprovação.
 
 <small>`pinneapple_llm/workbench/tools.py` · 355 linhas · testes: 37</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ToolError` | classe | `()` |  |
-| `ApprovalPolicy` | classe | `(mode)` |  |
-| `Workspace` | classe | `(root, policy=None, approve=None, run_timeout=600, web=True)` | A folder the agents may read and change. ``approve(tool, args) -> bool`` is asked before guarded actions. |
+| `ToolError` | classe | `()` | Erro de ferramenta devolvido ao agente. |
+| `ApprovalPolicy` | classe | `(mode)` | Política de aprovação (`ask`, `auto`, `yolo`) que decide quais ações pedem confirmação. |
+| `Workspace` | classe | `(root, policy=None, approve=None, run_timeout=600, web=True)` | Pasta que os agentes podem ler e alterar; implementa as ferramentas e pede aprovação nas ações protegidas. |
 
 #### `pinneapple_llm.workbench.web`
 
-Internet search and page fetching for the agents.
+Busca na internet (SearXNG, Brave, Tavily ou DuckDuckGo) e leitura de páginas para os agentes.
 
 <small>`pinneapple_llm/workbench/web.py` · 142 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `parse_duckduckgo` | função | `(page) -> list[dict]` |  |
-| `web_search` | função | `(query, max_results=8) -> list[dict]` | ``[{title, url, snippet}]`` from the first configured provider. |
-| `html_to_text` | função | `(page) -> str` |  |
-| `fetch_text` | função | `(url, max_chars=12000) -> str` | The readable text of a page (HTML stripped) or a raw text file; GitHub ``blob`` links are read raw. |
+| `parse_duckduckgo` | função | `(page) -> list[dict]` | Extrai título, URL e trecho dos resultados da página HTML do DuckDuckGo. |
+| `web_search` | função | `(query, max_results=8) -> list[dict]` | Busca com o primeiro provedor configurado e devolve `[{title, url, snippet}]`. |
+| `html_to_text` | função | `(page) -> str` | Converte HTML em texto legível. |
+| `fetch_text` | função | `(url, max_chars=12000) -> str` | Lê o texto de uma página ou arquivo; links `blob` do GitHub são lidos crus. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Especificação física do pipeline de qualidade** — `docs/guides/pinneapple_llm_quality_pipeline.md`
+
+```python
+import pinneapple_llm.qa as qa
+
+spec = qa.PhysicalSpecification(
+    objective="Track pipe wall wear over five years",
+    phenomenon="erosive wall thinning",
+    geometry=qa.GeometrySpec(
+        kind="hollow_pipe",
+        dimensions={"outer_radius": qa.Quantity(0.10, "m"),
+                    "length": qa.Quantity(2.0, "m")},
+        hollow=True,
+        wall_thickness=qa.Quantity(0.010, "m"),
+    ),
+```
+
+**resolve_problem sem credenciais cai no casamento por palavras** — `tests/test_catalog_match.py`
+
+```python
+def test_resolve_problem_falls_back_without_llm_credentials():
+    # No API key is configured in this environment -- resolve_problem must
+    # never raise, and must fall back to the deterministic keyword match.
+    for var in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
+        os.environ.pop(var, None)
+
+    result = resolve_problem("burgers equation turbulence one dimensional")
+    assert result.used_llm is False
+    assert result.preset is not None
+```
+
+**Subir o Agent Workbench com modelo local** — `docs/guides/agent_workbench.md`
+
+```python
+brew install ollama            # or the app from https://ollama.com; it uses the Mac's GPU (Metal)
+ollama serve &                 # the Ollama app does this for you
+pip install "pinneapple[workbench]"
+
+python -m pinneapple_llm.workbench doctor       # memory, Ollama, model, Python packages: what to fix
+python -m pinneapple_llm.workbench pull         # downloads the model recommended for your memory
+python -m pinneapple_llm.workbench serve --workspace ~/code/my-project --language Português
+```
 
 ### Testes e status de validação
 
@@ -5276,7 +5424,14 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- O `PhysicsGuardrail` não garante que um resultado esteja correto (o docstring diz isso explicitamente); a checagem de conservação só existe para as famílias de EDP com balanço conhecido (massa e condução de calor).
+- Os provedores hospedados (Anthropic, OpenAI) exigem chave de API e o extra `llm`; o caminho local exige Ollama instalado, sem fallback embutido.
+- `finetune` e `workbench.finetune` dependem de extras pesados (`transformers`, `peft`, `trl`, `mlx_lm`); `finetune` não treina modelos Ollama diretamente.
+- `cad_draft`: templates paramétricos e exportação STEP precisam de `cadquery`; sem motor booleano (`manifold3d`) as operações CSG viram concatenação das partes.
+- `qa.sandbox` é isolamento por subprocesso com limites POSIX, não um sandbox de sistema operacional; `qa.static` não prova que o código faz o que diz.
+- `qa.units` entende só uma gramática e uma tabela de unidades fixas; unidade desconhecida levanta `UnitError`.
+- O nível Q4 do pipeline de qualidade não pode ser alcançado dentro do repositório: exige evidência operacional fornecida por humano.
+- O workbench executa comandos na máquina do usuário; o servidor escuta em 127.0.0.1 e não deve ser exposto à rede. Modelos locais não igualam os maiores modelos hospedados em tarefas longas, segundo o próprio guia.
 
 ## 7. `pinneapple_mcp`
 

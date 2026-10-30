@@ -3441,7 +3441,13 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_reason` calcula a cadeia de porquês de um projeto de engenharia. Parte de requisitos e de um conceito ingênuo (por exemplo telhas planas, ou uma bomba acima do poço) e repete o laço: checagem física com números -> primeiro modo de falha encontrado (mecanismo + o número que o prova) -> contramedida (novo elemento, com custo e efeito esperado) -> checar tudo de novo, até que todos os requisitos passem. O resultado é uma `Chain` com cada versão do projeto e o motivo de cada mudança.
+
+O pacote tem um modelo de dados (`chain`), uma biblioteca de modos de falha e contramedidas por domínio físico (`library` e `modes`: estruturas, calor, água em telhados, fluidos em tubos, corrosão), o motor (`engine`), relatórios em Markdown/HTML com figuras (`report`, `narrative`), o relatório de confiança (`trust`) e casos prontos (`cases`: telhado, passarela, placa de potência, adutora bombeada). Os textos existem em português e inglês.
+
+Um LLM pode atuar só como conselheiro (`llm.LLMAdvisor`): propõe nomes de contramedidas da biblioteca ou um conceito inicial, mas nunca fornece um número que decida algo; toda margem, custo e mecanismo vem das checagens.
+
+Liga-se ao resto do repositório pelo `TrustReport` de `pinneapple_analysis.trust` e pelo cartão de seis perguntas de `pinneapple_lab.curation`, por solvers e fórmulas de `pinneapple_simulation` (golpe de aríete por MOC) e `pinneapple_physics` (placa de circuito, dissipador), e é usado pelo nó `reason` do `pinneapple_flow`, pelas ferramentas de `pinneapple_mcp`, pelo workbench de `pinneapple_llm` e pelos presets industriais de `pinneapple_presets`.
 
 ### Números do inventário
 
@@ -3453,17 +3459,17 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 1 | 0 |
-| `cases` |  | 1 | 5 | 17 |
-| `chain` |  | 1 | 13 | 17 |
-| `engine` |  | 1 | 3 | 0 |
-| `library` |  | 1 | 11 | 17 |
-| `llm` |  | 1 | 2 | 17 |
-| `modes` |  | 7 | 20 | 17 |
-| `narrative` |  | 1 | 2 | 0 |
-| `props` |  | 1 | 6 | 17 |
-| `report` |  | 1 | 4 | 0 |
-| `trust` |  | 1 | 5 | 0 |
+| `__main__` | CLI `python -m pinneapple_reason`: roda um caso, lista a biblioteca ou explica uma cadeia salva. | 1 | 1 | 0 |
+| `cases` | Casos prontos em escalas e áreas diferentes, cada um a partir do conceito ingênuo. | 1 | 5 | 17 |
+| `chain` | Modelo de dados da cadeia de porquês (requisito, conceito, verificação, achado, opção, passo, cadeia) e textos bilíngues. | 1 | 13 | 17 |
+| `engine` | Motor do raciocínio: checa tudo, acha a primeira falha, testa contramedidas, escolhe a melhor e repete. | 1 | 3 | 0 |
+| `library` | Biblioteca de modos de falha e contramedidas, com registro, validade e casos de resposta conhecida. | 1 | 11 | 17 |
+| `llm` | Conselheiro LLM que só propõe contramedidas da biblioteca e um conceito inicial, filtrados. | 1 | 2 | 17 |
+| `modes` | Modos de falha e contramedidas embutidos, um módulo por domínio físico. | 7 | 20 | 17 |
+| `narrative` | Conta a cadeia em palavras, um parágrafo por versão com o número que prova cada afirmação. | 1 | 2 | 0 |
+| `props` | Constantes, propriedades e relações de forma fechada compartilhadas pelos modos de falha, com fonte. | 1 | 6 | 17 |
+| `report` | Relatórios da cadeia (chain.json, report.md, report.html, trust.json) e figuras. | 1 | 4 | 0 |
+| `trust` | Confiança da cadeia como `TrustReport` e como cartão de seis estágios. | 1 | 5 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3471,243 +3477,252 @@ _Sem texto de objetivo._
 
 #### `pinneapple_reason`
 
-pinneapple_reason: the chain of whys of an engineering design, computed.
+Raiz do pacote: reexporta o modelo de dados, o motor e a biblioteca e oferece `write_report`, `trust_report`, `run_case`, `verify` e `describe_library`.
 
 <small>`pinneapple_reason/__init__.py` · 77 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `write_report` | função | `(chain, out_dir, lang='pt', **kw)` | Write chain.json, report.md, report.html, the figures and the trust card to ``out_dir``. |
-| `trust_report` | função | `(chain, **kw)` |  |
-| `run_case` | função | `(name, **kw) -> Chain` | Reason through one of :data:`cases.CASES`. |
-| `verify` | função | `(concept, requirements) -> list[Verification]` | Run every failure mode of ``requirements`` on ``concept`` (no countermeasures). |
-| `describe_library` | função | `(lang='pt') -> dict` | The library: failure modes by domain and their countermeasures. |
+| `write_report` | função | `(chain, out_dir, lang='pt', **kw)` | Grava chain.json, report.md, report.html, figuras e cartão de confiança em `out_dir`. |
+| `trust_report` | função | `(chain, **kw)` | Atalho para o `TrustReport` da cadeia (ver `pinneapple_reason.trust`). |
+| `run_case` | função | `(name, **kw) -> Chain` | Roda o raciocínio de um dos casos de `cases.CASES`. |
+| `verify` | função | `(concept, requirements) -> list[Verification]` | Roda todos os modos de falha dos requisitos sobre um conceito, sem contramedidas. |
+| `describe_library` | função | `(lang='pt') -> dict` | Descreve a biblioteca: modos de falha por domínio e suas contramedidas. |
 
 #### `pinneapple_reason.__main__`
 
-``python -m pinneapple_reason``: run a case, list the library, explain a saved chain.
+CLI `python -m pinneapple_reason run|modes|explain`. [sem teste]
 
 <small>`pinneapple_reason/__main__.py` · 45 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Ponto de entrada da CLI com os subcomandos run, modes e explain. |
 
 #### `pinneapple_reason.cases`
 
-Worked cases at different scales and in different fields, each starting from the naive concept.
+Quatro casos prontos (telhado, passarela de aço, placa com MOSFET, adutora bombeada) que devolvem requisitos, conceito ingênuo e título.
 
 <small>`pinneapple_reason/cases.py` · 150 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `roof` | função | `()` | A house roof in a warm, humid climate. |
-| `footbridge` | função | `()` | A 30 m steel footbridge (two welded girders, 2.5 m deck). |
-| `power_board` | função | `()` | A 20 A MOSFET switch on a 4-layer board inside an enclosure at 40 °C. |
-| `pumped_main` | função | `()` | A pumping station lifting water from a sump into a tank, and the gravity main from the tank to a valve. |
-| `get` | função | `(name)` |  |
+| `roof` | função | `()` | Caso telhado de casa em clima quente e úmido. |
+| `footbridge` | função | `()` | Caso passarela de aço de 30 m com duas vigas soldadas. |
+| `power_board` | função | `()` | Caso chave MOSFET de 20 A numa placa de 4 camadas dentro de um gabinete a 40 °C. |
+| `pumped_main` | função | `()` | Caso estação de bombeamento do poço ao reservatório e adutora por gravidade até uma válvula. |
+| `get` | função | `(name)` | Devolve o caso pelo nome; nome desconhecido levanta KeyError. |
 
 #### `pinneapple_reason.chain`
 
-The chain of whys: requirement -> naive concept -> physical check -> failure found -> countermeasure -> check ...
+Modelo de dados serializável da cadeia de porquês e auxiliares de texto em português e inglês.
 
 <small>`pinneapple_reason/chain.py` · 409 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Requirement` | classe | `(id, text, modes, limits, source)` | What the design must do (``function``) and the failure modes that would stop it (``modes``). |
-| `Concept` | classe | `(name, params, elements, description, sources, version)` | One version of the design: its parameters (SI units), the elements it has and where each value came from. |
-| `Validity` | classe | `(name, value, lo, hi, note)` | One applicability condition of the model a check used: ``lo <= value <= hi`` (either bound may be None). |
-| `Verification` | classe | `(mode, requirement, passed, demand, capacity, unit, margin, demand_label, capacity_label,…)` | The result of one failure mode checked on one concept. |
-| `Finding` | classe | `(requirement, mode, title, verification)` | The first failure mode that occurs: which requirement it breaks and the number that proves it. |
-| `Option` | classe | `(countermeasure, element, title, feasible, reason, changes, cost, effect, target_margin_b…)` | A countermeasure the engine tried for a finding: what it changed, what it costs and what it did to every requirement (margins before / after), or why it could not be applied. |
-| `Step` | classe | `(version, concept, verifications, finding, options, chosen, why)` | Version ``version`` of the design, every check run on it, the first failure (if any), the countermeasures tried for it and the one chosen (``chosen``: index into ``options``). |
-| `Chain` | classe | `(title, requirements, steps, status, notes, meta)` | The whole reasoning: requirements, every version of the design and why each one was made. |
-| `tr` | função | `(pt, en) -> dict[str, str]` | A text in Portuguese and English. |
-| `text_of` | função | `(t, lang='pt') -> str` | The text in ``lang`` (falls back to the other language, or to ``str(t)``). |
-| `param_text` | função | `(name, value, lang='pt') -> str` | ``name = value unit`` with the parameter's name in ``lang`` (raw name and value when unknown). |
-| `element_label` | função | `(name, lang='pt') -> str` | The name of an element in ``lang`` (the raw name when it is not a built-in one). |
-| `cost_text` | função | `(cost, lang='pt') -> str` | What a countermeasure costs, in words: its ``what`` template filled with the quantity ({q}; {pct} as a percentage, {mm} in millimetres), or ``quantity unit``. |
+| `Requirement` | classe | `(id, text, modes, limits, source)` | O que o projeto deve cumprir e os modos de falha que o impediriam. |
+| `Concept` | classe | `(name, params, elements, description, sources, version)` | Uma versão do projeto: parâmetros em SI, elementos presentes e origem de cada valor. |
+| `Validity` | classe | `(name, value, lo, hi, note)` | Uma condição de aplicabilidade do modelo usado numa checagem (`lo <= value <= hi`). |
+| `Verification` | classe | `(mode, requirement, passed, demand, capacity, unit, margin, demand_label, capacity_label,…)` | Resultado de um modo de falha checado num conceito: demanda, capacidade, margem, mecanismo, método e fontes. |
+| `Finding` | classe | `(requirement, mode, title, verification)` | O primeiro modo de falha que ocorre, o requisito que quebra e o número que o prova. |
+| `Option` | classe | `(countermeasure, element, title, feasible, reason, changes, cost, effect, target_margin_b…)` | Uma contramedida testada: o que mudou, custo, efeito nas margens de todos os requisitos ou por que não se aplica. |
+| `Step` | classe | `(version, concept, verifications, finding, options, chosen, why)` | Uma versão do projeto com todas as checagens, a primeira falha, as opções testadas e a escolhida. |
+| `Chain` | classe | `(title, requirements, steps, status, notes, meta)` | O raciocínio inteiro: requisitos, versões e porquês; explica, salva e carrega. |
+| `tr` | função | `(pt, en) -> dict[str, str]` | Cria um texto em português e inglês. |
+| `text_of` | função | `(t, lang='pt') -> str` | Devolve o texto no idioma pedido, com recuo para o outro idioma. |
+| `param_text` | função | `(name, value, lang='pt') -> str` | Formata `nome = valor unidade` com o nome do parâmetro no idioma. |
+| `element_label` | função | `(name, lang='pt') -> str` | Nome de um elemento no idioma. |
+| `cost_text` | função | `(cost, lang='pt') -> str` | Descreve em palavras o custo de uma contramedida. |
 
 #### `pinneapple_reason.engine`
 
-The reasoning engine: check every requirement, find the first failure, try the countermeasures, keep the best, check again, until every requirement passes.
+`Reasoner` e `reason`: o laço checar -> primeira falha -> contramedidas -> escolher a mais barata que corrige sem quebrar nada -> checar. [sem teste direto]
 
 <small>`pinneapple_reason/engine.py` · 211 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Advisor` | classe | `()` |  |
-| `Reasoner` | classe | `(library=LIBRARY, advisor=None, max_steps=12, progress=None)` |  |
-| `reason` | função | `(requirements, concept, title='', *, advisor=None, max_steps=12, library=LIBRARY, progres…)` | Build the chain of whys for ``requirements`` starting from the naive ``concept``. |
+| `Advisor` | classe | `()` | Protocolo de conselheiro que propõe nomes de contramedidas para um achado. |
+| `Reasoner` | classe | `(library=LIBRARY, advisor=None, max_steps=12, progress=None)` | Executa o laço de raciocínio sobre a biblioteca, com cache de verificações e limite de passos. |
+| `reason` | função | `(requirements, concept, title='', *, advisor=None, max_steps=12, library=LIBRARY, progres…)` | Constrói a cadeia de porquês para os requisitos a partir do conceito ingênuo. |
 
 #### `pinneapple_reason.library`
 
-The library of failure modes and countermeasures, by physical domain.
+Classes `FailureMode`, `Countermeasure`, `Library` e o registro global `LIBRARY`, com auxiliares de validade e checagens internas.
 
 <small>`pinneapple_reason/library.py` · 246 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Infeasible` | classe | `(pt, en)` | A countermeasure cannot be applied to this concept (the message says why, in both languages). |
-| `Need` | classe | `(name, unit, label)` | A parameter a failure mode reads: SI unit and meaning. |
-| `FailureMode` | classe | `(name, domain, title, summary, evaluate_fn, needs, sources, countermeasures, uncertain, k…)` | A failure mode and its quantitative check. |
-| `Countermeasure` | classe | `(name, element, title, effect, addresses, apply_fn, cost_fn, unit_cost, unit_cost_note, r…)` | A change that acts on the mechanism of a failure mode. |
-| `Library` | classe | `()` |  |
-| `param` | função | `(p, name, default=None) -> Any` |  |
-| `self_check` | função | `(name, passed, value=None, limit=None, source='', reason='') -> Check` | An internal check of a computation (residual, closure, agreement with an independent solution). |
-| `register_mode` | função | `(m, replace=False) -> FailureMode` |  |
-| `register_countermeasure` | função | `(c, replace=False) -> Countermeasure` |  |
-| `validity` | função | `(name, value, lo=None, hi=None, note='') -> Validity` |  |
-| `iter_known_answers` | função | `(names=None)` | ``(mode, case)`` for every known-answer case of the library (or of ``names``). |
+| `Infeasible` | classe | `(pt, en)` | Exceção: a contramedida não pode ser aplicada a este conceito (mensagem bilíngue). |
+| `Need` | classe | `(name, unit, label)` | Um parâmetro que um modo de falha lê, com unidade SI e significado. |
+| `FailureMode` | classe | `(name, domain, title, summary, evaluate_fn, needs, sources, countermeasures, uncertain, k…)` | Um modo de falha e sua checagem quantitativa, com fontes e casos de resposta conhecida. |
+| `Countermeasure` | classe | `(name, element, title, effect, addresses, apply_fn, cost_fn, unit_cost, unit_cost_note, r…)` | Uma mudança que atua no mecanismo de um modo de falha, com aplicação, custo, requisitos e exclusões. |
+| `Library` | classe | `()` | Coleção de modos e contramedidas, consultável por modo e domínio. |
+| `param` | função | `(p, name, default=None) -> Any` | Lê um parâmetro do dicionário; sem valor padrão, levanta KeyError se faltar. |
+| `self_check` | função | `(name, passed, value=None, limit=None, source='', reason='') -> Check` | Checagem interna de uma conta (resíduo, fechamento, concordância com solução independente). |
+| `register_mode` | função | `(m, replace=False) -> FailureMode` | Registra um modo de falha na biblioteca global. |
+| `register_countermeasure` | função | `(c, replace=False) -> Countermeasure` | Registra uma contramedida na biblioteca global. |
+| `validity` | função | `(name, value, lo=None, hi=None, note='') -> Validity` | Cria uma condição de validade `Validity`. |
+| `iter_known_answers` | função | `(names=None)` | Itera pares (modo, caso) de resposta conhecida da biblioteca. |
 
 #### `pinneapple_reason.llm`
 
-An LLM as an advisor of the reasoning: it may propose candidate countermeasures and a first concept, never a number that decides anything.
+`LLMAdvisor`: envolve um objeto com `extract(text, schema)` e filtra o que ele devolve para nomes da biblioteca e parâmetros declarados.
 
 <small>`pinneapple_reason/llm.py` · 63 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExtractLLM` | classe | `()` |  |
-| `LLMAdvisor` | classe | `(llm, max_proposals=3)` |  |
+| `ExtractLLM` | classe | `()` | Protocolo de LLM com `extract(text, schema) -> dict`. |
+| `LLMAdvisor` | classe | `(llm, max_proposals=3)` | Conselheiro LLM: propõe contramedidas existentes e um conceito inicial marcado como premissa. |
 
 #### `pinneapple_reason.modes`
 
-Built-in failure modes and countermeasures, one module per physical domain (imported on first use of the library). Add a domain by writing a module like these and calling ``register_mode`` / ``register_countermeasure``.
+Pacote dos modos embutidos, importados no primeiro uso da biblioteca. [sem teste direto]
 
 <small>`pinneapple_reason/modes/__init__.py` · 6 linhas · **sem teste direto**</small>
 
 #### `pinneapple_reason.modes._util`
 
-Shared helpers of the built-in failure modes.
+Auxiliares dos modos: veredito demanda contra capacidade com margem, dimensionamento até passar e formatação.
 
 <small>`pinneapple_reason/modes/_util.py` · 69 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `verdict` | função | `(*, demand, capacity, unit, scale=None, demand_label, capacity_label, mechanism, method, …)` | A verification that passes when ``demand <= capacity``; margin = (capacity - demand) / scale. |
-| `q` | função | `(value, unit, label) -> list` |  |
-| `target_margin` | função | `(p) -> float` |  |
-| `size_to_pass` | função | `(mode, p, values, make, limits=None, add=()) -> tuple[dict[str, Any], Any]` | The first candidate (in order) whose changes make ``mode`` pass with the case's design margin. |
-| `fmt` | função | `(x, nd=3) -> str` |  |
+| `verdict` | função | `(*, demand, capacity, unit, scale=None, demand_label, capacity_label, mechanism, method, …)` | Cria uma verificação que passa quando a demanda é menor ou igual à capacidade, com margem relativa. |
+| `q` | função | `(value, unit, label) -> list` | Empacota uma grandeza como [valor, unidade, rótulo]. |
+| `target_margin` | função | `(p) -> float` | Margem de projeto alvo do caso (`design_margin`). |
+| `size_to_pass` | função | `(mode, p, values, make, limits=None, add=()) -> tuple[dict[str, Any], Any]` | Primeiro candidato da lista cujas mudanças fazem o modo passar com a margem de projeto. |
+| `fmt` | função | `(x, nd=3) -> str` | Formata um número com algarismos significativos (infinito como ∞). |
 
 #### `pinneapple_reason.modes.corrosion`
 
-Corrosion: galvanic coupling of two metals in an aerated electrolyte.
+Corrosão galvânica entre dois metais num eletrólito aerado, com contramedidas de kit isolante e revestimento do cátodo. [sem teste direto]
 
 <small>`pinneapple_reason/modes/corrosion.py` · 91 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `faraday_rate` | função | `(i, metal) -> float` | Uniform wall-loss rate (m/s) of ``metal`` dissolving at current density ``i`` (A/m^2). |
+| `faraday_rate` | função | `(i, metal) -> float` | Taxa de perda de parede de um metal pela lei de Faraday a partir da densidade de corrente. |
 
 #### `pinneapple_reason.modes.fluids`
 
-Liquids in pipes: pump cavitation (NPSH), water hammer on valve closure, column separation.
+Líquidos em tubos: cavitação de bomba (NPSH), golpe de aríete no fechamento de válvula e separação de coluna, via MOC. [sem teste direto]
 
 <small>`pinneapple_reason/modes/fluids.py` · 328 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `npsh` | função | `(p) -> dict` |  |
-| `main_wave_speed` | função | `(p) -> float` |  |
-| `transient` | função | `(p, instantaneous_frictionless=False) -> dict` |  |
+| `npsh` | função | `(p) -> dict` | Calcula NPSH disponível e requerido da sucção da bomba (pressão atmosférica, vapor, perdas). |
+| `main_wave_speed` | função | `(p) -> float` | Velocidade da onda de pressão na adutora pela elasticidade do tubo e da água. |
+| `transient` | função | `(p, instantaneous_frictionless=False) -> dict` | Simula o transiente de fechamento de válvula pelo método das características. |
 
 #### `pinneapple_reason.modes.structural`
 
-Structures: bending strength, deflection, lateral-torsional buckling and pedestrian-induced resonance of steel girders; flexural buckling of a column; fatigue (Basquin); wind uplift of a roof covering.
+Estruturas: flexão, flecha, flambagem lateral-torcional e ressonância por pedestres de vigas de aço, flambagem de coluna, fadiga e sucção de vento em telhado.
 
 <small>`pinneapple_reason/modes/structural.py` · 571 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `i_section` | função | `(h, b, tf, tw) -> dict` |  |
-| `crowd_load` | função | `(span) -> float` | EN 1991-2 5.3.2.1 footbridge uniformly distributed load, Pa. |
-| `girder_loads` | função | `(p) -> dict` |  |
-| `chi` | função | `(lam, alpha) -> float` | EN 1993-1-1 6.3.1.2 / 6.3.2.2 reduction factor for slenderness ``lam`` and imperfection factor ``alpha``. |
-| `m_cr` | função | `(sec, L_cr, C1=1.0) -> float` | Elastic critical moment of a doubly symmetric I-beam, load at the shear centre (Timoshenko & Gere). |
-| `frequency` | função | `(p) -> dict` |  |
-| `pedestrian_response` | função | `(p) -> dict` |  |
+| `i_section` | função | `(h, b, tf, tw) -> dict` | Propriedades de uma seção I (área, inércias, torção, empenamento, módulo). |
+| `crowd_load` | função | `(span) -> float` | Carga distribuída de multidão de passarela pela EN 1991-2. |
+| `girder_loads` | função | `(p) -> dict` | Cargas permanentes e variáveis por viga a partir dos parâmetros do caso. |
+| `chi` | função | `(lam, alpha) -> float` | Fator de redução por esbeltez da EN 1993-1-1. |
+| `m_cr` | função | `(sec, L_cr, C1=1.0) -> float` | Momento crítico elástico de viga I duplamente simétrica. |
+| `frequency` | função | `(p) -> dict` | Primeira frequência de flexão da passarela e massa modal. |
+| `pedestrian_response` | função | `(p) -> dict` | Resposta da passarela à excitação de pedestres, com amortecedor de massa sintonizado opcional. |
 
 #### `pinneapple_reason.modes.thermal`
 
-Heat: condensation under a roof on a clear night, radiant heat from a sun-baked roof, Joule heating of a power device.
+Calor: condensação sob o telhado em noite clara, ganho radiante de telhado ao sol e aquecimento Joule de um dispositivo de potência.
 
 <small>`pinneapple_reason/modes/thermal.py` · 547 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `roof_network` | função | `(p, case) -> dict` | Steady temperatures (°C) and heat fluxes (W/m^2) of the roof for ``case`` = "night" or "day". |
-| `electrothermal` | função | `(p) -> dict` | Junction temperature with P = I^2 R_on(T_j) on the concept's thermal path (fixed point). |
+| `roof_network` | função | `(p, case) -> dict` | Temperaturas e fluxos estacionários do telhado no caso noite ou dia. |
+| `electrothermal` | função | `(p) -> dict` | Temperatura de junção com P = I² R_on(T_j) no caminho térmico do conceito, por ponto fixo. |
 
 #### `pinneapple_reason.modes.water`
 
-Water: rain getting through the laps of a roof covering (capillarity, wind pressure, ponding / falling film).
+Água: chuva atravessando as sobreposições das telhas (capilaridade, pressão do vento, lâmina d'água).
 
 <small>`pinneapple_reason/modes/water.py` · 213 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `lap_heads` | função | `(p) -> dict` | Heads acting on the lap (m of water) and the lap's rise, for the parameters ``p``. |
-| `minimum_slope` | função | `(p, margin=0.0) -> float` | Smallest pitch (deg) at which the lap holds ``(1 + margin)`` times the head, by bisection (the film depth falls as the slope rises). ``inf`` if not even 75° is enough. |
+| `lap_heads` | função | `(p) -> dict` | Cargas de água atuando na sobreposição das telhas e a subida da sobreposição. |
+| `minimum_slope` | função | `(p, margin=0.0) -> float` | Menor inclinação em que a sobreposição segura a carga com margem, por bissecção. |
 
 #### `pinneapple_reason.narrative`
 
-The chain told in words: one paragraph per version, each claim followed by the number that proves it.
+Texto explicativo da cadeia, versão por versão, com as opções testadas. [sem teste direto]
 
 <small>`pinneapple_reason/narrative.py` · 60 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `option_line` | função | `(o, lang) -> str` |  |
-| `explain` | função | `(chain, lang='pt') -> str` |  |
+| `option_line` | função | `(o, lang) -> str` | Linha de texto de uma opção testada: se corrige, margens antes e depois, custo e o que quebra. |
+| `explain` | função | `(chain, lang='pt') -> str` | Texto completo da cadeia: requisitos e cada versão com sua falha e escolha. |
 
 #### `pinneapple_reason.props`
 
-Physical constants, properties and small closed-form relations the failure modes share, each with its source.
+Propriedades do ar, pressão de saturação, ponto de orvalho, temperatura do céu, convecção por vento e atmosfera padrão, cada uma com fonte.
 
 <small>`pinneapple_reason/props.py` · 76 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `air` | função | `(t_c, p_pa=101325.0) -> dict[str, float]` | Air properties at ``t_c`` (k, nu, Pr, rho, cp, alpha, beta). |
-| `saturation_pressure` | função | `(t_c) -> float` | Saturation vapour pressure of water over a flat water surface, Pa (Magnus form, Alduchov & Eskridge 1996; within 0.4 % of the reference values for -40..50 °C). |
-| `dew_point` | função | `(t_c, rh) -> float` | Dew-point temperature, °C, of air at ``t_c`` with relative humidity ``rh`` (0-1) (inverse Magnus form). |
-| `sky_temperature` | função | `(t_air_k) -> float` | Effective clear-sky temperature, K: T_sky = 0.0552 T_air^1.5 (Swinbank 1963). |
-| `wind_convection` | função | `(v) -> float` | External convection coefficient of a surface in wind, W/(m^2 K): h = 2.8 + 3.0 V (Watmuff et al. 1977). |
-| `atmospheric_pressure` | função | `(z_m) -> float` | Standard-atmosphere pressure at altitude ``z_m``, Pa (ISO 2533, troposphere). |
+| `air` | função | `(t_c, p_pa=101325.0) -> dict[str, float]` | Propriedades do ar numa temperatura (k, nu, Pr, rho, cp, alpha, beta). |
+| `saturation_pressure` | função | `(t_c) -> float` | Pressão de vapor de saturação da água (forma de Magnus). |
+| `dew_point` | função | `(t_c, rh) -> float` | Temperatura de ponto de orvalho do ar com umidade relativa dada. |
+| `sky_temperature` | função | `(t_air_k) -> float` | Temperatura efetiva de céu claro (Swinbank 1963). |
+| `wind_convection` | função | `(v) -> float` | Coeficiente de convecção externa com vento (Watmuff et al. 1977). |
+| `atmospheric_pressure` | função | `(z_m) -> float` | Pressão da atmosfera padrão na altitude (ISO 2533). |
 
 #### `pinneapple_reason.report`
 
-Reports of a chain: ``chain.json``, ``report.md``, ``report.html`` (self-contained), ``trust.json`` and figures.
+Gera chain.json, report.md, report.html autocontido, trust.json e figuras (linha do tempo, margens, demanda x capacidade). [sem teste direto]
 
 <small>`pinneapple_reason/report.py` · 487 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `timeline_figure` | função | `(chain, path, lang='pt') -> Path` | Version cards left to right; the arrow between two cards says what failed (with its numbers) and what was added. |
-| `margins_figure` | função | `(chain, path, lang='pt') -> Path` |  |
-| `demand_capacity_figure` | função | `(chain, path, lang='pt') -> Path` |  |
-| `write_report` | função | `(chain, out_dir, lang='pt', card=True) -> dict[str, Path]` | Write the chain, its figures, the trust report and the reports; returns the paths. |
+| `timeline_figure` | função | `(chain, path, lang='pt') -> Path` | Figura da linha do tempo: cartões das versões e setas com o que falhou e o que foi acrescentado. |
+| `margins_figure` | função | `(chain, path, lang='pt') -> Path` | Figura das margens de cada checagem em cada versão. |
+| `demand_capacity_figure` | função | `(chain, path, lang='pt') -> Path` | Figura de demanda contra capacidade de cada modo ao longo das versões. |
+| `write_report` | função | `(chain, out_dir, lang='pt', card=True) -> dict[str, Path]` | Grava a cadeia, as figuras, o relatório de confiança e os relatórios; devolve os caminhos. |
 
 #### `pinneapple_reason.trust`
 
-Trust of a chain: the checks behind the final design, as a :class:`~pinneapple_analysis.trust.TrustReport` and as the six-stage trust card of :func:`pinneapple_lab.curation.trust_stages`.
+Checagens de resposta conhecida, de incerteza das premissas e da versão final, viradas em `TrustReport` e cartão de seis estágios. [sem teste direto]
 
 <small>`pinneapple_reason/trust.py` · 108 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `known_answer_checks` | função | `(modes) -> list[Check]` |  |
-| `uncertainty_checks` | função | `(chain) -> list[Check]` | Worst margin of each final check when one uncertain premise at a time moves by +- its relative spread. |
-| `chain_checks` | função | `(chain) -> list[tuple[Check, str]]` | ``(check, kind)`` for the final version of ``chain``. |
-| `trust_report` | função | `(chain, **kw) -> TrustReport` |  |
-| `trust_card` | função | `(chain, out_dir='.', report=None) -> dict[str, dict[str, Any]]` | The six questions (data and geometry, model, physics, benchmark, uncertainty, decision) answered from the chain's own checks with :func:`pinneapple_lab.curation.trust_stages`. |
+| `known_answer_checks` | função | `(modes) -> list[Check]` | Checa cada modo contra seus casos de resposta conhecida. |
+| `uncertainty_checks` | função | `(chain) -> list[Check]` | Pior margem de cada checagem final quando uma premissa incerta varia pela sua dispersão relativa. |
+| `chain_checks` | função | `(chain) -> list[tuple[Check, str]]` | Pares (checagem, tipo) da versão final da cadeia. |
+| `trust_report` | função | `(chain, **kw) -> TrustReport` | `TrustReport` com as checagens da cadeia. |
+| `trust_card` | função | `(chain, out_dir='.', report=None) -> dict[str, dict[str, Any]]` | Responde as seis perguntas do cartão de confiança a partir das checagens da cadeia. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Cadeia de porquês dos quatro casos com relatório e confiança** — `examples/chain_of_whys/chain_of_whys.py`
+
+```python
+        for name in a.case or list(cases.CASES):
+            print(f"\n=== {name}")
+            chain = run_case(name, progress=lambda m: print("  ", m))
+            paths = write_report(chain, os.path.join(a.out, name), lang=a.lang)
+            rep = trust_report(chain)
+            print(chain.explain(a.lang))
+```
 
 ### Testes e status de validação
 
@@ -3716,4 +3731,9 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- A biblioteca cobre poucos domínios (estruturas, calor, água em telhados, fluidos em tubos, corrosão galvânica); um projeto fora deles precisa de novos modos registrados com `register_mode`/`register_countermeasure`.
+- O motor escolhe a primeira falha na ordem dada e a contramedida mais barata que corrige sem quebrar o resto; o resultado depende dessa ordem e dos custos unitários da biblioteca, e para em `max_steps` (padrão 12).
+- Os modos usam modelos simplificados (forma fechada, MOC, volume finito pequeno) com condições de validade registradas; fora delas a checagem não é confiável.
+- O conselheiro LLM é opcional e só propõe nomes; sem LLM, só as contramedidas da biblioteca são testadas.
+- `engine`, `report`, `trust`, `narrative`, `__main__`, `modes.fluids` e `modes.corrosion` não têm teste que os importe diretamente; nenhum caso pronto usa o modo de corrosão.
+- Relatórios e confiança dependem de `matplotlib`, `pinneapple_analysis.trust` e `pinneapple_lab.curation`; alguns modos chamam `pinneapple_simulation` e `pinneapple_physics`.

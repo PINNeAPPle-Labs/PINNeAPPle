@@ -122,7 +122,7 @@ Em palavras:
 | `pp.as_tensor` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_neural.utils.as_tensor` | Return the prediction Tensor of a model output. |
 | `pp.assess_drift` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.drift.assess_drift` | Checa um lote de predições quanto a perda de acurácia, má calibração, mudança de entrada e tendência do resíduo. |
 | `pp.assimilation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_analysis.data_assimilation` | Assimilação de dados: 4D-Var por autograd sobre os métodos de ensemble (EKI) e filtros de Kalman, mais reconstrução GP e posicionamento de sensores. |
-| `pp.astro` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.astro` |  |
+| `pp.astro` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.astro` | Pacote de astronomia posicional e astrofísica do observatório PINNeAPPle, em NumPy próprio e validado contra USNO NOVAS, JPL Horizons e skyfield; reexporta `Observer`, `Time`, `apparent` e afins. |
 | `pp.auto_residual` | import direto | `pinneapple_physics.symbolic_pde.auto_residual` |  |
 | `pp.Backend` | import direto | `pinneapple_tools.compute_backends.Backend` |  |
 | `pp.backend` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.compute_backends` | Suporte multi-backend: reexporta o seletor PyTorch/JAX e os utilitários JAX. |
@@ -133,7 +133,7 @@ Em palavras:
 | `pp.BenchmarkTaskBase` | import direto | `pinneapple_tools.benchmark_suite.BenchmarkTaskBase` |  |
 | `pp.best_device` | import direto | `pinneapple_neural.trainer.best_device` |  |
 | `pp.best_method` | import direto | `pinneapple_core.onboarding.catalog.best_method` | O método mais barato que roda hoje para o preset: analítico, senão solver de referência, senão rede treinada. |
-| `pp.bodies` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.geometry.bodies` |  |
+| `pp.bodies` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.geometry.bodies` | Corpos fechados triangulados para escoamento externo: corpo de Ahmed, esfera, cilindro, caixa e anel. |
 | `pp.BoxConstraint` | import direto | `pinneapple_design.design_optimizer.BoxConstraint` |  |
 | `pp.build_digital_twin` | import direto | `pinneapple_systems.digital_twin.build_digital_twin` |  |
 | `pp.build_model` | definido em `pinneapple/__init__.py` | `pinneapple.build_model` |  |
@@ -143,7 +143,7 @@ Em palavras:
 | `pp.CauchyMisfit` | import direto | `pinneapple_analysis.inverse_problems.CauchyMisfit` |  |
 | `pp.CausalPINNTrainer` | import direto | `pinneapple_neural.trainer.CausalPINNTrainer` |  |
 | `pp.CausalWeightScheduler` | import direto | `pinneapple_neural.trainer.CausalWeightScheduler` |  |
-| `pp.cfd` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.numerical_solvers.external_flow` |  |
+| `pp.cfd` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.numerical_solvers.external_flow` | Escoamento externo em torno de qualquer corpo no OpenFOAM numa chamada: STL → snappyHexMesh → simpleFoam (k-omega SST) → forças, coeficientes de pele, linhas de corrente, cortes e cena 3D. Requer OpenFOAM instalado. |
 | `pp.CFDMesh` | import direto | `pinneapple_simulation.numerical_solvers.CFDMesh` |  |
 | `pp.channel_with_hole` | import direto | `pinneapple_design.geometry.channel_with_hole` |  |
 | `pp.ChannelDomain2D` | import direto | `pinneapple_design.geometry.ChannelDomain2D` |  |
@@ -177,7 +177,7 @@ Em palavras:
 | `pp.CSGRectangle` | import direto | `pinneapple_design.geometry.CSGRectangle` |  |
 | `pp.CSGUnion` | import direto | `pinneapple_design.geometry.CSGUnion` |  |
 | `pp.curl` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.operators.curl` | Rotacional: vetor em 3D, escalar (componente z) em 2D. |
-| `pp.dashboard` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.dashboard` |  |
+| `pp.dashboard` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.dashboard` | Painéis centrados numa animação para qualquer simulação: animação no meio, gráficos sincronizados ao cursor de tempo, KPIs, parâmetros e barra de cor; exporta HTML interativo, PNG e GIF/MP4. |
 | `pp.data` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_data` |  |
 | `pp.datasets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_hub.zoo.datasets` |  |
 | `pp.DDPPINNTrainer` | import direto | `pinneapple_neural.trainer.DDPPINNTrainer` |  |
@@ -209,7 +209,7 @@ Em palavras:
 | `pp.ensemble` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.ensemble` |  |
 | `pp.EnsembleKalmanInversion` | import direto | `pinneapple_analysis.inverse_problems.EnsembleKalmanInversion` |  |
 | `pp.EnsembleUQ` | import direto | `pinneapple_analysis.uncertainty.EnsembleUQ` |  |
-| `pp.env` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.pde_environment` |  |
+| `pp.env` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.pde_environment` | Ponto de entrada do ambiente de problemas: reexporta `ProblemSpec`, `PDETermSpec`, as condições de contorno, `ProblemBuilder`, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de `try/except ImportError`. [sem teste direto] |
 | `pp.excitation` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.excitation` |  |
 | `pp.execute` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.execute` | Execute a decision issued by the same engine (constraints are re-checked first). |
 | `pp.Experiment` | import direto | `pinneapple_physics.experiment.Experiment` | A method applied to a problem, with a seed, options and an optional reference to score against. |
@@ -225,7 +225,7 @@ Em palavras:
 | `pp.FourierFeatureEmbedding` | import direto | `pinneapple_neural.architectures.FourierFeatureEmbedding` |  |
 | `pp.func` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_core.func` | Transformações de função (`grad`, `jacrev`, `jacfwd`, `jacobian`, `hessian`, `vmap`) sobre `torch.func` com `wrt` por nome ou posição, e `implicit_solve`, que diferencia através de um solver por uma solução adjunta. |
 | `pp.GaussianMisfit` | import direto | `pinneapple_analysis.inverse_problems.GaussianMisfit` |  |
-| `pp.geom` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.geometry` |  |
+| `pp.geom` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.geometry` | Subpacote de geometria (antigo `pinneapple_geom`): reexporta `GeometrySpec`, `GeometryAsset`, `MeshData`, SDFs, CSG, domínios físicos 2D/3D, malhadores, RBF e `MeshCollocator`; o construtor STL é importado de forma tolerante (vira `None` se faltar dependência). |
 | `pp.geometries` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.geometry_library` | Fachada da biblioteca de geometrias (exposta como `pp.geometries`): listar, construir, exportar, renderizar miniaturas, carregar arquivos pré-gerados e exportar a galeria web. |
 | `pp.geophysics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.geophysics` | Blocos do sistema terrestre verificados contra soluções exatas ou testes padrão: águas rasas na esfera, equação de Richards e modelo de balanço de energia de duas camadas. |
 | `pp.get_backend` | import direto | `pinneapple_tools.compute_backends.get_backend` |  |
@@ -251,7 +251,7 @@ Em palavras:
 | `pp.infer_on_grid_1d` | import direto | `pinneapple_neural.predictor.infer_on_grid_1d` |  |
 | `pp.infer_on_grid_2d` | import direto | `pinneapple_neural.predictor.infer_on_grid_2d` |  |
 | `pp.inference` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_neural.predictor` |  |
-| `pp.info` | definido em `pinneapple/__init__.py` | `pinneapple.info` | Print library version, device info, and available presets/models. |
+| `pp.info` | definido em `pinneapple/__init__.py` | `pinneapple.info` | Imprime versão, dispositivos, número de presets e modelos, pacotes importáveis e dependências opcionais com o extra de pip. |
 | `pp.IntegralObsOperator` | import direto | `pinneapple_analysis.inverse_problems.IntegralObsOperator` |  |
 | `pp.integrate` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_core.operators.integrate` | Integral sobre o suporte (trapézio na grade, P1 exato na malha, quadratura ou Monte Carlo na nuvem). |
 | `pp.inverse` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_analysis.inverse_problems` | Reexporta o kit de problemas inversos (modelos de ruído, regularizadores, operadores de observação, EKI, sensibilidade, termos faltantes, `InverseProblemSolver`, e o núcleo de identificabilidade/calibração/studio). O docstring ainda usa o nome antigo `pinneapple_inverse`. |
@@ -291,7 +291,7 @@ Em palavras:
 | `pp.models` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_models` | [shim] Reexporta registro, catálogo e arquiteturas de `pinneapple_neural.architectures` para código legado; marcado como obsoleto (use `pinneapple_neural.architectures`). [sem teste direto] |
 | `pp.ModelSpec` | import direto | `pinneapple_tools.benchmark_suite.ModelSpec` |  |
 | `pp.ModifiedMLP` | import direto | `pinneapple_neural.architectures.ModifiedMLP` |  |
-| `pp.molecular` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.molecular` |  |
+| `pp.molecular` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.molecular` | Visualização molecular: proteínas e moléculas, sozinhas ou adsorvidas em superfícies metálicas, como imagens, trajetórias MP4, cenas glTF e painéis de dinâmica molecular. |
 | `pp.MPMSimulator` | import direto | `pinneapple_simulation.particle_dynamics.MPMSimulator` |  |
 | `pp.MPMState` | import direto | `pinneapple_simulation.particle_dynamics.MPMState` |  |
 | `pp.multibody` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.multibody` | Dinâmica de corpos rígidos em coordenadas reduzidas: uma base flutuante com árvores de juntas de revolução; reexporta a árvore e os utilitários de braço. |
@@ -330,7 +330,7 @@ Em palavras:
 | `pp.qualitative` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_design.qualitative` |  |
 | `pp.Quantity` | import direto | `pinneapple_physics.physical_problem.Quantity` | A quantity of interest: what the user actually wants out of the solution (a field, a coefficient, a peak value). ``field`` names the model output it derives from, when there is one. |
 | `pp.quantum` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_quantum` | pinneapple_quantum — PINNeAPPle Quantum Module (PQM). |
-| `pp.quickstart` | definido em `pinneapple/__init__.py` | `pinneapple.quickstart` | Interactive quickstart that summarises a problem preset and its fields. |
+| `pp.quickstart` | definido em `pinneapple/__init__.py` | `pinneapple.quickstart` | Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec. |
 | `pp.recommend` | import direto | `pinneapple_core.onboarding.recommend` | `pp.recommend`: transforma uma frase em preset, método e modelo, com o motivo e os termos que casaram; é pontuação por palavras-chave e pode errar. [sem teste direto] |
 | `pp.rectangle` | import direto | `pinneapple_design.geometry.rectangle` |  |
 | `pp.register_method` | import direto | `pinneapple_physics.solving.register_method` | Decorator registering ``fn(problem, **options) -> Solution`` under ``name`` for ``solve``/``compare``. ``kind`` labels the family of the method (``classical``, ``neural``, ...) in every Solution it returns. |
@@ -368,7 +368,7 @@ Em palavras:
 | `pp.suggest_problem_spec` | import direto | `pinneapple_physics.pde_environment.suggest_problem_spec` |  |
 | `pp.SurrogateConfig` | import direto | `pinneapple_design.design_optimizer.SurrogateConfig` |  |
 | `pp.SweepConfig` | import direto | `pinneapple_neural.trainer.SweepConfig` |  |
-| `pp.symbolic` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.symbolic_pde` |  |
+| `pp.symbolic` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_physics.symbolic_pde` | Compilador simbólico de EDP: transforma resíduos SymPy em funções PyTorch com autograd e oferece condições de contorno rígidas e suaves; reexporta `SymbolicPDE`, `HardBC` etc. [sem teste direto do __init__] |
 | `pp.SymbolicPDE` | import direto | `pinneapple_physics.symbolic_pde.SymbolicPDE` |  |
 | `pp.t_junction` | import direto | `pinneapple_design.geometry.t_junction` |  |
 | `pp.terramechanics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.terramechanics` | Terramecânica de rodas de rovers planetários: solos com proveniência, modelo de roda de Wong-Reece e extensões, terreno deformável com sulcos, bancada de roda única com dados publicados e substitutos PINN do contato. |
@@ -401,7 +401,7 @@ Em palavras:
 | `pp.vehicle` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.vehicle` | Veículos planetários com rodas: descrição (chassi + módulos de canto) com CAD, modelo multicorpo construído a partir dela e simulador em terreno deformável com rodas de Wong-Reece. |
 | `pp.verify` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.verify` | Verify a result; only verified results become evidence for the next decision. |
 | `pp.veriphysics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_veriphysics` | Camada de verificação e evidência do Veriphysics dentro do PINNeAPPle; o `__init__` só documenta os submódulos (decisão, relatório, aplicabilidade, escopo, robustez, recomendação, ledger, Validation Lab). |
-| `pp.viz` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.studio` |  |
+| `pp.viz` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_tools.visualization.studio` | Studio do PINNeAPPle: visualização 3D realista de qualquer geometria e sua física (cena, visualizador web, Blender, PyVista); exporta `Scene` e atalhos de render. |
 | `pp.vmap_residual` | import direto | `pinneapple_tools.compute_backends.vmap_residual` |  |
 | `pp.WeightMinimizationObjective` | import direto | `pinneapple_design.design_optimizer.WeightMinimizationObjective` |  |
 | `pp.WeightScheduler` | import direto | `pinneapple_neural.trainer.WeightScheduler` |  |

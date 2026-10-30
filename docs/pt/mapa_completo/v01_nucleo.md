@@ -19,7 +19,11 @@ A porta de entrada `pp.*`, os primitivos do núcleo, o catálogo de métodos, o 
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple` é a fachada da biblioteca: o `import pinneapple as pp` que o usuário escreve primeiro. Ele não implementa física própria. Reexporta, em blocos `try/except`, funções e classes dos pacotes de verdade: presets e specs de problemas (`pinneapple_physics`), arquiteturas e treino (`pinneapple_neural`), amostragem (`pinneapple_data`), geometria e otimização de projeto (`pinneapple_design`), incerteza, validação e problemas inversos (`pinneapple_analysis`), gêmeo digital (`pinneapple_systems`), solvers e dinâmica (`pinneapple_simulation`), exportação e benchmarks (`pinneapple_tools`) e world models (`pinneapple_worldmodel`).
+
+O problema que resolve é dar um ponto de entrada curto e estável para uma biblioteca grande. Além das reexportações, um `__getattr__` de módulo dá acesso preguiçoso a dezenas de subpacotes por apelido (`pp.solvers`, `pp.cfd`, `pp.zoo`, `pp.datasets`, `pp.presets`, `pp.vehicle`, `pp.decision` etc.) e a funções isoladas (`pp.decide`, `pp.trust_card`, `pp.grad`, `pp.sobol_indices`...): o pacote só é importado no primeiro acesso, e `import pinneapple` não importa a camada de decisão.
+
+Duas funções próprias ajudam no começo: `quickstart` mostra o resumo de um preset (EDP, campos, domínio, condições) e os próximos passos sugeridos (`pp.solve`, `pp.card`, `pp.compare`, `pp.new`), e `info` mostra versão, dispositivos, pacotes importáveis e dependências opcionais com o extra de pip que as instala. O subpacote `pinneapple.check` é só um shim que expõe o linter de física de `pinneapple_check`, inclusive como `python -m pinneapple.check`.
 
 ### Números do inventário
 
@@ -31,7 +35,7 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `check` |  | 2 | 0 | 0 |
+| `check` | Shim que reexporta o linter de física `pinneapple_check` e permite rodá-lo com `python -m pinneapple.check [paths]`. | 2 | 0 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -39,30 +43,43 @@ _Sem texto de objetivo._
 
 #### `pinneapple`
 
-pinneapple — Physics-Informed Neural Networks for Engineering and Research.
+Fachada `pp`: reexporta símbolos dos pacotes da biblioteca, dá acesso preguiçoso a subpacotes e funções por apelido e define `quickstart` e `info`.
 
 <small>`pinneapple/__init__.py` · 854 linhas · testes: 431</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `quickstart` | função | `(problem_id='burgers_1d', **problem_kwargs)` | Interactive quickstart that summarises a problem preset and its fields. |
-| `info` | função | `()` | Print library version, device info, and available presets/models. |
+| `quickstart` | função | `(problem_id='burgers_1d', **problem_kwargs)` | Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec. |
+| `info` | função | `()` | Imprime versão, dispositivos, número de presets e modelos, pacotes importáveis e dependências opcionais com o extra de pip. |
 
 #### `pinneapple.check`
 
-``pinneapple.check``: the physics linter (see :mod:`pinneapple_check`). ``python -m pinneapple.check [paths]``.
+Shim: reexporta tudo de `pinneapple_check` (o linter de física). [shim] [sem teste direto]
 
 <small>`pinneapple/check/__init__.py` · 4 linhas · **sem teste direto**</small>
 
 #### `pinneapple.check.__main__`
 
-``python -m pinneapple.check [paths]`` is ``pinneapple check [paths]``.
+Permite `python -m pinneapple.check [paths]`, que chama `check_main` de `pinneapple_check.cli`. [shim] [sem teste direto]
 
 <small>`pinneapple/check/__main__.py` · 8 linhas · **sem teste direto**</small>
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Primeiro resultado: Burgers com PINN contra a solução exata** — `examples/first_example/first_example.py`
+
+```python
+import pinneapple as pp
+
+prob = pp.PhysicalProblem.from_preset("burgers_1d", nu=0.01 / np.pi)   # u_t + u u_x = nu u_xx, x in [-1, 1]
+pinn = pp.solve(prob, "pinn", epochs=1500, seed=0)                     # train the network (about 45 s)
+exact = pp.solve(prob, "analytic")                                     # Cole-Hopf closed form
+
+x = np.linspace(-1, 1, 201)
+pts = np.stack([x, np.full_like(x, 0.75)], axis=1)                     # (x, t = 0.75): the steep front
+u_pinn, u_exact = pinn.predict(pts)[:, 0], exact.predict(pts)[:, 0]
+print(f"relative L2 error at t = 0.75: {pp.metrics.relative_l2(u_pinn, u_exact):.3f}")
+```
 
 ### Testes e status de validação
 
@@ -71,7 +88,10 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- As reexportações ficam em blocos `try/except` que ignoram falhas: se um pacote ou dependência faltar, o nome simplesmente não existe em `pp`, sem aviso.
+- O acesso preguiçoso só falha no primeiro uso (`pp.<apelido>`), com o ImportError do pacote de destino.
+- Alguns apelidos apontam para shims de compatibilidade (`pp.models` → `pinneapple_models`, `pp.train` → `pinneapple_train`, `pp.solvers` → `pinneapple_solvers`).
+- `pinneapple.check` e `pinneapple.check.__main__` não têm teste direto e dependem de `pinneapple_check` instalado.
 
 ## 2. `pinneapple_core`
 

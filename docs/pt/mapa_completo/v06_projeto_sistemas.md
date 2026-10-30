@@ -14,7 +14,15 @@ Geometria, otimização de projeto, projeto a partir de intenção, sistemas din
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_design` reúne construção de geometria e otimização de projeto guiada por física. Esta parte cobre o `__init__` do pacote e os submódulos `geometry`, `bricks` e `thermal`.
+
+`geometry` (antigo `pinneapple_geom`) dá a base geométrica de todo o PINNeAPPle: SDFs 2D/3D, CSG, domínios físicos prontos (canal, cavidade, tubo, L, anel, junção T), malhadores 2D/3D com gmsh, limpeza e reparo de malhas, curvatura discreta, voxelização, importação STL/STEP/IGES/meshio/CadQuery, amostradores de pontos de colocação (`MeshCollocator`, construtores de lote por tags usados pelas presets de `pinneapple_physics.pde_environment`) e CAD paramétrico de veículos e peças para CFD e render.
+
+`bricks` é um estudo completo com blocos de montar: catálogo e massas, estática por programação linear, FEA em voxels, replay de corpo rígido com o NVIDIA Newton, metas (balanço, ponte, torre), busca evolutiva NSGA-II ou guiada por surrogate GP, validação contra fórmulas fechadas e saídas visuais (LDraw, glTF, Blender, GIF/MP4).
+
+`thermal` traz o motor do app HeatSink Sizer (`apps/heatsink_sizer` reexporta estes módulos), com rede de fórmulas fechadas, base em volumes finitos e surrogates MLP só para triagem, e o estudo `board_cooling`, um agente (via `pinneapple_autolab`) que lê um pedido, amostra, aprende um surrogate POD+GP, otimiza, verifica numa malha fina e entrega relatório de confiança.
+
+O `__init__` reexporta `geometry` e `design_optimizer` e oferece `build_domain`, `sample_domain` e `optimize`. O pacote se apoia em `pinneapple_physics` (fórmulas fechadas, PCB), `pinneapple_simulation` (Newton, `solid_fem`, LBM), `pinneapple_neural` (treinador, ROM, GP) e `pinneapple_tools` (visualização).
 
 ### Números do inventário
 
@@ -29,15 +37,15 @@ Pasta de testes dedicada: `tests/pinneapple_design` (88 funções de teste).
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
 | `aero` | Projeto aerodinâmico de ponta a ponta: perfis CST, malha O-grid e casos OpenFOAM, surrogates (MLP e MeshGraphNet), desempenho da aeronave leve e do avião comercial, busca NSGA-II e verificação por CFD. | 23 | 111 | 72 |
-| `bricks` |  | 14 | 108 | 24 |
+| `bricks` | Blocos de montar: geometria, estática, dinâmica, FEA, metas, busca automática de projetos e visualizações. | 14 | 108 | 24 |
 | `design_optimizer` | Otimização de projeto guiada por física: espaço de parâmetros, objetivos e restrições, otimizadores (gradiente, bayesiano, evolutivo), estudos de projeto com orçamento de avaliações, verificação em alta fidelidade e presets de dissipador e perfil. | 18 | 98 | 179 |
 | `fitmesh` |  | 12 | 38 | 21 |
-| `geometry` |  | 56 | 255 | 195 |
+| `geometry` | Base geométrica: SDFs, CSG, domínios físicos, malhas, E/S de CAD, operações de malha, amostradores e CAD paramétrico de veículos. | 56 | 255 | 195 |
 | `geometry_library` | Biblioteca de geometrias 3D paramétricas e realistas (aeronaves, veículos, navios, turbinas, prédios, anatomia) com registro, construtores, checagens de malha, exportadores (STL, OBJ, glTF, USD, STEP), renderizador por software e arquivos pré-gerados no Hugging Face Hub. | 15 | 91 | 42 |
 | `intent` | Projeto a partir da intenção: uma meta em linguagem natural vira especificação com unidades, plano de física, otimização multifidelidade, verificação com solver completo, robustez e um pacote de projeto com relatório, geometria e arquivos de checagem. | 19 | 84 | 24 |
 | `qualitative` |  | 5 | 25 | 13 |
 | `surrogate_inverse` |  | 8 | 104 | 94 |
-| `thermal` |  | 19 | 75 | 46 |
+| `thermal` | Projeto térmico: motor e dimensionador de dissipadores, surrogates e o estudo de resfriamento de placa. | 19 | 75 | 46 |
 | `topology` |  | 6 | 17 | 9 |
 
 \* maior número de testes que importam um módulo do submódulo.
@@ -46,15 +54,15 @@ Pasta de testes dedicada: `tests/pinneapple_design` (88 funções de teste).
 
 #### `pinneapple_design`
 
-pinneapple_design — Geometry construction and physics-guided design optimization.
+Ponto de entrada do pacote de projeto: reexporta `geometry` e `design_optimizer` (com os apelidos antigos `geom` e `design_opt`) e oferece três atalhos de integração.
 
 <small>`pinneapple_design/__init__.py` · 179 linhas · testes: 34</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_domain` | função | `(name, dim=2, **kwargs)` | Return a physics domain object by name. |
-| `sample_domain` | função | `(domain, n_interior=4096, n_boundary=512)` | Sample interior and boundary collocation points from a domain. |
-| `optimize` | função | `(param_space, surrogate, objective, *, constraints=None, method='bayesian', n_trials=100,…)` | Run physics-guided design optimization. |
+| `build_domain` | função | `(name, dim=2, **kwargs)` | Devolve um domínio físico pelo nome: chama `get_domain_3d` se `dim == 3` e `get_domain` caso contrário. |
+| `sample_domain` | função | `(domain, n_interior=4096, n_boundary=512)` | Chama `domain.sample_interior` e `domain.sample_boundary` e devolve os pontos de colocação internos e de contorno; os domínios de `gen.domains`/`domains3d` não têm `sample_boundary` (só `sample_boundary_region`), então só funciona com objetos que tenham esse método, como as formas de `csg`. |
+| `optimize` | função | `(param_space, surrogate, objective, *, constraints=None, method='bayesian', n_trials=100,…)` | Atalho de otimização de projeto: embrulha o modelo em `PhysicsSurrogate` se preciso, monta `DesignOptConfig` e roda `DesignOptLoop`. |
 
 #### `pinneapple_design.aero`
 
@@ -373,234 +381,234 @@ Vortex lattice (ferraduras) para asa + cauda horizontal de um `Airframe`; a solu
 
 #### `pinneapple_design.bricks`
 
-Interlocking toy bricks: geometry, physics and a self-modifying design loop.
+Subpacote de blocos de montar (tipo LEGO): geometria, estática, dinâmica, FEA, metas de projeto e um laço de projeto que se modifica sozinho; reexporta as classes principais.
 
 <small>`pinneapple_design/bricks/__init__.py` · 67 linhas · testes: 24</small>
 
 #### `pinneapple_design.bricks.assembly`
 
-Grid assemblies of interlocking bricks: placement, stud-tube connectivity and validity rules.
+Montagens de blocos numa grade de pinos: posicionamento, conectividade pino-tubo e regras de validade (sem sobreposição, apoio).
 
 <small>`pinneapple_design/bricks/assembly.py` · 315 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Brick` | classe | `(part, x, y, z, rot, colour)` |  |
-| `Ground` | classe | `(kind, regions)` | ``kind``: ``"table"`` (smooth, friction ``mu``) or ``"baseplate"`` (studs). ``regions``: rectangles in stud units where the ground exists (``None`` = everywhere). |
-| `Connection` | classe | `(lower, upper, z, rect, studs)` | Contact between ``lower`` (brick index, ``-1`` = ground) and ``upper`` at plate height ``z``. |
-| `Assembly` | classe | `(bricks=None, ground=None, name='')` | A list of bricks on a stud grid plus the ground they stand on. |
-| `colour_rgb` | função | `(name) -> tuple[float, float, float]` |  |
-| `stack` | função | `(part_name, n, *, offsets=None, colours=('red',), ground=None) -> Assembly` | ``n`` copies of a part stacked straight up, brick ``k`` shifted by ``offsets[k]`` studs along x. |
+| `Brick` | classe | `(part, x, y, z, rot, colour)` | Um bloco colocado na grade (peça, posição x/y/z, rotação, cor), com pegada, células ocupadas, caixa e centro de massa em mm. |
+| `Ground` | classe | `(kind, regions)` | O chão sob a montagem: mesa lisa (com atrito) ou placa-base com pinos, opcionalmente só em regiões retangulares. |
+| `Connection` | classe | `(lower, upper, z, rect, studs)` | Contato entre dois blocos (ou bloco e chão) numa altura, com o retângulo e os pinos que se encaixam; `clutch` dá a capacidade de tração. |
+| `Assembly` | classe | `(bricks=None, ground=None, name='')` | Lista de blocos sobre o chão, com adição/remoção, mapa de ocupação, conexões, grafo, componentes, validação, massa e centro de massa. |
+| `colour_rgb` | função | `(name) -> tuple[float, float, float]` | Converte o nome de uma cor da paleta em RGB. |
+| `stack` | função | `(part_name, n, *, offsets=None, colours=('red',), ground=None) -> Assembly` | Monta `n` cópias de uma peça empilhadas, cada uma deslocada em x por `offsets[k]` pinos. |
 
 #### `pinneapple_design.bricks.closed_form`
 
-Closed-form references for brick statics (used to validate :mod:`.statics`, :mod:`.dynamics` and :mod:`.fea`).
+Fórmulas fechadas de referência (tombamento, empilhamento harmônico, balanço preso por pinos, viga biapoiada) usadas para validar `statics`, `dynamics` e `fea`.
 
 <small>`pinneapple_design/bricks/closed_form.py` · 77 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `harmonic` | função | `(n) -> float` |  |
-| `harmonic_overhang` | função | `(n, length) -> float` | Maximum overhang of ``n`` unconnected identical blocks, one per level: (L / 2) H_n. |
-| `harmonic_stack` | função | `(n, length, edge=0.0) -> np.ndarray` | Left-edge x positions of the blocks (bottom first) of the harmonic stack on a table ending at ``edge``. |
-| `tip_over_offset` | função | `(length) -> float` | Largest overhang of a single uniform block on a table edge: half its length. |
-| `stud_cantilever_tension` | função | `(weight, d, studs_x, x1) -> float` | Equal tension per stud [N] that holds a part of weight ``weight`` [N] with its centre of mass at ``d``, pivoting about the patch edge ``x1`` (0 if the centre of mass is inside the patch). |
-| `beam_reactions` | função | `(span, w, P) -> float` | Each support reaction of a symmetric simply supported beam [N]. |
-| `beam_moment` | função | `(x, span, w, P) -> float` | Bending moment at ``x`` (from a support) of the simply supported beam with a central load [N mm]. |
-| `beam_midspan_deflection` | função | `(span, E, inertia, P=0.0, w=0.0) -> float` | Euler-Bernoulli mid-span deflection of a simply supported beam (consistent units). |
-| `tower_tip_force` | função | `(weight, half_base, height) -> float` | Horizontal force at ``height`` that tips a rigid block of weight ``weight`` about the base edge at ``half_base`` from its centre of mass line: F = W b / h. |
+| `harmonic` | função | `(n) -> float` | Número harmônico H_n. |
+| `harmonic_overhang` | função | `(n, length) -> float` | Balanço máximo de `n` blocos soltos iguais, um por nível: (L/2)·H_n. |
+| `harmonic_stack` | função | `(n, length, edge=0.0) -> np.ndarray` | Posições x da borda esquerda de cada bloco da pilha harmônica sobre uma mesa que termina em `edge`. |
+| `tip_over_offset` | função | `(length) -> float` | Maior balanço de um bloco uniforme sozinho na borda da mesa: metade do comprimento. |
+| `stud_cantilever_tension` | função | `(weight, d, studs_x, x1) -> float` | Tração igual por pino que segura uma peça em balanço, girando em torno da borda do retalho de contato. |
+| `beam_reactions` | função | `(span, w, P) -> float` | Reação em cada apoio de uma viga biapoiada simétrica. |
+| `beam_moment` | função | `(x, span, w, P) -> float` | Momento fletor numa posição da viga biapoiada com carga central. |
+| `beam_midspan_deflection` | função | `(span, E, inertia, P=0.0, w=0.0) -> float` | Flecha no meio do vão de uma viga biapoiada (Euler-Bernoulli). |
+| `tower_tip_force` | função | `(weight, half_base, height) -> float` | Força horizontal na altura `height` que tomba um bloco rígido: F = W·b/h. |
 
 #### `pinneapple_design.bricks.dynamics`
 
-Rigid-body replay of a brick build with NVIDIA Newton (:mod:`pinneapple_simulation.external_solvers.newton_physics`).
+Reprodução de corpo rígido de uma montagem com o NVIDIA Newton (`pinneapple_simulation.external_solvers.newton_physics`): blocos presos viram um corpo, juntas quebradas são soltas. Depende do Newton estar instalado.
 
 <small>`pinneapple_design/bricks/dynamics.py` · 239 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Replay` | classe | `(t, pos, quat, broken, max_displacement_mm, moved, solver, wall_time_s, max_tilt_deg)` |  |
-| `table_boxes` | função | `(asm, margin_mm=80.0) -> list[tuple[float, float, float, float]]` | The ground regions clipped to the build's neighbourhood, (x0, x1, y0, y1) in millimetres. |
-| `clusters` | função | `(asm, broken=()) -> tuple[list[list[int]], set[int]]` | Groups of bricks held together by intact stud joints, and the groups welded to a baseplate. |
-| `rigid_scene` | função | `(asm, broken=(), joint=None, dead_loads=())` | Newton :class:`RigidScene` of the build (metres): one rigid body per cluster of bricks held by intact stud joints (a compound of their boxes), welded to the world when it is held by a baseplate. ``dead_loads``: :class:`~.statics.Load` whose downward part is a dead weight, added as a small box at … |
-| `replay` | função | `(asm, broken=(), *, duration=0.8, dt=0.001, solver='xpbd', iterations=16, frames=40, load…)` | Simulate the build released at rest with ``broken`` joints let go. ``loads`` (:class:`~.statics.Load`): a downward load is a dead weight (a small box of that weight at the load point, falling with the part instead of pushing it with a constant force); horizontal parts are constant forces with their … |
-| `harmonic_threshold` | função | `(n=4, length_mm=63.8, *, factors=…, duration=0.8, mu=0.4, tol_mm=1.0, solver='xpbd') -> l…)` | Newton on the harmonic stack of ``n`` smooth blocks with every offset scaled by ``f``: does the top block stay (closed form: stands for f <= 1, falls for f > 1)? One row per factor. |
-| `cross_check` | função | `(goal, candidates, *, max_n=30, duration=0.4, tol_mm=2.0, dt=0.00025, iterations=32, seed…)` | Does Newton agree with the statics verdict? For up to ``max_n`` evaluated candidates (``.asm``, ``.ev``) whose verdict Newton can judge with every stud joint intact (``stable``: nothing should move by more than ``tol_mm``; ``mechanism``: something should), replay them under the goal's loads. Joint … |
-| `friction_creep` | função | `(asm, loads, *, dts=(0.001, 0.00025), duration=0.6, iterations=32) -> list[dict]` | Largest displacement of a build that should hold still under ``loads``, for several time steps: a sustained sideways load makes XPBD friction creep by an amount that shrinks with ``dt`` (a solver artefact). |
+| `Replay` | classe | `(t, pos, quat, broken, max_displacement_mm, moved, solver, wall_time_s, max_tilt_deg)` | Resultado de uma simulação Newton: trajetórias, juntas quebradas, deslocamento e inclinação máximos; `collapsed` diz se a montagem caiu. |
+| `table_boxes` | função | `(asm, margin_mm=80.0) -> list[tuple[float, float, float, float]]` | Regiões do chão recortadas em volta da montagem, em mm. |
+| `clusters` | função | `(asm, broken=()) -> tuple[list[list[int]], set[int]]` | Grupos de blocos unidos por juntas intactas e quais deles estão soldados a uma placa-base. |
+| `rigid_scene` | função | `(asm, broken=(), joint=None, dead_loads=())` | Monta a `RigidScene` do Newton: um corpo rígido por grupo de blocos, cargas descendentes como pesos mortos. |
+| `replay` | função | `(asm, broken=(), *, duration=0.8, dt=0.001, solver='xpbd', iterations=16, frames=40, load…)` | Simula a montagem solta em repouso, com as juntas `broken` liberadas e as cargas aplicadas. |
+| `harmonic_threshold` | função | `(n=4, length_mm=63.8, *, factors=…, duration=0.8, mu=0.4, tol_mm=1.0, solver='xpbd') -> l…)` | Testa no Newton a pilha harmônica com os deslocamentos escalados por fatores e compara com a fórmula fechada (fica de pé para f <= 1). |
+| `cross_check` | função | `(goal, candidates, *, max_n=30, duration=0.4, tol_mm=2.0, dt=0.00025, iterations=32, seed…)` | Confere se o Newton concorda com o veredito da estática para uma amostra de candidatos. |
+| `friction_creep` | função | `(asm, loads, *, dts=(0.001, 0.00025), duration=0.6, iterations=32) -> list[dict]` | Mede o deslocamento de uma montagem que deveria ficar parada sob carga lateral, para vários passos de tempo (artefato do atrito XPBD). |
 
 #### `pinneapple_design.bricks.fea`
 
-Linear-elastic finite elements on the voxelised build (Hex8 with incompatible modes, :mod:`solid_fem`).
+Elementos finitos lineares elásticos (Hex8 com modos incompatíveis, `solid_fem` de `pinneapple_simulation`) sobre a montagem voxelizada.
 
 <small>`pinneapple_design/bricks/fea.py` · 127 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VoxelModel` | classe | `(mesh, element_brick, element_volume)` |  |
-| `FEAResult` | classe | `(fem, model, brick_displacement, brick_von_mises, max_displacement)` |  |
-| `voxel_mesh` | função | `(asm, per_stud=2) -> VoxelModel` | Hexahedral mesh of the occupied cells, ``per_stud`` elements across a stud pitch, one per plate height. |
-| `solve` | função | `(asm, loads=(), *, E=E_ABS_MPA, nu=NU_ABS, per_stud=2, gravity=True, supports='ground', f…)` | Static linear elasticity of the voxelised build under gravity and point ``loads`` (:class:`~.statics.Load`). |
+| `VoxelModel` | classe | `(mesh, element_brick, element_volume)` | Malha hexaédrica da montagem com o bloco e o volume de cada elemento. |
+| `FEAResult` | classe | `(fem, model, brick_displacement, brick_von_mises, max_displacement)` | Resultado da FEA: solução, modelo, deslocamento e tensão de von Mises por bloco, deslocamento máximo. |
+| `voxel_mesh` | função | `(asm, per_stud=2) -> VoxelModel` | Gera a malha hexaédrica das células ocupadas, `per_stud` elementos por passo de pino. |
+| `solve` | função | `(asm, loads=(), *, E=E_ABS_MPA, nu=NU_ABS, per_stud=2, gravity=True, supports='ground', f…)` | Resolve elasticidade estática linear da montagem sob gravidade e cargas pontuais (ABS por padrão). |
 
 #### `pinneapple_design.bricks.goals`
 
-Design goals for the self-modifying loop: each one scores a build with the statics check and says why it fails.
+Metas de projeto para o laço automático (balanço, ponte, torre): cada uma avalia uma montagem com a estática e explica por que falha. A classe base `Goal` levanta NotImplementedError nos métodos a sobrescrever.
 
 <small>`pinneapple_design/bricks/goals.py` · 285 linhas · testes: 24 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Evaluation` | classe | `(score, feasible, violation, n_bricks, status, explanation, metrics, critical)` |  |
-| `Goal` | classe | `(joint=None)` | Base class. ``evaluate`` returns an :class:`Evaluation` whose ``violation`` follows one scale for every goal: invalid build >= 5, unsupported parts >= 2, goal-specific geometric miss (e.g. no deck) in [2, 3), fails under its own weight in [1, 2), overloaded (carries itself but not the load) in [0, … |
-| `CantileverGoal` | classe | `(max_bricks=10, joint=None)` | Reach as far past a table edge as possible with at most ``max_bricks`` 1-wide parts, under gravity. |
-| `BridgeGoal` | classe | `(gap=12, load_n=1.0, max_bricks=24, joint=None)` | Span a ``gap`` (in studs) between two tables and carry ``load_n`` newtons at mid-span on the deck, with the fewest parts. Feasible when the statics check carries gravity plus the load (load factor >= 1). |
-| `TowerGoal` | classe | `(max_bricks=16, push_n=0.01, base=6, joint=None)` | The tallest tower on a ``base`` x ``base`` stud footprint that survives a horizontal push ``push_n`` [N] at its top (and gravity) with at most ``max_bricks`` parts; it stands on a smooth table, so it can tip as well as break. |
-| `reference_cantilever` | função | `(n, length_mm=63.8) -> dict[str, float]` | Closed-form reaches for ``n`` parts of length ``length_mm``: a single block (L/2), harmonic stacking of unconnected blocks ((L/2) H_n) and the centre-of-mass bound for joined parts (n L / 2: all the length in one straight beam with its centre of mass on the edge; stud joints need overlaps, so real … |
+| `Evaluation` | classe | `(score, feasible, violation, n_bricks, status, explanation, metrics, critical)` | Avaliação de uma montagem: pontuação, viabilidade, violação numa escala comum, status, explicação e métricas. |
+| `Goal` | classe | `(joint=None)` | Classe base das metas: define chão, semente, cargas, avaliação e objetivos para o NSGA-II; `ground`, `seed` e `score_and_check` levantam NotImplementedError. |
+| `CantileverGoal` | classe | `(max_bricks=10, joint=None)` | Meta de alcançar o mais longe possível além da borda de uma mesa com no máximo `max_bricks` peças, sob gravidade. |
+| `BridgeGoal` | classe | `(gap=12, load_n=1.0, max_bricks=24, joint=None)` | Meta de vencer um vão entre duas mesas carregando `load_n` newtons no meio do tabuleiro, com o menor número de peças. |
+| `TowerGoal` | classe | `(max_bricks=16, push_n=0.01, base=6, joint=None)` | Meta da torre mais alta numa base dada que resiste a um empurrão no topo, sobre mesa lisa (pode tombar ou quebrar). |
+| `reference_cantilever` | função | `(n, length_mm=63.8) -> dict[str, float]` | Alcances de referência em fórmula fechada para `n` peças: bloco único, empilhamento harmônico e o limite do centro de massa. |
 
 #### `pinneapple_design.bricks.ldraw`
 
-LDraw interchange: write and read .ldr / .mpd files, and load real part shapes from the LDraw parts library.
+Intercâmbio LDraw: escreve e lê arquivos .ldr/.mpd e carrega formas reais de peças da biblioteca LDraw (baixada sob demanda).
 
 <small>`pinneapple_design/bricks/ldraw.py` · 281 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReadReport` | classe | `(assembly, skipped)` |  |
-| `PartsLibrary` | classe | `(root)` | Resolve and triangulate LDraw .dat files (line types 1, 3, 4; BFC winding is not enforced). |
-| `to_ldr` | função | `(asm, name='model.ldr', *, steps=True, author='PINNeAPPle') -> str` | LDraw text of the build; with ``steps`` one ``0 STEP`` per layer (bottom first), as building instructions. |
-| `write_ldr` | função | `(asm, path, **kw) -> str` |  |
-| `write_mpd` | função | `(models, path) -> str` | Several builds in one multi-part document; the first is the main model and references the others. |
-| `from_ldr` | função | `(text, *, ground=None, tol=0.5) -> ReadReport` | Read .ldr or .mpd text. Catalogue parts on the grid (positions within ``tol`` LDU, quarter-turn yaws) become bricks; everything else is listed in ``skipped``. Sub-models of an .mpd are expanded. |
-| `read_ldr` | função | `(path, **kw) -> ReadReport` |  |
-| `default_cache` | função | `() -> str` |  |
-| `fetch_parts_library` | função | `(cache_dir=None, urls=LIBRARY_URLS, timeout=120.0) -> str` | Download and unpack the LDraw parts library (CC BY 2.0) into ``cache_dir`` once; returns the folder that holds ``parts/`` and ``p/``. Raises ``RuntimeError`` with every URL tried when it cannot be downloaded. |
+| `ReadReport` | classe | `(assembly, skipped)` | Resultado da leitura de um arquivo LDraw: a montagem e a lista de linhas ignoradas. |
+| `PartsLibrary` | classe | `(root)` | Resolve e triangula arquivos .dat da biblioteca LDraw (sem impor o enrolamento BFC). |
+| `to_ldr` | função | `(asm, name='model.ldr', *, steps=True, author='PINNeAPPle') -> str` | Texto LDraw da montagem, com um `0 STEP` por camada se `steps`. |
+| `write_ldr` | função | `(asm, path, **kw) -> str` | Grava o texto de `to_ldr` num arquivo. |
+| `write_mpd` | função | `(models, path) -> str` | Grava várias montagens num documento multi-peça (.mpd). |
+| `from_ldr` | função | `(text, *, ground=None, tol=0.5) -> ReadReport` | Lê texto .ldr/.mpd: peças do catálogo alinhadas à grade viram blocos; o resto vai para `skipped`. |
+| `read_ldr` | função | `(path, **kw) -> ReadReport` | Lê um arquivo .ldr/.mpd do disco com `from_ldr`. |
+| `default_cache` | função | `() -> str` | Pasta padrão de cache da biblioteca de peças LDraw. |
+| `fetch_parts_library` | função | `(cache_dir=None, urls=LIBRARY_URLS, timeout=120.0) -> str` | Baixa e descompacta a biblioteca LDraw uma vez; levanta RuntimeError se nenhuma URL responder. |
 
 #### `pinneapple_design.bricks.mesh`
 
-Triangle meshes of bricks and assemblies, and export to glTF (per-brick colours), STL and USD.
+Malhas de triângulos de blocos e montagens e exportação para glTF (cor por bloco), STL e USD.
 
 <small>`pinneapple_design/bricks/mesh.py` · 119 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `box_mesh` | função | `(lo, hi) -> tuple[np.ndarray, np.ndarray]` | Closed, outward-oriented box with four vertices per face (sharp edges under smooth-normal shading). |
-| `cylinder_mesh` | função | `(cx, cy, z0, r, h, n=16) -> tuple[np.ndarray, np.ndarray]` | Closed cylinder on ``z0``: a smooth side and flat caps with their own vertices. |
-| `merge` | função | `(meshes) -> tuple[np.ndarray, np.ndarray]` |  |
-| `brick_mesh` | função | `(b, *, studs=True, segments=16, local=False) -> tuple[np.ndarray, np.ndarray]` | Mesh of one placed brick in millimetres (world coordinates, or relative to its centre with ``local``). |
-| `assembly_meshes` | função | `(asm, **kw)` | ``(vertices_mm, faces, srgb)`` per brick. |
-| `studio_scene` | função | `(asm, title='brick build', fields=None)` | The build as a ``pp.viz`` studio Scene (metres, z up) with one material per colour, and that material table. |
-| `write_gltf` | função | `(asm, path, title='brick build') -> str` | Binary glTF (.glb) with one node per brick and its colour, in metres. |
-| `write_usd` | função | `(asm, path, title='brick build') -> str` |  |
-| `write_stl` | função | `(asm, path, title='brick build') -> str` | Binary STL of the whole build in millimetres. |
+| `box_mesh` | função | `(lo, hi) -> tuple[np.ndarray, np.ndarray]` | Caixa fechada com normais para fora e quatro vértices por face. |
+| `cylinder_mesh` | função | `(cx, cy, z0, r, h, n=16) -> tuple[np.ndarray, np.ndarray]` | Cilindro fechado com lateral suave e tampas planas. |
+| `merge` | função | `(meshes) -> tuple[np.ndarray, np.ndarray]` | Junta várias malhas (vértices, faces) numa só. |
+| `brick_mesh` | função | `(b, *, studs=True, segments=16, local=False) -> tuple[np.ndarray, np.ndarray]` | Malha de um bloco colocado, em mm, com ou sem pinos. |
+| `assembly_meshes` | função | `(asm, **kw)` | Lista `(vértices_mm, faces, srgb)` de cada bloco da montagem. |
+| `studio_scene` | função | `(asm, title='brick build', fields=None)` | Monta a montagem como uma `Scene` do estúdio de visualização (metros, z para cima), com um material por cor. |
+| `write_gltf` | função | `(asm, path, title='brick build') -> str` | Grava um glTF binário (.glb) com um nó por bloco e sua cor. |
+| `write_usd` | função | `(asm, path, title='brick build') -> str` | Grava a montagem em USD. |
+| `write_stl` | função | `(asm, path, title='brick build') -> str` | Grava um STL binário da montagem inteira em mm. |
 
 #### `pinneapple_design.bricks.parts`
 
-Interlocking toy bricks: nominal dimensions, the part catalogue, masses and colours.
+Dimensões nominais dos blocos, catálogo de peças, modelo de massa, cores e o modelo de junta por pino (`JointModel`).
 
 <small>`pinneapple_design/bricks/parts.py` · 215 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PartType` | classe | `(name, nx, ny, h, ldraw, mass, mass_source, smooth)` | A rectangular brick or plate: ``nx`` x ``ny`` studs, ``h`` plates high (3 = brick, 1 = plate). |
-| `Colour` | classe | `(name, ldraw, rgb)` |  |
-| `JointModel` | classe | `(clutch_n, clutch_band, mu, shear_n, edge_inset_mm, source, notes)` | Strength of a stud joint and contact friction used by the statics check. |
-| `fit_mass_model` | função | `() -> np.ndarray` | Least-squares coefficients ``(a, b)`` of ``m = a * studs + b * perimeter_mm * height_mm`` [kg] fitted to the published brick masses. |
-| `estimate_mass` | função | `(nx, ny, h) -> float` | Mass of an ``nx`` x ``ny`` part ``h`` plates high [kg] from the shell model of :func:`fit_mass_model`. |
-| `mass_model_residuals` | função | `() -> dict[str, float]` | Relative error of the shell model on each published mass (leave-nothing-out fit). |
-| `part` | função | `(name) -> PartType` | A catalogue part by name (``"brick_2x4"``) or LDraw file (``"3001.dat"``). |
-| `smooth_block` | função | `(nx, ny, h, mass=None) -> PartType` | A stud-less block (no clutch with anything) of the given footprint, e.g. for unconnected stacking tests. |
-| `colour` | função | `(name_or_code) -> Colour` |  |
+| `PartType` | classe | `(name, nx, ny, h, ldraw, mass, mass_source, smooth)` | Tipo de peça retangular: `nx` x `ny` pinos, `h` placas de altura (3 = bloco, 1 = placa), com massa e código LDraw. |
+| `Colour` | classe | `(name, ldraw, rgb)` | Uma cor da paleta, com código LDraw e RGB. |
+| `JointModel` | classe | `(clutch_n, clutch_band, mu, shear_n, edge_inset_mm, source, notes)` | Resistência de uma junta pino-tubo e atrito de contato usados pela estática; o padrão de `clutch_n` é 0,98 N com faixa assumida de 0,5 a 1,5 vez. |
+| `fit_mass_model` | função | `() -> np.ndarray` | Ajusta por mínimos quadrados um modelo de casca `m = a·pinos + b·perímetro·altura` às massas publicadas. |
+| `estimate_mass` | função | `(nx, ny, h) -> float` | Estima a massa de uma peça com o modelo de casca. |
+| `mass_model_residuals` | função | `() -> dict[str, float]` | Erro relativo do modelo de casca em cada massa publicada. |
+| `part` | função | `(name) -> PartType` | Busca uma peça do catálogo pelo nome ou pelo arquivo LDraw. |
+| `smooth_block` | função | `(nx, ny, h, mass=None) -> PartType` | Cria um bloco liso, sem pinos (sem encaixe), para testes de empilhamento solto. |
+| `colour` | função | `(name_or_code) -> Colour` | Busca uma cor pelo nome ou código. |
 
 #### `pinneapple_design.bricks.report`
 
-Summaries of a brick experiment: sensitivity to the joint model, the strategy comparison chart, a Markdown report.
+Resumos de um experimento com blocos: sensibilidade ao modelo de junta, gráfico de comparação de estratégias e relatório em Markdown.
 
 <small>`pinneapple_design/bricks/report.py` · 191 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sensitivity` | função | `(goal, asm, factors=None, shear_caps=(None, 1.0, 0.3)) -> list[dict]` | Re-evaluate ``asm`` with the clutch scaled over its assumed band and with capped stud shear. |
-| `plot_comparison` | função | `(summaries, path, *, ylabels=None, display=None) -> str` | Best feasible score versus physics evaluations: one panel per goal, per strategy the median over the seeds (a seed without a feasible build counts as the worst, so the line starts once most seeds are feasible) and the range of the feasible seeds, with the feasible count at the end. … |
-| `write_report` | função | `(path, *, validation, comparisons, best, sensitivities, references=None, files=None, join…)` | Markdown report: what was measured, the closed-form checks (and where they disagree), the strategy comparison with its spread over seeds, the best builds, the sensitivity to the joint model and its limits. |
+| `sensitivity` | função | `(goal, asm, factors=None, shear_caps=(None, 1.0, 0.3)) -> list[dict]` | Reavalia uma montagem com o encaixe escalado na faixa assumida e com cisalhamento por pino limitado. |
+| `plot_comparison` | função | `(summaries, path, *, ylabels=None, display=None) -> str` | Gráfico da melhor pontuação viável contra o número de avaliações, por meta e por estratégia (mediana entre sementes). |
+| `write_report` | função | `(path, *, validation, comparisons, best, sensitivities, references=None, files=None, join…)` | Escreve o relatório Markdown: checagens fechadas, comparação de estratégias, melhores montagens, sensibilidade e limites. |
 
 #### `pinneapple_design.bricks.search`
 
-The self-modifying loop: mutate a build, simulate every candidate, keep what the physics accepts.
+O laço que se modifica: muta uma montagem, simula cada candidato e guarda o que a física aceita (evolução NSGA-II ou busca guiada por GP).
 
 <small>`pinneapple_design/bricks/search.py` · 371 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Candidate` | classe | `(asm, ev, edit, generation, parent, index)` |  |
-| `SearchResult` | classe | `(strategy, goal, seed, budget, history, generations, best_curve, wall_time_s, meta)` |  |
-| `mutate` | função | `(goal, asm, rng, last=None, edit=None) -> tuple[Assembly, str]` | One random edit (or ``edit``). Returns the new build and the edit name; the build may be invalid. |
-| `repair` | função | `(goal, asm) -> Assembly` | Drop parts that overlap an earlier one or float, so most edits give a buildable candidate. |
-| `evolve` | função | `(goal, budget=200, *, seed=0, mu=10, lam=10, progress=None) -> SearchResult` | (mu + lambda) evolution of builds with NSGA-II selection; ``budget`` physics evaluations. |
-| `surrogate_search` | função | `(goal, budget=200, *, seed=0, mu=10, lam=10, pool=8, kappa=1.0, warmup=20, progress=None)…)` | Same loop, but each generation proposes ``pool * lam`` children, a GP surrogate trained on all simulated builds ranks them by ``mean + kappa * std`` of a penalised score, and only the top ``lam`` are simulated. |
-| `compare` | função | `(goal_factory, *, budget=200, seeds=(0, 1, 2, 3, 4), strategies=('evolution', 'surrogate'…)` | Run every strategy with every seed at the same evaluation budget. ``kw`` (mu, lam) go to both strategies, ``surrogate_kw`` (pool, kappa, warmup) to the surrogate one. Returns the runs and a summary per strategy: ``best_median`` over all seeds with a seed that found no feasible build counted as the … |
+| `Candidate` | classe | `(asm, ev, edit, generation, parent, index)` | Um candidato avaliado: montagem, avaliação, edição aplicada, geração e pai. |
+| `SearchResult` | classe | `(strategy, goal, seed, budget, history, generations, best_curve, wall_time_s, meta)` | Resultado de uma busca: histórico, gerações, curva do melhor, tempo e utilitários por geração. |
+| `mutate` | função | `(goal, asm, rng, last=None, edit=None) -> tuple[Assembly, str]` | Aplica uma edição aleatória (ou a pedida) e devolve a nova montagem e o nome da edição. |
+| `repair` | função | `(goal, asm) -> Assembly` | Remove peças sobrepostas ou flutuando para que a maioria das edições dê um candidato montável. |
+| `evolve` | função | `(goal, budget=200, *, seed=0, mu=10, lam=10, progress=None) -> SearchResult` | Evolução (mu + lambda) com seleção NSGA-II e orçamento de avaliações físicas. |
+| `surrogate_search` | função | `(goal, budget=200, *, seed=0, mu=10, lam=10, pool=8, kappa=1.0, warmup=20, progress=None)…)` | Mesmo laço, mas um surrogate GP ranqueia `pool * lam` filhos por média + kappa·desvio e só os melhores são simulados. |
+| `compare` | função | `(goal_factory, *, budget=200, seeds=(0, 1, 2, 3, 4), strategies=('evolution', 'surrogate'…)` | Roda cada estratégia com cada semente no mesmo orçamento e resume mediana e faixa. |
 
 #### `pinneapple_design.bricks.statics`
 
-Static equilibrium of a brick build: contact forces, stud-joint utilisation, failure explanations.
+Equilíbrio estático de uma montagem por programação linear: forças de contato, utilização das juntas, falhas progressivas, tombamento e capacidade de carga.
 
 <small>`pinneapple_design/bricks/statics.py` · 589 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Body` | classe | `(lo, hi, mass, com, label)` |  |
-| `Interface` | classe | `(lower, upper, z, rect, studs, label)` | Contact patch between ``lower`` (``-1`` = ground) and ``upper`` at height ``z`` [mm]. |
-| `Load` | classe | `(body, point, force, label)` |  |
-| `Structure` | classe | `(bodies, interfaces, loads, gravity)` |  |
-| `StaticsResult` | classe | `(status, utilisation, interface_utilisation, interface_compression, interface_tension, bo…)` |  |
-| `FailureRound` | classe | `(result, broken, new)` |  |
-| `from_assembly` | função | `(asm, loads=(), broken=()) -> Structure` | The :class:`Structure` of an :class:`~pinneapple_design.bricks.assembly.Assembly` (cell-bounds boxes). |
-| `analyse` | função | `(structure, joint=None) -> StaticsResult` | Equilibrium under gravity and ``structure.loads`` with the smallest peak stud utilisation. |
-| `capacity` | função | `(structure, joint=None, lam_max=1000000.0) -> float` | Largest factor ``lam`` on ``structure.loads`` (gravity fixed) with every stud within its clutch and an equilibrium that exists (0 when even gravity alone is not carried; ``lam_max`` when the loads are carried without limit). |
-| `convex_hull` | função | `(points) -> np.ndarray` | Counter-clockwise convex hull of 2-D points (Andrew's monotone chain). |
-| `signed_distance_inside` | função | `(poly, p) -> float` | Distance from ``p`` to the boundary of the convex polygon ``poly`` (ccw): > 0 inside, < 0 outside. |
-| `centre_of_pressure` | função | `(s, members, z0) -> np.ndarray \| None` | Where the resultant of the weights and loads on ``members`` crosses the plane ``z = z0`` (None if the resultant does not point down). |
-| `tipping_report` | função | `(s, joint=None) -> dict \| None` | The worst support polygon left by a centre of pressure, treating stud joints as unbreakable. |
-| `analyse_assembly` | função | `(asm, loads=(), joint=None, broken=()) -> StaticsResult` | :func:`analyse` of an assembly (gravity + ``loads``), with the stud joints in ``broken`` released. |
-| `progressive_failure` | função | `(asm, loads=(), joint=None, max_rounds=50) -> list[FailureRound]` | Release the most utilised stud joints one round at a time until the build stands or becomes a mechanism. |
-| `top_load` | função | `(asm, force, *, at=None, label='load') -> Load` | A point load on the highest part covering ``at`` = (x, y) [mm] (default: the centre of the top part), applied at the top face. |
-| `single_stud_torsion` | função | `(asm, loads=(), joint=None, spread_mm=1.5) -> dict` | Does a verdict rest on single-stud joints having no torsion capacity? A lone stud is a pivot about the vertical in this model; re-solve with each single-stud joint given three contact points ``spread_mm`` apart (a little torsion and shear moment) and report both statuses. |
+| `Body` | classe | `(lo, hi, mass, com, label)` | Corpo rígido em caixa (limites, massa, centro de massa). |
+| `Interface` | classe | `(lower, upper, z, rect, studs, label)` | Retalho de contato entre dois corpos (ou corpo e chão) numa altura, com pinos. |
+| `Load` | classe | `(body, point, force, label)` | Carga pontual aplicada num corpo. |
+| `Structure` | classe | `(bodies, interfaces, loads, gravity)` | Estrutura para a análise: corpos, interfaces, cargas e gravidade. |
+| `StaticsResult` | classe | `(status, utilisation, interface_utilisation, interface_compression, interface_tension, bo…)` | Resultado da estática: status, utilização das juntas, forças, ponto crítico, explicação e tombamento. |
+| `FailureRound` | classe | `(result, broken, new)` | Uma rodada da falha progressiva: resultado e juntas quebradas. |
+| `from_assembly` | função | `(asm, loads=(), broken=()) -> Structure` | Converte uma `Assembly` em `Structure` (caixas pelas células). |
+| `analyse` | função | `(structure, joint=None) -> StaticsResult` | Acha o equilíbrio sob gravidade e cargas com a menor utilização de pino máxima. |
+| `capacity` | função | `(structure, joint=None, lam_max=1000000.0) -> float` | Maior fator sobre as cargas que a estrutura ainda carrega com todos os pinos dentro do limite. |
+| `convex_hull` | função | `(points) -> np.ndarray` | Fecho convexo anti-horário de pontos 2D (cadeia monótona de Andrew). |
+| `signed_distance_inside` | função | `(poly, p) -> float` | Distância de um ponto à borda de um polígono convexo (positiva dentro). |
+| `centre_of_pressure` | função | `(s, members, z0) -> np.ndarray \| None` | Onde a resultante dos pesos e cargas de um grupo cruza um plano horizontal. |
+| `tipping_report` | função | `(s, joint=None) -> dict \| None` | Pior polígono de apoio deixado pelo centro de pressão, tratando as juntas como inquebráveis. |
+| `analyse_assembly` | função | `(asm, loads=(), joint=None, broken=()) -> StaticsResult` | Roda `analyse` numa montagem com gravidade, cargas e juntas liberadas. |
+| `progressive_failure` | função | `(asm, loads=(), joint=None, max_rounds=50) -> list[FailureRound]` | Solta as juntas mais usadas, rodada a rodada, até a montagem ficar de pé ou virar mecanismo. |
+| `top_load` | função | `(asm, force, *, at=None, label='load') -> Load` | Cria uma carga pontual na face de cima da peça mais alta em um ponto. |
+| `single_stud_torsion` | função | `(asm, loads=(), joint=None, spread_mm=1.5) -> dict` | Verifica se um veredito depende de juntas de pino único sem rigidez à torção, resolvendo de novo com três pontos de contato. |
 
 #### `pinneapple_design.bricks.validation`
 
-Checks of the brick physics against closed forms, gathered into a trust report.
+Compara a física dos blocos com as fórmulas fechadas e junta os resultados num relatório de confiança.
 
 <small>`pinneapple_design/bricks/validation.py` · 146 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `harmonic_limit_lp` | função | `(n=6, L=63.8, tol=0.0001, joint=None) -> float` | Largest factor on the harmonic offsets the LP still finds stable (bisection; closed form: 1 for sharp edges, ``joint.edge_inset_mm = 0``). |
-| `validate` | função | `(*, newton=None, fea=True, joint=None) -> dict` | Run every closed-form check. ``newton``: include the Newton replay checks (default: when installed). The closed forms have sharp edges, so the statics checks use ``joint`` with ``edge_inset_mm = 0``. |
+| `harmonic_limit_lp` | função | `(n=6, L=63.8, tol=0.0001, joint=None) -> float` | Maior fator dos deslocamentos harmônicos que a LP ainda acha estável (por bissecção). |
+| `validate` | função | `(*, newton=None, fea=True, joint=None) -> dict` | Roda todas as checagens fechadas (estática, FEA e, se instalado, Newton). |
 
 #### `pinneapple_design.bricks.visuals`
 
-Pictures of the loop: the evolution as a timeline, the twin3d web viewer, GIF/MP4 frames, Blender renders and building instructions.
+Imagens do laço: linha do tempo da evolução, visualizador web twin3d, GIF/MP4, renders no Blender e instruções de montagem.
 
 <small>`pinneapple_design/bricks/visuals.py` · 508 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Item` | classe | `(brick, pos, quat, value)` |  |
-| `Marker` | classe | `(size, pos, quat)` |  |
-| `Frame` | classe | `(items, caption, short, kind, generation, markers, scenery)` |  |
-| `build_frame` | função | `(asm, values=None, **kw) -> Frame` | A frame of ``asm`` at rest; ``values``: stud utilisation per brick (colours the bricks by load path). |
-| `scenery` | função | `(asms, thickness=80.0, margin=48.0) -> list[tuple[np.ndarray, np.ndarray]]` | Table blocks under the builds (their ground regions near the parts, or one block for unlimited ground), as tall as the drop to the floor in :mod:`.dynamics` by default. |
-| `utilisation` | função | `(asm, loads=(), joint=None) -> np.ndarray` | Worst stud utilisation of each brick's joints (0 = no stud in tension, 1 = at the clutch limit). |
-| `replay_frames` | função | `(asm, *, loads=(), joint=None, frames=14, duration=0.6, caption='', short='', generation=…)` | Progressive failure (statics) then a Newton replay with the failed joints released: one frame per sample, broken joints marked in red and their bricks at :data:`BROKEN_VALUE`. |
-| `evolution_timeline` | função | `(result, goal, *, generations=None, hold=3, replay=True, frames_per_replay=14, duration=0…)` | Frames of a :class:`~.search.SearchResult`: per generation the best build (coloured by stud utilisation) and, when ``replay``, one rejected candidate of that generation collapsing in Newton. |
-| `frame_bounds` | função | `(frames, margin=6.0) -> tuple[np.ndarray, np.ndarray]` |  |
-| `timeline_scene` | função | `(frames, title='self-modifying brick build', source='')` | A twin3d :class:`~pinneapple_twin3d.Scene` (millimetres, z up) with one time step per frame: brick motion, visibility, the stud utilisation field and the captions. Export it with ``scene.export(folder)``. |
-| `frame_geometry` | função | `(frame, *, colour_by='auto', ghost=None)` | The frame as a duck-typed geometry for :func:`pinneapple_design.geometry_library.render.render_geometry`. |
-| `render_frames` | função | `(frames, *, size=(960, 540), azimuth=250.0, elevation=20.0, colour_by='auto', ssaa=1, lab…)` | Software-rendered RGB frames with one fixed camera framing every frame. |
-| `write_gif` | função | `(path, images, fps=8.0) -> str` |  |
-| `write_mp4` | função | `(path, images, fps=8.0) -> str` | H.264 MP4 through imageio-ffmpeg when installed, else the ``ffmpeg`` program. |
-| `blender_available` | função | `() -> bool` |  |
-| `render_blender` | função | `(asm, out, *, values=None, view='iso', samples=64, size=(1280, 720), title=None, tables=N…)` | Cycles render of the build in its brick colours, or coloured by ``values`` per brick (stud utilisation). ``tables``: table boxes [mm] drawn with the build (default: :func:`scenery` of the build; ``[]`` for none). |
-| `turntable_blender` | função | `(asm, folder, *, frames=24, elevation=0.45, samples=32, size=(960, 540), gif=None, mp4=No…)` | ``frames`` Cycles renders around the build (one per view direction); returns the PNG paths and, with ``gif`` / ``mp4``, also writes the turntable as an animation. |
-| `building_steps` | função | `(asm) -> list[list[int]]` | Brick indices per building step: one step per layer (plate height), bottom first. |
-| `write_instructions` | função | `(asm, folder, *, title='Building instructions', size=(800, 520)) -> str` | Step images (earlier steps in grey, the new parts in colour), a part list, an LDraw file with one STEP per layer and ``instructions.md`` tying them together. Returns the Markdown path. |
+| `Item` | classe | `(brick, pos, quat, value)` | Um bloco num quadro: posição, orientação e valor de cor. |
+| `Marker` | classe | `(size, pos, quat)` | Marcador (por exemplo, junta quebrada) num quadro. |
+| `Frame` | classe | `(items, caption, short, kind, generation, markers, scenery)` | Um quadro da animação: itens, legenda, tipo, geração, marcadores e cenário. |
+| `build_frame` | função | `(asm, values=None, **kw) -> Frame` | Cria um quadro da montagem em repouso, opcionalmente colorido pela utilização. |
+| `scenery` | função | `(asms, thickness=80.0, margin=48.0) -> list[tuple[np.ndarray, np.ndarray]]` | Blocos de mesa sob as montagens para o cenário. |
+| `utilisation` | função | `(asm, loads=(), joint=None) -> np.ndarray` | Pior utilização de pino de cada bloco (0 = sem tração, 1 = no limite). |
+| `replay_frames` | função | `(asm, *, loads=(), joint=None, frames=14, duration=0.6, caption='', short='', generation=…)` | Falha progressiva seguida de replay Newton, um quadro por amostra, juntas quebradas em vermelho. |
+| `evolution_timeline` | função | `(result, goal, *, generations=None, hold=3, replay=True, frames_per_replay=14, duration=0…)` | Quadros de uma `SearchResult`: o melhor de cada geração e, opcionalmente, um rejeitado desabando. |
+| `frame_bounds` | função | `(frames, margin=6.0) -> tuple[np.ndarray, np.ndarray]` | Caixa que envolve todos os quadros. |
+| `timeline_scene` | função | `(frames, title='self-modifying brick build', source='')` | Cena twin3d com um passo de tempo por quadro, para exportar como visualizador web. |
+| `frame_geometry` | função | `(frame, *, colour_by='auto', ghost=None)` | Quadro como geometria para o renderizador de `geometry_library.render`. |
+| `render_frames` | função | `(frames, *, size=(960, 540), azimuth=250.0, elevation=20.0, colour_by='auto', ssaa=1, lab…)` | Renderiza por software os quadros em RGB com uma câmera fixa. |
+| `write_gif` | função | `(path, images, fps=8.0) -> str` | Grava as imagens como GIF. |
+| `write_mp4` | função | `(path, images, fps=8.0) -> str` | Grava as imagens como MP4 H.264 com imageio-ffmpeg ou o programa `ffmpeg`. |
+| `blender_available` | função | `() -> bool` | Diz se o módulo `bpy` do Blender está disponível. |
+| `render_blender` | função | `(asm, out, *, values=None, view='iso', samples=64, size=(1280, 720), title=None, tables=N…)` | Render Cycles da montagem nas cores dos blocos ou colorida por utilização. |
+| `turntable_blender` | função | `(asm, folder, *, frames=24, elevation=0.45, samples=32, size=(960, 540), gif=None, mp4=No…)` | Renders Cycles em volta da montagem, com GIF/MP4 opcionais. |
+| `building_steps` | função | `(asm) -> list[list[int]]` | Índices dos blocos por passo de montagem, uma camada por passo. |
+| `write_instructions` | função | `(asm, folder, *, title='Building instructions', size=(800, 520)) -> str` | Gera imagens por passo, lista de peças, arquivo LDraw e `instructions.md`. |
 
 #### `pinneapple_design.design_optimizer`
 
@@ -1004,738 +1012,738 @@ Rank geometry templates for a problem and propose the parameters to vary, their 
 
 #### `pinneapple_design.geometry`
 
-pinneapple_geom
+Subpacote de geometria (antigo `pinneapple_geom`): reexporta `GeometrySpec`, `GeometryAsset`, `MeshData`, SDFs, CSG, domínios físicos 2D/3D, malhadores, RBF e `MeshCollocator`; o construtor STL é importado de forma tolerante (vira `None` se faltar dependência).
 
 <small>`pinneapple_design/geometry/__init__.py` · 228 linhas · testes: 1</small>
 
 #### `pinneapple_design.geometry.bodies`
 
-Closed triangulated bodies for external-flow studies: the Ahmed body, a sphere, a cylinder, a box, an annulus.
+Corpos fechados triangulados para escoamento externo: corpo de Ahmed, esfera, cilindro, caixa e anel.
 
 <small>`pinneapple_design/geometry/bodies.py` · 141 linhas · testes: 43</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ahmed_body` | função | `(slant_deg=25.0, scale=1.0, clearance=0.05, n_nose=10) -> Mesh` | The Ahmed body (Ahmed, Ramm & Faltin 1984): 1.044 x 0.389 x 0.288 m, front corners rounded with 0.1 m radius, a 0.222 m long rear slant at ``slant_deg``. Its lower face sits ``clearance`` above z = 0 (the road; the stilts are left out). Nose at x = 0. The classic drag coefficient at 25 degrees is … |
-| `sphere` | função | `(radius=0.5, centre=(0.0, 0.0, 0.0), n=48) -> Mesh` | UV sphere. |
-| `cylinder` | função | `(radius=0.5, length=2.0, axis='y', n=48) -> Mesh` | Closed cylinder centred at the origin; axis "y" is the classic cross-flow cylinder, "x" an axial one. |
-| `box` | função | `(size=(1.0, 1.0, 1.0), centre=(0.0, 0.0, 0.0)) -> Mesh` | Axis-aligned box (e.g. a building block). |
-| `annulus` | função | `(r_inner, r_outer, height, n=72, z0=0.0) -> Mesh` | Closed annular ring (a tube with flat ends) around the z axis, from ``z0`` to ``z0 + height``: outer and inner walls plus the two ring faces, outward-facing triangles. For ``r_inner = 0`` use :func:`cylinder`. |
+| `ahmed_body` | função | `(slant_deg=25.0, scale=1.0, clearance=0.05, n_nose=10) -> Mesh` | Gera o corpo de Ahmed com a traseira inclinada em `slant_deg`, a uma folga acima do chão. |
+| `sphere` | função | `(radius=0.5, centre=(0.0, 0.0, 0.0), n=48) -> Mesh` | Esfera UV. |
+| `cylinder` | função | `(radius=0.5, length=2.0, axis='y', n=48) -> Mesh` | Cilindro fechado centrado na origem, no eixo pedido. |
+| `box` | função | `(size=(1.0, 1.0, 1.0), centre=(0.0, 0.0, 0.0)) -> Mesh` | Caixa alinhada aos eixos. |
+| `annulus` | função | `(r_inner, r_outer, height, n=72, z0=0.0) -> Mesh` | Anel fechado (tubo com tampas planas) em torno do eixo z. |
 
 #### `pinneapple_design.geometry.builders`
 
-_Módulo sem docstring e sem texto._
+Reexporta o construtor de lotes a partir de STL e os construtores analíticos. [sem teste]
 
 <small>`pinneapple_design/geometry/builders/__init__.py` · 15 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.geometry.builders.analytic_domain_batch_builder`
 
-Analytic (mesh-free) domain-batch builders for axis-aligned canonical shapes: boxes/rectangles and cylinders.
+Gera lotes de treino (colocação e contorno com tags) sem malha, para domínios que são caixas, cilindros, anéis ou caixas com curvas embutidas, sem recentralizar as coordenadas. [sem teste]
 
 <small>`pinneapple_design/geometry/builders/analytic_domain_batch_builder.py` · 709 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_box_tag_batch` | função | `(spec, tag_faces, *, n_col=20000, n_bc_per_face=3000, seed=7, user_ctx=None) -> Dict[str,…)` | Sample a real box-domain batch for a ``ProblemSpec`` whose ``domain_bounds`` literally describe an axis-aligned box (or rectangle, or hyper-rectangle -- works for any number of coordinates). |
-| `sample_cylinder_tag_batch` | função | `(spec, *, axis_coord, cross_coords, radius, tag_faces, n_col=20000, n_bc_per_face=3000, s…)` | Sample a real cylinder-domain batch (circular cross-section, extruded along ``axis_coord``) -- e.g. ``pipe_flow_3d``. |
-| `sample_axisymmetric_wall_tag_batch` | função | `(spec, *, axis_coord, radial_coord, r_wall_fn, dr_wall_fn, tag_faces, n_col=20000, n_bc_p…)` | Sample a real axisymmetric (r, z) domain whose wall radius varies along the axis as ``r_wall_fn(z)`` (e.g. a conical nozzle) -- a genuine, non-cylindrical generalization of :func:`sample_cylinder_tag_batch` needed because the wall is not at a constant radius. |
-| `sample_annulus_tag_batch` | função | `(spec, tag_faces, *, cross_coords, inner_radius, outer_radius, n_col=20000, n_bc_per_face…)` | Sample a real annular (ring) cross-section domain: ``inner_radius <= sqrt(x^2+y^2) <= outer_radius``. ``tag_faces``: tag_name -> "inner" (the r=inner_radius circle) or "outer" (the r=outer_radius circle). |
-| `sample_box_with_curve_tag_batch` | função | `(spec, *, shape_coords, box_tag_faces=None, curve_tags=None, inside_body_fn=None, n_col=2…)` | Sample a 2D box domain (``shape_coords``, e.g. ("x","y")) with zero or more solid bodies/curves embedded in it -- e.g. an airfoil/blade/car-body silhouette that is NOT a face of the bounding box. |
+| `sample_box_tag_batch` | função | `(spec, tag_faces, *, n_col=20000, n_bc_per_face=3000, seed=7, user_ctx=None) -> Dict[str,…)` | Amostra um lote numa caixa (de qualquer dimensão) descrita por `spec.domain_bounds`, com pontos de contorno por face com tag. |
+| `sample_cylinder_tag_batch` | função | `(spec, *, axis_coord, cross_coords, radius, tag_faces, n_col=20000, n_bc_per_face=3000, s…)` | Amostra um lote num cilindro de seção circular extrudado ao longo de um eixo (ex.: `pipe_flow_3d`). |
+| `sample_axisymmetric_wall_tag_batch` | função | `(spec, *, axis_coord, radial_coord, r_wall_fn, dr_wall_fn, tag_faces, n_col=20000, n_bc_p…)` | Amostra um domínio axissimétrico (r, z) cujo raio de parede varia com z (ex.: bocal cônico). |
+| `sample_annulus_tag_batch` | função | `(spec, tag_faces, *, cross_coords, inner_radius, outer_radius, n_col=20000, n_bc_per_face…)` | Amostra uma seção anular, com tags para o círculo interno e o externo. |
+| `sample_box_with_curve_tag_batch` | função | `(spec, *, shape_coords, box_tag_faces=None, curve_tags=None, inside_body_fn=None, n_col=2…)` | Amostra uma caixa 2D com corpos ou curvas embutidos (ex.: perfil de aerofólio) que não são faces da caixa. |
 
 #### `pinneapple_design.geometry.builders.stl_domain_batch_builder`
 
-_Módulo sem docstring e sem texto._
+Constrói lotes de treino PINN (colocação, contorno, inicial, dados) a partir de um STL via trimesh, com teste de dentro/fora configurável e tags heurísticas de entrada/saída/parede; recentraliza a malha. [sem teste]
 
 <small>`pinneapple_design/geometry/builders/stl_domain_batch_builder.py` · 463 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VoxelInsideConfig` | classe | `(pitch, target_resolution, fill)` |  |
-| `SDFConfig` | classe | `(mode, sdf_fn, inside_if_leq)` |  |
-| `TagHeuristics` | classe | `(enabled, inlet_outlet_axis, inlet_is_min, outlet_is_min, plane_eps_frac, require_normal_…)` |  |
-| `STLDomainBatchConfig` | classe | `(n_col, n_bc, n_ic, n_data, normalize_unit_box, inside_mode, max_rejection_rounds, oversa…)` |  |
-| `STLDomainBatchBuilder` | classe | `(cfg)` |  |
+| `VoxelInsideConfig` | classe | `(pitch, target_resolution, fill)` | Configuração do teste de dentro/fora por voxelização. |
+| `SDFConfig` | classe | `(mode, sdf_fn, inside_if_leq)` | Configuração do teste de dentro/fora por SDF (proximidade da malha ou função dada). |
+| `TagHeuristics` | classe | `(enabled, inlet_outlet_axis, inlet_is_min, outlet_is_min, plane_eps_frac, require_normal_…)` | Regras heurísticas para marcar pontos de contorno como entrada, saída, parede ou fixo. |
+| `STLDomainBatchConfig` | classe | `(n_col, n_bc, n_ic, n_data, normalize_unit_box, inside_mode, max_rejection_rounds, oversa…)` | Configuração completa do lote STL: quantidades de pontos, modo de dentro/fora, dispositivo e tags. |
+| `STLDomainBatchBuilder` | classe | `(cfg)` | Carrega o STL, normaliza e amostra o lote de treino com `build`. |
 
 #### `pinneapple_design.geometry.core`
 
-_Módulo sem docstring e sem texto._
+Reexporta `GeometrySpec`, `GeometryAsset`, `MeshData` e as fábricas de ativos.
 
 <small>`pinneapple_design/geometry/core/__init__.py` · 12 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.geometry.core.geometry`
 
-GeometrySpec, GeometryAsset, and mesh transform utilities for Pinneapple geometry.
+Define a especificação declarativa de geometria e o contêiner unificado de ativo geométrico com transformações e grupos de contorno. [sem teste direto]
 
 <small>`pinneapple_design/geometry/core/geometry.py` · 422 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometrySpec` | classe | `(kind, name, path, params)` | Declarative geometry specification. |
-| `GeometryAsset` | classe | `(mesh, bounds, units, boundary_groups, meta)` | Unified geometry container used across Pinneapple. |
+| `GeometrySpec` | classe | `(kind, name, path, params)` | Especificação declarativa (tipo, nome, caminho, parâmetros) com validação e impressão digital. |
+| `GeometryAsset` | classe | `(mesh, bounds, units, boundary_groups, meta)` | Contêiner de geometria com malha, limites, unidades, grupos de contorno e transformações. |
 
 #### `pinneapple_design.geometry.core.mesh`
 
-MeshData container for triangle meshes with PINN sampling and collocation support.
+Contêiner leve de malha de triângulos (só numpy) com transformações, normais, áreas e apoio a amostragem para PINN.
 
 <small>`pinneapple_design/geometry/core/mesh.py` · 566 linhas · testes: 174</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshData` | classe | `(vertices, faces, normals)` | Lightweight mesh container (numpy-only). |
+| `MeshData` | classe | `(vertices, faces, normals)` | Malha de triângulos (vértices, faces, normais) com limites, transformações, normais e áreas. |
 
 #### `pinneapple_design.geometry.core.registry`
 
-Geometry asset builder registry and build_geometry_asset factory.
+Registro de construtores de ativos e a fábrica `build_geometry_asset` (arquivo ou primitiva). [sem teste direto]
 
 <small>`pinneapple_design/geometry/core/registry.py` · 288 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_geometry_asset` | função | `(spec, *, options=None) -> GeometryAsset` | Build a GeometryAsset from a GeometrySpec or spec dict. |
-| `load_geometry_asset` | função | `(geom, *, options=None) -> GeometryAsset` | Convenience wrapper: - Path / str -> infer spec - GeometryAsset -> returned as-is - dict -> GeometrySpec |
+| `build_geometry_asset` | função | `(spec, *, options=None) -> GeometryAsset` | Constrói um `GeometryAsset` a partir de um `GeometrySpec` ou dicionário. |
+| `load_geometry_asset` | função | `(geom, *, options=None) -> GeometryAsset` | Atalho: aceita caminho, `GeometryAsset` ou dicionário e devolve um `GeometryAsset`. |
 
 #### `pinneapple_design.geometry.csg`
 
-Constructive Solid Geometry (CSG) for 2D/3D PINN collocation domains.
+Geometria sólida construtiva 2D por SDF para domínios de colocação: formas básicas, união, interseção e diferença com amostragem por rejeição. A base `SDFShape` levanta NotImplementedError nos métodos abstratos.
 
 <small>`pinneapple_design/geometry/csg.py` · 570 linhas · testes: 195 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SDFShape` | classe | `(bounds_min, bounds_max)` | Base class for SDF-based 2D shapes. |
-| `CSGRectangle` | classe | `(x_min, y_min, x_max, y_max) -> None` | Axis-aligned rectangle. |
-| `CSGCircle` | classe | `(center_x, center_y, radius) -> None` | 2D circle. |
-| `CSGEllipse` | classe | `(center_x, center_y, a, b) -> None` | 2D axis-aligned ellipse. |
-| `CSGPolygon` | classe | `(vertices) -> None` | Arbitrary polygon defined by an ordered list of 2D vertices. |
-| `CSGUnion` | classe | `()` | Boolean union of two SDFShapes: min(sdf_a, sdf_b). |
-| `CSGIntersection` | classe | `()` | Boolean intersection of two SDFShapes: max(sdf_a, sdf_b). |
-| `CSGDifference` | classe | `()` | Boolean difference A minus B: max(sdf_a, -sdf_b). |
-| `lshape` | função | `(width1, height1, width2, height2) -> CSGDifference` | L-shaped domain. |
-| `annulus` | função | `(cx, cy, r_inner, r_outer) -> CSGDifference` | Annular (ring) domain: outer circle minus inner circle. |
-| `channel_with_hole` | função | `(length, height, hole_cx, hole_cy, hole_r) -> CSGDifference` | Rectangular channel with a circular obstacle (hole). |
-| `t_junction` | função | `(h_length, h_height, v_x_start, v_width, v_height) -> CSGUnion` | T-junction domain: horizontal channel plus a vertical branch. |
+| `SDFShape` | classe | `(bounds_min, bounds_max)` | Classe base de formas 2D por SDF, com `contains`, `on_boundary`, amostragem e operadores `+`, `*`, `-`. |
+| `CSGRectangle` | classe | `(x_min, y_min, x_max, y_max) -> None` | Retângulo alinhado aos eixos. |
+| `CSGCircle` | classe | `(center_x, center_y, radius) -> None` | Círculo 2D. |
+| `CSGEllipse` | classe | `(center_x, center_y, a, b) -> None` | Elipse 2D alinhada aos eixos. |
+| `CSGPolygon` | classe | `(vertices) -> None` | Polígono qualquer dado por vértices ordenados. |
+| `CSGUnion` | classe | `()` | União booleana de duas formas: min das SDFs. |
+| `CSGIntersection` | classe | `()` | Interseção booleana de duas formas: max das SDFs. |
+| `CSGDifference` | classe | `()` | Diferença A menos B: max(sdf_a, -sdf_b). |
+| `lshape` | função | `(width1, height1, width2, height2) -> CSGDifference` | Domínio em L. |
+| `annulus` | função | `(cx, cy, r_inner, r_outer) -> CSGDifference` | Domínio anular (círculo externo menos interno). |
+| `channel_with_hole` | função | `(length, height, hole_cx, hole_cy, hole_r) -> CSGDifference` | Canal retangular com obstáculo circular. |
+| `t_junction` | função | `(h_length, h_height, v_x_start, v_width, v_height) -> CSGUnion` | Junção em T: canal horizontal mais ramo vertical. |
 
 #### `pinneapple_design.geometry.gen`
 
-_Módulo sem docstring e sem texto._
+Reexporta `build_primitive` e as funções de CadQuery.
 
 <small>`pinneapple_design/geometry/gen/__init__.py` · 17 linhas · testes: 9</small>
 
 #### `pinneapple_design.geometry.gen.airfoil`
 
-Parametric airfoil shape generators.
+Gera a superfície de um aerofólio NACA de 4 dígitos como tensor de pontos. [sem teste direto]
 
 <small>`pinneapple_design/geometry/gen/airfoil.py` · 81 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `naca_parametric` | função | `(m=0.0, p=0.0, t_c=0.12, n_pts=100) -> torch.Tensor` | Generate a NACA 4-digit airfoil surface as control-point coordinates. |
+| `naca_parametric` | função | `(m=0.0, p=0.0, t_c=0.12, n_pts=100) -> torch.Tensor` | Gera pontos da superfície de um NACA 4 dígitos a partir de curvatura, posição e espessura. |
 
 #### `pinneapple_design.geometry.gen.cadquery_advanced`
 
-Advanced parametric CadQuery geometry for physics-AI design spaces, plus reproductions of the classic CadQuery documentation examples.
+Modelos CadQuery paramétricos avançados (curva de tubo com flange, tê, redutor, serpentina, ventilador, engrenagem, dissipador de pinos) e reproduções dos exemplos clássicos da documentação CadQuery. Exige CadQuery.
 
 <small>`pinneapple_design/geometry/gen/cadquery_advanced.py` · 292 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `pipe_bend_flanged` | função | `(p)` | Bend of mean radius R and angle theta, tube OD/wall t, bolted flange at each end. |
-| `pipe_tee` | função | `(p)` | Equal tee: run along X (length L), branch along +Z (height H), same OD/wall. |
-| `concentric_reducer` | função | `(p)` | Truncated cone from D1 to D2 over length L, wall t (loft of circles, hollowed by a loft). |
-| `helical_coil` | função | `(p)` | Solid tube of radius r swept along a helix (coil radius Rc, pitch, turns). |
-| `axial_fan` | função | `(p)` | Hub cylinder + n blades lofted from a root to a tip NACA section with twist, polar pattern. |
-| `involute_tooth_profile` | função | `(module, teeth, pressure_deg=20.0, n=12) -> List[Tuple[float, float]]` | Closed outline of a spur gear (involute flanks from base to tip circle, root arcs). |
-| `spur_gear` | função | `(p)` |  |
-| `pin_fin_heatsink` | função | `(p)` |  |
-| `occ_bottle` | função | `(p)` | CadQuery docs, "The Classic OCC Bottle". |
-| `pillow_block` | função | `(p)` | CadQuery docs, "Parametric Bearing Pillow Block". |
-| `lego_brick` | função | `(p)` | CadQuery docs example "Lego Brick" (studs on top, tubes underneath). |
-| `register_advanced_templates` | função | `(reg)` | Add every builder above to a :class:`CadQueryRegistry` (with its parameter schema). |
+| `pipe_bend_flanged` | função | `(p)` | Curva de tubo com raio e ângulo dados e flange parafusada em cada ponta. |
+| `pipe_tee` | função | `(p)` | Tê igual: tubo principal em X e ramo em +Z. |
+| `concentric_reducer` | função | `(p)` | Redutor cônico oco de D1 para D2. |
+| `helical_coil` | função | `(p)` | Tubo sólido varrido ao longo de uma hélice. |
+| `axial_fan` | função | `(p)` | Cubo com pás de perfil NACA com torção, em padrão polar. |
+| `involute_tooth_profile` | função | `(module, teeth, pressure_deg=20.0, n=12) -> List[Tuple[float, float]]` | Contorno fechado de uma engrenagem de dentes retos com flancos evolventes. |
+| `spur_gear` | função | `(p)` | Engrenagem de dentes retos extrudada a partir do perfil evolvente. |
+| `pin_fin_heatsink` | função | `(p)` | Dissipador com base e matriz de pinos. |
+| `occ_bottle` | função | `(p)` | Garrafa clássica do OCC (exemplo da documentação CadQuery). |
+| `pillow_block` | função | `(p)` | Mancal paramétrico (exemplo da documentação CadQuery). |
+| `lego_brick` | função | `(p)` | Bloco de montar com pinos em cima e tubos embaixo (exemplo da documentação CadQuery). |
+| `register_advanced_templates` | função | `(reg)` | Registra todos esses construtores num `CadQueryRegistry` com seus esquemas de parâmetros. |
 
 #### `pinneapple_design.geometry.gen.cadquery_gen`
 
-CadQuery mesh import, parametric CAD spec, and STEP/STL conversion.
+Importação de malhas via CadQuery, especificação paramétrica de CAD, registro de construtores e exportação STEP/STL. CadQuery é dependência opcional.
 
 <small>`pinneapple_design/geometry/gen/cadquery_gen.py` · 404 linhas · testes: 18</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CadQueryTessellationOptions` | classe | `(linear_deflection, angular_deflection)` | CadQuery tessellation controls (affect mesh fidelity and speed). |
-| `ParametricCadSpec` | classe | `(builder_id, params, schema, meta)` | Future-ready declarative CAD spec. |
-| `CadQueryBuildOptions` | classe | `(tessellation, heal, center_to_origin, normalize_to_unit_box)` | Build controls beyond tessellation. |
-| `CadQueryRegistry` | classe | `(builders, schemas)` | Registry of parametric CAD builders. |
-| `cadquery_available` | função | `() -> bool` |  |
-| `cadquery_to_trimesh` | função | `(cq_obj, *, options=None)` | Convert an in-memory CadQuery object (Workplane/Solid/Compound) to trimesh.Trimesh. |
-| `build_mesh_from_step` | função | `(step_path, *, options=None) -> MeshData` | Load a STEP file with CadQuery and return a triangle mesh as MeshData. |
-| `build_mesh_from_cadquery_object` | função | `(cq_obj, *, options=None) -> MeshData` | Convert an in-memory CadQuery object (Workplane/Solid/Compound) to MeshData. |
-| `build_mesh_from_parametric_spec` | função | `(spec, registry, *, options=None) -> MeshData` | Build a MeshData from a ParametricCadSpec using a registry builder. |
-| `register_default_templates` | função | `(reg) -> CadQueryRegistry` | Register a couple of templates to prove the concept. (You can add your cold-plate / channel / fin arrays here.) |
-| `export_cadquery` | função | `(cq_obj, out_path, *, fmt=None) -> Path` | Export a CadQuery object to STEP/STL (or other supported formats). |
+| `CadQueryTessellationOptions` | classe | `(linear_deflection, angular_deflection)` | Controles de tesselação (desvios linear e angular). |
+| `ParametricCadSpec` | classe | `(builder_id, params, schema, meta)` | Especificação declarativa de CAD: id do construtor, parâmetros e esquema. |
+| `CadQueryBuildOptions` | classe | `(tessellation, heal, center_to_origin, normalize_to_unit_box)` | Opções de construção: tesselação, reparo, centralização e normalização. |
+| `CadQueryRegistry` | classe | `(builders, schemas)` | Registro de construtores CAD paramétricos e seus esquemas. |
+| `cadquery_available` | função | `() -> bool` | Diz se o CadQuery está instalado. |
+| `cadquery_to_trimesh` | função | `(cq_obj, *, options=None)` | Converte um objeto CadQuery em memória num `trimesh.Trimesh`. |
+| `build_mesh_from_step` | função | `(step_path, *, options=None) -> MeshData` | Lê um STEP com CadQuery e devolve `MeshData`. |
+| `build_mesh_from_cadquery_object` | função | `(cq_obj, *, options=None) -> MeshData` | Converte um objeto CadQuery em `MeshData`. |
+| `build_mesh_from_parametric_spec` | função | `(spec, registry, *, options=None) -> MeshData` | Constrói `MeshData` a partir de um `ParametricCadSpec` usando o registro. |
+| `register_default_templates` | função | `(reg) -> CadQueryRegistry` | Registra alguns modelos de exemplo, como prova de conceito. |
+| `export_cadquery` | função | `(cq_obj, out_path, *, fmt=None) -> Path` | Exporta um objeto CadQuery para STEP/STL ou outro formato suportado. |
 
 #### `pinneapple_design.geometry.gen.car2d`
 
-Parametric 2-D car side profile (an Ahmed-type road-vehicle body, no wheels) and its rasterisation.
+Perfil lateral 2D paramétrico de carro (tipo corpo de Ahmed, sem rodas) e sua rasterização em máscara/SDF.
 
 <small>`pinneapple_design/geometry/gen/car2d.py` · 92 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CarProfile` | classe | `(slant_deg, windshield_deg, hood, clearance, diffuser_deg, nose, height, slant_length)` |  |
-| `sample_designs` | função | `(n, seed=0) -> list[dict[str, float]]` | Latin-hypercube designs over ``DESIGN_SPACE``. |
+| `CarProfile` | classe | `(slant_deg, windshield_deg, hood, clearance, diffuser_deg, nose, height, slant_length)` | Perfil de carro com ângulos de traseira, para-brisa e difusor; dá contorno, altura frontal, máscara e SDF. |
+| `sample_designs` | função | `(n, seed=0) -> list[dict[str, float]]` | Amostra projetos por hipercubo latino em `DESIGN_SPACE`. |
 
 #### `pinneapple_design.geometry.gen.domains`
 
-Pre-built physics domains for PINN training.
+Domínios físicos 2D prontos para treinar PINNs (canal, canal com obstáculo, cavidade, L, anel, vários obstáculos, junção T, SDF livre), com regiões de contorno nomeadas e lote PINN. A base levanta NotImplementedError nos métodos abstratos.
 
 <small>`pinneapple_design/geometry/gen/domains.py` · 754 linhas · testes: 151 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BoundaryRegion` | classe | `(name, kind, conditions)` | A named boundary region with an associated SDF-like sampler. |
-| `PhysicsDomain2D` | classe | `(bounds_min, bounds_max, boundary_regions)` | Base class for 2D physics domains. |
-| `ChannelDomain2D` | classe | `(length=2.0, height=1.0, origin=(0.0, 0.0), inlet_velocity=1.0)` | Rectangular channel: flow from left (inlet) to right (outlet). |
-| `ChannelWithObstacleDomain2D` | classe | `(length=2.0, height=1.0, origin=(0.0, 0.0), obstacle_center=(0.5, 0.5), obstacle_radius=0…)` | Rectangular channel with a circular obstacle. |
-| `LidDrivenCavityDomain2D` | classe | `(size=1.0, origin=(0.0, 0.0), lid_velocity=1.0)` | Unit square cavity with moving lid. |
-| `LShapeDomain2D` | classe | `(size=2.0, origin=(-1.0, -1.0))` | L-shaped 2D domain for heat/Laplace problems. |
-| `AnnularDomain2D` | classe | `(center=(0.0, 0.0), r_inner=0.2, r_outer=1.0, inner_condition=None, outer_condition=None)` | Annular (ring) domain between inner and outer circles. |
-| `MultiObstacleDomain2D` | classe | `(length=3.0, height=1.0, origin=(0.0, 0.0), obstacles=None, inlet_velocity=1.0)` | Rectangular channel with multiple arbitrary circular obstacles. |
-| `TJunctionDomain2D` | classe | `(main_length=3.0, main_height=0.5, branch_width=0.5, branch_length=1.0, origin=(0.0, 0.0)…)` | T-junction: horizontal main channel + vertical branch from the bottom. |
-| `SDFDomain2D` | classe | `(sdf_fn, *, bounds_min, bounds_max, boundary_samplers=None, boundary_conditions=None)` | Flexible domain from any SDF callable and named sampler dict. |
-| `get_domain` | função | `(name, **kwargs) -> PhysicsDomain2D` | Instantiate a built-in domain by name. |
-| `list_domains` | função | `() -> List[str]` | List all registered built-in domain names. |
+| `BoundaryRegion` | classe | `(name, kind, conditions)` | Região de contorno nomeada com tipo e condições. |
+| `PhysicsDomain2D` | classe | `(bounds_min, bounds_max, boundary_regions)` | Base dos domínios 2D: SDF, amostragem interna e por região, lote PINN e manifesto de condições. |
+| `ChannelDomain2D` | classe | `(length=2.0, height=1.0, origin=(0.0, 0.0), inlet_velocity=1.0)` | Canal retangular com entrada à esquerda e saída à direita. |
+| `ChannelWithObstacleDomain2D` | classe | `(length=2.0, height=1.0, origin=(0.0, 0.0), obstacle_center=(0.5, 0.5), obstacle_radius=0…)` | Canal retangular com obstáculo circular. |
+| `LidDrivenCavityDomain2D` | classe | `(size=1.0, origin=(0.0, 0.0), lid_velocity=1.0)` | Cavidade quadrada com tampa móvel. |
+| `LShapeDomain2D` | classe | `(size=2.0, origin=(-1.0, -1.0))` | Domínio em L para problemas de calor/Laplace. |
+| `AnnularDomain2D` | classe | `(center=(0.0, 0.0), r_inner=0.2, r_outer=1.0, inner_condition=None, outer_condition=None)` | Domínio anular entre dois círculos. |
+| `MultiObstacleDomain2D` | classe | `(length=3.0, height=1.0, origin=(0.0, 0.0), obstacles=None, inlet_velocity=1.0)` | Canal com vários obstáculos circulares. |
+| `TJunctionDomain2D` | classe | `(main_length=3.0, main_height=0.5, branch_width=0.5, branch_length=1.0, origin=(0.0, 0.0)…)` | Junção em T: canal principal horizontal e ramo vertical. |
+| `SDFDomain2D` | classe | `(sdf_fn, *, bounds_min, bounds_max, boundary_samplers=None, boundary_conditions=None)` | Domínio flexível a partir de qualquer função SDF e amostradores por região. |
+| `get_domain` | função | `(name, **kwargs) -> PhysicsDomain2D` | Instancia um domínio 2D pelo nome do registro (ex.: `channel_2d`). |
+| `list_domains` | função | `() -> List[str]` | Lista os nomes dos domínios 2D registrados. |
 
 #### `pinneapple_design.geometry.gen.domains3d`
 
-Pre-built 3D physics domains for PINN training.
+Domínios físicos 3D prontos para PINNs (cavidade, duto, tubo), com regiões de contorno e grade estruturada. Os alvos de contorno de `get_pinn_batch` são zeros de marcação; a base levanta NotImplementedError.
 
 <small>`pinneapple_design/geometry/gen/domains3d.py` · 597 linhas · testes: 151 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PhysicsDomain3D` | classe | `(bounds_min, bounds_max, boundary_regions)` | Base class for 3D physics domains. |
-| `LidDrivenCavityDomain3D` | classe | `(size=1.0, origin=(0.0, 0.0, 0.0), lid_velocity=1.0, lid_axis='x')` | Unit cube [ox, ox+L]^3 with a moving lid on the top face (z = oz+Lz). |
-| `ChannelDomain3D` | classe | `(length=2.0, height=1.0, width=1.0, origin=(0.0, 0.0, 0.0), inlet_velocity=1.0, flow_prof…)` | Rectangular duct: x in [ox, ox+Lx], y in [oy, oy+Ly], z in [oz, oz+Lz]. |
-| `PipeFlowDomain3D` | classe | `(radius=0.5, length=2.0, origin=(0.0, 0.0, 0.0), inlet_velocity=1.0)` | Circular cross-section pipe, flow in the x-direction. |
-| `get_domain_3d` | função | `(name, **kwargs) -> PhysicsDomain3D` | Instantiate a built-in 3D domain by name. |
-| `list_domains_3d` | função | `() -> List[str]` | List all registered built-in 3D domain names. |
+| `PhysicsDomain3D` | classe | `(bounds_min, bounds_max, boundary_regions)` | Base dos domínios 3D: SDF, amostragem, lote PINN e grade estruturada. |
+| `LidDrivenCavityDomain3D` | classe | `(size=1.0, origin=(0.0, 0.0, 0.0), lid_velocity=1.0, lid_axis='x')` | Cubo com tampa móvel na face de cima. |
+| `ChannelDomain3D` | classe | `(length=2.0, height=1.0, width=1.0, origin=(0.0, 0.0, 0.0), inlet_velocity=1.0, flow_prof…)` | Duto retangular com perfil de entrada uniforme ou outro. |
+| `PipeFlowDomain3D` | classe | `(radius=0.5, length=2.0, origin=(0.0, 0.0, 0.0), inlet_velocity=1.0)` | Tubo de seção circular com escoamento em x. |
+| `get_domain_3d` | função | `(name, **kwargs) -> PhysicsDomain3D` | Instancia um domínio 3D pelo nome do registro. |
+| `list_domains_3d` | função | `() -> List[str]` | Lista os nomes dos domínios 3D registrados. |
 
 #### `pinneapple_design.geometry.gen.genetic_sdf`
 
-_Módulo sem docstring e sem texto._
+Geometria implícita 'genética' por SDF em torch: um genoma de parâmetros define a forma (hoje só união de círculos). [sem teste]
 
 <small>`pinneapple_design/geometry/gen/genetic_sdf.py` · 110 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeneticSDF` | classe | `(sdf, genome, bounds_min, bounds_max, dim)` | A callable SDF domain with an explicit genome. |
-| `sdf_union` | função | `(a, b) -> torch.Tensor` |  |
-| `sdf_intersection` | função | `(a, b) -> torch.Tensor` |  |
-| `make_union_circles_sdf` | função | `(*, n_circles=3, seed=0, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), r_min=0.12, r_max=…)` | Create a random "genetic" domain as union of circles. |
+| `GeneticSDF` | classe | `(sdf, genome, bounds_min, bounds_max, dim)` | Domínio SDF chamável com genoma explícito e limites. |
+| `sdf_union` | função | `(a, b) -> torch.Tensor` | União de SDFs (mínimo) em torch. |
+| `sdf_intersection` | função | `(a, b) -> torch.Tensor` | Interseção de SDFs (máximo) em torch. |
+| `make_union_circles_sdf` | função | `(*, n_circles=3, seed=0, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), r_min=0.12, r_max=…)` | Cria um domínio aleatório como união de círculos, opcionalmente cortado pela caixa. |
 
 #### `pinneapple_design.geometry.gen.primitives`
 
-Trimesh-based primitive mesh builders and architected geometries (woven, braid).
+Construtores de malhas primitivas via trimesh e geometrias arquitetadas (tecido, trança), com fábrica genérica e booleanas. `project_points_to_surface` é marcado como placeholder.
 
 <small>`pinneapple_design/geometry/gen/primitives.py` · 753 linhas · testes: 66 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshBuilder` | classe | `()` |  |
-| `register_builder` | função | `(*names)` |  |
-| `list_builders` | função | `() -> Tuple[str, ...]` | Every registered builder name (all aliases included, e.g. both ``"box"`` and ``"cube"``) -- the real, checkable catalog for anything that needs to know what :func:`build_mesh` can build without hardcoding a guessed list (e.g. an LLM-drafting layer presenting a catalog of real options, mirroring … |
-| `build_mesh` | função | `(name, **params) -> MeshData` | General factory: - calls a registered builder -> trimesh.Trimesh - optional transforms: scale / rotate / translate - optional boolean: boolean={op:'cut'\|'union'\|'intersect', other:{name:'sphere', ...}} -> If no boolean engine exists, it falls back to concatenate (non-watertight). |
-| `build_primitive` | função | `(name, **params) -> MeshData` |  |
-| `project_points_to_surface` | função | `(points, surface, *, method='nearest') -> np.ndarray` | Placeholder / hook for future "fidelity maximum" mapping: - Given points (N,3), project them onto a patient-specific surface mesh. |
+| `MeshBuilder` | classe | `()` | Tipo (protocolo) de um construtor de malha registrado. |
+| `register_builder` | função | `(*names)` | Decorador que registra um construtor sob um ou mais nomes. |
+| `list_builders` | função | `() -> Tuple[str, ...]` | Lista todos os nomes de construtores registrados, com apelidos. |
+| `build_mesh` | função | `(name, **params) -> MeshData` | Fábrica geral: chama o construtor, aplica transformações e booleana opcional (cai para concatenação se não houver motor booleano). |
+| `build_primitive` | função | `(name, **params) -> MeshData` | Constrói uma primitiva pelo nome e devolve `MeshData`. |
+| `project_points_to_surface` | função | `(points, surface, *, method='nearest') -> np.ndarray` | [placeholder] Projeta pontos na superfície por ponto mais próximo (trimesh ou KD-tree); o docstring diz que deveria levantar erro, mas devolve `(pontos, distâncias)`. |
 
 #### `pinneapple_design.geometry.gen.sdf_shapes`
 
-Rich SDF (Signed Distance Function) library for 2D and 3D shapes.
+Biblioteca de SDFs 2D e 3D em numpy: formas básicas, booleanas (também suaves), transformações e a classe `SDF` orientada a objeto.
 
 <small>`pinneapple_design/geometry/gen/sdf_shapes.py` · 629 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SDF` | classe | `(fn, *args, **kwargs)` | Object-oriented wrapper around an SDF callable. |
-| `sdf2d_circle` | função | `(p, center, radius) -> np.ndarray` | SDF for a 2D circle. Negative inside. |
-| `sdf2d_rectangle` | função | `(p, center, half_extents) -> np.ndarray` | SDF for an axis-aligned rectangle. Negative inside. |
-| `sdf2d_rounded_rectangle` | função | `(p, center, half_extents, radius) -> np.ndarray` | SDF for a rectangle with rounded corners. |
-| `sdf2d_ellipse` | função | `(p, center, semi_axes, iterations=4) -> np.ndarray` | SDF for a 2D ellipse via iterative Newton refinement (Inigo Quilez). |
-| `sdf2d_capsule` | função | `(p, a, b, radius) -> np.ndarray` | SDF for a 2D capsule (stadium) between points a and b. |
-| `sdf2d_line_segment` | função | `(p, a, b, thickness=0.0) -> np.ndarray` | SDF to a line segment (with optional thickness). |
-| `sdf2d_triangle` | função | `(p, v0, v1, v2) -> np.ndarray` | SDF for a 2D triangle (signed: negative inside). |
-| `sdf2d_annulus` | função | `(p, center, r_inner, r_outer) -> np.ndarray` | SDF for a 2D annular region (ring). Negative between the two radii. |
-| `sdf2d_sector` | função | `(p, center, radius, angle_start, angle_end) -> np.ndarray` | SDF for a circular sector (pie slice). |
-| `sdf2d_convex_polygon` | função | `(p, vertices) -> np.ndarray` | SDF for a convex polygon given as ordered vertices (Nx2 array). |
-| `sdf3d_sphere` | função | `(p, center, radius) -> np.ndarray` | SDF for a 3D sphere. |
-| `sdf3d_box` | função | `(p, center, half_extents) -> np.ndarray` | SDF for an axis-aligned 3D box. |
-| `sdf3d_cylinder` | função | `(p, center, radius, height, axis=2) -> np.ndarray` | SDF for a finite cylinder aligned with `axis` (0=x, 1=y, 2=z). |
-| `sdf3d_torus` | função | `(p, center, R, r, axis=2) -> np.ndarray` | SDF for a torus with major radius R and tube radius r. |
-| `sdf3d_capsule` | função | `(p, a, b, radius) -> np.ndarray` | SDF for a 3D capsule between points a and b. |
-| `sdf3d_rounded_box` | função | `(p, center, half_extents, radius) -> np.ndarray` | SDF for a 3D box with rounded edges. |
-| `sdf3d_cone` | função | `(p, apex, height, radius) -> np.ndarray` | SDF for an upward-pointing, base-capped cone with apex at `apex`. |
-| `sdf_union` | função | `(a, b) -> np.ndarray` | Boolean union: min(a, b). |
-| `sdf_intersection` | função | `(a, b) -> np.ndarray` | Boolean intersection: max(a, b). |
-| `sdf_difference` | função | `(a, b) -> np.ndarray` | Boolean difference: a minus b = max(a, -b). |
-| `sdf_smooth_union` | função | `(a, b, k=0.1) -> np.ndarray` | Smooth minimum (R-function). k controls blend radius. |
-| `sdf_smooth_intersection` | função | `(a, b, k=0.1) -> np.ndarray` | Smooth maximum. |
-| `sdf_smooth_difference` | função | `(a, b, k=0.1) -> np.ndarray` | Smooth difference. |
-| `sdf_translate` | função | `(sdf_fn, offset) -> Callable[[np.ndarray], np.ndarray]` | Translate an SDF by applying an inverse offset to the query point. |
-| `sdf_scale` | função | `(sdf_fn, factor) -> Callable[[np.ndarray], np.ndarray]` | Uniformly scale an SDF. |
-| `sdf_rotate_2d` | função | `(sdf_fn, angle_rad) -> Callable[[np.ndarray], np.ndarray]` | Rotate a 2D SDF by angle_rad (counter-clockwise). |
-| `sdf_mirror_x` | função | `(sdf_fn) -> Callable[[np.ndarray], np.ndarray]` | Mirror an SDF across the y-axis (flip x). |
-| `sdf_mirror_y` | função | `(sdf_fn) -> Callable[[np.ndarray], np.ndarray]` | Mirror an SDF across the x-axis (flip y). |
-| `sdf_onion` | função | `(sdf_fn, thickness) -> Callable[[np.ndarray], np.ndarray]` | Create a shell (onion skin) of given thickness. |
-| `sdf_elongate_2d` | função | `(sdf_fn, dx=0.0, dy=0.0) -> Callable[[np.ndarray], np.ndarray]` | Elongate a 2D SDF shape along x and/or y axes. |
-| `sdf_repeat_2d` | função | `(sdf_fn, period, repetitions=None) -> Callable[[np.ndarray], np.ndarray]` | Tile a 2D SDF with given (px, py) period. |
-| `circle` | função | `(center=(0.0, 0.0), radius=0.5) -> SDF` |  |
-| `rectangle` | função | `(center=(0.0, 0.0), half_extents=(0.5, 0.5)) -> SDF` |  |
-| `ellipse` | função | `(center=(0.0, 0.0), semi_axes=(0.5, 0.3)) -> SDF` |  |
-| `annulus` | função | `(center=(0.0, 0.0), r_inner=0.2, r_outer=0.5) -> SDF` |  |
-| `capsule2d` | função | `(a=(0.0, -0.5), b=(0.0, 0.5), radius=0.2) -> SDF` |  |
-| `sphere3d` | função | `(center=(0.0, 0.0, 0.0), radius=0.5) -> SDF` |  |
-| `box3d` | função | `(center=(0.0, 0.0, 0.0), half_extents=(0.5, 0.5, 0.5)) -> SDF` |  |
-| `cylinder3d` | função | `(center=(0.0, 0.0, 0.0), radius=0.5, height=1.0, axis=2) -> SDF` |  |
-| `torus3d` | função | `(center=(0.0, 0.0, 0.0), R=0.5, r=0.15, axis=2) -> SDF` |  |
+| `SDF` | classe | `(fn, *args, **kwargs)` | Envoltório orientado a objeto de uma função SDF, com transformações e amostragem. |
+| `sdf2d_circle` | função | `(p, center, radius) -> np.ndarray` | SDF de círculo 2D. |
+| `sdf2d_rectangle` | função | `(p, center, half_extents) -> np.ndarray` | SDF de retângulo alinhado aos eixos. |
+| `sdf2d_rounded_rectangle` | função | `(p, center, half_extents, radius) -> np.ndarray` | SDF de retângulo com cantos arredondados. |
+| `sdf2d_ellipse` | função | `(p, center, semi_axes, iterations=4) -> np.ndarray` | SDF de elipse por refinamento de Newton. |
+| `sdf2d_capsule` | função | `(p, a, b, radius) -> np.ndarray` | SDF de cápsula 2D entre dois pontos. |
+| `sdf2d_line_segment` | função | `(p, a, b, thickness=0.0) -> np.ndarray` | SDF de um segmento, com espessura opcional. |
+| `sdf2d_triangle` | função | `(p, v0, v1, v2) -> np.ndarray` | SDF de triângulo 2D. |
+| `sdf2d_annulus` | função | `(p, center, r_inner, r_outer) -> np.ndarray` | SDF de anel 2D. |
+| `sdf2d_sector` | função | `(p, center, radius, angle_start, angle_end) -> np.ndarray` | SDF de setor circular. |
+| `sdf2d_convex_polygon` | função | `(p, vertices) -> np.ndarray` | SDF de polígono convexo. |
+| `sdf3d_sphere` | função | `(p, center, radius) -> np.ndarray` | SDF de esfera. |
+| `sdf3d_box` | função | `(p, center, half_extents) -> np.ndarray` | SDF de caixa alinhada aos eixos. |
+| `sdf3d_cylinder` | função | `(p, center, radius, height, axis=2) -> np.ndarray` | SDF de cilindro finito num eixo. |
+| `sdf3d_torus` | função | `(p, center, R, r, axis=2) -> np.ndarray` | SDF de toro. |
+| `sdf3d_capsule` | função | `(p, a, b, radius) -> np.ndarray` | SDF de cápsula 3D. |
+| `sdf3d_rounded_box` | função | `(p, center, half_extents, radius) -> np.ndarray` | SDF de caixa com arestas arredondadas. |
+| `sdf3d_cone` | função | `(p, apex, height, radius) -> np.ndarray` | SDF de cone com base fechada. |
+| `sdf_union` | função | `(a, b) -> np.ndarray` | União: min(a, b). |
+| `sdf_intersection` | função | `(a, b) -> np.ndarray` | Interseção: max(a, b). |
+| `sdf_difference` | função | `(a, b) -> np.ndarray` | Diferença: max(a, -b). |
+| `sdf_smooth_union` | função | `(a, b, k=0.1) -> np.ndarray` | União suave com raio de mistura `k`. |
+| `sdf_smooth_intersection` | função | `(a, b, k=0.1) -> np.ndarray` | Interseção suave. |
+| `sdf_smooth_difference` | função | `(a, b, k=0.1) -> np.ndarray` | Diferença suave. |
+| `sdf_translate` | função | `(sdf_fn, offset) -> Callable[[np.ndarray], np.ndarray]` | Translada uma SDF. |
+| `sdf_scale` | função | `(sdf_fn, factor) -> Callable[[np.ndarray], np.ndarray]` | Escala uniformemente uma SDF. |
+| `sdf_rotate_2d` | função | `(sdf_fn, angle_rad) -> Callable[[np.ndarray], np.ndarray]` | Gira uma SDF 2D. |
+| `sdf_mirror_x` | função | `(sdf_fn) -> Callable[[np.ndarray], np.ndarray]` | Espelha uma SDF trocando o sinal de x. |
+| `sdf_mirror_y` | função | `(sdf_fn) -> Callable[[np.ndarray], np.ndarray]` | Espelha uma SDF trocando o sinal de y. |
+| `sdf_onion` | função | `(sdf_fn, thickness) -> Callable[[np.ndarray], np.ndarray]` | Cria uma casca de espessura dada. |
+| `sdf_elongate_2d` | função | `(sdf_fn, dx=0.0, dy=0.0) -> Callable[[np.ndarray], np.ndarray]` | Alonga uma forma 2D em x e/ou y. |
+| `sdf_repeat_2d` | função | `(sdf_fn, period, repetitions=None) -> Callable[[np.ndarray], np.ndarray]` | Repete uma SDF 2D com período dado. |
+| `circle` | função | `(center=(0.0, 0.0), radius=0.5) -> SDF` | Atalho: `SDF` de círculo. |
+| `rectangle` | função | `(center=(0.0, 0.0), half_extents=(0.5, 0.5)) -> SDF` | Atalho: `SDF` de retângulo. |
+| `ellipse` | função | `(center=(0.0, 0.0), semi_axes=(0.5, 0.3)) -> SDF` | Atalho: `SDF` de elipse. |
+| `annulus` | função | `(center=(0.0, 0.0), r_inner=0.2, r_outer=0.5) -> SDF` | Atalho: `SDF` de anel. |
+| `capsule2d` | função | `(a=(0.0, -0.5), b=(0.0, 0.5), radius=0.2) -> SDF` | Atalho: `SDF` de cápsula 2D. |
+| `sphere3d` | função | `(center=(0.0, 0.0, 0.0), radius=0.5) -> SDF` | Atalho: `SDF` de esfera. |
+| `box3d` | função | `(center=(0.0, 0.0, 0.0), half_extents=(0.5, 0.5, 0.5)) -> SDF` | Atalho: `SDF` de caixa 3D. |
+| `cylinder3d` | função | `(center=(0.0, 0.0, 0.0), radius=0.5, height=1.0, axis=2) -> SDF` | Atalho: `SDF` de cilindro. |
+| `torus3d` | função | `(center=(0.0, 0.0, 0.0), R=0.5, r=0.15, axis=2) -> SDF` | Atalho: `SDF` de toro. |
 
 #### `pinneapple_design.geometry.gen.threaded_connection`
 
-Threaded connection geometry for rotary coupling PINN simulations.
+Malhas 2D axissimétricas (r, z) de conexões rosqueadas rotativas (perfil API, TC50/TC46/TC38) geradas com gmsh. [sem teste]
 
 <small>`pinneapple_design/geometry/gen/threaded_connection.py` · 442 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ThreadProfile` | classe | `(name, tpi, taper, h_factor, clearance_factor)` | Geometric parameters for a single API rotary shouldered thread form. |
-| `ConnectionSpec` | classe | `(name, r_bore, r_outer, z_thread_start, z_thread_end, z_shoulder_top, thread, body, n_thr…)` | Full geometry specification for one body (BOX or PIN) of an NC connection. |
-| `ThreadedConnectionMesher` | classe | `(spec, lc=1.0, lc_thread=None)` | Generates a 2D axisymmetric mesh of an API threaded connection using gmsh. |
-| `TC50Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | TC50 threaded coupling geometry (large-diameter). |
-| `TC46Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | TC46 threaded coupling geometry (medium-diameter). |
-| `TC38Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | TC38 threaded coupling geometry (standard). |
-| `build_thread_polygon` | função | `(spec, n_threads=None) -> List[Tuple[float, float]]` | Builds the (r, z) polygon that describes the threaded surface profile. |
-| `get_connection_geometry` | função | `(connection, body='BOX', lc=0.8) -> ThreadedConnectionMesher` | Factory: retorna o mesher para uma conexão pelo nome. |
+| `ThreadProfile` | classe | `(name, tpi, taper, h_factor, clearance_factor)` | Parâmetros de uma forma de rosca (fios por polegada, conicidade, altura, folga). |
+| `ConnectionSpec` | classe | `(name, r_bore, r_outer, z_thread_start, z_thread_end, z_shoulder_top, thread, body, n_thr…)` | Especificação de um corpo (BOX ou PIN) da conexão: raios, posições e rosca. |
+| `ThreadedConnectionMesher` | classe | `(spec, lc=1.0, lc_thread=None)` | Gera a malha 2D axissimétrica com gmsh e amostra pontos. |
+| `TC50Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | Conexão TC50 (diâmetro grande). |
+| `TC46Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | Conexão TC46 (diâmetro médio). |
+| `TC38Geometry` | classe | `(body='BOX', lc=0.8, lc_thread=None)` | Conexão TC38 (padrão). |
+| `build_thread_polygon` | função | `(spec, n_threads=None) -> List[Tuple[float, float]]` | Monta o polígono (r, z) da superfície rosqueada. |
+| `get_connection_geometry` | função | `(connection, body='BOX', lc=0.8) -> ThreadedConnectionMesher` | Fábrica: devolve o malhador de uma conexão pelo nome. |
 
 #### `pinneapple_design.geometry.io`
 
-Geometry I/O helpers.
+Ajudantes de E/S com imports tolerantes (STEP, IGES, CadQuery); `build_parametric_part` não existe em `cadquery_bridge`, então sempre vira `None`. [sem teste]
 
 <small>`pinneapple_design/geometry/io/__init__.py` · 34 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.geometry.io.cadquery_bridge`
 
-CadQuery solid-to-PhysicalSample conversion via tessellation.
+Converte um sólido CadQuery em malha por tesselação e embrulha como `PhysicalSample`. [sem teste]
 
 <small>`pinneapple_design/geometry/io/cadquery_bridge.py` · 39 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `cadquery_solid_to_upd` | função | `(solid, *, tess_linear_deflection=0.2, tess_angular_deflection=0.3, units='mm', meta=None…)` | Convert a CadQuery solid/workplane to a triangle mesh and wrap as PhysicalSample. |
+| `cadquery_solid_to_upd` | função | `(solid, *, tess_linear_deflection=0.2, tess_angular_deflection=0.3, units='mm', meta=None…)` | Tessela um sólido CadQuery e devolve um `PhysicalSample` com vértices e faces. |
 
 #### `pinneapple_design.geometry.io.iges`
 
-IGES file import utilities.
+Importa arquivos IGES em `MeshData` via gmsh, com cache.
 
 <small>`pinneapple_design/geometry/io/iges.py` · 157 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `IgesImportConfig` | classe | `(kind, mesh_size, algorithm_2d, algorithm_3d, curvature_refine, optimize, heal_shapes)` |  |
-| `iges_to_mesh` | função | `(iges_path, *, cfg=None, cache_dir=None) -> MeshData` | Convert an IGES file into MeshData via gmsh. |
+| `IgesImportConfig` | classe | `(kind, mesh_size, algorithm_2d, algorithm_3d, curvature_refine, optimize, heal_shapes)` | Configuração do import IGES (tipo, tamanho de malha, algoritmos, reparo). |
+| `iges_to_mesh` | função | `(iges_path, *, cfg=None, cache_dir=None) -> MeshData` | Converte um IGES em `MeshData` via gmsh. |
 
 #### `pinneapple_design.geometry.io.meshio_bridge`
 
-Meshio mesh loading and UPD PhysicalSample packaging for VTK/VTU/MSH/XDMF.
+Carrega e salva malhas com meshio (VTK/VTU/MSH/XDMF) e empacota como `PhysicalSample`. [sem teste]
 
 <small>`pinneapple_design/geometry/io/meshio_bridge.py` · 149 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_meshio` | função | `(path, *, require_triangles=True) -> MeshData` | Load a mesh file using meshio and return a triangle MeshData. |
-| `save_meshio` | função | `(mesh, path, *, file_format=None, point_data=None, cell_data=None) -> None` | Save MeshData via meshio. |
-| `meshio_to_upd` | função | `(path)` | Load mesh + point data from any meshio-supported format (VTK, Exodus, etc.) |
+| `load_meshio` | função | `(path, *, require_triangles=True) -> MeshData` | Lê uma malha com meshio e devolve `MeshData` de triângulos. |
+| `save_meshio` | função | `(mesh, path, *, file_format=None, point_data=None, cell_data=None) -> None` | Salva `MeshData` com meshio. |
+| `meshio_to_upd` | função | `(path)` | Lê malha e dados de ponto e empacota como amostra UPD. |
 
 #### `pinneapple_design.geometry.io.sdf_meshing`
 
-Meshing utilities for implicit SDF geometries.
+Utilitários para malhar geometrias implícitas 2D: pontos de contorno, contornos por marching squares e malha triangular via gmsh. [sem teste]
 
 <small>`pinneapple_design/geometry/io/sdf_meshing.py` · 172 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SDFGrid2D` | classe | `(bounds_min, bounds_max, resolution)` |  |
-| `sample_boundary_points_sdf2d` | função | `(sdf, *, grid=None, n=2048, rng=None, band=0.01) -> np.ndarray` | Sample boundary points from a 2D SDF by rejection within a thin band. |
-| `marching_squares_contours` | função | `(sdf, *, grid=None, level=0.0) -> list[np.ndarray]` | Extract contour polylines for the level set sdf(x)=level. |
-| `sdf2d_to_tri_mesh` | função | `(sdf, *, grid=None, mesh_size=0.03, cache_path=None) -> MeshData` | Build a 2D triangulated mesh of the zero level-set using gmsh. |
+| `SDFGrid2D` | classe | `(bounds_min, bounds_max, resolution)` | Grade 2D (limites e resolução) para avaliar uma SDF. |
+| `sample_boundary_points_sdf2d` | função | `(sdf, *, grid=None, n=2048, rng=None, band=0.01) -> np.ndarray` | Amostra pontos de contorno por rejeição numa faixa fina em torno do zero. |
+| `marching_squares_contours` | função | `(sdf, *, grid=None, level=0.0) -> list[np.ndarray]` | Extrai polilinhas do nível `sdf = level`. |
+| `sdf2d_to_tri_mesh` | função | `(sdf, *, grid=None, mesh_size=0.03, cache_path=None) -> MeshData` | Gera malha triangular 2D do conjunto de nível zero com gmsh. |
 
 #### `pinneapple_design.geometry.io.step`
 
-STEP file import utilities.
+Importa arquivos STEP em `MeshData` via gmsh, com cache. [sem teste]
 
 <small>`pinneapple_design/geometry/io/step.py` · 132 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StepImportConfig` | classe | `(kind, mesh_size, algorithm_2d, algorithm_3d, curvature_refine, optimize)` |  |
-| `step_to_mesh` | função | `(step_path, *, cfg=None, cache_dir=None) -> MeshData` | Convert a STEP file into MeshData via gmsh. |
+| `StepImportConfig` | classe | `(kind, mesh_size, algorithm_2d, algorithm_3d, curvature_refine, optimize)` | Configuração do import STEP. |
+| `step_to_mesh` | função | `(step_path, *, cfg=None, cache_dir=None) -> MeshData` | Converte um STEP em `MeshData` via gmsh. |
 
 #### `pinneapple_design.geometry.io.stl`
 
-STL loading utilities returning MeshData.
+Carregador de STL via trimesh que devolve `MeshData`. [sem teste]
 
 <small>`pinneapple_design/geometry/io/stl.py` · 27 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_stl` | função | `(path, *, repair=True, compute_normals=True) -> MeshData` | Convenience STL loader (via trimesh) returning MeshData. |
+| `load_stl` | função | `(path, *, repair=True, compute_normals=True) -> MeshData` | Lê um STL, opcionalmente repara e calcula normais. |
 
 #### `pinneapple_design.geometry.io.trimesh_bridge`
 
-Trimesh to MeshData adapter for loading, repair, and conversion.
+Adaptador entre `trimesh.Trimesh` e `MeshData` (carga, reparo e conversão).
 
 <small>`pinneapple_design/geometry/io/trimesh_bridge.py` · 111 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TrimeshBridge` | classe | `()` | Adapter between trimesh.Trimesh and Pinneapple MeshData. |
+| `TrimeshBridge` | classe | `()` | Adaptador que carrega arquivos via trimesh e converte para `MeshData`. |
 
 #### `pinneapple_design.geometry.mesh`
 
-_Módulo sem docstring e sem texto._
+Reexporta os malhadores 2D e 3D. [sem teste]
 
 <small>`pinneapple_design/geometry/mesh/__init__.py` · 26 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.geometry.mesh.mesher_2d`
 
-2D mesh generation utilities.
+Geração de malhas 2D: retângulo estruturado, malha de SDF via gmsh, triangulação de polígono e relatório de qualidade. [sem teste direto]
 
 <small>`pinneapple_design/geometry/mesh/mesher_2d.py` · 436 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Mesh2D` | classe | `(vertices, triangles, boundary_edges, boundary_points, meta)` | Lightweight 2D triangle mesh. |
-| `mesh_rectangle_structured` | função | `(x_range=(0.0, 1.0), y_range=(0.0, 1.0), nx=20, ny=20) -> Mesh2D` | Generate a structured triangular mesh of a rectangle. |
-| `mesh_sdf_2d` | função | `(sdf_fn, bounds_min, bounds_max, *, mesh_size=0.05, mesh_size_boundary=None, boundary_n_p…)` | Generate a quality 2D mesh inside an SDF domain using gmsh. |
-| `mesh_polygon_2d` | função | `(vertices, *, mesh_size=None, holes=None) -> Optional['Mesh2D']` | Triangulate a 2D polygon using scipy.spatial.Delaunay (basic) or the `triangle` library (quality mesh, if available). |
-| `mesh_quality_report` | função | `(mesh) -> Dict[str, Any]` | Generate a comprehensive mesh quality report. |
+| `Mesh2D` | classe | `(vertices, triangles, boundary_edges, boundary_points, meta)` | Malha 2D de triângulos com estatísticas de qualidade e amostragem interna. |
+| `mesh_rectangle_structured` | função | `(x_range=(0.0, 1.0), y_range=(0.0, 1.0), nx=20, ny=20) -> Mesh2D` | Malha triangular estruturada de um retângulo. |
+| `mesh_sdf_2d` | função | `(sdf_fn, bounds_min, bounds_max, *, mesh_size=0.05, mesh_size_boundary=None, boundary_n_p…)` | Malha 2D de qualidade dentro de um domínio SDF usando gmsh. |
+| `mesh_polygon_2d` | função | `(vertices, *, mesh_size=None, holes=None) -> Optional['Mesh2D']` | Triangula um polígono com Delaunay do scipy ou com a biblioteca `triangle` se houver. |
+| `mesh_quality_report` | função | `(mesh) -> Dict[str, Any]` | Relatório de qualidade de uma malha 2D. |
 
 #### `pinneapple_design.geometry.mesh.mesher_3d`
 
-3D mesh generation from surfaces and SDFs.
+Malhas tetraédricas a partir de superfícies ou SDFs, nuvens de pontos para física e reconstrução de superfície. [sem teste direto]
 
 <small>`pinneapple_design/geometry/mesh/mesher_3d.py` · 839 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Mesh3D` | classe | `(vertices, tets, surface_faces, boundary_groups, meta)` | Tetrahedral volume mesh. |
-| `PhysicsPointCloud3D` | classe | `(interior, boundary, boundary_normals, near_wall, near_wall_dist, boundary_groups, meta)` | Collocation + boundary + near-wall points for physics training. |
-| `mesh_from_surface` | função | `(surface, *, mesh_size=0.0, mesh_size_boundary=0.0, boundary_layer=False, bl_thickness=0.…)` | Generate a tetrahedral volume mesh from a closed 3D surface mesh. |
-| `mesh_from_sdf_3d` | função | `(sdf_fn, bounds_min, bounds_max, *, resolution=64, mesh_size=0.0, clean=True, volume=True…)` | Extract a surface from a 3D SDF via marching cubes, then volume-mesh it. |
-| `sample_physics_points` | função | `(mesh, *, n_interior=10000, n_boundary=2000, n_near_wall=0, near_wall_thickness=0.0, curv…)` | Generate physics-ready collocation points from a 3D mesh. |
-| `surface_from_pointcloud` | função | `(points, *, normals=None, method='poisson', depth=8, alpha=0.0, density_quantile=0.05) ->…)` | Reconstruct a surface mesh from a point cloud. |
+| `Mesh3D` | classe | `(vertices, tets, surface_faces, boundary_groups, meta)` | Malha tetraédrica com faces de superfície e grupos de contorno. |
+| `PhysicsPointCloud3D` | classe | `(interior, boundary, boundary_normals, near_wall, near_wall_dist, boundary_groups, meta)` | Pontos internos, de contorno e perto da parede para treino físico. |
+| `mesh_from_surface` | função | `(surface, *, mesh_size=0.0, mesh_size_boundary=0.0, boundary_layer=False, bl_thickness=0.…)` | Gera malha de volume a partir de uma superfície fechada (gmsh), com camada-limite opcional. |
+| `mesh_from_sdf_3d` | função | `(sdf_fn, bounds_min, bounds_max, *, resolution=64, mesh_size=0.0, clean=True, volume=True…)` | Extrai a superfície de uma SDF 3D por marching cubes e malha o volume. |
+| `sample_physics_points` | função | `(mesh, *, n_interior=10000, n_boundary=2000, n_near_wall=0, near_wall_thickness=0.0, curv…)` | Gera pontos de colocação prontos para física a partir de uma malha 3D. |
+| `surface_from_pointcloud` | função | `(points, *, normals=None, method='poisson', depth=8, alpha=0.0, density_quantile=0.05) ->…)` | Reconstrói uma superfície de uma nuvem de pontos (Poisson via open3d ou alpha shape via Delaunay). |
 
 #### `pinneapple_design.geometry.mesh_collocator`
 
-MeshCollocator — 3D collocation point sampler for PINN training.
+Amostrador de pontos de colocação 3D para PINN a partir de uma malha (interior, contorno com normais, suporte a corpo oco).
 
 <small>`pinneapple_design/geometry/mesh_collocator.py` · 388 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MeshCollocatorConfig` | classe | `(n_interior, n_boundary, domain, boundary_mode, hollow, seed, max_rejection_tries)` | Configuration for MeshCollocator. |
-| `CollocationBatch3D` | classe | `(X_interior, X_boundary, normals_boundary, boundary_groups)` | Collocation batch ready for PINN training. |
-| `MeshCollocator` | classe | `(mesh, config=None, *, inner_mesh=None)` | Collocation point sampler for 3D mesh geometry. |
+| `MeshCollocatorConfig` | classe | `(n_interior, n_boundary, domain, boundary_mode, hollow, seed, max_rejection_tries)` | Configuração do `MeshCollocator` (quantidades, domínio, modo de contorno, oco, semente). |
+| `CollocationBatch3D` | classe | `(X_interior, X_boundary, normals_boundary, boundary_groups)` | Lote de colocação 3D: pontos internos, de contorno, normais e grupos. |
+| `MeshCollocator` | classe | `(mesh, config=None, *, inner_mesh=None)` | Amostra pontos internos e de contorno de uma malha 3D, como arrays ou tensores. |
 
 #### `pinneapple_design.geometry.ops`
 
-_Módulo sem docstring e sem texto._
+Reexporta as operações de malha: reparo, simplificação, remalha, limpeza, atributos e voxelização. [sem teste]
 
 <small>`pinneapple_design/geometry/ops/__init__.py` · 53 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.geometry.ops.clean`
 
-Comprehensive 3D mesh cleaning pipeline.
+Pipeline de limpeza de malhas 3D (fusão de vértices, degenerados, buracos, auto-interseção, suavização, decimação), com pymeshlab/open3d opcionais. [sem teste]
 
 <small>`pinneapple_design/geometry/ops/clean.py` · 602 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CleanMeshConfig` | classe | `(merge_vertices, merge_tol, remove_degenerate, remove_duplicates, remove_unreferenced, fi…)` | Full configuration for the clean_mesh pipeline. |
-| `mesh_quality_report_3d` | função | `(mesh) -> Dict[str, Any]` | Comprehensive quality report for a 3D surface mesh. |
-| `smooth_mesh` | função | `(mesh, *, method='taubin', iterations=5, lam=0.5, mu=-0.53) -> MeshData` | Laplacian or Taubin mesh smoothing. |
-| `remove_outlier_vertices` | função | `(mesh, *, nb_neighbors=20, std_ratio=2.0) -> MeshData` | Statistical outlier vertex removal. |
-| `keep_largest_component` | função | `(mesh) -> MeshData` | Keep only the largest connected component of the mesh. |
-| `decimate_mesh` | função | `(mesh, *, target_faces=None, ratio=0.5) -> MeshData` | Mesh decimation (polygon reduction). |
-| `remove_self_intersections` | função | `(mesh) -> MeshData` | Remove self-intersecting faces using pymeshlab. |
-| `clean_mesh` | função | `(mesh, *, config=None, verbose=False) -> MeshData` | Comprehensive 3D surface mesh cleaning pipeline. |
+| `CleanMeshConfig` | classe | `(merge_vertices, merge_tol, remove_degenerate, remove_duplicates, remove_unreferenced, fi…)` | Configuração completa do pipeline `clean_mesh`. |
+| `mesh_quality_report_3d` | função | `(mesh) -> Dict[str, Any]` | Relatório de qualidade de uma malha de superfície 3D. |
+| `smooth_mesh` | função | `(mesh, *, method='taubin', iterations=5, lam=0.5, mu=-0.53) -> MeshData` | Suavização Laplaciana ou de Taubin. |
+| `remove_outlier_vertices` | função | `(mesh, *, nb_neighbors=20, std_ratio=2.0) -> MeshData` | Remove vértices atípicos por estatística de vizinhos. |
+| `keep_largest_component` | função | `(mesh) -> MeshData` | Mantém só o maior componente conexo. |
+| `decimate_mesh` | função | `(mesh, *, target_faces=None, ratio=0.5) -> MeshData` | Reduz o número de faces da malha. |
+| `remove_self_intersections` | função | `(mesh) -> MeshData` | Remove faces auto-intersectantes com pymeshlab. |
+| `clean_mesh` | função | `(mesh, *, config=None, verbose=False) -> MeshData` | Roda o pipeline completo de limpeza. |
 
 #### `pinneapple_design.geometry.ops.curvature`
 
-Discrete differential geometry on triangle surface meshes (NumPy/SciPy).
+Geometria diferencial discreta em malhas de triângulos: áreas mistas, Laplaciano cotangente, Laplace-Beltrami e curvaturas.
 
 <small>`pinneapple_design/geometry/ops/curvature.py` · 188 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `boundary_vertices` | função | `(mesh_or_vertices, faces=None) -> np.ndarray` | Boolean mask of vertices on a boundary edge (edge used by one face). |
-| `euler_characteristic` | função | `(mesh_or_vertices, faces=None) -> int` |  |
-| `mixed_areas` | função | `(mesh_or_vertices, faces=None) -> np.ndarray` | Per-vertex mixed Voronoi area; the areas sum to the surface area. |
-| `cotan_laplacian` | função | `(mesh_or_vertices, faces=None) -> sparse.csr_matrix` | Symmetric cotangent matrix ``C`` with ``C_ij = (cot a_ij + cot b_ij)/2`` off the diagonal and ``C_ii = -sum_j C_ij``; ``(C f)_i`` is the Laplacian of ``f`` integrated over vertex i's mixed area (Eq. 8), so the pointwise Laplace-Beltrami is ``(C f)_i / A_i``. |
-| `laplace_beltrami` | função | `(f, mesh_or_vertices, faces=None) -> np.ndarray` | Pointwise Laplace-Beltrami of a vertex field ``f`` (n,) or (n, d). |
-| `gaussian_curvature` | função | `(mesh_or_vertices, faces=None, *, boundary='geodesic') -> np.ndarray` | Angle-defect Gaussian curvature per vertex. |
-| `mean_curvature` | função | `(mesh_or_vertices, faces=None, *, signed=True, boundary='nan') -> np.ndarray` | Mean curvature ``H`` per vertex from ``Delta x = -2 H n``. |
-| `principal_curvatures` | função | `(mesh_or_vertices, faces=None) -> Tuple[np.ndarray, np.ndarray]` |  |
+| `boundary_vertices` | função | `(mesh_or_vertices, faces=None) -> np.ndarray` | Máscara dos vértices em arestas de borda. |
+| `euler_characteristic` | função | `(mesh_or_vertices, faces=None) -> int` | Característica de Euler V - E + F. |
+| `mixed_areas` | função | `(mesh_or_vertices, faces=None) -> np.ndarray` | Área mista de Voronoi por vértice. |
+| `cotan_laplacian` | função | `(mesh_or_vertices, faces=None) -> sparse.csr_matrix` | Matriz Laplaciana cotangente simétrica. |
+| `laplace_beltrami` | função | `(f, mesh_or_vertices, faces=None) -> np.ndarray` | Laplace-Beltrami pontual de um campo nos vértices. |
+| `gaussian_curvature` | função | `(mesh_or_vertices, faces=None, *, boundary='geodesic') -> np.ndarray` | Curvatura gaussiana por defeito angular. |
+| `mean_curvature` | função | `(mesh_or_vertices, faces=None, *, signed=True, boundary='nan') -> np.ndarray` | Curvatura média por vértice a partir de Δx = -2Hn. |
+| `principal_curvatures` | função | `(mesh_or_vertices, faces=None) -> Tuple[np.ndarray, np.ndarray]` | Curvaturas principais k1 e k2 a partir de H e K. |
 
 #### `pinneapple_design.geometry.ops.features`
 
-Face/vertex normals, areas, and mesh feature computation.
+Normais de face e vértice, áreas e um indicador simples de curvatura. [sem teste]
 
 <small>`pinneapple_design/geometry/ops/features.py` · 88 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `compute_face_normals` | função | `(mesh) -> np.ndarray` | Compute face normals (M,3). |
-| `compute_vertex_normals` | função | `(mesh) -> np.ndarray` | Compute vertex normals by area-weighted face normals. |
-| `compute_face_areas` | função | `(mesh) -> np.ndarray` | Compute triangle face areas (M,). |
-| `compute_curvature_proxy` | função | `(mesh) -> np.ndarray` | Very lightweight curvature proxy per face. |
+| `compute_face_normals` | função | `(mesh) -> np.ndarray` | Normais das faces. |
+| `compute_vertex_normals` | função | `(mesh) -> np.ndarray` | Normais dos vértices ponderadas pela área. |
+| `compute_face_areas` | função | `(mesh) -> np.ndarray` | Áreas das faces. |
+| `compute_curvature_proxy` | função | `(mesh) -> np.ndarray` | Indicador leve de curvatura por face. |
 
 #### `pinneapple_design.geometry.ops.lbm_bridge`
 
-Bridge from a surface mesh (STL / trimesh) to a boolean LBM obstacle mask.
+Voxeliza uma malha de superfície (STL/trimesh) numa máscara booleana 3D de obstáculo para o solver LBM, com ângulo de ataque.
 
 <small>`pinneapple_design/geometry/ops/lbm_bridge.py` · 249 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mesh_to_obstacle_mask` | função | `(mesh, bounds, resolution, *, aoa_deg=0.0, rotation_axis='y', oracle_supersample=2, devic…)` | Voxelize a surface mesh into a boolean 3D LBM obstacle/solid mask. |
+| `mesh_to_obstacle_mask` | função | `(mesh, bounds, resolution, *, aoa_deg=0.0, rotation_axis='y', oracle_supersample=2, devic…)` | Gera a máscara sólida 3D do LBM a partir de uma malha, com rotação por ângulo de ataque. |
 
 #### `pinneapple_design.geometry.ops.meshfree`
 
-Meshfree geometry utilities.
+Utilitários sem malha: interpolação por funções de base radial e SDF implícita reconstruída de nuvem de pontos.
 
 <small>`pinneapple_design/geometry/ops/meshfree.py` · 397 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RBFInterpolator` | classe | `(kernel='gaussian', eps=1.0, reg=1e-10) -> None` | Scattered data interpolation via Radial Basis Functions. |
-| `ImplicitSurfaceRBF` | classe | `(kernel='gaussian', eps=2.0, offset=0.01, reg=1e-08) -> None` | Reconstruct a continuous SDF approximation from a point cloud with normals. |
+| `RBFInterpolator` | classe | `(kernel='gaussian', eps=1.0, reg=1e-10) -> None` | Interpolação de dados espalhados por RBF, com gradiente. |
+| `ImplicitSurfaceRBF` | classe | `(kernel='gaussian', eps=2.0, offset=0.01, reg=1e-08) -> None` | Reconstrói uma SDF aproximada de pontos com normais e amostra dentro/contorno. |
 
 #### `pinneapple_design.geometry.ops.occ_features`
 
-Direct, parametric OpenCASCADE (OCC) solid-modeling feature operations.
+Operações paramétricas diretas do OpenCASCADE (filete, chanfro, casca) sobre sólidos CadQuery/OCC.
 
 <small>`pinneapple_design/geometry/ops/occ_features.py` · 206 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fillet_edges` | função | `(solid, radius, edge_selector=None)` | Apply a real, parametric constant-radius fillet to a solid's edges. |
-| `chamfer_edges` | função | `(solid, distance, edge_selector=None)` | Apply a real, parametric chamfer to a solid's edges. |
-| `shell_solid` | função | `(solid, thickness, faces_to_remove=None)` | Hollow out a solid into a shell of the given wall thickness. |
+| `fillet_edges` | função | `(solid, radius, edge_selector=None)` | Aplica filete de raio constante nas arestas de um sólido. |
+| `chamfer_edges` | função | `(solid, distance, edge_selector=None)` | Aplica chanfro nas arestas de um sólido. |
+| `shell_solid` | função | `(solid, thickness, faces_to_remove=None)` | Esvazia um sólido numa casca de espessura dada. |
 
 #### `pinneapple_design.geometry.ops.pointcloud`
 
-Point cloud utilities.
+Utilitários de nuvem de pontos: amostrar de malha e de SDF 2D. [sem teste]
 
 <small>`pinneapple_design/geometry/ops/pointcloud.py` · 80 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PointCloud` | classe | `(points, normals, features)` |  |
-| `mesh_to_pointcloud` | função | `(mesh, *, n_surface=4096, seed=0, device=None, dtype=torch.float32, include_normals=True)…)` |  |
-| `sample_pointcloud_from_mesh` | função | `(points, cells, *, n=8192, seed=0) -> np.ndarray` | Convenience wrapper used by the webapp. |
-| `sdf2d_to_pointcloud` | função | `(sdf, *, grid=None, n_boundary=4096, band=0.01, seed=0, device=None, dtype=torch.float32)…)` |  |
+| `PointCloud` | classe | `(points, normals, features)` | Nuvem de pontos com normais e atributos. |
+| `mesh_to_pointcloud` | função | `(mesh, *, n_surface=4096, seed=0, device=None, dtype=torch.float32, include_normals=True)…)` | Amostra uma nuvem de pontos da superfície de uma malha. |
+| `sample_pointcloud_from_mesh` | função | `(points, cells, *, n=8192, seed=0) -> np.ndarray` | Atalho usado pelo webapp para amostrar pontos de uma malha. |
+| `sdf2d_to_pointcloud` | função | `(sdf, *, grid=None, n_boundary=4096, band=0.01, seed=0, device=None, dtype=torch.float32)…)` | Amostra pontos de contorno de uma SDF 2D. |
 
 #### `pinneapple_design.geometry.ops.remesh`
 
-Surface remeshing via pymeshlab isotropic explicit remeshing.
+Remalha de superfície isotrópica via pymeshlab (melhor esforço). [sem teste]
 
 <small>`pinneapple_design/geometry/ops/remesh.py` · 58 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `remesh_surface` | função | `(mesh, *, max_edge_length=None, target_edge_length=None) -> MeshData` | Surface remeshing (best-effort). |
+| `remesh_surface` | função | `(mesh, *, max_edge_length=None, target_edge_length=None) -> MeshData` | Remalha a superfície com comprimento de aresta alvo. |
 
 #### `pinneapple_design.geometry.ops.repair`
 
-Best-effort mesh repair using trimesh (duplicates, degenerate, normals, holes).
+Reparo de malha por melhor esforço com trimesh (duplicados, degenerados, normais, buracos).
 
 <small>`pinneapple_design/geometry/ops/repair.py` · 61 linhas · testes: 1</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `repair_mesh` | função | `(mesh, *, remove_duplicates=True, remove_degenerate=True, fix_normals=True, fill_holes=Fa…)` | Best-effort mesh repair using trimesh. |
+| `repair_mesh` | função | `(mesh, *, remove_duplicates=True, remove_degenerate=True, fix_normals=True, fill_holes=Fa…)` | Repara a malha com trimesh. |
 
 #### `pinneapple_design.geometry.ops.simplify`
 
-Mesh simplification via trimesh or Open3D quadric decimation.
+Simplificação de malha por trimesh ou decimação quádrica do Open3D.
 
 <small>`pinneapple_design/geometry/ops/simplify.py` · 187 linhas · testes: 1</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `simplify_mesh` | função | `(mesh, *, target_faces=10000, backend='auto', on_missing='error') -> MeshData` | Simplify a mesh. |
+| `simplify_mesh` | função | `(mesh, *, target_faces=10000, backend='auto', on_missing='error') -> MeshData` | Simplifica a malha até `target_faces`, com escolha de backend. |
 
 #### `pinneapple_design.geometry.ops.voxelize`
 
-Voxelization and meshfree sampling utilities for PINNeAPPle geometries.
+Grades de voxels e amostragem sem malha (domínio, SDF, nuvem de pontos) para gerar pontos de colocação. [sem teste]
 
 <small>`pinneapple_design/geometry/ops/voxelize.py` · 284 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VoxelGrid` | classe | `(data, origin, voxel_size, dim, meta)` | Regular axis-aligned 3-D (or 2-D) voxel grid. |
-| `voxelize_domain` | função | `(bounds, resolution, device=torch.device('cpu')) -> VoxelGrid` | Create a fully-occupied VoxelGrid for a rectangular domain. |
-| `voxelize_sdf` | função | `(sdf_fn, bounds, resolution, *, threshold=0.0, device=torch.device('cpu')) -> VoxelGrid` | Voxelize a signed-distance field: voxel is occupied when sdf ≤ threshold. |
-| `voxelize_pointcloud` | função | `(points, bounds, resolution, *, values=None, aggregate='mean', device=torch.device('cpu')…)` | Rasterize a point cloud into a voxel grid. |
-| `voxelgrid_to_collocation` | função | `(grid, threshold=0.5, include_values=False)` | Extract occupied voxel centres as collocation points for PINNeAPPle. |
-| `sample_voxelgrid` | função | `(grid, n_samples, strategy='random', threshold=0.5) -> torch.Tensor` | Sample collocation points from a VoxelGrid. |
+| `VoxelGrid` | classe | `(data, origin, voxel_size, dim, meta)` | Grade regular de voxels 2D/3D com conversão mundo-voxel e centros ocupados. |
+| `voxelize_domain` | função | `(bounds, resolution, device=torch.device('cpu')) -> VoxelGrid` | Cria uma grade totalmente ocupada para um domínio retangular. |
+| `voxelize_sdf` | função | `(sdf_fn, bounds, resolution, *, threshold=0.0, device=torch.device('cpu')) -> VoxelGrid` | Voxeliza uma SDF: voxel ocupado onde sdf <= limiar. |
+| `voxelize_pointcloud` | função | `(points, bounds, resolution, *, values=None, aggregate='mean', device=torch.device('cpu')…)` | Rasteriza uma nuvem de pontos numa grade de voxels. |
+| `voxelgrid_to_collocation` | função | `(grid, threshold=0.5, include_values=False)` | Extrai os centros dos voxels ocupados como pontos de colocação. |
+| `sample_voxelgrid` | função | `(grid, n_samples, strategy='random', threshold=0.5) -> torch.Tensor` | Amostra pontos de colocação de uma grade de voxels. |
 
 #### `pinneapple_design.geometry.optimize.loop`
 
-Geometry optimization loop helpers.
+Envoltório amigável para UI que usa `EvolutionaryDesignOptimizer` (CMA-ES/GA) com parâmetros em dicionário. [sem teste]
 
 <small>`pinneapple_design/geometry/optimize/loop.py` · 124 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometryOptimizer` | classe | `(space, *, seed=0, sigma0=0.2)` | UI-friendly geometry optimizer backed by EvolutionaryDesignOptimizer. |
+| `GeometryOptimizer` | classe | `(space, *, seed=0, sigma0=0.2)` | Otimizador de geometria com interface ask/tell/run sobre `EvolutionaryDesignOptimizer`. |
 
 #### `pinneapple_design.geometry.retrieval`
 
-Geometry retrieval: find the parts most similar to a query part.
+Busca de peças parecidas: descritor de forma D2 sem ML e índice por similaridade de cosseno, também sobre embeddings pré-calculados.
 
 <small>`pinneapple_design/geometry/retrieval.py` · 122 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GeometryIndex` | classe | `(ids, vectors, captions)` | Cosine-similarity index over part vectors (brute force; fine up to ~10^5-10^6 parts). |
-| `shape_descriptor` | função | `(mesh, n_pairs=20000, bins=48, seed=0) -> np.ndarray` | D2 histogram (``bins``) + 3 sorted normalised principal extents, L2-normalised. |
-| `load_caption_index` | função | `(parquet_paths, id_column='abc_id', limit=None) -> GeometryIndex` | Index finalrev-style parquet shards (columns ``abc_id``, ``caption``, ``embedding``). |
+| `GeometryIndex` | classe | `(ids, vectors, captions)` | Índice de similaridade de cosseno (força bruta) sobre vetores de peças, com busca por legenda. |
+| `shape_descriptor` | função | `(mesh, n_pairs=20000, bins=48, seed=0) -> np.ndarray` | Histograma D2 mais extensões principais, normalizado; invariante a rotação, translação e escala. |
+| `load_caption_index` | função | `(parquet_paths, id_column='abc_id', limit=None) -> GeometryIndex` | Monta um índice a partir de shards parquet com `abc_id`, `caption` e `embedding`. |
 
 #### `pinneapple_design.geometry.sample`
 
-_Módulo sem docstring e sem texto._
+Reexporta os amostradores baricêntricos, de caixa, de superfície e de partículas.
 
 <small>`pinneapple_design/geometry/sample/__init__.py` · 31 linhas · testes: 3</small>
 
 #### `pinneapple_design.geometry.sample.barycentric`
 
-Barycentric sampling and interpolation on triangles.
+Amostragem e interpolação baricêntrica em triângulos. [sem teste]
 
 <small>`pinneapple_design/geometry/sample/barycentric.py` · 66 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_barycentric_uv` | função | `(n, rng=None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Sample barycentric weights (w0, w1, w2) uniformly over a triangle. |
-| `sample_points_on_triangles` | função | `(tri_v0, tri_v1, tri_v2, n, rng=None) -> np.ndarray` | Sample n points uniformly on a single triangle defined by (v0,v1,v2). |
-| `interpolate_on_triangles` | função | `(values_v0, values_v1, values_v2, w0, w1, w2) -> np.ndarray` | Barycentric interpolation of any per-vertex values. |
+| `sample_barycentric_uv` | função | `(n, rng=None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Amostra pesos baricêntricos uniformes num triângulo. |
+| `sample_points_on_triangles` | função | `(tri_v0, tri_v1, tri_v2, n, rng=None) -> np.ndarray` | Amostra pontos uniformes num triângulo. |
+| `interpolate_on_triangles` | função | `(values_v0, values_v1, values_v2, w0, w1, w2) -> np.ndarray` | Interpola valores por vértice com pesos baricêntricos. |
 
 #### `pinneapple_design.geometry.sample.grids`
 
-Uniform and Latin hypercube sampling in axis-aligned boxes.
+Amostragem uniforme e por hipercubo latino em caixas. [sem teste]
 
 <small>`pinneapple_design/geometry/sample/grids.py` · 63 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_uniform_box` | função | `(bounds_min, bounds_max, n, rng=None) -> np.ndarray` | Uniform random samples inside an axis-aligned bounding box. |
-| `sample_latin_hypercube_box` | função | `(bounds_min, bounds_max, n, rng=None) -> np.ndarray` | Latin Hypercube Sampling (LHS) in an axis-aligned box. Good for collocation coverage without clustering. |
+| `sample_uniform_box` | função | `(bounds_min, bounds_max, n, rng=None) -> np.ndarray` | Amostras uniformes numa caixa. |
+| `sample_latin_hypercube_box` | função | `(bounds_min, bounds_max, n, rng=None) -> np.ndarray` | Amostras por hipercubo latino numa caixa. |
 
 #### `pinneapple_design.geometry.sample.marching_squares`
 
-_Módulo sem docstring e sem texto._
+Extrai o contorno de uma SDF 2D em torch por marching squares e amostra pontos dele. [sem teste]
 
 <small>`pinneapple_design/geometry/sample/marching_squares.py` · 86 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `marching_squares_boundary` | função | `(sdf, *, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), resolution=256, device=None, dtype…)` | Return boundary polyline vertices as (M,2) tensor. |
-| `sample_boundary_points` | função | `(sdf, n, *, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), resolution=256, device=None, dt…)` | Sample n boundary points from the extracted contour vertices. |
+| `marching_squares_boundary` | função | `(sdf, *, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), resolution=256, device=None, dtype…)` | Devolve os vértices da polilinha de contorno. |
+| `sample_boundary_points` | função | `(sdf, n, *, bounds_min=(0.0, 0.0), bounds_max=(1.0, 1.0), resolution=256, device=None, dt…)` | Amostra `n` pontos de contorno a partir do contorno extraído. |
 
 #### `pinneapple_design.geometry.sample.particles`
 
-Particle samplers for SPH and particle-based datasets.
+Amostradores de partículas para SPH e conjuntos baseados em partículas. [sem teste]
 
 <small>`pinneapple_design/geometry/sample/particles.py` · 51 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_box_particles` | função | `(*, lo, hi, spacing, jitter=0.0, device=None, dtype=torch.float32) -> torch.Tensor` | Regular grid of particles in an axis-aligned box. |
-| `sample_circle_particles` | função | `(*, center, radius, spacing, jitter=0.0, device=None, dtype=torch.float32) -> torch.Tensor` | 2D particles inside a circle. |
+| `sample_box_particles` | função | `(*, lo, hi, spacing, jitter=0.0, device=None, dtype=torch.float32) -> torch.Tensor` | Grade regular de partículas numa caixa, com tremor opcional. |
+| `sample_circle_particles` | função | `(*, center, radius, spacing, jitter=0.0, device=None, dtype=torch.float32) -> torch.Tensor` | Partículas 2D dentro de um círculo. |
 
 #### `pinneapple_design.geometry.sample.points`
 
-Surface and boundary point sampling for triangle meshes.
+Amostragem de pontos na superfície de malhas de triângulos (por área ou por pesos). [sem teste]
 
 <small>`pinneapple_design/geometry/sample/points.py` · 108 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_surface_points` | função | `(mesh, n, *, rng=None, return_normals=True, return_face_id=True)` | Sample n points uniformly over the surface (triangle areas as weights). |
-| `sample_surface_points_weighted` | função | `(mesh, n, *, face_weights, rng=None, return_normals=True, return_face_id=True)` | Sample n points on surface using user-provided per-face weights. |
+| `sample_surface_points` | função | `(mesh, n, *, rng=None, return_normals=True, return_face_id=True)` | Amostra pontos uniformes na superfície, com normais e índice da face. |
+| `sample_surface_points_weighted` | função | `(mesh, n, *, face_weights, rng=None, return_normals=True, return_face_id=True)` | Amostra pontos com pesos por face dados pelo usuário. |
 
 #### `pinneapple_design.geometry.trough`
 
-Longitudinal section of a melt runner (trough) as a 2-D OpenFOAM mesh: a sloped floor, a weir (skimmer) at the downstream end, a jet entering through the top, and open air above.
+Seção longitudinal de uma calha de metal fundido como malha 2D do OpenFOAM (blockMesh): fundo inclinado, vertedouro, jato entrando por cima e ar acima.
 
 <small>`pinneapple_design/geometry/trough.py` · 115 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TroughSection` | classe | `(length, slope_deg, weir_height, top, inlet_x, inlet_width, cell, thickness)` |  |
+| `TroughSection` | classe | `(length, slope_deg, weir_height, top, inlet_x, inlet_width, cell, thickness)` | Geometria da calha; gera o `blockMeshDict`, a gravidade inclinada, o nível do banho e grava a malha. |
 
 #### `pinneapple_design.geometry.vehicle_cad`
 
-Parametric vehicle CAD: closed-mesh primitives for rover-class vehicles, parts with materials and masses, mass properties (centre of mass and inertia from the meshes) and assembly into bodies for multibody simulation.
+CAD paramétrico de veículos tipo rover: primitivas de malha fechada, peças com material e massa, propriedades de massa e montagem em corpos para simulação multicorpo.
 
 <small>`pinneapple_design/geometry/vehicle_cad.py` · 715 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CADPart` | classe | `(name, body, vertices, faces, material, mass, group)` |  |
-| `VehicleCAD` | classe | `(title, parts, frames, notes)` | Parts grouped into bodies; every coordinate is in one assembly frame (the vehicle at its reference pose). |
-| `orient_outward` | função | `(mesh) -> Mesh` | Flip the winding of a closed mesh whose signed volume is negative. |
-| `signed_volume` | função | `(V, F) -> float` |  |
-| `box` | função | `(size, center=(0, 0, 0), R=None) -> Mesh` |  |
-| `beveled_box` | função | `(size, center=(0, 0, 0), bevel=0.02, n=3, R=None) -> Mesh` | Box with rounded edges of radius ``bevel`` (convex hull of eight corner spheres). |
-| `cylinder` | função | `(p0, p1, radius, n=32) -> Mesh` | Closed cylinder (or frustum, ``radius=(r0, r1)``) between two points. |
-| `tube_shell` | função | `(axis_p0, axis_p1, r_in, r_out, n=48) -> Mesh` | Closed annular tube (a wheel rim): inner and outer cylinders with annular end faces. |
-| `revolve_closed` | função | `(profile, axis_origin=(0, 0, 0), axis=(0, 0, 1), n=48) -> Mesh` | Closed solid of revolution of a closed polygon ``profile`` of (r, h) points about ``axis``. |
-| `paraboloid_dish` | função | `(diameter, depth, thickness, center, axis, n=40, m=8) -> Mesh` | Dish antenna reflector: a paraboloid shell of ``depth`` over ``diameter`` (its vertex at ``center``). |
-| `loft` | função | `(rings, cap='fan') -> Mesh` | Closed solid skinned through ``rings`` (m, n, 3): m closed polylines of n points each, in corresponding order. |
-| `offset_polygon` | função | `(poly, d) -> np.ndarray` | Convex polygon (k, 2) moved inward by ``d`` along every edge normal (outward for ``d < 0``). |
-| `chamfered_rect` | função | `(sx, sy, c=0.0) -> np.ndarray` | Rectangle ``sx`` x ``sy`` centred at the origin with its four corners cut at 45 deg by ``c`` (CCW). |
-| `extrude_polygon` | função | `(poly, z0, z1, chamfer_top=0.0, chamfer_bottom=0.0, R=None, t=(0, 0, 0)) -> Mesh` | Prism of the convex polygon ``poly`` (k, 2) from ``z0`` to ``z1``, its top and bottom edges chamfered at 45 deg by ``chamfer_top`` / ``chamfer_bottom`` (the cap polygons are inset by that amount), then rotated by ``R`` and moved by ``t``. Use it for body panels with bevelled vertical edges (cut the … |
-| `chamfered_box` | função | `(size, center=(0, 0, 0), edge=0.0, top=0.0, bottom=0.0, R=None) -> Mesh` | Box with flat 45 deg chamfers: ``edge`` on the four vertical edges, ``top`` / ``bottom`` on the edges of the top and bottom faces (a machined or sheet-metal look, as opposed to the rounded :func:`beveled_box`). |
-| `box_beam` | função | `(p0, p1, section0, section1=None, up=(0, 0, 1), chamfer=0.0) -> Mesh` | Straight (optionally tapered) box-section beam from ``p0`` to ``p1``. ``section`` = (width, height): height along ``up`` (projected normal to the beam), width across; ``section1`` tapers it to the far end; ``chamfer`` cuts the four long edges (as a fraction of the smaller side of each section). |
-| `ladder_rail` | função | `(p0, p1, width, rail=(0.03, 0.04), rungs=4, side=(0, 1, 0), rung=(0.02, 0.02)) -> Mesh` | Ladder / guide-rail frame: two parallel box rails ``width`` apart (centre to centre) along ``side``, from ``p0`` to ``p1``, tied by ``rungs`` cross members (deployment rails, linear stages, truss frames). |
-| `helix_sweep` | função | `(origin, axis, r_in, r_out, thickness, pitch, length, n_per_turn=24, phase=0.0) -> Mesh` | Helical flight (auger flute, screw thread): a rectangular section from ``r_in`` to ``r_out`` and ``thickness`` along the axis swept along a helix of ``pitch`` for ``length`` from ``origin`` along ``axis``. |
-| `mli_blanket` | função | `(width, height, thickness=0.012, wrinkle=0.004, n=(28, 14), seed=0) -> Mesh` | Multi-layer-insulation blanket in the x-z plane centred at the origin: a slab whose outer face (-y, like :func:`solar_panel`) is crumpled by ``wrinkle`` [m] of smooth random relief, the back face flat. |
-| `rotate` | função | `(mesh, R, about=(0, 0, 0)) -> Mesh` |  |
-| `translate` | função | `(mesh, t) -> Mesh` |  |
-| `rot` | função | `(axis, angle_rad)` |  |
-| `merge` | função | `(meshes) -> Mesh` |  |
-| `mesh_mass_properties` | função | `(V, F, mass) -> tuple[np.ndarray, np.ndarray, float]` | Centre of mass and inertia tensor about it [kg m^2] of a closed mesh of uniform density holding ``mass``, and its volume [m^3] (Eberly, "Polyhedral mass properties", 2002). |
-| `combine_mass` | função | `(items) -> tuple[float, np.ndarray, np.ndarray]` | Total mass, centre of mass and inertia about it of (mass, com, inertia about own com) items. |
-| `rover_wheel` | função | `(radius, width, *, rim_thickness=0.004, grousers=0, grouser_height=0.0, grouser_thickness…)` | A rigid rover wheel in its own frame (axle along y, centre at the origin): rim shell, grousers (straight lugs or chevrons), a spoked web on the inner side, hub (drive actuator housing). Returns parts ``(suffix, mesh, material, mass_share)``; mass shares are by volume x material density ratio. |
-| `solar_panel` | função | `(width, height, thickness=0.025, cells=(6, 4), gap=0.012, frame=0.03)` | Vertical solar panel in the x-z plane (facing -y... rotate as needed), centred at the origin: aluminium frame and substrate plus a grid of cells standing proud by 1 mm. |
-| `radiator` | função | `(width, depth, thickness=0.02, fins=12, fin_height=0.03)` | Horizontal radiator plate (x-y plane, top at z = 0) with ``fins`` parallel fins along x. |
-| `camera_head` | função | `(width, depth, height, baseline, lens_radius=0.022, lights=2)` | Mast camera head facing +x: housing, a stereo pair of lenses ``baseline`` apart, LED light bars. |
-| `actuator` | função | `(p0, p1, radius, cap_radius=None, cap_length=None, flange=0.012, housing='white_paint', t…)` | Rotary actuator in assembly coordinates: a cylindrical housing from ``p0`` to ``p1`` (output end at ``p0``), flange rings at both ends and a motor / gearbox cap beyond ``p1`` (BLDC motor plus strain-wave gear class joints: suspension, steering, mast pan). |
-| `pan_tilt_head` | função | `(width=0.36, depth=0.15, height=0.12, baseline=0.24, lens_radius=0.02, lights=6, aft_came…)` | Mast head on a pan-tilt unit, in its own frame (pan axis = z through the origin, looking +x): pan drum, a U-yoke carrying the tilt axle, a camera box with a stereo pair of lenses ``baseline`` apart, a row of ``lights`` LEDs under them and an optional aft-looking camera. The top of the head is at … |
-| `drill_assembly` | função | `(rail_height=1.3, rail_width=0.16, rail_offset=0.075, auger_radius=0.0125, flight_radius=…)` | Rotary-percussive planetary drill with a deployment rail, in its own frame: drill axis = z through the origin, footpad bottom at z = 0, the rail frame (and the mount face) on the -x side. Parts: a ladder guide rail of ``rail_height`` with a backing deployment stage, the drill head … |
+| `CADPart` | classe | `(name, body, vertices, faces, material, mass, group)` | Peça com malha, corpo, material, massa e grupo; calcula propriedades de massa. |
+| `VehicleCAD` | classe | `(title, parts, frames, notes)` | Conjunto de peças agrupadas em corpos, com propriedades de massa, poses, cena e exportação. |
+| `orient_outward` | função | `(mesh) -> Mesh` | Inverte o enrolamento de uma malha fechada com volume negativo. |
+| `signed_volume` | função | `(V, F) -> float` | Volume com sinal de uma malha fechada. |
+| `box` | função | `(size, center=(0, 0, 0), R=None) -> Mesh` | Caixa como malha, com rotação opcional. |
+| `beveled_box` | função | `(size, center=(0, 0, 0), bevel=0.02, n=3, R=None) -> Mesh` | Caixa com arestas arredondadas. |
+| `cylinder` | função | `(p0, p1, radius, n=32) -> Mesh` | Cilindro (ou tronco de cone) fechado entre dois pontos. |
+| `tube_shell` | função | `(axis_p0, axis_p1, r_in, r_out, n=48) -> Mesh` | Tubo anular fechado (aro de roda). |
+| `revolve_closed` | função | `(profile, axis_origin=(0, 0, 0), axis=(0, 0, 1), n=48) -> Mesh` | Sólido de revolução de um perfil fechado. |
+| `paraboloid_dish` | função | `(diameter, depth, thickness, center, axis, n=40, m=8) -> Mesh` | Refletor de antena parabólica como casca. |
+| `loft` | função | `(rings, cap='fan') -> Mesh` | Sólido fechado passando por anéis de pontos. |
+| `offset_polygon` | função | `(poly, d) -> np.ndarray` | Desloca um polígono convexo para dentro ou para fora. |
+| `chamfered_rect` | função | `(sx, sy, c=0.0) -> np.ndarray` | Retângulo com cantos chanfrados a 45 graus. |
+| `extrude_polygon` | função | `(poly, z0, z1, chamfer_top=0.0, chamfer_bottom=0.0, R=None, t=(0, 0, 0)) -> Mesh` | Prisma de um polígono convexo com chanfros em cima e embaixo. |
+| `chamfered_box` | função | `(size, center=(0, 0, 0), edge=0.0, top=0.0, bottom=0.0, R=None) -> Mesh` | Caixa com chanfros planos a 45 graus. |
+| `box_beam` | função | `(p0, p1, section0, section1=None, up=(0, 0, 1), chamfer=0.0) -> Mesh` | Viga de seção caixão reta, com afunilamento e chanfro opcionais. |
+| `ladder_rail` | função | `(p0, p1, width, rail=(0.03, 0.04), rungs=4, side=(0, 1, 0), rung=(0.02, 0.02)) -> Mesh` | Trilho em escada: dois trilhos paralelos ligados por travessas. |
+| `helix_sweep` | função | `(origin, axis, r_in, r_out, thickness, pitch, length, n_per_turn=24, phase=0.0) -> Mesh` | Hélice de seção retangular (rosca, broca). |
+| `mli_blanket` | função | `(width, height, thickness=0.012, wrinkle=0.004, n=(28, 14), seed=0) -> Mesh` | Manta de isolamento multicamada com face externa enrugada. |
+| `rotate` | função | `(mesh, R, about=(0, 0, 0)) -> Mesh` | Gira uma malha. |
+| `translate` | função | `(mesh, t) -> Mesh` | Translada uma malha. |
+| `rot` | função | `(axis, angle_rad)` | Matriz de rotação em torno de um eixo. |
+| `merge` | função | `(meshes) -> Mesh` | Junta várias malhas. |
+| `mesh_mass_properties` | função | `(V, F, mass) -> tuple[np.ndarray, np.ndarray, float]` | Centro de massa, tensor de inércia e volume de uma malha fechada de densidade uniforme. |
+| `combine_mass` | função | `(items) -> tuple[float, np.ndarray, np.ndarray]` | Combina massa, centro de massa e inércia de vários itens. |
+| `rover_wheel` | função | `(radius, width, *, rim_thickness=0.004, grousers=0, grouser_height=0.0, grouser_thickness…)` | Roda rígida de rover (aro, garras, raios, cubo) como lista de peças. |
+| `solar_panel` | função | `(width, height, thickness=0.025, cells=(6, 4), gap=0.012, frame=0.03)` | Painel solar com moldura, substrato e células. |
+| `radiator` | função | `(width, depth, thickness=0.02, fins=12, fin_height=0.03)` | Placa radiadora com aletas. |
+| `camera_head` | função | `(width, depth, height, baseline, lens_radius=0.022, lights=2)` | Cabeça de câmera com par estéreo e barras de LED. |
+| `actuator` | função | `(p0, p1, radius, cap_radius=None, cap_length=None, flange=0.012, housing='white_paint', t…)` | Atuador rotativo com carcaça, flanges e tampa do motor. |
+| `pan_tilt_head` | função | `(width=0.36, depth=0.15, height=0.12, baseline=0.24, lens_radius=0.02, lights=6, aft_came…)` | Cabeça de mastro com pan-tilt, câmeras e LEDs. |
+| `drill_assembly` | função | `(rail_height=1.3, rail_width=0.16, rail_offset=0.075, auger_radius=0.0125, flight_radius=…)` | Broca planetária com trilho de implantação, cabeça e trado. |
 
 #### `pinneapple_design.geometry.vehicles3d`
 
-Parametric 3-D vehicles for CFD and photoreal rendering: a road car and a launch vehicle.
+Veículos 3D paramétricos para CFD e render: carro de passeio, carro de fórmula e lançador de dois estágios.
 
 <small>`pinneapple_design/geometry/vehicles3d.py` · 687 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RoadCar` | classe | `(length, width, roof_height, clearance, hood_height, deck_height, windshield_deg, slant_d…)` | A four-door coupé / sedan: ``style`` "fastback" (roof runs into a slanted rear window down to the tail) or "notchback" (rear window, then a trunk deck). Dimensions in metres. |
-| `LaunchVehicle` | classe | `(length, diameter, fairing_length, fairing_diameter, interstage_x, fin_root, fin_tip, fin…)` | A two-stage launcher with a tangent-ogive fairing and four tail fins in a + configuration. |
-| `FormulaCar` | classe | `(wheelbase, front_axle_x, ride_height, front_track, rear_track, wheel_radius, front_tyre_…)` | A parametric open-wheel racing car in the spirit of current Formula 1 (not any team's car): monocoque with sidepods and engine cover, floor with a diffuser, multi-element front and rear wings with endplates (DRS flap open or closed), driver helmet, halo and four exposed wheels. Metres, x from the … |
-| `road` | função | `(length=9.0, width=6.5, x0=-2.2) -> Part` | A flat asphalt plane at z = 0 (drawn only). |
-| `naca4` | função | `(m=0.06, p=0.4, t=0.1, n=40) -> np.ndarray` | Closed NACA 4-digit profile (x, z) on a unit chord, trailing edge -> upper surface -> leading edge -> lower surface, with a finite trailing edge (0.3 % thick) so the solid stays closed. |
+| `RoadCar` | classe | `(length, width, roof_height, clearance, hood_height, deck_height, windshield_deg, slant_d…)` | Sedã/cupê paramétrico (fastback ou notchback), com rodas, corpos para CFD e área frontal. |
+| `LaunchVehicle` | classe | `(length, diameter, fairing_length, fairing_diameter, interstage_x, fin_root, fin_tip, fin…)` | Lançador de dois estágios com coifa ogiva e quatro aletas; inclui estimativa de Barrowman. |
+| `FormulaCar` | classe | `(wheelbase, front_axle_x, ride_height, front_track, rear_track, wheel_radius, front_tyre_…)` | Carro de roda aberta paramétrico (não de nenhuma equipe), com asas, assoalho, difusor e rodas. |
+| `road` | função | `(length=9.0, width=6.5, x0=-2.2) -> Part` | Plano de asfalto em z = 0 (só para desenho). |
+| `naca4` | função | `(m=0.06, p=0.4, t=0.1, n=40) -> np.ndarray` | Perfil NACA 4 dígitos fechado com bordo de fuga finito. |
 
 #### `pinneapple_design.geometry_library`
 
@@ -2436,240 +2444,240 @@ Membrane-controlled release patch: area, membrane thickness and reservoir concen
 
 #### `pinneapple_design.thermal`
 
-Thermal design: heat sinks (sizing with physics + surrogate screening).
+Subpacote de projeto térmico: dimensionamento de dissipadores (física + triagem por surrogate) e o estudo de resfriamento de placa.
 
 <small>`pinneapple_design/thermal/__init__.py` · 2 linhas · testes: 3</small>
 
 #### `pinneapple_design.thermal.board_cooling`
 
-The self-optimizing engineer: cool an overheating part on a board with a heat sink and the enclosure fans.
+'Engenheiro que se auto-otimiza': resfria uma peça superaquecida numa placa com dissipador e ventiladores; reexporta `run_mission` e as etapas do estudo.
 
 <small>`pinneapple_design/thermal/board_cooling/__init__.py` · 29 linhas · testes: 10</small>
 
 #### `pinneapple_design.thermal.board_cooling.agent`
 
-The self-optimizing engineer: a cooling request in plain language -> plan -> controlled tools -> evidence.
+Agente do estudo de resfriamento: pedido em linguagem natural, plano (modelo fixo ou LLM via `pinneapple_autolab`), ferramentas controladas e evidências. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/agent.py` · 197 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `t_read_mission` | função | `(state, text) -> dict[str, Any]` |  |
-| `t_baseline` | função | `(state) -> dict[str, Any]` |  |
-| `t_screen_natural` | função | `(state, gaps_mm=(4.0, 6.0, 8.0, 11.0)) -> dict[str, Any]` | Still air: the largest heat sink the envelope allows, for a few fin gaps (the optimum gap of a natural- convection sink is several mm). If even the best one misses the limit, forced air is needed. |
-| `t_sample` | função | `(state, n=64, seed=0, workers=4) -> dict[str, Any]` |  |
-| `t_learn` | função | `(state, test_fraction=0.2, seed=0, max_error_k=3.0, min_coverage=0.9, add=32, max_n=320, …)` | Fit and measure on held-out designs; while the hold-out misses ``max_error_k`` or ``min_coverage``, run ``add`` more reference solves (new Latin-hypercube points) and measure again, up to ``max_n`` solves. The learning curve (hold-out metrics per sample size) is part of the evidence. |
-| `t_optimize` | função | `(state, rounds=5, k_sigma=2.0, seed=0) -> dict[str, Any]` |  |
-| `t_verify` | função | `(state) -> dict[str, Any]` |  |
-| `t_deliver` | função | `(state, out_dir='out', render=True, samples=24) -> dict[str, Any]` |  |
-| `toolbox` | função | `() -> Toolbox` |  |
-| `template_plan` | função | `(text, *, n=64, out_dir='out', render=True, workers=4) -> TemplatePlanner` |  |
-| `run_mission` | função | `(text, *, out_dir='out', planner='template', n=64, render=True, workers=4, llm=None, prov…)` | Plan and run the cooling study. ``planner``: "template" (deterministic) or "llm" (falls back to the template, with the reason in ``run.plan.notes``, when no model answers or its plan is not valid). |
+| `t_read_mission` | função | `(state, text) -> dict[str, Any]` | Ferramenta que lê o pedido de resfriamento e guarda a missão no estado. |
+| `t_baseline` | função | `(state) -> dict[str, Any]` | Ferramenta que resolve a placa nua em ar parado como ponto de partida. |
+| `t_screen_natural` | função | `(state, gaps_mm=(4.0, 6.0, 8.0, 11.0)) -> dict[str, Any]` | Testa em ar parado o maior dissipador que cabe, para alguns espaçamentos de aleta; se nem o melhor atende, conclui que precisa de ar forçado. |
+| `t_sample` | função | `(state, n=64, seed=0, workers=4) -> dict[str, Any]` | Ferramenta que roda soluções de referência em projetos amostrados. |
+| `t_learn` | função | `(state, test_fraction=0.2, seed=0, max_error_k=3.0, min_coverage=0.9, add=32, max_n=320, …)` | Ajusta o surrogate e mede numa amostra separada; enquanto erro ou cobertura não atendem, adiciona soluções de referência até um limite. |
+| `t_optimize` | função | `(state, rounds=5, k_sigma=2.0, seed=0) -> dict[str, Any]` | Ferramenta que roda o laço aprender-otimizar-verificar. |
+| `t_verify` | função | `(state) -> dict[str, Any]` | Ferramenta que verifica o projeto escolhido numa malha fina. |
+| `t_deliver` | função | `(state, out_dir='out', render=True, samples=24) -> dict[str, Any]` | Ferramenta que gera figuras, cena 3D, renders e relatório. |
+| `toolbox` | função | `() -> Toolbox` | Monta o `Toolbox` com as ferramentas acima. |
+| `template_plan` | função | `(text, *, n=64, out_dir='out', render=True, workers=4) -> TemplatePlanner` | Plano determinístico (sem LLM) com a sequência padrão de etapas. |
+| `run_mission` | função | `(text, *, out_dir='out', planner='template', n=64, render=True, workers=4, llm=None, prov…)` | Planeja e roda o estudo; com `planner='llm'` cai para o plano fixo se o modelo não responder ou o plano for inválido. |
 
 #### `pinneapple_design.thermal.board_cooling.learn`
 
-Fast approximation of the coupled reference: junction temperatures and the board-top temperature field.
+Aproximação rápida da referência acoplada: temperaturas de junção e mapa de temperatura da placa (POD + processo gaussiano), com avaliação em amostra separada. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/learn.py` · 107 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoolingSurrogate` | classe | `(t_air_c, modes, tj_, map_, fit_seconds, n_train)` |  |
-| `errors` | função | `(pred_tj, pred_map, Y, maps) -> dict[str, Any]` |  |
-| `holdout` | função | `(data, t_air_c, *, test_fraction=0.2, seed=0, modes=16) -> dict[str, Any]` | Train on part of the reference solves, measure on the rest: errors of the surrogate and of the nearest snapshot, coverage of the +-2 std band, prediction time against the reference time. |
+| `CoolingSurrogate` | classe | `(t_air_c, modes, tj_, map_, fit_seconds, n_train)` | Surrogate das temperaturas de junção e do mapa da placa, com ajuste, previsão e posto do mapa. |
+| `errors` | função | `(pred_tj, pred_map, Y, maps) -> dict[str, Any]` | Calcula os erros de previsão de temperaturas e mapas contra a referência. |
+| `holdout` | função | `(data, t_air_c, *, test_fraction=0.2, seed=0, modes=16) -> dict[str, Any]` | Treina numa parte das soluções e mede no resto: erros, cobertura da faixa de ±2 desvios e tempo de previsão. |
 
 #### `pinneapple_design.thermal.board_cooling.mission`
 
-The cooling mission: a board with an overheating part, the limits, the space, the fan budget, the design space.
+A missão de resfriamento: placa, peça quente, limites, espaço disponível, orçamento de ventilação e espaço de projeto; inclui leitura determinística do pedido. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/mission.py` · 212 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoolingDesign` | classe | `(base_width_mm, base_depth_mm, base_thickness_mm, n_fins, fin_thickness_mm, height_mm, ai…)` | One heat sink on the hot part plus the fan air speed. Lengths in mm, speed in m/s (approach velocity of the enclosure fans over the board and through the fins; 0 = natural convection). |
-| `DesignSpace` | classe | `(lo, hi, min_gap_mm, min_fin_height_mm)` | Box bounds of the 7 design variables (``VARIABLES``) plus the geometric rules (fin gap, fin height). |
-| `CoolingMission` | classe | `(board, components, hot, t_ambient_c, tj_limit_c, max_width_mm, max_depth_mm, max_height_…)` | Board, parts, the overheating part (``hot``), air temperature, limits and the room for the cure. |
-| `default_mission` | função | `(power_w=40.0) -> CoolingMission` | A 160 x 100 mm, 4-layer controller board: a ``power_w`` SoC (BGA 35 x 35, junction limit 90 °C), two 2 W regulators (QFN-32) and a 1.5 W memory (BGA 17 x 17), air at 35 °C inside the enclosure. Package data: the typical values of ``pinneapple_physics.closed_form.pcb_thermal.PACKAGES``. |
-| `parse_mission` | função | `(text) -> CoolingMission` | Deterministic reading of a cooling request (Portuguese or English): the numbers it states replace the defaults; ``provenance`` maps each field to the quoted words or to ``"default"``. |
+| `CoolingDesign` | classe | `(base_width_mm, base_depth_mm, base_thickness_mm, n_fins, fin_thickness_mm, height_mm, ai…)` | Um projeto: dissipador sobre a peça quente mais a velocidade do ar dos ventiladores (0 = convecção natural). |
+| `DesignSpace` | classe | `(lo, hi, min_gap_mm, min_fin_height_mm)` | Limites das variáveis de projeto e regras geométricas (espaçamento e altura de aleta). |
+| `CoolingMission` | classe | `(board, components, hot, t_ambient_c, tj_limit_c, max_width_mm, max_depth_mm, max_height_…)` | Placa, componentes, peça quente, temperaturas, limites de espaço e de potência de ventilação. |
+| `default_mission` | função | `(power_w=40.0) -> CoolingMission` | Missão padrão: placa controladora com um SoC de potência `power_w`, reguladores e memória. |
+| `parse_mission` | função | `(text) -> CoolingMission` | Lê um pedido em português ou inglês; os números citados substituem os padrões e `provenance` diz de onde veio cada campo. |
 
 #### `pinneapple_design.thermal.board_cooling.optimize`
 
-Constrained search on the surrogate, verification on the reference, and the loop between them.
+Busca com restrições no surrogate, verificação na referência e o laço entre eles. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/optimize.py` · 141 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `constraint_violation` | função | `(mission, X, tj_upper, fan_w) -> np.ndarray` | Sum of the positive parts of every constraint, each scaled to a comparable size (1 = 1 K, 10 % of the fan budget, 0.1 mm of fin gap). ``tj_upper``: (n, n_parts) pessimistic junction temperatures to hold. |
-| `optimize` | função | `(mission, sur, *, k_sigma=2.0, seed=0, maxiter=120, popsize=24) -> dict[str, Any]` | Minimum-mass design on the surrogate. Returns the design, its prediction and the per-generation history of the best member (mass, predicted pessimistic hot-part temperature, violation). |
-| `design_loop` | função | `(mission, data, *, rounds=5, k_sigma=2.0, seed=0, log=None) -> dict[str, Any]` | Learn -> optimise -> verify on the reference -> add the verified point, until confirmed. ``data``: the output of :func:`.simulate.simulate_many` (extended in place with the verified points). |
+| `constraint_violation` | função | `(mission, X, tj_upper, fan_w) -> np.ndarray` | Soma das violações de restrição (temperatura, ventilação, espaçamento), cada uma escalada. |
+| `optimize` | função | `(mission, sur, *, k_sigma=2.0, seed=0, maxiter=120, popsize=24) -> dict[str, Any]` | Acha o projeto de menor massa no surrogate por evolução diferencial, com margem pessimista `k_sigma`. |
+| `design_loop` | função | `(mission, data, *, rounds=5, k_sigma=2.0, seed=0, log=None) -> dict[str, Any]` | Laço aprender → otimizar → verificar na referência → adicionar o ponto, até confirmar. |
 
 #### `pinneapple_design.thermal.board_cooling.report`
 
-Deliverables of a cooling study: figures, 3-D scene and viewer, Blender renders, the report and its trust report.
+Entregáveis do estudo de resfriamento: figuras, cena e visualizador 3D, renders no Blender (opcional), relatório e relatório de confiança. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/report.py` · 377 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `figure_maps` | função | `(state, path) -> str` |  |
-| `figure_evolution` | função | `(state, path) -> str` | Maximum (hot-part junction) temperature through the study: baseline, still air, the optimiser's best member per generation (surrogate, pessimistic) and each reference-verified optimum. |
-| `figure_holdout` | função | `(state, path) -> str` | Surrogate vs reference on the held-out designs, and the surrogate's map error on the verified design. |
-| `impact_gif` | função | `(state, path, hold=6) -> str` | 2-D animation of the board map from the bare board to the verified design (one frame per stage, held). |
-| `render_3d` | função | `(state, out_dir, *, render=True, samples=24, size=(1280, 720)) -> dict[str, Any]` | glTF / USD of the verified design, the self-contained timeline viewer and, with Blender, stills of the bare and the verified board and the animation of the stages (GIF + MP4). |
-| `write_report` | função | `(state, out_dir, files, extra) -> str` |  |
-| `deliver` | função | `(state, out_dir, *, render=True, samples=24) -> dict[str, Any]` |  |
+| `figure_maps` | função | `(state, path) -> str` | Figura com os mapas de temperatura da placa. |
+| `figure_evolution` | função | `(state, path) -> str` | Figura da temperatura máxima ao longo do estudo: base, ar parado, otimizador e ótimos verificados. |
+| `figure_holdout` | função | `(state, path) -> str` | Figura do surrogate contra a referência na amostra separada e do erro do mapa no projeto verificado. |
+| `impact_gif` | função | `(state, path, hold=6) -> str` | Animação 2D do mapa da placa da placa nua ao projeto verificado. |
+| `render_3d` | função | `(state, out_dir, *, render=True, samples=24, size=(1280, 720)) -> dict[str, Any]` | glTF/USD do projeto, visualizador da linha do tempo e, com Blender, imagens e animação. |
+| `write_report` | função | `(state, out_dir, files, extra) -> str` | Escreve o relatório do estudo. |
+| `deliver` | função | `(state, out_dir, *, render=True, samples=24) -> dict[str, Any]` | Gera todos os entregáveis numa pasta. |
 
 #### `pinneapple_design.thermal.board_cooling.scene`
 
-3-D scene of the cooled board: enclosure, fans, board temperature map, parts, heat sink and the warm air.
+Cena 3D da placa resfriada: gabinete, ventiladores, mapa de temperatura, peças, dissipador e ar aquecido. [sem teste direto]
 
 <small>`pinneapple_design/thermal/board_cooling/scene.py` · 323 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fan_positions` | função | `(mission) -> tuple[list[tuple[float, float, float]], float]` | Centres (x, y, z) of the three fans on the inlet wall and their radius [mm]. |
-| `heat_sink_mesh` | função | `(mission, design, n_max, field3d=None)` | Vertices, faces and per-vertex temperature of the heat sink with ``n_max`` fin slots (unused fins collapsed to a point on the base). ``design`` None: everything collapsed (no heat sink). |
-| `air_paths` | função | `(mission, result, n_x=18, heights=(4.0, 12.0, 22.0))` | Air paths along +y and the bulk temperature of each strip (energy balance), for a forced-air result. |
-| `board_scene` | função | `(mission, result, *, title='', paths=True)` | One state as a static scene: field ``T`` (°C) on the board top, the parts and the heat sink. |
-| `timeline_scene` | função | `(mission, states, *, title='', t_range=T_RANGE)` | The states (label, result) as frames of one animation: board map, part temperatures and heat sink shape and temperature change per frame; the HUD carries the hot part's junction temperature (nominal and pessimistic), the heat-sink mass and the fan air power. The air paths of the last state are … |
+| `fan_positions` | função | `(mission) -> tuple[list[tuple[float, float, float]], float]` | Centros e raio dos três ventiladores na parede de entrada. |
+| `heat_sink_mesh` | função | `(mission, design, n_max, field3d=None)` | Vértices, faces e temperatura por vértice do dissipador. |
+| `air_paths` | função | `(mission, result, n_x=18, heights=(4.0, 12.0, 22.0))` | Caminhos do ar e temperatura média de cada faixa por balanço de energia. |
+| `board_scene` | função | `(mission, result, *, title='', paths=True)` | Um estado como cena estática com o campo de temperatura. |
+| `timeline_scene` | função | `(mission, states, *, title='', t_range=T_RANGE)` | Os estados como quadros de uma animação, com painel de temperatura, massa e potência de ventilação. |
 
 #### `pinneapple_design.thermal.board_cooling.simulate`
 
-Reference simulation of a cooled board: the 3D board model and the heat sink model, coupled.
+Simulação de referência da placa resfriada: modelo 3D da placa acoplado ao modelo do dissipador.
 
 <small>`pinneapple_design/thermal/board_cooling/simulate.py` · 183 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `map_axes` | função | `(board) -> tuple[np.ndarray, np.ndarray]` | (y, x) cell centres of MAP_SHAPE in mm. |
-| `sink_mass_and_air` | função | `(mission, d) -> dict[str, float]` | Closed-form heat-sink quantities that do not need the coupled solve: mass, pressure drop and air power (``pinneapple_physics.closed_form.plate_fin_heatsink``). |
-| `simulate` | função | `(mission, design, *, fidelity='train', pessimistic=True, tol=0.0001, max_iter=12) -> dict…)` | Junction temperatures, board-top map, heat paths and checks of ``design`` (None: the bare board in still air, the starting point). ``fidelity``: a key of FIDELITY or ``{"n_cells", "hs_grid"}``. |
-| `response` | função | `(mission, result) -> np.ndarray` | The scalar responses a surrogate learns, in a fixed order: junction temperatures (nominal, then pessimistic) of ``mission.components``. |
-| `simulate_many` | função | `(mission, X, *, fidelity='train', workers=4) -> dict[str, np.ndarray]` | Reference solves of many designs in parallel: responses (n, 2 n_parts), board-top maps (n, ny, nx), wall seconds per solve, board energy-balance errors and coupling convergence flags. |
+| `map_axes` | função | `(board) -> tuple[np.ndarray, np.ndarray]` | Centros (y, x) das células do mapa em mm. |
+| `sink_mass_and_air` | função | `(mission, d) -> dict[str, float]` | Massa, perda de carga e potência do ar do dissipador por fórmula fechada. |
+| `simulate` | função | `(mission, design, *, fidelity='train', pessimistic=True, tol=0.0001, max_iter=12) -> dict…)` | Temperaturas de junção, mapa da placa e checagens de um projeto (None = placa nua em ar parado). |
+| `response` | função | `(mission, result) -> np.ndarray` | Vetor de respostas que o surrogate aprende: temperaturas de junção nominais e pessimistas. |
+| `simulate_many` | função | `(mission, X, *, fidelity='train', workers=4) -> dict[str, np.ndarray]` | Soluções de referência de vários projetos em paralelo. |
 
 #### `pinneapple_design.thermal.board_cooling.verify`
 
-Independent verification of the chosen design and its trust report.
+Verificação independente do projeto escolhido numa malha fina e o relatório de confiança.
 
 <small>`pinneapple_design/thermal/board_cooling/verify.py` · 109 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `verify` | função | `(mission, design, *, coarse=None, prediction=None, holdout=None, train_X=None, test_X=Non…)` | Fine solve of ``design`` and the trust report. ``coarse``: its solve on the training grid; ``prediction``: the surrogate's ``{"tj", "tj_std", "map"}`` for it; ``holdout``: :func:`.learn.holdout` output; ``train_X`` / ``test_X``: the designs the surrogate was fitted on and the held-out ones its … |
+| `verify` | função | `(mission, design, *, coarse=None, prediction=None, holdout=None, train_X=None, test_X=Non…)` | Resolve o projeto na malha fina e monta o relatório de confiança com previsão, amostra separada e cobertura. |
 
 #### `pinneapple_design.thermal.fin_array_speed`
 
-How much faster is a trained surrogate than a numerical solve, and how far apart are they? A measured sweep over seven plate-fin heat sinks.
+Mede quanto um surrogate treinado é mais rápido que uma solução numérica e quão longe estão, numa varredura de dissipadores de aletas curados.
 
 <small>`pinneapple_design/thermal/fin_array_speed.py` · 160 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `design_by_name` | função | `(name) -> dict[str, Any]` | One of ``CURATED_DESIGNS`` (KeyError otherwise). |
-| `design_of` | função | `(spec) -> hf.HeatsinkDesign` |  |
-| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0)` | ``heatsink_fins.train_surrogate``; returns ``(model, val_mean_rel_err)`` (held-out error on the thermal resistance, i.e. on the temperature rise). |
-| `time_surrogate` | função | `(model, d, power_w, h_conv, reps=200) -> dict[str, float]` | Mean wall time of one forward pass (``reps`` calls after a warm-up call) and the predicted temperature. |
-| `reference_solve` | função | `(d, power_w, h_conv, refine=True) -> dict[str, Any]` | Finite-volume fin pitch (``pinneapple_design.thermal.fin_cell``), timed end to end. |
-| `measure_design` | função | `(model, spec, timing_reps=200, refine=True) -> dict[str, Any]` | Closed form, timed surrogate and timed reference for one design. |
-| `summarize` | função | `(designs) -> dict[str, Any]` |  |
-| `run_sweep` | função | `(model, progress_cb=None, timing_reps=200, refine=True) -> dict[str, Any]` | Measure every design of ``CURATED_DESIGNS``; ``progress_cb(i, n)`` after each. |
-| `thermal_field` | função | `(name='baseline') -> dict[str, Any]` | ``heatsink_fins.thermal_field`` of one design, plus its base temperature. |
+| `design_by_name` | função | `(name) -> dict[str, Any]` | Busca um dos projetos de `CURATED_DESIGNS` (KeyError se não existir). |
+| `design_of` | função | `(spec) -> hf.HeatsinkDesign` | Converte uma especificação em `HeatsinkDesign`. |
+| `train_surrogate` | função | `(n_samples=6000, epochs=1500, seed=0)` | Treina o surrogate de `heatsink_fins` e devolve o modelo e o erro relativo de validação. |
+| `time_surrogate` | função | `(model, d, power_w, h_conv, reps=200) -> dict[str, float]` | Tempo médio de uma passada do surrogate e a temperatura prevista. |
+| `reference_solve` | função | `(d, power_w, h_conv, refine=True) -> dict[str, Any]` | Solução de volumes finitos de um passo de aleta (`fin_cell`), cronometrada. |
+| `measure_design` | função | `(model, spec, timing_reps=200, refine=True) -> dict[str, Any]` | Fórmula fechada, surrogate e referência cronometrados para um projeto. |
+| `summarize` | função | `(designs) -> dict[str, Any]` | Resume as medições de todos os projetos. |
+| `run_sweep` | função | `(model, progress_cb=None, timing_reps=200, refine=True) -> dict[str, Any]` | Mede todos os projetos de `CURATED_DESIGNS`. |
+| `thermal_field` | função | `(name='baseline') -> dict[str, Any]` | Campo térmico de um projeto mais a temperatura da base. |
 
 #### `pinneapple_design.thermal.fin_cell`
 
-Finite-volume conduction in one fin pitch of a straight-fin heat sink: an independent check of the 1-D fin-array formula (:mod:`pinneapple_physics.closed_form.fin_array_conduction`).
+Condução em volumes finitos num passo de aleta de um dissipador de aletas retas: checagem independente da fórmula 1D de `pinneapple_physics.closed_form.fin_array_conduction`.
 
 <small>`pinneapple_design/thermal/fin_cell.py` · 147 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FinCellResult` | classe | `(t_junction_c, t_fin_root_c, t_fin_tip_c, energy_balance_rel_error, n_cells, grid_change_…)` |  |
-| `solve_fin_cell` | função | `(*, n_fins, fin_thickness_m, fin_height_m, fin_spacing_m, depth_m, base_thickness_m, k_w_…)` | Steady conduction in one fin pitch (module docstring). ``power_w`` is the whole array's power. |
+| `FinCellResult` | classe | `(t_junction_c, t_fin_root_c, t_fin_tip_c, energy_balance_rel_error, n_cells, grid_change_…)` | Resultado: temperaturas de junção, raiz e ponta da aleta, erro de balanço de energia e mudança com a malha. |
+| `solve_fin_cell` | função | `(*, n_fins, fin_thickness_m, fin_height_m, fin_spacing_m, depth_m, base_thickness_m, k_w_…)` | Resolve a condução permanente num passo de aleta (`power_w` é a potência do conjunto todo). |
 
 #### `pinneapple_design.thermal.heatsink`
 
-Plate-fin heat-sink sizing (the engine of the HeatSink Sizer app).
+Dimensionamento de dissipadores de aletas planas (motor do app HeatSink Sizer); reexporta o motor, o dimensionador e os surrogates.
 
 <small>`pinneapple_design/thermal/heatsink/__init__.py` · 18 linhas · **sem teste direto**</small>
 
 #### `pinneapple_design.thermal.heatsink.engine`
 
-Physics engine of the HeatSink Sizer: evaluates one design, fully verified.
+Motor físico do HeatSink Sizer: avalia um projeto com a rede de fórmulas fechadas e a base resolvida em volumes finitos 3D, com faixa pessimista/otimista de convecção.
 
 <small>`pinneapple_design/thermal/heatsink/engine.py` · 318 linhas · testes: 46</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DesignInput` | classe | `(base_width_mm, base_depth_mm, base_thickness_mm, n_fins, fin_thickness_mm, fin_height_mm…)` |  |
-| `OperatingInput` | classe | `(power_w, t_ambient_c, air_velocity_m_s, source_width_mm, source_depth_mm, source_x_mm, s…)` |  |
-| `base_theta` | função | `(g, op, r_conv, n=40) -> Dict[str, Any]` |  |
-| `physics_resistance` | função | `(design, op, n=36) -> Dict[str, float]` | Base-to-ambient resistance (no TIM) from the FVM-resolved hotspot, plus pressure drop -- the quantity the surrogate is trained to reproduce. |
-| `field_3d` | função | `(g, op, fvm, nominal, t_amb, max_cells=64, n_z=14) -> Dict[str, Any]` | Surface temperatures of the whole heat sink for the 3D viewer. |
-| `model_scope` | função | `(mode) -> Dict[str, Any]` | What the model covers, which way each simplification errs, what to do about it today and what is planned -- shown in every report. |
-| `evaluate_design` | função | `(design, op, *, grid=48, map_size=40) -> Dict[str, Any]` |  |
+| `DesignInput` | classe | `(base_width_mm, base_depth_mm, base_thickness_mm, n_fins, fin_thickness_mm, fin_height_mm…)` | Entrada de geometria do dissipador (base, aletas, material). |
+| `OperatingInput` | classe | `(power_w, t_ambient_c, air_velocity_m_s, source_width_mm, source_depth_mm, source_x_mm, s…)` | Condições de operação (potência, ambiente, velocidade do ar, fonte, TIM, limite). |
+| `base_theta` | função | `(g, op, r_conv, n=40) -> Dict[str, Any]` | Campo de temperatura da base para uma resistência de convecção. |
+| `physics_resistance` | função | `(design, op, n=36) -> Dict[str, float]` | Resistência base-ambiente (sem TIM) pela física resolvida, mais perda de carga: o alvo do surrogate. |
+| `field_3d` | função | `(g, op, fvm, nominal, t_amb, max_cells=64, n_z=14) -> Dict[str, Any]` | Temperaturas na superfície do dissipador inteiro para o visualizador 3D. |
+| `model_scope` | função | `(mode) -> Dict[str, Any]` | Descreve o que o modelo cobre e para que lado erra cada simplificação; vai em todo relatório. |
+| `evaluate_design` | função | `(design, op, *, grid=48, map_size=40) -> Dict[str, Any]` | Avalia um projeto completo (nominal, pessimista e otimista) e devolve resultado e mapas. |
 
 #### `pinneapple_design.thermal.heatsink.field`
 
-3D finite-volume conduction solve of the heat-sink base plate.
+Solução 3D em volumes finitos da condução na placa-base do dissipador.
 
 <small>`pinneapple_design/thermal/heatsink/field.py` · 111 linhas · testes: 18</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solve_base_field` | função | `(*, base_width, base_depth, base_thickness, k, power_w, r_fins_k_w, source_width, source_…)` |  |
+| `solve_base_field` | função | `(*, base_width, base_depth, base_thickness, k, power_w, r_fins_k_w, source_width, source_…)` | Resolve o campo de temperatura da base com a fonte de calor e a resistência das aletas. |
 
 #### `pinneapple_design.thermal.heatsink.monotone`
 
-Heat-sink surrogate trained with monotonicity constraints (zoo model ``heatsink_natural_mlp``).
+Treina o surrogate de dissipador com restrições de monotonicidade (modelo do zoo `heatsink_natural_mlp`). [sem teste direto]
 
 <small>`pinneapple_design/thermal/heatsink/monotone.py` · 163 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `random_designs` | função | `(mode, n, rng) -> np.ndarray` | Feature rows of random in-range designs, sampled log-uniformly like the dataset. |
-| `split_indices` | função | `(n) -> dict[str, np.ndarray]` | The app's split: numpy default_rng(0).permutation(n): test 15 %, cal 10 %, val 10 %, train the rest. |
-| `train_monotone` | função | `(mode='natural', *, seed=0, epochs=600, lbfgs_rounds=4, lbfgs_steps=200, n_random=20000, …)` | Train the constrained surrogate on the app's dataset; returns the bundle that ``torch.save`` stores (state, normalisation, split-conformal quantiles of log R, history, summary metrics). |
+| `random_designs` | função | `(mode, n, rng) -> np.ndarray` | Linhas de atributos de projetos aleatórios no intervalo, amostradas log-uniformemente. |
+| `split_indices` | função | `(n) -> dict[str, np.ndarray]` | Divisão do app em teste, calibração, validação e treino. |
+| `train_monotone` | função | `(mode='natural', *, seed=0, epochs=600, lbfgs_rounds=4, lbfgs_steps=200, n_random=20000, …)` | Treina o surrogate com penalidade de monotonicidade e ajuste L-BFGS e devolve o pacote a salvar. |
 
 #### `pinneapple_design.thermal.heatsink.sizer`
 
-Sizing: requirements in, verified heat-sink designs out.
+Dimensionamento: requisitos entram, projetos verificados saem; triagem por surrogate (limite superior conformal) ou por fórmula fechada, depois verificação física.
 
 <small>`pinneapple_design/thermal/heatsink/sizer.py` · 251 linhas · testes: 18</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SizingRequest` | classe | `(power_w, t_limit_c, t_ambient_c, air_velocity_m_s, source_width_mm, source_depth_mm, tim…)` |  |
-| `size` | função | `(req, surrogates) -> Dict[str, Any]` |  |
+| `SizingRequest` | classe | `(power_w, t_limit_c, t_ambient_c, air_velocity_m_s, source_width_mm, source_depth_mm, tim…)` | Pedido de dimensionamento: potência, limites, ar, fonte, envelope, materiais e processo. |
+| `size` | função | `(req, surrogates) -> Dict[str, Any]` | Amostra candidatos, faz a triagem, arredonda e verifica os melhores com o motor físico. |
 
 #### `pinneapple_design.thermal.heatsink.surrogate`
 
-Neural surrogate of the physics engine, used only to *screen* designs.
+Surrogate neural (MLP) do motor físico, usado só para triagem; um modelo por modo (forçado/natural), treinado e salvo em `ARTIFACTS`. [sem teste direto]
 
 <small>`pinneapple_design/thermal/heatsink/surrogate.py` · 334 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Surrogate` | classe | `(mode, model, x_mean, x_std, y_mean, y_std, conformal_log_q, report)` |  |
-| `n_fins_for` | função | `(width_mm, gap_mm, t_mm)` |  |
-| `features` | função | `(mode, W, D, tb, N, t, H, k, sw, sd, Ta, Q, V=None) -> np.ndarray` | Vectorised feature map (all arguments broadcastable arrays). |
-| `reference_solve` | função | `(params, mode='forced') -> dict \| None` | The physics engine on one design given in the surrogate's dataset columns (``base_width_mm`` ... ``fin_gap_mm`` or ``n_fins``, ``k_w_mk``, ``source_frac_w``/``_d`` or ``source_width_mm``/``_depth_mm``, ``t_ambient_c``, ``air_velocity_m_s``, ``power_w``): the high-fidelity answer the zoo surrogates … |
-| `reference_solve_batch` | função | `(X, names, output='r_base_k_w', mode='forced') -> np.ndarray` | :func:`reference_solve` on every row of ``X`` (columns named by ``names``); NaN where the engine rejects the design. |
-| `generate_dataset` | função | `(mode, n, seed=0, workers=4) -> List[Dict[str, float]]` |  |
-| `rows_to_xy` | função | `(mode, rows) -> Tuple[np.ndarray, np.ndarray]` |  |
-| `train` | função | `(mode, rows, seed=0, epochs=400) -> Surrogate` |  |
-| `load_surrogates` | função | `() -> Dict[str, Surrogate]` |  |
-| `main` | função | `(n_forced=6000, n_natural=5000, workers=4, reuse=False) -> None` |  |
+| `Surrogate` | classe | `(mode, model, x_mean, x_std, y_mean, y_std, conformal_log_q, report)` | Modelo treinado com normalização e quantis conformais; prevê, salva e carrega. |
+| `n_fins_for` | função | `(width_mm, gap_mm, t_mm)` | Número de aletas que cabem numa largura com espaçamento e espessura dados. |
+| `features` | função | `(mode, W, D, tb, N, t, H, k, sw, sd, Ta, Q, V=None) -> np.ndarray` | Mapa vetorizado de atributos do surrogate. |
+| `reference_solve` | função | `(params, mode='forced') -> dict \| None` | Roda o motor físico num projeto dado nas colunas do conjunto de dados. |
+| `reference_solve_batch` | função | `(X, names, output='r_base_k_w', mode='forced') -> np.ndarray` | `reference_solve` em cada linha; NaN onde o motor rejeita o projeto. |
+| `generate_dataset` | função | `(mode, n, seed=0, workers=4) -> List[Dict[str, float]]` | Gera o conjunto de dados de treino com o motor físico em paralelo. |
+| `rows_to_xy` | função | `(mode, rows) -> Tuple[np.ndarray, np.ndarray]` | Converte linhas do conjunto em matrizes X, Y. |
+| `train` | função | `(mode, rows, seed=0, epochs=400) -> Surrogate` | Treina o surrogate de um modo. |
+| `load_surrogates` | função | `() -> Dict[str, Surrogate]` | Carrega os surrogates salvos que existirem em `ARTIFACTS`. |
+| `main` | função | `(n_forced=6000, n_natural=5000, workers=4, reuse=False) -> None` | Gera os dados, treina e grava os surrogates e o relatório de confiança. |
 
 #### `pinneapple_design.thermal.heatsink.trust`
 
-Trust report for the heat-sink surrogates.
+Relatório de confiança dos surrogates de dissipador (erros, convergência, cobertura). [sem teste direto]
 
 <small>`pinneapple_design/thermal/heatsink/trust.py` · 202 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `surrogate_report` | função | `(sur, *, X, Y, split, history, train_seconds, n_rows) -> Dict` |  |
+| `surrogate_report` | função | `(sur, *, X, Y, split, history, train_seconds, n_rows) -> Dict` | Monta o relatório de confiança de um surrogate a partir dos dados e do histórico. |
 
 #### `pinneapple_design.topology`
 
@@ -2741,7 +2749,44 @@ Density-based topology-optimization problems on structured grids of square bilin
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Montar e amostrar um domínio** — `docs/core_concepts/geometry_domain.md`
+
+```python
+from pinneapple_design import build_domain, sample_domain
+
+domain = build_domain("lid_driven_cavity_2d")   # dim=2 by default
+x_int, x_bnd = sample_domain(domain, n_interior=4096, n_boundary=512)
+```
+
+**Laço de projeto com blocos de montar** — `examples/bricks/self_modifying_bricks.py`
+
+```python
+from pinneapple_design.bricks import (
+    BridgeGoal,
+    CantileverGoal,
+    TowerGoal,
+    compare,
+    dynamics,
+    ldraw,
+    mesh,
+    reference_cantilever,
+    report,
+    statics,
+    validation,
+    visuals,
+)
+```
+
+**Estudo de resfriamento de placa** — `examples/autolab/self_optimizing_engineer.py`
+
+```python
+from pinneapple_design.thermal.board_cooling import DEFAULT_TEXT, run_mission
+...
+        run = run_mission(a.text, out_dir=a.out, planner=a.planner, n=n, render=render, workers=a.workers)
+        st = run.state
+        m = st["read_mission"]["mission"]
+        v, h = st["verify"], st["learn"]["holdout"]
+```
 
 ### Testes e status de validação
 
@@ -2774,6 +2819,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - As propriedades de materiais são valores típicos de datasheet, não admissíveis de norma, como o próprio módulo avisa.
 - O LLM é opcional (via `IntentLLM`/`CallLLM`); o parser determinístico não adivinha valores e transforma slots críticos ausentes em perguntas.
 - A maior parte dos módulos de `intent` (api, cli, pipeline, package, spec, template, templates) não tem teste direto pela contagem do inventário.
+- `sample_domain` chama `domain.sample_boundary`, mas `PhysicsDomain2D`/`PhysicsDomain3D` só têm `sample_boundary_region`; com os domínios de `build_domain` a chamada deve falhar (o exemplo da documentação usa exatamente esse caminho).
+- `geometry.io.__init__` tenta importar `build_parametric_part` de `cadquery_bridge`, que não define esse nome; o valor fica sempre `None`.
+- `gen.primitives.project_points_to_surface` é marcado como placeholder; o docstring diz que deveria levantar erro, mas devolve uma tupla `(pontos, distâncias)` em vez de um array.
+- Muitas partes dependem de pacotes opcionais: trimesh, meshio, gmsh, CadQuery/OCC, pymeshlab, open3d, NVIDIA Newton (`bricks.dynamics`), Blender/`bpy` e ffmpeg (renders), `pinneapple_autolab` (agente). Os `__init__` usam imports tolerantes que viram `None` em silêncio.
+- Vários módulos não têm teste direto: os construtores de lote (`builders`), `core.geometry`, `core.registry`, `io.*` (exceto IGES e trimesh), `mesh.mesher_2d`/`mesher_3d`, `ops.clean`, `ops.voxelize`, `sample.*`, `threaded_connection`, `genetic_sdf` e quase todo `thermal.board_cooling` e `thermal.heatsink.surrogate`/`monotone`/`trust`.
+- `bricks.parts.JointModel` usa encaixe de 0,98 N por pino com faixa assumida (0,5 a 1,5 vez); os resultados da estática dependem dessa hipótese, e `bricks.report.sensitivity` existe para medi-la. `dynamics.friction_creep` documenta um artefato do atrito XPBD.
+- `domains3d.get_pinn_batch` devolve alvos de contorno zerados (marcação), não valores físicos; o `STLDomainBatchBuilder` recentraliza a malha, o que quebra funções de valor que assumem coordenadas literais (motivo de existir `analytic_domain_batch_builder`).
+- Os surrogates de `thermal.heatsink` só servem para triagem: `load_surrogates` só carrega o que existir em `ARTIFACTS` (`apps/heatsink_sizer/artifacts` ou `PINNEAPPLE_HEATSINK_ARTIFACTS`), e todo projeto recomendado é reverificado pelo motor físico.
 
 ## 2. `pinneapple_systems`
 

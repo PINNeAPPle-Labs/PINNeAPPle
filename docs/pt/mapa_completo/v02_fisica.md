@@ -25,6 +25,8 @@ Além do núcleo PINN, o pacote traz camadas que julgam previsões pela física,
 
 Esta parte do mapa cobre o `__init__` do pacote e os submódulos `closed_form`, `darcy_checks`, `maxwell_checks`, `multiscale`, `non_hermitian`, `physics_audit`, `pinn_solver` e `weather`. Os demais submódulos (`pde_environment`, `symbolic_pde`, `solving`, `ensemble`, etc.) são descritos nas outras partes.
 
+Esta parte cobre quatro submódulos de `pinneapple_physics`. `astro` é um observatório em NumPy próprio (escalas de tempo, efeméride JPL, posições aparentes, fenômenos, satélites, pequenos corpos, estrelas, lentes gravitacionais, fichas bilíngues) com modelos de IA conferidos contra referências independentes. `blackhole` simula acreção em torno de um buraco negro e treina um previsor de 'tempo do buraco negro' com horizonte de confiança. `pde_environment` define a linguagem de problemas do framework (`ProblemSpec`, condições, `ProblemBuilder`) e o catálogo de presets registrados usados por `get_preset` e pelos solvers. `symbolic_pde` compila EDPs escritas em SymPy ou em texto para resíduos PyTorch e condições de contorno, e liga sistemas de texto a um `PINNProblem`.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -38,8 +40,8 @@ Pasta de testes dedicada: `tests/pinneapple_physics` (48 funções de teste).
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
 | `advection_diffusion_1d` |  | 1 | 1 | 13 |
-| `astro` |  | 24 | 216 | 71 |
-| `blackhole` |  | 12 | 60 | 19 |
+| `astro` | Astronomia posicional e astrofísica do observatório PINNeAPPle, validada contra NOVAS, Horizons e skyfield, com substitutos neurais e fichas para o público. | 24 | 216 | 71 |
+| `blackhole` | Simulação hidrodinâmica de acreção em buraco negro, dataset, previsor U-Net com horizonte de confiança, avaliação de habilidade, traçado de raios e visualização 3D. | 12 | 60 | 19 |
 | `closed_form` | Modelos de engenharia em forma fechada (aletas, vigas e fadiga, difusão em membrana, Helmholtz, dissipadores, PCB, escoamento em tubos, bocal de foguete, Burgers exato, etc.) para verdade de referência rápida sem resolver EDP. | 19 | 91 | 103 |
 | `codegen` |  | 3 | 4 | 13 |
 | `compile_api` |  | 1 | 3 | 5 |
@@ -57,13 +59,13 @@ Pasta de testes dedicada: `tests/pinneapple_physics` (48 funções de teste).
 | `paper_problems` |  | 1 | 7 | 5 |
 | `paper_problems_xtfc` |  | 1 | 4 | 10 |
 | `pcb` |  | 3 | 10 | 16 |
-| `pde_environment` |  | 28 | 154 | 154 |
+| `pde_environment` | Especificação de problemas (`ProblemSpec`, condições, `ProblemBuilder`), catálogo de presets por domínio, resíduos de turbulência e base de famílias de EDP. | 28 | 154 | 154 |
 | `physical_problem` |  | 1 | 3 | 12 |
 | `physics_audit` | Auditoria física de modelos: premissas e condições de validade, números adimensionais, monitor de validade sem verdade de referência, atribuição de falhas, recomendações, grafo de conhecimento e roteamento. | 8 | 65 | 37 |
 | `pinn_solver` | Compilador de PINN: traduz um `ProblemSpec` em funções de perda, mais DoMINO (decomposição de domínio), PINN estocástico, fábrica SymPy legada e leitura de dados UPD. | 19 | 41 | 121 |
 | `solid` |  | 2 | 6 | 8 |
 | `solving` |  | 1 | 12 | 71 |
-| `symbolic_pde` |  | 6 | 24 | 17 |
+| `symbolic_pde` | Compilador de EDPs simbólicas (SymPy e texto) para resíduos PyTorch, com condições de contorno rígidas e suaves e ponte para PINN. | 6 | 24 | 17 |
 | `tracking` |  | 1 | 3 | 3 |
 | `tribology` |  | 2 | 3 | 20 |
 | `weather` | Caso de uso de previsão do tempo global: dados ERA5 do WeatherBench2, U-Net esférica, treino por rollout, métricas de habilidade, eventos extremos e animações. | 7 | 38 | 8 |
@@ -100,597 +102,597 @@ Periodic 1-D advection-diffusion u_t + c u_x = nu u_xx on [0, 2 pi): exact solut
 
 #### `pinneapple_physics.astro`
 
-Positional astronomy and astrophysics for the PINNeAPPle observatory.
+Pacote de astronomia posicional e astrofísica do observatório PINNeAPPle, em NumPy próprio e validado contra USNO NOVAS, JPL Horizons e skyfield; reexporta `Observer`, `Time`, `apparent` e afins.
 
 <small>`pinneapple_physics/astro/__init__.py` · 54 linhas · testes: 71</small>
 
 #### `pinneapple_physics.astro.astrometry`
 
-Apparent places of the Sun, Moon and planets (and catalogue stars) for an observer on Earth.
+Posições aparentes do Sol, Lua, planetas e estrelas de catálogo para um observador na Terra (tempo de luz, deflexão, aberração), mais refração, massa de ar e extinção. [sem teste direto]
 
 <small>`pinneapple_physics/astro/astrometry.py` · 194 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Observer` | classe | `(lat, lon, elevation_m, pressure_mbar, temperature_c, name)` | A place on Earth: geodetic latitude/longitude (deg, east positive), height (m), and the weather used by the refraction model. |
-| `Apparent` | classe | `(body, ra, dec, ra_astrometric, dec_astrometric, distance_km, light_time_s, range_rate_km…)` |  |
-| `refraction_deg` | função | `(alt_true_deg, pressure_mbar=1010.0, temperature_c=10.0)` | Atmospheric refraction (deg) for a true altitude, Saemundsson (1986) with the usual P/T scaling. Zero below -1 deg, where the formula is not meaningful. |
-| `airmass` | função | `(alt_apparent_deg)` | Relative air mass (Kasten & Young 1989), finite down to the horizon; ``inf`` below it. |
-| `extinction_mag` | função | `(alt_apparent_deg, k_v=0.25)` | Atmospheric extinction (mag) at V for an extinction coefficient ``k_v`` (mag/airmass; 0.2-0.3 typical). |
-| `apparent` | função | `(body, t, observer=None, eph=None, *, deflection=True, refraction=True) -> Apparent` | Apparent place of a solar-system ``body`` at ``t`` (scalar or array), geocentric if ``observer`` is None. |
-| `star_apparent` | função | `(ra_j2000, dec_j2000, t, observer=None, *, pm_ra_mas=0.0, pm_dec_mas=0.0, parallax_mas=0.…)` | Apparent places of catalogue stars (ICRS J2000 epoch 2000.0) at a single instant ``t``. |
+| `Observer` | classe | `(lat, lon, elevation_m, pressure_mbar, temperature_c, name)` | Um lugar na Terra: latitude/longitude geodésicas, altitude e o tempo (pressão, temperatura) usado pela refração; dá a posição em ITRS e GCRS. |
+| `Apparent` | classe | `(body, ra, dec, ra_astrometric, dec_astrometric, distance_km, light_time_s, range_rate_km…)` | Resultado de `apparent`: RA/Dec aparentes e astrométricas, distância, tempo de luz, taxa de distância, altitude/azimute e ângulo horário. |
+| `refraction_deg` | função | `(alt_true_deg, pressure_mbar=1010.0, temperature_c=10.0)` | Refração atmosférica (graus) para uma altitude verdadeira, fórmula de Saemundsson com correção de pressão e temperatura; zero abaixo de -1 grau. |
+| `airmass` | função | `(alt_apparent_deg)` | Massa de ar relativa (Kasten & Young 1989), finita até o horizonte e infinita abaixo dele. |
+| `extinction_mag` | função | `(alt_apparent_deg, k_v=0.25)` | Extinção atmosférica em magnitudes (banda V) para um coeficiente `k_v` por massa de ar. |
+| `apparent` | função | `(body, t, observer=None, eph=None, *, deflection=True, refraction=True) -> Apparent` | Posição aparente de um corpo do Sistema Solar num instante (escalar ou vetor), geocêntrica se não houver observador. |
+| `star_apparent` | função | `(ra_j2000, dec_j2000, t, observer=None, *, pm_ra_mas=0.0, pm_dec_mas=0.0, parallax_mas=0.…)` | Posições aparentes de estrelas de catálogo (ICRS J2000) num instante, com movimento próprio e paralaxe. |
 
 #### `pinneapple_physics.astro.conditions`
 
-Observing conditions for tonight from open numerical weather prediction (Open-Meteo, CC BY 4.0).
+Condições de observação a partir de previsão numérica aberta (Open-Meteo, CC BY 4.0): ensemble de nebulosidade, probabilidade de céu limpo, calibração e modo de céu 'perfeito'/'real'. Depende de rede.
 
 <small>`pinneapple_physics/astro/conditions.py` · 126 linhas · testes: 25</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fetch_ensemble` | função | `(lat, lon, model='icon_seamless', hours=48, timeout=15.0)` |  |
-| `members` | função | `(resp, var) -> np.ndarray` | (n_members, n_hours) array for ``var`` (the control run and every ``var_memberNN`` column). |
-| `summarize` | função | `(resp, clear_threshold=30.0) -> dict` |  |
-| `calibrate` | função | `(p_forecast, observed_clear, bins=10) -> dict` | Reliability of past clear-sky probabilities against what was observed, and an isotonic-style correction map: for each probability bin, the observed frequency (needs a history of forecasts and observations). |
-| `fetch_cloud_forecast` | função | `(lat, lon, days=3, timeout=8.0) -> dict` | Hourly total cloud cover (%) for the next ``days`` from Open-Meteo's forecast API (no key; CC BY 4.0): {"time": [ISO UTC], "cloud_cover": [%], "source": ...}. Raises on network errors (callers fall back). |
-| `cloud_at` | função | `(forecast, iso_utc) -> float \| None` | Cloud cover (%) at a time, linearly interpolated in the hourly forecast; None outside it. |
-| `sky_view` | função | `(mode, forecast, iso_utc) -> dict` | What the sky lets through for an observing session. ``mode`` "perfect" removes the weather (any target, any night); "real" uses the cloud-cover forecast and hides the view at or above ``CLOUDY_PCT``. Without a forecast "real" falls back to "perfect" and says so. |
+| `fetch_ensemble` | função | `(lat, lon, model='icon_seamless', hours=48, timeout=15.0)` | Baixa da API de ensemble da Open-Meteo as variáveis horárias (nuvens, umidade, vento) de um modelo para um lugar. |
+| `members` | função | `(resp, var) -> np.ndarray` | Matriz (membros, horas) de uma variável do ensemble, com a rodada de controle e cada membro. |
+| `summarize` | função | `(resp, clear_threshold=30.0) -> dict` | Resume o ensemble: probabilidade de céu limpo por hora (nuvens abaixo de um limiar), umidade e vento em altitude. |
+| `calibrate` | função | `(p_forecast, observed_clear, bins=10) -> dict` | Confiabilidade de probabilidades passadas de céu limpo contra o observado, com mapa de correção por faixa de probabilidade. |
+| `fetch_cloud_forecast` | função | `(lat, lon, days=3, timeout=8.0) -> dict` | Previsão horária de cobertura de nuvens para os próximos dias pela API da Open-Meteo; levanta erro sem rede. |
+| `cloud_at` | função | `(forecast, iso_utc) -> float \| None` | Cobertura de nuvens num instante, interpolada linearmente na previsão horária; None fora dela. |
+| `sky_view` | função | `(mode, forecast, iso_utc) -> dict` | O que o céu deixa ver numa sessão: modo 'perfect' ignora o tempo, 'real' usa a previsão e esconde a vista quando nublado. |
 
 #### `pinneapple_physics.astro.conjunction`
 
-Conjunction screening: closest approach in Clohessy-Wiltshire relative motion, collision probability, J2 orbits.
+Triagem de conjunções: aproximação mínima no movimento relativo de Clohessy-Wiltshire, probabilidade de colisão 2D e propagação de dois corpos com J2.
 
 <small>`pinneapple_physics/astro/conjunction.py` · 160 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ClosestApproach` | classe | `(t_tca_s, position_km, velocity_km_s, miss_distance_km, relative_speed_km_s, perpendicula…)` |  |
-| `cw_mean_motion` | função | `(a_km, mu_km3_s2=398600.4418) -> float` | Mean motion n = sqrt(mu / a^3) of the (circular) reference orbit, rad/s. |
-| `cw_closest_approach` | função | `(n, state0, duration_s, n_samples=2000) -> ClosestApproach` | Closest approach over [0, duration_s] for the CW deputy state ``state0 = (x0, y0, z0, vx0, vy0, vz0)`` (km, km/s) about a reference orbit of mean motion ``n`` (rad/s). |
-| `collision_probability_2d` | função | `(xm, zm, sigma_x, sigma_z, r_c) -> float` | Probability mass of N((xm, zm), diag(sigma_x^2, sigma_z^2)) inside the disk x^2 + z^2 <= r_c^2. |
-| `collision_probability_centered` | função | `(r_c, sigma) -> float` | Closed form for a centred isotropic Gaussian: 1 - exp(-r_c^2 / (2 sigma^2)) (Rayleigh CDF). |
-| `screen_cw_conjunction` | função | `(n, state0, *, duration_s=None, n_samples=2000, hard_body_radius_km=0.01, sigma_km=1.0) -…)` | Closest approach + collision probability for one CW encounter (one reference period by default). |
-| `two_body_j2_rhs` | função | `(mu, J2, Re)` | Right-hand side f(t, [x, y, z, vx, vy, vz]) of two-body motion plus the J2 acceleration. |
-| `propagate_two_body_j2` | função | `(state0, t_eval, *, mu=398600.4418, J2=0.00108262668, Re=6378.137, rtol=1e-11, atol=1e-08…)` | States (len(t_eval), 6) of two-body + J2 motion from ``state0`` (km, km/s), DOP853. |
+| `ClosestApproach` | classe | `(t_tca_s, position_km, velocity_km_s, miss_distance_km, relative_speed_km_s, perpendicula…)` | Resultado da aproximação mínima: instante, posição e velocidade relativas, distância de passagem e velocidade relativa. |
+| `cw_mean_motion` | função | `(a_km, mu_km3_s2=398600.4418) -> float` | Movimento médio n = sqrt(mu/a^3) da órbita circular de referência. |
+| `cw_closest_approach` | função | `(n, state0, duration_s, n_samples=2000) -> ClosestApproach` | Aproximação mínima num intervalo para um estado relativo de Clohessy-Wiltshire em torno de uma órbita de referência. |
+| `collision_probability_2d` | função | `(xm, zm, sigma_x, sigma_z, r_c) -> float` | Probabilidade de uma gaussiana 2D (média e desvios dados) cair dentro de um disco de raio `r_c`. |
+| `collision_probability_centered` | função | `(r_c, sigma) -> float` | Forma fechada (CDF de Rayleigh) da probabilidade de colisão para gaussiana isotrópica centrada. |
+| `screen_cw_conjunction` | função | `(n, state0, *, duration_s=None, n_samples=2000, hard_body_radius_km=0.01, sigma_km=1.0) -…)` | Aproximação mínima mais probabilidade de colisão para um encontro CW (um período de referência por padrão). |
+| `two_body_j2_rhs` | função | `(mu, J2, Re)` | Lado direito f(t, estado) do movimento de dois corpos com aceleração de J2. |
+| `propagate_two_body_j2` | função | `(state0, t_eval, *, mu=398600.4418, J2=0.00108262668, Re=6378.137, rtol=1e-11, atol=1e-08…)` | Propaga estados de dois corpos com J2 a partir de um estado inicial, com integrador DOP853. |
 
 #### `pinneapple_physics.astro.decay`
 
-Orbit decay of low-Earth-orbit satellites by atmospheric drag, with a physics-informed model and its checks.
+Decaimento orbital de satélites em órbita baixa por arrasto atmosférico: integração de referência, envelope Monte Carlo, um PINN de decaimento com verificações e comparação com SGP4. Usa NRLMSIS (`pymsis`) quando disponível.
 
 <small>`pinneapple_physics/astro/decay.py` · 258 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DensityTable` | classe | `(h_km=None, **kw)` | log-density on an altitude grid, interpolated (NumPy and PyTorch) so models can be evaluated fast. |
-| `exponential_density` | função | `(h_km)` |  |
-| `msis_available` | função | `() -> bool` |  |
-| `orbit_mean_density` | função | `(h_km, date='2026-10-13T00:00', f107=150.0, f107a=150.0, ap=15.0, inclination_deg=51.6, n…)` | Orbit-averaged NRLMSIS 2.0 total mass density (kg/m^3) at altitudes ``h_km``: mean over latitudes sampled along the orbit (\|lat\| <= inclination, weighted by the time spent there) and over all local times. |
-| `ballistic_from_bstar` | função | `(bstar_per_er) -> float` | B = C_D A / m (m^2/kg) implied by an SGP4 B* (1/Earth radii): B* = B rho0 / 2. |
-| `reference_decay` | função | `(h0_km, B, days, table, n=200, reentry_km=150.0)` | Altitude (km) vs time (days) from an adaptive Runge-Kutta integration of the decay ODE. |
-| `envelope` | função | `(h0_km, B, days, *, f107=150.0, f107a=None, ap=15.0, date='2026-10-13T00:00', inclination…)` | Monte-Carlo spread of the reference decay over the uncertain inputs: solar flux (log-normal, 20 %), geomagnetic activity (Ap x 0.5..2) and the ballistic coefficient (log-normal, 15 %). Returns t, median, 5 %, 95 % altitude curves. |
-| `train_decay_pinn` | função | `(h0_km=415.0, B=0.005, days=60.0, *, f107=150.0, ap=15.0, date='2026-10-13T00:00', inclin…)` | Train the decay PINN and return its report: prediction, reference, envelope, checks and verdict. |
-| `sgp4_decay` | função | `(line1, line2, days=30.0, step_min=10.0)` | Mean altitude (km) vs time (days) predicted by SGP4 from a TLE: the geocentric radius averaged over each orbit (removes the eccentricity and J2 oscillations), minus the equatorial radius. |
-| `compare_with_sgp4` | função | `(line1, line2, days=30.0, f107=70.0, ap=8.0, B=ISS_B) -> dict` | Decay predicted by this model (NRLMSIS + a physical ballistic coefficient B) next to SGP4's own prediction from the same TLE. SGP4's B* is a fitted drag term for its own power-law atmosphere, not a physical ballistic coefficient (converted with B* = B rho0 / 2 it is typically an order of magnitude … |
+| `DensityTable` | classe | `(h_km=None, **kw)` | Log-densidade atmosférica numa grade de altitudes, interpolada em NumPy e PyTorch para avaliar modelos rápido. |
+| `exponential_density` | função | `(h_km)` | Densidade atmosférica por um modelo exponencial em faixas de altitude (tabela interna), usada sem NRLMSIS. |
+| `msis_available` | função | `() -> bool` | Diz se o pacote opcional `pymsis` (NRLMSIS) pode ser importado. |
+| `orbit_mean_density` | função | `(h_km, date='2026-10-13T00:00', f107=150.0, f107a=150.0, ap=15.0, inclination_deg=51.6, n…)` | Densidade NRLMSIS 2.0 média ao longo da órbita (latitudes e horas locais) em cada altitude. |
+| `ballistic_from_bstar` | função | `(bstar_per_er) -> float` | Coeficiente balístico B = C_D A / m implícito num B* do SGP4. |
+| `reference_decay` | função | `(h0_km, B, days, table, n=200, reentry_km=150.0)` | Altitude versus tempo por integração Runge-Kutta adaptativa da EDO de decaimento. |
+| `envelope` | função | `(h0_km, B, days, *, f107=150.0, f107a=None, ap=15.0, date='2026-10-13T00:00', inclination…)` | Faixa Monte Carlo do decaimento sobre entradas incertas (fluxo solar, atividade geomagnética, coeficiente balístico): mediana e percentis 5 e 95. |
+| `train_decay_pinn` | função | `(h0_km=415.0, B=0.005, days=60.0, *, f107=150.0, ap=15.0, date='2026-10-13T00:00', inclin…)` | Treina o PINN de decaimento e devolve relatório com previsão, referência, envelope, verificações e veredito. |
+| `sgp4_decay` | função | `(line1, line2, days=30.0, step_min=10.0)` | Altitude média versus tempo prevista pelo SGP4 a partir de um TLE (média por órbita). |
+| `compare_with_sgp4` | função | `(line1, line2, days=30.0, f107=70.0, ap=8.0, B=ISS_B) -> dict` | Coloca lado a lado o decaimento deste modelo (NRLMSIS e B físico) e o previsto pelo SGP4 do mesmo TLE. |
 
 #### `pinneapple_physics.astro.ephemeris`
 
-Solar-system ephemeris on top of a JPL DE kernel (public domain), read by :mod:`.spk`.
+Efeméride do Sistema Solar sobre um kernel JPL DE (domínio público) lido por `.spk`; localiza o kernel por variável de ambiente ou pelo pacote `skyfield_data`.
 
 <small>`pinneapple_physics/astro/ephemeris.py` · 77 linhas · testes: 71</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Ephemeris` | classe | `(path=None)` |  |
-| `find_kernel` | função | `() -> str` |  |
-| `default_ephemeris` | função | `(path=None) -> Ephemeris` |  |
+| `Ephemeris` | classe | `(path=None)` | Efeméride sobre um kernel SPK: estados baricêntricos e relativos (km, km/s) dos corpos por data TDB. |
+| `find_kernel` | função | `() -> str` | Acha o arquivo do kernel DE: variável `PINNEAPPLE_DE_KERNEL` ou o `de421.bsp` do pacote `skyfield_data`. |
+| `default_ephemeris` | função | `(path=None) -> Ephemeris` | Cria uma `Ephemeris` com o kernel padrão (ou o caminho dado). |
 
 #### `pinneapple_physics.astro.facts`
 
-Facts and curiosities about the objects in the sky, for a general audience, in English and Portuguese.
+Fichas de objetos do céu para o público geral, em inglês e português: números com fonte, curiosidades, história, missões, quiz, busca e 'como ver hoje'.
 
 <small>`pinneapple_physics/astro/facts.py` · 746 linhas · testes: 30</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sources` | função | `() -> dict` | Every source a number or a curiosity can cite: {key: {title, publisher, url, licence}}. |
-| `ids` | função | `() -> dict` | Every object with a card: {id: kind}. Ids: Solar System bodies by name ('saturn'), stars 'star-<HR>', Messier objects 'M31', constellations 'con-<IAU abbreviation>' ('con-Ser1', 'con-Ser2' for Serpens), satellites 'sat-<name>' ('sat-iss'). |
-| `resolve` | função | `(ref) -> str` | The card id for an id or an observatory reference: 'saturn', 'body:saturn', 'star:2061', 'HR 2061', 'M 31', 'sat:25544', 'con:Ori'. Raises KeyError if there is no card. |
-| `names` | função | `(oid) -> dict` | {en, pt} display names of a card. |
-| `numbers` | função | `(oid) -> dict` | The key numbers of a card: {key: {value, unit, source}}. |
-| `comparison` | função | `(key, number, lang='en') -> str \| None` | An everyday comparison for a number, computed from it (source: computed). |
-| `quiz` | função | `(oid, lang='en', seed=0, n=3) -> list[dict]` | A short multiple-choice quiz from the card's numbers: [{question, options, answer (index), source}]. |
-| `card` | função | `(ref, lang='en') -> dict` | The info card of an object in ``lang``: name, kind, summary, numbers (value, unit, label, comparison, source), three to five curiosities with sources, a short history, missions, a quiz and the sources cited. |
-| `list_cards` | função | `(kind=None, lang='en') -> list[dict]` | [{id, kind, name}] of every card (or of one kind: 'planet', 'star', 'constellation', 'messier', ...). |
-| `search` | função | `(query, lang=None, limit=12) -> list[dict]` | Cards whose name (in English or Portuguese), id or designation matches ``query`` (accents and case ignored); prefix matches first. |
-| `did_you_know` | função | `(lang='en', seed=None) -> dict` | A random curiosity from the hand-written cards, for a start-up tip: {id, name, text, source}. |
-| `validate` | função | `() -> list[str]` | Problems in the dataset (an empty list means every card has a source per number, text in both languages, three to five curiosities, a history and known sources). |
-| `position` | função | `(ref)` | J2000 (ICRS) RA/Dec in degrees of a fixed object (star, Messier object, constellation label point), or None for Solar System bodies and satellites, whose positions come from the ephemeris / TLE. |
-| `tonight` | função | `(ref, observer, t, hours=24.0, step_min=10.0, eph=None) -> dict \| None` | How to see an object from ``observer`` in the ``hours`` after ``t``: altitude now, rise, culmination (highest point) and set (the next rise only if it is below the horizon now), the highest altitude while the sky is dark (Sun below -12 deg) and when, and whether it never rises or never sets. None … |
+| `sources` | função | `() -> dict` | Todas as fontes que um número ou curiosidade pode citar (título, editor, URL, licença). |
+| `ids` | função | `() -> dict` | Todos os objetos com ficha e seu tipo (planetas, estrelas, Messier, constelações, satélites). |
+| `resolve` | função | `(ref) -> str` | Converte um id ou referência do observatório no id da ficha; levanta KeyError se não houver ficha. |
+| `names` | função | `(oid) -> dict` | Nomes de exibição de uma ficha em inglês e português. |
+| `numbers` | função | `(oid) -> dict` | Números-chave de uma ficha, cada um com valor, unidade e fonte. |
+| `comparison` | função | `(key, number, lang='en') -> str \| None` | Comparação cotidiana calculada a partir de um número (fonte: calculado). |
+| `quiz` | função | `(oid, lang='en', seed=0, n=3) -> list[dict]` | Quiz curto de múltipla escolha gerado a partir dos números da ficha. |
+| `card` | função | `(ref, lang='en') -> dict` | Ficha completa de um objeto no idioma pedido: nome, resumo, números, curiosidades com fonte, história, missões, quiz e fontes. |
+| `list_cards` | função | `(kind=None, lang='en') -> list[dict]` | Lista as fichas (id, tipo, nome), opcionalmente de um tipo. |
+| `search` | função | `(query, lang=None, limit=12) -> list[dict]` | Busca fichas pelo nome em inglês ou português, id ou designação, ignorando acentos e caixa. |
+| `did_you_know` | função | `(lang='en', seed=None) -> dict` | Uma curiosidade aleatória das fichas escritas à mão, para dica de abertura. |
+| `validate` | função | `() -> list[str]` | Lista problemas do conjunto de fichas (fonte por número, dois idiomas, número de curiosidades, história, fontes conhecidas). |
+| `position` | função | `(ref)` | RA/Dec J2000 de um objeto fixo (estrela, Messier, rótulo de constelação); None para corpos do Sistema Solar e satélites. |
+| `tonight` | função | `(ref, observer, t, hours=24.0, step_min=10.0, eph=None) -> dict \| None` | Como ver um objeto nas próximas horas: altitude atual, nascer, culminação, ocaso e melhor altura com céu escuro. |
 
 #### `pinneapple_physics.astro.frames`
 
-Reference-frame rotations: frame bias, precession (IAU 2006), nutation (IAU 1980, terms above 5 mas), geodetic observer positions (WGS84), horizon (alt-az) and ecliptic coordinates.
+Rotações de referencial: viés, precessão (IAU 2006), nutação (IAU 1980, termos acima de 5 mas), posição geodésica WGS84, coordenadas horizontais e eclípticas.
 
 <small>`pinneapple_physics/astro/frames.py` · 202 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `fundamental_args` | função | `(T)` | Delaunay arguments D, M, M', F, Omega (rad) for Julian centuries TT since J2000 (Meeus ch. 22). |
-| `nutation` | função | `(jd_tt)` | Nutation in longitude and obliquity (rad). |
-| `mean_obliquity` | função | `(jd_tt)` |  |
-| `rot_x` | função | `(a)` |  |
-| `rot_y` | função | `(a)` |  |
-| `rot_z` | função | `(a)` |  |
-| `precession_matrix` | função | `(jd_tt)` | Mean J2000 -> mean equator/equinox of date: IAU 2006 (P03) angles, IERS Conventions 2010 eq. 5.40. |
-| `nutation_matrix` | função | `(jd_tt)` | Mean of date -> true equator/equinox of date. |
-| `npb_matrix` | função | `(jd_tt)` | GCRS -> true equator and equinox of date (N P B). |
-| `ecliptic_matrix` | função | `(jd_tt=None)` | GCRS -> ecliptic. ``None`` gives the J2000 mean ecliptic (IAU 2006 obliquity 84381.406"). |
-| `geodetic_to_itrs` | função | `(lat_deg, lon_deg, height_m=0.0)` | Observer position (km) in the terrestrial frame. |
-| `itrs_to_geodetic` | função | `(r)` | Inverse of :func:`geodetic_to_itrs` (Bowring iteration); returns lat, lon (deg), height (km). |
-| `radec` | função | `(v)` | Unit or full vectors (..., 3) -> RA (deg, 0..360), Dec (deg), norm. |
-| `from_radec` | função | `(ra_deg, dec_deg)` |  |
-| `equatorial_to_horizontal` | função | `(ha_rad, dec_rad, lat_rad)` | Hour angle, declination, latitude (rad) -> altitude, azimuth (deg; azimuth from north through east). |
-| `horizontal_to_equatorial` | função | `(alt_deg, az_deg, lat_deg)` | Altitude/azimuth -> hour angle (deg) and declination (deg). |
-| `angular_separation` | função | `(ra1, dec1, ra2, dec2)` | Great-circle separation (deg), Vincenty form (stable at all angles). |
-| `position_angle` | função | `(ra1, dec1, ra2, dec2)` | Position angle (deg, north through east) of point 2 seen from point 1. |
+| `fundamental_args` | função | `(T)` | Argumentos de Delaunay (D, M, M', F, Omega) para séculos julianos TT desde J2000. |
+| `nutation` | função | `(jd_tt)` | Nutação em longitude e obliquidade (rad). |
+| `mean_obliquity` | função | `(jd_tt)` | Obliquidade média da eclíptica (IAU 2006) numa data TT, em radianos. |
+| `rot_x` | função | `(a)` | Matriz de rotação em torno do eixo x (vetorizada no ângulo). |
+| `rot_y` | função | `(a)` | Matriz de rotação em torno do eixo y (vetorizada no ângulo). |
+| `rot_z` | função | `(a)` | Matriz de rotação em torno do eixo z (vetorizada no ângulo). |
+| `precession_matrix` | função | `(jd_tt)` | Matriz de precessão J2000 média para equador/equinócio médio da data (IAU 2006). |
+| `nutation_matrix` | função | `(jd_tt)` | Matriz do equador médio da data para o verdadeiro. |
+| `npb_matrix` | função | `(jd_tt)` | Matriz combinada GCRS para equador e equinócio verdadeiros da data (N P B). |
+| `ecliptic_matrix` | função | `(jd_tt=None)` | Matriz GCRS para eclíptica (da data, ou a eclíptica média J2000 se a data for None). |
+| `geodetic_to_itrs` | função | `(lat_deg, lon_deg, height_m=0.0)` | Posição do observador (km) no referencial terrestre a partir de latitude, longitude e altitude. |
+| `itrs_to_geodetic` | função | `(r)` | Inversa de `geodetic_to_itrs` por iteração de Bowring. |
+| `radec` | função | `(v)` | Vetores para RA, Dec (graus) e norma. |
+| `from_radec` | função | `(ra_deg, dec_deg)` | Vetor unitário a partir de RA e Dec em graus. |
+| `equatorial_to_horizontal` | função | `(ha_rad, dec_rad, lat_rad)` | Ângulo horário, declinação e latitude para altitude e azimute. |
+| `horizontal_to_equatorial` | função | `(alt_deg, az_deg, lat_deg)` | Altitude e azimute para ângulo horário e declinação. |
+| `angular_separation` | função | `(ra1, dec1, ra2, dec2)` | Separação angular de grande círculo (fórmula de Vincenty). |
+| `position_angle` | função | `(ra1, dec1, ra2, dec2)` | Ângulo de posição (norte por leste) do ponto 2 visto do ponto 1. |
 
 #### `pinneapple_physics.astro.journey`
 
-A journey from your place on Earth to a planet, a moon, the Sun or a star: the geometry of the trip.
+Geometria de uma 'viagem' do observador até um planeta, lua, o Sol ou uma estrela: posições heliocêntricas, distância, tempos de viagem, magnitude e cena 3D.
 
 <small>`pinneapple_physics/astro/journey.py` · 193 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `galactic` | função | `(v)` | Galactic (l, b) in degrees of an ICRS (J2000) vector. |
-| `body_position` | função | `(body, t, eph=None) -> np.ndarray` | Heliocentric ICRS position (km) of a Solar System body at t (geometric, no light time). |
-| `observer_position` | função | `(observer, t, eph=None) -> np.ndarray` | Heliocentric ICRS position (km) of a place on Earth at t (Earth from the ephemeris + the site in GCRS). |
-| `star_position` | função | `(ra_deg, dec_deg, parallax_mas) -> np.ndarray` | Heliocentric ICRS position (km) of a star from its J2000 direction and parallax. |
-| `travel_times` | função | `(distance_km) -> dict` | Seconds needed to cover a distance at the speeds in ``SPEEDS``. |
-| `apparent_magnitude_star` | função | `(abs_mag, distance_km)` | m = M + 5 log10(d / 10 pc). |
-| `angular_diameter_deg` | função | `(radius_km, distance_km)` |  |
-| `plan` | função | `(observer, target, t, standoff=None, n_profile=60, eph=None) -> dict` | The trip from ``observer`` to ``target`` (body name, 'star:<HR>', 'HR <n>' or a facts id) on date ``t``. |
-| `scene` | função | `(t, observer=None, max_parallax_err=0.2, eph=None) -> dict` | Everything a 3-D journey draws, heliocentric ICRS km: the planets, Sun and Moon at t (with radii), and the bright stars with a usable parallax (Hipparcos 2007 for the brightest, BSC5 otherwise) with absolute magnitude and B-V; stars without a parallax are listed by direction only. |
+| `galactic` | função | `(v)` | Coordenadas galácticas (l, b) de um vetor ICRS. |
+| `body_position` | função | `(body, t, eph=None) -> np.ndarray` | Posição heliocêntrica ICRS de um corpo do Sistema Solar (geométrica, sem tempo de luz). |
+| `observer_position` | função | `(observer, t, eph=None) -> np.ndarray` | Posição heliocêntrica ICRS de um lugar na Terra (Terra pela efeméride mais o local em GCRS). |
+| `star_position` | função | `(ra_deg, dec_deg, parallax_mas) -> np.ndarray` | Posição heliocêntrica de uma estrela a partir da direção J2000 e da paralaxe. |
+| `travel_times` | função | `(distance_km) -> dict` | Segundos para percorrer uma distância nas velocidades da tabela `SPEEDS`. |
+| `apparent_magnitude_star` | função | `(abs_mag, distance_km)` | Magnitude aparente m = M + 5 log10(d / 10 pc). |
+| `angular_diameter_deg` | função | `(radius_km, distance_km)` | Diâmetro angular (graus) de um corpo de raio dado a uma distância. |
+| `plan` | função | `(observer, target, t, standoff=None, n_profile=60, eph=None) -> dict` | Monta a viagem do observador até um alvo numa data: distância, tempo de luz, perfil de magnitude e tamanho. |
+| `scene` | função | `(t, observer=None, max_parallax_err=0.2, eph=None) -> dict` | Tudo o que a viagem 3D desenha: planetas, Sol e Lua com raios, e as estrelas brilhantes com paralaxe utilizável. |
 
 #### `pinneapple_physics.astro.lensing`
 
-Gravitational lensing demos on the real sky: a Schwarzschild black hole placed in front of the stars you are looking at, rendered with the geodesic ray tracer of :mod:`pinneapple_physics.blackhole.raytrace`, plus the closed forms (weak-field deflection, Einstein radius, shadow diameter) checked …
+Demonstrações de lente gravitacional no céu real: um buraco negro de Schwarzschild na frente das estrelas, renderizado com o traçador de geodésicas de `blackhole.raytrace`, mais fórmulas fechadas (deflexão, raio de Einstein, sombra vs EHT).
 
 <small>`pinneapple_physics/astro/lensing.py` · 366 linhas · testes: 32</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `deflection_angle_rad` | função | `(mass_kg, impact_parameter_m)` | Weak-field light deflection 4GM / (c^2 b). |
-| `einstein_radius_rad` | função | `(mass_kg, d_lens_m, d_source_m)` |  |
-| `shadow_diameter_rad` | função | `(mass_kg, distance_m)` | Angular diameter of a Schwarzschild shadow, 2 sqrt(27) GM / (c^2 D). |
-| `eht_comparison` | função | `() -> list[dict]` |  |
-| `sun_deflection_arcsec` | função | `(elongation_deg)` | Deflection of starlight by the Sun at an angular distance from its centre (Eddington 1919: 1.75" at the limb), using b = 1 AU sin(elongation). |
-| `star_splat` | função | `(v, mag_limit=6.5, sigma_deg=0.1, mag_white=1.5)` | Display footprint of a star of visual magnitude ``v``: Gaussian width (deg) and peak brightness. |
-| `catalog_sky` | função | `(width=4096, height=2048, mag_limit=6.5, milky_way=0.32, star_sigma_deg=0.1) -> np.ndarray` | Equirectangular RGB image (x = RA / 360 * width, Dec up) of the bright-star catalogue over the Milky Way glow: stars drawn as Gaussian splats with black-body colours, sized and scaled with magnitude (``star_splat``). |
-| `tone_map` | função | `(img, exposure=1.6, gamma=0.75) -> np.ndarray` | Linear sky radiance -> display values in [0, 1]: a soft shoulder 1 - exp(-exposure x) (bright cores of stars saturate smoothly instead of clipping) and a display gamma that lifts the faint band. |
-| `bright_stars_in_field` | função | `(ra_deg, dec_deg, radius_deg, mag_limit=3.5) -> int` | Number of catalogue stars brighter than ``mag_limit`` within ``radius_deg`` of (ra, dec). |
-| `lensed_sky` | função | `(ra_deg, dec_deg, fov_deg=30.0, width=480, height=270, r_cam=30.0, sky=None, supersample=…)` | Render the real sky around (ra, dec) as seen through a Schwarzschild black hole at that position. |
-| `trace_thin_disc` | função | `(width=640, height=360, inclination_deg=80.0, r_cam=60.0, fov_deg=32.0, max_crossings=3, …)` | Exact backward ray tracing for an infinitely thin equatorial disc around a Schwarzschild black hole (G = M = c = 1). |
-| `disc_image` | função | `(tr, r_in=6.0, r_out=20.0, doppler=True, t_peak=3900.0, exposure=2.4, gamma=0.6, opacity=…)` | Colour and intensity of the disc for traced rays. |
-| `accretion_view` | função | `(ra_deg, dec_deg, width=640, height=360, inclination_deg=86.0, r_cam=60.0, fov_deg=42.0, …)` | A Schwarzschild black hole with a thin accretion disc placed in front of the real sky around (ra, dec): exact null geodesics (``trace_thin_disc``), Doppler beaming and gravitational redshift (``disc_image``), the lensed background from the bright-star catalogue and the Milky Way, then a light bloom. |
-| `lensing_view` | função | `(ra_deg, dec_deg, fov_deg=60.0, width=480, height=270, r_cam=120.0, sky=None, disc='auto'…)` | Display-ready view of a black hole in front of the sky around (ra, dec). |
+| `deflection_angle_rad` | função | `(mass_kg, impact_parameter_m)` | Deflexão da luz em campo fraco, 4GM/(c^2 b). |
+| `einstein_radius_rad` | função | `(mass_kg, d_lens_m, d_source_m)` | Raio de Einstein (rad) para massa e distâncias da lente e da fonte. |
+| `shadow_diameter_rad` | função | `(mass_kg, distance_m)` | Diâmetro angular da sombra de Schwarzschild, 2 sqrt(27) GM/(c^2 D). |
+| `eht_comparison` | função | `() -> list[dict]` | Compara o diâmetro de sombra previsto com o anel observado pelo EHT para cada objeto da tabela interna, em sigmas. |
+| `sun_deflection_arcsec` | função | `(elongation_deg)` | Deflexão da luz estelar pelo Sol a uma elongação dada (Eddington 1919). |
+| `star_splat` | função | `(v, mag_limit=6.5, sigma_deg=0.1, mag_white=1.5)` | Largura gaussiana e brilho de pico para desenhar uma estrela de magnitude dada. |
+| `catalog_sky` | função | `(width=4096, height=2048, mag_limit=6.5, milky_way=0.32, star_sigma_deg=0.1) -> np.ndarray` | Imagem RGB equiretangular do catálogo de estrelas brilhantes sobre o brilho da Via Láctea. |
+| `tone_map` | função | `(img, exposure=1.6, gamma=0.75) -> np.ndarray` | Mapeia radiância linear do céu para valores de exibição em [0, 1] com ombro suave e gama. |
+| `bright_stars_in_field` | função | `(ra_deg, dec_deg, radius_deg, mag_limit=3.5) -> int` | Conta estrelas do catálogo mais brilhantes que um limite dentro de um raio. |
+| `lensed_sky` | função | `(ra_deg, dec_deg, fov_deg=30.0, width=480, height=270, r_cam=30.0, sky=None, supersample=…)` | Renderiza o céu real em torno de (ra, dec) visto através de um buraco negro de Schwarzschild. |
+| `trace_thin_disc` | função | `(width=640, height=360, inclination_deg=80.0, r_cam=60.0, fov_deg=32.0, max_crossings=3, …)` | Traçado de raios exato para trás num disco equatorial fino em torno de um buraco negro de Schwarzschild. |
+| `disc_image` | função | `(tr, r_in=6.0, r_out=20.0, doppler=True, t_peak=3900.0, exposure=2.4, gamma=0.6, opacity=…)` | Cor e intensidade do disco para os raios traçados, com Doppler e desvio gravitacional opcionais. |
+| `accretion_view` | função | `(ra_deg, dec_deg, width=640, height=360, inclination_deg=86.0, r_cam=60.0, fov_deg=42.0, …)` | Buraco negro com disco de acreção fino na frente do céu real, com geodésicas exatas, Doppler e bloom. |
+| `lensing_view` | função | `(ra_deg, dec_deg, fov_deg=60.0, width=480, height=270, r_cam=120.0, sky=None, disc='auto'…)` | Vista pronta para exibição de um buraco negro na frente do céu, com ou sem disco ('auto'). |
 
 #### `pinneapple_physics.astro.nbody`
 
-Classical N-body integrators for the Sun-planets(-Moon) problem, with conservation diagnostics.
+Integradores clássicos de N corpos para Sol-planetas(-Lua), com diagnósticos de conservação de energia e momento angular. [sem teste direto]
 
 <small>`pinneapple_physics/astro/nbody.py` · 116 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `initial_state` | função | `(jd_tdb, bodies=SOLAR_SYSTEM, eph=None)` |  |
-| `accelerations` | função | `(r, mu)` |  |
-| `energy` | função | `(r, v, mu)` | Total energy per unit G (km^2/s^2 * km^3/s^2 / ... consistent units: sum mu_i v_i^2/2 - sum mu_i mu_j/r_ij). |
-| `angular_momentum` | função | `(r, v, mu)` |  |
-| `integrate` | função | `(r0, v0, mu, t_end_s, dt_s, method='yoshida4', n_out=200)` | Integrate from t=0 to ``t_end_s``; returns dict with times (s), r (n_out, N, 3), v, and the relative energy error and angular-momentum drift histories. |
+| `initial_state` | função | `(jd_tdb, bodies=SOLAR_SYSTEM, eph=None)` | Posições, velocidades baricêntricas e GM dos corpos numa data, lidos da efeméride. |
+| `accelerations` | função | `(r, mu)` | Acelerações gravitacionais mútuas de N corpos. |
+| `energy` | função | `(r, v, mu)` | Energia total (por unidade de G) do sistema de N corpos. |
+| `angular_momentum` | função | `(r, v, mu)` | Momento angular total do sistema, ponderado por GM. |
+| `integrate` | função | `(r0, v0, mu, t_end_s, dt_s, method='yoshida4', n_out=200)` | Integra de t=0 a `t_end_s` (Yoshida-4 por padrão) e devolve trajetórias e históricos de erro de energia e momento angular. |
 
 #### `pinneapple_physics.astro.neural_propagator`
 
-A learned propagator for near-Earth asteroids: one network for many bodies.
+Propagador aprendido para asteroides próximos da Terra: uma rede corrige o desvio da órbita kepleriana (no referencial R/T/N) para muitos corpos, com relatório de confiança.
 
 <small>`pinneapple_physics/astro/neural_propagator.py` · 240 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeuralPropagator` | classe | `(net=None, xm=None, xs=None, ys=None, info=None)` |  |
-| `sample_population` | função | `(n, seed=0)` | NEO-like osculating elements: a 0.7-2.6 AU, e 0.02-0.65 (perihelion > 0.2 AU), i 0-35 deg, random angles. |
-| `kepler_positions` | função | `(body, jd)` |  |
-| `features` | função | `(body, tau)` | Inputs: a, e, sin/cos i, angles as sin/cos, tau = t / span, and the Kepler mean anomaly at t (sin/cos). |
-| `rtn_basis` | função | `(rk, vk)` | Radial / transverse (along-track) / normal unit vectors of the Kepler orbit, (n, 3, 3) rows R, T, N. |
-| `make_dataset` | função | `(n_bodies=160, n_t=60, seed=0, cache=None)` | Features and targets: the deviation from the Kepler orbit in its R/T/N frame (milli-AU). |
-| `tisserand` | função | `(r_km, v_km_s, a_jup_au=5.2026)` | Tisserand parameter w.r.t. Jupiter from heliocentric states (ICRF axes; inclination to the ecliptic). |
-| `evaluate` | função | `(model, bodies, n_t=60)` | Errors of the learned propagator and of Kepler alone against the full integrator, per body, plus timing. |
-| `trust_report` | função | `(folder=MODEL_DIR, real=None) -> dict` | Verdict of the shipped network from its held-out evaluation: to be useful it must beat Kepler by 5x on the median of the per-body maximum error over unseen bodies (and not be worse than Kepler at the 90th percentile). |
+| `NeuralPropagator` | classe | `(net=None, xm=None, xs=None, ys=None, info=None)` | Rede que prevê a correção à órbita kepleriana de um asteroide; treina, prevê, salva e carrega. |
+| `sample_population` | função | `(n, seed=0)` | Sorteia elementos osculadores parecidos com os de NEOs. |
+| `kepler_positions` | função | `(body, jd)` | Posições e velocidades keplerianas (ICRF) de um `SmallBody` nas datas pedidas. |
+| `features` | função | `(body, tau)` | Entradas da rede: elementos, ângulos em seno/cosseno, tempo normalizado e anomalia média kepleriana. |
+| `rtn_basis` | função | `(rk, vk)` | Vetores unitários radial, transversal e normal da órbita kepleriana. |
+| `make_dataset` | função | `(n_bodies=160, n_t=60, seed=0, cache=None)` | Monta entradas e alvos: o desvio da órbita kepleriana no referencial R/T/N. |
+| `tisserand` | função | `(r_km, v_km_s, a_jup_au=5.2026)` | Parâmetro de Tisserand em relação a Júpiter a partir de estados heliocêntricos. |
+| `evaluate` | função | `(model, bodies, n_t=60)` | Erros do propagador aprendido e de Kepler sozinho contra o integrador completo, por corpo, com tempo de execução. |
+| `trust_report` | função | `(folder=MODEL_DIR, real=None) -> dict` | Veredito da rede distribuída a partir da avaliação em corpos não vistos (precisa superar Kepler por margem fixa). |
 
 #### `pinneapple_physics.astro.observing`
 
-An observing session, with honest physics: plan a night, set up a telescope, slew to a target and track it.
+Sessão de observação: visibilidade de um alvo na noite, nascer/trânsito/ocaso, brilho do céu (Krisciunas & Schaefer), óptica do telescópio, slews GoTo, rotação de campo e recortes de survey HiPS.
 
 <small>`pinneapple_physics/astro/observing.py` · 356 linhas · testes: 21</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Telescope` | classe | `(name, aperture_mm, focal_mm, kind, central_obstruction)` |  |
-| `Eyepiece` | classe | `(name, focal_mm, afov_deg)` |  |
-| `Camera` | classe | `(name, width_mm, height_mm, pixel_um)` |  |
-| `target_altaz` | função | `(target, t, observer, refraction=True, eph=None)` | Apparent (alt, az, ra_of_date, dec_of_date) in degrees of a body name or a J2000 (ra, dec) pair at the times ``t`` (scalar or array). |
-| `rise_transit_set` | função | `(target, observer, jd_start, days=1.0, eph=None) -> dict` | Rise, upper transit and set (UTC Julian dates) in [jd_start, jd_start + days). Bodies: the almanac definition (centre 34' + semi-diameter below the horizon). Stars and deep-sky objects: centre 34' below the geometric horizon (standard refraction), transit when the hour angle is zero. |
-| `extinction` | função | `(alt_apparent_deg, k=None) -> dict` | Extinction (mag) per band at an apparent altitude: k * X with X the Kasten-Young air mass. |
-| `nl_to_mag` | função | `(b_nl)` | Surface brightness: nanolamberts -> V mag/arcsec^2 (Krisciunas & Schaefer 1991, eq. 1 inverted). |
-| `mag_to_nl` | função | `(m)` |  |
-| `moon_brightness_nl` | função | `(moon_phase_angle_deg, moon_sep_deg, moon_alt_deg, target_alt_deg, k=0.172)` | Sky brightness (nanolamberts, V) added by moonlight at the target, Krisciunas & Schaefer (1991, PASP 103, 1033): B = f(rho) I*(alpha) 10^(-0.4 k X(Z_moon)) (1 - 10^(-0.4 k X(Z))), with the Moon's illuminance I* = 10^(-0.4 (3.84 + 0.026\|alpha\| + 4e-9 alpha^4)), the scattering function f(rho) = … |
-| `dark_sky_nl` | função | `(target_alt_deg, k=0.172, b_zenith_nl=79.0)` | The natural night sky at the target (KS91 eq. 2): B_zen 10^(-0.4 k (X - 1)) X; 79 nL ~ 21.6 V mag/arcsec^2. |
-| `twilight_mag` | função | `(sun_alt_deg)` | Approximate zenith sky brightness in twilight, V mag/arcsec^2, from the Sun's altitude: about 11 at sunset's civil limit (-6 deg), 16.5 at -12 deg and the dark-sky level beyond -18 deg (a linear fit to typical twilight photometry; good to ~1 mag, enough to decide what can be seen). |
-| `sky_brightness` | função | `(sun_alt_deg, moon_phase_angle_deg, moon_sep_deg, moon_alt_deg, target_alt_deg, k=0.172, …)` | Sky brightness at the target, V mag/arcsec^2: dark sky + moonlight (Krisciunas & Schaefer 1991) + twilight. |
-| `visibility` | função | `(target, observer, t, hours=24.0, step_min=5.0, min_alt=30.0, eph=None) -> dict` | The night for a target from ``observer`` over ``hours`` after ``t``: samples of altitude, azimuth, air mass, Sun and Moon altitude, Moon separation and sky brightness; rise / transit / set; astronomical twilight; the Moon's phase; the best window (dark sky, Sun < -18 deg, target above ``min_alt``, … |
-| `optics` | função | `(telescope, eyepiece=None, camera=None, naked_eye_limit=6.0, wavelength_nm=550.0) -> dict` | What a telescope shows. Standard formulas: magnification M = F / f_e; true field = AFOV / M; exit pupil D / M; focal ratio F / D; Dawes limit 116 / D(mm) arcsec; Rayleigh limit 1.22 lambda / D; limiting magnitude m = m_eye + 5 log10(D / 7 mm) (the light grasp over a 7 mm dark-adapted pupil); light … |
-| `axis_time` | função | `(delta_deg, rate_deg_s, accel_deg_s2) -> float` | Time to move one axis by ``delta_deg`` with a trapezoidal velocity profile (accelerate, coast, decelerate); a triangular profile when the move is too short to reach the slew rate. |
-| `hour_angle_dec` | função | `(alt_deg, az_deg, lat_deg)` | (hour angle, declination) in degrees from (alt, az). |
-| `slew` | função | `(start_altaz, target_altaz, lat_deg, mount='altaz', rate_deg_s=4.0, accel_deg_s2=2.0, set…)` | A GoTo slew: both axes move at once, each with a trapezoidal profile; the slew takes the slower axis plus a settling time. Refused below ``min_alt``. An equatorial (German) mount slews in hour angle and declination and must do a meridian flip when the target is on the other side of the meridian … |
-| `parallactic_angle` | função | `(lat_deg, ha_deg, dec_deg)` | Parallactic angle q (deg): the angle at the target between the directions to the zenith and to the pole, tan q = sin H / (tan phi cos delta - sin delta cos H). |
-| `field_rotation_rate` | função | `(lat_deg, alt_deg, az_deg)` | Field rotation of an alt-azimuth mount (deg per second of time): the rate of change of the parallactic angle, dq/dt = -omega cos(phi) cos(A) / cos(h), with A the azimuth from north through east; its size is the classical omega cos(phi) cos(A) / cos(h), infinite at the zenith. The image in an alt-az … |
-| `survey_url` | função | `(ra_deg, dec_deg, fov_deg, width=512, height=512, rotation_deg=0.0, survey=SURVEY) -> str` | URL of a JPEG cut-out of a HiPS survey around (ra, dec) from CDS hips2fits (gnomonic projection, north up). |
-| `survey_cutout` | função | `(ra_deg, dec_deg, fov_deg, width=512, height=512, cache_dir=None, timeout=8.0, survey=SUR…)` | JPEG bytes of a survey cut-out, cached on disk (rounded position and field, so nearby requests share a file). Raises OSError when the service cannot be reached and nothing is cached. |
+| `Telescope` | classe | `(name, aperture_mm, focal_mm, kind, central_obstruction)` | Telescópio: nome, abertura, focal, tipo e obstrução central. |
+| `Eyepiece` | classe | `(name, focal_mm, afov_deg)` | Ocular: nome, focal e campo aparente. |
+| `Camera` | classe | `(name, width_mm, height_mm, pixel_um)` | Câmera: nome, tamanho do sensor e tamanho do pixel. |
+| `target_altaz` | função | `(target, t, observer, refraction=True, eph=None)` | Altitude, azimute e RA/Dec da data de um corpo ou de um par (ra, dec) J2000. |
+| `rise_transit_set` | função | `(target, observer, jd_start, days=1.0, eph=None) -> dict` | Nascer, trânsito superior e ocaso de corpos, estrelas e objetos de céu profundo num intervalo. |
+| `extinction` | função | `(alt_apparent_deg, k=None) -> dict` | Extinção por banda numa altitude aparente (k vezes massa de ar de Kasten-Young). |
+| `nl_to_mag` | função | `(b_nl)` | Brilho superficial de nanolamberts para magnitude V por segundo de arco quadrado. |
+| `mag_to_nl` | função | `(m)` | Inversa de `nl_to_mag`: magnitude por arcsec^2 para nanolamberts. |
+| `moon_brightness_nl` | função | `(moon_phase_angle_deg, moon_sep_deg, moon_alt_deg, target_alt_deg, k=0.172)` | Brilho do céu acrescentado pelo luar no alvo (Krisciunas & Schaefer 1991). |
+| `dark_sky_nl` | função | `(target_alt_deg, k=0.172, b_zenith_nl=79.0)` | Brilho natural do céu noturno no alvo (KS91). |
+| `twilight_mag` | função | `(sun_alt_deg)` | Brilho aproximado do zênite no crepúsculo a partir da altitude do Sol (ajuste linear). |
+| `sky_brightness` | função | `(sun_alt_deg, moon_phase_angle_deg, moon_sep_deg, moon_alt_deg, target_alt_deg, k=0.172, …)` | Brilho do céu no alvo: céu escuro, luar e crepúsculo somados. |
+| `visibility` | função | `(target, observer, t, hours=24.0, step_min=5.0, min_alt=30.0, eph=None) -> dict` | A noite de um alvo: amostras de altitude, massa de ar, Sol, Lua, brilho do céu, eventos e a melhor janela. |
+| `optics` | função | `(telescope, eyepiece=None, camera=None, naked_eye_limit=6.0, wavelength_nm=550.0) -> dict` | O que um telescópio mostra: aumento, campo, pupila de saída, limites de resolução e magnitude limite. |
+| `axis_time` | função | `(delta_deg, rate_deg_s, accel_deg_s2) -> float` | Tempo para mover um eixo com perfil de velocidade trapezoidal (ou triangular). |
+| `hour_angle_dec` | função | `(alt_deg, az_deg, lat_deg)` | Ângulo horário e declinação a partir de altitude e azimute. |
+| `slew` | função | `(start_altaz, target_altaz, lat_deg, mount='altaz', rate_deg_s=4.0, accel_deg_s2=2.0, set…)` | Simula um slew GoTo de montagem alt-az ou equatorial, com flip de meridiano e recusa abaixo da altitude mínima. |
+| `parallactic_angle` | função | `(lat_deg, ha_deg, dec_deg)` | Ângulo paralático no alvo. |
+| `field_rotation_rate` | função | `(lat_deg, alt_deg, az_deg)` | Taxa de rotação de campo de uma montagem alt-az. |
+| `survey_url` | função | `(ra_deg, dec_deg, fov_deg, width=512, height=512, rotation_deg=0.0, survey=SURVEY) -> str` | URL de um recorte JPEG de um survey HiPS (CDS hips2fits) em torno de (ra, dec). |
+| `survey_cutout` | função | `(ra_deg, dec_deg, fov_deg, width=512, height=512, cache_dir=None, timeout=8.0, survey=SUR…)` | Bytes JPEG do recorte, com cache em disco; levanta OSError sem rede e sem cache. |
 
 #### `pinneapple_physics.astro.orbits`
 
-Two-body orbits: osculating elements from a state vector, Kepler's equation, propagation, and the heliocentric orbits of the planets from the JPL ephemeris.
+Órbitas de dois corpos: elementos osculadores a partir do vetor de estado, equação de Kepler, propagação e órbitas heliocêntricas dos planetas pela efeméride JPL.
 
 <small>`pinneapple_physics/astro/orbits.py` · 121 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solve_kepler` | função | `(M, e, tol=1e-14, maxiter=50)` | Eccentric anomaly E from mean anomaly M (rad) for 0 <= e < 1 (Newton, Danby starter). |
-| `elements_from_state` | função | `(r, v, mu=GM_SUN) -> dict` | Osculating Keplerian elements (angles in degrees) of a bound orbit from position (km) / velocity (km/s). |
-| `state_from_elements` | função | `(el, mu=GM_SUN, dt_s=0.0)` | Position/velocity (km, km/s) after ``dt_s`` seconds of pure Keplerian motion. |
-| `heliocentric_state` | função | `(body, jd_tdb, frame='ecliptic', eph=None)` | Heliocentric position (km) and velocity (km/s) of a body, J2000 ecliptic (default) or ICRF axes. |
-| `planet_elements` | função | `(body, jd_tdb, eph=None) -> dict` | Osculating heliocentric elements (J2000 ecliptic) of a planet; Moon: geocentric elements. |
-| `orbit_polyline` | função | `(body, jd_tdb, n=256, eph=None)` | One revolution of the osculating orbit, heliocentric J2000 ecliptic, in AU (n, 3). |
-| `light_time_and_doppler` | função | `(range_km, range_rate_km_s, rest_wavelength_nm=656.281)` | One-way light time and the relativistic Doppler shift of a spectral line (H-alpha by default). |
+| `solve_kepler` | função | `(M, e, tol=1e-14, maxiter=50)` | Anomalia excêntrica a partir da anomalia média (Newton) para órbitas elípticas. |
+| `elements_from_state` | função | `(r, v, mu=GM_SUN) -> dict` | Elementos keplerianos osculadores a partir de posição e velocidade. |
+| `state_from_elements` | função | `(el, mu=GM_SUN, dt_s=0.0)` | Posição e velocidade após um intervalo de movimento kepleriano puro. |
+| `heliocentric_state` | função | `(body, jd_tdb, frame='ecliptic', eph=None)` | Posição e velocidade heliocêntricas de um corpo, na eclíptica J2000 ou em eixos ICRF. |
+| `planet_elements` | função | `(body, jd_tdb, eph=None) -> dict` | Elementos heliocêntricos osculadores de um planeta (geocêntricos para a Lua). |
+| `orbit_polyline` | função | `(body, jd_tdb, n=256, eph=None)` | Uma volta da órbita osculadora em UA, para desenhar. |
+| `light_time_and_doppler` | função | `(range_km, range_rate_km_s, rest_wavelength_nm=656.281)` | Tempo de luz de ida e desvio Doppler relativístico de uma linha espectral. |
 
 #### `pinneapple_physics.astro.phenomena`
 
-Almanac phenomena: rise / transit / set, twilight, Moon phase, planet magnitudes and elongations, oppositions and conjunctions, equinoxes and solstices, lunar and solar eclipses, transits of Mercury and Venus.
+Fenômenos de almanaque: nascer/trânsito/ocaso, crepúsculos, fase da Lua, magnitudes, elongações, oposições, equinócios, eclipses e trânsitos de Mercúrio e Vênus. [sem teste direto]
 
 <small>`pinneapple_physics/astro/phenomena.py` · 435 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `find_roots` | função | `(f, jd0, jd1, step, tol=0.5 * SECOND)` | All sign changes of ``f(jd_array)`` in [jd0, jd1], each refined to ``tol`` days. Returns a list of (jd, direction) with direction +1 for a rising crossing. |
-| `find_minima` | função | `(f, jd0, jd1, step, tol=1.0 * SECOND)` | Local minima of ``f`` (golden-section refinement). Returns a list of (jd, value). |
-| `horizon_altitude` | função | `(body, distance_km=None) -> float` | Geometric altitude of the body's centre at rise/set: -(34' refraction + semi-diameter). |
-| `rise_transit_set` | função | `(body, observer, jd_start, days=1.0, eph=None)` | Rise, upper transit and set times (UTC Julian dates) of a solar-system body in [jd_start, +days). |
-| `twilight_events` | função | `(observer, jd_start, days=1.0, eph=None)` | Sunrise/sunset and the start/end of civil, nautical and astronomical twilight. |
-| `sky_state` | função | `(sun_alt_deg) -> str` |  |
-| `phase_angle` | função | `(body, t, eph=None)` | Sun-body-Earth angle (deg) and the Sun-body distance (km), geocentric. |
-| `illuminated_fraction` | função | `(body, t, eph=None)` |  |
-| `moon_phase` | função | `(t, eph=None) -> dict` | Illuminated fraction, phase angle, elongation, age-like phase longitude (0 new, 90 first quarter, 180 full) and the position angle of the bright limb (deg, from north through east). |
-| `magnitude` | função | `(body, t, eph=None)` | Visual magnitude of the Sun, Moon and planets (Meeus ch. 41 / Explanatory Supplement 1992 formulas; Saturn without the ring term, so up to ~0.8 mag too faint when the rings are open). |
-| `planet_events` | função | `(body, jd0, jd1, eph=None)` | Oppositions and conjunctions (geocentric ecliptic longitude of date equal to the Sun's or opposite), and for Mercury / Venus the greatest elongations; with elongation and magnitude at each event. |
-| `lunar_phase_events` | função | `(jd0, jd1, eph=None)` | New Moon, first quarter, full Moon, last quarter between two dates. |
-| `seasons` | função | `(jd0, jd1, eph=None)` | Equinoxes and solstices: apparent geocentric longitude of the Sun = 0, 90, 180, 270 deg. |
-| `lunar_eclipses` | função | `(jd0, jd1, eph=None)` | Lunar eclipses: shadow geometry at each full Moon with the Danjon 2% enlargement of the Earth's shadow. Returns greatest-eclipse time, type and umbral / penumbral magnitudes. |
-| `solar_eclipses` | função | `(jd0, jd1, observer=None, eph=None)` | Solar eclipses anywhere on Earth (geocentric criterion), with an approximate type, and the local circumstances (maximum obscuration and its time) for ``observer`` if given. |
-| `planetary_transits` | função | `(jd0, jd1, eph=None)` | Transits of Mercury and Venus across the Sun (geocentric): inferior conjunctions with the planet's minimum separation from the Sun's centre below the solar radius plus the planet's. |
+| `find_roots` | função | `(f, jd0, jd1, step, tol=0.5 * SECOND)` | Todas as trocas de sinal de uma função de data num intervalo, refinadas até a tolerância. |
+| `find_minima` | função | `(f, jd0, jd1, step, tol=1.0 * SECOND)` | Mínimos locais de uma função de data, refinados por seção áurea. |
+| `horizon_altitude` | função | `(body, distance_km=None) -> float` | Altitude geométrica do centro do corpo no nascer/ocaso (refração padrão mais semidiâmetro). |
+| `rise_transit_set` | função | `(body, observer, jd_start, days=1.0, eph=None)` | Nascer, trânsito e ocaso de um corpo do Sistema Solar num intervalo. |
+| `twilight_events` | função | `(observer, jd_start, days=1.0, eph=None)` | Nascer/pôr do Sol e início/fim dos crepúsculos civil, náutico e astronômico. |
+| `sky_state` | função | `(sun_alt_deg) -> str` | Classifica o céu pela altitude do Sol: dia, crepúsculo civil, náutico, astronômico ou noite. |
+| `phase_angle` | função | `(body, t, eph=None)` | Ângulo Sol-corpo-Terra e distância Sol-corpo. |
+| `illuminated_fraction` | função | `(body, t, eph=None)` | Fração iluminada do disco a partir do ângulo de fase. |
+| `moon_phase` | função | `(t, eph=None) -> dict` | Fração iluminada, ângulo de fase, elongação, longitude de fase e ângulo do limbo brilhante da Lua. |
+| `magnitude` | função | `(body, t, eph=None)` | Magnitude visual do Sol, Lua e planetas (Saturno sem o termo dos anéis). |
+| `planet_events` | função | `(body, jd0, jd1, eph=None)` | Oposições, conjunções e, para Mercúrio e Vênus, maiores elongações num intervalo. |
+| `lunar_phase_events` | função | `(jd0, jd1, eph=None)` | Datas de lua nova, quarto crescente, cheia e quarto minguante. |
+| `seasons` | função | `(jd0, jd1, eph=None)` | Equinócios e solstícios num intervalo. |
+| `lunar_eclipses` | função | `(jd0, jd1, eph=None)` | Eclipses lunares com tipo e magnitudes umbral e penumbral. |
+| `solar_eclipses` | função | `(jd0, jd1, observer=None, eph=None)` | Eclipses solares (critério geocêntrico) com tipo aproximado e circunstâncias locais opcionais. |
+| `planetary_transits` | função | `(jd0, jd1, eph=None)` | Trânsitos de Mercúrio e Vênus pelo disco do Sol (geocêntricos). |
 
 #### `pinneapple_physics.astro.satellites`
 
-Earth satellites from public two-line elements (CelesTrak GP data): SGP4 propagation (the ``sgp4`` package, MIT, Vallado et al. 2006 reference implementation), TEME -> terrestrial frame, topocentric look angles, Earth-shadow test, standard-magnitude brightness model and visible-pass prediction.
+Satélites terrestres a partir de TLEs públicos (CelesTrak): propagação SGP4 (pacote `sgp4`), TEME para referencial terrestre, ângulos de visada, sombra da Terra, magnitude e passagens visíveis. [sem teste direto]
 
 <small>`pinneapple_physics/astro/satellites.py` · 246 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Satellite` | classe | `(name, line1, line2)` |  |
-| `gmst82` | função | `(t)` | GMST (rad), IAU 1982 expression used by the SGP4 TEME frame. |
-| `parse_tle` | função | `(text) -> list[Satellite]` |  |
-| `fetch_tles` | função | `(group='stations', cache_dir=None, max_age_hours=6.0, timeout=15.0) -> tuple[list[Satelli…)` | Current TLEs of a CelesTrak group, cached on disk for ``max_age_hours`` (CelesTrak asks clients not to poll more than once per update cycle). Returns (satellites, info) where info has ``source``, ``fetched_utc`` and ``error`` when the network is unavailable and no cache exists. |
-| `sun_itrs` | função | `(t, eph=None)` | Geocentric Sun position (km) in the terrestrial frame. |
-| `look` | função | `(sat, observer, t, eph=None) -> dict` | Topocentric altitude/azimuth/range, sub-satellite point, illumination and magnitude, vectorised over t. |
-| `magnitude` | função | `(std_mag, range_km, phase_rad, sunlit=1.0)` | Diffuse-sphere brightness: m = m_std + 5 log10(d / 1000 km) - 2.5 log10(pi F(phase)), with F = (sin p + (pi - p) cos p) / pi (equals 1/pi at 90 deg, where m = m_std). |
-| `find_passes` | função | `(sat, observer, t0, days=1.0, min_alt=10.0, step_s=20.0, eph=None) -> list[dict]` | Passes above the horizon in [t0, t0 + days): rise / culmination / set (UTC), max altitude, and visibility (satellite sunlit, observer's Sun below -6 deg, altitude >= ``min_alt``) with the brightest magnitude while visible. Times are refined to ~0.1 s. |
+| `Satellite` | classe | `(name, line1, line2)` | Satélite definido por um TLE; dá magnitude padrão e estados TEME e ITRS via SGP4. |
+| `gmst82` | função | `(t)` | GMST pela expressão IAU 1982 usada pelo referencial TEME do SGP4. |
+| `parse_tle` | função | `(text) -> list[Satellite]` | Lê texto de TLEs (com ou sem linha de nome) e devolve uma lista de `Satellite`. |
+| `fetch_tles` | função | `(group='stations', cache_dir=None, max_age_hours=6.0, timeout=15.0) -> tuple[list[Satelli…)` | Baixa os TLEs de um grupo do CelesTrak com cache em disco; informa erro quando não há rede nem cache. |
+| `sun_itrs` | função | `(t, eph=None)` | Posição geocêntrica do Sol no referencial terrestre. |
+| `look` | função | `(sat, observer, t, eph=None) -> dict` | Altitude, azimute, distância, ponto subsatélite, iluminação e magnitude, vetorizado no tempo. |
+| `magnitude` | função | `(std_mag, range_km, phase_rad, sunlit=1.0)` | Brilho de esfera difusa em função da distância e do ângulo de fase. |
+| `find_passes` | função | `(sat, observer, t0, days=1.0, min_alt=10.0, step_s=20.0, eph=None) -> list[dict]` | Passagens acima do horizonte num intervalo, com visibilidade e magnitude máxima. |
 
 #### `pinneapple_physics.astro.smallbodies`
 
-Asteroids and comets: JPL Small-Body Database elements, a high-accuracy propagator in the field of the Sun, the planets and the Moon from the DE421 ephemeris (with the Sun's relativistic term), close approaches to the Earth, and a learned (neural) propagator checked against it.
+Asteroides e cometas: elementos do JPL Small-Body Database, propagador de alta precisão no campo do Sol, planetas e Lua (DE421, com termo relativístico), aproximações à Terra e validação.
 
 <small>`pinneapple_physics/astro/smallbodies.py` · 222 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SmallBody` | classe | `(name, epoch_jd, a_au, e, i_deg, node_deg, peri_deg, M_deg, kind, neo, pha, H, diameter_k…)` |  |
-| `Trajectory` | classe | `(body, jd0, jd1, eph=None, rtol=1e-11, gr=True)` | One adaptive DOP853 integration from the epoch over [jd0, jd1] with dense output: positions and velocities anywhere in the span cost an interpolation, not a new integration. |
-| `load_body` | função | `(key) -> SmallBody` |  |
-| `available_bodies` | função | `()` | Keys of the bundled objects, the near-Earth asteroids first. |
-| `propagate` | função | `(body, jd_out, eph=None, rtol=1e-11, gr=True)` | Heliocentric ICRF positions (km) and velocities (km/s) at TDB Julian dates ``jd_out``. |
-| `close_approaches` | função | `(body, jd0, jd1, target='earth', max_dist_au=0.2, step_days=0.25, eph=None, traj=None)` | Minima of the distance to ``target`` (geocentre by default), refined to ~1 s by golden section on the dense trajectory. |
-| `horizons_vectors` | função | `(path=None)` | Parse a JPL Horizons VECTORS table (CSV, AU-D, ecliptic J2000): jd, positions (AU), velocities (AU/d). |
-| `cad_reference` | função | `(body, year)` | The JPL close-approach record (body = Earth) for a given year, with its 3-sigma distance range. |
-| `validation_summary` | função | `(eph=None) -> dict` | The propagator against independent references: Ceres vs JPL Horizons vectors (2022, from 2018 elements) and the Apophis flyby of 2029-04-13 vs the JPL close-approach table (distance with its 3-sigma range, time, speed). |
+| `SmallBody` | classe | `(name, epoch_jd, a_au, e, i_deg, node_deg, peri_deg, M_deg, kind, neo, pha, H, diameter_k…)` | Asteroide ou cometa com elementos orbitais, classificação (NEO, PHA), magnitude H e dados de aproximação. |
+| `Trajectory` | classe | `(body, jd0, jd1, eph=None, rtol=1e-11, gr=True)` | Uma integração DOP853 adaptativa com saída densa; posições em qualquer instante custam só uma interpolação. |
+| `load_body` | função | `(key) -> SmallBody` | Carrega um corpo empacotado a partir do JSON do JPL SBDB. |
+| `available_bodies` | função | `()` | Chaves dos corpos empacotados, NEOs primeiro. |
+| `propagate` | função | `(body, jd_out, eph=None, rtol=1e-11, gr=True)` | Posições e velocidades heliocêntricas ICRF nas datas TDB pedidas. |
+| `close_approaches` | função | `(body, jd0, jd1, target='earth', max_dist_au=0.2, step_days=0.25, eph=None, traj=None)` | Mínimos de distância a um alvo (Terra por padrão), refinados por seção áurea. |
+| `horizons_vectors` | função | `(path=None)` | Lê uma tabela VECTORS do JPL Horizons (CSV). |
+| `cad_reference` | função | `(body, year)` | Registro de aproximação do JPL para um ano, com a faixa de 3 sigma. |
+| `validation_summary` | função | `(eph=None) -> dict` | Propagador contra referências independentes: Ceres vs Horizons e a passagem de Apophis em 2029 vs a tabela do JPL. |
 
 #### `pinneapple_physics.astro.spaceweather`
 
-Space weather for observers: a Kp forecast with calibrated uncertainty and the probability of seeing the aurora.
+Clima espacial para observadores: previsão de Kp com incerteza calibrada (rede de quantis conformalizada) e probabilidade de ver aurora.
 
 <small>`pinneapple_physics/astro/spaceweather.py` · 193 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_history` | função | `()` |  |
-| `geomagnetic_latitude` | função | `(lat_deg, lon_deg)` | Dipole (centred, IGRF-13 2020) geomagnetic latitude. |
-| `oval_boundary` | função | `(kp)` | Equatorward geomagnetic latitude of the visible aurora for a Kp (NOAA SWPC table: 66.5 deg at Kp 0 to 48.1 deg at Kp 9, ~2.04 deg per Kp). |
-| `kp_needed` | função | `(maglat_deg, horizon_margin_deg=0.0)` |  |
-| `build_xy` | função | `(kp, f107, horizon)` |  |
-| `train_forecaster` | função | `(horizon=1, seed=0, epochs=300)` | Quantile network for Kp ``horizon`` 3-hour steps ahead, conformalised; evaluated on the last two months. |
-| `forecast` | função | `(model, kp_hist, f107_now)` | Forecast (lo, median, hi) for Kp ``horizon`` steps after the last value of ``kp_hist`` (needs >= 27 days). |
-| `aurora_probability` | função | `(lo, med, hi, maglat_deg)` | P(Kp >= needed) from the forecast quantiles (piecewise-linear CDF through q10 / q50 / q90, clipped 0..9), overhead and low on the poleward horizon (~6 deg more reach). |
-| `fetch_live_kp` | função | `(timeout=10.0)` | Last ~7 days of 3-hourly planetary Kp from NOAA SWPC (JSON). Returns (iso times, kp) or raises. |
+| `load_history` | função | `()` | Carrega o histórico empacotado de Kp e F10.7. |
+| `geomagnetic_latitude` | função | `(lat_deg, lon_deg)` | Latitude geomagnética de dipolo centrado (IGRF-13 2020). |
+| `oval_boundary` | função | `(kp)` | Latitude geomagnética do limite equatorial da aurora visível para um Kp (tabela NOAA SWPC). |
+| `kp_needed` | função | `(maglat_deg, horizon_margin_deg=0.0)` | Kp necessário para ver aurora numa latitude geomagnética. |
+| `build_xy` | função | `(kp, f107, horizon)` | Monta entradas e alvos de Kp para um horizonte de previsão. |
+| `train_forecaster` | função | `(horizon=1, seed=0, epochs=300)` | Treina a rede de quantis de Kp, conformalizada e avaliada nos dois últimos meses. |
+| `forecast` | função | `(model, kp_hist, f107_now)` | Previsão (baixo, mediana, alto) de Kp a partir do histórico recente. |
+| `aurora_probability` | função | `(lo, med, hi, maglat_deg)` | Probabilidade de Kp atingir o necessário, a partir dos quantis da previsão. |
+| `fetch_live_kp` | função | `(timeout=10.0)` | Baixa os últimos dias de Kp planetário da NOAA SWPC; levanta erro sem rede. |
 
 #### `pinneapple_physics.astro.spk`
 
-A small reader for JPL SPK kernels (DAF files, segment types 2 and 3: Chebyshev position / position+velocity).
+Leitor pequeno de kernels JPL SPK (arquivos DAF, segmentos tipo 2 e 3 de Chebyshev), mapeado em memória.
 
 <small>`pinneapple_physics/astro/spk.py` · 124 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Segment` | classe | `(target, center, frame, kind, start_et, end_et, init, intlen, rsize, n, coeffs)` |  |
-| `SPK` | classe | `(path)` | Memory-mapped SPK kernel. ``state(target, center, et)`` chains segments through common centres. |
+| `Segment` | classe | `(target, center, frame, kind, start_et, end_et, init, intlen, rsize, n, coeffs)` | Segmento de um kernel SPK (coeficientes de Chebyshev) que avalia estado num tempo. |
+| `SPK` | classe | `(path)` | Kernel SPK mapeado em memória; encadeia segmentos por centros comuns para dar o estado alvo-centro. |
 
 #### `pinneapple_physics.astro.stars`
 
-Bright-star catalogue (Yale BSC5) and stellar astrophysics: distances, absolute magnitudes, effective temperature from colour, bolometric corrections from a black-body V-band integral, luminosity, radius, Planck spectra and black-body colours.
+Catálogo de estrelas brilhantes (Yale BSC5) e astrofísica estelar: distâncias, magnitude absoluta, temperatura pela cor, correção bolométrica, luminosidade, raio, espectros de Planck e cores de corpo negro.
 
 <small>`pinneapple_physics/astro/stars.py` · 198 linhas · testes: 23</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StarCatalog` | classe | `(hr, name, desig, con, ra, dec, pmra, pmdec, v, bv, sp, plx, plx_dyn, rv)` |  |
-| `load_bright_stars` | função | `() -> StarCatalog` |  |
-| `load_constellations` | função | `() -> list` | IAU constellation figures with a ``key`` (the IAU abbreviation; Serpens is split into ``Ser1`` = Caput and ``Ser2`` = Cauda), the Latin ``name``, the ``names`` per language ({"en": ..., "pt": ...}) and a label point. |
-| `constellation_names` | função | `(lang=None) -> dict` | Constellation names by key (IAU abbreviation, ``Ser1``/``Ser2`` for the two halves of Serpens): the IAU Latin name (``en``) and the Brazilian Portuguese name (``pt``), e.g. ``Cru`` -> Crux / Cruzeiro do Sul. With ``lang``, a {key: name} map in that language. Sources: ``constellation_names.json``. |
-| `planck_lambda` | função | `(wavelength_m, temperature_k)` | Spectral radiance B_lambda (W m^-2 sr^-1 m^-1). |
-| `wien_peak_m` | função | `(temperature_k)` |  |
-| `blackbody_rgb` | função | `(temperature_k)` | sRGB colour of a black body (reuses the black-hole renderer's fit, :mod:`pinneapple_physics.blackhole`). |
-| `blackbody_spectrum` | função | `(temperature_k, n=300, lam_min_nm=100.0, lam_max_nm=3000.0)` |  |
-| `teff_from_bv` | função | `(bv)` | Effective temperature (K) from B-V, Ballesteros (2012, EPL 97, 34008), black-body based; good to ~5% for main-sequence and giant stars between B-V = -0.3 and 1.8. |
-| `bolometric_correction` | função | `(teff)` | BC_V for a black body of temperature ``teff``, zero-pointed so that BC_V(Sun, 5772 K) = M_bol,sun - M_V,sun = -0.07. A physically transparent approximation (real stellar atmospheres differ by ~0.1-0.3 mag for cool M stars and hot O stars). |
-| `star_properties` | função | `(cat, i, extinction_av=0.0) -> dict` | Distance, absolute magnitude, effective temperature, luminosity and radius of catalogue star ``i``. |
-| `hr_diagram` | função | `(cat, max_rel_parallax_error=None, min_parallax_mas=5.0)` | Points (B-V, M_V) for stars with a usable trigonometric parallax (>= ``min_parallax_mas``). |
+| `StarCatalog` | classe | `(hr, name, desig, con, ra, dec, pmra, pmdec, v, bv, sp, plx, plx_dyn, rv)` | Catálogo de estrelas em arrays: HR, nome, designação, posição, movimento próprio, magnitude, cor, tipo espectral, paralaxe. |
+| `load_bright_stars` | função | `() -> StarCatalog` | Carrega o catálogo BSC5 empacotado como `StarCatalog`. |
+| `load_constellations` | função | `() -> list` | Figuras das constelações da IAU com chave, nome latino, nomes por idioma e ponto de rótulo. |
+| `constellation_names` | função | `(lang=None) -> dict` | Nomes das constelações por chave em latim (en) e português do Brasil (pt). |
+| `planck_lambda` | função | `(wavelength_m, temperature_k)` | Radiância espectral de Planck B_lambda. |
+| `wien_peak_m` | função | `(temperature_k)` | Comprimento de onda de pico de Wien (m) para uma temperatura. |
+| `blackbody_rgb` | função | `(temperature_k)` | Cor sRGB de um corpo negro (reusa o ajuste do renderizador de buraco negro). |
+| `blackbody_spectrum` | função | `(temperature_k, n=300, lam_min_nm=100.0, lam_max_nm=3000.0)` | Espectro de corpo negro com pico, fluxo total e cor RGB. |
+| `teff_from_bv` | função | `(bv)` | Temperatura efetiva a partir de B-V (Ballesteros 2012). |
+| `bolometric_correction` | função | `(teff)` | Correção bolométrica BC_V de corpo negro, com zero no Sol. |
+| `star_properties` | função | `(cat, i, extinction_av=0.0) -> dict` | Distância, magnitude absoluta, temperatura, luminosidade e raio de uma estrela do catálogo. |
+| `hr_diagram` | função | `(cat, max_rel_parallax_error=None, min_parallax_mas=5.0)` | Pontos (B-V, M_V) do diagrama HR para estrelas com paralaxe utilizável. |
 
 #### `pinneapple_physics.astro.stars_ml`
 
-Machine learning on the bright-star catalogue, checked against the catalogue's own spectral classification.
+Aprendizado de máquina sobre o catálogo de estrelas brilhantes (mistura gaussiana e k-NN no diagrama HR), conferido contra a classificação espectral do próprio catálogo.
 
 <small>`pinneapple_physics/astro/stars_ml.py` · 154 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `luminosity_group` | função | `(sp)` |  |
-| `spectral_class` | função | `(sp)` |  |
-| `dataset` | função | `(cat=None, min_parallax_mas=5.0)` |  |
-| `gmm_fit` | função | `(X, k=3, iters=200, seed=0)` | Gaussian mixture by expectation-maximisation (full covariances), k-means++-style initialisation. |
-| `cross_validate` | função | `(X, y, k=15, folds=5, seed=0)` |  |
-| `analyse` | função | `(seed=0) -> dict` |  |
+| `luminosity_group` | função | `(sp)` | Extrai a classe de luminosidade de um tipo espectral (None se não houver). |
+| `spectral_class` | função | `(sp)` | Índice da classe espectral OBAFGKM de um tipo espectral. |
+| `dataset` | função | `(cat=None, min_parallax_mas=5.0)` | Dados do catálogo com paralaxe boa: B-V, M_V, grupo de luminosidade e classe espectral. |
+| `gmm_fit` | função | `(X, k=3, iters=200, seed=0)` | Mistura gaussiana por EM com covariâncias completas. |
+| `cross_validate` | função | `(X, y, k=15, folds=5, seed=0)` | Validação cruzada de um classificador k-NN sobre os dados padronizados. |
+| `analyse` | função | `(seed=0) -> dict` | Roda a análise: agrupamentos GMM no diagrama HR nomeados pela classe de luminosidade majoritária e sua pureza. |
 
 #### `pinneapple_physics.astro.surrogate`
 
-A physics-informed neural surrogate for orbit propagation, checked against the classical integrator.
+Substituto neural informado por física (PINN) para propagação de órbitas, conferido contra o integrador clássico Yoshida-4, com limiares de confiança.
 
 <small>`pinneapple_physics/astro/surrogate.py` · 268 linhas · testes: 32</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `reference_trajectory` | função | `(body, jd_tdb, days, n=400, eph=None)` | Heliocentric positions (AU) and velocities (AU/day) of every body from the Yoshida-4 N-body integration. |
-| `train_orbit_pinn` | função | `(body='mars', jd_tdb=2461327.0, days=365.0, **kwargs) -> dict` | Train the PINN orbit surrogate (thread-safe; see ``_train_orbit_pinn``). |
+| `reference_trajectory` | função | `(body, jd_tdb, days, n=400, eph=None)` | Posições e velocidades heliocêntricas de referência pela integração de N corpos Yoshida-4. |
+| `train_orbit_pinn` | função | `(body='mars', jd_tdb=2461327.0, days=365.0, **kwargs) -> dict` | Treina o PINN substituto de órbita (com trava para uso em threads) e devolve o relatório. |
 
 #### `pinneapple_physics.astro.timescales`
 
-Time scales for positional astronomy: UTC, TAI, TT, TDB, UT1 and sidereal time.
+Escalas de tempo para astronomia posicional: UTC, TAI, TT, TDB, UT1 e tempo sideral; a classe `Time` guarda as datas julianas derivadas.
 
 <small>`pinneapple_physics/astro/timescales.py` · 216 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Time` | classe | `(utc, dut1)` | An instant (or array of instants) on the UTC scale with the derived scales as Julian dates. |
-| `tai_minus_utc` | função | `(jd_utc)` | TAI-UTC in seconds. Before 1972 returns ``nan`` (UTC then was rubber seconds; use :func:`delta_t`). |
-| `delta_t_model` | função | `(year)` | TT - UT1 (s) from the Espenak & Meeus (2006) polynomials, 1900-2150. Used before 1972 and as a fallback. |
-| `dut1` | função | `(jd_utc)` |  |
-| `tdb_minus_tt` | função | `(jd_tt)` | TDB - TT (s), the 2-term periodic approximation (error < 30 us, Explanatory Supplement eq. 10.2). |
-| `jd_from_datetime` | função | `(dt) -> float` |  |
-| `datetime_from_jd` | função | `(jd) -> datetime` |  |
-| `julian_centuries` | função | `(jd)` |  |
-| `era` | função | `(jd_ut1)` | Earth rotation angle (rad), IAU 2000. |
-| `gmst_rad` | função | `(t)` | Greenwich mean sidereal time (rad), IAU 2006 (ERA-based, Capitaine et al. 2005). |
-| `gast_rad` | função | `(t)` | Greenwich apparent sidereal time (rad): GMST + equation of the equinoxes (Delta-psi cos eps). |
-| `gast_hours` | função | `(t)` |  |
+| `Time` | classe | `(utc, dut1)` | Instante (ou vetor de instantes) em UTC com as escalas derivadas como datas julianas. |
+| `tai_minus_utc` | função | `(jd_utc)` | TAI-UTC em segundos (NaN antes de 1972). |
+| `delta_t_model` | função | `(year)` | TT - UT1 pelos polinômios de Espenak & Meeus (2006); usado antes de 1972 e como reserva. |
+| `dut1` | função | `(jd_utc)` | UT1-UTC numa data, de uma tabela IERS finals2000A se houver (zero sem tabela). |
+| `tdb_minus_tt` | função | `(jd_tt)` | TDB - TT pela aproximação periódica de 2 termos. |
+| `jd_from_datetime` | função | `(dt) -> float` | Data juliana a partir de um `datetime` (UTC se sem fuso). |
+| `datetime_from_jd` | função | `(jd) -> datetime` | `datetime` UTC a partir de uma data juliana. |
+| `julian_centuries` | função | `(jd)` | Séculos julianos desde J2000. |
+| `era` | função | `(jd_ut1)` | Ângulo de rotação da Terra (IAU 2000). |
+| `gmst_rad` | função | `(t)` | Tempo sideral médio de Greenwich (IAU 2006). |
+| `gast_rad` | função | `(t)` | Tempo sideral aparente de Greenwich (GMST mais equação dos equinócios). |
+| `gast_hours` | função | `(t)` | Tempo sideral aparente de Greenwich em horas. |
 
 #### `pinneapple_physics.astro.validation`
 
-Accuracy checks of the observatory's methods against independent references, as data.
+Verificações de precisão do observatório contra referências independentes (NOVAS, Horizons, almanaque USNO, eclipses NASA, passagens da ISS, skyfield), devolvidas como linhas de dados.
 
 <small>`pinneapple_physics/astro/validation.py` · 198 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `check_novas` | função | `()` |  |
-| `check_horizons` | função | `()` |  |
-| `check_usno_almanac` | função | `()` |  |
-| `check_eclipses` | função | `()` |  |
-| `check_iss_passes` | função | `()` |  |
-| `check_skyfield_live` | função | `(n=24, seed=1)` | Random epochs 1972-2049 (the UTC era) and observers: topocentric apparent alt/az of all bodies vs skyfield (optional). |
-| `check_integrators` | função | `()` |  |
-| `run_all` | função | `(include_skyfield=True) -> list[dict]` |  |
+| `check_novas` | função | `()` | Compara posições aparentes com casos gravados do USNO NOVAS. |
+| `check_horizons` | função | `()` | Compara posições com casos gravados do JPL Horizons. |
+| `check_usno_almanac` | função | `()` | Compara nascer/pôr do Sol, fases e estações com tabelas do USNO. |
+| `check_eclipses` | função | `()` | Compara horários de eclipses e trânsitos com o catálogo da NASA. |
+| `check_iss_passes` | função | `()` | Compara passagens previstas da ISS com uma referência gravada. |
+| `check_skyfield_live` | função | `(n=24, seed=1)` | Compara alt/az de todos os corpos com o skyfield em épocas e observadores aleatórios (opcional). |
+| `check_integrators` | função | `()` | Confere conservação de energia e momento angular do integrador de N corpos e a diferença para o DE421. |
+| `run_all` | função | `(include_skyfield=True) -> list[dict]` | Roda todas as verificações e devolve as linhas de resultado. |
 
 #### `pinneapple_physics.blackhole`
 
-Black-hole accretion: simulations and "black hole weather" forecasting with a trust horizon.
+Acreção em buraco negro: simulações hidrodinâmicas e previsão do 'tempo do buraco negro' com horizonte de confiança, reproduzindo e estendendo Duarte, Nemmen & Navarro (2022); reexporta `AccretionFlow`, `RIAFConfig`, `bondi_pw`, `torus_state`.
 
 <small>`pinneapple_physics/blackhole/__init__.py` · 20 linhas · testes: 19</small>
 
 #### `pinneapple_physics.blackhole.capture`
 
-Record a Twin3D scene to PNG frames / GIF with headless Chromium (Playwright), for docs and posts.
+Grava uma cena Twin3D em quadros PNG/GIF com Chromium headless (Playwright, dependência opcional), para docs e posts. [sem teste direto]
 
 <small>`pinneapple_physics/blackhole/capture.py` · 79 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `capture_twin` | função | `(folder, steps, out_dir=None, *, field='', cmap='turbo', view='', zoom=1.0, size=(1280, 7…)` | Screenshot the exported scene in ``folder`` at each time step; returns the PNG paths. |
+| `capture_twin` | função | `(folder, steps, out_dir=None, *, field='', cmap='turbo', view='', zoom=1.0, size=(1280, 7…)` | Tira screenshots da cena exportada numa pasta em cada passo de tempo e devolve os caminhos PNG. |
 
 #### `pinneapple_physics.blackhole.convergence`
 
-Resolution study of the black-hole accretion simulations: is the forecaster's training data converged?
+Estudo de resolução das simulações de acreção: remapeamento conservativo entre grades, estatísticas por janela de tempo e ordem observada, para saber se os dados de treino do previsor estão convergidos.
 
 <small>`pinneapple_physics/blackhole/convergence.py` · 262 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `window_mask` | função | `(grid) -> np.ndarray` | Cells of any grid whose centre lies in the physical forecast window. |
-| `cell_volumes` | função | `(grid) -> np.ndarray` | 2 pi r^2 dr d(cos theta) of every cell. |
-| `remap` | função | `(a, faces_f, faces_c) -> np.ndarray` | Conservative (volume-weighted) remap of cell averages (..., nr, nth) between two spherical grids covering the same domain; the grids need not nest. The volume r^2 dr sin(theta) dtheta is separable, so the remap is one overlap matrix per axis. |
-| `remap_r` | função | `(a, rf_f, rf_c) -> np.ndarray` | Remap of a radial profile (shell averages) by overlap length in log r. |
-| `psd_slope` | função | `(x, dt, f_lo, f_hi) -> float` | Slope of the Welch power spectrum of x in log-log between f_lo and f_hi. |
-| `run_statistics` | função | `(folder, t0, t1, log_rho_range=LOG_RHO_RANGE) -> dict` | Time-window statistics of one run on its own grid: scalars as time series, profiles and fields as time means. |
-| `resolution_study` | função | `(runs, *, t0=2000.0, t1=10000.0, log=print) -> dict` | ``runs``: {nr: [run folders, one per seed]} with ntheta = nr / 2 and a constant refinement ratio. |
+| `window_mask` | função | `(grid) -> np.ndarray` | Células de uma grade cujo centro cai na janela física de previsão. |
+| `cell_volumes` | função | `(grid) -> np.ndarray` | Volume 2 pi r^2 dr d(cos theta) de cada célula. |
+| `remap` | função | `(a, faces_f, faces_c) -> np.ndarray` | Remapeamento conservativo (ponderado por volume) de médias de célula entre duas grades esféricas do mesmo domínio. |
+| `remap_r` | função | `(a, rf_f, rf_c) -> np.ndarray` | Remapeamento de um perfil radial por sobreposição em log r. |
+| `psd_slope` | função | `(x, dt, f_lo, f_hi) -> float` | Inclinação log-log do espectro de Welch entre duas frequências. |
+| `run_statistics` | função | `(folder, t0, t1, log_rho_range=LOG_RHO_RANGE) -> dict` | Estatísticas de uma rodada numa janela de tempo: séries de escalares e médias temporais de perfis e campos. |
+| `resolution_study` | função | `(runs, *, t0=2000.0, t1=10000.0, log=print) -> dict` | Estudo de resolução sobre rodadas em várias grades e sementes, com razão de refinamento constante. |
 
 #### `pinneapple_physics.blackhole.dataset`
 
-The black-hole weather dataset: density frames of whole simulated trajectories, packed for the model zoo.
+Dataset do 'tempo do buraco negro': quadros de densidade de trajetórias simuladas inteiras, quantizados em uint16 e empacotados em npz determinístico para o model zoo.
 
 <small>`pinneapple_physics/blackhole/dataset.py` · 170 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `encode` | função | `(log10_rho) -> np.ndarray` | log10 density -> uint16 (raises outside [Q_LO, Q_HI]). |
-| `decode` | função | `(q) -> np.ndarray` | uint16 column ``log10_rho_q`` -> log10 density (float32). |
-| `deterministic_npz` | função | `(arrays) -> bytes` | npz with fixed zip timestamps and order, so the SHA-256 does not change between identical builds. |
-| `build_arrays` | função | `(runs, conv=None, *, splits=SPLITS, t0=T0, t1=T1) -> dict[str, np.ndarray]` | Arrays of the zoo dataset (``<split>__<column>``) from the simulate_run folders under ``runs`` and the resolution-study report ``conv`` (its scalars per grid and seed become the ``convergence`` split). |
-| `write_npz` | função | `(arrays, path) -> Path` | All splits in one file (``<split>__<column>`` arrays). |
-| `write_split_files` | função | `(arrays, folder) -> dict[str, Path]` | One ``<split>.npz`` per split in ``folder`` (the zoo layout for large datasets: a user downloads only the split they load, and every file stays far below the 100 MB a git hosting allows). Returns {file name: path}. |
-| `load_trajectories` | função | `(split, path=None) -> dict[int, dict]` | Whole trajectories of a split, by seed, frames in time order. ``path``: a local data.npz (default: the zoo). |
-| `window_volumes` | função | `(path=None) -> np.ndarray` | 2 pi r^2 dr d(cos theta) of the window cells. |
+| `encode` | função | `(log10_rho) -> np.ndarray` | Log10 da densidade para uint16; levanta erro fora da faixa de quantização. |
+| `decode` | função | `(q) -> np.ndarray` | Coluna uint16 de volta para log10 da densidade (float32). |
+| `deterministic_npz` | função | `(arrays) -> bytes` | npz com datas e ordem fixas no zip, para o SHA-256 não mudar entre builds iguais. |
+| `build_arrays` | função | `(runs, conv=None, *, splits=SPLITS, t0=T0, t1=T1) -> dict[str, np.ndarray]` | Monta os arrays do dataset do zoo a partir das pastas de simulação e do relatório de convergência. |
+| `write_npz` | função | `(arrays, path) -> Path` | Grava todos os splits num único arquivo npz. |
+| `write_split_files` | função | `(arrays, folder) -> dict[str, Path]` | Grava um npz por split, para baixar só o split usado e manter arquivos pequenos. |
+| `load_trajectories` | função | `(split, path=None) -> dict[int, dict]` | Carrega as trajetórias inteiras de um split, por semente, com quadros em ordem de tempo. |
+| `window_volumes` | função | `(path=None) -> np.ndarray` | Volumes das células da janela de previsão. |
 
 #### `pinneapple_physics.blackhole.figures`
 
-Figures for the black-hole weather study: skill against lead time and the resolution study.
+Figuras do estudo: habilidade contra tempo de antecedência e estudo de resolução, com matplotlib. [sem teste direto]
 
 <small>`pinneapple_physics/blackhole/figures.py` · 121 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_skill` | função | `(report, path, model=None, title='') -> str` | Left: MAE against lead for the model and the baselines. Right: skill score against persistence with its 95 % interval and the skill horizon. |
-| `plot_convergence` | função | `(report, path) -> str` | Time-mean shell density and specific angular momentum on every grid, and the mean accretion rate per grid with its 95 % interval. |
+| `plot_skill` | função | `(report, path, model=None, title='') -> str` | Figura de erro (MAE) contra antecedência para modelo e baselines, e da habilidade contra persistência com intervalo e horizonte. |
+| `plot_convergence` | função | `(report, path) -> str` | Figura de perfis médios de densidade e momento angular por grade, e da taxa média de acreção com intervalo. |
 
 #### `pinneapple_physics.blackhole.forecast`
 
-Black-hole weather forecasting: the U-Net of Duarte, Nemmen & Navarro (2022), a trust horizon and a physics check.
+Previsão do 'tempo do buraco negro': a U-Net de Duarte et al. (2022), treino com perda de rollout, ruído e penalidade de massa, rollouts, horizonte de confiança e envelope de massa.
 
 <small>`pinneapple_physics/blackhole/forecast.py` · 473 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DensityCodec` | classe | `(log_min, log_max, r_cells, theta_trim)` | Log-normalisation and crop shared by training and inference (stored with the checkpoint). |
-| `DuarteUNet` | classe | `(filters=32, frames=5, residual=False, padding='zeros')` | The U-Net of Duarte et al. (2022) (``create_auto_encoder`` in the original ``src/models.py``). |
-| `TrainConfig` | classe | `(filters, frames, residual, padding, epochs, batch_size, lr, alpha, clip, loss, rollout_b…)` |  |
-| `MassEnvelope` | classe | `(rate_max, margin)` | Bound on how fast the mass in the forecast window can change, learned from the training simulations. |
-| `MassProjection` | classe | `(codec, cell_volume, envelope, frame_dt)` | Project forecast frames onto the mass budget seen in training: the window mass may change between frames by at most ``envelope.rate_max`` (relative, per unit time), so a frame that gains or loses more is rescaled (uniformly in density, i.e. a shift in normalised log density) to the nearest allowed … |
-| `make_blocks` | função | `(x, k=5, stride=1, out_blocks=1) -> tuple[np.ndarray, np.ndarray]` | Frames (T, H, W) -> inputs (N, k, H, W) = frames i..i+k-1 and targets = frames i+k..i+(1+out_blocks)k-1 (``out_blocks`` > 1 gives the targets of a multi-step rollout loss). |
-| `duarte_loss` | função | `(pred, target, alpha=8.0)` | MAE over the window + alpha * MAE over the high-density pixels (target > 0.5). |
-| `duarte_regional_loss` | função | `(pred, target, regions=None)` | MSE over the window + sum of weight * MAE over the paper's four regions (fractions of the crop). |
-| `train_forecaster` | função | `(X, Y, Xv, Yv, cfg, codec, out_dir, *, log=print, cell_volume=None, init=None) -> dict[st…)` | Adam + the Duarte loss; keeps the weights with the best validation loss in ``out_dir/forecaster.pt``. |
-| `train_on_trajectories` | função | `(train, val, cfg, out_dir, *, cell_volume=None, val_blocks=1, val_stride=1, init=None, lo…)` | Train on whole trajectories of log10 density frames (T, H, W), already cropped to the forecast window and ``frame_dt`` apart: blocks never cross trajectories, and validation trajectories are separate ones. |
-| `evaluate_loss` | função | `(model, X, Y, cfg, batch=32) -> float` | Loss of the forecast unrolled over all the target blocks in ``Y`` (one block: the plain loss). |
-| `save_forecaster` | função | `(path, model, cfg, codec, meta) -> None` |  |
-| `load_forecaster` | função | `(path) -> tuple[DuarteUNet, DensityCodec, dict]` |  |
-| `rollout` | função | `(model, x0, n_blocks, *, clip=False, mass_projection=None) -> np.ndarray` | Iterative forecast: feed each predicted block back in. x0 (k, H, W) -> (n_blocks * k, H, W). |
-| `lead_time_scores` | função | `(pred, truth, last_input, mean_state, weights=None) -> dict[str, np.ndarray]` | Per lead (frame) on normalised log-density: MAE of the forecast, of persistence (the last input frame) and of the time-mean flow; the anomaly correlation with the truth, anomalies taken from the time-mean flow (the ACC of weather forecasting); and the **tendency correlation**, between the forecast … |
-| `trust_horizon` | função | `(scores, frame_dt, acc_min=0.6, block=1) -> dict[str, float]` | Lead time up to which the forecast stays useful: before its anomaly correlation first drops below ``acc_min`` (the weather convention), and before its error first exceeds persistence / the time mean. |
-| `window_mass` | função | `(rho, cell_volume) -> np.ndarray` | Mass in the (cropped) window for density frames (T, H, W) and cell volumes (H, W). |
+| `DensityCodec` | classe | `(log_min, log_max, r_cells, theta_trim)` | Normalização logarítmica e recorte compartilhados entre treino e inferência (salvos com o checkpoint). |
+| `DuarteUNet` | classe | `(filters=32, frames=5, residual=False, padding='zeros')` | A U-Net de Duarte et al. (2022) que prevê o próximo bloco de quadros de densidade. |
+| `TrainConfig` | classe | `(filters, frames, residual, padding, epochs, batch_size, lr, alpha, clip, loss, rollout_b…)` | Configuração de treino: arquitetura, épocas, lote, taxa, perda, blocos de rollout, ruído, pesos de massa, bf16, semente e tempo máximo. |
+| `MassEnvelope` | classe | `(rate_max, margin)` | Limite aprendido de quão rápido a massa na janela de previsão pode mudar; aponta violações. |
+| `MassProjection` | classe | `(codec, cell_volume, envelope, frame_dt)` | Projeta quadros previstos no orçamento de massa visto no treino, reescalando quadros que ganham ou perdem massa demais. |
+| `make_blocks` | função | `(x, k=5, stride=1, out_blocks=1) -> tuple[np.ndarray, np.ndarray]` | Transforma quadros (T, H, W) em pares entrada/alvo de blocos de k quadros, com alvos para rollout de vários passos. |
+| `duarte_loss` | função | `(pred, target, alpha=8.0)` | MAE na janela mais alfa vezes MAE nos pixels de alta densidade. |
+| `duarte_regional_loss` | função | `(pred, target, regions=None)` | MSE na janela mais MAE ponderado nas quatro regiões do artigo. |
+| `train_forecaster` | função | `(X, Y, Xv, Yv, cfg, codec, out_dir, *, log=print, cell_volume=None, init=None) -> dict[st…)` | Treina com Adam e a perda de Duarte, guardando os pesos com melhor perda de validação. |
+| `train_on_trajectories` | função | `(train, val, cfg, out_dir, *, cell_volume=None, val_blocks=1, val_stride=1, init=None, lo…)` | Treina a partir de trajetórias inteiras, sem blocos cruzando trajetórias e com validação em trajetórias separadas. |
+| `evaluate_loss` | função | `(model, X, Y, cfg, batch=32) -> float` | Perda da previsão desenrolada sobre todos os blocos alvo. |
+| `save_forecaster` | função | `(path, model, cfg, codec, meta) -> None` | Salva pesos, configuração, codec e metadados num checkpoint torch. |
+| `load_forecaster` | função | `(path) -> tuple[DuarteUNet, DensityCodec, dict]` | Carrega um checkpoint e devolve modelo em modo eval, codec e conteúdo do checkpoint. |
+| `rollout` | função | `(model, x0, n_blocks, *, clip=False, mass_projection=None) -> np.ndarray` | Previsão iterativa: cada bloco previsto volta como entrada, opcionalmente com projeção de massa. |
+| `lead_time_scores` | função | `(pred, truth, last_input, mean_state, weights=None) -> dict[str, np.ndarray]` | Métricas por antecedência: MAE do modelo, da persistência e da média temporal, correlação de anomalia e de tendência. |
+| `trust_horizon` | função | `(scores, frame_dt, acc_min=0.6, block=1) -> dict[str, float]` | Antecedência até a qual a previsão é útil (correlação de anomalia acima do limiar e erro abaixo das referências). |
+| `window_mass` | função | `(rho, cell_volume) -> np.ndarray` | Massa na janela para quadros de densidade e volumes de célula. |
 
 #### `pinneapple_physics.blackhole.hydro`
 
-Viscous hydrodynamics of accretion around a Schwarzschild black hole, axisymmetric (r, theta), PyTorch.
+Hidrodinâmica viscosa de acreção em torno de um buraco negro de Schwarzschild (potencial de Paczynski-Wiita), axissimétrica em (r, theta) com v_phi, em PyTorch; inclui toro de equilíbrio e solução de Bondi. [sem teste direto]
 
 <small>`pinneapple_physics/blackhole/hydro.py` · 506 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RIAFConfig` | classe | `(nr, ntheta, r_in, r_out, gamma, alpha, viscosity, cfl, rho_floor, p_floor, v_max, t_cap,…)` |  |
-| `AccretionFlow` | classe | `(cfg)` | 2.5-D (axisymmetric, with v_phi) viscous accretion flow; ``run`` saves snapshots of the primitives. |
-| `torus_state` | função | `(flow) -> np.ndarray` | Equilibrium torus with l(R) = l_c (R/R_c)^a (pressure maximum at R_c, inner edge at R_edge) in an atmosphere. |
-| `bondi_pw` | função | `(r, *, cs_inf, gamma=1.4, rho_inf=1.0)` | Transonic Bondi accretion in the Paczynski-Wiita potential (exact, by root finding). |
+| `RIAFConfig` | classe | `(nr, ntheta, r_in, r_out, gamma, alpha, viscosity, cfl, rho_floor, p_floor, v_max, t_cap,…)` | Configuração da simulação: grade, raios, gama, viscosidade alfa, CFL, pisos, contorno externo, backend, parâmetros do toro e perturbação. |
+| `AccretionFlow` | classe | `(cfg)` | Fluxo de acreção viscoso 2.5D (axissimétrico com v_phi); conversões primitivas/conservadas, passo de tempo, balanços e `run` que salva snapshots. |
+| `torus_state` | função | `(flow) -> np.ndarray` | Estado inicial de toro em equilíbrio com momento angular em lei de potência, imerso numa atmosfera. |
+| `bondi_pw` | função | `(r, *, cs_inf, gamma=1.4, rho_inf=1.0)` | Solução exata de acreção transônica de Bondi no potencial de Paczynski-Wiita, por busca de raiz. |
 
 #### `pinneapple_physics.blackhole.hydro_numba`
 
-Numba kernels for :class:`~pinneapple_physics.blackhole.hydro.AccretionFlow` (``RIAFConfig(backend="numba")``).
+Kernels Numba para `AccretionFlow` quando `RIAFConfig(backend="numba")`; requer o pacote `numba`. [sem teste direto]
 
 <small>`pinneapple_physics/blackhole/hydro_numba.py` · 321 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NumbaStepper` | classe | `(flow)` | Holds the numpy geometry of an AccretionFlow and advances its state with the numba kernels. |
-| `rhs` | função | `(W, r, th, rf, thf, area_r, area_t, vol, inv_r, geo_t, Rc, gamma, alpha, visc, dU, fluxes)` | dU on interior cells (5, nr, nth) and boundary fluxes [mass_in, mass_out, angmom_in, angmom_out]. |
-| `prim_to_cons` | função | `(W, Rc, gamma, U)` | Interior primitives of W (with ghosts) -> conserved U (5, nr, nth). |
-| `cons_to_prim` | função | `(U, W, Rc, r, gamma, rho_floor, p_floor, v_max, t_cap)` | Conserved U -> interior primitives of W, with floors and caps; returns the number of capped cells. |
-| `boundaries` | função | `(W, outer, has_outer)` |  |
-| `time_step` | função | `(W, r, dr, dth, gamma, alpha, visc, cfl)` |  |
+| `NumbaStepper` | classe | `(flow)` | Guarda a geometria de um `AccretionFlow` e avança o estado com os kernels Numba. |
+| `rhs` | função | `(W, r, th, rf, thf, area_r, area_t, vol, inv_r, geo_t, Rc, gamma, alpha, visc, dU, fluxes)` | Kernel Numba: variação dU nas células internas e fluxos de massa e momento angular nos contornos. |
+| `prim_to_cons` | função | `(W, Rc, gamma, U)` | Kernel Numba: primitivas internas para variáveis conservadas. |
+| `cons_to_prim` | função | `(U, W, Rc, r, gamma, rho_floor, p_floor, v_max, t_cap)` | Kernel Numba: conservadas para primitivas, com pisos e limites; devolve quantas células foram limitadas. |
+| `boundaries` | função | `(W, outer, has_outer)` | Kernel Numba que preenche as células fantasmas: cópia nos contornos radiais (sem entrada de massa onde não há contorno externo dado) e reflexão nos polos com troca de sinal de v_theta. |
+| `time_step` | função | `(W, r, dr, dth, gamma, alpha, visc, cfl)` | Kernel Numba que calcula o passo de tempo pelos limites hidrodinâmico e viscoso (CFL). |
 
 #### `pinneapple_physics.blackhole.raytrace`
 
-General-relativistic ray tracing of an accretion flow around a Schwarzschild black hole ("Interstellar" view).
+Traçado de raios relativístico de um fluxo de acreção em torno de buraco negro de Schwarzschild (vista estilo 'Interstellar'), com campo de estrelas, bloom e renderização com Doppler.
 
 <small>`pinneapple_physics/blackhole/raytrace.py` · 316 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RayPaths` | classe | `(ray, ir, ith, ds, kdotv, lapse, captured, escape_dir, shape)` | Where each ray crosses the emitting region, in camera-to-far order (flattened over rays). |
-| `Camera` | classe | `(width, height, r_cam, inclination_deg, fov_deg, roll_deg, dphi, ds_in, ds_out, max_phi)` |  |
-| `blackbody_rgb` | função | `(T) -> np.ndarray` | Approximate sRGB colour (0..1) of a blackbody at temperature T [K] (Tanner Helland fit), (..., 3). |
-| `star_field` | função | `(width=4096, height=2048, n=9000, seed=3) -> np.ndarray` | Equirectangular star map (H, W, 3) with a faint Milky-Way-like band, deterministic. |
-| `bloom` | função | `(img, strength=0.35, sigma=6.0) -> np.ndarray` | Cinematic glow: add a blurred copy of the bright parts. |
-| `render` | função | `(paths, rho, temperature, velocity=None, *, doppler=True, kappa=0.0, exposure=1.0, scale=…)` | Render one frame. |
+| `RayPaths` | classe | `(ray, ir, ith, ds, kdotv, lapse, captured, escape_dir, shape)` | Onde cada raio cruza a região emissora, em ordem câmera-longe, com dados para emissão e captura. |
+| `Camera` | classe | `(width, height, r_cam, inclination_deg, fov_deg, roll_deg, dphi, ds_in, ds_out, max_phi)` | Câmera em torno do buraco negro: resolução, distância, inclinação, campo de visão; traça os raios. |
+| `blackbody_rgb` | função | `(T) -> np.ndarray` | Cor sRGB aproximada de um corpo negro (ajuste de Tanner Helland). |
+| `star_field` | função | `(width=4096, height=2048, n=9000, seed=3) -> np.ndarray` | Mapa de estrelas equiretangular determinístico com faixa tênue tipo Via Láctea. |
+| `bloom` | função | `(img, strength=0.35, sigma=6.0) -> np.ndarray` | Brilho cinematográfico: soma uma cópia borrada das partes brilhantes. |
+| `render` | função | `(paths, rho, temperature, velocity=None, *, doppler=True, kappa=0.0, exposure=1.0, scale=…)` | Renderiza um quadro a partir dos caminhos dos raios, densidade, temperatura e velocidade (Doppler opcional). |
 
 #### `pinneapple_physics.blackhole.runs`
 
-Generate and read the accretion-flow simulations behind the black-hole weather forecaster (issue #399).
+Gera, retoma e lê as simulações de acreção usadas pelo previsor (issue #399).
 
 <small>`pinneapple_physics/blackhole/runs.py` · 89 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `load_run` | função | `(folder) -> dict` | -> dict(t, frames (T, 5, nr, ntheta), mdot, grid, config). |
-| `simulate_run` | função | `(cfg, folder, *, t_end=10000.0, every=10.0, chunk=50, name=None, log=print) -> str` | Run (or resume) one simulation into ``folder``; returns the folder. |
+| `load_run` | função | `(folder) -> dict` | Lê uma rodada: tempos, quadros, taxa de acreção, grade e configuração. |
+| `simulate_run` | função | `(cfg, folder, *, t_end=10000.0, every=10.0, chunk=50, name=None, log=print) -> str` | Roda (ou retoma) uma simulação numa pasta, salvando em blocos com checkpoint. |
 
 #### `pinneapple_physics.blackhole.skill`
 
-Skill of the black-hole weather forecaster against persistence, climatology and DMD, with physics checks.
+Habilidade do previsor contra persistência, climatologia e DMD, com intervalos bootstrap e verificações físicas de massa e fluxo.
 
 <small>`pinneapple_physics/blackhole/skill.py` · 178 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DMDBaseline` | classe | `(trajectories, rank)` | Rank-r DMD of frame sequences (``pinneapple_neural`` ``DynamicModeDecomposition``, mean-centred), iterated from one frame; the component of that frame outside the DMD subspace is kept frozen (persistence). |
-| `window_mass` | função | `(x, codec, vol) -> np.ndarray` | Mass in the window for normalised frames (..., H, W). |
-| `implied_inflow` | função | `(x, codec, vol, dt, shells) -> np.ndarray` | Net inward mass flow through the shells (radial indices) implied by the change of the enclosed mass, -dM(<r)/dt between consecutive frames: (frames - 1, len(shells)). Ignores flow through the polar edges. |
-| `evaluate_skill` | função | `(models, train, val, test, *, frame_dt, cell_volume, blocks=20, start_every=5, block_M=10…)` |  |
+| `DMDBaseline` | classe | `(trajectories, rank)` | Baseline DMD de posto r (via `pinneapple_neural`), iterada a partir de um quadro, mantendo congelada a parte fora do subespaço. |
+| `window_mass` | função | `(x, codec, vol) -> np.ndarray` | Massa na janela para quadros normalizados. |
+| `implied_inflow` | função | `(x, codec, vol, dt, shells) -> np.ndarray` | Fluxo líquido de massa para dentro pelas cascas, inferido da variação da massa contida entre quadros. |
+| `evaluate_skill` | função | `(models, train, val, test, *, frame_dt, cell_volume, blocks=20, start_every=5, block_M=10…)` | Avalia modelos contra persistência, climatologia e DMD em vários postos, por antecedência, com verificações físicas. |
 
 #### `pinneapple_physics.blackhole.twin`
 
-3D digital-twin view of an axisymmetric accretion flow with PINNeAPPle-Twin3D.
+Vista 3D de gêmeo digital de um fluxo de acreção axissimétrico com o PINNeAPPle-Twin3D: painéis em corte e esferas.
 
 <small>`pinneapple_physics/blackhole/twin.py` · 120 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CutawayMesh` | classe | `(r_faces, theta_faces, *, r_view, phi_cut_deg=270.0, n_phi=72, offset=(0.0, 0.0, 0.0))` | Geometry of one cutaway panel and the map from (nr, ntheta) cell fields to its vertices. |
-| `sphere` | função | `(radius, center=(0, 0, 0), n=24) -> tuple[np.ndarray, np.ndarray]` |  |
-| `accretion_scene` | função | `(grid, panels, times, *, field='log10_density', unit='', r_view=60.0, gap=0.35, title='Bl…)` | One cutaway panel per entry of ``panels`` (name -> (T, nr, ntheta) cell values), laid out along ``layout`` (default: left to right on screen for the view that looks into the cut, ``view=1,0.75,-1`` in the viewer). |
+| `CutawayMesh` | classe | `(r_faces, theta_faces, *, r_view, phi_cut_deg=270.0, n_phi=72, offset=(0.0, 0.0, 0.0))` | Geometria de um painel em corte e o mapa dos campos de célula (nr, ntheta) para seus vértices. |
+| `sphere` | função | `(radius, center=(0, 0, 0), n=24) -> tuple[np.ndarray, np.ndarray]` | Malha de esfera (vértices e faces) de raio e centro dados. |
+| `accretion_scene` | função | `(grid, panels, times, *, field='log10_density', unit='', r_view=60.0, gap=0.35, title='Bl…)` | Cena Twin3D com um painel em corte por campo, dispostos lado a lado, ao longo do tempo. |
 
 #### `pinneapple_physics.closed_form`
 
@@ -1452,397 +1454,397 @@ PCB Hotspot engine: evaluation, what-if studies and calibration to measurements.
 
 #### `pinneapple_physics.pde_environment`
 
-_Módulo sem docstring e sem texto._
+Ponto de entrada do ambiente de problemas: reexporta `ProblemSpec`, `PDETermSpec`, as condições de contorno, `ProblemBuilder`, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de `try/except ImportError`. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/__init__.py` · 105 linhas · **sem teste direto**</small>
 
 #### `pinneapple_physics.pde_environment.builder`
 
-ProblemBuilder — fluent API for constructing ProblemSpec objects.
+`ProblemBuilder`: API fluente para montar um `ProblemSpec` (domínio, campos, EDP, condições, amostragem, solver) sem mexer nos dataclasses, e registrá-lo como preset.
 
 <small>`pinneapple_physics/pde_environment/builder.py` · 638 linhas · testes: 26</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ProblemBuilder` | classe | `(name) -> None` | Fluent builder for ``ProblemSpec``. |
+| `ProblemBuilder` | classe | `(name) -> None` | Construtor fluente de `ProblemSpec`: encadeia domínio, coordenadas, campos, EDP, parâmetros, condições, dados, amostragem e solver, e termina em `build()`. |
 
 #### `pinneapple_physics.pde_environment.capabilities`
 
-PDE family knowledge base — part of pinneapple_environment.
+Base de conhecimento de famílias de EDP: mapeia descrições em texto livre para tipos (`kind`) de EDP e parâmetros sugeridos de `ProblemSpec`, por contagem simples de palavras-chave; usada pelo agente de design de problemas. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/capabilities.py` · 314 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PDEFamily` | classe | `(kind, aliases, description, default_params, coords_hint, fields_hint, tags)` | Descriptor for a known PDE family. |
-| `list_pde_families` | função | `() -> List[str]` | Return sorted list of canonical PDE kind strings. |
-| `get_pde_family` | função | `(kind_or_alias) -> Optional[PDEFamily]` | Look up a PDEFamily by kind string or alias (case-insensitive). |
-| `identify_pde` | função | `(description) -> List[Tuple[str, float]]` | Score known PDE families against a free-text description. |
-| `suggest_problem_spec` | função | `(description) -> Dict[str, Any]` | Given a free-text description, suggest ProblemSpec constructor arguments. |
+| `PDEFamily` | classe | `(kind, aliases, description, default_params, coords_hint, fields_hint, tags)` | Descritor de uma família de EDP conhecida: tipo, apelidos, descrição, parâmetros padrão, dicas de coordenadas e campos, tags. |
+| `list_pde_families` | função | `() -> List[str]` | Lista ordenada dos tipos canônicos de EDP. |
+| `get_pde_family` | função | `(kind_or_alias) -> Optional[PDEFamily]` | Busca uma `PDEFamily` por tipo ou apelido (sem diferenciar caixa). |
+| `identify_pde` | função | `(description) -> List[Tuple[str, float]]` | Pontua as famílias conhecidas contra uma descrição em texto livre por sobreposição de palavras-chave. |
+| `suggest_problem_spec` | função | `(description) -> Dict[str, Any]` | Sugere argumentos de construção de `ProblemSpec` a partir de uma descrição em texto livre. |
 
 #### `pinneapple_physics.pde_environment.condition_sampling`
 
-Sampling points for conditions whose region is given by a selector function.
+Amostragem de pontos para condições cuja região é dada por uma função seletora, e normais externas da caixa do domínio.
 
 <small>`pinneapple_physics/pde_environment/condition_sampling.py` · 68 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `sample_condition_points` | função | `(select, domain_bounds, coords, n, rng) -> np.ndarray` | Up to ``n`` points (float32, shape ``(m, len(coords))``) accepted by ``select(X) -> bool mask``. |
-| `box_face_normals` | função | `(points, domain_bounds, coords, time_coord='t') -> Tuple[np.ndarray, np.ndarray]` | Outward unit normals of the bounding box at ``points`` (one column per coordinate, 0 for time). |
+| `sample_condition_points` | função | `(select, domain_bounds, coords, n, rng) -> np.ndarray` | Até n pontos do domínio aceitos por uma função seletora (máscara booleana). |
+| `box_face_normals` | função | `(points, domain_bounds, coords, time_coord='t') -> Tuple[np.ndarray, np.ndarray]` | Normais unitárias externas da caixa do domínio nos pontos (zero na coordenada de tempo). |
 
 #### `pinneapple_physics.pde_environment.conditions`
 
-_Módulo sem docstring e sem texto._
+`ConditionSpec`, a especificação genérica de restrição (Dirichlet, Neumann, Robin, interface, condição inicial, dados), e as fábricas que a constroem.
 
 <small>`pinneapple_physics/pde_environment/conditions.py` · 495 linhas · testes: 26</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConditionSpec` | classe | `(name, kind, fields, selector_type, selector, value_fn, weight, order, deriv_coord, inter…)` | Generic constraint spec. |
-| `DirichletBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Construct a Dirichlet boundary condition. |
-| `NeumannBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0, order=…)` | Construct a Neumann boundary condition. |
-| `RobinBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Construct a Robin boundary condition. |
-| `InterfaceBC` | função | `(name, fields, selector_type='all', selector=None, value_fn=None, weight=1.0, k_a=1.0, k_…)` | Construct an interface / coupling boundary condition between two subdomains. |
-| `InitialCondition` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Construct an initial condition. |
-| `DataConstraint` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Construct a data constraint (supervised loss at specific points). |
+| `ConditionSpec` | classe | `(name, kind, fields, selector_type, selector, value_fn, weight, order, deriv_coord, inter…)` | Especificação genérica de restrição: tipo, campos, seletor, função de valor, peso e dados extras (ordem, coeficientes de interface, tração). |
+| `DirichletBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Fábrica de condição de Dirichlet (valor imposto). |
+| `NeumannBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0, order=…)` | Fábrica de condição de Neumann (derivada normal, ou derivada repetida numa coordenada quando `order` > 1). |
+| `RobinBC` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Fábrica de condição de Robin (combinação de valor e derivada normal). |
+| `InterfaceBC` | função | `(name, fields, selector_type='all', selector=None, value_fn=None, weight=1.0, k_a=1.0, k_…)` | Fábrica de condição de interface entre dois subdomínios (continuidade de valor e de fluxo com k_a, k_b). |
+| `InitialCondition` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Fábrica de condição inicial. |
+| `DataConstraint` | função | `(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0) -> Con…)` | Fábrica de restrição de dados (perda supervisionada em pontos dados). |
 
 #### `pinneapple_physics.pde_environment.environment_typing`
 
-_Módulo sem docstring e sem texto._
+Apelidos de tipo `CoordNames` e `FieldNames` (tuplas de strings) usados pelas specs.
 
 <small>`pinneapple_physics/pde_environment/environment_typing.py` · 6 linhas · testes: 26</small>
 
 #### `pinneapple_physics.pde_environment.presets`
 
-_Módulo sem docstring e sem texto._
+Subpacote de presets de problemas; reexporta o registro (`get_preset`, `list_presets`, `register_preset`) e o preset de terramecânica.
 
 <small>`pinneapple_physics/pde_environment/presets/__init__.py` · 14 linhas · testes: 21</small>
 
 #### `pinneapple_physics.pde_environment.presets._curve_geometry`
 
-Parametric curve/polygon geometry for the two tag-based presets whose domain is NOT a box or a circular cylinder: ``axial_compressor_cascade_2d`` (a circular-arc cascade blade) and ``car_external_aero`` (an Ahmed-body- inspired car silhouette). See ``tag_geometry.py`` for where these are used and …
+Geometria paramétrica de curvas e polígonos para os presets com tags cujo domínio não é caixa nem cilindro: pá de cascata em arco circular, silhueta tipo Ahmed body e aerofólio NACA simétrico. Módulo privado. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/_curve_geometry.py` · 227 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `circular_arc_cascade_blade_points` | função | `(n, rng, *, flow_angle_in_deg, flow_angle_out_deg, chord, x_le, y_le) -> np.ndarray` |  |
-| `ahmed_body_polygon` | função | `(car_length, car_height, *, slant_angle_deg=_AHMED_DEFAULT_SLANT_ANGLE_DEG, n_arc=24, x0=…)` | Closed polygon (M, 2) tracing the Ahmed-body-inspired silhouette, nose at x=x0, tail at x=x0+car_length, underbody at y=ground_clearance, roof at y=car_height. Vertices are ordered counter-clockwise starting at the bottom of the front fillet. |
-| `naca4_symmetric_polygon` | função | `(chord, thickness_ratio, *, n=80, x0=0.0, y0=0.0) -> np.ndarray` | Closed polygon (M, 2) tracing a symmetric (zero-camber) NACA 4-digit airfoil of the given ``chord`` and ``thickness_ratio`` t (e.g. t=0.12 for NACA 0012), leading edge at (x0, y0), trailing edge at (x0+chord, y0). Vertices run leading edge -> upper surface -> trailing edge -> lower surface -> back … |
-| `polygon_perimeter_sample` | função | `(vertices, n, rng) -> np.ndarray` | Sample n points uniformly (by arc length) along the CLOSED polygon whose vertices are given in order (the closing edge back to vertices[0] is included). |
-| `polygon_contains` | função | `(vertices, X) -> np.ndarray` | Vectorized ray-casting point-in-polygon test (closed polygon, vertices in order). Returns a bool array, one per row of X (N, 2). |
+| `circular_arc_cascade_blade_points` | função | `(n, rng, *, flow_angle_in_deg, flow_angle_out_deg, chord, x_le, y_le) -> np.ndarray` | Amostra n pontos no contorno de uma pá de cascata em arco circular definida pelos ângulos de entrada/saída e pela corda. |
+| `ahmed_body_polygon` | função | `(car_length, car_height, *, slant_angle_deg=_AHMED_DEFAULT_SLANT_ANGLE_DEG, n_arc=24, x0=…)` | Polígono fechado da silhueta de carro inspirada no Ahmed body. |
+| `naca4_symmetric_polygon` | função | `(chord, thickness_ratio, *, n=80, x0=0.0, y0=0.0) -> np.ndarray` | Polígono fechado de um aerofólio NACA de 4 dígitos simétrico. |
+| `polygon_perimeter_sample` | função | `(vertices, n, rng) -> np.ndarray` | Amostra pontos uniformes por comprimento de arco ao longo de um polígono fechado. |
+| `polygon_contains` | função | `(vertices, X) -> np.ndarray` | Teste vetorizado de ponto dentro de polígono por lançamento de raio. |
 
 #### `pinneapple_physics.pde_environment.presets._utils`
 
-Shared helpers for preset modules (not part of the public API).
+Auxiliar interno dos presets: constantes de Lamé a partir de E e nu. Fora da API pública. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/_utils.py` · 10 linhas · **sem teste direto**</small>
 
 #### `pinneapple_physics.pde_environment.presets.academics`
 
-_Módulo sem docstring e sem texto._
+Presets acadêmicos registrados: Laplace 2D, Poisson 2D (fonte via `ctx['source_fn']`) e Burgers 1D.
 
 <small>`pinneapple_physics/pde_environment/presets/academics.py` · 113 linhas · testes: 37</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `laplace_2d_default` | função | `() -> ProblemSpec` |  |
-| `poisson_2d_default` | função | `() -> ProblemSpec` |  |
-| `burgers_1d_default` | função | `(nu=0.01) -> ProblemSpec` |  |
+| `laplace_2d_default` | função | `() -> ProblemSpec` | Preset de Laplace 2D com Dirichlet na fronteira marcada por tag. |
+| `poisson_2d_default` | função | `() -> ProblemSpec` | Preset de Poisson 2D; a fonte f(x,y) vem de `ctx['source_fn']`. |
+| `burgers_1d_default` | função | `(nu=0.01) -> ProblemSpec` | Preset de Burgers 1D viscoso com viscosidade `nu`. |
 
 #### `pinneapple_physics.pde_environment.presets.astroml_bridge`
 
-astroML-backed statistics for astronomical data: periodograms, deconvolved densities, fits with errors.
+Invólucro fino sobre o `astroML` (dependência opcional): periodogramas de Lomb-Scargle, deconvolução extrema, Bayesian Blocks, histograma de Knuth, ajustes de reta com erros, datasets e verificações sintéticas. Os periodogramas do astroML são marcados como deprecated (avisos silenciados).
 
 <small>`pinneapple_physics/pde_environment/presets/astroml_bridge.py` · 576 linhas · testes: 12 · palavras-chave no código (heurística; o texto acima diz o status real): shim ou obsoleto</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Periodogram` | classe | `(freq, power, method, n_terms, n_obs, false_alarm_levels, meta)` | A periodogram on a frequency grid. ``freq`` in cycles per unit of ``t``; ``power`` dimensionless. |
-| `XDResult` | classe | `(weights, means, covariances, log_likelihood, model)` | Extreme-deconvolution Gaussian mixture of the underlying (error-free) distribution. |
-| `LineFit` | classe | `(slope, intercept, covariance, chi2, dof, method)` | ``y = slope * x + intercept`` with a 2x2 covariance of ``(intercept, slope)``. |
-| `astroml_available` | função | `() -> bool` | True if ``astroML`` can be imported (does not import the heavy sub-packages). |
-| `frequency_grid` | função | `(t, period_range=None, f_min=None, f_max=None, oversample=10.0, n_max=200000) -> np.ndarr…)` | Uniform frequency grid [1 / unit of t] for a periodogram of samples at times ``t``. |
-| `lomb_scargle_periodogram` | função | `(t, y, dy, freq=None, *, period_range=None, oversample=10.0, generalized=True, significan…)` | Generalised (floating-mean) Lomb-Scargle periodogram, ``astroML.time_series.lomb_scargle``. |
-| `multiterm_periodogram` | função | `(t, y, dy, freq=None, *, n_terms=3, period_range=None, oversample=10.0, time_unit='d') ->…)` | Multi-harmonic periodogram, ``astroML.time_series.multiterm_periodogram``. |
-| `bootstrap_peak_distribution` | função | `(t, y, dy, freq, n_bootstraps=100, random_state=0, generalized=True) -> np.ndarray` | Highest periodogram peak of ``n_bootstraps`` resamplings of the data (``lomb_scargle_bootstrap``). |
-| `best_period` | função | `(t, y, dy, *, period_range=None, n_terms=1, oversample=10.0, refine=True) -> float` | Period [unit of t] of the highest periodogram peak. |
-| `light_curve_sample` | função | `(t, y, dy, *, band='', time_unit='d', value_unit='mag', **provenance)` | An irregularly sampled light curve as a point-domain :class:`PhysicalSample` (no astroML needed). |
-| `xd_fit` | função | `(X, Xerr, n_components, *, max_iter=200, tol=1e-05, random_state=0) -> XDResult` | Extreme deconvolution, ``astroML.density_estimation.XDGMM``. |
-| `bayesian_block_edges` | função | `(t, x=None, sigma=None, *, fitness='events', p0=0.05, gamma=None) -> np.ndarray` | Bin edges from Bayesian Blocks (Scargle et al. 2013), ``astroML.density_estimation.bayesian_blocks``. |
-| `knuth_histogram` | função | `(data) -> tuple[np.ndarray, np.ndarray, float]` | Histogram with Knuth's (2006) Bayesian optimal bin width: ``(counts, edges, width)``. |
-| `fit_line_with_errors` | função | `(x, y, dy) -> LineFit` | Weighted least squares with errors on ``y`` only, ``astroML.linear_model.LinearRegression(y_error=dy)``. |
-| `fit_line_tls` | função | `(x, y, dx, dy, initial=None) -> LineFit` | Line fit with errors on both axes: maximises ``astroML.linear_model.TLS_logL`` (Hogg, Bovy & Lang 2010). |
-| `load_dataset` | função | `(name, *, data_home=None, download_if_missing=False, **kwargs)` | Call an ``astroML.datasets`` fetcher by short name (see ``DATASETS``) and return what it returns. |
-| `check_period_recovery` | função | `(seed=0, period=0.613, n=150, noise=0.15) -> dict` | Irregular sinusoid (amplitude 0.3, Gaussian noise) over 200 d: recovered period vs the true one. |
-| `check_xd_means` | função | `(seed=0, n=600) -> dict` | Two 2-D Gaussians, per-point errors drawn in [0.2, 1.0]: worst error of the XD means / component spread. |
-| `check_block_step` | função | `(seed=0, t_step=6.3, p0=0.001) -> dict` | Noisy series (300 points over 10 s, step 1 -> 2, noise 0.2): the interior Bayesian-Blocks edge vs the step. |
-| `check_line_fits` | função | `(seed=0) -> dict` | y = 2.5 x - 1 with errors on both axes: worst relative slope error of the WLS and TLS fits. |
-| `validate` | função | `(cases=None, log=print, **kw) -> list[dict]` | Run the synthetic checks; returns one row per case and logs a table. Needs astroML, no network. |
+| `Periodogram` | classe | `(freq, power, method, n_terms, n_obs, false_alarm_levels, meta)` | Periodograma numa grade de frequências, com pico, melhor período, nível de falso alarme e conversão para amostra. |
+| `XDResult` | classe | `(weights, means, covariances, log_likelihood, model)` | Resultado da deconvolução extrema: mistura gaussiana da distribuição sem erro; permite amostrar. |
+| `LineFit` | classe | `(slope, intercept, covariance, chi2, dof, method)` | Reta ajustada com inclinação, intercepto, covariância, chi2 e graus de liberdade. |
+| `astroml_available` | função | `() -> bool` | Diz se o `astroML` pode ser importado. |
+| `frequency_grid` | função | `(t, period_range=None, f_min=None, f_max=None, oversample=10.0, n_max=200000) -> np.ndarr…)` | Grade uniforme de frequências para o periodograma de amostras irregulares. |
+| `lomb_scargle_periodogram` | função | `(t, y, dy, freq=None, *, period_range=None, oversample=10.0, generalized=True, significan…)` | Periodograma de Lomb-Scargle generalizado (média flutuante) do astroML. |
+| `multiterm_periodogram` | função | `(t, y, dy, freq=None, *, n_terms=3, period_range=None, oversample=10.0, time_unit='d') ->…)` | Periodograma multi-harmônico do astroML. |
+| `bootstrap_peak_distribution` | função | `(t, y, dy, freq, n_bootstraps=100, random_state=0, generalized=True) -> np.ndarray` | Pico mais alto do periodograma em reamostragens bootstrap dos dados. |
+| `best_period` | função | `(t, y, dy, *, period_range=None, n_terms=1, oversample=10.0, refine=True) -> float` | Período do pico mais alto do periodograma. |
+| `light_curve_sample` | função | `(t, y, dy, *, band='', time_unit='d', value_unit='mag', **provenance)` | Curva de luz irregular como `PhysicalSample` de domínio de pontos (não precisa de astroML). |
+| `xd_fit` | função | `(X, Xerr, n_components, *, max_iter=200, tol=1e-05, random_state=0) -> XDResult` | Deconvolução extrema (`XDGMM` do astroML) de dados com covariância de erro por ponto. |
+| `bayesian_block_edges` | função | `(t, x=None, sigma=None, *, fitness='events', p0=0.05, gamma=None) -> np.ndarray` | Bordas de bins por Bayesian Blocks (Scargle et al. 2013). |
+| `knuth_histogram` | função | `(data) -> tuple[np.ndarray, np.ndarray, float]` | Histograma com largura de bin ótima bayesiana de Knuth. |
+| `fit_line_with_errors` | função | `(x, y, dy) -> LineFit` | Mínimos quadrados ponderados com erro só em y. |
+| `fit_line_tls` | função | `(x, y, dx, dy, initial=None) -> LineFit` | Ajuste de reta com erros nos dois eixos (TLS, Hogg, Bovy & Lang 2010). |
+| `load_dataset` | função | `(name, *, data_home=None, download_if_missing=False, **kwargs)` | Chama um fetcher de `astroML.datasets` por nome curto; não baixa nada por padrão. |
+| `check_period_recovery` | função | `(seed=0, period=0.613, n=150, noise=0.15) -> dict` | Verificação sintética: período recuperado de uma senoide irregular contra o verdadeiro. |
+| `check_xd_means` | função | `(seed=0, n=600) -> dict` | Verificação sintética: erro das médias da deconvolução extrema em duas gaussianas 2D. |
+| `check_block_step` | função | `(seed=0, t_step=6.3, p0=0.001) -> dict` | Verificação sintética: borda de Bayesian Blocks contra um degrau numa série ruidosa. |
+| `check_line_fits` | função | `(seed=0) -> dict` | Verificação sintética: erro relativo da inclinação dos ajustes WLS e TLS. |
+| `validate` | função | `(cases=None, log=print, **kw) -> list[dict]` | Roda as verificações sintéticas e registra uma tabela; precisa de astroML, sem rede. |
 
 #### `pinneapple_physics.pde_environment.presets.astrophysics`
 
-Astrophysics and space-systems problem presets.
+Presets de astrofísica e sistemas espaciais (Kepler, Clohessy-Wiltshire, J2, atitude, Lane-Emden, NFW, Sod, CR3BP, deflexão de luz, disco de Shakura-Sunyaev), cada um com solução de referência em `meta`, verificada com sympy segundo o docstring.
 
 <small>`pinneapple_physics/pde_environment/presets/astrophysics.py` · 1.486 linhas · testes: 72</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `kepler_exact_state` | função | `(t, mu, a, e) -> Dict[str, np.ndarray]` | Exact Kepler two-body trajectory at times `t` (perigee at t=0). |
-| `kepler_two_body_orbit` | função | `(mu=398600.4418, a=8000.0, e=0.15) -> ProblemSpec` | Restricted two-body (Kepler) orbit -- planar Cartesian formulation. |
-| `cw_exact_velocity` | função | `(t, n, x0, y0, z0, vx0, vy0, vz0) -> Dict[str, np.ndarray]` | Time derivative of :func:`_cw_exact_state` (Clohessy-Wiltshire relative velocity, closed form). |
-| `space_debris_cw_relative_motion` | função | `(n=0.0011, x0=1.0, y0=0.0, z0=0.2, vx0=0.0, vy0=-0.0015, vz0=0.0008) -> ProblemSpec` | Clohessy-Wiltshire (Hill's) equations -- space-debris close-approach / conjunction-assessment and proximity-operations relative motion. |
-| `satellite_j2_perturbation` | função | `(mu=398600.4418, J2=0.00108262668, Re=6378.137, a=7000.0, e=0.001, inclination_deg=98.7) …)` | LEO satellite orbit with the J2 (Earth-oblateness) perturbation. |
-| `spacecraft_attitude_euler_rotation` | função | `(I1=100.0, I3=150.0, w1_0=0.05, w3_0=0.5) -> ProblemSpec` | Torque-free rigid-body spacecraft attitude dynamics (axisymmetric). |
-| `lane_emden_exact_theta` | função | `(xi, n) -> np.ndarray` | Closed-form Lane-Emden solution for n in {0, 1, 5} (Chandrasekhar, 1939). All three verified this session with `sympy`: substituted into theta'' + (2/xi)theta' + theta^n = 0 and confirmed exact zero residual. Raises for any other n (no closed form exists in general; must be solved numerically, e.g. … |
-| `lane_emden_polytrope` | função | `(n=1.0, xi_min=0.001, xi_max=3.0) -> ProblemSpec` | Lane-Emden equation for a self-gravitating polytropic star. |
-| `nfw_potential_exact` | função | `(r, G, rho_s, rs) -> np.ndarray` | Closed-form NFW gravitational potential (Navarro, Frenk & White, 1996/1997). Verified this session with `sympy`: the spherical Laplacian of this expression equals 4*pi*G*rho_NFW(r) exactly (checked symbolically, zero residual) for the NFW density profile rho(r) = rho_s / [(r/rs)(1+r/rs)^2]. |
-| `nfw_source_fn` | função | `(G, rho_s, rs)` | Return a ``ctx["source_fn"]`` callable for the "poisson" PDE kind: f(X, ctx) = 4*pi*G*rho_NFW(\|X\|), matching the density profile whose potential is `nfw_potential_exact` (both verified together, see `nfw_potential_exact`'s docstring). |
-| `nfw_dark_matter_potential` | função | `(G=1.0, rho_s=1.0, rs=1.0, r_max=10.0) -> ProblemSpec` | Gravitational potential of a Navarro-Frenk-White (NFW) dark-matter halo -- Poisson's equation with the NFW density profile as source. |
-| `sod_exact_solution` | função | `(x, t, gamma=1.4, rho_l=1.0, u_l=0.0, p_l=1.0, rho_r=0.125, u_r=0.0, p_r=0.1, x0=0.5) -> …)` | Exact Riemann solution for the Sod shock tube (Sod, 1978; algorithm per Toro, "Riemann Solvers and Numerical Methods for Fluid Dynamics", 3rd ed., Ch. 4). Returns rho, u, p at positions `x` and time `t`. |
-| `sod_shock_tube_astro` | função | `(gamma=1.4, x0=0.5, t_end=0.2) -> ProblemSpec` | 1D compressible Euler shock tube (Sod, 1978) -- the standard validation case for every astrophysical hydrodynamics code (used to verify e.g. FLASH, Athena++, RAMSES, Enzo on release). Represents an idealized discontinuity (e.g. a contact between two interstellar- medium phases, or the initial … |
-| `cr3bp_omega_gradient` | função | `(x, y, mu)` | Gradient of the CR3BP effective (synodic-frame) potential Omega(x,y) = 0.5*(x^2+y^2) + (1-mu)/r1 + mu/r2, i.e. the RHS of the equations of motion x'' - 2y' = dOmega/dx, y'' + 2x' = dOmega/dy (Szebehely, "Theory of Orbits", 1967, Ch. 1-2). A pure-numpy reference implementation, independent of the … |
-| `cr3bp_collinear_lagrange_point` | função | `(mu, x0, tol=1e-14, max_iter=100) -> float` | Solve for a collinear (L1/L2/L3) Lagrange point via 1D Newton- Raphson on dOmega/dx=0 restricted to y=0 (same algorithm style as this module's `_kepler_solve_E`: a plain, dependency-free Newton-Raphson, not scipy). `x0` must be a starting guess in the correct branch (see `cr3bp_lagrange_points` for … |
-| `cr3bp_lagrange_points` | função | `(mu) -> Dict[str, tuple]` | All 5 Lagrange-point equilibria of the planar CR3BP for a given mass ratio `mu`. L4/L5 are the EXACT equilateral-triangle points (x=1/2-mu, y=+-sqrt(3)/2) -- true for any mu, verified symbolically with `sympy` this session (dOmega/dx and dOmega/dy both reduce to exactly 0 there, since r1=r2=1 by … |
-| `cr3bp_planar_synodic` | função | `(mu=0.012150585609624, dx0=0.0001, dy0=0.0, n_periods=4.0) -> ProblemSpec` | Planar circular restricted three-body problem (CR3BP), Earth-Moon system, synodic (co-rotating) frame -- Szebehely's standard dimensionless normalization: unit distance = Earth-Moon separation (~384,400 km), unit time such that G(m_Earth+m_Moon)=1 and the frame's angular velocity = 1 (so 1 time … |
-| `schwarzschild_light_bending_u_exact` | função | `(phi, m, b) -> np.ndarray` | First-order (weak-field, m/b << 1) perturbative solution of the EXACT Schwarzschild null-geodesic equation d^2u/dphi^2 + u = 3 m u^2 (u := 1/r, m := GM/c^2), expressed in terms of the asymptotic impact parameter b: u(phi) = cos(phi)/b + (m/b^2)*(1 + sin(phi)^2) |
-| `schwarzschild_deflection_angle_weak_field` | função | `(GM, c, b) -> float` | Einstein's weak-field light-deflection formula, delta_phi = 4GM/(c^2 b) (Einstein, 1916; famously confirmed observationally for starlight grazing the Sun by Dyson, Eddington & Davidson's 1919 eclipse expedition -- twice the Newtonian/light-corpuscle deflection of 2GM/(c^2 b)). |
-| `schwarzschild_light_bending_weak_field` | função | `(GM=1.32712440018e+20, c=299792458.0, b=695700000.0) -> ProblemSpec` | Light deflection by a spherical mass in the Schwarzschild weak-field limit -- the null-geodesic ("photon orbit") equation, u := 1/r as a function of the orbital angle phi: |
-| `shakura_sunyaev_flux_exact` | função | `(r, GM, Mdot, R_in) -> np.ndarray` | Closed-form radial flux profile of a steady, geometrically-thin, optically-thick alpha-disk (Shakura & Sunyaev, 1973, A&A, 24, 337), F(r) := sigma_SB * T_eff(r)^4 (so T_eff(r) = (F(r)/sigma_SB)^(1/4)): |
-| `shakura_sunyaev_teff_exact` | função | `(r, GM, Mdot, R_in, sigma_SB=5.670374419e-08) -> np.ndarray` | Effective temperature profile T_eff(r) = (F(r)/sigma_SB)^(1/4), the classic Shakura-Sunyaev (1973) alpha-disk result. Clamps F to >= 0 before the 1/4 power (r <= R_in gives F=0, i.e. no disk material interior to the zero-torque truncation radius). |
-| `shakura_sunyaev_accretion_disk` | função | `(M_bh_solar=10.0, Mdot_edd_frac=0.1, eta=0.1, r_out_factor=10000.0) -> ProblemSpec` | Steady, geometrically-thin, optically-thick alpha-disk (Shakura & Sunyaev, 1973, A&A, 24, 337) around a compact object -- the canonical accretion-disk model underlying essentially every X-ray-binary and AGN accretion-disk spectral calculation since the 1970s. |
+| `kepler_exact_state` | função | `(t, mu, a, e) -> Dict[str, np.ndarray]` | Trajetória kepleriana exata de dois corpos nos tempos dados (perigeu em t=0). |
+| `kepler_two_body_orbit` | função | `(mu=398600.4418, a=8000.0, e=0.15) -> ProblemSpec` | Preset de órbita kepleriana de dois corpos em formulação cartesiana plana. |
+| `cw_exact_velocity` | função | `(t, n, x0, y0, z0, vx0, vy0, vz0) -> Dict[str, np.ndarray]` | Velocidade relativa de Clohessy-Wiltshire em forma fechada. |
+| `space_debris_cw_relative_motion` | função | `(n=0.0011, x0=1.0, y0=0.0, z0=0.2, vx0=0.0, vy0=-0.0015, vz0=0.0008) -> ProblemSpec` | Preset das equações de Clohessy-Wiltshire para movimento relativo de detritos e operações de proximidade. |
+| `satellite_j2_perturbation` | função | `(mu=398600.4418, J2=0.00108262668, Re=6378.137, a=7000.0, e=0.001, inclination_deg=98.7) …)` | Preset de órbita LEO com perturbação J2. |
+| `spacecraft_attitude_euler_rotation` | função | `(I1=100.0, I3=150.0, w1_0=0.05, w3_0=0.5) -> ProblemSpec` | Preset de dinâmica de atitude sem torque de corpo rígido axissimétrico. |
+| `lane_emden_exact_theta` | função | `(xi, n) -> np.ndarray` | Solução fechada de Lane-Emden para n em {0, 1, 5}; levanta erro para outros n. |
+| `lane_emden_polytrope` | função | `(n=1.0, xi_min=0.001, xi_max=3.0) -> ProblemSpec` | Preset da equação de Lane-Emden para estrela politrópica. |
+| `nfw_potential_exact` | função | `(r, G, rho_s, rs) -> np.ndarray` | Potencial gravitacional NFW em forma fechada. |
+| `nfw_source_fn` | função | `(G, rho_s, rs)` | Função fonte 4 pi G rho_NFW para o tipo de EDP 'poisson'. |
+| `nfw_dark_matter_potential` | função | `(G=1.0, rho_s=1.0, rs=1.0, r_max=10.0) -> ProblemSpec` | Preset de Poisson para o potencial de um halo de matéria escura NFW. |
+| `sod_exact_solution` | função | `(x, t, gamma=1.4, rho_l=1.0, u_l=0.0, p_l=1.0, rho_r=0.125, u_r=0.0, p_r=0.1, x0=0.5) -> …)` | Solução de Riemann exata do tubo de choque de Sod (algoritmo de Toro). |
+| `sod_shock_tube_astro` | função | `(gamma=1.4, x0=0.5, t_end=0.2) -> ProblemSpec` | Preset do tubo de choque de Sod 1D (Euler compressível). |
+| `cr3bp_omega_gradient` | função | `(x, y, mu)` | Gradiente do potencial efetivo do problema restrito de três corpos no referencial sinódico. |
+| `cr3bp_collinear_lagrange_point` | função | `(mu, x0, tol=1e-14, max_iter=100) -> float` | Ponto de Lagrange colinear por Newton-Raphson 1D a partir de um chute no ramo certo. |
+| `cr3bp_lagrange_points` | função | `(mu) -> Dict[str, tuple]` | Os cinco pontos de Lagrange do CR3BP plano para uma razão de massa. |
+| `cr3bp_planar_synodic` | função | `(mu=0.012150585609624, dx0=0.0001, dy0=0.0, n_periods=4.0) -> ProblemSpec` | Preset do CR3BP plano Terra-Lua no referencial sinódico, adimensional. |
+| `schwarzschild_light_bending_u_exact` | função | `(phi, m, b) -> np.ndarray` | Solução perturbativa de primeira ordem da geodésica nula de Schwarzschild, u(phi). |
+| `schwarzschild_deflection_angle_weak_field` | função | `(GM, c, b) -> float` | Deflexão da luz em campo fraco, 4GM/(c^2 b). |
+| `schwarzschild_light_bending_weak_field` | função | `(GM=1.32712440018e+20, c=299792458.0, b=695700000.0) -> ProblemSpec` | Preset da equação da órbita do fóton u(phi) no limite de campo fraco. |
+| `shakura_sunyaev_flux_exact` | função | `(r, GM, Mdot, R_in) -> np.ndarray` | Perfil radial de fluxo do disco alfa de Shakura-Sunyaev. |
+| `shakura_sunyaev_teff_exact` | função | `(r, GM, Mdot, R_in, sigma_SB=5.670374419e-08) -> np.ndarray` | Perfil de temperatura efetiva do disco de Shakura-Sunyaev. |
+| `shakura_sunyaev_accretion_disk` | função | `(M_bh_solar=10.0, Mdot_edd_frac=0.1, eta=0.1, r_out_factor=10000.0) -> ProblemSpec` | Preset do disco de acreção fino e opticamente espesso de Shakura-Sunyaev. |
 
 #### `pinneapple_physics.pde_environment.presets.astropy_bridge`
 
-Astropy-backed unit handling and coordinate transforms for astrophysics.
+Unidades e transformações de coordenadas com `astropy`: constantes astronômicas em SI com procedência, quantidades com unidade, conversão para SI e transformação GCRS/ITRS.
 
 <small>`pinneapple_physics/pde_environment/presets/astropy_bridge.py` · 296 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `astro_constant_si` | função | `(name) -> float` | Return the SI-unit float value of ``ASTRO_CONSTANTS[name]``. |
-| `constant_provenance` | função | `(name) -> str` | Return the real astropy literature reference string for a constant. |
-| `with_units` | função | `(value, unit_str=None) -> 'u.Quantity'` | Attach real astropy units to a bare number, or parse a unit string. |
-| `to_si` | função | `(quantity, target_unit=None) -> float` | Convert an astropy Quantity (or a parsable string like "5 Msun") to a plain float, in SI units by default or in ``target_unit`` if given. |
-| `transform_coordinates` | função | `(x, y, z, obstime, frame_in='gcrs', frame_out='itrs', vx=None, vy=None, vz=None, unit='km…)` | Transform a Cartesian position (and optional velocity) between GCRS and ITRS using real ``astropy.coordinates`` machinery. |
+| `astro_constant_si` | função | `(name) -> float` | Valor em SI de uma constante da tabela `ASTRO_CONSTANTS`. |
+| `constant_provenance` | função | `(name) -> str` | Referência bibliográfica do astropy para uma constante. |
+| `with_units` | função | `(value, unit_str=None) -> 'u.Quantity'` | Anexa unidades astropy a um número ou analisa uma string de unidade. |
+| `to_si` | função | `(quantity, target_unit=None) -> float` | Converte uma Quantity (ou string como "5 Msun") em float SI ou na unidade pedida. |
+| `transform_coordinates` | função | `(x, y, z, obstime, frame_in='gcrs', frame_out='itrs', vx=None, vy=None, vz=None, unit='km…)` | Transforma posição (e velocidade) cartesiana entre GCRS e ITRS com `astropy.coordinates`. |
 
 #### `pinneapple_physics.pde_environment.presets.cfd`
 
-_Módulo sem docstring e sem texto._
+Presets de CFD: Navier-Stokes incompressível 2D e 3D, cavidade 3D com tampa móvel, canal 3D de Poiseuille e tubo de Hagen-Poiseuille. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/cfd.py` · 459 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ns_incompressible_2d_default` | função | `(Re=100.0, Umax=1.0) -> ProblemSpec` |  |
-| `ns_incompressible_3d_default` | função | `(Re=100.0, Umax=1.0) -> ProblemSpec` |  |
-| `lid_driven_cavity_3d` | função | `(Re=100.0, size=1.0, lid_velocity=1.0) -> ProblemSpec` | 3D Lid-Driven Cavity benchmark. |
-| `channel_flow_3d` | função | `(Re=100.0, length=2.0, height=1.0, width=1.0, Umax=1.0) -> ProblemSpec` | 3D pressure-driven rectangular channel (Poiseuille) flow. |
-| `pipe_flow_3d` | função | `(Re=100.0, radius=0.5, length=2.0, Umax=1.0) -> ProblemSpec` | 3D Hagen-Poiseuille pipe flow in a circular cylinder. |
+| `ns_incompressible_2d_default` | função | `(Re=100.0, Umax=1.0) -> ProblemSpec` | Preset de Navier-Stokes incompressível 2D transiente (u, v, p) com número de Reynolds dado. |
+| `ns_incompressible_3d_default` | função | `(Re=100.0, Umax=1.0) -> ProblemSpec` | Preset de Navier-Stokes incompressível 3D transiente (u, v, w, p). |
+| `lid_driven_cavity_3d` | função | `(Re=100.0, size=1.0, lid_velocity=1.0) -> ProblemSpec` | Preset da cavidade 3D com tampa móvel. |
+| `channel_flow_3d` | função | `(Re=100.0, length=2.0, height=1.0, width=1.0, Umax=1.0) -> ProblemSpec` | Preset de escoamento de Poiseuille num canal retangular 3D. |
+| `pipe_flow_3d` | função | `(Re=100.0, radius=0.5, length=2.0, Umax=1.0) -> ProblemSpec` | Preset de escoamento de Hagen-Poiseuille num tubo cilíndrico. |
 
 #### `pinneapple_physics.pde_environment.presets.electromagnetics`
 
-Electromagnetic presets: each has a closed-form solution (``pp.solve(problem, "analytic")``, registered from :mod:`pinneapple_physics.closed_form.electromagnetics`), so any method can be scored against the exact field.
+Presets eletromagnéticos com solução fechada registrada em `closed_form.electromagnetics` (via `pp.solve(problem, "analytic")`): capacitor de dois dielétricos, fio, cavidade TM, efeito pelicular e espalhamento por cilindro. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/electromagnetics.py` · 184 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `em_two_dielectric_capacitor` | função | `(V=1.0, eps1=1.0, eps2=4.0, d1=0.5, h=0.02) -> ProblemSpec` |  |
-| `em_two_dielectric_capacitor_differential` | função | `(V=1.0, eps1=1.0, eps2=4.0, d1=0.5) -> ProblemSpec` |  |
-| `em_wire_az` | função | `(a=0.25, J=1.0, nu=1.0) -> ProblemSpec` |  |
-| `em_tm_cavity` | função | `(m=1, n=1, periods=0.5) -> ProblemSpec` |  |
-| `em_tm_cavity_integral` | função | `(m=1, n=1, periods=0.5, h=0.02) -> ProblemSpec` |  |
-| `em_skin_effect` | função | `(delta=0.2, omega=1.0, nu=1.0, length=1.0) -> ProblemSpec` |  |
-| `em_cylinder_scattering` | função | `(k0=2.0 * math.pi, radius=0.25, eps_cyl=4.0, eps_cyl_i=0.0, half_width=1.0) -> ProblemSpec` |  |
+| `em_two_dielectric_capacitor` | função | `(V=1.0, eps1=1.0, eps2=4.0, d1=0.5, h=0.02) -> ProblemSpec` | Preset de capacitor com dois dielétricos na forma integral (`electrostatics_integral`). |
+| `em_two_dielectric_capacitor_differential` | função | `(V=1.0, eps1=1.0, eps2=4.0, d1=0.5) -> ProblemSpec` | Preset do mesmo capacitor na forma diferencial (`electrostatics`). |
+| `em_wire_az` | função | `(a=0.25, J=1.0, nu=1.0) -> ProblemSpec` | Preset de magnetostática do potencial A_z de um fio com corrente uniforme. |
+| `em_tm_cavity` | função | `(m=1, n=1, periods=0.5) -> ProblemSpec` | Preset de modo TM numa cavidade (`maxwell_tm`). |
+| `em_tm_cavity_integral` | função | `(m=1, n=1, periods=0.5, h=0.02) -> ProblemSpec` | Preset do modo TM na forma integral (`maxwell_tm_integral`). |
+| `em_skin_effect` | função | `(delta=0.2, omega=1.0, nu=1.0, length=1.0) -> ProblemSpec` | Preset 1D de efeito pelicular numa placa condutora. |
+| `em_cylinder_scattering` | função | `(k0=2.0 * math.pi, radius=0.25, eps_cyl=4.0, eps_cyl_i=0.0, half_width=1.0) -> ProblemSpec` | Preset de espalhamento TM por cilindro dielétrico. |
 
 #### `pinneapple_physics.pde_environment.presets.engineering`
 
-Engineering problem presets.
+Presets de engenharia: bocal e carcaça de foguete, asa, aerodinâmica de carro, freio, suspensão, dissipador de CPU, PCB, ventoinha, forno industrial, refratário, combustão e data center.
 
 <small>`pinneapple_physics/pde_environment/presets/engineering.py` · 1.169 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `rocket_nozzle_cfd` | função | `(gamma=1.4, R_gas=287.0, T_inlet=3500.0, p_inlet=10000000.0, throat_radius=0.1, exit_radi…)` | 2D axisymmetric compressible flow through a convergent-divergent rocket nozzle. |
-| `rocket_structural` | função | `(E=200000000000.0, nu=0.3, p_internal=10000000.0, T_inner=800.0, T_outer=293.0, alpha_T=1…)` | Rocket motor casing under combined internal pressure + thermal gradient. |
-| `aircraft_wing_aerodynamics` | função | `(Re=5000000.0, Ma=0.3, alpha_deg=5.0, chord=1.0, rho_inf=1.225, U_inf=102.0, nu_air=1.5e-…)` | 2D incompressible/low-Ma airfoil aerodynamics (NACA-like profile). |
-| `aircraft_wing_structural` | função | `(E=70000000000.0, nu=0.33, lift_load=50000.0, span=5.0, thickness=0.1) -> ProblemSpec` | 2D plane stress model of an aircraft wing spar under lift bending load. |
-| `car_external_aero` | função | `(U_inf=33.3, rho=1.225, nu_air=1.5e-05, car_length=4.5, car_height=1.4) -> ProblemSpec` | 2D external aerodynamics around a simplified car body. |
-| `car_brake_thermal` | função | `(k_disc=55.0, rho_disc=7100.0, cp_disc=500.0, q_friction=2000000.0, T_ambient=293.0, h_co…)` | Transient heat conduction in a brake disc during emergency braking. |
-| `car_suspension_fatigue` | função | `(E=210000000000.0, nu=0.3, F_vertical=8000.0, F_lateral=3000.0, arm_length=0.35, arm_widt…)` | Plane stress fatigue analysis of a suspension wishbone arm. |
-| `cpu_heatsink_thermal` | função | `(k_aluminium=205.0, k_copper=400.0, q_cpu=200.0, T_ambient=293.0, h_fin=50.0, die_area=0.…)` | 3D steady-state heat conduction/convection in a CPU heatsink. |
-| `pcb_thermal` | função | `(k_pcb=0.3, k_z_pcb=0.25, q_components=None, T_ambient=308.0, h_natural=10.0, board_lengt…)` | 2D PCB heat spreading model with multiple component heat sources. |
-| `fan_cooler_cfd` | função | `(rpm=2000.0, blade_radius=0.05, hub_radius=0.01, rho=1.225, nu_air=1.5e-05, n_blades=7) -…)` | 2D radial fan flow in a PC cooler. |
-| `industrial_furnace_thermal` | função | `(T_hot_gas=1600.0, T_ambient=300.0, k_refractory=1.5, k_insulation=0.1, h_hot_gas=50.0, h…)` | 3D steady-state heat transfer in an industrial furnace wall. |
-| `refractory_lining` | função | `(layers=None, T_hot=1700.0, T_cold=350.0, total_thickness=0.5) -> ProblemSpec` | Multi-layer refractory wall with different conductivities. |
-| `furnace_combustion_zone` | função | `(T_flame=2200.0, T_wall=1600.0, rho_flue=0.24, nu_flue=0.0002, U_inlet=5.0, furnace_lengt…)` | Simplified combustion zone: hot gas flow with volumetric heat release. |
-| `datacenter_airflow_2d` | função | `(U_cold_aisle=2.5, T_cold_air=291.0, T_hot_max=318.0, Q_rack=20000.0, rack_height=2.0, ra…)` | 2D server rack row cooling (cold-aisle/hot-aisle containment). |
-| `datacenter_server_thermal` | função | `(Q_cpu=250.0, Q_gpu=400.0, Q_ram=20.0, T_inlet_air=295.0, U_fan=3.0, h_forced=120.0, k_bo…)` | 2D server board conduction + forced convection from fans. |
-| `datacenter_cfd_3d` | função | `(room_length=20.0, room_width=10.0, room_height=3.0, n_racks=20, Q_per_rack=15000.0, T_su…)` | Simplified 3D datacenter room CFD for hot-spot prediction. |
+| `rocket_nozzle_cfd` | função | `(gamma=1.4, R_gas=287.0, T_inlet=3500.0, p_inlet=10000000.0, throat_radius=0.1, exit_radi…)` | Preset de escoamento compressível axissimétrico num bocal convergente-divergente. |
+| `rocket_structural` | função | `(E=200000000000.0, nu=0.3, p_internal=10000000.0, T_inner=800.0, T_outer=293.0, alpha_T=1…)` | Preset da carcaça do motor sob pressão interna e gradiente térmico. |
+| `aircraft_wing_aerodynamics` | função | `(Re=5000000.0, Ma=0.3, alpha_deg=5.0, chord=1.0, rho_inf=1.225, U_inf=102.0, nu_air=1.5e-…)` | Preset 2D de aerodinâmica de aerofólio tipo NACA em baixo Mach. |
+| `aircraft_wing_structural` | função | `(E=70000000000.0, nu=0.33, lift_load=50000.0, span=5.0, thickness=0.1) -> ProblemSpec` | Preset de tensão plana da longarina de asa sob carga de sustentação. |
+| `car_external_aero` | função | `(U_inf=33.3, rho=1.225, nu_air=1.5e-05, car_length=4.5, car_height=1.4) -> ProblemSpec` | Preset 2D de aerodinâmica externa de um carro simplificado. |
+| `car_brake_thermal` | função | `(k_disc=55.0, rho_disc=7100.0, cp_disc=500.0, q_friction=2000000.0, T_ambient=293.0, h_co…)` | Preset de condução transiente num disco de freio em frenagem de emergência. |
+| `car_suspension_fatigue` | função | `(E=210000000000.0, nu=0.3, F_vertical=8000.0, F_lateral=3000.0, arm_length=0.35, arm_widt…)` | Preset de tensão plana para fadiga de braço de suspensão. |
+| `cpu_heatsink_thermal` | função | `(k_aluminium=205.0, k_copper=400.0, q_cpu=200.0, T_ambient=293.0, h_fin=50.0, die_area=0.…)` | Preset 3D de condução/convecção permanente num dissipador de CPU. |
+| `pcb_thermal` | função | `(k_pcb=0.3, k_z_pcb=0.25, q_components=None, T_ambient=308.0, h_natural=10.0, board_lengt…)` | Preset 2D de espalhamento de calor numa PCB com várias fontes. |
+| `fan_cooler_cfd` | função | `(rpm=2000.0, blade_radius=0.05, hub_radius=0.01, rho=1.225, nu_air=1.5e-05, n_blades=7) -…)` | Preset 2D de escoamento radial numa ventoinha de PC. |
+| `industrial_furnace_thermal` | função | `(T_hot_gas=1600.0, T_ambient=300.0, k_refractory=1.5, k_insulation=0.1, h_hot_gas=50.0, h…)` | Preset 3D de transferência de calor permanente na parede de um forno industrial. |
+| `refractory_lining` | função | `(layers=None, T_hot=1700.0, T_cold=350.0, total_thickness=0.5) -> ProblemSpec` | Preset de parede refratária multicamada com condutividades diferentes. |
+| `furnace_combustion_zone` | função | `(T_flame=2200.0, T_wall=1600.0, rho_flue=0.24, nu_flue=0.0002, U_inlet=5.0, furnace_lengt…)` | Preset simplificado de zona de combustão com liberação volumétrica de calor. |
+| `datacenter_airflow_2d` | função | `(U_cold_aisle=2.5, T_cold_air=291.0, T_hot_max=318.0, Q_rack=20000.0, rack_height=2.0, ra…)` | Preset 2D de resfriamento de fileira de racks (corredor frio/quente). |
+| `datacenter_server_thermal` | função | `(Q_cpu=250.0, Q_gpu=400.0, Q_ram=20.0, T_inlet_air=295.0, U_fan=3.0, h_forced=120.0, k_bo…)` | Preset 2D de placa de servidor com condução e convecção forçada. |
+| `datacenter_cfd_3d` | função | `(room_length=20.0, room_width=10.0, room_height=3.0, n_racks=20, Q_per_rack=15000.0, T_su…)` | Preset 3D simplificado de sala de data center para prever pontos quentes. |
 
 #### `pinneapple_physics.pde_environment.presets.industry`
 
-_Módulo sem docstring e sem texto._
+Presets industriais 3D/2D genéricos: condução de calor permanente e transiente, elasticidade linear, Darcy, Helmholtz acústico, onda ultrassônica e reação-difusão. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/industry.py` · 347 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `steady_heat_conduction_3d_default` | função | `() -> ProblemSpec` |  |
-| `transient_heat_3d_default` | função | `() -> ProblemSpec` |  |
-| `linear_elasticity_3d_default` | função | `() -> ProblemSpec` |  |
-| `darcy_pressure_only_3d_default` | função | `() -> ProblemSpec` |  |
-| `helmholtz_acoustics_3d_default` | função | `() -> ProblemSpec` |  |
-| `wave_ultrasound_3d_default` | função | `() -> ProblemSpec` |  |
-| `reaction_diffusion_2d_default` | função | `() -> ProblemSpec` |  |
+| `steady_heat_conduction_3d_default` | função | `() -> ProblemSpec` | Preset de condução de calor 3D permanente (tipo 'poisson'). |
+| `transient_heat_3d_default` | função | `() -> ProblemSpec` | Preset de equação do calor 3D transiente. |
+| `linear_elasticity_3d_default` | função | `() -> ProblemSpec` | Preset de elasticidade linear 3D com constantes de Lamé unitárias. |
+| `darcy_pressure_only_3d_default` | função | `() -> ProblemSpec` | Preset de Darcy 3D só com pressão. |
+| `helmholtz_acoustics_3d_default` | função | `() -> ProblemSpec` | Preset de Helmholtz 3D para acústica. |
+| `wave_ultrasound_3d_default` | função | `() -> ProblemSpec` | Preset de equação da onda 3D (ultrassom). |
+| `reaction_diffusion_2d_default` | função | `() -> ProblemSpec` | Preset de reação-difusão 2D montado como equação do calor; o termo de reação deve vir de `ctx['source_fn']`. |
 
 #### `pinneapple_physics.pde_environment.presets.multidisciplinary`
 
-Multidisciplinary problem presets.
+Presets multidisciplinares: água rasa atmosférica, giro oceânico de Stommel, fônons, fratura por campo de fase, Black-Scholes, Heston, farmacocinética, difusão de fármaco, SIR e dinâmica de opinião. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/multidisciplinary.py` · 1.100 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `climate_atmosphere_2d` | função | `(g=9.81, f=0.0001, H0=1000.0, U_ref=10.0, lon_min=0.0, lon_max=360.0, lat_min=-90.0, lat_…)` | 2D shallow water equations for atmospheric dynamics. |
-| `climate_ocean_gyre` | função | `(beta=2e-11, tau0=0.1, r=1e-07, rho0=1025.0, H=500.0, L=1000000.0, W=500000.0) -> Problem…)` | Ocean gyre circulation — Stommel beta-plane model. |
-| `crystal_phonon` | função | `(k=150.0, tau=1e-12, vg=3000.0, T_hot=320.0, T_cold=280.0, L_domain=1e-06) -> ProblemSpec` | Phonon transport / lattice dynamics in 1D — simplified Boltzmann transport. |
-| `material_fracture_2d` | função | `(E=210000000000.0, nu=0.3, Gc=2700.0, l0=0.005, Lx=1.0, Ly=1.0) -> ProblemSpec` | Phase-field fracture model 2D — Bourdin-Francfort-Marigo formulation. |
-| `black_scholes_1d` | função | `(sigma=0.2, r=0.05, K=100.0, T=1.0) -> ProblemSpec` | Black-Scholes PDE for European call option pricing. |
-| `heston_pde_2d` | função | `(kappa=2.0, theta=0.04, sigma_v=0.3, rho=-0.7, r=0.05, K=100.0, T=1.0, S_max=300.0, v_max…)` | Heston stochastic volatility PDE for European option pricing (2D). |
-| `pk_two_compartment` | função | `(k12=0.5, k21=0.3, kel=0.2, V1=10.0, dose=500.0, t_end=24.0) -> ProblemSpec` | Two-compartment pharmacokinetic (PK) model — ODE system. |
-| `drug_diffusion_tissue` | função | `(D=1e-10, lam=5e-05, C0=1.0, Lx=0.01, Ly=0.005, t_end=3600.0) -> ProblemSpec` | Drug diffusion and first-order metabolism in 2D tissue. |
-| `sir_epidemic` | função | `(beta=0.3, gamma=0.1, N=1000000.0, I0=100.0, t_end=200.0) -> ProblemSpec` | SIR epidemic model — ODE system. |
-| `opinion_dynamics_2d` | função | `(D=0.01, alpha=1.0, Lx=1.0, Ly=1.0, t_end=10.0) -> ProblemSpec` | 2D spatial opinion dynamics PDE — continuum Hegselmann-Krause model. |
+| `climate_atmosphere_2d` | função | `(g=9.81, f=0.0001, H0=1000.0, U_ref=10.0, lon_min=0.0, lon_max=360.0, lat_min=-90.0, lat_…)` | Preset de água rasa 2D para dinâmica atmosférica. |
+| `climate_ocean_gyre` | função | `(beta=2e-11, tau0=0.1, r=1e-07, rho0=1025.0, H=500.0, L=1000000.0, W=500000.0) -> Problem…)` | Preset de giro oceânico pelo modelo de Stommel no plano beta. |
+| `crystal_phonon` | função | `(k=150.0, tau=1e-12, vg=3000.0, T_hot=320.0, T_cold=280.0, L_domain=1e-06) -> ProblemSpec` | Preset 1D de transporte de fônons (Boltzmann simplificado). |
+| `material_fracture_2d` | função | `(E=210000000000.0, nu=0.3, Gc=2700.0, l0=0.005, Lx=1.0, Ly=1.0) -> ProblemSpec` | Preset 2D de fratura por campo de fase (Bourdin-Francfort-Marigo). |
+| `black_scholes_1d` | função | `(sigma=0.2, r=0.05, K=100.0, T=1.0) -> ProblemSpec` | Preset da EDP de Black-Scholes para opção de compra europeia. |
+| `heston_pde_2d` | função | `(kappa=2.0, theta=0.04, sigma_v=0.3, rho=-0.7, r=0.05, K=100.0, T=1.0, S_max=300.0, v_max…)` | Preset da EDP de Heston (volatilidade estocástica) 2D. |
+| `pk_two_compartment` | função | `(k12=0.5, k21=0.3, kel=0.2, V1=10.0, dose=500.0, t_end=24.0) -> ProblemSpec` | Preset de farmacocinética de dois compartimentos (sistema de EDOs). |
+| `drug_diffusion_tissue` | função | `(D=1e-10, lam=5e-05, C0=1.0, Lx=0.01, Ly=0.005, t_end=3600.0) -> ProblemSpec` | Preset 2D de difusão de fármaco com metabolismo de primeira ordem. |
+| `sir_epidemic` | função | `(beta=0.3, gamma=0.1, N=1000000.0, I0=100.0, t_end=200.0) -> ProblemSpec` | Preset do modelo epidêmico SIR (sistema de EDOs). |
+| `opinion_dynamics_2d` | função | `(D=0.01, alpha=1.0, Lx=1.0, Ly=1.0, t_end=10.0) -> ProblemSpec` | Preset 2D de dinâmica de opinião (Hegselmann-Krause contínuo). |
 
 #### `pinneapple_physics.pde_environment.presets.registry`
 
-Registry mapping problem preset names to factory functions.
+Registro que mapeia nomes de presets para funções fábrica, com decorador de registro, criação por nome e listagem.
 
 <small>`pinneapple_physics/pde_environment/presets/registry.py` · 106 linhas · testes: 119</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register_preset` | função | `(name)` | Decorator to register a preset factory function by name. |
-| `get_preset` | função | `(name, **kwargs) -> ProblemSpec` | Instantiate a problem preset by name. |
-| `list_presets` | função | `() -> List[str]` | Return sorted list of all registered preset names. |
+| `register_preset` | função | `(name)` | Decorador que registra uma função fábrica de preset por nome. |
+| `get_preset` | função | `(name, **kwargs) -> ProblemSpec` | Cria um preset pelo nome, repassando argumentos. |
+| `list_presets` | função | `() -> List[str]` | Lista ordenada de todos os presets registrados. |
 
 #### `pinneapple_physics.pde_environment.presets.solid_mechanics`
 
-Solid mechanics presets — elasticity, axisymmetric, contact problems.
+Presets de mecânica dos sólidos: elasticidade axissimétrica, cilindro de parede grossa de Lamé (com solução analítica) e acoplamento roscado TC50 (corpos BOX e PIN, carga combinada). [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/solid_mechanics.py` · 669 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `axisymmetric_linear_elasticity_2d_default` | função | `(r_min=10.0, r_max=50.0, z_min=0.0, z_max=100.0, E=210000000000.0, nu=0.3, p_inner=0.0, p…)` | 2D axisymmetric linear elasticity in (r, z) coordinates. |
-| `thick_walled_cylinder_lame_default` | função | `(a=20.0, b=60.0, L=100.0, p_a=100000000.0, p_b=0.0, E=210000000000.0, nu=0.3) -> ProblemS…)` | Thick-walled hollow cylinder under internal/external pressure (Lamé problem). |
-| `lame_analytical` | função | `(r, a, b, p_a, p_b, E, nu) -> dict` | Lamé analytical solution for thick-walled cylinder. |
-| `threaded_coupling_tc50_box_default` | função | `(clearance=0.1, thread_height=0.8, offset=1.0, E=210000000000.0, nu=0.3, traction_top=100…)` | 2D axisymmetric FEM preset for TC50 threaded coupling BOX body. |
-| `threaded_coupling_tc50_rotating_default` | função | `(body='BOX', E=210000000000.0, nu=0.3, p_inner=20000000.0, F_axial=500000.0, T_torque=400…)` | TC50 threaded coupling under combined loading. |
-| `threaded_coupling_tc50_pin_default` | função | `(thread_height=0.8, E=210000000000.0, nu=0.3, traction_top=100000000.0) -> ProblemSpec` | TC50 threaded coupling PIN body — same physics as BOX, different geometry bounds. |
+| `axisymmetric_linear_elasticity_2d_default` | função | `(r_min=10.0, r_max=50.0, z_min=0.0, z_max=100.0, E=210000000000.0, nu=0.3, p_inner=0.0, p…)` | Preset de elasticidade linear axissimétrica em (r, z). |
+| `thick_walled_cylinder_lame_default` | função | `(a=20.0, b=60.0, L=100.0, p_a=100000000.0, p_b=0.0, E=210000000000.0, nu=0.3) -> ProblemS…)` | Preset do cilindro de parede grossa sob pressão (problema de Lamé). |
+| `lame_analytical` | função | `(r, a, b, p_a, p_b, E, nu) -> dict` | Solução analítica de Lamé para o cilindro de parede grossa. |
+| `threaded_coupling_tc50_box_default` | função | `(clearance=0.1, thread_height=0.8, offset=1.0, E=210000000000.0, nu=0.3, traction_top=100…)` | Preset 2D axissimétrico do corpo BOX de um acoplamento roscado TC50. |
+| `threaded_coupling_tc50_rotating_default` | função | `(body='BOX', E=210000000000.0, nu=0.3, p_inner=20000000.0, F_axial=500000.0, T_torque=400…)` | Preset do acoplamento TC50 sob carga combinada (pressão, força axial, torque, rotação). |
+| `threaded_coupling_tc50_pin_default` | função | `(thread_height=0.8, E=210000000000.0, nu=0.3, traction_top=100000000.0) -> ProblemSpec` | Preset do corpo PIN do acoplamento TC50 (mesma física do BOX, outra geometria). |
 
 #### `pinneapple_physics.pde_environment.presets.structural`
 
-Structural mechanics problem presets.
+Presets estruturais: estado plano de tensão e deformação, von Mises, elasticidade 3D, acoplamento rotativo sob torção e termoelasticidade 2D. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/structural.py` · 429 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plane_stress_2d_default` | função | `(E=210000000000.0, nu=0.3, load_x=0.0, load_y=-1000.0) -> ProblemSpec` | 2D plane stress linear elasticity. |
-| `plane_strain_2d_default` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | 2D plane strain linear elasticity (deep structures, dams, tunnels). |
-| `von_mises_2d_default` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | Plane stress with von Mises yield criterion as extra output field. |
-| `linear_elasticity_3d` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | 3D linear elasticity for brackets, frames, and general structures. |
-| `rotary_coupling_torsion_default` | função | `(E=210000000000.0, nu=0.3, r_inner=0.05, r_outer=0.08, torque=10000.0, axial_force=500000…)` | Rotary coupling under combined torsion and axial tension. |
-| `thermoelasticity_2d_default` | função | `(E=70000000000.0, nu=0.33, alpha_T=2.3e-05, dT=100.0) -> ProblemSpec` | 2D thermoelastic coupling: thermal expansion due to temperature change. |
+| `plane_stress_2d_default` | função | `(E=210000000000.0, nu=0.3, load_x=0.0, load_y=-1000.0) -> ProblemSpec` | Preset de elasticidade linear em estado plano de tensão. |
+| `plane_strain_2d_default` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | Preset de elasticidade linear em estado plano de deformação. |
+| `von_mises_2d_default` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | Preset de tensão plana com a tensão de von Mises como campo extra. |
+| `linear_elasticity_3d` | função | `(E=210000000000.0, nu=0.3) -> ProblemSpec` | Preset de elasticidade linear 3D para suportes e estruturas gerais. |
+| `rotary_coupling_torsion_default` | função | `(E=210000000000.0, nu=0.3, r_inner=0.05, r_outer=0.08, torque=10000.0, axial_force=500000…)` | Preset de acoplamento rotativo sob torção e tração axial combinadas. |
+| `thermoelasticity_2d_default` | função | `(E=70000000000.0, nu=0.33, alpha_T=2.3e-05, dT=100.0) -> ProblemSpec` | Preset 2D de termoelasticidade (expansão térmica por variação de temperatura). |
 
 #### `pinneapple_physics.pde_environment.presets.tag_geometry`
 
-Real-geometry fixtures for ``selector_type="tag"`` presets.
+Geometria real para presets com condições `selector_type="tag"`: só para presets cujo domínio é caixa ou cilindro descrito pelos próprios parâmetros; os demais continuam levantando `TagConditionsUnresolved` de propósito.
 
 <small>`pinneapple_physics/pde_environment/presets/tag_geometry.py` · 816 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_tag_batch` | função | `(name, spec, *, n_col=20000, n_bc_per_face=3000, seed=7, user_ctx=None)` | Build a real-geometry batch for preset ``name`` using its :data:`TAG_GEOMETRY_FIXTURES` entry. Raises ``KeyError`` if ``name`` has no fixture (i.e. it is one of the ``NOT_FIXABLE_WITHOUT_REAL_ GEOMETRY`` presets, or an untagged preset that needs no fixture at all). |
-| `tag_solve_kwargs` | função | `(name, spec, *, n_bc_per_face=1000, seed=7) -> Dict[str, Any]` | The extra ``solve_pde`` keyword arguments preset ``name`` needs: ``{}`` when ``spec`` has no ``selector_type="tag"`` condition, the :func:`build_tag_batch` geometry when it has a fixture here, and ``KeyError`` otherwise (the honest failure: no geometry is invented):: |
-| `solve_pde_kwargs_from_batch` | função | `(batch) -> Dict[str, Any]` | Strip the ``x_col`` key (``solve_pde`` samples its own collocation points from ``spec.domain_bounds`` and doesn't accept one) and convert numpy arrays to torch tensors, ready to splat into ``solve_pde(spec, model, **solve_pde_kwargs_from_batch(batch))``. |
-| `per_tag_losses` | função | `(spec, model, batch, *, w_pde=1.0, w_bc=10.0) -> dict[str, float]` | Every loss term of ``compile_problem(spec)`` for ``model`` on a :func:`build_tag_batch` batch, as floats: ``total``, ``pde`` and one entry per boundary condition (``bc_<name>``), so the per-tag masking can be seen to do distinct work. Numpy arrays of the batch are converted to torch tensors … |
-| `preset_name` | função | `(spec) -> str` | The registry key this spec came from: ``problem_id``, the ``meta["preset"]`` stamp :func:`~pinneapple_physics.pde_environment.presets.registry.get_preset` writes, or ``""``. |
-| `has_default_geometry` | função | `(spec) -> bool` | True when this spec's tag conditions can be satisfied by its own fixture. |
-| `default_geometry` | função | `(spec, *, n_bc_per_face=1000, seed=7) -> Dict[str, Any]` | The ``solve_pde`` keyword arguments that satisfy this spec's tag conditions with the preset's own box or cylinder geometry, or ``{}`` when the spec has no fixture. |
-| `default_geometry_report` | função | `(spec) -> str` | One line for a card or a log: which geometry a preset uses for its tagged boundaries. |
+| `build_tag_batch` | função | `(name, spec, *, n_col=20000, n_bc_per_face=3000, seed=7, user_ctx=None)` | Monta um lote com geometria real para um preset com fixture; KeyError se não houver fixture. |
+| `tag_solve_kwargs` | função | `(name, spec, *, n_bc_per_face=1000, seed=7) -> Dict[str, Any]` | Argumentos extras de `solve_pde` que um preset precisa: vazio sem tags, a geometria da fixture, ou KeyError. |
+| `solve_pde_kwargs_from_batch` | função | `(batch) -> Dict[str, Any]` | Tira `x_col` do lote e converte arrays NumPy em tensores torch para passar a `solve_pde`. |
+| `per_tag_losses` | função | `(spec, model, batch, *, w_pde=1.0, w_bc=10.0) -> dict[str, float]` | Cada termo de perda de `compile_problem(spec)` num lote (total, EDP e um por condição), como floats. |
+| `preset_name` | função | `(spec) -> str` | Chave de registro de onde a spec veio (`problem_id` ou `meta['preset']`), ou vazio. |
+| `has_default_geometry` | função | `(spec) -> bool` | Diz se as condições com tag da spec podem ser satisfeitas pela própria fixture. |
+| `default_geometry` | função | `(spec, *, n_bc_per_face=1000, seed=7) -> Dict[str, Any]` | Argumentos de `solve_pde` que satisfazem as tags com a caixa ou cilindro do preset, ou vazio. |
+| `default_geometry_report` | função | `(spec) -> str` | Uma linha dizendo qual geometria um preset usa para suas fronteiras com tag. |
 
 #### `pinneapple_physics.pde_environment.presets.terramechanics`
 
-Terramechanics physics residuals and preset for Bekker-Wong PINN surrogate.
+Resíduos físicos e preset do substituto PINN de Bekker-Wong (interação roda-solo) em terramecânica. [sem teste direto]
 
 <small>`pinneapple_physics/pde_environment/presets/terramechanics.py` · 200 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TerramechanicsResiduals` | classe | `(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06, n_phys=256, R_factor=0.06, slip_range=(0…)` | Physics residuals for the Bekker-Wong PINN surrogate. |
-| `bekker_wong_surrogate_2d` | função | `(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06) -> ProblemSpec` | Return a ProblemSpec for the 2-D Bekker-Wong PINN surrogate. |
+| `TerramechanicsResiduals` | classe | `(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06, n_phys=256, R_factor=0.06, slip_range=(0…)` | Resíduos físicos chamáveis do substituto PINN de Bekker-Wong (parâmetros do solo e da roda, faixas de escorregamento e afundamento). |
+| `bekker_wong_surrogate_2d` | função | `(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06) -> ProblemSpec` | Devolve o `ProblemSpec` do substituto PINN 2D de Bekker-Wong. |
 
 #### `pinneapple_physics.pde_environment.presets.turbomachinery`
 
-Turbomachinery problem presets.
+Presets de turbomáquinas: análise de linha média de compressor axial multiestágio, cascata 2D de Euler compressível e estágio 3D em coordenadas cilíndricas.
 
 <small>`pinneapple_physics/pde_environment/presets/turbomachinery.py` · 480 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `axial_compressor_meanline` | função | `(num_stages=5, pressure_ratio=3.0, mass_flow_rate=4.37, rpm=10000.0, inlet_total_pressure…)` | 1D mean-line thermodynamic analysis of a multi-stage axial compressor. |
-| `axial_compressor_cascade_2d` | função | `(inlet_mach=0.5, flow_angle_in_deg=50.0, flow_angle_out_deg=20.0, chord=0.1, pitch_to_cho…)` | 2D compressible Euler flow through an axial compressor blade cascade. |
-| `axial_compressor_stage_3d` | função | `(rpm=10000.0, pressure_ratio_stage=1.4, mass_flow_rate=4.37, hub_radius=0.1, tip_radius=0…)` | 3D single compressor stage in cylindrical coordinates (r, theta, z). |
+| `axial_compressor_meanline` | função | `(num_stages=5, pressure_ratio=3.0, mass_flow_rate=4.37, rpm=10000.0, inlet_total_pressure…)` | Preset 1D de linha média termodinâmica de compressor axial multiestágio. |
+| `axial_compressor_cascade_2d` | função | `(inlet_mach=0.5, flow_angle_in_deg=50.0, flow_angle_out_deg=20.0, chord=0.1, pitch_to_cho…)` | Preset 2D de Euler compressível numa cascata de pás de compressor. |
+| `axial_compressor_stage_3d` | função | `(rpm=10000.0, pressure_ratio_stage=1.4, mass_flow_rate=4.37, hub_radius=0.1, tip_radius=0…)` | Preset 3D de um estágio de compressor em coordenadas cilíndricas. |
 
 #### `pinneapple_physics.pde_environment.scales`
 
-_Módulo sem docstring e sem texto._
+`ScaleSpec`: parâmetros mínimos e opcionais de adimensionalização (L, U, alpha).
 
 <small>`pinneapple_physics/pde_environment/scales.py` · 18 linhas · testes: 69</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ScaleSpec` | classe | `(L, U, alpha)` | Optional nondimensionalization / scaling parameters. Keep minimal; advanced scaling can be built later. |
+| `ScaleSpec` | classe | `(L, U, alpha)` | Parâmetros opcionais de escala: comprimento, velocidade e difusividade característicos. |
 
 #### `pinneapple_physics.pde_environment.spec`
 
-_Módulo sem docstring e sem texto._
+Dataclasses centrais `PDETermSpec` (descritor da EDP para o compilador) e `ProblemSpec` (especificação completa do problema).
 
 <small>`pinneapple_physics/pde_environment/spec.py` · 51 linhas · testes: 154</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PDETermSpec` | classe | `(kind, fields, coords, params, meta)` | PDE descriptor used by the compiler. |
-| `ProblemSpec` | classe | `(name, dim, coords, fields, pde, conditions, sample_defaults, scales, field_ranges, refer…)` | Complete problem specification. |
+| `PDETermSpec` | classe | `(kind, fields, coords, params, meta)` | Descritor da EDP usado pelo compilador: tipo, campos, coordenadas, parâmetros e metadados. |
+| `ProblemSpec` | classe | `(name, dim, coords, fields, pde, conditions, sample_defaults, scales, field_ranges, refer…)` | Especificação completa do problema: dimensão, coordenadas, campos, EDP, condições, amostragem, escalas, limites do domínio, solver e metadados. |
 
 #### `pinneapple_physics.pde_environment.turbulence_presets`
 
-RANS/LES turbulence closure presets for PINN training.
+Resíduos de fechamento de turbulência RANS/LES para treino de PINN: k-omega SST (2D/3D), Spalart-Allmaras e WALE (LES 3D), mais seleção por nome.
 
 <small>`pinneapple_physics/pde_environment/turbulence_presets.py` · 992 linhas · testes: 49</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KOmegaSSTResiduals` | classe | `(nu=1e-05, rho=1.0, consts=None) -> None` | k-omega SST two-equation turbulence model residuals for PINN. |
-| `SpalartAllmarasResiduals` | classe | `(nu=1e-05) -> None` | Spalart-Allmaras one-equation turbulence model residuals. |
-| `WALEResiduals` | classe | `(nu=1e-05, cw=0.325, delta=1.0, spatial_indices=(0, 1, 2), t_index=3) -> None` | WALE (Wall-Adapting Local Eddy-viscosity) subgrid closure for filtered incompressible Navier-Stokes -- Nicoud & Ducros (1999) -- as an algebraic (no transport equation) 3D LES residual. |
-| `get_rans_preset` | função | `(model_name='k-omega-sst', **kwargs)` | Get a RANS/LES turbulence closure residual object by name. |
+| `KOmegaSSTResiduals` | classe | `(nu=1e-05, rho=1.0, consts=None) -> None` | Resíduos do modelo k-omega SST (RANS) para PINN, em 2D ou 3D conforme a entrada, com viscosidade turbulenta e resíduos de canal. |
+| `SpalartAllmarasResiduals` | classe | `(nu=1e-05) -> None` | Resíduos do modelo de uma equação de Spalart-Allmaras. |
+| `WALEResiduals` | classe | `(nu=1e-05, cw=0.325, delta=1.0, spatial_indices=(0, 1, 2), t_index=3) -> None` | Fechamento de subgrade WALE (Nicoud & Ducros 1999) como resíduo LES algébrico 3D. |
+| `get_rans_preset` | função | `(model_name='k-omega-sst', **kwargs)` | Cria um objeto de resíduo de turbulência pelo nome; ValueError para nome desconhecido. |
 
 #### `pinneapple_physics.pde_environment.turbulence_selector`
 
-Unified turbulence-model selector.
+Seletor unificado de modelo de turbulência: só despacho e validação sobre os resíduos PINN de `turbulence_presets` e o parâmetro Smagorinsky `Cs` dos solvers LBM; não implementa física nova.
 
 <small>`pinneapple_physics/pde_environment/turbulence_selector.py` · 171 linhas · testes: 26</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TurbulenceModel` | classe | `()` | Turbulence closure selector. |
-| `get_turbulence_closure` | função | `(model, dim=3, solver_family='pinn', **kwargs) -> Optional[Any]` | Return the right turbulence closure object/parameter for a solver family. |
+| `TurbulenceModel` | classe | `()` | Enum dos fechamentos disponíveis (laminar, k-omega SST, WALE, Smagorinsky). |
+| `get_turbulence_closure` | função | `(model, dim=3, solver_family='pinn', **kwargs) -> Optional[Any]` | Devolve o objeto de fechamento certo (PINN) ou o `Cs` (LBM) para a família de solver; ValueError para combinação não suportada. |
 
 #### `pinneapple_physics.physical_problem`
 
@@ -2234,78 +2236,78 @@ Axisymmetric linear elasticity in cylindrical coordinates ``(r, z)``, by autogra
 
 #### `pinneapple_physics.symbolic_pde`
 
-pinneapple_symbolic — Symbolic PDE compiler for PINNeAPPle.
+Compilador simbólico de EDP: transforma resíduos SymPy em funções PyTorch com autograd e oferece condições de contorno rígidas e suaves; reexporta `SymbolicPDE`, `HardBC` etc. [sem teste direto do __init__]
 
 <small>`pinneapple_physics/symbolic_pde/__init__.py` · 52 linhas · **sem teste direto**</small>
 
 #### `pinneapple_physics.symbolic_pde.bc`
 
-Boundary condition enforcement for PINNeAPPle symbolic PDE module.
+Imposição de condições de contorno: rígidas por construção (`HardBC` com função distância, `PeriodicBC`, `MultiPeriodicBC`) e suaves por penalidade (`DirichletBC`, `NeumannBC`). [sem teste direto]
 
 <small>`pinneapple_physics/symbolic_pde/bc.py` · 447 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HardBC` | classe | `(distance_fn, bc_value_fn) -> None` | Hard boundary condition enforcement via a distance-function ansatz. |
-| `PeriodicBC` | classe | `(period, dim=0) -> None` | Periodic boundary condition enforcement via coordinate transformation. |
-| `MultiPeriodicBC` | classe | `(periods) -> None` | Exact periodic-BC embedding for two or more coordinate axes at once. |
-| `DirichletBC` | classe | `(value_fn, boundary_fn=None, weight=1.0) -> None` | Soft Dirichlet boundary condition via an MSE penalty term. |
-| `NeumannBC` | classe | `(flux_fn, normal_fn, boundary_fn=None, weight=1.0) -> None` | Soft Neumann boundary condition via autograd normal derivative. |
+| `HardBC` | classe | `(distance_fn, bc_value_fn) -> None` | Condição de contorno rígida por função distância: u = g + phi * rede, satisfeita exatamente; embrulha o modelo. |
+| `PeriodicBC` | classe | `(period, dim=0) -> None` | Periodicidade exata numa coordenada por mudança de variável (seno/cosseno). |
+| `MultiPeriodicBC` | classe | `(periods) -> None` | Periodicidade exata em dois ou mais eixos de uma vez. |
+| `DirichletBC` | classe | `(value_fn, boundary_fn=None, weight=1.0) -> None` | Condição de Dirichlet suave por penalidade MSE. |
+| `NeumannBC` | classe | `(flux_fn, normal_fn, boundary_fn=None, weight=1.0) -> None` | Condição de Neumann suave pela derivada normal via autograd. |
 
 #### `pinneapple_physics.symbolic_pde.compiler`
 
-Symbolic PDE compiler for PINNeAPPle.
+`SymbolicPDE`: percorre a árvore SymPy e avalia o resíduo com `torch.autograd.grad` (gradientes fluem pela expressão), ou em grade com diferenças finitas/espectral. Levanta NotImplementedError para tipos SymPy não suportados e para coordenada solta no modo grade.
 
 <small>`pinneapple_physics/symbolic_pde/compiler.py` · 771 linhas · testes: 5 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SymbolicPDE` | classe | `(expr, coord_syms, field_syms, param_syms=None, grad_method='autograd', grid=None) -> None` | Symbolic PDE residual — compile to a PyTorch autograd callable. |
-| `pde_from_sympy` | função | `(expr, coords, fields, params=None, grad_method='autograd', grid=None) -> SymbolicPDE` | Create a SymbolicPDE from a SymPy residual expression. |
-| `auto_residual` | função | `(model, coords_tensor, derivative_fns) -> Dict[str, torch.Tensor]` | Compute field values and named derivative quantities via autograd. |
+| `SymbolicPDE` | classe | `(expr, coord_syms, field_syms, param_syms=None, grad_method='autograd', grid=None) -> None` | Resíduo de EDP simbólico compilado para função PyTorch (autograd ou grade). |
+| `pde_from_sympy` | função | `(expr, coords, fields, params=None, grad_method='autograd', grid=None) -> SymbolicPDE` | Cria um `SymbolicPDE` a partir de uma expressão de resíduo SymPy. |
+| `auto_residual` | função | `(model, coords_tensor, derivative_fns) -> Dict[str, torch.Tensor]` | Calcula valores do campo e derivadas nomeadas via autograd. |
 
 #### `pinneapple_physics.symbolic_pde.gradient_backends`
 
-Pluggable derivative backends for :class:`SymbolicPDE`.
+Backends de derivada plugáveis para `SymbolicPDE` em dados de grade: mapeia coordenadas para eixos e compõe derivadas repetidas e mistas usando `fd_derivative`/`spectral_derivative` do PINO.
 
 <small>`pinneapple_physics/symbolic_pde/gradient_backends.py` · 130 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GridAxisSpec` | classe | `(coord_names, dims, L)` | Maps SymPy coordinate names to axes of a structured-grid field tensor. |
-| `grid_derivative` | função | `(field, wrt, *, grid, method) -> torch.Tensor` | Compute an arbitrary-order partial derivative of a grid-shaped field. |
+| `GridAxisSpec` | classe | `(coord_names, dims, L)` | Liga nomes de coordenadas SymPy a eixos e comprimentos de um tensor de campo em grade. |
+| `grid_derivative` | função | `(field, wrt, *, grid, method) -> torch.Tensor` | Derivada parcial de ordem qualquer de um campo em grade por diferenças finitas ou método espectral. |
 
 #### `pinneapple_physics.symbolic_pde.pinn`
 
-A parsed equation system (:mod:`.text`) as a :class:`~pinneapple_analysis.validation.pinn.PINNProblem`.
+Converte um sistema de equações analisado por `.text` num `PINNProblem` de `pinneapple_analysis`, com resíduo por autograd e coeficientes desconhecidos treináveis (PINN inverso).
 
 <small>`pinneapple_physics/symbolic_pde/pinn.py` · 194 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PINNWithParameters` | classe | `()` |  |
-| `pinn_problem` | função | `(system, bounds, *, coefficients=None, unknowns=None, width=32, depth=4, exact=None, name…)` | ``(PINNProblem, model)`` for ``system`` on the box ``bounds``. ``unknowns``: coefficient -> initial guess, trained with the network (read back with ``model.estimates()``). ``exact``: optional ``X -> (N, n_fields)``. |
-| `has_field` | função | `(expr) -> bool` |  |
+| `PINNWithParameters` | classe | `()` | Placeholder substituído na primeira utilização pela classe torch que junta a rede e os coeficientes treináveis do problema inverso. [placeholder] |
+| `pinn_problem` | função | `(system, bounds, *, coefficients=None, unknowns=None, width=32, depth=4, exact=None, name…)` | Monta `(PINNProblem, modelo)` para um sistema numa caixa, com coeficientes desconhecidos opcionais e solução exata opcional. |
+| `has_field` | função | `(expr) -> bool` | Diz se a expressão contém algum campo (função não definida do SymPy). |
 
 #### `pinneapple_physics.symbolic_pde.text`
 
-Equations as text, parsed safely into SymPy: ``"u_t = alpha*lap(u) + sin(pi*x)"``.
+Equações como texto, analisadas com segurança para SymPy via `ast` (sem `eval`/`sympify`): atalhos `u_t`, `u_xx`, `d(...)`, `lap(...)`, sistemas com condições, classificação de família e compilação sem `lambdify`.
 
 <small>`pinneapple_physics/symbolic_pde/text.py` · 486 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EquationSyntaxError` | classe | `()` | The text is not an equation this parser accepts (the message says what and where). |
-| `Context` | classe | `(coords, fields, time)` |  |
-| `Equation` | classe | `(text, lhs, rhs, coefficients, kind, on)` |  |
-| `EquationSystem` | classe | `(ctx, pdes, conditions, coefficients, unknowns)` |  |
-| `parse_expression` | função | `(text, ctx) -> tuple[sp.Expr, set[str]]` | ``text`` (no ``=``) as a SymPy expression, and the coefficient names it uses. |
-| `parse_equation` | função | `(text, ctx, *, kind='pde', on='') -> Equation` |  |
-| `parse_system` | função | `(pdes, conditions=None, *, coords, fields, coefficients=None, unknowns=None, time='t') ->…)` | Parse PDE texts and conditions (``{"kind", "on", "equation"}``) into an :class:`EquationSystem`. EquationSyntaxError names the first text that fails. |
-| `classify` | função | `(system) -> dict[str, Any]` | The PDE family of a single-field system (heat, wave, poisson, laplace, helmholtz, burgers, advection_diffusion, advection, reaction_diffusion, or ``custom``), its orders and linearity. |
-| `derivative_key` | função | `(dv) -> str` | Environment key of a field derivative: ``u__xx`` for ``u_xx`` (letters sorted). |
-| `derivative_keys` | função | `(expr) -> dict[str, tuple[str, str]]` | ``{key: (field, wrt letters)}`` for every field derivative in ``expr``. |
-| `compile_expr` | função | `(expr, backend='numpy')` | A function ``env -> value`` for ``expr`` built as a closure tree (no ``eval``, no ``lambdify``). |
+| `EquationSyntaxError` | classe | `()` | Erro de texto que não é uma equação aceita; a mensagem diz o quê e onde. |
+| `Context` | classe | `(coords, fields, time)` | Contexto de análise: coordenadas, campos e coordenada de tempo. |
+| `Equation` | classe | `(text, lhs, rhs, coefficients, kind, on)` | Uma equação analisada: texto, lados esquerdo e direito, coeficientes, tipo e onde vale; dá o resíduo e as derivadas. |
+| `EquationSystem` | classe | `(ctx, pdes, conditions, coefficients, unknowns)` | Sistema de EDPs e condições, com coeficientes e incógnitas; lista problemas, substitui valores e classifica. |
+| `parse_expression` | função | `(text, ctx) -> tuple[sp.Expr, set[str]]` | Analisa um texto sem '=' como expressão SymPy e devolve os coeficientes usados. |
+| `parse_equation` | função | `(text, ctx, *, kind='pde', on='') -> Equation` | Analisa um texto 'lhs = rhs' como `Equation`; uma EDP precisa envolver um campo. |
+| `parse_system` | função | `(pdes, conditions=None, *, coords, fields, coefficients=None, unknowns=None, time='t') ->…)` | Analisa textos de EDP e condições num `EquationSystem`; o erro nomeia o primeiro texto inválido. |
+| `classify` | função | `(system) -> dict[str, Any]` | Família de EDP de um sistema de um campo (calor, onda, Poisson, Burgers etc. ou 'custom'), ordens e linearidade. |
+| `derivative_key` | função | `(dv) -> str` | Chave de ambiente de uma derivada de campo (ex.: `u__xx`). |
+| `derivative_keys` | função | `(expr) -> dict[str, tuple[str, str]]` | Mapa chave -> (campo, letras) de todas as derivadas de campo na expressão. |
+| `compile_expr` | função | `(expr, backend='numpy')` | Função env -> valor construída como árvore de closures (sem eval nem lambdify). |
 
 #### `pinneapple_physics.tracking`
 
@@ -2472,6 +2474,38 @@ d_l = PTDimer(lambda x: 1.0 + 0.25 * x)
             drift = dc.darcy_checks(data["a"], u, DARCY["f"], tolerances=calibrated[m], physics_kind="drift")
 ```
 
+**EDP simbólica com condição de contorno rígida** — `examples/pinn_solver/03_symbolic_pde_hard_bc.py`
+
+```python
+    hard_bc = HardBC(distance_fn=phi, bc_value_fn=g_bc)
+
+    # ---- Base network (input: 2, output: 1) ----
+    base_net = MLP(in_dim=2, out_dim=1, width=width, depth=depth).to(device=device, dtype=dtype)
+
+    # ---- Wrapped model: satisfies u=0 on boundary by construction ----
+    model = hard_bc.wrap_model(base_net)
+
+    # ---- Residual function from SymPy expression ----
+    residual_fn = pde.to_residual_fn(model)
+```
+
+**Simular uma rodada de acreção** — `examples/black_hole_weather/simulate.py`
+
+```python
+    cfg = RIAFConfig(nr=a.nr, ntheta=a.ntheta, alpha=a.alpha, viscosity=a.viscosity, torus_a=a.torus_a, seed=a.seed,
+                     perturbation_kind=a.perturbation_kind, backend=a.backend, cfl=a.cfl)
+    simulate_run(cfg, os.path.join(a.out, a.name), t_end=a.t_end, every=a.every, chunk=a.chunk, name=a.name,
+                 log=lambda m: print(m, flush=True))
+```
+
+**Equação em texto (docstring de symbolic_pde.text)** — `pinneapple_physics/symbolic_pde/text.py`
+
+```python
+    sys_ = parse_system(["u_t = alpha*lap(u)"], [{"kind": "dirichlet", "on": "x_min", "equation": "u = 0"}],
+                        coords=["x", "t"], fields=["u"], coefficients={"alpha": 0.1})
+    sys_.classify()["family"]       # "heat"
+```
+
 ### Testes e status de validação
 
 - Módulos com pelo menos um teste que os importa: 114 de 166.
@@ -2499,6 +2533,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - `weather` trabalha na grade grossa 64 x 32 do WeatherBench2; as previsões publicadas para comparação existem só nas inicializações 00 e 12 UTC.
 - As correlações de `closed_form` valem nas faixas citadas nos docstrings e emitem avisos fora delas (por exemplo `particle_drag`, `pipe_flow`, `plate_fin_heatsink`); o `__init__` de `closed_form` não importa todos os módulos.
 - As classes de fechamento de `multiscale.closures` herdam de uma base interna cujo `nu_t` levanta `NotImplementedError`; `schema_adapter` declara premissas de MVP no próprio docstring.
+- Dependências opcionais: `sgp4` (satélites e comparação de decaimento), `pymsis` (NRLMSIS), `skyfield`/`skyfield_data` (kernel DE421, tabela IERS e validação), `numba` (backend rápido da hidrodinâmica), `playwright` (captura), `matplotlib` (figuras), `astropy` e `astroML` (bridges).
+- Várias funções de `astro` usam a rede (Open-Meteo, CelesTrak, NOAA SWPC, CDS hips2fits) e levantam erro sem conexão quando não há cache.
+- Módulos sem teste direto: `astro.astrometry`, `astro.nbody`, `astro.phenomena`, `astro.satellites`, `blackhole.hydro`, `blackhole.hydro_numba`, `blackhole.capture`, `blackhole.figures` e vários presets (`cfd`, `industry`, `multidisciplinary`, `solid_mechanics`, `structural`, `electromagnetics`, `terramechanics`).
+- `pde_environment/__init__.py` importa `drill_pipe_torsion_default` de `presets.structural`, mas o módulo define `rotary_coupling_torsion_default`; o `try/except ImportError` engole a falha e nenhum preset estrutural é reexportado pelo pacote.
+- `symbolic_pde.compiler` levanta NotImplementedError para tipos de expressão SymPy não suportados e para coordenada solta em expressões avaliadas no modo grade.
+- `tag_geometry` só fornece geometria para presets com domínio de caixa ou cilindro; os outros presets com condições por tag continuam levantando `TagConditionsUnresolved` de propósito.
+- `astroml_bridge` está marcado como deprecated no inventário: os periodogramas do astroML delegam ao `astropy` e emitem avisos de depreciação, que o módulo silencia.
+- Aproximações declaradas nos docstrings: magnitude de Saturno sem o termo dos anéis, nutação truncada (IAU 1980, termos acima de 5 mas), brilho do crepúsculo por ajuste linear, correção bolométrica de corpo negro; `capabilities.identify_pde` usa só contagem de palavras-chave.
 
 ## 2. `pinneapple_presets`
 

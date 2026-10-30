@@ -12,6 +12,14 @@ Solvers clássicos (FDM, FEM, FVM, espectral, SPH, LBM), pontes para solvers ext
 
 ### Objetivo
 
+`pinneapple_simulation` reúne os back-ends de simulação física da biblioteca e a geração de dados a partir deles. É onde ficam os solvers clássicos (diferenças finitas, elementos finitos, volumes finitos, lattice Boltzmann, métodos espectrais, partículas), as pontes para ferramentas externas (OpenFOAM, FEniCS, CalculiX, MATLAB, Modelica) e simuladores de domínio como dinâmica de partículas, multicorpos, terramecânica, veículos, eletromagnetismo e geofísica.
+
+O problema que resolve é duplo. Primeiro, dar soluções de referência confiáveis para conferir modelos aprendidos (PINNs, operadores neurais, surrogates); muitos módulos trazem verificações contra formas fechadas ou estudos de convergência. Segundo, gerar dados de treino: `generate_pinn_dataset` monta pontos de colocação, contorno e dados a partir de um `ProblemSpec`, e módulos como `operator_datasets`, `cylinder_wake` e `thermal_channel_datasets` geram os datasets do zoo.
+
+Esta parte cobre o `__init__` do pacote, `numerical_solvers` e `rover`. O `__init__` reexporta os solvers 3D, o registro, a dinâmica de partículas e as pontes externas, mantém os aliases antigos (`solvers`, `dynamics`, `integrations`; o antigo pacote `pinneapple_solvers` é um shim que aponta para `numerical_solvers`) e oferece `simulate`/`generate_data` por nome de cenário. `numerical_solvers` tem o `SolverRegistry`, que dá à Arena e aos pipelines de treino um catálogo único de solvers numéricos, de sinal e de partículas. `rover` é um rover lunar rocker-bogie com forças de Bekker-Wong e, em `rover.autolab`, a demo do Autonomous Physics Lab, que liga planejamento, simulação, estimação de solo e relatório de confiança.
+
+Ligações com o resto: o pacote de topo `pinneapple` reexporta símbolos daqui e dá acesso preguiçoso a `pp.solvers`, `pp.dynamics`, `pp.cfd` (escoamento externo no OpenFOAM), `pp.terramechanics`, `pp.vehicle` e outros. Os solvers leem `ProblemSpec` de `pinneapple_physics`, e `symbolic_fd` resolve sistemas escritos em texto pelo `parse_system` de `pinneapple_physics.symbolic_pde`. Os resultados de escoamento podem virar cenas 3D do studio de visualização de `pinneapple_tools`.
+
 Esta parte cobre três submódulos de `pinneapple_simulation`. `accelerated_foam` acelera as soluções de pressão do OpenFOAM trocando só o chute inicial do solver linear (plugin C++ `pinneWarmStart`, projeção/POD/rede aprendida em Python) e compara com o OpenFOAM puro na mesma tolerância. `electromagnetics` é uma biblioteca de eletromagnetismo em SI: referências em forma fechada, FEM 2-D em A_z, eletrostática, correntes parasitas, FDTD, ondas, Mie, máquinas elétricas (SPM e IPM, acionamento, térmica), antenas Vivaldi com solver externo, células periódicas e compact ranges por óptica física, com suítes de verificação. `geophysics` traz blocos do sistema terrestre verificados contra soluções conhecidas: águas rasas na esfera, equação de Richards e balanço de energia de duas camadas.
 
 Esta parte cobre quatro submódulos de `pinneapple_simulation`. `external_solvers` liga o PINNeAPPle a programas de simulação de fora (OpenFOAM, CalculiX, OpenRadioss, ANSYS Fluent, FEniCS, MATLAB, Modelica/FMI, MuJoCo, Genesis, NVIDIA Newton, FluidX3D, GeoTaichi, TurboDesigner) e lê formatos abertos de CFD/FEM; quase tudo termina num `PhysicalSample` (UPD) para treino e checagem. `flight` é um simulador de voo 6-DOF com aerodinâmica de vortex lattice, trim, piloto automático, decolagem e turbulência. `meshless` compara métodos sem malha (Kansa, RBF-FD, PINN) com FD e FEM no mesmo problema 2-D. `pipelines` encadeia FreeCAD, malha e OpenFOAM num fluxo reproduzível, com validação contra correlações publicadas, varredura e surrogate.
@@ -37,11 +45,11 @@ Pasta de testes dedicada: `tests/pinneapple_simulation` (16 funções de teste).
 | `geophysics` | Modelos do sistema terrestre: águas rasas na esfera, equação de Richards no solo e balanço de energia climático de duas camadas. | 4 | 19 | 11 |
 | `meshless` | Métodos sem malha e com malha resolvendo os mesmos problemas 2-D, e o estudo de refinamento que os compara. | 8 | 19 | 22 |
 | `multibody` | Árvore multicorpo de base flutuante com juntas de revolução e utilitários de braço de base fixa. | 3 | 18 | 45 |
-| `numerical_solvers` |  | 73 | 295 | 206 |
+| `numerical_solvers` | Solvers numéricos registráveis (FDM, FEM, FVM, LBM, espectral, SPH, X-TFC, decomposições de sinal), pontes OpenFOAM/FEniCS, casos prontos de escoamento e estruturas, e geradores de datasets. | 73 | 295 | 206 |
 | `particle_dynamics` | Simuladores de partículas diferenciáveis em PyTorch: corpos rígidos, MPM, GeoMPM, SPH e dinâmica molecular. | 8 | 21 | 151 |
 | `pipelines` | Pipelines de ponta a ponta que encadeiam CAD (FreeCAD), malhador e solver (OpenFOAM) num fluxo checado e reproduzível. | 14 | 59 | 14 |
 | `robot_sim` | Robôs simulados no NVIDIA Newton (com backend Isaac Sim) e checados contra o modelo multicorpo próprio. | 6 | 17 | 39 |
-| `rover` |  | 17 | 88 | 21 |
+| `rover` | Rover lunar rocker-bogie com terreno, contato Bekker-Wong, simulador quase-estático, verificações e visualização, mais a demo de laboratório autônomo em `rover.autolab`. | 17 | 88 | 21 |
 | `terramechanics` | Contato roda-solo para rovers: solos, Wong-Reece, terreno deformável, bancada e substitutos PINN. | 8 | 38 | 34 |
 | `vehicle` | Veículo planetário com rodas (VIPER) do spec ao CAD, simulação, dashboard e animação. | 8 | 28 | 38 |
 
@@ -51,14 +59,14 @@ Pasta de testes dedicada: `tests/pinneapple_simulation` (16 funções de teste).
 
 #### `pinneapple_simulation`
 
-pinneapple_simulation — Physics simulation back-ends and data generation.
+Ponto de entrada do pacote: reexporta solvers, dinâmica de partículas e pontes externas, mantém os aliases antigos (`solvers`, `dynamics`, `integrations`) e oferece `simulate`/`generate_data` por nome de cenário. [sem teste direto]
 
 <small>`pinneapple_simulation/__init__.py` · 163 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `simulate` | função | `(scenario, **kwargs) -> Any` | Run a named physics scenario and return its output. |
-| `generate_data` | função | `(scenario, n_samples=10, **kwargs) -> list` | Generate a list of simulation outputs for training data. |
+| `simulate` | função | `(scenario, **kwargs) -> Any` | Roda um cenário pelo nome (`heat_3d`, `ns_3d`, `mpm`, `sph`, ...): instancia a classe com os kwargs e chama `run` se existir; senão devolve a instância. |
+| `generate_data` | função | `(scenario, n_samples=10, **kwargs) -> list` | Chama `simulate` `n_samples` vezes e devolve a lista de saídas. |
 
 #### `pinneapple_simulation.accelerated_foam`
 
@@ -2204,952 +2212,952 @@ Braços seriais de base fixa sobre `MultibodyTree`: dinâmica inversa e direta, 
 
 #### `pinneapple_simulation.numerical_solvers`
 
-_Módulo sem docstring e sem texto._
+Reúne os solvers numéricos (FDM, FEM, FVM, LBM, espectral, partículas, decomposições de sinal, X-TFC) e reexporta o registro, o gerador de datasets PINN e os solvers 3D; as pontes OpenFOAM e FEniCS são importadas só se disponíveis.
 
 <small>`pinneapple_simulation/numerical_solvers/__init__.py` · 73 linhas · testes: 111</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `openfoam_available` | função | `() -> bool` | Return True if the OpenFOAM bridge is importable. |
-| `fenics_available` | função | `() -> bool` | Return True if the FEniCS bridge is importable. |
+| `openfoam_available` | função | `() -> bool` | Diz se a ponte OpenFOAM foi importada com sucesso. |
+| `fenics_available` | função | `() -> bool` | Diz se a ponte FEniCS foi importada com sucesso. |
 
 #### `pinneapple_simulation.numerical_solvers._bc`
 
-Read Dirichlet conditions of a ProblemSpec for grid / node-based solvers.
+Lê as condições de Dirichlet de um `ProblemSpec` e devolve índices e valores nos nós de uma malha ou grade, para os solvers baseados em grade. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/_bc.py` · 82 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `dirichlet_conditions` | função | `(spec) -> List` |  |
-| `select` | função | `(cond, pts, edges=None, boundary=None) -> torch.Tensor` | Indices of ``pts`` the condition applies to. |
-| `values` | função | `(cond, pts, field=0) -> torch.Tensor` | Dirichlet values at ``pts`` for one field (column ``field`` of a multi-field value_fn). |
-| `boundary_rect` | função | `(nodes, edges) -> torch.Tensor` |  |
+| `dirichlet_conditions` | função | `(spec) -> List` | Filtra as condições de tipo `dirichlet` de um `ProblemSpec`. |
+| `select` | função | `(cond, pts, edges=None, boundary=None) -> torch.Tensor` | Índices dos pontos aos quais uma condição se aplica. |
+| `values` | função | `(cond, pts, field=0) -> torch.Tensor` | Valores de Dirichlet nos pontos para um campo (coluna de um `value_fn` multicampo). |
+| `boundary_rect` | função | `(nodes, edges) -> torch.Tensor` | União dos índices de nós de todas as arestas de um retângulo. |
 
 #### `pinneapple_simulation.numerical_solvers.adapters`
 
-_Módulo sem docstring e sem texto._
+Pacote dos adaptadores UPD (malha e sinal) usados para alimentar os solvers. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/adapters/__init__.py` · 20 linhas · **sem teste direto**</small>
 
 #### `pinneapple_simulation.numerical_solvers.adapters.upd_mesh`
 
-UPD mesh adapter for solver inputs (vertices, faces, topology).
+Converte uma malha de superfície (vértices, faces) em topologia mínima de FVM ou em entradas de montagem FEM (nós e conectividade); versão MVP. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/adapters/upd_mesh.py` · 163 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `mesh_to_fvm_topology` | função | `(mesh, *, device=None, dtype=None) -> Dict[str, torch.Tensor]` | Build a minimal FVM topology from a surface mesh (triangles/quads). |
-| `mesh_to_fem_assembly_inputs` | função | `(mesh, *, device=None, dtype=None) -> Dict[str, torch.Tensor]` | Minimal FEM assembly inputs (MVP): - nodes (N,3) - elements (E,k) connectivity The actual K,f assembly is handled by user-provided assemble_fn (in FEMSolver). |
+| `mesh_to_fvm_topology` | função | `(mesh, *, device=None, dtype=None) -> Dict[str, torch.Tensor]` | Monta uma topologia FVM mínima a partir de uma malha de triângulos ou quadriláteros. |
+| `mesh_to_fem_assembly_inputs` | função | `(mesh, *, device=None, dtype=None) -> Dict[str, torch.Tensor]` | Devolve nós e conectividade para montagem FEM; a matriz K e o vetor f ficam por conta do usuário. |
 
 #### `pinneapple_simulation.numerical_solvers.adapters.upd_signal`
 
-UPD signal/sample adapter for solver field extraction and stacking.
+Extrai sinais 1D de campos físicos de objetos tipo `PhysicalSample` (duck typing) e empilha vários em lote com padding. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/adapters/upd_signal.py` · 184 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `list_field_vars` | função | `(sample) -> List[str]` | Tries to list available physical field variables from a PhysicalSample-like object. |
-| `list_signal_axes` | função | `(sample, var) -> List[str]` | Best-effort axis naming for a field. If sample has sample.axes[var] or sample.dims[var], use it. Fallback: ["dim0","dim1",...] |
-| `extract_1d_signal` | função | `(sample, *, var, axis=-1, reduce='mean', index=None, device=None, dtype=None) -> Tuple[to…)` | Extract a 1D signal from a (possibly multi-dim) physical field. |
-| `to_signal_batch` | função | `(samples, *, var, axis=-1, reduce='mean', index=None, device=None, dtype=None) -> Tuple[t…)` | Convert a list of samples into a padded batch tensor (B,Tmax). |
+| `list_field_vars` | função | `(sample) -> List[str]` | Lista as variáveis de campo de um objeto tipo `PhysicalSample`. |
+| `list_signal_axes` | função | `(sample, var) -> List[str]` | Nomes dos eixos de um campo, com fallback `dim0`, `dim1`, .... |
+| `extract_1d_signal` | função | `(sample, *, var, axis=-1, reduce='mean', index=None, device=None, dtype=None) -> Tuple[to…)` | Extrai um sinal 1D de um campo multidimensional por redução (média etc.) ou índice. |
+| `to_signal_batch` | função | `(samples, *, var, axis=-1, reduce='mean', index=None, device=None, dtype=None) -> Tuple[t…)` | Converte uma lista de amostras num tensor de lote (B, Tmax) com padding. |
 
 #### `pinneapple_simulation.numerical_solvers.base`
 
-Base SolverOutput and SolverBase for numerical solvers.
+Define `SolverOutput` (resultado, perdas, extras) e `SolverBase`, a classe base `nn.Module` de todos os solvers registrados.
 
 <small>`pinneapple_simulation/numerical_solvers/base.py` · 34 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SolverOutput` | classe | `(result, losses, extras)` | Standard output for solvers / numerical methods. result: - main output tensor (spectra, modes, field solution, etc.) extras: - metadata (freqs, imfs, diagnostics, residuals) |
-| `SolverBase` | classe | `()` | Base class for numerical solvers. |
+| `SolverOutput` | classe | `(result, losses, extras)` | Saída padrão dos solvers: tensor principal, perdas e metadados extras. |
+| `SolverBase` | classe | `()` | Classe base (`nn.Module`) dos solvers numéricos, com um utilitário `mse`. |
 
 #### `pinneapple_simulation.numerical_solvers.beam_bvp_fdm`
 
-Euler-Bernoulli beam deflection: 4th-order finite-difference solve of the beam BVP
+Viga de Euler-Bernoulli por diferenças finitas de 4ª ordem: deflexão, momento, cortante e tensões (flexão, cisalhamento, von Mises) para três tipos de apoio.
 
 <small>`pinneapple_simulation/numerical_solvers/beam_bvp_fdm.py` · 296 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SectionProps` | classe | `(I_m4, c_m, Q_m3, t_m, A_m2)` | Cross-section properties required for stress calculations. |
-| `BeamBVPFDMSolver` | classe | `(nx=200, bc_type=BC_SIMPLY_SUPPORTED)` | Thin `SolverBase`/registry wrapper. `solve_euler_bernoulli_beam_1d` is the primary entry point and can be used directly without this wrapper. |
-| `compute_stresses` | função | `(moment, shear, section)` | Bending stress (extreme fibre), shear stress (neutral axis), von Mises. |
-| `second_derivative` | função | `(f, dz) -> np.ndarray` | Second derivative of `f`, second-order accurate everywhere including the two boundary points (3-point central stencil in the interior, a 3-point one-sided stencil at each edge). |
-| `solve_euler_bernoulli_beam_1d` | função | `(L_m=10.0, E_Pa=200000000000.0, I_m4=8.33e-06, q_N_per_m=1000.0, nx=200, bc_type=BC_SIMPL…)` | Solve the 1D Euler-Bernoulli beam BVP EI*w''''=q under a uniform distributed load q_N_per_m, for one of the three BC_* boundary condition sets. `section` (default: an 0.10x0.10 m rectangular section) supplies the cross-section geometry used for the returned stresses -- pass a `SectionProps` built … |
+| `SectionProps` | classe | `(I_m4, c_m, Q_m3, t_m, A_m2)` | Propriedades da seção transversal para cálculo de tensões, com construtores para retângulo, retângulo vazado e círculos. |
+| `BeamBVPFDMSolver` | classe | `(nx=200, bc_type=BC_SIMPLY_SUPPORTED)` | Wrapper fino `SolverBase`/registro de `solve_euler_bernoulli_beam_1d`. |
+| `compute_stresses` | função | `(moment, shear, section)` | Tensão de flexão, de cisalhamento e de von Mises a partir de momento, cortante e seção. |
+| `second_derivative` | função | `(f, dz) -> np.ndarray` | Derivada segunda de 2ª ordem em todos os pontos, inclusive nas bordas. |
+| `solve_euler_bernoulli_beam_1d` | função | `(L_m=10.0, E_Pa=200000000000.0, I_m4=8.33e-06, q_N_per_m=1000.0, nx=200, bc_type=BC_SIMPL…)` | Resolve EI w'''' = q com carga uniforme para um dos três tipos de apoio e devolve deflexão, esforços e tensões. |
 
 #### `pinneapple_simulation.numerical_solvers.beam_fe`
 
-Euler-Bernoulli beam by Hermite finite elements: static deflection and natural modes.
+Viga de Euler-Bernoulli por elementos finitos de Hermite: deflexão estática sob carga uniforme e modos naturais (frequências e formas).
 
 <small>`pinneapple_simulation/numerical_solvers/beam_fe.py` · 74 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `beam_matrices` | função | `(L, EI, m, n_el)` | Global stiffness, consistent mass and node positions of a uniform beam. |
-| `beam_static` | função | `(L, EI, q, n_el=40, ends=('pinned', 'pinned')) -> dict` | Deflection under a uniform load ``q`` (N/m, positive down) with consistent nodal loads. |
-| `beam_modes` | função | `(L, EI, m, n_el=40, n_modes=4, ends=('pinned', 'pinned')) -> dict` | Natural frequencies (Hz) and mass-normalised mode shapes (deflection at the nodes). |
+| `beam_matrices` | função | `(L, EI, m, n_el)` | Matrizes globais de rigidez e massa consistente e posições dos nós de uma viga uniforme. |
+| `beam_static` | função | `(L, EI, q, n_el=40, ends=('pinned', 'pinned')) -> dict` | Deflexão sob carga uniforme com cargas nodais consistentes. |
+| `beam_modes` | função | `(L, EI, m, n_el=40, n_modes=4, ends=('pinned', 'pinned')) -> dict` | Frequências naturais (Hz) e formas modais normalizadas pela massa. |
 
 #### `pinneapple_simulation.numerical_solvers.bekker_wong`
 
-Bekker-Wong numerical solver for rigid-wheel / deformable-soil interaction.
+Solver numérico de Bekker-Wong para interação roda rígida / solo deformável: tensões no contato, forças (F_x, F_z, M_y), afundamento a partir da carga e geração de datasets; inclui versão em lote em PyTorch.
 
 <small>`pinneapple_simulation/numerical_solvers/bekker_wong.py` · 347 linhas · testes: 50</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BekkerWongSolver` | classe | `(soil=None, wheel=None, rear_angle_ratio=1.0 / 3.0)` | Numerical Bekker-Wong solver. |
-| `bekker_wong_forces_torch` | função | `(slip, z, *, R, b, c, tan_phi, K, k_c, k_phi, n, a0=0.4, a1=0.15, rear_angle_ratio=1.0 / …)` | Bekker-Wong (F_x, F_z, M_y) for batches, piecewise Gauss-Legendre on the three smooth sub-intervals [theta_r, min(0,theta_m)], [.., theta_m], [theta_m, theta_f]. |
+| `BekkerWongSolver` | classe | `(soil=None, wheel=None, rear_angle_ratio=1.0 / 3.0)` | Solver de Bekker-Wong para uma roda e um solo: tensões, forças, afundamento a partir da carga e geração de dataset. |
+| `bekker_wong_forces_torch` | função | `(slip, z, *, R, b, c, tan_phi, K, k_c, k_phi, n, a0=0.4, a1=0.15, rear_angle_ratio=1.0 / …)` | Forças (F_x, F_z, M_y) de Bekker-Wong em lote, por quadratura de Gauss-Legendre por partes em PyTorch. |
 
 #### `pinneapple_simulation.numerical_solvers.ceemdan`
 
-CEEMDAN: Complete Ensemble Empirical Mode Decomposition with Adaptive Noise.
+Decomposição CEEMDAN (EMD em conjunto com ruído adaptativo) para sinais 1D; o docstring diz que é uma versão aproximada. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/ceemdan.py` · 103 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CEEMDANSolver` | classe | `(n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None)` |  |
-| `ceemdan_1d` | função | `(x, *, n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None) -> np.ndarray` | Approximate CEEMDAN. Returns imfs (K,T). |
+| `CEEMDANSolver` | classe | `(n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None)` | Wrapper registrado de `ceemdan_1d`. |
+| `ceemdan_1d` | função | `(x, *, n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None) -> np.ndarray` | CEEMDAN aproximado; devolve as IMFs (K, T). |
 
 #### `pinneapple_simulation.numerical_solvers.cfd_pipeline`
 
-Full CAD-to-CFD pipeline: STEP/STL → mesh → Navier-Stokes solve.
+Pipeline CAD→CFD: carrega STEP/STL ou CSG, gera malha (gmsh se instalado, senão malha estruturada simples), resolve Navier-Stokes incompressível na malha e exporta dados de treino PINN.
 
 <small>`pinneapple_simulation/numerical_solvers/cfd_pipeline.py` · 954 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CFDMesh` | classe | `(nodes, elements, boundary_tags) -> None` | Unstructured mesh for CFD computations. |
-| `NSFlowSolver` | classe | `(mesh, nu=0.001, rho=1.0, solver='direct') -> None` | Mesh-native incompressible Navier-Stokes solver. |
-| `CADToCFDPipeline` | classe | `(nu=0.001, rho=1.0) -> None` | Full pipeline: CAD file → mesh → NS solve → PINN training data. |
+| `CFDMesh` | classe | `(nodes, elements, boundary_tags) -> None` | Malha não estruturada para CFD, criada de STL, STEP ou CSG, com nós de contorno e plot 2D. |
+| `NSFlowSolver` | classe | `(mesh, nu=0.001, rho=1.0, solver='direct') -> None` | Solver de Navier-Stokes incompressível na malha, com condições de contorno e exportação de dados PINN. |
+| `CADToCFDPipeline` | classe | `(nu=0.001, rho=1.0) -> None` | Pipeline completo: arquivo CAD → malha → solução NS → dados de treino PINN, com comparação contra um PINN. |
 
 #### `pinneapple_simulation.numerical_solvers.compressible_fv`
 
-Compressible Navier-Stokes / Euler finite-volume solver (2-D and 3-D Cartesian), PyTorch.
+Volumes finitos para Euler / Navier-Stokes compressível em 2D e 3D cartesianos (PyTorch), com Riemann HLLC e limitadores; inclui a solução exata do tubo de choque de Sod.
 
 <small>`pinneapple_simulation/numerical_solvers/compressible_fv.py` · 299 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CompressibleConfig` | classe | `(shape, lengths, gamma, Pr, mu_ref, omega, cfl, limiter, bc, inflow, p_out, device, dtype…)` |  |
-| `CompressibleFV` | classe | `(cfg)` |  |
-| `sod_exact` | função | `(x, t, left=(1.0, 0.0, 1.0), right=(0.125, 0.0, 0.1), gamma=1.4, x0=0.5)` | Exact solution of the 1-D Riemann problem (Toro, *Riemann Solvers and Numerical Methods for Fluid Dynamics*, 3rd ed., 2009, ch. 4); returns rho, u, p on x for ``left``/``right`` = (rho, u, p). |
+| `CompressibleConfig` | classe | `(shape, lengths, gamma, Pr, mu_ref, omega, cfl, limiter, bc, inflow, p_out, device, dtype…)` | Configuração do solver compressível: grade, gás, viscosidade, CFL, limitador, contornos e pisos de densidade/pressão. |
+| `CompressibleFV` | classe | `(cfg)` | Solver de volumes finitos compressível: conversões primitivas/conservativas, contornos, RHS, passo de tempo e número de Mach. |
+| `sod_exact` | função | `(x, t, left=(1.0, 0.0, 1.0), right=(0.125, 0.0, 0.1), gamma=1.4, x0=0.5)` | Solução exata do problema de Riemann 1D (Toro, cap. 4): rho, u, p. |
 
 #### `pinneapple_simulation.numerical_solvers.cylinder_wake`
 
-Confined cylinder wake with the D2Q9 lattice-Boltzmann solver: one run, its verification and the zoo dataset ``cylinder_wake_lbm``.
+Esteira de cilindro confinado com o LBM D2Q9: uma simulação, a verificação (perfil de canal e estudo de resolução) e a geração do dataset do zoo `cylinder_wake_lbm`.
 
 <small>`pinneapple_simulation/numerical_solvers/cylinder_wake.py` · 178 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `probe_strouhal` | função | `(signal, dt) -> float` | Strouhal number of a probe record sampled every ``dt`` convective units: strongest peak of the Hann-windowed, 4x zero-padded spectrum with Gaussian peak interpolation (a fraction of a bin). |
-| `simulate` | função | `(Re, D=SETUP['D'], height=SETUP['height'], length=SETUP['length'], u_in=SETUP['u_in'], co…)` | One run. Returns the setup, the convective times ``t`` and vorticity frames ``vorticity`` (n, nx, ny) of the last ``keep_time`` convective units (``None``: the second half of the run), the probe ``probe_uy`` (/U) over the same times, ``wake_amplitude`` (its rms), ``amplitude_growth`` (probe rms of … |
-| `verify` | função | `(Ds=(20, 30, 40), Re=100.0, channel_Re=2.0) -> dict` | Developed channel profile (plane Poiseuille; at ``channel_Re`` on D the entrance length is ~2.5 D, so the profile is developed 9 D downstream) on the dataset grid and a 2x coarser one, and the resolution study of the wake at ``Re``. At the dataset's Reynolds numbers the 12 D channel is far shorter … |
-| `generate` | função | `(out, workers=1, name='cylinder_wake_lbm') -> dict` | Run :data:`PLAN` and write ``out/<name>/<split>[-NN].npz`` (one row per snapshot) and ``meta.json``. |
+| `probe_strouhal` | função | `(signal, dt) -> float` | Número de Strouhal de um registro de sonda pelo pico do espectro com janela de Hann e interpolação gaussiana. |
+| `simulate` | função | `(Re, D=SETUP['D'], height=SETUP['height'], length=SETUP['length'], u_in=SETUP['u_in'], co…)` | Uma simulação da esteira: tempos, quadros de vorticidade, sonda e métricas da esteira. |
+| `verify` | função | `(Ds=(20, 30, 40), Re=100.0, channel_Re=2.0) -> dict` | Verificação: perfil de Poiseuille desenvolvido em duas grades e estudo de resolução da esteira. |
+| `generate` | função | `(out, workers=1, name='cylinder_wake_lbm') -> dict` | Roda o plano de simulações e grava os npz e o `meta.json` do dataset. |
 
 #### `pinneapple_simulation.numerical_solvers.dfsph`
 
-DFSPH: Divergence-Free SPH (Bender & Koschier 2015 / 2017).
+SPH livre de divergência (DFSPH, Bender & Koschier) com resolução de divergência e de densidade por passo. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/dfsph.py` · 317 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DFSPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, mu=0.02, gravity=None, boundary_lo=None, boundary_hi=None…)` | Divergence-Free SPH (DFSPH) solver. |
+| `DFSPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, mu=0.02, gravity=None, boundary_lo=None, boundary_hi=None…)` | Solver DFSPH com laços de correção de divergência e de densidade por passo. |
 
 #### `pinneapple_simulation.numerical_solvers.discrete_time_pinn`
 
-Discrete-time physics-informed neural network (PINN), per Raissi, Perdikaris & Karniadakis, "Physics Informed Deep Learning (Part II): Data-driven Discovery of Nonlinear Partial Differential Equations" (arXiv:1711.10566), Section 2 ("Discrete Time Models"), specialized here to the pure …
+PINN de tempo discreto (Raissi et al., Parte II) com Runge-Kutta implícito de q estágios para Burgers 1D e Allen-Cahn 1D, treinado com L-BFGS.
 
 <small>`pinneapple_simulation/numerical_solvers/discrete_time_pinn.py` · 408 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DiscreteTimeRKNet` | classe | `(q, hidden_layers=(50, 50, 50, 50), activation='tanh')` | x -> (q+1) discrete-time IRK network (Raissi et al. Part II, Section 2). Column i<q is the i-th RK stage prediction U_i(x); column q is the final-time prediction U_{q+1}(x). Plain tanh MLP, matching the original paper's architecture choice. |
-| `DiscreteTimeResult` | classe | `(model, A, b, c, q, dt, x_span, loss_history)` |  |
-| `DiscreteTimePINNSolver` | classe | `(pde='burgers_1d', q=32, hidden_layers=(30, 30, 30), activation='tanh', n_boundary=20, bc…)` | Thin `SolverBase`/registry wrapper around `train_discrete_time`. The functional API (`train_discrete_time`, `DiscreteTimeRKNet`, `stage_derivatives`, `discrete_time_rk_residual`) is the primary entry point. |
-| `stage_derivatives` | função | `(model, x)` | U(x), U_x(x), U_xx(x), each (N, q+1), via forward-mode AD. |
-| `discrete_time_rk_residual` | função | `(model, x, u_n_data, dt, A, b, nonlinear_op) -> 'tuple[torch.Tensor, torch.Tensor]'` | Stage and final-time IRK consistency residuals (module docstring point 4). Returns (res_stage, res_final), shapes (N, q) and (N, 1). |
-| `train_discrete_time` | função | `(pde, x_n, u_n, dt, q=32, x_span=None, hidden_layers=(30, 30, 30), activation='tanh', par…)` | Train a `DiscreteTimeRKNet` for one implicit-RK step of `pde` in {"burgers_1d", "allen_cahn_1d"}, from known data (x_n, u_n) at t_n to t_n + dt, via L-BFGS (module docstring point 5). |
+| `DiscreteTimeRKNet` | classe | `(q, hidden_layers=(50, 50, 50, 50), activation='tanh')` | Rede MLP tanh que prevê os q estágios RK e o estado final num ponto x. |
+| `DiscreteTimeResult` | classe | `(model, A, b, c, q, dt, x_span, loss_history)` | Resultado do treino: modelo, tabela RK, passo, histórico de perda e preditores de estágio e final. |
+| `DiscreteTimePINNSolver` | classe | `(pde='burgers_1d', q=32, hidden_layers=(30, 30, 30), activation='tanh', n_boundary=20, bc…)` | Wrapper fino `SolverBase`/registro de `train_discrete_time`. |
+| `stage_derivatives` | função | `(model, x)` | U, U_x e U_xx da rede em todos os estágios via AD em modo direto. |
+| `discrete_time_rk_residual` | função | `(model, x, u_n_data, dt, A, b, nonlinear_op) -> 'tuple[torch.Tensor, torch.Tensor]'` | Resíduos de consistência IRK dos estágios e do estado final. |
+| `train_discrete_time` | função | `(pde, x_n, u_n, dt, q=32, x_span=None, hidden_layers=(30, 30, 30), activation='tanh', par…)` | Treina a rede para um passo IRK de Burgers ou Allen-Cahn 1D a partir de dados em t_n, com L-BFGS. |
 
 #### `pinneapple_simulation.numerical_solvers.eddy_current_fdm`
 
-2D axisymmetric magnetostatic / eddy-current FDM solver.
+Diferenças finitas 2D axissimétricas para magnetostática e correntes parasitas: potencial vetor A_theta, densidade de corrente induzida e campo B_z.
 
 <small>`pinneapple_simulation/numerical_solvers/eddy_current_fdm.py` · 240 linhas · testes: 74</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EddyCurrentFDMSolver` | classe | `(nr=60, nz=120)` | Thin `SolverBase`/registry wrapper. The functional API (`solve_axisymmetric_eddy_current`, `build_axisymmetric_helmholtz_system`, `annular_current_source`) is the primary entry point and can be used directly without this wrapper. |
-| `build_axisymmetric_helmholtz_system` | função | `(r, z, k2, rhs_2d)` | Assemble the sparse complex system M @ a = b for the axisymmetric operator |
-| `annular_current_source` | função | `(r, z, r_center, z_center, width_z, width_r, n_turns, current_amp) -> np.ndarray` | Uniform azimuthal current density J_theta (A/m^2) in a rectangular annular band centered at (r_center, z_center) -- the standard lumped-coil approximation for an axisymmetric current loop / solenoid turn, used to drive the eddy-current or magnetostatic equation above. The band is ``\|z - z_center\| … |
-| `solve_axisymmetric_eddy_current` | função | `(r, z, omega, mu, sigma, source_current_density) -> np.ndarray` | Solve for the azimuthal vector potential A_theta(r,z) at angular frequency `omega` (rad/s), given material maps mu(r,z) [H/m] and sigma(r,z) [S/m] and a source current density J_source(r,z) [A/m^2], all as (len(r), len(z)) arrays matching the r,z grids. `omega=0` solves the magnetostatic limit (no … |
-| `eddy_current_density` | função | `(A, omega, sigma) -> np.ndarray` | Induced eddy-current density J_theta = -i*omega*sigma*A, given the solved vector potential A and the same sigma(r,z) map used to solve it. |
-| `axial_flux_density` | função | `(A, r, z) -> np.ndarray` | B_z(r,z) = (1/r) d(r*A)/dr = A/r + dA/dr, computed via central differences (the axisymmetric curl relating A_theta to the axial field component). Complex A gives the complex phasor B_z (in-phase and quadrature parts); A = B0 r / 2 gives B_z = B0, on the axis too. |
+| `EddyCurrentFDMSolver` | classe | `(nr=60, nz=120)` | Wrapper fino `SolverBase`/registro do solver axissimétrico de correntes parasitas. |
+| `build_axisymmetric_helmholtz_system` | função | `(r, z, k2, rhs_2d)` | Monta o sistema esparso complexo do operador axissimétrico. |
+| `annular_current_source` | função | `(r, z, r_center, z_center, width_z, width_r, n_turns, current_amp) -> np.ndarray` | Densidade de corrente azimutal uniforme numa faixa anular (aproximação de bobina concentrada). |
+| `solve_axisymmetric_eddy_current` | função | `(r, z, omega, mu, sigma, source_current_density) -> np.ndarray` | Resolve o potencial vetor A_theta(r, z) para uma frequência; omega = 0 dá o caso magnetostático. |
+| `eddy_current_density` | função | `(A, omega, sigma) -> np.ndarray` | Corrente parasita induzida J = -i omega sigma A. |
+| `axial_flux_density` | função | `(A, r, z) -> np.ndarray` | Campo B_z a partir de A_theta por diferenças centrais. |
 
 #### `pinneapple_simulation.numerical_solvers.eemd`
 
-EEMD: Ensemble Empirical Mode Decomposition.
+EMD simples e EEMD (EMD em conjunto) para sinais 1D. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/eemd.py` · 167 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EEMDSolver` | classe | `(n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None)` |  |
-| `emd_1d` | função | `(x, *, max_imfs=10, max_sift=50, stop_thresh=0.05) -> List[np.ndarray]` | Very small EMD implementation for 1D signals. |
-| `eemd_1d` | função | `(x, *, n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None) -> np.ndarray` | EEMD for 1D: returns imfs array (K, T). |
+| `EEMDSolver` | classe | `(n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None)` | Wrapper registrado de `eemd_1d`. |
+| `emd_1d` | função | `(x, *, max_imfs=10, max_sift=50, stop_thresh=0.05) -> List[np.ndarray]` | EMD mínima para sinais 1D. |
+| `eemd_1d` | função | `(x, *, n_ensembles=50, noise_std=0.2, max_imfs=10, seed=None) -> np.ndarray` | EEMD 1D; devolve as IMFs (K, T). |
 
 #### `pinneapple_simulation.numerical_solvers.elasticity3d_fdm`
 
-Static 3D linear (isotropic, small-strain) elasticity via finite differences: solves the Navier-Cauchy equilibrium equations
+Elasticidade linear 3D estática (Navier-Cauchy) por diferenças finitas e relaxação de Jacobi amortecida; só aceita deslocamento prescrito em todas as faces. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/elasticity3d_fdm.py` · 182 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Elasticity3DFDMSolver` | classe | `(n_iter=20000, omega=1.0, tol=1e-10)` | Thin `SolverBase`/registry wrapper. The functional API (`solve_static_elasticity_3d`, `lame_parameters`) is the primary entry point and can be used directly without this wrapper. |
-| `lame_parameters` | função | `(E, nu) -> Tuple[float, float]` | Lame's first parameter (lambda) and shear modulus (mu) from Young's modulus E and Poisson's ratio nu. |
-| `solve_static_elasticity_3d` | função | `(lam, mu, body_force, u_bc, dx, dy, dz, n_iter=20000, omega=1.0, tol=1e-10) -> dict` | Solve the static Navier-Cauchy equations on a structured grid via damped-Jacobi relaxation. |
+| `Elasticity3DFDMSolver` | classe | `(n_iter=20000, omega=1.0, tol=1e-10)` | Wrapper fino `SolverBase`/registro de `solve_static_elasticity_3d`. |
+| `lame_parameters` | função | `(E, nu) -> Tuple[float, float]` | Parâmetros de Lamé (lambda, mu) a partir de E e nu. |
+| `solve_static_elasticity_3d` | função | `(lam, mu, body_force, u_bc, dx, dy, dz, n_iter=20000, omega=1.0, tol=1e-10) -> dict` | Resolve Navier-Cauchy estático numa grade por Jacobi amortecido. |
 
 #### `pinneapple_simulation.numerical_solvers.etdrk4`
 
-ETDRK4: fourth-order exponential time differencing Runge-Kutta for stiff semilinear problems ``du/dt = L u + N(u, t)`` with a *diagonal* linear part.
+Integrador ETDRK4 (diferenças exponenciais, Runge-Kutta de 4ª ordem) para problemas rígidos semilineares com parte linear diagonal, com detecção de explosão numérica.
 
 <small>`pinneapple_simulation/numerical_solvers/etdrk4.py` · 151 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SimulationBlowUp` | classe | `(message, *, step, t)` | The state became non-finite or exceeded the magnitude limit. |
-| `ETDRK4Result` | classe | `(t, u, steps, blew_up, meta)` |  |
-| `ETDRK4` | classe | `(linear, nonlinear, dt, *, contour_points=32, radius=1.0)` | Fixed-step ETDRK4 integrator. |
-| `check_finite` | função | `(u, *, limit=1e+37, step=-1, t=float('nan')) -> None` | Raise :class:`SimulationBlowUp` if ``u`` has a NaN/inf or ``\|u\| > limit``. |
-| `fourier_wavenumbers` | função | `(n, length=2 * np.pi, *, real=False) -> np.ndarray` | Angular wavenumbers ``k`` of an ``n``-point periodic grid of the given length, in FFT order (``np.fft.rfft`` order when ``real``). |
+| `SimulationBlowUp` | classe | `(message, *, step, t)` | Exceção levantada quando o estado fica não finito ou grande demais. |
+| `ETDRK4Result` | classe | `(t, u, steps, blew_up, meta)` | Resultado da integração: tempos, estados, passos, flag de explosão e metadados. |
+| `ETDRK4` | classe | `(linear, nonlinear, dt, *, contour_points=32, radius=1.0)` | Integrador ETDRK4 de passo fixo com coeficientes por integral de contorno. |
+| `check_finite` | função | `(u, *, limit=1e+37, step=-1, t=float('nan')) -> None` | Levanta `SimulationBlowUp` se houver NaN/inf ou magnitude acima do limite. |
+| `fourier_wavenumbers` | função | `(n, length=2 * np.pi, *, real=False) -> np.ndarray` | Números de onda angulares de uma grade periódica na ordem da FFT. |
 
 #### `pinneapple_simulation.numerical_solvers.external_flow`
 
-External flow around any body in OpenFOAM, in one call: STL -> snappyHexMesh -> simpleFoam (k-omega SST, wall functions) -> forces, skin pressure and friction, streamlines and slice planes -> a 3D scene to render or browse.
+Escoamento externo em torno de qualquer corpo no OpenFOAM numa chamada: STL → snappyHexMesh → simpleFoam (k-omega SST) → forças, coeficientes de pele, linhas de corrente, cortes e cena 3D. Requer OpenFOAM instalado.
 
 <small>`pinneapple_simulation/numerical_solvers/external_flow.py` · 728 linhas · testes: 40</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CaseFields` | classe | `(case, time=None)` | The reconstructed mesh and the latest U, p of a case, with the helpers the results need: wall forces and skin coefficients on given patches, a velocity interpolator, streamline tracing, plane sampling. |
-| `FlowResult` | classe | `(coefficients, surface, bodies, lines, line_speed, slices, info, geometry)` |  |
-| `ExternalFlow` | classe | `(bodies, speed, alpha, beta, nu, rho, ref_area, ref_length, half_model, ground, ground_mo…)` | Steady incompressible flow around ``bodies`` (dict name -> (vertices, faces), an STL path, or a studio Scene). |
-| `flow_directions` | função | `(alpha_deg, beta_deg=0.0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Unit drag (along the flow), lift (up, normal to it in the x-z plane) and side directions. |
-| `write_flow_fields` | função | `(case, speed, alpha_deg, beta_deg, nu, iterations, procs, walls, symmetry, ground=None, g…)` | 0/ fields, physical properties, controlDict, schemes and solvers of a steady external-flow case. ``walls`` is the patch group of the bodies; ``ground``: name of a road patch (moving with ``ground_velocity``); ``turbulence``: kOmegaSST (wall functions) or laminar (no k, omega, nut fields). |
-| `snappy_dict` | função | `(geometry, features, surfaces, regions, location) -> str` | snappyHexMeshDict body (castellate + snap, no layers: wall functions). |
-| `run_case` | função | `(case, procs=4, log=print, all_times=False) -> Dict[str, float]` | blockMesh, surfaceFeatureExtract, snappyHexMesh, checkMesh and simpleFoam in parallel, then reconstruct (the latest time, or every written time with ``all_times``). Returns the seconds per step; each step's log is in ``case/log.<step>``. |
-| `latest_time` | função | `(case) -> str` |  |
-| `openfoam_available` | função | `() -> bool` | True when the OpenFOAM tools this module calls can be found. |
+| `CaseFields` | classe | `(case, time=None)` | Malha reconstruída e últimos U, p de um caso, com forças de parede, interpolação de velocidade, linhas de corrente e cortes. |
+| `FlowResult` | classe | `(coefficients, surface, bodies, lines, line_speed, slices, info, geometry)` | Resultado de um escoamento externo (coeficientes, superfície, linhas, cortes) com exportação para cena 3D, gravação e leitura. |
+| `ExternalFlow` | classe | `(bodies, speed, alpha, beta, nu, rho, ref_area, ref_length, half_model, ground, ground_mo…)` | Escoamento incompressível permanente em torno de corpos: escreve, roda e lê o caso OpenFOAM. |
+| `flow_directions` | função | `(alpha_deg, beta_deg=0.0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Vetores unitários de arrasto, sustentação e lateral para os ângulos dados. |
+| `write_flow_fields` | função | `(case, speed, alpha_deg, beta_deg, nu, iterations, procs, walls, symmetry, ground=None, g…)` | Escreve campos iniciais, propriedades, controlDict, esquemas e solvers de um caso de escoamento externo. |
+| `snappy_dict` | função | `(geometry, features, surfaces, regions, location) -> str` | Texto do snappyHexMeshDict (castellate + snap, sem camadas). |
+| `run_case` | função | `(case, procs=4, log=print, all_times=False) -> Dict[str, float]` | Roda blockMesh, snappyHexMesh, checkMesh e simpleFoam em paralelo e reconstrói; devolve o tempo de cada etapa. |
+| `latest_time` | função | `(case) -> str` | Último diretório de tempo com campo U de um caso; erro se não houver. |
+| `openfoam_available` | função | `() -> bool` | Diz se as ferramentas OpenFOAM usadas pelo módulo estão no sistema. |
 
 #### `pinneapple_simulation.numerical_solvers.fdm`
 
-Finite Difference Method (FDM) — problem-agnostic numerical solver.
+Solver FDM agnóstico ao problema: escolhe o esquema pelo `pde.kind` do `ProblemSpec` (Poisson, Helmholtz, calor, onda, Burgers, advecção) e aplica condições Dirichlet, Neumann e Robin.
 
 <small>`pinneapple_simulation/numerical_solvers/fdm.py` · 919 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FDMSolver` | classe | `(nx=64, ny=64, nt=500, iters=8000, omega=1.5, theta=0.5, tol=1e-09)` | Problem-agnostic FDM solver. |
+| `FDMSolver` | classe | `(nx=64, ny=64, nt=500, iters=8000, omega=1.5, theta=0.5, tol=1e-09)` | Solver FDM que escolhe o esquema pelo tipo de EDP do `ProblemSpec`. |
 
 #### `pinneapple_simulation.numerical_solvers.fdm3d`
 
-3D Finite Difference Method (FDM) solvers.
+Solvers 3D por diferenças finitas: condução de calor, Navier-Stokes incompressível (projeção), onda elástica/acústica, cavidade com tampa móvel e canal com gradiente de pressão.
 
 <small>`pinneapple_simulation/numerical_solvers/fdm3d.py` · 911 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SolverOutput3D` | classe | `(u, coords, meta)` | Output from a 3D FDM solver. |
-| `HeatConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, alpha, ic_fn, source_fn)` | Configuration for 3D heat conduction solver. |
-| `HeatConduction3D` | classe | `(cfg=None)` | 3D heat equation solver using explicit Euler + central differences. |
-| `NavierStokesConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, nu, rho, pressure_iters, ic_fn, force_fn)` | Configuration for 3D incompressible Navier-Stokes solver. |
-| `NavierStokes3D` | classe | `(cfg=None)` | 3D incompressible Navier-Stokes via fractional-step (projection) method. |
-| `ElasticWaveConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, c, ic_u_fn, ic_du_fn, source_fn)` | Configuration for 3D elastic wave solver. |
-| `ElasticWave3D` | classe | `(cfg=None)` | 3D elastic (acoustic) wave equation solver via Störmer-Verlet integration. |
-| `LidDrivenCavityConfig3D` | classe | `(nx, ny, nz, nt, size, dt, nu, rho, lid_velocity, lid_axis, pressure_iters)` | Configuration for the 3D lid-driven cavity solver. |
-| `LidDrivenCavitySolver3D` | classe | `(cfg=None)` | 3D Lid-Driven Cavity flow solver. |
-| `ChannelFlowConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, nu, rho, dp_dx, pressure_iters)` | Configuration for the 3D pressure-driven channel flow solver. |
-| `ChannelFlowSolver3D` | classe | `(cfg=None)` | 3D pressure-driven channel (Poiseuille-like) flow solver. |
+| `SolverOutput3D` | classe | `(u, coords, meta)` | Saída dos solvers FDM 3D: campo, coordenadas e metadados. |
+| `HeatConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, alpha, ic_fn, source_fn)` | Configuração do solver de calor 3D. |
+| `HeatConduction3D` | classe | `(cfg=None)` | Equação do calor 3D com Euler explícito e diferenças centrais. |
+| `NavierStokesConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, nu, rho, pressure_iters, ic_fn, force_fn)` | Configuração do solver Navier-Stokes 3D. |
+| `NavierStokes3D` | classe | `(cfg=None)` | Navier-Stokes 3D incompressível pelo método de projeção. |
+| `ElasticWaveConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, c, ic_u_fn, ic_du_fn, source_fn)` | Configuração do solver de onda elástica 3D. |
+| `ElasticWave3D` | classe | `(cfg=None)` | Equação de onda elástica (acústica) 3D com integração Störmer-Verlet. |
+| `LidDrivenCavityConfig3D` | classe | `(nx, ny, nz, nt, size, dt, nu, rho, lid_velocity, lid_axis, pressure_iters)` | Configuração da cavidade 3D com tampa móvel. |
+| `LidDrivenCavitySolver3D` | classe | `(cfg=None)` | Escoamento 3D em cavidade com tampa móvel. |
+| `ChannelFlowConfig3D` | classe | `(nx, ny, nz, nt, lx, ly, lz, dt, nu, rho, dp_dx, pressure_iters)` | Configuração do canal 3D com gradiente de pressão. |
+| `ChannelFlowSolver3D` | classe | `(cfg=None)` | Escoamento 3D em canal movido a gradiente de pressão (tipo Poiseuille). |
 
 #### `pinneapple_simulation.numerical_solvers.fem`
 
-Finite Element Method — problem-agnostic P1/Q1 solver.
+Solver FEM agnóstico ao problema (elementos Q1 em malha estruturada): Poisson/Laplace, Helmholtz e elasticidade linear axissimétrica, com CG ou solução direta.
 
 <small>`pinneapple_simulation/numerical_solvers/fem.py` · 368 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FEMSolver` | classe | `(nx=32, ny=32, solver='cg', tol=1e-08, max_iter=4000)` | Problem-agnostic FEM solver. |
+| `FEMSolver` | classe | `(nx=32, ny=32, solver='cg', tol=1e-08, max_iter=4000)` | Solver FEM Q1 que lê o tipo de EDP e as condições do `ProblemSpec`. |
 
 #### `pinneapple_simulation.numerical_solvers.fenics_bridge`
 
-FEniCS/dolfinx bridge for pinneapple.
+Ponte para FEniCS/dolfinx (com fallback para o FEniCS legado): monta malha, espaço de funções e forma variacional a partir do `ProblemSpec` e extrai os campos. Dependência opcional.
 
 <small>`pinneapple_simulation/numerical_solvers/fenics_bridge.py` · 647 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FEnicsBridge` | classe | `(mesh_nx=32, mesh_ny=32, element_degree=1, solver_backend='dolfinx') -> None` | Bridge that formulates and solves FEM problems using FEniCS/dolfinx. |
+| `FEnicsBridge` | classe | `(mesh_nx=32, mesh_ny=32, element_degree=1, solver_backend='dolfinx') -> None` | Formula e resolve problemas FEM com FEniCS/dolfinx a partir de um `ProblemSpec`. |
 
 #### `pinneapple_simulation.numerical_solvers.fft`
 
-FFT solver for spectrum computation with rFFT/FFT support.
+Solver FFT (PyTorch) que devolve espectro em magnitude/fase ou complexo, com rFFT para entrada real. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/fft.py` · 85 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FFTSolver` | classe | `(*, dims=None, real_input=True, output='magnitude_phase', norm=None)` | FFT Solver (PyTorch backend). |
+| `FFTSolver` | classe | `(*, dims=None, real_input=True, output='magnitude_phase', norm=None)` | Solver FFT em PyTorch que devolve magnitude/fase ou espectro complexo. |
 
 #### `pinneapple_simulation.numerical_solvers.free_surface`
 
-Free-surface flow of a liquid and a gas in OpenFOAM (interFoam, volume of fluid), in one object: an initial liquid level, inlets with a velocity vector, open boundaries, k-omega SST, and turbulence sampled on lines and averaged in time. Built for melt runners, launders, spillways and channels.
+Escoamento com superfície livre líquido-gás no OpenFOAM (interFoam, VOF): nível inicial, entradas, fronteiras abertas, k-omega SST e amostragem de linhas com média temporal. Requer OpenFOAM.
 
 <small>`pinneapple_simulation/numerical_solvers/free_surface.py` · 626 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Phase` | classe | `(name, rho, nu)` |  |
-| `SampleLine` | classe | `(name, start, end, n)` |  |
-| `FreeSurfaceFlow` | classe | `(regions, roles, mesh, inlet_velocity, level, liquid, gas, sigma, gravity, p_ref, turbule…)` |  |
-| `LiveLineSampler` | classe | `(case, lines, fields, keep_every=None, end_time=float('inf'), out_name='lines', poll_s=3.…)` | Samples lines from a running case as each time is written, then optionally deletes that time. |
-| `split_surface` | função | `(V, F, boxes, rest='walls') -> dict[str, tuple[np.ndarray, np.ndarray]]` | Split one closed surface into named regions: a triangle goes to the first box that holds its centroid, otherwise to ``rest``. Feed the result to ``FreeSurfaceFlow(regions=...)``. |
-| `cell_centres` | função | `(poly_dir) -> np.ndarray` | Cell centres (mean of face centres) from an ASCII constant/polyMesh. |
-| `write_profile` | função | `(case, tname, idx, res, fields, out_name='lines') -> None` |  |
-| `sample_lines` | função | `(case, lines, fields) -> int` | Sample every written time of a finished case (serial or decomposed) onto ``lines``. Returns the count. |
-| `read_profiles` | função | `(case, names=None, t_start=0.0, t_end=float('inf'), out_name='lines') -> dict` | {line: {"s": distance along the line, "xyz", "times", <field>: (n_times, n_points), "mean_<field>"}}. |
-| `time_average` | função | `(profile, field, window=None, origin='min') -> tuple[np.ndarray, np.ndarray]` | Time-mean of ``field`` along a line against the distance from the line's first sampled point (``origin="min"``), optionally cut to ``window`` = (s0, s1). |
+| `Phase` | classe | `(name, rho, nu)` | Uma fase (nome, densidade, viscosidade cinemática). |
+| `SampleLine` | classe | `(name, start, end, n)` | Linha de amostragem (nome, início, fim, número de pontos). |
+| `FreeSurfaceFlow` | classe | `(regions, roles, mesh, inlet_velocity, level, liquid, gas, sigma, gravity, p_ref, turbule…)` | Caso interFoam completo: regiões, papéis dos patches, nível, fases, turbulência; escreve, roda e lê perfis. |
+| `LiveLineSampler` | classe | `(case, lines, fields, keep_every=None, end_time=float('inf'), out_name='lines', poll_s=3.…)` | Amostra linhas de um caso em execução a cada tempo gravado e pode apagar o tempo depois. |
+| `split_surface` | função | `(V, F, boxes, rest='walls') -> dict[str, tuple[np.ndarray, np.ndarray]]` | Divide uma superfície fechada em regiões nomeadas por caixas. |
+| `cell_centres` | função | `(poly_dir) -> np.ndarray` | Centros de células de uma polyMesh ASCII. |
+| `write_profile` | função | `(case, tname, idx, res, fields, out_name='lines') -> None` | Grava em CSV os valores amostrados de cada linha num tempo. |
+| `sample_lines` | função | `(case, lines, fields) -> int` | Amostra todas as gravações de um caso terminado nas linhas dadas. |
+| `read_profiles` | função | `(case, names=None, t_start=0.0, t_end=float('inf'), out_name='lines') -> dict` | Lê os perfis amostrados por linha, com tempos, campos e médias. |
+| `time_average` | função | `(profile, field, window=None, origin='min') -> tuple[np.ndarray, np.ndarray]` | Média temporal de um campo ao longo de uma linha, opcionalmente cortada numa janela. |
 
 #### `pinneapple_simulation.numerical_solvers.fvm`
 
-Finite Volume Method — problem-agnostic cell-centered structured solver.
+Solver FVM agnóstico ao problema em grade 2D estruturada de centro de célula: calor/difusão, convecção-difusão e Burgers.
 
 <small>`pinneapple_simulation/numerical_solvers/fvm.py` · 345 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FVMSolver` | classe | `(nx=64, ny=64, nt=200, dt=None, safety=0.4)` | Problem-agnostic FVM solver on a structured cell-centred 2-D grid. |
+| `FVMSolver` | classe | `(nx=64, ny=64, nt=200, dt=None, safety=0.4)` | Solver FVM 2D de centro de célula guiado pelo `ProblemSpec`. |
 
 #### `pinneapple_simulation.numerical_solvers.gated_xtfc`
 
-Gated X-TFC: X-TFC with Gaussian RBF features whose centers and widths follow a soft domain split, for 1D second-order linear boundary value problems with sharp layers (forward and inverse).
+X-TFC com funções de base radial gaussianas cujos centros e larguras seguem uma divisão suave do domínio, para BVPs lineares 1D de 2ª ordem com camadas finas (problema direto e inverso).
 
 <small>`pinneapple_simulation/numerical_solvers/gated_xtfc.py` · 309 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LinearBVP1D` | classe | `(a, b, c, f, u_left, u_right, nu, exact)` | ``a u'' + b u' + c u = f`` on [0, 1], ``u(0) = u_left``, ``u(1) = u_right``. |
-| `GatedLayout` | classe | `(centers, widths, collocation, splits, eps_b)` |  |
-| `GatedSolution` | classe | `(problem, layout, coef, solve_seconds)` |  |
-| `InverseFit` | classe | `(nu, splits, eps_scales, log_evidence, eta, solution, history, seconds)` |  |
-| `convection_diffusion` | função | `(nu) -> LinearBVP1D` | ``u' - nu u'' = 0``, ``u(0) = 0``, ``u(1) = 1``; ``u = (e^{x/nu} - 1)/(e^{1/nu} - 1)`` (paper eq. 1-2). |
-| `twin_boundary_layer` | função | `(nu) -> LinearBVP1D` | ``2(2x - 1) u' - nu u'' + 4u = 0``, ``u(0) = u(1) = 1``; ``u = exp(-2x(1 - x)/nu)`` (paper Sec. 4.4). |
-| `gated_layout` | função | `(splits, eps_scales, nu, n_centers, n_colloc=None, k=1.5) -> GatedLayout` | Centers, widths and collocation points of the soft split (per block ``n_centers`` centers and ``n_colloc`` collocation points). With one split this is the paper's two-block layout; with several, each split blends the widths of its two neighbouring blocks by its own logistic gate. |
-| `solve_forward` | função | `(problem, layout, lam=1e-12) -> GatedSolution` | ``argmin (1/N) \|\|R c + r0\|\|^2 + lam \|\|c\|\|^2`` at the layout's collocation points (stacked least squares). |
-| `validation_energy` | função | `(sol, x_val) -> float` | Mean squared strong-form residual on the validation points. |
-| `search_gates_nested` | função | `(problem, x_val, *, n_centers, n_colloc=None, k=1.5, lam=1e-12, xs_bounds=(0.8, 0.999), e…)` | One split: outer bounded Brent search over ``x_s``, inner over ``eps_scale``, minimising the validation residual energy (the paper's nested ``fminbnd``). Returns the best solution and the search record. |
-| `log_evidence` | função | `(Phi, y, *, eta0=1e-07, eta_bounds=(1e-12, 0.01), max_iter=50, damping=0.5) -> dict` | Bayesian linear model ``y = Phi c + e``, ``e ~ N(0, I)`` (whitened), ``c ~ N(0, eta^-1 I)``: the prior precision ``eta`` by the evidence fixed point ``gamma = sum k/(k + eta)``, ``eta <- gamma / \|\|m\|\|^2`` (damped in log space, clipped), then the log-evidence, posterior mean and the … |
-| `fit_inverse` | função | `(make_problem, x_data, y_data, *, sigma, beta_pde, n_centers, n_colloc, k=1.5, log10_nu_b…)` | Infer ``nu`` (and the gate) by maximising the evidence of the stacked whitened data + physics system over ``(log10 nu, x_s, eps_scale)`` with the library's Bayesian optimiser (GP + expected improvement). |
-| `search_gates_bo` | função | `(problem, x_val, *, split_bounds, eps_bounds=(10.0, 100.0), n_centers, n_colloc=None, k=1…)` | Several splits: minimise the validation residual energy (log10) over all splits and their eps_scales with the library's Bayesian optimiser (the paper's choice for the multi-split twin boundary layer). |
+| `LinearBVP1D` | classe | `(a, b, c, f, u_left, u_right, nu, exact)` | BVP linear a u'' + b u' + c u = f em [0, 1] com Dirichlet nas pontas. |
+| `GatedLayout` | classe | `(centers, widths, collocation, splits, eps_b)` | Centros, larguras, pontos de colocação e divisões da base RBF com portas. |
+| `GatedSolution` | classe | `(problem, layout, coef, solve_seconds)` | Solução X-TFC com portas: coeficientes, predição e resíduo. |
+| `InverseFit` | classe | `(nu, splits, eps_scales, log_evidence, eta, solution, history, seconds)` | Resultado do problema inverso: nu, portas, evidência, solução, histórico e desvio preditivo. |
+| `convection_diffusion` | função | `(nu) -> LinearBVP1D` | Problema de convecção-difusão 1D com solução exata (eq. 1-2 do artigo). |
+| `twin_boundary_layer` | função | `(nu) -> LinearBVP1D` | Problema com camada limite dupla e solução exata (Sec. 4.4 do artigo). |
+| `gated_layout` | função | `(splits, eps_scales, nu, n_centers, n_colloc=None, k=1.5) -> GatedLayout` | Monta centros, larguras e pontos de colocação para uma ou várias divisões. |
+| `solve_forward` | função | `(problem, layout, lam=1e-12) -> GatedSolution` | Resolve o problema direto por mínimos quadrados regularizados. |
+| `validation_energy` | função | `(sol, x_val) -> float` | Resíduo médio quadrático na forma forte nos pontos de validação. |
+| `search_gates_nested` | função | `(problem, x_val, *, n_centers, n_colloc=None, k=1.5, lam=1e-12, xs_bounds=(0.8, 0.999), e…)` | Busca de Brent aninhada sobre a posição da divisão e a escala de largura. |
+| `log_evidence` | função | `(Phi, y, *, eta0=1e-07, eta_bounds=(1e-12, 0.01), max_iter=50, damping=0.5) -> dict` | Evidência bayesiana de um modelo linear com precisão a priori por ponto fixo. |
+| `fit_inverse` | função | `(make_problem, x_data, y_data, *, sigma, beta_pde, n_centers, n_colloc, k=1.5, log10_nu_b…)` | Infere nu (e as portas) maximizando a evidência com o otimizador bayesiano da biblioteca. |
+| `search_gates_bo` | função | `(problem, x_val, *, split_bounds, eps_bounds=(10.0, 100.0), n_centers, n_colloc=None, k=1…)` | Várias divisões: minimiza a energia do resíduo com otimização bayesiana. |
 
 #### `pinneapple_simulation.numerical_solvers.heat_fv_reference`
 
-Independent reference solutions for the 2D and 3D cases: cell-centred finite volumes, sparse direct solve.
+Soluções de referência independentes (volumes finitos, solução esparsa direta) para a placa 2D e o bloco 3D aquecidos do exemplo de convecção inversa; usadas só para conferir o PINN.
 
 <small>`pinneapple_simulation/numerical_solvers/heat_fv_reference.py` · 123 linhas · testes: 3</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `footprint` | função | `(x, y, xc, yc, half, width)` | Smooth indicator of a square device footprint (1 inside, 0 outside, tanh edges of ``width``). |
-| `footprint_area` | função | `(xc, yc, half, width, lx, ly, n=2000) -> float` | Area (m2) of the smooth ``footprint`` over the plate [0, lx] x [0, ly] (all lengths in m). |
-| `plate_2d` | função | `(h, *, lx, ly, t, k, power, t_air, device, nx=200, ny=120)` | Temperature (°C) at the cell centres of an (ny, nx) grid; returns (x, y, T). |
-| `block_3d` | função | `(h, *, lx, ly, lz, k, power, t_air, device, nx=40, ny=40, nz=12)` | Temperature (°C) at the cell centres of an (nz, ny, nx) grid; returns (x, y, z, T). |
-| `interp_grid` | função | `(xs, ys, field, px, py)` | Bilinear interpolation of a cell-centred 2D field at points (px, py), clamped to the grid. |
-| `convergence` | função | `(fn, coarse, fine, **kw) -> float` | Largest temperature difference (K) between two grids, compared at the coarse cell centres. |
+| `footprint` | função | `(x, y, xc, yc, half, width)` | Indicador suave de uma pegada quadrada de dispositivo (bordas tanh). |
+| `footprint_area` | função | `(xc, yc, half, width, lx, ly, n=2000) -> float` | Área da pegada suave sobre a placa. |
+| `plate_2d` | função | `(h, *, lx, ly, t, k, power, t_air, device, nx=200, ny=120)` | Temperatura da placa 2D nos centros das células. |
+| `block_3d` | função | `(h, *, lx, ly, lz, k, power, t_air, device, nx=40, ny=40, nz=12)` | Temperatura do bloco 3D nos centros das células. |
+| `interp_grid` | função | `(xs, ys, field, px, py)` | Interpolação bilinear de um campo 2D de centro de célula. |
+| `convergence` | função | `(fn, coarse, fine, **kw) -> float` | Maior diferença de temperatura entre duas grades. |
 
 #### `pinneapple_simulation.numerical_solvers.hilbert_huang`
 
-Hilbert-Huang transform (EMD + Hilbert) solver for time series.
+Transformada de Hilbert-Huang (EMD + Hilbert) para séries 1D; o docstring a chama de MVP para pesquisa. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/hilbert_huang.py` · 225 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HilbertHuangSolver` | classe | `(*, max_imfs=8, max_sift=50, stop_mean_tol=0.001, dt=1.0)` | Hilbert–Huang Transform (HHT) MVP for 1D signals. |
+| `HilbertHuangSolver` | classe | `(*, max_imfs=8, max_sift=50, stop_mean_tol=0.001, dt=1.0)` | HHT para sinais 1D: EMD e depois amplitude e frequência instantâneas por Hilbert. |
 
 #### `pinneapple_simulation.numerical_solvers.immersed_boundary_fdm`
 
-Immersed-boundary-method (IBM) finite-difference solver for incompressible Navier-Stokes on an arbitrary 3D geometry.
+Navier-Stokes incompressível por fronteira imersa (IBM) e diferenças finitas em geometria 3D arbitrária, para escoamento interno (domínio fechado) ou externo (corpo imerso).
 
 <small>`pinneapple_simulation/numerical_solvers/immersed_boundary_fdm.py` · 964 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ImmersedBoundaryFDMSolver` | classe | `(flow_type='internal', **solver_kwargs)` | Thin `SolverBase`/registry wrapper. The functional API (`solve_ibm_internal_flow`, `solve_ibm_external_flow`, `solve_ibm_navier_stokes`) is the primary entry point and can be used directly without this wrapper. |
-| `field_divergence` | função | `(u, v, w, dx, dy, dz) -> np.ndarray` | Central-difference divergence of a velocity field -- exposed standalone for verifying the near-zero-divergence property of a projected field. |
-| `interpolate_to_points` | função | `(grid_axes, field, query_points, fill_value=0.0) -> np.ndarray` | Trilinear interpolation of a (nx,ny,nz) grid field onto arbitrary query points, via `scipy.interpolate.RegularGridInterpolator`. |
-| `solve_ibm_internal_flow` | função | `(wall_points, bbox, *, Re=100.0, U_in=1.0, rho=1.0, nx=32, ny=32, nz=32, n_iter=500, n_fr…)` | IBM/FDM incompressible Navier-Stokes on an enclosed domain whose bounding box IS the fluid domain. |
-| `solve_ibm_external_flow` | função | `(wall_points, bbox, *, Re=100.0, U_in=1.0, rho=1200.0, nx=32, ny=32, nz=32, n_iter=1000, …)` | IBM/FDM incompressible Navier-Stokes for external (free-stream) flow around an arbitrary solid immersed body. |
-| `solve_ibm_navier_stokes` | função | `(wall_points, bbox, flow_type='internal', **kwargs) -> Dict[str, Any]` | Dispatch to `solve_ibm_internal_flow` (`flow_type="internal"`) or `solve_ibm_external_flow` (`flow_type="external"`). All other keyword arguments are forwarded to the selected solver. |
+| `ImmersedBoundaryFDMSolver` | classe | `(flow_type='internal', **solver_kwargs)` | Wrapper fino `SolverBase`/registro dos solvers IBM. |
+| `field_divergence` | função | `(u, v, w, dx, dy, dz) -> np.ndarray` | Divergência por diferenças centrais de um campo de velocidade. |
+| `interpolate_to_points` | função | `(grid_axes, field, query_points, fill_value=0.0) -> np.ndarray` | Interpolação trilinear de um campo de grade em pontos arbitrários. |
+| `solve_ibm_internal_flow` | função | `(wall_points, bbox, *, Re=100.0, U_in=1.0, rho=1.0, nx=32, ny=32, nz=32, n_iter=500, n_fr…)` | IBM/FDM para domínio fechado (tampa móvel ou canal). |
+| `solve_ibm_external_flow` | função | `(wall_points, bbox, *, Re=100.0, U_in=1.0, rho=1200.0, nx=32, ny=32, nz=32, n_iter=1000, …)` | IBM/FDM para escoamento livre em torno de um corpo imerso. |
+| `solve_ibm_navier_stokes` | função | `(wall_points, bbox, flow_type='internal', **kwargs) -> Dict[str, Any]` | Despacha para o solver interno ou externo conforme `flow_type`. |
 
 #### `pinneapple_simulation.numerical_solvers.internal_flow`
 
-Internal flow in pipes, bends and static mixers in OpenFOAM, in one call.
+Escoamento interno em tubos, curvas e misturadores estáticos Kenics no OpenFOAM numa chamada, com malha O-grid, perda de carga e fator de atrito comparados a correlações. Requer OpenFOAM.
 
 <small>`pinneapple_simulation/numerical_solvers/internal_flow.py` · 817 linhas · testes: 35</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Route` | classe | `(D, segments)` | A pipe centreline: straight runs and circular bends, lengths and radii in diameters. Starts at the origin along +x; bends turn in the plane given by ``plane_deg`` (0: towards +y, 90: towards +z). |
-| `InternalResult` | classe | `(route, info, sections, profiles, slices, lines, line_speed, wall, timings)` |  |
-| `InternalFlow` | classe | `(route, Re, nu, turbulent, mixer, mixer_start_D, scalar, inlet, n_core, n_radial, wall_gr…)` | A pipe ``route`` at Reynolds number ``Re`` (bulk velocity and diameter). ``turbulent``: None picks laminar below Re 2300. ``mixer``: number of Kenics elements starting at ``mixer_start_D`` (straight routes). ``scalar``: carry a passive scalar entering on the upper half of the inlet (c = 1 where the … |
-| `kenics_elements` | função | `(route_D, n_elements, start_D, length_D=1.5, thickness_D=0.06, width_D=0.98, nu=10, ns=48…)` | Kenics static-mixer elements in a straight pipe along +x starting at ``start_D``: plates twisted by 180 deg, alternately left- and right-handed, each turned 90 deg from the previous one. A closed triangulated surface. |
-| `oblock_mesh_dict` | função | `(route, n_core=8, n_radial=10, wall_grading=0.25, axial_cell_D=0.2, core=0.36, convert=1.…)` | blockMeshDict of the O-grid pipe swept along ``route``: five blocks per station interval (a square core of half-diagonal ``core`` x radius, four curved blocks), arcs on the wall, patches inlet / outlet / wall. ``wall_grading``: wall cell / core-side cell in the radial direction. |
-| `pipe_surface` | função | `(st, r, nth=64, sub=4) -> tuple[np.ndarray, np.ndarray]` | Triangulated wall of a swept circular section (stations from ``Route.stations``), subdividing straight runs. |
-| `ito_bend_loss` | função | `(Re, radius_ratio, angle_deg=90.0) -> float` | Total loss coefficient of a smooth pipe bend in turbulent flow (Ito 1960, J. Basic Eng. 82: 131-143), with ``radius_ratio`` = bend radius / pipe radius, valid for Re (r/R)^2 > 91; includes friction over the bend and the excess loss recovered downstream. |
-| `colebrook` | função | `(Re, rel_roughness=0.0) -> float` | Darcy friction factor of fully developed turbulent pipe flow (Colebrook-White): :func:`pinneapple_physics.closed_form.pipe_flow.colebrook`. |
+| `Route` | classe | `(D, segments)` | Linha central de um tubo: trechos retos e curvas, em diâmetros. |
+| `InternalResult` | classe | `(route, info, sections, profiles, slices, lines, line_speed, wall, timings)` | Resultado do escoamento interno: seções, perfis, perda de carga, fator de atrito e cena 3D. |
+| `InternalFlow` | classe | `(route, Re, nu, turbulent, mixer, mixer_start_D, scalar, inlet, n_core, n_radial, wall_gr…)` | Caso OpenFOAM de um tubo num dado Reynolds, com misturador Kenics e escalar passivo opcionais. |
+| `kenics_elements` | função | `(route_D, n_elements, start_D, length_D=1.5, thickness_D=0.06, width_D=0.98, nu=10, ns=48…)` | Superfície fechada dos elementos de um misturador estático Kenics. |
+| `oblock_mesh_dict` | função | `(route, n_core=8, n_radial=10, wall_grading=0.25, axial_cell_D=0.2, core=0.36, convert=1.…)` | blockMeshDict da malha O-grid varrida ao longo da rota. |
+| `pipe_surface` | função | `(st, r, nth=64, sub=4) -> tuple[np.ndarray, np.ndarray]` | Parede triangulada de uma seção circular varrida. |
+| `ito_bend_loss` | função | `(Re, radius_ratio, angle_deg=90.0) -> float` | Coeficiente de perda de uma curva em regime turbulento (Ito 1960). |
+| `colebrook` | função | `(Re, rel_roughness=0.0) -> float` | Fator de atrito de Darcy por Colebrook-White (delega a `pinneapple_physics.closed_form`). |
 
 #### `pinneapple_simulation.numerical_solvers.irk_gauss_legendre`
 
-Butcher tableaus for the q-stage Gauss-Legendre implicit Runge-Kutta (IRK) family -- a general-purpose, arbitrarily-high-order (order 2q), A-stable and B-stable time integrator for any ODE-IVP system dy/dt = f(t,y), stiff or non-stiff. Pure NumPy/SciPy, no model/framework dependency, so it can be …
+Tabelas de Butcher de Runge-Kutta implícito de Gauss-Legendre (ordem 2q), validação das condições de ordem, cache e um passo IRK com Newton.
 
 <small>`pinneapple_simulation/numerical_solvers/irk_gauss_legendre.py` · 236 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `build_gauss_legendre_tableau` | função | `(q) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Build the q-stage Gauss-Legendre IRK tableau (A, b, c) on [0,1]. |
-| `validate_tableau` | função | `(A, b, c, q, tol=1e-09) -> dict` | Hard-assert the order conditions that certify a genuine 2q-order collocation method (C(q) and B(2q) jointly). Raises AssertionError with diagnostic residuals on failure; returns a dict of residuals on success. |
-| `get_irk_tableau` | função | `(q, cache_dir=None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Build-or-load-cached, then validate, the q-stage Gauss-Legendre IRK tableau. Raises loudly (AssertionError/RuntimeError) rather than returning a silently-wrong tableau. |
-| `step_irk` | função | `(rhs_fn, t, y, h, A, b, c, jac_fn=None, newton_tol=1e-10, newton_max_iter=25) -> np.ndarr…)` | Advance y(t) -> y(t+h) by one fully-implicit Runge-Kutta step using tableau (A, b, c) (e.g. from `get_irk_tableau`). Solves the q coupled stage equations |
+| `build_gauss_legendre_tableau` | função | `(q) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Constrói a tabela (A, b, c) de Gauss-Legendre de q estágios. |
+| `validate_tableau` | função | `(A, b, c, q, tol=1e-09) -> dict` | Confere as condições de ordem e levanta AssertionError se falharem. |
+| `get_irk_tableau` | função | `(q, cache_dir=None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Constrói ou carrega do cache e valida a tabela IRK. |
+| `step_irk` | função | `(rhs_fn, t, y, h, A, b, c, jac_fn=None, newton_tol=1e-10, newton_max_iter=25) -> np.ndarr…)` | Um passo de Runge-Kutta totalmente implícito com Newton nos estágios. |
 
 #### `pinneapple_simulation.numerical_solvers.isph`
 
-ISPH: Incompressible SPH via pressure-projection (Cummins & Rudman 1999).
+SPH incompressível (ISPH, Cummins & Rudman) por projeção de pressão predição-correção. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/isph.py` · 264 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ISPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, mu=0.02, gravity=None, boundary_lo=None, boundary_hi=None…)` | Incompressible SPH (ISPH) using prediction-correction pressure projection. |
+| `ISPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, mu=0.02, gravity=None, boundary_lo=None, boundary_hi=None…)` | Solver ISPH com projeção de pressão. |
 
 #### `pinneapple_simulation.numerical_solvers.jax_cfd_solver`
 
-JAX-CFD adapter — real differentiable Navier-Stokes via Google's jax-cfd.
+Adaptador para o jax-cfd do Google: Navier-Stokes 2D incompressível diferenciável, com condições iniciais Taylor-Green ou camada de cisalhamento. Dependência opcional (jax, jax_cfd).
 
 <small>`pinneapple_simulation/numerical_solvers/jax_cfd_solver.py` · 358 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `JAXCFDSolver` | classe | `(nx=64, ny=64, viscosity=0.01, density=1.0, domain=None, max_velocity=1.0, cfl_safety=0.5…)` | 2-D incompressible Navier-Stokes solver backed by ``jax_cfd.base``. |
-| `jax_cfd_available` | função | `() -> bool` | Return ``True`` if both ``jax`` and ``jax_cfd`` can be imported. |
-| `taylor_green_velocity_fns` | função | `() -> Tuple[Callable, Callable]` | 2-D Taylor-Green vortex velocity functions ``u(x,y), v(x,y)``. |
-| `shear_layer_velocity_fns` | função | `(sigma=15.0, width=0.05) -> Tuple[Callable, Callable]` | 2-D double shear-layer velocity functions ``u(x,y), v(x,y)``. |
+| `JAXCFDSolver` | classe | `(nx=64, ny=64, viscosity=0.01, density=1.0, domain=None, max_velocity=1.0, cfl_safety=0.5…)` | Navier-Stokes 2D incompressível sobre `jax_cfd.base`, também a partir de um `ProblemSpec`. |
+| `jax_cfd_available` | função | `() -> bool` | Diz se `jax` e `jax_cfd` podem ser importados. |
+| `taylor_green_velocity_fns` | função | `() -> Tuple[Callable, Callable]` | Funções de velocidade do vórtice de Taylor-Green 2D. |
+| `shear_layer_velocity_fns` | função | `(sigma=15.0, width=0.05) -> Tuple[Callable, Callable]` | Funções de velocidade de uma camada de cisalhamento dupla 2D. |
 
 #### `pinneapple_simulation.numerical_solvers.kuramoto_sivashinsky`
 
-Kuramoto-Sivashinsky in one dimension, ``u_t + (u^2 / 2)_x + u_xx + u_xxxx = 0`` on a periodic interval, with the ETDRK4 scheme of :mod:`.etdrk4` (Kassam & Trefethen 2005 set-up, 2/3 dealiasing).
+Equação de Kuramoto-Sivashinsky 1D periódica integrada com ETDRK4 (configuração de Kassam & Trefethen, dealiasing 2/3).
 
 <small>`pinneapple_simulation/numerical_solvers/kuramoto_sivashinsky.py` · 60 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `KuramotoSivashinsky1D` | classe | `(n, length, dt)` |  |
+| `KuramotoSivashinsky1D` | classe | `(n, length, dt)` | Sistema KS 1D: grade, estado inicial, passo e trajetória com ETDRK4. |
 
 #### `pinneapple_simulation.numerical_solvers.lbm`
 
-Lattice Boltzmann Method — D2Q9 BGK + D3Q19 BGK.
+Lattice Boltzmann D2Q9 e D3Q19 (BGK, Smagorinsky opcional) com máscaras de obstáculo (cilindro, retângulo, aerofólios NACA).
 
 <small>`pinneapple_simulation/numerical_solvers/lbm.py` · 739 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LBMSolver` | classe | `(nx=128, ny=64, Re=100.0, u_in=0.05, rho_out=1.0, obstacle_mask=None, Cs=0.0)` | D2Q9 Lattice Boltzmann solver. |
-| `LBMSolver3D` | classe | `(nx=32, ny=32, nz=32, Re=100.0, u_in=0.05, obstacle_mask=None, Cs=0.0)` | D3Q19 Lattice Boltzmann solver. |
-| `cylinder_mask` | função | `(nx, ny, cx, cy, r) -> torch.Tensor` | Create a circular obstacle mask (True = solid). cx, cy, r in lattice units. |
-| `rectangle_mask` | função | `(nx, ny, x0, x1, y0, y1) -> torch.Tensor` | Rectangular obstacle mask. |
-| `airfoil_naca_mask` | função | `(nx, ny, chord, aoa_deg=0.0, naca='0012') -> torch.Tensor` | Approximate NACA 4-digit airfoil mask centred in the domain. chord: chord length in lattice units. |
-| `naca4_mask` | função | `(nx, ny, naca='4412', chord=80.0, aoa_deg=0.0, x_le=None, y_le=None, n_pts=400) -> torch.…)` | NACA 4-digit airfoil mask with camber (True = solid), aerodynamic convention. |
-| `airfoil_naca_mask_3d` | função | `(nx, ny, nz, chord, aoa_deg=0.0, naca='0012', z0=0, z1=None) -> torch.Tensor` | 3-D obstacle mask: the 2-D NACA airfoil cross-section (airfoil_naca_mask) extruded uniformly along the z (span) axis from z0 to z1 (exclusive). |
+| `LBMSolver` | classe | `(nx=128, ny=64, Re=100.0, u_in=0.05, rho_out=1.0, obstacle_mask=None, Cs=0.0)` | Solver LBM D2Q9 com obstáculo opcional, também a partir de um `ProblemSpec`. |
+| `LBMSolver3D` | classe | `(nx=32, ny=32, nz=32, Re=100.0, u_in=0.05, obstacle_mask=None, Cs=0.0)` | Solver LBM D3Q19. |
+| `cylinder_mask` | função | `(nx, ny, cx, cy, r) -> torch.Tensor` | Máscara de obstáculo circular. |
+| `rectangle_mask` | função | `(nx, ny, x0, x1, y0, y1) -> torch.Tensor` | Máscara de obstáculo retangular. |
+| `airfoil_naca_mask` | função | `(nx, ny, chord, aoa_deg=0.0, naca='0012') -> torch.Tensor` | Máscara aproximada de aerofólio NACA 4 dígitos centrada no domínio. |
+| `naca4_mask` | função | `(nx, ny, naca='4412', chord=80.0, aoa_deg=0.0, x_le=None, y_le=None, n_pts=400) -> torch.…)` | Máscara de aerofólio NACA 4 dígitos com arqueamento e ângulo de ataque. |
+| `airfoil_naca_mask_3d` | função | `(nx, ny, nz, chord, aoa_deg=0.0, naca='0012', z0=0, z1=None) -> torch.Tensor` | Máscara 3D: o perfil NACA extrudado ao longo da envergadura. |
 
 #### `pinneapple_simulation.numerical_solvers.lbm_tunnel`
 
-3-D lattice Boltzmann wind tunnel in PyTorch, with the memory and boundary techniques FluidX3D made popular.
+Túnel de vento 3D por lattice Boltzmann em PyTorch com técnicas popularizadas pelo FluidX3D (D3Q19/D3Q27, SRT/TRT, DDF shifting, armazenamento em 16 bits), voxelização de STL e E/S VTK.
 
 <small>`pinneapple_simulation/numerical_solvers/lbm_tunnel.py` · 479 linhas · testes: 9</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Units` | classe | `(m, s, kg)` | Conversion between SI and lattice units, fixed by a length, a velocity and a density given in both systems (lattice length in cells, lattice velocity in cells/step, lattice density usually 1). |
-| `WindTunnelLBM` | classe | `(shape, nu, u_in=(0.0, 0.0, 0.0), velocity_set_name='D3Q19', collision='srt', smagorinsky…)` | 3-D lattice Boltzmann flow in a box (lattice units: cell = 1, step = 1, rho0 = 1). |
-| `velocity_set` | função | `(name='D3Q19')` | (c [q,3] int, w [q], opposite index [q]) for D3Q19 or D3Q27. |
-| `sphere` | função | `(shape, center, radius) -> torch.Tensor` |  |
-| `box` | função | `(shape, lo, hi) -> torch.Tensor` |  |
-| `voxelize_stl` | função | `(mesh, shape, center, size, axis=0) -> torch.Tensor` | Solid mask of a closed surface (path or trimesh.Trimesh), scaled so its extent along ``axis`` is ``size`` cells and centred at ``center`` (cells). Inside test by ray parity (trimesh). |
-| `write_vtk` | função | `(path, data, origin=(0.0, 0.0, 0.0), spacing=1.0) -> None` | Legacy VTK, BINARY big-endian STRUCTURED_POINTS. ``data`` is (nx, ny, nz) or (3, nx, ny, nz). |
-| `read_vtk` | função | `(path) -> dict` | Legacy VTK structured points (binary big-endian or ASCII), as written by FluidX3D's VTK export and by :func:`write_vtk`. Returns {"data": (nx,ny,nz) or (k,nx,ny,nz), "origin", "spacing", "dimensions", "name"}. |
-| `drag_sphere_schiller_naumann` | função | `(re) -> float` | Drag coefficient of a sphere, Schiller & Naumann (1933), valid up to Re ~ 800. |
-| `stokes_sphere_field` | função | `(shape, center, radius, u_inf)` | Stokes flow past a fixed sphere (uniform stream u_inf), velocity (3, nx, ny, nz); zero inside. |
+| `Units` | classe | `(m, s, kg)` | Conversão entre unidades SI e de rede. |
+| `WindTunnelLBM` | classe | `(shape, nu, u_in=(0.0, 0.0, 0.0), velocity_set_name='D3Q19', collision='srt', smagorinsky…)` | Escoamento LBM 3D numa caixa: sólidos, passo, campos, força sobre o sólido e exportação VTK. |
+| `velocity_set` | função | `(name='D3Q19')` | Vetores, pesos e opostos de D3Q19 ou D3Q27. |
+| `sphere` | função | `(shape, center, radius) -> torch.Tensor` | Máscara sólida de uma esfera. |
+| `box` | função | `(shape, lo, hi) -> torch.Tensor` | Máscara sólida de uma caixa. |
+| `voxelize_stl` | função | `(mesh, shape, center, size, axis=0) -> torch.Tensor` | Máscara sólida de uma superfície fechada (via trimesh), escalada e centrada. |
+| `write_vtk` | função | `(path, data, origin=(0.0, 0.0, 0.0), spacing=1.0) -> None` | Grava VTK legado binário de pontos estruturados. |
+| `read_vtk` | função | `(path) -> dict` | Lê VTK legado de pontos estruturados (binário ou ASCII). |
+| `drag_sphere_schiller_naumann` | função | `(re) -> float` | Coeficiente de arrasto de esfera por Schiller & Naumann. |
+| `stokes_sphere_field` | função | `(shape, center, radius, u_inf)` | Campo de velocidade de Stokes em torno de uma esfera fixa. |
 
 #### `pinneapple_simulation.numerical_solvers.meshfree`
 
-Meshfree solvers: RBF collocation and Moving Least Squares (MLS).
+Métodos sem malha: colocação RBF (Kansa) para Poisson e aproximação por mínimos quadrados móveis (MLS). Levanta NotImplementedError para kernels RBF sem laplaciano analítico.
 
 <small>`pinneapple_simulation/numerical_solvers/meshfree.py` · 377 linhas · testes: 8 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RBFCollocationSolver` | classe | `(rbf='gaussian', eps=3.0, coeff=1.0, reg=1e-08)` | Meshfree RBF collocation solver (Kansa method). |
-| `MLSApproximation` | classe | `(degree=1, support_radius=0.2, weight='quartic')` | Meshfree Moving Least Squares approximation. |
+| `RBFCollocationSolver` | classe | `(rbf='gaussian', eps=3.0, coeff=1.0, reg=1e-08)` | Colocação RBF (Kansa) sem malha, também a partir de um `ProblemSpec`. |
+| `MLSApproximation` | classe | `(degree=1, support_radius=0.2, weight='quartic')` | Aproximação por mínimos quadrados móveis, com avaliação e gradiente. |
 
 #### `pinneapple_simulation.numerical_solvers.nbody_rebound`
 
-REBOUND N-body gravitational integrator.
+Wrapper do integrador gravitacional de N corpos REBOUND (`rebound.Simulation`). Dependência opcional.
 
 <small>`pinneapple_simulation/numerical_solvers/nbody_rebound.py` · 270 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NBodySolver` | classe | `(bodies, integrator='ias15', G=1.0, dt=None, move_to_com=True)` | Thin, real wrapper around `rebound.Simulation`. |
+| `NBodySolver` | classe | `(bodies, integrator='ias15', G=1.0, dt=None, move_to_com=True)` | Wrapper de `rebound.Simulation` com integração, passo e saída padrão. |
 
 #### `pinneapple_simulation.numerical_solvers.neighbors`
 
-Neighbor search utilities (grid hashing) for particle methods.
+Busca de vizinhos por hashing em grade uniforme para métodos de partículas, em formato comprimido; versão MVP. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/neighbors.py` · 113 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NeighborList` | classe | `(j, indptr)` | Compressed neighbor list representation. |
-| `build_neighbor_list` | função | `(pos, *, h, max_neighbors=64) -> NeighborList` | Build neighbor list for 2D/3D particles using uniform grid. |
+| `NeighborList` | classe | `(j, indptr)` | Lista de vizinhos comprimida (índices e ponteiros). |
+| `build_neighbor_list` | função | `(pos, *, h, max_neighbors=64) -> NeighborList` | Constrói a lista de vizinhos 2D/3D por grade uniforme. |
 
 #### `pinneapple_simulation.numerical_solvers.nonlinear_beam_fem`
 
-Spectral-element FEM for a geometrically nonlinear (Von Karman) transient Euler-Bernoulli beam, time-integrated with the Newmark-beta method and a full Newton-Raphson iteration at every timestep to resolve the nonlinear residual.
+FEM de elementos espectrais para viga de Euler-Bernoulli geometricamente não linear (Von Karman) transiente, com Newmark-beta e Newton-Raphson a cada passo, e frequências naturais.
 
 <small>`pinneapple_simulation/numerical_solvers/nonlinear_beam_fem.py` · 843 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `NonlinearBeamNewmarkFEM` | classe | `(num_elements, nodes_per_element, length, area, moment_of_inertia, E, density, damping_co…)` | Spectral-element / Newmark-beta engine for the transient geometrically nonlinear (Von Karman) Euler-Bernoulli beam described in the module docstring. Construct once per problem (mesh + BCs are fixed at construction), then call `run()` to march through time, or `natural_frequencies_hz()` for the … |
-| `NonlinearBeamFEMSolver` | classe | `(num_elements=50, nodes_per_element=NODES_PER_ELEMENT)` | Thin `SolverBase`/registry wrapper. `solve_nonlinear_beam_transient` and `NonlinearBeamNewmarkFEM` are the primary entry points and can be used directly without this wrapper. |
-| `gauss_lobatto_legendre_points` | função | `(n_points) -> np.ndarray` | Gauss-Lobatto-Legendre points on [-1, 1] for `n_points` nodes (endpoints included, interior points at the roots of P'_{n-1}). |
-| `generate_1d_mesh` | função | `(num_elements, nodes_per_element, dofpn, length)` | Uniform 1D mesh of `num_elements` elements, each with `nodes_per_element` nodes placed at Gauss-Lobatto-Legendre points (so nodes_per_element=2 is a plain linear mesh; higher values place spectral interior nodes). |
-| `gauss_legendre_quadrature` | função | `(n_points)` | Gauss-Legendre quadrature points and weights on [-1, 1]. |
-| `lagrange_shape_functions_1d` | função | `(nodes_per_element, n_quad_points)` | Lagrange shape functions and their first derivative (built on GLL nodes), evaluated at `n_quad_points` Gauss-Legendre quadrature points. |
-| `hermite_shape_functions_1d` | função | `(n_quad_points, h)` | Cubic Hermite shape functions (value + slope DOF at each of the two element endpoints) and their first/second derivatives, evaluated at `n_quad_points` Gauss-Legendre quadrature points on the element of length `h`. Fixed at two endpoints regardless of mesh order -- see `NODES_PER_ELEMENT`. |
-| `neumann_boundary_time_series` | função | `(num_elements, nodes_per_element, dofpn, conn, boundary_n, timesteps, delta_t, f_drive)` | Pre-evaluate the Neumann ("N") boundary loads at every timestep, scattered onto the (element, local-dof) layout used during assembly. A load value is const + sin_amp*sin(2*pi*f_drive*t) + cos_amp*cos(2*pi*f_drive*t). |
-| `dirichlet_boundary_values` | função | `(num_elements, nodes_per_element, dofpn, conn, boundary_d)` | Pre-scatter the Dirichlet ("D") boundary values onto the (element, local-dof) layout; np.nan marks an unconstrained (element, local-dof). |
-| `apply_neumann_bc` | função | `(i, t, load_vec_elem, boundary_n_series, ratio)` | Add the pre-evaluated Neumann load (scaled by the current load-step ratio) into an element's residual/load vector. |
-| `apply_dirichlet_bc` | função | `(i, newton_iter, stiff_mat_elem, load_vec_elem, boundary_d_values)` | Enforce Dirichlet constraints on one element's tangent matrix and residual by row/column elimination (constrained DOFs decouple from the rest of the system; their prescribed value is only injected on the first Newton iteration of a load step, since later iterations solve for the *correction* to an … |
-| `cantilever_frequency_roots` | função | `(n) -> np.ndarray` | First `n` positive roots of cos(x)cosh(x) = -1, the transcendental frequency equation for a clamped-free (cantilever) Euler-Bernoulli beam -- solved by bracketed root-finding since no closed form exists. Useful as an independent closed-form check for `natural_frequencies_hz` when the caller's … |
-| `solve_nonlinear_beam_transient` | função | `(boundary, L_m, A_m2, I_m4, E_Pa, rho_kg_m3, damping_coeff=0.0, axial_dist_load_N_per_m=0…)` | Solve the transient geometrically nonlinear (Von Karman) Euler- Bernoulli beam FEM problem described in the module docstring, for a caller-supplied `boundary` dict (Dirichlet + Neumann DOF specification -- see module docstring for its shape). `newmark_beta`/`newmark_gamma` use the standard … |
-| `acceleration_from_displacement` | função | `(w, dt) -> np.ndarray` | Convenience/diagnostic: second time-derivative of a displacement time-history via a proper 3-point second-derivative stencil (reuses `beam_bvp_fdm.second_derivative`, which is exact for a quadratic displacement history and doesn't compound `np.gradient`'s first-order edge truncation the way … |
+| `NonlinearBeamNewmarkFEM` | classe | `(num_elements, nodes_per_element, length, area, moment_of_inertia, E, density, damping_co…)` | Motor de elementos espectrais + Newmark para a viga não linear: `run` no tempo e frequências naturais. |
+| `NonlinearBeamFEMSolver` | classe | `(num_elements=50, nodes_per_element=NODES_PER_ELEMENT)` | Wrapper fino `SolverBase`/registro do solver de viga não linear. |
+| `gauss_lobatto_legendre_points` | função | `(n_points) -> np.ndarray` | Pontos de Gauss-Lobatto-Legendre em [-1, 1]. |
+| `generate_1d_mesh` | função | `(num_elements, nodes_per_element, dofpn, length)` | Malha 1D uniforme com nós GLL em cada elemento. |
+| `gauss_legendre_quadrature` | função | `(n_points)` | Pontos e pesos de Gauss-Legendre em [-1, 1]. |
+| `lagrange_shape_functions_1d` | função | `(nodes_per_element, n_quad_points)` | Funções de forma de Lagrange e derivadas nos pontos de quadratura. |
+| `hermite_shape_functions_1d` | função | `(n_quad_points, h)` | Funções de forma cúbicas de Hermite e derivadas nos pontos de quadratura. |
+| `neumann_boundary_time_series` | função | `(num_elements, nodes_per_element, dofpn, conn, boundary_n, timesteps, delta_t, f_drive)` | Pré-calcula as cargas de Neumann em cada passo de tempo. |
+| `dirichlet_boundary_values` | função | `(num_elements, nodes_per_element, dofpn, conn, boundary_d)` | Pré-distribui os valores de Dirichlet no layout de elementos. |
+| `apply_neumann_bc` | função | `(i, t, load_vec_elem, boundary_n_series, ratio)` | Soma a carga de Neumann ao vetor de um elemento. |
+| `apply_dirichlet_bc` | função | `(i, newton_iter, stiff_mat_elem, load_vec_elem, boundary_d_values)` | Impõe Dirichlet na matriz tangente e no resíduo de um elemento por eliminação. |
+| `cantilever_frequency_roots` | função | `(n) -> np.ndarray` | Raízes de cos(x)cosh(x) = -1 para checar frequências de viga em balanço. |
+| `solve_nonlinear_beam_transient` | função | `(boundary, L_m, A_m2, I_m4, E_Pa, rho_kg_m3, damping_coeff=0.0, axial_dist_load_N_per_m=0…)` | Resolve o problema transiente da viga não linear para um dicionário de contornos. |
+| `acceleration_from_displacement` | função | `(w, dt) -> np.ndarray` | Derivada segunda no tempo de um histórico de deslocamento. |
 
 #### `pinneapple_simulation.numerical_solvers.ns3d_spectral`
 
-Pseudo-spectral solver for the 3-D incompressible Navier-Stokes equations on the periodic box [0, 2*pi)^3 (rotational form, 2/3-rule dealiasing, classical RK4, exact integrating factor for viscosity).
+Solver pseudoespectral de Navier-Stokes 3D incompressível na caixa periódica [0, 2π)^3 (forma rotacional, dealiasing 2/3, RK4, fator integrante para a viscosidade). [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/ns3d_spectral.py` · 103 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpectralNS3D` | classe | `(N, nu, dt)` |  |
-| `taylor_green_ic` | função | `(N)` |  |
+| `SpectralNS3D` | classe | `(N, nu, dt)` | Solver pseudoespectral NS 3D: transformadas, rotacional, projeção, RHS e laço RK4. |
+| `taylor_green_ic` | função | `(N)` | Condição inicial de Taylor-Green 3D na grade N^3. |
 
 #### `pinneapple_simulation.numerical_solvers.openfoam_bridge`
 
-OpenFOAM bridge for pinneapple.
+Ponte OpenFOAM: gera casos a partir do `ProblemSpec`, roda o solver e extrai os campos como arrays para datasets. Requer OpenFOAM para rodar.
 
 <small>`pinneapple_simulation/numerical_solvers/openfoam_bridge.py` · 751 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OpenFOAMBridge` | classe | `(solver='simpleFoam', n_cores=1, n_iterations=500, openfoam_bin=None) -> None` | Bridge that generates OpenFOAM cases, runs the solver, and extracts fields. |
-| `generate_case` | função | `(problem_spec, case_dir, mesh_cfg=None) -> Path` | Generate an OpenFOAM case directory from *problem_spec*. |
-| `run_openfoam` | função | `(case_dir, solver='simpleFoam', n_cores=1, n_iter=500) -> 'subprocess.CompletedProcess[st…)` | Run an OpenFOAM solver inside *case_dir*. |
-| `extract_fields` | função | `(case_dir, time='latestTime', field_names=None) -> Dict[str, 'Any']` | Extract field arrays from a finished OpenFOAM run. |
-| `openfoam_to_dataset` | função | `(case_dir, field_names=None, time='latestTime') -> Dict[str, 'Any']` | High-level helper: extract fields and return as a flat dataset dict. |
+| `OpenFOAMBridge` | classe | `(solver='simpleFoam', n_cores=1, n_iterations=500, openfoam_bin=None) -> None` | Gera casos, roda o solver OpenFOAM e extrai campos. |
+| `generate_case` | função | `(problem_spec, case_dir, mesh_cfg=None) -> Path` | Cria o diretório de caso OpenFOAM a partir de um `ProblemSpec`. |
+| `run_openfoam` | função | `(case_dir, solver='simpleFoam', n_cores=1, n_iter=500) -> 'subprocess.CompletedProcess[st…)` | Roda um solver OpenFOAM no diretório do caso. |
+| `extract_fields` | função | `(case_dir, time='latestTime', field_names=None) -> Dict[str, 'Any']` | Lê arrays de campos de uma rodada terminada. |
+| `openfoam_to_dataset` | função | `(case_dir, field_names=None, time='latestTime') -> Dict[str, 'Any']` | Extrai os campos e devolve um dicionário plano de dataset. |
 
 #### `pinneapple_simulation.numerical_solvers.operator_benchmarks`
 
-Reference solvers and input distributions of the standard operator-learning benchmarks.
+Solvers de referência e distribuições de entrada dos benchmarks clássicos de aprendizado de operadores: campos gaussianos periódicos, Burgers 1D, Navier-Stokes 2D em vorticidade, advecção-difusão e Darcy 2D.
 
 <small>`pinneapple_simulation/numerical_solvers/operator_benchmarks.py` · 277 linhas · testes: 132</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FourierInterpolant` | classe | `(values, *, max_modes=None, dtype=None)` | Evaluate a periodic grid field (period 1 in every axis, nodes ``j / n``) at arbitrary points, with autograd. |
-| `periodic_grf` | função | `(n_samples, shape, *, alpha, tau, sigma=None, seed=None) -> np.ndarray` | Zero-mean Gaussian random fields on the periodic unit box with covariance ``sigma^2 (-lap + tau^2)^-alpha``. |
-| `threshold_coefficient` | função | `(field, high=12.0, low=3.0) -> np.ndarray` | Piecewise-constant coefficient ``high`` where ``field >= 0`` and ``low`` elsewhere (FNO Darcy inputs). |
-| `spectral_downsample` | função | `(u, factor, axes) -> np.ndarray` | Point values on every ``factor``-th node of a periodic grid (exact for band-limited fields). |
-| `burgers_1d` | função | `(u0, nu, t_end, *, dt=0.0001, n_save=1, dealias=True) -> tuple[np.ndarray, np.ndarray]` | Viscous Burgers on the periodic interval [0, 1). |
-| `li_forcing` | função | `(n) -> np.ndarray` | ``f(x, y) = 0.1 (sin(2 pi (x + y)) + cos(2 pi (x + y)))`` on the ``n x n`` periodic grid (Li et al. 2021). |
-| `navier_stokes_2d_vorticity` | função | `(w0, nu, t_end, *, forcing=None, dt=0.001, n_save=1, dealias=True) -> tuple[np.ndarray, n…)` | 2-D incompressible Navier-Stokes, vorticity form, periodic unit square, grid ``x_i = i / n``. |
-| `advection_diffusion_2d` | função | `(u0, velocity, kappa, dt, n_steps) -> np.ndarray` | ``u_t + c . grad u = kappa lap u`` on the periodic unit square, exact in time for the resolved modes: each Fourier mode is multiplied by ``exp((-i k . c - kappa \|k\|^2) dt)`` per step. ``u0``: ``(n, n)`` or ``(batch, n, n)`` (axis 0 is x). Returns ``(n_steps + 1, ...)`` states, the first one ``u0``. |
-| `darcy_2d` | função | `(a, f=1.0, *, axis_weights=(1.0, 1.0)) -> np.ndarray` | ``-div(a grad u) = f`` on the unit square, ``u = 0`` on the boundary; ``a`` (and ``f``) at the ``n x n`` cell centres ``((i + 1/2) h, (j + 1/2) h)``, ``h = 1/n``. Returns ``u`` at the cell centres. |
-| `darcy_matrix` | função | `(a, axis_weights=(1.0, 1.0)) -> sp.csc_matrix` | The ``n^2 x n^2`` finite-volume matrix of :func:`darcy_2d` (``A u = f`` with ``u`` raveled in C order). It is symmetric positive definite, and ``A - min(a) * darcy_matrix(ones)`` is positive semi-definite (every face coefficient is a harmonic mean, never below ``min a``). |
+| `FourierInterpolant` | classe | `(values, *, max_modes=None, dtype=None)` | Avalia um campo periódico de grade em pontos arbitrários com autograd. |
+| `periodic_grf` | função | `(n_samples, shape, *, alpha, tau, sigma=None, seed=None) -> np.ndarray` | Campos gaussianos aleatórios periódicos com covariância tipo Matérn. |
+| `threshold_coefficient` | função | `(field, high=12.0, low=3.0) -> np.ndarray` | Coeficiente constante por partes (alto/baixo) pelo sinal do campo (entradas Darcy do FNO). |
+| `spectral_downsample` | função | `(u, factor, axes) -> np.ndarray` | Valores pontuais a cada `factor` nós de uma grade periódica. |
+| `burgers_1d` | função | `(u0, nu, t_end, *, dt=0.0001, n_save=1, dealias=True) -> tuple[np.ndarray, np.ndarray]` | Burgers viscoso no intervalo periódico [0, 1). |
+| `li_forcing` | função | `(n) -> np.ndarray` | Forçante de Li et al. 2021 na grade periódica n x n. |
+| `navier_stokes_2d_vorticity` | função | `(w0, nu, t_end, *, forcing=None, dt=0.001, n_save=1, dealias=True) -> tuple[np.ndarray, n…)` | Navier-Stokes 2D em vorticidade no quadrado unitário periódico. |
+| `advection_diffusion_2d` | função | `(u0, velocity, kappa, dt, n_steps) -> np.ndarray` | Advecção-difusão 2D periódica, exata no tempo para os modos resolvidos. |
+| `darcy_2d` | função | `(a, f=1.0, *, axis_weights=(1.0, 1.0)) -> np.ndarray` | Resolve -div(a grad u) = f no quadrado unitário com u = 0 na borda. |
+| `darcy_matrix` | função | `(a, axis_weights=(1.0, 1.0)) -> sp.csc_matrix` | Matriz de volumes finitos de `darcy_2d`. |
 
 #### `pinneapple_simulation.numerical_solvers.operator_datasets`
 
-Operator-learning benchmark datasets: 1-D Burgers, 2-D Darcy, 2-D Navier-Stokes (vorticity).
+Gera os datasets de aprendizado de operadores (Burgers 1D, Darcy 2D, Navier-Stokes 2D) com estudo de convergência e npz determinísticos.
 
 <small>`pinneapple_simulation/numerical_solvers/operator_datasets.py` · 309 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `burgers_inputs` | função | `(n_samples, n, seed) -> np.ndarray` |  |
-| `fourier_pad` | função | `(u, n_new, axes) -> np.ndarray` | Band-limited (trigonometric) interpolation of periodic grid data onto ``n_new`` points along each of ``axes``; exact for fields whose Fourier content is below the coarse Nyquist mode (the Nyquist mode is dropped). |
-| `solve_burgers` | função | `(u0, dt=None) -> np.ndarray` |  |
-| `darcy_inputs` | função | `(n_samples, n, seed, *, tau=None, high=None, low=None) -> np.ndarray` | Coefficients of the Darcy benchmark; ``tau`` (inverse correlation length), ``high`` and ``low`` override the dataset's values to draw shifted inputs (other length scale, other contrast) from the same family. |
-| `block_average` | função | `(x, factor) -> np.ndarray` | Cell averages on a grid ``factor`` times coarser over the last two axes (``(..., n, n)``, ``n % factor == 0``): the coarse-grid version of a cell-averaged field (``u`` of the dataset) or of a coefficient. |
-| `solve_darcy` | função | `(a, refine=None) -> np.ndarray` | Solve on the grid refined ``refine`` times (the piecewise-constant coefficient is represented exactly) and return the cell averages of u on the coefficient's own grid. |
-| `ns_inputs` | função | `(n_samples, n, seed) -> np.ndarray` |  |
-| `solve_ns` | função | `(w0, n_solve=None, dt=None) -> np.ndarray` | Solve on ``n_solve``^2 (inputs given on a coarser grid are Fourier-padded) and return the point values on the stored ``n_store``^2 grid at t = 0, 1, ..., t_end. |
-| `rel_l2` | função | `(a, b) -> np.ndarray` | Per-sample relative L2 error of ``a`` against reference ``b`` (all axes but the first). |
-| `write_npz` | função | `(path, arrays) -> None` | Deflated npz with fixed zip timestamps (the SHA-256 depends only on the data). |
-| `darcy_set` | função | `(n_samples, seed, *, n=None, tau=None, high=None, low=None, workers=1) -> tuple[np.ndarra…)` | ``(a, u)`` pairs of the Darcy benchmark drawn and solved exactly as the zoo dataset ``darcy_2d_li2021`` (same solver, refinement and source), optionally from a shifted input distribution: ``tau`` (correlation length ~ 1 / tau; the dataset uses 3), ``high`` / ``low`` (the two coefficient values; 12 … |
-| `generate` | função | `(out, workers=1, only=None) -> None` | Generate the three datasets (or ``only`` one) into ``out/<name>/`` (resumable for Navier-Stokes). |
-| `convergence` | função | `(out, workers=1, n_samples=4, only=None) -> dict` | Resolution and time-step study on held-aside inputs (seed + 7): each setting is compared with a finer reference at the stored nodes, all saved times; the dataset setting must be converged to well below the error level operator-learning methods reach on these problems (FNO: 3e-3 to 1e-2 rel. L2). … |
+| `burgers_inputs` | função | `(n_samples, n, seed) -> np.ndarray` | Condições iniciais aleatórias do benchmark de Burgers. |
+| `fourier_pad` | função | `(u, n_new, axes) -> np.ndarray` | Interpolação trigonométrica de dados periódicos para mais pontos. |
+| `solve_burgers` | função | `(u0, dt=None) -> np.ndarray` | Resolve Burgers com os parâmetros do dataset. |
+| `darcy_inputs` | função | `(n_samples, n, seed, *, tau=None, high=None, low=None) -> np.ndarray` | Coeficientes de entrada do benchmark de Darcy, com opção de deslocar a distribuição. |
+| `block_average` | função | `(x, factor) -> np.ndarray` | Médias por bloco numa grade `factor` vezes mais grossa. |
+| `solve_darcy` | função | `(a, refine=None) -> np.ndarray` | Resolve Darcy numa grade refinada e devolve médias de célula. |
+| `ns_inputs` | função | `(n_samples, n, seed) -> np.ndarray` | Vorticidades iniciais aleatórias do benchmark de Navier-Stokes. |
+| `solve_ns` | função | `(w0, n_solve=None, dt=None) -> np.ndarray` | Resolve Navier-Stokes e devolve os valores na grade armazenada a cada tempo. |
+| `rel_l2` | função | `(a, b) -> np.ndarray` | Erro L2 relativo por amostra. |
+| `write_npz` | função | `(path, arrays) -> None` | Grava npz comprimido com timestamps fixos (hash depende só dos dados). |
+| `darcy_set` | função | `(n_samples, seed, *, n=None, tau=None, high=None, low=None, workers=1) -> tuple[np.ndarra…)` | Pares (a, u) de Darcy como no dataset do zoo `darcy_2d_li2021`, opcionalmente com entradas deslocadas. |
+| `generate` | função | `(out, workers=1, only=None) -> None` | Gera os três datasets (ou só um) num diretório. |
+| `convergence` | função | `(out, workers=1, n_samples=4, only=None) -> dict` | Estudo de resolução e passo de tempo contra referências mais finas. |
 
 #### `pinneapple_simulation.numerical_solvers.particles`
 
-Lagrangian particles in a liquid: soft-sphere DEM contacts, drag, buoyancy and turbulent dispersion, in a prescribed carrier flow (one-way coupling). Fast enough for tens of thousands of particles on a laptop, and meant for process pictures and trends (suspension, mixing, settling), not for …
+Partículas lagrangianas em líquido (DEM de esferas macias, arrasto, empuxo, dispersão turbulenta) num escoamento prescrito de tanque agitado; o docstring diz que serve para tendências, não para números de projeto.
 
 <small>`pinneapple_simulation/numerical_solvers/particles.py` · 284 linhas · testes: 20</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Liquid` | classe | `(rho, mu)` |  |
-| `StirredTank` | classe | `(R, H, D_imp, C, swirl, loop, turbulence, T_L, blades, pitch_deg, down_pumping)` | Flat-bottom cylindrical tank (axis z, bottom at z = 0, liquid up to H) with a centred impeller of diameter ``D_imp`` at clearance ``C``. ``swirl`` and ``loop``: swirl and circulation speeds as fractions of the tip speed; ``turbulence``: velocity fluctuation as a fraction of the tip speed; ``T_L``: … |
-| `DEM` | classe | `(x, d, rho_p, liq=WATER, e=0.4, t_c=None, dt=0.0005, g=9.81, seed=0)` | Equal spheres (diameter ``d``) with linear spring-dashpot normal contacts (restitution ``e``, collision time ``t_c``), drag towards the liquid velocity, buoyancy-reduced gravity, and contacts with the tank (wall, bottom, surface). Verlet neighbour lists with a skin. |
-| `drag_factor` | função | `(Re) -> np.ndarray` | Schiller-Naumann correction to Stokes drag (Re < 1000). |
-| `terminal_velocity` | função | `(d, rho_p, liq=WATER, g=9.81) -> float` | Settling velocity of an isolated sphere with Schiller-Naumann drag (fixed point). |
-| `packed_bed` | função | `(tank, n, d, seed=0) -> np.ndarray` | Initial positions: a loose cubic lattice filling the tank from the bottom (it settles in the first second). |
-| `suspend` | função | `(tank, n=20000, d=0.003, rho_p=1200.0, rpm=lambda t: min(150.0, 6.0 * t), t_end=30.0, dt=…)` | Suspension of an initially settled bed as the impeller speeds up. Returns frames (positions, speed), times, rpm, the fraction of particles in the top third, the fraction off the bottom and the largest contact overlap. |
-| `zwietering_njs` | função | `(tank, d, rho_p, mass_ratio, liq=WATER, S=6.0, g=9.81) -> float` | Just-suspended impeller speed (rpm) of Zwietering (1958): N_js = S nu^0.1 (g drho/rho_L)^0.45 X^0.13 d^0.2 / D^0.85, X in mass percent of solids to liquid. ``S`` depends on the impeller and the geometry (about 4-8 for pitched-blade turbines). |
+| `Liquid` | classe | `(rho, mu)` | Líquido (densidade, viscosidade). |
+| `StirredTank` | classe | `(R, H, D_imp, C, swirl, loop, turbulence, T_L, blades, pitch_deg, down_pumping)` | Tanque cilíndrico agitado com escoamento analítico de rotação e circulação. |
+| `DEM` | classe | `(x, d, rho_p, liq=WATER, e=0.4, t_c=None, dt=0.0005, g=9.81, seed=0)` | Esferas iguais com contato mola-amortecedor, arrasto, empuxo e paredes do tanque. |
+| `drag_factor` | função | `(Re) -> np.ndarray` | Correção de Schiller-Naumann ao arrasto de Stokes. |
+| `terminal_velocity` | função | `(d, rho_p, liq=WATER, g=9.81) -> float` | Velocidade de sedimentação de uma esfera isolada. |
+| `packed_bed` | função | `(tank, n, d, seed=0) -> np.ndarray` | Posições iniciais em leito no fundo do tanque. |
+| `suspend` | função | `(tank, n=20000, d=0.003, rho_p=1200.0, rpm=lambda t: min(150.0, 6.0 * t), t_end=30.0, dt=…)` | Simula a suspensão de um leito enquanto o impelidor acelera. |
+| `zwietering_njs` | função | `(tank, d, rho_p, mass_ratio, liq=WATER, S=6.0, g=9.81) -> float` | Rotação de suspensão mínima pela correlação de Zwietering (1958). |
 
 #### `pinneapple_simulation.numerical_solvers.pipe_network`
 
-Steady flow in a looped pipe network (water distribution) by the global gradient algorithm.
+Escoamento permanente em rede de tubos com malhas (distribuição de água) pelo algoritmo do gradiente global, com a rede de dois anéis de Alperovits & Shamir e otimização de diâmetros por algoritmo genético.
 
 <small>`pinneapple_simulation/numerical_solvers/pipe_network.py` · 184 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Network` | classe | `(junctions, reservoirs, pipes, headloss, coords)` | Nodes by name: ``elevation`` (m), ``demand`` (m3/s, positive = drawn off) for junctions, ``head`` (m) for fixed-head nodes. Pipes: (name, from, to, length m, diameter m, roughness) with roughness = Hazen-Williams C or Darcy-Weisbach absolute roughness in m, per ``headloss`` ("HW" or "DW"). |
-| `solve_network` | função | `(net, tol=1e-10, max_iter=100) -> dict` | Heads, pressures (head - elevation), flows, velocities and head losses; ``iterations``, the continuity residual per junction and the energy residual per pipe (both checks of the converged solution). |
-| `two_loop_network` | função | `(diameters_in=(18, 10, 16, 4, 16, 10, 10, 1), headloss='HW', roughness=None) -> Network` | The two-loop network of Alperovits & Shamir (1977), "Design of optimal water distribution systems", Water Resources Research 13(6): one reservoir at 210 m, six junctions, eight 1000 m pipes, Hazen-Williams C = 130. Default diameters (inches): the least-cost design reported by Savic & Walters (1997) … |
-| `optimize_diameters` | função | `(net, sizes_m, unit_cost, p_min, *, pop=100, generations=400, seed=0, penalty=1000000.0, …)` | Least-cost discrete diameters with every junction pressure >= ``p_min`` (m): a genetic algorithm (integer genes, tournament selection, uniform crossover, creep mutation, elitism) with a penalty per metre of pressure deficit; every candidate is evaluated with :func:`solve_network`. Returns the best … |
+| `Network` | classe | `(junctions, reservoirs, pipes, headloss, coords)` | Rede de tubos: nós, reservatórios, tubos e lei de perda (Hazen-Williams ou Darcy-Weisbach). |
+| `solve_network` | função | `(net, tol=1e-10, max_iter=100) -> dict` | Cargas, pressões, vazões, velocidades e perdas, com resíduos de continuidade e energia. |
+| `two_loop_network` | função | `(diameters_in=(18, 10, 16, 4, 16, 10, 10, 1), headloss='HW', roughness=None) -> Network` | A rede de dois anéis de Alperovits & Shamir (1977). |
+| `optimize_diameters` | função | `(net, sizes_m, unit_cost, p_min, *, pop=100, generations=400, seed=0, penalty=1000000.0, …)` | Diâmetros discretos de custo mínimo com pressão mínima, por algoritmo genético. |
 
 #### `pinneapple_simulation.numerical_solvers.plane_stress_fem`
 
-Linear plane-stress finite elements on any triangle mesh (constant-strain triangles), for parts whose geometry comes from elsewhere (a B-rep face, a CAD tessellation).
+Elementos finitos de estado plano de tensão (triângulos de deformação constante) sobre qualquer malha triangular, com patch test e fator de concentração de Heywood.
 
 <small>`pinneapple_simulation/numerical_solvers/plane_stress_fem.py` · 137 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PlaneStressSolution` | classe | `(V, F, u, stress, area, reaction)` |  |
-| `heywood_kt_net` | função | `(d_over_w) -> float` | Net-section stress concentration of a central hole in a strip under tension, ``2 + (1 - d/W)^3``. |
-| `boundary_edges` | função | `(F) -> np.ndarray` | Edges ``(m, 2)`` that belong to one triangle only. |
-| `solve_plane_stress` | função | `(V, F, *, E, nu, thickness, fixed, traction=(), body_force=(0.0, 0.0)) -> PlaneStressSolu…)` | ``V (n, 2)`` nodes [m], ``F (m, 3)`` triangles; ``fixed = {"x": nodes, "y": nodes}`` (zero displacement); ``traction``: ``[(edges (k, 2), (tx, ty) [Pa]), ...]`` on boundary edges; ``body_force`` [N/m^3]. |
-| `patch_test` | função | `(V, F, *, E=1.0, nu=0.3) -> float` | Impose the displacement of a uniform stress state on the boundary nodes and return the largest relative deviation of the element stresses from it (exact elements give round-off). |
+| `PlaneStressSolution` | classe | `(V, F, u, stress, area, reaction)` | Solução de estado plano: deslocamentos, tensões, reações, tensão nodal e von Mises. |
+| `heywood_kt_net` | função | `(d_over_w) -> float` | Fator de concentração de tensão de furo central em tira tracionada (Heywood). |
+| `boundary_edges` | função | `(F) -> np.ndarray` | Arestas que pertencem a um só triângulo. |
+| `solve_plane_stress` | função | `(V, F, *, E, nu, thickness, fixed, traction=(), body_force=(0.0, 0.0)) -> PlaneStressSolu…)` | Resolve estado plano de tensão com nós fixos, trações e força de corpo. |
+| `patch_test` | função | `(V, F, *, E=1.0, nu=0.3) -> float` | Patch test: desvio relativo máximo das tensões para um estado uniforme. |
 
 #### `pinneapple_simulation.numerical_solvers.problem_runner`
 
-Generate PINN training datasets from ProblemSpec definitions.
+Gera datasets de treino PINN a partir de um `ProblemSpec`: pontos de colocação, contorno e condição inicial, e dados de referência opcionais via solvers FDM registrados.
 
 <small>`pinneapple_simulation/numerical_solvers/problem_runner.py` · 570 linhas · testes: 22</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `generate_pinn_dataset` | função | `(problem_spec, *, n_col=None, n_bc=None, n_ic=None, n_data=0, seed=0, solver_cfg_override…)` | Generate a PINN training dataset from a ProblemSpec. |
+| `generate_pinn_dataset` | função | `(problem_spec, *, n_col=None, n_bc=None, n_ic=None, n_data=0, seed=0, solver_cfg_override…)` | Gera o dataset de treino PINN (colocação, contorno, inicial, dados) a partir de um `ProblemSpec`. |
 
 #### `pinneapple_simulation.numerical_solvers.reaction_diffusion`
 
-One-dimensional reaction-diffusion on a periodic interval, ``u_t = D u_xx + R(u)``, with the ETDRK4 scheme of :mod:`.etdrk4` (stiff diffusion exact, reaction explicit, 2/3 dealiasing).
+Reação-difusão 1D periódica u_t = D u_xx + R(u) integrada com ETDRK4 (difusão exata, reação explícita).
 
 <small>`pinneapple_simulation/numerical_solvers/reaction_diffusion.py` · 65 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReactionDiffusion1D` | classe | `(reaction, diffusion, n, length, dt)` |  |
+| `ReactionDiffusion1D` | classe | `(reaction, diffusion, n, length, dt)` | Sistema de reação-difusão 1D: grade, estado inicial, passo e trajetória com ETDRK4. |
 
 #### `pinneapple_simulation.numerical_solvers.registry`
 
-Solver registry.
+Registro de solvers por nome e família (`SolverRegistry`), `register_all` que importa cada módulo isoladamente e devolve as falhas, e o catálogo `SolverCatalog`.
 
 <small>`pinneapple_simulation/numerical_solvers/registry.py` · 137 linhas · testes: 206</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SolverSpec` | classe | `(name, family, cls, description, tags)` |  |
-| `SolverRegistry` | classe | `(_REG)` |  |
-| `SolverCatalog` | classe | `(registry)` | Convenience wrapper (dict-like catalog) around SolverRegistry. |
-| `register_all` | função | `() -> Dict[str, str]` | Import solver modules so their @register decorators execute. |
+| `SolverSpec` | classe | `(name, family, cls, description, tags)` | Registro de um solver: nome, família, classe, descrição e tags. |
+| `SolverRegistry` | classe | `(_REG)` | Registro global de solvers: decorador `register`, `spec`, `list` e `build`. |
+| `SolverCatalog` | classe | `(registry)` | Catálogo tipo dicionário sobre `SolverRegistry` que chama `register_all` ao ser criado. |
+| `register_all` | função | `() -> Dict[str, str]` | Importa cada módulo de solver isoladamente e devolve as falhas de importação. |
 
 #### `pinneapple_simulation.numerical_solvers.shallow_water_fv`
 
-2D shallow-water finite-volume solver for free-surface water: walls, gates, virtual sensors, live health checks, CSV export and comparison with experiments.
+Águas rasas 2D por volumes finitos com paredes, comportas, sensores virtuais, checagens de saúde, exportação CSV e comparação com experimentos; inclui as soluções de Ritter e Stoker.
 
 <small>`pinneapple_simulation/numerical_solvers/shallow_water_fv.py` · 352 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Sensor` | classe | `(name, kind, x, y, z, faces, values)` |  |
-| `ShallowWater2D` | classe | `(nx, ny, dx, dy=None, *, g=G, rho=RHO, cfl=0.45, second_order=True)` | Water on an ``nx x ny`` grid of cell size ``dx x dy`` (domain boundary: solid walls). |
-| `ritter` | função | `(x, t, h0, x0=0.0, g=G)` | Dam break on a dry bed (Ritter 1892): depth and velocity. |
-| `stoker` | função | `(x, t, h0, h1, x0=0.0, g=G)` | Dam break on a wet bed h1 < h0 (Stoker 1957): rarefaction + constant state + bore. |
+| `Sensor` | classe | `(name, kind, x, y, z, faces, values)` | Sensor virtual (profundidade, pressão, velocidade ou força de parede) e seus valores. |
+| `ShallowWater2D` | classe | `(nx, ny, dx, dy=None, *, g=G, rho=RHO, cfl=0.45, second_order=True)` | Águas rasas 2D com paredes, comportas, sensores, relatório de saúde, CSV e comparação. |
+| `ritter` | função | `(x, t, h0, x0=0.0, g=G)` | Rompimento de barragem em leito seco (Ritter 1892). |
+| `stoker` | função | `(x, t, h0, h1, x0=0.0, g=G)` | Rompimento de barragem em leito molhado (Stoker 1957). |
 
 #### `pinneapple_simulation.numerical_solvers.solid_fem`
 
-3-D linear elasticity with 8-node hexahedra and incompatible modes (Wilson-Taylor; the element Abaqus calls C3D8I), so slender parts in bending do not lock. Structured box meshes, clamps, supports, nodal and pressure loads, nodal stresses (extrapolated from the Gauss points and averaged) and von …
+Elasticidade linear 3D com hexaedros de 8 nós e modos incompatíveis (Wilson-Taylor), malhas de caixa, engastes, cargas, tensões nodais, figura de pós-processamento e exportação para CalculiX.
 
 <small>`pinneapple_simulation/numerical_solvers/solid_fem.py` · 415 linhas · testes: 47</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HexMesh` | classe | `(nodes, elements, shape, size)` |  |
-| `FEMResult` | classe | `(mesh, u, stress, reactions, info)` |  |
-| `SolidFEM` | classe | `(mesh, E, nu, incompatible, _fixed, _f)` |  |
-| `box_mesh` | função | `(L, W, H, nx, ny, nz, origin=(0.0, 0.0, 0.0)) -> HexMesh` | Structured hexahedral mesh of a box [0, L] x [-W/2, W/2] x [-H/2, H/2] (shifted by ``origin``). |
-| `elasticity_matrix` | função | `(E, nu) -> np.ndarray` |  |
-| `von_mises` | função | `(s) -> np.ndarray` | von Mises stress of Voigt stresses (..., 6). |
-| `fea_figure` | função | `(res, field='von_mises', scale=None, bands=12, title='', unit='MPa', factor=1e-06, view=(…)` | The deformed boundary mesh coloured by ``field`` in discrete bands with black element edges and a post-processor legend (S, Mises), the undeformed outline in grey. ``scale``: deformation scale factor (default: the largest displacement drawn as 8 % of the part's length). Any nodal ``values`` (a … |
+| `HexMesh` | classe | `(nodes, elements, shape, size)` | Malha de hexaedros com seleção de nós e faces de contorno. |
+| `FEMResult` | classe | `(mesh, u, stress, reactions, info)` | Resultado FEM 3D: deslocamentos, tensões, reações, von Mises e superfície. |
+| `SolidFEM` | classe | `(mesh, E, nu, incompatible, _fixed, _f)` | Problema de elasticidade 3D: engastes, cargas, pressão, solução e exportação CalculiX. |
+| `box_mesh` | função | `(L, W, H, nx, ny, nz, origin=(0.0, 0.0, 0.0)) -> HexMesh` | Malha estruturada de hexaedros de uma caixa. |
+| `elasticity_matrix` | função | `(E, nu) -> np.ndarray` | Matriz constitutiva isotrópica 6x6 (Voigt) a partir de E e nu. |
+| `von_mises` | função | `(s) -> np.ndarray` | Tensão de von Mises de tensões em notação de Voigt. |
+| `fea_figure` | função | `(res, field='von_mises', scale=None, bands=12, title='', unit='MPa', factor=1e-06, view=(…)` | Figura da malha deformada colorida por faixas com legenda de pós-processador. |
 
 #### `pinneapple_simulation.numerical_solvers.spectral`
 
-Spectral solvers (MVP).
+Solver espectral MVP: Poisson 2D periódico via FFT.
 
 <small>`pinneapple_simulation/numerical_solvers/spectral.py` · 49 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpectralSolver` | classe | `()` |  |
-| `poisson_periodic_fft` | função | `(f, *, Lx=1.0, Ly=1.0, eps=1e-12) -> torch.Tensor` | Solve ∇²u = f with periodic BC on 2D domain via FFT. |
+| `SpectralSolver` | classe | `()` | Wrapper registrado de `poisson_periodic_fft`. |
+| `poisson_periodic_fft` | função | `(f, *, Lx=1.0, Ly=1.0, eps=1e-12) -> torch.Tensor` | Resolve o Poisson 2D periódico via FFT. |
 
 #### `pinneapple_simulation.numerical_solvers.sph`
 
-SPH: Weakly-compressible Smoothed Particle Hydrodynamics (WCSPH) MVP.
+SPH fracamente compressível (WCSPH) MVP. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/sph.py` · 167 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SPHState` | classe | `(pos, vel, rho, p)` |  |
-| `SPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, c0=20.0, mu=0.02, gravity=None, boundary_lo=None, boundar…)` |  |
+| `SPHState` | classe | `(pos, vel, rho, p)` | Estado SPH: posição, velocidade, densidade e pressão. |
+| `SPHSolver` | classe | `(h=0.04, mass=1.0, rho0=1000.0, c0=20.0, mu=0.02, gravity=None, boundary_lo=None, boundar…)` | Solver WCSPH MVP com passo e saída padrão. |
 
 #### `pinneapple_simulation.numerical_solvers.sph_boundaries`
 
-Boundary handling helpers for SPH (MVP).
+Ajudantes de contorno para SPH (MVP): caixa alinhada aos eixos, força de repulsão de parede e reflexão rígida. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/sph_boundaries.py` · 88 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BoxBoundary` | classe | `(lo, hi)` | Axis-aligned box boundary [min,max] in each dimension. |
-| `wall_repulsion_force` | função | `(pos, vel, boundary, *, k=50.0, d0=0.02) -> torch.Tensor` |  |
-| `reflect_box` | função | `(pos, vel, lo, hi, *, restitution=0.0) -> Tuple[torch.Tensor, torch.Tensor]` | Hard boundary reflection for an axis-aligned box. |
+| `BoxBoundary` | classe | `(lo, hi)` | Caixa alinhada aos eixos usada como contorno. |
+| `wall_repulsion_force` | função | `(pos, vel, boundary, *, k=50.0, d0=0.02) -> torch.Tensor` | Força de repulsão suave quando a partícula chega perto da parede. |
+| `reflect_box` | função | `(pos, vel, lo, hi, *, restitution=0.0) -> Tuple[torch.Tensor, torch.Tensor]` | Reflexão rígida das partículas nas paredes da caixa. |
 
 #### `pinneapple_simulation.numerical_solvers.ssa`
 
-SSA: Singular Spectrum Analysis for 1D time series.
+Análise espectral singular (SSA) de séries 1D. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/ssa.py` · 73 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SSASolver` | classe | `(L=64, r=10)` |  |
-| `ssa_decompose` | função | `(x, L=64, r=10) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Return reconstructed components (r,T), singular values, and U. |
+| `SSASolver` | classe | `(L=64, r=10)` | Wrapper registrado de `ssa_decompose`. |
+| `ssa_decompose` | função | `(x, L=64, r=10) -> Tuple[np.ndarray, np.ndarray, np.ndarray]` | Componentes reconstruídas, valores singulares e U da SSA. |
 
 #### `pinneapple_simulation.numerical_solvers.sst`
 
-SST: Synchrosqueezed transform (MVP).
+Transformada sincronizada (synchrosqueezing) simplificada baseada em STFT; o docstring a chama de MVP. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/sst.py` · 89 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SSTSolver` | classe | `(fs=1.0, nperseg=128, noverlap=None, nfft=None)` |  |
-| `sst_stft_1d` | função | `(x, *, fs=1.0, nperseg=128, noverlap=None, nfft=None, eps=1e-08) -> Tuple[np.ndarray, np.…)` | Return (SST_like, freqs, times). |
+| `SSTSolver` | classe | `(fs=1.0, nperseg=128, noverlap=None, nfft=None)` | Wrapper registrado de `sst_stft_1d`. |
+| `sst_stft_1d` | função | `(x, *, fs=1.0, nperseg=128, noverlap=None, nfft=None, eps=1e-08) -> Tuple[np.ndarray, np.…)` | Transformada tipo synchrosqueezing a partir da STFT; devolve espectro, frequências e tempos. |
 
 #### `pinneapple_simulation.numerical_solvers.stable_fluids`
 
-Stable Fluids: unconditionally stable 2-D incompressible flow on a periodic grid.
+Stable Fluids (Stam): escoamento incompressível 2D incondicionalmente estável em grade periódica, com advecção semi-lagrangiana, difusão implícita, projeção e confinamento de vorticidade.
 
 <small>`pinneapple_simulation/numerical_solvers/stable_fluids.py` · 198 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StableFluidsState` | classe | `(velocity, scalars, t)` |  |
-| `StableFluids2D` | classe | `(nx, ny, *, length=(2 * np.pi, 2 * np.pi), viscosity=0.0, confinement=0.0, scalar_dissipa…)` | Periodic box ``[0, Lx) x [0, Ly)`` with ``nx x ny`` cell-centred samples. |
-| `stable_time_step` | função | `(max_velocity, dx, *, courant=0.5, viscosity=0.0, ndim=2, implicit_diffusion=True) -> flo…)` | Advective CFL step ``courant * dx / max_velocity``, capped by the explicit-diffusion limit ``dx^2 / (2 ndim nu)`` unless diffusion is implicit (as in :class:`StableFluids2D`). |
+| `StableFluidsState` | classe | `(velocity, scalars, t)` | Estado: velocidade, escalares transportados e tempo. |
+| `StableFluids2D` | classe | `(nx, ny, *, length=(2 * np.pi, 2 * np.pi), viscosity=0.0, confinement=0.0, scalar_dissipa…)` | Caixa periódica 2D com as etapas do Stable Fluids e laço de simulação. |
+| `stable_time_step` | função | `(max_velocity, dx, *, courant=0.5, viscosity=0.0, ndim=2, implicit_diffusion=True) -> flo…)` | Passo de tempo pelo CFL advectivo, limitado pela difusão explícita se for o caso. |
 
 #### `pinneapple_simulation.numerical_solvers.stiff_kinetics_ode`
 
-Stiff-ODE convenience wrapper for coupled reaction-network / chemical- or biological-kinetics systems: dy_i/dt = rate_fn(t, y)[i], y_i(t0) = y0[i].
+Wrapper de EDOs rígidas para redes de reação (cinética química ou biológica) usando métodos implícitos do SciPy (Radau por padrão).
 
 <small>`pinneapple_simulation/numerical_solvers/stiff_kinetics_ode.py` · 100 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `solve_stiff_reaction_network` | função | `(rate_fn, y0, t_span, t_eval=None, jac_fn=None, method='Radau', rtol=1e-09, atol=1e-12, c…)` | Integrate dy/dt = rate_fn(t, y), y(t0) = y0, over t_span = (t0, tf) with a stiff-appropriate implicit method. |
+| `solve_stiff_reaction_network` | função | `(rate_fn, y0, t_span, t_eval=None, jac_fn=None, method='Radau', rtol=1e-09, atol=1e-12, c…)` | Integra dy/dt = rate_fn(t, y) com método implícito rígido e corta valores negativos. |
 
 #### `pinneapple_simulation.numerical_solvers.stl`
 
-STL: Seasonal-Trend decomposition using Loess.
+Decomposição sazonal-tendência por Loess (STL) via statsmodels, que é importado no topo do módulo. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/stl.py` · 40 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `STLSolver` | classe | `(period=24, robust=True)` |  |
+| `STLSolver` | classe | `(period=24, robust=True)` | Wrapper registrado da STL do statsmodels. |
 
 #### `pinneapple_simulation.numerical_solvers.symbolic_fd`
 
-Finite differences for any parsed equation system on a box: steady (Newton) or method of lines (BDF).
+Diferenças finitas para qualquer sistema de equações lido por `parse_system` numa caixa: estacionário (Newton) ou método das linhas (BDF), em 1D, 2D ou 3D.
 
 <small>`pinneapple_simulation/numerical_solvers/symbolic_fd.py` · 498 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FDError` | classe | `()` | The system cannot be solved by this finite-difference scheme (and why). |
-| `FDResult` | classe | `(axes, fields, t, info)` |  |
-| `FDOperator` | classe | `()` | A parsed system compiled on a grid: the right-hand sides, the face conditions and the initial state. Arrays may carry leading axes (an ensemble); coefficients named in ``keep`` stay symbolic and are read from the environment (``extra``), so an ensemble of coefficient values can be stepped at once. |
-| `compile_system` | função | `(system, bounds, *, n=64, coefficients=None, keep=()) -> FDOperator` | Compile ``system`` for finite differences (see :func:`solve_fd`, which uses it). |
-| `initial_state` | função | `(op, t0) -> dict[tuple[str, bool], np.ndarray]` | Initial values (and ``f_t`` for second order) of every field on the grid, faces set by their conditions. |
-| `solve_fd` | função | `(system, bounds, *, n=64, n_save=41, coefficients=None, relax=20000.0, rtol=1e-06, atol=1…)` | Solve ``system`` on the box ``bounds`` (one interval per coordinate, ``t`` included when time-dependent) with ``n`` nodes per spatial axis. Returns :class:`FDResult`; FDError when the system is outside the scheme. |
+| `FDError` | classe | `()` | Erro: o sistema não cabe neste esquema de diferenças finitas (e por quê). |
+| `FDResult` | classe | `(axes, fields, t, info)` | Resultado: eixos, campos, tempos e informações, com estado final e pontos. |
+| `FDOperator` | classe | `()` | Sistema compilado numa grade: lados direitos, condições de face e estado inicial. |
+| `compile_system` | função | `(system, bounds, *, n=64, coefficients=None, keep=()) -> FDOperator` | Compila um sistema lido para diferenças finitas. |
+| `initial_state` | função | `(op, t0) -> dict[tuple[str, bool], np.ndarray]` | Valores iniciais de cada campo na grade com as faces impostas. |
+| `solve_fd` | função | `(system, bounds, *, n=64, n_save=41, coefficients=None, relax=20000.0, rtol=1e-06, atol=1…)` | Resolve o sistema numa caixa (Newton estacionário ou BDF) e devolve `FDResult`. |
 
 #### `pinneapple_simulation.numerical_solvers.thermal_channel_2d`
 
-Transient 2-D heated-channel CFD: incompressible Navier-Stokes + energy, with time-varying actuators (inlet velocity U_in(t), heater power Q_h(t)).
+CFD 2D transiente de canal aquecido (Navier-Stokes incompressível + energia) em grade MAC, com atuadores variáveis no tempo (velocidade de entrada e potência do aquecedor). [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/thermal_channel_2d.py` · 231 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ChannelConfig` | classe | `(nx, ny, L, Re, Pr, heater, dt, gamma_safety, record_every)` |  |
-| `ThermalChannel2D` | classe | `(cfg=None)` |  |
+| `ChannelConfig` | classe | `(nx, ny, L, Re, Pr, heater, dt, gamma_safety, record_every)` | Configuração do canal aquecido: grade, Re, Pr, aquecedor, passo. |
+| `ThermalChannel2D` | classe | `(cfg=None)` | Simulador do canal aquecido: passo, campos, grandezas de interesse e laço. |
 
 #### `pinneapple_simulation.numerical_solvers.thermal_channel_datasets`
 
-Heated-channel CFD dataset (zoo ``thermal_channel_cfd``): verification and actuated trajectories.
+Gera e verifica o dataset do zoo `thermal_channel_cfd`: trajetórias atuadas do canal aquecido e estudo de convergência.
 
 <small>`pinneapple_simulation/numerical_solvers/thermal_channel_datasets.py` · 181 linhas · testes: 2</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `verify` | função | `() -> dict` | Poiseuille (3 grids), fully developed Nusselt number (2 grids) and the three-grid study of T_out, T_max, dp. |
-| `make_actuation` | função | `(family, seed)` | (U spec, Q spec) of one trajectory: ``random_steps_ramps`` (training family), ``sinusoid_chirp`` and ``edge_steps`` (unseen families). |
-| `eval_act` | função | `(spec, t, which) -> float` |  |
-| `simulate` | função | `(args) -> dict` | One trajectory: warm-up, then the recorded horizon (fields every ``REC``). |
-| `generate` | função | `(out, workers=1, name='thermal_channel_cfd') -> dict` | Run :data:`PLAN` and write ``out/<name>/<split>[-NN].npz`` and ``meta.json``. |
+| `verify` | função | `() -> dict` | Verificação: Poiseuille, Nusselt desenvolvido e estudo em três grades. |
+| `make_actuation` | função | `(family, seed)` | Gera os atuadores de uma trajetória por família (treino ou não vistas). |
+| `eval_act` | função | `(spec, t, which) -> float` | Avalia um atuador (linear por partes ou chirp) num tempo. |
+| `simulate` | função | `(args) -> dict` | Uma trajetória: aquecimento e horizonte gravado. |
+| `generate` | função | `(out, workers=1, name='thermal_channel_cfd') -> dict` | Roda o plano e grava os npz e o `meta.json` do dataset. |
 
 #### `pinneapple_simulation.numerical_solvers.tvd_advection`
 
-Second-order TVD (Total Variation Diminishing) upwind scheme for 1D scalar advection, with a van Leer flux limiter.
+Esquema upwind TVD de 2ª ordem com limitador de van Leer para advecção escalar 1D.
 
 <small>`pinneapple_simulation/numerical_solvers/tvd_advection.py` · 69 linhas · testes: 5</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `van_leer_limiter` | função | `(r) -> np.ndarray` | van Leer TVD flux limiter: Phi(r) = (r + \|r\|) / (1 + \|r\|). r is the ratio of consecutive solution gradients (upstream/downstream); Phi(r)=0 for r<=0 (a local extremum -- falls back to pure upwind) and Phi(r) -> 1 as r -> infinity (smooth region -- full 2nd-order correction). |
-| `tvd_advection_rhs` | função | `(f, v, dz) -> np.ndarray` | Second-order TVD-upwind estimate of df/dt = -v*df/dz on a uniform grid of spacing dz, given the field f (shape (N,)) and a constant velocity v (v>0: flow toward increasing index; v<0: toward decreasing index). Domain-boundary interface fluxes use plain first-order upwind (no downstream neighbor … |
+| `van_leer_limiter` | função | `(r) -> np.ndarray` | Limitador de fluxo TVD de van Leer. |
+| `tvd_advection_rhs` | função | `(f, v, dz) -> np.ndarray` | Lado direito TVD upwind de 2ª ordem para df/dt = -v df/dz. |
 
 #### `pinneapple_simulation.numerical_solvers.vmd`
 
-VMD: Variational Mode Decomposition.
+Decomposição variacional de modos (VMD) para sinais 1D. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/vmd.py` · 143 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `VMDSolver` | classe | `(K=4, alpha=2000.0, tau=0.0, DC=False, init='uniform', tol=1e-07, max_iter=500)` |  |
-| `vmd_1d` | função | `(x, *, K=4, alpha=2000.0, tau=0.0, DC=False, init='uniform', tol=1e-07, max_iter=500) -> …)` | Returns (modes[K,T], center_freqs[K]). |
+| `VMDSolver` | classe | `(K=4, alpha=2000.0, tau=0.0, DC=False, init='uniform', tol=1e-07, max_iter=500)` | Wrapper registrado de `vmd_1d`. |
+| `vmd_1d` | função | `(x, *, K=4, alpha=2000.0, tau=0.0, DC=False, init='uniform', tol=1e-07, max_iter=500) -> …)` | VMD 1D; devolve os modos e as frequências centrais. |
 
 #### `pinneapple_simulation.numerical_solvers.water_hammer_moc`
 
-Water hammer in a reservoir - pipe - valve system by the method of characteristics (MOC).
+Golpe de aríete num sistema reservatório-tubo-válvula pelo método das características, com as fórmulas de Korteweg, Joukowsky e Michaud.
 
 <small>`pinneapple_simulation/numerical_solvers/water_hammer_moc.py` · 130 linhas · testes: 17</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `wave_speed` | função | `(K, rho, D, e, E, c1=1.0) -> float` | Pressure-wave speed in a liquid-filled elastic pipe (Korteweg; Wylie & Streeter eq. 2.29): ``a = sqrt((K/rho) / (1 + c1 K D / (E e)))``. ``c1 = 1 - nu^2`` for a pipe anchored against axial movement. |
-| `joukowsky_head` | função | `(a, dv) -> float` | Head rise of an instantaneous velocity change: ``dH = a dV / g`` (Joukowsky 1898). |
-| `michaud_head` | função | `(a, dv, length, t_close) -> float` | Michaud's (1878) estimate for a closure slower than ``2L/a``: ``dH = 2 L dV / (g t_c)``; equals Joukowsky for ``t_c <= 2L/a``. |
-| `valve_closure_moc` | função | `(*, length, diameter, wave_speed, friction_factor, q0, h_reservoir, h_downstream=0.0, t_c…)` | Transient heads and flows after the valve at the end of the pipe starts closing at t = 0. |
+| `wave_speed` | função | `(K, rho, D, e, E, c1=1.0) -> float` | Velocidade da onda de pressão num tubo elástico (Korteweg). |
+| `joukowsky_head` | função | `(a, dv) -> float` | Sobrepressão de uma mudança instantânea de velocidade (Joukowsky). |
+| `michaud_head` | função | `(a, dv, length, t_close) -> float` | Estimativa de Michaud para fechamento lento. |
+| `valve_closure_moc` | função | `(*, length, diameter, wave_speed, friction_factor, q0, h_reservoir, h_downstream=0.0, t_c…)` | Cargas e vazões transientes após o fechamento da válvula, por características. |
 
 #### `pinneapple_simulation.numerical_solvers.wavelet`
 
-Wavelet-based decomposition/denoising features.
+Atributos por decomposição wavelet (coeficientes de detalhe) via PyWavelets, que é importado no topo do módulo. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/wavelet.py` · 63 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WaveletSolver` | classe | `(wavelet='db4', level=4, mode='periodization')` |  |
-| `wavedec_features` | função | `(x, wavelet='db4', level=4, mode='periodization') -> Tuple[np.ndarray, Dict[str, Any]]` | Return concatenated detail coefficients as features. |
+| `WaveletSolver` | classe | `(wavelet='db4', level=4, mode='periodization')` | Wrapper registrado de `wavedec_features`. |
+| `wavedec_features` | função | `(x, wavelet='db4', level=4, mode='periodization') -> Tuple[np.ndarray, Dict[str, Any]]` | Concatena os coeficientes de detalhe wavelet como atributos. |
 
 #### `pinneapple_simulation.numerical_solvers.xtfc_general`
 
-General X-TFC on a box: any number of dimensions and fields, value and derivative constraints on faces, linear or non-linear residuals.
+X-TFC geral numa caixa: qualquer número de dimensões e campos, restrições de valor e derivada nas faces, resíduos lineares ou não lineares.
 
 <small>`pinneapple_simulation/numerical_solvers/xtfc_general.py` · 335 linhas · testes: 10</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Constraint` | classe | `(dim, at, order)` | ``d^order u / dx_dim^order`` at ``x_dim = at`` is prescribed (by the problem's constraint function). |
-| `XTFCProblem` | classe | `(bounds, fields, constraint_fn, residual, derivatives, linear)` | A differential problem on ``bounds`` for X-TFC. |
-| `XTFCResult` | classe | `(beta, iterations, converged, step_norms, lstsq_seconds, total_seconds, n_neurons, _probl…)` |  |
-| `activation_derivative` | função | `(name, z, n) -> np.ndarray` | ``d^n act / dz^n`` at ``z`` (``name`` in ``tanh``, ``logistic``). |
-| `switching_functions` | função | `(constraints) -> np.ndarray` | Coefficients (monomial basis, row k = s_k) of the switching functions of constraints on one dimension. |
-| `solve_xtfc` | função | `(problem, points, *, n_neurons, activation='tanh', weight_range=(-1.0, 1.0), seed=0, max_…)` | Solve ``problem`` on the training ``points`` (N, ndim) by X-TFC. |
-| `grid` | função | `(bounds, n, kind='uniform') -> np.ndarray` | Tensor grid (N, ndim) of ``n`` points per dimension, ``uniform`` or ``cgl`` (Chebyshev-Gauss-Lobatto), boundary included. |
+| `Constraint` | classe | `(dim, at, order)` | Restrição de derivada de uma ordem numa face de uma dimensão. |
+| `XTFCProblem` | classe | `(bounds, fields, constraint_fn, residual, derivatives, linear)` | Problema diferencial para X-TFC: limites, campos, restrições e resíduo. |
+| `XTFCResult` | classe | `(beta, iterations, converged, step_norms, lstsq_seconds, total_seconds, n_neurons, _probl…)` | Resultado X-TFC: coeficientes, convergência, predição, resíduo e erro das restrições. |
+| `activation_derivative` | função | `(name, z, n) -> np.ndarray` | Derivada de ordem n da ativação (tanh ou logística). |
+| `switching_functions` | função | `(constraints) -> np.ndarray` | Coeficientes das funções de troca das restrições numa dimensão. |
+| `solve_xtfc` | função | `(problem, points, *, n_neurons, activation='tanh', weight_range=(-1.0, 1.0), seed=0, max_…)` | Resolve o problema por X-TFC nos pontos de treino. |
+| `grid` | função | `(bounds, n, kind='uniform') -> np.ndarray` | Grade tensorial uniforme ou de Chebyshev-Gauss-Lobatto. |
 
 #### `pinneapple_simulation.numerical_solvers.xtfc_ivp`
 
-X-TFC (eXtreme Theory of Functional Connections) solver for systems of ODEs posed as initial-value problems:
+X-TFC (Theory of Functional Connections extrema) para sistemas de EDOs de valor inicial, com colocação de Chebyshev e mínimos quadrados iterados. [sem teste direto]
 
 <small>`pinneapple_simulation/numerical_solvers/xtfc_ivp.py` · 438 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `XTFCIVPSolver` | classe | `(n_basis=50, n_collocation=100, activation='tanh', max_iter=50, tol=1e-10, seed=0, colloc…)` | Thin `SolverBase`/registry wrapper around `solve_xtfc_ode` for callers that want the uniform `SolverOutput` interface. The functional API (`solve_xtfc_ode`, `xtfc_predict`) is the primary entry point and can be used directly without this wrapper. |
-| `chebyshev_gauss_lobatto` | função | `(n, lo=-1.0, hi=1.0) -> Array` | N Chebyshev-Gauss-Lobatto points on [lo, hi], ascending order. Standard collocation choice for spectral/TFC methods -- clusters points quadratically near both endpoints, which both improves the conditioning of the least-squares system (vs. uniform spacing, which is offered as a fallback via … |
-| `xtfc_predict` | função | `(t_query, w, b, beta, y0, activation, t0, tf) -> Array` | Evaluate the trained TFC constrained expression at arbitrary query times -- a pure function of the persisted (w, b, beta, y0, activation, t0, tf), so a solved model can be re-evaluated later from just those small arrays without re-running solve_xtfc_ode. |
-| `solve_xtfc_ode` | função | `(rhs_fn, y0, t_span, n_basis=50, n_collocation=100, activation='tanh', max_iter=50, tol=1…)` | Solve dy_i/dt = rhs_fn(t, y)[:, i], y_i(t0) = y0[i], for t in t_span, via X-TFC (see module docstring for the full method). |
+| `XTFCIVPSolver` | classe | `(n_basis=50, n_collocation=100, activation='tanh', max_iter=50, tol=1e-10, seed=0, colloc…)` | Wrapper fino `SolverBase`/registro de `solve_xtfc_ode`. |
+| `chebyshev_gauss_lobatto` | função | `(n, lo=-1.0, hi=1.0) -> Array` | Pontos de Chebyshev-Gauss-Lobatto num intervalo. |
+| `xtfc_predict` | função | `(t_query, w, b, beta, y0, activation, t0, tf) -> Array` | Avalia a expressão TFC treinada em tempos arbitrários a partir dos parâmetros salvos. |
+| `solve_xtfc_ode` | função | `(rhs_fn, y0, t_span, n_basis=50, n_collocation=100, activation='tanh', max_iter=50, tol=1…)` | Resolve um PVI de EDOs por X-TFC. |
 
 #### `pinneapple_simulation.numerical_solvers.xtfc_pde`
 
-X-TFC (eXtreme Theory of Functional Connections) solver for 1D-space(+time) PDEs posed on a rectangle x in [x0, x1], t in [t0, tf], with one initial condition (at t=t0) and two Dirichlet boundary conditions (at x=x0, x=x1):
+X-TFC para EDPs 1D em espaço + tempo num retângulo (calor 1D e Burgers 1D) com condição inicial e duas Dirichlet.
 
 <small>`pinneapple_simulation/numerical_solvers/xtfc_pde.py` · 584 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `XTFCPDESolver` | classe | `(pde='burgers_1d', n_basis=60, n_collocation_x=25, n_collocation_t=25, activation='tanh',…)` | Thin `SolverBase`/registry wrapper around `solve_xtfc_pde` for callers that want the uniform `SolverOutput` interface. The functional API (`solve_xtfc_pde`, `xtfc_pde_predict`) is the primary entry point. |
-| `xtfc_pde_predict` | função | `(x_query, t_query, wx, wt, b, beta, pde, activation, x_span, t_span) -> Array` | Evaluate the trained 2D TFC constrained expression at arbitrary (paired) query points -- a pure function of the persisted (wx, wt, b, beta, pde, activation, x_span, t_span), mirroring `xtfc_predict` in `xtfc_ivp.py`. |
-| `solve_xtfc_pde` | função | `(pde, x_span=None, t_span=None, n_basis=60, n_collocation_x=25, n_collocation_t=25, activ…)` | Solve `pde` in {"heat_1d", "burgers_1d"} via X-TFC (see module docstring for the full method). |
+| `XTFCPDESolver` | classe | `(pde='burgers_1d', n_basis=60, n_collocation_x=25, n_collocation_t=25, activation='tanh',…)` | Wrapper fino `SolverBase`/registro de `solve_xtfc_pde`. |
+| `xtfc_pde_predict` | função | `(x_query, t_query, wx, wt, b, beta, pde, activation, x_span, t_span) -> Array` | Avalia a expressão TFC 2D treinada em pontos (x, t). |
+| `solve_xtfc_pde` | função | `(pde, x_span=None, t_span=None, n_basis=60, n_collocation_x=25, n_collocation_t=25, activ…)` | Resolve calor 1D ou Burgers 1D por X-TFC. |
 
 #### `pinneapple_simulation.numerical_solvers.xtfc_subdomain`
 
-Subdomain-chained X-TFC for extremely stiff ODE-IVP systems (target stiffness ratio -- max|eigenvalue(Jacobian)| / min|eigenvalue(Jacobian)| -- roughly 1e10 to 1e14), plus a generic "extra scalar parameter" input.
+X-TFC encadeado em subdomínios de largura logarítmica para EDOs de valor inicial extremamente rígidas.
 
 <small>`pinneapple_simulation/numerical_solvers/xtfc_subdomain.py` · 395 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `XTFCSubdomainSolver` | classe | `(n_subdomains=12, first_width=None, spacing='log', n_basis=30, n_collocation=40, activati…)` | Thin `SolverBase`/registry wrapper around `solve_xtfc_subdomains`. The functional API (`solve_xtfc_subdomains`, `log_subdomain_boundaries`) is the primary entry point. |
-| `log_subdomain_boundaries` | função | `(t0, tf, n_subdomains, first_width=None) -> Array` | n_subdomains+1 boundaries [t0, ..., tf] with logarithmically GROWING widths -- tiny near t0 (to resolve a fast initial transient spanning many decades), geometrically larger towards tf. |
-| `solve_xtfc_subdomains` | função | `(rhs_fn, y0, t_span, n_subdomains=12, first_width=None, spacing='log', n_basis=30, n_coll…)` | Solve a (possibly extremely stiff) dy_i/dt = rhs_fn(t, y)[:, i], y_i(t0) = y0[i] IVP over log-spaced subdomains of t_span, chaining continuity across subdomain boundaries (see module docstring). |
+| `XTFCSubdomainSolver` | classe | `(n_subdomains=12, first_width=None, spacing='log', n_basis=30, n_collocation=40, activati…)` | Wrapper fino `SolverBase`/registro de `solve_xtfc_subdomains`. |
+| `log_subdomain_boundaries` | função | `(t0, tf, n_subdomains, first_width=None) -> Array` | Fronteiras de subdomínios com larguras crescentes em escala logarítmica. |
+| `solve_xtfc_subdomains` | função | `(rhs_fn, y0, t_span, n_subdomains=12, first_width=None, spacing='log', n_basis=30, n_coll…)` | Resolve um PVI rígido por subdomínios encadeados com continuidade. |
 
 #### `pinneapple_simulation.particle_dynamics`
 
@@ -3487,238 +3495,238 @@ Robô como dados simples (elos, juntas, acionamentos), exportável como URDF e c
 
 #### `pinneapple_simulation.rover`
 
-Six-wheel rocker-bogie rover on lunar terrain with Bekker-Wong wheel-soil forces.
+Rover lunar de seis rodas com suspensão rocker-bogie sobre terreno lunar, com forças roda-solo de Bekker-Wong; reexporta geometria, terreno, contato e simulador.
 
 <small>`pinneapple_simulation/rover/__init__.py` · 31 linhas · testes: 21</small>
 
 #### `pinneapple_simulation.rover.autolab`
 
-PINNeAPPle Autonomous Physics Lab, rover demo: *the rover that learns the planet*.
+Demo do Autonomous Physics Lab, "o rover que aprende o planeta": uma missão em linguagem natural roda o laço planejar → dirigir → aprender o solo → replanejar → verificar num sítio sintético de verdade conhecida.
 
 <small>`pinneapple_simulation/rover/autolab/__init__.py` · 38 linhas · testes: 8</small>
 
 #### `pinneapple_simulation.rover.autolab.estimation`
 
-What the rover measures, and what it infers about the soil from it.
+O que o rover mede (carga, deslizamento, afundamento, torque com ruído de sensor) e a crença gaussiana sobre os parâmetros de solo de cada unidade, atualizada por EKF iterado.
 
 <small>`pinneapple_simulation/rover/autolab/estimation.py` · 281 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Sensors` | classe | `(sinkage_sd, slip_sd, torque_rel, torque_abs, load_rel, seed)` | Noise levels (one standard deviation) of the rover's measurements; stated assumptions. |
-| `UnitBelief` | classe | `(base, mean, cov, n_obs, history, chi2_dof, scale)` |  |
-| `SoilBelief` | classe | `(prior_soils, wheel, g=1.62, prior_sd=PRIOR_SD, obs_sd_sinkage=0.008, obs_sd_torque=(2.0,…)` | Gaussian beliefs over the soil parameters of each mapped unit (see the module docstring). |
-| `soil_theta` | função | `(soil) -> np.ndarray` |  |
-| `theta_soil` | função | `(base, theta) -> Soil` |  |
-| `measure` | função | `(run, sensors=None, wheels=None, every=4, min_speed=0.02, max_slip=0.7, slip_window=0.3, …)` | Noisy measurements from a vehicle run (front wheels by default), one row per wheel and kept sample. |
+| `Sensors` | classe | `(sinkage_sd, slip_sd, torque_rel, torque_abs, load_rel, seed)` | Níveis de ruído (um desvio-padrão) das medidas do rover; hipóteses declaradas. |
+| `UnitBelief` | classe | `(base, mean, cov, n_obs, history, chi2_dof, scale)` | Crença gaussiana de uma unidade de solo: média, covariância, observações e histórico. |
+| `SoilBelief` | classe | `(prior_soils, wheel, g=1.62, prior_sd=PRIOR_SD, obs_sd_sinkage=0.008, obs_sd_torque=(2.0,…)` | Crenças sobre os parâmetros de solo de cada unidade, com predição, atualização, calibração e checagens. |
+| `soil_theta` | função | `(soil) -> np.ndarray` | Vetor de parâmetros (log10 k_phi, n0, n1, phi) de um solo. |
+| `theta_soil` | função | `(base, theta) -> Soil` | Solo a partir de um vetor de parâmetros, com limites físicos. |
+| `measure` | função | `(run, sensors=None, wheels=None, every=4, min_speed=0.02, max_slip=0.7, slip_window=0.3, …)` | Medidas com ruído de uma rodada do veículo, por roda e amostra. |
 
 #### `pinneapple_simulation.rover.autolab.mission`
 
-A mission in plain language -> the rover's lab loop, through a fixed set of tools.
+Converte uma missão em texto em `MissionSpec` (parser de regras ou LLM, só aceitando valores citados no texto) e roda o laço do laboratório com um conjunto fixo de ferramentas. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/mission.py` · 393 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MissionSpec` | classe | `(text, goal, start, slip_limit, risk_max, objective, speed, max_replans, parser, quotes, …)` |  |
-| `RuleParser` | classe | `()` | Deterministic parser with the ``extract(text, schema)`` interface of an LLM adapter (English and Portuguese keywords). |
-| `StepLog` | classe | `(stage, tool, summary, seconds)` |  |
-| `MissionResult` | classe | `(spec, routes, runs, belief, planners, measurements, comparison, report, log, retreat, ou…)` |  |
-| `RoverMission` | classe | `(site, text, *, llm=None, spec=None, dt=0.004, terrain_cell=0.03, planner_cell=0.5, n_sam…)` | The rover lab loop on ``site`` for one request (see the module docstring). |
-| `parse_mission` | função | `(text, site, llm=None) -> MissionSpec` | Request -> :class:`MissionSpec`. Values an LLM returns are kept only when their quote is in the text; missing values take the site's start / goal or the defaults (listed in ``defaults_used``). |
-| `traction_monitor` | função | `(slip_limit, window_s=2.0, output_dt=0.05, front=None, t_min=2.0)` | Stop rule for :meth:`VehicleSimulator.run`: the mean slip of the (front) wheels over the last ``window_s`` seconds above ``slip_limit`` ends the run as "stalled". Samples before ``t_min`` seconds of driving (the start-up ramp) are not monitored. ``output_dt`` is not used (kept for compatibility): … |
-| `retreat_point` | função | `(run, site, back=2.0) -> tuple` | Where the rover backs out to after a stall: ``back`` metres before the first point where a front wheel entered the unit it stalled on, on its own track (the reversal itself is not simulated). |
-| `to_json` | função | `(obj)` | JSON-safe copy of mission outputs (arrays to lists, numbers rounded). |
+| `MissionSpec` | classe | `(text, goal, start, slip_limit, risk_max, objective, speed, max_replans, parser, quotes, …)` | Especificação da missão: meta, partida, limites de deslizamento e risco, objetivo, velocidade e valores padrão usados. |
+| `RuleParser` | classe | `()` | Parser determinístico com a mesma interface `extract` de um adaptador LLM (palavras-chave em inglês e português). |
+| `StepLog` | classe | `(stage, tool, summary, seconds)` | Registro de uma etapa do laço: estágio, ferramenta, resumo e tempo. |
+| `MissionResult` | classe | `(spec, routes, runs, belief, planners, measurements, comparison, report, log, retreat, ou…)` | Resultado da missão: rotas, rodadas, crença, comparação, relatório e números. |
+| `RoverMission` | classe | `(site, text, *, llm=None, spec=None, dt=0.004, terrain_cell=0.03, planner_cell=0.5, n_sam…)` | O laço do laboratório para um pedido: levantar o sítio, planejar, dirigir, estimar o solo, comparar modelos e rodar tudo. |
+| `parse_mission` | função | `(text, site, llm=None) -> MissionSpec` | Converte o pedido em `MissionSpec`, completando com os padrões do sítio. |
+| `traction_monitor` | função | `(slip_limit, window_s=2.0, output_dt=0.05, front=None, t_min=2.0)` | Regra de parada: deslizamento médio das rodas dianteiras acima do limite encerra a rodada como travada. |
+| `retreat_point` | função | `(run, site, back=2.0) -> tuple` | Ponto para onde o rover recua após travar (o recuo em si não é simulado). |
+| `to_json` | função | `(obj)` | Cópia serializável em JSON das saídas da missão. |
 
 #### `pinneapple_simulation.rover.autolab.planner`
 
-Risk-aware route planning on a site from what the rover believes about its soils.
+Planejamento de rota sensível a risco sobre o sítio a partir da crença de solo do rover (tabelas por declividade, grafo de custo, mapa de risco). [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/planner.py` · 227 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `UnitTables` | classe | `(grades, slip, energy, mean_slip, mean_energy)` |  |
-| `Route` | classe | `(waypoints, cells, length_m, energy_J, max_risk, mean_risk, max_slip, profile, belief_lab…)` |  |
-| `RiskPlanner` | classe | `(site, belief, wheel, mass, slip_limit=0.4, g=1.62, n_wheels=4, cell=0.5, n_samples=24, r…)` | Plans on ``site`` with ``belief``; ``mass`` [kg], ``wheel``, ``n_wheels`` and ``g`` describe the rover. |
-| `densify` | função | `(P, step)` |  |
-| `simplify` | função | `(P, tol, accept=None)` | Douglas-Peucker simplification of a polyline (tolerance ``tol`` metres); ``accept(a, b)`` can veto a shortcut (e.g. one that crosses risky ground), which is then split further. |
+| `UnitTables` | classe | `(grades, slip, energy, mean_slip, mean_energy)` | Tabelas por declividade de deslizamento e energia de uma unidade de solo. |
+| `Route` | classe | `(waypoints, cells, length_m, energy_J, max_risk, mean_risk, max_slip, profile, belief_lab…)` | Rota planejada: pontos, células, comprimento, energia, risco e deslizamento. |
+| `RiskPlanner` | classe | `(site, belief, wheel, mass, slip_limit=0.4, g=1.62, n_wheels=4, cell=0.5, n_samples=24, r…)` | Planejador sobre o sítio com a crença de solo: métricas de aresta, grafo de custo, plano, avaliação e mapa de risco. |
+| `densify` | função | `(P, step)` | Adensa uma polilinha com passo máximo. |
+| `simplify` | função | `(P, tol, accept=None)` | Simplificação de Douglas-Peucker com veto opcional de atalhos. |
 
 #### `pinneapple_simulation.rover.autolab.render`
 
-Blender Cycles renders of a rover mission (``pip install bpy``): the VIPER model of the repository (``data/geometries/viper_rover/viper_rover.light.glb``) on the site, the terrain with the ruts the multibody runs left, coloured by the learned traverse risk or by soil, and both routes.
+Renderizações Blender Cycles da missão (exige `bpy`): modelo VIPER do repositório, terreno com sulcos das rodadas, cores por risco ou solo, e animação da travessia. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/render.py` · 322 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `available` | função | `() -> bool` |  |
-| `import_viper` | função | `(sc, path=VIPER_GLB)` | Import the VIPER glb under an empty (origin on the ground under the chassis, x forward, z up). |
-| `pose_at` | função | `(run, k)` | (location, rotation matrix) of the rover at output sample ``k``: contact-point centroid and chassis axes. |
-| `place` | função | `(root, run, k)` |  |
-| `terrain_grid` | função | `(ter, x_range, y_range, step)` |  |
-| `terrain_colors` | função | `(site, X, Y, planner=None, mode='risk', shade_with=None)` | Soil albedo (``mode="soil"``) or the learned worst-heading risk blended over it (``"risk"``). |
-| `build_terrain` | função | `(site, runs, cell=0.03, upto=None)` | A fresh deformable terrain with the ruts of ``runs`` replayed (all of each run, or up to ``upto[i]`` s). |
-| `route_lines` | função | `(runs, routes, learned_planner=None)` | Caption lines of a render: what each route was planned with and what the multibody run measured. |
-| `render_overview` | função | `(site, runs, routes, planner, out_png, *, size=(1600, 900), samples=48, step=0.06, lines=…)` |  |
-| `render_hero` | função | `(site, runs, out_png, *, size=(1600, 900), samples=96, window=6.0, cell=0.02, grains=2000…)` | Close-up of the stall of ``runs[0]`` (studio background, hard shadow, sand grains on the berms). |
-| `render_traverse` | função | `(site, runs, out_dir, *, size=(800, 450), samples=16, every_s=2.5, step=0.06, fps=12, gif…)` | Frames of ``runs`` one after the other (chase camera, ruts growing), then ``traverse.mp4`` and ``traverse.gif``. Returns (frame paths, mp4, gif). |
+| `available` | função | `() -> bool` | Diz se o Blender Cycles está disponível. |
+| `import_viper` | função | `(sc, path=VIPER_GLB)` | Importa o glb do VIPER sob um objeto vazio. |
+| `pose_at` | função | `(run, k)` | Posição e rotação do rover numa amostra de saída. |
+| `place` | função | `(root, run, k)` | Posiciona o objeto do rover na pose de uma amostra. |
+| `terrain_grid` | função | `(ter, x_range, y_range, step)` | Grade de alturas do terreno numa faixa. |
+| `terrain_colors` | função | `(site, X, Y, planner=None, mode='risk', shade_with=None)` | Cores do terreno por solo ou pelo risco aprendido. |
+| `build_terrain` | função | `(site, runs, cell=0.03, upto=None)` | Terreno deformável novo com os sulcos das rodadas repetidos. |
+| `route_lines` | função | `(runs, routes, learned_planner=None)` | Legendas de uma renderização: como cada rota foi planejada e o que foi medido. |
+| `render_overview` | função | `(site, runs, routes, planner, out_png, *, size=(1600, 900), samples=48, step=0.06, lines=…)` | Renderização geral do sítio com rotas e o rover. |
+| `render_hero` | função | `(site, runs, out_png, *, size=(1600, 900), samples=96, window=6.0, cell=0.02, grains=2000…)` | Close do travamento da primeira rodada. |
+| `render_traverse` | função | `(site, runs, out_dir, *, size=(800, 450), samples=16, every_s=2.5, step=0.06, fps=12, gif…)` | Quadros das rodadas com câmera de perseguição, depois MP4 e GIF. |
 
 #### `pinneapple_simulation.rover.autolab.report`
 
-Report of a rover mission: ``summary.json`` (every number), ``trust_report.md``, ``report.md`` and the figures.
+Relatório da missão: `summary.json` com todos os números, `trust_report.md`, `report.md` e figuras. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/report.py` · 206 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `run_info` | função | `() -> dict` | Versions and hardware of this run. |
-| `mission_numbers` | função | `(mission, res) -> dict` | The measured and predicted numbers of a mission, labelled by where they come from. |
-| `write_report` | função | `(mission, res, out_dir, figures=True, info=None) -> dict` |  |
-| `report_markdown` | função | `(n) -> str` |  |
+| `run_info` | função | `() -> dict` | Versões e hardware da execução. |
+| `mission_numbers` | função | `(mission, res) -> dict` | Números medidos e previstos da missão, rotulados pela origem. |
+| `write_report` | função | `(mission, res, out_dir, figures=True, info=None) -> dict` | Grava números, figuras e relatórios da missão num diretório. |
+| `report_markdown` | função | `(n) -> str` | Texto Markdown do relatório a partir dos números. |
 
 #### `pinneapple_simulation.rover.autolab.site`
 
-A synthetic planetary site whose truth is known: relief, soils, and what an orbiter would have said about them.
+Sítio planetário sintético com verdade conhecida: relevo, unidades de solo e o que um mapa orbital diria delas (inclusive rótulos errados). [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/site.py` · 190 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Mound` | classe | `(x, y, sx, sy, height)` | Gaussian hill ``height * exp(-((x-x0)^2/sx^2 + (y-y0)^2/sy^2) / 2)`` [m]. |
-| `Patch` | classe | `(unit, x, y, a, b, angle_deg)` | An ellipse of one soil unit (rotated by ``angle_deg``); later patches cover earlier ones. |
-| `SoilUnit` | classe | `(name, truth, orbital, orbital_note, color)` | A mapped unit: its name, its true soil (hidden) and the soil the orbital map assigns to it. |
-| `SyntheticSite` | classe | `(x_range, y_range, units, patches, mounds, tilt_deg, tilt_dir_deg, start, goal, descripti…)` |  |
-| `soft_sand` | função | `() -> Soil` | The hidden soft sand of the demo site: GRC-1 with a looser state (see :data:`SOFT_SAND_NOTE`). |
-| `demo_site` | função | `() -> SyntheticSite` | A 40 m x 24 m site of compact regolith (GRC-1) cut by a north-south ridge (3.6 m high, flanks up to about 20 deg). The ridge's pass (about 14 deg) is filled with soft sand that the orbital map labels as compact regolith; its northern part is firm gravelly ground (JSC-1A). A second soft-sand patch … |
+| `Mound` | classe | `(x, y, sx, sy, height)` | Colina gaussiana. |
+| `Patch` | classe | `(unit, x, y, a, b, angle_deg)` | Elipse de uma unidade de solo. |
+| `SoilUnit` | classe | `(name, truth, orbital, orbital_note, color)` | Unidade mapeada: nome, solo verdadeiro (oculto) e solo do mapa orbital. |
+| `SyntheticSite` | classe | `(x_range, y_range, units, patches, mounds, tilt_deg, tilt_dir_deg, start, goal, descripti…)` | Sítio sintético: altura, gradiente, unidades de solo, verdade, prior orbital e terreno deformável. |
+| `soft_sand` | função | `() -> Soil` | A areia fofa oculta do sítio de demonstração. |
+| `demo_site` | função | `() -> SyntheticSite` | O sítio de demonstração com crista, passagem de areia fofa mal rotulada e terreno firme. |
 
 #### `pinneapple_simulation.rover.autolab.verify`
 
-Trust report of a rover mission: did it work, does the physics hold, and can the learned soil be believed.
+Relatório de confiança da missão: se funcionou, se a física se mantém (incluindo teste de passo de tempo) e se o solo aprendido é crível. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/verify.py` · 182 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `monitor_slip` | função | `(run, front, window_s=2.0, t_min=2.0)` | The traction monitor's quantity: front-wheel mean slip averaged over the last ``window_s`` seconds (per output sample, once ``window_s`` seconds have been monitored from ``t_min`` on, exactly as :func:`~.mission.traction_monitor` decides; nan before). |
-| `timestep_check` | função | `(mission, route, seconds=6.0) -> dict` |  |
-| `verify_mission` | função | `(mission, routes, runs, planners, belief, meas_all, comparison, do_timestep=True)` |  |
+| `monitor_slip` | função | `(run, front, window_s=2.0, t_min=2.0)` | Deslizamento médio das rodas dianteiras na janela, como o monitor de tração decide. |
+| `timestep_check` | função | `(mission, route, seconds=6.0) -> dict` | Repete um trecho da rota com dt e dt/2 para checar o passo de tempo. |
+| `verify_mission` | função | `(mission, routes, runs, planners, belief, meas_all, comparison, do_timestep=True)` | Monta as checagens do relatório de confiança da missão. |
 
 #### `pinneapple_simulation.rover.autolab.visuals`
 
-Figures of a rover mission (matplotlib): site and risk maps with both routes, the soil belief converging, the wheel models against the measurements, and the traverses. Every curve is computed from the mission's own runs.
+Figuras matplotlib da missão: mapas de sítio e risco, convergência da crença, modelos de roda contra medidas e travessias. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/visuals.py` · 194 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_site_map` | função | `(site, planners, routes, runs, path, slip_limit=0.4)` | Truth soils with relief and routes; the risk the rover saw before (orbital prior) and after learning. |
-| `plot_learning` | função | `(belief, unit, truth, path, title='')` | Mean +- 2 sd of each soil parameter of ``unit`` after every filter update, with the prior and the truth. |
-| `plot_model_comparison` | função | `(comparison, path)` | Sinkage and torque against slip: measured (multibody + sensor noise) vs analytic (orbital prior, learned) vs the zoo surrogate, per unit the rover drove on. |
-| `plot_traverse` | função | `(runs, site, path, slip_limit=0.4, front=(0, 1))` | Per run vs distance: the traction monitor's slip, front-wheel sinkage, cumulative drive energy, elevation with the soil unit under the rover. |
-| `plot_route_risk` | função | `(planners, routes, path, slip_limit=0.4, risk_max=0.05)` | Predicted slip and risk along every route, under the orbital prior and under the learned belief. |
+| `plot_site_map` | função | `(site, planners, routes, runs, path, slip_limit=0.4)` | Mapa de solos verdadeiros, relevo, rotas e risco antes e depois do aprendizado. |
+| `plot_learning` | função | `(belief, unit, truth, path, title='')` | Média ± 2 dp de cada parâmetro de solo após cada atualização do filtro. |
+| `plot_model_comparison` | função | `(comparison, path)` | Afundamento e torque contra deslizamento: medido, analítico e surrogate. |
+| `plot_traverse` | função | `(runs, site, path, slip_limit=0.4, front=(0, 1))` | Deslizamento, afundamento, energia e elevação por distância em cada rodada. |
+| `plot_route_risk` | função | `(planners, routes, path, slip_limit=0.4, risk_max=0.05)` | Deslizamento e risco previstos ao longo de cada rota. |
 
 #### `pinneapple_simulation.rover.autolab.wheel_models`
 
-Wheel-soil laws at the operating point a rover needs, and the three ways to get them.
+Leis roda-solo no ponto de operação que o rover precisa (tabela por declividade) e comparação entre lei analítica, surrogate e medidas. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/autolab/wheel_models.py` · 128 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `GradeTable` | classe | `(grades, slip, sinkage, torque, energy_per_m, max_dp_over_w)` | Operating points of a quasi-static rover on one soil, per grade [deg] (arrays over ``grades``). |
-| `grade_table` | função | `(soil, wheel, mass, g=1.62, n_wheels=4, grades=GRADES, slips=SLIPS, n_gl=12) -> GradeTable` | Slip, sinkage, torque and energy per metre a ``mass`` kg rover on ``n_wheels`` needs on each grade. |
-| `surrogate_steady_state` | função | `(predict, load, slip, z_max=0.2, iters=50)` | Sinkage with ``Fz(slip, z) = load`` for a ``predict(slip, z) -> (N, 3)`` contact model (bisection), and the forces there. Returns dict like :meth:`WongReeceModel.steady_state`. |
-| `compare_contact_models` | função | `(measured, soil_believed, wheel, surrogate=None, g=1.62, in_range=None) -> dict` | Score the analytic law (believed soil) and a surrogate against measured operating points. |
-| `max_climbable_grade` | função | `(table, slip_limit) -> float` | Largest grade of the table the rover climbs at a slip at or below ``slip_limit`` [deg] (nan if none). |
+| `GradeTable` | classe | `(grades, slip, sinkage, torque, energy_per_m, max_dp_over_w)` | Pontos de operação de um rover quase-estático num solo, por declividade. |
+| `grade_table` | função | `(soil, wheel, mass, g=1.62, n_wheels=4, grades=GRADES, slips=SLIPS, n_gl=12) -> GradeTable` | Calcula deslizamento, afundamento, torque e energia por metro em cada declividade. |
+| `surrogate_steady_state` | função | `(predict, load, slip, z_max=0.2, iters=50)` | Afundamento em que um modelo de contato equilibra a carga, por bisseção. |
+| `compare_contact_models` | função | `(measured, soil_believed, wheel, surrogate=None, g=1.62, in_range=None) -> dict` | Pontua a lei analítica e um surrogate contra pontos medidos. |
+| `max_climbable_grade` | função | `(table, slip_limit) -> float` | Maior declividade vencida com deslizamento até o limite. |
 
 #### `pinneapple_simulation.rover.checks`
 
-Verification of the rover model against closed forms, the standalone solver and its own balance laws.
+Verificação do modelo do rover contra formas fechadas (afundamento de Bekker), o solver isolado de Bekker-Wong e o equilíbrio de forças e momentos.
 
 <small>`pinneapple_simulation/rover/checks.py` · 149 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `single_wheel_check` | função | `(state, rover, soils, rear_angle_ratio=1.0 / 3.0) -> dict` |  |
-| `pressure_only` | função | `(soil) -> SoilParams` | The soil's pressure-sinkage law with shear switched off (c = 0, K very large) and the stress peak at the bottom of the wheel (a0 = a1 = 0); use with ``rear_angle_ratio=0`` for front-only contact. |
-| `bekker_rigid_wheel_sinkage` | função | `(W, b, D, k, n) -> float` | Bekker's closed form for the static sinkage of a rigid wheel: z = [3 W / ((3 - n) b k sqrt(D))]^(2/(2n+1)). |
-| `static_sinkage_check` | função | `(rover=None, soil=None) -> dict` |  |
-| `balance_check` | função | `(state, rover) -> dict` | Net force (including gravity, the lateral reaction, the tow load and the d'Alembert force) and net moment about the centre of mass, recomputed from the stored wheel forces; scaled by m g and m g L. |
-| `surrogate_vs_numerical` | função | `(states, surrogate, numerical, soils) -> dict` | Errors of ``surrogate`` against ``numerical`` at every loaded (slip, sinkage) of the given states. |
-| `dp_grade_estimate` | função | `(rover, soil, s_limit, g=1.62, rear_angle_ratio=1.0 / 3.0, tol=0.01) -> dict` | Grade where six equally loaded wheels at slip ``s_limit`` give drawbar pull = m g sin(a) (bisection). |
+| `single_wheel_check` | função | `(state, rover, soils, rear_angle_ratio=1.0 / 3.0) -> dict` | Compara cada roda carregada com o solver isolado de Bekker-Wong. |
+| `pressure_only` | função | `(soil) -> SoilParams` | Solo só com a lei pressão-afundamento (cisalhamento desligado). |
+| `bekker_rigid_wheel_sinkage` | função | `(W, b, D, k, n) -> float` | Forma fechada de Bekker para o afundamento estático de roda rígida. |
+| `static_sinkage_check` | função | `(rover=None, soil=None) -> dict` | Afundamento estático do rover contra a forma fechada e o solver isolado. |
+| `balance_check` | função | `(state, rover) -> dict` | Força e momento líquidos recalculados das forças nas rodas, adimensionalizados. |
+| `surrogate_vs_numerical` | função | `(states, surrogate, numerical, soils) -> dict` | Erros de um surrogate contra o solver numérico nos estados dados. |
+| `dp_grade_estimate` | função | `(rover, soil, s_limit, g=1.62, rear_angle_ratio=1.0 / 3.0, tol=0.01) -> dict` | Declividade em que seis rodas no deslizamento limite equilibram o peso, por bisseção. |
 
 #### `pinneapple_simulation.rover.contact`
 
-Wheel-soil force laws for the rover: (slip, sinkage, soil) -> (F_x, F_z, M_y) per wheel.
+Leis de força roda-solo por roda: Bekker-Wong vetorizado (referência) ou um surrogate qualquer, que registra entradas fora da faixa de treino. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/contact.py` · 167 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BekkerWongContact` | classe | `(wheel_radius, wheel_width, rear_angle_ratio=1.0 / 3.0, method='gauss', n_gl=48)` | Bekker-Wong forces for N wheels at once (``soils[k]`` selected per wheel with ``soil_idx``). |
-| `RangeLog` | classe | `(n_calls, n_out, slip_out, sinkage_out, soil_mismatch, worst)` | Counts of surrogate inputs inside / outside the training box. |
-| `SurrogateContact` | classe | `(predict, slip_range, sinkage_range, soil, wheel_radius, wheel_width)` | Wrap ``predict(slip, z) -> (N, 3)`` trained on ``soil`` for a wheel (R, b) on slip x sinkage box ranges. |
+| `BekkerWongContact` | classe | `(wheel_radius, wheel_width, rear_angle_ratio=1.0 / 3.0, method='gauss', n_gl=48)` | Forças de Bekker-Wong para N rodas de uma vez, com solo por roda. |
+| `RangeLog` | classe | `(n_calls, n_out, slip_out, sinkage_out, soil_mismatch, worst)` | Contagem de entradas do surrogate dentro e fora da faixa de treino. |
+| `SurrogateContact` | classe | `(predict, slip_range, sinkage_range, soil, wheel_radius, wheel_width)` | Envolve um preditor `predict(slip, z)` treinado num solo e roda, com checagem de faixa. |
 
 #### `pinneapple_simulation.rover.dynamics`
 
-Rocker-bogie rover on lunar terrain with Bekker-Wong wheel forces.
+Simulador quase-estático do rover rocker-bogie: equilíbrio por passo com forças de Bekker-Wong, trajetórias, energia e declividade máxima. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/dynamics.py` · 380 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StepState` | classe | `(t, pose, v, omega, s_cmd, wheel_centre, contact_point, normal, tangent, sinkage, slip, F…)` | Converged state of one step (arrays per wheel in WHEEL_NAMES order). |
-| `RoverSimulator` | classe | `(rover, terrain, contact=None, g=LUNAR_G, s_limit=0.95, conv_tol=1e-06)` | Quasi-static rocker-bogie rover with Bekker-Wong wheels on a :class:`LunarTerrain`. |
-| `Trajectory` | classe | `(states, rover, mode, failed_at, terrain)` |  |
+| `StepState` | classe | `(t, pose, v, omega, s_cmd, wheel_centre, contact_point, normal, tangent, sinkage, slip, F…)` | Estado convergido de um passo, com arrays por roda. |
+| `RoverSimulator` | classe | `(rover, terrain, contact=None, g=LUNAR_G, s_limit=0.95, conv_tol=1e-06)` | Rover rocker-bogie quase-estático com rodas de Bekker-Wong sobre `LunarTerrain`. |
+| `Trajectory` | classe | `(states, rover, mode, failed_at, terrain)` | Sequência de estados com distância, energia, tabela por roda, resumo e CSV. |
 
 #### `pinneapple_simulation.rover.geometry`
 
-Parametric six-wheel rocker-bogie rover: parameters, kinematics and meshes (glTF / STL export).
+Rover rocker-bogie paramétrico: parâmetros genéricos, cinemática dos elos e malhas exportáveis em glTF/STL. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/geometry.py` · 237 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RoverParams` | classe | `(wheel_radius, wheel_width, n_grousers, grouser_height, track, wheelbase, pivot_height, b…)` | Generic small lunar rover (every value is a generic choice; see the module docstring). |
-| `Pose` | classe | `(x, y, z, yaw, pitch, roll, rocker, bogie_l, bogie_r, extra)` | Rover configuration: body origin (rocker pivot axis centre), attitude and suspension angles [m, rad]. |
-| `rot_x` | função | `(a)` |  |
-| `rot_y` | função | `(a)` |  |
-| `rot_z` | função | `(a)` |  |
-| `body_rotation` | função | `(yaw, pitch, roll) -> np.ndarray` | Body-to-world rotation. ``pitch`` > 0 is nose up, ``roll`` > 0 is left side up [rad]. |
-| `quat_from_matrix` | função | `(R) -> np.ndarray` | (w, x, y, z) of a rotation matrix. |
-| `link_frames` | função | `(p, pose) -> dict` | World positions of the pivots and wheel centres plus link rotations. |
-| `rover_meshes` | função | `(p) -> dict` | Meshes in their own link frames: ``body`` (body frame), ``rocker_L/R`` (rocker frame, origin at the pivot), ``bogie_L/R`` (bogie frame, origin at the bogie pivot) and ``wheel`` (wheel frame, axle along y). |
-| `assembled_mesh` | função | `(p, pose, wheel_spin=None)` | All parts in world coordinates: list of (name, vertices, faces). |
-| `export_rover` | função | `(p, path, pose=None) -> str` | Write the rover (level, on its wheels) as .glb or .stl with the studio writer. |
+| `RoverParams` | classe | `(wheel_radius, wheel_width, n_grousers, grouser_height, track, wheelbase, pivot_height, b…)` | Parâmetros de um rover lunar pequeno genérico, com massa, inércia e checagem. |
+| `Pose` | classe | `(x, y, z, yaw, pitch, roll, rocker, bogie_l, bogie_r, extra)` | Configuração do rover: origem, atitude e ângulos da suspensão. |
+| `rot_x` | função | `(a)` | Matriz de rotação em torno de x. |
+| `rot_y` | função | `(a)` | Matriz de rotação em torno de y. |
+| `rot_z` | função | `(a)` | Matriz de rotação em torno de z. |
+| `body_rotation` | função | `(yaw, pitch, roll) -> np.ndarray` | Rotação corpo-mundo a partir de guinada, arfagem e rolagem. |
+| `quat_from_matrix` | função | `(R) -> np.ndarray` | Quatérnio (w, x, y, z) de uma matriz de rotação. |
+| `link_frames` | função | `(p, pose) -> dict` | Posições no mundo dos pivôs e centros de roda, mais rotações dos elos. |
+| `rover_meshes` | função | `(p) -> dict` | Malhas de cada peça no seu próprio referencial. |
+| `assembled_mesh` | função | `(p, pose, wheel_spin=None)` | Todas as peças em coordenadas do mundo. |
+| `export_rover` | função | `(p, path, pose=None) -> str` | Grava o rover como .glb ou .stl. |
 
 #### `pinneapple_simulation.rover.terrain`
 
-Lunar terrain for rover simulation: a height function with a planar slope, craters and rocks, plus soil regions.
+Terreno lunar: função de altura com rampa, crateras e rochas, mais regiões de solo. [sem teste direto]
 
 <small>`pinneapple_simulation/rover/terrain.py` · 207 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Crater` | classe | `(x, y, diameter, rim_ratio, depth_ratio, crest_width)` |  |
-| `Rock` | classe | `(x, y, radius, height)` |  |
-| `SoilRegion` | classe | `(soil, kind, params, name)` | Soil inside a circle (``kind="circle"``: centre, radius) or an axis-aligned box (``"box"``: x0, x1, y0, y1). |
-| `LunarTerrain` | classe | `(slope_deg, slope_dir_deg, ramp, craters, rocks, soil, regions)` | Height function and soil map. |
-| `random_rocks` | função | `(rng, n, x_range, y_range, radius_range, height_ratio_range, keep_out=None) -> list[Rock]` | ``n`` rocks with uniform positions and radii (no published size-frequency law is used); ``keep_out(x, y)`` returns True where no rock may be placed (e.g. the rover path). |
-| `random_craters` | função | `(rng, n, x_range, y_range, diameter_range, depth_ratio_range=(0.05, 0.15), rim_ratio=0.01…)` | ``n`` small degraded craters (scenery): positions uniform, diameters from a power law ``N(>D) ~ D^-slope`` truncated to ``diameter_range``, depth/diameter uniform in ``depth_ratio_range`` (below Pike's 0.2 for fresh craters, since small lunar craters are mostly degraded). ``keep_out(x, y, D)`` … |
+| `Crater` | classe | `(x, y, diameter, rim_ratio, depth_ratio, crest_width)` | Cratera com borda e profundidade relativas. |
+| `Rock` | classe | `(x, y, radius, height)` | Rocha com raio e altura. |
+| `SoilRegion` | classe | `(soil, kind, params, name)` | Solo dentro de um círculo ou caixa. |
+| `LunarTerrain` | classe | `(slope_deg, slope_dir_deg, ramp, craters, rocks, soil, regions)` | Função de altura e mapa de solo: normal, declividade, índice de solo, grade e malha. |
+| `random_rocks` | função | `(rng, n, x_range, y_range, radius_range, height_ratio_range, keep_out=None) -> list[Rock]` | Rochas com posições e raios uniformes (sem lei publicada de tamanho). |
+| `random_craters` | função | `(rng, n, x_range, y_range, diameter_range, depth_ratio_range=(0.05, 0.15), rim_ratio=0.01…)` | Crateras degradadas com diâmetros por lei de potência truncada. |
 
 #### `pinneapple_simulation.rover.viz`
 
-Plots, animations and the 3D twin view of a rover :class:`~.dynamics.Trajectory`.
+Gráficos, animações GIF/MP4 e cena 3D (gêmeo digital) de uma trajetória do rover.
 
 <small>`pinneapple_simulation/rover/viz.py` · 225 linhas · testes: 12</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `plot_wheel_series` | função | `(traj, path, title='', x='distance') -> str` |  |
-| `plot_rover_series` | função | `(trajs, path, title='') -> str` |  |
-| `animate` | função | `(traj, path_gif, *, color_by='sinkage', path_mp4=None, frames=80, window=(1.7, 1.1), fps=…)` | 3D animation following the rover over the terrain (``window``: half sizes of the terrain patch shown around it [m]); wheels coloured by ``color_by`` ("sinkage" [mm] or "slip"). |
-| `twin_scene` | função | `(traj, title='Lunar rover', margin=1.5, grid=(160, 100))` | A ``pinneapple_twin3d.Scene`` of the run (y up for the viewer): terrain coloured by height, links and wheels moving with the trajectory, wheel fields ``sinkage`` [mm] and ``slip`` [-] per step. |
+| `plot_wheel_series` | função | `(traj, path, title='', x='distance') -> str` | Seis painéis por roda (afundamento, deslizamento, tração na barra, carga normal, torque, potência) ao longo da trajetória. |
+| `plot_rover_series` | função | `(trajs, path, title='') -> str` | Arfagem, rolagem e energia de várias trajetórias contra a distância. |
+| `animate` | função | `(traj, path_gif, *, color_by='sinkage', path_mp4=None, frames=80, window=(1.7, 1.1), fps=…)` | Animação 3D seguindo o rover, com rodas coloridas por afundamento ou deslizamento. |
+| `twin_scene` | função | `(traj, title='Lunar rover', margin=1.5, grid=(160, 100))` | Cena `pinneapple_twin3d.Scene` da trajetória para o visualizador 3D. |
 
 #### `pinneapple_simulation.terramechanics`
 
@@ -3975,35 +3983,47 @@ def main(days: float = 4.0, out: str = "sphere_and_assimilation.png") -> dict:
     drift = {k: (d1[k] - d0[k]) / d0[k] for k in ("mass", "energy", "potential_enstrophy")}
 ```
 
-**Colapso de coluna granular com GeoMPM** — `examples/geomechanics/01_granular_column_collapse.py`
+**Poisson por FDM e por FFT a partir do registro de solvers** — `examples/solvers/03_poisson_solvers.py`
 
 ```python
-from pinneapple_simulation.particle_dynamics.geo_mpm import GeoMPM, Sand, box, runout
-...
-    sim = GeoMPM(domain=(L0 * (2 + 2.5 * a), a * L0 + 0.1), dx=0.01, floor="sticky", walls="slip")
-    sim.add_body(box((0, 0), (L0, a * L0)), Sand(friction_deg=PHI))
-...
-    sim.run(t_end=0.6 + 0.4 * a, save_every=0.05, out=run_dir)
+from pinneapple_simulation.numerical_solvers import SolverRegistry, register_all
+
+
+def main():
+    register_all()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    H = W = 64
+    ...
+    bc = torch.zeros_like(f)
+    fdm = SolverRegistry.build("fdm", iters=2000, omega=0.9).to(device)
+    u_fdm = fdm(f, bc, dx=1 / (W - 1), dy=1 / (H - 1)).result
+    print("u_fdm", u_fdm.shape)
+
+    # periodic spectral
+    spec = SolverRegistry.build("spectral").to(device)
+    u_spec = spec(f).result
 ```
 
-**Braço de dois elos no Robot Sim (Newton)** — `examples/nvidia/03_robotsim_pick_and_place/run.py`
+**Rede de distribuição de água: conservação de massa e energia** — `tests/test_presets.py`
 
 ```python
-    a = TwoLinkArm()
-...
-    sim = RobotSim.from_spec(a.spec(), ground=False)
-...
-            run = sim.run(DURATION, dts[-1], q0=q0, controller=pd_tracking(ref, kp, kd, feedforward=feed),
+def test_pipe_network_conserves_mass_and_energy():
+    from pinneapple_simulation.numerical_solvers.pipe_network import solve_network, two_loop_network
+    for hl in ("HW", "DW"):
+        r = solve_network(two_loop_network(headloss=hl))
+        assert r["continuity_residual"] < 1e-12 and r["energy_residual"] < 1e-6
+        assert r["supply"] == pytest.approx(1120 / 3600, rel=1e-12)
 ```
 
-**VIPER: CAD e imagem** — `examples/use_cases/terramechanics/lunar_rover_3d.py`
+**Rover passando pela borda de uma cratera** — `tests/test_lunar_rover.py`
 
 ```python
-    spec = viper()
-...
-    spec.cad.export(str(media / "viper.glb"))
-    spec.cad.export(str(OUT / "viper.stl"))
-    viz.beauty(spec, str(media / "viper_beauty.png"), camera=((4.3, -3.9, 1.75), (0.1, 0.0, 0.95)),
+def test_crater_rim_crossing_keeps_every_wheel_loaded(rover):
+    t = LunarTerrain(craters=[Crater(1.3, 0.3, 2.0, rim_ratio=0.02, depth_ratio=0.1)])
+    tr = RoverSimulator(rover, t).run(distance=0.8, v=0.1, dt=0.5)
+    assert tr.failed_at is None
+    assert all(s.converged and (s.Fz > 0).all() for s in tr.states)
+    assert max(abs(math.degrees(s.pose.roll)) for s in tr.states) > 0.5      # off-centre path: the rover rolls
 ```
 
 ### Testes e status de validação
@@ -4059,6 +4079,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - Dados de aço e ímã (`machines.steel`) e as dimensões do Prius 2004 vêm do pyleecan; `materials.illustrative_steel` e os dados térmicos padrão de `machines.thermal` são ilustrativos/hipóteses, não dados de um fornecedor.
 - `electrostatics` é só planar (sem peso axisimétrico); `eddy` assume meios lineares.
 - Vários módulos não têm teste direto: `accelerated_foam.benchmark`, `antenna.plots`, `eddy`, `machines.mesher`, `machines.pmsm`, `machines.steel`, `reflector.study_report_figures`, `reflector.study_report_text`, `geophysics.energy_balance` e `geophysics.richards`.
+- `simulate` passa os kwargs direto ao construtor da classe e só chama `run` se ela existir; as classes de `fdm3d` recebem `cfg` e têm `solve`, então o uso do docstring (`simulate("heat_3d", nx=32, ...)`) não bate com essas assinaturas. `simulate`/`generate_data` não têm teste direto.
+- Várias dependências são opcionais: OpenFOAM (`external_flow`, `internal_flow`, `free_surface`, `openfoam_bridge`), FEniCS/dolfinx, jax/jax_cfd, rebound, gmsh, trimesh, Blender `bpy` (`rover.autolab.render`). `stl` e `wavelet` importam statsmodels e pywt no topo; `register_all` captura e devolve essas falhas em vez de abortar.
+- Vários módulos se declaram MVP ou aproximados: `spectral`, `sph`, `sph_boundaries`, `sst`, `hilbert_huang`, `neighbors`, `ceemdan`, `adapters.upd_mesh`.
+- `meshfree.RBFCollocationSolver` levanta NotImplementedError para kernels RBF sem laplaciano analítico (aceita só gaussian, multiquadric, thin_plate, imq).
+- `elasticity3d_fdm` aceita só deslocamento prescrito em todas as faces; o contorno livre (tração nula) não está implementado, segundo o próprio docstring.
+- `SolverCatalog.get` chama `self.registry.get`, mas `SolverRegistry` não define `get` (tem `spec`).
+- `particles` é feito para tendências de processo, não para números de projeto calibrados (docstring). O rover é quase-estático e usa parâmetros genéricos; em `autolab`, os ruídos de sensor são hipóteses declaradas e o recuo após travar não é simulado.
+- Muitos módulos não têm teste que os importe diretamente (por exemplo SPH/ISPH/DFSPH, decomposições de sinal, `xtfc_ivp`, `thermal_channel_2d`, `ns3d_spectral` e os submódulos do rover e do `autolab` fora de `estimation`).
 - `robot_sim` depende do NVIDIA Newton/Warp (`newton_available`); o `IsaacSimBackend` só escreve um script e levanta erro fora de uma máquina com Isaac Sim e GPU RTX.
 - `ParticleSystem.forward` levanta NotImplementedError (classe base); o docstring de `particles` cita DEM, mas só o SPH está implementado.
 - Vários módulos centrais não têm teste direto: `multibody.tree`, `terramechanics.wong_reece`, `terramechanics.soils`, `vehicle.sim`, `vehicle.build`, `vehicle.spec`, `vehicle.dashboard`, `robot_sim.sim`, `robot_sim.spec`.

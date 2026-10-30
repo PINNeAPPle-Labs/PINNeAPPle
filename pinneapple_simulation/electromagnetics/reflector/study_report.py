@@ -191,10 +191,19 @@ class Problem:
             v = length_for(pat)
             if v is not None:
                 kw[key] = v
-        md = re.search(r"(?:quiet[-\s]?zone|qz)[^.]{0,40}?(?:at|centred at)\s*(\d+(?:\.\d+)?)\s*"
-                       r"(ft|feet|m)\b", t)
-        if md:
-            kw["qz_z"] = float(md.group(1)) * unit[md.group(2)]
+        # The distance goes with the quiet zone, and it is read inside that clause too: "0.6 m quiet zone at
+        # 3 m" has two lengths in one clause and a decimal point in the first, which a "no full stop" guard
+        # would read as the end of the sentence.
+        for c0, c1 in clauses:
+            seg = t[c0:c1]
+            km = re.search(r"(?:quiet[-\s]?zone|qz)", seg)
+            if not km:
+                continue
+            md = re.search(r"(?:at|centred at)\s*(-?\d+(?:\.\d+)?)\s*(ft|feet|foot|inch|in|mm|m)\b",
+                           seg[km.end():])
+            if md:
+                kw["qz_z"] = float(md.group(1)) * unit[md.group(2)]
+                break
         mg = re.search(r"(-?\d+(?:\.\d+)?)\s*dbi", t)
         if mg:
             kw["feed_gain_dbi"] = float(mg.group(1))

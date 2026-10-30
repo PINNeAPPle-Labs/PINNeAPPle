@@ -20,6 +20,18 @@ from pinneapple_core.onboarding.doctor import profiles as doctor_profiles
 # --------------------------------------------------------------------------- card
 
 
+#: A sample that carries both states: what runs here without anything installed, what needs a solver
+#: or a geometry, and a preset with no solver at all. Probing every preset would run every cheap
+#: solver in the library (minutes); these five are enough to hold the contract.
+SAMPLE = ("burgers_1d", "poisson_2d", "cpu_heatsink_thermal", "pipe_flow_3d", "transient_heat_3d")
+
+
+@pytest.fixture(scope="session")
+def checked_cards():
+    """The sample presets as cards, with runnability probed once for the whole test session."""
+    return {name: pp.card(name) for name in SAMPLE}
+
+
 def test_card_describes_a_preset_and_its_snippet_compiles():
     c = pp.card("burgers_1d")
     assert c.coordinates == ("x", "t") and c.fields == ("u",)
@@ -34,6 +46,25 @@ def test_every_preset_has_a_card_with_a_compilable_snippet():
         assert card.name and card.description, card.name
         assert card.coordinates, card.name
         compile(card.snippet, f"<card {card.name}>", "exec"), card.name
+
+
+def test_a_preset_that_does_not_run_here_offers_a_program_that_does(checked_cards):
+    """Every card either produces a field on this machine or hands over something the user can run."""
+    unavailable = [c for c in checked_cards.values() if not c.available]
+    assert unavailable, "the sample must contain a preset that does not run here"
+    for c in unavailable:
+        assert c.error, f"{c.name} is unavailable without saying why"
+        assert c.fallback, f"{c.name} is unavailable and offers no alternative program"
+        compile(c.fallback, f"<fallback {c.name}>", "exec")
+    if unavailable:
+        assert any("the same physics as" in c.fallback for c in unavailable)
+
+
+def test_the_fallback_says_it_is_not_the_presets_own_geometry(checked_cards):
+    for c in checked_cards.values():
+        if c.fallback:
+            assert "the same physics as" in c.fallback, c.name
+            assert "on a box" in c.fallback, c.name
 
 
 def test_card_unknown_name_lists_what_exists():
@@ -78,8 +109,25 @@ QUERIES = [
 
 @pytest.mark.parametrize("text,expected", QUERIES)
 def test_recommend_reaches_the_expected_preset(text, expected):
+    """The expected preset is the choice, or the closer match that was passed over for one that runs."""
     r = pp.recommend(text)
-    assert r.preset == expected, f"{text!r} -> {r.preset} (wanted {expected}); matched {r.matched}"
+    assert expected in (r.preset, r.swapped_from), (
+        f"{text!r} -> {r.preset} (swapped from {r.swapped_from}; wanted {expected}); matched {r.matched}")
+    assert r.preset is not None
+
+
+def test_recommend_only_offers_a_preset_that_runs_or_a_program_that_does():
+    """The promise: what comes back can produce a field. Either the preset runs here, or the program
+    is the same physics written so it runs anywhere, and the preset itself is never presented as
+    ready."""
+    for text, _ in QUERIES:
+        r = pp.recommend(text)
+        card = pp.card(r.preset)
+        compile(r.snippet, f"<recommend {r.preset}>", "exec")
+        if not card.available:
+            assert r.snippet == card.fallback, text
+            assert r.method == "pinn", text
+            compile(r.snippet, f"<fallback {r.preset}>", "exec")
 
 
 def test_recommend_explains_itself_and_prints_a_runnable_program():

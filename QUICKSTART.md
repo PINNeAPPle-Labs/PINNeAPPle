@@ -55,9 +55,9 @@ print(sol.predict(X))                       # one column per field
 ```
 
 For the preset `recommend` gave you, `pp.card(rec.preset)` prints the same program with the right
-coordinates, the right number of fields and a fallback: when the classical method cannot cover the
-problem on this machine, the snippet catches `MethodNotAvailable` and trains a network instead,
-then prints which method actually ran. A partial answer is never returned in place of a full one.
+coordinates, the right number of fields and a fallback: the card tries the cheapest method once, and
+says whether it actually ran here. A partial answer is never returned in place of a full one, and a
+preset that cannot run on this machine comes with the same physics written for a box you define.
 
 ## 4. Make it a project
 

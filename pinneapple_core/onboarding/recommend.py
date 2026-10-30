@@ -18,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
 
-from .catalog import card, search, snippet
+from .catalog import _COMPILER_KINDS, card, runnable, search, snippet
 
 __all__ = ["Recommendation", "recommend"]
 
@@ -46,6 +46,7 @@ class Recommendation:
     alternatives: List[Dict[str, Any]] = field(default_factory=list)
     next_steps: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    swapped_from: Optional[str] = None  # the closer preset that does not run on this machine
 
     def as_dict(self) -> Dict[str, Any]:
         return {
@@ -53,6 +54,7 @@ class Recommendation:
             "confidence": self.confidence, "reason": self.reason, "snippet": self.snippet,
             "matched": list(self.matched), "alternatives": list(self.alternatives),
             "next_steps": list(self.next_steps), "notes": list(self.notes),
+            "swapped_from": self.swapped_from,
         }
 
     def explain(self) -> str:
@@ -63,6 +65,8 @@ class Recommendation:
             out += ["  " + n for n in self.notes]
             out += ["", "  next:", *["    " + s for s in self.next_steps], bar]
             return "\n".join(out)
+        if self.swapped_from:
+            out.append(f"  closest  : {self.swapped_from}   (a closer match, but it does not run here)")
         line = f"  preset   : {self.preset}"
         if self.matched:
             line += f"   (matched: {', '.join(self.matched)})"
@@ -155,7 +159,18 @@ def recommend(text: str, *, top: int = 3) -> Recommendation:
     if not hits:
         return _no_match(text)
 
-    best = hits[0]
+    # Prefer a preset that produces a field on this machine. A closer match the user cannot run is
+    # worth less than the next one down, and the swap is stated rather than hidden.
+    swapped_from = None
+    chosen = hits[0]
+    if not runnable(chosen["name"]):
+        for hit in hits[1:]:
+            if runnable(hit["name"]):
+                swapped_from, chosen = chosen, hit
+                hits = [chosen] + [h for h in hits if h is not chosen]
+                break
+
+    best = chosen
     name = best["name"]
     whites = card(name, with_related=True)
     matched = best["matched"]
@@ -163,19 +178,25 @@ def recommend(text: str, *, top: int = 3) -> Recommendation:
     wants_training = _has(text, _TRAIN_WORDS)
     # ``whites.method`` is already what this machine can run; the snippet and the reason follow it.
     method = whites.method
-    if wants_training:
+    if wants_training and whites.available:
         method = "pinn"
     # Absolute, not relative: a single weak word is a weak recommendation however clearly it leads.
     raw = float(best.get("raw_score", 0.0))
     confidence = round(min(0.95, raw / (raw + 6.0)), 2)
 
     reason = whites.description
-    if wants_training:
+    if not whites.available:
+        first = (whites.error or "it does not run here").splitlines()[0][:160]
+        reason += f"  This preset does not produce a field on this machine yet: {first}"
+        if whites.fallback:
+            reason += ("  The program below is the same physics on a box you define here, which"
+                       " trains anywhere.")
+            code = whites.fallback
+            method = "pinn"
+        else:
+            code = snippet(name, whites.method)
+    elif wants_training:
         reason += "  You asked to train, so the method is a PINN rather than the classical solver."
-        code = snippet(name, "pinn", train=True)
-    elif whites.requires:
-        reason += ("  Its classical solver is not available on this machine. "
-                   f"{whites.requires}. The method below trains a network instead.")
         code = snippet(name, "pinn", train=True)
     elif whites.method == "pinn":
         reason += "  This preset has no classical solver, so the method is a trained network."
@@ -187,6 +208,17 @@ def recommend(text: str, *, top: int = 3) -> Recommendation:
     model, model_reason, notes = _model_for(text, has_solver=method in ("analytic", "reference"), method=method)
     short = model_reason.split(". ")[0].strip()
     notes = [f"model {model}: {short}"] + notes
+    if swapped_from is not None:
+        notes.insert(0, f"the closest match was {swapped_from['name']}, which cannot produce a field on "
+                        f"this machine yet ({swapped_from['description']}); the recommendation below "
+                        f"is the closest one that runs.")
+    if not whites.available:
+        runnable_names = [h["name"] for h in hits[1:] if runnable(h["name"])]
+        if runnable_names:
+            notes.append("presets on this machine that run now: " + ", ".join(runnable_names))
+        else:
+            notes.append("no close preset runs on this machine without its solver or its geometry; "
+                         "pp.doctor('cfd') lists what is missing")
     if whites.tags and not (set(matched) & set(whites.tags)):
         notes.append("the match came from the name and the domain, not from the tags: check the "
                      "description before trusting it.")
@@ -205,41 +237,55 @@ def recommend(text: str, *, top: int = 3) -> Recommendation:
         query=text, preset=name, method=method, model=model, confidence=confidence,
         reason=reason, snippet=code, matched=matched, alternatives=alternatives,
         next_steps=next_steps, notes=notes,
+        swapped_from=swapped_from["name"] if swapped_from else None,
     )
 
 
 def _no_match(text: str) -> Recommendation:
     """Nothing in the catalogue is close. Say what was understood and where to go next."""
-    kind, fields, coords = "custom", ["u"], ["x"]
+    kind, fields, coords = "heat_equation", ["u"], ["x", "t"]
     notes: List[str] = []
+    understood = False
     try:
         from pinneapple_physics.pde_environment.capabilities import suggest_problem_spec
 
         guess = suggest_problem_spec(text)
-        kind = str(guess.get("kind") or "custom")
-        fields = list(guess.get("fields") or ["u"])
-        coords = list(guess.get("coords") or ["x"])
-        if kind != "custom":
+        suggested = str(guess.get("kind") or "custom")
+        if suggested in _COMPILER_KINDS:
+            kind = suggested
+            fields = list(guess.get("fields") or fields)
+            coords = list(guess.get("coords") or coords)
+            understood = True
             notes.append(f"the PDE knowledge base reads this as a '{kind}' problem in "
                          f"{', '.join(coords)} with fields {', '.join(fields)}.")
+        elif suggested != "custom":
+            notes.append(f"the PDE knowledge base reads this as a '{suggested}' problem, which the "
+                         f"symbolic compiler does not train yet; the example below is a heat equation "
+                         f"to replace.")
     except Exception:
         pass
     notes.append("no preset is close, so start from your own description instead of bending one of ours.")
+    if not understood:
+        notes.append("the program below is the smallest problem that trains: replace the equation, the "
+                     "domain and the conditions with yours.")
     axes = ", ".join(f"{c}=(0.0, 1.0)" for c in coords)
+    field = fields[0] if fields else "u"
     code = "\n".join([
+        "import numpy as np",
         "import pinneapple as pp",
         "from pinneapple_physics import ProblemBuilder",
         "",
-        f"# the PDE knowledge base reads your description as a '{kind}' problem",
+        f"# a '{kind}' problem; replace the equation, the domain and the conditions with yours",
         "spec = (ProblemBuilder('my_problem')",
-        f"        .domain({axes})          # <- your coordinates and their ranges",
-        f"        .fields({', '.join(repr(f) for f in fields)})                       # <- your fields",
-        f"        .pde({kind!r})                            # <- your coefficients",
-        "        .ic(field='u', fn=lambda X: 0.0)          # <- your initial condition",
-        "        .bc(kind='dirichlet', field='u', value=0.0, on='x_boundary')",
+        f"        .domain({axes})",
+        f"        .fields({', '.join(repr(f) for f in fields)})",
+        f"        .pde({kind!r}, alpha=0.01)             # <- your equation and its coefficients",
+        f"        .ic(field='{field}', fn=lambda X: np.sin(np.pi * X[:, 0:1]))   # <- your initial state",
+        f"        .bc('dirichlet', field='{field}', value=0.0, on='x_boundary')  # <- your boundaries",
         "        .build())",
         "sol = pp.solve(spec, method='pinn', epochs=2000)",
         "print(sol.metadata())",
+        "print(sol.predict(np.array([[0.5, 0.5]])))",
     ])
     return Recommendation(
         query=text, preset=None, method="pinn", model="vanilla_pinn", confidence=0.0,

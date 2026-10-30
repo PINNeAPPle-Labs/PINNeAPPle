@@ -154,12 +154,25 @@ def main() -> int:
     t0 = time.time()
     try:
         sol = pp.solve(preset, method=method, preset_kwargs=params or None)
-    except pp.MethodNotAvailable:
-        # The classical method refuses problems outside its coverage (a field it does not compute,
-        # a solver this machine does not have). Train instead, and say that is what happened.
-        print(f"  '{method}' cannot solve this problem on this machine; training a PINN instead.")
-        method = "pinn"
-        sol = pp.solve(preset, method="pinn", preset_kwargs=params or None, epochs=2000)
+    except Exception as first_error:
+        # The classical method can refuse a problem outside its coverage (a field it does not
+        # compute, a solver this machine does not have, geometry tags it cannot name). Train
+        # instead; if that fails too, say what to install or supply instead of a traceback.
+        print(f"  '{method}' cannot solve this problem here ({type(first_error).__name__}).")
+        print("  training a PINN instead; this takes minutes ...")
+        try:
+            method = "pinn"
+            sol = pp.solve(preset, method="pinn", preset_kwargs=params or None, epochs=2000)
+        except Exception as second_error:
+            raise SystemExit(
+                f"\\nThis preset cannot run on this machine:\\n"
+                f"  {type(first_error).__name__}: {first_error}\\n"
+                f"  {type(second_error).__name__}: {second_error}\\n\\n"
+                f"what it needs:\\n"
+                f"  python -c \\"import pinneapple as pp; print(pp.card('{preset}'))\\"\\n"
+                f"a preset that runs here now:\\n"
+                f"  python -c \\"import pinneapple as pp; pp.recommend('{preset}')\\"\\n$fallback_hint"
+            ) from second_error
     seconds = time.time() - t0
     print(f"done in {seconds:.1f} s")
 
@@ -299,10 +312,22 @@ def main() -> int:
     options = {"epochs": args.epochs} if args.epochs else {}
     try:
         sol = pp.solve(preset, method=method, preset_kwargs=case.get("params") or None, **options)
-    except pp.MethodNotAvailable:
-        print(f"'{method}' cannot solve this problem here; training a PINN instead (minutes).")
-        method = "pinn"
-        sol = pp.solve(preset, method="pinn", preset_kwargs=case.get("params") or None, epochs=args.epochs or 2000)
+    except Exception as first_error:
+        print(f"'{method}' cannot solve this problem here ({type(first_error).__name__}); "
+              f"training a PINN instead (minutes).")
+        try:
+            method = "pinn"
+            sol = pp.solve(preset, method="pinn", preset_kwargs=case.get("params") or None,
+                           epochs=args.epochs or 2000)
+        except Exception as second_error:
+            raise SystemExit(
+                f"this preset cannot run on this machine:\\n"
+                f"  {type(first_error).__name__}: {first_error}\\n"
+                f"  {type(second_error).__name__}: {second_error}\\n"
+                f"what it needs: python -c \\"import pinneapple as pp; print(pp.card('{preset}'))\\"\\n"
+                "a preset that runs here now:\\n"
+                f"  python -c \\"import pinneapple as pp; pp.recommend('{preset}')\\"\\n$fallback_hint"
+            ) from second_error
     wall = time.time() - t0
 
     X, axes = grid_for(sol.problem, args.grid)
@@ -735,8 +760,12 @@ def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> Dict
     description = card.description if card else ""
     method = card.method if card else "reference"
     parameter, values = _sweep_parameter(preset)
+    fallback_hint = ""
+    if card is not None and not card.available and card.fallback:
+        # a fragment of generated SOURCE, so its newlines are escaped, not literal
+        fallback_hint = "the same physics, described so it runs here:\\n  python fallback.py"
     substitutions = dict(name=name, preset=preset, description=description, template=template,
-                         parameter=parameter, values=values, method=method,
+                         parameter=parameter, values=values, method=method, fallback_hint=fallback_hint,
                          domain=card.domain if card else "general",
                          extras=_extras_for(template))
     if template == "plain":
@@ -745,7 +774,7 @@ def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> Dict
         files["README.md"] = _PLAIN_README.substitute(**substitutions)
     elif template == "research":
         files["study.py"] = _RESEARCH_STUDY.substitute(name=name, preset=preset, description=description,
-                                                       method=method)
+                                                       method=method, fallback_hint=fallback_hint)
         files["case.yaml"] = _PLAIN_CASE.substitute(**substitutions)
         files["notebook.ipynb"] = _RESEARCH_NOTEBOOK.substitute(name=name, preset=preset,
                                                                 description=description, method=method)
@@ -754,6 +783,12 @@ def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> Dict
         files["sweep.py"] = _CFD_SWEEP.substitute(name=name, preset=preset, parameter="Re")
         files["case.yaml"] = _CFD_CASE.substitute(**substitutions)
         files["README.md"] = _CFD_README.substitute(**substitutions)
+    if fallback_hint:
+        files["fallback.py"] = (
+            f'"""(project) - the same physics as {preset}, described so it runs on any machine.\n\n'
+            f'The preset itself needs: {card.requires or "its own geometry"}\n'
+            f'Running this file trains a network on the same equation on a box instead.\n"""\n'
+            + card.fallback + "\n")
     files["requirements.txt"] = f"pinneapple{_extras_for(template)}\npyyaml\n"
     files[".gitignore"] = "results/\n*.npz\n*.png\n__pycache__/\n.ipynb_checkpoints/\n"
     files["pinneapple.json"] = (

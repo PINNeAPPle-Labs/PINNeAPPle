@@ -18,6 +18,13 @@ print("ready" if report.ok else [c.name for c in report.failures])
 If the last line says `ready`, nothing else is missing. If it lists items, each one comes with the
 command that fixes it: `pp.doctor("start")` prints them.
 
+One thing worth knowing before you type a problem: **not every preset can run on every machine.**
+Some need FEniCS or OpenFOAM (which `doctor` reports), and many describe boundaries as named regions
+of a real geometry. So `pp.card(name)` tries the cheapest method once and tells you whether it ran
+here, and `pp.recommend(...)` prefers a preset that does run. When the closest preset cannot run,
+you still get a program: the same equation written for a box you define yourself, which trains
+anywhere. No page here offers you a command that fails without saying why.
+
 ---
 
 ## Which of these is you?
@@ -192,10 +199,14 @@ They are also plain Python: `pp.doctor(...)`, `pp.recommend(...)`, `pp.card(...)
 Said here rather than discovered later:
 
 - **Eighteen presets name FEniCS as their solver**, among them `cpu_heatsink_thermal` and
-  `plane_stress_2d`. Without it the card says so and the snippet trains a network instead.
-- **Nine presets need OpenFOAM** on `PATH`. `pp.doctor("cfd")` reports which are missing.
+  `plane_stress_2d`. Nine name OpenFOAM. Without them the card says so, and hands over the same
+  physics written for a box you define.
+- **Forty presets bind their boundaries to named geometry tags** (a real mesh, not a box). Their own
+  solver is the supported route; training them needs that geometry. `pp.card(name)` lists the tags.
 - **The reference solver covers the fields it computes.** When it returns a partial field,
-  `pp.solve` raises `MethodNotAvailable` instead of a wrong answer, and the printed snippets fall
-  back to a trained network.
+  `pp.solve` raises `MethodNotAvailable` instead of a wrong answer, which is what `pp.card` reports.
 - **`pp.recommend` is keyword matching**, not a model. It shows the terms that matched so you can
   judge it, and returns nothing rather than guessing when nothing matches.
+- **Two presets have no generated alternative** (`lane_emden_polytrope`, `shakura_sunyaev_accretion_disk`):
+  their equation needs a setup the generated program does not write, so the card says what is
+  missing instead of printing code that would fail.

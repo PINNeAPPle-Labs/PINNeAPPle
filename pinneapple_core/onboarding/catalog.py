@@ -16,8 +16,11 @@ it says so: every hit carries the terms that matched so the user can judge it.
 """
 from __future__ import annotations
 
+import importlib.util
+import keyword
 import math
 import re
+import shutil
 import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -170,6 +173,26 @@ _DOMAIN_WORDS: Dict[str, Tuple[str, ...]] = {
     "physics": ("phonon", "foton", "lattice", "reticulo", "crystal", "cristal"),
 }
 
+#: PDE kinds that train through ``ProblemBuilder`` with the boundaries set in the program. Measured,
+#: not assumed: each kind below was run for a few epochs on the box problem ``standalone_snippet``
+#: writes, and only the kinds that trained are listed. A kind outside this set gets no generated
+#: program, because a printed program that cannot run is worse than a printed reason.
+_COMPILER_KINDS = frozenset("""
+axisymmetric_linear_elasticity axisymmetric_linear_elasticity_torsion bekker_wong_terramechanics
+black_scholes_1d burgers compressible_euler_2d compressible_euler_axisymmetric
+compressible_euler_rotating_3d compressor_meanline_1d cr3bp_planar_synodic darcy eddy_current_az
+electrostatics electrostatics_integral euler_compressible_1d heat_equation heat_equation_steady
+heat_equation_steady_anisotropic heat_equation_steady_multilayer heat_equation_transient helmholtz
+heston_pde_2d incompressible_navier_stokes_2d incompressible_navier_stokes_energy_2d
+incompressible_navier_stokes_energy_3d incompressible_navier_stokes_rotating_frame
+kepler_two_body_orbit laplace linear_elasticity linear_elasticity_plane_strain
+linear_elasticity_plane_stress magnetostatics_az maxwell_tm maxwell_tm_frequency maxwell_tm_integral
+navier_stokes_energy_2d navier_stokes_incompressible opinion_dynamics_2d phase_field_fracture_2d
+phonon_bte_1d_gray pk_two_compartment_ode poisson reaction_diffusion_2d satellite_j2_perturbation
+schwarzschild_light_bending_weak_field shallow_water_2d sir_ode space_debris_cw_relative_motion
+spacecraft_attitude_euler_rotation stommel_gyre_2d thermoelasticity_2d wave_equation
+""".split())
+
 _STOPWORDS = frozenset(
     """a o as os de da do das dos em no na nos nas um uma uns umas para por com sem que e ou the of in on at to \
     for with without and or a an is are be been this that my our we i it its how can do does what which where""".split()
@@ -221,6 +244,7 @@ class Card:
     available: bool = True
     error: str = ""
     requires: str = ""
+    fallback: str = ""
 
     def as_dict(self) -> Dict[str, Any]:
         return {
@@ -231,6 +255,7 @@ class Card:
             "conditions": list(self.conditions), "solver": self.solver, "method": self.method,
             "snippet": self.snippet, "related": list(self.related), "available": self.available,
             "error": self.error, "requires": self.requires,
+            "fallback": self.fallback,
         }
 
     def format(self) -> str:
@@ -258,28 +283,114 @@ def best_method(name: str) -> str:
             return "analytic"
     except Exception:
         pass
+    solver = _solver_of(name)
+    if solver and solver_available(solver):
+        return "reference"
+    return "pinn" if trainable(name) else "reference"
+
+
+def needs_geometry_tags(name: str) -> bool:
+    """True when the preset binds its boundary conditions to named geometry tags, so a bare
+    ``pp.solve(name, method="pinn")`` cannot build the problem: the tags have to be supplied."""
     try:
-        solver = str(_spec(name).solver_spec.get("name", ""))
+        conditions = getattr(_spec(name), "conditions", ()) or ()
     except Exception:
-        solver = ""
-    return "reference" if solver and solver_available(solver) else "pinn"
+        return False
+    return any(str(getattr(c, "selector_type", "")) == "tag" for c in conditions)
+
+
+def tag_names(name: str) -> Tuple[str, ...]:
+    """The geometry tags a preset's conditions refer to, for the message that asks for them."""
+    try:
+        conditions = getattr(_spec(name), "conditions", ()) or ()
+    except Exception:
+        return ()
+    tags: List[str] = []
+    for c in conditions:
+        selector = getattr(c, "selector", None)
+        if isinstance(selector, dict) and selector.get("tag"):
+            tags.append(str(selector["tag"]))
+    return tuple(dict.fromkeys(tags))
+
+
+def trainable(name: str) -> bool:
+    """Can a network be trained on this preset with nothing but its name?"""
+    return not needs_geometry_tags(name)
+
+
+#: Solvers that are pure Python inside the library: cheap enough to try, so the card can say whether
+#: the preset really runs here instead of predicting it. External solvers are never started here.
+_CHEAP_SOLVERS = frozenset({"fdm", "scipy", "spectral", "analytical", "analytic", ""})
+
+_RUNNABLE: Dict[str, Tuple[bool, str]] = {}
+
+
+def probe(name: str, *, timeout_note: str = "") -> Tuple[bool, str]:
+    """Try the cheapest method for this preset once and report whether it worked, with the reason.
+
+    Cached per process. Only pure-library solvers are attempted: an OpenFOAM or FEniCS campaign is
+    never started from a card, its presence is checked instead. This is what lets ``pp.card`` say
+    "this runs here" or "this does not, and why" instead of offering a program that may fail.
+    """
+    if name in _RUNNABLE:
+        return _RUNNABLE[name]
+    method = best_method(name)
+    if method == "pinn":
+        # Training is minutes, so it is never probed: report what is known instead.
+        result = (trainable(name), "" if trainable(name) else
+                  f"trains only with the geometry tags it names: {', '.join(tag_names(name))}")
+        _RUNNABLE[name] = result
+        return result
+    solver = _solver_of(name)
+    if solver and solver.lower() not in _CHEAP_SOLVERS:
+        available = solver_available(solver)
+        result = (available, "" if available else solver_requirement(solver))
+        _RUNNABLE[name] = result
+        return result
+    try:
+        import numpy as np
+
+        from pinneapple_physics.solving import solve
+
+        sol = solve(name, method=method)
+        bounds = getattr(sol.problem, "domain_bounds", {}) or {}
+        point = [[(bounds[c][0] + bounds[c][1]) / 2.0 if c in bounds else 0.5 for c in sol.problem.coords]]
+        sol.predict(np.asarray(point))
+        result = (True, "")
+    except Exception as e:  # it did not run: the message is the reason, and it goes into the card
+        result = (False, f"{type(e).__name__}: {e}")
+    _RUNNABLE[name] = result
+    return result
+
+
+def runnable(name: str) -> bool:
+    """True when this preset produces a field on this machine right now, without the user adding
+    geometry or installing a solver."""
+    return probe(name)[0]
 
 
 #: What an external reference solver needs before it can run. A solver missing from this table is
 #: assumed to be pure Python inside the library.
 _SOLVER_REQUIREMENTS: Dict[str, Tuple[Tuple[str, ...], str, str]] = {
-    # solver name: (import probes, what to install, the sentence a user reads)
+    # solver name: (probes, what to install, the sentence a user reads). A probe is a module to
+    # import, or "bin:<program>" for an executable on PATH. Any one probe being present is enough.
     "fenics": (("dolfin", "dolfinx"), 'pip install "pinneapple[fenics]"',
                "FEniCS is not installed"),
-    "openfoam": ((), "install OpenFOAM and source its env",
-                 "OpenFOAM is not on PATH"),
+    "openfoam": (("bin:simpleFoam", "bin:foamRun", "bin:blockMesh"),
+                 'install OpenFOAM and source its env (so "simpleFoam" is on PATH)',
+                 "OpenFOAM is not sourced"),
     "turbodesigner": (("turbodesigner",), "pip install turbodesigner",
                       "turbodesigner is not installed"),
 }
 
 
 def solver_available(solver: str) -> bool:
-    """Can this machine run the named reference solver right now?"""
+    """Can this machine run the named reference solver right now?
+
+    A solver is present when any of its probes is: an importable module, or an executable on PATH
+    (``bin:<program>``). For OpenFOAM that means the solvers themselves, not the ``openfoam``
+    launcher, which exists on a machine whose environment was never sourced.
+    """
     if not solver:
         return False
     req = _SOLVER_REQUIREMENTS.get(str(solver).lower())
@@ -287,14 +398,14 @@ def solver_available(solver: str) -> bool:
         return True
     probes, _install, _why = req
     if not probes:
-        import shutil
-
         return shutil.which(str(solver)) is not None
-    import importlib.util
-
-    for mod in probes:
+    for probe in probes:
+        if probe.startswith("bin:"):
+            if shutil.which(probe[4:]) is not None:
+                return True
+            continue
         try:
-            if importlib.util.find_spec(mod) is not None:
+            if importlib.util.find_spec(probe) is not None:
                 return True
         except (ImportError, ValueError):
             continue
@@ -310,8 +421,22 @@ def solver_requirement(solver: str) -> str:
     return f"{install} ({why})"
 
 
+def _solver_of(name: str) -> str:
+    """The reference solver a preset declares, or ``""``."""
+    try:
+        return str(_spec(name).solver_spec.get("name", ""))
+    except Exception:
+        return ""
+
+
 def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> str:
-    """The smallest correct program for one preset. Runs as printed: no placeholders to fill in."""
+    """The smallest correct program for one preset. Runs as printed: no placeholders to fill in.
+
+    Two things the program never does: pretend a method this machine cannot run will work, and fail
+    without saying why. When the classical solver refuses a problem it does not cover, the program
+    trains instead and prints which method actually ran. When training also needs something the
+    user has to supply (a geometry with named tags), the program says what, before it runs.
+    """
     method = method or best_method(name)
     coords: Tuple[str, ...] = ()
     bounds: Dict[str, Tuple[float, float]] = {}
@@ -323,8 +448,21 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
         pass
     point = ", ".join(f"{(bounds[c][0] + bounds[c][1]) / 2.0:.3g}" if c in bounds else "0.5" for c in coords) or "0.5"
     labels = ", ".join(coords) if coords else "coordinates"
+    cannot_train = needs_geometry_tags(name)
+    need = solver_requirement(_solver_of(name))
+    advice = (f"install its solver first: {need}" if need
+              else "its solver does not cover every field of this problem; pp.doctor('cfd') shows what is missing")
     lines = ["import numpy as np", "import pinneapple as pp", ""]
-    if train or method == "pinn":
+    if cannot_train:
+        # Nothing trains on a preset whose boundaries are named geometry tags until that geometry
+        # exists, so the program asks for the solver instead of pretending a network will run.
+        tags = ", ".join(tag_names(name)) or "named tags"
+        lines += [f"# this preset binds its boundary conditions to geometry tags: {tags}",
+                  "try:",
+                  f"    sol = pp.solve({name!r}, method={method!r})   # its own solver is the supported route",
+                  "except pp.MethodNotAvailable as e:",
+                  f"    raise SystemExit({advice!r}) from e"]
+    elif train or method == "pinn":
         lines.append(f"sol = pp.solve({name!r}, method='pinn', epochs=2000)   # trains; minutes on a laptop")
     else:
         # The classical method is the cheap one, but it can refuse a problem its solver does not
@@ -333,7 +471,7 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
         lines += [
             "try:",
             f"    sol = pp.solve({name!r}, method={method!r})   # the classical answer: seconds",
-            "except pp.MethodNotAvailable:   # this install has no solver for every field of this problem",
+            "except pp.MethodNotAvailable:   # no solver here covers every field of this problem",
             f"    sol = pp.solve({name!r}, method='pinn', epochs=2000)   # train instead: minutes",
         ]
     lines += [
@@ -346,8 +484,64 @@ def snippet(name: str, method: Optional[str] = None, *, train: bool = False) -> 
     return "\n".join(lines)
 
 
-def card(name: str, *, with_related: bool = True) -> Card:
-    """Describe one preset. Raises ``KeyError`` for an unknown name, with the near misses."""
+def standalone_snippet(name: str) -> str:
+    """A program that solves the same physics as this preset, described from scratch.
+
+    Presets that bind their boundaries to geometry tags, or whose solver is not installed, cannot be
+    solved from their name alone. The equation, the fields and the coefficients still can: this
+    writes the same PDE on a box with Dirichlet boundaries, which trains anywhere. Returns ``""``
+    when the preset's PDE kind is not one the compiler handles, because printing a program that
+    cannot run is worse than printing nothing.
+    """
+    try:
+        spec = _spec(name)
+    except Exception:
+        return ""
+    kind = str(getattr(getattr(spec, "pde", None), "kind", "") or "")
+    if kind not in _COMPILER_KINDS:
+        return ""
+    coords = [str(c) for c in (getattr(spec, "coords", ()) or ())]
+    fields = [str(f) for f in (getattr(spec, "fields", ()) or ())] or ["u"]
+    bounds = getattr(spec, "domain_bounds", {}) or {}
+    params = {k: v for k, v in dict(getattr(getattr(spec, "pde", None), "params", {}) or {}).items()
+              if isinstance(v, (int, float)) and not isinstance(v, bool)
+              and str(k).isidentifier() and not keyword.iskeyword(str(k))}
+    domain = ", ".join(
+        f"{c}=({bounds.get(c, (0.0, 1.0))[0]:g}, {bounds.get(c, (0.0, 1.0))[1]:g})" for c in coords
+    ) or "x=(0.0, 1.0)"
+    space = [c for c in coords if c != "t"]          # an ODE in time only has no boundaries to set
+    field = fields[0]
+    kwargs = "".join(f", {k}={v:g}" for k, v in list(params.items())[:3])
+    lines = [
+        "import numpy as np",
+        "import pinneapple as pp",
+        "from pinneapple_physics import ProblemBuilder",
+        "",
+        f"# the same physics as {name}, on a box, with boundaries you define here",
+        "spec = (ProblemBuilder('my_problem')",
+        f"        .domain({domain})",
+        f"        .fields({', '.join(repr(f) for f in fields)})",
+        f"        .pde({kind!r}{kwargs})",
+        f"        .ic(field='{field}', fn=lambda X: np.zeros((X.shape[0], 1)))",
+    ]
+    for axis in space:
+        lines.append(f"        .bc('dirichlet', field='{field}', value=0.0, on='{axis}_boundary')")
+    lines += [
+        "        .build())",
+        "sol = pp.solve(spec, method='pinn', epochs=2000)   # trains; minutes on a laptop",
+        "print(sol.method, sol.metadata())",
+        "print(sol.predict(np.array([[0.5] * " + str(len(coords)) + "])))",
+    ]
+    return "\n".join(lines)
+
+
+def card(name: str, *, with_related: bool = True, check: bool = True) -> Card:
+    """Describe one preset. Raises ``KeyError`` for an unknown name, with the near misses.
+
+    With ``check`` (the default) the card tries the cheapest method once, so ``available`` and
+    ``error`` say whether this preset really produces a field on this machine, rather than assuming
+    it. Cheap solvers are tried; an external one is checked for presence and never started.
+    """
     domain, description, tags = _CURATED.get(name, ("", "", ()))
     try:
         spec = _spec(name)
@@ -362,6 +556,7 @@ def card(name: str, *, with_related: bool = True) -> Card:
     kind = str(getattr(getattr(spec, "pde", None), "kind", "") or "")
     if not description:
         description = f"{kind.replace('_', ' ')} in {spatial}-D" + (" + time" if transient else "")
+    ok, why = probe(name) if check else (True, "")
     return Card(
         name=name,
         domain=domain or (kind.split("_")[0] if kind else "general"),
@@ -378,6 +573,9 @@ def card(name: str, *, with_related: bool = True) -> Card:
         snippet=snippet(name),
         related=_related(name, tags, domain) if with_related else (),
         requires=solver_requirement(solver),
+        available=ok,
+        error="" if ok else why,
+        fallback="" if ok else standalone_snippet(name),
     )
 
 
@@ -405,7 +603,7 @@ def catalogue() -> List[Card]:
     out = []
     for n in list_presets():
         try:
-            out.append(card(n, with_related=False))
+            out.append(card(n, with_related=False, check=False))
         except Exception:
             continue
     return sorted(out, key=lambda c: (c.domain, c.name))
@@ -432,15 +630,21 @@ def format_card(c: Card, width: int = 78) -> str:
     if c.conditions:
         out.append(f"  applies  : {', '.join(c.conditions)}")
     out.append(f"  method   : {c.method}" + (f"   (solver: {c.solver})" if c.solver else ""))
-    if c.requires:
+    if not c.available:
+        first = (c.error or "it did not run here").splitlines()[0][:120]
+        out.append("  here     : does not produce a field on this machine yet")
+        out.append(f"             {first}")
+    if c.requires and (c.available or c.requires.splitlines()[0] not in (c.error or "")):
         out.append(f"  needs    : {c.requires}")
-        out.append("             without it the snippet below trains a network instead")
     if c.tags:
         out.append(f"  tags     : {', '.join(c.tags)}")
     if c.related:
         out.append(f"  similar  : {', '.join(c.related)}")
     out += ["", "  run it:", ""]
     out += ["    " + line for line in c.snippet.splitlines()]
+    if c.fallback:
+        out += ["", "  or the same physics, described so it runs here:", ""]
+        out += ["    " + line for line in c.fallback.splitlines()]
     out.append(bar)
     return "\n".join(out)
 

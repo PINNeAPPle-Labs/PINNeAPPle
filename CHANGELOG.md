@@ -24,14 +24,16 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
     one fix command per missing item; a check that cannot run reports `None`, never a pass.
   - `recommend(text)` turns a problem described in English or Portuguese into a preset, a method that runs on this
     machine and a model to train, and shows the terms the keyword ranking matched. It returns no preset instead of
-    guessing when nothing matches.
+    guessing when nothing matches, and when the closest preset cannot run here it says which one is, and why.
   - `card(preset)` describes a preset (coordinates, fields, conditions, the method that runs, what that method
-    needs) and carries a program that runs as printed, falling back to a trained network when the classical solver
-    cannot cover the problem.
+    needs) and carries a program that runs as printed. It also *tries* the cheapest method once, so the card can say
+    whether the preset produces a field on this machine; when it does not, the card and `recommend` hand over
+    `standalone_snippet(preset)`: the same equation and fields, on a box, with boundaries the user sets.
   - `new(name, template=plain|research|cfd)` writes a standalone project outside this repository: `case.yaml` +
     runner + README + requirements, with every path relative to the project folder. The `research` template records
     metrics with unit and method and writes an experiment manifest; the `cfd` template sweeps a parameter the preset
-    accepts into a CSV and a figure.
+    accepts into a CSV and a figure. A preset that cannot run here comes with `fallback.py` and a message that
+    points at it instead of a traceback.
 - `START_HERE.md`: one page, four paths (engineer without Python, learning physics-AI, research, product), each with
   the commands to run and what to read next.
 - `pinneapple_physics.solving.analytic_for(problem)`: the name of the closed-form solution this library knows for a

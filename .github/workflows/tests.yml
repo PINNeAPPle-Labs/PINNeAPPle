@@ -31,6 +31,14 @@ jobs:
           pytest tests/pinneapple_data/test_contracts.py tests/pinneapple_core/test_service.py tests/test_appkit_runtime.py tests/pinneapple_core/test_workflows.py tests/test_simulation_runner_app.py -q
           pytest tests/pinneapple_data/test_doe.py tests/pinneapple_simulation/test_campaign_cases.py tests/test_app_campaign.py -q
 
+      - name: Onboarding and the front door — doctor, recommend, card, new, and the entry pages (must pass)
+        run: |
+          pip install pyyaml
+          pytest tests/test_onboarding.py tests/test_front_door.py tests/test_public_api.py tests/test_agents_md.py -q -p no:warnings
+          pinneapple doctor start -q
+          pinneapple card burgers_1d --json > /dev/null
+          pinneapple recommend "heat sink cooled by a fan" > /dev/null
+
       - name: PINNeAPPle-apps case studies — margin study, recession twin, thin airfoil, two apps (must pass)
         run: |
           pytest tests/test_margin_study.py tests/test_river_recession.py tests/test_thin_airfoil.py tests/test_app_verification_gap.py tests/test_app_predictive_twin.py -q

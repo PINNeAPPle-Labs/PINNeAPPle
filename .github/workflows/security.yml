@@ -72,11 +72,13 @@ jobs:
       - name: hadolint (Dockerfiles; fails on errors)
         run: hadolint --failure-threshold error apps/*/Dockerfile pinneapple_lab/deploy/Dockerfile
 
-      - name: Trivy (base images; fails on critical CVEs that have a fix)
+      - name: Trivy (the images that ship; fails on critical CVEs that have a fix)
         run: |
-          imgs=$( (sed -n 's/^ *image: *\(caddy:[^ ]*\).*/\1/p' apps/deploy/docker-compose.yml
-                   sed -n 's/^FROM \(caddy:[^ ]*\).*/\1/p' apps/playground/Dockerfile) | sort -u)
-          for img in python:3.11-slim $imgs; do
+          # The Caddy images are built (pinned base + Alpine package fixes) and the built images are scanned, so a fix
+          # applied at build time counts and anything still unfixed fails.
+          docker build -q -f apps/deploy/caddy.Dockerfile -t scan/deploy-caddy apps/deploy
+          docker build -q -f apps/playground/Dockerfile -t scan/playground .
+          for img in python:3.11-slim scan/deploy-caddy scan/playground; do
             echo "trivy: $img"
             trivy image --quiet --scanners vuln --severity CRITICAL --ignore-unfixed --exit-code 1 "$img"
           done
@@ -87,8 +89,7 @@ jobs:
           pip install -r app-requirements.txt >/dev/null
           cyclonedx-py environment --of JSON -o sbom-python.cdx.json
           trivy image --quiet --format cyclonedx -o sbom-python-3.11-slim.cdx.json python:3.11-slim
-          caddy=$(sed -n 's/^ *image: *\(caddy:[^ ]*\).*/\1/p' apps/deploy/docker-compose.yml | head -1)
-          trivy image --quiet --format cyclonedx -o sbom-caddy.cdx.json "$caddy"
+          trivy image --quiet --format cyclonedx -o sbom-caddy.cdx.json scan/deploy-caddy
 
       - uses: actions/upload-artifact@v7
         if: always()

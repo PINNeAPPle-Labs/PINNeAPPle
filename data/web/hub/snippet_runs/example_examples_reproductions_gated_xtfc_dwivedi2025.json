@@ -1,0 +1,12 @@
+{
+ "code_hash": "16afcf94f5c3ae8c",
+ "figures": [],
+ "id": "example:examples/reproductions/gated_xtfc_dwivedi2025",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 0.93,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Gated X-TFC reproduction (Dwivedi et al.) | physics-informed ML | not curated\nforward_max_abs_nu_0.01 0.0006714307326383085 abs error\nforward_max_abs_nu_0.001 0.002387207906728528 abs error\nforward_max_abs_nu_0.0001 0.03880860848393608 abs error",
+ "timed_out": false
+}

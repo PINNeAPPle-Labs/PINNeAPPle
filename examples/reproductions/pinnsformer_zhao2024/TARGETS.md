@@ -144,3 +144,19 @@ That makes **18 scored targets**.
 
 - PINNs is the paper's own baseline. It gets the same optimizer and the same schedule, on its own grid.
 - Wall time and the number of loss evaluations are reported for every run.
+
+## Amendment 1 (2026-10-30, before any scored run; only a 1-step smoke run was made)
+
+- **Measured cost on this machine** (4 CPU cores, float32), from 1 outer L-BFGS step:
+
+  | Problem | PINNs | PINNsFormer |
+  |---|---|---|
+  | Convection | 9.7 s | 16-28 s |
+  | Reaction | 4.3 s | 11.6 s |
+  | Wave | 23 s | 69 s |
+
+- At the notebooks' schedule, one wave seed costs about 6 h (PINNs) plus 19 h (PINNsFormer).
+- **Wave therefore runs seed 0 only. Seed 1 is added if time allows**, and the README will say which seeds ran.
+  Table 1 keeps seeds 0, 1 and 2.
+- Two workers with 2 threads each run in parallel: one for Table 1, one for wave.
+- Nothing else changes.

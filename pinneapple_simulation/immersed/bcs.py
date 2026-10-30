@@ -8,8 +8,9 @@ surface). Values are constants or callables of the points (``f(X)`` or ``f(X, n)
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 

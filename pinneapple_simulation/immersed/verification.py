@@ -8,8 +8,8 @@ closed-form conduction in a sphere and a cylinder with convection, and the condi
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
 
@@ -123,7 +123,7 @@ def rates(rows: list[dict], keys=("L2", "H1")) -> dict[str, list[float]]:
     """Observed orders log(e_i / e_{i+1}) / log(h_i / h_{i+1}) between successive rows."""
     out = {}
     for k in keys:
-        out[k] = [float(np.log(a[k] / b[k]) / np.log(a["h"] / b["h"])) for a, b in zip(rows[:-1], rows[1:])
+        out[k] = [float(np.log(a[k] / b[k]) / np.log(a["h"] / b["h"])) for a, b in zip(rows[:-1], rows[1:], strict=True)
                   if a.get(k) and b.get(k)]
     return out
 

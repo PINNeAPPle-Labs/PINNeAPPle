@@ -5,7 +5,8 @@ import numpy as np
 import pytest
 
 from pinneapple_simulation import immersed as im
-from pinneapple_simulation.immersed import basis, verification as V
+from pinneapple_simulation.immersed import basis
+from pinneapple_simulation.immersed import verification as V
 from pinneapple_simulation.immersed.geometry import _closest_on_triangles, icosphere
 from pinneapple_simulation.immersed.quadrature import build_quadrature
 
@@ -28,7 +29,7 @@ def test_quadrature_disk_area_and_perimeter_converge_with_depth():
     for depth in (1, 2, 3):
         q = build_quadrature(geo, grid, depth=depth)
         errs.append((abs(q.measure() / (np.pi * 0.49) - 1), abs(q.area() / (2 * np.pi * 0.7) - 1)))
-    for (va, aa), (vb, ab) in zip(errs[:-1], errs[1:]):
+    for (va, aa), (vb, ab) in zip(errs[:-1], errs[1:], strict=True):
         assert vb < va / 2.5 and ab < aa / 2.5                          # O((h / 2^depth)^2)
     assert errs[-1][0] < 5e-5 and errs[-1][1] < 2e-5
 
@@ -41,7 +42,7 @@ def test_moment_fitting_reproduces_the_fine_rule_on_q_2p():
     Xc = grid.to_physical(q.volume.cell, q.volume.xi)
     for a in range(3):
         for b in range(3):
-            f = lambda X: X[:, 0] ** a * X[:, 1] ** b * X[:, 2] ** (2 - a)          # noqa: E731
+            f = lambda X, a=a, b=b: X[:, 0] ** a * X[:, 1] ** b * X[:, 2] ** (2 - a)          # noqa: E731
             assert np.isclose(np.sum(q.fine.w * f(Xf)), np.sum(q.volume.w * f(Xc)), rtol=1e-10, atol=1e-13)
 
 
@@ -130,6 +131,7 @@ def test_heat_on_an_stl_sphere_matches_the_closed_form():
 def test_conforming_tet_fem_matches_the_closed_form_and_calculix():
     pytest.importorskip("gmsh")
     import shutil
+
     from pinneapple_simulation.immersed import compare
     part = compare.parts()["sphere"]
     r = compare.run_conforming(part, 2, 0.2)                            # measured 2.8e-5

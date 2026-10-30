@@ -4,9 +4,9 @@ cell), and the ghost-penalty face matrices; scatter into sparse matrices; condit
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Callable
 
 import numpy as np
 from scipy import sparse
@@ -110,7 +110,7 @@ class SurfaceMeasures:
         names = list(weights)
         fit = MomentFitter(disc.grid, self.cells, 2 * disc.order + 1)
         W = fit.measures(pts, np.stack([pts.w * np.asarray(weights[k], float) for k in names]))
-        self.W = dict(zip(names, W))
+        self.W = dict(zip(names, W, strict=True))
         N, G, _ = disc.fitted_reference
         if not len(N):
             from itertools import product as _p
@@ -147,9 +147,9 @@ def scatter(cell_dofs: np.ndarray, mats: np.ndarray, n: int, ncomp: int = 1) -> 
     out = sparse.csr_matrix((n * ncomp, n * ncomp))
     step = max(1, 4_000_000 // (idx.shape[1] ** 2))
     for s in range(0, len(idx), step):
-        I = idx[s:s + step]
-        r = np.repeat(I, I.shape[1], axis=1).ravel()
-        c = np.tile(I, (1, I.shape[1])).ravel()
+        rows = idx[s:s + step]
+        r = np.repeat(rows, rows.shape[1], axis=1).ravel()
+        c = np.tile(rows, (1, rows.shape[1])).ravel()
         out = out + sparse.csr_matrix((mats[s:s + step].ravel(), (r, c)), shape=out.shape)
     return out
 
@@ -259,7 +259,6 @@ def solve_linear(A: sparse.spmatrix, b: np.ndarray, solver: str = "auto", tol: f
     """Direct sparse solve (SuperLU) or conjugate gradients with smoothed-aggregation AMG (pyamg)."""
     t0 = time.perf_counter()
     A = sparse.csr_matrix(A)
-    n = A.shape[0]
     if solver == "auto":                       # sparse LU fills in badly on 3-D couplings: AMG-CG beyond small systems
         solver = "direct" if A.nnz <= 300_000 else "amg"
     info = {"solver": solver}

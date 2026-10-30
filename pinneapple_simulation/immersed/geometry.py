@@ -15,8 +15,8 @@ and a Lipschitz bound (1 for a signed distance). The solver never meshes it: the
 from __future__ import annotations
 
 import struct
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Sequence
 
 import numpy as np
 
@@ -38,13 +38,13 @@ class Geometry:
         return self.phi(X) < 0
 
     # CSG on level sets (min / max keep a valid distance bound, so the Lipschitz bound is the larger of the two)
-    def __or__(self, other: "Geometry") -> "SDFGeometry":
+    def __or__(self, other: Geometry) -> SDFGeometry:
         return union(self, other)
 
-    def __and__(self, other: "Geometry") -> "SDFGeometry":
+    def __and__(self, other: Geometry) -> SDFGeometry:
         return intersection(self, other)
 
-    def __sub__(self, other: "Geometry") -> "SDFGeometry":
+    def __sub__(self, other: Geometry) -> SDFGeometry:
         return difference(self, other)
 
 
@@ -183,7 +183,7 @@ class VoxelGeometry(Geometry):
         return ndimage.map_coordinates(self._phi, idx.T, order=1, mode="nearest")
 
     @classmethod
-    def from_geometry(cls, geom: Geometry, spacing: float, margin: int = 1) -> "VoxelGeometry":
+    def from_geometry(cls, geom: Geometry, spacing: float, margin: int = 1) -> VoxelGeometry:
         """Rasterise another geometry (voxel centres inside it): a test and demo source of voxel data."""
         lo, hi = geom.bounds
         lo = lo - margin * spacing
@@ -343,7 +343,7 @@ class STLGeometry(Geometry):
         self._stats.update(triangles=len(self.F), samples=len(self._samples), watertight=self.watertight)
 
     @classmethod
-    def from_file(cls, path: str, **kw) -> "STLGeometry":
+    def from_file(cls, path: str, **kw) -> STLGeometry:
         V, F = read_stl(path)
         return cls(V, F, **kw)
 

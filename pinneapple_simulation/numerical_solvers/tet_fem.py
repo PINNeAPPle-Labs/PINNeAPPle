@@ -15,8 +15,9 @@ handed to CalculiX (:meth:`TetMesh.to_calculix`).
 from __future__ import annotations
 
 import time
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 from scipy import sparse
@@ -91,7 +92,7 @@ class TetMesh:
         loc = _FACES[face]
         cols = [loc[:, 0], loc[:, 1], loc[:, 2]]
         if self.order == 2:
-            cols += [np.array([_edge_index(a, b) for a, b in zip(loc[:, i], loc[:, (i + 1) % 3])])
+            cols += [np.array([_edge_index(a, b) for a, b in zip(loc[:, i], loc[:, (i + 1) % 3], strict=True)])
                      for i in range(3)]
         return np.stack([self.tets[tet, c] for c in cols], axis=1)
 
@@ -321,7 +322,7 @@ def assemble_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, b
             np.add.at(nsum, fnod.ravel(), np.zeros((fnod.size, 3)))
             nrm = nsum[nodes] / np.maximum(np.linalg.norm(nsum[nodes], axis=1, keepdims=True), 1e-300)
             g = ev(bc.value, mesh.nodes[nodes], nrm)
-            for a, v in zip(nodes, g):
+            for a, v in zip(nodes, g, strict=True):
                 fixed.setdefault(int(a), float(v))
     info = {"owner": owner, "fixed": fixed}
     info["assembly_s"] = time.perf_counter() - t0
@@ -400,8 +401,8 @@ def _locate(mesh: TetMesh, X: np.ndarray):
     for j in range(cand.shape[1]):
         e = cand[:, j]
         M = (P[e, 1:] - P[e, :1]).transpose(0, 2, 1)
-        l = np.linalg.solve(M, (X - P[e, 0])[..., None])[..., 0]
-        lam = np.column_stack([1 - l.sum(1), l])
+        r = np.linalg.solve(M, (X - P[e, 0])[..., None])[..., 0]
+        lam = np.column_stack([1 - r.sum(1), r])
         s = lam.min(1)
         better = s > score
         best[better], lam_best[better], score[better] = e[better], lam[better], s[better]
@@ -415,8 +416,8 @@ def evaluate(mesh: TetMesh, u: np.ndarray, X: np.ndarray, tet: np.ndarray | None
     else:
         P = mesh.nodes[mesh.tets[tet, :4]]
         M = (P[:, 1:] - P[:, :1]).transpose(0, 2, 1)
-        l = np.linalg.solve(M, (X - P[:, 0])[..., None])[..., 0]
-        lam = np.column_stack([1 - l.sum(1), l])
+        r = np.linalg.solve(M, (X - P[:, 0])[..., None])[..., 0]
+        lam = np.column_stack([1 - r.sum(1), r])
     if mesh.order == 2:                                                 # Newton on the curved map
         for _ in range(4):
             N = shape(2, lam)
@@ -424,8 +425,8 @@ def evaluate(mesh: TetMesh, u: np.ndarray, X: np.ndarray, tet: np.ndarray | None
             D = dshape(2, lam)
             J = np.einsum("nbi,nbj->nij", mesh.nodes[mesh.tets[tet]], D)
             dl = np.linalg.solve(J, (X - Xm)[..., None])[..., 0]
-            l = lam[:, 1:] + dl
-            lam = np.column_stack([1 - l.sum(1), l])
+            r = lam[:, 1:] + dl
+            lam = np.column_stack([1 - r.sum(1), r])
     U = np.asarray(u)
     return np.einsum("nb,nb...->n...", shape(mesh.order, lam), U[mesh.tets[tet]])
 

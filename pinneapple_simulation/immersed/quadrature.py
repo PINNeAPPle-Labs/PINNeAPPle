@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import cache
 from itertools import permutations, product
 from math import factorial
 
@@ -26,7 +26,7 @@ from .grid import BackgroundGrid
 OUTSIDE, CUT, INSIDE = 0, 1, 2
 
 
-@lru_cache(maxsize=None)
+@cache
 def simplex_rule(dim: int, n: int) -> tuple[np.ndarray, np.ndarray]:
     """Quadrature on the unit simplex of dimension ``dim`` (0..3): barycentric coordinates (q, dim + 1) and weights
     summing to 1. ``n`` >= 1: collapsed (Duffy) Gauss with n points per direction; ``n`` = 0: the symmetric
@@ -64,7 +64,7 @@ def simplex_rule(dim: int, n: int) -> tuple[np.ndarray, np.ndarray]:
     return np.column_stack([1 - P.sum(1), P]), W / W.sum()
 
 
-@lru_cache(maxsize=None)
+@cache
 def _kuhn(d: int) -> np.ndarray:
     """(d!, d + 1) corner numbers (C order over the axes) of the Kuhn simplices of the unit box."""
     corners = {c: i for i, c in enumerate(product((0, 1), repeat=d))}
@@ -85,7 +85,7 @@ def _p(k: int, d: int, i: int, j: int) -> int:
     return k + i * (d + 1 - k) + j
 
 
-@lru_cache(maxsize=None)
+@cache
 def _templates(d: int, k: int) -> tuple[list, list]:
     P = lambda i, j: _p(k, d, i, j)                                     # noqa: E731
     if d == 2:
@@ -96,7 +96,8 @@ def _templates(d: int, k: int) -> tuple[list, list]:
     if d == 3:
         if k == 1:
             return [(0, P(0, 0), P(0, 1), P(0, 2))], [(P(0, 0), P(0, 1), P(0, 2))]
-        prism = (lambda v: [(v[0], v[1], v[2], v[3]), (v[1], v[2], v[3], v[4]), (v[2], v[3], v[4], v[5])])
+        def prism(v):
+            return [(v[0], v[1], v[2], v[3]), (v[1], v[2], v[3], v[4]), (v[2], v[3], v[4], v[5])]
         if k == 2:
             v = (0, P(0, 0), P(0, 1), 1, P(1, 0), P(1, 1))
             return prism(v), [(P(0, 0), P(0, 1), P(1, 1)), (P(0, 0), P(1, 1), P(1, 0))]
@@ -116,11 +117,11 @@ class Points:
     def __len__(self):
         return len(self.w)
 
-    def subset(self, m: np.ndarray) -> "Points":
+    def subset(self, m: np.ndarray) -> Points:
         return Points(self.cell[m], self.xi[m], self.w[m], None if self.normal is None else self.normal[m])
 
     @staticmethod
-    def concat(parts: list["Points"], d: int, surface: bool = False) -> "Points":
+    def concat(parts: list[Points], d: int, surface: bool = False) -> Points:
         parts = [p for p in parts if len(p)]
         if not parts:
             return Points(np.zeros(0, np.int64), np.zeros((0, d)), np.zeros(0), np.zeros((0, d)) if surface else None)
@@ -213,7 +214,7 @@ class _LatticePhi:
         return vals[inv.ravel()].reshape(q.shape[:-1])
 
 
-@lru_cache(maxsize=None)
+@cache
 def _fit_basis(m: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Gauss points of [0, 1] with the monomial coefficients of their Lagrange polynomials and of the
     antiderivatives (columns = polynomials, rows = powers 0..m)."""
@@ -454,7 +455,6 @@ def _roots(geom: Geometry, lat: _LatticePhi, qa: np.ndarray, qb: np.ndarray, fa:
 def _clip(geom, grid, lat, cells, cbase, q, f, k, res, n, nf, refine) -> tuple[Points, Points]:
     """Clip simplices with ``k`` inside vertices (listed first). q: (m, d + 1, d) local lattice coordinates."""
     m, nv, d = q.shape
-    no = nv - k
     ii, jj = np.meshgrid(np.arange(k), np.arange(k, nv), indexing="ij")
     ii, jj = ii.ravel(), jj.ravel()                                   # inside-outside vertex pairs, P order
     qa = (cbase[:, None, :] + q[:, ii]).reshape(-1, d)

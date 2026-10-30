@@ -45,7 +45,7 @@ class BackgroundGrid:
         return float(np.max(self.h))
 
     @classmethod
-    def around(cls, bounds, h: float, order: int = 1, pad: float = 1.0, jitter: bool = True) -> "BackgroundGrid":
+    def around(cls, bounds, h: float, order: int = 1, pad: float = 1.0, jitter: bool = True) -> BackgroundGrid:
         """Grid of cells of size ``h`` covering ``bounds`` with ``pad`` cells of margin on every side."""
         lo, hi = (np.asarray(b, float) for b in bounds)
         hv = np.full(len(lo), float(h))
@@ -93,7 +93,7 @@ class DofMap:
     index: np.ndarray            # cell id -> row in ``cells`` (or -1)
 
     @classmethod
-    def build(cls, grid: BackgroundGrid, active: np.ndarray) -> "DofMap":
+    def build(cls, grid: BackgroundGrid, active: np.ndarray) -> DofMap:
         cells = np.sort(np.asarray(active, np.int64))
         lat = grid.cell_nodes(cells)
         nodes, inv = np.unique(lat, return_inverse=True)

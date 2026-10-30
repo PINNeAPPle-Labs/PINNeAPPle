@@ -19,8 +19,22 @@ cuts): :mod:`pinneapple_simulation.immersed.verification`.
 """
 from .assembly import Discretization, condition_number, solve_linear
 from .bcs import Convection, Dirichlet, HeatFlux
-from .geometry import (Geometry, SDFGeometry, STLGeometry, VoxelGeometry, annulus, ball, box, cylinder, difference,
-                       intersection, read_stl, torus, union, write_stl)
+from .geometry import (
+                       Geometry,
+                       SDFGeometry,
+                       STLGeometry,
+                       VoxelGeometry,
+                       annulus,
+                       ball,
+                       box,
+                       cylinder,
+                       difference,
+                       intersection,
+                       read_stl,
+                       torus,
+                       union,
+                       write_stl,
+)
 from .grid import BackgroundGrid, DofMap
 from .heat import HeatSolution, assemble_heat, default_ghost, solve_heat
 from .quadrature import CutQuadrature, build_quadrature

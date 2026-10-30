@@ -15,14 +15,23 @@ eigenvalue problem, Embar, Dolbow & Harari 2010) or ``"none"``.
 from __future__ import annotations
 
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 from scipy import linalg, sparse
 
-from .assembly import (Discretization, SurfaceMeasures, condition_number, ghost_matrix, reference_cell, scatter,
-                       scatter_vector, solve_linear)
+from .assembly import (
+    Discretization,
+    SurfaceMeasures,
+    condition_number,
+    ghost_matrix,
+    reference_cell,
+    scatter,
+    scatter_vector,
+    solve_linear,
+)
 from .bcs import assign, evaluate
 
 

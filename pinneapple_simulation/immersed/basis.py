@@ -6,13 +6,13 @@ cell coordinates; divide by the cell size to get physical derivatives.
 """
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import cache
 from itertools import product
 
 import numpy as np
 
 
-@lru_cache(maxsize=None)
+@cache
 def _coeffs(p: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Polynomial coefficients (highest power first) of the p + 1 Lagrange polynomials on equispaced nodes in [0, 1],
     with their first and second derivatives."""
@@ -74,7 +74,7 @@ def normal_derivative(p: int, xi: np.ndarray, axis: int, order: int) -> np.ndarr
     return _tensor([lagrange_1d(p, xi[:, j], order if j == axis else 0) for j in range(d)])
 
 
-@lru_cache(maxsize=None)
+@cache
 def gauss_cell(n: int, d: int) -> tuple[np.ndarray, np.ndarray]:
     """Tensor Gauss-Legendre rule with n points per axis on [0, 1]^d: points (n^d, d) and weights summing to 1."""
     x, w = np.polynomial.legendre.leggauss(n)

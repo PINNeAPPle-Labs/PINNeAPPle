@@ -302,8 +302,9 @@ ruff check <changed files>
 ```
 
 CI (`.github/workflows/tests.yml`): public API, distribution contents, manufactured-solution physics tests, the first
-example from a clean wheel, and the Colab notebooks in smoke mode. Changes go under `## [Unreleased]` in
-`CHANGELOG.md`.
+example from a clean wheel, and the Colab notebooks in smoke mode. A user-visible change goes in a new file
+`changelog.d/<slug>.<category>.md` (see `changelog.d/README.md`), never in `CHANGELOG.md` itself, so parallel pull
+requests do not conflict.
 
 ## Generated files
 

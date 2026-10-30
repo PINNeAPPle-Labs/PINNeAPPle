@@ -7,7 +7,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 (0.x.0) may contain breaking changes.** Every breaking or behavior-changing entry is listed under
 **Changed** and starts with "**Breaking:**" or "**Behavior:**".
 
-How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
+How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog): pull requests add
+fragments to `changelog.d/`, which a release folds in here. The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
 

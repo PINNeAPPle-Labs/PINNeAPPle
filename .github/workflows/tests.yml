@@ -136,14 +136,10 @@ jobs:
           pip install "ruff>=0.5"
           ruff check . --select E9 --target-version py310 --no-cache --output-format concise
 
-      # `--continue-on-collection-errors` because a single un-importable module used to abort the
-      # whole step ("Interrupted: 5 errors during collection"), which with continue-on-error below
-      # meant the suite never ran and nobody noticed. Now every module that can be collected runs.
-      - name: Rest of the test suite (pre-existing failures not yet triaged — see AUDIT_REPORT.md)
-        run: |
-          pytest tests/ -q --continue-on-collection-errors \
-            --ignore=tests/test_full_library_matrix.py --ignore=tests/test_manufactured_solutions.py
-        continue-on-error: true
+      # The rest of the suite (everything not named above) runs in .github/workflows/full-suite.yml,
+      # nightly and on demand, not on every push. It took over an hour on a runner and its result is
+      # "how many of the pre-existing failures are left", not "may this merge": keeping it here meant
+      # a push waited on it to reach the model-card gate at the end of the file.
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py

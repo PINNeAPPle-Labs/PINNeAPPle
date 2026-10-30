@@ -174,6 +174,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
+  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
+  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
+  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
+  the last must-pass gate.
 - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
   and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
   `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the

@@ -323,7 +323,7 @@ Em palavras:
 | `pp.plot_streamlines_2d_from_model` | import direto | `pinneapple_neural.predictor.plot_streamlines_2d_from_model` |  |
 | `pp.plot_volume_slice` | import direto | `pinneapple_neural.predictor.plot_volume_slice` |  |
 | `pp.PointObsOperator` | import direto | `pinneapple_analysis.inverse_problems.PointObsOperator` |  |
-| `pp.presets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_presets` | Industrial presets: engineering problems already set up, solved and validated with PINNeAPPle. |
+| `pp.presets` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_presets` | Presets industriais: problemas de engenharia já montados, resolvidos e validados com o PINNeAPPle, acessíveis por `pp.presets.names()`/`load()`; reexporta o registro e as classes base. |
 | `pp.profiles` | import direto | `pinneapple_core.onboarding.profiles` |  |
 | `pp.propagate_tolerances` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate` | Propaga tolerâncias independentes por `fn` via Monte Carlo. |
 | `pp.propagate_uncertainty` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.uncertainty.tolerance.propagate_space` | Propaga entradas com qualquer distribuição por `fn`. |
@@ -342,7 +342,7 @@ Em palavras:
 | `pp.RigidBodySystem` | import direto | `pinneapple_simulation.particle_dynamics.RigidBodySystem` |  |
 | `pp.run_parallel_sweep` | import direto | `pinneapple_neural.trainer.run_parallel_sweep` |  |
 | `pp.run_tree` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_decision.api.run_tree` | Walk the physics-AI decision tree (``tree.physics_ai_tree()`` by default). |
-| `pp.science` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_science` | PINNeAPPle science (``pp.science``): experiments by area of science, at academic and research level, theory and practice (a virtual bench), in 0-D (lumped), 1-D, 2-D, 3-D and 3-D + time; and the atlas of every area. |
+| `pp.science` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_science` | Ponto de entrada (`pp.science`): reexporta `atlas`, `experiments`, `run` e os tipos centrais. |
 | `pp.score_against_reference` | preguiçoso (`_LAZY_ATTRS`) | `pinneapple_analysis.verification.physics_confidence_score.score_against_reference` | Pontua as predições de vários modelos contra um conjunto de referência separado. |
 | `pp.security` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_security` | pinneapple_security — data and process security for scientific and industrial Physics AI. |
 | `pp.SelfAdaptiveWeights` | import direto | `pinneapple_neural.trainer.SelfAdaptiveWeights` |  |

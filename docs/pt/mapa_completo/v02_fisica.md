@@ -2546,7 +2546,11 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 
 ### Objetivo
 
-_Sem texto de objetivo._
+`pinneapple_presets` reúne presets industriais: problemas de engenharia já montados, resolvidos e validados com o PINNeAPPle. Cada preset é uma subclasse de `Preset` com uma ficha (entradas em SI com fonte do valor padrão e domínio de validade, saídas), um solver, checagens que alimentam um trust report, uma decisão (OK / NOT OK), referências citáveis para validação e, quando cabe, otimização, inversão, variantes de projeto e cena 3D. Os casos cobrem aerodinâmica (perfil a Re 4e6), eletromagnetismo (correntes parasitas, motores IPM e SPM), térmica (dissipador, PCB, isolamento, casco-tubo), estruturas (vaso de pressão ASME, passarela de aço) e fluidos (golpe de aríete, rede de água, bomba e NPSH).
+
+O uso é `pp.presets.load(nome).run(**params)`, a CLI `python -m pinneapple_presets` ou o nó `preset.run` do Flow Studio. Uma corrida fora do domínio de validade é sinalizada. `surrogate` constrói um processo gaussiano ARD por saída a partir de um DOE com o solver real e mede o erro em corridas retidas; `run(fidelity="surrogate")` usa esse modelo.
+
+`report` gera a pasta de cada preset em `examples/industrial_presets/` (resultados, figuras, README, manifesto do Lab) e `registry.write_index` grava o `pinneapple_presets/index.json` que o Hub lê. Os presets usam solvers e modelos de outros pacotes (por exemplo o substituto do zoo para o perfil, `pinneapple_core.jsonable` no índice, a cena de estúdio em `viz3d`).
 
 ### Números do inventário
 
@@ -2558,13 +2562,13 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 1 | 27 |
-| `cases` |  | 14 | 20 | 4 |
-| `core` |  | 1 | 10 | 0 |
-| `registry` |  | 1 | 6 | 0 |
-| `report` |  | 1 | 4 | 27 |
-| `surrogate` |  | 1 | 6 | 46 |
-| `viz3d` |  | 1 | 6 | 0 |
+| `__main__` | CLI do pacote. | 1 | 1 | 27 |
+| `cases` | Os presets concretos (um módulo por problema de engenharia). | 14 | 20 | 4 |
+| `core` | Classes base: `Param`, `Output`, `Reference`, `Result`, `Preset`. | 1 | 10 | 0 |
+| `registry` | Registro de presets e índice do Hub. | 1 | 6 | 0 |
+| `report` | Geração da documentação e dos resultados de cada preset. | 1 | 4 | 27 |
+| `surrogate` | Substituto por processo gaussiano ARD. | 1 | 6 | 46 |
+| `viz3d` | Primitivas e imagens 3D dos resultados. | 1 | 6 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -2572,13 +2576,13 @@ _Sem texto de objetivo._
 
 #### `pinneapple_presets`
 
-Industrial presets: engineering problems already set up, solved and validated with PINNeAPPle.
+Presets industriais: problemas de engenharia já montados, resolvidos e validados com o PINNeAPPle, acessíveis por `pp.presets.names()`/`load()`; reexporta o registro e as classes base.
 
 <small>`pinneapple_presets/__init__.py` · 19 linhas · testes: 27</small>
 
 #### `pinneapple_presets.__main__`
 
-python -m pinneapple_presets list | card NAME | run NAME [k=v ...] [--surrogate] | validate NAME | surrogate NAME | report NAME|all [--build-surrogate] [--no-3d] | index
+CLI `python -m pinneapple_presets` com os comandos list, card, run (opcionalmente `--surrogate`), validate, surrogate, report e index.
 
 <small>`pinneapple_presets/__main__.py` · 83 linhas · testes: 27</small>
 
@@ -2588,227 +2592,237 @@ python -m pinneapple_presets list | card NAME | run NAME [k=v ...] [--surrogate]
 
 #### `pinneapple_presets.cases`
 
-_Módulo sem docstring e sem texto._
+Pacote vazio que agrupa os presets concretos. [sem teste direto]
 
 <small>`pinneapple_presets/cases/__init__.py` · 1 linhas · **sem teste direto**</small>
 
 #### `pinneapple_presets.cases.airfoil`
 
-Wing / blade section at Re 4e6: lift, drag and moment from the verified zoo surrogate of OpenFOAM RANS.
+Perfil de asa/pá a Re 4e6: sustentação, arrasto e momento a partir do substituto verificado do zoo treinado com OpenFOAM RANS, com teoria de perfil fino como checagem.
 
 <small>`pinneapple_presets/cases/airfoil.py` · 290 linhas · testes: 4</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AirfoilSection` | classe | `()` |  |
-| `PresetCache` | classe | `()` |  |
-| `thin_airfoil_zero_lift` | função | `(code) -> float` | alpha_L0 (deg) of a NACA 4-digit camber line by thin-airfoil theory (numerical quadrature). |
+| `AirfoilSection` | classe | `()` | Preset do perfil de asa: modelo do zoo, forma NACA, solução, checagens, decisão, validação, otimização, inversão, variantes, figuras e cena. |
+| `PresetCache` | classe | `()` | Cache em atributo de classe do modelo do zoo carregado, para não recarregá-lo a cada corrida. |
+| `thin_airfoil_zero_lift` | função | `(code) -> float` | Ângulo de sustentação nula de uma linha de arqueamento NACA 4 dígitos pela teoria de perfil fino (quadratura numérica). |
 
 #### `pinneapple_presets.cases.eddy_current`
 
-Eddy-current inspection of aircraft skin: probe impedance, depth of penetration and thinning sensitivity.
+Inspeção por correntes parasitas de chapa aeronáutica: impedância da sonda, profundidade de penetração e sensibilidade ao afinamento, com checagem por diferenças finitas. [sem teste direto]
 
 <small>`pinneapple_presets/cases/eddy_current.py` · 308 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `EddyCurrentInspection` | classe | `()` |  |
+| `EddyCurrentInspection` | classe | `()` | Preset de inspeção por correntes parasitas, com solução analítica e checagem por diferenças finitas. |
 
 #### `pinneapple_presets.cases.footbridge`
 
-Steel footbridge: crowd strength, deflection, lateral-torsional buckling and pedestrian vibration (EN 1990 A2).
+Passarela de aço: resistência à multidão, flecha, flambagem lateral-torcional e vibração de pedestres (EN 1990 A2). [sem teste direto]
 
 <small>`pinneapple_presets/cases/footbridge.py` · 375 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SteelFootbridge` | classe | `()` |  |
-| `section_class_ok` | função | `(h, b, tf, tw, fy) -> tuple` | EN 1993-1-1 Table 5.2, class 3 limits: web in bending c/t <= 124 eps, outstand flange c/t <= 14 eps (welded: c ignores the weld throat, conservative). Returns (ok, web c/t, web limit, flange c/t, flange limit). |
+| `SteelFootbridge` | classe | `()` | Preset da passarela de aço com checagens de resistência, flecha, flambagem e conforto. |
+| `section_class_ok` | função | `(h, b, tf, tw, fy) -> tuple` | Verifica os limites de classe 3 da EN 1993-1-1 Tabela 5.2 para alma e mesa da seção. |
 
 #### `pinneapple_presets.cases.heatsink`
 
-Plate-fin heat sink in ducted forced air for a power module (resistance network + 3-D finite-volume base).
+Dissipador de aletas planas em ar forçado canalizado para módulo de potência: rede de resistências mais base em volumes finitos 3D. [sem teste direto]
 
 <small>`pinneapple_presets/cases/heatsink.py` · 361 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PlateFinHeatsink` | classe | `()` |  |
+| `PlateFinHeatsink` | classe | `()` | Preset do dissipador de aletas com rede de resistências e base em volumes finitos 3D. |
 
 #### `pinneapple_presets.cases.insulation`
 
-Insulation of a steam line: heat loss, surface temperature and the economic thickness (ISO 12241, VDI 2055).
+Isolamento de linha de vapor: perda de calor, temperatura de superfície e espessura econômica (ISO 12241, VDI 2055). [sem teste direto]
 
 <small>`pinneapple_presets/cases/insulation.py` · 279 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SteamLineInsulation` | classe | `()` |  |
+| `SteamLineInsulation` | classe | `()` | Preset do isolamento de linha de vapor com espessura econômica. |
 
 #### `pinneapple_presets.cases.ipm_traction`
 
-Interior-PM traction motor (2004 Toyota Prius geometry): torque, ripple, MTPA and voltage at speed by FEA.
+Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, ondulação, MTPA e tensão em velocidade por elementos finitos. [sem teste direto]
 
 <small>`pinneapple_presets/cases/ipm_traction.py` · 252 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `IPMTraction` | classe | `()` |  |
-| `machine` | função | `(n_gap) -> IPMMachine` |  |
+| `IPMTraction` | classe | `()` | Preset do motor de tração IPM resolvido por FEA. |
+| `machine` | função | `(n_gap) -> IPMMachine` | Monta a máquina `IPMMachine` da geometria de referência com `n_gap` elementos no entreferro. |
 
 #### `pinneapple_presets.cases.pcb`
 
-Junction temperatures on a power PCB (DC-DC / motor-drive stage) by 3-D finite volumes of the stack-up.
+Temperaturas de junção numa placa de potência (estágio DC-DC/acionamento) por volumes finitos 3D do empilhamento. [sem teste direto]
 
 <small>`pinneapple_presets/cases/pcb.py` · 266 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PowerPCB` | classe | `()` |  |
+| `PowerPCB` | classe | `()` | Preset da placa de potência com temperaturas de junção por volumes finitos 3D. |
 
 #### `pinneapple_presets.cases.pipe_network`
 
-Water distribution network: pressures, flows and least-cost pipe sizing (global gradient algorithm).
+Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo pelo algoritmo do gradiente global. [sem teste direto]
 
 <small>`pinneapple_presets/cases/pipe_network.py` · 289 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WaterNetwork` | classe | `()` |  |
+| `WaterNetwork` | classe | `()` | Preset da rede de água com algoritmo do gradiente global e dimensionamento de menor custo. |
 
 #### `pinneapple_presets.cases.pressure_vessel`
 
-Cylindrical pressure vessel shell and heads to ASME VIII Div. 1 (UG-27, UG-32), checked by Lamé and 3-D FEM.
+Casco e tampos de vaso de pressão cilíndrico pela ASME VIII Div. 1 (UG-27, UG-32), conferidos por Lamé e FEM 3D. [sem teste direto]
 
 <small>`pinneapple_presets/cases/pressure_vessel.py` · 346 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PressureVessel` | classe | `()` |  |
-| `ring_mesh` | função | `(ri, ro, h, nr, nt, nz) -> HexMesh` | Quarter ring r in [ri, ro], theta in [0, 90 deg], z in [0, h] as an 8-node hexahedral mesh. |
-| `lame` | função | `(p, ri, ro, r, E, nu) -> dict` | Lamé stresses at radius r and the plane-strain radial displacement (closed ends ignored). |
+| `PressureVessel` | classe | `()` | Preset do vaso de pressão pela ASME VIII com checagem por Lamé e FEM de anel. |
+| `ring_mesh` | função | `(ri, ro, h, nr, nt, nz) -> HexMesh` | Malha hexaédrica de 8 nós de um quarto de anel. |
+| `lame` | função | `(p, ri, ro, r, E, nu) -> dict` | Tensões de Lamé num raio e deslocamento radial em deformação plana. |
 
 #### `pinneapple_presets.cases.pump_npsh`
 
-Centrifugal pump lifting from a sump: duty point, NPSH available vs required and the cavitation margin.
+Bomba centrífuga aspirando de um poço: ponto de operação, NPSH disponível contra requerido e margem contra cavitação. [sem teste direto]
 
 <small>`pinneapple_presets/cases/pump_npsh.py` · 276 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PumpNPSH` | classe | `()` |  |
+| `PumpNPSH` | classe | `()` | Preset da bomba centrífuga com NPSH e margem de cavitação. |
 
 #### `pinneapple_presets.cases.shell_tube`
 
-Shell-and-tube closed-loop water cooler (TEMA E, one shell pass, two tube passes): rating by epsilon-NTU.
+Resfriador casco-tubo de água em circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) avaliado por ε-NTU. [sem teste direto]
 
 <small>`pinneapple_presets/cases/shell_tube.py` · 304 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ShellTubeCooler` | classe | `()` |  |
+| `ShellTubeCooler` | classe | `()` | Preset do resfriador casco-tubo avaliado por ε-NTU. |
 
 #### `pinneapple_presets.cases.spm_motor`
 
-Surface-PM servo motor: torque, ripple, cogging and back-EMF by 2-D nonlinear magnetostatic FEM.
+Servo motor de ímãs superficiais: torque, ondulação, cogging e força contra-eletromotriz por FEM magnetostático 2D não linear. [sem teste direto]
 
 <small>`pinneapple_presets/cases/spm_motor.py` · 292 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SPMMotor` | classe | `()` |  |
+| `SPMMotor` | classe | `()` | Preset do servo motor de ímãs superficiais por FEM magnetostático 2D. |
 
 #### `pinneapple_presets.cases.water_hammer`
 
-Water hammer from a valve closure at the end of a steel water main (method of characteristics).
+Golpe de aríete no fechamento de válvula no fim de uma adutora de aço, pelo método das características, com teoria de coluna rígida como checagem. [sem teste direto]
 
 <small>`pinneapple_presets/cases/water_hammer.py` · 369 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `WaterHammer` | classe | `()` |  |
-| `rigid_column_max_head` | função | `(*, length, diameter, friction_factor, q0, h_reservoir, h_downstream, t_close, closure_ex…)` | Peak valve head of the same closure by rigid-column theory (incompressible liquid, rigid pipe; Wylie & Streeter 1993 sec. 1.3): ``(L / g A) dQ/dt = H_res - h_f(Q) - H_valve``, valve ``Q = tau Q0 sqrt(dH/dH0)``. Valid when the closure is much slower than 2L/a; an independent check of the MOC there. |
+| `WaterHammer` | classe | `()` | Preset do golpe de aríete pelo método das características, com estudo de convergência. |
+| `rigid_column_max_head` | função | `(*, length, diameter, friction_factor, q0, h_reservoir, h_downstream, t_close, closure_ex…)` | Carga máxima na válvula para o mesmo fechamento pela teoria de coluna rígida. |
 
 #### `pinneapple_presets.core`
 
-Industrial preset: an engineering problem already set up and solved with PINNeAPPle.
+Base dos presets: parâmetros com domínio de validade e fonte, saídas, referências citáveis, especificação de substituto, `Result` com trust report e decisão, e a classe `Preset` (cujo `solve` levanta NotImplementedError até ser implementado). [sem teste direto]
 
 <small>`pinneapple_presets/core.py` · 342 linhas · **sem teste direto** · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Param` | classe | `(name, unit, default, source, lo, hi, help, choices)` | One input. ``lo``..``hi`` is the validity domain of the preset (solver and correlations), not a soft hint: a run outside it is flagged and the applicability check contradicts. |
-| `Output` | classe | `(name, unit, help)` |  |
-| `Reference` | classe | `(name, params, output, value, unit, source, kind, tol)` | A citable reference value for one output at given parameters. ``kind``: "analytic", "standard", "benchmark", "experiment" or "independent_solver"; ``tol`` is the relative error accepted for a pass. |
-| `SurrogateSpec` | classe | `(inputs, outputs, n_train, n_test, bounds, log, log_outputs)` | Which inputs a surrogate spans (each over its Param domain unless ``bounds`` narrows it), which outputs it predicts, and the DOE size (Latin hypercube, solver runs) with its hold-out share. |
-| `Result` | classe | `(preset, params, outputs, trust, decision, fidelity, warnings, meta, fields)` | Outputs of one run with its checks, decision and provenance. |
-| `Preset` | classe | `(name, title, sector, problem, question, params, outputs, validity, pipeline, library, su…)` | Base class; a preset sets the class attributes and implements :meth:`solve`, :meth:`checks`, :meth:`decide` and :meth:`references` (and optionally :meth:`scene`, :meth:`convergence`, :meth:`figures`). |
-| `check` | função | `(name, ok, value=None, limit=None, source='', reason='', critical=False) -> Check` | A trust-report check from a pass/fail (None = not run). |
-| `environment` | função | `() -> dict` | Versions and hardware of this run (recorded with every result). |
-| `lhs` | função | `(n, bounds, seed=0, log=()) -> np.ndarray` | Latin hypercube sample of ``n`` points in the box (``log[i]``: that axis in log space). |
-| `call_quiet` | função | `(fn, *a, **kw)` |  |
+| `Param` | classe | `(name, unit, default, source, lo, hi, help, choices)` | Uma entrada do preset: unidade, padrão com fonte, domínio de validade `lo..hi`, ajuda e escolhas. |
+| `Output` | classe | `(name, unit, help)` | Uma saída do preset com unidade e ajuda. |
+| `Reference` | classe | `(name, params, output, value, unit, source, kind, tol)` | Valor de referência citável de uma saída (analítico, norma, benchmark, experimento ou solver independente) com tolerância. |
+| `SurrogateSpec` | classe | `(inputs, outputs, n_train, n_test, bounds, log, log_outputs)` | Quais entradas e saídas o substituto cobre e o tamanho do DOE. |
+| `Result` | classe | `(preset, params, outputs, trust, decision, fidelity, warnings, meta, fields)` | Saídas de uma corrida com trust report, decisão, fidelidade, avisos e proveniência. |
+| `Preset` | classe | `(name, title, sector, problem, question, params, outputs, validity, pipeline, library, su…)` | Classe base: atributos da ficha e os métodos `solve`, `checks`, `decide`, `references` (e opcionalmente `scene`, `convergence`, `figures`) a implementar. |
+| `check` | função | `(name, ok, value=None, limit=None, source='', reason='', critical=False) -> Check` | Cria uma checagem do trust report a partir de um passa/falha (None = não rodou). |
+| `environment` | função | `() -> dict` | Versões e hardware da corrida, gravados com cada resultado. |
+| `lhs` | função | `(n, bounds, seed=0, log=()) -> np.ndarray` | Amostra por hipercubo latino de `n` pontos numa caixa, com eixos opcionais em escala log. |
+| `call_quiet` | função | `(fn, *a, **kw)` | Chama uma função suprimindo avisos. |
 
 #### `pinneapple_presets.registry`
 
-Registry of the industrial presets and the index the Hub reads (``pinneapple_presets/index.json``).
+Registro dos presets embutidos (importados sob demanda) e de usuário, e o índice `pinneapple_presets/index.json` que o Hub lê. [sem teste direto]
 
 <small>`pinneapple_presets/registry.py` · 97 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register` | função | `(cls) -> type` | Class decorator: add a user preset (a :class:`Preset` subclass with a unique ``name``). |
-| `names` | função | `() -> list[str]` | Names of every industrial preset (built in and registered), sorted. |
-| `load` | função | `(name) -> Preset` | The preset ``name`` (see :func:`names`). |
-| `list_presets` | função | `(sector=None) -> list[dict]` | Name, title, sector and capabilities of every preset (``sector``: substring filter). |
-| `index` | função | `() -> dict` | Everything the Hub shows: per preset the data sheet, the measured results and the figure paths (relative to the repository root). |
-| `write_index` | função | `(path=INDEX_PATH) -> str` |  |
+| `register` | função | `(cls) -> type` | Decorador que adiciona um preset de usuário com nome único. |
+| `names` | função | `() -> list[str]` | Nomes de todos os presets (embutidos e registrados), em ordem. |
+| `load` | função | `(name) -> Preset` | Instancia o preset pelo nome, sugerindo nomes próximos se não existir. |
+| `list_presets` | função | `(sector=None) -> list[dict]` | Nome, título, setor e capacidades de cada preset, com filtro de setor. |
+| `index` | função | `() -> dict` | Tudo que o Hub mostra: ficha, resultados medidos e caminhos de figuras de cada preset. |
+| `write_index` | função | `(path=INDEX_PATH) -> str` | Grava o índice JSON do Hub. |
 
 #### `pinneapple_presets.report`
 
-Solve, validate and document one preset: results, figures, 3-D stills, surrogate, inversion, optimisation, design variants, README (data sheet + measured results) and the Lab manifest, in ``examples/industrial_presets/<name>/``.
+Resolve, valida e documenta um preset em `examples/industrial_presets/<name>/`: resultados, figuras, imagens 3D, substituto, inversão, otimização, variantes, README e manifesto do Lab.
 
 <small>`pinneapple_presets/report.py` · 322 linhas · testes: 27</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `write_report` | função | `(preset, out_dir=None, *, surrogate='load', three_d=True, lab=True) -> dict` | ``surrogate``: "build" (run the DOE and retrain), "load" (use the stored model; build if missing) or "skip". Returns the summary written to ``results/summary.json``. |
-| `compare_variants` | função | `(p, variants, res, root, three_d=True) -> dict` | Run every variant with the same pipeline; table of the key outputs, a bar chart and a 3-D gallery. |
-| `readme` | função | `(p, s) -> str` |  |
-| `write_catalogue` | função | `(root=None) -> str` | ``examples/industrial_presets/README.md``: one row per preset from its stored summary (measured values only) and the folder's Lab manifest. |
+| `write_report` | função | `(preset, out_dir=None, *, surrogate='load', three_d=True, lab=True) -> dict` | Gera a pasta de documentação de um preset, com substituto construído, carregado ou pulado. |
+| `compare_variants` | função | `(p, variants, res, root, three_d=True) -> dict` | Roda todas as variantes de projeto e gera tabela, gráfico de barras e galeria 3D. |
+| `readme` | função | `(p, s) -> str` | Texto do README de um preset (ficha + resultados medidos). |
+| `write_catalogue` | função | `(root=None) -> str` | Gera `examples/industrial_presets/README.md` com uma linha por preset a partir dos resumos gravados. |
 
 #### `pinneapple_presets.surrogate`
 
-Surrogate of a preset: Latin-hypercube DOE over its parameters run with the real solver, an anisotropic (ARD) Gaussian process per output, error measured on held-out solver runs, the training box as validity domain.
+Substituto de um preset: DOE por hipercubo latino rodado com o solver real, um processo gaussiano ARD por saída, erro medido em corridas retidas e a caixa de treino como domínio de validade.
 
 <small>`pinneapple_presets/surrogate.py` · 232 linhas · testes: 46</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ARDGP` | classe | `()` | Gaussian process, squared-exponential kernel with one length scale per input, constant variance and a nugget, fitted by maximum marginal likelihood (L-BFGS on log hyper-parameters, a few restarts). Inputs are scaled to [0, 1] and the target standardised before fitting. |
-| `PresetSurrogate` | classe | `(meta, models, test=None)` | Trained surrogate of one preset: one ARD GP per output on unit-scaled inputs. |
-| `surrogate_path` | função | `(name) -> str` |  |
-| `load_surrogate` | função | `(name) -> PresetSurrogate \| None` |  |
-| `build_surrogate` | função | `(preset, *, seed=0, save=True, tol=0.05, n_train=None, n_test=None) -> PresetSurrogate` | Run the DOE with the real solver, fit, measure the hold-out error and (``save``) store the model. |
-| `serve_spec` | função | `(name) -> dict \| None` | What a model server needs to expose the surrogate: inputs with bounds and units, outputs, hold-out error and the Python call. |
+| `ARDGP` | classe | `()` | Processo gaussiano com kernel exponencial quadrático e um comprimento de escala por entrada, ajustado por máxima verossimilhança marginal. |
+| `PresetSurrogate` | classe | `(meta, models, test=None)` | Substituto treinado de um preset: um GP ARD por saída, com predição e detecção de fora da caixa. |
+| `surrogate_path` | função | `(name) -> str` | Caminho onde o substituto de um preset é gravado. |
+| `load_surrogate` | função | `(name) -> PresetSurrogate \| None` | Carrega o substituto gravado de um preset, ou None. |
+| `build_surrogate` | função | `(preset, *, seed=0, save=True, tol=0.05, n_train=None, n_test=None) -> PresetSurrogate` | Roda o DOE com o solver real, ajusta, mede o erro retido e grava o modelo. |
+| `serve_spec` | função | `(name) -> dict \| None` | O que um servidor de modelos precisa para expor o substituto: entradas com limites e unidades, saídas, erro e chamada Python. |
 
 #### `pinneapple_presets.viz3d`
 
-3-D pictures of preset results on the library's studio scene.
+Imagens 3D de resultados de presets na cena de estúdio da biblioteca: primitivas de malha (caixa, tubo, extrusão) e gravação de imagens e visualizador HTML. [sem teste direto]
 
 <small>`pinneapple_presets/viz3d.py` · 144 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `box` | função | `(lo, hi, n=(1, 1, 1))` | Closed axis-aligned box from ``lo`` to ``hi`` with ``n`` cells per side on each face; returns (V, F). |
-| `tube` | função | `(path, radius, n_around=16)` | Open tube of ``radius`` (scalar or one per path point) along the polyline ``path`` (N x 3); returns (V, F, s) with ``s`` the index of the path point of each vertex (to put per-point values on the surface). |
-| `extrude` | função | `(section, x)` | Prism of the closed 2-D polygon ``section`` (M x 2, in the y-z plane, counter-clockwise) along the stations ``x``; returns (V, F, i) with ``i`` the station index of each vertex. Ends are capped with a fan (convex or star-shaped sections). |
-| `merge` | função | `(parts)` | Concatenate (V, F[, values...]) meshes into one; returns the same tuple shape. |
-| `stills` | função | `(scene, out_dir, name, modes=(), size=(1100, 700), views=None, frame=None) -> dict[str, s…)` | Write ``out_dir/<name>_viewer.html`` (self-contained, regenerated by the scripts, not committed) and one PNG per field in ``modes`` ("real" for the materials). Returns {mode: png path or None if no browser}. |
-| `field_on` | função | `(idx, values) -> np.ndarray` | Per-vertex values from per-station values (``idx`` from :func:`tube` / :func:`extrude`). |
+| `box` | função | `(lo, hi, n=(1, 1, 1))` | Caixa fechada alinhada aos eixos como malha (V, F). |
+| `tube` | função | `(path, radius, n_around=16)` | Tubo aberto ao longo de uma polilinha, com o índice do ponto de cada vértice. |
+| `extrude` | função | `(section, x)` | Prisma de um polígono 2D extrudado ao longo de estações. |
+| `merge` | função | `(parts)` | Concatena várias malhas numa só. |
+| `stills` | função | `(scene, out_dir, name, modes=(), size=(1100, 700), views=None, frame=None) -> dict[str, s…)` | Grava o visualizador HTML autocontido e imagens estáticas de uma cena. |
+| `field_on` | função | `(idx, values) -> np.ndarray` | Valores por vértice a partir de valores por estação. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Uso de um preset (docstring do pacote)** — `pinneapple_presets/__init__.py`
+
+```python
+import pinneapple as pp
+pp.presets.names()                                   # catalogue
+p = pp.presets.load("water_hammer_valve_closure")
+p.card()                                             # data sheet: inputs (SI, defaults with sources), outputs
+r = p.run(t_close=4.0)                               # solver; fidelity="surrogate" for the trained surrogate
+print(r)                                             # outputs, decision, trust report
+p.validate()                                         # reference cases with the measured error
+```
 
 ### Testes e status de validação
 
@@ -2817,7 +2831,11 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- `Preset.solve` levanta NotImplementedError na classe base; todo preset novo precisa implementar `solve`, `checks`, `decide` e `references`.
+- O domínio `lo..hi` de cada parâmetro é o domínio de validade do solver e das correlações; corridas fora dele são sinalizadas, não extrapoladas com garantia.
+- O substituto só vale dentro da caixa de treino e tem erro retido medido por preset; no catálogo gravado, o golpe de aríete aparece com 18 % de erro hold-out máximo, e vários presets não têm substituto porque a forma fechada já é instantânea.
+- O perfil de asa usa um substituto do zoo de OpenFOAM RANS como solver; o catálogo registra que o OpenFOAM não estava instalado para conferir os ótimos.
+- Os módulos de casos, exceto `airfoil`, e `core`, `registry` e `viz3d` não têm teste que os importe diretamente; são exercitados pelos testes da CLI e de `report`/`surrogate`.
 
 ## 3. `pinneapple_problemdesign`
 
@@ -3216,7 +3234,13 @@ def main():
 
 ### Objetivo
 
-_Sem texto de objetivo._
+O `pinneapple_science` (exposto como `pp.science`) organiza experimentos por área da ciência, em nível acadêmico (didático, conferido contra valor de livro-texto) e de pesquisa (configurável, com estudo de convergência e incerteza). Cada experimento declara área, nível, tipo (`theory`, uma derivação numérica conferida contra forma fechada ou valor publicado, ou `practice`, uma bancada virtual com instrumentos ruidosos e ajuste com incerteza) e as dimensões em que roda: 0-D (concentrado), 1-D, 2-D, 3-D e 3-D + tempo.
+
+Todo resultado (`core.Result`) carrega comparações com referências citadas, checagens físicas e um relatório de confiança (`pinneapple_analysis.trust.TrustReport`) com decisão final. O pacote também traz o atlas das áreas (`atlas`), um arquivo de dados versionado (`data/atlas.json`) que marca cada subárea como disponível, parcial ou planejada e aponta para o código que já a cobre em outros pacotes: um experimento de `pp.science`, um módulo da biblioteca, um preset de problema ou um experimento do Lab. O atlas aponta para o código existente e não o copia.
+
+Hoje os experimentos implementados estão no subpacote `em` (eletromagnetismo), construído sobre `pp.em` (`pinneapple_simulation.electromagnetics`) e `pp.maxwell` (`pinneapple_physics.maxwell_checks`): eletrostática e magnetostática, indução e circuitos, ondas e óptica, bancadas virtuais e estudos de pesquisa (FDTD 3-D configurável, incerteza por Monte Carlo, problema inverso e surrogate). Blocos numéricos comuns ficam em `numerics`, instrumentos virtuais e ajustes em `instruments`, e convenções de figura em `plots`.
+
+O módulo `report` liga o pacote ao `pinneapple_lab`: roda cada experimento em todas as dimensões, grava os resultados em `examples/science/`, escreve o manifesto `experiment.json`, registra o item no Lab e carimba as figuras com o selo da curadoria. A linha de comando é `python -m pinneapple_science atlas | list | run | report | table`.
 
 ### Números do inventário
 
@@ -3228,15 +3252,15 @@ _Sem texto de objetivo._
 
 | submódulo | o que faz | módulos | classes + funções | testes* |
 |---|---|---:|---:|---:|
-| `__main__` |  | 1 | 1 | 0 |
-| `atlas` |  | 1 | 4 | 0 |
-| `core` |  | 1 | 7 | 19 |
-| `em` |  | 7 | 34 | 19 |
-| `instruments` |  | 1 | 10 | 19 |
-| `numerics` |  | 1 | 8 | 19 |
-| `plots` |  | 1 | 7 | 0 |
-| `registry` |  | 1 | 5 | 0 |
-| `report` |  | 1 | 6 | 0 |
+| `__main__` | Linha de comando `python -m pinneapple_science`: atlas, lista, execução, relatório e tabela. | 1 | 1 | 0 |
+| `atlas` | Atlas das áreas da ciência: status por subárea e ponteiros para o código que as cobre, com validação. | 1 | 4 | 0 |
+| `core` | Forma comum de um experimento científico: `Experiment`, `Result`, `Reference` e `Comparison`. | 1 | 7 | 19 |
+| `em` | Experimentos de eletromagnetismo: estática, indução, ondas, bancadas e estudos de pesquisa. | 7 | 34 | 19 |
+| `instruments` | Instrumentos virtuais de laboratório com ruído, erro de calibração e resolução, e os ajustes com incerteza GUM. | 1 | 10 | 19 |
+| `numerics` | Blocos numéricos: malhas tensoriais graduadas, solver de volumes finitos para potencial, energia de campo e autovalores de Helmholtz. | 1 | 8 | 19 |
+| `plots` | Convenções de figura do pacote (paleta, mapas de cor, eixos discretos). | 1 | 7 | 0 |
+| `registry` | Registro dos experimentos por nome, com filtros e execução. | 1 | 5 | 0 |
+| `report` | Resultados versionados em `examples/science/`, manifestos e selos do Lab, e o catálogo com o atlas. | 1 | 6 | 0 |
 
 \* maior número de testes que importam um módulo do submódulo.
 
@@ -3244,227 +3268,263 @@ _Sem texto de objetivo._
 
 #### `pinneapple_science`
 
-PINNeAPPle science (``pp.science``): experiments by area of science, at academic and research level, theory and practice (a virtual bench), in 0-D (lumped), 1-D, 2-D, 3-D and 3-D + time; and the atlas of every area.
+Ponto de entrada (`pp.science`): reexporta `atlas`, `experiments`, `run` e os tipos centrais.
 
 <small>`pinneapple_science/__init__.py` · 25 linhas · testes: 19</small>
 
 #### `pinneapple_science.__main__`
 
-``python -m pinneapple_science atlas [--html PATH] | list [--area A] [--dim D] | run NAME [--dim D] [--quick] | report NAME|all [--quick] [--no-register] | table``.
+Linha de comando `python -m pinneapple_science` com os subcomandos `atlas`, `list`, `run`, `report` e `table`. [sem teste direto]
 
 <small>`pinneapple_science/__main__.py` · 73 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `main` | função | `(argv=None) -> int` |  |
+| `main` | função | `(argv=None) -> int` | Monta o `argparse` dos subcomandos e despacha para atlas, registro e relatório. |
 
 #### `pinneapple_science.atlas`
 
-The atlas of science areas: what :mod:`pinneapple_science` covers, what the rest of the library already covers, and what is planned.
+Atlas das áreas: carrega `data/atlas.json` (esquema `pinneapple.science.atlas/1`) e valida que cada ponteiro aponta para código, preset ou experimento existente. [sem teste direto; coberto por `tests/test_science.py` via o pacote]
 
 <small>`pinneapple_science/atlas.py` · 273 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Area` | classe | `(id, title, branch, status, description, subareas)` |  |
-| `Atlas` | classe | `(schema, version, statuses, dims, areas)` |  |
-| `load` | função | `(path=ATLAS_PATH) -> Atlas` | The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``. |
-| `validate` | função | `(atlas=None, *, check_presets=True, check_lab=True) -> list[str]` | Problems with the atlas (empty when it is consistent): unknown statuses, pointers to modules that do not exist, presets or Lab experiments that are not registered, ``pp.science`` experiments that are not registered or not listed, and ``available`` subareas without an experiment. |
+| `Area` | classe | `(id, title, branch, status, description, subareas)` | Uma área do atlas: id, título, ramo, status, descrição e subáreas com seus ponteiros. |
+| `Atlas` | classe | `(schema, version, statuses, dims, areas)` | O atlas inteiro: busca de área, linhas de tabela, contagens por status e saída em Markdown ou HTML. |
+| `load` | função | `(path=ATLAS_PATH) -> Atlas` | Carrega o atlas a partir do arquivo de dados versionado. |
+| `validate` | função | `(atlas=None, *, check_presets=True, check_lab=True) -> list[str]` | Lista inconsistências do atlas: status desconhecido, módulos inexistentes, presets ou experimentos não registrados. |
 
 #### `pinneapple_science.core`
 
-The common shape of a science experiment: what it declares, what every run returns.
+Forma comum de um experimento: o que ele declara (área, nível, tipo, dimensões) e o que toda execução devolve (comparações, checagens, figuras e decisão de confiança). `Experiment._run` da base levanta `NotImplementedError`.
 
 <small>`pinneapple_science/core.py` · 348 linhas · testes: 19 · palavras-chave no código (heurística; o texto acima diz o status real): levanta `NotImplementedError` em algum caminho</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Reference` | classe | `(value, source, kind, unit)` | A reference value and where it comes from. ``kind`` is one of ``closed_form`` (a formula, cited), ``published`` (a tabulated value from a paper or book), ``codata`` (a fundamental constant), ``limit`` (an asymptotic limit), ``conservation`` (a quantity that must be conserved), ``convergence`` (the … |
-| `Comparison` | classe | `(quantity, computed, reference, rel_error, tol, passed, kind, source, unit, how, abs_erro…)` |  |
-| `Result` | classe | `(experiment, title, area, topic, level, kind, dim, params, values, comparisons, checks, f…)` | What a run returns. Build it through the recording methods (``value``, ``compare``, ``check``, ``figure``, ``data``); ``trust`` is assembled from the comparisons and checks when the run ends. |
-| `Experiment` | classe | `(name, title, area, topic, level, kind, dims, description, references, params, quick)` | Base class. Subclasses set the class attributes and implement ``_run(res, dim, p)``, which fills the :class:`Result` ``res`` for dimension ``dim`` with parameters ``p`` (defaults merged with the caller's). |
-| `jsonable` | função | `(v) -> Any` | Plain JSON types (numpy scalars and arrays to Python numbers and lists; NaN and inf to None). |
-| `observed_order` | função | `(errors, ratio=2.0) -> list[float]` | Observed orders ``log(e_i / e_{i+1}) / log(ratio)`` of a refinement ladder. |
-| `central_derivative` | função | `(f, x, h) -> float` |  |
+| `Reference` | classe | `(value, source, kind, unit)` | Valor de referência e sua origem (forma fechada, valor publicado, CODATA, limite assintótico, conservação...). |
+| `Comparison` | classe | `(quantity, computed, reference, rel_error, tol, passed, kind, source, unit, how, abs_erro…)` | Comparação de uma grandeza calculada com a referência: erros, tolerância, se passou e fonte. |
+| `Result` | classe | `(experiment, title, area, topic, level, kind, dim, params, values, comparisons, checks, f…)` | O que uma execução devolve: valores, comparações, checagens, figuras, filmes, visualizador, dados e relatório de confiança; salva em pasta. |
+| `Experiment` | classe | `(name, title, area, topic, level, kind, dims, description, references, params, quick)` | Classe base: subclasses declaram os atributos e implementam `_run(res, dim, p)`; `run` e `run_all` executam e montam a confiança. |
+| `jsonable` | função | `(v) -> Any` | Converte para tipos JSON simples (numpy para números e listas; NaN e inf para None). |
+| `observed_order` | função | `(errors, ratio=2.0) -> list[float]` | Ordens de convergência observadas de uma escada de refinamento. |
+| `central_derivative` | função | `(f, x, h) -> float` | Derivada por diferença central de uma função escalar. |
 
 #### `pinneapple_science.em`
 
-Electromagnetism experiments of :mod:`pinneapple_science`, built on ``pp.em`` (:mod:`pinneapple_simulation.electromagnetics`) and ``pp.maxwell`` (:mod:`pinneapple_physics.maxwell_checks`).
+Subpacote de experimentos de eletromagnetismo, construído sobre `pp.em` e `pp.maxwell`. [sem teste direto]
 
 <small>`pinneapple_science/em/__init__.py` · 3 linhas · **sem teste direto**</small>
 
 #### `pinneapple_science.em.bench`
 
-Bench experiments (practice): a virtual laboratory with instruments that add noise, calibration error and resolution, a fit with its uncertainty, and the comparison with the value the bench was built with.
+Bancadas virtuais (prática): medir μ0 com um solenoide e uma sonda Hall, e uma capacitância pela descarga RC no osciloscópio, cada uma com orçamento de incerteza GUM. [sem teste direto]
 
 <small>`pinneapple_science/em/bench.py` · 220 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Mu0Solenoid` | classe | `()` |  |
-| `RCDischarge` | classe | `()` |  |
+| `Mu0Solenoid` | classe | `()` | Experimento `em.bench_mu0_solenoid`: mede μ0 a partir de B(I) no centro de um solenoide com instrumentos virtuais. |
+| `RCDischarge` | classe | `()` | Experimento `em.bench_rc_discharge`: mede uma capacitância pela descarga de um circuito RC num osciloscópio virtual. |
 
 #### `pinneapple_science.em.fdtd_study`
 
-A configurable 3-D + time FDTD study on top of :mod:`pinneapple_simulation.electromagnetics.fdtd`: a domain in wavelengths, sources (Hertzian dipoles, soft E sources) and materials (spheres, boxes, cylinders with any :class:`~pinneapple_simulation.electromagnetics.media.Medium`) from a plain dict, …
+Estudo FDTD 3-D + tempo configurável por dicionário (fontes, materiais, escada de refinamento), com potência irradiada por transformada campo próximo-campo distante, snapshots e checagens de Maxwell.
 
 <small>`pinneapple_science/em/fdtd_study.py` · 199 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FDTDConfig` | classe | `(f0, size, cells_per_wavelength, npml, bandwidth, periods, sources, materials)` |  |
-| `FDTDRun` | classe | `(config, dx, n, power, current_moment, ntff, frames, frame_times, volume, volume_grid, sl…)` |  |
-| `run_fdtd` | função | `(cfg, *, snapshots=24, volume_half=3, volume_steps=24, maxwell_block=True, snap_window=(2…)` | Run the configured study: returns power at f0 (near-to-far-field box two cells inside the CPML), the snapshots of E_z on the three central planes during ``snap_window`` (periods of f0), a small block of all six components around a point 0.6 wavelength from the first source on ``volume_steps`` … |
-| `ladder_values` | função | `(values) -> list[float]` |  |
+| `FDTDConfig` | classe | `(f0, size, cells_per_wavelength, npml, bandwidth, periods, sources, materials)` | Configuração do estudo FDTD: frequência, tamanho em comprimentos de onda, resolução, CPML, fontes e materiais. |
+| `FDTDRun` | classe | `(config, dx, n, power, current_moment, ntff, frames, frame_times, volume, volume_grid, sl…)` | Resultado do estudo: potência em f0, momento de corrente, quadros de E_z, campos de volume e diagrama de radiação (`pattern`). |
+| `run_fdtd` | função | `(cfg, *, snapshots=24, volume_half=3, volume_steps=24, maxwell_block=True, snap_window=(2…)` | Roda o estudo configurado e devolve potência, snapshots dos planos centrais e campos em volume. |
+| `ladder_values` | função | `(values) -> list[float]` | Converte uma sequência de valores da escada de refinamento em floats. |
 
 #### `pinneapple_science.em.induction`
 
-Induction and circuits, academic level: Faraday's law with a magnet falling through a loop (3-D + time) and the RC, RL and series RLC circuits (lumped, 0-D in space).
+Indução e circuitos (acadêmico): lei de Faraday com um ímã caindo por uma espira (3-D + tempo) e circuitos RC, RL e RLC (0-D). [sem teste direto]
 
 <small>`pinneapple_science/em/induction.py` · 271 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FaradayInduction` | classe | `()` |  |
-| `Circuits` | classe | `()` |  |
-| `magnet_rings` | função | `(a, length, Br, n_rings, n_seg, z_center=0.0)` | Segments and per-segment currents of a cylindrical magnet (radius ``a``, ``length``, remanence ``Br``) as ``n_rings`` polygonal rings of the bound surface current ``K = Br / mu0`` (A/m). |
-| `loop_flux` | função | `(segs, I_ring, R, n_path=64) -> float` | Flux through a circular loop of radius ``R`` in the plane z = 0 by Stokes' theorem, ``oint A . dl`` (:func:`pinneapple_simulation.electromagnetics.statics.flux_through_path`). A surface integral of B_z would be singular when the magnet's current sheet crosses the loop's disc; the line integral is … |
+| `FaradayInduction` | classe | `()` | Experimento `em.faraday_induction`: calcula fluxo e FEM de um ímã cilíndrico caindo pela espira e compara com a referência. |
+| `Circuits` | classe | `()` | Experimento `em.circuits_rc_rl_rlc`: integra as respostas ao degrau de RC, RL e RLC e confere constantes de tempo e frequências. |
+| `magnet_rings` | função | `(a, length, Br, n_rings, n_seg, z_center=0.0)` | Discretiza um ímã cilíndrico em anéis poligonais da corrente superficial ligada K = Br/μ0. |
+| `loop_flux` | função | `(segs, I_ring, R, n_path=64) -> float` | Fluxo através de uma espira circular pela circulação do potencial vetor (teorema de Stokes). |
 
 #### `pinneapple_science.em.research`
 
-Electromagnetism, research level: a configurable FDTD study in 3-D + time with mesh convergence and the observed order, Monte Carlo uncertainty propagation, an inverse problem (permittivity from a measured reflection spectrum) and a surrogate with its hold-out error.
+Eletromagnetismo em nível de pesquisa: FDTD 3-D com convergência e ordem observada, incerteza por Monte Carlo, permissividade por problema inverso e surrogate com erro de validação. [sem teste direto]
 
 <small>`pinneapple_science/em/research.py` · 548 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `FDTDStudy3D` | classe | `()` |  |
-| `WaveguideUQ` | classe | `()` |  |
-| `InversePermittivity` | classe | `()` |  |
-| `HallSurrogate` | classe | `()` |  |
-| `slice_viewer` | função | `(run, path, title='FDTD: E_z in 3-D + time') -> str` | A single-file three.js page (Studio viewer): the three central planes as surfaces, E_z r on them animated in time (play, pause, time slider). |
+| `FDTDStudy3D` | classe | `()` | Experimento `em.research_fdtd_3d`: estudo FDTD configurável com convergência de malha (Richardson e GCI). |
+| `WaveguideUQ` | classe | `()` | Experimento `em.research_uq_waveguide`: propaga por Monte Carlo as tolerâncias de fabricação até as frequências de corte de um guia. |
+| `InversePermittivity` | classe | `()` | Experimento `em.research_inverse_permittivity`: recupera permissividade e perda de uma placa a partir do espectro de reflexão. |
+| `HallSurrogate` | classe | `()` | Experimento `em.research_surrogate_hall`: processo gaussiano treinado em soluções de Hall, com erro em dados retidos. |
+| `slice_viewer` | função | `(run, path, title='FDTD: E_z in 3-D + time') -> str` | Gera uma página three.js de arquivo único com os três planos centrais e E_z animado no tempo. |
 
 #### `pinneapple_science.em.statics`
 
-Electro- and magnetostatics, academic level: Coulomb and superposition, Gauss's law, the parallel-plate capacitor with its edge effect, Biot-Savart (wire, loop, solenoid), Ampere's law and the Hall effect.
+Eletro e magnetostática (acadêmico): Coulomb e superposição, lei de Gauss, capacitor de placas com efeito de borda, Biot-Savart, lei de Ampère e efeito Hall, cada um com escada de refinamento contra a fórmula de livro.
 
 <small>`pinneapple_science/em/statics.py` · 901 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CoulombSuperposition` | classe | `()` |  |
-| `GaussLaw` | classe | `()` |  |
-| `ParallelPlateCapacitor` | classe | `()` |  |
-| `BiotSavart` | classe | `()` |  |
-| `AmpereLaw` | classe | `()` |  |
-| `HallEffect` | classe | `()` |  |
-| `ring_potential` | função | `(points, Q, R) -> np.ndarray` | Potential of a uniformly charged ring (radius ``R``, charge ``Q``, plane z = 0, centred on the z axis): ``phi = Q / (4 pi eps0) (2 / pi) K(m) / sqrt((R + s)^2 + z^2)``, ``m = 4 R s / ((R + s)^2 + z^2)`` (Jackson, *Classical Electrodynamics*, 3rd ed., sec. 3.3 / problem 3.3; Smythe, *Static and … |
-| `palmer_strip_capacitance` | função | `(w, d, eps_r=1.0) -> float` | Capacitance per unit length of two parallel thin strips (width ``w``, gap ``d``) with the edge correction of Palmer (1937): ``eps (w/d) [1 + d/(pi w) (1 + ln(2 pi w / d))]`` (F/m). Asymptotic for ``w >> d``. H. B. Palmer, "The capacitance of a parallel-plate capacitor by the Schwartz-Christoffel … |
-| `kirchhoff_disc_capacitance` | função | `(a, d, eps_r=1.0) -> float` | Capacitance of two thin coaxial discs (radius ``a``, gap ``d``), Kirchhoff (1877): ``eps [pi a^2 / d + a (ln(16 pi a / d) - 1)]`` (F), asymptotic for ``d << a``. G. Kirchhoff, Monatsber. Akad. Wiss. Berlin (1877) 144; see also Jackson, Am. J. Phys. 68, 789 (2000). |
-| `strip_capacitor_2d` | função | `(w, d, h, L=40.0, growth=1.08)` | ``(C per unit length, grid, phi)`` of two thin strips at +-1/2 V by finite volumes on a graded quarter domain (mirror at x = 0, antisymmetry phi = 0 at y = 0, grounded box at distance ``L``). |
-| `disc_capacitor` | função | `(a, d, h, *, cartesian, L=12.0)` | Capacitance of two coaxial thin discs at +-1/2 V: an axisymmetric (r, z) solution, or a 3-D Cartesian one on one eighth of the domain (mirror planes x = 0, y = 0, antisymmetry at z = 0, staircase disc edge). |
-| `hall_bar` | função | `(L, W, beta, n, V=1.0, nx=None)` | Potential in a Hall bar ``[0, L] x [0, W]`` (contacts at x = 0 and x = L held at 0 and ``V``; insulating edges y = 0, W) for Hall parameter ``beta = mu B``: Laplace inside, ``d phi/dy = beta d phi/dx`` on the edges (``J_y = 0`` with the Drude conductivity tensor ``sigma0/(1+beta^2) [[1, beta], … |
+| `CoulombSuperposition` | classe | `()` | Experimento `em.coulomb_superposition`: anel e linhas de carga por superposição de cargas pontuais contra a fórmula exata. |
+| `GaussLaw` | classe | `()` | Experimento `em.gauss_law`: fluxo de E por quadratura numa superfície fechada contra a carga envolvida sobre ε0. |
+| `ParallelPlateCapacitor` | classe | `()` | Experimento `em.parallel_plate_capacitor`: capacitância pela energia de uma solução de volumes finitos, contra Palmer e Kirchhoff. |
+| `BiotSavart` | classe | `()` | Experimento `em.biot_savart`: integral de Biot-Savart numérica para fio, espira e solenoide. |
+| `AmpereLaw` | classe | `()` | Experimento `em.ampere_law`: circulação de B em caminhos fechados contra μ0 vezes a corrente envolvida. |
+| `HallEffect` | classe | `()` | Experimento `em.hall_effect`: potencial 2-D numa barra Hall com tensor de condutividade de Drude. |
+| `ring_potential` | função | `(points, Q, R) -> np.ndarray` | Potencial exato de um anel uniformemente carregado (integral elíptica, Jackson). |
+| `palmer_strip_capacitance` | função | `(w, d, eps_r=1.0) -> float` | Capacitância por unidade de comprimento de duas fitas finas com correção de borda de Palmer (1937), assintótica para w >> d. |
+| `kirchhoff_disc_capacitance` | função | `(a, d, eps_r=1.0) -> float` | Capacitância de dois discos coaxiais finos pela fórmula de Kirchhoff (1877), assintótica para d << a. |
+| `strip_capacitor_2d` | função | `(w, d, h, L=40.0, growth=1.08)` | Capacitância de duas fitas finas por volumes finitos num quarto de domínio graduado. |
+| `disc_capacitor` | função | `(a, d, h, *, cartesian, L=12.0)` | Capacitância de dois discos coaxiais, em solução axissimétrica ou 3-D cartesiana num oitavo do domínio. |
+| `hall_bar` | função | `(L, W, beta, n, V=1.0, nx=None)` | Potencial numa barra Hall com contatos nas pontas e bordas isolantes, para um parâmetro de Hall dado. |
 
 #### `pinneapple_science.em.waves`
 
-Waves and optics, academic level: radiation of an oscillating dipole, a plane wave in a lossy medium, reflection and refraction at an interface (Fresnel and Snell), waveguide modes, cavity resonances and Mie scattering.
+Ondas e óptica (acadêmico): radiação de dipolo, onda plana em meio com perdas, Fresnel e Snell, modos de guia de onda, ressonância de cavidade e espalhamento de Mie, via FDTD ou autovalores contra formas fechadas. [sem teste direto]
 
 <small>`pinneapple_science/em/waves.py` · 599 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DipoleRadiation` | classe | `()` |  |
-| `LossyPlaneWave` | classe | `()` |  |
-| `FresnelSnell` | classe | `()` |  |
-| `WaveguideModes` | classe | `()` |  |
-| `CavityResonance` | classe | `()` |  |
-| `MieScattering` | classe | `()` |  |
-| `dipole_cartesian` | função | `(X, Y, Z, Il, omega)` | Phasor E and H (Cartesian components) of a z-directed Hertzian dipole at the origin (:func:`pinneapple_simulation.electromagnetics.waves.hertzian_dipole_fields`). |
+| `DipoleRadiation` | classe | `()` | Experimento `em.dipole_radiation`: campos e fluxo de Poynting de um dipolo hertziano, em 3-D e 3-D + tempo. |
+| `LossyPlaneWave` | classe | `()` | Experimento `em.lossy_plane_wave`: mede atenuação e fase de um pulso num dielétrico condutor por FDTD 1-D. |
+| `FresnelSnell` | classe | `()` | Experimento `em.fresnel_snell`: coeficientes de reflexão s e p e lei de Snell por FDTD 2-D. |
+| `WaveguideModes` | classe | `()` | Experimento `em.waveguide_modes`: frequências de corte TE e TM de um guia WR-90 por autovalores de Helmholtz. |
+| `CavityResonance` | classe | `()` | Experimento `em.cavity_resonance`: ressonâncias de uma cavidade PEC pelo espectro de uma sonda em FDTD. |
+| `MieScattering` | classe | `()` | Experimento `em.mie_scattering`: eficiências de espalhamento e extinção de uma esfera pela série de Mie contra valores publicados. |
+| `dipole_cartesian` | função | `(X, Y, Z, Il, omega)` | Campos fasoriais E e H em componentes cartesianas de um dipolo hertziano na origem. |
 
 #### `pinneapple_science.instruments`
 
-Virtual laboratory instruments and the fits a bench experiment ends with.
+Instrumentos virtuais (erro de ganho e offset sorteados uma vez, ruído por leitura, resolução) e ajustes lineares e não lineares com incerteza GUM tipo A e tipo B.
 
 <small>`pinneapple_science/instruments.py` · 194 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Instrument` | classe | `(name, unit, noise, gain_u, offset_u, resolution, seed, _rng, _gain, _offset)` | A reading instrument. ``noise``: standard deviation of the random noise per reading (in the unit read); ``gain_u``: relative standard uncertainty of the gain (calibration); ``offset_u``: standard uncertainty of the zero offset; ``resolution``: the quantisation step (0 for none). The gain and offset … |
-| `Oscilloscope` | classe | `(rate, duration, v_range, bits, noise, gain_u, timebase_u, seed)` | A digitising oscilloscope: samples ``signal(t)`` at ``rate`` over ``duration`` after ``t0`` with vertical noise, a vertical gain error, an ADC of ``bits`` over the full scale ``±v_range`` and a time-base error ``timebase_u`` (relative). |
-| `LinearFit` | classe | `(slope, intercept, slope_u, intercept_u, cov, chi2, dof, residuals)` |  |
-| `CurveFit` | classe | `(params, errors, cov, chi2, dof, residuals)` |  |
-| `FieldProbe` | função | `(**kw) -> Instrument` | A Hall magnetic-field probe (tesla). |
-| `Ammeter` | função | `(**kw) -> Instrument` |  |
-| `Voltmeter` | função | `(**kw) -> Instrument` |  |
-| `linear_fit` | função | `(x, y, sigma_y=None, *, through_origin=False, scale_by_chi2=True) -> LinearFit` | Weighted least squares ``y = a x + b`` (``b = 0`` with ``through_origin``). Uncertainties from the covariance ``(A^T W A)^{-1}``, scaled by the reduced chi-square when it exceeds one (``scale_by_chi2``), so a scatter larger than the stated sigma is not hidden. |
-| `curve_fit` | função | `(model, x, y, p0, sigma_y=None) -> CurveFit` | Non-linear least squares (scipy ``curve_fit``) with the same uncertainty rule as :func:`linear_fit`. |
-| `combine` | função | `(*relative_uncertainties) -> float` | Root-sum-square of independent relative standard uncertainties (GUM eq. 10 for a product of powers one). |
+| `Instrument` | classe | `(name, unit, noise, gain_u, offset_u, resolution, seed, _rng, _gain, _offset)` | Instrumento de leitura com ruído, incerteza de ganho e de offset e resolução conhecidos só pela especificação. |
+| `Oscilloscope` | classe | `(rate, duration, v_range, bits, noise, gain_u, timebase_u, seed)` | Osciloscópio digital virtual: amostra um sinal com ruído, erro de ganho, ADC de `bits` e erro de base de tempo. |
+| `LinearFit` | classe | `(slope, intercept, slope_u, intercept_u, cov, chi2, dof, residuals)` | Resultado de ajuste linear: inclinação, intercepto, incertezas, covariância, qui-quadrado e resíduos. |
+| `CurveFit` | classe | `(params, errors, cov, chi2, dof, residuals)` | Resultado de ajuste não linear: parâmetros, erros, covariância, qui-quadrado e resíduos. |
+| `FieldProbe` | função | `(**kw) -> Instrument` | Cria um `Instrument` que representa uma sonda Hall de campo magnético (tesla). |
+| `Ammeter` | função | `(**kw) -> Instrument` | Cria um `Instrument` amperímetro (unidade A). |
+| `Voltmeter` | função | `(**kw) -> Instrument` | Cria um `Instrument` voltímetro (unidade V). |
+| `linear_fit` | função | `(x, y, sigma_y=None, *, through_origin=False, scale_by_chi2=True) -> LinearFit` | Mínimos quadrados ponderados y = a x + b, com incertezas da covariância escaladas pelo qui-quadrado reduzido. |
+| `curve_fit` | função | `(model, x, y, p0, sigma_y=None) -> CurveFit` | Mínimos quadrados não lineares (scipy `curve_fit`) com a mesma regra de incerteza. |
+| `combine` | função | `(*relative_uncertainties) -> float` | Soma quadrática de incertezas relativas independentes (GUM). |
 
 #### `pinneapple_science.numerics`
 
-Small numerical building blocks shared by the experiments: graded tensor grids, a finite-volume solver for ``div(eps grad phi) = -rho`` in 1-D, 2-D and 3-D with fixed-potential nodes and mirror (symmetry) faces, the discrete field energy, and a scalar Helmholtz eigen-solver for waveguide …
+Blocos numéricos compartilhados: malhas tensoriais graduadas, volumes finitos para `div(eps grad phi) = -rho` em 1-D, 2-D e 3-D, energia de campo, autovalores de Helmholtz, picos espectrais e escala de GP.
 
 <small>`pinneapple_science/numerics.py` · 244 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TensorGrid` | classe | `(axes)` | Node coordinates per axis (1, 2 or 3 axes). |
-| `graded_axis` | função | `(core, h, length, growth=1.12, start=0.0) -> np.ndarray` | Nodes from ``start``: spacing exactly ``h`` over at least ``core`` (rounded up to whole cells), then growing geometrically by ``growth`` until ``start + length``. |
-| `solve_potential` | função | `(grid, fixed, values, *, eps=None, rho=None, tol=1e-10, direct=None, mean='harmonic') -> …)` | Solve ``-div(eps grad phi) = rho`` with ``phi = values`` on the ``fixed`` nodes (boolean array; put the outer box there for a grounded enclosure). Faces without fixed nodes are zero-flux, which is the mirror condition of a symmetry plane. ``eps`` (relative or absolute, per node) defaults to 1, … |
-| `field_energy` | função | `(grid, phi, eps=None, mean='harmonic') -> float` | Discrete ``1/2 sum eps (grad phi)^2 dV`` (per unit length in 2-D), with the face fluxes of the scheme. |
-| `helmholtz_eigs` | função | `(nx, ny, a, b, kind, n=6, inside=None, modes=False)` | The ``n`` smallest cut-off wavenumbers ``k_c`` of a waveguide cross-section from the scalar Helmholtz eigenproblem ``-lap psi = k_c^2 psi`` on an ``nx`` x ``ny`` cell-centred grid of the box ``a`` x ``b``: ``kind="TM"`` (``psi = E_z``, Dirichlet on the wall) or ``"TE"`` (``psi = H_z``, Neumann). … |
-| `spectral_peaks` | função | `(signal, dt, f_max, *, n_peaks=8, min_rel=0.001, pad=8) -> np.ndarray` | Frequencies of the strongest local maxima of the spectrum of ``signal`` below ``f_max`` (Hann window, ``pad``-fold zero padding, parabolic interpolation of the log spectrum), ascending. Peaks below ``min_rel`` times the largest are dropped. |
-| `refine_ladder` | função | `(base, levels, ratio=2) -> Sequence[int]` |  |
-| `gp_loo_scale` | função | `(gp) -> float` | Factor for the predictive standard deviation of a fitted Gaussian process (an object with ``L``, the Cholesky factor of its training covariance, and ``alpha = K^-1 z``, as :class:`pinneapple_presets.surrogate.ARDGP`) from its leave-one-out residuals on the training data: ``sqrt(mean(z_i^2))`` with … |
+| `TensorGrid` | classe | `(axes)` | Coordenadas dos nós por eixo (1, 2 ou 3 eixos), com malha e larguras duais. |
+| `graded_axis` | função | `(core, h, length, growth=1.12, start=0.0) -> np.ndarray` | Gera nós com passo fixo numa região central e crescimento geométrico até o fim do domínio. |
+| `solve_potential` | função | `(grid, fixed, values, *, eps=None, rho=None, tol=1e-10, direct=None, mean='harmonic') -> …)` | Resolve `-div(eps grad phi) = rho` com nós de potencial fixo e faces de simetria. |
+| `field_energy` | função | `(grid, phi, eps=None, mean='harmonic') -> float` | Energia discreta do campo 1/2 Σ ε \|∇φ\|² dV com os fluxos de face do esquema. |
+| `helmholtz_eigs` | função | `(nx, ny, a, b, kind, n=6, inside=None, modes=False)` | Menores números de onda de corte de uma seção de guia (TM ou TE) por autovalores de Helmholtz. |
+| `spectral_peaks` | função | `(signal, dt, f_max, *, n_peaks=8, min_rel=0.001, pad=8) -> np.ndarray` | Frequências dos picos mais fortes do espectro de um sinal, com janela de Hann, zero-padding e interpolação parabólica. |
+| `refine_ladder` | função | `(base, levels, ratio=2) -> Sequence[int]` | Escada de refinamento `base * ratio**i`. |
+| `gp_loo_scale` | função | `(gp) -> float` | Fator de escala do desvio preditivo de um processo gaussiano a partir dos resíduos leave-one-out. |
 
 #### `pinneapple_science.plots`
 
-Figure conventions of :mod:`pinneapple_science`: one palette (computed = slot 1, reference = slot 2, in that fixed order), a single-hue sequential map for magnitudes, a two-hue diverging map with a neutral middle for signed fields, thin marks, recessive axes. Every function returns a matplotlib …
+Convenções de figura: paleta fixa (calculado e referência), mapas sequencial e divergente, eixos discretos; nada é salvo aqui. [sem teste direto]
 
 <small>`pinneapple_science/plots.py` · 83 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `style` | função | `(ax) -> None` |  |
-| `figure` | função | `(ncols=1, nrows=1, *, width=4.2, height=3.3, three_d=(), title='')` | ``(fig, axes)``: ``axes`` is a flat list; indices in ``three_d`` get 3-D axes. |
-| `badge` | função | `(ax, text, ok=True, loc='lower right') -> None` | A small text box with a measured result (the ink is the text colour; the frame carries pass / fail). |
-| `close` | função | `(fig) -> None` |  |
-| `log_ticks_ok` | função | `(values) -> bool` |  |
-| `to_rgb` | função | `(fig) -> np.ndarray` | The figure as an RGB array (for animation frames). |
-| `integer_ticks` | função | `(ax, values) -> None` | Plain integer labels at ``values`` on a log x axis (no minor labels like 3x10^1). |
+| `style` | função | `(ax) -> None` | Aplica o estilo do pacote a um eixo matplotlib. |
+| `figure` | função | `(ncols=1, nrows=1, *, width=4.2, height=3.3, three_d=(), title='')` | Cria figura e lista plana de eixos, com eixos 3-D nos índices pedidos. |
+| `badge` | função | `(ax, text, ok=True, loc='lower right') -> None` | Caixa de texto com um resultado medido, com moldura indicando passou ou falhou. |
+| `close` | função | `(fig) -> None` | Fecha uma figura matplotlib. |
+| `log_ticks_ok` | função | `(values) -> bool` | Diz se todos os valores são positivos (válidos para eixo log). |
+| `to_rgb` | função | `(fig) -> np.ndarray` | Converte a figura num array RGB, para quadros de animação. |
+| `integer_ticks` | função | `(ax, values) -> None` | Põe rótulos inteiros simples num eixo x logarítmico. |
 
 #### `pinneapple_science.registry`
 
-The experiments of :mod:`pinneapple_science`, by name (modules are imported on first use).
+Registro dos experimentos por nome; os módulos são importados no primeiro uso. [sem teste direto]
 
 <small>`pinneapple_science/registry.py` · 68 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `register` | função | `(cls) -> type[Experiment]` | Class decorator: add an experiment to the catalogue. |
-| `get` | função | `(name) -> Experiment` |  |
-| `names` | função | `() -> list[str]` |  |
-| `experiments` | função | `(area=None, *, level=None, kind=None, dim=None) -> list[dict[str, Any]]` | Cards of the experiments matching every filter given (``area`` matches the area id or its prefix). |
-| `run` | função | `(name, dim=None, *, quick=False, **params) -> Result` | Run one experiment in one dimension (its first by default) with parameters over its defaults. |
+| `register` | função | `(cls) -> type[Experiment]` | Decorador de classe que adiciona um experimento ao catálogo. |
+| `get` | função | `(name) -> Experiment` | Instancia o experimento pelo nome, com erro listando os conhecidos. |
+| `names` | função | `() -> list[str]` | Lista os nomes dos experimentos registrados. |
+| `experiments` | função | `(area=None, *, level=None, kind=None, dim=None) -> list[dict[str, Any]]` | Cartões dos experimentos que casam com os filtros (área, dimensão etc.). |
+| `run` | função | `(name, dim=None, *, quick=False, **params) -> Result` | Roda um experimento numa dimensão (a primeira por padrão) com parâmetros sobre os padrões. |
 
 #### `pinneapple_science.report`
 
-Committed results of :mod:`pinneapple_science`: one folder per experiment with every dimension it runs in, its Lab manifest (``experiment.json``), its Lab seal and a README; and the catalogue with the atlas.
+Resultados versionados: uma pasta por experimento em `examples/science/` com todas as dimensões, manifesto do Lab, selo e README, mais o catálogo e o atlas. [sem teste direto]
 
 <small>`pinneapple_science/report.py` · 204 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `folder_of` | função | `(name, root=None) -> str` |  |
-| `write` | função | `(name, *, root=None, quick=False, register=True, seal=True) -> dict[str, Any]` | Run ``name`` in every dimension, save the results, write the README and the Lab manifest, register it in the Lab and stamp the figures with its seal. Returns ``{"folder", "results", "item", "sealed"}``. |
-| `readme` | função | `(name, results, sealed, item) -> str` |  |
-| `table` | função | `(root=None) -> list[dict[str, Any]]` | Experiment x dimension x quantity x reference x measured error, from the committed ``result.json`` files. |
-| `write_catalogue` | função | `(root=None, register=True) -> str` | ``examples/science/README.md`` (one row per comparison from the committed results), ``ATLAS.md``, ``atlas.html`` and the folder's manifest. |
-| `write_all` | função | `(*, root=None, quick=False, register=True) -> list[dict[str, Any]]` |  |
+| `folder_of` | função | `(name, root=None) -> str` | Caminho da pasta de resultados de um experimento. |
+| `write` | função | `(name, *, root=None, quick=False, register=True, seal=True) -> dict[str, Any]` | Roda um experimento em todas as dimensões, salva, escreve README e manifesto, registra no Lab e carimba as figuras. |
+| `readme` | função | `(name, results, sealed, item) -> str` | Gera o README de um experimento a partir dos resultados. |
+| `table` | função | `(root=None) -> list[dict[str, Any]]` | Tabela experimento x dimensão x grandeza x referência x erro medido a partir dos `result.json` versionados. |
+| `write_catalogue` | função | `(root=None, register=True) -> str` | Escreve `examples/science/README.md`, `ATLAS.md`, `atlas.html` e o manifesto da pasta. |
+| `write_all` | função | `(*, root=None, quick=False, register=True) -> list[dict[str, Any]]` | Roda `write` para todos os experimentos e depois escreve o catálogo. |
 
 ### Exemplos de uso reais do repositório
 
-_Nenhum exemplo encontrado no repositório para este pacote._
+**Atlas, filtros e execução de um experimento** — `docs/guides/science.md`
+
+```python
+import pinneapple as pp
+
+pp.science.atlas()                                     # every area and subarea, with its status and pointers
+pp.science.experiments(area="electromagnetism", dim="3D+t")
+r = pp.science.run("em.faraday_induction")             # a magnet falling through a loop, 3-D in time
+print(r)                                               # computed vs reference, physics checks, trust decision
+r.save("out/faraday")                                  # result.json, figures, the animation (MP4 and GIF)
+```
+
+**Estudo FDTD 3-D configurado por dicionário** — `docs/guides/science.md`
+
+```python
+from pinneapple_science.em.fdtd_study import FDTDConfig, run_fdtd
+
+cfg = FDTDConfig.from_dict({"f0": 1e9, "size": 2.4, "cells_per_wavelength": 14,
+                            "sources": [{"kind": "dipole", "component": "Ez", "at": [0, 0, 0]}],
+                            "materials": [{"shape": "box", "center": [0.5, 0, 0], "size": [0.2, 0.6, 0.6],
+                                           "eps_r": 6.0, "sigma": 0.01}]})
+run = run_fdtd(cfg, snapshots=24)            # run.power (W at f0), run.pattern(theta), run.slices, run.volume
+```
+
+**Todo experimento rápido passa nas suas referências** — `tests/test_science.py`
+
+```python
+@pytest.mark.parametrize("name", FAST)
+def test_experiment_passes_its_references(name):
+    e = S.get(name)
+    for d in e.dims:
+        r = e.run(d, quick=True)
+        assert r.comparisons, f"{name} [{d}] compares nothing"
+        bad = [c.quantity for c in r.comparisons if not c.passed] + [k["name"] for k in r.checks if k["passed"] is False]
+        assert not bad, f"{name} [{d}]: {bad}"
+        assert r.decision == "APPROVED"
+```
 
 ### Testes e status de validação
 
@@ -3473,7 +3533,12 @@ _Nenhum exemplo encontrado no repositório para este pacote._
 
 ### Limitações conhecidas
 
-- _Nenhuma registrada._
+- Só a área de eletromagnetismo (`em`) tem experimentos implementados; as demais áreas aparecem no atlas como parciais ou planejadas, com ponteiros para código de outros pacotes.
+- As fórmulas de Palmer e de Kirchhoff usadas como referência do capacitor são assintóticas; o guia `docs/guides/science.md` diz que a borda da placa fina limita a ordem dos volumes finitos a cerca de 1.
+- O dipolo ao lado de uma esfera converge em primeira ordem (esfera em escada), segundo o guia; os estudos de pesquisa reportam GCI e incerteza em vez de esconder esse erro.
+- `Experiment._run` da classe base levanta `NotImplementedError`; cada experimento precisa implementá-lo.
+- A maioria dos módulos não tem teste direto; `tests/test_science.py` cobre o pacote pelo registro e roda os experimentos rápidos em modo `quick`.
+- `report.write` depende do `pinneapple_lab` (manifesto, registro e selo) e escreve em `examples/science/`; ajustes não lineares usam scipy e as figuras usam matplotlib.
 
 ## 5. `pinneapple_condense`
 

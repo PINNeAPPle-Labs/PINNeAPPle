@@ -4,7 +4,7 @@ Targets: [TARGETS.md](TARGETS.md) (committed in 84b32bfe before any run).
 
 | Target | Status |
 |---|---|
-| Yazdani et al. 2020 (PLoS Comput Biol) | not attempted: paper not accessible (journals.plos.org, doi.org, PMC, bioRxiv refused) |
+| Yazdani et al. 2020 (PLoS Comput Biol) | not reproduced: paper not accessible (journals.plos.org, doi.org, PMC, bioRxiv refused) |
 | T2 (structural identifiability, Eq 7, Table 2) | reproduced in its local numerical form, see `examples/biology/identifiability_ultradian.py` and `docs/guides/bio_informed.md` |
 | T3 (Fisher null eigenvector = C2) | reproduced: eigenvalue ratio 9.7e-16, C2 component 0.9996, all others below 0.022 |
 | T1 (17 inferred parameters, 10,000 + 600,000 Adam epochs) | not done: full-scale runs in progress (checkpointed; 70,000 epochs reached); results in a follow-up PR |

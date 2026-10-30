@@ -24,6 +24,8 @@ Geometria, otimização de projeto, projeto a partir de intenção, sistemas din
 
 O `__init__` reexporta `geometry` e `design_optimizer` e oferece `build_domain`, `sample_domain` e `optimize`. O pacote se apoia em `pinneapple_physics` (fórmulas fechadas, PCB), `pinneapple_simulation` (Newton, `solid_fem`, LBM), `pinneapple_neural` (treinador, ROM, GP) e `pinneapple_tools` (visualização).
 
+Esta parte cobre cinco submódulos de `pinneapple_design`. `aero` faz o projeto aerodinâmico completo (perfis CST, casos OpenFOAM, surrogates MLP e MeshGraphNet, aeronave leve e avião comercial, busca NSGA-II e verificação por CFD). `design_optimizer` é o núcleo genérico de otimização de projeto: problemas com variáveis, objetivos, restrições e avaliadores, métodos comparáveis sob o mesmo orçamento, verificação em alta fidelidade e presets. `geometry_library` é a biblioteca de geometrias 3D paramétricas exposta como `pp.geometries`. `intent` transforma uma meta em linguagem natural (`pp.design`) num pacote de projeto verificado, usando `design_optimizer` e a biblioteca de geometrias. `surrogate_inverse` traz cinco casos didáticos de projeto inverso por surrogate sobre fórmulas de `pinneapple_physics.closed_form`, servidos por apps.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -2749,6 +2751,47 @@ Density-based topology-optimization problems on structured grids of square bilin
 
 ### Exemplos de uso reais do repositório
 
+**Vortex lattice do avião comercial da biblioteca de geometrias** — `examples/geometry_library/03_airliner_vlm.py`
+
+```python
+g = pp.geometries.build("airliner_a320")
+p = g.params
+ac = Airliner(length=p["length"], wing_area=p["wing_area"], aspect_ratio=p["aspect_ratio"], taper=p["taper"],
+              sweep_le=p["sweep_le"], dihedral=p["dihedral"], twist=p["twist"], fan_diameter=p["fan_diameter"],
+              engine_station=p["engine_station"], sharklets=p["sharklets"])
+x_ref = ac.mac_le_x + 0.25 * ac.mac
+sol = solve(ac, x_ref)
+print(g)
+```
+
+**Preset do dissipador no estudo de projeto (forma fechada)** — `tests/test_design_studies.py`
+
+```python
+def test_heatsink_geometry_matches_library_closed_forms():
+    from pinneapple_design.thermal.heatsink.engine import DesignInput
+    from pinneapple_physics.closed_form.cantilever_fatigue import stress_from_moment_pa
+
+    p = presets.heatsink_problem("closed_form")
+    b = presets.heatsink_baseline()
+    ev = p.evaluate(p.space.from_dicts([b]))
+    d = DesignInput(**b)
+    assert ev.Y["mass_g"][0] == pytest.approx(d.geometry().mass_kg() * 1e3, rel=1e-12)
+```
+
+**Surrogate do surrogate_inverse com erro em dados separados** — `tests/pinneapple_design/test_surrogate_inverse.py`
+
+```python
+def test_fit_surrogate_learns_a_power_law_and_reports_held_out_error():
+    rng = np.random.default_rng(0)
+    X = torch.tensor(rng.uniform([1.0, 1.0], [10.0, 5.0], size=(2000, 2)), dtype=torch.float32)
+    y = X[:, 0] ** 2 / X[:, 1]
+    fit = core.fit_surrogate(X, y, [(1.0, 10.0), (1.0, 5.0)], epochs=1000, log_output=True, hidden=32, n_layers=2)
+    assert fit.n_val == 200 and fit.n_train == 1800
+    assert fit.val_mean_rel_err < 0.03 and fit.val_p95_rel_err >= fit.val_mean_rel_err
+    with torch.no_grad():
+        assert float(fit.model(torch.tensor([[4.0, 2.0]]))[0]) == pytest.approx(8.0, rel=0.05)
+```
+
 **Montar e amostrar um domínio** — `docs/core_concepts/geometry_domain.md`
 
 ```python
@@ -2844,6 +2887,8 @@ Dentro de `time_series` há dois laboratórios de estudo maiores. O `forecast_la
 
 O pacote se apoia no resto do repositório: usa `pinneapple_neural` (arquiteturas, `ModelRegistry`, `Trainer`, `TrainConfig`, `WeightScheduler`, `InversePINN`), `pinneapple_physics` (compilação de `ProblemSpec` em perda física), `pinneapple_simulation.numerical_solvers` (decomposições clássicas), `pinneapple_analysis` (regressão por quantis) e os renderizadores Blender (`pinneapple_blender`, `pinneapple_tools`). A raiz oferece os atalhos `forecast` e `cosim_from_models`, e mantém os aliases antigos `timeseries` e `cosim`.
 
+Esta parte de `pinneapple_systems` cobre quatro submódulos voltados a sistemas em operação. `digital_twin` é o runtime genérico de gêmeo digital (fluxos de sensores, filtros de Kalman, anomalias, prognóstico, padrões industriais) mais a camada de comissionamento `product` (contrato, preflight, backtest, evidência, política de deriva) e duas demos completas (`pipe_loop`, o gêmeo que sabe quando errou, e `recession`, o gêmeo de rio com dados do USGS). `operations` reúne uma planta de referência (tanque aquecido) e três ferramentas sobre ela (runtime de gêmeo com EnKF, detecção física de anomalias, MPC contra PID), usadas pelos apps `twin_runtime`, `anomaly_detector`, `control_lab` e `predictive_twin`. `process_components` traz modelos físicos de operações unitárias independentes (gás real via CoolProp, turbomáquinas, válvulas, trocadores, tubulações, vigas, cinética, golpe de aríete). `sports` aplica física a dados públicos de futebol e compara com baselines só de dados.
+
 ### Números do inventário
 
 | módulos | linhas | classes públicas | funções públicas | testes em arquivos que importam o pacote | módulos sem teste direto |
@@ -2857,11 +2902,11 @@ O pacote se apoia no resto do repositório: usa `pinneapple_neural` (arquitetura
 | `component_library` |  | 7 | 15 | 36 |
 | `component_modeling` |  | 8 | 12 | 165 |
 | `cosimulation` | Motor de co-simulação diferenciável em grafo: nós com portas, conexões, motor por passos de tempo com laços algébricos, gravador, perdas e treinador por BPTT. | 10 | 23 | 151 |
-| `digital_twin` |  | 33 | 129 | 172 |
+| `digital_twin` | Runtime de gêmeo digital (fluxos, assimilação, anomalias, RUL, reconstrução, padrões AAS/DTDL/NGSI-LD/Ditto/OPC UA), camada de comissionamento `product` e as demos `pipe_loop` e `recession`. | 33 | 129 | 172 |
 | `excitation` | Sinais de excitação de atuador em NumPy para identificação de sistemas e treino de surrogates. | 1 | 12 | 6 |
-| `operations` |  | 10 | 73 | 25 |
-| `process_components` |  | 17 | 112 | 171 |
-| `sports` |  | 12 | 87 | 16 |
+| `operations` | Planta de tanque aquecido e ferramentas de operação sobre ela: runtime de gêmeo EnKF, detecção física de anomalias, controle preditivo, ROM com entradas, serviço ao vivo e contratos de dados. | 10 | 73 | 25 |
+| `process_components` | Modelos físicos independentes de operações unitárias para gêmeos de processo (gás real, compressores, válvulas, trocadores, tubos, vigas, reações, fadiga, golpe de aríete). | 17 | 112 | 171 |
+| `sports` | Física aplicada a dados públicos de futebol (voo da bola, controle de campo, cinemática, xG), com estudos contra modelos só de dados. | 12 | 87 | 16 |
 | `time_series` | Previsão de séries temporais de ponta a ponta: preparo, EDA, modelos, decomposição, validação, métricas, previsibilidade, previsão adaptativa e os estudos `forecast_lab` e `enso`. | 83 | 351 | 151 |
 
 \* maior número de testes que importam um módulo do submódulo.
@@ -3147,408 +3192,408 @@ Algoritmos de grafo para a topologia da co-simulação: Tarjan (componentes fort
 
 #### `pinneapple_systems.digital_twin`
 
-pinneapple_digital_twin — Digital twins built on top of pinneapple surrogate models.
+Runtime de gêmeo digital sobre modelos substitutos: reexporta `DigitalTwin`, estados, fluxos de sensores, filtros de Kalman, detectores de anomalia, pipeline de tempo real, reconstrução de sinais, condicionamento de telemetria e prognóstico (RUL).
 
 <small>`pinneapple_systems/digital_twin/__init__.py` · 121 linhas · testes: 15</small>
 
 #### `pinneapple_systems.digital_twin.assimilation`
 
-Data assimilation methods for digital twins.
+Subpacote de assimilação de dados: só reexporta `ExtendedKalmanFilter` e `EnsembleKalmanFilter`. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/assimilation/__init__.py` · 5 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.digital_twin.assimilation.kalman`
 
-``pinneapple_systems.digital_twin.assimilation.kalman`` compatibility shim -- the real ``ExtendedKalmanFilter`` / ``EnsembleKalmanFilter`` implementation moved to ``pinneapple_analysis.state_estimation.kalman`` (a capability audit found no general-purpose, standalone data-assimilation module usable …
+[shim] Shim de compatibilidade: a implementação real de `ExtendedKalmanFilter`/`EnsembleKalmanFilter` mudou para `pinneapple_analysis.state_estimation.kalman`; aqui só se reexportam os nomes para os chamadores antigos.
 
 <small>`pinneapple_systems/digital_twin/assimilation/kalman.py` · 20 linhas · testes: 157 · palavras-chave no código (heurística; o texto acima diz o status real): shim ou obsoleto</small>
 
 #### `pinneapple_systems.digital_twin.conditioning`
 
-Causal, sample-by-sample telemetry conditioning for production digital twins.
+Condicionamento causal de telemetria, leitura a leitura: checagem de faixa, rejeição de outliers (Hampel causal com predição de um passo), limite de taxa, filtro passa-baixa e preenchimento de lacunas, com flags do que foi feito. [sem teste direto] — `tests/test_telemetry_conditioning.py` usa via `pinneapple_systems.digital_twin`.
 
 <small>`pinneapple_systems/digital_twin/conditioning.py` · 195 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SignalProfile` | classe | `(kind, tau_s, hampel_window, hampel_k, max_consecutive_outliers, max_rate, valid_range, m…)` | How to condition one kind of signal. Use a preset (``PROFILES``) or build your own. |
-| `ConditionedSample` | classe | `(t, raw, value, flags)` |  |
-| `StreamingConditioner` | classe | `(profile='generic', **overrides)` | Condition one signal, one reading at a time (causal; O(window) per reading). |
-| `TelemetryConditioner` | classe | `(profiles=None, default='generic')` | Per-sensor, per-field conditioners for a whole twin. |
+| `SignalProfile` | classe | `(kind, tau_s, hampel_window, hampel_k, max_consecutive_outliers, max_rate, valid_range, m…)` | Configuração de como condicionar um tipo de sinal (constante de tempo, janela e limiar de Hampel, taxa máxima, faixa válida, lacuna máxima); há presets em `PROFILES`. |
+| `ConditionedSample` | classe | `(t, raw, value, flags)` | Uma leitura condicionada: tempo, valor bruto, valor final e flags; `ok` diz se o valor é finito e não velho. |
+| `StreamingConditioner` | classe | `(profile='generic', **overrides)` | Condiciona um sinal, uma leitura por vez, de forma causal (custo O(janela) por leitura); `update` processa, `fill` preenche lacunas. |
+| `TelemetryConditioner` | classe | `(profiles=None, default='generic')` | Conjunto de condicionadores por sensor e campo para um gêmeo inteiro; `condition_observation` limpa uma `Observation`. |
 
 #### `pinneapple_systems.digital_twin.io`
 
-I/O adapters for digital twin data streams.
+Subpacote de entrada/saída: reexporta `Sensor`, `SensorRegistry` e os adaptadores de fluxo de `stream`.
 
 <small>`pinneapple_systems/digital_twin/io/__init__.py` · 26 linhas · testes: 8</small>
 
 #### `pinneapple_systems.digital_twin.io.mqtt_broker`
 
-A small embedded MQTT 3.1.1 broker for demos, tests and single-asset edge deployments.
+Broker MQTT 3.1.1 embutido e pequeno (QoS 0 e 1, mensagens retidas, curingas `+`/`#`, usuário/senha opcional) para demos, testes e borda de um ativo; sem persistência, sem QoS 2, sem will e sem TLS.
 
 <small>`pinneapple_systems/digital_twin/io/mqtt_broker.py` · 263 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MQTTBroker` | classe | `(host='127.0.0.1', port=1883, username=None, password=None, max_packet=256 * 1024)` | Run with :meth:`start` (background thread with its own event loop) and :meth:`stop`. |
-| `topic_matches` | função | `(filt, topic) -> bool` | MQTT topic-filter matching (``+`` one level, ``#`` the rest; ``$`` topics need an explicit first level). |
+| `MQTTBroker` | classe | `(host='127.0.0.1', port=1883, username=None, password=None, max_packet=256 * 1024)` | Broker MQTT embutido que roda numa thread com laço de eventos próprio; `start`/`stop`, publica e entrega a assinantes. |
+| `topic_matches` | função | `(filt, topic) -> bool` | Testa se um tópico casa com um filtro MQTT (`+` um nível, `#` o resto; tópicos `$` exigem primeiro nível explícito). |
 
 #### `pinneapple_systems.digital_twin.io.sensors`
 
-Sensor management for digital twins.
+Cadastro de sensores do gêmeo: posição, calibração (offset e escala), ruído e campos; cada `Sensor` converte uma leitura bruta em `Observation` calibrada.
 
 <small>`pinneapple_systems/digital_twin/io/sensors.py` · 151 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Sensor` | classe | `(sensor_id, coords, field_names, calibration_offset, calibration_scale, noise_std, transf…)` | Represents a single physical sensor. |
-| `SensorRegistry` | classe | `() -> None` | Registry of all sensors in the digital twin. |
+| `Sensor` | classe | `(sensor_id, coords, field_names, calibration_offset, calibration_scale, noise_std, transf…)` | Um sensor físico: id, coordenadas, campos, calibração, ruído e transformação; `read` gera uma `Observation` calibrada. |
+| `SensorRegistry` | classe | `() -> None` | Cadastro de todos os sensores do gêmeo: adiciona, remove, lista ativos, lê em lote e monta o vetor de observações. |
 
 #### `pinneapple_systems.digital_twin.io.stream`
 
-Real-time data stream adapters for digital twins.
+Adaptadores de fluxo de dados em tempo real (arquivo JSONL/CSV/Parquet, MQTT, HTTP, Kafka, OPC UA, Modbus TCP e um fluxo sintético) que emitem `Observation` numa fila consumida pelo `DigitalTwin`; MQTT, Kafka, OPC UA e Modbus pedem bibliotecas opcionais.
 
 <small>`pinneapple_systems/digital_twin/io/stream.py` · 576 linhas · testes: 172</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BaseStream` | classe | `(sensor_id, field_names) -> None` | Abstract base class for all data stream adapters. |
-| `FileWatchStream` | classe | `(path, sensor_id, field_names, *, poll_interval=1.0, format='jsonl') -> None` | Polls a JSON-lines file (or CSV/Parquet) for new rows. |
-| `MQTTStream` | classe | `(broker, topic, sensor_id, field_names, *, port=1883, keepalive=60, username=None, passwo…)` | Subscribes to an MQTT topic and emits Observations. |
-| `HTTPPollStream` | classe | `(url, sensor_id, field_names, *, poll_interval=5.0, headers=None, transform=None) -> None` | Periodically polls a REST endpoint (GET) and emits Observations. |
-| `KafkaStream` | classe | `(bootstrap_servers, topic, sensor_id, field_names, *, group_id='pinneapple_dt', auto_offs…)` | Reads messages from an Apache Kafka topic. |
-| `OPCUAStream` | classe | `(server_url, node_ids, sensor_id, field_names, *, poll_interval=1.0) -> None` | Polls an OPC-UA server for real-time tag values. |
-| `ModbusStream` | classe | `(host, port, register_map, sensor_id, field_names, *, poll_interval=1.0, device_id=1) -> …)` | Polls a Modbus TCP server's holding registers for real-time values. |
-| `MockStream` | classe | `(sensor_id, field_names, generator_fn, *, tick_interval=0.1, coords=None) -> None` | Synthetic data stream for testing. |
+| `BaseStream` | classe | `(sensor_id, field_names) -> None` | Classe base abstrata dos adaptadores de fluxo: liga a fila de saída e define `start`/`stop`. |
+| `FileWatchStream` | classe | `(path, sensor_id, field_names, *, poll_interval=1.0, format='jsonl') -> None` | Consulta periodicamente um arquivo JSON-lines (ou CSV/Parquet, com pandas) e emite as linhas novas. |
+| `MQTTStream` | classe | `(broker, topic, sensor_id, field_names, *, port=1883, keepalive=60, username=None, passwo…)` | Assina um tópico MQTT e emite observações (requer `paho-mqtt`). |
+| `HTTPPollStream` | classe | `(url, sensor_id, field_names, *, poll_interval=5.0, headers=None, transform=None) -> None` | Consulta um endpoint REST por GET em intervalos e emite observações. |
+| `KafkaStream` | classe | `(bootstrap_servers, topic, sensor_id, field_names, *, group_id='pinneapple_dt', auto_offs…)` | Lê mensagens de um tópico Apache Kafka (requer `kafka-python`). |
+| `OPCUAStream` | classe | `(server_url, node_ids, sensor_id, field_names, *, poll_interval=1.0) -> None` | Consulta tags de um servidor OPC UA em intervalos (requer `asyncua`). |
+| `ModbusStream` | classe | `(host, port, register_map, sensor_id, field_names, *, poll_interval=1.0, device_id=1) -> …)` | Consulta registradores holding de um servidor Modbus TCP (requer `pymodbus`). |
+| `MockStream` | classe | `(sensor_id, field_names, generator_fn, *, tick_interval=0.1, coords=None) -> None` | Fluxo sintético a partir de uma função geradora, para testes e simulação. |
 
 #### `pinneapple_systems.digital_twin.io.usgs`
 
-Client of the USGS Water Services "Instantaneous Values" API (public, no key): river discharge, gage height and other parameters of US stream gauges every 5-15 minutes.
+Cliente da API pública "Instantaneous Values" do USGS (vazão, nível de rios dos EUA), com cache curto em memória; falhas levantam `USGSDataError`, nada é preenchido. Os dados são baixados em tempo de execução.
 
 <small>`pinneapple_systems/digital_twin/io/usgs.py` · 100 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `USGSDataError` | classe | `()` | The USGS service could not be reached or returned no usable data. |
-| `Series` | classe | `(site_id, site_name, parameter_cd, unit, timestamps, values, fetched_at, from_cache)` |  |
-| `monitoring_url` | função | `(site_id) -> str` | Public USGS page of a gauge, for a reader to check the data. |
-| `parse_iv` | função | `(payload, site_id, parameter_cd) -> Series` | The first time series of an IV JSON payload, malformed readings skipped, sorted by time. |
-| `fetch_iv` | função | `(site_id, parameter_cd=DISCHARGE, period='P5D', timeout_s=10.0, cache_ttl_s=90.0) -> Seri…)` | Download one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``"P5D"``). |
+| `USGSDataError` | classe | `()` | Erro quando o serviço do USGS não responde ou não devolve dados utilizáveis. |
+| `Series` | classe | `(site_id, site_name, parameter_cd, unit, timestamps, values, fetched_at, from_cache)` | Série temporal baixada de um posto: id e nome do posto, parâmetro, unidade, tempos, valores e se veio do cache. |
+| `monitoring_url` | função | `(site_id) -> str` | URL da página pública de um posto do USGS, para o leitor conferir os dados. |
+| `parse_iv` | função | `(payload, site_id, parameter_cd) -> Series` | Extrai a primeira série de um JSON da API IV, pulando leituras malformadas e ordenando por tempo. |
+| `fetch_iv` | função | `(site_id, parameter_cd=DISCHARGE, period='P5D', timeout_s=10.0, cache_ttl_s=90.0) -> Seri…)` | Baixa um parâmetro de um posto num período ISO 8601 recente, com timeout e cache em memória. |
 
 #### `pinneapple_systems.digital_twin.monitoring`
 
-Monitoring and anomaly detection for digital twins.
+Subpacote de monitoramento: reexporta os detectores de anomalia e o `AnomalyMonitor`. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/monitoring/__init__.py` · 17 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.digital_twin.monitoring.anomaly`
 
-Anomaly detection for digital twins.
+Detecção de anomalias que compara previsões com observações: limiar fixo, z-score móvel, distância de Mahalanobis e checagem dos resíduos de inovação do filtro, combinados num monitor composto.
 
 <small>`pinneapple_systems/digital_twin/monitoring/anomaly.py` · 415 linhas · testes: 166</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `AnomalyEvent` | classe | `(timestamp, sensor_id, field_name, observed, predicted, score, detector, metadata)` | Records a detected anomaly. |
-| `ThresholdDetector` | classe | `(thresholds, rel_thresholds=None, eps=1e-08) -> None` | Simple threshold-based anomaly detector. |
-| `ZScoreDetector` | classe | `(z_threshold=3.0, window_size=100, min_samples=10) -> None` | Rolling z-score anomaly detector. |
-| `MahalanobisDetector` | classe | `(threshold=3.0, field_order=None) -> None` | Multivariate Mahalanobis distance anomaly detector. |
-| `ResidualDetector` | classe | `(z_threshold=3.0, window_size=100, min_samples=10) -> None` | Checks the innovation residuals produced by the assimilation filter. |
-| `AnomalyMonitor` | classe | `() -> None` | Composite anomaly monitor that runs multiple detectors in sequence. |
+| `AnomalyEvent` | classe | `(timestamp, sensor_id, field_name, observed, predicted, score, detector, metadata)` | Registro de uma anomalia: tempo, sensor, campo, valor observado e previsto, escore e detector. |
+| `ThresholdDetector` | classe | `(thresholds, rel_thresholds=None, eps=1e-08) -> None` | Detector simples por limiar absoluto (e opcionalmente relativo) por campo. |
+| `ZScoreDetector` | classe | `(z_threshold=3.0, window_size=100, min_samples=10) -> None` | Detector por z-score numa janela móvel de referência. |
+| `MahalanobisDetector` | classe | `(threshold=3.0, field_order=None) -> None` | Detector multivariado por distância de Mahalanobis, com covariância atualizável. |
+| `ResidualDetector` | classe | `(z_threshold=3.0, window_size=100, min_samples=10) -> None` | Checa os resíduos de inovação do filtro de assimilação com z-score móvel. |
+| `AnomalyMonitor` | classe | `() -> None` | Monitor composto que roda vários detectores em sequência e guarda os eventos recentes. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop`
 
-The digital twin that knows when it is wrong (Autonomous Physics Lab, demo 3): a pumped, heated water loop with an elbow and a T junction, a fast model of its sensors, and a diagnosis that tells a changed process from a wrong sensor from a model outside its domain -- with physics residuals, a …
+Demo 3 do Autonomous Physics Lab: gêmeo de um circuito de água bombeada e aquecida (cotovelo e junção em T) que distingue processo mudado, sensor errado e modelo fora do domínio; reexporta `run_mission`, `run_benchmark`, a planta e o diagnóstico.
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/__init__.py` · 31 linhas · testes: 7</small>
 
 #### `pinneapple_systems.digital_twin.pipe_loop.agent`
 
-The digital twin that knows when it is wrong: a monitoring mission -> plan -> controlled tools -> evidence.
+Missão do gêmeo como ferramentas controladas de `pinneapple_autolab` (montar o modelo rápido, calibrar alarmes, monitorar, pedir nova simulação, benchmark, relatório de confiança, entrega), com planejador determinístico ou LLM. [sem teste direto] — `tests/test_autolab_twin.py` usa via pacote.
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/agent.py` · 217 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `t_read_mission` | função | `(state, text) -> dict[str, Any]` |  |
-| `t_build_twin` | função | `(state, n_train=120, n_test=40, seed=0) -> dict[str, Any]` |  |
-| `t_calibrate` | função | `(state, n_runs=12) -> dict[str, Any]` |  |
-| `t_monitor` | função | `(state) -> dict[str, Any]` |  |
-| `t_request_simulation` | função | `(state, n_new=40, widen=0.25) -> dict[str, Any]` | For every showcase case diagnosed as outside the domain: run the reference at the operating point, compare it with the readings (does the plant still obey the physics?), extend the fast model's envelope by ``widen`` of the box beyond the input that left it, add ``n_new`` reference solves there, … |
-| `t_benchmark` | função | `(state, n_per_kind=20, n_calibration=12, workers=4) -> dict[str, Any]` |  |
-| `t_trust` | função | `(state) -> dict[str, Any]` |  |
-| `t_deliver` | função | `(state, out_dir='out', render=True, samples=16) -> dict[str, Any]` |  |
-| `toolbox` | função | `() -> Toolbox` |  |
-| `template_plan` | função | `(text, *, out_dir='out', render=True, n_per_kind=20, workers=4) -> TemplatePlanner` |  |
-| `run_mission` | função | `(text=DEFAULT_TEXT, *, out_dir='out', planner='template', render=True, n_per_kind=20, wor…)` |  |
+| `t_read_mission` | função | `(state, text) -> dict[str, Any]` | Ferramenta que lê o pedido em texto, monta o `Loop` e marca quais hipóteses (processo, sensor, domínio, benchmark) foram pedidas. |
+| `t_build_twin` | função | `(state, n_train=120, n_test=40, seed=0) -> dict[str, Any]` | Ferramenta que ajusta o modelo rápido (`Surrogate`) e mede o erro em pontos de operação separados (hold-out) e a cobertura de 2 desvios. |
+| `t_calibrate` | função | `(state, n_runs=12) -> dict[str, Any]` | Ferramenta que calibra os limiares do `Diagnoser` em corridas saudáveis. |
+| `t_monitor` | função | `(state) -> dict[str, Any]` | Ferramenta que roda e diagnostica os casos de vitrine (`SHOWCASE`) e conta os acertos. |
+| `t_request_simulation` | função | `(state, n_new=40, widen=0.25) -> dict[str, Any]` | Para cada caso diagnosticado fora do domínio, roda a referência, compara com as leituras, amplia o envelope, adiciona soluções novas, reajusta o modelo e diagnostica de novo. |
+| `t_benchmark` | função | `(state, n_per_kind=20, n_calibration=12, workers=4) -> dict[str, Any]` | Ferramenta que roda o benchmark controlado e devolve acurácia, número de casos e casos com alarme falso. |
+| `t_trust` | função | `(state) -> dict[str, Any]` | Ferramenta que monta o relatório de confiança e sua decisão. |
+| `t_deliver` | função | `(state, out_dir='out', render=True, samples=16) -> dict[str, Any]` | Ferramenta que gera figuras, cena 3-D, visualizador, renders e o relatório. |
+| `toolbox` | função | `() -> Toolbox` | Monta o `Toolbox` `pipe_twin` com as oito ferramentas e seus resumos. |
+| `template_plan` | função | `(text, *, out_dir='out', render=True, n_per_kind=20, workers=4) -> TemplatePlanner` | Plano determinístico (`TemplatePlanner`) com a ordem padrão das ferramentas. |
+| `run_mission` | função | `(text=DEFAULT_TEXT, *, out_dir='out', planner='template', render=True, n_per_kind=20, wor…)` | Executa a missão inteira com planejador `template` ou `llm` e devolve o `Run` com o estado de cada passo. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop.benchmark`
 
-Controlled test cases with a known answer, and the confusion matrix of the diagnosis.
+Casos controlados com resposta conhecida (normal, processo, sensor, domínio) e a matriz de confusão do diagnóstico, com escores de localização, alarmes falsos e atrasos. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/benchmark.py` · 123 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `make_cases` | função | `(n_per_kind=20, seed=0) -> list[Scenario]` |  |
-| `run_benchmark` | função | `(loop=None, *, n_per_kind=20, n_calibration=12, seed=0, n_train=120, workers=4, log=None)…)` | Fit the twin's fast model, calibrate the diagnoser on healthy runs, diagnose every controlled case and return the confusion matrix, isolation scores, false alarms, delays and timings. |
+| `make_cases` | função | `(n_per_kind=20, seed=0) -> list[Scenario]` | Sorteia cenários controlados das quatro classes (normal, processo, sensor, domínio) com semente. |
+| `run_benchmark` | função | `(loop=None, *, n_per_kind=20, n_calibration=12, seed=0, n_train=120, workers=4, log=None)…)` | Ajusta o modelo rápido, calibra em corridas saudáveis, diagnostica cada caso e devolve matriz de confusão, escores de isolamento, alarmes falsos, atrasos e tempos. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop.diagnose`
 
-How the twin knows it is wrong: physics residuals, a fast model, a Kalman filter and its domain of validity.
+Como o gêmeo sabe que errou: resíduos físicos estruturados, modelo rápido POD + processo gaussiano, EKF de perda extra por tubo e domínio de validade, combinados num diagnóstico por janela. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/diagnose.py` · 313 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Residuals` | classe | `(loop)` | Physics residuals of one reading vector, in sensor units, and their noise standard deviation (propagated from SIGMA by finite differences). |
-| `Surrogate` | classe | `(n_train, seed, model, lo, hi)` | POD + Gaussian-process model of the ten readings over NORMAL_BOX (the twin's fast model). |
-| `LossTracker` | classe | `(loop, q_walk=0.02, k0_sigma=0.5)` | EKF on the extra loss coefficient of each pipe (random walk), observed through the measured pressure drop of each pipe given its measured flow. |
-| `Diagnoser` | classe | `(loop, surrogate, window, thresholds, ood_threshold)` | Windowed evidence -> hypothesis. ``window`` steps; thresholds from :meth:`calibrate` (healthy runs). |
+| `Residuals` | classe | `(loop)` | Resíduos físicos de um vetor de leituras (massa no T, Darcy por tubo, bomba, válvulas, energia), em unidades de sensor, com seu desvio de ruído e jacobiano. |
+| `Surrogate` | classe | `(n_train, seed, model, lo, hi)` | Modelo rápido POD + processo gaussiano das dez leituras sobre `NORMAL_BOX`, com desvio preditivo e excesso fora do envelope. |
+| `LossTracker` | classe | `(loop, q_walk=0.02, k0_sigma=0.5)` | EKF do coeficiente de perda extra de cada tubo (passeio aleatório), observado pela queda de pressão medida dada a vazão medida. |
+| `Diagnoser` | classe | `(loop, surrogate, window, thresholds, ood_threshold)` | Transforma evidência em janela numa hipótese (normal, processo, sensor, domínio) com alvo; limiares calibrados em corridas saudáveis. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop.plant`
 
-The plant: a pumped, heated water loop with an elbow and a T junction, and its reference simulator.
+A planta e seu simulador de referência quase estacionário: bomba (leis de afinidade), Darcy-Weisbach/Colebrook, perdas localizadas, balanço de energia, dez sensores com ruído e falhas injetadas (obstrução, deriva, ruído).
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/plant.py` · 258 linhas · testes: 7</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Pipe` | classe | `(length, diameter, roughness, k_minor, ua_w_k)` |  |
-| `Loop` | classe | `(pipe_A, pipe_B, pipe_C, h0_m, k_pump, kv0_B, kv0_C, z_B, z_C, t_room_c, p_atm_head_m, wa…)` | Geometry and machines of the loop (SI). |
-| `Faults` | classe | `(k_extra, bias, noise_gain)` | What is wrong at one instant (all zero: healthy). |
-| `Scenario` | classe | `(name, kind, seed, duration_s, dt_s, onset_s, ramp_s, target, magnitude, mode)` | A controlled test case: an operating history and (optionally) one fault with its onset and ramp. |
-| `water` | função | `(t_c) -> tuple[float, float]` | (density kg/m3, dynamic viscosity Pa s) at ``t_c`` °C. |
-| `steady_state` | função | `(loop, u, k_extra=None) -> dict[str, float]` | True plant state for inputs ``u`` (keys of INPUTS): flows, heads, pressures and temperatures. Water properties at the mean of the inlet and heater-outlet temperatures (two passes). |
-| `readings` | função | `(state) -> np.ndarray` | True sensor values in sensor units (bar, m3/h, °C), order SENSORS. |
-| `quasi_steady_valid` | função | `(loop, stroke_s, factor=10.0) -> bool` | The quasi-steady model holds when a valve moves over many acoustic round trips: stroke >= factor 2L/a. |
-| `operating_history` | função | `(sc) -> tuple[np.ndarray, dict[str, np.ndarray]]` | Slow, smooth operator moves inside NORMAL_BOX (sum of a few low-frequency sines per input, seeded); a domain scenario then drives its ``target`` input to ``magnitude`` (outside the box) from the onset. |
-| `run_plant` | função | `(loop, sc) -> dict[str, Any]` | Simulate one scenario: inputs, true sensor values, noisy readings and the fault applied at each step. |
-| `with_loop` | função | `(loop, **kw) -> Loop` |  |
+| `Pipe` | classe | `(length, diameter, roughness, k_minor, ua_w_k)` | Um tubo: comprimento, diâmetro, rugosidade, perda localizada e UA; calcula área, perda de carga e vazão a partir da perda. |
+| `Loop` | classe | `(pipe_A, pipe_B, pipe_C, h0_m, k_pump, kv0_B, kv0_C, z_B, z_C, t_room_c, p_atm_head_m, wa…)` | Geometria e máquinas do circuito (três tubos, bomba, válvulas, cotas, ambiente) em SI. |
+| `Faults` | classe | `(k_extra, bias, noise_gain)` | O que está errado num instante: perda extra por tubo, viés e ganho de ruído por sensor (tudo zero = saudável). |
+| `Scenario` | classe | `(name, kind, seed, duration_s, dt_s, onset_s, ramp_s, target, magnitude, mode)` | Caso de teste controlado: histórico de operação e, opcionalmente, uma falha com início e rampa. |
+| `water` | função | `(t_c) -> tuple[float, float]` | Densidade e viscosidade dinâmica da água numa temperatura em °C (tabela de White). |
+| `steady_state` | função | `(loop, u, k_extra=None) -> dict[str, float]` | Estado verdadeiro da planta para entradas dadas: vazões, cargas, pressões e temperaturas. |
+| `readings` | função | `(state) -> np.ndarray` | Valores verdadeiros dos sensores em unidades de sensor (bar, m3/h, °C) na ordem `SENSORS`. |
+| `quasi_steady_valid` | função | `(loop, stroke_s, factor=10.0) -> bool` | Diz se o modelo quase estacionário vale para um curso de válvula (curso ≥ fator × 2L/a). |
+| `operating_history` | função | `(sc) -> tuple[np.ndarray, dict[str, np.ndarray]]` | Movimentos lentos do operador dentro de `NORMAL_BOX` (soma de senos); num cenário de domínio leva uma entrada para fora da caixa. |
+| `run_plant` | função | `(loop, sc) -> dict[str, Any]` | Simula um cenário: entradas, valores verdadeiros, leituras com ruído e a falha aplicada a cada passo. |
+| `with_loop` | função | `(loop, **kw) -> Loop` | Cópia de um `Loop` com campos trocados. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop.report`
 
-Deliverables of the pipe-loop twin: control-room figures, confusion matrix, trust report, 3-D scene and report.
+Entregáveis da demo: figuras de sala de controle, matriz de confusão, relatório de confiança, GIF, cena 3-D (visualizador web, glTF, USD, renders Blender opcionais) e relatório em texto. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/report.py` · 341 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `trust_report` | função | `(state) -> TrustReport` |  |
-| `control_room` | função | `(case, path, *, title='', cursor=None) -> str` |  |
-| `figure_confusion` | função | `(b, path) -> str` |  |
-| `figure_request` | função | `(rs, path) -> str \| None` |  |
-| `impact_gif` | função | `(case, path, n=14) -> str` |  |
-| `render_3d` | função | `(case, out_dir, *, render, samples, size=(1280, 720)) -> dict[str, Any]` |  |
-| `deliver` | função | `(state, out_dir, *, render=True, samples=16) -> dict[str, Any]` |  |
-| `write_report` | função | `(state, out_dir, files, env) -> str` |  |
+| `trust_report` | função | `(state) -> TrustReport` | Monta o relatório de confiança (`TrustReport`) com checagens e decisão a partir do estado das ferramentas. |
+| `control_room` | função | `(case, path, *, title='', cursor=None) -> str` | Figura de sala de controle de um caso: leituras, previsões e evidência ao longo do tempo (PNG). |
+| `figure_confusion` | função | `(b, path) -> str` | Figura da matriz de confusão do benchmark. |
+| `figure_request` | função | `(rs, path) -> str \| None` | Figura do pedido de nova simulação (antes e depois de ampliar o modelo), ou `None` se não houve. |
+| `impact_gif` | função | `(case, path, n=14) -> str` | GIF 2-D do impacto de um caso ao longo do tempo (usa imageio). |
+| `render_3d` | função | `(case, out_dir, *, render, samples, size=(1280, 720)) -> dict[str, Any]` | Gera visualizador web, glTF e USD da cena; renders Blender só se `render` e se `bpy` estiver instalado. |
+| `deliver` | função | `(state, out_dir, *, render=True, samples=16) -> dict[str, Any]` | Gera todos os entregáveis (figuras, GIF, 3-D, `trust_report.json`, relatório) numa pasta. |
+| `write_report` | função | `(state, out_dir, files, env) -> str` | Escreve o relatório em texto com os números das ferramentas e o ambiente da execução. |
 
 #### `pinneapple_systems.digital_twin.pipe_loop.scene`
 
-3-D control-room scene of the loop: pipes coloured by pressure, a transparent elbow with its velocity profile, the T junction, valves, tanks, the pump and the sensors coloured by the twin's verdict, frame by frame.
+Cena 3-D esquemática do circuito, quadro a quadro: tubos coloridos pela pressão de referência, linhas de corrente do cotovelo por lei de potência 1/7 e sensores coloridos pelo veredito. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/pipe_loop/scene.py` · 181 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `tube` | função | `(path, r=R_PIPE, n_theta=20, n_seg=40)` | Triangulated tube along a polyline (resampled to ``n_seg`` rings); returns vertices, faces and the arc-length fraction 0..1 of every vertex. |
-| `elbow_streamlines` | função | `(v_bulk, n_r=3, n_t=8)` | Lines through the elbow and the straight runs next to it at a few radii, valued by the 1/7 power-law speed. |
-| `loop_scene` | função | `(run, diagnosis, *, n_frames=24, title='')` | Animated scene of one monitored run: pressures on the walls, verdict on the sensors, HUD with the evidence. |
+| `tube` | função | `(path, r=R_PIPE, n_theta=20, n_seg=40)` | Malha triangulada de um tubo ao longo de uma polilinha, com a fração de comprimento de cada vértice. |
+| `elbow_streamlines` | função | `(v_bulk, n_r=3, n_t=8)` | Linhas pelo cotovelo e trechos vizinhos em alguns raios, com a velocidade da lei de potência 1/7. |
+| `loop_scene` | função | `(run, diagnosis, *, n_frames=24, title='')` | Cena animada de uma corrida monitorada: pressões nas paredes, veredito nos sensores e HUD com a evidência. |
 
 #### `pinneapple_systems.digital_twin.product`
 
-The closed digital-twin product: spec, commissioning, live run, evidence, drift policy.
+Camada de comissionamento do gêmeo como produto: contrato (`TwinSpec`), contrato do modelo, estimador EnKF de estado latente, preflight + backtest, evidência em arquivo e política de deriva; reexporta tudo.
 
 <small>`pinneapple_systems/digital_twin/product/__init__.py` · 83 linhas · testes: 24</small>
 
 #### `pinneapple_systems.digital_twin.product.assimilation`
 
-The twin's estimator: an ensemble Kalman filter over the state the model cannot know.
+Estimador do gêmeo: EnKF da plataforma sobre o estado latente que o modelo não conhece (incrustação, espessura, viés), com o próprio modelo como operador de observação e banda de 95 % pela dispersão do ensemble. [sem teste direto] — coberto via `pinneapple_systems.digital_twin.product`.
 
 <small>`pinneapple_systems/digital_twin/product/assimilation.py` · 418 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwinEstimate` | classe | `(theta, theta_std, innovation, n_obs)` | One analysis instant: the latent state, its spread, and the innovation. |
-| `LatentStateTwin` | classe | `(model, spec, *, n_ens=64, inflation=1.02, seed=0) -> None` | Estimates the latent state of one asset from a spec and the model behind it. |
+| `TwinEstimate` | classe | `(theta, theta_std, innovation, n_obs)` | Um instante de análise: estado latente, sua dispersão, inovação e número de observações. |
+| `LatentStateTwin` | classe | `(model, spec, *, n_ens=64, inflation=1.02, seed=0) -> None` | Estima o estado latente de um ativo a partir da spec e do modelo; dá banda e média nos sensores de hold-out, tendência e projeção de cruzamento de limite. |
 
 #### `pinneapple_systems.digital_twin.product.commission`
 
-Commissioning: the two gates a twin passes before it is allowed to run.
+Os dois portões antes de o gêmeo rodar: `preflight` (checagens baratas do contrato e do histórico) e `backtest` (replay do histórico medido contra sensores nunca assimilados).
 
 <small>`pinneapple_systems/digital_twin/product/commission.py` · 588 linhas · testes: 24</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `read_timestamp` | função | `(frame) -> float` | The frame's timestamp, under any of the conventional keys. |
-| `read_readings` | função | `(frame, spec) -> dict[str, float]` | The sensor values present in a frame, ignoring keys that are not sensors. |
-| `preflight` | função | `(spec, history) -> CheckReport` | Check that this twin can be commissioned at all, before spending a backtest on it. |
-| `backtest` | função | `(spec, model, history, *, n_ens=64, inflation=1.02, seed=0, warmup_steps=0, calibrate_fra…)` | Replay the history through the twin and measure it against the held-out sensors. |
+| `read_timestamp` | função | `(frame) -> float` | Lê o carimbo de tempo de um frame, sob qualquer das chaves convencionais. |
+| `read_readings` | função | `(frame, spec) -> dict[str, float]` | Valores de sensores presentes num frame, ignorando chaves que não são sensores. |
+| `preflight` | função | `(spec, history) -> CheckReport` | Checa se o gêmeo pode ser comissionado (unidades, observabilidade, canal travado, cobertura da faixa) antes de gastar um backtest. |
+| `backtest` | função | `(spec, model, history, *, n_ens=64, inflation=1.02, seed=0, warmup_steps=0, calibrate_fra…)` | Repassa o histórico pelo gêmeo e mede contra os sensores de hold-out (erro, viés, cobertura da banda, antecedência de alarme). |
 
 #### `pinneapple_systems.digital_twin.product.evidence`
 
-The evidence a twin has to produce to be trusted, and the shapes it is filed in.
+Contêineres da evidência: itens e relatório de checklist, métricas por campo com sua fonte, relatório de rastreamento e o arquivo `TwinEvidence` com a lista do que não foi verificado; não calcula física. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/product/evidence.py` · 284 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CheckItem` | classe | `(check_id, status, title, detail, why, fix, source)` | One line of a preflight checklist. |
-| `CheckReport` | classe | `(title, items)` | An ordered checklist with a verdict: any ``FAIL`` blocks commissioning. |
-| `FieldMetrics` | classe | `(field_name, unit, n, rmse, mae, bias, p95_abs, coverage, span, window_s, coverage_raw, b…)` | Agreement between the twin and reality, on observations it never assimilated. |
-| `TrackingReport` | classe | `(metrics, gates, breaches, alarm_lead_s, forecast_error_s, final_latent, n_steps)` | Per-field tracking metrics plus the gate verdict and the alarm lead times. |
-| `TwinEvidence` | classe | `(asset_id, spec_digest, model_id, created_unix, preflight, tracking, decisions, unverifie…)` | Everything a commissioned twin produces, in one file, keyed by the spec digest. |
+| `CheckItem` | classe | `(check_id, status, title, detail, why, fix, source)` | Uma linha do checklist: id, status, título, detalhe, porquê, correção e fonte. |
+| `CheckReport` | classe | `(title, items)` | Checklist ordenado com veredito: qualquer `FAIL` bloqueia o comissionamento. |
+| `FieldMetrics` | classe | `(field_name, unit, n, rmse, mae, bias, p95_abs, coverage, span, window_s, coverage_raw, b…)` | Concordância entre gêmeo e realidade num campo, em observações nunca assimiladas, com o número de comparações e a janela. |
+| `TrackingReport` | classe | `(metrics, gates, breaches, alarm_lead_s, forecast_error_s, final_latent, n_steps)` | Métricas por campo, veredito dos portões, violações e antecedência dos alarmes. |
+| `TwinEvidence` | classe | `(asset_id, spec_digest, model_id, created_unix, preflight, tracking, decisions, unverifie…)` | Tudo o que um gêmeo comissionado produz num arquivo, ligado ao digest da spec, incluindo o que não foi verificado. |
 
 #### `pinneapple_systems.digital_twin.product.model`
 
-What a model must accept to be run as a twin, and an adapter so existing surrogates fit.
+Contrato do modelo `model(X, theta) -> {campo: array}` e o adaptador `BiasModel` para encaixar substitutos que ignoram `theta`. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/product/model.py` · 155 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwinModelError` | classe | `()` | The model does not honour the twin contract. |
-| `BiasModel` | classe | `(model, field_names) -> None` | Wrap a plain ``model(X)`` so it satisfies the twin contract with an output bias. |
-| `as_array_dict` | função | `(out, field_names) -> dict[str, np.ndarray]` | Normalise a model output to ``{field: (n,) float32}``. |
-| `ensure_twin_model` | função | `(model, field_names, n_latent)` | Return a callable that honours the contract, wrapping ``model`` when it does not. |
+| `TwinModelError` | classe | `()` | Erro quando o modelo não cumpre o contrato do gêmeo. |
+| `BiasModel` | classe | `(model, field_names) -> None` | Envolve um `model(X)` simples para cumprir o contrato, usando `theta` como viés de saída. |
+| `as_array_dict` | função | `(out, field_names) -> dict[str, np.ndarray]` | Normaliza a saída de um modelo para `{campo: array (n,) float32}`. |
+| `ensure_twin_model` | função | `(model, field_names, n_latent)` | Devolve um chamável que cumpre o contrato, envolvendo o modelo quando preciso. |
 
 #### `pinneapple_systems.digital_twin.product.policy`
 
-What the twin does when it stops agreeing with the plant.
+Política de deriva: consistência da banda de 95 % do gêmeo numa janela móvel convertida em modo NORMAL → WATCH → ALARM → RECALIBRATE com histerese; nunca re-treina sozinho. [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/product/policy.py` · 166 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwinMode` | classe | `()` |  |
-| `DriftPolicy` | classe | `(window, target_coverage, hard_break, max_sustained, recalibrate_after, hysteresis)` | Thresholds for the consistency ladder. |
-| `DriftMonitor` | classe | `(policy, _window, _mode, _off_run, _alarm_run, _ok_run, decisions)` | Rolling consistency of the twin's band, converted into a mode with hysteresis. |
+| `TwinMode` | classe | `()` | Enum dos modos do gêmeo: NORMAL, WATCH, ALARM, RECALIBRATE. |
+| `DriftPolicy` | classe | `(window, target_coverage, hard_break, max_sustained, recalibrate_after, hysteresis)` | Limiares da escada de consistência (janela, cobertura alvo, quebra forte, sustentação, recalibração, histerese). |
+| `DriftMonitor` | classe | `(policy, _window, _mode, _off_run, _alarm_run, _ok_run, decisions)` | Consistência móvel da banda do gêmeo convertida em modo com histerese; registra as decisões. |
 
 #### `pinneapple_systems.digital_twin.product.runner`
 
-The product surface: one call to commission a twin, one to run it, one to file the evidence.
+Superfície do produto: `commission` (preflight + backtest + evidência), `run_live`, `describe` (padrões industriais) e `export_scene` (cena `pinneapple_twin3d`). [sem teste direto] — coberto via pacote `product`.
 
 <small>`pinneapple_systems/digital_twin/product/runner.py` · 346 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `RunResult` | classe | `(n_steps, n_observed, n_holdout, final_mode, coverage, latent, modes_seen, decisions)` | What happened while the twin ran. |
-| `commission` | função | `(spec, model, history, *, n_ens=64, inflation=1.02, seed=0, warmup_steps=0, calibrate_fra…)` | Run both gates and return the evidence file. |
-| `run_live` | função | `(spec, model, frames, *, n_ens=64, inflation=1.02, seed=0, policy=None, evidence=None, th…)` | Assimilate a run of frames, monitor consistency, and record what the twin decided. |
-| `describe` | função | `(spec, latent, fields=None)` | Describe the twin for the industry standards the platform already speaks. |
-| `export_scene` | função | `(spec, frames, folder, *, mesh=None, field_on_mesh=None, times=None) -> str` | Write a ``pinneapple_twin3d`` scene for this twin: sensors with measured series and envelopes. |
+| `RunResult` | classe | `(n_steps, n_observed, n_holdout, final_mode, coverage, latent, modes_seen, decisions)` | O que aconteceu na execução: passos, observados, hold-out, modo final, cobertura, estado latente e decisões. |
+| `commission` | função | `(spec, model, history, *, n_ens=64, inflation=1.02, seed=0, warmup_steps=0, calibrate_fra…)` | Roda preflight e backtest e devolve o arquivo de evidência; determinístico para uma semente. |
+| `run_live` | função | `(spec, model, frames, *, n_ens=64, inflation=1.02, seed=0, policy=None, evidence=None, th…)` | Assimila uma sequência de frames, monitora a consistência e registra o que o gêmeo decidiu. |
+| `describe` | função | `(spec, latent, fields=None)` | Descreve o gêmeo para os padrões industriais de `standards` (AAS, DTDL, NGSI-LD, Ditto, OPC UA). |
+| `export_scene` | função | `(spec, frames, folder, *, mesh=None, field_on_mesh=None, times=None) -> str` | Escreve uma cena `pinneapple_twin3d` do gêmeo: sensores com séries medidas e envelopes (malha opcional via trimesh). |
 
 #### `pinneapple_systems.digital_twin.product.spec`
 
-The twin contract: what a digital twin is asked to deliver, signed before it runs.
+O contrato do gêmeo (`TwinSpec`): campos, sensores, modelo, portões de aceitação e um digest; carrega e grava YAML (PyYAML opcional). [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/product/spec.py` · 438 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `SpecError` | classe | `()` | The spec is not usable: a missing claim, a contradiction, an unobservable field. |
-| `FieldSpec` | classe | `(name, unit, kind, lo, hi, alarm_above, alarm_below)` | One quantity the twin estimates. |
-| `SensorSpec` | classe | `(sensor_id, unit, field, lo, hi, at, max_gap_s, noise_sigma, holdout, driver)` | A measurement available to the twin, with the envelope that makes it checkable. |
-| `ModelSpec` | classe | `(model_id, version, accuracy_floor, validity)` | The model behind the twin, and the accuracy it claims. |
-| `AcceptanceGates` | classe | `(max_rmse_frac, max_bias_frac, min_coverage, min_alarm_lead_s)` | The thresholds that decide whether a twin goes live. |
-| `TwinSpec` | classe | `(asset_id, asset_name, asset_type, fields, sensors, model, asset_unit, coord_names, sampl…)` | A complete, checkable definition of one digital twin. |
+| `SpecError` | classe | `()` | Erro quando a spec não é utilizável (afirmação faltando, contradição, campo inobservável). |
+| `FieldSpec` | classe | `(name, unit, kind, lo, hi, alarm_above, alarm_below)` | Uma grandeza que o gêmeo estima: nome, unidade, tipo, faixa e limites de alarme. |
+| `SensorSpec` | classe | `(sensor_id, unit, field, lo, hi, at, max_gap_s, noise_sigma, holdout, driver)` | Uma medição disponível ao gêmeo, com envelope, ruído, se é hold-out e se é driver. |
+| `ModelSpec` | classe | `(model_id, version, accuracy_floor, validity)` | O modelo por trás do gêmeo, sua versão, a precisão que promete e a validade. |
+| `AcceptanceGates` | classe | `(max_rmse_frac, max_bias_frac, min_coverage, min_alarm_lead_s)` | Limiares que decidem se o gêmeo entra em operação (erro e viés relativos, cobertura mínima, antecedência mínima de alarme). |
+| `TwinSpec` | classe | `(asset_id, asset_name, asset_type, fields, sensors, model, asset_unit, coord_names, sampl…)` | Definição completa e checável de um gêmeo; tem digest, leitura/escrita em dict e YAML e consultas sobre sensores e campos. |
 
 #### `pinneapple_systems.digital_twin.prognostics`
 
-Predictive maintenance: trend-based Remaining Useful Life (RUL) estimation.
+Manutenção preditiva: estimativa de vida útil remanescente (RUL) por tendência linear ou exponencial de um indicador de saúde, com intervalo de confiança e aviso de extrapolação pouco confiável.
 
 <small>`pinneapple_systems/digital_twin/prognostics.py` · 628 linhas · testes: 15</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HealthIndicatorHistory` | classe | `(timestamps, values, source)` | A scalar health/degradation-indicator time series. |
-| `RULEstimate` | classe | `(estimated_rul, rul_confidence_interval, failure_time_estimate, degradation_model_used, f…)` | Result of a trend-based Remaining Useful Life estimation. |
-| `estimate_rul` | função | `(health_indicator_series, timestamps=None, failure_threshold=None, model='linear', confid…)` | Trend-based Remaining Useful Life (RUL) estimation. |
-| `estimate_rul_from_twin` | função | `(twin, failure_threshold, *, detector=None, sensor_id=None, field_name=None, n=None, mode…)` | Convenience wrapper: estimate RUL directly from a live `DigitalTwin`. |
+| `HealthIndicatorHistory` | classe | `(timestamps, values, source)` | Série temporal escalar de um indicador de saúde/degradação, montada de arrays ou de um `DigitalTwin`. |
+| `RULEstimate` | classe | `(estimated_rul, rul_confidence_interval, failure_time_estimate, degradation_model_used, f…)` | Resultado da estimativa de RUL: vida remanescente, intervalo de confiança, tempo de falha, modelo usado, qualidade do ajuste e se a extrapolação é confiável. |
+| `estimate_rul` | função | `(health_indicator_series, timestamps=None, failure_threshold=None, model='linear', confid…)` | Ajusta uma tendência linear ou exponencial ao indicador de saúde e extrapola até o limiar de falha. |
+| `estimate_rul_from_twin` | função | `(twin, failure_threshold, *, detector=None, sensor_id=None, field_name=None, n=None, mode…)` | Atalho que estima a RUL direto de um `DigitalTwin` vivo (escores de anomalia ou um campo observado). |
 
 #### `pinneapple_systems.digital_twin.realtime_pipeline`
 
-Real-time inference pipeline for digital twins.
+Pipeline de inferência em tempo real que impõe tempo de inferência ≤ período dos dados, com políticas `warn`, `skip`, `throttle` ou `raise` e estatísticas de latência. [sem teste]
 
 <small>`pinneapple_systems/digital_twin/realtime_pipeline.py` · 470 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LatencyBudgetExceeded` | classe | `()` | Raised when inference time exceeds data_period and policy='raise'. |
-| `LatencyStats` | classe | `(n_frames, n_skipped, n_budget_violations, mean_inference_ms, max_inference_ms, budget_ms…)` | Rolling latency statistics. |
-| `RealtimePipelineConfig` | classe | `(data_period, latency_policy, buffer_maxlen, latency_alpha, throttle_min_points, throttle…)` | Configuration for RealtimePipeline. |
-| `RealtimePipeline` | classe | `(model, data_period, field_names, coord_names=None, *, config=None, on_state=None, on_lat…)` | Real-time inference pipeline wrapping a surrogate model. |
+| `LatencyBudgetExceeded` | classe | `()` | Erro levantado quando a inferência passa do período dos dados e a política é `raise`. |
+| `LatencyStats` | classe | `(n_frames, n_skipped, n_budget_violations, mean_inference_ms, max_inference_ms, budget_ms…)` | Estatísticas de latência: frames, descartes, violações, média e máximo de inferência, orçamento e utilização. |
+| `RealtimePipelineConfig` | classe | `(data_period, latency_policy, buffer_maxlen, latency_alpha, throttle_min_points, throttle…)` | Configuração do pipeline: período, política de latência, buffer, suavização, throttling, dispositivo e AMP. |
+| `RealtimePipeline` | classe | `(model, data_period, field_names, coord_names=None, *, config=None, on_state=None, on_lat…)` | Pipeline que envolve um modelo substituto, recebe leituras por `push` e mantém o último estado dentro do orçamento de latência. |
 
 #### `pinneapple_systems.digital_twin.recession`
 
-A river digital twin from baseflow recession: calibrate on the recent past of a gauge, forecast the present, flag a sustained departure.
+Gêmeo de rio por recessão de vazão de base: calibra Q0 e k no passado recente de um posto, prevê o presente e sinaliza um desvio sustentado (veredito `DIVERGENCE_DETECTED`, `MATCHES_FORECAST` ou `NO_CLEAN_RECESSION`).
 
 <small>`pinneapple_systems/digital_twin/recession.py` · 195 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `recession` | função | `(q0, k_per_hour, hours) -> float \| np.ndarray` | Q0 exp(-k t), t in hours since t0. |
-| `fit_recession` | função | `(hours, values) -> dict[str, float]` | Least-squares Q0, k on the log-linearised recession; ``hours`` is re-based to its first sample (``t0_hours``). |
-| `forecast` | função | `(calibration, hours) -> np.ndarray` | The calibrated curve at ``hours`` (same axis as the fit). |
-| `detect_divergence` | função | `(hours, actual, predicted, residual_mean, residual_std, n_sigma=N_SIGMA, sustained_minute…)` | First sustained excursion of ``actual - predicted`` beyond ``residual_mean +- n_sigma * residual_std``. |
-| `run_twin` | função | `(timestamps, values, *, stage_timestamps=None, stage_values=None, calibration_hours=CALIB…)` | Calibrate, forecast and compare one discharge series (and, optionally, fit the gage height the same way for the water level now vs forecast). Raises ``ValueError`` when the series is too short to calibrate. |
-| `synthetic_recession` | função | `(hours=96.0, step_minutes=15.0, q0=2000.0, k_per_hour=0.004, noise=0.005, bump_at_hour=No…)` | A synthetic gauge record for tests and offline demos: an exponential recession with multiplicative noise and an optional step increase ``bump`` (fraction) from ``bump_at_hour`` on. Timestamps start 2026-01-01 UTC. |
+| `recession` | função | `(q0, k_per_hour, hours) -> float \| np.ndarray` | Curva de recessão Q0·exp(-k·t), com t em horas. |
+| `fit_recession` | função | `(hours, values) -> dict[str, float]` | Ajusta Q0 e k por mínimos quadrados em ln Q e devolve R² e média/desvio dos resíduos. |
+| `forecast` | função | `(calibration, hours) -> np.ndarray` | Avalia a curva calibrada em novas horas. |
+| `detect_divergence` | função | `(hours, actual, predicted, residual_mean, residual_std, n_sigma=N_SIGMA, sustained_minute…)` | Acha a primeira excursão sustentada do resíduo além de n desvios da calibração. |
+| `run_twin` | função | `(timestamps, values, *, stage_timestamps=None, stage_values=None, calibration_hours=CALIB…)` | Pipeline completo numa série: separa calibração e comparação, calibra, prevê, compara e dá o veredito; levanta ValueError se a série for curta. |
+| `synthetic_recession` | função | `(hours=96.0, step_minutes=15.0, q0=2000.0, k_per_hour=0.004, noise=0.005, bump_at_hour=No…)` | Registro sintético de posto (recessão exponencial com ruído e degrau opcional) para testes e demos offline. |
 
 #### `pinneapple_systems.digital_twin.signal_reconstruction`
 
-Signal reconstruction from incoming data streams.
+Reconstrução de sinais limpos a partir das observações do gêmeo: espectral (FFT), SSA, wavelets, interpolação e via modelo físico. [sem teste]
 
 <small>`pinneapple_systems/digital_twin/signal_reconstruction.py` · 587 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ReconstructionResult` | classe | `(sensor_id, field_name, method, timestamps, signal, raw_timestamps, raw_values, quality, …)` | Output of a signal reconstruction pass. |
-| `SignalReconstructor` | classe | `(twin_or_observations, *, default_method='ssa', default_n_out=512) -> None` | Convenience wrapper that reconstructs signals from the observation history held by a live ``DigitalTwin`` (or from any list of ``Observation`` objects). |
-| `reconstruct_spectral` | função | `(timestamps, values, *, n_harmonics=10, out_times=None, min_points=8) -> Tuple[np.ndarray…)` | FFT-based reconstruction: fit the dominant harmonics and evaluate on a dense grid (or ``out_times`` if provided). |
-| `reconstruct_ssa` | função | `(timestamps, values, *, window=0, n_components=5, out_times=None) -> Tuple[np.ndarray, np…)` | SSA-based reconstruction: decompose the signal and reconstruct from the dominant components (noise suppression). |
-| `reconstruct_wavelet` | função | `(timestamps, values, *, wavelet='db4', level=4, threshold_mode='soft', threshold_sigma_mu…)` | Wavelet soft-thresholding denoising + reconstruction. |
-| `reconstruct_interpolate` | função | `(timestamps, values, *, kind='cubic', out_times=None, n_out=512) -> Tuple[np.ndarray, np.…)` | Scipy interpolation-based reconstruction (gap filling / upsampling). |
-| `reconstruct_model_based` | função | `(timestamps, values, *, model, sensor_coord, coord_names, field_name, field_index=0, out_…)` | Use a trained physics model to reconstruct the time series at a given spatial location by querying model(x, y, t). |
+| `ReconstructionResult` | classe | `(sensor_id, field_name, method, timestamps, signal, raw_timestamps, raw_values, quality, …)` | Saída de uma reconstrução: sensor, campo, método, tempos e sinal reconstruídos, dados brutos e métricas de qualidade. |
+| `SignalReconstructor` | classe | `(twin_or_observations, *, default_method='ssa', default_n_out=512) -> None` | Atalho que reconstrói sinais a partir do histórico de observações de um `DigitalTwin` (ou de uma lista de `Observation`). |
+| `reconstruct_spectral` | função | `(timestamps, values, *, n_harmonics=10, out_times=None, min_points=8) -> Tuple[np.ndarray…)` | Reconstrução por FFT: ajusta os harmônicos dominantes e avalia numa grade densa. |
+| `reconstruct_ssa` | função | `(timestamps, values, *, window=0, n_components=5, out_times=None) -> Tuple[np.ndarray, np…)` | Reconstrução por SSA: decompõe e mantém os componentes dominantes (supressão de ruído). |
+| `reconstruct_wavelet` | função | `(timestamps, values, *, wavelet='db4', level=4, threshold_mode='soft', threshold_sigma_mu…)` | Remoção de ruído por limiar suave de wavelets (requer PyWavelets). |
+| `reconstruct_interpolate` | função | `(timestamps, values, *, kind='cubic', out_times=None, n_out=512) -> Tuple[np.ndarray, np.…)` | Preenchimento de lacunas e reamostragem por interpolação SciPy (linear, cúbica, PCHIP etc.). |
+| `reconstruct_model_based` | função | `(timestamps, values, *, model, sensor_coord, coord_names, field_name, field_index=0, out_…)` | Usa um modelo físico treinado (PyTorch) para reconstruir a série num ponto do espaço consultando `model(x, y, t)`. |
 
 #### `pinneapple_systems.digital_twin.standards`
 
-Digital-twin interoperability: describe a PINNeAPPle twin once and publish it in the open standards industry platforms read.
+Interoperabilidade: descreve o gêmeo uma vez e publica em AAS (BaSyx), DTDL v3, NGSI-LD, Eclipse Ditto e um servidor OPC UA (asyncua).
 
 <small>`pinneapple_systems/digital_twin/standards.py` · 322 linhas · testes: 31</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TwinProperty` | classe | `(name, value, unit, kind, description, writable)` |  |
-| `TwinModel` | classe | `(name, family, status, compatibility, violated, probable_cause)` | A model behind the twin and its physical validity on the current operating point. |
-| `TwinDescription` | classe | `(id, name, asset_type, description, manufacturer, properties, models, relationships)` |  |
-| `OpcUaTwinServer` | classe | `(desc, endpoint=…, namespace='urn:pinneapple:twins')` | Serve a twin over OPC UA (asyncua) in a background thread: one object per twin with a variable per property (and the validity status of each model). :meth:`update` writes new values; OPC UA clients read or subscribe. |
-| `to_aas` | função | `(desc, as_json=True)` | Asset Administration Shell (metamodel v3) with submodels Identification, TechnicalData (parameters), OperationalData (telemetry and estimated state) and SimulationModels (models and physical validity), built with the Eclipse BaSyx Python SDK. Returns the JSON text (``as_json``) or the BaSyx object … |
-| `to_dtdl` | função | `(desc, version=1) -> dict[str, Any]` | A DTDL v3 Interface: parameters and estimated state as Properties, measurements as Telemetry, model validity as Properties, links to other twins as Relationships. |
-| `to_ngsi_ld` | função | `(desc, context=…, observed_at=None) -> dict[str, Any]` | An NGSI-LD entity: every property as a ``Property`` (unit as ``unitText``, measurements with ``observedAt``), model validity as properties, links as ``Relationship``s. |
-| `to_ditto_thing` | função | `(desc, namespace='org.pinneapple') -> dict[str, Any]` | An Eclipse Ditto Thing: identification and parameters as attributes; telemetry, state and model validity as features. |
+| `TwinProperty` | classe | `(name, value, unit, kind, description, writable)` | Uma propriedade do gêmeo: nome, valor, unidade, tipo (parâmetro, telemetria, estado...), descrição e se é gravável. |
+| `TwinModel` | classe | `(name, family, status, compatibility, violated, probable_cause)` | Um modelo por trás do gêmeo e sua validade física no ponto de operação atual (pode vir de uma auditoria). |
+| `TwinDescription` | classe | `(id, name, asset_type, description, manufacturer, properties, models, relationships)` | Descrição neutra de um gêmeo (id, nome, tipo, propriedades, modelos, relações) usada por todos os exportadores. |
+| `OpcUaTwinServer` | classe | `(desc, endpoint=…, namespace='urn:pinneapple:twins')` | Serve o gêmeo por OPC UA (asyncua) numa thread: um objeto por gêmeo, uma variável por propriedade; `update` grava valores. |
+| `to_aas` | função | `(desc, as_json=True)` | Monta um Asset Administration Shell (metamodelo v3) com o SDK Eclipse BaSyx e devolve o JSON ou o objeto. |
+| `to_dtdl` | função | `(desc, version=1) -> dict[str, Any]` | Gera uma Interface DTDL v3 com Properties, Telemetry e Relationships. |
+| `to_ngsi_ld` | função | `(desc, context=…, observed_at=None) -> dict[str, Any]` | Gera uma entidade NGSI-LD com Property e Relationship. |
+| `to_ditto_thing` | função | `(desc, namespace='org.pinneapple') -> dict[str, Any]` | Gera um Thing do Eclipse Ditto com atributos e features. |
 
 #### `pinneapple_systems.digital_twin.state`
 
-System state representation for digital twins.
+Estruturas de estado: `Observation` (leitura bruta de um sensor) e `SystemState` (estimativa fundida com covariância, resíduos e histórico). [sem teste direto]
 
 <small>`pinneapple_systems/digital_twin/state.py` · 137 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Observation` | classe | `(timestamp, sensor_id, values, coords, metadata)` | A single raw observation from a sensor stream. |
-| `SystemState` | classe | `(timestamp, fields, coords, covariance, residuals, metadata, history)` | Current estimate of the physical system state. |
+| `Observation` | classe | `(timestamp, sensor_id, values, coords, metadata)` | Uma observação bruta de um sensor: tempo, id, valores, coordenadas e metadados. |
+| `SystemState` | classe | `(timestamp, fields, coords, covariance, residuals, metadata, history)` | Estimativa corrente do sistema: campos, coordenadas, covariância, resíduos e histórico; converte de/para vetor plano. |
 
 #### `pinneapple_systems.digital_twin.twin`
 
-Core DigitalTwin class.
+Classe central `DigitalTwin`: envolve um modelo treinado, consome fluxos de sensores, faz assimilação (nenhuma, EKF ou EnKF), detecta anomalias e mantém o estado vivo; PyTorch é opcional.
 
 <small>`pinneapple_systems/digital_twin/twin.py` · 650 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `DigitalTwinConfig` | classe | `(device, batch_size, use_amp, update_interval, obs_queue_maxsize, max_history, assimilati…)` | Configuration for the DigitalTwin. |
-| `DigitalTwin` | classe | `(model, field_names, coord_names=None, *, config=None, assimilation_filter=None) -> None` | Digital twin that fuses a trained surrogate model with live sensor data. |
-| `build_digital_twin` | função | `(model, field_names, *, coord_names=None, device='cpu', update_interval=0.5, anomaly_z_th…)` | Convenience factory for DigitalTwin. |
+| `DigitalTwinConfig` | classe | `(device, batch_size, use_amp, update_interval, obs_queue_maxsize, max_history, assimilati…)` | Configuração do `DigitalTwin`: dispositivo, lote, AMP, intervalo de atualização, fila, histórico, assimilação e parâmetros de anomalia. |
+| `DigitalTwin` | classe | `(model, field_names, coord_names=None, *, config=None, assimilation_filter=None) -> None` | Gêmeo digital que funde um modelo substituto treinado com dados de sensores vivos; gerencia fluxos, laço de atualização, callbacks, predição e histórico. |
+| `build_digital_twin` | função | `(model, field_names, *, coord_names=None, device='cpu', update_interval=0.5, anomaly_z_th…)` | Fábrica de conveniência para `DigitalTwin` com as opções mais comuns. |
 
 #### `pinneapple_systems.excitation`
 
@@ -3573,614 +3618,614 @@ Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleat�
 
 #### `pinneapple_systems.operations`
 
-Operations: run validated physical models and surrogates next to live plant data.
+Operações: rodar modelos físicos validados e substitutos ao lado de dados de planta. Uma planta comum (tanque aquecido) e três ferramentas sobre ela: runtime de gêmeo, detecção física de anomalias e controle preditivo, todas falando `pinneapple_data.contracts`.
 
 <small>`pinneapple_systems/operations/__init__.py` · 94 linhas · testes: 24</small>
 
 #### `pinneapple_systems.operations.anomaly`
 
-Physics anomaly detection on sensor time series: statistics, time-series models, conservation balances and physical-model residuals, fused into events with severities and verifiable explanations.
+Detecção física de anomalias em séries de sensores: quatro famílias (estatística robusta, AR + CUSUM, balanços de conservação, resíduos de modelo físico) calibradas numa janela declarada normal, fundidas em eventos com severidade e explicações, mais um benchmark rotulado de falhas.
 
 <small>`pinneapple_systems/operations/anomaly.py` · 573 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BalanceRule` | classe | `(name, accumulation, inflow, outflow, units, description)` | A conservation law over the columns: ``d(accumulation)/dt = inflow - outflow``. |
-| `DetectorConfig` | classe | `(normal_until, sensors, methods, balances, constants, window, threshold, ar_order, cusum_…)` | What to run and how strict to be. ``normal_until`` (time, same units as ``t``) ends the normal window. |
-| `Channel` | classe | `(method, name, variables, residual, centre, spread, units, description, score, threshold)` | One detector output: a residual series, its normal-window centre/spread and score = (r - centre) / spread. |
-| `Event` | classe | `(start, end, i0, i1, severity, peak_ratio, methods, channels, variables, explanations, ev…)` |  |
-| `DetectionResult` | classe | `(t, channels, flags, events, config, normal_samples)` |  |
-| `LabelledInterval` | classe | `(kind, start, end, target)` | A labelled abnormal interval ``[start, end)`` read from data (same interface as a plant ``Fault``). |
-| `tank_balance_rules` | função | `() -> list[BalanceRule]` | Mass and energy balances of the heated tank (:mod:`pinneapple_systems.operations.plant`). |
-| `tank_constants` | função | `(p=None) -> dict[str, float]` |  |
-| `windowed_balance` | função | `(t, acc, net_in, w) -> np.ndarray` | ``[acc(t_k) - acc(t_{k-w})] / (t_k - t_{k-w}) - (trapezoid mean of net_in over the same interval)``. |
-| `severity_of` | função | `(ratio) -> str` | Severity from the peak score / threshold ratio: < 2 low, < 4 medium, < 8 high, else critical. |
-| `detect` | função | `(data, config, model=None, model_states=(), model_inputs=()) -> DetectionResult` | Run the configured detectors on ``data`` (DataFrame or dict of columns with ``t``). |
-| `benchmark_faults` | função | `(t0=7200.0) -> list[Fault]` | The faults of :func:`fault_benchmark`, after a fault-free first ``t0`` seconds (the calibration window). Magnitudes are small on purpose (a few percent of the nominal flows and powers). |
-| `fault_benchmark` | função | `(seed=0, t0=7200.0, dt=10.0) -> tuple[dict[str, np.ndarray], list[Fault]]` | One labelled run: ``t0`` s of normal operation, then the six faults of :func:`benchmark_faults` separated by normal periods. Different ``seed`` = different operating profile and noise (a held-out run). |
-| `intervals_from_labels` | função | `(t, labels) -> list[LabelledInterval]` | Contiguous runs of a label column: empty, ``0``, ``normal`` or ``false`` mean normal, anything else names the anomaly. Each run ends at the next sample's time. |
-| `score_events` | função | `(result, faults, grace=600.0, evaluate_from=None) -> dict` | Point-wise and event-wise scores against the true fault intervals. |
-| `run_benchmark` | função | `(seeds=(101, 102, 103), methods_sets=None, window=12, threshold=5.0) -> dict` | Score each detector family alone and all together on held-out labelled runs (one per seed). The calibration window of every run is its own fault-free first two hours; thresholds are never tuned on the faulty part. Returns per-method aggregate scores (sums of TP/FP/FN over runs) and per-run details. |
+| `BalanceRule` | classe | `(name, accumulation, inflow, outflow, units, description)` | Lei de conservação sobre colunas: d(acumulação)/dt = entrada - saída, com unidades e descrição. |
+| `DetectorConfig` | classe | `(normal_until, sensors, methods, balances, constants, window, threshold, ar_order, cusum_…)` | O que rodar e quão estrito ser: fim da janela normal, sensores, métodos, balanços, constantes, janela, limiar, ordem AR, parâmetros CUSUM. |
+| `Channel` | classe | `(method, name, variables, residual, centre, spread, units, description, score, threshold)` | Uma saída de detector: série de resíduos, centro e dispersão da janela normal e escore normalizado. |
+| `Event` | classe | `(start, end, i0, i1, severity, peak_ratio, methods, channels, variables, explanations, ev…)` | Evento de anomalia fundido: intervalo, severidade, razão de pico, métodos, canais, variáveis, explicações e evidência. |
+| `DetectionResult` | classe | `(t, channels, flags, events, config, normal_samples)` | Resultado de `detect`: tempos, canais, flags, eventos, configuração e amostras normais. |
+| `LabelledInterval` | classe | `(kind, start, end, target)` | Intervalo anormal rotulado `[start, end)` lido dos dados, com a mesma interface de um `Fault` da planta. |
+| `tank_balance_rules` | função | `() -> list[BalanceRule]` | Balanços de massa e energia do tanque aquecido como `BalanceRule`. |
+| `tank_constants` | função | `(p=None) -> dict[str, float]` | Constantes do tanque (área, densidade, cp, UA) usadas nas fórmulas dos balanços. |
+| `windowed_balance` | função | `(t, acc, net_in, w) -> np.ndarray` | Resíduo de balanço numa janela: variação da acumulação dividida pelo tempo menos a média trapezoidal do líquido de entrada. |
+| `severity_of` | função | `(ratio) -> str` | Severidade pela razão pico/limiar: baixa, média, alta ou crítica. |
+| `detect` | função | `(data, config, model=None, model_states=(), model_inputs=()) -> DetectionResult` | Roda os detectores configurados sobre uma tabela (DataFrame ou dict com `t`) e devolve canais, flags e eventos. |
+| `benchmark_faults` | função | `(t0=7200.0) -> list[Fault]` | As falhas do benchmark depois de um período inicial sem falha, com magnitudes pequenas de propósito. |
+| `fault_benchmark` | função | `(seed=0, t0=7200.0, dt=10.0) -> tuple[dict[str, np.ndarray], list[Fault]]` | Uma corrida rotulada: operação normal inicial e depois as falhas do benchmark separadas por períodos normais. |
+| `intervals_from_labels` | função | `(t, labels) -> list[LabelledInterval]` | Converte uma coluna de rótulos em intervalos contíguos de anomalia. |
+| `score_events` | função | `(result, faults, grace=600.0, evaluate_from=None) -> dict` | Escores ponto a ponto e por evento contra os intervalos verdadeiros de falha. |
+| `run_benchmark` | função | `(seeds=(101, 102, 103), methods_sets=None, window=12, threshold=5.0) -> dict` | Pontua cada família de detectores sozinha e todas juntas em corridas rotuladas separadas, sem ajustar limiares na parte com falha. |
 
 #### `pinneapple_systems.operations.contracts`
 
-The operations tools speak ``pinneapple_data.contracts``: models travel as ``ModelRef`` (with their held-out validation metrics and validity ranges) and every twin, anomaly or control study ends as a ``StudyResult`` whose checks record what actually ran.
+Converte modelos e estudos de operações para `pinneapple_data.contracts`: modelos viram `ModelRef` (com métricas de hold-out e SHA-256) e estudos de gêmeo, anomalia e controle viram `StudyResult` com checagens do que rodou.
 
 <small>`pinneapple_systems/operations/contracts.py` · 192 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `save_model` | função | `(model, path, name, *, app='', dataset=None, trust_decision='UNCHECKED') -> ModelRef` | Write ``model`` (a twin model or a :class:`ControlledOpInf`) as JSON at ``path`` and return its ``ModelRef`` (saved next to it as ``<path>.modelref.json``). Held-out metrics come from the model's own validation record; a model without one carries no metrics. |
-| `load_model` | função | `(ref, root='.')` | Open the model a ``ModelRef`` points to (a local JSON file, checked against its SHA-256). |
-| `check` | função | `(name, passed, value=None, threshold=None, evidence='', detail='', warn=False) -> CheckRe…)` | A ``CheckRecord``: ``passed=None`` means it did not run (NOT_RUN). |
-| `new_id` | função | `(prefix) -> str` |  |
-| `twin_study` | função | `(runtime, *, app='twin', model_ref=None, title='') -> StudyResult` | The twin's run as a ``StudyResult``: estimates table, alerts, validity checks and revalidations. |
-| `anomaly_study` | função | `(result, *, app='anomaly', benchmark=None, title='') -> StudyResult` | A detection run (and optionally a benchmark) as a ``StudyResult``. |
-| `control_study` | função | `(comparison, *, app='control', title='') -> StudyResult` | A controller comparison as a ``StudyResult`` (one row per controller). |
+| `save_model` | função | `(model, path, name, *, app='', dataset=None, trust_decision='UNCHECKED') -> ModelRef` | Grava um modelo de gêmeo ou `ControlledOpInf` em JSON e devolve seu `ModelRef` (também gravado ao lado). |
+| `load_model` | função | `(ref, root='.')` | Abre o modelo apontado por um `ModelRef`, conferindo o SHA-256. |
+| `check` | função | `(name, passed, value=None, threshold=None, evidence='', detail='', warn=False) -> CheckRe…)` | Cria um `CheckRecord`; `passed=None` significa que a checagem não rodou (NOT_RUN). |
+| `new_id` | função | `(prefix) -> str` | Gera um id curto com prefixo e parte aleatória (uuid). |
+| `twin_study` | função | `(runtime, *, app='twin', model_ref=None, title='') -> StudyResult` | Converte a execução de um gêmeo num `StudyResult` (estimativas, alertas, checagens de validade, revalidações). |
+| `anomaly_study` | função | `(result, *, app='anomaly', benchmark=None, title='') -> StudyResult` | Converte uma detecção (e opcionalmente um benchmark) num `StudyResult`. |
+| `control_study` | função | `(comparison, *, app='control', title='') -> StudyResult` | Converte uma comparação de controladores num `StudyResult`, uma linha por controlador. |
 
 #### `pinneapple_systems.operations.control`
 
-Physics-based control of the heated tank: model predictive control against PID and rule-based baselines, in closed loop on the same simulated plant, in simulation / recommendation mode only.
+Controle do tanque aquecido: MPC linear e não linear contra PID e regras com histerese, em malha fechada na mesma planta simulada, só em modo simulação/recomendação (nada é enviado à planta); CasADi é opcional.
 
 <small>`pinneapple_systems/operations/control.py` · 658 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ControlSpec` | classe | `(dt, horizon, setpoints, h_bounds, T_max, q_in_bounds, Q_bounds, dq_max, dQ_max, h_scale,…)` | Objectives, constraints and actuator limits. |
-| `ControlScenario` | classe | `(duration, x0, T_in_steps, T_amb, faults, noise, seed)` | The plant side of a closed-loop study: duration, disturbances and faults (shared by every controller). |
-| `PIDBaseline` | classe | `(spec, params=None, kp_h=0.02, ki_h=0.0001, kp_T=60000.0, ki_T=400.0)` | Level loop on the pump, temperature loop on the heater, both with feed-forward bias and anti-windup. |
-| `RuleBasedBaseline` | classe | `(spec, band_h=0.05, band_T=0.5, q_low=0.004, q_high=0.01, Q_on=600000.0)` | Hysteresis rules: pump at a high rate below ``h_ref - band_h`` and a low rate above ``h_ref + band_h``; heater at ``Q_on`` below ``T_ref - band_T`` and off above ``T_ref + band_T``. |
-| `LinearMPC` | classe | `()` | Successively linearised MPC: a QP over the horizon with SLSQP. |
-| `NonlinearMPC` | classe | `(spec, params=None, model=None, backend='auto')` | Nonlinear MPC on the tank balances (CasADi/IPOPT if available) or on any ``model`` (SciPy). |
-| `make_estimator` | função | `(spec, params=None, seed=0) -> TwinRuntime` | The state estimator the MPCs read: an EnKF twin of the tank with unaccounted outflow and heater efficiency. |
-| `run_closed_loop` | função | `(controller, spec, scenario, params=None) -> dict` | Simulate ``controller`` on ``scenario``. Returns the trajectories, the controller's plans (every 10th step, MPC only) and :func:`performance` metrics. |
-| `performance` | função | `(tr, spec) -> dict` | Integrated absolute tracking errors (true states), constraint violations, energy, actuator travel and solve time of a closed-loop trajectory. |
-| `compare_controllers` | função | `(spec=None, scenario=None, params=None, controllers=…, surrogate=None) -> dict` | Run the named controllers on the same scenario. Names: ``pid``, ``rules``, ``lmpc``, ``nmpc`` and ``smpc`` (nonlinear MPC on ``surrogate``, a model with ``step(x, v)``). |
-| `recommend` | função | `(estimate, reading, spec=None, params=None, t=0.0, method='nmpc') -> dict` | Proposed next actions for a person to review. ``estimate``: state (``h``, ``T`` and optionally ``q_leak``, ``eta``); ``reading``: current ``q_in``, ``Q``, ``T_in``, ``T_amb``. Nothing is sent anywhere. |
+| `ControlSpec` | classe | `(dt, horizon, setpoints, h_bounds, T_max, q_in_bounds, Q_bounds, dq_max, dQ_max, h_scale,…)` | Objetivos, restrições e limites dos atuadores do controle (passo, horizonte, setpoints, limites, pesos). |
+| `ControlScenario` | classe | `(duration, x0, T_in_steps, T_amb, faults, noise, seed)` | Lado da planta num estudo em malha fechada: duração, estado inicial, perturbações, falhas e ruído, comum a todos os controladores. |
+| `PIDBaseline` | classe | `(spec, params=None, kp_h=0.02, ki_h=0.0001, kp_T=60000.0, ki_T=400.0)` | Baseline PID: malha de nível na bomba e de temperatura no aquecedor, com feed-forward e anti-windup. |
+| `RuleBasedBaseline` | classe | `(spec, band_h=0.05, band_T=0.5, q_low=0.004, q_high=0.01, Q_on=600000.0)` | Baseline por regras com histerese: bomba em duas vazões e aquecedor liga/desliga. |
+| `LinearMPC` | classe | `()` | MPC com linearização sucessiva: um QP no horizonte resolvido com SLSQP. |
+| `NonlinearMPC` | classe | `(spec, params=None, model=None, backend='auto')` | MPC não linear nos balanços do tanque (CasADi/IPOPT se disponível, senão SciPy) ou sobre qualquer modelo com `step`. |
+| `make_estimator` | função | `(spec, params=None, seed=0) -> TwinRuntime` | Estimador de estado lido pelos MPCs: gêmeo EnKF do tanque com vazamento não medido e eficiência do aquecedor. |
+| `run_closed_loop` | função | `(controller, spec, scenario, params=None) -> dict` | Simula um controlador num cenário e devolve trajetórias, planos (MPC) e métricas de desempenho. |
+| `performance` | função | `(tr, spec) -> dict` | Métricas de uma trajetória: erros integrados, violações de restrição, energia, curso dos atuadores e tempo de solução. |
+| `compare_controllers` | função | `(spec=None, scenario=None, params=None, controllers=…, surrogate=None) -> dict` | Roda os controladores nomeados (`pid`, `rules`, `lmpc`, `nmpc`, `smpc`) no mesmo cenário. |
+| `recommend` | função | `(estimate, reading, spec=None, params=None, t=0.0, method='nmpc') -> dict` | Propõe as próximas ações para uma pessoa revisar, a partir da estimativa e da leitura atual; nada é enviado. |
 
 #### `pinneapple_systems.operations.exchanger`
 
-A counterflow water/water heat exchanger with fouling — the plant a twin is built for.
+Segunda planta de referência: trocador água/água em contracorrente com incrustação, usado pela camada de comissionamento de `digital_twin.product`; gera um histórico claramente sintético. [sem teste direto] — usado em `tests/test_digital_twin_product.py` via pacote.
 
 <small>`pinneapple_systems/operations/exchanger.py` · 158 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OperatingPoint` | classe | `(t_hi, t_ci, m_h, m_c)` | Where the exchanger is being run. |
-| `PlantConfig` | classe | `(ua_clean, flow_sensitivity, tau_fouling_s, rf_final)` | The as-built exchanger, including the model error the twin has to live with. |
-| `exchanger_model` | função | `(X, theta, *, ua_clean) -> dict[str, np.ndarray]` | ``model(X, theta)`` for the twin: outlet temperatures from the operating point. |
-| `plant_outlets` | função | `(op, rf, cfg) -> tuple[float, float]` | The real exchanger: the model plus a flow-dependent UA the model does not know. |
-| `fouling_at` | função | `(t_s, cfg) -> float` | Asymptotic fouling build-up: fast at first, then a plateau. |
-| `generate_history` | função | `(hours=72.0, sampling_s=300.0, *, seed=7, cfg=None, op=None, t_start=1767225600.0) -> lis…)` | A plant history with fouling, flow wobble and instrument noise. |
+| `OperatingPoint` | classe | `(t_hi, t_ci, m_h, m_c)` | Ponto de operação do trocador: temperaturas de entrada e vazões quente e fria. |
+| `PlantConfig` | classe | `(ua_clean, flow_sensitivity, tau_fouling_s, rf_final)` | O trocador como construído, incluindo o erro de modelo com que o gêmeo tem de conviver. |
+| `exchanger_model` | função | `(X, theta, *, ua_clean) -> dict[str, np.ndarray]` | `model(X, theta)` dado ao gêmeo: temperaturas de saída a partir do ponto de operação, com a resistência de incrustação em `theta`. |
+| `plant_outlets` | função | `(op, rf, cfg) -> tuple[float, float]` | A planta real: o modelo mais um UA dependente da vazão que o modelo não conhece. |
+| `fouling_at` | função | `(t_s, cfg) -> float` | Incrustação assintótica no tempo: rápida no início, depois patamar. |
+| `generate_history` | função | `(hours=72.0, sampling_s=300.0, *, seed=7, cfg=None, op=None, t_start=1767225600.0) -> lis…)` | Histórico sintético e determinístico da planta com incrustação, oscilação de vazão e ruído de instrumento. |
 
 #### `pinneapple_systems.operations.live`
 
-Run a :class:`~pinneapple_systems.operations.twin.TwinRuntime` as a service: on a live stream (MQTT, REST pushes, an experimental OPC UA poller) or over a historical table.
+[experimental no OPC UA] Roda um `TwinRuntime` como serviço: fonte simulada via MQTT (broker embutido ou externo), MQTT externo, pushes REST ou um poller OPC UA experimental; também faz replay sobre uma tabela gravada.
 
 <small>`pinneapple_systems/operations/live.py` · 251 linhas · testes: 11 · palavras-chave no código (heurística; o texto acima diz o status real): experimental</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LiveTwin` | classe | `(twin, *, source='simulated', topic=None, broker_host='127.0.0.1', broker_port=0, embedde…)` | One asset's live twin. ``source``: ``"simulated"`` (built-in plant over MQTT), ``"mqtt"`` (readings from an external publisher on ``topic``), ``"rest"`` (only :meth:`push`) or ``"opcua"`` (experimental). |
-| `make_twin` | função | `(model, *, asset='tank-1', store=None, rules=None, sigma_obs=None, sigma_process=None, se…)` | A twin of the heated tank with the noise levels of its sensors (override for another asset). |
-| `replay` | função | `(table, model, *, asset='tank-1', store=None, rules=None, forecast_steps=60, revalidate=T…)` | Run a twin over a recorded table (DataFrame or dict of columns with ``t`` and the model's inputs and observed states). Returns the twin and a JSON-ready result with the history, alerts, final forecast and, when ``revalidate``, an open-loop re-score of the model on the last part of the record. |
-| `demo_record` | função | `(duration=7200.0, dt=10.0, seed=4, faults=None) -> dict` | A recorded run of the simulated tank with a 0.5 L/s leak over its second half (the twin app's offline example). |
-| `default_model` | função | `(kind='lumped', dt=10.0)` |  |
+| `LiveTwin` | classe | `(twin, *, source='simulated', topic=None, broker_host='127.0.0.1', broker_port=0, embedde…)` | Gêmeo vivo de um ativo: liga fonte (simulada, MQTT, REST ou OPC UA experimental), consumidor e armazenamento; permite injetar falhas e tirar snapshot. |
+| `make_twin` | função | `(model, *, asset='tank-1', store=None, rules=None, sigma_obs=None, sigma_process=None, se…)` | Cria um `TwinRuntime` do tanque aquecido com os níveis de ruído dos seus sensores. |
+| `replay` | função | `(table, model, *, asset='tank-1', store=None, rules=None, forecast_steps=60, revalidate=T…)` | Roda um gêmeo sobre uma tabela gravada e devolve histórico, alertas, previsão final e, se pedido, re-pontuação do modelo. |
+| `demo_record` | função | `(duration=7200.0, dt=10.0, seed=4, faults=None) -> dict` | Corrida gravada do tanque simulado com um vazamento na segunda metade (exemplo offline do app de gêmeo). |
+| `default_model` | função | `(kind='lumped', dt=10.0)` | Modelo padrão do gêmeo: só o `LumpedTankModel`; outro tipo levanta ValueError. |
 
 #### `pinneapple_systems.operations.plant`
 
-Heated buffer tank: a lumped (0-D) plant with a mass and an energy balance, its sensors and its faults.
+Tanque aquecido de buffer: planta concentrada (0-D) com balanços de massa e energia, sensores com ruído, falhas e resíduos de balanço calculados de sinais medidos.
 
 <small>`pinneapple_systems/operations/plant.py` · 290 linhas · testes: 25</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `TankParams` | classe | `(area, k_out, ua, rho, cp, h_min, h_max, q_in_max, q_max_heater)` | Physical parameters of the heated tank (SI units, temperatures in degC). |
-| `Fault` | classe | `(kind, start, end, magnitude, target)` | A fault active on ``[start, end)`` seconds. ``target`` names the sensor for sensor faults. |
-| `Scenario` | classe | `(duration, dt, x0, T_in, T_amb, q_in, Q)` | Operating scenario: how the inputs and disturbances evolve. Callables take the time [s] and return a value. |
-| `SensorNoise` | classe | `(sigma)` | Standard deviation of each sensor's white measurement noise (SI units). |
-| `TankSimulator` | classe | `(params=None, x0=(1.2, 25.0), faults=(), noise=None, seed=0)` | Step-by-step simulator of the heated tank with sensors and faults. Used open loop (scenario inputs), closed loop (a controller sets the inputs each step) or as the live source of a digital twin demo. |
-| `tank_rhs` | função | `(x, u, d, p, eta=1.0, valve=1.0, q_leak=0.0) -> np.ndarray` | Time derivative ``[dh/dt, dT/dt]`` at state ``x = [h, T]``, inputs ``u = [q_in, Q]`` and disturbances ``d = [T_in, T_amb]``. Works on arrays of states with the leading axis being the state component. |
-| `tank_step` | função | `(x, u, d, p, dt, substeps=4, **fault_kw) -> np.ndarray` | Advance the tank ``dt`` seconds with classical RK4 (inputs held constant over the step). |
-| `steady_state` | função | `(p, q_in, Q, T_in, T_amb) -> np.ndarray` | Equilibrium ``[h, T]`` for constant inputs (closed form). |
-| `inputs_for_steady_state` | função | `(p, h, T, T_in, T_amb) -> np.ndarray` | Inputs ``[q_in, Q]`` that hold the tank at ``[h, T]`` (closed form). |
-| `measure` | função | `(truth, t, faults, noise, rng, frozen) -> dict[str, float]` | Sensor readings for one time step: true value + noise, then sensor faults. |
-| `simulate` | função | `(scenario, params=None, faults=(), noise=None, seed=0) -> dict[str, np.ndarray]` | Open-loop run of ``scenario`` (its ``q_in`` and ``Q`` must be set). Returns columns: ``t``, the measured sensors, ``true_<state>``, ``true_q_leak``, ``true_eta`` and ``fault`` (name of the active fault or ""). |
-| `demo_scenario` | função | `(duration=3600.0, dt=10.0, seed=0) -> Scenario` | A realistic day-shift profile: pump flow steps between production rates, heater follows a schedule, inlet water temperature wanders slowly. Deterministic for a given ``seed``. |
-| `mass_balance_residual` | função | `(t, h, q_in, q_out, area) -> np.ndarray` | ``A dh/dt - (q_in - q_out)`` [m3/s] from measured signals (central differences in time, inputs averaged over each interval). Zero for a fault-free tank up to noise; a leak makes it equal to minus the leak flow. |
-| `energy_balance_residual` | função | `(t, h, T, q_in, q_out, Q, T_in, T_amb, p) -> np.ndarray` | Energy balance in conservative form [W]:: |
-| `with_params` | função | `(p, **changes) -> TankParams` |  |
+| `TankParams` | classe | `(area, k_out, ua, rho, cp, h_min, h_max, q_in_max, q_max_heater)` | Parâmetros físicos do tanque aquecido (SI, temperaturas em °C). |
+| `Fault` | classe | `(kind, start, end, magnitude, target)` | Falha ativa em `[start, end)` segundos; `target` indica o sensor para falhas de sensor. |
+| `Scenario` | classe | `(duration, dt, x0, T_in, T_amb, q_in, Q)` | Cenário de operação: como entradas e perturbações evoluem no tempo. |
+| `SensorNoise` | classe | `(sigma)` | Desvio-padrão do ruído branco de cada sensor. |
+| `TankSimulator` | classe | `(params=None, x0=(1.2, 25.0), faults=(), noise=None, seed=0)` | Simulador passo a passo do tanque com sensores e falhas, para malha aberta, malha fechada ou fonte de demo. |
+| `tank_rhs` | função | `(x, u, d, p, eta=1.0, valve=1.0, q_leak=0.0) -> np.ndarray` | Derivadas [dh/dt, dT/dt] do tanque para estado, entradas e perturbações (vetorizado). |
+| `tank_step` | função | `(x, u, d, p, dt, substeps=4, **fault_kw) -> np.ndarray` | Avança o tanque `dt` segundos com RK4 clássico. |
+| `steady_state` | função | `(p, q_in, Q, T_in, T_amb) -> np.ndarray` | Equilíbrio [h, T] para entradas constantes (forma fechada). |
+| `inputs_for_steady_state` | função | `(p, h, T, T_in, T_amb) -> np.ndarray` | Entradas [q_in, Q] que mantêm o tanque num [h, T] dado (forma fechada). |
+| `measure` | função | `(truth, t, faults, noise, rng, frozen) -> dict[str, float]` | Leituras de um passo: valor verdadeiro + ruído, depois falhas de sensor. |
+| `simulate` | função | `(scenario, params=None, faults=(), noise=None, seed=0) -> dict[str, np.ndarray]` | Corrida em malha aberta de um cenário; devolve sensores medidos, estados verdadeiros e a falha ativa. |
+| `demo_scenario` | função | `(duration=3600.0, dt=10.0, seed=0) -> Scenario` | Perfil realista de turno: degraus de vazão, aquecedor por agenda e temperatura de entrada variando devagar; determinístico por semente. |
+| `mass_balance_residual` | função | `(t, h, q_in, q_out, area) -> np.ndarray` | Resíduo do balanço de massa a partir de sinais medidos; um vazamento o torna igual a menos a vazão vazada. |
+| `energy_balance_residual` | função | `(t, h, T, q_in, q_out, Q, T_in, T_amb, p) -> np.ndarray` | Resíduo do balanço de energia em forma conservativa, em W. |
+| `with_params` | função | `(p, **changes) -> TankParams` | Cópia de `TankParams` com campos trocados. |
 
 #### `pinneapple_systems.operations.rom`
 
-Operator inference with inputs: a discrete-time polynomial reduced model fitted by ridge regression.
+Operator inference com entradas: modelo reduzido polinomial em tempo discreto ajustado por regressão ridge, validado em trajetórias inteiras separadas; serializa em JSON e tem passo CasADi opcional.
 
 <small>`pinneapple_systems/operations/rom.py` · 178 linhas · testes: 11</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ControlledOpInf` | classe | `(state_names, input_names, dt, W, x_mean, x_scale, v_mean, v_scale, quadratic, bilinear, …)` | A fitted model; build it with :func:`fit_controlled_opinf` or :meth:`from_dict`. |
-| `fit_controlled_opinf` | função | `(trajectories, state_names, input_names, dt, *, holdout=1, ridge=1e-06, quadratic=True, b…)` | Fit on all but the last ``holdout`` trajectories and validate on those. |
-| `residual_sigma` | função | `(model, trajectories) -> dict[str, float]` | One-step residual standard deviation per state on ``trajectories`` (use held-out ones): the process noise a filter running this model should assume. |
+| `ControlledOpInf` | classe | `(state_names, input_names, dt, W, x_mean, x_scale, v_mean, v_scale, quadratic, bilinear, …)` | Modelo reduzido ajustado (matrizes, escalas, caixa de treino, validação); `step`, `rollout`, `casadi_step` e JSON. |
+| `fit_controlled_opinf` | função | `(trajectories, state_names, input_names, dt, *, holdout=1, ridge=1e-06, quadratic=True, b…)` | Ajusta o modelo em todas menos as últimas trajetórias e valida nelas (erros de um passo e de rollout). |
+| `residual_sigma` | função | `(model, trajectories) -> dict[str, float]` | Desvio dos resíduos de um passo por estado: o ruído de processo que um filtro com este modelo deve assumir. |
 
 #### `pinneapple_systems.operations.series`
 
-The days 13-31 series end to end on one asset: Campaign Planner -> (runs) -> Surrogate Studio -> Uncertainty -> Optimizer -> Digital Twin, every hand-over a ``pinneapple_data.contracts`` file.
+Cadeia ponta a ponta num ativo (Campaign Planner → corridas → Surrogate Studio → incerteza → otimizador → gêmeo), cada passagem um arquivo de contrato; diz para cada passo se o app existe em `apps/` ou rodou como substituto de biblioteca.
 
 <small>`pinneapple_systems/operations/series.py` · 339 linhas · testes: 14</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `operating_space` | função | `() -> ParameterSpace` |  |
-| `app_available` | função | `(pattern, apps_dir) -> str \| None` | Name of the ``apps/`` directory of a series app (matched by its whole name), if this checkout has it. |
-| `run_series_flow` | função | `(workdir, *, seed=0, n_runs=12, steps_per_run=12, hold=300.0, dt=20.0, T_min=28.0, q_min=…)` | Run the chain and write every contract under ``workdir``. Returns a JSON-ready summary. |
+| `operating_space` | função | `() -> ParameterSpace` | `ParameterSpace` das entradas de operação do tanque excitadas pela campanha. |
+| `app_available` | função | `(pattern, apps_dir) -> str \| None` | Nome do diretório `apps/` de um app da série, se existir neste checkout. |
+| `run_series_flow` | função | `(workdir, *, seed=0, n_runs=12, steps_per_run=12, hold=300.0, dt=20.0, T_min=28.0, q_min=…)` | Roda a cadeia inteira e grava cada contrato em `workdir`; devolve um resumo em JSON. |
 
 #### `pinneapple_systems.operations.twin`
 
-Digital twin runtime: run a validated model next to live data, estimate its state, forecast, alert and watch the model's own validity.
+Runtime de gêmeo digital: EnKF com parâmetros no estado, previsões com bandas 5-95 %, alertas por regras e teste de consistência (NIS), monitoramento de validade e revalidação, histórico em SQLite ou Postgres (psycopg opcional).
 
 <small>`pinneapple_systems/operations/twin.py` · 602 linhas · testes: 25</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `LumpedTankModel` | classe | `(params=None, dt=10.0, estimate=('q_leak', 'eta'))` | The heated tank's mass and energy balances as a twin model, optionally with parameters in the state. |
-| `SurrogateModel` | classe | `(rom)` | A :class:`ControlledOpInf` reduced model as a twin model (no parameters in the state). |
-| `AlertRules` | classe | `(limits, param_limits, param_sigmas, nis_probability, nis_consecutive, forecast_steps, dr…)` | Alert thresholds. ``limits`` and ``param_limits`` map a state name to ``(low, high)`` (``None`` = open). |
-| `Alert` | classe | `(t, kind, severity, message, data, cleared)` |  |
-| `TwinStore` | classe | `(url=':memory:')` | History of readings, estimates, alerts and revalidations. |
-| `TwinRuntime` | classe | `(model, obs_names, sigma_obs, sigma_process, *, x0=None, sigma0=None, n_ens=48, inflation…)` | Assimilate readings one at a time into ``model`` and keep the twin's state, alerts and validity. |
-| `model_from_dict` | função | `(d)` | Rebuild a twin model from its JSON form (``kind`` = ``lumped_tank`` or ``controlled_opinf``). |
+| `LumpedTankModel` | classe | `(params=None, dt=10.0, estimate=('q_leak', 'eta'))` | Balanços de massa e energia do tanque como modelo de gêmeo, opcionalmente com parâmetros (vazamento, eficiência) no estado. |
+| `SurrogateModel` | classe | `(rom)` | Um `ControlledOpInf` usado como modelo de gêmeo (sem parâmetros no estado). |
+| `AlertRules` | classe | `(limits, param_limits, param_sigmas, nis_probability, nis_consecutive, forecast_steps, dr…)` | Limiares de alerta: limites de estado e de parâmetro, teste NIS, horizonte de previsão, deriva e revisão. |
+| `Alert` | classe | `(t, kind, severity, message, data, cleared)` | Um alerta: tempo, tipo, severidade, mensagem, dados e se foi limpo. |
+| `TwinStore` | classe | `(url=':memory:')` | Histórico de leituras, estimativas, alertas e revalidações (SQLite por padrão, Postgres opcional). |
+| `TwinRuntime` | classe | `(model, obs_names, sigma_obs, sigma_process, *, x0=None, sigma0=None, n_ens=48, inflation…)` | Assimila leituras uma a uma no modelo e mantém estado, previsões, alertas e validade do gêmeo. |
+| `model_from_dict` | função | `(d)` | Reconstrói um modelo de gêmeo do JSON (`lumped_tank` ou `controlled_opinf`). |
 
 #### `pinneapple_systems.process_components`
 
-pinneapple_systems.process_components — physical unit-operation models for process/plant digital twins: real-gas thermodynamic properties, turbomachinery (polytropic compression/expansion + nondimensional similarity maps), control valves, heat exchangers, and 1D pipe networks.
+Modelos físicos de operações unitárias para gêmeos de processo: gás real, turbomáquinas, válvulas, trocadores, tubulações, vigas, cinética de reação, fluidos não newtonianos, tensões, stick-slip, fadiga e um motor genérico de equações; módulos independentes entre si.
 
 <small>`pinneapple_systems/process_components/__init__.py` · 272 linhas · testes: 58</small>
 
 #### `pinneapple_systems.process_components.beam_nonlinear_fem`
 
-pinneapple_systems.process_components.beam_nonlinear_fem -- static, geometrically nonlinear (Von Karman) Euler-Bernoulli beam FEM via load-stepped Newton-Raphson.
+Viga Euler-Bernoulli geometricamente não linear (Von Karman), estática, por Newton-Raphson em passos de carga, reutilizando o motor transiente de `pinneapple_simulation` no limite estático (massa e amortecimento zero).
 
 <small>`pinneapple_systems/process_components/beam_nonlinear_fem.py` · 172 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StaticNonlinearBeamResult` | classe | `(z, u_m, w_m, theta_rad, bending_moment, bending_stress, load_step_deflections, iteration…)` |  |
-| `solve_nonlinear_beam_static` | função | `(boundary, L_m, A_m2, I_m4, E_Pa, fiber_distance_m, axial_dist_load_N_per_m=0.0, transver…)` | Load-stepped Newton-Raphson static solve of the geometrically nonlinear (Von Karman) Euler-Bernoulli beam, at the static limit of `NonlinearBeamNewmarkFEM` (see module docstring). `fiber_distance_m` is the distance from the neutral axis to the outer fiber used for bending-stress recovery (height/2 … |
+| `StaticNonlinearBeamResult` | classe | `(z, u_m, w_m, theta_rad, bending_moment, bending_stress, load_step_deflections, iteration…)` | Resultado da viga não linear: deslocamentos, rotação, momento, tensão, deflexão por passo de carga, iterações e passos não convergidos. |
+| `solve_nonlinear_beam_static` | função | `(boundary, L_m, A_m2, I_m4, E_Pa, fiber_distance_m, axial_dist_load_N_per_m=0.0, transver…)` | Resolve a viga Von Karman estática por Newton-Raphson em passos de carga e recupera a tensão de flexão na fibra externa. |
 
 #### `pinneapple_systems.process_components.beam_statics`
 
-pinneapple_systems.process_components.beam_statics -- closed-form static, linear-elastic Euler-Bernoulli beam solutions for the standard cantilever and simply-supported load cases.
+Soluções fechadas de viga Euler-Bernoulli linear estática para casos padrão de balanço e biapoiada (cargas uniforme, parcial e triangular), mais propriedades de seção retangular e Von Mises.
 
 <small>`pinneapple_systems/process_components/beam_statics.py` · 196 linhas · testes: 19</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `BeamResult` | classe | `(x, deflection, slope, bending_moment, shear_force)` |  |
-| `rectangular_section_properties` | função | `(width_m, height_m) -> tuple[float, float]` | Returns (I, Q) for a rectangular cross-section: second moment of area I = b*h^3/12, first moment of area at the neutral axis Q = b*h^2/8 (used for shear stress). |
-| `von_mises_stress_rectangular_section` | função | `(bending_moment, shear_force, I, Q, width_m, height_m) -> np.ndarray` |  |
-| `solve_beam` | função | `(case, x, L, E, I, q0, load_extent=None) -> BeamResult` | Dispatches to the closed-form solution for `case`. `load_extent` (the partial-load length, measured from the load's own reference end per case) is required for the two partial-uniform-load cases and ignored otherwise. |
+| `BeamResult` | classe | `(x, deflection, slope, bending_moment, shear_force)` | Resultado da viga linear: posições, deflexão, inclinação, momento fletor e cortante. |
+| `rectangular_section_properties` | função | `(width_m, height_m) -> tuple[float, float]` | Momento de inércia I e primeiro momento Q de uma seção retangular. |
+| `von_mises_stress_rectangular_section` | função | `(bending_moment, shear_force, I, Q, width_m, height_m) -> np.ndarray` | Tensão de Von Mises numa seção retangular a partir de momento e cortante. |
+| `solve_beam` | função | `(case, x, L, E, I, q0, load_extent=None) -> BeamResult` | Despacha para a solução fechada do caso de viga pedido (com `load_extent` nos casos de carga parcial). |
 
 #### `pinneapple_systems.process_components.control_valve`
 
-pinneapple_systems.process_components.control_valve — compressible and incompressible control-valve flow sizing per IEC 60534-2-1 (harmonized with ANSI/ISA-75.01.01), plus actuator response and closed-seat leakage.
+Dimensionamento de válvula de controle pela IEC 60534-2-1 (compressível com fator de expansão e bloqueio, e incompressível simples), característica inerente, vazamento de sede e atraso do atuador. [sem teste direto] — testado via `tests/test_process_components.py` pelo pacote.
 
 <small>`pinneapple_systems/process_components/control_valve.py` · 115 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ValveSpec` | classe | `(name, Cv_max_us, xT, characteristic, equal_percentage_R, actuator_time_constant_s, leaka…)` |  |
-| `ValveFlowResult` | classe | `(mass_flow_kg_s, choked, x, Y, Cv_effective_us)` |  |
-| `installed_cv` | função | `(travel_fraction, spec) -> float` | Cv at a given travel fraction (0=closed, 1=full open), per the inherent characteristic -- excludes leakage, see `effective_cv`. |
-| `effective_cv` | função | `(travel_fraction, spec, leakage_cv_us_override=None) -> float` | Cv actually passing flow, including the closed-seat leakage floor -- pass `leakage_cv_us_override` to represent a TRUE (e.g. degraded) leakage different from the spec's nameplate value. |
-| `compressible_mass_flow` | função | `(Cv_us, P1_Pa, P2_Pa, rho1_kg_m3, k_isentropic, xT) -> ValveFlowResult` |  |
-| `incompressible_mass_flow` | função | `(Cv_us, P1_Pa, P2_Pa, rho_kg_m3) -> float` | Liquid-service sizing (no expansion factor / choking model beyond simple flashing checks are out of scope here) -- w = Cv_SI * sqrt(dP * rho). |
-| `actuator_response_rhs` | função | `(travel_actual, travel_command, spec) -> float` | d(travel_actual)/dt for the first-order actuator lag. |
+| `ValveSpec` | classe | `(name, Cv_max_us, xT, characteristic, equal_percentage_R, actuator_time_constant_s, leaka…)` | Especificação da válvula: Cv máximo, xT, característica, atuador e vazamento de sede. |
+| `ValveFlowResult` | classe | `(mass_flow_kg_s, choked, x, Y, Cv_effective_us)` | Resultado de vazão compressível: vazão mássica, se bloqueou, x, Y e Cv efetivo. |
+| `installed_cv` | função | `(travel_fraction, spec) -> float` | Cv numa fração de curso pela característica inerente (sem vazamento). |
+| `effective_cv` | função | `(travel_fraction, spec, leakage_cv_us_override=None) -> float` | Cv que de fato passa vazão, incluindo o piso de vazamento de sede (pode sobrescrever o vazamento). |
+| `compressible_mass_flow` | função | `(Cv_us, P1_Pa, P2_Pa, rho1_kg_m3, k_isentropic, xT) -> ValveFlowResult` | Vazão mássica compressível pela IEC 60534-2-1 com fator de expansão e bloqueio, em SI. |
+| `incompressible_mass_flow` | função | `(Cv_us, P1_Pa, P2_Pa, rho_kg_m3) -> float` | Vazão de líquido simples w = Cv_SI·√(ΔP·ρ), sem modelo de flashing/cavitação. |
+| `actuator_response_rhs` | função | `(travel_actual, travel_command, spec) -> float` | Derivada do curso real para o atraso de primeira ordem do atuador. |
 
 #### `pinneapple_systems.process_components.curved_path_geometry`
 
-pinneapple_systems.process_components.curved_path_geometry -- the "build-and-hold" curved-conduit path generator: a straight (vertical) section, a constant-curvature build section transitioning to a target inclination, and a straight tangent/hold section at that inclination.
+Gerador de trajetória curva "build-and-hold" (vertical, ganho de inclinação com curvatura constante, trecho mantido) com profundidade vertical e afastamento horizontal; só em um plano (2D). A marca de placeholder do inventário vem da frase "não implementado aqui" sobre o caso 3D.
 
 <small>`pinneapple_systems/process_components/curved_path_geometry.py` · 113 linhas · testes: 7 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `CurvedPathProfile` | classe | `(s_m, inclination_deg, tvd_m, hd_m, n_bins, vertical_length_m, total_length_m, bin_width_…)` |  |
-| `inclination_at_depth` | função | `(s_m, vertical_length_m, build_length_m, final_inclination_deg) -> np.ndarray` | Inclination [deg, from horizontal] at each measured depth `s_m`: 90 up to `vertical_length_m`, linear (constant curvature) through the following `build_length_m`, held at `final_inclination_deg` after. |
-| `build_and_hold_profile` | função | `(total_length_m, build_length_m, final_inclination_deg, hold_length_m, bin_width_m) -> Cu…)` | Discretize the build-and-hold path into `bin_width_m`-wide bins (midpoint-evaluated) and integrate TVD/HD along it. `vertical_length_m = total_length_m - build_length_m - hold_length_m` is derived, not an independent input, so the three lengths are always consistent. |
-| `circular_arc_tvd_hd` | função | `(s_within_build_m, build_length_m, final_inclination_deg) -> tuple` | Closed-form TVD/HD accumulated over the build section only, for a circular arc of constant curvature `kappa = delta_theta_rad / build_length_m` (delta_theta = 90 - final_inclination_deg, in rad): `tvd(s) = sin(kappa*s)/kappa`, `hd(s) = (1 - cos(kappa*s))/kappa`. Independent closed-form cross-check … |
+| `CurvedPathProfile` | classe | `(s_m, inclination_deg, tvd_m, hd_m, n_bins, vertical_length_m, total_length_m, bin_width_…)` | Perfil discretizado da trajetória: comprimento medido, inclinação, profundidade vertical, afastamento e larguras. |
+| `inclination_at_depth` | função | `(s_m, vertical_length_m, build_length_m, final_inclination_deg) -> np.ndarray` | Inclinação em cada profundidade medida: vertical, linear no ganho e mantida depois. |
+| `build_and_hold_profile` | função | `(total_length_m, build_length_m, final_inclination_deg, hold_length_m, bin_width_m) -> Cu…)` | Discretiza a trajetória build-and-hold e integra profundidade vertical e afastamento horizontal. |
+| `circular_arc_tvd_hd` | função | `(s_within_build_m, build_length_m, final_inclination_deg) -> tuple` | Profundidade e afastamento em forma fechada no trecho de ganho (arco circular), para conferir a integração. |
 
 #### `pinneapple_systems.process_components.explicit_equation_system`
 
-pinneapple_systems.process_components.explicit_equation_system -- a generic, sandboxed "define your model as named equations" engine: given a set of scalar/array symbols (inputs, parameters, computed intermediates, and outputs) and a set of equations relating them, safely parse and evaluate the …
+Motor genérico e isolado de "modelo como equações nomeadas": avalia expressões com AST seguro, ordena por dependência (detecta ciclos) e calibra parâmetros limitados por mínimos quadrados.
 
 <small>`pinneapple_systems/process_components/explicit_equation_system.py` · 393 linhas · testes: 171</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ExplicitEquationError` | classe | `()` |  |
-| `Definition` | classe | `(name, lhs, rhs, rhs_symbols)` |  |
-| `AnalysisResult` | classe | `(valid, errors, evaluation_order)` |  |
-| `ParameterSpec` | classe | `(symbol, value, fit, min, max)` |  |
-| `CalibrationResult` | classe | `(fitted_parameters, start, bounds, n_evaluations, final_scaled_residual_ssr, termination_…)` |  |
-| `safe_eval` | função | `(expr, env) -> Any` |  |
-| `build_definitions` | função | `(inputs, parameters, intermediates, outputs, equations) -> tuple[list[Definition], list[s…)` | Validates and builds Definitions from raw {"name","equation"} dicts. Returns (definitions, errors) -- errors accumulate rather than failing on the first one, so a caller can report everything wrong with a submitted model at once. |
-| `evaluation_order` | função | `(definitions) -> list[Definition]` | Topological sort by LHS symbol, DFS with cycle detection. |
-| `evaluate` | função | `(input_values, parameter_values, order) -> dict[str, Any]` | Evaluates every definition in the given (topological) order, returning the full symbol -> value environment (leaves + every computed symbol). |
-| `analyze` | função | `(inputs, parameters, intermediates, outputs, equations) -> AnalysisResult` | Pure validation/dry-run -- builds and orders the system, reports errors, does NOT evaluate any numbers. |
-| `calibrate` | função | `(input_columns, parameters, order, measured_rows, target_symbols) -> CalibrationResult` | Bounded nonlinear least-squares calibration (Trust Region Reflective) of every parameter with `fit=True` against `measured_rows`'s target-symbol columns, re-evaluating the FULL equation system (not a linearization) at every trial parameter vector -- see module docstring's NUMERICAL METHOD. |
+| `ExplicitEquationError` | classe | `()` | Erro do motor de equações explícitas. |
+| `Definition` | classe | `(name, lhs, rhs, rhs_symbols)` | Uma equação já analisada: nome, símbolo do lado esquerdo, expressão e símbolos usados. |
+| `AnalysisResult` | classe | `(valid, errors, evaluation_order)` | Resultado da validação: se é válido, erros e ordem de avaliação. |
+| `ParameterSpec` | classe | `(symbol, value, fit, min, max)` | Um parâmetro: símbolo, valor, se deve ser ajustado e limites. |
+| `CalibrationResult` | classe | `(fitted_parameters, start, bounds, n_evaluations, final_scaled_residual_ssr, termination_…)` | Resultado da calibração: parâmetros ajustados, ponto inicial, limites, avaliações, resíduo final e mensagem. |
+| `safe_eval` | função | `(expr, env) -> Any` | Avalia uma expressão por AST permitindo só operações e funções de uma lista branca. |
+| `build_definitions` | função | `(inputs, parameters, intermediates, outputs, equations) -> tuple[list[Definition], list[s…)` | Valida e monta as definições a partir de dicts `{name, equation}`, acumulando todos os erros. |
+| `evaluation_order` | função | `(definitions) -> list[Definition]` | Ordenação topológica das definições com detecção de ciclos. |
+| `evaluate` | função | `(input_values, parameter_values, order) -> dict[str, Any]` | Avalia todas as definições na ordem dada e devolve o ambiente completo de símbolos. |
+| `analyze` | função | `(inputs, parameters, intermediates, outputs, equations) -> AnalysisResult` | Validação a seco: monta e ordena o sistema e reporta erros, sem calcular números. |
+| `calibrate` | função | `(input_columns, parameters, order, measured_rows, target_symbols) -> CalibrationResult` | Calibração não linear limitada (Trust Region Reflective) dos parâmetros com `fit=True` contra dados medidos, reavaliando o sistema completo. |
 
 #### `pinneapple_systems.process_components.fatigue_analysis`
 
-pinneapple_systems.process_components.fatigue_analysis -- S-N (Wohler) curve fatigue life, Goodman mean-stress correction, and Miner's rule cumulative damage accumulation for cyclic structural loading.
+Vida em fadiga por curva S-N (Wöhler), correção de tensão média de Goodman e dano acumulado pela regra de Miner.
 
 <small>`pinneapple_systems/process_components/fatigue_analysis.py` · 108 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MinerDamageResult` | classe | `(N_f, damage_this_period, cumulative_damage, remaining_life_fraction)` |  |
-| `sn_curve_cycles_to_failure` | função | `(sigma_a, A, m) -> ArrayLike` | N_f = 10**(A - m*log10(sigma_a)) for a fully-reversed amplitude `sigma_a` (floored at 1.0 to keep log10 finite). |
-| `goodman_equivalent_amplitude` | função | `(sigma_alt, sigma_mean, S_ut) -> ArrayLike` | Equivalent fully-reversed amplitude per the modified-Goodman line (see module docstring): sigma_alt / (1 - sigma_mean/S_ut). A mean stress approaching (or exceeding) S_ut drives this to infinity/ negative, correctly signaling the Goodman boundary has already been crossed by static overload alone. |
-| `goodman_safety_ratio` | função | `(sigma_alt, sigma_mean, S_e, S_ut) -> ArrayLike` | sigma_alt/S_e + sigma_mean/S_ut -- the Goodman-line safety ratio itself (< 1 inside the safe region, independent of any S-N life estimate); `S_e` is the endurance limit / target-life fully-reversed strength the diagram is drawn against. |
-| `miners_rule_damage` | função | `(sigma_alt, sigma_mean, n_cycles, A_sn, m_sn, S_ut, prior_damage_fraction=0.0) -> MinerDa…)` | Goodman-corrected S-N life `N_f`, this-period damage `n_cycles/N_f`, and Miner's-rule cumulative damage (clipped to [0, 1]) combining it with `prior_damage_fraction`. |
+| `MinerDamageResult` | classe | `(N_f, damage_this_period, cumulative_damage, remaining_life_fraction)` | Resultado de Miner: vida N_f, dano do período, dano acumulado e fração de vida restante. |
+| `sn_curve_cycles_to_failure` | função | `(sigma_a, A, m) -> ArrayLike` | Ciclos até a falha pela curva S-N para uma amplitude totalmente reversa. |
+| `goodman_equivalent_amplitude` | função | `(sigma_alt, sigma_mean, S_ut) -> ArrayLike` | Amplitude equivalente totalmente reversa pela linha de Goodman modificada. |
+| `goodman_safety_ratio` | função | `(sigma_alt, sigma_mean, S_e, S_ut) -> ArrayLike` | Razão de segurança de Goodman (< 1 dentro da região segura). |
+| `miners_rule_damage` | função | `(sigma_alt, sigma_mean, n_cycles, A_sn, m_sn, S_ut, prior_damage_fraction=0.0) -> MinerDa…)` | Vida S-N corrigida por Goodman, dano do período e dano acumulado de Miner (limitado a [0, 1]). |
 
 #### `pinneapple_systems.process_components.heat_exchanger`
 
-pinneapple_systems.process_components.heat_exchanger -- effectiveness-NTU heat exchanger model (counter-flow and parallel-flow closed-form effectiveness), plus a lumped-capacitance transient response.
+Trocador de calor por efetividade-NTU (contracorrente e paralelo, formas fechadas) e resposta transiente de capacitância concentrada. [sem teste direto] — testado via pacote em `tests/test_process_components.py`.
 
 <small>`pinneapple_systems/process_components/heat_exchanger.py` · 113 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `HeatExchangerSpec` | classe | `(name, UA_design_W_K, design_dP_Pa, design_m_dot_hot_kg_s, design_rho_hot_kg_m3, thermal_…)` |  |
-| `HeatExchangerResult` | classe | `(Q_W, T_hot_out_K, T_cold_out_K, effectiveness, NTU, dP_Pa, UA_effective_W_K)` |  |
-| `steady_state` | função | `(spec, m_dot_hot_kg_s, T_hot_in_K, cp_hot_J_kgK, T_cold_in_K, rho_hot_kg_m3, UA_multiplie…)` |  |
-| `transient_rhs` | função | `(T_hot_out_current_K, spec, m_dot_hot_kg_s, T_hot_in_K, cp_hot_J_kgK, T_cold_in_K, rho_ho…)` | d(T_hot_out)/dt -- relaxes toward the instantaneous steady-state effectiveness-NTU outlet temperature with a time constant set by thermal_mass_J_K / (m_dot * cp). |
+| `HeatExchangerSpec` | classe | `(name, UA_design_W_K, design_dP_Pa, design_m_dot_hot_kg_s, design_rho_hot_kg_m3, thermal_…)` | Especificação do trocador: UA de projeto, queda de pressão e vazão de projeto, massa térmica, capacidade do lado frio e arranjo. |
+| `HeatExchangerResult` | classe | `(Q_W, T_hot_out_K, T_cold_out_K, effectiveness, NTU, dP_Pa, UA_effective_W_K)` | Resultado: calor trocado, temperaturas de saída, efetividade, NTU, queda de pressão e UA efetivo. |
+| `steady_state` | função | `(spec, m_dot_hot_kg_s, T_hot_in_K, cp_hot_J_kgK, T_cold_in_K, rho_hot_kg_m3, UA_multiplie…)` | Solução estacionária efetividade-NTU, com multiplicador de UA (incrustação). |
+| `transient_rhs` | função | `(T_hot_out_current_K, spec, m_dot_hot_kg_s, T_hot_in_K, cp_hot_J_kgK, T_cold_in_K, rho_ho…)` | Derivada da temperatura de saída quente, relaxando para o valor estacionário com a constante de tempo da massa térmica. |
 
 #### `pinneapple_systems.process_components.non_newtonian_pipe_flow`
 
-pinneapple_systems.process_components.non_newtonian_pipe_flow -- Herschel-Bulkley rheology, the generalized (Metzner-Reed) Reynolds number and friction factor for power-law/yield-stress fluids, and steady-state 1D pressure-drop integration along an arbitrarily inclined conduit (straight pipe, …
+Reologia Herschel-Bulkley, Reynolds generalizado e fator de atrito de Metzner-Reed, e integração 1D da queda de pressão num conduto inclinado. A marca de placeholder do inventário vem da frase "não implementado aqui" sobre a correlação de Dodge-Metzner.
 
 <small>`pinneapple_systems/process_components/non_newtonian_pipe_flow.py` · 155 linhas · testes: 10 · palavras-chave no código (heurística; o texto acima diz o status real): placeholder/stub citado no docstring</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PressureProfile` | classe | `(s_m, tvd_m, P_Pa, rho_eq_kg_m3, rho_kg_m3, friction_factor, reynolds_number)` |  |
-| `herschel_bulkley_stress` | função | `(tau_y, K, n, gamma_dot) -> ArrayLike` | tau = tau_y + K*gamma_dot**n. `gamma_dot` is floored at 1e-9 s^-1. |
-| `effective_viscosity` | função | `(tau_y, K, n, gamma_dot) -> ArrayLike` | mu_eff = tau/gamma_dot = tau_y/gamma_dot + K*gamma_dot**(n-1). |
-| `generalized_reynolds_number` | função | `(rho, v, D, K, n) -> ArrayLike` | Re_gen = rho*\|v\|**(2-n)*D**n / (K*8**(n-1)); laminar if Re_gen < 2100. |
-| `metzner_reed_friction_factor` | função | `(Re_gen) -> ArrayLike` | f = 16/Re_gen (laminar, Re_gen < 2100) or 0.0791*Re_gen**-0.25 (turbulent, Blasius/Metzner-Reed). |
-| `pressure_gradient` | função | `(rho, v, D_h, f, inclination_rad=np.pi / 2, g=9.81) -> ArrayLike` | dP/ds = rho*g*sin(inclination) + f*rho*v**2/(2*D_h). `inclination_rad` is measured from horizontal (pi/2 = vertical, the default). |
-| `integrate_pressure_profile` | função | `(length_m, v_m_s, D_h_m, K_Pa_sn, n_flow_index, P_inlet_Pa, rho_profile=1000.0, inclinati…)` | Steady-state 1D pressure integration along path length `s` in [0, length_m], by explicit forward Euler on `dP/ds` from `pressure_gradient`. `rho_profile`/`inclination_deg_profile` may be a constant or a callable `f(s_m) -> value`. `tvd_profile(s_m)` supplies true vertical depth for the … |
+| `PressureProfile` | classe | `(s_m, tvd_m, P_Pa, rho_eq_kg_m3, rho_kg_m3, friction_factor, reynolds_number)` | Perfil de pressão ao longo do conduto: posição, profundidade, pressão, densidade equivalente, atrito e Reynolds. |
+| `herschel_bulkley_stress` | função | `(tau_y, K, n, gamma_dot) -> ArrayLike` | Tensão de Herschel-Bulkley τ = τ_y + K·γ̇^n. |
+| `effective_viscosity` | função | `(tau_y, K, n, gamma_dot) -> ArrayLike` | Viscosidade efetiva τ/γ̇. |
+| `generalized_reynolds_number` | função | `(rho, v, D, K, n) -> ArrayLike` | Reynolds generalizado de Metzner-Reed. |
+| `metzner_reed_friction_factor` | função | `(Re_gen) -> ArrayLike` | Fator de atrito laminar (16/Re) ou turbulento (Blasius/Metzner-Reed). |
+| `pressure_gradient` | função | `(rho, v, D_h, f, inclination_rad=np.pi / 2, g=9.81) -> ArrayLike` | Gradiente de pressão: termo hidrostático mais atrito. |
+| `integrate_pressure_profile` | função | `(length_m, v_m_s, D_h_m, K_Pa_sn, n_flow_index, P_inlet_Pa, rho_profile=1000.0, inclinati…)` | Integra a pressão ao longo do conduto por Euler explícito, com densidade e inclinação constantes ou funções da posição. |
 
 #### `pinneapple_systems.process_components.pipe_network_1d`
 
-pinneapple_systems.process_components.pipe_network_1d — 1D real-gas pipe flow: a rapid steady-state scenario mode and a transient finite-volume mode, covering a single pipe segment.
+Escoamento 1D de gás real num único segmento de tubo: modo estacionário rápido (marcha célula a célula) e modo transiente de volumes finitos (momento quase estacionário, continuidade transiente), atrito de Colebrook-White.
 
 <small>`pinneapple_systems/process_components/pipe_network_1d.py` · 290 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PipeSpec` | classe | `(name, length_m, diameter_m, roughness_m, elevation_change_m, ambient_temperature_K, wall…)` |  |
-| `SteadyProfilePoint` | classe | `(x_m, P_Pa, T_K, rho_kg_m3, G_kg_m2s, mach)` |  |
-| `PipeState` | classe | `(P_Pa, T_K)` |  |
-| `TransientPipe` | classe | `(spec, gas)` | Finite-volume transient solver -- see module docstring's DISCRETIZATION NOTE for why `initialize_from_steady_state` averages node values into cell-center values rather than reusing them directly. |
-| `colebrook_white_f` | função | `(Re, relative_roughness) -> float` | Darcy friction factor -- laminar closed form below Re=2300, else Colebrook-White, solved via Newton iteration on 1/sqrt(f). |
-| `face_reynolds_number` | função | `(G_kg_m2s, D_m, viscosity_Pa_s) -> float` |  |
-| `rapid_steady_state_profile` | função | `(spec, gas, m_dot_kg_s, P_in_Pa, T_in_K) -> list[SteadyProfilePoint]` | Marches downstream cell-by-cell from the known inlet, solving each face's momentum closure explicitly (no time integration). |
+| `PipeSpec` | classe | `(name, length_m, diameter_m, roughness_m, elevation_change_m, ambient_temperature_K, wall…)` | Especificação do tubo: comprimento, diâmetro, rugosidade, desnível, troca de calor com o ambiente, células e multiplicador de atrito. |
+| `SteadyProfilePoint` | classe | `(x_m, P_Pa, T_K, rho_kg_m3, G_kg_m2s, mach)` | Um ponto do perfil estacionário: posição, pressão, temperatura, densidade, fluxo mássico e Mach. |
+| `PipeState` | classe | `(P_Pa, T_K)` | Estado transiente do tubo: pressões e temperaturas por célula. |
+| `TransientPipe` | classe | `(spec, gas)` | Solver transiente de volumes finitos de um tubo de gás real, inicializável pelo perfil estacionário. |
+| `colebrook_white_f` | função | `(Re, relative_roughness) -> float` | Fator de atrito de Darcy: laminar abaixo de Re 2300, senão Colebrook-White por Newton. |
+| `face_reynolds_number` | função | `(G_kg_m2s, D_m, viscosity_Pa_s) -> float` | Número de Reynolds numa face a partir do fluxo mássico. |
+| `rapid_steady_state_profile` | função | `(spec, gas, m_dot_kg_s, P_in_Pa, T_in_K) -> list[SteadyProfilePoint]` | Perfil estacionário marchando célula a célula a partir da entrada, sem integração no tempo. |
 
 #### `pinneapple_systems.process_components.pipe_stress_mechanics`
 
-pinneapple_systems.process_components.pipe_stress_mechanics -- combined-load stress analysis for a slender tube (axial + torsional + bending + internal/external pressure), Euler column buckling, and constrained-rod (Paslay-Dawson) buckling of a slender member confined within a surrounding …
+Tensões combinadas num tubo esbelto (Lamé, torção, flexão por curvatura, Von Mises triaxial), flambagem de Euler, flambagem de haste confinada (Paslay-Dawson), amplificação P-Delta e ciclo de flexão rotativa.
 
 <small>`pinneapple_systems/process_components/pipe_stress_mechanics.py` · 209 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `ConstrainedRodBucklingResult` | classe | `(F_critical_sinusoidal, F_critical_helical, mode)` |  |
-| `RotatingBendingCycleResult` | classe | `(theta_rad, sigma_von_mises, sigma_alternating, sigma_mean)` |  |
-| `lame_hoop_stress_outer` | função | `(p_internal, r_outer, r_inner) -> ArrayLike` | sigma_theta at r=r_outer: 2*p_i*ri**2 / (ro**2-ri**2) (the general Lame hoop-stress formula's `(1 + ro**2/r**2)` factor evaluates to exactly 2 at r=r_outer -- see module docstring). |
-| `lame_hoop_stress_inner` | função | `(p_internal, r_outer, r_inner) -> ArrayLike` | sigma_theta at r=r_inner (the maximum): p_i*(ri**2+ro**2) / (ro**2-ri**2). |
-| `torsional_shear_stress` | função | `(torque, r_outer, J) -> ArrayLike` | tau = T*c/J, c = r_outer (maximum shear, at the outer fiber). |
-| `bending_stress_from_curvature` | função | `(curvature, E, r_outer) -> ArrayLike` | sigma_bend = E*kappa*r_outer (outer-fiber bending stress for a circular cross-section bent to curvature `kappa` [1/length]). |
-| `von_mises_triaxial` | função | `(sigma_axial, sigma_hoop, sigma_radial=0.0, tau=0.0) -> ArrayLike` | Full triaxial Von Mises equivalent stress for three orthogonal principal-direction normal stresses plus a shear stress acting in the (axial, hoop) plane. See module docstring for the derivation and its biaxial (`sigma_radial=0`) reduction. |
-| `euler_critical_buckling_load` | função | `(E, I, length, end_condition_factor=1.0) -> float` | P_cr = pi**2*E*I / (K*L)**2. `end_condition_factor` K: 0.5 fixed- fixed, 0.7 fixed-pinned, 1.0 pinned-pinned (default), 2.0 fixed-free (cantilever). |
-| `constrained_rod_buckling_load` | função | `(E, I, lateral_load_per_length, radial_clearance) -> ConstrainedRodBucklingResult` | Paslay-Dawson sinusoidal/helical critical compressive loads for a slender rod confined within a surrounding cylindrical clearance (see module docstring). `lateral_load_per_length` is the distributed load normal to the rod axis (e.g. buoyed self-weight component); returns "not_applicable" mode with … |
-| `classify_buckling_mode` | função | `(compressive_force, result) -> ArrayLike` | 0 = straight, 1 = sinusoidal, 2 = helical, per Paslay-Dawson critical loads. |
-| `beam_column_moment_amplification_factor` | função | `(compressive_force, E, I, length, end_condition_factor=1.0, max_ratio=0.98) -> ArrayLike` | AF = 1 / (1 - P/P_cr), the standard beam-column second-order (P-Delta) moment-amplification approximation (see module docstring). `P/P_cr` is clipped to `max_ratio` before dividing, since the approximation (and physically, the member) diverges as the axial load approaches the critical load -- the … |
-| `rotating_bending_stress_cycle` | função | `(sigma_axial, sigma_bending_amplitude, sigma_hoop=0.0, tau=0.0, n_angles=36) -> RotatingB…)` | Von Mises stress envelope over one full rotation of a shaft/rod under constant axial + hoop + torsional stress plus a bending stress that varies as `sigma_bending_amplitude*cos(theta)` (see module docstring), and the alternating/mean stress a fatigue analysis needs from that envelope. |
+| `ConstrainedRodBucklingResult` | classe | `(F_critical_sinusoidal, F_critical_helical, mode)` | Cargas críticas senoidal e helicoidal de Paslay-Dawson e o modo. |
+| `RotatingBendingCycleResult` | classe | `(theta_rad, sigma_von_mises, sigma_alternating, sigma_mean)` | Envelope de Von Mises numa rotação e as tensões alternada e média para fadiga. |
+| `lame_hoop_stress_outer` | função | `(p_internal, r_outer, r_inner) -> ArrayLike` | Tensão circunferencial de Lamé na parede externa. |
+| `lame_hoop_stress_inner` | função | `(p_internal, r_outer, r_inner) -> ArrayLike` | Tensão circunferencial de Lamé na parede interna (máxima). |
+| `torsional_shear_stress` | função | `(torque, r_outer, J) -> ArrayLike` | Cisalhamento de torção máximo T·c/J na fibra externa. |
+| `bending_stress_from_curvature` | função | `(curvature, E, r_outer) -> ArrayLike` | Tensão de flexão na fibra externa a partir da curvatura. |
+| `von_mises_triaxial` | função | `(sigma_axial, sigma_hoop, sigma_radial=0.0, tau=0.0) -> ArrayLike` | Von Mises triaxial com cisalhamento no plano axial-circunferencial. |
+| `euler_critical_buckling_load` | função | `(E, I, length, end_condition_factor=1.0) -> float` | Carga crítica de Euler com fator de condição de extremidade. |
+| `constrained_rod_buckling_load` | função | `(E, I, lateral_load_per_length, radial_clearance) -> ConstrainedRodBucklingResult` | Cargas críticas de Paslay-Dawson para haste confinada numa folga cilíndrica. |
+| `classify_buckling_mode` | função | `(compressive_force, result) -> ArrayLike` | Classifica o modo: 0 reto, 1 senoidal, 2 helicoidal. |
+| `beam_column_moment_amplification_factor` | função | `(compressive_force, E, I, length, end_condition_factor=1.0, max_ratio=0.98) -> ArrayLike` | Fator de amplificação P-Delta 1/(1 - P/P_cr), com P/P_cr limitado. |
+| `rotating_bending_stress_cycle` | função | `(sigma_axial, sigma_bending_amplitude, sigma_hoop=0.0, tau=0.0, n_angles=36) -> RotatingB…)` | Envelope de Von Mises numa rotação completa sob flexão rotativa e tensões alternada e média. |
 
 #### `pinneapple_systems.process_components.polytropic_path`
 
-pinneapple_systems.process_components.polytropic_path — real-gas polytropic compression/expansion path integration for turbomachinery, consistent with ASME PTC 10 ("Performance Test Code on Compressors and Exhausters").
+Integração do caminho politrópico de gás real (compressão ou expansão) consistente com ASME PTC 10, por integração direta passo a passo. [sem teste direto] — testado via pacote em `tests/test_process_components.py`.
 
 <small>`pinneapple_systems/process_components/polytropic_path.py` · 196 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PolytropicPathResult` | classe | `(inlet, outlet, polytropic_work_J_kg, polytropic_efficiency, isentropic_work_J_kg, isentr…)` |  |
-| `solve_path_from_pressure_ratio` | função | `(inlet, gas, P2_Pa, polytropic_efficiency) -> PolytropicPathResult` | Integrate equation (1) from the inlet state to a known discharge/ exit pressure P2 -- works for compression (P2 > P1) or expansion (P2 < P1). |
-| `solve_path_from_work` | função | `(inlet, gas, polytropic_work_J_kg, polytropic_efficiency, *, max_pressure_ratio=6.0) -> P…)` | Integrate equation (1) until the accumulated work integral reaches a target (a map's polytropic head, in energy-per-mass units) -- solves for the discharge/exit pressure self-consistently. Positive `polytropic_work_J_kg` compresses; negative expands. |
+| `PolytropicPathResult` | classe | `(inlet, outlet, polytropic_work_J_kg, polytropic_efficiency, isentropic_work_J_kg, isentr…)` | Resultado do caminho politrópico: estados de entrada e saída, trabalhos, eficiências, razão de pressão e expoente. |
+| `solve_path_from_pressure_ratio` | função | `(inlet, gas, P2_Pa, polytropic_efficiency) -> PolytropicPathResult` | Integra o caminho politrópico até uma pressão de saída conhecida (compressão ou expansão). |
+| `solve_path_from_work` | função | `(inlet, gas, polytropic_work_J_kg, polytropic_efficiency, *, max_pressure_ratio=6.0) -> P…)` | Integra até atingir um trabalho politrópico alvo e resolve a pressão de saída. |
 
 #### `pinneapple_systems.process_components.reaction_kinetics`
 
-pinneapple_systems.process_components.reaction_kinetics -- a generic multi-species mass-action reaction-network engine, plus a generic 1D advection-dispersion-reaction transport solver built on top of it.
+Motor genérico de redes de reação por ação de massas (constantes Arrhenius, polinomiais ou catalíticas, especiação por pH), integração rígida e transporte 1D advecção-dispersão-reação em grade periódica.
 
 <small>`pinneapple_systems/process_components/reaction_kinetics.py` · 257 linhas · testes: 164</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Reaction` | classe | `(name, rate_fn, stoichiometry)` |  |
-| `ReactionNetwork` | classe | `(species, reactions)` |  |
-| `IntegrationResult` | classe | `(t, C, success)` |  |
-| `AdvectionDispersionReactionSolver` | classe | `(network, n_grid, length_m, velocity_m_s, dispersion_m2_s)` | 1D transport (equation 3) on a periodic grid, driven by a ReactionNetwork for R_s(C) -- see module docstring's TRANSPORT section for the discretization and the periodic-only scope note. |
-| `mass_action_rate` | função | `(k, orders) -> RateFn` | Builds equation (2): rho(C) = k * prod(C[s]^order[s]). `k` may be a plain float or a callable(T_K=.., pH=.., C=..) -> float for a temperature/pH/catalyst-dependent rate constant (see `arrhenius_rate_constant`, `linear_combination_rate_constant`). |
-| `arrhenius_rate_constant` | função | `(A, Ea_over_R) -> Callable[..., float]` | k(T_K) = A * exp(-Ea_over_R / T_K). Raises if called without a temperature (a temperature-dependent rate constant used where no T is supplied is a caller bug, not something to silently default). |
-| `quadratic_in_T` | função | `(a, b, c) -> Callable[[float], float]` | f(T_K) = a*T_K^2 + b*T_K + c -- e.g. for a polynomial-fit pKa(T) or equilibrium constant, when a literature source gives that form instead of an Arrhenius one. |
-| `linear_combination_rate_constant` | função | `(terms) -> Callable[..., float]` | k_eff(C) = sum(coefficient_i * C[species_i]) -- for a rate constant that is itself a linear combination of catalyst-species concentrations (e.g. an acid/base/buffer-catalyzed reaction). |
-| `acid_fraction` | função | `(pH, pKa) -> float` | Henderson-Hasselbalch: fraction of a monoprotic acid-base pair present in the PROTONATED (acid) form. |
-| `base_fraction` | função | `(pH, pKa) -> float` | Fraction present in the DEPROTONATED (base/conjugate-base) form -- exactly 1 - acid_fraction(pH, pKa). |
-| `diprotic_fractions` | função | `(pH, pKa1, pKa2) -> tuple[float, float, float]` | Bjerrum fractions (alpha_H2A, alpha_HA, alpha_A) for a diprotic acid-base system (H2A / HA- / A2-), generalizing the carbonate system (H2CO3/HCO3-/CO3^2-) to any two-pKa diprotic pair. |
-| `integrate_network` | função | `(network, C0, t_eval, T_K=None, pH=None, *, method='Radau', rtol=1e-09, atol=1e-14) -> In…)` | Integrates dC/dt = network.rhs(C) from C0 over t_eval, clamping concentrations non-negative before every RHS evaluation and raising RuntimeError (never silently returning a failed/partial solve) if the integrator does not report success. |
+| `Reaction` | classe | `(name, rate_fn, stoichiometry)` | Uma reação: nome, função de taxa e estequiometria. |
+| `ReactionNetwork` | classe | `(species, reactions)` | Rede de espécies e reações; `rhs` dá dC/dt. |
+| `IntegrationResult` | classe | `(t, C, success)` | Resultado da integração: tempos, concentrações e sucesso. |
+| `AdvectionDispersionReactionSolver` | classe | `(network, n_grid, length_m, velocity_m_s, dispersion_m2_s)` | Transporte 1D advecção-dispersão-reação numa grade periódica, com reações de uma `ReactionNetwork`. |
+| `mass_action_rate` | função | `(k, orders) -> RateFn` | Constrói a taxa de ação de massas k·∏C^ordem, com k constante ou função de T, pH ou concentrações. |
+| `arrhenius_rate_constant` | função | `(A, Ea_over_R) -> Callable[..., float]` | Constante de Arrhenius k(T); levanta erro se chamada sem temperatura. |
+| `quadratic_in_T` | função | `(a, b, c) -> Callable[[float], float]` | Função quadrática em T (por exemplo pKa(T) ajustado). |
+| `linear_combination_rate_constant` | função | `(terms) -> Callable[..., float]` | Constante efetiva como combinação linear de concentrações de catalisadores. |
+| `acid_fraction` | função | `(pH, pKa) -> float` | Fração protonada de um par ácido-base monoprótico (Henderson-Hasselbalch). |
+| `base_fraction` | função | `(pH, pKa) -> float` | Fração desprotonada, igual a 1 - `acid_fraction`. |
+| `diprotic_fractions` | função | `(pH, pKa1, pKa2) -> tuple[float, float, float]` | Frações de Bjerrum de um sistema diprótico. |
+| `integrate_network` | função | `(network, C0, t_eval, T_K=None, pH=None, *, method='Radau', rtol=1e-09, atol=1e-14) -> In…)` | Integra a rede (Radau por padrão), mantendo concentrações não negativas e levantando RuntimeError se o integrador falhar. |
 
 #### `pinneapple_systems.process_components.real_gas_eos`
 
-pinneapple_systems.process_components.real_gas_eos — multi-component real-gas mixture properties via a Helmholtz-energy equation of state.
+Propriedades de misturas de gás real por equação de estado de Helmholtz (GERG-2008 via backend HEOS do CoolProp; REFPROP opcional), envelope de validade, condições padrão e derivadas por diferença central fora de grafos de autograd.
 
 <small>`pinneapple_systems/process_components/real_gas_eos.py` · 259 linhas · testes: 151</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `OutOfEnvelopeError` | classe | `()` | Raised when a requested state falls outside a caller-declared validity envelope. |
-| `GasComposition` | classe | `(components, mole_fractions)` | A fixed-composition mixture, mole fractions summing to 1. |
-| `ValidityEnvelope` | classe | `(P_min_Pa, P_max_Pa, T_min_K, T_max_K)` | Optional, caller-declared (P, T) bounds -- states outside it raise OutOfEnvelopeError instead of silently extrapolating. Pass None to `state_from_*`'s `envelope` argument to skip this check entirely. |
-| `GasState` | classe | `(P_Pa, T_K, rho_kg_m3, Z, h_J_kg, s_J_kgK, cp_J_kgK, cv_J_kgK, k_isentropic, speed_of_sou…)` | A fully-resolved thermodynamic state point, SI units throughout. |
-| `StandardConditions` | classe | `(P_Pa, T_K)` |  |
-| `state_from_PT` | função | `(gas, P_Pa, T_K, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` |  |
-| `state_from_Ph` | função | `(gas, P_Pa, h_J_kg, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` | Pressure + specific enthalpy -> full state (temperature recovered by EOS flash). Used wherever an energy balance produces h directly. |
-| `state_from_Ps` | função | `(gas, P_Pa, s_J_kgK, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` | Pressure + specific entropy -> full state (an isentropic endpoint). |
-| `standard_volumetric_flow_to_mass_flow` | função | `(q_std_m3_s, gas, std) -> float` |  |
-| `mass_flow_to_standard_volumetric_flow` | função | `(m_dot_kg_s, gas, std) -> float` |  |
-| `central_difference` | função | `(gas, P_Pa, T_K, attr, wrt, *, rel_step=0.0001) -> float` | d(attr)/d(wrt) via central differences -- for use OUTSIDE an autograd graph (CoolProp's compiled solve is not autodiff-transparent; any training loop that needs a gradient through this EOS should call this instead of tracing through `state_from_*` directly). |
+| `OutOfEnvelopeError` | classe | `()` | Erro quando um estado cai fora do envelope de validade declarado. |
+| `GasComposition` | classe | `(components, mole_fractions)` | Mistura de composição fixa (componentes e frações molares que somam 1). |
+| `ValidityEnvelope` | classe | `(P_min_Pa, P_max_Pa, T_min_K, T_max_K)` | Limites (P, T) opcionais; fora deles o estado levanta `OutOfEnvelopeError` em vez de extrapolar. |
+| `GasState` | classe | `(P_Pa, T_K, rho_kg_m3, Z, h_J_kg, s_J_kgK, cp_J_kgK, cv_J_kgK, k_isentropic, speed_of_sou…)` | Estado termodinâmico completo em SI (P, T, ρ, Z, h, s, cp, cv, k, som, viscosidade, massa molar). |
+| `StandardConditions` | classe | `(P_Pa, T_K)` | Condições padrão de referência (presets ISO 13443 e 60 °F americano). |
+| `state_from_PT` | função | `(gas, P_Pa, T_K, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` | Estado completo a partir de pressão e temperatura (CoolProp). |
+| `state_from_Ph` | função | `(gas, P_Pa, h_J_kg, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` | Estado completo a partir de pressão e entalpia (flash na EOS). |
+| `state_from_Ps` | função | `(gas, P_Pa, s_J_kgK, *, backend='HEOS', specify_phase='gas', envelope=None) -> GasState` | Estado completo a partir de pressão e entropia (ponto isentrópico). |
+| `standard_volumetric_flow_to_mass_flow` | função | `(q_std_m3_s, gas, std) -> float` | Converte vazão volumétrica em condições padrão para vazão mássica. |
+| `mass_flow_to_standard_volumetric_flow` | função | `(m_dot_kg_s, gas, std) -> float` | Converte vazão mássica para vazão volumétrica em condições padrão. |
+| `central_difference` | função | `(gas, P_Pa, T_K, attr, wrt, *, rel_step=0.0001) -> float` | Derivada de uma propriedade por diferença central, para usar fora de grafos de autograd. |
 
 #### `pinneapple_systems.process_components.similarity_map`
 
-pinneapple_systems.process_components.similarity_map — nondimensional turbomachinery performance-map utilities (flow/head coefficients, tip Mach and machine Reynolds corrections, surge/choke margins).
+Utilitários de mapas adimensionais de turbomáquinas: coeficientes de vazão e altura, Mach de ponta, Reynolds da máquina, margens de surge e choke e velocidade necessária para uma altura.
 
 <small>`pinneapple_systems/process_components/similarity_map.py` · 194 linhas · testes: 8</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MapCoefficients` | classe | `(name, D2_m, n_stages, phi_ref_bep, psi_ref_bep, psi_shape_a, psi0, eta_p_max, eta_p_shap…)` |  |
-| `MapEvaluation` | classe | `(phi, psi, eta_p, Mu2, Re, surge_margin_frac, choke_margin_frac)` |  |
-| `derive_psi_shape_a` | função | `(psi0, phi_ref_bep, psi_ref_bep) -> float` | Curvature 'a' in psi(phi) = psi0 - a*phi^2 that makes the curve pass exactly through (phi_ref_bep, psi_ref_bep). |
-| `make_map` | função | `(name, D2_m, phi_ref_bep, psi_ref_bep, psi0, eta_p_max, eta_p_shape_b, phi_surge, phi_cho…)` |  |
-| `flow_coefficient` | função | `(Q1_m3_s, N_rpm, coeffs) -> float` |  |
-| `tip_speed_m_s` | função | `(N_rpm, coeffs) -> float` |  |
-| `tip_mach_number` | função | `(N_rpm, coeffs, speed_of_sound_m_s) -> float` |  |
-| `machine_reynolds_number` | função | `(N_rpm, coeffs, kinematic_viscosity_m2_s) -> float` |  |
-| `evaluate_map` | função | `(coeffs, Q1_m3_s, N_rpm, speed_of_sound_m_s, kinematic_viscosity_m2_s, Re_ref=None) -> Ma…)` |  |
-| `polytropic_head_from_psi` | função | `(psi, N_rpm, coeffs) -> float` | Total machine polytropic head (J/kg) = n_stages * psi * U2^2. |
-| `required_speed_for_head` | função | `(target_head_J_kg, Q1_m3_s, coeffs, speed_of_sound_m_s, kinematic_viscosity_m2_s, *, N_mi…)` | Solves for the shaft speed producing target_head_J_kg at a fixed actual inlet volumetric flow, via bisection on the monotonic head(N) relation at fixed Q1. |
+| `MapCoefficients` | classe | `(name, D2_m, n_stages, phi_ref_bep, psi_ref_bep, psi_shape_a, psi0, eta_p_max, eta_p_shap…)` | Coeficientes de um mapa adimensional de turbomáquina (diâmetro, estágios, curvas de ψ e η, surge, choke, correções). |
+| `MapEvaluation` | classe | `(phi, psi, eta_p, Mu2, Re, surge_margin_frac, choke_margin_frac)` | Avaliação do mapa num ponto: φ, ψ, η, Mach de ponta, Reynolds e margens de surge e choke. |
+| `derive_psi_shape_a` | função | `(psi0, phi_ref_bep, psi_ref_bep) -> float` | Curvatura `a` de ψ(φ) = ψ0 - a·φ² que passa pelo ponto de melhor eficiência. |
+| `make_map` | função | `(name, D2_m, phi_ref_bep, psi_ref_bep, psi0, eta_p_max, eta_p_shape_b, phi_surge, phi_cho…)` | Monta `MapCoefficients` derivando a curvatura da curva de altura. |
+| `flow_coefficient` | função | `(Q1_m3_s, N_rpm, coeffs) -> float` | Coeficiente de vazão φ = Q1/(N·D2³). |
+| `tip_speed_m_s` | função | `(N_rpm, coeffs) -> float` | Velocidade de ponta do impelidor. |
+| `tip_mach_number` | função | `(N_rpm, coeffs, speed_of_sound_m_s) -> float` | Mach de ponta U2/a1. |
+| `machine_reynolds_number` | função | `(N_rpm, coeffs, kinematic_viscosity_m2_s) -> float` | Reynolds da máquina U2·D2/ν1. |
+| `evaluate_map` | função | `(coeffs, Q1_m3_s, N_rpm, speed_of_sound_m_s, kinematic_viscosity_m2_s, Re_ref=None) -> Ma…)` | Avalia o mapa numa vazão e rotação, com correções de Mach e Reynolds e margens. |
+| `polytropic_head_from_psi` | função | `(psi, N_rpm, coeffs) -> float` | Altura politrópica total = estágios·ψ·U2². |
+| `required_speed_for_head` | função | `(target_head_J_kg, Q1_m3_s, coeffs, speed_of_sound_m_s, kinematic_viscosity_m2_s, *, N_mi…)` | Rotação que produz uma altura alvo a vazão fixa, por bisseção. |
 
 #### `pinneapple_systems.process_components.torsional_stickslip`
 
-pinneapple_systems.process_components.torsional_stickslip -- 1D torsional-wave finite-difference simulation of a compliant rotating shaft, driven at one end at a prescribed angular velocity and loaded at the other end by Stribeck (velocity-weakening) friction acting on a lumped end inertia -- the …
+Simulação por diferenças finitas da onda torcional 1D num eixo flexível acionado numa ponta e com atrito de Stribeck na outra (mecanismo de stick-slip), com índice de stick-slip.
 
 <small>`pinneapple_systems/process_components/torsional_stickslip.py` · 179 linhas · testes: 6</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `StickSlipResult` | classe | `(t_s, z_m, omega_field_rad_s, end_omega_ts_rad_s, surface_torque_ts_N_m, stick_slip_index)` |  |
-| `stribeck_friction_torque` | função | `(omega, T_static, T_kinetic, omega_breakout) -> float` | T_friction = sign(omega)*[T_kinetic + (T_static-T_kinetic)*exp(-\|omega\|/omega_breakout)]. |
-| `simulate_torsional_stickslip` | função | `(length_m, G_Pa, J_m4, rho_kg_m3, omega_set_rad_s, T_static_N_m, T_kinetic_N_m, omega_bre…)` | Explicit finite-difference solve of the 1D torsional wave equation described in the module docstring, from a driven end (node 0, held at `omega_set_rad_s`) to a friction-loaded end (node -1, lumped inertia `end_inertia_kg_m2` under Stribeck friction). Uses a fixed uniform shaft cross-section … |
+| `StickSlipResult` | classe | `(t_s, z_m, omega_field_rad_s, end_omega_ts_rad_s, surface_torque_ts_N_m, stick_slip_index)` | Resultado: tempos, posições, campo de velocidade angular, velocidade da ponta, torque na superfície e índice de stick-slip. |
+| `stribeck_friction_torque` | função | `(omega, T_static, T_kinetic, omega_breakout) -> float` | Torque de atrito de Stribeck (enfraquece com a velocidade). |
+| `simulate_torsional_stickslip` | função | `(length_m, G_Pa, J_m4, rho_kg_m3, omega_set_rad_s, T_static_N_m, T_kinetic_N_m, omega_bre…)` | Resolve a onda torcional 1D por diferenças finitas explícitas, da ponta acionada à ponta com atrito e inércia concentrada. |
 
 #### `pinneapple_systems.process_components.water_hammer`
 
-Water hammer in a pumped pipeline: steady operating point and the valve-closure transient by the method of characteristics (MOC).
+Golpe de aríete numa adutora bombeada: ponto de operação estacionário e transiente de fechamento de válvula pelo método das características, mais fórmulas de Joukowsky e período de onda.
 
 <small>`pinneapple_systems/process_components/water_hammer.py` · 191 linhas · testes: 39</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Pipeline` | classe | `(length, diameter, wave_speed, roughness, z_in, z_out, nu, rho)` |  |
-| `PumpCurve` | classe | `(shutoff_head, k, sump_head)` | ``H = shutoff_head - k Q\|Q\|`` (fixed speed); ``sump_head``: suction-side head [m]. |
-| `OperatingPoint` | classe | `(flow, velocity, reynolds, friction_factor, pump_head, valve_head, friction_loss, valve_c…)` |  |
-| `TransientResult` | classe | `(t, x, head, flow, tau, dt, courant, op, info)` |  |
-| `operating_point` | função | `(line, pump, *, valve_k, tank_head=0.0) -> OperatingPoint` | Flow where the pump curve meets friction (Colebrook) + the open valve's loss ``valve_k * V^2 / (2 g)``. |
-| `linear_closure` | função | `(closure_time, start=0.0)` | ``tau(t)``: 1 until ``start``, linearly to 0 over ``closure_time`` (0 = instantaneous). |
-| `moc_valve_closure` | função | `(line, pump, op, *, closure_time, t_end, n_reaches=40, friction=True, closure_start=0.0, …)` | Valve closure transient from the steady operating point ``op`` (pump upstream, valve + tank downstream). |
-| `joukowsky_head_rise` | função | `(wave_speed, dv) -> float` | ``a dV / g`` [m]: head rise of an instantaneous velocity change ``dv`` (Joukowsky). |
-| `wave_period` | função | `(length, wave_speed) -> float` | ``4 L / a`` [s]: period of the pressure oscillation after a closure (pipe from a reservoir). |
+| `Pipeline` | classe | `(length, diameter, wave_speed, roughness, z_in, z_out, nu, rho)` | Adutora: comprimento, diâmetro, celeridade, rugosidade, cotas, viscosidade e densidade. |
+| `PumpCurve` | classe | `(shutoff_head, k, sump_head)` | Curva da bomba de rotação fixa H = H0 - k·Q\|Q\| com carga de sucção. |
+| `OperatingPoint` | classe | `(flow, velocity, reynolds, friction_factor, pump_head, valve_head, friction_loss, valve_c…)` | Ponto de operação estacionário: vazão, velocidade, Reynolds, atrito, cargas, Cv da válvula e tanque. |
+| `TransientResult` | classe | `(t, x, head, flow, tau, dt, courant, op, info)` | Resultado do transiente MOC: tempos, posições, carga, vazão, abertura, passo, Courant e informações. |
+| `operating_point` | função | `(line, pump, *, valve_k, tank_head=0.0) -> OperatingPoint` | Vazão onde a curva da bomba encontra atrito (Colebrook) mais perda da válvula aberta. |
+| `linear_closure` | função | `(closure_time, start=0.0)` | Lei de fechamento τ(t): 1 até o início, depois linear até 0. |
+| `moc_valve_closure` | função | `(line, pump, op, *, closure_time, t_end, n_reaches=40, friction=True, closure_start=0.0, …)` | Transiente de fechamento de válvula pelo método das características a partir do ponto de operação. |
+| `joukowsky_head_rise` | função | `(wave_speed, dv) -> float` | Sobrepressão de Joukowsky a·ΔV/g. |
+| `wave_period` | função | `(length, wave_speed) -> float` | Período da oscilação 4L/a. |
 
 #### `pinneapple_systems.sports`
 
-Sports physics: physics-informed analytics on public sports tracking and event data (football first).
+Física aplicada a esportes sobre dados públicos de rastreamento e eventos; por enquanto só futebol. [sem teste direto]
 
 <small>`pinneapple_systems/sports/__init__.py` · 2 linhas · **sem teste direto**</small>
 
 #### `pinneapple_systems.sports.football`
 
-Football: physics-informed analytics on public tracking and event data (ball flight, pitch control, player kinematics, expected goals). See docs/guides/football_physics.md.
+Futebol: análises com física sobre dados públicos (voo da bola, controle de campo, cinemática de jogadores, gols esperados); ver `docs/guides/football_physics.md`.
 
 <small>`pinneapple_systems/sports/football/__init__.py` · 3 linhas · testes: 16</small>
 
 #### `pinneapple_systems.sports.football.ball`
 
-Ball flight physics: gravity, quadratic drag and Magnus lift, the inverse problem from tracked positions, and a rolling-ball model for ground passes.
+Física do voo da bola (gravidade, arrasto quadrático com crise de arrasto, sustentação de Magnus), problema inverso a partir de posições rastreadas, identificabilidade por Cramér-Rao e modelo de bola rolando para passes rasteiros.
 
 <small>`pinneapple_systems/sports/football/ball.py` · 464 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `Ball` | classe | `(mass, diameter)` |  |
-| `FlightFit` | classe | `(model, x0, v0, cd, magnus, g, t0, params, names, cov, rmse, n, success, extra)` | Result of :func:`fit_flight`: parameters, their Laplace (Gauss-Newton) standard errors and fit quality. |
-| `Flight` | classe | `(match_id, t, xyz, detected)` | An aerial ball flight cut from a tracking record (times in s, positions in m). |
-| `cd_crisis` | função | `(re, cd_sub=0.45, cd_super=0.18, re_crit=260000.0, width=25000.0)` | A smooth drag-crisis curve: ``cd_sub`` below ``re_crit``, ``cd_super`` above (logistic of width ``width``). |
-| `simulate` | função | `(x0, v0, t, *, cd=0.0, magnus=(0.0, 0.0, 0.0), g=G, ball=BALL, cd_fn=None, dt=0.005) -> n…)` | Positions ``(len(t), 3)`` of a ball launched at ``x0`` with velocity ``v0`` at ``t[0]`` (RK4, step ``dt``). |
-| `fit_flight` | função | `(t, xyz, model='drag', *, sigma=None, ball=BALL, g=G, observe=(0, 1, 2), cd_prior=None, l…)` | Fit a flight model to tracked positions ``xyz`` (``(n, 3)``; NaN rows are skipped) at times ``t``. |
-| `predict` | função | `(fit, t, ball=BALL) -> np.ndarray` | Positions of a fitted flight at times ``t``. |
-| `kinematic_extrapolation` | função | `(t, xyz, t_new, degree=2) -> np.ndarray` | Data-only baseline: a polynomial per axis fitted to the observed positions, evaluated at ``t_new``. |
-| `extract_flights` | função | `(track, *, match_id=None, z_on=0.6, min_apex=2.5, min_duration=0.8, max_duration=4.5, max…)` | Aerial flights in a ball track (``frame, x, y, z, detected``, e.g. :func:`data.skillcorner_ball`). |
-| `fisher_identifiability` | função | `(x0, v0, t, *, cd=0.25, magnus=(0.0, 0.0, 0.0), sigma=0.3, observe=(0, 1, 2), ball=BALL, …)` | Cramer-Rao standard deviations of the flight parameters for positions observed with noise ``sigma`` (m). |
-| `rolling_fit` | função | `(t, xy, *, ball=BALL) -> dict[str, float]` | Fit ``dv/dt = -mu g - k_d v^2`` (rolling resistance plus drag) to a ground pass observed in 2-D. |
-| `rolling_travel_time` | função | `(distance, v0, decel, cd=0.0, ball=BALL)` | Time for a rolling ball launched at ``v0`` to cover ``distance`` (inf if it stops first). |
-| `travel_time` | função | `(distance, *, speed=None, v0=None, decel=None)` | Ball travel time to a target: constant ``speed`` (the usual pitch-control assumption) or a rolling ball. |
+| `Ball` | classe | `(mass, diameter)` | Bola: massa e diâmetro; área, constante de arrasto e Reynolds. |
+| `FlightFit` | classe | `(model, x0, v0, cd, magnus, g, t0, params, names, cov, rmse, n, success, extra)` | Resultado de `fit_flight`: parâmetros, erros-padrão de Laplace, RMSE, BIC e previsão. |
+| `Flight` | classe | `(match_id, t, xyz, detected)` | Um voo aéreo recortado de um rastreamento: partida, tempos, posições e detecção. |
+| `cd_crisis` | função | `(re, cd_sub=0.45, cd_super=0.18, re_crit=260000.0, width=25000.0)` | Curva suave de crise de arrasto entre Cd subcrítico e supercrítico. |
+| `simulate` | função | `(x0, v0, t, *, cd=0.0, magnus=(0.0, 0.0, 0.0), g=G, ball=BALL, cd_fn=None, dt=0.005) -> n…)` | Posições de uma bola lançada com arrasto, Magnus e gravidade (RK4). |
+| `fit_flight` | função | `(t, xyz, model='drag', *, sigma=None, ball=BALL, g=G, observe=(0, 1, 2), cd_prior=None, l…)` | Ajusta um modelo de voo a posições rastreadas (pula linhas NaN), com perda robusta. |
+| `predict` | função | `(fit, t, ball=BALL) -> np.ndarray` | Posições de um voo ajustado em novos tempos. |
+| `kinematic_extrapolation` | função | `(t, xyz, t_new, degree=2) -> np.ndarray` | Baseline só de dados: polinômio por eixo extrapolado. |
+| `extract_flights` | função | `(track, *, match_id=None, z_on=0.6, min_apex=2.5, min_duration=0.8, max_duration=4.5, max…)` | Recorta voos aéreos de um rastreamento de bola por critérios de altura, duração e velocidade. |
+| `fisher_identifiability` | função | `(x0, v0, t, *, cd=0.25, magnus=(0.0, 0.0, 0.0), sigma=0.3, observe=(0, 1, 2), ball=BALL, …)` | Desvios de Cramér-Rao dos parâmetros do voo para um ruído de observação. |
+| `rolling_fit` | função | `(t, xy, *, ball=BALL) -> dict[str, float]` | Ajusta resistência ao rolamento e arrasto a um passe rasteiro em 2-D. |
+| `rolling_travel_time` | função | `(distance, v0, decel, cd=0.0, ball=BALL)` | Tempo para uma bola rolando cobrir uma distância (infinito se parar antes). |
+| `travel_time` | função | `(distance, *, speed=None, v0=None, decel=None)` | Tempo de viagem da bola: velocidade constante ou bola rolando. |
 
 #### `pinneapple_systems.sports.football.ball_study`
 
-Ball-flight studies: does flight physics help on real tracking data, and when is the inverse problem posed?
+Estudos do voo da bola: recuperação em voos simulados, identificabilidade 3-D vs 2-D, auditoria de gravidade em voos reais e previsão hold-out contra baselines de dados. [sem teste direto]
 
 <small>`pinneapple_systems/sports/football/ball_study.py` · 235 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `synthetic_flights` | função | `(n=40, *, noise=0.2, fps=10.0, seed=0, g=B.G) -> list[tuple[B.Flight, dict]]` | Simulated kicks (speed 15-30 m/s, elevation 15-40 deg, drag-crisis C_D, random spin) observed at ``fps`` with Gaussian noise ``noise`` (m) on each coordinate. Returns ``(Flight, truth)`` pairs. |
-| `synthetic_recovery` | função | `(n=40, *, noise=0.2, seed=0) -> dict[str, Any]` | Fit ``drag`` and ``drag_free_g`` to :func:`synthetic_flights`: error of launch speed, C_D and g, and the coverage of the Laplace 95 % intervals (should be close to 0.95 when the model is right). |
-| `identifiability` | função | `(speed=22.0, elevation_deg=25.0, *, fps=25.0, sigma=0.2, duration=1.6) -> dict[str, Any]` | Cramer-Rao standard deviations for one lofted pass seen in 3-D versus 2-D (ball height not observed). |
-| `flights_from_skillcorner` | função | `(match_ids, root=None, **kw) -> list[B.Flight]` | Aerial flights of SkillCorner matches (:func:`ball.extract_flights` on :func:`data.skillcorner_ball`). |
-| `gravity_audit` | função | `(flights, *, max_rmse=0.6, workers=1) -> dict[str, Any]` | Gravity fitted freely to each flight (vacuum: quadratic in time; drag: ODE with free ``g``). |
-| `holdout_prediction` | função | `(train, test, *, frac=0.5, train_fracs=(0.3, 0.5, 0.7), seed=0, workers=1) -> dict[str, A…)` | Observe the first ``frac`` of each test flight, predict the remaining positions; errors per model. |
-| `summarise` | função | `(res) -> list[dict[str, Any]]` | Rows ``model, rmse_xy, rmse_z, landing_err_median`` of :func:`holdout_prediction`, best landing first. |
+| `synthetic_flights` | função | `(n=40, *, noise=0.2, fps=10.0, seed=0, g=B.G) -> list[tuple[B.Flight, dict]]` | Chutes simulados com arrasto, rotação e ruído, com a verdade de cada um. |
+| `synthetic_recovery` | função | `(n=40, *, noise=0.2, seed=0) -> dict[str, Any]` | Ajusta modelos aos voos sintéticos e mede erro e cobertura dos intervalos de 95 %. |
+| `identifiability` | função | `(speed=22.0, elevation_deg=25.0, *, fps=25.0, sigma=0.2, duration=1.6) -> dict[str, Any]` | Compara os desvios de Cramér-Rao de um passe visto em 3-D e em 2-D. |
+| `flights_from_skillcorner` | função | `(match_ids, root=None, **kw) -> list[B.Flight]` | Voos aéreos de partidas SkillCorner. |
+| `gravity_audit` | função | `(flights, *, max_rmse=0.6, workers=1) -> dict[str, Any]` | Ajusta a gravidade livre em cada voo para checar a consistência física dos dados. |
+| `holdout_prediction` | função | `(train, test, *, frac=0.5, train_fracs=(0.3, 0.5, 0.7), seed=0, workers=1) -> dict[str, A…)` | Observa o início de cada voo de teste e prevê o resto; erros por modelo. |
+| `summarise` | função | `(res) -> list[dict[str, Any]]` | Tabela por modelo de `holdout_prediction`, melhor aterrissagem primeiro. |
 
 #### `pinneapple_systems.sports.football.data`
 
-Public football data, downloaded at run time, cached outside git with the SHA-256 of every file.
+Dados públicos de futebol (Metrica, SkillCorner, StatsBomb) baixados em tempo de execução, em cache fora do git, com SHA-256 de cada arquivo num manifesto.
 
 <small>`pinneapple_systems/sports/football/data.py` · 282 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MetricaMatch` | classe | `(game, t, period, players, names, ball, events, fps, gk)` | One Metrica sample match in metres (origin at the centre spot, x along the long side). |
-| `cache_dir` | função | `(root=None) -> Path` | The football cache folder (created). |
-| `manifest` | função | `(root=None) -> dict[str, dict[str, Any]]` | URL -> {"path", "sha256", "bytes"} of every file fetched into the cache. |
-| `fetch` | função | `(url, rel, root=None, *, timeout=120.0) -> Path` | Download ``url`` once to ``<cache>/rel`` and record its SHA-256; return the local path. |
-| `metrica_match` | função | `(game, root=None) -> MetricaMatch` | Metrica sample game 1 or 2: tracking of both teams, ball and events in metres (downloaded once, ~65 MB). |
-| `skillcorner_matches` | função | `(root=None) -> list[dict]` | The ten SkillCorner open-data matches (``id``, teams, date). |
-| `skillcorner_ball` | função | `(match_id, root=None) -> dict[str, np.ndarray]` | Ball track of a SkillCorner match at 10 Hz: ``frame, t, period, x, y, z, detected`` (NaN when missing). |
-| `statsbomb_shots` | função | `(seasons=None, root=None, *, max_matches=None) -> list[dict]` | Every open-play and set-piece shot with a 360 freeze frame in the given StatsBomb seasons. |
+| `MetricaMatch` | classe | `(game, t, period, players, names, ball, events, fps, gk)` | Uma partida de amostra Metrica em metros (jogadores, bola, eventos, fps, goleiros). |
+| `cache_dir` | função | `(root=None) -> Path` | Pasta de cache do futebol (criada se faltar). |
+| `manifest` | função | `(root=None) -> dict[str, dict[str, Any]]` | Manifesto URL → caminho, SHA-256 e bytes de cada arquivo baixado. |
+| `fetch` | função | `(url, rel, root=None, *, timeout=120.0) -> Path` | Baixa uma URL uma vez para o cache e registra o SHA-256. |
+| `metrica_match` | função | `(game, root=None) -> MetricaMatch` | Carrega a partida 1 ou 2 da amostra Metrica (baixa uma vez). |
+| `skillcorner_matches` | função | `(root=None) -> list[dict]` | Lista das partidas abertas do SkillCorner (id, times, data). |
+| `skillcorner_ball` | função | `(match_id, root=None) -> dict[str, np.ndarray]` | Rastreamento da bola de uma partida SkillCorner (NaN quando falta). |
+| `statsbomb_shots` | função | `(seasons=None, root=None, *, max_matches=None) -> list[dict]` | Todos os chutes com freeze frame 360 nas temporadas StatsBomb pedidas. |
 
 #### `pinneapple_systems.sports.football.kin_study`
 
-Player-kinematics studies: smoothing with known truth, processing uncertainty of metabolic power on real tracking, and trajectory prediction with and without physical limits at equal data.
+Estudos de cinemática: suavização com verdade conhecida, incerteza de potência metabólica em dados reais e previsão de trajetória com e sem limites físicos. [sem teste direto]
 
 <small>`pinneapple_systems/sports/football/kin_study.py` · 175 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `synthetic_runs` | função | `(n=20, T=60.0, fps=25.0, *, seed=0, v_cap=9.0, a_cap=6.0, tau=1.0, sigma_a=3.0)` | True positions, velocities and accelerations of ``n`` players: Ornstein-Uhlenbeck acceleration (time constant ``tau``, stationary std ``sigma_a``) clipped at ``a_cap``, speed clipped at ``v_cap``. |
-| `synthetic_smoothing` | função | `(noise=(0.05, 0.2), fps=(25.0, 10.0), *, n=20, seed=0) -> list[dict[str, Any]]` | RMSE of speed, acceleration and metabolic power per smoothing method against the known truth. |
-| `match_load` | função | `(match, *, team='Home', max_frames=None) -> dict[str, Any]` | Metabolic power of one team of a Metrica match per player and per method, and plausibility per method (the first ``max_frames`` frames only, if given). ``gated_mean_mp_per_player`` drops the samples above the human limits of :mod:`.kinematics` (tracking jumps), which otherwise dominate a match mean. |
-| `prediction_samples` | função | `(match, horizon, *, every=1.0, history=1.0) -> dict[str, np.ndarray]` | Samples ``(features, pos, vel, acc, target)`` for every outfield player every ``every`` s with a complete past ``history`` and a tracked position ``horizon`` s later. States are causal Kalman estimates. |
-| `prediction_study` | função | `(train, test, horizon, *, sizes=(100, 300, 1000, 3000, None), seeds=(0, 1, 2)) -> dict[st…)` | Final displacement error on ``test`` of each predictor trained on random subsets of ``train``. |
+| `synthetic_runs` | função | `(n=20, T=60.0, fps=25.0, *, seed=0, v_cap=9.0, a_cap=6.0, tau=1.0, sigma_a=3.0)` | Trajetórias verdadeiras de jogadores por aceleração Ornstein-Uhlenbeck limitada. |
+| `synthetic_smoothing` | função | `(noise=(0.05, 0.2), fps=(25.0, 10.0), *, n=20, seed=0) -> list[dict[str, Any]]` | RMSE de velocidade, aceleração e potência metabólica por método de suavização contra a verdade. |
+| `match_load` | função | `(match, *, team='Home', max_frames=None) -> dict[str, Any]` | Potência metabólica de um time numa partida Metrica por jogador e método, e plausibilidade. |
+| `prediction_samples` | função | `(match, horizon, *, every=1.0, history=1.0) -> dict[str, np.ndarray]` | Amostras para previsão de posição num horizonte, com estados de Kalman causal. |
+| `prediction_study` | função | `(train, test, horizon, *, sizes=(100, 300, 1000, 3000, None), seeds=(0, 1, 2)) -> dict[st…)` | Erro final de deslocamento de cada preditor treinado em subconjuntos de tamanhos diferentes. |
 
 #### `pinneapple_systems.sports.football.kinematics`
 
-Player kinematics from tracking: smoothing with uncertainty, physical plausibility, metabolic power and short-horizon trajectory prediction with and without physical limits.
+Cinemática de jogadores: suavização Kalman-RTS com ruído ajustado por verossimilhança, plausibilidade física, potência metabólica (modelo de inclinação equivalente) e previsão de curto prazo com e sem limites físicos.
 
 <small>`pinneapple_systems/sports/football/kinematics.py` · 300 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `MLPredictor` | classe | `(residual_of, project, max_iter, seed, _models)` | Data-only displacement predictor: gradient-boosted trees (scikit-learn) on :func:`history_features`. |
-| `kalman_smooth` | função | `(xy, dt, *, sigma_pos=0.1, jerk=30.0, causal=False, max_gap=1.0) -> dict[str, np.ndarray]` | RTS-smoothed position, velocity and acceleration of tracks ``xy`` of shape ``(T, ..., 2)``. |
-| `fit_noise` | função | `(xy, dt, sigmas=(0.01, 0.02, 0.05, 0.1, 0.2), jerks=(5.0, 10.0, 20.0, 40.0, 80.0))` | Measurement noise and jerk density by maximum marginal likelihood of :func:`kalman_smooth` (grid search on the innovations): the data, not a guess, set how much the smoother trusts the samples. |
-| `finite_differences` | função | `(xy, dt) -> dict[str, np.ndarray]` | Central differences of raw positions: ``vel``, ``acc`` (the data-only baseline with no smoothing). |
-| `savgol_derivatives` | função | `(xy, dt, window=0.5, order=2) -> dict[str, np.ndarray]` | Savitzky-Golay smoothed position, velocity and acceleration (``window`` in seconds; NaN filled linearly). |
-| `plausibility` | função | `(vel, acc, *, v_max=V_MAX, a_max=A_MAX) -> dict[str, float]` | Share of finite samples whose speed exceeds ``v_max`` or whose acceleration magnitude exceeds ``a_max``. |
-| `minetti_cost` | função | `(i)` | Energy cost of running on slope ``i`` (Minetti et al. 2002), J/(kg m); ``i`` clipped to [-0.45, 0.45]. |
-| `metabolic_power` | função | `(speed, accel_fwd, *, terrain=1.0) -> np.ndarray` | Metabolic power in W/kg from speed (m/s) and forward acceleration (m/s^2), equivalent-slope model. |
-| `forward_acceleration` | função | `(vel, acc) -> np.ndarray` | Component of the acceleration along the velocity (tangential), the input of :func:`metabolic_power`. |
-| `reachable_radius` | função | `(speed0, horizon, *, v_max=V_MAX, a_max=A_MAX)` | Largest distance a player moving at ``speed0`` can cover in ``horizon`` s (accelerate at ``a_max`` up to ``v_max``): the physical bound on any displacement prediction. |
-| `predict_constant_velocity` | função | `(pos, vel, horizon)` | Position after ``horizon`` s at constant velocity. |
-| `predict_limited` | função | `(pos, vel, acc, horizon, *, v_max=V_MAX, a_max=A_MAX, tau=0.5, dt=0.04)` | Physics prediction: the current acceleration (capped at ``a_max``) decays with time constant ``tau`` and the speed is capped at ``v_max`` (players cannot keep accelerating; a simple first-order motor model). |
-| `project_reachable` | função | `(pos, vel, pred, horizon, *, v_max=V_MAX, a_max=A_MAX)` | Project predictions onto the reachable set: the disc around the coasting point ``pos + vel * horizon`` of radius ``a_max horizon^2 / 2`` intersected with the disc of radius :func:`reachable_radius` around ``pos``. |
-| `history_features` | função | `(pos_hist, ball_rel=None) -> np.ndarray` | Features for the ML predictor: past positions relative to the current one (``(n, k, 2)`` -> ``(n, 2k)``), optionally the ball position relative to the player. |
-| `displacement_errors` | função | `(pred, true, pos=None, vel=None, horizon=None) -> dict[str, float]` | Mean and 90th-percentile final displacement error (m); with ``pos, vel, horizon`` also the share of predictions outside the physically reachable set. |
+| `MLPredictor` | classe | `(residual_of, project, max_iter, seed, _models)` | Preditor de deslocamento só de dados: árvores com gradient boosting (scikit-learn) sobre `history_features`. |
+| `kalman_smooth` | função | `(xy, dt, *, sigma_pos=0.1, jerk=30.0, causal=False, max_gap=1.0) -> dict[str, np.ndarray]` | Posição, velocidade e aceleração suavizadas por Kalman-RTS (ou filtro causal). |
+| `fit_noise` | função | `(xy, dt, sigmas=(0.01, 0.02, 0.05, 0.1, 0.2), jerks=(5.0, 10.0, 20.0, 40.0, 80.0))` | Ruído de medição e densidade de jerk por máxima verossimilhança marginal (busca em grade). |
+| `finite_differences` | função | `(xy, dt) -> dict[str, np.ndarray]` | Diferenças centrais das posições brutas (baseline sem suavização). |
+| `savgol_derivatives` | função | `(xy, dt, window=0.5, order=2) -> dict[str, np.ndarray]` | Posição, velocidade e aceleração por Savitzky-Golay. |
+| `plausibility` | função | `(vel, acc, *, v_max=V_MAX, a_max=A_MAX) -> dict[str, float]` | Fração de amostras acima dos limites humanos de velocidade ou aceleração. |
+| `minetti_cost` | função | `(i)` | Custo energético de correr numa inclinação (Minetti et al. 2002). |
+| `metabolic_power` | função | `(speed, accel_fwd, *, terrain=1.0) -> np.ndarray` | Potência metabólica em W/kg a partir de velocidade e aceleração (inclinação equivalente). |
+| `forward_acceleration` | função | `(vel, acc) -> np.ndarray` | Componente da aceleração ao longo da velocidade. |
+| `reachable_radius` | função | `(speed0, horizon, *, v_max=V_MAX, a_max=A_MAX)` | Maior distância alcançável num horizonte (limite físico de qualquer previsão). |
+| `predict_constant_velocity` | função | `(pos, vel, horizon)` | Posição após o horizonte a velocidade constante. |
+| `predict_limited` | função | `(pos, vel, acc, horizon, *, v_max=V_MAX, a_max=A_MAX, tau=0.5, dt=0.04)` | Previsão física: aceleração limitada que decai e velocidade limitada. |
+| `project_reachable` | função | `(pos, vel, pred, horizon, *, v_max=V_MAX, a_max=A_MAX)` | Projeta previsões no conjunto alcançável. |
+| `history_features` | função | `(pos_hist, ball_rel=None) -> np.ndarray` | Features para o preditor de ML: posições passadas relativas e, opcionalmente, a bola. |
+| `displacement_errors` | função | `(pred, true, pos=None, vel=None, horizon=None) -> dict[str, float]` | Erro final médio e percentil 90, e fração de previsões fora do conjunto alcançável. |
 
 #### `pinneapple_systems.sports.football.metrics`
 
-Scores for probabilistic binary predictions: log-loss, Brier, ROC AUC, calibration (reliability bins, ECE) and bootstrap intervals of score differences between two models on the same events.
+Escores de previsões binárias probabilísticas: log-loss, Brier, AUC, curvas de confiabilidade, ECE e bootstrap pareado de diferenças.
 
 <small>`pinneapple_systems/sports/football/metrics.py` · 78 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `log_loss` | função | `(p, y) -> float` |  |
-| `brier` | função | `(p, y) -> float` |  |
-| `auc` | função | `(p, y) -> float` | ROC AUC by the rank-sum (Mann-Whitney) formula, ties averaged. |
-| `reliability` | função | `(p, y, bins=10, strategy='quantile') -> dict[str, np.ndarray]` | Mean predicted probability, observed frequency and count per bin (``quantile`` or ``uniform`` bins). |
-| `ece` | função | `(p, y, bins=10) -> float` | Expected calibration error with quantile bins. |
-| `score` | função | `(p, y) -> dict[str, float]` | All scores of one model. |
-| `paired_bootstrap` | função | `(p_a, p_b, y, metric='log_loss', n=2000, seed=0) -> dict[str, Any]` | Difference ``metric(a) - metric(b)`` on the same events with a 95 % bootstrap interval (negative: a better for losses). |
+| `log_loss` | função | `(p, y) -> float` | Log-loss de probabilidades binárias. |
+| `brier` | função | `(p, y) -> float` | Escore de Brier. |
+| `auc` | função | `(p, y) -> float` | AUC ROC pela fórmula de soma de postos (Mann-Whitney). |
+| `reliability` | função | `(p, y, bins=10, strategy='quantile') -> dict[str, np.ndarray]` | Probabilidade média prevista, frequência observada e contagem por faixa. |
+| `ece` | função | `(p, y, bins=10) -> float` | Erro de calibração esperado com faixas por quantil. |
+| `score` | função | `(p, y) -> dict[str, float]` | Todos os escores de um modelo. |
+| `paired_bootstrap` | função | `(p_a, p_b, y, metric='log_loss', n=2000, seed=0) -> dict[str, Any]` | Diferença de uma métrica entre dois modelos nos mesmos eventos com intervalo bootstrap de 95 %. |
 
 #### `pinneapple_systems.sports.football.pc_study`
 
-Pass outcome: physics-based pitch control against data-only classifiers at equal data.
+Estudo de resultado de passes: controle de campo físico contra classificadores só de dados, com o mesmo conjunto de treino, e eficiência de dados. [sem teste direto]
 
 <small>`pinneapple_systems/sports/football/pc_study.py` · 131 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `physics_features` | função | `(ps, p) -> np.ndarray` | Pitch-control probability, earliest attacker and defender intercept times minus the ball travel time. |
-| `fit_models` | função | `(train, *, seed=0, which=…) -> dict[str, Any]` | Fitted models (parameters or estimators) on ``train``. |
-| `predict_models` | função | `(models, ps) -> dict[str, np.ndarray]` |  |
-| `compare` | função | `(train, test, *, seed=0) -> dict[str, Any]` | Scores of every model on ``test`` after fitting on ``train``, paired bootstrap of log-loss differences against the best data-only model, and the fitted physical parameters. |
-| `data_efficiency` | função | `(train, test, sizes=(25, 50, 100, 200, 400, None), seeds=(0, 1, 2), which=…) -> dict[str,…)` | Test log-loss of each model trained on random subsets of ``train`` (``None`` = all passes). |
-| `with_params` | função | `(p, **kw) -> PC.PCParams` |  |
+| `physics_features` | função | `(ps, p) -> np.ndarray` | Features físicas de um passe: probabilidade de controle e tempos de interceptação menos tempo da bola. |
+| `fit_models` | função | `(train, *, seed=0, which=…) -> dict[str, Any]` | Ajusta os modelos (parâmetros físicos ou estimadores) no conjunto de treino. |
+| `predict_models` | função | `(models, ps) -> dict[str, np.ndarray]` | Probabilidades previstas por cada modelo ajustado num conjunto de passes. |
+| `compare` | função | `(train, test, *, seed=0) -> dict[str, Any]` | Escores no teste, bootstrap pareado de log-loss contra o melhor modelo só de dados e parâmetros físicos ajustados. |
+| `data_efficiency` | função | `(train, test, sizes=(25, 50, 100, 200, 400, None), seeds=(0, 1, 2), which=…) -> dict[str,…)` | Log-loss de teste de cada modelo treinado em subconjuntos aleatórios. |
+| `with_params` | função | `(p, **kw) -> PC.PCParams` | Cópia de `PCParams` com campos trocados. |
 
 #### `pinneapple_systems.sports.football.pitch_control`
 
-Pitch control: who wins the ball at a target point, from player kinematics and ball travel time.
+Controle de campo: probabilidade de o time atacante ganhar a bola num ponto, a partir da cinemática dos jogadores e do tempo de viagem da bola; extrai passes do Metrica e ajusta parâmetros por máxima verossimilhança.
 
 <small>`pinneapple_systems/sports/football/pitch_control.py` · 275 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `PCParams` | classe | `(tti, v_max, a_max, reaction, sigma, lam, kappa_def, gk_factor, ball, ball_speed, roll, d…)` |  |
-| `PassSet` | classe | `(att_pos, att_vel, def_pos, def_vel, att_gk, def_gk, ball, target, y, duration, meta)` | Passes with the state at the kick: ``(n, 11, 2)`` attacker/defender positions and velocities (causal Kalman estimates), ball position, target (pass end), label (1 = completed to a team-mate, 0 = intercepted). |
-| `time_to_intercept` | função | `(pos, vel, target, p) -> np.ndarray` | Time for players at ``pos`` with velocity ``vel`` (``(..., 2)``) to reach ``target`` (broadcastable). |
-| `control_probability` | função | `(att_pos, att_vel, def_pos, def_vel, ball_pos, target, p=DEFAULT, att_gk=None, def_gk=Non…)` | Probability that the attacking team controls the ball at ``target`` (vectorised over events). |
-| `passes_from_metrica` | função | `(match, *, sigma_pos=0.1, jerk=30.0) -> PassSet` | Completed (``PASS``) and intercepted (``BALL LOST`` with an interception subtype) passes of a :class:`data.MetricaMatch`, with player states from the causal Kalman filter of :mod:`.kinematics`. |
-| `fit_ball_travel` | função | `(ps, *, min_len=5.0) -> dict[str, Any]` | Fit the rolling-ball travel time ``t(d)`` (kick speed ``v0 = a + b d``, constant deceleration) and a constant speed to the observed durations of the completed passes; returns both fits and their RMSE (s). |
-| `fit_params` | função | `(ps, base, names=…, *, max_iter=200) -> tuple[PCParams, float]` | Maximum-likelihood fit of the named parameters on the pass outcomes (Nelder-Mead on log-parameters). |
-| `geometric_features` | função | `(ps) -> tuple[np.ndarray, list[str]]` | Data-only features of a pass (no kinematics, no physics): lengths, positions, distances of the nearest attackers and defenders to the target and to the pass line, defender counts near the target. |
-| `pitch_surface` | função | `(att_pos, att_vel, def_pos, def_vel, ball_pos, p=DEFAULT, *, nx=53, ny=34, pitch=(105.0, …)` | Attacking-team control probability on an ``nx x ny`` grid for one frame (for figures). |
+| `PCParams` | classe | `(tti, v_max, a_max, reaction, sigma, lam, kappa_def, gk_factor, ball, ball_speed, roll, d…)` | Parâmetros do controle de campo (velocidade e aceleração máximas, reação, incerteza, taxa de controle, goleiro, bola, horizonte). |
+| `PassSet` | classe | `(att_pos, att_vel, def_pos, def_vel, att_gk, def_gk, ball, target, y, duration, meta)` | Conjunto de passes com o estado no chute (posições e velocidades dos 22 jogadores, bola, alvo, rótulo). |
+| `time_to_intercept` | função | `(pos, vel, target, p) -> np.ndarray` | Tempo para jogadores chegarem a um alvo dada posição e velocidade. |
+| `control_probability` | função | `(att_pos, att_vel, def_pos, def_vel, ball_pos, target, p=DEFAULT, att_gk=None, def_gk=Non…)` | Probabilidade de o time atacante controlar a bola no alvo (vetorizada). |
+| `passes_from_metrica` | função | `(match, *, sigma_pos=0.1, jerk=30.0) -> PassSet` | Passes completados e interceptados de uma partida Metrica com estados de Kalman causal. |
+| `fit_ball_travel` | função | `(ps, *, min_len=5.0) -> dict[str, Any]` | Ajusta o tempo de viagem da bola (rolando e velocidade constante) às durações observadas. |
+| `fit_params` | função | `(ps, base, names=…, *, max_iter=200) -> tuple[PCParams, float]` | Ajuste por máxima verossimilhança de parâmetros nomeados (Nelder-Mead em log). |
+| `geometric_features` | função | `(ps) -> tuple[np.ndarray, list[str]]` | Features só de dados de um passe (distâncias, posições, contagens de defensores). |
+| `pitch_surface` | função | `(att_pos, att_vel, def_pos, def_vel, ball_pos, p=DEFAULT, *, nx=53, ny=34, pitch=(105.0, …)` | Probabilidade de controle numa grade do campo para um quadro (para figuras). |
 
 #### `pinneapple_systems.sports.football.plots`
 
-Figures of the football studies (matplotlib, static PNG): pitch, pitch-control surface, ball flights in 3-D, gravity audit, reliability curves, data-efficiency curves, smoothing errors.
+Figuras estáticas (matplotlib, PNG) dos estudos de futebol: campo, superfície de controle, voos 3-D, auditoria de gravidade, confiabilidade, eficiência de dados e erros de suavização. [sem teste]
 
 <small>`pinneapple_systems/sports/football/plots.py` · 224 linhas · **sem teste direto**</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `color_of` | função | `(name) -> str` | The fixed colour of a model name (grey for names outside :data:`MODEL_COLORS`). |
-| `draw_pitch` | função | `(ax, length=105.0, width=68.0, color='#b9b7b0')` | Pitch lines in metres, origin at the centre spot. |
-| `pitch_control_figure` | função | `(xs, ys, q, att_pos, att_vel, def_pos, def_vel, ball, target, path, title='')` |  |
-| `flights_3d` | função | `(flights, path, title='')` | ``(observed xyz, fitted xyz or None, label)`` per flight, in a 3-D view over the pitch plane. |
-| `gravity_audit_figure` | função | `(audit, synthetic_g, path)` |  |
-| `reliability_figure` | função | `(rel, path, title='', models=None, lim=1.0)` |  |
-| `efficiency_figure` | função | `(rows, metric, path, title='', ylabel=None, models=None, flat=None)` | Mean test ``metric`` against training-set size per model (seeds averaged, min-max band). |
-| `smoothing_figure` | função | `(rows, path, metric='mp_rmse', ylabel='metabolic power RMSE [W/kg]')` |  |
-| `holdout_figure` | função | `(res, path, models=None)` | Distribution of landing errors per model (box plot). |
+| `color_of` | função | `(name) -> str` | Cor fixa de um nome de modelo (cinza se desconhecido). |
+| `draw_pitch` | função | `(ax, length=105.0, width=68.0, color='#b9b7b0')` | Desenha as linhas do campo em metros. |
+| `pitch_control_figure` | função | `(xs, ys, q, att_pos, att_vel, def_pos, def_vel, ball, target, path, title='')` | Figura da superfície de controle com jogadores, bola e alvo. |
+| `flights_3d` | função | `(flights, path, title='')` | Vista 3-D de voos observados e ajustados sobre o campo. |
+| `gravity_audit_figure` | função | `(audit, synthetic_g, path)` | Figura da auditoria de gravidade. |
+| `reliability_figure` | função | `(rel, path, title='', models=None, lim=1.0)` | Curvas de confiabilidade por modelo. |
+| `efficiency_figure` | função | `(rows, metric, path, title='', ylabel=None, models=None, flat=None)` | Métrica de teste contra tamanho do treino por modelo, com faixa min-max. |
+| `smoothing_figure` | função | `(rows, path, metric='mp_rmse', ylabel='metabolic power RMSE [W/kg]')` | Erros de suavização por método. |
+| `holdout_figure` | função | `(res, path, models=None)` | Box plot dos erros de aterrissagem por modelo. |
 
 #### `pinneapple_systems.sports.football.xg`
 
-Expected goals with and without physics: a standard shot-geometry baseline against intercept-time features computed from the StatsBomb 360 freeze frame.
+Gols esperados com e sem física: baseline de geometria do chute contra features de tempo de interceptação calculadas do freeze frame 360 do StatsBomb.
 
 <small>`pinneapple_systems/sports/football/xg.py` · 239 linhas · testes: 16</small>
 
 | nome | tipo | assinatura | o que faz |
 |---|---|---|---|
-| `XGParams` | classe | `(v_shot, v_gk, reach_gk, reaction_gk, v_def, reach_def, reaction_def, n_mouth, n_path)` |  |
-| `shots_arrays` | função | `(shots) -> dict[str, Any]` | Shot table to arrays: positions in metres, label, freeze frame padded to ``(n, 22, 4)`` (x, y, mate, gk). |
-| `standard_features` | função | `(A) -> tuple[np.ndarray, list[str]]` |  |
-| `physics_features` | função | `(A, p=None, *, chunk=200) -> tuple[np.ndarray, list[str]]` |  |
-| `freeze_geometry_features` | função | `(A) -> tuple[np.ndarray, list[str]]` | Data-only freeze-frame features (no physics): opponents inside the shot triangle, keeper distance to the goal centre and his lateral offset from the shot line, nearest opponent distance to the shooter. |
-| `select_params` | função | `(A_train, grid_v_shot=(12.0, 16.0, 20.0, 25.0, 30.0), grid_v_gk=(3.0, 5.0, 7.0), folds=5)…)` | Choose ``v_shot`` and ``v_gk`` by grouped cross-validated log-loss of a logistic model on the standard plus physics features, on the training shots only. |
-| `compare` | função | `(A_train, A_test, *, params=None, seed=0) -> dict[str, Any]` | Test scores of: standard logistic / GBM, physics-only logistic, standard+physics logistic / GBM, standard plus data-only freeze-frame geometry (with and without physics); StatsBomb's own xG on the same shots as an external reference (a proprietary model trained on far more shots). |
-| `data_efficiency` | função | `(A_train, A_test, params, sizes=(100, 200, 400, 800, None), seeds=(0, 1, 2, 3, 4))` | Test log-loss of the standard and standard+physics logistic models trained on random subsets. |
+| `XGParams` | classe | `(v_shot, v_gk, reach_gk, reaction_gk, v_def, reach_def, reaction_def, n_mouth, n_path)` | Parâmetros físicos do xG (velocidade do chute, do goleiro e dos defensores, alcance, reação, discretização). |
+| `shots_arrays` | função | `(shots) -> dict[str, Any]` | Converte a tabela de chutes em arrays (posições em metros, rótulo, freeze frame). |
+| `standard_features` | função | `(A) -> tuple[np.ndarray, list[str]]` | Features padrão de xG: distância, ângulo e contexto do chute. |
+| `physics_features` | função | `(A, p=None, *, chunk=200) -> tuple[np.ndarray, list[str]]` | Features físicas: fração do gol aberta, margem do goleiro e bloqueadores. |
+| `freeze_geometry_features` | função | `(A) -> tuple[np.ndarray, list[str]]` | Features geométricas do freeze frame sem física. |
+| `select_params` | função | `(A_train, grid_v_shot=(12.0, 16.0, 20.0, 25.0, 30.0), grid_v_gk=(3.0, 5.0, 7.0), folds=5)…)` | Escolhe velocidades do chute e do goleiro por validação cruzada agrupada no treino. |
+| `compare` | função | `(A_train, A_test, *, params=None, seed=0) -> dict[str, Any]` | Escores de teste dos modelos padrão, físicos e combinados, com o xG do StatsBomb como referência externa. |
+| `data_efficiency` | função | `(A_train, A_test, params, sizes=(100, 200, 400, 800, None), seeds=(0, 1, 2, 3, 4))` | Log-loss de teste dos modelos padrão e padrão+física em subconjuntos do treino. |
 
 #### `pinneapple_systems.time_series`
 
@@ -5269,6 +5314,44 @@ def test_prbs_two_levels_and_switches_only_on_clock():
     assert switches.size > 0 and np.all(switches % hold == 0)
 ```
 
+**Gêmeo que sabe quando errou (missão completa)** — `examples/autolab_digital_twin/twin_knows_when_wrong.py`
+
+```python
+        run = run_mission(a.text, out_dir=a.out, planner=a.planner, render=render, n_per_kind=n, workers=a.workers)
+        st = run.state
+        b = st["benchmark"]["benchmark"]
+        ex.log_metric("cause_accuracy", b["accuracy"], "fraction", f"{b['n_cases']} controlled cases")
+        ex.log_metric("cases_with_false_alarm", b["cases_with_false_alarm"], "cases",
+                      "alarm before the fault, or any alarm on a healthy case")
+```
+
+**Comissionar o gêmeo do trocador de calor** — `tests/test_digital_twin_product.py`
+
+```python
+    spec = TS.from_yaml(APP / "spec_hx201.yaml")
+    hist = generate_history(hours=36.0, sampling_s=600.0)
+
+    def model(X, theta):
+        return exchanger_model(X, theta, ua_clean=10_200.0)
+
+    ev = commission(spec, model, hist, n_ens=48, seed=0, warmup_steps=10)
+    assert ev.commissioned, ev.render()
+    assert ev.tracking.alarm_lead_s.get("T_ho", 0) > 0
+```
+
+**Gêmeo ao vivo do tanque via MQTT embutido** — `tests/test_operations_plant_twin.py`
+
+```python
+    lt = LiveTwin(make_twin(LumpedTankModel()), speed=1000.0).start()
+    try:
+        deadline = time.time() + 10
+        while lt.twin.n_updates < 30 and time.time() < deadline:
+            time.sleep(0.1)
+        assert lt.twin.n_updates >= 30 and lt.broker is not None and lt.broker.n_published >= 30
+        f = lt.inject_fault("leak", 5e-4)
+        assert f["kind"] == "leak" and lt.sim.faults
+```
+
 ### Testes e status de validação
 
 - Módulos com pelo menos um teste que os importa: 104 de 182.
@@ -5310,6 +5393,14 @@ Itens do catálogo de métodos (`pinneapple_catalog/method_status.json`) cujo c�
 - `uncertainty` e `uncertainty.quantile` são shims que reexportam de `pinneapple_analysis`; o docstring de `foundation_models` cita um `time_series.classical_ts` que não existe no pacote.
 - Vários módulos não têm teste direto: `cosimulation.connection`, `cosimulation.utils`, `audit`, `csv_loader`, `eda`, `viz`, `features`, `baselines.naive`, `fft_lstm`, `hht_lstm`, `metrics`, `enso.plots`, `enso.study` e partes do `forecast_lab` (`base`, `baselines`, `hybrid`, `learned`).
 - `registry` importa `fno_forecaster` sem `try/except`, então importar `time_series` exige `pinneapple_neural` com o FNO, embora `models/__init__` trate esse import como opcional.
+- `digital_twin.assimilation.kalman` é só um shim: os filtros EKF/EnKF vivem em `pinneapple_analysis.state_estimation.kalman`.
+- Muitas partes dependem de bibliotecas opcionais: PyTorch (`DigitalTwin`, reconstrução por modelo), paho-mqtt, kafka-python, asyncua, pymodbus (fluxos), PyWavelets, PyYAML (spec), BaSyx (AAS), trimesh, CasADi (MPC/ROM), psycopg (Postgres), Blender `bpy` (renders) e CoolProp (todo `real_gas_eos` e o que depende dele).
+- O broker MQTT embutido não tem persistência, QoS 2, will nem TLS; o próprio docstring manda usar um broker de produção diante de equipamento real. A fonte OPC UA de `operations.live` é marcada como experimental.
+- `operations.control` funciona só em simulação/recomendação: `recommend` não envia nada à planta. As plantas de `operations` (tanque, trocador) e de `pipe_loop` são simuladas; o histórico do trocador é declaradamente sintético.
+- Vários módulos não têm teste que os importe diretamente: `realtime_pipeline`, `signal_reconstruction`, `state`, os módulos internos de `product` e de `pipe_loop`, `ball_study`, `kin_study`, `pc_study` e `plots` (alguns são cobertos pelos testes do pacote pai).
+- Escopos declarados nos docstrings: `pipe_network_1d` cobre um único segmento de tubo; o transporte de `reaction_kinetics` só aceita grade periódica; `curved_path_geometry` é só 2D (o caso 3D não está implementado); `recession` é um só reservatório exponencial, sem chuva nem roteamento.
+- A política de deriva de `product` detecta que o gêmeo errou, não o porquê, e nunca re-treina sozinha; a spec não valida a física, só que existe uma afirmação falsificável.
+- Futebol: os dados (Metrica, SkillCorner, StatsBomb) são baixados em tempo de execução e têm termos de uso próprios (StatsBomb não comercial). O veredito gravado em `docs/guides/football_physics.md` registra que a física não ajudou no xG nem no ponto de aterrissagem contra árvores treinadas.
 
 ## 3. `pinneapple_twin3d`
 

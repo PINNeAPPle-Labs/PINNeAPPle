@@ -201,7 +201,7 @@ Em palavras:
 | `pp.DoMINO` | import direto | `pinneapple_physics.pinn_solver.DoMINO` |  |
 | `pp.DragAdjointObjective` | import direto | `pinneapple_design.design_optimizer.DragAdjointObjective` |  |
 | `pp.DragObjective` | import direto | `pinneapple_design.design_optimizer.DragObjective` |  |
-| `pp.dt` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.digital_twin` |  |
+| `pp.dt` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_systems.digital_twin` | Runtime de gêmeo digital sobre modelos substitutos: reexporta `DigitalTwin`, estados, fluxos de sensores, filtros de Kalman, detectores de anomalia, pipeline de tempo real, reconstrução de sinais, condicionamento de telemetria e prognóstico (RUL). |
 | `pp.dynamics` | submódulo preguiçoso (`_SUBMODULES`) | `pinneapple_simulation.particle_dynamics` | Simulação dinâmica diferenciável em PyTorch puro: corpos rígidos, MPM (MLS-MPM) e SPH; reexporta também os parâmetros de solo/roda de Bekker-Wong. |
 | `pp.EKIConfig` | import direto | `pinneapple_analysis.inverse_problems.EKIConfig` |  |
 | `pp.ellipse` | import direto | `pinneapple_design.geometry.ellipse` |  |

@@ -1,6 +1,6 @@
 {
  "pacote": "pinneapple_design",
- "objetivo": "",
+ "objetivo": "Esta parte cobre cinco submódulos de `pinneapple_design`. `aero` faz o projeto aerodinâmico completo (perfis CST, casos OpenFOAM, surrogates MLP e MeshGraphNet, aeronave leve e avião comercial, busca NSGA-II e verificação por CFD). `design_optimizer` é o núcleo genérico de otimização de projeto: problemas com variáveis, objetivos, restrições e avaliadores, métodos comparáveis sob o mesmo orçamento, verificação em alta fidelidade e presets. `geometry_library` é a biblioteca de geometrias 3D paramétricas exposta como `pp.geometries`. `intent` transforma uma meta em linguagem natural (`pp.design`) num pacote de projeto verificado, usando `design_optimizer` e a biblioteca de geometrias. `surrogate_inverse` traz cinco casos didáticos de projeto inverso por surrogate sobre fórmulas de `pinneapple_physics.closed_form`, servidos por apps.",
  "submodulos": {
   "aero": "Projeto aerodinâmico de ponta a ponta: perfis CST, malha O-grid e casos OpenFOAM, surrogates (MLP e MeshGraphNet), desempenho da aeronave leve e do avião comercial, busca NSGA-II e verificação por CFD.",
   "design_optimizer": "Otimização de projeto guiada por física: espaço de parâmetros, objetivos e restrições, otimizadores (gradiente, bayesiano, evolutivo), estudos de projeto com orçamento de avaliações, verificação em alta fidelidade e presets de dissipador e perfil.",
@@ -583,7 +583,23 @@
   "pinneapple_design.surrogate_inverse.transdermal_patch:mesh": "Malha do disco do reservatório com a membrana, em milímetros.",
   "pinneapple_design.surrogate_inverse.transdermal_patch:export_stl_bytes": "Bytes STL do adesivo."
  },
- "exemplos": [],
+ "exemplos": [
+  {
+   "titulo": "Vortex lattice do avião comercial da biblioteca de geometrias",
+   "caminho": "examples/geometry_library/03_airliner_vlm.py",
+   "codigo": "g = pp.geometries.build(\"airliner_a320\")\np = g.params\nac = Airliner(length=p[\"length\"], wing_area=p[\"wing_area\"], aspect_ratio=p[\"aspect_ratio\"], taper=p[\"taper\"],\n              sweep_le=p[\"sweep_le\"], dihedral=p[\"dihedral\"], twist=p[\"twist\"], fan_diameter=p[\"fan_diameter\"],\n              engine_station=p[\"engine_station\"], sharklets=p[\"sharklets\"])\nx_ref = ac.mac_le_x + 0.25 * ac.mac\nsol = solve(ac, x_ref)\nprint(g)"
+  },
+  {
+   "titulo": "Preset do dissipador no estudo de projeto (forma fechada)",
+   "caminho": "tests/test_design_studies.py",
+   "codigo": "def test_heatsink_geometry_matches_library_closed_forms():\n    from pinneapple_design.thermal.heatsink.engine import DesignInput\n    from pinneapple_physics.closed_form.cantilever_fatigue import stress_from_moment_pa\n\n    p = presets.heatsink_problem(\"closed_form\")\n    b = presets.heatsink_baseline()\n    ev = p.evaluate(p.space.from_dicts([b]))\n    d = DesignInput(**b)\n    assert ev.Y[\"mass_g\"][0] == pytest.approx(d.geometry().mass_kg() * 1e3, rel=1e-12)"
+  },
+  {
+   "titulo": "Surrogate do surrogate_inverse com erro em dados separados",
+   "caminho": "tests/pinneapple_design/test_surrogate_inverse.py",
+   "codigo": "def test_fit_surrogate_learns_a_power_law_and_reports_held_out_error():\n    rng = np.random.default_rng(0)\n    X = torch.tensor(rng.uniform([1.0, 1.0], [10.0, 5.0], size=(2000, 2)), dtype=torch.float32)\n    y = X[:, 0] ** 2 / X[:, 1]\n    fit = core.fit_surrogate(X, y, [(1.0, 10.0), (1.0, 5.0)], epochs=1000, log_output=True, hidden=32, n_layers=2)\n    assert fit.n_val == 200 and fit.n_train == 1800\n    assert fit.val_mean_rel_err < 0.03 and fit.val_p95_rel_err >= fit.val_mean_rel_err\n    with torch.no_grad():\n        assert float(fit.model(torch.tensor([[4.0, 2.0]]))[0]) == pytest.approx(8.0, rel=0.05)"
+  }
+ ],
  "limitacoes": [
   "`aero.case`, `aero.case3d`, `aero.dataset` e `aero.verify` precisam do OpenFOAM instalado para rodar; `render_blender` precisa do `bpy` (Blender).",
   "Os modelos de aeronave são de ordem reduzida (polar elíptica, build-up de Raymer, vortex lattice com esteira plana sem roll-up); o docstring de `vlm.streamlines` avisa que a esteira não mostra o enrolamento.",

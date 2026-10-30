@@ -130,6 +130,25 @@ try:
 except Exception:  # pragma: no cover
     pass
 
+# Onboarding: the first hour (pinneapple_core.onboarding)
+try:
+    from pinneapple_core.onboarding import card, doctor, profiles, recommend
+    from pinneapple_core.onboarding import new_project
+
+    def new(name: str, **kwargs):
+        """Create a project of your own, outside this repository.
+
+        ``pp.new("my_study", template="plain", preset="cpu_heatsink_thermal")`` writes a folder with
+        a ``case.yaml`` you edit, a runner that uses the cheapest method that works, a README and a
+        ``requirements.txt``; ``template`` is ``plain`` (no Python), ``research`` (metrics, checks and
+        an experiment manifest) or ``cfd`` (a parameter sweep through the reference solver).
+        """
+        return new_project(name, **kwargs)
+
+except Exception:  # pragma: no cover
+    def new(name, **kwargs):
+        raise ImportError("pinneapple_core.onboarding is not available in this installation")
+
 # Model builder
 try:
     from pinneapple_neural.architectures import ModelRegistry
@@ -432,8 +451,12 @@ def quickstart(problem_id: str = "burgers_1d", **problem_kwargs):
         return
 
     border = "=" * 60
+    title = getattr(spec, "problem_id", "") or getattr(spec, "name", "") or problem_id
+    name = getattr(spec, "problem_id", "") or problem_id
+    coords = tuple(getattr(spec, "coords", ()) or ())
+    fields = tuple(getattr(spec, "fields", ()) or ())
     print(border)
-    print(f"  pinneapple — Quickstart: {spec.problem_id}")
+    print(f"  pinneapple — Quickstart: {title}")
     print(border)
     print(f"  PDE kind    : {spec.pde.kind}")
     print(f"  Fields      : {spec.fields}")
@@ -447,14 +470,23 @@ def quickstart(problem_id: str = "burgers_1d", **problem_kwargs):
         print(f"  DT fields   : {spec.meta['digital_twin_fields']}")
     print(border)
     print()
+    method = "pinn"
+    try:
+        from pinneapple_core.onboarding.catalog import best_method
+
+        method = best_method(problem_id)
+    except Exception:  # pragma: no cover
+        pass
     print("  Next steps:")
-    print(f"  1. from pinneapple_physics.pde_environment import get_preset")
-    print(f"     spec = get_preset('{problem_id}')")
-    print(f"  2. from pinneapple_data import CollocationSampler")
-    print(f"     sampler = CollocationSampler.from_problem_spec(spec)")
-    print(f"     batch = sampler.sample(n_col=8000, n_bc=1000)")
-    print(f"  3. model = pp.build_model('vanilla_pinn', in_dim={len(spec.coords)}, out_dim={len(spec.fields)})")
-    print(f"  4. See examples/benchmark_suite/03_pinn_burgers_full_pipeline.py")
+    print(f"  1. sol = pp.solve({problem_id!r}, method={method!r})      # one call, no setup")
+    if method != "pinn":
+        print(f"     # '{method}' needs no training; after it looks right, train a network:")
+        print(f"     # sol = pp.solve({problem_id!r}, method='pinn', epochs=2000)")
+    print(f"  2. print(sol.metadata())                       # what was solved, by which method")
+    print(f"     X = np.random.rand(500, {len(coords)}); sol.predict(X)   # values anywhere")
+    print(f"  3. pp.card({problem_id!r}){' ' * max(1, 22 - len(problem_id))}# what it takes and gives back")
+    print(f"  4. pp.compare({problem_id!r}, methods=['pinn'], reference={method!r})")
+    print(f"  5. pp.new('my_study', preset={problem_id!r})      # a project you can grow")
     print(border)
     return spec
 
@@ -525,6 +557,15 @@ def info():
         ok = importlib.util.find_spec(dist) is not None
         hint = "" if ok else f"  → pip install \"pinneapple[{extra}]\""
         print(f"    {dist:<12} [{'OK' if ok else 'not installed'}]{hint}")
+
+    print()
+    print("  What now:")
+    print("    pp.doctor('start')                        # is this machine ready? (start|cfd|research|enterprise)")
+    print("    pp.recommend('your problem in a sentence')  # which preset, method and model, and why")
+    print("    pp.card('burgers_1d')                     # what a preset takes and gives back")
+    print("    pp.new('my_study')                        # a project of your own")
+    print("    GETTING_STARTED.md                        # thirteen recipes, with the output they print")
+
 
 
 # ---------------------------------------------------------------------------
@@ -703,6 +744,8 @@ __all__ = [
     "Experiment", "ExperimentResult", "metrics",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
+    # First hour: is this machine ready, what should I run, what does it take, where do I put it
+    "doctor", "profiles", "recommend", "card", "new",
     # Models
     "list_models", "build_model",
     # Training

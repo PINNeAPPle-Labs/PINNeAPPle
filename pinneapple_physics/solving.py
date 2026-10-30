@@ -40,7 +40,7 @@ from . import metrics as _metrics
 from .physical_problem import PhysicalProblem
 
 __all__ = ["Solution", "Comparison", "MethodNotAvailable", "solve", "compare", "register_method", "list_methods",
-           "register_analytic", "list_analytic", "as_problem", "list_kinds"]
+           "register_analytic", "list_analytic", "analytic_for", "as_problem", "list_kinds"]
 
 
 class MethodNotAvailable(RuntimeError):
@@ -181,6 +181,29 @@ def register_analytic(name: str, matcher: Callable[[PhysicalProblem], bool]):
 
 def list_analytic() -> List[str]:
     return [n for n, _, _ in _ANALYTIC]
+
+
+def analytic_for(problem: Union[PhysicalProblem, Any, str]) -> Optional[str]:
+    """Name of the closed-form solution this library knows for ``problem``, or ``None``.
+
+    Lets a caller answer "can I get an exact answer before training anything?" without catching an
+    exception from :func:`solve`. ``problem`` is anything :func:`solve` accepts: a name, a PDE spec
+    or a :class:`PhysicalProblem`.
+
+    >>> from pinneapple_physics.solving import analytic_for
+    >>> analytic_for("burgers_1d")
+    'burgers_sine_cole_hopf'
+    >>> analytic_for("poisson_2d") is None
+    True
+    """
+    p = as_problem(problem)
+    for name, matcher, _factory in _ANALYTIC:
+        try:
+            if matcher(p):
+                return name
+        except Exception:  # a matcher that cannot read this problem simply does not match it
+            continue
+    return None
 
 
 def _is_burgers_sine(p: PhysicalProblem) -> bool:

@@ -14,6 +14,47 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Optional compressed persistence in `pinneapple_data`: `save_pt(samples, path, compress=True)` (and
+  `UPDDataset.save(path, compress=True)`) writes the payload gzip-compressed, about 30% smaller on float32 field
+  data with no loss of precision. It is opt-in: the default stays an uncompressed `.pt`, and `load_pt` /
+  `UPDDataset.load` read either form without a format hint, detecting compression from the gzip magic bytes.
+- Front door for new users, in `pinneapple_core.onboarding`, as four commands (`pinneapple doctor | recommend |
+  card | new`) and the same four as functions (`pp.doctor`, `pp.recommend`, `pp.card`, `pp.new`):
+  - `doctor(profile)` checks the installation against `start`, `cfd`, `research`, `enterprise` or `all` and prints
+    one fix command per missing item; a check that cannot run reports `None`, never a pass.
+  - `recommend(text)` turns a problem described in English or Portuguese into a preset, a method that runs on this
+    machine and a model to train, and shows the terms the keyword ranking matched. It returns no preset instead of
+    guessing when nothing matches.
+  - `card(preset)` describes a preset (coordinates, fields, conditions, the method that runs, what that method
+    needs) and carries a program that runs as printed, falling back to a trained network when the classical solver
+    cannot cover the problem.
+  - `new(name, template=plain|research|cfd)` writes a standalone project outside this repository: `case.yaml` +
+    runner + README + requirements, with every path relative to the project folder. The `research` template records
+    metrics with unit and method and writes an experiment manifest; the `cfd` template sweeps a parameter the preset
+    accepts into a CSV and a figure.
+- `START_HERE.md`: one page, four paths (engineer without Python, learning physics-AI, research, product), each with
+  the commands to run and what to read next.
+- `pinneapple_physics.solving.analytic_for(problem)`: the name of the closed-form solution this library knows for a
+  problem, or `None`, without catching an exception from `solve`.
+- Extras `pinneapple[cfd]` and `pinneapple[enterprise]`: bundles matching the `doctor` profiles.
+- `tests/test_front_door.py` (the entry pages run, compile, and every `pp.<name>` and preset they mention exists) and
+  `tests/test_onboarding.py` (the four commands promise only what they deliver, including a generated project that
+  runs from another directory).
+
+### Changed
+- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
+  of the first hour and no longer need `pinneapple[pinn]`.
+- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
+  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
+- `pp.info()` ends with the four commands to try next.
+- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
+  (the registry is lowercase) and had been stale since September.
+- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
+  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
+- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
+  (OpenFOAM, FEniCS).
+- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
+
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
   predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
@@ -110,6 +151,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   gates (AGENTS.md, "Generated files").
 
 ### Fixed
+- `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
+  `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
+  (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that
+  provably is this module's own format is re-read with `weights_only=False`, so a checkpoint of plain tensors never
+  takes the permissive path. This affected uncompressed `.pt` files too, not just the new compressed option.
 - Bugs found by the cross-framework benchmark (`benchmarks/vs_frameworks/REPORT.md`):
   - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) early stopping watched the weighted total,
     which its adaptive PDE/data balancing re-weights every step, so it compared losses under different weights (it

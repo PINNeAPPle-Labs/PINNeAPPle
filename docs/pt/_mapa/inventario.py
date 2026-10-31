@@ -37,7 +37,10 @@ ROOT = Path(__file__).resolve().parents[3]
 SKIP_DIRS = {".git", "__pycache__", "node_modules", "vendor", ".ipynb_checkpoints", "_out", "_runs",
              "site-packages", ".pytest_cache", "build", "dist"}
 # Dados de clientes ficam fora do inventário (pedido explícito do dono do repositório).
-EXCLUDE_RE = re.compile(r"vectron|shinagawa|\bCSN\b|\bD0\b", re.I)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from exclusao import padrao  # noqa: E402
+
+EXCLUDE_RE = padrao()        # nomes que não podem aparecer: fora do repositório (ver exclusao.py)
 FLAG_RE = {
     "experimental": re.compile(r"\bexperimental\b", re.I),
     "placeholder": re.compile(r"\bplaceholder\b|\bstub\b|not (yet )?implemented|\bTODO\b", re.I),

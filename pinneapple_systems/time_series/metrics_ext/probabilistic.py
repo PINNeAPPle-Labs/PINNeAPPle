@@ -15,6 +15,13 @@ def pinball_loss(y_pred_q: np.ndarray, y_true: np.ndarray, q: float) -> float:
 
 
 def coverage(y_lo: np.ndarray, y_hi: np.ndarray, y_true: np.ndarray) -> float:
+    """Empirical coverage of the interval ``[y_lo, y_hi]``.
+
+    Returns
+    -------
+    coverage : float [-]
+        Fraction of ``y_true`` inside [y_lo, y_hi].
+    """
     y_lo = np.asarray(y_lo, dtype=float)
     y_hi = np.asarray(y_hi, dtype=float)
     y_true = np.asarray(y_true, dtype=float)

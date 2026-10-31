@@ -1,4 +1,4 @@
-"""Output units of the ``pinneapple_systems.process_components`` tools (numpy ``Returns`` / ``Attributes``), read back
+"""Output units of the ``pinneapple_systems`` tools (process components, ENSO and time-series helpers) (numpy ``Returns`` / ``Attributes``), read back
 from the source the way the Studio's catalog reads them. The units come from the field names (``P_Pa``, ``T_K``,
 ``h_J_kg``), their comments or the docs; a value in the units of the caller's inputs stays empty."""
 from __future__ import annotations
@@ -30,6 +30,10 @@ RETURNS = {
     P + "similarity_map:required_speed_for_head": [("N", "rpm")],
     P + "water_hammer:joukowsky_head_rise": [("dH", "m")],
     P + "water_hammer:wave_period": [("T", "s")],
+    "pinneapple_systems.time_series.enso.data:d20_from_profile": [("d20", "m")],
+    "pinneapple_systems.time_series.enso.data:soi_from_mslp": [("soi", "-")],
+    "pinneapple_systems.time_series.enso.pinn:project_forcing": [("X0", "m/s2"), ("X2", "m/s2")],
+    "pinneapple_systems.time_series.metrics_ext.probabilistic:coverage": [("coverage", "-")],
 }
 ATTRIBUTES = {
     P + "real_gas_eos:GasState": {"P_Pa": "Pa", "T_K": "K", "h_J_kg": "J/kg", "s_J_kgK": "J/(kg K)", "Z": "-"},
@@ -38,6 +42,8 @@ ATTRIBUTES = {
     P + "water_hammer:TransientResult": {"head": "m", "flow": "m3/s", "tau": "-", "t": None, "dt": None},
     P + "torsional_stickslip:StickSlipResult": {"t_s": "s", "surface_torque_ts_N_m": "N m"},
     P + "beam_nonlinear_fem:StaticNonlinearBeamResult": {"w_m": "m", "bending_stress": None},   # units of E passed in
+    "pinneapple_systems.time_series.enso.data:Gridded": {"lat": "deg", "lon": "deg"},
+    "pinneapple_systems.time_series.solar_cycle:HilbertResult": {"phase": "rad", "amplitude": None},
 }
 
 

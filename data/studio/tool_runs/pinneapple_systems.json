@@ -740,7 +740,7 @@
   "seconds": 0.0
  },
  "pinneapple_systems.time_series.enso.data:d20_from_profile": {
-  "code_hash": "3b0766d262fbc5b6",
+  "code_hash": "7713bf61e6cad0bd",
   "inputs": {
    "T": [
     28.0,
@@ -760,7 +760,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 0.01
+  "seconds": 11.12
  },
  "pinneapple_systems.time_series.enso.data:era5_monthly": {
   "code_hash": "a03b3da8d0321662",

@@ -177,7 +177,15 @@ def month_range(start: str, end: str) -> list[str]:
 
 @dataclass
 class Gridded:
-    """Monthly fields (nt, ny, nx) on a regular lat/lon grid (cell centres, lon in 0-360)."""
+    """Monthly fields (nt, ny, nx) on a regular lat/lon grid (cell centres, lon in 0-360).
+
+    Attributes
+    ----------
+    lat : np.ndarray [deg]
+        Latitudes of the cell centres.
+    lon : np.ndarray [deg]
+        Longitudes of the cell centres, 0-360.
+    """
     time: list[str]
     lat: np.ndarray
     lon: np.ndarray
@@ -326,7 +334,13 @@ def anomalies(x: np.ndarray, time: Sequence[str], base: tuple[str, str]) -> tupl
 def d20_from_profile(z: np.ndarray, T: np.ndarray, *, iso: float = 20.0, max_gap: float = 60.0) -> float:
     """Depth [m] where the profile first crosses ``iso`` going down (linear interpolation between the bracketing
     levels), or NaN when the profile does not start above ``iso`` within the top 30 m, does not reach below it, or
-    the bracketing levels are more than ``max_gap`` m apart."""
+    the bracketing levels are more than ``max_gap`` m apart.
+
+    Returns
+    -------
+    d20 : float [m]
+        Depth of the isotherm (NaN when not bracketed).
+    """
     z, T = np.asarray(z, float), np.asarray(T, float)
     ok = np.isfinite(z) & np.isfinite(T)
     z, T = z[ok], T[ok]
@@ -457,7 +471,13 @@ def d20_monthly(casts: dict[str, np.ndarray], months: Sequence[str], *, lat: tup
                 daily_per_platform: bool = True) -> np.ndarray:
     """Monthly mean D20 [m] per longitude bin (``len(lon_edges) - 1`` bins) for casts with latitude in ``lat``;
     NaN where a bin has fewer than ``min_casts`` casts. Each cast counts once (a mooring reporting daily weighs as
-    much as 30 XBT drops); ``daily_per_platform`` is kept for the record (WOD moored data are already daily)."""
+    much as 30 XBT drops); ``daily_per_platform`` is kept for the record (WOD moored data are already daily).
+
+    Returns
+    -------
+    d20 : np.ndarray [m]
+        Monthly mean D20 per longitude bin.
+    """
     import datetime
     base = datetime.date(1770, 1, 1)
     ym = np.array([(base + datetime.timedelta(days=float(t))).strftime("%Y-%m") for t in casts["time"]]) \
@@ -481,7 +501,13 @@ def d20_monthly(casts: dict[str, np.ndarray], months: Sequence[str], *, lat: tup
 def d20_climatology(casts: dict[str, np.ndarray], lon_edges: Sequence[float], lat_edges: Sequence[float],
                     base: tuple[str, str]) -> np.ndarray:
     """Mean D20 [m] of the casts in each (lat, lon) bin over the months of ``base`` (each calendar month weighted
-    equally); NaN where a bin has no cast. Shape (len(lat_edges) - 1, len(lon_edges) - 1)."""
+    equally); NaN where a bin has no cast. Shape (len(lat_edges) - 1, len(lon_edges) - 1).
+
+    Returns
+    -------
+    d20 : np.ndarray [m]
+        Mean D20 per (lat, lon) bin.
+    """
     import datetime
     t0 = datetime.date(1770, 1, 1)
     ym = np.array([(t0 + datetime.timedelta(days=float(t))).strftime("%Y-%m") for t in casts["time"]])
@@ -607,7 +633,13 @@ def soi_from_mslp(g: Gridded, var: str = "mean_sea_level_pressure", base: tuple[
                   ) -> np.ndarray:
     """Tahiti (17.5S, 149.6W) minus Darwin (12.4S, 130.9E) sea-level pressure, each standardised per calendar month
     over ``base`` (default: the whole record), the difference standardised again (the CPC/BoM construction) --
-    taken at the nearest cells of ``g``, so on a coarse grid it is a proxy of the station index."""
+    taken at the nearest cells of ``g``, so on a coarse grid it is a proxy of the station index.
+
+    Returns
+    -------
+    soi : np.ndarray [-]
+        Standardised Southern Oscillation Index.
+    """
     def nearest(la, lo):
         return int(np.argmin(np.abs(g.lat - la))), int(np.argmin(np.abs(g.lon - lo % 360)))
 

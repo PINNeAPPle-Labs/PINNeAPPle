@@ -504,3 +504,9 @@ def test_inputs_read_a_class_built_from_keyword_literals_as_a_nested_form():
     assert _literal(ast.parse("Windkessel(Rp=1e8, C=1e-8)", mode="eval").body) == (True, {"Rp": 1e8, "C": 1e-8})
     assert _literal(ast.parse("Windkessel(1e8, 1e-8)", mode="eval").body)[0] is False
     assert _literal(ast.parse("make(Rp=1.0)", mode="eval").body)[0] is False
+
+
+def test_inputs_follow_a_module_imported_by_name():
+    from pinneapple_studio.inputs import calls_in
+    src = "import numpy as np\nfrom pinneapple_x.sub import mod\n\ndef test_a():\n    mod.f(np.array([1.0, 2.0]), k=3)\n"
+    assert calls_in(src) == [("pinneapple_x.sub.mod:f", 5, [[1.0, 2.0]], {"k": 3})]

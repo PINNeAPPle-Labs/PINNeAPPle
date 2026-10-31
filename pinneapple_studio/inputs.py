@@ -121,6 +121,8 @@ def calls_in(src: str) -> list[tuple[str, int, list[Any], dict[str, Any]]]:
             tid = names[f.id]
         elif isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id in mods:
             tid = f"{mods[f.value.id]}:{f.attr}"
+        elif isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) and f.value.id in names:
+            tid = f"{names[f.value.id].replace(':', '.')}:{f.attr}"   # from pinneapple_x import mod -> mod.f(...)
         if not tid or any(isinstance(a, ast.Starred) for a in n.args) or any(k.arg is None for k in n.keywords):
             continue
         args, kwargs, ok = [], {}, True

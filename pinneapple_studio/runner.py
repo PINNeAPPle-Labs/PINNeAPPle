@@ -45,7 +45,11 @@ def clean_env(extra: dict[str, str] | None = None) -> dict[str, str]:
 
 
 def scrub_environment() -> None:
-    """Inside a job process: drop every variable outside :func:`clean_env`."""
+    """Inside a job process: drop every variable outside :func:`clean_env` (a no-op in the server's own process,
+    where a thread-executor job runs)."""
+    import multiprocessing
+    if multiprocessing.parent_process() is None:
+        return
     keep = clean_env()
     for k in list(os.environ):
         if k not in keep:
@@ -146,6 +150,16 @@ def tool_job(params: dict[str, Any], ctx) -> dict[str, Any]:
         raise KeyError(f"unknown tool {params['tool']!r}")
     if tool["category"] != "executable":
         raise ValueError(f"{params['tool']} is {tool['category']}: {tool['category_reason']}")
+    if tool["kind"] in ("preset", "experiment"):
+        from .extras import run
+        ctx.progress(0.2, f"running {tool['id']}")
+        value, ver = run(tool, params.get("inputs") or {})
+        figs = _save_figures(workdir)
+        result = to_jsonable(value, digits=8, nonfinite="nan")
+        (workdir / "result.json").write_text(json.dumps(result, default=str))
+        ctx.progress(1.0, "done")
+        return {"tool": tool["id"], "type": tool["kind"], "result": result, "figures": figs,
+                "evidence": evidence(params, workdir, t0, ver, "done")}
     ctx.progress(0.05, f"importing {tool['module']}")
     obj = resolve(tool["id"])
     inputs = build_inputs(tool.get("form", {}), params.get("inputs") or {})

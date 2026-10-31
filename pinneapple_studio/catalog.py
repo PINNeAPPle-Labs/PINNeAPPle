@@ -264,6 +264,11 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                     tool["form_problems"] = C.valid_form(tool["form"])
                 tools[tid] = tool
     _related(tools, inv)
+    from .extras import preset_tools, science_tools
+    for t in preset_tools(root) + science_tools(root):
+        text = " ".join([t["name"], t["doc1"], t["doc"]])
+        t.update(tasks=T.tags(text, T.TASKS), areas=T.tags(text, T.AREAS), products=T.tags(text, T.PRODUCTS))
+        tools[t["id"]] = t
     counts: dict[str, Any] = {"tools": len(tools)}
     for field in ("category", "status", "kind"):
         counts[field] = dict(sorted(_count(tools.values(), field).items()))

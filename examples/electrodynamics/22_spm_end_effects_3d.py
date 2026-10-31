@@ -25,19 +25,36 @@ OVERHANGS = (0.0, 0.01)
 
 def main() -> dict:
     t0 = time.perf_counter()
+    OUT.mkdir(exist_ok=True)
     m = SPMMachine(iron=LinearMaterial(mu_r=1000.0))
-    res = end_effect_study(m, RATIOS, end_length=0.04, end_layers=4, layer_dz=0.015, n_theta=240,
-                           overhangs=OVERHANGS, progress=lambda s: print(s, flush=True))
-    # sensitivity at L/D = 0.5: twice the end air, and twice the angular resolution
-    sens = {"end_length_0.08": end_effect_study(m, (0.5,), end_length=0.08, end_layers=8, n_theta=240,
-                                                overhangs=OVERHANGS)["rows"][0],
-            "n_theta_480": end_effect_study(m, (0.5,), end_length=0.04, end_layers=4, n_theta=480,
-                                            overhangs=OVERHANGS)["rows"][0]}
-    for r in res["rows"]:
+    ck = OUT / "22_spm_end_effects_3d.rows.jsonl"            # one study per line: an interrupted run resumes
+    done = {}
+    if ck.exists():
+        for line in ck.read_text().splitlines():
+            r = json.loads(line)
+            done[r["key"]] = r
+    # the L/D sweep, then the sensitivity at L/D = 0.5: twice the end air, and twice the angular resolution
+    cases = [(f"ld{ld:g}", ld, {"end_length": 0.04, "end_layers": 4, "n_theta": 240}) for ld in RATIOS]
+    cases += [("end_length_0.08", 0.5, {"end_length": 0.08, "end_layers": 8, "n_theta": 240}),
+              ("n_theta_480", 0.5, {"end_length": 0.04, "end_layers": 4, "n_theta": 480})]
+    res = {}
+    for key, ld, kw in cases:
+        if key not in done:
+            r = end_effect_study(m, (ld,), layer_dz=0.015, overhangs=OVERHANGS, **kw)
+            done[key] = {"key": key, **kw, "row": r["rows"][0]}
+            with open(ck, "a") as fh:
+                fh.write(json.dumps(done[key]) + "\n")
+        row = done[key]["row"]
+        print(f"{key}: k = {row['k_o0mm']:.4f} (coil ends in the end faces), {row['k_o10mm']:.4f} (10 mm beyond), "
+              f"{row['tets']} tetrahedra, {row['seconds']:.0f} s", flush=True)
+        res[key] = row
+    rows = [res[f"ld{ld:g}"] for ld in RATIOS]
+    for r in rows:
         for o in OVERHANGS:
             r[f"dL_mm_o{o * 1e3:g}mm"] = 1e3 * r["length_m"] * (1 - r[f"k_o{o * 1e3:g}mm"])
-    out = {**res, "sensitivity": sens, "seconds": time.perf_counter() - t0, "date": time.strftime("%Y-%m-%d")}
-    OUT.mkdir(exist_ok=True)
+    out = {"D": 2 * m.r_bore, "end_length": 0.04, "end_layers": 4, "n_theta": 240, "rows": rows,
+           "sensitivity": {"end_length_0.08": res["end_length_0.08"], "n_theta_480": res["n_theta_480"]},
+           "seconds": time.perf_counter() - t0, "date": time.strftime("%Y-%m-%d")}
     (OUT / "22_spm_end_effects_3d.json").write_text(json.dumps(out, indent=1))
     figure(out)
     return out

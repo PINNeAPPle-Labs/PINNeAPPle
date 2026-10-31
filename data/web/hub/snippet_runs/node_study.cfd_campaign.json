@@ -1,0 +1,12 @@
+{
+ "code_hash": "b177397c97f512cf",
+ "figures": [],
+ "id": "node:study.cfd_campaign",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 11.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CFD campaign (OpenFOAM, resumable) -> pinneapple_autolab.study.campaign.plan_doe + run_campaign (pinneapple_autolab.domains.ahmed.AhmedAero)\ninputs: []\noutputs: [('runs', 'cfd_runs'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'n': 48, 'procs': 4, 'folder': ''}",
+ "timed_out": false
+}

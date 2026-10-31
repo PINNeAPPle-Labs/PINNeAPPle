@@ -99,3 +99,28 @@ def test_skew_study_resumes_from_its_checkpoint(tmp_path):
     b = skew_study(s, [0.0, 2 * s.step], kinds=("step2",), thetas=th, checkpoint=ck, progress=msgs.append)
     assert all("checkpoint" in x for x in msgs) and len(msgs) == 2
     assert [r["pkpk_3d"] for r in a["rows"]] == [r["pkpk_3d"] for r in b["rows"]]
+
+
+def test_search_coil_links_the_2d_flux_and_end_air_lowers_it(machine):
+    from pinneapple_simulation.electromagnetics.machines3d.endeffects import (
+        end_effect_study,
+        search_coil_linkage,
+    )
+
+    m3 = SPM3D(machine, n_theta=72, stack_layers=2)
+    s = m3.solve(0.0)
+    lam = search_coil_linkage(m3, s)
+    # Stokes: the loop integral is the flux of B through the coil's cylindrical surface (midpoint rule in phi, z)
+    r = 0.5 * (2 * machine.r_bore + machine.slot_depth)
+    tau = np.pi / machine.pole_pairs
+    n = 2000                                         # 0.25 % from the loop integral (2.4 % at 200)
+    phi = (np.arange(n) + 0.5) / n * tau - tau / 2
+    z = (np.arange(20) + 0.5) / 20 * machine.length - machine.length / 2
+    P, Z = np.meshgrid(phi, z)
+    pts = np.column_stack([r * np.cos(P.ravel()), r * np.sin(P.ravel()), Z.ravel()])
+    B = s.B[m3.mesh.locate(pts)]
+    Br = B[:, 0] * np.cos(P.ravel()) + B[:, 1] * np.sin(P.ravel())
+    flux = Br.sum() * (r * tau / n) * (machine.length / 20)
+    assert lam == pytest.approx(flux, rel=0.01)
+    row = end_effect_study(machine, (0.5,), end_length=0.02, end_layers=2, n_theta=72)["rows"][0]
+    assert 0.98 < row["k_o0mm"] < 1.0                # 0.9945 measured: end leakage, a fraction of a percent

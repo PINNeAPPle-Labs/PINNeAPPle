@@ -66,6 +66,36 @@ def test_mass_matrix_integrates_exactly():
     assert a @ M @ a == pytest.approx(2.0 * 2.0 / 3.0, rel=1e-12)
 
 
+def test_linked_roots_remove_the_floating_potential():
+    # a conductor inside the box: its nodes and the boundary are two root groups; the forest leaves the
+    # conductor's floating potential in the null space, one more tree edge removes it
+    g = np.linspace(0, 1, 7)
+    m = box_mesh(g, g, g, region=lambda c: np.where(np.all(np.abs(c - 0.5) < 0.2, axis=1), 1, 0),
+                 names={"air": 0, "plate": 1})
+    de = m.boundary_edges
+    roots = np.union1d(np.unique(m.edges[de]), m.nodes_in(m.mask("plate")))
+    forest = tree_gauge(m, de, roots)
+    tree = tree_gauge(m, de, roots, link_roots=True)
+    assert len(tree) == len(forest) + 1 and np.isin(forest, tree).all()
+    sp = EdgeSpace(m)
+    sigma = np.where(m.mask("plate"), 1e7, 0.0)
+    K = (sp.stiffness(NU0) + 1j * 2 * np.pi * 50 * sp.mass(sigma)).tocsr()
+    for t, singular in ((forest, True), (tree, False)):
+        u = np.setdiff1d(np.setdiff1d(np.arange(sp.n), de), t)
+        smin = np.linalg.svd(K[u][:, u].toarray(), compute_uv=False)[-1]
+        assert (smin < 1e-8 * NU0) == singular
+
+
+def test_pardiso_and_superlu_agree():
+    from pinneapple_simulation.electromagnetics.fem3d.nedelec import _mkl_path
+
+    _mkl_path()
+    pytest.importorskip("pypardiso")
+    a = slab_eddy(8, nxy=4, gauge="tree", solver="splu")
+    b = slab_eddy(8, nxy=4, gauge="tree", solver="pardiso")
+    assert b["loss_error"] == pytest.approx(a["loss_error"], abs=1e-10)
+
+
 def test_slab_eddy_against_closed_form():
     r1 = slab_eddy(8, nxy=4, gauge="tree")
     r2 = slab_eddy(16, nxy=8, gauge="tree")

@@ -21,6 +21,8 @@ jobs:
       - name: Install package + core test deps
         run: |
           python -m pip install --upgrade pip
+          # CPU torch first: the default PyPI wheel pulls ~3 GB of CUDA libraries and fills the runner disk
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry]"
           pip install pytest datasets
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
@@ -78,7 +80,7 @@ jobs:
         run: |
           pip install pyamg gmsh
           sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2 calculix-ccx
-          pytest tests/test_immersed.py -q -p no:warnings
+          pytest tests/test_immersed.py tests/test_immersed_elasticity.py tests/test_immersed_transient.py -q -p no:warnings
 
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |

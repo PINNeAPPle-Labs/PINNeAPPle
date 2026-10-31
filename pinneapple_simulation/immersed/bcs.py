@@ -56,6 +56,15 @@ class HeatFlux:
 
 
 @dataclass
+class HeatInput:
+    """A total heat input [W] spread uniformly over the surface its selector picks (a chip footprint): the power
+    is exact whatever area the discretisation finds there."""
+    power: float
+    where: Callable | None = None
+    kind = "neumann"
+
+
+@dataclass
 class Convection:
     """Convection (Robin): the flux out of the body is ``h (T - T_inf)``."""
     h: Any
@@ -88,6 +97,22 @@ class Pressure:
     p: Any
     where: Callable | None = None
     kind = "neumann"
+
+
+@dataclass
+class Force:
+    """A total force [N] (vector) spread uniformly over the surface its selector picks: the applied load is exact
+    whatever area the discretisation finds there (rounded edges, facets)."""
+    total: Any
+    where: Callable | None = None
+    kind = "neumann"
+
+
+def heat_flux(bc, X: np.ndarray, n: np.ndarray, w: np.ndarray) -> np.ndarray:
+    """Flux into the body at boundary points for HeatFlux and HeatInput conditions."""
+    if hasattr(bc, "power"):
+        return np.full(len(X), float(bc.power) / max(float(np.sum(w)), 1e-300))
+    return evaluate(bc.flux, X, n)
 
 
 def assign(bcs: Sequence, X: np.ndarray, n: np.ndarray) -> np.ndarray:

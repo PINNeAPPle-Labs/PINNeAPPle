@@ -32,7 +32,7 @@ from .assembly import (
     scatter_vector,
     solve_linear,
 )
-from .bcs import assign, evaluate
+from .bcs import assign, evaluate, heat_flux
 
 
 @dataclass
@@ -148,7 +148,7 @@ def assemble_heat(disc: Discretization, conductivity: float = 1.0, source: Any =
                 continue
             Pi, Xi, ni = S.subset(idx), Xs[idx], S.normal[idx]
             if bc.kind == "neumann":
-                sm = SurfaceMeasures(disc, Pi, {"q": evaluate(bc.flux, Xi, ni)})
+                sm = SurfaceMeasures(disc, Pi, {"q": heat_flux(bc, Xi, ni, Pi.w)})
                 b += scatter_vector(disc.dofs.dofs_of(sm.cells), sm.vector("q", sm.N), n)
             elif bc.kind == "robin":
                 hc = evaluate(bc.h, Xi, ni)
@@ -252,7 +252,7 @@ def heat_balance(sol: HeatSolution, conductivity: float, source: Any, bcs: Seque
         m = owner == i
         X, nrm, w = Xs[m], S.normal[m], S.w[m]
         if bc.kind == "neumann":
-            q = -float(np.sum(w * evaluate(bc.flux, X, nrm)))
+            q = -float(np.sum(w * heat_flux(bc, X, nrm, w)))
         elif bc.kind == "robin":
             q = float(np.sum(w * evaluate(bc.h, X, nrm) * (sol(X) - evaluate(bc.T_inf, X, nrm))))
         else:

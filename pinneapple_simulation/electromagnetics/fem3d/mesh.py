@@ -161,32 +161,40 @@ class TetMesh:
     def nodes_in(self, mask: np.ndarray) -> np.ndarray:
         return np.unique(self.tets[mask])
 
+    @cached_property
+    def _centroid_tree(self):
+        from scipy.spatial import cKDTree
+
+        return cKDTree(self.centroids)
+
+    @cached_property
+    def _jacobians_inv(self) -> np.ndarray:
+        return np.linalg.inv(self.jacobians)
+
     def locate(self, points: np.ndarray, tol: float = 1e-10) -> np.ndarray:
         """Index of a tetrahedron containing each point (-1 outside), by barycentric coordinates; a k-d tree on
         the centroids narrows the candidates."""
-        from scipy.spatial import cKDTree
-
         points = np.atleast_2d(np.asarray(points, float))
-        tree = cKDTree(self.centroids)
         out = np.full(len(points), -1, np.int64)
         k = min(64, len(self.tets))
-        _, cand = tree.query(points, k=k)
+        _, cand = self._centroid_tree.query(points, k=k)
         cand = np.atleast_2d(cand)
-        Jinv = np.linalg.inv(self.jacobians)
+        Jinv = self._jacobians_inv
         x0 = self.nodes[self.tets[:, 0]]
-        for p in range(len(points)):
-            c = cand[p]
-            xi = np.einsum("kij,kj->ki", np.transpose(Jinv[c], (0, 2, 1)), points[p] - x0[c])
+        for s in range(0, len(points), 4096):               # the nearest candidates, a chunk of points at once
+            c = cand[s:s + 4096]
+            xi = np.einsum("pkji,pkj->pki", Jinv[c], points[s:s + 4096, None, :] - x0[c])
+            lam_min = np.minimum(1 - xi.sum(2), xi.min(2))
+            hit = lam_min >= -tol
+            first = hit.argmax(axis=1)
+            found = hit[np.arange(len(c)), first]
+            out[s:s + 4096][found] = c[np.flatnonzero(found), first[found]]
+        for p in np.flatnonzero(out < 0):                 # far from the nearest centroids: full scan
+            xi = np.einsum("kij,kj->ki", np.transpose(Jinv, (0, 2, 1)), points[p] - x0)
             lam = np.column_stack([1 - xi.sum(1), xi])
             ok = np.flatnonzero(lam.min(axis=1) >= -tol)
             if len(ok):
-                out[p] = c[ok[0]]
-            else:                                         # far from the nearest centroids: full scan
-                xi = np.einsum("kij,kj->ki", np.transpose(Jinv, (0, 2, 1)), points[p] - x0)
-                lam = np.column_stack([1 - xi.sum(1), xi])
-                ok = np.flatnonzero(lam.min(axis=1) >= -tol)
-                if len(ok):
-                    out[p] = ok[0]
+                out[p] = ok[0]
         return out
 
     def summary(self) -> dict:

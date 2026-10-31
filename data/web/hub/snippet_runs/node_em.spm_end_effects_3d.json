@@ -1,0 +1,12 @@
+{
+ "code_hash": "d980d514e77a15f4",
+ "figures": [],
+ "id": "node:em.spm_end_effects_3d",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 9.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "End effects of a PM machine against L/D: 3-D flux linkage over 2-D -> pinneapple_simulation.electromagnetics.machines3d.endeffects: end_effect_study, search_coil_linkage\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'ratios': [0.25, 0.5, 1.0, 2.0], 'end_length': 0.04, 'end_layers': 4, 'n_theta': 240, 'layer_dz': 0.015}",
+ "timed_out": false
+}

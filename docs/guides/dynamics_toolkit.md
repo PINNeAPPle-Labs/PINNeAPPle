@@ -1,21 +1,24 @@
 # Dynamics toolkit: the shared foundation
 
-`pinneapple_analysis.dynamics` is where the mathematical toolkit for dynamical systems is being built. It will have
-five frameworks:
+`pinneapple_analysis.dynamics` is a mathematical toolkit for dynamical systems. It has five frameworks, each added in
+its own pull request with its analytic benchmarks:
 
-- first-passage and hitting times;
-- dimensional analysis and Buckingham pi;
-- Fisher information and experimental design;
-- critical slowing down and early-warning indicators;
-- Koopman and spectral analysis.
+| Framework | Guide | Module | Catalog | Benchmarks |
+|---|---|---|---|---|
+| first-passage and hitting times | [guide](dynamics_first_passage.md) | `first_passage` | S42 | `python -m pinneapple_analysis.dynamics.benchmarks first_passage` |
+| dimensional analysis and Buckingham pi | [guide](dynamics_dimensional.md) | `dimensional` | S43 | `... benchmarks dimensional` |
+| Fisher information and experimental design | [guide](dynamics_fisher.md) | `fisher` | S44 | `... benchmarks fisher` |
+| critical slowing down and early-warning indicators | [guide](dynamics_early_warning.md) | `early_warning` | S45 | `... benchmarks early_warning` |
+| Koopman operator and spectral analysis | [guide](dynamics_koopman.md) | `koopman` | S46 | `... benchmarks koopman` |
 
-Each framework is added in its own pull request, together with its analytic benchmarks. Available so far:
-[first-passage and hitting times](dynamics_first_passage.md) and
-[dimensional analysis and Buckingham pi](dynamics_dimensional.md) and
-[Fisher information and experimental design](dynamics_fisher.md) and
-[early-warning indicators](dynamics_early_warning.md) and
-[Koopman and spectral analysis](dynamics_koopman.md). This page
-documents the parts they share.
+Each guide ends with its measured benchmark table (the command, the seed and the date it was measured). The
+validation status in the catalog column is not written by hand: `scripts/build_method_status.py` computes it from the
+tests ([validation status](../validation_status.md)).
+
+The frameworks connect to the rest of the library through the trajectory adapters below, and through
+[the end-to-end example](#end-to-end-example), which runs all five on `pp.solve` output and closed forms.
+
+This page documents the parts they share.
 
 The parts they share:
 
@@ -187,5 +190,44 @@ g = tr.resample(np.linspace(0, 1, 11))      # interpolated inside the data only;
 - `from_solution` samples a single point of space. To get a field over time, sample a grid with `from_snapshots`.
 - No adapter estimates the error of the model it reads. That is the job of the trust layer (`pp.trust_card`) and of
   each framework's own diagnostics.
-- `units` are kept as text and are not converted. Dimensional reasoning on them arrives with the Buckingham pi
-  framework.
+- `units` are kept as text and are not converted here. Dimensional reasoning is done by the Buckingham pi
+  framework, on `PhysicalQuantity` objects.
+
+## End-to-end example
+
+`examples/dynamics_toolkit/dynamics_toolkit.py` runs one study per framework. Each study is set against an
+independent reference, and the script writes `experiment.json` (metrics and checks) and `figures/`:
+
+```bash
+python examples/dynamics_toolkit/dynamics_toolkit.py                      # all five, about 3 min on CPU
+python examples/dynamics_toolkit/dynamics_toolkit.py --case fisher        # one of them
+```
+
+| Case | What is computed | Reference |
+|---|---|---|
+| `first_passage` | `pp.solve` trains a PINN on the absorbing Fokker-Planck (heat) equation `u_t = D u_xx` on (0, 1). `survival_from_solution` integrates its density into the survival function of Brownian motion leaving the interval. | the closed form `exp(-D pi^2 t)`, and a Monte Carlo of the SDE with Kaplan-Meier |
+| `koopman` | DMD of the PINN's snapshots of `u_t = D u_xx` with three Fourier modes | the exact decay rates `-D k^2 pi^2`; DMD of the exact snapshots is the control |
+| `fisher` | D-optimal times to read one thermocouple for `D`, against equally spaced times | the Cramer-Rao bound, checked by refitting 500 simulated data sets |
+| `dimensional` | Buckingham pi for a cooling slab, then the collapse of six centre-temperature curves (different `L`, `D`, irregular sampling) on `t D / L^2` | exact Fourier series; permutation control |
+| `early_warning` | Kendall tau of rolling variance and AC1 before a saddle-node | two controls: a stable system, and a stable system whose noise grows |
+
+The zoo (`pp.zoo`) has no operator network (FNO or DeepONet) today, so the Koopman study audits a PINN trained by
+`pp.solve` instead. `from_snapshots(t, U, kind="fno")` takes an operator rollout in the same way.
+
+Measured on 2026-10-31 with `--epochs 2000 --seed 0` (CPU, total 190 s):
+
+| Case | Measured |
+|---|---|
+| `first_passage` | max \|S − exact\| is 5.6e-4 for the PINN and 4.4e-3 for Monte Carlo (20 000 paths). Restricted mean up to t = 2: exact 0.8725, PINN 0.8725, Monte Carlo 0.8751 ± 0.0047. |
+| `koopman` | PINN field relative L2 2.7e-4. Decay-rate relative errors 0.60 %, 0.48 % and 1.0 % for k = 1, 2, 3 (control: ≤ 1.6e-14). The Gavish-Donoho rank of the PINN snapshots is 22 (3 for the exact field): the PINN's error adds low-energy structure that an automatic rank would keep. |
+| `fisher` | The optimal times are replicated pairs at 0 and 2.025 (`1/(D pi^2)` = 2.026). The CRLB sd of `D` is 1.02e-3 for the optimal times and 1.49e-3 for uniform times (ratio 1.45). The refits give 1.02e-3 and 1.46e-3, efficiency 1.02 and 1.04. |
+| `dimensional` | 3 groups: `u / u0`, `x / L` and `t D / L^2`. The collapse measure goes from 1.68 (raw) to 7.7e-5 (rescaled); permutation p = 0.002. |
+| `early_warning` | Saddle-node: tau = 0.94 (variance), 0.91 (AC1), both significant. Stable control: no significant rise. Growing noise: variance rises (tau 0.97, p 0.005), a known false positive; AC1 does not (p 0.27). |
+
+One check fails, and the manifest records it. The PINN density of `first_passage` goes slightly negative, to
+−0.14 % of its peak, which is beyond the 0.1 % tolerance of the `most_negative_density_rel` diagnostic, so that
+diagnostic warns. The survival function is still within 5.6e-4 of the closed form. The negative values are an error
+of the network, not of the integration.
+
+The PINN numbers depend on the training run (seed, epochs, hardware). The script reports them; it does not
+guarantee them.

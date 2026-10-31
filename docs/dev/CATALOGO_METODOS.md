@@ -8,7 +8,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
-| A. Solvers (S) | 32 | 8 | 1 |
+| A. Solvers (S) | 34 | 11 | 1 |
 | B. Métodos de treino (T) | 3 | 12 | 8 |
 | C. Equações físicas (E) | 50 | 18 | 3 |
 | D. Problemas físicos (P) | 27 | 9 | 30 |
@@ -269,6 +269,37 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_fdtd.py::test_near_to_far_field_reproduces_the_dipole_closed_form`
 - **Código:** `pinneapple_simulation/electromagnetics/fdtd.py`
 - **Referências no código:** Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005 · Balanis, Advanced Engineering Electromagnetics, 2nd ed., Wiley, 2012
+
+### S42 — First-passage times: crossing, Kaplan-Meier, SDE Monte Carlo with Brownian bridge, Fokker-Planck survival from a PDE solution
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_dynamics_first_passage.py::test_sensitivity_to_drift_matches_the_analytic_derivative`; `PINNeAPPle/tests/test_dynamics_integration.py::test_survival_from_density_matches_the_closed_form`
+- **Código:** `pinneapple_analysis/dynamics/first_passage.py`
+- **Referências no código:** Kaplan & Meier, Nonparametric estimation from incomplete observations, JASA 53 (1958) 457-481 · Redner, A Guide to First-Passage Processes, Cambridge University Press, 2001 · Gardiner, Stochastic Methods, 4th ed., Springer, 2009
+
+### S43 — Dimensional analysis: exact Buckingham pi groups, homogeneity checks, curve collapse
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_dynamics_dimensional.py::test_characteristic_scales_unique_and_ambiguous`; `PINNeAPPle/tests/test_dynamics_dimensional.py::test_cooling_curves_collapse_under_the_dimensional_scaling`; `PINNeAPPle/tests/test_dynamics_dimensional.py::test_degenerate_and_unsupported_collapse` (+15)
+- **Código:** `pinneapple_analysis/dynamics/dimensional.py`
+- **Referências no código:** Barenblatt, Scaling, Self-similarity, and Intermediate Asymptotics, Cambridge University Press, 1996
+- **Referências adicionadas:** Buckingham, On physically similar systems, Phys. Rev. 4 (1914) 345-376
+
+### S44 — Fisher information, Cramer-Rao bounds and optimal experimental design (D/A/E/c, Fedorov exchange)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_dynamics_fisher.py::test_c_optimal_design_for_the_crossing_time_matches_the_delta_method`; `PINNeAPPle/tests/test_dynamics_fisher.py::test_one_parameter_decay_is_best_measured_at_one_over_k`; `PINNeAPPle/tests/test_dynamics_fisher.py::test_torch_score_matches_finite_differences`
+- **Código:** `pinneapple_analysis/dynamics/fisher.py`
+- **Referências no código:** Fedorov, Theory of Optimal Experiments, Academic Press, 1972 · Box & Lucas, Design of experiments in non-linear situations, Biometrika 46 (1959) 77-90
+
+### S45 — Early-warning indicators of critical slowing down (rolling variance / AC1, surrogate tests)
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_dynamics_early_warning.py::test_contract_and_card`; `PINNeAPPle/tests/test_dynamics_early_warning.py::test_critical_slowing_down_bundle_and_recovery_rate`; `PINNeAPPle/tests/test_dynamics_early_warning.py::test_growing_noise_raises_variance_but_not_autocorrelation` (+10)
+- **Código:** `pinneapple_analysis/dynamics/early_warning.py`
+- **Referências no código:** Scheffer et al., Early-warning signals for critical transitions, Nature 461 (2009) 53-59 · Dakos et al., Methods for detecting early warnings of critical transitions in time series illustrated using simulated ecological data, PLoS ONE 7 (2012) e41010
+
+### S46 — Koopman operator from data: exact / TLS DMD, EDMD, generator EDMD, ResDMD residuals
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_dynamics_koopman.py::test_comparison_with_state_space_regression_and_order_selection`; `PINNeAPPle/tests/test_dynamics_koopman.py::test_edmd_on_the_exact_invariant_subspace`; `PINNeAPPle/tests/test_dynamics_koopman.py::test_generator_edmd_from_derivatives` (+3)
+- **Código:** `pinneapple_analysis/dynamics/koopman.py`
+- **Referências no código:** Williams, Kevrekidis & Rowley, A data-driven approximation of the Koopman operator, J. Nonlinear Sci. 25 (2015) 1307-1346 · Colbrook & Townsend, Rigorous data-driven computation of spectral properties of Koopman operators for dynamical systems, Comm. Pure Appl. Math. 77 (2024) 221-283 · Gavish & Donoho, The optimal hard threshold for singular values is 4/sqrt(3), IEEE Trans. Inf. Theory 60 (2014) 5040-5053
 
 
 ## B. Métodos de treino (T)

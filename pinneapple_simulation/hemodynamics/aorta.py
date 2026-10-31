@@ -200,11 +200,15 @@ def setup_case(case: str | Path, *, cell_size: float = 1.5e-3, level: int = 1, i
 
 @dataclass
 class CoupledRun:
-    """Windkessel-coupled pimpleFoam run of a case written by :func:`setup_case`."""
+    """Windkessel-coupled pimpleFoam run of a case written by :func:`setup_case`.
+
+    The coupling is explicit: each window runs with the outlet pressures of the previous one. It is stable only while
+    the window is short against the inertia of the rigid 3-D domain (gain ~ Rp * dt_couple / L < 1): on the library's
+    aortic arch, dt_couple = 0.01 s made the outlet pressures flip sign and grow every window, 0.001 s does not."""
     case: Path
     windkessels: dict[str, Windkessel]
     rho: float
-    dt_couple: float = 0.01
+    dt_couple: float = 0.001
     keep_every: float = 0.05
     history: list[dict[str, Any]] = field(default_factory=list)
     history_path: Path | None = None        # when set: written after every window, and read back to resume
@@ -311,8 +315,12 @@ class CoupledRun:
         """Over the last full period: mass imbalance, cycle-mean flows and pressures, and how far each outlet's 3-D
         pressure is from its Windkessel (staggering of the explicit coupling)."""
         h = [r for r in self.history if r["t"] > self.history[-1]["t"] - period + 1e-9]
-        out = {"window": [h[0]["t"], h[-1]["t"]], "max_mass_imbalance": max(r["mass_imbalance"] for r in h),
-               "Q_inlet_mean": float(np.mean([r["Q_inlet"] for r in h])),
+        q_mean = float(np.mean([r["Q_inlet"] for r in h]))
+        # relative to the cycle-mean inflow: the per-window ratio is 0/0 in diastole, when no flow enters
+        out = {"window": [h[0]["t"], h[-1]["t"]],
+               "max_mass_imbalance": max(abs(sum(r[f"Q_{k}"] for k in self.windkessels) - r["Q_inlet"])
+                                         for r in h) / abs(q_mean),
+               "Q_inlet_mean": q_mean,
                "p_inlet_mean": float(np.mean([r["p_inlet"] for r in h])), "outlets": {}}
         for k in self.windkessels:
             Q = np.array([r[f"Q_{k}"] for r in h])

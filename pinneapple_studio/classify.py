@@ -265,4 +265,28 @@ def valid_form(schema: dict[str, Any]) -> list[str]:
         if "default" in s and s.get("type") in ("integer", "number") and not isinstance(s["default"], (int, float)) \
                 and s["default"] is not None:
             out.append(f"default of {name} is not a number")
+        d = s.get("default")
+        if isinstance(d, (int, float)) and not isinstance(d, bool) and (
+                d < s.get("minimum", d) or d > s.get("maximum", d)):
+            out.append(f"default of {name} is outside its declared range")
+    for name in schema.get("x-ranges-unknown", []):
+        out.append(f"x_ranges names {name}, which is not a numeric input of the form")
     return out
+
+
+def apply_ranges(schema: dict[str, Any], box: dict[str, list]) -> None:
+    """The author's input box (``fn.x_ranges``): each ``(lo, hi)`` becomes the property's ``minimum`` /
+    ``maximum``; ``None`` leaves that side open. A name that is not a numeric input is listed for the form check."""
+    unknown = []
+    for name, (lo, hi) in box.items():
+        p = schema["properties"].get(name)
+        if p is None or p.get("type") not in ("number", "integer"):
+            unknown.append(name)
+            continue
+        if lo is not None:
+            p["minimum"] = lo
+        if hi is not None:
+            p["maximum"] = hi
+        p["x-ranges-source"] = "declared"
+    if unknown:
+        schema["x-ranges-unknown"] = unknown

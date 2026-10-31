@@ -2331,6 +2331,80 @@
    "status": "done"
   }
  },
+ "electromagnetics/21_team7": {
+  "quick": {
+   "commit": "b09e0053",
+   "comparisons": [
+    {
+     "flow": "team7.levels.0.f.50.loss_W",
+     "outcome": "match",
+     "ref": "results/21_team7.json:levels.0.f.50.loss_W",
+     "reference": 4.948420020898474,
+     "rel_diff": 2.33333456079688e-15,
+     "value": 4.948420020898462
+    },
+    {
+     "flow": "team7.levels.0.f.50.A1B1.wt0.rms_rel_peak",
+     "outcome": "match",
+     "ref": "results/21_team7.json:levels.0.f.50.compare.A1B1 wt=0.rms_rel_peak",
+     "reference": 0.0682170401911528,
+     "rel_diff": 4.780741183871181e-14,
+     "value": 0.06821704019115606
+    },
+    {
+     "flow": "team7.levels.0.f.50.A3B3.wt0.rms_rel_peak",
+     "outcome": "match",
+     "ref": "results/21_team7.json:levels.0.f.50.compare.A3B3 wt=0.rms_rel_peak",
+     "reference": 0.7533088814624425,
+     "rel_diff": 5.62989771982337e-14,
+     "value": 0.7533088814624
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-team7-quick.experiment.json, Lab item manifest/flow/example-em-team7-quick",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "team7": "done"
+   },
+   "seconds": 26.7,
+   "status": "done"
+  }
+ },
+ "electromagnetics/22_spm_end_effects_3d": {
+  "quick": {
+   "commit": "fb30c93e",
+   "comparisons": [
+    {
+     "flow": "ends.rows.0.k_o0mm",
+     "outcome": "match",
+     "ref": "results/22_spm_end_effects_3d.json:rows.1.k_o0mm",
+     "reference": 0.9936499698154279,
+     "rel_diff": 2.970501708782533e-11,
+     "value": 0.9936499697859115
+    },
+    {
+     "flow": "ends.rows.0.k_o10mm",
+     "outcome": "match",
+     "ref": "results/22_spm_end_effects_3d.json:rows.1.k_o10mm",
+     "reference": 0.9955716329519051,
+     "rel_diff": 3.204940318178092e-11,
+     "value": 0.9955716329199976
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-spm-end-effects-3d-quick.experiment.json, Lab item manifest/flow/example-em-spm-end-effects-3d-quick",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "ends": "done"
+   },
+   "seconds": 506.1,
+   "status": "done"
+  }
+ },
  "electromagnetics/motor_spm_cogging_and_torque": {
   "full": {
    "commit": "c94c53c7",

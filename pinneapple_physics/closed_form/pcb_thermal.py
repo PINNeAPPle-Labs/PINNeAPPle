@@ -87,7 +87,13 @@ def effective_conductivity(layers: List[Layer]) -> Dict[str, float]:
 
 
 def via_copper_fraction(n_vias: int, drill_mm: float, plating_um: float, area_m2: float) -> float:
-    """Copper area fraction of plated via barrels over a footprint (unfilled vias)."""
+    """Copper area fraction of plated via barrels over a footprint (unfilled vias).
+
+    Returns
+    -------
+    phi : float [-]
+        Copper area fraction.
+    """
     r_o = drill_mm * 1e-3 / 2
     r_i = max(r_o - plating_um * 1e-6, 0.0)
     return min(n_vias * math.pi * (r_o ** 2 - r_i ** 2) / area_m2, 1.0)

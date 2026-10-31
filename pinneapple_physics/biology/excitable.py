@@ -32,6 +32,15 @@ __all__ = ["fitzhugh_nagumo_1d", "FHNSolution", "aliev_panfilov_2d", "APSolution
 # --------------------------------------------------------------------------- FitzHugh-Nagumo 1-D
 @dataclass
 class FHNSolution:
+    """A FitzHugh-Nagumo run of ``v_t = v_xx + v(1 - v)(v - a) - w + I``: unit coefficients, so dimensionless.
+
+    Attributes
+    ----------
+    x, t : np.ndarray [-]
+        Grid and saved times.
+    v, w : np.ndarray [-]
+        Potential and recovery variable, ``(len(t), len(x))``.
+    """
     x: np.ndarray
     t: np.ndarray
     v: np.ndarray            # (len(t), len(x))
@@ -101,6 +110,21 @@ class Stimulus:
 
 @dataclass
 class APSolution:
+    """An Aliev-Panfilov run. The model is dimensionless (see the module docstring for the map to ms and mV).
+
+    Attributes
+    ----------
+    x, y : np.ndarray [-]
+        Grid coordinates.
+    t : np.ndarray [-]
+        Saved times.
+    u, v : np.ndarray [-]
+        Excitation and recovery variables, ``(len(t), ny, nx)``.
+    D : np.ndarray [-]
+        Diffusivity used, ``(ny, nx)``.
+    dt : float [-]
+        Time step.
+    """
     x: np.ndarray
     y: np.ndarray
     t: np.ndarray                     # saved times

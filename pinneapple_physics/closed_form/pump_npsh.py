@@ -34,7 +34,13 @@ _MU = (1750, 1422, 1080, 855, 695, 577, 489, 420, 365, 324, 279, 217, 152)
 
 
 def iapws97_psat(t_c: float) -> float:
-    """Saturation pressure of water (Pa) at ``t_c`` (°C), IAPWS-IF97 eq. 30."""
+    """Saturation pressure of water (Pa) at ``t_c`` (°C), IAPWS-IF97 eq. 30.
+
+    Returns
+    -------
+    p_sat : float [Pa]
+        Saturation pressure.
+    """
     T = t_c + 273.15
     if not 273.15 <= T <= 647.096:
         raise ValueError("IAPWS-IF97 saturation line: 273.15 K <= T <= 647.096 K")
@@ -52,7 +58,13 @@ def water_density(t_c: float) -> dict[str, float]:
 
 
 def atmosphere(z_m: float) -> float:
-    """ISO 2533 pressure (Pa) at altitude ``z_m`` (troposphere)."""
+    """ISO 2533 pressure (Pa) at altitude ``z_m`` (troposphere).
+
+    Returns
+    -------
+    p : float [Pa]
+        Atmospheric pressure.
+    """
     return 101325.0 * (1 - 2.25577e-5 * z_m) ** 5.25588
 
 

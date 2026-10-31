@@ -69,7 +69,13 @@ def pin_fin_theta(xi, h: float, k: float, D: float, L: float):
 
 
 def pin_fin_heat(h: float, k: float, D: float, L: float, T_base: float, T_inf: float) -> float:
-    """Heat a pin fin with a convective tip dissipates [W] (the same table, case A)."""
+    """Heat a pin fin with a convective tip dissipates [W] (the same table, case A).
+
+    Returns
+    -------
+    q : float [W]
+        Heat the fin dissipates.
+    """
     A, P = math.pi * D ** 2 / 4, math.pi * D
     m = math.sqrt(h * P / (k * A))
     r = h / (m * k)

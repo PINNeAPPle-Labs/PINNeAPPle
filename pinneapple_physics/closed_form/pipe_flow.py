@@ -47,7 +47,13 @@ def _warn(name: str, msg: str) -> None:
 
 def laminar(Re: float) -> float:
     """Darcy friction factor of laminar fully developed pipe flow, ``f = 64 / Re`` (Hagen-Poiseuille; White
-    eq. 6.49). Warns for ``Re >= 2300``."""
+    eq. 6.49). Warns for ``Re >= 2300``.
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
+    """
     _check(Re)
     if Re >= RE_LAMINAR_MAX:
         _warn("laminar", f"Re = {Re:g} is above the laminar limit {RE_LAMINAR_MAX:g}")
@@ -56,7 +62,13 @@ def laminar(Re: float) -> float:
 
 def blasius(Re: float) -> float:
     """Blasius (1913) smooth-pipe correlation ``f = 0.316 Re^-0.25`` (White eq. 6.55). Warns outside
-    ``4e3 <= Re <= 1e5``."""
+    ``4e3 <= Re <= 1e5``.
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
+    """
     _check(Re)
     if not RE_TURBULENT_MIN <= Re <= 1e5:
         _warn("blasius", f"Re = {Re:g} is outside its range [4e3, 1e5]")
@@ -71,6 +83,11 @@ def colebrook(Re: float, rel_rough: float = 0.0, tol: float = 1e-14, max_iter: i
     solved by fixed-point iteration on ``1 / sqrt(f)`` (a contraction for turbulent Re) from ``f = 0.02`` until the
     update is below ``tol``. ``rel_rough`` = eps / D. Warns for ``Re < 4000`` (laminar / transitional flow) and
     ``eps / D > 0.05`` (beyond the Moody chart).
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
     """
     _check(Re, rel_rough)
     if Re < RE_TURBULENT_MIN:
@@ -93,6 +110,11 @@ def haaland(Re: float, rel_rough: float = 0.0) -> float:
         1 / sqrt(f) = -1.8 log10( ((eps/D) / 3.7)^1.11 + 6.9 / Re ).
 
     Warns outside ``4e3 <= Re <= 1e8`` or ``eps / D > 0.05``.
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
     """
     _check(Re, rel_rough)
     if not RE_TURBULENT_MIN <= Re <= 1e8:
@@ -104,7 +126,13 @@ def haaland(Re: float, rel_rough: float = 0.0) -> float:
 
 def dean_number(Re: float, D: float, Rc: float) -> float:
     """Dean number ``De = Re sqrt(D / (2 Rc))`` of a pipe of diameter D bent to a centre-line radius Rc (same
-    units)."""
+    units).
+
+    Returns
+    -------
+    De : float [-]
+        Dean number.
+    """
     if not (D > 0 and Rc > 0):
         raise ValueError("D and Rc must be positive")
     return Re * math.sqrt(D / (2.0 * Rc))
@@ -113,7 +141,13 @@ def dean_number(Re: float, D: float, Rc: float) -> float:
 def curved_pipe_ratio(De: float) -> float:
     """Fully developed laminar friction factor of a curved pipe over that of a straight one at the same Re, White
     (1929): ``f_c / f_s = 1 / (1 - (1 - (11.6 / De)^0.45)^(1 / 0.45))``; 1 for De <= 11.6. Warns above De = 2000
-    (beyond White's data)."""
+    (beyond White's data).
+
+    Returns
+    -------
+    ratio : float [-]
+        ``f_c / f_s``.
+    """
     if not De >= 0:
         raise ValueError(f"De must be non-negative, got {De}")
     if De <= 11.6:
@@ -125,7 +159,13 @@ def curved_pipe_ratio(De: float) -> float:
 
 def friction_factor(Re: float, rel_rough: float = 0.0) -> float:
     """``laminar(Re)`` below Re = 2300, ``colebrook(Re, rel_rough)`` otherwise (the transitional band 2300-4000 is
-    uncertain; Colebrook is used there without a warning)."""
+    uncertain; Colebrook is used there without a warning).
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
+    """
     if Re < RE_LAMINAR_MAX:
         return laminar(Re)
     with warnings.catch_warnings():
@@ -138,13 +178,25 @@ def friction_factor(Re: float, rel_rough: float = 0.0) -> float:
 
 def darcy_pressure_drop(f: float, L: float, D: float, rho: float, U: float) -> float:
     """Darcy-Weisbach pressure drop [Pa] ``dp = f (L / D) rho U^2 / 2`` (White eq. 6.10) over a length L [m] of a
-    duct of (hydraulic) diameter D [m], density rho [kg/m^3], bulk velocity U [m/s]."""
+    duct of (hydraulic) diameter D [m], density rho [kg/m^3], bulk velocity U [m/s].
+
+    Returns
+    -------
+    dp : float [Pa]
+        Pressure drop over ``L``.
+    """
     return f * (L / D) * 0.5 * rho * U * U
 
 
 def parallel_plates_pressure_drop(mu: float, L: float, h: float, U: float) -> float:
     """Laminar pressure drop [Pa] between infinite parallel plates a gap ``h`` [m] apart (plane Poiseuille flow),
-    ``dp = 12 mu L U / h^2`` with U the mean velocity [m/s] and mu the dynamic viscosity [Pa s] (White §6.6)."""
+    ``dp = 12 mu L U / h^2`` with U the mean velocity [m/s] and mu the dynamic viscosity [Pa s] (White §6.6).
+
+    Returns
+    -------
+    dp : float [Pa]
+        Pressure drop over ``L``.
+    """
     return 12.0 * mu * L * U / (h * h)
 
 
@@ -157,6 +209,11 @@ def first_cell_height(y_plus: float, Re: float, D: float, U: float, nu: float, f
     friction velocity is ``u_tau = U sqrt(f / 8)`` and ``y = y+ nu / u_tau``. ``f`` defaults to
     :func:`friction_factor` (laminar below Re = 2300, Colebrook with ``rel_rough`` above) at ``Re``; D [m] is only
     used to check that ``Re`` is consistent with ``U D / nu`` (a mismatch above 1 % warns).
+
+    Returns
+    -------
+    y : float [m]
+        Height of the first cell.
     """
     if not (y_plus > 0 and U > 0 and nu > 0 and D > 0):
         raise ValueError("y_plus, U, nu and D must be positive")

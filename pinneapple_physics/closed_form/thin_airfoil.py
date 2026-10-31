@@ -28,7 +28,13 @@ __all__ = ["naca4_camber_slope", "thin_airfoil_cl", "turbulent_flat_plate_cf", "
 
 
 def naca4_camber_slope(x: np.ndarray, m: float, p: float) -> np.ndarray:
-    """dz/dx of the NACA 4-digit mean line (max camber ``m`` at chord fraction ``p``), the two parabolic arcs."""
+    """dz/dx of the NACA 4-digit mean line (max camber ``m`` at chord fraction ``p``), the two parabolic arcs.
+
+    Returns
+    -------
+    dzdx : np.ndarray [-]
+        Camber-line slope at ``x``.
+    """
     x = np.asarray(x, dtype=float)
     if m == 0.0 or p <= 0.0:
         return np.zeros_like(x)
@@ -39,7 +45,13 @@ def naca4_camber_slope(x: np.ndarray, m: float, p: float) -> np.ndarray:
 
 def thin_airfoil_cl(m: float, p: float, alpha_deg: float, n_quad: int = 4001) -> float:
     """Thin-airfoil lift coefficient of a NACA 4-digit camber line at ``alpha_deg`` (trapezoidal quadrature in
-    theta0; the integrands are bounded, the kink at x = p converges as 1/n_quad)."""
+    theta0; the integrands are bounded, the kink at x = p converges as 1/n_quad).
+
+    Returns
+    -------
+    cl : float [-]
+        Lift coefficient.
+    """
     theta = np.linspace(0.0, math.pi, int(n_quad))
     dz = naca4_camber_slope(0.5 * (1.0 - np.cos(theta)), m, p)
     a0 = math.radians(alpha_deg) - np.trapezoid(dz, theta) / math.pi
@@ -48,7 +60,13 @@ def thin_airfoil_cl(m: float, p: float, alpha_deg: float, n_quad: int = 4001) ->
 
 
 def turbulent_flat_plate_cf(reynolds: float) -> float:
-    """Mean skin-friction coefficient of a fully turbulent flat plate, ``0.074 / Re^0.2`` (5e5 < Re < 1e7)."""
+    """Mean skin-friction coefficient of a fully turbulent flat plate, ``0.074 / Re^0.2`` (5e5 < Re < 1e7).
+
+    Returns
+    -------
+    cf : float [-]
+        Mean skin-friction coefficient.
+    """
     if reynolds <= 0:
         raise ValueError("reynolds must be positive")
     return 0.074 / reynolds**0.2
@@ -56,5 +74,11 @@ def turbulent_flat_plate_cf(reynolds: float) -> float:
 
 def hoerner_profile_cd(t_c: float, reynolds: float) -> float:
     """Profile drag coefficient of a streamlined 2-D section of thickness ratio ``t_c`` (Hoerner form factor, two
-    wetted sides, referred to the chord)."""
+    wetted sides, referred to the chord).
+
+    Returns
+    -------
+    cd : float [-]
+        Profile drag coefficient, referred to the chord.
+    """
     return float(2.0 * turbulent_flat_plate_cf(reynolds) * (1.0 + 2.0 * t_c + 60.0 * t_c**4))

@@ -7,8 +7,12 @@ DeepONet predictions) are being added one pull request at a time, each with its 
   trajectories, Monte Carlo of SDEs with Brownian-bridge correction, closed forms). Guide:
   ``docs/guides/dynamics_first_passage.md``.
 
-Not yet available: dimensional analysis and Buckingham pi, Fisher information and experimental design, critical
-slowing down and early-warning indicators, Koopman / spectral analysis.
+* :mod:`.dimensional`: dimensional analysis and Buckingham pi in exact rational arithmetic, scaling laws,
+  dimensional vs empirical normalisation, curve collapse with a permutation control, similarity. Guide:
+  ``docs/guides/dynamics_dimensional.md``.
+
+Not yet available: Fisher information and experimental design, critical slowing down and early-warning indicators,
+Koopman / spectral analysis.
 
 The frameworks share:
 
@@ -25,7 +29,7 @@ Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
-from . import first_passage
+from . import dimensional, first_passage
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -38,6 +42,17 @@ from ._contract import (
     jsonable,
     make_rng,
     reproducibility,
+)
+from .dimensional import (
+    BuckinghamPiAnalyzer,
+    CurveCollapseAnalyzer,
+    Dimension,
+    DimensionalMatrix,
+    DimensionlessGroup,
+    PhysicalQuantity,
+    ScalingLaw,
+    SimilarityMetrics,
+    TrajectoryNormalizer,
 )
 from .first_passage import (
     SDE,
@@ -68,4 +83,6 @@ __all__ = [
     "from_array", "from_table", "from_csv", "from_solution", "from_model", "from_snapshots",
     "first_passage", "FirstPassageAnalyzer", "HittingTimeDistribution", "CrossingProbability", "SurvivalFunction",
     "BoundaryCondition", "FirstPassageResult", "SDE",
+    "dimensional", "Dimension", "PhysicalQuantity", "DimensionalMatrix", "BuckinghamPiAnalyzer", "DimensionlessGroup",
+    "ScalingLaw", "TrajectoryNormalizer", "CurveCollapseAnalyzer", "SimilarityMetrics",
 ]

@@ -94,7 +94,7 @@ def _done(name):
     return None
 
 
-def run_burgers(n_u, n_f, depth, width, seed, *, maxiter=50000, name=None, keep=True):
+def run_burgers(n_u, n_f, depth, width, seed, *, maxiter=50000, name=None, keep=True, dtype=torch.float32):
     """One Burgers run (``Burgers.py`` / ``main_loop`` of ``Burgers_systematic.py``); ``n_f = 0`` drops the
     physics term (the paper's footnote 1 baseline)."""
     if keep and name and (r := _done(name)):
@@ -104,11 +104,11 @@ def run_burgers(n_u, n_f, depth, width, seed, *, maxiter=50000, name=None, keep=
     lb, ub = np.array([-1.0, 0.0]), np.array([1.0, 0.99])
     Xc, Uc = burgers_candidates()
     idx = rng.choice(Xc.shape[0], n_u, replace=False)
-    Xu = torch.tensor(Xc[idx], dtype=torch.float32)
-    uu = torch.tensor(Uc[idx, None], dtype=torch.float32)
-    Xf = torch.tensor(np.vstack([_lhs(n_f, lb, ub, rng), Xc]) if n_f else Xc[:0], dtype=torch.float32,
+    Xu = torch.tensor(Xc[idx], dtype=dtype)
+    uu = torch.tensor(Uc[idx, None], dtype=dtype)
+    Xf = torch.tensor(np.vstack([_lhs(n_f, lb, ub, rng), Xc]) if n_f else Xc[:0], dtype=dtype,
                       requires_grad=True)                       # all candidates appended, as Burgers.py does
-    net = MLP([2] + [width] * depth + [1], lb, ub)
+    net = MLP([2] + [width] * depth + [1], lb, ub).to(dtype)
 
     def loss_fn():
         loss = ((net(Xu) - uu) ** 2).mean()
@@ -123,9 +123,9 @@ def run_burgers(n_u, n_f, depth, width, seed, *, maxiter=50000, name=None, keep=
     x, t, u_star = burgers_grid()
     X, T = np.meshgrid(x, t)
     with torch.no_grad():
-        u_pred = net(torch.tensor(np.stack([X.ravel(), T.ravel()], 1), dtype=torch.float32)).numpy().ravel()
+        u_pred = net(torch.tensor(np.stack([X.ravel(), T.ravel()], 1), dtype=dtype)).numpy().ravel()
     err = float(np.linalg.norm(u_star.ravel() - u_pred) / np.linalg.norm(u_star.ravel()))
-    out = {"problem": "burgers", "n_u": n_u, "n_f": n_f, "depth": depth, "width": width, "seed": seed,
+    out = {"problem": "burgers", "dtype": str(dtype).replace("torch.", ""), "n_u": n_u, "n_f": n_f, "depth": depth, "width": width, "seed": seed,
            "error_u": err, "loss": res.loss, "iterations": res.iterations, "evaluations": res.evaluations,
            "message": res.message, "seconds": res.seconds, "n_params": sum(p.numel() for p in net.parameters()),
            "machine": platform.platform(), "threads": torch.get_num_threads()}
@@ -213,10 +213,16 @@ def jobs(part):
                 for s in range(3) for nu in NU_ROWS for nf in NF_COLS]
     if part == "s0":
         return [(f"s0_s{s}", run_schrodinger, (s,)) for s in range(3)]
+    if part == "t2_float64":                                   # post hoc (README): Table 2 in float64, seed 0
+        return [(f"x_t2f64_L{L}_N{N}_s0", lambda L, N, name, keep: run_burgers(100, 10000, L, N, 0, name=name, keep=keep,
+                                                                                dtype=torch.float64), (L, N))
+                for L in LAYER_ROWS for N in WIDTH_COLS]
     if part == "extras":
         return ([("x_nophysics_s0", run_burgers, (100, 0, 8, 20, 0)),
                  ("x_s0_lbfgs_only_s0", lambda s, name, keep: run_schrodinger(s, adam_steps=0, name=name, keep=keep),
                   (0,))]
+                + [(f"x_b0_float64_s{s}", lambda s, name, keep: run_burgers(100, 10000, 8, 20, s, name=name, keep=keep,
+                                                                            dtype=torch.float64), (s,)) for s in range(3)]
                 + [(f"x_t1code_u{nu}_f{nf}_s0", run_burgers, (nu, nf, 8, 40, 0)) for nu in NU_ROWS for nf in NF_COLS]
                 + [(f"x_t2code_L{L}_N{N}_s0", run_burgers, (200, 10000, L, N, 0))
                    for L in LAYER_ROWS for N in WIDTH_COLS])
@@ -225,7 +231,7 @@ def jobs(part):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--part", action="append", choices=("b0", "table2", "table1", "s0", "extras"))
+    ap.add_argument("--part", action="append", choices=("b0", "table2", "table1", "s0", "extras", "t2_float64"))
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--threads", type=int, default=0)

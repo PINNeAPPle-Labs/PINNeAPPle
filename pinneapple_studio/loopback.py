@@ -15,7 +15,7 @@ import sys
 SIOCGIFFLAGS, SIOCSIFFLAGS, IFF_UP = 0x8913, 0x8914, 0x1
 
 
-def loopback_up() -> bool:
+def _loopback_up() -> bool:
     """Set ``lo`` up; ``False`` when this process may not (the run then goes on as it is)."""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -31,7 +31,7 @@ def main(argv: list[str] | None = None) -> None:
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv:
         raise SystemExit("usage: python -m pinneapple_studio.loopback <module> [args...]")
-    loopback_up()
+    _loopback_up()
     sys.argv = argv
     runpy.run_module(argv[0], run_name="__main__", alter_sys=True)
 

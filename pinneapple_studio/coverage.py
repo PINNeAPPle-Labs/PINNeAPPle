@@ -246,7 +246,7 @@ def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> in
     return len(keep)
 
 
-def scripts_to_run(scripts: list[str]) -> list[str]:
+def _scripts_to_run(scripts: list[str]) -> list[str]:
     """The scripts a recorded run starts, each once: a package's ``__init__.py`` is not a script, and a
     ``run_all.py`` next to the scripts it runs would run them a second time."""
     names = {Path(s).parent: set() for s in scripts}
@@ -261,7 +261,7 @@ def scripts_to_run(scripts: list[str]) -> list[str]:
     return out
 
 
-def launcher(script: Path) -> list[str]:
+def _launcher(script: Path) -> list[str]:
     """How a recorded run starts an example script: ``python``, or ``torchrun`` with one process on this machine
     (``python -m torch.distributed.run --standalone --nproc_per_node=1``) when the script's docstring launches it
     with ``torchrun``, since a distributed script started without it has no ``RANK`` and fails. ``torchrun`` goes
@@ -301,9 +301,9 @@ def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = No
     try:
         for e in todo:
             t0, ok, tail = time.time(), True, ""
-            for s in scripts_to_run(e["scripts"]):
+            for s in _scripts_to_run(e["scripts"]):
                 try:
-                    out = subprocess.run([*_no_network(), *launcher(copy / s), str(copy / s)], cwd=(copy / s).parent,
+                    out = subprocess.run([*_no_network(), *_launcher(copy / s), str(copy / s)], cwd=(copy / s).parent,
                                          env=env, capture_output=True, text=True, timeout=timeout)
                     ok = ok and out.returncode == 0
                     tail = (out.stderr or out.stdout)[-300:]

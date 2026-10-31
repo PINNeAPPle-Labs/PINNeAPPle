@@ -451,17 +451,17 @@ def test_examples_launched_with_torchrun_get_one_process(tmp_path):
     """A recorded run starts a script with python, or with torchrun when its docstring launches it that way."""
     import sys
 
-    from pinneapple_studio.coverage import launcher
+    from pinneapple_studio.coverage import _launcher
     plain, ddp = tmp_path / "01_plain.py", tmp_path / "05_ddp.py"
     plain.write_text('"""Run: python 01_plain.py"""\n')
     ddp.write_text('"""DDP.\n\n    torchrun --standalone --nproc_per_node=2 examples/x/05_ddp.py\n"""\n')
-    assert launcher(plain) == [sys.executable]
-    assert launcher(ddp) == [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run",
+    assert _launcher(plain) == [sys.executable]
+    assert _launcher(ddp) == [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run",
                              "--standalone", "--nproc_per_node=1"]
 
 
 def test_recorded_runs_start_each_script_once():
-    from pinneapple_studio.coverage import scripts_to_run
+    from pinneapple_studio.coverage import _scripts_to_run
     viz = ["examples/v/__init__.py", "examples/v/run_all.py", "examples/v/viz_01.py", "examples/v/viz_02.py"]
-    assert scripts_to_run(viz) == ["examples/v/viz_01.py", "examples/v/viz_02.py"]
-    assert scripts_to_run(["examples/w/run_all.py"]) == ["examples/w/run_all.py"]
+    assert _scripts_to_run(viz) == ["examples/v/viz_01.py", "examples/v/viz_02.py"]
+    assert _scripts_to_run(["examples/w/run_all.py"]) == ["examples/w/run_all.py"]

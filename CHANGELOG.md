@@ -22,14 +22,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
-- `pinneapple_simulation.electromagnetics.fem3d` (issue #929, first step): 3-D magnetostatics and time-harmonic eddy
-  currents on first-order Nedelec edge elements (tetrahedral `TetMesh`, structured `box_mesh`, gmsh input), nonlinear
-  B-H by Newton, tree gauge or ungauged conjugate gradients with discretely solenoidal sources, energy, co-energy and
-  `source_work` (`dW'/di = psi`); GetDP 3.2 as the reference on the same meshes (`fem3d.getdp3d`). Verified on a
-  permeable sphere in a uniform field (mean-field error 3.9e-2 to 2.2e-3, 6 500 to 494 000 unknowns), agreement with
-  GetDP to 1e-13, a manufactured solution (order 1.00) and a conducting slab (loss within 1.5 %);
-  `examples/electrodynamics/19_edge3d_verification.py`, Flow node `em.edge3d_verification`. TEAM benchmarks not yet
-  compared.
 - Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
   simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
   `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /

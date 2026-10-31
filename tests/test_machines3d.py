@@ -124,3 +124,26 @@ def test_search_coil_links_the_2d_flux_and_end_air_lowers_it(machine):
     assert lam == pytest.approx(flux, rel=0.005)
     row = end_effect_study(machine, (0.5,), end_length=0.02, end_layers=2, n_theta=72)["rows"][0]
     assert 0.98 < row["k_o0mm"] < 1.0                # end leakage: a fraction of a percent
+
+
+def test_rectangle_loss_series_limits():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import (
+        loss_factor,
+        plate_loss,
+        strip_loss,
+    )
+
+    assert loss_factor(1.0, 1000.0) == pytest.approx(1.0, abs=2e-3)          # long strip: the 2-D value
+    assert plate_loss(0.02, 0.01, 0.004, 6.7e5, 1e3, 0.05) == pytest.approx(
+        plate_loss(0.01, 0.02, 0.004, 6.7e5, 1e3, 0.05), rel=1e-12)       # symmetric in its sides
+    assert plate_loss(1.0, 1.0, 1.0, 1.0, 1.0, 1.0) < strip_loss(1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+
+
+def test_magnet_block_loss_matches_the_closed_form():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmentation_study
+
+    r = segmentation_study(0.02, 0.02, 0.004, 6.7e5, 0.01, [(1, 1), (1, 2)], [100.0], h=2e-3)
+    for row in r["rows"]:                       # 1.4 % and 4.0 % at 2 mm, 0.4 % and 1.0 % at 1 mm (measured)
+        assert row["ratio_3d_closed_form"] == pytest.approx(1.0, abs=0.05)
+    two = r["rows"][1]
+    assert two["ratio_3d_2d"] < 0.2                # two axial pieces keep 17 % of the 2-D loss

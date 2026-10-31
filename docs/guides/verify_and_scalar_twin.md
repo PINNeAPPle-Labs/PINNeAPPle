@@ -39,6 +39,16 @@ Three cases give `inconclusive`, never `pass`, because the check did not happen:
 
 `rtol` has no default.
 
+**Which models can run.** A model given as a tool id (a string) is resolved only inside the PINNeAPPle library:
+
+- the top-level package must start with `pinneapple`, checked before anything is imported;
+- no part of the path may start with `_`;
+- the function found must itself be defined in the library.
+
+Any other id is refused without being called, for example `shutil:rmtree`, `os:system`, `builtins:eval`, or a
+library module's own import of `subprocess`. `verify_against_model` reports the refusal as `inconclusive`, and
+`surrogate_twin` raises `PermissionError`. A callable passed from Python is used as given.
+
 ## `surrogate_twin`: a page that only shows model evaluations
 
 ```python

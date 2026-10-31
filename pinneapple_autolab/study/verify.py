@@ -17,7 +17,7 @@ import sys
 from collections.abc import Callable, Mapping
 from typing import Any, TypedDict
 
-__all__ = ["verify_against_model", "resolve_model", "model_ranges", "output_unit", "VerifyResult", "X_OUTPUTS"]
+__all__ = ["verify_against_model", "resolve_model", "model_id", "model_ranges", "output_unit", "VerifyResult", "X_OUTPUTS"]
 
 
 # what each tool returns, with units (read by the Studio catalog)
@@ -39,18 +39,46 @@ class VerifyResult(TypedDict):
     verifications: list[dict[str, Any]]
 
 
+LIBRARY_PREFIX = "pinneapple"
+
+
+def _in_library(module: str) -> bool:
+    return (module or "").split(".")[0].startswith(LIBRARY_PREFIX)
+
+
+def model_id(model: str | Callable[..., Any]) -> str:
+    """The tool id of a model: the string itself, or ``"module:qualname"`` of a callable."""
+    if callable(model):
+        return f"{getattr(model, '__module__', '?')}:{getattr(model, '__qualname__', repr(model))}"
+    return str(model)
+
+
 def resolve_model(model: str | Callable[..., Any]) -> Callable[..., Any]:
-    """A callable from a tool id ``"package.module:name"`` (or ``"package.module.name"``), or the callable itself."""
+    """A callable from a tool id ``"package.module:name"`` (or ``"package.module.name"``), or the callable itself.
+
+    A tool id is resolved only inside the PINNeAPPle library: the module's top-level package must start with
+    ``pinneapple`` (checked before anything is imported), no part of the path may start with ``_``, and the object
+    found must itself be defined in the library (so a library module's import of ``os`` or ``subprocess`` cannot be
+    reached through it). Anything else raises ``PermissionError`` without being called: a served tool id cannot run
+    an arbitrary function such as ``shutil:rmtree`` or ``builtins:eval``. A callable passed directly (Python API) is
+    used as given."""
     if callable(model):
         return model
-    mod, _, name = str(model).partition(":")
+    text = str(model)
+    mod, _, name = text.partition(":")
     if not name:
         mod, _, name = mod.rpartition(".")
+    parts = [*mod.split("."), *name.split(".")]
+    if not _in_library(mod) or not name or any(not p or p.startswith("_") for p in parts):
+        raise PermissionError(f"model {text!r} is not a public PINNeAPPle tool id ('pinneapple...module:function')")
     obj: Any = importlib.import_module(mod)
     for part in name.split("."):
         obj = getattr(obj, part)
     if not callable(obj):
-        raise TypeError(f"{model} is not callable")
+        raise TypeError(f"{text} is not callable")
+    if not _in_library(getattr(obj, "__module__", "") or ""):
+        raise PermissionError(f"model {text!r} resolves to {getattr(obj, '__module__', '?')}."
+                              f"{getattr(obj, '__qualname__', '?')}, which is not defined in PINNeAPPle")
     return obj
 
 

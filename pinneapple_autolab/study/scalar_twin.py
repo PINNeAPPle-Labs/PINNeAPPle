@@ -29,7 +29,7 @@ from typing import Any, Literal, TypedDict
 
 import numpy as np
 
-from .verify import resolve_model
+from .verify import model_id, resolve_model
 
 __all__ = ["surrogate_twin", "training_set_hash", "in_hull", "TwinOutput", "X_OUTPUTS"]
 
@@ -103,8 +103,9 @@ def surrogate_twin(model: str, variables: list[dict[str, Any]], quantity: dict[s
     Parameters
     ----------
     model : str
-        executable tool id of the model (``"package.module:function"``); it takes the variables as keyword
-        arguments and returns a number or a dict holding ``quantity["name"]`` (and ``{name}_std`` for that band)
+        tool id of the model, ``"pinneapple...module:function"`` (ids outside the PINNeAPPle library are refused
+        before anything runs; from Python a callable also works); it takes the variables as keyword arguments and
+        returns a number or a dict holding ``quantity["name"]`` (and ``{name}_std`` for that band)
     variables : list[dict]
         ``[{"name", "unit", "low", "high", "values"?}]``: each input, its unit, its range and optionally its grid
     quantity : dict[str, str]
@@ -131,7 +132,8 @@ def surrogate_twin(model: str, variables: list[dict[str, Any]], quantity: dict[s
         raise ValueError(f"band must be one of {BANDS}")
     if band == "holdout_error" and (holdout_error is None or not math.isfinite(float(holdout_error))):
         raise ValueError("band 'holdout_error' needs the measured holdout_error")
-    fn = resolve_model(model)
+    fn = resolve_model(model)  # refuses ids outside the PINNeAPPle library before calling anything
+    model = model_id(model)
     names = [str(v["name"]) for v in variables]
     q = str(quantity["name"])
     axes = []

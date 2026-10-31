@@ -2,8 +2,6 @@
 import json
 import math
 import re
-import sys
-import types
 
 import pytest
 
@@ -117,11 +115,11 @@ def test_twin_bands(tmp_path):
 
 
 def test_twin_offline_and_escaped(tmp_path):
-    mod = types.ModuleType("_evil_mod")
-    mod.f = lambda **kw: {"<img src=x onerror=alert(1)>": 0.5}
-    sys.modules["_evil_mod"] = mod
+    def evil(**kw):
+        return {"<img src=x onerror=alert(1)>": 0.5}
+
     name = "<img src=x onerror=alert(1)>"
-    out = surrogate_twin("_evil_mod:f", [{"name": "</script><script>alert(2)</script>", "low": 0, "high": 1,
+    out = surrogate_twin(evil, [{"name": "</script><script>alert(2)</script>", "low": 0, "high": 1,
                                           "values": [0.5]}], {"name": name}, str(tmp_path))
     html = open(out["page"]).read()
     assert "<img" not in html and "</script><script>alert(2)" not in html
@@ -140,10 +138,10 @@ def test_twin_page_in_a_browser(tmp_path):
     """Offline (every request blocked), sliders pinned to the grid, names shown as text."""
     sync_api = pytest.importorskip("playwright.sync_api")
     samples = [{"k<b>": 0.0, "tau": 0.0}, {"k<b>": 0.1, "tau": 0.0}, {"k<b>": 0.0, "tau": 100.0}]
-    mod = types.ModuleType("_renamed_pfr")
-    mod.f = lambda tau, **kw: R.pfr_conversion_ktau(kw["k<b>"], tau)
-    sys.modules["_renamed_pfr"] = mod
-    out = surrogate_twin("_renamed_pfr:f", [{"name": "k<b>", "unit": "1/s", "low": 0, "high": 0.1, "values": [0.0, 0.1]},
+    def renamed(tau, **kw):
+        return R.pfr_conversion_ktau(kw["k<b>"], tau)
+
+    out = surrogate_twin(renamed, [{"name": "k<b>", "unit": "1/s", "low": 0, "high": 0.1, "values": [0.0, 0.1]},
                                {"name": "tau", "unit": "s", "low": 0, "high": 100, "values": [0.0, 100.0]}],
                          {"name": "X", "unit": "-"}, str(tmp_path), samples_used=samples)
     requests = []
@@ -190,3 +188,24 @@ def test_open_sided_range():
     model.x_ranges = {"k": (0.0, None), "tau": (None, 1e4)}
     assert verify_against_model({"k": 50.0, "tau": -1.0}, -math.expm1(50.0), model, rtol=1e-9)["status"] == "pass"
     assert verify_against_model({"k": -1.0, "tau": 1.0}, 0.0, model, rtol=1.0)["status"] == "inconclusive"
+
+
+@pytest.mark.parametrize("model", ["shutil:rmtree", "os:system", "builtins:eval", "subprocess.run",
+                                   "pinneapple_autolab.study.verify:importlib.import_module",
+                                   "pinneapple_autolab.study.verify:_value", "pinneapple_autolab.study.scalar_twin:os.system",
+                                   "pinneapple_autolab.study.scalar_twin:subprocess.run"])
+def test_model_ids_outside_the_library_are_refused_without_being_called(model, tmp_path, monkeypatch):
+    import builtins
+    import os
+    import shutil
+    import subprocess
+    called = []
+    for mod, attr in [(shutil, "rmtree"), (os, "system"), (builtins, "eval"), (subprocess, "run")]:
+        monkeypatch.setattr(mod, attr, lambda *a, _n=attr, **k: called.append(_n))
+    out = verify_against_model({"path": str(tmp_path)}, 0.0, model, rtol=1.0)
+    assert out["status"] == "inconclusive" and out["model_value"] is None
+    assert "PermissionError" in out["verifications"][0]["detail"]
+    with pytest.raises(PermissionError):
+        surrogate_twin(model, [{"name": "path", "low": 0, "high": 1, "values": [0.0]}], {"name": "X"},
+                       str(tmp_path / "twin"))
+    assert called == [] and tmp_path.exists() and not (tmp_path / "twin").exists()

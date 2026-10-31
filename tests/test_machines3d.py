@@ -113,7 +113,7 @@ def test_search_coil_links_the_2d_flux_and_end_air_lowers_it(machine):
     # Stokes: the loop integral is the flux of B through the coil's cylindrical surface (midpoint rule in phi, z)
     r = 0.5 * (2 * machine.r_bore + machine.slot_depth)
     tau = np.pi / machine.pole_pairs
-    n = 2000                                         # 0.25 % from the loop integral (2.4 % at 200)
+    n = 2000                                         # sampling B: 0.25 % from the exact loop integral
     phi = (np.arange(n) + 0.5) / n * tau - tau / 2
     z = (np.arange(20) + 0.5) / 20 * machine.length - machine.length / 2
     P, Z = np.meshgrid(phi, z)
@@ -121,6 +121,6 @@ def test_search_coil_links_the_2d_flux_and_end_air_lowers_it(machine):
     B = s.B[m3.mesh.locate(pts)]
     Br = B[:, 0] * np.cos(P.ravel()) + B[:, 1] * np.sin(P.ravel())
     flux = Br.sum() * (r * tau / n) * (machine.length / 20)
-    assert lam == pytest.approx(flux, rel=0.01)
+    assert lam == pytest.approx(flux, rel=0.005)
     row = end_effect_study(machine, (0.5,), end_length=0.02, end_layers=2, n_theta=72)["rows"][0]
-    assert 0.98 < row["k_o0mm"] < 1.0                # 0.9945 measured: end leakage, a fraction of a percent
+    assert 0.98 < row["k_o0mm"] < 1.0                # end leakage: a fraction of a percent

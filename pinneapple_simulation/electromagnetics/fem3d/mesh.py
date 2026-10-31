@@ -161,18 +161,25 @@ class TetMesh:
     def nodes_in(self, mask: np.ndarray) -> np.ndarray:
         return np.unique(self.tets[mask])
 
+    @cached_property
+    def _centroid_tree(self):
+        from scipy.spatial import cKDTree
+
+        return cKDTree(self.centroids)
+
+    @cached_property
+    def _jacobians_inv(self) -> np.ndarray:
+        return np.linalg.inv(self.jacobians)
+
     def locate(self, points: np.ndarray, tol: float = 1e-10) -> np.ndarray:
         """Index of a tetrahedron containing each point (-1 outside), by barycentric coordinates; a k-d tree on
         the centroids narrows the candidates."""
-        from scipy.spatial import cKDTree
-
         points = np.atleast_2d(np.asarray(points, float))
-        tree = cKDTree(self.centroids)
         out = np.full(len(points), -1, np.int64)
         k = min(64, len(self.tets))
-        _, cand = tree.query(points, k=k)
+        _, cand = self._centroid_tree.query(points, k=k)
         cand = np.atleast_2d(cand)
-        Jinv = np.linalg.inv(self.jacobians)
+        Jinv = self._jacobians_inv
         x0 = self.nodes[self.tets[:, 0]]
         for p in range(len(points)):
             c = cand[p]

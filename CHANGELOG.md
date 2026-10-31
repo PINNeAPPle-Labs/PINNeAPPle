@@ -22,6 +22,38 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
+  space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
+  (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families
+  at equal data and budget with cross-conformal intervals, physics checks on predictions and a written selection
+  rule (`benchmark`: GP, MLP ensemble, response surface, POD-GP, POD-MLP, POD-RBF, DeepONet ensemble), Sobol indices,
+  NSGA-II with an uncertainty constraint and acquisition by uncertainty (`extras`), a digital-twin page (`twin`),
+  figures (`figures`) and the HTML evidence report with the VeriPhysics package (`report`).
+- `pinneapple_autolab.domains.ahmed` (`AhmedAero`: the Ahmed body in OpenFOAM with prism layers, per-run checks
+  and drag breakdown by region; `ahmed_cad` / `import_body`: OpenCASCADE CAD through gmsh and STL import with
+  checks and named patches; prediction checks) and `.ahmed_study` (the study's stages); the example
+  `examples/end_to_end/ahmed_body`, the app `apps/ahmed_twin`, the Flow nodes `study.*` and the flow
+  `ahmed_body_end_to_end.json`; guide `docs/guides/ahmed_body_end_to_end.md`.
+- `pinneapple_analysis.inverse_problems.amortized`: mixture density network posterior (`fit_mdn`, `MDN.sample`,
+  `posterior_coverage`, `hdi`) trained under a `ComputeBudget`.
+- `ahmed.MEASUREMENTS`: every wind-tunnel data set the study is compared with and inverted on (Ahmed et al. 1984 at
+  60 m/s; Lienhart & Becker 2003 at 40 m/s, conditions only: its drag values were not obtainable from the build
+  environment and the set says so), each with its source and a per-value verification note; `ahmed_study.inverse`
+  runs over every set that has values and reports the others as not measured.
+- `ahmed_study.study_report` / `study_costs` and the example `07_report.py`: the evidence report (HTML), the hashed
+  evidence package, the cost table (CFD CPU-hours per purpose plus the seconds of the other stages) and
+  `summary.json` (every measured number with its unit and how it was measured), recorded in the experiment manifest;
+  Flow node `study.report`.
+- `pinneapple_tools.visualization.studio.captions`: captions with an accent marker and a progress bar, title cards on
+  a dark ground, eSpeak NG narration and an ffmpeg audio mux, for product-style films of a study; `ahmed_study.visuals`
+  now cuts a short narrated film in English (title card, CFD orbit, slices, surrogate sweep, end card with the
+  measured numbers).
+- `ExternalFlow`: prism layers (`layers`, `layer_expansion`, `layer_final_thickness`), `cells_per_length` (mesh
+  families with a constant refinement ratio) and the first-cell y+ of every wall face (`surface["yplus"]`).
+- `pp.viz.render`: `background="dark"` (near-black stage with key, rim and fill lights, a dark colour bar), `cmap`
+  for the surface field and `floor` (a glossy floor); `colormap.colorbar(..., dark=True)`.
+- `ahmed_body`: `n_body`, `n_slant`, `n_corner` (sampling; the vertex count never depends on the slant) and
+  `slant_length`.
 - Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
   simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
   `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
@@ -189,6 +221,13 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** the field-scalar consistency check of the Ahmed study (`ahmed.prediction_checks`,
+  `cp_integral_matches_CD_pressure`) compares, at the 95th percentile over 128 Sobol points, the disagreement
+  between the integrated field and the scalar model with the quadrature sum of the CFD's own template gap (its 95th
+  percentile, no added margin) and the scalar model's calibrated half width, instead of the maximum over 48 points
+  with p95 + 0.01: a maximum against a percentile failed even the CFD's own Cp fields, and the scalar model's error
+  was counted against the field. The raw p95 and maximum stay in the check's reason; the report states the decision
+  and both outcomes.
 - **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
   nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
   the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
@@ -230,6 +269,8 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
+  its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
 - `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
   so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
   `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.

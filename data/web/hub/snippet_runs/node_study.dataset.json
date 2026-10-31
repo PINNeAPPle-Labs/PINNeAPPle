@@ -1,0 +1,12 @@
+{
+ "code_hash": "31bdd57f9750b8d0",
+ "figures": [],
+ "id": "node:study.dataset",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 7.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Study dataset with a held-out region -> pinneapple_autolab.domains.ahmed_study.study_dataset + StudyDataset.save\ninputs: [('runs', 'cfd_runs')]\noutputs: [('dataset', 'dataset'), ('metrics', 'metrics')]\ndefaults: {'folder': ''}",
+ "timed_out": false
+}

@@ -208,6 +208,22 @@ brenner2008fem:
   kind: book
   topics: [finite_elements, poisson]
 
+jin2014fem:
+  title: "The Finite Element Method in Electromagnetics (3rd ed.)"
+  authors: [J.-M. Jin]
+  year: 2014
+  venue: "Wiley-IEEE Press"
+  kind: book
+  topics: [finite_elements, edge_elements, electromagnetics]
+
+bossavit1998:
+  title: "Computational Electromagnetism: Variational Formulations, Complementarity, Edge Elements"
+  authors: [A. Bossavit]
+  year: 1998
+  venue: "Academic Press"
+  kind: book
+  topics: [edge_elements, gauge, electromagnetics]
+
 moukalled2016fvm:
   title: "The Finite Volume Method in Computational Fluid Dynamics"
   authors: [F. Moukalled, L. Mangani, M. Darwish]

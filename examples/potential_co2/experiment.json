@@ -1,0 +1,478 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/potential_co2",
+ "title": "Potential-based against direct surrogates for CO2 near Tc",
+ "description": "A network for the Helmholtz energy (every property a derivative of it; MLP and input-convex variants) against one network output per property, on the same mixed CoolProp data of supercritical CO2 near the critical point, at equal data and steps: accuracy inside the training region and in two extrapolation regions, thermodynamic-identity violations, stability; 5 seeds with 95 % intervals.",
+ "domain": "thermodynamics",
+ "methods": [
+  "neural surrogate",
+  "input-convex network",
+  "automatic differentiation"
+ ],
+ "modules": [
+  "pinneapple_physics.potential.surrogate",
+  "pinneapple_physics.potential.co2_study",
+  "pinneapple_physics.potential.relations",
+  "pinneapple_physics.potential.thermo",
+  "pinneapple_physics.potential.plots"
+ ],
+ "params": {
+  "all_properties": {
+   "n_per_prop": 200,
+   "epochs": 3000,
+   "props": [
+    "p",
+    "s",
+    "u",
+    "cv",
+    "cp",
+    "w"
+   ],
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "without_cp": {
+   "n_per_prop": 200,
+   "epochs": 3000,
+   "props": [
+    "p",
+    "s",
+    "u",
+    "cv",
+    "w"
+   ],
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "all_properties_3x": {
+   "n_per_prop": 200,
+   "epochs": 9000,
+   "props": [
+    "p",
+    "s",
+    "u",
+    "cv",
+    "cp",
+    "w"
+   ],
+   "seeds": [
+    0,
+    1
+   ]
+  }
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "all_properties_direct_interp_error",
+   "value": 0.09948,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.0722, 0.1268]"
+  },
+  {
+   "name": "all_properties_direct_hotter_error",
+   "value": 0.24893,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.1958, 0.3021]"
+  },
+  {
+   "name": "all_properties_direct_denser_error",
+   "value": 0.66084,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.6152, 0.7065]"
+  },
+  {
+   "name": "all_properties_direct_maxwell_p95",
+   "value": 0.41,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_potential_interp_error",
+   "value": 1.60878,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [1.598, 1.62]"
+  },
+  {
+   "name": "all_properties_potential_hotter_error",
+   "value": 1.96559,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [1.907, 2.024]"
+  },
+  {
+   "name": "all_properties_potential_denser_error",
+   "value": 3.19765,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [3.185, 3.21]"
+  },
+  {
+   "name": "all_properties_potential_maxwell_p95",
+   "value": 2.763e-05,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_potential_icnn_interp_error",
+   "value": 1.24131,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.7923, 1.69]"
+  },
+  {
+   "name": "all_properties_potential_icnn_hotter_error",
+   "value": 3.23916,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [1.432, 5.046]"
+  },
+  {
+   "name": "all_properties_potential_icnn_denser_error",
+   "value": 2.68768,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [2.274, 3.102]"
+  },
+  {
+   "name": "all_properties_potential_icnn_maxwell_p95",
+   "value": 1.142e-06,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_potential_vs_direct_interp_log10_ratio",
+   "value": 1.21817,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [1.091, 1.345]: direct more accurate"
+  },
+  {
+   "name": "all_properties_potential_vs_direct_hotter_log10_ratio",
+   "value": 0.90258,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.8119, 0.9932]: direct more accurate"
+  },
+  {
+   "name": "all_properties_potential_vs_direct_denser_log10_ratio",
+   "value": 0.68529,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.6537, 0.7169]: direct more accurate"
+  },
+  {
+   "name": "all_properties_potential_icnn_vs_direct_interp_log10_ratio",
+   "value": 1.08914,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.8731, 1.305]: direct more accurate"
+  },
+  {
+   "name": "all_properties_potential_icnn_vs_direct_hotter_log10_ratio",
+   "value": 1.08545,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.7576, 1.413]: direct more accurate"
+  },
+  {
+   "name": "all_properties_potential_icnn_vs_direct_denser_log10_ratio",
+   "value": 0.60707,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.5418, 0.6723]: direct more accurate"
+  },
+  {
+   "name": "without_cp_direct_interp_error",
+   "value": 0.2212,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.2144, 0.228]"
+  },
+  {
+   "name": "without_cp_direct_hotter_error",
+   "value": 0.24127,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.2099, 0.2726]"
+  },
+  {
+   "name": "without_cp_direct_denser_error",
+   "value": 0.66338,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.6095, 0.7173]"
+  },
+  {
+   "name": "without_cp_direct_maxwell_p95",
+   "value": 0.4089,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "without_cp_potential_interp_error",
+   "value": 1.56939,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [-0.8861, 4.025]"
+  },
+  {
+   "name": "without_cp_potential_hotter_error",
+   "value": 2.58858,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [2.017, 3.161]"
+  },
+  {
+   "name": "without_cp_potential_denser_error",
+   "value": 0.88874,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.651, 1.126]"
+  },
+  {
+   "name": "without_cp_potential_maxwell_p95",
+   "value": 3.696e-07,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "without_cp_potential_icnn_interp_error",
+   "value": 3.49411,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [0.7157, 6.273]"
+  },
+  {
+   "name": "without_cp_potential_icnn_hotter_error",
+   "value": 5.58659,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [3.232, 7.941]"
+  },
+  {
+   "name": "without_cp_potential_icnn_denser_error",
+   "value": 2.36547,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 5 seeds, 95 % interval [2.105, 2.626]"
+  },
+  {
+   "name": "without_cp_potential_icnn_maxwell_p95",
+   "value": 5.389e-07,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "without_cp_potential_vs_direct_interp_log10_ratio",
+   "value": 0.65382,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.141, 1.167]: direct more accurate"
+  },
+  {
+   "name": "without_cp_potential_vs_direct_hotter_log10_ratio",
+   "value": 1.0271,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.9623, 1.092]: direct more accurate"
+  },
+  {
+   "name": "without_cp_potential_vs_direct_denser_log10_ratio",
+   "value": 0.11939,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.02544, 0.2133]: direct more accurate"
+  },
+  {
+   "name": "without_cp_potential_icnn_vs_direct_interp_log10_ratio",
+   "value": 1.09371,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.6379, 1.549]: direct more accurate"
+  },
+  {
+   "name": "without_cp_potential_icnn_vs_direct_hotter_log10_ratio",
+   "value": 1.34617,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [1.133, 1.56]: direct more accurate"
+  },
+  {
+   "name": "without_cp_potential_icnn_vs_direct_denser_log10_ratio",
+   "value": 0.55148,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.4776, 0.6253]: direct more accurate"
+  },
+  {
+   "name": "all_properties_3x_direct_interp_error",
+   "value": 0.03776,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-0.03737, 0.1129]"
+  },
+  {
+   "name": "all_properties_3x_direct_hotter_error",
+   "value": 0.21998,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-0.1745, 0.6144]"
+  },
+  {
+   "name": "all_properties_3x_direct_denser_error",
+   "value": 0.5814,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [0.3561, 0.8067]"
+  },
+  {
+   "name": "all_properties_3x_direct_maxwell_p95",
+   "value": 0.2723,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_3x_potential_interp_error",
+   "value": 1.50786,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-1.084, 4.1]"
+  },
+  {
+   "name": "all_properties_3x_potential_hotter_error",
+   "value": 2.60493,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-4.344, 9.553]"
+  },
+  {
+   "name": "all_properties_3x_potential_denser_error",
+   "value": 3.04847,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [0.9948, 5.102]"
+  },
+  {
+   "name": "all_properties_3x_potential_maxwell_p95",
+   "value": 1.986e-05,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_interp_error",
+   "value": 1.2964,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-7.025, 9.618]"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_hotter_error",
+   "value": 4.83357,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [-24.82, 34.49]"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_denser_error",
+   "value": 2.61873,
+   "unit": "",
+   "how": "RMS error / std of the property, mean of p, s, u, c_v, c_p, w; mean over 2 seeds, 95 % interval [0.03466, 5.203]"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_maxwell_p95",
+   "value": 2.338e-06,
+   "unit": "",
+   "how": "relative violation of -rho^2 (ds/drho)_T = (dp/dT)_rho, 95th percentile on the held-out grid, mean over seeds"
+  },
+  {
+   "name": "all_properties_3x_potential_vs_direct_interp_log10_ratio",
+   "value": 1.60276,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [-0.01986, 3.225]: no significant difference"
+  },
+  {
+   "name": "all_properties_3x_potential_vs_direct_hotter_log10_ratio",
+   "value": 1.068,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.6761, 1.46]: direct more accurate"
+  },
+  {
+   "name": "all_properties_3x_potential_vs_direct_denser_log10_ratio",
+   "value": 0.7192,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.5947, 0.8437]: direct more accurate"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_vs_direct_interp_log10_ratio",
+   "value": 1.47717,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [-0.7209, 3.675]: no significant difference"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_vs_direct_hotter_log10_ratio",
+   "value": 1.28862,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [-2.402, 4.979]: no significant difference"
+  },
+  {
+   "name": "all_properties_3x_potential_icnn_vs_direct_denser_log10_ratio",
+   "value": 0.65251,
+   "unit": "",
+   "how": "paired by seed, 95 % interval [0.05476, 1.25]: direct more accurate"
+  }
+ ],
+ "checks": [
+  {
+   "name": "potential_maxwell_relation_by_construction",
+   "passed": true,
+   "value": 2.7625150340074473e-05,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0001,
+   "min": null,
+   "detail": "the potential surrogate's p and s come from one function: the violation is the finite-difference error",
+   "label": "Maxwell relation of the potential surrogate (finite differences)",
+   "kind": "physics"
+  },
+  {
+   "name": "direct_violates_maxwell_relation",
+   "passed": true,
+   "value": 0.41003626023808853,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.001,
+   "detail": "relative violation of the Maxwell relation, 95th percentile",
+   "label": "the direct surrogate is not consistent by construction",
+   "kind": "sanity"
+  },
+  {
+   "name": "potential_more_accurate_in_training_region",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "paired log10 error ratio 1.22 [1.09, 1.35]",
+   "label": "potential surrogate beats the direct one inside the training region (all properties)",
+   "kind": "comparison"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/errors_all_properties.png",
+   "figures/identities_all_properties.png",
+   "figures/isotherms_all_properties.png",
+   "figures/errors_without_cp.png",
+   "figures/identities_without_cp.png",
+   "figures/isotherms_without_cp.png",
+   "figures/errors_all_properties_3x.png",
+   "figures/identities_all_properties_3x.png",
+   "figures/isotherms_all_properties_3x.png",
+   "figures/paired_potential.png",
+   "figures/paired_potential_icnn.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [
+  "Span & Wagner, J. Phys. Chem. Ref. Data 25 (1996) 1509-1596",
+  "Amos, Xu & Kolter, Input Convex Neural Networks, ICML 2017"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "3a0d3de6",
+  "created": "2026-10-31T00:21:26Z",
+  "seconds": 14.216,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

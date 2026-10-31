@@ -10,7 +10,8 @@
       E(r) = -j k eta / (4 pi) sum_i A_i e^{-jkR}/R [ (1 - j/(kR) - 1/(kR)^2) J_i
                                                       - (1 - 3j/(kR) - 3/(kR)^2) (J_i . R^) R^ ]
 
-  one-point (centroid) quadrature per triangle, so triangles of lambda/8 or smaller; computed in chunks.
+  one-point (centroid) quadrature per triangle, so triangles of lambda/8 or smaller; computed in chunks;
+  :func:`radiate_fields` does it for several current sets at once and gives H as well.
 
 ``exp(+j omega t)`` convention, SI units. PO neglects the fringe (non-uniform) edge currents (PTD) and multiple
 reflections; the edge diffraction it does contain is that of the truncated PO current.
@@ -20,7 +21,7 @@ from __future__ import annotations
 import numpy as np
 
 __all__ = ["ETA0", "C0", "wavenumber", "cosq_feed", "q_from_gain", "gain_from_q", "po_currents", "radiate",
-           "plane_wave"]
+           "radiate_fields", "plane_wave"]
 
 C0 = 299_792_458.0
 ETA0 = 376.730313412
@@ -115,3 +116,39 @@ def radiate(centres, areas, J, obs, k: float, chunk: int = 2_000_000):
         JdR = np.einsum("nc,mnc->mn", JA, Rh)
         out[i:i + step] = np.einsum("mn,nc->mc", G * a, JA) - np.einsum("mn,mnc->mc", G * b * JdR, Rh)
     return out * (-1j * k * ETA0 / (4 * np.pi))
+
+
+def radiate_fields(centres, areas, Js, obs, k: float, *, magnetic: bool = False, chunk: int = 2_000_000):
+    """E (P, M, 3) -- and H (P, M, 3) when ``magnetic`` -- radiated by ``P`` current sets ``Js`` (P, N, 3) on the
+    same triangles: :func:`radiate` with the geometry terms computed once for all of them (two polarisations of a
+    feed cost one geometry pass). ``H = 1/(4 pi) sum_i A_i (1 + jkR) e^{-jkR}/R^2 (J_i x R^)``."""
+    C = np.asarray(centres, float)
+    JA = np.asarray(Js) * np.asarray(areas, float)[None, :, None]
+    keep = np.any(JA != 0, axis=(0, 2))
+    C, JA = C[keep], JA[:, keep]
+    Ob = np.atleast_2d(np.asarray(obs, float))
+    P = len(JA)
+    E = np.zeros((P, len(Ob), 3), complex)
+    H = np.zeros((P, len(Ob), 3), complex) if magnetic else None
+    step = max(1, chunk // max(len(C), 1))
+    for i in range(0, len(Ob), step):
+        Rv = Ob[i:i + step, None, :] - C[None, :, :]
+        R = np.linalg.norm(Rv, axis=2)
+        Rh = Rv / R[..., None]
+        kR = k * R
+        G = np.exp(-1j * kR) / R
+        Ga = G * (1 - 1j / kR - 1 / kR ** 2)
+        Gb = G * (1 - 3j / kR - 3 / kR ** 2)
+        Gh = (1 + 1j * kR) * G / R if magnetic else None
+        X, Y, Z = Rh[..., 0], Rh[..., 1], Rh[..., 2]
+        for p in range(P):
+            Jx, Jy, Jz = JA[p, :, 0], JA[p, :, 1], JA[p, :, 2]
+            W = Gb * (X * Jx + Y * Jy + Z * Jz)                              # G b (J . R^)
+            E[p, i:i + step] = Ga @ JA[p] - np.stack([(W * X).sum(1), (W * Y).sum(1), (W * Z).sum(1)], 1)
+            if magnetic:                                                     # sum Gh (J x R^)
+                H[p, i:i + step] = np.stack([(Gh * Z) @ Jy - (Gh * Y) @ Jz, (Gh * X) @ Jz - (Gh * Z) @ Jx,
+                                             (Gh * Y) @ Jx - (Gh * X) @ Jy], 1)
+    E *= -1j * k * ETA0 / (4 * np.pi)
+    if magnetic:
+        return E, H / (4 * np.pi)
+    return E

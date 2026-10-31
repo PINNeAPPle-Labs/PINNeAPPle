@@ -133,3 +133,41 @@ def potential_machine_coenergy(ctx, inputs, params):
     ctx.metric("L_self", float(r["L"][0, 0]), "H, d2W'/di0^2")
     ctx.summary(f"torque {r['torque']:.4f} N m from the co-energy vs {T_mst:.4f} N m by Maxwell stress")
     return {"metrics": ctx.report["metrics"]}
+
+
+@node("potential.co2_surrogates", "CO2 near the critical point: potential-based vs direct surrogate",
+      category="Surrogates",
+      outputs=[Port("metrics", "metrics")],
+      params=[Param("seeds", "int", 1, minimum=1, maximum=10, help="training seeds (each draws its own data)"),
+              Param("epochs", "int", 600, minimum=10, maximum=20000, help="Adam steps, the same for every model"),
+              Param("n_per_prop", "int", 100, minimum=10, maximum=2000, help="training samples per property"),
+              Param("without_cp", "bool", False, help="leave c_p out of the training data (it is still scored)")],
+      calls="pinneapple_physics.potential.co2_study.run_study (surrogate.PotentialSurrogate, "
+            "surrogate.DirectSurrogate, surrogate.fit, potential.consistency_check)")
+def potential_co2_surrogates(ctx, inputs, params):
+    """A network for the Helmholtz energy (properties as its derivatives; MLP and input-convex variants) against a
+    network with one output per property, trained on the same mixed CoolProp data of CO2 (each sample carries one
+    of p, s, u, c_v, c_p, w) with the same loss, optimiser and steps; normalised RMS errors inside the training
+    region and in two extrapolation regions, and the violation of the thermodynamic identities."""
+    try:
+        import CoolProp  # noqa: F401
+
+        from pinneapple_physics.potential import co2_study as cs
+    except ImportError as exc:
+        ctx.not_run(f"needs CoolProp (pip install 'pinneapple[potential]'): {exc}")
+    props = ("p", "s", "u", "cv", "w") if params["without_cp"] else cs.PROPERTIES
+    res = cs.run_study(range(int(params["seeds"])), grids=cs.default_grids(11), props=props,
+                       epochs=int(params["epochs"]), n_per_prop=int(params["n_per_prop"]))
+    s = res["summary"]["models"]
+    for m, v in s.items():
+        for g in ("interp", "hotter", "denser"):
+            ctx.metric(f"nrmse_{m}_{g}", v[g]["nrmse_mean"]["mean"], "mean over the six properties of RMS error / "
+                       "std of the property; mean over seeds")
+        ctx.metric(f"maxwell_p95_{m}", v["interp"]["identities"]["Maxwell relation (Helmholtz)"]["mean"],
+                   "relative violation, 95th percentile, held-out grid")
+        ctx.metric(f"seconds_{m}", v["seconds"]["mean"], "training wall-clock per seed")
+    best = min(s, key=lambda m: s[m]["interp"]["nrmse_mean"]["mean"])
+    ctx.summary(f"most accurate in the training region: {best}; direct "
+                f"{s['direct']['interp']['nrmse_mean']['mean']:.3f} vs potential "
+                f"{s['potential']['interp']['nrmse_mean']['mean']:.3f} (normalised RMS)")
+    return {"metrics": ctx.report["metrics"]}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b5e94ac42b88c9f5",
+ "figures": [],
+ "id": "node:antenna.compact_range_design",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 7.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compact range: QZ vs feed gain and reflector size, smallest reflector -> pinneapple_simulation.electromagnetics.reflector.design.generic_2ghz / from_config / run_design_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'study': True, 'quick': True, 'gains_dbi': [], 'sides_m': [], 'focals_m': [], 'qz_diameter_m': 1.0, 'amp_tol_db': 0.5, 'phase_tol_deg': 5.0, 'xpol_max_db': -25.0, 'checks': True, 'workers': 2}",
+ "timed_out": false
+}

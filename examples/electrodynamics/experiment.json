@@ -15,6 +15,7 @@
   "pinneapple_physics.pinn_solver.compiler.autograd_ops",
   "pinneapple_simulation.electromagnetics",
   "pinneapple_simulation.electromagnetics.constants",
+  "pinneapple_simulation.electromagnetics.fem3d",
   "pinneapple_simulation.electromagnetics.machine",
   "pinneapple_simulation.electromagnetics.machines",
   "pinneapple_simulation.electromagnetics.machines.drive",
@@ -44,7 +45,8 @@
   "15_prius_skew.py",
   "16_prius_end_effects.py",
   "17_prius_tolerances.py",
-  "18_emachine_slides.py"
+  "18_emachine_slides.py",
+  "19_edge3d_verification.py"
  ],
  "metrics": [],
  "checks": [],
@@ -78,6 +80,7 @@
    "results/15_prius_skew_3d.png",
    "results/16_prius_end_effects.png",
    "results/17_prius_tolerances.png",
+   "results/19_edge3d_verification.png",
    "results/fdtd_cylinder_field_map.png",
    "results/fdtd_dipole_pattern.png"
   ],
@@ -96,6 +99,7 @@
    "results/15_prius_skew.json",
    "results/16_prius_end_effects.json",
    "results/17_prius_tolerances.json",
+   "results/19_edge3d_verification.json",
    "results/em_verification.json",
    "results/fdtd_gallery.json"
   ]

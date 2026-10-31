@@ -10,6 +10,9 @@
 ``extras``         Sobol indices, NSGA-II with an uncertainty constraint, uncertainty-driven acquisition
 ``twin``           a digital-twin page (sliders, 3-D field, band, trust warning, verify button)
 ``report``         the evidence report (HTML) of a study
+``verify``         a surrogate's value at one point against the reference model (``verify_against_model``)
+``scalar_twin``    a twin page for one quantity of any model, with its band and an extrapolation mark
+                   (``surrogate_twin``)
 =================  ===========================================================================================
 
 The flagship case is the Ahmed body in OpenFOAM (:mod:`pinneapple_autolab.domains.ahmed`,
@@ -20,7 +23,7 @@ from __future__ import annotations
 
 import importlib as _importlib
 
-__all__ = ["campaign", "mesh_study", "dataset", "benchmark", "extras", "twin", "report"]
+__all__ = ["campaign", "mesh_study", "dataset", "benchmark", "extras", "twin", "report", "verify", "scalar_twin"]
 
 
 def __getattr__(name: str):

@@ -11,6 +11,9 @@ outside, above and below, on the same edge-element grid, and gives the same numb
 the fringing at the inner and outer radius that quasi-3D leaves out. The 3-D view shows `|B|` and the axial field on
 the magnets, the iron and the gap layers.
 
+![The default design after "Verify in 3-D": the results table with the ratios, the cogging over one period and the
+3-D view of |B|](../../docs/assets/apps/afpm-designer-verify-3d.png)
+
 ## What it computes
 
 | Piece | Library |
@@ -46,6 +49,10 @@ Treat the app's absolute cogging as a coarse-grid value and its estimate / 3-D r
 Limits: linear iron and magnets, no load (no winding currents), open rectangular-sector teeth, magnets magnetised
 axially. A slot-pole combination whose cogging period needs more than 480 steps round the axis is refused (9 slots
 and 8 poles: 576).
+
+Screenshots of the default design, taken with Playwright against the running app: the form
+(`docs/assets/apps/afpm-designer-form.png`), after **Estimate** (`afpm-designer-estimate.png`), after **Verify in 3-D**
+(`afpm-designer-verify-3d.png`) and the 3-D view alone (`afpm-designer-field-view.png`).
 
 ## Run it
 

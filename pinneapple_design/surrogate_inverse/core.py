@@ -63,7 +63,25 @@ class MLPSurrogate(nn.Module):
 
 @dataclass
 class SurrogateFit:
-    """A trained surrogate with its held-out errors (relative, on rows it never trained on)."""
+    """A trained surrogate with its held-out errors (relative, on rows it never trained on).
+
+    Attributes
+    ----------
+    val_mean_rel_err : float [-]
+        Mean relative error on held-out rows.
+    val_p95_rel_err : float [-]
+        95th percentile.
+    val_max_rel_err : float [-]
+        Largest.
+    n_train : int [-]
+        Training rows.
+    n_val : int [-]
+        Held-out rows.
+    epochs : int [-]
+        Epochs.
+    seconds : float [s]
+        Training time.
+    """
     model: MLPSurrogate
     val_mean_rel_err: float
     val_p95_rel_err: float
@@ -192,6 +210,13 @@ def banded(name: str, error: float, pass_limit: float, warn_limit: float, *, pas
 
 
 def relative_error(predicted: float, reference: float, floor: float) -> float:
+    """Relative error of ``predicted`` against ``reference``, with ``floor`` guarding a reference near zero.
+
+    Returns
+    -------
+    err : float [-]
+        ``|predicted - reference| / max(|reference|, floor)``.
+    """
     return abs(predicted - reference) / max(abs(reference), floor)
 
 

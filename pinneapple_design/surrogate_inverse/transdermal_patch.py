@@ -73,28 +73,60 @@ BASELINE_DESIGN = PatchDesign(area_m2=20e-4, membrane_thickness_m=80e-6, reservo
 
 
 def release_rate_mg_day(design: PatchDesign) -> float:
-    """Ground truth: steady release rate (training labels and verification)."""
+    """Ground truth: steady release rate (training labels and verification).
+
+    Returns
+    -------
+    rate : float [mg/day]
+        Steady release rate.
+    """
     return md.steady_state_release_rate_mg_day(DIFFUSION_COEFF_M2_S, PARTITION_COEFF, design.reservoir_conc_kg_m3,
                                                design.area_m2, design.membrane_thickness_m)
 
 
 def depletion_time_days(design: PatchDesign) -> float:
+    """Time to deplete the reservoir at the steady rate.
+
+    Returns
+    -------
+    t : float [day]
+        Time to deplete the reservoir.
+    """
     return md.depletion_time_days(DIFFUSION_COEFF_M2_S, PARTITION_COEFF, design.membrane_thickness_m,
                                   RESERVOIR_THICKNESS_M)
 
 
 def reservoir_mass_mg(design: PatchDesign) -> float:
+    """Drug mass in the reservoir.
+
+    Returns
+    -------
+    m : float [mg]
+        Drug mass in the reservoir.
+    """
     return design.reservoir_conc_kg_m3 * design.area_m2 * RESERVOIR_THICKNESS_M * md.KG_TO_MG
 
 
 def concentration_at_membrane_depth(design: PatchDesign, z_from_reservoir_m: float) -> float:
-    """Linear steady profile ``C(z) = K C_res (1 - z / L)`` (sink at the outer face)."""
+    """Linear steady profile ``C(z) = K C_res (1 - z / L)`` (sink at the outer face).
+
+    Returns
+    -------
+    C : float [kg/m3]
+        Concentration at ``z_from_reservoir_m``.
+    """
     return md.concentration_at_membrane_depth(design.reservoir_conc_kg_m3, PARTITION_COEFF,
                                               design.membrane_thickness_m, z_from_reservoir_m)
 
 
 def decay_rate_constant_per_day(design: PatchDesign) -> float:
-    """First-order constant of the tail after depletion, ``k = D K / (L L_res) = 1 / t_dep`` (area cancels)."""
+    """First-order constant of the tail after depletion, ``k = D K / (L L_res) = 1 / t_dep`` (area cancels).
+
+    Returns
+    -------
+    k : float [1/day]
+        First-order decay constant.
+    """
     return md.post_depletion_decay_rate_constant_per_day(DIFFUSION_COEFF_M2_S, PARTITION_COEFF,
                                                          design.membrane_thickness_m, RESERVOIR_THICKNESS_M)
 

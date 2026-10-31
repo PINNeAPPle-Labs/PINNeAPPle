@@ -83,7 +83,15 @@ def _fan(cx, y, cz, r, n_blades=7):
 
 
 def fan_positions(mission: CoolingMission) -> tuple[list[tuple[float, float, float]], float]:
-    """Centres (x, y, z) of the three fans on the inlet wall and their radius [mm]."""
+    """Centres (x, y, z) of the three fans on the inlet wall and their radius [mm].
+
+    Returns
+    -------
+    centres : list[tuple[float, float, float]] [mm]
+        Fan centres (x, y, z).
+    radius : float [mm]
+        Fan radius.
+    """
     W = mission.board.width_mm
     mx, my, hz = ENCLOSURE_MARGIN
     r = min((W + 2 * mx) / 6.6, 0.42 * hz)

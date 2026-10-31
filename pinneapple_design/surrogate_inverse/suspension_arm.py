@@ -69,22 +69,48 @@ BASELINE_DESIGN = ArmDesign(width_m=0.05, thickness_m=0.022)
 
 
 def bending_stress_pa(design: ArmDesign, load_n: float) -> float:
-    """Ground truth: bending stress at the clamped root, where the moment is largest."""
+    """Ground truth: bending stress at the clamped root, where the moment is largest.
+
+    Returns
+    -------
+    sigma : float [Pa]
+        Root bending stress.
+    """
     return cf.cantilever_root_bending_stress_pa(design.width_m, design.thickness_m, load_n, ARM_LENGTH_M)
 
 
 def bending_stress_at_position_pa(design: ArmDesign, load_n: float, x_from_root_m: float) -> float:
-    """``sigma(x) = 6 F (L - x) / (w t^2)``: largest at the root, zero at the loaded tip."""
+    """``sigma(x) = 6 F (L - x) / (w t^2)``: largest at the root, zero at the loaded tip.
+
+    Returns
+    -------
+    sigma : float [Pa]
+        Bending stress at ``x_from_root_m``.
+    """
     return cf.cantilever_bending_stress_at_position_pa(design.width_m, design.thickness_m, load_n, ARM_LENGTH_M,
                                                        x_from_root_m)
 
 
 def fatigue_life_cycles(design: ArmDesign, load_n: float) -> float:
+    """Cycles to failure at the root stress (Basquin).
+
+    Returns
+    -------
+    N : float [-]
+        Cycles to failure.
+    """
     return cf.basquin_fatigue_life_cycles(bending_stress_pa(design, load_n), FATIGUE_STRENGTH_COEFF_PA,
                                           FATIGUE_STRENGTH_EXPONENT)
 
 
 def allowable_stress_for_life_pa(target_life_cycles: float) -> float:
+    """Largest stress amplitude that still reaches ``target_life_cycles`` (Basquin).
+
+    Returns
+    -------
+    sigma_a : float [Pa]
+        Allowable stress amplitude.
+    """
     return cf.basquin_allowable_stress_pa(target_life_cycles, FATIGUE_STRENGTH_COEFF_PA, FATIGUE_STRENGTH_EXPONENT)
 
 
@@ -197,6 +223,28 @@ def verify_design(design: ArmDesign, load_n: float, target_life_cycles: float,
 
 @dataclass
 class SensitivityResult:
+    """Derivatives of life and mass at a design point (``compute_sensitivity``).
+
+    Attributes
+    ----------
+    width_m : float [m]
+    thickness_m : float [m]
+    load_n : float [N]
+    life_cycles : float [-]
+        Cycles to failure.
+    mass_kg : float [kg]
+    d_life_d_width : float [1/m]
+        Cycles per metre of width.
+    d_life_d_thickness : float [1/m]
+        Cycles per metre of thickness.
+    d_mass_d_width : float [kg/m]
+    d_mass_d_thickness : float [kg/m]
+    elasticity_width : float [-]
+        Relative change of life over relative change of width.
+    elasticity_thickness : float [-]
+    elasticity_ratio : float [-]
+        Larger over smaller elasticity.
+    """
     width_m: float
     thickness_m: float
     load_n: float

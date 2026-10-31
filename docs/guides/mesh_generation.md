@@ -30,13 +30,24 @@ this figure included.
 | `scale` | Converts a file's length unit to metres; `1e-3` for millimetres. |
 | `refine` | Balls of smaller elements, `[{"center": [x, y, z], "radius": r, "h": h_local}]`. The size grows back to `h` over one radius. |
 | `boundary_layer` | `{"first_layer": m, "n_layers": n, "growth": g}`. In 3-D, prisms are extruded inward from the surface. In 2-D, layers of triangles line the boundary. |
-| `out_dir` | Where to write the files: `mesh.msh` (gmsh), `mesh.vtu` (ParaView), `quality.glb` and `quality.json`. |
+| `out_dir` | Where to write the files: `mesh.msh` (gmsh), `mesh.vtu` (ParaView), `quality.glb` and `quality.json`. Nothing is written anywhere else. |
+| `max_input_mb` | Largest geometry file accepted, checked before the file is opened. Default: `PINNEAPPLE_MESH_MAX_INPUT_MB`, else 100 MB. |
+| `max_elements` | Largest mesh, estimated before meshing. Default 2,000,000. Above it, the error names the smallest acceptable `h`. |
 
 ### File inputs
 
 - **STEP / IGES:** read through OpenCASCADE, gmsh's OCC kernel.
 - **STL without a boundary layer:** meshed by the existing `mesher_3d.mesh_from_surface`.
 - **Open STL:** refused. An STL with open or non-manifold edges raises `ValueError` with the count of each edge kind; the check is `pinneapple_data.cae.quality.surface_checks`.
+
+### Guards
+
+These protect an app that runs the tool on untrusted input.
+
+- **Local files only.** A URL is refused; nothing is downloaded.
+- **File size.** A file above `max_input_mb` is refused before it is opened.
+- **Mesh size.** The mesh size is estimated before meshing, from the volume or area over h^d with measured densities: 6 tetrahedra per V/h^3 and 2.5 triangles per A/h^2. The estimate also counts the refinement balls and one prism per wall triangle per layer. Files are estimated from their bounding box. The estimate is 1.0 to 1.35 times the count gmsh makes (tested).
+- **Missing gmsh.** The error says `pip install gmsh`.
 
 ### Fixed settings
 

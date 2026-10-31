@@ -38,7 +38,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["generate_mesh", "PRIMITIVES", "FILE_TYPES", "X_OUTPUTS"]
+__all__ = ["generate_mesh", "estimate_elements", "PRIMITIVES", "FILE_TYPES", "X_OUTPUTS"]
 
 PRIMITIVES = {"box": (3, 3), "cylinder": (3, 2), "sphere": (3, 1), "rectangle": (2, 2), "disk": (2, 1)}
 DEFAULT_DIMENSIONS = {"box": [1.0, 1.0, 1.0], "cylinder": [0.5, 1.0], "sphere": [0.5], "rectangle": [1.0, 1.0],
@@ -48,7 +48,12 @@ FILE_TYPES = (".stl", ".step", ".stp", ".iges", ".igs")
 _GMSH_TYPES = {2: ("triangle", 2, 3), 3: ("quad", 2, 4), 4: ("tetra", 3, 4), 5: ("hexahedron", 3, 8),
                6: ("wedge", 3, 6), 7: ("pyramid", 3, 5)}
 SICN_WARN = 0.1        # below this an element is poor for most finite-element and finite-volume solvers
-MAX_FILE_MB = 200.0    # default size limit of a geometry file; PINNEAPPLE_MESH_MAX_FILE_MB or max_file_mb override it
+MAX_INPUT_MB = 100.0   # default size limit of a geometry file; max_input_mb or PINNEAPPLE_MESH_MAX_INPUT_MB override it
+MAX_ELEMENTS = 2_000_000
+# elements per (volume / h^3) and per (area / h^2), measured on gmsh meshes of boxes, cylinders, squares and disks
+# (4.6-5.9 tetrahedra, 2.3-2.4 triangles; tests/test_mesh_generation.py) and rounded up: the guard errs on the safe side
+TETS_PER_H3 = 6.0
+TRIS_PER_H2 = 2.5
 
 # what the tool returns, with units (read by the Studio catalog)
 X_OUTPUTS = {
@@ -268,6 +273,56 @@ def _stats(v: np.ndarray) -> tuple[float, float, float]:
     return (float(v.min()), float(v.mean()), float(v.max())) if len(v) else (math.nan, math.nan, math.nan)
 
 
+def _primitive_size(shape: str, d: list[float]) -> tuple[int, float, float]:
+    """(dimension, volume or area, boundary area or perimeter) of a primitive."""
+    if shape == "box":
+        return 3, d[0] * d[1] * d[2], 2 * (d[0] * d[1] + d[1] * d[2] + d[0] * d[2])
+    if shape == "cylinder":
+        return 3, math.pi * d[0] ** 2 * d[1], 2 * math.pi * d[0] * (d[0] + d[1])
+    if shape == "sphere":
+        return 3, 4 / 3 * math.pi * d[0] ** 3, 4 * math.pi * d[0] ** 2
+    if shape == "rectangle":
+        return 2, d[0] * d[1], 2 * (d[0] + d[1])
+    return 2, math.pi * d[0] ** 2, 2 * math.pi * d[0]
+
+
+def estimate_elements(dim: int, measure: float, boundary: float, h: float, refine: list[dict[str, Any]],
+                      boundary_layer: dict[str, Any] | None) -> float:
+    """Elements gmsh will make, from the measured densities (an upper estimate within about 30 %)."""
+    if dim == 3:
+        n = TETS_PER_H3 * measure / h ** 3
+        n += sum(TETS_PER_H3 * 4 / 3 * math.pi * float(r["radius"]) ** 3 / float(r["h"]) ** 3 for r in refine)
+        if boundary_layer:                                   # one prism per wall triangle and layer
+            n += TRIS_PER_H2 * boundary / h ** 2 * int(boundary_layer["n_layers"])
+    else:
+        n = TRIS_PER_H2 * measure / h ** 2
+        n += sum(TRIS_PER_H2 * math.pi * float(r["radius"]) ** 2 / float(r["h"]) ** 2 for r in refine)
+        if boundary_layer:                                   # two triangles per boundary edge and layer
+            n += 2 * boundary / h * int(boundary_layer["n_layers"])
+    return n
+
+
+def _check_size(dim: int, measure: float, boundary: float, h: float, refine, boundary_layer, max_elements: int,
+                what: str) -> None:
+    n = estimate_elements(dim, measure, boundary, h, refine, boundary_layer)
+    if n > max_elements:
+        coef = TETS_PER_H3 if dim == 3 else TRIS_PER_H2
+        h_ok = (coef * measure / max_elements) ** (1 / dim)
+        raise ValueError(f"{what}: about {n:.3g} elements at h = {h:g} m, above max_elements = {max_elements:g}; "
+                         f"use h >= {h_ok:.3g} m (or raise max_elements, if the memory allows)")
+
+
+def _check_box(points: np.ndarray, dim: int, h: float, refine, boundary_layer, max_elements: int, what: str) -> None:
+    """The element guard for a file: its bounding box stands for the solid (an upper bound)."""
+    size = np.ptp(np.asarray(points, float), axis=0)
+    if dim == 3:
+        measure, boundary = float(np.prod(size)), 2 * float(size[0] * size[1] + size[1] * size[2] + size[0] * size[2])
+    else:
+        s2 = np.sort(size)[1:]
+        measure, boundary = float(s2[0] * s2[1]), 2 * float(s2.sum())
+    _check_size(dim, measure, boundary, h, refine, boundary_layer, max_elements, what)
+
+
 def _boundary_area(points: np.ndarray, blocks: list[tuple[str, np.ndarray]]) -> float:
     """Area of the faces that belong to one element only (the boundary of a 3-D mesh)."""
     from pinneapple_data.cae.model import CELL_FACES
@@ -297,7 +352,8 @@ def _edges(points: np.ndarray, blocks: list[tuple[str, np.ndarray]]) -> np.ndarr
 def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, h: float = 0.25,
                   scale: float = 1.0, refine: list[dict[str, Any]] | None = None,
                   boundary_layer: dict[str, Any] | None = None, out_dir: str | None = None,
-                  origin: list[float] | None = None, max_file_mb: float | None = None) -> dict[str, Any]:
+                  origin: list[float] | None = None, max_input_mb: float | None = None,
+                  max_elements: int = MAX_ELEMENTS) -> dict[str, Any]:
     """Mesh a primitive or a geometry file with gmsh and rate every element.
 
     Parameters
@@ -322,8 +378,12 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
     origin : list[float]
         where the primitive's reference point (the corner of a box or rectangle, the centre of a sphere or disk, the
         base centre of a cylinder) goes [m] (default: the origin)
-    max_file_mb : float
-        largest geometry file accepted [MB] (default: PINNEAPPLE_MESH_MAX_FILE_MB, else 200)
+    max_input_mb : float
+        largest geometry file accepted, checked before the file is opened [MB] (default:
+        PINNEAPPLE_MESH_MAX_INPUT_MB, else 100)
+    max_elements : int
+        refuse, before meshing, a mesh estimated above this many elements (from the volume or area over h^d, the
+        refinement balls and the wall layers; files: their bounding box) [-]
 
     Returns
     -------
@@ -381,17 +441,18 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
         d = [float(x) for x in (dimensions or DEFAULT_DIMENSIONS[shape])]
         if len(d) != PRIMITIVES[shape][1] or min(d) <= 0:
             raise ValueError(f"{shape} needs {PRIMITIVES[shape][1]} positive dimensions (metres), got {d}")
+        _check_size(*_primitive_size(shape, d), float(h), refine, boundary_layer, int(max_elements), shape)
     elif ext in FILE_TYPES:
         if "://" in shape:
             raise ValueError("geometry must be a local file path; URLs are not fetched")
         if not os.path.isfile(shape):
             raise ValueError(f"no such file: {shape}")
-        limit = float(max_file_mb if max_file_mb is not None else os.environ.get("PINNEAPPLE_MESH_MAX_FILE_MB",
-                                                                                 MAX_FILE_MB))
+        limit = float(max_input_mb if max_input_mb is not None else os.environ.get("PINNEAPPLE_MESH_MAX_INPUT_MB",
+                                                                                   MAX_INPUT_MB))
         size = os.path.getsize(shape) / 1e6
         if size > limit:
             raise ValueError(f"{os.path.basename(shape)} is {size:.1f} MB, above the {limit:g} MB limit "
-                             "(max_file_mb or PINNEAPPLE_MESH_MAX_FILE_MB)")
+                             "(max_input_mb or PINNEAPPLE_MESH_MAX_INPUT_MB)")
     else:
         raise ValueError(f"geometry must be one of {sorted(PRIMITIVES)} or a {'/'.join(FILE_TYPES)} file")
 
@@ -406,6 +467,7 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
 
         from .mesher_3d import mesh_from_surface
         verts, tris = _read_stl(shape, float(scale))
+        _check_box(verts, 3, float(h), refine, None, int(max_elements), os.path.basename(shape))
         vol = mesh_from_surface(MeshData(vertices=verts.astype(np.float32), faces=tris.astype(np.int32)),
                                 mesh_size=float(h))
         if vol is None or vol.tets is None or not len(vol.tets):
@@ -418,6 +480,7 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
             dim = 3
             if boundary_layer:
                 verts, tris = _read_stl(shape, float(scale))
+                _check_box(verts, 3, float(h), refine, boundary_layer, int(max_elements), os.path.basename(shape))
                 _sizes(gmsh, float(h), refine)
                 _bl_3d_volume(gmsh, verts, tris, boundary_layer)
                 _sizes(gmsh, float(h), refine)
@@ -428,6 +491,10 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
                 backend = f"mesh_from_surface ({vol.meta.get('backend', '?')})"
         else:
             dim = _primitive(gmsh, shape, d, o) if shape in PRIMITIVES else _import_cad(gmsh, shape, float(scale))
+            if shape not in PRIMITIVES:                       # a file: its OCC bounding box, before meshing
+                x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(-1, -1)
+                _check_box(np.array([[x0, y0, z0], [x1, y1, z1]]), dim, float(h), refine, boundary_layer,
+                           int(max_elements), os.path.basename(shape))
             _sizes(gmsh, float(h), refine)
             if boundary_layer and dim == 3:
                 verts, tris = _surface_of_model(gmsh)

@@ -127,16 +127,34 @@ def test_bad_inputs_are_refused(tmp_path):
 def test_file_limits_urls_and_missing_gmsh(tmp_path, monkeypatch):
     stl = _box_surface(tmp_path)
     with pytest.raises(ValueError, match="above the 0.001 MB limit"):
-        generate_mesh(str(stl), h=0.2, max_file_mb=0.001)
-    monkeypatch.setenv("PINNEAPPLE_MESH_MAX_FILE_MB", "0.001")
+        generate_mesh(str(stl), h=0.2, max_input_mb=0.001)
+    monkeypatch.setenv("PINNEAPPLE_MESH_MAX_INPUT_MB", "0.001")
     with pytest.raises(ValueError, match="MB limit"):
         generate_mesh(str(stl), h=0.2)
-    monkeypatch.delenv("PINNEAPPLE_MESH_MAX_FILE_MB")
+    monkeypatch.delenv("PINNEAPPLE_MESH_MAX_INPUT_MB")
     with pytest.raises(ValueError, match="URLs are not fetched"):
         generate_mesh("https://example.com/part.stl", h=0.2)
     monkeypatch.setitem(__import__("sys").modules, "gmsh", None)
     with pytest.raises(RuntimeError, match="pip install gmsh"):
         generate_mesh("box", h=0.5)
+
+
+def test_estimate_and_guard_against_a_huge_mesh(tmp_path):
+    from pinneapple_design.geometry.mesh.generate import estimate_elements
+    # the estimate is an upper bound within ~30 % of what gmsh makes
+    for shape, dims, h in (("box", [1, 1, 1], 0.1), ("cylinder", [0.5, 2.0], 0.1), ("rectangle", [2, 1], 0.05),
+                           ("disk", [0.5], 0.05)):
+        from pinneapple_design.geometry.mesh.generate import _primitive_size
+        est = estimate_elements(*_primitive_size(shape, dims), h, [], None)
+        n = generate_mesh(shape, dims, h=h)["n_elements"]
+        assert n <= est <= 1.35 * n, (shape, n, est)
+    with pytest.raises(ValueError, match=r"use h >= 0\.0(4|5)\d* m"):
+        generate_mesh("box", h=0.01, max_elements=50_000)          # 6e6 estimated: refused before meshing
+    with pytest.raises(ValueError, match="max_elements"):
+        generate_mesh("box", h=0.2, refine=[{"center": [0.5, 0.5, 0.5], "radius": 0.4, "h": 0.002}])
+    with pytest.raises(ValueError, match="box.stl"):
+        generate_mesh(str(_box_surface(tmp_path)), h=0.005, max_elements=10_000)
+    assert generate_mesh("box", h=0.1, max_elements=10_000)["n_elements"] < 10_000
 
 
 def test_nothing_is_written_outside_out_dir(tmp_path, monkeypatch):

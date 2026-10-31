@@ -30,8 +30,21 @@ import tomllib
 
 SKIP_DIRS = {".git", "__pycache__", "node_modules", "vendor", ".ipynb_checkpoints", "_out", "_runs",
              "site-packages", ".pytest_cache", "build", "dist"}
-# Dados de clientes ficam fora do inventário (pedido explícito do dono do repositório).
-EXCLUDE_RE = re.compile(r"vectron|shinagawa|\bCSN\b|\bD0\b", re.I)
+# Third-party names never reach the inventory or the Studio (see exclude_pattern).
+def exclude_pattern(root: Path | None = None) -> re.Pattern:
+    """Names that must never reach the inventory or the Studio (third-party data). The pattern is not kept in the
+    repository: ``PINNEAPPLE_MAPA_EXCLUDE`` (a regular expression), else ``docs/pt/_mapa/exclude.local.txt``
+    (git-ignored; one expression per line, ``#`` comments). With neither, nothing is excluded."""
+    env = os.environ.get("PINNEAPPLE_MAPA_EXCLUDE", "").strip()
+    parts = [env] if env else []
+    local = Path(root or Path(__file__).resolve().parents[1]) / "docs" / "pt" / "_mapa" / "exclude.local.txt"
+    if not parts and local.is_file():
+        parts = [ln.strip() for ln in local.read_text(encoding="utf-8").splitlines()
+                 if ln.strip() and not ln.lstrip().startswith("#")]
+    return re.compile("|".join(f"(?:{p})" for p in parts), re.I) if parts else re.compile(r"(?!x)x")
+
+
+EXCLUDE_RE = exclude_pattern()
 FLAG_RE = {
     "experimental": re.compile(r"\bexperimental\b", re.I),
     "placeholder": re.compile(r"\bplaceholder\b|\bstub\b|not (yet )?implemented|\bTODO\b", re.I),

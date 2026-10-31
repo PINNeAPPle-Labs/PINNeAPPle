@@ -274,7 +274,20 @@ def test_real_prose_loads_for_every_package():
     from pinneapple_studio import prose
     p = prose.load(ROOT)
     assert len(p.packages) >= 30 and len(p.symbols) > 1000 and p.glossary
-    assert all(not any(w in v.lower() for w in ("vectron", "shinagawa")) for v in p.symbols.values())
+
+
+def test_exclusion_pattern_comes_from_outside_the_repository(monkeypatch, tmp_path):
+    from pinneapple_studio import inventory
+    monkeypatch.delenv("PINNEAPPLE_MAPA_EXCLUDE", raising=False)
+    assert inventory.exclude_pattern(tmp_path).search("anything") is None          # nothing configured
+    monkeypatch.setenv("PINNEAPPLE_MAPA_EXCLUDE", r"acme|\bxyz\b")
+    assert inventory.exclude_pattern(tmp_path).search("the ACME case") and not inventory.exclude_pattern(
+        tmp_path).search("xyzzy")
+    monkeypatch.delenv("PINNEAPPLE_MAPA_EXCLUDE")
+    f = tmp_path / "docs" / "pt" / "_mapa" / "exclude.local.txt"
+    f.parent.mkdir(parents=True)
+    f.write_text("# local only\nfoo\n")
+    assert inventory.exclude_pattern(tmp_path).search("a Foo line")
 
 
 def test_real_cli_dispatch(capsys):

@@ -156,6 +156,17 @@
      "nfev": 576,
      "success": false,
      "message": "ABNORMAL: "
+    },
+    {
+     "params": {
+      "D": 0.05704241019948252,
+      "m": 0.8434631459331389,
+      "r": 1.1587443864786953
+     },
+     "gls": 424.8644264571875,
+     "nfev": 896,
+     "success": false,
+     "message": "ABNORMAL: "
     }
    ]
   }

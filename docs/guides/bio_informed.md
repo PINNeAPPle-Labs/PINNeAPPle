@@ -94,7 +94,12 @@ reimplementation of the approach, not a reproduction of its numbers.
 impedance to 5e-4 in amplitude), `split_rcr`, `half_sine_inflow`; `aorta.setup_case` meshes the library's
 `aortic_arch` (inlet and five outlets found as the flat caps of the lumen) with snappyHexMesh and writes a laminar
 pimpleFoam case; `aorta.CoupledRun` couples the outlets to their Windkessels window by window (OpenFOAM v1912 has no
-Windkessel boundary condition). See `examples/biology/aorta_windkessel.py` for the run and its checks.
+Windkessel boundary condition). The coupling is explicit, so the window must be short against the inertia of the
+vessel: `explicit_coupling_gain(wk, vessel_inertance(length, diameter), dt)` is `g = Rp dt / L`, and an error in the
+outlet flow comes back multiplied by `1 - g` one window later (oscillating for g > 1, divergent for g > 2). On the
+library's arch a 10 ms window (g of 1.4 to 4.2 with 5 cm branches) made the outlet pressures flip sign and grow to
+about +-2300 mmHg in 0.12 s; the default is now 1 ms (g of 0.14 to 0.42). See `examples/biology/aorta_windkessel.py`
+for the run and its checks.
 
 ## Paper reproductions
 

@@ -81,7 +81,9 @@ def main(argv=None):
             "binn_guided": {"gls": mech["gls"], "params": p,
                             "params_paper_units": {"D0": p["D0"] * 1e6 / 24, "D": p["D"] * 1e6 / 24, "m": p["m"],
                                                    "r": p["r"] / 24, "beta0": p["beta0"], "beta1": p["beta1"] / 24}},
-            "reduced_scale": a.retrains < 20}
+            "reduced_scale": a.retrains < 20 or a.iters < 20_000,
+            "scale": "full" if a.retrains >= 20 and a.iters >= 20_000 else
+            f"reduced-scale ({a.retrains} of 20 retrains, {a.iters} of 20000 iterations)"}
         print(dens, "BINN-guided GLS", round(mech["gls"], 2), {k: round(v, 4) for k, v in
                                                             results[str(dens)]["binn_guided"]["params_paper_units"]
                                                             .items()}, flush=True)

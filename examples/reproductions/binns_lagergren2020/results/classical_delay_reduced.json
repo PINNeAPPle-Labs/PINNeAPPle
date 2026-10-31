@@ -1,0 +1,37 @@
+{
+ "delay_reaction_diffusion": {},
+ "_partial": {
+  "delay_reaction_diffusion": {
+   "10000": [
+    {
+     "params": {
+      "D0": 0.002744602044310909,
+      "D": 0.096,
+      "m": 1.8133988913073573,
+      "r": 1.0441498542659957,
+      "beta0": 10.0,
+      "beta1": 8.94603879219748
+     },
+     "gls": 661.5816418352151,
+     "nfev": 217,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+     "params": {
+      "D0": 0.002750427651354905,
+      "D": 0.096,
+      "m": 1.8148948559980635,
+      "r": 1.0441467296566849,
+      "beta0": 10.0,
+      "beta1": 10.0
+     },
+     "gls": 661.5818106083301,
+     "nfev": 287,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    }
+   ]
+  }
+ }
+}

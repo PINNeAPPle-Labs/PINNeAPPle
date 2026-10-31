@@ -22,14 +22,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
-- `pinneapple_simulation.immersed`: mesh-free analysis on raw geometry (issue #966, part 1). Immersed / finite cell
-  solver on a uniform Q1 or Q2 background grid; geometry from any signed distance (and CSG), a voxel mask (distance
-  transforms) or an STL (generalised winding number with a dipole tree; pseudonormal signs near watertight
-  surfaces); adaptive octree cut-cell quadrature with simplex clipping at the leaves, compressed per cell by moment
-  fitting; small-cut stabilisation by ghost penalty or the finite cell method's fictitious material, with the
-  condition number reported; Nitsche Dirichlet conditions and surface quadrature for heat flux and convection;
-  steady heat with an energy balance. `immersed.verification`: manufactured solutions on curved domains with
-  measured L2 / H1 rates, sphere and cylinder with convection in closed form, a small-cut conditioning study.
 - Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
   simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
   `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /

@@ -49,6 +49,8 @@ particle_drag
     Sphere drag coefficient (Clift, Grace & Weber 1978; Schiller & Naumann 1933).
 rocket_nozzle
     Ideal rocket nozzle: exit Mach from the area ratio, choked mass flow, c*, thrust coefficient, Isp.
+ideal_reactors
+    Ideal isothermal first-order reactors: plug-flow and stirred-tank conversion, tube volume and residence time.
 """
 from __future__ import annotations
 
@@ -59,6 +61,7 @@ from . import (
     fin_array_conduction,
     heat,
     helmholtz_resonator,
+    ideal_reactors,
     membrane_diffusion,
     particle_drag,
     pcb_thermal,
@@ -69,4 +72,4 @@ from . import (
 
 __all__ = ["fin_array_conduction", "plate_fin_heatsink", "cantilever_fatigue", "membrane_diffusion",
            "helmholtz_resonator", "pcb_thermal", "burgers", "pipe_flow", "heat", "compressible", "particle_drag",
-           "rocket_nozzle"]
+           "rocket_nozzle", "ideal_reactors"]

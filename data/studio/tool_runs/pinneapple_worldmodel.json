@@ -79,6 +79,20 @@
   "recorded": "2026-10-31",
   "seconds": 0.01
  },
+ "pinneapple_worldmodel.inspection_data:thermal_plate": {
+  "code_hash": "ca60c6e810b99bfc",
+  "inputs": {
+   "defect": [
+    0.4,
+    0.6,
+    0.1
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.22
+ },
  "pinneapple_worldmodel.orchestrator:PhysicsOrchestrator": {
   "code_hash": "b8c7c892fb30b230",
   "inputs": {},
@@ -110,6 +124,17 @@
   "recorded": "2026-10-31",
   "returned": "Video",
   "seconds": 0.02
+ },
+ "pinneapple_worldmodel.physical_world:dataset": {
+  "code_hash": "5b41a7a535b6fa95",
+  "inputs": {
+   "n": 16,
+   "seed": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.17
  },
  "pinneapple_worldmodel.physical_world:video_check": {
   "code_hash": "a030fd4e0f7edaf3",

@@ -1,0 +1,6913 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/guides/flight_dynamics/">
+      
+      
+        <link rel="prev" href="../unit_cell_benchmark/">
+      
+      
+        <link rel="next" href="../topology_optimization/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Flight dynamics, turbulence and take-off - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flight-dynamics-turbulence-and-take-off" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flight dynamics, turbulence and take-off
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_54" id="__nav_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_55" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_55" id="__nav_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_55_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gallery-blender-cycles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gallery (Blender Cycles)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-four-aircraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The four aircraft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#take-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Take-off
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turbulence-encounters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turbulence encounters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-d-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-D visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gallery-blender-cycles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gallery (Blender Cycles)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-four-aircraft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The four aircraft
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#take-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Take-off
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turbulence-encounters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turbulence encounters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-d-visualisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-D visualisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/guides/flight_dynamics.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/guides/flight_dynamics.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="flight-dynamics-turbulence-and-take-off">Flight dynamics, turbulence and take-off<a class="headerlink" href="#flight-dynamics-turbulence-and-take-off" title="Permanent link">&para;</a></h1>
+<p><code>pinneapple_simulation.flight</code> flies a rigid aircraft in six degrees of freedom. The wing and tail loads come from the
+library's vortex lattice (<code>pinneapple_design.aero.vlm</code>), solved again at every step with the local air velocity at
+each panel. The other parts are thrust, gravity, landing-gear contact with the runway, MIL-F-8785C / MIL-HDBK-1797
+turbulence and gusts, trim, a simple pilot / autopilot, and animated 3-D scenes for the browser viewer and Blender.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">flight</span>
+
+<span class="n">ac</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">"a320"</span><span class="p">)</span>                  <span class="c1"># light_ga, regional_turboprop, a320, motor_glider</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="mf">128.0</span><span class="p">,</span> <span class="n">altitude</span><span class="o">=</span><span class="mf">3000.0</span><span class="p">)</span>     <span class="c1"># alpha, elevator, throttle for steady level flight</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">stability_derivatives</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">tr</span><span class="p">)</span>           <span class="c1"># CL_alpha, Cm_q, Cl_p, Cn_beta, ... and the static margin</span>
+
+<span class="n">hist</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">simulate_takeoff</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>                 <span class="c1"># brake release -&gt; V_R -&gt; lift-off -&gt; 400 ft</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">takeoff_metrics</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">hist</span><span class="p">)</span>               <span class="c1"># ground roll, V_LOF, theta, distance to 35 ft, climb gradient</span>
+<span class="n">cf</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">raymer_takeoff</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>                     <span class="c1"># closed-form estimate with the same aircraft model</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">turbulence_spec</span><span class="p">(</span><span class="mf">3000.0</span><span class="p">,</span> <span class="s2">"severe"</span><span class="p">)</span>    <span class="c1"># von Karman, MIL-F-8785C intensities and scale lengths</span>
+<span class="n">hist</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">flight</span><span class="o">.</span><span class="n">turbulence_encounter</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="mf">128.0</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_tools.visualization.studio.web</span><span class="w"> </span><span class="kn">import</span> <span class="n">web_viewer</span>
+<span class="n">web_viewer</span><span class="p">(</span><span class="n">flight</span><span class="o">.</span><span class="n">visuals</span><span class="o">.</span><span class="n">flight_scene</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">hist</span><span class="p">),</span> <span class="s2">"viewer/"</span><span class="p">)</span>   <span class="c1"># time slider, gust arrows, wing loading, HUD</span>
+</code></pre></div>
+<p>Every number on this page was produced by the scripts in <code>examples/flight_dynamics/</code> and is stored in
+<code>examples/flight_dynamics/results/*.json</code>. The tables are filled from those files by <code>06_tables.py</code>.
+Where an input is an assumption, it is listed as one in <code>Aircraft.info["assumptions"]</code> and below.</p>
+<h2 id="gallery-blender-cycles">Gallery (Blender Cycles)<a class="headerlink" href="#gallery-blender-cycles" title="Permanent link">&para;</a></h2>
+<p>The four aircraft through the same 1-cosine gust. The translucent wisps are the frozen gust field, blue for down and
+red for up. The wings carry the lattice loading. The inset is n_z against time. Clip:
+<a href="../../assets/flight_dynamics/clips/same_gust_grid.mp4">same_gust_grid.mp4</a>.</p>
+<p><img alt="Four aircraft through the same gust" src="../../assets/flight_dynamics/clips/same_gust_grid.png" /></p>
+<table>
+<thead>
+<tr>
+<th>take-off (low chase camera, n_z trail)</th>
+<th>turbulence (haze, gust wisps, n_z sparkline)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="../../assets/flight_dynamics/clips/light_ga_takeoff.png" /> <a href="../../assets/flight_dynamics/clips/light_ga_takeoff.mp4">mp4</a></td>
+<td><img alt="" src="../../assets/flight_dynamics/clips/light_ga_turbulence.png" /> <a href="../../assets/flight_dynamics/clips/light_ga_turbulence.mp4">mp4</a></td>
+</tr>
+<tr>
+<td><img alt="" src="../../assets/flight_dynamics/clips/regional_turboprop_takeoff.png" /> <a href="../../assets/flight_dynamics/clips/regional_turboprop_takeoff.mp4">mp4</a></td>
+<td><img alt="" src="../../assets/flight_dynamics/clips/regional_turboprop_turbulence.png" /> <a href="../../assets/flight_dynamics/clips/regional_turboprop_turbulence.mp4">mp4</a></td>
+</tr>
+<tr>
+<td><img alt="" src="../../assets/flight_dynamics/clips/a320_takeoff.png" /> <a href="../../assets/flight_dynamics/clips/a320_takeoff.mp4">mp4</a></td>
+<td><img alt="" src="../../assets/flight_dynamics/clips/a320_turbulence.png" /> <a href="../../assets/flight_dynamics/clips/a320_turbulence.mp4">mp4</a></td>
+</tr>
+<tr>
+<td><img alt="" src="../../assets/flight_dynamics/clips/motor_glider_takeoff.png" /> <a href="../../assets/flight_dynamics/clips/motor_glider_takeoff.mp4">mp4</a></td>
+<td><img alt="" src="../../assets/flight_dynamics/clips/motor_glider_turbulence.png" /> <a href="../../assets/flight_dynamics/clips/motor_glider_turbulence.mp4">mp4</a> (moderate: the severe runs depart, and even the moderate run spends 7 % of the time past the stall angle, see below)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-four-aircraft">The four aircraft<a class="headerlink" href="#the-four-aircraft" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>type</th>
+<th>geometry</th>
+<th>mass, engines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>light_ga</code></td>
+<td>Cessna 172-class single piston</td>
+<td>the aero optimizer's baseline <code>Airframe</code></td>
+<td>1100 kg, 120 kW (the optimizer's calibrated C172-class defaults)</td>
+</tr>
+<tr>
+<td><code>regional_turboprop</code></td>
+<td>ATR 72-600-class twin turboprop</td>
+<td>planform and gear of the <code>turboprop_atr72</code> geometry-library entry; its mesh for the visuals</td>
+<td>23,000 kg, 2 x 2,475 shp normal take-off power (ATR brochure 2023, factsheet 2020)</td>
+</tr>
+<tr>
+<td><code>a320</code></td>
+<td>A320-class twin turbofan</td>
+<td>the aero optimizer's baseline <code>Airliner</code></td>
+<td>73,500 kg (the optimizer's A320-class MTOW), 2 x 27,000 lbf (CFM56-5B4 rating, CFM / EASA TCDS E.003)</td>
+</tr>
+<tr>
+<td><code>motor_glider</code></td>
+<td>high-aspect-ratio self-launching motor glider</td>
+<td>parametric <code>Airframe</code> with the Stemme S10's span (23 m) and area (18.7 m², AR 28.3)</td>
+<td>850 kg, 84.5 kW (Stemme S10 / S10-VT)</td>
+</tr>
+</tbody>
+</table>
+<p>Masses and inertias come from a component breakdown, with the CG put at 25 % MAC (30 % for the glider). The
+component masses are the wing (the Raymer general-aviation or transport equation, as the aero optimizer uses them),
+the tails, engines, fuel, payload or occupants, and the fuselage and systems. Zero-lift drag is the aero optimizer's
+component build-up (fuselage, fin, nacelles, wing and tail friction with form factors, miscellaneous). Induced drag
+uses K from the lattice's Trefftz-plane drag.</p>
+<!-- table:aircraft -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>mass [kg]</th>
+<th>S [m²]</th>
+<th>span [m]</th>
+<th>W/S [Pa]</th>
+<th>Ixx [kg m²]</th>
+<th>Iyy</th>
+<th>Izz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>1100</td>
+<td>16.2</td>
+<td>11.02</td>
+<td>666</td>
+<td>1890</td>
+<td>2905</td>
+<td>4505</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>23000</td>
+<td>61.0</td>
+<td>27.05</td>
+<td>3698</td>
+<td>288155</td>
+<td>520555</td>
+<td>754446</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>73500</td>
+<td>122.6</td>
+<td>34.13</td>
+<td>5879</td>
+<td>1385361</td>
+<td>4014283</td>
+<td>5200376</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>850</td>
+<td>18.7</td>
+<td>23.00</td>
+<td>446</td>
+<td>9076</td>
+<td>1895</td>
+<td>10780</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:aircraft -->
+
+<p>Assumptions, per aircraft, are in <code>results/stability.json</code> (<code>info.assumptions</code>). The main ones:</p>
+<ul>
+<li>Take-off CLmax is 1.6 (GA, flaps 10°), 2.1 (turboprop, flaps 15°), 2.0 (A320 class, CONF 1+F) and 1.45 (glider).
+  These values set V_R and the stall margin and are not computed.</li>
+<li>Flaps are modelled as a rotation of the panel normals by tau·delta on the flapped strips. Tau is the thin-airfoil
+  flap effectiveness × 0.85. Slats are not modelled.</li>
+<li>The gear positions are taken from the geometry where it has gear (ATR 72 entry). On the A320 class they are chosen
+  so the nose gear carries ~7 % of the weight. On the light aircraft the mains sit at a 15° tip-back angle.</li>
+<li>Tyre rolling friction is 0.02.</li>
+<li>Propellers have efficiency 0.80 (0.75 on the glider) and a static figure of merit of 0.70.</li>
+</ul>
+<h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
+<p><strong>Rigid body.</strong>
+- Axes: earth NED, body x forward / y right / z down.
+- State: position, body velocity, a unit quaternion for the attitude, and body rates. Euler angles are only an
+  output, and <code>quat_to_euler</code> stays finite at θ = ±90°.
+- Equations: <code>x' = C v</code>, <code>v' = F/m − ω × v</code>, <code>ω' = I⁻¹(M − ω × Iω)</code>.
+- Integration: RK4 with the quaternion renormalised after each step.</p>
+<p><strong>Aerodynamics (quasi-steady vortex lattice in the loop).</strong>
+- At every evaluation, the relative air velocity at each control point (flight velocity, <code>ω × r</code>, and the wind sampled
+  per spanwise strip) sets the right-hand side of the lattice.
+- The influence matrix depends only on the geometry, so it is LU-factorised once.
+- Forces come from Kutta-Joukowski on the bound legs with the local velocity. Lift, pitching moment, pitch and roll
+  damping, downwash at the tail and the dihedral effect therefore all come from one model. So does the rolling moment
+  of a gust that differs from one wing to the other.
+- Control surfaces rotate their panels' normals (elevator, ailerons, flaps).
+- Added by build-up:
+  - the fin as a lifting line, with the Helmbold lift slope at 1.55 × its aspect ratio and the rudder through tau;
+  - the fuselage Munk moments in pitch and yaw (Raymer eqs. 16.25, 16.47);
+  - zero-lift drag, gear and flap drag;
+  - induced drag, with McCormick's ground-effect factor at the wing height.</p>
+<p><strong>Engines.</strong>
+- Turbofan: Mattingly's high-bypass lapse T/T_SL = δ₀(1 − 0.49 √M).
+- Propeller: T = ηP/√(V² + V₀²), so T equals the momentum-theory static thrust at rest and ηP/V in flight.</p>
+<p><strong>Gear.</strong> Each leg is a vertical spring-damper with a rolling resistance μN and a tyre side force that saturates at
+the friction limit. The nose wheel steers. Springs and dampers are sized for a 0.25 m static compression and a
+damping ratio of 0.6.</p>
+<p><strong>Trim and derivatives.</strong>
+- <code>trim</code> zeroes u̇, ẇ and q̇ for given speed, altitude and flight-path angle.
+- <code>stability_derivatives</code> takes central differences of the full model.
+- <code>modes</code> gives the eigenvalues of the 12-state linearisation.</p>
+<p><strong>Pilot and autopilot.</strong>
+- The pitch, roll and yaw loops are designed per aircraft from its own Cm_δe, Cl_δa, Cn_δr and inertias, for a
+  target natural frequency and damping, and scheduled with the dynamic pressure.
+- Outer loops: altitude through pitch attitude, heading through bank, airspeed through the throttle, and a washed-out
+  yaw damper.
+- Take-off schedule (an assumed technique, not a certified one):
+  - full throttle and the take-off flap;
+  - nose wheel and rudder hold the centreline, ailerons hold the wings level;
+  - at V_R the pitch attitude goes up at 3°/s to 12° (transports) or at 6°/s to 11° (light aircraft);
+  - V_R is 1.05 V_s (transports) or 1.10 V_s (light aircraft), with V_s the take-off-flap stall speed;
+  - after lift-off the pitch attitude is trimmed to fly 1.25 V_s (1.30 V_s for light aircraft), and bank holds the
+    track along the runway.</p>
+<p><strong>Turbulence</strong> (<code>flight.turbulence</code>, MIL-F-8785C §3.7 and MIL-HDBK-1797 §4.9):</p>
+<ul>
+<li>Intensities and scale lengths:</li>
+<li>Low altitude (h &lt; 1000 ft): σ_w = 0.1 W₂₀ with W₂₀ = 15 / 30 / 45 kt. σ_u = σ_v = σ_w / (0.177 + 0.000823 h)^0.4.
+    L_w = h and L_u = L_v = h / (0.177 + 0.000823 h)^1.2.</li>
+<li>Medium and high altitude (h &gt; 2000 ft): isotropic. σ comes from the exceedance-probability chart: light 1e-2,
+    moderate 1e-3, severe 1e-5. L is 1750 ft (Dryden) or 2500 ft (von Kármán).</li>
+<li>Between 1000 and 2000 ft, values are interpolated linearly.</li>
+<li>Spectra:</li>
+<li>Dryden: Φ_u = σ²(2L/π)/(1 + (LΩ)²), Φ_w = σ²(L/π)(1 + 3(LΩ)²)/(1 + (LΩ)²)².</li>
+<li>von Kármán: the same with exponents 5/6 and 11/6 and the 1.339 factor.</li>
+<li>Generators:</li>
+<li><code>FrozenLine</code>: spectral synthesis along the path, with exact amplitudes and random phases.</li>
+<li><code>DrydenFilter</code>: the forming filters with white noise, discretised exactly (Van Loan).</li>
+<li><code>FrozenField3D</code>: isotropic, divergence-free 3-D von Kármán turbulence from random Fourier modes (Kraichnan 1970).
+    Its energy spectrum E(k) projects exactly onto the MIL 1-D spectra (checked by quadrature).</li>
+<li><code>DiscreteGust</code>: the 1-cosine gust, as the MIL ramp or the full shape.</li>
+<li><code>ShearWind</code>: the logarithmic wind profile.</li>
+<li>The high-altitude intensity table is the MIL-F-8785C Figure 7 table as used by common implementations of the
+  specification. It is reproduced in <code>HIGH_ALTITUDE_SIGMA_FT_S</code>.</li>
+</ul>
+<!-- table:derivatives -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>CLα</th>
+<th>Cmα</th>
+<th>static margin</th>
+<th>Cmq</th>
+<th>Clβ</th>
+<th>Cnβ</th>
+<th>Clp</th>
+<th>Cnr</th>
+<th>Cmδe</th>
+<th>Clδa</th>
+<th>Cnδr</th>
+<th>oscillatory modes ωn [rad/s] / ζ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>5.12</td>
+<td>-1.50</td>
+<td>0.29</td>
+<td>-18.44</td>
+<td>-0.042</td>
+<td>0.064</td>
+<td>-0.50</td>
+<td>-0.106</td>
+<td>-1.68</td>
+<td>-0.193</td>
+<td>-0.066</td>
+<td>5.10 / 0.54, 2.14 / 0.20, 0.21 / 0.10</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>5.73</td>
+<td>-1.76</td>
+<td>0.31</td>
+<td>-54.49</td>
+<td>-0.085</td>
+<td>0.135</td>
+<td>-0.60</td>
+<td>-0.146</td>
+<td>-2.64</td>
+<td>-0.187</td>
+<td>-0.114</td>
+<td>1.95 / 0.45, 1.45 / 0.09, 0.11 / 0.05</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>5.26</td>
+<td>-1.94</td>
+<td>0.37</td>
+<td>-44.59</td>
+<td>-0.217</td>
+<td>0.080</td>
+<td>-0.47</td>
+<td>-0.246</td>
+<td>-2.38</td>
+<td>-0.072</td>
+<td>-0.129</td>
+<td>1.44 / 0.40, 1.00 / 0.11, 0.10 / 0.02</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>6.02</td>
+<td>-0.32</td>
+<td>0.05</td>
+<td>-21.49</td>
+<td>-0.083</td>
+<td>0.044</td>
+<td>-0.69</td>
+<td>-0.028</td>
+<td>-1.13</td>
+<td>-0.345</td>
+<td>-0.042</td>
+<td>2.00 / 0.84, 1.19 / 0.27, 0.27 / 0.04</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:derivatives -->
+
+<p>The oscillatory modes are listed fastest first: short period, Dutch roll, phugoid.</p>
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
+<p><strong>Turbulence against the target spectra.</strong> Each generator, component and spectral form is checked. The PSD ratio is
+the band-averaged Welch PSD divided by the target, in eight log bands between 4/L and the resolution.</p>
+<p>The frozen line has exact amplitudes, so its variance is the band-limited integral of the target spectrum. The
+forming filter is a stochastic process, so 200,000 samples leave a few per cent of scatter.</p>
+<p>The 3-D field is one realisation of 96 × 32 random modes with dx_min = 2 m: the band is k ≤ k_max = π/(2 dx_min) =
+0.785 rad/m, marked on the right-hand plot. Its isotropic energy spectrum matches the MIL forms to 1e-3 by quadrature
+(<code>tests/test_flight_turbulence.py</code>).</p>
+<p>Along a line, the band-averaged w spectrum follows the target between 5/L and 0.2 rad/m (the band ratios in the
+table). Above that it falls off: from 0.2 rad/m to 0.95 k_max the ratios are 0.12–0.62 (u), 0.52–1.0 (v) and
+0.30–0.85 (w) (<code>psd_ratio_high_band</code> in <code>results/verification.json</code>). The reason is that a line spectrum at k₁ needs
+modes with |k| &gt; k₁, and there are none beyond k_max. The field therefore represents wavelengths down to about
+4 × 2π/k_max = 16 dx_min, and the line spectrum at high k is spiky because the modes are discrete.</p>
+<p>The encounters use dx_min = MAC/4 (128 log-spaced shells, so the mode count does not grow with k_max). They therefore
+resolve gusts down to wavelengths of about 4 MAC. 4 MAC / span is 0.47 for the A320 class (MAC 4.04 m, span 34.13 m), 0.54 for the light GA (1.48 m, 11.02 m),
+0.34 for the ATR class (2.30 m, 27.05 m) and 0.15 for the glider (0.86 m, 23.0 m), from <code>results/stability.json</code>.
+Shorter gusts, which would add rolling and pitching moments of their own, are filtered out.</p>
+<p><img alt="PSD of generated turbulence against MIL-F-8785C" src="../../assets/flight_dynamics/turbulence_psd.png" /></p>
+<!-- table:psd -->
+<table>
+<thead>
+<tr>
+<th>generator</th>
+<th>form</th>
+<th>comp.</th>
+<th>σ target [m/s]</th>
+<th>σ generated [m/s]</th>
+<th>PSD ratio min</th>
+<th>PSD ratio max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FrozenLine</td>
+<td>dryden</td>
+<td>u</td>
+<td>7.050</td>
+<td>7.038</td>
+<td>0.99</td>
+<td>1.01</td>
+</tr>
+<tr>
+<td>FrozenLine</td>
+<td>dryden</td>
+<td>v</td>
+<td>7.050</td>
+<td>7.042</td>
+<td>0.99</td>
+<td>1.01</td>
+</tr>
+<tr>
+<td>FrozenLine</td>
+<td>dryden</td>
+<td>w</td>
+<td>7.050</td>
+<td>7.042</td>
+<td>0.99</td>
+<td>1.01</td>
+</tr>
+<tr>
+<td>FrozenLine</td>
+<td>von_karman</td>
+<td>u</td>
+<td>7.050</td>
+<td>7.019</td>
+<td>0.99</td>
+<td>1.02</td>
+</tr>
+<tr>
+<td>FrozenLine</td>
+<td>von_karman</td>
+<td>v</td>
+<td>7.050</td>
+<td>7.019</td>
+<td>0.99</td>
+<td>1.01</td>
+</tr>
+<tr>
+<td>FrozenLine</td>
+<td>von_karman</td>
+<td>w</td>
+<td>7.050</td>
+<td>7.019</td>
+<td>0.99</td>
+<td>1.04</td>
+</tr>
+<tr>
+<td>DrydenFilter</td>
+<td>dryden</td>
+<td>u</td>
+<td>2.879</td>
+<td>2.823</td>
+<td>0.97</td>
+<td>1.07</td>
+</tr>
+<tr>
+<td>DrydenFilter</td>
+<td>dryden</td>
+<td>v</td>
+<td>2.879</td>
+<td>2.894</td>
+<td>0.93</td>
+<td>1.05</td>
+</tr>
+<tr>
+<td>DrydenFilter</td>
+<td>dryden</td>
+<td>w</td>
+<td>2.879</td>
+<td>2.795</td>
+<td>0.96</td>
+<td>1.06</td>
+</tr>
+<tr>
+<td>FrozenField3D</td>
+<td>von_karman</td>
+<td>u</td>
+<td>6.991</td>
+<td>6.917</td>
+<td>0.79</td>
+<td>1.09</td>
+</tr>
+<tr>
+<td>FrozenField3D</td>
+<td>von_karman</td>
+<td>v</td>
+<td>6.991</td>
+<td>7.465</td>
+<td>0.84</td>
+<td>1.34</td>
+</tr>
+<tr>
+<td>FrozenField3D</td>
+<td>von_karman</td>
+<td>w</td>
+<td>6.991</td>
+<td>6.341</td>
+<td>0.66</td>
+<td>1.18</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:psd -->
+
+<p><strong>Trim.</strong> Each aircraft is trimmed at its cruise point and flown stick-fixed for 10 s. The 1e-9 m/s airspeed change
+is the regularisation constant in the airspeed norm, not a drift.</p>
+<!-- table:trim -->
+<p>| aircraft | V [m/s] | h [m] | α [deg] | δe [deg] | throttle | trim residual [m/s²] | 10 s: max |ΔV| [m/s] | max |Δh| [m] | max |Δθ| [deg] |
+|---|---|---|---|---|---|---|---|---|---|
+| Light GA (C172 class) | 55 | 1500 | 3.00 | -1.61 | 0.74 | 1.44e-14 | 1.00e-09 | 0.0000 | 3.98e-16 |
+| Turboprop (ATR 72 class) | 120 | 3000 | 1.45 | -0.83 | 0.70 | 3.80e-15 | 1.00e-09 | 0.0000 | 0.0000 |
+| Airliner (A320 class) | 128 | 3000 | 6.84 | -3.56 | 0.30 | 1.12e-14 | 1.00e-09 | 0.0000 | 0.0000 |
+| Motor glider (AR 28) | 30 | 1500 | 3.98 | -2.42 | 0.16 | 1.99e-14 | 1.00e-09 | 0.0000 | 1.59e-15 |</p>
+<!-- /table:trim -->
+
+<p><strong>Energy and angular momentum.</strong> The test case is the A320-class body, spinning and translating under gravity alone
+for 20 s. Kinetic plus potential energy and the angular momentum in NED must be conserved. The error falls with the
+RK4 order as the step is halved.</p>
+<!-- table:conservation -->
+<table>
+<thead>
+<tr>
+<th>Δt [s]</th>
+<th>relative energy error (20 s)</th>
+<th>relative angular-momentum error</th>
+<th>abs(norm(q) - 1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.020</td>
+<td>4.40e-10</td>
+<td>2.68e-09</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>0.010</td>
+<td>8.03e-12</td>
+<td>1.67e-10</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>0.005</td>
+<td>1.62e-12</td>
+<td>1.05e-11</td>
+<td>0.00</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:conservation -->
+
+<p><strong>Lattice in the loop vs the steady lattice.</strong> The lift of the in-the-loop model (Kutta-Joukowski with the inclined
+free stream) is compared with the linearised steady solution at α = 0 and 4°. The two agree to O(α²).</p>
+<!-- table:lattice -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>α [deg]</th>
+<th>CL lattice in the loop</th>
+<th>CL steady lattice</th>
+<th>relative difference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>0</td>
+<td>0.1617</td>
+<td>0.1617</td>
+<td>4.00e-11</td>
+</tr>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>4</td>
+<td>0.5194</td>
+<td>0.5201</td>
+<td>0.0013</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>0</td>
+<td>0.4257</td>
+<td>0.4257</td>
+<td>4.00e-11</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>4</td>
+<td>0.8254</td>
+<td>0.8268</td>
+<td>0.0016</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>0</td>
+<td>0.1863</td>
+<td>0.1863</td>
+<td>4.00e-11</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>4</td>
+<td>0.5564</td>
+<td>0.5572</td>
+<td>0.0014</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>0</td>
+<td>0.5238</td>
+<td>0.5238</td>
+<td>4.00e-11</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>4</td>
+<td>0.9457</td>
+<td>0.9473</td>
+<td>0.0017</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:lattice -->
+
+<p><strong>Take-off closed form.</strong> Raymer's take-off distance (Aircraft Design: A Conceptual Approach, §17.8) is evaluated with
+the same thrust, lift, drag and ground-effect model as the simulation. The table below shows it twice: once with
+Raymer's V_LOF = 1.1 V_s and his 1 s / 3 s rotation, and once with the simulated V_LOF and rotation time.</p>
+<h2 id="take-off">Take-off<a class="headerlink" href="#take-off" title="Permanent link">&para;</a></h2>
+<p>Runs: ISA, sea level, no wind, from rest on the gear at full throttle, stopped at 400 ft. "To 35 ft" is the distance
+at which the CG has climbed 35 ft above its rest height.</p>
+<p><img alt="Take-off trajectories" src="../../assets/flight_dynamics/takeoff.png" /></p>
+<!-- table:takeoff -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>V_R [kt]</th>
+<th>V_LOF [kt]</th>
+<th>θ at lift-off [deg]</th>
+<th>α at lift-off [deg]</th>
+<th>ground roll [m]</th>
+<th>to 35 ft [m]</th>
+<th>V at 35 ft [kt]</th>
+<th>climb gradient [%]</th>
+<th>Raymer, V_LOF = 1.1 V_s [m]</th>
+<th>sim vs Raymer [%]</th>
+<th>Raymer, simulated V_LOF and rotation time [m]</th>
+<th>sim vs Raymer [%]</th>
+<th>min tail clearance [m]</th>
+<th>max CL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>55.7</td>
+<td>62.4</td>
+<td>6.8</td>
+<td>6.5</td>
+<td>244</td>
+<td>403</td>
+<td>67.9</td>
+<td>13.6</td>
+<td>311</td>
+<td>29.6</td>
+<td>410</td>
+<td>-1.7</td>
+<td>0.95</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>109.5</td>
+<td>119.7</td>
+<td>6.3</td>
+<td>6.0</td>
+<td>1060</td>
+<td>1291</td>
+<td>123.2</td>
+<td>7.3</td>
+<td>1299</td>
+<td>-0.6</td>
+<td>1492</td>
+<td>-13.5</td>
+<td>0.23</td>
+<td>1.81</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>141.4</td>
+<td>155.6</td>
+<td>9.7</td>
+<td>9.6</td>
+<td>1346</td>
+<td>1691</td>
+<td>168.2</td>
+<td>10.4</td>
+<td>1703</td>
+<td>-0.7</td>
+<td>1882</td>
+<td>-10.1</td>
+<td>0.18</td>
+<td>1.57</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>47.9</td>
+<td>54.3</td>
+<td>1.6</td>
+<td>1.3</td>
+<td>186</td>
+<td>286</td>
+<td>57.7</td>
+<td>16.8</td>
+<td>250</td>
+<td>14.5</td>
+<td>326</td>
+<td>-12.4</td>
+<td>1.17</td>
+<td>1.07</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:takeoff -->
+
+<ul>
+<li><strong>Raymer's standard assumptions</strong> (V_LOF = 1.1 V_s, 3 s / 1 s rotation): the simulated distance to 35 ft is within
+  1 % for the two transports. It is 30 % longer for the light GA and 15 % longer for the glider. Their simulated
+  lift-off speeds are well above 1.1 V_s, because the pilot model rotates to a fixed attitude and lifts off below the
+  assumed CLmax (see the max CL column).</li>
+<li><strong>Closed form fed the simulated V_LOF and rotation time:</strong> it is 2–14 % longer than the simulation. Its transition
+  arc (n = 1.2 at 1.15 V_s) is more conservative than the flown climb-out.</li>
+</ul>
+<p><strong>A320 class against published values.</strong> The certified take-off field length is the longer of two distances: the
+one-engine-inoperative distance, and 1.15 × the all-engines distance to 35 ft. It is published for the 78 t MTOW. The
+simulation runs all engines, with no margin, at 73.5 t. The two numbers are of the same order but are not the same
+quantity.</p>
+<!-- table:a320 -->
+<table>
+<thead>
+<tr>
+<th>quantity</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>simulated all-engines distance to 35 ft, 73500 kg, ISA sea level</td>
+<td>1691 m</td>
+</tr>
+<tr>
+<td>1.15 x the simulated all-engines distance (the all-engines part of the certified rule)</td>
+<td>1691 m x 1.15 = 1945 m</td>
+</tr>
+<tr>
+<td>published</td>
+<td>A320-200, MTOW 78 t, sea level ISA: take-off field length about 2,090-2,100 m (certified, one engine inoperative and 1.15 x all-engines distance, whichever is longer); e.g. https://www.skytamer.com/Airbus_A320.html, https://aircraftinvestigation.info/airplanes/Airbus_A320-200_CFM56.html (which also quotes about 1,825 m at 73.5 t); secondary sources. The primary source, Airbus' A320 Aircraft Characteristics - Airport and Maintenance Planning, was not checked (it could not be opened from the environment of this study).</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:a320 -->
+
+<p><strong>Crosswind.</strong> The wind is 15 kt at 20 ft from the right, with the MIL-F-8785C logarithmic profile. The pilot keeps
+the centreline with the nose wheel and the rudder and the wings level with the ailerons. After lift-off it holds the
+track, so the aircraft crabs into the wind.</p>
+<p><img alt="Crosswind take-off" src="../../assets/flight_dynamics/takeoff_crosswind.png" /></p>
+<!-- table:crosswind -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>max offset on the ground [m]</th>
+<th>max bank [deg]</th>
+<th>max rudder [deg]</th>
+<th>max aileron [deg]</th>
+<th>heading at lift-off [deg]</th>
+<th>min wing-tip clearance [m]</th>
+<th>to 35 ft [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>3.48</td>
+<td>11.09</td>
+<td>7.35</td>
+<td>1.77</td>
+<td>5.05</td>
+<td>1.90</td>
+<td>384</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>1.01</td>
+<td>1.25</td>
+<td>5.68</td>
+<td>4.45</td>
+<td>1.76</td>
+<td>3.95</td>
+<td>1278</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>1.51</td>
+<td>4.99</td>
+<td>11.62</td>
+<td>14.90</td>
+<td>0.19</td>
+<td>2.67</td>
+<td>1666</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>1.36</td>
+<td>5.64</td>
+<td>11.15</td>
+<td>3.01</td>
+<td>4.76</td>
+<td>0.63</td>
+<td>277</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:crosswind -->
+
+<p><strong>Gust during rotation.</strong> A 1-cosine down-gust of 4 m/s over 60 m is placed where the nominal run reached V_R.</p>
+<!-- table:gust -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>to 35 ft [m]</th>
+<th>change vs nominal [m]</th>
+<th>V_LOF [kt]</th>
+<th>θ at lift-off [deg]</th>
+<th>min tail clearance [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>394</td>
+<td>-9</td>
+<td>60.8</td>
+<td>9.2</td>
+<td>0.71</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>1293</td>
+<td>2</td>
+<td>119.6</td>
+<td>6.3</td>
+<td>0.22</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>1693</td>
+<td>1</td>
+<td>155.6</td>
+<td>9.8</td>
+<td>0.18</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>284</td>
+<td>-2</td>
+<td>54.2</td>
+<td>2.9</td>
+<td>1.09</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:gust -->
+
+<h2 id="turbulence-encounters">Turbulence encounters<a class="headerlink" href="#turbulence-encounters" title="Permanent link">&para;</a></h2>
+<p>The turbulence is the same for all four aircraft: von Kármán, MIL-F-8785C severe (exceedance probability 1e-5) at
+3000 m, σ = 7.05 m/s, L = 762 m. It is a frozen 3-D field, so the two wings meet different gusts.</p>
+<p>Each aircraft flies at its own speed for 120 s: 55, 120 and 128 m/s, and the glider at 40 m/s. Glider pilots speed up in rough air, and at 30 m/s its trim leaves little α margin to the clean CLmax (an assumption of the study). Each case is run stick-fixed and
+with the autopilot (altitude, heading and speed hold), in three realisations of the field. The first 5 s are
+discarded.</p>
+<p>Cabin accelerations are the specific force at the passenger stations: <code>a_cg + ω̇ × r + ω × (ω × r)</code>. Load factors
+are in body axes, so steady level flight gives n_z = cos θ.</p>
+<!-- table:turbulence -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>controls</th>
+<th>V [m/s]</th>
+<th>W/S [Pa]</th>
+<th>A = ρVCLα/2(W/S) [g per m/s]</th>
+<th>A·σ_w [g]</th>
+<th>RMS Δn_z CG [g]</th>
+<th>spread over seeds</th>
+<th>max Δn_z</th>
+<th>min Δn_z</th>
+<th>RMS bank [deg]</th>
+<th>peak bank [deg]</th>
+<th>RMS pitch [deg]</th>
+<th>RMS n_y CG [g]</th>
+<th>worst cabin station: RMS / peak Δn_z [g]</th>
+<th>max α [deg]</th>
+<th>α at clean CLmax [deg]</th>
+<th>model validity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>stick fixed</td>
+<td>55</td>
+<td>666</td>
+<td>0.1919</td>
+<td>1.328</td>
+<td>0.586</td>
+<td>0.078</td>
+<td>2.47</td>
+<td>-1.42</td>
+<td>22.6</td>
+<td>63.1</td>
+<td>13.1</td>
+<td>0.050</td>
+<td>rear seat: 0.609 / 2.59</td>
+<td>12.7</td>
+<td>14.1</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>autopilot</td>
+<td>55</td>
+<td>666</td>
+<td>0.1919</td>
+<td>1.091</td>
+<td>0.368</td>
+<td>0.045</td>
+<td>1.46</td>
+<td>-1.23</td>
+<td>7.0</td>
+<td>18.8</td>
+<td>4.4</td>
+<td>0.032</td>
+<td>rear seat: 0.389 / 1.52</td>
+<td>16.4</td>
+<td>14.1</td>
+<td>beyond stall</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>stick fixed</td>
+<td>120</td>
+<td>3698</td>
+<td>0.0846</td>
+<td>0.626</td>
+<td>0.566</td>
+<td>0.072</td>
+<td>2.18</td>
+<td>-1.08</td>
+<td>14.9</td>
+<td>39.0</td>
+<td>12.7</td>
+<td>0.067</td>
+<td>aft row: 0.590 / 2.26</td>
+<td>10.1</td>
+<td>11.8</td>
+<td>beyond stall</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>autopilot</td>
+<td>120</td>
+<td>3698</td>
+<td>0.0846</td>
+<td>0.616</td>
+<td>0.314</td>
+<td>0.028</td>
+<td>0.98</td>
+<td>-1.01</td>
+<td>4.5</td>
+<td>12.5</td>
+<td>2.9</td>
+<td>0.034</td>
+<td>aft row: 0.338 / 1.14</td>
+<td>8.6</td>
+<td>11.8</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>stick fixed</td>
+<td>128</td>
+<td>5879</td>
+<td>0.0520</td>
+<td>0.358</td>
+<td>0.287</td>
+<td>0.072</td>
+<td>1.16</td>
+<td>-0.80</td>
+<td>14.7</td>
+<td>39.4</td>
+<td>6.4</td>
+<td>0.040</td>
+<td>aft row: 0.331 / 1.32</td>
+<td>14.1</td>
+<td>14.1</td>
+<td>beyond stall</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>autopilot</td>
+<td>128</td>
+<td>5879</td>
+<td>0.0520</td>
+<td>0.353</td>
+<td>0.214</td>
+<td>0.047</td>
+<td>0.69</td>
+<td>-0.71</td>
+<td>3.1</td>
+<td>8.6</td>
+<td>2.7</td>
+<td>0.026</td>
+<td>aft row: 0.246 / 0.84</td>
+<td>13.1</td>
+<td>14.1</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>stick fixed</td>
+<td>40</td>
+<td>446</td>
+<td>0.2471</td>
+<td>1.522</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>7.4</td>
+<td>departed</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>autopilot</td>
+<td>40</td>
+<td>446</td>
+<td>0.2471</td>
+<td>1.510</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>7.4</td>
+<td>departed</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:turbulence -->
+
+<p>"Model validity" compares each run with the model's limits, using the stall angle of attack (α at the assumed clean
+CLmax, from the trim) as the limit of the linear lattice. A run is "beyond stall" if any realisation spends time above
+it. It is "departed" if the bank passes 90° or α goes 10° past stall. A departed run describes a loss of control the
+quasi-steady linear model cannot represent, so its numbers are not a gust response.</p>
+<ul>
+<li><strong>Motor glider in severe turbulence:</strong> at 40 m/s, atan(σ_w/V) = 10.0° of RMS gust angle meets 6.5° of α margin
+  from the trim. All three autopilot realisations depart, and one of the three stick-fixed ones does. Their numbers
+  are blanked in the tables. Only the glider's light-turbulence row stays
+  valid. In moderate turbulence it spends 7.0 % of the time past the stall angle, without departing; its clip
+  and trace show that moderate run.</li>
+<li><strong>Light GA with the autopilot (severe):</strong> 0.01–1.5 % of the time past the stall angle, depending on the
+  realisation.</li>
+<li><strong>Turboprop and A320 class, stick fixed:</strong> at most 0.2 % of the time past it in one realisation.</li>
+<li><strong>Turboprop and A320 class with the autopilot:</strong> never reach the stall angle.</li>
+</ul>
+<p>These fractions are <code>time_above_stall_frac</code> in <code>results/turbulence.json</code>.
+- <strong>Stick-fixed runs:</strong> over 120 s they include the unattended spiral and phugoid excursions (large bank angles), so
+  their RMS values are not gust response alone. The autopilot rows are the comparison between aircraft.</p>
+<p><img alt="Load-factor and bank traces" src="../../assets/flight_dynamics/turbulence_traces.png" /></p>
+<p><img alt="RMS load factor at the CG and in the cabin" src="../../assets/flight_dynamics/turbulence_rms.png" /></p>
+<p><strong>Wing loading and lift-curve slope.</strong> A rigid wing held fixed in a vertical gust w would see
+Δn = A·w with A = ρ V CL_α / (2 W/S). A·σ_w is therefore an upper bound for the RMS increment: plunge and pitch
+relieve it. The Pratt-Walker formula adds the alleviation factor K_g = 0.88 μ / (5.3 + μ), with the mass ratio
+μ = 2(W/S) / (ρ c̄ CL_α g), for a 1-cosine gust of half-length 12.5 c̄. Here U_de = 25 ft/s EAS, the same for every
+aircraft.</p>
+<p>The simulation is quasi-steady, without Küssner / Wagner lift lag. Its discrete-gust peak should therefore lie
+between Pratt and the unalleviated value.</p>
+<p><img alt="Gust sensitivity and the Pratt check" src="../../assets/flight_dynamics/gust_sensitivity.png" /></p>
+<!-- table:pratt -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>V [m/s]</th>
+<th>mass ratio μ</th>
+<th>K_g</th>
+<th>Δn, no alleviation</th>
+<th>Δn Pratt</th>
+<th>Δn simulated</th>
+<th>sim / Pratt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>55</td>
+<td>19.7</td>
+<td>0.693</td>
+<td>1.698</td>
+<td>1.177</td>
+<td>1.283</td>
+<td>1.090</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>120</td>
+<td>62.9</td>
+<td>0.812</td>
+<td>0.748</td>
+<td>0.607</td>
+<td>0.673</td>
+<td>1.109</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>128</td>
+<td>62.1</td>
+<td>0.811</td>
+<td>0.460</td>
+<td>0.373</td>
+<td>0.407</td>
+<td>1.092</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>40</td>
+<td>19.1</td>
+<td>0.689</td>
+<td>2.185</td>
+<td>1.506</td>
+<td>1.794</td>
+<td>1.191</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:pratt -->
+
+<p><strong>The same gust for all four.</strong> One physical gust: a vertical 1-cosine up-gust of 7.62 m/s over 100 m (H = 50 m)
+at 3000 m, stick fixed, each aircraft at its cruise speed (<code>07_same_gust.py</code>). The slow, lightly loaded aircraft
+meet it for longer, so they have time to plunge and pitch into it. Pratt's K_g was derived for H = 12.5 MAC and is
+shown only for reference.</p>
+<!-- table:same_gust -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>V [m/s]</th>
+<th>W/S [Pa]</th>
+<th>gust duration [s]</th>
+<th>peak Δn_z CG [g]</th>
+<th>peak cabin Δn_z [g]</th>
+<th>quasi-steady A·U [g]</th>
+<th>Pratt (for H = 12.5 MAC) [g]</th>
+<th>max Δθ [deg]</th>
+<th>max Δh [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>55</td>
+<td>666</td>
+<td>1.82</td>
+<td>0.625</td>
+<td>rear seat: 0.652</td>
+<td>1.463</td>
+<td>1.014</td>
+<td>5.40</td>
+<td>4.4</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>120</td>
+<td>3698</td>
+<td>0.83</td>
+<td>0.571</td>
+<td>aft row: 0.627</td>
+<td>0.644</td>
+<td>0.523</td>
+<td>1.31</td>
+<td>1.6</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>128</td>
+<td>5879</td>
+<td>0.78</td>
+<td>0.357</td>
+<td>aft row: 0.429</td>
+<td>0.396</td>
+<td>0.321</td>
+<td>0.86</td>
+<td>1.4</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>40</td>
+<td>446</td>
+<td>2.50</td>
+<td>0.939</td>
+<td>pilot: 0.934</td>
+<td>1.883</td>
+<td>1.297</td>
+<td>3.21</td>
+<td>15.5</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:same_gust -->
+
+<p><strong>What the spanwise variation does.</strong> The same aircraft are run stick-fixed in a frozen line, where the gust is
+uniform across the span, at the same intensity. Without spanwise variation, the only rolling input is sideslip
+through the dihedral effect.</p>
+<!-- table:spanwise -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>RMS bank, 3-D field [deg]</th>
+<th>RMS bank, frozen line [deg]</th>
+<th>RMS Δn_z, 3-D field [g]</th>
+<th>RMS Δn_z, frozen line [g]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>22.6</td>
+<td>12.2</td>
+<td>0.586</td>
+<td>0.412</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>14.9</td>
+<td>2.4</td>
+<td>0.566</td>
+<td>0.350</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>14.7</td>
+<td>8.3</td>
+<td>0.287</td>
+<td>0.250</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28) (departed stick fixed in severe turbulence: not shown)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<!-- /table:spanwise -->
+
+<p><strong>Intensity.</strong> Light, moderate and severe turbulence, autopilot on, one realisation for light and moderate.</p>
+<!-- table:intensity -->
+<table>
+<thead>
+<tr>
+<th>aircraft</th>
+<th>severity</th>
+<th>σ [m/s]</th>
+<th>RMS Δn_z [g]</th>
+<th>max Δn_z [g]</th>
+<th>RMS bank [deg]</th>
+<th>max α [deg]</th>
+<th>model validity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>light</td>
+<td>1.84</td>
+<td>0.051</td>
+<td>0.18</td>
+<td>0.7</td>
+<td>8.5</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>moderate</td>
+<td>2.88</td>
+<td>0.080</td>
+<td>0.28</td>
+<td>1.1</td>
+<td>9.8</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Airliner (A320 class)</td>
+<td>severe (mean of seeds)</td>
+<td>7.05</td>
+<td>0.214</td>
+<td>0.69</td>
+<td>3.1</td>
+<td>13.1</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>light</td>
+<td>1.84</td>
+<td>0.101</td>
+<td>0.31</td>
+<td>2.4</td>
+<td>7.4</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>moderate</td>
+<td>2.88</td>
+<td>0.152</td>
+<td>0.54</td>
+<td>2.8</td>
+<td>9.7</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Light GA (C172 class)</td>
+<td>severe (mean of seeds)</td>
+<td>7.05</td>
+<td>0.368</td>
+<td>1.46</td>
+<td>7.0</td>
+<td>16.4</td>
+<td>beyond stall</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>light</td>
+<td>1.84</td>
+<td>0.112</td>
+<td>0.46</td>
+<td>1.7</td>
+<td>6.0</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>moderate</td>
+<td>2.88</td>
+<td>0.159</td>
+<td>0.47</td>
+<td>2.8</td>
+<td>13.5</td>
+<td>beyond stall</td>
+</tr>
+<tr>
+<td>Motor glider (AR 28)</td>
+<td>severe (mean of seeds)</td>
+<td>7.05</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>departed</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>light</td>
+<td>1.84</td>
+<td>0.077</td>
+<td>0.23</td>
+<td>1.1</td>
+<td>3.3</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>moderate</td>
+<td>2.88</td>
+<td>0.127</td>
+<td>0.35</td>
+<td>1.6</td>
+<td>4.5</td>
+<td>valid</td>
+</tr>
+<tr>
+<td>Turboprop (ATR 72 class)</td>
+<td>severe (mean of seeds)</td>
+<td>7.05</td>
+<td>0.314</td>
+<td>0.98</td>
+<td>4.5</td>
+<td>8.6</td>
+<td>valid</td>
+</tr>
+</tbody>
+</table>
+<!-- /table:intensity -->
+
+<h2 id="3-d-visualisation">3-D visualisation<a class="headerlink" href="#3-d-visualisation" title="Permanent link">&para;</a></h2>
+<p><code>flight.visuals.flight_scene(ac, hist, wind=...)</code> builds a studio <code>Scene</code> with an <code>Animation</code>. It contains:</p>
+<ul>
+<li>the aircraft mesh (the parametric airframe, or the geometry-library mesh for the ATR class) moved by the recorded
+  attitude and position;</li>
+<li>the runway with its markings;</li>
+<li>the trajectory trail;</li>
+<li>the vertical gust w as vertical arrows on a heading-aligned grid around the aircraft, coloured blue (down) to red
+  (up), and as wisps along the flown track;</li>
+<li>the lattice loading ΔCp on a sheet just above the wing and tail skins;</li>
+<li>a HUD with airspeed, height, n_z, pitch and bank.</li>
+</ul>
+<p><code>web_viewer</code> writes the browser viewer, which has play / pause, a time slider, playback speed, a follow camera and a
+vectors toggle. <code>blender.render_animation</code> renders Cycles frames with the HUD burnt in and encodes MP4 / GIF.</p>
+<p>The viewers are written by <code>03_takeoff.py</code> and <code>04_turbulence_encounters.py</code> into <code>examples/flight_dynamics/_out/</code>
+(not committed). Open one with <code>python -m http.server -d examples/flight_dynamics/_out/a320_takeoff/viewer</code>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="A320-class take-off in the viewer" src="../../assets/flight_dynamics/viewer_a320_takeoff.png" /></td>
+<td><img alt="GA crosswind take-off" src="../../assets/flight_dynamics/viewer_light_ga_crosswind.png" /></td>
+</tr>
+<tr>
+<td><img alt="A320-class in severe turbulence" src="../../assets/flight_dynamics/viewer_a320_turbulence.png" /></td>
+<td><img alt="ATR-class in severe turbulence" src="../../assets/flight_dynamics/viewer_regional_turboprop_turbulence.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>The "Streamlines" button shows the gust wisps; "Vectors" toggles the arrows.</p>
+<p>Clips are rendered by <code>05_render_clips.py</code> from the saved runs. They are 720 × 405, 12 Cycles samples and 96 frames
+at 12 fps, kept small enough to commit, in <code>docs/assets/flight_dynamics/clips/</code>. Raise <code>--size</code>, <code>--samples</code> and
+<code>--frames</code> (with <code>--keep-in-out</code>) for full-resolution renders.</p>
+<p>Clips: see the gallery at the top of this page.</p>
+<h2 id="reproduce">Reproduce<a class="headerlink" href="#reproduce" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>examples/flight_dynamics/01_verification.py<span class="w">          </span><span class="c1"># PSD, trim, conservation, lattice checks (~2 min)</span>
+python<span class="w"> </span>examples/flight_dynamics/02_trim_and_stability.py<span class="w">    </span><span class="c1"># trim, derivatives, modes, mass properties (&lt;1 min)</span>
+python<span class="w"> </span>examples/flight_dynamics/03_takeoff.py<span class="w">               </span><span class="c1"># take-offs, crosswind, gust, viewers (~10 min)</span>
+python<span class="w"> </span>examples/flight_dynamics/04_turbulence_encounters.py<span class="w"> </span><span class="c1"># encounters, Pratt (~25 min on 4 cores)</span>
+python<span class="w"> </span>examples/flight_dynamics/07_same_gust.py<span class="w">             </span><span class="c1"># the four aircraft through one gust (~1 min)</span>
+python<span class="w"> </span>examples/flight_dynamics/04_turbulence_encounters.py<span class="w"> </span>--moderate-visuals<span class="w"> </span>motor_glider
+python<span class="w"> </span>examples/flight_dynamics/05_render_clips.py<span class="w">          </span><span class="c1"># Blender clips (needs bpy; ~3 h on 4 cores with haze)</span>
+python<span class="w"> </span>examples/flight_dynamics/06_tables.py<span class="w">                </span><span class="c1"># the tables and turbulence figures on this page</span>
+python<span class="w"> </span>examples/flight_dynamics/08_viewers.py<span class="w">               </span><span class="c1"># rebuild the viewers and screenshots</span>
+pytest<span class="w"> </span>tests/test_flight_turbulence.py<span class="w"> </span>tests/test_flight_dynamics.py<span class="w"> </span>tests/test_studio_animation.py
+</code></pre></div>
+<h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Quasi-steady aerodynamics.</strong></li>
+<li>Lift follows the angle of attack instantly: there is no Wagner or Küssner lift build-up and no downwash lag
+    (Cm_α̇).</li>
+<li>Short gusts are therefore felt fully. This is why the discrete-gust peaks exceed Pratt's.</li>
+<li><strong>Linear lattice.</strong></li>
+<li>The lattice has no stall and no section-drag polar. Only the stall margin (maximum CL reached against the assumed
+    take-off CLmax) is reported.</li>
+<li>Thickness, compressibility and viscous effects on lift are absent. The aero optimizer's Prandtl-Glauert stretch
+    is not used here, because all runs are at M ≤ 0.43.</li>
+<li><strong>No aeroelasticity.</strong> The wing is rigid. On the high-aspect-ratio glider and the airliner, wing bending would
+  change both the gust loads and the cabin accelerations.</li>
+<li><strong>Ground effect</strong> acts on the induced drag only (McCormick factor). The lift increase near the ground is not
+  modelled.</li>
+<li><strong>Turbulence fields.</strong></li>
+<li>The 3-D field is isotropic, with one scale length (L_w). At low altitude it keeps the MIL intensities but not
+    their different scale lengths.</li>
+<li>The frozen-field (Taylor) hypothesis is used throughout.</li>
+<li><strong>Propeller and engine effects.</strong> Slipstream, torque, P-factor and gyroscopic moments are not modelled, and the
+  engines respond instantly to the throttle.</li>
+<li><strong>Aircraft data.</strong> The aircraft are "class" models, not the real types. Planforms, masses, inertias, take-off
+  CLmax, gear stiffness and the pilot technique are estimates or assumptions (listed above and in
+  <code>Aircraft.info</code>). Only the published figures quoted with their source are data.</li>
+<li><strong>One-engine-out take-off and braking are not simulated.</strong> The certified field length therefore cannot be
+  reproduced; only the all-engines distance is compared.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

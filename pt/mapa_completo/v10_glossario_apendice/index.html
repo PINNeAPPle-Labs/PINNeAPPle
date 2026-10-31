@@ -1,0 +1,7806 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/pt/mapa_completo/v10_glossario_apendice/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Volume 10 — Glossário e apêndice numérico - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#volume-10-glossario-e-apendice-numerico" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Volume 10 — Glossário e apêndice numérico
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_54" id="__nav_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_55" >
+        
+          
+          <label class="md-nav__link" for="__nav_55" id="__nav_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_55_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-glossario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Glossário
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-apendice-numeros-do-inventario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Apêndice: números do inventário
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/pt/mapa_completo/v10_glossario_apendice.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/pt/mapa_completo/v10_glossario_apendice.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="volume-10-glossario-e-apendice-numerico">Volume 10 — Glossário e apêndice numérico<a class="headerlink" href="#volume-10-glossario-e-apendice-numerico" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Parte do <a href="../">Mapa completo do PINNeAPPle</a>. Gerado por <code>docs/pt/_mapa/gerar.py</code> a partir do inventário do commit <code>e53cdcfb04</code>.</p>
+</blockquote>
+<p>Glossário em português e os números do inventário.</p>
+<h2 id="1-glossario">1. Glossário<a class="headerlink" href="#1-glossario" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>termo</th>
+<th>significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Adjunto</strong></td>
+<td>Método que calcula o gradiente de um objetivo em relação a muitos parâmetros com custo de uma simulação extra.</td>
+</tr>
+<tr>
+<td><strong>Assimilação de dados</strong></td>
+<td>Combinar um modelo com medições ao longo do tempo (por exemplo, filtro de Kalman, EnKF).</td>
+</tr>
+<tr>
+<td><strong>Autolab</strong></td>
+<td>Laboratório autônomo: planeja e executa missões com ferramentas controladas, compara surrogates e escolhe a próxima simulação.</td>
+</tr>
+<tr>
+<td><strong>Co-simulação</strong></td>
+<td>Acoplar simuladores diferentes que trocam dados a cada passo de tempo (por exemplo, via FMI/FMU).</td>
+</tr>
+<tr>
+<td><strong>Condensação (Schur)</strong></td>
+<td>Eliminar os graus de liberdade internos de um bloco, ficando só com a interface; reaproveitado entre blocos idênticos.</td>
+</tr>
+<tr>
+<td><strong>Condição de contorno (BC)</strong></td>
+<td>Valor ou fluxo imposto na fronteira do domínio. Dirichlet fixa o valor; Neumann fixa a derivada normal; Robin combina os dois.</td>
+</tr>
+<tr>
+<td><strong>Condição inicial (IC)</strong></td>
+<td>Estado do sistema no instante inicial de um problema transiente.</td>
+</tr>
+<tr>
+<td><strong>Craig-Bampton</strong></td>
+<td>Redução de modelos para dinâmica: modos de interface fixa mais modos de restrição.</td>
+</tr>
+<tr>
+<td><strong>Credibilidade</strong></td>
+<td>Nível atribuído por pp.validate a cada fator verificado, com decisão final pass / warn / fail.</td>
+</tr>
+<tr>
+<td><strong>DeepONet</strong></td>
+<td>Operador neural com uma rede 'branch' (entrada funcional) e uma 'trunk' (coordenadas).</td>
+</tr>
+<tr>
+<td><strong>EKI</strong></td>
+<td>Ensemble Kalman Inversion: método de inversão sem gradiente baseado em ensembles.</td>
+</tr>
+<tr>
+<td><strong>Extra (pyproject)</strong></td>
+<td>Grupo opcional de dependências instalado com pip install "pinneapple[extra]".</td>
+</tr>
+<tr>
+<td><strong>FDM / FEM / FVM</strong></td>
+<td>Diferenças finitas, elementos finitos e volumes finitos: famílias clássicas de discretização de equações diferenciais.</td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td>Grafo de nós tipados (JSON pinneapple-flow/1) que encadeia chamadas da biblioteca; executado por pinneapple_flow.</td>
+</tr>
+<tr>
+<td><strong>FMI / FMU</strong></td>
+<td>Functional Mock-up Interface: padrão para trocar modelos de simulação empacotados (Functional Mock-up Units).</td>
+</tr>
+<tr>
+<td><strong>FNO</strong></td>
+<td>Fourier Neural Operator: operador neural que mistura informação no espaço de Fourier.</td>
+</tr>
+<tr>
+<td><strong>Frente de Pareto</strong></td>
+<td>Conjunto de soluções em que nenhum objetivo melhora sem piorar outro.</td>
+</tr>
+<tr>
+<td><strong>GNN / MeshGraphNet</strong></td>
+<td>Rede de grafos que opera sobre os nós e arestas de uma malha.</td>
+</tr>
+<tr>
+<td><strong>Guardrail físico</strong></td>
+<td>Verificação que bloqueia propostas (por exemplo, de um LLM) que violam a física ou o escopo.</td>
+</tr>
+<tr>
+<td><strong>Gêmeo digital (digital twin)</strong></td>
+<td>Modelo de um ativo real que é atualizado por medições e usado para monitorar, prever ou decidir.</td>
+</tr>
+<tr>
+<td><strong>Hard BC</strong></td>
+<td>Condição de contorno imposta pela própria forma da rede (por construção), e não por um termo de perda.</td>
+</tr>
+<tr>
+<td><strong>Hub / zoo</strong></td>
+<td>Repositório de modelos treinados e verificados, datasets e biblioteca pesquisável de ferramentas e exemplos.</td>
+</tr>
+<tr>
+<td><strong>Lab / selo</strong></td>
+<td>pinneapple_lab registra experimentos com manifesto, métricas, verificações e uma nota (A-F); o selo resume essa avaliação.</td>
+</tr>
+<tr>
+<td><strong>LBM</strong></td>
+<td>Lattice Boltzmann Method: método de fluidos baseado em distribuições de partículas numa rede regular.</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>Model Context Protocol: protocolo para expor ferramentas a agentes de IA; pinneapple_mcp é o servidor do PINNeAPPle.</td>
+</tr>
+<tr>
+<td><strong>NSGA-II</strong></td>
+<td>Algoritmo genético multiobjetivo que encontra uma frente de Pareto.</td>
+</tr>
+<tr>
+<td><strong>OOD (fora do domínio)</strong></td>
+<td>Entrada fora da região onde o modelo foi treinado ou validado; os resultados ali não são confiáveis.</td>
+</tr>
+<tr>
+<td><strong>OpenUSD / Omniverse</strong></td>
+<td>Formato de cena 3-D da Pixar e plataforma da NVIDIA que o usa; o PINNeAPPle exporta campos e decisões de confiança para ele.</td>
+</tr>
+<tr>
+<td><strong>Operador neural</strong></td>
+<td>Rede que aprende um mapa entre funções (por exemplo, condição de contorno → campo solução). Exemplos: FNO, DeepONet, AFNO.</td>
+</tr>
+<tr>
+<td><strong>Otimização bayesiana</strong></td>
+<td>Otimização com um modelo probabilístico (em geral processo gaussiano) que escolhe o próximo ponto a avaliar.</td>
+</tr>
+<tr>
+<td><strong>PhysicalProblem</strong></td>
+<td>Classe única do PINNeAPPle que descreve um problema físico para todas as partes da biblioteca.</td>
+</tr>
+<tr>
+<td><strong>PhysicsNeMo</strong></td>
+<td>Framework da NVIDIA para IA física; o PINNeAPPle confere surrogates feitos com ele.</td>
+</tr>
+<tr>
+<td><strong>PINN</strong></td>
+<td>Physics-Informed Neural Network: rede neural treinada para satisfazer a equação diferencial (resíduo na perda), além de dados e condições de contorno.</td>
+</tr>
+<tr>
+<td><strong>Ponto de colocação (collocation point)</strong></td>
+<td>Ponto do domínio onde o resíduo da equação é avaliado durante o treino de uma PINN.</td>
+</tr>
+<tr>
+<td><strong>Predição conformal</strong></td>
+<td>Método que produz intervalos com cobertura garantida a partir de um conjunto de calibração.</td>
+</tr>
+<tr>
+<td><strong>Preset</strong></td>
+<td>Problema pronto, com nome, equações, domínio e parâmetros padrão; pode ser carregado e resolvido diretamente.</td>
+</tr>
+<tr>
+<td><strong>Problema inverso</strong></td>
+<td>Estimar parâmetros ou entradas desconhecidas a partir de observações da saída.</td>
+</tr>
+<tr>
+<td><strong>ProblemSpec</strong></td>
+<td>Definição executável de uma EDP (coordenadas, campos, termo da EDP, contornos, domínio) consumida pelo compilador de PINN.</td>
+</tr>
+<tr>
+<td><strong>Referência independente</strong></td>
+<td>Valor de comparação que não vem do próprio código testado: forma fechada, solução manufaturada ou valor publicado/tabelado.</td>
+</tr>
+<tr>
+<td><strong>Resíduo</strong></td>
+<td>Quanto a solução deixa de satisfazer a equação num ponto. Resíduo zero = equação satisfeita.</td>
+</tr>
+<tr>
+<td><strong>ROM</strong></td>
+<td>Reduced-Order Model: modelo de ordem reduzida (por exemplo, POD) que aproxima o modelo completo com poucos graus de liberdade.</td>
+</tr>
+<tr>
+<td><strong>SDF / CSG</strong></td>
+<td>Signed Distance Function (distância com sinal até a fronteira) e Constructive Solid Geometry (união, interseção e diferença de sólidos).</td>
+</tr>
+<tr>
+<td><strong>Shim de compatibilidade</strong></td>
+<td>Pacote que só reexporta outro, mantido para que imports antigos funcionem.</td>
+</tr>
+<tr>
+<td><strong>Solution</strong></td>
+<td>Objeto devolvido por pp.solve: valores, pontos, método e metadados (info).</td>
+</tr>
+<tr>
+<td><strong>Solução manufaturada</strong></td>
+<td>Solução escolhida de antemão, inserida na equação para gerar o termo fonte; serve para verificar a ordem de convergência de um solver.</td>
+</tr>
+<tr>
+<td><strong>SPH</strong></td>
+<td>Smoothed Particle Hydrodynamics: método sem malha baseado em partículas.</td>
+</tr>
+<tr>
+<td><strong>Surrogate (modelo substituto)</strong></td>
+<td>Modelo rápido, em geral aprendido, que aproxima um simulador caro.</td>
+</tr>
+<tr>
+<td><strong>Teste de Diebold-Mariano (DM)</strong></td>
+<td>Teste estatístico que compara a precisão de duas previsões.</td>
+</tr>
+<tr>
+<td><strong>Trust card</strong></td>
+<td>Cartão de confiança: conjunto de verificações físicas de um campo (resíduo, conservação, contornos, referência, domínio) com decisão APPROVED / REVIEW / REJECT.</td>
+</tr>
+<tr>
+<td><strong>UQ</strong></td>
+<td>Uncertainty Quantification: quantificação de incerteza (ensembles, conformal, propagação de tolerâncias, Monte Carlo).</td>
+</tr>
+<tr>
+<td><strong>validated / tested / untested</strong></td>
+<td>Status do catálogo de métodos: validated = algum teste compara contra referência independente; tested = há testes, mas nenhum contra referência; untested = sem testes.</td>
+</tr>
+<tr>
+<td><strong>Walk-forward purgado</strong></td>
+<td>Protocolo de validação de séries temporais que treina no passado, testa no futuro e remove amostras vizinhas para evitar vazamento.</td>
+</tr>
+<tr>
+<td><strong>X-TFC / TFC</strong></td>
+<td>Theory of Functional Connections: expressões que satisfazem as restrições exatamente; X-TFC combina isso com redes de camada única (extreme learning machine).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-apendice-numeros-do-inventario">2. Apêndice: números do inventário<a class="headerlink" href="#2-apendice-numeros-do-inventario" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>item</th>
+<th style="text-align: right;">valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pacotes <code>pinneapple*</code></td>
+<td style="text-align: right;">41</td>
+</tr>
+<tr>
+<td>módulos Python nesses pacotes</td>
+<td style="text-align: right;">2.142</td>
+</tr>
+<tr>
+<td>linhas de código nesses módulos</td>
+<td style="text-align: right;">494.775</td>
+</tr>
+<tr>
+<td>classes públicas</td>
+<td style="text-align: right;">2.757</td>
+</tr>
+<tr>
+<td>funções públicas de nível de módulo</td>
+<td style="text-align: right;">6.130</td>
+</tr>
+<tr>
+<td>métodos públicos de classes</td>
+<td style="text-align: right;">6.220</td>
+</tr>
+<tr>
+<td>módulos importados por pelo menos um arquivo de teste</td>
+<td style="text-align: right;">1.073</td>
+</tr>
+<tr>
+<td>arquivos de teste (<code>tests/**/test*.py</code>)</td>
+<td style="text-align: right;">513</td>
+</tr>
+<tr>
+<td>funções de teste (<code>test*</code>, inclusive em classes <code>Test*</code>)</td>
+<td style="text-align: right;">4.611</td>
+</tr>
+<tr>
+<td>nomes expostos em <code>pp.*</code></td>
+<td style="text-align: right;">297</td>
+</tr>
+<tr>
+<td>extras do <code>pyproject.toml</code></td>
+<td style="text-align: right;">54</td>
+</tr>
+<tr>
+<td>apps em <code>apps/</code></td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr>
+<td>entradas em <code>examples/</code></td>
+<td style="text-align: right;">88</td>
+</tr>
+<tr>
+<td>entradas em <code>scripts/</code></td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr>
+<td>arquivos Markdown em <code>docs/</code></td>
+<td style="text-align: right;">190</td>
+</tr>
+<tr>
+<td>workflows de CI</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td>métodos no catálogo</td>
+<td style="text-align: right;">201</td>
+</tr>
+</tbody>
+</table>
+<p>Status dos métodos do catálogo (regra: validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value); arquivo gerado em 2026-10-17):</p>
+<table>
+<thead>
+<tr>
+<th>status</th>
+<th style="text-align: right;">métodos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tested</td>
+<td style="text-align: right;">47</td>
+</tr>
+<tr>
+<td>untested</td>
+<td style="text-align: right;">42</td>
+</tr>
+<tr>
+<td>validated</td>
+<td style="text-align: right;">112</td>
+</tr>
+</tbody>
+</table>
+<h3 id="21-por-pacote">2.1 Por pacote<a class="headerlink" href="#21-por-pacote" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>pacote</th>
+<th style="text-align: right;">módulos</th>
+<th style="text-align: right;">linhas</th>
+<th style="text-align: right;">classes</th>
+<th style="text-align: right;">funções</th>
+<th style="text-align: right;">testes*</th>
+<th style="text-align: right;">módulos sem teste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pinneapple</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">866</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">431</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>pinneapple_adaptation</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">2.946</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">154</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis</code></td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">42.004</td>
+<td style="text-align: right;">249</td>
+<td style="text-align: right;">450</td>
+<td style="text-align: right;">939</td>
+<td style="text-align: right;">56</td>
+</tr>
+<tr>
+<td><code>pinneapple_app</code></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">3.672</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena</code></td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">21.853</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">243</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">39</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab</code></td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">3.596</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td><code>pinneapple_blender</code></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">616</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>pinneapple_catalog</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1.024</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>pinneapple_check</code></td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">4.547</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">144</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense</code></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">6.006</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">115</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>pinneapple_core</code></td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">8.747</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">233</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td><code>pinneapple_data</code></td>
+<td style="text-align: right;">115</td>
+<td style="text-align: right;">29.019</td>
+<td style="text-align: right;">129</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">507</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">2.499</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td><code>pinneapple_design</code></td>
+<td style="text-align: right;">196</td>
+<td style="text-align: right;">48.153</td>
+<td style="text-align: right;">269</td>
+<td style="text-align: right;">740</td>
+<td style="text-align: right;">744</td>
+<td style="text-align: right;">86</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow</code></td>
+<td style="text-align: right;">89</td>
+<td style="text-align: right;">18.086</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">381</td>
+<td style="text-align: right;">263</td>
+<td style="text-align: right;">58</td>
+</tr>
+<tr>
+<td><code>pinneapple_hub</code></td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">7.260</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">183</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">11.775</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">119</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: right;">27</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm</code></td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">10.750</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">242</td>
+<td style="text-align: right;">28</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1.541</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>pinneapple_models</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural</code></td>
+<td style="text-align: right;">198</td>
+<td style="text-align: right;">36.217</td>
+<td style="text-align: right;">334</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">438</td>
+<td style="text-align: right;">152</td>
+</tr>
+<tr>
+<td><code>pinneapple_orchestration</code></td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">591</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb</code></td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">1.929</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception</code></td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">1.037</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics</code></td>
+<td style="text-align: right;">166</td>
+<td style="text-align: right;">43.959</td>
+<td style="text-align: right;">169</td>
+<td style="text-align: right;">763</td>
+<td style="text-align: right;">1.075</td>
+<td style="text-align: right;">52</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets</code></td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">5.247</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign</code></td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">5.642</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: right;">19</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum</code></td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">2.636</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td><code>pinneapple_query</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">252</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>pinneapple_reason</code></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">3.757</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry</code></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.699</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>pinneapple_science</code></td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">4.253</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td><code>pinneapple_security</code></td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3.398</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">93</td>
+<td style="text-align: right;">105</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation</code></td>
+<td style="text-align: right;">298</td>
+<td style="text-align: right;">66.085</td>
+<td style="text-align: right;">364</td>
+<td style="text-align: right;">931</td>
+<td style="text-align: right;">1.119</td>
+<td style="text-align: right;">113</td>
+</tr>
+<tr>
+<td><code>pinneapple_solvers</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>pinneapple_systems</code></td>
+<td style="text-align: right;">182</td>
+<td style="text-align: right;">37.262</td>
+<td style="text-align: right;">301</td>
+<td style="text-align: right;">515</td>
+<td style="text-align: right;">579</td>
+<td style="text-align: right;">78</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools</code></td>
+<td style="text-align: right;">177</td>
+<td style="text-align: right;">34.350</td>
+<td style="text-align: right;">155</td>
+<td style="text-align: right;">384</td>
+<td style="text-align: right;">465</td>
+<td style="text-align: right;">107</td>
+</tr>
+<tr>
+<td><code>pinneapple_train</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d</code></td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">2.820</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3.411</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">98</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel</code></td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">15.016</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: right;">23</td>
+</tr>
+</tbody>
+</table>
+<p>* funções de teste em arquivos que importam algum módulo do pacote (um teste pode contar em mais de um pacote).</p>
+<h3 id="22-extras-do-pyprojecttoml">2.2 Extras do <code>pyproject.toml</code><a class="headerlink" href="#22-extras-do-pyprojecttoml" title="Permanent link">&para;</a></h3>
+<p>Projeto <code>pinneapple</code> versão <code>0.7.0</code>, Python <code>&gt;=3.10</code>. Dependências obrigatórias: <code>numpy&gt;=1.24</code>, <code>scipy&gt;=1.10</code>, <code>pandas&gt;=2.0</code>, <code>pyyaml&gt;=6.0</code>, <code>tqdm&gt;=4.66</code>, <code>typing-extensions&gt;=4.8</code>, <code>pydantic&gt;=2.0</code>, <code>matplotlib&gt;=3.8</code>, <code>torch&gt;=2.2</code>, <code>sympy&gt;=1.12</code>, <code>xarray</code>, <code>zarr</code>, <code>tomli&gt;=2.0; python_version &lt; '3.11'</code>.</p>
+<table>
+<thead>
+<tr>
+<th>extra</th>
+<th>pacotes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cfd</code></td>
+<td>manifold3d&gt;=2.4, huggingface_hub&gt;=0.20, cadquery&gt;=2.4, gmsh&gt;=4.11, trimesh&gt;=4.0, pyvista&gt;=0.43, plotly&gt;=5.18, meshio&gt;=5.3, h5py&gt;=3.8</td>
+</tr>
+<tr>
+<td><code>enterprise</code></td>
+<td>fastapi&gt;=0.111, uvicorn[standard]&gt;=0.29, cryptography&gt;=41, argon2-cffi&gt;=23.1, meshio&gt;=5.3, h5py&gt;=3.8, huggingface_hub&gt;=0.24, pyarrow&gt;=14, safetensors&gt;=0.4, mcp&gt;=1.10</td>
+</tr>
+<tr>
+<td><code>mcp</code></td>
+<td>mcp&gt;=1.10</td>
+</tr>
+<tr>
+<td><code>security</code></td>
+<td>cryptography&gt;=41, argon2-cffi&gt;=23.1</td>
+</tr>
+<tr>
+<td><code>check</code></td>
+<td>meshio&gt;=5.3, h5py&gt;=3.8, cryptography&gt;=41</td>
+</tr>
+<tr>
+<td><code>sports</code></td>
+<td>scikit-learn&gt;=1.3</td>
+</tr>
+<tr>
+<td><code>em</code></td>
+<td>miepython&gt;=3.0</td>
+</tr>
+<tr>
+<td><code>veriphysics</code></td>
+<td>reportlab&gt;=4.0</td>
+</tr>
+<tr>
+<td><code>viz3d</code></td>
+<td>rerun-sdk&gt;=0.20, plotly&gt;=5.18, trame&gt;=3.0, trame-vtk&gt;=2.5, trame-vuetify&gt;=2.4</td>
+</tr>
+<tr>
+<td><code>twin</code></td>
+<td>basyx-python-sdk&gt;=1.0, asyncua&gt;=1.1</td>
+</tr>
+<tr>
+<td><code>geometry</code></td>
+<td>manifold3d&gt;=2.4, huggingface_hub&gt;=0.20</td>
+</tr>
+<tr>
+<td><code>fitmesh</code></td>
+<td>cadquery&gt;=2.4, gmsh&gt;=4.11, trimesh&gt;=4.0</td>
+</tr>
+<tr>
+<td><code>newton</code></td>
+<td>newton&gt;=1.6</td>
+</tr>
+<tr>
+<td><code>sky</code></td>
+<td>sgp4&gt;=2.22, pymsis&gt;=0.10, skyfield-data&gt;=6.0, skyfield&gt;=1.48</td>
+</tr>
+<tr>
+<td><code>astroml</code></td>
+<td>astroML&gt;=1.0</td>
+</tr>
+<tr>
+<td><code>fmi</code></td>
+<td>fmpy&gt;=0.3.20, pythonfmu&gt;=0.6</td>
+</tr>
+<tr>
+<td><code>tracking</code></td>
+<td>mlflow&gt;=2.9, wandb&gt;=0.16</td>
+</tr>
+<tr>
+<td><code>geom</code></td>
+<td>trimesh&gt;=4.0.0, meshio&gt;=5.3.0, gmsh&gt;=4.11</td>
+</tr>
+<tr>
+<td><code>geom_simplify</code></td>
+<td>fast-simplification&gt;=0.1.0, open3d&gt;=0.18.0</td>
+</tr>
+<tr>
+<td><code>cad</code></td>
+<td>cadquery&gt;=2.4.0</td>
+</tr>
+<tr>
+<td><code>solvers</code></td>
+<td>numba&gt;=0.59</td>
+</tr>
+<tr>
+<td><code>process</code></td>
+<td>CoolProp&gt;=6.6</td>
+</tr>
+<tr>
+<td><code>astro</code></td>
+<td>astropy&gt;=6.0</td>
+</tr>
+<tr>
+<td><code>jax_cfd</code></td>
+<td>jax-cfd&gt;=0.2.0</td>
+</tr>
+<tr>
+<td><code>fenics</code></td>
+<td>fenics-dolfinx&gt;=0.7.0, mpi4py&gt;=3.1, petsc4py&gt;=3.20</td>
+</tr>
+<tr>
+<td><code>mujoco</code></td>
+<td>mujoco&gt;=3.0</td>
+</tr>
+<tr>
+<td><code>mujoco_mjx</code></td>
+<td>mujoco&gt;=3.0, jax[cuda12]&gt;=0.4.25</td>
+</tr>
+<tr>
+<td><code>genesis</code></td>
+<td>genesis-world&gt;=0.2.0</td>
+</tr>
+<tr>
+<td><code>noether</code></td>
+<td>emmiai-noether&gt;=2026.4.0</td>
+</tr>
+<tr>
+<td><code>pinn</code></td>
+<td>sympy&gt;=1.12</td>
+</tr>
+<tr>
+<td><code>uq</code></td>
+<td>scipy&gt;=1.10</td>
+</tr>
+<tr>
+<td><code>serve</code></td>
+<td>fastapi&gt;=0.111, uvicorn[standard]&gt;=0.29</td>
+</tr>
+<tr>
+<td><code>export</code></td>
+<td>onnx&gt;=1.16, onnxruntime&gt;=1.18</td>
+</tr>
+<tr>
+<td><code>hub</code></td>
+<td>huggingface_hub&gt;=0.24, pyarrow&gt;=14, safetensors&gt;=0.4, onnx&gt;=1.16, onnxruntime&gt;=1.18</td>
+</tr>
+<tr>
+<td><code>flow</code></td>
+<td>sqlalchemy&gt;=2.0, sympy&gt;=1.12, fastapi&gt;=0.111, uvicorn[standard]&gt;=0.29, httpx&gt;=0.27, pillow&gt;=10</td>
+</tr>
+<tr>
+<td><code>llm</code></td>
+<td>anthropic&gt;=0.34, openai&gt;=1.40</td>
+</tr>
+<tr>
+<td><code>orchestration</code></td>
+<td>prefect&gt;=2.19</td>
+</tr>
+<tr>
+<td><code>tuning</code></td>
+<td>optuna&gt;=3.6</td>
+</tr>
+<tr>
+<td><code>workbench</code></td>
+<td>fastapi&gt;=0.110, uvicorn&gt;=0.29, requests&gt;=2.31</td>
+</tr>
+<tr>
+<td><code>finetune</code></td>
+<td>peft&gt;=0.12, datasets&gt;=2.20, transformers&gt;=4.44</td>
+</tr>
+<tr>
+<td><code>vlm_curation</code></td>
+<td>transformers&gt;=4.45, accelerate&gt;=0.30</td>
+</tr>
+<tr>
+<td><code>digital_twin</code></td>
+<td>paho-mqtt&gt;=2.0, kafka-python&gt;=2.0, asyncua&gt;=1.1, pymodbus&gt;=3.6</td>
+</tr>
+<tr>
+<td><code>timeseries</code></td>
+<td>statsmodels&gt;=0.14, pmdarima&gt;=2.0, scikit-learn&gt;=1.4, PyWavelets&gt;=1.6</td>
+</tr>
+<tr>
+<td><code>synth</code></td>
+<td>sympy&gt;=1.12, trimesh&gt;=4.0.0, meshio&gt;=5.3.0</td>
+</tr>
+<tr>
+<td><code>earthdata</code></td>
+<td>requests&gt;=2.31, earthaccess&gt;=0.10.0</td>
+</tr>
+<tr>
+<td><code>research</code></td>
+<td>requests&gt;=2.31, pdfminer.six&gt;=20231228</td>
+</tr>
+<tr>
+<td><code>retrieval</code></td>
+<td>sentence-transformers&gt;=3.0</td>
+</tr>
+<tr>
+<td><code>all</code></td>
+<td>cryptography&gt;=41, trimesh&gt;=4.0.0, meshio&gt;=5.3.0, gmsh&gt;=4.11, fast-simplification&gt;=0.1.0, cadquery&gt;=2.4.0, numba&gt;=0.59, sympy&gt;=1.12, fastapi&gt;=0.111, uvicorn[standard]&gt;=0.29, onnx&gt;=1.16, onnxruntime&gt;=1.18, paho-mqtt&gt;=2.0, kafka-python&gt;=2.0, sentence-transformers&gt;=3.0, statsmodels&gt;=0.14, requests&gt;=2.31, mujoco&gt;=3.0, fmpy&gt;=0.3.20, genesis-world&gt;=0.2.0, emmiai-noether&gt;=2026.4.0, huggingface_hub&gt;=0.24, anthropic&gt;=0.34, openai&gt;=1.40, transformers&gt;=4.45, accelerate&gt;=0.30</td>
+</tr>
+<tr>
+<td><code>viz</code></td>
+<td>matplotlib&gt;=3.8, scipy&gt;=1.10</td>
+</tr>
+<tr>
+<td><code>viz_interactive</code></td>
+<td>plotly&gt;=5.18, kaleido&gt;=0.2</td>
+</tr>
+<tr>
+<td><code>pyvista</code></td>
+<td>pyvista&gt;=0.43, matplotlib&gt;=3.8, imageio&gt;=2.34</td>
+</tr>
+<tr>
+<td><code>cost</code></td>
+<td>psutil&gt;=5.9</td>
+</tr>
+<tr>
+<td><code>surrogate</code></td>
+<td>scikit-learn&gt;=1.4, pyarrow&gt;=14, h5py&gt;=3.8, onnx&gt;=1.15, onnxruntime&gt;=1.17</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>ruff&gt;=0.5, pytest&gt;=8.0, pytest-cov&gt;=4.1, mypy&gt;=1.8, build&gt;=1.2, twine&gt;=5.0, ipykernel&gt;=6.0, httpx&gt;=0.27, jupyter&gt;=1.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-catalogo-completo-de-metodos">2.3 Catálogo completo de métodos<a class="headerlink" href="#23-catalogo-completo-de-metodos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>método</th>
+<th>status</th>
+<th style="text-align: right;">testes contra referência</th>
+<th style="text-align: right;">outros testes</th>
+<th>código</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E1</td>
+<td>Laplace</td>
+<td>validated</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">28</td>
+<td></td>
+</tr>
+<tr>
+<td>E2</td>
+<td>Poisson</td>
+<td>validated</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">24</td>
+<td></td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Helmholtz</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E4</td>
+<td>Heat (steady anisotropic / transient)</td>
+<td>validated</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">13</td>
+<td></td>
+</tr>
+<tr>
+<td>E5</td>
+<td>Wave</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E6</td>
+<td>Advection-diffusion / convection</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E7</td>
+<td>Burgers (viscous / inviscid)</td>
+<td>validated</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">50</td>
+<td></td>
+</tr>
+<tr>
+<td>E8</td>
+<td>Reaction-diffusion 1D/2D (Gray-Scott)</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E9</td>
+<td>Fisher-KPP</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>E10</td>
+<td>Incompressible Navier-Stokes 2D/3D</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13</td>
+<td></td>
+</tr>
+<tr>
+<td>E11</td>
+<td>Navier-Stokes in a rotating frame</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>E12</td>
+<td>Stokes</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E13</td>
+<td>Brinkman</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E14</td>
+<td>Darcy</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12</td>
+<td></td>
+</tr>
+<tr>
+<td>E15</td>
+<td>Buckley-Leverett two-phase</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E16</td>
+<td>Compressible Euler 1D/2D/axisymmetric/rotating 3D</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E17</td>
+<td>Shallow water 1D/2D</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td></td>
+</tr>
+<tr>
+<td>E18</td>
+<td>Stommel gyre</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E19</td>
+<td>Plane-stress / plane-strain linear elasticity</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td></td>
+</tr>
+<tr>
+<td>E20</td>
+<td>Axisymmetric elasticity (+ torsion) / Lame</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td></td>
+</tr>
+<tr>
+<td>E21</td>
+<td>Neo-Hookean hyperelasticity</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E22</td>
+<td>Euler-Bernoulli beam</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11</td>
+<td>pinneapple_systems/process_components/beam_statics.py</td>
+</tr>
+<tr>
+<td>E23</td>
+<td>von Karman beam / plate</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_systems/process_components/beam_nonlinear_fem.py</td>
+</tr>
+<tr>
+<td>E24</td>
+<td>Thermoelasticity</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E25</td>
+<td>Phase-field fracture</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E26</td>
+<td>Biot poroelasticity</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E27</td>
+<td>Maxwell TE</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E28</td>
+<td>Bekker-Wong terramechanics</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>E29</td>
+<td>Compressor meanline 1D</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>E30</td>
+<td>Phonon Boltzmann transport 1D (gray)</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E31</td>
+<td>Black-Scholes</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>E32</td>
+<td>Heston</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E33</td>
+<td>Opinion dynamics (continuum Hegselmann-Krause)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E34</td>
+<td>Kepler two-body orbit</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td></td>
+</tr>
+<tr>
+<td>E35</td>
+<td>Circular restricted three-body problem (planar, synodic)</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>E36</td>
+<td>J2 perturbation</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E37</td>
+<td>Clohessy-Wiltshire relative motion</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E38</td>
+<td>Euler rigid-body attitude</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>E39</td>
+<td>Lane-Emden polytrope</td>
+<td>validated</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">19</td>
+<td></td>
+</tr>
+<tr>
+<td>E40</td>
+<td>Shakura-Sunyaev accretion disk</td>
+<td>validated</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
+<td></td>
+</tr>
+<tr>
+<td>E41</td>
+<td>Schwarzschild weak-field light bending</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>E42</td>
+<td>SIR epidemic</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E43</td>
+<td>Pharmacokinetics two-compartment</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E44</td>
+<td>Reaction network / Arrhenius / mass action</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10</td>
+<td>pinneapple_systems/process_components/reaction_kinetics.py</td>
+</tr>
+<tr>
+<td>E45</td>
+<td>Hagen-Poiseuille</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>PINNeAPPle-CFD/pinneapple_cfd/etapas/e02_modelo_matematico/correlacoes.py</td>
+</tr>
+<tr>
+<td>E46</td>
+<td>Blasius friction factor</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">10</td>
+<td>PINNeAPPle-CFD/.../correlacoes.py</td>
+</tr>
+<tr>
+<td>E47</td>
+<td>Colebrook-White</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td>PINNeAPPle-CFD/.../correlacoes.py, pinneapple_systems/process_components/pipe_network_1d.py</td>
+</tr>
+<tr>
+<td>E48</td>
+<td>Darcy-Weisbach pressure drop</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>PINNeAPPle-CFD/.../correlacoes.py</td>
+</tr>
+<tr>
+<td>E49</td>
+<td>Herschel-Bulkley + Metzner-Reed (non-Newtonian pipe flow)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td>pinneapple_systems/process_components/non_newtonian_pipe_flow.py</td>
+</tr>
+<tr>
+<td>E50</td>
+<td>DNV-RP-O501 erosion (straight pipe and bend)</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>PINNeAPPle-CFD/pinneapple_cfd/etapas/e02_modelo_matematico/erosao.py</td>
+</tr>
+<tr>
+<td>E51</td>
+<td>Lame thick-walled cylinder</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_systems/process_components/pipe_stress_mechanics.py</td>
+</tr>
+<tr>
+<td>E52</td>
+<td>von Mises equivalent stress</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11</td>
+<td>pinneapple_systems/process_components/pipe_stress_mechanics.py, pinneapple_systems/process_components/beam_statics.py</td>
+</tr>
+<tr>
+<td>E53</td>
+<td>Euler buckling + constrained rod buckling</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_systems/process_components/pipe_stress_mechanics.py</td>
+</tr>
+<tr>
+<td>E54</td>
+<td>Beam-column moment amplification factor</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_systems/process_components/pipe_stress_mechanics.py</td>
+</tr>
+<tr>
+<td>E55</td>
+<td>S-N curve + Goodman + Miner</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">14</td>
+<td>pinneapple_systems/process_components/fatigue_analysis.py, pinneapple_physics/closed_form/cantilever_fatigue.py</td>
+</tr>
+<tr>
+<td>E56</td>
+<td>Torsional stick-slip with Stribeck friction</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_systems/process_components/torsional_stickslip.py</td>
+</tr>
+<tr>
+<td>E57</td>
+<td>Heat exchanger (effectiveness-NTU)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td>pinneapple_systems/process_components/heat_exchanger.py</td>
+</tr>
+<tr>
+<td>E58</td>
+<td>Fin array conduction</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td>pinneapple_physics/closed_form/fin_array_conduction.py</td>
+</tr>
+<tr>
+<td>E59</td>
+<td>Control valve (Cv, compressible / incompressible)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_systems/process_components/control_valve.py</td>
+</tr>
+<tr>
+<td>E60</td>
+<td>Polytropic compression path</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_systems/process_components/polytropic_path.py</td>
+</tr>
+<tr>
+<td>E61</td>
+<td>Real gas equation of state (CoolProp)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_systems/process_components/real_gas_eos.py</td>
+</tr>
+<tr>
+<td>E62</td>
+<td>Compressor similarity map</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_systems/process_components/similarity_map.py</td>
+</tr>
+<tr>
+<td>E63</td>
+<td>Helmholtz resonator</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td>pinneapple_physics/closed_form/helmholtz_resonator.py</td>
+</tr>
+<tr>
+<td>E64</td>
+<td>Membrane diffusion</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td>pinneapple_physics/closed_form/membrane_diffusion.py</td>
+</tr>
+<tr>
+<td>E65</td>
+<td>Cantilever fatigue</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td>pinneapple_physics/closed_form/cantilever_fatigue.py</td>
+</tr>
+<tr>
+<td>E66</td>
+<td>Electrostatics (Gauss's law with permittivity), differential and integral form</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E67</td>
+<td>Magnetostatics in the vector potential A_z</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E68</td>
+<td>Magneto-quasistatic eddy currents (time-harmonic A_z)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E69</td>
+<td>Maxwell TMz time domain, differential and integral (Ampere-Maxwell circulation, Faraday) form</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E70</td>
+<td>Maxwell's curl equations in 3-D with optional Gauss constraints</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>E71</td>
+<td>Frequency-domain TMz wave equation with complex permittivity</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P9</td>
+<td>PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>PINNeAPPle-CFD/pinneapple_cfd/</td>
+</tr>
+<tr>
+<td>P1.1</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">43</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.2</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.3</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.4</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.5</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">15</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.6</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.7</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.8</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.9</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">15</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.1</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.2</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.3</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.4</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.5</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.6</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.7</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.8</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.9</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.1</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.2</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.3</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.4</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.5</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.6</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P3.7</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P4.1</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P4.2</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P4.3</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P4.4</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.1</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">6</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.2</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.3</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.4</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.5</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.6</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.7</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td></td>
+</tr>
+<tr>
+<td>P5.8</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.1</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.2</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.3</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.4</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.5</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.6</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.7</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.8</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P6.9</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.1</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.2</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.3</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.4</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.5</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.6</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.7</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.8</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.9</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P8.1</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.10</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.11</td>
+<td></td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.12</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P1.13</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.10</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.11</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.12</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P2.13</td>
+<td></td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td></td>
+</tr>
+<tr>
+<td>P7.10</td>
+<td></td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>S1</td>
+<td>Finite differences 1D/2D/3D</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">11</td>
+<td>pinneapple_simulation/numerical_solvers/fdm.py, pinneapple_simulation/numerical_solvers/fdm3d.py</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>Finite elements (linear) + nonlinear beam FEM</td>
+<td>validated</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">15</td>
+<td>pinneapple_simulation/numerical_solvers/fem.py, pinneapple_simulation/numerical_solvers/nonlinear_beam_fem.py</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>Finite volumes</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_simulation/numerical_solvers/fvm.py</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>Spectral (Fourier pseudo-spectral)</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_simulation/numerical_solvers/spectral.py</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Lattice Boltzmann D2Q9 / D3Q19 (+ Smagorinsky LES)</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">21</td>
+<td>pinneapple_simulation/numerical_solvers/lbm.py</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>SPH / ISPH / DFSPH</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/numerical_solvers/sph.py, pinneapple_simulation/numerical_solvers/isph.py, pinneapple_simulation/numerical_solvers/dfsph.py</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Meshfree RBF collocation (Kansa)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_simulation/numerical_solvers/meshfree.py</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>X-TFC (IVP, PDE, subdomains)</td>
+<td>validated</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">8</td>
+<td>pinneapple_simulation/numerical_solvers/xtfc_ivp.py, pinneapple_simulation/numerical_solvers/xtfc_pde.py, pinneapple_simulation/numerical_solvers/xtfc_subdomain.py</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>Discrete-time PINN / implicit Runge-Kutta Gauss-Legendre</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_simulation/numerical_solvers/discrete_time_pinn.py, pinneapple_simulation/numerical_solvers/irk_gauss_legendre.py</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>Stiff kinetics ODE</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/numerical_solvers/stiff_kinetics_ode.py</td>
+</tr>
+<tr>
+<td>S11</td>
+<td>TVD advection</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/numerical_solvers/tvd_advection.py</td>
+</tr>
+<tr>
+<td>S12</td>
+<td>Immersed boundary (FDM)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_simulation/numerical_solvers/immersed_boundary_fdm.py</td>
+</tr>
+<tr>
+<td>S13</td>
+<td>Beam BVP FDM / 3D elasticity FDM</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/numerical_solvers/beam_bvp_fdm.py, pinneapple_simulation/numerical_solvers/elasticity3d_fdm.py</td>
+</tr>
+<tr>
+<td>S14</td>
+<td>Eddy current FDM</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_simulation/numerical_solvers/eddy_current_fdm.py</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>Bekker-Wong terramechanics</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">19</td>
+<td>pinneapple_simulation/numerical_solvers/bekker_wong.py, pinneapple_simulation/particle_dynamics/terramechanics.py</td>
+</tr>
+<tr>
+<td>S16</td>
+<td>N-body (REBOUND)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_simulation/numerical_solvers/nbody_rebound.py</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>JAX-CFD</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_simulation/numerical_solvers/jax_cfd_solver.py</td>
+</tr>
+<tr>
+<td>S18</td>
+<td>Particle dynamics: rigid body, MPM, molecular dynamics</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13</td>
+<td>pinneapple_simulation/particle_dynamics/</td>
+</tr>
+<tr>
+<td>S19</td>
+<td>Signal decomposition: CEEMDAN, EEMD, VMD, HHT, SSA, SST, STL, FFT, wavelet</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td></td>
+</tr>
+<tr>
+<td>S20</td>
+<td>Co-simulation (graph + engine, algebraic loops by Tarjan SCC)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11</td>
+<td>pinneapple_systems/cosimulation/</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>Digital twin state estimation: KF/EKF/UKF/EnKF, prognostics, signal reconstruction</td>
+<td>tested</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">39</td>
+<td>pinneapple_systems/digital_twin/, pinneapple_neural/architectures/classical_ts/</td>
+</tr>
+<tr>
+<td>S22</td>
+<td>1D process components (pipe network, transient pipe, heat exchanger, valve, reaction, polytropic path, compressor map)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td></td>
+</tr>
+<tr>
+<td>S23</td>
+<td>Explicit equation-system solver (evaluation order)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_systems/process_components/explicit_equation_system.py</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">80</td>
+<td>pinneapple_simulation/external_solvers/</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>Causal telemetry conditioning (Hampel one-step, rate limit, first-order filter, gaps)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_systems/digital_twin/conditioning.py</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>2D shallow-water finite volumes (MUSCL + HLL, wet/dry, walls, gates, virtual sensors, health checks)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_simulation/numerical_solvers/shallow_water_fv.py</td>
+</tr>
+<tr>
+<td>S27</td>
+<td>ETDRK4 exponential integrator for stiff semilinear PDEs (contour phi-functions, blow-up guard)</td>
+<td>validated</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_simulation/numerical_solvers/etdrk4.py</td>
+</tr>
+<tr>
+<td>S28</td>
+<td>Stable fluids 2D (semi-Lagrangian advection, spectral projection, vorticity confinement)</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td>pinneapple_simulation/numerical_solvers/stable_fluids.py</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_simulation/electromagnetics/fem.py, pinneapple_simulation/electromagnetics/mesh.py, pinneapple_simulation/electromagnetics/materials.py</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>Time-harmonic 2-D eddy currents (A_z, solid conductors with imposed net currents)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_simulation/electromagnetics/eddy.py</td>
+</tr>
+<tr>
+<td>S31</td>
+<td>Surface-PM machine model: Maxwell-stress and co-energy torque, cogging, back-EMF, losses</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td>pinneapple_simulation/electromagnetics/machine.py, pinneapple_simulation/electromagnetics/postprocess.py</td>
+</tr>
+<tr>
+<td>S32</td>
+<td>2-D electrostatics, P1 FEM (capacitance from field energy)</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/electrostatics.py</td>
+</tr>
+<tr>
+<td>S33</td>
+<td>Biot-Savart integration of straight filament segments, loop and solenoid fields</td>
+<td>validated</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/statics.py</td>
+</tr>
+<tr>
+<td>S34</td>
+<td>Mie series for dielectric and perfectly conducting spheres</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/mie.py</td>
+</tr>
+<tr>
+<td>S35</td>
+<td>Fresnel coefficients and characteristic matrices of planar multilayers</td>
+<td>validated</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/waves.py</td>
+</tr>
+<tr>
+<td>S36</td>
+<td>Jiles-Atherton hysteresis model (RK4 along an applied field path)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/hysteresis.py</td>
+</tr>
+<tr>
+<td>S37</td>
+<td>Dispersive media (Drude, Lorentz, Debye) and their auxiliary-differential-equation coefficients</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/media.py</td>
+</tr>
+<tr>
+<td>S38</td>
+<td>Maxwell physics checks of predicted fields (Gauss, Faraday, Ampere-Maxwell, continuity, Poynting, interfaces, reciprocity, passivity)</td>
+<td>validated</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_physics/maxwell_checks.py</td>
+</tr>
+<tr>
+<td>S39</td>
+<td>Density-based topology optimisation (SIMP, filter, projection, OC, MMA; compliance, thermal, Stokes-Brinkman, machine rotor)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_design/topology/</td>
+</tr>
+<tr>
+<td>S40</td>
+<td>Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, TF/SF plane waves, DFT monitors, sub-cell averaging)</td>
+<td>validated</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_simulation/electromagnetics/fdtd.py</td>
+</tr>
+<tr>
+<td>S41</td>
+<td>Near-to-far-field transform on a closed box (FDTD radiation patterns)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_simulation/electromagnetics/fdtd.py</td>
+</tr>
+<tr>
+<td>T1</td>
+<td>Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9</td>
+<td>pinneapple_neural/trainer/trainer.py, pinneapple_neural/trainer/hpc.py</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>Distributed: DDP, FSDP, SLURM, torchrun, PowerSGD</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/distributed.py, pinneapple_neural/trainer/hpc.py</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>Causal training</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/causal.py</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>Time marching</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/time_marching.py</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>Two phases Adam -&gt; L-BFGS + L-BFGS finetune</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_neural/trainer/two_phase.py, pinneapple_neural/trainer/lbfgs_finetune.py</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>Multi-restart</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/multistart.py</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>Adaptive residual-based collocation</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/collocation.py</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>Loss balancing: ReLoBRaLo, SoftAdapt, PCGrad, Augmented Lagrangian, Inverse Dirichlet, LR Annealing, AutoBalancer</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_neural/trainer/loss_balancer.py</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>Weight schedulers: SA-PINN, GradNorm, LossRatio, NTK</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_neural/trainer/weight_scheduler.py</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>Domain decomposition: XPINN, DoMINO/D3M</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_neural/architectures/pinns/xpinn.py, pinneapple_physics/pinn_solver/domino.py</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>Inverse PINN (learnable physical parameters)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_neural/trainer/inverse_pinn.py</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>Gray-box + symbolic regression (PySR)</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/graybox.py</td>
+</tr>
+<tr>
+<td>T13</td>
+<td>Uncertainty: heteroscedastic, B-PINN, MC Dropout, deep ensembles</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">20</td>
+<td>pinneapple_neural/trainer/heteroscedastic.py, pinneapple_neural/architectures/pinns/bpinn.py, pinneapple_systems/component_modeling/</td>
+</tr>
+<tr>
+<td>T14</td>
+<td>SINDy</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_neural/architectures/rom/sindy.py</td>
+</tr>
+<tr>
+<td>T15</td>
+<td>Adaptive hyperparameter sweep / architecture search (arena NAS)</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/adaptive_sweep.py, pinneapple_arena/nas.py</td>
+</tr>
+<tr>
+<td>T16</td>
+<td>Noether trainer (research only)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_neural/trainer/noether_trainer.py</td>
+</tr>
+<tr>
+<td>T17</td>
+<td>Post-training advisor / audit</td>
+<td>untested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>pinneapple_neural/trainer/advisor.py, pinneapple_neural/trainer/audit.py</td>
+</tr>
+<tr>
+<td>T18</td>
+<td>Meta-learning: MAML, Reptile</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td>pinneapple_adaptation/meta_learning/</td>
+</tr>
+<tr>
+<td>T19</td>
+<td>Transfer learning (freeze, adapters, parametric)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_adaptation/transfer_learning/</td>
+</tr>
+<tr>
+<td>T20</td>
+<td>Self-scaled quasi-Newton: BFGS / SSBFGS / SSBroyden (new, 2026-09-24)</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_neural/trainer/self_scaled_qn.py</td>
+</tr>
+<tr>
+<td>T21</td>
+<td>Autoresearch loop (fixed-budget trials, keep/revert, random or LLM proposer)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td>pinneapple_arena/autoresearch.py</td>
+</tr>
+<tr>
+<td>T22</td>
+<td>Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, ensemble UQ, OOD score, fine-tuning)</td>
+<td>tested</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td>pinneapple_neural/lpm.py</td>
+</tr>
+<tr>
+<td>T23</td>
+<td>MultiAdam: per-loss-term Adam moments for multi-term PINN losses</td>
+<td>validated</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td>pinneapple_neural/trainer/multiadam.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-como-os-numeros-foram-obtidos">2.4 Como os números foram obtidos<a class="headerlink" href="#24-como-os-numeros-foram-obtidos" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tudo vem de <code>docs/pt/_mapa/inventario.py</code>, que lê o código com <code>ast</code> (nada é importado ou executado).</li>
+<li><em>Público</em> = nome de nível de módulo que não começa com <code>_</code>. Métodos de classes são contados à parte.</li>
+<li><em>Testes de um módulo</em> = funções <code>test*</code> em arquivos de <code>tests/</code> que importam aquele módulo (<code>import</code>, <code>from … import</code>, <code>importlib.import_module</code>, <code>pytest.importorskip</code>). É uma medida de alcance, não de cobertura de linhas.</li>
+<li>O status de validação dos métodos é o de <code>pinneapple_catalog/method_status.json</code>, gerado por <code>scripts/build_method_status.py</code>.</li>
+<li>Itens ligados a clientes foram excluídos do inventário e do texto.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,7243 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/pt/mapa_completo/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Mapa completo do PINNeAPPle - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mapa-completo-do-pinneapple" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mapa completo do PINNeAPPle
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_54" id="__nav_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_55" >
+        
+          
+          <label class="md-nav__link" for="__nav_55" id="__nav_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_55_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Volumes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visao-geral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visão geral
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-este-documento-foi-feito" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como este documento foi feito
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/pt/mapa_completo.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/pt/mapa_completo.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="mapa-completo-do-pinneapple">Mapa completo do PINNeAPPle<a class="headerlink" href="#mapa-completo-do-pinneapple" title="Permanent link">&para;</a></h1>
+<p>Documento de referência, em português, de todo o repositório: 41 pacotes, 2.142 módulos, 2.757 classes e 6.130 funções públicas. Gerado a partir do inventário automático do commit <code>e53cdcfb04</code>.</p>
+<p>Como o texto passa de 150 páginas, ele está dividido em volumes por camada. Este arquivo é o volume 0: visão geral, arquitetura e sumário.</p>
+<h2 id="volumes">Volumes<a class="headerlink" href="#volumes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>volume</th>
+<th>conteúdo</th>
+<th>pacotes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="v01_nucleo/">Volume 1 — Núcleo, porta de entrada e catálogo</a></td>
+<td>A porta de entrada <code>pp.*</code>, os primitivos do núcleo, o catálogo de métodos, o registro de artefatos e os shims de compatibilidade.</td>
+<td><code>pinneapple</code>, <code>pinneapple_core</code>, <code>pinneapple_catalog</code>, <code>pinneapple_registry</code>, <code>pinneapple_orchestration</code>, <code>pinneapple_models</code>, <code>pinneapple_train</code>, <code>pinneapple_solvers</code></td>
+</tr>
+<tr>
+<td><a href="v02_fisica/">Volume 2 — Física: problemas, equações e ciência</a></td>
+<td>Como um problema físico é descrito e resolvido (<code>PhysicalProblem</code>, <code>pp.solve</code>), as equações, os presets industriais, o desenho de problemas, os experimentos por área, a condensação e as consultas físicas.</td>
+<td><code>pinneapple_physics</code>, <code>pinneapple_presets</code>, <code>pinneapple_problemdesign</code>, <code>pinneapple_science</code>, <code>pinneapple_condense</code>, <code>pinneapple_query</code></td>
+</tr>
+<tr>
+<td><a href="v03_simulacao/">Volume 3 — Simulação numérica</a></td>
+<td>Solvers clássicos (FDM, FEM, FVM, espectral, SPH, LBM), pontes para solvers externos, eletromagnetismo, voo, multicorpos, veículos e rovers.</td>
+<td><code>pinneapple_simulation</code></td>
+</tr>
+<tr>
+<td><a href="v04_aprendizado/">Volume 4 — Aprendizado de máquina e dados</a></td>
+<td>Arquiteturas e treino de redes (PINN, operadores neurais, grafos), dados e amostragem, adaptação, modelos de mundo, percepção, computação quântica e a arena de benchmarks.</td>
+<td><code>pinneapple_neural</code>, <code>pinneapple_data</code>, <code>pinneapple_pdb</code>, <code>pinneapple_adaptation</code>, <code>pinneapple_arena</code>, <code>pinneapple_worldmodel</code>, <code>pinneapple_perception</code>, <code>pinneapple_quantum</code></td>
+</tr>
+<tr>
+<td><a href="v05_confianca/">Volume 5 — Confiança, validação e decisão</a></td>
+<td>A camada que confere cada resultado contra a física: validação, incerteza, inversão, o linter <code>pinneapple check</code>, registros de evidência, segurança, decisão e a cadeia de porquês.</td>
+<td><code>pinneapple_analysis</code>, <code>pinneapple_check</code>, <code>pinneapple_veriphysics</code>, <code>pinneapple_security</code>, <code>pinneapple_decision</code>, <code>pinneapple_reason</code></td>
+</tr>
+<tr>
+<td><a href="v06_projeto_sistemas/">Volume 6 — Projeto e sistemas</a></td>
+<td>Geometria, otimização de projeto, projeto a partir de intenção, sistemas dinâmicos, séries temporais, co-simulação e gêmeos digitais.</td>
+<td><code>pinneapple_design</code>, <code>pinneapple_systems</code>, <code>pinneapple_twin3d</code></td>
+</tr>
+<tr>
+<td><a href="v07_ferramentas_produtos/">Volume 7 — Ferramentas, orquestração e produtos</a></td>
+<td>Ferramentas (benchmarks, exportação, visualização, automação de GUIs de engenharia, NVIDIA), o Flow, o Hub, o Lab, os LLMs, o servidor MCP, o laboratório autônomo e o app web.</td>
+<td><code>pinneapple_tools</code>, <code>pinneapple_blender</code>, <code>pinneapple_flow</code>, <code>pinneapple_hub</code>, <code>pinneapple_lab</code>, <code>pinneapple_llm</code>, <code>pinneapple_mcp</code>, <code>pinneapple_autolab</code>, <code>pinneapple_app</code></td>
+</tr>
+<tr>
+<td><a href="v08_apps_exemplos_ci/">Volume 8 — Apps, exemplos, reproduções, scripts e CI</a></td>
+<td>64 apps, 88 entradas de exemplos, reproduções de papers, scripts, benchmarks e 12 workflows de CI.</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="v09_indice/">Volume 9 — Índice alfabético</a></td>
+<td>Índice de todas as classes e funções públicas, com o caminho.</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="v10_glossario_apendice/">Volume 10 — Glossário e apêndice numérico</a></td>
+<td>Glossário em português e números do inventário (módulos, funções, testes, extras, métodos).</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="visao-geral">Visão geral<a class="headerlink" href="#visao-geral" title="Permanent link">&para;</a></h2>
+<h3 id="o-que-e-o-pinneapple">O que é o PINNeAPPle<a class="headerlink" href="#o-que-e-o-pinneapple" title="Permanent link">&para;</a></h3>
+<p>O PINNeAPPle é uma biblioteca Python de IA para física. A ideia central tem duas partes:</p>
+<ol>
+<li><strong>Uma descrição, muitos métodos.</strong> O problema físico é descrito uma vez (<code>pp.PhysicalProblem</code>, ou o nome de um
+   preset). Depois ele é resolvido por redes informadas pela física (PINN), operadores neurais, redes de grafos ou
+   solvers clássicos (diferenças finitas, elementos finitos, pontes para OpenFOAM e CalculiX), sempre pela mesma
+   chamada: <code>pp.solve(problema, método)</code>.</li>
+<li><strong>Uma camada de confiança.</strong> Antes de alguém usar um resultado, ele é conferido contra a física: resíduo da
+   equação, conservação, condições de contorno, comparação com referências e domínio de validade. A saída é uma
+   decisão explícita (<code>APPROVED</code> / <code>REVIEW</code> / <code>REJECT</code> no <code>pp.trust_card</code>; <code>pass</code> / <code>warn</code> / <code>fail</code> no
+   <code>pp.validate</code>).</li>
+</ol>
+<p>Em volta desse núcleo há camadas de projeto (geometria, otimização, projeto a partir de um texto), sistemas
+(séries temporais, co-simulação, gêmeos digitais), orquestração (Flow, Lab, laboratório autônomo, LLMs, servidor
+MCP) e produtos (Hub, apps web). O pacote de topo <code>pinneapple</code> (importado como <code>pp</code>) é uma camada fina: cada nome
+dele delega para um dos pacotes <code>pinneapple_*</code>.</p>
+<h3 id="arquitetura-em-camadas">Arquitetura em camadas<a class="headerlink" href="#arquitetura-em-camadas" title="Permanent link">&para;</a></h3>
+<p>A tabela resume as camadas na ordem em que um problema passa por elas. Cada camada depende só da interface da
+anterior (um <code>ProblemSpec</code>, coordenadas amostradas, a função de perda, um modelo treinado), e não de herança ou de
+um objeto compartilhado. Por isso dá para trocar uma peça sem mexer nas outras.</p>
+<table>
+<thead>
+<tr>
+<th>camada</th>
+<th>pacotes principais</th>
+<th>papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Porta de entrada</td>
+<td><code>pinneapple</code> (<code>pp.*</code>), <code>pinneapple_core.onboarding</code></td>
+<td><code>pp.doctor</code>, <code>pp.recommend</code>, <code>pp.card</code>, <code>pp.new</code>, <code>pp.solve</code>, <code>pp.compare</code>, <code>pp.validate</code></td>
+</tr>
+<tr>
+<td>Primitivos</td>
+<td><code>pinneapple_core</code></td>
+<td><code>Field</code>, <code>Mesh</code>, <code>Domain</code>, <code>Geometry</code>, operadores diferenciais, motor de workflows</td>
+</tr>
+<tr>
+<td>Problema</td>
+<td><code>pinneapple_physics</code> (<code>physical_problem</code>, <code>pde_environment</code>, <code>symbolic_pde</code>), <code>pinneapple_presets</code>, <code>pinneapple_problemdesign</code></td>
+<td>descrever o problema: equações, contornos, presets, desenho guiado</td>
+</tr>
+<tr>
+<td>Solução clássica</td>
+<td><code>pinneapple_simulation</code>, <code>pinneapple_condense</code></td>
+<td>FDM, FEM, FVM, SPH, LBM, pontes externas, eletromagnetismo, voo, veículos, condensação</td>
+</tr>
+<tr>
+<td>Aprendizado</td>
+<td><code>pinneapple_neural</code>, <code>pinneapple_data</code>, <code>pinneapple_adaptation</code>, <code>pinneapple_worldmodel</code>, <code>pinneapple_quantum</code></td>
+<td>arquiteturas, treino, dados, transferência, modelos de mundo</td>
+</tr>
+<tr>
+<td>Confiança</td>
+<td><code>pinneapple_analysis</code>, <code>pinneapple_check</code>, <code>pinneapple_veriphysics</code>, <code>pinneapple_security</code></td>
+<td>validação, incerteza, inversão, linter de física em CI, registros de evidência, assinaturas</td>
+</tr>
+<tr>
+<td>Decisão e raciocínio</td>
+<td><code>pinneapple_decision</code>, <code>pinneapple_reason</code>, <code>pinneapple_query</code></td>
+<td>qual experimento rodar a seguir, cadeia de porquês, consultas físicas com planejador</td>
+</tr>
+<tr>
+<td>Projeto e sistemas</td>
+<td><code>pinneapple_design</code>, <code>pinneapple_systems</code>, <code>pinneapple_twin3d</code></td>
+<td>geometria, otimização, projeto por intenção, séries temporais, gêmeos digitais</td>
+</tr>
+<tr>
+<td>Catálogo e registro</td>
+<td><code>pinneapple_catalog</code>, <code>pinneapple_registry</code>, <code>pinneapple_hub</code></td>
+<td>métodos com status de validação, recursos com licença, artefatos, zoo de modelos</td>
+</tr>
+<tr>
+<td>Orquestração</td>
+<td><code>pinneapple_flow</code>, <code>pinneapple_lab</code>, <code>pinneapple_autolab</code>, <code>pinneapple_llm</code>, <code>pinneapple_mcp</code>, <code>pinneapple_orchestration</code></td>
+<td>grafos de nós, experimentos registrados, missões autônomas, agentes</td>
+</tr>
+<tr>
+<td>Ferramentas e produtos</td>
+<td><code>pinneapple_tools</code>, <code>pinneapple_arena</code>, <code>pinneapple_blender</code>, <code>pinneapple_app</code>, <code>apps/</code></td>
+<td>benchmarks, exportação, visualização, automação de GUIs, apps web</td>
+</tr>
+</tbody>
+</table>
+<p>Os pacotes <code>pinneapple_models</code>, <code>pinneapple_train</code> e <code>pinneapple_solvers</code> são shims de compatibilidade: só
+reexportam <code>pinneapple_neural.architectures</code>, <code>pinneapple_neural.trainer</code> e
+<code>pinneapple_simulation.numerical_solvers</code>, para que caminhos de import antigos continuem funcionando.</p>
+<h3 id="como-as-pecas-se-conectam">Como as peças se conectam<a class="headerlink" href="#como-as-pecas-se-conectam" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>flowchart TD
+    U["Usuário / agente&lt;br/&gt;texto, preset ou PhysicalProblem"] --&gt; PP["pp.* (pinneapple)&lt;br/&gt;doctor · recommend · card · new"]
+    PP --&gt; PROB["Problema&lt;br/&gt;pinneapple_physics · presets · problemdesign"]
+    PROB --&gt; SOLVE{"pp.solve(problema, método)"}
+    SOLVE --&gt;|pinn| NEU["pinneapple_neural&lt;br/&gt;arquiteturas + trainer"]
+    SOLVE --&gt;|fem / reference / analytic| SIM["pinneapple_simulation&lt;br/&gt;solvers clássicos + pontes externas"]
+    NEU --&gt; DATA["pinneapple_data&lt;br/&gt;amostragem, datasets"]
+    CORE["pinneapple_core&lt;br/&gt;Field · Mesh · Domain · operadores"] -.-&gt; NEU
+    CORE -.-&gt; SIM
+    SOLVE --&gt; SOL["Solution"]
+    SOL --&gt; TRUST["Confiança&lt;br/&gt;pp.validate · pp.trust_card · pinneapple check&lt;br/&gt;pinneapple_analysis · veriphysics"]
+    TRUST --&gt;|APPROVED / pass| USE["Uso: projeto, gêmeo digital, relatório"]
+    TRUST --&gt;|REVIEW / REJECT| DEC["pinneapple_decision&lt;br/&gt;próximo experimento"]
+    DEC --&gt; SOLVE
+    CAT["pinneapple_catalog&lt;br/&gt;status de validação dos métodos"] -.-&gt; SOLVE
+    FLOW["pinneapple_flow&lt;br/&gt;plan(texto) → grafo → run"] --&gt; SOLVE
+    HUB["pinneapple_hub&lt;br/&gt;zoo, datasets, biblioteca"] --&gt; NEU
+    LAB["pinneapple_lab&lt;br/&gt;experimentos registrados"] --&gt; TRUST
+    USE --&gt; DES["pinneapple_design · pinneapple_systems"]
+    APPS["apps/ · pinneapple_app · MCP · LLM · autolab"] --&gt; FLOW
+    APPS --&gt; PP
+</code></pre></div>
+<p>Em palavras:</p>
+<ul>
+<li><strong><code>pp.*</code></strong> é a porta de entrada. <code>pp.doctor</code> diz o que falta instalar, <code>pp.recommend</code> sugere preset, método e
+  modelo a partir de uma frase, <code>pp.card</code> mostra o que um preset recebe e devolve, e <code>pp.new</code> cria um projeto do
+  usuário fora do repositório.</li>
+<li><strong><code>pp.solve</code> / <code>pp.compare</code></strong> (em <code>pinneapple_physics.solving</code>) recebem um <code>PhysicalProblem</code>, um <code>ProblemSpec</code>
+  ou o nome de um preset e despacham para o método pedido (<code>"pinn"</code>, <code>"fem"</code>, <code>"analytic"</code>, <code>"reference"</code>,
+  <code>"exact"</code>, <code>"external"</code>; <code>pp.list_methods()</code> lista os registrados). O resultado é um <code>Solution</code>.</li>
+<li><strong>Confiança</strong>: <code>pp.validate</code> (em <code>pinneapple_analysis.validation.validate</code>) e <code>pp.trust_card</code> (em
+  <code>pinneapple_analysis.trust.field_card</code>) conferem resultados e modelos; <code>pinneapple check</code> roda as mesmas
+  verificações em CI.</li>
+<li><strong><code>pinneapple_flow</code></strong> transforma um texto num grafo de nós tipados (<code>plan</code>), e o executa sem interface ou no
+  Flow Studio (<code>run</code>).</li>
+<li><strong><code>pinneapple_hub</code></strong> guarda e entrega modelos treinados e verificados (<code>pp.zoo</code>), datasets (<code>pp.datasets</code>) e uma
+  biblioteca pesquisável de ferramentas, geometrias, fluxos e exemplos.</li>
+<li><strong><code>pinneapple_catalog</code></strong> lista cada solver, método de treino, equação e problema com o código, as referências e
+  o status de validação calculado a partir dos testes (<code>validated</code> / <code>tested</code> / <code>untested</code>).</li>
+<li><strong>Apps</strong> (<code>apps/</code> e <code>pinneapple_app</code>) são interfaces web e ferramentas de demonstração montadas sobre a
+  biblioteca; o servidor MCP (<code>pinneapple_mcp</code>) expõe as mesmas funções para agentes de código.</li>
+</ul>
+<h3 id="a-porta-de-entrada-pp">A porta de entrada <code>pp.*</code><a class="headerlink" href="#a-porta-de-entrada-pp" title="Permanent link">&para;</a></h3>
+<p><code>import pinneapple as pp</code> expõe 297 nomes (versão <code>0.7.0</code>). A tabela diz de onde cada um vem e o que faz.</p>
+<table>
+<thead>
+<tr>
+<th>nome</th>
+<th>como é carregado</th>
+<th>origem</th>
+<th>o que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pp.ActiveLearningConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_data.ActiveLearningConfig</code></td>
+<td>Configuração do active learning: estratégia, número de candidatos, de pontos escolhidos por rodada, iniciais, iterações, peso de exploração e semente.</td>
+</tr>
+<tr>
+<td><code>pp.AdaptiveCollocationTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_data.AdaptiveCollocationTrainer</code></td>
+<td>Envolve um PINN e uma função física, mantém o próprio conjunto de colocação e acrescenta pontos escolhidos pela estratégia de active learning durante o treino.</td>
+</tr>
+<tr>
+<td><code>pp.AFNO</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.AFNO</code></td>
+<td>Operador AFNO completo para campos 2D <code>(B, H, W, C)</code>: projeção de entrada, camadas AFNO e projeção de saída.</td>
+</tr>
+<tr>
+<td><code>pp.annulus</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.annulus</code></td>
+<td>Anel fechado (tubo com tampas planas) em torno do eixo z.</td>
+</tr>
+<tr>
+<td><code>pp.arena</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_arena</code></td>
+<td>Pacote raiz: reexporta configuração, <code>Arena</code>, rankings, problemas, fábrica de modelos, treino, visualização, <code>define_problem</code>, <code>DatasetProblem</code>, presets de dataset, modo de decisão e NAS.</td>
+</tr>
+<tr>
+<td><code>pp.as_tensor</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_neural.utils.as_tensor</code></td>
+<td>Extrai o tensor de previsão de um Tensor, dicionário de campos, tupla ou objeto de saída (<code>PINNOutput</code>, <code>ModelOutput</code> etc.).</td>
+</tr>
+<tr>
+<td><code>pp.assess_drift</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.uncertainty.drift.assess_drift</code></td>
+<td>Checa um lote de predições quanto a perda de acurácia, má calibração, mudança de entrada e tendência do resíduo.</td>
+</tr>
+<tr>
+<td><code>pp.assimilation</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.data_assimilation</code></td>
+<td>Assimilação de dados: 4D-Var por autograd sobre os métodos de ensemble (EKI) e filtros de Kalman, mais reconstrução GP e posicionamento de sensores.</td>
+</tr>
+<tr>
+<td><code>pp.astro</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.astro</code></td>
+<td>Pacote de astronomia posicional e astrofísica do observatório PINNeAPPle, em NumPy próprio e validado contra USNO NOVAS, JPL Horizons e skyfield; reexporta <code>Observer</code>, <code>Time</code>, <code>apparent</code> e afins.</td>
+</tr>
+<tr>
+<td><code>pp.auto_residual</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.auto_residual</code></td>
+<td>Calcula valores do campo e derivadas nomeadas via autograd.</td>
+</tr>
+<tr>
+<td><code>pp.Backend</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.Backend</code></td>
+<td>Namespace com as constantes de nome de backend (<code>TORCH</code>, <code>JAX</code>).</td>
+</tr>
+<tr>
+<td><code>pp.backend</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.compute_backends</code></td>
+<td>Suporte multi-backend: reexporta o seletor PyTorch/JAX e os utilitários JAX.</td>
+</tr>
+<tr>
+<td><code>pp.batched_inference</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.batched_inference</code></td>
+<td>Inferência em lotes de um modelo sobre um tensor grande (<code>pinneapple_neural.predictor.infer</code>), com tamanho de lote, dispositivo e AMP opcionais.</td>
+</tr>
+<tr>
+<td><code>pp.benchmark</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.benchmark</code></td>
+<td>Entrada do benchmark com orçamento igual (preparar -&gt; validar -&gt; rodar -&gt; relatório); reexporta <code>run</code>, <code>prepare</code>, <code>load</code>, o registro e <code>ArrayProblem</code>.</td>
+</tr>
+<tr>
+<td><code>pp.BenchmarkConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.BenchmarkConfig</code></td>
+<td>Configuração do benchmark: número de pontos de colocação/contorno/inicial, épocas, taxa de aprendizado, pesos das perdas, dispositivo, semente e limiar de convergência.</td>
+</tr>
+<tr>
+<td><code>pp.BenchmarkResult</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.BenchmarkResult</code></td>
+<td>Resultado de um par (problema, modelo): métricas, histórico, tempo, número de parâmetros e posição no ranking.</td>
+</tr>
+<tr>
+<td><code>pp.BenchmarkTaskBase</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.BenchmarkTaskBase</code></td>
+<td>Base abstrata de tarefa física: amostragem de colocação, contorno e condição inicial, resíduo da EDP, grade de avaliação e montagem de batch; os métodos abstratos levantam <code>NotImplementedError</code>.</td>
+</tr>
+<tr>
+<td><code>pp.best_device</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.best_device</code></td>
+<td>Retorna o melhor dispositivo disponível: CUDA, depois MPS (se permitido), depois CPU.</td>
+</tr>
+<tr>
+<td><code>pp.best_method</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.catalog.best_method</code></td>
+<td>O método mais barato que roda hoje para o preset: analítico, senão solver de referência, senão rede treinada.</td>
+</tr>
+<tr>
+<td><code>pp.bodies</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_design.geometry.bodies</code></td>
+<td>Corpos fechados triangulados para escoamento externo: corpo de Ahmed, esfera, cilindro, caixa e anel.</td>
+</tr>
+<tr>
+<td><code>pp.BoxConstraint</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.BoxConstraint</code></td>
+<td>Restrição de limites <code>theta_min &lt;= theta &lt;= theta_max</code> com barreira ReLU unilateral.</td>
+</tr>
+<tr>
+<td><code>pp.build_digital_twin</code></td>
+<td>import direto</td>
+<td><code>pinneapple_systems.digital_twin.build_digital_twin</code></td>
+<td>Fábrica de conveniência para <code>DigitalTwin</code> com as opções mais comuns.</td>
+</tr>
+<tr>
+<td><code>pp.build_model</code></td>
+<td>definido em <code>pinneapple/__init__.py</code></td>
+<td><code>pinneapple.build_model</code></td>
+<td>Constrói um modelo pelo nome no <code>ModelRegistry</code> (<code>ModelRegistry.build(name, **kwargs)</code>).</td>
+</tr>
+<tr>
+<td><code>pp.CADToCFDPipeline</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.numerical_solvers.CADToCFDPipeline</code></td>
+<td>Pipeline completo: arquivo CAD → malha → solução NS → dados de treino PINN, com comparação contra um PINN.</td>
+</tr>
+<tr>
+<td><code>pp.cae</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_data.cae</code></td>
+<td>Camada de dados CAE: lê malhas e resultados de OpenFOAM, CalculiX/Abaqus, Gmsh, VTK, STL e tabelas de pontos num único tipo <code>Mesh</code>, com qualidade de malha, Courant e distância à parede.</td>
+</tr>
+<tr>
+<td><code>pp.card</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.card</code></td>
+<td>Monta o <code>Card</code> de um preset; nome desconhecido levanta <code>KeyError</code> com sugestões próximas.</td>
+</tr>
+<tr>
+<td><code>pp.CauchyMisfit</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.CauchyMisfit</code></td>
+<td>Desajuste de Cauchy/Lorentz, de cauda pesada e muito robusto.</td>
+</tr>
+<tr>
+<td><code>pp.CausalPINNTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.CausalPINNTrainer</code></td>
+<td>Treinador PINN que aplica os pesos causais ao resíduo da EDP junto com perdas de condição inicial/contorno; permite consultar e plotar os pesos.</td>
+</tr>
+<tr>
+<td><code>pp.CausalWeightScheduler</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.CausalWeightScheduler</code></td>
+<td>Calcula pesos causais por fatia de tempo, w_k = exp(-epsilon * soma das perdas das fatias anteriores), e a perda ponderada e uma métrica de violação de causalidade.</td>
+</tr>
+<tr>
+<td><code>pp.cfd</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.numerical_solvers.external_flow</code></td>
+<td>Escoamento externo em torno de qualquer corpo no OpenFOAM numa chamada: STL → snappyHexMesh → simpleFoam (k-omega SST) → forças, coeficientes de pele, linhas de corrente, cortes e cena 3D. Requer OpenFOAM instalado.</td>
+</tr>
+<tr>
+<td><code>pp.CFDMesh</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.numerical_solvers.CFDMesh</code></td>
+<td>Malha não estruturada para CFD, criada de STL, STEP ou CSG, com nós de contorno e plot 2D.</td>
+</tr>
+<tr>
+<td><code>pp.channel_with_hole</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.channel_with_hole</code></td>
+<td>Canal retangular com obstáculo circular.</td>
+</tr>
+<tr>
+<td><code>pp.ChannelDomain2D</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.ChannelDomain2D</code></td>
+<td>Canal retangular com entrada à esquerda e saída à direita.</td>
+</tr>
+<tr>
+<td><code>pp.ChannelWithObstacleDomain2D</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.ChannelWithObstacleDomain2D</code></td>
+<td>Canal retangular com obstáculo circular.</td>
+</tr>
+<tr>
+<td><code>pp.circle</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.circle</code></td>
+<td>Atalho: <code>SDF</code> de círculo.</td>
+</tr>
+<tr>
+<td><code>pp.closed_form</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.closed_form</code></td>
+<td>Subpacote de modelos físicos em forma fechada (sem EDP), portados de ferramentas de produtos para serem compartilhados e testados; o <code>__init__</code> importa só parte dos módulos (não importa <code>eddy_coil</code>, <code>electromagnetics</code>, <code>heat_exchanger</code>, <code>pipe_insulation</code>, <code>pump_npsh</code>, <code>thin_airfoil</code>).</td>
+</tr>
+<tr>
+<td><code>pp.CollocationConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_data.CollocationConfig</code></td>
+<td>Configuração da geração de colocação: estratégia e número de pontos interiores, de contorno e de condição inicial, entre outros.</td>
+</tr>
+<tr>
+<td><code>pp.CollocationSampler</code></td>
+<td>import direto</td>
+<td><code>pinneapple_data.CollocationSampler</code></td>
+<td>Gerador único de pontos de colocação: construtores <code>from_bounds</code>, <code>from_problem_spec</code>, <code>from_domain</code>, <code>from_mesh</code>, <code>from_stl</code>, e <code>sample</code>/<code>sample_adaptive</code> que devolvem o dict de batch PINN.</td>
+</tr>
+<tr>
+<td><code>pp.compare</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.compare</code></td>
+<td>Resolve ou reaproveita cada método e pontua contra a referência nos mesmos pontos.</td>
+</tr>
+<tr>
+<td><code>pp.Comparison</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.Comparison</code></td>
+<td>Tabela de <code>compare</code>: métricas de cada método contra a referência nos mesmos pontos, com <code>best</code>.</td>
+</tr>
+<tr>
+<td><code>pp.compile</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_physics.compile_api.compile</code></td>
+<td>Prepara um <code>PhysicalProblem</code>, <code>ProblemSpec</code> ou nome de preset para resolver mais rápido.</td>
+</tr>
+<tr>
+<td><code>pp.ComposedObsOperator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.ComposedObsOperator</code></td>
+<td>Empilha vários operadores de observação num vetor único.</td>
+</tr>
+<tr>
+<td><code>pp.CompositeObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.CompositeObjective</code></td>
+<td>Soma ponderada de vários objetivos.</td>
+</tr>
+<tr>
+<td><code>pp.CompositeRegularizer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.CompositeRegularizer</code></td>
+<td>Soma ponderada de vários regularizadores.</td>
+</tr>
+<tr>
+<td><code>pp.compute_isosurface</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.compute_isosurface</code></td>
+<td>Isosuperfície de um campo 3D por marching cubes (exige <code>scikit-image</code>).</td>
+</tr>
+<tr>
+<td><code>pp.compute_pareto_front</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.compute_pareto_front</code></td>
+<td>Máscara booleana das soluções Pareto-ótimas.</td>
+</tr>
+<tr>
+<td><code>pp.compute_streamlines</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.compute_streamlines</code></td>
+<td>Linhas de corrente 2D por integração RK4.</td>
+</tr>
+<tr>
+<td><code>pp.ComputeBudget</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.cost.equal_budget.ComputeBudget</code></td>
+<td>Orçamento de treino em segundos, FLOPs e/ou passos (None = sem limite).</td>
+</tr>
+<tr>
+<td><code>pp.conformal_study</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.uncertainty.conformal_study.conformal_study</code></td>
+<td>Calibra em <code>(y_cal, pred_cal)</code> e mede a cobertura em <code>(y_test, pred_test)</code>.</td>
+</tr>
+<tr>
+<td><code>pp.ConformalPredictor</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.uncertainty.ConformalPredictor</code></td>
+<td>Preditor conformal split: calibra num conjunto reservado e dá intervalos com cobertura garantida.</td>
+</tr>
+<tr>
+<td><code>pp.ConstraintSet</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.ConstraintSet</code></td>
+<td>Agrega várias restrições: soma de penalidades e checagem de todas.</td>
+</tr>
+<tr>
+<td><code>pp.ContinuousAdjointSolver</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.ContinuousAdjointSolver</code></td>
+<td>Solver adjunto por diferenciação automática: resolve a equação adjunta, calcula a sensibilidade de forma e roda a otimização.</td>
+</tr>
+<tr>
+<td><code>pp.core</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_core</code></td>
+<td>Ponto de entrada do pacote: exporta <code>Domain</code>, <code>Geometry</code>, <code>Mesh</code>, <code>Field</code>, <code>FunctionField</code>, <code>Grid</code>, <code>PointCloud</code> e os operadores, e carrega <code>func</code>, <code>fem</code>, <code>loss</code>, <code>optim</code>, <code>data</code>, <code>transforms</code> etc. preguiçosamente no primeiro acesso.</td>
+</tr>
+<tr>
+<td><code>pp.count_gpus</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.count_gpus</code></td>
+<td>Retorna o número de GPUs CUDA disponíveis.</td>
+</tr>
+<tr>
+<td><code>pp.csg_annulus</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.csg_annulus</code></td>
+<td>Alias de <code>annulus</code> em <code>pinneapple_design.geometry</code>: domínio CSG em forma de coroa circular.</td>
+</tr>
+<tr>
+<td><code>pp.CSGCircle</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGCircle</code></td>
+<td>Círculo 2D.</td>
+</tr>
+<tr>
+<td><code>pp.CSGDifference</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGDifference</code></td>
+<td>Diferença A menos B: max(sdf_a, -sdf_b).</td>
+</tr>
+<tr>
+<td><code>pp.CSGEllipse</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGEllipse</code></td>
+<td>Elipse 2D alinhada aos eixos.</td>
+</tr>
+<tr>
+<td><code>pp.CSGIntersection</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGIntersection</code></td>
+<td>Interseção booleana de duas formas: max das SDFs.</td>
+</tr>
+<tr>
+<td><code>pp.CSGPolygon</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGPolygon</code></td>
+<td>Polígono qualquer dado por vértices ordenados.</td>
+</tr>
+<tr>
+<td><code>pp.CSGRectangle</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGRectangle</code></td>
+<td>Retângulo alinhado aos eixos.</td>
+</tr>
+<tr>
+<td><code>pp.CSGUnion</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.CSGUnion</code></td>
+<td>União booleana de duas formas: min das SDFs.</td>
+</tr>
+<tr>
+<td><code>pp.curl</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.curl</code></td>
+<td>Rotacional: vetor em 3D, escalar (componente z) em 2D.</td>
+</tr>
+<tr>
+<td><code>pp.dashboard</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.visualization.dashboard</code></td>
+<td>Painéis centrados numa animação para qualquer simulação: animação no meio, gráficos sincronizados ao cursor de tempo, KPIs, parâmetros e barra de cor; exporta HTML interativo, PNG e GIF/MP4.</td>
+</tr>
+<tr>
+<td><code>pp.data</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_data</code></td>
+<td>Raiz do pacote: importa, cada um dentro de <code>try/except</code> (falha silenciosa), STL, <code>PhysicalSample</code>, armazenamento Zarr, collate, colocação, active learning, normalizadores, tipos UPD, splits e construtores de batch; os <code>datasets</code> são importados sem proteção.</td>
+</tr>
+<tr>
+<td><code>pp.datasets</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_hub.zoo.datasets</code></td>
+<td><code>pp.datasets</code>: datasets verificados em uma linha, guardados como npz sem pickle; os pequenos vêm no pacote, os outros são baixados do Hub, conferidos por SHA-256 e cacheados.</td>
+</tr>
+<tr>
+<td><code>pp.DDPPINNTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.DDPPINNTrainer</code></td>
+<td>Treinador PINN multi-GPU com DDP: inicializa o grupo de processos, sincroniza gradientes e pode lançar workers via <code>mp.spawn</code>.</td>
+</tr>
+<tr>
+<td><code>pp.DDPTrainerConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.DDPTrainerConfig</code></td>
+<td>Configuração do treino DDP: backend, número de processos, endereço/porta do mestre, clip de gradiente, AMP e frequência de log.</td>
+</tr>
+<tr>
+<td><code>pp.decide</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_decision.api.decide</code></td>
+<td>Decide qual experimento rodar a seguir para o problema e objetivo dados.</td>
+</tr>
+<tr>
+<td><code>pp.decision</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_decision</code></td>
+<td>Fachada do pacote: reexporta tipos, decisor, backends, laço de decisão, seletores, árvore, verificadores e a API <code>decide</code>/<code>execute</code>/<code>verify</code>/<code>run_tree</code>; importar o pacote não carrega torch.</td>
+</tr>
+<tr>
+<td><code>pp.decision_engine</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_decision.api.decision_engine</code></td>
+<td>Devolve o motor padrão; qualquer argumento (ou <code>reset=True</code>) cria um novo, sem carregar a evidência antiga.</td>
+</tr>
+<tr>
+<td><code>pp.DEFAULT_MODELS</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.DEFAULT_MODELS</code></td>
+<td>Lista padrão de <code>ModelSpec</code> usada pela suíte de benchmarks (<code>pinneapple_tools.benchmark_suite.benchmark</code>).</td>
+</tr>
+<tr>
+<td><code>pp.design</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_design.intent.design</code></td>
+<td>Projeta a partir de uma meta em linguagem natural; devolve <code>DesignPackage</code>, <code>NeedsInput</code> ou <code>OutOfScope</code>.</td>
+</tr>
+<tr>
+<td><code>pp.design_opt</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_design.design_optimizer</code></td>
+<td>Ponto de entrada do otimizador de projeto: reexporta o laço fechado (espaço de parâmetros, surrogate, otimizador, refinamento por PINN, Pareto) e a camada de estudos de projeto.</td>
+</tr>
+<tr>
+<td><code>pp.DesignOptConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DesignOptConfig</code></td>
+<td>Configuração do <code>DesignOptLoop</code>: iterações, configuração do otimizador interno, refinamento top-k e outros.</td>
+</tr>
+<tr>
+<td><code>pp.DesignOptimizerConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DesignOptimizerConfig</code></td>
+<td>Configuração única dos back-ends (método gradient/bayesian/evolutionary, iterações, taxa de aprendizado, etc.).</td>
+</tr>
+<tr>
+<td><code>pp.DesignOptLoop</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DesignOptLoop</code></td>
+<td>Orquestra o laço fechado: parametriza, avalia com o surrogate, otimiza, refina por PINN e monta a frente de Pareto.</td>
+</tr>
+<tr>
+<td><code>pp.DesignOptResult</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DesignOptResult</code></td>
+<td>Resultado completo de um <code>DesignOptLoop</code>: melhor design, histórico, frente de Pareto, com gráfico de convergência e resumo.</td>
+</tr>
+<tr>
+<td><code>pp.DigitalTwin</code></td>
+<td>import direto</td>
+<td><code>pinneapple_systems.digital_twin.DigitalTwin</code></td>
+<td>Gêmeo digital que funde um modelo substituto treinado com dados de sensores vivos; gerencia fluxos, laço de atualização, callbacks, predição e histórico.</td>
+</tr>
+<tr>
+<td><code>pp.DigitalTwinConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_systems.digital_twin.DigitalTwinConfig</code></td>
+<td>Configuração do <code>DigitalTwin</code>: dispositivo, lote, AMP, intervalo de atualização, fila, histórico, assimilação e parâmetros de anomalia.</td>
+</tr>
+<tr>
+<td><code>pp.DirichletBC</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.DirichletBC</code></td>
+<td>Condição de Dirichlet suave por penalidade MSE.</td>
+</tr>
+<tr>
+<td><code>pp.div</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.div</code></td>
+<td>Divergência de um campo vetorial.</td>
+</tr>
+<tr>
+<td><code>pp.doctor</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.doctor</code></td>
+<td><code>pp.doctor</code>: verifica a instalação contra um perfil (<code>start</code>, <code>cfd</code>, <code>research</code>, <code>enterprise</code>, <code>all</code>) e imprime um comando de correção por falha.</td>
+</tr>
+<tr>
+<td><code>pp.dominant_frequency</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_physics.physics_audit.regime.dominant_frequency</code></td>
+<td>Frequência do pico espectral mais forte de um sinal amostrado (por exemplo desprendimento de vórtices).</td>
+</tr>
+<tr>
+<td><code>pp.DoMINO</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pinn_solver.DoMINO</code></td>
+<td>Treinador de PINN por decomposição de domínio: particiona, combina as saídas e penaliza descontinuidade na interface.</td>
+</tr>
+<tr>
+<td><code>pp.DragAdjointObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DragAdjointObjective</code></td>
+<td>Objetivo de força de arrasto (pressão + viscoso) aproximado como média ponderada sobre pontos de superfície.</td>
+</tr>
+<tr>
+<td><code>pp.DragObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.DragObjective</code></td>
+<td>Proxy de arrasto: média de |u|^2 + peso x p^2 sobre o campo (sem normais de superfície).</td>
+</tr>
+<tr>
+<td><code>pp.dt</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_systems.digital_twin</code></td>
+<td>Runtime de gêmeo digital sobre modelos substitutos: reexporta <code>DigitalTwin</code>, estados, fluxos de sensores, filtros de Kalman, detectores de anomalia, pipeline de tempo real, reconstrução de sinais, condicionamento de telemetria e prognóstico (RUL).</td>
+</tr>
+<tr>
+<td><code>pp.dynamics</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.particle_dynamics</code></td>
+<td>Simulação dinâmica diferenciável em PyTorch puro: corpos rígidos, MPM (MLS-MPM) e SPH; reexporta também os parâmetros de solo/roda de Bekker-Wong.</td>
+</tr>
+<tr>
+<td><code>pp.EKIConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.EKIConfig</code></td>
+<td>Configuração da EKI: tamanho do ensemble, iterações, ruído, espalhamento inicial, regularização, prior, tolerância de colapso e semente.</td>
+</tr>
+<tr>
+<td><code>pp.ellipse</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.ellipse</code></td>
+<td>Atalho: <code>SDF</code> de elipse.</td>
+</tr>
+<tr>
+<td><code>pp.em</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.electromagnetics</code></td>
+<td>Pacote de eletromagnetismo em SI: referências em forma fechada, materiais, solvers FEM 2-D em A_z, FDTD, ondas e máquinas elétricas; reexporta as classes e funções principais dos submódulos.</td>
+</tr>
+<tr>
+<td><code>pp.ensemble</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.ensemble</code></td>
+<td>Ensemble adaptativo de especialistas físicos: pesos atualizados online por erro contra referência, resíduo físico e custo, nos modos <code>select</code> ou <code>combine</code>, com intervalos conformais e detecção de suspeitos.</td>
+</tr>
+<tr>
+<td><code>pp.EnsembleKalmanInversion</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.EnsembleKalmanInversion</code></td>
+<td>EKI padrão (Iglesias et al. 2013): inicializa o ensemble, aplica passos tipo Kalman e para por colapso do ensemble.</td>
+</tr>
+<tr>
+<td><code>pp.EnsembleUQ</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.uncertainty.EnsembleUQ</code></td>
+<td>Envelope de Deep Ensemble que dá média e incerteza a partir dos membros.</td>
+</tr>
+<tr>
+<td><code>pp.env</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.pde_environment</code></td>
+<td>Ponto de entrada do ambiente de problemas: reexporta <code>ProblemSpec</code>, <code>PDETermSpec</code>, as condições de contorno, <code>ProblemBuilder</code>, o registro de presets, presets acadêmicos/CFD/industriais, os resíduos de turbulência e a base de famílias de EDP. O bloco de presets estruturais é importado dentro de <code>try/except ImportError</code>. [sem teste direto]</td>
+</tr>
+<tr>
+<td><code>pp.excitation</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_systems.excitation</code></td>
+<td>Sinais de excitação de atuador em NumPy (degrau, rampa, senoide, escada aleatória, PRBS, chirp, dente de serra, passeio aleatório suavizado, pulsos gaussianos, AM de dois tons) para identificação de sistemas e treino de surrogates; separa famílias de treino e famílias reservadas (<code>TRAIN_FAMILIES</code>, <code>HELDOUT_FAMILIES</code>).</td>
+</tr>
+<tr>
+<td><code>pp.execute</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_decision.api.execute</code></td>
+<td>Executa uma decisão emitida pelo mesmo motor, rechecando as restrições antes.</td>
+</tr>
+<tr>
+<td><code>pp.Experiment</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.experiment.Experiment</code></td>
+<td>Método aplicado a um problema com semente, opções e referência opcional; <code>run</code> executa de forma reprodutível.</td>
+</tr>
+<tr>
+<td><code>pp.ExperimentResult</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.experiment.ExperimentResult</code></td>
+<td>Registro de uma execução: config, fingerprint, solução, métricas, tempo, ambiente; salva e carrega em JSON.</td>
+</tr>
+<tr>
+<td><code>pp.export</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.model_export</code></td>
+<td>Exportação de modelos <code>nn.Module</code> para TorchScript e ONNX e de arrays de coordenadas/campos para CSV e NPZ. [sem teste]</td>
+</tr>
+<tr>
+<td><code>pp.export_csv</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.model_export.export_csv</code></td>
+<td>Grava coordenadas e campos num arquivo CSV com cabeçalho.</td>
+</tr>
+<tr>
+<td><code>pp.export_npz</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.model_export.export_npz</code></td>
+<td>Grava coordenadas e campos num <code>.npz</code> comprimido do NumPy.</td>
+</tr>
+<tr>
+<td><code>pp.export_onnx</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.model_export.export_onnx</code></td>
+<td>Exporta qualquer <code>nn.Module</code> para ONNX com nomes de entrada/saída, opset e eixos dinâmicos.</td>
+</tr>
+<tr>
+<td><code>pp.export_torchscript</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.model_export.export_torchscript</code></td>
+<td>Exporta qualquer <code>nn.Module</code> para TorchScript (trace com <code>example_input</code>, ou script se não houver exemplo ou o trace falhar).</td>
+</tr>
+<tr>
+<td><code>pp.fea</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.external_solvers.calculix.study</code></td>
+<td>Estudos CalculiX em poucas linhas: malha (hexaedros, tetraedros gmsh ou deck existente), conjuntos por geometria, um passo de análise (estático, frequência, flambagem, calor), execução e resultados em arrays.</td>
+</tr>
+<tr>
+<td><code>pp.FlowVisualizer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.FlowVisualizer</code></td>
+<td>Classe de alto nível com linhas de corrente, contornos de pressão, módulo de velocidade e vorticidade a partir de um modelo.</td>
+</tr>
+<tr>
+<td><code>pp.flux</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.flux</code></td>
+<td>Fluxo de um campo vetorial pela fronteira, <code>integral f . n dS</code>.</td>
+</tr>
+<tr>
+<td><code>pp.FourierFeatureEmbedding</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.FourierFeatureEmbedding</code></td>
+<td>Embedding <a href="2π B x">cos, sin</a> com matriz <code>B</code> aleatória ou treinável.</td>
+</tr>
+<tr>
+<td><code>pp.func</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_core.func</code></td>
+<td>Transformações de função (<code>grad</code>, <code>jacrev</code>, <code>jacfwd</code>, <code>jacobian</code>, <code>hessian</code>, <code>vmap</code>) sobre <code>torch.func</code> com <code>wrt</code> por nome ou posição, e <code>implicit_solve</code>, que diferencia através de um solver por uma solução adjunta.</td>
+</tr>
+<tr>
+<td><code>pp.GaussianMisfit</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.GaussianMisfit</code></td>
+<td>Desajuste Gaussiano (L2/Mahalanobis).</td>
+</tr>
+<tr>
+<td><code>pp.geom</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_design.geometry</code></td>
+<td>Subpacote de geometria (antigo <code>pinneapple_geom</code>): reexporta <code>GeometrySpec</code>, <code>GeometryAsset</code>, <code>MeshData</code>, SDFs, CSG, domínios físicos 2D/3D, malhadores, RBF e <code>MeshCollocator</code>; o construtor STL é importado de forma tolerante (vira <code>None</code> se faltar dependência).</td>
+</tr>
+<tr>
+<td><code>pp.geometries</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_design.geometry_library</code></td>
+<td>Fachada da biblioteca de geometrias (exposta como <code>pp.geometries</code>): listar, construir, exportar, renderizar miniaturas, carregar arquivos pré-gerados e exportar a galeria web.</td>
+</tr>
+<tr>
+<td><code>pp.geophysics</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.geophysics</code></td>
+<td>Blocos do sistema terrestre verificados contra soluções exatas ou testes padrão: águas rasas na esfera, equação de Richards e modelo de balanço de energia de duas camadas.</td>
+</tr>
+<tr>
+<td><code>pp.get_backend</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.get_backend</code></td>
+<td>Devolve o nome do backend ativo.</td>
+</tr>
+<tr>
+<td><code>pp.get_pde_family</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.get_pde_family</code></td>
+<td>Busca uma <code>PDEFamily</code> por tipo ou apelido (sem diferenciar caixa).</td>
+</tr>
+<tr>
+<td><code>pp.get_physics_backend</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.backend.get_physics_backend</code></td>
+<td>Devolve o objeto backend pelo nome ou o backend ativo.</td>
+</tr>
+<tr>
+<td><code>pp.get_preset</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.get_preset</code></td>
+<td>Cria um preset pelo nome, repassando argumentos.</td>
+</tr>
+<tr>
+<td><code>pp.get_rank</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.get_rank</code></td>
+<td>Retorna o rank do processo atual (0 fora de modo distribuído).</td>
+</tr>
+<tr>
+<td><code>pp.get_rans_preset</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.get_rans_preset</code></td>
+<td>Cria um objeto de resíduo de turbulência pelo nome; ValueError para nome desconhecido.</td>
+</tr>
+<tr>
+<td><code>pp.get_world_size</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.get_world_size</code></td>
+<td>Retorna o número total de processos (1 fora de modo distribuído).</td>
+</tr>
+<tr>
+<td><code>pp.GlobalSensitivity</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.GlobalSensitivity</code></td>
+<td>Sensibilidade global por variância (índices de Sobol pelo método de Saltelli).</td>
+</tr>
+<tr>
+<td><code>pp.gpu_info</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.gpu_info</code></td>
+<td>Retorna um dict de informações por GPU disponível.</td>
+</tr>
+<tr>
+<td><code>pp.grad</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.grad</code></td>
+<td>Gradiente: <code>(N, d)</code> para escalar, <code>(N, c, d)</code> para <code>c</code> componentes.</td>
+</tr>
+<tr>
+<td><code>pp.GradNormBalancer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.GradNormBalancer</code></td>
+<td>GradNorm: ajusta pesos para manter as normas de gradiente de cada termo numa camada compartilhada proporcionais à média.</td>
+</tr>
+<tr>
+<td><code>pp.HardBC</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.HardBC</code></td>
+<td>Condição de contorno rígida por função distância: u = g + phi * rede, satisfeita exatamente; embrulha o modelo.</td>
+</tr>
+<tr>
+<td><code>pp.HashGridEncoding</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.HashGridEncoding</code></td>
+<td>Codificação hash multirresolução com interpolação entre os cantos do voxel em cada nível.</td>
+</tr>
+<tr>
+<td><code>pp.HashGridMLP</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.HashGridMLP</code></td>
+<td>MLP pequeno sobre a codificação hash, para representar campos 3D.</td>
+</tr>
+<tr>
+<td><code>pp.hessian</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.hessian</code></td>
+<td>Hessiana <code>(N, d, d)</code> de um campo escalar.</td>
+</tr>
+<tr>
+<td><code>pp.HeteroscedasticMisfit</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.HeteroscedasticMisfit</code></td>
+<td>Desajuste Gaussiano com variância de ruído por observação.</td>
+</tr>
+<tr>
+<td><code>pp.HuberMisfit</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.HuberMisfit</code></td>
+<td>Desajuste de Huber (ou pseudo-Huber), robusto a outliers moderados.</td>
+</tr>
+<tr>
+<td><code>pp.Hybrid</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.module.Hybrid</code></td>
+<td>Solver mais correção neural (por exemplo modo <code>residual</code>), treinável através do solver.</td>
+</tr>
+<tr>
+<td><code>pp.IdentifiabilityAnalyzer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.IdentifiabilityAnalyzer</code></td>
+<td>Analisa a identificabilidade a partir dos autovalores da matriz de Fisher.</td>
+</tr>
+<tr>
+<td><code>pp.identify_pde</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.identify_pde</code></td>
+<td>Pontua as famílias conhecidas contra uma descrição em texto livre por sobreposição de palavras-chave.</td>
+</tr>
+<tr>
+<td><code>pp.infer_on_grid_1d</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.infer_on_grid_1d</code></td>
+<td>Avalia o modelo numa grade retangular x-t.</td>
+</tr>
+<tr>
+<td><code>pp.infer_on_grid_2d</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.infer_on_grid_2d</code></td>
+<td>Avalia o modelo numa grade retangular x-y.</td>
+</tr>
+<tr>
+<td><code>pp.inference</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_neural.predictor</code></td>
+<td>Inferência pós-treino (antigo <code>pinneapple_inference</code>): reexporta inferência em lote e em grade, gráficos de campos, erro, perda, comparação, fluxo 3D e otimização de projeto. [sem teste direto]</td>
+</tr>
+<tr>
+<td><code>pp.info</code></td>
+<td>definido em <code>pinneapple/__init__.py</code></td>
+<td><code>pinneapple.info</code></td>
+<td>Imprime versão, dispositivos, número de presets e modelos, pacotes importáveis e dependências opcionais com o extra de pip.</td>
+</tr>
+<tr>
+<td><code>pp.IntegralObsOperator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.IntegralObsOperator</code></td>
+<td>Funcional integral aproximado por quadratura ponderada com núcleo opcional.</td>
+</tr>
+<tr>
+<td><code>pp.integrate</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.integrate</code></td>
+<td>Integral sobre o suporte (trapézio na grade, P1 exato na malha, quadratura ou Monte Carlo na nuvem).</td>
+</tr>
+<tr>
+<td><code>pp.inverse</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.inverse_problems</code></td>
+<td>Reexporta o kit de problemas inversos (modelos de ruído, regularizadores, operadores de observação, EKI, sensibilidade, termos faltantes, <code>InverseProblemSolver</code>, e o núcleo de identificabilidade/calibração/studio). O docstring ainda usa o nome antigo <code>pinneapple_inverse</code>.</td>
+</tr>
+<tr>
+<td><code>pp.InverseProblemSolver</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.InverseProblemSolver</code></td>
+<td>Resolvedor unificado de problemas inversos com informação física.</td>
+</tr>
+<tr>
+<td><code>pp.InverseSolverConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.InverseSolverConfig</code></td>
+<td>Configuração do <code>InverseProblemSolver</code>: método, iterações, taxa de aprendizado e opções de EKI.</td>
+</tr>
+<tr>
+<td><code>pp.is_distributed</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.is_distributed</code></td>
+<td>Diz se há um grupo de processos distribuído ativo.</td>
+</tr>
+<tr>
+<td><code>pp.IteratedEKI</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.IteratedEKI</code></td>
+<td>EKI regularizada por Tikhonov (TEKI, Chada et al. 2020).</td>
+</tr>
+<tr>
+<td><code>pp.jacobian</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.jacobian</code></td>
+<td>Jacobiana <code>(N, c, d)</code> de um campo.</td>
+</tr>
+<tr>
+<td><code>pp.JAXBackend</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.JAXBackend</code></td>
+<td>Conjunto de utilitários JAX para PINNs sobre modelos Equinox ou Flax: <code>jit_pinn</code>, <code>vmap_residual</code>, <code>grad_fn</code> e conversões de tensores.</td>
+</tr>
+<tr>
+<td><code>pp.jit_pinn</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.jit_pinn</code></td>
+<td>Alias de módulo para <code>JAXBackend.jit_pinn</code> (compila com JIT o resíduo do PINN).</td>
+</tr>
+<tr>
+<td><code>pp.KOmegaSSTResiduals</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.KOmegaSSTResiduals</code></td>
+<td>Resíduos do modelo k-omega SST (RANS) para PINN, em 2D ou 3D conforme a entrada, com viscosidade turbulenta e resíduos de canal.</td>
+</tr>
+<tr>
+<td><code>pp.laplacian</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.operators.laplacian</code></td>
+<td>Soma das segundas derivadas, por componente em campos vetoriais.</td>
+</tr>
+<tr>
+<td><code>pp.LCurveSelector</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.LCurveSelector</code></td>
+<td>Escolhe lambda pela máxima curvatura da curva L, chamando uma função de treino para cada valor.</td>
+</tr>
+<tr>
+<td><code>pp.LidDrivenCavityDomain2D</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.LidDrivenCavityDomain2D</code></td>
+<td>Cavidade quadrada com tampa móvel.</td>
+</tr>
+<tr>
+<td><code>pp.LinearObsOperator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.LinearObsOperator</code></td>
+<td>Operador linear <code>H(u) = A u</code> (ex.: tomografia).</td>
+</tr>
+<tr>
+<td><code>pp.list_methods</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.list_methods</code></td>
+<td>Nomes dos métodos registrados, opcionalmente filtrados por tipo.</td>
+</tr>
+<tr>
+<td><code>pp.list_models</code></td>
+<td>definido em <code>pinneapple/__init__.py</code></td>
+<td><code>pinneapple.list_models</code></td>
+<td>Lista em ordem os nomes de modelos registrados no <code>ModelRegistry</code>.</td>
+</tr>
+<tr>
+<td><code>pp.list_pde_families</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.list_pde_families</code></td>
+<td>Lista ordenada dos tipos canônicos de EDP.</td>
+</tr>
+<tr>
+<td><code>pp.list_presets</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.list_presets</code></td>
+<td>Lista ordenada de todos os presets registrados.</td>
+</tr>
+<tr>
+<td><code>pp.LocalSensitivity</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.LocalSensitivity</code></td>
+<td>Sensibilidade linearizada em torno de um ponto nominal, com Jacobiano por diferenças finitas opcional.</td>
+</tr>
+<tr>
+<td><code>pp.loss</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_core.loss</code></td>
+<td>Termos de perda como funções simples (<code>pde</code>, <code>boundary</code>, <code>supervised</code>, <code>conservation</code>, <code>energy</code>, <code>symmetry</code>, <code>inverse</code>), soma ponderada (<code>combine</code>) e o <code>Balancer</code> de pesos dinâmicos escolhido por nome.</td>
+</tr>
+<tr>
+<td><code>pp.LossRatioBalancer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.LossRatioBalancer</code></td>
+<td>Mantém as razões entre perdas (via EMA) próximas de valores-alvo em relação à perda da EDP.</td>
+</tr>
+<tr>
+<td><code>pp.lshape</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.lshape</code></td>
+<td>Domínio em L.</td>
+</tr>
+<tr>
+<td><code>pp.MassConservationConstraint</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.MassConservationConstraint</code></td>
+<td>Penaliza o quadrado médio da divergência estimada do campo de velocidade.</td>
+</tr>
+<tr>
+<td><code>pp.maxwell</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.maxwell_checks</code></td>
+<td>Verificações das equações de Maxwell sobre campos numa grade (de PINN, FNO, solver ou medição), sem referência: resíduos relativos com teste em <code>2h</code>, balanço de Poynting, contorno PEC, reciprocidade e passividade; alimenta <code>pinneapple check</code> (<code>physics = "maxwell"</code>).</td>
+</tr>
+<tr>
+<td><code>pp.maybe_compile</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.maybe_compile</code></td>
+<td>Aplica <code>torch.compile</code> se o PyTorch suportar; caso contrário devolve o modelo original.</td>
+</tr>
+<tr>
+<td><code>pp.MCDropoutWrapper</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.uncertainty.MCDropoutWrapper</code></td>
+<td>Envolve um <code>nn.Module</code> e liga dropout na inferência por hooks; avisa quando não há ativação oculta para descartar.</td>
+</tr>
+<tr>
+<td><code>pp.MeshGraphNet</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.MeshGraphNet</code></td>
+<td>GNN encoder-processador-decoder para simulação em malha não estruturada com conectividade fixa.</td>
+</tr>
+<tr>
+<td><code>pp.meta</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_adaptation.meta_learning</code></td>
+<td>Reexporta configurações, amostrador e treinadores de meta-learning e oferece <code>meta_train</code> (constrói e treina) e <code>meta_adapt</code> (adapta a uma tarefa nova).</td>
+</tr>
+<tr>
+<td><code>pp.MetaBenchmarkConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.MetaBenchmarkConfig</code></td>
+<td>Configuração do benchmark de meta-aprendizado: épocas meta, passos internos, taxas de aprendizado, tarefas por lote, valores de K, algoritmos, pontos e pesos de perda.</td>
+</tr>
+<tr>
+<td><code>pp.MetaBenchmarkFamily</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.MetaBenchmarkFamily</code></td>
+<td>Uma família paramétrica de EDPs: fábricas de tarefas de treino e avaliação, faixas de parâmetros e parâmetros de avaliação.</td>
+</tr>
+<tr>
+<td><code>pp.MetaBenchmarkPipeline</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.MetaBenchmarkPipeline</code></td>
+<td>Pipeline que roda o meta-treino e a avaliação K-shot, monta leaderboard, curvas de erro por K e salva/carrega resultados.</td>
+</tr>
+<tr>
+<td><code>pp.MetaBenchmarkResult</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.MetaBenchmarkResult</code></td>
+<td>Resultado de uma família, parâmetro de avaliação, algoritmo e valor de K: métricas e tempo.</td>
+</tr>
+<tr>
+<td><code>pp.MethodNotAvailable</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.MethodNotAvailable</code></td>
+<td>Exceção: o método pedido não pode resolver este problema.</td>
+</tr>
+<tr>
+<td><code>pp.metrics</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.metrics</code></td>
+<td><code>pp.metrics</code>: L2, L2 relativo, RMSE, MAE, erro máximo, L∞ relativo e R² por campo, mais resumo, métrica agregada para rankings e erro de rollout temporal.</td>
+</tr>
+<tr>
+<td><code>pp.ModelRegistry</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.ModelRegistry</code></td>
+<td>Registro central por nome: <code>register</code> (decorador), <code>list</code>, <code>families</code>, <code>spec</code>, <code>build</code> e <code>build_with_report</code>.</td>
+</tr>
+<tr>
+<td><code>pp.models</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_models</code></td>
+<td>[shim] Reexporta registro, catálogo e arquiteturas de <code>pinneapple_neural.architectures</code> para código legado; marcado como obsoleto (use <code>pinneapple_neural.architectures</code>). [sem teste direto]</td>
+</tr>
+<tr>
+<td><code>pp.ModelSpec</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.ModelSpec</code></td>
+<td>Descrição de um modelo candidato: nome, fábrica que o constrói, descrição, tipo de entrada (<code>input_kind</code>) e família.</td>
+</tr>
+<tr>
+<td><code>pp.ModifiedMLP</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.ModifiedMLP</code></td>
+<td>MLP com Fourier features e portas U/V tipo highway em cada camada.</td>
+</tr>
+<tr>
+<td><code>pp.molecular</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.visualization.molecular</code></td>
+<td>Visualização molecular: proteínas e moléculas, sozinhas ou adsorvidas em superfícies metálicas, como imagens, trajetórias MP4, cenas glTF e painéis de dinâmica molecular.</td>
+</tr>
+<tr>
+<td><code>pp.MPMSimulator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.MPMSimulator</code></td>
+<td>Simulador MPM diferenciável (<code>nn.Module</code>) com materiais elástico, fluido ou neve, em 2D/3D.</td>
+</tr>
+<tr>
+<td><code>pp.MPMState</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.MPMState</code></td>
+<td>Contêiner do estado das partículas MPM: posição, velocidade, gradiente de deformação F, matriz afim C e Jp.</td>
+</tr>
+<tr>
+<td><code>pp.multibody</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.multibody</code></td>
+<td>Dinâmica de corpos rígidos em coordenadas reduzidas: uma base flutuante com árvores de juntas de revolução; reexporta a árvore e os utilitários de braço.</td>
+</tr>
+<tr>
+<td><code>pp.naca_parametric</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.naca_parametric</code></td>
+<td>Gera a superfície de um aerofólio NACA de 4 dígitos como coordenadas de pontos de controle (<code>pinneapple_design.geometry.gen.airfoil</code>).</td>
+</tr>
+<tr>
+<td><code>pp.NeumannBC</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.NeumannBC</code></td>
+<td>Condição de Neumann suave pela derivada normal via autograd.</td>
+</tr>
+<tr>
+<td><code>pp.new</code></td>
+<td>definido em <code>pinneapple/__init__.py</code></td>
+<td><code>pinneapple.new</code></td>
+<td>Cria um projeto do usuário fora do repositório (<code>pinneapple_core.onboarding.new_project</code>); recusa sobrescrever.</td>
+</tr>
+<tr>
+<td><code>pp.new_project</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.new_project</code></td>
+<td>Escreve um projeto independente a partir de um template e preset e devolve a pasta.</td>
+</tr>
+<tr>
+<td><code>pp.non_hermitian</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.non_hermitian</code></td>
+<td>Física não hermitiana: dímeros e cadeias PT-simétricos, pontos excepcionais (EPs) e se eles podem ser sintonizados; numpy, sympy para a parte simbólica e matplotlib para as figuras.</td>
+</tr>
+<tr>
+<td><code>pp.NSFlowSolver</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.numerical_solvers.NSFlowSolver</code></td>
+<td>Solver de Navier-Stokes incompressível na malha, com condições de contorno e exportação de dados PINN.</td>
+</tr>
+<tr>
+<td><code>pp.NTKWeightBalancer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.NTKWeightBalancer</code></td>
+<td>Pesos inversamente proporcionais ao traço do NTK de cada termo, estimado por Hutchinson.</td>
+</tr>
+<tr>
+<td><code>pp.Parameter</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.physical_problem.Parameter</code></td>
+<td>Parâmetro físico nomeado com valor, unidade, papel (fixo, projeto, incerto, desconhecido), limites e distribuição.</td>
+</tr>
+<tr>
+<td><code>pp.ParetoFront</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.ParetoFront</code></td>
+<td>Contêiner de uma frente de Pareto: objetivos, parâmetros e máscara, com filtro, hipervolume e gráfico.</td>
+</tr>
+<tr>
+<td><code>pp.ParticleSystem</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.ParticleSystem</code></td>
+<td>Base de sistemas de partículas com busca de vizinhos por força bruta O(N²); <code>forward</code> levanta NotImplementedError.</td>
+</tr>
+<tr>
+<td><code>pp.pde_from_sympy</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.pde_from_sympy</code></td>
+<td>Cria um <code>SymbolicPDE</code> a partir de uma expressão de resíduo SymPy.</td>
+</tr>
+<tr>
+<td><code>pp.PeriodicBC</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.PeriodicBC</code></td>
+<td>Periodicidade exata numa coordenada por mudança de variável (seno/cosseno).</td>
+</tr>
+<tr>
+<td><code>pp.PhysicalProblem</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.physical_problem.PhysicalProblem</code></td>
+<td>Problema físico completo (geometria, EDP, condições, parâmetros, solver, intenção) com validação, serialização, fingerprint e adaptadores.</td>
+</tr>
+<tr>
+<td><code>pp.physics_audit</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.physics_audit</code></td>
+<td>Auditoria física: qual modelo usar, quando confiar nele e quando sua formulação física deve ser revista; <code>diagnose</code> junta avaliação e diagnóstico num caso. Numpy puro, sem torch.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsDomain2D</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.PhysicsDomain2D</code></td>
+<td>Base dos domínios 2D: SDF, amostragem interna e por região, lote PINN e manifesto de condições.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsModule</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.module.PhysicsModule</code></td>
+<td>Classe base de modelos e solvers com <code>kind</code>, <code>describe()</code>, <code>num_parameters()</code> e um <code>fit</code> simples.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsOptimizer</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.optim.PhysicsOptimizer</code></td>
+<td>Parâmetros com limites, objetivo e restrições, minimizados pelo método escolhido em <code>minimize</code>.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsScenario</code></td>
+<td>import direto</td>
+<td><code>pinneapple_worldmodel.PhysicsScenario</code></td>
+<td>Especificação completa de um problema físico para o world model.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsSurrogate</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.PhysicsSurrogate</code></td>
+<td>Envoltório fino de um <code>nn.Module</code> theta -&gt; u com previsão, jacobiano, treino em dataset e checkpoint.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsValidator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.validation.PhysicsValidator</code></td>
+<td>Orquestra uma suíte de checagens físicas sobre um modelo treinado.</td>
+</tr>
+<tr>
+<td><code>pp.PhysicsWorldModel</code></td>
+<td>import direto</td>
+<td><code>pinneapple_worldmodel.PhysicsWorldModel</code></td>
+<td>World model FNO: <code>(state_t, context) -&gt; state_{t+1}</code> com formulação residual.</td>
+</tr>
+<tr>
+<td><code>pp.pinn</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.pinn_solver</code></td>
+<td>Subpacote do compilador de PINN; reexporta <code>compile_problem</code>, pesos de perda, DoMINO e utilidades de PINN estocástico.</td>
+</tr>
+<tr>
+<td><code>pp.PINNArenaBenchmark</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.PINNArenaBenchmark</code></td>
+<td>Suíte que roda todas as combinações tarefa × modelo, monta leaderboard, melhor modelo por problema, tabela-resumo, gráficos e salva/carrega resultados.</td>
+</tr>
+<tr>
+<td><code>pp.PINNRefinement</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.PINNRefinement</code></td>
+<td>Refina a previsão do surrogate treinando uma PINN com perda de dados + resíduo de EDP, para um ou para os k melhores designs.</td>
+</tr>
+<tr>
+<td><code>pp.plot_isosurface_3d</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.plot_isosurface_3d</code></td>
+<td>Desenha a isosuperfície 3D de um campo escalar previsto.</td>
+</tr>
+<tr>
+<td><code>pp.plot_streamlines_2d_from_model</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.plot_streamlines_2d_from_model</code></td>
+<td>Desenha linhas de corrente do campo de velocidade previsto por um modelo.</td>
+</tr>
+<tr>
+<td><code>pp.plot_volume_slice</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.predictor.plot_volume_slice</code></td>
+<td>Desenha uma fatia 2D de um campo 3D previsto.</td>
+</tr>
+<tr>
+<td><code>pp.PointObsOperator</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.PointObsOperator</code></td>
+<td>Avalia o modelo num conjunto fixo de posições de sensores.</td>
+</tr>
+<tr>
+<td><code>pp.presets</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_presets</code></td>
+<td>Presets industriais: problemas de engenharia já montados, resolvidos e validados com o PINNeAPPle, acessíveis por <code>pp.presets.names()</code>/<code>load()</code>; reexporta o registro e as classes base.</td>
+</tr>
+<tr>
+<td><code>pp.profiles</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.profiles</code></td>
+<td>Perfis aceitos pelo <code>doctor</code> e a frase que descreve cada um.</td>
+</tr>
+<tr>
+<td><code>pp.propagate_tolerances</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.uncertainty.tolerance.propagate</code></td>
+<td>Propaga tolerâncias independentes por <code>fn</code> via Monte Carlo.</td>
+</tr>
+<tr>
+<td><code>pp.propagate_uncertainty</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.uncertainty.tolerance.propagate_space</code></td>
+<td>Propaga entradas com qualquer distribuição por <code>fn</code>.</td>
+</tr>
+<tr>
+<td><code>pp.qualitative</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_design.qualitative</code></td>
+<td>Reexporta <code>preview</code>, <code>part_sensitivity</code>, <code>Assembly</code> e os modelos qualitativos.</td>
+</tr>
+<tr>
+<td><code>pp.Quantity</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.physical_problem.Quantity</code></td>
+<td>Quantidade de interesse que o usuário quer da solução, com unidade e campo de origem.</td>
+</tr>
+<tr>
+<td><code>pp.quantum</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_quantum</code></td>
+<td>Fachada do Módulo Quântico (PQM): reexporta configuração de circuito, backends, modelos, perdas de Schrödinger, datasets, treinador e presets, e oferece os atalhos <code>build_circuit</code> e <code>backend_info</code>. [experimental][sem teste]</td>
+</tr>
+<tr>
+<td><code>pp.quickstart</code></td>
+<td>definido em <code>pinneapple/__init__.py</code></td>
+<td><code>pinneapple.quickstart</code></td>
+<td>Imprime o resumo de um preset (EDP, campos, coordenadas, domínio, condições) e os próximos passos sugeridos; devolve o spec.</td>
+</tr>
+<tr>
+<td><code>pp.recommend</code></td>
+<td>import direto</td>
+<td><code>pinneapple_core.onboarding.recommend</code></td>
+<td><code>pp.recommend</code>: transforma uma frase em preset, método e modelo, com o motivo e os termos que casaram; é pontuação por palavras-chave e pode errar. [sem teste direto]</td>
+</tr>
+<tr>
+<td><code>pp.rectangle</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.rectangle</code></td>
+<td>Atalho: <code>SDF</code> de retângulo.</td>
+</tr>
+<tr>
+<td><code>pp.register_method</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.register_method</code></td>
+<td>Decorador que registra um método de solução sob um nome e um tipo.</td>
+</tr>
+<tr>
+<td><code>pp.register_preset</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.register_preset</code></td>
+<td>Decorador que registra uma função fábrica de preset por nome.</td>
+</tr>
+<tr>
+<td><code>pp.reporting</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.reporting</code></td>
+<td>Relatórios: estilo de figuras e construtor de PDF (<code>paperkit</code>) e datasheet técnico (<code>datasheet</code>); não é importado automaticamente pelo pacote.</td>
+</tr>
+<tr>
+<td><code>pp.ResidualBasedAL</code></td>
+<td>import direto</td>
+<td><code>pinneapple_data.ResidualBasedAL</code></td>
+<td>Escolhe pontos de colocação onde o resíduo da EDP é maior, pegando os top-k (RAR) ou sorteando com peso proporcional ao resíduo (RAD).</td>
+</tr>
+<tr>
+<td><code>pp.RigidBody</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.RigidBody</code></td>
+<td>Corpo rígido único com massa, inércia e integrador simplético.</td>
+</tr>
+<tr>
+<td><code>pp.RigidBodyState</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.RigidBodyState</code></td>
+<td>Contêiner mutável do estado (posição, orientação, velocidades) de vários corpos rígidos.</td>
+</tr>
+<tr>
+<td><code>pp.RigidBodySystem</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.RigidBodySystem</code></td>
+<td>Sistema de vários corpos rígidos com gravidade opcional.</td>
+</tr>
+<tr>
+<td><code>pp.run_parallel_sweep</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.run_parallel_sweep</code></td>
+<td>Executa um sweep em grade em paralelo (threads ou processos) e devolve a lista de resultados.</td>
+</tr>
+<tr>
+<td><code>pp.run_tree</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_decision.api.run_tree</code></td>
+<td>Percorre a árvore de decisão de Physics AI (por padrão <code>physics_ai_tree()</code>).</td>
+</tr>
+<tr>
+<td><code>pp.science</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_science</code></td>
+<td>Ponto de entrada (<code>pp.science</code>): reexporta <code>atlas</code>, <code>experiments</code>, <code>run</code> e os tipos centrais.</td>
+</tr>
+<tr>
+<td><code>pp.score_against_reference</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.verification.physics_confidence_score.score_against_reference</code></td>
+<td>Pontua as predições de vários modelos contra um conjunto de referência separado.</td>
+</tr>
+<tr>
+<td><code>pp.security</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_security</code></td>
+<td>Ponto de entrada do pacote; o docstring é o índice das capacidades e diz as dependências (biblioteca padrão e NumPy; PyTorch para DP-SGD e carga segura; <code>cryptography</code> para Ed25519 e AES-GCM).</td>
+</tr>
+<tr>
+<td><code>pp.SelfAdaptiveWeights</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.SelfAdaptiveWeights</code></td>
+<td>Pesos de perda aprendíveis (SA-PINN) atualizados por subida de gradiente, crescendo nos termos mais difíceis.</td>
+</tr>
+<tr>
+<td><code>pp.sensitivity</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.sensitivity</code></td>
+<td>Análise de sensibilidade global e local; reexporta Sobol, Morris, curvas de efeito, o estudo completo e as funções de teste.</td>
+</tr>
+<tr>
+<td><code>pp.Sequential</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.module.Sequential</code></td>
+<td>Encadeia componentes (módulos, solvers ou funções), a saída de um é a entrada do próximo.</td>
+</tr>
+<tr>
+<td><code>pp.set_backend</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.set_backend</code></td>
+<td>Define o backend ativo, validando o nome contra o registro de <code>pinneapple_core.backend</code>; nome desconhecido levanta <code>ValueError</code>.</td>
+</tr>
+<tr>
+<td><code>pp.ShapeParametrization</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.ShapeParametrization</code></td>
+<td>Parametrização de forma para otimização por gradiente (pontos de controle FFD, curvas de Bézier ou família NACA), com deformação de malha.</td>
+</tr>
+<tr>
+<td><code>pp.SineLayer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.SineLayer</code></td>
+<td>Camada senoidal com inicialização de pesos de Sitzmann et al.</td>
+</tr>
+<tr>
+<td><code>pp.SIREN</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.architectures.SIREN</code></td>
+<td>Rede SIREN com <code>omega_0</code> configurável e última camada linear por padrão.</td>
+</tr>
+<tr>
+<td><code>pp.sobol_indices</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.sensitivity.sobol.sobol_indices</code></td>
+<td>Índices de Sobol de primeira ordem e totais (e de segunda ordem, opcional) de <code>fn</code>.</td>
+</tr>
+<tr>
+<td><code>pp.Solution</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.Solution</code></td>
+<td>Resultado de <code>solve</code>: função <code>predict</code>, tempo, histórico, modelo, grade e tipo do método, com <code>metadata</code> uniforme.</td>
+</tr>
+<tr>
+<td><code>pp.solve</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.solving.solve</code></td>
+<td>Resolve o problema com o método pedido (nome registrado ou callable).</td>
+</tr>
+<tr>
+<td><code>pp.SolverModule</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.module.SolverModule</code></td>
+<td>Um solver como componente, com parâmetros treináveis opcionais; <code>from_method</code> usa um backend de <code>pp.solve</code> (não diferenciável).</td>
+</tr>
+<tr>
+<td><code>pp.solvers</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_solvers</code></td>
+<td>[shim] Pacote de compatibilidade (obsoleto) que reexporta os solvers de <code>pinneapple_simulation.numerical_solvers</code>; os solvers opcionais viram <code>None</code> se o import falhar. [sem teste direto do <code>__init__</code>]</td>
+</tr>
+<tr>
+<td><code>pp.SpalartAllmarasResiduals</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.SpalartAllmarasResiduals</code></td>
+<td>Resíduos do modelo de uma equação de Spalart-Allmaras.</td>
+</tr>
+<tr>
+<td><code>pp.SparsityRegularizer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.SparsityRegularizer</code></td>
+<td>Regularizador L1/LASSO com aproximação suave.</td>
+</tr>
+<tr>
+<td><code>pp.SPHParticles</code></td>
+<td>import direto</td>
+<td><code>pinneapple_simulation.particle_dynamics.SPHParticles</code></td>
+<td>SPH fracamente compressível: densidade por soma de kernel, pressão de Tait, viscosidade e gravidade.</td>
+</tr>
+<tr>
+<td><code>pp.StructuralObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.StructuralObjective</code></td>
+<td>Proxy de tensão de von Mises pela média dos quadrados do campo.</td>
+</tr>
+<tr>
+<td><code>pp.StudentTMisfit</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.StudentTMisfit</code></td>
+<td>Log-verossimilhança negativa de Student-t; <code>nu</code> controla a robustez.</td>
+</tr>
+<tr>
+<td><code>pp.StudyModel</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.study_models.StudyModel</code></td>
+<td>Envelope de modelo para estudos: predição, nomes, unidades, limites, desvio opcional e construtores de função, zoo e ONNX.</td>
+</tr>
+<tr>
+<td><code>pp.Subdomain</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pinn_solver.Subdomain</code></td>
+<td>Subdomínio retangular com sobreposição e testes de pertinência e interface.</td>
+</tr>
+<tr>
+<td><code>pp.SubdomainPINN</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pinn_solver.SubdomainPINN</code></td>
+<td>PINN de um único subdomínio.</td>
+</tr>
+<tr>
+<td><code>pp.suggest_problem_spec</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.pde_environment.suggest_problem_spec</code></td>
+<td>Sugere argumentos de construção de <code>ProblemSpec</code> a partir de uma descrição em texto livre.</td>
+</tr>
+<tr>
+<td><code>pp.SurrogateConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.SurrogateConfig</code></td>
+<td>Configuração do <code>PhysicsSurrogate</code>: modelo (nome registrado ou MLP), dimensões e camadas.</td>
+</tr>
+<tr>
+<td><code>pp.SweepConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.SweepConfig</code></td>
+<td>Configuração do sweep em grade: grade de parâmetros, número de jobs, backend (threads/processos) e timeout.</td>
+</tr>
+<tr>
+<td><code>pp.symbolic</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_physics.symbolic_pde</code></td>
+<td>Compilador simbólico de EDP: transforma resíduos SymPy em funções PyTorch com autograd e oferece condições de contorno rígidas e suaves; reexporta <code>SymbolicPDE</code>, <code>HardBC</code> etc. [sem teste direto do <strong>init</strong>]</td>
+</tr>
+<tr>
+<td><code>pp.SymbolicPDE</code></td>
+<td>import direto</td>
+<td><code>pinneapple_physics.symbolic_pde.SymbolicPDE</code></td>
+<td>Resíduo de EDP simbólico compilado para função PyTorch (autograd ou grade).</td>
+</tr>
+<tr>
+<td><code>pp.t_junction</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.geometry.t_junction</code></td>
+<td>Junção em T: canal horizontal mais ramo vertical.</td>
+</tr>
+<tr>
+<td><code>pp.terramechanics</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.terramechanics</code></td>
+<td>Terramecânica de rodas de rovers planetários: solos com proveniência, modelo de roda de Wong-Reece e extensões, terreno deformável com sulcos, bancada de roda única com dados publicados e substitutos PINN do contato.</td>
+</tr>
+<tr>
+<td><code>pp.ThermalEfficiencyObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.ThermalEfficiencyObjective</code></td>
+<td>Eficiência térmica (fluxo de calor sobre queda de pressão proxy), devolvida negativa para minimizar.</td>
+</tr>
+<tr>
+<td><code>pp.ThroughputMonitor</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.ThroughputMonitor</code></td>
+<td>Mede amostras/s, memória da GPU e utilização (com <code>pynvml</code>, se houver) por época.</td>
+</tr>
+<tr>
+<td><code>pp.TikhonovRegularizer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.TikhonovRegularizer</code></td>
+<td>Regularizador de Tikhonov/ridge, com prior e covariância opcionais.</td>
+</tr>
+<tr>
+<td><code>pp.TimeMarchingTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.TimeMarchingTrainer</code></td>
+<td>Treina uma rede por janela de tempo, congelando a predição no fim de cada janela como condição inicial da seguinte; avalia e plota o resultado completo.</td>
+</tr>
+<tr>
+<td><code>pp.to_jsonable</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.jsonable.to_jsonable</code></td>
+<td>Devolve uma cópia de um objeto que <code>json.dumps</code> aceita, com opção de arredondar e tratar não-finitos.</td>
+</tr>
+<tr>
+<td><code>pp.TotalVariationRegularizer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.inverse_problems.TotalVariationRegularizer</code></td>
+<td>Variação total anisotrópica para parâmetros de campo 1D/2D.</td>
+</tr>
+<tr>
+<td><code>pp.train</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_train</code></td>
+<td>[shim] Pacote de compatibilidade (marcado como obsoleto) que reexporta o treinador, callbacks e métricas de <code>pinneapple_neural.trainer</code>; nomes opcionais viram <code>None</code> se o import falhar. [sem teste direto do <code>__init__</code>]</td>
+</tr>
+<tr>
+<td><code>pp.TrainConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.TrainConfig</code></td>
+<td>Configuração do <code>Trainer</code>: épocas, taxa de aprendizado, clip, AMP, dispositivo, semente, determinismo, log, DDP e validação com física.</td>
+</tr>
+<tr>
+<td><code>pp.Trainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.Trainer</code></td>
+<td>Treinador genérico: <code>fit(train_loader, val_loader, cfg)</code> roda épocas com perdas tensor/dict, métricas, early stopping, checkpoint e log JSONL.</td>
+</tr>
+<tr>
+<td><code>pp.transfer</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_adaptation.transfer_learning</code></td>
+<td>Reexporta <code>TransferConfig</code>, <code>TransferTrainer</code>, utilitários de congelamento, <code>ParametricFamilyTransfer</code> e <code>PhysicsTransferAdapter</code>. [sem teste direto do <code>__init__</code>]</td>
+</tr>
+<tr>
+<td><code>pp.TransferBenchmarkConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.TransferBenchmarkConfig</code></td>
+<td>Configuração: épocas e taxas da fonte e do ajuste fino, estratégias, aquecimento, pontos e pesos das perdas.</td>
+</tr>
+<tr>
+<td><code>pp.TransferBenchmarkPipeline</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.TransferBenchmarkPipeline</code></td>
+<td>Pipeline que roda todas as estratégias de transferência e os baselines do zero, monta leaderboard, gráficos e salva/carrega resultados.</td>
+</tr>
+<tr>
+<td><code>pp.TransferBenchmarkResult</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.TransferBenchmarkResult</code></td>
+<td>Resultado de (cenário, alvo, estratégia): métricas, histórico, tempo e parâmetros treináveis e totais.</td>
+</tr>
+<tr>
+<td><code>pp.TransferScenario</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.benchmark_suite.TransferScenario</code></td>
+<td>Um cenário de transferência: uma tarefa fonte e N tarefas alvo, com rótulos.</td>
+</tr>
+<tr>
+<td><code>pp.transforms</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_core.transforms</code></td>
+<td>Transformações invertíveis e componíveis (<code>&gt;&gt;</code>) sobre tabelas, <code>PhysicsDataset</code> e, para as de escala, <code>PhysicalProblem</code>, registrando proveniência a cada <code>apply</code>; as não-escalares levantam <code>NotImplementedError</code> em nível de problema.</td>
+</tr>
+<tr>
+<td><code>pp.trust_card</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.trust.field_card.trust_card</code></td>
+<td>Roda <code>field_checks</code> e produz a decisão de deploy e as seis perguntas do cartão de confiança.</td>
+</tr>
+<tr>
+<td><code>pp.TwoPhaseConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.TwoPhaseConfig</code></td>
+<td>Configuração das duas fases: épocas e taxas de cada fase, modo combinado e rampa do peso da física.</td>
+</tr>
+<tr>
+<td><code>pp.TwoPhaseHistory</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.TwoPhaseHistory</code></td>
+<td>Histórico de perdas das duas fases (incluindo componentes EDP e contorno na fase 2).</td>
+</tr>
+<tr>
+<td><code>pp.TwoPhaseTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.TwoPhaseTrainer</code></td>
+<td>Executa a fase supervisionada e depois a fase de física, com otimizadores e históricos separados.</td>
+</tr>
+<tr>
+<td><code>pp.uncertainty</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.uncertainty</code></td>
+<td>Quantificação de incerteza (antigo <code>pinneapple_uq</code>); reexporta aleatória, epistêmica, conformal, calibração, quantis, reamostragem, drift, tolerâncias e <code>uq_predict</code>.</td>
+</tr>
+<tr>
+<td><code>pp.UnnormModel</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.UnnormModel</code></td>
+<td>Envolve um modelo treinado em alvos normalizados para devolver predições na escala física (y * std + mean).</td>
+</tr>
+<tr>
+<td><code>pp.uq</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_analysis.uncertainty</code></td>
+<td>Quantificação de incerteza (antigo <code>pinneapple_uq</code>); reexporta aleatória, epistêmica, conformal, calibração, quantis, reamostragem, drift, tolerâncias e <code>uq_predict</code>.</td>
+</tr>
+<tr>
+<td><code>pp.uq_predict</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.uncertainty.uq_predict</code></td>
+<td>Interface unificada de predição com incerteza (método escolhido por <code>method</code>).</td>
+</tr>
+<tr>
+<td><code>pp.use_backend</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_core.backend.use_backend</code></td>
+<td>Gerenciador de contexto que roda um bloco num backend e restaura o anterior.</td>
+</tr>
+<tr>
+<td><code>pp.validate</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_analysis.validation.validate.pp_validate</code></td>
+<td>Uma chamada, um relatório de validação de um modelo (zoo, PyTorch, ONNX ou função) contra um problema, com credibilidade por fator e decisão pass / warn / fail (<code>pp_validate = _PPValidate()</code>).</td>
+</tr>
+<tr>
+<td><code>pp.validate_model</code></td>
+<td>import direto</td>
+<td><code>pinneapple_analysis.validation.validate_model</code></td>
+<td>Validação rápida de uma vez a partir de um <code>ProblemSpec</code> ou argumentos explícitos.</td>
+</tr>
+<tr>
+<td><code>pp.vehicle</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_simulation.vehicle</code></td>
+<td>Veículos planetários com rodas: descrição (chassi + módulos de canto) com CAD, modelo multicorpo construído a partir dela e simulador em terreno deformável com rodas de Wong-Reece.</td>
+</tr>
+<tr>
+<td><code>pp.verify</code></td>
+<td>preguiçoso (<code>_LAZY_ATTRS</code>)</td>
+<td><code>pinneapple_decision.api.verify</code></td>
+<td>Verifica um resultado; só resultados verificados viram evidência.</td>
+</tr>
+<tr>
+<td><code>pp.veriphysics</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_veriphysics</code></td>
+<td>Camada de verificação e evidência do Veriphysics dentro do PINNeAPPle; o <code>__init__</code> só documenta os submódulos (decisão, relatório, aplicabilidade, escopo, robustez, recomendação, ledger, Validation Lab).</td>
+</tr>
+<tr>
+<td><code>pp.viz</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_tools.visualization.studio</code></td>
+<td>Studio do PINNeAPPle: visualização 3D realista de qualquer geometria e sua física (cena, visualizador web, Blender, PyVista); exporta <code>Scene</code> e atalhos de render.</td>
+</tr>
+<tr>
+<td><code>pp.vmap_residual</code></td>
+<td>import direto</td>
+<td><code>pinneapple_tools.compute_backends.vmap_residual</code></td>
+<td>Alias de módulo para <code>JAXBackend.vmap_residual</code> (vetoriza um resíduo de um ponto sobre um lote).</td>
+</tr>
+<tr>
+<td><code>pp.WeightMinimizationObjective</code></td>
+<td>import direto</td>
+<td><code>pinneapple_design.design_optimizer.WeightMinimizationObjective</code></td>
+<td>Proxy de volume pela norma L2 do vetor de parâmetros.</td>
+</tr>
+<tr>
+<td><code>pp.WeightScheduler</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.WeightScheduler</code></td>
+<td>Interface única: <code>step(losses)</code> aplica os pesos atuais, atualiza conforme o método e expõe parâmetros aprendíveis quando houver.</td>
+</tr>
+<tr>
+<td><code>pp.WeightSchedulerConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_neural.trainer.WeightSchedulerConfig</code></td>
+<td>Configuração do agendamento de pesos: método (de <code>self_adaptive</code> até <code>auto</code>), pesos iniciais, frequência, taxas, limites e decaimento EMA.</td>
+</tr>
+<tr>
+<td><code>pp.worldmodel</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_worldmodel</code></td>
+<td>Ponto de entrada do pacote: reexporta o pipeline, o orquestrador, cenários, modelos e fábricas; o docstring descreve o pipeline de cinco estágios do modelo de fundação física.</td>
+</tr>
+<tr>
+<td><code>pp.WorldModelConfig</code></td>
+<td>import direto</td>
+<td><code>pinneapple_worldmodel.WorldModelConfig</code></td>
+<td>Hiperparâmetros do <code>PhysicsWorldModel</code>.</td>
+</tr>
+<tr>
+<td><code>pp.WorldModelDataset</code></td>
+<td>import direto</td>
+<td><code>pinneapple_worldmodel.WorldModelDataset</code></td>
+<td>Dataset de previsão de um ou vários passos construído de uma lista de trajetórias.</td>
+</tr>
+<tr>
+<td><code>pp.WorldModelTrainer</code></td>
+<td>import direto</td>
+<td><code>pinneapple_worldmodel.WorldModelTrainer</code></td>
+<td>Treina um <code>PhysicsWorldModel</code> num <code>WorldModelDataset</code>.</td>
+</tr>
+<tr>
+<td><code>pp.zoo</code></td>
+<td>submódulo preguiçoso (<code>_SUBMODULES</code>)</td>
+<td><code>pinneapple_hub.zoo</code></td>
+<td><code>pp.zoo</code>: modelos pré-treinados e verificados em uma linha (listar, carregar, prever, avaliar, validar, consultar checagens, exportar, fazer benchmark e fine-tune com guarda).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-este-documento-foi-feito">Como este documento foi feito<a class="headerlink" href="#como-este-documento-foi-feito" title="Permanent link">&para;</a></h2>
+<ol>
+<li><code>docs/pt/_mapa/inventario.py</code> percorre o repositório por AST e grava <code>inventario.json</code>.</li>
+<li>O texto em português de cada pacote, módulo e símbolo foi escrito lendo o código e está em <code>docs/pt/_mapa/prosa/*.json</code>; <code>docs/pt/_mapa/checar_prosa.py</code> confere que nada ficou sem texto.</li>
+<li><code>docs/pt/_mapa/gerar.py</code> monta os volumes. Quando falta texto em português para um símbolo, a tabela mostra a primeira linha da docstring original (em inglês).</li>
+<li><code>docs/pt/_mapa/pdf.js</code> gera o PDF.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

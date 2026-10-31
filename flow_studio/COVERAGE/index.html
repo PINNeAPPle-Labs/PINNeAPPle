@@ -1,0 +1,7874 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/flow_studio/COVERAGE/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Flow Studio coverage of the library - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flow-studio-coverage-of-the-library" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flow Studio coverage of the library
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_54" id="__nav_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_55" >
+        
+          
+          <label class="md-nav__link" for="__nav_55" id="__nav_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_55_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="flow-studio-coverage-of-the-library">Flow Studio coverage of the library<a class="headerlink" href="#flow-studio-coverage-of-the-library" title="Permanent link">&para;</a></h1>
+<p><strong>535 packages / modules: 172 with nodes, 363 with a stated reason, 0 unreached.</strong></p>
+<p>Generated by <code>python -m pinneapple_flow coverage</code> from the node registry (each node declares the library calls it wraps), the curated reasons in <code>pinneapple_flow/coverage.py</code> and the public-API scan of <code>pinneapple_flow/autocalls.py</code> (<code>python -m pinneapple_flow autocalls</code>). Curated nodes come first in each row; <code>auto.*</code> nodes are generated from type-hinted public functions (249 nodes, 194 of them run with their default form values, the rest need input: each node shows its check). A module without a node says why: a curated reason, or what the scan found (only classes, or functions that take objects, files or code). <code>tests/test_flow_library_nodes.py</code> fails when a public module is neither.</p>
+<table>
+<thead>
+<tr>
+<th>package / module</th>
+<th>node types</th>
+<th>why not a node</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pinneapple</code></td>
+<td>aero.airliner_vlm, benchmark.equal_budget, design.from_intent, gallery.opinf_advection, gallery.pinn_heat, gallery.pod_dmd_wake, gallery.zoo_range, geometry.unstructured_mesh, lib.compare.preset, lib.solve.preset, pinn.burgers_first, pinn.poisson_fem_vs_pinn, solver.classical, uq.sensitivity, validate.compare, viz.any_result_3d, viz.field3d, zoo.evaluate, 2 auto (get_rule, select_rules)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple.check</code></td>
+<td>2 auto (get_rule, select_rules)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_adaptation</code></td>
+<td>meta.learn, transfer.pinn</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_adaptation.meta_learning</code></td>
+<td>meta.learn</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_adaptation.transfer_learning</code></td>
+<td>transfer.pinn</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis</code></td>
+<td>analysis.physics_learning, assimilate.filter, benchmark.equal_budget, cfd.surrogate, em.prius_tolerances, gallery.pinn_heat, gallery.zoo_range, geo.earth_system, inspection.eddy_current, inverse.calibrate, lib.uq.morris, lib.uq.sobol, proof.pt_chain, surrogate.study, train.pinn, uq.propagate, uq.sensitivity, validate.arena, validate.audit_model, validate.compare, verify.convergence, 32 auto (methods, problems, cosine_lr, hardware_record, twin_experiment, generate_acoustic_synthetic, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.benchmark</code></td>
+<td>benchmark.equal_budget, 2 auto (methods, problems)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.cost</code></td>
+<td>2 auto (cosine_lr, hardware_record)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.data_assimilation</code></td>
+<td>geo.earth_system, 1 auto (twin_experiment)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.dynamics</code></td>
+<td></td>
+<td>dynamics toolkit (first-passage, Buckingham pi, Fisher, early warning, Koopman) used as a Python API; its flow nodes come with the toolkit's integration pull request</td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.inspection</code></td>
+<td>inspection.eddy_current, 6 auto (generate_acoustic_synthetic, generate_eddy_current_synthetic, generate_emat_synthetic, generate_guided_wave_synthetic, generate_magnetic_flux_leakage_synthetic, generate_phased_array_synthetic)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.inverse_problems</code></td>
+<td>inverse.calibrate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.proof</code></td>
+<td>proof.pt_chain</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.reproduction</code></td>
+<td></td>
+<td>metrics and status rule of examples/paper_reproductions (offline scoring of committed seed results, not a flow step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.retrieval</code></td>
+<td>4 auto (build_corpus, build_default_index, build_literature_corpus, chunk_text)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.sensitivity</code></td>
+<td>lib.uq.morris, lib.uq.sobol, uq.sensitivity</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.state_estimation</code></td>
+<td>assimilate.filter</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.study_contracts</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (_empty); 2 with argument names a file, address or code; 1 with argument takes an object (Sequence); 1 with argument takes an object (Any); 1 with argument takes an object (StudyModel)</td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.study_models</code></td>
+<td>1 auto (builtin)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.surrogate</code></td>
+<td>cfd.surrogate, 2 auto (applicable, candidate_ids)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.trust</code></td>
+<td>validate.compare</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.uncertainty</code></td>
+<td>em.prius_tolerances, uq.propagate, 1 auto (wilson_interval)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.validation</code></td>
+<td>analysis.physics_learning, gallery.pinn_heat, gallery.zoo_range, train.pinn, validate.arena, validate.audit_model</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_analysis.verification</code></td>
+<td>verify.convergence, 13 auto (build_knowledge_graph, buy_vs_build_recommendation, classify_flow_regime, compute_dimensionless_numbers, compute_physics_confidence, default_reference_meshes, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_arena</code></td>
+<td>arena.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.arena</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.autoresearch</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.config</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.custom_builder</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.dataset_bench</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.dataset_problems</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.decision_mode</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.external</code></td>
+<td></td>
+<td>references to third-party libraries run through their own packages (mostly not installed); not a computation step of a flow</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.model_factory</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.nas</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.pointwise</code></td>
+<td></td>
+<td>the PINNeAPPle Arena app's training protocol (minutes-long multi-architecture experiments run by apps/pinn_arena); single trainings are pinn / solve nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.problems</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.regimes</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.showcase</code></td>
+<td></td>
+<td>one fixed four-architecture Burgers comparison (minutes of training) served by apps/model_benchmarking; single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.trainer</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_arena.visualizer</code></td>
+<td></td>
+<td>YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab</code></td>
+<td>autolab.aerodynamicist, autolab.board_cooling, autolab.pipe_twin, study.ahmed_geometry, study.cfd_campaign, study.dataset, study.grid_validation, study.inverse, study.report, study.surrogates, study.twin</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.agent</code></td>
+<td>autolab.aerodynamicist</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.core</code></td>
+<td></td>
+<td>the agent loop (toolbox, planners, execute) run inside autolab.* nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.dashboard</code></td>
+<td>autolab.aerodynamicist</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.domain</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.domains</code></td>
+<td>autolab.aerodynamicist, study.ahmed_geometry, study.cfd_campaign, study.dataset, study.grid_validation, study.inverse, study.report, study.surrogates, study.twin</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.lab</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.ledger</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.mission</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.qualification</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.replay</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.report</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.simulator</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.study</code></td>
+<td>study.cfd_campaign, study.report, study.surrogates, study.twin</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.surrogates</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_autolab.trust</code></td>
+<td></td>
+<td>mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by examples/autolab_aero, not as one flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_blender</code></td>
+<td>viz.render</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_blender.cycles</code></td>
+<td>viz.render</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_blender.export</code></td>
+<td></td>
+<td>needs Blender's bpy; viz.render uses it when installed</td>
+</tr>
+<tr>
+<td><code>pinneapple_blender.render</code></td>
+<td></td>
+<td>needs Blender's bpy; viz.render uses it when installed</td>
+</tr>
+<tr>
+<td><code>pinneapple_catalog</code></td>
+<td></td>
+<td>method / resource catalogue with license gates (read by the planner and docs)</td>
+</tr>
+<tr>
+<td><code>pinneapple_catalog.methods</code></td>
+<td></td>
+<td>method / resource catalogue with license gates (read by the planner and docs)</td>
+</tr>
+<tr>
+<td><code>pinneapple_catalog.resources</code></td>
+<td></td>
+<td>method / resource catalogue with license gates (read by the planner and docs)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check</code></td>
+<td>check.physics</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_check.balances</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.baseline</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.checks</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.cli</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.config</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.engine</code></td>
+<td>check.physics</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_check.evidence</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.fields</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.fv</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.models</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.numerics</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.physics</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.report</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.result</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_check.rules</code></td>
+<td></td>
+<td>the CI physics linter (runs on files in a repository, not in a flow)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense</code></td>
+<td>condense.package_thermal, query.package</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.algebraic</code></td>
+<td></td>
+<td>algebraic condensation of any sparse operator, measured by the condensation falsification campaign (examples/condensation_falsification)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.benchmark</code></td>
+<td></td>
+<td>the measured studies of the condensation report (subprocesses, up to an hour; run by examples/physics_condensation)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.exceptions</code></td>
+<td></td>
+<td>prior + exception patches, measured in the condensation benchmark</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.falsify</code></td>
+<td></td>
+<td>the pre-registered falsification studies (subprocesses, minutes to an hour)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.figures</code></td>
+<td></td>
+<td>figures of the condensation report, drawn from the benchmark JSON</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.flow</code></td>
+<td></td>
+<td>steady MAC-grid flow and heat assembler behind the CFD falsification tests</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.fv</code></td>
+<td>condense.package_thermal</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.hierarchy</code></td>
+<td>condense.package_thermal</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.homogenize</code></td>
+<td></td>
+<td>the Keff baseline, compared in the condensation benchmark</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.learned</code></td>
+<td></td>
+<td>learned block operators (training is a campaign of block condensations); measured in the condensation benchmark</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.meshless</code></td>
+<td></td>
+<td>meshless (RBF-FD / GFDM) solution of the package, measured in the condensation benchmark (minutes per point cloud)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.meshless2d</code></td>
+<td></td>
+<td>2-D meshless discretisations of the CFD falsification tests</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.package</code></td>
+<td></td>
+<td>the package description behind condense.package_thermal</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.query</code></td>
+<td>query.package</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.query_benchmark</code></td>
+<td></td>
+<td>the measured query demo of the condensation report (minutes; run by examples/physics_condensation)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.substructure</code></td>
+<td></td>
+<td>block condensation behind condense.package_thermal (via the hierarchy)</td>
+</tr>
+<tr>
+<td><code>pinneapple_condense.transient</code></td>
+<td></td>
+<td>Craig-Bampton transient, measured in the condensation benchmark</td>
+</tr>
+<tr>
+<td><code>pinneapple_core</code></td>
+<td>core.hybrid_fem, core.torsion_optimizer, solver.openfoam, 7 auto (get_physics_backend, list_backends, use_backend, round_sig, list_strategies, list_methods, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.backend</code></td>
+<td>3 auto (get_physics_backend, list_backends, use_backend)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.data</code></td>
+<td></td>
+<td>no public functions: its API is classes (ActiveSampler, AdaptiveSampler, Batch, BoundarySampler, CollocationSampler and 5 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.domain</code></td>
+<td></td>
+<td>no public functions: its API is classes (Domain) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.fem</code></td>
+<td></td>
+<td>no form-callable function: 5 with argument takes an object (Tensor)</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.field</code></td>
+<td></td>
+<td>no public functions: its API is classes (Domain, Field, FunctionField, Grid, LinearNDInterpolator and 4 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.func</code></td>
+<td></td>
+<td>no form-callable function: 8 with argument takes an object (Callable)</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.geometry</code></td>
+<td></td>
+<td>no public functions: its API is classes (Domain, Geometry, Mesh) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.jsonable</code></td>
+<td>1 auto (round_sig)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.loss</code></td>
+<td>1 auto (list_strategies)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.mesh</code></td>
+<td></td>
+<td>no public functions: its API is classes (Delaunay, Mesh, cKDTree) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.module</code></td>
+<td>core.hybrid_fem</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.onboarding</code></td>
+<td></td>
+<td>the first hour: doctor / recommend / card / new run before a problem exists, and the solves they print are solve nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.operators</code></td>
+<td></td>
+<td>no form-callable function: 8 with argument takes an object (_empty)</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.optim</code></td>
+<td>1 auto (list_methods)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.service</code></td>
+<td></td>
+<td>job queue / API keys of the app servers (infrastructure)</td>
+</tr>
+<tr>
+<td><code>pinneapple_core.transforms</code></td>
+<td>1 auto (list_pde_rules)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_core.workflows</code></td>
+<td>solver.openfoam</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data</code></td>
+<td>arena.datasets, geometry.unstructured_mesh, gnn.mgn_cylinder_flow, lib.doe.design, lib.rom.compare, rom.fit, 39 auto (build_from_real_data, upd_to_physical_sample, audit_zoo_dataset, kind_of, collate_pinn_batches, collate_upd_supervised, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.active_learning</code></td>
+<td></td>
+<td>no public functions: its API is classes (ActiveLearningConfig, AdaptiveCollocationTrainer, Any, CombinedAL, ResidualBasedAL and 1 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.adapters</code></td>
+<td>2 auto (build_from_real_data, upd_to_physical_sample)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.audit</code></td>
+<td>1 auto (audit_zoo_dataset)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.augmentation</code></td>
+<td></td>
+<td>no form-callable function: 3 with argument takes an object (ndarray)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.cache</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, CacheStats, LRUCache, OrderedDict) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.cache_bytes</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (Any)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.cae</code></td>
+<td>geometry.unstructured_mesh, 1 auto (kind_of)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.chunking</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (Tensor)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.collate</code></td>
+<td>3 auto (collate_pinn_batches, collate_upd_supervised, move_batch_to_device)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.collocation</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, CollocationConfig, CollocationSampler) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.contracts</code></td>
+<td>lib.doe.design</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.data_health</code></td>
+<td>1 auto (example_chiller_plant)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.dataloaders</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (PhysicalSample); 1 with argument names a file, address or code</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.datasets</code></td>
+<td>arena.datasets, gnn.mgn_cylinder_flow, 3 auto (dataset_ids, dataset_info, list_datasets)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.device</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (Any)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.doe</code></td>
+<td>lib.doe.design</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.expressions</code></td>
+<td></td>
+<td>no form-callable function: 3 with argument names a file, address or code; 1 with argument takes an object (AST)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.formfill</code></td>
+<td>3 auto (get_spec, list_specs, ocr_available)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.geometry_features</code></td>
+<td></td>
+<td>no form-callable function: 3 with argument takes an object (ndarray)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.grf_sampler</code></td>
+<td>3 auto (sample_grf_2d_batch, sample_grf_batch, sample_grf_paths)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.lineage</code></td>
+<td>1 auto (detect_project)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.noether_dataset</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (Sequence)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.parameter_sampling</code></td>
+<td>2 auto (saltelli_perturbation_sweep, sample_parameters)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.physical_sample</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, PhysicalSample) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.physical_units</code></td>
+<td>6 auto (dim_str, infer_quantity, parse_unit, si_unit_for, split_header, try_parse_unit)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.physics_case</code></td>
+<td></td>
+<td>no public functions: its API is classes (BenchmarkComparison, PhysicsCase) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.prefetch_adaptive</code></td>
+<td></td>
+<td>no public functions: its API is classes (AdaptivePrefetchConfig, AdaptivePrefetchZarrUPDIterable, Any, CachedUPDZarrStoreBytes, IterableDataset and 1 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.preflight</code></td>
+<td>3 auto (attach_snippets, drop_results, preflight)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.process_optimizer</code></td>
+<td>2 auto (example_plant_operations, true_saving)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.serialization</code></td>
+<td></td>
+<td>no form-callable function: 8 with an I/O, server or setup entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.simulation_metadata</code></td>
+<td>2 auto (extract, parse_residual_table)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.snapshots</code></td>
+<td>lib.rom.compare, rom.fit</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.splits</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (SplitSpec)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.stl_import</code></td>
+<td></td>
+<td>no form-callable function: 2 with an I/O, server or setup entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.synth</code></td>
+<td>1 auto (has_pinnego_physical_sample)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.transforms</code></td>
+<td></td>
+<td>no public functions: its API is classes (MinMaxScaler, Normalizer, StandardScaler) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.udr1</code></td>
+<td></td>
+<td>no form-callable function: 2 with an I/O, server or setup entry point; 1 with evaluates text, runs processes or touches files; 1 with argument takes an object (Document); 1 with argument takes an object (Field); 1 with argument takes an object (bytes)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.unified</code></td>
+<td>4 auto (before_after_series, canonical_name, conversion_text, to_physical_sample)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.upd_dataset</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, PhysicalSample, UPDDataset) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.upd_types</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (ndarray)</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.validators</code></td>
+<td>1 auto (assert_valid_physical_sample)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_cached_store</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, CachedUPDZarrStore, LRUCache, UPDZarrStore, ZarrCacheConfig) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_cached_store_bytes</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, ByteLRUCache, CachedUPDZarrStoreBytes, UPDZarrStore, ZarrByteCacheConfig) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_iterable</code></td>
+<td></td>
+<td>no public functions: its API is classes (IterableDataset, PhysicalSample, UPDZarrStore, ZarrUPDIterable) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_prefetch</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, CachedUPDZarrStore, IterableDataset, PrefetchConfig, PrefetchZarrUPDIterable and 1 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_shard_iterable</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, CachedUPDZarrStoreBytes, IterableDataset, ShardAwareConfig, ShardAwareZarrUPDIterable and 1 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_shards</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, ShardSpec, UPDZarrShardedWriter, UPDZarrStore) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_data.zarr_store</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, PhysicalSample, UPDZarrStore) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.adapter</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.api</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.backends</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.constraints</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.debias</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.decider</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.loop</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.schema</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.selectors</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.tree</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_decision.verifiers</code></td>
+<td></td>
+<td>experiment-selection loop driven by an LLM backend; the planner covers routing</td>
+</tr>
+<tr>
+<td><code>pinneapple_design</code></td>
+<td>aero.airliner_vlm, autolab.board_cooling, bricks.search, bricks.validate, cfd.trough_jet, design.from_intent, design.reluctance_rotor, design.surrogate_inverse, design.topology2d, design.topology_gradcheck, geometry.unstructured_mesh, lib.design.intent, lib.export.geometry, optimize.nsga2, qualitative.ahmed_slant, solvers.sph_box, 39 auto (part, reference_cantilever, smooth_block, stack, available_methods, naca_parametric, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.aero</code></td>
+<td>aero.airliner_vlm</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.bricks</code></td>
+<td>bricks.search, bricks.validate, 4 auto (part, reference_cantilever, smooth_block, stack)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.design_optimizer</code></td>
+<td>optimize.nsga2, 2 auto (available_methods, naca_parametric)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.fitmesh</code></td>
+<td>3 auto (layer_total, parse, size_layers)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.geometry</code></td>
+<td>cfd.trough_jet, geometry.unstructured_mesh, qualitative.ahmed_slant, solvers.sph_box, 20 auto (annulus, box3d, build_geometry_asset, capsule2d, channel_with_hole, circle, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.geometry_library</code></td>
+<td>7 auto (build, categories, get_spec, info, list, summary_table, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.intent</code></td>
+<td>design.from_intent, lib.design.intent</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.qualitative</code></td>
+<td>qualitative.ahmed_slant, 1 auto (parse_objective)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.surrogate_inverse</code></td>
+<td>design.surrogate_inverse</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.thermal</code></td>
+<td>autolab.board_cooling</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.topology</code></td>
+<td>design.reluctance_rotor, design.topology2d, design.topology_gradcheck, 2 auto (conduction_ke, elasticity_ke)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow</code></td>
+<td>data.ingest, data.stream, export.report, geometry.domain, lib.compare.preset, lib.design.intent, lib.doe.design, lib.export.geometry, lib.model.architecture, lib.rom.compare, lib.rom.parametric_pod, lib.solve.preset, lib.solver.beam, lib.solver.lbm, lib.solver.meshless, lib.solver.terramechanics, lib.solver.xtfc, lib.tools.availability, problem.generic, solver.calculix, solver.fmu, solver.newton, surrogate.study, surrogate.train, train.finetune, twin.auto, viz.plot</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.autocalls</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.config</code></td>
+<td>data.ingest</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.coverage</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.decisions</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.examples</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.identify</code></td>
+<td>problem.generic</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.lab_status</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.learn</code></td>
+<td>surrogate.train, train.finetune</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.libcalls</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.libcalls_catalog</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.nodes</code></td>
+<td>export.report, geometry.domain, viz.plot</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.nodes_ext</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.palette</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.planner</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.references</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.registry</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.rules</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.runtime</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.schema</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.service</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.store</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.studio</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.templates</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.twin</code></td>
+<td>data.stream, twin.auto</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.types</code></td>
+<td></td>
+<td>this package</td>
+</tr>
+<tr>
+<td><code>pinneapple_flow.wrappers</code></td>
+<td>lib.compare.preset, lib.design.intent, lib.doe.design, lib.export.geometry, lib.model.architecture, lib.rom.compare, lib.rom.parametric_pod, lib.solve.preset, lib.solver.beam, lib.solver.lbm, lib.solver.meshless, lib.solver.terramechanics, lib.solver.xtfc, lib.tools.availability, solver.calculix, solver.fmu, solver.newton, surrogate.study</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_hub</code></td>
+<td>terramechanics.zoo_surrogate, zoo.evaluate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_hub.hub</code></td>
+<td></td>
+<td>Hugging Face Hub transfers (network access and credentials, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_hub.library</code></td>
+<td></td>
+<td>the Hub's catalogue of ready-made items (index, snippets, composer); it lists these nodes rather than adding steps</td>
+</tr>
+<tr>
+<td><code>pinneapple_hub.model_card</code></td>
+<td></td>
+<td>Hugging Face Hub transfers (network access and credentials, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_hub.verified_card</code></td>
+<td></td>
+<td>trains or loads a model and issues its model card (a publication step, served by apps/governed_card); the guardrail it runs is reached by the check nodes</td>
+</tr>
+<tr>
+<td><code>pinneapple_hub.zoo</code></td>
+<td>terramechanics.zoo_surrogate, zoo.evaluate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_lab</code></td>
+<td>examples.compare, gallery.pod_dmd_wake, validate.lab, verify.convergence</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.capture</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.context</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.curation</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.dataset</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.experiments</code></td>
+<td>gallery.pod_dmd_wake</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.explorer</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.html</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.improve</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.manifest</code></td>
+<td>examples.compare</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.next_steps</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.reports</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.results_rules</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.runner</code></td>
+<td>validate.lab</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.seal</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.server</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.showcase</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.spec</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.store</code></td>
+<td></td>
+<td>covered by validate.lab (run, curation tiers, seal)</td>
+</tr>
+<tr>
+<td><code>pinneapple_lab.uq</code></td>
+<td>verify.convergence</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_llm</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.agent_loop</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.cad_draft</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.catalog_match</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.conversation_store</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.draft</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.finetune</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.geometry_draft</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.guardrail</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.local_llm</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.org_knowledge</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.qa</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.research</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.twin_draft</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_llm.workbench</code></td>
+<td></td>
+<td>LLM drafting: used by the LLM planner, problem.generic and twin.auto</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.config</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.expressions</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.jobs</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.problems</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.server</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_mcp.tools</code></td>
+<td></td>
+<td>the MCP server for coding agents (a protocol front end, like Flow Studio)</td>
+</tr>
+<tr>
+<td><code>pinneapple_models</code></td>
+<td>architectures.forward, architectures.registry</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_models.registry</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_neural.architectures (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural</code></td>
+<td>architectures.pod_dmd, gallery.opinf_advection, gallery.pod_dmd_wake, gnn.meshgraphnet, gnn.mgn_cylinder_flow, lib.model.architecture, lib.rom.compare, lib.rom.parametric_pod, rom.fit, surrogate.hpo, surrogate.train, 1 auto (is_physicsnemo_available)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.architectures</code></td>
+<td>architectures.pod_dmd, gallery.opinf_advection, gallery.pod_dmd_wake, gnn.meshgraphnet, gnn.mgn_cylinder_flow, lib.model.architecture, lib.rom.compare, lib.rom.parametric_pod, rom.fit</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.callbacks</code></td>
+<td></td>
+<td>no public functions: its API is classes (PhysicsMonitor, PhysicsNeMoHook, PhysicsWarning) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.lpm</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (LargePhysicsModel); 1 with argument takes an object (_empty)</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.physicsnemo_bridge</code></td>
+<td>1 auto (is_physicsnemo_available)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.predictor</code></td>
+<td></td>
+<td>no form-callable function: 20 with evaluates text, runs processes or touches files; 2 with argument takes an object (Module); 2 with argument takes an object (ndarray); 1 with argument names a file, address or code</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.trainer</code></td>
+<td>surrogate.hpo</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.utils</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument names a file, address or code; 1 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_neural.workflows</code></td>
+<td></td>
+<td>no form-callable function: 4 with argument takes an object (Checkpoint); 2 with evaluates text, runs processes or touches files; 2 with an I/O, server or setup entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_orchestration</code></td>
+<td></td>
+<td>pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself</td>
+</tr>
+<tr>
+<td><code>pinneapple_orchestration.common</code></td>
+<td></td>
+<td>pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself</td>
+</tr>
+<tr>
+<td><code>pinneapple_orchestration.flows</code></td>
+<td></td>
+<td>pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself</td>
+</tr>
+<tr>
+<td><code>pinneapple_orchestration.tasks</code></td>
+<td></td>
+<td>pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.benchmarks</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.builder</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.derived</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.shard</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.templates</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_pdb.validate</code></td>
+<td></td>
+<td>dataset builder for benchmark publication (sharding, upload)</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.audio_modal</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.change_detection</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.image_geometry</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.piv_tools</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.sentinel2</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_perception.video_piv</code></td>
+<td></td>
+<td>image / video / audio inputs: no media port type in the flow schema yet</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics</code></td>
+<td>blackhole.simulate, blackhole.statistics, equations.system, gallery.opinf_advection, inverse.discover, inverse.pin_fin, nonhermitian.ep_figure, nonhermitian.ep_laws, nonhermitian.ep_numeric, nonhermitian.hypothesis_map, pde_env.tagged_preset, pinn.poisson_fem_vs_pinn, pinn_solver.factory_loss, potential.co2_surrogates, potential.double_pendulum, potential.eos_tree, potential.hyperelastic, potential.machine_coenergy, solver.classical, train.pinn, transfer.pinn, 69 auto (lunar_eclipses, lunar_phase_events, planet_events, planetary_transits, seasons, sky_state, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.advection_diffusion_1d</code></td>
+<td>gallery.opinf_advection</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.astro</code></td>
+<td>7 auto (lunar_eclipses, lunar_phase_events, planet_events, planetary_transits, seasons, sky_state, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.biology</code></td>
+<td></td>
+<td>SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.blackhole</code></td>
+<td>blackhole.simulate, blackhole.statistics</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.closed_form</code></td>
+<td>inverse.pin_fin</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.codegen</code></td>
+<td></td>
+<td>no form-callable function: 1 with argument takes an object (Any)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.compile_api</code></td>
+<td></td>
+<td>no form-callable function: 1 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.conservation</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (Tensor)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.darcy_checks</code></td>
+<td>1 auto (region_masks)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.deepxde_bridge</code></td>
+<td>2 auto (is_deepxde_available, require_deepxde)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.ensemble</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (ndarray); 1 with argument takes an object (Callable); 1 with argument takes an object (Any); 1 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.ensemble_viz</code></td>
+<td></td>
+<td>no form-callable function: 1 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.experiment</code></td>
+<td></td>
+<td>no public functions: its API is classes (Experiment, ExperimentResult) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.maxwell_checks</code></td>
+<td></td>
+<td>no form-callable function: 13 with argument takes an object (_empty); 2 with argument takes an object (Sequence); 1 with an I/O, server or setup entry point; 1 with argument names a file, address or code</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.metrics</code></td>
+<td></td>
+<td>no form-callable function: 10 with argument takes an object (_empty); 1 with argument takes an object (Callable)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.multiscale</code></td>
+<td></td>
+<td>no form-callable function: 18 with argument takes an object (ndarray); 2 with argument takes an object (Filter); 1 with argument takes an object (Generator); 1 with argument takes an object (VorticityNS2D); 1 with argument takes an object (ScaleProfile)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.non_hermitian</code></td>
+<td>nonhermitian.ep_figure, nonhermitian.ep_laws, nonhermitian.ep_numeric, 3 auto (feedback_coupling, route_c_asymmetric, theorem_profile)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.online_learning</code></td>
+<td></td>
+<td>no public functions: its API is classes (AdaHedge, AdaptiveConformal, FixedShare, FixedShareGrid) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.paper_problems</code></td>
+<td></td>
+<td>test problems of published papers (grids, references) read by examples/paper_reproductions runners, not a flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.paper_problems_epi</code></td>
+<td></td>
+<td>the compartmental models of the X-TFC parameter-discovery paper, read by the examples/reproductions/schiassi_epi2020 runner, not a flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.paper_problems_xtfc</code></td>
+<td></td>
+<td>the X-TFC paper's problems, read by the examples/reproductions/xtfc_schiassi2021 runner, not a flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.pcb</code></td>
+<td>1 auto (overlaps)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.pde_environment</code></td>
+<td>pinn.poisson_fem_vs_pinn, 31 auto (DataConstraint, DirichletBC, InitialCondition, NeumannBC, RobinBC, burgers_1d_default, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.physical_problem</code></td>
+<td></td>
+<td>no public functions: its API is classes (Parameter, PhysicalProblem, Quantity) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.physics_audit</code></td>
+<td>nonhermitian.hypothesis_map, 21 auto (advection_dominated, attached_flow, attribute_failure, bounds_check, boussinesq, constant_properties, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.pinn_solver</code></td>
+<td>inverse.pin_fin, pinn_solver.factory_loss, 1 auto (sample_latent)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.potential</code></td>
+<td>potential.co2_surrogates, potential.double_pendulum, potential.eos_tree, potential.hyperelastic, potential.machine_coenergy</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.solid</code></td>
+<td>1 auto (lame_parameters)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.solving</code></td>
+<td>solver.classical</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.symbolic_pde</code></td>
+<td>equations.system, inverse.discover, train.pinn, transfer.pinn</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.tracking</code></td>
+<td></td>
+<td>no form-callable function: 3 with argument takes an object (Any)</td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.tribology</code></td>
+<td>1 auto (winkler_parabolic_contact)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_physics.weather</code></td>
+<td></td>
+<td>no public functions: constants and re-exports only</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets</code></td>
+<td>preset.run, preset.validate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.cases</code></td>
+<td></td>
+<td>the preset classes, run by preset.run / preset.validate</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.core</code></td>
+<td></td>
+<td>the Preset base class behind preset.run</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.registry</code></td>
+<td></td>
+<td>the catalogue preset.run chooses from (and the Hub index)</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.report</code></td>
+<td></td>
+<td>writes the committed preset folders (python -m pinneapple_presets report)</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.surrogate</code></td>
+<td></td>
+<td>the surrogate behind preset.run with fidelity = surrogate</td>
+</tr>
+<tr>
+<td><code>pinneapple_presets.viz3d</code></td>
+<td></td>
+<td>3-D stills of the committed preset folders</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign</code></td>
+<td>problemdesign.offline_report</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.agent</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.autonomy</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.cli</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.codegen</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.elicitation</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.extractor</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.knowledge</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.merge</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.method_selection</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.policy</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.preset_authoring</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.protocol</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.providers</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.renderers</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.research_loop</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.schema</code></td>
+<td>problemdesign.offline_report</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.state</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_problemdesign.unified_agent</code></td>
+<td></td>
+<td>conversational problem design with an external LLM agent; the planner and problem.generic cover the same ground offline</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.backends</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.circuits</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.data</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.loss</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.models</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.pipeline</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_quantum.training</code></td>
+<td></td>
+<td>needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra</td>
+</tr>
+<tr>
+<td><code>pinneapple_query</code></td>
+<td>query.package</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_query.core</code></td>
+<td></td>
+<td>the query engine and planner behind query.package</td>
+</tr>
+<tr>
+<td><code>pinneapple_query.refs</code></td>
+<td></td>
+<td>physical references parsed by query.package</td>
+</tr>
+<tr>
+<td><code>pinneapple_reason</code></td>
+<td>reason.chain, reason.concept, reason.countermeasure, reason.failure_mode, reason.report, reason.requirement, reason.verify</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.cases</code></td>
+<td>reason.concept, reason.requirement</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.chain</code></td>
+<td>reason.concept, reason.requirement</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.engine</code></td>
+<td>reason.chain, reason.countermeasure, reason.verify</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.library</code></td>
+<td>reason.failure_mode</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.llm</code></td>
+<td></td>
+<td>optional LLM advisor of the reasoning engine; flows reason without an LLM</td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.modes</code></td>
+<td>reason.failure_mode</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.narrative</code></td>
+<td></td>
+<td>the text of Chain.explain, shown in the summary of reason.chain</td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.props</code></td>
+<td></td>
+<td>physical constants and properties read by the failure modes</td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.report</code></td>
+<td>reason.report</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_reason.trust</code></td>
+<td>reason.report</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_registry</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.dataset_store</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.experiment_memory</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.experiment_store</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.gateway</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.gateway_api</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.gateway_client</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.model_store</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.problem_store</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_registry.registry</code></td>
+<td></td>
+<td>artifact store and model gateway services (deployment, not a computation step)</td>
+</tr>
+<tr>
+<td><code>pinneapple_science</code></td>
+<td>science.atlas, science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.atlas</code></td>
+<td>science.atlas</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.core</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.em</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.instruments</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.numerics</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.plots</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.registry</code></td>
+<td>science.run</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_science.report</code></td>
+<td></td>
+<td>writes the committed examples/science folders, manifests and seals (python -m pinneapple_science report)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security</code></td>
+<td>security.fdi_benchmark</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_security.anomaly</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.archives</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.attestation</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.audit</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.classification</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.compliance</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.cps</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.cps_bench</code></td>
+<td>security.fdi_benchmark</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_security.dp</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.encryption</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.integrate</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.integrity</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.model_security</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.passwords</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.privacy</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.secrets_scan</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.signing</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_security.web</code></td>
+<td></td>
+<td>integrity, signing, web security and audit (infrastructure used by the apps)</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation</code></td>
+<td>antenna.compact_range, antenna.compact_range_check, antenna.compact_range_design, calculix.deck, calculix.results, calculix.solve, cfd.campaign, cfd.geometry, cfd.run, cfd.study, cfd.surrogate, cfd.sweep, cfd.trough_jet, data.grf_burgers, data.parametric, design.reluctance_rotor, em.afpm_quasi3d, em.edge3d_verification, em.magnet_eddy_segmentation, em.prius_drive, em.prius_end_effects, em.prius_flux_map, em.prius_getdp_crosscheck, em.prius_machine, em.prius_rotor_design, em.prius_skew, em.prius_thermal, em.prius_tolerances, em.spm_end_effects_3d, em.spm_machine, em.spm_skew_3d, em.team7, em.verification, flight.aircraft, flight.pratt, flight.same_gust, flight.scene, flight.takeoff, flight.takeoff_cases, flight.trim_stability, flight.turbulence_encounter, flight.verification, geo.column_collapse, geo.earth_system, geometry.mesh, immersed.heat, lbm.sphere_drag, lbm.sphere_stokes, lib.antenna.limits, lib.antenna.open_study, lib.antenna.package, lib.antenna.render_3d, lib.robot.arm_check, lib.solver.beam, lib.solver.lbm, lib.solver.meshless, lib.solver.terramechanics, lib.solver.xtfc, md.lj_gas, newton.crate_and_pendulum, potential.machine_coenergy, rover.learn_planet, scenario.site, solver.calculix, solver.classical, solver.fmu, solver.newton, solvers.decompose, solvers.poisson_fdm_spectral, solvers.sph_box, swe.dam_break, terramechanics.soil, terramechanics.wheel_model, terramechanics.zoo_surrogate, vehicle.dashboard, vehicle.simulate, vehicle.spec, verify.convergence, 6 auto (constraint_map, illustrative_steel, mesh_from_gmsh, rossby_haurwitz_speed, stable_dt, viper)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.accelerated_foam</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (LduSystem); 2 with an I/O, server or setup entry point; 1 with argument takes an object (_empty)</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.electromagnetics</code></td>
+<td>antenna.compact_range, antenna.compact_range_check, antenna.compact_range_design, design.reluctance_rotor, em.afpm_quasi3d, em.edge3d_verification, em.magnet_eddy_segmentation, em.prius_drive, em.prius_end_effects, em.prius_flux_map, em.prius_getdp_crosscheck, em.prius_machine, em.prius_rotor_design, em.prius_skew, em.prius_thermal, em.prius_tolerances, em.spm_end_effects_3d, em.spm_machine, em.spm_skew_3d, em.team7, em.verification, lib.antenna.limits, lib.antenna.open_study, lib.antenna.package, lib.antenna.render_3d, potential.machine_coenergy, 3 auto (constraint_map, illustrative_steel, mesh_from_gmsh)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.external_solvers</code></td>
+<td>calculix.deck, calculix.results, calculix.solve, cfd.campaign, geo.column_collapse, newton.crate_and_pendulum, solver.calculix, solver.fmu, solver.newton</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.flight</code></td>
+<td>flight.aircraft, flight.pratt, flight.same_gust, flight.scene, flight.takeoff, flight.takeoff_cases, flight.trim_stability, flight.turbulence_encounter, flight.verification</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.geophysics</code></td>
+<td>geo.earth_system, 2 auto (rossby_haurwitz_speed, stable_dt)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.hemodynamics</code></td>
+<td></td>
+<td>Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.immersed</code></td>
+<td>immersed.heat</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.meshless</code></td>
+<td>lib.solver.meshless</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.multibody</code></td>
+<td></td>
+<td>no form-callable function: 4 with argument takes an object (_empty)</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.numerical_solvers</code></td>
+<td>cfd.trough_jet, data.grf_burgers, data.parametric, geometry.mesh, lbm.sphere_drag, lbm.sphere_stokes, lib.solver.beam, lib.solver.lbm, lib.solver.xtfc, solver.classical, solvers.decompose, solvers.poisson_fdm_spectral, solvers.sph_box, swe.dam_break, verify.convergence</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.particle_dynamics</code></td>
+<td>geo.column_collapse, md.lj_gas</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.pipelines</code></td>
+<td>cfd.geometry, cfd.run, cfd.study, cfd.surrogate, cfd.sweep</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.robot_sim</code></td>
+<td>lib.robot.arm_check</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.rover</code></td>
+<td>rover.learn_planet</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.terramechanics</code></td>
+<td>lib.solver.terramechanics, terramechanics.soil, terramechanics.wheel_model, terramechanics.zoo_surrogate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.vehicle</code></td>
+<td>scenario.site, vehicle.dashboard, vehicle.simulate, vehicle.spec, 1 auto (viper)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_solvers</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_simulation.numerical_solvers (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_solvers.fft</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_simulation.numerical_solvers (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.api</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.catalog</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.classify</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.cli</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.coverage</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.extras</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.gallery</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.inputs</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.inventory</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.loopback</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.outputs</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.prose</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.requirements</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.runner</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.search</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.smoke</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_studio.taxonomy</code></td>
+<td></td>
+<td>the Studio itself: it catalogs every library symbol as a tool and runs tools and examples as jobs; a flow calls the tools it lists, not the catalog</td>
+</tr>
+<tr>
+<td><code>pinneapple_systems</code></td>
+<td>autolab.pipe_twin, control.compare, enso.solver_checks, football.ball_flight_inverse, football.pass_pitch_control, football.tracking_smoothing, forecast.enso, forecast.lab, forecast_lab.case, forecast_lab.lyapunov, forecast_lab.overfitting, lib.ts.predictability, systems.component_fit, ts.adaptive, ts.naive_baselines, twin.auto, twin.connect, 32 auto (actuator_series, acid_fraction, base_fraction, beam_column_moment_amplification_factor, bending_stress_from_curvature, build_and_hold_profile, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.component_library</code></td>
+<td>systems.component_fit</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.component_modeling</code></td>
+<td></td>
+<td>no form-callable function: 4 with argument takes an object (Any); 2 with an I/O, server or setup entry point; 1 with evaluates text, runs processes or touches files; 1 with argument takes an object (Module)</td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.cosimulation</code></td>
+<td></td>
+<td>no public functions: its API is classes (AnalyticalNode, BlackBoxNode, CoSimEngine, CoSimGraph, CoSimLoss and 14 more) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.digital_twin</code></td>
+<td>autolab.pipe_twin</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.excitation</code></td>
+<td>1 auto (actuator_series)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.operations</code></td>
+<td>control.compare, twin.auto, twin.connect</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.process_components</code></td>
+<td>31 auto (acid_fraction, base_fraction, beam_column_moment_amplification_factor, bending_stress_from_curvature, build_and_hold_profile, calibrate, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.sports</code></td>
+<td>football.ball_flight_inverse, football.pass_pitch_control, football.tracking_smoothing</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_systems.time_series</code></td>
+<td>enso.solver_checks, forecast.enso, forecast.lab, forecast_lab.case, forecast_lab.lyapunov, forecast_lab.overfitting, lib.ts.predictability, ts.adaptive, ts.naive_baselines</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools</code></td>
+<td>arena.physics_spec, arena.timeseries_spec, benchmark.arena, benchmark.arena_yaml, benchmark.meta, benchmark.transfer, cfd.run, flight.scene, flight.takeoff, geometry.unstructured_mesh, lib.export.usd_validate, lib.services.infer, render.blender_clip, render.clip_grid, vehicle.dashboard, viz.field3d, viz.render, 22 auto (example_workflow, get_adapter, interpret, known_actions, list_adapters, parse_quantity, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.aero_coefficients</code></td>
+<td></td>
+<td>no form-callable function: 3 with argument takes an object (ndarray)</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.automation</code></td>
+<td>cfd.run, 6 auto (example_workflow, get_adapter, interpret, known_actions, list_adapters, parse_quantity)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.benchmark_suite</code></td>
+<td>arena.physics_spec, arena.timeseries_spec, benchmark.arena, benchmark.arena_yaml, benchmark.meta, benchmark.transfer, 4 auto (get_backend, get_task, list_backends, list_tasks)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.compute_backends</code></td>
+<td>2 auto (get_backend, jax_available)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.dataset_quality</code></td>
+<td>7 auto (analyze_completeness, analyze_distribution, build_consistency_prompt, detect_outliers, extract_json, field_range_issues, ...)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.hpo_experiments</code></td>
+<td></td>
+<td>no form-callable function: 2 with argument takes an object (ResearcherConfig); 2 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.model_evaluation</code></td>
+<td></td>
+<td>no public functions: constants and re-exports only</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.model_export</code></td>
+<td></td>
+<td>no form-callable function: 4 with an I/O, server or setup entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.model_services</code></td>
+<td>lib.services.infer</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.nvidia</code></td>
+<td>lib.export.usd_validate</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.rea_bridge</code></td>
+<td>2 auto (exported_functions_from_layout, summarize_js_evidence)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.reporting</code></td>
+<td>1 auto (sanitize)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.sandbox</code></td>
+<td></td>
+<td>no form-callable function: 1 with evaluates text, runs processes or touches files</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.surrogate_policy</code></td>
+<td></td>
+<td>no public functions: its API is classes (Any, SurrogatePolicy, SurrogatePolicyResult) that Python code builds and composes</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.visualization</code></td>
+<td>flight.scene, flight.takeoff, geometry.unstructured_mesh, render.blender_clip, render.clip_grid, vehicle.dashboard, viz.field3d, viz.render</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_train</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_neural.trainer (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_train.losses</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_neural.trainer (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_train.metrics</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_neural.trainer (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_train.trainer</code></td>
+<td></td>
+<td>shim: re-exports pinneapple_neural.trainer (covered there)</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.demo</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.gallery</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.library</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.openfoam</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.primitives</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.scan</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.scene</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.serve</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.usd</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_twin3d.wear</code></td>
+<td></td>
+<td>3-D twin scene server; viz.field3d gives the in-studio 3-D view</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.applicability</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.decision</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.evidence_package</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.evidence_report</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.example_cases</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.execution_log</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.ledger</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.mesh_views</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.recommend</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.robustness</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.scope</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_veriphysics.validation_lab</code></td>
+<td></td>
+<td>report layer over results; decision records + export.report cover it here</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel</code></td>
+<td>lib.worldmodel.arm_camera, lib.worldmodel.inspection_sample, lib.worldmodel.video_check, worldmodel.specialists</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.benchmark</code></td>
+<td>worldmodel.specialists</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.camera_system</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.curriculum</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.dataset</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.dataset_factory</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.dataset_packager</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.generate_datasets</code></td>
+<td>worldmodel.specialists</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.geometry</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.inspection_data</code></td>
+<td>lib.worldmodel.inspection_sample</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.mega_model</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.meta_learning</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.model</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.model_zoo</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.orchestrator</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.photorealistic_enhancer</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.physical_world</code></td>
+<td>lib.worldmodel.video_check</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.physics_renderer</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.physics_solver_bridge</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.physics_tools</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.pipeline</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.reality_randomizer</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.robot_perception</code></td>
+<td>lib.worldmodel.arm_camera</td>
+<td></td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.scenario</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.scenario_generator</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.simulator</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.specialist_trainer</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.synthetic_factory</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.train</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.trainer</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+<tr>
+<td><code>pinneapple_worldmodel.training_hooks</code></td>
+<td></td>
+<td>foundation-model training at GPU scale; no CPU-sized entry point</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,8099 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/guides/near_random_forecasting/">
+      
+      
+        <link rel="prev" href="../../apps/validation_lab/">
+      
+      
+        <link rel="next" href="../football_physics/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Forecasting near-random series without overfitting - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#forecasting-near-random-series-without-overfitting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Forecasting near-random series without overfitting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_54" >
+        
+          
+          <label class="md-nav__link" for="__nav_54" id="__nav_54_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_54_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_54">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_55" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_55" id="__nav_55_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_55_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_55">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-series" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The series
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-is-there-anything-to-predict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Is there anything to predict?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-far-ahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. How far ahead?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-what-prevents-overfitting-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. What prevents overfitting, measured
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-point-and-probabilistic-scores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Point and probabilistic scores
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-a-real-daily-series-youtube-trending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. A real daily series: YouTube trending
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual-pack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual pack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-use-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What to use when
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits-what-was-not-tested-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits: what was not tested, and why
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-series" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The series
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-is-there-anything-to-predict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Is there anything to predict?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-far-ahead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. How far ahead?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-what-prevents-overfitting-measured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. What prevents overfitting, measured
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-point-and-probabilistic-scores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Point and probabilistic scores
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-a-real-daily-series-youtube-trending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. A real daily series: YouTube trending
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual-pack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual pack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-use-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What to use when
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits-what-was-not-tested-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits: what was not tested, and why
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/guides/near_random_forecasting.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/guides/near_random_forecasting.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="forecasting-near-random-series-without-overfitting">Forecasting near-random series without overfitting<a class="headerlink" href="#forecasting-near-random-series-without-overfitting" title="Permanent link">&para;</a></h1>
+<p>Some series are almost random: chaotic systems observed with noise, noise-driven physical systems, financial
+returns. A flexible model always finds <em>something</em> in them on its training data. This guide gives measured answers
+to four questions:</p>
+<ol>
+<li>Is there anything predictable at all, and how do you know before fitting a model?</li>
+<li>How far ahead can each model family forecast before its skill falls back to a baseline?</li>
+<li>Which training choices actually prevent overfitting, and by how much?</li>
+<li>How do the point and probabilistic scores compare once the differences are tested for significance?</li>
+</ol>
+<p>Everything here comes from two scripts:
+<a href="../../examples/near_random_forecasting/run_study.py"><code>examples/near_random_forecasting/run_study.py</code></a> runs the
+study and <a href="../../examples/near_random_forecasting/render_visuals.py"><code>render_visuals.py</code></a> draws the
+<a href="#visual-pack">visual pack</a> from its results. Their results
+are committed in <code>examples/near_random_forecasting/results/</code>: one JSON per series, the overfitting studies, and
+<code>tables.md</code>, from which every table below is copied. The figures are in <code>examples/near_random_forecasting/figures/</code>.
+The library pieces live in <code>pinneapple_systems.time_series</code> (<code>predictability</code>, <code>synthetic</code>, <code>forecast_lab</code>,
+<code>metrics_ext</code>, <code>validation</code>, <code>datasets.public</code>) and are tested in <code>tests/test_near_random_forecasting.py</code> and
+<code>tests/test_near_random_visuals.py</code>.</p>
+<h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_systems.time_series.predictability</span><span class="w"> </span><span class="kn">import</span> <span class="n">predictability_report</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_systems.time_series.forecast_lab</span><span class="w"> </span><span class="kn">import</span> <span class="n">presets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_systems.time_series.forecast_lab.study</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_zoo</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">presets</span><span class="o">.</span><span class="n">case</span><span class="p">(</span><span class="s2">"double_well"</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1500</span><span class="p">)</span>                       <span class="c1"># series, protocol and model zoo</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">predictability_report</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">horizons</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">n_surrogates</span><span class="o">=</span><span class="mi">19</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"surrogate_tests"</span><span class="p">][</span><span class="s2">"npe_iaaft"</span><span class="p">][</span><span class="s2">"p_value"</span><span class="p">])</span>      <span class="c1"># more structure than a linear Gaussian process?</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">run_zoo</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">specs</span><span class="p">[:</span><span class="mi">6</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>      <span class="c1"># baselines + gradient boosting, purged CV tuning</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">"models"</span><span class="p">][</span><span class="s2">"gbm"</span><span class="p">][</span><span class="s2">"test"</span><span class="p">][</span><span class="s2">"skill_rmse"</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s2">"models"</span><span class="p">][</span><span class="s2">"gbm"</span><span class="p">][</span><span class="s2">"skill_horizon_vs_best_baseline"</span><span class="p">])</span>
+</code></pre></div>
+<p>Your own series: wrap it in <code>SeriesData(obs, target=0, dt=...)</code>, pick horizons for a <code>Protocol</code>, and list
+<code>ModelSpec(name, family, factory, grid)</code> entries. Every forecaster implements
+<code>fit(data, train_origins, val_origins, horizons)</code> and <code>predict(data, origins) -&gt; Forecast</code> (a mean plus a Gaussian
+standard deviation or ensemble samples).</p>
+<h2 id="the-protocol">The protocol<a class="headerlink" href="#the-protocol" title="Permanent link">&para;</a></h2>
+<p>The same rules for every series and every model (<code>forecast_lab.study</code>):</p>
+<ul>
+<li><strong>Test period fixed first.</strong> The last 20 % of each series is the test period. It is set before any tuning and
+  touched once, by the final fitted model. Every forecast is made from an <em>origin</em> t using data up to t only, and
+  targets t + h for each horizon h. Forecasts are direct (one output per horizon), not iterated.</li>
+<li><strong>Validation block, purged.</strong> The last 15 % of the development part (everything before the test period) is the
+  validation block. It is used for early stopping, for calibrating the predictive spread of point forecasters, and
+  for choosing each family's representative. Training origins stop at least max(h) samples before it, so no
+  training label falls inside it (purge = largest horizon). Validation labels never reach the test period.</li>
+<li><strong>Purged walk-forward tuning.</strong> Each tuned model gets the same budget: 4 configurations drawn from its grid
+  (<code>presets.BUDGET</code>). Each configuration is scored on 3 walk-forward folds of the development part (2 for
+  sunspots). Each fold has a purged inner block for early stopping. The score is the mean over horizons of
+  RMSE / RMSE(persistence), so all horizons weigh the same. The best configuration is refitted once on the final
+  split.</li>
+<li><strong>Same origins for everyone.</strong> All models of a series start at the same first origin (the longest input window
+  in the zoo), and are scored on the same test origins (every second one, every one for the sunspots; 51 to 687 per series).</li>
+<li><strong>Scores</strong> (<code>study.evaluate</code>), per horizon:</li>
+<li>MAE and RMSE, and skill = 1 − RMSE / RMSE(reference).</li>
+<li>CRPS: closed form for Gaussian forecasts, the fair ensemble estimator for ensembles; skill against
+    climatology.</li>
+<li>Coverage of the central 50, 80 and 95 % intervals, and the PIT histogram with its mean absolute deviation from
+    flat (0 = flat).</li>
+<li>A point forecaster gets a Gaussian predictive distribution whose standard deviation at each horizon is its RMSE
+    on the validation block. Physical models with filters or SDEs produce their own distributions: Kalman, EnKF
+    and Euler–Maruyama ensembles.</li>
+<li><strong>Tests.</strong> One-sided Diebold–Mariano tests on squared errors (HLN small-sample correction, long-run variance up
+  to the overlap of h-step errors) against persistence and against the <em>best baseline</em>: at each horizon, the
+  baseline with the lowest validation RMSE, so the reference is not picked on the test period. The p-values are
+  Holm-adjusted across all non-baseline models at each horizon (family-wise error 5 %), and Benjamini–Hochberg
+  q-values over all model × horizon tests are stored too.</li>
+<li><strong>"Last horizon with skill"</strong> is the largest h such that, at every horizon up to h, the skill is positive and the
+  Holm-adjusted p-value is below 0.05.</li>
+</ul>
+<p>The zoo per series, defined in <code>forecast_lab.presets</code>:</p>
+<table>
+<thead>
+<tr>
+<th>family</th>
+<th>models</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baseline</td>
+<td>persistence, climatology (training mean and std), AR(p) by AIC, ARIMA(p ≤ 2, d ≤ 1, q ≤ 1) by AIC, simple exponential smoothing, seasonal naive (the value whole periods before the target) and phase-aligned mean cycle (<code>PhaseClimatology</code>: the training cycle, re-aligned to the phase of each origin by least squares over the last 1 or 3 periods; tuned). The period is the highest peak of the training periodogram.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>gradient boosting on lags (scikit-learn histogram GBM, one per horizon), MLP, LSTM (<code>time_series.models.LSTMForecaster</code>), TCN (<code>TCNForecaster</code>), transformer (<code>pinneapple_neural</code> <code>VanillaTransformer</code>)</td>
+</tr>
+<tr>
+<td>data + physics</td>
+<td>GBM with physics features (the fitted vector field or drift at the origin state, or the Kalman-filtered state and energy); MLP with a physics-residual loss on the predicted path (fully observed ODEs; λ ∈ {0, 0.01, 0.1, 1} tuned)</td>
+</tr>
+<tr>
+<td>physical</td>
+<td>the governing ODE / delay ODE with parameters fitted by multiple shooting on the training data, deliberately misspecified versions (Lorenz-63 without the −xz term, Mackey–Glass with delay 14 instead of 17, an OU model of the oscillator and of the double well), SINDy, EnKF (40 members) on the fitted ODE, Kalman-filtered linear SDEs (OU, damped oscillator), SDE drift regression with Euler–Maruyama ensembles</td>
+</tr>
+<tr>
+<td>hybrid</td>
+<td>physical forecast + GBM correction (correct and misspecified physics), UDE: misspecified Lorenz-63 + neural closure trained through the integrator, linear drift + neural drift closure for the double well</td>
+</tr>
+</tbody>
+</table>
+<p>Prior knowledge given to the physical models (assumptions): the structure of the equations, initial parameter
+guesses 20–30 % off, the Mackey–Glass delay (17) and exponent (10), the Lorenz-96 dimension. Physical models
+never see the true parameters.</p>
+<h2 id="the-series">The series<a class="headerlink" href="#the-series" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>what it is</th>
+<th>samples</th>
+<th>step</th>
+<th>noise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63</td>
+<td>chaotic ODE, x, y, z observed, x forecast</td>
+<td>6000</td>
+<td>0.05</td>
+<td>0.01, 0.1, 0.3 × std per variable</td>
+</tr>
+<tr>
+<td>Mackey–Glass</td>
+<td>chaotic delay ODE (τ = 17), scalar</td>
+<td>6000</td>
+<td>3</td>
+<td>0.01, 0.1, 0.3 × std</td>
+</tr>
+<tr>
+<td>Lorenz-96</td>
+<td>40 variables, F = 8, all observed, x₀ forecast</td>
+<td>6000</td>
+<td>0.05</td>
+<td>0.1 × std</td>
+</tr>
+<tr>
+<td>Ornstein–Uhlenbeck</td>
+<td>θ = 1, σ = 1, exact sampling</td>
+<td>6000</td>
+<td>0.1</td>
+<td>0.1 × std</td>
+</tr>
+<tr>
+<td>damped oscillator</td>
+<td>ω = 1, ζ = 0.05, white-noise forcing σ = 0.3, position observed</td>
+<td>6000</td>
+<td>0.25</td>
+<td>0.1 × std</td>
+</tr>
+<tr>
+<td>double well</td>
+<td>dx = (x − x³) dt + 0.7 dW: noise-driven switching between two regimes</td>
+<td>6000</td>
+<td>0.1</td>
+<td>0.1 × std</td>
+</tr>
+<tr>
+<td>white noise, random walk</td>
+<td>controls</td>
+<td>6000</td>
+<td>1</td>
+<td>–</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns (%)</td>
+<td>FRED DEXUSEU via the <a href="https://github.com/datasets/exchange-rates">datasets/exchange-rates</a> package (ODC-PDDL), 1999-01-05 to 2026-10-09, pinned commit and SHA-256</td>
+<td>6964</td>
+<td>1 day</td>
+<td>real</td>
+</tr>
+<tr>
+<td>sunspots</td>
+<td>yearly mean sunspot number 1700–2008, NOAA NGDC (public domain), as shipped by statsmodels</td>
+<td>309</td>
+<td>1 year</td>
+<td>real</td>
+</tr>
+<tr>
+<td>YouTube US trending, daily</td>
+<td>log10 of the total views of the ~200 trending entries, and the number of Entertainment (category 24) entries; see <a href="#5-a-real-daily-series-youtube-trending">section 5</a></td>
+<td>205</td>
+<td>1 trending day</td>
+<td>real</td>
+</tr>
+</tbody>
+</table>
+<p>The largest Lyapunov exponents come from the equations (Benettin two-trajectory method,
+<code>synthetic.largest_lyapunov_benettin</code>, natural logarithm per unit time):
+* 0.893 for Lorenz-63 (Sprott 2003, <em>Chaos and Time-Series Analysis</em>, gives 0.906);
+* 0.0049 for Mackey–Glass (<code>synthetic.mackey_glass_lyapunov</code>, a perturbation of the whole delay history,
+  50 000 time units at step 0.1);
+* 1.677 for Lorenz-96.</p>
+<p>One Lyapunov time (LT) is 22 samples for Lorenz-63, 68 for Mackey–Glass and 12 for Lorenz-96.</p>
+<p>The Mackey–Glass value was checked for convergence (<code>pipeline.lyapunov_study</code>,
+<code>results/lyapunov_mackey_glass.json</code>; three seeds each, which change the initial history and the perturbation
+direction):</p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>10 000 time units</th>
+<th>50 000</th>
+<th>200 000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1</td>
+<td>0.00481 ± 0.00056</td>
+<td>0.00498 ± 0.00017</td>
+<td>0.00501 ± 0.00015</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>0.00509 ± 0.00033</td>
+<td>0.00504 ± 0.00003</td>
+<td>0.00516 ± 0.00003</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>At 10 000 time units (the first version of this study used one such run, 0.0046) the seed alone moves the
+  estimate by about ±10 %.</li>
+<li>With longer runs the estimate settles at 0.0050 (step 0.1) to 0.0052 (step 0.05). The 3 % dependence on the
+  step is presumably the integration error of the delayed term, which is interpolated linearly at the half step.</li>
+<li>The value used for the LT axes (0.0049) is within 5 % of the finest estimate.</li>
+<li><strong>Unverified comparison.</strong> A reviewer quoted 0.006 to 0.007 for τ = 17 from Farmer (1982, Physica D 4:366) and
+  Wolf et al. (1985, Physica D 16:285). Neither paper could be opened from this environment (publisher sites and
+  arXiv were not reachable), so their values, units and settings are not checked here. Our converged value is 13
+  to 29 % below that range.</li>
+<li><strong>Hypothesis, not a finding:</strong> if those values are in bits per unit time, they would be 0.0042–0.0049 in natural
+  log, consistent with ours. This was not verified.</li>
+</ul>
+<h2 id="1-is-there-anything-to-predict">1. Is there anything to predict?<a class="headerlink" href="#1-is-there-anything-to-predict" title="Permanent link">&para;</a></h2>
+<p><code>predictability_report(y)</code> runs before any model. It fits an AR model (order by AIC, in-sample one-step R²),
+computes the permutation entropy (order 5, 1 = i.i.d.) and the sample entropy (m = 2, r = 0.2 std), and estimates
+the Rosenstein exponent on a delay embedding. It then runs surrogate tests with 99 surrogates each:</p>
+<ul>
+<li>The statistic is the out-of-sample error of a nearest-neighbour predictor (NPE, one-sided) and the time-reversal
+  asymmetry (TRA, two-sided).</li>
+<li><em>Shuffled</em> surrogates test for any temporal structure.</li>
+<li><em>IAAFT</em> surrogates test for structure beyond a linear Gaussian process seen through a monotone transform.</li>
+<li>A series with an AR(1) coefficient above 0.99 is tested on its differences.</li>
+</ul>
+<p>The verdict column reads "nonlinear structure" if either IAAFT test rejects at 5 %, "linear structure only" if
+only the shuffle test rejects.</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>AR order (R² 1-step)</th>
+<th>perm. entropy</th>
+<th>sample entropy</th>
+<th>Rosenstein λ (true λ)</th>
+<th>NPE / std</th>
+<th>p shuffle</th>
+<th>p IAAFT</th>
+<th>p TRA IAAFT</th>
+<th>verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>14 (0.99)</td>
+<td>0.43</td>
+<td>0.44</td>
+<td>0.89 (0.893)</td>
+<td>0.13</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.53</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>13 (0.95)</td>
+<td>0.67</td>
+<td>0.72</td>
+<td>0.73 (0.893)</td>
+<td>0.21</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.75</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>14 (0.80)</td>
+<td>0.91</td>
+<td>1.38</td>
+<td>0.64 (0.893)</td>
+<td>0.42</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.97</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>20 (0.99)</td>
+<td>0.59</td>
+<td>0.62</td>
+<td>0.01 (0.005)</td>
+<td>0.03</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.04</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>20 (0.94)</td>
+<td>0.64</td>
+<td>0.86</td>
+<td>0.01 (0.005)</td>
+<td>0.14</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.09</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>19 (0.81)</td>
+<td>0.83</td>
+<td>1.50</td>
+<td>0.01 (0.005)</td>
+<td>0.39</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.39</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>8 (0.95)</td>
+<td>0.74</td>
+<td>0.82</td>
+<td>0.76 (1.677)</td>
+<td>0.30</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>2 (0.80)</td>
+<td>0.94</td>
+<td>1.41</td>
+<td>0.14</td>
+<td>0.50</td>
+<td>0.01</td>
+<td>0.76</td>
+<td>0.84</td>
+<td>linear structure only</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>14 (0.97)</td>
+<td>0.68</td>
+<td>0.87</td>
+<td>0.17</td>
+<td>0.24</td>
+<td>0.01</td>
+<td>0.86</td>
+<td>0.26</td>
+<td>linear structure only</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>6 (0.93)</td>
+<td>0.95</td>
+<td>0.91</td>
+<td>0.20</td>
+<td>0.30</td>
+<td>0.01</td>
+<td>0.08</td>
+<td>0.89</td>
+<td>linear structure only</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>0 (0.00)</td>
+<td>1.00</td>
+<td>2.20</td>
+<td>0.00</td>
+<td>1.05</td>
+<td>0.81</td>
+<td>0.76</td>
+<td>0.88</td>
+<td>no structure found</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>0 (0.00)</td>
+<td>1.00</td>
+<td>2.20</td>
+<td>-0.00</td>
+<td>1.05</td>
+<td>0.71</td>
+<td>0.67</td>
+<td>0.98</td>
+<td>no structure found (tested on differences)</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>0 (0.00)</td>
+<td>1.00</td>
+<td>1.97</td>
+<td>0.00</td>
+<td>0.90</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.15</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>9 (0.86)</td>
+<td>0.60</td>
+<td>0.84</td>
+<td>0.03</td>
+<td>0.60</td>
+<td>0.01</td>
+<td>0.84</td>
+<td>0.01</td>
+<td>nonlinear structure</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Surrogate tests" src="../../examples/near_random_forecasting/figures/surrogate_tests.png" /></p>
+<p>What this says:</p>
+<ul>
+<li>The tests call every control correctly. White noise and the random walk (tested on its increments) show no
+  structure: permutation entropy 1.00, AR order 0, no rejection. OU and the oscillator show linear structure only.
+  All chaotic series reject the IAAFT null.</li>
+<li>The double well (IAAFT p = 0.08) is called linear at 5 %. At this sampling step and noise level, its regime
+  switching is not distinguishable from a linear Gaussian process by these two statistics.</li>
+<li>The USD/EUR returns reject both nulls, but the entropy is 1.00 and the AR order is 0. The structure is in a
+  nonlinear statistic, not in the mean. Volatility clustering of returns is the usual explanation; that is an
+  interpretation, which this study did not test. As section 2 shows, no model forecasts the mean return better than
+  the baseline. <strong>A rejected surrogate test says there is structure, not that the structure is forecastable.</strong></li>
+<li>The sunspots reject the time-reversal null (p = 0.01): cycles rise faster than they decay.</li>
+<li>The Rosenstein exponent is unreliable. It gives 0.20 for the (non-chaotic) double well and 0.14 and 0.17 for the
+  linear OU and oscillator. For Lorenz-96 it gives 0.76, against the true 1.68: a scalar embedding of a
+  40-dimensional system does not recover it. For Mackey–Glass it is 1.1 to 1.7 times the Benettin value (0.0052 to
+  0.0085, against 0.0049). The estimate also depends on the fit window of the divergence curve; the default here is
+  samples 5–30, and <code>tests/test_near_random_forecasting.py</code> only asks for 0.6–1.3 on noise-free Lorenz-63 (true
+  0.906). Use it only next to a surrogate test, never alone.</li>
+</ul>
+<p>The surrogate-trained twins check whether a model learned more than the linear correlations. The same GBM is
+trained once on the real development data and once on an IAAFT surrogate of it (and on a shuffled one), then both
+are scored on the real test period. The table gives the RMSE skill against persistence, averaged over horizons.</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>GBM trained on real data</th>
+<th>on IAAFT surrogate</th>
+<th>on shuffled surrogate</th>
+<th>real − IAAFT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>0.67</td>
+<td>0.24</td>
+<td>-0.34</td>
+<td>0.42</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>0.51</td>
+<td>0.20</td>
+<td>-0.30</td>
+<td>0.31</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>0.33</td>
+<td>0.15</td>
+<td>-0.09</td>
+<td>0.17</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>0.85</td>
+<td>0.51</td>
+<td>-0.07</td>
+<td>0.34</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>0.73</td>
+<td>0.49</td>
+<td>-0.06</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>0.56</td>
+<td>0.43</td>
+<td>0.03</td>
+<td>0.12</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>0.27</td>
+<td>0.24</td>
+<td>-0.33</td>
+<td>0.03</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>0.11</td>
+<td>0.11</td>
+<td>-0.31</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>0.51</td>
+<td>0.50</td>
+<td>-0.29</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>0.11</td>
+<td>0.07</td>
+<td>-0.83</td>
+<td>0.04</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>0.28</td>
+<td>0.28</td>
+<td>0.28</td>
+<td>-0.00</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>-0.03</td>
+<td>-0.04</td>
+<td>-14.95</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>0.28</td>
+<td>0.28</td>
+<td>0.28</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>0.39</td>
+<td>0.34</td>
+<td>0.02</td>
+<td>0.05</td>
+</tr>
+</tbody>
+</table>
+<p>The real-trained model beats its IAAFT twin only on the chaotic series (by 0.12 to 0.42 for Lorenz-63 and
+Mackey–Glass) and, slightly, on the double well (0.04) and the sunspots (0.05). On OU, the oscillator, the noise controls and USD/EUR the
+difference is 0.00 to 0.01: whatever the GBM learned there, a linear Gaussian process with the same spectrum
+teaches it too. On white noise and USD/EUR, the 0.28 skill against persistence is just the gain of forecasting the
+mean instead of the last value; the shuffled twin gets the same 0.28. Lorenz-96 seen through a single variable
+(0.03) is nearly linear-looking: the univariate GBM cannot use the other 39 variables. The random walk's shuffled
+twin (−14.95) is meaningless: shuffling the levels of a random walk destroys it. It is kept to show what a broken
+surrogate looks like.</p>
+<h2 id="2-how-far-ahead">2. How far ahead?<a class="headerlink" href="#2-how-far-ahead" title="Permanent link">&para;</a></h2>
+<p>The skill of each family's representative is plotted against the horizon, relative to the best baseline. The
+representative is the family member with the best validation score, not the best on test. Horizons are in
+Lyapunov times for the chaotic series. Filled markers are significant after Holm adjustment.</p>
+<p><img alt="Skill vs horizon against the best baseline" src="../../examples/near_random_forecasting/figures/skill_vs_horizon.png" /></p>
+<p>The table gives the last horizon with significant positive skill, against persistence and against the best
+baseline. The horizons in samples (and LT) are listed per series.</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>horizons</th>
+<th>data: best (val) / last h with skill</th>
+<th>data+physics: best (val) / last h with skill</th>
+<th>physical: best (val) / last h with skill</th>
+<th>hybrid: best (val) / last h with skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128</td>
+<td>gbm: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>gbm_physics_features: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>enkf: 128 (5.72 LT) / 64 (2.86 LT)</td>
+<td>ode_fitted+gbm: 128 (5.72 LT) / 64 (2.86 LT)</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128</td>
+<td>transformer: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>gbm_physics_features: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>enkf: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>ode_fitted+gbm: 128 (5.72 LT) / 32 (1.43 LT)</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128</td>
+<td>lstm: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>mlp_physics_loss: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>enkf: 128 (5.72 LT) / 32 (1.43 LT)</td>
+<td>ode_missing_xz+gbm: 128 (5.72 LT) / 16 (0.71 LT)</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128, 256</td>
+<td>tcn: 256 (3.76 LT) / 128 (1.88 LT)</td>
+<td>gbm_physics_features: 256 (3.76 LT) / 128 (1.88 LT)</td>
+<td>dde_fitted: 256 (3.76 LT) / 64 (0.94 LT)</td>
+<td>dde_fitted+gbm: 256 (3.76 LT) / 128 (1.88 LT)</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128, 256</td>
+<td>tcn: 256 (3.76 LT) / 64 (0.94 LT)</td>
+<td>gbm_physics_features: 256 (3.76 LT) / 128 (1.88 LT)</td>
+<td>dde_fitted: 256 (3.76 LT) / 32 (0.47 LT)</td>
+<td>dde_fitted+gbm: 256 (3.76 LT) / 128 (1.88 LT)</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128, 256</td>
+<td>transformer: 256 (3.76 LT) / 32 (0.47 LT)</td>
+<td>gbm_physics_features: 256 (3.76 LT) / 32 (0.47 LT)</td>
+<td>dde_fitted: 256 (3.76 LT) / 16 (0.24 LT)</td>
+<td>dde_fitted+gbm: 256 (3.76 LT) / 32 (0.47 LT)</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>1, 2, 4, 8, 16, 32, 64</td>
+<td>gbm: 64 (5.37 LT) / 8 (0.67 LT)</td>
+<td>gbm_physics_features: 64 (5.37 LT) / 8 (0.67 LT)</td>
+<td>enkf: 64 (5.37 LT) / 32 (2.68 LT)</td>
+<td>ode_fitted+gbm: 64 (5.37 LT) / 16 (1.34 LT)</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>1, 2, 4, 8, 16, 32</td>
+<td>lstm: 32 / none</td>
+<td>gbm_physics_features: 32 / none</td>
+<td>ou_kalman: 32 / none</td>
+<td>ou_kalman+gbm: 32 / none</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>1, 2, 4, 8, 16, 32, 64</td>
+<td>mlp: 64 / none</td>
+<td>gbm_physics_features: 64 / none</td>
+<td>oscillator_kalman: 64 / none</td>
+<td>oscillator_kalman+gbm: 64 / none</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>1, 2, 4, 8, 16, 32, 64, 128</td>
+<td>transformer: 16 / none</td>
+<td>gbm_physics_features: 16 / none</td>
+<td>sde_poly3: 8 / none</td>
+<td>sde_poly1_nn_closure: 16 / none</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>1, 2, 4, 8, 16</td>
+<td>lstm: 16 / none</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>1, 2, 4, 8, 16</td>
+<td>transformer: none / none</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>1, 2, 5, 10, 20</td>
+<td>mlp: 20 / none</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>1, 2, 3, 5, 8, 11</td>
+<td>mlp: 8 / none</td>
+<td>gbm_physics_features: 8 / 1</td>
+<td>oscillator_kalman: 8 / none</td>
+<td>oscillator_kalman+gbm: 8 / 1</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Against persistence everything looks good</strong>, up to the longest horizon on most series, because persistence is
+  a poor forecast once the horizon passes the correlation time
+  (<a href="../../examples/near_random_forecasting/figures/skill_vs_persistence.png">figure</a>). Against the best baseline
+  (chosen on validation at each horizon: AR or ARIMA, and on Mackey–Glass the phase-aligned mean cycle from
+  h = 16 on) the picture is honest:</li>
+<li>Lorenz-63: 1.4 LT for every family at noise 0.1, and at noise 0.3 except the hybrid (0.7 LT). At noise 0.01
+    the EnKF and the hybrid reach 2.9 LT and the data models 1.4 LT.</li>
+<li>Mackey–Glass: 1.9 LT for the data, data + physics and hybrid families at noise 0.01. At noise 0.1 it is
+    1.9 LT for data + physics and hybrid and 0.9 LT for the data family. At noise 0.3 it is 0.5 LT for all three.
+    The fitted delay equation alone stops earlier: 0.9, 0.5 and 0.2 LT.</li>
+<li>Lorenz-96: 2.7 LT for the EnKF, 1.3 LT for the hybrid, 0.7 LT for the data and data + physics families.</li>
+<li><strong>Linear stochastic series: no family beats the linear baseline at any horizon.</strong> That is the correct answer.
+  The fitted Kalman models recover the true parameters:</li>
+<li>OU: θ = 0.994, σ = 0.990 (true 1, 1).</li>
+<li>oscillator: ω = 0.995, ζ = 0.059, σ = 0.308 (true 1, 0.05, 0.3).</li>
+</ul>
+<p>They are then <em>equal</em> to ARIMA, not better, because a linear SDE sampled at a fixed step is an ARMA process.
+* <strong>Double well: no significant skill over ARIMA</strong> for any family. The mean gains are at most 0.05. The drift
+  regression recovers the cubic drift shape, 0.80 x − 0.92 x³ against the true x − x³: the coefficients shrink
+  towards zero because of the observation noise, as stated in the assumptions.
+* <strong>Noise controls and USD/EUR returns: nothing beats the baseline</strong>, at any horizon, for any of the five
+  data-driven models. That is the correct answer, and the protocol reports it as "none".
+* <strong>Sunspots</strong> (51 test origins from 1947, targets up to 2008): only the data + physics and hybrid representatives
+  beat the best baseline (AR(18)), and only one year ahead. The fitted oscillator alone has a period of
+  2π/0.637 = 9.9 years and ζ = 0.32, and it is worse than the best baseline at every horizon.</p>
+<p><strong>Misspecified physics, measured</strong> (Lorenz-63, noise 0.1, skill against the best baseline at h = 1, 2, 4, 8, 16):</p>
+<table>
+<thead>
+<tr>
+<th>model</th>
+<th>skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ODE without −xz</td>
+<td>0.36, 0.30, 0.10, 0.00, −0.01</td>
+</tr>
+<tr>
+<td>+ GBM correction</td>
+<td>0.49, 0.69, 0.80, 0.70, 0.53</td>
+</tr>
+<tr>
+<td>UDE closure</td>
+<td>0.47, 0.68, 0.79, 0.66, 0.30</td>
+</tr>
+<tr>
+<td>correct ODE + EnKF</td>
+<td>0.54, 0.73, 0.84, 0.79, 0.65</td>
+</tr>
+</tbody>
+</table>
+<p>Both repairs work at short horizons. The UDE falls below the baseline after about 1 LT (−0.09 at h = 32). With a
+wrong delay (noise 0.01), the Mackey–Glass model's skill against persistence swings between −0.64 and +0.75 across
+horizons. A GBM correction brings it to 0.60–0.99 at every horizon.</p>
+<h2 id="3-what-prevents-overfitting-measured">3. What prevents overfitting, measured<a class="headerlink" href="#3-what-prevents-overfitting-measured" title="Permanent link">&para;</a></h2>
+<p>Ten training variants (eight on the series without physics) were run on three series. Each was trained on the
+final split and scored by:</p>
+<ul>
+<li>its error on its training origins, on the validation block and on the untouched test period;</li>
+<li>the cross-validation estimate of four schemes (for the deliberately overfit models and two regularised
+  references): shuffled k-fold, walk-forward without purge, purged walk-forward, and purged k-fold with an embargo
+  of max(h).</li>
+</ul>
+<p>The error is the mean over horizons of RMSE / RMSE(persistence) on the same origins (1 = no better than
+persistence), so periods of different volatility compare. RMSE divided by the series std is stored too.</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>variant</th>
+<th>params</th>
+<th>train</th>
+<th>val</th>
+<th>test</th>
+<th>test − train</th>
+<th>CV: shuffled k-fold</th>
+<th>CV: walk-forward, no purge</th>
+<th>CV: purged walk-forward</th>
+<th>CV: purged k-fold + embargo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>overfit: MLP 512x3, 32 lags, no early stop</td>
+<td>546312</td>
+<td>0.587</td>
+<td>1.132</td>
+<td>1.159</td>
+<td>0.572</td>
+<td>0.990</td>
+<td>1.207</td>
+<td>1.205</td>
+<td>1.239</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>MLP 512x3 + early stopping</td>
+<td>546312</td>
+<td>0.872</td>
+<td>0.837</td>
+<td>0.908</td>
+<td>0.036</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>MLP 512x3 + early stop + wd 1e-2 + dropout 0.2</td>
+<td>546312</td>
+<td>0.912</td>
+<td>0.843</td>
+<td>0.909</td>
+<td>-0.003</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>MLP 16x1 + early stopping</td>
+<td>408</td>
+<td>0.896</td>
+<td>0.850</td>
+<td>0.893</td>
+<td>-0.003</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>MLP 64x2 + early stopping</td>
+<td>5768</td>
+<td>0.894</td>
+<td>0.843</td>
+<td>0.894</td>
+<td>0.000</td>
+<td>0.878</td>
+<td>0.897</td>
+<td>0.896</td>
+<td>0.911</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>MLP 64x2 + early stopping, 5-member ensemble</td>
+<td>28840</td>
+<td>0.889</td>
+<td>0.842</td>
+<td>0.889</td>
+<td>0.000</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>overfit: GBM 255 leaves, 1000 rounds, leaf&gt;=1</td>
+<td>4072000</td>
+<td>0.000</td>
+<td>0.929</td>
+<td>0.933</td>
+<td>0.933</td>
+<td>0.932</td>
+<td>0.964</td>
+<td>0.966</td>
+<td>0.988</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>GBM 7 leaves, 100 rounds, leaf&gt;=50, l2=1</td>
+<td>10400</td>
+<td>0.853</td>
+<td>0.862</td>
+<td>0.879</td>
+<td>0.026</td>
+<td>0.882</td>
+<td>0.900</td>
+<td>0.896</td>
+<td>0.913</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>overfit: MLP 512x3, 32 lags, no early stop</td>
+<td>579080</td>
+<td>0.265</td>
+<td>0.429</td>
+<td>0.476</td>
+<td>0.212</td>
+<td>0.438</td>
+<td>0.467</td>
+<td>0.468</td>
+<td>0.511</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 512x3 + early stopping</td>
+<td>579080</td>
+<td>0.369</td>
+<td>0.383</td>
+<td>0.423</td>
+<td>0.054</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 512x3 + early stop + wd 1e-2 + dropout 0.2</td>
+<td>579080</td>
+<td>0.548</td>
+<td>0.533</td>
+<td>0.554</td>
+<td>0.006</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 16x1 + early stopping</td>
+<td>920</td>
+<td>0.498</td>
+<td>0.478</td>
+<td>0.504</td>
+<td>0.005</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 64x2 + early stopping</td>
+<td>7816</td>
+<td>0.410</td>
+<td>0.395</td>
+<td>0.426</td>
+<td>0.017</td>
+<td>0.401</td>
+<td>0.409</td>
+<td>0.414</td>
+<td>0.432</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 64x2 + early stopping, 5-member ensemble</td>
+<td>39080</td>
+<td>0.393</td>
+<td>0.385</td>
+<td>0.408</td>
+<td>0.016</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>overfit: GBM 255 leaves, 1000 rounds, leaf&gt;=1</td>
+<td>4072000</td>
+<td>0.000</td>
+<td>0.439</td>
+<td>0.438</td>
+<td>0.438</td>
+<td>0.457</td>
+<td>0.450</td>
+<td>0.450</td>
+<td>0.469</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>GBM 7 leaves, 100 rounds, leaf&gt;=50, l2=1</td>
+<td>10400</td>
+<td>0.434</td>
+<td>0.461</td>
+<td>0.465</td>
+<td>0.031</td>
+<td>0.465</td>
+<td>0.467</td>
+<td>0.469</td>
+<td>0.472</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 128x2, 4 lags + early stop (no physics)</td>
+<td>67712</td>
+<td>0.442</td>
+<td>0.427</td>
+<td>0.446</td>
+<td>0.004</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>MLP 128x2, 4 lags + early stop + physics loss 0.1</td>
+<td>67712</td>
+<td>0.444</td>
+<td>0.428</td>
+<td>0.447</td>
+<td>0.003</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>overfit: MLP 512x3, 32 lags, no early stop</td>
+<td>544773</td>
+<td>0.516</td>
+<td>0.965</td>
+<td>0.919</td>
+<td>0.403</td>
+<td>0.862</td>
+<td>0.919</td>
+<td>0.921</td>
+<td>0.870</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>MLP 512x3 + early stopping</td>
+<td>544773</td>
+<td>0.689</td>
+<td>0.737</td>
+<td>0.723</td>
+<td>0.034</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>MLP 512x3 + early stop + wd 1e-2 + dropout 0.2</td>
+<td>544773</td>
+<td>0.694</td>
+<td>0.720</td>
+<td>0.708</td>
+<td>0.014</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>MLP 16x1 + early stopping</td>
+<td>357</td>
+<td>0.694</td>
+<td>0.725</td>
+<td>0.711</td>
+<td>0.017</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>MLP 64x2 + early stopping</td>
+<td>5573</td>
+<td>0.695</td>
+<td>0.724</td>
+<td>0.710</td>
+<td>0.015</td>
+<td>0.714</td>
+<td>0.714</td>
+<td>0.715</td>
+<td>0.713</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>MLP 64x2 + early stopping, 5-member ensemble</td>
+<td>27865</td>
+<td>0.691</td>
+<td>0.721</td>
+<td>0.708</td>
+<td>0.017</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>overfit: GBM 255 leaves, 1000 rounds, leaf&gt;=1</td>
+<td>2545000</td>
+<td>0.000</td>
+<td>0.796</td>
+<td>0.756</td>
+<td>0.756</td>
+<td>0.779</td>
+<td>0.776</td>
+<td>0.776</td>
+<td>0.773</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>GBM 7 leaves, 100 rounds, leaf&gt;=50, l2=1</td>
+<td>6500</td>
+<td>0.684</td>
+<td>0.728</td>
+<td>0.713</td>
+<td>0.028</td>
+<td>0.720</td>
+<td>0.717</td>
+<td>0.718</td>
+<td>0.721</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Train / validation / test and CV estimates per variant" src="../../examples/near_random_forecasting/figures/overfitting.png" /></p>
+<ul>
+<li><strong>The train–test gap is the detector.</strong> The deliberately overfit models have gaps of 0.21 to 0.57 (wide MLP, no
+  early stopping) and 0.44 to 0.93 (GBM with 255 leaves, which drives its training error to 0). Every early-stopped
+  model has a gap of 0.054 or less.</li>
+<li><strong>Early stopping on a purged validation block is the single most effective choice.</strong> The same 546k-parameter
+  MLP goes from a test error of 1.159 to 0.908 (double well), 0.919 to 0.723 (USD/EUR) and 0.476 to 0.423
+  (Lorenz-63) when it stops on the validation block.</li>
+<li><strong>Model size matters less than stopping.</strong> A 16-unit MLP (357 to 920 parameters) and an early-stopped
+  546k-parameter MLP score within 0.015 of each other on the double well and USD/EUR. On Lorenz-63 the large one is better (0.423 against
+  0.504), so smaller is not automatically safer.</li>
+<li><strong>Weight decay 1e-2 plus dropout 0.2</strong> on top of early stopping changes the test error by −0.015 (USD/EUR),
+  +0.001 (double well) and +0.131 (Lorenz-63, where it under-fits).</li>
+<li><strong>A 5-member ensemble</strong> improves on its single member by 0.002 to 0.018.</li>
+<li><strong>The physics-residual loss changes nothing measurable</strong> here: 0.447 with λ = 0.1 against 0.446 without, on
+  Lorenz-63. In the zoo, the tuner picked λ = 0 at noise 0.01, 0.1 at noise 0.1, 0.01 at noise 0.3 and 1 on
+  Lorenz-96.</li>
+<li><strong>Which CV scheme to trust.</strong> For the regularised models (MLP 64x2, GBM with 7 leaves), the four schemes agree
+  within 0.04 of each other and of the test error. For the overfit MLP they differ: shuffled k-fold gave the lowest
+  (most optimistic) estimate of the four in all three series. Double well: 0.990 shuffled against 1.159 on test. USD/EUR: 0.862 against
+  0.919. Lorenz-63: 0.438 against 0.476. The purged walk-forward estimates were 1.205, 0.921 and 0.468, closer to
+  test in each case. Walk-forward with and without purge gave nearly the same numbers here (largest difference
+  0.005). With h ≤ 128 samples and several thousand training origins, the purge removes few samples; it matters
+  more with long horizons and short series.</li>
+</ul>
+<h2 id="4-point-and-probabilistic-scores">4. Point and probabilistic scores<a class="headerlink" href="#4-point-and-probabilistic-scores" title="Permanent link">&para;</a></h2>
+<p>For each series: persistence, climatology, AR, the phase-aligned mean cycle and the family representatives. Each cell is a list over the
+horizons of that series.</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>model</th>
+<th>family</th>
+<th>RMSE skill vs persistence per h</th>
+<th>CRPS skill vs climatology per h</th>
+<th>coverage of the central 80 % and 95 % intervals (mean over h)</th>
+<th>PIT deviation (pooled)</th>
+<th>params</th>
+<th>final fit [s]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.73 0.49 0.10 -0.25 -0.23 -0.26 -0.32 -0.38</td>
+<td>0.78 (80 %), 0.94 (95 %)</td>
+<td>0.05</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-2.74 -0.95 -0.12 0.19 0.25 0.24 0.26 0.28</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.74 (80 %), 0.97 (95 %)</td>
+<td>0.13</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.71 0.56 0.32 0.23 0.25 0.25 0.26 0.28</td>
+<td>0.92 0.78 0.40 0.06 0.01 0.00 -0.00 -0.00</td>
+<td>0.74 (80 %), 0.94 (95 %)</td>
+<td>0.12</td>
+<td>16</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-2.98 -1.08 -0.21 0.13 0.20 0.20 0.21 0.23</td>
+<td>-0.06 -0.06 -0.07 -0.07 -0.06 -0.05 -0.06 -0.06</td>
+<td>0.79 (80 %), 0.96 (95 %)</td>
+<td>0.11</td>
+<td>668</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>gbm</td>
+<td>data</td>
+<td>0.93 0.96 0.96 0.95 0.81 0.66 0.27 0.23</td>
+<td>0.98 0.98 0.97 0.94 0.78 0.59 0.04 -0.06</td>
+<td>0.83 (80 %), 0.95 (95 %)</td>
+<td>0.21</td>
+<td>69600</td>
+<td>3.5</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.94 0.96 0.96 0.94 0.78 0.60 0.27 0.25</td>
+<td>0.99 0.98 0.96 0.93 0.75 0.55 0.04 -0.04</td>
+<td>0.85 (80 %), 0.95 (95 %)</td>
+<td>0.23</td>
+<td>69600</td>
+<td>3.1</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>enkf</td>
+<td>physical</td>
+<td>0.96 0.98 0.99 0.98 0.96 0.88 0.74 0.29</td>
+<td>0.99 0.99 0.99 0.98 0.97 0.95 0.82 0.16</td>
+<td>0.57 (80 %), 0.70 (95 %)</td>
+<td>0.39</td>
+<td>9</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.01 std</td>
+<td>ode_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.95 0.98 0.98 0.97 0.89 0.80 0.51 0.25</td>
+<td>0.99 0.99 0.98 0.97 0.85 0.76 0.42 -0.03</td>
+<td>0.87 (80 %), 0.96 (95 %)</td>
+<td>0.43</td>
+<td>10403</td>
+<td>1.3</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.70 0.47 0.10 -0.25 -0.24 -0.27 -0.33 -0.38</td>
+<td>0.78 (80 %), 0.94 (95 %)</td>
+<td>0.05</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-2.31 -0.90 -0.11 0.19 0.25 0.24 0.26 0.27</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.76 (80 %), 0.97 (95 %)</td>
+<td>0.14</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.24 0.26 0.19 0.22 0.25 0.25 0.26 0.27</td>
+<td>0.77 0.61 0.28 0.04 0.01 0.00 -0.00 -0.00</td>
+<td>0.75 (80 %), 0.95 (95 %)</td>
+<td>0.11</td>
+<td>15</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-2.51 -1.01 -0.19 0.14 0.20 0.20 0.22 0.23</td>
+<td>-0.05 -0.05 -0.05 -0.06 -0.05 -0.05 -0.06 -0.05</td>
+<td>0.79 (80 %), 0.96 (95 %)</td>
+<td>0.12</td>
+<td>669</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>transformer</td>
+<td>data</td>
+<td>0.62 0.78 0.84 0.78 0.70 0.52 0.22 0.25</td>
+<td>0.89 0.88 0.86 0.76 0.66 0.40 -0.05 -0.03</td>
+<td>0.82 (80 %), 0.95 (95 %)</td>
+<td>0.11</td>
+<td>18056</td>
+<td>22.8</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.61 0.77 0.84 0.78 0.64 0.42 0.23 0.25</td>
+<td>0.88 0.88 0.86 0.76 0.58 0.28 -0.03 -0.04</td>
+<td>0.82 (80 %), 0.95 (95 %)</td>
+<td>0.13</td>
+<td>69600</td>
+<td>3.2</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>enkf</td>
+<td>physical</td>
+<td>0.65 0.80 0.87 0.84 0.74 0.62 0.31 0.27</td>
+<td>0.88 0.88 0.88 0.84 0.78 0.65 0.21 0.05</td>
+<td>0.57 (80 %), 0.71 (95 %)</td>
+<td>0.39</td>
+<td>9</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1 std</td>
+<td>ode_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.61 0.78 0.84 0.77 0.64 0.45 0.25 0.25</td>
+<td>0.88 0.88 0.86 0.76 0.60 0.32 -0.00 -0.04</td>
+<td>0.81 (80 %), 0.95 (95 %)</td>
+<td>0.18</td>
+<td>31203</td>
+<td>2.7</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.53 0.37 0.05 -0.27 -0.26 -0.29 -0.35 -0.37</td>
+<td>0.79 (80 %), 0.95 (95 %)</td>
+<td>0.05</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-1.10 -0.59 -0.06 0.20 0.25 0.25 0.27 0.27</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.76 (80 %), 0.97 (95 %)</td>
+<td>0.15</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.05 0.09 0.14 0.22 0.26 0.25 0.27 0.27</td>
+<td>0.55 0.43 0.19 0.03 0.01 0.00 0.00 -0.00</td>
+<td>0.76 (80 %), 0.95 (95 %)</td>
+<td>0.12</td>
+<td>15</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-1.22 -0.69 -0.13 0.15 0.20 0.20 0.22 0.23</td>
+<td>-0.05 -0.06 -0.06 -0.05 -0.06 -0.05 -0.06 -0.04</td>
+<td>0.78 (80 %), 0.95 (95 %)</td>
+<td>0.17</td>
+<td>670</td>
+<td>1.6</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>lstm</td>
+<td>data</td>
+<td>0.36 0.53 0.65 0.62 0.56 0.34 0.26 0.24</td>
+<td>0.70 0.70 0.68 0.55 0.44 0.14 -0.01 -0.03</td>
+<td>0.79 (80 %), 0.94 (95 %)</td>
+<td>0.05</td>
+<td>18312</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>mlp_physics_loss</td>
+<td>data+physics</td>
+<td>0.33 0.50 0.61 0.50 0.46 0.33 0.26 0.25</td>
+<td>0.68 0.69 0.64 0.41 0.32 0.12 -0.01 -0.03</td>
+<td>0.78 (80 %), 0.94 (95 %)</td>
+<td>0.09</td>
+<td>67712</td>
+<td>6.5</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>enkf</td>
+<td>physical</td>
+<td>0.36 0.52 0.64 0.58 0.54 0.34 0.27 0.25</td>
+<td>0.65 0.66 0.64 0.55 0.46 0.21 0.06 -0.00</td>
+<td>0.55 (80 %), 0.70 (95 %)</td>
+<td>0.44</td>
+<td>9</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.3 std</td>
+<td>ode_missing_xz+gbm</td>
+<td>hybrid</td>
+<td>0.33 0.49 0.60 0.51 0.50 0.30 0.26 0.25</td>
+<td>0.68 0.68 0.63 0.44 0.36 0.09 -0.00 -0.03</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.06</td>
+<td>31203</td>
+<td>2.9</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.57 0.18 -0.41 -0.92 0.22 0.27 -0.15 -0.67 -0.64</td>
+<td>0.77 (80 %), 0.97 (95 %)</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-1.32 -0.22 0.29 0.47 -0.25 -0.32 0.14 0.40 0.39</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.79 (80 %), 0.96 (95 %)</td>
+<td>0.30</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.74 0.64 0.65 0.71 0.12 0.18 0.33 0.43 0.39</td>
+<td>0.89 0.71 0.52 0.46 0.31 0.39 0.22 0.06 0.00</td>
+<td>0.79 (80 %), 0.96 (95 %)</td>
+<td>0.17</td>
+<td>21</td>
+<td>0.7</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-0.20 0.34 0.60 0.71 0.29 0.28 0.52 0.60 0.61</td>
+<td>0.49 0.47 0.45 0.45 0.44 0.46 0.46 0.33 0.37</td>
+<td>0.79 (80 %), 0.94 (95 %)</td>
+<td>0.17</td>
+<td>18</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>tcn</td>
+<td>data</td>
+<td>0.94 0.94 0.95 0.95 0.94 0.90 0.87 0.68 0.61</td>
+<td>0.97 0.95 0.93 0.91 0.95 0.93 0.85 0.49 0.39</td>
+<td>0.74 (80 %), 0.90 (95 %)</td>
+<td>0.16</td>
+<td>29065</td>
+<td>57.6</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.94 0.94 0.96 0.97 0.88 0.80 0.73 0.68 0.60</td>
+<td>0.98 0.95 0.95 0.95 0.91 0.85 0.70 0.51 0.38</td>
+<td>0.79 (80 %), 0.92 (95 %)</td>
+<td>0.08</td>
+<td>78300</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>dde_fitted</td>
+<td>physical</td>
+<td>0.96 0.98 0.99 0.99 0.95 0.92 0.87 0.67 0.37</td>
+<td>0.98 0.98 0.98 0.97 0.96 0.94 0.86 0.51 -0.00</td>
+<td>0.82 (80 %), 0.94 (95 %)</td>
+<td>0.15</td>
+<td>2</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.01 std</td>
+<td>dde_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.97 0.98 0.99 0.99 0.97 0.96 0.94 0.79 0.61</td>
+<td>0.99 0.99 0.99 0.98 0.98 0.97 0.93 0.68 0.39</td>
+<td>0.79 (80 %), 0.91 (95 %)</td>
+<td>0.07</td>
+<td>78302</td>
+<td>10.4</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.54 0.18 -0.41 -0.92 0.22 0.26 -0.15 -0.67 -0.64</td>
+<td>0.78 (80 %), 0.97 (95 %)</td>
+<td>0.09</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-1.18 -0.22 0.29 0.47 -0.25 -0.30 0.14 0.40 0.39</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.80 (80 %), 0.96 (95 %)</td>
+<td>0.29</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.47 0.54 0.64 0.70 0.13 0.19 0.33 0.43 0.39</td>
+<td>0.76 0.63 0.50 0.44 0.31 0.39 0.22 0.06 0.01</td>
+<td>0.79 (80 %), 0.96 (95 %)</td>
+<td>0.15</td>
+<td>22</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-0.14 0.34 0.60 0.71 0.29 0.28 0.52 0.60 0.60</td>
+<td>0.49 0.47 0.45 0.45 0.44 0.45 0.45 0.32 0.37</td>
+<td>0.79 (80 %), 0.95 (95 %)</td>
+<td>0.12</td>
+<td>18</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>tcn</td>
+<td>data</td>
+<td>0.73 0.85 0.89 0.90 0.80 0.75 0.72 0.63 0.60</td>
+<td>0.88 0.88 0.85 0.82 0.85 0.81 0.68 0.41 0.38</td>
+<td>0.79 (80 %), 0.92 (95 %)</td>
+<td>0.05</td>
+<td>29065</td>
+<td>44.3</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.71 0.83 0.89 0.92 0.73 0.61 0.60 0.63 0.59</td>
+<td>0.87 0.86 0.85 0.85 0.79 0.71 0.55 0.42 0.36</td>
+<td>0.81 (80 %), 0.95 (95 %)</td>
+<td>0.08</td>
+<td>35100</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>dde_fitted</td>
+<td>physical</td>
+<td>0.71 0.84 0.91 0.92 0.76 0.66 0.57 0.54 0.33</td>
+<td>0.87 0.87 0.87 0.85 0.82 0.76 0.54 0.27 -0.07</td>
+<td>0.82 (80 %), 0.94 (95 %)</td>
+<td>0.14</td>
+<td>2</td>
+<td>1.1</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.1 std</td>
+<td>dde_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.72 0.85 0.91 0.93 0.78 0.71 0.65 0.64 0.58</td>
+<td>0.87 0.88 0.88 0.86 0.83 0.79 0.62 0.43 0.35</td>
+<td>0.81 (80 %), 0.94 (95 %)</td>
+<td>0.10</td>
+<td>35102</td>
+<td>9.9</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.41 0.13 -0.41 -0.89 0.17 0.19 -0.15 -0.65 -0.64</td>
+<td>0.79 (80 %), 0.97 (95 %)</td>
+<td>0.07</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-0.69 -0.16 0.29 0.47 -0.18 -0.21 0.14 0.39 0.39</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.80 (80 %), 0.96 (95 %)</td>
+<td>0.26</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.25 0.42 0.59 0.66 0.15 0.20 0.31 0.42 0.39</td>
+<td>0.57 0.50 0.43 0.37 0.29 0.35 0.20 0.06 0.01</td>
+<td>0.81 (80 %), 0.96 (95 %)</td>
+<td>0.12</td>
+<td>21</td>
+<td>0.4</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>0.03 0.33 0.57 0.68 0.29 0.28 0.48 0.58 0.58</td>
+<td>0.43 0.42 0.41 0.41 0.40 0.41 0.41 0.30 0.33</td>
+<td>0.81 (80 %), 0.96 (95 %)</td>
+<td>0.06</td>
+<td>18</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>transformer</td>
+<td>data</td>
+<td>0.42 0.61 0.76 0.81 0.55 0.44 0.50 0.56 0.55</td>
+<td>0.67 0.67 0.67 0.65 0.63 0.54 0.43 0.29 0.30</td>
+<td>0.78 (80 %), 0.93 (95 %)</td>
+<td>0.08</td>
+<td>18537</td>
+<td>43.7</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.40 0.59 0.74 0.79 0.44 0.36 0.49 0.58 0.56</td>
+<td>0.65 0.65 0.64 0.62 0.55 0.48 0.42 0.33 0.31</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.07</td>
+<td>35100</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>dde_fitted</td>
+<td>physical</td>
+<td>0.35 0.57 0.73 0.77 0.38 0.21 0.23 0.41 0.31</td>
+<td>0.62 0.64 0.63 0.58 0.50 0.38 0.14 0.05 -0.09</td>
+<td>0.83 (80 %), 0.95 (95 %)</td>
+<td>0.10</td>
+<td>2</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Mackey-Glass, noise 0.3 std</td>
+<td>dde_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.42 0.59 0.75 0.80 0.48 0.38 0.48 0.58 0.55</td>
+<td>0.66 0.66 0.65 0.63 0.58 0.50 0.41 0.33 0.29</td>
+<td>0.81 (80 %), 0.95 (95 %)</td>
+<td>0.06</td>
+<td>35102</td>
+<td>9.5</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.72 0.49 0.11 -0.31 -0.48 -0.32 -0.43</td>
+<td>0.82 (80 %), 0.95 (95 %)</td>
+<td>0.14</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-2.44 -0.89 -0.08 0.25 0.33 0.25 0.31</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.14</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.25 0.30 0.25 0.27 0.33 0.25 0.31</td>
+<td>0.79 0.64 0.32 0.03 0.01 0.00 -0.00</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.06</td>
+<td>11</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-2.19 -0.84 -0.12 0.18 0.25 0.14 0.23</td>
+<td>0.09 0.04 -0.02 -0.08 -0.10 -0.12 -0.12</td>
+<td>0.82 (80 %), 0.95 (95 %)</td>
+<td>0.10</td>
+<td>33</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>gbm</td>
+<td>data</td>
+<td>0.40 0.52 0.49 0.43 0.35 0.24 0.26</td>
+<td>0.83 0.76 0.55 0.26 0.05 -0.00 -0.06</td>
+<td>0.79 (80 %), 0.93 (95 %)</td>
+<td>0.05</td>
+<td>20300</td>
+<td>16.2</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.52 0.67 0.62 0.47 0.37 0.24 0.26</td>
+<td>0.86 0.83 0.66 0.31 0.08 -0.00 -0.07</td>
+<td>0.80 (80 %), 0.94 (95 %)</td>
+<td>0.06</td>
+<td>60900</td>
+<td>14.2</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>enkf</td>
+<td>physical</td>
+<td>0.62 0.79 0.87 0.87 0.73 0.44 0.35</td>
+<td>0.87 0.88 0.87 0.84 0.72 0.36 0.08</td>
+<td>0.53 (80 %), 0.69 (95 %)</td>
+<td>0.46</td>
+<td>81</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Lorenz-96 (K=40), noise 0.1 std</td>
+<td>ode_fitted+gbm</td>
+<td>hybrid</td>
+<td>0.53 0.74 0.81 0.80 0.63 0.31 0.27</td>
+<td>0.86 0.86 0.83 0.75 0.51 0.12 -0.06</td>
+<td>0.82 (80 %), 0.95 (95 %)</td>
+<td>0.10</td>
+<td>9101</td>
+<td>7.3</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.56 0.44 0.24 0.03 -0.21 -0.45</td>
+<td>0.76 (80 %), 0.92 (95 %)</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-1.25 -0.78 -0.31 -0.03 0.17 0.29</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.78 (80 %), 0.93 (95 %)</td>
+<td>0.13</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.03 0.04 0.07 0.12 0.20 0.29</td>
+<td>0.57 0.46 0.29 0.14 0.03 -0.01</td>
+<td>0.77 (80 %), 0.93 (95 %)</td>
+<td>0.11</td>
+<td>4</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-1.22 -0.76 -0.32 -0.06 0.13 0.25</td>
+<td>0.01 0.00 -0.01 -0.03 -0.06 -0.08</td>
+<td>0.74 (80 %), 0.94 (95 %)</td>
+<td>0.16</td>
+<td>820</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>lstm</td>
+<td>data</td>
+<td>0.02 0.04 0.07 0.12 0.20 0.29</td>
+<td>0.57 0.46 0.29 0.14 0.02 -0.02</td>
+<td>0.76 (80 %), 0.93 (95 %)</td>
+<td>0.11</td>
+<td>17670</td>
+<td>3.6</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.03 0.04 0.07 0.12 0.19 0.28</td>
+<td>0.57 0.46 0.29 0.15 0.02 -0.03</td>
+<td>0.77 (80 %), 0.93 (95 %)</td>
+<td>0.09</td>
+<td>7800</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>ou_kalman</td>
+<td>physical</td>
+<td>0.03 0.04 0.07 0.12 0.20 0.29</td>
+<td>0.57 0.46 0.29 0.14 0.03 -0.00</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.09</td>
+<td>4</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Ornstein-Uhlenbeck</td>
+<td>ou_kalman+gbm</td>
+<td>hybrid</td>
+<td>0.03 0.04 0.08 0.12 0.19 0.28</td>
+<td>0.57 0.46 0.30 0.14 0.02 -0.03</td>
+<td>0.78 (80 %), 0.93 (95 %)</td>
+<td>0.09</td>
+<td>7804</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.70 0.48 0.03 -0.65 -0.76 -0.47 -0.60</td>
+<td>0.84 (80 %), 0.97 (95 %)</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-2.35 -0.92 -0.03 0.39 0.43 0.32 0.37</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.81 (80 %), 0.96 (95 %)</td>
+<td>0.08</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.42 0.56 0.62 0.66 0.63 0.41 0.37</td>
+<td>0.83 0.77 0.63 0.45 0.35 0.13 0.01</td>
+<td>0.82 (80 %), 0.96 (95 %)</td>
+<td>0.06</td>
+<td>12</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-1.71 -0.60 0.09 0.45 0.50 0.31 0.34</td>
+<td>0.19 0.16 0.12 0.09 0.12 -0.02 -0.04</td>
+<td>0.85 (80 %), 0.98 (95 %)</td>
+<td>0.12</td>
+<td>27</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>mlp</td>
+<td>data</td>
+<td>0.41 0.55 0.61 0.65 0.62 0.39 0.35</td>
+<td>0.82 0.77 0.62 0.43 0.34 0.10 -0.04</td>
+<td>0.80 (80 %), 0.96 (95 %)</td>
+<td>0.08</td>
+<td>19591</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.40 0.54 0.61 0.66 0.63 0.40 0.37</td>
+<td>0.82 0.76 0.62 0.45 0.34 0.13 0.00</td>
+<td>0.83 (80 %), 0.97 (95 %)</td>
+<td>0.07</td>
+<td>9100</td>
+<td>2.8</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>oscillator_kalman</td>
+<td>physical</td>
+<td>0.42 0.56 0.62 0.66 0.63 0.41 0.37</td>
+<td>0.83 0.77 0.63 0.45 0.35 0.13 0.01</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.05</td>
+<td>5</td>
+<td>2.4</td>
+</tr>
+<tr>
+<td>Noise-driven damped oscillator</td>
+<td>oscillator_kalman+gbm</td>
+<td>hybrid</td>
+<td>0.42 0.56 0.62 0.67 0.63 0.41 0.36</td>
+<td>0.83 0.77 0.63 0.45 0.35 0.13 -0.01</td>
+<td>0.82 (80 %), 0.96 (95 %)</td>
+<td>0.05</td>
+<td>9105</td>
+<td>2.5</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.73 0.67 0.55 0.43 0.28 0.06 -0.18 -0.47</td>
+<td>0.80 (80 %), 0.95 (95 %)</td>
+<td>0.06</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-2.57 -1.82 -1.09 -0.65 -0.28 0.00 0.18 0.34</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.73 (80 %), 1.00 (95 %)</td>
+<td>0.45</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.03 0.02 0.04 0.05 0.08 0.14 0.21 0.33</td>
+<td>0.74 0.67 0.56 0.46 0.33 0.16 0.04 0.00</td>
+<td>0.80 (80 %), 0.96 (95 %)</td>
+<td>0.13</td>
+<td>6</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-2.60 -1.89 -1.17 -0.73 -0.36 -0.08 0.12 0.26</td>
+<td>0.01 -0.01 -0.02 -0.03 -0.04 -0.06 -0.07 -0.10</td>
+<td>0.79 (80 %), 0.99 (95 %)</td>
+<td>0.44</td>
+<td>490</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>transformer</td>
+<td>data</td>
+<td>0.04 0.03 0.05 0.07 0.10 0.14 0.21 0.31</td>
+<td>0.74 0.68 0.57 0.47 0.34 0.17 0.05 -0.03</td>
+<td>0.78 (80 %), 0.95 (95 %)</td>
+<td>0.17</td>
+<td>2936</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.04 0.04 0.06 0.08 0.09 0.13 0.19 0.32</td>
+<td>0.74 0.68 0.58 0.48 0.34 0.17 0.02 -0.01</td>
+<td>0.81 (80 %), 0.95 (95 %)</td>
+<td>0.11</td>
+<td>10400</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>sde_poly3</td>
+<td>physical</td>
+<td>0.04 0.05 0.06 0.07 0.09 0.13 0.21 0.34</td>
+<td>0.75 0.69 0.59 0.50 0.37 0.19 0.06 0.03</td>
+<td>0.77 (80 %), 0.94 (95 %)</td>
+<td>0.07</td>
+<td>5</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Double-well (regime switching)</td>
+<td>sde_poly1_nn_closure</td>
+<td>hybrid</td>
+<td>0.04 0.04 0.06 0.08 0.09 0.13 0.20 0.33</td>
+<td>0.75 0.68 0.59 0.50 0.37 0.19 0.05 0.01</td>
+<td>0.77 (80 %), 0.94 (95 %)</td>
+<td>0.08</td>
+<td>324</td>
+<td>2.9</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>-0.50 -0.38 -0.46 -0.40 -0.36</td>
+<td>0.79 (80 %), 0.95 (95 %)</td>
+<td>0.04</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>0.34 0.28 0.31 0.28 0.26</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>0.80 (80 %), 0.94 (95 %)</td>
+<td>0.07</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.34 0.28 0.31 0.28 0.26</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>0.80 (80 %), 0.94 (95 %)</td>
+<td>0.07</td>
+<td>2</td>
+<td>0.7</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>0.33 0.27 0.31 0.28 0.25</td>
+<td>-0.01 -0.01 -0.01 -0.01 -0.02</td>
+<td>0.79 (80 %), 0.94 (95 %)</td>
+<td>0.05</td>
+<td>46</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>White noise</td>
+<td>lstm</td>
+<td>data</td>
+<td>0.33 0.28 0.31 0.28 0.26</td>
+<td>-0.00 -0.00 0.00 -0.00 0.00</td>
+<td>0.80 (80 %), 0.94 (95 %)</td>
+<td>0.08</td>
+<td>4709</td>
+<td>3.3</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>0.96 0.95 0.92 0.89 0.84</td>
+<td>0.77 (80 %), 0.93 (95 %)</td>
+<td>0.09</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-25.31 -17.02 -11.81 -8.09 -5.11</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>0.97 (80 %), 1.00 (95 %)</td>
+<td>1.31</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>ar</td>
+<td>baseline</td>
+<td>-0.00 -0.00 -0.00 -0.00 -0.01</td>
+<td>0.96 0.95 0.92 0.89 0.84</td>
+<td>0.76 (80 %), 0.93 (95 %)</td>
+<td>0.10</td>
+<td>3</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-12.65 -8.47 -5.80 -3.95 -2.40</td>
+<td>0.49 0.49 0.48 0.47 0.45</td>
+<td>0.93 (80 %), 0.98 (95 %)</td>
+<td>0.39</td>
+<td>846</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Random walk</td>
+<td>transformer</td>
+<td>data</td>
+<td>-0.00 -0.00 -0.00 -0.00 0.00</td>
+<td>0.96 0.95 0.92 0.89 0.84</td>
+<td>0.76 (80 %), 0.93 (95 %)</td>
+<td>0.10</td>
+<td>17893</td>
+<td>5.4</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>-0.36 -0.36 -0.37 -0.40 -0.38</td>
+<td>0.76 (80 %), 0.90 (95 %)</td>
+<td>0.10</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>0.29 0.28 0.29 0.31 0.30</td>
+<td>0.00 0.00 0.00 0.00 0.00</td>
+<td>0.91 (80 %), 0.98 (95 %)</td>
+<td>0.42</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.29 0.28 0.29 0.31 0.30</td>
+<td>0.04 0.04 0.04 0.04 0.04</td>
+<td>0.77 (80 %), 0.90 (95 %)</td>
+<td>0.13</td>
+<td>2</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>0.26 0.25 0.27 0.27 0.27</td>
+<td>0.01 -0.00 0.01 -0.02 -0.01</td>
+<td>0.77 (80 %), 0.90 (95 %)</td>
+<td>0.11</td>
+<td>5</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>USD/EUR daily log-returns</td>
+<td>mlp</td>
+<td>data</td>
+<td>0.29 0.28 0.29 0.30 0.29</td>
+<td>0.04 0.04 0.05 0.04 0.04</td>
+<td>0.77 (80 %), 0.90 (95 %)</td>
+<td>0.12</td>
+<td>18309</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>persistence</td>
+<td>baseline</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.44 -0.05 -0.49 -0.86 -0.26 0.40</td>
+<td>0.46 (80 %), 0.70 (95 %)</td>
+<td>0.68</td>
+<td>0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>climatology</td>
+<td>baseline</td>
+<td>-0.79 0.01 0.27 0.40 0.16 -0.65</td>
+<td>0.00 0.00 0.00 0.00 0.00 0.00</td>
+<td>0.58 (80 %), 0.77 (95 %)</td>
+<td>0.75</td>
+<td>2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>ar</td>
+<td>baseline</td>
+<td>0.35 0.48 0.55 0.61 0.47 -0.07</td>
+<td>0.65 0.52 0.43 0.38 0.41 0.40</td>
+<td>0.64 (80 %), 0.81 (95 %)</td>
+<td>0.50</td>
+<td>20</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>phase_climatology</td>
+<td>baseline</td>
+<td>-0.17 0.30 0.46 0.56 0.40 -0.20</td>
+<td>0.27 0.23 0.22 0.22 0.24 0.24</td>
+<td>0.40 (80 %), 0.63 (95 %)</td>
+<td>0.81</td>
+<td>12</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>mlp</td>
+<td>data</td>
+<td>0.39 0.45 0.50 0.51 0.28 -0.06</td>
+<td>0.67 0.48 0.35 0.20 0.09 0.38</td>
+<td>0.58 (80 %), 0.72 (95 %)</td>
+<td>0.56</td>
+<td>18438</td>
+<td>0.6</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>gbm_physics_features</td>
+<td>data+physics</td>
+<td>0.48 0.48 0.50 0.54 0.28 0.02</td>
+<td>0.72 0.53 0.35 0.22 0.11 0.44</td>
+<td>0.61 (80 %), 0.77 (95 %)</td>
+<td>0.37</td>
+<td>7386</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>oscillator_kalman</td>
+<td>physical</td>
+<td>0.31 0.36 0.38 0.44 0.24 -0.48</td>
+<td>0.62 0.41 0.18 0.07 0.12 0.12</td>
+<td>0.62 (80 %), 0.81 (95 %)</td>
+<td>0.52</td>
+<td>5</td>
+<td>1.1</td>
+</tr>
+<tr>
+<td>Sunspots (yearly)</td>
+<td>oscillator_kalman+gbm</td>
+<td>hybrid</td>
+<td>0.47 0.52 0.54 0.57 0.35 -0.08</td>
+<td>0.72 0.58 0.44 0.33 0.22 0.37</td>
+<td>0.68 (80 %), 0.81 (95 %)</td>
+<td>0.43</td>
+<td>7529</td>
+<td>1.2</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="PIT of the family representatives" src="../../examples/near_random_forecasting/figures/pit.png" /></p>
+<ul>
+<li><strong>Validation-calibrated Gaussians are well calibrated on the synthetic series.</strong> For the family
+  representatives, their 95 % intervals cover 0.90 to 0.97 of the test targets on every synthetic series. The
+  baselines range from 0.92 to 1.00: climatology over-covers on the random walk and the double well (1.00), and so
+  does the phase-aligned cycle on the oscillator and the double well (0.98, 0.99).</li>
+<li><strong>The EnKF ensembles are under-dispersed.</strong> Their 95 % intervals cover 0.69 to 0.71 averaged over horizons, and
+  0.47 at h = 1 on Lorenz-63 noise 0.1. Their PIT deviation is 0.39 to 0.46. The other synthetic representatives
+  are at 0.05 to 0.23, except the hybrid on Lorenz-63 noise 0.01 (0.43).</li>
+<li>The EnKF's observation-noise estimate is close to the noise that was added: 0.070 for x at noise 0.01, where
+    1 % of the climatological RMSE of x on the test period (7.94) is 0.079.</li>
+<li>The untuned ensemble settings (40 members, inflation 1.02, process noise 0.1 R) are the likely cause. That is
+    an assumption; it was not tested.</li>
+<li>The EnKF still has the best CRPS at every horizon on Lorenz-63 (noise 0.01) and Lorenz-96, and from h = 4 on
+    at noise 0.1.</li>
+<li><strong>Sunspots are not calibrated by anything</strong> (95 % coverage 0.63 to 0.81, PIT deviation 0.37 to 0.81). A
+  validation block from the past cannot calibrate a test period whose cycles differ in amplitude. The fan chart
+  shows a test-period peak near 190; that the amplitude change is the cause is a reading of the figure, not a
+  test.</li>
+<li><strong>USD/EUR:</strong> climatology over-covers (0.98). The test period is calmer than the training period: in the
+  overfitting study, the RMSE / std of the early-stopped MLP is 1.09 on training origins and 0.81 on test origins.</li>
+</ul>
+<p>The full zoo (every model, its parameter count, tuning configurations, tuning and final-fit wall time, mean skill,
+and the horizons where it beats the best baseline after Holm) is in
+<a href="../../examples/near_random_forecasting/results/tables.md"><code>results/tables.md</code></a> under "zoo". The whole study took
+13 190 s of wall time summed over the 14 series (worker time on 4 CPU cores, no GPU), plus the three overfitting
+studies.</p>
+<p>A few forecasts on the test period (one origin per family). The forecasts exist only at the evaluated horizons
+(the models are direct), so they are drawn as a median marker with 50 % (thick) and 90 % (thin) intervals at those
+horizons, with no line joining them.</p>
+<p><img alt="Fan charts" src="../../examples/near_random_forecasting/figures/fan_charts.png" /></p>
+<h2 id="5-a-real-daily-series-youtube-trending">5. A real daily series: YouTube trending<a class="headerlink" href="#5-a-real-daily-series-youtube-trending" title="Permanent link">&para;</a></h2>
+<p><strong>Data.</strong> "Trending YouTube Video Statistics" (Kaggle, user datasnaek; listed there as CC0 1.0 public domain). The
+Kaggle page itself could not be opened from this environment; the licence is taken from the search-engine listing
+of that page, so treat it as stated by the source, not checked here. The US file (<code>USvideos.csv</code>) is fetched from a
+GitHub mirror at a pinned commit and checked against its SHA-256 (<code>datasets.public.PINNED["youtube_trending_us"]</code>);
+two independent mirrors serve byte-identical files. No API key is needed.</p>
+<p><code>load_youtube_trending_us</code> aggregates it per trending day: 205 days from 2017-11-14 to 2018-06-14, 196 to 200
+entries per day. Eight calendar days are missing from the source (2018-01-10, 01-11 and 04-08 to 04-13); they are
+skipped, so one step is one trending day. Two series, horizons 1, 2, 3, 5 and 7 days, the baselines plus the
+data-driven zoo (there is no physical model for this):</p>
+<ul>
+<li><strong>log10 total daily views</strong>: trends upward over the period.</li>
+<li><strong>Entertainment slots per day</strong>: 36 to 63 of the ~200 entries (mean 48.6).</li>
+</ul>
+<p>Predictability (<code>results/tables.md</code>):</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>AR order (R² 1-step)</th>
+<th>NPE / std</th>
+<th>p shuffle</th>
+<th>p IAAFT</th>
+<th>p TRA IAAFT</th>
+<th>verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>log10 total daily views</td>
+<td>10 (0.97)</td>
+<td>1.78</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.03</td>
+<td>nonlinear structure</td>
+</tr>
+<tr>
+<td>Entertainment slots</td>
+<td>1 (0.80)</td>
+<td>0.81</td>
+<td>0.01</td>
+<td>0.45</td>
+<td>0.37</td>
+<td>linear structure only</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The surrogate tests assume a stationary series. On the trending views series the NPE is larger than the
+  standard deviation and the shuffle and IAAFT tests give p = 1.00: the original is <em>less</em> predictable by nearest
+  neighbours than its surrogates, presumably because test points late in the trend have no neighbours at that
+  level. The "nonlinear structure" verdict rests on the time-reversal test alone and should not be read as
+  evidence of exploitable nonlinearity.</li>
+<li>The Entertainment count has linear (AR(1)) structure and nothing beyond it.</li>
+</ul>
+<p>Forecasts (test period 34 days, 2018-05-06 to 2018-06-08):</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>best baseline (val)</th>
+<th>best data model (val)</th>
+<th>its RMSE skill vs persistence, h = 1 2 3 5 7</th>
+<th>significant vs best baseline (Holm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>log10 total daily views</td>
+<td>exp_smoothing</td>
+<td>transformer</td>
+<td>-0.00 0.02 -0.12 -0.43 0.02</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Entertainment slots</td>
+<td>ar</td>
+<td>lstm</td>
+<td>-0.13 -0.12 -0.17 -0.13 -0.08</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>No model of the zoo is significantly better than the best baseline on either series at any horizon. With 34 test
+days the DM tests have little power, so this says the gain, if any, is too small to detect on this sample.</p>
+<p>The surprise calendar below shows the same comparison day by day.</p>
+<h2 id="visual-pack">Visual pack<a class="headerlink" href="#visual-pack" title="Permanent link">&para;</a></h2>
+<p><code>examples/near_random_forecasting/render_visuals.py</code> draws four 3-D scenes with Blender Cycles (<code>bpy</code> from PyPI, in
+process, CPU; <code>pinneapple_blender.cycles</code>) and two 2-D figures from the committed case results. Every number on
+them is in <code>results/visuals.json</code>. The scenes are built by <code>forecast_lab.renders</code>, which also returns the data
+drawn.</p>
+<p><strong>Predictability landscape.</strong> One tile per series: x is the horizon (log10 Lyapunov times for the chaotic series,
+log10 samples otherwise), y the four families, and height the RMSE skill of the family's best model (chosen on
+validation) against the best baseline, floored at -0.5. The translucent plane is skill 0. The chaotic series peak
+at 0.44 (Mackey–Glass, noise 0.3) to 0.98 (Lorenz-63, noise 0.01) and are back at 0.05 or less at their longest
+horizon (3.8 to 5.7 LT). Sunspots peaks at 0.20; every other series stays at 0.06 or less. On white noise,
+USD/EUR and the YouTube series only the data family was run.</p>
+<p><img alt="Predictability landscape" src="../../examples/near_random_forecasting/figures/visuals/landscape.png" /></p>
+<p><strong>Forecast cone.</strong> The same gradient-boosting forecaster refitted at every horizon 1 to 48 (so every step of the
+cone is a real forecast, not an interpolation) on Lorenz-63 (noise 0.1) and white noise. On Lorenz-63 the cone
+starts narrow and widens; on white noise it is as wide at h = 1 as at h = 48. Over all 576 test origins and
+horizons the 90 % band covered 89.0 % (Lorenz-63) and 89.4 % (white noise) of the outcomes, and the 50 % band 62.3 %
+and 50.4 %. A 3-second clip draws the cone step by step: <code>figures/visuals/forecast_cone.mp4</code>.</p>
+<p><img alt="Forecast cone" src="../../examples/near_random_forecasting/figures/visuals/forecast_cone.png" /></p>
+<p><strong>Attractor vs surrogates.</strong> Lorenz-63 x (noise 0.01), delay-embedded in three dimensions with delay 7 samples,
+next to its IAAFT surrogate (same spectrum and value distribution) and a shuffled surrogate. The nearest-neighbour
+prediction error relative to the standard deviation is 0.13, 0.29 and 1.05: the surrogate keeps the linear part
+of the predictability, the shuffle keeps none.</p>
+<p><img alt="Attractor vs surrogates" src="../../examples/near_random_forecasting/figures/visuals/attractor_vs_surrogates.png" /></p>
+<p><strong>Ensemble divergence.</strong> 50 members started from one state perturbed by 1 % of the attractor standard deviation,
+integrated with the true equations. Mean spread (in units of the standard deviation) at the start, at 1 LT and
+at the end:</p>
+<table>
+<thead>
+<tr>
+<th>system</th>
+<th>start</th>
+<th>1 LT</th>
+<th>end</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lorenz-63, 5 LT</td>
+<td>0.011</td>
+<td>0.018</td>
+<td>0.747</td>
+</tr>
+<tr>
+<td>Mackey–Glass, 5 LT</td>
+<td>0.009</td>
+<td>0.052</td>
+<td>0.944</td>
+</tr>
+<tr>
+<td>noise-driven oscillator, 150 steps (all members share one forcing path)</td>
+<td>0.009</td>
+<td>–</td>
+<td>0.001</td>
+</tr>
+</tbody>
+</table>
+<p>The chaotic spreads grow 67 times (Lorenz-63) and 110 times (Mackey–Glass) over 5 LT, to about one standard
+deviation of the attractor; the damped linear oscillator forgets the initial difference and the members converge. Its unpredictability comes from the forcing, not from the initial state.</p>
+<p><img alt="Ensemble divergence" src="../../examples/near_random_forecasting/figures/visuals/ensemble_divergence.png" /></p>
+<p><strong>Memorise vs learn.</strong> The over-parametrised MLP of the overfitting study (512 × 3 units, 32 lags, no early
+stopping) against the regularised one (64 × 2, early stopping), refitted. The figure shows the last 150 training
+and the first 150 test origins; the one-step RMSE is over the whole training and test sets:</p>
+<table>
+<thead>
+<tr>
+<th>series</th>
+<th>variant</th>
+<th>params</th>
+<th>train</th>
+<th>test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>double well</td>
+<td>overfit</td>
+<td>546 312</td>
+<td>0.166</td>
+<td>0.350</td>
+</tr>
+<tr>
+<td>double well</td>
+<td>64 × 2 + early stopping</td>
+<td>5 768</td>
+<td>0.245</td>
+<td>0.248</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1</td>
+<td>overfit</td>
+<td>579 080</td>
+<td>0.613</td>
+<td>1.145</td>
+</tr>
+<tr>
+<td>Lorenz-63, noise 0.1</td>
+<td>64 × 2 + early stopping</td>
+<td>7 816</td>
+<td>0.861</td>
+<td>0.913</td>
+</tr>
+</tbody>
+</table>
+<p>The overfit network follows the training noise and is worse on the test period.</p>
+<p><img alt="Memorise vs learn" src="../../examples/near_random_forecasting/figures/visuals/memorise_vs_learn.png" /></p>
+<p><strong>Surprise calendar.</strong> One cell per day of the test period, coloured by log2(|error of the best model| / |error of
+the best baseline|) at h = 1, both chosen on validation (blue: model closer; red: baseline closer). The model was
+closer on 68 % of the 34 days for YouTube views (transformer vs exponential smoothing), 38 % of 34 days for the
+Entertainment count (LSTM vs AR) and 50 % of 687 days for USD/EUR returns (MLP vs AR). None of these differences
+is significant in the DM tests above.</p>
+<p><img alt="Surprise calendar" src="../../examples/near_random_forecasting/figures/visuals/surprise_calendar.png" /></p>
+<h2 id="what-to-use-when">What to use when<a class="headerlink" href="#what-to-use-when" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Always first:</strong> run <code>predictability_report</code>.</li>
+<li>If the shuffle test does not reject, forecast the mean (climatology) and stop.</li>
+<li>If only the shuffle test rejects, an AR or ARIMA model is the forecast. In this study nothing beat it on the
+    linear series, with or without physics.</li>
+<li>If IAAFT rejects, nonlinear models may help, but check with the surrogate-trained twin. USD/EUR rejected both
+    nulls and still nothing beat the mean.</li>
+<li><strong>Compare against the best baseline chosen on validation, not against persistence.</strong> Persistence is beaten by
+  the climatological mean on every mean-reverting series. Skill against persistence alone would have credited the
+  noise controls with +0.3.</li>
+<li><strong>Near-periodic series need a periodic baseline.</strong> On Mackey–Glass, the phase-aligned mean cycle keeps 0.58 to
+  0.61 skill against persistence at h = 256 samples (3.8 LT), more than AR's 0.39. With it in the baseline set,
+  every family's skill horizon dropped (see section 2). Without it, the first version of this study credited the
+  learned models with skill to 3.5 LT at every noise level. On the sunspots, seasonal naive (period 11) matches
+  AR at 5 years (0.61) but is not better on validation, and on the oscillator AR stays the best baseline.</li>
+<li><strong>Chaotic system, known equations, fully observed:</strong> fit the parameters on the training data and assimilate with
+  an EnKF. It had the longest or joint-longest skill horizon on Lorenz-63 and the longest on Lorenz-96. Calibrate its spread separately; here it
+  was under-dispersed.</li>
+<li><strong>Known equations that may be wrong:</strong> add a statistical correction (physics + GBM). Across all series and
+  horizons it was at most 4.2 % worse in RMSE than its physics alone, and up to 43 % better. It repaired a
+  misspecified Lorenz-63 and a wrong-delay Mackey–Glass. A UDE closure repaired the short horizons too, but was
+  worse after 1 LT.</li>
+<li><strong>No equations, chaotic series:</strong> a GBM on lags did as well as the neural forecasters at a fraction of the
+  cost. On Lorenz-63 and Mackey–Glass, its skill against the best baseline (mean over horizons) was the best of the
+  five data models or within 0.05 of it. On Lorenz-96 (40 inputs, 3000 training windows) it was the best data model
+  (0.15), and the LSTM and TCN were worse than AR (−0.10 and −0.14).</li>
+<li><strong>Training:</strong> early stopping on a purged validation block; the size of the network mattered less than that.
+  Ensembles help a little. Use purged walk-forward (or purged k-fold) cross-validation, never shuffled k-fold, and
+  report the train–test gap.</li>
+<li><strong>Report significance.</strong> Many small skill differences in the tables (double well, OU, oscillator: ±0.03) are not
+  significant after Holm adjustment across the zoo.</li>
+</ul>
+<h2 id="limits-what-was-not-tested-and-why">Limits: what was not tested, and why<a class="headerlink" href="#limits-what-was-not-tested-and-why" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>One realisation per synthetic series and one seed per model.</strong> The spread across realisations and seeds is not
+  measured. The DM tests account for the sampling error of the test period only.</li>
+<li><strong>Tuning budget:</strong> 4 configurations per model, at most 60 epochs (neural forecasters), at most 3000 training
+  windows per neural model. Larger budgets could change the ranking between neural architectures (not between
+  families on the linear and noise series, where all are at the baseline).</li>
+<li><strong>Forecasts are direct, at fixed horizons.</strong> Iterated one-step models, sequence-to-sequence decoders and
+  probabilistic neural heads (quantile or distributional outputs) were not tested. Neural and GBM spreads are
+  Gaussian, calibrated on the validation block.</li>
+<li><strong>No foundation models.</strong> Chronos and TimesFM wrappers exist in <code>time_series.foundation_models</code> but need packages
+  and weights this environment could not download.</li>
+<li><strong>Kuramoto–Sivashinsky</strong> was not run. Lorenz-96 is the only high-dimensional case.</li>
+<li><strong>Data assimilation only where the state is observed.</strong> The EnKF was run on Lorenz-63 and Lorenz-96 (all
+  variables observed), not on Mackey–Glass, whose state is a delay history. Kalman filtering was used for the
+  linear SDEs.</li>
+<li><strong>SINDy only on the fully observed ODEs.</strong> It has no delay or stochastic library. The UDE was only tested on
+  Lorenz-63; the double well has a neural <em>drift</em> closure instead.</li>
+<li><strong>Volatility models (GARCH)</strong> were not part of the zoo. USD/EUR is tested for forecasting the mean return only.</li>
+<li><strong>Real data:</strong> one financial series, one physical series and two series from one YouTube dataset. The sunspot
+  test period has 51 origins and the YouTube one 34, so their DM tests have little power.</li>
+<li><strong>The Rosenstein exponent</strong> was computed with one embedding (dimension 4, delay from the autocorrelation) and one
+  fit window. As shown above, it is sensitive to both.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

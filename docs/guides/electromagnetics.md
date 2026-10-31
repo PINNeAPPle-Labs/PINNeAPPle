@@ -734,6 +734,81 @@ reluctance torque follow:
 
 The torque falls less than the flux because the reluctance torque does not depend on the magnets.
 
+### 3-D edge elements: the solver path for 3-D machines
+
+`pinneapple_simulation.electromagnetics.fem3d` solves 3-D magnetostatics and time-harmonic eddy currents on
+first-order Nedelec (Whitney edge) elements on tetrahedra:
+
+* `mesh.TetMesh`: edges, faces, boundary, region masks and point location; `box_mesh` (structured, no gmsh needed),
+  `read_msh22` / `from_gmsh` for gmsh meshes with named physical volumes.
+* `nedelec.solve_magnetostatic(mesh, nu, J=, Br=, nonlinear={tag: curve}, dirichlet=)`: the `A` formulation, `B`
+  constant per tetrahedron (`div B = 0` exactly), nonlinear B-H by Newton with a line search on the energy, energy and
+  co-energy; `source_work()` gives `i psi`, so `dW'/di = psi` (checked in the tests: the co-energy maps of issue
+  #928 can be built from it).
+* `nedelec.solve_eddy(mesh, nu, sigma, omega, J)`: the modified vector potential `A*` (`E = -j omega A*` in the
+  conductors), eddy-current density and Joule loss.
+* Gauge: the default for magnetostatics keeps every edge and solves the singular, consistent system by conjugate
+  gradients (20 times faster than a sparse LU of the tree-gauged system on 31 000 unknowns: 1.0 s against 20.5 s);
+  `gauge="tree"` removes a spanning tree of the free nodes and factorises (the eddy-current default). Either way the
+  current load is first made discretely solenoidal (its L2 projection on gradients is removed, one P1 Poisson solve).
+* `getdp3d`: GetDP 3.2 on the same gmsh meshes, with its own function spaces, tree gauge, assembly and solver.
+
+Elmer was the other candidate reference; it cannot be installed in this environment (no package for Ubuntu 24.04 in
+the archive, and its PPA is not reachable), so GetDP is the reference.
+
+`python examples/electrodynamics/19_edge3d_verification.py` (run on 2026-10-29, 116 s; gmsh 4.15 and
+GetDP 3.2) writes `results/19_edge3d_verification.json` and `19_edge3d_verification.png`.
+
+**Sphere in a uniform field.** A sphere of radius 1 and `mu_r = 10` in a uniform `B0` has the uniform inner field
+`3 mu_r / (mu_r + 2) B0` and a dipole outside (Jackson, section 5.11). The ball of radius 3 around it carries the exact
+exterior `n x A` on its surface, so the error is discretisation only:
+
+| Target size | Tetrahedra | Unknowns | Mean B in sphere | L2 of B in sphere | L2 of B, whole domain | Time (s) |
+|---|---|---|---|---|---|---|
+| 0.3 | 6 117 | 6 542 | 3.91e-02 | 4.18e-02 | 5.68e-02 | 0.1 |
+| 0.2 | 19 725 | 21 624 | 1.88e-02 | 2.11e-02 | 3.82e-02 | 0.7 |
+| 0.14 | 56 354 | 62 769 | 9.04e-03 | 1.07e-02 | 2.62e-02 | 2.6 |
+| 0.1 | 151 905 | 171 072 | 4.55e-03 | 5.60e-03 | 1.85e-02 | 10.2 |
+| 0.07 | 435 429 | 494 479 | 2.25e-03 | 3.03e-03 | 1.29e-02 | 36.2 |
+
+The observed orders between successive meshes are 1.79, 2.11, 2.04, 2.00 for the mean inner
+field (second order: the mean of a first-order field), 1.67, 1.96, 1.92, 1.74 in the sphere and
+0.97, 1.09, 1.03, 1.01 over the whole domain, the first order expected of a piecewise-constant
+`B` with a singular field at the curved interface.
+
+**GetDP on the same meshes.** With the uniform-field condition `n x A = n x (B0 x r) / 2` on the outer surface, the
+native solver and GetDP solve the same discrete problem (GetDP carries the boundary value in a known field `A0` and
+solves for `A - A0` with `A - A0 = 0` there), so they must agree to solver precision. The last column is the error of
+this truncated problem against the closed form (the truncation at three radii costs 6 to 9 %):
+
+| Target size | Tetrahedra | GetDP mean Bz (T) | Native mean Bz (T) | Relative difference | Energy difference | Error vs closed form |
+|---|---|---|---|---|---|---|
+| 0.3 | 6 117 | 2.274651317896 | 2.274651317896 | 2.0e-14 | 8.0e-13 | 0.090 |
+| 0.2 | 19 725 | 2.323286948248 | 2.323286948248 | 9.4e-14 | 8.0e-13 | 0.071 |
+| 0.14 | 56 354 | 2.346759621187 | 2.346759621187 | 6.9e-14 | 7.9e-13 | 0.061 |
+
+**Manufactured solution** (`A = (0, 0, sin(pi x) sin(pi y))` on the unit cube, structured meshes): B errors
+2.149e-01, 1.064e-01, 5.290e-02, 2.637e-02 for 4, 8, 16 and 32 cells per side, orders
+1.01, 1.01, 1.00.
+
+**Conducting slab in a uniform AC field** (20 mm thick, `sigma = 3.5e7` S/m, 200 Hz, skin depth
+6.02 mm; closed form `B_x = B0 cosh(kz) / cosh(kd)`, loss 327.05 W/m^2, checked against
+the integral of the closed-form field):
+
+| Cells across | Cells in plane | L2 of B | Loss (W/m^2) | Loss error |
+|---|---|---|---|---|
+| 4 | 2 | 0.149 | 406.2 | 24.20 % |
+| 8 | 4 | 0.071 | 347.2 | 6.16 % |
+| 16 | 8 | 0.034 | 332.1 | 1.53 % |
+
+Not done in this step, and reported as such: the TEAM benchmarks. TEAM 13 (nonlinear magnetostatics) needs the B-H
+curve and measured values of its problem description, which were not reachable from here. TEAM 7 (eddy currents,
+Fujiwara and Nakata 1990) has its geometry, data and measurements (the problem description distributed with
+ElmerCSC's elmer-elmag repository) and runs on coarse meshes, but the converged comparison needs an iterative
+eddy-current solver: the sparse LU takes 52 s at 32 000 unknowns, and COCG with a Jacobi preconditioner diverges on
+it (residual 2e-2 after 300 iterations, then growth). It comes with the next step.
+
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is
@@ -819,7 +894,9 @@ Notes from the same run:
 ## Limits
 
 * The FEM solvers are 2-D (planar or axisymmetric for `eddy_current_fdm`), first order (P1), and resolve
-  geometry on the mesh (polar grids are staircased in angle).
+  geometry on the mesh (polar grids are staircased in angle). The 3-D edge-element solver (`fem3d`) is first order;
+  its eddy-current solve is a sparse LU, practical up to some 1e4 unknowns, and it is not yet compared with a TEAM
+  benchmark.
 * FDTD: uniform grids only. The sub-cell averaging is not the full anisotropic smoothing: curved surfaces with E
   normal to them keep an error of a few percent that does not converge (2 % on the Mie sphere below). The CPML is tuned for vacuum; inside
   dispersive or negative-permittivity media its reflection is not measured. Surface plasmon polaritons are

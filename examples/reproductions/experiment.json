@@ -40,6 +40,30 @@
    "value": 2.0,
    "unit": "data sets",
    "how": "10,000 and 12,000 cells per well; the other four not run yet"
+  },
+  {
+   "name": "sbinn_scaled_median_param_rel_error",
+   "value": 0.3889,
+   "unit": "",
+   "how": "reduced-scale (100k of 610k epochs), scaled losses, seed 0: median over 17 parameters of |inferred/true - 1|"
+  },
+  {
+   "name": "sbinn_scaled_forecast_rel_l2",
+   "value": 0.1227,
+   "unit": "",
+   "how": "G with the inferred parameters vs the true model on [1800, 3000] min (meal at 2000 min)"
+  },
+  {
+   "name": "sbinn_raw_median_param_rel_error",
+   "value": 0.5426,
+   "unit": "",
+   "how": "reduced-scale (100k of 610k epochs), raw losses, seed 0: median over 17 parameters of |inferred/true - 1|"
+  },
+  {
+   "name": "sbinn_raw_forecast_rel_l2",
+   "value": 0.1053,
+   "unit": "",
+   "how": "G with the inferred parameters vs the true model on [1800, 3000] min (meal at 2000 min)"
   }
  ],
  "checks": [],
@@ -48,7 +72,9 @@
   "videos": [],
   "viewers": [],
   "data": [
-   "binns_lagergren2020/results/classical.json"
+   "binns_lagergren2020/results/classical.json",
+   "sbinn_daneker2022/results/scaled/seed0.json",
+   "sbinn_daneker2022/results/raw/seed0.json"
   ]
  },
  "links": {},

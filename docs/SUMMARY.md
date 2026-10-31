@@ -91,6 +91,8 @@
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
     * [Dynamics toolkit: the shared foundation](guides/dynamics_toolkit.md)
     * [First-passage and hitting times](guides/dynamics_first_passage.md)
+    * [Dimensional analysis, Buckingham pi and curve collapse](guides/dynamics_dimensional.md)
+    * [Fisher information and experimental design](guides/dynamics_fisher.md)
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)

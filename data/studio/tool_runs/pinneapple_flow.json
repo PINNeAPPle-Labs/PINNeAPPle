@@ -325,6 +325,16 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_flow.palette:humanize": {
+  "code_hash": "94a1df67b8148bbd",
+  "inputs": {
+   "name": "generate_eddy_current_synthetic"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.58
+ },
  "pinneapple_flow.palette:layout": {
   "code_hash": "cc6a940330927190",
   "inputs": {},
@@ -333,12 +343,32 @@
   "returned": "list",
   "seconds": 0.09
  },
+ "pinneapple_flow.palette:search": {
+  "code_hash": "f20a1c24f7b5c121",
+  "inputs": {
+   "query": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 13.46
+ },
  "pinneapple_flow.palette:sections": {
   "code_hash": "d2cbce39ffee1905",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.palette:summary": {
+  "code_hash": "c70def209ee64525",
+  "inputs": {
+   "text": "``f`` does a thing. More text."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
   "seconds": 0.0
  },
  "pinneapple_flow.planner.extensions:capabilities": {
@@ -436,6 +466,16 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_flow.references:ref": {
+  "code_hash": "82d7079b962da860",
+  "inputs": {
+   "key": "raissi2019pinn"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_flow.references:registry": {
   "code_hash": "099dd206ba785b62",
   "inputs": {},
@@ -443,6 +483,16 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_flow.references:verify_doi": {
+  "code_hash": "618ca9a892bc992d",
+  "inputs": {
+   "doi": "10.2514/3.12149"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.04
  },
  "pinneapple_flow.references:verify_registry": {
   "code_hash": "cfba4a97d310ded5",

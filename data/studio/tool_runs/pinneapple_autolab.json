@@ -15,6 +15,36 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_autolab.domains.ahmed:qa_checks": {
+  "code_hash": "fefb081e2fefc417",
+  "inputs": {
+   "meta": {
+    "convergence": {
+     "CD_mean_drift": 0.002,
+     "window_writes": 10
+    },
+    "final_residuals": {
+     "Ux": 0.002,
+     "p": 0.0001
+    },
+    "mass_balance": {
+     "imbalance": 0.0002
+    },
+    "max_non_orthogonality": 50.0,
+    "max_skewness": 2.0,
+    "mesh_ok": true,
+    "yplus": {
+     "frac_30_300": 0.9,
+     "mean": 90,
+     "p95": 200
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 8.01
+ },
  "pinneapple_autolab.domains.racecar:RaceCarAero": {
   "code_hash": "995f2387ae76545c",
   "inputs": {},
@@ -61,6 +91,27 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "PODRBF",
+  "seconds": 0.01
+ },
+ "pinneapple_autolab.study.benchmark:conformal_q": {
+  "code_hash": "d3ac7cc891176eac",
+  "inputs": {
+   "alpha": 0.1,
+   "scores": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
   "seconds": 0.01
  },
  "pinneapple_autolab.surrogates:FieldSurrogate": {

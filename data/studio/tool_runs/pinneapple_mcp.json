@@ -37,6 +37,26 @@
   "returned": "dict",
   "seconds": 0.27
  },
+ "pinneapple_mcp.tools:describe_method": {
+  "code_hash": "e215be02c2f9c6a9",
+  "inputs": {
+   "method": "pinn"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.54
+ },
+ "pinneapple_mcp.tools:design": {
+  "code_hash": "3bd2f428c16056c6",
+  "inputs": {
+   "text": "an electric motor"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.28
+ },
  "pinneapple_mcp.tools:list_jobs": {
   "code_hash": "aa1476b573a84478",
   "inputs": {},
@@ -68,6 +88,25 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:reason_check": {
+  "code_hash": "0a189c71f3068f0a",
+  "inputs": {
+   "mode": "pump_cavitation",
+   "params": {
+    "altitude": 800.0,
+    "npsh_required": 4.0,
+    "pump_q": 0.05,
+    "suction_d": 0.15,
+    "suction_k": 3.0,
+    "suction_length": 12.0,
+    "suction_lift": 5.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.4
  },
  "pinneapple_mcp.tools:reason_library": {
   "code_hash": "5d03a86c8d7020fa",

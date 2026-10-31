@@ -163,6 +163,42 @@
   "returned": "Assembly",
   "seconds": 0.03
  },
+ "pinneapple_design.bricks.closed_form:beam_moment": {
+  "code_hash": "41a09dea5743b713",
+  "inputs": {
+   "P": 2.0,
+   "span": 128.0,
+   "w": 0.0,
+   "x": 64.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 6.39
+ },
+ "pinneapple_design.bricks.closed_form:beam_reactions": {
+  "code_hash": "210a61fbbbcba2ed",
+  "inputs": {
+   "P": 2.0,
+   "span": 128.0,
+   "w": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.closed_form:harmonic_overhang": {
+  "code_hash": "b5ff559fa4f8ff38",
+  "inputs": {
+   "length": 2.0,
+   "n": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_design.bricks.dynamics:harmonic_threshold": {
   "code_hash": "db4fe2ff9c2f7a7b",
   "error": "ModuleNotFoundError: No module named 'newton'",
@@ -197,6 +233,28 @@
   "returned": "str",
   "seconds": 0.0
  },
+ "pinneapple_design.bricks.ldraw:from_ldr": {
+  "code_hash": "d1eb821e3f503f1b",
+  "inputs": {
+   "text": "1 4 3 0 0 1 0 0 0 1 0 0 0 1 3001.dat\n1 4 0 0 0 1 0 0 0 1 0 0 0 1 9999.dat\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReadReport",
+  "seconds": 0.03
+ },
+ "pinneapple_design.bricks.ldraw:to_ldr": {
+  "code_hash": "0dc0b79eefbff3cd",
+  "inputs": {
+   "asm": {
+    "name": "t"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
  "pinneapple_design.bricks.parts:fit_mass_model": {
   "code_hash": "a16f4b09b67b28fd",
   "inputs": {},
@@ -211,6 +269,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.parts:part": {
+  "code_hash": "7f0db57739f298bb",
+  "inputs": {
+   "name": "plate_2x4"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PartType",
   "seconds": 0.0
  },
  "pinneapple_design.bricks.validation:harmonic_limit_lp": {
@@ -237,6 +305,18 @@
   "returned": "bool",
   "seconds": 0.01
  },
+ "pinneapple_design.design_optimizer.airfoil_drag:airfoil_outline": {
+  "code_hash": "ab521a8437062aab",
+  "inputs": {
+   "m": 0.02,
+   "n_pts": 160,
+   "t_c": 0.15
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
  "pinneapple_design.design_optimizer.airfoil_drag:run_design_optimization": {
   "code_hash": "f0a0c54a8bc0ca56",
   "inputs": {},
@@ -244,6 +324,16 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 2.57
+ },
+ "pinneapple_design.design_optimizer.airfoil_drag:train_surrogate": {
+  "code_hash": "617d192e7d154a6e",
+  "inputs": {
+   "seed": 7
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.04
  },
  "pinneapple_design.design_optimizer.methods:available_methods": {
   "code_hash": "efbc42d54b908b1e",
@@ -318,6 +408,16 @@
   "recorded": "2026-10-31",
   "returned": "DesignProblem",
   "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.presets:preset_info": {
+  "code_hash": "12796915105cdf0d",
+  "inputs": {
+   "name": "heatsink"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
  },
  "pinneapple_design.design_optimizer.study:Evaluator": {
   "code_hash": "8081b4af527ecf52",
@@ -672,6 +772,50 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry_library.kit:wing": {
+  "code_hash": "068d069aef034827",
+  "inputs": {
+   "frame": [
+    [
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "n": 40,
+   "stations": [
+    {
+     "chord": 1,
+     "le": [
+      0,
+      0,
+      0
+     ],
+     "m": 0.08,
+     "t": 0.04
+    },
+    {
+     "chord": 0.5,
+     "le": [
+      0,
+      1,
+      0
+     ],
+     "m": 0.08,
+     "t": 0.04
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.06
+ },
  "pinneapple_design.geometry_library.store:cache_dir": {
   "code_hash": "8bea7cd3be9ea771",
   "inputs": {},
@@ -727,6 +871,26 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.02
+ },
+ "pinneapple_design.intent.materials:find": {
+  "code_hash": "07efa42dacebbbfc",
+  "inputs": {
+   "text": "a PLA plate"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.08
+ },
+ "pinneapple_design.intent.materials:get": {
+  "code_hash": "c448008c3b767147",
+  "inputs": {
+   "key": "al6061_t6"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Material",
+  "seconds": 0.0
  },
  "pinneapple_design.intent.parse:templates": {
   "code_hash": "7726d6352e11662e",
@@ -840,6 +1004,22 @@
   "returned": "SurrogateFit",
   "seconds": 6.83
  },
+ "pinneapple_design.surrogate_inverse.core:banded": {
+  "code_hash": "018e06be5fef70dd",
+  "inputs": {
+   "error": 0.03,
+   "fail_text": "f",
+   "name": "err",
+   "pass_limit": 0.05,
+   "pass_text": "ok",
+   "warn_limit": 0.15,
+   "warn_text": "w"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CheckResult",
+  "seconds": 0.95
+ },
  "pinneapple_design.surrogate_inverse.heatsink_fins:train_surrogate": {
   "code_hash": "790cbe5b8329e262",
   "inputs": {},
@@ -848,6 +1028,17 @@
   "returned": "SurrogateFit",
   "seconds": 6.45
  },
+ "pinneapple_design.surrogate_inverse.reflex_port:generate_dataset": {
+  "code_hash": "d298e2586784af73",
+  "inputs": {
+   "n_samples": 10,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
  "pinneapple_design.surrogate_inverse.reflex_port:train_surrogate": {
   "code_hash": "4cd429627979794c",
   "inputs": {},
@@ -855,6 +1046,28 @@
   "recorded": "2026-10-31",
   "returned": "SurrogateFit",
   "seconds": 6.49
+ },
+ "pinneapple_design.surrogate_inverse.suspension_arm:allowable_stress_for_life_pa": {
+  "code_hash": "66ff7c8771abca1c",
+  "inputs": {
+   "target_life_cycles": 10000000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.surrogate_inverse.suspension_arm:compute_sensitivity": {
+  "code_hash": "87d1fdb241c69fe4",
+  "inputs": {
+   "load_n": 1200.0,
+   "thickness_m": 0.022,
+   "width_m": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SensitivityResult",
+  "seconds": 0.0
  },
  "pinneapple_design.surrogate_inverse.suspension_arm:train_surrogate": {
   "code_hash": "5b242162e9ea860b",
@@ -886,6 +1099,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "CoolingMission",
+  "seconds": 0.0
+ },
+ "pinneapple_design.thermal.fin_array_speed:design_by_name": {
+  "code_hash": "55104757d6fb04d7",
+  "inputs": {
+   "name": "baseline"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_design.thermal.fin_array_speed:thermal_field": {

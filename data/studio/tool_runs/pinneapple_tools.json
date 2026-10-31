@@ -137,6 +137,42 @@
   "recorded": "2026-10-31",
   "seconds": 60.02
  },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:evaluate_inverse": {
+  "code_hash": "3a5ded783ebc7008",
+  "inputs": {
+   "nu_hat": 0.0033,
+   "nu_true": 0.003,
+   "u_pred": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "u_ref": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.95
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:sign_test_p": {
+  "code_hash": "7821e25e4f0c0c74",
+  "inputs": {
+   "k": 5,
+   "n": 5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_tools.benchmark_suite.crossframework.inverse:observations": {
   "code_hash": "455d4274af5afeac",
   "inputs": {},
@@ -152,6 +188,16 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 8.68
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.problems:get_problem": {
+  "code_hash": "7a64c155da13aeb8",
+  "inputs": {
+   "name": "burgers"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
  },
  "pinneapple_tools.benchmark_suite.crossframework.records:cpu_model": {
   "code_hash": "70f3e5b763181a70",
@@ -424,6 +470,19 @@
   "recorded": "2026-10-31",
   "returned": "NoneType",
   "seconds": 0.02
+ },
+ "pinneapple_tools.reporting.paperkit:Paper": {
+  "code_hash": "5d02b4e870df3d5d",
+  "inputs": {
+   "date": "January 1, 2026",
+   "report_id": "TR-0",
+   "subtitle": "Unit test",
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Paper",
+  "seconds": 0.44
  },
  "pinneapple_tools.reporting.paperkit:setup_mpl": {
   "code_hash": "3894c893e5f8a828",

@@ -1,4 +1,49 @@
 {
+ "pinneapple_physics.astro.conditions:cloud_at": {
+  "code_hash": "993f1b0f2f044239",
+  "inputs": {
+   "forecast": {
+    "cloud_cover": [
+     10,
+     90,
+     100
+    ],
+    "time": [
+     "2026-10-13T21:00Z",
+     "2026-10-13T22:00Z",
+     "2026-10-13T23:00Z"
+    ]
+   },
+   "iso_utc": "2026-10-13T21:30:00Z"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 3.79
+ },
+ "pinneapple_physics.astro.conditions:sky_view": {
+  "code_hash": "0da05ee8f904b23f",
+  "inputs": {
+   "forecast": {
+    "cloud_cover": [
+     10,
+     90,
+     100
+    ],
+    "time": [
+     "2026-10-13T21:00Z",
+     "2026-10-13T22:00Z",
+     "2026-10-13T23:00Z"
+    ]
+   },
+   "iso_utc": "2026-10-13T22:30:00Z",
+   "mode": "real"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_physics.astro.conjunction:cw_mean_motion": {
   "code_hash": "7012fbdcee158ae3",
   "inputs": {
@@ -64,6 +109,16 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.03
+ },
+ "pinneapple_physics.astro.facts:search": {
+  "code_hash": "e949411f11363613",
+  "inputs": {
+   "query": "cruzeiro"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.06
  },
  "pinneapple_physics.astro.facts:sources": {
   "code_hash": "bda0677d915eb5d4",
@@ -203,6 +258,17 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_physics.astro.neural_propagator:sample_population": {
+  "code_hash": "235141f26d1c05a2",
+  "inputs": {
+   "n": 1,
+   "seed": 12345
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
  "pinneapple_physics.astro.neural_propagator:trust_report": {
   "code_hash": "2da33a8de2542199",
   "inputs": {},
@@ -210,6 +276,18 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_physics.astro.observing:axis_time": {
+  "code_hash": "3f2ef0cd38d76862",
+  "inputs": {
+   "accel_deg_s2": 2,
+   "delta_deg": 0.0,
+   "rate_deg_s": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
  },
  "pinneapple_physics.astro.orbits:planet_elements": {
   "code_hash": "f1f1ca9be0c0396a",
@@ -481,6 +559,36 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.fin_array_conduction:fin_array_profile_params": {
+  "code_hash": "174cfcc18abc2d97",
+  "inputs": {
+   "base_thickness_m": 0.003,
+   "fin_length_m": 0.025,
+   "fin_thickness_m": 0.001,
+   "h_conv_w_m2k": 35.0,
+   "k_material_w_mk": 205.0,
+   "n_fins": 20.0,
+   "power_w": 65.0,
+   "spacing_extent_m": 0.08,
+   "transverse_extent_m": 0.08
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt": {
+  "code_hash": "ec2306ec0b26aa98",
+  "inputs": {
+   "d_over_l": 1e-06,
+   "pr": 0.7,
+   "re": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.helmholtz_resonator:helmholtz_resonant_frequency_hz": {
   "code_hash": "667ba73f5a06ea8a",
   "inputs": {
@@ -493,12 +601,109 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.helmholtz_resonator:port_volume_m3": {
+  "code_hash": "e088af5e8fccc10b",
+  "inputs": {
+   "port_length_m": 0.1,
+   "port_radius_m": 0.025
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
+  "code_hash": "e1ea3f02475f9581",
+  "inputs": {
+   "re": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.particle_drag:schiller_naumann_cd": {
+  "code_hash": "5ed0504837c4f7f4",
+  "inputs": {
+   "re": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.pcb_thermal:stackup": {
   "code_hash": "b58a929c45c2947b",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pcb_thermal:via_copper_fraction": {
+  "code_hash": "e5fa270ecd888fa3",
+  "inputs": {
+   "area_m2": 2.5e-05,
+   "drill_mm": 0.3,
+   "n_vias": 16,
+   "plating_um": 25
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_flow:blasius": {
+  "code_hash": "d2d01aa2a0b76786",
+  "inputs": {
+   "Re": 10000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_flow:colebrook": {
+  "code_hash": "f41a0e7f273c9d0b",
+  "inputs": {
+   "Re": 3000000.0,
+   "rel_rough": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_flow:curved_pipe_ratio": {
+  "code_hash": "80582f2ec226f44f",
+  "inputs": {
+   "De": 10.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_flow:dean_number": {
+  "code_hash": "6586b2718a5f7835",
+  "inputs": {
+   "D": 10,
+   "Rc": 40,
+   "Re": 200
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_flow:laminar": {
+  "code_hash": "dbdedf2616e4605d",
+  "inputs": {
+   "Re": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_insulation:heat_loss": {
@@ -518,10 +723,78 @@
   "returned": "dict",
   "seconds": 0.01
  },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:air_properties": {
+  "code_hash": "95fa3175ae311242",
+  "inputs": {
+   "t_c": 25.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:spreading_resistance": {
+  "code_hash": "529b1299c1913d12",
+  "inputs": {
+   "k": 200.0,
+   "plate_area": 0.0064,
+   "r_conv": 0.3,
+   "source_area": 0.0064,
+   "tb": 0.005
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.pump_npsh:atmosphere": {
   "code_hash": "755fe15475682f99",
   "inputs": {
    "z_m": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:area_ratio": {
+  "code_hash": "a597d0456807bc4e",
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:mach_from_area_ratio": {
+  "code_hash": "adc355d8ad7e654b",
+  "inputs": {
+   "gamma": 1.4,
+   "ratio": 1.6875
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:pressure_ratio": {
+  "code_hash": "48ce50e86a5d24aa",
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:temperature_ratio": {
+  "code_hash": "54130c7abed97e77",
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
   },
   "ok": true,
   "recorded": "2026-10-31",
@@ -611,6 +884,17 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_physics.maxwell_checks:check_config_entry": {
+  "code_hash": "fd06a81f1e651514",
+  "inputs": {
+   "name": "bad",
+   "path": "bad.npz"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.01
+ },
  "pinneapple_physics.multiscale.filters:low_modes": {
   "code_hash": "86760efc17199603",
   "inputs": {
@@ -666,6 +950,16 @@
   "recorded": "2026-10-31",
   "returned": "ModelProfile",
   "seconds": 0.01
+ },
+ "pinneapple_physics.paper_problems:pinnsformer_case": {
+  "code_hash": "848c32c7f6c5846b",
+  "inputs": {
+   "name": "convection"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GridCase",
+  "seconds": 0.0
  },
  "pinneapple_physics.paper_problems_epi:epi_model": {
   "code_hash": "fcc2b546b0a568f1",
@@ -2491,6 +2785,16 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_physics.potential.co2_study:summarize": {
+  "code_hash": "50589587cb1c6808",
+  "error": "IndexError: list index out of range",
+  "inputs": {
+   "runs": []
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.05
  },
  "pinneapple_physics.potential.mechanics:double_pendulum": {
   "code_hash": "3fe8cd1d77eafa7f",

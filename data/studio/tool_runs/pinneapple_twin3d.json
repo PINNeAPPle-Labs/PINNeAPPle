@@ -87,6 +87,74 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_twin3d.primitives:box": {
+  "code_hash": "ad60f6f21d67bbc4",
+  "inputs": {
+   "size": [
+    1,
+    2,
+    3
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.44
+ },
+ "pinneapple_twin3d.primitives:cylinder": {
+  "code_hash": "52c0fb37d755568d",
+  "inputs": {
+   "n_theta": 256,
+   "p0": [
+    0,
+    0,
+    0
+   ],
+   "p1": [
+    0,
+    2,
+    0
+   ],
+   "radius": 0.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.primitives:revolve": {
+  "code_hash": "8c7fb604df61614b",
+  "inputs": {
+   "n_theta": 360,
+   "profile": [
+    [
+     1.0,
+     0.0
+    ],
+    [
+     1.0,
+     2.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.primitives:wing": {
+  "code_hash": "a64d6d571c0ff871",
+  "inputs": {
+   "root_chord": 3,
+   "span": 10,
+   "sweep_deg": 30,
+   "tip_chord": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
  "pinneapple_twin3d.wear.calibrate:calibrate": {
   "code_hash": "73c2df3359c965b2",
   "inputs": {},
@@ -102,6 +170,16 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.presets:get": {
+  "code_hash": "87241aa946801eac",
+  "inputs": {
+   "key": "bof_converter"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.03
  },
  "pinneapple_twin3d.wear.presets:pig_iron_ladle": {
   "code_hash": "e37c0705f1651817",

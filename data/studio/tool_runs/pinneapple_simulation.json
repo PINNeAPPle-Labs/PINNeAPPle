@@ -63,6 +63,16 @@
   "returned": "bool",
   "seconds": 0.0
  },
+ "pinneapple_simulation.accelerated_foam.case:parse_log": {
+  "code_hash": "b91467822e1e658e",
+  "inputs": {
+   "log": "Time = 0.1\nDICPCG:  Solving for p, Initial residual = 1, Final residual = 9e-07, No Iterations 35\npinneWarmStartDICPCG:  Solving for p, Initial residual = 0.01, Final residual = 8e-07, No Iterations 12\nsmoothSolver:  Solving for Ux, Initial residual = 0.1, Final residual = 1e-09, No Iterations 4\nExecutionTime = 0.5 s  ClockTime = 1 s\nExecutionTime = 0.75 s  ClockTime = 1 s\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 3.19
+ },
  "pinneapple_simulation.accelerated_foam.case:plain_solver": {
   "code_hash": "b2082ddf6995793e",
   "inputs": {},
@@ -129,6 +139,56 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.checks:antenna_checks": {
+  "code_hash": "411fdba0d8db8862",
+  "inputs": {
+   "row": {
+    "f_GHz": 2.0,
+    "tag": "y"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TrustReport",
+  "seconds": 1.03
+ },
+ "pinneapple_simulation.electromagnetics.antenna.checks:check_s11_resolved": {
+  "code_hash": "e0395cd77ec6507b",
+  "inputs": {
+   "interpolated": true,
+   "n_solved": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Check",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.design:doe": {
+  "code_hash": "282bc92cad722f11",
+  "inputs": {
+   "n": 6,
+   "seed": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.electromagnetics.antenna.scene3d:antenna_surfaces": {
+  "code_hash": "bd04d837e1b3dc0d",
+  "inputs": {
+   "params": {
+    "dir_a": 12,
+    "dir_b": 5,
+    "dir_x": 190,
+    "nslot": 2
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.03
  },
  "pinneapple_simulation.electromagnetics.antenna.study:limits_report": {
   "code_hash": "8d9f05f9c679e5d3",
@@ -373,6 +433,31 @@
   "returned": "BHCurve",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.media:drude_metal": {
+  "code_hash": "33af89fbd02dce07",
+  "inputs": {
+   "omega_p": 1.37e+16
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Medium",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.media:rotation": {
+  "code_hash": "194c795721a0f586",
+  "inputs": {
+   "angle": 0.7,
+   "axis": [
+    1,
+    1,
+    0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.mesh:mesh_from_gmsh": {
   "code_hash": "de88194ac31f9da2",
   "error": "ModuleNotFoundError: No module named 'gmsh'",
@@ -448,6 +533,37 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.reflector.po:q_from_gain": {
+  "code_hash": "437f6bd67cf2a314",
+  "inputs": {
+   "gain_dbi": 12.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.reflector.po:wavenumber": {
+  "code_hash": "cbb302cafa7303a4",
+  "inputs": {
+   "f_hz": 1000000000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.reflector.qz:disk_grid": {
+  "code_hash": "7d2194f8008e90d1",
+  "inputs": {
+   "diameter": 1.2,
+   "step": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.reflector.study_report:from_text": {
   "code_hash": "ed767edda5d00789",
   "inputs": {
@@ -471,12 +587,95 @@
   "returned": "list",
   "seconds": 2.78
  },
+ "pinneapple_simulation.electromagnetics.statics:circle_segments": {
+  "code_hash": "a1265bfa47cd86f0",
+  "inputs": {
+   "n": 256,
+   "radius": 0.006
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.statics:helix_segments": {
+  "code_hash": "d2b3e3a1b0c0a072",
+  "inputs": {
+   "length": 0.1,
+   "n_per_turn": 96,
+   "radius": 0.02,
+   "turns": 200
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.statics:helmholtz_coil_center_B": {
+  "code_hash": "23598f769f5cc76c",
+  "inputs": {
+   "current": 1.0,
+   "radius": 0.2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.statics:loop_self_inductance": {
+  "code_hash": "2820de099ef568e1",
+  "inputs": {
+   "R": 0.1,
+   "a": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.statics:parallel_plate_capacitance": {
+  "code_hash": "8eda6bfd59e705c7",
+  "inputs": {
+   "area": 0.01,
+   "eps_r": 4.0,
+   "gap": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.units:check_equations": {
   "code_hash": "8044e709482bf743",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.units:check_units": {
+  "code_hash": "885a4b53cf0abe62",
+  "inputs": {
+   "declared": {
+    "B": "mT",
+    "E": "V/m",
+    "H": "T",
+    "J": "A/m^2"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.units:dimension": {
+  "code_hash": "0c0790728b5aceb2",
+  "inputs": {
+   "unit": "Wb/m"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.verification:run": {
@@ -486,6 +685,30 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 60.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:circular_waveguide_cutoff": {
+  "code_hash": "973585ede5d3bd88",
+  "inputs": {
+   "kind": "TE",
+   "m": 1,
+   "n": 1,
+   "radius": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:circular_waveguide_modes": {
+  "code_hash": "eb450a7bcae9bc88",
+  "inputs": {
+   "n_modes": 1,
+   "radius": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.waves:half_wave_dipole_directivity": {
   "code_hash": "18041e37e43b08e5",
@@ -501,6 +724,44 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_cavity_modes": {
+  "code_hash": "3728dd0b19ff9c68",
+  "inputs": {
+   "a": 0.1,
+   "b": 0.1,
+   "d": 0.1,
+   "n_modes": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_waveguide_cutoff": {
+  "code_hash": "8310266169bcce9c",
+  "inputs": {
+   "a": 0.02286,
+   "b": 0.01016,
+   "m": 1,
+   "n": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_waveguide_modes": {
+  "code_hash": "9a9ff1fb306634e0",
+  "inputs": {
+   "a": 0.02286,
+   "b": 0.01016,
+   "n_modes": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
   "seconds": 0.0
  },
  "pinneapple_simulation.external_solvers.ansys.journal_builder:FluentCaseConfig": {
@@ -879,6 +1140,16 @@
   "returned": "Aircraft",
   "seconds": 0.11
  },
+ "pinneapple_simulation.flight.catalog:build": {
+  "code_hash": "8e91e88af86cd4cc",
+  "inputs": {
+   "name": "light_ga"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Aircraft",
+  "seconds": 0.2
+ },
  "pinneapple_simulation.flight.catalog:light_ga": {
   "code_hash": "3161c1a3d81d4a41",
   "inputs": {},
@@ -1204,6 +1475,21 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
+  "code_hash": "b3b2ecdf6f41b0ac",
+  "inputs": {
+   "D": 8,
+   "Re": 10.0,
+   "conv_time": 6.0,
+   "height": 4,
+   "keep_time": 3.0,
+   "length": 8
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.4
  },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:verify": {
   "code_hash": "c3560fce1aa8f54c",
@@ -1680,6 +1966,30 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:burgers_inputs": {
+  "code_hash": "c494ce4dd6a45370",
+  "inputs": {
+   "n": 64,
+   "n_samples": 2,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.02
+ },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:darcy_inputs": {
+  "code_hash": "4f6ebc4031734edd",
+  "inputs": {
+   "n": 16,
+   "n_samples": 1,
+   "seed": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers.operator_datasets:darcy_set": {
   "code_hash": "203545cee3edddf6",
   "inputs": {
@@ -1693,6 +2003,18 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.03
+ },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:ns_inputs": {
+  "code_hash": "f702371bc7b06222",
+  "inputs": {
+   "n": 32,
+   "n_samples": 2,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.particles:terminal_velocity": {
   "code_hash": "3bff959cfca06678",
@@ -2116,6 +2438,17 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_simulation.terramechanics.testbed:load_dataset": {
+  "code_hash": "8b2a8199994389f2",
+  "inputs": {
+   "dataset": "ding2011",
+   "wheel": "smooth"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TestbedData",
+  "seconds": 0.01
  },
  "pinneapple_simulation.vehicle.scenarios:crater_site": {
   "code_hash": "5633b0e09b56d06e",

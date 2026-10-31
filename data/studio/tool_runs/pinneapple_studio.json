@@ -53,6 +53,21 @@
   "returned": "set",
   "seconds": 0.03
  },
+ "pinneapple_studio.coverage:declared_reason": {
+  "code_hash": "acc68d6a8d114393",
+  "inputs": {
+   "table": {},
+   "tool": {
+    "id": "m:download_data",
+    "module": "m",
+    "name": "download_data"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.49
+ },
  "pinneapple_studio.coverage:history": {
   "code_hash": "41978a414ed3db91",
   "inputs": {},
@@ -100,6 +115,16 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 1.29
+ },
+ "pinneapple_studio.inputs:calls_in": {
+  "code_hash": "6489fba08f70f4a6",
+  "inputs": {
+   "src": "import numpy as np\nimport pytest\nfrom pinneapple_demo.heat import mean_temperature as mt\ndef test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
  },
  "pinneapple_studio.inventory:build": {
   "code_hash": "aeebb213e042e662",

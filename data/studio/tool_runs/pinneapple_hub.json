@@ -270,6 +270,23 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_hub.zoo.demo:bands": {
+  "code_hash": "f1d1a081438bd0ec",
+  "inputs": {
+   "outputs": [
+    "Cl",
+    "Cl_std",
+    "Cd",
+    "Cd_std",
+    "LD",
+    "LD_std"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_hub.zoo.demo:models": {
   "code_hash": "831733da4cd4a04b",
   "inputs": {},
@@ -277,6 +294,17 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.demo:precompute": {
+  "code_hash": "0cc060a0b2fe9876",
+  "inputs": {
+   "n": 21,
+   "name": "rover_contact_grc1_viper"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.05
  },
  "pinneapple_hub.zoo.hub_cards:space_readme": {
   "code_hash": "a443610d20e7420f",
@@ -326,6 +354,16 @@
   "recorded": "2026-10-31",
   "seconds": 60.0
  },
+ "pinneapple_hub.zoo.validation_reports:check_release": {
+  "code_hash": "114b481c4250a56e",
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.88
+ },
  "pinneapple_hub.zoo.web:fixtures": {
   "code_hash": "d3417bfbd264c1c7",
   "inputs": {},
@@ -350,9 +388,39 @@
   "returned": "str",
   "seconds": 0.0
  },
+ "pinneapple_hub.zoo:info": {
+  "code_hash": "c05448aae638863d",
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelCard",
+  "seconds": 3.59
+ },
  "pinneapple_hub.zoo:list": {
   "code_hash": "201fdeb820a4fad8",
   "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo:load": {
+  "code_hash": "c93606cceac1cc8b",
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RoverContact",
+  "seconds": 0.03
+ },
+ "pinneapple_hub.zoo:versions": {
+  "code_hash": "f766aa3452e4e5ce",
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",

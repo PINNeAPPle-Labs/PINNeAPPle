@@ -120,6 +120,18 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_data.expressions:evaluate": {
+  "code_hash": "2dc7ce88001ea3b3",
+  "inputs": {
+   "expression": "9 ** 9 ** 9",
+   "functions": {},
+   "values": {}
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 6.12
+ },
  "pinneapple_data.formfill.ocr:ocr_available": {
   "code_hash": "df7c065314562936",
   "inputs": {},

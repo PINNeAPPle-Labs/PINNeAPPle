@@ -94,6 +94,18 @@
   "returned": "Surrogate",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.recession:recession": {
+  "code_hash": "208f642e4f8c979f",
+  "inputs": {
+   "hours": 0.0,
+   "k_per_hour": 0.01,
+   "q0": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 5.45
+ },
  "pinneapple_systems.digital_twin.recession:synthetic_recession": {
   "code_hash": "8d027d6cbdc20c66",
   "inputs": {},
@@ -440,6 +452,17 @@
   "returned": "float64",
   "seconds": 0.0
  },
+ "pinneapple_systems.process_components.water_hammer:wave_period": {
+  "code_hash": "c17aa987556215a5",
+  "inputs": {
+   "length": 1000.0,
+   "wave_speed": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
  "pinneapple_systems.sports.football.ball_study:identifiability": {
   "code_hash": "2ffeba63e5f59a5a",
   "inputs": {},
@@ -479,6 +502,16 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.01
+ },
+ "pinneapple_systems.sports.football.data:metrica_match": {
+  "code_hash": "b3f381f7846bd1c3",
+  "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+  "inputs": {
+   "game": 1
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
  },
  "pinneapple_systems.sports.football.data:skillcorner_matches": {
   "code_hash": "640303b904b68db2",
@@ -706,6 +739,29 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_systems.time_series.enso.data:d20_from_profile": {
+  "code_hash": "3b0766d262fbc5b6",
+  "inputs": {
+   "T": [
+    28.0,
+    26.0,
+    22.0,
+    18.0,
+    15.0
+   ],
+   "z": [
+    0.0,
+    50.0,
+    100.0,
+    150.0,
+    200.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
  "pinneapple_systems.time_series.enso.data:era5_monthly": {
   "code_hash": "a03b3da8d0321662",
   "error": "timeout after 60 s",
@@ -720,6 +776,17 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:month_range": {
+  "code_hash": "146eb8cfc22bcbd4",
+  "inputs": {
+   "end": "2003-12",
+   "start": "2000-01"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
   "seconds": 0.0
  },
  "pinneapple_systems.time_series.enso.data:ncei_heat_content": {
@@ -1065,6 +1132,19 @@
   "recorded": "2026-10-31",
   "returned": "SyntheticSeries",
   "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:oscillator_transition": {
+  "code_hash": "9dc88b52658d57ff",
+  "inputs": {
+   "dt": 0.25,
+   "omega": 1.0,
+   "sigma": 0.5,
+   "zeta": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
  },
  "pinneapple_systems.time_series.synthetic:random_walk": {
   "code_hash": "689abdc481bbf432",

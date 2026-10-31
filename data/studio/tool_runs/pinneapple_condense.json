@@ -231,6 +231,18 @@
   "recorded": "2026-10-31",
   "seconds": null
  },
+ "pinneapple_condense.homogenize:effective_layer": {
+  "code_hash": "ebce38bbe8a4fa5b",
+  "inputs": {
+   "k_i": 50.0,
+   "k_m": 1.0,
+   "phi": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 1.57
+ },
  "pinneapple_condense.learned:variant_field": {
   "code_hash": "e4fc98e45e2f5563",
   "inputs": {

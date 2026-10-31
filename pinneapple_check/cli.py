@@ -170,6 +170,7 @@ def main(argv: list[str] | None = None) -> int:
               "    recommend <text>     which preset, method and model for my problem?\n"
               "    card <preset>        what a preset takes and what it gives back\n"
               "    new <name>           create a project of my own\n"
+              "    studio               every tool, example and app in one place (pinneapple studio --help)\n"
               "  working with results\n"
               "    check <paths>        physics linter for results and models (pinneapple check --help)\n"
               "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
@@ -188,6 +189,9 @@ def main(argv: list[str] | None = None) -> int:
         return onboarding(argv)
     if cmd == "check":
         return check_main(rest)
+    if cmd == "studio":
+        from pinneapple_studio.cli import main as studio
+        return studio(rest)
     if cmd == "design":
         from pinneapple_design.intent.cli import main as design
         return design(rest)

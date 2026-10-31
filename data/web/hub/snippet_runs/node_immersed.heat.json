@@ -1,0 +1,12 @@
+{
+ "code_hash": "fa69c3d334395f40",
+ "figures": [],
+ "id": "node:immersed.heat",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Immersed steady heat on raw geometry (SDF or STL) -> pinneapple_simulation.immersed.Discretization / pinneapple_simulation.immersed.solve_heat\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'shape': 'cylinder', 'size': 0.05, 'stl_path': '', 'cells': 16, 'order': 1, 'conductivity': 200.0, 'generation': 1000000.0, 'h_conv': 25.0, 'T_inf': 25.0, 'stabilization': 'ghost'}",
+ "timed_out": false
+}

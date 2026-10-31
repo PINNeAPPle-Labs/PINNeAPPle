@@ -1,0 +1,12 @@
+{
+ "code_hash": "34b2f6f0ff7ce0aa",
+ "figures": [],
+ "id": "node:potential.eos_tree",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 14.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Equation of state: properties from one Helmholtz energy -> pinneapple_physics.potential.tree + thermo.ideal_gas / van_der_waals / peng_robinson + potential.consistency_check + potential.convexity\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'eos': 'van_der_waals', 'T': 320.0, 'V': 0.0002}",
+ "timed_out": false
+}

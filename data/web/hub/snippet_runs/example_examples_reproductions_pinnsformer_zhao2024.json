@@ -1,0 +1,12 @@
+{
+ "code_hash": "72e3c6d870f279a3",
+ "figures": [],
+ "id": "example:examples/reproductions/pinnsformer_zhao2024",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNsFormer reproduction (Zhao, Ding & Prakash) | physics-informed ML | not curated\nconvection_pinn_rrmse_median 0.7365535477717772 relative\nconvection_pinnsformer_rrmse_median 1.1219997350742887 relative\nreaction_pinn_rrmse_median 0.07916915048952915 relative\nreaction_pinnsformer_rrmse_median 0.02021347512596888 relative",
+ "timed_out": false
+}

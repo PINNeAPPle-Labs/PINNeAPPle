@@ -89,6 +89,7 @@
     * [Simulation Campaign Planner: which simulations need to run](guides/campaign_planner.md)
     * [Choose a model by the scale of the question](guides/scale_aware_ensembles.md)
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
+    * [Dynamics toolkit: the shared foundation](guides/dynamics_toolkit.md)
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)

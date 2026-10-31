@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,22 @@ def _scripts(folder: Path, exp: dict[str, Any]) -> list[Path]:
     return sorted(p for p in folder.glob("*.py") if not p.name.startswith("_"))
 
 
+def run_commands(folder: Path, root: Path) -> list[str]:
+    """The shell blocks of the entry's README that run its scripts (``python examples/...``), as written: the full
+    command when a script needs arguments (``--part elm``)."""
+    out = []
+    for name in ("README.md", "readme.md"):
+        p = folder / name
+        if not p.is_file():
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        for block in re.findall(r"```(?:bash|sh|shell|console)?\n(.*?)```", text, re.S):
+            if re.search(r"python[0-9.]* .*examples/", block):
+                out.append(block.strip())
+        break
+    return out[:6]
+
+
 def _flow_rows() -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
     try:
         from pinneapple_flow import examples as FX
@@ -61,17 +78,11 @@ def _entry(root: Path, folder: Path, kind: str, prose: P.Prose, finv: dict, flow
                  "date": r.get("date"), "commit": r.get("commit"), "matched": r.get("matched"),
                  "comparisons": r.get("comparisons", [])}
                 for n, by in runs.items() for c, r in by.items()]
-    missing = [r for r in reqs if not r["ok"]]
-    if row.get("needs") and not fl:
-        missing.append({"kind": "declared", "name": row["needs"], "fix": row.get("reason", ""), "ok": False})
-    if missing:
-        state = "blocked"
-    elif fl:
-        state = "flow"
-    elif scripts:
-        state = "script"
-    else:
-        state = "none"
+    held = row.get("flow_status") or {}
+    declared = []
+    if row.get("needs") and (not fl or all(f["name"] in held for f in fl)):
+        declared.append({"kind": "declared", "name": row["needs"], "fix": row.get("reason", ""), "ok": False})
+    state, missing, script_needs = _state(bool(fl), bool(scripts), reqs, declared)
     text_pt = prose.folders.get("examples", {}).get(folder.name, "") if kind == "example" else ""
     if kind == "reproduction":
         text_pt = next((r.get("resultado", "") for r in prose.reproductions
@@ -86,9 +97,23 @@ def _entry(root: Path, folder: Path, kind: str, prose: P.Prose, finv: dict, flow
         "scripts": [str(p.relative_to(root)) for p in scripts],
         "flows": [{"name": f["name"], "title": f["title"], "quick": f["quick"], "nodes": f["nodes"]} for f in fl],
         "flow_status": row.get("status") or ("" if not fl else "has-flow"), "flow_reason": row.get("reason", ""),
-        "notes": row.get("notes", ""), "requirements": reqs, "blocked_by": missing, "state": state,
-        "measured": measured,
+        "notes": row.get("notes", ""), "requirements": reqs, "blocked_by": missing, "script_needs": script_needs, "state": state,
+        "measured": measured, "commands": run_commands(folder, root),
     }
+
+
+def _state(has_flow: bool, has_scripts: bool, reqs: list[dict[str, Any]],
+           declared: list[dict[str, Any]]) -> tuple[str, list[dict[str, Any]], list[dict[str, Any]]]:
+    """``(state, blocked_by, script_needs)``. An example flow runs library calls, not the scripts, so what the
+    scripts need does not block it (it is listed as ``script_needs``); without a flow, it does."""
+    missing = [r for r in reqs if not r["ok"]]
+    if declared:
+        return "blocked", declared + ([] if has_flow else missing), missing if has_flow else []
+    if has_flow:
+        return "flow", [], missing
+    if missing:
+        return "blocked", missing, []
+    return ("script" if has_scripts else "none"), [], []
 
 
 def entries(root: Path | None = None) -> list[dict[str, Any]]:
@@ -116,7 +141,7 @@ def entries(root: Path | None = None) -> list[dict[str, Any]]:
         out.append({"id": f"app:{d.name}", "kind": "app", "key": d.name, "path": str(d.relative_to(root)),
                     "title": rd["title"] or d.name, "description": rd["summary"], "readme": rd["readme"],
                     "pt": prose.folders.get("apps", {}).get(d.name, ""), "state": "app",
-                    "start": _app_command(d, root), "requirements": [], "blocked_by": [], "flows": [],
+                    "start": _app_command(d, root), "requirements": [], "blocked_by": [], "script_needs": [], "flows": [],
                     "measured": [], "scripts": []})
     return out
 
@@ -150,11 +175,8 @@ def load(root: Path | None = None, *, rebuild: bool = False) -> list[dict[str, A
             if it["kind"] != "app":
                 it["requirements"] = R.check(it["requirements"])
                 declared = [r for r in it["blocked_by"] if r["kind"] == "declared"]
-                it["blocked_by"] = [r for r in it["requirements"] if not r["ok"]] + declared
-                if it["blocked_by"]:
-                    it["state"] = "blocked"
-                elif it["state"] == "blocked":
-                    it["state"] = "flow" if it["flows"] else "script" if it["scripts"] else "none"
+                it["state"], it["blocked_by"], it["script_needs"] = _state(bool(it["flows"]), bool(it["scripts"]),
+                                                                           it["requirements"], declared)
         return items
     items = entries(root)
     if key:

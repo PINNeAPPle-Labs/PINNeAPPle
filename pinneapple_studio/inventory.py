@@ -476,6 +476,15 @@ def cache_dir() -> Path:
     return d
 
 
+def _head(root: Path) -> str:
+    """The commit checked out at ``root``; empty outside git or without the ``git`` program."""
+    try:
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True,
+                              timeout=10).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def source_key(root: Path) -> str:
     """The commit of ``root`` plus a hash of its uncommitted changes to Python files (empty outside git)."""
     try:
@@ -574,8 +583,7 @@ def build(root: Path | None = None) -> dict:
     extras = {k: v for k, v in proj.get("optional-dependencies", {}).items()}
 
     inv = {
-        "generated_from_commit": subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True,
-                                                text=True).stdout.strip(),
+        "generated_from_commit": _head(root),
         "project": {"name": proj.get("name"), "version": proj.get("version"),
                     "requires_python": proj.get("requires-python"),
                     "dependencies": proj.get("dependencies", []),

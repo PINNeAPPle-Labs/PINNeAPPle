@@ -2,6 +2,7 @@
 
     flow_studio/COVERAGE.md            python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md
     flow_studio/EXAMPLES_AS_FLOWS.md   python -m pinneapple_flow example-flows doc
+    studio/COVERAGE.md                 python -m pinneapple_studio coverage -o docs/studio/COVERAGE.md
 
 Both need the package importable (``pip install -e ".[flow]"``). Without it a local ``mkdocs serve`` gets a page saying
 how to generate them; with ``PINNEAPPLE_DOCS_STRICT=1`` (the docs and test workflows) a failure fails the build.
@@ -29,9 +30,15 @@ def _examples() -> str:
     return markdown()
 
 
+def _studio() -> str:
+    from pinneapple_studio import catalog, coverage, gallery
+    return coverage.markdown(catalog.load(), gallery.load())
+
+
 PAGES = {
     "flow_studio/COVERAGE.md": (_coverage, "python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md"),
     "flow_studio/EXAMPLES_AS_FLOWS.md": (_examples, "python -m pinneapple_flow example-flows doc"),
+    "studio/COVERAGE.md": (_studio, "python -m pinneapple_studio coverage -o docs/studio/COVERAGE.md"),
 }
 
 if str(ROOT) not in sys.path:

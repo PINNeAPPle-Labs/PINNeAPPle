@@ -142,3 +142,14 @@ def test_aorta_caps_are_the_six_openings():
     assert np.linalg.norm(named["inlet"]["centroid"]) < 1e-6
     for k, d in (("outlet_rsa", 0.009), ("outlet_rcca", 0.007), ("outlet_lcca", 0.008), ("outlet_lsa", 0.010)):
         assert named[k]["diameter"] == pytest.approx(d, rel=0.05)
+
+
+def test_windkessel_inertance_and_coupling_gain_known_answers():
+    """L = rho l / A for a rigid tube, and the explicit-coupling gain g = Rp dt / L."""
+    from pinneapple_simulation.hemodynamics.windkessel import (
+        Windkessel,
+        explicit_coupling_gain,
+        vessel_inertance,
+    )
+    assert vessel_inertance(0.1, 0.02) == pytest.approx(1060.0 * 0.1 / (3.141592653589793 * 0.02 ** 2 / 4))
+    assert explicit_coupling_gain(Windkessel(Rp=1e8, C=1e-8, Rd=1e9), 1e6, 1e-3) == pytest.approx(0.1)

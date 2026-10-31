@@ -141,3 +141,43 @@ keys and rate limits.
 The inventory, catalog and gallery are generated per commit under `~/.cache/pinneapple/studio`
 (`PINNEAPPLE_STUDIO_CACHE`) and never committed. `PINNEAPPLE_ROOT` points the Studio at a checkout when the package is
 installed from a wheel.
+
+## Coverage
+
+`python -m pinneapple_studio coverage` writes the coverage table (a page of the docs site, `studio/COVERAGE.md`) and
+exits 1 on a problem. The `generated` job of `.github/workflows/tests.yml` runs it.
+
+- **Every public symbol has a category.** There is no baseline for this.
+- **Every executable tool** has a valid form and one of:
+  - a smoke run of its current code that returned;
+  - a reason it is not run: it needs the network, a server, a screen, credentials or an LLM (a rule in
+    `pinneapple_studio.coverage`), or a real cause stated in `pinneapple_studio/tool_reasons.json`;
+  - a line in `pinneapple_studio/coverage_baseline.txt`.
+
+  The baseline holds the tools that had none of these when the gate came in. It only shrinks: a tool that gains a run
+  or a reason must leave it, and a new tool cannot enter it. In the Studio and in the table, such a tool reads "ainda
+  não roda: falta entrada de exemplo" (or the error of its failed smoke run), and it is never counted as ready.
+- **Every example and reproduction** runs from the Studio (a measured run of its flow, or a recorded run of its
+  scripts) or says why: a missing requirement with its fix, or the flow inventory's stated reason.
+
+A smoke run calls the tool from its form and records whether it returned. It is not a physics check: that is the
+status from the tests, and the verifications of a job. The tools run in batches, one interpreter per batch:
+
+- each in a disposable checkout (`git worktree`) with its own `HOME`, the job environment and no network
+  (`unshare -n`);
+- after each tool the checkout is compared with its commit, the files the tool changed are recorded on the tool,
+  and the copy is restored.
+
+The inputs of tools with required fields come from `pinneapple_studio/tool_inputs.json`. `pinneapple studio inputs`
+fills that file from calls with literal arguments in the tests, examples and Hub snippets; calls expected to fail
+(`pytest.raises`) are skipped.
+
+```bash
+pinneapple studio inputs                       # harvest example inputs
+pinneapple studio smoke                        # tools whose code changed or never ran (--all for every tool)
+pinneapple studio examples                     # scripts of the examples without a flow
+pinneapple studio coverage --record-history    # the table, the gate, and today's point on the baseline curve
+```
+
+The weekly workflow `.github/workflows/studio-smoke.yml` runs the same commands and uploads the records for a
+maintainer to commit.

@@ -98,7 +98,7 @@ def requirements(paths: list[Path], root: Path | None = None) -> list[dict[str, 
     for name, (pattern, exe, fix) in PROGRAMS.items():
         if re.search(pattern, src):
             rows.append({"kind": "program", "name": name, "exe": exe, "fix": fix})
-    if GPU.search(src):
+    if GPU.search(src) and not re.search(r"cuda\.is_available\(\)", src):   # a CPU fallback: not required
         rows.append({"kind": "gpu", "name": "CUDA GPU", "fix": "run on a machine with an NVIDIA GPU and CUDA torch"})
     if NETWORK.search(src):
         rows.append({"kind": "network", "name": "internet access", "fix": "run with network access (data is "

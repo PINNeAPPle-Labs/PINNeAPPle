@@ -1,0 +1,10 @@
+{
+ "pinneapple_blender.cycles:available": {
+  "code_hash": "42294a90faadac63",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.01
+ }
+}

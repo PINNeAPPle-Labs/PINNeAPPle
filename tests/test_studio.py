@@ -297,6 +297,112 @@ def test_real_cli_dispatch(capsys):
     assert e.value.code == 0 and "run-tool" in capsys.readouterr().out
 
 
+# ------------------------------------------------------------------------------------------------- coverage gate
+def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
+    from pinneapple_studio import coverage as COV
+    from pinneapple_studio import smoke
+    monkeypatch.setattr(COV, "BASELINE", tmp_path / "baseline.txt")
+    monkeypatch.setattr(COV, "REASONS", tmp_path / "reasons.json")
+    monkeypatch.setattr(smoke, "INPUTS", tmp_path / "inputs.json")
+    gal = []
+    rows = {r["id"]: r for r in COV.tool_rows(cat)}
+    assert rows["pinneapple_demo.heat:FinStudy"]["state"] == "missing"            # runs with defaults, never ran
+    assert "no inputs recorded" in rows["pinneapple_demo.heat:fin_heat"]["detail"]
+    assert any("FinStudy" in p for p in COV.problems(cat, gal))
+    # the baseline takes today's gaps; afterwards nothing new can enter
+    COV.write_baseline(cat, gal)
+    assert COV.problems(cat, gal) == []
+    # a recorded run of the current code leaves the baseline: the stale line becomes a problem
+    t = cat["tools"]["pinneapple_demo.heat:FinStudy"]
+    (repo / "data" / "studio" / "tool_runs").mkdir(parents=True)
+    (repo / "data" / "studio" / "tool_runs" / "pinneapple_demo.json").write_text(json.dumps(
+        {t["id"]: {"ok": True, "code_hash": t["code_hash"], "inputs": {}, "returned": "list", "seconds": 0.1}}))
+    assert COV.tool_rows(cat)[[r["id"] for r in COV.tool_rows(cat)].index(t["id"])]["state"] == "ran"
+    assert any("now ran" in p for p in COV.problems(cat, gal))
+    # a declared reason counts; a side-effect name is a reason by rule
+    (tmp_path / "reasons.json").write_text(json.dumps({"pinneapple_demo.heat": "needs a wind tunnel"}))
+    assert {r["state"] for r in COV.tool_rows(cat) if r["package"] == "pinneapple_demo"} <= {"ran", "reason"}
+    assert COV.declared_reason({"id": "m:download_data", "module": "m", "name": "download_data"}, {})
+    md = COV.markdown(cat, gal)
+    assert "executable" in md and "| tool | state | detail |" in md
+    row = COV.record_history(cat, gal, repo)
+    assert row["baseline"] == len(COV.baseline()) and COV.history(repo)[-1] == row
+    assert "The baseline over time" in COV.markdown(cat, gal)
+
+
+def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
+    from pinneapple_studio import smoke
+    stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
+    assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0, "writes": 0}
+    rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]
+    assert rec["ok"] and rec["returned"] == "list" and rec["code_hash"] == cat["tools"]["pinneapple_demo.heat:FinStudy"]["code_hash"]
+
+
+def test_example_rows_say_why(repo, monkeypatch):
+    from pinneapple_studio import coverage as COV
+    from pinneapple_studio import gallery
+    monkeypatch.setattr(gallery, "_flow_rows", lambda: ({}, [], {}))
+    monkeypatch.setattr(R.importlib.util, "find_spec", lambda name: None if name == "cadquery" else object())
+    rows = COV.example_rows(gallery.entries(repo), repo)
+    assert rows == [{"id": "example:fins", "title": "Fins", "state": "needs",
+                     "how": 'cadquery: `pip install -e ".[cad]"`'}]
+
+
+def test_smoke_marks_a_tool_that_writes_into_the_checkout(tmp_path, monkeypatch):
+    """A tool run in a disposable git checkout that writes there is recorded with the files, and the copy is
+    restored for the next tool."""
+    import subprocess as sp
+
+    from pinneapple_studio import smoke
+    r = tmp_path / "co"
+    _w(r / "pkg_w.py", "def touch(n: int = 1):\n    open('MARK.txt', 'w').write('x')\n    return n\n")
+    sp.run(["git", "init", "-q", str(r)], check=True)
+    sp.run(["git", "-C", str(r), "add", "."], check=True)
+    sp.run(["git", "-C", str(r), "-c", "user.email=a@b", "-c", "user.name=t", "commit", "-qm", "x"], check=True)
+    monkeypatch.chdir(r)                                     # the tool writes in its working folder: the copy
+    monkeypatch.setenv("PINNEAPPLE_SMOKE_COPY", str(r))
+    monkeypatch.syspath_prepend(str(r))
+    spec = tmp_path / "todo.json"
+    spec.write_text(json.dumps([[{"id": "pkg_w:touch", "kind": "function", "name": "touch", "module": "pkg_w",
+                                  "methods": [], "form": {"properties": {}}}, {}]]))
+    import contextlib
+    import io
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        smoke.child([str(spec)])
+    rec = json.loads(buf.getvalue().strip().splitlines()[-1])
+    assert rec["ok"] and rec["changes_files"] == ["MARK.txt"]
+    assert not (r / "MARK.txt").exists()                     # restored
+
+
+def test_inputs_are_harvested_from_calls_with_literals(cat, repo):
+    from pinneapple_studio import inputs
+    found = inputs.harvest(cat, repo, hub=False)
+    assert found["pinneapple_demo.heat:mean_temperature"] == {"inputs": {"T": [1.0, 3.0]},
+                                                              "source": "tests/test_heat.py:10"}
+    assert "pinneapple_demo.heat:fin_heat" not in found        # FinDesign(1.0) is not a literal
+    src = "import numpy as np\nimport pytest\nfrom pinneapple_demo.heat import mean_temperature as mt\n" \
+          "def test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
+    calls = inputs.calls_in(src)
+    assert calls == [("pinneapple_demo.heat:mean_temperature", 6, [[0.0, 0.5, 1.0]], {})]
+
+
+def test_gallery_shows_the_commands_of_the_readme(tmp_path):
+    from pinneapple_studio.gallery import run_commands
+    _w(tmp_path / "README.md", "# R\n\n```bash\npython examples/r/run.py --part elm\n```\n\n```python\nimport x\n```\n")
+    assert run_commands(tmp_path, tmp_path) == ["python examples/r/run.py --part elm"]
+
+
+def test_catalog_builds_without_the_git_program(repo, monkeypatch, tmp_path):
+    """A source tarball in an image without git (the Engineering API's build) still gives a catalog."""
+    from pinneapple_studio import catalog
+    empty = tmp_path / "no-git-bin"
+    empty.mkdir()
+    monkeypatch.setenv("PATH", str(empty))
+    cat = catalog.build(repo)
+    assert cat["tools"]
+
+
 def test_outputs_known_answers():
     """Outputs come from the code: the docstring's Returns (numpy or Google, unit in brackets), a NamedTuple or
     dataclass annotation, the module's X_OUTPUTS, or nothing."""
@@ -329,6 +435,38 @@ def test_every_tool_has_outputs_and_their_source(cat):
     assert all(t["outputs_source"] in SOURCES and isinstance(t["outputs"], list) for t in cat["tools"].values())
 
 
+def test_outputs_helpers_on_literals():
+    """The section reader, the record-class test and the class finder, called the way a form would."""
+    from pinneapple_studio.catalog import make_class_finder
+    from pinneapple_studio.outputs import from_docstring, is_record_class
+    assert from_docstring("Returns\n-------\ntau : float [s]\n    time constant\n") == [
+        {"name": "tau", "type": "float", "unit": "s", "description": "time constant"}]
+    assert is_record_class({"name": "Res", "bases": ["NamedTuple"], "decorators": []})
+    assert not is_record_class({"name": "Solver", "bases": ["object"], "decorators": []})
+    finder = make_class_finder({"modules": {"m": {"module": "m", "classes": [{"name": "Res"}], "imports": []}}})
+    assert finder({"module": "m", "classes": [], "imports": ["m:Res"]})("Res") == {"name": "Res"}
+
+
+def test_examples_launched_with_torchrun_get_one_process(tmp_path):
+    """A recorded run starts a script with python, or with torchrun when its docstring launches it that way."""
+    import sys
+
+    from pinneapple_studio.coverage import _launcher
+    plain, ddp = tmp_path / "01_plain.py", tmp_path / "05_ddp.py"
+    plain.write_text('"""Run: python 01_plain.py"""\n')
+    ddp.write_text('"""DDP.\n\n    torchrun --standalone --nproc_per_node=2 examples/x/05_ddp.py\n"""\n')
+    assert _launcher(plain) == [sys.executable]
+    assert _launcher(ddp) == [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run",
+                             "--standalone", "--nproc_per_node=1"]
+
+
+def test_recorded_runs_start_each_script_once():
+    from pinneapple_studio.coverage import _scripts_to_run
+    viz = ["examples/v/__init__.py", "examples/v/run_all.py", "examples/v/viz_01.py", "examples/v/viz_02.py"]
+    assert _scripts_to_run(viz) == ["examples/v/viz_01.py", "examples/v/viz_02.py"]
+    assert _scripts_to_run(["examples/w/run_all.py"]) == ["examples/w/run_all.py"]
+
+
 def test_declared_input_ranges_become_form_limits(repo):
     """``fn.x_ranges = {...}`` at module level gives the form's minimum / maximum, read without importing."""
     from pinneapple_studio import catalog
@@ -357,3 +495,18 @@ def test_default_outside_the_declared_range_is_a_form_problem():
     schema = {"properties": {"tau": {"type": "number", "default": 20.0}}, "required": []}
     Cl.apply_ranges(schema, {"tau": [0.0, 10.0]})
     assert Cl.valid_form(schema) == ["default of tau is outside its declared range"]
+
+
+def test_inputs_read_a_class_built_from_keyword_literals_as_a_nested_form():
+    import ast
+
+    from pinneapple_studio.inputs import _literal
+    assert _literal(ast.parse("Windkessel(Rp=1e8, C=1e-8)", mode="eval").body) == (True, {"Rp": 1e8, "C": 1e-8})
+    assert _literal(ast.parse("Windkessel(1e8, 1e-8)", mode="eval").body)[0] is False
+    assert _literal(ast.parse("make(Rp=1.0)", mode="eval").body)[0] is False
+
+
+def test_inputs_follow_a_module_imported_by_name():
+    from pinneapple_studio.inputs import calls_in
+    src = "import numpy as np\nfrom pinneapple_x.sub import mod\n\ndef test_a():\n    mod.f(np.array([1.0, 2.0]), k=3)\n"
+    assert calls_in(src) == [("pinneapple_x.sub.mod:f", 5, [[1.0, 2.0]], {"k": 3})]

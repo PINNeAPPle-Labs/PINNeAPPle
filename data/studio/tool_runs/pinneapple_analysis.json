@@ -1,0 +1,1379 @@
+{
+ "pinneapple_analysis.benchmark.api:prepare": {
+  "code_hash": "375f1c730dcbb93e",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.23
+ },
+ "pinneapple_analysis.benchmark.api:run": {
+  "code_hash": "2a5210096c70b2a9",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil:openfoam_available": {
+  "code_hash": "b47a743ff9b48f3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil_impl:rans_residuals": {
+  "code_hash": "11b6368290cf8588",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil_impl:splits": {
+  "code_hash": "17817520a6001c46",
+  "error": "ValueError: a cannot be empty unless no samples are taken",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.fields:FieldOperatorProblem": {
+  "code_hash": "d8961e5b493609bb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FieldOperatorProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.fields:PINNMethod": {
+  "code_hash": "bb5459615a38cbd2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNMethod",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.inverse_heat_impl:single_thread": {
+  "code_hash": "2cec32ec640f3593",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:Method": {
+  "code_hash": "eee36493b1c55dd1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Method",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:Problem": {
+  "code_hash": "3105bf1133ecb1e2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Problem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:methods": {
+  "code_hash": "b27a6199c9d274f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:problems": {
+  "code_hash": "9055e36fff1546d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.cost.equal_budget:hardware_record": {
+  "code_hash": "22b04b654c035733",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.32
+ },
+ "pinneapple_analysis.cost.profiler:Budget": {
+  "code_hash": "ec07000577afa9fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Budget",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.data_assimilation.sensor_placement:GaussianProcessField": {
+  "code_hash": "12d81f9e92e599fb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GaussianProcessField",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.data_assimilation.var4d:twin_experiment": {
+  "code_hash": "e57a36232291c01e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.78
+ },
+ "pinneapple_analysis.dynamics.benchmarks.dimensional:run": {
+  "code_hash": "9305ff46e2c976c1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 7.19
+ },
+ "pinneapple_analysis.dynamics.benchmarks.early_warning:run": {
+  "code_hash": "47e1e4512ef91b5a",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.49
+ },
+ "pinneapple_analysis.dynamics.benchmarks.first_passage:run": {
+  "code_hash": "ed4e157ca90881ca",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 26.47
+ },
+ "pinneapple_analysis.dynamics.benchmarks.fisher:run": {
+  "code_hash": "9ea5aa56f9f78e42",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 4.47
+ },
+ "pinneapple_analysis.dynamics.benchmarks.koopman:run": {
+  "code_hash": "c58efcd473748a9b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 11.19
+ },
+ "pinneapple_analysis.dynamics.dimensional:CurveCollapseAnalyzer": {
+  "code_hash": "5e7a1f91f32bbe00",
+  "error": "ValueError: an ensemble needs at least one trajectory",
+  "inputs": {
+   "ensemble": []
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.dimensional:quantities": {
+  "code_hash": "5c42a083c1610516",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:AutocorrelationAnalyzer": {
+  "code_hash": "fa06010f16a83fdf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AutocorrelationAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:EarlyWarningAnalyzer": {
+  "code_hash": "f85c307b368af8cc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EarlyWarningAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:RollingStatistics": {
+  "code_hash": "82e5c21a34bcdaa4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RollingStatistics",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:ramp_series": {
+  "code_hash": "ee810d2ab1937cee",
+  "inputs": {
+   "kind": "stable",
+   "n": 4000,
+   "seed": 4,
+   "sigma": 0.1,
+   "start": 0.5,
+   "t_end": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.07
+ },
+ "pinneapple_analysis.dynamics.first_passage:brownian_exit_mean": {
+  "code_hash": "ee463c68bb34f57e",
+  "inputs": {
+   "lower": 0,
+   "mu": 0.0,
+   "sigma": 1.0,
+   "upper": 1,
+   "x0": 0.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 6.03
+ },
+ "pinneapple_analysis.dynamics.first_passage:brownian_exit_probability": {
+  "code_hash": "1fae66acf33eeb65",
+  "inputs": {
+   "lower": 0,
+   "mu": 0.0,
+   "sigma": 1.0,
+   "upper": 1,
+   "x0": 0.25
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.first_passage:ou_mean_first_passage": {
+  "code_hash": "e57b1d11f1bde406",
+  "inputs": {
+   "level": 1.0,
+   "theta": 1.0,
+   "x0": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.first_passage:wilson_interval": {
+  "code_hash": "26750cc3160d86f0",
+  "inputs": {
+   "k": 30,
+   "n": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.koopman:DMD": {
+  "code_hash": "502e8ad01764e4c7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DMD",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.koopman:gavish_donoho_rank": {
+  "code_hash": "a87899c771e74f09",
+  "inputs": {
+   "s": [
+    10.0,
+    9.0,
+    0.1,
+    0.1,
+    0.1
+   ],
+   "shape": [
+    5,
+    100
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 5.08
+ },
+ "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
+  "code_hash": "cbabc6ef7fdedc3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_analysis.inspection.acoustic:train_acoustic": {
+  "code_hash": "c11c4cc68f7357c9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.71
+ },
+ "pinneapple_analysis.inspection.eddy_current:generate_eddy_current_synthetic": {
+  "code_hash": "5f67e7e101231121",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_analysis.inspection.eddy_current:train_eddy_current": {
+  "code_hash": "f88a540fcb9a641d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 11.94
+ },
+ "pinneapple_analysis.inspection.emat:generate_emat_synthetic": {
+  "code_hash": "bc6cad43709554d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inspection.emat:train_emat": {
+  "code_hash": "6b86ac602e2982a8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 8.01
+ },
+ "pinneapple_analysis.inspection.guided_wave_ultrasonic:generate_guided_wave_synthetic": {
+  "code_hash": "df0dfa1aacb481f7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inspection.guided_wave_ultrasonic:train_guided_wave_ultrasonic": {
+  "code_hash": "bcb1c1647dae1767",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.39
+ },
+ "pinneapple_analysis.inspection.magnetic_flux_leakage:generate_magnetic_flux_leakage_synthetic": {
+  "code_hash": "d9a67cca70215f96",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_analysis.inspection.magnetic_flux_leakage:train_magnetic_flux_leakage": {
+  "code_hash": "1b24f2f455caced6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 6.36
+ },
+ "pinneapple_analysis.inspection.phased_array_ultrasonic:generate_phased_array_synthetic": {
+  "code_hash": "147d5d2c9ba05acc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.05
+ },
+ "pinneapple_analysis.inspection.phased_array_ultrasonic:train_phased_array_ultrasonic": {
+  "code_hash": "d19f2a8d0a802fb8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 9.31
+ },
+ "pinneapple_analysis.inverse_problems.binn:ReactionDiffusionBINN": {
+  "code_hash": "4f0f35cb15e6b395",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReactionDiffusionBINN",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.ensemble_kalman:IteratedEKI": {
+  "code_hash": "7bdaf1cbd32d1db6",
+  "error": "TypeError: EnsembleKalmanInversion.__init__() missing 1 required positional argument: 'forward_fn'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.forward:ForwardModel": {
+  "code_hash": "dba860f7b1a6e4ff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ForwardModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:identifiability_report": {
+  "code_hash": "a6780c457a7d5d06",
+  "inputs": {
+   "alpha": 0.15,
+   "noise_std": 0.01,
+   "t_obs": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "x_obs": [
+    0.05,
+    0.06428571428571428,
+    0.07857142857142857,
+    0.09285714285714286,
+    0.10714285714285714,
+    0.12142857142857143,
+    0.1357142857142857,
+    0.14999999999999997,
+    0.16428571428571426,
+    0.17857142857142855,
+    0.19285714285714284,
+    0.20714285714285713,
+    0.22142857142857142,
+    0.2357142857142857,
+    0.24999999999999994,
+    0.26428571428571423,
+    0.2785714285714285,
+    0.2928571428571428,
+    0.3071428571428571,
+    0.3214285714285714,
+    0.3357142857142857,
+    0.3499999999999999,
+    0.3642857142857142,
+    0.3785714285714285,
+    0.3928571428571428,
+    0.4071428571428571,
+    0.4214285714285714,
+    0.43571428571428567,
+    0.4499999999999999,
+    0.4642857142857142,
+    0.4785714285714285,
+    0.49285714285714277,
+    0.5071428571428571,
+    0.5214285714285714,
+    0.5357142857142857,
+    0.5499999999999999,
+    0.5642857142857143,
+    0.5785714285714285,
+    0.5928571428571429,
+    0.6071428571428571,
+    0.6214285714285714,
+    0.6357142857142857,
+    0.6499999999999999,
+    0.6642857142857143,
+    0.6785714285714285,
+    0.6928571428571428,
+    0.7071428571428571,
+    0.7214285714285714,
+    0.7357142857142857,
+    0.7499999999999999,
+    0.7642857142857142,
+    0.7785714285714285,
+    0.7928571428571428,
+    0.807142857142857,
+    0.8214285714285714,
+    0.8357142857142856,
+    0.8499999999999999,
+    0.8642857142857142,
+    0.8785714285714284,
+    0.8928571428571428,
+    0.907142857142857,
+    0.9214285714285714,
+    0.9357142857142856,
+    0.95
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.66
+ },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:run_inverse_discovery": {
+  "code_hash": "318782ea91ab08d7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:u_exact": {
+  "code_hash": "5704ab665fb9a83e",
+  "inputs": {
+   "alpha": 0.15,
+   "t": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "x": [
+    0.05,
+    0.06428571428571428,
+    0.07857142857142857,
+    0.09285714285714286,
+    0.10714285714285714,
+    0.12142857142857143,
+    0.1357142857142857,
+    0.14999999999999997,
+    0.16428571428571426,
+    0.17857142857142855,
+    0.19285714285714284,
+    0.20714285714285713,
+    0.22142857142857142,
+    0.2357142857142857,
+    0.24999999999999994,
+    0.26428571428571423,
+    0.2785714285714285,
+    0.2928571428571428,
+    0.3071428571428571,
+    0.3214285714285714,
+    0.3357142857142857,
+    0.3499999999999999,
+    0.3642857142857142,
+    0.3785714285714285,
+    0.3928571428571428,
+    0.4071428571428571,
+    0.4214285714285714,
+    0.43571428571428567,
+    0.4499999999999999,
+    0.4642857142857142,
+    0.4785714285714285,
+    0.49285714285714277,
+    0.5071428571428571,
+    0.5214285714285714,
+    0.5357142857142857,
+    0.5499999999999999,
+    0.5642857142857143,
+    0.5785714285714285,
+    0.5928571428571429,
+    0.6071428571428571,
+    0.6214285714285714,
+    0.6357142857142857,
+    0.6499999999999999,
+    0.6642857142857143,
+    0.6785714285714285,
+    0.6928571428571428,
+    0.7071428571428571,
+    0.7214285714285714,
+    0.7357142857142857,
+    0.7499999999999999,
+    0.7642857142857142,
+    0.7785714285714285,
+    0.7928571428571428,
+    0.807142857142857,
+    0.8214285714285714,
+    0.8357142857142856,
+    0.8499999999999999,
+    0.8642857142857142,
+    0.8785714285714284,
+    0.8928571428571428,
+    0.907142857142857,
+    0.9214285714285714,
+    0.9357142857142856,
+    0.95
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:block_precomputed": {
+  "code_hash": "2005f5bc95a5a5ee",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/user/examples/use_cases/fin_convection_inverse/results/3d/summary.json'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:plate_precomputed": {
+  "code_hash": "e2934420ca7a30ab",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/user/examples/use_cases/fin_convection_inverse/results/2d/summary.json'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
+  "code_hash": "0520ca0470ba78ef",
+  "inputs": {
+   "h_true": 25.0,
+   "noise": 0.0,
+   "power": 10.0,
+   "steps": 5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.17
+ },
+ "pinneapple_analysis.inverse_problems.missing_term:CandidateLibrary": {
+  "code_hash": "0f6556de85719503",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CandidateLibrary",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.missing_term:SINDyIdentifier": {
+  "code_hash": "ee77ddaf68db4a99",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SINDyIdentifier",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:ArrheniusModel": {
+  "code_hash": "793b330241d6513d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArrheniusModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:LumpedCoolingModel": {
+  "code_hash": "745e10e9a3787b92",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LumpedCoolingModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:PinFinModel": {
+  "code_hash": "59c2927dc8dc7e0f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PinFinModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:PlateModel": {
+  "code_hash": "40cca1aab547dea8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PlateModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:RodModel": {
+  "code_hash": "cf7f271161aee063",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RodModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.presets:list_presets": {
+  "code_hash": "65313937a3c53e2a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.34
+ },
+ "pinneapple_analysis.inverse_problems.sensitivity:IdentifiabilityAnalyzer": {
+  "code_hash": "e671f7e583906ec0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IdentifiabilityAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.proof.graph:ProofGraph": {
+  "code_hash": "40d1f2bbafb14f46",
+  "inputs": {},
+  "method": "run",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_analysis.proof.pt_chains:build_pt_chain_graph": {
+  "code_hash": "14a3a3700f65a510",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProofGraph",
+  "seconds": 0.12
+ },
+ "pinneapple_analysis.reproduction:seed_stats": {
+  "code_hash": "41ecc1b5ad7ab0df",
+  "error": "ValueError: no seeds",
+  "inputs": {
+   "values": []
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.reproduction:status": {
+  "code_hash": "2c0ea429273ce51a",
+  "inputs": {
+   "ours_median": 0.0015,
+   "paper": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.retrieval.corpus:build_corpus": {
+  "code_hash": "0edf745df248598f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.25
+ },
+ "pinneapple_analysis.retrieval.corpus:build_literature_corpus": {
+  "code_hash": "35ebe365bf7d352c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 7.37
+ },
+ "pinneapple_analysis.retrieval.corpus:chunk_text": {
+  "code_hash": "6704856ce59d3f43",
+  "inputs": {
+   "max_chars": 4000,
+   "text": "short module docstring\nand a second line"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.retrieval:build_default_index": {
+  "code_hash": "b49552351db02b6f",
+  "error": "ImportError: pinneapple_analysis.retrieval requires the 'retrieval' extra: pip install 'pinneapple[retrieval]' (installs sentence-transformers).",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.51
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:ishigami_indices": {
+  "code_hash": "b85f0fcf9d34b6a1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:ishigami_space": {
+  "code_hash": "11972ab4ada784b7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:sobol_g_space": {
+  "code_hash": "b99c6b6ac9cc66d1",
+  "inputs": {
+   "d": 6
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_analysis.study_models:builtin": {
+  "code_hash": "adf722ace1cded08",
+  "inputs": {
+   "name": "ishigami"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StudyModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.surrogate.examples:airfoil_rans": {
+  "code_hash": "93c40da16bf2944f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateData",
+  "seconds": 0.11
+ },
+ "pinneapple_analysis.surrogate.examples:burgers_fdm_baseline": {
+  "code_hash": "4f6e269e6580991b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.surrogate.examples:burgers_fields": {
+  "code_hash": "ff63533fad5296ef",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateData",
+  "seconds": 0.39
+ },
+ "pinneapple_analysis.surrogate.methods:candidate_ids": {
+  "code_hash": "7110e901f6974c2b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_gate:TrustGate": {
+  "code_hash": "2347f60f5d9b3b17",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TrustGate",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_report:checagem_booleana": {
+  "code_hash": "60cd05aed324487f",
+  "inputs": {
+   "nome": "mass_conservation",
+   "passou": true
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Check",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_report:checagem_erro_relativo": {
+  "code_hash": "a4709877fb06a22b",
+  "inputs": {
+   "critica": true,
+   "erro": 0.3,
+   "limite": 0.02,
+   "nome": "acuracia_referencia"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Check",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.conformal_study:min_calibration_size": {
+  "code_hash": "f014c0fa60d12eba",
+  "inputs": {
+   "alpha": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.conformal_study:split_indices": {
+  "code_hash": "1e0312800ab78b92",
+  "inputs": {
+   "fractions": [
+    0.5,
+    0.5
+   ],
+   "n": 4000,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.residual_bound:ResidualErrorCalibrator": {
+  "code_hash": "44e3f8056d520fc4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ResidualErrorCalibrator",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.arena.cases:builtin_cases": {
+  "code_hash": "b3b4102828523a40",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_analysis.validation.arena.loop:run_arena": {
+  "code_hash": "5ac5b53650bdaed9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArenaReport",
+  "seconds": 35.02
+ },
+ "pinneapple_analysis.validation.fault_injection.faults:data_faults": {
+  "code_hash": "f8cae8b33e426987",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.fault_injection.faults:model_faults": {
+  "code_hash": "cabc3d6ae7dfc2c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.fault_injection.matrix:run_fault_injection": {
+  "code_hash": "f31a1f8a0922048a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FaultInjectionReport",
+  "seconds": 49.5
+ },
+ "pinneapple_analysis.validation.fault_injection.problems:BenchmarkProblem": {
+  "code_hash": "77fadaae7a666713",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:box_sampler": {
+  "code_hash": "863c23a8c05ef58b",
+  "inputs": {
+   "bounds": {
+    "L": [
+     0.01,
+     0.1
+    ],
+    "T0": [
+     250.0,
+     350.0
+    ],
+    "k": [
+     1.0,
+     400.0
+    ],
+    "q": [
+     1000.0,
+     100000.0
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:reflect_field": {
+  "code_hash": "d3b950dc36c3633f",
+  "inputs": {
+   "axis": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:relations_from_spec": {
+  "code_hash": "5492beef1f168349",
+  "inputs": {
+   "spec": [
+    {
+     "direction": "increasing",
+     "input": "q",
+     "kind": "monotonic",
+     "name": "more-heat-hotter",
+     "output": "T"
+    },
+    {
+     "direction": "decreasing",
+     "input": "k",
+     "kind": "monotonic",
+     "name": "better-conductor-cooler",
+     "output": "T"
+    },
+    {
+     "inputs": {
+      "L": "L / 2",
+      "q": "4 * q"
+     },
+     "kind": "invariant",
+     "name": "q-L2-group",
+     "output": "T",
+     "tol": 1e-12
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:rotate_field": {
+  "code_hash": "603aa993e8fdd053",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.physics_learning:detection_study": {
+  "code_hash": "13b64da34a8b8d02",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.58
+ },
+ "pinneapple_analysis.validation.physics_learning_cases:Section": {
+  "code_hash": "812363e088af745e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Section",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:burgers_1d": {
+  "code_hash": "27c832044cc33c36",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:kovasznay": {
+  "code_hash": "2e8ffe0218fb5d1b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:mlp": {
+  "code_hash": "532db052cf6845eb",
+  "inputs": {
+   "activation": "gaussian",
+   "depth": 3,
+   "n_in": 1,
+   "n_out": 1,
+   "width": 8
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Sequential",
+  "seconds": 0.01
+ },
+ "pinneapple_analysis.validation.pinn:poisson_2d": {
+  "code_hash": "25826247a8b878b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.report_artifact:hash_data": {
+  "code_hash": "85c0e056613d7120",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.schema:spec_of": {
+  "code_hash": "e68808bf43f53487",
+  "inputs": {
+   "check_id": "metamorphic.symmetry.reflect-x"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CheckSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.architecture_critique:run_adversarial_review": {
+  "code_hash": "53b12d5f1e41057a",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "architecture_description": "a plain FNO surrogate",
+   "model": "llama3.2:3b",
+   "provider": "ollama"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 7.26
+ },
+ "pinneapple_analysis.verification.architecture_recommendation:recommend_architecture": {
+  "code_hash": "f81e42abf9d86b41",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArchitectureRecommendation",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.dimensional_analysis:classify_flow_regime": {
+  "code_hash": "a0a9513950125d2c",
+  "inputs": {
+   "geometry": "internal_pipe",
+   "re": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.dimensional_analysis:compute_dimensionless_numbers": {
+  "code_hash": "eb5d80fca25dd220",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DimensionlessNumbers",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.geometry_ood_guardrail:GeometryOODGuardrail": {
+  "code_hash": "50dac43f96392601",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeometryOODGuardrail",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.geometry_ood_guardrail:default_reference_meshes": {
+  "code_hash": "998d5b60443b5d92",
+  "error": "ModuleNotFoundError: No module named 'trimesh'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.knowledge_graph:build_knowledge_graph": {
+  "code_hash": "ca7395322ea60723",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MultiDiGraph",
+  "seconds": 0.14
+ },
+ "pinneapple_analysis.verification.mesh_intelligence:estimate_required_first_cell_height": {
+  "code_hash": "568902bf7bc2e0ce",
+  "inputs": {
+   "kinematic_viscosity": 1.5e-05,
+   "reynolds_length": 1000.0,
+   "target_yplus": 1.0,
+   "velocity": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YPlusEstimate",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.physics_confidence_score:compute_physics_confidence": {
+  "code_hash": "27cf4db8edd529d1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsConfidenceScore",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.pipeline:analyze": {
+  "code_hash": "7249f10283bf91bf",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "candidate_architectures": [
+    "modified_mlp",
+    "not_a_registered_architecture"
+   ],
+   "description": "viscous Burgers",
+   "epochs": 20,
+   "hidden_dim": 16,
+   "n_collocation": 128,
+   "n_layers": 2,
+   "physical_parameters": {
+    "kinematic_viscosity": 0.01,
+    "length": 1.0,
+    "velocity": 1.0
+   }
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.18
+ },
+ "pinneapple_analysis.verification.solver_orchestration:list_available_solver_families": {
+  "code_hash": "6d775f499b15c6a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.11
+ },
+ "pinneapple_analysis.verification.tool_recommendation:buy_vs_build_recommendation": {
+  "code_hash": "8f31b7543795997f",
+  "inputs": {
+   "need": "CFD_high_fidelity"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.tool_recommendation:get_player_for_tool": {
+  "code_hash": "367d2261967813d2",
+  "inputs": {
+   "tool_key": "ansys_fluent"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.tool_recommendation:get_tools_by_category": {
+  "code_hash": "3795d379378cfd17",
+  "inputs": {
+   "category": "meshing"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.tool_recommendation:list_buy_vs_build_needs": {
+  "code_hash": "b148bd1a1b057f57",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ }
+}

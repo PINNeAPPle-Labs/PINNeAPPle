@@ -1,0 +1,15 @@
+{
+ "pinneapple_registry.gateway:ood_verdict": {
+  "code_hash": "467f4a0435c817af",
+  "inputs": {
+   "flag": {
+    "ood": false
+   },
+   "policy": "refuse"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.37
+ }
+}

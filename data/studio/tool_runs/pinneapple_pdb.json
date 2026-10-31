@@ -1,0 +1,44 @@
+{
+ "pinneapple_pdb.benchmarks:benchmark_catalog": {
+  "code_hash": "3c7ef0c94a06df43",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.3
+ },
+ "pinneapple_pdb.benchmarks:get_benchmark": {
+  "code_hash": "2a6d628ee441ce66",
+  "inputs": {
+   "name": "lane_emden_n1.5"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkEntry",
+  "seconds": 1.07
+ },
+ "pinneapple_pdb.benchmarks:list_benchmarks": {
+  "code_hash": "95f3bed9756b8e0a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_pdb.builder:PhysicalDatasetBuilder": {
+  "code_hash": "17a625058c01efc8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicalDatasetBuilder",
+  "seconds": 0.0
+ },
+ "pinneapple_pdb.templates:schema_templates": {
+  "code_hash": "129b9ef23a00d0da",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

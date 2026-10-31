@@ -235,6 +235,42 @@
    "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
   },
   {
+   "name": "pareto_pick0_cd_abs_error",
+   "value": 0.0010133748494556283,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "pareto_pick1_cd_abs_error",
+   "value": 0.007387636629499206,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "pareto_pick2_cd_abs_error",
+   "value": 0.002708717296291241,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe",
+   "value": 0.004225620951569742,
+   "unit": "1",
+   "how": "GP of CD fitted on doe, RMSE on the test split"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe_plus_acquired",
+   "value": 0.004708275520975552,
+   "unit": "1",
+   "how": "GP of CD fitted on doe + acquired, RMSE on the test split"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe_plus_random",
+   "value": 0.004252154994622719,
+   "unit": "1",
+   "how": "GP of CD fitted on doe + random, RMSE on the test split"
+  },
+  {
    "name": "inverse_heldout_inside_hdi90",
    "value": 0.95,
    "unit": "1",
@@ -248,38 +284,36 @@
   },
   {
    "name": "twin_interpolation_error_CD",
-   "value": 0.013325495021121903,
+   "value": 0.012525765062239791,
    "unit": "1",
    "how": "max |page interpolation - model| on 256 random points"
   },
   {
    "name": "twin_interpolation_error_CL",
-   "value": 0.03301846244952328,
+   "value": 0.03687439742417581,
    "unit": "1",
    "how": "max |page interpolation - model| on 256 random points"
   },
   {
    "name": "twin_interpolation_error_field_Cp",
-   "value": 0.5826700799743834,
+   "value": 0.5680705514631842,
    "unit": "1",
    "how": "max |page interpolation - model| on 256 random points"
   },
   {
    "name": "twin_interpolation_error_field_Cp_pod_truncation",
-   "value": 3.552713678800501e-15,
+   "value": 4.773959005888173e-15,
    "unit": "1",
    "how": "max |page interpolation - model| on 256 random points"
   },
   {
    "name": "cfd_cpu_hours",
-   "value": 44.039542565240005,
+   "value": 48.824951938934454,
    "unit": "h",
    "how": "sum over CFD purposes of wall time x MPI processes"
   }
  ],
- "not_measured": [
-  "extra CFD (acquisition, random, Pareto verification)"
- ],
+ "not_measured": [],
  "report": "report.html",
  "evidence_zip": "evidence.zip",
  "evidence_problems": [],
@@ -294,6 +328,8 @@
   "Surrogates at equal data and budget, with calibrated uncertainty",
   "The field-scalar consistency check and its tolerance",
   "Global sensitivity (Sobol indices on the selected surrogates)",
+  "Pareto front (CD against CL at 40 m/s) and its CFD verification",
+  "Active learning against random runs",
   "Inverse problem: the slant angle from a drag measurement",
   "Inverse on the measurements of Ahmed, Ramm & Faltin (1984) (60 m/s)",
   "Inverse on the measurements of Lienhart & Becker (2003) (40 m/s)",

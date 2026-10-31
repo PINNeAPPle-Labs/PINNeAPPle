@@ -144,7 +144,10 @@ class DataModule:
             else:
                 items.append(self.adapter(b))
 
-        if _collate_pinn is not None:
+        # the PINN collate only knows collocation / conditions / data / meta: a batch of other keys (x, y, ...)
+        # would lose them, so it takes the generic path below
+        pinn_keys = {"collocation", "conditions", "data"}
+        if _collate_pinn is not None and all(pinn_keys & set(it) for it in items):
             return _collate_pinn(items)
 
         # minimal fallback

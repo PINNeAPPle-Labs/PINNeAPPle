@@ -102,3 +102,6 @@ examples/use_cases/antennas/outputs/
 docs/pt/_mapa/inventario.json
 docs/pt/mapa_completo.pdf
 docs/pt/_mapa/exclude.local.txt
+
+# Ahmed study: generated pages (05_twin.py, 06_visuals.py write them; the app writes its own copy)
+examples/end_to_end/ahmed_body/results/twin/

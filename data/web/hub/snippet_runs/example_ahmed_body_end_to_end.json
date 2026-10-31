@@ -1,0 +1,12 @@
+{
+ "code_hash": "7adff7f00b22b6f8",
+ "figures": [],
+ "id": "example:ahmed_body_end_to_end",
+ "ok": true,
+ "recorded": "2026-10-30",
+ "seconds": 0.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ahmed body: an end-to-end CFD surrogate study | fluids | not curated\ncad_vs_parametric_cd_rel 0.012767096863239846 1\ncd_baseline_L0 0.28899965610083705 1\ncd_baseline_L1 0.29656455281749244 1\ncd_baseline_L2 0.2707438409326792 1\ncd_baseline_L3 0.2639794841992436 1",
+ "timed_out": false
+}

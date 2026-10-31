@@ -1,0 +1,190 @@
+{
+ "id": "al_01",
+ "purpose": "acquisition",
+ "params": {
+  "slant_deg": 33.6003472302109,
+  "clearance": 0.031529342401772735,
+  "speed": 57.004827074706554
+ },
+ "ok": true,
+ "outputs": {
+  "CD": 0.33619041141435235,
+  "CL": 0.21446338942028875,
+  "CD_front": 0.02582848103886987,
+  "CD_roof": 8.926795455310917e-05,
+  "CD_slant": 0.23407308119513956,
+  "CD_base": 0.023720034945611642,
+  "CD_side": 0.011237577379481334,
+  "CD_underbody": -6.149672456577897e-05,
+  "CD_pressure": 0.2948869457890897,
+  "CD_friction": 0.0388946320464637,
+  "drag_N": 74.96469353808804,
+  "lift_N": 47.82165617215228
+ },
+ "message": "",
+ "cost_s": 532.1269421280001,
+ "started": "2026-10-30T19:24:25",
+ "reason": "largest GP uncertainty of CD in the training region",
+ "predicted": {},
+ "meta": {
+  "mesh": "campaign",
+  "iterations_requested": 800,
+  "procs": 4,
+  "params": {
+   "slant_deg": 33.6003472302109,
+   "clearance": 0.031529342401772735,
+   "speed": 57.004827074706554
+  },
+  "Re": 3967535.964399576,
+  "timings_s": {
+   "blockMesh": 0.1,
+   "surfaceFeatureExtract": 0.0,
+   "decomposePar": 0.1,
+   "snappyHexMesh": 125.9,
+   "checkMesh": 1.3,
+   "fields": 0.0,
+   "simpleFoam": 380.1,
+   "reconstruct": 2.2
+  },
+  "iterations": 800,
+  "final_residuals": {
+   "omega": 5.0902245e-05,
+   "k": 0.00088591675,
+   "Ux": 0.00099213285,
+   "Uy": 0.001644999,
+   "Uz": 0.0039512366,
+   "p": 0.00027270859
+  },
+  "simpleFoam_end": true,
+  "fatal": false,
+  "mesh_ok": true,
+  "cells": 211744,
+  "mesh_failed_checks": 0,
+  "max_non_orthogonality": 59.511782,
+  "max_skewness": 1.2775992,
+  "max_aspect_ratio": 13.275754,
+  "mass_balance": {
+   "net_m3_s": -0.11102386944384329,
+   "inflow_m3_s": 299.49872784200596,
+   "imbalance": 0.00037069896838564043,
+   "source": "U"
+  },
+  "iteration_std": {
+   "CD": 0.006632411791468647,
+   "CL": 0.023182988548525296
+  },
+  "averaged_iterations": [
+   400.0,
+   450.0,
+   500.0,
+   550.0,
+   600.0,
+   650.0,
+   700.0,
+   750.0,
+   800.0
+  ],
+  "force_history": [
+   {
+    "iteration": 50.0,
+    "CD": 0.3525461369485296,
+    "CL": 0.23381722516269535
+   },
+   {
+    "iteration": 100.0,
+    "CD": 0.33303543803566216,
+    "CL": 0.3631600380693399
+   },
+   {
+    "iteration": 150.0,
+    "CD": 0.34506483851198233,
+    "CL": 0.288671448133184
+   },
+   {
+    "iteration": 200.0,
+    "CD": 0.35595932037637745,
+    "CL": 0.34006871976311703
+   },
+   {
+    "iteration": 250.0,
+    "CD": 0.35516985726390427,
+    "CL": 0.2645920229343247
+   },
+   {
+    "iteration": 300.0,
+    "CD": 0.3415993072997003,
+    "CL": 0.2179225146349851
+   },
+   {
+    "iteration": 350.0,
+    "CD": 0.3393237870494192,
+    "CL": 0.2056264349209663
+   },
+   {
+    "iteration": 400.0,
+    "CD": 0.3323663641007676,
+    "CL": 0.21052564259771786
+   },
+   {
+    "iteration": 450.0,
+    "CD": 0.33375252013324297,
+    "CL": 0.2380320288507995
+   },
+   {
+    "iteration": 500.0,
+    "CD": 0.3426933130473975,
+    "CL": 0.20342010504163746
+   },
+   {
+    "iteration": 550.0,
+    "CD": 0.3387120805676512,
+    "CL": 0.19139410062757897
+   },
+   {
+    "iteration": 600.0,
+    "CD": 0.3278592432210612,
+    "CL": 0.17256901412433603
+   },
+   {
+    "iteration": 650.0,
+    "CD": 0.3269590333198621,
+    "CL": 0.20890431557360808
+   },
+   {
+    "iteration": 700.0,
+    "CD": 0.3417792341949369,
+    "CL": 0.21920802423500077
+   },
+   {
+    "iteration": 750.0,
+    "CD": 0.34781033630869823,
+    "CL": 0.23389359740881924
+   },
+   {
+    "iteration": 800.0,
+    "CD": 0.33378157783555396,
+    "CL": 0.25222367632310083
+   }
+  ],
+  "convergence": {
+   "CD_rel_change": 0.01774314404316991,
+   "CL_rel_change": 0.23864307525686365,
+   "over_iterations": 200.0,
+   "CD_mean_drift": 0.003697858249472977,
+   "CD_window_std": 0.006632411791468647,
+   "window_writes": 9
+  },
+  "yplus": {
+   "mean": 108.51975485593294,
+   "p05": 45.31263105528448,
+   "p95": 220.67517140984606,
+   "max": 1075.7610686068733,
+   "frac_30_300": 0.9670960732577991,
+   "frac_below_11": 0.0010864504112990843
+  },
+  "CD_final": 0.33378157783555396,
+  "CL_final": 0.25222367632310083,
+  "flow_npz": "/home/user/PINNeAPPle/examples/end_to_end/ahmed_body/_runs/cfd/cases/al_01.flow.npz"
+ },
+ "fields_path": "/home/user/PINNeAPPle/examples/end_to_end/ahmed_body/_runs/cfd/fields/al_01.npz"
+}

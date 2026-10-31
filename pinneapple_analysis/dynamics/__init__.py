@@ -1,7 +1,7 @@
 """Mathematical toolkit for dynamical systems.
 
 Five frameworks that operate on trajectories from any source (measurements, simulations, closed forms, PINN / FNO /
-DeepONet predictions) are being added one pull request at a time, each with its benchmarks. Available now:
+DeepONet predictions), each with its benchmarks:
 
 * :mod:`.first_passage`: first-passage and hitting times (deterministic crossing, Kaplan-Meier from observed
   trajectories, Monte Carlo of SDEs with Brownian-bridge correction, closed forms). Guide:
@@ -16,7 +16,15 @@ DeepONet predictions) are being added one pull request at a time, each with its 
   design (D, A, E, c, Bayesian D) built on :mod:`pinneapple_analysis.inverse_problems`. Guide:
   ``docs/guides/dynamics_fisher.md``.
 
-Not yet available: critical slowing down and early-warning indicators, Koopman / spectral analysis.
+* :mod:`.early_warning`: critical slowing down and early-warning indicators (rolling variance and autocorrelation,
+  recovery rate, spectral indicators, detrending, surrogate significance, window / bandwidth / sampling
+  sensitivity), with the indicator kept apart from any prediction. Guide: ``docs/guides/dynamics_early_warning.md``.
+
+* :mod:`.koopman`: Koopman operator and spectral analysis (exact and TLS DMD with Gavish-Donoho rank selection,
+  EDMD on dictionaries of observables including neural ones, eigenvalues, eigenfunctions, ResDMD residuals,
+  generator EDMD, prediction and reconstruction). Its :class:`KoopmanOperator` is a fitted NumPy operator, distinct
+  from the trainable layer ``pinneapple_neural.architectures.rom.koopman.KoopmanOperator``. Guide:
+  ``docs/guides/dynamics_koopman.md``.
 
 The frameworks share:
 
@@ -33,7 +41,7 @@ Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
-from . import dimensional, first_passage, fisher
+from . import dimensional, early_warning, first_passage, fisher, koopman
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -58,6 +66,15 @@ from .dimensional import (
     SimilarityMetrics,
     TrajectoryNormalizer,
 )
+from .early_warning import (
+    AutocorrelationAnalyzer,
+    CriticalSlowingDown,
+    EarlyWarningAnalyzer,
+    RecoveryRateEstimator,
+    RollingStatistics,
+    StabilityIndicator,
+    TransitionDiagnostics,
+)
 from .first_passage import (
     SDE,
     BoundaryCondition,
@@ -77,6 +94,17 @@ from .fisher import (
     ParameterIdentifiability,
     SamplingStrategy,
     SensitivityAnalyzer,
+)
+from .koopman import (
+    DMD,
+    EDMD,
+    DynamicMode,
+    KoopmanEigenfunctions,
+    KoopmanEigenvalues,
+    KoopmanOperator,
+    KoopmanReconstruction,
+    ObservableDictionary,
+    SpectralAnalyzer,
 )
 from .trajectories import (
     SOURCE_KINDS,
@@ -102,4 +130,8 @@ __all__ = [
     "ScalingLaw", "TrajectoryNormalizer", "CurveCollapseAnalyzer", "SimilarityMetrics",
     "fisher", "FisherInformation", "FisherInformationMatrix", "CramerRaoBound", "ParameterIdentifiability",
     "SensitivityAnalyzer", "ExperimentalDesign", "ObservationScheduler", "InformationGain", "SamplingStrategy",
+    "early_warning", "EarlyWarningAnalyzer", "CriticalSlowingDown", "RollingStatistics", "AutocorrelationAnalyzer",
+    "RecoveryRateEstimator", "StabilityIndicator", "TransitionDiagnostics",
+    "koopman", "KoopmanOperator", "DMD", "EDMD", "ObservableDictionary", "KoopmanEigenvalues",
+    "KoopmanEigenfunctions", "SpectralAnalyzer", "DynamicMode", "KoopmanReconstruction",
 ]

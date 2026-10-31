@@ -58,7 +58,13 @@ def baseline_x() -> np.ndarray:
 
 # ---------------------------------------------------------------------- weights (Raymer, general aviation, lb/ft)
 def wing_weight(af: Airframe, Wdg: float, q: float, tc: float, nz: float = 5.7, Wfw: float = 70 * 3.785 * 0.72) -> float:
-    """kg; Wdg design gross mass (kg), q cruise dynamic pressure (Pa), Wfw fuel in the wing (kg)."""
+    """kg; Wdg design gross mass (kg), q cruise dynamic pressure (Pa), Wfw fuel in the wing (kg).
+
+    Returns
+    -------
+    m : float [kg]
+        Wing mass.
+    """
     S = af.wing_area / FT ** 2
     lam_c4 = math.atan(math.tan(math.radians(af.sweep_le)) - (1 - af.taper) / (af.aspect_ratio * (1 + af.taper)))
     w = (0.036 * S ** 0.758 * (Wfw / LB) ** 0.0035 * (af.aspect_ratio / math.cos(lam_c4) ** 2) ** 0.6
@@ -67,6 +73,13 @@ def wing_weight(af: Airframe, Wdg: float, q: float, tc: float, nz: float = 5.7, 
 
 
 def htail_weight(af: Airframe, Wdg: float, q: float, nz: float = 5.7) -> float:
+    """Horizontal-tail mass (Raymer, general aviation); ``Wdg`` in kg, ``q`` in Pa.
+
+    Returns
+    -------
+    m : float [kg]
+        Horizontal-tail mass.
+    """
     ht = af.htail()
     S = ht["area"] / FT ** 2
     w = 0.016 * (nz * Wdg / LB) ** 0.414 * (q / 47.88) ** 0.168 * S ** 0.896 * (100 * 0.10) ** -0.12 * (af.htail_ar) ** 0.043 * 0.7 ** -0.02
@@ -74,6 +87,13 @@ def htail_weight(af: Airframe, Wdg: float, q: float, nz: float = 5.7) -> float:
 
 
 def vtail_weight(af: Airframe, Wdg: float, q: float, nz: float = 5.7) -> float:
+    """Vertical-tail mass (Raymer, general aviation); ``Wdg`` in kg, ``q`` in Pa.
+
+    Returns
+    -------
+    m : float [kg]
+        Vertical-tail mass.
+    """
     vt = af.vtail()
     S = vt["area"] / FT ** 2
     lam = math.radians(35)
@@ -98,11 +118,25 @@ def fuselage_wetted(af: Airframe):
 
 
 def fuselage_cd0(af: Airframe, V: float, rho: float, mu: float = 1.75e-5, wet=None) -> float:
+    """Fuselage zero-lift drag coefficient (flat-plate skin friction x form factor x wetted area / wing area).
+
+    Returns
+    -------
+    cd0 : float [-]
+        Fuselage zero-lift drag, referred to the wing area.
+    """
     swet, ff = wet or fuselage_wetted(af)
     return _cf(rho * V * af.length / mu) * ff * swet / af.wing_area
 
 
 def vtail_cd0(af: Airframe, V: float, rho: float, mu: float = 1.75e-5, vt=None) -> float:
+    """Vertical-tail zero-lift drag coefficient, referred to the wing area.
+
+    Returns
+    -------
+    cd0 : float [-]
+        Vertical-tail zero-lift drag, referred to the wing area.
+    """
     vt = vt or af.vtail()
     c = vt["root_chord"] * (1 + vt["taper"]) / 2
     ff = (1 + 0.6 / 0.3 * 0.10 + 100 * 0.10 ** 4) * 1.34 * 0.9    # t/c 10 %, (x/c)m 0.3, Mach ~0.15

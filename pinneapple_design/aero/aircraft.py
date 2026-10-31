@@ -18,6 +18,13 @@ KT = 0.514444
 
 
 def isa_density(h: float) -> float:
+    """ISA density at altitude ``h`` in m (troposphere).
+
+    Returns
+    -------
+    rho : float [kg/m3]
+        ISA troposphere density at ``h``.
+    """
     T = 288.15 - 0.0065 * h
     return 1.225 * (T / 288.15) ** 4.2559
 

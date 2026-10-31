@@ -61,7 +61,13 @@ BASELINE_DESIGN = PortDesign(radius_m=0.025, length_m=0.10)
 
 
 def resonant_frequency_hz(design: PortDesign, cabinet_volume_l: float) -> float:
-    """Ground truth (training labels and verification)."""
+    """Ground truth (training labels and verification).
+
+    Returns
+    -------
+    f : float [Hz]
+        Port resonance.
+    """
     return hr.helmholtz_resonant_frequency_hz(design.radius_m, design.length_m, cabinet_volume_l,
                                               end_correction_factor=END_CORRECTION_FACTOR)
 

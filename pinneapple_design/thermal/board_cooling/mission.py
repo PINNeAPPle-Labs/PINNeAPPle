@@ -102,7 +102,24 @@ class DesignSpace:
 
 @dataclass
 class CoolingMission:
-    """Board, parts, the overheating part (``hot``), air temperature, limits and the room for the cure."""
+    """Board, parts, the overheating part (``hot``), air temperature, limits and the room for the cure.
+
+    Attributes
+    ----------
+    t_ambient_c : float [degC]
+        Air temperature.
+    tj_limit_c : float [degC]
+        Junction limit of the hot part.
+    max_width_mm : float [mm]
+        Heat-sink envelope.
+    max_depth_mm : float [mm]
+    max_height_mm : float [mm]
+    fan_power_budget_w : float [W]
+        Air (hydraulic) power through the fins.
+    velocity_range_m_s : tuple[float, float] [m/s]
+    tim_k_mm2_w : float [K mm2/W]
+        Interface material resistance.
+    """
     board: Board
     components: list[Component]
     hot: str

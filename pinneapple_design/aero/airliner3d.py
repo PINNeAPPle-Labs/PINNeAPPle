@@ -94,6 +94,13 @@ def _cf(Re):
 
 
 def wing_weight_transport(af: Airliner, mtow: float, tc: float, nz: float = 3.75) -> float:
+    """Wing mass of a transport aircraft (Raymer), ``mtow`` in kg.
+
+    Returns
+    -------
+    m : float [kg]
+        Wing mass.
+    """
     S = af.wing_area / FT ** 2
     lam_c4 = math.atan(math.tan(math.radians(af.sweep_le)) - (1 - af.taper) / (af.aspect_ratio * (1 + af.taper)))
     w = 0.0051 * (mtow / LB * nz) ** 0.557 * S ** 0.649 * af.aspect_ratio ** 0.5 * tc ** -0.4 * (1 + af.taper) ** 0.1 \

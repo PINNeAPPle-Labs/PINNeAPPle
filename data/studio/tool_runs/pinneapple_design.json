@@ -121,7 +121,7 @@
   "seconds": 0.0
  },
  "pinneapple_design.aero.train:coefs": {
-  "code_hash": "46bfacc27163ba1b",
+  "code_hash": "dd64790bad9bafd0",
   "inputs": {
    "recs": [
     {
@@ -134,7 +134,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ndarray",
-  "seconds": 0.01
+  "seconds": 5.93
  },
  "pinneapple_design.bricks.assembly:Assembly": {
   "code_hash": "61d43a979419262b",
@@ -1060,14 +1060,14 @@
   "seconds": 6.49
  },
  "pinneapple_design.surrogate_inverse.suspension_arm:allowable_stress_for_life_pa": {
-  "code_hash": "66ff7c8771abca1c",
+  "code_hash": "a5bd83868ed345b5",
   "inputs": {
    "target_life_cycles": 10000000.0
   },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 0.0
+  "seconds": 0.73
  },
  "pinneapple_design.surrogate_inverse.suspension_arm:compute_sensitivity": {
   "code_hash": "87d1fdb241c69fe4",

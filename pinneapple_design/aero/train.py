@@ -79,7 +79,13 @@ def split(recs: Sequence[dict[str, Any]], frac: float = 0.15, seed: int = 3):
 
 
 def coefs(recs: Iterable[dict[str, Any]]) -> np.ndarray:
-    """(n, 3) array of (Cl, Cd, Cm)."""
+    """(n, 3) array of (Cl, Cd, Cm).
+
+    Returns
+    -------
+    coefs : np.ndarray [-]
+        Columns Cl, Cd, Cm.
+    """
     return np.array([[r["Cl"], r["Cd"], r["Cm"]] for r in recs])
 
 

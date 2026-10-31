@@ -27,6 +27,13 @@ MATERIALS.update({
 
 
 def sweep_le_from_qc(sweep_qc: float, ar: float, taper: float) -> float:
+    """Leading-edge sweep from the quarter-chord sweep ``sweep_qc`` (deg), aspect ratio and taper.
+
+    Returns
+    -------
+    sweep_le : float [deg]
+        Leading-edge sweep.
+    """
     return math.degrees(math.atan(math.tan(math.radians(sweep_qc)) + (1 - taper) / (ar * (1 + taper))))
 
 

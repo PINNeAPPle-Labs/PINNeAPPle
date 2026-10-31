@@ -262,6 +262,20 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.fem3d.team7:coil_current_density": {
+  "code_hash": "6bcc09ef88ffa91e",
+  "inputs": {
+   "points": [
+    0.2565,
+    0.1,
+    0.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 3.13
+ },
  "pinneapple_simulation.electromagnetics.fem3d.team7:probe_lines": {
   "code_hash": "e3668d8e9acf2a49",
   "inputs": {},

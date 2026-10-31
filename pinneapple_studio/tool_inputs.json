@@ -3481,6 +3481,16 @@
   },
   "source": "tests/test_antenna_3d.py:55"
  },
+ "pinneapple_simulation.electromagnetics.fem3d.team7:coil_current_density": {
+  "inputs": {
+   "points": [
+    0.2565,
+    0.1,
+    0.0
+   ]
+  },
+  "source": "tests/test_team7.py:55"
+ },
  "pinneapple_simulation.electromagnetics.machine:belt_winding": {
   "inputs": {
    "pole_pairs": 4,

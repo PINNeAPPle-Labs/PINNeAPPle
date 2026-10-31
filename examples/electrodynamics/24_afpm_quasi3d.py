@@ -11,7 +11,7 @@ and outer radius; five slices also leave out the radial flux inside the annulus.
 (15 deg, every 1.875 deg) and the no-load flux linkage of a coil around a tooth with a magnet centred on it.
 A coarse grid (192 steps, 8 mm, 4 mm) gives the discretisation sensitivity.
 
-    python examples/electrodynamics/24_afpm_quasi3d.py       # about 1.5 h, 9 GB; resumes from its checkpoint
+    python examples/electrodynamics/24_afpm_quasi3d.py       # about 12 min, 11 GB; resumes from its checkpoint
 """
 from __future__ import annotations
 
@@ -104,7 +104,9 @@ def figure(out: dict) -> None:
         for k, c in colours.items():
             r = out["cases"][f"{topo}.fine.{k}"]
             th = r["thetas_deg"]
-            a.plot(th, r["cogging"], "-o", color=c, lw=2, ms=5, label=f"{labels[k]} (pk-pk {r['pkpk']:.2f} N m)")
+            style = "--" if k == "q1" else "-o"                  # 1 and 5 slices nearly coincide
+            a.plot(th, r["cogging"], style, color=c, lw=2.5 if k == "q1" else 2, ms=5, zorder=3 if k == "q1" else 2,
+                   label=f"{labels[k]} (pk-pk {r['pkpk']:.2f} N m)")
         a.set(xlabel="rotor angle (deg)", ylabel="cogging torque (N m)",
               title=f"{'Single-sided' if topo == 'single' else 'Double-rotor'} AFPM, one cogging period")
         a.legend(frameon=False, fontsize=8)

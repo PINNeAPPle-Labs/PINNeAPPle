@@ -62,7 +62,7 @@ def outer_faces(pts, cells, keep=None):
     for name, conn, sicn in cells:
         k = np.ones(len(conn), bool) if keep is None else keep(pts[conn].mean(1))
         for f in CELL_FACES[name]:
-            for row, v in zip(conn[k][:, list(f)], sicn[k]):
+            for row, v in zip(conn[k][:, list(f)], sicn[k], strict=True):
                 key = tuple(sorted(row))
                 faces[key] = None if key in faces else (row, v)
     shown = [fv for fv in faces.values() if fv is not None]
@@ -142,7 +142,7 @@ for ax, (label, args, kw, zoom) in zip(axes, [
         ("rectangle h=0.05", ("rectangle", [2.0, 1.0]), {"h": 0.05}, None),
         ("disk h=0.05", ("disk", [0.5]), {"h": 0.05}, None),
         ("rectangle + 4 layers", ("rectangle", [2.0, 1.0]),
-         {"h": 0.1, "boundary_layer": {"first_layer": 0.005, "n_layers": 4, "growth": 1.3}}, (0.12, 0.06))]):
+         {"h": 0.1, "boundary_layer": {"first_layer": 0.005, "n_layers": 4, "growth": 1.3}}, (0.12, 0.06))], strict=True):
     out, pts, cells = mesh(label, *args, **kw)
     _, conn, sicn = cells[0]
     ax.add_collection(PolyCollection(pts[conn][:, :, :2], facecolors=CMAP(NORM(sicn)), **EDGE))
@@ -185,7 +185,7 @@ pair("06_stl_part.png", "generate_mesh('bracket.stl', h=0.004): plate 120 x 60 x
 fig = plt.figure(figsize=(12, 7.5))
 ax = fig.add_subplot(2, 1, 1)
 bins = np.linspace(0, 1, 51)
-for label, out, s in RECORDS:
+for label, _out, s in RECORDS:
     ax.hist(s, bins=bins, histtype="step", density=True, label=label, lw=1.2)
 ax.set_xlabel("SICN of the element (1 ideal, <= 0 inverted)")
 ax.set_ylabel("density")

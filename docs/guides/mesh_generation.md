@@ -15,6 +15,10 @@ out["element_counts"], out["sicn_min"], out["volume"]     # {'tetra': 6678, 'wed
 
 ![Half cut of the cylinder mesh: three prism layers at the walls, tetrahedra inside, coloured by SICN](img/mesh_generation_cylinder.png)
 
+More pictures are in `docs/assets/mesh/`: a box, a sphere, local refinement, 2-D meshes with wall layers, an STL
+part, and the SICN histograms with the measured numbers. `python scripts/mesh_generation_gallery.py` makes them all,
+this figure included.
+
 ## Inputs
 
 | input | meaning |

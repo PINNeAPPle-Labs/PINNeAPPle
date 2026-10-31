@@ -298,17 +298,22 @@ def wave_ultrasound_3d_default() -> ProblemSpec:
 
 
 @register_preset("reaction_diffusion_2d")
-def reaction_diffusion_2d_default() -> ProblemSpec:
+def reaction_diffusion_2d_default(D: float = 1e-2, lam: float = 0.5) -> ProblemSpec:
+    """Single-species linear reaction-diffusion ``c_t = D lap(c) - lam c`` on the unit square, ``c = 0`` on the edges,
+    ``c(x, y, 0) = sin(pi x) sin(pi y)``. Exact solution ``exp(-(2 pi^2 D + lam) t) sin(pi x) sin(pi y)``
+    (:func:`reaction_diffusion_2d_exact`).
+
+    Until this version the preset compiled as ``heat_equation`` (no reaction term at all: the reaction was left to a
+    ``ctx['source_fn']`` nobody supplied) from a zero initial and boundary state, whose solution is ``c = 0``."""
     coords: CoordNames = ("x", "y", "t")
     fields = ("c",)
 
-    D = 1e-3
     pde = PDETermSpec(
-        kind="heat_equation",
+        kind="reaction_diffusion_2d",
         fields=fields,
         coords=coords,
-        params={"alpha": float(D)},
-        meta={"industry": "chemistry", "note": "Use ctx['source_fn'] to implement reaction R(c)."},
+        params={"D": float(D), "lambda": float(lam)},
+        meta={"industry": "chemistry", "exact": "reaction_diffusion_2d_exact"},
     )
 
     ic = InitialCondition(
@@ -316,7 +321,7 @@ def reaction_diffusion_2d_default() -> ProblemSpec:
         fields=("c",),
         selector_type="callable",
         selector=lambda X, ctx: np.isclose(X[:, 2], 0.0),
-        value_fn=lambda X, ctx: np.zeros((X.shape[0], 1), dtype=np.float32),
+        value_fn=lambda X, ctx: (np.sin(np.pi * X[:, 0]) * np.sin(np.pi * X[:, 1]))[:, None].astype(np.float32),
         weight=10.0,
     )
 
@@ -339,9 +344,13 @@ def reaction_diffusion_2d_default() -> ProblemSpec:
         sample_defaults={"n_col": 160_000, "n_bc": 30_000, "n_ic": 20_000, "n_data": 0},
         scales=ScaleSpec(L=1.0, U=1.0, alpha=float(D)),
         field_ranges={"c": (0.0, 1.0)},
-        references=("Reaction–diffusion template for industrial chemistry / materials.",),
-        # domain_bounds was missing entirely; unit square [0,1]^2 (this
-        # preset has no coordinate-dependent value_fn, so it need not be
-        # centred like the 3D box presets above), t in (0,1).
+        references=("Linear reaction-diffusion with first-order decay; separable exact solution "
+                    "exp(-(2 pi^2 D + lam) t) sin(pi x) sin(pi y).",),
         domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0), "t": (0.0, 1.0)},
     )
+
+
+def reaction_diffusion_2d_exact(X: np.ndarray, D: float = 1e-2, lam: float = 0.5) -> np.ndarray:
+    """Exact solution of :func:`reaction_diffusion_2d_default` at points ``X = (x, y, t)``, shape (n, 1)."""
+    X = np.asarray(X, dtype=float)
+    return (np.exp(-(2 * np.pi**2 * D + lam) * X[:, 2]) * np.sin(np.pi * X[:, 0]) * np.sin(np.pi * X[:, 1]))[:, None]

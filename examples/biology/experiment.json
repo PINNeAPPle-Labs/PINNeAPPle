@@ -1,0 +1,88 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/biology",
+ "title": "Biology-informed modelling",
+ "description": "Identifiability of the ultradian glucose-insulin model before fitting (exact forward sensitivities), nonlinear PK/PD design and inference, Aliev-Panfilov activation maps recovered by an eikonal PINN, and the library aorta with Windkessel outlets in OpenFOAM.",
+ "domain": "biology",
+ "methods": [
+  "Fisher information",
+  "forward sensitivities",
+  "eikonal PINN",
+  "Aliev-Panfilov finite differences",
+  "Windkessel"
+ ],
+ "modules": [
+  "pinneapple_physics.biology",
+  "pinneapple_analysis.inverse_problems",
+  "pinneapple_simulation.hemodynamics"
+ ],
+ "params": {},
+ "scripts": [
+  "identifiability_ultradian.py",
+  "pkpd_inference.py",
+  "cardiac_activation_mapping.py",
+  "aorta_windkessel.py"
+ ],
+ "metrics": [
+  {
+   "name": "fisher_smallest_over_largest_eigenvalue",
+   "value": 9.7e-16,
+   "unit": "",
+   "how": "ultradian model, G at 361 random minutes, 1 % noise, 17 parameters (identifiability_ultradian.py)"
+  },
+  {
+   "name": "fisher_null_vector_C2_component",
+   "value": 0.9996,
+   "unit": "",
+   "how": "eigenvector of the smallest Fisher eigenvalue"
+  },
+  {
+   "name": "invariance_U0_Um_C3_eigenvalue_ratio",
+   "value": 1.3e-16,
+   "unit": "",
+   "how": "Fisher matrix restricted to U0, Um, C3"
+  },
+  {
+   "name": "activation_rmse_eikonal_pinn",
+   "value": 0.46,
+   "unit": "dimensionless time",
+   "how": "64 sites, Aliev-Panfilov reference at dx 0.25, all conducting grid points"
+  },
+  {
+   "name": "activation_rmse_linear_interpolation",
+   "value": 0.912,
+   "unit": "dimensionless time",
+   "how": "same 64 sites, Delaunay linear interpolation"
+  },
+  {
+   "name": "cv_median_rel_error_eikonal_pinn",
+   "value": 0.0249,
+   "unit": "",
+   "how": "conduction velocity from the PINN map, >4 units from the scar"
+  },
+  {
+   "name": "activation_grid_check_rms",
+   "value": 0.623,
+   "unit": "dimensionless time",
+   "how": "activation map dx 0.5 vs dx 0.25 at common nodes"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/activation_maps.png"
+  ],
+  "data": [
+   "results/identifiability_ultradian.json",
+   "results/cardiac_activation_mapping.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/bio_informed.md"
+ },
+ "references": [
+  "Daneker et al. arXiv:2202.01723",
+  "Aliev and Panfilov 1996",
+  "Sturis et al. 1991"
+ ],
+ "status": "not curated"
+}

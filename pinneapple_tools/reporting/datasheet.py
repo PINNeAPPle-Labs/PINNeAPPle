@@ -338,9 +338,14 @@ class Section:
     def _render_table(t: Table) -> str:
         head = ""
         if t.header:
-            head = "<thead><tr>" + "".join(
-                f"<th{' style=\"text-align:' + (t.align[i] if t.align else 'left') + '\"' if t.align else ''}>"
-                f"{_e(h)}</th>" for i, h in enumerate(t.header)) + "</tr></thead>"
+            # The style attribute is built first: a backslash inside an f-string expression is a
+            # SyntaxError on Python 3.10 and 3.11, which this package supports.
+            def _th(i: int, h) -> str:
+                align = t.align[i] if t.align else ""
+                style = ' style="text-align:' + align + '"' if align else ""
+                return "<th" + style + ">" + _e(h) + "</th>"
+
+            head = "<thead><tr>" + "".join(_th(i, h) for i, h in enumerate(t.header)) + "</tr></thead>"
         cols = max([len(r) for r in t.rows] + [len(t.header or ())])
         styles = ""
         if t.widths:
@@ -348,9 +353,12 @@ class Section:
         body = []
         for i, r in enumerate(t.rows):
             em = " class='em'" if i in t.emphasis else ""
-            cells = "".join(
-                f"<td{' style=\"text-align:' + t.align[j] + '\"' if t.align and j < len(t.align) else ''}>"
-                f"{_rich(c)}</td>" for j, c in enumerate(r))
+            def _td(j: int, c) -> str:
+                align = t.align[j] if t.align and j < len(t.align) else ""
+                style = ' style="text-align:' + align + '"' if align else ""
+                return "<td" + style + ">" + _rich(c) + "</td>"
+
+            cells = "".join(_td(j, c) for j, c in enumerate(r))
             cells += "<td></td>" * max(0, cols - len(r))
             body.append(f"<tr{em}>{cells}</tr>")
         cap = f"<caption>{_rich(t.caption)}</caption>" if t.caption else ""

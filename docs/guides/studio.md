@@ -39,6 +39,24 @@ Each tool carries:
 `prose_unmatched` lists prose whose symbol is no longer in the code. A symbol without prose shows none; nothing is
 generated.
 
+### Input ranges
+
+An author declares the input box a function is valid for by assigning a literal after it, at the top level of the
+module:
+
+```python
+def pfr_conversion_ktau(k: float, tau: float) -> dict[str, float]:
+    ...
+
+
+pfr_conversion_ktau.x_ranges = {"k": (0.0, 10.0), "tau": (0.0, 1e4)}
+```
+
+The catalog reads it without importing the module. Each `(lo, hi)` becomes the form's `minimum` / `maximum` for that
+input, with `"x-ranges-source": "declared"`; `None` leaves a side open. A name that is not a numeric input, or a
+default outside its range, is listed in the tool's `form_problems`. Preset inputs take their ranges from the preset's
+card.
+
 ### Status
 
 The rules are those of the Engineering API's Capability Registry:

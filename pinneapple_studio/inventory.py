@@ -160,6 +160,30 @@ def dataclass_params(node: ast.ClassDef) -> list[dict]:
             and "ClassVar" not in unparse(b.annotation)]
 
 
+def declared_ranges(tree: ast.Module) -> dict[str, dict[str, list]]:
+    """``fn.x_ranges = {"k": (lo, hi), ...}`` written as a literal at the top level of a module: the input box the
+    author declared for ``fn``. ``None`` leaves a side open; entries that are not a pair of numbers are dropped."""
+    out: dict[str, dict[str, list]] = {}
+    for node in tree.body:
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1):
+            continue
+        t = node.targets[0]
+        if not (isinstance(t, ast.Attribute) and t.attr == "x_ranges" and isinstance(t.value, ast.Name)):
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except (ValueError, SyntaxError):
+            continue
+        if not isinstance(value, dict):
+            continue
+        box = {k: [b[0], b[1]] for k, b in value.items()
+               if isinstance(k, str) and isinstance(b, (list, tuple)) and len(b) == 2
+               and all(x is None or (isinstance(x, (int, float)) and not isinstance(x, bool)) for x in b)}
+        if box:
+            out[t.value.id] = box
+    return out
+
+
 def is_public(name: str) -> bool:
     return not name.startswith("_")
 
@@ -201,6 +225,7 @@ def module_record(path: Path, root: Path) -> dict:
         elif isinstance(node, ast.Import):
             imports |= {a.name for a in node.names if a.name.split(".")[0].startswith("pinneapple")}
     rec["imports"] = sorted(imports)
+    rec["x_ranges"] = declared_ranges(tree)
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and is_public(node.name):
             fdoc = ast.get_docstring(node)

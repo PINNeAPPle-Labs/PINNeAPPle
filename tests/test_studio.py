@@ -295,3 +295,33 @@ def test_real_cli_dispatch(capsys):
     with pytest.raises(SystemExit) as e:                                         # argparse exits after --help
         main(["studio", "--help"])
     assert e.value.code == 0 and "run-tool" in capsys.readouterr().out
+
+
+def test_declared_input_ranges_become_form_limits(repo):
+    """``fn.x_ranges = {...}`` at module level gives the form's minimum / maximum, read without importing."""
+    from pinneapple_studio import catalog
+    _w(repo / "pinneapple_demo" / "reactor.py", '''
+        """Ideal reactor."""
+        import math
+
+
+        def conversion(k: float, tau: float = 10.0, order: int = 1) -> float:
+            """Conversion of a first-order reaction."""
+            return -math.expm1(-k * tau)
+
+
+        conversion.x_ranges = {"k": (0.0, 10.0), "tau": (None, 1e4), "missing": (0, 1), "order": "bad"}
+        ''')
+    tool = catalog.build(repo)["tools"]["pinneapple_demo.reactor:conversion"]
+    props = tool["form"]["properties"]
+    assert (props["k"]["minimum"], props["k"]["maximum"], props["k"]["x-ranges-source"]) == (0.0, 10.0, "declared")
+    assert "minimum" not in props["tau"] and props["tau"]["maximum"] == 1e4
+    assert "minimum" not in props["order"] and "x-ranges-source" not in props["order"]
+    assert tool["form_problems"] == ["x_ranges names missing, which is not a numeric input of the form"]
+
+
+def test_default_outside_the_declared_range_is_a_form_problem():
+    from pinneapple_studio import classify as Cl
+    schema = {"properties": {"tau": {"type": "number", "default": 20.0}}, "required": []}
+    Cl.apply_ranges(schema, {"tau": [0.0, 10.0]})
+    assert Cl.valid_form(schema) == ["default of tau is outside its declared range"]

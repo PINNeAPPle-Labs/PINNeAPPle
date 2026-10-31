@@ -261,6 +261,7 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                     if kind == "class":
                         target = sym                    # the form builds the object; the run method has its own
                     tool["form"] = C.form(target, res)
+                    C.apply_ranges(tool["form"], (rec.get("x_ranges") or {}).get(sym["name"], {}))
                     tool["form_problems"] = C.valid_form(tool["form"])
                 tools[tid] = tool
     _related(tools, inv)

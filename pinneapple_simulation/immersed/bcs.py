@@ -90,6 +90,15 @@ class Pressure:
     kind = "neumann"
 
 
+@dataclass
+class Force:
+    """A total force [N] (vector) spread uniformly over the surface its selector picks: the applied load is exact
+    whatever area the discretisation finds there (rounded edges, facets)."""
+    total: Any
+    where: Callable | None = None
+    kind = "neumann"
+
+
 def assign(bcs: Sequence, X: np.ndarray, n: np.ndarray) -> np.ndarray:
     """Index of the condition that owns each boundary point (-1: natural)."""
     owner = np.full(len(X), -1, np.int64)

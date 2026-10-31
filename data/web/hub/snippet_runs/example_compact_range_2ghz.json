@@ -1,0 +1,12 @@
+{
+ "code_hash": "5b466983b7b628b1",
+ "figures": [],
+ "id": "example:compact_range_2ghz",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compact range: QZ vs feed gain and reflector size (2 GHz) | electromagnetics | not curated\nagreement_887_max_abs_diff 6.430411758628907e-13 \ndesigns 105.0 \nseconds_median 105.528 s\ngp_usable_rmse_m 0.13953382291271652 m\ngp_usable_coverage95 0.8476190476190476",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "73f39ffbe632bec4",
+ "figures": [],
+ "id": "node:study.ahmed_geometry",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 11.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ahmed body: parametric and CAD geometry -> pinneapple_autolab.domains.ahmed.make_body / ahmed_cad / import_body\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'slant_deg': 25.0, 'clearance': 0.05, 'cad': True}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "15f31569a5379f1d",
+ "figures": [],
+ "id": "node:study.inverse",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 7.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Slant angle from a drag measurement (amortised posterior) -> pinneapple_autolab.domains.ahmed_study.fit_selected + train_slant_mdn\ninputs: []\noutputs: [('params', 'params'), ('figure', 'figure')]\ndefaults: {'cd': 0.285, 'clearance': 0.05, 'speed': 60.0, 'folder': ''}",
+ "timed_out": false
+}

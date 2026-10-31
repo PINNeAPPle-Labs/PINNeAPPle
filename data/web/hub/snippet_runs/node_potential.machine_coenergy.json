@@ -1,0 +1,12 @@
+{
+ "code_hash": "99ca5080bbd19088",
+ "figures": [],
+ "id": "node:potential.machine_coenergy",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 15.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Machine torque, flux linkage and inductance from the co-energy -> pinneapple_physics.potential.machines.machine_coenergy + pinneapple_simulation.electromagnetics.machine.SPMMachine\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'theta_deg': 1.3, 'I_peak': 30.0, 'gamma_deg': 0.0}",
+ "timed_out": false
+}

@@ -801,12 +801,9 @@ the integral of the closed-form field):
 | 8 | 4 | 0.071 | 347.2 | 6.16 % |
 | 16 | 8 | 0.034 | 332.1 | 1.53 % |
 
-Not done in this step, and reported as such: the TEAM benchmarks. TEAM 13 (nonlinear magnetostatics) needs the B-H
-curve and measured values of its problem description, which were not reachable from here. TEAM 7 (eddy currents,
-Fujiwara and Nakata 1990) has its geometry, data and measurements (the problem description distributed with
-ElmerCSC's elmer-elmag repository) and runs on coarse meshes, but the converged comparison needs an iterative
-eddy-current solver: the sparse LU takes 52 s at 32 000 unknowns, and COCG with a Jacobi preconditioner diverges on
-it (residual 2e-2 after 300 iterations, then growth). It comes with the next step.
+TEAM 13 (nonlinear magnetostatics) is not done: it needs the B-H curve and measured values of its problem
+description, which were not reachable from here. TEAM 7 (eddy currents) is in
+[its own section below](#3-d-eddy-currents-team-problem-7-against-its-measurements).
 
 
 ### 3-D skew: cogging in 3-D against multi-slice 2-D
@@ -892,6 +889,120 @@ Peak-to-peak cogging in N m (difference relative to the straight 3-D cogging):
 
 Limits of this study: linear iron (no saturation); no winding currents, so no load torque ripple (that needs the
 end windings in 3-D); one mesh resolution, because the 1.76 M-tetrahedron model did not fit in memory.
+
+
+### 3-D eddy currents: TEAM problem 7 against its measurements
+
+`fem3d.team7` holds TEAM workshop problem 7 (Fujiwara and Nakata, COMPEL 9 (3), 1990, 137-154): an aluminium plate
+(294 x 294 x 19 mm, `sigma = 3.526e7` S/m) with an off-centre hole under a racetrack coil of 2742 ampere-turns, at 50
+and 200 Hz. The geometry, the coil and the measured tables come from the problem description distributed with
+ElmerCSC's elmer-elmag repository; the tables were checked against the scanned pages. `mesh_team7` builds the gmsh
+mesh, `run(msh)` solves and compares with `MEASURED`: `Bz` (gauss) along A1-B1 and A2-B2 and the eddy-current
+density `Jy` (1e6 A/m^2) on the two faces of the plate, at wt = 0 and 90 deg.
+
+Two changes to `solve_eddy` made the fine meshes possible:
+
+* **A null mode in the gauge.** The tree gauge spans the air from two groups of roots, the outer surface and the
+  plate (the potential `A*` must stay free in the conductor). A forest grown from both leaves one more mode: the
+  gradient of a potential that is 1 on the plate and 0 outside, zero on every gauged edge. The tree-gauged system
+  was singular, and both SuperLU and PARDISO stopped at a relative residual of 1e-4. `tree_gauge(...,
+  link_roots=True)` joins the root groups with one more edge each; the residual is now 2e-14 and the loss did not
+  change (5.19718 W against 5.19712 W on the coarse mesh, so the mode carried no field).
+* **A symmetric factorisation.** `solve_eddy(..., solver="pardiso")` (the default when pypardiso is installed)
+  factorises the real symmetric indefinite form `[[R, -I], [-I, -R]]` of the complex symmetric matrix by
+  LDL^T, then refines to `rtol`. On 197 000 unknowns this needs 7.7 GB against 13.6 GB for an LU of the
+  nonsymmetric real form, and half the time. SuperLU on the complex matrix (`solver="splu"`) gives the same
+  answer to 1e-12 on the conducting slab.
+
+`python examples/electrodynamics/21_team7.py` (run on 2026-10-31, 2 min; peak 7.2 GB) refines the plate from 12
+to 5 mm (the skin depth is 12 mm at 50 Hz and 6 mm at 200 Hz). The coil (20 mm), the probe layer between the plate
+and the coil (10 mm) and the air (80 mm) keep their sizes. `Bz` is averaged over the elements within 4 mm of
+each probe; the columns give the rms difference from the measurements over the 17 points, as a share of the
+largest measured value of the line:
+
+| h_plate (mm) | Tetrahedra | Unknowns | Time (s) | Loss 50 Hz (W) | Loss 200 Hz (W) | Bz A1-B1, 50 Hz, wt = 0 | Bz A2-B2, 50 Hz, wt = 0 | Bz A1-B1, 50 Hz, wt = 90 | Bz A1-B1, 200 Hz, wt = 0 | Bz A1-B1, 200 Hz, wt = 90 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 12 | 59 005 | 60 278 | 8 | 4.948 | 10.104 | 6.8 % | 7.0 % | 12.2 % | 8.1 % | 47.9 % |
+| 9 | 73 361 | 75 837 | 12 | 4.868 | 10.669 | 5.5 % | 9.5 % | 7.5 % | 6.9 % | 53.9 % |
+| 7 | 100 478 | 105 384 | 18 | 4.795 | 10.561 | 7.7 % | 10.7 % | 8.7 % | 8.1 % | 51.7 % |
+| 6 | 132 369 | 140 339 | 33 | 4.723 | 10.426 | 6.6 % | 7.7 % | 5.5 % | 7.2 % | 50.7 % |
+| 5 | 182 037 | 194 729 | 44 | 4.675 | 10.226 | 7.1 % | 4.7 % | 7.5 % | 7.8 % | 40.1 % |
+
+* **Bz in phase with the current** is within 5 to 8 % at 5 mm (rms 5.6 gauss on a peak of 78 gauss along A1-B1 at
+  50 Hz), at both frequencies, and changes little with the mesh. The largest differences on A1-B1 are at
+  x = 144 mm (17.5 gauss, where `Bz` peaks) and x = 90 mm (10.5 gauss, where it changes sign).
+* **Bz in quadrature at 50 Hz** (the field of the eddy currents) is within 7.5 %.
+* **Bz in quadrature at 200 Hz is overestimated**: 4 to 7 gauss computed against 1 to 4 gauss measured, 40 % of a
+  peak of 4.9 gauss at 5 mm, falling slowly with the mesh (48, 54, 52, 51, 40 %). At 5 mm the plate holds less than one
+  element per skin depth.
+* **The Joule loss is not converged**: it falls 1 to 2 % per level at 50 Hz (4.95 to 4.68 W) and is not monotonic
+  at 200 Hz. The benchmark gives no measured loss.
+
+**Eddy current on the faces of the plate** (5 mm; rms as a share of the largest tabulated value):
+
+| Computed face | f (Hz) | wt (deg) | Against its own table | Against the other face's table |
+|---|---|---|---|---|
+| z = 19 mm (nearer the coil) | 50 | 0 | 72 % | 13 % |
+| z = 19 mm (nearer the coil) | 50 | 90 | 32 % | 13 % |
+| z = 19 mm (nearer the coil) | 200 | 0 | 74 % | 12 % |
+| z = 19 mm (nearer the coil) | 200 | 90 | 64 % | 10 % |
+| z = 0 | 50 | 0 | 17 % | 55 % |
+| z = 0 | 50 | 90 | 51 % | 52 % |
+| z = 0 | 200 | 0 | 30 % | 13 % |
+| z = 0 | 200 | 90 | 46 % | 24 % |
+
+The computed current is larger on the face nearer the coil, as the skin depth requires: at 200 Hz the plate is
+three skin depths thick. The table puts the larger values on A4-B4 (z = 0), and the computed current on the face
+nearer the coil matches that table within 10 to 13 % at both frequencies and both instants. Against its own label,
+A3-B3, it is 32 to 74 % off. The point values still move by up to 12 % of the line's peak between 6 and 5 mm,
+but the rms differences against the two tables hardly change over the five meshes (z = 19 mm against A3-B3 at
+50 Hz, wt = 0: 75, 77, 75, 74, 72 %), so refinement does not close the gap. Both pairings are reported (`compare` gives
+`rms_rel_peak` and `rms_rel_peak_other_face`); this guide draws no conclusion about the table.
+
+GetDP was not used as a second code on this problem: its tree gauge started on the plate skin fixes the
+tangential `a*` there, which is wrong for a formulation without an electric scalar potential (it gave 1.1 W and
+no current at the surface probes). The sphere above remains the code-to-code check.
+
+### 3-D end effects: magnet flux against L/D
+
+`machines3d.endeffects.end_effect_study(machine, ratios)` measures how much of the 2-D magnet flux a coil links in
+3-D, for stacks of different length. A full-pitch search coil sits at mid-slot radius, centred on the aligned
+magnet. Its flux linkage is the line integral of `A` around it (`search_coil_linkage`). The arcs close it either
+in the stack end faces or 10 mm beyond them, in the air where real end turns run. The 2-D reference is the same
+layered stack with no end air: its end planes are flux-parallel, so the field does not vary along the axis, and
+the ratio `k = lambda_3D / lambda_2D` holds only the end effect, none of the in-plane discretisation.
+
+The line integral is computed exactly: the path is cut where it crosses element faces and each piece is
+integrated by the midpoint rule, which is exact for the linear `A` of a Whitney element. A plain midpoint rule
+over 400 points per side gave 0.5 % of error, as large as the effect: the tree gauge puts large gradients in `A`
+in the air, and a closed loop cancels them only if every piece is exact. With the exact integral the
+difference between the two coils equals the flux of `B` through the 10 mm band between them (3.1999e-6 against
+3.2001e-6 Wb on a test mesh).
+
+`python examples/electrodynamics/22_spm_end_effects_3d.py` (run on 2026-10-31, 91 min, peak 10 GB; checkpointed) runs the
+default `SPMMachine` (bore diameter D = 90 mm, linear iron at `mu_r` 1000) with 240 angular steps, stack layers of
+at most 15 mm and 40 mm of air beyond each end:
+
+| L/D | L (mm) | Stack layers | Tetrahedra | Time (s) | k, coil ends in the end faces | k, coil ends 10 mm beyond | Mean gap flux density, 3-D / 2-D | dL = L (1 - k), end faces (mm) | dL, 10 mm beyond (mm) |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 22.5 | 2 | 489 600 | 226 | 0.9863 | 0.9906 | 0.9859 | 0.309 | 0.212 |
+| 0.5 | 45.0 | 3 | 538 560 | 457 | 0.9936 | 0.9956 | 0.9938 | 0.286 | 0.199 |
+| 1 | 90.0 | 6 | 685 440 | 746 | 0.9968 | 0.9978 | 0.9969 | 0.286 | 0.199 |
+| 2 | 180.0 | 12 | 979 200 | 1529 | 0.9984 | 0.9989 | 0.9984 | 0.286 | 0.199 |
+
+* **The end effect is a fixed length.** From L/D = 0.5 to 2 the magnet flux lost at the ends equals that of
+  0.286 mm of stack (0.199 mm for the coil that closes 10 mm out), the same to three decimals: a 2-D model
+  corrected by `k = 1 - 0.29 mm / L` reproduces the 3-D linkage of this machine. At L/D = 0.25 (two stack
+  layers) it is 0.309 mm.
+* **It is small for this machine**: 1.4 % at L/D = 0.25, 0.16 % at L/D = 2. The air gap (1 mm) is short against
+  the stack and the magnets are on the surface, so little flux fringes. The coil that closes 10 mm beyond the
+  stack links the equivalent of 0.09 mm of stack more: the radial flux, outward, through the 10 mm band
+  beyond each end face.
+* **Sensitivity** at L/D = 0.5: 80 mm of end air instead of 40 gives k = 0.9936 and 0.9955 (unchanged and
+  -0.0001); 480 angular steps instead of 240 give 0.9940 and 0.9958 (+0.0004 and +0.0002).
+
+Limits: linear iron, no-load magnet flux only (no armature reaction, no end-winding leakage, which
+`machines.endwinding` computes for the Prius); one machine.
 
 ## Verification
 

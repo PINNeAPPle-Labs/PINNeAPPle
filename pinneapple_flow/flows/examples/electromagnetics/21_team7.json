@@ -1,0 +1,188 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-team7",
+ "name": "TEAM problem 7 against its measurements (21)",
+ "description": "3-D eddy currents in the asymmetrical conductor with a hole (TEAM problem 7) on edge elements, under mesh refinement, against the published measurements of Bz and Jy at 50 and 200 Hz (examples/electrodynamics/21_team7.py).",
+ "nodes": [
+  {
+   "id": "team7",
+   "type": "em.team7",
+   "params": {
+    "h_plate": [
+     0.012,
+     0.009,
+     0.007,
+     0.006,
+     0.005
+    ]
+   },
+   "label": "TEAM 7 mesh ladder",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "team7.levels.0.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.0.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.0.f.200.loss_W",
+      "ref": "results/21_team7.json:levels.0.f.200.loss_W"
+     },
+     {
+      "flow": "team7.levels.1.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.1.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.1.f.200.loss_W",
+      "ref": "results/21_team7.json:levels.1.f.200.loss_W"
+     },
+     {
+      "flow": "team7.levels.2.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.2.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.2.f.200.loss_W",
+      "ref": "results/21_team7.json:levels.2.f.200.loss_W"
+     },
+     {
+      "flow": "team7.levels.3.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.3.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.3.f.200.loss_W",
+      "ref": "results/21_team7.json:levels.3.f.200.loss_W"
+     },
+     {
+      "flow": "team7.levels.4.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.4.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.4.f.200.loss_W",
+      "ref": "results/21_team7.json:levels.4.f.200.loss_W"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A1B1.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A1B1 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A1B1.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A1B1 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A2B2.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A2B2 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A2B2.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A2B2 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A3B3.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A3B3 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A3B3.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A3B3 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A4B4.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A4B4 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.50.A4B4.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.50.compare.A4B4 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A1B1.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A1B1 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A1B1.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A1B1 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A2B2.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A2B2 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A2B2.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A2B2 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A3B3.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A3B3 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A3B3.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A3B3 wt=90.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A4B4.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A4B4 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.4.f.200.A4B4.wt90.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.4.f.200.compare.A4B4 wt=90.rms_rel_peak"
+     }
+    ],
+    "tolerance_source": "deterministic FEM on gmsh meshes; 1e-6 relative covers BLAS / PARDISO rounding and the iterative refinement to 1e-10"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "team7",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "team7.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "21_team7.py"
+  ],
+  "quick": {
+   "team7": {
+    "h_plate": [
+     0.012
+    ],
+    "freqs": [
+     50
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "team7.levels.0.f.50.loss_W",
+      "ref": "results/21_team7.json:levels.0.f.50.loss_W"
+     },
+     {
+      "flow": "team7.levels.0.f.50.A1B1.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.0.f.50.compare.A1B1 wt=0.rms_rel_peak"
+     },
+     {
+      "flow": "team7.levels.0.f.50.A3B3.wt0.rms_rel_peak",
+      "ref": "results/21_team7.json:levels.0.f.50.compare.A3B3 wt=0.rms_rel_peak"
+     }
+    ]
+   }
+  }
+ }
+}

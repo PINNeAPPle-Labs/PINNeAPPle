@@ -189,6 +189,13 @@ class SPM3D:
         a[u] = x
         return _Solution(a, self.space.curl(a), {"iterations": it[0], "unknowns": len(u)})
 
+    def release(self) -> None:
+        """Free the factorised preconditioner (PARDISO holds it in MKL memory until freed)."""
+        sys_ = getattr(self, "_sys", None)
+        if sys_ is not None and hasattr(sys_[1], "free"):
+            sys_[1].free()
+        self._sys = None
+
     def torque(self, sol) -> float:
         """Arkkio (Maxwell-stress) torque, N m, over the two gap annuli on either side of the moving band (as in
         the 2-D model), over the whole axial length of the mesh; the length-weighted mean of the two."""
@@ -262,7 +269,11 @@ def _factor(K):
 
         solver = pypardiso.PyPardisoSolver()
         solver.factorize(K)
-        return lambda v: solver.solve(K, np.asarray(v, float))
+
+        def solve(v):
+            return solver.solve(K, np.asarray(v, float))
+        solve.free = lambda: solver.free_memory(everything=True)   # MKL keeps the factor until told
+        return solve
     except Exception:  # noqa: BLE001 - optional accelerator; SuperLU is always there
         import scipy.sparse.linalg as spla
 

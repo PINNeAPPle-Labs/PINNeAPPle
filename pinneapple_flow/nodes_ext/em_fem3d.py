@@ -1,8 +1,9 @@
 """The 3-D edge-element solver of :mod:`pinneapple_simulation.electromagnetics.fem3d` and the 3-D machines of
 :mod:`pinneapple_simulation.electromagnetics.machines3d` as flow nodes: the verification of
 ``examples/electrodynamics/19_edge3d_verification.py`` (sphere in a uniform field under mesh refinement, the GetDP
-cross-check on the same meshes, the manufactured solution and the conducting slab) and the skew study of
-``20_spm_skew_3d.py``. Metric names follow the examples' results JSON."""
+cross-check on the same meshes, the manufactured solution and the conducting slab), the skew study of
+``20_spm_skew_3d.py``, TEAM problem 7 against its measurements (``21_team7.py``) and the end effects against L/D
+(``22_spm_end_effects_3d.py``). Metric names follow the examples' results JSON."""
 from __future__ import annotations
 
 import shutil
@@ -113,6 +114,57 @@ def spm_skew_3d(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"]}
 
 
+@node("em.team7", "TEAM problem 7: 3-D eddy currents against the published measurements",
+      category="Electromagnetics", outputs=[Port("metrics", "metrics")],
+      params=[Param("h_plate", "list", [0.012, 0.009, 0.007, 0.006],
+                    help="element sizes in the plate (m), coarse to fine; 0.006 needs about 14 GB"),
+              Param("freqs", "list", [50, 200], help="frequencies (Hz): 50 and/or 200, the measured ones")],
+      calls="pinneapple_simulation.electromagnetics.fem3d.team7: mesh_team7, run (solve_eddy with the tree gauge "
+            "and PARDISO, probe, compare against MEASURED)",
+      available=_gmsh_available)
+def team7_node(ctx, inputs, params):
+    """examples/electrodynamics/21_team7.py: the Joule loss and the rms difference from the measured Bz and Jy
+    (relative to the largest measured value of each line) at each mesh level."""
+    from pinneapple_simulation.electromagnetics.fem3d import team7
+
+    tmp = Path(tempfile.mkdtemp(prefix="team7_flow_"))
+    for i, h in enumerate(map(float, params["h_plate"])):
+        ctx.check_stop()
+        msh = team7.mesh_team7(tmp / f"t7_{h}.msh", h_plate=h, h_coil=0.02, h_air=0.08, h_layer=0.01)
+        r = team7.run(msh, freqs=tuple(int(f) for f in params["freqs"]), rtol=1e-10)
+        ctx.metric(f"levels.{i}.unknowns", float(r["unknowns"]), f"h_plate = {h}")
+        for f, v in r["f"].items():
+            ctx.metric(f"levels.{i}.f.{f}.loss_W", float(v["loss_W"]), "W")
+            for k, c in v["compare"].items():
+                ctx.metric(f"levels.{i}.f.{f}.{k.replace(' wt=', '.wt')}.rms_rel_peak", c["rms_rel_peak"])
+        msh.unlink()
+    shutil.rmtree(tmp, ignore_errors=True)
+    return {"metrics": ctx.report["metrics"]}
+
+
+@node("em.spm_end_effects_3d", "End effects of a PM machine against L/D: 3-D flux linkage over 2-D",
+      category="Electromagnetics", outputs=[Port("metrics", "metrics")],
+      params=[Param("ratios", "list", [0.25, 0.5, 1.0, 2.0], help="stack length over bore diameter"),
+              Param("end_length", "float", 0.04, minimum=0.0), Param("end_layers", "int", 4, minimum=1),
+              Param("n_theta", "int", 240, minimum=24), Param("layer_dz", "float", 0.015, minimum=0.001)],
+      calls="pinneapple_simulation.electromagnetics.machines3d.endeffects: end_effect_study, search_coil_linkage")
+def spm_end_effects_3d(ctx, inputs, params):
+    """examples/electrodynamics/22_spm_end_effects_3d.py: k = lambda_3D / lambda_2D for a full-pitch search coil
+    closing in the stack end faces and 10 mm beyond them."""
+    from pinneapple_simulation.electromagnetics.machine import SPMMachine
+    from pinneapple_simulation.electromagnetics.machines3d.endeffects import end_effect_study
+    from pinneapple_simulation.electromagnetics.materials import LinearMaterial
+
+    res = end_effect_study(SPMMachine(iron=LinearMaterial(mu_r=1000.0)), [float(v) for v in params["ratios"]],
+                           end_length=float(params["end_length"]), end_layers=int(params["end_layers"]),
+                           layer_dz=float(params["layer_dz"]), n_theta=int(params["n_theta"]),
+                           overhangs=(0.0, 0.01), progress=ctx.log)
+    for i, r in enumerate(res["rows"]):
+        ctx.metric(f"rows.{i}.k_o0mm", r["k_o0mm"], f"L/D = {r['L_over_D']:g}")
+        ctx.metric(f"rows.{i}.k_o10mm", r["k_o10mm"], f"L/D = {r['L_over_D']:g}")
+    return {"metrics": ctx.report["metrics"]}
+
+
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
@@ -132,6 +184,25 @@ def _register_capabilities():
         nodes=("em.spm_skew_3d",), references=("jin2014fem", "bossavit1998"),
         template="electromagnetics/20_spm_skew_3d", quick=True,
         description="examples/electrodynamics/20_spm_skew_3d.py"))
+
+    register_capability(Capability(
+        id="em.team7", title="TEAM problem 7: 3-D eddy currents against measurements",
+        domain="electromagnetics", example="electrodynamics",
+        keywords={"team 7": 3, "team7": 3, "team problem": 2, "eddy current": 2, "asymmetrical conductor": 3,
+                  "3-d eddy": 3, "benchmark": 1},
+        requires_all=(("team", "eddy", "conductor"),), min_score=3,
+        nodes=("em.team7",), references=("jin2014fem", "bossavit1998"),
+        template="electromagnetics/21_team7", quick=True,
+        description="examples/electrodynamics/21_team7.py"))
+    register_capability(Capability(
+        id="em.spm_end_effects_3d", title="End effects of a PM machine against L/D in 3-D",
+        domain="electromagnetics", example="electrodynamics",
+        keywords={"end effect": 3, "end effects": 3, "l/d": 3, "end leakage": 3, "stack length": 2, "3-d": 1,
+                  "3d": 1},
+        requires_all=(("motor", "machine", "pm", "spm", "stack"),), min_score=4,
+        nodes=("em.spm_end_effects_3d",), references=("jin2014fem", "bossavit1998"),
+        template="electromagnetics/22_spm_end_effects_3d", quick=True,
+        description="examples/electrodynamics/22_spm_end_effects_3d.py"))
 
 
 _register_capabilities()

@@ -41,13 +41,19 @@
    "failed": 0,
    "wall_h": 0.09932824949423472,
    "cpu_h": 0.09932824949423472
+  },
+  "visuals (Cycles renders, 4 cores)": {
+   "runs": 0,
+   "failed": 0,
+   "wall_h": 4.233762389289009,
+   "cpu_h": 4.233762389289009
   }
  },
  "total": {
   "runs": 84.0,
   "failed": 0.0,
-  "wall_h": 12.382083048493682,
-  "cpu_h": 49.000797002694526
+  "wall_h": 16.615845437782692,
+  "cpu_h": 53.23455939198353
  },
  "environment": {
   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",

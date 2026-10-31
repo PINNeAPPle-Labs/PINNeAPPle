@@ -313,9 +313,7 @@
    "how": "sum over CFD purposes of wall time x MPI processes"
   }
  ],
- "not_measured": [
-  "visuals"
- ],
+ "not_measured": [],
  "report": "report.html",
  "evidence_zip": "evidence.zip",
  "evidence_problems": [],
@@ -336,6 +334,7 @@
   "Inverse on the measurements of Ahmed, Ramm & Faltin (1984) (60 m/s)",
   "Inverse on the measurements of Lienhart & Becker (2003) (40 m/s)",
   "Digital twin",
+  "Visuals",
   "Cost accounting",
   "Not measured, and limits"
  ]

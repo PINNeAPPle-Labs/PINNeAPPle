@@ -49,8 +49,10 @@ export function fmt(v, d) {
   return Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3 ? v.toExponential(2) : v.toFixed(d);
 }
 export function ticks(lo, hi, n = 5, nd = null) {
-  const d = nd === null ? decimals(lo, hi) : nd;
-  return Array.from({ length: n }, (_, k) => fmt(lo + ((hi - lo) * k) / (n - 1), d));
+  const d = nd === null ? decimals(lo, hi) : nd, span = Math.abs(hi - lo);
+  // a tick within rounding of zero is zero (not -4.44e-16 on a symmetric range)
+  const at = (k) => { const v = lo + ((hi - lo) * k) / (n - 1); return Math.abs(v) <= 1e-9 * span ? 0 : v; };
+  return Array.from({ length: n }, (_, k) => fmt(at(k), d));
 }
 
 // colour bar as HTML (inline styles, works in any page): title, gradient, ticks, optional words under the ends

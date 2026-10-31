@@ -241,35 +241,49 @@ def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> in
 
 def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = None, timeout: float = 900,
                     log=print) -> dict[str, Any]:
-    """Run the scripts of the examples that have no flow (``state == "script"``), each in its own interpreter with
-    the job environment, and record the outcome per entry with a hash of its scripts."""
+    """Run the scripts of the examples that have no flow (``state == "script"``) in a disposable checkout (as the
+    smoke runs: own ``HOME``, job environment, no network where the system allows it) and record the outcome per
+    entry with a hash of its scripts and the files it wrote."""
+    import shutil
     import subprocess
     import sys
+    import tempfile
     import time
 
-    from .runner import clean_env
+    from .smoke import _changed, _no_network, clean_job_env, queue_of_copies
     root = repo_root()
     p = root / EXAMPLE_RUNS
     runs = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
-    env = clean_env({"PYTHONPATH": str(root), "MPLBACKEND": "Agg"})
-    for e in gallery:
-        if e["kind"] not in ("example", "reproduction") or e["state"] != "script" or (ids and e["id"] not in ids):
-            continue
-        t0, ok, tail = time.time(), True, ""
-        for s in e["scripts"]:
-            try:
-                out = subprocess.run([sys.executable, str(root / s)], cwd=(root / s).parent, env=env,
-                                     capture_output=True, text=True, timeout=timeout)
-                ok = ok and out.returncode == 0
-                tail = (out.stderr or out.stdout)[-300:]
-            except subprocess.TimeoutExpired:
-                ok, tail = False, f"timeout after {timeout:g} s"
-            if not ok:
-                break
-        runs[e["id"]] = {"ok": ok, "scripts": e["scripts"], "hash": _script_hash(root, e["scripts"]),
-                         "seconds": round(time.time() - t0, 1), "recorded": time.strftime("%Y-%m-%d"),
-                         "error": "" if ok else tail.strip()}
-        log(f"{e['id']}: {'ok' if ok else 'failed'} in {runs[e['id']]['seconds']} s")
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(runs, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    todo = [e for e in gallery if e["kind"] in ("example", "reproduction") and e["state"] == "script"
+            and (not ids or e["id"] in ids)]
+    if not todo:
+        return runs
+    scratch = Path(tempfile.mkdtemp(prefix="studio-examples-"))
+    copy = queue_of_copies(root, scratch, 1).get()
+    env = clean_job_env(copy)
+    try:
+        for e in todo:
+            t0, ok, tail = time.time(), True, ""
+            for s in e["scripts"]:
+                try:
+                    out = subprocess.run([*_no_network(), sys.executable, str(copy / s)], cwd=(copy / s).parent,
+                                         env=env, capture_output=True, text=True, timeout=timeout)
+                    ok = ok and out.returncode == 0
+                    tail = (out.stderr or out.stdout)[-300:]
+                except subprocess.TimeoutExpired:
+                    ok, tail = False, f"timeout after {timeout:g} s"
+                if not ok:
+                    break
+            wrote = _changed(str(copy))
+            runs[e["id"]] = {"ok": ok, "scripts": e["scripts"], "hash": _script_hash(root, e["scripts"]),
+                             "seconds": round(time.time() - t0, 1), "recorded": time.strftime("%Y-%m-%d"),
+                             "error": "" if ok else tail.strip(), "writes_files": wrote[:20]}
+            log(f"{e['id']}: {'ok' if ok else 'failed'} in {runs[e['id']]['seconds']} s")
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(runs, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    finally:
+        if (root / ".git").exists():
+            subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", str(copy)],
+                           capture_output=True, timeout=300)
+        shutil.rmtree(scratch, ignore_errors=True)
     return runs

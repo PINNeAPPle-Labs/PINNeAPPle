@@ -105,8 +105,10 @@ def calls_in(src: str) -> list[tuple[str, int, list[Any], dict[str, Any]]]:
             raising |= {id(c) for b in w.body for c in ast.walk(b) if isinstance(c, ast.Call)}
     scopes = [tree] + [f for f in ast.walk(tree) if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))]
     env_of: dict[int, dict[str, Any]] = {}
+    module_env = {k: v for k, v in _bindings(ast.Module(body=[n for n in tree.body if isinstance(n, ast.Assign)],
+                                                      type_ignores=[])).items()}
     for sc in scopes:                                         # innermost function wins (walked after the module)
-        env = _bindings(sc) if not isinstance(sc, ast.Module) else {}
+        env = module_env if isinstance(sc, ast.Module) else {**module_env, **_bindings(sc)}
         for c in ast.walk(sc):
             if isinstance(c, ast.Call):
                 env_of[id(c)] = env

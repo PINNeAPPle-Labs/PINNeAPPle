@@ -1,0 +1,12 @@
+{
+ "code_hash": "d52dbe0c9605ad94",
+ "figures": [],
+ "id": "node:antenna.compact_range_check",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 7.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compact range: one design against a quiet-zone spec (PO, V and H) -> pinneapple_simulation.electromagnetics.reflector.design.qz_report / design_grid\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'feed_gain_dbi': 16.0, 'side_m': 4.0, 'focal_m': 4.0, 'coarse_mesh': True, 'qz_diameter_m': 1.0, 'amp_tol_db': 0.5, 'phase_tol_deg': 5.0, 'xpol_max_db': -25.0}",
+ "timed_out": false
+}

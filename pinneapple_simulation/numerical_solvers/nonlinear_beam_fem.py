@@ -291,7 +291,12 @@ def cantilever_frequency_roots(n: int) -> np.ndarray:
     frequency equation for a clamped-free (cantilever) Euler-Bernoulli beam
     -- solved by bracketed root-finding since no closed form exists. Useful
     as an independent closed-form check for `natural_frequencies_hz` when
-    the caller's boundary dict happens to describe a cantilever."""
+    the caller's boundary dict happens to describe a cantilever.
+
+    Returns
+    -------
+    beta_L : np.ndarray [-]
+        The roots ``beta_n L``; ``omega_n = (beta_n L)^2 sqrt(E I / (rho A L^4))``."""
 
     def f(x):
         return np.cos(x) + 1 / np.cosh(x)

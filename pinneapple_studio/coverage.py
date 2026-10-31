@@ -33,11 +33,13 @@ from .smoke import read_runs, recorded_inputs, smoke_inputs
 BASELINE = Path(__file__).with_name("coverage_baseline.txt")
 REASONS = Path(__file__).with_name("tool_reasons.json")
 EXAMPLE_RUNS = Path("data") / "studio" / "example_runs.json"
-# names that say a call reaches outside a scratch folder: not smoke-run, by rule
-SIDE_EFFECTS = re.compile(r"(^|_)(serve|server|start|launch|open|browser|download|fetch|upload|push|publish|"
-                          r"deploy|install|uninstall|delete|remove|rm|kill|login|send|post|email|notify|watch|"
-                          r"listen|daemon|run_forever|loop|gui|show|interactive|record|clone|sync|pull|write|save|"
-                          r"dump|export|store|register|persist|cache|clear|reset|migrate|init_db|index)(_|$)", re.I)
+# names that say a call needs the network, a server, a screen or credentials: not smoke-run, by rule (a tool that
+# only writes files is run in a disposable copy and marked, never excluded)
+SIDE_EFFECTS = re.compile(r"(^|_)(serve|server|launch|browser|download|fetch|upload|push|publish|deploy|install|"
+                          r"uninstall|login|send|post|email|notify|listen|daemon|run_forever|gui|show|interactive|"
+                          r"clone|sync|pull)(_|$)", re.I)
+# modules that call an LLM (and may run code it writes): not smoke-run
+LLM_MODULES = re.compile(r"(^pinneapple_llm(\.|$))|hpo_experiments|ollama|(^|\.)llm(_|\.|$)", re.I)
 
 
 def baseline() -> set[str]:
@@ -56,8 +58,10 @@ def declared_reason(tool: dict[str, Any], table: dict[str, str]) -> str:
     for prefix, why in table.items():
         if tool["module"] == prefix or tool["module"].startswith(prefix + "."):
             return why
+    if LLM_MODULES.search(tool["module"]):
+        return "not smoke-run: it calls an LLM (and may run the code an LLM writes)"
     if SIDE_EFFECTS.search(tool["name"]):
-        return f"not smoke-run: its name ({tool['name']}) says it writes or reaches outside a scratch folder"
+        return f"not smoke-run: its name ({tool['name']}) says it needs the network, a server, a screen or credentials"
     return ""
 
 
@@ -74,12 +78,14 @@ def tool_rows(catalog: dict[str, Any]) -> list[dict[str, Any]]:
         why = declared_reason(t, table)
         if current and r["ok"]:
             state, detail = "ran", f"{r.get('returned', '')} in {r.get('seconds')} s ({r.get('recorded')})"
+            if r.get("changes_files"):
+                detail += "; writes files: " + ", ".join(r["changes_files"][:3])
         elif why:
             state, detail = "reason", why
         elif tid in base:
             state = "baseline"
             detail = (f"smoke run failed: {r.get('error')}" if current and not r["ok"] else
-                      "no inputs recorded for its required fields" if t["form"]["required"] else
+                      "ainda não roda: falta entrada de exemplo" if t["form"]["required"] else
                       "not smoke-run yet")
         elif current and not r["ok"]:
             state, detail = "failed", r.get("error", "")

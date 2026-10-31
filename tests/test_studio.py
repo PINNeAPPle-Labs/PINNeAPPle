@@ -330,7 +330,7 @@ def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
 def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
     from pinneapple_studio import smoke
     stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
-    assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0}
+    assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0, "writes": 0}
     rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]
     assert rec["ok"] and rec["returned"] == "list" and rec["code_hash"] == cat["tools"]["pinneapple_demo.heat:FinStudy"]["code_hash"]
 
@@ -343,3 +343,30 @@ def test_example_rows_say_why(repo, monkeypatch):
     rows = COV.example_rows(gallery.entries(repo), repo)
     assert rows == [{"id": "example:fins", "title": "Fins", "state": "needs",
                      "how": 'cadquery: `pip install -e ".[cad]"`'}]
+
+
+def test_smoke_marks_a_tool_that_writes_into_the_checkout(tmp_path, monkeypatch):
+    """A tool run in a disposable git checkout that writes there is recorded with the files, and the copy is
+    restored for the next tool."""
+    import subprocess as sp
+
+    from pinneapple_studio import smoke
+    r = tmp_path / "co"
+    _w(r / "pkg_w.py", "def touch(n: int = 1):\n    open('MARK.txt', 'w').write('x')\n    return n\n")
+    sp.run(["git", "init", "-q", str(r)], check=True)
+    sp.run(["git", "-C", str(r), "add", "."], check=True)
+    sp.run(["git", "-C", str(r), "-c", "user.email=a@b", "-c", "user.name=t", "commit", "-qm", "x"], check=True)
+    monkeypatch.chdir(r)                                     # the tool writes in its working folder: the copy
+    monkeypatch.setenv("PINNEAPPLE_SMOKE_COPY", str(r))
+    monkeypatch.syspath_prepend(str(r))
+    spec = tmp_path / "todo.json"
+    spec.write_text(json.dumps([[{"id": "pkg_w:touch", "kind": "function", "name": "touch", "module": "pkg_w",
+                                  "methods": [], "form": {"properties": {}}}, {}]]))
+    import contextlib
+    import io
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        smoke.child([str(spec)])
+    rec = json.loads(buf.getvalue().strip().splitlines()[-1])
+    assert rec["ok"] and rec["changes_files"] == ["MARK.txt"]
+    assert not (r / "MARK.txt").exists()                     # restored

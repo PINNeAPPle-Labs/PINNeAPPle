@@ -64,23 +64,38 @@ def _alarm(*_):
     raise _Timeout()
 
 
+def _changed(root: str) -> list[str]:
+    """Files of the disposable copy a tool changed, created or deleted (``git status``), then the copy is restored."""
+    if not root or not (Path(root) / ".git").exists():
+        return []
+    out = subprocess.run(["git", "-C", root, "status", "--porcelain", "--untracked-files=all"], capture_output=True,
+                         text=True, timeout=120).stdout
+    paths = [ln[3:] for ln in out.splitlines() if "__pycache__" not in ln]
+    if paths:
+        subprocess.run(["git", "-C", root, "checkout", "--", "."], capture_output=True, timeout=120)
+        subprocess.run(["git", "-C", root, "clean", "-fdq"], capture_output=True, timeout=120)
+    return paths
+
+
 def child(argv: list[str]) -> int:
-    """``python -m pinneapple_studio.smoke <json file of [[id, inputs], ...]>``: one JSON line per tool."""
+    """``python -m pinneapple_studio.smoke <json file of [[tool record, inputs], ...]>``: one JSON line per tool.
+
+    With ``PINNEAPPLE_SMOKE_COPY`` (a disposable checkout), the files each tool changed there are recorded
+    (``changes_files``) and the copy is restored before the next tool."""
     import contextlib
     import io
 
-    from .catalog import load
     from .runner import build_inputs, resolve
-    tools = load()["tools"]
+    copy = os.environ.get("PINNEAPPLE_SMOKE_COPY", "")
     todo = json.loads(Path(argv[0]).read_text())
     signal.signal(signal.SIGALRM, _alarm)
-    for tid, inputs in todo:
+    for tool, inputs in todo:
+        tid = tool["id"]
         t0 = time.time()
         rec: dict[str, Any] = {"id": tid}
         signal.alarm(PER_TOOL_S)
         try:
             with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-                tool = tools[tid]
                 args = build_inputs(tool.get("form", {}), inputs)
                 if tool["kind"] in ("preset", "experiment"):
                     from .extras import run
@@ -110,6 +125,9 @@ def child(argv: list[str]) -> int:
                 import matplotlib.pyplot as plt
                 plt.close("all")
         rec["seconds"] = round(time.time() - t0, 2)
+        changed = _changed(copy)
+        if changed:
+            rec["changes_files"] = changed[:20]
         print(json.dumps(rec, default=str), flush=True)
     return 0
 
@@ -119,79 +137,137 @@ def record(catalog: dict[str, Any], *, stale_only: bool = True, package: str | N
            ids: list[str] | None = None, workers: int = 4, batch: int = 80, log=print) -> dict[str, int]:
     """Smoke-run the executable tools that have inputs and write the records.
 
-    Tools run in batches of one package (``batch`` tools at most), each batch in its own interpreter, in a scratch
-    folder, with the job environment of :func:`pinneapple_studio.runner.clean_env`; ``workers`` batches run at once.
-    When an interpreter dies, the first tool without a result is recorded as the cause and the rest run again in a
-    new interpreter. A batch during which a file of the checkout changed fails with the paths (with several workers,
-    every batch running at that moment)."""
+    Each worker runs in a disposable copy of the checkout (``git worktree``, removed at the end) with its own
+    ``HOME``, the job environment of :func:`pinneapple_studio.runner.clean_env`, no network (``unshare -n`` where
+    the system allows it) and a scratch working folder. Tools run in batches of one package (``batch`` tools at
+    most), one interpreter per batch; after every tool the copy is compared with its commit, the files it changed
+    are recorded on the tool (``changes_files``: it stays a tool, marked as one that writes) and the copy is
+    restored. When an interpreter dies, the first tool without a result is recorded as the cause and the rest run
+    again. Tools that need the network, credentials or an LLM are not run (:func:`pinneapple_studio.coverage.
+    declared_reason`)."""
+    import shutil
+    import threading
     from concurrent.futures import ThreadPoolExecutor
 
-    from .coverage import SIDE_EFFECTS
-    from .runner import clean_env
+    from .coverage import declared_reason, reasons
     root = repo_root()
     runs = read_runs(root)
     given = recorded_inputs()
-    by_pkg: dict[str, list[tuple[str, dict]]] = defaultdict(list)
+    table = reasons()
+    by_pkg: dict[str, list[tuple[dict, dict]]] = defaultdict(list)
     for tid, t in sorted(catalog["tools"].items(), key=lambda kv: (kv[1]["package"], kv[1]["module"], kv[0])):
         if t["category"] != "executable" or (package and t["package"] != package) or (ids and tid not in ids):
             continue
         inputs = smoke_inputs(t, given)
-        if inputs is None or (SIDE_EFFECTS.search(t["name"]) and tid not in given):
+        if inputs is None or declared_reason(t, table):
             continue
         old = runs.get(tid)
         if stale_only and old and old.get("code_hash") == t["code_hash"] and old.get("inputs") == inputs:
             continue
-        by_pkg[t["package"]].append((tid, inputs))
+        rec = {k: t[k] for k in ("id", "kind", "name", "module", "methods", "form")}
+        by_pkg[t["package"]].append((rec, inputs))
     batches = [todo[k:k + batch] for todo in by_pkg.values() for k in range(0, len(todo), batch)]
-    stats = {"batches": len(batches), "tools": sum(len(b) for b in batches), "ok": 0, "failed": 0}
-    env = clean_env({"PYTHONPATH": str(root), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(root),
-                     "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"})
-    import threading
+    stats = {"batches": len(batches), "tools": sum(len(b) for b in batches), "ok": 0, "failed": 0, "writes": 0}
+    if not batches:
+        return stats
+    workers = max(1, min(workers, len(batches)))
+    scratch = Path(tempfile.mkdtemp(prefix="studio-smoke-"))
+    copies = queue_of_copies(root, scratch, workers)
     lock = threading.Lock()
     finished = [0]
 
-    def one(todo: list[tuple[str, dict]]) -> dict[str, dict[str, Any]]:
-        before = _tracked_state(root)
-        done: dict[str, dict[str, Any]] = {}
-        left = list(todo)
-        while left:
-            got, err = _interpreter(left, env)
-            done.update(got)
-            rest = [(t, i) for t, i in left if t not in got]
-            if not rest:
-                break
-            done[rest[0][0]] = {"ok": False, "error": f"the interpreter stopped during this tool: {err}",
-                                "seconds": None}
-            left = rest[1:]
-        touched = sorted(set(_tracked_state(root).items()) - set(before.items()))
-        for tid, inputs in todo:
-            r = done[tid]
-            if touched:
-                r.update(ok=False, error="the repository changed during this batch (this tool's batch or one "
-                                         "running at the same time): " + ", ".join(p for p, _ in touched[:5]))
-            r.update(code_hash=catalog["tools"][tid]["code_hash"], inputs=inputs, recorded=time.strftime("%Y-%m-%d"))
+    def one(todo: list[tuple[dict, dict]]) -> dict[str, dict[str, Any]]:
+        copy = copies.get()
+        try:
+            env = clean_job_env(copy)
+            done: dict[str, dict[str, Any]] = {}
+            left = list(todo)
+            while left:
+                got, err = _interpreter(left, env, copy)
+                done.update(got)
+                rest = [(t, i) for t, i in left if t["id"] not in got]
+                if not rest:
+                    break
+                done[rest[0][0]["id"]] = {"ok": False, "error": f"the interpreter stopped during this tool: {err}",
+                                          "seconds": None}
+                _changed(str(copy))
+                left = rest[1:]
+        finally:
+            copies.put(copy)
+        for t, inputs in todo:
+            done[t["id"]].update(code_hash=catalog["tools"][t["id"]]["code_hash"], inputs=inputs,
+                                 recorded=time.strftime("%Y-%m-%d"))
         with lock:
             runs.update(done)
             finished[0] += 1
             _write(root, runs, catalog)
-            log(f"[{finished[0]}/{len(batches)}] {todo[0][0].split(':')[0]}...: "
+            log(f"[{finished[0]}/{len(batches)}] {todo[0][0]['module']}...: "
                 f"{sum(r['ok'] for r in done.values())}/{len(todo)} returned")
         return done
 
-    with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
-        for done in ex.map(one, batches):
-            for r in done.values():
-                stats["ok" if r["ok"] else "failed"] += 1
+    try:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            for done in ex.map(one, batches):
+                for r in done.values():
+                    stats["ok" if r["ok"] else "failed"] += 1
+                    stats["writes"] += bool(r.get("changes_files"))
+    finally:
+        while not copies.empty():
+            c = copies.get()
+            if (root / ".git").exists():
+                subprocess.run(["git", "-C", str(root), "worktree", "remove", "--force", str(c)],
+                               capture_output=True, timeout=300)
+        shutil.rmtree(scratch, ignore_errors=True)
     return stats
 
 
-def _interpreter(todo: list[tuple[str, dict]], env: dict[str, str]) -> tuple[dict[str, dict[str, Any]], str]:
+def queue_of_copies(root: Path, scratch: Path, n: int):
+    """``n`` disposable checkouts of ``root``'s current commit (``git worktree add --detach``)."""
+    import queue as Q
+    import shutil
+    q: Q.Queue = Q.Queue()
+    git = (root / ".git").exists()
+    for k in range(n):
+        d = scratch / f"copy{k}"
+        if git:
+            subprocess.run(["git", "-C", str(root), "worktree", "add", "--detach", "-q", str(d), "HEAD"],
+                           check=True, capture_output=True, timeout=600)
+        else:                                                 # not a checkout: a plain copy, without the git check
+            shutil.copytree(root, d, symlinks=True)
+        q.put(d)
+    return q
+
+
+def clean_job_env(copy: Path) -> dict[str, str]:
+    from .runner import clean_env
+    home = copy.parent / f"{copy.name}-home"
+    home.mkdir(exist_ok=True)
+    return clean_env({"PYTHONPATH": str(copy), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(copy), "HOME": str(home),
+                      "MPLCONFIGDIR": str(home / ".mpl"), "PINNEAPPLE_SMOKE_COPY": str(copy),
+                      "PINNEAPPLE_STUDIO_CACHE": str(home / "cache"), "OMP_NUM_THREADS": "1",
+                      "MKL_NUM_THREADS": "1"})
+
+
+def _no_network() -> list[str]:
+    """``unshare -n`` when this system lets an unprivileged process have its own empty network namespace."""
+    import shutil
+    if shutil.which("unshare") is None:
+        return []
+    try:
+        ok = subprocess.run(["unshare", "-n", "true"], capture_output=True, timeout=10).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        ok = False
+    return ["unshare", "-n"] if ok else []
+
+
+def _interpreter(todo: list[tuple[dict, dict]], env: dict[str, str], copy: Path) -> tuple[dict[str, dict], str]:
     with tempfile.TemporaryDirectory() as tmp:
         spec = Path(tmp) / "todo.json"
         spec.write_text(json.dumps(todo, default=str))
+        cmd = [*_no_network(), sys.executable, "-m", "pinneapple_studio.smoke", str(spec)]
         try:
-            out = subprocess.run([sys.executable, "-m", "pinneapple_studio.smoke", str(spec)], cwd=tmp, env=env,
-                                 capture_output=True, text=True, timeout=PER_TOOL_S * len(todo) + 120)
+            out = subprocess.run(cmd, cwd=tmp, env=env, capture_output=True, text=True,
+                                 timeout=PER_TOOL_S * len(todo) + 120)
             lines, err = out.stdout.splitlines(), (out.stderr.strip().splitlines() or [f"exit {out.returncode}"])[-1]
         except subprocess.TimeoutExpired as exc:
             raw = exc.stdout or ""
@@ -205,29 +281,6 @@ def _interpreter(todo: list[tuple[str, dict]], env: dict[str, str]) -> tuple[dic
         except (json.JSONDecodeError, KeyError, AttributeError):
             continue
     return got, err[-200:]
-
-
-def _tracked_state(root: Path) -> dict[str, str]:
-    """``{path: status}`` of changed and untracked files outside ``data/studio`` (to catch a smoke run that writes
-    into the checkout)."""
-    try:
-        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"], cwd=root,
-                             capture_output=True, text=True, timeout=60).stdout
-    except (OSError, subprocess.SubprocessError):
-        return {}
-    rows = {}
-    for ln in out.splitlines():
-        path = ln[3:]
-        if not path.startswith(str(RUNS)) and "__pycache__" not in path:
-            rows[path] = ln[:2] + str(_mtime(root / path))
-    return rows
-
-
-def _mtime(p: Path) -> float:
-    try:
-        return p.stat().st_mtime
-    except OSError:
-        return 0.0
 
 
 def _write(root: Path, runs: dict[str, dict[str, Any]], catalog: dict[str, Any]) -> None:

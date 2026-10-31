@@ -1,0 +1,1088 @@
+{
+ "variables": {
+  "magnet_arc": [
+   0.6,
+   0.9,
+   "",
+   "magnet arc as a share of the pole pitch"
+  ],
+  "slot_fraction": [
+   0.3,
+   0.7,
+   "",
+   "slot opening as a share of the slot pitch"
+  ],
+  "gap": [
+   0.0007,
+   0.0015,
+   "m",
+   "air gap"
+  ],
+  "magnet_thickness": [
+   0.003,
+   0.006,
+   "m",
+   "magnet thickness"
+  ]
+ },
+ "n_doe": 48,
+ "doe_coverage": {
+  "n": 48,
+  "dim": 4,
+  "ideal_spacing": 0.37991784282579627,
+  "discrepancy": 0.0050501977958923305,
+  "min_distance": 0.16868152107109846,
+  "mean_nn_distance": 0.26765138710773645,
+  "fill_distance": 0.6205637396389302,
+  "projection_1d": {
+   "magnet_arc": 1.0,
+   "slot_fraction": 1.0,
+   "gap": 1.0,
+   "magnet_thickness": 1.0
+  },
+  "projection_2d": {
+   "magnet_arc|slot_fraction": 0.8055555555555556,
+   "magnet_arc|gap": 0.7777777777777778,
+   "magnet_arc|magnet_thickness": 0.8611111111111112,
+   "slot_fraction|gap": 0.7777777777777778,
+   "slot_fraction|magnet_thickness": 0.8055555555555556,
+   "gap|magnet_thickness": 0.7777777777777778
+  },
+  "projection_2d_mean": 0.8009259259259259,
+  "projection_2d_worst": {
+   "pair": "magnet_arc|gap",
+   "filled": 0.7777777777777778
+  },
+  "projection_2d_bins": 6
+ },
+ "doe_random_reference": {
+  "discrepancy": 0.020156815677511042,
+  "min_distance": 0.10841064526819356,
+  "fill_distance": 0.6334347833297198
+ },
+ "n_ok": 48,
+ "split": {
+  "val": 6,
+  "test": 6,
+  "train": 28,
+  "extrapolation": 8
+ },
+ "seconds_per_design": 53.74747057124989,
+ "measured_ratios": {
+  "ratio_cogging": [
+   0.8241968482583975,
+   1.2934890250436593
+  ],
+  "ratio_linkage": [
+   1.0110761562229678,
+   1.0396067826580555
+  ]
+ },
+ "board": [
+  {
+   "target": "cogging_pkpk_3d",
+   "family": "gp",
+   "cv_rmse": 2.5860844442311097,
+   "cv_rel_rmse": 0.44245352852405306,
+   "cv_coverage90_raw": 0.7941176470588235,
+   "cv_half_width90": 4.7654917945074144,
+   "scale": 5.844872461200233,
+   "fit_s": 0.14215576800006602,
+   "cv_s": 3.413491163999879,
+   "q": 2.0933079289029735,
+   "infer_s": 0.00046423100002357387,
+   "test_n": 6,
+   "test_rmse": 0.7748949452395596,
+   "test_max_abs": 1.1849605203208107,
+   "test_rel_rmse": 0.13257687834653561,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 3.53516320120985,
+   "test_r2": 0.9687528912872729,
+   "test_pred": [
+    6.984994417751567,
+    13.28340997787038,
+    9.462744003500632,
+    3.741052721431677,
+    3.858304813441719,
+    14.710663110634524
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 1.5492573392695939,
+   "extrapolation_max_abs": 2.6512042239135347,
+   "extrapolation_rel_rmse": 0.2650626424364197,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 1.0,
+   "extrapolation_half_width90": 4.68848133251452,
+   "extrapolation_r2": 0.8549954401085468,
+   "extrapolation_pred": [
+    14.241926966224483,
+    7.851623870331188,
+    11.993266935398786,
+    6.6430536913254326,
+    7.506451243925386,
+    12.443767154885727,
+    3.0248992348558197,
+    6.924814804045068
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "cogging_pkpk_3d",
+   "family": "mlp_ensemble",
+   "cv_rmse": 4.715774405863505,
+   "cv_rel_rmse": 0.8068224648472706,
+   "cv_coverage90_raw": 0.7647058823529411,
+   "cv_half_width90": 11.021211850423654,
+   "scale": 5.844872461200233,
+   "fit_s": 1.27435457699994,
+   "cv_s": 5.896783566999829,
+   "q": 2.974176876989225,
+   "infer_s": 0.0009176369999295275,
+   "test_n": 6,
+   "test_rmse": 1.4179373850836772,
+   "test_max_abs": 2.8312831953753603,
+   "test_rel_rmse": 0.24259509416096078,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 0.8333333333333334,
+   "test_half_width90": 5.604442601149425,
+   "test_r2": 0.8953743211433364,
+   "test_pred": [
+    6.258587040486245,
+    13.610877997159491,
+    10.228856432101207,
+    3.688411382163639,
+    6.110920053746878,
+    16.360233095090496
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 2.867106097777499,
+   "extrapolation_max_abs": 5.268609509863843,
+   "extrapolation_rel_rmse": 0.4905335602804145,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 0.875,
+   "extrapolation_half_width90": 10.209992549994777,
+   "extrapolation_r2": 0.5033824490493697,
+   "extrapolation_pred": [
+    13.189697720341893,
+    8.265393018645796,
+    12.009470831431809,
+    8.378930301109289,
+    3.1315932380707108,
+    11.727873959042814,
+    2.600105822520887,
+    4.1035274392866485
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "cogging_pkpk_3d",
+   "family": "quadratic",
+   "cv_rmse": 5.834181821555549,
+   "cv_rel_rmse": 0.9981709370536909,
+   "cv_coverage90_raw": 0.7352941176470589,
+   "cv_half_width90": 11.968550875500686,
+   "scale": 5.844872461200233,
+   "fit_s": 0.00015742899995530024,
+   "cv_s": 0.0036445910000111326,
+   "q": 3.077918178080251,
+   "infer_s": 4.1106000026047695e-05,
+   "test_n": 6,
+   "test_rmse": 3.7798755922595726,
+   "test_max_abs": 6.672744248531611,
+   "test_rel_rmse": 0.6466994134348284,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 0.8333333333333334,
+   "test_half_width90": 12.012540128059932,
+   "test_r2": 0.2565030442685946,
+   "test_pred": [
+    10.456939313769674,
+    16.71171005653776,
+    11.295431991544264,
+    3.6625822016671012,
+    0.36091363342558935,
+    8.826653011755209
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 8.80835284456374,
+   "extrapolation_max_abs": 18.05903478731612,
+   "extrapolation_rel_rmse": 1.5070222495077268,
+   "extrapolation_coverage90_conformal": 0.875,
+   "extrapolation_coverage90_raw": 0.625,
+   "extrapolation_half_width90": 12.012540128059932,
+   "extrapolation_r2": -3.687312856301493,
+   "extrapolation_pred": [
+    12.093617569475168,
+    -10.510542818276889,
+    10.285234147837794,
+    6.4938211014410285,
+    -1.7139519130091045,
+    10.014198381012378,
+    4.976777341942885,
+    -5.4253594460796
+   ],
+   "physics_passed": false
+  },
+  {
+   "target": "linkage_3d",
+   "family": "gp",
+   "cv_rmse": 2.3994055579650085e-06,
+   "cv_rel_rmse": 0.014838702202447278,
+   "cv_coverage90_raw": 0.9117647058823529,
+   "cv_half_width90": 4.294534639609552e-06,
+   "scale": 0.00016169915166632873,
+   "fit_s": 0.10700130800000807,
+   "cv_s": 0.4727468839998892,
+   "q": 1.839791164391142,
+   "infer_s": 0.0004081659999428666,
+   "test_n": 6,
+   "test_rmse": 1.0139664770170025e-06,
+   "test_max_abs": 1.7870444212835478e-06,
+   "test_rel_rmse": 0.006270697567476137,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 3.174967073141973e-06,
+   "test_r2": 0.9999544984214903,
+   "test_pred": [
+    0.0007985691934191018,
+    0.0010354457074777253,
+    0.0010724026617953822,
+    0.0008624201358744172,
+    0.0011286083177324963,
+    0.0012379858271277997
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 2.894723738652055e-06,
+   "extrapolation_max_abs": 5.657414614487115e-06,
+   "extrapolation_rel_rmse": 0.01790191048512987,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 1.0,
+   "extrapolation_half_width90": 8.170546504659358e-06,
+   "extrapolation_r2": 0.9989593897005538,
+   "extrapolation_pred": [
+    0.0011298068737072874,
+    0.0009549843725409523,
+    0.0012025798932968907,
+    0.0011483572588861025,
+    0.0010072867597247395,
+    0.0011131231403435605,
+    0.0010164490541683016,
+    0.0009532518187681253
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "linkage_3d",
+   "family": "mlp_ensemble",
+   "cv_rmse": 1.091189549334774e-05,
+   "cv_rel_rmse": 0.06748270093503507,
+   "cv_coverage90_raw": 0.8529411764705882,
+   "cv_half_width90": 1.7248965785019136e-05,
+   "scale": 0.00016169915166632873,
+   "fit_s": 0.42529463699997905,
+   "cv_s": 1.7796336840001459,
+   "q": 2.651910734982716,
+   "infer_s": 0.0009744940000473434,
+   "test_n": 6,
+   "test_rmse": 9.006226290374989e-07,
+   "test_max_abs": 1.6332372114989408e-06,
+   "test_rel_rmse": 0.005569742449211867,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 1.001088773123287e-05,
+   "test_r2": 0.9999641024359548,
+   "test_pred": [
+    0.0008010739799341291,
+    0.001035381583070217,
+    0.0010719054486866592,
+    0.0008621614351740654,
+    0.0011291515009578432,
+    0.0012386282237066702
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 5.5233236861159485e-06,
+   "extrapolation_max_abs": 1.2642790182394986e-05,
+   "extrapolation_rel_rmse": 0.03415802512998646,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 1.0,
+   "extrapolation_half_width90": 2.6709455442191442e-05,
+   "extrapolation_r2": 0.9962114339336621,
+   "extrapolation_pred": [
+    0.0011370571952838413,
+    0.00095876843260815,
+    0.0012080999926249092,
+    0.001148497392961557,
+    0.0010097397695331483,
+    0.0011256926515986357,
+    0.0010288934507020986,
+    0.0009551789484050211
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "linkage_3d",
+   "family": "quadratic",
+   "cv_rmse": 3.3013610881864787e-06,
+   "cv_rel_rmse": 0.020416687744898878,
+   "cv_coverage90_raw": 0.6470588235294118,
+   "cv_half_width90": 5.747896993808486e-06,
+   "scale": 0.00016169915166632873,
+   "fit_s": 0.00012647600010495808,
+   "cv_s": 0.0017760150001322472,
+   "q": 3.3892114673243814,
+   "infer_s": 4.9278000005870126e-05,
+   "test_n": 6,
+   "test_rmse": 3.0279805726890735e-06,
+   "test_max_abs": 5.288547451471519e-06,
+   "test_rel_rmse": 0.01872601396782468,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 0.6666666666666666,
+   "test_half_width90": 6.006285172338669e-06,
+   "test_r2": 0.9995942248582007,
+   "test_pred": [
+    0.0007976404815282715,
+    0.0010317262728302445,
+    0.0010710540347198356,
+    0.0008581724229905887,
+    0.0011267583598561935,
+    0.001238957406666243
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 4.47680632422686e-06,
+   "extrapolation_max_abs": 6.6728316103544655e-06,
+   "extrapolation_rel_rmse": 0.02768602233278805,
+   "extrapolation_coverage90_conformal": 0.625,
+   "extrapolation_coverage90_raw": 0.375,
+   "extrapolation_half_width90": 6.00628517233867e-06,
+   "extrapolation_r2": 0.9975110825798263,
+   "extrapolation_pred": [
+    0.001130719805671851,
+    0.0009609766749736289,
+    0.001200002278148052,
+    0.0011466798647421182,
+    0.0010038222028258869,
+    0.001115379348970649,
+    0.0010127327697403367,
+    0.0009565314509324178
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_cogging",
+   "family": "gp",
+   "cv_rmse": 0.06427042218624168,
+   "cv_rel_rmse": 0.8337417729580492,
+   "cv_coverage90_raw": 0.8529411764705882,
+   "cv_half_width90": 0.1493213212953478,
+   "scale": 0.07708672429619948,
+   "fit_s": 0.08896098299987898,
+   "cv_s": 0.6177846160001081,
+   "q": 3.7161931864151962,
+   "infer_s": 0.0002028119999977207,
+   "test_n": 6,
+   "test_rmse": 0.030227106527515476,
+   "test_max_abs": 0.06156839332103048,
+   "test_rel_rmse": 0.39211818641262114,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 0.8333333333333334,
+   "test_half_width90": 0.1255425574094081,
+   "test_r2": 0.7557416370192251,
+   "test_pred": [
+    1.1346114069949431,
+    1.1237791422444614,
+    1.1521623746791632,
+    1.2359230654853728,
+    1.0879051753340963,
+    1.073051685463846
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.14157081698751434,
+   "extrapolation_max_abs": 0.389410991510438,
+   "extrapolation_rel_rmse": 1.8365135927107237,
+   "extrapolation_coverage90_conformal": 0.875,
+   "extrapolation_coverage90_raw": 0.75,
+   "extrapolation_half_width90": 0.14925805163547062,
+   "extrapolation_r2": -0.8077452975463995,
+   "extrapolation_pred": [
+    1.1294947431911675,
+    1.1387724928448884,
+    1.1912373997703585,
+    1.0879725538675302,
+    1.0774611548757251,
+    1.1273586844442727,
+    1.2136078397688355,
+    1.061130954320902
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_cogging",
+   "family": "mlp_ensemble",
+   "cv_rmse": 0.09603119029034325,
+   "cv_rel_rmse": 1.2457552343429616,
+   "cv_coverage90_raw": 0.7941176470588235,
+   "cv_half_width90": 0.2576772017828347,
+   "scale": 0.07708672429619948,
+   "fit_s": 1.2314878020001743,
+   "cv_s": 4.150261920000048,
+   "q": 4.300081028731487,
+   "infer_s": 0.0004975110000486893,
+   "test_n": 6,
+   "test_rmse": 0.05845354341379625,
+   "test_max_abs": 0.11584097010743766,
+   "test_rel_rmse": 0.7582828813583161,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 0.2678357746298146,
+   "test_r2": 0.08656431343270521,
+   "test_pred": [
+    1.1201693513412634,
+    1.1858047344703713,
+    1.1803065461666535,
+    1.1105257736112149,
+    1.0470868396569764,
+    1.0952794660349867
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.19775056869323945,
+   "extrapolation_max_abs": 0.39990347949318084,
+   "extrapolation_rel_rmse": 2.5652999332725432,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 0.875,
+   "extrapolation_half_width90": 0.6978584138887756,
+   "extrapolation_r2": -2.5271606933235837,
+   "extrapolation_pred": [
+    1.349173490948944,
+    1.206153872288261,
+    1.132764790479947,
+    1.0754142726250642,
+    1.1455163640731145,
+    1.3888212948123357,
+    1.2241003277515783,
+    1.3215688930408234
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_cogging",
+   "family": "quadratic",
+   "cv_rmse": 0.1311112599149133,
+   "cv_rel_rmse": 1.700828010425361,
+   "cv_coverage90_raw": 0.6764705882352942,
+   "cv_half_width90": 0.30548726621424954,
+   "scale": 0.07708672429619948,
+   "fit_s": 6.913600009283982e-05,
+   "cv_s": 0.0011039510000045993,
+   "q": 4.594665101246925,
+   "infer_s": 3.065900000365218e-05,
+   "test_n": 6,
+   "test_rmse": 0.046104435167818036,
+   "test_max_abs": 0.08213245569033023,
+   "test_rel_rmse": 0.5980852810746697,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 0.33316526481777675,
+   "test_r2": 0.43174704794237695,
+   "test_pred": [
+    1.161632151698081,
+    1.1692377691621973,
+    1.1384350004952883,
+    1.1442342880283223,
+    1.080314944515866,
+    1.0913498982354426
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.2029205869754613,
+   "extrapolation_max_abs": 0.4523266337783396,
+   "extrapolation_rel_rmse": 2.6323674903574243,
+   "extrapolation_coverage90_conformal": 0.875,
+   "extrapolation_coverage90_raw": 0.375,
+   "extrapolation_half_width90": 0.33316526481777675,
+   "extrapolation_r2": -2.714000720316458,
+   "extrapolation_pred": [
+    1.2494574751976129,
+    1.2955398723886493,
+    1.1525200242428988,
+    1.0674356619061947,
+    1.2227128531781177,
+    1.322431380306626,
+    1.276523482036737,
+    1.2860370040898013
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_linkage",
+   "family": "gp",
+   "cv_rmse": 0.00019377778988385167,
+   "cv_rel_rmse": 0.029440887628210455,
+   "cv_coverage90_raw": 0.8529411764705882,
+   "cv_half_width90": 0.0003846844227293811,
+   "scale": 0.006581927567230429,
+   "fit_s": 0.08626761599998645,
+   "cv_s": 0.4279182440000113,
+   "q": 2.9537182582742494,
+   "infer_s": 0.0004106620001493866,
+   "test_n": 6,
+   "test_rmse": 3.7282559084972084e-05,
+   "test_max_abs": 6.585289095606406e-05,
+   "test_rel_rmse": 0.005664383070787878,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 0.00023015781201223692,
+   "test_r2": 0.9999137220658397,
+   "test_pred": [
+    1.0154520038520578,
+    1.0240455250084475,
+    1.0214644117626788,
+    1.025727905155857,
+    1.0156683602810141,
+    1.0173515438564416
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.00019570630551191804,
+   "extrapolation_max_abs": 0.0003324419784229704,
+   "extrapolation_rel_rmse": 0.029733889276795576,
+   "extrapolation_coverage90_conformal": 1.0,
+   "extrapolation_coverage90_raw": 1.0,
+   "extrapolation_half_width90": 0.0005442089438815144,
+   "extrapolation_r2": 0.9990254941108322,
+   "extrapolation_pred": [
+    1.0271765095463552,
+    1.0252726117100952,
+    1.0248589087542275,
+    1.0174919796390076,
+    1.0334913467671052,
+    1.0309238626719697,
+    1.0394562251041557,
+    1.0323747209545904
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_linkage",
+   "family": "mlp_ensemble",
+   "cv_rmse": 0.0003597580346676151,
+   "cv_rel_rmse": 0.05465846152102151,
+   "cv_coverage90_raw": 0.8823529411764706,
+   "cv_half_width90": 0.0008334031614708991,
+   "scale": 0.006581927567230429,
+   "fit_s": 0.548343609000085,
+   "cv_s": 2.6819082499998785,
+   "q": 3.179978843278785,
+   "infer_s": 0.0008207200000924786,
+   "test_n": 6,
+   "test_rmse": 8.879313119368436e-05,
+   "test_max_abs": 0.00015140625972387411,
+   "test_rel_rmse": 0.013490444901849188,
+   "test_coverage90_conformal": 0.8333333333333334,
+   "test_coverage90_raw": 0.8333333333333334,
+   "test_half_width90": 0.0004927183260285583,
+   "test_r2": 0.999510619060258,
+   "test_pred": [
+    1.0154628141862854,
+    1.0241073475689557,
+    1.0213547822184932,
+    1.0257081527956475,
+    1.0155828069122463,
+    1.0174373767178366
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.0005052223126737475,
+   "extrapolation_max_abs": 0.0010165935361043932,
+   "extrapolation_rel_rmse": 0.07675902044092793,
+   "extrapolation_coverage90_conformal": 0.875,
+   "extrapolation_coverage90_raw": 0.75,
+   "extrapolation_half_width90": 0.0008961952975845784,
+   "extrapolation_r2": 0.9935055874086323,
+   "extrapolation_pred": [
+    1.0277650480446026,
+    1.0256824394281137,
+    1.0253059293913345,
+    1.017560392321562,
+    1.0336191275929374,
+    1.032072474657563,
+    1.0385901891219511,
+    1.0327714067939855
+   ],
+   "physics_passed": true
+  },
+  {
+   "target": "ratio_linkage",
+   "family": "quadratic",
+   "cv_rmse": 0.00026987958337922204,
+   "cv_rel_rmse": 0.04100312266012722,
+   "cv_coverage90_raw": 0.7352941176470589,
+   "cv_half_width90": 0.0005780475116488814,
+   "scale": 0.006581927567230429,
+   "fit_s": 0.0001632529999824328,
+   "cv_s": 0.0023118039998735185,
+   "q": 3.596093642717164,
+   "infer_s": 4.726099996332778e-05,
+   "test_n": 6,
+   "test_rmse": 0.000145288370746919,
+   "test_max_abs": 0.000250205498097511,
+   "test_rel_rmse": 0.02207383312303056,
+   "test_coverage90_conformal": 1.0,
+   "test_coverage90_raw": 1.0,
+   "test_half_width90": 0.0006059684857123757,
+   "test_r2": 0.9986897625289894,
+   "test_pred": [
+    1.015366180826858,
+    1.0243137345565025,
+    1.0214806597812411,
+    1.0257459002495224,
+    1.0155759389708097,
+    1.0172117882996201
+   ],
+   "extrapolation_n": 8,
+   "extrapolation_rmse": 0.0003753876579647319,
+   "extrapolation_max_abs": 0.000626036439667077,
+   "extrapolation_rel_rmse": 0.057033088579352,
+   "extrapolation_coverage90_conformal": 0.875,
+   "extrapolation_coverage90_raw": 0.5,
+   "extrapolation_half_width90": 0.0006059684857123757,
+   "extrapolation_r2": 0.9964146231465668,
+   "extrapolation_pred": [
+    1.0277376825647915,
+    1.0249172988443895,
+    1.0251664798246478,
+    1.0174534247801785,
+    1.0334333750127869,
+    1.0318823410900597,
+    1.0392800454867916,
+    1.032279993965184
+   ],
+   "physics_passed": true
+  }
+ ],
+ "physics": {
+  "cogging_pkpk_3d/gp": [
+   {
+    "name": "cogging_pkpk_3d_positive",
+    "passed": true,
+    "value": 0.9323247838938284,
+    "limit": 0.0,
+    "reason": "min predicted cogging_pkpk_3d"
+   }
+  ],
+  "cogging_pkpk_3d/mlp_ensemble": [
+   {
+    "name": "cogging_pkpk_3d_positive",
+    "passed": true,
+    "value": 1.4023448835721335,
+    "limit": 0.0,
+    "reason": "min predicted cogging_pkpk_3d"
+   }
+  ],
+  "cogging_pkpk_3d/quadratic": [
+   {
+    "name": "cogging_pkpk_3d_positive",
+    "passed": false,
+    "value": -14.422964651754157,
+    "limit": 0.0,
+    "reason": "min predicted cogging_pkpk_3d"
+   }
+  ],
+  "linkage_3d/gp": [
+   {
+    "name": "linkage_3d_positive",
+    "passed": true,
+    "value": 0.0006638416098387131,
+    "limit": 0.0,
+    "reason": "min predicted linkage_3d"
+   },
+   {
+    "name": "linkage_3d_rises_with_magnet_thickness",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d rises when magnet_thickness rises by 5 % of its range"
+   },
+   {
+    "name": "linkage_3d_falls_with_gap",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d falls when gap rises by 5 % of its range"
+   }
+  ],
+  "linkage_3d/mlp_ensemble": [
+   {
+    "name": "linkage_3d_positive",
+    "passed": true,
+    "value": 0.0006723770284298365,
+    "limit": 0.0,
+    "reason": "min predicted linkage_3d"
+   },
+   {
+    "name": "linkage_3d_rises_with_magnet_thickness",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d rises when magnet_thickness rises by 5 % of its range"
+   },
+   {
+    "name": "linkage_3d_falls_with_gap",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d falls when gap rises by 5 % of its range"
+   }
+  ],
+  "linkage_3d/quadratic": [
+   {
+    "name": "linkage_3d_positive",
+    "passed": true,
+    "value": 0.0006480378591125748,
+    "limit": 0.0,
+    "reason": "min predicted linkage_3d"
+   },
+   {
+    "name": "linkage_3d_rises_with_magnet_thickness",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d rises when magnet_thickness rises by 5 % of its range"
+   },
+   {
+    "name": "linkage_3d_falls_with_gap",
+    "passed": true,
+    "value": 1.0,
+    "limit": 0.9,
+    "reason": "share of the sample where linkage_3d falls when gap rises by 5 % of its range"
+   }
+  ],
+  "ratio_cogging/gp": [
+   {
+    "name": "ratio_cogging_in_measured_band",
+    "passed": true,
+    "value": 0.2631114446230234,
+    "limit": 0.4692921767852618,
+    "reason": "predicted ratio_cogging within the campaign's range [0.8242, 1.2935] widened by 50 %"
+   }
+  ],
+  "ratio_cogging/mlp_ensemble": [
+   {
+    "name": "ratio_cogging_in_measured_band",
+    "passed": true,
+    "value": 0.4074957893455047,
+    "limit": 0.4692921767852618,
+    "reason": "predicted ratio_cogging within the campaign's range [0.8242, 1.2935] widened by 50 %"
+   }
+  ],
+  "ratio_cogging/quadratic": [
+   {
+    "name": "ratio_cogging_in_measured_band",
+    "passed": true,
+    "value": 0.3519754643467654,
+    "limit": 0.4692921767852618,
+    "reason": "predicted ratio_cogging within the campaign's range [0.8242, 1.2935] widened by 50 %"
+   }
+  ],
+  "ratio_linkage/gp": [
+   {
+    "name": "ratio_linkage_in_measured_band",
+    "passed": true,
+    "value": 0.017867498891653177,
+    "limit": 0.028530626435087747,
+    "reason": "predicted ratio_linkage within the campaign's range [1.0111, 1.0396] widened by 50 %"
+   }
+  ],
+  "ratio_linkage/mlp_ensemble": [
+   {
+    "name": "ratio_linkage_in_measured_band",
+    "passed": true,
+    "value": 0.0171872455995834,
+    "limit": 0.028530626435087747,
+    "reason": "predicted ratio_linkage within the campaign's range [1.0111, 1.0396] widened by 50 %"
+   }
+  ],
+  "ratio_linkage/quadratic": [
+   {
+    "name": "ratio_linkage_in_measured_band",
+    "passed": true,
+    "value": 0.017912141015726135,
+    "limit": 0.028530626435087747,
+    "reason": "predicted ratio_linkage within the campaign's range [1.0111, 1.0396] widened by 50 %"
+   }
+  ]
+ },
+ "selection": {
+  "rule": "Eligible: every physics check on the family's predictions passes. Among the eligible families, the lowest cross-validated relative RMSE of the target wins; families within 5 % of the best CV error are tied and the one with the narrower cross-conformal 90 % interval wins. The test and extrapolation splits never enter the choice.",
+  "choice": {
+   "cogging_pkpk_3d": "gp",
+   "linkage_3d": "gp",
+   "ratio_cogging": "gp",
+   "ratio_linkage": "gp"
+  },
+  "reasons": {
+   "cogging_pkpk_3d": "eligible ['gp', 'mlp_ensemble']; CV cv_rel_rmse gp 0.4425, mlp_ensemble 0.8068",
+   "linkage_3d": "eligible ['gp', 'mlp_ensemble', 'quadratic']; CV cv_rel_rmse gp 0.0148, quadratic 0.0204, mlp_ensemble 0.0675",
+   "ratio_cogging": "eligible ['gp', 'mlp_ensemble', 'quadratic']; CV cv_rel_rmse gp 0.8337, mlp_ensemble 1.2458, quadratic 1.7008",
+   "ratio_linkage": "eligible ['gp', 'mlp_ensemble', 'quadratic']; CV cv_rel_rmse gp 0.0294, quadratic 0.0410, mlp_ensemble 0.0547"
+  }
+ },
+ "certification": {
+  "cogging_pkpk_3d": {
+   "target": "cogging_pkpk_3d",
+   "family": "gp",
+   "decision": "REVIEW",
+   "score": 0.8,
+   "reasons": [
+    "extrapolation_r2: falhou \u2014 R^2 of the surrogate on the extrapolation designs"
+   ],
+   "checks": [
+    {
+     "name": "cogging_pkpk_3d_positive",
+     "status": "supports",
+     "critical": true,
+     "value": 0.9323247838938284,
+     "limit": 0.0,
+     "reason": "min predicted cogging_pkpk_3d"
+    },
+    {
+     "name": "test_r2",
+     "status": "supports",
+     "critical": true,
+     "value": 0.9687528912872729,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the test designs"
+    },
+    {
+     "name": "test_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6550510257216822,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    },
+    {
+     "name": "extrapolation_r2",
+     "status": "contradicts",
+     "critical": false,
+     "value": 0.8549954401085468,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the extrapolation designs"
+    },
+    {
+     "name": "extrapolation_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6878679656440357,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    }
+   ],
+   "ledger_status": {
+    "cogging_pkpk_3d_positive": "passed",
+    "test_r2": "passed",
+    "test_coverage90": "passed",
+    "extrapolation_r2": "failed",
+    "extrapolation_coverage90": "passed"
+   }
+  },
+  "linkage_3d": {
+   "target": "linkage_3d",
+   "family": "gp",
+   "decision": "APPROVED",
+   "score": 1.0,
+   "reasons": [],
+   "checks": [
+    {
+     "name": "linkage_3d_positive",
+     "status": "supports",
+     "critical": true,
+     "value": 0.0006638416098387131,
+     "limit": 0.0,
+     "reason": "min predicted linkage_3d"
+    },
+    {
+     "name": "linkage_3d_rises_with_magnet_thickness",
+     "status": "supports",
+     "critical": true,
+     "value": 1.0,
+     "limit": 0.9,
+     "reason": "share of the sample where linkage_3d rises when magnet_thickness rises by 5 % of its range"
+    },
+    {
+     "name": "linkage_3d_falls_with_gap",
+     "status": "supports",
+     "critical": true,
+     "value": 1.0,
+     "limit": 0.9,
+     "reason": "share of the sample where linkage_3d falls when gap rises by 5 % of its range"
+    },
+    {
+     "name": "test_r2",
+     "status": "supports",
+     "critical": true,
+     "value": 0.9999544984214903,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the test designs"
+    },
+    {
+     "name": "test_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6550510257216822,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    },
+    {
+     "name": "extrapolation_r2",
+     "status": "supports",
+     "critical": false,
+     "value": 0.9989593897005538,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the extrapolation designs"
+    },
+    {
+     "name": "extrapolation_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6878679656440357,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    }
+   ],
+   "ledger_status": {
+    "linkage_3d_positive": "passed",
+    "linkage_3d_rises_with_magnet_thickness": "passed",
+    "linkage_3d_falls_with_gap": "passed",
+    "test_r2": "passed",
+    "test_coverage90": "passed",
+    "extrapolation_r2": "passed",
+    "extrapolation_coverage90": "passed"
+   }
+  },
+  "ratio_cogging": {
+   "target": "ratio_cogging",
+   "family": "gp",
+   "decision": "REJECT",
+   "score": 0.6,
+   "reasons": [
+    "test_r2: falhou (cr\u00edtica) \u2014 R^2 of the surrogate on the test designs",
+    "extrapolation_r2: falhou \u2014 R^2 of the surrogate on the extrapolation designs",
+    "score 0.60 abaixo do m\u00ednimo de 0.80"
+   ],
+   "checks": [
+    {
+     "name": "ratio_cogging_in_measured_band",
+     "status": "supports",
+     "critical": true,
+     "value": 0.2631114446230234,
+     "limit": 0.4692921767852618,
+     "reason": "predicted ratio_cogging within the campaign's range [0.8242, 1.2935] widened by 50 %"
+    },
+    {
+     "name": "test_r2",
+     "status": "contradicts",
+     "critical": true,
+     "value": 0.7557416370192251,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the test designs"
+    },
+    {
+     "name": "test_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6550510257216822,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    },
+    {
+     "name": "extrapolation_r2",
+     "status": "contradicts",
+     "critical": false,
+     "value": -0.8077452975463995,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the extrapolation designs"
+    },
+    {
+     "name": "extrapolation_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 0.875,
+     "limit": 0.6878679656440357,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    }
+   ],
+   "ledger_status": {
+    "ratio_cogging_in_measured_band": "passed",
+    "test_r2": "failed",
+    "test_coverage90": "passed",
+    "extrapolation_r2": "failed",
+    "extrapolation_coverage90": "passed"
+   }
+  },
+  "ratio_linkage": {
+   "target": "ratio_linkage",
+   "family": "gp",
+   "decision": "APPROVED",
+   "score": 1.0,
+   "reasons": [],
+   "checks": [
+    {
+     "name": "ratio_linkage_in_measured_band",
+     "status": "supports",
+     "critical": true,
+     "value": 0.017867498891653177,
+     "limit": 0.028530626435087747,
+     "reason": "predicted ratio_linkage within the campaign's range [1.0111, 1.0396] widened by 50 %"
+    },
+    {
+     "name": "test_r2",
+     "status": "supports",
+     "critical": true,
+     "value": 0.9999137220658397,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the test designs"
+    },
+    {
+     "name": "test_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6550510257216822,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    },
+    {
+     "name": "extrapolation_r2",
+     "status": "supports",
+     "critical": false,
+     "value": 0.9990254941108322,
+     "limit": 0.9,
+     "reason": "R^2 of the surrogate on the extrapolation designs"
+    },
+    {
+     "name": "extrapolation_coverage90",
+     "status": "supports",
+     "critical": false,
+     "value": 1.0,
+     "limit": 0.6878679656440357,
+     "reason": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+    }
+   ],
+   "ledger_status": {
+    "ratio_linkage_in_measured_band": "passed",
+    "test_r2": "passed",
+    "test_coverage90": "passed",
+    "extrapolation_r2": "passed",
+    "extrapolation_coverage90": "passed"
+   }
+  }
+ },
+ "protocol": {
+  "k_folds": 5,
+  "alpha": 0.1,
+  "budget_s": 30.0,
+  "seed": 0,
+  "n_fit": 34,
+  "n_test": 6,
+  "n_extrapolation": 8,
+  "rule": "Eligible: every physics check on the family's predictions passes. Among the eligible families, the lowest cross-validated relative RMSE of the target wins; families within 5 % of the best CV error are tied and the one with the narrower cross-conformal 90 % interval wins. The test and extrapolation splits never enter the choice."
+ },
+ "seconds": 1752.435729693,
+ "date": "2026-10-31"
+}

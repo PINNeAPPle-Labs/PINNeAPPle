@@ -94,6 +94,10 @@ def _air(face: float, outward: int, margin: float, h0: float, growth: float = 1.
 
 @dataclass
 class AFPM3D:
+    """3-D finite-difference model of the axial-flux machine ``machine``: a grid in angle (``n_theta``, a multiple of
+    twice the poles and twice the slots), radius (``dr``) and axis (``dz``) with air around it (``air_r``, ``air_z``),
+    optionally restricted to a radial band of the active annulus (quasi-3D).
+    """
     machine: AFPMMachine = field(default_factory=AFPMMachine)
     n_theta: int = 240
     dr: float = 0.004

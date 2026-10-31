@@ -298,6 +298,7 @@ def read_table(path: str) -> ResultTable:
 
 
 def write_table(table: ResultTable | Iterable[Mapping[str, Any]], path: str) -> str:
+    """Write a ``ResultTable`` (or rows of dicts) to ``path`` as CSV; returns the path."""
     t = table if isinstance(table, ResultTable) else ResultTable(table)
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w", newline="") as fh:

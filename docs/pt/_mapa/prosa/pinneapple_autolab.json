@@ -112,7 +112,10 @@
   "pinneapple_autolab.trust:NextExperiment": "A próxima simulação escolhida: candidato, regra, motivo e alternativas.",
   "pinneapple_autolab.trust:assess_candidates": "Avalia os candidatos do otimizador e atribui `favourable`, `uncertain`, `out_of_domain` ou `unlikely`.",
   "pinneapple_autolab.trust:choose_next": "Escolhe a próxima simulação pela regra escrita no docstring do módulo.",
-  "pinneapple_autolab.trust:verification_checks": "Atualiza uma avaliação com o resultado de referência: erros relativos medidos, confirmação e viabilidade real."
+  "pinneapple_autolab.trust:verification_checks": "Atualiza uma avaliação com o resultado de referência: erros relativos medidos, confirmação e viabilidade real.",
+  "pinneapple_autolab.study.campaign:plan_doe": "`n` casos que preenchem o espaço (`pinneapple_data.doe.design`) com suas métricas de cobertura (discrepância L2 centrada, distância mínima; `pinneapple_data.doe.coverage`) e as de um desenho aleatório simples do mesmo tamanho.",
+  "pinneapple_autolab.study.campaign:run_campaign": "Roda cada caso (`{\"id\": ..., **params}`) ainda não feito e devolve os registros de todos os `cases` (novos e antigos). Um caso em que `sim.check` encontra problemas é registrado como falho, com eles, e nunca é simulado.",
+  "pinneapple_autolab.study.dataset:StudyDataset": "Dataset de um estudo: ids dos casos, nomes e matrizes de entradas `X` e saídas `Y`, campos por ponto com os pontos do projeto base e regiões, a divisão treino/validação, unidades, limites, proveniência e finalidade."
  },
  "exemplos": [
   {

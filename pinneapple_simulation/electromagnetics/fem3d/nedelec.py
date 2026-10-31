@@ -321,6 +321,7 @@ def _complex_solver(Kr, solver: str = "auto"):
             def solve(b):
                 x = ps.solve(Kb, np.concatenate([b.real, -b.imag]))
                 return x[:n] + 1j * x[n:]
+            solve.free = lambda: ps.free_memory(everything=True)   # MKL keeps the factor until told
             return solve, "pardiso"
         except ImportError:
             if solver == "pardiso":
@@ -601,6 +602,8 @@ def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
     if gauge == "tree":
         solve, used = _complex_solver(Kr, solver)
         a[u], iters, res = _refine(Kr, rhs, solve, rtol)
+        if hasattr(solve, "free"):
+            solve.free()
     elif gauge == "none":
         a[u], iters = cocg(Kr, rhs, 1.0 / Kr.diagonal(), rtol=rtol)
     else:

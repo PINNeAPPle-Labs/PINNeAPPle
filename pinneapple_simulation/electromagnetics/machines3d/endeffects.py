@@ -100,6 +100,7 @@ def end_effect_study(machine: SPMMachine | None = None, ratios: Sequence[float] 
         ref = SPM3D(m, n_theta=n_theta, stack_layers=layers, mu_r_iron=mu_r_iron)    # no end air: 2-D
         sr = ref.solve(0.0)
         lam2, gap2 = search_coil_linkage(ref, sr), ref.gap_flux(sr)
+        ref.release()
         del ref, sr                                   # one model and its factorisation in memory at a time
         gc.collect()
         model = SPM3D(m, n_theta=n_theta, stack_layers=layers, end_length=end_length, end_layers=end_layers,
@@ -115,6 +116,7 @@ def end_effect_study(machine: SPMMachine | None = None, ratios: Sequence[float] 
         row["k_gap_flux"] = row["gap_flux_T"] / row["gap_flux_2d_T"]
         row["seconds"] = time.perf_counter() - t0
         rows.append(row)
+        model.release()
         del model, s
         gc.collect()
         if progress:

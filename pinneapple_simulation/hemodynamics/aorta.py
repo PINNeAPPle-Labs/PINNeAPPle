@@ -200,11 +200,15 @@ def setup_case(case: str | Path, *, cell_size: float = 1.5e-3, level: int = 1, i
 
 @dataclass
 class CoupledRun:
-    """Windkessel-coupled pimpleFoam run of a case written by :func:`setup_case`."""
+    """Windkessel-coupled pimpleFoam run of a case written by :func:`setup_case`.
+
+    The coupling is explicit: each window runs with the outlet pressures of the previous one. It is stable only while
+    the window is short against the inertia of the rigid 3-D domain (gain ~ Rp * dt_couple / L < 1): on the library's
+    aortic arch, dt_couple = 0.01 s made the outlet pressures flip sign and grow every window, 0.001 s does not."""
     case: Path
     windkessels: dict[str, Windkessel]
     rho: float
-    dt_couple: float = 0.01
+    dt_couple: float = 0.001
     keep_every: float = 0.05
     history: list[dict[str, Any]] = field(default_factory=list)
     history_path: Path | None = None        # when set: written after every window, and read back to resume

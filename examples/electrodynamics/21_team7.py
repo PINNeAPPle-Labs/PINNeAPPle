@@ -75,12 +75,16 @@ def figure(out: dict) -> None:
     a = ax[1, 0]
     for wt, c in ((0, blue), (90, orange)):
         r = fin["200"]["compare"][f"A3B3 wt={wt}"]
-        a.plot(team7.X_J, r["computed"], "-", color=c, lw=2, label=f"computed z = 19 mm, wt = {wt}")
+        cj = np.asarray(r["computed"])
+        a.plot(team7.X_J[:2], cj[:2], "-", color=c, lw=2)                 # no line across the hole
+        a.plot(team7.X_J[2:], cj[2:], "-", color=c, lw=2, label=f"computed z = 19 mm, wt = {wt}")
         a.plot(team7.X_J, r["measured"], "s", color=c, mfc="none", ms=5, label=f"table A3-B3 (z = 19), wt = {wt}")
         a.plot(team7.X_J, team7.MEASURED[("A4B4", 200, wt)], "o", color=c, ms=4,
                label=f"table A4-B4 (z = 0), wt = {wt}")
     a.set(xlabel="x (mm)", ylabel="Jy (1e6 A/m^2)", title="Jy on the face nearer the coil, 200 Hz")
-    a.legend(frameon=False, fontsize=7)
+    a.axvspan(18, 126, color=muted, alpha=0.08, lw=0)
+    a.text(72, 3.6, "hole", ha="center", color=muted, fontsize=8)
+    a.legend(frameon=False, fontsize=7, loc="lower left", ncol=2)
     a = ax[1, 1]
     n = [lv["unknowns"] for lv in out["levels"]]
     for f, c in (("50", blue), ("200", orange)):

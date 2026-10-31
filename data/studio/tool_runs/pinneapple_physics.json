@@ -1,0 +1,1234 @@
+{
+ "pinneapple_physics.astro.decay:msis_available": {
+  "code_hash": "1aa276c401e66323",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.astro.decay:train_decay_pinn": {
+  "code_hash": "87705ad457f9d62b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.78
+ },
+ "pinneapple_physics.astro.ephemeris:default_ephemeris": {
+  "code_hash": "1028ad2476a74483",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.ephemeris:find_kernel": {
+  "code_hash": "85345d376bc4d975",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.facts:did_you_know": {
+  "code_hash": "2495080d8ab2f63e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_physics.astro.facts:ids": {
+  "code_hash": "a99d76038971cd29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.facts:list_cards": {
+  "code_hash": "e5e59c5758f6167a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_physics.astro.facts:sources": {
+  "code_hash": "bda0677d915eb5d4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.facts:validate": {
+  "code_hash": "9b8abf19fa07b67c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.15
+ },
+ "pinneapple_physics.astro.frames:ecliptic_matrix": {
+  "code_hash": "0ab65b5e6a9cf0d5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.lensing:catalog_sky": {
+  "code_hash": "4f2613bbc20fcc6a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 3.81
+ },
+ "pinneapple_physics.astro.lensing:eht_comparison": {
+  "code_hash": "bff340f62faf0e08",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.lensing:trace_thin_disc": {
+  "code_hash": "2690927945911c31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 10.03
+ },
+ "pinneapple_physics.astro.neural_propagator:NeuralPropagator": {
+  "code_hash": "a2d8606ac0e94521",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NeuralPropagator",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.astro.neural_propagator:make_dataset": {
+  "code_hash": "648d27d7a0896ad0",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.neural_propagator:trust_report": {
+  "code_hash": "2da33a8de2542199",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.smallbodies:available_bodies": {
+  "code_hash": "cbf1d72ec785763a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.smallbodies:horizons_vectors": {
+  "code_hash": "d10b9b9e11c0166c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.smallbodies:validation_summary": {
+  "code_hash": "e7140b18c15b8c05",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.spaceweather:load_history": {
+  "code_hash": "d5d0fb66face3076",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.spaceweather:train_forecaster": {
+  "code_hash": "0c758b75d347a5b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.57
+ },
+ "pinneapple_physics.astro.stars:constellation_names": {
+  "code_hash": "e9b1aa3eee28dc83",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.stars:load_bright_stars": {
+  "code_hash": "57c6fc1ecc72f841",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StarCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.stars:load_constellations": {
+  "code_hash": "3cc8bb2eb1ce7abe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.stars_ml:analyse": {
+  "code_hash": "c87c25e2cb644c05",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.55
+ },
+ "pinneapple_physics.astro.stars_ml:dataset": {
+  "code_hash": "be4742272442fd83",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.astro.surrogate:train_orbit_pinn": {
+  "code_hash": "f9627b83a918e661",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.astro.validation:check_eclipses": {
+  "code_hash": "7813065c9af64f66",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_horizons": {
+  "code_hash": "69ee0c02deed0829",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_integrators": {
+  "code_hash": "36d62e3b0154b7c8",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_iss_passes": {
+  "code_hash": "25e26d54ca6a42ea",
+  "error": "ModuleNotFoundError: No module named 'sgp4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_novas": {
+  "code_hash": "f9e98eb01cb88b6e",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_skyfield_live": {
+  "code_hash": "f96544ce70163200",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:check_usno_almanac": {
+  "code_hash": "257103cbc85283ac",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.astro.validation:run_all": {
+  "code_hash": "b9cd847a8cbc491a",
+  "error": "FileNotFoundError: No JPL DE kernel found. `pip install skyfield-data` (bundles DE421), or set PINNEAPPLE_DE_KERNEL to a .bsp file from https://ssd.jpl.nasa.gov/ftp/eph/planets/bsp/ .",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.excitable:aliev_panfilov_2d": {
+  "code_hash": "3742179b2dca1d7e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "APSolution",
+  "seconds": 1.03
+ },
+ "pinneapple_physics.biology.excitable:fitzhugh_nagumo_1d": {
+  "code_hash": "858d22fe1e6ac137",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FHNSolution",
+  "seconds": 0.11
+ },
+ "pinneapple_physics.biology.models:minimal_pbpk": {
+  "code_hash": "a780748ed5ed0ab5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ODESystem",
+  "seconds": 0.03
+ },
+ "pinneapple_physics.biology.models:pk_one_compartment_mm": {
+  "code_hash": "60921f0f4965a980",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ODESystem",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.models:ultradian_glucose_insulin": {
+  "code_hash": "07ceb514ddef61e8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ODESystem",
+  "seconds": 0.03
+ },
+ "pinneapple_physics.biology.sbml:list_biomodels": {
+  "code_hash": "ae16d6f9e64821e3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.blackhole.dataset:window_volumes": {
+  "code_hash": "3ed8d30cbbb34cf8",
+  "error": "ArtifactUnavailableError: could not download grid_r.npz of 'blackhole_riaf_density_256': ",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.03
+ },
+ "pinneapple_physics.blackhole.raytrace:star_field": {
+  "code_hash": "fc3ff8c2b0f59dd6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 2.1
+ },
+ "pinneapple_physics.closed_form.pcb_thermal:stackup": {
+  "code_hash": "b58a929c45c2947b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.codegen.fdm_script_generator:FDMScriptGenerator": {
+  "code_hash": "7fc4e292311a30a7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FDMScriptGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.codegen.fenics_script_generator:FEniCSScriptGenerator": {
+  "code_hash": "8f641e6c610f67bf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FEniCSScriptGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.deepxde_bridge.adapter:is_deepxde_available": {
+  "code_hash": "7f3a01877b1a21c4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.deepxde_bridge.adapter:require_deepxde": {
+  "code_hash": "116028f298e29452",
+  "error": "ImportError: deepxde is required for pinneapple_physics.deepxde_bridge.solve_with_deepxde but is not installed. Install with: pip install deepxde (see https://github.com/lululxvi/deepxde). Note: importing pinneapple_physics.deepxde_bridge itself never requires deepxde -- only actually solving a problem with it d",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.multiscale.learned:FourierGalerkinPINN": {
+  "code_hash": "e19bb32738d22d9f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FourierGalerkinPINN",
+  "seconds": 0.02
+ },
+ "pinneapple_physics.multiscale.learned:periodic_cnn2d": {
+  "code_hash": "ac5b94bbae947fe9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Sequential",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.non_hermitian.ep_tuning:coupling_classes": {
+  "code_hash": "ff3e47d50e5589ba",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.non_hermitian.ep_tuning:theorem_profile": {
+  "code_hash": "1ca1ad1eb42981d5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelProfile",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.pde_environment.capabilities:list_pde_families": {
+  "code_hash": "e3a0537bafc2b86c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.academics:burgers_1d_default": {
+  "code_hash": "9c4b22cabe5acd1c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.academics:laplace_2d_default": {
+  "code_hash": "37d7a197960b2cd3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.academics:poisson_2d_default": {
+  "code_hash": "cf7e62900c2a8204",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:cr3bp_planar_synodic": {
+  "code_hash": "4e6c7fdcb53453f6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:kepler_two_body_orbit": {
+  "code_hash": "f78889acc3d5c508",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:lane_emden_polytrope": {
+  "code_hash": "7a6e529491dbf9a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:nfw_dark_matter_potential": {
+  "code_hash": "fa67db7c18cc9cea",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:satellite_j2_perturbation": {
+  "code_hash": "b1993aa4a8ca61d3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:schwarzschild_light_bending_weak_field": {
+  "code_hash": "2d22f49db0a6faa3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:shakura_sunyaev_accretion_disk": {
+  "code_hash": "0770727c2702f854",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:sod_shock_tube_astro": {
+  "code_hash": "f0943cd0ac787a91",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:space_debris_cw_relative_motion": {
+  "code_hash": "a0730574be040310",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:spacecraft_attitude_euler_rotation": {
+  "code_hash": "87c476a94ddb8c6e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.cfd:channel_flow_3d": {
+  "code_hash": "7069ed43ed25580e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.cfd:lid_driven_cavity_3d": {
+  "code_hash": "b78f8d0307153938",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.cfd:ns_incompressible_2d_default": {
+  "code_hash": "00237eb7d285f20e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.cfd:ns_incompressible_3d_default": {
+  "code_hash": "8537f75ca7ab9e05",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.cfd:pipe_flow_3d": {
+  "code_hash": "5c5c3385ab03b9b5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_cylinder_scattering": {
+  "code_hash": "9b0be59cd4e9ee21",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_skin_effect": {
+  "code_hash": "093a69308480971e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_tm_cavity": {
+  "code_hash": "899f2f22ea5a8232",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_tm_cavity_integral": {
+  "code_hash": "5dd2a962f733df31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_two_dielectric_capacitor": {
+  "code_hash": "28f5d1c95ba724bd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_two_dielectric_capacitor_differential": {
+  "code_hash": "f3ee9cfc94d6adfe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.electromagnetics:em_wire_az": {
+  "code_hash": "fcded3a061198172",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:aircraft_wing_aerodynamics": {
+  "code_hash": "0b01c3248422775f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:aircraft_wing_structural": {
+  "code_hash": "8565c2c0315dd38d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:car_brake_thermal": {
+  "code_hash": "07ee430a8c615220",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:car_external_aero": {
+  "code_hash": "3b8ba4b335a700c4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:car_suspension_fatigue": {
+  "code_hash": "90dc3b57f0c1582a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:cpu_heatsink_thermal": {
+  "code_hash": "3044d22be5f74218",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:datacenter_airflow_2d": {
+  "code_hash": "477d6c3438a29265",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:datacenter_cfd_3d": {
+  "code_hash": "39f0f97cf6e6b94e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:fan_cooler_cfd": {
+  "code_hash": "6f39b400009ee93c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:furnace_combustion_zone": {
+  "code_hash": "af4e0783890f1f3a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:industrial_furnace_thermal": {
+  "code_hash": "dc15cc34fea04ad9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:pcb_thermal": {
+  "code_hash": "23bb5591beda65aa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:refractory_lining": {
+  "code_hash": "1f7d82897691f645",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:rocket_nozzle_cfd": {
+  "code_hash": "4e1da34de9018593",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.engineering:rocket_structural": {
+  "code_hash": "8a91fda1fb5814a0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:darcy_pressure_only_3d_default": {
+  "code_hash": "e2a19fcb70f35a24",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:helmholtz_acoustics_3d_default": {
+  "code_hash": "9b0959161686efa6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:linear_elasticity_3d_default": {
+  "code_hash": "b6eb87ee632eb07d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:reaction_diffusion_2d_default": {
+  "code_hash": "58647cf655b1c01c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:steady_heat_conduction_3d_default": {
+  "code_hash": "0cbfb1fef7f3c6be",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:transient_heat_3d_default": {
+  "code_hash": "43219117a436c36f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.industry:wave_ultrasound_3d_default": {
+  "code_hash": "4c2aef9bb4d1c78d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:black_scholes_1d": {
+  "code_hash": "77820e6f65feaf55",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:climate_atmosphere_2d": {
+  "code_hash": "7ad34a94db2f6336",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:climate_ocean_gyre": {
+  "code_hash": "67e030f79e175e3a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:crystal_phonon": {
+  "code_hash": "f818dd47665c9885",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:drug_diffusion_tissue": {
+  "code_hash": "31244225782bbaca",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:heston_pde_2d": {
+  "code_hash": "30da93d39ce551bc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:material_fracture_2d": {
+  "code_hash": "72d732041b0957d1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:opinion_dynamics_2d": {
+  "code_hash": "b6ba69a51805faa1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:pk_two_compartment": {
+  "code_hash": "ed6623654a9466cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.multidisciplinary:sir_epidemic": {
+  "code_hash": "6c1c671967306a14",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.registry:list_presets": {
+  "code_hash": "e578e524a17525c3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.solid_mechanics:axisymmetric_linear_elasticity_2d_default": {
+  "code_hash": "c2f59fa519b6dbc1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.solid_mechanics:thick_walled_cylinder_lame_default": {
+  "code_hash": "2abe8feeea920bd5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.solid_mechanics:threaded_coupling_tc50_box_default": {
+  "code_hash": "4463c971b09398f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.solid_mechanics:threaded_coupling_tc50_pin_default": {
+  "code_hash": "b5b584e758fc4ed0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.solid_mechanics:threaded_coupling_tc50_rotating_default": {
+  "code_hash": "035c1baed869047a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:linear_elasticity_3d": {
+  "code_hash": "39971f1e6790ae23",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:plane_strain_2d_default": {
+  "code_hash": "6d87f8683ded85e8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:plane_stress_2d_default": {
+  "code_hash": "e99902d2bba78b2e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:rotary_coupling_torsion_default": {
+  "code_hash": "ee5a7d5e75361169",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:thermoelasticity_2d_default": {
+  "code_hash": "cf852a8228abda51",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.structural:von_mises_2d_default": {
+  "code_hash": "94c561063267a15f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.terramechanics:bekker_wong_surrogate_2d": {
+  "code_hash": "88909c095a0c5191",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.turbomachinery:axial_compressor_cascade_2d": {
+  "code_hash": "8ce0b411e4fa5108",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.turbomachinery:axial_compressor_meanline": {
+  "code_hash": "63173d35582a2599",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.turbomachinery:axial_compressor_stage_3d": {
+  "code_hash": "d2ade6b24acb731e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.turbulence_presets:get_rans_preset": {
+  "code_hash": "c722248aac3da820",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "KOmegaSSTResiduals",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:Envelope": {
+  "code_hash": "a61b8e2752402163",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Envelope",
+  "seconds": 0.02
+ },
+ "pinneapple_physics.physics_audit.assumptions:advection_dominated": {
+  "code_hash": "0c62c5fc59717ced",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:attached_flow": {
+  "code_hash": "53bd688a4a3ba0d0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:boussinesq": {
+  "code_hash": "ae08072aa0a8f19a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:constant_properties": {
+  "code_hash": "d2038bd25448ab1d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:continuum": {
+  "code_hash": "34481205269a7c07",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:creeping_flow": {
+  "code_hash": "d22ea7cec294f361",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:diffusion_dominated": {
+  "code_hash": "1014ae19d27eccd6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:forced_convection": {
+  "code_hash": "d061c7d63afd026d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:hydraulically_smooth": {
+  "code_hash": "dd6016a34e027f0a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:incompressible": {
+  "code_hash": "9bb284fd922a7958",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:laminar": {
+  "code_hash": "55bdf3bf5af213e3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:linear_elastic": {
+  "code_hash": "71674b161acf925a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:lumped_capacitance": {
+  "code_hash": "21dc7e4719497f81",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:shallow_water": {
+  "code_hash": "61ed101078248661",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:small_strain": {
+  "code_hash": "1216bd5c6a54a158",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.assumptions:turbulent": {
+  "code_hash": "eea34c37c89c18a8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assumption",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.attribution:attribute_failure": {
+  "code_hash": "ae9557450e91ab9d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Attribution",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.knowledge:default_graph": {
+  "code_hash": "b4a2ec8a38c4620f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsKnowledgeGraph",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.monitor:bounds_check": {
+  "code_hash": "b85c76dd6a2662f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ValidityCheck",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.physics_audit.regime:regime_features": {
+  "code_hash": "eb23b3c792521efe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.solving:list_analytic": {
+  "code_hash": "fa242af841f3f170",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.solving:list_kinds": {
+  "code_hash": "32768fddbf2324a8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.solving:list_methods": {
+  "code_hash": "f925a3b069f498c1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.weather.data:channel_names": {
+  "code_hash": "fbaa804c0acbbec0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.weather.viz:coastlines": {
+  "code_hash": "e323475d4bd29553",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_physics:define_problem": {
+  "code_hash": "f05e08167195da86",
+  "error": "TypeError: ProblemSpec.__init__() missing 5 required positional arguments: 'name', 'dim', 'coords', 'fields', and 'pde'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ }
+}

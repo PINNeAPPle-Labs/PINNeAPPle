@@ -1,0 +1,114 @@
+{
+ "pinneapple_llm.qa.examples.pipe_wear_twin:build_spec": {
+  "code_hash": "f4eb25362d6592e7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicalSpecification",
+  "seconds": 0.08
+ },
+ "pinneapple_llm.qa.examples.pipe_wear_twin:build_twin": {
+  "code_hash": "4bba869d16118a08",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.05
+ },
+ "pinneapple_llm.qa.examples.pipe_wear_twin:hollow_pipe_mesh": {
+  "code_hash": "90cbbcf14584af78",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.examples.pipe_wear_twin:run_example": {
+  "code_hash": "56e4b71b8d17dedd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.09
+ },
+ "pinneapple_llm.qa.examples.pipe_wear_twin:solid_pipe_mesh": {
+  "code_hash": "9e9f8cfac7448858",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.report:environment_snapshot": {
+  "code_hash": "2de4942b8a8c644e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.sandbox:SandboxExecutor": {
+  "code_hash": "8087edcd70119967",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SandboxExecutor",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.spec:PhysicalSpecification": {
+  "code_hash": "5d821bf58cf90f1a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicalSpecification",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.spec:quantity_map": {
+  "code_hash": "49bbd3f0a7456fdc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.qa.validators.base:available": {
+  "code_hash": "410a0ba59631e3ed",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.workbench.agents:load_agents": {
+  "code_hash": "9214ecbba0aa84de",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.02
+ },
+ "pinneapple_llm.workbench.backend:make_backend": {
+  "code_hash": "25868a24334aaf6d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "OllamaBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.workbench.models:detect_machine": {
+  "code_hash": "f4c72162ebad3df7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Machine",
+  "seconds": 0.0
+ },
+ "pinneapple_llm.workbench.models:recommend": {
+  "code_hash": "dfda15b3797449a8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Recommendation",
+  "seconds": 0.0
+ }
+}

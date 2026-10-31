@@ -1,0 +1,58 @@
+{
+ "pinneapple_reason.cases:footbridge": {
+  "code_hash": "9237f8772a89af75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_reason.cases:power_board": {
+  "code_hash": "8259b5c03281d298",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_reason.cases:pumped_main": {
+  "code_hash": "46c6d812d902e176",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_reason.cases:roof": {
+  "code_hash": "4656db8e355125e5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_reason.engine:Reasoner": {
+  "code_hash": "ec783ec596375c6c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Reasoner",
+  "seconds": 0.0
+ },
+ "pinneapple_reason.library:iter_known_answers": {
+  "code_hash": "caa7043a918ab612",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "generator",
+  "seconds": 0.0
+ },
+ "pinneapple_reason:describe_library": {
+  "code_hash": "35590fb1c3c28a23",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

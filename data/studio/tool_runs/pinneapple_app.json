@@ -1,0 +1,74 @@
+{
+ "pinneapple_app.backend.core.admin_auth:require_admin": {
+  "code_hash": "dba499f75003e386",
+  "error": "HTTPException: 503: PINNEAPPLE_ADMIN_TOKEN is not configured on this server.",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.74
+ },
+ "pinneapple_app.backend.core.model_catalog:list_models": {
+  "code_hash": "32eb236a15947778",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 4.82
+ },
+ "pinneapple_app.backend.core.problem_registry:all_problems": {
+  "code_hash": "1184ef723a17c41b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.44
+ },
+ "pinneapple_app.backend.routers.admin:admin_summary": {
+  "code_hash": "389724627f8ab5f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AdminSummaryResponse",
+  "seconds": 0.07
+ },
+ "pinneapple_app.backend.routers.experiments:list_experiments": {
+  "code_hash": "67e4bcd6dea79d32",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_app.backend.routers.models:list_families": {
+  "code_hash": "859f466ec0c72b3e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_app.backend.routers.models:list_metrics": {
+  "code_hash": "bcf7c14b8675787d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_app.backend.routers.models:list_models": {
+  "code_hash": "4e5abfb015c76c18",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_app.backend.routers.problems:list_problems": {
+  "code_hash": "3bd1e3c0c5b3110e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ }
+}

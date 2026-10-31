@@ -1,0 +1,274 @@
+{
+ "pinneapple_arena.dataset_bench:list_benchmarks": {
+  "code_hash": "2578daac725ba987",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 3.89
+ },
+ "pinneapple_arena.external.benchmark:select_slugs": {
+  "code_hash": "b8baf5cfd5ff267a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_airfoil": {
+  "code_hash": "fa2c04b6da0cad8b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_burgers": {
+  "code_hash": "51187afd33167b37",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_combustion": {
+  "code_hash": "675fb50646eab0da",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_cosmology": {
+  "code_hash": "2a58e3d908a084d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_crystal": {
+  "code_hash": "3238f0fb5c120b4a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_em_grid": {
+  "code_hash": "d0b276a995b608c2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_epidemic": {
+  "code_hash": "f73f5e47e7d39d5c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_graph_mesh": {
+  "code_hash": "9c3f540d82f68bbb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_grid_2d": {
+  "code_hash": "54bd52bccddbb9b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_image_field": {
+  "code_hash": "291903e1b8af5541",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_lorenz": {
+  "code_hash": "37a8a68b948cb0a5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_molecular": {
+  "code_hash": "0e77a092c464280a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_option_pricing": {
+  "code_hash": "728c19bf011ea16f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_pde_1d": {
+  "code_hash": "091a67824340bc44",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_pedestrians": {
+  "code_hash": "f3a69280dcf16ea8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_power_system": {
+  "code_hash": "af89a873281dd8a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_quantum_circuit": {
+  "code_hash": "6513dbcb92928a98",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_rigidbody": {
+  "code_hash": "f679e9ec0b98f829",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_room": {
+  "code_hash": "08f5680b42edfdff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_seismic": {
+  "code_hash": "7685231ec6f6df2e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_spin_lattice": {
+  "code_hash": "1a821ac7c664419b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_timeseries": {
+  "code_hash": "099c05751ef3a5cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_tle": {
+  "code_hash": "21ae640d7509a77f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_traffic": {
+  "code_hash": "e6e2b06bb2ffdb38",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external.demo_datasets:ds_weather_grid": {
+  "code_hash": "f5577e099bfd765f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.external:licence_counts": {
+  "code_hash": "f52f632d8b6f3132",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.3
+ },
+ "pinneapple_arena.pointwise.architectures:catalog_status": {
+  "code_hash": "1b572fbd0867b539",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.33
+ },
+ "pinneapple_arena.pointwise.training:best_device": {
+  "code_hash": "b92648dfe9e3ffc9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.pointwise.training:device_info": {
+  "code_hash": "5aefed3a10f2abdf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.problems:list_problems": {
+  "code_hash": "83f319fa8d2d54ff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.problems:list_problems_by_domain": {
+  "code_hash": "e1817d2d1e46495c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.showcase:run_benchmark": {
+  "code_hash": "5bb2c6cfbba16d46",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ }
+}

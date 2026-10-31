@@ -1,0 +1,698 @@
+{
+ "pinneapple_design.aero.aircraft3d:baseline_x": {
+  "code_hash": "81436d99eb183165",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.02
+ },
+ "pinneapple_design.aero.airframe:Airframe": {
+  "code_hash": "2b590e3f95ace81c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Airframe",
+  "seconds": 0.0
+ },
+ "pinneapple_design.aero.airliner3d:baseline_x_al": {
+  "code_hash": "9880cd64ebe4f06b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.01
+ },
+ "pinneapple_design.aero.airliner:Airliner": {
+  "code_hash": "99d9f431787ea08c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Airliner",
+  "seconds": 0.01
+ },
+ "pinneapple_design.aero.geometry_onnx:torch_from_handles": {
+  "code_hash": "c31b85d209e225cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FromHandles",
+  "seconds": 0.0
+ },
+ "pinneapple_design.aero.geometry_onnx:torch_geometry": {
+  "code_hash": "ff20f2b6a40683fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Geometry",
+  "seconds": 0.0
+ },
+ "pinneapple_design.aero.mesh:topology": {
+  "code_hash": "d59c1613ce60e86e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.05
+ },
+ "pinneapple_design.aero.panel:panel_solve": {
+  "code_hash": "af5a85d58261c2e4",
+  "error": "IndexError: too many indices for array: array is 0-dimensional, but 1 were indexed",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.assembly:Assembly": {
+  "code_hash": "61d43a979419262b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assembly",
+  "seconds": 0.02
+ },
+ "pinneapple_design.bricks.dynamics:harmonic_threshold": {
+  "code_hash": "db4fe2ff9c2f7a7b",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_design.bricks.goals:Goal": {
+  "code_hash": "7d6ffc6327dbe9eb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Goal",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.parts:fit_mass_model": {
+  "code_hash": "a16f4b09b67b28fd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.parts:mass_model_residuals": {
+  "code_hash": "8ae3021f7ef6a0a2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.validation:harmonic_limit_lp": {
+  "code_hash": "18f902e570ea68a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.13
+ },
+ "pinneapple_design.bricks.validation:validate": {
+  "code_hash": "6bcb7fb6d82ae1b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.17
+ },
+ "pinneapple_design.bricks.visuals:blender_available": {
+  "code_hash": "3fa0ca76b094962d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.01
+ },
+ "pinneapple_design.design_optimizer.airfoil_drag:run_design_optimization": {
+  "code_hash": "f0a0c54a8bc0ca56",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.57
+ },
+ "pinneapple_design.design_optimizer.methods:available_methods": {
+  "code_hash": "efbc42d54b908b1e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.presets:AirfoilEvaluator": {
+  "code_hash": "08c68c2d6061354e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AirfoilEvaluator",
+  "seconds": 0.36
+ },
+ "pinneapple_design.design_optimizer.presets:HeatsinkEvaluator": {
+  "code_hash": "550d9e7c9486d6e9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HeatsinkEvaluator",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.presets:airfoil_baseline": {
+  "code_hash": "7c7197e1f7c0e5ff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.presets:airfoil_problem": {
+  "code_hash": "703a648957d9d540",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DesignProblem",
+  "seconds": 0.01
+ },
+ "pinneapple_design.design_optimizer.presets:heatsink_baseline": {
+  "code_hash": "805af1d140193fc7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.presets:heatsink_problem": {
+  "code_hash": "e61a626717c126d0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DesignProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.study:Evaluator": {
+  "code_hash": "8081b4af527ecf52",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Evaluator",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.bodies:ahmed_body": {
+  "code_hash": "d74c9ee96e52fecd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.bodies:box": {
+  "code_hash": "d5bfb4f01542a6c9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.bodies:cylinder": {
+  "code_hash": "31769ab438a93126",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.bodies:sphere": {
+  "code_hash": "fcfd56d4ea356797",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.airfoil:naca_parametric": {
+  "code_hash": "6e8c0767fdd27699",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Tensor",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.cadquery_gen:CadQueryRegistry": {
+  "code_hash": "62c40a2503de2306",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CadQueryRegistry",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.cadquery_gen:cadquery_available": {
+  "code_hash": "5cd4efaae9abfcbc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.domains3d:list_domains_3d": {
+  "code_hash": "bf5bfa7b98ceaac2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.domains:list_domains": {
+  "code_hash": "d3d7044784fa6d9c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.genetic_sdf:make_union_circles_sdf": {
+  "code_hash": "5f03b1640241df6a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeneticSDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.primitives:list_builders": {
+  "code_hash": "e47e11d2ca39831a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:annulus": {
+  "code_hash": "0660cb8d3fc40986",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:box3d": {
+  "code_hash": "821d536b7cd3f685",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:capsule2d": {
+  "code_hash": "cd7d2fc23f9abe4b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:circle": {
+  "code_hash": "abc624c70b54211d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:cylinder3d": {
+  "code_hash": "868dc1db06a359b0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:ellipse": {
+  "code_hash": "d7cb4f10858f7371",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:rectangle": {
+  "code_hash": "e491e41a5463c513",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:sphere3d": {
+  "code_hash": "6e1d83da3e0e8084",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.sdf_shapes:torus3d": {
+  "code_hash": "fdda070983336c73",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.mesh.mesher_2d:mesh_rectangle_structured": {
+  "code_hash": "b7d0bc7848eea8a2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Mesh2D",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.ops.meshfree:ImplicitSurfaceRBF": {
+  "code_hash": "92c8fe8e6c6d8105",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ImplicitSurfaceRBF",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.ops.meshfree:RBFInterpolator": {
+  "code_hash": "d2711ce7d6d8e473",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RBFInterpolator",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.vehicle_cad:drill_assembly": {
+  "code_hash": "8ee266e9dd995686",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_design.geometry.vehicle_cad:pan_tilt_head": {
+  "code_hash": "e607102acf0f143a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.vehicles3d:naca4": {
+  "code_hash": "21a82b47848be6a4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.01
+ },
+ "pinneapple_design.geometry.vehicles3d:road": {
+  "code_hash": "c11c5c9b0c55d961",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Part",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.core:names": {
+  "code_hash": "0a9fe79fff9b0033",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.core:summary_table": {
+  "code_hash": "12270e04f97d0684",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.kit:naca4": {
+  "code_hash": "950f81b3cb01bc36",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.store:offline": {
+  "code_hash": "ead9140530029df0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.store:read_manifest": {
+  "code_hash": "9f0deeab209a24b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library:categories": {
+  "code_hash": "7a9cd53d34f4e857",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_design.geometry_library:list": {
+  "code_hash": "dd1ba055a3064f0e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.materials:candidates": {
+  "code_hash": "8b2c31a584c1c415",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_design.intent.parse:templates": {
+  "code_hash": "7726d6352e11662e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
+ },
+ "pinneapple_design.intent.physics.bracket:gmsh_exe": {
+  "code_hash": "a48570dc0de58cb9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.template:ProblemTemplate": {
+  "code_hash": "fad61d5f14f6033d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates.bracket:BracketTemplate": {
+  "code_hash": "c09f0563c7770e2f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BracketTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates.example_spring:CoilSpringTemplate": {
+  "code_hash": "cb4e6569972d4581",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CoilSpringTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates.glider_wing:GliderWingTemplate": {
+  "code_hash": "a4d6e96b3870e15d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GliderWingTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates.heatsink:HeatSinkTemplate": {
+  "code_hash": "3c96dc31f34e6543",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HeatSinkTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates.loop_car:LoopCarTemplate": {
+  "code_hash": "945a31b752c69401",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LoopCarTemplate",
+  "seconds": 0.0
+ },
+ "pinneapple_design.intent.templates:builtin": {
+  "code_hash": "be73420d3e44610f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.qualitative.models:Cantilever": {
+  "code_hash": "309adc9cdd702412",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Cantilever",
+  "seconds": 0.01
+ },
+ "pinneapple_design.qualitative.models:ConvectiveCooling": {
+  "code_hash": "f8984889c0e9db98",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ConvectiveCooling",
+  "seconds": 0.0
+ },
+ "pinneapple_design.qualitative.models:ExternalFlow": {
+  "code_hash": "b86bc8949de150c3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ExternalFlow",
+  "seconds": 0.0
+ },
+ "pinneapple_design.qualitative.models:QualitativeModel": {
+  "code_hash": "dfc79beb3af0ed6c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "QualitativeModel",
+  "seconds": 0.0
+ },
+ "pinneapple_design.surrogate_inverse.brake_rotor:train_surrogate": {
+  "code_hash": "4cd429627979794c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateFit",
+  "seconds": 6.83
+ },
+ "pinneapple_design.surrogate_inverse.heatsink_fins:train_surrogate": {
+  "code_hash": "790cbe5b8329e262",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateFit",
+  "seconds": 6.45
+ },
+ "pinneapple_design.surrogate_inverse.reflex_port:train_surrogate": {
+  "code_hash": "4cd429627979794c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateFit",
+  "seconds": 6.49
+ },
+ "pinneapple_design.surrogate_inverse.suspension_arm:train_surrogate": {
+  "code_hash": "5b242162e9ea860b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateFit",
+  "seconds": 6.3
+ },
+ "pinneapple_design.surrogate_inverse.transdermal_patch:train_surrogate": {
+  "code_hash": "e0afa298c4ce285c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateFit",
+  "seconds": 6.51
+ },
+ "pinneapple_design.thermal.board_cooling.agent:toolbox": {
+  "code_hash": "f6ed9bdd825060a6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Toolbox",
+  "seconds": 0.02
+ },
+ "pinneapple_design.thermal.board_cooling.mission:default_mission": {
+  "code_hash": "33e63fdfdf58b79e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CoolingMission",
+  "seconds": 0.0
+ },
+ "pinneapple_design.thermal.fin_array_speed:thermal_field": {
+  "code_hash": "035e7ef8c0d63e29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_design.thermal.fin_array_speed:train_surrogate": {
+  "code_hash": "c057a95ddbbb6e31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 7.59
+ },
+ "pinneapple_design.thermal.heatsink.monotone:train_monotone": {
+  "code_hash": "6b4f16d48e2ee0fe",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_design.thermal.heatsink.surrogate:load_surrogates": {
+  "code_hash": "53290bb11dfecf76",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_design.topology.problems:ThermalCompliance2D": {
+  "code_hash": "5cf6197c4832bdb9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ThermalCompliance2D",
+  "seconds": 0.0
+ },
+ "pinneapple_design.topology.problems:conduction_ke": {
+  "code_hash": "8b08fd25047ea2f8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_design.topology.problems:elasticity_ke": {
+  "code_hash": "647f71faac91a61c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ }
+}

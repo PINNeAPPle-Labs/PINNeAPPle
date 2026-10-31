@@ -1,0 +1,18 @@
+{
+ "pinneapple_problemdesign.protocol:GeminiProvider": {
+  "code_hash": "3d2dc2c0a0c6dc6e",
+  "error": "ModuleNotFoundError: google-generativeai is not installed. Install it with: pip install google-generativeai",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 3.59
+ },
+ "pinneapple_problemdesign.providers.cosmos_provider:CosmosProvider": {
+  "code_hash": "b075fe5a3d722c4b",
+  "error": "RuntimeError: CosmosProvider requires COSMOS_BASE_URL (or base_url=...).\nYou need a Cosmos gateway endpoint that accepts JSON and returns a text output.\nSteps:\n  1) Implement a small gateway (FastAPI) exposing POST /scene_to_spec.\n  2) Export COSMOS_BASE_URL='http://<host>:<port>'\n  3) Optionally export COSMOS_AP",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.04
+ }
+}

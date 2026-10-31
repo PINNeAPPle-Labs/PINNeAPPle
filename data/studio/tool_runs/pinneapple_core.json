@@ -1,0 +1,138 @@
+{
+ "pinneapple_core.backend:JaxPhysicsBackend": {
+  "code_hash": "39d51e7e41ceabe3",
+  "error": "ModuleNotFoundError: No module named 'jax'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_core.backend:PhysicsBackend": {
+  "code_hash": "505202134950e10a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_core.backend:TorchPhysicsBackend": {
+  "code_hash": "423a39bb2dcc293b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TorchPhysicsBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_core.backend:get_physics_backend": {
+  "code_hash": "6e2395acc49c6dd2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TorchPhysicsBackend",
+  "seconds": 0.21
+ },
+ "pinneapple_core.backend:list_backends": {
+  "code_hash": "716b6d97e367e73f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_core.data:Sampler": {
+  "code_hash": "9cd23a260cd47e81",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Sampler",
+  "seconds": 0.01
+ },
+ "pinneapple_core.loss:list_strategies": {
+  "code_hash": "3100381432b15c37",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:catalogue": {
+  "code_hash": "d3ccc899f0cce500",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_core.onboarding.catalog:domains": {
+  "code_hash": "c6f606e7eb2a95dd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_core.onboarding.doctor:doctor": {
+  "code_hash": "19de08536e8ecfe9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DoctorReport",
+  "seconds": 0.09
+ },
+ "pinneapple_core.onboarding.doctor:profiles": {
+  "code_hash": "d02f19e917f6561e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_core.optim:list_methods": {
+  "code_hash": "a493600991e8a287",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_core.service.metering:current_period": {
+  "code_hash": "0c9832b1136ba3cb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.transforms:list_pde_rules": {
+  "code_hash": "99e8f5ff4a21549a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_core.workflows.executors:DockerExecutor": {
+  "code_hash": "33f1a45bca1ae222",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DockerExecutor",
+  "seconds": 0.01
+ },
+ "pinneapple_core.workflows.executors:LocalExecutor": {
+  "code_hash": "56133725685ae654",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LocalExecutor",
+  "seconds": 0.0
+ },
+ "pinneapple_core.workflows.executors:SlurmExecutor": {
+  "code_hash": "5f4da27b90be9747",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SlurmExecutor",
+  "seconds": 0.0
+ }
+}

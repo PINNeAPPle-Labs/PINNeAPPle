@@ -1,0 +1,250 @@
+{
+ "experiment:em.ampere_law": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.28
+ },
+ "experiment:em.bench_mu0_solenoid": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.11
+ },
+ "experiment:em.bench_rc_discharge": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.13
+ },
+ "experiment:em.biot_savart": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 8.27
+ },
+ "experiment:em.cavity_resonance": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.28
+ },
+ "experiment:em.circuits_rc_rl_rlc": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.31
+ },
+ "experiment:em.coulomb_superposition": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.19
+ },
+ "experiment:em.dipole_radiation": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.13
+ },
+ "experiment:em.faraday_induction": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.08
+ },
+ "experiment:em.fresnel_snell": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 11.87
+ },
+ "experiment:em.gauss_law": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.2
+ },
+ "experiment:em.hall_effect": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.22
+ },
+ "experiment:em.lossy_plane_wave": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.51
+ },
+ "experiment:em.mie_scattering": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.26
+ },
+ "experiment:em.parallel_plate_capacitor": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.89
+ },
+ "experiment:em.research_fdtd_3d": {
+  "code_hash": "",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.03
+ },
+ "experiment:em.research_inverse_permittivity": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 16.36
+ },
+ "experiment:em.research_surrogate_hall": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.37
+ },
+ "experiment:em.research_uq_waveguide": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.24
+ },
+ "experiment:em.waveguide_modes": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.14
+ },
+ "pinneapple_science.atlas:load": {
+  "code_hash": "70f458ff8c071a79",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Atlas",
+  "seconds": 0.0
+ },
+ "pinneapple_science.atlas:validate": {
+  "code_hash": "9824f7d332976625",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_science.core:Experiment": {
+  "code_hash": "68902c8e9dccf662",
+  "error": "IndexError: tuple index out of range",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_science.instruments:Ammeter": {
+  "code_hash": "d8566d14ece11812",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Instrument",
+  "seconds": 0.0
+ },
+ "pinneapple_science.instruments:FieldProbe": {
+  "code_hash": "2960ca629b08a8b8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Instrument",
+  "seconds": 0.0
+ },
+ "pinneapple_science.instruments:Voltmeter": {
+  "code_hash": "016305656b1debcf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Instrument",
+  "seconds": 0.0
+ },
+ "pinneapple_science.instruments:combine": {
+  "code_hash": "ca93499eb593f45e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_science.plots:figure": {
+  "code_hash": "3ce04da804ba32d1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_science.registry:experiments": {
+  "code_hash": "9d2121d8f8ee5c71",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_science.registry:names": {
+  "code_hash": "90a85a954967eaf1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_science.report:table": {
+  "code_hash": "3de6a427bc8c4c2a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ }
+}

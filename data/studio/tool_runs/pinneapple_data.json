@@ -1,0 +1,178 @@
+{
+ "pinneapple_data.contracts.models:json_schemas": {
+  "code_hash": "8a8c228319b9b3b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.14
+ },
+ "pinneapple_data.data_health:example_chiller_plant": {
+  "code_hash": "f15dace8588e0714",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.13
+ },
+ "pinneapple_data.datasets:dataset_ids": {
+  "code_hash": "38383017f4182e26",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets:list_datasets": {
+  "code_hash": "9f99c9d8af230c0d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.formfill.ocr:ocr_available": {
+  "code_hash": "df7c065314562936",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.08
+ },
+ "pinneapple_data.formfill.specs:list_specs": {
+  "code_hash": "c7a16c1581781f10",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_data.process_optimizer:example_plant_operations": {
+  "code_hash": "ceaddeb7932348fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.04
+ },
+ "pinneapple_data.synth.curvefit:CurveFitSynthGenerator": {
+  "code_hash": "c3ba5e6232bc96db",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CurveFitSynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.distributions:DistributionSynthGenerator": {
+  "code_hash": "bb545657a4f09090",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DistributionSynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.geometry:GeometrySynthGenerator": {
+  "code_hash": "8a9721d875db103e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeometrySynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.geometry_cadquery:ParametricCadQuerySynthGenerator": {
+  "code_hash": "97fb71ebd7f52ad8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParametricCadQuerySynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.geometry_cadquery:STLTemplateSynthGenerator": {
+  "code_hash": "5106e1103378cea8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "STLTemplateSynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.images:ImageReconstructionSynthGenerator": {
+  "code_hash": "c202b8e271173f81",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ImageReconstructionSynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.pde:PDESynthGenerator": {
+  "code_hash": "48ca3e7b171724b0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PDESynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.pde_symbolic:SymbolicFDSynthGenerator": {
+  "code_hash": "eb41a8cc917c3262",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SymbolicFDSynthGenerator",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.registry:SynthCatalog": {
+  "code_hash": "6f7cc456103aed31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SynthCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_data.synth.sample_adapter:has_pinnego_physical_sample": {
+  "code_hash": "879b6c91819b3c5e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_data.transforms:MinMaxScaler": {
+  "code_hash": "a023d3f3ff148fcf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MinMaxScaler",
+  "seconds": 0.0
+ },
+ "pinneapple_data.transforms:Normalizer": {
+  "code_hash": "194185bfa650bc1f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Normalizer",
+  "seconds": 0.0
+ },
+ "pinneapple_data.transforms:StandardScaler": {
+  "code_hash": "3be81c75a78da26e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StandardScaler",
+  "seconds": 0.0
+ },
+ "pinneapple_data.unified:example_sources": {
+  "code_hash": "6383069363a3924e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.27
+ },
+ "pinneapple_data.validators:assert_valid_physical_sample": {
+  "code_hash": "0a37f7209e41d3d1",
+  "error": "TypeError: validate_physical_sample() missing 1 required positional argument: 'sample'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ }
+}

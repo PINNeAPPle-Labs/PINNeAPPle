@@ -1,0 +1,603 @@
+{
+ "pinneapple_analysis.benchmark.api:prepare": {
+  "code_hash": "375f1c730dcbb93e",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.23
+ },
+ "pinneapple_analysis.benchmark.api:run": {
+  "code_hash": "2a5210096c70b2a9",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil:openfoam_available": {
+  "code_hash": "b47a743ff9b48f3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil_impl:rans_residuals": {
+  "code_hash": "11b6368290cf8588",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.airfoil_impl:splits": {
+  "code_hash": "17817520a6001c46",
+  "error": "ValueError: a cannot be empty unless no samples are taken",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.fields:FieldOperatorProblem": {
+  "code_hash": "d8961e5b493609bb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FieldOperatorProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.fields:PINNMethod": {
+  "code_hash": "bb5459615a38cbd2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNMethod",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.builtin.inverse_heat_impl:single_thread": {
+  "code_hash": "2cec32ec640f3593",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:Method": {
+  "code_hash": "eee36493b1c55dd1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Method",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:Problem": {
+  "code_hash": "3105bf1133ecb1e2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Problem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:methods": {
+  "code_hash": "b27a6199c9d274f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.benchmark.registry:problems": {
+  "code_hash": "9055e36fff1546d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.cost.profiler:Budget": {
+  "code_hash": "ec07000577afa9fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Budget",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.data_assimilation.sensor_placement:GaussianProcessField": {
+  "code_hash": "12d81f9e92e599fb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GaussianProcessField",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.data_assimilation.var4d:twin_experiment": {
+  "code_hash": "e57a36232291c01e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.78
+ },
+ "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
+  "code_hash": "cbabc6ef7fdedc3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_analysis.inspection.acoustic:train_acoustic": {
+  "code_hash": "c11c4cc68f7357c9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.71
+ },
+ "pinneapple_analysis.inspection.eddy_current:generate_eddy_current_synthetic": {
+  "code_hash": "5f67e7e101231121",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_analysis.inspection.eddy_current:train_eddy_current": {
+  "code_hash": "f88a540fcb9a641d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 11.94
+ },
+ "pinneapple_analysis.inspection.emat:generate_emat_synthetic": {
+  "code_hash": "bc6cad43709554d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inspection.emat:train_emat": {
+  "code_hash": "6b86ac602e2982a8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 8.01
+ },
+ "pinneapple_analysis.inspection.guided_wave_ultrasonic:generate_guided_wave_synthetic": {
+  "code_hash": "df0dfa1aacb481f7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inspection.guided_wave_ultrasonic:train_guided_wave_ultrasonic": {
+  "code_hash": "bcb1c1647dae1767",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.39
+ },
+ "pinneapple_analysis.inspection.magnetic_flux_leakage:generate_magnetic_flux_leakage_synthetic": {
+  "code_hash": "d9a67cca70215f96",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_analysis.inspection.magnetic_flux_leakage:train_magnetic_flux_leakage": {
+  "code_hash": "1b24f2f455caced6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 6.36
+ },
+ "pinneapple_analysis.inspection.phased_array_ultrasonic:generate_phased_array_synthetic": {
+  "code_hash": "147d5d2c9ba05acc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.05
+ },
+ "pinneapple_analysis.inspection.phased_array_ultrasonic:train_phased_array_ultrasonic": {
+  "code_hash": "d19f2a8d0a802fb8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 9.31
+ },
+ "pinneapple_analysis.inverse_problems.binn:ReactionDiffusionBINN": {
+  "code_hash": "4f0f35cb15e6b395",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReactionDiffusionBINN",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.ensemble_kalman:IteratedEKI": {
+  "code_hash": "7bdaf1cbd32d1db6",
+  "error": "TypeError: EnsembleKalmanInversion.__init__() missing 1 required positional argument: 'forward_fn'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.forward:ForwardModel": {
+  "code_hash": "dba860f7b1a6e4ff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ForwardModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:run_inverse_discovery": {
+  "code_hash": "318782ea91ab08d7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:block_precomputed": {
+  "code_hash": "2005f5bc95a5a5ee",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/user/examples/use_cases/fin_convection_inverse/results/3d/summary.json'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:plate_precomputed": {
+  "code_hash": "e2934420ca7a30ab",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/user/examples/use_cases/fin_convection_inverse/results/2d/summary.json'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.missing_term:CandidateLibrary": {
+  "code_hash": "0f6556de85719503",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CandidateLibrary",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.missing_term:SINDyIdentifier": {
+  "code_hash": "ee77ddaf68db4a99",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SINDyIdentifier",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:ArrheniusModel": {
+  "code_hash": "793b330241d6513d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArrheniusModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:LumpedCoolingModel": {
+  "code_hash": "745e10e9a3787b92",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LumpedCoolingModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:PinFinModel": {
+  "code_hash": "59c2927dc8dc7e0f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PinFinModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:PlateModel": {
+  "code_hash": "40cca1aab547dea8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PlateModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.models:RodModel": {
+  "code_hash": "cf7f271161aee063",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RodModel",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.inverse_problems.presets:list_presets": {
+  "code_hash": "65313937a3c53e2a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.34
+ },
+ "pinneapple_analysis.inverse_problems.sensitivity:IdentifiabilityAnalyzer": {
+  "code_hash": "e671f7e583906ec0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IdentifiabilityAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.proof.graph:ProofGraph": {
+  "code_hash": "40d1f2bbafb14f46",
+  "inputs": {},
+  "method": "run",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_analysis.proof.pt_chains:build_pt_chain_graph": {
+  "code_hash": "14a3a3700f65a510",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProofGraph",
+  "seconds": 0.12
+ },
+ "pinneapple_analysis.retrieval.corpus:build_corpus": {
+  "code_hash": "0edf745df248598f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.25
+ },
+ "pinneapple_analysis.retrieval.corpus:build_literature_corpus": {
+  "code_hash": "35ebe365bf7d352c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 7.37
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:ishigami_indices": {
+  "code_hash": "b85f0fcf9d34b6a1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:ishigami_space": {
+  "code_hash": "11972ab4ada784b7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.surrogate.examples:airfoil_rans": {
+  "code_hash": "93c40da16bf2944f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateData",
+  "seconds": 0.11
+ },
+ "pinneapple_analysis.surrogate.examples:burgers_fdm_baseline": {
+  "code_hash": "4f6e269e6580991b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.surrogate.examples:burgers_fields": {
+  "code_hash": "ff63533fad5296ef",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SurrogateData",
+  "seconds": 0.39
+ },
+ "pinneapple_analysis.surrogate.methods:candidate_ids": {
+  "code_hash": "7110e901f6974c2b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_gate:TrustGate": {
+  "code_hash": "2347f60f5d9b3b17",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TrustGate",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.residual_bound:ResidualErrorCalibrator": {
+  "code_hash": "44e3f8056d520fc4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ResidualErrorCalibrator",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.arena.cases:builtin_cases": {
+  "code_hash": "b3b4102828523a40",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_analysis.validation.arena.loop:run_arena": {
+  "code_hash": "5ac5b53650bdaed9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArenaReport",
+  "seconds": 35.02
+ },
+ "pinneapple_analysis.validation.fault_injection.faults:data_faults": {
+  "code_hash": "f8cae8b33e426987",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.fault_injection.faults:model_faults": {
+  "code_hash": "cabc3d6ae7dfc2c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.fault_injection.matrix:run_fault_injection": {
+  "code_hash": "f31a1f8a0922048a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FaultInjectionReport",
+  "seconds": 49.5
+ },
+ "pinneapple_analysis.validation.fault_injection.problems:BenchmarkProblem": {
+  "code_hash": "77fadaae7a666713",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:rotate_field": {
+  "code_hash": "603aa993e8fdd053",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.physics_learning:detection_study": {
+  "code_hash": "13b64da34a8b8d02",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.58
+ },
+ "pinneapple_analysis.validation.physics_learning_cases:Section": {
+  "code_hash": "812363e088af745e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Section",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:burgers_1d": {
+  "code_hash": "27c832044cc33c36",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:kovasznay": {
+  "code_hash": "2e8ffe0218fb5d1b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.pinn:poisson_2d": {
+  "code_hash": "25826247a8b878b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.report_artifact:hash_data": {
+  "code_hash": "85c0e056613d7120",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.architecture_recommendation:recommend_architecture": {
+  "code_hash": "f81e42abf9d86b41",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ArchitectureRecommendation",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.dimensional_analysis:compute_dimensionless_numbers": {
+  "code_hash": "eb5d80fca25dd220",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DimensionlessNumbers",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.geometry_ood_guardrail:GeometryOODGuardrail": {
+  "code_hash": "50dac43f96392601",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeometryOODGuardrail",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.geometry_ood_guardrail:default_reference_meshes": {
+  "code_hash": "998d5b60443b5d92",
+  "error": "ModuleNotFoundError: No module named 'trimesh'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.knowledge_graph:build_knowledge_graph": {
+  "code_hash": "ca7395322ea60723",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MultiDiGraph",
+  "seconds": 0.14
+ },
+ "pinneapple_analysis.verification.physics_confidence_score:compute_physics_confidence": {
+  "code_hash": "27cf4db8edd529d1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsConfidenceScore",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.solver_orchestration:list_available_solver_families": {
+  "code_hash": "6d775f499b15c6a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.11
+ },
+ "pinneapple_analysis.verification.tool_recommendation:list_buy_vs_build_needs": {
+  "code_hash": "b148bd1a1b057f57",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ }
+}

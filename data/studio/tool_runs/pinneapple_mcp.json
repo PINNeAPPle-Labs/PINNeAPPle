@@ -1,0 +1,82 @@
+{
+ "pinneapple_mcp.config:get_config": {
+  "code_hash": "ae40759568cad330",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Config",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.jobs:running": {
+  "code_hash": "7b48ff20e6eb5201",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:capabilities": {
+  "code_hash": "dc5ae6984cc98ba5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.27
+ },
+ "pinneapple_mcp.tools:list_jobs": {
+  "code_hash": "aa1476b573a84478",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:list_methods": {
+  "code_hash": "177f950177b4594d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_mcp.tools:list_presets": {
+  "code_hash": "c9382f656a5d65b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:reason": {
+  "code_hash": "d85ffc7f440b8842",
+  "error": "ValueError: give a case, or both requirements and a concept",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:reason_library": {
+  "code_hash": "5d03a86c8d7020fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:trust_card": {
+  "code_hash": "979e2a4dfdfd8495",
+  "error": "ValueError: give either 'file' or both 'grid' and 'values'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:zoo_list": {
+  "code_hash": "a0b3d42926a9ad88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "pinneapple_perception.sentinel2:ee_initialize": {
+  "code_hash": "d2bb322091a944b2",
+  "error": "ModuleNotFoundError: No module named 'ee'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.08
+ }
+}

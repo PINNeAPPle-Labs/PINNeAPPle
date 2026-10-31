@@ -1,0 +1,34 @@
+{
+ "pinneapple_catalog.methods:list_methods": {
+  "code_hash": "e1aa45fadbb3141a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.09
+ },
+ "pinneapple_catalog.methods:method_status": {
+  "code_hash": "16f823424082481d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_catalog.methods:validated_methods": {
+  "code_hash": "c581e217efeabf14",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_catalog.resources:list_resources": {
+  "code_hash": "26b4c82be0c16c41",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ }
+}

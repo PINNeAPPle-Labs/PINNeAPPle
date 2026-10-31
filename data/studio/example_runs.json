@@ -94,5 +94,166 @@
    "examples/physics_query/experiment.json",
    "examples/physics_query/figures/latency_vs_error.png"
   ]
+ },
+ "example:pinneapple_benchmark": {
+  "error": "timeout after 900 s",
+  "hash": "f4b3f25f9df037e3",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/pinneapple_benchmark/01_pde_comparison.py",
+   "examples/pinneapple_benchmark/02_inverse_benchmark.py"
+  ],
+  "seconds": 900.2,
+  "writes_files": []
+ },
+ "example:pinneapple_cosim": {
+  "error": "Traceback (most recent call last):\n  File \"/tmp/studio-examples-ayhv6gae/copy0/examples/pinneapple_cosim/01_spring_mass_pinn.py\", line 57, in <module>\n    from pinneapple_cosim import (\n    ...<6 lines>...\n    )\nModuleNotFoundError: No module named 'pinneapple_cosim'",
+  "hash": "b8d8ff391388e96c",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/pinneapple_cosim/01_spring_mass_pinn.py"
+  ],
+  "seconds": 1.7,
+  "writes_files": []
+ },
+ "example:quickstart": {
+  "error": "ualization/dashboard/spec.py\", line 186, in to_video\n    return write_video(self, gif, mp4, **kw)\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_tools/visualization/dashboard/static.py\", line 318, in write_video\n    import imageio.v2 as imageio\nModuleNotFoundError: No module named 'imageio'",
+  "hash": "0f325ea68b93feb1",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/quickstart/01_first_look.py",
+   "examples/quickstart/02_solve_and_compare.py",
+   "examples/quickstart/03_trust_card.py",
+   "examples/quickstart/04_own_problem_and_data.py",
+   "examples/quickstart/05_inverse_problem.py",
+   "examples/quickstart/06_use_the_model.py",
+   "examples/quickstart/07_benchmark_models.py",
+   "examples/quickstart/08_uncertainty_and_validation.py",
+   "examples/quickstart/09_industrial_preset.py",
+   "examples/quickstart/10_digital_twin.py",
+   "examples/quickstart/11_visualisation.py",
+   "examples/quickstart/12_text_to_twin.py",
+   "examples/quickstart/13_variants_benchmark_inverse.py"
+  ],
+  "seconds": 670.0,
+  "writes_files": []
+ },
+ "example:trainer": {
+  "error": "dio-examples-ayhv6gae/copy0/examples/trainer/02_datamodule_splits_preprocess.py\", line 32, in <module>\n    from pinneapple_train import (\n    ...<7 lines>...\n    )\nImportError: cannot import name 'DataModule' from 'pinneapple_train' (/tmp/studio-examples-ayhv6gae/copy0/pinneapple_train/__init__.py)",
+  "hash": "3a9da6bbef9c47f1",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/trainer/01_audited_training.py",
+   "examples/trainer/02_datamodule_splits_preprocess.py",
+   "examples/trainer/03_physics_aware_pinn_ode.py",
+   "examples/trainer/04_resume_infer_and_plot.py",
+   "examples/trainer/05_ddp_torchrun.py"
+  ],
+  "seconds": 7.0,
+  "writes_files": [
+   "examples/trainer/examples/_runs/demo.best.pt",
+   "examples/trainer/examples/_runs/demo.config.json",
+   "examples/trainer/examples/_runs/demo.env.json",
+   "examples/trainer/examples/_runs/demo.jsonl"
+  ]
+ },
+ "example:visualizations": {
+  "error": "line 187, in main\n    visualize(net)\n    ~~~~~~~~~^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/examples/visualizations/viz_02_heat_2d.py\", line 132, in visualize\n    cmap = plt.cm.get_cmap(\"RdYlBu_r\")\n           ^^^^^^^^^^^^^^^\nAttributeError: module 'matplotlib.cm' has no attribute 'get_cmap'",
+  "hash": "6ba280c30e6e6064",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/visualizations/__init__.py",
+   "examples/visualizations/run_all.py",
+   "examples/visualizations/viz_01_flow_cylinder.py",
+   "examples/visualizations/viz_02_heat_2d.py",
+   "examples/visualizations/viz_03_vortex_dynamics.py",
+   "examples/visualizations/viz_04_phase_field.py",
+   "examples/visualizations/viz_05_wave_2d.py",
+   "examples/visualizations/viz_06_structural.py"
+  ],
+  "seconds": 619.7,
+  "writes_files": [
+   "examples/visualizations/viz_01_flow_cylinder.png"
+  ]
+ },
+ "reproduction:reproductions/binns_lagergren2020": {
+  "error": "usage: binn.py [-h] --data DATA [--iters ITERS] [--retrains RETRAINS]\n               [--densities DENSITIES] [--out OUT]\nbinn.py: error: the following arguments are required: --data",
+  "hash": "dadfdcb465c84375",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/binns_lagergren2020/binn.py",
+   "examples/reproductions/binns_lagergren2020/classical.py"
+  ],
+  "seconds": 0.1,
+  "writes_files": []
+ },
+ "reproduction:reproductions/deflorio2024": {
+  "error": "usage: run_deflorio.py [-h] --part {elm,dnn,baselines,report} [--nu [NU ...]]\n                       [--method [METHOD ...]] [--smoke]\nrun_deflorio.py: error: the following arguments are required: --part",
+  "hash": "110ab9cc05894406",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/deflorio2024/run_deflorio.py"
+  ],
+  "seconds": 3.1,
+  "writes_files": []
+ },
+ "reproduction:reproductions/gated_xtfc_dwivedi2025": {
+  "error": "usage: run_gated.py [-h]\n                    --part {forward,ungated,inverse,twin,baselines,report}\n                    [--smoke]\nrun_gated.py: error: the following arguments are required: --part",
+  "hash": "72706c6f5e762fb5",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/gated_xtfc_dwivedi2025/run_gated.py"
+  ],
+  "seconds": 3.6,
+  "writes_files": []
+ },
+ "reproduction:reproductions/sbinn_daneker2022": {
+  "error": "timeout after 900 s",
+  "hash": "2e174183ec241d3b",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/sbinn_daneker2022/run.py"
+  ],
+  "seconds": 900.3,
+  "writes_files": [
+   "examples/reproductions/sbinn_daneker2022/results/seed0.ckpt"
+  ]
+ },
+ "reproduction:reproductions/schiassi_epi2020": {
+  "error": "",
+  "hash": "eeb37ccc4b6884c7",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/schiassi_epi2020/run_epi.py"
+  ],
+  "seconds": 110.2,
+  "writes_files": [
+   "examples/reproductions/schiassi_epi2020/RESULTS.md",
+   "examples/reproductions/schiassi_epi2020/all_runs.json",
+   "examples/reproductions/schiassi_epi2020/errors_vs_noise.png",
+   "examples/reproductions/schiassi_epi2020/experiment.json"
+  ]
+ },
+ "reproduction:reproductions/xtfc_schiassi2021": {
+  "error": "timeout after 900 s",
+  "hash": "d1e1ece906941dc8",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/xtfc_schiassi2021/run_baselines.py",
+   "examples/reproductions/xtfc_schiassi2021/run_xtfc.py"
+  ],
+  "seconds": 900.2,
+  "writes_files": []
  }
 }

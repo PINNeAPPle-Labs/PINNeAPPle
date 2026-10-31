@@ -62,7 +62,14 @@ def main(argv=None):
                 continue
             assay = load_scratch_assay(a.data, dens)
             t0 = time.time()
-            fits = [fit_mechanistic(model, assay, x0) for x0 in STARTS[model]]
+            # finished starts are kept in "_partial" so a killed run resumes at the next start
+            partial = results.setdefault("_partial", {}).setdefault(model, {}).setdefault(str(dens), [])
+            for x0 in STARTS[model][len(partial):]:
+                partial.append(fit_mechanistic(model, assay, x0))
+                os.makedirs(os.path.dirname(a.out), exist_ok=True)
+                with open(a.out, "w") as f:
+                    json.dump(results, f, indent=1)
+            fits = results["_partial"][model].pop(str(dens))
             best = min(fits, key=lambda r: r["gls"])
             results[model][str(dens)] = {"gls": best["gls"], "params": best["params"],
                                          "params_paper_units": to_paper_units(best["params"]),
@@ -74,6 +81,10 @@ def main(argv=None):
             os.makedirs(os.path.dirname(a.out), exist_ok=True)
             with open(a.out, "w") as f:
                 json.dump(results, f, indent=1)
+    if not any(v for m in results.get("_partial", {}).values() for v in m.values()):
+        results.pop("_partial", None)
+        with open(a.out, "w") as f:
+            json.dump(results, f, indent=1)
 
 
 if __name__ == "__main__":

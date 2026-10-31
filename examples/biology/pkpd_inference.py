@@ -115,10 +115,20 @@ def main(argv=None):
     ap.add_argument("--seeds", type=int, default=20)
     ap.add_argument("--mcmc", type=int, default=3000)
     a = ap.parse_args(argv)
-    out = {"design_low_dose": design(T_LOW, False), "design_low_then_high": design(T_BOTH, True)}
+    out = {"scale": "full" if a.seeds >= 20 and a.mcmc >= 3000 else
+           f"reduced-scale ({a.seeds} noise draws x {a.mcmc} MCMC steps of 20 x 3000)",
+           "design_low_dose": design(T_LOW, False), "design_low_then_high": design(T_BOTH, True)}
     print("low dose:", out["design_low_dose"]["summary"])
     print("low + high:", out["design_low_then_high"]["summary"])
-    runs = [infer(s, a.mcmc) for s in range(a.seeds)]
+    # each finished seed is saved, so a killed run resumes at the next one
+    part = os.path.join(HERE, "results", f"pkpd_inference.partial-{a.mcmc}.json")
+    runs = json.load(open(part)) if os.path.exists(part) else []
+    os.makedirs(os.path.dirname(part), exist_ok=True)
+    for s in range(len(runs), a.seeds):
+        runs.append(infer(s, a.mcmc))
+        with open(part, "w") as f:
+            json.dump(runs, f)
+    runs = runs[:a.seeds]
     out["inference"] = runs
     out["coverage_95"] = {k: float(np.mean([r["posterior"][k]["covers_truth"] for r in runs])) for k in PK}
     out["median_abs_rel_error"] = {k: float(np.median([abs(r["posterior"][k]["median"] / TRUE[k] - 1)
@@ -132,6 +142,7 @@ def main(argv=None):
     os.makedirs(os.path.join(HERE, "results"), exist_ok=True)
     with open(os.path.join(HERE, "results", "pkpd_inference.json"), "w") as f:
         json.dump(out, f, indent=1)
+    os.remove(part)
     return out
 
 

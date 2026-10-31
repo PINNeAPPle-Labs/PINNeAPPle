@@ -8,7 +8,7 @@ import sys
 
 from ._case import to_markdown
 
-FRAMEWORKS = ("first_passage", "dimensional", "fisher")
+FRAMEWORKS = ("first_passage", "dimensional", "fisher", "early_warning")
 
 
 def main(argv=None) -> int:

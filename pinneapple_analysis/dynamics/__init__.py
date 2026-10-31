@@ -16,7 +16,11 @@ DeepONet predictions) are being added one pull request at a time, each with its 
   design (D, A, E, c, Bayesian D) built on :mod:`pinneapple_analysis.inverse_problems`. Guide:
   ``docs/guides/dynamics_fisher.md``.
 
-Not yet available: critical slowing down and early-warning indicators, Koopman / spectral analysis.
+* :mod:`.early_warning`: critical slowing down and early-warning indicators (rolling variance and autocorrelation,
+  recovery rate, spectral indicators, detrending, surrogate significance, window / bandwidth / sampling
+  sensitivity), with the indicator kept apart from any prediction. Guide: ``docs/guides/dynamics_early_warning.md``.
+
+Not yet available: Koopman / spectral analysis.
 
 The frameworks share:
 
@@ -33,7 +37,7 @@ Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
-from . import dimensional, first_passage, fisher
+from . import dimensional, early_warning, first_passage, fisher
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -57,6 +61,15 @@ from .dimensional import (
     ScalingLaw,
     SimilarityMetrics,
     TrajectoryNormalizer,
+)
+from .early_warning import (
+    AutocorrelationAnalyzer,
+    CriticalSlowingDown,
+    EarlyWarningAnalyzer,
+    RecoveryRateEstimator,
+    RollingStatistics,
+    StabilityIndicator,
+    TransitionDiagnostics,
 )
 from .first_passage import (
     SDE,
@@ -102,4 +115,6 @@ __all__ = [
     "ScalingLaw", "TrajectoryNormalizer", "CurveCollapseAnalyzer", "SimilarityMetrics",
     "fisher", "FisherInformation", "FisherInformationMatrix", "CramerRaoBound", "ParameterIdentifiability",
     "SensitivityAnalyzer", "ExperimentalDesign", "ObservationScheduler", "InformationGain", "SamplingStrategy",
+    "early_warning", "EarlyWarningAnalyzer", "CriticalSlowingDown", "RollingStatistics", "AutocorrelationAnalyzer",
+    "RecoveryRateEstimator", "StabilityIndicator", "TransitionDiagnostics",
 ]

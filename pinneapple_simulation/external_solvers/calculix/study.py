@@ -326,11 +326,13 @@ class Buckle:
 @dataclass
 class Heat:
     """Steady heat conduction (needs a conductivity). ``temperature``: [(nodes, T)]; ``film``: [((elements, faces),
-    (T_sink, h))]; ``flux``: [((elements, faces), q)] W/m^2 into the body."""
+    (T_sink, h))]; ``flux``: [((elements, faces), q)] W/m^2 into the body; ``body``: uniform heat generation
+    W/m^3 in every element."""
     temperature: object = None
     film: object = None
     flux: object = None
     initial: float = 0.0
+    body: float | None = None
 
     def deck(self, m: FEModel) -> list[str]:
         L = ["*INITIAL CONDITIONS, TYPE=TEMPERATURE", f"NALL, {self.initial:.10g}", "*STEP",
@@ -343,10 +345,12 @@ class Heat:
             L.append("*FILM")
             for (els, fcs), (Ts, h) in _sel(self.film):
                 L += [f"{int(e) + 1}, F{int(f)}, {Ts:.10g}, {h:.10g}" for e, f in zip(els, fcs, strict=True)]
-        if self.flux:
+        if self.flux or self.body:
             L.append("*DFLUX")
             for (els, fcs), q in _sel(self.flux):
                 L += [f"{int(e) + 1}, S{int(f)}, {q:.10g}" for e, f in zip(els, fcs, strict=True)]
+            if self.body:
+                L.append(f"EALL, BF, {self.body:.10g}")
         return L + ["*NODE FILE", "NT", "*EL FILE", "HFL", "*END STEP"]
 
 

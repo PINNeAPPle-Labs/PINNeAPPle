@@ -246,6 +246,39 @@
      "nfev": 308,
      "success": true,
      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+     "params": {
+      "D": 0.04269721063904932,
+      "m": 0.5003025447160274,
+      "r": 1.53548683486998
+     },
+     "gls": 926.577632348399,
+     "nfev": 124,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+     "params": {
+      "D": 0.04269722114606313,
+      "m": 0.5003018115872324,
+      "r": 1.5354845787804534
+     },
+     "gls": 926.5776323511337,
+     "nfev": 100,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+     "params": {
+      "D": 0.042691421673998114,
+      "m": 0.5004314541406717,
+      "r": 1.535740520339812
+     },
+     "gls": 926.5778387883552,
+     "nfev": 120,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
     }
    ]
   }

@@ -50,3 +50,18 @@ def test_conforming_p2_elasticity_on_the_lame_sphere():
     s = T.solve_elasticity(T.gmsh_mesh(shell, 0.15, 2), case.E, case.nu, None, case.bcs)
     e = s.errors(case.exact, case.grad)
     assert e["L2_rel"] < 1.7e-2 and s.balance["imbalance"] < 1e-8                    # measured 8.45e-3
+
+
+def test_stl_heat_sink_gets_exactly_its_chip_power(tmp_path):
+    try:
+        import gmsh  # noqa: F401
+    except (ImportError, OSError):
+        pytest.skip("gmsh not available")
+    from pinneapple_simulation.immersed import parts
+    stl = parts.write_stl("heat_sink", str(tmp_path / "hs.stl"), size=0.004)
+    case = parts.heat_sink_case(stl)
+    geo = im.STLGeometry.from_file(stl)
+    assert geo.watertight
+    sol = im.solve_heat(im.Discretization(geo, 0.003, order=1), case.conductivity, 0.0, case.bcs)
+    assert np.isclose(-sol.balance["HeatInput[0]_out_W"], parts.HS["P"], rtol=1e-12)
+    assert abs(sol.balance["imbalance"]) < 1e-10

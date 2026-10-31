@@ -174,8 +174,7 @@ Measured on two parts, a sphere with a smooth field and a sphere with generation
   7e4 unknowns). Meshing is not the bottleneck there; edge-preserving clipping would be needed.
 - **STL input cost:** 6× the SDF quadrature time (32 s for Q2 at h = R/8 on a 20 480-triangle sphere).
 
-Not yet measured (later parts of #966): parts whose meshing is the hard step (an STL heat sink and bracket, topology
-sweeps), elasticity, transient heat.
+Parts whose meshing is not trivial (an STL heat sink and an STL bracket), elasticity and transient heat: below.
 
 
 ## Part 2: linear elasticity and two STL parts
@@ -200,8 +199,131 @@ and `verification.solve_elastic_case(verification.lame_sphere(), n, order)`.
 Equilibrium closes to between 1e-16 and 1e-9. FCM sits at 2e-8 because of its ~1e10 condition number. On the Lamé
 sphere the pressure has no net force, so the imbalance is relative to the sum of the load magnitudes.
 
-PARTS
+### Two parts given only as STL: a heat sink and a bracket
+
+`immersed.parts` builds both parts in gmsh's OpenCASCADE kernel and writes them as STL. The STL is the only geometry
+either method sees:
+- the immersed solver reads it with `STLGeometry` (winding number);
+- the conforming solver turns it into a volume mesh with gmsh (`tet_fem.occ_stl`: classify the facets, rebuild the
+  surfaces, mesh).
+
+Each run is compared with a fine conforming P2 run on the same STL, at 3000 interior points (≥ 0.3 mm inside) and at
+one probe point. Command: `parts.study(name, plan, reference, out_dir)`. The study is checkpointed: each run is
+appended to `<name>.jsonl`, and an interrupted study resumes. Raw rows:
+[`immersed/heat_sink.jsonl`](immersed/heat_sink.jsonl) and [`immersed/bracket.jsonl`](immersed/bracket.jsonl).
+Times are one thread; compute = geometry phase (quadrature, or gmsh meshing from the STL) + assembly + solve.
+
+- **Heat sink.** Aluminium (k = 205 W/m K): a 40 × 40 × 4 mm base with 7 fins, each 1.5 mm thick and 20 mm high.
+  A 15 × 15 mm chip under the centre puts in 20 W (`HeatInput`, spread over the area each method finds there).
+  Every other surface has h = 25 W/m² K to air at 25 °C. Reference: P2 at 1 mm (139 630 unknowns).
+- **Bracket.** Steel L-bracket, two 60 × 40 × 6 mm flanges with a 4 mm inner fillet. Two 6 mm bolt holes are
+  clamped, and 500 N pulls down on the arm's end face (`Force`). Reference: P2 at 1.5 mm (217 131 unknowns).
+
+Both selectors had to apply exact totals. With per-point selection, the rounded edges of the end face lost 8 % of
+the bracket load (461 N instead of 500 N). With per-face selection, the conforming meshes changed the chip power from
+mesh to mesh, and their errors did not converge.
+
+![heat sink](immersed/heat_sink_equal_accuracy.png)
+
+| Heat sink | Size | Unknowns | T L2 rel | Chip T error | Geometry [s] | Compute [s] |
+|---|---|---|---|---|---|---|
+| conforming P1 | 3 / 2 / 1.5 mm | 3 056 / 5 876 / 10 298 | 1.5e-3 / 8.9e-4 / 6.7e-4 | −4.8e-3 / −2.5e-3 / −2.0e-3 | 0.9 / 1.7 / 2.9 | 1.0 / 2.0 / 3.6 |
+| conforming P2 | 4 / 3 / 2 mm | 10 444 / 18 179 / 35 473 | 2.0e-3 / 1.0e-3 / 4.4e-4 | −1.6e-3 / −6.7e-4 / −7.1e-4 | 0.8 / 1.3 / 2.5 | 1.3 / 2.6 / 5.6 |
+| immersed Q1 | 2 / 1.5 / 1 mm | 5 896 / 11 368 / 30 744 | 1.4e-2 / 1.2e-2 / 6.7e-3 | +1.0e-2 / +9.5e-3 / +5.4e-3 | 8.9 / 19.7 / 51.9 | 9.9 / 21.3 / 57.6 |
+| immersed Q2 | 3 / 2 / 1.5 mm | 14 355 / 37 883 / 75 075 | 2.4e-2 / 1.4e-2 / 1.3e-2 | +1.9e-2 / +1.3e-2 / +1.1e-2 | 3.4 / 8.7 / 20.9 | 5.8 / 18.2 / 48.9 |
+
+The coarsest conforming run (P1, 3 mm: 1.5e-3 in 1.0 s) is more accurate than the finest immersed run (Q1, 1 mm:
+6.7e-3 in 57.6 s). The immersed error plateaus near 1 %, and the cause was measured:
+- At h = 1.5 mm, depth 2, the immersed surface area is **1.28 % short**. The level-set clipping chamfers each fin
+  edge at the leaf scale h/2^depth, which removes convective area.
+- The chip runs 1.1 % too hot, which matches.
+- The area deficit halves per octree level (−1.44e-2 / −7.01e-3 at h = 2 mm, depths 2 / 3; −1.28e-2 / −5.96e-3 at
+  1.5 mm), so it converges only like h/2^depth, and each level costs 5–6× more quadrature.
+
+On a part made of thin plates and sharp edges, convection-dominated heat is the immersed method's worst case.
+
+![bracket](immersed/bracket_equal_accuracy.png)
+
+| Bracket | Size | Unknowns | u L2 rel | Tip error | Peak VM error | VM L2 rel | Compute [s] |
+|---|---|---|---|---|---|---|---|
+| conforming P1 | 4 / 3 / 2 mm | 4 908 / 7 917 / 17 460 | 0.47 / 0.34 / 0.19 | −0.49 / −0.35 / −0.20 | −2.1e-2 / −0.19 / −6.7e-2 | 0.50 / 0.43 / 0.32 | 0.9 / 1.7 / 9.7 |
+| conforming P2 | 6 / 4 / 3 mm | 19 587 / 31 191 / 50 778 | 1.8e-2 / 7.2e-3 / 3.3e-3 | −1.9e-2 / −7.5e-3 / −3.3e-3 | −9.4e-3 / −1.6e-2 / −5.7e-3 | 8.8e-2 / 5.1e-2 / 4.1e-2 | 3.2 / 6.2 / 11.7 |
+| immersed Q1 | 3 / 2 / 1.5 mm | 7 200 / 19 440 / 39 258 | 0.47 / 0.24 / 0.12 | −0.48 / −0.24 / −0.12 | −0.50 / −0.32 / −0.25 | 0.49 / 0.25 / 0.14 | 6.4 / 18.4 / 35.9 |
+| immersed Q2 | 4 / 3 / 2 mm | 21 045 / 48 090 / 135 351 | 4.0e-2 / 2.4e-2 / 7.5e-3 | −3.7e-2 / −2.3e-2 / −6.3e-3 | −0.19 / −7.5e-2 / −3.9e-2 | 9.2e-2 / 5.7e-2 / 2.6e-2 | 11.2 / 43.9 / 140.9 |
+
+Equal accuracy on the displacement:
+
+| Target u L2 | Method | Unknowns | Compute [s] |
+|---|---|---|---|
+| 2e-2 | conforming P2 | < 1.96e4 (6 mm: 1.8e-2) | < 3.2 |
+| | immersed Q2 | 5.6e4 | 51.9 |
+| 1e-2 | conforming P2 | 2.65e4 | 4.9 |
+| | immersed Q2 | 1.05e5 | 106 |
+
+- **Locking.** Linear elements lock in bending on a 6 mm plate, conforming P1 and immersed Q1 alike (12–49 %
+  error).
+- **Q2 vs P2.** Q2 removes the locking but needs 4× the unknowns and 20× the time of P2. A uniform grid spends cells
+  on the bracket's bounding box, and its 3-D Q2 couplings (125 nodes) make the matrix much denser than P2's.
+- **Peak stress.** The peak von Mises stress (at interior points, near the fillet and holes) converges more slowly
+  for immersed (3.9 % at 2 mm) than for P2 (0.6–1.6 %).
+- **Meshing was not the bottleneck.** gmsh meshed both STLs in 0.6–2.9 s (6.3 s for the 1.5 mm reference), less
+  than the immersed quadrature of the same STL at any useful resolution.
 
 ## Part 3: transient heat
 
-TRANSIENT
+`immersed.transient.solve_transient_heat`: ρc ∂T/∂t − div(k ∇T) = f with the θ scheme (θ = 1 backward Euler,
+θ = 1/2 Crank–Nicolson). The steady operator and loads are reused; the mass matrix comes from the same cut-cell
+rule. With the ghost penalty, a mass ghost term γ_M ρc h² (γ_M = 0.01) controls small cuts. Time-dependent sources
+`f(X, t)` and conditions `bcs(t)` are supported. The matrix is factorised once.
+
+- **Initial field.** The first version projected T0 in L2. That left round-off-sized noise on small-cut unknowns,
+  which Crank–Nicolson never damps: the error stayed at 1.4e-3 for every Δt without the mass ghost term, and at
+  1e-5 with it. Nodal interpolation removed the floor.
+- **Manufactured solution in time.** 2-D disk, Q2, n = 80, t ∈ [0, 0.5], `u = e^{−t} sin 2x cos 3y + x²`, Dirichlet:
+
+| Scheme | Steps 2, 4, 8, 16, 32: L2 rel | Rates |
+|---|---|---|
+| backward Euler | 3.09e-3, 1.51e-3, 7.39e-4, 3.66e-4, 1.82e-4 | 1.04, 1.03, 1.02, 1.01 |
+| Crank–Nicolson | 5.39e-5, 2.94e-5, 7.56e-6, 1.98e-6, 7.43e-7 | 0.87, 1.96, 1.94, 1.41 (spatial floor) |
+
+- **Space rates** (Crank–Nicolson, small Δt, n = 10, 20, 40): Q1 L2 2.22, 2.10 and H1 1.01, 1.00; Q2 L2 2.92, 2.65
+  and H1 1.79, 1.86.
+- **Sphere cooling** (Bi = 2, series solution of Incropera §5.6.2, to Fo = 0.3, 80 Crank–Nicolson steps):
+  - Q1, n = 8 / 16 / 32: L2 rel 7.9e-3 / 1.7e-3 / 3.9e-4;
+  - Q2, n = 4 / 8 / 16: 1.9e-3 / 2.1e-4 / 5.1e-5.
+
+
+## Verdict (all parts)
+
+Measured on a sphere, a cylinder, a torus, a Lamé shell, an STL heat sink and an STL bracket.
+
+**Immersed wins:**
+- **Raw geometry in, no meshing failure mode.** An SDF, a voxel mask or an STL is solved directly. An STL with
+  holes still gets a robust inside test. No geometry here failed for either method, but gmsh's high-order optimiser
+  did abort the whole process on one coarse STL mesh, which the immersed path cannot do.
+- **Smooth parts and smooth fields:** fewer unknowns than conforming P2 at equal accuracy (sphere, manufactured
+  field: 1.73e4 vs 3.27e4 at 1e-4), with optimal rates in L2 and H1 for heat, elasticity and time stepping.
+- **Small cuts:** with the ghost penalty, the conditioning stays bounded whatever the cut (κ ≈ 3e2 / 6e4 for
+  Q1 / Q2 down to cut fractions of 4e-10).
+
+**Immersed loses:**
+- **Wall time, everywhere measured:** 1.2–1.8× on the smooth sphere, about 7× when P2 represents the field exactly,
+  20× on the bracket and more than 50× on the heat sink at equal accuracy.
+- **Meshing time saved is negative here.** The Python cut-cell quadrature took as long as or longer than gmsh's
+  meshing of the same geometry in every case: 3.3 s vs 2.6 s on the sphere; 9–52 s vs 1–3 s on the STL heat sink.
+- **Sharp edges:**
+  - with a change of condition across them (cylinder rim), Q2 drops to L2 rate ≈ 1;
+  - with convection on all of them (heat sink), the chamfered edges remove 1.3 % of the area and the temperature
+    plateaus near 1 %; the error converges only like h/2^depth.
+- **Thin-walled parts in bending:** Q1 locks (as P1 does). Q2 works but needs 4× the unknowns of P2, because a
+  uniform grid cannot grade towards thin walls.
+
+**What would change the verdict**, and was not built here:
+- edge-preserving clipping (one level set per smooth face, or exact clipping by the STL triangles);
+- local or adaptive grid refinement (hanging nodes, an octree background);
+- compiled quadrature, since the Python octree is the time sink.
+
+On the measurements here, conforming P2 is faster and at least as accurate on every part that gmsh can mesh. The
+immersed path's remaining case is input that cannot be meshed well or at all: voxel data, defective STL, geometry
+sweeps that change topology. None of these was measured here; the evidence for them is the method's design (no mesh
+to fail), not a benchmark.

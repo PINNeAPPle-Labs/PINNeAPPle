@@ -1,0 +1,12 @@
+{
+ "code_hash": "537fc50245529cb1",
+ "figures": [],
+ "id": "example:examples/dynamics_toolkit",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 0.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Dynamics toolkit end to end | dynamical systems | not curated\nfirst_passage_pinn_max_abs_error_S 0.000557398984924018 -\nfirst_passage_mc_max_abs_error_S 0.00435688812423396 -\nfirst_passage_restricted_mean_pinn 0.8724676192589105 time\nfirst_passage_restricted_mean_mc 0.8751461949091439 time\nfirst_passage_pinn_wall_time 104.19702568599996 s",
+ "timed_out": false
+}

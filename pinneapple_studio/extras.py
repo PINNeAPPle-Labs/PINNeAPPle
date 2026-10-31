@@ -100,7 +100,12 @@ def preset_tools(root: Path | None = None) -> list[dict[str, Any]]:
                 status, reason = "verified", f"recorded validation {rec.relative_to(root)}: every reference case passes"
         out.append(_tool(f"preset:{name}", "preset", name, "pinneapple_presets", card["title"], card["problem"],
                          {"type": "object", "properties": props, "required": [], "x-not-in-form": []},
-                         status, reason, ev, {"outputs": card["outputs"], "validity": card["validity"],
+                         status, reason, ev, {"outputs": [{"name": o.get("name", ""), "type": "",
+                                                            "unit": o.get("unit", ""),
+                                                            "description": o.get("help", "")}
+                                                           for o in card["outputs"]],
+                                              "outputs_source": "declared" if card["outputs"] else "none",
+                                              "validity": card["validity"],
                                                "limitations": card["limitations"], "references": card["references"],
                                                "question": card["question"], "sector": card["sector"],
                                                "usage": card["usage"]}))
@@ -144,7 +149,8 @@ def _tool(tid, kind, name, package, title, text, form, status, reason, ev, extra
             "icon": "play", "status": status, "status_reason": reason, "evidence": ev,
             "n_tests": sum(e["kind"] in ("test", "reference_test") for e in ev), "examples": [], "pp": "",
             "tasks": {}, "areas": {}, "products": {}, "used_by_modules": [], "flags": [], "code_hash": "",
-            "form": form, "form_problems": [], "related": {"uses": [], "used_by": []}, **extra}
+            "form": form, "form_problems": [], "related": {"uses": [], "used_by": []},
+            "outputs": [], "outputs_source": "none", **extra}
 
 
 def run(tool: dict[str, Any], inputs: dict[str, Any]) -> tuple[Any, list[dict[str, Any]]]:

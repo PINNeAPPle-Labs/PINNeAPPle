@@ -34,7 +34,25 @@ Each tool carries:
 - its status and the evidence behind it;
 - the tests and the examples that use it;
 - its tasks, physics areas and products;
-- related tools from the import graph.
+- related tools from the import graph;
+- its outputs (`outputs`: name, type, unit and description of each value) and where they were read
+  (`outputs_source`).
+
+### Outputs
+
+`pinneapple_studio.outputs` reads what a tool returns from the code. Nothing is guessed. The sources, from the
+strongest:
+
+| `outputs_source` | where |
+|---|---|
+| `declared` | a module-level `X_OUTPUTS = {"tool_name": [{"name": ..., "type": ..., "unit": ..., "description": ...}]}` written by the author, or the outputs of a preset's card |
+| `annotation` | the return annotation: a `NamedTuple` or dataclass gives one output per field (units from the docstring entries with the same names, or the class's `Attributes`), a plain type gives one unnamed output, `-> None` gives none |
+| `docstring` | the `Returns` section, numpy (`tau : float [s]`) or Google (`float [s]: the time constant`) style |
+| `none` | nothing says what it returns; `outputs` is empty |
+
+When there is no record class, the docstring's entries name the outputs, and a plain annotation fills the types the
+docstring leaves out. A unit is read only in brackets after the type, preceded by a space. Brackets glued to a name
+(`list[float]`) are part of the type, and brackets holding a comma (`[0, 1]`) are not a unit.
 
 `prose_unmatched` lists prose whose symbol is no longer in the code. A symbol without prose shows none; nothing is
 generated.

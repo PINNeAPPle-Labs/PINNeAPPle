@@ -124,6 +124,32 @@ def test_bad_inputs_are_refused(tmp_path):
             generate_mesh(**kw)
 
 
+def test_file_limits_urls_and_missing_gmsh(tmp_path, monkeypatch):
+    stl = _box_surface(tmp_path)
+    with pytest.raises(ValueError, match="above the 0.001 MB limit"):
+        generate_mesh(str(stl), h=0.2, max_file_mb=0.001)
+    monkeypatch.setenv("PINNEAPPLE_MESH_MAX_FILE_MB", "0.001")
+    with pytest.raises(ValueError, match="MB limit"):
+        generate_mesh(str(stl), h=0.2)
+    monkeypatch.delenv("PINNEAPPLE_MESH_MAX_FILE_MB")
+    with pytest.raises(ValueError, match="URLs are not fetched"):
+        generate_mesh("https://example.com/part.stl", h=0.2)
+    monkeypatch.setitem(__import__("sys").modules, "gmsh", None)
+    with pytest.raises(RuntimeError, match="pip install gmsh"):
+        generate_mesh("box", h=0.5)
+
+
+def test_nothing_is_written_outside_out_dir(tmp_path, monkeypatch):
+    work = tmp_path / "cwd"
+    work.mkdir()
+    monkeypatch.chdir(work)
+    out = tmp_path / "out"
+    generate_mesh(str(_box_surface(tmp_path)), h=0.25, out_dir=str(out))
+    generate_mesh("cylinder", h=0.2, boundary_layer=BL, out_dir=str(out))
+    assert list(work.iterdir()) == []
+    assert sorted(p.name for p in out.iterdir()) == ["mesh.msh", "mesh.vtu", "quality.glb", "quality.json"]
+
+
 def test_outputs_match_the_declaration():
     out = generate_mesh("box", h=0.5)
     assert [o["name"] for o in X_OUTPUTS["generate_mesh"]] == list(out)

@@ -48,6 +48,7 @@ FILE_TYPES = (".stl", ".step", ".stp", ".iges", ".igs")
 _GMSH_TYPES = {2: ("triangle", 2, 3), 3: ("quad", 2, 4), 4: ("tetra", 3, 4), 5: ("hexahedron", 3, 8),
                6: ("wedge", 3, 6), 7: ("pyramid", 3, 5)}
 SICN_WARN = 0.1        # below this an element is poor for most finite-element and finite-volume solvers
+MAX_FILE_MB = 200.0    # default size limit of a geometry file; PINNEAPPLE_MESH_MAX_FILE_MB or max_file_mb override it
 
 # what the tool returns, with units (read by the Studio catalog)
 X_OUTPUTS = {
@@ -76,9 +77,18 @@ X_OUTPUTS = {
 }
 
 
+def _require_gmsh():
+    try:
+        import gmsh
+    except ImportError:
+        raise RuntimeError("generate_mesh needs gmsh, which is not installed: pip install gmsh "
+                           "(or pip install \"pinneapple[cfd]\")") from None
+    return gmsh
+
+
 @contextlib.contextmanager
 def _gmsh_session(name: str):
-    import gmsh
+    gmsh = _require_gmsh()
     if gmsh.isInitialized():
         gmsh.finalize()
     try:
@@ -287,7 +297,7 @@ def _edges(points: np.ndarray, blocks: list[tuple[str, np.ndarray]]) -> np.ndarr
 def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, h: float = 0.25,
                   scale: float = 1.0, refine: list[dict[str, Any]] | None = None,
                   boundary_layer: dict[str, Any] | None = None, out_dir: str | None = None,
-                  origin: list[float] | None = None) -> dict[str, Any]:
+                  origin: list[float] | None = None, max_file_mb: float | None = None) -> dict[str, Any]:
     """Mesh a primitive or a geometry file with gmsh and rate every element.
 
     Parameters
@@ -312,6 +322,8 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
     origin : list[float]
         where the primitive's reference point (the corner of a box or rectangle, the centre of a sphere or disk, the
         base centre of a cylinder) goes [m] (default: the origin)
+    max_file_mb : float
+        largest geometry file accepted [MB] (default: PINNEAPPLE_MESH_MAX_FILE_MB, else 200)
 
     Returns
     -------
@@ -370,11 +382,20 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
         if len(d) != PRIMITIVES[shape][1] or min(d) <= 0:
             raise ValueError(f"{shape} needs {PRIMITIVES[shape][1]} positive dimensions (metres), got {d}")
     elif ext in FILE_TYPES:
+        if "://" in shape:
+            raise ValueError("geometry must be a local file path; URLs are not fetched")
         if not os.path.isfile(shape):
             raise ValueError(f"no such file: {shape}")
+        limit = float(max_file_mb if max_file_mb is not None else os.environ.get("PINNEAPPLE_MESH_MAX_FILE_MB",
+                                                                                 MAX_FILE_MB))
+        size = os.path.getsize(shape) / 1e6
+        if size > limit:
+            raise ValueError(f"{os.path.basename(shape)} is {size:.1f} MB, above the {limit:g} MB limit "
+                             "(max_file_mb or PINNEAPPLE_MESH_MAX_FILE_MB)")
     else:
         raise ValueError(f"geometry must be one of {sorted(PRIMITIVES)} or a {'/'.join(FILE_TYPES)} file")
 
+    _require_gmsh()
     backend = "gmsh-occ"
     vol = None
     if ext == ".stl" and not boundary_layer:

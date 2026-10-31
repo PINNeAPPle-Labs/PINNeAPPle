@@ -16,6 +16,41 @@
   },
   "source": "tests/test_dynamics_early_warning.py:151"
  },
+ "pinneapple_analysis.dynamics.first_passage:brownian_exit_mean": {
+  "inputs": {
+   "lower": 0,
+   "mu": 0.0,
+   "sigma": 1.0,
+   "upper": 1,
+   "x0": 0.5
+  },
+  "source": "tests/test_dynamics_first_passage.py:69"
+ },
+ "pinneapple_analysis.dynamics.first_passage:brownian_exit_probability": {
+  "inputs": {
+   "lower": 0,
+   "mu": 0.0,
+   "sigma": 1.0,
+   "upper": 1,
+   "x0": 0.25
+  },
+  "source": "tests/test_dynamics_first_passage.py:66"
+ },
+ "pinneapple_analysis.dynamics.first_passage:ou_mean_first_passage": {
+  "inputs": {
+   "level": 1.0,
+   "theta": 1.0,
+   "x0": 1.0
+  },
+  "source": "tests/test_dynamics_first_passage.py:98"
+ },
+ "pinneapple_analysis.dynamics.first_passage:wilson_interval": {
+  "inputs": {
+   "k": 30,
+   "n": 100
+  },
+  "source": "tests/test_dynamics_first_passage.py:236"
+ },
  "pinneapple_analysis.dynamics.koopman:gavish_donoho_rank": {
   "inputs": {
    "s": [
@@ -32,6 +67,283 @@
   },
   "source": "tests/test_dynamics_koopman.py:253"
  },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:identifiability_report": {
+  "inputs": {
+   "alpha": 0.15,
+   "noise_std": 0.01,
+   "t_obs": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "x_obs": [
+    0.05,
+    0.06428571428571428,
+    0.07857142857142857,
+    0.09285714285714286,
+    0.10714285714285714,
+    0.12142857142857143,
+    0.1357142857142857,
+    0.14999999999999997,
+    0.16428571428571426,
+    0.17857142857142855,
+    0.19285714285714284,
+    0.20714285714285713,
+    0.22142857142857142,
+    0.2357142857142857,
+    0.24999999999999994,
+    0.26428571428571423,
+    0.2785714285714285,
+    0.2928571428571428,
+    0.3071428571428571,
+    0.3214285714285714,
+    0.3357142857142857,
+    0.3499999999999999,
+    0.3642857142857142,
+    0.3785714285714285,
+    0.3928571428571428,
+    0.4071428571428571,
+    0.4214285714285714,
+    0.43571428571428567,
+    0.4499999999999999,
+    0.4642857142857142,
+    0.4785714285714285,
+    0.49285714285714277,
+    0.5071428571428571,
+    0.5214285714285714,
+    0.5357142857142857,
+    0.5499999999999999,
+    0.5642857142857143,
+    0.5785714285714285,
+    0.5928571428571429,
+    0.6071428571428571,
+    0.6214285714285714,
+    0.6357142857142857,
+    0.6499999999999999,
+    0.6642857142857143,
+    0.6785714285714285,
+    0.6928571428571428,
+    0.7071428571428571,
+    0.7214285714285714,
+    0.7357142857142857,
+    0.7499999999999999,
+    0.7642857142857142,
+    0.7785714285714285,
+    0.7928571428571428,
+    0.807142857142857,
+    0.8214285714285714,
+    0.8357142857142856,
+    0.8499999999999999,
+    0.8642857142857142,
+    0.8785714285714284,
+    0.8928571428571428,
+    0.907142857142857,
+    0.9214285714285714,
+    0.9357142857142856,
+    0.95
+   ]
+  },
+  "source": "tests/test_heat_diffusivity.py:19"
+ },
+ "pinneapple_analysis.inverse_problems.heat_diffusivity:u_exact": {
+  "inputs": {
+   "alpha": 0.15,
+   "t": [
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5
+   ],
+   "x": [
+    0.05,
+    0.06428571428571428,
+    0.07857142857142857,
+    0.09285714285714286,
+    0.10714285714285714,
+    0.12142857142857143,
+    0.1357142857142857,
+    0.14999999999999997,
+    0.16428571428571426,
+    0.17857142857142855,
+    0.19285714285714284,
+    0.20714285714285713,
+    0.22142857142857142,
+    0.2357142857142857,
+    0.24999999999999994,
+    0.26428571428571423,
+    0.2785714285714285,
+    0.2928571428571428,
+    0.3071428571428571,
+    0.3214285714285714,
+    0.3357142857142857,
+    0.3499999999999999,
+    0.3642857142857142,
+    0.3785714285714285,
+    0.3928571428571428,
+    0.4071428571428571,
+    0.4214285714285714,
+    0.43571428571428567,
+    0.4499999999999999,
+    0.4642857142857142,
+    0.4785714285714285,
+    0.49285714285714277,
+    0.5071428571428571,
+    0.5214285714285714,
+    0.5357142857142857,
+    0.5499999999999999,
+    0.5642857142857143,
+    0.5785714285714285,
+    0.5928571428571429,
+    0.6071428571428571,
+    0.6214285714285714,
+    0.6357142857142857,
+    0.6499999999999999,
+    0.6642857142857143,
+    0.6785714285714285,
+    0.6928571428571428,
+    0.7071428571428571,
+    0.7214285714285714,
+    0.7357142857142857,
+    0.7499999999999999,
+    0.7642857142857142,
+    0.7785714285714285,
+    0.7928571428571428,
+    0.807142857142857,
+    0.8214285714285714,
+    0.8357142857142856,
+    0.8499999999999999,
+    0.8642857142857142,
+    0.8785714285714284,
+    0.8928571428571428,
+    0.907142857142857,
+    0.9214285714285714,
+    0.9357142857142856,
+    0.95
+   ]
+  },
+  "source": "tests/test_heat_diffusivity.py:23"
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
   "inputs": {
    "h_true": 25.0,
@@ -46,6 +358,13 @@
    "values": []
   },
   "source": "examples/reproductions/gated_xtfc_dwivedi2025/run_gated.py:147"
+ },
+ "pinneapple_analysis.reproduction:status": {
+  "inputs": {
+   "ours_median": 0.0015,
+   "paper": 0.001
+  },
+  "source": "tests/test_reproduction_metrics.py:41"
  },
  "pinneapple_analysis.retrieval.corpus:chunk_text": {
   "inputs": {
@@ -169,6 +488,12 @@
   },
   "source": "tests/test_xtfc_general.py:167"
  },
+ "pinneapple_analysis.validation.schema:spec_of": {
+  "inputs": {
+   "check_id": "metamorphic.symmetry.reflect-x"
+  },
+  "source": "tests/test_pp_validate.py:154"
+ },
  "pinneapple_analysis.verification.dimensional_analysis:classify_flow_regime": {
   "inputs": {
    "geometry": "internal_pipe",
@@ -277,11 +602,62 @@
   },
   "source": "tests/test_arena_nas.py:58"
  },
+ "pinneapple_autolab.domains.ahmed:qa_checks": {
+  "inputs": {
+   "meta": {
+    "convergence": {
+     "CD_mean_drift": 0.002,
+     "window_writes": 10
+    },
+    "final_residuals": {
+     "Ux": 0.002,
+     "p": 0.0001
+    },
+    "mass_balance": {
+     "imbalance": 0.0002
+    },
+    "max_non_orthogonality": 50.0,
+    "max_skewness": 2.0,
+    "mesh_ok": true,
+    "yplus": {
+     "frac_30_300": 0.9,
+     "mean": 90,
+     "p95": 200
+    }
+   }
+  },
+  "source": "tests/test_autolab_study.py:67"
+ },
+ "pinneapple_autolab.study.benchmark:conformal_q": {
+  "inputs": {
+   "alpha": 0.1,
+   "scores": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  "source": "tests/test_autolab_study.py:149"
+ },
  "pinneapple_catalog.methods:get_method": {
   "inputs": {
    "method_id": "T18"
   },
   "source": "tests/test_catalog_methods.py:49"
+ },
+ "pinneapple_condense.homogenize:effective_layer": {
+  "inputs": {
+   "k_i": 50.0,
+   "k_m": 1.0,
+   "phi": 0.0
+  },
+  "source": "tests/test_condense.py:100"
  },
  "pinneapple_condense.learned:variant_field": {
   "inputs": {
@@ -374,6 +750,14 @@
    "seed": 3
   },
   "source": "tests/test_burgers_periodic_pairs.py:37"
+ },
+ "pinneapple_data.expressions:evaluate": {
+  "inputs": {
+   "expression": "9 ** 9 ** 9",
+   "functions": {},
+   "values": {}
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:73"
  },
  "pinneapple_data.grf_sampler:sample_grf_2d_batch": {
   "inputs": {
@@ -564,11 +948,69 @@
   },
   "source": "tests/test_bricks.py:117"
  },
+ "pinneapple_design.bricks.closed_form:beam_moment": {
+  "inputs": {
+   "P": 2.0,
+   "span": 128.0,
+   "w": 0.0,
+   "x": 64.0
+  },
+  "source": "tests/test_bricks.py:214"
+ },
+ "pinneapple_design.bricks.closed_form:beam_reactions": {
+  "inputs": {
+   "P": 2.0,
+   "span": 128.0,
+   "w": 1.0
+  },
+  "source": "tests/test_bricks.py:213"
+ },
+ "pinneapple_design.bricks.closed_form:harmonic_overhang": {
+  "inputs": {
+   "length": 2.0,
+   "n": 4
+  },
+  "source": "tests/test_bricks.py:140"
+ },
  "pinneapple_design.bricks.goals:reference_cantilever": {
   "inputs": {
    "n": 4
   },
   "source": "tests/test_bricks.py:253"
+ },
+ "pinneapple_design.bricks.ldraw:from_ldr": {
+  "inputs": {
+   "text": "1 4 3 0 0 1 0 0 0 1 0 0 0 1 3001.dat\n1 4 0 0 0 1 0 0 0 1 0 0 0 1 9999.dat\n"
+  },
+  "source": "tests/test_bricks.py:95"
+ },
+ "pinneapple_design.bricks.ldraw:to_ldr": {
+  "inputs": {
+   "asm": {
+    "name": "t"
+   }
+  },
+  "source": "tests/test_bricks.py:88"
+ },
+ "pinneapple_design.bricks.parts:part": {
+  "inputs": {
+   "name": "plate_2x4"
+  },
+  "source": "tests/test_bricks.py:50"
+ },
+ "pinneapple_design.design_optimizer.airfoil_drag:airfoil_outline": {
+  "inputs": {
+   "m": 0.02,
+   "n_pts": 160,
+   "t_c": 0.15
+  },
+  "source": "tests/test_airfoil_drag_study.py:14"
+ },
+ "pinneapple_design.design_optimizer.airfoil_drag:train_surrogate": {
+  "inputs": {
+   "seed": 7
+  },
+  "source": "tests/test_airfoil_drag_study.py:20"
  },
  "pinneapple_design.design_optimizer.pareto:representatives": {
   "inputs": {
@@ -583,6 +1025,12 @@
    ]
   },
   "source": "tests/test_aero_train.py:183"
+ },
+ "pinneapple_design.design_optimizer.presets:preset_info": {
+  "inputs": {
+   "name": "heatsink"
+  },
+  "source": "tests/test_design_studies.py:511"
  },
  "pinneapple_design.fitmesh.context:wall_unit_height": {
   "inputs": {
@@ -656,6 +1104,97 @@
    "width": 0.2
   },
   "source": "tests/test_vehicle_multibody.py:87"
+ },
+ "pinneapple_design.geometry_library.kit:wing": {
+  "inputs": {
+   "frame": [
+    [
+     1,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "n": 40,
+   "stations": [
+    {
+     "chord": 1,
+     "le": [
+      0,
+      0,
+      0
+     ],
+     "m": 0.08,
+     "t": 0.04
+    },
+    {
+     "chord": 0.5,
+     "le": [
+      0,
+      1,
+      0
+     ],
+     "m": 0.08,
+     "t": 0.04
+    }
+   ]
+  },
+  "source": "tests/test_geometry_library.py:219"
+ },
+ "pinneapple_design.intent.materials:find": {
+  "inputs": {
+   "text": "a PLA plate"
+  },
+  "source": "tests/test_design_intent.py:130"
+ },
+ "pinneapple_design.intent.materials:get": {
+  "inputs": {
+   "key": "al6061_t6"
+  },
+  "source": "examples/nvidia/05_brep_plate_with_hole/run.py:78"
+ },
+ "pinneapple_design.surrogate_inverse.core:banded": {
+  "inputs": {
+   "error": 0.03,
+   "fail_text": "f",
+   "name": "err",
+   "pass_limit": 0.05,
+   "pass_text": "ok",
+   "warn_limit": 0.15,
+   "warn_text": "w"
+  },
+  "source": "tests/pinneapple_design/test_surrogate_inverse.py:59"
+ },
+ "pinneapple_design.surrogate_inverse.reflex_port:generate_dataset": {
+  "inputs": {
+   "n_samples": 10,
+   "seed": 0
+  },
+  "source": "tests/pinneapple_design/test_surrogate_inverse_ported.py:464"
+ },
+ "pinneapple_design.surrogate_inverse.suspension_arm:allowable_stress_for_life_pa": {
+  "inputs": {
+   "target_life_cycles": 10000000.0
+  },
+  "source": "tests/pinneapple_design/test_surrogate_inverse_ported.py:353"
+ },
+ "pinneapple_design.surrogate_inverse.suspension_arm:compute_sensitivity": {
+  "inputs": {
+   "load_n": 1200.0,
+   "thickness_m": 0.022,
+   "width_m": 0.05
+  },
+  "source": "tests/pinneapple_design/test_surrogate_inverse.py:153"
+ },
+ "pinneapple_design.thermal.fin_array_speed:design_by_name": {
+  "inputs": {
+   "name": "baseline"
+  },
+  "source": "tests/test_fin_array_speed.py:28"
  },
  "pinneapple_design.thermal.fin_cell:solve_fin_cell": {
   "inputs": {
@@ -786,6 +1325,24 @@
   },
   "source": "tests/test_flow_examples.py:59"
  },
+ "pinneapple_flow.palette:humanize": {
+  "inputs": {
+   "name": "generate_eddy_current_synthetic"
+  },
+  "source": "tests/test_flow_palette.py:34"
+ },
+ "pinneapple_flow.palette:search": {
+  "inputs": {
+   "query": ""
+  },
+  "source": "tests/test_flow_palette.py:54"
+ },
+ "pinneapple_flow.palette:summary": {
+  "inputs": {
+   "text": "``f`` does a thing. More text."
+  },
+  "source": "tests/test_flow_palette.py:36"
+ },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "inputs": {
    "text": "a twin from 5 temperature sensors along the rod"
@@ -828,6 +1385,18 @@
    "text": "steady heat in a plate with a heat source, then switch from 2D to 3D"
   },
   "source": "tests/test_flow_planner.py:53"
+ },
+ "pinneapple_flow.references:ref": {
+  "inputs": {
+   "key": "raissi2019pinn"
+  },
+  "source": "tests/test_flow_decisions.py:29"
+ },
+ "pinneapple_flow.references:verify_doi": {
+  "inputs": {
+   "doi": "10.2514/3.12149"
+  },
+  "source": "tests/test_flow_extensions.py:104"
  },
  "pinneapple_flow.types:compatible": {
   "inputs": {
@@ -910,6 +1479,50 @@
    }
   },
   "source": "tests/pinneapple_security/test_scan_policy_attest_integrate.py:137"
+ },
+ "pinneapple_hub.zoo.demo:bands": {
+  "inputs": {
+   "outputs": [
+    "Cl",
+    "Cl_std",
+    "Cd",
+    "Cd_std",
+    "LD",
+    "LD_std"
+   ]
+  },
+  "source": "tests/test_zoo_hub_formats.py:386"
+ },
+ "pinneapple_hub.zoo.demo:precompute": {
+  "inputs": {
+   "n": 21,
+   "name": "rover_contact_grc1_viper"
+  },
+  "source": "tests/test_zoo_hub_formats.py:391"
+ },
+ "pinneapple_hub.zoo.validation_reports:check_release": {
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "source": "tests/test_validation_report_artifact.py:109"
+ },
+ "pinneapple_hub.zoo:info": {
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "source": "tests/test_model_zoo.py:121"
+ },
+ "pinneapple_hub.zoo:load": {
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
+  "source": "tests/test_flow_vehicle.py:111"
+ },
+ "pinneapple_hub.zoo:versions": {
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
+  "source": "tests/test_rover_realism.py:214"
  },
  "pinneapple_lab.curation:check_line": {
   "inputs": {
@@ -1001,6 +1614,33 @@
   },
   "source": "tests/test_mcp_server.py:38"
  },
+ "pinneapple_mcp.tools:describe_method": {
+  "inputs": {
+   "method": "pinn"
+  },
+  "source": "tests/test_mcp_server.py:80"
+ },
+ "pinneapple_mcp.tools:design": {
+  "inputs": {
+   "text": "an electric motor"
+  },
+  "source": "tests/test_design_intent_entry_points.py:27"
+ },
+ "pinneapple_mcp.tools:reason_check": {
+  "inputs": {
+   "mode": "pump_cavitation",
+   "params": {
+    "altitude": 800.0,
+    "npsh_required": 4.0,
+    "pump_q": 0.05,
+    "suction_d": 0.15,
+    "suction_k": 3.0,
+    "suction_length": 12.0,
+    "suction_lift": 5.0
+   }
+  },
+  "source": "tests/test_reason.py:241"
+ },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "inputs": {
    "n": 4
@@ -1039,11 +1679,54 @@
   },
   "source": "tests/test_piv_tools.py:85"
  },
+ "pinneapple_physics.astro.conditions:cloud_at": {
+  "inputs": {
+   "forecast": {
+    "cloud_cover": [
+     10,
+     90,
+     100
+    ],
+    "time": [
+     "2026-10-13T21:00Z",
+     "2026-10-13T22:00Z",
+     "2026-10-13T23:00Z"
+    ]
+   },
+   "iso_utc": "2026-10-13T21:30:00Z"
+  },
+  "source": "tests/test_astro_observing.py:140"
+ },
+ "pinneapple_physics.astro.conditions:sky_view": {
+  "inputs": {
+   "forecast": {
+    "cloud_cover": [
+     10,
+     90,
+     100
+    ],
+    "time": [
+     "2026-10-13T21:00Z",
+     "2026-10-13T22:00Z",
+     "2026-10-13T23:00Z"
+    ]
+   },
+   "iso_utc": "2026-10-13T22:30:00Z",
+   "mode": "real"
+  },
+  "source": "tests/test_astro_observing.py:143"
+ },
  "pinneapple_physics.astro.conjunction:cw_mean_motion": {
   "inputs": {
    "a_km": 6771.0
   },
   "source": "tests/test_astro_conjunction.py:73"
+ },
+ "pinneapple_physics.astro.facts:search": {
+  "inputs": {
+   "query": "cruzeiro"
+  },
+  "source": "tests/test_astro_facts.py:123"
  },
  "pinneapple_physics.astro.lensing:bright_stars_in_field": {
   "inputs": {
@@ -1111,6 +1794,21 @@
   },
   "source": "tests/test_astro_ai.py:202"
  },
+ "pinneapple_physics.astro.neural_propagator:sample_population": {
+  "inputs": {
+   "n": 1,
+   "seed": 12345
+  },
+  "source": "tests/test_astro_ai.py:67"
+ },
+ "pinneapple_physics.astro.observing:axis_time": {
+  "inputs": {
+   "accel_deg_s2": 2,
+   "delta_deg": 0.0,
+   "rate_deg_s": 4
+  },
+  "source": "tests/test_astro_observing.py:107"
+ },
  "pinneapple_physics.astro.orbits:planet_elements": {
   "inputs": {
    "body": "mars",
@@ -1145,6 +1843,28 @@
   },
   "source": "hub:recipe:pinneapple_physics__1"
  },
+ "pinneapple_physics.closed_form.fin_array_conduction:fin_array_profile_params": {
+  "inputs": {
+   "base_thickness_m": 0.003,
+   "fin_length_m": 0.025,
+   "fin_thickness_m": 0.001,
+   "h_conv_w_m2k": 35.0,
+   "k_material_w_mk": 205.0,
+   "n_fins": 20.0,
+   "power_w": 65.0,
+   "spacing_extent_m": 0.08,
+   "transverse_extent_m": 0.08
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_fin_array_conduction.py:19"
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt": {
+  "inputs": {
+   "d_over_l": 1e-06,
+   "pr": 0.7,
+   "re": 100
+  },
+  "source": "tests/test_freecad_openfoam_pipeline.py:61"
+ },
  "pinneapple_physics.closed_form.helmholtz_resonator:helmholtz_resonant_frequency_hz": {
   "inputs": {
    "cabinet_volume_l": 40.0,
@@ -1152,6 +1872,67 @@
    "port_radius_m": 0.035
   },
   "source": "hub:recipe:pinneapple_physics__1"
+ },
+ "pinneapple_physics.closed_form.helmholtz_resonator:port_volume_m3": {
+  "inputs": {
+   "port_length_m": 0.1,
+   "port_radius_m": 0.025
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_helmholtz_resonator.py:27"
+ },
+ "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
+  "inputs": {
+   "re": 100
+  },
+  "source": "tests/test_freecad_openfoam_pipeline.py:67"
+ },
+ "pinneapple_physics.closed_form.particle_drag:schiller_naumann_cd": {
+  "inputs": {
+   "re": 100
+  },
+  "source": "tests/test_freecad_openfoam_pipeline.py:68"
+ },
+ "pinneapple_physics.closed_form.pcb_thermal:via_copper_fraction": {
+  "inputs": {
+   "area_m2": 2.5e-05,
+   "drill_mm": 0.3,
+   "n_vias": 16,
+   "plating_um": 25
+  },
+  "source": "tests/test_pcb_hotspot.py:44"
+ },
+ "pinneapple_physics.closed_form.pipe_flow:blasius": {
+  "inputs": {
+   "Re": 10000.0
+  },
+  "source": "tests/test_closed_form_flow.py:32"
+ },
+ "pinneapple_physics.closed_form.pipe_flow:colebrook": {
+  "inputs": {
+   "Re": 3000000.0,
+   "rel_rough": 0.001
+  },
+  "source": "tests/test_closed_form_flow.py:21"
+ },
+ "pinneapple_physics.closed_form.pipe_flow:curved_pipe_ratio": {
+  "inputs": {
+   "De": 10.0
+  },
+  "source": "tests/test_freecad_openfoam_pipeline.py:58"
+ },
+ "pinneapple_physics.closed_form.pipe_flow:dean_number": {
+  "inputs": {
+   "D": 10,
+   "Rc": 40,
+   "Re": 200
+  },
+  "source": "tests/test_freecad_openfoam_pipeline.py:57"
+ },
+ "pinneapple_physics.closed_form.pipe_flow:laminar": {
+  "inputs": {
+   "Re": 1000.0
+  },
+  "source": "tests/test_closed_form_flow.py:35"
  },
  "pinneapple_physics.closed_form.pipe_insulation:heat_loss": {
   "inputs": {
@@ -1166,11 +1947,55 @@
   },
   "source": "tests/test_presets.py:222"
  },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:air_properties": {
+  "inputs": {
+   "t_c": 25.0
+  },
+  "source": "tests/test_heatsink_sizer.py:36"
+ },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:spreading_resistance": {
+  "inputs": {
+   "k": 200.0,
+   "plate_area": 0.0064,
+   "r_conv": 0.3,
+   "source_area": 0.0064,
+   "tb": 0.005
+  },
+  "source": "tests/test_heatsink_sizer.py:26"
+ },
  "pinneapple_physics.closed_form.pump_npsh:atmosphere": {
   "inputs": {
    "z_m": 1000.0
   },
   "source": "tests/test_presets.py:211"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:area_ratio": {
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
+  },
+  "source": "tests/test_closed_form_rocket_nozzle.py:14"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:mach_from_area_ratio": {
+  "inputs": {
+   "gamma": 1.4,
+   "ratio": 1.6875
+  },
+  "source": "tests/test_closed_form_rocket_nozzle.py:20"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:pressure_ratio": {
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
+  },
+  "source": "tests/test_closed_form_rocket_nozzle.py:30"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:temperature_ratio": {
+  "inputs": {
+   "M": 2.0,
+   "gamma": 1.4
+  },
+  "source": "tests/test_closed_form_rocket_nozzle.py:31"
  },
  "pinneapple_physics.closed_form.thin_airfoil:hoerner_profile_cd": {
   "inputs": {
@@ -1207,6 +2032,13 @@
   },
   "source": "hub:node:auto.physics.darcy_checks.region_masks"
  },
+ "pinneapple_physics.maxwell_checks:check_config_entry": {
+  "inputs": {
+   "name": "bad",
+   "path": "bad.npz"
+  },
+  "source": "tests/test_maxwell_checks.py:162"
+ },
  "pinneapple_physics.multiscale.filters:low_modes": {
   "inputs": {
    "kmax": 4
@@ -1222,6 +2054,12 @@
    ]
   },
   "source": "tests/test_multiscale.py:414"
+ },
+ "pinneapple_physics.paper_problems:pinnsformer_case": {
+  "inputs": {
+   "name": "convection"
+  },
+  "source": "tests/test_paper_problems.py:28"
  },
  "pinneapple_physics.paper_problems_epi:epi_model": {
   "inputs": {
@@ -2188,6 +3026,12 @@
   },
   "source": "tests/pinneapple_physics/test_stochastic.py:53"
  },
+ "pinneapple_physics.potential.co2_study:summarize": {
+  "inputs": {
+   "runs": []
+  },
+  "source": "examples/potential_co2/01_run_study.py:68"
+ },
  "pinneapple_physics.symbolic_pde.text:parse_system": {
   "inputs": {
    "conditions": [],
@@ -2412,12 +3256,177 @@
   },
   "source": "tests/test_science.py:124"
  },
+ "pinneapple_security.compliance:assess": {
+  "inputs": {
+   "evidence": {
+    "audit_log": {
+     "ok": true
+    },
+    "manifest": true,
+    "signature": {
+     "ok": false
+    }
+   },
+   "frameworks": [
+    "21 CFR Part 11"
+   ]
+  },
+  "source": "tests/pinneapple_security/test_scan_policy_attest_integrate.py:62"
+ },
+ "pinneapple_security.compliance:controls_for": {
+  "inputs": {
+   "capability": "physics_anomaly"
+  },
+  "source": "tests/pinneapple_security/test_scan_policy_attest_integrate.py:67"
+ },
+ "pinneapple_security.cps:episode_metrics": {
+  "inputs": {
+   "alarms": [
+    10,
+    55,
+    300
+   ],
+   "episodes": [
+    [
+     50,
+     100
+    ]
+   ],
+   "grace": 10,
+   "n": 1440
+  },
+  "source": "tests/pinneapple_security/test_cps.py:45"
+ },
+ "pinneapple_security.cps:roc_auc": {
+  "inputs": {
+   "labels": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "scores": [
+    0.1,
+    0.2,
+    0.8,
+    0.9
+   ]
+  },
+  "source": "tests/pinneapple_security/test_cps.py:38"
+ },
+ "pinneapple_security.dp:gaussian_sigma": {
+  "inputs": {
+   "delta": 1e-05,
+   "epsilon": 0.5,
+   "sensitivity": 1.0
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:57"
+ },
+ "pinneapple_security.integrity:merkle_root": {
+  "inputs": {
+   "leaves": []
+  },
+  "source": "tests/pinneapple_security/test_integrity_signing_audit.py:44"
+ },
  "pinneapple_security.passwords:hash_password": {
   "inputs": {
    "password": "s3cret",
    "scheme": "scrypt"
   },
   "source": "tests/test_app_security.py:119"
+ },
+ "pinneapple_security.passwords:is_hash": {
+  "inputs": {
+   "value": "s3cret"
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:22"
+ },
+ "pinneapple_security.passwords:verify_password": {
+  "inputs": {
+   "password": "x",
+   "stored": "plain"
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:28"
+ },
+ "pinneapple_security.privacy:find_pii": {
+  "inputs": {
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:22"
+ },
+ "pinneapple_security.privacy:iban_ok": {
+  "inputs": {
+   "s": "GB82 WEST 1234 5698 7654 32"
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:15"
+ },
+ "pinneapple_security.privacy:luhn_ok": {
+  "inputs": {
+   "s": "4111 1111 1111 1111"
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:14"
+ },
+ "pinneapple_security.privacy:redact": {
+  "inputs": {
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:24"
+ },
+ "pinneapple_security.privacy:sanitize_log": {
+  "inputs": {
+   "extra": [
+    "clientX"
+   ],
+   "text": "Build  : v2306\nHost   : node17.cluster.internal\nCase   : /home/jsilva/clientX/pipe_bend\nnProcs : 8\nmailto jsilva@clientx.com from 192.168.1.20\nC:\\Users\\jsilva\\run\nTime = 0.1\n"
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:47"
+ },
+ "pinneapple_security.privacy:valid_cnpj": {
+  "inputs": {
+   "s": "11.222.333/0001-81"
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:13"
+ },
+ "pinneapple_security.privacy:valid_cpf": {
+  "inputs": {
+   "s": "529.982.247-25"
+  },
+  "source": "tests/pinneapple_security/test_privacy_dp.py:11"
+ },
+ "pinneapple_security.web:check_cors_origins": {
+  "inputs": {
+   "allow_credentials": true,
+   "origins": [
+    "https://a.example",
+    "http://localhost:3000/"
+   ]
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:195"
+ },
+ "pinneapple_security.web:client_ip": {
+  "inputs": {
+   "forwarded_for": "203.0.113.7",
+   "peer": "172.18.0.3"
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:172"
+ },
+ "pinneapple_security.web:inline_hashes": {
+  "inputs": {
+   "page": "<script type=\"importmap\">{\"imports\": {}}</script><script src=\"/a.js\"></script><form onsubmit=\"return false\"></form>"
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:209"
+ },
+ "pinneapple_security.web:parse_rate": {
+  "inputs": {
+   "spec": "30/min"
+  },
+  "source": "tests/pinneapple_security/test_web_hardening.py:147"
+ },
+ "pinneapple_simulation.accelerated_foam.case:parse_log": {
+  "inputs": {
+   "log": "Time = 0.1\nDICPCG:  Solving for p, Initial residual = 1, Final residual = 9e-07, No Iterations 35\npinneWarmStartDICPCG:  Solving for p, Initial residual = 0.01, Final residual = 8e-07, No Iterations 12\nsmoothSolver:  Solving for Ux, Initial residual = 0.1, Final residual = 1e-09, No Iterations 4\nExecutionTime = 0.5 s  ClockTime = 1 s\nExecutionTime = 0.75 s  ClockTime = 1 s\n"
+  },
+  "source": "tests/test_accelerated_foam.py:192"
  },
  "pinneapple_simulation.electromagnetics.antenna.ava:layout": {
   "inputs": {
@@ -2437,6 +3446,40 @@
    "z0": 50.0
   },
   "source": "tests/test_antenna_endfire.py:63"
+ },
+ "pinneapple_simulation.electromagnetics.antenna.checks:antenna_checks": {
+  "inputs": {
+   "row": {
+    "f_GHz": 2.0,
+    "tag": "y"
+   }
+  },
+  "source": "tests/test_antenna_endfire.py:107"
+ },
+ "pinneapple_simulation.electromagnetics.antenna.checks:check_s11_resolved": {
+  "inputs": {
+   "interpolated": true,
+   "n_solved": 3
+  },
+  "source": "tests/test_antenna_endfire.py:100"
+ },
+ "pinneapple_simulation.electromagnetics.antenna.design:doe": {
+  "inputs": {
+   "n": 6,
+   "seed": 1
+  },
+  "source": "tests/test_antenna_endfire.py:132"
+ },
+ "pinneapple_simulation.electromagnetics.antenna.scene3d:antenna_surfaces": {
+  "inputs": {
+   "params": {
+    "dir_a": 12,
+    "dir_b": 5,
+    "dir_x": 190,
+    "nslot": 2
+   }
+  },
+  "source": "tests/test_antenna_3d.py:55"
  },
  "pinneapple_simulation.electromagnetics.machine:belt_winding": {
   "inputs": {
@@ -2476,6 +3519,23 @@
   },
   "source": "tests/test_emachine_thermal.py:81"
  },
+ "pinneapple_simulation.electromagnetics.media:drude_metal": {
+  "inputs": {
+   "omega_p": 1.37e+16
+  },
+  "source": "tests/test_em_core.py:284"
+ },
+ "pinneapple_simulation.electromagnetics.media:rotation": {
+  "inputs": {
+   "angle": 0.7,
+   "axis": [
+    1,
+    1,
+    0
+   ]
+  },
+  "source": "tests/test_em_core.py:332"
+ },
  "pinneapple_simulation.electromagnetics.postprocess:classical_eddy_coefficient": {
   "inputs": {
    "density": 7650.0,
@@ -2507,6 +3567,25 @@
   },
   "source": "tests/test_reflector_po.py:94"
  },
+ "pinneapple_simulation.electromagnetics.reflector.po:q_from_gain": {
+  "inputs": {
+   "gain_dbi": 12.0
+  },
+  "source": "tests/test_reflector_po.py:92"
+ },
+ "pinneapple_simulation.electromagnetics.reflector.po:wavenumber": {
+  "inputs": {
+   "f_hz": 1000000000.0
+  },
+  "source": "tests/test_reflector_design.py:30"
+ },
+ "pinneapple_simulation.electromagnetics.reflector.qz:disk_grid": {
+  "inputs": {
+   "diameter": 1.2,
+   "step": 0.01
+  },
+  "source": "tests/test_reflector_po.py:60"
+ },
  "pinneapple_simulation.electromagnetics.reflector.study_report:from_text": {
   "inputs": {
    "text": "3 GHz, focal length 1.5 m, 1.2 m square reflector, 0.6 m quiet zone at 3 m"
@@ -2521,6 +3600,103 @@
    }
   },
   "source": "tests/test_em_study_report.py:110"
+ },
+ "pinneapple_simulation.electromagnetics.statics:circle_segments": {
+  "inputs": {
+   "n": 256,
+   "radius": 0.006
+  },
+  "source": "tests/test_science.py:108"
+ },
+ "pinneapple_simulation.electromagnetics.statics:helix_segments": {
+  "inputs": {
+   "length": 0.1,
+   "n_per_turn": 96,
+   "radius": 0.02,
+   "turns": 200
+  },
+  "source": "tests/test_em_core.py:85"
+ },
+ "pinneapple_simulation.electromagnetics.statics:helmholtz_coil_center_B": {
+  "inputs": {
+   "current": 1.0,
+   "radius": 0.2
+  },
+  "source": "tests/test_em_core.py:78"
+ },
+ "pinneapple_simulation.electromagnetics.statics:loop_self_inductance": {
+  "inputs": {
+   "R": 0.1,
+   "a": 0.001
+  },
+  "source": "tests/test_em_core.py:464"
+ },
+ "pinneapple_simulation.electromagnetics.statics:parallel_plate_capacitance": {
+  "inputs": {
+   "area": 0.01,
+   "eps_r": 4.0,
+   "gap": 0.001
+  },
+  "source": "tests/test_em_core.py:136"
+ },
+ "pinneapple_simulation.electromagnetics.units:check_units": {
+  "inputs": {
+   "declared": {
+    "B": "mT",
+    "E": "V/m",
+    "H": "T",
+    "J": "A/m^2"
+   }
+  },
+  "source": "tests/test_em_core.py:47"
+ },
+ "pinneapple_simulation.electromagnetics.units:dimension": {
+  "inputs": {
+   "unit": "Wb/m"
+  },
+  "source": "tests/test_em_core.py:49"
+ },
+ "pinneapple_simulation.electromagnetics.waves:circular_waveguide_cutoff": {
+  "inputs": {
+   "kind": "TE",
+   "m": 1,
+   "n": 1,
+   "radius": 0.01
+  },
+  "source": "tests/test_em_core.py:217"
+ },
+ "pinneapple_simulation.electromagnetics.waves:circular_waveguide_modes": {
+  "inputs": {
+   "n_modes": 1,
+   "radius": 0.01
+  },
+  "source": "tests/test_em_core.py:216"
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_cavity_modes": {
+  "inputs": {
+   "a": 0.1,
+   "b": 0.1,
+   "d": 0.1,
+   "n_modes": 1
+  },
+  "source": "tests/test_em_core.py:220"
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_waveguide_cutoff": {
+  "inputs": {
+   "a": 0.02286,
+   "b": 0.01016,
+   "m": 1,
+   "n": 0
+  },
+  "source": "tests/test_em_core.py:223"
+ },
+ "pinneapple_simulation.electromagnetics.waves:rect_waveguide_modes": {
+  "inputs": {
+   "a": 0.02286,
+   "b": 0.01016,
+   "n_modes": 4
+  },
+  "source": "tests/test_em_core.py:212"
  },
  "pinneapple_simulation.external_solvers.ansys.journal_builder:FluentCaseConfig": {
   "inputs": {
@@ -2642,6 +3818,12 @@
   },
   "source": "tests/test_openfoam_campaign.py:87"
  },
+ "pinneapple_simulation.flight.catalog:build": {
+  "inputs": {
+   "name": "light_ga"
+  },
+  "source": "tests/test_flight_dynamics.py:31"
+ },
  "pinneapple_simulation.flight.turbulence:pratt_gust_load": {
   "inputs": {
    "U_de": 15.24,
@@ -2735,6 +3917,17 @@
    "length": 0.05
   },
   "source": "tests/test_biology_inference.py:110"
+ },
+ "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
+  "inputs": {
+   "D": 8,
+   "Re": 10.0,
+   "conv_time": 6.0,
+   "height": 4,
+   "keep_time": 3.0,
+   "length": 8
+  },
+  "source": "tests/test_cylinder_wake.py:19"
  },
  "pinneapple_simulation.numerical_solvers.eddy_current_fdm:annular_current_source": {
   "inputs": {
@@ -2986,6 +4179,22 @@
   },
   "source": "tests/test_nvidia_integrations.py:145"
  },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:burgers_inputs": {
+  "inputs": {
+   "n": 64,
+   "n_samples": 2,
+   "seed": 0
+  },
+  "source": "tests/test_operator_datasets.py:14"
+ },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:darcy_inputs": {
+  "inputs": {
+   "n": 16,
+   "n_samples": 1,
+   "seed": 3
+  },
+  "source": "tests/test_operator_datasets.py:19"
+ },
  "pinneapple_simulation.numerical_solvers.operator_datasets:darcy_set": {
   "inputs": {
    "high": 20.0,
@@ -2995,6 +4204,14 @@
    "seed": 5
   },
   "source": "tests/test_darcy_checks.py:140"
+ },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:ns_inputs": {
+  "inputs": {
+   "n": 32,
+   "n_samples": 2,
+   "seed": 0
+  },
+  "source": "tests/test_operator_datasets.py:12"
  },
  "pinneapple_simulation.numerical_solvers.particles:terminal_velocity": {
   "inputs": {
@@ -3139,6 +4356,13 @@
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:157"
  },
+ "pinneapple_simulation.terramechanics.testbed:load_dataset": {
+  "inputs": {
+   "dataset": "ding2011",
+   "wheel": "smooth"
+  },
+  "source": "tests/test_rover_realism.py:22"
+ },
  "pinneapple_studio.catalog:make_class_finder": {
   "inputs": {
    "inv": {
@@ -3156,6 +4380,23 @@
    }
   },
   "source": "tests/test_studio.py:446"
+ },
+ "pinneapple_studio.coverage:declared_reason": {
+  "inputs": {
+   "table": {},
+   "tool": {
+    "id": "m:download_data",
+    "module": "m",
+    "name": "download_data"
+   }
+  },
+  "source": "tests/test_studio.py:325"
+ },
+ "pinneapple_studio.inputs:calls_in": {
+  "inputs": {
+   "src": "import numpy as np\nimport pytest\nfrom pinneapple_demo.heat import mean_temperature as mt\ndef test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
+  },
+  "source": "tests/test_studio.py:386"
  },
  "pinneapple_studio.outputs:from_docstring": {
   "inputs": {
@@ -3195,6 +4436,14 @@
    }
   },
   "source": "tests/test_breadth_six_packages.py:1186"
+ },
+ "pinneapple_systems.digital_twin.recession:recession": {
+  "inputs": {
+   "hours": 0.0,
+   "k_per_hour": 0.01,
+   "q0": 1000.0
+  },
+  "source": "tests/test_river_recession.py:16"
  },
  "pinneapple_systems.process_components.beam_statics:rectangular_section_properties": {
   "inputs": {
@@ -3382,11 +4631,59 @@
   },
   "source": "tests/test_torsional_stickslip.py:19"
  },
+ "pinneapple_systems.process_components.water_hammer:wave_period": {
+  "inputs": {
+   "length": 1000.0,
+   "wave_speed": 1000.0
+  },
+  "source": "tests/test_nvidia_integrations.py:131"
+ },
+ "pinneapple_systems.sports.football.data:metrica_match": {
+  "inputs": {
+   "game": 1
+  },
+  "source": "tests/test_football_physics.py:175"
+ },
  "pinneapple_systems.time_series.datasets.public:youtube_daily_aggregates": {
   "inputs": {
    "csv_text": "video_id,trending_date,category_id,views,likes\na,17.14.11,24,100,5\nb,17.14.11,10,50,1\nc,17.16.11,24,10,0\n"
   },
   "source": "tests/test_near_random_visuals.py:15"
+ },
+ "pinneapple_systems.time_series.enso.data:d20_from_profile": {
+  "inputs": {
+   "T": [
+    28.0,
+    26.0,
+    22.0,
+    18.0,
+    15.0
+   ],
+   "z": [
+    0.0,
+    50.0,
+    100.0,
+    150.0,
+    200.0
+   ]
+  },
+  "source": "tests/test_enso.py:85"
+ },
+ "pinneapple_systems.time_series.enso.data:month_range": {
+  "inputs": {
+   "end": "2003-12",
+   "start": "2000-01"
+  },
+  "source": "tests/test_enso.py:100"
+ },
+ "pinneapple_systems.time_series.synthetic:oscillator_transition": {
+  "inputs": {
+   "dt": 0.25,
+   "omega": 1.0,
+   "sigma": 0.5,
+   "zeta": 0.1
+  },
+  "source": "tests/test_near_random_forecasting.py:44"
  },
  "pinneapple_tools.aero_coefficients:compute_cp": {
   "inputs": {
@@ -3405,6 +4702,40 @@
    "name": "channel_obstacle"
   },
   "source": "tests/test_automation.py:109"
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:evaluate_inverse": {
+  "inputs": {
+   "nu_hat": 0.0033,
+   "nu_true": 0.003,
+   "u_pred": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "u_ref": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "source": "tests/test_crossframework_benchmark.py:176"
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:sign_test_p": {
+  "inputs": {
+   "k": 5,
+   "n": 5
+  },
+  "source": "tests/test_crossframework_benchmark.py:183"
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.problems:get_problem": {
+  "inputs": {
+   "name": "burgers"
+  },
+  "source": "tests/test_crossframework_benchmark.py:47"
  },
  "pinneapple_tools.compute_backends.backend:set_backend": {
   "inputs": {
@@ -3461,6 +4792,15 @@
    "n_fins": 10
   },
   "source": "tests/test_nvidia_integrations.py:357"
+ },
+ "pinneapple_tools.reporting.paperkit:Paper": {
+  "inputs": {
+   "date": "January 1, 2026",
+   "report_id": "TR-0",
+   "subtitle": "Unit test",
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
+  },
+  "source": "tests/test_paperkit.py:90"
  },
  "pinneapple_tools.visualization.dashboard.html:scene3d_payload": {
   "inputs": {
@@ -3523,6 +4863,64 @@
    "height": 2.0
   },
   "source": "tests/test_rover_realism.py:128"
+ },
+ "pinneapple_twin3d.primitives:box": {
+  "inputs": {
+   "size": [
+    1,
+    2,
+    3
+   ]
+  },
+  "source": "tests/test_twin3d_gallery.py:37"
+ },
+ "pinneapple_twin3d.primitives:cylinder": {
+  "inputs": {
+   "n_theta": 256,
+   "p0": [
+    0,
+    0,
+    0
+   ],
+   "p1": [
+    0,
+    2,
+    0
+   ],
+   "radius": 0.5
+  },
+  "source": "tests/test_twin3d_gallery.py:40"
+ },
+ "pinneapple_twin3d.primitives:revolve": {
+  "inputs": {
+   "n_theta": 360,
+   "profile": [
+    [
+     1.0,
+     0.0
+    ],
+    [
+     1.0,
+     2.0
+    ]
+   ]
+  },
+  "source": "tests/test_twin3d_gallery.py:42"
+ },
+ "pinneapple_twin3d.primitives:wing": {
+  "inputs": {
+   "root_chord": 3,
+   "span": 10,
+   "sweep_deg": 30,
+   "tip_chord": 1
+  },
+  "source": "tests/test_twin3d_gallery.py:49"
+ },
+ "pinneapple_twin3d.wear.presets:get": {
+  "inputs": {
+   "key": "bof_converter"
+  },
+  "source": "tests/test_twin3d_wear.py:62"
  },
  "pinneapple_veriphysics.scope:scope_from_verdicts": {
   "inputs": {

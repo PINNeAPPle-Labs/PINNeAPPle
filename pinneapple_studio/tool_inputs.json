@@ -1,4 +1,10 @@
 {
+ "pinneapple_analysis.dynamics.dimensional:CurveCollapseAnalyzer": {
+  "inputs": {
+   "ensemble": []
+  },
+  "source": "tests/test_dynamics_dimensional.py:324"
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
   "inputs": {
    "h_true": 25.0,

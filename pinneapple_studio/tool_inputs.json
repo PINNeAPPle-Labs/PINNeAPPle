@@ -3849,13 +3849,36 @@
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm:AFPM3D": {
   "inputs": {
-   "n_theta": 192,
+   "air_r": 0.01,
+   "air_z": 0.008,
    "dr": 0.02,
    "dz": 0.008,
-   "air_r": 0.01,
-   "air_z": 0.008
+   "n_theta": 192
   },
   "source": "tests/test_machines3d.py (test_afpm_coarse_grid_builds; the defaults build about a million tetrahedra)"
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.afpm:quasi3d_slices": {
+  "inputs": {
+   "air_z": 0.008,
+   "dr": 0.02,
+   "dz": 0.008,
+   "machine": {
+    "poles": 8,
+    "slots": 12
+   },
+   "n_slices": 2,
+   "n_theta": 192
+  },
+  "source": "tests/test_machines3d.py:237"
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.afpm_design:grid_for": {
+  "inputs": {
+   "machine": {
+    "poles": 8,
+    "slots": 12
+   }
+  },
+  "source": "tests/test_machines3d.py:228"
  },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:loss_factor": {
   "inputs": {

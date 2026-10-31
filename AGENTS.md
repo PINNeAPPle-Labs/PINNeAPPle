@@ -318,6 +318,7 @@ request conflict on the next merge):
 | `data/web/hub/index.json` | `python -m pinneapple_hub.library build` | on first `hub.load_index()` (a cache), at `docker build` of `apps/hub` |
 | `docs/flow_studio/COVERAGE.md` | `python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md` | the docs build (`tools/gen_flow_docs.py`) |
 | `docs/flow_studio/EXAMPLES_AS_FLOWS.md` | `python -m pinneapple_flow example-flows doc` | the docs build (`tools/gen_flow_docs.py`) |
+| `docs/studio/COVERAGE.md` | `python -m pinneapple_studio coverage -o docs/studio/COVERAGE.md` | the docs build (`tools/gen_flow_docs.py`); the `generated` job also fails on a coverage problem |
 | `docs/pt/_mapa/inventario.json` | `python docs/pt/_mapa/inventario.py` | before `gerar.py` / `checar_prosa.py` (the map of the library in Portuguese) |
 
 Run the command to see one locally (and `build` again after changing a Hub source: the cached index is not refreshed

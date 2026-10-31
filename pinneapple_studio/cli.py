@@ -58,6 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("coverage", help="coverage tables; exit 1 on a problem")
     s.add_argument("-o", "--out", default="docs/studio/COVERAGE.md")
     s.add_argument("--write-baseline", action="store_true", help="once, when the gate is introduced")
+    s.add_argument("--record-history", action="store_true", help="append today's counts to the baseline curve")
     s = sub.add_parser("inventory", help="write the static inventory")
     s.add_argument("-o", "--out", default="-")
     a = ap.parse_args(argv)
@@ -90,6 +91,8 @@ def main(argv: list[str] | None = None) -> int:
         cat, gal = catalog.load(), gallery.load()
         if a.write_baseline:
             print(f"baseline: {coverage.write_baseline(cat, gal)} lines", file=sys.stderr)
+        if a.record_history:
+            print(f"history: {coverage.record_history(cat, gal)}", file=sys.stderr)
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         Path(a.out).write_text(coverage.markdown(cat, gal), encoding="utf-8")
         _print(coverage.summary(cat, gal))

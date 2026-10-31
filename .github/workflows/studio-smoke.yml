@@ -1,0 +1,40 @@
+name: Studio smoke runs
+
+# Re-runs the smoke run of every executable Studio tool whose code changed (in disposable checkouts, without
+# network) and the scripts of the examples that have no flow, then uploads the records. A maintainer commits them
+# (data/studio/) so the coverage gate of the `generated` job sees the runs of the current code.
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install (CPU torch) with the flow and hub extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[flow,hub,mcp,geometry]"
+      - name: Smoke runs of the tools whose code changed, example scripts, coverage
+        run: |
+          python -m pinneapple_studio inputs
+          python -m pinneapple_studio smoke --workers 2
+          python -m pinneapple_studio examples
+          python -m pinneapple_studio coverage --record-history -o docs/studio/COVERAGE.md || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studio-runs
+          path: |
+            data/studio/
+            pinneapple_studio/tool_inputs.json
+            docs/studio/COVERAGE.md

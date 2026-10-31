@@ -33,6 +33,7 @@ from .smoke import read_runs, recorded_inputs, smoke_inputs
 BASELINE = Path(__file__).with_name("coverage_baseline.txt")
 REASONS = Path(__file__).with_name("tool_reasons.json")
 EXAMPLE_RUNS = Path("data") / "studio" / "example_runs.json"
+HISTORY = Path("data") / "studio" / "baseline_history.json"
 # names that say a call needs the network, a server, a screen or credentials: not smoke-run, by rule (a tool that
 # only writes files is run in a disposable copy and marked, never excluded)
 SIDE_EFFECTS = re.compile(r"(^|_)(serve|server|launch|browser|download|fetch|upload|push|publish|deploy|install|"
@@ -186,6 +187,15 @@ def markdown(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> str:
            f"**{s['examples_running']} of {s['examples_total']} examples and reproductions run from the Studio.** "
            "The others say why.", "", "| entry | state | how / why |", "|---|---|---|"]
     out += [f"| `{r['id']}` {r['title']} | {r['state']} | {r['how']} |" for r in erows]
+    curve = history()
+    if curve:
+        out += ["", "## The baseline over time", "",
+                "Executable tools with neither a smoke run nor a reason when the gate was introduced; the number only "
+                "goes down (`data/studio/baseline_history.json`).", "",
+                "| date | commit | baseline | ran | reason | examples running |", "|---|---|---|---|---|---|"]
+        out += [f"| {r['date']} | `{r['commit']}` | {r['baseline']} | {r['executable'].get('ran', 0)} | "
+                f"{r['executable'].get('reason', 0)} | {r['examples_running']} of {r['examples_total']} |"
+                for r in curve]
     out += ["", "## Tools", "",
             f"**{c.get('executable', 0)} executable, {c.get('composite', 0)} composite, {c.get('reference', 0)} "
             "reference.**", "",
@@ -196,6 +206,25 @@ def markdown(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> str:
             "| tool | state | detail |", "|---|---|---|"]
     out += [f"| `{r['id']}` | {r['state']} | {r['detail']} |" for r in trows]
     return "\n".join(out) + "\n"
+
+
+def history(root: Path | None = None) -> list[dict[str, Any]]:
+    p = Path(root or repo_root()) / HISTORY
+    return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else []
+
+
+def record_history(catalog: dict[str, Any], gallery: list[dict[str, Any]], root: Path | None = None) -> dict:
+    """Append today's counts (baseline size, executable tools per state, examples running) to the baseline curve."""
+    import time
+    root = Path(root or repo_root())
+    s = summary(catalog, gallery)
+    row = {"date": time.strftime("%Y-%m-%d"), "commit": (s["commit"] or "")[:10], "baseline": len(baseline()),
+           "executable": s["executable"], "examples_running": s["examples_running"],
+           "examples_total": s["examples_total"]}
+    rows = [r for r in history(root) if r["commit"] != row["commit"]] + [row]
+    (root / HISTORY).parent.mkdir(parents=True, exist_ok=True)
+    (root / HISTORY).write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8")
+    return row
 
 
 def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> int:

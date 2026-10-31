@@ -172,14 +172,17 @@ jobs:
         run: |
           python -m pinneapple_flow example-flows check
           python -m pinneapple_flow example-flows doc
+      - name: Studio coverage -- every public symbol has a category; every executable tool has a valid form and a smoke run of its current code, a stated reason, or a line in the baseline that only shrinks; every example runs from the Studio or says why
+        run: python -m pinneapple_studio coverage -o docs/studio/COVERAGE.md
       - name: Docs site builds with the generated pages (tools/gen_flow_docs.py)
         run: |
-          rm docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md
+          rm docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md docs/studio/COVERAGE.md
           PINNEAPPLE_DOCS_STRICT=1 mkdocs build --clean
           test -s site/flow_studio/COVERAGE/index.html
           test -s site/flow_studio/EXAMPLES_AS_FLOWS/index.html
+          test -s site/studio/COVERAGE/index.html
       - name: Nothing generated is tracked
-        run: test -z "$(git ls-files data/web/hub/index.json docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md)"
+        run: test -z "$(git ls-files data/web/hub/index.json docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md docs/studio/COVERAGE.md)"
 
   first-example:
     # A clean `pip install` of the built wheel runs the first example end to end (#44): no repo on the path,

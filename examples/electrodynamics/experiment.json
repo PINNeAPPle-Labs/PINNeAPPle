@@ -23,6 +23,7 @@
   "pinneapple_simulation.electromagnetics.machines.export",
   "pinneapple_simulation.electromagnetics.machines.robustness",
   "pinneapple_simulation.electromagnetics.machines.thermal",
+  "pinneapple_simulation.electromagnetics.machines3d",
   "pinneapple_simulation.electromagnetics.media",
   "pinneapple_simulation.electromagnetics.verification",
   "pinneapple_tools.visualization"
@@ -46,7 +47,9 @@
   "16_prius_end_effects.py",
   "17_prius_tolerances.py",
   "18_emachine_slides.py",
-  "19_edge3d_verification.py"
+  "19_edge3d_verification.py",
+  "20_spm_skew_3d.py",
+  "21_team7.py"
  ],
  "metrics": [],
  "checks": [],
@@ -82,7 +85,9 @@
    "results/17_prius_tolerances.png",
    "results/19_edge3d_verification.png",
    "results/fdtd_cylinder_field_map.png",
-   "results/fdtd_dipole_pattern.png"
+   "results/fdtd_dipole_pattern.png",
+   "results/20_spm_skew_3d.png",
+   "results/21_team7.png"
   ],
   "videos": [
    "results/fdtd_cylinder_scattering.gif",
@@ -101,7 +106,9 @@
    "results/17_prius_tolerances.json",
    "results/19_edge3d_verification.json",
    "results/em_verification.json",
-   "results/fdtd_gallery.json"
+   "results/fdtd_gallery.json",
+   "results/20_spm_skew_3d.json",
+   "results/21_team7.json"
   ]
  },
  "links": {

@@ -52,5 +52,5 @@ def test_team7_coarse_mesh_against_the_measurements(tmp_path):
 
 def test_coil_current_density_known_answer():
     """Beside the x1 straight side, at mid-height, the current runs along +y with J0 = NI / A = 2742 / 0.0025."""
-    J = team7.coil_current_density(np.array([[0.2565, 0.1, 0.0]]))
+    J = team7.coil_current_density(np.array([0.2565, 0.1, 0.0]))
     assert J[0] == pytest.approx([0.0, 2742.0 / 0.0025, 0.0])

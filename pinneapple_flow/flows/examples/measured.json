@@ -2105,6 +2105,183 @@
    "status": "done"
   }
  },
+ "electromagnetics/19_edge3d_verification": {
+  "full": {
+   "commit": "2a28ffc8",
+   "comparisons": [
+    {
+     "flow": "v3d.sphere.0.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.0.mean_in",
+     "reference": 0.03909976503196548,
+     "rel_diff": 0.0,
+     "value": 0.03909976503196548
+    },
+    {
+     "flow": "v3d.sphere.0.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.0.l2_all",
+     "reference": 0.05684368118458091,
+     "rel_diff": 0.0,
+     "value": 0.05684368118458091
+    },
+    {
+     "flow": "v3d.sphere.1.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.1.mean_in",
+     "reference": 0.01883433655038449,
+     "rel_diff": 0.0,
+     "value": 0.01883433655038449
+    },
+    {
+     "flow": "v3d.sphere.1.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.1.l2_all",
+     "reference": 0.0382027294399824,
+     "rel_diff": 0.0,
+     "value": 0.0382027294399824
+    },
+    {
+     "flow": "v3d.sphere.2.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.2.mean_in",
+     "reference": 0.0090356810718174,
+     "rel_diff": 0.0,
+     "value": 0.0090356810718174
+    },
+    {
+     "flow": "v3d.sphere.2.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.2.l2_all",
+     "reference": 0.02617302705254959,
+     "rel_diff": 0.0,
+     "value": 0.02617302705254959
+    },
+    {
+     "flow": "v3d.sphere.3.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.3.mean_in",
+     "reference": 0.004552771944430422,
+     "rel_diff": 0.0,
+     "value": 0.004552771944430422
+    },
+    {
+     "flow": "v3d.sphere.3.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.3.l2_all",
+     "reference": 0.01849736411989214,
+     "rel_diff": 0.0,
+     "value": 0.01849736411989214
+    },
+    {
+     "flow": "v3d.sphere.4.mean_in",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.4.mean_in",
+     "reference": 0.002245995852741186,
+     "rel_diff": 0.0,
+     "value": 0.002245995852741186
+    },
+    {
+     "flow": "v3d.sphere.4.l2_all",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:sphere.rows.4.l2_all",
+     "reference": 0.012935158131514385,
+     "rel_diff": 0.0,
+     "value": 0.012935158131514385
+    },
+    {
+     "flow": "v3d.getdp.0.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.0.rel_diff_Bz",
+     "reference": 2.0304333003060817e-14,
+     "rel_diff": 0.0,
+     "value": 2.0304333003060817e-14
+    },
+    {
+     "flow": "v3d.getdp.1.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.1.rel_diff_Bz",
+     "reference": 9.385315154498802e-14,
+     "rel_diff": 0.0,
+     "value": 9.385315154498802e-14
+    },
+    {
+     "flow": "v3d.getdp.2.rel_diff_Bz",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:getdp_cross_check.2.rel_diff_Bz",
+     "reference": 6.944926891682894e-14,
+     "rel_diff": 0.0,
+     "value": 6.944926891682894e-14
+    },
+    {
+     "flow": "v3d.manufactured.0.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.0.error",
+     "reference": 0.21486189597262292,
+     "rel_diff": 0.0,
+     "value": 0.21486189597262292
+    },
+    {
+     "flow": "v3d.manufactured.1.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.1.error",
+     "reference": 0.10639019608557883,
+     "rel_diff": 0.0,
+     "value": 0.10639019608557883
+    },
+    {
+     "flow": "v3d.manufactured.2.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.2.error",
+     "reference": 0.05289508176745312,
+     "rel_diff": 0.0,
+     "value": 0.05289508176745312
+    },
+    {
+     "flow": "v3d.manufactured.3.error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:manufactured.rows.3.error",
+     "reference": 0.026372260982482253,
+     "rel_diff": 0.0,
+     "value": 0.026372260982482253
+    },
+    {
+     "flow": "v3d.slab.0.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.0.loss_error",
+     "reference": 0.2419977351657335,
+     "rel_diff": 0.0,
+     "value": 0.2419977351657335
+    },
+    {
+     "flow": "v3d.slab.1.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.1.loss_error",
+     "reference": 0.061587539154531905,
+     "rel_diff": 0.0,
+     "value": 0.061587539154531905
+    },
+    {
+     "flow": "v3d.slab.2.loss_error",
+     "outcome": "match",
+     "ref": "results/19_edge3d_verification.json:slab_eddy.2.loss_error",
+     "reference": 0.015307405275600707,
+     "rel_diff": 0.0,
+     "value": 0.015307405275600707
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-29",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-edge3d-verification.experiment.json, Lab item manifest/flow/example-em-edge3d-verification",
+   "matched": 20,
+   "nodes": {
+    "compare": "done",
+    "v3d": "done"
+   },
+   "seconds": 238.1,
+   "status": "done"
+  }
+ },
  "electromagnetics/motor_spm_cogging_and_torque": {
   "full": {
    "commit": "c94c53c7",
@@ -7986,6 +8163,21 @@
    "status": "done"
   }
  },
+ "potential_co2/surrogate_study": {
+  "quick": {
+   "commit": "2ce2bf0b",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-potential-co2-surrogate-study-quick.experiment.json, Lab item manifest/flow/example-potential-co2-surrogate-study-quick",
+   "matched": 0,
+   "nodes": {
+    "study": "done"
+   },
+   "seconds": 14.8,
+   "status": "done"
+  }
+ },
  "problem_designer/03_offline_spec_to_report": {
   "full": {
    "commit": "3f2296e8",
@@ -10719,6 +10911,88 @@
     "rotor": "done"
    },
    "seconds": 249.9,
+   "status": "done"
+  }
+ },
+ "use_cases/compact_range_2ghz": {
+  "quick": {
+   "commit": "a25ef50",
+   "comparisons": [
+    {
+     "flow": "check.usable_diameter",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.usable_diameter",
+     "reference": 1.049273603,
+     "rel_diff": 0.0,
+     "value": 1.049273603
+    },
+    {
+     "flow": "check.ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.ripple_pp_dB",
+     "reference": 0.2363694533609343,
+     "rel_diff": 1.8893609360492706e-13,
+     "value": 0.23636945336088963
+    },
+    {
+     "flow": "check.taper_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.taper_dB",
+     "reference": 0.8402593369953412,
+     "rel_diff": 4.056348481395249e-13,
+     "value": 0.8402593369950003
+    },
+    {
+     "flow": "check.phase_ripple_pp_deg",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.phase_ripple_pp_deg",
+     "reference": 1.7193904956674948,
+     "rel_diff": 1.2617120983185204e-13,
+     "value": 1.7193904956672779
+    },
+    {
+     "flow": "check.xpol_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.xpol_dB",
+     "reference": -28.8414439984343,
+     "rel_diff": 1.7861223711754444e-14,
+     "value": -28.841443998434816
+    },
+    {
+     "flow": "check.V_hcut_ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_hcut_ripple_pp_dB",
+     "reference": 0.13611069298659628,
+     "rel_diff": 2.0391914115345947e-16,
+     "value": 0.13611069298659625
+    },
+    {
+     "flow": "check.V_vcut_ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_vcut_ripple_pp_dB",
+     "reference": 0.10544574878105292,
+     "rel_diff": 5.040689446313648e-14,
+     "value": 0.10544574878104761
+    },
+    {
+     "flow": "check.H_hcut_taper_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.H_hcut_taper_dB",
+     "reference": 0.5341601164515978,
+     "rel_diff": 6.985657428999143e-13,
+     "value": 0.5341601164512246
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example.use_cases.compact_range_2ghz-quick.experiment.json, Lab item manifest/flow/example.use_cases.compact_range_2ghz-quick",
+   "matched": 8,
+   "nodes": {
+    "check": "done",
+    "compare": "done",
+    "design": "done"
+   },
+   "seconds": 149.2,
    "status": "done"
   }
  },

@@ -89,3 +89,11 @@ examples/end_to_end/ahmed_body/results/cad/*.stl
 data/web/hub/index.json
 docs/flow_studio/COVERAGE.md
 docs/flow_studio/EXAMPLES_AS_FLOWS.md
+# compact-range private runs (examples/use_cases/antennas/compact_range_2ghz.py --private): client geometry and
+# results stay outside the repository; these names are refused here as a second guard
+*_private.json
+*.private.json
+private_compact_range*/
+# resumable checkpoints of the compact-range design study (reflector.design.run_design_study)
+examples/use_cases/antennas/results/*/checkpoints/
+examples/use_cases/antennas/outputs/

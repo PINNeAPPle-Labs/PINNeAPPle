@@ -237,3 +237,60 @@ def test_quasi3d_slices_share_the_radial_nodes_of_the_annulus():
     q = quasi3d_slices(AFPMMachine(poles=8, slots=12), 2, n_theta=192, dr=0.02, dz=0.008, air_z=0.008)
     assert [len(x.rs) for x in q] == [2, 2] and q[0].rs[0] == 0.05 and q[1].rs[-1] == 0.09
     assert q[0].rs[-1] == q[1].rs[0] == pytest.approx(0.07)
+
+
+def test_fraction_edges_give_the_magnet_arc_and_slot_opening_asked_for():
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    kw = {"n_theta": 192, "dr": 0.02, "dz": 0.008, "air_r": 0.01, "air_z": 0.008}
+    for arc, sf in ((0.78, 0.43), (0.8, 0.5)):                    # between grid steps, and on the slot steps
+        m = AFPMMachine(magnet_arc=arc, slot_fraction=sf)
+        cell, frac = AFPM3D(m, **kw), AFPM3D(m, edges="fraction", **kw)
+        pol = frac._magnet_base[0]
+        assert np.abs(pol).sum() == pytest.approx(arc * 192)       # 24 steps per pole: the arc asked for
+        assert np.abs(cell._magnet_base[0]).sum() == 2 * round(arc * 12) * 8    # whole cells, two at a time
+        assert (pol * cell._magnet_base[0] >= 0).all()             # same polarity per pole
+        i, k = frac.cell[0], frac.cell[2]
+        t = np.flatnonzero((frac.zkind[k] == "teeth") & (frac._iron_share > 0))[0]
+        ring = (i == i[t]) & (k == k[t])                           # one ring of teeth cells, six tetrahedra each
+        assert frac._iron_share[ring].sum() / 6 == pytest.approx((1 - sf) * 192)
+    m = AFPMMachine(magnet_arc=5 / 6, slot_fraction=0.5)            # edges on grid lines: the two labellings agree
+    a, b = AFPM3D(m, **kw), AFPM3D(m, edges="fraction", **kw)
+    assert np.array_equal(a._magnet_base[0], b._magnet_base[0]) and np.array_equal(a._iron_share, b._iron_share)
+    with pytest.raises(ValueError, match="edges"):
+        AFPM3D(m, edges="nearest", **kw)
+
+
+def test_designer_cogging_moves_smoothly_with_the_magnet_arc():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm_design import (
+        estimate,
+        grid_for,
+        machine_from,
+    )
+
+    g = {**grid_for(machine_from({})), "dr": 0.02, "dz": 0.008}          # the designer's edges, a cheaper grid
+    c = [estimate({"magnet_arc": a}, grid=g)["cogging_pkpk_Nm"] for a in (0.79, 0.795, 0.80)]
+    # whole-cell edges (even-step angles) jump here: 0.693, 10.779, 10.779 N m on this grid; fractional edges
+    # with 16 angles per period: 7.078, 7.628, 8.080
+    assert c[0] < c[1] < c[2]
+    assert abs(c[1] - 0.5 * (c[0] + c[2])) < 0.05 * c[2]
+
+
+def test_fraction_edges_turn_the_rotor_by_any_angle():
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    model = AFPM3D(AFPMMachine(magnet_arc=0.78), n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008,
+                   edges="fraction")
+    base = model._polarity(0.0)
+    assert np.allclose(model._polarity(4 * model.step), np.roll(base, 4))    # whole steps: the pattern moves
+    for frac in (0.25, 0.5, 1.3):                                             # inside cells: the magnet is kept
+        p = model._polarity(frac * model.step)
+        assert np.abs(p).sum() == pytest.approx(np.abs(base).sum())
+        assert (p * np.roll(base, round(frac)) >= -1e-12).all()             # no cell changes polarity
+    _, Br = model.materials(0.5 * model.step)
+    _, Br0 = model.materials(0.0)
+    assert not np.allclose(Br, Br0)                                           # half a step is not rounded away

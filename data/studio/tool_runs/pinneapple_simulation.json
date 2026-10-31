@@ -513,7 +513,8 @@
   "seconds": 5.74
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate:run": {
-  "code_hash": "2968effe045f2f30",
+  "code_hash": "01f7120bc99ee304",
+  "error": "timeout after 60 s",
   "inputs": {
    "params": {
     "gap": 0.001,
@@ -522,10 +523,9 @@
     "slot_fraction": 0.5
    }
   },
-  "ok": true,
+  "ok": false,
   "recorded": "2026-10-31",
-  "returned": "dict",
-  "seconds": 32.25
+  "seconds": 62.91
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate:simulator": {
   "code_hash": "a17d7741a3d91b27",

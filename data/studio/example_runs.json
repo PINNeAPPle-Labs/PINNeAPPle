@@ -144,9 +144,9 @@
   "writes_files": []
  },
  "example:trainer": {
-  "error": "dio-examples-ayhv6gae/copy0/examples/trainer/02_datamodule_splits_preprocess.py\", line 32, in <module>\n    from pinneapple_train import (\n    ...<7 lines>...\n    )\nImportError: cannot import name 'DataModule' from 'pinneapple_train' (/tmp/studio-examples-ayhv6gae/copy0/pinneapple_train/__init__.py)",
-  "hash": "3a9da6bbef9c47f1",
-  "ok": false,
+  "error": "",
+  "hash": "452b93b6ff1e2852",
+  "ok": true,
   "recorded": "2026-10-31",
   "scripts": [
    "examples/trainer/01_audited_training.py",
@@ -155,12 +155,28 @@
    "examples/trainer/04_resume_infer_and_plot.py",
    "examples/trainer/05_ddp_torchrun.py"
   ],
-  "seconds": 7.0,
+  "seconds": 37.2,
   "writes_files": [
+   "examples/trainer/examples/_runs/ddp_demo.best.pt",
+   "examples/trainer/examples/_runs/ddp_demo.config.json",
+   "examples/trainer/examples/_runs/ddp_demo.env.json",
+   "examples/trainer/examples/_runs/ddp_demo.jsonl",
    "examples/trainer/examples/_runs/demo.best.pt",
    "examples/trainer/examples/_runs/demo.config.json",
    "examples/trainer/examples/_runs/demo.env.json",
-   "examples/trainer/examples/_runs/demo.jsonl"
+   "examples/trainer/examples/_runs/demo.jsonl",
+   "examples/trainer/examples/_runs/pinn_ode.best.pt",
+   "examples/trainer/examples/_runs/pinn_ode.config.json",
+   "examples/trainer/examples/_runs/pinn_ode.env.json",
+   "examples/trainer/examples/_runs/pinn_ode.jsonl",
+   "examples/trainer/examples/_runs/resume_demo.best.pt",
+   "examples/trainer/examples/_runs/resume_demo.config.json",
+   "examples/trainer/examples/_runs/resume_demo.env.json",
+   "examples/trainer/examples/_runs/resume_demo.jsonl",
+   "examples/trainer/examples/_runs/train_dm.best.pt",
+   "examples/trainer/examples/_runs/train_dm.config.json",
+   "examples/trainer/examples/_runs/train_dm.env.json",
+   "examples/trainer/examples/_runs/train_dm.jsonl"
   ]
  },
  "example:visualizations": {

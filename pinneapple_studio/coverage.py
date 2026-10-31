@@ -131,7 +131,11 @@ def example_rows(gallery: list[dict[str, Any]], root: Path | None = None) -> lis
         elif e.get("flow_reason"):
             state, how = "reason", e["flow_reason"]
         elif e["id"] in base:
-            state, how = "baseline", "not run from the Studio yet"
+            state = "baseline"
+            how = (f"script run failed: {(sr.get('error') or '').strip()[-200:]}" if sr and not sr.get("ok")
+                   else "not run from the Studio yet")
+        elif sr and not sr.get("ok") and sr.get("hash") == _script_hash(root, sr.get("scripts", [])):
+            state, how = "failed", f"script run failed: {(sr.get('error') or '').strip()[-200:]}"
         else:
             state, how = "missing", "no finished run and no stated reason"
         rows.append({"id": e["id"], "title": e["title"], "state": state, "how": how})
@@ -153,7 +157,7 @@ def problems(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> list[str
             out.append(f"{r['id']}: {r['detail']} (record inputs in tool_inputs.json and run "
                        f"`python -m pinneapple_studio smoke --stale`, or state a reason in tool_reasons.json)")
     for r in erows:
-        if r["state"] == "missing":
+        if r["state"] in ("missing", "failed"):
             out.append(f"{r['id']}: {r['how']}")
     base = baseline()
     live = {r["id"]: r["state"] for r in trows + erows}
@@ -231,7 +235,7 @@ def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> in
     """Put every tool and example that is ``missing`` or ``failed`` today in the baseline (used once, when the gate
     is introduced; afterwards the baseline only shrinks)."""
     rows = [r["id"] for r in tool_rows(catalog) if r["state"] in ("missing", "failed")]
-    rows += [r["id"] for r in example_rows(gallery) if r["state"] == "missing"]
+    rows += [r["id"] for r in example_rows(gallery) if r["state"] in ("missing", "failed")]
     keep = sorted(baseline() | set(rows))
     BASELINE.write_text("# Executable tools and examples with neither a run nor a reason when the coverage gate was\n"
                         "# introduced. Only remove lines (python -m pinneapple_studio coverage says which).\n"

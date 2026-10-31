@@ -3880,17 +3880,6 @@
   },
   "source": "tests/test_machines3d.py:228"
  },
- "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate:run": {
-  "inputs": {
-   "params": {
-    "magnet_arc": 0.75,
-    "slot_fraction": 0.5,
-    "gap": 0.001,
-    "magnet_thickness": 0.0045
-   }
-  },
-  "source": "hand entry: the centre of afpm_surrogate.VARIABLES (one design of examples/electrodynamics/25_afpm_surrogates.py, about 55 s)"
- },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:loss_factor": {
   "inputs": {
    "a": 1.0,

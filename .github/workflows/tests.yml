@@ -87,7 +87,7 @@ jobs:
       - name: Derivative trees (pp.potential) — closed forms, Peng-Robinson vs CoolProp, SPM co-energy torque (must pass)
         run: |
           pip install ".[potential]"
-          pytest tests/test_potential.py -q -p no:warnings
+          pytest tests/test_potential.py tests/test_potential_surrogate.py -q -p no:warnings
 
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |

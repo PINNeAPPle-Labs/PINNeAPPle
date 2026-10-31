@@ -36,7 +36,31 @@ from typing import Any
 from .categories import table
 from .sandbox import code_hash, run_snippet
 
-ROOT = Path(__file__).resolve().parents[2]
+def _repository_root() -> Path:
+    """The checkout this package belongs to.
+
+    ``parents[2]`` is right when the package is imported from the repository. When it is imported
+    from an install (an editable install still points here, a plain ``pip install .`` copies the
+    files into site-packages), that path is site-packages, which has no ``data/web/hub`` and no
+    ``examples``, and every caller that reads the repository's own files fails with a
+    ``FileNotFoundError`` several frames away from the cause. So: take the nearest ancestor that
+    looks like the repository, else the current directory when that looks like it, else the
+    computed path (and let the caller's error name the real problem).
+    """
+    def looks_like_repo(p: Path) -> bool:
+        return (p / "pyproject.toml").is_file() and (p / "pinneapple_hub").is_dir()
+
+    candidate = Path(__file__).resolve().parents[2]
+    for p in (candidate, *candidate.parents):
+        if looks_like_repo(p):
+            return p
+    cwd = Path.cwd()
+    if looks_like_repo(cwd):
+        return cwd
+    return candidate
+
+
+ROOT = _repository_root()
 WEB = ROOT / "data" / "web" / "hub"
 INDEX = WEB / "index.json"
 RUNS = WEB / "snippet_runs"

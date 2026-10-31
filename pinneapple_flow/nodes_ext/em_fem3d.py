@@ -81,11 +81,13 @@ def edge3d_verification(ctx, inputs, params):
 
 @node("em.spm_skew_3d", "Skew of a surface-PM machine: 3-D cogging against multi-slice 2-D",
       category="Electromagnetics", outputs=[Port("metrics", "metrics")],
-      params=[Param("totals_deg", "list", [0, 4, 8, 10, 12, 14], help="total skews (deg)"),
+      params=[Param("totals_deg", "list", [0, 5, 8, 10, 15], help="total skews (deg)"),
               Param("kinds", "list", ["step2", "step3", "continuous"]),
-              Param("n_theta", "int", 360, minimum=24, help="angular steps (multiple of slots and poles)"),
-              Param("stack_layers", "int", 12, minimum=1), Param("end_length", "float", 0.02, minimum=0.0),
-              Param("end_layers", "int", 3, minimum=0), Param("mu_r_iron", "float", 1000.0, minimum=1.0)],
+              Param("n_theta", "int", 720, minimum=24,
+                    help="angular steps; an even number per cogging period (720: 30 per 24-slot pitch)"),
+              Param("theta_step_deg", "float", 1.5, minimum=0.1, help="rotor angle step over one cogging period"),
+              Param("stack_layers", "int", 6, minimum=1), Param("end_length", "float", 0.02, minimum=0.0),
+              Param("end_layers", "int", 1, minimum=0), Param("mu_r_iron", "float", 1000.0, minimum=1.0)],
       calls="pinneapple_simulation.electromagnetics.machines3d: SPM3D (extruded polar mesh, magnet skew, end "
             "regions, Arkkio torque, multislice), skew.skew_study")
 def spm_skew_3d(ctx, inputs, params):
@@ -101,8 +103,9 @@ def spm_skew_3d(ctx, inputs, params):
     m = SPMMachine(iron=LinearMaterial(mu_r=float(params["mu_r_iron"])), n_theta=n)
     model = SPM3D(m, n_theta=n, stack_layers=int(params["stack_layers"]), end_length=float(params["end_length"]),
                   end_layers=int(params["end_layers"]), mu_r_iron=float(params["mu_r_iron"]))
+    thetas = np.radians(np.arange(0.0, 15.0, float(params["theta_step_deg"])))
     res = skew_study(model, [math.radians(float(v)) for v in params["totals_deg"]], kinds=list(params["kinds"]),
-                     progress=ctx.log)
+                     thetas=thetas, progress=ctx.log)
     for r in res["rows"]:
         key = f"{r['kind']}.{math.degrees(r['total']):g}deg"
         ctx.metric(f"{key}.pkpk_3d", r["pkpk_3d"], "N m")

@@ -809,6 +809,90 @@ eddy-current solver: the sparse LU takes 52 s at 32 000 unknowns, and COCG with 
 it (residual 2e-2 after 300 iterations, then growth). It comes with the next step.
 
 
+### 3-D skew: cogging in 3-D against multi-slice 2-D
+
+`pinneapple_simulation.electromagnetics.machines3d` builds the surface-PM machine of `SPMMachine` in 3-D on the edge
+elements above.
+
+* `SPM3D(machine, n_theta, stack_layers, end_length, end_layers)` extrudes the 2-D polar mesh along the stack
+  (`extrude`), with air beyond each end.
+  * Every node ring carries `n_theta` equally spaced nodes, so rotor position and magnet skew are relabellings of
+    the rotor elements of each layer, on one mesh for every angle and skew. Cogging therefore carries no
+    remeshing noise.
+  * The rotor core starts at `r_inner`, a flux-tangential boundary standing in for the shaft.
+  * Each angle is a preconditioned CG solve: the tree-gauged matrix is factorised once (PARDISO when pypardiso is
+    installed, SuperLU otherwise) and used as the preconditioner, so a solve takes 5 iterations.
+  * The torque is Arkkio's Maxwell stress over the two gap annuli, as in the 2-D model.
+* `skew.skew_study(model, totals, kinds)` computes, for step skew (2 or 3 segments) and continuous skew (one offset
+  per stack layer), the cogging over one period in 3-D, and in multi-slice 2-D: the mean of straight one-layer
+  models at the same offsets, on the same mesh. The two differ only by the axial flux between segments and the
+  end leakage. Rows are checkpointed (`checkpoint=`), so an interrupted study resumes.
+
+Two discretisation effects had to be removed before the numbers meant anything (both tested in
+`tests/test_machines3d.py`):
+
+* **Mesh handedness.** Cutting every prism into tetrahedra by increasing node number leans all cuts the same way
+  round the axis: a helical bias that gave 0.1 N m of torque on the aligned rotor, where the 2-D model gives
+  exactly 0. Ordering the cuts by alternating ring position removes it. The one-layer 3-D model then matches the
+  2-D code within 0.01 N m and is exactly odd about the aligned position.
+* **Period of the mesh.** The polar mesher's triangulation repeats every two angular steps. With 360 steps a
+  24-slot pitch is 15 steps, an odd number, so the discrete machine repeats only every 30 degrees. The 2-D code
+  shows the same thing: T(16 deg) = 0.127 against T(1 deg) = 0.068 N m (the audit's "mesh-pattern dependence of
+  a few % when the slot pitch has an odd number of steps"). The study uses 720 steps (30 per slot pitch) and
+  whole periods, and `skew_study` refuses an odd number of steps per period.
+
+`python examples/electrodynamics/20_spm_skew_3d.py` (run on 2026-10-30, 32 min) writes
+`results/20_spm_skew_3d.json` and `20_spm_skew_3d.png`.
+
+* Machine: the default `SPMMachine` (24 slots, 4 poles, 50 mm stack, rotor radius 40 mm, 4 mm magnets, 1 mm gap),
+  with linear iron at `mu_r` 1000.
+* 3-D model: 1,175,040 tetrahedra (720 angular steps, 6 stack layers, 20 mm of end
+  air). The finer 1.76 M-tetrahedron model ran out of memory on this 15 GB machine.
+* Cogging over one 15 deg period every 1.5 deg.
+
+The 2-D code on its own mesh gives a straight-rotor peak-to-peak of 1.185 N m.
+Peak-to-peak cogging in N m (difference relative to the straight 3-D cogging):
+
+| Skew | Total (deg) | 3-D | Multi-slice | 3-D - multi-slice | 3-D / straight | Fundamental factor |
+|---|---|---|---|---|---|---|
+| straight | 0 | 1.164 | 1.176 | -1.0 % | 1.000 | 1.000 |
+| step2 | 5 | 0.480 | 0.477 | +0.2 % | 0.413 | 0.500 |
+| step2 | 8 | 0.317 | 0.317 | +0.0 % | 0.273 | 0.105 |
+| step2 | 10 | 0.479 | 0.477 | +0.2 % | 0.412 | 0.500 |
+| step2 | 15 | 1.172 | 1.176 | -0.3 % | 1.007 | 1.000 |
+| step3 | 5 | 0.576 | 0.576 | -0.1 % | 0.495 | 0.667 |
+| step3 | 8 | 0.330 | 0.333 | -0.3 % | 0.283 | 0.264 |
+| step3 | 10 | 0.110 | 0.116 | -0.5 % | 0.095 | 0.000 |
+| step3 | 15 | 0.520 | 0.525 | -0.5 % | 0.446 | 0.333 |
+| continuous | 5 | 0.731 | 0.775 | -3.8 % | 0.628 | 0.827 |
+| continuous | 8 | 0.531 | 0.534 | -0.2 % | 0.456 | 0.594 |
+| continuous | 10 | 0.401 | 0.401 | -0.0 % | 0.344 | 0.413 |
+| continuous | 15 | 0.062 | 0.045 | +1.5 % | 0.053 | 0.000 |
+
+* **Straight stack.** The end regions lower the cogging by 1.0 %.
+* **Best skew of each kind** (3-D, peak-to-peak as a share of the straight stack):
+  * 2 steps at 8 deg: 0.317 N m (27 %);
+  * 3 steps at 10 deg: 0.110 N m (9.5 %);
+  * continuous over one cogging period (15 deg): 0.062 N m (5.3 %).
+* **Two steps never get below 27 %.** The cogging has a strong second harmonic (the straight curve is far from a
+  sine), and two steps cancel only one harmonic. The fundamental skew factor (last column) predicts the trend of
+  the fundamental only.
+* **Two steps over a full period.** Multi-slice reproduces the straight rotor exactly (1.176 N m). 3-D gives 0.7 %
+  more, the axial flux between the two segments.
+
+**Verdict on multi-slice.** Against the 3-D result, as a share of the straight 3-D cogging:
+
+* step skews (2 and 3 segments): multi-slice is within 0.5 %;
+* continuous skew: within 3.8 %, the largest at 5 deg (3.8 %) and 15 deg (1.4 %).
+
+* **It ranks the skews the same way and finds the same optima, so it is adequate to choose a skew.**
+* **Where the residual cogging is small, the relative difference is large.** At the optimal continuous skew
+  multi-slice predicts 0.045 N m, 3-D 0.062 N m: 37 % more, from the axial flux between layers and the end
+  regions. A residual of a few percent of the straight cogging needs the 3-D model, or a margin of that size.
+
+Limits of this study: linear iron (no saturation); no winding currents, so no load torque ripple (that needs the
+end windings in 3-D); one mesh resolution, because the 1.76 M-tetrahedron model did not fit in memory.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is

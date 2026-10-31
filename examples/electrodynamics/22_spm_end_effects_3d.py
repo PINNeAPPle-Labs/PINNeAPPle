@@ -6,7 +6,7 @@ stack lengths L = 0.25 D to 2 D; 240 angular steps, stack layers of at most 15 m
 coil (the coil side at mid-slot radius, a pole pitch wide). The end effect is written as a ratio
 ``k = lambda_3D / lambda_2D`` and as the length the 2-D model would have to lose to match, ``dL = L (1 - k)``.
 
-    python examples/electrodynamics/22_spm_end_effects_3d.py      # about 5 min, 7 GB
+    python examples/electrodynamics/22_spm_end_effects_3d.py      # about 1.5 h, 10 GB; resumes from its checkpoint
 """
 from __future__ import annotations
 
@@ -77,6 +77,8 @@ def figure(out: dict) -> None:
     ax[0].legend(frameon=False, fontsize=8)
     ax[1].set(xscale="log", xlabel="L / D", ylabel="dL = L (1 - k)  (mm)", title="Equivalent length lost at the ends")
     for a in ax:
+        a.set_xticks(ld, [f"{v:g}" for v in ld])
+        a.minorticks_off()
         a.set_facecolor("#fcfcfb")
         a.grid(alpha=0.25, lw=0.5)
     fig.tight_layout()

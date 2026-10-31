@@ -49,7 +49,8 @@
   "18_emachine_slides.py",
   "19_edge3d_verification.py",
   "20_spm_skew_3d.py",
-  "21_team7.py"
+  "21_team7.py",
+  "22_spm_end_effects_3d.py"
  ],
  "metrics": [],
  "checks": [],
@@ -87,7 +88,8 @@
    "results/fdtd_cylinder_field_map.png",
    "results/fdtd_dipole_pattern.png",
    "results/20_spm_skew_3d.png",
-   "results/21_team7.png"
+   "results/21_team7.png",
+   "results/22_spm_end_effects_3d.png"
   ],
   "videos": [
    "results/fdtd_cylinder_scattering.gif",
@@ -108,7 +110,8 @@
    "results/em_verification.json",
    "results/fdtd_gallery.json",
    "results/20_spm_skew_3d.json",
-   "results/21_team7.json"
+   "results/21_team7.json",
+   "results/22_spm_end_effects_3d.json"
   ]
  },
  "links": {

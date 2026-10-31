@@ -979,7 +979,7 @@ in the air, and a closed loop cancels them only if every piece is exact. With th
 difference between the two coils equals the flux of `B` through the 10 mm band between them (3.1999e-6 against
 3.2001e-6 Wb on a test mesh).
 
-`python examples/electrodynamics/22_spm_end_effects_3d.py` (run on 2026-10-31, 76 min; checkpointed) runs the
+`python examples/electrodynamics/22_spm_end_effects_3d.py` (run on 2026-10-31, 91 min, peak 10 GB; checkpointed) runs the
 default `SPMMachine` (bore diameter D = 90 mm, linear iron at `mu_r` 1000) with 240 angular steps, stack layers of
 at most 15 mm and 40 mm of air beyond each end:
 
@@ -999,7 +999,7 @@ at most 15 mm and 40 mm of air beyond each end:
   stack links the equivalent of 0.09 mm of stack more: the radial flux, outward, through the 10 mm band
   beyond each end face.
 * **Sensitivity** at L/D = 0.5: 80 mm of end air instead of 40 gives k = 0.9936 and 0.9955 (unchanged and
-  -0.0001); 480 angular steps instead of 240 give N480.
+  -0.0001); 480 angular steps instead of 240 give 0.9940 and 0.9958 (+0.0004 and +0.0002).
 
 Limits: linear iron, no-load magnet flux only (no armature reaction, no end-winding leakage, which
 `machines.endwinding` computes for the Prius); one machine.

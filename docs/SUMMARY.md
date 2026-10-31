@@ -94,6 +94,7 @@
     * [Dimensional analysis, Buckingham pi and curve collapse](guides/dynamics_dimensional.md)
     * [Fisher information and experimental design](guides/dynamics_fisher.md)
     * [Critical slowing down and early-warning indicators](guides/dynamics_early_warning.md)
+    * [Koopman operator and spectral analysis](guides/dynamics_koopman.md)
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)

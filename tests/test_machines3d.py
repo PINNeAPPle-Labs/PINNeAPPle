@@ -275,8 +275,8 @@ def test_designer_outputs_move_smoothly_with_the_magnet_arc_and_slot_opening():
     g = {**grid_for(machine_from({})), "dr": 0.02, "dz": 0.008}          # the designer's edges, a cheaper grid
     # magnet arc: whole-cell edges (even-step angles) jumped here, cogging 0.693, 10.779, 10.779 N m on this grid;
     # fractional edges with 16 angles per period: 7.078, 7.628, 8.080
-    # slot opening: a tooth edge as a share of iron jumped at 0.5 (tooth linkage -5 % between 0.495 and 0.5 on the
-    # designer's grid); with the tooth edges on node planes it is linear
+    # slot opening: a tooth edge as a share of iron jumped at 0.5 (tooth linkage 1167.3 to 1063.0 uWb between 0.49
+    # and 0.5 on the designer's grid); with the tooth edges on node planes it is linear
     for key, xs in (("magnet_arc", (0.79, 0.795, 0.80)), ("slot_fraction", (0.495, 0.5, 0.505))):
         r = [estimate({key: x}, grid=g) for x in xs]
         for out in ("cogging_pkpk_Nm", "tooth_linkage_Wb"):

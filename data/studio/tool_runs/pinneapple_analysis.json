@@ -135,6 +135,14 @@
   "returned": "list",
   "seconds": 7.19
  },
+ "pinneapple_analysis.dynamics.benchmarks.early_warning:run": {
+  "code_hash": "47e1e4512ef91b5a",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.49
+ },
  "pinneapple_analysis.dynamics.benchmarks.first_passage:run": {
   "code_hash": "ed4e157ca90881ca",
   "inputs": {},
@@ -168,6 +176,45 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:AutocorrelationAnalyzer": {
+  "code_hash": "fa06010f16a83fdf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AutocorrelationAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:EarlyWarningAnalyzer": {
+  "code_hash": "f85c307b368af8cc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EarlyWarningAnalyzer",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:RollingStatistics": {
+  "code_hash": "82e5c21a34bcdaa4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RollingStatistics",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.early_warning:ramp_series": {
+  "code_hash": "ee810d2ab1937cee",
+  "inputs": {
+   "kind": "stable",
+   "n": 4000,
+   "seed": 4,
+   "sigma": 0.1,
+   "start": 0.5,
+   "t_end": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.07
  },
  "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
   "code_hash": "cbabc6ef7fdedc3c",

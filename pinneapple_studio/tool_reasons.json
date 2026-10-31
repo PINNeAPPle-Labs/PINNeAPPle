@@ -1,1 +1,3 @@
-{}
+{
+ "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit"
+}

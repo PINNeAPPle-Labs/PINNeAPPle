@@ -5,6 +5,17 @@
   },
   "source": "tests/test_dynamics_dimensional.py:324"
  },
+ "pinneapple_analysis.dynamics.early_warning:ramp_series": {
+  "inputs": {
+   "kind": "stable",
+   "n": 4000,
+   "seed": 4,
+   "sigma": 0.1,
+   "start": 0.5,
+   "t_end": 1000.0
+  },
+  "source": "tests/test_dynamics_early_warning.py:151"
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
   "inputs": {
    "h_true": 25.0,

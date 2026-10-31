@@ -494,7 +494,7 @@
   "seconds": 0.0
  },
  "pinneapple_tools.visualization.studio.colormap:ticks": {
-  "code_hash": "75623e94d3e72ce1",
+  "code_hash": "75ed5f504e740ffd",
   "inputs": {
    "hi": 0.597,
    "lo": -0.5
@@ -502,7 +502,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 0.0
+  "seconds": 6.48
  },
  "pinneapple_tools.visualization.studio.compose:cmap_color": {
   "code_hash": "ffcbdc71028e38fb",

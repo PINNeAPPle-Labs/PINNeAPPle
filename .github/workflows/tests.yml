@@ -85,6 +85,12 @@ jobs:
           sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2 calculix-ccx
           pytest tests/test_immersed.py tests/test_immersed_elasticity.py tests/test_immersed_transient.py -q -p no:warnings
 
+      - name: Mesh generation — gmsh triangles / tetrahedra / wall prisms, exact volumes, h^-d growth, quality, STL checks, Flow node (must pass)
+        run: |
+          pip install gmsh
+          sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2
+          pytest tests/test_mesh_generation.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn

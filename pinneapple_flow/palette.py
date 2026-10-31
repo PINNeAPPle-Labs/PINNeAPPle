@@ -51,7 +51,7 @@ SECTION_OF: dict[str, str] = {
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",
-    "geometry.domain": "problem", "geometry.mesh": "problem", "problem.generic": "problem",
+    "geometry.domain": "problem", "geometry.mesh": "problem", "geometry.unstructured_mesh": "problem", "problem.generic": "problem",
     "vehicle.spec": "problem", "terramechanics.soil": "problem", "scenario.site": "problem",
     "equations.system": "equations",
     "solver.classical": "solvers", "solver.openfoam": "solvers", "solver.calculix": "solvers", "solver.fmu": "solvers",

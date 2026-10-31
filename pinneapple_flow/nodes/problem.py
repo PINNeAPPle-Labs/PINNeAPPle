@@ -1,11 +1,15 @@
-"""Problem nodes: domain (with the 1-D / 2-D / 3-D switch), mesh, equations (editable, validated text)."""
+"""Problem nodes: domain (with the 1-D / 2-D / 3-D switch), mesh (structured grid, or unstructured triangles /
+tetrahedra through gmsh), equations (editable, validated text)."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from pinneapple_core.workflows import StepFailed
 
 from ..registry import Param, Port, node
+from ..runtime import artifact
 from ..templates import FAMILIES, template
 from ._common import need_problem, system_of
 
@@ -71,6 +75,66 @@ def mesh(ctx, inputs, params):
     ctx.metric("nodes", total)
     ctx.table("spacing", ["axis", "nodes", "h"], [[c, n[c], spacing[c]] for c in n])
     return {"mesh": {"geometry": g, "n": n, "n_t": int(params["n_t"]) if g.get("time") else None}}
+
+
+@node("geometry.unstructured_mesh", "Unstructured mesh", category="Problem",
+      inputs=[Port("geometry", "geometry", required=False)], outputs=[Port("mesh", "unstructured_mesh")],
+      params=[Param("shape", "enum", "box", choices=["domain", "box", "cylinder", "sphere", "rectangle", "disk", "file"],
+                    help="domain: the box / rectangle of the connected geometry; file: an STL, STEP or IGES file"),
+              Param("dimensions", "list", [], help="box [lx, ly, lz], cylinder [radius, height], sphere [radius], "
+                                                    "rectangle [lx, ly], disk [radius] in m (empty: defaults)"),
+              Param("file", "str", "", help="geometry file in the data folder (shape = file)"),
+              Param("scale", "float", 1.0, minimum=1e-9, help="file length unit to metres (1e-3 for mm)"),
+              Param("h", "float", 0.1, minimum=1e-6, help="target element size [m]"),
+              Param("refine", "list", [], advanced=True,
+                    help="balls of smaller elements: {center: [x, y, z], radius, h} (metres)"),
+              Param("boundary_layer", "dict", {}, advanced=True,
+                    help="wall layers: {first_layer: m, n_layers: 4, growth: 1.2} (empty: none)")],
+      calls="pinneapple_design.geometry.mesh.generate.generate_mesh (gmsh; quality: gmsh minSICN / gamma, "
+            "pinneapple_data.cae.quality.element_metrics; view: pp.viz.field_view)")
+def unstructured_mesh(ctx, inputs, params):
+    """Triangles (2-D) or tetrahedra (3-D, with prism layers at the walls on request) from a primitive, a geometry
+    file or the connected domain, with the quality of every element, the .msh / .vtu files and a 3-D view."""
+    from pinneapple_design.geometry.mesh.generate import SICN_WARN, generate_mesh
+
+    from ..config import safe_data_path
+    shape, dims, origin = params["shape"], list(params["dimensions"] or []), None
+    g = (inputs.get("geometry") or {})
+    g = g.get("geometry", g) if isinstance(g, dict) else {}
+    if shape == "domain":
+        b = g.get("bounds") or {}
+        if len(b) not in (2, 3):
+            raise StepFailed("shape = domain needs a connected 2-D or 3-D geometry")
+        axes = [c for c in SPATIAL if c in b]
+        dims = [float(b[c][1]) - float(b[c][0]) for c in axes]
+        origin = [float(b[c][0]) for c in axes]
+        shape = "rectangle" if len(axes) == 2 else "box"
+    elif shape == "file":
+        shape = str(safe_data_path(params["file"]))
+    try:
+        out = generate_mesh(shape, dims or None, h=float(params["h"]), scale=float(params["scale"]),
+                            refine=params["refine"] or None, boundary_layer=params["boundary_layer"] or None,
+                            out_dir=str(ctx.path("mesh")), origin=origin)
+    except ValueError as exc:
+        raise StepFailed(str(exc)) from None
+    for k in ("n_nodes", "n_elements", "sicn_min", "gamma_min", "aspect_ratio_max", "h_min", "h_mean", "h_max"):
+        ctx.metric(k, out[k])
+    ctx.metric("volume" if out["dim"] == 3 else "area", out["volume"] if out["dim"] == 3 else out["area"])
+    ctx.table("quality", ["metric", "min", "mean", "max", "threshold"], [
+        ["SICN (1 ideal, <= 0 inverted)", out["sicn_min"], out["sicn_mean"], None, f">= {SICN_WARN}"],
+        ["gamma (1 ideal)", out["gamma_min"], out["gamma_mean"], None, ""],
+        ["edge ratio (1 ideal)", None, out["aspect_ratio_mean"], out["aspect_ratio_max"], ""],
+        ["edge length [m]", out["h_min"], out["h_mean"], out["h_max"], f"target {float(params['h']):g}"]])
+    ctx.table("elements", ["type", "count"], [[t, n] for t, n in out["element_counts"].items()])
+    if out["sicn_min"] < SICN_WARN:
+        ctx.log(f"worst element SICN {out['sicn_min']:.3g} < {SICN_WARN}: refine or smooth before solving")
+    meta = json.loads(Path(out["files"]["view"]).read_text())
+    ctx.view("scene", {"glb": out["files"]["glb"], "meta": meta})
+    ctx.summary(f"{out['n_elements']} elements ({', '.join(f'{n} {t}' for t, n in out['element_counts'].items())}), "
+                f"{out['n_nodes']} nodes, worst SICN {out['sicn_min']:.3f}")
+    files = {k: artifact(v, k) for k, v in out["files"].items()}
+    return {"mesh": {"geometry": g or None, "summary": {k: v for k, v in out.items() if k != "files"},
+                     "files": files}}
 
 
 @node("equations.system", "Equations", category="Problem",

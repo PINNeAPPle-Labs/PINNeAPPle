@@ -80,12 +80,12 @@
   "seconds": 1.29
  },
  "pinneapple_studio.inventory:build": {
-  "code_hash": "251f72d8320141b4",
+  "code_hash": "aeebb213e042e662",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
-  "seconds": 11.91
+  "seconds": 13.08
  },
  "pinneapple_studio.inventory:cache_dir": {
   "code_hash": "5cb0800a8aeb39af",

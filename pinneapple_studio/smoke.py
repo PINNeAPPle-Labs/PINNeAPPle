@@ -6,7 +6,7 @@ from the tests, and the verifications of a job). Records live in ``data/studio/t
 (``{tool id: {code_hash, ok, seconds, recorded, inputs, error, returned}}``), one file per package, so a change in
 one package does not touch the others.
 
-    python -m pinneapple_studio smoke --stale            # tools whose code changed or that never ran
+    python -m pinneapple_studio smoke                    # tools whose code changed or that never ran
     python -m pinneapple_studio smoke --package pinneapple_presets
 """
 from __future__ import annotations

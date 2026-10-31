@@ -157,7 +157,7 @@ def problems(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> list[str
             out.append(f"{r['id']}: form problems {r['form_problems']}")
         if r["state"] in ("missing", "failed"):
             out.append(f"{r['id']}: {r['detail']} (record inputs in tool_inputs.json and run "
-                       f"`python -m pinneapple_studio smoke --stale`, or state a reason in tool_reasons.json)")
+                       f"`python -m pinneapple_studio smoke`, or state a reason in tool_reasons.json)")
     for r in erows:
         if r["state"] in ("missing", "failed"):
             out.append(f"{r['id']}: {r['how']}")

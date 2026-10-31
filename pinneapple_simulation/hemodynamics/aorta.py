@@ -315,8 +315,12 @@ class CoupledRun:
         """Over the last full period: mass imbalance, cycle-mean flows and pressures, and how far each outlet's 3-D
         pressure is from its Windkessel (staggering of the explicit coupling)."""
         h = [r for r in self.history if r["t"] > self.history[-1]["t"] - period + 1e-9]
-        out = {"window": [h[0]["t"], h[-1]["t"]], "max_mass_imbalance": max(r["mass_imbalance"] for r in h),
-               "Q_inlet_mean": float(np.mean([r["Q_inlet"] for r in h])),
+        q_mean = float(np.mean([r["Q_inlet"] for r in h]))
+        # relative to the cycle-mean inflow: the per-window ratio is 0/0 in diastole, when no flow enters
+        out = {"window": [h[0]["t"], h[-1]["t"]],
+               "max_mass_imbalance": max(abs(sum(r[f"Q_{k}"] for k in self.windkessels) - r["Q_inlet"])
+                                         for r in h) / abs(q_mean),
+               "Q_inlet_mean": q_mean,
                "p_inlet_mean": float(np.mean([r["p_inlet"] for r in h])), "outlets": {}}
         for k in self.windkessels:
             Q = np.array([r[f"Q_{k}"] for r in h])

@@ -18,10 +18,16 @@ paper's bounds, the paper's solver (201 points, method of lines) and GLS error (
 | FKPP | 20,000 | 964.85 | 964.19 | D 978.3 / 978.5, r 0.0649 / 0.0649 | reproduced |
 | Porous-FKPP | 10,000 | 681.66 | 681.18 | D 1847.2 / 1851.8, m 0.968 / 0.970, r 0.0434 / 0.0435 | reproduced |
 | Porous-FKPP | 12,000 | 540.96 | 540.29 | D 464.7 / 465.0, m 0.300 / 0.300, r 0.0436 / 0.0436 | reproduced |
-| Porous-FKPP | 14,000 to 20,000 | | | | not done (run in progress) |
+| Porous-FKPP | 14,000 | 418.74 | 418.57 | D 3127.7 / 2993.4, m 1.019 / 0.992, r 0.0480 / 0.0481 | reproduced |
+| Porous-FKPP | 16,000 | 533.65 | 566.89 | D 1370.7 / 2371.0, m 0.573 / 0.988, r 0.0484 / 0.0484 | reproduced (lower GLS, other minimum) |
+| Porous-FKPP | 18,000 | 674.45 | 744.44 | D 1052.6 / 2377.8, m 0.237 / 0.827, r 0.0536 / 0.0526 | partial (D, m not reproduced) |
+| Porous-FKPP | 20,000 | 926.58 | 928.38 | D 1779.1 / 2017.1, m 0.500 / 0.624, r 0.0640 / 0.0639 | reproduced |
 
-Our GLS errors are 0.03 % to 0.1 % above the paper's, the parameters within 0.3 %: the data handling, the solver
-and the GLS definition match the paper.
+FKPP and Porous-FKPP at 10,000 to 14,000 and 20,000: GLS within 0.2 % of the paper's, D and m within 12 % and 20 % at
+20,000 and within 5 % elsewhere. At 16,000 and 18,000 our multi-start fit ends 5.9 % and 9.4 % below the paper's GLS
+at a different (D, m): the paper's own parameters, put through our solver, give 567.61 and 744.68 (0.1 % from its
+Table 2), so the solver and GLS agree with the paper and the paper's single fit stopped higher in the D-m valley.
+Status per number with `status()` (factor-2 band); at 18,000 D and m fall outside it.
 
 ## Not done in this PR
 

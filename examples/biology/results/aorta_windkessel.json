@@ -1,0 +1,151 @@
+{
+ "scale": "reduced-scale (2 of 4 cycles)",
+ "mesh": {
+  "mesher": "snappy",
+  "background_cells": [
+   41,
+   29,
+   107
+  ],
+  "background_cell_m": 0.003,
+  "wall_cell_m": 0.0015,
+  "bounds_m": [
+   [
+    -0.0390211,
+    -0.0175847,
+    -0.1305226
+   ],
+   [
+    0.0739959,
+    0.0590229,
+    0.1807972
+   ]
+  ],
+  "location_in_mesh": [
+   -0.0007301353739463519,
+   -0.0008630382218488351,
+   0.00993589912283324
+  ],
+  "patches": {
+   "inlet": "patch",
+   "outlet_desc": "patch",
+   "outlet_rcca": "patch",
+   "outlet_lcca": "patch",
+   "outlet_rsa": "patch",
+   "outlet_lsa": "patch",
+   "wall": "wall"
+  },
+  "procs": 1,
+  "cells": 57071,
+  "checkMesh_ok": true,
+  "seconds": 22.753193855285645
+ },
+ "physics": {
+  "rho": 1060.0,
+  "nu": 3.30188679245283e-06,
+  "viscosity": "newtonian",
+  "dt": 0.0005,
+  "max_courant": 0.8,
+  "period": 1.0,
+  "cycles": 4
+ },
+ "cycles": 2,
+ "dt_couple": 0.001,
+ "check": {
+  "window": [
+   1.001,
+   2.0
+  ],
+  "max_mass_imbalance": 1.66290448487526e-08,
+  "Q_inlet_mean": 6.99993603017022e-05,
+  "p_inlet_mean": 13374.680434604661,
+  "outlets": {
+   "outlet_desc": {
+    "Q_mean": 5.532198131839086e-05,
+    "flow_fraction": 0.7903212412220512,
+    "p_mean": 13325.409430273361,
+    "p_min": 9624.40108914,
+    "p_max": 19191.156963600006,
+    "max_rel_diff_3d_vs_wk_next": 2.75781219636735e-10,
+    "flow_fraction_0d": 0.7911032654036714,
+    "p_mean_0d_mmHg": 92.90721826824017,
+    "p_mean_mmHg": 99.94877596059406
+   },
+   "outlet_rcca": {
+    "Q_mean": 1.9491931570902636e-06,
+    "flow_fraction": 0.027845871000664907,
+    "p_mean": 13389.394734854637,
+    "p_min": 9624.286227539998,
+    "p_max": 19116.534002399992,
+    "max_rel_diff_3d_vs_wk_next": 2.7637133369180626e-10,
+    "flow_fraction_0d": 0.027727134882364158,
+    "p_mean_0d_mmHg": 93.39740107529849,
+    "p_mean_mmHg": 100.42870514444603
+   },
+   "outlet_lcca": {
+    "Q_mean": 2.9085027597013705e-06,
+    "flow_fraction": 0.041550419134768056,
+    "p_mean": 13384.38707498944,
+    "p_min": 9624.847372459999,
+    "p_max": 19098.096426,
+    "max_rel_diff_3d_vs_wk_next": 2.772368536924581e-10,
+    "flow_fraction_0d": 0.04139005714628463,
+    "p_mean_0d_mmHg": 93.35946681115556,
+    "p_mean_mmHg": 100.39114461194814
+   },
+   "outlet_rsa": {
+    "Q_mean": 4.141491636007601e-06,
+    "flow_fraction": 0.05916470690814143,
+    "p_mean": 13385.555176649323,
+    "p_min": 9624.326844620002,
+    "p_max": 19097.211124600002,
+    "max_rel_diff_3d_vs_wk_next": 2.7681070331396576e-10,
+    "flow_fraction_0d": 0.05893050315333874,
+    "p_mean_0d_mmHg": 93.36875072914609,
+    "p_mean_mmHg": 100.39990609366573
+   },
+   "outlet_lsa": {
+    "Q_mean": 5.678191390259994e-06,
+    "flow_fraction": 0.08111776115933898,
+    "p_mean": 13378.371029465743,
+    "p_min": 9624.114562660001,
+    "p_max": 19077.0636198,
+    "max_rel_diff_3d_vs_wk_next": 2.777708745880074e-10,
+    "flow_fraction_0d": 0.08084903941434111,
+    "p_mean_0d_mmHg": 93.30825575302457,
+    "p_mean_mmHg": 100.3460205660895
+   }
+  }
+ },
+ "systolic_mmHg": 141.50709632794022,
+ "diastolic_mmHg": 72.18198333756956,
+ "mean_inlet_mmHg": 100.31833883211641,
+ "periodicity_max_change_mmHg": 8.116221742662276,
+ "windkessels": {
+  "outlet_desc": {
+   "Rp": 20151033.399704915,
+   "Rd": 203749337.70812747,
+   "C": 7.911032654036714e-09
+  },
+  "outlet_rcca": {
+   "Rp": 574943945.394972,
+   "Rd": 5813322114.549161,
+   "C": 2.772713488236416e-10
+  },
+  "outlet_lcca": {
+   "Rp": 385154054.4489436,
+   "Rd": 3894335439.428208,
+   "C": 4.1390057146284637e-10
+  },
+  "outlet_rsa": {
+   "Rp": 270514376.60874313,
+   "Rd": 2735200919.0439587,
+   "C": 5.893050315333874e-10
+  },
+  "outlet_lsa": {
+   "Rp": 197176718.9720904,
+   "Rd": 1993675714.0511365,
+   "C": 8.084903941434113e-10
+  }
+ }
+}

@@ -32,6 +32,8 @@ class Discretization:
     keep_fine: bool = False
     jitter: bool = True
     timings: dict = field(default_factory=dict)
+    grid: BackgroundGrid | None = None   # a given background grid (e.g. one that fits a channel exactly)
+    n_facet: int | None = None           # boundary-facet rule (None: degree 2; n >= 1: n Gauss points per direction)
 
     def __post_init__(self):
         t0 = time.perf_counter()
@@ -39,9 +41,12 @@ class Discretization:
             self.depth = getattr(self.geometry, "default_depth", None) or (2 if self.order == 1 else 3)
         if self.refine is None:
             self.refine = getattr(self.geometry, "default_refine", 3)
-        self.grid = BackgroundGrid.around(self.geometry.bounds, self.h, self.order, self.pad, self.jitter)
+        if self.grid is None:
+            self.grid = BackgroundGrid.around(self.geometry.bounds, self.h, self.order, self.pad, self.jitter)
+        elif self.grid.order != self.order:
+            raise ValueError("the given grid's order differs from the discretisation's")
         self.quad = build_quadrature(self.geometry, self.grid, depth=self.depth, n_simplex=self.n_simplex,
-                                     refine=self.refine, keep_fine=self.keep_fine)
+                                     refine=self.refine, keep_fine=self.keep_fine, n_facet=self.n_facet)
         self.dofs = DofMap.build(self.grid, self.quad.active_cells)
         self.timings["quadrature_s"] = time.perf_counter() - t0
 

@@ -53,6 +53,10 @@
   "domain": "structures",
   "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
+ "cfd_direct_from_stl": {
+  "domain": "CFD",
+  "reason": "a pre-registered comparison campaign: dozens of runs of three CFD methods in subprocesses (seconds to hours each, up to 14 GB), judged by the rule in run.py; the solvers compared are library calls of their own (immersed.flow, numerical_solvers.taylor_hood, lbm_tunnel)"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
@@ -174,7 +178,7 @@
   "status": "not_convertible"
  },
  "lbm": {
-  "domain": "fluid dynamics",
+  "domain": "CFD",
   "notes": "lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here"
  },
  "meshgraphnet": {

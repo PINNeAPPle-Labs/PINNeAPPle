@@ -196,3 +196,35 @@ def test_flow_node_meshes_the_domain_and_a_file(tmp_path, monkeypatch):
     assert m["summary"]["n_elements"] == rep["metrics"]["n_elements"] and "msh" in m["files"]
     assert r.report("stl")["metrics"]["volume"] == pytest.approx(1.0, rel=1e-6)
     assert r.nodes["bad"]["status"] == "failed" and "data folder" in r.nodes["bad"]["error"]
+
+
+def test_polygon_and_flow_domains(tmp_path):
+    """A polygon is meshed as one curve (its vertices do not set the size: straight elements of size h follow it, so
+    the meshed area is that of the inscribed polygon of side h); ``enclosure`` meshes the box minus the body: area /
+    volume of the box minus the polygon, the disk, the STL sphere."""
+    from pinneapple_simulation.immersed.geometry import icosphere, write_stl
+    n = 512
+    t = 2 * np.pi * np.arange(n) / n
+    V = np.column_stack([0.2 + 0.05 * np.cos(t), 0.2 + 0.05 * np.sin(t)])
+    poly_area = 0.5 * n * 0.05 ** 2 * math.sin(2 * math.pi / n)
+    alone = generate_mesh("polygon", vertices=V.tolist(), h=0.02)
+    assert alone["dim"] == 2 and alone["area"] == pytest.approx(poly_area, rel=0.03)     # 16 chords of 0.02
+    assert alone["n_elements"] < 100                     # a 512-gon meshed edge by edge would need > 512 triangles
+    fine = generate_mesh("polygon", vertices=V.tolist(), h=0.002)
+    assert fine["area"] == pytest.approx(poly_area, rel=5e-4)
+    flow = generate_mesh("polygon", vertices=V.tolist(), enclosure=[[0, 0], [2.2, 0.41]], h=0.05,
+                         refine=[{"center": [0.2, 0.2], "radius": 0.1, "h": 0.0125}], out_dir=str(tmp_path / "c"))
+    assert flow["area"] == pytest.approx(2.2 * 0.41 - poly_area, rel=2e-4)          # chords of 0.0125 on the body
+    disk = generate_mesh("disk", [0.25], origin=[0.5, 0.5], enclosure=[[0, 0], [1, 1]], h=0.05)
+    assert disk["area"] == pytest.approx(1 - math.pi * 0.25 ** 2, rel=2e-3)
+    Vs, F = icosphere(0.5, 3)
+    stl = write_stl(str(tmp_path / "s.stl"), Vs, F)
+    box = generate_mesh(stl, h=1.0, enclosure=[[-2, -2, -2], [3, 2, 2]],
+                        refine=[{"center": [0, 0, 0], "radius": 1.0, "h": 0.25}])
+    tri = Vs[F]
+    v_sphere = np.einsum("ij,ij->i", tri[:, 0], np.cross(tri[:, 1], tri[:, 2])).sum() / 6
+    assert box["dim"] == 3 and box["volume"] == pytest.approx(80 - v_sphere, rel=1e-3)
+    with pytest.raises(ValueError, match="enclosure"):
+        generate_mesh("disk", [0.25], enclosure=[[0, 0], [-1, 1]], h=0.1)
+    with pytest.raises(ValueError, match="polygon"):
+        generate_mesh("polygon", vertices=[[0, 0], [1, 0]], h=0.1)

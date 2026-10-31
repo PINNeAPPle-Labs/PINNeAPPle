@@ -3750,6 +3750,134 @@
   },
   "source": "tests/test_accelerated_foam.py:192"
  },
+ "pinneapple_simulation.cfd_direct.cases:clift_grace_weber": {
+  "inputs": {
+   "re": 50.0
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.cases:cylinder_polygon": {
+  "inputs": {
+   "n": 64
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.cases:reattachment": {
+  "inputs": {
+   "x": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "u_near_wall": [
+    0.01,
+    -0.5,
+    -0.2,
+    0.3,
+    0.5
+   ]
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.cases:schiller_naumann": {
+  "inputs": {
+   "re": 50.0
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.cases:sphere_stl": {
+  "inputs": {
+   "path": "sphere.stl",
+   "subdivisions": 2
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c1": {
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c2": {
+  "inputs": {
+   "n": 1,
+   "work": ".",
+   "subdivisions": 2
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c3": {
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c1": {
+  "inputs": {
+   "n": 5,
+   "work": ".",
+   "max_flow_through": 0.2
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c2": {
+  "inputs": {
+   "n": 4,
+   "work": ".",
+   "subdivisions": 2,
+   "max_flow_through": 0.1
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c3": {
+  "inputs": {
+   "n": 4,
+   "work": ".",
+   "max_flow_through": 0.2
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c1": {
+  "inputs": {
+   "n": 8,
+   "work": "."
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c2": {
+  "inputs": {
+   "n": 2,
+   "work": ".",
+   "subdivisions": 2
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c3": {
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.runners:run": {
+  "inputs": {
+   "method": "immersed",
+   "case": "C1",
+   "n": 4,
+   "work": "."
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
+ "pinneapple_simulation.cfd_direct.verdicts:GATES": {
+  "inputs": {
+   "case": "C1"
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
  "pinneapple_simulation.electromagnetics.antenna.ava:layout": {
   "inputs": {
    "p": {
@@ -4355,6 +4483,17 @@
   },
   "source": "tests/test_biology_inference.py:110"
  },
+ "pinneapple_simulation.immersed.flow:regular_polygon": {
+  "inputs": {
+   "center": [
+    0.0,
+    0.0
+   ],
+   "radius": 1.0,
+   "n": 16
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
+ },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
   "inputs": {
    "D": 8,
@@ -4702,6 +4841,21 @@
    "max_velocity": 2.0
   },
   "source": "tests/test_rea_harvest_numerics.py:155"
+ },
+ "pinneapple_simulation.numerical_solvers.taylor_hood:split_wedges": {
+  "inputs": {
+   "wedges": [
+    [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   ]
+  },
+  "source": "tests/test_immersed_flow.py (campaign docs/research/cfd_direct_from_stl.md)"
  },
  "pinneapple_simulation.numerical_solvers.water_hammer_moc:wave_speed": {
   "inputs": {

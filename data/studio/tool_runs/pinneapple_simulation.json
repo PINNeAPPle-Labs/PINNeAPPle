@@ -105,6 +105,198 @@
   "returned": "PODWarmStart",
   "seconds": 0.0
  },
+ "pinneapple_simulation.cfd_direct.cases:clift_grace_weber": {
+  "code_hash": "200e1bf087b42929",
+  "inputs": {
+   "re": 50.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 2.08
+ },
+ "pinneapple_simulation.cfd_direct.cases:cylinder_polygon": {
+  "code_hash": "e8d94067be02bc98",
+  "inputs": {
+   "n": 64
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 2.36
+ },
+ "pinneapple_simulation.cfd_direct.cases:reattachment": {
+  "code_hash": "0d56ba0443356e73",
+  "inputs": {
+   "u_near_wall": [
+    0.01,
+    -0.5,
+    -0.2,
+    0.3,
+    0.5
+   ],
+   "x": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 2.06
+ },
+ "pinneapple_simulation.cfd_direct.cases:schiller_naumann": {
+  "code_hash": "8eb2a883983fe8df",
+  "inputs": {
+   "re": 50.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 2.12
+ },
+ "pinneapple_simulation.cfd_direct.cases:sphere_stl": {
+  "code_hash": "6f35e4a8f8f4c54b",
+  "inputs": {
+   "path": "sphere.stl",
+   "subdivisions": 2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 2.35
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c1": {
+  "code_hash": "996921f73fc365e9",
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.17
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c2": {
+  "code_hash": "359a76f07b11b043",
+  "error": "timeout after 60 s",
+  "inputs": {
+   "n": 1,
+   "subdivisions": 2,
+   "work": "."
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 65.2
+ },
+ "pinneapple_simulation.cfd_direct.runners:immersed_c3": {
+  "code_hash": "c6a70d16777a74e3",
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.29
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c1": {
+  "code_hash": "240f083746b46df8",
+  "inputs": {
+   "max_flow_through": 0.2,
+   "n": 5,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.59
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c2": {
+  "code_hash": "5f523d2fa1ea90ee",
+  "inputs": {
+   "max_flow_through": 0.1,
+   "n": 4,
+   "subdivisions": 2,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 34.2
+ },
+ "pinneapple_simulation.cfd_direct.runners:lbm_c3": {
+  "code_hash": "ba44b9dda2820f28",
+  "inputs": {
+   "max_flow_through": 0.2,
+   "n": 4,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.06
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c1": {
+  "code_hash": "d0f38731fcd7789b",
+  "inputs": {
+   "n": 8,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.68
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c2": {
+  "code_hash": "3845ee314a52e1fb",
+  "error": "timeout after 60 s",
+  "inputs": {
+   "n": 2,
+   "subdivisions": 2,
+   "work": "."
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 64.6
+ },
+ "pinneapple_simulation.cfd_direct.runners:reference_c3": {
+  "code_hash": "8fd9310944cda43a",
+  "inputs": {
+   "n": 4,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.72
+ },
+ "pinneapple_simulation.cfd_direct.runners:run": {
+  "code_hash": "8b8364ee6e68bd5c",
+  "inputs": {
+   "case": "C1",
+   "method": "immersed",
+   "n": 4,
+   "work": "."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.68
+ },
+ "pinneapple_simulation.cfd_direct.verdicts:GATES": {
+  "code_hash": "509d5c8dac8877ef",
+  "inputs": {
+   "case": "C1"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.04
+ },
  "pinneapple_simulation.electromagnetics.antenna.ava:layout": {
   "code_hash": "0b2c937c7e5d5338",
   "inputs": {
@@ -1591,6 +1783,21 @@
   "returned": "dict",
   "seconds": 0.06
  },
+ "pinneapple_simulation.immersed.flow:regular_polygon": {
+  "code_hash": "485d65a6a2d2eac0",
+  "inputs": {
+   "center": [
+    0.0,
+    0.0
+   ],
+   "n": 16,
+   "radius": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 2.29
+ },
  "pinneapple_simulation.immersed.geometry:icosphere": {
   "code_hash": "71bada6e8c7de4fc",
   "inputs": {},
@@ -2321,6 +2528,14 @@
   "returned": "HexMesh",
   "seconds": 0.01
  },
+ "pinneapple_simulation.numerical_solvers.sparse_direct:available": {
+  "code_hash": "f08ec3974ed29c03",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 2.32
+ },
  "pinneapple_simulation.numerical_solvers.stable_fluids:StableFluids2D": {
   "code_hash": "2bc5f60eae7a6dfa",
   "inputs": {
@@ -2343,6 +2558,25 @@
   "recorded": "2026-10-31",
   "returned": "float",
   "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.taylor_hood:split_wedges": {
+  "code_hash": "ef4a88048db99f9b",
+  "inputs": {
+   "wedges": [
+    [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 2.2
  },
  "pinneapple_simulation.numerical_solvers.thermal_channel_2d:ThermalChannel2D": {
   "code_hash": "9f4621f1f51de213",

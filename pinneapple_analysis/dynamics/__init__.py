@@ -11,8 +11,12 @@ DeepONet predictions) are being added one pull request at a time, each with its 
   dimensional vs empirical normalisation, curve collapse with a permutation control, similarity. Guide:
   ``docs/guides/dynamics_dimensional.md``.
 
-Not yet available: Fisher information and experimental design, critical slowing down and early-warning indicators,
-Koopman / spectral analysis.
+* :mod:`.fisher`: Fisher information (Gaussian, Poisson, any likelihood by score Monte Carlo with finite
+  differences, PyTorch or JAX), Cramér-Rao bounds on parameters and on targets, identifiability, and experimental
+  design (D, A, E, c, Bayesian D) built on :mod:`pinneapple_analysis.inverse_problems`. Guide:
+  ``docs/guides/dynamics_fisher.md``.
+
+Not yet available: critical slowing down and early-warning indicators, Koopman / spectral analysis.
 
 The frameworks share:
 
@@ -29,7 +33,7 @@ Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
-from . import dimensional, first_passage
+from . import dimensional, first_passage, fisher
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -63,6 +67,17 @@ from .first_passage import (
     HittingTimeDistribution,
     SurvivalFunction,
 )
+from .fisher import (
+    CramerRaoBound,
+    ExperimentalDesign,
+    FisherInformation,
+    FisherInformationMatrix,
+    InformationGain,
+    ObservationScheduler,
+    ParameterIdentifiability,
+    SamplingStrategy,
+    SensitivityAnalyzer,
+)
 from .trajectories import (
     SOURCE_KINDS,
     Trajectory,
@@ -85,4 +100,6 @@ __all__ = [
     "BoundaryCondition", "FirstPassageResult", "SDE",
     "dimensional", "Dimension", "PhysicalQuantity", "DimensionalMatrix", "BuckinghamPiAnalyzer", "DimensionlessGroup",
     "ScalingLaw", "TrajectoryNormalizer", "CurveCollapseAnalyzer", "SimilarityMetrics",
+    "fisher", "FisherInformation", "FisherInformationMatrix", "CramerRaoBound", "ParameterIdentifiability",
+    "SensitivityAnalyzer", "ExperimentalDesign", "ObservationScheduler", "InformationGain", "SamplingStrategy",
 ]

@@ -89,7 +89,7 @@ REASONS: dict[str, str] = {
     "pinneapple_condense.falsify": "the pre-registered falsification studies (subprocesses, minutes to an hour)",
     "pinneapple_condense.flow": "steady MAC-grid flow and heat assembler behind the CFD falsification tests",
     "pinneapple_condense.meshless2d": "2-D meshless discretisations of the CFD falsification tests",
-    "pinneapple_analysis.dynamics": "dynamics toolkit (first-passage, Buckingham pi) used as a Python API; its flow nodes "
+    "pinneapple_analysis.dynamics": "dynamics toolkit (first-passage, Buckingham pi, Fisher) used as a Python API; its flow nodes "
                                     "come with the toolkit's integration pull request",
     "pinneapple_physics.biology": "SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",

@@ -35,7 +35,9 @@ OUTPUTS = ("cogging_pkpk_3d", "linkage_3d", "cogging_pkpk_q3d", "linkage_q3d", "
 
 
 def run(params: Mapping[str, float]) -> dict[str, float]:
-    """One design: the quasi-3D estimate and the check in 3-D on the coarse grid (about 25 s)."""
+    """One design: the quasi-3D estimate and the check in 3-D on the coarse grid of the designer
+    (:func:`.afpm_design.grid_for`, whose magnet and tooth edges are shares of the cells they cut, so the outputs
+    move continuously with ``magnet_arc`` and ``slot_fraction``), about 35 s."""
     from .afpm_design import estimate, verify_3d
 
     p = {k: float(v) for k, v in params.items()}

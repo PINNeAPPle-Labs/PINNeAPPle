@@ -851,7 +851,7 @@ def _set_tube(me, P, vals, fade, r: float, nseg: int = 6) -> None:
 def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None = None,
                      size: tuple[int, int] = (960, 540), samples: int = 16, camera: str = "chase",
                      camera_offset: Sequence[float] | None = None, lens: float = 35, field: str | None = None,
-                     hud: bool = True, hud_keys: Sequence[str] | None = None, sparkline: str | None = None,
+                     field_range: tuple[float, float] | None = None, hud: bool = True, hud_keys: Sequence[str] | None = None, sparkline: str | None = None,
                      fps: float = 24, gif: bool = False, mp4: bool = True,
                      sun_elevation: float = 35.0, ground: bool | float | None = None,
                      background: str = "sky", vectors: bool = True, trails: bool | dict = True,
@@ -873,6 +873,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     in scene axes, default beside the middle of the path, looking at the body) or "fixed" (the whole scene and path
     in the 3/4 view). ``lens`` in mm.
     field: colour the surfaces by this static per-vertex field; animated surface fields and shapes are always shown.
+    field_range: its colour range (default: the 1st and 99th percentiles of its values).
     trails: False, True, or ``{"radius": r, "alpha": a, "seconds": s}`` overriding every trail's tube radius,
     opacity and time window (defaults: 0.003 x the tracked body's size, ``add_trail``'s alpha and trail_seconds);
     a trail is the path of its last seconds behind the body, fading to transparent at its tail.
@@ -966,6 +967,15 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     # extent of the static scene and of the paths (for the ground, the fixed camera and the clip planes)
     static = [toB(s.vertices) for i, s in enumerate(scene.surfaces) if s.group not in anim.tracks]
     static += [toB(sh["vertices"].reshape(-1, 3)) for sh in anim.surface_shapes.values()]   # every frame's shape
+    if camera == "fixed":                       # the fixed camera frames the moving bodies too (e.g. a turntable)
+        for g in anim.tracks:
+            V = [s.vertices for s in scene.surfaces if s.group == g]
+            if V:
+                V = np.concatenate(V)
+                lo_b, hi_b = V.min(0), V.max(0)
+                box = np.array([[x, y, z] for x in (lo_b[0], hi_b[0]) for y in (lo_b[1], hi_b[1])
+                                for z in (lo_b[2], hi_b[2])])
+                static += [toB(anim.transform(g, k, box)) for k in range(anim.n_frames)]
     lo_p, hi_p = anim.bounds()
     pts = np.concatenate(static + [toB(np.array([lo_p, hi_p]))]) if (static or anim.tracks or anim.trails) else np.zeros((1, 3))
     s_lo, s_hi = pts.min(0), pts.max(0)
@@ -997,7 +1007,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     # colours: a static field, then the animated per-vertex fields
     if field:
         attr = "_" + field.upper().lstrip("_")
-        lo, hi = scene.field_range(field)
+        lo, hi = field_range or scene.field_range(field)
         fm, grey = _ramp_material(bpy, field, attr, lo, hi), _plain(bpy, "grey", (0.35, 0.37, 0.4))
         for o in objs.values():
             o.data.materials.clear()

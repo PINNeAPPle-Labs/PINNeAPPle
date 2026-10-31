@@ -107,3 +107,16 @@ def test_replay_answers_only_exact_designs_and_labels_them(tmp_path):
     assert hit.meta["replayed_from"]["run"] == lab.ledger.runs[1].id and hit.outputs == lab.ledger.runs[1].outputs
     assert not calls[:-1] and len(calls) == 1 and miss.outputs["drag"] == pytest.approx(toy({"a": 0.123, "b": 0.456})["drag"])
     assert LabPlanner.name == "deterministic"
+
+
+def test_audit_ignores_run_provenance():
+    """A number in a run's start time or wall time is not a fact: "40" is unsupported even when a run started at
+    minute 40 and took 40 s."""
+    from types import SimpleNamespace
+
+    from pinneapple_autolab.agent import audit_claims
+    run = {"id": "run001-baseline", "params": {"a": 1.5}, "outputs": {"drag": 0.25}, "predicted": {},
+           "started": "2026-10-30T11:40:40", "cost_s": 40.0, "message": "took 40 s", "meta": {"wall": 40}}
+    lab = SimpleNamespace(ledger=SimpleNamespace(to_dict=lambda: {"runs": [run]}, runs=[]))
+    a = audit_claims("Drag is 0.25 at a = 1.5, a 40 % cut.", [], lab)
+    assert a["unsupported_numbers"] == ["40"] and not a["supported"]

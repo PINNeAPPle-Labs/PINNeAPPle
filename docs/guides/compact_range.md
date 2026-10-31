@@ -9,6 +9,9 @@ against closed forms, fits a surrogate with held-out error and draws the trade-o
 Everything lives in `pinneapple_simulation.electromagnetics.reflector`; the example
 `examples/use_cases/antennas/compact_range_qz.py` only calls it.
 
+To have this study plan itself from a sentence, run it, cache every step and write a datasheet
+(`study_report.plan / run / report`), see [Design reports](design_report.md).
+
 ```bash
 python examples/use_cases/antennas/compact_range_qz.py --quick     # 3 x 3 designs, coarser mesh (about 3 min)
 python examples/use_cases/antennas/compact_range_qz.py             # 7 gains x 6 sizes x 2 rolled edges

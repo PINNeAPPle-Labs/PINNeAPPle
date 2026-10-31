@@ -25,6 +25,8 @@ REASONS: dict[str, str] = {
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "
+                                  "exists, and the solves they print are solve nodes",
     "pinneapple_core.workflows": "the execution engine every flow runs on",
     "pinneapple_problemdesign": "conversational problem design with an external LLM agent; the planner and "
                                 "problem.generic cover the same ground offline",
@@ -87,10 +89,16 @@ REASONS: dict[str, str] = {
     "pinneapple_condense.falsify": "the pre-registered falsification studies (subprocesses, minutes to an hour)",
     "pinneapple_condense.flow": "steady MAC-grid flow and heat assembler behind the CFD falsification tests",
     "pinneapple_condense.meshless2d": "2-D meshless discretisations of the CFD falsification tests",
+    "pinneapple_physics.biology": "SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)",
+    "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
+    "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
+                                              "examples/reproductions/xtfc_schiassi2021 runner, not a flow step",
+    "pinneapple_physics.paper_problems_epi": "the compartmental models of the X-TFC parameter-discovery paper, read "
+                                             "by the examples/reproductions/schiassi_epi2020 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

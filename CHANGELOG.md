@@ -7,14 +7,109 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 (0.x.0) may contain breaking changes.** Every breaking or behavior-changing entry is listed under
 **Changed** and starts with "**Breaking:**" or "**Behavior:**".
 
-How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
+How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog): pull requests add
+fragments to `changelog.d/`, which a release folds in here. The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
 
 ## [Unreleased]
 
+### Security
+
+- Caddy images (`apps/deploy` proxy and `apps/playground`): the pinned bases still ship `brotli-libs` 1.2.0-r0
+  (CVE-2026-111497, critical, fixed in Alpine 1.2.1-r0), and no upstream rebuild has it yet. Both images now upgrade
+  that package at build time (`apps/deploy/caddy.Dockerfile`, a build step in the playground Dockerfile), and the
+  Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
+
 ### Added
-- `pinneapple_simulation.electromagnetics.reflector.design` (#965): compact-range quiet zone against feed gain, reflector size and focal length. `qz_report` (one PO solve for both feed polarisations, disk and principal-cut taper / ripple / phase ripple / cross-pol, usable diameter at a `Spec`), `doe` (parallel grid), checks (`facet_convergence`, `power_balance` with the PO near-field H, `agreement_887`), `fit_qz_surrogate` (GP, k-fold RMSE and 95 % coverage), `design_maps`, `pareto_front` / `pareto_figure`, `cuts_figure`, `smallest_reflector` (lower 95 % bound, verified by PO), `run_design_study`; `po.radiate_fields` (several current sets per geometry pass, and H). Flow nodes `antenna.compact_range_design`, `antenna.compact_range_check`; public example `examples/use_cases/antennas/compact_range_2ghz.py` (generic 2 GHz range) with `run_private(config_path)` for geometry kept outside the repository.
+- Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
+  simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
+  `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
+  L3 core without libsbml; events, algebraic rules, delays refused), six shipped CC0 BioModels entries checked against
+  libRoadRunner (max relative error 5e-6), models `ultradian_glucose_insulin`, `pk_one_compartment_mm` (Michaelis-
+  Menten, effect compartment, sigmoid Emax), `minimal_pbpk`, `excitable` (FitzHugh-Nagumo 1-D, Aliev-Panfilov 2-D,
+  activation times, conduction velocity), `cell_migration` (scratch-assay data with a restricted unpickler, the
+  Lagergren et al. forward solver, GLS error, FKPP / Porous-FKPP / delay models and their fits).
+  `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` (exact sensitivities for identifiability and
+  calibration), `sbinn.SBINN` (systems-biology informed networks, checkpoint / resume), `binn.ReactionDiffusionBINN`
+  (BINNs as a `NeuralTermDiscovery` with state-dependent terms), `activation_mapping.EikonalPINN`.
+  `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
+  (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
+  `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
+- `pinneapple_simulation.numerical_solvers.xtfc_inverse`: X-TFC for data-driven parameter discovery
+  (`solve_xtfc_inverse`). It fits the fields and the unknown parameters of an ODE system together, by Gauss-Newton
+  on the stacked data and residual losses (Schiassi et al., arXiv:2008.05554). The initial values hold exactly.
+- `pinneapple_physics.paper_problems_epi`: that paper's SIR, SEIR and SEIRS models, with `synthetic_data` (noisy
+  data sets) and `fit_shooting` (a single-shooting least-squares baseline).
+- `xtfc_general.activation_derivative`: `arctan`, up to order 3.
+- `examples/reproductions/schiassi_epi2020`: the reproduction of that paper, with frozen targets, a runner and
+  measured results.
+  - 14 of 36 targets reproduced under the frozen protocol: all clean-data targets and most at noise 0.1. A post-hoc
+    multi-start reaches 23 of 36.
+  - A single-shooting baseline is 2.5 to 3 times more accurate on SIR, and within a factor of 2.5 on SEIR and SEIRS.
+- Additions for the De Florio 2024 reproduction:
+  - `solve_xtfc` now accepts explicit input weights (`weights=`), separate boundary rows (`face_points=`) and a
+    LAPACK driver (`lstsq_driver=`).
+  - New `gaussian` activation (exp(−z²)) with analytic derivatives.
+  - `sample_calabro`: the 1D ELM weight sampling of Calabrò, Fabiani & Siettos (arXiv:2012.05871).
+  - `ConstrainedExpression1D`: Deep-TFC in 1D.
+  - `pinneapple_analysis.validation.pinn.mlp(..., activation="gaussian")`.
+- `examples/reproductions/deflorio2024`: the reproduction of De Florio et al., J. Comput. Appl. Math. 436 (2024)
+  115396 (PINN, Deep-TFC, PIELM and X-TFC on the 1D advection-diffusion BVP).
+  - Frozen targets, a runner and measured results.
+  - For the PIELM and X-TFC columns: 7 of 10 targets reproduced and 3 partially reproduced. In the 3 partial
+    cases our error is lower than the paper's.
+- `pinneapple_simulation.numerical_solvers.gated_xtfc`: Gated X-TFC (Dwivedi, Schiassi et al., arXiv:2510.01039)
+  for 1D second-order linear BVPs with sharp layers.
+  - The basis is Gaussian RBFs; a soft split sets their centres and widths, blended by logistic gates
+    (`gated_layout`).
+  - `solve_forward` does the forward solve.
+  - `search_gates_nested` (one split) and `search_gates_bo` (several splits) search for the gates.
+  - `fit_inverse` infers the parameter by maximising the evidence with the library's Bayesian optimiser.
+- `examples/reproductions/gated_xtfc_dwivedi2025`: the Gated X-TFC reproduction, with frozen targets, a runner and
+  measured results. 2 of 9 targets are reproduced.
+- `pinneapple_simulation.numerical_solvers.xtfc_general`: X-TFC on a box in any dimension. It handles several
+  fields, value and derivative constraints on faces, and linear or non-linear residuals.
+  - `solve_xtfc(problem, points, n_neurons=..., activation=..., weight_range=..., seed=...)` with an
+    `XTFCProblem` and `Constraint`.
+  - The multivariate TFC constrained expression is built dimension by dimension, and the ELM derivatives are
+    analytic.
+  - Non-linear residuals are solved by Gauss-Newton with `lstsq`.
+  - `XTFCResult.residual` and `XTFCResult.constraint_error` are the physics checks.
+- `pinneapple_physics.paper_problems_xtfc`: the 2 ODE and 7 PDE problems of Schiassi et al. (arXiv:2005.10632v1),
+  with the paper's settings.
+- `examples/reproductions/xtfc_schiassi2021`: the X-TFC reproduction. It has frozen targets (`TARGETS.md`), a
+  runner and the measured results.
+- Optional compressed persistence in `pinneapple_data`: `save_pt(samples, path, compress=True)` (and
+  `UPDDataset.save(path, compress=True)`) writes the payload gzip-compressed, about 30% smaller on float32 field
+  data with no loss of precision. It is opt-in: the default stays an uncompressed `.pt`, and `load_pt` /
+  `UPDDataset.load` read either form without a format hint, detecting compression from the gzip magic bytes.
+- Front door for new users, in `pinneapple_core.onboarding`, as four commands (`pinneapple doctor | recommend |
+  card | new`) and the same four as functions (`pp.doctor`, `pp.recommend`, `pp.card`, `pp.new`):
+  - `doctor(profile)` checks the installation against `start`, `cfd`, `research`, `enterprise` or `all` and prints
+    one fix command per missing item; a check that cannot run reports `None`, never a pass.
+  - `recommend(text)` turns a problem described in English or Portuguese into a preset, a method that runs on this
+    machine and a model to train, and shows the terms the keyword ranking matched. It returns no preset instead of
+    guessing when nothing matches, and when the closest preset cannot run here it says which one is, and why.
+  - `card(preset)` describes a preset (coordinates, fields, conditions, the method that runs, what that method
+    needs) and carries a program that runs as printed. It also *tries* the cheapest method once, so the card can say
+    whether the preset produces a field on this machine; when it does not, the card and `recommend` hand over
+    `standalone_snippet(preset)`: the same equation and fields, on a box, with boundaries the user sets.
+  - `new(name, template=plain|research|cfd)` writes a standalone project outside this repository: `case.yaml` +
+    runner + README + requirements, with every path relative to the project folder. The `research` template records
+    metrics with unit and method and writes an experiment manifest; the `cfd` template sweeps a parameter the preset
+    accepts into a CSV and a figure. A preset that cannot run here comes with `fallback.py` and a message that
+    points at it instead of a traceback.
+- `START_HERE.md`: one page, four paths (engineer without Python, learning physics-AI, research, product), each with
+  the commands to run and what to read next.
+- `pinneapple_physics.solving.analytic_for(problem)`: the name of the closed-form solution this library knows for a
+  problem, or `None`, without catching an exception from `solve`.
+- Extras `pinneapple[cfd]` and `pinneapple[enterprise]`: bundles matching the `doctor` profiles.
+- `tests/test_front_door.py` (the entry pages run, compile, and every `pp.<name>` and preset they mention exists) and
+  `tests/test_onboarding.py` (the four commands promise only what they deliver, including a generated project that
+  runs from another directory).
+
+
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
   predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
@@ -94,6 +189,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
+  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
+  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
+  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
+  the last must-pass gate.
 - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
   and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
   `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
@@ -109,8 +209,37 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
   file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
   gates (AGENTS.md, "Generated files").
+- Presets whose boundaries are named geometry tags now train from their own name. Thirty-two of the forty declare a
+  canonical box or cylinder that the tags map onto without guessing (`pde_environment/presets/tag_geometry.py`, which
+  already existed); `pp.solve(preset, method="pinn")` sends that geometry automatically and records it in
+  `Solution.info["geometry"]`. `get_preset` now stamps the spec with its registry key (`problem_id`, `meta["preset"]`)
+  so a solver can find the fixture and a report can name the case; `ProblemSpec` is frozen, so this is a copy. The
+  eight presets that describe a real airfoil, car body or furnace still raise `TagConditionsUnresolved`, which is the
+  honest answer. `pp.card` prints the geometry a preset uses, and reports "runs here" for the ones this enables.
+- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
+  of the first hour and no longer need `pinneapple[pinn]`.
+- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
+  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
+- `pp.info()` ends with the four commands to try next.
+- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
+  (the registry is lowercase) and had been stale since September.
+- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
+  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
+- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
+  (OpenFOAM, FEniCS).
+- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
+- `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
+  `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
+  (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that
+  provably is this module's own format is re-read with `weights_only=False`, so a checkpoint of plain tensors never
+  takes the permissive path. This affected uncompressed `.pt` files too, not just the new compressed option.
 - Bugs found by the cross-framework benchmark (`benchmarks/vs_frameworks/REPORT.md`):
   - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) early stopping watched the weighted total,
     which its adaptive PDE/data balancing re-weights every step, so it compared losses under different weights (it
@@ -2021,6 +2150,7 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
   up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
   Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
+
 
 ## [0.7.0] - 2026-10-13
 

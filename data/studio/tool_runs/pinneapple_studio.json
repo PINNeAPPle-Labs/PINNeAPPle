@@ -1,0 +1,154 @@
+{
+ "pinneapple_studio.api:router": {
+  "code_hash": "2df5b2da0634899f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "APIRouter",
+  "seconds": 0.23
+ },
+ "pinneapple_studio.catalog:build": {
+  "code_hash": "ab7ecb9648c8ca27",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 14.9
+ },
+ "pinneapple_studio.catalog:load": {
+  "code_hash": "78ed113ca6484f07",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.37
+ },
+ "pinneapple_studio.coverage:baseline": {
+  "code_hash": "5c0f8fcec60b01d0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "set",
+  "seconds": 0.03
+ },
+ "pinneapple_studio.coverage:reasons": {
+  "code_hash": "364a535267ef39d2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.extras:preset_tools": {
+  "code_hash": "fd7ebb717167b0cb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.12
+ },
+ "pinneapple_studio.extras:science_tools": {
+  "code_hash": "5ff02c0b126f3c7d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.gallery:entries": {
+  "code_hash": "4d735cbde196b1da",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.4
+ },
+ "pinneapple_studio.gallery:load": {
+  "code_hash": "5513193a2c8b6882",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.28
+ },
+ "pinneapple_studio.inventory:build": {
+  "code_hash": "251f72d8320141b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 11.91
+ },
+ "pinneapple_studio.inventory:load": {
+  "code_hash": "2520af5eba5ac9d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.15
+ },
+ "pinneapple_studio.inventory:repo_root": {
+  "code_hash": "8882a83ec91fc96b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.01
+ },
+ "pinneapple_studio.prose:load": {
+  "code_hash": "47873f78475cab61",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Prose",
+  "seconds": 0.11
+ },
+ "pinneapple_studio.runner:clean_env": {
+  "code_hash": "8903947f8c1b4396",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.runner:queue": {
+  "code_hash": "c0a88d77353e6d06",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "JobQueue",
+  "seconds": 0.02
+ },
+ "pinneapple_studio.runner:scrub_environment": {
+  "code_hash": "110f7ec9cd06ae51",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.smoke:read_runs": {
+  "code_hash": "5618150f9c6d2195",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.smoke:recorded_inputs": {
+  "code_hash": "77c2400448fe56c8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.smoke:runs_dir": {
+  "code_hash": "e327c2d32def7a42",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ }
+}

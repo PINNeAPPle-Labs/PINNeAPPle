@@ -1,0 +1,170 @@
+{
+ "pinneapple_systems.time_series.metrics_ext.probabilistic:ProbabilisticMetrics": {
+  "code_hash": "ebb0cbe20a0a5af2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProbabilisticMetrics",
+  "seconds": 0.25
+ },
+ "pinneapple_systems.time_series.models.classical:CatBoostForecaster": {
+  "code_hash": "f8b2c5d976a64e16",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CatBoostForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:GPRForecaster": {
+  "code_hash": "3c4e657ef7ce8c75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GPRForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:LightGBMForecaster": {
+  "code_hash": "838b3b9ba412898f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LightGBMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:MLPForecaster": {
+  "code_hash": "b2aed7341d82157c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLPForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:RandomForestForecaster": {
+  "code_hash": "4cbe0b139e7b2594",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RandomForestForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:XGBoostForecaster": {
+  "code_hash": "fe2444a40f7d2699",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "XGBoostForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.registry:TSModelCatalog": {
+  "code_hash": "4ef643360d245751",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TSModelCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.solar_cycle:synthetic_daily": {
+  "code_hash": "6dee3c907707c511",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DataFrame",
+  "seconds": 0.03
+ },
+ "pinneapple_systems.time_series.synthetic:double_well": {
+  "code_hash": "5d3f4a65029912b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.2
+ },
+ "pinneapple_systems.time_series.synthetic:lorenz63": {
+  "code_hash": "ac843e8569a7a37c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 3.34
+ },
+ "pinneapple_systems.time_series.synthetic:lorenz96": {
+  "code_hash": "47e5bdaadb69285f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 4.54
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass": {
+  "code_hash": "72cc8b4afa8c9379",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 18.7
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass_lyapunov": {
+  "code_hash": "6fded3634b1c17e4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 15.42
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass_stepper": {
+  "code_hash": "773774b42affa427",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:ornstein_uhlenbeck": {
+  "code_hash": "0c2f2cc0cd9d23ad",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:random_walk": {
+  "code_hash": "689abdc481bbf432",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:stochastic_oscillator": {
+  "code_hash": "1915b669987cc9fd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.synthetic:white_noise": {
+  "code_hash": "b3aff1943ae700fe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.tuning.optuna_tuner:ClassicalTuner": {
+  "code_hash": "669054242f927164",
+  "error": "ImportError: pip install optuna",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.tuning.optuna_tuner:NeuralTuner": {
+  "code_hash": "034f2b672a961fec",
+  "error": "ImportError: pip install optuna",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ }
+}

@@ -1,0 +1,386 @@
+{
+ "pinneapple_tools.automation.adapters.base:Adapter": {
+  "code_hash": "f2ac48ca08c8ecbf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Adapter",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.adapters.base:known_actions": {
+  "code_hash": "f4f8cc79ea6d4917",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "set",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.adapters.base:list_adapters": {
+  "code_hash": "57ed48dd7574379e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.scripts.freecad_gui_job:run_job": {
+  "code_hash": "7b2290708ad3998d",
+  "error": "ModuleNotFoundError: No module named 'FreeCAD'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation:catalog": {
+  "code_hash": "751f78f003607783",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.22
+ },
+ "pinneapple_tools.benchmark_suite.backends.deepxde_backend:DeepXDEBackend": {
+  "code_hash": "0ee98acb66e8291b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DeepXDEBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.jax_pinn:JAXPINNBackend": {
+  "code_hash": "811c4eb612978194",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "JAXPINNBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.native_pinn:NativePINNBackend": {
+  "code_hash": "9511d885185489ad",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NativePINNBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.physicsnemo_sym:PhysicsNeMoSymBackend": {
+  "code_hash": "6bf80404a0aa92cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsNeMoSymBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.pinneapple_models_backend:PinneappleModelsBackend": {
+  "code_hash": "1379f90e4c58ca15",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PinneappleModelsBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.benchmark:BenchmarkTaskBase": {
+  "code_hash": "9e30e50746b79965",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkTaskBase",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.benchmark:all_model_specs": {
+  "code_hash": "c3cfb4e4e73e61cb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.darcy:load_darcy": {
+  "code_hash": "0288938cb39e4679",
+  "error": "ArtifactUnavailableError: could not download train.npz of 'darcy_2d_li2021': ",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.02
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.inverse:observations": {
+  "code_hash": "455d4274af5afeac",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.problems:allen_cahn_reference": {
+  "code_hash": "259d9bee22fbb58e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 8.68
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.records:cpu_model": {
+  "code_hash": "70f3e5b763181a70",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.records:loadavg": {
+  "code_hash": "f4fe61bd542ab9ec",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.weights:layer_sizes": {
+  "code_hash": "e45e31881326b82e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.registry:list_backends": {
+  "code_hash": "5442b155d96061e1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.registry:list_tasks": {
+  "code_hash": "c3c5a1ba130ba98a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.tasks.burgers_1d:Burgers1DTask": {
+  "code_hash": "fbf878d199fb7342",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Burgers1DTask",
+  "seconds": 0.1
+ },
+ "pinneapple_tools.benchmark_suite.tasks.navier_stokes_tgv_2d:NavierStokesTGV2DTask": {
+  "code_hash": "64cf5f906998f23a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NavierStokesTGV2DTask",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.compute_backends.backend:get_backend": {
+  "code_hash": "9badfd9726544977",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.compute_backends.jax_backend:jax_available": {
+  "code_hash": "67ca3573fd3126ae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.hpo_experiments.providers.gemini_provider:GeminiProvider": {
+  "code_hash": "6c53c49c8d5dfe62",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeminiProvider",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.model_services.grid:darcy_solver_service": {
+  "code_hash": "e00debf4be38584b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.model_services.registry:default_registry": {
+  "code_hash": "13a52e6d54c3f030",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Registry",
+  "seconds": 0.05
+ },
+ "pinneapple_tools.model_services.registry:intent_service": {
+  "code_hash": "9fccf907a6e0c96f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.model_services.registry:trust_card_service": {
+  "code_hash": "28bf2e0cbbe5a6fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.brep:brep_available": {
+  "code_hash": "e53137fa40ba1cd8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.brep:brep_python": {
+  "code_hash": "e018e37ade9bbfbc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.omniverse:require_pxr": {
+  "code_hash": "bce69a338c311c43",
+  "error": "ImportError: OpenUSD is needed for USD stages: pip install usd-core (the same library Omniverse uses; no GPU needed)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:l_bracket": {
+  "code_hash": "81e67f9e759fdaf4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PartRecipe",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:l_bracket_volume": {
+  "code_hash": "3a0dd44f4bb06e84",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.runinfo:environment": {
+  "code_hash": "2e4d39d3c0284d02",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.rea_bridge.client:ReaClient": {
+  "code_hash": "ba0d86f6154d050b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReaClient",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.rea_bridge.client:resolve_rea_command": {
+  "code_hash": "db6bba95eb01089a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.reporting.datasheet:find_chrome": {
+  "code_hash": "0ee85df1d8e7c0f3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.reporting.paperkit:setup_mpl": {
+  "code_hash": "3894c893e5f8a828",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.molecular:fcc_slab": {
+  "code_hash": "b73921329ea08a17",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.pyvista_bridge:can_render": {
+  "code_hash": "c059c85a289948cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.03
+ },
+ "pinneapple_tools.visualization.studio.lighting:blender_world": {
+  "code_hash": "b5e821306c9e3396",
+  "error": "ModuleNotFoundError: No module named 'bpy'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.lighting:threejs_config": {
+  "code_hash": "f0216f07eab0c124",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio:render": {
+  "code_hash": "77d3531dc556e9d4",
+  "error": "TypeError: render() missing 2 required positional arguments: 'scene' and 'out'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
+ },
+ "pinneapple_tools.visualization.studio:web_viewer": {
+  "code_hash": "54800119abcfd2a5",
+  "error": "TypeError: web_viewer() missing 2 required positional arguments: 'scene' and 'out_dir'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.style:get_cmap": {
+  "code_hash": "a9862c1bfb19ed89",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearSegmentedColormap",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.style:make_figure": {
+  "code_hash": "5401a87f56a4c7c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.visualization.style:use_cfd_style": {
+  "code_hash": "fe3ac06c9eb6104b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ }
+}

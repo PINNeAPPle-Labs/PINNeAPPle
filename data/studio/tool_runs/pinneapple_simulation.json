@@ -1,0 +1,1016 @@
+{
+ "pinneapple_simulation.accelerated_foam.benchmark:default_guesses": {
+  "code_hash": "9e8a5c55fb5c0782",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.accelerated_foam.benchmark:default_solver_specs": {
+  "code_hash": "425f4a8d6a72fffe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.build:build_plugin": {
+  "code_hash": "4e0b4be1dcf022c9",
+  "error": "FileNotFoundError: OpenFOAM headers not found: set FOAM_SRC (full install) or pass openfoam_src / PINNEAPPLE_OPENFOAM_SRC (source tree of the installed version)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.build:compile_flags": {
+  "code_hash": "c8791ab9651d91bc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.build:find_plugin": {
+  "code_hash": "fb9e70033684b3cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.build:include_dirs": {
+  "code_hash": "3fad2626dfb487bf",
+  "error": "FileNotFoundError: OpenFOAM headers not found: set FOAM_SRC (full install) or pass openfoam_src / PINNEAPPLE_OPENFOAM_SRC (source tree of the installed version)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.case:find_bashrc": {
+  "code_hash": "24420c992fbbead6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.case:openfoam_available": {
+  "code_hash": "25d460aa68d5331e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.case:plain_solver": {
+  "code_hash": "b2082ddf6995793e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.case:warm_solver": {
+  "code_hash": "349e25dcb4763547",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.learned:LearnedWarmStart": {
+  "code_hash": "69f99ee40f71a554",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LearnedWarmStart",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.accelerated_foam.warm_start:PODWarmStart": {
+  "code_hash": "a89c30c293d4c599",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PODWarmStart",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.ava:use_superlu": {
+  "code_hash": "9892df3c0da7c5d0",
+  "error": "ModuleNotFoundError: No module named 'emerge'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.study:limits_report": {
+  "code_hash": "8d9f05f9c679e5d3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:FrequencyMean": {
+  "code_hash": "b3d29de9b8a8f897",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FrequencyMean",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:GPModel": {
+  "code_hash": "052f933c2983e632",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GPModel",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:HWOffset": {
+  "code_hash": "66b0cc633818f756",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HWOffset",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:LinearPhysics": {
+  "code_hash": "9756db91910fc8dc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearPhysics",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:columns": {
+  "code_hash": "d5fc6902456b68a1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.antenna.surrogates:default_models": {
+  "code_hash": "7d68aed91476179c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machine:SPMMachine": {
+  "code_hash": "d75db4d99b6d08bd",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MachineSolution",
+  "seconds": 0.74
+ },
+ "pinneapple_simulation.electromagnetics.machines.design:rotor_design_problem": {
+  "code_hash": "02d2faafb3dfd02b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DesignProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.design:rotor_evaluator": {
+  "code_hash": "28cb0e90a3389edc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IPMRotorEvaluator",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.drive:prius_phase_resistance": {
+  "code_hash": "37e99fc9d9fd17de",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.machines.drive:wltc_class3b": {
+  "code_hash": "0e1531b899ff6939",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.geometry:prius_2004": {
+  "code_hash": "1f24d7ed7b59d870",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MachineGeometry",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.getdp:available": {
+  "code_hash": "ce7f762a96dd8f6a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.interop:rotor_parameter_space": {
+  "code_hash": "7a03958f3998362f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParameterSpace",
+  "seconds": 0.08
+ },
+ "pinneapple_simulation.electromagnetics.machines.verification:prius_torque_curve": {
+  "code_hash": "3bd2755a7e1474b7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.03
+ },
+ "pinneapple_simulation.electromagnetics.machines.verification:run": {
+  "code_hash": "aff1717bd978344e",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_simulation.electromagnetics.materials:illustrative_steel": {
+  "code_hash": "5c726ebf19cc44cb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BHCurve",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.mesh:mesh_from_gmsh": {
+  "code_hash": "de88194ac31f9da2",
+  "error": "ModuleNotFoundError: No module named 'gmsh'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.periodic.tcda:TCDACell": {
+  "code_hash": "f985621196b3abe4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TCDACell",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.units:check_equations": {
+  "code_hash": "8044e709482bf743",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.verification:run": {
+  "code_hash": "aff1717bd978344e",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:half_wave_dipole_directivity": {
+  "code_hash": "18041e37e43b08e5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.waves:half_wave_dipole_radiation_resistance": {
+  "code_hash": "b8a723545b64a5f1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.calculix.inp:cantilever_hex_mesh": {
+  "code_hash": "32419b97bceb92d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CalculixModel",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.calculix.runner:ccx_backend": {
+  "code_hash": "9aa282693ae08700",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.07
+ },
+ "pinneapple_simulation.external_solvers.calculix.runner:docker_available": {
+  "code_hash": "970d4909fa7b14f1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.05
+ },
+ "pinneapple_simulation.external_solvers.calculix.runner:ensure_image": {
+  "code_hash": "a98bcdfa498877f7",
+  "error": "RuntimeError: docker build of pinneapple/calculix:local failed 3 time(s) (bases tried: public.ecr.aws/docker/library/debian:bookworm-slim, mirror.gcr.io/library/debian:bookworm-slim, debian:bookworm-slim); last output:\nERROR: failed to connect to the docker API at unix:///var/run/docker.sock; check if the path is",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 30.35
+ },
+ "pinneapple_simulation.external_solvers.calculix.study:geo_l_bracket": {
+  "code_hash": "188da59f4c8da37a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.campaign_cases:airfoil_existing": {
+  "code_hash": "2f06488e553129fd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DataFrame",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.external_solvers.campaign_cases:airfoil_space": {
+  "code_hash": "a1428f618e6d8f98",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParameterSpace",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.campaign_cases:cantilever_space": {
+  "code_hash": "3cba35a16aa8127b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParameterSpace",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.fluidx3d:fluidx3d_available": {
+  "code_hash": "b6ee01fa4e43abf7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.fluidx3d:fluidx3d_home": {
+  "code_hash": "811df631d273fa76",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.fluidx3d:read_results": {
+  "code_hash": "ecd8a818c54a9efb",
+  "error": "RuntimeError: set FLUIDX3D_HOME to a FluidX3D checkout (https://github.com/ProjectPhysX/FluidX3D)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.fluidx3d:run_fluidx3d": {
+  "code_hash": "c43b9b3473b0b439",
+  "error": "RuntimeError: set FLUIDX3D_HOME to a FluidX3D checkout (https://github.com/ProjectPhysX/FluidX3D)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.geotaichi:geotaichi_available": {
+  "code_hash": "b1e478ac3c16736c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.external_solvers.geotaichi:geotaichi_home": {
+  "code_hash": "8558929f7d350279",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.matlab.engine:MATLABEngine": {
+  "code_hash": "a875eccf5d1cf116",
+  "error": "ImportError: MATLAB Engine for Python not found. See: https://www.mathworks.com/help/matlab/matlab_external/get-started-with-matlab-engine-for-python.html",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.modelica.fmi_compat:platform_tag": {
+  "code_hash": "03a3183963795849",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.modelica.omc:omc_available": {
+  "code_hash": "7add62ab013139c8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.scene:RigidScene": {
+  "code_hash": "e1a5f0859287787e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RigidScene",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:bounce": {
+  "code_hash": "a3381ff1acb469d5",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:free_fall": {
+  "code_hash": "bdf55d0ce4556668",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:pendulum_period": {
+  "code_hash": "0996be1d0ee9e3d1",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:resting_contact": {
+  "code_hash": "1341eb7a3090404a",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:sliding_friction": {
+  "code_hash": "eef3646118ab1b34",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:torque_free_spin": {
+  "code_hash": "b605072205d7a26a",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.newton_physics.validation:validate": {
+  "code_hash": "cb67fcfb959cd17f",
+  "error": "ModuleNotFoundError: No module named 'newton'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.flight.catalog:a320": {
+  "code_hash": "c52d3f2e140ed238",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Aircraft",
+  "seconds": 0.11
+ },
+ "pinneapple_simulation.flight.catalog:light_ga": {
+  "code_hash": "3161c1a3d81d4a41",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Aircraft",
+  "seconds": 0.04
+ },
+ "pinneapple_simulation.flight.catalog:motor_glider": {
+  "code_hash": "d0d41bde48837ead",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Aircraft",
+  "seconds": 0.06
+ },
+ "pinneapple_simulation.flight.catalog:names": {
+  "code_hash": "0e4ae702492d8022",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.flight.catalog:regional_turboprop": {
+  "code_hash": "874655e709bcafcf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Aircraft",
+  "seconds": 0.04
+ },
+ "pinneapple_simulation.flight.rigid_body:state_vector": {
+  "code_hash": "bd7def19e966131a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.flight.verification:conservation_check": {
+  "code_hash": "da0450d93a9fe9fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.05
+ },
+ "pinneapple_simulation.flight.verification:lattice_check": {
+  "code_hash": "ffede496fa2e5329",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.22
+ },
+ "pinneapple_simulation.flight.verification:run": {
+  "code_hash": "2b41c08a0e8a85a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 28.79
+ },
+ "pinneapple_simulation.flight.verification:trim_checks": {
+  "code_hash": "13499dad7993ab29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 8.6
+ },
+ "pinneapple_simulation.flight.verification:turbulence_checks": {
+  "code_hash": "3a99dd0f8d4be446",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 18.07
+ },
+ "pinneapple_simulation.flight.visuals:runway_surfaces": {
+  "code_hash": "21d6aa9741b6dbcd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.16
+ },
+ "pinneapple_simulation.geophysics.sphere_shallow_water:rossby_haurwitz_speed": {
+  "code_hash": "fd811061f3b56703",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.beam_bvp_fdm:solve_euler_bernoulli_beam_1d": {
+  "code_hash": "609b774cbd2a958a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.cfd_pipeline:CADToCFDPipeline": {
+  "code_hash": "74d5975f9cfd8ac1",
+  "error": "RuntimeError: Call .mesh() before .solve().",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.cylinder_wake:verify": {
+  "code_hash": "c3560fce1aa8f54c",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_simulation.numerical_solvers.external_flow:openfoam_available": {
+  "code_hash": "b0f44673c06ae103",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.fdm3d:ChannelFlowSolver3D": {
+  "code_hash": "b7eac407e80397af",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverOutput3D",
+  "seconds": 5.49
+ },
+ "pinneapple_simulation.numerical_solvers.fdm3d:ElasticWave3D": {
+  "code_hash": "c5a63ac7e0e25d13",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverOutput3D",
+  "seconds": 0.08
+ },
+ "pinneapple_simulation.numerical_solvers.fdm3d:HeatConduction3D": {
+  "code_hash": "ef4607c75b212964",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverOutput3D",
+  "seconds": 0.06
+ },
+ "pinneapple_simulation.numerical_solvers.fdm3d:LidDrivenCavitySolver3D": {
+  "code_hash": "b9c8476889488886",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverOutput3D",
+  "seconds": 5.03
+ },
+ "pinneapple_simulation.numerical_solvers.fdm3d:NavierStokes3D": {
+  "code_hash": "d6e26bcbef2b5150",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverOutput3D",
+  "seconds": 0.46
+ },
+ "pinneapple_simulation.numerical_solvers.fdm:FDMSolver": {
+  "code_hash": "446b5040faed050e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FDMSolver",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.fem:FEMSolver": {
+  "code_hash": "9f231f33712f9568",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FEMSolver",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.free_surface:FreeSurfaceFlow": {
+  "code_hash": "3bba7ab768863443",
+  "error": "ValueError: FreeSurfaceFlow: provide either regions (surfaces) or mesh (a case with constant/polyMesh)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.fvm:FVMSolver": {
+  "code_hash": "ae40c927f44ddcae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FVMSolver",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.jax_cfd_solver:JAXCFDSolver": {
+  "code_hash": "d5bdb265e07d2beb",
+  "error": "ImportError: jax-cfd is not installed. Install with: pip install jax jaxlib jax-cfd (see https://github.com/google/jax-cfd).",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.jax_cfd_solver:jax_cfd_available": {
+  "code_hash": "e49c7733bbb72de5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.jax_cfd_solver:shear_layer_velocity_fns": {
+  "code_hash": "cc868589c916d3d2",
+  "error": "ModuleNotFoundError: No module named 'jax'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.jax_cfd_solver:taylor_green_velocity_fns": {
+  "code_hash": "99aba866c5229d43",
+  "error": "ModuleNotFoundError: No module named 'jax'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.lbm:LBMSolver": {
+  "code_hash": "90f23f412dec9c28",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LBMSolver",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.lbm_tunnel:velocity_set": {
+  "code_hash": "a05d664be0dcb15d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.meshfree:MLSApproximation": {
+  "code_hash": "8e931751634e4172",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLSApproximation",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.meshfree:RBFCollocationSolver": {
+  "code_hash": "28175c33bfe15c94",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RBFCollocationSolver",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.openfoam_bridge:OpenFOAMBridge": {
+  "code_hash": "03cf80d97ae896f9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "OpenFOAMBridge",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.registry:SolverCatalog": {
+  "code_hash": "8668454efbcc3328",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverCatalog",
+  "seconds": 0.21
+ },
+ "pinneapple_simulation.numerical_solvers.registry:SolverRegistry": {
+  "code_hash": "1ec87078b7eda2f4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolverRegistry",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.thermal_channel_2d:ThermalChannel2D": {
+  "code_hash": "9f4621f1f51de213",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ThermalChannel2D",
+  "seconds": 0.02
+ },
+ "pinneapple_simulation.numerical_solvers.thermal_channel_datasets:verify": {
+  "code_hash": "5b64dbb7ac35ca36",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_simulation.numerical_solvers:fenics_available": {
+  "code_hash": "bff327c90eb5962a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers:openfoam_available": {
+  "code_hash": "33a6401d6300b2a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.cad:FakeFreeCAD": {
+  "code_hash": "fde58075db1bc70b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FakeFreeCAD",
+  "seconds": 0.05
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.cad:FreeCADBackend": {
+  "code_hash": "9bed688ddcaf1758",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FreeCADBackend",
+  "seconds": 0.12
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.cad:find_freecadcmd": {
+  "code_hash": "e088dddf75f85658",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.cad:get_backend": {
+  "code_hash": "8b324180c84cdb96",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FakeFreeCAD",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.mesh:has_cfmesh": {
+  "code_hash": "ca75dbf980503eb7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.studies:heated_pipe": {
+  "code_hash": "5dab390c16df714a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PipelineSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.studies:pipe_bend": {
+  "code_hash": "0a5b6bace1c36128",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PipelineSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.studies:sphere": {
+  "code_hash": "e8b74fd40f3b4591",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PipelineSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.robot_sim.checks:arm_pick_and_place": {
+  "code_hash": "872f3cec436b3b7a",
+  "error": "ImportError: PINNeAPPle Robot Sim runs on NVIDIA Newton: pip install newton (CPU works)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.robot_sim.sim:newton_available": {
+  "code_hash": "ff4d65527b472e2b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.rover.autolab.render:available": {
+  "code_hash": "b8ca3f91cf18d7b7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.05
+ },
+ "pinneapple_simulation.rover.autolab.report:run_info": {
+  "code_hash": "57ccb5a63f516e53",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.rover.autolab.site:demo_site": {
+  "code_hash": "b4be3bb190af1320",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSite",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.rover.autolab.site:soft_sand": {
+  "code_hash": "163b3117482f34f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Soil",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.rover.checks:static_sinkage_check": {
+  "code_hash": "ed34891869b4bde7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.12
+ },
+ "pinneapple_simulation.rover.geometry:RoverParams": {
+  "code_hash": "ba6888640dd5aa91",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RoverParams",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.terramechanics.mobility:mobility_analysis": {
+  "code_hash": "f9ebd47b87b7b808",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 34.98
+ },
+ "pinneapple_simulation.terramechanics.soils:list_soils": {
+  "code_hash": "280624330074fa58",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.terramechanics.surrogate:contact_net": {
+  "code_hash": "098e3be6edd31b29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Net",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.terramechanics.testbed:list_datasets": {
+  "code_hash": "aad30ebb2127de85",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vehicle.scenarios:crater_site": {
+  "code_hash": "5633b0e09b56d06e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DeformableTerrain",
+  "seconds": 3.4
+ },
+ "pinneapple_simulation.vehicle.scenarios:flat_site": {
+  "code_hash": "8ef41ffab49c4101",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DeformableTerrain",
+  "seconds": 0.13
+ },
+ "pinneapple_simulation.vehicle.viper:viper": {
+  "code_hash": "d02c7ef50659dbfe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "VehicleSpec",
+  "seconds": 0.05
+ }
+}

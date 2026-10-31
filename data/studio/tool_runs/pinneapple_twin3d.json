@@ -1,0 +1,138 @@
+{
+ "pinneapple_twin3d.demo:pipe_bend_scene": {
+  "code_hash": "3a53121caca18a72",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.39
+ },
+ "pinneapple_twin3d.gallery:airliner": {
+  "code_hash": "242c919205017416",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.01
+ },
+ "pinneapple_twin3d.gallery:drone": {
+  "code_hash": "06ef3f8b5d760531",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:lunar_rover": {
+  "code_hash": "f3af64357ef8b4ec",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:mixing_tank": {
+  "code_hash": "d387e9e54a20b5b2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:oil_pipeline": {
+  "code_hash": "bdf7eae42e450eee",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.01
+ },
+ "pinneapple_twin3d.gallery:rocket": {
+  "code_hash": "4d27cf20dcefb079",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:runner_channel": {
+  "code_hash": "ec40e385eb8554ab",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:satellite": {
+  "code_hash": "0cc7b64191ec1834",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.gallery:wind_turbine": {
+  "code_hash": "36735e96f4a7cfbb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scene",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.primitives:airfoil": {
+  "code_hash": "fcda5852f5fbfa04",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.calibrate:calibrate": {
+  "code_hash": "73c2df3359c965b2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Calibration",
+  "seconds": 0.01
+ },
+ "pinneapple_twin3d.wear.presets:bof_converter": {
+  "code_hash": "b0047ad92c7fdaaf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.presets:pig_iron_ladle": {
+  "code_hash": "e37c0705f1651817",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.presets:rh_degasser": {
+  "code_hash": "419386bb683c7e4d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.presets:smelting_reduction_reactor": {
+  "code_hash": "99ce051ae1ade96b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_twin3d.wear.presets:steel_ladle": {
+  "code_hash": "ae138a63685aa909",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ }
+}

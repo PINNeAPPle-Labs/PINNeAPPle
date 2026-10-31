@@ -1,0 +1,18 @@
+{
+ "pinneapple_veriphysics.ledger:EvidenceLedger": {
+  "code_hash": "0398a2e7baf419fb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EvidenceLedger",
+  "seconds": 0.0
+ },
+ "pinneapple_veriphysics.ledger:utc_now": {
+  "code_hash": "f5d0fc285a0b0f18",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ }
+}

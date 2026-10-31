@@ -485,15 +485,15 @@
   "seconds": 0.0
  },
  "pinneapple_neural.trainer.preprocess:MissingValueStep": {
-  "code_hash": "3ada6f8d08ccf5c5",
+  "code_hash": "a1767091c8557c6b",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "MissingValueStep",
-  "seconds": 0.0
+  "seconds": 5.66
  },
  "pinneapple_neural.trainer.preprocess:NormalizeStep": {
-  "code_hash": "b4613e1f434725c9",
+  "code_hash": "c94b4be8817582e0",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",

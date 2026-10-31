@@ -1,0 +1,3 @@
+pinneapple[surrogate]
+fastapi
+uvicorn

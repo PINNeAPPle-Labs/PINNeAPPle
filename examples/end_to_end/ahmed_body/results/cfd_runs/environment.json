@@ -1,0 +1,14 @@
+{
+ "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+ "python": "3.13.17",
+ "cpu_count": 4,
+ "machine": "x86_64",
+ "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "mem_gb": 15.7,
+ "numpy": "2.5.3",
+ "scipy": "1.18.1",
+ "sklearn": "1.9.1",
+ "torch": "2.14.1+cu130",
+ "pinneapple": "0.7.0",
+ "git_commit": "09ceeb5835ab9f449e2fe580cf01bef38314ee6f"
+}

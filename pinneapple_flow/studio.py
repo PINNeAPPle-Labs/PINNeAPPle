@@ -36,7 +36,9 @@ def load_app():
 
 
 def serve(host: str | None = None, port: int | None = None, *, open_browser: bool = True, env_file: str = ".env",
-          allow_insecure: bool = False) -> int:
+          allow_insecure: bool = False, routers: list | None = None, name: str = "PINNeAPPle Flow Studio") -> int:
+    """Run the app; ``routers`` (``[(prefix, APIRouter)]``) are included before the UI (the PINNeAPPle Studio adds
+    its API this way)."""
     from .config import Settings, load_dotenv
     load_dotenv(env_file)
     s = Settings.from_env()
@@ -49,12 +51,18 @@ def serve(host: str | None = None, port: int | None = None, *, open_browser: boo
             return 2
     import uvicorn
     app = load_app()
+    for prefix, r in routers or []:
+        n = len(app.router.routes)
+        app.include_router(r, prefix=prefix)
+        new = app.router.routes[n:]
+        del app.router.routes[n:]
+        app.router.routes[:0] = new                                    # before the UI mounted at "/"
     dist = app_dir() / "frontend" / "dist"
     if not (dist / "index.html").is_file():
         print(f"note: no built frontend in {dist}; the API runs, build the UI with "
               f"`cd {app_dir() / 'frontend'} && npm install && npm run build`", file=sys.stderr)
     url = f"http://{'127.0.0.1' if host in ('0.0.0.0', '::') else host}:{port}/"
-    print(f"PINNeAPPle Flow Studio on {url}", file=sys.stderr)
+    print(f"{name} on {url}", file=sys.stderr)
     if open_browser:
         import threading
         import webbrowser

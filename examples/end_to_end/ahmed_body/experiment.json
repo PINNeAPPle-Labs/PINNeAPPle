@@ -1,0 +1,411 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "ahmed_body_end_to_end",
+ "title": "Ahmed body: an end-to-end CFD surrogate study",
+ "description": "OpenFOAM k-omega SST campaign on the Ahmed body (mesh study, validation against Ahmed et al. 1984, maximin DOE), surrogate families at equal budget with cross-conformal intervals and physics checks, Sobol indices, a verified Pareto front, acquisition against random runs, an amortised inverse on the wind-tunnel drag, a digital twin and an evidence report.",
+ "domain": "fluids",
+ "methods": [
+  "OpenFOAM simpleFoam k-omega SST",
+  "GP",
+  "MLP ensemble",
+  "quadratic RSM",
+  "POD-GP",
+  "POD-MLP",
+  "POD-RBF",
+  "DeepONet",
+  "cross-conformal intervals",
+  "NSGA-II",
+  "Sobol (Saltelli)",
+  "MDN"
+ ],
+ "modules": [
+  "pinneapple_autolab.study",
+  "pinneapple_autolab.domains.ahmed",
+  "pinneapple_autolab.domains.ahmed_study",
+  "pinneapple_analysis.inverse_problems.amortized"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "cad_vs_parametric_cd_rel",
+   "value": 0.012767096863239846,
+   "unit": "1",
+   "how": "CD of the imported CAD body over the parametric body, baseline, L1 mesh, OpenFOAM"
+  },
+  {
+   "name": "cd_baseline_L0",
+   "value": 0.28899965610083705,
+   "unit": "1",
+   "how": "OpenFOAM, 84223 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "cd_baseline_L1",
+   "value": 0.29656455281749244,
+   "unit": "1",
+   "how": "OpenFOAM, 207080 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "cd_baseline_L2",
+   "value": 0.2707438409326792,
+   "unit": "1",
+   "how": "OpenFOAM, 534472 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "cd_baseline_L3",
+   "value": 0.2639794841992436,
+   "unit": "1",
+   "how": "OpenFOAM, 1398073 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "gci_cd_finest",
+   "value": 0.010983516789688657,
+   "unit": "1",
+   "how": "grid-convergence index of CD on the finest mesh (Celik 2008)"
+  },
+  {
+   "name": "validation_cd_rel_error_median",
+   "value": 0.10913102977129793,
+   "unit": "1",
+   "how": "median |CD_cfd / CD_measured - 1| over the six slant angles of Ahmed et al. (1984), L1 mesh"
+  },
+  {
+   "name": "validation_cd_rel_error_max",
+   "value": 0.47505500955349184,
+   "unit": "1",
+   "how": "largest of the same"
+  },
+  {
+   "name": "doe_discrepancy",
+   "value": 0.003926490735626897,
+   "unit": "1",
+   "how": "centred L2 discrepancy of the 48-point maximin LHS"
+  },
+  {
+   "name": "doe_discrepancy_random",
+   "value": 0.014111927749649977,
+   "unit": "1",
+   "how": "median over 20 random designs of 48 points"
+  },
+  {
+   "name": "CD_mlp_ensemble_test_rmse",
+   "value": 0.0058077897236236955,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_mlp_ensemble_test_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_mlp_ensemble_extrapolation_rmse",
+   "value": 0.05490579162829671,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CL_gp_test_rmse",
+   "value": 0.020438322550755707,
+   "unit": "1",
+   "how": "gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CL_gp_test_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CL_gp_extrapolation_rmse",
+   "value": 0.18406611561935646,
+   "unit": "1",
+   "how": "gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CL_gp_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_test_rmse",
+   "value": 0.009961853559193186,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_extrapolation_rmse",
+   "value": 0.06157521532942428,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_pressure_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.9,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_test_rmse",
+   "value": 0.0010223555361808779,
+   "unit": "1",
+   "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_extrapolation_rmse",
+   "value": 0.0011313648702502251,
+   "unit": "1",
+   "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "CD_friction_mlp_ensemble_extrapolation_coverage90",
+   "value": 1.0,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "cp_pod_gp_test_rel_l2_mean",
+   "value": 0.09864566942506316,
+   "unit": "1",
+   "how": "pod_gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "cp_pod_gp_test_coverage90",
+   "value": 0.892175899486008,
+   "unit": "1",
+   "how": "share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "cp_pod_gp_extrapolation_rel_l2_mean",
+   "value": 0.19955394705004226,
+   "unit": "1",
+   "how": "pod_gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "cp_pod_gp_extrapolation_coverage90",
+   "value": 0.8336379211878926,
+   "unit": "1",
+   "how": "share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "sobol_total_CD_slant_deg",
+   "value": 0.9617356167204382,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_clearance",
+   "value": 0.05327907219339082,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_speed",
+   "value": 0.014496346344442041,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_slant_deg",
+   "value": 0.9424178498381871,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_clearance",
+   "value": 0.06049314764729285,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CL_speed",
+   "value": 6.8917946376608565e-06,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_slant_deg",
+   "value": 0.08895820794407246,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_clearance",
+   "value": 0.039027944734399765,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "sobol_total_CD_friction_speed",
+   "value": 0.9298479677451612,
+   "unit": "1",
+   "how": "total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "pareto_pick0_cd_abs_error",
+   "value": 0.0010133748494556283,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "pareto_pick1_cd_abs_error",
+   "value": 0.007387636629499206,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "pareto_pick2_cd_abs_error",
+   "value": 0.002708717296291241,
+   "unit": "1",
+   "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe",
+   "value": 0.004225620951569742,
+   "unit": "1",
+   "how": "GP of CD fitted on doe, RMSE on the test split"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe_plus_acquired",
+   "value": 0.004708275520975552,
+   "unit": "1",
+   "how": "GP of CD fitted on doe + acquired, RMSE on the test split"
+  },
+  {
+   "name": "active_learning_cd_rmse_doe_plus_random",
+   "value": 0.004252154994622719,
+   "unit": "1",
+   "how": "GP of CD fitted on doe + random, RMSE on the test split"
+  },
+  {
+   "name": "inverse_heldout_inside_hdi90",
+   "value": 0.95,
+   "unit": "1",
+   "how": "share of held-out CFD cases whose slant lies inside the MDN 90 % HDI from their CFD drag"
+  },
+  {
+   "name": "inverse_ahmed_1984_inside_hdi90",
+   "value": 0.6666666666666666,
+   "unit": "1",
+   "how": "share of the Ahmed, Ramm & Faltin (1984) measurements whose slant lies inside the MDN 90 % HDI"
+  },
+  {
+   "name": "twin_interpolation_error_CD",
+   "value": 0.012525765062239791,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_CL",
+   "value": 0.03687439742417581,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_field_Cp",
+   "value": 0.5680705514631842,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "twin_interpolation_error_field_Cp_pod_truncation",
+   "value": 4.773959005888173e-15,
+   "unit": "1",
+   "how": "max |page interpolation - model| on 256 random points"
+  },
+  {
+   "name": "cfd_cpu_hours",
+   "value": 48.824951938934454,
+   "unit": "h",
+   "how": "sum over CFD purposes of wall time x MPI processes"
+  }
+ ],
+ "checks": [
+  {
+   "name": "evidence_package_intact",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pinneapple_veriphysics.evidence_package.verify_package on evidence.zip",
+   "kind": "sanity"
+  },
+  {
+   "name": "every_stage_measured",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "stages without a result file: visuals",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/figures/active_learning_cd.png",
+   "results/figures/coverage_cd.png",
+   "results/figures/coverage_cp.png",
+   "results/figures/grid_convergence_cd.png",
+   "results/figures/pareto.png",
+   "results/figures/parity_CD.png",
+   "results/figures/parity_CL.png",
+   "results/figures/posterior_slant_25.png",
+   "results/figures/posterior_slant_30.png",
+   "results/figures/sobol_cd.png",
+   "results/figures/validation_cd.png"
+  ],
+  "videos": [],
+  "viewers": [
+   "results/report.html"
+  ],
+  "data": [
+   "results/evidence.zip",
+   "results/summary.json",
+   "results/costs.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "Ahmed, S.R., Ramm, G., Faltin, G. (1984). Some salient features of the time-averaged ground vehicle wake. SAE Technical Paper 840300. Values as transcribed in examples/qualitative/03_ahmed_slant.py (60 m/s, Re 4.29e6 on the length).",
+  "Lienhart, H., Becker, S. (2003). Flow and turbulence structure in the wake of a simplified car model. SAE Technical Paper 2003-01-0656 (LSTM Erlangen low-speed wind tunnel, bulk velocity 40 m/s, slant 25 and 35 deg; LDA and surface-pressure data in the ERCOFTAC database, case 082 / KB wiki AC1-05)."
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "3dc0f5b9",
+  "created": "2026-10-31T05:45:41Z",
+  "seconds": 0.342,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

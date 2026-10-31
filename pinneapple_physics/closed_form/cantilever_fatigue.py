@@ -22,7 +22,13 @@ def stress_from_moment_pa(width_m: float, thickness_m: float, moment_n_m: float)
     """sigma = M*c/I for a solid rectangular cross-section (width x
     thickness), the shared real computation behind both the scalar
     fixed-end stress and the spatial stress profile below -- one
-    formula, not two independent implementations."""
+    formula, not two independent implementations.
+
+    Returns
+    -------
+    sigma : float [Pa]
+        Bending stress at the outer fibre.
+    """
     w = max(width_m, FLOAT_FLOOR)
     t = max(thickness_m, FLOAT_FLOOR)
     i_section = w * t ** 3 / 12.0
@@ -33,7 +39,13 @@ def stress_from_moment_pa(width_m: float, thickness_m: float, moment_n_m: float)
 def cantilever_root_bending_stress_pa(width_m: float, thickness_m: float, load_n: float, length_m: float) -> float:
     """The real, closed-form ground-truth bending stress at the fixed
     (pivot) end of a cantilever beam, where the bending moment is
-    maximum (M = F*L)."""
+    maximum (M = F*L).
+
+    Returns
+    -------
+    sigma : float [Pa]
+        Bending stress at the fixed end.
+    """
     return stress_from_moment_pa(width_m, thickness_m, load_n * length_m)
 
 
@@ -49,7 +61,13 @@ def cantilever_bending_stress_at_position_pa(
         M(x) = F * (L - x)
 
     maximum at the fixed root (M(0) = F*L, matching the scalar
-    function exactly) and zero at the free tip (M(L) = 0)."""
+    function exactly) and zero at the free tip (M(L) = 0).
+
+    Returns
+    -------
+    sigma : float [Pa]
+        Bending stress at ``x_from_root_m``.
+    """
     x = min(max(x_from_root_m, 0.0), length_m)
     moment = load_n * (length_m - x)
     return stress_from_moment_pa(width_m, thickness_m, moment)
@@ -58,7 +76,13 @@ def cantilever_bending_stress_at_position_pa(
 def basquin_fatigue_life_cycles(stress_amplitude_pa: float, fatigue_strength_coeff_pa: float, fatigue_strength_exponent: float) -> float:
     """Basquin's stress-life relationship solved for cycles to failure
     N, given a real stress amplitude and the material's real fatigue
-    strength coefficient (sigma_f') and exponent (b)."""
+    strength coefficient (sigma_f') and exponent (b).
+
+    Returns
+    -------
+    N : float [-]
+        Cycles to failure.
+    """
     return 0.5 * (stress_amplitude_pa / fatigue_strength_coeff_pa) ** (1.0 / fatigue_strength_exponent)
 
 
@@ -68,5 +92,11 @@ def basquin_allowable_stress_pa(target_life_cycles: float, fatigue_strength_coef
     standard way this design problem is posed in practice (design
     against an allowable stress, not directly against raw cycles,
     since cycle counts span many orders of magnitude under the power
-    law and are numerically ill-behaved to optimize against directly)."""
+    law and are numerically ill-behaved to optimize against directly).
+
+    Returns
+    -------
+    sigma_a : float [Pa]
+        Allowable stress amplitude.
+    """
     return fatigue_strength_coeff_pa * (2.0 * target_life_cycles) ** fatigue_strength_exponent

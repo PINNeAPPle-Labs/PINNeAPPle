@@ -83,7 +83,13 @@ def fin_array_base_temperature_c(params: Dict[str, float], t_ambient_c: float, p
     """The real, closed-form scalar ground truth: temperature at the
     base of the fin array (before any further, separate resistance --
     e.g. a downstream product's own die-to-base spreading term -- is
-    added on top by the caller)."""
+    added on top by the caller).
+
+    Returns
+    -------
+    T_base : float [degC]
+        Temperature at the base of the fin array.
+    """
     return t_ambient_c + power_w * params["r_base"] + params["theta_fin_base_c"]
 
 
@@ -112,6 +118,11 @@ def fin_array_temperature_at_position_c(
     evaluate it along) may pass a different real corrected length
     explicitly. This is not a second, competing derivation --
     ``theta_fin_base_c`` is the one real boundary value both share.
+
+    Returns
+    -------
+    T : float [degC]
+        Fin temperature at ``x_from_root_m``.
     """
     lc = corrected_length_m if corrected_length_m is not None else params["lc_m"]
     x = min(max(x_from_root_m, 0.0), lc)

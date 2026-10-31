@@ -26,7 +26,13 @@ G0 = 9.80665  # standard gravity, m/s^2 (Isp in seconds)
 
 
 def area_ratio(M: float, gamma: float) -> float:
-    """A/A* at Mach ``M`` (both branches)."""
+    """A/A* at Mach ``M`` (both branches).
+
+    Returns
+    -------
+    ratio : float [-]
+        A/A*.
+    """
     if M <= 0:
         raise ValueError("Mach number must be positive")
     return float(isentropic_ratios(M, gamma)["A_Astar"])
@@ -34,7 +40,13 @@ def area_ratio(M: float, gamma: float) -> float:
 
 def mach_from_area_ratio(ratio: float, gamma: float, *, supersonic: bool = True, tol: float = 1e-12,
                          max_iter: int = 300) -> float:
-    """Invert A/A*(M) = ``ratio`` (>= 1) on the supersonic (default) or subsonic branch, by bisection."""
+    """Invert A/A*(M) = ``ratio`` (>= 1) on the supersonic (default) or subsonic branch, by bisection.
+
+    Returns
+    -------
+    M : float [-]
+        Mach number.
+    """
     if ratio < 1.0 - 1e-12:
         raise ValueError(f"area ratio must be >= 1 (got {ratio})")
     ratio = max(ratio, 1.0)
@@ -65,29 +77,59 @@ def mach_from_area_ratio(ratio: float, gamma: float, *, supersonic: bool = True,
 
 
 def pressure_ratio(M: float, gamma: float) -> float:
-    """Static over stagnation pressure p/p0 at Mach ``M``."""
+    """Static over stagnation pressure p/p0 at Mach ``M``.
+
+    Returns
+    -------
+    ratio : float [-]
+        p/p0.
+    """
     return float(1.0 / isentropic_ratios(M, gamma)["p0_p"])
 
 
 def temperature_ratio(M: float, gamma: float) -> float:
-    """Static over stagnation temperature T/T0 at Mach ``M``."""
+    """Static over stagnation temperature T/T0 at Mach ``M``.
+
+    Returns
+    -------
+    ratio : float [-]
+        T/T0.
+    """
     return float(1.0 / isentropic_ratios(M, gamma)["T0_T"])
 
 
 def choked_mass_flow(p0: float, throat_area: float, gamma: float, R_gas: float, T0: float) -> float:
-    """Mass flow (kg/s) through a choked throat (Sutton & Biblarz eq. 3-24)."""
+    """Mass flow (kg/s) through a choked throat (Sutton & Biblarz eq. 3-24).
+
+    Returns
+    -------
+    mdot : float [kg/s]
+        Mass flow, for SI inputs (Pa, m2, J/(kg K), K).
+    """
     k = (gamma + 1.0) / (2.0 * (gamma - 1.0))
     return p0 * throat_area * math.sqrt(gamma / (R_gas * T0)) * (2.0 / (gamma + 1.0)) ** k
 
 
 def characteristic_velocity(gamma: float, R_gas: float, T0: float) -> float:
-    """c* = p0 A_t / mdot (m/s): depends on the gas and chamber temperature only (eq. 3-32)."""
+    """c* = p0 A_t / mdot (m/s): depends on the gas and chamber temperature only (eq. 3-32).
+
+    Returns
+    -------
+    c_star : float [m/s]
+        Characteristic velocity, for SI inputs (J/(kg K), K).
+    """
     k = (gamma + 1.0) / (2.0 * (gamma - 1.0))
     return math.sqrt(R_gas * T0 / gamma) * ((gamma + 1.0) / 2.0) ** k
 
 
 def thrust_coefficient(p_exit: float, p0: float, p_atm: float, ratio: float, gamma: float) -> float:
-    """C_F = momentum term + (p_e - p_a) / p0 * A_e/A_t (eq. 3-30)."""
+    """C_F = momentum term + (p_e - p_a) / p0 * A_e/A_t (eq. 3-30).
+
+    Returns
+    -------
+    C_F : float [-]
+        Thrust coefficient.
+    """
     k = (gamma + 1.0) / (gamma - 1.0)
     momentum = (2.0 * gamma ** 2 / (gamma - 1.0) * (2.0 / (gamma + 1.0)) ** k
                 * (1.0 - (p_exit / p0) ** ((gamma - 1.0) / gamma)))
@@ -95,7 +137,13 @@ def thrust_coefficient(p_exit: float, p0: float, p_atm: float, ratio: float, gam
 
 
 def specific_impulse(cf: float, c_star: float, g0: float = G0) -> float:
-    """Isp = C_F c* / g0 (s), eq. 3-33."""
+    """Isp = C_F c* / g0 (s), eq. 3-33.
+
+    Returns
+    -------
+    Isp : float [s]
+        Specific impulse, for ``c_star`` in m/s and ``g0`` in m/s2.
+    """
     return cf * c_star / g0
 
 

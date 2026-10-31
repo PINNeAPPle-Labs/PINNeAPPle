@@ -14,7 +14,13 @@ __all__ = ["clift_sphere_cd", "schiller_naumann_cd"]
 
 
 def clift_sphere_cd(re: float) -> float:
-    """Sphere drag coefficient of Clift, Grace & Weber (1978), Table 5.2, range 20 < Re <= 260 (warns outside)."""
+    """Sphere drag coefficient of Clift, Grace & Weber (1978), Table 5.2, range 20 < Re <= 260 (warns outside).
+
+    Returns
+    -------
+    Cd : float [-]
+        Drag coefficient.
+    """
     if not re > 0:
         raise ValueError(f"Re must be positive, got {re}")
     if not 20.0 < re <= 260.0:
@@ -23,7 +29,13 @@ def clift_sphere_cd(re: float) -> float:
 
 
 def schiller_naumann_cd(re: float) -> float:
-    """Sphere drag coefficient of Schiller & Naumann (1933), Re < 800 (warns above)."""
+    """Sphere drag coefficient of Schiller & Naumann (1933), Re < 800 (warns above).
+
+    Returns
+    -------
+    Cd : float [-]
+        Drag coefficient.
+    """
     if not re > 0:
         raise ValueError(f"Re must be positive, got {re}")
     if re >= 800.0:

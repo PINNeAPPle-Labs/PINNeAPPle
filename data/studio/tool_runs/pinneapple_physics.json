@@ -547,7 +547,7 @@
   "seconds": 2.1
  },
  "pinneapple_physics.closed_form.cantilever_fatigue:basquin_allowable_stress_pa": {
-  "code_hash": "44b697d1e6c59aad",
+  "code_hash": "9d4575763cdb815c",
   "inputs": {
    "fatigue_strength_coeff_pa": 1200000000.0,
    "fatigue_strength_exponent": -0.09,
@@ -556,10 +556,10 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 3.89
+  "seconds": 4.7
  },
  "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_bending_stress_at_position_pa": {
-  "code_hash": "db23f48864de6296",
+  "code_hash": "5a86f6ef079d4d53",
   "inputs": {
    "length_m": 0.35,
    "load_n": 1200.0,
@@ -573,7 +573,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa": {
-  "code_hash": "c00867abe81407b3",
+  "code_hash": "cb8a35ae10e4d27c",
   "inputs": {
    "length_m": 0.15,
    "load_n": 60.0,
@@ -604,7 +604,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt": {
-  "code_hash": "ec2306ec0b26aa98",
+  "code_hash": "a13b33f1cdfde0c5",
   "inputs": {
    "d_over_l": 1e-06,
    "pr": 0.7,
@@ -616,7 +616,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.helmholtz_resonator:helmholtz_resonant_frequency_hz": {
-  "code_hash": "667ba73f5a06ea8a",
+  "code_hash": "81d13fb31d5a4796",
   "inputs": {
    "cabinet_volume_l": 40.0,
    "port_length_m": 0.12,
@@ -628,7 +628,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.helmholtz_resonator:port_volume_m3": {
-  "code_hash": "e088af5e8fccc10b",
+  "code_hash": "b41eaf943c947ae5",
   "inputs": {
    "port_length_m": 0.1,
    "port_radius_m": 0.025
@@ -685,7 +685,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.membrane_diffusion:concentration_at_membrane_depth": {
-  "code_hash": "0fb289d356cba934",
+  "code_hash": "6209a7590ecc296d",
   "inputs": {
    "membrane_thickness_m": 8e-05,
    "partition_coeff": 1.0,
@@ -698,7 +698,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.membrane_diffusion:depletion_time_days": {
-  "code_hash": "30d1d498e0d0f8d9",
+  "code_hash": "0ec6be146d100990",
   "inputs": {
    "diffusion_coeff_m2_s": 5e-13,
    "membrane_thickness_m": 8e-05,
@@ -727,7 +727,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.membrane_diffusion:steady_state_release_rate_mg_day": {
-  "code_hash": "da758b34e199cf7b",
+  "code_hash": "1d8d29f89689c521",
   "inputs": {
    "area_m2": 0.002,
    "diffusion_coeff_m2_s": 5e-13,
@@ -741,7 +741,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
-  "code_hash": "e1ea3f02475f9581",
+  "code_hash": "b4fa455306b5f633",
   "inputs": {
    "re": 100
   },
@@ -751,7 +751,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.particle_drag:schiller_naumann_cd": {
-  "code_hash": "5ed0504837c4f7f4",
+  "code_hash": "6a23fc4cf3fe4d33",
   "inputs": {
    "re": 100
   },
@@ -769,7 +769,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pcb_thermal:via_copper_fraction": {
-  "code_hash": "e5fa270ecd888fa3",
+  "code_hash": "5c9cc7bf9c97c0df",
   "inputs": {
    "area_m2": 2.5e-05,
    "drill_mm": 0.3,
@@ -782,7 +782,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_flow:blasius": {
-  "code_hash": "d2d01aa2a0b76786",
+  "code_hash": "29140978642a942f",
   "inputs": {
    "Re": 10000.0
   },
@@ -792,7 +792,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_flow:colebrook": {
-  "code_hash": "f41a0e7f273c9d0b",
+  "code_hash": "48a62e06fc4d9b27",
   "inputs": {
    "Re": 3000000.0,
    "rel_rough": 0.001
@@ -803,7 +803,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_flow:curved_pipe_ratio": {
-  "code_hash": "80582f2ec226f44f",
+  "code_hash": "a1ca9abc57212e4b",
   "inputs": {
    "De": 10.0
   },
@@ -813,7 +813,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_flow:dean_number": {
-  "code_hash": "6586b2718a5f7835",
+  "code_hash": "b75c9bcf97eab407",
   "inputs": {
    "D": 10,
    "Rc": 40,
@@ -825,7 +825,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_flow:laminar": {
-  "code_hash": "dbdedf2616e4605d",
+  "code_hash": "f7f549fcfe299486",
   "inputs": {
    "Re": 1000.0
   },
@@ -876,7 +876,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pump_npsh:atmosphere": {
-  "code_hash": "755fe15475682f99",
+  "code_hash": "66f71bb9434d6640",
   "inputs": {
    "z_m": 1000.0
   },
@@ -886,7 +886,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.rocket_nozzle:area_ratio": {
-  "code_hash": "a597d0456807bc4e",
+  "code_hash": "c7c8ba16976555cd",
   "inputs": {
    "M": 2.0,
    "gamma": 1.4
@@ -897,7 +897,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.rocket_nozzle:mach_from_area_ratio": {
-  "code_hash": "adc355d8ad7e654b",
+  "code_hash": "5b18a268c972b824",
   "inputs": {
    "gamma": 1.4,
    "ratio": 1.6875
@@ -908,7 +908,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.rocket_nozzle:pressure_ratio": {
-  "code_hash": "48ce50e86a5d24aa",
+  "code_hash": "d1275824bc6c6547",
   "inputs": {
    "M": 2.0,
    "gamma": 1.4
@@ -919,7 +919,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.rocket_nozzle:temperature_ratio": {
-  "code_hash": "54130c7abed97e77",
+  "code_hash": "371899cb02b30f7e",
   "inputs": {
    "M": 2.0,
    "gamma": 1.4
@@ -930,7 +930,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.thin_airfoil:hoerner_profile_cd": {
-  "code_hash": "9cb23576b6d59c2d",
+  "code_hash": "c36cb2bc53a357f3",
   "inputs": {
    "reynolds": 3000000.0,
    "t_c": 0.0
@@ -941,7 +941,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.thin_airfoil:naca4_camber_slope": {
-  "code_hash": "ede45e4152d7ea53",
+  "code_hash": "76ff4a3ed13bdde6",
   "inputs": {
    "m": 0.02,
    "p": 0.4,
@@ -957,7 +957,7 @@
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.thin_airfoil:thin_airfoil_cl": {
-  "code_hash": "7f6dc1fa9e7f32b7",
+  "code_hash": "d1fb779284c9f650",
   "inputs": {
    "alpha_deg": 4.0,
    "m": 0.0,

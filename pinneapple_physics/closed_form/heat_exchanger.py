@@ -29,7 +29,13 @@ __all__ = ["effectiveness", "ntu_from_effectiveness", "lmtd_correction_1_2", "gn
 
 
 def effectiveness(ntu: float, cr: float, arrangement: str = "counterflow", n_shell: int = 1) -> float:
-    """epsilon(NTU, C_r) of the given arrangement ("counterflow", "parallel", "shell_tube", "crossflow")."""
+    """epsilon(NTU, C_r) of the given arrangement ("counterflow", "parallel", "shell_tube", "crossflow").
+
+    Returns
+    -------
+    eps : float [-]
+        Effectiveness.
+    """
     if ntu < 0 or not 0 <= cr <= 1:
         raise ValueError("NTU >= 0 and 0 <= C_r <= 1")
     if cr < 1e-12:
@@ -58,7 +64,13 @@ def effectiveness(ntu: float, cr: float, arrangement: str = "counterflow", n_she
 
 
 def ntu_from_effectiveness(eps: float, cr: float, arrangement: str = "counterflow") -> float:
-    """Inverse of :func:`effectiveness` (bisection; NTU up to 50)."""
+    """Inverse of :func:`effectiveness` (bisection; NTU up to 50).
+
+    Returns
+    -------
+    ntu : float [-]
+        Number of transfer units.
+    """
     lo, hi = 0.0, 50.0
     if eps >= effectiveness(hi, cr, arrangement):
         raise ValueError("effectiveness not reachable with this arrangement")
@@ -69,7 +81,13 @@ def ntu_from_effectiveness(eps: float, cr: float, arrangement: str = "counterflo
 
 
 def lmtd_correction_1_2(t_hot_in: float, t_hot_out: float, t_cold_in: float, t_cold_out: float) -> float:
-    """F of a 1-2 exchanger (shell fluid either side), Bowman et al. (1940)."""
+    """F of a 1-2 exchanger (shell fluid either side), Bowman et al. (1940).
+
+    Returns
+    -------
+    F : float [-]
+        LMTD correction factor.
+    """
     R = (t_hot_in - t_hot_out) / (t_cold_out - t_cold_in)
     P = (t_cold_out - t_cold_in) / (t_hot_in - t_cold_in)
     s = math.sqrt(R * R + 1)
@@ -91,7 +109,13 @@ def gnielinski(re: float, pr: float) -> dict[str, float]:
 
 def hausen_mean_nusselt(re: float, pr: float, d_over_l: float) -> float:
     """Mean Nusselt number over a heated length L of a tube at constant wall temperature, laminar, velocity already
-    developed (thermal entry): Hausen (1943), Incropera 6th ed. eq. 8.57. Tends to 3.66 for a long tube."""
+    developed (thermal entry): Hausen (1943), Incropera 6th ed. eq. 8.57. Tends to 3.66 for a long tube.
+
+    Returns
+    -------
+    Nu_m : float [-]
+        Mean Nusselt number.
+    """
     if not (re > 0 and pr > 0 and d_over_l > 0):
         raise ValueError("re, pr and d_over_l must be positive")
     gz = d_over_l * re * pr
@@ -102,7 +126,13 @@ def mean_nusselt_from_temperatures(re: float, pr: float, d_over_l: float, t_wall
                                    t_out: float) -> float:
     """Mean Nusselt number of a tube at constant wall temperature from its bulk inlet and outlet temperatures:
     the energy balance ``ln((Tw - Ti) / (Tw - To)) = 4 (L / D) Nu_m / (Re Pr)`` (Incropera eq. 8.41b with
-    h_m = Nu_m k / D)."""
+    h_m = Nu_m k / D).
+
+    Returns
+    -------
+    Nu_m : float [-]
+        Mean Nusselt number.
+    """
     return re * pr * d_over_l / 4.0 * math.log((t_wall - t_in) / (t_wall - t_out))
 
 

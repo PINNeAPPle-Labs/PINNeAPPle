@@ -1,0 +1,429 @@
+{
+ "spec": {
+  "qz_diameter": 1.0,
+  "amp_tol_db": 0.5,
+  "phase_tol_deg": 5.0,
+  "xpol_max_db": -25.0
+ },
+ "base": {
+  "freq_hz": 2000000000.0,
+  "reflector": {
+   "focal": 4.0,
+   "half_x": 1.6,
+   "half_y": 1.6,
+   "centre_y": 2.0,
+   "n": 6.0,
+   "roll": 0.45,
+   "end_angle": -90.0,
+   "blend": 0.3,
+   "roll_aspect": 1.0
+  },
+  "feed_gain_dbi": 16.0,
+  "pol": "V",
+  "qz_z": 7.0,
+  "qz_diameter": 1.0,
+  "qz_centre_y": null,
+  "feed_offset": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mesh_per_wavelength": 8.0,
+  "eval_factor": 1.6,
+  "qz_step_per_wavelength": 4.0
+ },
+ "limits": "physical optics: no fringe edge currents (PTD) and no multiple reflections; ideal cos^q feed (no back radiation, no feed or strut blockage, no chamber); the edge diffraction is that of the truncated PO current; verification by PO only (no MoM solver wired in)",
+ "grid": {
+  "gains_dBi": [
+   10.0,
+   13.0,
+   16.0,
+   19.0,
+   22.0
+  ],
+  "sides_m": [
+   2.4,
+   2.8,
+   3.2,
+   3.6,
+   4.0,
+   4.4,
+   4.8
+  ],
+  "freqs_hz": [],
+  "focals_m": [
+   3.0,
+   4.0,
+   5.0
+  ]
+ },
+ "n_designs": 105,
+ "seconds_median": 105.528,
+ "seconds_sweep": 11520.342999999999,
+ "facet_convergence": {
+  "runs": [
+   {
+    "per_wavelength": 6.0,
+    "n_triangles": 166341,
+    "seconds": 59.723,
+    "amp_pp_dB": 1.2052828096167731,
+    "phase_pp_deg": 2.9088047441987523,
+    "taper_dB": 0.779820251645416,
+    "ripple_pp_dB": 0.7615466612331567,
+    "phase_ripple_pp_deg": 2.0190275318022737,
+    "usable_diameter": 0.899377374,
+    "xpol_dB": -29.58500110084008
+   },
+   {
+    "per_wavelength": 8.0,
+    "n_triangles": 296310,
+    "seconds": 106.727,
+    "amp_pp_dB": 1.206019137234037,
+    "phase_pp_deg": 2.9148548555100215,
+    "taper_dB": 0.7821667511164867,
+    "ripple_pp_dB": 0.7474885611422506,
+    "phase_ripple_pp_deg": 1.9749017293455537,
+    "usable_diameter": 0.899377374,
+    "xpol_dB": -29.759401455226214
+   },
+   {
+    "per_wavelength": 12.0,
+    "n_triangles": 663585,
+    "seconds": 240.51,
+    "amp_pp_dB": 1.196762277999754,
+    "phase_pp_deg": 2.9156255789282364,
+    "taper_dB": 0.7783989672590492,
+    "ripple_pp_dB": 0.7480889053206784,
+    "phase_ripple_pp_deg": 2.0206088723976423,
+    "usable_diameter": 0.899377374,
+    "xpol_dB": -29.645275704161694
+   }
+  ],
+  "diff_to_finest": [
+   {
+    "per_wavelength": 6.0,
+    "amp_pp_dB": 0.008520531617019156,
+    "phase_pp_deg": -0.006820834729484027,
+    "taper_dB": 0.0014212843863667945,
+    "ripple_pp_dB": 0.01345775591247833,
+    "phase_ripple_pp_deg": -0.00158134059536863,
+    "usable_diameter": 0.0,
+    "xpol_dB": 0.06027460332161283
+   },
+   {
+    "per_wavelength": 8.0,
+    "amp_pp_dB": 0.009256859234282988,
+    "phase_pp_deg": -0.0007707234182148248,
+    "taper_dB": 0.003767783857437479,
+    "ripple_pp_dB": -0.000600344178427803,
+    "phase_ripple_pp_deg": -0.04570714305208856,
+    "usable_diameter": 0.0,
+    "xpol_dB": -0.11412575106452039
+   },
+   {
+    "per_wavelength": 12.0,
+    "amp_pp_dB": 0.0,
+    "phase_pp_deg": 0.0,
+    "taper_dB": 0.0,
+    "ripple_pp_dB": 0.0,
+    "phase_ripple_pp_deg": 0.0,
+    "usable_diameter": 0.0,
+    "xpol_dB": 0.0
+   }
+  ]
+ },
+ "qz_grid_check": {
+  "steps_per_wavelength": [
+   4.0,
+   6.0
+  ],
+  "amp_pp_dB": [
+   1.206019137234037,
+   1.2713859144529138
+  ],
+  "phase_pp_deg": [
+   2.9148548555100215,
+   2.9332744026791273
+  ],
+  "taper_dB": [
+   0.7821667511164867,
+   0.7526976083322556
+  ],
+  "ripple_pp_dB": [
+   0.7474885611422506,
+   0.7600117954356649
+  ],
+  "phase_ripple_pp_deg": [
+   1.9749017293455537,
+   1.9882995808447457
+  ],
+  "usable_diameter": [
+   0.899377374,
+   0.899377374
+  ],
+  "xpol_dB": [
+   -29.759401455226214,
+   -29.815446863001917
+  ]
+ },
+ "power_balance": {
+  "feed_W": 1.0,
+  "intercepted_W": 0.9525424721946887,
+  "by_diameter": [
+   {
+    "plane_factor": 1.0,
+    "diameter_m": 4.5,
+    "through_plane_W": 0.903440187244878,
+    "ratio": 0.9484513432386091
+   },
+   {
+    "plane_factor": 1.25,
+    "diameter_m": 5.625,
+    "through_plane_W": 0.9226276479414401,
+    "ratio": 0.968594760730906
+   },
+   {
+    "plane_factor": 1.5,
+    "diameter_m": 6.75,
+    "through_plane_W": 0.9301987799503234,
+    "ratio": 0.9765431013350149
+   }
+  ],
+  "ratio": 0.9765431013350149,
+  "plane_z_m": 1.7918842033829787,
+  "step_m": 0.0749481145,
+  "n_points": 6369
+ },
+ "surrogate": {
+  "inputs": [
+   "feed_gain_dBi",
+   "side",
+   "focal"
+  ],
+  "usable_diameter": {
+   "rmse": 0.13953382291271652,
+   "coverage95": 0.8476190476190476,
+   "n": 105
+  },
+  "ripple_pp_dB": {
+   "rmse": 0.060183486158349495,
+   "coverage95": 0.9428571428571428,
+   "n": 105
+  },
+  "taper_dB": {
+   "rmse": 0.44235277258078487,
+   "coverage95": 0.8952380952380953,
+   "n": 105
+  },
+  "phase_ripple_pp_deg": {
+   "rmse": 0.6651778750905741,
+   "coverage95": 0.9047619047619048,
+   "n": 105
+  },
+  "xpol_dB": {
+   "rmse": 0.4775355328966002,
+   "coverage95": 0.9333333333333333,
+   "n": 105
+  }
+ },
+ "pareto_front": [
+  {
+   "tag": "g19_s2.4_f2_F4",
+   "feed_gain_dBi": 19.0,
+   "side": 2.4,
+   "f_GHz": 2.0,
+   "focal": 4.0,
+   "usable_diameter": 0.899377374,
+   "ripple_pp_dB": 1.147433380199685,
+   "xpol_dB": -31.460698906893594,
+   "meets_spec": false
+  },
+  {
+   "tag": "g13_s4.4_f2_F4",
+   "feed_gain_dBi": 13.0,
+   "side": 4.4,
+   "f_GHz": 2.0,
+   "focal": 4.0,
+   "usable_diameter": 0.9743254884999999,
+   "ripple_pp_dB": 0.6674113022409323,
+   "xpol_dB": -29.2798785771442,
+   "meets_spec": false
+  },
+  {
+   "tag": "g16_s4.8_f2_F4",
+   "feed_gain_dBi": 16.0,
+   "side": 4.8,
+   "f_GHz": 2.0,
+   "focal": 4.0,
+   "usable_diameter": 1.0055344728446258,
+   "ripple_pp_dB": 0.19729071123534683,
+   "xpol_dB": -27.89955326906389,
+   "meets_spec": true
+  }
+ ],
+ "optimiser": {
+  "found": true,
+  "design": {
+   "feed_gain_dBi": 15.7,
+   "side": 4.529999999999999,
+   "f_GHz": 2.0,
+   "focal": 4.0,
+   "amp_pp_dB": 0.8932096287946898,
+   "phase_pp_deg": 2.3602303324973866,
+   "taper_dB": 0.8402593369953412,
+   "ripple_pp_dB": 0.2363694533609343,
+   "phase_ripple_pp_deg": 1.7193904956674948,
+   "usable_diameter": 1.049273603,
+   "xpol_dB": -28.8414439984343
+  },
+  "history": [
+   {
+    "iteration": 1,
+    "feed_gain_dBi": 15.7,
+    "side": 4.529999999999999,
+    "how": "mean meets the spec (bound does not): exploring",
+    "predicted_usable": 1.0020101185117887,
+    "predicted_std": 0.1060125100356143,
+    "po_usable": 1.049273603,
+    "po_xpol_dB": -28.8414439984343,
+    "po_feasible": true
+   }
+  ],
+  "smallest_po_feasible_in_data": {
+   "tag": "g15.7_s4.53_f2_F4",
+   "feed_gain_dBi": 15.7,
+   "side": 4.529999999999999,
+   "amp_pp_dB": 0.8932096287946898,
+   "phase_pp_deg": 2.3602303324973866,
+   "taper_dB": 0.8402593369953412,
+   "ripple_pp_dB": 0.2363694533609343,
+   "phase_ripple_pp_deg": 1.7193904956674948,
+   "usable_diameter": 1.049273603,
+   "xpol_dB": -28.8414439984343
+  },
+  "spec": {
+   "qz_diameter": 1.0,
+   "amp_tol_db": 0.5,
+   "phase_tol_deg": 5.0,
+   "xpol_max_db": -25.0
+  },
+  "verified_by": "PO",
+  "limits": "physical optics: no fringe edge currents (PTD) and no multiple reflections; ideal cos^q feed (no back radiation, no feed or strut blockage, no chamber); the edge diffraction is that of the truncated PO current; verification by PO only (no MoM solver wired in)"
+ },
+ "cuts_design": {
+  "feed_gain_dBi": 15.7,
+  "side": 4.529999999999999
+ },
+ "cuts": {
+  "V_amp_pp_dB": 0.8932096287946898,
+  "V_phase_pp_deg": 2.2626205438563285,
+  "V_taper_dB": 0.8402593369953412,
+  "V_ripple_pp_dB": 0.22754723524783532,
+  "V_phase_ripple_pp_deg": 1.57268336094214,
+  "V_usable_diameter": 1.049273603,
+  "V_xpol_dB": -29.17602206147263,
+  "V_usable_limited_by_region": false,
+  "V_hcut_taper_dB": 0.5223228102781565,
+  "V_hcut_ripple_pp_dB": 0.13611069298659628,
+  "V_hcut_phase_ripple_pp_deg": 0.7587315012635594,
+  "V_vcut_taper_dB": 0.7785218889071731,
+  "V_vcut_ripple_pp_dB": 0.10544574878105292,
+  "V_vcut_phase_ripple_pp_deg": 0.757416622823047,
+  "H_amp_pp_dB": 0.8925722499321048,
+  "H_phase_pp_deg": 2.3602303324973866,
+  "H_taper_dB": 0.8292736559983082,
+  "H_ripple_pp_dB": 0.2363694533609343,
+  "H_phase_ripple_pp_deg": 1.7193904956674948,
+  "H_usable_diameter": 1.049273603,
+  "H_xpol_dB": -28.8414439984343,
+  "H_usable_limited_by_region": false,
+  "H_hcut_taper_dB": 0.5341601164515978,
+  "H_hcut_ripple_pp_dB": 0.1442242579298408,
+  "H_hcut_phase_ripple_pp_deg": 0.7211277559802548,
+  "H_vcut_taper_dB": 0.7721865909918033,
+  "H_vcut_ripple_pp_dB": 0.11787576816339237,
+  "H_vcut_phase_ripple_pp_deg": 0.8522721390578318,
+  "amp_pp_dB": 0.8932096287946898,
+  "phase_pp_deg": 2.3602303324973866,
+  "taper_dB": 0.8402593369953412,
+  "ripple_pp_dB": 0.2363694533609343,
+  "phase_ripple_pp_deg": 1.7193904956674948,
+  "usable_diameter": 1.049273603,
+  "xpol_dB": -28.8414439984343,
+  "feasible": true,
+  "feed_gain_dBi": 15.7,
+  "side": 4.529999999999999,
+  "focal": 4.0,
+  "side_wl": 30.220907024952574,
+  "f_GHz": 2.0,
+  "roll": 0.45,
+  "n_triangles": 417078,
+  "n_qz_points": 1433,
+  "seconds": 146.696
+ },
+ "checkpoints": "checkpoints",
+ "seconds_total": 704.8,
+ "agreement_887": {
+  "rows": [
+   {
+    "metric": "amp_pp_dB",
+    "887": 3.354054420125901,
+    "evaluate": 3.354054420125901,
+    "qz_report": 3.3540544201256193,
+    "abs_diff_vs_887": 2.815525590449397e-13,
+    "abs_diff_report_vs_evaluate": 2.815525590449397e-13
+   },
+   {
+    "metric": "phase_pp_deg",
+    "887": 20.250662813994495,
+    "evaluate": 20.250662813994495,
+    "qz_report": 20.250662813995138,
+    "abs_diff_vs_887": 6.430411758628907e-13,
+    "abs_diff_report_vs_evaluate": 6.430411758628907e-13
+   },
+   {
+    "metric": "taper_dB",
+    "887": 2.261314324764561,
+    "evaluate": 2.2613143247645597,
+    "qz_report": 2.261314324764556,
+    "abs_diff_vs_887": 4.884981308350689e-15,
+    "abs_diff_report_vs_evaluate": 3.552713678800501e-15
+   },
+   {
+    "metric": "ripple_pp_dB",
+    "887": 2.5141311501880343,
+    "evaluate": 2.5141311501880335,
+    "qz_report": 2.514131150188141,
+    "abs_diff_vs_887": 1.0658141036401503e-13,
+    "abs_diff_report_vs_evaluate": 1.0746958878371515e-13
+   },
+   {
+    "metric": "phase_ripple_pp_deg",
+    "887": 12.831620248330399,
+    "evaluate": 12.831620248330399,
+    "qz_report": 12.831620248330365,
+    "abs_diff_vs_887": 3.375077994860476e-14,
+    "abs_diff_report_vs_evaluate": 3.375077994860476e-14
+   },
+   {
+    "metric": "usable_diameter",
+    "887": 0.13324109244444446,
+    "evaluate": 0.13324109244444446,
+    "qz_report": 0.13324109244444446,
+    "abs_diff_vs_887": 0.0,
+    "abs_diff_report_vs_evaluate": 0.0
+   },
+   {
+    "metric": "xpol_dB",
+    "887": -22.910026343018632,
+    "evaluate": -22.910026343018632,
+    "qz_report": -22.91002634301863,
+    "abs_diff_vs_887": 3.552713678800501e-15,
+    "abs_diff_report_vs_evaluate": 3.552713678800501e-15
+   }
+  ],
+  "max_abs_diff_vs_887": 6.430411758628907e-13,
+  "max_abs_diff_report_vs_evaluate": 6.430411758628907e-13,
+  "mesh_per_wavelength": 8.0
+ }
+}

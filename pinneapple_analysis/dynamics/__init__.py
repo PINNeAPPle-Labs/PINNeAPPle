@@ -1,11 +1,28 @@
-"""Mathematical toolkit for dynamical systems: the shared foundation.
+"""Mathematical toolkit for dynamical systems.
 
-This package will hold five frameworks that operate on trajectories from any source (measurements, simulations,
-closed forms, PINN / FNO / DeepONet predictions): first-passage and hitting times, dimensional analysis and
-Buckingham pi, Fisher information and experimental design, critical slowing down and early-warning indicators, and
-Koopman / spectral analysis. Each lands in its own pull request with its benchmarks; none is available yet.
+Five frameworks that operate on trajectories from any source (measurements, simulations, closed forms, PINN / FNO /
+DeepONet predictions) are being added one pull request at a time, each with its benchmarks. Available now:
 
-What is here now is what they share:
+* :mod:`.first_passage`: first-passage and hitting times (deterministic crossing, Kaplan-Meier from observed
+  trajectories, Monte Carlo of SDEs with Brownian-bridge correction, closed forms). Guide:
+  ``docs/guides/dynamics_first_passage.md``.
+
+* :mod:`.dimensional`: dimensional analysis and Buckingham pi in exact rational arithmetic, scaling laws,
+  dimensional vs empirical normalisation, curve collapse with a permutation control, similarity. Guide:
+  ``docs/guides/dynamics_dimensional.md``.
+
+* :mod:`.fisher`: Fisher information (Gaussian, Poisson, any likelihood by score Monte Carlo with finite
+  differences, PyTorch or JAX), Cramér-Rao bounds on parameters and on targets, identifiability, and experimental
+  design (D, A, E, c, Bayesian D) built on :mod:`pinneapple_analysis.inverse_problems`. Guide:
+  ``docs/guides/dynamics_fisher.md``.
+
+* :mod:`.early_warning`: critical slowing down and early-warning indicators (rolling variance and autocorrelation,
+  recovery rate, spectral indicators, detrending, surrogate significance, window / bandwidth / sampling
+  sensitivity), with the indicator kept apart from any prediction. Guide: ``docs/guides/dynamics_early_warning.md``.
+
+Not yet available: Koopman / spectral analysis.
+
+The frameworks share:
 
 * the method contract (:mod:`._contract`): :class:`MethodCard` (inputs, assumptions, configuration, outputs,
   role, failure and applicability conditions, written before a run) and :class:`DynamicsResult` (estimate,
@@ -16,10 +33,11 @@ What is here now is what they share:
   sampling, missing values and right-censored observation windows, and the adapters from arrays, tables and CSV
   files, ``pp.solve`` solutions, callables (trained networks) and PDE snapshots.
 
-Guide: ``docs/guides/dynamics_toolkit.md``.
+Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
+from . import dimensional, early_warning, first_passage, fisher
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -32,6 +50,46 @@ from ._contract import (
     jsonable,
     make_rng,
     reproducibility,
+)
+from .dimensional import (
+    BuckinghamPiAnalyzer,
+    CurveCollapseAnalyzer,
+    Dimension,
+    DimensionalMatrix,
+    DimensionlessGroup,
+    PhysicalQuantity,
+    ScalingLaw,
+    SimilarityMetrics,
+    TrajectoryNormalizer,
+)
+from .early_warning import (
+    AutocorrelationAnalyzer,
+    CriticalSlowingDown,
+    EarlyWarningAnalyzer,
+    RecoveryRateEstimator,
+    RollingStatistics,
+    StabilityIndicator,
+    TransitionDiagnostics,
+)
+from .first_passage import (
+    SDE,
+    BoundaryCondition,
+    CrossingProbability,
+    FirstPassageAnalyzer,
+    FirstPassageResult,
+    HittingTimeDistribution,
+    SurvivalFunction,
+)
+from .fisher import (
+    CramerRaoBound,
+    ExperimentalDesign,
+    FisherInformation,
+    FisherInformationMatrix,
+    InformationGain,
+    ObservationScheduler,
+    ParameterIdentifiability,
+    SamplingStrategy,
+    SensitivityAnalyzer,
 )
 from .trajectories import (
     SOURCE_KINDS,
@@ -51,4 +109,12 @@ __all__ = [
     "BackendUnavailable", "Capabilities", "capabilities", "require", "to_numpy",
     "SOURCE_KINDS", "Trajectory", "TrajectoryEnsemble",
     "from_array", "from_table", "from_csv", "from_solution", "from_model", "from_snapshots",
+    "first_passage", "FirstPassageAnalyzer", "HittingTimeDistribution", "CrossingProbability", "SurvivalFunction",
+    "BoundaryCondition", "FirstPassageResult", "SDE",
+    "dimensional", "Dimension", "PhysicalQuantity", "DimensionalMatrix", "BuckinghamPiAnalyzer", "DimensionlessGroup",
+    "ScalingLaw", "TrajectoryNormalizer", "CurveCollapseAnalyzer", "SimilarityMetrics",
+    "fisher", "FisherInformation", "FisherInformationMatrix", "CramerRaoBound", "ParameterIdentifiability",
+    "SensitivityAnalyzer", "ExperimentalDesign", "ObservationScheduler", "InformationGain", "SamplingStrategy",
+    "early_warning", "EarlyWarningAnalyzer", "CriticalSlowingDown", "RollingStatistics", "AutocorrelationAnalyzer",
+    "RecoveryRateEstimator", "StabilityIndicator", "TransitionDiagnostics",
 ]

@@ -14,11 +14,14 @@ weakly: Nitsche's method for temperatures, surface quadrature for heat fluxes an
                              im.Convection(h=25.0, T_inf=20.0)])
     sol(points), sol.balance, sol.info
 
-Verification (manufactured solutions on curved domains, sphere and cylinder in closed form, conditioning of small
-cuts): :mod:`pinneapple_simulation.immersed.verification`.
+Linear elasticity on the same discretisation: :func:`solve_elasticity` (Nitsche displacements, tractions, pressures
+and total forces). Verification (manufactured solutions on curved domains, sphere, cylinder and Lame sphere in closed
+form, conditioning of small cuts): :mod:`pinneapple_simulation.immersed.verification`; STL parts against conforming
+FEM: :mod:`pinneapple_simulation.immersed.parts`.
 """
 from .assembly import Discretization, condition_number, solve_linear
-from .bcs import Convection, Dirichlet, HeatFlux
+from .bcs import Convection, Dirichlet, Displacement, Force, HeatFlux, HeatInput, Pressure, Traction
+from .elasticity import ElasticSolution, assemble_elasticity, solve_elasticity
 from .geometry import (
                        Geometry,
                        SDFGeometry,
@@ -36,10 +39,12 @@ from .geometry import (
                        write_stl,
 )
 from .grid import BackgroundGrid, DofMap
-from .heat import HeatSolution, assemble_heat, default_ghost, solve_heat
+from .heat import HeatSolution, assemble_heat, default_beta, default_ghost, solve_heat
 from .quadrature import CutQuadrature, build_quadrature
 
-__all__ = ["Discretization", "condition_number", "solve_linear", "Convection", "Dirichlet", "HeatFlux", "Geometry",
-           "SDFGeometry", "STLGeometry", "VoxelGeometry", "annulus", "ball", "box", "cylinder", "difference",
-           "intersection", "read_stl", "torus", "union", "write_stl", "BackgroundGrid", "DofMap", "HeatSolution",
-           "assemble_heat", "default_ghost", "solve_heat", "CutQuadrature", "build_quadrature"]
+__all__ = ["Discretization", "condition_number", "solve_linear", "Convection", "Dirichlet", "Displacement", "Force",
+           "HeatFlux", "HeatInput", "Pressure", "Traction", "ElasticSolution", "assemble_elasticity", "solve_elasticity",
+           "Geometry", "SDFGeometry", "STLGeometry", "VoxelGeometry", "annulus", "ball", "box", "cylinder",
+           "difference", "intersection", "read_stl", "torus", "union", "write_stl", "BackgroundGrid", "DofMap",
+           "HeatSolution", "assemble_heat", "default_beta", "default_ghost", "solve_heat", "CutQuadrature",
+           "build_quadrature"]

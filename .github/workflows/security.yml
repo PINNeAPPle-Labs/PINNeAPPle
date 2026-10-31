@@ -57,6 +57,9 @@ jobs:
           cat apps/*/requirements.txt | sed 's/#.*//' | grep -v '^\s*$' | sort -u > app-requirements.txt
           pip-audit -r app-requirements.txt --desc on -f json -o pip-audit-apps.json || true
           pip-audit -r app-requirements.txt
+          # The runner's preinstalled toolchains leave too little disk for torch's CUDA wheels; drop the unused ones.
+          # torch stays the PyPI build, so pip-audit still audits the same resolution as before.
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           pip install -e . >/dev/null
           pip-audit --skip-editable
 

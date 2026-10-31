@@ -1,0 +1,447 @@
+# Volume 8 — Apps, exemplos, reproduções, scripts e CI
+
+> Parte do [Mapa completo do PINNeAPPle](../mapa_completo.md). Gerado por `docs/pt/_mapa/gerar.py` a partir do inventário do commit `e53cdcfb04`.
+
+O que cada app, exemplo, reprodução de paper, script, benchmark e workflow de CI faz. A coluna *testes* conta funções de teste em arquivos que citam o caminho.
+
+## 1. Apps (`apps/`)
+
+64 itens.
+
+| item | o que faz | arquivos .py | testes |
+|---|---|---:|---:|
+| `apps/_shared` | Não é um app: é a cola (`appkit.py`) que todo app em `apps/` importa, com rotas HTTP comuns, login, fila de jobs, chaves de API, medição de uso e a vista 3-D de campos (`/shared/fieldview3d.js`). A lógica fica na biblioteca (`pinneapple_core.service`, `pinneapple_data.contracts`, `pinneapple_security`) e tem testes (por exemplo `tests/test_appkit_runtime.py`). Entra no `PYTHONPATH` de cada Dockerfile. | 1 | 23 |
+| `apps/aero_optimizer` | Otimizador de projeto de avião de corredor único (classe A320/737): o NSGA-II busca 13 números (seção da asa em CST, área, alongamento, afilamento, enflechamento, torção, posição e Mach de cruzeiro) para menos CO₂ por passageiro-km, com checagem em OpenFOAM 3D e campos de escoamento. Usa sobretudo `pinneapple_design` (e `pinneapple_tools`). Roda com `cd apps/aero_optimizer && uvicorn aero_optimizer.api:app --port 8092`; nenhum teste cita a pasta. | 9 | 0 |
+| `apps/anomaly_detector` | Detector de anomalias para engenheiros de planta: combina estatística robusta, modelo de séries temporais e balanços de massa e energia para dizer qual balanço quebrou, quanto e em quais sensores. A lógica é `pinneapple_systems.operations.anomaly` (com `pinneapple_data` e `pinneapple_core`). Roda com `uvicorn anomaly_detector.api:app --port 8111` (comando do Dockerfile) ou `docker run -p 8111:8111 anomaly-detector`. | 2 | 4 |
+| `apps/benchmark_arena` | Arena de benchmarks de IA física: compara, sob um só protocolo, ML clássico, MLP, FNO, DeepONet, PINN e solvers numéricos em problemas públicos (campanha OpenFOAM de aerofólios do zoo, Burgers viscoso) e na tabela de runs do próprio usuário. Usa `pinneapple_arena.regimes.run_regime_arena`, `pinneapple_analysis` e `pinneapple_core`. Roda com `uvicorn benchmark_arena.api:app --port 8105` (Dockerfile); os resultados públicos se refazem com `python run_public_benchmarks.py --budget 10 --seeds 3`. | 3 | 5 |
+| `apps/brakecool_ai` | Projeto inverso das aletas radiais de um disco de freio ventilado (número de aletas, folga e espessura) por um surrogate neural congelado, sempre reconferido contra a física, mais um Monte Carlo das tolerâncias de usinagem. A lógica está em `pinneapple_design.surrogate_inverse.brake_rotor`; a pasta só tem rotas e a página. Roda com `cd apps/brakecool_ai && PYTHONPATH=../..:../_shared uvicorn brakecool_ai.api:app --port 8161`. | 2 | 5 |
+| `apps/calibration_lab` | Laboratório de calibração: ajusta parâmetros de um modelo a medições reais, dá intervalos só onde os dados os determinam e confere o ajuste em medições que ele não viu. Usa `pinneapple_analysis`. Roda com `cd apps/calibration_lab && uvicorn calibration_lab.api:app --port 8101` ou pela imagem Docker. | 2 | 4 |
+| `apps/control_lab` | Laboratório de controle baseado em física: compara MPC linear (sobre os balanços de massa e energia) e outras estratégias com o que roda hoje (PID, liga/desliga). Funciona só em modo de simulação ou recomendação; não escreve em nenhum controlador real. A lógica é `pinneapple_systems.operations.control`; roda com `uvicorn control_lab.api:app --port 8112` (Dockerfile). | 2 | 4 |
+| `apps/data_health` | Recebe um conjunto de dados (CSV, Excel, Parquet, JSON, HDF5), reconhece a grandeza física e a unidade de cada coluna e devolve um relatório de qualidade com nota, evidências e correções. Usa `pinneapple_data` e `pinneapple_core`. Roda com `cd apps/data_health && uvicorn data_health.api:app --port 8082`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/data_standardizer` | Junta até 8 arquivos de fontes diferentes (unidades, fusos e convenções distintas) num só esquema físico em UTC e unidades coerentes, com uma receita JSON reaproveitável e checagem de concordância entre fontes. Usa `pinneapple_data`. Roda com `cd apps/data_standardizer && uvicorn data_standardizer.api:app --port 8083`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/deploy` | Não é um app: são os arquivos para publicar vários apps numa só VM Linux, cada um no seu subdomínio, atrás de um Caddy com certificados Let's Encrypt (`docker-compose.yml`, variantes de pouca memória e de proxy existente, `Caddyfile`, `fail2ban`, `check_server.sh`). Sobe com `docker compose up -d`; a senha de login vem de `python -m pinneapple_security hash-password`. | 0 | 9 |
+| `apps/design_optimization` | Caso fixo de demonstração: uma seção de asa da família NACA 2418 redesenhada ao vivo para menos arrasto com a mesma sustentação, com passos de Adam através de um surrogate MLP e cada iterado reavaliado pela fórmula fechada. Usa `pinneapple_design.design_optimizer`. Roda com `PYTHONPATH=../_shared uvicorn design_optimization.api:app --port 8181`. | 2 | 2 |
+| `apps/design_requirements` | Form Compiler: lê folhas de dados e especificações (PDF, texto, páginas escaneadas via OCR) e compila um formulário ou folha de dados, com a origem de cada valor e a lista do que falta ou se contradiz. Usa `pinneapple_data`. Roda com `cd apps/design_requirements && UDR_FORM_PDF=/caminho/u-dr-1.pdf uvicorn design_requirements.api:app --port 8085`; nenhum teste cita a pasta. | 3 | 0 |
+| `apps/engineering_optimizer` | Otimização caixa-preta de projetos dentro de limites físicos e de fabricação, sobre um modelo rápido, com o ótimo confirmado por um modelo de alta fidelidade. Usa `pinneapple_design` e `pinneapple_data`. Roda com `cd apps/engineering_optimizer && PYTHONPATH=../_shared uvicorn engineering_optimizer.api:app --port 8100`. | 2 | 3 |
+| `apps/evidence_report` | Transforma saídas de experimentos e simulações (relatórios do Validation Lab, ledgers de evidência, `pinneapple check --json`, tabelas de métricas) num relatório técnico reprodutível; um teste só conta como aprovado se de fato rodou. Usa `pinneapple_veriphysics`. Roda com `cd apps/evidence_report && uvicorn evidence_report.api:app --port 8113`. | 2 | 5 |
+| `apps/flow_studio` | Canvas de nós no estilo n8n para fluxos de engenharia: descreve-se o problema, recebe-se um ou mais fluxos, editam-se equações e métodos, roda-se e inspeciona-se cada nó (métricas, figuras, vista 3-D). Toda a lógica é `pinneapple_flow`; a pasta tem só o shell HTTP e o frontend React. Roda com `python -m pinneapple_flow studio` (porta 8765); os mesmos fluxos rodam sem GUI com `python -m pinneapple_flow run flow.json`. | 1 | 19 |
+| `apps/flowtrace` | Recebe um vídeo ou uma sequência de imagens de um escoamento com partículas e devolve o campo de velocidade por PIV de correlação cruzada. Usa `pinneapple_perception.video_piv` e `pinneapple_perception.piv_tools`. Roda com `cd apps/flowtrace && uvicorn flowtrace.api:app --port 8145` (vídeos pedem `ffmpeg`). | 2 | 3 |
+| `apps/governed_card` | Emite um model card só depois de uma checagem física do modelo: treina (ou carrega) o modelo de um preset, roda o `PhysicsGuardrail` e monta um `ModelCard` cujas métricas são as daquele run; um card inválido é recusado. Usa `pinneapple_hub.verified_card`, `pinneapple_hub.model_card` e `pinneapple_physics`. Roda com `cd apps/governed_card && uvicorn governed_card.api:app --port 8148`. | 2 | 3 |
+| `apps/guiagent` | Agente que executa estudos de engenharia em software com interface gráfica (CAD, pré-processador, solver, pós) dentro do seu contêiner, a partir de uma frase ou de um workflow, e devolve os arquivos com a evidência de cada passo; há uma aprovação antes do solver. Usa `pinneapple_tools.automation` e `pinneapple_security`. Roda com `docker build -f apps/guiagent/Dockerfile -t guiagent .` e `docker run -p 8115:8115 guiagent`. | 2 | 2 |
+| `apps/heatsink_inverse_ai` | Demo de projeto inverso por gradiente de um dissipador de aletas retas para CPU (número, altura e espessura das aletas numa base fixa de 80 x 80 mm) através de um surrogate neural congelado, reconferido contra a física. O próprio README diz que não dimensiona um dissipador real (para isso existe `heatsink_sizer`). Lógica em `pinneapple_design.surrogate_inverse.heatsink_fins`; roda com `PYTHONPATH=../..:../_shared uvicorn heatsink_inverse_ai.api:app --port 8160`. | 2 | 5 |
+| `apps/heatsink_sizer` | Protótipo SaaS (dia 1 da série) que dimensiona dissipadores de placas e aletas a partir de correlações publicadas de convecção forçada e natural, perda de carga e uma solução 3-D da base, e devolve projetos fabricáveis verificados pela física. Usa `pinneapple_design` e `pinneapple_physics`. Roda com `uvicorn heatsink_sizer.api:app --port 8080` ou `docker run -p 8080:8080 heatsink-sizer`; nenhum teste cita a pasta. | 7 | 0 |
+| `apps/helio_tfc` | Estima para onde vai o envelope do ciclo solar: EMD do número diário de manchas solares, amplitude de Hilbert do componente de cerca de 11 anos e um ajuste por máquina de aprendizado extremo com valores de ponta amarrados (Theory of Functional Connections). O README avisa que é um método, não uma previsão validada. Usa `pinneapple_systems.time_series.solar_cycle`; roda com `cd apps/helio_tfc && uvicorn helio_tfc.api:app --port 8149`. | 2 | 4 |
+| `apps/hub` | Catálogo de ferramentas prontas, modelos treinados, geometrias, datasets, fluxos e exemplos: buscar, ver o run gravado, copiar código, baixar arquivos, abrir no Flow Studio e rodar um modelo do zoo. Tudo vem do índice gerado por `pinneapple_hub.library`; a pasta só tem rotas e página. Roda com `PYTHONPATH=../..:../_shared:. uvicorn hub.api:app --port 8116` dentro de `apps/hub`. | 2 | 14 |
+| `apps/identifiability_lab` | Antes de estimar parâmetros, verifica se as medições conseguem determiná-los (por exemplo, numa aleta só h/k é identificável) e diz o que medir em vez disso. Usa `pinneapple_analysis`. Roda com `cd apps/identifiability_lab && uvicorn identifiability_lab.api:app --port 8108`. | 2 | 4 |
+| `apps/interop_hub` | Converte resultados de simulação (OpenFOAM, CalculiX, VTK/VTU, Gmsh, STL, CSV/HDF5/NPZ) num dataset físico neutro (`pinneapple.physical_dataset/1`, com unidades e metadados) e dali para VTU, HDF5, Parquet, CSV, NPZ, JSON ou Zarr. Usa `pinneapple_data`. Roda com `cd apps/interop_hub && uvicorn interop_hub.api:app --port 8091`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/inverse_heat` | Estima o coeficiente de convecção h a partir de poucos termopares com uma PINN montada pelo `PINNFactory` (h é um parâmetro treinável), em 1D, 2D e 3D, e confere cada resposta contra uma solução independente. Usa `pinneapple_physics` e `pinneapple_analysis`. Roda com `cd apps/inverse_heat && uvicorn inverse_heat.api:app --port 8086 --workers 1`; nenhum teste cita a pasta. | 7 | 0 |
+| `apps/inverse_studio` | Um mesmo problema inverso (por exemplo o campo h(x) de uma aleta) resolvido por cinco métodos com os mesmos dados, cada um conferido. Reusa a física do Inverse Heat Lab via `pinneapple_analysis.inverse_problems`. Roda com `cd apps/inverse_studio && uvicorn inverse_studio.api:app --port 8104`. | 2 | 3 |
+| `apps/mesh_quality` | Lê uma malha (OpenFOAM, Gmsh, VTK, STL, Abaqus/CalculiX e outros formatos meshio) e diz em segundos onde ela é ruim, quanto, e como corrigir, com veredito PASS/WARNING/FAIL e regiões problemáticas. Usa `pinneapple_data`. Roda com `cd apps/mesh_quality && uvicorn mesh_quality.api:app --port 8088`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/meshbridge` | Recebe uma malha de CFD, FEM ou CAD (CGNS, Exodus II, Fluent ASCII, Abaqus `.inp` e outras) e devolve pontos e campos em NPZ ou uma superfície triangular reparada (STL/OBJ/PLY). Usa `pinneapple_simulation.external_solvers.cfd_formats.convert`. Roda com `cd apps/meshbridge && uvicorn meshbridge.api:app --port 8141`. | 2 | 4 |
+| `apps/meshless_lab` | Mede, no problema do usuário (Poisson, Helmholtz ou calor em vários domínios ou numa nuvem de pontos), onde métodos sem malha, com malha e neurais ganham uns dos outros. Usa `pinneapple_simulation` e `pinneapple_core`. Roda com `cd apps/meshless_lab && uvicorn meshless_lab.api:app --port 8109`. | 2 | 5 |
+| `apps/model_benchmarking` | Comparação fixa: quatro arquiteturas PINN (Vanilla, SIREN, PIELM, XTFC) treinadas ao vivo no mesmo Burgers viscoso `burgers_1d` e ranqueadas por precisão e por uma checagem do resíduo da EDP. Usa `pinneapple_arena`. Roda com `PYTHONPATH=../_shared uvicorn model_benchmarking.api:app --port 8182`; o estado fica em memória e se perde ao reiniciar. | 2 | 2 |
+| `apps/model_gateway` | Publica modelos físicos (do zoo, ONNX, `model.zip` do Surrogate Studio ou remotos) atrás de endpoints versionados que checam cada consulta contra a faixa de validade, registram e medem o uso. Usa `pinneapple_registry.ModelGateway` e `pinneapple_security`. Roda com `uvicorn model_gateway.api:app --port 8114` (Dockerfile). | 2 | 6 |
+| `apps/model_lineage` | Mostra como um resultado foi produzido: o fio digital do CAD à previsão, com arquivo, versão, software, parâmetros, data, sha256 e origem de cada artefato, como um grafo consultável. Usa `pinneapple_data`. Roda com `cd apps/model_lineage && uvicorn model_lineage.api:app --port 8090`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/nozzle_screen` | Triagem rápida de bocais de foguete: estimativa ideal isentrópica 1-D (`pinneapple_physics.closed_form.rocket_nozzle`) e uma checagem cruzada por PINN que avisa quando as duas discordam (`pinneapple_analysis.verification.nozzle_crosscheck`). Roda com `cd apps/nozzle_screen && uvicorn nozzle_screen.api:app --port 8146`. | 2 | 2 |
+| `apps/observatory` | O céu e o sistema solar agora, vistos de onde o usuário está, em 3-D: estrelas do Yale Bright Star Catalogue, constelações, Sol, Lua, planetas e satélites, com modo de apontar o celular. Os números vêm de `pinneapple_physics.astro`. Roda com `cd apps/observatory && uvicorn observatory.api:app --port 8094`; os testes de navegador ficam na própria pasta (`npx playwright test`, workflow `observatory.yml`), e nenhum teste Python cita a pasta. | 3 | 0 |
+| `apps/orbitwatch` | Compara duas imagens de satélite do mesmo lugar e gera um relatório HTML com a mudança de refletância por banda e de NDVI. Usa `pinneapple_perception.change_detection` e, para buscar Sentinel-2 no Google Earth Engine, `pinneapple_perception.sentinel2`. Roda com `cd apps/orbitwatch && uvicorn orbitwatch.api:app --port 8150`. | 2 | 5 |
+| `apps/parameter_discovery` | Problema-teste fixo: uma PINN recupera a difusividade escondida de uma barra (equação do calor) a partir de leituras ruidosas, comparando a estimativa com o limite de Cramér-Rao. Usa `pinneapple_analysis`. Roda com `PYTHONPATH=../_shared uvicorn parameter_discovery.api:app --port 8183`. | 2 | 2 |
+| `apps/patchdose_ai` | Exercício de transferência de massa (o README diz que não é ferramenta médica nem de dosagem): acha o menor adesivo de liberação por membrana para uma taxa e um tempo de uso, por um surrogate neural reconferido contra a lei de Fick. Lógica em `pinneapple_design.surrogate_inverse.transdermal_patch`; roda com `PYTHONPATH=../..:../_shared uvicorn patchdose_ai.api:app --port 8162`. | 2 | 4 |
+| `apps/pcb_hotspot` | Protótipo SaaS (dia 2 da série) de análise térmica de placas de circuito: temperaturas de junção, pontos quentes e o que os corrige, em cerca de um segundo. Usa `pinneapple_physics`. Roda com `uvicorn pcb_hotspot.api:app --port 8081` ou `docker run -p 8081:8081 pcb-hotspot`; nenhum teste cita a pasta. | 4 | 0 |
+| `apps/physics_copilot` | Um problema de física em linguagem natural vira uma PINN treinada e o relatório recalculado do guardrail: análise dimensional, escolha de um preset registrado pelo LLM, treino e checagem do resíduo em pontos novos. Usa `pinneapple_analysis.verification.pipeline` (com `pinneapple_llm`). Roda com `cd apps/physics_copilot && uvicorn physics_copilot.api:app --port 8142`. | 2 | 3 |
+| `apps/physics_design` | Otimiza projetos físicos paramétricos com objetivos e restrições explícitos e compara métodos por gradiente, evolutivos e bayesianos com o mesmo orçamento, mostrando quais candidatos o modelo de alta fidelidade confirma. Usa `pinneapple_design`. Roda com `cd apps/physics_design && PYTHONPATH=../_shared uvicorn physics_design.api:app --port 8106`. | 2 | 2 |
+| `apps/pinn_arena` | Escolhe-se um problema físico e algumas arquiteturas PINNeAPPle, treina-se sob um protocolo, compara-se num conjunto separado e monta-se um leaderboard; uma segunda seção roda bibliotecas de terceiros pelo próprio pacote delas. Lógica em `pinneapple_arena` (backend FastAPI e frontend React). Roda com `cd apps/pinn_arena && PYTHONPATH=../_shared uvicorn pinn_arena.api:app --port 8130` (o frontend se compila antes com `npm run build`). | 21 | 25 |
+| `apps/playground` | Site estático: desenhar um aerofólio, dimensionar um dissipador ou dirigir uma roda de rover lunar e ver um modelo do zoo responder no navegador (ONNX), com checagens físicas e veredito de confiança. Os modelos e checagens vêm de `pp.zoo.export_web` (`pinneapple_hub.zoo.web`) e `pinneapple_design.geometry_library.web`. Roda com `python apps/playground/build.py --serve`; testes JS com `npm test` e workflow `playground.yml`. | 1 | 2 |
+| `apps/predictive_twin` | Gêmeo digital de um medidor real de rio (USGS 01646500, Potomac): baixa os últimos dias de vazão da API pública do USGS, calibra uma recessão exponencial, prevê as últimas 24 h e sinaliza quando o rio se afasta da previsão. Usa `pinneapple_systems`. Roda com `PYTHONPATH=../_shared uvicorn predictive_twin.api:app --port 8184` (precisa de internet). | 2 | 3 |
+| `apps/ridetune_ai` | Acha a seção mais leve de um braço de suspensão (modelado como viga em balanço) para uma meta de vida em fadiga, por um surrogate neural da tensão reconferido contra a fórmula fechada, com sensibilidades locais. Lógica em `pinneapple_design.surrogate_inverse.suspension_arm`; roda com `PYTHONPATH=../..:../_shared uvicorn ridetune_ai.api:app --port 8163`. | 2 | 4 |
+| `apps/rom_lab` | Constrói modelos de ordem reduzida (POD + RBF, POD + GPR e outros) a partir de snapshots de simulação e mostra o erro em dados separados, por posto. Usa `pinneapple_neural.architectures.rom`, `pinneapple_data`, `pinneapple_lab` e `pinneapple_core`. Roda com `cd apps/rom_lab && uvicorn rom_lab.api:app --port 8102`. | 3 | 4 |
+| `apps/rover_mobility` | Triagem de mobilidade de roda rígida: força de tração contra escorregamento por uma PINN de Bekker-Wong, com cada restrição física reconferida isoladamente. Usa `pinneapple_simulation.terramechanics.mobility`. Roda com `cd apps/rover_mobility && uvicorn rover_mobility.api:app --port 8147`. | 2 | 2 |
+| `apps/satscreen` | Triagem rápida de conjunção de satélites: aproximação mínima e estimativa de probabilidade de colisão no movimento relativo de Clohessy-Wiltshire, mais propagação de dois corpos com J2; não treina PINN por requisição. Usa `pinneapple_physics.astro.conjunction`. Roda com `cd apps/satscreen && uvicorn satscreen.api:app --port 8144`. | 2 | 3 |
+| `apps/sensitivity_lab` | Mostra quais parâmetros controlam de fato o resultado e quais podem ser congelados, com análise global e incerteza da resposta. Usa `pinneapple_analysis`, `pinneapple_data` e `pinneapple_core`. Roda com `cd apps/sensitivity_lab && uvicorn sensitivity_lab.api:app --port 8099`. | 2 | 7 |
+| `apps/simulation_campaign` | Planeja campanhas de simulação: a partir de um espaço de parâmetros, gera um projeto de experimentos (hipercubo latino e outros), a ordem dos runs e os arquivos de caso. Usa `pinneapple_data`, `pinneapple_simulation` e `pinneapple_security`. Roda com `cd apps/simulation_campaign && uvicorn simulation_campaign.api:app --port 8096`. | 2 | 8 |
+| `apps/simulation_comparator` | Compara um resultado com uma referência campo a campo (MAE, RMSE, máximo, normalizados) e mostra onde diferem; aceita OpenFOAM, VTK, CalculiX, Gmsh e tabelas de pontos, inclusive previsões de IA. Usa `pinneapple_data`. Roda com `cd apps/simulation_comparator && uvicorn simulation_comparator.api:app --port 8089`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/simulation_metadata` | Lê (sem executar) um caso OpenFOAM, CalculiX/Abaqus ou um histórico de resíduos e devolve um registro estruturado (`pinneapple.simmeta/1`) com solver, malha, condições de contorno, parâmetros e veredito de convergência. Usa `pinneapple_data`. Roda com `cd apps/simulation_metadata && uvicorn simulation_metadata.api:app --port 8084`; nenhum teste cita a pasta. | 2 | 0 |
+| `apps/simulation_preflight` | Antes de gastar horas de solver, confere se um caso OpenFOAM ou um deck CalculiX/Abaqus está montado certo (malha, materiais, contornos, condições iniciais, solver) e dá PASS/WARNING/FAIL. Usa `pinneapple_data`. Roda com `cd apps/simulation_preflight && uvicorn simulation_preflight.api:app --port 8087`. | 2 | 5 |
+| `apps/simulation_runner` | Executa campanhas de simulação como cadeias de passos (gerar entrada, malhar, resolver, pós-processar, checar), registra o que terminou e retoma de onde parou, com executores locais ou Docker isolado. Usa `pinneapple_core` e `pinneapple_tools`. Roda com `cd apps/simulation_runner && uvicorn simulation_runner.api:app --port 8110`. | 2 | 4 |
+| `apps/soundshape_ai` | Acha raio e comprimento do duto de uma caixa bass-reflex para uma frequência de sintonia, por um surrogate neural reconferido contra a fórmula de Helmholtz, com a curva de compromisso entre duto pequeno e sintonia exata. Lógica em `pinneapple_design.surrogate_inverse.reflex_port`; roda com `PYTHONPATH=../..:../_shared uvicorn soundshape_ai.api:app --port 8164`. | 2 | 4 |
+| `apps/surrogate_speed` | Demo fixa com sete dissipadores: compara fórmula fechada, previsão de um surrogate (cronometrada) e uma solução de volumes finitos com índice de convergência de malha. O README avisa que as razões de velocidade são contra outro solver de referência que o do projeto original. Usa `pinneapple_design`; roda com `PYTHONPATH=../_shared uvicorn surrogate_speed.api:app --port 8185`. | 2 | 2 |
+| `apps/surrogate_studio` | Transforma resultados de simulação existentes num modelo preditivo rápido, medido em runs que não viu e servido num endpoint versionado com a faixa de validade imposta. Usa `pinneapple_analysis`, `pinneapple_registry` e `pinneapple_core`. Roda com `cd apps/surrogate_studio && uvicorn surrogate_studio.api:app --port 8097`. | 2 | 4 |
+| `apps/text2part` | Descreve-se uma peça em linguagem natural e recebe-se uma malha STL ou um CAD paramétrico STEP com suas medidas; o LLM só escolhe uma receita de um menu fixo, nunca escreve código CAD. Usa `pinneapple_llm` (`draft_part`, `measure_part`). Roda com `cd apps/text2part && uvicorn text2part.api:app --port 8140` e precisa de um servidor Ollama. | 2 | 4 |
+| `apps/twin_ops` | Exemplo de ponta a ponta (não é serviço web) de um gêmeo digital comissionado para um trocador casco-e-tubo com incrustação: contrato assinado, preflight que pode recusar, backtest separado, arquivo de evidência e escada de deriva. Usa `pinneapple_systems`. Roda com `python apps/twin_ops/demo.py`. | 1 | 24 |
+| `apps/twin_runtime` | Põe um modelo físico validado (tanque aquecido concentrado) ou um surrogate ao lado de dados operacionais, com assimilação por EnKF, e diz quando parar de confiar nele. Usa `pinneapple_systems.operations`, `pinneapple_data` e `pinneapple_core`. Roda com `uvicorn twin_runtime.api:app --port 8103` (Dockerfile). | 2 | 6 |
+| `apps/uncertainty_lab` | Mede quando uma previsão é confiável e quando o caso deve ir ao solver de alta fidelidade (fora dos dados, dados esparsos, erro maior que a margem ao limite). Usa `pinneapple_analysis`, `pinneapple_data` e `pinneapple_core`. Roda com `cd apps/uncertainty_lab && uvicorn uncertainty_lab.api:app --port 8098`. | 2 | 8 |
+| `apps/validation_lab` | Verifica se um modelo ou resultado é consistente física e numericamente (equações, conservação, contornos, unidades, referência, faixa de treino) e grava o registro de cada checagem. Usa `pinneapple_veriphysics`, `pinneapple_check`, `pinneapple_data`, `pinneapple_neural` e `pinneapple_lab`. Roda com `cd apps/validation_lab && uvicorn validation_lab.api:app --port 8107`. | 3 | 5 |
+| `apps/verification_gap` | Caso fixo de demonstração: um disco de freio que passa na checagem nominal e o que as tolerâncias de usinagem fazem com essa aprovação, por Monte Carlo sobre um modelo fechado. Usa `pinneapple_design` e `pinneapple_analysis`. Roda com `PYTHONPATH=../_shared uvicorn verification_gap.api:app --port 8180`. | 2 | 2 |
+| `apps/verified_physics` | O LLM propõe a física e o PINNeAPPle executa e reconfere mecanicamente, com a evidência anexada; inclui arquiteturas candidatas, incerteza, intervenções causais e grafo de conhecimento. Usa `pinneapple_analysis.verification`. Roda com `cd apps/verified_physics && uvicorn verified_physics.api:app --port 8143`. | 2 | 5 |
+| `apps/zoo_space` | Página estática (`index.html`, `app.js`, `space.css`) do demo do zoo publicada como Space no Hugging Face por `scripts/zoo/publish_to_hub.py` e pelo workflow `publish-zoo.yml`: mostra cada modelo do zoo numa varredura das entradas, com banda de incerteza e onde as checagens físicas avisam. Não tem README nem teste que cite a pasta. | 0 | 0 |
+
+## 2. Exemplos (`examples/`)
+
+88 itens.
+
+| item | o que faz | arquivos .py | testes |
+|---|---|---:|---:|
+| `examples/README.md` | Índice curto da pasta `examples/`: diz para rodar os scripts a partir da raiz (por exemplo `python examples/data_pipeline/01_physical_sample_basics.py`) e aponta os tópicos que têm guia próprio, como `meshgraphnet/` e `studio/`. | 0 | 0 |
+| `examples/architectures` | Demos curadas do catálogo de modelos: tour do registro, autoencoders, séries temporais clássicas, PINNs (inclusive parâmetro inverso em EDO), FNO de brinquedo, ROM por POD/DMD, GNN por troca de mensagens e transformer de séries temporais. Usa `pinneapple_neural` e `pinneapple_models`; nenhum teste cita a pasta. | 12 | 0 |
+| `examples/arena_pipelines` | Scripts numerados que listam os datasets e rodam benchmarks de física, de séries temporais e de Navier-Stokes (Kovasznay), arena a partir de YAML, galeria de problemas, problemas próprios e um pipeline de geometria 3D. Usa `pinneapple_arena` e `pinneapple_neural`; nenhum teste cita a pasta. | 10 | 0 |
+| `examples/autolab` | Demo 2 do Autonomous Physics Lab: o 'engenheiro que se auto-otimiza' num problema térmico (`self_optimizing_engineer.py`). Usa `pinneapple_lab` e `pinneapple_design`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/autolab_aero` | Estágio 1 do 'AI Aerodynamicist': o ciclo científico de aerodinâmica (hipótese, experimento, conclusão) sem agente. Usa `pinneapple_autolab` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/autolab_aero_agent` | Estágio 2 do 'AI Aerodynamicist': um agente lê a missão e opera o laboratório só por ferramentas controladas (`agent_mission.py`). Usa `pinneapple_autolab` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/autolab_digital_twin` | Demo 3 do Autonomous Physics Lab: um gêmeo digital que percebe quando está errado (`twin_knows_when_wrong.py`). Usa `pinneapple_lab` e `pinneapple_systems`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/autolab_rover` | Demo 4 do Autonomous Physics Lab: o rover que aprende o solo do planeta enquanto anda (`rover_learns_planet.py`). Usa `pinneapple_simulation` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/benchmark` | Benchmark de mesmo orçamento numa só chamada: PINN contra FNO contra DeepONet no Burgers 1-D, configurado em `bench.yaml`. Usa a API de alto nível `pinneapple`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/benchmark_suite` | Mostra o alcance de `pinneapple_arena`: benchmark de ponta a ponta (bundle, backend, métricas, leaderboard), troca de backend (nativo, DeepXDE, JAX, PhysicsNeMo), backend e tarefa próprios, XTFC, varredura de hiperparâmetros e gêmeos digitais. Usa também `pinneapple_physics`, `pinneapple_neural` e `pinneapple_train`; nenhum teste cita a pasta. | 20 | 0 |
+| `examples/black_hole_weather` | Reprodução e extensão de Duarte, Nemmen & Navarro (2022): simula o gás em volta de um buraco negro, treina a U-Net do paper e uma variante residual para prever o escoamento e mede por quanto tempo a previsão é confiável (com checagem de massa). Usa `pinneapple_physics.blackhole`; detalhes na seção de reproduções. | 5 | 20 |
+| `examples/bricks` | Construções de blocos encaixáveis que se auto-modificam: simular, julgar pela física, redesenhar e repetir (`self_modifying_bricks.py`). Usa `pinneapple` e `pinneapple_design`. | 1 | 20 |
+| `examples/calculix_cantilever` | Não é script: são os arquivos de uma execução de referência do CalculiX (`ccx`) de uma viga em balanço de 1,0 × 0,1 × 0,1 m (entrada `beam.inp`, resultados `beam.frd`, convergência e resumo). Serve de dado de entrada a outros exemplos; nenhum teste cita a pasta. | 0 | 0 |
+| `examples/calculix_pyvista_cantilever.py` | Script único que lê o resultado CalculiX da viga em balanço e gera uma imagem PyVista da tensão de von Mises na viga deformada. Nenhum teste cita o arquivo. | 1 | 0 |
+| `examples/chain_of_whys` | 'Cadeia de porquês': quatro projetos em quatro escalas com o mesmo raciocínio causal. Usa `pinneapple_reason` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/condensation_falsification` | Campanha de falsificação da condensação física: os runs medidos de `docs/research/condensation_falsification.md`, com figuras e resultados gravados. Usa `pinneapple_condense` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/core_primitives` | PINN de Poisson e um operador de Poisson 1-D montados sobre as primitivas do núcleo (`Domain`, `Geometry`, `FunctionField`, `Mesh`, `Field`). Usa `pinneapple_core` e `pinneapple_neural`; nenhum teste cita a pasta. | 2 | 0 |
+| `examples/data_api` | Uma PINN, um operador neural e um problema inverso treinados a partir da mesma API de loader. Usa `pinneapple_core`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/data_pipeline` | Oito scripts da camada de dados: `PhysicalSample`, dataloaders UPD, prefetch e streaming para GPU, EDP sintética de ponta a ponta, variantes paramétricas em CadQuery, Zarr fragmentado com workers balanceados, portões de qualidade e lotes no formato do `PINNFactory`. Usa `pinneapple_data` e `pinneapple_design`; nenhum teste cita a pasta. | 8 | 0 |
+| `examples/design_from_intent` | Projeto a partir da intenção: cinco pedidos passam pelo mesmo pipeline até um projeto verificado. Usa `pinneapple` e `pinneapple_design`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/electrodynamics` | Soluções PINN de problemas clássicos de eletrostática, magnetostática e eletromagnetismo (capacitor de Laplace, dipolo, fio, onda 1D, guia de onda TM) com solução exata, mais galeria FDTD e uma série sobre um motor síncrono de ímãs permanentes (campo, acionamento, projeto do rotor, térmica, checagem cruzada com GetDP). Usa sobretudo `pinneapple_simulation`. | 17 | 20 |
+| `examples/end_to_end` | Seis pipelines completos sem README: dataset UPD/Zarr até treino com solvers, malha até pontos de treino, treino com perda física via `PINNFactory`, CadQuery até Zarr e treino, treino e inferência pelo registro e pipeline STL de calor. Usa `pinneapple_neural`, `pinneapple_data`, `pinneapple_design` e `pinneapple_physics`; nenhum teste cita a pasta. | 6 | 0 |
+| `examples/enso_forecasting` | Previsão do El Niño (ENSO) com modelos baseados em dados, físicos, informados pela física e híbridos sob um mesmo protocolo honesto (`run_study.py`, figuras e resultados gravados). Usa `pinneapple_systems` e `pinneapple_core`; guia em `docs/guides/enso_forecasting.md`. | 1 | 20 |
+| `examples/first_example` | Primeiro resultado em cerca de um minuto numa CPU de laptop: resolve a equação de Burgers com uma PINN, compara com a solução exata e plota as duas (`first_example.py`). Usa `pinneapple`; não há teste que cite a pasta, mas o workflow `tests.yml` tem um job `first-example`. | 1 | 0 |
+| `examples/flight_dynamics` | Verificação da biblioteca de dinâmica de voo: espectros de turbulência contra MIL-F-8785C, trimagem e estabilidade de quatro aeronaves, decolagem, encontros com turbulência, clipes renderizados, tabelas e visualizadores. Usa `pinneapple_simulation`, `pinneapple` e `pinneapple_tools`; guia em `docs/guides/flight_dynamics.md`. | 8 | 20 |
+| `examples/flow_studio` | Gera os fluxos de exemplo do Flow Studio em `pinneapple_flow/flows/` (`build_examples.py`), roda-os (`run_examples.py`) e tira capturas de tela, com resultados gravados em `results/`. Usa `pinneapple_flow`; nenhum teste cita a pasta. | 3 | 0 |
+| `examples/free_surface` | Escoamento de superfície livre com interFoam (VOF): um jato caindo num canal de metal fundido com vertedouro, variando a inclinação do piso. Usa `pp.cfd.FreeSurfaceFlow` (`pinneapple_simulation`) e precisa de OpenFOAM; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/freecad_openfoam` | Pipelines FreeCAD para OpenFOAM: três estudos validados, uma varredura de parâmetros (`sweep.csv`) e um surrogate, com `validation.json`/`validation.md` gravados. Usa `pinneapple_simulation` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/geomechanics` | Método do ponto material: colapso de colunas de areia com várias razões de aspecto, alcance comparado com Lube et al. (2005) e quadros lidos pela ponte GeoTaichi. Usa `pinneapple_simulation`; resultados e limites em `docs/core_concepts/geomechanics_mpm.md`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/geometry` | Fluxos de geometria e malha para pipelines de PINN: carregar e reparar malhas, amostrar pontos de contorno e de colocação, amostragem por curvatura, CSG, ida e volta meshio e datasets CAD abertos. Usa `pinneapple_design`; nenhum teste cita a pasta. | 8 | 0 |
+| `examples/geometry_library` | Três usos da biblioteca de geometrias: vento no edifício-padrão CAARC com OpenFOAM (via `pp.cfd` e STL), turbina eólica por BEM e avião por VLM. Usa `pinneapple_design` e `pinneapple`; nenhum teste cita a pasta. | 3 | 0 |
+| `examples/geophysics` | Blocos de sistema terrestre num só script de cerca de um minuto em CPU: uma esfera e assimilação de dados. Usa `pinneapple_simulation` e `pinneapple_analysis`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/getting_started` | Dez primeiros passos em IA física: cada script resolve um problema clássico (osciladores, calor, onda, logística, Lotka-Volterra, pêndulo, Van der Pol, Lorenz) com uma PINN usando só PyTorch, NumPy e Matplotlib, sem importar módulos PINNeAPPle. Nenhum teste cita a pasta. | 10 | 0 |
+| `examples/handoff_cases` | Dois pacotes de caso autocontidos para testar um agente de simulação (ou um engenheiro) partindo do zero: aerofólio 2-D com RANS para maximizar L/D e jato de água num canal com VOF. Cada pasta tem tarefa, geometria, configuração, resultados calculados e referências; usa `pinneapple_design` e `pinneapple_simulation`; nenhum teste cita a pasta. | 13 | 0 |
+| `examples/hpo_experiments` | Fluxo do `pinneapple_researcher`: descobrir papers (arXiv) e repositórios (GitHub), montar uma base de conhecimento, buscar localmente, extrair pares problema/solução com LLM e reproduzir um item num projeto local (`04_reproduce.py` pede `GEMINI_API_KEY`). Nenhum teste cita a pasta. | 8 | 0 |
+| `examples/industrial_presets` | Não tem scripts: são os relatórios de presets industriais já montados, resolvidos e validados (perfil de asa, inspeção por correntes parasitas, motores, dissipador, PCB, vaso de pressão, bomba, trocador, tubulação de vapor, passarela, rede de água), com ficha, validação, surrogate, inversão e figuras. Regenera-se com `python -m pinneapple_presets report all`; nenhum teste cita a pasta. | 0 | 0 |
+| `examples/inspection` | Ensaio não destrutivo por correntes parasitas de ponta a ponta com uma PINN. Usa `pinneapple_analysis.inspection`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/latent` | Surrogate latente com cartão de confiança: erro, velocidade e calibração contra o solver completo. Usa `pinneapple_neural` e `pinneapple_security`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/lbm` | Túnel de vento 3-D por lattice Boltzmann: arrasto numa esfera contra a lei de Stokes e a correlação de Schiller-Naumann, com distribuições guardadas em 32 e 16 bits. Usa `pinneapple_simulation`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/meshgraphnet` | MeshGraphNet: difusão sintética em malhas de Delaunay e o escoamento em volta de cilindro do DeepMind (Pfaff et al. 2021) num orçamento reduzido, mais scripts de paridade com o PhysicsNeMo. O README diz que não reproduz o paper; só mostra que o pipeline aprende de dados reais. Usa `pinneapple_neural` e `pinneapple_data`. | 6 | 6 |
+| `examples/model_zoo` | Início rápido do zoo de modelos: carregar um modelo pré-treinado, prever, comparar com a referência, validar, medir desempenho e fazer fine-tune, sobre o surrogate de aerofólio verificado que vem no pacote. Usa `pinneapple`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/modelica` | Modelos Modelica como dados para IA física: `.mo` para FMU com OpenModelica, um surrogate MLP de resfriamento de panela de metal a partir de uma varredura em hipercubo latino e o coeficiente de descarga de um tanque identificado por PINN. Usa `pinneapple_simulation`. | 4 | 6 |
+| `examples/molecular` | Uma proteína sobre uma superfície de ouro: orientar, montar a placa Au(111), rodar uma dinâmica molecular curta com OpenMM e visualizar. Usa `pinneapple_tools`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/motor_magnetics` | Máquina de ímãs na superfície (4 polos, 24 ranhuras, ferro não linear): torque de cogging, torque contra ângulo de corrente, força contraeletromotriz e perdas com o FEM 2D em A_z. Usa `pinneapple_simulation.electromag`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/near_random_forecasting` | Estudo de previsão de sistemas quase aleatórios (`run_study.py`) e o pacote visual dele: quatro renders Blender Cycles e duas figuras 2-D (`render_visuals.py`). Usa `pinneapple_systems`, `pinneapple_core` e `pinneapple_blender`. | 2 | 20 |
+| `examples/non_hermitian` | Sintonia de pontos excepcionais em dímeros PT-simétricos: o teorema de impossibilidade (Zenodo 23287622) conferido simbólica e numericamente, as três rotas que o contornam e o mapa de hipóteses. Usa `pinneapple_physics`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/numerical_solvers` | Treze scripts da camada de solvers numéricos: FFT, Hilbert-Huang, FEM e FVM (descritos como esqueletos no README), SPH, FDM, LBM, espectral, pipeline CAD-CFD, dinâmica molecular de gás Lennard-Jones e um gêmeo 3D de águas rasas no navegador. Usa `pinneapple_solvers`, `pinneapple_train` e `pinneapple_twin`; nenhum teste cita a pasta. | 13 | 0 |
+| `examples/nvidia` | Exemplos que juntam o PINNeAPPle à pilha NVIDIA (Omniverse, PhysicsNeMo, simulação robótica, modelos de mundo, B-rep, serviços de modelos). O PINNeAPPle fica no centro (problema, solvers de referência, checagens físicas e decisão de confiança); cada `run.py` grava `results/architecture.png`, figuras, `summary.json` e `run_info.json`. A cola é `pinneapple_tools.nvidia`. | 25 | 39 |
+| `examples/openfoam_campaign` | Campanha de parâmetros no OpenFOAM: um caso base e seis runs que mudam velocidade e elevação do jato, divididos entre duas máquinas, com status por `python -m pinneapple_simulation.external_solvers.openfoam.campaign`. Nenhum teste cita a pasta. | 1 | 0 |
+| `examples/pde_environment` | Ambientes de EDP montados à mão ou a partir de presets: Laplace 2D, Burgers 1D, elasticidade e calor 3D em STL, Navier-Stokes 2D, e validações de órbita de Kepler e de detritos espaciais (Clohessy-Wiltshire) contra a solução analítica. Usa `pinneapple_physics`, `pinneapple_models` e `pinneapple_neural`. | 9 | 10 |
+| `examples/physics_audit` | Auditoria física em atrito de tubulação: modelos julgados pela física, não só pelos erros passados (`pipe_regimes.py`). Usa `pinneapple_physics`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/physics_check` | Fixtures do comando `pinneapple check`: um caso que passa (`pass/`) e um que falha (`fail/`) para cada regra, com runs reais de icoFoam e campos analíticos com defeitos de propósito, regenerados por `generate.py`. Usa `pinneapple_check`; é o que o workflow `physics-check.yml` roda. | 7 | 22 |
+| `examples/physics_condensation` | Trilha 1 da Adaptive Physics Condensation: o benchmark medido de `docs/research/physics_condensation.md`, com figuras e resultados gravados. Usa `pinneapple_condense` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/physics_db` | Descobrir datasets via CMR/earthaccess e NASA POWER, convertê-los em UPD fragmentado, carregar catálogos como `PhysicalSample`, amostrar pontos para PINN e treinar algo pequeno. Usa `pinneapple_pdb`, `pinneapple_physics` e `pinneapple_data`; nenhum teste cita a pasta. | 7 | 0 |
+| `examples/physics_ensemble` | Ensembles de cinco famílias de modelos (FNO, PINN, GNN e solvers): reagir só a erros passados contra usar o resíduo físico do caso atual, turbulência multiescala e ruído de sensor, gerando GIFs comparativos. Usa `pinneapple_physics` e `pinneapple_neural`. | 5 | 3 |
+| `examples/physics_learning_verification` | Trilha 3: o estudo medido de verificação de aprendizado físico de `docs/research/physics_condensation.md` (seção 6). Usa `pinneapple_analysis` e `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/physics_module` | Modelo híbrido: uma solução de elementos finitos grosseira mais uma correção neural, treinadas de ponta a ponta. Usa `pinneapple_core`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/physics_optimizer` | Um problema de projeto com restrições, uma interface, seis otimizadores (`01_constrained_shape_six_methods.py`). Usa `pinneapple_core`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/physics_query` | Trilha 2: a demonstração medida do motor de consultas físicas de `docs/research/physics_condensation.md` (seção 7). Usa `pinneapple_lab`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/pinn_solver` | Camada específica de PINN: perda simbólica, compilador de EDP (Poisson 2D, Burgers 1D, onda 1D), contorno rígido, parâmetro inverso no calor 1D com `PINNFactory`, regressão só com dados, marcha no tempo, gêmeo climático com Open-Meteo e transferência de calor conjugada. Usa `pinneapple_physics.pinn_solver`; nenhum teste cita a pasta. | 10 | 0 |
+| `examples/pinneapple_and_physicsnemo` | A equação da onda 1D resolvida lado a lado no PINNeAPPle e no PhysicsNeMo (pastas `pinneapple/`, `physicsnemo/` e `both/`, esta com um benchmark de amostragem de geometria em EDO). Usa `pinneapple_neural` e `pinneapple_physics`; nenhum teste cita a pasta. | 4 | 0 |
+| `examples/pinneapple_benchmark` | Benchmark de arquiteturas para EDPs (`01_pde_comparison.py`) e para problemas inversos (`02_inverse_benchmark.py`). Usa `pinneapple_neural`; nenhum teste cita a pasta. | 2 | 0 |
+| `examples/pinneapple_cosim` | Cossimulação: sistema massa-mola de 2 graus de liberdade acoplado com dois modelos PINN. Usa `pinneapple_cosim` e `pinneapple_models`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/problem_designer` | Elicitação, especificação e planejamento de problemas com `pinneapple_problemdesign`, de forma conversacional com LLM (Gemini ou provedor próprio) ou offline a partir de uma especificação pronta, até gerar relatórios em lote. | 5 | 22 |
+| `examples/proof_graph` | Experimento de grafo de prova: o teorema de impossibilidade para sintonia linear de pontos excepcionais (dímeros PT, Zenodo 23287622) se estende a tetrâmeros PT com ligações moduladas de forma independente? Usa `pinneapple_analysis`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/qualitative` | Prévia qualitativa de variantes seguida da checagem quantitativa: aletas de dissipador, rigidez por massa de viga e o ângulo traseiro do corpo de Ahmed. Usa `pinneapple_design`; nenhum teste cita a pasta. | 3 | 0 |
+| `examples/quickstart` | Treze passos em sequência: o que está instalado, resolver e comparar, cartão de confiança, problema e dados próprios, problema inverso, usar o modelo, benchmark, incerteza e validação, preset industrial, gêmeo digital, visualização, texto para gêmeo e variantes. Usa sobretudo a API `pinneapple`; nenhum teste cita a pasta. | 13 | 0 |
+| `examples/reproductions` | Reproduções de papers com protocolo congelado antes de rodar: X-TFC (Schiassi et al.) e Gated X-TFC (Dwivedi et al.), cada uma com `TARGETS.md`, `RESULTS.md` e dados brutos. Usa `pinneapple_analysis.reproduction`, `pinneapple_simulation` e `pinneapple_physics`; nenhum teste cita a pasta; detalhes na seção de reproduções. | 3 | 0 |
+| `examples/results_chassis` | Não tem código: só figuras e JSON (pontos de colocação, campos de deslocamento e von Mises, histórico de perda) de um chassi, gerados por `examples/scratch/generate_chassis_results.py`. Nenhum teste cita a pasta. | 0 | 0 |
+| `examples/rigid_body` | Corpos rígidos com NVIDIA Newton: checar o solver e rodar uma cena pequena (`newton_quickstart.py`). Usa `pinneapple_simulation`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/science` | Não tem scripts: é a tabela gerada dos experimentos de `pinneapple_science` (`pp.science`), cada grandeza calculada comparada com a referência e um veredito de confiança, a partir dos `result.json` gravados; hoje cobre eletromagnetismo (lei de Ampère, Gauss, Faraday, guias de onda e outros). Regenera-se com `python -m pinneapple_science report all`; nenhum teste cita a pasta. | 0 | 0 |
+| `examples/scratch` | Scripts de trabalho e experimentais do desenvolvimento (trechos de benchmark, geração pontual de resultados, embutir resultados em relatórios, exportar PDF). O README avisa que são menos polidos que o resto; nenhum teste cita a pasta. | 6 | 0 |
+| `examples/security` | Pipeline seguro de IA física de ponta a ponta e detecção de injeção de dados falsos pelo resíduo físico. Usa `pinneapple_security` e `pinneapple_registry`; nenhum teste cita a pasta. | 2 | 0 |
+| `examples/solver_api` | O mesmo problema numa só chamada, por FEM clássico e por PINN, comparados com a solução exata. Usa `pinneapple` e `pinneapple_physics`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/solvers` | Decomposições de séries temporais, uma caixa SPH e solvers de Poisson. Usa `pinneapple_simulation` e `pinneapple_design`; nenhum teste cita a pasta. | 3 | 0 |
+| `examples/sports` | Física no esporte: voo da bola (arrasto, Magnus e gravidade a partir de posições rastreadas), controle de campo, cinemática de jogadores, gols esperados e um veredito sobre se a física prevê melhor que modelos só de dados. Usa `pinneapple_systems` e `pinneapple_core`; nenhum teste cita a pasta. | 5 | 0 |
+| `examples/studio` | Qualquer resultado de simulação em 3D com três chamadas (carregar, exportar, renderizar), e CFD externo em corpo de Ahmed, avião, carro de rua, veículo lançador, carro de fórmula e um painel de rover lunar. Usa `pinneapple`, `pinneapple_tools`, `pinneapple_simulation` e `pinneapple_design`; guia em `docs/core_concepts/studio.md`. | 7 | 6 |
+| `examples/systems` | Registro de componentes, caixa de ferramentas e ajuste informado pela física de ponta a ponta. Usa `pinneapple_systems`; nenhum teste cita a pasta. | 1 | 0 |
+| `examples/time_series` | Fluxos de previsão de séries temporais: janelas e loaders determinísticos, FNO, pipeline completo, auditoria e features, backtest de baselines, incerteza por quantis, registro de modelos próprios e híbridos FFT/HHT com LSTM. Usa `pinneapple_timeseries` e `pinneapple_train`; nenhum teste cita a pasta. | 10 | 0 |
+| `examples/topology_optimization` | Otimização topológica por SIMP: meia viga MBB e balanço, problemas de calor e de Stokes, e um rotor de relutância. Usa `pinneapple_design.topology` e `pinneapple_simulation`; nenhum teste cita a pasta. | 3 | 0 |
+| `examples/trainer` | Treino com `pinneapple_train`: treino auditado, `DataModule` com divisões e pré-processamento, PINN de EDO consciente da física, retomar, inferir e plotar, e treino distribuído com `torchrun`. Nenhum teste cita a pasta. | 5 | 0 |
+| `examples/use_cases` | Casos de uso maiores, cada um na sua pasta e com um `TEMPLATE`: antenas (zona quieta por óptica física), asa delta em alto ângulo de ataque por LBM, surrogates de colisão veicular e de desgaste, convecção inversa, gêmeo de canal aquecido, aerodinâmica de míssil, fábrica de dados sintéticos, gêmeos de desgaste de revestimento refratário, mecânica dos sólidos e terramecânica. Usa `pinneapple_physics`, `pinneapple_simulation`, `pinneapple_neural` e `pinneapple_worldmodel`. | 34 | 17 |
+| `examples/validation` | Doze validações, uma por família de modelo: PINN de condução, FNO de Darcy exportado em ONNX, DeepONet/FNO de reação-difusão, MeshGraphNet de elasticidade, POD/DMD de esteira, OpInf, MLP do zoo, processo gaussiano, ODE neural, modelo generativo de Darcy, FNO do PhysicsNeMo e regressão modal. Usa `pinneapple_analysis`, `pinneapple_neural` e `pinneapple_simulation`. | 12 | 4 |
+| `examples/validation_arena` | Roda um modelo externo (por exemplo o FNO ou o MeshGraphNet de um experimento PhysicsNeMo) pela defesa endurecida da arena de validação e compara cada saída. Usa `pinneapple_analysis`; nenhum teste cita a pasta. | 2 | 0 |
+| `examples/visualizations` | Seis visualizações (escoamento em cilindro, calor 2D, vórtices, campo de fase, onda 2D, estrutural) e um `run_all.py`. Usa `pinneapple_analysis` e `pinneapple_design`; nenhum teste cita a pasta. | 8 | 0 |
+| `examples/vs_physicsnemo` | Guia de comparação e integração PINNeAPPle contra PhysicsNeMo, com sete exemplos (incerteza em gêmeo digital, meta-transferência, pesos ativos, FNO do PhysicsNeMo, FNO combinado com gêmeo, MeshGraphNet validado, PhysicsNeMo treina e PINNeAPPle confere). As linhas medidas vêm de `benchmarks/vs_frameworks/REPORT.md`, só em CPU. | 7 | 22 |
+| `examples/weather_forecasting` | Modelo global de previsão do tempo treinado com `pinneapple_physics.weather` em ERA5 (WeatherBench2), avaliado contra persistência, climatologia e previsões publicadas, com horizonte útil e eventos extremos. O README diz que o experimento está pela metade (só a fase 1 do treino foi feita). | 2 | 6 |
+| `examples/worldmodel` | Modelo de mundo físico de ponta a ponta: gerar dados, treinar e avaliar. Usa `pinneapple_worldmodel`; nenhum teste cita a pasta. | 1 | 0 |
+
+## 3. Reproduções de papers
+
+### `examples/reproductions/xtfc_schiassi2021`
+
+- **Paper:** E. Schiassi, C. Leake, M. De Florio, H. Johnston, R. Furfaro, D. Mortari, "Extreme Theory of Functional Connections: A Physics-Informed Neural Network Method for Solving Parametric Differential Equations", arXiv:2005.10632v1, 2020 (versão de periódico: Neurocomputing 457, 2021, que não foi lida)
+- **Resultado gravado:** Os alvos foram congelados em `TARGETS.md` antes de qualquer run, e a regra de status é `pinneapple_analysis.reproduction.status`. Segundo `examples/reproductions/xtfc_schiassi2021/README.md` e `RESULTS.md`, 7 de 10 alvos foram reproduzidos, em escala completa e em CPU. Exemplos: ODE 1 com erro máximo mediano 4.4e-16 contra 6.66e-16 do paper; PDE 1 com 1.4e-13 contra 5.05e-13; PDE 7 (não linear 3D + t) com 2.4e-5 contra 2.98e-5. Não reproduzidos: ODE 2 (y1 mediano 0.91 contra 5.54e-10; a iteração de Gauss-Newton diverge na maioria das seeds) e PDE 6 (5.5e-6 contra 1.66e-8). Dados brutos em `results.json` e `baselines.json`.
+
+### `examples/reproductions/gated_xtfc_dwivedi2025`
+
+- **Paper:** V. Dwivedi, E. Schiassi, M. Sigovan, B. Sixou, "Gated X-TFC: Soft Domain Decomposition for Forward and Inverse Problems in Sharp-Gradient PDEs", arXiv:2510.01039v1, 2025
+- **Resultado gravado:** Alvos congelados em `TARGETS.md` antes de rodar; tudo medido por `run_gated.py`. Segundo `examples/reproductions/gated_xtfc_dwivedi2025/README.md`, só 2 de 9 alvos foram reproduzidos (faixa de fator 2): o problema direto com ν = 1e-2 (6.7e-4 contra 4.95e-4 do paper) e a camada-limite dupla com ν = 1e-4 (5.0e-3 contra 2.97e-3). Falharam os casos diretos com ν ≤ 1e-3 (por exemplo 3.9e-2 contra 5.86e-4 em ν = 1e-4) e os quatro casos inversos (por exemplo 41 % de erro em ν̂ contra 10.3 % em ν = 0.1). O README atribui a diferença a detalhes que o paper deixa em aberto (λ de Tikhonov, tipo de solução, apêndice ausente). Dados brutos em `part_*.json`.
+
+### `examples/black_hole_weather`
+
+- **Paper:** Duarte, Nemmen & Navarro, "Black hole weather forecasting with deep learning: a pilot study", MNRAS 512, 5848, 2022 (arXiv:2102.06242)
+- **Resultado gravado:** Reprodução e extensão (o README diz as duas coisas). Os dados PLUTO do paper não estavam acessíveis, então as simulações 2.5-D foram refeitas com `pinneapple_physics.blackhole`, e a U-Net do paper foi portada camada por camada (com 16 filtros em vez de 32). Segundo `examples/black_hole_weather/README.md`, a porta fiel não bate a persistência no espaçamento de quadros usado aqui (erro 0.038 contra 0.0137 da persistência em +1200 M), enquanto a variante residual, que é adição do PINNeAPPle, bate a persistência em todo o rollout (0.0076 em +1200 M, com correlação de tendência 0.61). Resumos por modelo ficam em `examples/black_hole_weather/results/`.
+
+## 4. Scripts (`scripts/`)
+
+24 itens.
+
+| item | o que faz | arquivos .py | testes |
+|---|---|---:|---:|
+| `scripts/README.md` | Runbook em português do MVP 'Flow Obstacle 2D': o passo a passo opcional Cosmos (spec e variações), Omniverse (USD e bundle), depois validar o bundle, rodar a PINNArena (nativa ou PhysicsNeMo), gerar o leaderboard e resumir os runs. | 0 | 0 |
+| `scripts/app_helpers_baseline.txt` | Lista de duplicatas já existentes de helpers da biblioteca em `apps/` e `examples/`, usada como linha de base por `scripts/check_app_helpers.py`; os testes (por exemplo `tests/test_app_helpers.py`) falham só com duplicatas novas. | 0 | 4 |
+| `scripts/arena` | Scripts de linha de comando do MVP para a arena: rodar um benchmark (`run_benchmark.py`, via `pinneapple_tools.benchmark_suite`), varreduras, comparar arenas, montar o leaderboard e resumir um run. Nenhum teste cita a pasta. | 5 | 0 |
+| `scripts/astro` | Constroem os dados que vêm com `pinneapple_physics/astro/data`: catálogos compactos de estrelas e constelações, o dataset de fatos (a partir do d3-celestial) e o propagador neural de NEOs treinado. | 3 | 0 |
+| `scripts/build_method_status.py` | Calcula o status de validação de cada item de `pinneapple_catalog.methods` a partir das suítes de teste; o workflow `release.yml` confere que a página de status bate com essa varredura. | 1 | 2 |
+| `scripts/check_app_helpers.py` | Aponta lógica reutilizável escrita em `apps/` ou `examples/` em vez de importada da biblioteca, comparando com `app_helpers_baseline.txt`. | 1 | 0 |
+| `scripts/check_dist.py` | Confere as distribuições construídas: cada pacote da wheel está no sdist e na wheel, e importa quando o sdist é instalado num ambiente virtual limpo. Roda em `tests.yml` e `release.yml`. | 1 | 0 |
+| `scripts/check_example_imports.py` | Confere que todo `import pinneapple*` em `examples/` e `templates/` resolve, com as exceções conhecidas em `example_imports_baseline.txt`. | 1 | 0 |
+| `scripts/check_experiment_manifests.py` | Portão de CI (em `tests.yml`): toda pasta de `examples/*` tem um `experiment.json` válido e todo run do Lab é lido como manifesto válido. | 1 | 0 |
+| `scripts/check_release_version.py` | Falha se a tag git, `pyproject.toml`, `CITATION.cff`, `pinneapple.__version__` e `CHANGELOG.md` não concordam na versão; roda em `release.yml`. | 1 | 0 |
+| `scripts/cosmos` | Integração com o Cosmos (LLM / World Foundation Model) por um endpoint HTTP JSON: cena para especificação, geração de variações e avaliação com refinamento. Parte opcional do MVP; nenhum teste cita a pasta. | 3 | 0 |
+| `scripts/dev` | Atalhos de desenvolvimento do MVP: `quickstart_mvp.sh` (roda o fluxo Flow Obstacle 2D) e `sanity_check_install.py` (confere quais módulos importam). | 1 | 0 |
+| `scripts/example_imports_baseline.txt` | Lista dos imports de exemplos que hoje não resolvem (por exemplo `examples/architectures/50_timeseries_transformer_forecast_toy.py`), usada como linha de base por `check_example_imports.py` e pelos testes. | 0 | 2 |
+| `scripts/fault_injection_matrix.py` | Regenera a matriz de detecção das checagens de validação (#697): cada checagem contra a biblioteca de falhas em Darcy 2-D e Burgers 1-D. | 1 | 0 |
+| `scripts/geometry_library.py` | Gera, verifica e publica os arquivos da biblioteca de geometrias (STL, glTF, OBJ, USD, STEP) com SHA-256 no manifesto; é chamado pelo job `geometries` de `publish-zoo.yml`. | 1 | 21 |
+| `scripts/issues` | Tira um retrato das issues abertas do repositório para a página de contribuição (`docs/org/contribute/index.html`); roda no workflow `docs.yml`. | 1 | 0 |
+| `scripts/mvp` | Scripts locais 'cola-tudo' do MVP: gerar os JSONs do bundle (conditions/manifest), validar o bundle contra o esquema e rodar a matriz da arena. Nenhum teste cita a pasta. | 3 | 0 |
+| `scripts/omniverse` | Scripts que rodam dentro do Omniverse Kit (Omniverse Code / Isaac Sim): gerar cenários e exportar um bundle a partir do stage USD. Não rodam fora do Omniverse. | 2 | 0 |
+| `scripts/publish_issues.sh` | Publica `docs/dev/issues/*.md` como issues no GitHub com `gh`, pulando as que já existem com o mesmo título. | 0 | 0 |
+| `scripts/reference` | Monta a referência de módulos em `docs/org/reference/` (pacotes, submódulos, docstrings e API pública lidos com `ast`) e roda os exemplos curados dessa referência, cada um num interpretador novo. | 3 | 0 |
+| `scripts/run_colab_notebooks.py` | Executa os notebooks do Colab sem interface, do início ao fim, e confere que as cópias gravadas não têm saídas; é o job `colab-notebooks` de `tests.yml`. | 1 | 0 |
+| `scripts/update_imports.py` | Script de migração de uma só vez: reescreve os imports Python para os caminhos novos dos 'mega-módulos'. Nenhum teste cita o arquivo. | 1 | 0 |
+| `scripts/validate_model_card.py` | Portão de governança do hub de modelos: recusa o push de um model card sem `validation_metrics` calculadas ou sem fonte de referência; roda em `tests.yml`. | 1 | 8 |
+| `scripts/zoo` | Constroem o zoo de modelos a partir das fontes gravadas: assets, model cards e `manifest.json`, datasets (esteira de cilindro por LBM, operadores Burgers/Darcy/Navier-Stokes, canal térmico, acreção em buraco negro), treinos (aerofólio por GNN, dissipador, contato de rover), relatórios de validação e a publicação no Hugging Face (`publish_to_hub.py`, usado por `publish-zoo.yml`). | 10 | 28 |
+
+## 5. Benchmarks (`benchmarks/`)
+
+7 itens.
+
+| item | o que faz | arquivos .py | testes |
+|---|---|---:|---:|
+| `benchmarks/data_io_bench.py` | Mede a vazão de leitura de dados da camada `pinneapple_data` (store Zarr UPD, prefetch e cache de bytes). Não tem docstring nem teste que o cite. | 1 | 0 |
+| `benchmarks/lbm_vortex_shedding.py` | Desprendimento de vórtices com o solver LBM D2Q9: número de Strouhal de um cilindro a Re = 100, comparado com o ajuste de Williamson (1996), e de um NACA 4412, em mais de uma altura de canal. Nenhum teste o cita. | 1 | 0 |
+| `benchmarks/lpm_ellipse_design_space.py` | 'Large Physics Model' num espaço de projeto exato: Cp de escoamento potencial em elipses, treinado em 30 projetos, avaliado em 10 inéditos, e com sinais de fora-da-distribuição conferidos num quadrado e num círculo maior. Roda com `python -m benchmarks.lpm_ellipse_design_space`. | 1 | 0 |
+| `benchmarks/shard_balance_bench.py` | Mede o balanceamento de shards Zarr entre workers (`UPDZarrShardedWriter`, `ShardAwareZarrUPDIterable`) de `pinneapple_data`. Não tem docstring nem teste que o cite. | 1 | 0 |
+| `benchmarks/ssqn_helmholtz.py` | Benchmark de paper: Helmholtz 2D (setup de Wang, Teng & Perdikaris 2021, usado por Urban et al. 2025) resolvido por PINN com os otimizadores quase-Newton BFGS, SSBFGS e SSBroyden contra Adam. | 1 | 0 |
+| `benchmarks/ssqn_paper_benchmarks.py` | Vários problemas dos papers sobre otimizadores quase-Newton auto-escalados (Helmholtz, PK-PD rígido e outros, do repositório CrunchOptimizer/PINNs), cada um com solução de referência calculada aqui, comparando BFGS, SSBFGS e SSBroyden com Adam. | 1 | 0 |
+| `benchmarks/vs_frameworks` | Benchmark entre frameworks (PINNeAPPle contra PhysicsNeMo / PhysicsNeMo-Sym, DeepXDE e neuraloperator) com protocolo gravado antes dos resultados (`PROTOCOL.md`): PINN com configuração idêntica e com receita própria, FNO em Darcy, Burgers inverso e ergonomia. O `REPORT.md` avisa que tudo rodou só em CPU, e que pelo teste do sinal nenhuma diferença é estatisticamente significativa. | 15 | 0 |
+
+## 6. Integração contínua (`.github/workflows/`)
+
+| workflow | nome | gatilhos | jobs | o que faz |
+|---|---|---|---|---|
+| `docs.yml` | Deploy Docs to GitHub Pages | push, workflow_dispatch, contents | deploy | Roda a cada push em `main` e à mão. Atualiza o retrato das issues abertas (`scripts/issues/build.py`), opcionalmente inclui o Playground, constrói a documentação e publica no GitHub Pages. |
+| `draft-pdf.yml` | Draft PDF | push, pull_request, workflow_dispatch | paper | Roda em push para `main` e em pull requests que mexem em `paper/**`, e à mão. Gera o PDF de rascunho do artigo e o anexa como artefato. |
+| `extras.yml` | Install extras | push, pull_request, workflow_dispatch | extras | Roda quando `pyproject.toml` ou `pinneapple/__init__.py` mudam (push em `main` ou PR) e à mão. Instala cada extra num ambiente limpo e confere que `pp.info()` roda sem pacote quebrado. |
+| `observatory.yml` | Observatory (browser tests) | push, pull_request, workflow_dispatch | browser | Roda quando mudam `apps/observatory`, `apps/_shared`, `pinneapple_physics/astro` ou os testes do Observatory. Instala o app, passa um lint de texto fixo na interface e roda os testes de navegador com Playwright. |
+| `physics-check.yml` | Physics check (pinneapple check) | push, pull_request, workflow_dispatch, contents | passing-fixtures, failing-fixtures, darcy-trust, unit-tests | Roda a cada push em `main`, em todo PR e à mão. Roda `pinneapple check` nas fixtures `examples/physics_check/pass` (deve passar) e `fail` (deve acusar exatamente as violações esperadas), checa um modelo de Darcy dentro e fora da faixa validada e roda os testes unitários. |
+| `playground.yml` | Zoo web export and Playground (ONNX parity, JS runtime, browser smoke test) | push, pull_request, workflow_dispatch | onnx-parity, browser, docker | Roda quando mudam o Playground, os dados web, o zoo ou a biblioteca de geometrias. Confere a paridade ONNX contra PyTorch, o runtime JS do zoo contra o Python, um smoke test no navegador, o tamanho do site estático e a imagem Docker servindo a página. |
+| `publish-zoo.yml` | Publish zoo to the Hugging Face Hub | workflow_dispatch, push, contents, group | publish, geometries | Roda à mão ou em push em `main` que muda o manifesto, os assets do zoo, `apps/zoo_space` ou a biblioteca de geometrias. Exige que a validação não regrida, confere SHA-256, envia modelos, datasets, o Space de demo e as geometrias ao Hugging Face (pula com aviso sem `HF_TOKEN`) e verifica os arquivos publicados baixando-os anonimamente. |
+| `release.yml` | Release to PyPI | push | build, publish | Roda ao empurrar uma tag `vX.Y.Z`. Confere que tag, `pyproject`, `CITATION` e `CHANGELOG` concordam, que a página de status bate com o catálogo, constrói sdist e wheel, testa os imports num venv limpo e publica no PyPI. |
+| `security.yml` | Security | pull_request, push, schedule, workflow_dispatch, contents (cron `17 5 * * 1`) | scan, tests, image | Roda em PRs, em push em `main`, toda segunda-feira às 05:17 UTC (cron `17 5 * * 1`) e à mão. Passa bandit, pip-audit, gitleaks, hadolint e Trivy, gera SBOMs, roda os testes de segurança por camada e confere que a imagem do HeatSink Sizer roda sem root, com sistema de arquivos só de leitura. |
+| `tests.yml` | Tests (audit + core suite) | push, pull_request, workflow_dispatch | test, generated, first-example, colab-notebooks | Roda a cada push em `main`, em todo PR e à mão. O job `test` roda a suíte central em blocos que devem passar (contratos dos apps, Flow, apps de projeto inverso, arena de validação, entre outros); `generated` confere o índice do Hub e a cobertura do Flow Studio; `first-example` instala a wheel num venv limpo e roda o primeiro exemplo fora do repo; `colab-notebooks` roda os notebooks em modo rápido. |
+| `training-callbacks.yml` | Training callbacks (Lightning, PhysicsNeMo, Hugging Face) | push, pull_request, workflow_dispatch, contents | callbacks | Roda quando mudam os callbacks de treino ou a validação de `pinneapple_analysis`. Instala Lightning, PhysicsNeMo e Hugging Face e confere que os callbacks dão as mesmas métricas em todos e avisam quando o peso do resíduo está errado. |
+| `validation-gallery.yml` | Validation gallery | push, pull_request, workflow_dispatch, contents | gallery | Não estava na lista de entrada, mas existe. Roda quando mudam `examples/validation`, a validação de `pinneapple_analysis`, `pinneapple_neural` ou os solvers numéricos. Roda cada exemplo da galeria de validação em tamanho reduzido, confere que ele pega a própria falha e passa `pinneapple check` na configuração da galeria. |
+
+## 7. Documentação existente (`docs/`)
+
+190 arquivos Markdown. Lista com o título de cada um:
+
+| arquivo | título |
+|---|---|
+| `docs/SUMMARY.md` | SUMMARY |
+| `docs/apps/anomaly_detector.md` | Physics Anomaly Detector (day 28) |
+| `docs/apps/benchmark_arena.md` | Physics AI Benchmark Arena |
+| `docs/apps/calibration_lab.md` | Model Calibration Lab (day 18) |
+| `docs/apps/control_lab.md` | Physics-Based Control Lab (day 29) |
+| `docs/apps/evidence_report.md` | Engineering Evidence Report (day 30) |
+| `docs/apps/hub.md` | PINNeAPPle Hub |
+| `docs/apps/identifiability_lab.md` | Parameter Identifiability Lab (day 25) |
+| `docs/apps/inverse_studio.md` | Inverse Model Studio (day 21) |
+| `docs/apps/meshless_lab.md` | Meshless Method Lab (day 26) |
+| `docs/apps/model_gateway.md` | Physics AI Model Gateway |
+| `docs/apps/rom_lab.md` | Reduced Order Model Lab (day 19) |
+| `docs/apps/surrogate_studio.md` | Surrogate Studio |
+| `docs/apps/twin_runtime.md` | Digital Twin Runtime (day 20) |
+| `docs/apps/validation_lab.md` | Physics Validation Lab (day 24) |
+| `docs/architecture/execution_model.md` | Execution Model |
+| `docs/architecture/package_layers.md` | Package Layers |
+| `docs/architecture/system_overview.md` | System Overview |
+| `docs/archive/overview_en.md` | PINNeAPPle — Library Overview |
+| `docs/archive/overview_pt.md` | PINNeAPPle — Visão Geral da Biblioteca |
+| `docs/assets/apps/README.md` | App images (30 apps with PINNeAPPle, days 1–14) |
+| `docs/assets/proof_graph/pt_chain_no_go_report.md` | No linear exceptional-point tuning in PT-symmetric tetramers |
+| `docs/core_concepts/adaptive_forecasting.md` | Adaptive forecasting: switching and combining models online |
+| `docs/core_concepts/astro.md` | Positional astronomy and astrophysics (`pinneapple_physics.astro`) |
+| `docs/core_concepts/astroml.md` | astroML: periodograms, deconvolved densities and fits with errors |
+| `docs/core_concepts/backend.md` | Backend |
+| `docs/core_concepts/black_hole_weather.md` | Black-hole weather: forecasting accretion flows with a trust horizon |
+| `docs/core_concepts/core_primitives.md` | Core primitives: Domain, Geometry, Mesh, Field |
+| `docs/core_concepts/dashboard.md` | Animation-centred dashboards |
+| `docs/core_concepts/earth_system.md` | Earth-system building blocks and data assimilation |
+| `docs/core_concepts/fitmesh.md` | From a problem description to checked CAD, fit-for-purpose meshes and one report |
+| `docs/core_concepts/free_surface.md` | Free-surface flow: runners, channels, launders |
+| `docs/core_concepts/geomechanics_mpm.md` | Geomechanics with the material point method |
+| `docs/core_concepts/geometry_domain.md` | Geometry & Domain |
+| `docs/core_concepts/lab.md` | PINNeAPPle Lab: experiments at scale, and a database of results and datasets |
+| `docs/core_concepts/lbm_wind_tunnel.md` | Lattice Boltzmann wind tunnel and the FluidX3D bridge |
+| `docs/core_concepts/lunar_rover_terramechanics.md` | Lunar rover terramechanics in 3D |
+| `docs/core_concepts/model.md` | Model |
+| `docs/core_concepts/modelica.md` | Modelica models as Physics AI data |
+| `docs/core_concepts/molecular_visualization.md` | Molecular visualisation: proteins on metal surfaces |
+| `docs/core_concepts/motor_and_topopt_audit.md` | Audit: electric-motor magnetics and topology optimization |
+| `docs/core_concepts/multiscale_ensembles.md` | Multiscale ensembles: scales, filters and closures |
+| `docs/core_concepts/newton_rigid_body.md` | Rigid bodies with NVIDIA Newton |
+| `docs/core_concepts/non_hermitian.md` | Non-Hermitian physics: PT-symmetric dimers and exceptional-point tuning |
+| `docs/core_concepts/openfoam_acceleration.md` | Faster implicit pressure solves in OpenFOAM |
+| `docs/core_concepts/openfoam_campaigns.md` | OpenFOAM parameter campaigns on several machines |
+| `docs/core_concepts/overview.md` | Core Concepts |
+| `docs/core_concepts/physical_sample.md` | PhysicalSample |
+| `docs/core_concepts/physics_audit.md` | Physics audit: which model to use, when to trust it, when to revisit the physics |
+| `docs/core_concepts/physics_ensembles.md` | Adaptive ensembles of physics models |
+| `docs/core_concepts/physics_optimizer.md` | PhysicsOptimizer |
+| `docs/core_concepts/pinn.md` | PINN / Physics |
+| `docs/core_concepts/problem_definition.md` | ProblemDefinition |
+| `docs/core_concepts/proof_graphs.md` | Proof graphs: mathematics with the same evidence discipline |
+| `docs/core_concepts/qualitative_preview.md` | Qualitative preview: physical impact of geometry changes before the numbers |
+| `docs/core_concepts/reduced_order_models.md` | Reduced-order models |
+| `docs/core_concepts/researcher_benchmarking.md` | Researcher & Benchmarking |
+| `docs/core_concepts/security.md` | Security for scientific and industrial Physics AI (`pinneapple_security`) |
+| `docs/core_concepts/solver.md` | Solver |
+| `docs/core_concepts/studio.md` | 3D studio and external flow |
+| `docs/core_concepts/training_pipeline.md` | Training Pipeline |
+| `docs/core_concepts/veriphysics.md` | Verification and evidence (`pinneapple_veriphysics`) |
+| `docs/core_concepts/viewers_and_twin_standards.md` | Other 3-D viewers and digital-twin standards |
+| `docs/dev/ANALISE_FEATURES_COMERCIAIS.md` | O que as ferramentas comerciais e os outros CFDs têm que o PINNeAPPle ainda não tem |
+| `docs/dev/AUDIT_REPORT.md` | Evidenced audit report |
+| `docs/dev/CATALOGO_METODOS.md` | Catálogo de métodos do PINNeAPPle |
+| `docs/dev/LATENT_AND_CYBER_EVALUATION.md` | Latent-space methods and cybersecurity applications: evaluation and roadmap |
+| `docs/dev/LIBRARY_CONSOLIDATION.md` | Library consolidation: reusable logic outside the library |
+| `docs/dev/MARKET_SCAN_LOVABLE_PHYSICS_AI_2026-09-13.md` | Pesquisa: Physics AI / Simulação / CAE / Digital Twin em lovable.app |
+| `docs/dev/PEDIDOS_2026-09-24.md` | Pedidos e insights de 2026-09-24 — registro e decisões |
+| `docs/dev/REA_INTEGRATION.md` | REA no PINNeAPPle — integração, fluxo de harvest e mapa do ecossistema |
+| `docs/dev/ROADMAP_PHYSICS_AI_HUB.md` | PINNeAPPle → "the Hugging Face of Physics AI": full roadmap |
+| `docs/dev/issues/001-geometric-similarity-score.md` |  |
+| `docs/dev/issues/002-active-simulation-loop.md` |  |
+| `docs/dev/issues/003-raw-geometry-field-surrogate.md` |  |
+| `docs/dev/issues/004-rom-fmu-export.md` |  |
+| `docs/dev/issues/005-pinneapple-mcp-server.md` |  |
+| `docs/dev/issues/006-topology-optimization-simp.md` |  |
+| `docs/dev/issues/007-solution-adaptive-amr.md` |  |
+| `docs/dev/issues/008-multi-fidelity-cokriging.md` |  |
+| `docs/dev/issues/009-hybrid-rom-online-calibration.md` |  |
+| `docs/dev/issues/010-pce-sobol.md` |  |
+| `docs/dev/issues/011-geometry-encoders.md` |  |
+| `docs/dev/issues/012-lbm-d3q27-cumulant-voxel.md` |  |
+| `docs/dev/issues/013-ifno-incremental-modes.md` |  |
+| `docs/dev/issues/014-multiadam.md` |  |
+| `docs/dev/issues/015-mapdl-rst-reader-pyfluent.md` |  |
+| `docs/dev/issues/016-browser-pde-preview.md` |  |
+| `docs/dev/issues/017-physicsnemo-missing-models.md` |  |
+| `docs/dev/issues/018-rea-native-ghidra.md` |  |
+| `docs/dev/issues/019-adjoint-mma-bspline.md` |  |
+| `docs/dev/issues/020-design-study-object.md` |  |
+| `docs/dev/issues/021-rbf-mesh-morphing.md` |  |
+| `docs/dev/issues/022-inference-cache-viewer.md` |  |
+| `docs/dev/issues/023-the-well-adapter.md` |  |
+| `docs/dev/issues/024-procedural-pde-datasets.md` |  |
+| `docs/dev/issues/025-neural-corrected-stepper.md` |  |
+| `docs/dev/issues/026-differentiable-linear-solves.md` |  |
+| `docs/dev/issues/027-nektar-bridge.md` |  |
+| `docs/dev/issues/028-jaxfluids-bridge.md` |  |
+| `docs/dev/issues/029-paraview-catalyst-insitu.md` |  |
+| `docs/dev/issues/030-nn-in-weak-forms.md` |  |
+| `docs/dev/issues/031-warp-backend.md` |  |
+| `docs/dev/issues/032-rbf-kriging-surrogates-outliers.md` |  |
+| `docs/dev/issues/033-onshape-configuration-sampler.md` |  |
+| `docs/dev/issues/034-rescale-job-connector.md` |  |
+| `docs/dev/issues/035-comsol-mph-bridge.md` |  |
+| `docs/dev/model_dataset_inventory.md` | Model and dataset inventory for the zoo (2026-10-13) |
+| `docs/dev/pr/feat-rea-bridge.md` | Summary |
+| `docs/getting_started/first_pinn.md` | First PINN |
+| `docs/getting_started/installation.md` | Installation |
+| `docs/getting_started/project_layout.md` | Project Layout |
+| `docs/getting_started/quickstart.md` | Quickstart |
+| `docs/getting_started/start_here.md` | Start here (docs) |
+| `docs/guides/adding_an_experiment.md` | Adding an experiment / Como adicionar um experimento |
+| `docs/guides/agent_workbench.md` | Agent Workbench: coding and engineering agents on a local model |
+| `docs/guides/antenna_design.md` | Antenna design: an end-fire Vivaldi with an external FEM solver |
+| `docs/guides/autonomous_lab.md` | Autonomous Physics Lab: an AI that manages evidence for engineering decisions |
+| `docs/guides/autonomous_physics_lab.md` | Autonomous Physics Lab |
+| `docs/guides/campaign_planner.md` | Simulation Campaign Planner: which simulations need to run |
+| `docs/guides/chain_of_whys.md` | Chain of whys: why each element of a design exists, computed |
+| `docs/guides/check_power.md` | Check power: how often each check catches a known defect |
+| `docs/guides/check_power_matrix.md` | Check power: the detection matrix |
+| `docs/guides/choosing_a_method.md` | Choosing a method: PINN, neural operator, graph network or the solver |
+| `docs/guides/colab_notebooks.md` | Colab notebooks |
+| `docs/guides/compact_range.md` | Compact range quiet zone: feed gain × reflector size |
+| `docs/guides/dataset_audit.md` | Dataset physics audit: does the data solve its PDE? |
+| `docs/guides/design_from_intent.md` | Design from intent |
+| `docs/guides/design_report.md` | Design reports without an LLM: `Datasheet` and the self-planning study |
+| `docs/guides/design_studies.md` | Design studies: one problem, many optimisers, verified candidates |
+| `docs/guides/electromagnetics.md` | Electromagnetics and electrodynamics |
+| `docs/guides/engineering_design_optimizer.md` | Engineering Design Optimizer (app, day 17) |
+| `docs/guides/engineering_gui_agent.md` | Engineering GUI agent: run engineering software and keep the evidence |
+| `docs/guides/enso_forecasting.md` | Predicting El Niño: physical, physics-informed, data-driven and hybrid models under one protocol |
+| `docs/guides/evidence_ledger.md` | Evidence ledger: a test passed only if it ran |
+| `docs/guides/flight_dynamics.md` | Flight dynamics, turbulence and take-off |
+| `docs/guides/flow_schema.md` | The flow schema (`pinneapple-flow/1`) and how another app reuses it |
+| `docs/guides/fmi_compatibility.md` | FMI import compatibility |
+| `docs/guides/football_physics.md` | Football: where physics helps on public tracking data |
+| `docs/guides/freecad_openfoam_pipelines.md` | FreeCAD -> OpenFOAM pipelines |
+| `docs/guides/geometry_library.md` | Geometry library |
+| `docs/guides/identifiability_calibration_inversion.md` | Identifiability, calibration and inverse problems |
+| `docs/guides/industrial_presets.md` | Industrial presets |
+| `docs/guides/interlocking_bricks.md` | Self-modifying brick builds |
+| `docs/guides/mcp_server.md` | PINNeAPPle from any coding agent: the MCP server |
+| `docs/guides/metamorphic_tests.md` | Metamorphic tests: checking a surrogate without ground truth |
+| `docs/guides/model_zoo.md` | Pre-trained models and datasets (`pp.zoo`, `pp.datasets`) |
+| `docs/guides/near_random_forecasting.md` | Forecasting near-random series without overfitting |
+| `docs/guides/observatory.md` | The PINNeAPPle Observatory |
+| `docs/guides/physics_checks_in_ci.md` | Physics checks in CI |
+| `docs/guides/physics_design_optimizer.md` | Physics Design Optimizer (app, day 23) |
+| `docs/guides/physics_residual_attack_detection.md` | Detect false data injection with physics residuals |
+| `docs/guides/physicsnemo_trust.md` | PhysicsNeMo trains, PINNeAPPle says when to trust |
+| `docs/guides/pinn_validation.md` | PINN validation: what the training loss does not say |
+| `docs/guides/pinneapple_llm_quality_pipeline.md` | Quality pipeline for LLM-generated physics and twin artifacts |
+| `docs/guides/playground.md` | Playground: physics surrogates in the browser |
+| `docs/guides/pp_validate.md` | pp.validate: one call, one validation report |
+| `docs/guides/recreate_a_wear_twin.md` | Recreate a 3D wear twin (refractory, liner, pipe wall) |
+| `docs/guides/residual_error_bound.md` | From residual to error bound: how wrong is this prediction, without the true answer? |
+| `docs/guides/rollout_validation.md` | Rollout validation: when an autoregressive surrogate stops being trustworthy |
+| `docs/guides/rom_and_meshless_studies.md` | Reduced-order models and meshless methods: measured, not assumed |
+| `docs/guides/rover_learns_the_planet.md` | The rover that learns the planet |
+| `docs/guides/running_a_benchmark.md` | Running a benchmark |
+| `docs/guides/scale_aware_ensembles.md` | Choose a model by the scale of the question |
+| `docs/guides/science.md` | Science by area (`pp.science`) |
+| `docs/guides/sensitivity_lab.md` | Engineering Sensitivity Lab |
+| `docs/guides/spectral_fidelity.md` | Spectral fidelity: what relative L2 does not see |
+| `docs/guides/surrogates_arena_gateway.md` | Surrogates from simulation results: study, regime arena, gateway |
+| `docs/guides/topology_optimization.md` | Topology optimisation |
+| `docs/guides/training_callbacks.md` | Physics checks during training (Lightning, PhysicsNeMo, Hugging Face) |
+| `docs/guides/trusted_latent_surrogate.md` | A latent surrogate that says when not to trust it |
+| `docs/guides/uncertainty_and_sensitivity.md` | Uncertainty and sensitivity studies on any model |
+| `docs/guides/uncertainty_lab.md` | Engineering Uncertainty Lab |
+| `docs/guides/unit_cell_benchmark.md` | Periodic unit cell: an FNO over frequency × scan, and an equal-budget benchmark against Bayesian optimisation |
+| `docs/guides/validation_arena.md` | Red team / blue team for the validation checks |
+| `docs/guides/validation_gallery.md` | Validation gallery: one worked example per model family and per physics |
+| `docs/guides/validation_methods_reference.md` | Validation methods reference |
+| `docs/guides/workflow_runner.md` | Simulation Workflow Runner: campaigns as traceable, resumable workflows |
+| `docs/guides/zoo_catalogue.md` | Zoo catalogue |
+| `docs/index.md` | PINNeAPPle |
+| `docs/lab/coverage.md` | Experiments coverage |
+| `docs/philosophy.md` | Philosophy |
+| `docs/research/condensation_falsification.md` | Falsification campaign for physics condensation — pre-registration |
+| `docs/research/physics_condensation.md` | Adaptive Physics Condensation: geometry-independent thermal models of chip packages |
+| `docs/security/audit.md` | Security audit: the PINNeAPPle web apps and their deployment |
+| `docs/security/runbook.md` | Operator runbook: PINNeAPPle apps |
+| `docs/security/server.md` | Server hardening: the host that runs the PINNeAPPle apps |
+| `docs/strategy/STRATEGY_PHYSICS_AI.md` | Physics AI Strategy — structure and first implementation |
+| `docs/validation_status.md` | Validation status |
+| `docs/why.md` | Why PINNeAPPle? |

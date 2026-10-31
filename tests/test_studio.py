@@ -385,3 +385,9 @@ def test_inputs_are_harvested_from_calls_with_literals(cat, repo):
           "def test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
     calls = inputs.calls_in(src)
     assert calls == [("pinneapple_demo.heat:mean_temperature", 6, [[0.0, 0.5, 1.0]], {})]
+
+
+def test_gallery_shows_the_commands_of_the_readme(tmp_path):
+    from pinneapple_studio.gallery import run_commands
+    _w(tmp_path / "README.md", "# R\n\n```bash\npython examples/r/run.py --part elm\n```\n\n```python\nimport x\n```\n")
+    assert run_commands(tmp_path, tmp_path) == ["python examples/r/run.py --part elm"]

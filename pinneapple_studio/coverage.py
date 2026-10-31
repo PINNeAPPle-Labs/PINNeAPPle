@@ -138,6 +138,8 @@ def example_rows(gallery: list[dict[str, Any]], root: Path | None = None) -> lis
             state, how = "failed", f"script run failed: {(sr.get('error') or '').strip()[-200:]}"
         else:
             state, how = "missing", "no finished run and no stated reason"
+        if state in ("baseline", "failed") and e.get("commands"):
+            how += " | run it with: " + e["commands"][0].splitlines()[0].split("#")[0].strip()
         rows.append({"id": e["id"], "title": e["title"], "state": state, "how": how})
     return rows
 

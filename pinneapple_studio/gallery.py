@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,22 @@ def _scripts(folder: Path, exp: dict[str, Any]) -> list[Path]:
     if named:
         return named
     return sorted(p for p in folder.glob("*.py") if not p.name.startswith("_"))
+
+
+def run_commands(folder: Path, root: Path) -> list[str]:
+    """The shell blocks of the entry's README that run its scripts (``python examples/...``), as written: the full
+    command when a script needs arguments (``--part elm``)."""
+    out = []
+    for name in ("README.md", "readme.md"):
+        p = folder / name
+        if not p.is_file():
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        for block in re.findall(r"```(?:bash|sh|shell|console)?\n(.*?)```", text, re.S):
+            if re.search(r"python[0-9.]* .*examples/", block):
+                out.append(block.strip())
+        break
+    return out[:6]
 
 
 def _flow_rows() -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
@@ -81,7 +98,7 @@ def _entry(root: Path, folder: Path, kind: str, prose: P.Prose, finv: dict, flow
         "flows": [{"name": f["name"], "title": f["title"], "quick": f["quick"], "nodes": f["nodes"]} for f in fl],
         "flow_status": row.get("status") or ("" if not fl else "has-flow"), "flow_reason": row.get("reason", ""),
         "notes": row.get("notes", ""), "requirements": reqs, "blocked_by": missing, "script_needs": script_needs, "state": state,
-        "measured": measured,
+        "measured": measured, "commands": run_commands(folder, root),
     }
 
 

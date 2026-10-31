@@ -116,63 +116,95 @@ def child(argv: list[str]) -> int:
 
 # ------------------------------------------------------------------------------------------------- parent
 def record(catalog: dict[str, Any], *, stale_only: bool = True, package: str | None = None,
-           ids: list[str] | None = None, log=print) -> dict[str, int]:
-    """Smoke-run the executable tools that have inputs (one interpreter per module, in a scratch folder, with the
-    job environment of :func:`pinneapple_studio.runner.clean_env`) and write the records."""
+           ids: list[str] | None = None, workers: int = 4, batch: int = 80, log=print) -> dict[str, int]:
+    """Smoke-run the executable tools that have inputs and write the records.
+
+    Tools run in batches of one package (``batch`` tools at most), each batch in its own interpreter, in a scratch
+    folder, with the job environment of :func:`pinneapple_studio.runner.clean_env`; ``workers`` batches run at once.
+    When an interpreter dies, the first tool without a result is recorded as the cause and the rest run again in a
+    new interpreter. A batch during which a file of the checkout changed fails with the paths (with several workers,
+    every batch running at that moment)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from .coverage import SIDE_EFFECTS
     from .runner import clean_env
     root = repo_root()
     runs = read_runs(root)
     given = recorded_inputs()
-    by_module: dict[str, list[tuple[str, dict]]] = defaultdict(list)
-    for tid, t in catalog["tools"].items():
+    by_pkg: dict[str, list[tuple[str, dict]]] = defaultdict(list)
+    for tid, t in sorted(catalog["tools"].items(), key=lambda kv: (kv[1]["package"], kv[1]["module"], kv[0])):
         if t["category"] != "executable" or (package and t["package"] != package) or (ids and tid not in ids):
             continue
         inputs = smoke_inputs(t, given)
-        if inputs is None:
-            continue
-        from .coverage import SIDE_EFFECTS
-        if SIDE_EFFECTS.search(t["name"]) and tid not in given:
+        if inputs is None or (SIDE_EFFECTS.search(t["name"]) and tid not in given):
             continue
         old = runs.get(tid)
         if stale_only and old and old.get("code_hash") == t["code_hash"] and old.get("inputs") == inputs:
             continue
-        by_module[t["module"]].append((tid, inputs))
-    stats = {"modules": len(by_module), "tools": sum(len(v) for v in by_module.values()), "ok": 0, "failed": 0}
-    env = clean_env({"PYTHONPATH": str(root), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(root)})
-    for k, (mod, todo) in enumerate(sorted(by_module.items())):
+        by_pkg[t["package"]].append((tid, inputs))
+    batches = [todo[k:k + batch] for todo in by_pkg.values() for k in range(0, len(todo), batch)]
+    stats = {"batches": len(batches), "tools": sum(len(b) for b in batches), "ok": 0, "failed": 0}
+    env = clean_env({"PYTHONPATH": str(root), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(root),
+                     "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"})
+    import threading
+    lock = threading.Lock()
+    finished = [0]
+
+    def one(todo: list[tuple[str, dict]]) -> dict[str, dict[str, Any]]:
         before = _tracked_state(root)
-        with tempfile.TemporaryDirectory() as tmp:
-            spec = Path(tmp) / "todo.json"
-            spec.write_text(json.dumps(todo, default=str))
-            try:
-                out = subprocess.run([sys.executable, "-m", "pinneapple_studio.smoke", str(spec)], cwd=tmp, env=env,
-                                     capture_output=True, text=True, timeout=PER_TOOL_S * len(todo) + 120)
-                lines = out.stdout.splitlines()
-                err = out.stderr[-300:]
-            except subprocess.TimeoutExpired as exc:
-                lines = (exc.stdout or b"").decode(errors="replace").splitlines() if isinstance(exc.stdout, bytes) \
-                    else (exc.stdout or "").splitlines()
-                err = "the module's interpreter timed out"
-        done = {}
-        for ln in lines:
-            try:
-                r = json.loads(ln)
-                done[r.pop("id")] = r
-            except (json.JSONDecodeError, KeyError):
-                continue
+        done: dict[str, dict[str, Any]] = {}
+        left = list(todo)
+        while left:
+            got, err = _interpreter(left, env)
+            done.update(got)
+            rest = [(t, i) for t, i in left if t not in got]
+            if not rest:
+                break
+            done[rest[0][0]] = {"ok": False, "error": f"the interpreter stopped during this tool: {err}",
+                                "seconds": None}
+            left = rest[1:]
         touched = sorted(set(_tracked_state(root).items()) - set(before.items()))
         for tid, inputs in todo:
-            r = done.get(tid) or {"ok": False, "error": f"no result (the interpreter stopped: {err.strip()[-200:]})",
-                                  "seconds": None}
+            r = done[tid]
             if touched:
-                r.update(ok=False, error="the module's smoke run changed files of the repository: "
-                                         + ", ".join(p for p, _ in touched[:5]))
+                r.update(ok=False, error="the repository changed during this batch (this tool's batch or one "
+                                         "running at the same time): " + ", ".join(p for p, _ in touched[:5]))
             r.update(code_hash=catalog["tools"][tid]["code_hash"], inputs=inputs, recorded=time.strftime("%Y-%m-%d"))
-            runs[tid] = r
-            stats["ok" if r["ok"] else "failed"] += 1
-        log(f"[{k + 1}/{len(by_module)}] {mod}: {sum(done.get(t, {}).get('ok', False) for t, _ in todo)}/{len(todo)}")
-        _write(root, runs, catalog)
+        with lock:
+            runs.update(done)
+            finished[0] += 1
+            _write(root, runs, catalog)
+            log(f"[{finished[0]}/{len(batches)}] {todo[0][0].split(':')[0]}...: "
+                f"{sum(r['ok'] for r in done.values())}/{len(todo)} returned")
+        return done
+
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+        for done in ex.map(one, batches):
+            for r in done.values():
+                stats["ok" if r["ok"] else "failed"] += 1
     return stats
+
+
+def _interpreter(todo: list[tuple[str, dict]], env: dict[str, str]) -> tuple[dict[str, dict[str, Any]], str]:
+    with tempfile.TemporaryDirectory() as tmp:
+        spec = Path(tmp) / "todo.json"
+        spec.write_text(json.dumps(todo, default=str))
+        try:
+            out = subprocess.run([sys.executable, "-m", "pinneapple_studio.smoke", str(spec)], cwd=tmp, env=env,
+                                 capture_output=True, text=True, timeout=PER_TOOL_S * len(todo) + 120)
+            lines, err = out.stdout.splitlines(), (out.stderr.strip().splitlines() or [f"exit {out.returncode}"])[-1]
+        except subprocess.TimeoutExpired as exc:
+            raw = exc.stdout or ""
+            lines = (raw.decode(errors="replace") if isinstance(raw, bytes) else raw).splitlines()
+            err = "the interpreter ran out of time"
+    got = {}
+    for ln in lines:
+        try:
+            r = json.loads(ln)
+            got[r.pop("id")] = r
+        except (json.JSONDecodeError, KeyError, AttributeError):
+            continue
+    return got, err[-200:]
 
 
 def _tracked_state(root: Path) -> dict[str, str]:

@@ -50,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--all", action="store_true", help="also tools whose current code already has a run")
     s.add_argument("--package")
     s.add_argument("--id", action="append")
+    s.add_argument("--workers", type=int, default=4)
     s = sub.add_parser("examples", help="run the scripts of examples without a flow and record the outcome")
     s.add_argument("--id", action="append")
     s.add_argument("--timeout", type=float, default=900)
@@ -70,7 +71,8 @@ def main(argv: list[str] | None = None) -> int:
                      name="PINNeAPPle Studio")
     if a.cmd == "smoke":
         from . import catalog, smoke
-        _print(smoke.record(catalog.load(), stale_only=not a.all, package=a.package, ids=a.id))
+        _print(smoke.record(catalog.load(), stale_only=not a.all, package=a.package, ids=a.id, workers=a.workers,
+                            log=lambda m: print(m, flush=True)))
         return 0
     if a.cmd == "examples":
         from . import coverage, gallery

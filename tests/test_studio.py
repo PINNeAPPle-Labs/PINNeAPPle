@@ -317,7 +317,7 @@ def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
 def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
     from pinneapple_studio import smoke
     stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
-    assert stats == {"modules": 1, "tools": 1, "ok": 1, "failed": 0}
+    assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0}
     rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]
     assert rec["ok"] and rec["returned"] == "list" and rec["code_hash"] == cat["tools"]["pinneapple_demo.heat:FinStudy"]["code_hash"]
 

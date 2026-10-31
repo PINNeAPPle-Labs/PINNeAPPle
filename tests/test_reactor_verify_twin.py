@@ -181,3 +181,12 @@ def test_outputs_declared_with_units():
             assert rows and all(set(r) == {"name", "type", "unit", "description"} for r in rows)
     assert output_unit(R.pfr_conversion, "tau") == "s"
     assert output_unit(R.tube_volume, "V") == "m3"  # no attribute: read from the module's X_OUTPUTS
+
+
+def test_open_sided_range():
+    def model(k, tau):
+        return {"X": -math.expm1(-k * tau)}
+
+    model.x_ranges = {"k": (0.0, None), "tau": (None, 1e4)}
+    assert verify_against_model({"k": 50.0, "tau": -1.0}, -math.expm1(50.0), model, rtol=1e-9)["status"] == "pass"
+    assert verify_against_model({"k": -1.0, "tau": 1.0}, 0.0, model, rtol=1.0)["status"] == "inconclusive"

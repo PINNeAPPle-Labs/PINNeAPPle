@@ -55,8 +55,12 @@ def resolve_model(model: str | Callable[..., Any]) -> Callable[..., Any]:
 
 
 def model_ranges(fn: Callable[..., Any]) -> dict[str, tuple[float, float]]:
-    """The input box a model is declared for: its ``x_ranges`` attribute, ``{input: (min, max)}`` (empty if none)."""
-    return {k: (float(a), float(b)) for k, (a, b) in (getattr(fn, "x_ranges", None) or {}).items()}
+    """The input box a model is declared for: its ``x_ranges`` attribute, ``{input: (min, max)}``, ``None`` for an
+    open side (empty if none). Write it as a literal after the function so the Studio can read it without importing:
+    ``f.x_ranges = {"k": (0.0, 10.0), "tau": (0.0, None)}``."""
+    def side(v, default):
+        return default if v is None else float(v)
+    return {k: (side(a, -math.inf), side(b, math.inf)) for k, (a, b) in (getattr(fn, "x_ranges", None) or {}).items()}
 
 
 def output_unit(fn: Callable[..., Any], quantity: str) -> str | None:

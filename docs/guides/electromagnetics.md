@@ -1126,6 +1126,53 @@ every 1.875 deg (3.75 deg on the coarse grid):
 Limits: linear iron, no-load only (no winding currents), open slots on one geometry; two grids, the finer one at
 the memory of this machine.
 
+### 3-D axial-flux machine: surrogates with calibrated uncertainty and physics checks
+
+`machines3d.afpm_surrogate` makes the Axial-Flux Motor Designer's check in 3-D a simulator over four variables of
+the default design: magnet arc (0.6 to 0.9 of the pole pitch), slot opening (0.3 to 0.7 of the slot pitch), gap (0.7
+to 1.5 mm) and magnet thickness (3 to 6 mm). Each design runs the quasi-3D estimate and the 3-D check on the
+designer's grid (192 steps round the axis, 8 x 4 mm, `edges="fraction"`, 16 rotor angles per period) and returns
+the cogging peak-to-peak and the tooth flux linkage of both, and their ratios. `physics_checks` are what a surrogate
+must respect to be eligible, on a Sobol sample of the region: positive cogging and linkage; linkage rising with the
+magnet thickness and falling with the gap on at least 90 % of the sample; predicted ratios inside the measured band
+widened by 50 %. `certify` turns a surrogate's checks into a trust decision
+(`pinneapple_analysis.trust.TrustReport`) and records every check in a VeriPhysics evidence ledger with the SHA-256
+of the dataset. Critical: the physics checks and the test `R^2 >= 0.9`. Not critical: the coverage of the
+conformal 90 % interval (at least two binomial standard deviations below 90 %) and the same two on the designs
+held out for extrapolation.
+
+`python examples/electrodynamics/25_afpm_surrogates.py` (run on 2026-10-31, 48 designs in 29 min, 54 s each; the
+campaign resumes): a maximin design (discrepancy 0.0051 against 0.020 for a random one of the same size); the 8
+designs with magnets thicker than 5.5 mm held out for extrapolation, the rest split 28 / 6 / 6 into train,
+validation and test; Gaussian process (Matern 5/2), MLP ensemble and quadratic response surface compared by
+5-fold cross-validation with cross-conformal 90 % intervals (`pinneapple_autolab.study.benchmark`). The measured
+ranges: cogging 1.66 to 24.1 N m (3-D), tooth linkage 0.69 to 1.28 mWb, quasi-3D / 3-D 0.82 to 1.29 for the
+cogging and 1.011 to 1.040 for the linkage. The selected family is the Gaussian process for every target:
+
+| Target | CV RMSE / std | Test `R^2` | Extrapolation `R^2` | Test / extrapolation coverage, 90 % | Decision |
+|---|---|---|---|---|---|
+| Tooth linkage, 3-D | 0.015 | 1.000 | 0.999 | 6/6, 8/8 | APPROVED |
+| Linkage, quasi-3D / 3-D | 0.029 | 1.000 | 0.999 | 6/6, 8/8 | APPROVED |
+| Cogging pk-pk, 3-D | 0.44 | 0.969 | 0.855 | 6/6, 8/8 | REVIEW (extrapolation `R^2` below 0.9) |
+| Cogging, quasi-3D / 3-D | 0.83 | 0.756 | -0.81 | 6/6, 7/8 | REJECT (test `R^2` below 0.9) |
+
+* **The flux linkage is smooth** in the four variables: a Gaussian process on 28 designs predicts the test designs
+  with an RMSE of 0.6 % of the linkage's standard deviation, and the held-out region with `R^2` 0.999; the
+  quadratic response surface comes close (CV 0.020).
+* **The cogging is not**: on the default design it falls from 5.49 to 1.82 N m as the magnet arc goes from 0.70
+  to 0.74 and is 8.60 N m at 0.80 (quasi-3D, the designer's grid), so its peak-to-peak has a minimum inside the
+  region, and the surrogate is reviewed, not approved. Its
+  quasi-3D / 3-D ratio divides two small numbers near that minimum and is rejected; use the two cogging values,
+  not their ratio, when the cogging is small.
+* **The physics checks pass** for every selected surrogate; the quadratic surface fails positivity of the
+  cogging (it predicts negative values) and is not eligible there.
+* Results: `examples/electrodynamics/results/25_afpm_surrogates.json` (board, physics checks, selection,
+  certification), `25_afpm_surrogates.ledger.json` (the evidence ledger, 22 entries), `25_afpm_surrogates.png`
+  (parity with intervals on the test and extrapolation designs).
+
+Limits: 48 designs in four variables, one grid (the designer's, whose absolute cogging is not converged: see the
+section above), linear materials, no load.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is

@@ -1,0 +1,26 @@
+{
+ "id": "doe035",
+ "purpose": "doe",
+ "params": {
+  "magnet_arc": 0.8517703566168342,
+  "slot_fraction": 0.685651882395517,
+  "gap": 0.0007506325633721894,
+  "magnet_thickness": 0.005571262392104674
+ },
+ "ok": true,
+ "outputs": {
+  "cogging_pkpk_3d": 5.112851964238844,
+  "linkage_3d": 0.0010162506605197036,
+  "cogging_pkpk_q3d": 4.213996474537412,
+  "linkage_q3d": 0.001056501079557013,
+  "ratio_cogging": 0.8241968482583975,
+  "ratio_linkage": 1.0396067826580555
+ },
+ "message": "",
+ "cost_s": 51.34320649599999,
+ "started": "2026-10-31T15:37:53",
+ "reason": "",
+ "predicted": {},
+ "meta": {},
+ "fields_path": ""
+}

@@ -1,0 +1,423 @@
+{
+ "schema": "pinneapple-evidence-ledger/v1",
+ "entries": [
+  {
+   "check_id": "cogging_pkpk_3d/cogging_pkpk_3d_positive",
+   "name": "cogging_pkpk_3d_positive",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9323247838938284,
+    "threshold": 0.0,
+    "critical": true,
+    "detail": "min predicted cogging_pkpk_3d"
+   },
+   "started_at": "2026-10-31T15:49:54.229Z",
+   "finished_at": "2026-10-31T15:49:54.230Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "42434927818e0fccfb25a3b27def6befe10529d13fd35039fa128b9969bd28c5"
+  },
+  {
+   "check_id": "cogging_pkpk_3d/test_r2",
+   "name": "test_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9687528912872729,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "R^2 of the surrogate on the test designs"
+   },
+   "started_at": "2026-10-31T15:49:54.229Z",
+   "finished_at": "2026-10-31T15:49:54.230Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "69288ee37424b099d62451938a0ea33b52eff138ac070fa8795ffacba41fe32c"
+  },
+  {
+   "check_id": "cogging_pkpk_3d/test_coverage90",
+   "name": "test_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6550510257216822,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.229Z",
+   "finished_at": "2026-10-31T15:49:54.230Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "a3cd1b02408d1a0f6813557257ac356c41d2ba07bf6f4f21dbfec9a6b1ac6586"
+  },
+  {
+   "check_id": "cogging_pkpk_3d/extrapolation_r2",
+   "name": "extrapolation_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.8549954401085468,
+    "threshold": 0.9,
+    "critical": false,
+    "detail": "R^2 of the surrogate on the extrapolation designs"
+   },
+   "started_at": "2026-10-31T15:49:54.229Z",
+   "finished_at": "2026-10-31T15:49:54.230Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "5305bbe83ea46745497e2b69ae3a5c89d94f5553965ce6c3f85f43554c4d3355"
+  },
+  {
+   "check_id": "cogging_pkpk_3d/extrapolation_coverage90",
+   "name": "extrapolation_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6878679656440357,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.229Z",
+   "finished_at": "2026-10-31T15:49:54.230Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "5f23302035a795bc6ce696a0853e2c8a25e2eb2cad84ef4e84b6f4950f5404df"
+  },
+  {
+   "check_id": "linkage_3d/linkage_3d_positive",
+   "name": "linkage_3d_positive",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.0006638416098387131,
+    "threshold": 0.0,
+    "critical": true,
+    "detail": "min predicted linkage_3d"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "553a906880f0cab00f1d6635a93953fc287acec92f2fc9b23f8caf5796709bda"
+  },
+  {
+   "check_id": "linkage_3d/linkage_3d_rises_with_magnet_thickness",
+   "name": "linkage_3d_rises_with_magnet_thickness",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "share of the sample where linkage_3d rises when magnet_thickness rises by 5 % of its range"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "6b58899a20b44f35fce156cef582d9a75106c20539464cffe6c05b5cd0412c6e"
+  },
+  {
+   "check_id": "linkage_3d/linkage_3d_falls_with_gap",
+   "name": "linkage_3d_falls_with_gap",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "share of the sample where linkage_3d falls when gap rises by 5 % of its range"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "d18f6e9da15540cf9e5acd18a1b7bf9c9a362e4d9de02940536645a9f1160fc2"
+  },
+  {
+   "check_id": "linkage_3d/test_r2",
+   "name": "test_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9999544984214903,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "R^2 of the surrogate on the test designs"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "71776bc3ec513250ba4dc21e106a0b6633f478ea5b31cd4d075c9dbcf5f56a4d"
+  },
+  {
+   "check_id": "linkage_3d/test_coverage90",
+   "name": "test_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6550510257216822,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "3b3ed57d2754a53e83c48356c54ceba648a5b76173e848eff684c9982ac82def"
+  },
+  {
+   "check_id": "linkage_3d/extrapolation_r2",
+   "name": "extrapolation_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9989593897005538,
+    "threshold": 0.9,
+    "critical": false,
+    "detail": "R^2 of the surrogate on the extrapolation designs"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "03b7a754dec7e12cc49986605e720a70a6694fd81af2e7f6bb051c476a90fd87"
+  },
+  {
+   "check_id": "linkage_3d/extrapolation_coverage90",
+   "name": "extrapolation_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6878679656440357,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.231Z",
+   "finished_at": "2026-10-31T15:49:54.232Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "b578822d668a7de1e5f86b633ee2a48e974d68e55549b2aa2b1f1b901e158a44"
+  },
+  {
+   "check_id": "ratio_cogging/ratio_cogging_in_measured_band",
+   "name": "ratio_cogging_in_measured_band",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.2631114446230234,
+    "threshold": 0.4692921767852618,
+    "critical": true,
+    "detail": "predicted ratio_cogging within the campaign's range [0.8242, 1.2935] widened by 50 %"
+   },
+   "started_at": "2026-10-31T15:49:54.233Z",
+   "finished_at": "2026-10-31T15:49:54.234Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "a49fbff5a968b586942d97c96282a1f364b1caebe73a72ff60ddd9af97f55afb"
+  },
+  {
+   "check_id": "ratio_cogging/test_r2",
+   "name": "test_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.7557416370192251,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "R^2 of the surrogate on the test designs"
+   },
+   "started_at": "2026-10-31T15:49:54.233Z",
+   "finished_at": "2026-10-31T15:49:54.234Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "3bd585029a7a4524396eb288783f36f1cf5027fee3fc1afa4ec322c8a541dcd1"
+  },
+  {
+   "check_id": "ratio_cogging/test_coverage90",
+   "name": "test_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6550510257216822,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.233Z",
+   "finished_at": "2026-10-31T15:49:54.234Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "d6698d10b529e6f349d372c558a79af0af0e7b2afa77e44dc3f9dc6ce8f1e4c1"
+  },
+  {
+   "check_id": "ratio_cogging/extrapolation_r2",
+   "name": "extrapolation_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": -0.8077452975463995,
+    "threshold": 0.9,
+    "critical": false,
+    "detail": "R^2 of the surrogate on the extrapolation designs"
+   },
+   "started_at": "2026-10-31T15:49:54.233Z",
+   "finished_at": "2026-10-31T15:49:54.234Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "d510c9468f82e04500eaa7eca210666fb4aa306007c609f221092eb991d6a71d"
+  },
+  {
+   "check_id": "ratio_cogging/extrapolation_coverage90",
+   "name": "extrapolation_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.875,
+    "threshold": 0.6878679656440357,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.233Z",
+   "finished_at": "2026-10-31T15:49:54.234Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "78118241bd774007d92be39565d93862e7748faa9b93f41be09654c0e67dc89a"
+  },
+  {
+   "check_id": "ratio_linkage/ratio_linkage_in_measured_band",
+   "name": "ratio_linkage_in_measured_band",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.017867498891653177,
+    "threshold": 0.028530626435087747,
+    "critical": true,
+    "detail": "predicted ratio_linkage within the campaign's range [1.0111, 1.0396] widened by 50 %"
+   },
+   "started_at": "2026-10-31T15:49:54.235Z",
+   "finished_at": "2026-10-31T15:49:54.236Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "932bf94dd0997af2faf35f5ae037743a07d195d48f08586ae089f19a8aa15f37"
+  },
+  {
+   "check_id": "ratio_linkage/test_r2",
+   "name": "test_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9999137220658397,
+    "threshold": 0.9,
+    "critical": true,
+    "detail": "R^2 of the surrogate on the test designs"
+   },
+   "started_at": "2026-10-31T15:49:54.235Z",
+   "finished_at": "2026-10-31T15:49:54.236Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "36f1fed673d87ce1f41ed6dfc13b2ec8e62947ec38a2e8a3f84007440f339402"
+  },
+  {
+   "check_id": "ratio_linkage/test_coverage90",
+   "name": "test_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6550510257216822,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.235Z",
+   "finished_at": "2026-10-31T15:49:54.236Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "8e5b3a77b4e8e976ea2a8c13e6d0890a1eaacfa6a38063867aa26af7ec742024"
+  },
+  {
+   "check_id": "ratio_linkage/extrapolation_r2",
+   "name": "extrapolation_r2",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 0.9990254941108322,
+    "threshold": 0.9,
+    "critical": false,
+    "detail": "R^2 of the surrogate on the extrapolation designs"
+   },
+   "started_at": "2026-10-31T15:49:54.235Z",
+   "finished_at": "2026-10-31T15:49:54.236Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "6f914c166032ec97e24b0323f041aba1a649c9cd54a951a702e44a2168229348"
+  },
+  {
+   "check_id": "ratio_linkage/extrapolation_coverage90",
+   "name": "extrapolation_coverage90",
+   "category": "",
+   "tool": "pinneapple_simulation.electromagnetics.machines3d.afpm_surrogate",
+   "tool_version": "",
+   "inputs_sha256": "659dfb650fcadc89117bd48a4b5dd5f559ff3522f8dc264c2ee0c40981a5cbe0",
+   "outputs": {
+    "value": 1.0,
+    "threshold": 0.6878679656440357,
+    "critical": false,
+    "detail": "share of the designs inside the conformal 90 % interval (binomial 2-sigma floor)"
+   },
+   "started_at": "2026-10-31T15:49:54.235Z",
+   "finished_at": "2026-10-31T15:49:54.236Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "10adaeb2e69cf8c995832627a501764ab133698981652f4bdca5dcbdb7cdd51c"
+  }
+ ]
+}

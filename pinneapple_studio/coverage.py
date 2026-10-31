@@ -246,6 +246,21 @@ def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> in
     return len(keep)
 
 
+def scripts_to_run(scripts: list[str]) -> list[str]:
+    """The scripts a recorded run starts, each once: a package's ``__init__.py`` is not a script, and a
+    ``run_all.py`` next to the scripts it runs would run them a second time."""
+    names = {Path(s).parent: set() for s in scripts}
+    for s in scripts:
+        names[Path(s).parent].add(Path(s).name)
+    out = []
+    for s in scripts:
+        name, siblings = Path(s).name, names[Path(s).parent] - {"__init__.py", Path(s).name}
+        if name == "__init__.py" or (name == "run_all.py" and siblings):
+            continue
+        out.append(s)
+    return out
+
+
 def launcher(script: Path) -> list[str]:
     """How a recorded run starts an example script: ``python``, or ``torchrun`` with one process on this machine
     (``python -m torch.distributed.run --standalone --nproc_per_node=1``) when the script's docstring launches it
@@ -286,7 +301,7 @@ def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = No
     try:
         for e in todo:
             t0, ok, tail = time.time(), True, ""
-            for s in e["scripts"]:
+            for s in scripts_to_run(e["scripts"]):
                 try:
                     out = subprocess.run([*_no_network(), *launcher(copy / s), str(copy / s)], cwd=(copy / s).parent,
                                          env=env, capture_output=True, text=True, timeout=timeout)

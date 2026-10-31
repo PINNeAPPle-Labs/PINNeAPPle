@@ -458,3 +458,10 @@ def test_examples_launched_with_torchrun_get_one_process(tmp_path):
     assert launcher(plain) == [sys.executable]
     assert launcher(ddp) == [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run",
                              "--standalone", "--nproc_per_node=1"]
+
+
+def test_recorded_runs_start_each_script_once():
+    from pinneapple_studio.coverage import scripts_to_run
+    viz = ["examples/v/__init__.py", "examples/v/run_all.py", "examples/v/viz_01.py", "examples/v/viz_02.py"]
+    assert scripts_to_run(viz) == ["examples/v/viz_01.py", "examples/v/viz_02.py"]
+    assert scripts_to_run(["examples/w/run_all.py"]) == ["examples/w/run_all.py"]

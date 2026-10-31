@@ -8,12 +8,12 @@
   "seconds": 0.23
  },
  "pinneapple_studio.catalog:build": {
-  "code_hash": "ab7ecb9648c8ca27",
+  "code_hash": "dc73a7e6e80f6ad9",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
-  "seconds": 14.9
+  "seconds": 39.78
  },
  "pinneapple_studio.catalog:load": {
   "code_hash": "78ed113ca6484f07",
@@ -48,12 +48,12 @@
   "seconds": 0.0
  },
  "pinneapple_studio.extras:preset_tools": {
-  "code_hash": "fd7ebb717167b0cb",
+  "code_hash": "1f3535277923627c",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 0.12
+  "seconds": 0.19
  },
  "pinneapple_studio.extras:science_tools": {
   "code_hash": "5ff02c0b126f3c7d",

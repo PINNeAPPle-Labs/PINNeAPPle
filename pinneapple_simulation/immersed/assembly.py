@@ -28,7 +28,7 @@ class Discretization:
     depth: int | None = None
     pad: float = 1.0
     n_simplex: int = 0
-    refine: int = 3
+    refine: int | None = None
     keep_fine: bool = False
     jitter: bool = True
     timings: dict = field(default_factory=dict)
@@ -36,7 +36,9 @@ class Discretization:
     def __post_init__(self):
         t0 = time.perf_counter()
         if self.depth is None:
-            self.depth = 2 if self.order == 1 else 3
+            self.depth = getattr(self.geometry, "default_depth", None) or (2 if self.order == 1 else 3)
+        if self.refine is None:
+            self.refine = getattr(self.geometry, "default_refine", 3)
         self.grid = BackgroundGrid.around(self.geometry.bounds, self.h, self.order, self.pad, self.jitter)
         self.quad = build_quadrature(self.geometry, self.grid, depth=self.depth, n_simplex=self.n_simplex,
                                      refine=self.refine, keep_fine=self.keep_fine)

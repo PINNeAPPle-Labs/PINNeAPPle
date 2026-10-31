@@ -312,6 +312,11 @@ class STLGeometry(Geometry):
     near: float | None = None
     sign: str = "auto"
     _stats: dict = field(default_factory=dict, repr=False)
+    # the signed distance to a planar facet is linear, so the clipped surface interpolates it without root
+    # refinement and a shallower octree only rounds the facet edges (heat sink at h = 1 mm, no refinement:
+    # 8 s of quadrature at depth 1, 43 s at depth 2; each level-set value is a nearest-triangle query)
+    default_depth = 2
+    default_refine = 0
 
     def __post_init__(self):
         from scipy.spatial import cKDTree

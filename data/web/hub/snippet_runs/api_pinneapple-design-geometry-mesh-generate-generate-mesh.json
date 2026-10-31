@@ -1,0 +1,12 @@
+{
+ "code_hash": "42fcd658b09670f8",
+ "figures": [],
+ "id": "api:pinneapple-design-geometry-mesh-generate-generate-mesh",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 4.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_design.geometry.mesh.generate.generate_mesh(geometry: 'str' = 'box', dimensions: 'list[float] | None' = None, h: 'float' = 0.25, scale: 'float' = 1.0, refine: 'list[dict[str, Any]] | None' = None, boundary_layer: 'dict[str, Any] | None' = None, out_dir: 'str | None' = None, origin: 'list[float] | None' = None) -> 'dict[str, Any]'\nMesh a primitive or a geometry file with gmsh and rate every element.",
+ "timed_out": false
+}

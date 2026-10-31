@@ -187,6 +187,17 @@ def _bl_3d_volume(gmsh, vertices: np.ndarray, faces: np.ndarray, bl: dict[str, A
     gmsh.model.geo.synchronize()
 
 
+def _generate(gmsh, dim: int, boundary_layer: dict[str, Any] | None) -> None:
+    try:
+        gmsh.model.mesh.generate(dim)
+    except Exception as e:  # noqa: BLE001 - gmsh raises a plain Exception
+        if boundary_layer:
+            raise ValueError(f"gmsh could not mesh with this boundary layer ({e}): the layers, extruded inward, "
+                             "overlap near sharp edges; use a thinner layer (first_layer, n_layers, growth) or a "
+                             "larger h") from None
+        raise RuntimeError(f"gmsh could not mesh the geometry: {e}") from None
+
+
 def _surface_of_model(gmsh) -> tuple[np.ndarray, np.ndarray]:
     gmsh.model.mesh.generate(2)
     tags, xyz, _ = gmsh.model.mesh.getNodes()
@@ -389,7 +400,7 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
                 _sizes(gmsh, float(h), refine)
                 _bl_3d_volume(gmsh, verts, tris, boundary_layer)
                 _sizes(gmsh, float(h), refine)
-                gmsh.model.mesh.generate(3)
+                _generate(gmsh, 3, boundary_layer)
                 backend = "gmsh-discrete+boundary-layer"
             else:
                 _load_elements(gmsh, vol.vertices, {"tetra": vol.tets}, 3)
@@ -405,7 +416,7 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
             elif boundary_layer:
                 _bl_2d(gmsh, boundary_layer)
                 backend = "gmsh-occ+boundary-layer"
-            gmsh.model.mesh.generate(dim)
+            _generate(gmsh, dim, boundary_layer)
         res = _collect(gmsh, dim)
         files: dict[str, str] = {}
         if out_dir:

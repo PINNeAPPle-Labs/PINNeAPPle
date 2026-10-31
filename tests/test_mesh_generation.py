@@ -77,6 +77,12 @@ def test_boundary_layer_and_refinement():
     assert ref["h_min"] < 0.06 and ref["n_elements"] > 3 * base["n_elements"]
 
 
+def test_a_layer_too_thick_for_the_edges_is_refused_clearly():
+    with pytest.raises(ValueError, match="boundary layer"):
+        generate_mesh("cylinder", [0.5, 1.0], h=0.08,
+                      boundary_layer={"first_layer": 0.008, "n_layers": 4, "growth": 1.3})
+
+
 def test_files_and_origin(tmp_path):
     out = generate_mesh("rectangle", [1.0, 1.0], h=0.2, out_dir=str(tmp_path), origin=[2.0, 3.0])
     assert set(out["files"]) == {"msh", "vtu", "glb", "view"}

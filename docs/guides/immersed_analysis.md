@@ -70,6 +70,32 @@ s = solve_transient_heat(disc, c["k"], c["rho_c"], 0.0, c["bcs"], T0=c["T_i"], d
 
 `theta` 1 is backward Euler, 1/2 Crank–Nicolson; `source(X, t)` and `bcs(t)` may depend on time.
 
+## Incompressible flow (Stokes and Navier-Stokes)
+
+`immersed.flow` solves steady Stokes and Navier-Stokes around a body given as an SDF, a 2-D polygon or an STL
+surface, on a Cartesian grid that covers the flow box exactly (the box faces take prescribed velocity, wall, slip or
+do-nothing outflow) and that the body cuts. Q2 velocity / Q1 pressure, no-slip on the body by Nitsche, ghost penalty
+on the velocity and pressure across the faces of cut cells, Newton from the Stokes solution. The force on the body
+comes from the variational (reaction) form, with the Nitsche surface flux next to it.
+
+```python
+from pinneapple_simulation.immersed import flow
+from pinneapple_simulation.cfd_direct.cases import SCHAFER_TUREK as c, cylinder_polygon
+
+body = flow.PolygonGeometry(cylinder_polygon(512))                 # or im.STLGeometry.from_file("body.stl") in 3-D
+fd = flow.FlowDiscretization(body, c.box, h=c.D / 8)
+bcs = {"x-": flow.Velocity(lambda X: np.column_stack([c.inflow(X[:, 1]), 0 * X[:, 1]])),
+       "y-": "wall", "y+": "wall", "x+": "outflow"}
+sol = flow.solve_navier_stokes(fd, c.nu, bcs, u_ref=c.U_mean)
+Cd, Cl = c.coefficients(sol.force()["variational"])               # 5.64, 0.003 (benchmark 5.580, 0.0106)
+```
+
+Known answers (`tests/test_immersed_flow.py`): Poiseuille flow between walls that cut the grid to 1e-13; a
+manufactured solution around a disk at the optimal rates (L2 > 2.8, H1 > 1.8, Stokes and Navier-Stokes); a condition
+number that stays at 2.2e6-2.3e6 when the wall cuts a cell at fluid fractions 0.5 to 1e-4. How it compares with
+body-fitted FEM and with lattice Boltzmann on the same polygon or STL, in time and accuracy:
+[docs/research/cfd_direct_from_stl.md](../research/cfd_direct_from_stl.md).
+
 ## Checks that come with every result
 
 - heat: `sol.balance` (heat generated against heat leaving through each condition, Nitsche's consistent flux);

@@ -1,7 +1,11 @@
 {
  "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit",
  "pinneapple_analysis.dynamics.koopman:KoopmanReconstruction": "a result record: KoopmanReconstruction.evaluate(operator, trajectories) builds it from a fitted KoopmanOperator and its trajectories, which a form cannot hold; building it from its own fields would run nothing",
+ "pinneapple_simulation.cfd_direct.verdicts:operating_points": "takes the run records of a campaign (dicts with times, errors and profiles written by cfd_direct.runners), which a form cannot hold; tests/test_cfd_direct.py checks it on literal records",
+ "pinneapple_simulation.cfd_direct.verdicts:profile_errors": "takes the run records of a campaign (dicts with velocity profiles written by cfd_direct.runners), which a form cannot hold; tests/test_cfd_direct.py checks it on literal records",
+ "pinneapple_simulation.cfd_direct.verdicts:verdict": "takes the operating points built by operating_points from run records, which a form cannot hold; tests/test_cfd_direct.py checks it on literal records",
  "pinneapple_simulation.electromagnetics.fem3d.team7:compare": "takes the computed field on the TEAM 7 measurement lines, a dict keyed by (line, instant) that the 3-D eddy-current solve produces; a form cannot hold those keys",
  "pinneapple_simulation.electromagnetics.machines3d.endeffects:end_effect_study": "a 3-D magnetostatic study per L/D ratio and overhang: with its defaults it did not finish within the 60 s smoke limit on the machine that recorded the smoke runs",
- "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:block_loss_3d": "takes a TetMesh (the segmented block built by segmented_block), which a form cannot hold; segmentation_study builds that mesh from literal inputs and calls it, and its smoke run covers it"
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:block_loss_3d": "takes a TetMesh (the segmented block built by segmented_block), which a form cannot hold; segmentation_study builds that mesh from literal inputs and calls it, and its smoke run covers it",
+ "pinneapple_simulation.numerical_solvers.taylor_hood:read_gmsh": "takes the path of a gmsh .msh file written by generate_mesh(out_dir=...); cfd_direct.runners:reference_c1 writes one from literal inputs and reads it, and its smoke run covers this"
 }

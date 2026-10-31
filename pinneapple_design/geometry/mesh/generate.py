@@ -14,6 +14,7 @@ Geometry (lengths in metres):
 ``sphere``     ``[radius]``             centred at the origin
 ``rectangle``  ``[lx, ly]``             2-D, corner at the origin
 ``disk``       ``[radius]``             2-D, centred at the origin
+``polygon``    ``vertices``             2-D closed polyline ``[[x, y], ...]`` (meshed as one compound curve)
 a file         ``.stl``                 a closed surface (open or non-manifold edges are refused); meshed with
                                         :func:`.mesher_3d.mesh_from_surface`
                ``.step .stp .iges``     through OpenCASCADE (gmsh's OCC kernel); ``scale`` converts to metres
@@ -27,6 +28,11 @@ Quality comes from gmsh (``minSICN``: signed inverse condition number, 1 for the
 ``gamma``: inscribed / circumscribed radius, normalised to 1 for the ideal element) and from
 :func:`pinneapple_data.cae.quality.element_metrics` (``aspect_ratio`` = longest / shortest edge of each element).
 The view is :func:`pinneapple_tools.visualization.studio.fieldview.field_view` with those three fields per element.
+
+``enclosure`` (``[lo, hi]``, a box in 3-D or a rectangle in 2-D) meshes the region between that box and the geometry
+instead of the geometry itself: the fluid domain of an external flow. The body may be a primitive, a polygon, a
+STEP / IGES file (OpenCASCADE boolean cut) or a closed STL surface (the STL is classified into surfaces and becomes the
+inner shell of the volume). ``boundary_layer`` then lines the body only (2-D); ``refine`` sizes the body region.
 """
 from __future__ import annotations
 
@@ -351,11 +357,109 @@ def _edges(points: np.ndarray, blocks: list[tuple[str, np.ndarray]]) -> np.ndarr
     return np.linalg.norm(points[e[:, 1]] - points[e[:, 0]], axis=1)
 
 
+def _polygon(gmsh, V: np.ndarray, surface: bool = True) -> tuple[int, list[int]]:
+    """A closed polyline as one OCC curve (a degree-1 B-spline through the vertices: exactly the polygon) and the
+    plane surface it bounds when ``surface``. One curve, so the vertices do not force the element size."""
+    occ = gmsh.model.occ
+    pts = [occ.addPoint(float(x), float(y), 0.0) for x, y in V]
+    curve = occ.addBSpline(pts + [pts[0]], degree=1)
+    loop = occ.addCurveLoop([curve])
+    tag = occ.addPlaneSurface([loop]) if surface else loop
+    occ.synchronize()
+    return tag, [curve]
+
+
+def _enclosed(gmsh, shape: str, ext: str, d, o, vertices, box: np.ndarray, h: float, refine, boundary_layer,
+              scale: float, max_elements: int) -> tuple[int, str]:
+    """Mesh the box minus the body (see ``enclosure``); returns the dimension and the backend."""
+    occ = gmsh.model.occ
+    lo, hi = box
+    dim = len(lo)
+    if ext == ".stl":
+        verts, tris = _read_stl(shape, scale)
+        s = gmsh.model.addDiscreteEntity(2)
+        gmsh.model.mesh.addNodes(2, s, list(range(1, len(verts) + 1)), verts.ravel().tolist())
+        gmsh.model.mesh.addElementsByType(s, 2, [], (tris + 1).ravel().tolist())
+        gmsh.model.mesh.classifySurfaces(math.pi / 4, True, True, math.pi)
+        gmsh.model.mesh.createGeometry()
+        body = [t for _, t in gmsh.model.getEntities(2)]
+        geo = gmsh.model.geo
+        x = [(lo[0], hi[0])[i & 1] for i in range(8)]
+        y = [(lo[1], hi[1])[(i >> 1) & 1] for i in range(8)]
+        z = [(lo[2], hi[2])[(i >> 2) & 1] for i in range(8)]
+        P = [geo.addPoint(x[i], y[i], z[i]) for i in range(8)]
+        quads = [(0, 2, 6, 4), (1, 3, 7, 5), (0, 1, 5, 4), (2, 3, 7, 6), (0, 1, 3, 2), (4, 5, 7, 6)]
+        edges: dict[tuple[int, int], int] = {}
+
+        def line(a, b):
+            if (b, a) in edges:
+                return -edges[(b, a)]
+            edges.setdefault((a, b), geo.addLine(P[a], P[b]))
+            return edges[(a, b)]
+        faces = [geo.addPlaneSurface([geo.addCurveLoop([line(q[i], q[(i + 1) % 4]) for i in range(4)])])
+                 for q in quads]
+        outer = geo.addSurfaceLoop(faces)
+        inner = geo.addSurfaceLoop(body)
+        geo.addVolume([outer, inner])
+        geo.synchronize()
+        _sizes(gmsh, h, refine)
+        _generate(gmsh, 3, None)
+        return 3, "gmsh-discrete-in-box"
+    if dim == 2:
+        outer = occ.addRectangle(lo[0], lo[1], 0.0, hi[0] - lo[0], hi[1] - lo[1])
+        occ.synchronize()
+        if shape == "polygon":
+            tag, _ = _polygon(gmsh, np.asarray(vertices, float))
+        else:
+            tag = (occ.addDisk(o[0], o[1], 0, d[0], d[0]) if shape == "disk"
+                   else occ.addRectangle(o[0], o[1], 0, d[0], d[1]))
+        occ.cut([(2, outer)], [(2, tag)])
+    else:
+        outer = occ.addBox(lo[0], lo[1], lo[2], *(hi - lo))
+        occ.synchronize()
+        if shape in PRIMITIVES:
+            _primitive(gmsh, shape, d, o)
+            tool = [e for e in occ.getEntities(3) if e[1] != outer]
+        else:
+            before = set(occ.getEntities(3))
+            _import_cad(gmsh, shape, scale)
+            tool = [e for e in occ.getEntities(3) if e not in before]
+        occ.cut([(3, outer)], tool)
+    occ.synchronize()
+    curves = []
+    if dim == 2:                                   # the body's curves: those not on the rectangle
+        for _, c in gmsh.model.getEntities(1):
+            x0, y0, _, x1, y1, _ = gmsh.model.getBoundingBox(1, c)
+            on_box = (np.isclose(x0, x1) and (np.isclose(x0, lo[0]) or np.isclose(x0, hi[0]))) or \
+                     (np.isclose(y0, y1) and (np.isclose(y0, lo[1]) or np.isclose(y0, hi[1])))
+            if not on_box:
+                curves.append(c)
+    _sizes(gmsh, h, refine)
+    backend = "gmsh-occ-cut"
+    if boundary_layer and dim == 2:
+        n, h1, g = int(boundary_layer["n_layers"]), float(boundary_layer["first_layer"]), \
+            float(boundary_layer.get("growth", 1.2))
+        f = gmsh.model.mesh.field
+        b = f.add("BoundaryLayer")
+        f.setNumbers(b, "CurvesList", curves)
+        f.setNumber(b, "Size", h1)
+        f.setNumber(b, "Ratio", g)
+        f.setNumber(b, "Thickness", h1 * sum(g ** i for i in range(n)))
+        f.setNumber(b, "Quads", 0)
+        f.setAsBoundaryLayer(b)
+        backend += "+boundary-layer"
+    elif boundary_layer:
+        raise ValueError("an enclosure in 3-D takes refine balls, not a boundary layer")
+    _generate(gmsh, dim, boundary_layer)
+    return dim, backend
+
+
 def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, h: float = 0.25,
                   scale: float = 1.0, refine: list[dict[str, Any]] | None = None,
                   boundary_layer: dict[str, Any] | None = None, out_dir: str | None = None,
                   origin: list[float] | None = None, max_input_mb: float | None = None,
-                  max_elements: int = MAX_ELEMENTS) -> dict[str, Any]:
+                  max_elements: int = MAX_ELEMENTS, vertices: list[list[float]] | None = None,
+                  enclosure: list[list[float]] | None = None) -> dict[str, Any]:
     """Mesh a primitive or a geometry file with gmsh and rate every element.
 
     Parameters
@@ -386,6 +490,10 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
     max_elements : int
         refuse, before meshing, a mesh estimated above this many elements (from the volume or area over h^d, the
         refinement balls and the wall layers; files: their bounding box) [-]
+    vertices : list[list[float]]
+        the vertices of a ``polygon`` geometry, ``[[x, y], ...]`` in order, not repeating the first [m]
+    enclosure : list[list[float]]
+        ``[lo, hi]`` corners of a box (3-D) or rectangle (2-D): mesh the box minus the geometry (a flow domain) [m]
 
     Returns
     -------
@@ -439,11 +547,30 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
         raise ValueError("origin needs up to 3 finite coordinates (metres)")
     shape = str(geometry).strip()
     ext = os.path.splitext(shape)[1].lower()
-    if shape in PRIMITIVES:
+    box = None
+    if enclosure is not None:
+        box = np.asarray(enclosure, float)
+        if box.shape not in ((2, 2), (2, 3)) or not np.all(np.isfinite(box)) or np.any(box[1] <= box[0]):
+            raise ValueError("enclosure needs [lo, hi] with 2 or 3 coordinates each and hi > lo (metres)")
+    if shape == "polygon":
+        poly = np.asarray(vertices if vertices is not None else [], float)
+        if poly.ndim != 2 or poly.shape[1] != 2 or len(poly) < 3 or not np.all(np.isfinite(poly)):
+            raise ValueError("a polygon needs vertices [[x, y], ...] (at least 3, metres)")
+        if box is not None and box.shape[1] != 2:
+            raise ValueError("a polygon's enclosure is a rectangle: [[x0, y0], [x1, y1]]")
+        pts = poly if box is None else box
+        _check_box(np.column_stack([pts, np.zeros(len(pts))]), 2, float(h), refine, boundary_layer, int(max_elements), "polygon")
+    elif shape in PRIMITIVES:
         d = [float(x) for x in (dimensions or DEFAULT_DIMENSIONS[shape])]
         if len(d) != PRIMITIVES[shape][1] or min(d) <= 0:
             raise ValueError(f"{shape} needs {PRIMITIVES[shape][1]} positive dimensions (metres), got {d}")
-        _check_size(*_primitive_size(shape, d), float(h), refine, boundary_layer, int(max_elements), shape)
+        if box is not None:
+            if box.shape[1] != PRIMITIVES[shape][0]:
+                raise ValueError(f"the enclosure of a {PRIMITIVES[shape][0]}-D {shape} needs "
+                                 f"{PRIMITIVES[shape][0]} coordinates per corner")
+            _check_box(np.column_stack([box, np.zeros((2, 3 - box.shape[1]))]), PRIMITIVES[shape][0], float(h), refine, boundary_layer, int(max_elements), shape)
+        else:
+            _check_size(*_primitive_size(shape, d), float(h), refine, boundary_layer, int(max_elements), shape)
     elif ext in FILE_TYPES:
         if "://" in shape:
             raise ValueError("geometry must be a local file path; URLs are not fetched")
@@ -456,12 +583,14 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
             raise ValueError(f"{os.path.basename(shape)} is {size:.1f} MB, above the {limit:g} MB limit "
                              "(max_input_mb or PINNEAPPLE_MESH_MAX_INPUT_MB)")
     else:
-        raise ValueError(f"geometry must be one of {sorted(PRIMITIVES)} or a {'/'.join(FILE_TYPES)} file")
+        raise ValueError(f"geometry must be one of {sorted(PRIMITIVES)}, 'polygon' or a {'/'.join(FILE_TYPES)} file")
+    if box is not None and ext in FILE_TYPES and box.shape[1] != 3:
+        raise ValueError("the enclosure of a geometry file is a 3-D box: [[x0, y0, z0], [x1, y1, z1]]")
 
     _require_gmsh()
     backend = "gmsh-occ"
     vol = None
-    if ext == ".stl" and not boundary_layer:
+    if ext == ".stl" and not boundary_layer and box is None:
         if refine:
             raise ValueError("refine needs a boundary_layer or a STEP/IGES file when the geometry is an STL surface")
         # the existing surface-to-volume mesher (gmsh, then tetgen); it runs its own gmsh session, so before ours
@@ -478,7 +607,18 @@ def generate_mesh(geometry: str = "box", dimensions: list[float] | None = None, 
         gmsh.option.setNumber("Mesh.Algorithm", 6)                  # Frontal-Delaunay (2-D)
         gmsh.option.setNumber("Mesh.Algorithm3D", 1)                # Delaunay (3-D)
         gmsh.option.setNumber("Mesh.Optimize", 1)                   # gmsh's tetrahedron optimiser (Netgen is optional)
-        if ext == ".stl":
+        if box is not None:
+            dim, backend = _enclosed(gmsh, shape, ext, d if shape in PRIMITIVES else None, o, vertices, box,
+                                     float(h), refine, boundary_layer, float(scale), int(max_elements))
+        elif shape == "polygon":
+            dim = 2
+            _polygon(gmsh, np.asarray(vertices, float))
+            _sizes(gmsh, float(h), refine)
+            if boundary_layer:
+                _bl_2d(gmsh, boundary_layer)
+                backend = "gmsh-occ+boundary-layer"
+            _generate(gmsh, 2, boundary_layer)
+        elif ext == ".stl":
             dim = 3
             if boundary_layer:
                 verts, tris = _read_stl(shape, float(scale))

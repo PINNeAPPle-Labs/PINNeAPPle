@@ -1,0 +1,12 @@
+{
+ "code_hash": "9cbbb9ab793e98a7",
+ "figures": [],
+ "id": "node:potential.double_pendulum",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 14.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Double pendulum from its Lagrangian -> pinneapple_physics.potential.mechanics.double_pendulum + mechanics.simulate + mechanics.hamiltonian\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'q1': 1.2, 'q2': -0.4, 't_end': 5.0, 'dt': 0.005}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b982afe9a4791e8a",
+ "figures": [],
+ "id": "node:study.surrogates",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 7.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate families: equal budget, intervals, physics checks -> pinneapple_autolab.domains.ahmed_study.benchmark_all (pinneapple_autolab.study.benchmark)\ninputs: [('dataset', 'dataset')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'budget_s': 30.0, 'folder': ''}",
+ "timed_out": false
+}

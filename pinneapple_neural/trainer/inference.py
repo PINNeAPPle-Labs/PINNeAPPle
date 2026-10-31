@@ -7,8 +7,10 @@ import torch.nn as nn
 
 
 def load_checkpoint(model: nn.Module, path: str, map_location: str = "cpu") -> Dict[str, Any]:
+    """Load a checkpoint written by ``Trainer`` (``model_state``) or by ``ModelCheckpoint`` (``model``)."""
     ckpt = torch.load(path, map_location=map_location)
-    model.load_state_dict(ckpt["model"])
+    key = "model_state" if "model_state" in ckpt else "model"
+    model.load_state_dict(ckpt[key])
     return ckpt
 
 

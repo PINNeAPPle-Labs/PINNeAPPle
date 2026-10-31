@@ -55,10 +55,17 @@ def _act_polys(name: str, n: int) -> list[np.ndarray]:
 
 
 def activation_derivative(name: str, z: np.ndarray, n: int) -> np.ndarray:
-    """``d^n act / dz^n`` at ``z`` (``name`` in ``tanh``, ``logistic``, ``gaussian`` = ``exp(-z^2)``)."""
+    """``d^n act / dz^n`` at ``z`` (``name`` in ``tanh``, ``logistic``, ``gaussian`` = ``exp(-z^2)``, ``arctan``;
+    ``arctan`` up to n = 3)."""
     if name == "gaussian":            # d^n/dz^n exp(-z^2) = (-1)^n H_n(z) exp(-z^2), physicists' Hermite H_n
         from numpy.polynomial import hermite
         return (-1) ** n * hermite.hermval(z, np.eye(n + 1)[n]) * np.exp(-z * z)
+    if name == "arctan":
+        q = 1.0 / (1.0 + z * z)
+        derivs = (np.arctan(z), q, -2.0 * z * q * q, (6.0 * z * z - 2.0) * q ** 3)
+        if n >= len(derivs):
+            raise ValueError("arctan derivatives are implemented up to order 3")
+        return derivs[n]
     if name not in _ACT:
         raise ValueError(f"activation must be one of {sorted(_ACT)}, got {name!r}")
     a = _ACT[name][0](z)

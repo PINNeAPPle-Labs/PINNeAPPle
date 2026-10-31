@@ -915,13 +915,18 @@ class FitzHughNagumo1D(ArenaProblem):
     output_dim = 2  # (v, w)
     physics_preset = None
 
+    _ref_cache: Dict[tuple, Any] = {}
+
     def analytical(self, x, t, a=0.1, eps=0.01, gamma=0.5, I=0.0, **kw):
-        # Approximate: plane wave solution with tanh front for v, w follows slowly
-        v0 = 0.5*(1 + np.tanh(5*(x - 0.5)))
-        w0 = eps*v0 / (eps + gamma*eps)   # slow manifold approximation
-        v = v0 * np.exp(-eps*t)
-        w = w0 * (1 - np.exp(-eps*t)) + w0*np.exp(-eps*t)
-        return {"v": v, "w": w}
+        # No closed form exists. Reference: method-of-lines solution on 401 points (no-flux ends, BDF, rtol 1e-9),
+        # from v0 = (1 + tanh(5 (x - 0.5))) / 2, w0 = 0; 401 vs 801 points differ by 3e-7 (relative L2). The
+        # previous "approximate" formula (v0 exp(-eps t)) was 64 % off this solution.
+        from pinneapple_physics.biology.excitable import fitzhugh_nagumo_1d
+
+        key = (float(a), float(eps), float(gamma), float(I))
+        if key not in self._ref_cache:
+            self._ref_cache[key] = fitzhugh_nagumo_1d(a=a, eps=eps, gamma=gamma, I=I, t_end=2.0, nx=401, nt=401)
+        return self._ref_cache[key].interpolate(np.asarray(x, float), np.asarray(t, float))
 
     def pinn_residuals(self, net, xy_int, xy_bc, uv_bc, a=0.1, eps=0.01, gamma=0.5, I=0.0, **kw):
         xt = xy_int.clone().requires_grad_(True)

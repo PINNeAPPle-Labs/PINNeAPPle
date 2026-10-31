@@ -7,7 +7,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 (0.x.0) may contain breaking changes.** Every breaking or behavior-changing entry is listed under
 **Changed** and starts with "**Breaking:**" or "**Behavior:**".
 
-How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
+How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog): pull requests add
+fragments to `changelog.d/`, which a release folds in here. The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
 
@@ -33,6 +34,31 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Known-answer tests in `tests/test_potential.py`: closed forms, CoolProp's Peng-Robinson backend (agreement to
   1e-13 relative where installed), and the surface-PM machine torque from co-energy against Maxwell stress (16.854
   vs 16.837 N m). Flow nodes `potential.*`; extra `pinneapple[potential]` (SymPy, CoolProp).
+- Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
+  simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
+  `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
+  L3 core without libsbml; events, algebraic rules, delays refused), six shipped CC0 BioModels entries checked against
+  libRoadRunner (max relative error 5e-6), models `ultradian_glucose_insulin`, `pk_one_compartment_mm` (Michaelis-
+  Menten, effect compartment, sigmoid Emax), `minimal_pbpk`, `excitable` (FitzHugh-Nagumo 1-D, Aliev-Panfilov 2-D,
+  activation times, conduction velocity), `cell_migration` (scratch-assay data with a restricted unpickler, the
+  Lagergren et al. forward solver, GLS error, FKPP / Porous-FKPP / delay models and their fits).
+  `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` (exact sensitivities for identifiability and
+  calibration), `sbinn.SBINN` (systems-biology informed networks, checkpoint / resume), `binn.ReactionDiffusionBINN`
+  (BINNs as a `NeuralTermDiscovery` with state-dependent terms), `activation_mapping.EikonalPINN`.
+  `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
+  (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
+  `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
+- `pinneapple_simulation.numerical_solvers.xtfc_inverse`: X-TFC for data-driven parameter discovery
+  (`solve_xtfc_inverse`). It fits the fields and the unknown parameters of an ODE system together, by Gauss-Newton
+  on the stacked data and residual losses (Schiassi et al., arXiv:2008.05554). The initial values hold exactly.
+- `pinneapple_physics.paper_problems_epi`: that paper's SIR, SEIR and SEIRS models, with `synthetic_data` (noisy
+  data sets) and `fit_shooting` (a single-shooting least-squares baseline).
+- `xtfc_general.activation_derivative`: `arctan`, up to order 3.
+- `examples/reproductions/schiassi_epi2020`: the reproduction of that paper, with frozen targets, a runner and
+  measured results.
+  - 14 of 36 targets reproduced under the frozen protocol: all clean-data targets and most at noise 0.1. A post-hoc
+    multi-start reaches 23 of 36.
+  - A single-shooting baseline is 2.5 to 3 times more accurate on SIR, and within a factor of 2.5 on SEIR and SEIRS.
 - Additions for the De Florio 2024 reproduction:
   - `solve_xtfc` now accepts explicit input weights (`weights=`), separate boundary rows (`face_points=`) and a
     LAPACK driver (`lstsq_driver=`).
@@ -175,6 +201,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
+  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
+  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
+  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
+  the last must-pass gate.
 - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
   and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
   `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
@@ -211,6 +242,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
 - `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
   `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
   (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that

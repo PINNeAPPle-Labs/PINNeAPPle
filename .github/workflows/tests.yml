@@ -131,9 +131,20 @@ jobs:
         run: pytest tests/test_full_library_matrix.py -q --tb=line
         continue-on-error: true
 
-      - name: Rest of the test suite (pre-existing failures not yet triaged — see AUDIT_REPORT.md)
-        run: pytest tests/ -q --ignore=tests/test_full_library_matrix.py --ignore=tests/test_manufactured_solutions.py
-        continue-on-error: true
+      # The package declares Python >= 3.10, but CI runs 3.11 and nothing checked the *declared*
+      # floor: `pinneapple_tools/reporting/datasheet.py` shipped an f-string with a backslash in it,
+      # legal from 3.12 only, and every import of that module failed on 3.10 and 3.11. Ruff parses
+      # at the declared target version, so E9 here is the syntax gate for the floor. This step must
+      # stay in front of the suite: a module that does not parse also breaks collection.
+      - name: Syntax for the declared Python floor (must pass)
+        run: |
+          pip install "ruff>=0.5"
+          ruff check . --select E9 --target-version py310 --no-cache --output-format concise
+
+      # The rest of the suite (everything not named above) runs in .github/workflows/full-suite.yml,
+      # nightly and on demand, not on every push. It took over an hour on a runner and its result is
+      # "how many of the pre-existing failures are left", not "may this merge": keeping it here meant
+      # a push waited on it to reach the model-card gate at the end of the file.
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py

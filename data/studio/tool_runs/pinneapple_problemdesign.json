@@ -1,4 +1,39 @@
 {
+ "pinneapple_problemdesign.knowledge.physics_knowledge:lookup_phenomenon": {
+  "code_hash": "47ae2f396cbfd2a2",
+  "inputs": {
+   "name_or_keyword": "NAVIER_STOKES"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 3.74
+ },
+ "pinneapple_problemdesign.method_selection:recommend_method": {
+  "code_hash": "5b2086920e972ffd",
+  "inputs": {
+   "geometry": "internal_pipe",
+   "kinematic_viscosity": 1e-06,
+   "length_scale": 0.01,
+   "velocity": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MethodRecommendation",
+  "seconds": 0.21
+ },
+ "pinneapple_problemdesign.preset_authoring:draft_preset": {
+  "code_hash": "b774003f496386f0",
+  "error": "ModuleNotFoundError: No module named 'anthropic'",
+  "inputs": {
+   "phenomenon_description": "a made-up broken phenomenon",
+   "tolerance": 0.001,
+   "use_knowledge_base": false
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
  "pinneapple_problemdesign.protocol:GeminiProvider": {
   "code_hash": "3d2dc2c0a0c6dc6e",
   "error": "ModuleNotFoundError: google-generativeai is not installed. Install it with: pip install google-generativeai",

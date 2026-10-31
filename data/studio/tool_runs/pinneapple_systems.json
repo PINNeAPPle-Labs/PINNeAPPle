@@ -7,6 +7,17 @@
   "returned": "ComponentRegistry",
   "seconds": 0.53
  },
+ "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
+  "code_hash": "3696e14547454914",
+  "inputs": {
+   "filt": "plant/+/sensors",
+   "topic": "plant/a/sensors"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 4.98
+ },
  "pinneapple_systems.digital_twin.monitoring.anomaly:AnomalyMonitor": {
   "code_hash": "20c7f554b3f7e698",
   "inputs": {},
@@ -21,6 +32,18 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "MahalanobisDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:ThresholdDetector": {
+  "code_hash": "43355e070454aa3c",
+  "inputs": {
+   "thresholds": {
+    "p": 1.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ThresholdDetector",
   "seconds": 0.0
  },
  "pinneapple_systems.digital_twin.monitoring.anomaly:ZScoreDetector": {
@@ -143,6 +166,14 @@
   "returned": "LumpedTankModel",
   "seconds": 0.01
  },
+ "pinneapple_systems.operations.live:demo_record": {
+  "code_hash": "6883b6684689a41e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.2
+ },
  "pinneapple_systems.operations.plant:demo_scenario": {
   "code_hash": "09ba9ac9cb7a1053",
   "inputs": {},
@@ -158,6 +189,232 @@
   "recorded": "2026-10-31",
   "returned": "ParameterSpace",
   "seconds": 0.11
+ },
+ "pinneapple_systems.process_components.beam_statics:rectangular_section_properties": {
+  "code_hash": "dae04ea610debd68",
+  "inputs": {
+   "height_m": 0.2,
+   "width_m": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.curved_path_geometry:build_and_hold_profile": {
+  "code_hash": "9e8a046f5be1aad5",
+  "inputs": {
+   "bin_width_m": 1.0,
+   "build_length_m": 0.0,
+   "final_inclination_deg": 90.0,
+   "hold_length_m": 0.0,
+   "total_length_m": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CurvedPathProfile",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.curved_path_geometry:inclination_at_depth": {
+  "code_hash": "22eb2ae165cee739",
+  "inputs": {
+   "build_length_m": 200.0,
+   "final_inclination_deg": 0.0,
+   "s_m": [
+    0.0,
+    2.6315789473684212,
+    5.2631578947368425,
+    7.894736842105264,
+    10.526315789473685,
+    13.157894736842106,
+    15.789473684210527,
+    18.42105263157895,
+    21.05263157894737,
+    23.68421052631579,
+    26.315789473684212,
+    28.947368421052634,
+    31.578947368421055,
+    34.21052631578948,
+    36.8421052631579,
+    39.473684210526315,
+    42.10526315789474,
+    44.736842105263165,
+    47.36842105263158,
+    50.0
+   ],
+   "vertical_length_m": 100.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.explicit_equation_system:safe_eval": {
+  "code_hash": "a0bea671895dd341",
+  "inputs": {
+   "env": {},
+   "expr": "linspace(0, 10, 5)"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.non_newtonian_pipe_flow:integrate_pressure_profile": {
+  "code_hash": "26f63908bcce36b6",
+  "inputs": {
+   "D_h_m": 0.2,
+   "K_Pa_sn": 0.05,
+   "P_inlet_Pa": 0.0,
+   "inclination_deg_profile": 90.0,
+   "length_m": 500.0,
+   "n_flow_index": 1.0,
+   "n_steps": 200,
+   "rho_profile": 1450.0,
+   "v_m_s": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PressureProfile",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.non_newtonian_pipe_flow:metzner_reed_friction_factor": {
+  "code_hash": "bac04bb0df1a456c",
+  "inputs": {
+   "Re_gen": [
+    100.0,
+    500.0,
+    2000.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.pipe_stress_mechanics:constrained_rod_buckling_load": {
+  "code_hash": "a91ea2c156b76cee",
+  "inputs": {
+   "E": 200000000000.0,
+   "I": 5e-06,
+   "lateral_load_per_length": 50.0,
+   "radial_clearance": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ConstrainedRodBucklingResult",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.pipe_stress_mechanics:rotating_bending_stress_cycle": {
+  "code_hash": "8bd0cd3734954094",
+  "inputs": {
+   "sigma_axial": 100000000.0,
+   "sigma_bending_amplitude": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RotatingBendingCycleResult",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:arrhenius_rate_constant": {
+  "code_hash": "d9eef5331ebd0a5e",
+  "inputs": {
+   "A": 10000000000.0,
+   "Ea_over_R": 5000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:diprotic_fractions": {
+  "code_hash": "33a5cf28a28ccc66",
+  "inputs": {
+   "pH": 8.3,
+   "pKa1": 6.3,
+   "pKa2": 10.3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:linear_combination_rate_constant": {
+  "code_hash": "a2893ce9de4354f8",
+  "inputs": {
+   "terms": [
+    [
+     2.0,
+     "cat_A"
+    ],
+    [
+     5.0,
+     "cat_B"
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:quadratic_in_T": {
+  "code_hash": "b3d25bb7b29bdcee",
+  "inputs": {
+   "a": 0.000118,
+   "b": -0.0786,
+   "c": 20.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.real_gas_eos:ValidityEnvelope": {
+  "code_hash": "5168743bb1b7530e",
+  "inputs": {
+   "P_max_Pa": 200000.0,
+   "P_min_Pa": 100000.0,
+   "T_max_K": 290.0,
+   "T_min_K": 280.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ValidityEnvelope",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.similarity_map:make_map": {
+  "code_hash": "dac2d20902feefa8",
+  "inputs": {
+   "D2_m": 0.4,
+   "Mu2_ref": 0.8,
+   "eta_p_max": 0.8,
+   "eta_p_shape_b": 55.0,
+   "n_stages": 3,
+   "name": "c",
+   "phi_choke": 0.1,
+   "phi_ref_bep": 0.07,
+   "phi_surge": 0.04,
+   "psi0": 0.85,
+   "psi_ref_bep": 0.65
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MapCoefficients",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.torsional_stickslip:stribeck_friction_torque": {
+  "code_hash": "001078f9ad52649e",
+  "inputs": {
+   "T_kinetic": 400.0,
+   "T_static": 1000.0,
+   "omega": 1e-15,
+   "omega_breakout": 1.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 0.0
  },
  "pinneapple_systems.sports.football.ball_study:identifiability": {
   "code_hash": "2ffeba63e5f59a5a",
@@ -182,6 +439,14 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 10.28
+ },
+ "pinneapple_systems.sports.football.data:cache_dir": {
+  "code_hash": "87f2d24c0768e0f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.01
  },
  "pinneapple_systems.sports.football.data:manifest": {
   "code_hash": "6ad3b65fb702788d",
@@ -366,6 +631,16 @@
   "recorded": "2026-10-31",
   "returned": "YouTubeDaily",
   "seconds": 2.46
+ },
+ "pinneapple_systems.time_series.datasets.public:youtube_daily_aggregates": {
+  "code_hash": "92f2678ab70cc085",
+  "inputs": {
+   "csv_text": "video_id,trending_date,category_id,views,likes\na,17.14.11,24,100,5\nb,17.14.11,10,50,1\nc,17.16.11,24,10,0\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YouTubeDaily",
+  "seconds": 0.0
  },
  "pinneapple_systems.time_series.decomposition.fft_forecaster:FFTForecaster": {
   "code_hash": "da8fbf29f3795f8b",

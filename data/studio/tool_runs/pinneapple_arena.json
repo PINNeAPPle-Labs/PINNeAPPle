@@ -7,6 +7,16 @@
   "returned": "list",
   "seconds": 3.89
  },
+ "pinneapple_arena.decision_mode:catalog_family": {
+  "code_hash": "822ef93a71474f91",
+  "inputs": {
+   "model_type": "vanilla_pinn"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 2.87
+ },
  "pinneapple_arena.external.benchmark:select_slugs": {
   "code_hash": "b8baf5cfd5ff267a",
   "inputs": {},
@@ -245,6 +255,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.problems:get_problem": {
+  "code_hash": "fea0bbc089a4d641",
+  "inputs": {
+   "name": "poisson_2d"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Poisson2D",
   "seconds": 0.0
  },
  "pinneapple_arena.problems:list_problems": {

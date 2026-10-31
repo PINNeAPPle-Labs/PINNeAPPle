@@ -95,6 +95,18 @@
   "returned": "PODWarmStart",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.antenna.ava:microstrip_width": {
+  "code_hash": "2623aa3e7be174b7",
+  "inputs": {
+   "er": 3.55,
+   "h": 1.524,
+   "z0": 50.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 2.95
+ },
  "pinneapple_simulation.electromagnetics.antenna.ava:use_superlu": {
   "code_hash": "9892df3c0da7c5d0",
   "error": "ModuleNotFoundError: No module named 'emerge'",
@@ -168,6 +180,17 @@
   "returned": "MachineSolution",
   "seconds": 0.74
  },
+ "pinneapple_simulation.electromagnetics.machine:belt_winding": {
+  "code_hash": "bd9d43e389a9e80b",
+  "inputs": {
+   "pole_pairs": 4,
+   "slots": 48
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
  "pinneapple_simulation.electromagnetics.machines.design:rotor_design_problem": {
   "code_hash": "02d2faafb3dfd02b",
   "inputs": {},
@@ -184,6 +207,20 @@
   "returned": "IPMRotorEvaluator",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.machines.drive:copper_resistance": {
+  "code_hash": "ce478611828bd9de",
+  "inputs": {
+   "conductor_area": 1e-06,
+   "end_length": 0.0,
+   "series_turns": 1,
+   "stack_length": 1.0,
+   "temperature": 120.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.03
+ },
  "pinneapple_simulation.electromagnetics.machines.drive:prius_phase_resistance": {
   "code_hash": "37e99fc9d9fd17de",
   "inputs": {},
@@ -191,6 +228,16 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.machines.drive:v_max_svpwm": {
+  "code_hash": "d1581a7a87e296f4",
+  "inputs": {
+   "v_dc": 500.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.machines.drive:wltc_class3b": {
   "code_hash": "0e1531b899ff6939",
@@ -223,6 +270,29 @@
   "recorded": "2026-10-31",
   "returned": "ParameterSpace",
   "seconds": 0.08
+ },
+ "pinneapple_simulation.electromagnetics.machines.robustness:step_offsets": {
+  "code_hash": "abfcfd69e2bc034f",
+  "inputs": {
+   "step_angle": 0.1,
+   "steps": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.thermal:intrinsic_coercivity": {
+  "code_hash": "38f637743149dbba",
+  "inputs": {
+   "Hcj20": 1600000.0,
+   "beta": -0.0055,
+   "temperature": 120.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.machines.verification:prius_torque_curve": {
   "code_hash": "3bd2755a7e1474b7",
@@ -264,6 +334,28 @@
   "returned": "TCDACell",
   "seconds": 0.01
  },
+ "pinneapple_simulation.electromagnetics.postprocess:classical_eddy_coefficient": {
+  "code_hash": "30a3cd80f5d2f22d",
+  "inputs": {
+   "density": 7650.0,
+   "sigma": 2000000.0,
+   "thickness": 0.00035
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.reflector.study_report:from_text": {
+  "code_hash": "ed767edda5d00789",
+  "inputs": {
+   "text": "3 GHz, focal length 1.5 m, 1.2 m square reflector, 0.6 m quiet zone at 3 m"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Problem",
+  "seconds": 0.02
+ },
  "pinneapple_simulation.electromagnetics.units:check_equations": {
   "code_hash": "8044e709482bf743",
   "inputs": {},
@@ -294,6 +386,20 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.ansys.journal_builder:FluentCaseConfig": {
+  "code_hash": "6ce9b62d3bd36342",
+  "inputs": {
+   "case_file": "/data/inlet_flow.cas.h5",
+   "initialize": true,
+   "iterations": 250,
+   "output_case_file": "/data/out/inlet_flow_solved.cas",
+   "steady": true
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FluentCaseConfig",
   "seconds": 0.0
  },
  "pinneapple_simulation.external_solvers.calculix.inp:cantilever_hex_mesh": {
@@ -358,6 +464,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ParameterSpace",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.cfd_formats.convert:detect_format": {
+  "code_hash": "f41442a0747b566a",
+  "inputs": {
+   "filename": "case.CGNS"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
   "seconds": 0.0
  },
  "pinneapple_simulation.external_solvers.fluidx3d:fluidx3d_available": {
@@ -432,6 +548,18 @@
   "returned": "NoneType",
   "seconds": 0.03
  },
+ "pinneapple_simulation.external_solvers.modelica.sweep:latin_hypercube": {
+  "code_hash": "0a0947404d624e96",
+  "inputs": {
+   "d": 3,
+   "n": 16,
+   "seed": 2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.external_solvers.newton_physics.scene:RigidScene": {
   "code_hash": "e1a5f0859287787e",
   "inputs": {},
@@ -496,6 +624,96 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:evaluate": {
+  "code_hash": "69f3e01ff4d9d305",
+  "inputs": {
+   "expr": "[1, U/2, -1]",
+   "names": {
+    "U": 4
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:format_template": {
+  "code_hash": "05c6bc859b8fc992",
+  "inputs": {
+   "template": "nu {nu:.3g};",
+   "values": {
+    "nu": 1.5e-05
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:get_entry": {
+  "code_hash": "c420a1664296faaa",
+  "inputs": {
+   "key": "divSchemes/div(rhoPhi,U)",
+   "text": "divSchemes\n{\n    default none;\n    div(rhoPhi,U) Gauss linearUpwind grad(U);\n}\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:parse_solver_log": {
+  "code_hash": "ddb63f5438b7c6b6",
+  "inputs": {
+   "every": 1,
+   "text": "Courant Number mean: 0.01 max: 0.4\nTime = 0.001\n\nCourant Number mean: 0.02 max: 0.9\nInterface Courant Number mean: 0 max: 0.3\nPhase-1 volume fraction = 0.25  Min(alpha.metal) = -1e-6  Max(alpha.metal) = 1.0002\nTime = 0.002\n\nPhase-1 volume fraction = 0.2501  Min(alpha.metal) = 0  Max(alpha.metal) = 1\nEnd\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:resolve": {
+  "code_hash": "21bd178c41881302",
+  "inputs": {
+   "derived": {
+    "A": "pi*(d/1000)**2/4",
+    "Uz": "U*sin(radians(theta))"
+   },
+   "params": {
+    "U": 10.0,
+    "d": 87,
+    "theta": 10.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:set_entry": {
+  "code_hash": "ac4db141363ec767",
+  "inputs": {
+   "key": "endTime",
+   "text": "application interFoam;\nendTime 30;\nwriteInterval 0.1;\n",
+   "value": "0.5"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.openfoam.campaign:worker_commands": {
+  "code_hash": "dc85b212808dda1b",
+  "inputs": {
+   "n": 3,
+   "plan": "plan.json",
+   "procs": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.flight.catalog:a320": {
   "code_hash": "c52d3f2e140ed238",
   "inputs": {},
@@ -542,6 +760,31 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.flight.turbulence:pratt_gust_load": {
+  "code_hash": "89a1e10626308d7d",
+  "inputs": {
+   "U_de": 15.24,
+   "V_e": 60.0,
+   "cl_alpha": 5.0,
+   "mac": 1.5,
+   "wing_loading": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.59
+ },
+ "pinneapple_simulation.flight.turbulence:turbulence_spec": {
+  "code_hash": "a51e8fd6701f319d",
+  "inputs": {
+   "altitude": 1500.0,
+   "severity": "severe"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TurbulenceSpec",
   "seconds": 0.0
  },
  "pinneapple_simulation.flight.verification:conservation_check": {
@@ -592,6 +835,60 @@
   "returned": "list",
   "seconds": 0.16
  },
+ "pinneapple_simulation.geophysics.sphere_shallow_water:legendre_tables": {
+  "code_hash": "6fd1508ca5b08096",
+  "inputs": {
+   "M": 21,
+   "N": 21,
+   "mu": [
+    -0.95,
+    -0.9025,
+    -0.855,
+    -0.8074999999999999,
+    -0.76,
+    -0.7124999999999999,
+    -0.6649999999999999,
+    -0.6174999999999999,
+    -0.57,
+    -0.5225,
+    -0.475,
+    -0.4275,
+    -0.3799999999999999,
+    -0.3324999999999999,
+    -0.2849999999999999,
+    -0.23749999999999993,
+    -0.18999999999999995,
+    -0.14249999999999996,
+    -0.09499999999999997,
+    -0.04749999999999999,
+    0.0,
+    0.0475000000000001,
+    0.09499999999999997,
+    0.14250000000000007,
+    0.19000000000000017,
+    0.23750000000000004,
+    0.28500000000000014,
+    0.3325,
+    0.3800000000000001,
+    0.4275,
+    0.4750000000000001,
+    0.5225,
+    0.5700000000000001,
+    0.6175000000000002,
+    0.665,
+    0.7125000000000001,
+    0.76,
+    0.8075000000000001,
+    0.855,
+    0.9025000000000001,
+    0.95
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.02
+ },
  "pinneapple_simulation.geophysics.sphere_shallow_water:rossby_haurwitz_speed": {
   "code_hash": "fd811061f3b56703",
   "inputs": {},
@@ -623,6 +920,168 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 60.0
+ },
+ "pinneapple_simulation.numerical_solvers.eddy_current_fdm:annular_current_source": {
+  "code_hash": "7eb747db641437b8",
+  "inputs": {
+   "current_amp": 1.0,
+   "n_turns": 50.0,
+   "r": [
+    0.0,
+    0.00125,
+    0.0025,
+    0.00375,
+    0.005,
+    0.00625,
+    0.0075,
+    0.00875,
+    0.01,
+    0.01125,
+    0.0125,
+    0.01375,
+    0.015,
+    0.01625,
+    0.0175,
+    0.01875,
+    0.02,
+    0.02125,
+    0.0225,
+    0.02375,
+    0.025,
+    0.02625,
+    0.0275,
+    0.02875,
+    0.03,
+    0.03125,
+    0.0325,
+    0.03375,
+    0.035,
+    0.03625,
+    0.0375,
+    0.03875,
+    0.04,
+    0.04125,
+    0.0425,
+    0.043750000000000004,
+    0.045,
+    0.04625,
+    0.0475,
+    0.04875,
+    0.05
+   ],
+   "r_center": 0.02,
+   "width_r": 0.003,
+   "width_z": 0.004,
+   "z": [
+    -0.05,
+    -0.04875,
+    -0.0475,
+    -0.04625,
+    -0.045000000000000005,
+    -0.043750000000000004,
+    -0.0425,
+    -0.04125,
+    -0.04,
+    -0.03875000000000001,
+    -0.037500000000000006,
+    -0.036250000000000004,
+    -0.035,
+    -0.03375,
+    -0.0325,
+    -0.03125,
+    -0.030000000000000002,
+    -0.02875,
+    -0.027500000000000004,
+    -0.026250000000000002,
+    -0.025,
+    -0.023750000000000004,
+    -0.022500000000000003,
+    -0.02125,
+    -0.020000000000000004,
+    -0.018750000000000003,
+    -0.0175,
+    -0.01625,
+    -0.015,
+    -0.013750000000000005,
+    -0.012500000000000004,
+    -0.011250000000000003,
+    -0.010000000000000002,
+    -0.00875,
+    -0.0075,
+    -0.006249999999999999,
+    -0.0050000000000000044,
+    -0.0037500000000000033,
+    -0.0025000000000000022,
+    -0.0012500000000000011,
+    0.0,
+    0.0012500000000000011,
+    0.0024999999999999953,
+    0.0037499999999999964,
+    0.0049999999999999975,
+    0.006249999999999999,
+    0.0075,
+    0.00875,
+    0.009999999999999995,
+    0.011249999999999996,
+    0.012499999999999997,
+    0.013749999999999998,
+    0.015,
+    0.01625,
+    0.0175,
+    0.018750000000000003,
+    0.020000000000000004,
+    0.021250000000000005,
+    0.022499999999999992,
+    0.023749999999999993,
+    0.024999999999999994,
+    0.026249999999999996,
+    0.027499999999999997,
+    0.028749999999999998,
+    0.03,
+    0.03125,
+    0.0325,
+    0.03375,
+    0.035,
+    0.036250000000000004,
+    0.037500000000000006,
+    0.03874999999999999,
+    0.039999999999999994,
+    0.041249999999999995,
+    0.042499999999999996,
+    0.04375,
+    0.045,
+    0.04625,
+    0.0475,
+    0.04875,
+    0.05
+   ],
+   "z_center": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.etdrk4:fourier_wavenumbers": {
+  "code_hash": "ed99b92c67abfea1",
+  "inputs": {
+   "n": 32
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.external_flow:flow_directions": {
+  "code_hash": "8afb1d6228802a19",
+  "inputs": {
+   "alpha_deg": 5.0,
+   "beta_deg": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.external_flow:openfoam_available": {
   "code_hash": "b0f44673c06ae103",
@@ -709,6 +1168,87 @@
   "returned": "FVMSolver",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.gated_xtfc:convection_diffusion": {
+  "code_hash": "75f496f3de8598d9",
+  "inputs": {
+   "nu": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearBVP1D",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.gated_xtfc:gated_layout": {
+  "code_hash": "807f864dab5bdd17",
+  "inputs": {
+   "eps_scales": [
+    50.0
+   ],
+   "n_centers": 100,
+   "n_colloc": 40,
+   "nu": 0.001,
+   "splits": [
+    0.9
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GatedLayout",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.gated_xtfc:twin_boundary_layer": {
+  "code_hash": "dd734aa7cdae4ee9",
+  "inputs": {
+   "nu": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearBVP1D",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.internal_flow:colebrook": {
+  "code_hash": "2217379fd45bec3a",
+  "inputs": {
+   "Re": 100000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.internal_flow:ito_bend_loss": {
+  "code_hash": "32ffbe7f95322f26",
+  "inputs": {
+   "Re": 50000.0,
+   "radius_ratio": 4.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.internal_flow:kenics_elements": {
+  "code_hash": "809c23a39d0f48a5",
+  "inputs": {
+   "n_elements": 2,
+   "route_D": 0.05,
+   "start_D": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.irk_gauss_legendre:get_irk_tableau": {
+  "code_hash": "1cf8e12a2b76b15b",
+  "inputs": {
+   "q": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers.jax_cfd_solver:JAXCFDSolver": {
   "code_hash": "d5bdb265e07d2beb",
   "error": "ImportError: jax-cfd is not installed. Install with: pip install jax jaxlib jax-cfd (see https://github.com/google/jax-cfd).",
@@ -749,6 +1289,36 @@
   "returned": "LBMSolver",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.lbm:airfoil_naca_mask": {
+  "code_hash": "be52e29ffdc0ece8",
+  "inputs": {
+   "aoa_deg": 0.0,
+   "chord": 80,
+   "naca": "0012",
+   "nx": 200,
+   "ny": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Tensor",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.lbm:naca4_mask": {
+  "code_hash": "2613dc9d917d8216",
+  "inputs": {
+   "aoa_deg": 0.0,
+   "chord": 200,
+   "naca": "4412",
+   "nx": 400,
+   "ny": 200,
+   "x_le": 100,
+   "y_le": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Tensor",
+  "seconds": 0.12
+ },
  "pinneapple_simulation.numerical_solvers.lbm_tunnel:velocity_set": {
   "code_hash": "a05d664be0dcb15d",
   "inputs": {},
@@ -773,12 +1343,82 @@
   "returned": "RBFCollocationSolver",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem:cantilever_frequency_roots": {
+  "code_hash": "94c15c4cab336d94",
+  "inputs": {
+   "n": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers.openfoam_bridge:OpenFOAMBridge": {
   "code_hash": "03cf80d97ae896f9",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "OpenFOAMBridge",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.operator_benchmarks:li_forcing": {
+  "code_hash": "65d2e09d34a99104",
+  "inputs": {
+   "n": 32
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.operator_benchmarks:periodic_grf": {
+  "code_hash": "0ff813dac49d8a93",
+  "inputs": {
+   "alpha": 2.5,
+   "n_samples": 2,
+   "seed": 0,
+   "shape": [
+    16,
+    16
+   ],
+   "tau": 5.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.operator_datasets:darcy_set": {
+  "code_hash": "203545cee3edddf6",
+  "inputs": {
+   "high": 20.0,
+   "low": 1.0,
+   "n": 16,
+   "n_samples": 2,
+   "seed": 5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.numerical_solvers.particles:terminal_velocity": {
+  "code_hash": "3bff959cfca06678",
+  "inputs": {
+   "d": 0.003,
+   "rho_p": 1200.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.pipe_network:two_loop_network": {
+  "code_hash": "2c9fc8aab7383711",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Network",
   "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.registry:SolverCatalog": {
@@ -797,6 +1437,64 @@
   "returned": "SolverRegistry",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.registry:register_all": {
+  "code_hash": "666e2350795622a2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.13
+ },
+ "pinneapple_simulation.numerical_solvers.shallow_water_fv:ShallowWater2D": {
+  "code_hash": "6c204da224b45f8e",
+  "inputs": {
+   "dx": 0.05,
+   "nx": 40,
+   "ny": 20
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ShallowWater2D",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.solid_fem:box_mesh": {
+  "code_hash": "fb77e6413db4d373",
+  "inputs": {
+   "H": 0.2,
+   "L": 1,
+   "W": 1,
+   "nx": 4,
+   "ny": 4,
+   "nz": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HexMesh",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.stable_fluids:StableFluids2D": {
+  "code_hash": "2bc5f60eae7a6dfa",
+  "inputs": {
+   "nx": 64,
+   "ny": 64
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StableFluids2D",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.stable_fluids:stable_time_step": {
+  "code_hash": "9514d06940e61f3c",
+  "inputs": {
+   "courant": 0.5,
+   "dx": 0.1,
+   "max_velocity": 2.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers.thermal_channel_2d:ThermalChannel2D": {
   "code_hash": "9f4621f1f51de213",
   "inputs": {},
@@ -813,6 +1511,71 @@
   "recorded": "2026-10-31",
   "seconds": 60.0
  },
+ "pinneapple_simulation.numerical_solvers.water_hammer_moc:wave_speed": {
+  "code_hash": "e9f2c292be51f086",
+  "inputs": {
+   "D": 0.3,
+   "E": 210000000000.0,
+   "K": 2180000000.0,
+   "c1": 0.91,
+   "e": 0.006,
+   "rho": 998.2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.xtfc_general:activation_derivative": {
+  "code_hash": "b9ffefba92d61789",
+  "inputs": {
+   "n": 0,
+   "name": "gaussian",
+   "z": [
+    -2.0,
+    -1.5,
+    -1.0,
+    -0.5,
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.xtfc_pde:solve_xtfc_pde": {
+  "code_hash": "a3c1fea302c28e36",
+  "inputs": {
+   "n_basis": 40,
+   "n_collocation_t": 20,
+   "n_collocation_x": 20,
+   "param": 1.0,
+   "pde": "heat_1d",
+   "seed": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.xtfc_subdomain:log_subdomain_boundaries": {
+  "code_hash": "6fab2fb5912a4d86",
+  "inputs": {
+   "first_width": 1e-11,
+   "n_subdomains": 16,
+   "t0": 0.0,
+   "tf": 5.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers:fenics_available": {
   "code_hash": "bff327c90eb5962a",
   "inputs": {},
@@ -827,6 +1590,37 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.particle_dynamics.geo_mpm:GeoMPM": {
+  "code_hash": "af5f266dc208a62a",
+  "inputs": {
+   "domain": [
+    0.6,
+    1.0
+   ],
+   "dx": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeoMPM",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.particle_dynamics.geo_mpm:box": {
+  "code_hash": "c19d142985ec11ed",
+  "inputs": {
+   "hi": [
+    0.4,
+    0.8
+   ],
+   "lo": [
+    0.2,
+    0.6
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
   "seconds": 0.0
  },
  "pinneapple_simulation.pipelines.freecad_openfoam.cad:FakeFreeCAD": {
@@ -861,12 +1655,54 @@
   "returned": "FakeFreeCAD",
   "seconds": 0.0
  },
+ "pinneapple_simulation.pipelines.freecad_openfoam.cad:rule_eval": {
+  "code_hash": "0bfc53211d68fbfb",
+  "inputs": {
+   "expr": "plane and abs(cx + L) < 1e-3 * D",
+   "names": {
+    "D": 1.0,
+    "L": 5.0,
+    "cx": -5.0,
+    "plane": true
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.mesh:allrun_script": {
+  "code_hash": "c5e98b153c05cbdb",
+  "inputs": {
+   "procs": 1,
+   "solver": "pimpleFoam"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.pipelines.freecad_openfoam.mesh:has_cfmesh": {
   "code_hash": "ca75dbf980503eb7",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.freecad_openfoam.mesh:split_procs": {
+  "code_hash": "0e4952d97ca531ea",
+  "inputs": {
+   "procs": 4,
+   "size": [
+    10.0,
+    1.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
   "seconds": 0.0
  },
  "pinneapple_simulation.pipelines.freecad_openfoam.studies:heated_pipe": {

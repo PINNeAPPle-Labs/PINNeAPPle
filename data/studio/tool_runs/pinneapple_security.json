@@ -95,6 +95,17 @@
   "returned": "bytes",
   "seconds": 0.0
  },
+ "pinneapple_security.passwords:hash_password": {
+  "code_hash": "f994d64aab3129ab",
+  "inputs": {
+   "password": "s3cret",
+   "scheme": "scrypt"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.39
+ },
  "pinneapple_security.signing:generate_key": {
   "code_hash": "4d1aa5380516d82b",
   "inputs": {},

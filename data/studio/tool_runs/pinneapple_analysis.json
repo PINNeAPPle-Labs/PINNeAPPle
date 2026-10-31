@@ -95,6 +95,14 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_analysis.cost.equal_budget:hardware_record": {
+  "code_hash": "22b04b654c035733",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.32
+ },
  "pinneapple_analysis.cost.profiler:Budget": {
   "code_hash": "ec07000577afa9fc",
   "inputs": {},
@@ -263,6 +271,19 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
+  "code_hash": "0520ca0470ba78ef",
+  "inputs": {
+   "h_true": 25.0,
+   "noise": 0.0,
+   "power": 10.0,
+   "steps": 5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.17
+ },
  "pinneapple_analysis.inverse_problems.missing_term:CandidateLibrary": {
   "code_hash": "0f6556de85719503",
   "inputs": {},
@@ -352,6 +373,16 @@
   "returned": "ProofGraph",
   "seconds": 0.12
  },
+ "pinneapple_analysis.reproduction:seed_stats": {
+  "code_hash": "41ecc1b5ad7ab0df",
+  "error": "ValueError: no seeds",
+  "inputs": {
+   "values": []
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.retrieval.corpus:build_corpus": {
   "code_hash": "0edf745df248598f",
   "inputs": {},
@@ -368,6 +399,25 @@
   "returned": "list",
   "seconds": 7.37
  },
+ "pinneapple_analysis.retrieval.corpus:chunk_text": {
+  "code_hash": "6704856ce59d3f43",
+  "inputs": {
+   "max_chars": 4000,
+   "text": "short module docstring\nand a second line"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.retrieval:build_default_index": {
+  "code_hash": "b49552351db02b6f",
+  "error": "ImportError: pinneapple_analysis.retrieval requires the 'retrieval' extra: pip install 'pinneapple[retrieval]' (installs sentence-transformers).",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.51
+ },
  "pinneapple_analysis.sensitivity.testfunctions:ishigami_indices": {
   "code_hash": "b85f0fcf9d34b6a1",
   "inputs": {},
@@ -382,6 +432,26 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.sensitivity.testfunctions:sobol_g_space": {
+  "code_hash": "b99c6b6ac9cc66d1",
+  "inputs": {
+   "d": 6
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_analysis.study_models:builtin": {
+  "code_hash": "adf722ace1cded08",
+  "inputs": {
+   "name": "ishigami"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StudyModel",
   "seconds": 0.0
  },
  "pinneapple_analysis.surrogate.examples:airfoil_rans": {
@@ -422,6 +492,55 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "TrustGate",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_report:checagem_booleana": {
+  "code_hash": "60cd05aed324487f",
+  "inputs": {
+   "nome": "mass_conservation",
+   "passou": true
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Check",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.trust.trust_report:checagem_erro_relativo": {
+  "code_hash": "a4709877fb06a22b",
+  "inputs": {
+   "critica": true,
+   "erro": 0.3,
+   "limite": 0.02,
+   "nome": "acuracia_referencia"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Check",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.conformal_study:min_calibration_size": {
+  "code_hash": "f014c0fa60d12eba",
+  "inputs": {
+   "alpha": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.uncertainty.conformal_study:split_indices": {
+  "code_hash": "1e0312800ab78b92",
+  "inputs": {
+   "fractions": [
+    0.5,
+    0.5
+   ],
+   "n": 4000,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
   "seconds": 0.0
  },
  "pinneapple_analysis.uncertainty.residual_bound:ResidualErrorCalibrator": {
@@ -480,6 +599,78 @@
   "returned": "BenchmarkProblem",
   "seconds": 0.0
  },
+ "pinneapple_analysis.validation.metamorphic:box_sampler": {
+  "code_hash": "863c23a8c05ef58b",
+  "inputs": {
+   "bounds": {
+    "L": [
+     0.01,
+     0.1
+    ],
+    "T0": [
+     250.0,
+     350.0
+    ],
+    "k": [
+     1.0,
+     400.0
+    ],
+    "q": [
+     1000.0,
+     100000.0
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:reflect_field": {
+  "code_hash": "d3b950dc36c3633f",
+  "inputs": {
+   "axis": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.metamorphic:relations_from_spec": {
+  "code_hash": "5492beef1f168349",
+  "inputs": {
+   "spec": [
+    {
+     "direction": "increasing",
+     "input": "q",
+     "kind": "monotonic",
+     "name": "more-heat-hotter",
+     "output": "T"
+    },
+    {
+     "direction": "decreasing",
+     "input": "k",
+     "kind": "monotonic",
+     "name": "better-conductor-cooler",
+     "output": "T"
+    },
+    {
+     "inputs": {
+      "L": "L / 2",
+      "q": "4 * q"
+     },
+     "kind": "invariant",
+     "name": "q-L2-group",
+     "output": "T",
+     "tol": 1e-12
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.validation.metamorphic:rotate_field": {
   "code_hash": "603aa993e8fdd053",
   "inputs": {},
@@ -520,6 +711,20 @@
   "returned": "PINNProblem",
   "seconds": 0.0
  },
+ "pinneapple_analysis.validation.pinn:mlp": {
+  "code_hash": "532db052cf6845eb",
+  "inputs": {
+   "activation": "gaussian",
+   "depth": 3,
+   "n_in": 1,
+   "n_out": 1,
+   "width": 8
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Sequential",
+  "seconds": 0.01
+ },
  "pinneapple_analysis.validation.pinn:poisson_2d": {
   "code_hash": "25826247a8b878b4",
   "inputs": {},
@@ -542,6 +747,17 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ArchitectureRecommendation",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.dimensional_analysis:classify_flow_regime": {
+  "code_hash": "a0a9513950125d2c",
+  "inputs": {
+   "geometry": "internal_pipe",
+   "re": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
   "seconds": 0.0
  },
  "pinneapple_analysis.verification.dimensional_analysis:compute_dimensionless_numbers": {
@@ -576,6 +792,19 @@
   "returned": "MultiDiGraph",
   "seconds": 0.14
  },
+ "pinneapple_analysis.verification.mesh_intelligence:estimate_required_first_cell_height": {
+  "code_hash": "568902bf7bc2e0ce",
+  "inputs": {
+   "kinematic_viscosity": 1.5e-05,
+   "reynolds_length": 1000.0,
+   "target_yplus": 1.0,
+   "velocity": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YPlusEstimate",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.verification.physics_confidence_score:compute_physics_confidence": {
   "code_hash": "27cf4db8edd529d1",
   "inputs": {},
@@ -584,6 +813,29 @@
   "returned": "PhysicsConfidenceScore",
   "seconds": 0.0
  },
+ "pinneapple_analysis.verification.pipeline:analyze": {
+  "code_hash": "7249f10283bf91bf",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "candidate_architectures": [
+    "modified_mlp",
+    "not_a_registered_architecture"
+   ],
+   "description": "viscous Burgers",
+   "epochs": 20,
+   "hidden_dim": 16,
+   "n_collocation": 128,
+   "n_layers": 2,
+   "physical_parameters": {
+    "kinematic_viscosity": 0.01,
+    "length": 1.0,
+    "velocity": 1.0
+   }
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.18
+ },
  "pinneapple_analysis.verification.solver_orchestration:list_available_solver_families": {
   "code_hash": "6d775f499b15c6a9",
   "inputs": {},
@@ -591,6 +843,36 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.11
+ },
+ "pinneapple_analysis.verification.tool_recommendation:buy_vs_build_recommendation": {
+  "code_hash": "8f31b7543795997f",
+  "inputs": {
+   "need": "CFD_high_fidelity"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.tool_recommendation:get_player_for_tool": {
+  "code_hash": "367d2261967813d2",
+  "inputs": {
+   "tool_key": "ansys_fluent"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.verification.tool_recommendation:get_tools_by_category": {
+  "code_hash": "3795d379378cfd17",
+  "inputs": {
+   "category": "meshing"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
  },
  "pinneapple_analysis.verification.tool_recommendation:list_buy_vs_build_needs": {
   "code_hash": "b148bd1a1b057f57",

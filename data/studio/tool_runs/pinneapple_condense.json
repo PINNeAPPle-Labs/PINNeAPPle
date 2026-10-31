@@ -231,6 +231,21 @@
   "recorded": "2026-10-31",
   "seconds": null
  },
+ "pinneapple_condense.learned:variant_field": {
+  "code_hash": "e4fc98e45e2f5563",
+  "inputs": {
+   "defects": 1,
+   "seed": 2,
+   "shape": [
+    4,
+    4
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.5
+ },
  "pinneapple_condense.package:reference_stack": {
   "code_hash": "9ec5bdbbb86cffc3",
   "inputs": {},
@@ -246,5 +261,13 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 63.69
+ },
+ "pinneapple_condense.substructure:clear_cache": {
+  "code_hash": "1939f190b81082aa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
  }
 }

@@ -1,4 +1,79 @@
 {
+ "pinneapple_data.cae.compare:tolerance_verdicts": {
+  "code_hash": "65b2715e6058edae",
+  "inputs": {
+   "result": {
+    "fields": [
+     {
+      "summary": {
+       "rel_l2": 0.01
+      }
+     },
+     {
+      "summary": {
+       "rel_l2": 0.2
+      }
+     },
+     {
+      "summary": {
+       "rel_l2": null
+      }
+     }
+    ]
+   },
+   "tolerance": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 2.32
+ },
+ "pinneapple_data.cae.inp:read_deck": {
+  "code_hash": "f3e64e9cce9c914e",
+  "inputs": {
+   "text": "*NODE\n1, 0, 0, 0\n2, 1, 0, 0\n3, 1, 1, 0\n4, 0, 1, 0\n5, 0, 0, 1\n6, 1, 0, 1\n7, 1, 1, 1\n8, 0, 1, 1\n*ELEMENT, TYPE=C3D8, ELSET=E\n1, 1, 2, 3, 4, 5, 6, 7, 8\n*BOUNDARY\n1, 1, 3\n2, 1, 1, 0.001\n*STEP\n*STATIC\n*DLOAD\n1, P2, 1e5\n*DLOAD\nE, GRAV, 9.81, 0, 0, -1\n*END STEP\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Deck",
+  "seconds": 0.0
+ },
+ "pinneapple_data.collate:collate_pinn_batches": {
+  "code_hash": "68c9c65d63e6814f",
+  "inputs": {
+   "batches": []
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_data.collocation:CollocationSampler": {
+  "code_hash": "4f484cf03c3a7891",
+  "inputs": {
+   "bounds": {
+    "x": [
+     0.0,
+     1.0
+    ],
+    "y": [
+     0.0,
+     1.0
+    ]
+   },
+   "coord_names": [
+    "x",
+    "y"
+   ],
+   "fields": [
+    "u"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CollocationSampler",
+  "seconds": 0.0
+ },
  "pinneapple_data.contracts.models:json_schemas": {
   "code_hash": "8a8c228319b9b3b4",
   "inputs": {},
@@ -14,6 +89,20 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.13
+ },
+ "pinneapple_data.datasets.physics:burgers_periodic_pairs": {
+  "code_hash": "43192e76b94417c7",
+  "inputs": {
+   "T": 0.3,
+   "n": 6,
+   "nu": 0.02,
+   "nx": 64,
+   "seed": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.02
  },
  "pinneapple_data.datasets:dataset_ids": {
   "code_hash": "38383017f4182e26",
@@ -47,12 +136,141 @@
   "returned": "list",
   "seconds": 0.01
  },
+ "pinneapple_data.grf_sampler:sample_grf_2d_batch": {
+  "code_hash": "4792bef779e509e5",
+  "inputs": {
+   "length_scale": 0.2,
+   "n_draws": 1,
+   "nx": 64,
+   "ny": 64,
+   "seed": null
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_data.grf_sampler:sample_grf_batch": {
+  "code_hash": "3fb3bd59291ace10",
+  "inputs": {
+   "jitter": 1e-10,
+   "length_scale": 0.2,
+   "n_draws": 1,
+   "n_grid": 1000,
+   "seed": null,
+   "x_max": 1.0,
+   "x_min": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.13
+ },
+ "pinneapple_data.grf_sampler:sample_grf_paths": {
+  "code_hash": "139e070df1004e94",
+  "inputs": {
+   "jitter": 1e-10,
+   "length_scale": 0.2,
+   "n_draws": 1,
+   "n_grid": 1000,
+   "seed": null,
+   "x_max": 1.0,
+   "x_min": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_data.parameter_sampling:sample_parameters": {
+  "code_hash": "9daf2f15671a060b",
+  "inputs": {
+   "method": "lhs",
+   "n_samples": 1,
+   "param_ranges": {},
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.38
+ },
+ "pinneapple_data.physical_units:infer_quantity": {
+  "code_hash": "eafafa5ad05132c9",
+  "inputs": {
+   "name": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "QuantityGuess",
+  "seconds": 0.01
+ },
+ "pinneapple_data.physical_units:split_header": {
+  "code_hash": "c6cd2962635036e5",
+  "inputs": {
+   "header": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_data.physical_units:try_parse_unit": {
+  "code_hash": "eb334ac74ae13a0c",
+  "inputs": {
+   "text": "mPa.s"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Unit",
+  "seconds": 0.0
+ },
+ "pinneapple_data.preflight:is_result_file": {
+  "code_hash": "9341b62d910971a6",
+  "inputs": {
+   "path": "case/0.5/U"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
  "pinneapple_data.process_optimizer:example_plant_operations": {
   "code_hash": "ceaddeb7932348fa",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
+  "seconds": 0.04
+ },
+ "pinneapple_data.simulation_metadata.foam_dict:parse": {
+  "code_hash": "0bfb0a62a81d7417",
+  "inputs": {
+   "text": "FoamFile { class dictionary; object fvSchemes; }\n      divSchemes { default none; div(phi,U) bounded Gauss linearUpwind grad(U); } // comment\n      solvers { \"(U|k)\" { solver smoothSolver; tolerance 1e-05; } }\n      #include \"common\" nu [0 2 -1 0 0 0 0] 1e-05;"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_data.simulation_metadata.openfoam:parse_dat": {
+  "code_hash": "8cdcf8ec4a87aa34",
+  "inputs": {
+   "text": "1 2\n3 4\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_data.simulation_metadata:parse_residual_table": {
+  "code_hash": "1d29bd97303d776f",
+  "inputs": {
+   "text": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
   "seconds": 0.04
  },
  "pinneapple_data.synth.curvefit:CurveFitSynthGenerator": {
@@ -159,6 +377,29 @@
   "returned": "StandardScaler",
   "seconds": 0.0
  },
+ "pinneapple_data.unified:canonical_name": {
+  "code_hash": "09b388164b58b9b1",
+  "inputs": {
+   "base": "",
+   "quantity": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.02
+ },
+ "pinneapple_data.unified:conversion_text": {
+  "code_hash": "2b92a0c4f69f543d",
+  "inputs": {
+   "difference": false,
+   "dst": "",
+   "src": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
  "pinneapple_data.unified:example_sources": {
   "code_hash": "6383069363a3924e",
   "inputs": {},
@@ -166,6 +407,16 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.27
+ },
+ "pinneapple_data.unified:make_recipe": {
+  "code_hash": "2ab84e830d581352",
+  "inputs": {
+   "mappings": []
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_data.validators:assert_valid_physical_sample": {
   "code_hash": "0a37f7209e41d3d1",

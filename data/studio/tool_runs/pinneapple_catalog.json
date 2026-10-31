@@ -1,4 +1,14 @@
 {
+ "pinneapple_catalog.methods:get_method": {
+  "code_hash": "47fcc09fb2be2e32",
+  "inputs": {
+   "method_id": "T18"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Method",
+  "seconds": 2.79
+ },
  "pinneapple_catalog.methods:list_methods": {
   "code_hash": "e1aa45fadbb3141a",
   "inputs": {},

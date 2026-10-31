@@ -7,6 +7,16 @@
   "returned": "AirfoilSection",
   "seconds": 0.0
  },
+ "pinneapple_presets.cases.airfoil:thin_airfoil_zero_lift": {
+  "code_hash": "294e07ca32c7484a",
+  "inputs": {
+   "code": "2412"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 3.39
+ },
  "pinneapple_presets.cases.eddy_current:EddyCurrentInspection": {
   "code_hash": "5a4b62a88bfb4565",
   "inputs": {},
@@ -119,6 +129,14 @@
   "returned": "dict",
   "seconds": 0.01
  },
+ "pinneapple_presets.registry:index": {
+  "code_hash": "0d7646f5566801c6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.34
+ },
  "pinneapple_presets.registry:list_presets": {
   "code_hash": "fbefc8c33a29a0c0",
   "inputs": {},
@@ -134,6 +152,25 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_presets.registry:write_index": {
+  "code_hash": "35d2a67c3f461ad1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.15
+ },
+ "pinneapple_presets.report:write_catalogue": {
+  "changes_files": [
+   "examples/industrial_presets/experiment.json"
+  ],
+  "code_hash": "dbec9261aac1d601",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.05
  },
  "pinneapple_presets.surrogate:ARDGP": {
   "code_hash": "96f602625f9ec6d5",

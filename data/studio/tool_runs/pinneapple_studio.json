@@ -56,20 +56,20 @@
   "seconds": 0.0
  },
  "pinneapple_studio.gallery:entries": {
-  "code_hash": "4d735cbde196b1da",
+  "code_hash": "ad2b54707834f22c",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 1.4
+  "seconds": 1.43
  },
  "pinneapple_studio.gallery:load": {
-  "code_hash": "5513193a2c8b6882",
+  "code_hash": "bc51adfb8cc4c269",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 1.28
+  "seconds": 1.29
  },
  "pinneapple_studio.inventory:build": {
   "code_hash": "251f72d8320141b4",
@@ -78,6 +78,22 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 11.91
+ },
+ "pinneapple_studio.inventory:cache_dir": {
+  "code_hash": "5cb0800a8aeb39af",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.inventory:exclude_pattern": {
+  "code_hash": "f1a1b575b6cb22fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Pattern",
+  "seconds": 0.0
  },
  "pinneapple_studio.inventory:load": {
   "code_hash": "2520af5eba5ac9d8",
@@ -127,6 +143,16 @@
   "returned": "NoneType",
   "seconds": 0.0
  },
+ "pinneapple_studio.search:tokens": {
+  "code_hash": "e66932f7f496955c",
+  "inputs": {
+   "text": "calor"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
  "pinneapple_studio.smoke:read_runs": {
   "code_hash": "5618150f9c6d2195",
   "inputs": {},
@@ -136,7 +162,7 @@
   "seconds": 0.0
  },
  "pinneapple_studio.smoke:recorded_inputs": {
-  "code_hash": "77c2400448fe56c8",
+  "code_hash": "d08750564fcb61e7",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",

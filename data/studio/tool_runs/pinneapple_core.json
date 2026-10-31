@@ -39,6 +39,16 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_core.backend:use_backend": {
+  "code_hash": "3609bedb1654e018",
+  "inputs": {
+   "name": "torch"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "_GeneratorContextManager",
+  "seconds": 0.65
+ },
  "pinneapple_core.data:Sampler": {
   "code_hash": "9cd23a260cd47e81",
   "inputs": {},
@@ -46,6 +56,16 @@
   "recorded": "2026-10-31",
   "returned": "Sampler",
   "seconds": 0.01
+ },
+ "pinneapple_core.jsonable:round_sig": {
+  "code_hash": "044b215f3e98c321",
+  "inputs": {
+   "x": -0.000123456789
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
  },
  "pinneapple_core.loss:list_strategies": {
   "code_hash": "3100381432b15c37",

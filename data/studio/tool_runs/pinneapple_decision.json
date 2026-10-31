@@ -15,6 +15,21 @@
   "returned": "PhysicsDecisionEngine",
   "seconds": 0.0
  },
+ "pinneapple_decision.debias:rotations": {
+  "code_hash": "ccfd9146f145bd41",
+  "inputs": {
+   "options": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.31
+ },
  "pinneapple_decision.loop:DecisionLoop": {
   "code_hash": "cd8672105ecf7a66",
   "inputs": {},

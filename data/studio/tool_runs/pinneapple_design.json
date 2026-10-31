@@ -31,6 +31,27 @@
   "returned": "Airliner",
   "seconds": 0.01
  },
+ "pinneapple_design.aero.dataset:plan": {
+  "code_hash": "8084243ab3da63f4",
+  "inputs": {
+   "n_alpha": 4,
+   "n_shapes": 100
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 2.98
+ },
+ "pinneapple_design.aero.geometry:naca4": {
+  "code_hash": "4e93e6f9ab3c5c22",
+  "inputs": {
+   "code": "2412"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_design.aero.geometry_onnx:torch_from_handles": {
   "code_hash": "c31b85d209e225cf",
   "inputs": {},
@@ -55,6 +76,42 @@
   "returned": "dict",
   "seconds": 0.05
  },
+ "pinneapple_design.aero.optimize:infeasibility_reasons": {
+  "code_hash": "621767431b0f5914",
+  "inputs": {
+   "designs": [
+    {
+     "feasible": false,
+     "violations": [
+      "stall speed",
+      "thickness"
+     ]
+    },
+    {
+     "feasible": false,
+     "violations": [
+      "stall speed"
+     ]
+    },
+    {
+     "feasible": false,
+     "violations": []
+    },
+    {
+     "feasible": true,
+     "trust": "low"
+    },
+    {
+     "feasible": true,
+     "trust": "high"
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.1
+ },
  "pinneapple_design.aero.panel:panel_solve": {
   "code_hash": "af5a85d58261c2e4",
   "error": "IndexError: too many indices for array: array is 0-dimensional, but 1 were indexed",
@@ -63,6 +120,22 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_design.aero.train:coefs": {
+  "code_hash": "46bfacc27163ba1b",
+  "inputs": {
+   "recs": [
+    {
+     "Cd": 2,
+     "Cl": 1,
+     "Cm": 3
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.01
+ },
  "pinneapple_design.bricks.assembly:Assembly": {
   "code_hash": "61d43a979419262b",
   "inputs": {},
@@ -70,6 +143,25 @@
   "recorded": "2026-10-31",
   "returned": "Assembly",
   "seconds": 0.02
+ },
+ "pinneapple_design.bricks.assembly:stack": {
+  "code_hash": "e0e65083b1a721fa",
+  "inputs": {
+   "colours": [
+    "blue",
+    "green"
+   ],
+   "n": 2,
+   "offsets": [
+    0,
+    1
+   ],
+   "part_name": "brick_2x4"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Assembly",
+  "seconds": 0.03
  },
  "pinneapple_design.bricks.dynamics:harmonic_threshold": {
   "code_hash": "db4fe2ff9c2f7a7b",
@@ -85,6 +177,24 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "Goal",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.goals:reference_cantilever": {
+  "code_hash": "071b21c55e6c23b2",
+  "inputs": {
+   "n": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.bricks.ldraw:default_cache": {
+  "code_hash": "bacd85fdc2ce47bb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
   "seconds": 0.0
  },
  "pinneapple_design.bricks.parts:fit_mass_model": {
@@ -138,6 +248,24 @@
  "pinneapple_design.design_optimizer.methods:available_methods": {
   "code_hash": "efbc42d54b908b1e",
   "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.pareto:representatives": {
+  "code_hash": "a8be50a5df7116de",
+  "inputs": {
+   "names": [
+    "a",
+    "b"
+   ],
+   "objectives": [],
+   "senses": [
+    "max",
+    "min"
+   ]
+  },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
@@ -199,9 +327,37 @@
   "returned": "Evaluator",
   "seconds": 0.0
  },
+ "pinneapple_design.fitmesh.context:wall_unit_height": {
+  "code_hash": "7711b97fdcc895e8",
+  "inputs": {
+   "internal": true,
+   "length": 0.0762,
+   "nu": 1e-06,
+   "re": 152400,
+   "speed": 2.0,
+   "y_plus": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
+ },
  "pinneapple_design.geometry.bodies:ahmed_body": {
   "code_hash": "d74c9ee96e52fecd",
   "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.bodies:annulus": {
+  "code_hash": "6f453a709db8b83e",
+  "inputs": {
+   "height": 0.5,
+   "n": 256,
+   "r_inner": 1.0,
+   "r_outer": 2.0
+  },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
@@ -231,6 +387,32 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.csg:annulus": {
+  "code_hash": "dd85b0eeb4c16ab3",
+  "inputs": {
+   "cx": 0.0,
+   "cy": 0.0,
+   "r_inner": 0.5,
+   "r_outer": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CSGDifference",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.csg:lshape": {
+  "code_hash": "939e45f3ed03624e",
+  "inputs": {
+   "height1": 2.0,
+   "height2": 1.0,
+   "width1": 2.0,
+   "width2": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CSGDifference",
+  "seconds": 0.0
+ },
  "pinneapple_design.geometry.gen.airfoil:naca_parametric": {
   "code_hash": "6e8c0767fdd27699",
   "inputs": {},
@@ -253,6 +435,17 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.gen.car2d:sample_designs": {
+  "code_hash": "e512b1ed4a69e2ba",
+  "inputs": {
+   "n": 12,
+   "seed": 1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
   "seconds": 0.0
  },
  "pinneapple_design.geometry.gen.domains3d:list_domains_3d": {
@@ -391,9 +584,34 @@
   "returned": "list",
   "seconds": 0.01
  },
+ "pinneapple_design.geometry.vehicle_cad:mli_blanket": {
+  "code_hash": "5a5858cfeea44f37",
+  "inputs": {
+   "height": 0.5,
+   "width": 1.2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
  "pinneapple_design.geometry.vehicle_cad:pan_tilt_head": {
   "code_hash": "e607102acf0f143a",
   "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.vehicle_cad:rover_wheel": {
+  "code_hash": "14e2433a57ae8a2f",
+  "inputs": {
+   "grouser_height": 0.02,
+   "grouser_shape": "chevron",
+   "grousers": 12,
+   "radius": 0.25,
+   "width": 0.2
+  },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
@@ -439,6 +657,14 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry_library.store:cache_dir": {
+  "code_hash": "8bea7cd3be9ea771",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.02
+ },
  "pinneapple_design.geometry_library.store:offline": {
   "code_hash": "ead9140530029df0",
   "inputs": {},
@@ -454,6 +680,14 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_design.geometry_library.web:index": {
+  "code_hash": "65f149e4dc4263ba",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
  },
  "pinneapple_design.geometry_library:categories": {
   "code_hash": "7a9cd53d34f4e857",
@@ -654,6 +888,41 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 7.59
+ },
+ "pinneapple_design.thermal.fin_cell:solve_fin_cell": {
+  "code_hash": "bf6cda517c18e756",
+  "inputs": {
+   "base_thickness_m": 0.002,
+   "depth_m": 0.08,
+   "fin_height_m": 0.02,
+   "fin_spacing_m": 0.0015,
+   "fin_thickness_m": 0.0005,
+   "h_w_m2k": 20.0,
+   "k_w_mk": 400.0,
+   "n_fins": 40,
+   "power_w": 40.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FinCellResult",
+  "seconds": 0.06
+ },
+ "pinneapple_design.thermal.heatsink.field:solve_base_field": {
+  "code_hash": "fe18f21cba856ce9",
+  "inputs": {
+   "base_depth": 0.08,
+   "base_thickness": 0.006,
+   "base_width": 0.08,
+   "k": 209.0,
+   "power_w": 100.0,
+   "r_fins_k_w": 0.2,
+   "source_depth": 0.03,
+   "source_width": 0.03
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.32
  },
  "pinneapple_design.thermal.heatsink.monotone:train_monotone": {
   "code_hash": "6b4f16d48e2ee0fe",

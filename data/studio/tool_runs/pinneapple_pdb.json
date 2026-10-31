@@ -7,6 +7,16 @@
   "returned": "dict",
   "seconds": 0.3
  },
+ "pinneapple_pdb.benchmarks:get_benchmark": {
+  "code_hash": "2a6d628ee441ce66",
+  "inputs": {
+   "name": "lane_emden_n1.5"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkEntry",
+  "seconds": 1.07
+ },
  "pinneapple_pdb.benchmarks:list_benchmarks": {
   "code_hash": "95f3bed9756b8e0a",
   "inputs": {},

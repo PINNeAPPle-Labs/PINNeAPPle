@@ -79,6 +79,83 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_flow.decisions:edits_to_decisions": {
+  "code_hash": "d104f4635d373079",
+  "inputs": {
+   "edits": [
+    {
+     "node": "eq",
+     "notes": "handbook",
+     "param": "coefficients",
+     "references": [
+      "carslaw1959heat"
+     ],
+     "value": {
+      "alpha": 2e-05
+     }
+    },
+    {
+     "node": "val",
+     "param": "tolerance",
+     "value": 0.05
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.42
+ },
+ "pinneapple_flow.decisions:llm_decision": {
+  "code_hash": "9e2dc80f77965fb0",
+  "inputs": {
+   "provider_model": "ollama/m",
+   "references": [
+    "lu2021deeponet",
+    {
+     "key": "made_up_2031"
+    },
+    {
+     "doi": "not-a-doi",
+     "title": "x"
+    },
+    {
+     "doi": "10.1/y",
+     "title": "y"
+    }
+   ],
+   "topic": "method",
+   "what": "DeepONet"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.decisions:rule_decision": {
+  "code_hash": "467deb38052fab61",
+  "inputs": {
+   "rule_id": "method.fd",
+   "what": "finite differences"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.decisions:user_decision": {
+  "code_hash": "29cb0583e25c1f1d",
+  "inputs": {
+   "node": "geo",
+   "topic": "dimension",
+   "value": 3,
+   "what": "3-D"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
  "pinneapple_flow.examples:example_folders": {
   "code_hash": "a7d4876599b57146",
   "inputs": {},
@@ -127,6 +204,24 @@
   "returned": "list",
   "seconds": 0.59
  },
+ "pinneapple_flow.examples:register_hook": {
+  "code_hash": "f312671a9053d6b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.32
+ },
+ "pinneapple_flow.identify:identify": {
+  "code_hash": "cde645ccefed1fdc",
+  "inputs": {
+   "text": "the quarterly sales report of the bakery"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.6
+ },
  "pinneapple_flow.lab_status:nodes_for": {
   "code_hash": "d968ade76491cba3",
   "inputs": {},
@@ -150,6 +245,27 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_flow.libcalls:custom_spec": {
+  "code_hash": "2ebf10681a7a9823",
+  "inputs": {
+   "doc": {
+    "base": "solver.terramechanics",
+    "params": {
+     "slip": 0.3,
+     "soil": {
+      "default": "JSC-1A",
+      "hidden": true
+     }
+    },
+    "title": "Wheel on JSC-1A",
+    "type": "custom.soft_soil"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NodeSpec",
+  "seconds": 0.02
  },
  "pinneapple_flow.libcalls:library_specs": {
   "code_hash": "f12bbad2859ec5b7",
@@ -182,6 +298,16 @@
   "recorded": "2026-10-31",
   "returned": "ndarray",
   "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.examples:example_dir": {
+  "code_hash": "f5891d6fc893807e",
+  "inputs": {
+   "name": "flight_dynamics"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 1.15
  },
  "pinneapple_flow.nodes_ext.examples:examples_root": {
   "code_hash": "054cac297ee8f310",
@@ -231,6 +357,27 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_flow.planner.heuristic:sensor_count": {
+  "code_hash": "37d8d6c624bc7370",
+  "inputs": {
+   "text": "a twin from 5 temperature sensors along the rod"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.heuristic:sensor_layout": {
+  "code_hash": "e618c5f8136e1ed1",
+  "inputs": {
+   "dim": 1,
+   "n": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_flow.planner.llm:catalog_prompt": {
   "code_hash": "4121cd624ef547a9",
   "inputs": {},
@@ -238,6 +385,48 @@
   "recorded": "2026-10-31",
   "returned": "str",
   "seconds": 0.0
+ },
+ "pinneapple_flow.planner.wizard:describe": {
+  "code_hash": "d4c323b9d8914c58",
+  "inputs": {
+   "answers": {
+    "geometry": "2d",
+    "methods": [
+     "pinn",
+     "classical"
+    ],
+    "physics": "heat",
+    "problem": "heat in a plate"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.wizard:plan_from_answers": {
+  "code_hash": "4946e40ee45d00d4",
+  "inputs": {
+   "answers": {
+    "capability": "flight.takeoff",
+    "problem": ""
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_flow.planner:plan": {
+  "code_hash": "38a9fba83381d1ec",
+  "inputs": {
+   "backend": "heuristic",
+   "text": "steady heat in a plate with a heat source, then switch from 2D to 3D"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
  },
  "pinneapple_flow.references:cite": {
   "code_hash": "a04fb316b0ae4837",
@@ -270,6 +459,14 @@
   "recorded": "2026-10-31",
   "returned": "PosixPath",
   "seconds": 0.0
+ },
+ "pinneapple_flow.runtime:lab_export_status": {
+  "code_hash": "38697bc19e3a68fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.02
  },
  "pinneapple_flow.schema:flow_json_schema": {
   "code_hash": "aacf0406566b2bcc",
@@ -310,6 +507,17 @@
   "recorded": "2026-10-31",
   "returned": "FastAPI",
   "seconds": 0.27
+ },
+ "pinneapple_flow.types:compatible": {
+  "code_hash": "7d630cd423162867",
+  "inputs": {
+   "source": "problem",
+   "target": "problem"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
  },
  "pinneapple_flow.wrappers:beam_deflection": {
   "code_hash": "d74b8e2b19046d82",
@@ -358,6 +566,14 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:geometry_export": {
+  "code_hash": "7d9f2b2317d1ad36",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.14
  },
  "pinneapple_flow.wrappers:lbm_channel": {
   "code_hash": "ad43269c6d9dbe49",

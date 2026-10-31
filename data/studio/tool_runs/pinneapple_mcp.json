@@ -7,6 +7,20 @@
   "returned": "Config",
   "seconds": 0.0
  },
+ "pinneapple_mcp.expressions:compile_expression": {
+  "code_hash": "a1566338eedee9f5",
+  "inputs": {
+   "coords": [
+    "x",
+    "y"
+   ],
+   "text": "sin(pi*x)*exp(-y) + 2"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.34
+ },
  "pinneapple_mcp.jobs:running": {
   "code_hash": "7b48ff20e6eb5201",
   "inputs": {},

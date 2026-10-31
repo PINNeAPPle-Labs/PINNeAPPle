@@ -2,11 +2,17 @@
 
 The machine is meshed on a structured grid in cylindrical coordinates ``(r, theta, z)``: radial and axial node
 lines are chosen per region (air inside ``r_in``, the active annulus, air outside ``r_out``; rotor yoke, magnets,
-gap, teeth, stator yoke, air above and below), ``theta`` is uniform over the full circle, each grid cell is split
+gap, teeth, stator yoke, air above and below), ``theta`` covers the full circle, each grid cell is split
 into six tetrahedra along its diagonal (as :func:`~..fem3d.mesh.box_mesh`) and the grid is closed at ``theta =
 2 pi`` by merging the seam nodes (the split is the same in every cell, so the seam is conforming). Turning the rotor
 by a whole number of steps ``2 pi / n_theta`` maps the grid onto itself: rotor angle is a relabelling of the magnet
 cells, so cogging carries no remeshing noise.
+
+``edges``: with ``"cell"`` (the default) ``theta`` is uniform and a cell is magnet, or tooth iron, when its centre
+is, so the magnet arc and the slot opening move in whole steps and the rotor in even steps. With ``"fraction"`` the
+tooth edges are node planes that slide with the slot opening, a cell on a magnet edge carries the share of it inside
+as that share of the remanence, and the rotor turns by any angle (the magnet shares at the turned position, on the
+same mesh and the same factorised stiffness).
 
 Topologies: ``"single"`` (one rotor, one slotted stator with a yoke) and ``"double_rotor"`` (a yokeless slotted
 stator between two rotors whose magnets are magnetised the same way, so the flux crosses the stator axially).
@@ -96,7 +102,7 @@ class AFPM3D:
     air_z: float = 0.015          # air above and below the machine
     r_range: tuple[float, float] | None = None    # restrict to a radial band of the active annulus (quasi-3D)
     r_nodes: np.ndarray | None = None              # explicit radial nodes of that band (the parent's)
-    edges: str = "cell"           # "cell": a cell is magnet / tooth iron by its theta centre; "fraction": by share
+    edges: str = "cell"           # "cell": uniform theta, labels by cell centre; "fraction": see the module docstring
 
     def __post_init__(self):
         m = self.machine
@@ -104,6 +110,7 @@ class AFPM3D:
             raise ValueError("n_theta must be a multiple of twice the poles and twice the slots (pole and slot "
                              "centres on even theta nodes, the symmetry planes of the mesh)")
         self.step = TWO_PI / self.n_theta
+        self.th = self._theta_nodes()
         r0, r1 = self.r_range or (m.r_in, m.r_out)
         rs = np.asarray(self.r_nodes, float) if self.r_nodes is not None else _graded(r0, r1, self.dr)
         if self.r_range is None and self.air_r > 0:
@@ -129,10 +136,27 @@ class AFPM3D:
         self._static, self._magnet_base = self._labels()
 
     # ------------------------------------------------------------------------------------------- mesh
+    def _theta_nodes(self) -> np.ndarray:
+        """Node angles round the axis, ``n_theta + 1`` of them (the last is ``2 pi``). ``edges="cell"``: uniform.
+        ``edges="fraction"``: in each slot pitch a quarter of its cells across each half slot and the rest across
+        the tooth, uniform in each, so the tooth edges are node planes for any slot opening and the nodes slide
+        with it (a slot opening of half the pitch gives the uniform grid)."""
+        nt = self.n_theta
+        if self.edges != "fraction":
+            return np.arange(nt + 1) * self.step
+        m = self.machine
+        ns = nt // m.slots
+        k1 = max(1, round(ns / 4))
+        half = m.slot_fraction / 2
+        u = np.concatenate([np.linspace(0, half, k1 + 1)[:-1], np.linspace(half, 1 - half, ns - 2 * k1 + 1)[:-1],
+                            np.linspace(1 - half, 1, k1 + 1)[:-1]])
+        pitch = TWO_PI / m.slots
+        return np.append((np.arange(m.slots)[:, None] * pitch + u[None, :] * pitch).ravel(), TWO_PI)
+
     def _build(self):
         rs, zs, nt = self.rs, self.zs, self.n_theta
         nr, nz = len(rs), len(zs)
-        th = np.arange(nt) * self.step
+        th = self.th[:-1]
         R, T, Z = np.meshgrid(rs, th, zs, indexing="ij")
         nodes = np.column_stack([(R * np.cos(T)).ravel(), (R * np.sin(T)).ravel(), Z.ravel()])
 
@@ -159,9 +183,10 @@ class AFPM3D:
 
         With ``edges="cell"`` a theta cell is magnet, or tooth iron, when its centre is, so the magnet arc and the
         slot opening move in whole steps (the magnet, symmetric about its pole, in two). With ``edges="fraction"``
-        the cell on an edge carries the share of it inside: that share of the remanence, and iron mixed in
-        parallel (``mu = f mu_iron + (1 - f) mu0``, the flux in the teeth runs along the edge), so the fields move
-        continuously with ``magnet_arc`` and ``slot_fraction``. Shares of 0 and 1 give the cell labels exactly."""
+        the tooth edges are node planes (:meth:`_theta_nodes`) and a cell on a magnet edge carries the share of
+        it inside as that share of the remanence (magnets are close to air, ``mu_r`` 1.05), so the fields move
+        continuously with ``magnet_arc`` and ``slot_fraction``. Iron is never shared: a cell with a few percent
+        of iron mixed in would carry flux along the teeth like iron across its whole width."""
         if self.edges not in ("cell", "fraction"):
             raise ValueError(f'edges must be "cell" or "fraction", not {self.edges!r}')
         m = self.machine
@@ -169,16 +194,13 @@ class AFPM3D:
         rc = 0.5 * (self.rs[i] + self.rs[i + 1])
         active = (rc > m.r_in) & (rc < m.r_out)
         kind = self.zkind[k]
-        tc = (j + 0.5) * self.step
+        tc = 0.5 * (self.th[j] + self.th[j + 1])
         slot_pitch = TWO_PI / m.slots
         u = np.mod(tc, slot_pitch) / slot_pitch                 # slot centred at u = 0
-        if self.edges == "cell":
-            tooth = ((u >= m.slot_fraction / 2) & (u <= 1 - m.slot_fraction / 2)).astype(float)
-        else:
-            tooth = _share(u, self.step / slot_pitch, m.slot_fraction / 2, 1 - m.slot_fraction / 2)
+        tooth = (u >= m.slot_fraction / 2) & (u <= 1 - m.slot_fraction / 2)
         yoke = (kind == "rotor_yoke") | (kind == "stator_yoke")
-        self._iron_share = np.where(active & yoke, 1.0, np.where(active & (kind == "teeth"), tooth, 0.0))
-        static = np.where(self._iron_share >= 0.5, IRON, AIR)
+        iron = active & (yoke | ((kind == "teeth") & tooth))
+        static = np.where(iron, IRON, AIR)
         in_mag = active & (kind == "magnet")
         return static, (self._polarity(0.0), in_mag)
 
@@ -187,12 +209,14 @@ class AFPM3D:
         ``p * pole + theta``)."""
         m = self.machine
         pole = TWO_PI / m.poles
-        x = (np.arange(self.n_theta) + 0.5) * self.step - theta + pole / 2
-        w = np.mod(x, pole) / pole - 0.5
+        lo, hi = self.th[:-1] - theta + pole / 2, self.th[1:] - theta + pole / 2
+        x = 0.5 * (lo + hi)
+        base = np.floor(x / pole) * pole                       # the pole the cell centre is in
+        w = (x - base) / pole - 0.5
         if self.edges == "cell":
             share = (np.abs(w) < m.magnet_arc / 2).astype(float)
         else:
-            share = _share(w, self.step / pole, -m.magnet_arc / 2, m.magnet_arc / 2)
+            share = _share((lo - base) / pole - 0.5, (hi - base) / pole - 0.5, -m.magnet_arc / 2, m.magnet_arc / 2)
         return share * np.where(np.floor(x / pole) % 2 == 0, 1.0, -1.0)
 
     def materials(self, theta: float) -> tuple[np.ndarray, np.ndarray]:
@@ -207,8 +231,7 @@ class AFPM3D:
             p = np.where(in_mag, pol[np.mod(j - s, self.n_theta)], 0.0)
         else:
             p = np.where(in_mag, self._polarity(theta)[j], 0.0)
-        f = self._iron_share
-        nu = NU0 / (f * m.mu_r_iron + (1.0 - f))
+        nu = np.where(self._static == IRON, NU0 / m.mu_r_iron, NU0)
         nu = np.where(p != 0, NU0 / m.mu_r_magnet, nu)
         Br = np.zeros((len(nu), 3))
         Br[:, 2] = p * m.Br
@@ -289,8 +312,8 @@ class AFPM3D:
         r0, r1 = r0 - overhang, r1 + overhang
         r0 = max(r0, self.rs[0])
         r1 = min(r1, self.rs[-1])
-        ja, jb = int(round(a / self.step)), int(round(b / self.step))
-        ps = np.arange(ja, jb + 1) * self.step                 # the arcs follow the grid's polygons
+        ja, jb = int(np.argmin(np.abs(self.th - a))), int(np.argmin(np.abs(self.th - b)))
+        ps = self.th[ja:jb + 1]                                # the arcs follow the grid's polygons
 
         def pt(r, t):
             return np.array([r * math.cos(t), r * math.sin(t), z])
@@ -316,10 +339,10 @@ class AFPM3D:
                               air_z=self.air_z, edges=self.edges)
 
 
-def _share(c: np.ndarray, width: float, lo: float, hi: float) -> np.ndarray:
-    """Share of each cell ``[c - width / 2, c + width / 2]`` inside ``[lo, hi]`` (an edge on a grid line within
-    rounding gives exactly 0 or 1)."""
-    f = np.clip(np.minimum(c + width / 2, hi) - np.maximum(c - width / 2, lo), 0.0, width) / width
+def _share(a: np.ndarray, b: np.ndarray, lo: float, hi: float) -> np.ndarray:
+    """Share of each cell ``[a, b]`` inside ``[lo, hi]`` (an edge on a grid line within rounding gives exactly 0
+    or 1)."""
+    f = np.clip(np.minimum(b, hi) - np.maximum(a, lo), 0.0, b - a) / (b - a)
     return np.where(f < 1e-9, 0.0, np.where(f > 1 - 1e-9, 1.0, f))
 
 

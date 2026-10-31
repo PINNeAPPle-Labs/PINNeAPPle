@@ -1,0 +1,32 @@
+{
+ "reference": {
+  "nx": 201,
+  "dx": 0.25,
+  "dt": 0.00625,
+  "activation_range": [
+   0.42622994286531873,
+   54.07406328265841
+  ],
+  "grid_check_rms_dT_dx0.5_vs_0.25": 0.6229383485287864,
+  "cv_median_far_from_scar": 1.3542223359778505
+ },
+ "sites": 64,
+ "seed": 0,
+ "linear_interpolation": {
+  "rmse_T": 0.9119815033388337,
+  "cv_median_rel_error": 0.03257422942996829
+ },
+ "eikonal_pinn": {
+  "rmse_T": 0.45975368551102347,
+  "cv_median_rel_error_from_T": 0.0249494468958038,
+  "V_network_median_rel_error": 0.024092502131879554,
+  "iters": 20000,
+  "final": {
+   "iter": 19999,
+   "data": 3.6435932997846976e-05,
+   "eikonal": 5.0148220907431096e-05,
+   "tv": 0.025752218440175056,
+   "seconds": 223.4538857936859
+  }
+ }
+}

@@ -4,9 +4,9 @@
  "id": "recipe:agents-before-any-physics-is-this-machine-ready-and-what-should-i-r",
  "ok": true,
  "recorded": "2026-10-30",
- "seconds": 5.36,
+ "seconds": 34.92,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
  "stdout": "steady_heat_conduction_3d pinn 0.93 ['conduction', 'heat', 'heat conduction']\n------------------------------------------------------------------------------\n  steady_heat_conduction_3d  [thermal]\n------------------------------------------------------------------------------\n  Steady 3-D conduction in a solid body.\n\n  takes    : x, y, z   (3-D)\n  gives    : T\n  domain   : x in [-0.5, 0.5]; y in [-0.5, 0.5]; z in [-0.5, 0.5]\n  applies  : T_boundary, T_inlet_hot\n  geometry : box (boundary, inlet), from the preset's own parameters\n  method   : pinn\n  tags     : conduction, steady, temperature\n  similar  : transient_heat_3d, shakura_sunyaev_accretion_disk, refractory_lining\n\n  run it:\n\n    import numpy as np\n    import pinneapple as pp\n    \n    # tagged boundaries come from the preset's own box (boundary, inlet): no mesh needed\n    # (pde_environment/presets/tag_geometry.py)\n    sol = pp.solve('steady_heat_conduction_3d', method='pinn', epochs=2000)   # trains; minutes on a laptop\n    print(sol.method, sol.metadata())   # which method actually ran\n    \n    # ask the solution for values anywhere in the domain\n    X = np.array([[0, 0, 0]])   # one point (x, y, z), in this order\n    print(sol.predict(X))          # one column per field\n------------------------------------------------------------------------------",
  "timed_out": false
 }

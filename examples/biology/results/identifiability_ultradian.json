@@ -1,0 +1,97 @@
+{
+ "T3": {
+  "derivatives": "model sensitivities",
+  "eigenvalues": [
+   3.864736313533492e-05,
+   0.010284848493292488,
+   0.032282844003727204,
+   0.12607799094311506,
+   0.3961754716078302,
+   0.8436376995963116,
+   1.8726223775821258,
+   4.966749513331363,
+   182.66173921939813,
+   1611.7395536858967,
+   2271.323632351702,
+   4479.902263961228,
+   17161.92866056886,
+   1532395.0301437383,
+   7579055.496560702,
+   11381435.063925797,
+   39848627087.62529
+  ],
+  "smallest_over_largest": 9.698543202091041e-16,
+  "second_smallest_over_largest": 2.5809793824707137e-13,
+  "null_vector": {
+   "E": -0.0,
+   "tp": -0.0013,
+   "ti": 0.0158,
+   "td": 0.0004,
+   "k": -0.0,
+   "Rm": 0.0077,
+   "a1": -0.0,
+   "C1": -0.0026,
+   "C2": 0.9996,
+   "C4": -0.001,
+   "C5": -0.0025,
+   "Ub": 0.0216,
+   "U0": -0.0016,
+   "Um": 0.0084,
+   "Rg": 0.0039,
+   "alpha": -0.0001,
+   "beta": -0.0001
+  },
+  "dominant": "C2"
+ },
+ "T2_invariances": {
+  "Rm, Ip(0), Ii(0), C4, C5 (Eq 7a extended to the original system)": {
+   "smallest_over_largest_eigenvalue": 1.1245721807388281e-16,
+   "null_vector": {
+    "Rm": 0.4472,
+    "Ip_0": 0.4472,
+    "Ii_0": 0.4472,
+    "C4": 0.4472,
+    "C5": 0.4472
+   }
+  },
+  "U0, Um, C3 (Eq 7c)": {
+   "smallest_over_largest_eigenvalue": -1.2832053309938232e-16,
+   "null_vector": {
+    "U0": 0.5774,
+    "Um": 0.5774,
+    "C3": 0.5774
+   }
+  },
+  "alpha, C5 (Eq 7b; the chapter says it breaks in the original system)": {
+   "smallest_over_largest_eigenvalue": 0.10422973925585056,
+   "null_vector": {
+    "alpha": 0.999,
+    "C5": -0.0442
+   }
+  }
+ },
+ "analysis_16": {
+  "rank": 16,
+  "n": 16,
+  "condition_number": 5825109.644868801,
+  "summary": "16 of 16 parameters identifiable (E, tp, ti, td, k, Rm, a1, C1, C4, C5, Ub, U0, Um, Rg, alpha, beta)",
+  "status": {
+   "E": "identifiable",
+   "tp": "identifiable",
+   "ti": "identifiable",
+   "td": "identifiable",
+   "k": "identifiable",
+   "Rm": "identifiable",
+   "a1": "identifiable",
+   "C1": "identifiable",
+   "C4": "identifiable",
+   "C5": "identifiable",
+   "Ub": "identifiable",
+   "U0": "identifiable",
+   "Um": "identifiable",
+   "Rg": "identifiable",
+   "alpha": "identifiable",
+   "beta": "identifiable"
+  }
+ }
+}

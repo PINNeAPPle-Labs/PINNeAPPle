@@ -1,0 +1,130 @@
+{
+ "pinneapple_security.anomaly:ResidualCUSUM": {
+  "code_hash": "7622e9ff5bee0439",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ResidualCUSUM",
+  "seconds": 0.0
+ },
+ "pinneapple_security.attestation:git_commit": {
+  "code_hash": "79732b33eca90a8a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_security.attestation:sbom": {
+  "code_hash": "f03f850690dbbfd2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.23
+ },
+ "pinneapple_security.classification:HandlingPolicy": {
+  "code_hash": "5c4c4d4c48061c8d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HandlingPolicy",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps:PhysicsResidualDetector": {
+  "code_hash": "1c1b2476e63826be",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:ARResidualDetector": {
+  "code_hash": "9874851996b5578e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ARResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:IsolationForestDetector": {
+  "code_hash": "b0a77e9893b94008",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IsolationForestDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:PCAResidualDetector": {
+  "code_hash": "21aed00be90ac436",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PCAResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:physics_detector": {
+  "code_hash": "161c7777f3f557df",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:run_benchmark": {
+  "code_hash": "95d39753f9632c47",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 16.06
+ },
+ "pinneapple_security.cps_bench:simulate_three_tank": {
+  "code_hash": "251cdfce546dc1c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.68
+ },
+ "pinneapple_security.encryption:new_key": {
+  "code_hash": "61966a6effd8f02c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bytes",
+  "seconds": 0.0
+ },
+ "pinneapple_security.signing:generate_key": {
+  "code_hash": "4d1aa5380516d82b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SigningKey",
+  "seconds": 0.04
+ },
+ "pinneapple_security.signing:hmac_key": {
+  "code_hash": "341a6654e89f9d39",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SigningKey",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:RateLimiter": {
+  "code_hash": "28313b5a1bb3c299",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RateLimiter",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:build_csp": {
+  "code_hash": "0bc0c557f99b6a1d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ }
+}

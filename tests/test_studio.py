@@ -325,6 +325,9 @@ def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
     assert COV.declared_reason({"id": "m:download_data", "module": "m", "name": "download_data"}, {})
     md = COV.markdown(cat, gal)
     assert "executable" in md and "| tool | state | detail |" in md
+    row = COV.record_history(cat, gal, repo)
+    assert row["baseline"] == len(COV.baseline()) and COV.history(repo)[-1] == row
+    assert "The baseline over time" in COV.markdown(cat, gal)
 
 
 def test_smoke_run_records_a_tool(cat, repo, monkeypatch):

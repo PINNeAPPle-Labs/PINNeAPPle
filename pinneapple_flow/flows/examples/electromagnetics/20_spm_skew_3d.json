@@ -1,0 +1,185 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-spm-skew-3d",
+ "name": "Skew in 3-D against multi-slice (20)",
+ "description": "Cogging of a surface-PM machine against step and continuous magnet skew, in 3-D on edge elements (with end regions) and in multi-slice 2-D on the same mesh (examples/electrodynamics/20_spm_skew_3d.py).",
+ "nodes": [
+  {
+   "id": "skew",
+   "type": "em.spm_skew_3d",
+   "params": {},
+   "label": "3-D skew study",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "skew.straight.0deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_3d"
+     },
+     {
+      "flow": "skew.straight.0deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_ms"
+     },
+     {
+      "flow": "skew.step2.5deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.1.pkpk_3d"
+     },
+     {
+      "flow": "skew.step2.5deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.1.pkpk_ms"
+     },
+     {
+      "flow": "skew.step2.8deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_3d"
+     },
+     {
+      "flow": "skew.step2.8deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_ms"
+     },
+     {
+      "flow": "skew.step2.10deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.3.pkpk_3d"
+     },
+     {
+      "flow": "skew.step2.10deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.3.pkpk_ms"
+     },
+     {
+      "flow": "skew.step2.15deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.4.pkpk_3d"
+     },
+     {
+      "flow": "skew.step2.15deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.4.pkpk_ms"
+     },
+     {
+      "flow": "skew.step3.5deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.5.pkpk_3d"
+     },
+     {
+      "flow": "skew.step3.5deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.5.pkpk_ms"
+     },
+     {
+      "flow": "skew.step3.8deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.6.pkpk_3d"
+     },
+     {
+      "flow": "skew.step3.8deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.6.pkpk_ms"
+     },
+     {
+      "flow": "skew.step3.10deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.7.pkpk_3d"
+     },
+     {
+      "flow": "skew.step3.10deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.7.pkpk_ms"
+     },
+     {
+      "flow": "skew.step3.15deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.8.pkpk_3d"
+     },
+     {
+      "flow": "skew.step3.15deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.8.pkpk_ms"
+     },
+     {
+      "flow": "skew.continuous.5deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.9.pkpk_3d"
+     },
+     {
+      "flow": "skew.continuous.5deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.9.pkpk_ms"
+     },
+     {
+      "flow": "skew.continuous.8deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.10.pkpk_3d"
+     },
+     {
+      "flow": "skew.continuous.8deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.10.pkpk_ms"
+     },
+     {
+      "flow": "skew.continuous.10deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.11.pkpk_3d"
+     },
+     {
+      "flow": "skew.continuous.10deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.11.pkpk_ms"
+     },
+     {
+      "flow": "skew.continuous.15deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.12.pkpk_3d"
+     },
+     {
+      "flow": "skew.continuous.15deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.12.pkpk_ms"
+     }
+    ],
+    "tolerance_source": "deterministic FEM on one extruded mesh; 1e-6 relative covers BLAS / PARDISO rounding and the preconditioned-CG tolerance (1e-10)"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "skew",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "skew.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "20_spm_skew_3d.py"
+  ],
+  "quick": {
+   "skew": {
+    "totals_deg": [
+     0,
+     8
+    ],
+    "kinds": [
+     "step2"
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "skew.straight.0deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_3d"
+     },
+     {
+      "flow": "skew.straight.0deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_ms"
+     },
+     {
+      "flow": "skew.step2.8deg.pkpk_3d",
+      "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_3d"
+     },
+     {
+      "flow": "skew.step2.8deg.pkpk_ms",
+      "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_ms"
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,4 +1,18 @@
 {
+ "pinneapple_hub.library.categories:category_of": {
+  "code_hash": "bf1b958e11962dc5",
+  "inputs": {
+   "it": {
+    "id": "recipe:pinneapple_new__9",
+    "kind": "tool",
+    "subkind": "recipe"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
  "pinneapple_hub.library.categories:table": {
   "code_hash": "1c4a0bd0929dfff0",
   "inputs": {},
@@ -15,6 +29,69 @@
   "returned": "list",
   "seconds": 0.17
  },
+ "pinneapple_hub.library.compose:compose": {
+  "code_hash": "fe871f8072779071",
+  "inputs": {
+   "spec": {
+    "blocks": [
+     {
+      "params": {
+       "dimension": 1
+      },
+      "type": "geometry.domain"
+     },
+     {
+      "params": {
+       "n": 41
+      },
+      "type": "geometry.mesh"
+     }
+    ],
+    "name": "Rod grid"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:add_link": {
+  "code_hash": "4a4492efbcda6d4e",
+  "inputs": {
+   "base": "http://fs.example",
+   "params": {
+    "n": 41
+   },
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:bundled_flows_using": {
+  "code_hash": "fd8ce4c23061d11f",
+  "inputs": {
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:flow_for_node": {
+  "code_hash": "02ce029150133aa0",
+  "inputs": {
+   "params": {
+    "n": 41
+   },
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
  "pinneapple_hub.library.flowruns:read_flow_runs": {
   "code_hash": "c1888e45b2294c55",
   "inputs": {},
@@ -22,6 +99,25 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowruns:record": {
+  "code_hash": "1e48baa1bdec4021",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 395.53
+ },
+ "pinneapple_hub.library.sandbox:run_snippet": {
+  "code_hash": "302df91a1a0a9129",
+  "inputs": {
+   "code": "import time\nwhile True: time.sleep(0.1)",
+   "timeout": 2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.08
  },
  "pinneapple_hub.library.sources:agent_tools": {
   "code_hash": "ac38773eb8c7c751",
@@ -127,6 +223,14 @@
   "returned": "list",
   "seconds": 8.42
  },
+ "pinneapple_hub.library:load_index": {
+  "code_hash": "14f1535cd2afd4c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 20.12
+ },
  "pinneapple_hub.library:read_runs": {
   "code_hash": "e46ee8f2b0eb87ef",
   "inputs": {},
@@ -134,6 +238,21 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.02
+ },
+ "pinneapple_hub.model_card:ModelCard": {
+  "code_hash": "57a0c98e0c656bf7",
+  "inputs": {
+   "architecture": "mlp",
+   "name": "m",
+   "reference_source": "analytic",
+   "validation_metrics": {
+    "rel_l2": 0.01
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelCard",
+  "seconds": 0.0
  },
  "pinneapple_hub.zoo.catalogue:markdown": {
   "code_hash": "456c00b5eb79f0f8",

@@ -183,6 +183,17 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_science.em.statics:palmer_strip_capacitance": {
+  "code_hash": "d24293435ac1930d",
+  "inputs": {
+   "d": 0.1,
+   "w": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 2.45
+ },
  "pinneapple_science.instruments:Ammeter": {
   "code_hash": "d8566d14ece11812",
   "inputs": {},
@@ -246,5 +257,46 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.01
+ },
+ "pinneapple_science.report:write_all": {
+  "changes_files": [
+   "examples/science/electromagnetism/ampere_law/2D/ampere_2d.png",
+   "examples/science/electromagnetism/ampere_law/2D/ampere_2d.sealed.png",
+   "examples/science/electromagnetism/ampere_law/2D/result.json",
+   "examples/science/electromagnetism/ampere_law/3D/ampere_3d.png",
+   "examples/science/electromagnetism/ampere_law/3D/ampere_3d.sealed.png",
+   "examples/science/electromagnetism/ampere_law/3D/result.json",
+   "examples/science/electromagnetism/ampere_law/README.md",
+   "examples/science/electromagnetism/ampere_law/experiment.json",
+   "examples/science/electromagnetism/bench_mu0_solenoid/3D/bench_mu0.png",
+   "examples/science/electromagnetism/bench_mu0_solenoid/3D/bench_mu0.sealed.png",
+   "examples/science/electromagnetism/bench_mu0_solenoid/3D/result.json",
+   "examples/science/electromagnetism/bench_mu0_solenoid/README.md",
+   "examples/science/electromagnetism/bench_mu0_solenoid/experiment.json",
+   "examples/science/electromagnetism/bench_rc_discharge/0D/bench_rc.png",
+   "examples/science/electromagnetism/bench_rc_discharge/0D/bench_rc.sealed.png",
+   "examples/science/electromagnetism/bench_rc_discharge/0D/result.json",
+   "examples/science/electromagnetism/bench_rc_discharge/README.md",
+   "examples/science/electromagnetism/bench_rc_discharge/experiment.json",
+   "examples/science/electromagnetism/biot_savart/3D/biot_savart.png",
+   "examples/science/electromagnetism/biot_savart/3D/biot_savart.sealed.png"
+  ],
+  "code_hash": "a86a810f7e93d849",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.08
+ },
+ "pinneapple_science.report:write_catalogue": {
+  "changes_files": [
+   "examples/science/experiment.json"
+  ],
+  "code_hash": "8d61fe9163fab434",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.05
  }
 }

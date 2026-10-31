@@ -20,7 +20,7 @@ form, conditioning of small cuts): :mod:`pinneapple_simulation.immersed.verifica
 FEM: :mod:`pinneapple_simulation.immersed.parts`.
 """
 from .assembly import Discretization, condition_number, solve_linear
-from .bcs import Convection, Dirichlet, Displacement, Force, HeatFlux, Pressure, Traction
+from .bcs import Convection, Dirichlet, Displacement, Force, HeatFlux, HeatInput, Pressure, Traction
 from .elasticity import ElasticSolution, assemble_elasticity, solve_elasticity
 from .geometry import (
                        Geometry,
@@ -43,7 +43,7 @@ from .heat import HeatSolution, assemble_heat, default_beta, default_ghost, solv
 from .quadrature import CutQuadrature, build_quadrature
 
 __all__ = ["Discretization", "condition_number", "solve_linear", "Convection", "Dirichlet", "Displacement", "Force",
-           "HeatFlux", "Pressure", "Traction", "ElasticSolution", "assemble_elasticity", "solve_elasticity",
+           "HeatFlux", "HeatInput", "Pressure", "Traction", "ElasticSolution", "assemble_elasticity", "solve_elasticity",
            "Geometry", "SDFGeometry", "STLGeometry", "VoxelGeometry", "annulus", "ball", "box", "cylinder",
            "difference", "intersection", "read_stl", "torus", "union", "write_stl", "BackgroundGrid", "DofMap",
            "HeatSolution", "assemble_heat", "default_beta", "default_ghost", "solve_heat", "CutQuadrature",

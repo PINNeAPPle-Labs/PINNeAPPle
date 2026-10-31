@@ -290,6 +290,7 @@ class TetHeatSolution:
 
 def assemble_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, bcs: Sequence = ()):
     from pinneapple_simulation.immersed.bcs import evaluate as ev
+    from pinneapple_simulation.immersed.bcs import heat_flux
     t0 = time.perf_counter()
     n = mesh.n_nodes
     k = float(conductivity)
@@ -308,7 +309,7 @@ def assemble_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, b
         X, nn, w, fnod = F.X[sel], F.n[sel], F.w[sel], F.nodes[sel]
         flat = X.reshape(-1, 3), nn.reshape(-1, 3)
         if bc.kind == "neumann":
-            q = ev(bc.flux, *flat).reshape(w.shape)
+            q = heat_flux(bc, *flat, w.ravel()).reshape(w.shape)
             b += np.bincount(fnod.ravel(), np.einsum("fq,qi->fi", w * q, F.N).ravel(), minlength=n)
         elif bc.kind == "robin":
             hc = ev(bc.h, *flat).reshape(w.shape)
@@ -359,6 +360,7 @@ def solve_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, bcs:
 def _heat_balance(sol, A, b, k, source, bcs, owner) -> dict:
     """Heat generated against heat leaving: on fixed-temperature nodes the consistent (reaction) flux."""
     from pinneapple_simulation.immersed.bcs import evaluate as ev
+    from pinneapple_simulation.immersed.bcs import heat_flux
     mesh = sol.mesh
     vol = _volume(mesh)
     gen = float(np.sum(vol.w * ev(source, vol.X.reshape(-1, 3)).reshape(vol.w.shape)))
@@ -372,7 +374,7 @@ def _heat_balance(sol, A, b, k, source, bcs, owner) -> dict:
             continue
         X, nn, w = F.X[sel].reshape(-1, 3), F.n[sel].reshape(-1, 3), F.w[sel].ravel()
         if bc.kind == "neumann":
-            q = -float(np.sum(w * ev(bc.flux, X, nn)))
+            q = -float(np.sum(w * heat_flux(bc, X, nn, w)))
         elif bc.kind == "robin":
             Th = evaluate(mesh, sol.T, X, tet=np.repeat(F.tet[sel], F.w.shape[1]))
             q = float(np.sum(w * ev(bc.h, X, nn) * (Th - ev(bc.T_inf, X, nn))))

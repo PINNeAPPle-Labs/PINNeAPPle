@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .bcs import Convection, Displacement, Force, HeatFlux
+from .bcs import Convection, Displacement, Force, HeatInput
 
 # heat sink: aluminium base 40 x 40 x 4 mm, 7 fins 1.5 mm thick and 20 mm high along y; a 15 x 15 mm chip
 # dissipating 20 W under the centre; h = 25 W/(m^2 K) to air at 25 C on every other surface
@@ -95,9 +95,8 @@ class ElasticPart:
 
 def heat_sink_case(stl: str, p: dict = HS) -> HeatPart:
     c = p["chip"] / 2
-    q = p["P"] / p["chip"] ** 2
     chip = lambda X, n: (X[:, 2] < 1e-4) & (n[:, 2] < -0.5) & (np.abs(X[:, 0]) < c) & (np.abs(X[:, 1]) < c)  # noqa: E731
-    return HeatPart("heat_sink", stl, p["k"], [HeatFlux(q, where=chip), Convection(p["h"], p["T_inf"])])
+    return HeatPart("heat_sink", stl, p["k"], [HeatInput(p["P"], where=chip), Convection(p["h"], p["T_inf"])])
 
 
 def bracket_case(stl: str, p: dict = BR) -> ElasticPart:

@@ -1,4 +1,4 @@
-# Immersed analysis on raw geometry: steady heat (issue #966, part 1)
+# Immersed analysis on raw geometry (issue #966)
 
 The question: can PINNeAPPle analyse a part straight from its geometry (a signed distance, a voxel mask, an STL)
 without generating a conforming mesh, accurately enough and fast enough to matter? The earlier meshless attempt
@@ -176,3 +176,32 @@ Measured on two parts, a sphere with a smooth field and a sphere with generation
 
 Not yet measured (later parts of #966): parts whose meshing is the hard step (an STL heat sink and bracket, topology
 sweeps), elasticity, transient heat.
+
+
+## Part 2: linear elasticity and two STL parts
+
+### Elasticity verification
+
+`immersed.solve_elasticity` reuses the discretisation, the stabilisation and the Nitsche machinery. Displacements can
+be imposed on all components or a subset; loads are tractions, pressures, or a total force spread over the area the
+selector finds (`Force`). Every solve returns an equilibrium check: applied loads against the reactions computed
+from Nitsche's consistent flux. Commands: `verification.elastic_convergence(verification.elastic_manufactured(dim), order, ns)`
+and `verification.solve_elastic_case(verification.lame_sphere(), n, order)`.
+
+| Case | Order | n | L2 rel | Rates L2 | Rates H1 |
+|---|---|---|---|---|---|
+| 2-D disk, plane waves, ν = 0.3 | Q1 | 10, 20, 40, 80 | 1.36e-2 … 1.59e-4 | 2.21, 2.11, 2.10 | 1.03, 1.02, 1.01 |
+| 2-D disk, plane waves | Q2 | 10, 20, 40, 80 | 5.08e-4 … 5.56e-7 | 3.44, 3.23, 3.16 | 2.18, 2.08, 2.05 |
+| 3-D sphere, plane waves | Q1 | 6, 12, 24 | 3.04e-2 … 1.47e-3 | 2.11, 2.26 | 1.06, 1.06 |
+| 3-D sphere, plane waves | Q2 | 4, 8, 12, 16 | 5.84e-3 … 5.94e-5 | 3.23, 3.26, 3.57 | 2.16, 2.16, 2.23 |
+| Lamé thick sphere (a = 0.3, b = 0.6), inner pressure | Q1 | 6, 12, 24 | 1.80e-1 … 8.14e-3 | 1.97, 2.50 | 1.21, 1.17 |
+| Lamé thick sphere | Q2 | 4, 8, 12, 16 | 1.18e-1 … 1.91e-3 | 2.83, 3.15, 3.11 | 1.87, 2.31, 2.43 |
+
+Equilibrium closes to between 1e-16 and 1e-9. FCM sits at 2e-8 because of its ~1e10 condition number. On the Lamé
+sphere the pressure has no net force, so the imbalance is relative to the sum of the load magnitudes.
+
+PARTS
+
+## Part 3: transient heat
+
+TRANSIENT

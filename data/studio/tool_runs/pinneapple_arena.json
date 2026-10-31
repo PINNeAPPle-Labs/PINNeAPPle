@@ -27,6 +27,29 @@
   "recorded": "2026-10-31",
   "seconds": 6.0
  },
+ "pinneapple_arena.autoresearch:apply_tunables": {
+  "code_hash": "5434b262c68b12dc",
+  "inputs": {
+   "changes": {
+    "A": 1.5
+   },
+   "code": "import os\n# >>> TUNABLE\nA = 3.0  # distance to the optimum at A = 1\nB = \"x\"\n# <<< TUNABLE\nprint(f\"METRIC score={(A - 1.0) ** 2:.6f}\")\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 5.81
+ },
+ "pinneapple_arena.autoresearch:read_tunables": {
+  "code_hash": "f6330125048e92f1",
+  "inputs": {
+   "code": "import os\n# >>> TUNABLE\nA = 3.0  # distance to the optimum at A = 1\nB = \"x\"\n# <<< TUNABLE\nprint(f\"METRIC score={(A - 1.0) ** 2:.6f}\")\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_arena.dataset_bench:list_benchmarks": {
   "code_hash": "2578daac725ba987",
   "inputs": {},

@@ -546,6 +546,32 @@
   "returned": "ndarray",
   "seconds": 2.1
  },
+ "pinneapple_physics.closed_form.cantilever_fatigue:basquin_allowable_stress_pa": {
+  "code_hash": "44b697d1e6c59aad",
+  "inputs": {
+   "fatigue_strength_coeff_pa": 1200000000.0,
+   "fatigue_strength_exponent": -0.09,
+   "target_life_cycles": 1000000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 3.89
+ },
+ "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_bending_stress_at_position_pa": {
+  "code_hash": "db23f48864de6296",
+  "inputs": {
+   "length_m": 0.35,
+   "load_n": 1200.0,
+   "thickness_m": 0.022,
+   "width_m": 0.05,
+   "x_from_root_m": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa": {
   "code_hash": "c00867abe81407b3",
   "inputs": {
@@ -612,6 +638,17 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.ideal_reactors:cstr_conversion_ktau": {
+  "code_hash": "383fa0e5cc2c135b",
+  "inputs": {
+   "k": 0.02,
+   "tau": 120.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion": {
   "code_hash": "1b8876854cb2b6ae",
   "inputs": {
@@ -624,6 +661,84 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 4.34
+ },
+ "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau": {
+  "code_hash": "986f29165a9b5405",
+  "inputs": {
+   "k": 0.1,
+   "tau": 10.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.ideal_reactors:tube_volume": {
+  "code_hash": "db1886637ff109b8",
+  "inputs": {
+   "D": 0.0275,
+   "L": 5.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:concentration_at_membrane_depth": {
+  "code_hash": "0fb289d356cba934",
+  "inputs": {
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0,
+   "z_from_reservoir_m": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:depletion_time_days": {
+  "code_hash": "30d1d498e0d0f8d9",
+  "inputs": {
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_thickness_m": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:simulate_release_timeseries": {
+  "code_hash": "70b3c186d1213c82",
+  "inputs": {
+   "area_m2": 0.002,
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "n_points": 3,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0,
+   "reservoir_thickness_m": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:steady_state_release_rate_mg_day": {
+  "code_hash": "da758b34e199cf7b",
+  "inputs": {
+   "area_m2": 0.002,
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
  },
  "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
   "code_hash": "e1ea3f02475f9581",
@@ -2039,6 +2154,21 @@
   "error": "ModuleNotFoundError: No module named 'astropy'",
   "inputs": {
    "name": "M_sun"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astropy_bridge:transform_coordinates": {
+  "code_hash": "f3cdfcb920e57418",
+  "error": "ModuleNotFoundError: No module named 'astropy'",
+  "inputs": {
+   "frame_in": "gcrs",
+   "frame_out": "itrs",
+   "obstime": "2024-01-01T00:00:00",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 7000.0
   },
   "ok": false,
   "recorded": "2026-10-31",

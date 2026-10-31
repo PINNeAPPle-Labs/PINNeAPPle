@@ -29,6 +29,69 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_mcp.tools:benchmark": {
+  "code_hash": "2adbaba09c161779",
+  "inputs": {
+   "budget": {
+    "epochs": 15,
+    "n_collocation": 128
+   },
+   "grid_points_per_axis": 17,
+   "methods": [
+    "fem",
+    "pinn"
+   ],
+   "options": {
+    "pinn": {
+     "hidden_dim": 8,
+     "n_layers": 2
+    }
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 200
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 13.43
+ },
  "pinneapple_mcp.tools:capabilities": {
   "code_hash": "dc5ae6984cc98ba5",
   "inputs": {},
@@ -115,6 +178,59 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:solve": {
+  "code_hash": "82dac8aa948e7fd2",
+  "inputs": {
+   "grid_points_per_axis": 25,
+   "method": "fem",
+   "options": {
+    "n": 24
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 180
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.51
  },
  "pinneapple_mcp.tools:trust_card": {
   "code_hash": "979e2a4dfdfd8495",

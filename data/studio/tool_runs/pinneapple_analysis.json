@@ -1223,6 +1223,18 @@
   "returned": "CheckSpec",
   "seconds": 0.0
  },
+ "pinneapple_analysis.verification.architecture_critique:run_adversarial_review": {
+  "code_hash": "53b12d5f1e41057a",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "architecture_description": "a plain FNO surrogate",
+   "model": "llama3.2:3b",
+   "provider": "ollama"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 7.26
+ },
  "pinneapple_analysis.verification.architecture_recommendation:recommend_architecture": {
   "code_hash": "f81e42abf9d86b41",
   "inputs": {},

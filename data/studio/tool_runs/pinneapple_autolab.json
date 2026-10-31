@@ -114,6 +114,50 @@
   "returned": "float",
   "seconds": 0.01
  },
+ "pinneapple_autolab.study.scalar_twin:in_hull": {
+  "code_hash": "3f8c272f76c27fd4",
+  "inputs": {
+   "points": [
+    0.0,
+    1.0
+   ],
+   "samples": [
+    0.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 7.15
+ },
+ "pinneapple_autolab.study.scalar_twin:surrogate_twin": {
+  "code_hash": "e0dfbe8649950985",
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "out_dir": "twin_out",
+   "quantity": {
+    "name": "X",
+    "unit": "-"
+   },
+   "variables": [
+    {
+     "high": 120.0,
+     "low": 10.0,
+     "name": "tau",
+     "unit": "s",
+     "values": [
+      10.0,
+      120.0
+     ]
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
  "pinneapple_autolab.study.scalar_twin:training_set_hash": {
   "code_hash": "4588644238e265e0",
   "inputs": {
@@ -136,6 +180,22 @@
   "recorded": "2026-10-31",
   "returned": "str",
   "seconds": 5.8
+ },
+ "pinneapple_autolab.study.verify:verify_against_model": {
+  "code_hash": "3cd4c377f548d507",
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "point": {
+    "k": 0.02,
+    "tau": 120.0
+   },
+   "rtol": 0.0001,
+   "surrogate_value": 0.909282
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_autolab.surrogates:FieldSurrogate": {
   "code_hash": "614c0cae59dbbf06",

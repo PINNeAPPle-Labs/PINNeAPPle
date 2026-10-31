@@ -380,6 +380,16 @@
   "returned": "NoneType",
   "seconds": 1.37
  },
+ "pinneapple_neural.trainer.audit:set_seed": {
+  "code_hash": "d06c5ebce65b0f2f",
+  "inputs": {
+   "seed": 42
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 3.35
+ },
  "pinneapple_neural.trainer.collocation:filter_nan_rows": {
   "code_hash": "2854da535b28647b",
   "inputs": {},

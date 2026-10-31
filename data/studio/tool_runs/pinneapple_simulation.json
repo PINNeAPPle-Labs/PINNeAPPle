@@ -246,6 +246,17 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.fdtd:sinusoid": {
+  "code_hash": "24065545e1d90406",
+  "inputs": {
+   "f0": 1000000000.0,
+   "ramp_periods": 2.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 3.25
+ },
  "pinneapple_simulation.electromagnetics.fem3d.getdp3d:available": {
   "code_hash": "538047c83929da1a",
   "inputs": {},
@@ -2035,6 +2046,22 @@
   "inputs": {
    "d": 0.003,
    "rho_p": 1200.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.numerical_solvers.particles:zwietering_njs": {
+  "code_hash": "7357374a689da18d",
+  "inputs": {
+   "d": 0.003,
+   "mass_ratio": 0.05,
+   "rho_p": 1200.0,
+   "tank": {
+    "H": 0.15,
+    "R": 0.075
+   }
   },
   "ok": true,
   "recorded": "2026-10-31",

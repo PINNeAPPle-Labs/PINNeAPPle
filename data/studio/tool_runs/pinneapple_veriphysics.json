@@ -15,6 +15,23 @@
   "returned": "str",
   "seconds": 0.0
  },
+ "pinneapple_veriphysics.recommend:formulate_and_recommend": {
+  "code_hash": "cd25031cfb311c46",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "description": "1D viscous Burgers equation with nu=0.01",
+   "model_name": "llama3.2:3b",
+   "physical_parameters": {
+    "kinematic_viscosity": 0.01,
+    "length": 1.0,
+    "velocity": 1.0
+   },
+   "provider": "ollama"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 5.98
+ },
  "pinneapple_veriphysics.scope:scope_from_verdicts": {
   "code_hash": "146a8f25bf70f55b",
   "inputs": {

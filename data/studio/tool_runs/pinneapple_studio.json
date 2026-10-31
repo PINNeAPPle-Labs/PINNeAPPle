@@ -117,14 +117,14 @@
   "seconds": 1.29
  },
  "pinneapple_studio.inputs:calls_in": {
-  "code_hash": "6489fba08f70f4a6",
+  "code_hash": "57310407dd45b537",
   "inputs": {
    "src": "import numpy as np\nimport pytest\nfrom pinneapple_demo.heat import mean_temperature as mt\ndef test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
   },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 0.01
+  "seconds": 0.56
  },
  "pinneapple_studio.inventory:build": {
   "code_hash": "aeebb213e042e662",

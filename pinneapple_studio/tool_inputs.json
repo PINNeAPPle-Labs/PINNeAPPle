@@ -494,6 +494,14 @@
   },
   "source": "tests/test_pp_validate.py:154"
  },
+ "pinneapple_analysis.verification.architecture_critique:run_adversarial_review": {
+  "inputs": {
+   "architecture_description": "a plain FNO surrogate",
+   "model": "llama3.2:3b",
+   "provider": "ollama"
+  },
+  "source": "tests/pinneapple_analysis/test_architecture_critique.py:53"
+ },
  "pinneapple_analysis.verification.dimensional_analysis:classify_flow_regime": {
   "inputs": {
    "geometry": "internal_pipe",
@@ -590,6 +598,21 @@
   },
   "source": "tests/test_arena_graph_no_target_leak.py:54"
  },
+ "pinneapple_arena.autoresearch:apply_tunables": {
+  "inputs": {
+   "changes": {
+    "A": 1.5
+   },
+   "code": "import os\n# >>> TUNABLE\nA = 3.0  # distance to the optimum at A = 1\nB = \"x\"\n# <<< TUNABLE\nprint(f\"METRIC score={(A - 1.0) ** 2:.6f}\")\n"
+  },
+  "source": "tests/test_arena_autoresearch.py:21"
+ },
+ "pinneapple_arena.autoresearch:read_tunables": {
+  "inputs": {
+   "code": "import os\n# >>> TUNABLE\nA = 3.0  # distance to the optimum at A = 1\nB = \"x\"\n# <<< TUNABLE\nprint(f\"METRIC score={(A - 1.0) ** 2:.6f}\")\n"
+  },
+  "source": "tests/test_arena_autoresearch.py:20"
+ },
  "pinneapple_arena.decision_mode:catalog_family": {
   "inputs": {
    "model_type": "vanilla_pinn"
@@ -645,6 +668,42 @@
   },
   "source": "tests/test_autolab_study.py:149"
  },
+ "pinneapple_autolab.study.scalar_twin:in_hull": {
+  "inputs": {
+   "points": [
+    0.0,
+    1.0
+   ],
+   "samples": [
+    0.0,
+    1.0
+   ]
+  },
+  "source": "tests/test_reactor_verify_twin.py:223"
+ },
+ "pinneapple_autolab.study.scalar_twin:surrogate_twin": {
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "out_dir": "twin_out",
+   "quantity": {
+    "name": "X",
+    "unit": "-"
+   },
+   "variables": [
+    {
+     "high": 120.0,
+     "low": 10.0,
+     "name": "tau",
+     "unit": "s",
+     "values": [
+      10.0,
+      120.0
+     ]
+    }
+   ]
+  },
+  "source": "tests/test_reactor_verify_twin.py:229"
+ },
  "pinneapple_autolab.study.scalar_twin:training_set_hash": {
   "inputs": {
    "names": [
@@ -663,6 +722,18 @@
    ]
   },
   "source": "tests/test_reactor_verify_twin.py:96"
+ },
+ "pinneapple_autolab.study.verify:verify_against_model": {
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "point": {
+    "k": 0.02,
+    "tau": 120.0
+   },
+   "rtol": 0.0001,
+   "surrogate_value": 0.909282
+  },
+  "source": "tests/test_reactor_verify_twin.py:36"
  },
  "pinneapple_catalog.methods:get_method": {
   "inputs": {
@@ -1106,6 +1177,14 @@
    "seed": 1
   },
   "source": "tests/test_lab.py:228"
+ },
+ "pinneapple_design.geometry.io.stl:load_stl": {
+  "inputs": {
+   "compute_normals": true,
+   "path": "examples/end_to_end/assets/Dragon 2.5_stl.stl",
+   "repair": true
+  },
+  "source": "examples/end_to_end/02_mesh_to_train_points.py:23"
  },
  "pinneapple_design.geometry.vehicle_cad:mli_blanket": {
   "inputs": {
@@ -1633,6 +1712,65 @@
   },
   "source": "tests/test_mcp_server.py:38"
  },
+ "pinneapple_mcp.tools:benchmark": {
+  "inputs": {
+   "budget": {
+    "epochs": 15,
+    "n_collocation": 128
+   },
+   "grid_points_per_axis": 17,
+   "methods": [
+    "fem",
+    "pinn"
+   ],
+   "options": {
+    "pinn": {
+     "hidden_dim": 8,
+     "n_layers": 2
+    }
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 200
+  },
+  "source": "tests/test_mcp_server.py:120"
+ },
  "pinneapple_mcp.tools:describe_method": {
   "inputs": {
    "method": "pinn"
@@ -1660,6 +1798,55 @@
   },
   "source": "tests/test_reason.py:241"
  },
+ "pinneapple_mcp.tools:solve": {
+  "inputs": {
+   "grid_points_per_axis": 25,
+   "method": "fem",
+   "options": {
+    "n": 24
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 180
+  },
+  "source": "tests/test_mcp_server.py:107"
+ },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "inputs": {
    "n": 4
@@ -1683,6 +1870,12 @@
    "processor_size": 2
   },
   "source": "tests/test_physicsnemo_field_operators.py:63"
+ },
+ "pinneapple_neural.trainer.audit:set_seed": {
+  "inputs": {
+   "seed": 42
+  },
+  "source": "examples/time_series/07_fft_lstm_hybrid.py:90"
  },
  "pinneapple_pdb.benchmarks:get_benchmark": {
   "inputs": {
@@ -1853,6 +2046,24 @@
   },
   "source": "tests/test_astro_ai.py:92"
  },
+ "pinneapple_physics.closed_form.cantilever_fatigue:basquin_allowable_stress_pa": {
+  "inputs": {
+   "fatigue_strength_coeff_pa": 1200000000.0,
+   "fatigue_strength_exponent": -0.09,
+   "target_life_cycles": 1000000.0
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_cantilever_fatigue.py:49"
+ },
+ "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_bending_stress_at_position_pa": {
+  "inputs": {
+   "length_m": 0.35,
+   "load_n": 1200.0,
+   "thickness_m": 0.022,
+   "width_m": 0.05,
+   "x_from_root_m": 0.0
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_cantilever_fatigue.py:22"
+ },
  "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa": {
   "inputs": {
    "length_m": 0.15,
@@ -1899,6 +2110,13 @@
   },
   "source": "tests/pinneapple_physics/closed_form/test_helmholtz_resonator.py:27"
  },
+ "pinneapple_physics.closed_form.ideal_reactors:cstr_conversion_ktau": {
+  "inputs": {
+   "k": 0.02,
+   "tau": 120.0
+  },
+  "source": "tests/test_reactor_verify_twin.py:218"
+ },
  "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion": {
   "inputs": {
    "D": 0.0275,
@@ -1907,6 +2125,60 @@
    "k": 0.02
   },
   "source": "tests/test_reactor_verify_twin.py:29"
+ },
+ "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau": {
+  "inputs": {
+   "k": 0.1,
+   "tau": 10.0
+  },
+  "source": "tests/test_reactor_verify_twin.py:217"
+ },
+ "pinneapple_physics.closed_form.ideal_reactors:tube_volume": {
+  "inputs": {
+   "D": 0.0275,
+   "L": 5.5
+  },
+  "source": "tests/test_reactor_verify_twin.py:216"
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:concentration_at_membrane_depth": {
+  "inputs": {
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0,
+   "z_from_reservoir_m": 0.0
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_membrane_diffusion.py:45"
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:depletion_time_days": {
+  "inputs": {
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_thickness_m": 0.001
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_membrane_diffusion.py:25"
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:simulate_release_timeseries": {
+  "inputs": {
+   "area_m2": 0.002,
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "n_points": 3,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0,
+   "reservoir_thickness_m": 0.001
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_membrane_diffusion.py:27"
+ },
+ "pinneapple_physics.closed_form.membrane_diffusion:steady_state_release_rate_mg_day": {
+  "inputs": {
+   "area_m2": 0.002,
+   "diffusion_coeff_m2_s": 5e-13,
+   "membrane_thickness_m": 8e-05,
+   "partition_coeff": 1.0,
+   "reservoir_conc_kg_m3": 60.0
+  },
+  "source": "tests/pinneapple_physics/closed_form/test_membrane_diffusion.py:16"
  },
  "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
   "inputs": {
@@ -3011,6 +3283,17 @@
   },
   "source": "tests/test_astropy_bridge.py:103"
  },
+ "pinneapple_physics.pde_environment.presets.astropy_bridge:transform_coordinates": {
+  "inputs": {
+   "frame_in": "gcrs",
+   "frame_out": "itrs",
+   "obstime": "2024-01-01T00:00:00",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 7000.0
+  },
+  "source": "tests/test_astropy_bridge.py:250"
+ },
  "pinneapple_physics.pde_environment.presets.astropy_bridge:with_units": {
   "inputs": {
    "unit_str": "AU",
@@ -3508,6 +3791,13 @@
    }
   },
   "source": "tests/test_antenna_3d.py:55"
+ },
+ "pinneapple_simulation.electromagnetics.fdtd:sinusoid": {
+  "inputs": {
+   "f0": 1000000000.0,
+   "ramp_periods": 2.0
+  },
+  "source": "examples/electrodynamics/08_fdtd_gallery.py:66"
  },
  "pinneapple_simulation.electromagnetics.fem3d.team7:coil_current_density": {
   "inputs": {
@@ -4258,6 +4548,18 @@
   },
   "source": "tests/test_lab.py:388"
  },
+ "pinneapple_simulation.numerical_solvers.particles:zwietering_njs": {
+  "inputs": {
+   "d": 0.003,
+   "mass_ratio": 0.05,
+   "rho_p": 1200.0,
+   "tank": {
+    "H": 0.15,
+    "R": 0.075
+   }
+  },
+  "source": "hub:recipe:pinneapple_simulation__1"
+ },
  "pinneapple_simulation.numerical_solvers.shallow_water_fv:ShallowWater2D": {
   "inputs": {
    "dx": 0.05,
@@ -4959,6 +5261,19 @@
    "key": "bof_converter"
   },
   "source": "tests/test_twin3d_wear.py:62"
+ },
+ "pinneapple_veriphysics.recommend:formulate_and_recommend": {
+  "inputs": {
+   "description": "1D viscous Burgers equation with nu=0.01",
+   "model_name": "llama3.2:3b",
+   "physical_parameters": {
+    "kinematic_viscosity": 0.01,
+    "length": 1.0,
+    "velocity": 1.0
+   },
+   "provider": "ollama"
+  },
+  "source": "tests/pinneapple_veriphysics/test_recommend.py:30"
  },
  "pinneapple_veriphysics.scope:scope_from_verdicts": {
   "inputs": {

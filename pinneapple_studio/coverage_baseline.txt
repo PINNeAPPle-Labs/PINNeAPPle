@@ -208,9 +208,7 @@ pinneapple_app.backend.routers.models:get_model
 pinneapple_app.backend.routers.models:recommend_models
 pinneapple_app.backend.routers.problems:get_problem
 pinneapple_arena.arena:Arena
-pinneapple_arena.autoresearch:apply_tunables
 pinneapple_arena.autoresearch:init_workdir
-pinneapple_arena.autoresearch:read_tunables
 pinneapple_arena.autoresearch:run_trial
 pinneapple_arena.custom_builder:define_problem
 pinneapple_arena.dataset_bench:benchmark_dataset
@@ -1444,11 +1442,9 @@ pinneapple_mcp.jobs:list_jobs
 pinneapple_mcp.jobs:status
 pinneapple_mcp.jobs:submit
 pinneapple_mcp.problems:build_problem
-pinneapple_mcp.tools:benchmark
 pinneapple_mcp.tools:cancel_job
 pinneapple_mcp.tools:job_status
 pinneapple_mcp.tools:reason
-pinneapple_mcp.tools:solve
 pinneapple_mcp.tools:trust_card
 pinneapple_mcp.tools:zoo_predict
 pinneapple_mcp.tools:zoo_validate
@@ -1505,7 +1501,6 @@ pinneapple_neural.predictor.visualize:plot_velocity_magnitude_slice
 pinneapple_neural.predictor.visualize:plot_velocity_slice
 pinneapple_neural.predictor.visualize:plot_vorticity_slice
 pinneapple_neural.predictor.visualize:render_visualizations
-pinneapple_neural.trainer.audit:set_seed
 pinneapple_neural.trainer.checkpoint:load_checkpoint
 pinneapple_neural.trainer.checkpoint:save_checkpoint
 pinneapple_neural.trainer.hpc:build_slurm_script
@@ -1663,9 +1658,7 @@ pinneapple_physics.blackhole.skill:implied_inflow
 pinneapple_physics.blackhole.skill:window_mass
 pinneapple_physics.blackhole.twin:accretion_scene
 pinneapple_physics.blackhole.twin:sphere
-pinneapple_physics.closed_form.cantilever_fatigue:basquin_allowable_stress_pa
 pinneapple_physics.closed_form.cantilever_fatigue:basquin_fatigue_life_cycles
-pinneapple_physics.closed_form.cantilever_fatigue:cantilever_bending_stress_at_position_pa
 pinneapple_physics.closed_form.cantilever_fatigue:stress_from_moment_pa
 pinneapple_physics.closed_form.eddy_coil:coil_impedance
 pinneapple_physics.closed_form.eddy_coil:skin_depth
@@ -1679,10 +1672,6 @@ pinneapple_physics.closed_form.heat_exchanger:lmtd_correction_1_2
 pinneapple_physics.closed_form.heat_exchanger:mean_nusselt_from_temperatures
 pinneapple_physics.closed_form.heat_exchanger:ntu_from_effectiveness
 pinneapple_physics.closed_form.heat_exchanger:one_two_exchanger_ode
-pinneapple_physics.closed_form.membrane_diffusion:concentration_at_membrane_depth
-pinneapple_physics.closed_form.membrane_diffusion:depletion_time_days
-pinneapple_physics.closed_form.membrane_diffusion:simulate_release_timeseries
-pinneapple_physics.closed_form.membrane_diffusion:steady_state_release_rate_mg_day
 pinneapple_physics.closed_form.pcb_thermal:convection_coefficients
 pinneapple_physics.closed_form.pcb_thermal:effective_conductivity
 pinneapple_physics.closed_form.pipe_flow:darcy_pressure_drop
@@ -2070,7 +2059,6 @@ pinneapple_simulation.electromagnetics.fdtd:gaussian_pulse
 pinneapple_simulation.electromagnetics.fdtd:modulated_gaussian
 pinneapple_simulation.electromagnetics.fdtd:numerical_dispersion
 pinneapple_simulation.electromagnetics.fdtd:ricker
-pinneapple_simulation.electromagnetics.fdtd:sinusoid
 pinneapple_simulation.electromagnetics.fem3d.cases:manufactured_magnetostatic
 pinneapple_simulation.electromagnetics.fem3d.cases:slab_eddy
 pinneapple_simulation.electromagnetics.fem3d.mesh:from_gmsh
@@ -2450,7 +2438,6 @@ pinneapple_simulation.numerical_solvers.operator_datasets:write_npz
 pinneapple_simulation.numerical_solvers.particles:drag_factor
 pinneapple_simulation.numerical_solvers.particles:packed_bed
 pinneapple_simulation.numerical_solvers.particles:suspend
-pinneapple_simulation.numerical_solvers.particles:zwietering_njs
 pinneapple_simulation.numerical_solvers.pipe_network:optimize_diameters
 pinneapple_simulation.numerical_solvers.pipe_network:solve_network
 pinneapple_simulation.numerical_solvers.plane_stress_fem:heywood_kt_net

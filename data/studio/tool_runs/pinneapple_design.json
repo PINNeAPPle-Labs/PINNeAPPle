@@ -667,6 +667,18 @@
   "returned": "SDF",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.io.stl:load_stl": {
+  "code_hash": "525f7017a15dd3ed",
+  "error": "ModuleNotFoundError: No module named 'trimesh'",
+  "inputs": {
+   "compute_normals": true,
+   "path": "examples/end_to_end/assets/Dragon 2.5_stl.stl",
+   "repair": true
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 6.13
+ },
  "pinneapple_design.geometry.mesh.mesher_2d:mesh_rectangle_structured": {
   "code_hash": "b7d0bc7848eea8a2",
   "inputs": {},

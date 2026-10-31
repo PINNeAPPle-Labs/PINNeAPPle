@@ -187,6 +187,14 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.fem3d.team7:probe_lines": {
+  "code_hash": "e3668d8e9acf2a49",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.98
+ },
  "pinneapple_simulation.electromagnetics.machine:SPMMachine": {
   "code_hash": "d75db4d99b6d08bd",
   "inputs": {},
@@ -326,9 +334,17 @@
   "recorded": "2026-10-31",
   "seconds": 60.0
  },
+ "pinneapple_simulation.electromagnetics.machines3d.endeffects:end_effect_study": {
+  "code_hash": "9acdbcf1edf4b47d",
+  "error": "the interpreter stopped during this tool: the interpreter ran out of time",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": null
+ },
  "pinneapple_simulation.electromagnetics.machines3d.spm:SPM3D": {
-  "code_hash": "eda83db6e2f52728",
-  "error": "the interpreter stopped during this tool: exit -9",
+  "code_hash": "1f0705a6850e1fc6",
+  "error": "the interpreter stopped during this tool: the interpreter ran out of time",
   "inputs": {},
   "ok": false,
   "recorded": "2026-10-31",

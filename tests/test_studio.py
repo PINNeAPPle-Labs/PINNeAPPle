@@ -495,3 +495,12 @@ def test_default_outside_the_declared_range_is_a_form_problem():
     schema = {"properties": {"tau": {"type": "number", "default": 20.0}}, "required": []}
     Cl.apply_ranges(schema, {"tau": [0.0, 10.0]})
     assert Cl.valid_form(schema) == ["default of tau is outside its declared range"]
+
+
+def test_inputs_read_a_class_built_from_keyword_literals_as_a_nested_form():
+    import ast
+
+    from pinneapple_studio.inputs import _literal
+    assert _literal(ast.parse("Windkessel(Rp=1e8, C=1e-8)", mode="eval").body) == (True, {"Rp": 1e8, "C": 1e-8})
+    assert _literal(ast.parse("Windkessel(1e8, 1e-8)", mode="eval").body)[0] is False
+    assert _literal(ast.parse("make(Rp=1.0)", mode="eval").body)[0] is False

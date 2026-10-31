@@ -25,8 +25,9 @@ NUMPY_CTORS = {"array", "asarray", "linspace", "arange", "zeros", "ones", "full"
 
 
 def _literal(node: ast.AST, env: dict[str, Any] | None = None) -> tuple[bool, Any]:
-    """A literal, a name bound once to a literal in the same function, or a small numpy constructor of literals
-    (``np.linspace(0, 1, 11)``) as a list."""
+    """A literal, a name bound once to a literal in the same function, a small numpy constructor of literals
+    (``np.linspace(0, 1, 11)``) as a list, or a class built from keyword literals (``Windkessel(Rp=1e8, C=1e-8)``)
+    as the dict of a nested form."""
     env = env or {}
     if isinstance(node, ast.Name) and node.id in env:
         return True, env[node.id]
@@ -42,6 +43,10 @@ def _literal(node: ast.AST, env: dict[str, Any] | None = None) -> tuple[bool, An
             except Exception:  # noqa: BLE001 - not a constructor call we can evaluate
                 return False, None
         return False, None
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id[:1].isupper() \
+            and not node.args and node.keywords and all(k.arg for k in node.keywords):
+        vals = {k.arg: _literal(k.value, env) for k in node.keywords}   # Windkessel(Rp=..., C=...): a nested form
+        return (True, {k: v for k, (_, v) in vals.items()}) if all(ok for ok, _ in vals.values()) else (False, None)
     if isinstance(node, (ast.List, ast.Tuple)) and env:
         vals = [_literal(e, env) for e in node.elts]
         return (True, [v for _, v in vals]) if all(ok for ok, _ in vals) else (False, None)

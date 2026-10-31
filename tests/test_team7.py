@@ -48,3 +48,9 @@ def test_team7_coarse_mesh_against_the_measurements(tmp_path):
     assert f["info"]["residual"] < 1e-10
     assert f["compare"]["A1B1 wt=0"]["rms_rel_peak"] < 0.1         # 0.068 measured (example 21, coarsest level)
     assert f["loss_W"] == pytest.approx(4.948, rel=0.01)
+
+
+def test_coil_current_density_known_answer():
+    """Beside the x1 straight side, at mid-height, the current runs along +y with J0 = NI / A = 2742 / 0.0025."""
+    J = team7.coil_current_density(np.array([[0.2565, 0.1, 0.0]]))
+    assert J[0] == pytest.approx([0.0, 2742.0 / 0.0025, 0.0])

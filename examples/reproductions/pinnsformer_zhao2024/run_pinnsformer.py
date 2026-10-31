@@ -3,7 +3,8 @@
     python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py --queue all    # every run, resumable
     python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py --case reaction --model pinnsformer --seed 0
     python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py --report   # tables, figure, experiment.json
-    python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py --smoke    # 3 outer steps, nothing kept
+    python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py --smoke    # 1 outer step per Table 1 run, nothing kept
+    python examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py            # no arguments: the smoke run
 
 The losses, grids, optimizer and schedule replicate the official notebooks (TARGETS.md, ambiguities 1-9). Every run
 writes ``runs/<case>_<model>_s<seed>.json`` and checkpoints every 10 outer steps, so a stopped run resumes.
@@ -131,7 +132,7 @@ def run(case_name, model, seed, steps=None, keep=True):
     opt = torch.optim.LBFGS(net.parameters(), line_search_fn="strong_wolfe")
     track, start, wall = [], 0, 0.0
     if keep and os.path.exists(ckpt):
-        st = torch.load(ckpt, weights_only=False)
+        st = torch.load(ckpt, weights_only=True)
         net.load_state_dict(st["net"])
         opt.load_state_dict(st["opt"])
         track, start, wall = st["track"], st["step"], st["wall"]
@@ -188,8 +189,10 @@ def main():
     a = ap.parse_args()
     if a.threads:
         torch.set_num_threads(a.threads)
+    if not (a.queue or a.case or a.report):            # no arguments: the smoke run (minutes, nothing kept)
+        a.smoke = True
     if a.smoke:
-        for c in ("convection", "reaction", "wave"):
+        for c in ("convection", "reaction"):            # the Table 1 problems this folder scores
             for m in ("pinn", "pinnsformer"):
                 r = run(c, m, 0, steps=1, keep=False)
                 print(c, m, f"loss {r['loss']:.3g} rMAE {r['rmae']:.3g} evals {r['closure_evals']} "

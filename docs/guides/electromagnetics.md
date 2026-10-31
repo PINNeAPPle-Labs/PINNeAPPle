@@ -1062,6 +1062,53 @@ Mesh convergence (1 x 4 pieces, 1 kHz, 3-D against the closed form): +4.7 %, +2.
 Limits: a flat magnet in a uniform normal field (one harmonic of the ripple; the curvature and the variation of
 the field over the magnet are left out), insulation perfect between pieces, linear materials.
 
+### 3-D axial-flux machine: quasi-3D against full 3-D
+
+`machines3d.afpm.AFPM3D(AFPMMachine(...))` meshes an axial-flux PM machine on a structured grid in `(r, theta, z)`:
+radial and axial node lines per region, `theta` uniform over the full circle, each cell cut into six tetrahedra, the
+grid closed at `theta = 2 pi` by merging the seam nodes. Turning the rotor by a whole number of steps maps the grid
+onto itself, so rotor angle is a relabelling of the magnet cells and cogging carries no remeshing noise. Two
+topologies: `"single"` (one rotor, a slotted stator with a yoke) and `"double_rotor"` (a yokeless slotted stator
+between two rotors magnetised the same way, so the flux crosses the stator axially).
+
+* **No helical bias.** A plain six-tetrahedron split leans every cell the same way round the axis, which put 0.9 N m
+  of torque on an aligned rotor on a coarse grid. Every other `theta` cell is now cut as the mirror image of its
+  neighbour; the grid is then symmetric about every even `theta` node plane, the aligned rotor carries no torque
+  (1e-11 N m) and the cogging is exactly odd. Rotor angles move by two steps at a time.
+* **Torque** is the Maxwell stress `r B_theta B_z / mu0` averaged over each gap layer. Its sign is checked against
+  the co-energy (`T = dW'/d theta`).
+* **Quasi-3D on the same grid.** `quasi3d_models(n)` cuts the active annulus into `n` radial slices on the same
+  radial nodes, each solved alone with flux-parallel cylindrical faces: the flux cannot cross radius `r_k`, the
+  assumption of the usual quasi-3D model (a 2-D machine per radius, curvature kept). One slice leaves out the
+  fringing at the inner and outer radius; five slices also leave out the radial flux inside the annulus.
+* **Flux linkage** of a coil around a stator tooth at mid tooth height (exact line integral of `A`), with a
+  magnet centred on the tooth.
+
+`python examples/electrodynamics/24_afpm_quasi3d.py` (run on 2026-10-31, 12 min, peak 10.8 GB) runs the default
+`AFPMMachine`: 12 slots, 8 poles, r = 50 to 90 mm, 1 mm gap, 4 mm magnets (80 % of the pole pitch), open slots (half
+the slot pitch), linear iron (`mu_r` 1000). Fine grid: 384 steps round the axis, 4 mm radially, 2.5 mm axially,
+15 mm of air inside, outside, above and below; coarse grid: 192 steps, 8 mm, 4 mm. Cogging over one 15 deg period
+every 1.875 deg (3.75 deg on the coarse grid):
+
+| Topology | Grid | Tetrahedra (3-D) | Cogging pk-pk, 3-D (N m) | Quasi-3D, 1 slice | Quasi-3D, 5 slices | Tooth linkage, 3-D (mWb) | Quasi-3D, 1 slice | Quasi-3D, 5 slices |
+|---|---|---|---|---|---|---|---|---|
+| single | fine | 1 032 192 | 9.199 | 10.234 (+11.3 %) | 10.265 (+11.6 %) | 1.049 | 1.072 (+2.2 %) | 1.071 (+2.1 %) |
+| single | coarse | 196 992 | 10.367 | 11.665 (+12.5 %) | 11.657 (+12.4 %) | 1.060 | 1.083 (+2.2 %) | 1.082 (+2.1 %) |
+| double rotor | fine | 1 179 648 | 17.477 | 19.498 (+11.6 %) | 19.532 (+11.8 %) | 1.062 | 1.091 (+2.8 %) | 1.091 (+2.7 %) |
+| double rotor | coarse | 238 464 | 18.558 | 21.025 (+13.3 %) | 20.965 (+13.0 %) | 1.072 | 1.103 (+2.9 %) | 1.102 (+2.9 %) |
+
+* **Quasi-3D overestimates the cogging by 11 to 12 %** on the fine grid (12 to 13 % on the coarse one) and the
+  flux linkage by 2 to 3 %, for both topologies.
+* **The difference is the fringing at the inner and outer radius, not radial flux inside the annulus**: one slice
+  and five slices agree within 0.3 % in cogging and 0.1 % in linkage.
+* **Discretisation.** The cogging itself moves by 13 % (single) and 6 % (double rotor) between the two grids, but
+  the quasi-3D error moves by 1.2 and 1.7 points, so the comparison holds to about that on the fine grid. A coil whose end turns
+  run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 % (double rotor) more than one on the
+  annulus edges (1.055 and 1.073 mWb).
+
+Limits: linear iron, no-load only (no winding currents), open slots on one geometry; two grids, the finer one at
+the memory of this machine.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is

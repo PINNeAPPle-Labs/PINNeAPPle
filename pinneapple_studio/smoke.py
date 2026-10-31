@@ -42,8 +42,11 @@ def read_runs(root: Path | None = None) -> dict[str, dict[str, Any]]:
 
 
 def recorded_inputs() -> dict[str, dict[str, Any]]:
-    """Inputs written down for tools whose form has required fields (``{tool id: {name: value}}``)."""
-    return json.loads(INPUTS.read_text(encoding="utf-8")) if INPUTS.is_file() else {}
+    """Inputs for tools whose form has required fields: ``{tool id: inputs}`` from ``tool_inputs.json``
+    (``{tool id: {"inputs": {...}, "source": ...}}``, harvested by :mod:`pinneapple_studio.inputs` or written by
+    hand)."""
+    raw = json.loads(INPUTS.read_text(encoding="utf-8")) if INPUTS.is_file() else {}
+    return {k: (v["inputs"] if isinstance(v, dict) and "inputs" in v else v) for k, v in raw.items()}
 
 
 def smoke_inputs(tool: dict[str, Any], given: dict[str, dict[str, Any]]) -> dict[str, Any] | None:

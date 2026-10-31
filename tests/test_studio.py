@@ -370,3 +370,15 @@ def test_smoke_marks_a_tool_that_writes_into_the_checkout(tmp_path, monkeypatch)
     rec = json.loads(buf.getvalue().strip().splitlines()[-1])
     assert rec["ok"] and rec["changes_files"] == ["MARK.txt"]
     assert not (r / "MARK.txt").exists()                     # restored
+
+
+def test_inputs_are_harvested_from_calls_with_literals(cat, repo):
+    from pinneapple_studio import inputs
+    found = inputs.harvest(cat, repo, hub=False)
+    assert found["pinneapple_demo.heat:mean_temperature"] == {"inputs": {"T": [1.0, 3.0]},
+                                                              "source": "tests/test_heat.py:10"}
+    assert "pinneapple_demo.heat:fin_heat" not in found        # FinDesign(1.0) is not a literal
+    src = "import numpy as np\nimport pytest\nfrom pinneapple_demo.heat import mean_temperature as mt\n" \
+          "def test_x():\n    t = np.linspace(0, 1, 3)\n    mt(t)\n    with pytest.raises(ValueError):\n        mt(None)\n"
+    calls = inputs.calls_in(src)
+    assert calls == [("pinneapple_demo.heat:mean_temperature", 6, [[0.0, 0.5, 1.0]], {})]

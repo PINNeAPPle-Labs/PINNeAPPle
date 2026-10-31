@@ -5,7 +5,7 @@ Three configurations, each over five seeds, every model with the same data, loss
 * ``all_properties``: the training samples carry p, s, u, c_v, c_p or w (mixed data);
 * ``without_cp``: the same without c_p samples (c_p is still scored: the potential predicts it from the other
   properties, the direct model's c_p output is never trained);
-* ``all_properties_3x``: the first configuration with three times the number of steps (three seeds, to fit the
+* ``all_properties_3x``: the first configuration with three times the number of steps (two seeds, to fit the
   time available).
 
 Writes ``results/<config>.json`` (raw runs and the summary with intervals). Needs CoolProp. About 1.5 h on one CPU;
@@ -27,7 +27,7 @@ HERE = Path(__file__).resolve().parent
 CONFIGS = {
     "all_properties": {"props": cs.PROPERTIES, "epochs": 3000},
     "without_cp": {"props": ("p", "s", "u", "cv", "w"), "epochs": 3000},
-    "all_properties_3x": {"props": cs.PROPERTIES, "epochs": 9000, "n_seeds": 3},
+    "all_properties_3x": {"props": cs.PROPERTIES, "epochs": 9000, "n_seeds": 2},
 }
 
 
@@ -35,6 +35,7 @@ def main(argv=None) -> dict:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--only", nargs="*", default=None)
+    ap.add_argument("--seed", type=int, default=None, help="run only this seed (no summary)")
     a = ap.parse_args(argv)
     out_dir = HERE / ("results_smoke" if a.smoke else "results")
     out_dir.mkdir(exist_ok=True)
@@ -54,10 +55,14 @@ def main(argv=None) -> dict:
         seed_dir.mkdir(exist_ok=True)
         runs = []
         for s in seeds:
+            if a.seed is not None and s != a.seed:
+                continue
             f = seed_dir / f"seed{s}.json"
             if not f.exists():
                 f.write_text(json.dumps(to_jsonable(cs.run_seed(s, grids=grids, **kw))))
             runs.append(json.loads(f.read_text()))
+        if a.seed is not None:
+            continue
         cfg = {"regions": cs.REGIONS, "grid_points": {g: int(len(v["T"])) for g, v in grids.items()}, **kw,
                "seeds": list(seeds), "data": "CoolProp HEOS CO2 (Span & Wagner 1996)"}
         res = {"config": cfg, "runs": runs, "summary": cs.summarize(runs)}

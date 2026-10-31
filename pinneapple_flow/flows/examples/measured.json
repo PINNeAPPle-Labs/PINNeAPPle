@@ -7986,6 +7986,21 @@
    "status": "done"
   }
  },
+ "potential_co2/surrogate_study": {
+  "quick": {
+   "commit": "2ce2bf0b",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-potential-co2-surrogate-study-quick.experiment.json, Lab item manifest/flow/example-potential-co2-surrogate-study-quick",
+   "matched": 0,
+   "nodes": {
+    "study": "done"
+   },
+   "seconds": 14.8,
+   "status": "done"
+  }
+ },
  "problem_designer/03_offline_spec_to_report": {
   "full": {
    "commit": "3f2296e8",

@@ -16,6 +16,22 @@
   },
   "source": "tests/test_dynamics_early_warning.py:151"
  },
+ "pinneapple_analysis.dynamics.koopman:gavish_donoho_rank": {
+  "inputs": {
+   "s": [
+    10.0,
+    9.0,
+    0.1,
+    0.1,
+    0.1
+   ],
+   "shape": [
+    5,
+    100
+   ]
+  },
+  "source": "tests/test_dynamics_koopman.py:253"
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
   "inputs": {
    "h_true": 25.0,
@@ -2828,6 +2844,42 @@
    ]
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:157"
+ },
+ "pinneapple_studio.catalog:make_class_finder": {
+  "inputs": {
+   "inv": {
+    "modules": {
+     "m": {
+      "classes": [
+       {
+        "name": "Res"
+       }
+      ],
+      "imports": [],
+      "module": "m"
+     }
+    }
+   }
+  },
+  "source": "tests/test_studio.py:446"
+ },
+ "pinneapple_studio.outputs:from_docstring": {
+  "inputs": {
+   "doc": "Returns\n-------\ntau : float [s]\n    time constant\n"
+  },
+  "source": "tests/test_studio.py:442"
+ },
+ "pinneapple_studio.outputs:is_record_class": {
+  "inputs": {
+   "cls": {
+    "bases": [
+     "NamedTuple"
+    ],
+    "decorators": [],
+    "name": "Res"
+   }
+  },
+  "source": "tests/test_studio.py:444"
  },
  "pinneapple_studio.search:tokens": {
   "inputs": {

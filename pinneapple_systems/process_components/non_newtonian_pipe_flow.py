@@ -90,6 +90,24 @@ def pressure_gradient(rho: ArrayLike, v: ArrayLike, D_h: ArrayLike, f: ArrayLike
 
 @dataclass(frozen=True)
 class PressureProfile:
+    """Pressure along the path.
+
+    Attributes
+    ----------
+    s_m : np.ndarray [m]
+        Path length.
+    tvd_m : np.ndarray [m]
+        True vertical depth.
+    P_Pa : np.ndarray [Pa]
+        Pressure.
+    rho_eq_kg_m3 : np.ndarray [kg/m3]
+        Equivalent density.
+    rho_kg_m3 : np.ndarray [kg/m3]
+        Density.
+    friction_factor : np.ndarray [-]
+        Friction factor of the Darcy-Weisbach-form gradient.
+    reynolds_number : np.ndarray [-]
+    """
     s_m: np.ndarray
     tvd_m: np.ndarray
     P_Pa: np.ndarray

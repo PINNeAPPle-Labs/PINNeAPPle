@@ -69,6 +69,17 @@ import numpy as np
 
 @dataclass(frozen=True)
 class StickSlipResult:
+    """Torsional stick-slip run.
+
+    Attributes
+    ----------
+    t_s : np.ndarray [s]
+    z_m : np.ndarray [m]
+    omega_field_rad_s : np.ndarray [rad/s]
+    end_omega_ts_rad_s : np.ndarray [rad/s]
+    surface_torque_ts_N_m : np.ndarray [N m]
+    stick_slip_index : float [-]
+    """
     t_s: np.ndarray
     z_m: np.ndarray
     omega_field_rad_s: np.ndarray

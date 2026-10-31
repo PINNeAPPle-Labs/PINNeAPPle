@@ -129,7 +129,10 @@ def test_heat_on_an_stl_sphere_matches_the_closed_form():
 
 
 def test_conforming_tet_fem_matches_the_closed_form_and_calculix():
-    pytest.importorskip("gmsh")
+    try:
+        import gmsh  # noqa: F401
+    except (ImportError, OSError):                                      # OSError: gmsh without its system libraries
+        pytest.skip("gmsh not available")
     import shutil
 
     from pinneapple_simulation.immersed import compare

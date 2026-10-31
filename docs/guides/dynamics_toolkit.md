@@ -9,8 +9,9 @@ five frameworks:
 - critical slowing down and early-warning indicators;
 - Koopman and spectral analysis.
 
-Each framework is added in its own pull request, together with its analytic benchmarks. **None of them is in the
-package yet.** This page documents the parts they share and will be extended as each framework lands.
+Each framework is added in its own pull request, together with its analytic benchmarks. Available so far:
+[first-passage and hitting times](dynamics_first_passage.md). The other four are not in the package yet. This page
+documents the parts they share.
 
 The parts they share:
 

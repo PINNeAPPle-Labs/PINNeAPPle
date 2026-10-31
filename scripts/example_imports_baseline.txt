@@ -37,7 +37,6 @@ examples/trainer/02_datamodule_splits_preprocess.py
 examples/trainer/03_physics_aware_pinn_ode.py
 examples/trainer/04_resume_infer_and_plot.py
 examples/trainer/05_ddp_torchrun.py
-examples/use_cases/physics_data_factory/ultrarealistic_digital_twin.py
 templates/13_world_model.py
 templates/22_model_serving.py
 templates/24_digital_twin.py

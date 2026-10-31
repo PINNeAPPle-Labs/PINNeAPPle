@@ -1,0 +1,12 @@
+{
+ "code_hash": "adb01bb5bc8c1388",
+ "figures": [],
+ "id": "example:examples/reproductions/schiassi_epi2020",
+ "ok": true,
+ "recorded": "2026-10-30",
+ "seconds": 0.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "X-TFC epidemiological parameter discovery (Schiassi) | physics-informed ML | not curated\nsir_residual_rms_clean 4.3748376218715127e-08 population/day\nseir_residual_rms_clean 3.467507949973849e-07 population/day\nseirs_residual_rms_clean 1.7151748473222533e-07 population/day",
+ "timed_out": false
+}

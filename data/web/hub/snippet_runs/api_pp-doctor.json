@@ -4,9 +4,9 @@
  "id": "api:pp-doctor",
  "ok": true,
  "recorded": "2026-10-30",
- "seconds": 9.65,
+ "seconds": 36.32,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
  "stdout": "pp.doctor(profile: 'str' = 'start', *, verbose: 'bool' = True) -> 'DoctorReport'\nCheck this installation against a profile and, with ``verbose``, print the report.",
  "timed_out": false
 }

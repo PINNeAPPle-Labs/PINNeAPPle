@@ -83,15 +83,18 @@ inventory of what is being moved.
   build them locally, and what is committed instead, are in [AGENTS.md](AGENTS.md#generated-files).
 
 ## Changelog
-Every user-visible change (new feature, bug fix, behavior change, removal) needs one line under
-`## [Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md), in the same pull request. Use the headings
-Added / Changed / Fixed / Removed / Documentation / Known issues. While the major version is 0, start any
-breaking or behavior-changing entry with **Breaking:** or **Behavior:**. Maintainers move the Unreleased
-entries under a dated version heading when they cut a release (see below). Purely internal changes
-(refactors, test-only, CI) do not need an entry.
+Every user-visible change (new feature, bug fix, behavior change, removal) needs one entry, in the same pull
+request, as a **new file in [`changelog.d/`](changelog.d/README.md)**: `<slug>.<category>.md`, with category
+`security`, `added`, `changed`, `fixed`, `removed`, `documentation` or `known-issues`, holding the entry exactly as
+it would appear under that heading. Do not edit `CHANGELOG.md` in a pull request: with many pull requests open, every
+merge made all the others conflict on its Unreleased section. While the major version is 0, start any breaking or
+behavior-changing entry with **Breaking:** or **Behavior:**. `python scripts/changelog.py check` validates the
+fragments and `python scripts/changelog.py render` shows the Unreleased section as it will be released. Purely
+internal changes (refactors, test-only, CI) do not need an entry.
 
 ## Releasing (maintainers)
-1. Move the `[Unreleased]` entries under `## [x.y.z] - YYYY-MM-DD` and update the compare links at the bottom.
+1. Run `python scripts/changelog.py release x.y.z`: it moves the `[Unreleased]` entries and every `changelog.d/` fragment
+   under `## [x.y.z] - YYYY-MM-DD` and deletes the fragments. Then update the compare links at the bottom.
 2. Bump the version in `pyproject.toml`, `CITATION.cff` and `pinneapple/__init__.py` (`__version__`, a separate copy).
 3. Tag the release commit `vx.y.z` and push the tag. The `Release to PyPI` workflow checks that the tag, `pyproject.toml`,
    `CITATION.cff`, `pinneapple.__version__` and the changelog agree (`python scripts/check_release_version.py vx.y.z` runs the

@@ -1,4 +1,644 @@
 {
+ "pinneapple_systems.component_library.registry:ComponentRegistry": {
+  "code_hash": "b0862aebecd4bdf5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ComponentRegistry",
+  "seconds": 0.53
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:AnomalyMonitor": {
+  "code_hash": "20c7f554b3f7e698",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AnomalyMonitor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:MahalanobisDetector": {
+  "code_hash": "4d59aa6338fe6284",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MahalanobisDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:ZScoreDetector": {
+  "code_hash": "11b9c5e3af88f63b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ZScoreDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.agent:run_mission": {
+  "code_hash": "29a38241d35ba7cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Run",
+  "seconds": 0.13
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.agent:toolbox": {
+  "code_hash": "82473edd9578eb7a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Toolbox",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.benchmark:make_cases": {
+  "code_hash": "b5054a1030187e5f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.benchmark:run_benchmark": {
+  "code_hash": "4b1c6cd5e6df7034",
+  "error": "ModuleNotFoundError: No module named 'sklearn'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.13
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.diagnose:Surrogate": {
+  "code_hash": "0257b93d7a97dd00",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Surrogate",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.recession:synthetic_recession": {
+  "code_hash": "8d027d6cbdc20c66",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.anomaly:benchmark_faults": {
+  "code_hash": "77089590ba246952",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_systems.operations.anomaly:fault_benchmark": {
+  "code_hash": "63b5ff21d5bf0d29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.55
+ },
+ "pinneapple_systems.operations.anomaly:run_benchmark": {
+  "code_hash": "de0cf55d2af0318e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.35
+ },
+ "pinneapple_systems.operations.anomaly:tank_balance_rules": {
+  "code_hash": "6a117480ad253260",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.anomaly:tank_constants": {
+  "code_hash": "02aed8cd38a3e28a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.control:compare_controllers": {
+  "code_hash": "5f8f5e30f0fd8464",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 37.83
+ },
+ "pinneapple_systems.operations.exchanger:generate_history": {
+  "code_hash": "6e1e8e8de6b9ab76",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.04
+ },
+ "pinneapple_systems.operations.live:default_model": {
+  "code_hash": "0102c4006cbaa2f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LumpedTankModel",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.operations.plant:demo_scenario": {
+  "code_hash": "09ba9ac9cb7a1053",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scenario",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.series:operating_space": {
+  "code_hash": "2a1a404cf4cd3f40",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParameterSpace",
+  "seconds": 0.11
+ },
+ "pinneapple_systems.sports.football.ball_study:identifiability": {
+  "code_hash": "2ffeba63e5f59a5a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.42
+ },
+ "pinneapple_systems.sports.football.ball_study:synthetic_flights": {
+  "code_hash": "9eba3c1b22c4e811",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.03
+ },
+ "pinneapple_systems.sports.football.ball_study:synthetic_recovery": {
+  "code_hash": "16b05a32f92d2b89",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 10.28
+ },
+ "pinneapple_systems.sports.football.data:manifest": {
+  "code_hash": "6ad3b65fb702788d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.sports.football.data:skillcorner_matches": {
+  "code_hash": "640303b904b68db2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.15
+ },
+ "pinneapple_systems.sports.football.data:statsbomb_shots": {
+  "code_hash": "20fe5156a8582850",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_systems.sports.football.kin_study:synthetic_runs": {
+  "code_hash": "0043f10a0f27330a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.04
+ },
+ "pinneapple_systems.sports.football.kin_study:synthetic_smoothing": {
+  "code_hash": "556813689b10e89f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 3.36
+ },
+ "pinneapple_systems.sports.football.kinematics:MLPredictor": {
+  "code_hash": "51fe52773125cea0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLPredictor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:HoltDamped": {
+  "code_hash": "1cbc281a694f1217",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HoltDamped",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:HoltWintersAdditive": {
+  "code_hash": "cb50711716e486a6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HoltWintersAdditive",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:MovingAverage": {
+  "code_hash": "2c125483a70164a4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MovingAverage",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:RidgeAR": {
+  "code_hash": "a1fdaf97ff1e0058",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RidgeAR",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:SimpleExpSmoothing": {
+  "code_hash": "c3110fb6a93a304d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SimpleExpSmoothing",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:Theta": {
+  "code_hash": "712ffefe4035bdd7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Theta",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:default_experts": {
+  "code_hash": "66d7ee022d2c7c88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.audit.tests:TSAuditor": {
+  "code_hash": "136b7fb726bf9956",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TSAuditor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:DriftForecaster": {
+  "code_hash": "e0a7d2e249bb4be0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DriftForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:NaiveForecaster": {
+  "code_hash": "9809b7b82e784a31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NaiveForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:SeasonalNaiveForecaster": {
+  "code_hash": "5aed30f46554f34b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SeasonalNaiveForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.classical_wrappers:AutoARIMAForecaster": {
+  "code_hash": "2c79840956bc1f8f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AutoARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.classical_wrappers:StatsmodelsARIMAForecaster": {
+  "code_hash": "9d3c6beda973c26b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StatsmodelsARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.csv_loader:TimeSeriesScaler": {
+  "code_hash": "17fd02091c810667",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TimeSeriesScaler",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.datasets.public:load_sunspots_yearly": {
+  "code_hash": "4f9d2bd3ad341ac9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PublicSeries",
+  "seconds": 0.15
+ },
+ "pinneapple_systems.time_series.datasets.public:load_usd_eur_daily": {
+  "code_hash": "da0f397bc85a1385",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PublicSeries",
+  "seconds": 0.54
+ },
+ "pinneapple_systems.time_series.datasets.public:load_youtube_trending_us": {
+  "code_hash": "9a7e5e377185d561",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YouTubeDaily",
+  "seconds": 2.46
+ },
+ "pinneapple_systems.time_series.decomposition.fft_forecaster:FFTForecaster": {
+  "code_hash": "da8fbf29f3795f8b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FFTForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.fft_lstm:FFTDecomposer": {
+  "code_hash": "d3f08cac317836fe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FFTDecomposer",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.fft_nn:FFTNNForecaster": {
+  "code_hash": "2a32c6001bea1588",
+  "error": "RuntimeError: Call fit() before predict().",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.hht_lstm:HHTDecomposer": {
+  "code_hash": "9277ff045776f417",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HHTDecomposer",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.hht_nn:HHTNNForecaster": {
+  "code_hash": "e3884d8124cf7987",
+  "error": "RuntimeError: Call fit() before predict().",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:era5_monthly": {
+  "code_hash": "a03b3da8d0321662",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 62.16
+ },
+ "pinneapple_systems.time_series.enso.data:manifests": {
+  "code_hash": "f44efe924ca7c575",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:ncei_heat_content": {
+  "code_hash": "586e04f5c5759064",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:oisst_monthly": {
+  "code_hash": "db7a4dd033d0a4b1",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 1.13
+ },
+ "pinneapple_systems.time_series.enso.data:statsmodels_nino12": {
+  "code_hash": "c343668cb8ab985a",
+  "error": "ModuleNotFoundError: No module named 'statsmodels'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.dataset:build_dataset": {
+  "code_hash": "5a60343e487b900a",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.9
+ },
+ "pinneapple_systems.time_series.enso.forecasters:IntermediateModelForecaster": {
+  "code_hash": "0ef12f5a33b07064",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IntermediateModelForecaster",
+  "seconds": 0.02
+ },
+ "pinneapple_systems.time_series.enso.forecasters:LIMForecaster": {
+  "code_hash": "db1e5dad1105d203",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LIMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.forecasters:RechargeOscillatorForecaster": {
+  "code_hash": "142082461ac87128",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RechargeOscillatorForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.intermediate:GillAtmosphere": {
+  "code_hash": "359e2d4275c1ea75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GillAtmosphere",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.intermediate:convergence_study": {
+  "code_hash": "7392383850cb1957",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.56
+ },
+ "pinneapple_systems.time_series.enso.intermediate:gill_test": {
+  "code_hash": "aa2aafd84fba1828",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.55
+ },
+ "pinneapple_systems.time_series.enso.intermediate:kelvin_wave_test": {
+  "code_hash": "6cb498e1bfa0bf6b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.1
+ },
+ "pinneapple_systems.time_series.enso.intermediate:rossby_wave_test": {
+  "code_hash": "ee26b80ef06d3b60",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.42
+ },
+ "pinneapple_systems.time_series.enso.pinn:PINNRechargeForecaster": {
+  "code_hash": "ea080f0e41c52f3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNRechargeForecaster",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.enso.pipeline:solver_checks": {
+  "code_hash": "7eaa19fa44fdf5c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.72
+ },
+ "pinneapple_systems.time_series.enso.study:zoo": {
+  "code_hash": "4b4f525446e09265",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.forecast_lab.baselines:ARIMAForecaster": {
+  "code_hash": "c6ea39ce3ecd3604",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.baselines:Climatology": {
+  "code_hash": "4a970ad1c16a9d24",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Climatology",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.learned:LagFeatures": {
+  "code_hash": "4decc693eb99f87a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LagFeatures",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.physical:LinearSSMForecaster": {
+  "code_hash": "88834aa762520a91",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearSSMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.physical:SDEDriftForecaster": {
+  "code_hash": "e184d0c270adbab3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDEDriftForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.pipeline:lyapunov_study": {
+  "code_hash": "bd74603cc6f8ebdf",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.presets:baseline_specs": {
+  "code_hash": "d763bf8986cb0abc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.presets:data_specs": {
+  "code_hash": "cf8b533b0ac13916",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.foundation_models:ChronosForecaster": {
+  "code_hash": "3cb8424ee7a32e33",
+  "error": "ImportError: ChronosForecaster requires the real 'chronos-forecasting' package (https://github.com/amazon-science/chronos-forecasting), which was not found. Install it with:\n    pip install chronos-forecasting\nModel card for the default checkpoint: https://huggingface.co/amazon/chronos-t5-tiny",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.foundation_models:TimesFMForecaster": {
+  "code_hash": "cdf1f4127b0a284b",
+  "error": "ImportError: TimesFMForecaster requires the real 'timesfm' package (https://github.com/google-research/timesfm), which was not found. Install it with:\n    pip install timesfm\nModel card for the default checkpoint: https://huggingface.co/google/timesfm-2.5-200m-pytorch",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.metrics:default_ts_metrics": {
+  "code_hash": "03bfbcbb4a34b1eb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.metrics_ext.point:PointMetrics": {
+  "code_hash": "6801952ba9645f5e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PointMetrics",
+  "seconds": 0.0
+ },
  "pinneapple_systems.time_series.metrics_ext.probabilistic:ProbabilisticMetrics": {
   "code_hash": "ebb0cbe20a0a5af2",
   "inputs": {},

@@ -1,0 +1,178 @@
+{
+ "pinneapple_worldmodel.benchmark:PhysicsBenchmark": {
+  "code_hash": "3f53b2ec97d16c3d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsBenchmark",
+  "seconds": 0.03
+ },
+ "pinneapple_worldmodel.generate_datasets:generate": {
+  "code_hash": "1401b4c9d7089aeb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DatasetCatalog",
+  "seconds": 60.51
+ },
+ "pinneapple_worldmodel.generate_datasets:generate_via_factory": {
+  "code_hash": "f854eefa12051340",
+  "error": "TypeError: FactoryConfig.__init__() got an unexpected keyword argument 'seed'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_annulus": {
+  "code_hash": "b49ae4fef17d108f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_cavity": {
+  "code_hash": "582017fedf3daeb5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_channel": {
+  "code_hash": "9eb82c9aa0cdf50d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_channel_with_cylinder": {
+  "code_hash": "00e2214dd84fb9b5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_l_shaped": {
+  "code_hash": "6551d149c5c1ffc9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.geometry:make_unit_square": {
+  "code_hash": "c56756dc43577631",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDomain",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.inspection_data:inspection_sample": {
+  "code_hash": "aa06d6b2fe257ab0",
+  "error": "ModuleNotFoundError: No module named 'pxr'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_worldmodel.orchestrator:PhysicsOrchestrator": {
+  "code_hash": "b8c7c892fb30b230",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsOrchestrator",
+  "seconds": 0.28
+ },
+ "pinneapple_worldmodel.physical_world:StateEncoder": {
+  "code_hash": "acd484d5f12586a1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StateEncoder",
+  "seconds": 0.01
+ },
+ "pinneapple_worldmodel.physical_world:WorldModel": {
+  "code_hash": "81b84e2c4f9622b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "WorldModel",
+  "seconds": 0.01
+ },
+ "pinneapple_worldmodel.physical_world:bouncing_ball_scene": {
+  "code_hash": "aa5df22cd829d4ed",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Video",
+  "seconds": 0.02
+ },
+ "pinneapple_worldmodel.physical_world:video_check": {
+  "code_hash": "a030fd4e0f7edaf3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.04
+ },
+ "pinneapple_worldmodel.physics_solver_bridge:PhysicsSolverBridge": {
+  "code_hash": "e88633ce683df7b1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsSolverBridge",
+  "seconds": 0.0
+ },
+ "pinneapple_worldmodel.robot_perception:arm_camera_sample": {
+  "code_hash": "fe132c4cc064872c",
+  "error": "ImportError: PINNeAPPle Robot Sim runs on NVIDIA Newton: pip install newton (CPU works)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
+ },
+ "pinneapple_worldmodel.synthetic_factory:generate_chemical_mixing": {
+  "code_hash": "440d66f3a62ed11e",
+  "error": "TypeError: zarr.core.array.AsyncArray._create() got multiple values for keyword argument 'chunks'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 6.33
+ },
+ "pinneapple_worldmodel.synthetic_factory:generate_cylinder_flow": {
+  "code_hash": "fe6707157e5fe55a",
+  "error": "TypeError: zarr.core.array.AsyncArray._create() got multiple values for keyword argument 'chunks'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 8.16
+ },
+ "pinneapple_worldmodel.synthetic_factory:generate_heat_transfer": {
+  "code_hash": "5b1e157aeedd89f9",
+  "error": "TypeError: zarr.core.array.AsyncArray._create() got multiple values for keyword argument 'chunks'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.07
+ },
+ "pinneapple_worldmodel.synthetic_factory:generate_pipe_flow": {
+  "code_hash": "d09ed37cb7c89bbf",
+  "error": "TypeError: zarr.core.array.AsyncArray._create() got multiple values for keyword argument 'chunks'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 1.44
+ },
+ "pinneapple_worldmodel.train:run_pipeline": {
+  "code_hash": "04778c6ca593eaa2",
+  "error": "TypeError: PhysicsAIConfig.__init__() got an unexpected keyword argument 'n_samples_per_scenario'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ }
+}

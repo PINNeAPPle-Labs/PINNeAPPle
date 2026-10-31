@@ -130,8 +130,8 @@ values could not be obtained from this environment, so that set is listed with i
 a warning beyond 0.25 (unit cube) from the nearest CFD run. It was checked in Chromium: no console errors, and the
 warning appears at 8 deg, 80 mm, 60 m/s (distance 0.45). Served by `apps/ahmed_twin`, the "verify with CFD" button
 ran an OpenFOAM case at 20 deg, 45 mm, 40 m/s in 9.7 min and reported it against the band. The page interpolates a
-grid of model evaluations. Its maximum error against the models on random points is 0.013 for CD, 0.033 for CL and
-0.58 for Cp (at the slant edge, where Cp changes fastest with the slant), so the page's Cp is a preview and the
+grid of model evaluations. Its maximum error against the models on random points is 0.013 for CD, 0.037 for CL and
+0.57 for Cp (at the slant edge, where Cp changes fastest with the slant), so the page's Cp is a preview and the
 models are the reference.
 
 **Extra CFD** (`results/more_cfd.json`, `figures/active_learning_cd.png`, `figures/pareto.png`; all 19 runs done).

@@ -282,3 +282,51 @@ def test_real_cli_dispatch(capsys):
     with pytest.raises(SystemExit) as e:                                         # argparse exits after --help
         main(["studio", "--help"])
     assert e.value.code == 0 and "run-tool" in capsys.readouterr().out
+
+
+# ------------------------------------------------------------------------------------------------- coverage gate
+def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
+    from pinneapple_studio import coverage as COV
+    from pinneapple_studio import smoke
+    monkeypatch.setattr(COV, "BASELINE", tmp_path / "baseline.txt")
+    monkeypatch.setattr(COV, "REASONS", tmp_path / "reasons.json")
+    monkeypatch.setattr(smoke, "INPUTS", tmp_path / "inputs.json")
+    gal = []
+    rows = {r["id"]: r for r in COV.tool_rows(cat)}
+    assert rows["pinneapple_demo.heat:FinStudy"]["state"] == "missing"            # runs with defaults, never ran
+    assert "no inputs recorded" in rows["pinneapple_demo.heat:fin_heat"]["detail"]
+    assert any("FinStudy" in p for p in COV.problems(cat, gal))
+    # the baseline takes today's gaps; afterwards nothing new can enter
+    COV.write_baseline(cat, gal)
+    assert COV.problems(cat, gal) == []
+    # a recorded run of the current code leaves the baseline: the stale line becomes a problem
+    t = cat["tools"]["pinneapple_demo.heat:FinStudy"]
+    (repo / "data" / "studio" / "tool_runs").mkdir(parents=True)
+    (repo / "data" / "studio" / "tool_runs" / "pinneapple_demo.json").write_text(json.dumps(
+        {t["id"]: {"ok": True, "code_hash": t["code_hash"], "inputs": {}, "returned": "list", "seconds": 0.1}}))
+    assert COV.tool_rows(cat)[[r["id"] for r in COV.tool_rows(cat)].index(t["id"])]["state"] == "ran"
+    assert any("now ran" in p for p in COV.problems(cat, gal))
+    # a declared reason counts; a side-effect name is a reason by rule
+    (tmp_path / "reasons.json").write_text(json.dumps({"pinneapple_demo.heat": "needs a wind tunnel"}))
+    assert {r["state"] for r in COV.tool_rows(cat) if r["package"] == "pinneapple_demo"} <= {"ran", "reason"}
+    assert COV.declared_reason({"id": "m:download_data", "module": "m", "name": "download_data"}, {})
+    md = COV.markdown(cat, gal)
+    assert "executable" in md and "| tool | state | detail |" in md
+
+
+def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
+    from pinneapple_studio import smoke
+    stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
+    assert stats == {"modules": 1, "tools": 1, "ok": 1, "failed": 0}
+    rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]
+    assert rec["ok"] and rec["returned"] == "list" and rec["code_hash"] == cat["tools"]["pinneapple_demo.heat:FinStudy"]["code_hash"]
+
+
+def test_example_rows_say_why(repo, monkeypatch):
+    from pinneapple_studio import coverage as COV
+    from pinneapple_studio import gallery
+    monkeypatch.setattr(gallery, "_flow_rows", lambda: ({}, [], {}))
+    monkeypatch.setattr(R.importlib.util, "find_spec", lambda name: None if name == "cadquery" else object())
+    rows = COV.example_rows(gallery.entries(repo), repo)
+    assert rows == [{"id": "example:fins", "title": "Fins", "state": "needs",
+                     "how": 'cadquery: `pip install -e ".[cad]"`'}]

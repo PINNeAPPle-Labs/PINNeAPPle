@@ -46,6 +46,16 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("entry")
     s.add_argument("--full", action="store_true", help="the full configuration (default: quick)")
     s.add_argument("--script")
+    s = sub.add_parser("smoke", help="smoke-run executable tools and record the outcome")
+    s.add_argument("--all", action="store_true", help="also tools whose current code already has a run")
+    s.add_argument("--package")
+    s.add_argument("--id", action="append")
+    s = sub.add_parser("examples", help="run the scripts of examples without a flow and record the outcome")
+    s.add_argument("--id", action="append")
+    s.add_argument("--timeout", type=float, default=900)
+    s = sub.add_parser("coverage", help="coverage tables; exit 1 on a problem")
+    s.add_argument("-o", "--out", default="docs/studio/COVERAGE.md")
+    s.add_argument("--write-baseline", action="store_true", help="once, when the gate is introduced")
     s = sub.add_parser("inventory", help="write the static inventory")
     s.add_argument("-o", "--out", default="-")
     a = ap.parse_args(argv)
@@ -58,6 +68,30 @@ def main(argv: list[str] | None = None) -> int:
                      open_browser=not getattr(a, "no_browser", False),
                      allow_insecure=getattr(a, "insecure_no_auth", False), routers=[("/api/studio", router())],
                      name="PINNeAPPle Studio")
+    if a.cmd == "smoke":
+        from . import catalog, smoke
+        _print(smoke.record(catalog.load(), stale_only=not a.all, package=a.package, ids=a.id))
+        return 0
+    if a.cmd == "examples":
+        from . import coverage, gallery
+        coverage.record_examples(gallery.load(), ids=a.id, timeout=a.timeout)
+        return 0
+    if a.cmd == "coverage":
+        from pathlib import Path
+
+        from . import catalog, coverage, gallery
+        cat, gal = catalog.load(), gallery.load()
+        if a.write_baseline:
+            print(f"baseline: {coverage.write_baseline(cat, gal)} lines", file=sys.stderr)
+        Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.out).write_text(coverage.markdown(cat, gal), encoding="utf-8")
+        _print(coverage.summary(cat, gal))
+        bad = coverage.problems(cat, gal)
+        for p in bad[:200]:
+            print(f"problem: {p}", file=sys.stderr)
+        if len(bad) > 200:
+            print(f"... and {len(bad) - 200} more", file=sys.stderr)
+        return 1 if bad else 0
     if a.cmd == "inventory":
         from .inventory import build
         text = json.dumps(build(), ensure_ascii=False, indent=1)

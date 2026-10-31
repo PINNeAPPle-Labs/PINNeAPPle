@@ -54,7 +54,8 @@ def compact_range(ctx, inputs, params):
 @node("antenna.compact_range_design", "Compact range: QZ vs feed gain and reflector size, smallest reflector",
       category="Electromagnetics",
       outputs=[Port("metrics", "metrics"), Port("figure", "figure")],
-      params=[Param("quick", "bool", True, help="3 x 3 designs and a coarse mesh (minutes); off: the full generic study"),
+      params=[Param("study", "bool", True, help="off: skip the study (a flow's quick variant keeps only its checks)"),
+              Param("quick", "bool", True, help="3 x 3 designs and a coarse mesh (minutes); off: the full generic study"),
               Param("gains_dbi", "list", [], help="feed gains (empty: the generic study's)"),
               Param("sides_m", "list", [], help="projected reflector sides (empty: the generic study's)"),
               Param("focals_m", "list", [], help="focal lengths (empty: the generic study's)"),
@@ -74,6 +75,9 @@ def compact_range_design(ctx, inputs, params):
         generic_2ghz,
         run_design_study,
     )
+    if not params["study"]:
+        ctx.warn("study skipped (study = false)")
+        return {"metrics": ctx.report["metrics"]}
     cfg = generic_2ghz(quick=bool(params["quick"]))
     sw = dict(cfg["sweep"])
     for key, p in (("gains_dBi", "gains_dbi"), ("sides_m", "sides_m"), ("focals_m", "focals_m")):
@@ -143,7 +147,7 @@ def compact_range_check(ctx, inputs, params):
                            focals=[float(params["focal_m"])])
     rep = qz_report(cr, spec)
     for k, v in rep.items():
-        if isinstance(v, bool | int | float):
+        if isinstance(v, bool | int | float) and k != "seconds":
             ctx.metric(k, v)
     return {"metrics": ctx.report["metrics"]}
 

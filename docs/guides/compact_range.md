@@ -91,3 +91,88 @@ a random quarter of the designs (interpolation inside the grid) and every design
 (interpolation across sizes, the harder case). `study.tradeoff_map` draws the predicted ripple and the predicted
 usable QZ diameter over (feed gain, size), the simulated designs, the required diameter and the feasible region (or
 says that it is empty).
+
+## Design against a spec: feed gain × reflector size × focal length (#965)
+
+`pinneapple_simulation.electromagnetics.reflector.design` asks the question a range designer asks: which feed gain
+and how small a reflector meet a quiet-zone spec? The example `examples/use_cases/antennas/compact_range_2ghz.py`
+runs it on a **generic 2 GHz range** (`design.generic_2ghz()`; λ = 0.15 m): a square offset section (superellipse
+n = 6) 0.4 m above the axis, a 0.45 m (3 λ) rolled edge, the quiet zone 3 m in front of the focal plane. These are
+generic proportions chosen for the example (F/D near 1, a rolled edge of a few wavelengths), not the values of any
+installation or of a cited table. Spec: a **1.0 m quiet zone within ±0.5 dB and ±5°, cross-polar ≤ −25 dB**.
+
+```bash
+python examples/use_cases/antennas/compact_range_2ghz.py --quick                 # 3 x 3 designs, coarse mesh
+python examples/use_cases/antennas/compact_range_2ghz.py                         # 5 gains x 7 sizes x 3 F
+python examples/use_cases/antennas/compact_range_2ghz.py --template ~/range.json  # a configuration to edit
+python examples/use_cases/antennas/compact_range_2ghz.py --private ~/range.json --out ~/range_results
+```
+
+`run_private(config_path, out_dir)` runs any geometry JSON with the template's keys and refuses a configuration or an
+output folder inside the repository, so a client's geometry and results never reach a commit. Every PO solve and
+check is checkpointed in `<out>/checkpoints/` (git-ignored); running the same command again resumes a killed run.
+
+### What is computed
+
+* `qz_report(cr, spec)`: one PO solve per design for **both feed polarisations** (V and H, two current sets on one
+  geometry pass, `po.radiate_fields`), the disk metrics of `qz_metrics` for each, the taper, ripple and phase ripple
+  along the **two principal cuts** (horizontal and vertical through the QZ centre), the cross-polar level, the
+  usable diameter at the spec, and the worst case over the polarisations.
+* `doe(...)`: the (gain × side × F) grid in parallel processes. A new focal length moves the quiet zone with the
+  focal plane; a new side keeps the clearance below the section.
+* `fit_qz_surrogate(table)`: a Gaussian process per metric on the inputs that vary, with 5-fold held-out RMSE and
+  the fraction of held-out designs inside the GP's 95 % interval (`coverage95`; 0.95 when calibrated).
+* `design_maps`, `pareto_front` / `pareto_figure`, `cuts_figure`.
+* `smallest_reflector(...)`: the smallest side for which some feed gain meets the spec by the GP's lower 95 % bound;
+  when no point meets the bound, the smallest side whose mean meets it is solved instead. Each candidate is
+  **verified by PO**; a rejected one joins the data and the GP is refitted.
+
+### Checks (measured)
+
+* **Agreement with #887:** the #887 reference design solved by `qz_report` against the numbers #887 recorded:
+  largest difference over the seven metrics 6.4e-13 (same PO path, `agreement_887`).
+* **Facet size** (16 dBi, 3.6 m, F = 4 m): λ/6, λ/8, λ/12 (166 k, 296 k, 664 k triangles): ripple 0.762, 0.748,
+  0.748 dB; phase ripple 2.02, 1.97, 2.02°; taper 0.780, 0.782, 0.778 dB; cross-pol −29.6, −29.8, −29.6 dB; usable
+  diameter 0.90 m at all three. The study uses λ/8.
+* **QZ grid:** λ/4 against λ/6 sampling of the quiet zone on the same design: ripple 0.747 vs 0.760 dB, usable
+  diameter 0.90 m in both. The study uses λ/4.
+* **Power balance:** the feed (1 W) puts 0.953 W on the reflector; the PO field carries 0.948, 0.969 and 0.977 of
+  it through a plane 4 λ in front of the reflector over disks of 1.0, 1.25 and 1.5 × (side + 2 roll). The rest is
+  radiated outside the disks (edge diffraction).
+
+### Results (generic example, measured on 4 cores)
+
+* **105 designs** (feed gain 10–22 dBi × side 2.4–4.8 m × F = 3, 4, 5 m), median 106 s per design (both
+  polarisations, λ/8 mesh), 11 520 s of PO in all.
+* **F = 4 m:** one grid design meets the spec, 16 dBi with a 4.8 m reflector (usable 1.006 m). **The optimiser found
+  15.7 dBi with a 4.53 m reflector and PO verified it:** usable diameter 1.05 m for V and H, ripple 0.24 dB, taper
+  0.84 dB, phase ripple 1.7°, cross-pol −28.8 dB. The GP predicted 1.00 ± 0.21 m (95 %) there: its mean met the spec,
+  its lower bound did not, and PO settled it in one solve.
+* **Pareto front (PO, F = 4 m):** 0.90 m from 2.4 m (19 dBi), 0.97 m at 4.4 m (13 dBi), 1.01 m at 4.8 m (16 dBi).
+  The usable diameter is not monotone in size or gain: a low-gain feed lights the edge and the diffraction ripple
+  breaks the ±0.5 dB band; a high-gain feed tapers the amplitude past it (22 dBi: taper 2.08–2.21 dB and usable
+  0.67–0.69 m at every size from 2.8 m).
+* **Focal length is a strong lever:** best usable diameter 0.91 m at F = 3 m (no design meets the spec, cross-pol up
+  to −23.2 dB), 1.01 m at F = 4 m, 1.12 m at F = 5 m (16 dBi, 4.0 m; four designs meet the spec). The optimiser
+  searches at the base F only; at F = 5 m the grid already holds a 4.0 m design that meets it.
+* **Surrogate (all 105 designs, inputs gain, side, F):** held-out RMSE / 95 % coverage: usable diameter 0.14 m /
+  0.85, ripple 0.060 dB / 0.94, taper 0.44 dB / 0.90, phase ripple 0.67° / 0.90, cross-pol 0.48 dB / 0.93. The
+  usable diameter is a threshold quantity (the first radius where a tolerance breaks) and the GP under-states its
+  uncertainty (0.85, not 0.95): use the maps to choose where to solve, and PO to decide.
+
+![Pareto front: usable QZ against reflector size](../../examples/use_cases/antennas/results/compact_range_2ghz/pareto.png)
+
+![design maps at F = 4 m](../../examples/use_cases/antennas/results/compact_range_2ghz/design_maps.png)
+
+![QZ cuts of the optimiser's design](../../examples/use_cases/antennas/results/compact_range_2ghz/qz_cuts.png)
+
+### Limits of physical optics
+
+PO leaves out the fringe edge currents (PTD) and multiple reflections; the feed is an ideal `cos^q` pattern with no
+back radiation, no feed or strut blockage and no chamber; the edge diffraction it gives is that of the truncated PO
+current. The optimiser's verification is PO only: no MoM solver is wired in. The issue's textbook comparison
+(Hemming, *Electromagnetic Anechoic Chambers*) was not done here: the book was not available to check numbers
+against, so no value from it is quoted.
+
+Flow nodes: `antenna.compact_range_design` (the study; `quick` by default) and `antenna.compact_range_check` (one
+design against a spec).

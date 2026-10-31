@@ -1,0 +1,181 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.use_cases.compact_range_2ghz",
+ "name": "Compact range design: QZ vs feed gain and reflector size (2 GHz)",
+ "description": "The generic 2 GHz range (F = 4 m, 3-lambda rolled edge): PO of 5 feed gains x 7 sides x 3 focal lengths for both polarisations, facet / QZ-grid / power checks, a GP with held-out RMSE and 95% coverage, design maps, the Pareto front and the smallest reflector meeting a 1 m spec verified by PO (examples/use_cases/antennas/compact_range_2ghz.py); and that design solved again on its own; compared with results/compact_range_2ghz.",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "antenna.compact_range_design",
+   "params": {
+    "quick": false,
+    "workers": 4
+   },
+   "label": "design study",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "check",
+   "type": "antenna.compact_range_check",
+   "params": {
+    "feed_gain_dbi": 15.7,
+    "side_m": 4.53,
+    "focal_m": 4.0,
+    "coarse_mesh": false
+   },
+   "label": "optimiser's design",
+   "position": {
+    "x": 40.0,
+    "y": 220.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "use_cases",
+    "comparisons": [
+     {
+      "flow": "design.n_designs",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:n_designs"
+     },
+     {
+      "flow": "design.gp.usable_diameter.rmse",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:surrogate.usable_diameter.rmse"
+     },
+     {
+      "flow": "design.gp.usable_diameter.coverage95",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:surrogate.usable_diameter.coverage95"
+     },
+     {
+      "flow": "design.gp.ripple_pp_dB.rmse",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:surrogate.ripple_pp_dB.rmse"
+     },
+     {
+      "flow": "design.power_ratio",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:power_balance.ratio"
+     },
+     {
+      "flow": "design.optimiser.side",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:optimiser.design.side"
+     },
+     {
+      "flow": "design.optimiser.feed_gain_dBi",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:optimiser.design.feed_gain_dBi"
+     },
+     {
+      "flow": "design.optimiser.usable_diameter",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:optimiser.design.usable_diameter"
+     },
+     {
+      "flow": "check.usable_diameter",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.usable_diameter"
+     },
+     {
+      "flow": "check.ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.ripple_pp_dB"
+     },
+     {
+      "flow": "check.taper_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.taper_dB"
+     },
+     {
+      "flow": "check.phase_ripple_pp_deg",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.phase_ripple_pp_deg"
+     },
+     {
+      "flow": "check.xpol_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.xpol_dB"
+     },
+     {
+      "flow": "check.V_hcut_ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_hcut_ripple_pp_dB"
+     },
+     {
+      "flow": "check.V_vcut_ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_vcut_ripple_pp_dB"
+     },
+     {
+      "flow": "check.H_hcut_taper_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.H_hcut_taper_dB"
+     }
+    ],
+    "tolerance_source": "deterministic physical optics and GP on the same designs: 1e-6 relative"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 120.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "design.metrics->compare.metrics"
+  },
+  {
+   "source": "check",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "check.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "use_cases",
+  "domain": "electromagnetics",
+  "scripts": [
+   "antennas/compact_range_2ghz.py"
+  ],
+  "quick": {
+   "design": {
+    "study": false
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "check.usable_diameter",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.usable_diameter"
+     },
+     {
+      "flow": "check.ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.ripple_pp_dB"
+     },
+     {
+      "flow": "check.taper_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.taper_dB"
+     },
+     {
+      "flow": "check.phase_ripple_pp_deg",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.phase_ripple_pp_deg"
+     },
+     {
+      "flow": "check.xpol_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.xpol_dB"
+     },
+     {
+      "flow": "check.V_hcut_ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_hcut_ripple_pp_dB"
+     },
+     {
+      "flow": "check.V_vcut_ripple_pp_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_vcut_ripple_pp_dB"
+     },
+     {
+      "flow": "check.H_hcut_taper_dB",
+      "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.H_hcut_taper_dB"
+     }
+    ],
+    "tolerance_source": "quick: the optimiser's design only (full mesh), 1e-6 relative"
+   }
+  }
+ }
+}

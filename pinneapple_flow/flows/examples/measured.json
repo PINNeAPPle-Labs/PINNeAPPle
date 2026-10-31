@@ -10722,6 +10722,88 @@
    "status": "done"
   }
  },
+ "use_cases/compact_range_2ghz": {
+  "quick": {
+   "commit": "a25ef50",
+   "comparisons": [
+    {
+     "flow": "check.usable_diameter",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.usable_diameter",
+     "reference": 1.049273603,
+     "rel_diff": 0.0,
+     "value": 1.049273603
+    },
+    {
+     "flow": "check.ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.ripple_pp_dB",
+     "reference": 0.2363694533609343,
+     "rel_diff": 1.8893609360492706e-13,
+     "value": 0.23636945336088963
+    },
+    {
+     "flow": "check.taper_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.taper_dB",
+     "reference": 0.8402593369953412,
+     "rel_diff": 4.056348481395249e-13,
+     "value": 0.8402593369950003
+    },
+    {
+     "flow": "check.phase_ripple_pp_deg",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.phase_ripple_pp_deg",
+     "reference": 1.7193904956674948,
+     "rel_diff": 1.2617120983185204e-13,
+     "value": 1.7193904956672779
+    },
+    {
+     "flow": "check.xpol_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.xpol_dB",
+     "reference": -28.8414439984343,
+     "rel_diff": 1.7861223711754444e-14,
+     "value": -28.841443998434816
+    },
+    {
+     "flow": "check.V_hcut_ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_hcut_ripple_pp_dB",
+     "reference": 0.13611069298659628,
+     "rel_diff": 2.0391914115345947e-16,
+     "value": 0.13611069298659625
+    },
+    {
+     "flow": "check.V_vcut_ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.V_vcut_ripple_pp_dB",
+     "reference": 0.10544574878105292,
+     "rel_diff": 5.040689446313648e-14,
+     "value": 0.10544574878104761
+    },
+    {
+     "flow": "check.H_hcut_taper_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range_2ghz/design_summary.json:cuts.H_hcut_taper_dB",
+     "reference": 0.5341601164515978,
+     "rel_diff": 6.985657428999143e-13,
+     "value": 0.5341601164512246
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example.use_cases.compact_range_2ghz-quick.experiment.json, Lab item manifest/flow/example.use_cases.compact_range_2ghz-quick",
+   "matched": 8,
+   "nodes": {
+    "check": "done",
+    "compare": "done",
+    "design": "done"
+   },
+   "seconds": 149.2,
+   "status": "done"
+  }
+ },
  "use_cases/compact_range_qz": {
   "quick": {
    "commit": "8306b2d6",

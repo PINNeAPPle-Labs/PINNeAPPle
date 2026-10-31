@@ -3,7 +3,7 @@
 48 designs from a space-filling design over four variables of the default ``AFPMMachine`` (magnet arc 0.6-0.9 of the
 pole pitch, slot opening 0.3-0.7 of the slot pitch, gap 0.7-1.5 mm, magnet thickness 3-6 mm), each checked in full
 3-D and estimated in quasi-3D on the coarse grid of the Axial-Flux Motor Designer
-(``machines3d.afpm_surrogate.run``, about 25 s per design). The designs with magnets thicker than 5.5 mm are held
+(``machines3d.afpm_surrogate.run``, about 55 s per design). The designs with magnets thicker than 5.5 mm are held
 out (extrapolation); the rest are split into train, validation and test. Surrogate families (GP, MLP ensemble,
 quadratic response surface) are compared by ``pinneapple_autolab.study.benchmark``: 5-fold cross-validation,
 cross-conformal 90 % intervals, physics checks (``afpm_surrogate.physics_checks``) and a written selection rule.
@@ -11,7 +11,7 @@ Each selected surrogate is then certified (``afpm_surrogate.certify``): a trust 
 its held-out test and extrapolation errors and interval coverage, every check recorded in a VeriPhysics evidence
 ledger (``results/25_afpm_surrogates.ledger.json``).
 
-    python examples/electrodynamics/25_afpm_surrogates.py      # about 25 min; the campaign resumes
+    python examples/electrodynamics/25_afpm_surrogates.py      # about 45 min; the campaign resumes
 """
 from __future__ import annotations
 

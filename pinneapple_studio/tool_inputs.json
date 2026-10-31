@@ -3889,7 +3889,7 @@
     "magnet_thickness": 0.0045
    }
   },
-  "source": "hand entry: the centre of afpm_surrogate.VARIABLES (one design of examples/electrodynamics/25_afpm_surrogates.py, about 25 s)"
+  "source": "hand entry: the centre of afpm_surrogate.VARIABLES (one design of examples/electrodynamics/25_afpm_surrogates.py, about 55 s)"
  },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:loss_factor": {
   "inputs": {

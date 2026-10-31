@@ -433,3 +433,15 @@ def test_outputs_known_answers():
 def test_every_tool_has_outputs_and_their_source(cat):
     from pinneapple_studio.outputs import SOURCES
     assert all(t["outputs_source"] in SOURCES and isinstance(t["outputs"], list) for t in cat["tools"].values())
+
+
+def test_outputs_helpers_on_literals():
+    """The section reader, the record-class test and the class finder, called the way a form would."""
+    from pinneapple_studio.catalog import make_class_finder
+    from pinneapple_studio.outputs import from_docstring, is_record_class
+    assert from_docstring("Returns\n-------\ntau : float [s]\n    time constant\n") == [
+        {"name": "tau", "type": "float", "unit": "s", "description": "time constant"}]
+    assert is_record_class({"name": "Res", "bases": ["NamedTuple"], "decorators": []})
+    assert not is_record_class({"name": "Solver", "bases": ["object"], "decorators": []})
+    finder = make_class_finder({"modules": {"m": {"module": "m", "classes": [{"name": "Res"}], "imports": []}}})
+    assert finder({"module": "m", "classes": [], "imports": ["m:Res"]})("Res") == {"name": "Res"}

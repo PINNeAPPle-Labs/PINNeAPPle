@@ -1,3 +1,4 @@
 {
- "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit"
+ "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit",
+ "pinneapple_analysis.dynamics.koopman:KoopmanReconstruction": "a result record: KoopmanReconstruction.evaluate(operator, trajectories) builds it from a fitted KoopmanOperator and its trajectories, which a form cannot hold; building it from its own fields would run nothing"
 }

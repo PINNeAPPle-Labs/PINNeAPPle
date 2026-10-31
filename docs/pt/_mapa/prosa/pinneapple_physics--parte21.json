@@ -139,7 +139,17 @@
   "pinneapple_physics.tracking:log_result": "Envia o resultado ao tracker (\"mlflow\", \"wandb\" ou callable) e devolve o id da execução.",
   "pinneapple_physics.tribology.archard:WearMaterial": "Material de desgaste com coeficiente k, dureza e módulo; `K` dá a taxa específica de desgaste.",
   "pinneapple_physics.tribology.archard:BarWear": "Barra abaulada pressionada com carga F; `run` integra o desgaste ao longo da distância de deslizamento.",
-  "pinneapple_physics.tribology.archard:winkler_parabolic_contact": "Solução fechada do contato de folga parabólica numa camada de Winkler."
+  "pinneapple_physics.tribology.archard:winkler_parabolic_contact": "Solução fechada do contato de folga parabólica numa camada de Winkler.",
+  "pinneapple_physics.biology.cell_migration:load_scratch_assay": "Dados do ensaio de risco (scratch assay) para uma densidade inicial de semeadura `density` (células por poço), do arquivo de dados das BINNs. Converte as unidades de µm e horas para mm e dias e remove o perfil mais à esquerda (Lagergren et al., Métodos).",
+  "pinneapple_physics.biology.cell_migration:fit_mechanistic": "Minimiza o erro GLS do modelo `name` sobre seus parâmetros com L-BFGS-B nos limites do paper (padrões do SciPy no resto, como no paper). Os parâmetros são otimizados em unidades escaladas pela largura dos limites.",
+  "pinneapple_physics.biology.excitable:aliev_panfilov_2d": "Diferenças finitas com Euler explícito (passo estável escolhido pelo limite de difusão quando `dt` é None).",
+  "pinneapple_physics.biology.excitable:conduction_velocity": "Velocidade de condução local `1 / |grad T|` de um mapa de ativação (`nan` onde não está definida).",
+  "pinneapple_physics.biology.excitable:Stimulus": "Aumenta `u` em `amplitude` por unidade de tempo dentro de `region(X, Y) -> bool` durante `[t_start, t_end]`.",
+  "pinneapple_physics.biology.models:ultradian_glucose_insulin": "O modelo ultradiano de seis estados. `meals` são (tempo em min, carboidrato em g); `initial` é (Ip µU/ml, Ii µU/ml, G mg/dl, h1, h2, h3) como no paper, convertidos em quantidades com Vp, Vi e Vg.",
+  "pinneapple_physics.biology.models:pk_one_compartment_mm": "Dose oral `dose` (mg) em t = 0 no intestino e doses orais extras `doses` como (tempo h, mg), dadas como entradas de absorção de primeira ordem; tempo em h, C em mg/L.",
+  "pinneapple_physics.biology.models:minimal_pbpk": "Bolus IV `dose` (mg) no sangue venoso. Concentrações no sangue e nos tecidos em mg/L, tempo em h. `Kp` são os coeficientes de partição tecido:plasma (pulmão, fígado, rim, resto); o fígado elimina a concentração livre.",
+  "pinneapple_physics.paper_problems_epi:synthetic_data": "`(t, clean, noisy)`: o modelo integrado (DOP853, rtol = atol = 1e-13) em `n` pontos uniformes em [0, horizon], e `clean + delta * U(-1, 1)` sorteado independentemente por ponto e compartimento.",
+  "pinneapple_physics.paper_problems_epi:fit_shooting": "Linha de base: os parâmetros desconhecidos por mínimos quadrados não lineares sobre o modelo integrado (tiro simples, `scipy.optimize.least_squares` em volta de `solve_ivp`; o estado inicial é conhecido, como no ajuste X-TFC)."
  },
  "exemplos": [
   {

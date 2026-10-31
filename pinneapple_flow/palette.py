@@ -40,6 +40,14 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 SECTION_OF: dict[str, str] = {
     "autolab.board_cooling": "optimization", "autolab.pipe_twin": "optimization",
     "autolab.aerodynamicist": "optimization",
+    "study.ahmed_geometry": "problem",
+    "study.cfd_campaign": "solvers",
+    "study.grid_validation": "validation",
+    "study.dataset": "data",
+    "study.surrogates": "surrogates",
+    "study.inverse": "inverse",
+    "study.twin": "twin",
+    "study.report": "export",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",
@@ -78,10 +86,14 @@ SECTION_OF: dict[str, str] = {
     "lib.worldmodel.inspection_sample": "surrogates",
     "lib.worldmodel.arm_camera": "surrogates",
     "condense.package_thermal": "solvers",
+    "immersed.heat": "solvers",
     "cfd.study": "solvers", "cfd.geometry": "solvers", "cfd.run": "solvers", "cfd.sweep": "data",
     "cfd.surrogate": "surrogates",
     "analysis.physics_learning": "validation",
     "query.package": "solvers",
+    "potential.eos_tree": "equations", "potential.hyperelastic": "equations",
+    "potential.double_pendulum": "solvers", "potential.machine_coenergy": "validation",
+    "potential.co2_surrogates": "surrogates",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

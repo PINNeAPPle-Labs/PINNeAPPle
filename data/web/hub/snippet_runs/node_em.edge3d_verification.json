@@ -1,0 +1,12 @@
+{
+ "code_hash": "93aa9c8c5df5fc7e",
+ "figures": [],
+ "id": "node:em.edge3d_verification",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 8.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "3-D edge elements: sphere, GetDP cross-check, manufactured, slab -> pinneapple_simulation.electromagnetics.fem3d.sphere: SphereCase, mesh_sphere, solve_native, errors, uniform_dirichlet; fem3d.getdp3d.sphere; fem3d.cases: manufactured_magnetostatic, slab_eddy\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'h_sphere': [0.3, 0.2, 0.14, 0.1, 0.07], 'h_getdp': [0.3, 0.2, 0.14], 'mu_r': 10.0}",
+ "timed_out": false
+}

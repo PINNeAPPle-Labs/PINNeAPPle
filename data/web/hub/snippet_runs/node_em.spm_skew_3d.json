@@ -1,0 +1,12 @@
+{
+ "code_hash": "36fe7d8dbe60cd0e",
+ "figures": [],
+ "id": "node:em.spm_skew_3d",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 10.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Skew of a surface-PM machine: 3-D cogging against multi-slice 2-D -> pinneapple_simulation.electromagnetics.machines3d: SPM3D (extruded polar mesh, magnet skew, end regions, Arkkio torque, multislice), skew.skew_study\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'totals_deg': [0, 5, 8, 10, 15], 'kinds': ['step2', 'step3', 'continuous'], 'n_theta': 720, 'theta_step_deg': 1.5, 'stack_layers': 6, 'end_length': 0.02, 'end_layers': 1, 'mu_r_iron': 1000.0}",
+ "timed_out": false
+}

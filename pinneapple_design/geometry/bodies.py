@@ -49,23 +49,41 @@ def _signed_volume(V, F) -> float:
     return float(np.einsum("ij,ij->i", a, np.cross(b, c)).sum() / 6)
 
 
-def _rounded_rect(w: float, h: float, r: float, n_corner: int = 8) -> np.ndarray:
-    """Counter-clockwise (y, z) outline of a w x h rectangle centred at 0 with corner radius r."""
+def _rounded_rect(w: float, h: float, r: float, n_corner: int = 8, side: float = 0.0) -> np.ndarray:
+    """Counter-clockwise (y, z) outline of a w x h rectangle centred at 0 with corner radius r; ``side`` > 0 adds
+    points along the straight edges at most ``side`` apart (otherwise each edge is one segment)."""
     pts = []
-    for cy, cz, a0 in ((w / 2 - r, h / 2 - r, 0), (-w / 2 + r, h / 2 - r, 90), (-w / 2 + r, -h / 2 + r, 180), (w / 2 - r, -h / 2 + r, 270)):
+    corners = ((w / 2 - r, h / 2 - r, 0), (-w / 2 + r, h / 2 - r, 90), (-w / 2 + r, -h / 2 + r, 180), (w / 2 - r, -h / 2 + r, 270))
+    for i, (cy, cz, a0) in enumerate(corners):
         for k in range(n_corner + 1):
             a = math.radians(a0 + 90 * k / n_corner)
             pts.append((cy + r * math.cos(a), cz + r * math.sin(a)))
+        if side > 0:                                        # the straight edge to the next corner's first point
+            ny, nz, b0 = corners[(i + 1) % 4]
+            q = (ny + r * math.cos(math.radians(b0)), nz + r * math.sin(math.radians(b0)))
+            n = int(math.ceil(math.hypot(q[0] - pts[-1][0], q[1] - pts[-1][1]) / side))
+            p0 = pts[-1]
+            pts += [(p0[0] + (q[0] - p0[0]) * j / n, p0[1] + (q[1] - p0[1]) * j / n) for j in range(1, n)]
     return np.array(pts)
 
 
-def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0.05, n_nose: int = 10) -> Mesh:
+def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0.05, n_nose: int = 10,
+               n_body: int = 5, n_slant: int = 6, n_corner: int = 4, slant_length: float = 0.222,
+               side: float = 0.0) -> Mesh:
     """The Ahmed body (Ahmed, Ramm & Faltin 1984): 1.044 x 0.389 x 0.288 m, front corners rounded with 0.1 m radius,
     a 0.222 m long rear slant at ``slant_deg``. Its lower face sits ``clearance`` above z = 0 (the road; the stilts
-    are left out). Nose at x = 0. The classic drag coefficient at 25 degrees is about 0.285 (with ground, Re 4.3e6)."""
-    L, W, H, R, Ls = 1.044, 0.389, 0.288, 0.100, 0.222
+    are left out). Nose at x = 0. The classic drag coefficient at 25 degrees is about 0.285 (with ground, Re 4.3e6).
+
+    ``n_body`` / ``n_slant`` sections along the straight part and the slant, ``n_corner`` points per rounded long
+    edge, ``side`` > 0 extra points along the flat faces at most that far apart: the vertex count depends only on these (and ``n_nose``), never on the slant angle, so vertex ``i`` is the
+    same material point on every variant (fields on the body can be compared vertex by vertex)."""
+    L, W, H, R, Ls = 1.044, 0.389, 0.288, 0.100, float(slant_length)
+    if not 0.0 < Ls < L - R:
+        raise ValueError(f"slant_length must be in (0, {L - R:g}) m, got {Ls:g}")
+    if Ls * math.tan(math.radians(slant_deg)) >= H:
+        raise ValueError(f"a {Ls:g} m slant at {slant_deg:g} deg cuts through the {H:g} m high body")
     zc = clearance + H / 2
-    out = _rounded_rect(W, H, 0.02, 4)                     # the long edges are slightly rounded in the original
+    out = _rounded_rect(W, H, 0.02, n_corner, side)        # the long edges are slightly rounded in the original
     rings = []
     for k in range(n_nose + 1):                             # front edges rounded with radius R: theta 0 -> 90 deg
         th = math.pi / 2 * k / n_nose
@@ -73,7 +91,7 @@ def ahmed_body(slant_deg: float = 25.0, scale: float = 1.0, clearance: float = 0
         sc = np.c_[out[:, 0] * (W / 2 - inset) / (W / 2), out[:, 1] * (H / 2 - inset) / (H / 2)]
         rings.append(np.c_[np.full(len(sc), x), sc[:, 0], sc[:, 1] + zc])
     t = math.tan(math.radians(slant_deg))
-    for x in np.r_[np.linspace(R, L - Ls, 6)[1:], np.linspace(L - Ls, L, 7)[1:]]:
+    for x in np.r_[np.linspace(R, L - Ls, n_body + 1)[1:], np.linspace(L - Ls, L, n_slant + 1)[1:]]:
         top = H / 2 - max(0.0, x - (L - Ls)) * t
         s = out.copy()
         s[:, 1] = np.minimum(s[:, 1], top)

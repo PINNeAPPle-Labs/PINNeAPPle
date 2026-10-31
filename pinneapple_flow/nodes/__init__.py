@@ -4,8 +4,10 @@ from ..registry import REGISTRY
 from . import (  # noqa: F401
     analysis,
     autolab,
+    body_study,
     cfd_pipeline,
     condense,
+    immersed,
     data,
     methods,
     physics_learning,

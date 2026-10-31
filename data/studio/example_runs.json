@@ -180,8 +180,8 @@
   ]
  },
  "example:visualizations": {
-  "error": "line 187, in main\n    visualize(net)\n    ~~~~~~~~~^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/examples/visualizations/viz_02_heat_2d.py\", line 132, in visualize\n    cmap = plt.cm.get_cmap(\"RdYlBu_r\")\n           ^^^^^^^^^^^^^^^\nAttributeError: module 'matplotlib.cm' has no attribute 'get_cmap'",
-  "hash": "6ba280c30e6e6064",
+  "error": "timeout after 900 s",
+  "hash": "a1cb60870b8bcb5c",
   "ok": false,
   "recorded": "2026-10-31",
   "scripts": [
@@ -194,9 +194,13 @@
    "examples/visualizations/viz_05_wave_2d.py",
    "examples/visualizations/viz_06_structural.py"
   ],
-  "seconds": 619.7,
+  "seconds": 1972.6,
   "writes_files": [
-   "examples/visualizations/viz_01_flow_cylinder.png"
+   "examples/visualizations/viz_01_flow_cylinder.png",
+   "examples/visualizations/viz_02_heat_2d.png",
+   "examples/visualizations/viz_03_vortex_dynamics.png",
+   "examples/visualizations/viz_04_phase_field.png",
+   "examples/visualizations/viz_05_wave_2d.png"
   ]
  },
  "reproduction:reproductions/binns_lagergren2020": {

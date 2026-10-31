@@ -306,9 +306,9 @@ def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = No
                     out = subprocess.run([*_no_network(), *_launcher(copy / s), str(copy / s)], cwd=(copy / s).parent,
                                          env=env, capture_output=True, text=True, timeout=timeout)
                     ok = ok and out.returncode == 0
-                    tail = (out.stderr or out.stdout)[-300:]
+                    tail = f"{s}: " + (out.stderr or out.stdout)[-300:]
                 except subprocess.TimeoutExpired:
-                    ok, tail = False, f"timeout after {timeout:g} s"
+                    ok, tail = False, f"{s}: timeout after {timeout:g} s"
                 if not ok:
                     break
             wrote = _changed(str(copy))

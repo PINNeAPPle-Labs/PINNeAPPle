@@ -435,7 +435,7 @@
   "seconds": 60.0
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm:AFPM3D": {
-  "code_hash": "fd0b10ceb01c7fdb",
+  "code_hash": "328a8f31f09e693b",
   "inputs": {
    "air_r": 0.01,
    "air_z": 0.008,
@@ -447,10 +447,10 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "_Solution",
-  "seconds": 8.88
+  "seconds": 7.21
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm:quasi3d_slices": {
-  "code_hash": "58c8b7563c65d672",
+  "code_hash": "4230a59aa0510c0b",
   "inputs": {
    "air_z": 0.008,
    "dr": 0.02,
@@ -465,7 +465,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 5.73
+  "seconds": 5.22
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm_design:estimate": {
   "code_hash": "682fff9262a55b3a",
@@ -476,7 +476,7 @@
   "seconds": 16.56
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm_design:grid_for": {
-  "code_hash": "690a88281522c88a",
+  "code_hash": "ab32fb8125883303",
   "inputs": {
    "machine": {
     "poles": 8,
@@ -486,7 +486,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
-  "seconds": 3.67
+  "seconds": 4.05
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm_design:machine_from": {
   "code_hash": "4be73375fc0d9a77",

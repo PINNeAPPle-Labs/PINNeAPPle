@@ -297,6 +297,38 @@ def test_real_cli_dispatch(capsys):
     assert e.value.code == 0 and "run-tool" in capsys.readouterr().out
 
 
+def test_outputs_known_answers():
+    """Outputs come from the code: the docstring's Returns (numpy or Google, unit in brackets), a NamedTuple or
+    dataclass annotation, the module's X_OUTPUTS, or nothing."""
+    from pinneapple_studio.outputs import outputs
+    nothing = lambda name: None  # noqa: E731
+    numpy_doc = "Time constant.\n\nReturns\n-------\ntau : float [s]\n    Time constant of the circuit.\n"
+    assert outputs({"name": "f", "doc": numpy_doc, "returns": "float"}, None, nothing) == (
+        [{"name": "tau", "type": "float", "unit": "s", "description": "Time constant of the circuit."}], "docstring")
+    assert outputs({"name": "f", "doc": "Nothing said.", "returns": ""}, None, nothing) == ([], "none")
+    google = "Period.\n\nArgs:\n    x (float): in.\n\nReturns:\n    float [s]: the period.\n"
+    assert outputs({"name": "f", "doc": google, "returns": ""}, None, nothing)[0] == [
+        {"name": "", "type": "float", "unit": "s", "description": "the period."}]
+    two = ("Returns\n-------\nu : numpy.ndarray [m/s]\n    velocity in [0, 1]\np : list[float] [Pa]\n    pressure\n\n"
+           "Example::\n\n    u, p = f()\n")
+    assert [(o["name"], o["type"], o["unit"]) for o in outputs({"name": "f", "doc": two}, None, nothing)[0]] == [
+        ("u", "numpy.ndarray", "m/s"), ("p", "list[float]", "Pa")]
+    interval = "Returns\n-------\ntorch.Tensor\n    Scaled to the [0, 1] interval.\n"
+    assert outputs({"name": "f", "doc": interval}, None, nothing)[0][0]["unit"] == ""
+    res = {"name": "Res", "bases": ["NamedTuple"], "decorators": [], "doc": "Attributes\n----------\ntau : float [s]\n",
+           "params": [{"name": "tau", "ann": "float"}, {"name": "gain", "ann": "float"}]}
+    rows, src = outputs({"name": "f", "doc": "", "returns": "Res"}, None, lambda n: res if n == "Res" else None)
+    assert src == "annotation" and [(o["name"], o["unit"]) for o in rows] == [("tau", "s"), ("gain", "")]
+    assert outputs({"name": "f", "doc": "", "returns": "None"}, None, nothing) == ([], "annotation")
+    assert outputs({"name": "f", "doc": numpy_doc}, {"f": [{"name": "q", "unit": "W"}]}, nothing) == (
+        [{"name": "q", "type": "", "unit": "W", "description": ""}], "declared")
+
+
+def test_every_tool_has_outputs_and_their_source(cat):
+    from pinneapple_studio.outputs import SOURCES
+    assert all(t["outputs_source"] in SOURCES and isinstance(t["outputs"], list) for t in cat["tools"].values())
+
+
 def test_declared_input_ranges_become_form_limits(repo):
     """``fn.x_ranges = {...}`` at module level gives the form's minimum / maximum, read without importing."""
     from pinneapple_studio import catalog

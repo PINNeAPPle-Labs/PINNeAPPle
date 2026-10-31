@@ -28,6 +28,8 @@ from pathlib import Path
 
 import tomllib
 
+from .outputs import declared_outputs
+
 SKIP_DIRS = {".git", "__pycache__", "node_modules", "vendor", ".ipynb_checkpoints", "_out", "_runs",
              "site-packages", ".pytest_cache", "build", "dist"}
 # Third-party names never reach the inventory or the Studio (see exclude_pattern).
@@ -226,6 +228,7 @@ def module_record(path: Path, root: Path) -> dict:
             imports |= {a.name for a in node.names if a.name.split(".")[0].startswith("pinneapple")}
     rec["imports"] = sorted(imports)
     rec["x_ranges"] = declared_ranges(tree)
+    rec["x_outputs"] = declared_outputs(tree)
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and is_public(node.name):
             fdoc = ast.get_docstring(node)

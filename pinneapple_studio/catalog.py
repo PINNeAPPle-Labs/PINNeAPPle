@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from . import classify as C
+from . import outputs as O
 from . import prose as P
 from . import taxonomy as T
 from .inventory import EXCLUDE_RE, cache_dir, repo_root, source_key
@@ -187,6 +188,32 @@ def make_resolver(inv: dict[str, Any]):
     return resolver
 
 
+def make_class_finder(inv: dict[str, Any]):
+    """``finder(module record)`` -> ``find(name)``: the inventory record of a class, looked up in the module, then
+    its imports, then by a unique name in the library (as the resolver does, without building a form)."""
+    by_name: dict[str, list[tuple[str, dict]]] = defaultdict(list)
+    for m, r in inv["modules"].items():
+        for c in r["classes"]:
+            by_name[c["name"]].append((m, c))
+
+    def finder(rec: dict):
+        local = {c["name"]: c for c in rec["classes"]}
+        imported = {i.split(":", 1)[1]: i.split(":", 1)[0] for i in rec.get("imports") or [] if ":" in i}
+
+        def find(name: str) -> dict | None:
+            if name in local:
+                return local[name]
+            cands = by_name.get(name, [])
+            if name in imported:
+                for m, c in cands:
+                    if m == imported[name] or m.startswith(imported[name] + "."):
+                        return c
+            return cands[0][1] if len(cands) == 1 else None
+        return find
+
+    return finder
+
+
 # ------------------------------------------------------------------------------------------------- build
 def _code_hash(root: Path, rec: dict, sym: dict) -> str:
     try:
@@ -208,6 +235,7 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
             by_call[c].append(t)
     examples = scan_examples(root, inv["top_api"])
     resolver = make_resolver(inv)
+    find_class = make_class_finder(inv)
     pp_names = {v: k for k, v in {**inv["top_api"].get("lazy", {}), **inv["top_api"].get("eager", {})}.items()}
     # who imports what: "module:name" -> modules importing it
     importers: dict[str, set[str]] = defaultdict(set)
@@ -256,6 +284,9 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                     "flags": rec.get("flags", []),
                     "code_hash": _code_hash(root, rec, sym),
                 }
+                tool["outputs"], tool["outputs_source"] = O.outputs(
+                    sym if kind == "function" else {"name": sym["name"], "doc": sym.get("doc", ""), "returns": ""},
+                    rec.get("x_outputs"), find_class(rec))
                 if cat == "executable":
                     target = sym
                     if kind == "class":

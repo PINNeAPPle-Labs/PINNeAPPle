@@ -1106,8 +1106,8 @@ every 1.875 deg (3.75 deg on the coarse grid):
   and 38 of 48 (79.2 %) on the fine one; and the rotor turns by even steps, so the coarse grid samples the 15 deg
   period at 4 angles and the fine one at 8. Four samples miss the peak of the cogging: on the coarse grid the
   peak-to-peak is 6.13 N m from 4 angles and 8.60 N m from 16 (quasi-3D, fractional edges, 32 angles give the
-  same). With `edges="fraction"` (magnet and tooth edges as shares of the cells they cut, the rotor turned by any
-  angle) and 16 angles per period, the default design measures:
+  same). With `edges="fraction"` (tooth edges on node planes that slide with the slot opening, magnet edges as
+  shares of the cells they cut, the rotor turned by any angle) and 16 angles per period, the default design measures:
 
   | Grid (steps round the axis, radial x axial) | Cogging pk-pk, quasi-3D (N m) | 3-D (N m) | Quasi-3D / 3-D | Tooth linkage, quasi-3D / 3-D |
   |---|---|---|---|---|

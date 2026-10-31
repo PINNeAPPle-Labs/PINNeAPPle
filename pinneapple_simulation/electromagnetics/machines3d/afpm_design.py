@@ -36,9 +36,9 @@ def grid_for(machine: AFPMMachine, dr: float = 0.008, dz: float = 0.004, min_ste
     """The coarse grid for a design: steps round the axis a multiple of twice the poles and twice the slots (pole
     and slot centres on the mesh's symmetry planes), at least ``min_steps`` and at least ``steps_per_period`` steps
     per cogging period. Raises when that needs more than 480 steps (a slot-pole combination with a very
-    short cogging period). Magnet and tooth edges are shares of the cells they cut (``AFPM3D(edges="fraction")``),
-    so a magnet arc or slot opening between two grid steps is the one asked for, not the nearest whole cells, and
-    the rotor turns by any angle (:data:`SAMPLES_PER_PERIOD` angles per cogging period)."""
+    short cogging period). ``AFPM3D(edges="fraction")``: the tooth edges are node planes and the magnet edges
+    shares of the cells they cut, so a magnet arc or slot opening between two grid steps is the one asked for, not
+    the nearest whole cells, and the rotor turns by any angle (:data:`SAMPLES_PER_PERIOD` angles per cogging period)."""
     period_steps = math.lcm(machine.slots, machine.poles)                  # cogging periods round the axis
     base = math.lcm(2 * machine.poles, 2 * machine.slots, 2 * period_steps)
     n = base * max(1, math.ceil(max(min_steps, steps_per_period * period_steps) / base))

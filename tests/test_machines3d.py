@@ -147,3 +147,30 @@ def test_magnet_block_loss_matches_the_closed_form():
         assert row["ratio_3d_closed_form"] == pytest.approx(1.0, abs=0.05)
     two = r["rows"][1]
     assert two["ratio_3d_2d"] < 0.2                # two axial pieces keep 17 % of the 2-D loss
+
+
+@pytest.mark.parametrize("topology", ["single", "double_rotor"])
+def test_afpm_mesh_conforms_and_aligned_torque_vanishes(topology):
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    mod = AFPM3D(AFPMMachine(topology=topology), n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008)
+    assert mod.mesh._face_topology[2].max() == 2                       # the seam is closed and conforming
+    th = np.array([-2, 0, 2]) * mod.step
+    c = mod.cogging(th)
+    assert abs(c[1]) < 1e-8 * abs(c[2])                                  # no mesh handedness
+    assert c[0] == pytest.approx(-c[2], rel=1e-8)                        # odd about the aligned rotor
+    W = [mod.solve(x).coenergy for x in (0.0, 4 * mod.step)]
+    assert np.sign(W[1] - W[0]) == np.sign(c[2])                         # torque = + d(co-energy)/d(theta)
+
+
+def test_afpm_quasi3d_slices_tile_the_annulus():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    mod = AFPM3D(AFPMMachine(), n_theta=192, dr=0.01, dz=0.008, air_r=0.01, air_z=0.008)
+    q = mod.quasi3d_models(2)
+    active = mod.rs[(mod.rs >= 0.05 - 1e-12) & (mod.rs <= 0.09 + 1e-12)]
+    assert np.allclose(np.concatenate([q[0].rs, q[1].rs[1:]]), active)    # same radial nodes as the 3-D grid
+    s3 = mod.solve(0.0)
+    lq = sum(x.tooth_linkage(x.solve(0.0)) for x in q)
+    l3 = mod.tooth_linkage(s3)
+    assert lq == pytest.approx(l3, rel=0.1) and np.sign(lq) == np.sign(l3)

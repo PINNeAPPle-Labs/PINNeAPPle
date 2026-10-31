@@ -119,6 +119,34 @@ def signature(fn: ast.FunctionDef | ast.AsyncFunctionDef, drop_self: bool = Fals
     return f"({', '.join(parts)}){ret}"
 
 
+def params(fn: ast.FunctionDef | ast.AsyncFunctionDef, drop_self: bool = False) -> list[dict]:
+    """Each parameter: name, annotation (as written), default (as written, ``None`` when required), kind."""
+    a = fn.args
+    out = []
+    pos = a.posonlyargs + a.args
+    defaults = [None] * (len(pos) - len(a.defaults)) + list(a.defaults)
+    for i, (arg, d) in enumerate(zip(pos, defaults, strict=True)):
+        if drop_self and i == 0 and arg.arg in ("self", "cls"):
+            continue
+        out.append({"name": arg.arg, "ann": unparse(arg.annotation) if arg.annotation else "",
+                    "default": None if d is None else unparse(d)[:80], "kind": "positional"})
+    if a.vararg:
+        out.append({"name": a.vararg.arg, "ann": "", "default": "()", "kind": "var_positional"})
+    for arg, d in zip(a.kwonlyargs, a.kw_defaults, strict=True):
+        out.append({"name": arg.arg, "ann": unparse(arg.annotation) if arg.annotation else "",
+                    "default": None if d is None else unparse(d)[:80], "kind": "keyword"})
+    if a.kwarg:
+        out.append({"name": a.kwarg.arg, "ann": "", "default": "{}", "kind": "var_keyword"})
+    return out
+
+
+def dataclass_params(node: ast.ClassDef) -> list[dict]:
+    return [{"name": unparse(b.target), "ann": unparse(b.annotation),
+             "default": None if b.value is None else unparse(b.value)[:80], "kind": "keyword"}
+            for b in node.body if isinstance(b, ast.AnnAssign) and isinstance(b.target, ast.Name)
+            and "ClassVar" not in unparse(b.annotation)]
+
+
 def is_public(name: str) -> bool:
     return not name.startswith("_")
 
@@ -135,7 +163,7 @@ def module_record(path: Path, root: Path) -> dict:
     src, tree = parse(path)
     rec = {"module": module_name(path, root), "path": str(path.relative_to(root)),
            "lines": 0, "doc": "", "doc1": "", "classes": [], "functions": [], "all": None,
-           "flags": [], "parse_error": tree is None}
+           "flags": [], "imports": [], "parse_error": tree is None}
     if tree is None:
         return rec
     rec["lines"] = src.count("\n") + 1
@@ -143,22 +171,41 @@ def module_record(path: Path, root: Path) -> dict:
     rec["doc"] = clean(doc, 1500)
     rec["doc1"] = first_line(doc)
     not_impl = False
+    imports = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Raise) and node.exc is not None and "NotImplementedError" in unparse(node.exc):
             not_impl = True
+        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0 \
+                and node.module.split(".")[0].startswith("pinneapple"):
+            imports |= {f"{node.module}:{a.name}" for a in node.names}
+        elif isinstance(node, ast.ImportFrom) and node.level > 0:
+            base = rec["module"].split(".")
+            if not path.name == "__init__.py":
+                base = base[:-1]
+            base = base[:len(base) - (node.level - 1)] if node.level > 1 else base
+            mod = ".".join(base + ([node.module] if node.module else []))
+            imports |= {f"{mod}:{a.name}" for a in node.names}
+        elif isinstance(node, ast.Import):
+            imports |= {a.name for a in node.names if a.name.split(".")[0].startswith("pinneapple")}
+    rec["imports"] = sorted(imports)
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and is_public(node.name):
             fdoc = ast.get_docstring(node)
             rec["functions"].append({"name": node.name, "sig": signature(node), "doc1": first_line(fdoc),
-                                     "line": node.lineno})
+                                     "line": node.lineno, "end": node.end_lineno, "doc": clean(fdoc, 4000),
+                                     "params": params(node), "returns": unparse(node.returns) if node.returns else "",
+                                     "decorators": [unparse(d) for d in node.decorator_list],
+                                     "async": isinstance(node, ast.AsyncFunctionDef)})
         elif isinstance(node, ast.ClassDef) and is_public(node.name):
             cdoc = ast.get_docstring(node)
             init = None
+            init_params = None
             methods = []
             for b in node.body:
                 if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     if b.name == "__init__":
                         init = signature(b, drop_self=True)
+                        init_params = params(b, drop_self=True)
                     elif is_public(b.name):
                         methods.append(b.name)
             if init is None:  # dataclass: campos anotados
@@ -168,7 +215,11 @@ def module_record(path: Path, root: Path) -> dict:
                 init = f"({', '.join(fields)})" if fields else "()"
             rec["classes"].append({"name": node.name, "bases": [unparse(b) for b in node.bases],
                                    "sig": init if len(init) <= 160 else init[:157] + "…)",
-                                   "doc1": first_line(cdoc), "methods": methods, "line": node.lineno})
+                                   "doc1": first_line(cdoc), "methods": methods, "line": node.lineno,
+                                   "end": node.end_lineno, "doc": clean(cdoc, 4000),
+                                   "params": init_params if init_params is not None else dataclass_params(node),
+                                   "has_init": init_params is not None,
+                                   "decorators": [unparse(d) for d in node.decorator_list]})
         elif isinstance(node, ast.Assign):
             for t in node.targets:
                 if isinstance(t, ast.Name) and t.id == "__all__" and isinstance(node.value, (ast.List, ast.Tuple)):

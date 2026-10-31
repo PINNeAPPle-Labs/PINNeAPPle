@@ -175,3 +175,14 @@ That makes **18 scored targets**.
   number rests on.
 - **Targets that get no run are reported as "not attempted".**
 - The order does not change any run: each run is fixed by its seed.
+
+## Amendment 3 (2026-10-31, scope)
+
+- The PR reports **Table 1 at seed 0**. Its 12 numbers are scored on that single seed, and the README says so.
+- **Table 2 (wave) is not attempted.**
+  - Cost on this CPU, for 1000 outer steps:
+    - PINNs: measured at 43 s per step with 2 threads (7.2 min per 10 steps), so about 12 h.
+    - PINNsFormer: 69 s for its first step with 4 threads (amendment 1). At least 1000 × 69 s is about 19 h, and
+      with the threads it shares, about 36 h.
+  - Seeds 1 and 2 of Table 1 are not run either.
+  - These can be added later. The checkpointing runner resumes them.

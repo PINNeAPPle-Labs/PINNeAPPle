@@ -1,11 +1,16 @@
-"""Mathematical toolkit for dynamical systems: the shared foundation.
+"""Mathematical toolkit for dynamical systems.
 
-This package will hold five frameworks that operate on trajectories from any source (measurements, simulations,
-closed forms, PINN / FNO / DeepONet predictions): first-passage and hitting times, dimensional analysis and
-Buckingham pi, Fisher information and experimental design, critical slowing down and early-warning indicators, and
-Koopman / spectral analysis. Each lands in its own pull request with its benchmarks; none is available yet.
+Five frameworks that operate on trajectories from any source (measurements, simulations, closed forms, PINN / FNO /
+DeepONet predictions) are being added one pull request at a time, each with its benchmarks. Available now:
 
-What is here now is what they share:
+* :mod:`.first_passage`: first-passage and hitting times (deterministic crossing, Kaplan-Meier from observed
+  trajectories, Monte Carlo of SDEs with Brownian-bridge correction, closed forms). Guide:
+  ``docs/guides/dynamics_first_passage.md``.
+
+Not yet available: dimensional analysis and Buckingham pi, Fisher information and experimental design, critical
+slowing down and early-warning indicators, Koopman / spectral analysis.
+
+The frameworks share:
 
 * the method contract (:mod:`._contract`): :class:`MethodCard` (inputs, assumptions, configuration, outputs,
   role, failure and applicability conditions, written before a run) and :class:`DynamicsResult` (estimate,
@@ -16,10 +21,11 @@ What is here now is what they share:
   sampling, missing values and right-censored observation windows, and the adapters from arrays, tables and CSV
   files, ``pp.solve`` solutions, callables (trained networks) and PDE snapshots.
 
-Guide: ``docs/guides/dynamics_toolkit.md``.
+Guide to the shared parts: ``docs/guides/dynamics_toolkit.md``.
 """
 from __future__ import annotations
 
+from . import first_passage
 from ._backends import BackendUnavailable, Capabilities, capabilities, require, to_numpy
 from ._contract import (
     ROLES,
@@ -32,6 +38,15 @@ from ._contract import (
     jsonable,
     make_rng,
     reproducibility,
+)
+from .first_passage import (
+    SDE,
+    BoundaryCondition,
+    CrossingProbability,
+    FirstPassageAnalyzer,
+    FirstPassageResult,
+    HittingTimeDistribution,
+    SurvivalFunction,
 )
 from .trajectories import (
     SOURCE_KINDS,
@@ -51,4 +66,6 @@ __all__ = [
     "BackendUnavailable", "Capabilities", "capabilities", "require", "to_numpy",
     "SOURCE_KINDS", "Trajectory", "TrajectoryEnsemble",
     "from_array", "from_table", "from_csv", "from_solution", "from_model", "from_snapshots",
+    "first_passage", "FirstPassageAnalyzer", "HittingTimeDistribution", "CrossingProbability", "SurvivalFunction",
+    "BoundaryCondition", "FirstPassageResult", "SDE",
 ]

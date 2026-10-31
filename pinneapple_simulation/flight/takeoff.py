@@ -53,6 +53,9 @@ def takeoff_derivatives(ac: Aircraft, V: float) -> dict[str, float]:
 def simulate_takeoff(ac: Aircraft, schedule: TakeoffSchedule | None = None, wind=None, t_max: float = 90.0,
                      dt: float = 0.01, h_stop: float = 400 * FT, design: LoopDesign | None = None,
                      record_gamma: bool = False, record_every: int = 1, kind: str = "transport") -> FlightHistory:
+    """Simulate the whole take-off of the aircraft, from the ground equilibrium to the stopping height ``h_stop``;
+    returns the flight history.
+    """
     s = schedule or default_schedule(ac, kind)
     d = takeoff_derivatives(ac, s.V_climb)
     pilot = TakeoffPilot(ac, s, d, design)
@@ -77,6 +80,9 @@ def _point_heights(ac: Aircraft, hist: FlightHistory, pA) -> np.ndarray:
 
 
 def takeoff_metrics(ac: Aircraft, hist: FlightHistory) -> dict[str, Any]:
+    """The take-off metrics from a flight history: distances, speeds and times (or ``lifted_off: False`` when it did
+    not lift off).
+    """
     ev = hist.events
     x0 = hist.x[0, :2]
     hdg = 0.0

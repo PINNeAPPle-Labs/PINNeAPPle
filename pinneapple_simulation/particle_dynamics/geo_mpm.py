@@ -40,6 +40,9 @@ __all__ = ["Sand", "Fluid", "Elastic", "GeoMPM", "box", "read_particle_frames", 
 
 @dataclass
 class Sand:
+    """Sand: cohesionless Drucker-Prager plasticity with friction angle, Young's modulus ``E``, Poisson ratio ``nu``
+    and density.
+    """
     friction_deg: float = 30.0
     E: float = 3.5e5
     nu: float = 0.3
@@ -86,6 +89,9 @@ def _svd_rot(F: torch.Tensor):
 
 
 class GeoMPM:
+    """2D/3D MLS-MPM simulator in physical units: bodies, walls (slip, sticky or friction), a stable step from the CFL
+    number and recorded frames.
+    """
     def __init__(self, domain: Sequence[float], dx: float, gravity: Sequence[float] | None = None,
                  floor: str = "friction", walls: str = "slip", wall_friction: float = 0.5, cfl: float = 0.3,
                  flip: float = 0.0, plane_strain: bool = True, dtype=torch.float64):

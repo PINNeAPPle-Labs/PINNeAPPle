@@ -435,7 +435,7 @@
   "seconds": 60.0
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm:AFPM3D": {
-  "code_hash": "7dad6eb6f4dc6fce",
+  "code_hash": "1b4e1e490d8610dc",
   "inputs": {
    "air_r": 0.01,
    "air_z": 0.008,
@@ -447,7 +447,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "_Solution",
-  "seconds": 6.81
+  "seconds": 9.11
  },
  "pinneapple_simulation.electromagnetics.machines3d.afpm:quasi3d_slices": {
   "code_hash": "4230a59aa0510c0b",
@@ -1950,7 +1950,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.free_surface:FreeSurfaceFlow": {
-  "code_hash": "3bba7ab768863443",
+  "code_hash": "1d26b33300aa7bf1",
   "error": "ValueError: FreeSurfaceFlow: provide either regions (surfaces) or mesh (a case with constant/polyMesh)",
   "inputs": {},
   "ok": false,
@@ -2442,7 +2442,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.particle_dynamics.geo_mpm:GeoMPM": {
-  "code_hash": "af5f266dc208a62a",
+  "code_hash": "926784a8136042ac",
   "inputs": {
    "domain": [
     0.6,
@@ -2453,7 +2453,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "GeoMPM",
-  "seconds": 0.01
+  "seconds": 1.13
  },
  "pinneapple_simulation.particle_dynamics.geo_mpm:box": {
   "code_hash": "c19d142985ec11ed",

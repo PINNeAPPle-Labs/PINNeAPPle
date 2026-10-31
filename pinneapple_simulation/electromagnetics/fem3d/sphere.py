@@ -25,6 +25,10 @@ __all__ = ["SphereCase", "mesh_sphere", "solve_native", "errors", "uniform_diric
 
 
 class SphereCase:
+    """Reference case of a magnetisable sphere (radius ``a``, relative permeability ``mu_r``) in a uniform field
+    ``B0`` inside a ball of radius ``R``, with the exact field: uniform inside the sphere, a dipole's outside, and the
+    exact vector potential used on the outer boundary.
+    """
     def __init__(self, a: float = 1.0, R: float = 3.0, mu_r: float = 10.0, B0=(0.0, 0.0, 1.0)):
         self.a, self.R, self.mu_r = float(a), float(R), float(mu_r)
         self.B0 = np.asarray(B0, float)

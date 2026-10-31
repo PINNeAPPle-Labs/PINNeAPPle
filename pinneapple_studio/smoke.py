@@ -130,6 +130,9 @@ def record(catalog: dict[str, Any], *, stale_only: bool = True, package: str | N
         inputs = smoke_inputs(t, given)
         if inputs is None:
             continue
+        from .coverage import SIDE_EFFECTS
+        if SIDE_EFFECTS.search(t["name"]) and tid not in given:
+            continue
         old = runs.get(tid)
         if stale_only and old and old.get("code_hash") == t["code_hash"] and old.get("inputs") == inputs:
             continue
@@ -137,6 +140,7 @@ def record(catalog: dict[str, Any], *, stale_only: bool = True, package: str | N
     stats = {"modules": len(by_module), "tools": sum(len(v) for v in by_module.values()), "ok": 0, "failed": 0}
     env = clean_env({"PYTHONPATH": str(root), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(root)})
     for k, (mod, todo) in enumerate(sorted(by_module.items())):
+        before = _tracked_state(root)
         with tempfile.TemporaryDirectory() as tmp:
             spec = Path(tmp) / "todo.json"
             spec.write_text(json.dumps(todo, default=str))
@@ -156,15 +160,42 @@ def record(catalog: dict[str, Any], *, stale_only: bool = True, package: str | N
                 done[r.pop("id")] = r
             except (json.JSONDecodeError, KeyError):
                 continue
+        touched = sorted(set(_tracked_state(root).items()) - set(before.items()))
         for tid, inputs in todo:
             r = done.get(tid) or {"ok": False, "error": f"no result (the interpreter stopped: {err.strip()[-200:]})",
                                   "seconds": None}
+            if touched:
+                r.update(ok=False, error="the module's smoke run changed files of the repository: "
+                                         + ", ".join(p for p, _ in touched[:5]))
             r.update(code_hash=catalog["tools"][tid]["code_hash"], inputs=inputs, recorded=time.strftime("%Y-%m-%d"))
             runs[tid] = r
             stats["ok" if r["ok"] else "failed"] += 1
         log(f"[{k + 1}/{len(by_module)}] {mod}: {sum(done.get(t, {}).get('ok', False) for t, _ in todo)}/{len(todo)}")
         _write(root, runs, catalog)
     return stats
+
+
+def _tracked_state(root: Path) -> dict[str, str]:
+    """``{path: status}`` of changed and untracked files outside ``data/studio`` (to catch a smoke run that writes
+    into the checkout)."""
+    try:
+        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"], cwd=root,
+                             capture_output=True, text=True, timeout=60).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    rows = {}
+    for ln in out.splitlines():
+        path = ln[3:]
+        if not path.startswith(str(RUNS)) and "__pycache__" not in path:
+            rows[path] = ln[:2] + str(_mtime(root / path))
+    return rows
+
+
+def _mtime(p: Path) -> float:
+    try:
+        return p.stat().st_mtime
+    except OSError:
+        return 0.0
 
 
 def _write(root: Path, runs: dict[str, dict[str, Any]], catalog: dict[str, Any]) -> None:

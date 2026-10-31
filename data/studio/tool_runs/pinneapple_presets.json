@@ -1,0 +1,258 @@
+{
+ "pinneapple_presets.cases.airfoil:AirfoilSection": {
+  "code_hash": "eb12828be1b0293e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AirfoilSection",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.eddy_current:EddyCurrentInspection": {
+  "code_hash": "5a4b62a88bfb4565",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EddyCurrentInspection",
+  "seconds": 4.15
+ },
+ "pinneapple_presets.cases.footbridge:SteelFootbridge": {
+  "code_hash": "bd63f067de488f5b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SteelFootbridge",
+  "seconds": 3.42
+ },
+ "pinneapple_presets.cases.heatsink:PlateFinHeatsink": {
+  "code_hash": "50c312254569df9e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PlateFinHeatsink",
+  "seconds": 4.26
+ },
+ "pinneapple_presets.cases.insulation:SteamLineInsulation": {
+  "code_hash": "3f4ae79d2722b9d3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SteamLineInsulation",
+  "seconds": 4.42
+ },
+ "pinneapple_presets.cases.ipm_traction:IPMTraction": {
+  "code_hash": "e3656e9f8bd20597",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IPMTraction",
+  "seconds": 3.58
+ },
+ "pinneapple_presets.cases.pcb:PowerPCB": {
+  "code_hash": "b121feee2fba20e9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PowerPCB",
+  "seconds": 4.33
+ },
+ "pinneapple_presets.cases.pipe_network:WaterNetwork": {
+  "code_hash": "1b880ac850c8a7af",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "WaterNetwork",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pressure_vessel:PressureVessel": {
+  "code_hash": "0102c765006c3857",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PressureVessel",
+  "seconds": 3.17
+ },
+ "pinneapple_presets.cases.pump_npsh:PumpNPSH": {
+  "code_hash": "ae31820b18a5a86d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PumpNPSH",
+  "seconds": 4.18
+ },
+ "pinneapple_presets.cases.shell_tube:ShellTubeCooler": {
+  "code_hash": "894d78e73bb0454a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ShellTubeCooler",
+  "seconds": 3.98
+ },
+ "pinneapple_presets.cases.spm_motor:SPMMotor": {
+  "code_hash": "e7a93b0d2e8fa65f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SPMMotor",
+  "seconds": 3.49
+ },
+ "pinneapple_presets.cases.water_hammer:WaterHammer": {
+  "code_hash": "1d697ffae735518e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "WaterHammer",
+  "seconds": 4.63
+ },
+ "pinneapple_presets.core:Preset": {
+  "code_hash": "0e4ccd2139ab02c2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Preset",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.core:environment": {
+  "code_hash": "dc960da91b1e0b62",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.33
+ },
+ "pinneapple_presets.registry:index": {
+  "code_hash": "0d7646f5566801c6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.15
+ },
+ "pinneapple_presets.registry:list_presets": {
+  "code_hash": "fbefc8c33a29a0c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.12
+ },
+ "pinneapple_presets.registry:names": {
+  "code_hash": "16c599a9d0c1f64b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 2.44
+ },
+ "pinneapple_presets.report:write_catalogue": {
+  "code_hash": "dbec9261aac1d601",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.03
+ },
+ "preset:airfoil_section_re4e6": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.33
+ },
+ "preset:eddy_current_skin_inspection": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.09
+ },
+ "preset:ipm_traction_motor": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.46
+ },
+ "preset:plate_fin_heatsink_forced": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.24
+ },
+ "preset:power_pcb_junction": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.22
+ },
+ "preset:pressure_vessel_asme": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "preset:pump_npsh_cavitation": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "preset:shell_tube_cooler": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "preset:spm_servo_motor": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 36.62
+ },
+ "preset:steam_pipe_insulation": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.08
+ },
+ "preset:steel_footbridge_pedestrian": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.04
+ },
+ "preset:water_distribution_network": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "preset:water_hammer_valve_closure": {
+  "code_hash": "",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.31
+ }
+}

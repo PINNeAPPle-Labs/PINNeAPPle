@@ -36,7 +36,8 @@ EXAMPLE_RUNS = Path("data") / "studio" / "example_runs.json"
 # names that say a call reaches outside a scratch folder: not smoke-run, by rule
 SIDE_EFFECTS = re.compile(r"(^|_)(serve|server|start|launch|open|browser|download|fetch|upload|push|publish|"
                           r"deploy|install|uninstall|delete|remove|rm|kill|login|send|post|email|notify|watch|"
-                          r"listen|daemon|run_forever|loop|gui|show|interactive|record|clone|sync|pull)(_|$)", re.I)
+                          r"listen|daemon|run_forever|loop|gui|show|interactive|record|clone|sync|pull|write|save|"
+                          r"dump|export|store|register|persist|cache|clear|reset|migrate|init_db|index)(_|$)", re.I)
 
 
 def baseline() -> set[str]:
@@ -56,7 +57,7 @@ def declared_reason(tool: dict[str, Any], table: dict[str, str]) -> str:
         if tool["module"] == prefix or tool["module"].startswith(prefix + "."):
             return why
     if SIDE_EFFECTS.search(tool["name"]):
-        return f"not smoke-run: its name ({tool['name']}) says it reaches outside a scratch folder"
+        return f"not smoke-run: its name ({tool['name']}) says it writes or reaches outside a scratch folder"
     return ""
 
 

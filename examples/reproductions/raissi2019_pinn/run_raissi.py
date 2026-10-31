@@ -292,6 +292,30 @@ def report():
             cells.append(f"{p:.2g} / {txt} {'✓' if v == 'reproduced' else '✗' if v != 'not attempted' else ''}")
         rows.append(f"| {L} | " + " | ".join(cells) + " |")
     lines.append("## Table 2 (N_u = 100, N_f = 10 000)\n\n" + "\n".join(rows) + "\n")
+    # post hoc, not the frozen protocol: the same runs in float64 (TARGETS.md amendment 1)
+    f64 = [r["error_u"] for s in range(3) if (r := _done(f"x_b0_float64_s{s}"))]
+    post = []
+    if f64:
+        st = seed_stats(f64)
+        post.append(f"- B0 in float64: {st.median:.2g} [{st.min:.2g}, {st.max:.2g}] ({len(f64)} seeds), "
+                    f"**{status(st.median, B0_TARGET)} (post hoc)** against 6.7e-4.")
+    rows = ["| Layers × neurons | Paper | float32, median of 3 | float64, seed 0 | float64 status (post hoc) |",
+            "|---|---|---|---|---|"]
+    n_post = 0
+    for L in LAYER_ROWS:
+        for N, p in zip(WIDTH_COLS, TABLE2[L], strict=True):
+            r64 = _done(f"x_t2f64_L{L}_N{N}_s0")
+            v32 = [r["error_u"] for s in range(3) if (r := _done(f"t2_L{L}_N{N}_s{s}"))]
+            if r64 is None:
+                continue
+            v = status(r64["error_u"], p)
+            n_post += v == "reproduced"
+            rows.append(f"| {L} × {N} | {p:.2g} | {np.median(v32):.2g} | {r64['error_u']:.2g} | {v} |")
+    if len(rows) > 2:
+        post.append(f"- Table 2 in float64 at seed 0: {n_post} of {len(rows) - 2} cells within a factor of 2.\n\n"
+                    + "\n".join(rows))
+    if post:
+        lines.append("## float64 (post hoc, not scored)\n\n" + "\n".join(post) + "\n")
     s_runs = [r for s in range(3) if (r := _done(f"s0_s{s}"))]
     if s_runs:
         st = seed_stats([r["error_h"] for r in s_runs])
@@ -301,7 +325,7 @@ def report():
     else:
         v = "not attempted"
     statuses["S0 Schrodinger headline"] = v
-    extras = [(n, r) for n, _, _ in jobs("extras") if (r := _done(n))]
+    extras = [(n, r) for n, _, _ in jobs("extras") if (r := _done(n)) and not n.startswith("x_b0_float64")]
     if extras:
         lines.append("## Labelled variants (not scored)\n\n| Run | Error | Iterations | Minutes |\n|---|---|---|---|\n"
                      + "\n".join(f"| {n} | {r.get('error_u', r.get('error_h')):.3g} | {r['iterations']} | "

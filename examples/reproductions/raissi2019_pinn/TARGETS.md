@@ -141,3 +141,18 @@ They can be added by an amendment to this file, written before they run.
 - The same network trained without the physics term (N_f = 0, the paper's footnote 1 on p. 8).
 - Optionally, a classical solution of the same problem with PINNeAPPle's own solvers.
 - Both are reported, not scored.
+
+## Amendment 1 (2026-10-31, after B0 and Table 2 ran in float32): scope and post-hoc variants
+
+**Post hoc, not the frozen protocol.** The scored results stay those of the float32 runs above.
+
+1. **float64 diagnostic.** B0 in float32 ran 10 seeds; the median was 6.1e-3 against 6.7e-4.
+   - In every run, L-BFGS-B stopped on its relative-reduction test after about 5 000 iterations.
+   - B0 therefore also ran in float64 (seeds 0-2), and Table 2 in float64 (seed 0).
+   - These runs are reported as labelled variants, with a "(post hoc)" status. They are not counted in the score.
+2. **Not attempted, because of compute.** One CPU (4 cores) is shared with another reproduction.
+   - **Table 1:** 108 runs at 3 seeds per cell, about 10 min each on one thread, so about 18 h.
+   - **S0:** 50 000 Adam steps plus L-BFGS-B, about 14 h per seed on one thread (measured from a 20-step smoke
+     run).
+   - Both are reported as "not attempted", with these costs.
+   - The extras (code-setting variants, L-BFGS-only Schrödinger, no-physics baseline) are likewise not run.

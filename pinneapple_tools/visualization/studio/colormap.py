@@ -43,7 +43,7 @@ def decimals(lo: float, hi: float) -> int:
 def fmt(v: float, nd: int) -> str:
     """A tick label: fixed with ``nd`` decimals, exponent form beyond 1e4 or below 1e-3 (as JavaScript prints it)."""
     if v == 0:
-        return f"{0:.{nd}f}"
+        return "0" if nd > 3 else f"{0:.{nd}f}"                # as studio-core.js prints it
     if abs(v) >= 1e4 or abs(v) < 1e-3:
         m, e = f"{v:.2e}".split("e")
         return f"{m}e{int(e):+d}"
@@ -53,7 +53,12 @@ def fmt(v: float, nd: int) -> str:
 def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[str]:
     """Evenly spaced tick labels from lo to hi, identical to the browser viewer's."""
     d = decimals(lo, hi) if nd is None else nd
-    return [fmt(lo + (hi - lo) * k / (n - 1), d) for k in range(n)]
+    span = abs(hi - lo)
+
+    def at(k):                     # a tick within rounding of zero is zero (not -4.44e-16 on a symmetric range)
+        v = lo + (hi - lo) * k / (n - 1)
+        return 0.0 if abs(v) <= 1e-9 * span else v
+    return [fmt(at(k), d) for k in range(n)]
 
 
 def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = None, lo_txt: str = "",

@@ -175,6 +175,7 @@ def test_colorbar_ticks_and_pixels(tmp_path):
     assert ticks(-0.5, 0.597) == ["-0.50", "-0.23", "0.05", "0.32", "0.60"]
     assert ticks(0, 2e5) == ["0", "5.00e+4", "1.00e+5", "1.50e+5", "2.00e+5"]
     assert decimals(0, 1) == 2 and decimals(0, 1000) == 0 and ticks(0, 1, nd=1)[2] == "0.5"
+    assert ticks(-2.64, 2.64)[2] == "0.00"                  # zero on a symmetric range, not a rounding residue
     assert [round(255 * c) for c in jet(0)] == [0, 0, 143] and [round(255 * c) for c in jet(2)] == [128, 0, 0]
     p = tmp_path / "white.png"
     Image.new("RGB", (1920, 1080), "white").save(p)

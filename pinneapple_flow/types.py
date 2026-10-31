@@ -12,6 +12,8 @@ from __future__ import annotations
 PORT_TYPES: dict[str, str] = {
     "geometry": "domain and its dimension (interval, rectangle, box, disk, sphere), bounds, time interval",
     "mesh": "discretisation of a geometry (grid spacing or node count per axis)",
+    "unstructured_mesh": "triangles or tetrahedra (and wall prisms) of a geometry: element quality, sizes and the "
+                         ".msh / .vtu files",
     "equations": "validated equation system: PDEs, boundary and initial conditions, coefficient values",
     "problem": "geometry + equations, ready to solve (maps onto pp.PhysicalProblem when a preset matches)",
     "solution": "a field sampled on points or a grid (coordinates + values, .npz artifact)",
@@ -40,6 +42,7 @@ CONVERSIONS: frozenset[tuple[str, str]] = frozenset({
     ("problem", "geometry"),        # a problem carries its geometry
     ("problem", "equations"),       # ... and its equations
     ("mesh", "geometry"),           # a mesh knows its geometry
+    ("unstructured_mesh", "geometry"),
     ("solution", "dataset"),        # a solved field is training / calibration data
     ("series", "dataset"),
     ("dataset", "series"),

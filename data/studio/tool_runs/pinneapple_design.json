@@ -679,6 +679,29 @@
   "recorded": "2026-10-31",
   "seconds": 6.13
  },
+ "pinneapple_design.geometry.mesh.generate:estimate_elements": {
+  "code_hash": "3c1af362dd1d7918",
+  "inputs": {
+   "boundary": 6.0,
+   "boundary_layer": null,
+   "dim": 3,
+   "h": 0.1,
+   "measure": 1.0,
+   "refine": []
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 5.18
+ },
+ "pinneapple_design.geometry.mesh.generate:generate_mesh": {
+  "code_hash": "406bfc7de2546fba",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.62
+ },
  "pinneapple_design.geometry.mesh.mesher_2d:mesh_rectangle_structured": {
   "code_hash": "b7d0bc7848eea8a2",
   "inputs": {},

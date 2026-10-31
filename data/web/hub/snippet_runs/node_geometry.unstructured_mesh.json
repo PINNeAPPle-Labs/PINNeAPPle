@@ -1,0 +1,12 @@
+{
+ "code_hash": "81b79dfa853c5a66",
+ "figures": [],
+ "id": "node:geometry.unstructured_mesh",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 5.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Unstructured mesh -> pinneapple_design.geometry.mesh.generate.generate_mesh (gmsh; quality: gmsh minSICN / gamma, pinneapple_data.cae.quality.element_metrics; view: pp.viz.field_view)\ninputs: [('geometry', 'geometry')]\noutputs: [('mesh', 'unstructured_mesh')]\ndefaults: {'shape': 'box', 'dimensions': [], 'file': '', 'scale': 1.0, 'h': 0.1, 'refine': [], 'boundary_layer': {}}",
+ "timed_out": false
+}

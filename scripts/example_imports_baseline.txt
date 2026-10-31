@@ -25,7 +25,6 @@ examples/numerical_solvers/08_solver_fdm_demo.py
 examples/numerical_solvers/09_solver_lmb_demo.py
 examples/numerical_solvers/10_solver_spectral_demo.py
 examples/numerical_solvers/11_cad_cfd_pipeline_demo.py
-examples/pinneapple_cosim/01_spring_mass_pinn.py
 examples/time_series/01_FNO.py
 examples/time_series/02_full_pipeline.py
 examples/time_series/03_audit_and_features.py
@@ -33,10 +32,6 @@ examples/time_series/04_backtest_baselines.py
 examples/time_series/05_quantile_uncertainty.py
 examples/time_series/07_fft_lstm_hybrid.py
 examples/time_series/08_hht_lstm_hybrid.py
-examples/trainer/02_datamodule_splits_preprocess.py
-examples/trainer/03_physics_aware_pinn_ode.py
-examples/trainer/04_resume_infer_and_plot.py
-examples/trainer/05_ddp_torchrun.py
 templates/13_world_model.py
 templates/22_model_serving.py
 templates/24_digital_twin.py

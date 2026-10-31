@@ -5,7 +5,7 @@
   "mid_plane_speed.jpg",
   "wake_vorticity.jpg"
  ],
- "stills_s": 93.16860842704773,
+ "stills_s": 417.45528960227966,
  "usd": {
   "path": "visuals/ahmed_body.usda",
   "issues": {
@@ -62,18 +62,18 @@
  "video": {
   "mp4": "visuals/ahmed_body.mp4",
   "gif": "visuals/ahmed_body.gif",
-  "frames": 786,
+  "frames": 779,
   "fps": 12,
-  "seconds": 65.5,
+  "seconds": 64.91666666666667,
   "narrated": true,
   "language": "en",
   "segments": {
-   "intro": 171,
-   "cfd": 173,
-   "slices": 125,
-   "surrogate": 184,
-   "outro": 133
+   "intro": 36,
+   "cfd": 149,
+   "slices": 170,
+   "surrogate": 121,
+   "outro": 303
   }
  },
- "seconds": 1108.8111853599548
+ "seconds": 3810.3861503601074
 }

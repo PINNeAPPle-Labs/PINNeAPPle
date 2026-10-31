@@ -134,6 +134,14 @@ grid of model evaluations. Its maximum error against the models on random points
 0.58 for Cp (at the slant edge, where Cp changes fastest with the slant), so the page's Cp is a preview and the
 models are the reference.
 
+**Visuals** (`results/visuals`, `results/visuals.json`). Four Blender Cycles stills of the 25 deg validation run on a
+dark product stage (64 samples, 1600 x 900): Cp with streamlines from the front and from the rear, speed on the
+symmetry plane, streamwise vorticity in the wake. A 65 s film in English (1280 x 720, 12 fps, eSpeak NG narration):
+a title card, an orbit of the CFD run, the two slices, the slant swept 0-40 deg through the Cp surrogate (each frame
+labelled "no CFD in this shot", with its mean 90 % half width), and an end card with the test errors. Also a three.js
+viewer and an OpenUSD stage carrying the run's trust decision (validated by `pxr.UsdValidation`, no problems). The
+full render took 64 min on 4 cores, shared with the CFD.
+
 **Extra CFD** (acquisition, random, Pareto checks): see `results/more_cfd.json` and the report. Any of the 19 runs
 not finished when the report was written are listed there as not run.
 

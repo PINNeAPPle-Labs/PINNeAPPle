@@ -1,8 +1,8 @@
-"""pinneapple_train example 02: DataModule + robust preprocessing.
+"""pinneapple_neural.trainer example 02: DataModule + robust preprocessing.
 
 What this shows
 --------------
-- Building loaders with pinneapple_train.DataModule (train/val/test split).
+- Building loaders with pinneapple_neural.trainer.DataModule (train/val/test split).
 - Leakage-safe *time* split (no shuffle across the time axis).
 - A preprocessing pipeline that:
   - fills missing values (NaNs)
@@ -11,7 +11,7 @@ What this shows
 
 Run
 ---
-python examples/pinneapple_train/02_datamodule_splits_preprocess.py
+python examples/trainer/02_datamodule_splits_preprocess.py
 
 Artifacts
 ---------
@@ -29,7 +29,7 @@ from typing import Dict, Any, List
 import torch
 from torch import nn
 
-from pinneapple_train import (
+from pinneapple_neural.trainer import (
     DataModule,
     SplitSpec,
     Trainer,
@@ -38,7 +38,7 @@ from pinneapple_train import (
     SupervisedLoss,
     default_metrics,
 )
-from pinneapple_train.preprocess import PreprocessPipeline, MissingValueStep, NormalizeStep
+from pinneapple_neural.trainer.preprocess import PreprocessPipeline, MissingValueStep, NormalizeStep
 
 
 # -----------------------------
@@ -54,7 +54,7 @@ class WindowItem:
 def make_windows(*, n_series: int = 12, T: int = 64, D: int = 3, window: int = 24) -> List[Dict[str, Any]]:
     """Create windowed samples from multiple synthetic series.
 
-    Each item is a dict compatible with pinneapple_train.ItemAdapter.
+    Each item is a dict compatible with pinneapple_neural.trainer.ItemAdapter.
     """
     g = torch.Generator().manual_seed(123)
     items: List[Dict[str, Any]] = []
@@ -80,14 +80,15 @@ def make_windows(*, n_series: int = 12, T: int = 64, D: int = 3, window: int = 2
             dim=-1,
         )  # (T, 3)
 
-        # Inject missing values (NaNs)
+        # Inject missing values (NaNs) into the inputs only: the target comes from the clean signal
+        clean = x_full.clone()
         miss = torch.rand_like(x_full, generator=g) < 0.03
         x_full = x_full.masked_fill(miss, float("nan"))
 
         # Windowed forecasting target: next-step of feature 0
         for i in range(0, T - window - 1):
             x = x_full[i : i + window]  # (window, D)
-            y = x_full[i + window, 0].unsqueeze(0)  # (1,)
+            y = clean[i + window, 0].unsqueeze(0)  # (1,)
             items.append(
                 {
                     "x": x,

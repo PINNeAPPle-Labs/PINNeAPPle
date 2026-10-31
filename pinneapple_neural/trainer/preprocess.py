@@ -23,8 +23,11 @@ class PreprocessPipeline:
     steps: List[PreprocessStep]
 
     def fit(self, train_batches: Sequence[Dict[str, Any]]) -> "PreprocessPipeline":
+        """Fit each step on the output of the steps before it (a normalizer after a NaN filler sees filled data)."""
+        batches = list(train_batches)
         for s in self.steps:
-            s.fit(train_batches)
+            s.fit(batches)
+            batches = [s.apply(b) for b in batches]
         return self
 
     def apply(self, batch: Dict[str, Any]) -> Dict[str, Any]:
@@ -73,7 +76,7 @@ class NormalizeStep:
                 x = torch.as_tensor(x)
             xs.append(x)
         x_all = torch.cat(xs, dim=0) if xs[0].ndim >= 2 else torch.stack(xs, dim=0)
-        self.scaler = StandardScaler.fit(x_all, dim=self.dim)
+        self.scaler = StandardScaler().fit(x_all, dim=self.dim)
         return self
 
     def apply(self, batch: Dict[str, Any]) -> Dict[str, Any]:
@@ -192,7 +195,7 @@ class MissingValueStep:
     """Fill missing values (NaNs) in x.
 
     Supported strategies:
-      - 'ffill': forward fill along the time axis
+      - 'ffill': forward fill along the time axis (NaNs before the first value take the first value)
       - 'bfill': backward fill along the time axis
       - 'zero': replace NaNs with 0
     """
@@ -229,10 +232,14 @@ class MissingValueStep:
                 raise ValueError(f"MissingValueStep expects x with ndim 2 or 3, got {xt.ndim}")
 
             B, T, D = xt2.shape
+            xt2 = xt2.clone()
             if self.strategy == "ffill":
                 for t in range(1, T):
                     mask = torch.isnan(xt2[:, t, :])
                     xt2[:, t, :][mask] = xt2[:, t - 1, :][mask]
+                for t in range(T - 2, -1, -1):            # leading NaNs: nothing before them to carry forward
+                    mask = torch.isnan(xt2[:, t, :])
+                    xt2[:, t, :][mask] = xt2[:, t + 1, :][mask]
             else:
                 for t in range(T - 2, -1, -1):
                     mask = torch.isnan(xt2[:, t, :])

@@ -355,14 +355,14 @@
   },
   {
    "name": "every_stage_measured",
-   "passed": false,
+   "passed": true,
    "value": null,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": null,
    "min": null,
-   "detail": "stages without a result file: visuals",
+   "detail": "stages without a result file: none",
    "kind": "reference"
   }
  ],
@@ -399,9 +399,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "3dc0f5b9",
-  "created": "2026-10-31T05:45:41Z",
-  "seconds": 0.342,
+  "git": "463d3d81",
+  "created": "2026-10-31T05:47:04Z",
+  "seconds": 2.012,
   "error": null,
   "environment": {
    "python": "3.13.17",

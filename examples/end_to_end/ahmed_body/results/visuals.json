@@ -1,0 +1,79 @@
+{
+ "stills": [
+  "cp_streamlines_front.jpg",
+  "cp_streamlines_rear.jpg",
+  "mid_plane_speed.jpg",
+  "wake_vorticity.jpg"
+ ],
+ "stills_s": 417.45528960227966,
+ "usd": {
+  "path": "visuals/ahmed_body.usda",
+  "issues": {
+   "ok": true,
+   "problems": [],
+   "prims": 3,
+   "meshes": 1,
+   "curves": 1,
+   "points": 0,
+   "time_samples": 0,
+   "up_axis": "Z",
+   "meters_per_unit": 1.0,
+   "start": 0.0,
+   "end": 0.0,
+   "compliance": {
+    "run": true,
+    "engine": "pxr.UsdValidation",
+    "validators": [
+     "usdGeomValidators:EncapsulationChecker",
+     "usdGeomValidators:StageMetadataChecker",
+     "usdGeomValidators:SubsetFamilies",
+     "usdGeomValidators:SubsetParentIsImageable",
+     "usdLuxValidators:EncapsulationRulesValidator",
+     "usdMediaValidators:AuthorshipInputsPaired",
+     "usdMediaValidators:ShadowedOrDuplicateAuthorship",
+     "usdPhysicsValidators:ArticulationChecker",
+     "usdPhysicsValidators:ColliderChecker",
+     "usdPhysicsValidators:PhysicsJointChecker",
+     "usdPhysicsValidators:RigidBodyChecker",
+     "usdShadeValidators:EncapsulationMaterialValidator",
+     "usdShadeValidators:EncapsulationRulesValidator",
+     "usdShadeValidators:MaterialBindingApiAppliedValidator",
+     "usdShadeValidators:MaterialBindingCollectionValidator",
+     "usdShadeValidators:MaterialBindingRelationships",
+     "usdShadeValidators:NormalMapTextureValidator",
+     "usdShadeValidators:ShaderSdrCompliance",
+     "usdShadeValidators:SubsetMaterialBindFamilyName",
+     "usdShadeValidators:SubsetsMaterialBindFamily",
+     "usdSkelValidators:SkelBindingApiAppliedValidator",
+     "usdSkelValidators:SkelBindingApiValidator",
+     "usdUtilsValidators:FileExtensionValidator",
+     "usdUtilsValidators:MissingReferenceValidator",
+     "usdUtilsValidators:PackageEncapsulationValidator",
+     "usdUtilsValidators:RootPackageValidator",
+     "usdUtilsValidators:UsdzPackageValidator",
+     "usdValidation:AttributeTypeMismatch",
+     "usdValidation:CompositionErrorTest",
+     "usdValidation:StageMetadataChecker"
+    ],
+    "errors": []
+   }
+  }
+ },
+ "video": {
+  "mp4": "visuals/ahmed_body.mp4",
+  "gif": "visuals/ahmed_body.gif",
+  "frames": 779,
+  "fps": 12,
+  "seconds": 64.91666666666667,
+  "narrated": true,
+  "language": "en",
+  "segments": {
+   "intro": 36,
+   "cfd": 149,
+   "slices": 170,
+   "surrogate": 121,
+   "outro": 303
+  }
+ },
+ "seconds": 3810.3861503601074
+}

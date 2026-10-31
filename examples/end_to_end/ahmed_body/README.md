@@ -134,6 +134,14 @@ grid of model evaluations. Its maximum error against the models on random points
 0.57 for Cp (at the slant edge, where Cp changes fastest with the slant), so the page's Cp is a preview and the
 models are the reference.
 
+**Visuals** (`results/visuals`, `results/visuals.json`). Four Blender Cycles stills of the 25 deg validation run on a
+dark product stage (64 samples, 1600 x 900): Cp with streamlines from the front and from the rear, speed on the
+symmetry plane, streamwise vorticity in the wake. A 65 s film in English (1280 x 720, 12 fps, eSpeak NG narration):
+a title card, an orbit of the CFD run, the two slices, the slant swept 0-40 deg through the Cp surrogate (each frame
+labelled "no CFD in this shot", with its mean 90 % half width), and an end card with the test errors. Also a three.js
+viewer and an OpenUSD stage carrying the run's trust decision (validated by `pxr.UsdValidation`, no problems). The
+full render took 64 min on 4 cores, shared with the CFD.
+
 **Extra CFD** (`results/more_cfd.json`, `figures/active_learning_cd.png`, `figures/pareto.png`; all 19 runs done).
 Eight runs where the GP of CD was most uncertain, eight random runs and the three Pareto picks. The GP of CD and the
 POD-GP of Cp were refitted on the DOE training set alone, then with each batch added. Errors on the untouched test
@@ -159,7 +167,7 @@ Pareto front at 40 m/s (CD against CL, calibrated CD half width <= 0.02), three 
 
 **Cost** (`results/costs.json`): 84 OpenFOAM runs, none failed, 12.4 h wall and 49.0 CPU-h (wall time x MPI
 processes). By purpose: DOE 15.4, mesh study + CAD + L2 sweep 16.9, extra runs 14.7 (13.7 + 1.0) and validation
-1.8 CPU-h. Surrogate fits and the inverse took 0.2 CPU-h; the renders are in #1005's table.
+1.8 CPU-h. Surrogate fits and the inverse took 0.2 CPU-h; the final renders 4.2 CPU-h (64 min on 4 cores). The whole study: 53.2 CPU-h.
 
 ## What was not measured, and the limits
 

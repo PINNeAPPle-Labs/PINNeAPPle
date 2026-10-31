@@ -7,7 +7,7 @@
 
 ``k`` is the first-order rate constant [1/s], ``Q`` the volumetric flow [m3/s] and ``X`` the conversion of the
 reactant [-]. Each function carries ``x_ranges`` (the input box it is declared for, used to say when a point is
-outside it) and ``x_outputs`` (name, type, unit and description of each output; the module's ``X_OUTPUTS``).
+outside it); the module's ``X_OUTPUTS`` declares the name, type, unit and description of each output.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import TypedDict
 
 __all__ = ["tube_volume", "pfr_conversion", "pfr_conversion_ktau", "cstr_conversion_ktau", "PFRResult"]
 
-# what each tool returns, with units (read by the Studio catalog; ``x_outputs`` on each function points here)
+# what each tool returns, with units (read by the Studio catalog)
 X_OUTPUTS = {
     "tube_volume": [{"name": "V", "type": "float", "unit": "m3", "description": "volume of the tube"}],
     "pfr_conversion": [{"name": "X", "type": "float", "unit": "-", "description": "conversion of the reactant"},
@@ -82,7 +82,6 @@ def pfr_conversion(D: float, L: float, k: float, Q: float) -> PFRResult:
 
 
 pfr_conversion.x_ranges = {"D": (1e-3, 1.0), "L": (0.01, 100.0), "k": (0.0, 10.0), "Q": (1e-7, 1.0)}
-pfr_conversion.x_outputs = X_OUTPUTS["pfr_conversion"]
 
 
 def pfr_conversion_ktau(k: float, tau: float) -> dict[str, float]:
@@ -106,7 +105,6 @@ def pfr_conversion_ktau(k: float, tau: float) -> dict[str, float]:
 
 
 pfr_conversion_ktau.x_ranges = {"k": (0.0, 10.0), "tau": (0.0, 1e4)}
-pfr_conversion_ktau.x_outputs = X_OUTPUTS["pfr_conversion_ktau"]
 
 
 def cstr_conversion_ktau(k: float, tau: float) -> dict[str, float]:
@@ -130,4 +128,3 @@ def cstr_conversion_ktau(k: float, tau: float) -> dict[str, float]:
 
 
 cstr_conversion_ktau.x_ranges = {"k": (0.0, 10.0), "tau": (0.0, 1e4)}
-cstr_conversion_ktau.x_outputs = X_OUTPUTS["cstr_conversion_ktau"]

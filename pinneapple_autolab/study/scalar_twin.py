@@ -190,9 +190,6 @@ def surrogate_twin(model: str, variables: list[dict[str, Any]], quantity: dict[s
     return {"page": page, "manifest": manifest}
 
 
-surrogate_twin.x_role = "twin"
-surrogate_twin.x_outputs = X_OUTPUTS["surrogate_twin"]
-
 _PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>__TITLE__</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">

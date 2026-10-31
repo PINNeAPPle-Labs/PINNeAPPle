@@ -31,18 +31,19 @@ MAX_STEPS = 480
 
 
 def grid_for(machine: AFPMMachine, dr: float = 0.008, dz: float = 0.004, min_steps: int = 180,
-             steps_per_period: int = 8) -> dict[str, float]:
+             steps_per_period: int = 8) -> dict[str, Any]:
     """The coarse grid for a design: steps round the axis a multiple of twice the poles and twice the slots (pole
     and slot centres on the mesh's symmetry planes), at least ``min_steps`` and at least ``steps_per_period`` even
     steps per cogging period. Raises when that needs more than 480 steps (a slot-pole combination with a very
-    short cogging period)."""
+    short cogging period). Magnet and tooth edges are shares of the cells they cut (``AFPM3D(edges="fraction")``),
+    so a magnet arc or slot opening between two grid steps is the one asked for, not the nearest whole cells."""
     period_steps = math.lcm(machine.slots, machine.poles)                  # cogging periods round the axis
     base = math.lcm(2 * machine.poles, 2 * machine.slots, 2 * period_steps)
     n = base * max(1, math.ceil(max(min_steps, steps_per_period * period_steps) / base))
     if n > MAX_STEPS:
         raise ValueError(f"{machine.slots} slots and {machine.poles} poles need {n} steps round the axis "
                          f"(cogging period {360 / period_steps:g} deg); the designer stops at {MAX_STEPS}")
-    return {"n_theta": n, "dr": dr, "dz": dz}
+    return {"n_theta": n, "dr": dr, "dz": dz, "edges": "fraction"}
 
 
 def machine_from(params: dict[str, Any] | None = None) -> AFPMMachine:

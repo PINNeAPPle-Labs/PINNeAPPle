@@ -237,3 +237,27 @@ def test_quasi3d_slices_share_the_radial_nodes_of_the_annulus():
     q = quasi3d_slices(AFPMMachine(poles=8, slots=12), 2, n_theta=192, dr=0.02, dz=0.008, air_z=0.008)
     assert [len(x.rs) for x in q] == [2, 2] and q[0].rs[0] == 0.05 and q[1].rs[-1] == 0.09
     assert q[0].rs[-1] == q[1].rs[0] == pytest.approx(0.07)
+
+
+def test_fraction_edges_give_the_magnet_arc_and_slot_opening_asked_for():
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    kw = {"n_theta": 192, "dr": 0.02, "dz": 0.008, "air_r": 0.01, "air_z": 0.008}
+    for arc, sf in ((0.78, 0.43), (0.8, 0.5)):                    # between grid steps, and on the slot steps
+        m = AFPMMachine(magnet_arc=arc, slot_fraction=sf)
+        cell, frac = AFPM3D(m, **kw), AFPM3D(m, edges="fraction", **kw)
+        pol = frac._magnet_base[0]
+        assert np.abs(pol).sum() == pytest.approx(arc * 192)       # 24 steps per pole: the arc asked for
+        assert np.abs(cell._magnet_base[0]).sum() == 2 * round(arc * 12) * 8    # whole cells, two at a time
+        assert (pol * cell._magnet_base[0] >= 0).all()             # same polarity per pole
+        i, k = frac.cell[0], frac.cell[2]
+        t = np.flatnonzero((frac.zkind[k] == "teeth") & (frac._iron_share > 0))[0]
+        ring = (i == i[t]) & (k == k[t])                           # one ring of teeth cells, six tetrahedra each
+        assert frac._iron_share[ring].sum() / 6 == pytest.approx((1 - sf) * 192)
+    m = AFPMMachine(magnet_arc=5 / 6, slot_fraction=0.5)            # edges on grid lines: the two labellings agree
+    a, b = AFPM3D(m, **kw), AFPM3D(m, edges="fraction", **kw)
+    assert np.array_equal(a._magnet_base[0], b._magnet_base[0]) and np.array_equal(a._iron_share, b._iron_share)
+    with pytest.raises(ValueError, match="edges"):
+        AFPM3D(m, edges="nearest", **kw)

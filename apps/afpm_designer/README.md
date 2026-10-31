@@ -20,18 +20,28 @@ the magnets, the iron and the gap layers.
 | 3-D edge elements (tree gauge, PARDISO or SuperLU) | `pinneapple_simulation.electromagnetics.fem3d` |
 | 3-D view (glTF + description) | `pinneapple_tools.visualization.studio.fieldview.field_view`, `/shared/fieldview3d.js` |
 
-Measured on the default design (12 slots, 8 poles, r = 50 to 90 mm, 1 mm gap, 4 mm magnets, single-sided), on the
-coarse grid the app uses (192 steps round the axis, 8 mm radially, 4 mm axially):
+Magnet and tooth edges are shares of the grid cells they cut (`AFPM3D(edges="fraction")`), so the magnet arc and the
+slot opening are the ones entered, not the nearest whole grid steps: with whole cells the coarse grid moves the
+magnet arc in steps of 1/12 of the pole pitch, and the cogging of the default design jumped from 0.52 to 11.67 N m
+between an arc of 0.79 and 0.80.
+
+Measured on the default design (12 slots, 8 poles, r = 50 to 90 mm, 1 mm gap, 4 mm magnets over 80 % of the pole
+pitch, single-sided), on the coarse grid the app uses (192 steps round the axis, 8 mm radially, 4 mm axially) and on
+a grid twice as fine (384 steps, 4 mm, 2.5 mm):
 
 | | Quasi-3D estimate | 3-D check | Estimate / 3-D |
 |---|---|---|---|
-| Cogging, peak to peak | 11.67 N m | 10.37 N m | 1.125 |
-| Tooth flux linkage | 1.083 mWb | 1.060 mWb | 1.022 |
-| Size, time | 109 440 tetrahedra, 10 s | 196 992 tetrahedra, 15 s | |
+| Cogging, peak to peak, coarse grid | 6.13 N m | 5.42 N m | 1.131 |
+| Cogging, peak to peak, fine grid | 10.49 N m | 9.40 N m | 1.115 |
+| Tooth flux linkage, coarse grid | 1.063 mWb | 1.041 mWb | 1.021 |
+| Tooth flux linkage, fine grid | 1.076 mWb | 1.053 mWb | 1.022 |
+| Time, coarse grid | 13 s | 21 s | |
+| Time, fine grid | 96 s | 140 s (9.2 GB) | |
 
-On a grid twice as fine (`examples/electrodynamics/24_afpm_quasi3d.py`) the estimate overstates the cogging by
-11.3 % and the flux linkage by 2.2 %, so the ratio holds within about a point; the cogging itself is 13 % lower
-there (9.20 N m), so treat the app's absolute cogging as a coarse-grid value.
+The ratio estimate / 3-D holds within 1.6 points between the grids and the flux linkage within 1.2 %, but the
+coarse grid puts the cogging 42 % low on this design. An 80 % arc is near a minimum of the cogging (on the coarse
+grid an arc of 0.76 gives 0.61 N m in quasi-3D, 0.80 gives 6.13 N m), where it changes fast with the geometry.
+Treat the app's absolute cogging as a coarse-grid value and its estimate / 3-D ratio as the result.
 
 Limits: linear iron and magnets, no load (no winding currents), open rectangular-sector teeth, magnets magnetised
 axially. A slot-pole combination whose cogging period needs more than 480 steps round the axis is refused (9 slots

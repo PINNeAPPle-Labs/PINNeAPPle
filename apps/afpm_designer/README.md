@@ -23,9 +23,12 @@ the magnets, the iron and the gap layers.
 | 3-D edge elements (tree gauge, PARDISO or SuperLU) | `pinneapple_simulation.electromagnetics.fem3d` |
 | 3-D view (glTF + description) | `pinneapple_tools.visualization.studio.fieldview.field_view`, `/shared/fieldview3d.js` |
 
-Magnet and tooth edges are shares of the grid cells they cut (`AFPM3D(edges="fraction")`), so the magnet arc and the
-slot opening are the ones entered, and the rotor turns by any angle: the cogging is sampled at 16 angles per period
-(32 give the same peak-to-peak). With whole cells the coarse grid moved the magnet arc in steps of 1/12 of the pole
+The grid follows the design (`AFPM3D(edges="fraction")`): the tooth edges are node planes round the axis, the nodes
+sliding with the slot opening, and a cell on a magnet edge carries the share of it inside as that share of the
+remanence. So the magnet arc and the slot opening are the ones entered, and the rotor turns by any angle: the cogging
+is sampled at 16 angles per period (32 give the same peak-to-peak). Iron is never shared between iron and air in a
+cell: a cell with a few percent of iron carries flux along the tooth like iron across its whole width (the tooth flux
+linkage fell by 5 % between a slot opening of 0.495 and 0.5 that way). With whole cells the coarse grid moved the magnet arc in steps of 1/12 of the pole
 pitch (the cogging of the default design jumped from 0.52 to 11.67 N m between an arc of 0.79 and 0.80) and turned
 the rotor by even steps only, 4 angles per period, which put the peak-to-peak 29 % low (6.13 against 8.60 N m).
 

@@ -13,10 +13,23 @@ from __future__ import annotations
 
 import importlib
 import math
+import sys
 from collections.abc import Callable, Mapping
 from typing import Any, TypedDict
 
-__all__ = ["verify_against_model", "resolve_model", "model_ranges", "output_unit", "VerifyResult"]
+__all__ = ["verify_against_model", "resolve_model", "model_ranges", "output_unit", "VerifyResult", "X_OUTPUTS"]
+
+
+# what each tool returns, with units (read by the Studio catalog)
+X_OUTPUTS = {
+    "verify_against_model": [
+        {"name": "model_value", "type": "float", "unit": "same as the quantity",
+         "description": "the reference model at the point (null when it did not run)"},
+        {"name": "rel_error", "type": "float", "unit": "-", "description": "|surrogate - model| / |model|"},
+        {"name": "status", "type": "str", "unit": "", "description": "pass, fail or inconclusive"},
+        {"name": "verifications", "type": "list", "unit": "",
+         "description": "records {name, status pass|fail|inconclusive|not_run, value, limit, detail}"}],
+}
 
 
 class VerifyResult(TypedDict):
@@ -47,8 +60,13 @@ def model_ranges(fn: Callable[..., Any]) -> dict[str, tuple[float, float]]:
 
 
 def output_unit(fn: Callable[..., Any], quantity: str) -> str | None:
-    """The unit the model declares for ``quantity`` in its ``x_outputs`` (``None`` when it declares none)."""
-    for o in getattr(fn, "x_outputs", None) or []:
+    """The unit the model declares for ``quantity``: its ``x_outputs``, else its module's ``X_OUTPUTS`` entry
+    (``None`` when it declares none)."""
+    declared = getattr(fn, "x_outputs", None)
+    if declared is None:
+        mod = sys.modules.get(getattr(fn, "__module__", "") or "")
+        declared = (getattr(mod, "X_OUTPUTS", None) or {}).get(getattr(fn, "__name__", ""))
+    for o in declared or []:
         if o.get("name") == quantity:
             return o.get("unit")
     return None
@@ -163,9 +181,4 @@ def verify_against_model(point: dict[str, float], surrogate_value: float | dict[
 
 
 verify_against_model.x_role = "verify"
-verify_against_model.x_outputs = [
-    {"name": "model_value", "type": "float", "unit": "same as the quantity", "description": "the model at the point"},
-    {"name": "rel_error", "type": "float", "unit": "-", "description": "|surrogate - model| / |model|"},
-    {"name": "status", "type": "str", "unit": "", "description": "pass, fail or inconclusive"},
-    {"name": "verifications", "type": "list", "unit": "",
-     "description": "records {name, status pass|fail|inconclusive|not_run, value, limit, detail}"}]
+verify_against_model.x_outputs = X_OUTPUTS["verify_against_model"]

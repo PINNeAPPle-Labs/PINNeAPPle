@@ -9,7 +9,7 @@ plug-flow tube with a first-order reaction (`pinneapple_physics.closed_form.idea
 | `pfr_conversion_ktau(k, tau)` | the same from `k` and `tau` |
 | `cstr_conversion_ktau(k, tau)` | the stirred tank, `X = k tau / (1 + k tau)` |
 
-Each declares the input box it is valid for (`x_ranges`) and the unit of each output (`x_outputs`).
+Each declares the input box it is valid for (`x_ranges`). The module-level `X_OUTPUTS` declares the outputs of every tool here with their units, and the Studio catalog reads it.
 
 ## `verify_against_model`: one point, four checks
 

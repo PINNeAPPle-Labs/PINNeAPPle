@@ -31,9 +31,18 @@ import numpy as np
 
 from .verify import resolve_model
 
-__all__ = ["surrogate_twin", "training_set_hash", "in_hull", "TwinOutput"]
+__all__ = ["surrogate_twin", "training_set_hash", "in_hull", "TwinOutput", "X_OUTPUTS"]
 
 BANDS = ("none", "surrogate_std", "holdout_error")
+
+
+# what each tool returns, with units (read by the Studio catalog)
+X_OUTPUTS = {
+    "surrogate_twin": [
+        {"name": "page", "type": "str", "unit": "", "description": "path of the self-contained HTML page"},
+        {"name": "manifest", "type": "dict", "unit": "",
+         "description": "variables, ranges, model id, training-set SHA-256, band method, library commit"}],
+}
 
 
 class TwinOutput(TypedDict):
@@ -182,10 +191,7 @@ def surrogate_twin(model: str, variables: list[dict[str, Any]], quantity: dict[s
 
 
 surrogate_twin.x_role = "twin"
-surrogate_twin.x_outputs = [
-    {"name": "page", "type": "str", "unit": "", "description": "path of the self-contained HTML page"},
-    {"name": "manifest", "type": "dict", "unit": "",
-     "description": "variables, ranges, model id, training-set SHA-256, band method, library commit"}]
+surrogate_twin.x_outputs = X_OUTPUTS["surrogate_twin"]
 
 _PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>__TITLE__</title>

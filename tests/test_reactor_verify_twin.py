@@ -168,3 +168,16 @@ def test_twin_page_in_a_browser(tmp_path):
         assert page.locator("#flag").text_content() == "inside the training set's hull"
         browser.close()
     assert all(u.startswith("file:") for u in requests)
+
+
+def test_outputs_declared_with_units():
+    import pinneapple_autolab.study.scalar_twin as T
+    import pinneapple_autolab.study.verify as V
+    from pinneapple_autolab.study.verify import output_unit
+    for mod, tools in [(R, ["tube_volume", "pfr_conversion", "pfr_conversion_ktau", "cstr_conversion_ktau"]),
+                       (V, ["verify_against_model"]), (T, ["surrogate_twin"])]:
+        for name in tools:
+            rows = mod.X_OUTPUTS[name]
+            assert rows and all(set(r) == {"name", "type", "unit", "description"} for r in rows)
+    assert output_unit(R.pfr_conversion, "tau") == "s"
+    assert output_unit(R.tube_volume, "V") == "m3"  # no attribute: read from the module's X_OUTPUTS

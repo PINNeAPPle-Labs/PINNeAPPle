@@ -172,7 +172,12 @@ def flux_linkage(mesh: Mesh2D, geometry: Geometry, A: np.ndarray, coil_sides: Se
 
 def back_emf(psi: np.ndarray, theta: np.ndarray, omega_mech: float) -> np.ndarray:
     """``e = omega dpsi/dtheta`` for flux linkages sampled over one full period of ``theta``
-    (uniform, endpoint excluded); spectral derivative along axis 0."""
+    (uniform, endpoint excluded); spectral derivative along axis 0.
+
+    Returns
+    -------
+    e : np.ndarray [V]
+        EMF at each angle, for ``psi`` in Wb, ``theta`` in rad and ``omega_mech`` in rad/s (the module's SI units)."""
     psi = np.asarray(psi, float)
     n = psi.shape[0]
     span = (theta[1] - theta[0]) * n

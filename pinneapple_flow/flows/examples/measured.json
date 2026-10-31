@@ -2282,6 +2282,55 @@
    "status": "done"
   }
  },
+ "electromagnetics/20_spm_skew_3d": {
+  "quick": {
+   "commit": "21e0ef8c",
+   "comparisons": [
+    {
+     "flow": "skew.straight.0deg.pkpk_3d",
+     "outcome": "match",
+     "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_3d",
+     "reference": 1.1636991337092286,
+     "rel_diff": 8.282205054098212e-10,
+     "value": 1.1636991327454291
+    },
+    {
+     "flow": "skew.straight.0deg.pkpk_ms",
+     "outcome": "match",
+     "ref": "results/20_spm_skew_3d.json:rows.0.pkpk_ms",
+     "reference": 1.1755954358796947,
+     "rel_diff": 3.6887822619169277e-10,
+     "value": 1.1755954363133463
+    },
+    {
+     "flow": "skew.step2.8deg.pkpk_3d",
+     "outcome": "match",
+     "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_3d",
+     "reference": 0.3173414730468558,
+     "rel_diff": 2.287700062626259e-09,
+     "value": 0.3173414737728379
+    },
+    {
+     "flow": "skew.step2.8deg.pkpk_ms",
+     "outcome": "match",
+     "ref": "results/20_spm_skew_3d.json:rows.2.pkpk_ms",
+     "reference": 0.3169964427782599,
+     "rel_diff": 1.8505401881130842e-08,
+     "value": 0.3169964369121133
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-spm-skew-3d-quick.experiment.json, Lab item manifest/flow/example-em-spm-skew-3d-quick",
+   "matched": 4,
+   "nodes": {
+    "compare": "done",
+    "skew": "done"
+   },
+   "seconds": 382.9,
+   "status": "done"
+  }
+ },
  "electromagnetics/motor_spm_cogging_and_torque": {
   "full": {
    "commit": "c94c53c7",

@@ -33,7 +33,7 @@ from ..fem3d.nedelec import NU0, EdgeSpace, tree_gauge
 from .endeffects import line_integral
 from .spm import _factor
 
-__all__ = ["AFPMMachine", "AFPM3D"]
+__all__ = ["AFPMMachine", "AFPM3D", "quasi3d_slices"]
 
 TWO_PI = 2 * math.pi
 AIR, IRON, MAGNET = 0, 1, 2
@@ -286,12 +286,19 @@ class AFPM3D:
     # ------------------------------------------------------------------------------------------- quasi-3D
     def quasi3d_models(self, n_slices: int) -> list[AFPM3D]:
         """``n_slices`` radial slices of the active annulus on the same radial nodes, no radial air."""
-        m = self.machine
-        ra = self.rs[(self.rs >= m.r_in - 1e-12) & (self.rs <= m.r_out + 1e-12)]
-        cuts = np.round(np.linspace(0, len(ra) - 1, n_slices + 1)).astype(int)
-        return [AFPM3D(m, n_theta=self.n_theta, dr=self.dr, dz=self.dz, air_r=0.0, air_z=self.air_z,
-                       r_range=(float(ra[cuts[q]]), float(ra[cuts[q + 1]])),
-                       r_nodes=ra[cuts[q]:cuts[q + 1] + 1]) for q in range(n_slices)]
+        return quasi3d_slices(self.machine, n_slices, n_theta=self.n_theta, dr=self.dr, dz=self.dz,
+                              air_z=self.air_z)
+
+
+def quasi3d_slices(machine: AFPMMachine, n_slices: int, n_theta: int = 240, dr: float = 0.004, dz: float = 0.002,
+                   air_z: float = 0.015) -> list[AFPM3D]:
+    """The quasi-3D slices of :meth:`AFPM3D.quasi3d_models` without building the full 3-D model: the active
+    annulus has the same radial nodes (``r_in`` to ``r_out`` every ``dr`` at most) in both."""
+    ra = _graded(machine.r_in, machine.r_out, dr)
+    cuts = np.round(np.linspace(0, len(ra) - 1, n_slices + 1)).astype(int)
+    return [AFPM3D(machine, n_theta=n_theta, dr=dr, dz=dz, air_r=0.0, air_z=air_z,
+                   r_range=(float(ra[cuts[q]]), float(ra[cuts[q + 1]])),
+                   r_nodes=ra[cuts[q]:cuts[q + 1] + 1]) for q in range(n_slices)]
 
 
 @dataclass

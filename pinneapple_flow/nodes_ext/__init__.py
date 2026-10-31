@@ -28,6 +28,7 @@ from . import (  # noqa: F401
     pde_env,
     pinn_examples,
     pinn_solver,
+    potential,
     problemdesign,
     render,
     security,

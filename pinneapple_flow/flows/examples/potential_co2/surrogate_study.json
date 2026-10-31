@@ -1,0 +1,20 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-potential-co2-surrogate-study",
+ "name": "CO2 near the critical point: potential-based vs direct surrogate",
+ "description": "Networks trained on the same mixed CoolProp data of CO2 (each sample carries one of p, s, u, c_v, c_p, w): a Helmholtz-energy network whose properties are its derivatives (MLP and input-convex variants) against one output per property, same loss, optimiser and steps; errors inside the training region and in two extrapolation regions, and the thermodynamic identities. One seed at a reduced budget; examples/potential_co2/01_run_study.py runs five seeds and three configurations.",
+ "meta": {
+  "example": "potential_co2",
+  "quick": {"study": {"epochs": 100, "n_per_prop": 30}}
+ },
+ "nodes": [
+  {
+   "id": "study",
+   "type": "potential.co2_surrogates",
+   "params": {"seeds": 1, "epochs": 600, "n_per_prop": 100, "without_cp": false},
+   "label": "Potential vs direct surrogate (one seed)",
+   "position": {"x": 40.0, "y": 40.0}
+  }
+ ],
+ "edges": []
+}

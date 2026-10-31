@@ -1,0 +1,193 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-edge3d-verification",
+ "name": "3-D edge elements, verified (19)",
+ "description": "Permeable sphere in a uniform field under mesh refinement against the closed form, the same meshes solved by GetDP, a manufactured solution and a conducting slab (examples/electrodynamics/19_edge3d_verification.py).",
+ "nodes": [
+  {
+   "id": "v3d",
+   "type": "em.edge3d_verification",
+   "params": {},
+   "label": "3-D edge-element verification",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "v3d.sphere.0.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.0.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.0.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.0.l2_all"
+     },
+     {
+      "flow": "v3d.sphere.1.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.1.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.1.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.1.l2_all"
+     },
+     {
+      "flow": "v3d.sphere.2.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.2.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.2.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.2.l2_all"
+     },
+     {
+      "flow": "v3d.sphere.3.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.3.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.3.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.3.l2_all"
+     },
+     {
+      "flow": "v3d.sphere.4.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.4.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.4.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.4.l2_all"
+     },
+     {
+      "flow": "v3d.getdp.0.rel_diff_Bz",
+      "ref": "results/19_edge3d_verification.json:getdp_cross_check.0.rel_diff_Bz"
+     },
+     {
+      "flow": "v3d.getdp.1.rel_diff_Bz",
+      "ref": "results/19_edge3d_verification.json:getdp_cross_check.1.rel_diff_Bz"
+     },
+     {
+      "flow": "v3d.getdp.2.rel_diff_Bz",
+      "ref": "results/19_edge3d_verification.json:getdp_cross_check.2.rel_diff_Bz"
+     },
+     {
+      "flow": "v3d.manufactured.0.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.0.error"
+     },
+     {
+      "flow": "v3d.manufactured.1.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.1.error"
+     },
+     {
+      "flow": "v3d.manufactured.2.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.2.error"
+     },
+     {
+      "flow": "v3d.manufactured.3.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.3.error"
+     },
+     {
+      "flow": "v3d.slab.0.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.0.loss_error"
+     },
+     {
+      "flow": "v3d.slab.1.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.1.loss_error"
+     },
+     {
+      "flow": "v3d.slab.2.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.2.loss_error"
+     }
+    ],
+    "tolerance_source": "deterministic FEM on the same gmsh meshes (gmsh 4.15 Python module); 1e-6 relative covers BLAS / platform rounding and the CG tolerance; the GetDP differences are round-off-level numbers, compared as recorded"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "v3d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "v3d.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "19_edge3d_verification.py"
+  ],
+  "quick": {
+   "v3d": {
+    "h_sphere": [
+     0.3,
+     0.2
+    ],
+    "h_getdp": [
+     0.3
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "v3d.sphere.0.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.0.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.0.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.0.l2_all"
+     },
+     {
+      "flow": "v3d.sphere.1.mean_in",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.1.mean_in"
+     },
+     {
+      "flow": "v3d.sphere.1.l2_all",
+      "ref": "results/19_edge3d_verification.json:sphere.rows.1.l2_all"
+     },
+     {
+      "flow": "v3d.getdp.0.rel_diff_Bz",
+      "ref": "results/19_edge3d_verification.json:getdp_cross_check.0.rel_diff_Bz"
+     },
+     {
+      "flow": "v3d.manufactured.0.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.0.error"
+     },
+     {
+      "flow": "v3d.manufactured.1.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.1.error"
+     },
+     {
+      "flow": "v3d.manufactured.2.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.2.error"
+     },
+     {
+      "flow": "v3d.manufactured.3.error",
+      "ref": "results/19_edge3d_verification.json:manufactured.rows.3.error"
+     },
+     {
+      "flow": "v3d.slab.0.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.0.loss_error"
+     },
+     {
+      "flow": "v3d.slab.1.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.1.loss_error"
+     },
+     {
+      "flow": "v3d.slab.2.loss_error",
+      "ref": "results/19_edge3d_verification.json:slab_eddy.2.loss_error"
+     }
+    ]
+   }
+  }
+ }
+}

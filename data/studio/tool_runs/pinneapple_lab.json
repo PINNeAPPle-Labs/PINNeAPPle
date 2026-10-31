@@ -1,0 +1,434 @@
+{
+ "pinneapple_lab.curation:check_line": {
+  "code_hash": "f55ecaa4d2525cd0",
+  "inputs": {
+   "check": {
+    "label": "drag vs Ahmed 1984",
+    "name": "x"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.64
+ },
+ "pinneapple_lab.curation:headline": {
+  "code_hash": "9243a63371d8e558",
+  "inputs": {
+   "checks": [
+    {
+     "detail": "Ahmed 1984: 0.285",
+     "kind": "reference",
+     "name": "drag_vs_wind_tunnel",
+     "passed": false
+    },
+    {
+     "detail": "in = out",
+     "kind": "physics",
+     "name": "mass_balance",
+     "passed": true
+    }
+   ],
+   "tier": "B"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.curation:infer_check_kind": {
+  "code_hash": "55e206c3b079f773",
+  "inputs": {
+   "check": {
+    "name": "sun_jupiter_mass_ratio",
+    "reference": 1047.35
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.curation:problem": {
+  "code_hash": "b6df7e03768f8ea8",
+  "inputs": {
+   "checks": [
+    {
+     "kind": "physics",
+     "name": "x",
+     "passed": true
+    }
+   ],
+   "status": "completed"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.accretion:AccretionFlowRun": {
+  "code_hash": "0ac8a3d22f2f7f3e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AccretionFlowRun",
+  "seconds": 0.02
+ },
+ "pinneapple_lab.experiments.accretion:BondiAccretion": {
+  "code_hash": "a7e7d28c750edbaf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BondiAccretion",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.blackhole_forecast:BlackHoleForecast": {
+  "code_hash": "d5579e39444fe329",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BlackHoleForecast",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.bricks:BricksExperiment": {
+  "code_hash": "2cb089fb6d80589a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BricksExperiment",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.calculix_cases:CalculixCase": {
+  "code_hash": "46a54e5b83159b3a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CalculixCase",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.car:CarLBM": {
+  "code_hash": "8b2d84ac3ecbe2aa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CarLBM",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.car:CarSurrogate": {
+  "code_hash": "84d71b72993cc501",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CarSurrogate",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.cylinder:CylinderLBM": {
+  "code_hash": "75ab8b1876d67302",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CylinderLBM",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.discovery:KeplerLaw": {
+  "code_hash": "f78a387b99a93b4e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "KeplerLaw",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.discovery:LorenzDiscovery": {
+  "code_hash": "af393425a260eea8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LorenzDiscovery",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.discovery:OscillatorDiscovery": {
+  "code_hash": "61d7a5cab65d750a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "OscillatorDiscovery",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.discovery:PendulumVideo": {
+  "code_hash": "3837abe2189bbe28",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PendulumVideo",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.em_pinn:EMPinn": {
+  "code_hash": "36d3c5ab741123d5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EMPinn",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.examples:ExampleScript": {
+  "code_hash": "7fa55a0aba1d7533",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ExampleScript",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.examples:discover_examples": {
+  "code_hash": "27cc8c620affaf78",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_lab.experiments.landing:BenchmarkCase": {
+  "code_hash": "9090e0ddfa04ec67",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkCase",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.manifest_import:ManifestImport": {
+  "code_hash": "2994533cea8a9edb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ManifestImport",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.ode:Oscillator": {
+  "code_hash": "318a282305df5411",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Oscillator",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.particles:ParticleSuspension": {
+  "code_hash": "36a3c2595283375e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParticleSuspension",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.pde:HeatXTFC": {
+  "code_hash": "9ab10f59a617441c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HeatXTFC",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.pipes:PipeFlow": {
+  "code_hash": "733f96fb0a4453e8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PipeFlow",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.repo_results:RepoResults": {
+  "code_hash": "cf6227e6128ec7a4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RepoResults",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.rom:ROMStudy": {
+  "code_hash": "d234deb815f5bec0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ROMStudy",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.structures:SolidFEMExperiment": {
+  "code_hash": "a7571a8799f48896",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SolidFEMExperiment",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.vehicles3d:VehicleCFD": {
+  "code_hash": "bea98454571d1b58",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "VehicleCFD",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.wear:BarWear": {
+  "code_hash": "c1c25251a0c4b5b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BarWear",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.experiments.wear:BarWearRanking": {
+  "code_hash": "2c431e62cb3e3c05",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BarWearRanking",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.manifest:check_repo": {
+  "code_hash": "e3022d7d2e1fb174",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.05
+ },
+ "pinneapple_lab.manifest:example_dirs": {
+  "code_hash": "8e71ef32b95ee647",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.29
+ },
+ "pinneapple_lab.manifest:scan": {
+  "code_hash": "3f50dc13bc428640",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_lab.seal:items": {
+  "code_hash": "394921493452f09b",
+  "error": "FileNotFoundError: /tmp/tmpwus81wfu/lab/curation.json: run `python -m pinneapple_lab curate` first",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.seal:legend_seals": {
+  "code_hash": "a6f8f51bc1e5021e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.seal:load_curation": {
+  "code_hash": "a19a2448a02dc31e",
+  "error": "FileNotFoundError: /tmp/tmpwus81wfu/lab/curation.json: run `python -m pinneapple_lab curate` first",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.seal:render_legend": {
+  "code_hash": "af28f824148c77f1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Image",
+  "seconds": 0.17
+ },
+ "pinneapple_lab.seal:stamp_all": {
+  "code_hash": "d0a5fc327b97613c",
+  "error": "FileNotFoundError: /tmp/tmpwus81wfu/lab/curation.json: run `python -m pinneapple_lab curate` first",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.showcase:choose_tiles": {
+  "code_hash": "a652f15008642a2e",
+  "error": "FileNotFoundError: /tmp/tmpwus81wfu/lab/curation.json: run `python -m pinneapple_lab curate` first",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.showcase:evidence_line": {
+  "code_hash": "b0daf208d1db6d0d",
+  "inputs": {
+   "lang": "pt",
+   "rec": {
+    "headline": {
+     "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
+     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.02
+ },
+ "pinneapple_lab.showcase:panel": {
+  "code_hash": "ab38dbb3375d4285",
+  "error": "FileNotFoundError: /tmp/tmpwus81wfu/lab/curation.json: run `python -m pinneapple_lab curate` first",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.spec:Experiment": {
+  "code_hash": "a0c8cf65b27837bd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Experiment",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.spec:available": {
+  "code_hash": "0fd623e4dc908b5b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.store:LabStore": {
+  "code_hash": "40bdc05ed935a267",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LabStore",
+  "seconds": 0.04
+ },
+ "pinneapple_lab.store:default_root": {
+  "code_hash": "0e362f115740825c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_lab.uq:gci": {
+  "code_hash": "6a46ce9cb71e929e",
+  "inputs": {
+   "h": [
+    0.2,
+    0.1,
+    0.05
+   ],
+   "values": [
+    1.04,
+    1.01,
+    1.0025
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

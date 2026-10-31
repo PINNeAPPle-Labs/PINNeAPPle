@@ -671,6 +671,8 @@ _SUBMODULES = {
     "presets":    "pinneapple_presets",
     # science by area: experiments (academic / research, theory / practice, 0-D to 3-D + time) and the atlas
     "science":    "pinneapple_science",
+    # derivative trees from a potential: Legendre transforms, Maxwell relations, consistency checks, adapters
+    "potential":  "pinneapple_physics.potential",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

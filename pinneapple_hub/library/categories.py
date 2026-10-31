@@ -12,6 +12,7 @@ from typing import Any
 CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("problem", "Problem setup", "Describe the physical problem: presets, generic problems, requirements",
      ("node:problem.", "node:scenario.", "node:preset.", "fn:pp.PhysicalProblem", "fn:pp.presets", "mcp:list_presets",
+      "fn:pp.doctor", "fn:pp.recommend", "fn:pp.card", "fn:pp.new",   # the first hour: which preset, what it takes
       "lib:pinneapple_data.formfill")),
     ("geometry", "Geometry and meshing", "Domains, meshes, shapes from parameters, geometry exports",
      ("node:geometry.", "node:lib.export.geometry", "node:lib.export.usd_validate", "lib:pinneapple_design.geometry",
@@ -20,7 +21,8 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
      ("node:equations.", "lib:pinneapple_physics.pde_environment", "lib:pinneapple_physics.non_hermitian")),
     ("classical", "Classical solvers", "Finite differences, FEM, LBM, meshless, OpenFOAM, CalculiX, FMU",
      ("node:solver.", "node:lib.solver.", "node:lib.solve.", "node:lib.robot.", "fn:pp.solve", "mcp:solve",
-      "lib:pinneapple_simulation.", "lib:pinneapple_physics.solid", "node:condense.")),
+      "lib:pinneapple_simulation.", "lib:pinneapple_physics.solid", "node:condense.", "node:query.",
+      "fn:pinneapple_condense.")),
     ("pinn", "PINNs and neural training", "Train, fine-tune and transfer physics-informed networks",
      ("node:train.", "node:transfer.", "node:meta.", "node:gnn.", "node:lib.model.", "lib:pinneapple_physics.pinn_solver",
       "lib:pinneapple_physics.deepxde_bridge", "lib:pinneapple_neural.", "lib:pinneapple_core.loss",
@@ -58,7 +60,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
      ("node:lib.antenna.", "lib:pinneapple_physics.pcb", "fn:pp.maxwell", "lib:pinneapple_simulation.electromagnetics")),
     ("time-series", "Time series and digital twins", "Forecasts, predictability, live twins",
      ("node:forecast.", "node:twin.", "node:lib.ts.", "node:data.stream", "fn:pinneapple_systems.time_series", "fn:pinneapple_systems.digital_twin",
-      "node:autolab.pipe_twin")),
+      "node:football.", "node:autolab.pipe_twin")),
     ("data", "Data and datasets", "Datasets, ingestion, observation, adapters, units, checked synthetic data",
      ("node:data.", "lib:pinneapple_data.", "lib:pinneapple_tools.dataset_quality", "lib:pinneapple_analysis.retrieval",
       "lib:pinneapple_physics.astro", "fn:pinneapple_physics.astro", "node:lib.worldmodel.")),
@@ -73,20 +75,25 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
 #: the node types of the example flows (pinneapple_flow.nodes_ext, one module per examples/* domain), by category
 EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "problem": ("node:problemdesign.",),
-    "equations": ("node:nonhermitian.", "node:pde_env."),
+    "geometry": ("node:study.ahmed_geometry",),
+    "equations": ("node:nonhermitian.", "node:pde_env.",
+                  "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))
+    "inverse": ("node:study.inverse",),
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
-                  "node:aero.", "node:md.", "node:newton.", "node:swe."),
+                  "node:aero.", "node:md.", "node:newton.", "node:swe.", "node:study.cfd_campaign",
+                  "node:immersed."),
     "pinn": ("node:architectures.", "node:pinn.", "node:pinn_solver."),
-    "surrogates": ("node:core.hybrid_fem", "node:worldmodel."),
+    "surrogates": ("node:core.hybrid_fem", "node:worldmodel.", "node:study.surrogates", "node:potential.co2_surrogates"),
     "zoo": ("node:zoo.",),
     "checks": ("node:gallery.", "node:check.", "node:proof."),
-    "verification": ("node:examples.",),
+    "verification": ("node:examples.", "node:study.grid_validation"),
     "benchmarks": ("node:arena.",),
     "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative."),
     "systems": ("node:systems.",),
-    "electromagnetics": ("node:em.", "node:inspection.", "node:antenna."),
-    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso."),
-    "reports": ("node:render.",),
+    "electromagnetics": ("node:em.", "node:inspection.", "node:antenna.", "node:potential.machine_coenergy"),
+    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin"),
+    "data": ("node:study.dataset",),
+    "reports": ("node:render.", "node:study.report"),
     "automation": ("node:security.",),
 }
 CATEGORIES = [(s, t, d, ps + EXAMPLE_NODES.get(s, ())) for s, t, d, ps in CATEGORIES]
@@ -142,6 +149,7 @@ RECIPES: dict[str, str] = {
     "recipe:agents-validate-any-result-never-report-a-field-without-this": "checks",
     "recipe:agents-validation-status-of-a-method": "verification",
     "recipe:agents-why-each-element-of-a-design-exists": "design",
+    "recipe:agents-before-any-physics-is-this-machine-ready-and-what-should-i-r": "problem",  # doctor/recommend
 }
 
 

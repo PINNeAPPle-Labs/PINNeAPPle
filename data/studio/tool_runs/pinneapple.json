@@ -1,0 +1,18 @@
+{
+ "pinneapple:info": {
+  "code_hash": "eb1d322fb618bb93",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 5.03
+ },
+ "pinneapple:quickstart": {
+  "code_hash": "3e06258e006b9f8f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ }
+}

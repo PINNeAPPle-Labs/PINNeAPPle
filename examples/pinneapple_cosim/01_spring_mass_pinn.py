@@ -54,7 +54,7 @@ _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from pinneapple_cosim import (
+from pinneapple_systems.cosimulation import (
     AnalyticalNode,
     CoSimEngine,
     CoSimGraph,

@@ -734,6 +734,381 @@ reluctance torque follow:
 
 The torque falls less than the flux because the reluctance torque does not depend on the magnets.
 
+### 3-D edge elements: the solver path for 3-D machines
+
+`pinneapple_simulation.electromagnetics.fem3d` solves 3-D magnetostatics and time-harmonic eddy currents on
+first-order Nedelec (Whitney edge) elements on tetrahedra:
+
+* `mesh.TetMesh`: edges, faces, boundary, region masks and point location; `box_mesh` (structured, no gmsh needed),
+  `read_msh22` / `from_gmsh` for gmsh meshes with named physical volumes.
+* `nedelec.solve_magnetostatic(mesh, nu, J=, Br=, nonlinear={tag: curve}, dirichlet=)`: the `A` formulation, `B`
+  constant per tetrahedron (`div B = 0` exactly), nonlinear B-H by Newton with a line search on the energy, energy and
+  co-energy; `source_work()` gives `i psi`, so `dW'/di = psi` (checked in the tests: the co-energy maps of issue
+  #928 can be built from it).
+* `nedelec.solve_eddy(mesh, nu, sigma, omega, J)`: the modified vector potential `A*` (`E = -j omega A*` in the
+  conductors), eddy-current density and Joule loss.
+* Gauge: the default for magnetostatics keeps every edge and solves the singular, consistent system by conjugate
+  gradients (20 times faster than a sparse LU of the tree-gauged system on 31 000 unknowns: 1.0 s against 20.5 s);
+  `gauge="tree"` removes a spanning tree of the free nodes and factorises (the eddy-current default). Either way the
+  current load is first made discretely solenoidal (its L2 projection on gradients is removed, one P1 Poisson solve).
+* `getdp3d`: GetDP 3.2 on the same gmsh meshes, with its own function spaces, tree gauge, assembly and solver.
+
+Elmer was the other candidate reference; it cannot be installed in this environment (no package for Ubuntu 24.04 in
+the archive, and its PPA is not reachable), so GetDP is the reference.
+
+`python examples/electrodynamics/19_edge3d_verification.py` (run on 2026-10-29, 116 s; gmsh 4.15 and
+GetDP 3.2) writes `results/19_edge3d_verification.json` and `19_edge3d_verification.png`.
+
+**Sphere in a uniform field.** A sphere of radius 1 and `mu_r = 10` in a uniform `B0` has the uniform inner field
+`3 mu_r / (mu_r + 2) B0` and a dipole outside (Jackson, section 5.11). The ball of radius 3 around it carries the exact
+exterior `n x A` on its surface, so the error is discretisation only:
+
+| Target size | Tetrahedra | Unknowns | Mean B in sphere | L2 of B in sphere | L2 of B, whole domain | Time (s) |
+|---|---|---|---|---|---|---|
+| 0.3 | 6 117 | 6 542 | 3.91e-02 | 4.18e-02 | 5.68e-02 | 0.1 |
+| 0.2 | 19 725 | 21 624 | 1.88e-02 | 2.11e-02 | 3.82e-02 | 0.7 |
+| 0.14 | 56 354 | 62 769 | 9.04e-03 | 1.07e-02 | 2.62e-02 | 2.6 |
+| 0.1 | 151 905 | 171 072 | 4.55e-03 | 5.60e-03 | 1.85e-02 | 10.2 |
+| 0.07 | 435 429 | 494 479 | 2.25e-03 | 3.03e-03 | 1.29e-02 | 36.2 |
+
+The observed orders between successive meshes are 1.79, 2.11, 2.04, 2.00 for the mean inner
+field (second order: the mean of a first-order field), 1.67, 1.96, 1.92, 1.74 in the sphere and
+0.97, 1.09, 1.03, 1.01 over the whole domain, the first order expected of a piecewise-constant
+`B` with a singular field at the curved interface.
+
+**GetDP on the same meshes.** With the uniform-field condition `n x A = n x (B0 x r) / 2` on the outer surface, the
+native solver and GetDP solve the same discrete problem (GetDP carries the boundary value in a known field `A0` and
+solves for `A - A0` with `A - A0 = 0` there), so they must agree to solver precision. The last column is the error of
+this truncated problem against the closed form (the truncation at three radii costs 6 to 9 %):
+
+| Target size | Tetrahedra | GetDP mean Bz (T) | Native mean Bz (T) | Relative difference | Energy difference | Error vs closed form |
+|---|---|---|---|---|---|---|
+| 0.3 | 6 117 | 2.274651317896 | 2.274651317896 | 2.0e-14 | 8.0e-13 | 0.090 |
+| 0.2 | 19 725 | 2.323286948248 | 2.323286948248 | 9.4e-14 | 8.0e-13 | 0.071 |
+| 0.14 | 56 354 | 2.346759621187 | 2.346759621187 | 6.9e-14 | 7.9e-13 | 0.061 |
+
+**Manufactured solution** (`A = (0, 0, sin(pi x) sin(pi y))` on the unit cube, structured meshes): B errors
+2.149e-01, 1.064e-01, 5.290e-02, 2.637e-02 for 4, 8, 16 and 32 cells per side, orders
+1.01, 1.01, 1.00.
+
+**Conducting slab in a uniform AC field** (20 mm thick, `sigma = 3.5e7` S/m, 200 Hz, skin depth
+6.02 mm; closed form `B_x = B0 cosh(kz) / cosh(kd)`, loss 327.05 W/m^2, checked against
+the integral of the closed-form field):
+
+| Cells across | Cells in plane | L2 of B | Loss (W/m^2) | Loss error |
+|---|---|---|---|---|
+| 4 | 2 | 0.149 | 406.2 | 24.20 % |
+| 8 | 4 | 0.071 | 347.2 | 6.16 % |
+| 16 | 8 | 0.034 | 332.1 | 1.53 % |
+
+TEAM 13 (nonlinear magnetostatics) is not done: it needs the B-H curve and measured values of its problem
+description, which were not reachable from here. TEAM 7 (eddy currents) is in
+[its own section below](#3-d-eddy-currents-team-problem-7-against-its-measurements).
+
+
+### 3-D skew: cogging in 3-D against multi-slice 2-D
+
+`pinneapple_simulation.electromagnetics.machines3d` builds the surface-PM machine of `SPMMachine` in 3-D on the edge
+elements above.
+
+* `SPM3D(machine, n_theta, stack_layers, end_length, end_layers)` extrudes the 2-D polar mesh along the stack
+  (`extrude`), with air beyond each end.
+  * Every node ring carries `n_theta` equally spaced nodes, so rotor position and magnet skew are relabellings of
+    the rotor elements of each layer, on one mesh for every angle and skew. Cogging therefore carries no
+    remeshing noise.
+  * The rotor core starts at `r_inner`, a flux-tangential boundary standing in for the shaft.
+  * Each angle is a preconditioned CG solve: the tree-gauged matrix is factorised once (PARDISO when pypardiso is
+    installed, SuperLU otherwise) and used as the preconditioner, so a solve takes 5 iterations.
+  * The torque is Arkkio's Maxwell stress over the two gap annuli, as in the 2-D model.
+* `skew.skew_study(model, totals, kinds)` computes, for step skew (2 or 3 segments) and continuous skew (one offset
+  per stack layer), the cogging over one period in 3-D, and in multi-slice 2-D: the mean of straight one-layer
+  models at the same offsets, on the same mesh. The two differ only by the axial flux between segments and the
+  end leakage. Rows are checkpointed (`checkpoint=`), so an interrupted study resumes.
+
+Two discretisation effects had to be removed before the numbers meant anything (both tested in
+`tests/test_machines3d.py`):
+
+* **Mesh handedness.** Cutting every prism into tetrahedra by increasing node number leans all cuts the same way
+  round the axis: a helical bias that gave 0.1 N m of torque on the aligned rotor, where the 2-D model gives
+  exactly 0. Ordering the cuts by alternating ring position removes it. The one-layer 3-D model then matches the
+  2-D code within 0.01 N m and is exactly odd about the aligned position.
+* **Period of the mesh.** The polar mesher's triangulation repeats every two angular steps. With 360 steps a
+  24-slot pitch is 15 steps, an odd number, so the discrete machine repeats only every 30 degrees. The 2-D code
+  shows the same thing: T(16 deg) = 0.127 against T(1 deg) = 0.068 N m (the audit's "mesh-pattern dependence of
+  a few % when the slot pitch has an odd number of steps"). The study uses 720 steps (30 per slot pitch) and
+  whole periods, and `skew_study` refuses an odd number of steps per period.
+
+`python examples/electrodynamics/20_spm_skew_3d.py` (run on 2026-10-30, 32 min) writes
+`results/20_spm_skew_3d.json` and `20_spm_skew_3d.png`.
+
+* Machine: the default `SPMMachine` (24 slots, 4 poles, 50 mm stack, rotor radius 40 mm, 4 mm magnets, 1 mm gap),
+  with linear iron at `mu_r` 1000.
+* 3-D model: 1,175,040 tetrahedra (720 angular steps, 6 stack layers, 20 mm of end
+  air). The finer 1.76 M-tetrahedron model ran out of memory on this 15 GB machine.
+* Cogging over one 15 deg period every 1.5 deg.
+
+The 2-D code on its own mesh gives a straight-rotor peak-to-peak of 1.185 N m.
+Peak-to-peak cogging in N m (difference relative to the straight 3-D cogging):
+
+| Skew | Total (deg) | 3-D | Multi-slice | 3-D - multi-slice | 3-D / straight | Fundamental factor |
+|---|---|---|---|---|---|---|
+| straight | 0 | 1.164 | 1.176 | -1.0 % | 1.000 | 1.000 |
+| step2 | 5 | 0.480 | 0.477 | +0.2 % | 0.413 | 0.500 |
+| step2 | 8 | 0.317 | 0.317 | +0.0 % | 0.273 | 0.105 |
+| step2 | 10 | 0.479 | 0.477 | +0.2 % | 0.412 | 0.500 |
+| step2 | 15 | 1.172 | 1.176 | -0.3 % | 1.007 | 1.000 |
+| step3 | 5 | 0.576 | 0.576 | -0.1 % | 0.495 | 0.667 |
+| step3 | 8 | 0.330 | 0.333 | -0.3 % | 0.283 | 0.264 |
+| step3 | 10 | 0.110 | 0.116 | -0.5 % | 0.095 | 0.000 |
+| step3 | 15 | 0.520 | 0.525 | -0.5 % | 0.446 | 0.333 |
+| continuous | 5 | 0.731 | 0.775 | -3.8 % | 0.628 | 0.827 |
+| continuous | 8 | 0.531 | 0.534 | -0.2 % | 0.456 | 0.594 |
+| continuous | 10 | 0.401 | 0.401 | -0.0 % | 0.344 | 0.413 |
+| continuous | 15 | 0.062 | 0.045 | +1.5 % | 0.053 | 0.000 |
+
+* **Straight stack.** The end regions lower the cogging by 1.0 %.
+* **Best skew of each kind** (3-D, peak-to-peak as a share of the straight stack):
+  * 2 steps at 8 deg: 0.317 N m (27 %);
+  * 3 steps at 10 deg: 0.110 N m (9.5 %);
+  * continuous over one cogging period (15 deg): 0.062 N m (5.3 %).
+* **Two steps never get below 27 %.** The cogging has a strong second harmonic (the straight curve is far from a
+  sine), and two steps cancel only one harmonic. The fundamental skew factor (last column) predicts the trend of
+  the fundamental only.
+* **Two steps over a full period.** Multi-slice reproduces the straight rotor exactly (1.176 N m). 3-D gives 0.7 %
+  more, the axial flux between the two segments.
+
+**Verdict on multi-slice.** Against the 3-D result, as a share of the straight 3-D cogging:
+
+* step skews (2 and 3 segments): multi-slice is within 0.5 %;
+* continuous skew: within 3.8 %, the largest at 5 deg (3.8 %) and 15 deg (1.4 %).
+
+* **It ranks the skews the same way and finds the same optima, so it is adequate to choose a skew.**
+* **Where the residual cogging is small, the relative difference is large.** At the optimal continuous skew
+  multi-slice predicts 0.045 N m, 3-D 0.062 N m: 37 % more, from the axial flux between layers and the end
+  regions. A residual of a few percent of the straight cogging needs the 3-D model, or a margin of that size.
+
+Limits of this study: linear iron (no saturation); no winding currents, so no load torque ripple (that needs the
+end windings in 3-D); one mesh resolution, because the 1.76 M-tetrahedron model did not fit in memory.
+
+
+### 3-D eddy currents: TEAM problem 7 against its measurements
+
+`fem3d.team7` holds TEAM workshop problem 7 (Fujiwara and Nakata, COMPEL 9 (3), 1990, 137-154): an aluminium plate
+(294 x 294 x 19 mm, `sigma = 3.526e7` S/m) with an off-centre hole under a racetrack coil of 2742 ampere-turns, at 50
+and 200 Hz. The geometry, the coil and the measured tables come from the problem description distributed with
+ElmerCSC's elmer-elmag repository; the tables were checked against the scanned pages. `mesh_team7` builds the gmsh
+mesh, `run(msh)` solves and compares with `MEASURED`: `Bz` (gauss) along A1-B1 and A2-B2 and the eddy-current
+density `Jy` (1e6 A/m^2) on the two faces of the plate, at wt = 0 and 90 deg.
+
+Two changes to `solve_eddy` made the fine meshes possible:
+
+* **A null mode in the gauge.** The tree gauge spans the air from two groups of roots, the outer surface and the
+  plate (the potential `A*` must stay free in the conductor). A forest grown from both leaves one more mode: the
+  gradient of a potential that is 1 on the plate and 0 outside, zero on every gauged edge. The tree-gauged system
+  was singular, and both SuperLU and PARDISO stopped at a relative residual of 1e-4. `tree_gauge(...,
+  link_roots=True)` joins the root groups with one more edge each; the residual is now 2e-14 and the loss did not
+  change (5.19718 W against 5.19712 W on the coarse mesh, so the mode carried no field).
+* **A symmetric factorisation.** `solve_eddy(..., solver="pardiso")` (the default when pypardiso is installed)
+  factorises the real symmetric indefinite form `[[R, -I], [-I, -R]]` of the complex symmetric matrix by
+  LDL^T, then refines to `rtol`. On 197 000 unknowns this needs 7.7 GB against 13.6 GB for an LU of the
+  nonsymmetric real form, and half the time. SuperLU on the complex matrix (`solver="splu"`) gives the same
+  answer to 1e-12 on the conducting slab.
+
+`python examples/electrodynamics/21_team7.py` (run on 2026-10-31, 2 min; peak 7.2 GB) refines the plate from 12
+to 5 mm (the skin depth is 12 mm at 50 Hz and 6 mm at 200 Hz). The coil (20 mm), the probe layer between the plate
+and the coil (10 mm) and the air (80 mm) keep their sizes. `Bz` is averaged over the elements within 4 mm of
+each probe; the columns give the rms difference from the measurements over the 17 points, as a share of the
+largest measured value of the line:
+
+| h_plate (mm) | Tetrahedra | Unknowns | Time (s) | Loss 50 Hz (W) | Loss 200 Hz (W) | Bz A1-B1, 50 Hz, wt = 0 | Bz A2-B2, 50 Hz, wt = 0 | Bz A1-B1, 50 Hz, wt = 90 | Bz A1-B1, 200 Hz, wt = 0 | Bz A1-B1, 200 Hz, wt = 90 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 12 | 59 005 | 60 278 | 8 | 4.948 | 10.104 | 6.8 % | 7.0 % | 12.2 % | 8.1 % | 47.9 % |
+| 9 | 73 361 | 75 837 | 12 | 4.868 | 10.669 | 5.5 % | 9.5 % | 7.5 % | 6.9 % | 53.9 % |
+| 7 | 100 478 | 105 384 | 18 | 4.795 | 10.561 | 7.7 % | 10.7 % | 8.7 % | 8.1 % | 51.7 % |
+| 6 | 132 369 | 140 339 | 33 | 4.723 | 10.426 | 6.6 % | 7.7 % | 5.5 % | 7.2 % | 50.7 % |
+| 5 | 182 037 | 194 729 | 44 | 4.675 | 10.226 | 7.1 % | 4.7 % | 7.5 % | 7.8 % | 40.1 % |
+
+* **Bz in phase with the current** is within 5 to 8 % at 5 mm (rms 5.6 gauss on a peak of 78 gauss along A1-B1 at
+  50 Hz), at both frequencies, and changes little with the mesh. The largest differences on A1-B1 are at
+  x = 144 mm (17.5 gauss, where `Bz` peaks) and x = 90 mm (10.5 gauss, where it changes sign).
+* **Bz in quadrature at 50 Hz** (the field of the eddy currents) is within 7.5 %.
+* **Bz in quadrature at 200 Hz is overestimated**: 4 to 7 gauss computed against 1 to 4 gauss measured, 40 % of a
+  peak of 4.9 gauss at 5 mm, falling slowly with the mesh (48, 54, 52, 51, 40 %). At 5 mm the plate holds less than one
+  element per skin depth.
+* **The Joule loss is not converged**: it falls 1 to 2 % per level at 50 Hz (4.95 to 4.68 W) and is not monotonic
+  at 200 Hz. The benchmark gives no measured loss.
+
+**Eddy current on the faces of the plate** (5 mm; rms as a share of the largest tabulated value):
+
+| Computed face | f (Hz) | wt (deg) | Against its own table | Against the other face's table |
+|---|---|---|---|---|
+| z = 19 mm (nearer the coil) | 50 | 0 | 72 % | 13 % |
+| z = 19 mm (nearer the coil) | 50 | 90 | 32 % | 13 % |
+| z = 19 mm (nearer the coil) | 200 | 0 | 74 % | 12 % |
+| z = 19 mm (nearer the coil) | 200 | 90 | 64 % | 10 % |
+| z = 0 | 50 | 0 | 17 % | 55 % |
+| z = 0 | 50 | 90 | 51 % | 52 % |
+| z = 0 | 200 | 0 | 30 % | 13 % |
+| z = 0 | 200 | 90 | 46 % | 24 % |
+
+The computed current is larger on the face nearer the coil, as the skin depth requires: at 200 Hz the plate is
+three skin depths thick. The table puts the larger values on A4-B4 (z = 0), and the computed current on the face
+nearer the coil matches that table within 10 to 13 % at both frequencies and both instants. Against its own label,
+A3-B3, it is 32 to 74 % off. The point values still move by up to 12 % of the line's peak between 6 and 5 mm,
+but the rms differences against the two tables hardly change over the five meshes (z = 19 mm against A3-B3 at
+50 Hz, wt = 0: 75, 77, 75, 74, 72 %), so refinement does not close the gap. Both pairings are reported (`compare` gives
+`rms_rel_peak` and `rms_rel_peak_other_face`); this guide draws no conclusion about the table.
+
+GetDP was not used as a second code on this problem: its tree gauge started on the plate skin fixes the
+tangential `a*` there, which is wrong for a formulation without an electric scalar potential (it gave 1.1 W and
+no current at the surface probes). The sphere above remains the code-to-code check.
+
+### 3-D end effects: magnet flux against L/D
+
+`machines3d.endeffects.end_effect_study(machine, ratios)` measures how much of the 2-D magnet flux a coil links in
+3-D, for stacks of different length. A full-pitch search coil sits at mid-slot radius, centred on the aligned
+magnet. Its flux linkage is the line integral of `A` around it (`search_coil_linkage`). The arcs close it either
+in the stack end faces or 10 mm beyond them, in the air where real end turns run. The 2-D reference is the same
+layered stack with no end air: its end planes are flux-parallel, so the field does not vary along the axis, and
+the ratio `k = lambda_3D / lambda_2D` holds only the end effect, none of the in-plane discretisation.
+
+The line integral is computed exactly: the path is cut where it crosses element faces and each piece is
+integrated by the midpoint rule, which is exact for the linear `A` of a Whitney element. A plain midpoint rule
+over 400 points per side gave 0.5 % of error, as large as the effect: the tree gauge puts large gradients in `A`
+in the air, and a closed loop cancels them only if every piece is exact. With the exact integral the
+difference between the two coils equals the flux of `B` through the 10 mm band between them (3.1999e-6 against
+3.2001e-6 Wb on a test mesh).
+
+`python examples/electrodynamics/22_spm_end_effects_3d.py` (run on 2026-10-31, 91 min, peak 10 GB; checkpointed) runs the
+default `SPMMachine` (bore diameter D = 90 mm, linear iron at `mu_r` 1000) with 240 angular steps, stack layers of
+at most 15 mm and 40 mm of air beyond each end:
+
+| L/D | L (mm) | Stack layers | Tetrahedra | Time (s) | k, coil ends in the end faces | k, coil ends 10 mm beyond | Mean gap flux density, 3-D / 2-D | dL = L (1 - k), end faces (mm) | dL, 10 mm beyond (mm) |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 22.5 | 2 | 489 600 | 226 | 0.9863 | 0.9906 | 0.9859 | 0.309 | 0.212 |
+| 0.5 | 45.0 | 3 | 538 560 | 457 | 0.9936 | 0.9956 | 0.9938 | 0.286 | 0.199 |
+| 1 | 90.0 | 6 | 685 440 | 746 | 0.9968 | 0.9978 | 0.9969 | 0.286 | 0.199 |
+| 2 | 180.0 | 12 | 979 200 | 1529 | 0.9984 | 0.9989 | 0.9984 | 0.286 | 0.199 |
+
+* **The end effect is a fixed length.** From L/D = 0.5 to 2 the magnet flux lost at the ends equals that of
+  0.286 mm of stack (0.199 mm for the coil that closes 10 mm out), the same to three decimals: a 2-D model
+  corrected by `k = 1 - 0.29 mm / L` reproduces the 3-D linkage of this machine. At L/D = 0.25 (two stack
+  layers) it is 0.309 mm.
+* **It is small for this machine**: 1.4 % at L/D = 0.25, 0.16 % at L/D = 2. The air gap (1 mm) is short against
+  the stack and the magnets are on the surface, so little flux fringes. The coil that closes 10 mm beyond the
+  stack links the equivalent of 0.09 mm of stack more: the radial flux, outward, through the 10 mm band
+  beyond each end face.
+* **Sensitivity** at L/D = 0.5: 80 mm of end air instead of 40 gives k = 0.9936 and 0.9955 (unchanged and
+  -0.0001); 480 angular steps instead of 240 give 0.9940 and 0.9958 (+0.0004 and +0.0002).
+
+Limits: linear iron, no-load magnet flux only (no armature reaction, no end-winding leakage, which
+`machines.endwinding` computes for the Prius); one machine.
+
+### 3-D magnet eddy loss: segmentation against 2-D
+
+The 2-D machine model computes the magnet eddy loss with the current flowing along the axis and no net current per
+piece (`postprocess.magnet_eddy_loss_resistance_limited`): the loss of an infinitely long strip. It sees a cut
+across the width of a magnet, not along its length. In 3-D the current loops in the face of the magnet and closes
+across its width near the ends, so axially short pieces lose much less.
+
+`machines3d.magnet_loss` puts a magnet, flattened into a block and cut into `n_width x n_length` insulated pieces
+(0.2 mm gaps), in a uniform field normal to its face (`segmented_block`, `block_loss_3d`: the full time-harmonic
+eddy-current problem, skin effect included). The reference is the resistance-limited loss of a thin `a x b` piece:
+the current stream function solves `lap(psi) = j w sigma B` with `psi = 0` on the edge, whose double sine series
+gives `plate_loss`; for `b -> inf` it is the 2-D strip, `h sigma w^2 B^2 a^3 b / 24` (`strip_loss`).
+
+`python examples/electrodynamics/23_magnet_eddy_segmentation.py` (run on 2026-10-31, 12 min, peak 8.1 GB) takes the
+magnet of the default `SPMMachine` (52.8 mm over the arc, 50 mm long, 4 mm thick, `sigma = 6.7e5` S/m) in 50 mT
+peak (the loss scales with `B^2`), on 1.5 mm elements in the plane of the magnet:
+
+| Pieces (width x length) | Piece (mm) | f (kHz) | Skin depth (mm) | 3-D (W) | Closed form (W) | 2-D (W) | 3-D / closed form | 3-D / 2-D |
+|---|---|---|---|---|---|---|---|---|
+| 1 x 1 | 52.8 x 50.0 | 1 | 19.4 | 32.14 | 32.32 | 81.02 | 0.994 | 0.3967 |
+| 1 x 1 | 52.8 x 50.0 | 10 | 6.1 | 1966 | 3232 | 8102 | 0.608 | 0.2427 |
+| 1 x 1 | 52.8 x 50.0 | 50 | 2.7 | 7196 | 8.081e+04 | 2.025e+05 | 0.089 | 0.0355 |
+| 1 x 2 | 52.8 x 24.9 | 1 | 19.4 | 12.66 | 12.63 | 80.69 | 1.002 | 0.1569 |
+| 1 x 2 | 52.8 x 24.9 | 10 | 6.1 | 1085 | 1263 | 8069 | 0.859 | 0.1344 |
+| 1 x 2 | 52.8 x 24.9 | 50 | 2.7 | 7944 | 3.158e+04 | 2.017e+05 | 0.252 | 0.0394 |
+| 1 x 4 | 52.8 x 12.3 | 1 | 19.4 | 3.785 | 3.736 | 80.04 | 1.013 | 0.0473 |
+| 1 x 4 | 52.8 x 12.3 | 10 | 6.1 | 369.8 | 373.6 | 8004 | 0.990 | 0.0462 |
+| 1 x 4 | 52.8 x 12.3 | 50 | 2.7 | 6181 | 9341 | 2.001e+05 | 0.662 | 0.0309 |
+| 1 x 8 | 52.8 x 6.1 | 1 | 19.4 | 1.015 | 0.9676 | 78.75 | 1.048 | 0.0129 |
+| 1 x 8 | 52.8 x 6.1 | 10 | 6.1 | 101.2 | 96.76 | 7875 | 1.046 | 0.0129 |
+| 1 x 8 | 52.8 x 6.1 | 50 | 2.7 | 2398 | 2419 | 1.969e+05 | 0.991 | 0.0122 |
+| 2 x 1 | 26.3 x 50.0 | 1 | 19.4 | 13.44 | 13.42 | 20.02 | 1.001 | 0.6712 |
+| 2 x 1 | 26.3 x 50.0 | 10 | 6.1 | 1134 | 1342 | 2002 | 0.845 | 0.5661 |
+| 2 x 1 | 26.3 x 50.0 | 50 | 2.7 | 7912 | 3.356e+04 | 5.006e+04 | 0.236 | 0.1580 |
+| 4 x 1 | 13.0 x 50.0 | 1 | 19.4 | 4.139 | 4.088 | 4.893 | 1.012 | 0.8459 |
+| 4 x 1 | 13.0 x 50.0 | 10 | 6.1 | 402.7 | 408.8 | 489.3 | 0.985 | 0.8231 |
+| 4 x 1 | 13.0 x 50.0 | 50 | 2.7 | 6423 | 1.022e+04 | 1.223e+04 | 0.628 | 0.5251 |
+| 2 x 4 | 26.3 x 12.3 | 1 | 19.4 | 3.117 | 3.077 | 19.78 | 1.013 | 0.1576 |
+| 2 x 4 | 26.3 x 12.3 | 10 | 6.1 | 305 | 307.7 | 1978 | 0.991 | 0.1542 |
+| 2 x 4 | 26.3 x 12.3 | 50 | 2.7 | 5247 | 7692 | 4.946e+04 | 0.682 | 0.1061 |
+
+Mesh convergence (1 x 4 pieces, 1 kHz, 3-D against the closed form): +4.7 %, +2.3 %, +1.3 %, +0.9 % on 3, 2,
+1.5 and 1.2 mm elements (109 000 to 452 000 unknowns), close to second order; the pieces of the 1 x 8 case
+(6.1 mm long, four elements) carry the largest error of the table, +4.8 %.
+
+* **Where the loss is resistance-limited** (skin depth large against the piece), 3-D matches the closed form
+  within the discretisation error (-0.6 to +4.8 %).
+* **2-D overestimates whenever the pieces are not long.** The square magnet keeps 40 % of the 2-D loss; four axial
+  pieces 4.7 %, eight 1.3 %. 2-D gives the same loss for every axial segmentation (it changes only by the gaps).
+  Cuts across the width are seen by 2-D: four of them keep 85 % of the 2-D value of the same pieces.
+* **Segmentation stops working at high frequency.** At 50 kHz (skin depth 2.7 mm) the whole magnet is
+  inductance-limited: 3-D gives 9 % of the resistance-limited value, and two axial pieces lose more than one
+  (7.9 kW against 7.2 kW). A resistance-limited estimate, 2-D or closed form, is wrong there by an order of
+  magnitude; the pieces must be small against the skin depth for cutting to pay.
+
+Limits: a flat magnet in a uniform normal field (one harmonic of the ripple; the curvature and the variation of
+the field over the magnet are left out), insulation perfect between pieces, linear materials.
+
+### 3-D axial-flux machine: quasi-3D against full 3-D
+
+`machines3d.afpm.AFPM3D(AFPMMachine(...))` meshes an axial-flux PM machine on a structured grid in `(r, theta, z)`:
+radial and axial node lines per region, `theta` uniform over the full circle, each cell cut into six tetrahedra, the
+grid closed at `theta = 2 pi` by merging the seam nodes. Turning the rotor by a whole number of steps maps the grid
+onto itself, so rotor angle is a relabelling of the magnet cells and cogging carries no remeshing noise. Two
+topologies: `"single"` (one rotor, a slotted stator with a yoke) and `"double_rotor"` (a yokeless slotted stator
+between two rotors magnetised the same way, so the flux crosses the stator axially).
+
+* **No helical bias.** A plain six-tetrahedron split leans every cell the same way round the axis, which put 0.9 N m
+  of torque on an aligned rotor on a coarse grid. Every other `theta` cell is now cut as the mirror image of its
+  neighbour; the grid is then symmetric about every even `theta` node plane, the aligned rotor carries no torque
+  (1e-11 N m) and the cogging is exactly odd. Rotor angles move by two steps at a time.
+* **Torque** is the Maxwell stress `r B_theta B_z / mu0` averaged over each gap layer. Its sign is checked against
+  the co-energy (`T = dW'/d theta`).
+* **Quasi-3D on the same grid.** `quasi3d_models(n)` cuts the active annulus into `n` radial slices on the same
+  radial nodes, each solved alone with flux-parallel cylindrical faces: the flux cannot cross radius `r_k`, the
+  assumption of the usual quasi-3D model (a 2-D machine per radius, curvature kept). One slice leaves out the
+  fringing at the inner and outer radius; five slices also leave out the radial flux inside the annulus.
+* **Flux linkage** of a coil around a stator tooth at mid tooth height (exact line integral of `A`), with a
+  magnet centred on the tooth.
+
+`python examples/electrodynamics/24_afpm_quasi3d.py` (run on 2026-10-31, 12 min, peak 10.8 GB) runs the default
+`AFPMMachine`: 12 slots, 8 poles, r = 50 to 90 mm, 1 mm gap, 4 mm magnets (80 % of the pole pitch), open slots (half
+the slot pitch), linear iron (`mu_r` 1000). Fine grid: 384 steps round the axis, 4 mm radially, 2.5 mm axially,
+15 mm of air inside, outside, above and below; coarse grid: 192 steps, 8 mm, 4 mm. Cogging over one 15 deg period
+every 1.875 deg (3.75 deg on the coarse grid):
+
+| Topology | Grid | Tetrahedra (3-D) | Cogging pk-pk, 3-D (N m) | Quasi-3D, 1 slice | Quasi-3D, 5 slices | Tooth linkage, 3-D (mWb) | Quasi-3D, 1 slice | Quasi-3D, 5 slices |
+|---|---|---|---|---|---|---|---|---|
+| single | fine | 1 032 192 | 9.199 | 10.234 (+11.3 %) | 10.265 (+11.6 %) | 1.049 | 1.072 (+2.2 %) | 1.071 (+2.1 %) |
+| single | coarse | 196 992 | 10.367 | 11.665 (+12.5 %) | 11.657 (+12.4 %) | 1.060 | 1.083 (+2.2 %) | 1.082 (+2.1 %) |
+| double rotor | fine | 1 179 648 | 17.477 | 19.498 (+11.6 %) | 19.532 (+11.8 %) | 1.062 | 1.091 (+2.8 %) | 1.091 (+2.7 %) |
+| double rotor | coarse | 238 464 | 18.558 | 21.025 (+13.3 %) | 20.965 (+13.0 %) | 1.072 | 1.103 (+2.9 %) | 1.102 (+2.9 %) |
+
+* **Quasi-3D overestimates the cogging by 11 to 12 %** on the fine grid (12 to 13 % on the coarse one) and the
+  flux linkage by 2 to 3 %, for both topologies.
+* **The difference is the fringing at the inner and outer radius, not radial flux inside the annulus**: one slice
+  and five slices agree within 0.3 % in cogging and 0.1 % in linkage.
+* **Discretisation.** The cogging itself moves by 13 % (single) and 6 % (double rotor) between the two grids, but
+  the quasi-3D error moves by 1.2 and 1.7 points, so the comparison holds to about that on the fine grid. A coil whose end turns
+  run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 % (double rotor) more than one on the
+  annulus edges (1.055 and 1.073 mWb).
+
+Limits: linear iron, no-load only (no winding currents), open slots on one geometry; two grids, the finer one at
+the memory of this machine.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is
@@ -819,7 +1194,9 @@ Notes from the same run:
 ## Limits
 
 * The FEM solvers are 2-D (planar or axisymmetric for `eddy_current_fdm`), first order (P1), and resolve
-  geometry on the mesh (polar grids are staircased in angle).
+  geometry on the mesh (polar grids are staircased in angle). The 3-D edge-element solver (`fem3d`) is first order;
+  its eddy-current solve is a sparse LU, practical up to some 1e4 unknowns, and it is not yet compared with a TEAM
+  benchmark.
 * FDTD: uniform grids only. The sub-cell averaging is not the full anisotropic smoothing: curved surfaces with E
   normal to them keep an error of a few percent that does not converge (2 % on the Mie sphere below). The CPML is tuned for vacuum; inside
   dispersive or negative-permittivity media its reflection is not measured. Surface plasmon polaritons are

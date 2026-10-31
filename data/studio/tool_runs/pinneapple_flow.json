@@ -1,0 +1,724 @@
+{
+ "pinneapple_flow.autocalls:generate": {
+  "code_hash": "c13f50c9a8ad0b8d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.51
+ },
+ "pinneapple_flow.autocalls:load": {
+  "code_hash": "b97db1740d5d537a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.config:data_root": {
+  "code_hash": "98df3d3d6e7f45a0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.config:home": {
+  "code_hash": "73c5c8473d3e3ce2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.config:load_dotenv": {
+  "code_hash": "15c1a74ee93f8416",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.coverage:counts": {
+  "code_hash": "75fb9c2cec37bb3d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
+ },
+ "pinneapple_flow.coverage:coverage": {
+  "code_hash": "c24e726c8cbc03e4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_flow.coverage:markdown": {
+  "code_hash": "912d8650a87d4ec3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.03
+ },
+ "pinneapple_flow.coverage:node_targets": {
+  "code_hash": "4fc3c79a9c64a28d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.coverage:packages": {
+  "code_hash": "a98e6cbc05a12e31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.decisions:edits_to_decisions": {
+  "code_hash": "d104f4635d373079",
+  "inputs": {
+   "edits": [
+    {
+     "node": "eq",
+     "notes": "handbook",
+     "param": "coefficients",
+     "references": [
+      "carslaw1959heat"
+     ],
+     "value": {
+      "alpha": 2e-05
+     }
+    },
+    {
+     "node": "val",
+     "param": "tolerance",
+     "value": 0.05
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.42
+ },
+ "pinneapple_flow.decisions:llm_decision": {
+  "code_hash": "9e2dc80f77965fb0",
+  "inputs": {
+   "provider_model": "ollama/m",
+   "references": [
+    "lu2021deeponet",
+    {
+     "key": "made_up_2031"
+    },
+    {
+     "doi": "not-a-doi",
+     "title": "x"
+    },
+    {
+     "doi": "10.1/y",
+     "title": "y"
+    }
+   ],
+   "topic": "method",
+   "what": "DeepONet"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.decisions:rule_decision": {
+  "code_hash": "467deb38052fab61",
+  "inputs": {
+   "rule_id": "method.fd",
+   "what": "finite differences"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.decisions:user_decision": {
+  "code_hash": "29cb0583e25c1f1d",
+  "inputs": {
+   "node": "geo",
+   "topic": "dimension",
+   "value": 3,
+   "what": "3-D"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Decision",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.examples:example_folders": {
+  "code_hash": "a7d4876599b57146",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.examples:flows": {
+  "code_hash": "d3f4af5b9030e5f2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.examples:inventory": {
+  "code_hash": "199577804fdcb518",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.examples:markdown": {
+  "code_hash": "43bc3768e5c2f70f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 4.66
+ },
+ "pinneapple_flow.examples:measured": {
+  "code_hash": "306362e49fdbc558",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.examples:problems": {
+  "code_hash": "408bb3c66de43847",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.59
+ },
+ "pinneapple_flow.examples:register_hook": {
+  "code_hash": "f312671a9053d6b6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.32
+ },
+ "pinneapple_flow.identify:identify": {
+  "code_hash": "cde645ccefed1fdc",
+  "inputs": {
+   "text": "the quarterly sales report of the bakery"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.6
+ },
+ "pinneapple_flow.lab_status:nodes_for": {
+  "code_hash": "d968ade76491cba3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.libcalls:add": {
+  "code_hash": "51f1055fcda816a0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.libcalls:auto_specs": {
+  "code_hash": "a91b324184f582ea",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.libcalls:custom_spec": {
+  "code_hash": "2ebf10681a7a9823",
+  "inputs": {
+   "doc": {
+    "base": "solver.terramechanics",
+    "params": {
+     "slip": 0.3,
+     "soil": {
+      "default": "JSC-1A",
+      "hidden": true
+     }
+    },
+    "title": "Wheel on JSC-1A",
+    "type": "custom.soft_soil"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NodeSpec",
+  "seconds": 0.02
+ },
+ "pinneapple_flow.libcalls:library_specs": {
+  "code_hash": "f12bbad2859ec5b7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.nodes.vehicle:vehicle_presets": {
+  "code_hash": "85209c152057b6ef",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes.vehicle:virtual_display": {
+  "code_hash": "8b0ad28cd4e575cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "_GeneratorContextManager",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.core_ts:regime_series": {
+  "code_hash": "d0d075efd4f5062a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.examples:example_dir": {
+  "code_hash": "f5891d6fc893807e",
+  "inputs": {
+   "name": "flight_dynamics"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 1.15
+ },
+ "pinneapple_flow.nodes_ext.examples:examples_root": {
+  "code_hash": "054cac297ee8f310",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.render_worker:check": {
+  "code_hash": "88a29019ebd1aa71",
+  "error": "ModuleNotFoundError: No module named 'bpy'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.palette:humanize": {
+  "code_hash": "94a1df67b8148bbd",
+  "inputs": {
+   "name": "generate_eddy_current_synthetic"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.58
+ },
+ "pinneapple_flow.palette:layout": {
+  "code_hash": "cc6a940330927190",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.09
+ },
+ "pinneapple_flow.palette:search": {
+  "code_hash": "f20a1c24f7b5c121",
+  "inputs": {
+   "query": ""
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 13.46
+ },
+ "pinneapple_flow.palette:sections": {
+  "code_hash": "d2cbce39ffee1905",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.palette:summary": {
+  "code_hash": "c70def209ee64525",
+  "inputs": {
+   "text": "``f`` does a thing. More text."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.extensions:capabilities": {
+  "code_hash": "4652ef4d7aef3520",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.extensions:describe": {
+  "code_hash": "975684e2d2e0e53e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.heuristic:sensor_count": {
+  "code_hash": "37d8d6c624bc7370",
+  "inputs": {
+   "text": "a twin from 5 temperature sensors along the rod"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.heuristic:sensor_layout": {
+  "code_hash": "e618c5f8136e1ed1",
+  "inputs": {
+   "dim": 1,
+   "n": 3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.llm:catalog_prompt": {
+  "code_hash": "4121cd624ef547a9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.wizard:describe": {
+  "code_hash": "d4c323b9d8914c58",
+  "inputs": {
+   "answers": {
+    "geometry": "2d",
+    "methods": [
+     "pinn",
+     "classical"
+    ],
+    "physics": "heat",
+    "problem": "heat in a plate"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.planner.wizard:plan_from_answers": {
+  "code_hash": "4946e40ee45d00d4",
+  "inputs": {
+   "answers": {
+    "capability": "flight.takeoff",
+    "problem": ""
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_flow.planner:plan": {
+  "code_hash": "38a9fba83381d1ec",
+  "inputs": {
+   "backend": "heuristic",
+   "text": "steady heat in a plate with a heat source, then switch from 2D to 3D"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.03
+ },
+ "pinneapple_flow.references:cite": {
+  "code_hash": "a04fb316b0ae4837",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.references:ref": {
+  "code_hash": "82d7079b962da860",
+  "inputs": {
+   "key": "raissi2019pinn"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.references:registry": {
+  "code_hash": "099dd206ba785b62",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.references:verify_doi": {
+  "code_hash": "618ca9a892bc992d",
+  "inputs": {
+   "doi": "10.2514/3.12149"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.04
+ },
+ "pinneapple_flow.references:verify_registry": {
+  "code_hash": "cfba4a97d310ded5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 9.05
+ },
+ "pinneapple_flow.runtime:default_workdir": {
+  "code_hash": "3b52ec63d383ab2a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.runtime:lab_export_status": {
+  "code_hash": "38697bc19e3a68fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.02
+ },
+ "pinneapple_flow.schema:flow_json_schema": {
+  "code_hash": "aacf0406566b2bcc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.service:FlowService": {
+  "code_hash": "8ea32150d4e311b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FlowService",
+  "seconds": 0.15
+ },
+ "pinneapple_flow.store:default_url": {
+  "code_hash": "fe17439763ec86d0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.studio:app_dir": {
+  "code_hash": "a085df41d99f8c30",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.studio:load_app": {
+  "code_hash": "0c14511334595939",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FastAPI",
+  "seconds": 0.27
+ },
+ "pinneapple_flow.types:compatible": {
+  "code_hash": "7d630cd423162867",
+  "inputs": {
+   "source": "problem",
+   "target": "problem"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:beam_deflection": {
+  "code_hash": "d74b8e2b19046d82",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.27
+ },
+ "pinneapple_flow.wrappers:calculix_cantilever": {
+  "code_hash": "36f23ccccc7b0045",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.15
+ },
+ "pinneapple_flow.wrappers:compare_preset": {
+  "code_hash": "1bd441ccb4a69758",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.88
+ },
+ "pinneapple_flow.wrappers:design_intent": {
+  "code_hash": "4fc57accc3df9067",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_flow.wrappers:doe_design": {
+  "code_hash": "0a4f0c9c691829ae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.08
+ },
+ "pinneapple_flow.wrappers:fmu_simulate": {
+  "code_hash": "584ac4111a240362",
+  "error": "StepFailed: needs fmpy (pip install fmpy)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:geometry_export": {
+  "code_hash": "7d9f2b2317d1ad36",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.14
+ },
+ "pinneapple_flow.wrappers:lbm_channel": {
+  "code_hash": "ad43269c6d9dbe49",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.09
+ },
+ "pinneapple_flow.wrappers:meshless_compare": {
+  "code_hash": "2eade3886191a389",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.41
+ },
+ "pinneapple_flow.wrappers:model_architecture": {
+  "code_hash": "eced3ebc9392249b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.wrappers:newton_validate": {
+  "code_hash": "25d4e715de106923",
+  "error": "StepFailed: needs NVIDIA Newton (pip install newton)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:openfoam_available": {
+  "code_hash": "bbfe1cc358b836f6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:parametric_pod": {
+  "code_hash": "61a345e2b4762032",
+  "error": "TypeError: len() of unsized object",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:rom_compare": {
+  "code_hash": "2163477c12dcf776",
+  "error": "StepFailed: connect a dataset",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.wrappers:solve_preset": {
+  "code_hash": "4c97a264db7b8ed2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.wrappers:surrogate_study": {
+  "code_hash": "c1ee74245fde0cb3",
+  "error": "StepFailed: connect a dataset or pick a built-in example",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.wrappers:wheel_on_soil": {
+  "code_hash": "f09c9146fec1cdea",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_flow.wrappers:xtfc_pde": {
+  "code_hash": "3202bf97422d98e9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_flow:catalog": {
+  "code_hash": "e5908822d2dbc56c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 6.9
+ }
+}

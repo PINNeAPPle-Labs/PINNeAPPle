@@ -1,0 +1,12 @@
+{
+ "code_hash": "577bd87ac5440bab",
+ "figures": [],
+ "id": "node:em.magnet_eddy_segmentation",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 5.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Magnet eddy loss against segmentation: 3-D, 2-D and the closed form -> pinneapple_simulation.electromagnetics.machines3d.magnet_loss: segmentation_study (segmented_block, block_loss_3d, plate_loss, strip_loss)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'segments': [[1, 1], [1, 2], [1, 4], [1, 8], [2, 1], [4, 1], [2, 4]], 'freqs': [1000.0, 10000.0, 50000.0], 'h': 0.0015, 'B_peak': 0.05}",
+ "timed_out": false
+}

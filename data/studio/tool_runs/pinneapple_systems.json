@@ -1,0 +1,1189 @@
+{
+ "pinneapple_systems.component_library.registry:ComponentRegistry": {
+  "code_hash": "b0862aebecd4bdf5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ComponentRegistry",
+  "seconds": 0.53
+ },
+ "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
+  "code_hash": "3696e14547454914",
+  "inputs": {
+   "filt": "plant/+/sensors",
+   "topic": "plant/a/sensors"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 4.98
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:AnomalyMonitor": {
+  "code_hash": "20c7f554b3f7e698",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AnomalyMonitor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:MahalanobisDetector": {
+  "code_hash": "4d59aa6338fe6284",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MahalanobisDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:ThresholdDetector": {
+  "code_hash": "43355e070454aa3c",
+  "inputs": {
+   "thresholds": {
+    "p": 1.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ThresholdDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.monitoring.anomaly:ZScoreDetector": {
+  "code_hash": "11b9c5e3af88f63b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ZScoreDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.agent:run_mission": {
+  "code_hash": "29a38241d35ba7cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Run",
+  "seconds": 0.13
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.agent:toolbox": {
+  "code_hash": "82473edd9578eb7a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Toolbox",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.benchmark:make_cases": {
+  "code_hash": "b5054a1030187e5f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.benchmark:run_benchmark": {
+  "code_hash": "4b1c6cd5e6df7034",
+  "error": "ModuleNotFoundError: No module named 'sklearn'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.13
+ },
+ "pinneapple_systems.digital_twin.pipe_loop.diagnose:Surrogate": {
+  "code_hash": "0257b93d7a97dd00",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Surrogate",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.recession:recession": {
+  "code_hash": "208f642e4f8c979f",
+  "inputs": {
+   "hours": 0.0,
+   "k_per_hour": 0.01,
+   "q0": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 5.45
+ },
+ "pinneapple_systems.digital_twin.recession:synthetic_recession": {
+  "code_hash": "8d027d6cbdc20c66",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.anomaly:benchmark_faults": {
+  "code_hash": "77089590ba246952",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.05
+ },
+ "pinneapple_systems.operations.anomaly:fault_benchmark": {
+  "code_hash": "63b5ff21d5bf0d29",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.55
+ },
+ "pinneapple_systems.operations.anomaly:run_benchmark": {
+  "code_hash": "de0cf55d2af0318e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 7.35
+ },
+ "pinneapple_systems.operations.anomaly:tank_balance_rules": {
+  "code_hash": "6a117480ad253260",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.anomaly:tank_constants": {
+  "code_hash": "02aed8cd38a3e28a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.control:compare_controllers": {
+  "code_hash": "5f8f5e30f0fd8464",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 37.83
+ },
+ "pinneapple_systems.operations.exchanger:generate_history": {
+  "code_hash": "6e1e8e8de6b9ab76",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.04
+ },
+ "pinneapple_systems.operations.live:default_model": {
+  "code_hash": "0102c4006cbaa2f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LumpedTankModel",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.operations.live:demo_record": {
+  "code_hash": "6883b6684689a41e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.2
+ },
+ "pinneapple_systems.operations.plant:demo_scenario": {
+  "code_hash": "09ba9ac9cb7a1053",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Scenario",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.operations.series:operating_space": {
+  "code_hash": "2a1a404cf4cd3f40",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParameterSpace",
+  "seconds": 0.11
+ },
+ "pinneapple_systems.process_components.beam_statics:rectangular_section_properties": {
+  "code_hash": "dae04ea610debd68",
+  "inputs": {
+   "height_m": 0.2,
+   "width_m": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.curved_path_geometry:build_and_hold_profile": {
+  "code_hash": "9e8a046f5be1aad5",
+  "inputs": {
+   "bin_width_m": 1.0,
+   "build_length_m": 0.0,
+   "final_inclination_deg": 90.0,
+   "hold_length_m": 0.0,
+   "total_length_m": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CurvedPathProfile",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.curved_path_geometry:inclination_at_depth": {
+  "code_hash": "22eb2ae165cee739",
+  "inputs": {
+   "build_length_m": 200.0,
+   "final_inclination_deg": 0.0,
+   "s_m": [
+    0.0,
+    2.6315789473684212,
+    5.2631578947368425,
+    7.894736842105264,
+    10.526315789473685,
+    13.157894736842106,
+    15.789473684210527,
+    18.42105263157895,
+    21.05263157894737,
+    23.68421052631579,
+    26.315789473684212,
+    28.947368421052634,
+    31.578947368421055,
+    34.21052631578948,
+    36.8421052631579,
+    39.473684210526315,
+    42.10526315789474,
+    44.736842105263165,
+    47.36842105263158,
+    50.0
+   ],
+   "vertical_length_m": 100.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.explicit_equation_system:safe_eval": {
+  "code_hash": "a0bea671895dd341",
+  "inputs": {
+   "env": {},
+   "expr": "linspace(0, 10, 5)"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.non_newtonian_pipe_flow:integrate_pressure_profile": {
+  "code_hash": "26f63908bcce36b6",
+  "inputs": {
+   "D_h_m": 0.2,
+   "K_Pa_sn": 0.05,
+   "P_inlet_Pa": 0.0,
+   "inclination_deg_profile": 90.0,
+   "length_m": 500.0,
+   "n_flow_index": 1.0,
+   "n_steps": 200,
+   "rho_profile": 1450.0,
+   "v_m_s": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PressureProfile",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.non_newtonian_pipe_flow:metzner_reed_friction_factor": {
+  "code_hash": "bac04bb0df1a456c",
+  "inputs": {
+   "Re_gen": [
+    100.0,
+    500.0,
+    2000.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.pipe_network_1d:TransientPipe": {
+  "code_hash": "eca7faa5f49b6096",
+  "inputs": {
+   "gas": {
+    "components": [
+     "Methane"
+    ],
+    "mole_fractions": [
+     1.0
+    ]
+   },
+   "spec": {
+    "diameter_m": 0.3,
+    "length_m": 1000.0,
+    "n_cells": 5,
+    "name": "p1",
+    "roughness_m": 4.5e-05
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TransientPipe",
+  "seconds": 4.58
+ },
+ "pinneapple_systems.process_components.pipe_stress_mechanics:constrained_rod_buckling_load": {
+  "code_hash": "a91ea2c156b76cee",
+  "inputs": {
+   "E": 200000000000.0,
+   "I": 5e-06,
+   "lateral_load_per_length": 50.0,
+   "radial_clearance": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ConstrainedRodBucklingResult",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.pipe_stress_mechanics:rotating_bending_stress_cycle": {
+  "code_hash": "8bd0cd3734954094",
+  "inputs": {
+   "sigma_axial": 100000000.0,
+   "sigma_bending_amplitude": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RotatingBendingCycleResult",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:arrhenius_rate_constant": {
+  "code_hash": "d9eef5331ebd0a5e",
+  "inputs": {
+   "A": 10000000000.0,
+   "Ea_over_R": 5000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:diprotic_fractions": {
+  "code_hash": "33a5cf28a28ccc66",
+  "inputs": {
+   "pH": 8.3,
+   "pKa1": 6.3,
+   "pKa2": 10.3
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:linear_combination_rate_constant": {
+  "code_hash": "a2893ce9de4354f8",
+  "inputs": {
+   "terms": [
+    [
+     2.0,
+     "cat_A"
+    ],
+    [
+     5.0,
+     "cat_B"
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.reaction_kinetics:quadratic_in_T": {
+  "code_hash": "b3d25bb7b29bdcee",
+  "inputs": {
+   "a": 0.000118,
+   "b": -0.0786,
+   "c": 20.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.real_gas_eos:ValidityEnvelope": {
+  "code_hash": "5168743bb1b7530e",
+  "inputs": {
+   "P_max_Pa": 200000.0,
+   "P_min_Pa": 100000.0,
+   "T_max_K": 290.0,
+   "T_min_K": 280.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ValidityEnvelope",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.similarity_map:make_map": {
+  "code_hash": "dac2d20902feefa8",
+  "inputs": {
+   "D2_m": 0.4,
+   "Mu2_ref": 0.8,
+   "eta_p_max": 0.8,
+   "eta_p_shape_b": 55.0,
+   "n_stages": 3,
+   "name": "c",
+   "phi_choke": 0.1,
+   "phi_ref_bep": 0.07,
+   "phi_surge": 0.04,
+   "psi0": 0.85,
+   "psi_ref_bep": 0.65
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MapCoefficients",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.torsional_stickslip:stribeck_friction_torque": {
+  "code_hash": "001078f9ad52649e",
+  "inputs": {
+   "T_kinetic": 400.0,
+   "T_static": 1000.0,
+   "omega": 1e-15,
+   "omega_breakout": 1.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.process_components.water_hammer:wave_period": {
+  "code_hash": "c17aa987556215a5",
+  "inputs": {
+   "length": 1000.0,
+   "wave_speed": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.sports.football.ball_study:identifiability": {
+  "code_hash": "2ffeba63e5f59a5a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.42
+ },
+ "pinneapple_systems.sports.football.ball_study:synthetic_flights": {
+  "code_hash": "9eba3c1b22c4e811",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.03
+ },
+ "pinneapple_systems.sports.football.ball_study:synthetic_recovery": {
+  "code_hash": "16b05a32f92d2b89",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 10.28
+ },
+ "pinneapple_systems.sports.football.data:cache_dir": {
+  "code_hash": "87f2d24c0768e0f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.sports.football.data:manifest": {
+  "code_hash": "6ad3b65fb702788d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.sports.football.data:metrica_match": {
+  "code_hash": "b3f381f7846bd1c3",
+  "error": "URLError: <urlopen error [Errno -3] Temporary failure in name resolution>",
+  "inputs": {
+   "game": 1
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
+ },
+ "pinneapple_systems.sports.football.data:skillcorner_matches": {
+  "code_hash": "640303b904b68db2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.15
+ },
+ "pinneapple_systems.sports.football.data:statsbomb_shots": {
+  "code_hash": "20fe5156a8582850",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_systems.sports.football.kin_study:synthetic_runs": {
+  "code_hash": "0043f10a0f27330a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.04
+ },
+ "pinneapple_systems.sports.football.kin_study:synthetic_smoothing": {
+  "code_hash": "556813689b10e89f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 3.36
+ },
+ "pinneapple_systems.sports.football.kinematics:MLPredictor": {
+  "code_hash": "51fe52773125cea0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLPredictor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:HoltDamped": {
+  "code_hash": "1cbc281a694f1217",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HoltDamped",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:HoltWintersAdditive": {
+  "code_hash": "cb50711716e486a6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HoltWintersAdditive",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:MovingAverage": {
+  "code_hash": "2c125483a70164a4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MovingAverage",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:RidgeAR": {
+  "code_hash": "a1fdaf97ff1e0058",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RidgeAR",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:SimpleExpSmoothing": {
+  "code_hash": "c3110fb6a93a304d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SimpleExpSmoothing",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:Theta": {
+  "code_hash": "712ffefe4035bdd7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Theta",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.adaptive:default_experts": {
+  "code_hash": "66d7ee022d2c7c88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.audit.tests:TSAuditor": {
+  "code_hash": "136b7fb726bf9956",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TSAuditor",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:DriftForecaster": {
+  "code_hash": "e0a7d2e249bb4be0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DriftForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:NaiveForecaster": {
+  "code_hash": "9809b7b82e784a31",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NaiveForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.baselines.naive:SeasonalNaiveForecaster": {
+  "code_hash": "5aed30f46554f34b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SeasonalNaiveForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.classical_wrappers:AutoARIMAForecaster": {
+  "code_hash": "2c79840956bc1f8f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AutoARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.classical_wrappers:StatsmodelsARIMAForecaster": {
+  "code_hash": "9d3c6beda973c26b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "StatsmodelsARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.csv_loader:TimeSeriesScaler": {
+  "code_hash": "17fd02091c810667",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TimeSeriesScaler",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.datasets.public:load_sunspots_yearly": {
+  "code_hash": "4f9d2bd3ad341ac9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PublicSeries",
+  "seconds": 0.15
+ },
+ "pinneapple_systems.time_series.datasets.public:load_usd_eur_daily": {
+  "code_hash": "da0f397bc85a1385",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PublicSeries",
+  "seconds": 0.54
+ },
+ "pinneapple_systems.time_series.datasets.public:load_youtube_trending_us": {
+  "code_hash": "9a7e5e377185d561",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YouTubeDaily",
+  "seconds": 2.46
+ },
+ "pinneapple_systems.time_series.datasets.public:youtube_daily_aggregates": {
+  "code_hash": "92f2678ab70cc085",
+  "inputs": {
+   "csv_text": "video_id,trending_date,category_id,views,likes\na,17.14.11,24,100,5\nb,17.14.11,10,50,1\nc,17.16.11,24,10,0\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "YouTubeDaily",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.fft_forecaster:FFTForecaster": {
+  "code_hash": "da8fbf29f3795f8b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FFTForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.fft_lstm:FFTDecomposer": {
+  "code_hash": "d3f08cac317836fe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FFTDecomposer",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.fft_nn:FFTNNForecaster": {
+  "code_hash": "2a32c6001bea1588",
+  "error": "RuntimeError: Call fit() before predict().",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.hht_lstm:HHTDecomposer": {
+  "code_hash": "9277ff045776f417",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HHTDecomposer",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.decomposition.hht_nn:HHTNNForecaster": {
+  "code_hash": "e3884d8124cf7987",
+  "error": "RuntimeError: Call fit() before predict().",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:d20_from_profile": {
+  "code_hash": "3b0766d262fbc5b6",
+  "inputs": {
+   "T": [
+    28.0,
+    26.0,
+    22.0,
+    18.0,
+    15.0
+   ],
+   "z": [
+    0.0,
+    50.0,
+    100.0,
+    150.0,
+    200.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.enso.data:era5_monthly": {
+  "code_hash": "a03b3da8d0321662",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 62.16
+ },
+ "pinneapple_systems.time_series.enso.data:manifests": {
+  "code_hash": "f44efe924ca7c575",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:month_range": {
+  "code_hash": "146eb8cfc22bcbd4",
+  "inputs": {
+   "end": "2003-12",
+   "start": "2000-01"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:ncei_heat_content": {
+  "code_hash": "586e04f5c5759064",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.data:oisst_monthly": {
+  "code_hash": "db7a4dd033d0a4b1",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 1.13
+ },
+ "pinneapple_systems.time_series.enso.data:statsmodels_nino12": {
+  "code_hash": "c343668cb8ab985a",
+  "error": "ModuleNotFoundError: No module named 'statsmodels'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.dataset:build_dataset": {
+  "code_hash": "5a60343e487b900a",
+  "error": "ModuleNotFoundError: No module named 'netCDF4'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.9
+ },
+ "pinneapple_systems.time_series.enso.forecasters:IntermediateModelForecaster": {
+  "code_hash": "0ef12f5a33b07064",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IntermediateModelForecaster",
+  "seconds": 0.02
+ },
+ "pinneapple_systems.time_series.enso.forecasters:LIMForecaster": {
+  "code_hash": "db1e5dad1105d203",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LIMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.forecasters:RechargeOscillatorForecaster": {
+  "code_hash": "142082461ac87128",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RechargeOscillatorForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.intermediate:GillAtmosphere": {
+  "code_hash": "359e2d4275c1ea75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GillAtmosphere",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.enso.intermediate:convergence_study": {
+  "code_hash": "7392383850cb1957",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.56
+ },
+ "pinneapple_systems.time_series.enso.intermediate:gill_test": {
+  "code_hash": "aa2aafd84fba1828",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.55
+ },
+ "pinneapple_systems.time_series.enso.intermediate:kelvin_wave_test": {
+  "code_hash": "6cb498e1bfa0bf6b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.1
+ },
+ "pinneapple_systems.time_series.enso.intermediate:rossby_wave_test": {
+  "code_hash": "ee26b80ef06d3b60",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.42
+ },
+ "pinneapple_systems.time_series.enso.pinn:PINNRechargeForecaster": {
+  "code_hash": "ea080f0e41c52f3c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNRechargeForecaster",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.enso.pipeline:solver_checks": {
+  "code_hash": "7eaa19fa44fdf5c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.72
+ },
+ "pinneapple_systems.time_series.enso.study:zoo": {
+  "code_hash": "4b4f525446e09265",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.forecast_lab.baselines:ARIMAForecaster": {
+  "code_hash": "c6ea39ce3ecd3604",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ARIMAForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.baselines:Climatology": {
+  "code_hash": "4a970ad1c16a9d24",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Climatology",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.learned:LagFeatures": {
+  "code_hash": "4decc693eb99f87a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LagFeatures",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.physical:LinearSSMForecaster": {
+  "code_hash": "88834aa762520a91",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearSSMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.physical:SDEDriftForecaster": {
+  "code_hash": "e184d0c270adbab3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SDEDriftForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.pipeline:lyapunov_study": {
+  "code_hash": "bd74603cc6f8ebdf",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.presets:baseline_specs": {
+  "code_hash": "d763bf8986cb0abc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.forecast_lab.presets:data_specs": {
+  "code_hash": "cf8b533b0ac13916",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.foundation_models:ChronosForecaster": {
+  "code_hash": "3cb8424ee7a32e33",
+  "error": "ImportError: ChronosForecaster requires the real 'chronos-forecasting' package (https://github.com/amazon-science/chronos-forecasting), which was not found. Install it with:\n    pip install chronos-forecasting\nModel card for the default checkpoint: https://huggingface.co/amazon/chronos-t5-tiny",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.foundation_models:TimesFMForecaster": {
+  "code_hash": "cdf1f4127b0a284b",
+  "error": "ImportError: TimesFMForecaster requires the real 'timesfm' package (https://github.com/google-research/timesfm), which was not found. Install it with:\n    pip install timesfm\nModel card for the default checkpoint: https://huggingface.co/google/timesfm-2.5-200m-pytorch",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.metrics:default_ts_metrics": {
+  "code_hash": "03bfbcbb4a34b1eb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.metrics_ext.point:PointMetrics": {
+  "code_hash": "6801952ba9645f5e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PointMetrics",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.metrics_ext.probabilistic:ProbabilisticMetrics": {
+  "code_hash": "ebb0cbe20a0a5af2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ProbabilisticMetrics",
+  "seconds": 0.25
+ },
+ "pinneapple_systems.time_series.models.classical:CatBoostForecaster": {
+  "code_hash": "f8b2c5d976a64e16",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CatBoostForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:GPRForecaster": {
+  "code_hash": "3c4e657ef7ce8c75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GPRForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:LightGBMForecaster": {
+  "code_hash": "838b3b9ba412898f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LightGBMForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:MLPForecaster": {
+  "code_hash": "b2aed7341d82157c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLPForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:RandomForestForecaster": {
+  "code_hash": "4cbe0b139e7b2594",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RandomForestForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.models.classical:XGBoostForecaster": {
+  "code_hash": "fe2444a40f7d2699",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "XGBoostForecaster",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.registry:TSModelCatalog": {
+  "code_hash": "4ef643360d245751",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TSModelCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.solar_cycle:synthetic_daily": {
+  "code_hash": "6dee3c907707c511",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DataFrame",
+  "seconds": 0.03
+ },
+ "pinneapple_systems.time_series.synthetic:double_well": {
+  "code_hash": "5d3f4a65029912b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.2
+ },
+ "pinneapple_systems.time_series.synthetic:lorenz63": {
+  "code_hash": "ac843e8569a7a37c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 3.34
+ },
+ "pinneapple_systems.time_series.synthetic:lorenz96": {
+  "code_hash": "47e5bdaadb69285f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 4.54
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass": {
+  "code_hash": "72cc8b4afa8c9379",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 18.7
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass_lyapunov": {
+  "code_hash": "6fded3634b1c17e4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float64",
+  "seconds": 15.42
+ },
+ "pinneapple_systems.time_series.synthetic:mackey_glass_stepper": {
+  "code_hash": "773774b42affa427",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:ornstein_uhlenbeck": {
+  "code_hash": "0c2f2cc0cd9d23ad",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:oscillator_transition": {
+  "code_hash": "9dc88b52658d57ff",
+  "inputs": {
+   "dt": 0.25,
+   "omega": 1.0,
+   "sigma": 0.5,
+   "zeta": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.synthetic:random_walk": {
+  "code_hash": "689abdc481bbf432",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.synthetic:stochastic_oscillator": {
+  "code_hash": "1915b669987cc9fd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.synthetic:white_noise": {
+  "code_hash": "b3aff1943ae700fe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SyntheticSeries",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.tuning.optuna_tuner:ClassicalTuner": {
+  "code_hash": "669054242f927164",
+  "error": "ImportError: pip install optuna",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.tuning.optuna_tuner:NeuralTuner": {
+  "code_hash": "034f2b672a961fec",
+  "error": "ImportError: pip install optuna",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ }
+}

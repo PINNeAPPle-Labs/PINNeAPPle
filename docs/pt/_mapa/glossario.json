@@ -1,0 +1,214 @@
+[
+ {
+  "termo": "PINN",
+  "definicao": "Physics-Informed Neural Network: rede neural treinada para satisfazer a equação diferencial (resíduo na perda), além de dados e condições de contorno."
+ },
+ {
+  "termo": "Resíduo",
+  "definicao": "Quanto a solução deixa de satisfazer a equação num ponto. Resíduo zero = equação satisfeita."
+ },
+ {
+  "termo": "Ponto de colocação (collocation point)",
+  "definicao": "Ponto do domínio onde o resíduo da equação é avaliado durante o treino de uma PINN."
+ },
+ {
+  "termo": "Condição de contorno (BC)",
+  "definicao": "Valor ou fluxo imposto na fronteira do domínio. Dirichlet fixa o valor; Neumann fixa a derivada normal; Robin combina os dois."
+ },
+ {
+  "termo": "Condição inicial (IC)",
+  "definicao": "Estado do sistema no instante inicial de um problema transiente."
+ },
+ {
+  "termo": "Hard BC",
+  "definicao": "Condição de contorno imposta pela própria forma da rede (por construção), e não por um termo de perda."
+ },
+ {
+  "termo": "Operador neural",
+  "definicao": "Rede que aprende um mapa entre funções (por exemplo, condição de contorno → campo solução). Exemplos: FNO, DeepONet, AFNO."
+ },
+ {
+  "termo": "FNO",
+  "definicao": "Fourier Neural Operator: operador neural que mistura informação no espaço de Fourier."
+ },
+ {
+  "termo": "DeepONet",
+  "definicao": "Operador neural com uma rede 'branch' (entrada funcional) e uma 'trunk' (coordenadas)."
+ },
+ {
+  "termo": "GNN / MeshGraphNet",
+  "definicao": "Rede de grafos que opera sobre os nós e arestas de uma malha."
+ },
+ {
+  "termo": "X-TFC / TFC",
+  "definicao": "Theory of Functional Connections: expressões que satisfazem as restrições exatamente; X-TFC combina isso com redes de camada única (extreme learning machine)."
+ },
+ {
+  "termo": "Surrogate (modelo substituto)",
+  "definicao": "Modelo rápido, em geral aprendido, que aproxima um simulador caro."
+ },
+ {
+  "termo": "FDM / FEM / FVM",
+  "definicao": "Diferenças finitas, elementos finitos e volumes finitos: famílias clássicas de discretização de equações diferenciais."
+ },
+ {
+  "termo": "SPH",
+  "definicao": "Smoothed Particle Hydrodynamics: método sem malha baseado em partículas."
+ },
+ {
+  "termo": "LBM",
+  "definicao": "Lattice Boltzmann Method: método de fluidos baseado em distribuições de partículas numa rede regular."
+ },
+ {
+  "termo": "Solução manufaturada",
+  "definicao": "Solução escolhida de antemão, inserida na equação para gerar o termo fonte; serve para verificar a ordem de convergência de um solver."
+ },
+ {
+  "termo": "Referência independente",
+  "definicao": "Valor de comparação que não vem do próprio código testado: forma fechada, solução manufaturada ou valor publicado/tabelado."
+ },
+ {
+  "termo": "validated / tested / untested",
+  "definicao": "Status do catálogo de métodos: validated = algum teste compara contra referência independente; tested = há testes, mas nenhum contra referência; untested = sem testes."
+ },
+ {
+  "termo": "Trust card",
+  "definicao": "Cartão de confiança: conjunto de verificações físicas de um campo (resíduo, conservação, contornos, referência, domínio) com decisão APPROVED / REVIEW / REJECT."
+ },
+ {
+  "termo": "Credibilidade",
+  "definicao": "Nível atribuído por pp.validate a cada fator verificado, com decisão final pass / warn / fail."
+ },
+ {
+  "termo": "OOD (fora do domínio)",
+  "definicao": "Entrada fora da região onde o modelo foi treinado ou validado; os resultados ali não são confiáveis."
+ },
+ {
+  "termo": "UQ",
+  "definicao": "Uncertainty Quantification: quantificação de incerteza (ensembles, conformal, propagação de tolerâncias, Monte Carlo)."
+ },
+ {
+  "termo": "Predição conformal",
+  "definicao": "Método que produz intervalos com cobertura garantida a partir de um conjunto de calibração."
+ },
+ {
+  "termo": "Problema inverso",
+  "definicao": "Estimar parâmetros ou entradas desconhecidas a partir de observações da saída."
+ },
+ {
+  "termo": "EKI",
+  "definicao": "Ensemble Kalman Inversion: método de inversão sem gradiente baseado em ensembles."
+ },
+ {
+  "termo": "Assimilação de dados",
+  "definicao": "Combinar um modelo com medições ao longo do tempo (por exemplo, filtro de Kalman, EnKF)."
+ },
+ {
+  "termo": "Gêmeo digital (digital twin)",
+  "definicao": "Modelo de um ativo real que é atualizado por medições e usado para monitorar, prever ou decidir."
+ },
+ {
+  "termo": "Co-simulação",
+  "definicao": "Acoplar simuladores diferentes que trocam dados a cada passo de tempo (por exemplo, via FMI/FMU)."
+ },
+ {
+  "termo": "FMI / FMU",
+  "definicao": "Functional Mock-up Interface: padrão para trocar modelos de simulação empacotados (Functional Mock-up Units)."
+ },
+ {
+  "termo": "Preset",
+  "definicao": "Problema pronto, com nome, equações, domínio e parâmetros padrão; pode ser carregado e resolvido diretamente."
+ },
+ {
+  "termo": "PhysicalProblem",
+  "definicao": "Classe única do PINNeAPPle que descreve um problema físico para todas as partes da biblioteca."
+ },
+ {
+  "termo": "ProblemSpec",
+  "definicao": "Definição executável de uma EDP (coordenadas, campos, termo da EDP, contornos, domínio) consumida pelo compilador de PINN."
+ },
+ {
+  "termo": "Solution",
+  "definicao": "Objeto devolvido por pp.solve: valores, pontos, método e metadados (info)."
+ },
+ {
+  "termo": "Flow",
+  "definicao": "Grafo de nós tipados (JSON pinneapple-flow/1) que encadeia chamadas da biblioteca; executado por pinneapple_flow."
+ },
+ {
+  "termo": "Hub / zoo",
+  "definicao": "Repositório de modelos treinados e verificados, datasets e biblioteca pesquisável de ferramentas e exemplos."
+ },
+ {
+  "termo": "Lab / selo",
+  "definicao": "pinneapple_lab registra experimentos com manifesto, métricas, verificações e uma nota (A-F); o selo resume essa avaliação."
+ },
+ {
+  "termo": "Autolab",
+  "definicao": "Laboratório autônomo: planeja e executa missões com ferramentas controladas, compara surrogates e escolhe a próxima simulação."
+ },
+ {
+  "termo": "MCP",
+  "definicao": "Model Context Protocol: protocolo para expor ferramentas a agentes de IA; pinneapple_mcp é o servidor do PINNeAPPle."
+ },
+ {
+  "termo": "Guardrail físico",
+  "definicao": "Verificação que bloqueia propostas (por exemplo, de um LLM) que violam a física ou o escopo."
+ },
+ {
+  "termo": "Condensação (Schur)",
+  "definicao": "Eliminar os graus de liberdade internos de um bloco, ficando só com a interface; reaproveitado entre blocos idênticos."
+ },
+ {
+  "termo": "Craig-Bampton",
+  "definicao": "Redução de modelos para dinâmica: modos de interface fixa mais modos de restrição."
+ },
+ {
+  "termo": "ROM",
+  "definicao": "Reduced-Order Model: modelo de ordem reduzida (por exemplo, POD) que aproxima o modelo completo com poucos graus de liberdade."
+ },
+ {
+  "termo": "NSGA-II",
+  "definicao": "Algoritmo genético multiobjetivo que encontra uma frente de Pareto."
+ },
+ {
+  "termo": "Frente de Pareto",
+  "definicao": "Conjunto de soluções em que nenhum objetivo melhora sem piorar outro."
+ },
+ {
+  "termo": "Otimização bayesiana",
+  "definicao": "Otimização com um modelo probabilístico (em geral processo gaussiano) que escolhe o próximo ponto a avaliar."
+ },
+ {
+  "termo": "Adjunto",
+  "definicao": "Método que calcula o gradiente de um objetivo em relação a muitos parâmetros com custo de uma simulação extra."
+ },
+ {
+  "termo": "SDF / CSG",
+  "definicao": "Signed Distance Function (distância com sinal até a fronteira) e Constructive Solid Geometry (união, interseção e diferença de sólidos)."
+ },
+ {
+  "termo": "Shim de compatibilidade",
+  "definicao": "Pacote que só reexporta outro, mantido para que imports antigos funcionem."
+ },
+ {
+  "termo": "Extra (pyproject)",
+  "definicao": "Grupo opcional de dependências instalado com pip install \"pinneapple[extra]\"."
+ },
+ {
+  "termo": "OpenUSD / Omniverse",
+  "definicao": "Formato de cena 3-D da Pixar e plataforma da NVIDIA que o usa; o PINNeAPPle exporta campos e decisões de confiança para ele."
+ },
+ {
+  "termo": "PhysicsNeMo",
+  "definicao": "Framework da NVIDIA para IA física; o PINNeAPPle confere surrogates feitos com ele."
+ },
+ {
+  "termo": "Walk-forward purgado",
+  "definicao": "Protocolo de validação de séries temporais que treina no passado, testa no futuro e remove amostras vizinhas para evitar vazamento."
+ },
+ {
+  "termo": "Teste de Diebold-Mariano (DM)",
+  "definicao": "Teste estatístico que compara a precisão de duas previsões."
+ }
+]

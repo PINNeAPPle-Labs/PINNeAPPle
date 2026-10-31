@@ -1,0 +1,267 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions/deflorio2024",
+ "title": "De Florio et al. 2024 reproduction",
+ "description": "PINN, Deep-TFC, PIELM and X-TFC on the 1D steady advection-diffusion BVP with sharp gradients (J. Comput. Appl. Math. 436, 115396) against the frozen targets of TARGETS.md.",
+ "domain": "physics-informed ML",
+ "methods": [
+  "X-TFC",
+  "PIELM",
+  "PINN",
+  "Deep-TFC"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.xtfc_general",
+  "pinneapple_analysis.reproduction",
+  "pinneapple_analysis.validation.pinn"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "xtfc_max_nu_0.0001_seed0",
+   "value": 0.00043754182004562825,
+   "unit": "abs error",
+   "how": "max |u - exact|, 20001 pts"
+  },
+  {
+   "name": "xtfc_max_nu_0.001_seed0",
+   "value": 2.0859980409682066e-11,
+   "unit": "abs error",
+   "how": "max |u - exact|, 20001 pts"
+  },
+  {
+   "name": "xtfc_max_nu_0.01_seed0",
+   "value": 2.396083331746013e-12,
+   "unit": "abs error",
+   "how": "max |u - exact|, 20001 pts"
+  },
+  {
+   "name": "xtfc_max_nu_0.1_seed0",
+   "value": 1.3877787807814457e-13,
+   "unit": "abs error",
+   "how": "max |u - exact|, 20001 pts"
+  },
+  {
+   "name": "xtfc_max_nu_1_seed0",
+   "value": 4.440892098500626e-16,
+   "unit": "abs error",
+   "how": "max |u - exact|, 20001 pts"
+  }
+ ],
+ "checks": [
+  {
+   "name": "pielm nu=1: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "xtfc nu=1: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pielm nu=0.1: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "xtfc nu=0.1: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pielm nu=0.01: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "xtfc nu=0.01: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pielm nu=0.001: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "xtfc nu=0.001: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "pielm nu=0.0001: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "xtfc nu=0.0001: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "X-TFC nu=0.0001: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "X-TFC nu=0.001: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "X-TFC nu=0.01: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "X-TFC nu=0.1: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "X-TFC nu=1: boundary values exact (0)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "targets": "examples/reproductions/deflorio2024/TARGETS.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "5abbffc8",
+  "created": "2026-10-29T14:27:50Z",
+  "seconds": 0.012,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

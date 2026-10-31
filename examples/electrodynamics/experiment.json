@@ -15,6 +15,7 @@
   "pinneapple_physics.pinn_solver.compiler.autograd_ops",
   "pinneapple_simulation.electromagnetics",
   "pinneapple_simulation.electromagnetics.constants",
+  "pinneapple_simulation.electromagnetics.fem3d",
   "pinneapple_simulation.electromagnetics.machine",
   "pinneapple_simulation.electromagnetics.machines",
   "pinneapple_simulation.electromagnetics.machines.drive",
@@ -22,6 +23,7 @@
   "pinneapple_simulation.electromagnetics.machines.export",
   "pinneapple_simulation.electromagnetics.machines.robustness",
   "pinneapple_simulation.electromagnetics.machines.thermal",
+  "pinneapple_simulation.electromagnetics.machines3d",
   "pinneapple_simulation.electromagnetics.media",
   "pinneapple_simulation.electromagnetics.verification",
   "pinneapple_tools.visualization"
@@ -44,7 +46,13 @@
   "15_prius_skew.py",
   "16_prius_end_effects.py",
   "17_prius_tolerances.py",
-  "18_emachine_slides.py"
+  "18_emachine_slides.py",
+  "19_edge3d_verification.py",
+  "20_spm_skew_3d.py",
+  "21_team7.py",
+  "22_spm_end_effects_3d.py",
+  "23_magnet_eddy_segmentation.py",
+  "24_afpm_quasi3d.py"
  ],
  "metrics": [],
  "checks": [],
@@ -78,8 +86,14 @@
    "results/15_prius_skew_3d.png",
    "results/16_prius_end_effects.png",
    "results/17_prius_tolerances.png",
+   "results/19_edge3d_verification.png",
    "results/fdtd_cylinder_field_map.png",
-   "results/fdtd_dipole_pattern.png"
+   "results/fdtd_dipole_pattern.png",
+   "results/20_spm_skew_3d.png",
+   "results/21_team7.png",
+   "results/22_spm_end_effects_3d.png",
+   "results/23_magnet_eddy_segmentation.png",
+   "results/24_afpm_quasi3d.png"
   ],
   "videos": [
    "results/fdtd_cylinder_scattering.gif",
@@ -96,8 +110,14 @@
    "results/15_prius_skew.json",
    "results/16_prius_end_effects.json",
    "results/17_prius_tolerances.json",
+   "results/19_edge3d_verification.json",
    "results/em_verification.json",
-   "results/fdtd_gallery.json"
+   "results/fdtd_gallery.json",
+   "results/20_spm_skew_3d.json",
+   "results/21_team7.json",
+   "results/22_spm_end_effects_3d.json",
+   "results/23_magnet_eddy_segmentation.json",
+   "results/24_afpm_quasi3d.json"
   ]
  },
  "links": {

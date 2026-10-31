@@ -3,12 +3,13 @@
 # key ("key=") in the VeriPhysics example registry; citation keys of the Flow reference registry (author + year + word,
 # e.g. "key": "kapteyn2021twin", pinneapple_flow/references.yaml) in decision records of flows and example results;
 # preset names in the PINNeAPPle Arena loss catalog ("preset_key": "ns_incompressible_2d_default",
-# pinneapple_arena/pointwise/losses.py).
+# pinneapple_arena/pointwise/losses.py); case labels of the axial-flux study ("key": "double_rotor.coarse.q1",
+# examples/electrodynamics/results/24_afpm_quasi3d.*).
 [extend]
 useDefault = true
 
 [allowlist]
 description = "placeholders, not credentials"
 regexTarget = "line"
-regexes = ['''-u USER:PASSWORD''', '''key="axial_compressor_stage_3d"''', '''"key": "[a-z]+(19|20)[0-9]{2}[a-z0-9]*"''', '''"preset_key": "[a-z0-9_]+"''']
+regexes = ['''-u USER:PASSWORD''', '''key="axial_compressor_stage_3d"''', '''"key": "[a-z]+(19|20)[0-9]{2}[a-z0-9]*"''', '''"preset_key": "[a-z0-9_]+"''', '''"key": "(single|double_rotor)\.(fine|coarse)\.(3d|q[0-9]+)"''']
 paths = ['''apps/deploy/\.env\.example''', '''__pycache__/''']

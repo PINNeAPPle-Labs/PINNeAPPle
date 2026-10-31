@@ -1,0 +1,66 @@
+{
+ "pinneapple_quantum.backends.backend:get_backend": {
+  "code_hash": "f131fa3667a9a3d1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ClassicalBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_quantum.data.quantum_dataset:sample_domain_1d": {
+  "code_hash": "6f77aec11567a246",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_quantum.data.quantum_dataset:sample_domain_2d": {
+  "code_hash": "d1ef2c1feaba47e4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_quantum.pipeline.presets:hybrid_pinn": {
+  "code_hash": "8202327d5007bda7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 61.4
+ },
+ "pinneapple_quantum.pipeline.presets:solve": {
+  "code_hash": "2ac62a6b281b6936",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 84.1
+ },
+ "pinneapple_quantum.pipeline.presets:vq_pinn": {
+  "code_hash": "463600c810175815",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 82.72
+ },
+ "pinneapple_quantum:backend_info": {
+  "code_hash": "e7a971aa84e02d62",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_quantum:build_circuit": {
+  "code_hash": "856c7e6a30040068",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "QuantumModel",
+  "seconds": 0.0
+ }
+}

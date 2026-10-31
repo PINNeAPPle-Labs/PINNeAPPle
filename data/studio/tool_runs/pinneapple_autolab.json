@@ -1,0 +1,232 @@
+{
+ "pinneapple_autolab.domains.ahmed:AhmedAero": {
+  "code_hash": "1d2c21a0fea00abb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AhmedAero",
+  "seconds": 6.79
+ },
+ "pinneapple_autolab.domains.ahmed:mesh_family": {
+  "code_hash": "403f1d370c77614b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.domains.ahmed:qa_checks": {
+  "code_hash": "fefb081e2fefc417",
+  "inputs": {
+   "meta": {
+    "convergence": {
+     "CD_mean_drift": 0.002,
+     "window_writes": 10
+    },
+    "final_residuals": {
+     "Ux": 0.002,
+     "p": 0.0001
+    },
+    "mass_balance": {
+     "imbalance": 0.0002
+    },
+    "max_non_orthogonality": 50.0,
+    "max_skewness": 2.0,
+    "mesh_ok": true,
+    "yplus": {
+     "frac_30_300": 0.9,
+     "mean": 90,
+     "p95": 200
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 8.01
+ },
+ "pinneapple_autolab.domains.racecar:RaceCarAero": {
+  "code_hash": "995f2387ae76545c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RaceCarAero",
+  "seconds": 0.32
+ },
+ "pinneapple_autolab.domains.racecar:flagship_mission": {
+  "code_hash": "9b406d03d101bf77",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Mission",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.domains.racecar:racecar_domain": {
+  "code_hash": "4e158859c6f7155e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MissionDomain",
+  "seconds": 0.01
+ },
+ "pinneapple_autolab.ledger:environment": {
+  "code_hash": "f3c00ac90b9b7eb5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.12
+ },
+ "pinneapple_autolab.simulator:Simulator": {
+  "code_hash": "d3cb78e5cad5602b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Simulator",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.study.benchmark:PODRBF": {
+  "code_hash": "c405529c03f148aa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PODRBF",
+  "seconds": 0.01
+ },
+ "pinneapple_autolab.study.benchmark:conformal_q": {
+  "code_hash": "d3ac7cc891176eac",
+  "inputs": {
+   "alpha": 0.1,
+   "scores": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_autolab.study.scalar_twin:in_hull": {
+  "code_hash": "3f8c272f76c27fd4",
+  "inputs": {
+   "points": [
+    0.0,
+    1.0
+   ],
+   "samples": [
+    0.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 7.15
+ },
+ "pinneapple_autolab.study.scalar_twin:surrogate_twin": {
+  "code_hash": "e0dfbe8649950985",
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "out_dir": "twin_out",
+   "quantity": {
+    "name": "X",
+    "unit": "-"
+   },
+   "variables": [
+    {
+     "high": 120.0,
+     "low": 10.0,
+     "name": "tau",
+     "unit": "s",
+     "values": [
+      10.0,
+      120.0
+     ]
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_autolab.study.scalar_twin:training_set_hash": {
+  "code_hash": "4588644238e265e0",
+  "inputs": {
+   "names": [
+    "k",
+    "tau"
+   ],
+   "samples": [
+    {
+     "k": 0.01,
+     "tau": 10.0
+    },
+    {
+     "k": 0.05,
+     "tau": 50.0
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 5.8
+ },
+ "pinneapple_autolab.study.verify:verify_against_model": {
+  "code_hash": "3cd4c377f548d507",
+  "inputs": {
+   "model": "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion_ktau",
+   "point": {
+    "k": 0.02,
+    "tau": 120.0
+   },
+   "rtol": 0.0001,
+   "surrogate_value": 0.909282
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.surrogates:FieldSurrogate": {
+  "code_hash": "614c0cae59dbbf06",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "FieldSurrogate",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.surrogates:GPModel": {
+  "code_hash": "473ca95244c9a466",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GPModel",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.surrogates:MLPEnsemble": {
+  "code_hash": "111774ec85eac909",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MLPEnsemble",
+  "seconds": 0.0
+ },
+ "pinneapple_autolab.surrogates:QuadraticRSM": {
+  "code_hash": "0ad3486c8a1806e8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "QuadraticRSM",
+  "seconds": 0.0
+ }
+}

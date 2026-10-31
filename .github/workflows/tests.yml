@@ -21,6 +21,8 @@ jobs:
       - name: Install package + core test deps
         run: |
           python -m pip install --upgrade pip
+          # CPU torch first: the default PyPI wheel pulls ~3 GB of CUDA libraries and fills the runner disk
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry]"
           pip install pytest datasets
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
@@ -48,6 +50,9 @@ jobs:
           pip install -e ".[flow]"
           pytest tests/test_flow_equations.py tests/test_flow_schema.py tests/test_flow_planner.py tests/test_flow_runtime.py tests/test_flow_studio_api.py tests/test_flow_studio_gui.py tests/test_flow_decisions.py tests/test_flow_generic.py tests/test_flow_library_nodes.py tests/test_flow_lab_status.py tests/test_flow_methods.py tests/test_flow_extensions.py tests/test_flow_palette.py tests/test_flow_vehicle.py -q -p no:warnings
 
+      - name: PINNeAPPle Studio — every symbol as a tool, forms, status, search, gallery, jobs, API (must pass)
+        run: pytest tests/test_studio.py -q -p no:warnings
+
       - name: Tier C — public API, cost validation, PyVista and CalculiX bridges (must pass)
         run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_app_helpers.py tests/test_release_version.py tests/test_model_zoo.py tests/test_zoo_hub_formats.py tests/test_geometry_library.py tests/test_multiscale.py tests/test_aero_panel.py tests/test_benchmark_api.py tests/test_equal_budget.py tests/test_inverse_heat_budget.py tests/test_operator_benchmarks.py tests/test_fault_injection.py tests/test_validation_arena.py tests/test_inverse_core.py tests/test_design_intent.py tests/test_design_intent_entry_points.py -q
 
@@ -74,6 +79,12 @@ jobs:
           pip install scikit-learn pyamg
           pytest tests/test_condense.py tests/test_meshless_stencils.py tests/test_query.py tests/test_condense_falsify.py -q -p no:warnings
 
+      - name: Immersed analysis on raw geometry — SDF / voxel / STL inputs, cut-cell quadrature, small-cut stabilisation, heat rates (must pass)
+        run: |
+          pip install pyamg gmsh
+          sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2 calculix-ccx
+          pytest tests/test_immersed.py tests/test_immersed_elasticity.py tests/test_immersed_transient.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn
@@ -83,6 +94,11 @@ jobs:
         run: |
           pip install scikit-learn
           pytest tests/test_football_physics.py -q -p no:warnings
+
+      - name: Derivative trees (pp.potential) — closed forms, Peng-Robinson vs CoolProp, SPM co-energy torque (must pass)
+        run: |
+          pip install ".[potential]"
+          pytest tests/test_potential.py tests/test_potential_surrogate.py -q -p no:warnings
 
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
@@ -126,9 +142,20 @@ jobs:
         run: pytest tests/test_full_library_matrix.py -q --tb=line
         continue-on-error: true
 
-      - name: Rest of the test suite (pre-existing failures not yet triaged — see AUDIT_REPORT.md)
-        run: pytest tests/ -q --ignore=tests/test_full_library_matrix.py --ignore=tests/test_manufactured_solutions.py
-        continue-on-error: true
+      # The package declares Python >= 3.10, but CI runs 3.11 and nothing checked the *declared*
+      # floor: `pinneapple_tools/reporting/datasheet.py` shipped an f-string with a backslash in it,
+      # legal from 3.12 only, and every import of that module failed on 3.10 and 3.11. Ruff parses
+      # at the declared target version, so E9 here is the syntax gate for the floor. This step must
+      # stay in front of the suite: a module that does not parse also breaks collection.
+      - name: Syntax for the declared Python floor (must pass)
+        run: |
+          pip install "ruff>=0.5"
+          ruff check . --select E9 --target-version py310 --no-cache --output-format concise
+
+      # The rest of the suite (everything not named above) runs in .github/workflows/full-suite.yml,
+      # nightly and on demand, not on every push. It took over an hour on a runner and its result is
+      # "how many of the pre-existing failures are left", not "may this merge": keeping it here meant
+      # a push waited on it to reach the model-card gate at the end of the file.
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py
@@ -158,14 +185,17 @@ jobs:
         run: |
           python -m pinneapple_flow example-flows check
           python -m pinneapple_flow example-flows doc
+      - name: Studio coverage -- every public symbol has a category; every executable tool has a valid form and a smoke run of its current code, a stated reason, or a line in the baseline that only shrinks; every example runs from the Studio or says why
+        run: python -m pinneapple_studio coverage -o docs/studio/COVERAGE.md
       - name: Docs site builds with the generated pages (tools/gen_flow_docs.py)
         run: |
-          rm docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md
+          rm docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md docs/studio/COVERAGE.md
           PINNEAPPLE_DOCS_STRICT=1 mkdocs build --clean
           test -s site/flow_studio/COVERAGE/index.html
           test -s site/flow_studio/EXAMPLES_AS_FLOWS/index.html
+          test -s site/studio/COVERAGE/index.html
       - name: Nothing generated is tracked
-        run: test -z "$(git ls-files data/web/hub/index.json docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md)"
+        run: test -z "$(git ls-files data/web/hub/index.json docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md docs/studio/COVERAGE.md)"
 
   first-example:
     # A clean `pip install` of the built wheel runs the first example end to end (#44): no repo on the path,

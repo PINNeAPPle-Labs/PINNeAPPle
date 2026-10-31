@@ -7,7 +7,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 (0.x.0) may contain breaking changes.** Every breaking or behavior-changing entry is listed under
 **Changed** and starts with "**Breaking:**" or "**Behavior:**".
 
-How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
+How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog): pull requests add
+fragments to `changelog.d/`, which a release folds in here. The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
 
@@ -21,6 +22,75 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
+  space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
+  (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families
+  at equal data and budget with cross-conformal intervals, physics checks on predictions and a written selection
+  rule (`benchmark`: GP, MLP ensemble, response surface, POD-GP, POD-MLP, POD-RBF, DeepONet ensemble), Sobol indices,
+  NSGA-II with an uncertainty constraint and acquisition by uncertainty (`extras`), a digital-twin page (`twin`),
+  figures (`figures`) and the HTML evidence report with the VeriPhysics package (`report`).
+- `pinneapple_autolab.domains.ahmed` (`AhmedAero`: the Ahmed body in OpenFOAM with prism layers, per-run checks
+  and drag breakdown by region; `ahmed_cad` / `import_body`: OpenCASCADE CAD through gmsh and STL import with
+  checks and named patches; prediction checks) and `.ahmed_study` (the study's stages); the example
+  `examples/end_to_end/ahmed_body`, the app `apps/ahmed_twin`, the Flow nodes `study.*` and the flow
+  `ahmed_body_end_to_end.json`; guide `docs/guides/ahmed_body_end_to_end.md`.
+- `pinneapple_analysis.inverse_problems.amortized`: mixture density network posterior (`fit_mdn`, `MDN.sample`,
+  `posterior_coverage`, `hdi`) trained under a `ComputeBudget`.
+- `ahmed.MEASUREMENTS`: every wind-tunnel data set the study is compared with and inverted on (Ahmed et al. 1984 at
+  60 m/s; Lienhart & Becker 2003 at 40 m/s, conditions only: its drag values were not obtainable from the build
+  environment and the set says so), each with its source and a per-value verification note; `ahmed_study.inverse`
+  runs over every set that has values and reports the others as not measured.
+- `ahmed_study.study_report` / `study_costs` and the example `07_report.py`: the evidence report (HTML), the hashed
+  evidence package, the cost table (CFD CPU-hours per purpose plus the seconds of the other stages) and
+  `summary.json` (every measured number with its unit and how it was measured), recorded in the experiment manifest;
+  Flow node `study.report`.
+- `pinneapple_tools.visualization.studio.captions`: captions with an accent marker and a progress bar, title cards on
+  a dark ground, eSpeak NG narration and an ffmpeg audio mux, for product-style films of a study; `ahmed_study.visuals`
+  now cuts a short narrated film in English (title card, CFD orbit, slices, surrogate sweep, end card with the
+  measured numbers).
+- `ExternalFlow`: prism layers (`layers`, `layer_expansion`, `layer_final_thickness`), `cells_per_length` (mesh
+  families with a constant refinement ratio) and the first-cell y+ of every wall face (`surface["yplus"]`).
+- `pp.viz.render`: `background="dark"` (near-black stage with key, rim and fill lights, a dark colour bar), `cmap`
+  for the surface field and `floor` (a glossy floor); `colormap.colorbar(..., dark=True)`.
+- `ahmed_body`: `n_body`, `n_slant`, `n_corner` (sampling; the vertex count never depends on the slant) and
+  `slant_length`.
+- Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
+  simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
+  `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
+  L3 core without libsbml; events, algebraic rules, delays refused), six shipped CC0 BioModels entries checked against
+  libRoadRunner (max relative error 5e-6), models `ultradian_glucose_insulin`, `pk_one_compartment_mm` (Michaelis-
+  Menten, effect compartment, sigmoid Emax), `minimal_pbpk`, `excitable` (FitzHugh-Nagumo 1-D, Aliev-Panfilov 2-D,
+  activation times, conduction velocity), `cell_migration` (scratch-assay data with a restricted unpickler, the
+  Lagergren et al. forward solver, GLS error, FKPP / Porous-FKPP / delay models and their fits).
+  `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` (exact sensitivities for identifiability and
+  calibration), `sbinn.SBINN` (systems-biology informed networks, checkpoint / resume), `binn.ReactionDiffusionBINN`
+  (BINNs as a `NeuralTermDiscovery` with state-dependent terms), `activation_mapping.EikonalPINN`.
+  `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
+  (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
+  `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
+- `pinneapple_simulation.numerical_solvers.xtfc_inverse`: X-TFC for data-driven parameter discovery
+  (`solve_xtfc_inverse`). It fits the fields and the unknown parameters of an ODE system together, by Gauss-Newton
+  on the stacked data and residual losses (Schiassi et al., arXiv:2008.05554). The initial values hold exactly.
+- `pinneapple_physics.paper_problems_epi`: that paper's SIR, SEIR and SEIRS models, with `synthetic_data` (noisy
+  data sets) and `fit_shooting` (a single-shooting least-squares baseline).
+- `xtfc_general.activation_derivative`: `arctan`, up to order 3.
+- `examples/reproductions/schiassi_epi2020`: the reproduction of that paper, with frozen targets, a runner and
+  measured results.
+  - 14 of 36 targets reproduced under the frozen protocol: all clean-data targets and most at noise 0.1. A post-hoc
+    multi-start reaches 23 of 36.
+  - A single-shooting baseline is 2.5 to 3 times more accurate on SIR, and within a factor of 2.5 on SEIR and SEIRS.
+- Additions for the De Florio 2024 reproduction:
+  - `solve_xtfc` now accepts explicit input weights (`weights=`), separate boundary rows (`face_points=`) and a
+    LAPACK driver (`lstsq_driver=`).
+  - New `gaussian` activation (exp(−z²)) with analytic derivatives.
+  - `sample_calabro`: the 1D ELM weight sampling of Calabrò, Fabiani & Siettos (arXiv:2012.05871).
+  - `ConstrainedExpression1D`: Deep-TFC in 1D.
+  - `pinneapple_analysis.validation.pinn.mlp(..., activation="gaussian")`.
+- `examples/reproductions/deflorio2024`: the reproduction of De Florio et al., J. Comput. Appl. Math. 436 (2024)
+  115396 (PINN, Deep-TFC, PIELM and X-TFC on the 1D advection-diffusion BVP).
+  - Frozen targets, a runner and measured results.
+  - For the PIELM and X-TFC columns: 7 of 10 targets reproduced and 3 partially reproduced. In the 3 partial
+    cases our error is lower than the paper's.
 - `pinneapple_simulation.numerical_solvers.gated_xtfc`: Gated X-TFC (Dwivedi, Schiassi et al., arXiv:2510.01039)
   for 1D second-order linear BVPs with sharp layers.
   - The basis is Gaussian RBFs; a soft split sets their centres and widths, blended by logistic gates
@@ -151,6 +221,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   tests and deploy entries (ports 8160-8164).
 
 ### Changed
+- **Behavior:** the field-scalar consistency check of the Ahmed study (`ahmed.prediction_checks`,
+  `cp_integral_matches_CD_pressure`) compares, at the 95th percentile over 128 Sobol points, the disagreement
+  between the integrated field and the scalar model with the quadrature sum of the CFD's own template gap (its 95th
+  percentile, no added margin) and the scalar model's calibrated half width, instead of the maximum over 48 points
+  with p95 + 0.01: a maximum against a percentile failed even the CFD's own Cp fields, and the scalar model's error
+  was counted against the field. The raw p95 and maximum stay in the check's reason; the report states the decision
+  and both outcomes.
+- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
+  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
+  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
+  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
+  the last must-pass gate.
 - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
   and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
   `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
@@ -187,6 +269,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
+  its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
 - `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
   `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
   (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that

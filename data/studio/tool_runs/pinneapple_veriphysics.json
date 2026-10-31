@@ -1,0 +1,121 @@
+{
+ "pinneapple_veriphysics.ledger:EvidenceLedger": {
+  "code_hash": "0398a2e7baf419fb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "EvidenceLedger",
+  "seconds": 0.0
+ },
+ "pinneapple_veriphysics.ledger:utc_now": {
+  "code_hash": "f5d0fc285a0b0f18",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_veriphysics.recommend:formulate_and_recommend": {
+  "code_hash": "cd25031cfb311c46",
+  "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",
+  "inputs": {
+   "description": "1D viscous Burgers equation with nu=0.01",
+   "model_name": "llama3.2:3b",
+   "physical_parameters": {
+    "kinematic_viscosity": 0.01,
+    "length": 1.0,
+    "velocity": 1.0
+   },
+   "provider": "ollama"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 5.98
+ },
+ "pinneapple_veriphysics.scope:scope_from_verdicts": {
+  "code_hash": "146a8f25bf70f55b",
+  "inputs": {
+   "evidence": "input check",
+   "subject": "x",
+   "verdicts": {
+    "inputs": {
+     "ok": false,
+     "reason": "max a 20 > 12"
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ScopeOfUse",
+  "seconds": 0.73
+ },
+ "pinneapple_veriphysics.validation_lab:category_of": {
+  "code_hash": "86ef4b4251adcd6f",
+  "inputs": {
+   "rule_id": "PC301"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.02
+ },
+ "pinneapple_veriphysics.validation_lab:config_from_spec": {
+  "code_hash": "4b7702bb37e28879",
+  "inputs": {
+   "spec": {
+    "results": [
+     {
+      "bc": {
+       "x=max": {
+        "T": "300 + 25*(1 - y**2)"
+       }
+      },
+      "bounds": {
+       "T": [
+        250,
+        400
+       ]
+      },
+      "parameters": {
+       "k": "10 W/(m*K)",
+       "q": "1000 W/m3"
+      },
+      "path": "heat_plate.npz",
+      "physics": "heat",
+      "units": {
+       "T": "K"
+      }
+     }
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_veriphysics.validation_lab:model_ref_target": {
+  "code_hash": "dc574141b90903a6",
+  "inputs": {
+   "ref": {
+    "inputs": [
+     {
+      "name": "air_velocity_m_s"
+     }
+    ],
+    "kind": "ModelRef",
+    "name": "hs",
+    "outputs": [
+     {
+      "name": "r_base_k_w"
+     }
+    ],
+    "uri": "zoo:heatsink_forced_mlp"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

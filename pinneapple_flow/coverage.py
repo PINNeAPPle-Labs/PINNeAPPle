@@ -57,6 +57,8 @@ REASONS: dict[str, str] = {
                           "examples/autolab_aero, not as one flow step",
     "pinneapple_llm": "LLM drafting: used by the LLM planner, problem.generic and twin.auto",
     "pinneapple_app": "a separate web application (not a library package)",
+    "pinneapple_studio": "the Studio itself: it catalogs every library symbol as a tool and runs tools and examples "
+                         "as jobs; a flow calls the tools it lists, not the catalog",
     "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",
@@ -89,12 +91,19 @@ REASONS: dict[str, str] = {
     "pinneapple_condense.falsify": "the pre-registered falsification studies (subprocesses, minutes to an hour)",
     "pinneapple_condense.flow": "steady MAC-grid flow and heat assembler behind the CFD falsification tests",
     "pinneapple_condense.meshless2d": "2-D meshless discretisations of the CFD falsification tests",
+    "pinneapple_analysis.dynamics": "dynamics toolkit (first-passage, Buckingham pi, Fisher, early warning, "
+                                    "Koopman) used as a Python API; its flow nodes come with the toolkit's "
+                                    "integration pull request",
+    "pinneapple_physics.biology": "SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)",
+    "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
                                               "examples/reproductions/xtfc_schiassi2021 runner, not a flow step",
+    "pinneapple_physics.paper_problems_epi": "the compartmental models of the X-TFC parameter-discovery paper, read "
+                                             "by the examples/reproductions/schiassi_epi2020 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
 }

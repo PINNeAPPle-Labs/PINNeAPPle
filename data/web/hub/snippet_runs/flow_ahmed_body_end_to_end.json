@@ -1,0 +1,12 @@
+{
+ "code_hash": "a42ff1d16cfab208",
+ "figures": [],
+ "id": "flow:ahmed_body_end_to_end",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 5.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ahmed body: CFD to surrogate twin - 8 nodes\nissues: []",
+ "timed_out": false
+}

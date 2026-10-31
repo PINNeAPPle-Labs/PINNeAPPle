@@ -1,0 +1,208 @@
+{
+ "pinneapple_problemdesign.elicitation.validators:validate_and_suggest": {
+  "code_hash": "eabae32bc1ee1914",
+  "inputs": {
+   "spec": {
+    "data": {
+     "format": "parquet",
+     "known_quality_issues": [
+      "missing points during maintenance",
+      "sensor spikes"
+     ],
+     "labels_available": true,
+     "missingness": "bursty gaps during maintenance windows",
+     "sampling": "10min",
+     "sources": [
+      "s3://plant-data/hex/parquet/"
+     ],
+     "target_variables": [
+      "T_out"
+     ],
+     "train_span": "2023-01-01 .. 2025-01-01",
+     "val_split_policy": "last 3 months as validation (time-based)",
+     "variables_observed": [
+      "T_in",
+      "flow_rate",
+      "T_ambient",
+      "pressure",
+      "T_out"
+     ]
+    },
+    "domain_context": "Industrial heat exchanger. Maintenance causes intermittent missing data. We expect seasonal drift across weeks/months.",
+    "frequency": "10min",
+    "goal": "Forecast outlet temperature 6 hours ahead to optimize energy usage",
+    "horizon": "6h",
+    "input_window": "48 steps (8h)",
+    "inputs": [
+     "T_in (\u00b0C)",
+     "flow_rate (kg/s)",
+     "T_ambient (\u00b0C)",
+     "pressure (bar)"
+    ],
+    "outputs": [
+     "T_out (\u00b0C)"
+    ],
+    "task_type": "forecasting",
+    "title": "Heat Exchanger: Outlet Temperature Forecast",
+    "validation": {
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "primary_metrics": [
+      "MAE"
+     ],
+     "robustness_tests": [
+      "missingness stress",
+      "drift across weeks",
+      "extreme ambient temp"
+     ]
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 7.88
+ },
+ "pinneapple_problemdesign.knowledge.mapping:build_plan_fno_first": {
+  "code_hash": "61aa7ea31458f98d",
+  "inputs": {
+   "gaps": [],
+   "spec": {
+    "data": {
+     "format": "parquet",
+     "known_quality_issues": [
+      "missing points during maintenance",
+      "sensor spikes"
+     ],
+     "labels_available": true,
+     "missingness": "bursty gaps during maintenance windows",
+     "sampling": "10min",
+     "sources": [
+      "s3://plant-data/hex/parquet/"
+     ],
+     "target_variables": [
+      "T_out"
+     ],
+     "train_span": "2023-01-01 .. 2025-01-01",
+     "val_split_policy": "last 3 months as validation (time-based)",
+     "variables_observed": [
+      "T_in",
+      "flow_rate",
+      "T_ambient",
+      "pressure",
+      "T_out"
+     ]
+    },
+    "domain_context": "Industrial heat exchanger. Maintenance causes intermittent missing data. We expect seasonal drift across weeks/months.",
+    "frequency": "10min",
+    "goal": "Forecast outlet temperature 6 hours ahead to optimize energy usage",
+    "horizon": "6h",
+    "input_window": "48 steps (8h)",
+    "inputs": [
+     "T_in (\u00b0C)",
+     "flow_rate (kg/s)",
+     "T_ambient (\u00b0C)",
+     "pressure (bar)"
+    ],
+    "outputs": [
+     "T_out (\u00b0C)"
+    ],
+    "task_type": "forecasting",
+    "title": "Heat Exchanger: Outlet Temperature Forecast",
+    "validation": {
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "primary_metrics": [
+      "MAE"
+     ],
+     "robustness_tests": [
+      "missingness stress",
+      "drift across weeks",
+      "extreme ambient temp"
+     ]
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Plan",
+  "seconds": 0.0
+ },
+ "pinneapple_problemdesign.knowledge.physics_knowledge:lookup_phenomenon": {
+  "code_hash": "47ae2f396cbfd2a2",
+  "inputs": {
+   "name_or_keyword": "NAVIER_STOKES"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 3.74
+ },
+ "pinneapple_problemdesign.method_selection:recommend_method": {
+  "code_hash": "5b2086920e972ffd",
+  "inputs": {
+   "geometry": "internal_pipe",
+   "kinematic_viscosity": 1e-06,
+   "length_scale": 0.01,
+   "velocity": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MethodRecommendation",
+  "seconds": 0.21
+ },
+ "pinneapple_problemdesign.method_selection:recommend_method_from_spec": {
+  "code_hash": "5fd99c95e02136de",
+  "inputs": {
+   "spec": {
+    "geometry": {
+     "aoa_sweep_deg": [
+      0.0,
+      10.0
+     ],
+     "domain": "external airfoil"
+    },
+    "goal": "Predict lift and drag for an airfoil across an AoA sweep",
+    "physics": {
+     "numerical_method": "LBM",
+     "parameters_known": [
+      "reynolds_number",
+      "kinematic_viscosity"
+     ]
+    },
+    "task_type": "other",
+    "title": "Airfoil AoA sweep"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_problemdesign.preset_authoring:draft_preset": {
+  "code_hash": "b774003f496386f0",
+  "error": "ModuleNotFoundError: No module named 'anthropic'",
+  "inputs": {
+   "phenomenon_description": "a made-up broken phenomenon",
+   "tolerance": 0.001,
+   "use_knowledge_base": false
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_problemdesign.protocol:GeminiProvider": {
+  "code_hash": "3d2dc2c0a0c6dc6e",
+  "error": "ModuleNotFoundError: google-generativeai is not installed. Install it with: pip install google-generativeai",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 3.59
+ },
+ "pinneapple_problemdesign.providers.cosmos_provider:CosmosProvider": {
+  "code_hash": "b075fe5a3d722c4b",
+  "error": "RuntimeError: CosmosProvider requires COSMOS_BASE_URL (or base_url=...).\nYou need a Cosmos gateway endpoint that accepts JSON and returns a text output.\nSteps:\n  1) Implement a small gateway (FastAPI) exposing POST /scene_to_spec.\n  2) Export COSMOS_BASE_URL='http://<host>:<port>'\n  3) Optionally export COSMOS_AP",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.04
+ }
+}

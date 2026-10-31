@@ -1,0 +1,90 @@
+# The rest of the test suite, off the push path.
+#
+# Everything here is the part of `tests/` that `tests.yml` does not name in a must-pass step. On a
+# two-core runner it takes over an hour, and its outcome is a count of pre-existing failures to work
+# down (AUDIT_REPORT.md, issue #981), not a verdict on a commit. Running it on every push made a
+# push wait an hour to reach the last gate of the workflow, and made the suite itself something to
+# avoid; here it runs nightly, can be started by hand before a release, and reports its numbers on
+# the run page instead of only in a log nobody opens.
+#
+# It fails the *workflow* when the suite stops being collectable or when the number of failures
+# grows above the recorded ceiling, which is what a regression looks like from here. The individual
+# failures stay visible in the job log and in the run summary.
+name: Full test suite (nightly)
+
+on:
+  schedule:
+    - cron: "0 3 * * *"          # 03:00 UTC, after the nightly jobs of the other repositories
+  workflow_dispatch:
+    inputs:
+      ceiling:
+        description: "Failures allowed before the run is red (default: the recorded count)"
+        required: false
+        default: "81"
+
+concurrency:
+  group: full-suite
+  cancel-in-progress: true
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry]"
+          pip install pytest datasets fastapi httpx python-multipart pyarrow h5py pyyaml \
+                      scikit-learn statsmodels
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+
+      - name: Suite — everything tests.yml does not run as a must-pass step
+        id: suite
+        # `--continue-on-collection-errors`: one un-importable module must not switch off the other
+        # four thousand tests (that is what happened before, silently, under continue-on-error).
+        run: |
+          set +e
+          xvfb-run -a pytest tests/ -q --continue-on-collection-errors --tb=no -p no:warnings \
+            --ignore=tests/test_full_library_matrix.py \
+            --ignore=tests/test_manufactured_solutions.py 2>&1 | tee /tmp/suite.log
+          code=$?
+          failed=$(grep -c "^FAILED tests/" /tmp/suite.log)
+          ceiling="${{ github.event.inputs.ceiling || '81' }}"
+          {
+            echo "### Full test suite"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| failures | ${failed} |"
+            echo "| ceiling | ${ceiling} |"
+            echo "| pytest exit | ${code} |"
+            echo ""
+            echo "The 81 known failures are listed in the job log (\`FAILED tests/...\`)."
+            echo "A failure here is not a merge veto: the must-pass steps in tests.yml are."
+          } >> "$GITHUB_STEP_SUMMARY"
+          grep "^FAILED tests/" /tmp/suite.log | sed 's/ - .*//' | sort | uniq > /tmp/failed.txt || true
+          if [ "$code" -eq 2 ]; then
+            echo "::error::the suite could not be collected (pytest exit 2); see the log"
+            exit 1
+          fi
+          if [ "${failed:-0}" -gt "$ceiling" ]; then
+            echo "::error::${failed} failures, above the ceiling of ${ceiling}: a regression"
+            exit 1
+          fi
+          exit 0
+
+      - name: Keep the failure list and the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-suite
+          path: |
+            /tmp/suite.log
+            /tmp/failed.txt
+          retention-days: 30

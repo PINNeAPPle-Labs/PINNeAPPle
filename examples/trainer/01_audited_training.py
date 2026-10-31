@@ -2,9 +2,9 @@ import os
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from pinneapple_train.trainer import Trainer, TrainConfig
-from pinneapple_train.losses import CombinedLoss, SupervisedLoss
-from pinneapple_train.metrics import default_metrics
+from pinneapple_neural.trainer.trainer import Trainer, TrainConfig
+from pinneapple_neural.trainer.losses import CombinedLoss, SupervisedLoss
+from pinneapple_neural.trainer.metrics import default_metrics
 
 class M(torch.nn.Module):
     def __init__(self):

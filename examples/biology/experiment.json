@@ -1,0 +1,133 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/biology",
+ "title": "Biology-informed modelling",
+ "description": "Identifiability of the ultradian glucose-insulin model before fitting (exact forward sensitivities), nonlinear PK/PD design and inference, Aliev-Panfilov activation maps recovered by an eikonal PINN, and the library aorta with Windkessel outlets in OpenFOAM.",
+ "domain": "biology",
+ "methods": [
+  "Fisher information",
+  "forward sensitivities",
+  "eikonal PINN",
+  "Aliev-Panfilov finite differences",
+  "Windkessel"
+ ],
+ "modules": [
+  "pinneapple_physics.biology",
+  "pinneapple_analysis.inverse_problems",
+  "pinneapple_simulation.hemodynamics"
+ ],
+ "params": {},
+ "scripts": [
+  "identifiability_ultradian.py",
+  "pkpd_inference.py",
+  "cardiac_activation_mapping.py",
+  "aorta_windkessel.py"
+ ],
+ "metrics": [
+  {
+   "name": "fisher_smallest_over_largest_eigenvalue",
+   "value": 9.7e-16,
+   "unit": "",
+   "how": "ultradian model, G at 361 random minutes, 1 % noise, 17 parameters (identifiability_ultradian.py)"
+  },
+  {
+   "name": "fisher_null_vector_C2_component",
+   "value": 0.9996,
+   "unit": "",
+   "how": "eigenvector of the smallest Fisher eigenvalue"
+  },
+  {
+   "name": "invariance_U0_Um_C3_eigenvalue_ratio",
+   "value": 1.3e-16,
+   "unit": "",
+   "how": "Fisher matrix restricted to U0, Um, C3"
+  },
+  {
+   "name": "activation_rmse_eikonal_pinn",
+   "value": 0.46,
+   "unit": "dimensionless time",
+   "how": "64 sites, Aliev-Panfilov reference at dx 0.25, all conducting grid points"
+  },
+  {
+   "name": "activation_rmse_linear_interpolation",
+   "value": 0.912,
+   "unit": "dimensionless time",
+   "how": "same 64 sites, Delaunay linear interpolation"
+  },
+  {
+   "name": "cv_median_rel_error_eikonal_pinn",
+   "value": 0.0249,
+   "unit": "",
+   "how": "conduction velocity from the PINN map, >4 units from the scar"
+  },
+  {
+   "name": "activation_grid_check_rms",
+   "value": 0.623,
+   "unit": "dimensionless time",
+   "how": "activation map dx 0.5 vs dx 0.25 at common nodes"
+  },
+  {
+   "name": "pkpd_coverage_95_min",
+   "value": 0.9,
+   "unit": "",
+   "how": "fraction of 20 noise draws whose 95 % credible interval (adaptive Metropolis, 3000 steps) contains the true value; Vmax 0.90, Km 0.95, V 1.00, ka 0.95"
+  },
+  {
+   "name": "pkpd_median_abs_rel_error_max",
+   "value": 0.0578,
+   "unit": "",
+   "how": "posterior medians over 20 draws, worst of Vmax, Km, V, ka (Km)"
+  },
+  {
+   "name": "pbpk_auc_rel_error",
+   "value": 0.00197,
+   "unit": "",
+   "how": "AUC of arterial plasma against dose / (CL_ws + CLr), 300 h"
+  },
+  {
+   "name": "aorta_flow_fraction_max_rel_error_vs_0d",
+   "value": 0.0043,
+   "unit": "",
+   "how": "reduced-scale (2 of 4 cycles): cycle-mean outlet flow fractions against the 0-D resistance split, worst outlet"
+  },
+  {
+   "name": "aorta_mass_imbalance",
+   "value": 1.7e-08,
+   "unit": "",
+   "how": "max |sum Q_out - Q_in| over the second cycle / cycle-mean inflow"
+  },
+  {
+   "name": "aorta_systolic_mmHg",
+   "value": 141.5,
+   "unit": "mmHg",
+   "how": "reduced-scale (2 of 4 cycles), inlet, second cycle; not periodic yet (cycle-mean 106.4 then 100.3 mmHg, 0-D mean 93)"
+  },
+  {
+   "name": "aorta_diastolic_mmHg",
+   "value": 72.2,
+   "unit": "mmHg",
+   "how": "same run and cycle"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/activation_maps.png",
+   "results/aorta_waveforms.png"
+  ],
+  "data": [
+   "results/identifiability_ultradian.json",
+   "results/cardiac_activation_mapping.json",
+   "results/pkpd_inference.json",
+   "results/aorta_windkessel.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/bio_informed.md"
+ },
+ "references": [
+  "Daneker et al. arXiv:2202.01723",
+  "Aliev and Panfilov 1996",
+  "Sturis et al. 1991"
+ ],
+ "status": "not curated"
+}

@@ -1,0 +1,457 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/dynamics_toolkit",
+ "title": "Dynamics toolkit end to end",
+ "description": "First passage from a pp.solve PINN, the Koopman spectrum of a PINN, sensor times by Fisher information, Buckingham pi with curve collapse, and early-warning indicators with controls; each against an independent reference.",
+ "domain": "dynamical systems",
+ "methods": [
+  "pinneapple_analysis.dynamics",
+  "pp.solve(method='pinn')"
+ ],
+ "modules": [
+  "pinneapple_analysis.dynamics",
+  "pinneapple"
+ ],
+ "params": {
+  "epochs": 2000,
+  "seed": 0,
+  "cases": [
+   "first_passage",
+   "koopman",
+   "fisher",
+   "dimensional",
+   "early_warning"
+  ]
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "first_passage_pinn_max_abs_error_S",
+   "value": 0.000557398984924018,
+   "unit": "-",
+   "how": "max over 41 times of |S_PINN - exp(-D pi^2 t)|, S_PINN = trapezoid of the PINN density on 201 x"
+  },
+  {
+   "name": "first_passage_mc_max_abs_error_S",
+   "value": 0.00435688812423396,
+   "unit": "-",
+   "how": "max over the same times of |Kaplan-Meier S - exp(-D pi^2 t)|, 20 000 Euler-Maruyama paths, dt 1e-3, Brownian bridge"
+  },
+  {
+   "name": "first_passage_restricted_mean_pinn",
+   "value": 0.8724676192589105,
+   "unit": "time",
+   "how": "integral of S_PINN over [0, 2.0] (exact 0.872465)"
+  },
+  {
+   "name": "first_passage_restricted_mean_mc",
+   "value": 0.8751461949091439,
+   "unit": "time",
+   "how": "Kaplan-Meier restricted mean up to 2.0, standard error 4.71e-03"
+  },
+  {
+   "name": "first_passage_pinn_wall_time",
+   "value": 104.19702568599996,
+   "unit": "s",
+   "how": "pp.solve wall time"
+  },
+  {
+   "name": "koopman_pinn_field_rel_l2",
+   "value": 0.0002729438389550283,
+   "unit": "-",
+   "how": "relative L2 of the PINN on the 101 x 51 grid"
+  },
+  {
+   "name": "koopman_pinn_rate_rel_error_mode1",
+   "value": 0.005987620949898149,
+   "unit": "-",
+   "how": "|omega_DMD - (-D (1 pi)^2)| / |.|, DMD rank 3 on the PINN snapshots"
+  },
+  {
+   "name": "koopman_exact_rate_rel_error_mode1",
+   "value": 1.6085942867565598e-14,
+   "unit": "-",
+   "how": "the same on the exact snapshots (control)"
+  },
+  {
+   "name": "koopman_pinn_rate_rel_error_mode2",
+   "value": 0.004804181940513052,
+   "unit": "-",
+   "how": "|omega_DMD - (-D (2 pi)^2)| / |.|, DMD rank 3 on the PINN snapshots"
+  },
+  {
+   "name": "koopman_exact_rate_rel_error_mode2",
+   "value": 1.3498693315439662e-15,
+   "unit": "-",
+   "how": "the same on the exact snapshots (control)"
+  },
+  {
+   "name": "koopman_pinn_rate_rel_error_mode3",
+   "value": 0.010014783218755673,
+   "unit": "-",
+   "how": "|omega_DMD - (-D (3 pi)^2)| / |.|, DMD rank 3 on the PINN snapshots"
+  },
+  {
+   "name": "koopman_exact_rate_rel_error_mode3",
+   "value": 3.1996902673634755e-15,
+   "unit": "-",
+   "how": "the same on the exact snapshots (control)"
+  },
+  {
+   "name": "koopman_pinn_gavish_donoho_rank",
+   "value": 22.0,
+   "unit": "modes",
+   "how": "Gavish-Donoho rank of the PINN snapshot matrix (3 for the exact field)"
+  },
+  {
+   "name": "koopman_pinn_max_residual",
+   "value": 0.0009694664878767407,
+   "unit": "-",
+   "how": "largest ResDMD residual of the 3 PINN eigenpairs"
+  },
+  {
+   "name": "fisher_optimal_times",
+   "value": 1.0125,
+   "unit": "time",
+   "how": "mean of the 4 D-optimal times [0.0, 0.0, 2.025, 2.025] (grid of 401 on [0, 10])"
+  },
+  {
+   "name": "fisher_optimal_crlb_sd_D",
+   "value": 0.001024113433017035,
+   "unit": "length^2/time",
+   "how": "sqrt of the (D, D) entry of the inverse Fisher matrix, sigma = 0.01"
+  },
+  {
+   "name": "fisher_optimal_empirical_sd_D",
+   "value": 0.001015399477633244,
+   "unit": "length^2/time",
+   "how": "sd of 500 least-squares fits of simulated data"
+  },
+  {
+   "name": "fisher_uniform_crlb_sd_D",
+   "value": 0.001488122592589758,
+   "unit": "length^2/time",
+   "how": "sqrt of the (D, D) entry of the inverse Fisher matrix, sigma = 0.01"
+  },
+  {
+   "name": "fisher_uniform_empirical_sd_D",
+   "value": 0.001456061902639565,
+   "unit": "length^2/time",
+   "how": "sd of 500 least-squares fits of simulated data"
+  },
+  {
+   "name": "fisher_sd_ratio_uniform_over_optimal",
+   "value": 1.4530837548002407,
+   "unit": "-",
+   "how": "CRLB sd of D, uniform / optimal"
+  },
+  {
+   "name": "dimensional_n_groups",
+   "value": 3.0,
+   "unit": "groups",
+   "how": "Buckingham pi: 6 quantities, rank 3"
+  },
+  {
+   "name": "dimensional_collapse_raw",
+   "value": 1.6769224100686222,
+   "unit": "-",
+   "how": "mean_x Var_k[y] / Var_x[mean_k y] against t"
+  },
+  {
+   "name": "dimensional_collapse_scaled",
+   "value": 7.716275731563939e-05,
+   "unit": "-",
+   "how": "the same against t D / L^2"
+  },
+  {
+   "name": "dimensional_permutation_p",
+   "value": 0.002,
+   "unit": "-",
+   "how": "permutation control, 999 reassignments of the scales"
+  },
+  {
+   "name": "early_warning_saddle_node_variance_tau",
+   "value": 0.9364008016032063,
+   "unit": "-",
+   "how": "Kendall tau of rolling variance, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_saddle_node_variance_p",
+   "value": 0.005,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  },
+  {
+   "name": "early_warning_saddle_node_ac1_tau",
+   "value": 0.9101242484969939,
+   "unit": "-",
+   "how": "Kendall tau of rolling ac1, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_saddle_node_ac1_p",
+   "value": 0.01,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  },
+  {
+   "name": "early_warning_stable_variance_tau",
+   "value": -0.21503807615230455,
+   "unit": "-",
+   "how": "Kendall tau of rolling variance, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_stable_variance_p",
+   "value": 0.55,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  },
+  {
+   "name": "early_warning_stable_ac1_tau",
+   "value": 0.4732825651302604,
+   "unit": "-",
+   "how": "Kendall tau of rolling ac1, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_stable_ac1_p",
+   "value": 0.205,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  },
+  {
+   "name": "early_warning_stable_growing_noise_variance_tau",
+   "value": 0.9675991983967935,
+   "unit": "-",
+   "how": "Kendall tau of rolling variance, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_stable_growing_noise_variance_p",
+   "value": 0.005,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  },
+  {
+   "name": "early_warning_stable_growing_noise_ac1_tau",
+   "value": 0.3795751503006012,
+   "unit": "-",
+   "how": "Kendall tau of rolling ac1, LOESS detrend, window 0.5"
+  },
+  {
+   "name": "early_warning_stable_growing_noise_ac1_p",
+   "value": 0.27,
+   "unit": "-",
+   "how": "one-sided p from 199 AR(1) surrogates"
+  }
+ ],
+ "checks": [
+  {
+   "name": "PINN survival matches the closed form",
+   "passed": true,
+   "value": 0.000557398984924018,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "max |S_PINN - exp(-D pi^2 t)| <= 0.01",
+   "kind": "reference"
+  },
+  {
+   "name": "Monte Carlo survival matches the closed form",
+   "passed": true,
+   "value": 0.00435688812423396,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "max |S_MC - exp(-D pi^2 t)| <= 0.01 (20 000 paths: pointwise sd <= 0.0035)",
+   "kind": "reference"
+  },
+  {
+   "name": "PINN restricted mean within 3 Monte Carlo standard errors",
+   "passed": true,
+   "value": 0.002678575650233439,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.014125665095787611,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "Fokker-Planck diagnostics are ok",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "initial_mass=1 ok; max_increase_of_S=-0.00666 ok; most_negative_density_rel=-0.00144 warn; S_at_end=0.139 info",
+   "kind": "sanity"
+  },
+  {
+   "name": "DMD recovers the exact decay rates (control)",
+   "passed": true,
+   "value": 1.6085942867565598e-14,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "PINN spectrum: every decay rate within 5 %",
+   "passed": true,
+   "value": 0.010014783218755673,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "DMD of the PINN rollout against -D k^2 pi^2, k = 1, 2, 3",
+   "kind": "reference"
+  },
+  {
+   "name": "D-optimal design is at least as informative as the uniform one",
+   "passed": true,
+   "value": 1.4530837548002407,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 1.0,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "least squares attains the bound (optimal times): efficiency in [0.8, 1.2]",
+   "passed": true,
+   "value": 1.0172372475825469,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.2,
+   "min": 0.8,
+   "detail": "Cramer-Rao bound against 500 refits",
+   "kind": "reference"
+  },
+  {
+   "name": "least squares attains the bound (uniform times): efficiency in [0.8, 1.2]",
+   "passed": true,
+   "value": 1.044522363158259,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.2,
+   "min": 0.8,
+   "detail": "Cramer-Rao bound against 500 refits",
+   "kind": "reference"
+  },
+  {
+   "name": "three groups: u/u0, x/L, t D/L^2",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "t D / L^2, u / u0, x / L",
+   "kind": "reference"
+  },
+  {
+   "name": "centre temperatures collapse on t D / L^2",
+   "passed": true,
+   "value": 7.716275731563939e-05,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.001,
+   "min": null,
+   "detail": "exact series: the collapse is exact up to interpolation on irregular samples",
+   "kind": "reference"
+  },
+  {
+   "name": "the collapse beats the permutation control",
+   "passed": true,
+   "value": 0.002,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "saddle-node: variance and AC1 rise significantly",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "tau var 0.94, ac1 0.91",
+   "kind": "reference"
+  },
+  {
+   "name": "stable control: no significant rise",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "verification"
+  },
+  {
+   "name": "growing noise: AC1 does not rise significantly (variance may: a known false positive)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "variance p 0.005, ac1 p 0.270",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/first_passage.png",
+   "figures/koopman.png",
+   "figures/fisher.png",
+   "figures/dimensional.png",
+   "figures/early_warning.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/dynamics_toolkit.md",
+  "script": "examples/dynamics_toolkit/dynamics_toolkit.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "8038f914",
+  "created": "2026-10-31T06:43:55Z",
+  "seconds": 189.668,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

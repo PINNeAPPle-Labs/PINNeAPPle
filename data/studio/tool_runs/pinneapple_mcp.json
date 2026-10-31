@@ -1,0 +1,251 @@
+{
+ "pinneapple_mcp.config:get_config": {
+  "code_hash": "ae40759568cad330",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Config",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.expressions:compile_expression": {
+  "code_hash": "a1566338eedee9f5",
+  "inputs": {
+   "coords": [
+    "x",
+    "y"
+   ],
+   "text": "sin(pi*x)*exp(-y) + 2"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.34
+ },
+ "pinneapple_mcp.jobs:running": {
+  "code_hash": "7b48ff20e6eb5201",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:benchmark": {
+  "code_hash": "2adbaba09c161779",
+  "inputs": {
+   "budget": {
+    "epochs": 15,
+    "n_collocation": 128
+   },
+   "grid_points_per_axis": 17,
+   "methods": [
+    "fem",
+    "pinn"
+   ],
+   "options": {
+    "pinn": {
+     "hidden_dim": 8,
+     "n_layers": 2
+    }
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 200
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 13.43
+ },
+ "pinneapple_mcp.tools:capabilities": {
+  "code_hash": "dc5ae6984cc98ba5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.27
+ },
+ "pinneapple_mcp.tools:describe_method": {
+  "code_hash": "e215be02c2f9c6a9",
+  "inputs": {
+   "method": "pinn"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.54
+ },
+ "pinneapple_mcp.tools:design": {
+  "code_hash": "3bd2f428c16056c6",
+  "inputs": {
+   "text": "an electric motor"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.28
+ },
+ "pinneapple_mcp.tools:list_jobs": {
+  "code_hash": "aa1476b573a84478",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:list_methods": {
+  "code_hash": "177f950177b4594d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_mcp.tools:list_presets": {
+  "code_hash": "c9382f656a5d65b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:reason": {
+  "code_hash": "d85ffc7f440b8842",
+  "error": "ValueError: give a case, or both requirements and a concept",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:reason_check": {
+  "code_hash": "0a189c71f3068f0a",
+  "inputs": {
+   "mode": "pump_cavitation",
+   "params": {
+    "altitude": 800.0,
+    "npsh_required": 4.0,
+    "pump_q": 0.05,
+    "suction_d": 0.15,
+    "suction_k": 3.0,
+    "suction_length": 12.0,
+    "suction_lift": 5.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.4
+ },
+ "pinneapple_mcp.tools:reason_library": {
+  "code_hash": "5d03a86c8d7020fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:solve": {
+  "code_hash": "82dac8aa948e7fd2",
+  "inputs": {
+   "grid_points_per_axis": 25,
+   "method": "fem",
+   "options": {
+    "n": 24
+   },
+   "problem": {
+    "bcs": [
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_max",
+      "value": "sin(pi*x)"
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "y_min",
+      "value": 0
+     },
+     {
+      "field": "T",
+      "kind": "dirichlet",
+      "on": "x_boundary",
+      "value": 0
+     }
+    ],
+    "domain": {
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "exact": "sin(pi*x)*sinh(pi*y)/sinh(pi)",
+    "fields": [
+     "T"
+    ],
+    "name": "plate",
+    "pde": "laplace"
+   },
+   "wait_seconds": 180
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 5.51
+ },
+ "pinneapple_mcp.tools:trust_card": {
+  "code_hash": "979e2a4dfdfd8495",
+  "error": "ValueError: give either 'file' or both 'grid' and 'values'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_mcp.tools:zoo_list": {
+  "code_hash": "a0b3d42926a9ad88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ }
+}

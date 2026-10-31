@@ -1,0 +1,49 @@
+{
+ "pinneapple_decision.api:decide": {
+  "code_hash": "251cc960cacc182d",
+  "error": "ValueError: pass a problem or a state",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.01
+ },
+ "pinneapple_decision.api:decision_engine": {
+  "code_hash": "04aa5863174df9b5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsDecisionEngine",
+  "seconds": 0.0
+ },
+ "pinneapple_decision.debias:rotations": {
+  "code_hash": "ccfd9146f145bd41",
+  "inputs": {
+   "options": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.31
+ },
+ "pinneapple_decision.loop:DecisionLoop": {
+  "code_hash": "cd8672105ecf7a66",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DecisionLoop",
+  "seconds": 0.0
+ },
+ "pinneapple_decision.tree:physics_ai_tree": {
+  "code_hash": "4e53403d6808b61d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DecisionTree",
+  "seconds": 0.0
+ }
+}

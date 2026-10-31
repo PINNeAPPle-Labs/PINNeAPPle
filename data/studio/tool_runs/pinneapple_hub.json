@@ -1,0 +1,429 @@
+{
+ "pinneapple_hub.library.categories:category_of": {
+  "code_hash": "bf1b958e11962dc5",
+  "inputs": {
+   "it": {
+    "id": "recipe:pinneapple_new__9",
+    "kind": "tool",
+    "subkind": "recipe"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.categories:table": {
+  "code_hash": "1c4a0bd0929dfff0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.compose:blocks": {
+  "code_hash": "eaaeaa7d49525338",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.17
+ },
+ "pinneapple_hub.library.compose:compose": {
+  "code_hash": "fe871f8072779071",
+  "inputs": {
+   "spec": {
+    "blocks": [
+     {
+      "params": {
+       "dimension": 1
+      },
+      "type": "geometry.domain"
+     },
+     {
+      "params": {
+       "n": 41
+      },
+      "type": "geometry.mesh"
+     }
+    ],
+    "name": "Rod grid"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:add_link": {
+  "code_hash": "4a4492efbcda6d4e",
+  "inputs": {
+   "base": "http://fs.example",
+   "params": {
+    "n": 41
+   },
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:bundled_flows_using": {
+  "code_hash": "fd8ce4c23061d11f",
+  "inputs": {
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowlink:flow_for_node": {
+  "code_hash": "02ce029150133aa0",
+  "inputs": {
+   "params": {
+    "n": 41
+   },
+   "type_": "geometry.mesh"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_hub.library.flowruns:read_flow_runs": {
+  "code_hash": "c1888e45b2294c55",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.flowruns:record": {
+  "code_hash": "1e48baa1bdec4021",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 395.53
+ },
+ "pinneapple_hub.library.sandbox:run_snippet": {
+  "code_hash": "302df91a1a0a9129",
+  "inputs": {
+   "code": "import time\nwhile True: time.sleep(0.1)",
+   "timeout": 2
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 2.08
+ },
+ "pinneapple_hub.library.sources:agent_tools": {
+  "code_hash": "ac38773eb8c7c751",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_hub.library.sources:apis": {
+  "code_hash": "fe78fe14e3631e5a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.03
+ },
+ "pinneapple_hub.library.sources:datasets": {
+  "code_hash": "1291ace8f9b42394",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.14
+ },
+ "pinneapple_hub.library.sources:examples": {
+  "code_hash": "03bdfd6ef260a957",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 1.37
+ },
+ "pinneapple_hub.library.sources:flows": {
+  "code_hash": "57b3b0731c9e3559",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.56
+ },
+ "pinneapple_hub.library.sources:geometries": {
+  "code_hash": "1f8486d8094275ec",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.2
+ },
+ "pinneapple_hub.library.sources:models": {
+  "code_hash": "3ab4423a84817d6b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.06
+ },
+ "pinneapple_hub.library.sources:node_for_callable": {
+  "code_hash": "ad91888da86bc4bd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library.sources:nodes": {
+  "code_hash": "54f80a9f0a692ab2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 6.28
+ },
+ "pinneapple_hub.library.sources:recipes": {
+  "code_hash": "a0ebedf7fb37d091",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_hub.library.sources:used_by_examples": {
+  "code_hash": "94ec94860ec3bfa0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.library:build": {
+  "code_hash": "0e6e7b207b00aa6e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 14.53
+ },
+ "pinneapple_hub.library:collect": {
+  "code_hash": "3ae53873f1098eba",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 8.42
+ },
+ "pinneapple_hub.library:load_index": {
+  "code_hash": "14f1535cd2afd4c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 20.12
+ },
+ "pinneapple_hub.library:read_runs": {
+  "code_hash": "e46ee8f2b0eb87ef",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_hub.model_card:ModelCard": {
+  "code_hash": "57a0c98e0c656bf7",
+  "inputs": {
+   "architecture": "mlp",
+   "name": "m",
+   "reference_source": "analytic",
+   "validation_metrics": {
+    "rel_l2": 0.01
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelCard",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.catalogue:markdown": {
+  "code_hash": "456c00b5eb79f0f8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.datasets:list": {
+  "code_hash": "1e89cf8c9fe6b4c9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.demo:bands": {
+  "code_hash": "f1d1a081438bd0ec",
+  "inputs": {
+   "outputs": [
+    "Cl",
+    "Cl_std",
+    "Cd",
+    "Cd_std",
+    "LD",
+    "LD_std"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.demo:models": {
+  "code_hash": "831733da4cd4a04b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.demo:precompute": {
+  "code_hash": "0cc060a0b2fe9876",
+  "inputs": {
+   "n": 21,
+   "name": "rover_contact_grc1_viper"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.05
+ },
+ "pinneapple_hub.zoo.hub_cards:space_readme": {
+  "code_hash": "a443610d20e7420f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.01
+ },
+ "pinneapple_hub.zoo.hub_cards:space_url": {
+  "code_hash": "39ecd5132eb0e420",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.publish:plan": {
+  "code_hash": "fd32ddbcba33d1ec",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 2.76
+ },
+ "pinneapple_hub.zoo.publish:verify_models": {
+  "code_hash": "ae1a2d15f0f02eeb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 541.58
+ },
+ "pinneapple_hub.zoo.publish:verify_space": {
+  "code_hash": "692c32325daba99c",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_hub.zoo.publish:verify_viewer": {
+  "code_hash": "cab1efdb6f1c3565",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_hub.zoo.validation_reports:check_release": {
+  "code_hash": "114b481c4250a56e",
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.88
+ },
+ "pinneapple_hub.zoo.web:fixtures": {
+  "code_hash": "d3417bfbd264c1c7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.12
+ },
+ "pinneapple_hub.zoo.web:runtime_dir": {
+  "code_hash": "8669ebdb7e764f4a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo:catalogue": {
+  "code_hash": "f157157d50eaa74e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo:info": {
+  "code_hash": "c05448aae638863d",
+  "inputs": {
+   "name": "heatsink_forced_mlp"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelCard",
+  "seconds": 3.59
+ },
+ "pinneapple_hub.zoo:list": {
+  "code_hash": "201fdeb820a4fad8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo:load": {
+  "code_hash": "c93606cceac1cc8b",
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RoverContact",
+  "seconds": 0.03
+ },
+ "pinneapple_hub.zoo:versions": {
+  "code_hash": "f766aa3452e4e5ce",
+  "inputs": {
+   "name": "rover_contact_grc1_viper"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ }
+}

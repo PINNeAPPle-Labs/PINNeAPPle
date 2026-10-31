@@ -177,6 +177,13 @@ def closest_to_schwabe_cycle(stats: list[dict]) -> tuple[dict | None, str | None
 
 @dataclass
 class HilbertResult:
+    """Hilbert analysis of one IMF; amplitude in the units of the series, frequency per unit of the normalised axis.
+
+    Attributes
+    ----------
+    phase : np.ndarray [rad]
+        Unwrapped phase of the analytic signal.
+    """
     amplitude: np.ndarray
     phase: np.ndarray
     instantaneous_frequency: np.ndarray   # d(phase)/dt on the normalised axis

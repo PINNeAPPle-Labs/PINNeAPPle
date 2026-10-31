@@ -65,6 +65,19 @@ from pinneapple_simulation.numerical_solvers.nonlinear_beam_fem import (
 
 @dataclass(frozen=True)
 class StaticNonlinearBeamResult:
+    """Static solution; the moment and stress are in the units of the ``E`` and lengths passed in.
+
+    Attributes
+    ----------
+    u_m : np.ndarray [m]
+        Axial displacement.
+    w_m : np.ndarray [m]
+        Transverse deflection.
+    theta_rad : np.ndarray [rad]
+        Slope.
+    iterations_last_step : int [-]
+        Newton iterations of the last load step.
+    """
     z: np.ndarray
     u_m: np.ndarray
     w_m: np.ndarray

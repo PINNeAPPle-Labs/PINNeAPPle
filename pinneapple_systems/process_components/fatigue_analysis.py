@@ -79,6 +79,18 @@ def goodman_safety_ratio(sigma_alt: ArrayLike, sigma_mean: ArrayLike, S_e: float
 
 @dataclass(frozen=True)
 class MinerDamageResult:
+    """Miner's-rule damage.
+
+    Attributes
+    ----------
+    N_f : np.ndarray [-]
+        Cycles to failure.
+    damage_this_period : np.ndarray [-]
+        ``n_cycles / N_f``.
+    cumulative_damage : np.ndarray [-]
+        Miner's sum, clipped to [0, 1].
+    remaining_life_fraction : np.ndarray [-]
+    """
     N_f: np.ndarray
     damage_this_period: np.ndarray
     cumulative_damage: np.ndarray

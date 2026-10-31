@@ -121,7 +121,24 @@ class ValidityEnvelope:
 
 @dataclass(frozen=True)
 class GasState:
-    """A fully-resolved thermodynamic state point, SI units throughout."""
+    """A fully-resolved thermodynamic state point, SI units throughout.
+
+    Attributes
+    ----------
+    P_Pa : float [Pa]
+    T_K : float [K]
+    rho_kg_m3 : float [kg/m3]
+    Z : float [-]
+        Compressibility factor.
+    h_J_kg : float [J/kg]
+    s_J_kgK : float [J/(kg K)]
+    cp_J_kgK : float [J/(kg K)]
+    cv_J_kgK : float [J/(kg K)]
+    k_isentropic : float [-]
+    speed_of_sound_m_s : float [m/s]
+    viscosity_Pa_s : float [Pa s]
+    molar_mass_kg_mol : float [kg/mol]
+    """
 
     P_Pa: float
     T_K: float
@@ -231,11 +248,25 @@ class StandardConditions:
 
 
 def standard_volumetric_flow_to_mass_flow(q_std_m3_s: float, gas: GasComposition, std: StandardConditions) -> float:
+    """Mass flow of a standard volumetric flow ``q_std_m3_s``.
+
+    Returns
+    -------
+    m_dot : float [kg/s]
+        Mass flow.
+    """
     ref = state_from_PT(gas, std.P_Pa, std.T_K)
     return q_std_m3_s * ref.rho_kg_m3
 
 
 def mass_flow_to_standard_volumetric_flow(m_dot_kg_s: float, gas: GasComposition, std: StandardConditions) -> float:
+    """Standard volumetric flow of a mass flow ``m_dot_kg_s``.
+
+    Returns
+    -------
+    q_std : float [m3/s]
+        Standard volumetric flow.
+    """
     ref = state_from_PT(gas, std.P_Pa, std.T_K)
     return m_dot_kg_s / ref.rho_kg_m3
 

@@ -63,6 +63,19 @@ from pinneapple_systems.process_components.real_gas_eos import (
 
 @dataclass(frozen=True)
 class PolytropicPathResult:
+    """A polytropic compression or expansion path.
+
+    Attributes
+    ----------
+    polytropic_work_J_kg : float [J/kg]
+        Polytropic head.
+    polytropic_efficiency : float [-]
+    isentropic_work_J_kg : float [J/kg]
+    isentropic_efficiency : float [-]
+    actual_enthalpy_change_J_kg : float [J/kg]
+    pressure_ratio : float [-]
+    polytropic_exponent_avg : float [-]
+    """
     inlet: GasState
     outlet: GasState
     # integral of v dP along the ACTUAL (not isentropic) path -- the

@@ -183,6 +183,13 @@ def beam_column_moment_amplification_factor(
 
 @dataclass(frozen=True)
 class RotatingBendingCycleResult:
+    """Von Mises envelope over one rotation; stresses are in the units of the stresses passed in.
+
+    Attributes
+    ----------
+    theta_rad : np.ndarray [rad]
+        Rotation angle.
+    """
     theta_rad: np.ndarray
     sigma_von_mises: np.ndarray
     sigma_alternating: float

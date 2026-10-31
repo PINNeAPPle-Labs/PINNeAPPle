@@ -41,6 +41,23 @@ import numpy as np
 
 @dataclass(frozen=True)
 class CurvedPathProfile:
+    """A build-and-hold path, binned.
+
+    Attributes
+    ----------
+    s_m : np.ndarray [m]
+        Measured depth.
+    inclination_deg : np.ndarray [deg]
+        Inclination from horizontal.
+    tvd_m : np.ndarray [m]
+        True vertical depth.
+    hd_m : np.ndarray [m]
+        Horizontal displacement.
+    n_bins : int [-]
+    vertical_length_m : float [m]
+    total_length_m : float [m]
+    bin_width_m : float [m]
+    """
     s_m: np.ndarray
     inclination_deg: np.ndarray
     tvd_m: np.ndarray
@@ -56,7 +73,13 @@ def inclination_at_depth(
 ) -> np.ndarray:
     """Inclination [deg, from horizontal] at each measured depth `s_m`:
     90 up to `vertical_length_m`, linear (constant curvature) through the
-    following `build_length_m`, held at `final_inclination_deg` after."""
+    following `build_length_m`, held at `final_inclination_deg` after.
+
+    Returns
+    -------
+    inclination : np.ndarray [deg]
+        From horizontal.
+    """
     build_end_m = vertical_length_m + build_length_m
     frac = np.clip((s_m - vertical_length_m) / max(build_length_m, 1e-9), 0.0, 1.0)
     building = 90.0 - (90.0 - final_inclination_deg) * frac

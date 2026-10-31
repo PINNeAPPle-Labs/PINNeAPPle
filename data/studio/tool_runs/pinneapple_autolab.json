@@ -114,6 +114,29 @@
   "returned": "float",
   "seconds": 0.01
  },
+ "pinneapple_autolab.study.scalar_twin:training_set_hash": {
+  "code_hash": "4588644238e265e0",
+  "inputs": {
+   "names": [
+    "k",
+    "tau"
+   ],
+   "samples": [
+    {
+     "k": 0.01,
+     "tau": 10.0
+    },
+    {
+     "k": 0.05,
+     "tau": 50.0
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 5.8
+ },
  "pinneapple_autolab.surrogates:FieldSurrogate": {
   "code_hash": "614c0cae59dbbf06",
   "inputs": {},

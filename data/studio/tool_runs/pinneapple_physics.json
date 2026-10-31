@@ -612,6 +612,19 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion": {
+  "code_hash": "1b8876854cb2b6ae",
+  "inputs": {
+   "D": 0.0275,
+   "L": 5.5,
+   "Q": 2.722305e-05,
+   "k": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.34
+ },
  "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
   "code_hash": "e1ea3f02475f9581",
   "inputs": {

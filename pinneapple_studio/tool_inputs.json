@@ -645,6 +645,25 @@
   },
   "source": "tests/test_autolab_study.py:149"
  },
+ "pinneapple_autolab.study.scalar_twin:training_set_hash": {
+  "inputs": {
+   "names": [
+    "k",
+    "tau"
+   ],
+   "samples": [
+    {
+     "k": 0.01,
+     "tau": 10.0
+    },
+    {
+     "k": 0.05,
+     "tau": 50.0
+    }
+   ]
+  },
+  "source": "tests/test_reactor_verify_twin.py:96"
+ },
  "pinneapple_catalog.methods:get_method": {
   "inputs": {
    "method_id": "T18"
@@ -1879,6 +1898,15 @@
    "port_radius_m": 0.025
   },
   "source": "tests/pinneapple_physics/closed_form/test_helmholtz_resonator.py:27"
+ },
+ "pinneapple_physics.closed_form.ideal_reactors:pfr_conversion": {
+  "inputs": {
+   "D": 0.0275,
+   "L": 5.5,
+   "Q": 2.722305e-05,
+   "k": 0.02
+  },
+  "source": "tests/test_reactor_verify_twin.py:29"
  },
  "pinneapple_physics.closed_form.particle_drag:clift_sphere_cd": {
   "inputs": {

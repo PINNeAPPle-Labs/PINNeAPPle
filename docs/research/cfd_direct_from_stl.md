@@ -181,6 +181,22 @@ operating points marked); memory against resolution.
 
 (Appended after the runs.)
 
+### Deviations from the pre-registration
+
+Recorded before the official runs. The text above is unchanged.
+
+1. **C3: the source of the published values, and Re 400 instead of Re 389.**
+   - No copy of Armaly et al. (1983) is reachable from this container. `courses.washington.edu` and `homepage.ntu.edu.tw` do not resolve here (checked on 2026-10-31).
+   - Following the rule in the note on C3, x1/S comes from the first open tabulation of Armaly's experimental curve that is reachable here: Table VIII of arXiv:2602.04670 ("Armaly et al." column).
+   - Values used: x1/S = 2.96 at Re 100, 4.90 at Re 200 and 8.45 at Re 400. They are given to two decimals, with no reading uncertainty stated. That source also does not restate Armaly's Re definition in the excerpt read; the campaign keeps the pre-registered Re = U_mean 2h / ν.
+   - The table has no Re 389, so **C3 runs at Re = 100, 200 and 400** instead of 100, 200 and 389.
+   - The pre-registered gate for the highest Re (x1/S within 10 %) applies to Re 400. The margins and the verdict rule are unchanged.
+2. **Linear solver.** The pre-registration names SciPy SuperLU / UMFPACK for R. The campaign uses MKL PARDISO (`pypardiso`) for both R and B, through `numerical_solvers.sparse_direct`.
+   - The reason is measured: on C2 at Re 20, D/8 (134,501 unknowns), SuperLU used 9 GB and had not finished after more than 10 min.
+   - PARDISO finished the same run in 151 s total, with 5.0 GB peak memory.
+   - This changes times, not answers. Both sides use the same solver, so the time comparison is not a comparison of linear solvers.
+
 ## Change log
 
 - 2026-10-31: pre-registration.
+- 2026-10-31: deviations 1 (Armaly source, Re 400 instead of 389) and 2 (PARDISO) recorded, before the official runs.

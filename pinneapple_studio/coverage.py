@@ -21,6 +21,7 @@ one of the following:
 """
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import re
@@ -245,6 +246,22 @@ def write_baseline(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> in
     return len(keep)
 
 
+def launcher(script: Path) -> list[str]:
+    """How a recorded run starts an example script: ``python``, or ``torchrun`` with one process on this machine
+    (``python -m torch.distributed.run --standalone --nproc_per_node=1``) when the script's docstring launches it
+    with ``torchrun``, since a distributed script started without it has no ``RANK`` and fails. ``torchrun`` goes
+    through :mod:`pinneapple_studio.loopback`, so its local rendezvous works without a network."""
+    import sys
+    try:
+        doc = ast.get_docstring(ast.parse(script.read_text(encoding="utf-8", errors="replace"))) or ""
+    except SyntaxError:
+        doc = ""
+    if re.search(rf"^\s*torchrun\b.*{re.escape(script.name)}", doc, re.M):
+        return [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run", "--standalone",
+                "--nproc_per_node=1"]
+    return [sys.executable]
+
+
 def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = None, timeout: float = 900,
                     log=print) -> dict[str, Any]:
     """Run the scripts of the examples that have no flow (``state == "script"``) in a disposable checkout (as the
@@ -252,7 +269,6 @@ def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = No
     entry with a hash of its scripts and the files it wrote."""
     import shutil
     import subprocess
-    import sys
     import tempfile
     import time
 
@@ -272,7 +288,7 @@ def record_examples(gallery: list[dict[str, Any]], *, ids: list[str] | None = No
             t0, ok, tail = time.time(), True, ""
             for s in e["scripts"]:
                 try:
-                    out = subprocess.run([*_no_network(), sys.executable, str(copy / s)], cwd=(copy / s).parent,
+                    out = subprocess.run([*_no_network(), *launcher(copy / s), str(copy / s)], cwd=(copy / s).parent,
                                          env=env, capture_output=True, text=True, timeout=timeout)
                     ok = ok and out.returncode == 0
                     tail = (out.stderr or out.stdout)[-300:]

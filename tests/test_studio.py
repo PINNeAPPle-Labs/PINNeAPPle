@@ -445,3 +445,16 @@ def test_outputs_helpers_on_literals():
     assert not is_record_class({"name": "Solver", "bases": ["object"], "decorators": []})
     finder = make_class_finder({"modules": {"m": {"module": "m", "classes": [{"name": "Res"}], "imports": []}}})
     assert finder({"module": "m", "classes": [], "imports": ["m:Res"]})("Res") == {"name": "Res"}
+
+
+def test_examples_launched_with_torchrun_get_one_process(tmp_path):
+    """A recorded run starts a script with python, or with torchrun when its docstring launches it that way."""
+    import sys
+
+    from pinneapple_studio.coverage import launcher
+    plain, ddp = tmp_path / "01_plain.py", tmp_path / "05_ddp.py"
+    plain.write_text('"""Run: python 01_plain.py"""\n')
+    ddp.write_text('"""DDP.\n\n    torchrun --standalone --nproc_per_node=2 examples/x/05_ddp.py\n"""\n')
+    assert launcher(plain) == [sys.executable]
+    assert launcher(ddp) == [sys.executable, "-m", "pinneapple_studio.loopback", "torch.distributed.run",
+                             "--standalone", "--nproc_per_node=1"]

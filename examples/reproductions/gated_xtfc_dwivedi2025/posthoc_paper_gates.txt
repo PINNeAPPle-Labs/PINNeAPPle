@@ -1,0 +1,4 @@
+Post-hoc diagnostic (not used for status): our solver at the gate values the paper reports in Fig. 3
+nu=0.01 x_s=0.837 eps=99.93: max|e|=0.000479 (paper 0.000495), val energy=0.00963
+nu=0.001 x_s=0.933 eps=44.43: max|e|=0.00124 (paper 0.00014), val energy=0.0426
+nu=0.0001 x_s=0.956 eps=52.76: max|e|=0.00761 (paper 0.000586), val energy=0.0162

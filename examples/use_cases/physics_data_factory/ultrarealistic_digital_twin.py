@@ -229,10 +229,10 @@ def make_hx(x0, x1, y0, y1, z0, z1):
     shell  = pv.Cylinder(center=[cx,cy,cz], direction=(1,0,0), radius=0.48, height=L)
     head_l = pv.Sphere(center=[x0-0.12, cy, cz], radius=0.49)
     head_r = pv.Sphere(center=[x1+0.12, cy, cz], radius=0.49)
-    n_l = pv.Cylinder(center=[x0, cy+0.56, cz], (0,1,0), radius=0.085, height=0.22)
-    n_r = pv.Cylinder(center=[x1, cy+0.56, cz], (0,1,0), radius=0.085, height=0.22)
-    n_3 = pv.Cylinder(center=[x0, cy-0.56, cz], (0,1,0), radius=0.072, height=0.19)
-    n_4 = pv.Cylinder(center=[x1, cy-0.56, cz], (0,1,0), radius=0.072, height=0.19)
+    n_l = pv.Cylinder(center=[x0, cy+0.56, cz], direction=(0,1,0), radius=0.085, height=0.22)
+    n_r = pv.Cylinder(center=[x1, cy+0.56, cz], direction=(0,1,0), radius=0.085, height=0.22)
+    n_3 = pv.Cylinder(center=[x0, cy-0.56, cz], direction=(0,1,0), radius=0.072, height=0.19)
+    n_4 = pv.Cylinder(center=[x1, cy-0.56, cz], direction=(0,1,0), radius=0.072, height=0.19)
     # Baffle rings
     rings = []
     for bx in np.linspace(x0+0.4, x1-0.4, 4):

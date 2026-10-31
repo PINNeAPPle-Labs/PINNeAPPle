@@ -1,0 +1,12 @@
+{
+ "code_hash": "ed520af9aa1a9864",
+ "figures": [],
+ "id": "example:examples/biology",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 1.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Biology-informed modelling | biology | not curated\nfisher_smallest_over_largest_eigenvalue 9.7e-16 \nfisher_null_vector_C2_component 0.9996 \ninvariance_U0_Um_C3_eigenvalue_ratio 1.3e-16 \nactivation_rmse_eikonal_pinn 0.46 dimensionless time\nactivation_rmse_linear_interpolation 0.912 dimensionless time",
+ "timed_out": false
+}

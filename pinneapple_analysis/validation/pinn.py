@@ -383,12 +383,19 @@ class PINNMonitor:
 
 
 # ----------------------------------------------------------------------------------------------- a reference trainer
-def mlp(n_in: int, n_out: int, width: int = 32, depth: int = 4):
-    """A tanh multilayer perceptron, the usual PINN network."""
+def mlp(n_in: int, n_out: int, width: int = 32, depth: int = 4, activation: str = "tanh"):
+    """A multilayer perceptron, the usual PINN network: ``depth`` hidden layers of ``width``, activation ``"tanh"``
+    or ``"gaussian"`` (``exp(-z^2)``)."""
     import torch
-    layers: list = [torch.nn.Linear(n_in, width), torch.nn.Tanh()]
+
+    class _Gaussian(torch.nn.Module):
+        def forward(self, z):
+            return torch.exp(-z * z)
+
+    act = {"tanh": torch.nn.Tanh, "gaussian": _Gaussian}[activation]
+    layers: list = [torch.nn.Linear(n_in, width), act()]
     for _ in range(depth - 1):
-        layers += [torch.nn.Linear(width, width), torch.nn.Tanh()]
+        layers += [torch.nn.Linear(width, width), act()]
     return torch.nn.Sequential(*layers, torch.nn.Linear(width, n_out))
 
 

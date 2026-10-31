@@ -36,6 +36,11 @@
   "domain": "benchmarks",
   "notes": "flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare"
  },
+ "biology": {
+  "domain": "biology",
+  "reason": "four independent studies (identifiability with exact ODE sensitivities, PK/PD with MCMC, an eikonal PINN of 20,000 steps on an Aliev-Panfilov map, hours of Windkessel-coupled pimpleFoam); no flow node wraps them yet",
+  "status": "not_convertible"
+ },
  "black_hole_weather": {
   "domain": "astrophysics",
   "notes": "the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows"
@@ -296,6 +301,11 @@
   "domain": "getting started",
   "status": "not_convertible",
   "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+ },
+ "reproductions": {
+  "domain": "physics-informed ML",
+  "status": "not_convertible",
+  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run"
  },
  "rigid_body": {
   "domain": "multibody",

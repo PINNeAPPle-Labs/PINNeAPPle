@@ -19,16 +19,22 @@
 
 ## Start here
 
-**[→ Getting started: ten runnable recipes](GETTING_STARTED.md)** — install, solve and compare a
-problem, decide whether a field can be trusted, describe your own PDE and generate its training
-data, recover an unknown parameter from measurements, benchmark architectures, and put a model
-live as a digital twin. Every recipe shows the output it actually prints.
+**[→ START_HERE.md](START_HERE.md)** picks the door for you: an engineer with a problem and no
+Python, someone learning physics-AI, a researcher who wants pipelines and papers, or a team putting
+this behind a product. Two minutes, then one command.
 
 ```bash
 pip install pinneapple
-python -c "import pinneapple as pp; pp.info()"
+pinneapple doctor start			# what this machine still needs, with the fix per line
+pinneapple recommend "heat sink cooled by a fan"	# which preset, method and model, and why
+pinneapple new my_study			# a project of your own: edit case.yaml, run run.py
 ```
 
+The same four are Python: `pp.doctor(...)`, `pp.recommend(...)`, `pp.card(...)`, `pp.new(...)`.
+Then **[GETTING_STARTED.md](GETTING_STARTED.md)** has thirteen recipes, each with the output it
+actually prints: install, solve and compare a problem, decide whether a field can be trusted,
+describe your own PDE and generate its training data, recover an unknown parameter from
+measurements, benchmark architectures, and put a model live as a digital twin.
 ---
 
 ## Statement of need
@@ -388,7 +394,7 @@ The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh qu
 ## Roadmap
 
 - **Core** ([#343](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/343)):
-  - a trust object attached to every prediction (`pp.trust`);
+  - a trust object attached to every prediction (today: `pp.trust_card`, `pinneapple_analysis.trust`);
   - data assimilation with neural models;
   - adaptive fidelity driven by the trust horizon;
   - "bring your foundation model, PINNeAPPle verifies it";

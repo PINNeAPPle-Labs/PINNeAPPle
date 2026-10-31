@@ -64,7 +64,12 @@ def skewed_no_load(machine: IPMMachine, thetas: Sequence[float], steps: int, ste
 def skewed_torque(machine: IPMMachine, i_d: float, i_q: float, thetas: Sequence[float], steps: int,
                   step_angle: float) -> np.ndarray:
     """Torque of the step-skewed rotor at rotor angles ``thetas`` (mechanical), with phase currents fixed in the dq
-    frame of the rotor at ``theta`` (the segments see the same stator currents, turned by their offset)."""
+    frame of the rotor at ``theta`` (the segments see the same stator currents, turned by their offset).
+
+    Returns
+    -------
+    T : np.ndarray [N m]
+        Arkkio torque at each angle (``IPMMachine.torque``)."""
     off = step_offsets(steps, step_angle)
     T = np.zeros(len(thetas))
     for d in off:

@@ -459,7 +459,12 @@ def read_vtk(path: str) -> dict:
 
 # ------------------------------------------------------------------------------------------------- references
 def drag_sphere_schiller_naumann(re: float) -> float:
-    """Drag coefficient of a sphere, Schiller & Naumann (1933), valid up to Re ~ 800."""
+    """Drag coefficient of a sphere, Schiller & Naumann (1933), valid up to Re ~ 800.
+
+    Returns
+    -------
+    Cd : float [-]
+        Drag coefficient."""
     return 24.0 / re * (1 + 0.15 * re ** 0.687)
 
 

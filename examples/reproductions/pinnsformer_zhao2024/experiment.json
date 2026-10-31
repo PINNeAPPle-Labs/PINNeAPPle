@@ -1,0 +1,303 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reproductions/pinnsformer_zhao2024",
+ "title": "PINNsFormer reproduction (Zhao, Ding & Prakash)",
+ "description": "PINNsFormer and the PINN baseline on the convection, 1D reaction and 1D wave problems of ICLR 2024 / arXiv:2307.11833, at the official notebooks' settings, several seeds, scored against the frozen targets of TARGETS.md.",
+ "domain": "physics-informed ML",
+ "methods": [
+  "PINNsFormer",
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_neural.architectures.pinns.pinnsformer_paper",
+  "pinneapple_physics.paper_problems",
+  "pinneapple_analysis.reproduction"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "convection_pinn_rrmse_median",
+   "value": 0.7365535477717772,
+   "unit": "relative",
+   "how": "median over 1 seeds of rRMSE against the exact solution, 101 x 101 test grid"
+  },
+  {
+   "name": "convection_pinnsformer_rrmse_median",
+   "value": 1.1219997350742887,
+   "unit": "relative",
+   "how": "median over 1 seeds of rRMSE against the exact solution, 101 x 101 test grid"
+  },
+  {
+   "name": "reaction_pinn_rrmse_median",
+   "value": 0.07916915048952915,
+   "unit": "relative",
+   "how": "median over 1 seeds of rRMSE against the exact solution, 101 x 101 test grid"
+  },
+  {
+   "name": "reaction_pinnsformer_rrmse_median",
+   "value": 0.02021347512596888,
+   "unit": "relative",
+   "how": "median over 1 seeds of rRMSE against the exact solution, 101 x 101 test grid"
+  }
+ ],
+ "checks": [
+  {
+   "name": "convection pinn loss: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "convection pinn rmae: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "convection pinn rrmse: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "convection pinnsformer loss: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "convection pinnsformer rmae: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "convection pinnsformer rrmse: not reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinn loss: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinn rmae: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinn rrmse: partially reproduced",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinnsformer loss: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinnsformer rmae: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "reaction pinnsformer rrmse: reproduced",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinn loss: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinn rmae: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinn rrmse: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinnsformer loss: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinnsformer rmae: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  },
+  {
+   "name": "wave pinnsformer rrmse: not attempted",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "reproduction",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "targets": "examples/reproductions/pinnsformer_zhao2024/TARGETS.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "04df08ed",
+  "created": "2026-10-31T12:35:31Z",
+  "seconds": 0.04,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

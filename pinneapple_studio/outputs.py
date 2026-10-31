@@ -82,16 +82,20 @@ def _entries(body: list[str]) -> list[dict[str, str]]:
         return []
     top = min(len(ln) - len(ln.lstrip()) for ln in rows)
     entries: list[dict[str, str]] = []
+    group = 1                                                           # entries the last header line made
     for ln in rows:
         if len(ln) - len(ln.lstrip()) > top and entries:
-            d = entries[-1]["description"]
-            entries[-1]["description"] = (d + " " + ln.strip()).strip()
+            for e in entries[-group:]:
+                e["description"] = (e["description"] + " " + ln.strip()).strip()
             continue
+        group = 1
         text = ln.strip().lstrip("-*• ").replace("``", "")
         if " : " in text or text.endswith(" :"):                       # numpy: "name : type [unit]"
             name, _, typ = text.partition(":")
             typ, unit = _unit(typ)
-            entries.append(_out(name.strip(), typ, unit))
+            names = [n.strip() for n in name.split(",")] if re.fullmatch(r"\s*\w+(\s*,\s*\w+)+\s*", name) else [name.strip()]
+            entries.extend(_out(n, typ, unit) for n in names)          # "x, y : float [m]": one entry per name
+            group = len(names)
             continue
         g = _GOOGLE.match(text)
         if g:                                                           # Google: "name (type) [unit]: text"

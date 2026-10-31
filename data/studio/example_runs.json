@@ -237,6 +237,17 @@
   "seconds": 3.6,
   "writes_files": []
  },
+ "reproduction:reproductions/pinnsformer_zhao2024": {
+  "error": "",
+  "hash": "6141d709544c6c62",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py"
+  ],
+  "seconds": 168.1,
+  "writes_files": []
+ },
  "reproduction:reproductions/sbinn_daneker2022": {
   "error": "timeout after 900 s",
   "hash": "2e174183ec241d3b",

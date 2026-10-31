@@ -4,6 +4,10 @@ from __future__ import annotations
 Reference: Zhao et al. (2023) "PINNsFormer: A Transformer-Based Framework
 For Physics-Informed Neural Networks" arXiv:2307.11833
 
+Not the paper's model: this class attends across a sequence of *different* collocation points, so the output at
+one point depends on the other points batched with it. The paper builds each sequence from one point and its
+time-shifted copies; that model is :class:`PINNsFormerPaper` in ``pinnsformer_paper.py``.
+
 Key ideas
 ---------
 - Coordinates (x, t, ...) are treated as a *sequence* over collocation points.

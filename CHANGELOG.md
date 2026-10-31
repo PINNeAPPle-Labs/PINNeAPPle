@@ -22,8 +22,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
-- `examples/reproductions/sbinn_daneker2022`: SBINN T1 / T4 at reduced scale (100k of 610k epochs), two loss scalings;
-  not reproduced (parameter errors 7 % to 80 % against the paper's 0.1 % to 1.6 %).
 - Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
   simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
   `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /

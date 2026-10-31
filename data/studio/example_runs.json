@@ -60,5 +60,39 @@
   ],
   "seconds": 4.7,
   "writes_files": []
+ },
+ "example:physics_ensemble": {
+  "error": "timeout after 900 s",
+  "hash": "55ddccc12c930d7b",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/physics_ensemble/compare_lookahead_gif.py",
+   "examples/physics_ensemble/five_model_families_gif.py",
+   "examples/physics_ensemble/fno_pinn_gnn_solvers.py",
+   "examples/physics_ensemble/multiscale_turbulence.py",
+   "examples/physics_ensemble/sensor_noise_gif.py"
+  ],
+  "seconds": 1953.7,
+  "writes_files": [
+   "examples/physics_ensemble/lookahead_comparison.gif",
+   "examples/physics_ensemble/lookahead_timeline.png",
+   "examples/physics_ensemble/physics_ensemble.gif",
+   "examples/physics_ensemble/physics_ensemble.png"
+  ]
+ },
+ "example:physics_query": {
+  "error": "",
+  "hash": "b9ade50e76bdd5ab",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/physics_query/run_demo.py"
+  ],
+  "seconds": 1.5,
+  "writes_files": [
+   "examples/physics_query/experiment.json",
+   "examples/physics_query/figures/latency_vs_error.png"
+  ]
  }
 }

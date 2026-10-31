@@ -38,5 +38,27 @@
   ],
   "seconds": 16.1,
   "writes_files": []
+ },
+ "example:latent": {
+  "error": "fit\n    self.rom.fit(P_train, X_train)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_neural/architectures/rom/parametric.py\", line 69, in fit\n    from sklearn.gaussian_process import GaussianProcessRegressor\nModuleNotFoundError: No module named 'sklearn'",
+  "hash": "f12eec59bc931101",
+  "ok": false,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/latent/trusted_latent_surrogate.py"
+  ],
+  "seconds": 22.5,
+  "writes_files": []
+ },
+ "example:physics_audit": {
+  "error": "",
+  "hash": "5004984e23b9ca95",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/physics_audit/pipe_regimes.py"
+  ],
+  "seconds": 4.7,
+  "writes_files": []
  }
 }

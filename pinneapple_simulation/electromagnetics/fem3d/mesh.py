@@ -181,19 +181,20 @@ class TetMesh:
         cand = np.atleast_2d(cand)
         Jinv = self._jacobians_inv
         x0 = self.nodes[self.tets[:, 0]]
-        for p in range(len(points)):
-            c = cand[p]
-            xi = np.einsum("kij,kj->ki", np.transpose(Jinv[c], (0, 2, 1)), points[p] - x0[c])
+        for s in range(0, len(points), 4096):               # the nearest candidates, a chunk of points at once
+            c = cand[s:s + 4096]
+            xi = np.einsum("pkji,pkj->pki", Jinv[c], points[s:s + 4096, None, :] - x0[c])
+            lam_min = np.minimum(1 - xi.sum(2), xi.min(2))
+            hit = lam_min >= -tol
+            first = hit.argmax(axis=1)
+            found = hit[np.arange(len(c)), first]
+            out[s:s + 4096][found] = c[np.flatnonzero(found), first[found]]
+        for p in np.flatnonzero(out < 0):                 # far from the nearest centroids: full scan
+            xi = np.einsum("kij,kj->ki", np.transpose(Jinv, (0, 2, 1)), points[p] - x0)
             lam = np.column_stack([1 - xi.sum(1), xi])
             ok = np.flatnonzero(lam.min(axis=1) >= -tol)
             if len(ok):
-                out[p] = c[ok[0]]
-            else:                                         # far from the nearest centroids: full scan
-                xi = np.einsum("kij,kj->ki", np.transpose(Jinv, (0, 2, 1)), points[p] - x0)
-                lam = np.column_stack([1 - xi.sum(1), xi])
-                ok = np.flatnonzero(lam.min(axis=1) >= -tol)
-                if len(ok):
-                    out[p] = ok[0]
+                out[p] = ok[0]
         return out
 
     def summary(self) -> dict:

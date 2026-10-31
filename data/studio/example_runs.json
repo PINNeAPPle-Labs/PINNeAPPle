@@ -108,15 +108,17 @@
   "writes_files": []
  },
  "example:pinneapple_cosim": {
-  "error": "Traceback (most recent call last):\n  File \"/tmp/studio-examples-ayhv6gae/copy0/examples/pinneapple_cosim/01_spring_mass_pinn.py\", line 57, in <module>\n    from pinneapple_cosim import (\n    ...<6 lines>...\n    )\nModuleNotFoundError: No module named 'pinneapple_cosim'",
-  "hash": "b8d8ff391388e96c",
-  "ok": false,
+  "error": "",
+  "hash": "688aca495cd7a468",
+  "ok": true,
   "recorded": "2026-10-31",
   "scripts": [
    "examples/pinneapple_cosim/01_spring_mass_pinn.py"
   ],
-  "seconds": 1.7,
-  "writes_files": []
+  "seconds": 53.8,
+  "writes_files": [
+   "examples/pinneapple_cosim/outputs/01_coupled_spring_mass_cosim.png"
+  ]
  },
  "example:quickstart": {
   "error": "ualization/dashboard/spec.py\", line 186, in to_video\n    return write_video(self, gif, mp4, **kw)\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_tools/visualization/dashboard/static.py\", line 318, in write_video\n    import imageio.v2 as imageio\nModuleNotFoundError: No module named 'imageio'",

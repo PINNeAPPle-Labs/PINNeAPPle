@@ -1,0 +1,250 @@
+{
+ "pinneapple_condense.benchmark:accuracy_vs_modes": {
+  "code_hash": "bcb3a1fc31d909b3",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 78.98
+ },
+ "pinneapple_condense.benchmark:configurations": {
+  "code_hash": "3691298e8e2fcef7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 67.57
+ },
+ "pinneapple_condense.benchmark:correction_study": {
+  "code_hash": "c9705c6f07eef335",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_condense.benchmark:exceptions_study": {
+  "code_hash": "b4190bf9b79e6f64",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 38.88
+ },
+ "pinneapple_condense.benchmark:homogenization_study": {
+  "code_hash": "a197bc9f685e1005",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 81.17
+ },
+ "pinneapple_condense.benchmark:learned_study": {
+  "code_hash": "b677e41b2f614310",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.13
+ },
+ "pinneapple_condense.benchmark:mesh_convergence": {
+  "code_hash": "6e9848b243931c01",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_condense.benchmark:meshless_study": {
+  "code_hash": "eff711af4678463a",
+  "error": "the interpreter stopped during this tool: the interpreter ran out of time",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": null
+ },
+ "pinneapple_condense.benchmark:peak_rss_gb": {
+  "code_hash": "c43d27104df70e09",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_condense.benchmark:refinement_study": {
+  "code_hash": "7b83b65f7d47e772",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 69.49
+ },
+ "pinneapple_condense.benchmark:root_compressibility": {
+  "code_hash": "e6d6fe3be325f7f7",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 61.73
+ },
+ "pinneapple_condense.benchmark:transient_study": {
+  "code_hash": "5ee9df0cdf8aca4b",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.95
+ },
+ "pinneapple_condense.falsify:e1_cfd": {
+  "code_hash": "548ae337ce6aef28",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 8.7
+ },
+ "pinneapple_condense.falsify:f0_validation": {
+  "code_hash": "f8018dfde5f18ed9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 27.69
+ },
+ "pinneapple_condense.falsify:f1_advection": {
+  "code_hash": "6a7b49992938c230",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 11.86
+ },
+ "pinneapple_condense.falsify:f2_stokes": {
+  "code_hash": "cf85175cceb5c1bc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 32.39
+ },
+ "pinneapple_condense.falsify:f3_cht": {
+  "code_hash": "98f833bdf94e1321",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_condense.falsify:m1_advection": {
+  "code_hash": "76ed284df2ab2255",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 23.71
+ },
+ "pinneapple_condense.falsify:m2_stokes": {
+  "code_hash": "db95c0bbf2d7822e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 30.79
+ },
+ "pinneapple_condense.falsify:m3_hybrid": {
+  "code_hash": "7434986f22c3a78e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.8
+ },
+ "pinneapple_condense.falsify:m4_meshless_condensed": {
+  "code_hash": "17200feb7c868255",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.6
+ },
+ "pinneapple_condense.falsify:t10_pitch": {
+  "code_hash": "754f8d46cbc1dd82",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 658.22
+ },
+ "pinneapple_condense.falsify:t2_contrast": {
+  "code_hash": "101da98cb09f385b",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.0
+ },
+ "pinneapple_condense.falsify:t3_anisotropy": {
+  "code_hash": "8b6fee7344e47fba",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.02
+ },
+ "pinneapple_condense.falsify:t4_no_repetition": {
+  "code_hash": "4def0cafae586413",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.01
+ },
+ "pinneapple_condense.falsify:t5_variants": {
+  "code_hash": "cb2a1d6d6b6a4d47",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 72.55
+ },
+ "pinneapple_condense.falsify:t6_t7_nonlinear": {
+  "code_hash": "9cd67f2479752814",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.37
+ },
+ "pinneapple_condense.falsify:t8_adversarial": {
+  "code_hash": "b2a9ad99b4bc9fd6",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 78.45
+ },
+ "pinneapple_condense.falsify:t9_thin": {
+  "code_hash": "57d9612c23e292e3",
+  "error": "the interpreter stopped during this tool: the interpreter ran out of time",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": null
+ },
+ "pinneapple_condense.package:reference_stack": {
+  "code_hash": "9ec5bdbbb86cffc3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Stack",
+  "seconds": 0.41
+ },
+ "pinneapple_condense.query_benchmark:query_demo": {
+  "code_hash": "fefa7ea4b30188ca",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 63.69
+ }
+}

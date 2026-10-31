@@ -246,3 +246,8 @@ def test_benchmarks_quick_all_pass():
 
     failed = [c.to_dict() for c in bench.run(quick=True) if not c.passed]
     assert not failed, failed
+
+
+def test_gavish_donoho_rank_known_answer():
+    """Two singular values far above a flat floor of 0.1: beta = 5/100, omega(beta) ~ 1.52, threshold ~ 0.152."""
+    assert gavish_donoho_rank(np.array([10.0, 9.0, 0.1, 0.1, 0.1]), (5, 100)) == 2

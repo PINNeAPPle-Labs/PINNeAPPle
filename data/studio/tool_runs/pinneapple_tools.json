@@ -1,0 +1,665 @@
+{
+ "pinneapple_tools.aero_coefficients:compute_cp": {
+  "code_hash": "6b3df81930b09463",
+  "inputs": {
+   "p": [
+    100.0,
+    150.0,
+    50.0
+   ],
+   "p_inf": 100.0,
+   "q_inf": 50.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ndarray",
+  "seconds": 5.12
+ },
+ "pinneapple_tools.automation.adapters.base:Adapter": {
+  "code_hash": "f2ac48ca08c8ecbf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Adapter",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.adapters.base:known_actions": {
+  "code_hash": "f4f8cc79ea6d4917",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "set",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.adapters.base:list_adapters": {
+  "code_hash": "57ed48dd7574379e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation.runner_step:register": {
+  "code_hash": "3e027165c131b903",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GuiAgentStep",
+  "seconds": 0.1
+ },
+ "pinneapple_tools.automation.scripts.freecad_gui_job:run_job": {
+  "code_hash": "7b2290708ad3998d",
+  "error": "ModuleNotFoundError: No module named 'FreeCAD'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.automation:catalog": {
+  "code_hash": "751f78f003607783",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.22
+ },
+ "pinneapple_tools.automation:example_workflow": {
+  "code_hash": "e2d168737125a270",
+  "inputs": {
+   "name": "channel_obstacle"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PosixPath",
+  "seconds": 0.05
+ },
+ "pinneapple_tools.benchmark_suite.backends.deepxde_backend:DeepXDEBackend": {
+  "code_hash": "0ee98acb66e8291b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DeepXDEBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.jax_pinn:JAXPINNBackend": {
+  "code_hash": "811c4eb612978194",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "JAXPINNBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.native_pinn:NativePINNBackend": {
+  "code_hash": "9511d885185489ad",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NativePINNBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.physicsnemo_sym:PhysicsNeMoSymBackend": {
+  "code_hash": "6bf80404a0aa92cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsNeMoSymBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.backends.pinneapple_models_backend:PinneappleModelsBackend": {
+  "code_hash": "1379f90e4c58ca15",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PinneappleModelsBackend",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.benchmark:BenchmarkTaskBase": {
+  "code_hash": "9e30e50746b79965",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "BenchmarkTaskBase",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.benchmark:all_model_specs": {
+  "code_hash": "c3cfb4e4e73e61cb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.darcy:load_darcy": {
+  "code_hash": "0288938cb39e4679",
+  "error": "ArtifactUnavailableError: could not download train.npz of 'darcy_2d_li2021': ",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.02
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:evaluate_inverse": {
+  "code_hash": "3a5ded783ebc7008",
+  "inputs": {
+   "nu_hat": 0.0033,
+   "nu_true": 0.003,
+   "u_pred": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "u_ref": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 3.95
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.evaluate:sign_test_p": {
+  "code_hash": "7821e25e4f0c0c74",
+  "inputs": {
+   "k": 5,
+   "n": 5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.inverse:observations": {
+  "code_hash": "455d4274af5afeac",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.problems:allen_cahn_reference": {
+  "code_hash": "259d9bee22fbb58e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 8.68
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.problems:get_problem": {
+  "code_hash": "7a64c155da13aeb8",
+  "inputs": {
+   "name": "burgers"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNProblem",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.records:cpu_model": {
+  "code_hash": "70f3e5b763181a70",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.records:loadavg": {
+  "code_hash": "f4fe61bd542ab9ec",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.crossframework.weights:layer_sizes": {
+  "code_hash": "e45e31881326b82e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.registry:list_backends": {
+  "code_hash": "5442b155d96061e1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.registry:list_tasks": {
+  "code_hash": "c3c5a1ba130ba98a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.benchmark_suite.tasks.burgers_1d:Burgers1DTask": {
+  "code_hash": "fbf878d199fb7342",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Burgers1DTask",
+  "seconds": 0.1
+ },
+ "pinneapple_tools.benchmark_suite.tasks.navier_stokes_tgv_2d:NavierStokesTGV2DTask": {
+  "code_hash": "64cf5f906998f23a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NavierStokesTGV2DTask",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.compute_backends.backend:get_backend": {
+  "code_hash": "9badfd9726544977",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.compute_backends.backend:set_backend": {
+  "code_hash": "22efc84a7efbc54b",
+  "inputs": {
+   "name": "torch"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.compute_backends.jax_backend:jax_available": {
+  "code_hash": "67ca3573fd3126ae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.dataset_quality.vlm_curation:build_consistency_prompt": {
+  "code_hash": "9ffa7252fae24f12",
+  "inputs": {
+   "pde_description": "dT/dt = alpha * Laplacian(T)"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.dataset_quality.vlm_curation:extract_json": {
+  "code_hash": "0d6a241d1447ce48",
+  "inputs": {
+   "text": "Some preamble.\n{\"label\": \"consistent\", \"confidence\": 0.9}\ntrailer"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.dataset_quality.vlm_curation:parse_curation_response": {
+  "code_hash": "4f3277f68b4214b0",
+  "inputs": {
+   "seq_id": "seq_0000",
+   "text": "{\"label\":\"suspect\",\"reason\":\"boundary jump\",\"confidence\":0.78}"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CurationRecord",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.hpo_experiments.providers.gemini_provider:GeminiProvider": {
+  "code_hash": "6c53c49c8d5dfe62",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GeminiProvider",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.model_services.grid:darcy_solver_service": {
+  "code_hash": "e00debf4be38584b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.model_services.registry:default_registry": {
+  "code_hash": "13a52e6d54c3f030",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Registry",
+  "seconds": 0.05
+ },
+ "pinneapple_tools.model_services.registry:intent_service": {
+  "code_hash": "9fccf907a6e0c96f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.model_services.registry:trust_card_service": {
+  "code_hash": "28bf2e0cbbe5a6fa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelService",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.brep:brep_available": {
+  "code_hash": "e53137fa40ba1cd8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.brep:brep_python": {
+  "code_hash": "e018e37ade9bbfbc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.heatsink:sample_designs": {
+  "code_hash": "b4390babda413971",
+  "inputs": {
+   "n": 6,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.nvidia.omniverse:kit_render_script": {
+  "code_hash": "e08108d8fffbb5ed",
+  "inputs": {
+   "png_path": "a.png",
+   "usd_path": "a.usda"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.nvidia.omniverse:require_pxr": {
+  "code_hash": "bce69a338c311c43",
+  "error": "ImportError: OpenUSD is needed for USD stages: pip install usd-core (the same library Omniverse uses; no GPU needed)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:heat_sink": {
+  "code_hash": "330f405a40604d01",
+  "inputs": {
+   "fin_height": 0.02,
+   "fin_t": 0.002,
+   "n_fins": 4,
+   "root_fillet": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PartRecipe",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:heat_sink_geometry": {
+  "code_hash": "4d057020fc9b2402",
+  "inputs": {
+   "fin_height": 0.03,
+   "fin_t": 0.002,
+   "n_fins": 10
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:l_bracket": {
+  "code_hash": "81e67f9e759fdaf4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PartRecipe",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.parts:l_bracket_volume": {
+  "code_hash": "3a0dd44f4bb06e84",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.runinfo:environment": {
+  "code_hash": "2e4d39d3c0284d02",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.rea_bridge.client:ReaClient": {
+  "code_hash": "ba0d86f6154d050b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReaClient",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.rea_bridge.client:resolve_rea_command": {
+  "code_hash": "db6bba95eb01089a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.reporting.datasheet:find_chrome": {
+  "code_hash": "0ee85df1d8e7c0f3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.reporting.paperkit:Paper": {
+  "code_hash": "5d02b4e870df3d5d",
+  "inputs": {
+   "date": "January 1, 2026",
+   "report_id": "TR-0",
+   "subtitle": "Unit test",
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Paper",
+  "seconds": 0.44
+ },
+ "pinneapple_tools.reporting.paperkit:setup_mpl": {
+  "code_hash": "3894c893e5f8a828",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.dashboard.html:scene3d_payload": {
+  "code_hash": "619232138537169b",
+  "inputs": {
+   "bodies": {},
+   "lighting": null,
+   "poses": {},
+   "terrain": null
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.visualization.molecular:fcc_slab": {
+  "code_hash": "b73921329ea08a17",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.molecular:residue_class": {
+  "code_hash": "648765979f83be38",
+  "inputs": {
+   "resname": "LYS"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.visualization.pyvista_bridge:can_render": {
+  "code_hash": "c059c85a289948cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.03
+ },
+ "pinneapple_tools.visualization.studio.colormap:decimals": {
+  "code_hash": "3736e2cfb3e7164a",
+  "inputs": {
+   "hi": 1,
+   "lo": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.visualization.studio.colormap:jet": {
+  "code_hash": "928d54ccf105f754",
+  "inputs": {
+   "t": 0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.colormap:ticks": {
+  "code_hash": "75ed5f504e740ffd",
+  "inputs": {
+   "hi": 0.597,
+   "lo": -0.5
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 6.48
+ },
+ "pinneapple_tools.visualization.studio.compose:cmap_color": {
+  "code_hash": "ffcbdc71028e38fb",
+  "inputs": {
+   "cmap": "jet",
+   "t": 0.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.fieldview:displacement_factor": {
+  "code_hash": "bba9d976196316c9",
+  "inputs": {
+   "components": 3,
+   "name": "displacement",
+   "unit": "mm"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.fieldview:length_factor": {
+  "code_hash": "c81e87c7c2c57b2f",
+  "inputs": {
+   "unit": "mm"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.lighting:blender_world": {
+  "code_hash": "b5e821306c9e3396",
+  "error": "ModuleNotFoundError: No module named 'bpy'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.lighting:threejs_config": {
+  "code_hash": "f0216f07eab0c124",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.planetary:horizon_distance": {
+  "code_hash": "9fe866af3aea9a89",
+  "inputs": {
+   "height": 2.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.02
+ },
+ "pinneapple_tools.visualization.studio:render": {
+  "code_hash": "77d3531dc556e9d4",
+  "error": "TypeError: render() missing 2 required positional arguments: 'scene' and 'out'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.03
+ },
+ "pinneapple_tools.visualization.studio:web_viewer": {
+  "code_hash": "54800119abcfd2a5",
+  "error": "TypeError: web_viewer() missing 2 required positional arguments: 'scene' and 'out_dir'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.style:get_cmap": {
+  "code_hash": "a9862c1bfb19ed89",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LinearSegmentedColormap",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.style:make_figure": {
+  "code_hash": "5401a87f56a4c7c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.01
+ },
+ "pinneapple_tools.visualization.style:use_cfd_style": {
+  "code_hash": "fe3ac06c9eb6104b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ }
+}

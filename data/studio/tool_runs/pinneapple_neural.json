@@ -1,0 +1,537 @@
+{
+ "pinneapple_neural.architectures.autoencoders.registry:AutoencoderCatalog": {
+  "code_hash": "a38b7fc770b7c0cf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AutoencoderCatalog",
+  "seconds": 0.13
+ },
+ "pinneapple_neural.architectures.autoencoders.registry:register_into_global": {
+  "code_hash": "91d99bd8cfc64257",
+  "error": "KeyError: \"Model 'dense_ae' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 2.39
+ },
+ "pinneapple_neural.architectures.benchmarks.registry:register_into_global": {
+  "code_hash": "40ffc1f6cd906658",
+  "error": "KeyError: \"Model 'bench_mlp' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.classical_ts.arima:ARIMA": {
+  "code_hash": "b6e786d5fb273783",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ARIMA",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.classical_ts.registry:ClassicalTSCatalog": {
+  "code_hash": "8262b11c5610dd4c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ClassicalTSCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.classical_ts.registry:register_into_global": {
+  "code_hash": "2f4baa87a5597d67",
+  "error": "KeyError: \"Model 'var' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.continuous.registry:ContinuousCatalog": {
+  "code_hash": "85d0600355235d7e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ContinuousCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.continuous.registry:register_into_global": {
+  "code_hash": "8488ddd455905469",
+  "error": "KeyError: \"Model 'neural_ode' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.convolutions.registry:ConvolutionCatalog": {
+  "code_hash": "675090b137ed9ef3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ConvolutionCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.convolutions.registry:register_into_global": {
+  "code_hash": "f9220577b701184a",
+  "error": "KeyError: \"Model 'conv1d' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.graphnn.registry:GraphCatalog": {
+  "code_hash": "24621b648bd32a7a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GraphCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.graphnn.registry:register_into_global": {
+  "code_hash": "e92233619c32b176",
+  "error": "KeyError: \"Model 'gnn' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.group_b_registry:GroupBCatalog": {
+  "code_hash": "40663c9278221ad6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GroupBCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.group_b_registry:register_into_global": {
+  "code_hash": "021cf46252623c11",
+  "error": "KeyError: \"Model 'siren' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.neural_operators.registry:NeuralOperatorCatalog": {
+  "code_hash": "390d0c6190e18f48",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NeuralOperatorCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.neural_operators.registry:register_into_global": {
+  "code_hash": "de270887a5531e81",
+  "error": "KeyError: \"Model 'deeponet' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.physics_aware.registry:PhysicsAwareCatalog": {
+  "code_hash": "7bb87597804ef1ea",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsAwareCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.physics_aware.registry:register_into_global": {
+  "code_hash": "4877df2e559b5faf",
+  "error": "KeyError: \"Model 'physics_aware_neural_network' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.pinns.bpinn:BayesianPINN": {
+  "code_hash": "f5717d8931f132b7",
+  "error": "ValueError: torch.cat(): expected a non-empty list of Tensors",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.98
+ },
+ "pinneapple_neural.architectures.pinns.physics_diffusion:PhysicsInformedDiffusion": {
+  "code_hash": "0016aa10316ddf60",
+  "inputs": {},
+  "method": "predict",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Tensor",
+  "seconds": 0.85
+ },
+ "pinneapple_neural.architectures.pinns.registry:PINNCatalog": {
+  "code_hash": "b08147a2b448dc8b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PINNCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.pinns.registry:register_into_global": {
+  "code_hash": "d6cb8e15a859b827",
+  "error": "KeyError: \"Model 'vanilla_pinn' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.pinns.xtfc:tfc_available": {
+  "code_hash": "e27b380a0ebd228a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.recurrent.registry:RecurrentCatalog": {
+  "code_hash": "4df2ce511975196a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RecurrentCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.recurrent.registry:register_into_global": {
+  "code_hash": "e964a91d70e1bc10",
+  "error": "KeyError: \"Model 'gru' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.register_all:register_all": {
+  "code_hash": "33fb73bdf4b8ca99",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.registry:ModelRegistry": {
+  "code_hash": "6f591fa5bd323ade",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ModelRegistry",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.reservoir_computing.registry:ReservoirCatalog": {
+  "code_hash": "edc27ce9abee9659",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ReservoirCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.reservoir_computing.registry:register_into_global": {
+  "code_hash": "1e03f20182e88174",
+  "error": "KeyError: \"Model 'elm' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.dmd:DMDc": {
+  "code_hash": "749761a4ea9e8b78",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DMDc",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.dmd:DynamicModeDecomposition": {
+  "code_hash": "fe8eeb4df59a5167",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DynamicModeDecomposition",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.havok:HAVOK": {
+  "code_hash": "440ff0a94cf03cd4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HAVOK",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.parametric:ParametricPOD": {
+  "code_hash": "277a748c0698a09c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ParametricPOD",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.pod:POD": {
+  "code_hash": "2bec66bbf51d1146",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "POD",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.registry:ROMCatalog": {
+  "code_hash": "268080a3218857c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ROMCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.registry:register_into_global": {
+  "code_hash": "8cbe8d17f5c9e887",
+  "error": "KeyError: \"Model 'pod' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.trusted:TrustedLatentSurrogate": {
+  "code_hash": "b5a46d6e2dbcc303",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TrustedLatentSurrogate",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.transformers.registry:TransformerCatalog": {
+  "code_hash": "ceb3cc2edf0909fb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TransformerCatalog",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.transformers.registry:register_into_global": {
+  "code_hash": "4a6975698a73368d",
+  "error": "KeyError: \"Model 'transformer' already registered\"",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.physicsnemo_bridge.adapters:is_physicsnemo_available": {
+  "code_hash": "c285775f7e26d34d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.21
+ },
+ "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
+  "code_hash": "0c322f8b271039a3",
+  "inputs": {
+   "n": 4
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 1.28
+ },
+ "pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_fno": {
+  "code_hash": "76163edd60c83463",
+  "error": "ImportError: physicsnemo is required for this operation but is not installed. Install with: pip install nvidia-physicsnemo (see https://github.com/NVIDIA/physicsnemo). Note: the rest of pinneapple_neural.physicsnemo_bridge (model adapters, UQ/digital-twin wiring, the active-learning retrain loop) works on any to",
+  "inputs": {
+   "decoder_layer_size": 16,
+   "latent_channels": 8,
+   "n": 16,
+   "num_fno_layers": 2,
+   "num_fno_modes": 4
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_meshgraphnet": {
+  "code_hash": "a187f971a66ba987",
+  "error": "ImportError: physicsnemo is required for this operation but is not installed. Install with: pip install nvidia-physicsnemo (see https://github.com/NVIDIA/physicsnemo). Note: the rest of pinneapple_neural.physicsnemo_bridge (model adapters, UQ/digital-twin wiring, the active-learning retrain loop) works on any to",
+  "inputs": {
+   "hidden_dim": 16,
+   "n": 8,
+   "processor_size": 2
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.advisor:TrainingAdvisor": {
+  "code_hash": "558b1b6ecbc956b2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TrainingAdvisor",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.audit:env_fingerprint": {
+  "code_hash": "59a2fcd1ae3103e4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_neural.trainer.audit:set_deterministic": {
+  "code_hash": "8ad02953d5806334",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 1.37
+ },
+ "pinneapple_neural.trainer.audit:set_seed": {
+  "code_hash": "d06c5ebce65b0f2f",
+  "inputs": {
+   "seed": 42
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 3.35
+ },
+ "pinneapple_neural.trainer.collocation:filter_nan_rows": {
+  "code_hash": "2854da535b28647b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.distributed:get_rank": {
+  "code_hash": "5cfa1a64ceb71513",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.distributed:get_world_size": {
+  "code_hash": "951bda89f3916aa9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.distributed:is_distributed": {
+  "code_hash": "125b0477931b9914",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.metrics:Metrics": {
+  "code_hash": "5a629c3b3ca0933c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Metrics",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.metrics:RegressionMetrics": {
+  "code_hash": "17ae667b64984c88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RegressionMetrics",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.metrics:default_metrics": {
+  "code_hash": "21af47e81c6b8073",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.metrics:regression_metrics_bundle": {
+  "code_hash": "2d8d4b9a72ddc2d4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MetricBundle",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.parallel:best_device": {
+  "code_hash": "93388eafd9993a0f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "device",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.parallel:count_gpus": {
+  "code_hash": "b3a7e185877a8bc8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.parallel:gpu_info": {
+  "code_hash": "af9985bc36715aeb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.preprocess:DifferencingStep": {
+  "code_hash": "150179a874cf1753",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "DifferencingStep",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.preprocess:LogStep": {
+  "code_hash": "eefbc51531afb2c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "LogStep",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.preprocess:MissingValueStep": {
+  "code_hash": "a1767091c8557c6b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "MissingValueStep",
+  "seconds": 5.66
+ },
+ "pinneapple_neural.trainer.preprocess:NormalizeStep": {
+  "code_hash": "c94b4be8817582e0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NormalizeStep",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.preprocess:RobustScaleStep": {
+  "code_hash": "1986a2eb8a65605d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RobustScaleStep",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.preprocess:WinsorizeStep": {
+  "code_hash": "e46dbe754278a645",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "WinsorizeStep",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.workflows.hybrid_surrogate_physics:GaussianProcessSurrogate": {
+  "code_hash": "433c224165ea2e7c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "GaussianProcessSurrogate",
+  "seconds": 0.01
+ }
+}

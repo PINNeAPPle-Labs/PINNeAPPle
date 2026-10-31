@@ -1,0 +1,376 @@
+{
+ "pinneapple_security.anomaly:ResidualCUSUM": {
+  "code_hash": "7622e9ff5bee0439",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ResidualCUSUM",
+  "seconds": 0.0
+ },
+ "pinneapple_security.attestation:git_commit": {
+  "code_hash": "79732b33eca90a8a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_security.attestation:sbom": {
+  "code_hash": "f03f850690dbbfd2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.23
+ },
+ "pinneapple_security.classification:HandlingPolicy": {
+  "code_hash": "5c4c4d4c48061c8d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "HandlingPolicy",
+  "seconds": 0.0
+ },
+ "pinneapple_security.compliance:assess": {
+  "code_hash": "68fb2fa3057b7fbf",
+  "inputs": {
+   "evidence": {
+    "audit_log": {
+     "ok": true
+    },
+    "manifest": true,
+    "signature": {
+     "ok": false
+    }
+   },
+   "frameworks": [
+    "21 CFR Part 11"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.36
+ },
+ "pinneapple_security.compliance:controls_for": {
+  "code_hash": "d473bc78fbfa70bb",
+  "inputs": {
+   "capability": "physics_anomaly"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps:PhysicsResidualDetector": {
+  "code_hash": "1c1b2476e63826be",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps:episode_metrics": {
+  "code_hash": "243a0114623e9b02",
+  "inputs": {
+   "alarms": [
+    10,
+    55,
+    300
+   ],
+   "episodes": [
+    [
+     50,
+     100
+    ]
+   ],
+   "grace": 10,
+   "n": 1440
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_security.cps:roc_auc": {
+  "code_hash": "4138f32e97d80206",
+  "inputs": {
+   "labels": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "scores": [
+    0.1,
+    0.2,
+    0.8,
+    0.9
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:ARResidualDetector": {
+  "code_hash": "9874851996b5578e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ARResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:IsolationForestDetector": {
+  "code_hash": "b0a77e9893b94008",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "IsolationForestDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:PCAResidualDetector": {
+  "code_hash": "21aed00be90ac436",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PCAResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:physics_detector": {
+  "code_hash": "161c7777f3f557df",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PhysicsResidualDetector",
+  "seconds": 0.0
+ },
+ "pinneapple_security.cps_bench:run_benchmark": {
+  "code_hash": "95d39753f9632c47",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 16.06
+ },
+ "pinneapple_security.cps_bench:simulate_three_tank": {
+  "code_hash": "251cdfce546dc1c0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.68
+ },
+ "pinneapple_security.dp:gaussian_sigma": {
+  "code_hash": "c73abf0aa019365d",
+  "inputs": {
+   "delta": 1e-05,
+   "epsilon": 0.5,
+   "sensitivity": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_security.encryption:new_key": {
+  "code_hash": "61966a6effd8f02c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bytes",
+  "seconds": 0.0
+ },
+ "pinneapple_security.integrity:merkle_root": {
+  "code_hash": "69f1346a45a48b7d",
+  "inputs": {
+   "leaves": []
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_security.passwords:hash_password": {
+  "code_hash": "f994d64aab3129ab",
+  "inputs": {
+   "password": "s3cret",
+   "scheme": "scrypt"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.39
+ },
+ "pinneapple_security.passwords:is_hash": {
+  "code_hash": "1a81c1db89d2d283",
+  "inputs": {
+   "value": "s3cret"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.passwords:verify_password": {
+  "code_hash": "bdec6a324695a580",
+  "inputs": {
+   "password": "x",
+   "stored": "plain"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:find_pii": {
+  "code_hash": "459d0128065d953a",
+  "inputs": {
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_security.privacy:iban_ok": {
+  "code_hash": "1bb2f90af203b27c",
+  "inputs": {
+   "s": "GB82 WEST 1234 5698 7654 32"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:luhn_ok": {
+  "code_hash": "5f82e9da24d38ec0",
+  "inputs": {
+   "s": "4111 1111 1111 1111"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:redact": {
+  "code_hash": "e90c2a592a7e6e9b",
+  "inputs": {
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:sanitize_log": {
+  "code_hash": "f91fc17672c341aa",
+  "inputs": {
+   "extra": [
+    "clientX"
+   ],
+   "text": "Build  : v2306\nHost   : node17.cluster.internal\nCase   : /home/jsilva/clientX/pipe_bend\nnProcs : 8\nmailto jsilva@clientx.com from 192.168.1.20\nC:\\Users\\jsilva\\run\nTime = 0.1\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:valid_cnpj": {
+  "code_hash": "d2c6c40d2c855487",
+  "inputs": {
+   "s": "11.222.333/0001-81"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.privacy:valid_cpf": {
+  "code_hash": "e1cb824146d3a3f5",
+  "inputs": {
+   "s": "529.982.247-25"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_security.signing:generate_key": {
+  "code_hash": "4d1aa5380516d82b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SigningKey",
+  "seconds": 0.04
+ },
+ "pinneapple_security.signing:hmac_key": {
+  "code_hash": "341a6654e89f9d39",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "SigningKey",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:RateLimiter": {
+  "code_hash": "28313b5a1bb3c299",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "RateLimiter",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:build_csp": {
+  "code_hash": "0bc0c557f99b6a1d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:check_cors_origins": {
+  "code_hash": "7499957178799a1c",
+  "inputs": {
+   "allow_credentials": true,
+   "origins": [
+    "https://a.example",
+    "http://localhost:3000/"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_security.web:client_ip": {
+  "code_hash": "f002a6e76178c17b",
+  "inputs": {
+   "forwarded_for": "203.0.113.7",
+   "peer": "172.18.0.3"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:inline_hashes": {
+  "code_hash": "372f54bdf1f2789e",
+  "inputs": {
+   "page": "<script type=\"importmap\">{\"imports\": {}}</script><script src=\"/a.js\"></script><form onsubmit=\"return false\"></form>"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_security.web:parse_rate": {
+  "code_hash": "a90b95976c114731",
+  "inputs": {
+   "spec": "30/min"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ }
+}

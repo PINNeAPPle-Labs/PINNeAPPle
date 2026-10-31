@@ -209,3 +209,23 @@ def test_model_ids_outside_the_library_are_refused_without_being_called(model, t
         surrogate_twin(model, [{"name": "path", "low": 0, "high": 1, "values": [0.0]}], {"name": "X"},
                        str(tmp_path / "twin"))
     assert called == [] and tmp_path.exists() and not (tmp_path / "twin").exists()
+
+
+def test_reactor_closed_forms_on_literals():
+    """The worked numbers of the module, called with literals: tube volume, PFR at k tau = 1, CSTR at k tau = 2.4."""
+    assert R.tube_volume(0.0275, 5.5) == pytest.approx(3.266765e-3, rel=1e-6)
+    assert R.pfr_conversion_ktau(0.1, 10.0)["X"] == pytest.approx(0.632121, abs=1e-6)
+    assert R.cstr_conversion_ktau(0.02, 120.0)["X"] == pytest.approx(0.705882, abs=1e-6)
+
+
+def test_in_hull_one_point_and_one_sample():
+    import numpy as np
+    assert list(in_hull(np.array([0.0, 1.0]), np.array([0.0, 1.0]))) == [True]
+    assert list(in_hull(np.array([0.5, 2.0]), np.array([0.0, 1.0]))) == [False]
+
+
+def test_twin_written_to_a_relative_folder(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    out = surrogate_twin(PFR, [{"name": "tau", "unit": "s", "low": 10.0, "high": 120.0, "values": [10.0, 120.0]}],
+                         {"name": "X", "unit": "-"}, "twin_out")
+    assert (tmp_path / "twin_out" / "index.html").is_file() and out["manifest"]["band_label"] == "no uncertainty estimate"

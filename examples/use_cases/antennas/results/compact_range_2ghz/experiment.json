@@ -1,0 +1,165 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "compact_range_2ghz",
+ "title": "Compact range: QZ vs feed gain and reflector size (2 GHz)",
+ "description": "",
+ "domain": "electromagnetics",
+ "methods": [
+  "physical optics",
+  "Gaussian process"
+ ],
+ "modules": [],
+ "params": {
+  "freq_hz": 2000000000.0,
+  "reflector": {
+   "focal": 4.0,
+   "half_x": 1.6,
+   "half_y": 1.6,
+   "centre_y": 2.0,
+   "n": 6.0,
+   "roll": 0.45
+  },
+  "feed_gain_dbi": 16.0,
+  "qz_z": 7.0,
+  "qz_diameter": 1.0,
+  "mesh_per_wavelength": 8.0,
+  "qz_step_per_wavelength": 4.0,
+  "eval_factor": 1.6,
+  "spec": {
+   "qz_diameter": 1.0,
+   "amp_tol_db": 0.5,
+   "phase_tol_deg": 5.0,
+   "xpol_max_db": -25.0
+  },
+  "sweep": {
+   "gains_dBi": [
+    10.0,
+    13.0,
+    16.0,
+    19.0,
+    22.0
+   ],
+   "sides_m": [
+    2.4,
+    2.8,
+    3.2,
+    3.6,
+    4.0,
+    4.4,
+    4.8
+   ],
+   "focals_m": [
+    3.0,
+    4.0,
+    5.0
+   ]
+  },
+  "optimise": {
+   "gain_bounds": [
+    10.0,
+    22.0
+   ],
+   "side_bounds": [
+    2.4,
+    4.8
+   ],
+   "max_iter": 4
+  },
+  "densities": [
+   6,
+   8,
+   12
+  ],
+  "workers": 4
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "agreement_887_max_abs_diff",
+   "value": 6.430411758628907e-13,
+   "unit": "",
+   "how": "the #887 reference design solved again by qz_report against #887's numbers"
+  },
+  {
+   "name": "designs",
+   "value": 105.0,
+   "unit": "",
+   "how": "PO solves in the sweep (both polarisations each)"
+  },
+  {
+   "name": "seconds_median",
+   "value": 105.528,
+   "unit": "s",
+   "how": "PO mesh + QZ field, V and H, per design"
+  },
+  {
+   "name": "gp_usable_rmse_m",
+   "value": 0.13953382291271652,
+   "unit": "m",
+   "how": "5-fold held-out RMSE of the GP, usable QZ diameter"
+  },
+  {
+   "name": "gp_usable_coverage95",
+   "value": 0.8476190476190476,
+   "unit": "",
+   "how": "held-out fraction inside the GP 95% interval"
+  },
+  {
+   "name": "power_ratio",
+   "value": 0.9765431013350149,
+   "unit": "",
+   "how": "power through the QZ plane / feed power intercepted by the reflector (PO)"
+  },
+  {
+   "name": "smallest_side_m",
+   "value": 4.529999999999999,
+   "unit": "m",
+   "how": "optimiser, verified by PO"
+  },
+  {
+   "name": "smallest_side_gain_dBi",
+   "value": 15.7,
+   "unit": "dBi",
+   "how": "its feed gain"
+  }
+ ],
+ "checks": [
+  {
+   "name": "optimiser_verified_by_po",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "design_maps.png",
+   "pareto.png",
+   "qz_cuts.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "a25ef50",
+  "created": "2026-10-31T00:04:11Z",
+  "seconds": 706.841,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39"
+  }
+ }
+}

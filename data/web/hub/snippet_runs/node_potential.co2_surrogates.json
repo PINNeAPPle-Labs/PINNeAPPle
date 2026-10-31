@@ -1,0 +1,12 @@
+{
+ "code_hash": "b6a8c2ec443f5fdc",
+ "figures": [],
+ "id": "node:potential.co2_surrogates",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 15.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CO2 near the critical point: potential-based vs direct surrogate -> pinneapple_physics.potential.co2_study.run_study (surrogate.PotentialSurrogate, surrogate.DirectSurrogate, surrogate.fit, potential.consistency_check)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'seeds': 1, 'epochs': 600, 'n_per_prop': 100, 'without_cp': False}",
+ "timed_out": false
+}

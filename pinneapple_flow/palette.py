@@ -92,6 +92,7 @@ SECTION_OF: dict[str, str] = {
     "query.package": "solvers",
     "potential.eos_tree": "equations", "potential.hyperelastic": "equations",
     "potential.double_pendulum": "solvers", "potential.machine_coenergy": "validation",
+    "potential.co2_surrogates": "surrogates",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

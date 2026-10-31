@@ -146,7 +146,8 @@ def occ_stl(path: str, angle_deg: float = 40.0) -> Callable:
     return build
 
 
-def gmsh_mesh(build: Callable, size: float, order: int = 2, optimize: bool = True, threads: int = 1) -> TetMesh:
+def gmsh_mesh(build: Callable, size: float, order: int = 2, optimize: bool = True, threads: int = 1,
+              high_order_optimize: bool = True) -> TetMesh:
     """Mesh the volume made by ``build(gmsh)`` with tetrahedra of size ``size`` (P2 nodes on the CAD surfaces).
     ``meshing_s`` is the wall time of gmsh's generation (and high-order placement / optimisation)."""
     import gmsh
@@ -169,8 +170,8 @@ def gmsh_mesh(build: Callable, size: float, order: int = 2, optimize: bool = Tru
             gmsh.model.mesh.optimize("Netgen")
         if order == 2:
             gmsh.model.mesh.setOrder(2)
-            if optimize:
-                gmsh.model.mesh.optimize("HighOrder")
+            if optimize and high_order_optimize:            # untangles curved P2 elements; nothing to do on flat facets,
+                gmsh.model.mesh.optimize("HighOrder")       # and it aborts the process on some coarse STL meshes
         dt = time.perf_counter() - t0
         tags, coords, _ = gmsh.model.mesh.getNodes()
         X = coords.reshape(-1, 3)
@@ -289,6 +290,7 @@ class TetHeatSolution:
 
 def assemble_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, bcs: Sequence = ()):
     from pinneapple_simulation.immersed.bcs import evaluate as ev
+    from pinneapple_simulation.immersed.bcs import heat_flux
     t0 = time.perf_counter()
     n = mesh.n_nodes
     k = float(conductivity)
@@ -307,7 +309,7 @@ def assemble_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, b
         X, nn, w, fnod = F.X[sel], F.n[sel], F.w[sel], F.nodes[sel]
         flat = X.reshape(-1, 3), nn.reshape(-1, 3)
         if bc.kind == "neumann":
-            q = ev(bc.flux, *flat).reshape(w.shape)
+            q = heat_flux(bc, *flat, w.ravel()).reshape(w.shape)
             b += np.bincount(fnod.ravel(), np.einsum("fq,qi->fi", w * q, F.N).ravel(), minlength=n)
         elif bc.kind == "robin":
             hc = ev(bc.h, *flat).reshape(w.shape)
@@ -358,6 +360,7 @@ def solve_heat(mesh: TetMesh, conductivity: float = 1.0, source: Any = 0.0, bcs:
 def _heat_balance(sol, A, b, k, source, bcs, owner) -> dict:
     """Heat generated against heat leaving: on fixed-temperature nodes the consistent (reaction) flux."""
     from pinneapple_simulation.immersed.bcs import evaluate as ev
+    from pinneapple_simulation.immersed.bcs import heat_flux
     mesh = sol.mesh
     vol = _volume(mesh)
     gen = float(np.sum(vol.w * ev(source, vol.X.reshape(-1, 3)).reshape(vol.w.shape)))
@@ -371,7 +374,7 @@ def _heat_balance(sol, A, b, k, source, bcs, owner) -> dict:
             continue
         X, nn, w = F.X[sel].reshape(-1, 3), F.n[sel].reshape(-1, 3), F.w[sel].ravel()
         if bc.kind == "neumann":
-            q = -float(np.sum(w * ev(bc.flux, X, nn)))
+            q = -float(np.sum(w * heat_flux(bc, X, nn, w)))
         elif bc.kind == "robin":
             Th = evaluate(mesh, sol.T, X, tet=np.repeat(F.tet[sel], F.w.shape[1]))
             q = float(np.sum(w * ev(bc.h, X, nn) * (Th - ev(bc.T_inf, X, nn))))
@@ -447,3 +450,142 @@ def field_errors(mesh: TetMesh, u: np.ndarray, exact, grad=None, ncomp: int = 1)
         out["H1_norm"] = float(np.sqrt(np.sum(vol.w[..., None, None] * ge ** 2)))
         out["H1_rel"] = out["H1"] / max(out["H1_norm"], 1e-300)
     return out
+
+
+# ---------------------------------------------------------------- linear elasticity
+
+def _bary(mesh: TetMesh, X: np.ndarray, tet: np.ndarray | None = None):
+    X = np.atleast_2d(np.asarray(X, float))
+    if tet is None:
+        tet, lam = _locate(mesh, X)
+    else:
+        P = mesh.nodes[mesh.tets[tet, :4]]
+        M = (P[:, 1:] - P[:, :1]).transpose(0, 2, 1)
+        r = np.linalg.solve(M, (X - P[:, 0])[..., None])[..., 0]
+        lam = np.column_stack([1 - r.sum(1), r])
+    if mesh.order == 2:
+        for _ in range(4):
+            Xm = np.einsum("nb,nbi->ni", shape(2, lam), mesh.nodes[mesh.tets[tet]])
+            J = np.einsum("nbi,nbj->nij", mesh.nodes[mesh.tets[tet]], dshape(2, lam))
+            r = lam[:, 1:] + np.linalg.solve(J, (X - Xm)[..., None])[..., 0]
+            lam = np.column_stack([1 - r.sum(1), r])
+    return tet, lam
+
+
+def gradient(mesh: TetMesh, u: np.ndarray, X: np.ndarray, tet: np.ndarray | None = None) -> np.ndarray:
+    """Physical gradient of a nodal field at points: (n, ncomp, 3), or (n, 3) for a scalar field."""
+    tet, lam = _bary(mesh, X, tet)
+    D = dshape(mesh.order, lam)
+    J = np.einsum("nbi,nbj->nij", mesh.nodes[mesh.tets[tet]], D)
+    G = np.einsum("nbj,nji->nbi", D, np.linalg.inv(J))
+    U = np.asarray(u)
+    return np.einsum("nbi,nb...->n...i", G, U[mesh.tets[tet]])
+
+
+def _Bmat(G: np.ndarray) -> np.ndarray:
+    """(..., 6, nb*3) strain-displacement from gradients (..., nb, 3); Voigt xx yy zz xy yz zx."""
+    sh = G.shape[:-2]
+    nb = G.shape[-2]
+    B = np.zeros(sh + (6, nb, 3))
+    for k in range(3):
+        B[..., k, :, k] = G[..., k]
+    for r, (i, j) in enumerate(((0, 1), (1, 2), (2, 0))):
+        B[..., 3 + r, :, i] = G[..., j]
+        B[..., 3 + r, :, j] = G[..., i]
+    return B.reshape(sh + (6, nb * 3))
+
+
+@dataclass
+class TetElasticSolution:
+    mesh: TetMesh
+    u: np.ndarray                      # (n_nodes, 3)
+    E: float
+    nu: float
+    info: dict = field(default_factory=dict)
+    balance: dict = field(default_factory=dict)
+
+    def __call__(self, X):
+        return evaluate(self.mesh, self.u, X)
+
+    def stress(self, X, tet=None) -> np.ndarray:
+        from pinneapple_simulation.immersed.elasticity import lame
+        Gu = gradient(self.mesh, self.u, X, tet)
+        lam, mu = lame(self.E, self.nu)
+        eps = 0.5 * (Gu + Gu.transpose(0, 2, 1))
+        return lam * np.trace(eps, axis1=1, axis2=2)[:, None, None] * np.eye(3) + 2 * mu * eps
+
+    def von_mises(self, X, tet=None) -> np.ndarray:
+        s = self.stress(X, tet)
+        dev = s - np.trace(s, axis1=1, axis2=2)[:, None, None] / 3 * np.eye(3)
+        return np.sqrt(1.5 * np.einsum("nij,nij->n", dev, dev))
+
+    def errors(self, exact, grad=None) -> dict:
+        return field_errors(self.mesh, self.u, exact, grad, ncomp=3)
+
+
+def solve_elasticity(mesh: TetMesh, E: float, nu: float, body_force: Any = None, bcs: Sequence = (),
+                     solver: str = "auto") -> TetElasticSolution:
+    """Linear elasticity: displacements as strong nodal conditions on the faces their condition selects (only the
+    listed components), tractions and pressures integrated on boundary faces."""
+    from pinneapple_simulation.immersed.assembly import solve_linear
+    from pinneapple_simulation.immersed.bcs import evaluate as ev
+    from pinneapple_simulation.immersed.elasticity import elasticity_matrix
+    t0 = time.perf_counter()
+    n = mesh.n_nodes
+    D = elasticity_matrix(E, nu, 3)
+    vol = _volume(mesh)
+    B = _Bmat(vol.G)                                                    # (m, q, 6, nb*3)
+    DB = np.einsum("vw,mqwj->mqvj", D, B, optimize=True) * vol.w[..., None, None]
+    Ke = np.einsum("mqvi,mqvj->mij", B, DB, optimize=True)
+    conn = (mesh.tets[:, :, None] * 3 + np.arange(3)).reshape(len(mesh.tets), -1)
+    A = _scatter(conn, Ke, 3 * n)
+    b = np.zeros(3 * n)
+    if body_force is not None:
+        fq = ev(body_force, vol.X.reshape(-1, 3), shape=(3,)).reshape(vol.w.shape + (3,))
+        b += np.bincount(conn.ravel(), np.einsum("mqc,mq,qb->mbc", fq, vol.w, vol.N).ravel(), minlength=3 * n)
+    F = _faces(mesh)
+    owner = _owner(bcs, F)
+    fixed = {}
+    for i, bc in enumerate(bcs):
+        sel = np.nonzero(owner == i)[0]
+        if not len(sel):
+            continue
+        X, nn, w, fnod = F.X[sel].reshape(-1, 3), F.n[sel].reshape(-1, 3), F.w[sel], F.nodes[sel]
+        if bc.kind == "neumann":
+            from pinneapple_simulation.immersed.elasticity import _traction
+            t = _traction(bc, X, nn, w.ravel(), 3).reshape(w.shape + (3,))
+            fc = (fnod[:, :, None] * 3 + np.arange(3)).reshape(len(sel), -1)
+            b += np.bincount(fc.ravel(), np.einsum("fqc,fq,qb->fbc", t, w, F.N).ravel(), minlength=3 * n)
+        else:
+            nodes = np.unique(fnod)
+            g = ev(bc.value, mesh.nodes[nodes], np.zeros((len(nodes), 3)), shape=(3,))
+            comps = range(3) if bc.components is None else bc.components
+            for a, v in zip(nodes, g, strict=True):
+                for c in comps:
+                    fixed.setdefault(int(a) * 3 + c, float(v[c]))
+    t_asm = time.perf_counter() - t0
+    Af, bf, free, idx, val = _apply_dirichlet(A.tocsr(), b, fixed)
+    Xc = mesh.nodes - mesh.nodes.mean(0)                                # rigid modes: AMG near-null space
+    modes = []
+    for k in range(3):
+        m = np.zeros((n, 3))
+        m[:, k] = 1
+        modes.append(m)
+    for i, j in ((0, 1), (1, 2), (2, 0)):
+        m = np.zeros((n, 3))
+        m[:, i], m[:, j] = -Xc[:, j], Xc[:, i]
+        modes.append(m)
+    rbm = np.stack([m.ravel()[free] for m in modes], 1)
+    x, sinfo = solve_linear(Af, bf, solver, near_null=rbm)
+    U = np.zeros(3 * n)
+    U[free], U[idx] = x, val
+    r = A @ U - b
+    reaction = np.array([r[idx][idx % 3 == c].sum() for c in range(3)])
+    applied = np.array([b[c::3].sum() for c in range(3)])
+    info = {"assembly_s": t_asm, "dofs": len(free), "meshing_s": mesh.meshing_s,
+            **{"solve_" + k: v for k, v in sinfo.items()}}
+    sol = TetElasticSolution(mesh, U.reshape(-1, 3), E, nu, info)
+    scale = max(float(np.abs(b).sum() + np.abs(r[idx]).sum()), 1e-300)
+    sol.balance = {"applied_N": applied.tolist(), "reaction_N": reaction.tolist(),
+                   "imbalance": float(np.abs(applied + reaction).max() / scale)}
+    return sol

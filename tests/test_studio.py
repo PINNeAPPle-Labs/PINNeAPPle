@@ -391,3 +391,13 @@ def test_gallery_shows_the_commands_of_the_readme(tmp_path):
     from pinneapple_studio.gallery import run_commands
     _w(tmp_path / "README.md", "# R\n\n```bash\npython examples/r/run.py --part elm\n```\n\n```python\nimport x\n```\n")
     assert run_commands(tmp_path, tmp_path) == ["python examples/r/run.py --part elm"]
+
+
+def test_catalog_builds_without_the_git_program(repo, monkeypatch, tmp_path):
+    """A source tarball in an image without git (the Engineering API's build) still gives a catalog."""
+    from pinneapple_studio import catalog
+    empty = tmp_path / "no-git-bin"
+    empty.mkdir()
+    monkeypatch.setenv("PATH", str(empty))
+    cat = catalog.build(repo)
+    assert cat["tools"]

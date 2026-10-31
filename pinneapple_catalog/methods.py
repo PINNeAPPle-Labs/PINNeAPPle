@@ -62,6 +62,7 @@ CF = "pinneapple_physics/closed_form/"
 COMPILE = "pinneapple_physics/pinn_solver/compiler/compile.py"
 EMK = "pinneapple_physics/pinn_solver/compiler/em_kinds.py"
 EM = "pinneapple_simulation/electromagnetics/"
+DYN = "pinneapple_analysis/dynamics/"
 
 # Standard references reused below.
 LEVEQUE_FD = "LeVeque, Finite Difference Methods for Ordinary and Partial Differential Equations, SIAM, 2007"
@@ -248,6 +249,34 @@ METHODS: List[Method] = [
     _m("S41", "Near-to-far-field transform on a closed box (FDTD radiation patterns)", [EM + "fdtd.py"],
        ["NearToFarField("], refs_in_code=[TAFLOVE, "Balanis, Advanced Engineering Electromagnetics, 2nd ed., "
                                                    "Wiley, 2012"]),
+    _m("S42", "First-passage times: crossing, Kaplan-Meier, SDE Monte Carlo with Brownian bridge, Fokker-Planck "
+              "survival from a PDE solution", [DYN + "first_passage.py"],
+       ["FirstPassageAnalyzer(", "survival_from_density(", "survival_from_solution("],
+       refs_in_code=["Kaplan & Meier, Nonparametric estimation from incomplete observations, JASA 53 (1958) 457-481",
+                     "Redner, A Guide to First-Passage Processes, Cambridge University Press, 2001",
+                     "Gardiner, Stochastic Methods, 4th ed., Springer, 2009"]),
+    _m("S43", "Dimensional analysis: exact Buckingham pi groups, homogeneity checks, curve collapse",
+       [DYN + "dimensional.py"], ["BuckinghamPiAnalyzer(", "CurveCollapseAnalyzer("],
+       refs_in_code=["Barenblatt, Scaling, Self-similarity, and Intermediate Asymptotics, Cambridge University "
+                     "Press, 1996"],
+       refs_added=["Buckingham, On physically similar systems, Phys. Rev. 4 (1914) 345-376"]),
+    _m("S44", "Fisher information, Cramer-Rao bounds and optimal experimental design (D/A/E/c, Fedorov exchange)",
+       [DYN + "fisher.py"], ["FisherInformation.", "ExperimentalDesign(", "ObservationScheduler("],
+       refs_in_code=["Fedorov, Theory of Optimal Experiments, Academic Press, 1972",
+                     "Box & Lucas, Design of experiments in non-linear situations, Biometrika 46 (1959) 77-90"]),
+    _m("S45", "Early-warning indicators of critical slowing down (rolling variance / AC1, surrogate tests)",
+       [DYN + "early_warning.py"], ["EarlyWarningAnalyzer(", "CriticalSlowingDown("],
+       refs_in_code=["Scheffer et al., Early-warning signals for critical transitions, Nature 461 (2009) 53-59",
+                     "Dakos et al., Methods for detecting early warnings of critical transitions in time series "
+                     "illustrated using simulated ecological data, PLoS ONE 7 (2012) e41010"]),
+    _m("S46", "Koopman operator from data: exact / TLS DMD, EDMD, generator EDMD, ResDMD residuals",
+       [DYN + "koopman.py"], ["dynamics.koopman", "EDMD("],
+       refs_in_code=["Williams, Kevrekidis & Rowley, A data-driven approximation of the Koopman operator, "
+                     "J. Nonlinear Sci. 25 (2015) 1307-1346",
+                     "Colbrook & Townsend, Rigorous data-driven computation of spectral properties of Koopman "
+                     "operators for dynamical systems, Comm. Pure Appl. Math. 77 (2024) 221-283",
+                     "Gavish & Donoho, The optimal hard threshold for singular values is 4/sqrt(3), IEEE Trans. "
+                     "Inf. Theory 60 (2014) 5040-5053"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],

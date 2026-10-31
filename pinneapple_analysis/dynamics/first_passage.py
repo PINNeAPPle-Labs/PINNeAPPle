@@ -14,7 +14,13 @@ Three ways to get the distribution of :math:`\tau`, one analyzer (:class:`FirstP
   :math:`\exp(-2 d_i d_{i+1} / (b^2 \Delta t))`), optional reflecting boundaries, and paths that never reach the
   boundary censored at the simulation horizon.
 
-Each returns a :class:`FirstPassageResult` (a :class:`~pinneapple_analysis.dynamics.DynamicsResult`) whose
+A fourth route needs no paths: the **Fokker-Planck survival** (:func:`survival_from_density`,
+:func:`survival_from_solution`). The density :math:`p(x, t)` of the process killed at an absorbing boundary solves the
+forward equation with :math:`p = 0` there, and :math:`S(t) = \int_\Omega p(x, t)\,dx`. Any solver of that PDE
+(``pp.solve`` with a PINN, a classical solver, a closed form) therefore gives the hitting-time distribution, which can
+be set against Monte Carlo or observed trajectories.
+
+Each of the first three returns a :class:`FirstPassageResult` (a :class:`~pinneapple_analysis.dynamics.DynamicsResult`) whose
 :class:`HittingTimeDistribution` gives the survival function :math:`S(t) = P(\tau > t)`
 (:class:`SurvivalFunction`), hitting probabilities :math:`P(\tau \le T)` with confidence intervals
 (:class:`CrossingProbability`), quantiles, prediction intervals for a new realisation, and the mean (or, when paths
@@ -63,7 +69,8 @@ __all__ = [
     "FirstPassageResult", "FirstPassageAnalyzer", "kaplan_meier", "wilson_interval",
     "brownian_first_passage_pdf", "brownian_first_passage_cdf", "brownian_first_passage_mean",
     "brownian_exit_probability", "brownian_exit_mean", "brownian_exit_survival", "ou_mean_first_passage",
-    "CARD_CROSSING", "CARD_EMPIRICAL", "CARD_MONTE_CARLO",
+    "survival_from_density", "survival_from_solution",
+    "CARD_CROSSING", "CARD_EMPIRICAL", "CARD_MONTE_CARLO", "CARD_FOKKER_PLANCK",
 ]
 
 Direction = Literal["up", "down", "either"]
@@ -987,3 +994,111 @@ def ou_mean_first_passage(x0: float, level: float, theta: float, mean: float = 0
     r = math.sqrt(theta) / sigma
     val, err = integrate.quad(lambda y: special.erfcx(-(y - mean) * r), x0, level, limit=200)
     return float(math.sqrt(math.pi) / (sigma * math.sqrt(theta)) * val)
+
+
+# =========================================================================== Fokker-Planck route
+_A_FP_ABSORB = Assumption("absorbing boundary in the PDE", "the density solves the forward (Fokker-Planck) equation "
+                          "of the process with p = 0 on the target boundary, so its mass is the survival probability")
+_A_FP_DOMAIN = Assumption("grid covers the domain", "the spatial grid spans the whole domain Omega (mass outside it "
+                          "is not counted)")
+
+CARD_FOKKER_PLANCK = MethodCard(
+    "first_passage.fokker_planck", "trajectory_operator",
+    inputs={"t": "times (increasing)", "x": "spatial grid over Omega (1-D, increasing)",
+            "density": "p(x, t) on the grid, shape (n_t, n_x), from any solver of the forward equation"},
+    assumptions=[_A_FP_ABSORB, _A_FP_DOMAIN],
+    config={"normalise": "divide by the mass at t[0] (off: the initial mass is reported as a diagnostic)"},
+    outputs={"S": "S(t) = integral of p over Omega (trapezoid rule)", "pdf": "f(t) = -dS/dt (central differences)",
+             "hazard": "f / S", "restricted_mean": "integral of S from t[0] to t[-1]",
+             "p_hit": "1 - S(t[-1])", "median": "first t with S <= 1/2 (linear interpolation), inf if never"},
+    failure_modes=["the solver's density error enters S directly: S is only as good as the PDE solution "
+                   "(check it with pp.trust_card)", "negative density or mass growing in time (reported)",
+                   "a coarse t grid smooths f and the hazard"],
+    references=["Gardiner, Stochastic Methods, 4th ed., sec. 5.2.7 (survival from the absorbing forward equation)",
+                "Redner, A Guide to First-Passage Processes (2001), ch. 1.2"])
+
+
+def survival_from_density(t, x, density, *, normalise: bool = False, level_tol: float = 1e-3) -> DynamicsResult:
+    """Hitting-time distribution from a Fokker-Planck density with an absorbing boundary (see the module docstring).
+
+    ``density[k, i]`` is :math:`p(x_i, t_k)`. The result's ``estimate`` holds ``t``, ``S``, ``pdf``, ``hazard``,
+    ``p_hit``, ``median`` and ``restricted_mean`` (the full mean is not identifiable past ``t[-1]`` unless
+    ``S(t[-1]) = 0``). Diagnostics: the initial mass (should be 1), the largest increase of ``S`` (should be 0) and
+    the most negative density, each against ``level_tol``."""
+    t0 = time.perf_counter()
+    t = np.asarray(t, dtype=np.float64)
+    x = np.asarray(x, dtype=np.float64)
+    p = np.asarray(density, dtype=np.float64)
+    if t.ndim != 1 or x.ndim != 1 or p.shape != (t.size, x.size):
+        raise ValueError(f"density must have shape (len(t), len(x)) = ({t.size}, {x.size}), got {p.shape}")
+    if t.size < 3 or np.any(np.diff(t) <= 0) or np.any(np.diff(x) <= 0):
+        raise ValueError("t (at least 3 values) and x must be strictly increasing")
+    if not np.all(np.isfinite(p)):
+        raise ValueError("density has non-finite values")
+    S = integrate.trapezoid(p, x, axis=1)
+    m0 = float(S[0])
+    if normalise:
+        if m0 <= 0:
+            raise ValueError("initial mass is not positive: cannot normalise")
+        S = S / m0
+    pdf = -np.gradient(S, t, edge_order=2)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        hazard = np.where(S > 0, pdf / S, np.nan)
+    below = np.flatnonzero(S <= 0.5)
+    if below.size == 0:
+        median = math.inf
+    elif below[0] == 0:
+        median = float(t[0])
+    else:
+        k = below[0]
+        median = float(t[k - 1] + (S[k - 1] - 0.5) * (t[k] - t[k - 1]) / (S[k - 1] - S[k]))
+    rmean = float(integrate.trapezoid(S, t))
+    rise = float(np.max(np.diff(S))) if S.size > 1 else 0.0
+    neg = float(min(0.0, p.min()))
+    scale = max(float(np.max(np.abs(p))), 1e-300)
+    diags = [Diagnostic("initial_mass", m0, "ok" if abs(m0 - 1) <= level_tol or normalise else "warn",
+                        "the density at t[0] should integrate to 1" + (" (normalised)" if normalise else ""),
+                        threshold=level_tol),
+             Diagnostic("max_increase_of_S", rise, "ok" if rise <= level_tol else "warn",
+                        "S must not increase with absorbing boundaries: solver error or mass entering", level_tol),
+             Diagnostic("most_negative_density_rel", neg / scale, "ok" if -neg / scale <= level_tol else "warn",
+                        "a density must be >= 0", level_tol),
+             Diagnostic("S_at_end", float(S[-1]), "info" if S[-1] > 1e-6 else "ok",
+                        "mass left at t[-1]: the mean reported is the restricted mean" if S[-1] > 1e-6 else "")]
+    est = {"t": t, "S": S, "pdf": pdf, "hazard": hazard, "p_hit": float(1.0 - S[-1]), "median": median,
+           "restricted_mean": rmean, "horizon": float(t[-1]),
+           "mean_kind": "restricted" if S[-1] > 1e-6 else "full (S(t[-1]) ~ 0)"}
+    cfg = {"normalise": normalise, "n_t": int(t.size), "n_x": int(x.size), "level_tol": level_tol}
+    rep = reproducibility(CARD_FOKKER_PLANCK.name, cfg, [t, x, p], wall_time_s=time.perf_counter() - t0)
+    assumptions = [_A_FP_ABSORB, Assumption(_A_FP_DOMAIN.name, _A_FP_DOMAIN.statement, None,
+                                            f"grid [{x[0]:g}, {x[-1]:g}]")]
+    return DynamicsResult(CARD_FOKKER_PLANCK.name, est, {}, assumptions, cfg, diags,
+                          {"quadrature": "trapezoid in x and t", "pdf": "central differences"},
+                          limits=["S inherits the error of the density; nothing here estimates it"],
+                          reproducibility=rep)
+
+
+def survival_from_solution(solution: Any, x, t, *, space_coord: str = "x", time_coord: str = "t",
+                           component: str | int = 0, normalise: bool = False,
+                           level_tol: float = 1e-3) -> DynamicsResult:
+    """:func:`survival_from_density` on a ``pp.solve`` result: ``solution.predict`` on the grid ``x`` by ``t``.
+
+    ``solution`` needs ``problem.coords`` (exactly ``space_coord`` and ``time_coord``), ``problem.fields`` and
+    ``predict(points)``. The solution's provenance (method, wall time) is copied into ``details["solution"]``."""
+    coords = tuple(solution.problem.coords)
+    if set(coords) != {space_coord, time_coord} or len(coords) != 2:
+        raise ValueError(f"the solution has coordinates {coords}; expected ({space_coord!r}, {time_coord!r}) "
+                         "(1-D in space)")
+    fields = list(solution.problem.fields)
+    j = fields.index(component) if isinstance(component, str) else int(component)
+    x = np.asarray(x, dtype=np.float64)
+    t = np.asarray(t, dtype=np.float64)
+    T, X = np.meshgrid(t, x, indexing="ij")
+    cols = {space_coord: X.ravel(), time_coord: T.ravel()}
+    pts = np.column_stack([cols[c] for c in coords]).astype(np.float32)
+    p = np.asarray(solution.predict(pts), dtype=np.float64).reshape(t.size * x.size, -1)[:, j].reshape(T.shape)
+    res = survival_from_density(t, x, p, normalise=normalise, level_tol=level_tol)
+    meta = solution.metadata() if callable(getattr(solution, "metadata", None)) else {}
+    res.details["solution"] = {k: meta.get(k) for k in ("problem", "method", "kind", "wall_time_s", "fingerprint")}
+    res.details["field"] = fields[j]
+    return res

@@ -680,12 +680,12 @@
   "seconds": 6.13
  },
  "pinneapple_design.geometry.mesh.generate:generate_mesh": {
-  "code_hash": "16b420059e7c77a6",
+  "code_hash": "c9900087095c289d",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "dict",
-  "seconds": 4.86
+  "seconds": 5.41
  },
  "pinneapple_design.geometry.mesh.mesher_2d:mesh_rectangle_structured": {
   "code_hash": "b7d0bc7848eea8a2",

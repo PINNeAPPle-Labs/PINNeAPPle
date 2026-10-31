@@ -299,7 +299,7 @@
   },
   {
    "name": "cfd_cpu_hours",
-   "value": 35.94793888632445,
+   "value": 44.039542565240005,
    "unit": "h",
    "how": "sum over CFD purposes of wall time x MPI processes"
   }
@@ -361,9 +361,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "d120bd4e",
-  "created": "2026-10-30T19:44:07Z",
-  "seconds": 0.522,
+  "git": "a5e44479",
+  "created": "2026-10-31T02:18:04Z",
+  "seconds": 1.933,
   "error": null,
   "environment": {
    "python": "3.13.17",

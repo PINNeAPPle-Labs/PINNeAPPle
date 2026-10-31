@@ -272,7 +272,7 @@
   },
   {
    "name": "cfd_cpu_hours",
-   "value": 35.94793888632445,
+   "value": 44.039542565240005,
    "unit": "h",
    "how": "sum over CFD purposes of wall time x MPI processes"
   }

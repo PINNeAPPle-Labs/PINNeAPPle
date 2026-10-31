@@ -22,6 +22,20 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- Biology-informed line (`docs/guides/bio_informed.md`). `pinneapple_physics.biology`: `ODESystem` (symbolic ODEs:
+  simulate with the analytic Jacobian and restarts at input jumps, forward sensitivities, PyTorch right-hand side and
+  `reaction_kinetics_network` problem for the PINN compiler, `ForwardModel`, SBML L3V2 export), `read_sbml` (SBML L2 /
+  L3 core without libsbml; events, algebraic rules, delays refused), six shipped CC0 BioModels entries checked against
+  libRoadRunner (max relative error 5e-6), models `ultradian_glucose_insulin`, `pk_one_compartment_mm` (Michaelis-
+  Menten, effect compartment, sigmoid Emax), `minimal_pbpk`, `excitable` (FitzHugh-Nagumo 1-D, Aliev-Panfilov 2-D,
+  activation times, conduction velocity), `cell_migration` (scratch-assay data with a restricted unpickler, the
+  Lagergren et al. forward solver, GLS error, FKPP / Porous-FKPP / delay models and their fits).
+  `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` (exact sensitivities for identifiability and
+  calibration), `sbinn.SBINN` (systems-biology informed networks, checkpoint / resume), `binn.ReactionDiffusionBINN`
+  (BINNs as a `NeuralTermDiscovery` with state-dependent terms), `activation_mapping.EikonalPINN`.
+  `pinneapple_simulation.hemodynamics`: three-element `Windkessel`, `split_rcr`, `aorta.setup_case` / `CoupledRun`
+  (the library aorta in OpenFOAM pimpleFoam with Windkessel outlets coupled window by window). Examples
+  `examples/biology`, reproductions `examples/reproductions/{binns_lagergren2020,sbinn_daneker2022}`.
 - `pinneapple_simulation.numerical_solvers.xtfc_inverse`: X-TFC for data-driven parameter discovery
   (`solve_xtfc_inverse`). It fits the fields and the unknown parameters of an ODE system together, by Gauss-Newton
   on the stacked data and residual losses (Schiassi et al., arXiv:2008.05554). The initial values hold exactly.
@@ -216,6 +230,11 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
 - `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
   `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
   (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that

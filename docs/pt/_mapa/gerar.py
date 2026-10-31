@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -25,7 +26,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 OUT_MAIN = ROOT / "docs" / "pt" / "mapa_completo.md"
 OUT_DIR = ROOT / "docs" / "pt" / "mapa_completo"
-EXCLUDE_RE = re.compile(r"vectron|shinagawa|\bCSN\b", re.I)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from exclusao import padrao  # noqa: E402
+
+EXCLUDE_RE = padrao()        # nomes que não podem aparecer: fora do repositório (ver exclusao.py)
 
 VOLUMES = [
     ("v01_nucleo", "Volume 1 — Núcleo, porta de entrada e catálogo",

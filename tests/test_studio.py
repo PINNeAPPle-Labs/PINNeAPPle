@@ -430,6 +430,47 @@ def test_outputs_known_answers():
         [{"name": "q", "type": "", "unit": "W", "description": ""}], "declared")
 
 
+def test_grouped_numpy_names_share_type_unit_and_description():
+    from pinneapple_studio.outputs import from_docstring
+    doc = "Attributes\n----------\nsigma_u, sigma_w : float [m/s]\n    RMS gusts.\nmodel : str\n    form\n"
+    assert from_docstring(doc, "attributes") == [
+        {"name": "sigma_u", "type": "float", "unit": "m/s", "description": "RMS gusts."},
+        {"name": "sigma_w", "type": "float", "unit": "m/s", "description": "RMS gusts."},
+        {"name": "model", "type": "str", "unit": "", "description": "form"}]
+    assert from_docstring("Returns\n-------\nf(x, y) : float\n")[0]["name"] == "f(x, y)"   # not a list of names
+
+
+# units written in the code of the tools the gallery's examples use (docstring Returns / Attributes), read back
+UNITS = {
+    "pinneapple_simulation.electromagnetics.machines.drive:wltc_class3b": [("t", "s"), ("v", "m/s")],
+    "pinneapple_simulation.electromagnetics.machines.drive:prius_phase_resistance": [("R", "ohm"), ("info", "")],
+    "pinneapple_simulation.electromagnetics.machines.robustness:skewed_torque": [("T", "N m")],
+    "pinneapple_simulation.electromagnetics.machines.thermal:intrinsic_coercivity": [("Hcj", "A/m")],
+    "pinneapple_simulation.electromagnetics.postprocess:back_emf": [("e", "V")],
+    "pinneapple_simulation.numerical_solvers.lbm_tunnel:drag_sphere_schiller_naumann": [("Cd", "-")],
+    "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem:cantilever_frequency_roots": [("beta_L", "-")],
+    "pinneapple_simulation.numerical_solvers.plane_stress_fem:heywood_kt_net": [("Kt", "-")],
+}
+
+
+def _doc_of(tool_id: str, cls: bool = False) -> str:
+    """The docstring of a library symbol, read from its source (no import, so no optional dependency)."""
+    import ast
+    module, _, name = tool_id.partition(":")
+    tree = ast.parse((ROOT / (module.replace(".", "/") + ".py")).read_text(encoding="utf-8"))
+    kind = ast.ClassDef if cls else (ast.FunctionDef, ast.AsyncFunctionDef)
+    return next(ast.get_docstring(n) for n in tree.body if isinstance(n, kind) and n.name == name)
+
+
+def test_declared_output_units_are_read_from_the_code():
+    from pinneapple_studio.outputs import from_docstring
+    for tid, want in UNITS.items():
+        assert [(o["name"], o["unit"]) for o in from_docstring(_doc_of(tid))] == want, tid
+    spec = {o["name"]: o["unit"] for o in from_docstring(
+        _doc_of("pinneapple_simulation.flight.turbulence:TurbulenceSpec", cls=True), "attributes")}
+    assert spec["sigma_u"] == spec["sigma_w"] == "m/s" and spec["L_u"] == "m" and spec["model"] == ""
+
+
 def test_every_tool_has_outputs_and_their_source(cat):
     from pinneapple_studio.outputs import SOURCES
     assert all(t["outputs_source"] in SOURCES and isinstance(t["outputs"], list) for t in cat["tools"].values())

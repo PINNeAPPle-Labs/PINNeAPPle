@@ -38,7 +38,12 @@ NDFEB_HCJ_MIN_KAM = {k: v * 1e3 / (4 * math.pi) for k, v in
 
 def intrinsic_coercivity(Hcj20: float, temperature: float, beta: float = -0.0055) -> float:
     """``Hcj(T) = Hcj20 (1 + beta (T - 20))`` (A/m); ``beta`` is the reversible temperature coefficient of Hcj
-    (typically -0.5 to -0.6 %/K for sintered NdFeB; take the grade's datasheet value)."""
+    (typically -0.5 to -0.6 %/K for sintered NdFeB; take the grade's datasheet value).
+
+    Returns
+    -------
+    Hcj : float [A/m]
+        Intrinsic coercivity at ``temperature`` (degC), for ``Hcj20`` in A/m."""
     return Hcj20 * (1.0 + beta * (temperature - 20.0))
 
 

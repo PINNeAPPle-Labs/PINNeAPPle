@@ -346,12 +346,12 @@
   "seconds": 0.03
  },
  "pinneapple_simulation.electromagnetics.machines.drive:prius_phase_resistance": {
-  "code_hash": "37e99fc9d9fd17de",
+  "code_hash": "ba7a8d9a66ef772a",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
-  "seconds": 0.01
+  "seconds": 5.02
  },
  "pinneapple_simulation.electromagnetics.machines.drive:v_max_svpwm": {
   "code_hash": "d1581a7a87e296f4",
@@ -364,12 +364,12 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.machines.drive:wltc_class3b": {
-  "code_hash": "0e1531b899ff6939",
+  "code_hash": "4f08f188ccf953a8",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
-  "seconds": 0.0
+  "seconds": 4.66
  },
  "pinneapple_simulation.electromagnetics.machines.geometry:prius_2004": {
   "code_hash": "1f24d7ed7b59d870",
@@ -407,7 +407,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.machines.thermal:intrinsic_coercivity": {
-  "code_hash": "38f637743149dbba",
+  "code_hash": "f53b2843c9ac041d",
   "inputs": {
    "Hcj20": 1600000.0,
    "beta": -0.0055,
@@ -416,7 +416,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 0.0
+  "seconds": 4.89
  },
  "pinneapple_simulation.electromagnetics.machines.verification:prius_torque_curve": {
   "code_hash": "3bd2755a7e1474b7",
@@ -2141,14 +2141,14 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem:cantilever_frequency_roots": {
-  "code_hash": "94c15c4cab336d94",
+  "code_hash": "dffca6f33a966325",
   "inputs": {
    "n": 1
   },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ndarray",
-  "seconds": 0.0
+  "seconds": 4.56
  },
  "pinneapple_simulation.numerical_solvers.openfoam_bridge:OpenFOAMBridge": {
   "code_hash": "03cf80d97ae896f9",

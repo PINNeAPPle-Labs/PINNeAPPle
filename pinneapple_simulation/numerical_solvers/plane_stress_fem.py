@@ -23,7 +23,12 @@ __all__ = ["solve_plane_stress", "PlaneStressSolution", "boundary_edges", "patch
 
 
 def heywood_kt_net(d_over_w: float) -> float:
-    """Net-section stress concentration of a central hole in a strip under tension, ``2 + (1 - d/W)^3``."""
+    """Net-section stress concentration of a central hole in a strip under tension, ``2 + (1 - d/W)^3``.
+
+    Returns
+    -------
+    Kt : float [-]
+        Stress concentration factor on the net section."""
     return 2.0 + (1.0 - float(d_over_w)) ** 3
 
 

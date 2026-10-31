@@ -7,6 +7,7 @@ from .inverse import InversePINN
 from .pielm import PIELM
 from .pinn_lstm import PINNLSTM
 from .pinnsformer import PINNsFormer
+from .pinnsformer_paper import PINNsFormerPaper, WaveAct
 from .vpinn import VPINN
 from .xpinn import XPINN, SubnetWrapper
 from .xtfc import XTFC, XTFCConfig, build_xtfc, tfc_available
@@ -30,6 +31,8 @@ __all__ = [
     "PIELM",
     "PINNLSTM",
     "PINNsFormer",
+    "PINNsFormerPaper",
+    "WaveAct",
     "VPINN",
     "XPINN",
     "SubnetWrapper",

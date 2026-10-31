@@ -1,0 +1,42 @@
+{
+ "example:condensation_falsification": {
+  "error": "",
+  "hash": "8a6db350f39d69ad",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/condensation_falsification/run.py"
+  ],
+  "seconds": 3.2,
+  "writes_files": [
+   "examples/condensation_falsification/experiment.json",
+   "examples/condensation_falsification/figures/cfd_reduction.png",
+   "examples/condensation_falsification/figures/e1_exceptions.png",
+   "examples/condensation_falsification/figures/meshless_convergence.png",
+   "examples/condensation_falsification/figures/t1_far_field.png"
+  ]
+ },
+ "example:core_primitives": {
+  "error": "",
+  "hash": "8d1411fe9df3fa34",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/core_primitives/01_poisson_pinn.py",
+   "examples/core_primitives/02_operator_poisson_1d.py"
+  ],
+  "seconds": 52.1,
+  "writes_files": []
+ },
+ "example:data_api": {
+  "error": "",
+  "hash": "f06739bf40c1da24",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "scripts": [
+   "examples/data_api/01_pinn_operator_inverse.py"
+  ],
+  "seconds": 16.1,
+  "writes_files": []
+ }
+}

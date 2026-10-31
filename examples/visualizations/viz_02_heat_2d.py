@@ -129,7 +129,7 @@ def visualize(net: nn.Module) -> None:
     fig.patch.set_facecolor("#0d1117")
 
     vmin, vmax = 0.0, 1.0
-    cmap = plt.cm.get_cmap("RdYlBu_r")
+    cmap = plt.colormaps["RdYlBu_r"]
 
     for row, (label, fn) in enumerate([("Exact", None), ("PINN", net)]):
         for col, tval in enumerate(t_slices):

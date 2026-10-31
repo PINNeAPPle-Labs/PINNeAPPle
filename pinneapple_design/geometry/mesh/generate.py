@@ -79,6 +79,8 @@ X_OUTPUTS = {
         {"name": "files", "type": "dict", "unit": "",
          "description": "paths of mesh.msh, mesh.vtu, quality.glb and quality.json (empty without out_dir)"},
         {"name": "backend", "type": "str", "unit": "", "description": "how the mesh was made"}],
+    "estimate_elements": [
+        {"name": "n", "type": "float", "unit": "-", "description": "elements gmsh will make (upper estimate)"}],
 }
 
 

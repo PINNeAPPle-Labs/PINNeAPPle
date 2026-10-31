@@ -1186,6 +1186,17 @@
   },
   "source": "examples/end_to_end/02_mesh_to_train_points.py:23"
  },
+ "pinneapple_design.geometry.mesh.generate:estimate_elements": {
+  "inputs": {
+   "boundary": 6.0,
+   "boundary_layer": null,
+   "dim": 3,
+   "h": 0.1,
+   "measure": 1.0,
+   "refine": []
+  },
+  "source": "tests/test_mesh_generation.py"
+ },
  "pinneapple_design.geometry.vehicle_cad:mli_blanket": {
   "inputs": {
    "height": 0.5,

@@ -117,6 +117,7 @@
     * [Physics Validation Lab (day 24)](apps/validation_lab.md)
     * [Forecasting near-random series without overfitting](guides/near_random_forecasting.md)
     * [Football: where physics helps on public tracking data](guides/football_physics.md)
+    * [Derivative trees across physics (pp.potential)](guides/derivative_trees.md)
     * [Uncertainty and sensitivity studies on any model](guides/uncertainty_and_sensitivity.md)
     * [Engineering Sensitivity Lab](guides/sensitivity_lab.md)
     * [Engineering Uncertainty Lab](guides/uncertainty_lab.md)

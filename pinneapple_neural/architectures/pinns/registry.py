@@ -10,6 +10,7 @@ from .inverse import InversePINN
 from .pielm import PIELM
 from .pinn_lstm import PINNLSTM
 from .pinnsformer import PINNsFormer
+from .pinnsformer_paper import PINNsFormerPaper
 from .vpinn import VPINN
 from .xpinn import XPINN
 from .xtfc import XTFC
@@ -30,6 +31,8 @@ _REGISTRY: Dict[str, Type[PINNBase]] = {
 
     "pinnsformer": PINNsFormer,
     "pinn_former": PINNsFormer,
+    "pinnsformer_paper": PINNsFormerPaper,
+    "pinnsformer_zhao": PINNsFormerPaper,
 
     "vpinn": VPINN,
     "variational_pinn": VPINN,
@@ -47,11 +50,16 @@ def register_into_global() -> None:
         # PINNLSTM.forward(*inputs) requires exactly in_dim separate 1-column
         # tensors and internally reshapes to (B, seq_len, in_dim) — a real
         # sequence model wearing a PINN name, unlike every other class here
-        # (VanillaPINN/InversePINN/PIELM/PINNsFormer/VPINN/XTFC all accept a
+        # (VanillaPINN/InversePINN/PIELM/PINNsFormerPaper/VPINN/XTFC all accept a
         # single (N, in_dim) tensor via forward(x, ...) or forward(*inputs)
         # with inputs=(x,)).
         if cls is PINNLSTM:
             return {"input_kind": "sequence", "expects": ["x_past"], "predicts": ["u"]}
+        # PINNsFormer splits a flat (N, in_dim) batch into chunks of seq_len points and attends across each chunk,
+        # so u at a point depends on the other points of its chunk: not pointwise. The paper's model, where the
+        # sequence is one point and its time-shifted copies, is PINNsFormerPaper (pointwise).
+        if cls is PINNsFormer:
+            return {"input_kind": "sequence", "expects": ["x"], "predicts": ["u"]}
         return {"input_kind": "pointwise_coords", "expects": ["x"], "predicts": ["u"]}
 
     register_family_registry(_REGISTRY, family="pinns", capabilities_getter=capabilities)

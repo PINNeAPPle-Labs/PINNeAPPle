@@ -57,7 +57,14 @@ def copper_resistance(series_turns: float, conductor_area: float, stack_length: 
 def prius_phase_resistance(temperature: float = 100.0) -> tuple[float, dict]:
     """Phase resistance of the 2004 Prius motor from the winding data of pyleecan's ``Toyota_Prius.json``: 72 series
     turns, 13 strands of 0.912 mm per conductor, 83.82 mm stack. The end-turn length per side is an estimate: a
-    half circle over the coil pitch (6 slots at the mid-slot radius) plus twice the axial overhang (19.4 mm)."""
+    half circle over the coil pitch (6 slots at the mid-slot radius) plus twice the axial overhang (19.4 mm).
+
+    Returns
+    -------
+    R : float [ohm]
+        Phase resistance at ``temperature`` (degC).
+    info : dict
+        The winding data used, each key with its unit in the name."""
     from .geometry import prius_2004
 
     g = prius_2004()
@@ -395,7 +402,14 @@ class Drive:
 
 # --------------------------------------------------------------------------------------------- vehicle and cycle
 def wltc_class3b() -> tuple[np.ndarray, np.ndarray]:
-    """WLTC class 3b: time (s) and vehicle speed (m/s), 1 Hz, 0..1800 s (UN GTR No. 15, Annex 1)."""
+    """WLTC class 3b: time (s) and vehicle speed (m/s), 1 Hz, 0..1800 s (UN GTR No. 15, Annex 1).
+
+    Returns
+    -------
+    t : np.ndarray [s]
+        Time.
+    v : np.ndarray [m/s]
+        Vehicle speed."""
     v = np.loadtxt(Path(__file__).parent / "data" / "wltc_class3b.csv")
     return np.arange(len(v), dtype=float), v / 3.6
 

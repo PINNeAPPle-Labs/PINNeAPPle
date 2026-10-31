@@ -1101,10 +1101,16 @@ every 1.875 deg (3.75 deg on the coarse grid):
   flux linkage by 2 to 3 %, for both topologies.
 * **The difference is the fringing at the inner and outer radius, not radial flux inside the annulus**: one slice
   and five slices agree within 0.3 % in cogging and 0.1 % in linkage.
-* **Discretisation.** The cogging itself moves by 13 % (single) and 6 % (double rotor) between the two grids, but
-  the quasi-3D error moves by 1.2 and 1.7 points, so the comparison holds to about that on the fine grid. A coil whose end turns
-  run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 % (double rotor) more than one on the
-  annulus edges (1.055 and 1.073 mWb).
+* **Discretisation.** The two grids do not carry the same magnet: a cell is magnet when its centre is
+  (`AFPM3D(edges="cell")`, the default), so the 80 % arc is 20 of 24 steps per pole (83.3 %) on the coarse grid and
+  38 of 48 (79.2 %) on the fine one. The cogging of the two rows above therefore differs by more than the grid: at
+  the same magnet (an 83.3 % arc, whole cells on both grids) quasi-3D gives 11.67 N m on the coarse grid and
+  13.91 N m on the fine one (single-sided, one slice), so the coarse grid is 16 % low. The quasi-3D error moves
+  by 1.2 and 1.7 points between the rows, so the comparison of quasi-3D with 3-D holds to about that.
+  `edges="fraction"` gives the edge cells their share of magnet and of tooth iron, so the arc and the slot opening
+  are the ones asked for on any grid (the Axial-Flux Motor Designer uses it).
+* **End turns.** A coil whose end turns run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 %
+  (double rotor) more than one on the annulus edges (1.055 and 1.073 mWb).
 
 Limits: linear iron, no-load only (no winding currents), open slots on one geometry; two grids, the finer one at
 the memory of this machine.

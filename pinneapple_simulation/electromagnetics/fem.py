@@ -88,7 +88,13 @@ class Geometry:
 
 
 def flux_density(mesh: Mesh2D, A: np.ndarray) -> np.ndarray:
-    """B per element (T) from nodal A_z (Wb/m)."""
+    """B per element (T) from nodal A_z (Wb/m).
+
+    Returns
+    -------
+    B : np.ndarray [T]
+        Flux density per element.
+    """
     return Geometry.of(mesh).curl(A, mesh.tris)
 
 
@@ -135,6 +141,21 @@ def constraint_map(n: int, dirichlet: np.ndarray | None = None, dirichlet_values
 
 @dataclass
 class MagnetostaticSolution:
+    """A 2-D A_z magnetostatic solution (per unit depth).
+
+    Attributes
+    ----------
+    A : np.ndarray [Wb/m]
+        Nodal vector potential A_z.
+    B : np.ndarray [T]
+        Flux density per element.
+    nu : np.ndarray [m/H]
+        Secant reluctivity per element.
+    energy_functional : float [J/m]
+        Pi at the solution.
+    iterations : int [-]
+    residual : float [-]
+    """
     A: np.ndarray
     B: np.ndarray
     nu: np.ndarray  # secant reluctivity per element at the solution

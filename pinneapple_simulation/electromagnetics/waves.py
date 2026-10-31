@@ -36,6 +36,13 @@ __all__ = [
 
 
 def free_space_wavelength(f: float) -> float:
+    """Free-space wavelength ``c / f``.
+
+    Returns
+    -------
+    wavelength : float [m]
+        For ``f`` in Hz.
+    """
     return C0 / f
 
 
@@ -65,12 +72,24 @@ def fresnel(n1, n2, theta_i):
 
 
 def brewster_angle(n1: float, n2: float) -> float:
-    """``atan(n2 / n1)``: p-polarised reflection vanishes."""
+    """``atan(n2 / n1)``: p-polarised reflection vanishes.
+
+    Returns
+    -------
+    theta_B : float [rad]
+        Brewster angle.
+    """
     return math.atan2(n2, n1)
 
 
 def critical_angle(n1: float, n2: float) -> float:
-    """``asin(n2 / n1)`` for ``n1 > n2`` (total internal reflection above it)."""
+    """``asin(n2 / n1)`` for ``n1 > n2`` (total internal reflection above it).
+
+    Returns
+    -------
+    theta_c : float [rad]
+        Critical angle.
+    """
     if n2 >= n1:
         raise ValueError("no critical angle for n2 >= n1")
     return math.asin(n2 / n1)
@@ -144,7 +163,13 @@ def surface_impedance(omega, sigma: float, mu_r: float = 1.0):
 # ------------------------------------------------------------------------------------------ waveguides
 def rect_waveguide_cutoff(m: int, n: int, a: float, b: float, eps_r: float = 1.0, mu_r: float = 1.0) -> float:
     """Cut-off frequency (Hz) of the TE_mn / TM_mn mode of an ``a x b`` rectangular guide:
-    ``f_c = c / (2 pi sqrt(eps_r mu_r)) sqrt((m pi / a)^2 + (n pi / b)^2)``."""
+    ``f_c = c / (2 pi sqrt(eps_r mu_r)) sqrt((m pi / a)^2 + (n pi / b)^2)``.
+
+    Returns
+    -------
+    f_c : float [Hz]
+        Cut-off frequency, for ``a`` and ``b`` in m.
+    """
     kc = math.hypot(m * math.pi / a, n * math.pi / b)
     return C0 * kc / (2.0 * math.pi * math.sqrt(eps_r * mu_r))
 
@@ -176,7 +201,13 @@ def rect_te_mn_fields(x, y, m: int, n: int, a: float, b: float):
 
 
 def circular_waveguide_cutoff(kind: str, m: int, n: int, radius: float, eps_r: float = 1.0) -> float:
-    """Cut-off (Hz) of TE_mn (``n``-th zero of ``J_m'``) or TM_mn (``n``-th zero of ``J_m``) of a circular guide."""
+    """Cut-off (Hz) of TE_mn (``n``-th zero of ``J_m'``) or TM_mn (``n``-th zero of ``J_m``) of a circular guide.
+
+    Returns
+    -------
+    f_c : float [Hz]
+        Cut-off frequency, for the radius in m.
+    """
     from scipy.special import jn_zeros, jnp_zeros
 
     if kind.upper() == "TE":
@@ -208,7 +239,13 @@ def propagation_constant(f, f_cutoff: float, eps_r: float = 1.0, mu_r: float = 1
 def rect_cavity_resonance(m: int, n: int, p: int, a: float, b: float, d: float, eps_r: float = 1.0,
                           mu_r: float = 1.0) -> float:
     """Resonance (Hz) of mode (m, n, p) of an ``a x b x d`` PEC box:
-    ``f = c / (2 sqrt(eps_r mu_r)) sqrt((m/a)^2 + (n/b)^2 + (p/d)^2)``."""
+    ``f = c / (2 sqrt(eps_r mu_r)) sqrt((m/a)^2 + (n/b)^2 + (p/d)^2)``.
+
+    Returns
+    -------
+    f : float [Hz]
+        Resonance, for dimensions in m.
+    """
     return C0 / (2.0 * math.sqrt(eps_r * mu_r)) * math.sqrt((m / a) ** 2 + (n / b) ** 2 + (p / d) ** 2)
 
 
@@ -233,7 +270,13 @@ def rect_cavity_modes(a: float, b: float, d: float, n_modes: int = 10, eps_r: fl
 
 def cylindrical_cavity_resonance(kind: str, m: int, n: int, p: int, radius: float, length: float,
                                  eps_r: float = 1.0) -> float:
-    """TE_mnp (``p >= 1``) or TM_mnp (``p >= 0``) resonance of a closed circular cylinder (Pozar sec. 6.4)."""
+    """TE_mnp (``p >= 1``) or TM_mnp (``p >= 0``) resonance of a closed circular cylinder (Pozar sec. 6.4).
+
+    Returns
+    -------
+    f : float [Hz]
+        Resonance, for radius and length in m.
+    """
     from scipy.special import jn_zeros, jnp_zeros
 
     x = (jnp_zeros(m, n) if kind.upper() == "TE" else jn_zeros(m, n))[-1]

@@ -75,7 +75,13 @@ def to_arrays(table: ResultTable, names: Sequence[str], freqs: Sequence[float], 
 
 
 def worst_case(Y: np.ndarray) -> np.ndarray:
-    """Worst active reflection (dB) over the band and the scan range, per cell."""
+    """Worst active reflection (dB) over the band and the scan range, per cell.
+
+    Returns
+    -------
+    worst : np.ndarray [dB]
+        Worst active reflection per cell.
+    """
     return np.asarray(Y).reshape(len(Y), -1).max(1)
 
 

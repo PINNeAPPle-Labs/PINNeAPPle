@@ -26,22 +26,46 @@ __all__ = [
 
 
 def parallel_plate_capacitance(area: float, gap: float, eps_r: float = 1.0) -> float:
-    """``C = eps A / d`` (fringing neglected), F."""
+    """``C = eps A / d`` (fringing neglected), F.
+
+    Returns
+    -------
+    C : float [F]
+        Capacitance, for SI inputs.
+    """
     return eps_r * EPS0 * area / gap
 
 
 def coax_capacitance(a: float, b: float, eps_r: float = 1.0) -> float:
-    """Per-unit-length capacitance of a coaxial line, ``2 pi eps / ln(b/a)`` (F/m)."""
+    """Per-unit-length capacitance of a coaxial line, ``2 pi eps / ln(b/a)`` (F/m).
+
+    Returns
+    -------
+    C : float [F/m]
+        Capacitance per unit length.
+    """
     return 2.0 * math.pi * eps_r * EPS0 / math.log(b / a)
 
 
 def coax_inductance(a: float, b: float, mu_r: float = 1.0) -> float:
-    """External per-unit-length inductance of a coaxial line, ``mu ln(b/a) / (2 pi)`` (H/m)."""
+    """External per-unit-length inductance of a coaxial line, ``mu ln(b/a) / (2 pi)`` (H/m).
+
+    Returns
+    -------
+    L : float [H/m]
+        External inductance per unit length.
+    """
     return mu_r * MU0 * math.log(b / a) / (2.0 * math.pi)
 
 
 def spherical_capacitance(a: float, b: float = math.inf, eps_r: float = 1.0) -> float:
-    """Concentric spheres ``4 pi eps a b / (b - a)``; isolated sphere ``4 pi eps a`` for ``b = inf``."""
+    """Concentric spheres ``4 pi eps a b / (b - a)``; isolated sphere ``4 pi eps a`` for ``b = inf``.
+
+    Returns
+    -------
+    C : float [F]
+        Capacitance, for radii in m.
+    """
     if math.isinf(b):
         return 4.0 * math.pi * eps_r * EPS0 * a
     return 4.0 * math.pi * eps_r * EPS0 * a * b / (b - a)
@@ -215,13 +239,25 @@ def finite_solenoid_on_axis_B(z, radius: float, length: float, n_turns: float, c
 
 
 def helmholtz_coil_center_B(radius: float, current: float, turns: int = 1) -> float:
-    """Field at the centre of a Helmholtz pair (spacing = radius): ``(4/5)^{3/2} mu0 n I / R``."""
+    """Field at the centre of a Helmholtz pair (spacing = radius): ``(4/5)^{3/2} mu0 n I / R``.
+
+    Returns
+    -------
+    B : float [T]
+        Field at the centre, for ``I`` in A and ``R`` in m.
+    """
     return (0.8 ** 1.5) * MU0 * turns * current / radius
 
 
 def mutual_inductance_coaxial_loops(r1: float, r2: float, d: float) -> float:
     """Maxwell's formula for two coaxial circular filaments at axial distance ``d``:
-    ``M = mu0 sqrt(r1 r2) [(2/k - k) K(k^2) - (2/k) E(k^2)]``, ``k^2 = 4 r1 r2 / ((r1 + r2)^2 + d^2)``."""
+    ``M = mu0 sqrt(r1 r2) [(2/k - k) K(k^2) - (2/k) E(k^2)]``, ``k^2 = 4 r1 r2 / ((r1 + r2)^2 + d^2)``.
+
+    Returns
+    -------
+    M : float [H]
+        Mutual inductance, for lengths in m.
+    """
     from scipy.special import ellipe, ellipk
 
     m = 4.0 * r1 * r2 / ((r1 + r2) ** 2 + d ** 2)
@@ -232,7 +268,13 @@ def mutual_inductance_coaxial_loops(r1: float, r2: float, d: float) -> float:
 def loop_self_inductance(R: float, a: float, internal: bool = True) -> float:
     """Thin round wire loop (loop radius ``R`` >> wire radius ``a``): ``mu0 R (ln(8R/a) - 2 + Y)`` with
     ``Y = 1/4`` for uniform current (low frequency, ``internal=True``) and 0 at high frequency (Rosa & Grover,
-    *Formulas and tables for the calculation of mutual and self-inductance*, Bull. Bureau of Standards 8, 1912)."""
+    *Formulas and tables for the calculation of mutual and self-inductance*, Bull. Bureau of Standards 8, 1912).
+
+    Returns
+    -------
+    L : float [H]
+        Self inductance, for lengths in m.
+    """
     return MU0 * R * (math.log(8.0 * R / a) - 2.0 + (0.25 if internal else 0.0))
 
 

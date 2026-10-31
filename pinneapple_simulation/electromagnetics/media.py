@@ -151,7 +151,13 @@ def is_passive(medium: Medium, omegas: Sequence[float], tol: float = 1e-12) -> b
 
 
 def rotation(axis: Sequence[float], angle: float) -> np.ndarray:
-    """Rotation matrix about ``axis`` by ``angle`` (rad), Rodrigues' formula."""
+    """Rotation matrix about ``axis`` by ``angle`` (rad), Rodrigues' formula.
+
+    Returns
+    -------
+    R : np.ndarray [-]
+        3 x 3 rotation matrix.
+    """
     a = np.asarray(axis, float)
     a = a / np.linalg.norm(a)
     K = np.array([[0, -a[2], a[1]], [a[2], 0, -a[0]], [-a[1], a[0], 0]])

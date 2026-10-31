@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
 import subprocess
 import sys
@@ -37,7 +38,9 @@ ROOT = Path(__file__).resolve().parents[3]
 SKIP_DIRS = {".git", "__pycache__", "node_modules", "vendor", ".ipynb_checkpoints", "_out", "_runs",
              "site-packages", ".pytest_cache", "build", "dist"}
 # Dados de clientes ficam fora do inventário (pedido explícito do dono do repositório).
-EXCLUDE_RE = re.compile(r"vectron|shinagawa|\bCSN\b|\bD0\b", re.I)
+# Paths and lines to leave out of the map: a regex from PINNEAPPLE_MAPA_EXCLUDE (empty: nothing excluded).
+# Kept out of the repository on purpose.
+EXCLUDE_RE = re.compile(os.environ.get("PINNEAPPLE_MAPA_EXCLUDE", "") or r"(?!x)x", re.I)
 FLAG_RE = {
     "experimental": re.compile(r"\bexperimental\b", re.I),
     "placeholder": re.compile(r"\bplaceholder\b|\bstub\b|not (yet )?implemented|\bTODO\b", re.I),

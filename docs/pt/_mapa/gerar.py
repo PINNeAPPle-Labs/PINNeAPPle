@@ -17,6 +17,7 @@ Uso: python docs/pt/_mapa/gerar.py
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -25,7 +26,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 OUT_MAIN = ROOT / "docs" / "pt" / "mapa_completo.md"
 OUT_DIR = ROOT / "docs" / "pt" / "mapa_completo"
-EXCLUDE_RE = re.compile(r"vectron|shinagawa|\bCSN\b", re.I)
+# Paths and lines to leave out of the map: a regex from PINNEAPPLE_MAPA_EXCLUDE (empty: nothing excluded).
+# Kept out of the repository on purpose.
+EXCLUDE_RE = re.compile(os.environ.get("PINNEAPPLE_MAPA_EXCLUDE", "") or r"(?!x)x", re.I)
 
 VOLUMES = [
     ("v01_nucleo", "Volume 1 — Núcleo, porta de entrada e catálogo",

@@ -343,12 +343,12 @@
   "seconds": 0.03
  },
  "pinneapple_design.geometry.bodies:ahmed_body": {
-  "code_hash": "d74c9ee96e52fecd",
+  "code_hash": "168cec0a2860cf01",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
-  "seconds": 0.0
+  "seconds": 5.71
  },
  "pinneapple_design.geometry.bodies:annulus": {
   "code_hash": "6f453a709db8b83e",

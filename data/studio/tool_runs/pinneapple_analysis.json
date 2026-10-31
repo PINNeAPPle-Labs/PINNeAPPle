@@ -127,6 +127,48 @@
   "returned": "dict",
   "seconds": 2.78
  },
+ "pinneapple_analysis.dynamics.benchmarks.dimensional:run": {
+  "code_hash": "9305ff46e2c976c1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 7.19
+ },
+ "pinneapple_analysis.dynamics.benchmarks.first_passage:run": {
+  "code_hash": "ed4e157ca90881ca",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 26.47
+ },
+ "pinneapple_analysis.dynamics.benchmarks.fisher:run": {
+  "code_hash": "9ea5aa56f9f78e42",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 4.47
+ },
+ "pinneapple_analysis.dynamics.dimensional:CurveCollapseAnalyzer": {
+  "code_hash": "5e7a1f91f32bbe00",
+  "error": "ValueError: an ensemble needs at least one trajectory",
+  "inputs": {
+   "ensemble": []
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.dynamics.dimensional:quantities": {
+  "code_hash": "5c42a083c1610516",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
   "code_hash": "cbabc6ef7fdedc3c",
   "inputs": {},

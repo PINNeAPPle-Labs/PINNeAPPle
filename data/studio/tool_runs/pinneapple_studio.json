@@ -31,6 +31,14 @@
   "returned": "set",
   "seconds": 0.03
  },
+ "pinneapple_studio.coverage:history": {
+  "code_hash": "41978a414ed3db91",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.44
+ },
  "pinneapple_studio.coverage:reasons": {
   "code_hash": "364a535267ef39d2",
   "inputs": {},

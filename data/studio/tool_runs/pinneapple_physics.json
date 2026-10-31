@@ -2468,6 +2468,70 @@
   "returned": "Tensor",
   "seconds": 0.0
  },
+ "pinneapple_physics.potential.co2_study:default_grids": {
+  "code_hash": "e086edd806cbed86",
+  "error": "ModuleNotFoundError: No module named 'CoolProp'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 5.43
+ },
+ "pinneapple_physics.potential.co2_study:make_mixed": {
+  "code_hash": "d46402041d40e313",
+  "error": "ModuleNotFoundError: No module named 'CoolProp'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.potential.co2_study:run_study": {
+  "code_hash": "bae3d93056343e63",
+  "error": "ModuleNotFoundError: No module named 'CoolProp'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.potential.mechanics:double_pendulum": {
+  "code_hash": "3fe8cd1d77eafa7f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Potential",
+  "seconds": 0.23
+ },
+ "pinneapple_physics.potential.mechanics:lagrangian": {
+  "code_hash": "9439e6e88871c2c2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Potential",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.potential.thermo:ideal_gas": {
+  "code_hash": "f8a85345eb09c75d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Potential",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.potential.thermo:identities_T_rho": {
+  "code_hash": "316e6a56a20af4b8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.potential.thermo:identities_T_v": {
+  "code_hash": "68dbb727c521c4d7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_physics.solving:list_analytic": {
   "code_hash": "fa242af841f3f170",
   "inputs": {},

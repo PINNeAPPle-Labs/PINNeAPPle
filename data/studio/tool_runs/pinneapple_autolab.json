@@ -1,4 +1,20 @@
 {
+ "pinneapple_autolab.domains.ahmed:AhmedAero": {
+  "code_hash": "1d2c21a0fea00abb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "AhmedAero",
+  "seconds": 6.79
+ },
+ "pinneapple_autolab.domains.ahmed:mesh_family": {
+  "code_hash": "403f1d370c77614b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_autolab.domains.racecar:RaceCarAero": {
   "code_hash": "995f2387ae76545c",
   "inputs": {},
@@ -38,6 +54,14 @@
   "recorded": "2026-10-31",
   "returned": "Simulator",
   "seconds": 0.0
+ },
+ "pinneapple_autolab.study.benchmark:PODRBF": {
+  "code_hash": "c405529c03f148aa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "PODRBF",
+  "seconds": 0.01
  },
  "pinneapple_autolab.surrogates:FieldSurrogate": {
   "code_hash": "614c0cae59dbbf06",

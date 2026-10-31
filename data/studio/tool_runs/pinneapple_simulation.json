@@ -171,6 +171,22 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.fem3d.getdp3d:available": {
+  "code_hash": "538047c83929da1a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 2.91
+ },
+ "pinneapple_simulation.electromagnetics.fem3d.mesh:from_gmsh": {
+  "code_hash": "6b2c32232ab47a2a",
+  "error": "ModuleNotFoundError: No module named 'gmsh'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.machine:SPMMachine": {
   "code_hash": "d75db4d99b6d08bd",
   "inputs": {},
@@ -310,6 +326,14 @@
   "recorded": "2026-10-31",
   "seconds": 60.0
  },
+ "pinneapple_simulation.electromagnetics.machines3d.spm:SPM3D": {
+  "code_hash": "eda83db6e2f52728",
+  "error": "the interpreter stopped during this tool: exit -9",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": null
+ },
  "pinneapple_simulation.electromagnetics.materials:illustrative_steel": {
   "code_hash": "5c726ebf19cc44cb",
   "inputs": {},
@@ -344,6 +368,22 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.reflector.design:agreement_887": {
+  "code_hash": "977b7a28662885a6",
+  "error": "timeout after 60 s",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 60.56
+ },
+ "pinneapple_simulation.electromagnetics.reflector.design:generic_2ghz": {
+  "code_hash": "de739030a5c77e5f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.reflector.study_report:from_text": {
@@ -895,6 +935,102 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.compare:parts": {
+  "code_hash": "6cba45d97ed0cd92",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_simulation.immersed.geometry:icosphere": {
+  "code_hash": "71bada6e8c7de4fc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.parts:occ_bracket": {
+  "code_hash": "0ef8ad4d0597320a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.immersed.parts:occ_heat_sink": {
+  "code_hash": "b91d7601493ed2be",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:conditioning": {
+  "code_hash": "ae050c2e815a8958",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.3
+ },
+ "pinneapple_simulation.immersed.verification:cylinder_convection": {
+  "code_hash": "7f89a2b0d8743b0a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Case",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:elastic_manufactured": {
+  "code_hash": "87b40f7156126805",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ElasticCase",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:lame_sphere": {
+  "code_hash": "a53eb8e31f29952e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "ElasticCase",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:manufactured": {
+  "code_hash": "cc651a7a1ae10256",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Case",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:manufactured_transient": {
+  "code_hash": "3f0f0d4642e287c7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:sphere_convection": {
+  "code_hash": "a72da9561359427d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Case",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.immersed.verification:sphere_cooling": {
+  "code_hash": "775bee13349e1ccd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.beam_bvp_fdm:solve_euler_bernoulli_beam_1d": {

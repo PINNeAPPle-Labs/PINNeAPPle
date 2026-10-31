@@ -74,7 +74,20 @@ HIGH_ALTITUDE_SIGMA_FT_S = {
 
 @dataclass(frozen=True)
 class TurbulenceSpec:
-    """RMS intensities [m/s] and scale lengths [m] of the three turbulence components, and the spectral form."""
+    """RMS intensities [m/s] and scale lengths [m] of the three turbulence components, and the spectral form.
+
+    Attributes
+    ----------
+    sigma_u, sigma_v, sigma_w : float [m/s]
+        RMS gust intensities (longitudinal, lateral, vertical).
+    L_u, L_v, L_w : float [m]
+        Scale lengths.
+    model : str
+        ``dryden`` or ``von_karman``.
+    altitude : float [m]
+        Altitude the spec was made for.
+    severity : str
+        ``light`` / ``moderate`` / ``severe``."""
     sigma_u: float
     sigma_v: float
     sigma_w: float

@@ -96,6 +96,7 @@ class AFPM3D:
     air_z: float = 0.015          # air above and below the machine
     r_range: tuple[float, float] | None = None    # restrict to a radial band of the active annulus (quasi-3D)
     r_nodes: np.ndarray | None = None              # explicit radial nodes of that band (the parent's)
+    edges: str = "cell"           # "cell": a cell is magnet / tooth iron by its theta centre; "fraction": by share
 
     def __post_init__(self):
         m = self.machine
@@ -154,7 +155,15 @@ class AFPM3D:
 
     def _labels(self):
         """Static iron (rotor yokes, stator) per tetrahedron, and the magnet cells at rotor angle 0: theta index
-        -> polarity (+1, -1, 0) per magnet layer, and which tetrahedra are in a magnet layer."""
+        -> polarity (+1, -1, 0) per magnet layer, and which tetrahedra are in a magnet layer.
+
+        With ``edges="cell"`` a theta cell is magnet, or tooth iron, when its centre is, so the magnet arc and the
+        slot opening move in whole steps (the magnet, symmetric about its pole, in two). With ``edges="fraction"``
+        the cell on an edge carries the share of it inside: that share of the remanence, and iron mixed in
+        parallel (``mu = f mu_iron + (1 - f) mu0``, the flux in the teeth runs along the edge), so the fields move
+        continuously with ``magnet_arc`` and ``slot_fraction``. Shares of 0 and 1 give the cell labels exactly."""
+        if self.edges not in ("cell", "fraction"):
+            raise ValueError(f'edges must be "cell" or "fraction", not {self.edges!r}')
         m = self.machine
         i, j, k = self.cell
         rc = 0.5 * (self.rs[i] + self.rs[i + 1])
@@ -163,26 +172,43 @@ class AFPM3D:
         tc = (j + 0.5) * self.step
         slot_pitch = TWO_PI / m.slots
         u = np.mod(tc, slot_pitch) / slot_pitch                 # slot centred at u = 0
-        in_slot = (u < m.slot_fraction / 2) | (u > 1 - m.slot_fraction / 2)
-        iron = active & ((kind == "rotor_yoke") | (kind == "stator_yoke") | ((kind == "teeth") & ~in_slot))
-        static = np.where(iron, IRON, AIR)
-        pole = TWO_PI / m.poles
-        jt = np.arange(self.n_theta)
-        w = np.mod((jt + 0.5) * self.step + pole / 2, pole) / pole - 0.5      # pole p centred at p * pole
-        pol = np.where(np.abs(w) < m.magnet_arc / 2,
-                       np.where(np.floor(((jt + 0.5) * self.step + pole / 2) / pole) % 2 == 0, 1.0, -1.0), 0.0)
+        if self.edges == "cell":
+            tooth = ((u >= m.slot_fraction / 2) & (u <= 1 - m.slot_fraction / 2)).astype(float)
+        else:
+            tooth = _share(u, self.step / slot_pitch, m.slot_fraction / 2, 1 - m.slot_fraction / 2)
+        yoke = (kind == "rotor_yoke") | (kind == "stator_yoke")
+        self._iron_share = np.where(active & yoke, 1.0, np.where(active & (kind == "teeth"), tooth, 0.0))
+        static = np.where(self._iron_share >= 0.5, IRON, AIR)
         in_mag = active & (kind == "magnet")
-        return static, (pol, in_mag)
+        return static, (self._polarity(0.0), in_mag)
+
+    def _polarity(self, theta: float) -> np.ndarray:
+        """Signed share of magnet per theta cell with the rotor turned by ``theta`` (pole p centred at
+        ``p * pole + theta``)."""
+        m = self.machine
+        pole = TWO_PI / m.poles
+        x = (np.arange(self.n_theta) + 0.5) * self.step - theta + pole / 2
+        w = np.mod(x, pole) / pole - 0.5
+        if self.edges == "cell":
+            share = (np.abs(w) < m.magnet_arc / 2).astype(float)
+        else:
+            share = _share(w, self.step / pole, -m.magnet_arc / 2, m.magnet_arc / 2)
+        return share * np.where(np.floor(x / pole) % 2 == 0, 1.0, -1.0)
 
     def materials(self, theta: float) -> tuple[np.ndarray, np.ndarray]:
-        """Reluctivity and remanence per tetrahedron with the rotor(s) turned by ``theta``, rounded to an even
-        number of steps (the mesh maps onto itself under rotations by two steps)."""
+        """Reluctivity and remanence per tetrahedron with the rotor(s) turned by ``theta``. With ``edges="cell"``
+        the angle is rounded to an even number of steps (the mesh maps onto itself under rotations by two steps);
+        with ``edges="fraction"`` it is taken as given, the magnet edges falling inside cells as shares."""
         m = self.machine
-        s = 2 * int(round(theta / (2 * self.step)))
         pol, in_mag = self._magnet_base
         j = self.cell[1]
-        p = np.where(in_mag, pol[np.mod(j - s, self.n_theta)], 0.0)
-        nu = np.where(self._static == IRON, NU0 / m.mu_r_iron, NU0)
+        if self.edges == "cell":
+            s = 2 * int(round(theta / (2 * self.step)))
+            p = np.where(in_mag, pol[np.mod(j - s, self.n_theta)], 0.0)
+        else:
+            p = np.where(in_mag, self._polarity(theta)[j], 0.0)
+        f = self._iron_share
+        nu = NU0 / (f * m.mu_r_iron + (1.0 - f))
         nu = np.where(p != 0, NU0 / m.mu_r_magnet, nu)
         Br = np.zeros((len(nu), 3))
         Br[:, 2] = p * m.Br
@@ -287,18 +313,25 @@ class AFPM3D:
     def quasi3d_models(self, n_slices: int) -> list[AFPM3D]:
         """``n_slices`` radial slices of the active annulus on the same radial nodes, no radial air."""
         return quasi3d_slices(self.machine, n_slices, n_theta=self.n_theta, dr=self.dr, dz=self.dz,
-                              air_z=self.air_z)
+                              air_z=self.air_z, edges=self.edges)
+
+
+def _share(c: np.ndarray, width: float, lo: float, hi: float) -> np.ndarray:
+    """Share of each cell ``[c - width / 2, c + width / 2]`` inside ``[lo, hi]`` (an edge on a grid line within
+    rounding gives exactly 0 or 1)."""
+    f = np.clip(np.minimum(c + width / 2, hi) - np.maximum(c - width / 2, lo), 0.0, width) / width
+    return np.where(f < 1e-9, 0.0, np.where(f > 1 - 1e-9, 1.0, f))
 
 
 def quasi3d_slices(machine: AFPMMachine, n_slices: int, n_theta: int = 240, dr: float = 0.004, dz: float = 0.002,
-                   air_z: float = 0.015) -> list[AFPM3D]:
+                   air_z: float = 0.015, edges: str = "cell") -> list[AFPM3D]:
     """The quasi-3D slices of :meth:`AFPM3D.quasi3d_models` without building the full 3-D model: the active
     annulus has the same radial nodes (``r_in`` to ``r_out`` every ``dr`` at most) in both."""
     ra = _graded(machine.r_in, machine.r_out, dr)
     cuts = np.round(np.linspace(0, len(ra) - 1, n_slices + 1)).astype(int)
     return [AFPM3D(machine, n_theta=n_theta, dr=dr, dz=dz, air_r=0.0, air_z=air_z,
                    r_range=(float(ra[cuts[q]]), float(ra[cuts[q + 1]])),
-                   r_nodes=ra[cuts[q]:cuts[q + 1] + 1]) for q in range(n_slices)]
+                   r_nodes=ra[cuts[q]:cuts[q + 1] + 1], edges=edges) for q in range(n_slices)]
 
 
 @dataclass

@@ -127,13 +127,14 @@ def defaults():
 
 @app.post("/api/estimate")
 def post_estimate(request: Request, design: Design):
-    """Queue a quasi-3D estimate (about 10 s for the default design)."""
+    """Queue a quasi-3D estimate (about 20 s for the default design)."""
     return rt.submit(request, "estimate", _check(design), units={"estimates": 1})
 
 
 @app.post("/api/verify")
 def post_verify(request: Request, design: Design):
-    """Queue the check in full 3-D, with the estimate on the same grid (about 30 s for the default design)."""
+    """Queue the check in full 3-D, with the estimate on the same grid (about 60 s for the default design: 22 s for
+    the estimate, 35 s for the 3-D solve)."""
     return rt.submit(request, "verify", _check(design), units={"checks_3d": 1})
 
 

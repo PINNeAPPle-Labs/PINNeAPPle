@@ -70,7 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         from . import catalog, gallery
         c = catalog.load(rebuild=a.rebuild)
         _print({"commit": c["commit"], "tools": c["counts"], "gallery": gallery.summary(gallery.load(rebuild=a.rebuild)),
-                "prose_unmatched": {k: len(v) for k, v in c["prose_unmatched"].items()}})
+                "prose_unmatched": {k: len(v) for k, v in c["prose_unmatched"].items()},
+                "prose_missing": {k: len(v) for k, v in c["prose_missing"].items()}})
         return 0
     if a.cmd == "search":
         from .catalog import load

@@ -280,7 +280,9 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                             "tests": r["tests"], "flags": r["flags"], "imports": r.get("imports", [])}
                         for m, r in inv["modules"].items()},
             "tools": tools,
-            "glossary": prose.glossary, "prose_unmatched": P.unmatched(prose, inv)}
+            "glossary": prose.glossary, "prose_unmatched": P.unmatched(prose, inv),
+            "prose_missing": {"modules": sorted(m for m in inv["modules"] if not prose.module(m)),
+                              "symbols": sorted(i for i, t in tools.items() if t["path"] and not t["pt"])}}
 
 
 def _count(items, field):

@@ -70,7 +70,8 @@ def router(queue=None) -> APIRouter:
         return {"commit": c["commit"], "counts": c["counts"], "status_rules": c["status_rules"],
                 "categories": c["categories"], "tasks": c["tasks"], "areas": c["areas"], "products": c["products"],
                 "facets": st.idx().facets(), "gallery": GAL.summary(st.gal()),
-                "prose_unmatched": {k: len(v) for k, v in c["prose_unmatched"].items()}}
+                "prose_unmatched": {k: len(v) for k, v in c["prose_unmatched"].items()},
+                "prose_missing": {k: len(v) for k, v in c["prose_missing"].items()}}
 
     @r.get("/tools")
     def tools(q_: str = Query("", alias="q"), category: str | None = None, status: str | None = None,

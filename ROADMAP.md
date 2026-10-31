@@ -1104,8 +1104,8 @@ raros (turbulência extrema, falha industrial, crash) — pergunta natural
 para o mesmo domínio industrial que já motiva `pinneapple_systems.digital_twin`
 e os produtos de monitoramento do `PINNeAPPle-apps`. Ponto de entrada
 mais barato: aplicar EVT sobre os mesmos dados de sensor/SCADA que já
-alimentam twins industriais existentes (ex. `shinagawa-ai-platform`,
-hoje em `ChordIQ-tech` — o método é agnóstico a onde os dados moram)
+alimentam twins industriais existentes (o método é agnóstico a onde os
+dados moram)
 antes de qualquer simulação nova de rare-event.
 
 ### Bateria de validação (extensão do PINNeAPPle-arena)

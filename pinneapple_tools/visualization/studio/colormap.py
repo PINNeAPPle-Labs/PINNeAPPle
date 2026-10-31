@@ -57,9 +57,9 @@ def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[st
 
 
 def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = None, lo_txt: str = "",
-             hi_txt: str = "", corner: str = "bottom-right", stops=None) -> str:
+             hi_txt: str = "", corner: str = "bottom-right", stops=None, dark: bool = False) -> str:
     """Draw a colour bar (jet, or the scale ``stops`` such as :data:`RDBU`) with 5 ticks and a title in a corner of
-    the image at ``path`` (overwritten)."""
+    the image at ``path`` (overwritten); ``dark``: a near-black panel with light text (for a dark stage)."""
     from PIL import Image, ImageDraw, ImageFont
     im = Image.open(path).convert("RGB")
     W, H = im.size
@@ -75,18 +75,20 @@ def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = No
     box_h = int(150 * s)
     x0 = W - box_w - 3 * pad if corner.endswith("right") else 3 * pad
     y0 = H - box_h - pad if corner.startswith("bottom") else 2 * pad
-    d.rounded_rectangle([x0 - pad, y0 - pad, x0 + box_w + pad, y0 + box_h], radius=int(12 * s), fill=(255, 255, 255, 225))
-    d.text((x0, y0), title, fill=(15, 23, 42), font=fb)
+    panel, ink, muted = ((11, 13, 15, 215), (242, 244, 245), (154, 163, 168)) if dark else \
+        ((255, 255, 255, 225), (15, 23, 42), (71, 85, 105))
+    d.rounded_rectangle([x0 - pad, y0 - pad, x0 + box_w + pad, y0 + box_h], radius=int(12 * s), fill=panel)
+    d.text((x0, y0), title, fill=ink, font=fb)
     yb = y0 + int(40 * s)
     for i in range(bw):
         c = ramp(i / (bw - 1), stops)
         d.line([(x0 + i, yb), (x0 + i, yb + bh)], fill=tuple(int(255 * v) for v in c))
     for k, t in enumerate(ticks(lo, hi, 5, nd)):
         tw = d.textlength(t, font=f)
-        d.text((x0 + bw * k / 4 - tw * k / 4, yb + bh + int(6 * s)), t, fill=(15, 23, 42), font=f)
+        d.text((x0 + bw * k / 4 - tw * k / 4, yb + bh + int(6 * s)), t, fill=ink, font=f)
     if lo_txt:
-        d.text((x0, yb + bh + int(36 * s)), lo_txt, fill=(71, 85, 105), font=f)
+        d.text((x0, yb + bh + int(36 * s)), lo_txt, fill=muted, font=f)
     if hi_txt:
-        d.text((x0 + bw - d.textlength(hi_txt, font=f), yb + bh + int(36 * s)), hi_txt, fill=(71, 85, 105), font=f)
+        d.text((x0 + bw - d.textlength(hi_txt, font=f), yb + bh + int(36 * s)), hi_txt, fill=muted, font=f)
     im.save(path, quality=92)
     return path

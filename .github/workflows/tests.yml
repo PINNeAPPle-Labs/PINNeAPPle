@@ -77,6 +77,12 @@ jobs:
           pip install scikit-learn pyamg
           pytest tests/test_condense.py tests/test_meshless_stencils.py tests/test_query.py tests/test_condense_falsify.py -q -p no:warnings
 
+      - name: Immersed analysis on raw geometry — SDF / voxel / STL inputs, cut-cell quadrature, small-cut stabilisation, heat rates (must pass)
+        run: |
+          pip install pyamg gmsh
+          sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2 calculix-ccx
+          pytest tests/test_immersed.py tests/test_immersed_elasticity.py tests/test_immersed_transient.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn
@@ -86,6 +92,11 @@ jobs:
         run: |
           pip install scikit-learn
           pytest tests/test_football_physics.py -q -p no:warnings
+
+      - name: Derivative trees (pp.potential) — closed forms, Peng-Robinson vs CoolProp, SPM co-energy torque (must pass)
+        run: |
+          pip install ".[potential]"
+          pytest tests/test_potential.py tests/test_potential_surrogate.py -q -p no:warnings
 
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |

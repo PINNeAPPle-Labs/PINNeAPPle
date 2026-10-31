@@ -1,0 +1,12 @@
+{
+ "code_hash": "523fe6356724f8b0",
+ "figures": [],
+ "id": "example:examples/potential_co2",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 1.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Potential-based against direct surrogates for CO2 near Tc | thermodynamics | not curated\nall_properties_direct_interp_error 0.09948 \nall_properties_direct_hotter_error 0.24893 \nall_properties_direct_denser_error 0.66084 \nall_properties_direct_maxwell_p95 0.41 \nall_properties_potential_interp_error 1.60878",
+ "timed_out": false
+}

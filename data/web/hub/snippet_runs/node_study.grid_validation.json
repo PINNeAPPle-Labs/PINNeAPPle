@@ -1,0 +1,12 @@
+{
+ "code_hash": "3775e3c0aaa07202",
+ "figures": [],
+ "id": "node:study.grid_validation",
+ "ok": true,
+ "recorded": "2026-10-28",
+ "seconds": 11.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Grid convergence and validation against the wind tunnel -> pinneapple_autolab.domains.ahmed_study.grid_and_validation\ninputs: [('runs', 'cfd_runs')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'folder': ''}",
+ "timed_out": false
+}

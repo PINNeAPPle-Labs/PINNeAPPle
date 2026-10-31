@@ -160,18 +160,32 @@ def check_main(argv: list[str] | None = None) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """``pinneapple <command>``: ``check`` (this package) or ``benchmark`` (pinneapple_analysis.benchmark)."""
+    """``pinneapple <command>``: the onboarding four (doctor/recommend/card/new), ``check`` (this
+    package), and ``design`` / ``benchmark`` when those packages are installed."""
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv or argv[0] in ("-h", "--help"):
         print("usage: pinneapple <command> [options]\n\ncommands:\n"
-              "  check      physics linter for results and models (pinneapple check --help)\n"
-              "  benchmark  equal-budget benchmarks of physics-AI methods (when installed)\n"
-              "  design     design from a plain-language goal (pinneapple design --help)\n")
+              "  getting started\n"
+              "    doctor [profile]     is this installation ready for my work?\n"
+              "    recommend <text>     which preset, method and model for my problem?\n"
+              "    card <preset>        what a preset takes and what it gives back\n"
+              "    new <name>           create a project of my own\n"
+              "  working with results\n"
+              "    check <paths>        physics linter for results and models (pinneapple check --help)\n"
+              "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
+              "    design               design from a plain-language goal (pinneapple design --help)\n")
         return 0 if argv else 2
     if argv[0] == "--version":
         print(f"pinneapple {__version__}")
         return 0
     cmd, rest = argv[0], argv[1:]
+    if cmd in ("doctor", "recommend", "card", "new"):
+        try:
+            from pinneapple_core.onboarding.cli import main as onboarding
+        except ImportError:
+            print(f"error: `pinneapple {cmd}` needs pinneapple_core; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return onboarding(argv)
     if cmd == "check":
         return check_main(rest)
     if cmd == "design":

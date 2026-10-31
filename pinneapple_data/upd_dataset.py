@@ -116,7 +116,7 @@ class UPDDataset:
     # -------------------------
     # Persistence
     # -------------------------
-    def save(self, path: str, *, format: str = "pt") -> None:
+    def save(self, path: str, *, format: str = "pt", compress: bool = False) -> None:
         """
         Save the dataset to disk in the specified format.
 
@@ -126,12 +126,17 @@ class UPDDataset:
             Output path (directory for zarr, file for pt/hdf5).
         format : str, optional
             Format: "pt", "zarr", or "hdf5"/"h5". Default is "pt".
+        compress : bool, optional
+            For ``format="pt"``, write the payload gzip-compressed. Physics
+            datasets are mostly raw float32 arrays, so this typically cuts the
+            file several-fold with no loss of precision. Opt-in: the default
+            stays an uncompressed ``.pt`` and ``load`` reads either form.
         """
         fmt = format.lower()
         os.makedirs(path if fmt in ("zarr",) else os.path.dirname(path) or ".", exist_ok=True)
 
         if fmt == "pt":
-            save_pt(self.samples, path)
+            save_pt(self.samples, path, compress=compress)
             save_manifest(path + ".manifest.json", self.manifest)
             return
 

@@ -91,3 +91,25 @@ overhead. `_out/` holds checked-in results (CSV/JSON/plots) from a prior
 run. Contrast with `pinneapple_tools.benchmark_suite`
 (see [Researcher & Benchmarking](../core_concepts/researcher_benchmarking.md)),
 which benchmarks *models*, not the library itself.
+
+## `pp.new`: a project of your own, outside this repository
+
+`templates/` and `examples/` belong to the library. A user's own work goes in its own folder, which
+`pp.new` (or `pinneapple new`) writes:
+
+```bash
+pinneapple new my_study --template plain --preset poisson_2d
+cd my_study && python run.py
+```
+
+| template | what the user writes | what the folder holds |
+|---|---|---|
+| `plain` | `case.yaml` only | `run.py`, `case.yaml`, `README.md`, `requirements.txt`, `results/` |
+| `research` | `case.yaml`, then `study.py` as the study grows | the above plus `study.py`, `notebook.ipynb`, `experiment.json` |
+| `cfd` | `case.yaml` (preset, parameter, values) | `sweep.py`, `case.yaml`, `README.md`, `results/cases.csv`, `results/qoi.png` |
+
+Every generated path is relative to the folder, so the project runs from any working directory and
+can be copied or versioned on its own. When the chosen preset cannot run on that machine, the folder
+also gets `fallback.py`: the same physics on a box the user defines, and the runner's error message
+points at it.
+

@@ -13,9 +13,11 @@ applicability) before anyone uses it.
 ## Install
 
 ```bash
-pip install pinneapple                 # core: numpy, scipy, torch, matplotlib
-pip install "pinneapple[mcp]"          # + the MCP server (pinneapple-mcp)
+pip install pinneapple                 # core: numpy, scipy, torch, sympy, matplotlib
+pip install "pinneapple[cfd]"          # + geometry, meshing, 3-D viewing (OpenFOAM and CalculiX are separate installs)
+pip install "pinneapple[enterprise]"   # + serving, signatures, the CI linter, the hub, the MCP server
 pip install -e ".[dev]"                # from a checkout, with pytest and ruff
+pinneapple doctor start                # what this machine still needs, with the fix per line
 ```
 
 On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) install it in their first cell.
@@ -24,10 +26,15 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 
 | Task | API |
 |---|---|
+| Is this installation ready for the work intended (`start`, `cfd`, `research`, `enterprise`, `all`) | `pp.doctor(profile)` -> report with `ok`, one fix per missing item |
+| Which preset, method and model for a problem described in a sentence (English or Portuguese), and why | `pp.recommend("...")` -> `Recommendation` (`.preset`, `.method`, `.model`, `.explain()`) |
+| What a preset takes, what it gives back, and the smallest program that uses it | `pp.card(name)` -> `Card` (`.coordinates`, `.fields`, `.snippet`, `.requires`) |
+| A project of the user's own, outside this repository (`plain` / `research` / `cfd`) | `pp.new("name", template=..., preset=...)`, `pinneapple new`; `pp.new` refuses to overwrite |
 | Use a pre-trained, verified model or a dataset | `pp.zoo.list()`, `pp.zoo.load(name).predict(...)`, `pp.zoo.validate(name, inputs)`, `pp.datasets.load(name, split=...)` |
 | Find a ready-made tool, trained model, geometry, dataset, flow or example with code that runs; compose a custom tool from nodes | `pinneapple_hub.library.search(load_index(), q, kind=...)`, `pinneapple_hub.library.compose.compose({...})`; the Hub app `apps/hub` ([docs](docs/apps/hub.md)) |
 | Describe a problem | `pp.PhysicalProblem.from_preset(name)`, `ProblemBuilder(...)...build()` + `pp.PhysicalProblem.from_pde_spec`, `pp.list_presets()` |
 | Solve it | `pp.solve(problem, method, **options)`: `"pinn"`, `"fem"`, `"analytic"`, `"reference"`, `"exact"`, `"external"` (`pp.list_methods()`) |
+| A preset whose boundaries are named geometry tags | `pp.solve(preset, method="pinn")` sends the preset's own box or cylinder (`pde_environment/presets/tag_geometry.py`, 32 of the 40 tagged presets) and records it in `Solution.info["geometry"]`; the other 8 describe a real airfoil/car body/furnace and still raise `TagConditionsUnresolved` |
 | Compare methods on the same points | `pp.compare(problem, methods, reference=...)` |
 | Check a result | `pp.trust_card(grid, values, pde=..., dirichlet=..., reference=..., train_bounds=...)` (decision APPROVED / REVIEW / REJECT) |
 | Validate a model (zoo, PyTorch, ONNX, callable) | `pp.validate(model, problem, data=..., query=..., level="quick" / "standard" / "thorough")` (credibility per factor, decision pass / warn / fail; [docs](docs/guides/pp_validate.md)) |
@@ -71,6 +78,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Chip-package thermal by condensation of repeated blocks (microbumps, TSVs): fine FV reference, Keff baseline, block Schur complements reused across identical blocks, reduced interfaces with an error estimate and refinement, nested condensation with memoised subtrees, learned block operators with verification, Craig-Bampton transient | `pinneapple_condense`: `package.uniform_package((nb, nb))`, `fv.solve_package(pkg)`, `substructure.Condensed(pkg, m).prepare().solve()` + `.observables` / `.recover(state, I, J)` / `.estimate` / `.refine`, `hierarchy.Hierarchy(pkg, m)`, `homogenize.solve_homogenized`, `learned.LearnedBlocks(stack).fit()` + `solve_adaptive`, `transient.CBTransient`; Flow node `condense.package_thermal` ([report](docs/research/physics_condensation.md)) |
 | Does a learned thermal model (PINN, surrogate) know the physics beyond its loss: discrete residual, interface flux, boundary, energy, symmetry, scaling and causal interventions against an FV reference; scope, point sufficiency, informative points, architecture-vs-learned provenance | `pinneapple_analysis.validation.physics_learning`: `verify(model, case)` -> `VerificationReport` (`.findings`, `.failed`, `.out_of_scope`, `.trust`), `detection_study()`, `baselines`; cases in `physics_learning_cases` (`Section`, `defective_models`, `surrogate_model`, `pinn_model`); Flow node `analysis.physics_learning` ([report](docs/research/physics_condensation.md)) |
 | Physics queries with a planner: `query(quantity, where, time, conditions, accuracy)` answered by the cheapest valid method (read a solved state, superposition, rigorous monotone bound, condensed solve, fine reference) with value, units, uncertainty, validity and provenance; stable physical references (`die@u,v[,w]`, `ubump[I,J]`, `interface:die/tim`, `lid:top`) | `pinneapple_query`: `Engine`, `Planner`, `Method`/`Offer`/`Answer`, `parse_ref`; chip package: `pinneapple_condense.query.package_engine(pkg)` then `eng.query("T", "die@0.5,0.5", conditions={"power": P}, accuracy=0.1)`; Flow node `query.package` ([report](docs/research/physics_condensation.md)) |
+| Biology-informed modelling: SBML models as ODE systems (simulate, sensitivities, PINN problem, SBML export), identifiability before fitting, SBINN parameter inference, BINN term discovery in reaction-diffusion, nonlinear PK/PD and PBPK, excitable media (FitzHugh-Nagumo, Aliev-Panfilov) and activation maps, Windkessel-coupled aortic flow in OpenFOAM | `pinneapple_physics.biology`: `read_sbml(path)`, `biomodel(12)`, `ODESystem.simulate / sensitivities / to_problem_spec / forward_model / to_sbml`, `models.ultradian_glucose_insulin`, `models.pk_one_compartment_mm`, `models.minimal_pbpk`, `excitable.aliev_panfilov_2d`, `cell_migration`; `pinneapple_analysis.inverse_problems`: `ode_model.ODEForwardModel` + `identifiability.analyze_identifiability`, `sbinn.SBINN`, `binn.ReactionDiffusionBINN`, `activation_mapping.EikonalPINN`; `pinneapple_simulation.hemodynamics`: `Windkessel`, `split_rcr`, `aorta.setup_case` + `aorta.CoupledRun` ([docs](docs/guides/bio_informed.md)) |
 | Conjunction screening and an ideal rocket nozzle in closed form | `pinneapple_physics.astro.conjunction.screen_cw_conjunction(n, state0, sigma_km=...)`, `collision_probability_2d`, `propagate_two_body_j2`; `pp.closed_form.rocket_nozzle.nozzle_performance(...)` |
 | Does a design that passes at nominal still pass with its manufacturing tolerances (Monte Carlo p95, corner stack-up, six checks, decision) | `pinneapple_analysis.uncertainty.margin.margin_study(fn, nominal, tolerances, limit)`, `corner_stackup` |
 | A river gauge as a digital twin (USGS data at run time, baseflow recession, sustained-departure alarm) | `pinneapple_systems.digital_twin.io.usgs.fetch_iv(site)`, `pinneapple_systems.digital_twin.recession.run_twin(timestamps, values)` |
@@ -94,6 +102,19 @@ report = pp.zoo.validate("airfoil_cst_rans_mlp", inputs={**naca2412, "alpha_deg"
 assert report.decisao == "APPROVED"                     # card metrics reproduced, physics checks, validity range
 test = pp.datasets.load("airfoil_rans_cst_re4e6", split="test")
 print(test.n_rows, test.columns[:4])
+```
+
+### Before any physics: is this machine ready, and what should I run
+
+```python
+import pinneapple as pp
+
+report = pp.doctor("start", verbose=False)          # start | cfd | research | enterprise | all
+assert report.ok, [c.name for c in report.failures]  # each failure carries the command that fixes it
+
+rec = pp.recommend("heat conduction in a heat sink cooled by a fan")
+print(rec.preset, rec.method, rec.confidence, rec.matched)   # a preset, a method that runs, the terms matched
+print(pp.card(rec.preset))                           # what it takes, what it gives back, the program to run
 ```
 
 ### Solve and compare
@@ -284,8 +305,9 @@ ruff check <changed files>
 ```
 
 CI (`.github/workflows/tests.yml`): public API, distribution contents, manufactured-solution physics tests, the first
-example from a clean wheel, and the Colab notebooks in smoke mode. Changes go under `## [Unreleased]` in
-`CHANGELOG.md`.
+example from a clean wheel, and the Colab notebooks in smoke mode. A user-visible change goes in a new file
+`changelog.d/<slug>.<category>.md` (see `changelog.d/README.md`), never in `CHANGELOG.md` itself, so parallel pull
+requests do not conflict.
 
 ## Generated files
 

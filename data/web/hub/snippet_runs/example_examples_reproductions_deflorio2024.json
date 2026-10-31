@@ -1,0 +1,12 @@
+{
+ "code_hash": "671237da544d322b",
+ "figures": [],
+ "id": "example:examples/reproductions/deflorio2024",
+ "ok": true,
+ "recorded": "2026-10-29",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "De Florio et al. 2024 reproduction | physics-informed ML | not curated\nxtfc_max_nu_0.0001_seed0 0.00043754182004562825 abs error\nxtfc_max_nu_0.001_seed0 2.0859980409682066e-11 abs error\nxtfc_max_nu_0.01_seed0 2.396083331746013e-12 abs error\nxtfc_max_nu_0.1_seed0 1.3877787807814457e-13 abs error\nxtfc_max_nu_1_seed0 4.440892098500626e-16 abs error",
+ "timed_out": false
+}

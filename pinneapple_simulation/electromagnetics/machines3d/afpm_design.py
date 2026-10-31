@@ -28,15 +28,17 @@ from .afpm import AFPM3D, AIR, AFPMMachine, quasi3d_slices
 __all__ = ["estimate", "verify_3d", "field_view_of", "machine_from", "grid_for"]
 
 MAX_STEPS = 480
+SAMPLES_PER_PERIOD = 16       # rotor angles per cogging period (16 and 32 give the same peak-to-peak, 0.01 %)
 
 
 def grid_for(machine: AFPMMachine, dr: float = 0.008, dz: float = 0.004, min_steps: int = 180,
              steps_per_period: int = 8) -> dict[str, Any]:
     """The coarse grid for a design: steps round the axis a multiple of twice the poles and twice the slots (pole
-    and slot centres on the mesh's symmetry planes), at least ``min_steps`` and at least ``steps_per_period`` even
-    steps per cogging period. Raises when that needs more than 480 steps (a slot-pole combination with a very
+    and slot centres on the mesh's symmetry planes), at least ``min_steps`` and at least ``steps_per_period`` steps
+    per cogging period. Raises when that needs more than 480 steps (a slot-pole combination with a very
     short cogging period). Magnet and tooth edges are shares of the cells they cut (``AFPM3D(edges="fraction")``),
-    so a magnet arc or slot opening between two grid steps is the one asked for, not the nearest whole cells."""
+    so a magnet arc or slot opening between two grid steps is the one asked for, not the nearest whole cells, and
+    the rotor turns by any angle (:data:`SAMPLES_PER_PERIOD` angles per cogging period)."""
     period_steps = math.lcm(machine.slots, machine.poles)                  # cogging periods round the axis
     base = math.lcm(2 * machine.poles, 2 * machine.slots, 2 * period_steps)
     n = base * max(1, math.ceil(max(min_steps, steps_per_period * period_steps) / base))
@@ -58,7 +60,10 @@ def machine_from(params: dict[str, Any] | None = None) -> AFPMMachine:
 
 
 def _angles(model: AFPM3D) -> np.ndarray:
-    """Even steps over one cogging period (the grid maps onto itself under two-step rotations)."""
+    """Rotor angles over one cogging period: :data:`SAMPLES_PER_PERIOD` of them with fractional edges (the magnet
+    edges fall inside cells), else the even grid steps (the grid maps onto itself under two-step rotations)."""
+    if model.edges == "fraction":
+        return np.arange(SAMPLES_PER_PERIOD) * model.machine.cogging_period / SAMPLES_PER_PERIOD
     return np.arange(0, round(model.machine.cogging_period / model.step), 2) * model.step
 
 

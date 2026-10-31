@@ -78,6 +78,10 @@ function show(kind, r) {
   } else {
     last.verify = r; fill("v", r); fill("e", r.estimate);
     set("r_pkpk", f(r.estimate_over_3d.cogging_pkpk)); set("r_lam", f(r.estimate_over_3d.tooth_linkage));
+    const by = (x, what) => `${x >= 1 ? "overstates" : "understates"} ${what} by ${Math.abs(100 * (x - 1)).toFixed(1)} %`;
+    $("#overstate").textContent = "On this design and grid the estimate "
+      + `${by(r.estimate_over_3d.cogging_pkpk, "the cogging peak to peak")} and `
+      + `${by(r.estimate_over_3d.tooth_linkage, "the flux linkage")}.`;
     chartData = { x: r.thetas_deg, est: r.estimate.cogging_Nm, v3: r.cogging_Nm };
   }
   const series = [{ name: "quasi-3D", y: chartData.est, color: "#eb6834", width: 2 }];

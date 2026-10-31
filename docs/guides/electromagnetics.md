@@ -1101,14 +1101,25 @@ every 1.875 deg (3.75 deg on the coarse grid):
   flux linkage by 2 to 3 %, for both topologies.
 * **The difference is the fringing at the inner and outer radius, not radial flux inside the annulus**: one slice
   and five slices agree within 0.3 % in cogging and 0.1 % in linkage.
-* **Discretisation.** The two grids do not carry the same magnet: a cell is magnet when its centre is
-  (`AFPM3D(edges="cell")`, the default), so the 80 % arc is 20 of 24 steps per pole (83.3 %) on the coarse grid and
-  38 of 48 (79.2 %) on the fine one. The cogging of the two rows above therefore differs by more than the grid: at
-  the same magnet (an 83.3 % arc, whole cells on both grids) quasi-3D gives 11.67 N m on the coarse grid and
-  13.91 N m on the fine one (single-sided, one slice), so the coarse grid is 16 % low. The quasi-3D error moves
-  by 1.2 and 1.7 points between the rows, so the comparison of quasi-3D with 3-D holds to about that.
-  `edges="fraction"` gives the edge cells their share of magnet and of tooth iron, so the arc and the slot opening
-  are the ones asked for on any grid (the Axial-Flux Motor Designer uses it).
+* **Discretisation.** The two grids of the table differ in more than the mesh. A cell is magnet when its centre
+  is (`AFPM3D(edges="cell")`, the default), so the 80 % arc is 20 of 24 steps per pole (83.3 %) on the coarse grid
+  and 38 of 48 (79.2 %) on the fine one; and the rotor turns by even steps, so the coarse grid samples the 15 deg
+  period at 4 angles and the fine one at 8. Four samples miss the peak of the cogging: on the coarse grid the
+  peak-to-peak is 6.13 N m from 4 angles and 8.60 N m from 16 (quasi-3D, fractional edges, 32 angles give the
+  same). With `edges="fraction"` (magnet and tooth edges as shares of the cells they cut, the rotor turned by any
+  angle) and 16 angles per period, the default design measures:
+
+  | Grid (steps round the axis, radial x axial) | Cogging pk-pk, quasi-3D (N m) | 3-D (N m) | Quasi-3D / 3-D | Tooth linkage, quasi-3D / 3-D |
+  |---|---|---|---|---|
+  | 192, 8 x 4 mm | 8.604 | 7.626 | 1.128 | 1.021 |
+  | 384, 8 x 4 mm | 10.624 | 9.606 | 1.106 | 1.021 |
+  | 768, 8 x 4 mm | 11.562 | 10.503 | 1.101 | 1.021 |
+  | 384, 4 x 2.5 mm | 11.145 | 9.956 | 1.119 | 1.022 |
+
+  The cogging is still rising with the steps round the axis (by 2.0 and then 0.9 N m in quasi-3D), so the absolute
+  cogging of these grids is a grid value; the overestimate of quasi-3D stays at 10 to 13 % and that of the flux
+  linkage at 2.1 to 2.2 % on every grid, which is the conclusion above. (768 steps: the even steps are the 16
+  angles, 5.5 GB; finest row: 1 032 192 tetrahedra, 222 s, 9.2 GB.)
 * **End turns.** A coil whose end turns run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 %
   (double rotor) more than one on the annulus edges (1.055 and 1.073 mWb).
 

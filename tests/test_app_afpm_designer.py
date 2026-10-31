@@ -53,9 +53,11 @@ def test_verify_in_3d_measures_what_the_estimate_leaves_out(client):
     j = _wait(client, client.post("/api/verify", json={}).json())
     assert j["status"] == "done", j
     r = j["result"]
-    # the default design on its coarse grid: quasi-3D 6.128 N m and 1.0630 mWb, 3-D 5.417 N m and 1.0411 mWb
-    assert r["cogging_pkpk_Nm"] == pytest.approx(5.4168, rel=1e-3)
-    assert r["estimate_over_3d"]["cogging_pkpk"] == pytest.approx(1.1312, rel=1e-3)
+    # the default design on its coarse grid, 16 rotor angles per cogging period: quasi-3D 8.604 N m and 1.0630 mWb,
+    # 3-D 7.626 N m and 1.0411 mWb
+    assert r["cogging_pkpk_Nm"] == pytest.approx(7.6260, rel=1e-3)
+    assert len(r["thetas_deg"]) == 16
+    assert r["estimate_over_3d"]["cogging_pkpk"] == pytest.approx(1.1283, rel=1e-3)
     assert r["estimate_over_3d"]["tooth_linkage"] == pytest.approx(1.0210, rel=1e-3)
     meta = client.get(f"/api/view/{r['view']}").json()
     assert meta["schema"] == "pinneapple-field-view/v1" and {f["name"] for f in meta["fields"]} == {"B", "Bz"}

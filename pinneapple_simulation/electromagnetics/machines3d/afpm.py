@@ -179,25 +179,34 @@ class AFPM3D:
         yoke = (kind == "rotor_yoke") | (kind == "stator_yoke")
         self._iron_share = np.where(active & yoke, 1.0, np.where(active & (kind == "teeth"), tooth, 0.0))
         static = np.where(self._iron_share >= 0.5, IRON, AIR)
+        in_mag = active & (kind == "magnet")
+        return static, (self._polarity(0.0), in_mag)
+
+    def _polarity(self, theta: float) -> np.ndarray:
+        """Signed share of magnet per theta cell with the rotor turned by ``theta`` (pole p centred at
+        ``p * pole + theta``)."""
+        m = self.machine
         pole = TWO_PI / m.poles
-        jt = np.arange(self.n_theta)
-        w = np.mod((jt + 0.5) * self.step + pole / 2, pole) / pole - 0.5      # pole p centred at p * pole
+        x = (np.arange(self.n_theta) + 0.5) * self.step - theta + pole / 2
+        w = np.mod(x, pole) / pole - 0.5
         if self.edges == "cell":
             share = (np.abs(w) < m.magnet_arc / 2).astype(float)
         else:
             share = _share(w, self.step / pole, -m.magnet_arc / 2, m.magnet_arc / 2)
-        pol = share * np.where(np.floor(((jt + 0.5) * self.step + pole / 2) / pole) % 2 == 0, 1.0, -1.0)
-        in_mag = active & (kind == "magnet")
-        return static, (pol, in_mag)
+        return share * np.where(np.floor(x / pole) % 2 == 0, 1.0, -1.0)
 
     def materials(self, theta: float) -> tuple[np.ndarray, np.ndarray]:
-        """Reluctivity and remanence per tetrahedron with the rotor(s) turned by ``theta``, rounded to an even
-        number of steps (the mesh maps onto itself under rotations by two steps)."""
+        """Reluctivity and remanence per tetrahedron with the rotor(s) turned by ``theta``. With ``edges="cell"``
+        the angle is rounded to an even number of steps (the mesh maps onto itself under rotations by two steps);
+        with ``edges="fraction"`` it is taken as given, the magnet edges falling inside cells as shares."""
         m = self.machine
-        s = 2 * int(round(theta / (2 * self.step)))
         pol, in_mag = self._magnet_base
         j = self.cell[1]
-        p = np.where(in_mag, pol[np.mod(j - s, self.n_theta)], 0.0)
+        if self.edges == "cell":
+            s = 2 * int(round(theta / (2 * self.step)))
+            p = np.where(in_mag, pol[np.mod(j - s, self.n_theta)], 0.0)
+        else:
+            p = np.where(in_mag, self._polarity(theta)[j], 0.0)
         f = self._iron_share
         nu = NU0 / (f * m.mu_r_iron + (1.0 - f))
         nu = np.where(p != 0, NU0 / m.mu_r_magnet, nu)

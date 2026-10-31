@@ -262,7 +262,13 @@ def nearfield_planes(p: AVAParams) -> dict[str, dict[str, np.ndarray]]:
 
 
 def plane_points(pl: dict[str, np.ndarray]) -> np.ndarray:
-    """``(nv, nu, 3)`` points of a plane of :func:`nearfield_planes` (mm)."""
+    """``(nv, nu, 3)`` points of a plane of :func:`nearfield_planes` (mm).
+
+    Returns
+    -------
+    points : np.ndarray [mm]
+        (nv, nu, 3) points of the plane.
+    """
     a = np.linspace(0, 1, int(pl["nu"]))
     b = np.linspace(0, 1, int(pl["nv"]))
     return pl["origin"] + a[None, :, None] * pl["u"] + b[:, None, None] * pl["v"]

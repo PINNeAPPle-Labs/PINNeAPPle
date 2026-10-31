@@ -274,7 +274,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.fem3d.team7:coil_current_density": {
-  "code_hash": "6bcc09ef88ffa91e",
+  "code_hash": "cb051d33b51447ae",
   "inputs": {
    "points": [
     0.2565,
@@ -285,7 +285,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ndarray",
-  "seconds": 3.13
+  "seconds": 5.34
  },
  "pinneapple_simulation.electromagnetics.fem3d.team7:probe_lines": {
   "code_hash": "e3668d8e9acf2a49",
@@ -513,7 +513,7 @@
   "seconds": null
  },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:loss_factor": {
-  "code_hash": "4bcbc1c3eedb96aa",
+  "code_hash": "dcdea06c2478f774",
   "inputs": {
    "a": 1.0,
    "b": 1000.0
@@ -521,10 +521,10 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 8.12
+  "seconds": 0.06
  },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:plate_loss": {
-  "code_hash": "dd1f0d296b24ef2f",
+  "code_hash": "23d5ec2e619b09a5",
   "inputs": {
    "B": 0.05,
    "a": 0.02,
@@ -583,7 +583,7 @@
   "seconds": 0.03
  },
  "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:strip_loss": {
-  "code_hash": "1eb6f537f64efcc7",
+  "code_hash": "57b453b1ec094da6",
   "inputs": {
    "B": 1.0,
    "a": 1.0,
@@ -624,7 +624,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.media:rotation": {
-  "code_hash": "194c795721a0f586",
+  "code_hash": "15cea5ce8a63f337",
   "inputs": {
    "angle": 0.7,
    "axis": [
@@ -714,7 +714,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.reflector.po:q_from_gain": {
-  "code_hash": "437f6bd67cf2a314",
+  "code_hash": "f9d57687db67107f",
   "inputs": {
    "gain_dbi": 12.0
   },
@@ -724,7 +724,7 @@
   "seconds": 0.01
  },
  "pinneapple_simulation.electromagnetics.reflector.po:wavenumber": {
-  "code_hash": "cbb302cafa7303a4",
+  "code_hash": "8f1e5f6371c5c294",
   "inputs": {
    "f_hz": 1000000000.0
   },
@@ -792,7 +792,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.statics:helmholtz_coil_center_B": {
-  "code_hash": "23598f769f5cc76c",
+  "code_hash": "5b0974f60638999e",
   "inputs": {
    "current": 1.0,
    "radius": 0.2
@@ -803,7 +803,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.statics:loop_self_inductance": {
-  "code_hash": "2820de099ef568e1",
+  "code_hash": "fb8b6e3c00e164d5",
   "inputs": {
    "R": 0.1,
    "a": 0.001
@@ -814,7 +814,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.statics:parallel_plate_capacitance": {
-  "code_hash": "8eda6bfd59e705c7",
+  "code_hash": "a44cbb2483d3f187",
   "inputs": {
    "area": 0.01,
    "eps_r": 4.0,
@@ -867,7 +867,7 @@
   "seconds": 60.0
  },
  "pinneapple_simulation.electromagnetics.waves:circular_waveguide_cutoff": {
-  "code_hash": "973585ede5d3bd88",
+  "code_hash": "9e30fd8a432f3d8b",
   "inputs": {
    "kind": "TE",
    "m": 1,
@@ -920,7 +920,7 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.waves:rect_waveguide_cutoff": {
-  "code_hash": "8310266169bcce9c",
+  "code_hash": "ba56f8bfb85d1684",
   "inputs": {
    "a": 0.02286,
    "b": 0.01016,

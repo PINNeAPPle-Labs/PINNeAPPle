@@ -93,7 +93,13 @@ def skin_effect_wire(r, current: complex, radius: float, sigma: float, omega: fl
 def round_conductor_eddy_loss_low_freq(B_peak: float, omega: float, sigma: float, a: float) -> float:
     """Time-averaged eddy loss per metre in a round conductor (radius ``a``, no net current) in a uniform
     transverse field ``B_peak sin(omega t)``, resistance limited (field of the eddy currents neglected):
-    ``P = pi sigma omega^2 B^2 a^4 / 8`` W/m."""
+    ``P = pi sigma omega^2 B^2 a^4 / 8`` W/m.
+
+    Returns
+    -------
+    P : float [W/m]
+        Loss per metre of conductor.
+    """
     return math.pi * sigma * omega ** 2 * B_peak ** 2 * a ** 4 / 8.0
 
 

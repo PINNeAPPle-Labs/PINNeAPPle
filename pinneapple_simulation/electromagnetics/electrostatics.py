@@ -56,5 +56,11 @@ def solve_electrostatic(mesh: Mesh2D, eps_r, electrodes: Mapping[str, tuple[np.n
 
 
 def capacitance(sol: ElectrostaticSolution, V: float) -> float:
-    """``C = 2 W / V^2`` (F/m) for one electrode at ``V`` and the others grounded, no free charge."""
+    """``C = 2 W / V^2`` (F/m) for one electrode at ``V`` and the others grounded, no free charge.
+
+    Returns
+    -------
+    C : float [F/m]
+        Capacitance per unit length.
+    """
     return 2.0 * sol.energy / (V * V)

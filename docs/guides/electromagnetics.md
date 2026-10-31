@@ -963,6 +963,47 @@ GetDP was not used as a second code on this problem: its tree gauge started on t
 tangential `a*` there, which is wrong for a formulation without an electric scalar potential (it gave 1.1 W and
 no current at the surface probes). The sphere above remains the code-to-code check.
 
+### 3-D end effects: magnet flux against L/D
+
+`machines3d.endeffects.end_effect_study(machine, ratios)` measures how much of the 2-D magnet flux a coil links in
+3-D, for stacks of different length. A full-pitch search coil sits at mid-slot radius, centred on the aligned
+magnet. Its flux linkage is the line integral of `A` around it (`search_coil_linkage`). The arcs close it either
+in the stack end faces or 10 mm beyond them, in the air where real end turns run. The 2-D reference is the same
+layered stack with no end air: its end planes are flux-parallel, so the field does not vary along the axis, and
+the ratio `k = lambda_3D / lambda_2D` holds only the end effect, none of the in-plane discretisation.
+
+The line integral is computed exactly: the path is cut where it crosses element faces and each piece is
+integrated by the midpoint rule, which is exact for the linear `A` of a Whitney element. A plain midpoint rule
+over 400 points per side gave 0.5 % of error, as large as the effect: the tree gauge puts large gradients in `A`
+in the air, and a closed loop cancels them only if every piece is exact. With the exact integral the
+difference between the two coils equals the flux of `B` through the 10 mm band between them (3.1999e-6 against
+3.2001e-6 Wb on a test mesh).
+
+`python examples/electrodynamics/22_spm_end_effects_3d.py` (run on 2026-10-31, 76 min; checkpointed) runs the
+default `SPMMachine` (bore diameter D = 90 mm, linear iron at `mu_r` 1000) with 240 angular steps, stack layers of
+at most 15 mm and 40 mm of air beyond each end:
+
+| L/D | L (mm) | Stack layers | Tetrahedra | Time (s) | k, coil ends in the end faces | k, coil ends 10 mm beyond | Mean gap flux density, 3-D / 2-D | dL = L (1 - k), end faces (mm) | dL, 10 mm beyond (mm) |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 22.5 | 2 | 489 600 | 226 | 0.9863 | 0.9906 | 0.9859 | 0.309 | 0.212 |
+| 0.5 | 45.0 | 3 | 538 560 | 457 | 0.9936 | 0.9956 | 0.9938 | 0.286 | 0.199 |
+| 1 | 90.0 | 6 | 685 440 | 746 | 0.9968 | 0.9978 | 0.9969 | 0.286 | 0.199 |
+| 2 | 180.0 | 12 | 979 200 | 1529 | 0.9984 | 0.9989 | 0.9984 | 0.286 | 0.199 |
+
+* **The end effect is a fixed length.** From L/D = 0.5 to 2 the magnet flux lost at the ends equals that of
+  0.286 mm of stack (0.199 mm for the coil that closes 10 mm out), the same to three decimals: a 2-D model
+  corrected by `k = 1 - 0.29 mm / L` reproduces the 3-D linkage of this machine. At L/D = 0.25 (two stack
+  layers) it is 0.309 mm.
+* **It is small for this machine**: 1.4 % at L/D = 0.25, 0.16 % at L/D = 2. The air gap (1 mm) is short against
+  the stack and the magnets are on the surface, so little flux fringes. The coil that closes 10 mm beyond the
+  stack links the equivalent of 0.09 mm of stack more: the radial flux, outward, through the 10 mm band
+  beyond each end face.
+* **Sensitivity** at L/D = 0.5: 80 mm of end air instead of 40 gives k = 0.9936 and 0.9955 (unchanged and
+  -0.0001); 480 angular steps instead of 240 give N480.
+
+Limits: linear iron, no-load magnet flux only (no armature reaction, no end-winding leakage, which
+`machines.endwinding` computes for the Prius); one machine.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is

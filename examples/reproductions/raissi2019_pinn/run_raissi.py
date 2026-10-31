@@ -8,6 +8,7 @@ protocol frozen in TARGETS.md.
     python examples/reproductions/raissi2019_pinn/run_raissi.py --part extras      # labelled variants (TARGETS 2, 4)
     python examples/reproductions/raissi2019_pinn/run_raissi.py --report
     python examples/reproductions/raissi2019_pinn/run_raissi.py --smoke            # tiny budgets, nothing kept
+    python examples/reproductions/raissi2019_pinn/run_raissi.py                    # no arguments: the smoke run
 
 Every run writes ``runs/<name>.json`` (git-ignored) and is skipped when that file exists; ``--report`` gathers them
 into all_runs.json, RESULTS.md, a figure and experiment.json.
@@ -238,6 +239,8 @@ def main():
     a = ap.parse_args()
     if a.threads:
         torch.set_num_threads(a.threads)
+    if not (a.part or a.report):                       # no arguments: the smoke run (about a minute, nothing kept)
+        a.smoke = True
     if a.smoke:
         r = run_burgers(100, 2000, 8, 20, 0, maxiter=200, keep=False)
         print("burgers", {k: r[k] for k in ("error_u", "loss", "iterations", "evaluations", "seconds")})

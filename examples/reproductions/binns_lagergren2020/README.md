@@ -29,9 +29,25 @@ at a different (D, m): the paper's own parameters, put through our solver, give 
 Table 2), so the solver and GLS agree with the paper and the paper's single fit stopped higher in the D-m valley.
 Status per number with `status()` (factor-2 band); at 18,000 D and m fall outside it.
 
+## T1 row "BINN-guided model", T2, T5, T6 at reduced scale (`binn.py`, `classical.py --max-starts`)
+
+Only the 10,000 data set, and far below the paper's scale: measured cost 0.56 s per BINN iteration on this machine
+(one thread), so the paper's 20 retrainings of up to 20,000 iterations on six data sets would take about 19 h per
+retraining round.
+
+| Target | Ours | Paper | Scale | Status |
+|---|---|---|---|---|
+| T1 BINN-guided model, GLS, 10,000 (fit from BINN curves, `binn.py`) | 647.11 | 557.01 | reduced-scale (1 of 20 retrains, 2000 of 20000 iterations) | not reproduced |
+| T1 same model, GLS, 10,000 (neutral multi-start, `classical.py`) | 647.11 | 557.01 | reduced-scale (16 of 64 starts) | not reproduced |
+| T2 ordering at 10,000 (BINN-guided < Porous-FKPP < FKPP) | 647.11 < 681.66 < 787.29 | 557.01 < 681.18 < 786.80 | reduced-scale, one data set | ordering holds |
+| T5 parameters, 10,000 | D0 122.8, D 4000.0 (upper bound), m 1.481, r 0.0434, beta0 6.63, beta1 -0.183 | D0 95.7, D 3987.1, m 1.598, r 0.0525, beta0 -1.03, beta1 0.211 | reduced-scale | not reproduced (beta0, beta1 opposite sign: no delay) |
+| T6 shape of the learned terms | D non-zero at 0 and increasing, concave up on 81 % of the range; G linear (R^2 0.999); T flat at 0.58 | D increasing, concave up; G linear; T sigmoidal | reduced-scale (2000 iterations) | partial (T not sigmoidal) |
+
+Both routes end at the same GLS minimum, 647.11: the delay term saturates (beta0 = 6.6 gives T = 1 from the start),
+so the fitted model is a porous-FKPP with a constant floor D0, 5 % better than Porous-FKPP and 16 % worse than the
+paper's 557.01. The paper's minimum has an active delay (T rising from 0.26 to 1 over the experiment), which neither
+our 16 neutral starts nor the guess from an under-trained BINN (T flat) reached.
+
 ## Not done in this PR
 
-- T1 row "BINN-guided model", T2 (ordering), T5 (its parameters), T6 (shape of the learned terms): the BINN training
-  (`binn.py`, `ReactionDiffusionBINN`) and the delay-model fits have not been run at a measurable scale yet. The code
-  and a smoke test are in; the numbers will come in a follow-up PR, labelled reduced-scale if fewer than the paper's
-  20 retrainings per data set are run.
+- T1, T5 at the other five densities and the full scale (20 BINN retrainings, 64 starts): not run (cost above).

@@ -98,6 +98,37 @@ def test_split_rcr_mean_pressure_and_inflow_volume():
     assert np.trapezoid(half_sine_inflow(t), t) == pytest.approx(70e-6, rel=1e-6)
 
 
+def test_explicit_windkessel_coupling_window():
+    """The aorta bug: a 10 ms window was unstable, 1 ms is not. A lumped vessel L dQ/dt = p_in - P coupled to an RCR
+    the way CoupledRun does it (P held over each window, then updated from the window's end flow)."""
+    from pinneapple_simulation.hemodynamics import (
+        Windkessel,
+        explicit_coupling_gain,
+        vessel_inertance,
+    )
+
+    L = vessel_inertance(0.05, 0.009)                               # a 5 cm right-subclavian-like branch
+
+    def run(window, t_end=0.2):
+        wk = Windkessel(2.71e8, 5.89e-10, 2.74e9)                    # the arch's rsa outlet from split_rcr
+        Q, P, n = 0.0, 0.0, 200
+        qs = []
+        for _ in range(int(round(t_end / window))):
+            for _ in range(n):                                       # the 3-D solver's own steps in the window
+                Q += window / n * (12e3 - P) / L
+            P = wk.step(Q, window)
+            qs.append(Q)
+        return np.array(qs), explicit_coupling_gain(wk, L, window)
+
+    q10, g10 = run(0.01)
+    q1, g1 = run(0.001)
+    assert g10 > 2 and g1 < 1
+    assert np.abs(q10[-1]) > 1e3 * np.abs(q1).max()                  # diverges, sign flipping
+    assert np.all(np.sign(np.diff(q10[-6:])) != np.sign(np.diff(q10[-7:-1])))
+    assert np.all(np.isfinite(q1)) and q1.max() < 12e3 / 2.71e8      # bounded by p_in / Rp
+    assert np.count_nonzero(np.diff(np.sign(np.diff(q1)))) <= 1      # rises then relaxes: no oscillation
+
+
 def test_aorta_caps_are_the_six_openings():
     pytest.importorskip("manifold3d")
     from pinneapple_design import geometry_library as gl

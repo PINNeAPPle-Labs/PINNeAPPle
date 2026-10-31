@@ -2015,6 +2015,119 @@
    ],
    "status": "validated"
   },
+  "S42": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_boundary_gauges",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_bridge_removes_most_of_the_discrete_monitoring_bias",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_crossing_across_missing_samples_is_reported",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_crossing_error_is_second_order",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_crossing_of_exponential_decay_on_an_irregular_grid",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_crossing_on_named_component_of_a_csv",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_crossing_with_too_few_samples_is_not_applicable",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_distribution_from_x0_samples",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_dt_convergence_of_the_discretely_monitored_estimate",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_from_trajectories_needs_events_and_members",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_from_trajectories_with_irregular_windows_matches_inverse_gaussian",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_level_set_exit_of_a_disc_in_2d",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_mc_brownian_drift_matches_inverse_gaussian",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_mc_interval_exit_mean_side_and_survival",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_mc_level_set_in_2d_is_flagged_as_discretely_monitored",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_mc_ou_mean_first_passage",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_mc_reflecting_wall",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_monte_carlo_cost",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_monte_carlo_input_errors_and_all_censored",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_monte_carlo_is_reproducible_and_seed_dependent",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_multiple_thresholds_censoring_and_start_inside",
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_sensitivity_to_the_noise_hypothesis",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_first_passage_time_as_the_design_target",
+    "PINNeAPPle/tests/test_dynamics_integration.py::test_point_start_agrees_with_the_backward_series",
+    "PINNeAPPle/tests/test_dynamics_integration.py::test_problems_are_reported_or_refused",
+    "PINNeAPPle/tests/test_dynamics_integration.py::test_survival_from_a_pp_solve_like_solution_and_against_monte_carlo"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_dynamics_first_passage.py::test_sensitivity_to_drift_matches_the_analytic_derivative",
+    "PINNeAPPle/tests/test_dynamics_integration.py::test_survival_from_density_matches_the_closed_form"
+   ],
+   "status": "validated"
+  },
+  "S43": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_characteristic_scales_unique_and_ambiguous",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_cooling_curves_collapse_under_the_dimensional_scaling",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_degenerate_and_unsupported_collapse",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_empirical_normalisation_collapses_curves_of_different_laws",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_fitted_exponents_and_their_stability",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_groups_in_a_force_length_time_system",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_method_cards_and_contract",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_no_group_and_bad_repeating_variables",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_noise_degrades_collapse_gracefully_and_reproducibly",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_peclet_fourier_prandtl_recognized_and_valued",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_pendulum_exponents_exact_and_constant_fitted",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_rayleigh_is_a_product_of_the_groups_found",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_reynolds_matches_the_existing_dimensionless_numbers",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_scaling_law_with_more_groups_is_refused",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_semi_infinite_conduction_profiles_collapse_in_the_similarity_variable",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_similarity_between_a_model_and_a_prototype",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_stokes_drag_law",
+    "PINNeAPPle/tests/test_dynamics_dimensional.py::test_target_that_cannot_be_formed_is_reported"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
+  "S44": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_a_and_e_criteria_and_failures",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_bayes_d_design_needs_a_prior_and_uses_it",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_fim_algebra_and_reproducibility",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_first_passage_time_as_the_design_target",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_greedy_d_choice_matches_the_existing_d_optimal_design",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_information_gain_and_next_best_time",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_jax_backend_is_optional",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_linear_regression_information_is_exact_and_ols_attains_the_bound",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_missing_backend_and_bad_backend",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_parameter_dependent_noise_adds_information",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_poisson_information",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_prior_gives_the_conjugate_posterior_and_is_labelled",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_two_parameter_decay_d_optimal_design_is_zero_and_one_over_k"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_c_optimal_design_for_the_crossing_time_matches_the_delta_method",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_one_parameter_decay_is_best_measured_at_one_over_k",
+    "PINNeAPPle/tests/test_dynamics_fisher.py::test_torch_score_matches_finite_differences"
+   ],
+   "status": "validated"
+  },
+  "S45": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_contract_and_card",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_critical_slowing_down_bundle_and_recovery_rate",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_growing_noise_raises_variance_but_not_autocorrelation",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_irregular_sampling_with_pair_autocorrelation",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_missing_values_are_tolerated_and_reported",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_other_surrogates",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_reproducible_and_seeded",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_slowing_down_is_detected_before_each_bifurcation",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_spectral_reddening",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_stable_control_gives_no_signal",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_stationary_ou_estimates_match_theory",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_trend_false_positive_without_detrending_and_its_removal",
+    "PINNeAPPle/tests/test_dynamics_early_warning.py::test_window_bandwidth_and_sampling_sensitivity"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
+  "S46": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_comparison_with_state_space_regression_and_order_selection",
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_edmd_on_the_exact_invariant_subspace",
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_generator_edmd_from_derivatives",
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_neural_dictionary_from_a_torch_module",
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_residuals_flag_spurious_eigenvalues_of_a_larger_dictionary",
+    "PINNeAPPle/tests/test_dynamics_koopman.py::test_snapshot_pairs_and_failures"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
   "S5": {
    "other_tests": [
     "PINNeAPPle/tests/pinneapple_physics/test_turbulence_selector.py::test_lbm_laminar_is_zero",

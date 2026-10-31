@@ -248,7 +248,7 @@ def contacts(frames: Sequence[np.ndarray], surface_z: float, cutoff: float = 3.5
 
 # ------------------------------------------------------------------------------------------------ rendering
 def _colors(mol: Molecule, xyz: np.ndarray, color_by: str, surface_z: float) -> np.ndarray:
-    from matplotlib import cm
+    from matplotlib import colormaps
     from matplotlib import colors as mcolors
 
     if color_by == "residue":
@@ -257,11 +257,11 @@ def _colors(mol: Molecule, xyz: np.ndarray, color_by: str, surface_z: float) -> 
         return np.array([mcolors.to_rgb(ELEMENT_COLORS.get(e, "#C0C0C0")) for e in mol.elements])
     if color_by == "chain":
         ch = list(dict.fromkeys(mol.chains))
-        pal = cm.get_cmap("tab10")
+        pal = colormaps["tab10"]
         return np.array([pal(ch.index(c) % 10)[:3] for c in mol.chains])
     if color_by == "height":
         h = xyz[:, 2] - surface_z
-        return cm.get_cmap("viridis")(np.clip(h / max(np.percentile(h, 98), 1e-6), 0, 1))[:, :3]
+        return colormaps["viridis"](np.clip(h / max(np.percentile(h, 98), 1e-6), 0, 1))[:, :3]
     raise ValueError("color_by: residue, element, chain or height")
 
 

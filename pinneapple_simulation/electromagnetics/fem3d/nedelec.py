@@ -182,10 +182,16 @@ class EdgeSpace:
 
 
 # ---------------------------------------------------------------------------------------------- gauge
-def tree_gauge(mesh: TetMesh, fixed_edges: np.ndarray, root_nodes: np.ndarray) -> np.ndarray:
+def tree_gauge(mesh: TetMesh, fixed_edges: np.ndarray, root_nodes: np.ndarray,
+               link_roots: bool = False) -> np.ndarray:
     """Edges of a spanning tree that reaches every node not in ``root_nodes`` (breadth first from all roots at
     once) using only edges not in ``fixed_edges``. Removing them leaves exactly one unknown per independent
-    curl: the gradient of every free node is spanned by tree edges."""
+    curl: the gradient of every free node is spanned by tree edges.
+
+    ``link_roots``: when the roots form several separate groups (a conductor's nodes and the outer boundary),
+    the gradient of a potential that is constant on each group (the conductor's floating potential) is zero
+    on every root edge and is not spanned by the forest, so the gauged system keeps that null space. With
+    ``link_roots`` one more edge per extra group joins the groups into one tree."""
     from scipy.sparse.csgraph import breadth_first_order
 
     N = len(mesh.nodes)
@@ -205,7 +211,7 @@ def tree_gauge(mesh: TetMesh, fixed_edges: np.ndarray, root_nodes: np.ndarray) -
     data = np.r_[eid + 1, eid + 1, np.zeros(len(r)), np.zeros(len(r))].astype(float)
     data[data == 0] = -1                                       # virtual links
     G = sp.csr_matrix((data, (rows, cols)), shape=(N + 1, N + 1))
-    _, pred = breadth_first_order(G, V, directed=False, return_predecessors=True)
+    order, pred = breadth_first_order(G, V, directed=False, return_predecessors=True)
     free = np.flatnonzero(~roots)
     unreached = free[pred[free] < 0]
     if len(unreached):                                         # components without a root: one root each
@@ -217,11 +223,50 @@ def tree_gauge(mesh: TetMesh, fixed_edges: np.ndarray, root_nodes: np.ndarray) -
             order, _ = breadth_first_order(G, n0, directed=False, return_predecessors=True)
             seen[order[order < N]] = True
             extra.append(n0)
-        return tree_gauge(mesh, fixed_edges, np.r_[root_nodes, extra].astype(np.int64))
+        return tree_gauge(mesh, fixed_edges, np.r_[root_nodes, extra].astype(np.int64), link_roots)
     p = pred[free]
     child = free[p != V]
     parent = p[p != V]
-    return mesh.edge_index(np.column_stack([child, parent]))
+    tree = mesh.edge_index(np.column_stack([child, parent]))
+    if link_roots:
+        tree = np.r_[tree, _root_links(mesh, allowed, roots, tree, order, pred)]
+    return tree
+
+
+def _root_links(mesh: TetMesh, allowed: np.ndarray, roots: np.ndarray, tree: np.ndarray, order: np.ndarray,
+                pred: np.ndarray) -> np.ndarray:
+    """Edges that join the groups of the forest of :func:`tree_gauge` (a group: root nodes connected by edges
+    between roots, with the free nodes the forest hangs from them) into one tree, Kruskal on the groups."""
+    from scipy.sparse.csgraph import connected_components
+
+    N = len(mesh.nodes)
+    E = mesh.edges
+    rr = roots[E[:, 0]] & roots[E[:, 1]]
+    g = sp.csr_matrix((np.ones(rr.sum()), (E[rr, 0], E[rr, 1])), shape=(N, N))
+    _, comp = connected_components(g, directed=False)
+    label = np.where(roots, comp, -1)
+    for n in order[1:]:            # free nodes inherit their branch's group; parents come first in BFS order
+        if label[n] < 0:
+            label[n] = label[pred[n]]
+    in_tree = np.zeros(len(E), bool)
+    in_tree[tree] = True
+    cand = np.flatnonzero(allowed & ~in_tree & ~rr)
+    la, lb = label[E[cand, 0]], label[E[cand, 1]]
+    cand, la, lb = cand[la != lb], la[la != lb], lb[la != lb]
+    parent = np.arange(comp.max() + 1)
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    out = []
+    for e, x, y in zip(cand, la, lb, strict=True):
+        fx, fy = find(x), find(y)
+        if fx != fy:
+            parent[fx] = fy
+            out.append(e)
+    return np.asarray(out, np.int64)
 
 
 def _project_source(space: EdgeSpace, b: np.ndarray, free_nodes: np.ndarray) -> np.ndarray:
@@ -238,6 +283,66 @@ def _project_source(space: EdgeSpace, b: np.ndarray, free_nodes: np.ndarray) -> 
 
 def _factorise(Kr):
     return spla.splu(Kr.tocsc(), permc_spec="COLAMD")
+
+
+def _mkl_path() -> None:
+    """pypardiso looks for ``libmkl_rt.so.2``; point it at the MKL runtime pip installed if that is another one."""
+    import glob
+    import os
+    import sys
+
+    if os.environ.get("PYPARDISO_MKL_RT"):
+        return
+    for d in (os.path.join(sys.prefix, "lib"), "/usr/local/lib", "/usr/lib"):
+        hits = sorted(glob.glob(os.path.join(d, "libmkl_rt.so*")))
+        if hits:
+            os.environ["PYPARDISO_MKL_RT"] = hits[-1]
+            return
+
+
+def _complex_solver(Kr, solver: str = "auto"):
+    """``b -> Kr^-1 b`` for the complex symmetric tree-gauged eddy matrix ``R + jI``. ``"pardiso"``: MKL PARDISO
+    (pypardiso, real only) on the real symmetric indefinite form ``[[R, -I], [-I, -R]] [xr; xi] = [br; -bi]``,
+    factorised as LDL^T from its upper triangle (half the memory of an LU of ``[[R, -I], [I, R]]``); ``"splu"``:
+    SuperLU COLAMD on the complex matrix; ``"auto"``: PARDISO when importable."""
+    if solver in ("auto", "pardiso"):
+        try:
+            _mkl_path()
+            import pypardiso
+
+            re, im = Kr.real.tocsr(), Kr.imag.tocsr()
+            Kb = sp.triu(sp.bmat([[re, -im], [-im, -re]]), format="csr")
+            Kb.sort_indices()
+            del re, im
+            ps = pypardiso.PyPardisoSolver(mtype=-2)
+            ps.factorize(Kb)
+            n = Kr.shape[0]
+
+            def solve(b):
+                x = ps.solve(Kb, np.concatenate([b.real, -b.imag]))
+                return x[:n] + 1j * x[n:]
+            solve.free = lambda: ps.free_memory(everything=True)   # MKL keeps the factor until told
+            return solve, "pardiso"
+        except ImportError:
+            if solver == "pardiso":
+                raise
+    if solver not in ("auto", "pardiso", "splu"):
+        raise ValueError("solver must be 'auto', 'pardiso' or 'splu'")
+    return _factorise(Kr).solve, "splu"
+
+
+def _refine(Kr, rhs, solve, rtol: float, max_steps: int = 10):
+    """Iterative refinement on a direct factorisation (PARDISO perturbs tiny pivots of the singular-in-air
+    curl-curl block, so one solve stops near 1e-6). Returns the solution, the steps and the relative residual."""
+    x = solve(rhs)
+    nb = np.linalg.norm(rhs) or 1.0
+    res = np.linalg.norm(rhs - Kr @ x) / nb
+    k = 0
+    while res > rtol and k < max_steps:
+        x = x + solve(rhs - Kr @ x)
+        res = np.linalg.norm(rhs - Kr @ x) / nb
+        k += 1
+    return x, k, float(res)
 
 
 def cocg(A, b, M_inv, rtol: float = 1e-9, maxiter: int = 20000):
@@ -454,13 +559,14 @@ class EddySolution3D:
 
 def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
                dirichlet: tuple[np.ndarray, np.ndarray] | None = None, space: EdgeSpace | None = None,
-               gauge: str = "tree", rtol: float = 1e-9) -> EddySolution3D:
+               gauge: str = "tree", rtol: float = 1e-9, solver: str = "auto") -> EddySolution3D:
     """Time-harmonic eddy currents with the modified vector potential ``A*`` (linear media).
 
     nu, sigma: per tetrahedron (or scalars); J: source current density phasor (M, 3) or callable, zero in the
     conductors. The tree gauge spans the non-conducting nodes only (conductor nodes are roots), so ``A*`` is
     unique in the conductors and carries the electric scalar potential there. ``gauge="tree"`` (default)
-    factorises the tree-gauged system (sparse LU: small cases, up to some 1e4 unknowns in seconds);
+    factorises the tree-gauged system (``solver``: see :func:`_complex_solver`) and refines the solution to
+    ``rtol``;
     ``gauge="none"`` keeps every edge and solves with COCG and a Jacobi preconditioner, which is fast where it
     converges but stalls and diverges on stiff cases (measured on TEAM problem 7: residual 2e-2 after 300
     iterations, then growth), so it is opt-in."""
@@ -479,7 +585,7 @@ def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
     roots = np.union1d(d_nodes, cond_nodes)
     free_nodes = np.setdiff1d(np.arange(len(mesh.nodes)), roots)
     b = _project_source(sp_, sp_.current_load(J, J_mask), free_nodes).astype(complex)
-    tree = tree_gauge(mesh, d_edges, roots) if gauge == "tree" else np.array([], np.int64)
+    tree = tree_gauge(mesh, d_edges, roots, link_roots=True) if gauge == "tree" else np.array([], np.int64)
     unknown = np.ones(sp_.n, bool)
     unknown[d_edges] = False
     unknown[tree] = False
@@ -491,8 +597,13 @@ def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
     t1 = time.perf_counter()
     Kr = K[u][:, u].tocsr()
     iters = 0
+    res = None
+    used = None
     if gauge == "tree":
-        a[u] = _factorise(Kr).solve(rhs)
+        solve, used = _complex_solver(Kr, solver)
+        a[u], iters, res = _refine(Kr, rhs, solve, rtol)
+        if hasattr(solve, "free"):
+            solve.free()
     elif gauge == "none":
         a[u], iters = cocg(Kr, rhs, 1.0 / Kr.diagonal(), rtol=rtol)
     else:
@@ -502,5 +613,5 @@ def solve_eddy(mesh: TetMesh, nu, sigma, omega: float, J, J_mask=None,
     Ms = sp_.mass(sigma)
     loss = 0.5 * omega ** 2 * float(np.real(np.conj(a) @ (Ms @ a)))
     info = {"unknowns": int(len(u)), "tree_edges": int(len(tree)), "assembly_s": t1 - t0, "solve_s": t2 - t1,
-            "iterations": iters, "gauge": gauge}
+            "iterations": iters, "gauge": gauge, "solver": used, "residual": res}
     return EddySolution3D(mesh, a, B, omega, sigma, loss, info, sp_)

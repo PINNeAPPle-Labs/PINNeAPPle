@@ -33,6 +33,7 @@ def main(argv=None):
     ap.add_argument("--cycles", type=int, default=4)
     ap.add_argument("--cell", type=float, default=1.5e-3)
     ap.add_argument("--carreau", action="store_true")
+    ap.add_argument("--dt-couple", type=float, default=1e-3, help="coupling window [s] (0.01 is unstable here)")
     a = ap.parse_args(argv)
     out = Path(a.out)
     case = out / "case"
@@ -43,14 +44,16 @@ def main(argv=None):
     info = json.loads((case / "setup.json").read_text())
     diam = {k: v["diameter"] for k, v in info["geometry"]["caps"].items() if k.startswith("outlet")}
     wk = split_rcr(diam)
-    run = CoupledRun(case, wk, rho=info["physics"]["rho"], history_path=out / "history.json")
+    run = CoupledRun(case, wk, rho=info["physics"]["rho"], history_path=out / "history.json",
+                     dt_couple=a.dt_couple)
+    n = int(round(period / a.dt_couple))          # windows per cycle
     while not run.history or run.history[-1]["t"] < a.cycles * period - 1e-9:
         t_done = run.history[-1]["t"] if run.history else 0.0
         c = int(round(t_done / period, 6))
         run.run((c + 1) * period, verbose=False)
         print(f"cycle {c + 1}: p_inlet range "
-              f"{min(r['p_inlet'] for r in run.history[-100:]) / MMHG:.1f}-"
-              f"{max(r['p_inlet'] for r in run.history[-100:]) / MMHG:.1f} mmHg", flush=True)
+              f"{min(r['p_inlet'] for r in run.history[-n:]) / MMHG:.1f}-"
+              f"{max(r['p_inlet'] for r in run.history[-n:]) / MMHG:.1f} mmHg", flush=True)
     chk = run.check(period)
     names = list(wk)
     q0 = outlet_flows(chk["Q_inlet_mean"], [wk[k].Rp + wk[k].Rd for k in names])
@@ -61,11 +64,12 @@ def main(argv=None):
         o["p_mean_mmHg"] = o["p_mean"] / MMHG
     h = run.history
     pin = np.array([r["p_inlet"] for r in h]) / MMHG
-    last, prev = pin[-100:], pin[-200:-100]
-    res = {"scale": "full" if a.cycles >= 4 else f"reduced-scale ({a.cycles} of 4 cycles)", "mesh": info["mesh"], "physics": info["physics"], "cycles": a.cycles, "check": chk,
+    last, prev = pin[-n:], pin[-2 * n:-n]
+    res = {"scale": "full" if a.cycles >= 4 else f"reduced-scale ({a.cycles} of 4 cycles)", "mesh": info["mesh"], "physics": info["physics"], "cycles": a.cycles,
+           "dt_couple": a.dt_couple, "check": chk,
            "systolic_mmHg": float(last.max()), "diastolic_mmHg": float(last.min()),
            "mean_inlet_mmHg": float(last.mean()),
-           "periodicity_max_change_mmHg": float(np.max(np.abs(last - prev))) if len(prev) == 100 else None,
+           "periodicity_max_change_mmHg": float(np.max(np.abs(last - prev))) if len(prev) == n else None,
            "windkessels": {k: {"Rp": w.Rp, "Rd": w.Rd, "C": w.C} for k, w in wk.items()}}
     (out / "result.json").write_text(json.dumps(res, indent=1, default=float))
     print(json.dumps({k: v for k, v in res.items() if k not in ("mesh", "physics", "windkessels")}, indent=1,

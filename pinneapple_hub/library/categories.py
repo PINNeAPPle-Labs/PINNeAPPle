@@ -75,20 +75,25 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
 #: the node types of the example flows (pinneapple_flow.nodes_ext, one module per examples/* domain), by category
 EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "problem": ("node:problemdesign.",),
-    "equations": ("node:nonhermitian.", "node:pde_env."),
+    "geometry": ("node:study.ahmed_geometry",),
+    "equations": ("node:nonhermitian.", "node:pde_env.",
+                  "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))
+    "inverse": ("node:study.inverse",),
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
-                  "node:aero.", "node:md.", "node:newton.", "node:swe."),
+                  "node:aero.", "node:md.", "node:newton.", "node:swe.", "node:study.cfd_campaign",
+                  "node:immersed."),
     "pinn": ("node:architectures.", "node:pinn.", "node:pinn_solver."),
-    "surrogates": ("node:core.hybrid_fem", "node:worldmodel."),
+    "surrogates": ("node:core.hybrid_fem", "node:worldmodel.", "node:study.surrogates", "node:potential.co2_surrogates"),
     "zoo": ("node:zoo.",),
     "checks": ("node:gallery.", "node:check.", "node:proof."),
-    "verification": ("node:examples.",),
+    "verification": ("node:examples.", "node:study.grid_validation"),
     "benchmarks": ("node:arena.",),
     "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative."),
     "systems": ("node:systems.",),
-    "electromagnetics": ("node:em.", "node:inspection.", "node:antenna."),
-    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso."),
-    "reports": ("node:render.",),
+    "electromagnetics": ("node:em.", "node:inspection.", "node:antenna.", "node:potential.machine_coenergy"),
+    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin"),
+    "data": ("node:study.dataset",),
+    "reports": ("node:render.", "node:study.report"),
     "automation": ("node:security.",),
 }
 CATEGORIES = [(s, t, d, ps + EXAMPLE_NODES.get(s, ())) for s, t, d, ps in CATEGORIES]

@@ -1,0 +1,12 @@
+{
+ "code_hash": "edcd4e2ded414e0a",
+ "figures": [],
+ "id": "node:em.team7",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 9.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "TEAM problem 7: 3-D eddy currents against the published measurements -> pinneapple_simulation.electromagnetics.fem3d.team7: mesh_team7, run (solve_eddy with the tree gauge and PARDISO, probe, compare against MEASURED)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'h_plate': [0.012, 0.009, 0.007, 0.006], 'freqs': [50, 200]}",
+ "timed_out": false
+}

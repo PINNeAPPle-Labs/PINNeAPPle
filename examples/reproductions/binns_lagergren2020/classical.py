@@ -44,6 +44,9 @@ def main(argv=None):
     ap.add_argument("--data", required=True)
     ap.add_argument("--out", default=os.path.join(HERE, "results", "classical.json"))
     ap.add_argument("--models", default="fkpp,porous_fkpp,delay_reaction_diffusion")
+    ap.add_argument("--densities", default=None, help="comma list (default: all six)")
+    ap.add_argument("--max-starts", type=int, default=None,
+                    help="evenly thinned start grid; fewer starts than the grid are labelled reduced-scale")
     a = ap.parse_args(argv)
     from pinneapple_physics.biology.cell_migration import (
         DENSITIES,
@@ -57,16 +60,29 @@ def main(argv=None):
             results = json.load(f)
     for model in a.models.split(","):
         results.setdefault(model, {})
-        for dens in DENSITIES:
+        grid = STARTS[model]
+        stride = -(-len(grid) // a.max_starts) if a.max_starts else 1
+        starts = grid[::stride]
+        dens_list = [int(d) for d in a.densities.split(",")] if a.densities else DENSITIES
+        for dens in dens_list:
             if str(dens) in results[model]:
                 continue
             assay = load_scratch_assay(a.data, dens)
             t0 = time.time()
-            fits = [fit_mechanistic(model, assay, x0) for x0 in STARTS[model]]
+            # finished starts are kept in "_partial" so a killed run resumes at the next start
+            partial = results.setdefault("_partial", {}).setdefault(model, {}).setdefault(str(dens), [])
+            for x0 in starts[len(partial):]:
+                partial.append(fit_mechanistic(model, assay, x0))
+                os.makedirs(os.path.dirname(a.out), exist_ok=True)
+                with open(a.out, "w") as f:
+                    json.dump(results, f, indent=1)
+            fits = results["_partial"][model].pop(str(dens))
             best = min(fits, key=lambda r: r["gls"])
             results[model][str(dens)] = {"gls": best["gls"], "params": best["params"],
                                          "params_paper_units": to_paper_units(best["params"]),
-                                         "n_starts": len(fits), "spread_gls": [min(f["gls"] for f in fits),
+                                         "n_starts": len(fits), "n_starts_grid": len(grid),
+                                         "scale": "full" if len(fits) == len(grid) else
+                                         f"reduced-scale ({len(fits)} of {len(grid)} starts)", "spread_gls": [min(f["gls"] for f in fits),
                                                                                max(f["gls"] for f in fits)],
                                          "seconds": time.time() - t0}
             print(model, dens, round(best["gls"], 2), {k: round(v, 4) for k, v in
@@ -74,6 +90,10 @@ def main(argv=None):
             os.makedirs(os.path.dirname(a.out), exist_ok=True)
             with open(a.out, "w") as f:
                 json.dump(results, f, indent=1)
+    if not any(v for m in results.get("_partial", {}).values() for v in m.values()):
+        results.pop("_partial", None)
+        with open(a.out, "w") as f:
+            json.dump(results, f, indent=1)
 
 
 if __name__ == "__main__":

@@ -235,6 +235,17 @@
      "nfev": 96,
      "success": true,
      "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+    },
+    {
+     "params": {
+      "D": 0.04258297071541775,
+      "m": 0.4981032073896486,
+      "r": 1.5356999522214487
+     },
+     "gls": 926.5793796162536,
+     "nfev": 308,
+     "success": true,
+     "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
     }
    ]
   }

@@ -203,7 +203,7 @@
   "seconds": 0.11
  },
  "pinneapple_systems.process_components.beam_statics:rectangular_section_properties": {
-  "code_hash": "dae04ea610debd68",
+  "code_hash": "33799301784e8a3b",
   "inputs": {
    "height_m": 0.2,
    "width_m": 0.1
@@ -211,7 +211,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "tuple",
-  "seconds": 0.0
+  "seconds": 9.03
  },
  "pinneapple_systems.process_components.curved_path_geometry:build_and_hold_profile": {
   "code_hash": "9e8a046f5be1aad5",
@@ -228,7 +228,7 @@
   "seconds": 0.0
  },
  "pinneapple_systems.process_components.curved_path_geometry:inclination_at_depth": {
-  "code_hash": "22eb2ae165cee739",
+  "code_hash": "9fc13efeb4db579f",
   "inputs": {
    "build_length_m": 200.0,
    "final_inclination_deg": 0.0,
@@ -364,7 +364,7 @@
   "seconds": 0.0
  },
  "pinneapple_systems.process_components.reaction_kinetics:diprotic_fractions": {
-  "code_hash": "33a5cf28a28ccc66",
+  "code_hash": "824844ec6ab0b1da",
   "inputs": {
    "pH": 8.3,
    "pKa1": 6.3,
@@ -453,7 +453,7 @@
   "seconds": 0.0
  },
  "pinneapple_systems.process_components.water_hammer:wave_period": {
-  "code_hash": "c17aa987556215a5",
+  "code_hash": "f5d512bcb7ac8bd5",
   "inputs": {
    "length": 1000.0,
    "wave_speed": 1000.0
@@ -740,7 +740,7 @@
   "seconds": 0.0
  },
  "pinneapple_systems.time_series.enso.data:d20_from_profile": {
-  "code_hash": "3b0766d262fbc5b6",
+  "code_hash": "7713bf61e6cad0bd",
   "inputs": {
    "T": [
     28.0,
@@ -760,7 +760,7 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
-  "seconds": 0.01
+  "seconds": 11.12
  },
  "pinneapple_systems.time_series.enso.data:era5_monthly": {
   "code_hash": "a03b3da8d0321662",

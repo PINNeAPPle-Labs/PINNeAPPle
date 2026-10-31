@@ -75,7 +75,15 @@ class BeamResult:
 def rectangular_section_properties(width_m: float, height_m: float) -> tuple[float, float]:
     """Returns (I, Q) for a rectangular cross-section: second moment of
     area I = b*h^3/12, first moment of area at the neutral axis
-    Q = b*h^2/8 (used for shear stress)."""
+    Q = b*h^2/8 (used for shear stress).
+
+    Returns
+    -------
+    I : float [m4]
+        Second moment of area.
+    Q : float [m3]
+        First moment at the neutral axis.
+    """
     I = width_m * height_m ** 3 / 12.0
     Q = width_m * height_m ** 2 / 8.0
     return I, Q

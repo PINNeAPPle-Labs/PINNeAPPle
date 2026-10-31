@@ -34,7 +34,13 @@ def helmholtz_resonant_frequency_hz(
     volume. ``end_correction_factor`` defaults to 1.7 (a port flanged
     at both ends -- cabinet wall + interior -- a standard
     loudspeaker-design value); pass a different real value for a
-    differently-terminated port geometry."""
+    differently-terminated port geometry.
+
+    Returns
+    -------
+    f : float [Hz]
+        Resonant frequency.
+    """
     v_m3 = max(cabinet_volume_l, 1e-6) / 1000.0
     a = math.pi * port_radius_m ** 2
     l_eff = port_length_m + end_correction_factor * port_radius_m
@@ -45,5 +51,11 @@ def port_volume_m3(port_radius_m: float, port_length_m: float) -> float:
     """Real port air volume -- used both as a real design constraint
     (a port shouldn't displace too much of the cabinet's own internal
     air) and as a real, physically-meaningful minimization objective in
-    multi-objective (Pareto-frontier) port design."""
+    multi-objective (Pareto-frontier) port design.
+
+    Returns
+    -------
+    V : float [m3]
+        Port air volume.
+    """
     return math.pi * port_radius_m ** 2 * port_length_m

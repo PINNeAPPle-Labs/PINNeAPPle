@@ -32,6 +32,13 @@ def _I(a, r1, r2):
 
 
 def skin_depth(f: float, sigma: float, mu_r: float = 1.0) -> float:
+    """Skin depth for ``f`` in Hz and ``sigma`` in S/m (``MU0`` is in H/m).
+
+    Returns
+    -------
+    delta : float [m]
+        Standard depth of penetration ``1 / sqrt(pi f mu0 mu_r sigma)``.
+    """
     return 1.0 / math.sqrt(math.pi * f * MU0 * mu_r * sigma)
 
 

@@ -31,6 +31,20 @@ import scipy.sparse.linalg as spla
 
 @dataclass
 class FinCellResult:
+    """One fin pitch solved by finite volumes.
+
+    Attributes
+    ----------
+    t_junction_c : float [degC]
+        Mean temperature of the heated bottom face.
+    t_fin_root_c : float [degC]
+    t_fin_tip_c : float [degC]
+    energy_balance_rel_error : float [-]
+        ``|convected - applied| / applied``.
+    n_cells : int [-]
+    grid_change_rel : float | None [-]
+        Relative change of the rise on a grid twice as fine.
+    """
     t_junction_c: float              # mean temperature of the heated bottom face
     t_fin_root_c: float              # mean temperature of the fin at its root (first fin layer)
     t_fin_tip_c: float               # temperature of the fin tip face

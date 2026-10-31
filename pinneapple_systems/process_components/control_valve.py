@@ -61,6 +61,17 @@ class ValveSpec:
 
 @dataclass(frozen=True)
 class ValveFlowResult:
+    """Compressible flow through the valve (IEC 60534).
+
+    Attributes
+    ----------
+    mass_flow_kg_s : float [kg/s]
+        Mass flow.
+    x : float [-]
+        Pressure-drop ratio dP / P1.
+    Y : float [-]
+        Expansion factor.
+    """
     mass_flow_kg_s: float
     choked: bool
     x: float
@@ -102,7 +113,13 @@ def compressible_mass_flow(Cv_us: float, P1_Pa: float, P2_Pa: float, rho1_kg_m3:
 
 def incompressible_mass_flow(Cv_us: float, P1_Pa: float, P2_Pa: float, rho_kg_m3: float) -> float:
     """Liquid-service sizing (no expansion factor / choking model beyond
-    simple flashing checks are out of scope here) -- w = Cv_SI * sqrt(dP * rho)."""
+    simple flashing checks are out of scope here) -- w = Cv_SI * sqrt(dP * rho).
+
+    Returns
+    -------
+    w : float [kg/s]
+        Mass flow.
+    """
     if P2_Pa > P1_Pa:
         raise ValueError("P2 (downstream) must not exceed P1 (upstream)")
     dP = P1_Pa - P2_Pa

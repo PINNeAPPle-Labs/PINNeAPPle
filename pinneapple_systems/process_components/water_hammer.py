@@ -60,6 +60,22 @@ class PumpCurve:
 
 @dataclass
 class OperatingPoint:
+    """Steady operating point of the line.
+
+    Attributes
+    ----------
+    flow : float [m3/s]
+    velocity : float [m/s]
+    reynolds : float [-]
+    friction_factor : float [-]
+    pump_head : float [m]
+        Head at the pump outlet.
+    valve_head : float [m]
+        Head upstream of the valve.
+    friction_loss : float [m]
+    valve_cv : float [m^2.5/s]
+        ``Q = Cv sqrt(H_valve - H_tank)`` fully open.
+    """
     flow: float                 # m^3/s
     velocity: float             # m/s
     reynolds: float
@@ -114,6 +130,18 @@ def _signed_root(k: float, b: float, c: float) -> float:
 
 @dataclass
 class TransientResult:
+    """Method-of-characteristics run of a valve closure.
+
+    Attributes
+    ----------
+    head : np.ndarray [m]
+        Piezometric head, (nt, nx).
+    flow : np.ndarray [m3/s]
+        (nt, nx).
+    tau : np.ndarray [-]
+        Valve opening.
+    courant : float [-]
+    """
     t: np.ndarray               # (nt,)
     x: np.ndarray               # (nx,)
     head: np.ndarray            # (nt, nx) piezometric head [m]
@@ -181,10 +209,22 @@ def moc_valve_closure(line: Pipeline, pump: PumpCurve, op: OperatingPoint, *, cl
 
 
 def joukowsky_head_rise(wave_speed: float, dv: float) -> float:
-    """``a dV / g`` [m]: head rise of an instantaneous velocity change ``dv`` (Joukowsky)."""
+    """``a dV / g`` [m]: head rise of an instantaneous velocity change ``dv`` (Joukowsky).
+
+    Returns
+    -------
+    dH : float [m]
+        Head rise.
+    """
     return wave_speed * dv / G
 
 
 def wave_period(length: float, wave_speed: float) -> float:
-    """``4 L / a`` [s]: period of the pressure oscillation after a closure (pipe from a reservoir)."""
+    """``4 L / a`` [s]: period of the pressure oscillation after a closure (pipe from a reservoir).
+
+    Returns
+    -------
+    T : float [s]
+        Period.
+    """
     return 4.0 * length / wave_speed

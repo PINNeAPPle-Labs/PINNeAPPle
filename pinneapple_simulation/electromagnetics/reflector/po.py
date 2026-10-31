@@ -28,15 +28,35 @@ ETA0 = 376.730313412
 
 
 def wavenumber(f_hz: float) -> float:
+    """Free-space wavenumber ``2 pi f / c`` at ``f_hz``.
+
+    Returns
+    -------
+    k : float [rad/m]
+        Free-space wavenumber.
+    """
     return 2 * np.pi * f_hz / C0
 
 
 def q_from_gain(gain_dbi: float) -> float:
-    """``q`` of a ``cos^q`` feed of directivity ``gain_dbi`` (``D = 2 (2q + 1)``)."""
+    """``q`` of a ``cos^q`` feed of directivity ``gain_dbi`` (``D = 2 (2q + 1)``).
+
+    Returns
+    -------
+    q : float [-]
+        Exponent of the ``cos^q`` feed.
+    """
     return (10 ** (gain_dbi / 10) / 2 - 1) / 2
 
 
 def gain_from_q(q: float) -> float:
+    """Directivity ``2 (2q + 1)`` of a ``cos^q`` feed, in dBi.
+
+    Returns
+    -------
+    gain : float [dBi]
+        Directivity of a ``cos^q`` feed.
+    """
     return float(10 * np.log10(2 * (2 * q + 1)))
 
 

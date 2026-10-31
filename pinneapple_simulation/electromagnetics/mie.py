@@ -23,6 +23,23 @@ __all__ = ["MieResult", "mie", "mie_pec", "rayleigh_qsca", "mie_coefficients"]
 
 @dataclass
 class MieResult:
+    """Mie coefficients and efficiencies of a sphere.
+
+    Attributes
+    ----------
+    x : float [-]
+        Size parameter.
+    m : complex [-]
+        Relative refractive index.
+    qext : float [-]
+        Extinction efficiency.
+    qsca : float [-]
+        Scattering efficiency.
+    qback : float [-]
+        Backscattering efficiency.
+    g : float [-]
+        Asymmetry parameter <cos theta>.
+    """
     x: float
     m: complex
     an: np.ndarray

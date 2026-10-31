@@ -76,7 +76,13 @@ LINES = {"A1B1": (72.0, 34.0), "A2B2": (144.0, 34.0), "A3B3": (72.0, 19.0), "A4B
 
 def coil_current_density(points: np.ndarray) -> np.ndarray:
     """Uniform current density of the racetrack coil, counter-clockwise seen from +z (A/m^2), at points inside
-    the coil (direction tangent to the straight sides and to the corner arcs)."""
+    the coil (direction tangent to the straight sides and to the corner arcs).
+
+    Returns
+    -------
+    J : np.ndarray [A/m2]
+        Current density at ``points``.
+    """
     x0, x1, y0, y1 = CORNERS
     p = np.atleast_2d(points)
     r = np.column_stack([p[:, 0] - np.clip(p[:, 0], x0, x1), p[:, 1] - np.clip(p[:, 1], y0, y1)])

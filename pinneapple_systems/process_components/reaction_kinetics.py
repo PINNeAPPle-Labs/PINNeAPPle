@@ -157,20 +157,39 @@ def linear_combination_rate_constant(terms: Sequence[tuple[float, str]]) -> Call
 
 def acid_fraction(pH: float, pKa: float) -> float:
     """Henderson-Hasselbalch: fraction of a monoprotic acid-base pair
-    present in the PROTONATED (acid) form."""
+    present in the PROTONATED (acid) form.
+
+    Returns
+    -------
+    alpha : float [-]
+        Protonated fraction.
+    """
     return 1.0 / (1.0 + 10.0 ** (pH - pKa))
 
 
 def base_fraction(pH: float, pKa: float) -> float:
     """Fraction present in the DEPROTONATED (base/conjugate-base) form
-    -- exactly 1 - acid_fraction(pH, pKa)."""
+    -- exactly 1 - acid_fraction(pH, pKa).
+
+    Returns
+    -------
+    alpha : float [-]
+        Deprotonated fraction.
+    """
     return 1.0 / (1.0 + 10.0 ** (pKa - pH))
 
 
 def diprotic_fractions(pH: float, pKa1: float, pKa2: float) -> tuple[float, float, float]:
     """Bjerrum fractions (alpha_H2A, alpha_HA, alpha_A) for a diprotic
     acid-base system (H2A / HA- / A2-), generalizing the carbonate
-    system (H2CO3/HCO3-/CO3^2-) to any two-pKa diprotic pair."""
+    system (H2CO3/HCO3-/CO3^2-) to any two-pKa diprotic pair.
+
+    Returns
+    -------
+    alpha_H2A : float [-]
+    alpha_HA : float [-]
+    alpha_A : float [-]
+    """
     Ka1, Ka2 = 10.0 ** (-pKa1), 10.0 ** (-pKa2)
     H = 10.0 ** (-pH)
     denom = H ** 2 + Ka1 * H + Ka1 * Ka2

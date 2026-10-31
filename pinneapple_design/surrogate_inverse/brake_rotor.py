@@ -98,11 +98,24 @@ def profile_params(design: RotorDesign, power_w: float, h_conv: float) -> dict[s
 
 
 def rotor_temperature_c(design: RotorDesign, power_w: float, h_conv: float) -> float:
-    """Ground truth: friction-ring temperature under a sustained heat input."""
+    """Ground truth: friction-ring temperature under a sustained heat input.
+
+    Returns
+    -------
+    T : float [degC]
+        Friction-ring temperature.
+    """
     return fac.fin_array_base_temperature_c(profile_params(design, power_w, h_conv), T_AMBIENT_C, power_w)
 
 
 def thermal_resistance_k_w(design: RotorDesign, h_conv: float) -> float:
+    """Thermal resistance from the friction ring to the air.
+
+    Returns
+    -------
+    R : float [K/W]
+        Thermal resistance.
+    """
     return rotor_temperature_c(design, 1.0, h_conv) - T_AMBIENT_C
 
 
@@ -110,7 +123,13 @@ def vane_temperature_at_radial_position_c(design: RotorDesign, power_w: float, h
                                           r_fraction: float) -> float:
     """The fin profile (same ``m`` and root rise) along the vane's radial extent: hottest at the inner edge
     (``r_fraction = 0``), coolest at the outer edge. Used to colour the vanes; the scalar model integrates over the
-    gap direction, this profile is a display of the same fin parameters along the radius."""
+    gap direction, this profile is a display of the same fin parameters along the radius.
+
+    Returns
+    -------
+    T : float [degC]
+        Vane temperature at ``r_fraction``.
+    """
     p = profile_params(design, power_w, h_conv)
     x = min(max(r_fraction, 0.0), 1.0) * RADIAL_FLOW_LENGTH_M
     return fac.fin_array_temperature_at_position_c(p, T_AMBIENT_C, x, corrected_length_m=p["lc_radial_m"])

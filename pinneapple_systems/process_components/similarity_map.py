@@ -52,6 +52,25 @@ from scipy.optimize import brentq
 
 @dataclass(frozen=True)
 class MapCoefficients:
+    """Dimensionless performance map of a centrifugal compressor, and its diameter.
+
+    Attributes
+    ----------
+    D2_m : float [m]
+        Impeller tip diameter.
+    n_stages : int [-]
+    phi_ref_bep : float [-]
+    psi_ref_bep : float [-]
+    psi_shape_a : float [-]
+    psi0 : float [-]
+    eta_p_max : float [-]
+    eta_p_shape_b : float [-]
+    phi_surge : float [-]
+    phi_choke : float [-]
+    Mu2_ref : float [-]
+    mach_correction_strength : float [-]
+    reynolds_correction_exponent : float [-]
+    """
     name: str
     D2_m: float
     n_stages: int = 1
@@ -70,7 +89,13 @@ class MapCoefficients:
 
 def derive_psi_shape_a(psi0: float, phi_ref_bep: float, psi_ref_bep: float) -> float:
     """Curvature 'a' in psi(phi) = psi0 - a*phi^2 that makes the curve
-    pass exactly through (phi_ref_bep, psi_ref_bep)."""
+    pass exactly through (phi_ref_bep, psi_ref_bep).
+
+    Returns
+    -------
+    a : float [-]
+        Curvature of the head curve.
+    """
     if phi_ref_bep <= 0:
         raise ValueError("phi_ref_bep must be positive")
     a = (psi0 - psi_ref_bep) / phi_ref_bep ** 2
@@ -94,6 +119,23 @@ def make_map(
 
 @dataclass(frozen=True)
 class MapEvaluation:
+    """The map at one operating point.
+
+    Attributes
+    ----------
+    phi : float [-]
+        Flow coefficient.
+    psi : float [-]
+        Head coefficient.
+    eta_p : float [-]
+        Polytropic efficiency.
+    Mu2 : float [-]
+        Tip Mach number.
+    Re : float [-]
+        Machine Reynolds number.
+    surge_margin_frac : float [-]
+    choke_margin_frac : float [-]
+    """
     phi: float
     psi: float
     eta_p: float
@@ -104,18 +146,46 @@ class MapEvaluation:
 
 
 def flow_coefficient(Q1_m3_s: float, N_rpm: float, coeffs: MapCoefficients) -> float:
+    """Flow coefficient of the actual inlet flow ``Q1_m3_s`` at ``N_rpm``.
+
+    Returns
+    -------
+    phi : float [-]
+        Flow coefficient.
+    """
     return Q1_m3_s / (N_rpm / 60.0 * coeffs.D2_m ** 3)
 
 
 def tip_speed_m_s(N_rpm: float, coeffs: MapCoefficients) -> float:
+    """Impeller tip speed at ``N_rpm``.
+
+    Returns
+    -------
+    U2 : float [m/s]
+        Impeller tip speed.
+    """
     return np.pi * coeffs.D2_m * (N_rpm / 60.0)
 
 
 def tip_mach_number(N_rpm: float, coeffs: MapCoefficients, speed_of_sound_m_s: float) -> float:
+    """Tip speed over the inlet speed of sound.
+
+    Returns
+    -------
+    Mu2 : float [-]
+        Tip Mach number.
+    """
     return tip_speed_m_s(N_rpm, coeffs) / speed_of_sound_m_s
 
 
 def machine_reynolds_number(N_rpm: float, coeffs: MapCoefficients, kinematic_viscosity_m2_s: float) -> float:
+    """``U2 D2 / nu`` at ``N_rpm``.
+
+    Returns
+    -------
+    Re : float [-]
+        Machine Reynolds number.
+    """
     return tip_speed_m_s(N_rpm, coeffs) * coeffs.D2_m / kinematic_viscosity_m2_s
 
 
@@ -169,7 +239,13 @@ def evaluate_map(
 
 
 def polytropic_head_from_psi(psi: float, N_rpm: float, coeffs: MapCoefficients) -> float:
-    """Total machine polytropic head (J/kg) = n_stages * psi * U2^2."""
+    """Total machine polytropic head (J/kg) = n_stages * psi * U2^2.
+
+    Returns
+    -------
+    head : float [J/kg]
+        Polytropic head.
+    """
     return coeffs.n_stages * psi * tip_speed_m_s(N_rpm, coeffs) ** 2
 
 
@@ -180,7 +256,13 @@ def required_speed_for_head(
 ) -> float:
     """Solves for the shaft speed producing target_head_J_kg at a fixed
     actual inlet volumetric flow, via bisection on the monotonic
-    head(N) relation at fixed Q1."""
+    head(N) relation at fixed Q1.
+
+    Returns
+    -------
+    N : float [rpm]
+        Shaft speed.
+    """
     def f(N_rpm):
         ev = evaluate_map(coeffs, Q1_m3_s, N_rpm, speed_of_sound_m_s, kinematic_viscosity_m2_s)
         return polytropic_head_from_psi(ev.psi, N_rpm, coeffs) - target_head_J_kg

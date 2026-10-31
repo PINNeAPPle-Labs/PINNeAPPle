@@ -17,7 +17,13 @@ MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 
 
 def acc(mean: np.ndarray, y: np.ndarray) -> list[float]:
-    """Anomaly correlation (Pearson, over origins) per horizon column."""
+    """Anomaly correlation (Pearson, over origins) per horizon column.
+
+    Returns
+    -------
+    acc : list[float] [-]
+        Anomaly correlation per horizon.
+    """
     return [float(np.corrcoef(mean[:, j], y[:, j])[0, 1]) for j in range(y.shape[1])]
 
 
@@ -41,7 +47,13 @@ def by_target_month(mean: np.ndarray, y: np.ndarray, origins: np.ndarray, month_
 
 
 def category(x: np.ndarray, threshold: float = 0.5) -> np.ndarray:
-    """-1 La Nina (x <= -threshold), 0 neutral, +1 El Nino (x >= threshold)."""
+    """-1 La Nina (x <= -threshold), 0 neutral, +1 El Nino (x >= threshold).
+
+    Returns
+    -------
+    category : np.ndarray [-]
+        -1, 0 or +1.
+    """
     x = np.asarray(x, float)
     return np.where(x >= threshold, 1, np.where(x <= -threshold, -1, 0))
 

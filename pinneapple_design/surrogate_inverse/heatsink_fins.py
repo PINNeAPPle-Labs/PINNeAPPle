@@ -64,6 +64,17 @@ _FLOAT_TOL = 1e-6              # float32 round trip of a value clamped to a boun
 
 @dataclass
 class HeatsinkDesign:
+    """A fin array on the fixed base.
+
+    Attributes
+    ----------
+    fin_count : float [-]
+        Number of fins.
+    fin_height_m : float [m]
+        Fin height.
+    fin_thickness_m : float [m]
+        Fin thickness.
+    """
     fin_count: float
     fin_height_m: float
     fin_thickness_m: float
@@ -87,17 +98,35 @@ def profile_params(design: HeatsinkDesign, power_w: float, h_conv: float) -> dic
 
 
 def junction_temperature_c(design: HeatsinkDesign, power_w: float, h_conv: float) -> float:
-    """Ground truth: base (junction) temperature. Used for the training labels and for the verification."""
+    """Ground truth: base (junction) temperature. Used for the training labels and for the verification.
+
+    Returns
+    -------
+    T_j : float [degC]
+        Junction temperature.
+    """
     return fac.fin_array_base_temperature_c(profile_params(design, power_w, h_conv), T_AMBIENT_C, power_w)
 
 
 def thermal_resistance_k_w(design: HeatsinkDesign, h_conv: float) -> float:
-    """``(T_j - T_amb) / P``: independent of the power in this model."""
+    """``(T_j - T_amb) / P``: independent of the power in this model.
+
+    Returns
+    -------
+    R : float [K/W]
+        Thermal resistance.
+    """
     return (junction_temperature_c(design, 1.0, h_conv) - T_AMBIENT_C) / 1.0
 
 
 def fin_temperature_at_height_c(design: HeatsinkDesign, power_w: float, h_conv: float, z_above_root_m: float) -> float:
-    """The 1-D fin profile ``theta(z) = theta_root cosh(m (Lc - z)) / cosh(m Lc)`` of the same formula."""
+    """The 1-D fin profile ``theta(z) = theta_root cosh(m (Lc - z)) / cosh(m Lc)`` of the same formula.
+
+    Returns
+    -------
+    T : float [degC]
+        Fin temperature at ``z_above_root_m``.
+    """
     return fac.fin_array_temperature_at_position_c(profile_params(design, power_w, h_conv), T_AMBIENT_C, z_above_root_m)
 
 

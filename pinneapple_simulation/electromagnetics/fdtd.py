@@ -72,7 +72,13 @@ def fill_fraction(grid: YeeGrid, inside: Callable[[np.ndarray, np.ndarray, np.nd
 
 
 def courant_limit(spacing: Sequence[float], dims: Sequence[bool] | None = None) -> float:
-    """Largest stable time step ``1 / (c sqrt(sum_i 1/dx_i^2))`` over the active axes (TH eq. 4.65)."""
+    """Largest stable time step ``1 / (c sqrt(sum_i 1/dx_i^2))`` over the active axes (TH eq. 4.65).
+
+    Returns
+    -------
+    dt : float [s]
+        Largest stable time step, for spacings in m (``C0`` in m/s).
+    """
     dims = dims if dims is not None else [True] * len(spacing)
     s = sum(1.0 / d ** 2 for d, a in zip(spacing, dims, strict=True) if a)
     return 1.0 / (C0 * math.sqrt(s))
@@ -82,7 +88,13 @@ def numerical_dispersion(omega: float, dt: float, spacing: Sequence[float], dire
                          n: float = 1.0) -> float:
     """Wavenumber ``k`` of the Yee scheme along unit ``direction`` at angular frequency ``omega`` in a medium of
     index ``n``: the root of ``(n / (c dt) sin(omega dt / 2))^2 = sum_i (sin(k u_i dx_i / 2) / dx_i)^2``
-    (TH eq. 4.12), solved by bisection/Newton from the continuum value."""
+    (TH eq. 4.12), solved by bisection/Newton from the continuum value.
+
+    Returns
+    -------
+    k : float [rad/m]
+        Numerical wavenumber, for ``dt`` in s and spacings in m.
+    """
     from scipy.optimize import brentq
 
     u = np.asarray(direction, float)

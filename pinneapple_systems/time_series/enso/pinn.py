@@ -432,7 +432,15 @@ def _per_group_derivative(model, s, G):
 def project_forcing(taux: np.ndarray, lat: np.ndarray, c: float = 2.7, H: float = 150.0, rho: float = 1025.0
                     ) -> tuple[np.ndarray, np.ndarray]:
     """Projections X0, X2 of X = tau_x / (rho H) [m s-2] (..., nlat, nx) on phi_0 = exp(-y^2/2) and
-    phi_2 = (4 y^2 - 2) exp(-y^2/2), y = lat / L with L = sqrt(c / beta) (norms sqrt(pi) and 8 sqrt(pi))."""
+    phi_2 = (4 y^2 - 2) exp(-y^2/2), y = lat / L with L = sqrt(c / beta) (norms sqrt(pi) and 8 sqrt(pi)).
+
+    Returns
+    -------
+    X0 : np.ndarray [m/s2]
+        Projection on phi_0.
+    X2 : np.ndarray [m/s2]
+        Projection on phi_2.
+    """
     from .intermediate import BETA, DEG, _phi
     y = np.asarray(lat) * DEG / np.sqrt(c / BETA)
     P = _phi(2, y)

@@ -62,6 +62,23 @@ def _influence(px, py, x1, y1, x2, y2):
 
 @dataclass
 class PanelResult:
+    """The panel solution (chord 1, free stream 1).
+
+    Attributes
+    ----------
+    alpha_deg : float [deg]
+        Angle of attack.
+    cp : np.ndarray [-]
+        Pressure coefficient at the panel mid-points.
+    cl_kutta_joukowski : float [-]
+        Lift coefficient from the circulation.
+    cl_pressure : float [-]
+        Lift coefficient from the pressure.
+    cd_pressure : float [-]
+        Pressure drag coefficient (zero in exact potential flow).
+    cm_quarter : float [-]
+        Pitching moment about the quarter chord.
+    """
     nodes: np.ndarray
     sigma: np.ndarray
     gamma: float

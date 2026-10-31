@@ -226,6 +226,7 @@ def mesh_from_surface(
     bl_n_layers: int = 3,
     optimize: bool = True,
     algorithm_3d: int = 4,          # gmsh: 4=Frontal, 1=Delaunay
+    feature_angle: float = 40.0,    # degrees: edges sharper than this stay sharp (box corners)
 ) -> Optional[Mesh3D]:
     """
     Generate a tetrahedral volume mesh from a closed 3D surface mesh.
@@ -241,7 +242,9 @@ def mesh_from_surface(
     bl_thickness      : boundary layer total thickness (0 = auto: mesh_size)
     bl_n_layers       : number of boundary layer prism layers
     optimize          : run gmsh optimization pass
-    algorithm_3d      : gmsh 3D meshing algorithm
+    algorithm_3d      : gmsh 3D meshing algorithm (4 = Frontal needs a gmsh built with Netgen; without it the
+                        mesh is made with 1 = Delaunay, recorded in ``meta``)
+    feature_angle     : angle in degrees above which an edge of the surface is kept sharp
 
     Returns
     -------
@@ -265,6 +268,7 @@ def mesh_from_surface(
         bl_n_layers=bl_n_layers,
         optimize=optimize,
         algorithm_3d=algorithm_3d,
+        feature_angle=feature_angle,
     )
     if result is not None:
         return result
@@ -297,6 +301,8 @@ def _mesh_gmsh_3d(
     bl_n_layers: int,
     optimize: bool,
     algorithm_3d: int,
+    feature_angle: float = 40.0,
+    netgen: bool = True,
 ) -> Optional[Mesh3D]:
     try:
         import gmsh
@@ -304,7 +310,10 @@ def _mesh_gmsh_3d(
         return None
 
     try:
-        gmsh.initialize()
+        try:
+            gmsh.initialize(interruptible=False)    # no SIGINT handler: works off the main thread (Flow, Studio)
+        except TypeError:                            # gmsh < 4.11 has no interruptible argument
+            gmsh.initialize()
         gmsh.model.add("vol3d")
         gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.option.setNumber("Mesh.Algorithm3D", algorithm_3d)
@@ -315,11 +324,12 @@ def _mesh_gmsh_3d(
         v = surface.vertices.astype(np.float64)
         f = surface.faces.astype(np.int32)
         node_tags = np.arange(1, len(v) + 1, dtype=int)
-        gmsh.model.mesh.addNodes(2, 1, node_tags, v.ravel().tolist(), [])
+        surf = gmsh.model.addDiscreteEntity(2)          # the surface must exist before nodes are added to it
+        gmsh.model.mesh.addNodes(2, surf, node_tags, v.ravel().tolist(), [])
         elem_tags = np.arange(1, len(f) + 1, dtype=int)
         elem_nodes = (f + 1).ravel().tolist()
-        gmsh.model.mesh.addElementsByType(1, 2, elem_tags.tolist(), elem_nodes)
-        gmsh.model.mesh.classifySurfaces(np.pi, True, True, np.pi)
+        gmsh.model.mesh.addElementsByType(surf, 2, elem_tags.tolist(), elem_nodes)
+        gmsh.model.mesh.classifySurfaces(np.radians(feature_angle), True, True, np.pi)
         gmsh.model.mesh.createGeometry()
 
         surfs = gmsh.model.getEntities(2)
@@ -346,22 +356,30 @@ def _mesh_gmsh_3d(
 
         if optimize:
             gmsh.option.setNumber("Mesh.Optimize", 1)
-            gmsh.option.setNumber("Mesh.OptimizeNetgen", 1)
+            gmsh.option.setNumber("Mesh.OptimizeNetgen", 1 if netgen else 0)
 
-        gmsh.model.mesh.generate(3)
+        try:
+            gmsh.model.mesh.generate(3)
+        except Exception as exc:  # gmsh builds without Netgen: no Frontal 3-D, no Netgen optimiser
+            if "Netgen" not in str(exc) or not netgen:
+                raise
+            gmsh.finalize()      # start again from the surface: a failed pass leaves nothing to mesh
+            return _mesh_gmsh_3d(surface, mesh_size=mesh_size, mesh_size_boundary=mesh_size_boundary,
+                                 boundary_layer=boundary_layer, bl_thickness=bl_thickness, bl_n_layers=bl_n_layers,
+                                 optimize=optimize, algorithm_3d=1, feature_angle=feature_angle, netgen=False)
 
         # Extract nodes
         node_tags_out, coords_out, _ = gmsh.model.mesh.getNodes()
         coords_out = np.array(coords_out, dtype=np.float32).reshape(-1, 3)
 
         # Extract tets
-        tet_type, tet_tags, tet_nodes = gmsh.model.mesh.getElementsByType(4)
+        tet_tags, tet_nodes = gmsh.model.mesh.getElementsByType(4)
         tets = None
         if len(tet_nodes) > 0:
             tets = np.array(tet_nodes, dtype=np.int32).reshape(-1, 4) - 1
 
         # Extract surface triangles
-        tri_type, tri_tags, tri_nodes = gmsh.model.mesh.getElementsByType(2)
+        tri_tags, tri_nodes = gmsh.model.mesh.getElementsByType(2)
         surf_faces = np.array([], dtype=np.int32).reshape(0, 3)
         if len(tri_nodes) > 0:
             surf_faces = np.array(tri_nodes, dtype=np.int32).reshape(-1, 3) - 1
@@ -376,7 +394,8 @@ def _mesh_gmsh_3d(
             tets=tets,
             surface_faces=surf_faces,
             meta={"backend": "gmsh", "mesh_size": mesh_size,
-                  "n_tets": len(tets), "boundary_layer": boundary_layer},
+                  "n_tets": len(tets), "boundary_layer": boundary_layer,
+                  "algorithm_3d": algorithm_3d, "netgen": netgen},
         )
 
     except Exception as exc:

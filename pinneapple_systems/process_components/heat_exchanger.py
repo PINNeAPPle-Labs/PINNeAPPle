@@ -51,6 +51,20 @@ class HeatExchangerSpec:
 
 @dataclass(frozen=True)
 class HeatExchangerResult:
+    """Steady state of the exchanger (effectiveness-NTU).
+
+    Attributes
+    ----------
+    Q_W : float [W]
+        Heat duty.
+    T_hot_out_K : float [K]
+    T_cold_out_K : float [K]
+    effectiveness : float [-]
+    NTU : float [-]
+    dP_Pa : float [Pa]
+        Pressure drop.
+    UA_effective_W_K : float [W/K]
+    """
     Q_W: float
     T_hot_out_K: float
     T_cold_out_K: float

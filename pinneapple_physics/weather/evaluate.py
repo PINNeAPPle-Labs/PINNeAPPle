@@ -31,6 +31,13 @@ def rmse(f: np.ndarray, o: np.ndarray, w: np.ndarray) -> np.ndarray:
 
 
 def acc(f: np.ndarray, o: np.ndarray, clim: np.ndarray, w: np.ndarray) -> np.ndarray:
+    """Area-weighted anomaly correlation coefficient of forecast ``f`` and observation ``o`` against ``clim``.
+
+    Returns
+    -------
+    acc : np.ndarray [-]
+        Anomaly correlation coefficient per leading index.
+    """
     fa, oa = f - clim, o - clim
     fa = fa - np.mean(fa * w[:, None], axis=(-2, -1), keepdims=True)
     oa = oa - np.mean(oa * w[:, None], axis=(-2, -1), keepdims=True)
@@ -41,7 +48,13 @@ def acc(f: np.ndarray, o: np.ndarray, clim: np.ndarray, w: np.ndarray) -> np.nda
 
 def first_crossing(leads_h: np.ndarray, values: np.ndarray, threshold: float, below: bool = True) -> float:
     """Lead (hours, linearly interpolated) at which ``values`` first goes below (or above) ``threshold``;
-    inf if it never does within the leads given."""
+    inf if it never does within the leads given.
+
+    Returns
+    -------
+    lead : float [h]
+        Lead at the first crossing (inf if none).
+    """
     v = np.asarray(values, float)
     bad = v < threshold if below else v >= threshold
     if not bad.any():

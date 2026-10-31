@@ -82,7 +82,13 @@ class PipeSpec:
 
 def colebrook_white_f(Re: float, relative_roughness: float) -> float:
     """Darcy friction factor -- laminar closed form below Re=2300, else
-    Colebrook-White, solved via Newton iteration on 1/sqrt(f)."""
+    Colebrook-White, solved via Newton iteration on 1/sqrt(f).
+
+    Returns
+    -------
+    f : float [-]
+        Darcy friction factor.
+    """
     Re = max(Re, 1.0)
     if Re < 2300.0:
         return 64.0 / Re
@@ -105,6 +111,13 @@ def colebrook_white_f(Re: float, relative_roughness: float) -> float:
 
 
 def face_reynolds_number(G_kg_m2s: float, D_m: float, viscosity_Pa_s: float) -> float:
+    """``Re = G D / mu`` from the mass flux (kg/(m2 s)), diameter (m) and viscosity (Pa s).
+
+    Returns
+    -------
+    Re : float [-]
+        Reynolds number.
+    """
     return abs(G_kg_m2s) * D_m / viscosity_Pa_s
 
 

@@ -32,7 +32,13 @@ __all__ = ["plate_loss", "strip_loss", "loss_factor", "segmented_block", "block_
 
 def plate_loss(a: float, b: float, h: float, sigma: float, f: float, B: float, terms: int = 400) -> float:
     """Time-averaged resistance-limited loss (W) of a thin ``a x b`` piece, thickness ``h``, in a uniform normal
-    field of peak ``B`` at ``f`` (the double sine series above, ``terms`` odd terms in each direction)."""
+    field of peak ``B`` at ``f`` (the double sine series above, ``terms`` odd terms in each direction).
+
+    Returns
+    -------
+    P : float [W]
+        Time-averaged loss of the piece.
+    """
     m = np.arange(1, 2 * terms, 2, dtype=float)
     M, N = np.meshgrid(m, m, indexing="ij")
     s = np.sum(64 * a * b / (math.pi ** 4 * M ** 2 * N ** 2 * ((M * math.pi / a) ** 2 + (N * math.pi / b) ** 2)))
@@ -41,13 +47,25 @@ def plate_loss(a: float, b: float, h: float, sigma: float, f: float, B: float, t
 
 
 def strip_loss(a: float, b: float, h: float, sigma: float, f: float, B: float) -> float:
-    """The 2-D value: an infinitely long strip of width ``a`` (axial current, no net current), over length ``b``."""
+    """The 2-D value: an infinitely long strip of width ``a`` (axial current, no net current), over length ``b``.
+
+    Returns
+    -------
+    P : float [W]
+        Time-averaged loss of the strip over length ``b``.
+    """
     w = 2 * math.pi * f
     return h * sigma * w ** 2 * B ** 2 * a ** 3 * b / 24
 
 
 def loss_factor(a: float, b: float, terms: int = 400) -> float:
-    """``plate_loss / strip_loss``: the share of the 2-D loss a piece of width ``a`` and length ``b`` keeps."""
+    """``plate_loss / strip_loss``: the share of the 2-D loss a piece of width ``a`` and length ``b`` keeps.
+
+    Returns
+    -------
+    ratio : float [-]
+        ``plate_loss / strip_loss``.
+    """
     return plate_loss(a, b, 1.0, 1.0, 1.0, 1.0, terms) / strip_loss(a, b, 1.0, 1.0, 1.0, 1.0)
 
 

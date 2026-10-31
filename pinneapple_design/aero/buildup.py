@@ -18,7 +18,13 @@ AIRLINER_COMPONENTS: dict[str, tuple[float, Any]] = {
 
 
 def sutherland_mu(T: float) -> float:
-    """Dynamic viscosity of air (Sutherland), Pa.s."""
+    """Dynamic viscosity of air (Sutherland), Pa.s.
+
+    Returns
+    -------
+    mu : float [Pa s]
+        Dynamic viscosity.
+    """
     return 1.458e-6 * T ** 1.5 / (T + 110.4)
 
 

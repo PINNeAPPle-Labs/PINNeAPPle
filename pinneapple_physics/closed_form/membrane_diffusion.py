@@ -36,7 +36,13 @@ def steady_state_release_rate_mg_day(
     area_m2: float, membrane_thickness_m: float,
 ) -> float:
     """The real, closed-form ground-truth steady-state release rate
-    (mg/day) through a rate-limiting membrane, Fick's first law."""
+    (mg/day) through a rate-limiting membrane, Fick's first law.
+
+    Returns
+    -------
+    rate : float [mg/day]
+        Steady-state release rate.
+    """
     flux = diffusion_coeff_m2_s * partition_coeff * reservoir_conc_kg_m3 / max(membrane_thickness_m, FLOAT_FLOOR)
     rate_kg_s = flux * area_m2
     return rate_kg_s * KG_TO_MG * 86400.0  # kg/s -> mg/day
@@ -49,7 +55,13 @@ def depletion_time_days(
     membrane thickness -- area and reservoir concentration cancel out
     (both the release rate and the total reservoir mass scale with
     them identically). A genuine derived property of the physics, not
-    a simplification error."""
+    a simplification error.
+
+    Returns
+    -------
+    t : float [day]
+        Time to deplete the reservoir.
+    """
     t_s = reservoir_thickness_m * membrane_thickness_m / (diffusion_coeff_m2_s * partition_coeff)
     return t_s / 86400.0
 
@@ -69,7 +81,13 @@ def concentration_at_membrane_depth(
     Its constant gradient is exactly what the release-rate formula
     assumes: |J| = D*dC/dz = D*K*C_res/L -- the same D*K*C*A/L already
     in the rate formula, confirming this field is consistent with (not
-    a contradiction of) the scalar model."""
+    a contradiction of) the scalar model.
+
+    Returns
+    -------
+    C : float [kg/m3]
+        Concentration at ``z_from_reservoir_m``.
+    """
     l = max(membrane_thickness_m, FLOAT_FLOOR)
     z = min(max(z_from_reservoir_m, 0.0), l)
     c_surface = partition_coeff * reservoir_conc_kg_m3
@@ -91,7 +109,13 @@ def post_depletion_decay_rate_constant_per_day(
     Area cancels algebraically:  k = D*K / (L * L_res)
 
     -- exactly 1 / depletion_time_days (not a coincidence: the same
-    quantity is depletion time's own reciprocal)."""
+    quantity is depletion time's own reciprocal).
+
+    Returns
+    -------
+    k : float [1/day]
+        First-order decay constant.
+    """
     l = max(membrane_thickness_m, FLOAT_FLOOR)
     k_per_s = diffusion_coeff_m2_s * partition_coeff / (l * reservoir_thickness_m)
     return k_per_s * 86400.0

@@ -162,3 +162,15 @@ def test_ghost_nitsche_matrix_stays_positive_definite_on_slivers(order):
         disc = im.Discretization(case.geometry, case.size / 10, order=order, pad=1 - off, jitter=False)
         A, _, _ = assemble_heat(disc, 1.0, case.source, case.bcs)
         assert np.linalg.eigvalsh(A.toarray())[0] > 0
+
+
+def test_flow_node_immersed_heat(tmp_path):
+    import pinneapple_flow as pf
+    r = pf.run(pf.Flow("immersed", nodes=[{"id": "n", "type": "immersed.heat", "params": {"cells": 10}}]),
+               workdir=tmp_path)
+    assert r.status == "done", r.nodes["n"]["error"]
+    m = r.output("n", "metrics")
+    assert abs(m["energy_imbalance"]) < 1e-10
+    # Biot number k / (h L) is tiny: the part is nearly isothermal at T_inf + P / (h A)
+    lumped = 25.0 + m["generated_W"] / (25.0 * m["area_m2"])
+    assert abs(m["T_max_C"] - lumped) / (lumped - 25.0) < 0.01

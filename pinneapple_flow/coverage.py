@@ -97,8 +97,6 @@ REASONS: dict[str, str] = {
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
-    "pinneapple_simulation.immersed": "immersed (finite cell / CutFEM) solver on SDF, voxel and STL geometry; its "
-                                      "Flow node comes with the comparison against conforming FEM (issue #966)",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
                                               "examples/reproductions/xtfc_schiassi2021 runner, not a flow step",
     "pinneapple_physics.paper_problems_epi": "the compartmental models of the X-TFC parameter-discovery paper, read "

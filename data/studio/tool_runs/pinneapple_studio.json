@@ -23,6 +23,28 @@
   "returned": "dict",
   "seconds": 0.37
  },
+ "pinneapple_studio.catalog:make_class_finder": {
+  "code_hash": "6f587d1b23d84527",
+  "inputs": {
+   "inv": {
+    "modules": {
+     "m": {
+      "classes": [
+       {
+        "name": "Res"
+       }
+      ],
+      "imports": [],
+      "module": "m"
+     }
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "function",
+  "seconds": 0.92
+ },
  "pinneapple_studio.coverage:baseline": {
   "code_hash": "5c0f8fcec60b01d0",
   "inputs": {},
@@ -118,6 +140,32 @@
   "recorded": "2026-10-31",
   "returned": "PosixPath",
   "seconds": 0.01
+ },
+ "pinneapple_studio.outputs:from_docstring": {
+  "code_hash": "c887780f4d33eae1",
+  "inputs": {
+   "doc": "Returns\n-------\ntau : float [s]\n    time constant\n"
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_studio.outputs:is_record_class": {
+  "code_hash": "c3e0088246ea3f68",
+  "inputs": {
+   "cls": {
+    "bases": [
+     "NamedTuple"
+    ],
+    "decorators": [],
+    "name": "Res"
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "bool",
+  "seconds": 0.0
  },
  "pinneapple_studio.prose:load": {
   "code_hash": "47873f78475cab61",

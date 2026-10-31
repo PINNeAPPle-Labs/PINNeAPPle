@@ -232,6 +232,26 @@
   "returned": "DMD",
   "seconds": 0.0
  },
+ "pinneapple_analysis.dynamics.koopman:gavish_donoho_rank": {
+  "code_hash": "a87899c771e74f09",
+  "inputs": {
+   "s": [
+    10.0,
+    9.0,
+    0.1,
+    0.1,
+    0.1
+   ],
+   "shape": [
+    5,
+    100
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "int",
+  "seconds": 5.08
+ },
  "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
   "code_hash": "cbabc6ef7fdedc3c",
   "inputs": {},

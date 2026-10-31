@@ -50,7 +50,9 @@
   "19_edge3d_verification.py",
   "20_spm_skew_3d.py",
   "21_team7.py",
-  "22_spm_end_effects_3d.py"
+  "22_spm_end_effects_3d.py",
+  "23_magnet_eddy_segmentation.py",
+  "24_afpm_quasi3d.py"
  ],
  "metrics": [],
  "checks": [],
@@ -89,7 +91,9 @@
    "results/fdtd_dipole_pattern.png",
    "results/20_spm_skew_3d.png",
    "results/21_team7.png",
-   "results/22_spm_end_effects_3d.png"
+   "results/22_spm_end_effects_3d.png",
+   "results/23_magnet_eddy_segmentation.png",
+   "results/24_afpm_quasi3d.png"
   ],
   "videos": [
    "results/fdtd_cylinder_scattering.gif",
@@ -111,7 +115,9 @@
    "results/fdtd_gallery.json",
    "results/20_spm_skew_3d.json",
    "results/21_team7.json",
-   "results/22_spm_end_effects_3d.json"
+   "results/22_spm_end_effects_3d.json",
+   "results/23_magnet_eddy_segmentation.json",
+   "results/24_afpm_quasi3d.json"
   ]
  },
  "links": {

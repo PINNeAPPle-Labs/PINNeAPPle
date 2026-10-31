@@ -1004,6 +1004,111 @@ at most 15 mm and 40 mm of air beyond each end:
 Limits: linear iron, no-load magnet flux only (no armature reaction, no end-winding leakage, which
 `machines.endwinding` computes for the Prius); one machine.
 
+### 3-D magnet eddy loss: segmentation against 2-D
+
+The 2-D machine model computes the magnet eddy loss with the current flowing along the axis and no net current per
+piece (`postprocess.magnet_eddy_loss_resistance_limited`): the loss of an infinitely long strip. It sees a cut
+across the width of a magnet, not along its length. In 3-D the current loops in the face of the magnet and closes
+across its width near the ends, so axially short pieces lose much less.
+
+`machines3d.magnet_loss` puts a magnet, flattened into a block and cut into `n_width x n_length` insulated pieces
+(0.2 mm gaps), in a uniform field normal to its face (`segmented_block`, `block_loss_3d`: the full time-harmonic
+eddy-current problem, skin effect included). The reference is the resistance-limited loss of a thin `a x b` piece:
+the current stream function solves `lap(psi) = j w sigma B` with `psi = 0` on the edge, whose double sine series
+gives `plate_loss`; for `b -> inf` it is the 2-D strip, `h sigma w^2 B^2 a^3 b / 24` (`strip_loss`).
+
+`python examples/electrodynamics/23_magnet_eddy_segmentation.py` (run on 2026-10-31, 12 min, peak 8.1 GB) takes the
+magnet of the default `SPMMachine` (52.8 mm over the arc, 50 mm long, 4 mm thick, `sigma = 6.7e5` S/m) in 50 mT
+peak (the loss scales with `B^2`), on 1.5 mm elements in the plane of the magnet:
+
+| Pieces (width x length) | Piece (mm) | f (kHz) | Skin depth (mm) | 3-D (W) | Closed form (W) | 2-D (W) | 3-D / closed form | 3-D / 2-D |
+|---|---|---|---|---|---|---|---|---|
+| 1 x 1 | 52.8 x 50.0 | 1 | 19.4 | 32.14 | 32.32 | 81.02 | 0.994 | 0.3967 |
+| 1 x 1 | 52.8 x 50.0 | 10 | 6.1 | 1966 | 3232 | 8102 | 0.608 | 0.2427 |
+| 1 x 1 | 52.8 x 50.0 | 50 | 2.7 | 7196 | 8.081e+04 | 2.025e+05 | 0.089 | 0.0355 |
+| 1 x 2 | 52.8 x 24.9 | 1 | 19.4 | 12.66 | 12.63 | 80.69 | 1.002 | 0.1569 |
+| 1 x 2 | 52.8 x 24.9 | 10 | 6.1 | 1085 | 1263 | 8069 | 0.859 | 0.1344 |
+| 1 x 2 | 52.8 x 24.9 | 50 | 2.7 | 7944 | 3.158e+04 | 2.017e+05 | 0.252 | 0.0394 |
+| 1 x 4 | 52.8 x 12.3 | 1 | 19.4 | 3.785 | 3.736 | 80.04 | 1.013 | 0.0473 |
+| 1 x 4 | 52.8 x 12.3 | 10 | 6.1 | 369.8 | 373.6 | 8004 | 0.990 | 0.0462 |
+| 1 x 4 | 52.8 x 12.3 | 50 | 2.7 | 6181 | 9341 | 2.001e+05 | 0.662 | 0.0309 |
+| 1 x 8 | 52.8 x 6.1 | 1 | 19.4 | 1.015 | 0.9676 | 78.75 | 1.048 | 0.0129 |
+| 1 x 8 | 52.8 x 6.1 | 10 | 6.1 | 101.2 | 96.76 | 7875 | 1.046 | 0.0129 |
+| 1 x 8 | 52.8 x 6.1 | 50 | 2.7 | 2398 | 2419 | 1.969e+05 | 0.991 | 0.0122 |
+| 2 x 1 | 26.3 x 50.0 | 1 | 19.4 | 13.44 | 13.42 | 20.02 | 1.001 | 0.6712 |
+| 2 x 1 | 26.3 x 50.0 | 10 | 6.1 | 1134 | 1342 | 2002 | 0.845 | 0.5661 |
+| 2 x 1 | 26.3 x 50.0 | 50 | 2.7 | 7912 | 3.356e+04 | 5.006e+04 | 0.236 | 0.1580 |
+| 4 x 1 | 13.0 x 50.0 | 1 | 19.4 | 4.139 | 4.088 | 4.893 | 1.012 | 0.8459 |
+| 4 x 1 | 13.0 x 50.0 | 10 | 6.1 | 402.7 | 408.8 | 489.3 | 0.985 | 0.8231 |
+| 4 x 1 | 13.0 x 50.0 | 50 | 2.7 | 6423 | 1.022e+04 | 1.223e+04 | 0.628 | 0.5251 |
+| 2 x 4 | 26.3 x 12.3 | 1 | 19.4 | 3.117 | 3.077 | 19.78 | 1.013 | 0.1576 |
+| 2 x 4 | 26.3 x 12.3 | 10 | 6.1 | 305 | 307.7 | 1978 | 0.991 | 0.1542 |
+| 2 x 4 | 26.3 x 12.3 | 50 | 2.7 | 5247 | 7692 | 4.946e+04 | 0.682 | 0.1061 |
+
+Mesh convergence (1 x 4 pieces, 1 kHz, 3-D against the closed form): +4.7 %, +2.3 %, +1.3 %, +0.9 % on 3, 2,
+1.5 and 1.2 mm elements (109 000 to 452 000 unknowns), close to second order; the pieces of the 1 x 8 case
+(6.1 mm long, four elements) carry the largest error of the table, +4.8 %.
+
+* **Where the loss is resistance-limited** (skin depth large against the piece), 3-D matches the closed form
+  within the discretisation error (-0.6 to +4.8 %).
+* **2-D overestimates whenever the pieces are not long.** The square magnet keeps 40 % of the 2-D loss; four axial
+  pieces 4.7 %, eight 1.3 %. 2-D gives the same loss for every axial segmentation (it changes only by the gaps).
+  Cuts across the width are seen by 2-D: four of them keep 85 % of the 2-D value of the same pieces.
+* **Segmentation stops working at high frequency.** At 50 kHz (skin depth 2.7 mm) the whole magnet is
+  inductance-limited: 3-D gives 9 % of the resistance-limited value, and two axial pieces lose more than one
+  (7.9 kW against 7.2 kW). A resistance-limited estimate, 2-D or closed form, is wrong there by an order of
+  magnitude; the pieces must be small against the skin depth for cutting to pay.
+
+Limits: a flat magnet in a uniform normal field (one harmonic of the ripple; the curvature and the variation of
+the field over the magnet are left out), insulation perfect between pieces, linear materials.
+
+### 3-D axial-flux machine: quasi-3D against full 3-D
+
+`machines3d.afpm.AFPM3D(AFPMMachine(...))` meshes an axial-flux PM machine on a structured grid in `(r, theta, z)`:
+radial and axial node lines per region, `theta` uniform over the full circle, each cell cut into six tetrahedra, the
+grid closed at `theta = 2 pi` by merging the seam nodes. Turning the rotor by a whole number of steps maps the grid
+onto itself, so rotor angle is a relabelling of the magnet cells and cogging carries no remeshing noise. Two
+topologies: `"single"` (one rotor, a slotted stator with a yoke) and `"double_rotor"` (a yokeless slotted stator
+between two rotors magnetised the same way, so the flux crosses the stator axially).
+
+* **No helical bias.** A plain six-tetrahedron split leans every cell the same way round the axis, which put 0.9 N m
+  of torque on an aligned rotor on a coarse grid. Every other `theta` cell is now cut as the mirror image of its
+  neighbour; the grid is then symmetric about every even `theta` node plane, the aligned rotor carries no torque
+  (1e-11 N m) and the cogging is exactly odd. Rotor angles move by two steps at a time.
+* **Torque** is the Maxwell stress `r B_theta B_z / mu0` averaged over each gap layer. Its sign is checked against
+  the co-energy (`T = dW'/d theta`).
+* **Quasi-3D on the same grid.** `quasi3d_models(n)` cuts the active annulus into `n` radial slices on the same
+  radial nodes, each solved alone with flux-parallel cylindrical faces: the flux cannot cross radius `r_k`, the
+  assumption of the usual quasi-3D model (a 2-D machine per radius, curvature kept). One slice leaves out the
+  fringing at the inner and outer radius; five slices also leave out the radial flux inside the annulus.
+* **Flux linkage** of a coil around a stator tooth at mid tooth height (exact line integral of `A`), with a
+  magnet centred on the tooth.
+
+`python examples/electrodynamics/24_afpm_quasi3d.py` (run on 2026-10-31, 12 min, peak 10.8 GB) runs the default
+`AFPMMachine`: 12 slots, 8 poles, r = 50 to 90 mm, 1 mm gap, 4 mm magnets (80 % of the pole pitch), open slots (half
+the slot pitch), linear iron (`mu_r` 1000). Fine grid: 384 steps round the axis, 4 mm radially, 2.5 mm axially,
+15 mm of air inside, outside, above and below; coarse grid: 192 steps, 8 mm, 4 mm. Cogging over one 15 deg period
+every 1.875 deg (3.75 deg on the coarse grid):
+
+| Topology | Grid | Tetrahedra (3-D) | Cogging pk-pk, 3-D (N m) | Quasi-3D, 1 slice | Quasi-3D, 5 slices | Tooth linkage, 3-D (mWb) | Quasi-3D, 1 slice | Quasi-3D, 5 slices |
+|---|---|---|---|---|---|---|---|---|
+| single | fine | 1 032 192 | 9.199 | 10.234 (+11.3 %) | 10.265 (+11.6 %) | 1.049 | 1.072 (+2.2 %) | 1.071 (+2.1 %) |
+| single | coarse | 196 992 | 10.367 | 11.665 (+12.5 %) | 11.657 (+12.4 %) | 1.060 | 1.083 (+2.2 %) | 1.082 (+2.1 %) |
+| double rotor | fine | 1 179 648 | 17.477 | 19.498 (+11.6 %) | 19.532 (+11.8 %) | 1.062 | 1.091 (+2.8 %) | 1.091 (+2.7 %) |
+| double rotor | coarse | 238 464 | 18.558 | 21.025 (+13.3 %) | 20.965 (+13.0 %) | 1.072 | 1.103 (+2.9 %) | 1.102 (+2.9 %) |
+
+* **Quasi-3D overestimates the cogging by 11 to 12 %** on the fine grid (12 to 13 % on the coarse one) and the
+  flux linkage by 2 to 3 %, for both topologies.
+* **The difference is the fringing at the inner and outer radius, not radial flux inside the annulus**: one slice
+  and five slices agree within 0.3 % in cogging and 0.1 % in linkage.
+* **Discretisation.** The cogging itself moves by 13 % (single) and 6 % (double rotor) between the two grids, but
+  the quasi-3D error moves by 1.2 and 1.7 points, so the comparison holds to about that on the fine grid. A coil whose end turns
+  run 5 mm inside and outside the annulus links 0.6 % (single) and 1.1 % (double rotor) more than one on the
+  annulus edges (1.055 and 1.073 mWb).
+
+Limits: linear iron, no-load only (no winding currents), open slots on one geometry; two grids, the finer one at
+the memory of this machine.
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is

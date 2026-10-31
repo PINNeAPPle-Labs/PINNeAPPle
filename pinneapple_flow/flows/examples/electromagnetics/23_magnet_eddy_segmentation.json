@@ -1,0 +1,243 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-magnet-eddy-segmentation",
+ "name": "Magnet eddy loss against segmentation (23)",
+ "description": "Eddy-current loss of a segmented surface magnet in a uniform normal field: 3-D edge elements against the closed-form resistance-limited loss and the 2-D strip value, 1 to 50 kHz (examples/electrodynamics/23_magnet_eddy_segmentation.py).",
+ "nodes": [
+  {
+   "id": "magnet",
+   "type": "em.magnet_eddy_segmentation",
+   "params": {},
+   "label": "Segmented magnet in 3-D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "magnet.rows.0.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.0.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.0.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.0.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.1.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.1.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.1.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.1.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.2.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.2.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.2.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.2.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.3.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.3.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.3.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.3.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.4.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.4.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.4.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.4.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.5.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.5.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.5.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.5.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.6.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.6.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.6.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.6.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.7.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.7.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.7.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.7.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.8.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.8.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.8.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.8.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.9.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.9.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.9.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.9.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.10.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.10.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.10.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.10.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.11.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.11.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.11.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.11.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.12.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.12.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.12.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.12.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.13.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.13.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.13.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.13.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.14.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.14.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.14.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.14.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.15.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.15.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.15.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.15.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.16.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.16.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.16.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.16.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.17.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.17.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.17.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.17.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.18.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.18.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.18.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.18.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.19.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.19.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.19.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.19.ratio_3d_2d"
+     },
+     {
+      "flow": "magnet.rows.20.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.20.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.20.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.20.ratio_3d_2d"
+     }
+    ],
+    "tolerance_source": "deterministic FEM on a structured mesh; 1e-6 relative covers BLAS / PARDISO rounding and the iterative refinement to 1e-10"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "magnet",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "magnet.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "23_magnet_eddy_segmentation.py"
+  ],
+  "quick": {
+   "magnet": {
+    "segments": [
+     [
+      1,
+      2
+     ]
+    ],
+    "freqs": [
+     1000.0
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "magnet.rows.0.loss_3d_W",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.3.loss_3d_W"
+     },
+     {
+      "flow": "magnet.rows.0.ratio_3d_2d",
+      "ref": "results/23_magnet_eddy_segmentation.json:rows.3.ratio_3d_2d"
+     }
+    ]
+   }
+  }
+ }
+}

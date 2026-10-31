@@ -165,6 +165,74 @@ def spm_end_effects_3d(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"]}
 
 
+@node("em.magnet_eddy_segmentation", "Magnet eddy loss against segmentation: 3-D, 2-D and the closed form",
+      category="Electromagnetics", outputs=[Port("metrics", "metrics")],
+      params=[Param("segments", "list", [[1, 1], [1, 2], [1, 4], [1, 8], [2, 1], [4, 1], [2, 4]],
+                    help="[n_width, n_length] insulated pieces"),
+              Param("freqs", "list", [1000.0, 10000.0, 50000.0], help="frequencies (Hz)"),
+              Param("h", "float", 0.0015, minimum=0.0005, help="element size in the plane of the magnet (m)"),
+              Param("B_peak", "float", 0.05, minimum=0.0, help="normal field, peak (T)")],
+      calls="pinneapple_simulation.electromagnetics.machines3d.magnet_loss: segmentation_study (segmented_block, "
+            "block_loss_3d, plate_loss, strip_loss)")
+def magnet_eddy_segmentation(ctx, inputs, params):
+    """examples/electrodynamics/23_magnet_eddy_segmentation.py: the magnet of the default SPMMachine, flattened,
+    in a uniform normal field; 3-D loss over the closed form and over the 2-D strip value."""
+    import math
+
+    from pinneapple_simulation.electromagnetics.machine import SPMMachine
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmentation_study
+
+    m = SPMMachine()
+    width = m.magnet_arc * math.pi * (m.r_rotor + m.magnet_thickness / 2) / m.pole_pairs
+    i = 0
+    for nw, nl in params["segments"]:
+        ctx.check_stop()
+        r = segmentation_study(width, m.length, m.magnet_thickness, m.magnet_sigma, float(params["B_peak"]),
+                               [(int(nw), int(nl))], [float(f) for f in params["freqs"]], h=float(params["h"]),
+                               progress=ctx.log)
+        for row in r["rows"]:
+            ctx.metric(f"rows.{i}.loss_3d_W", row["loss_3d_W"], f"{nw} x {nl}, {row['f_Hz']:g} Hz")
+            ctx.metric(f"rows.{i}.ratio_3d_2d", row["ratio_3d_2d"])
+            i += 1
+    return {"metrics": ctx.report["metrics"]}
+
+
+@node("em.afpm_quasi3d", "Axial-flux PM machine: full 3-D against quasi-3D (cogging, tooth flux linkage)",
+      category="Electromagnetics", outputs=[Port("metrics", "metrics")],
+      params=[Param("topologies", "list", ["single", "double_rotor"]),
+              Param("n_theta", "int", 384, minimum=48, help="steps round the axis (a multiple of 2 x poles and "
+                                                             "2 x slots)"),
+              Param("dr", "float", 0.004, minimum=0.001), Param("dz", "float", 0.0025, minimum=0.0005),
+              Param("slices", "list", [1, 5], help="quasi-3D radial slice counts")],
+      calls="pinneapple_simulation.electromagnetics.machines3d.afpm: AFPMMachine, AFPM3D (cogging, "
+            "tooth_linkage, quasi3d_models)")
+def afpm_quasi3d(ctx, inputs, params):
+    """examples/electrodynamics/24_afpm_quasi3d.py (one grid): cogging peak-to-peak and tooth flux linkage in 3-D
+    and summed over the quasi-3D slices."""
+    import math
+
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    for topo in params["topologies"]:
+        m = AFPMMachine(topology=str(topo))
+        model = AFPM3D(m, n_theta=int(params["n_theta"]), dr=float(params["dr"]), dz=float(params["dz"]),
+                       air_r=0.015, air_z=0.015)
+        thetas = np.arange(0, round(m.cogging_period / model.step), 2) * model.step
+        link = math.pi / m.slots
+        runs = [("3d", [model])] + [(f"q{int(n)}", model.quasi3d_models(int(n))) for n in params["slices"]]
+        for key, models in runs:
+            ctx.check_stop()
+            cog = np.zeros(len(thetas))
+            lam = 0.0
+            for q in models:
+                cog += q.cogging(thetas)
+                lam += q.tooth_linkage(q.solve(link))
+                q.release()
+            ctx.metric(f"{topo}.{key}.pkpk", float(cog.max() - cog.min()), "N m")
+            ctx.metric(f"{topo}.{key}.linkage_Wb", lam, "Wb")
+    return {"metrics": ctx.report["metrics"]}
+
+
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
@@ -203,6 +271,24 @@ def _register_capabilities():
         nodes=("em.spm_end_effects_3d",), references=("jin2014fem", "bossavit1998"),
         template="electromagnetics/22_spm_end_effects_3d", quick=True,
         description="examples/electrodynamics/22_spm_end_effects_3d.py"))
+
+    register_capability(Capability(
+        id="em.magnet_eddy_segmentation", title="Magnet eddy loss against segmentation in 3-D",
+        domain="electromagnetics", example="electrodynamics",
+        keywords={"magnet eddy": 3, "eddy loss": 2, "segmentation": 3, "segmented magnet": 3, "magnet loss": 3},
+        requires_all=(("magnet",),), min_score=4,
+        nodes=("em.magnet_eddy_segmentation",), references=("jin2014fem", "bossavit1998"),
+        template="electromagnetics/23_magnet_eddy_segmentation", quick=True,
+        description="examples/electrodynamics/23_magnet_eddy_segmentation.py"))
+    register_capability(Capability(
+        id="em.afpm_quasi3d", title="Axial-flux PM machine: 3-D against quasi-3D",
+        domain="electromagnetics", example="electrodynamics",
+        keywords={"axial flux": 3, "axial-flux": 3, "afpm": 3, "quasi-3d": 3, "quasi 3d": 3, "double rotor": 2,
+                  "torus": 1},
+        requires_all=(("axial", "afpm", "quasi"),), min_score=3,
+        nodes=("em.afpm_quasi3d",), references=("jin2014fem", "bossavit1998"),
+        template="electromagnetics/24_afpm_quasi3d", quick=True,
+        description="examples/electrodynamics/24_afpm_quasi3d.py"))
 
 
 _register_capabilities()

@@ -2405,6 +2405,88 @@
    "status": "done"
   }
  },
+ "electromagnetics/23_magnet_eddy_segmentation": {
+  "quick": {
+   "commit": "ebe34b11",
+   "comparisons": [
+    {
+     "flow": "magnet.rows.0.loss_3d_W",
+     "outcome": "match",
+     "ref": "results/23_magnet_eddy_segmentation.json:rows.3.loss_3d_W",
+     "reference": 12.657429358322842,
+     "rel_diff": 1.736018703429104e-13,
+     "value": 12.65742935832504
+    },
+    {
+     "flow": "magnet.rows.0.ratio_3d_2d",
+     "outcome": "match",
+     "ref": "results/23_magnet_eddy_segmentation.json:rows.3.ratio_3d_2d",
+     "reference": 0.1568611550147416,
+     "rel_diff": 1.735816600124683e-13,
+     "value": 0.15686115501476883
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-magnet-eddy-segmentation-quick.experiment.json, Lab item manifest/flow/example-em-magnet-eddy-segmentation-quick",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "magnet": "done"
+   },
+   "seconds": 30.9,
+   "status": "done"
+  }
+ },
+ "electromagnetics/24_afpm_quasi3d": {
+  "quick": {
+   "commit": "ebe34b11",
+   "comparisons": [
+    {
+     "flow": "afpm.single.3d.pkpk",
+     "outcome": "match",
+     "ref": "results/24_afpm_quasi3d.json:cases.single.coarse.3d.pkpk",
+     "reference": 10.366721410877116,
+     "rel_diff": 2.3996112360905404e-12,
+     "value": 10.36672141085224
+    },
+    {
+     "flow": "afpm.single.3d.linkage_Wb",
+     "outcome": "match",
+     "ref": "results/24_afpm_quasi3d.json:cases.single.coarse.3d.linkage_Wb",
+     "reference": -0.0010598458422914944,
+     "rel_diff": 1.873282829475312e-12,
+     "value": -0.0010598458422934798
+    },
+    {
+     "flow": "afpm.single.q1.pkpk",
+     "outcome": "match",
+     "ref": "results/24_afpm_quasi3d.json:cases.single.coarse.q1.pkpk",
+     "reference": 11.66503741336285,
+     "rel_diff": 3.696150443249482e-12,
+     "value": 11.665037413405965
+    },
+    {
+     "flow": "afpm.single.q1.linkage_Wb",
+     "outcome": "match",
+     "ref": "results/24_afpm_quasi3d.json:cases.single.coarse.q1.linkage_Wb",
+     "reference": -0.0010830366961601724,
+     "rel_diff": 6.961483331262084e-13,
+     "value": -0.0010830366961594184
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-31",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-em-afpm-quasi3d-quick.experiment.json, Lab item manifest/flow/example-em-afpm-quasi3d-quick",
+   "matched": 4,
+   "nodes": {
+    "afpm": "done",
+    "compare": "done"
+   },
+   "seconds": 20.6,
+   "status": "done"
+  }
+ },
  "electromagnetics/motor_spm_cogging_and_torque": {
   "full": {
    "commit": "c94c53c7",

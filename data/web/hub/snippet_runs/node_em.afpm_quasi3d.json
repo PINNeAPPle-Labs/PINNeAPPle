@@ -1,0 +1,12 @@
+{
+ "code_hash": "b2dca73cc08005fc",
+ "figures": [],
+ "id": "node:em.afpm_quasi3d",
+ "ok": true,
+ "recorded": "2026-10-31",
+ "seconds": 5.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Axial-flux PM machine: full 3-D against quasi-3D (cogging, tooth flux linkage) -> pinneapple_simulation.electromagnetics.machines3d.afpm: AFPMMachine, AFPM3D (cogging, tooth_linkage, quasi3d_models)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'topologies': ['single', 'double_rotor'], 'n_theta': 384, 'dr': 0.004, 'dz': 0.0025, 'slices': [1, 5]}",
+ "timed_out": false
+}

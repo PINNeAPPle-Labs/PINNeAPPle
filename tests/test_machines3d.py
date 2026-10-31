@@ -124,3 +124,98 @@ def test_search_coil_links_the_2d_flux_and_end_air_lowers_it(machine):
     assert lam == pytest.approx(flux, rel=0.005)
     row = end_effect_study(machine, (0.5,), end_length=0.02, end_layers=2, n_theta=72)["rows"][0]
     assert 0.98 < row["k_o0mm"] < 1.0                # end leakage: a fraction of a percent
+
+
+def test_rectangle_loss_series_limits():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import (
+        loss_factor,
+        plate_loss,
+        strip_loss,
+    )
+
+    assert loss_factor(1.0, 1000.0) == pytest.approx(1.0, abs=2e-3)          # long strip: the 2-D value
+    assert plate_loss(0.02, 0.01, 0.004, 6.7e5, 1e3, 0.05) == pytest.approx(
+        plate_loss(0.01, 0.02, 0.004, 6.7e5, 1e3, 0.05), rel=1e-12)       # symmetric in its sides
+    assert plate_loss(1.0, 1.0, 1.0, 1.0, 1.0, 1.0) < strip_loss(1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+
+
+def test_magnet_block_loss_matches_the_closed_form():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmentation_study
+
+    r = segmentation_study(0.02, 0.02, 0.004, 6.7e5, 0.01, [(1, 1), (1, 2)], [100.0], h=2e-3)
+    for row in r["rows"]:                       # 1.4 % and 4.0 % at 2 mm, 0.4 % and 1.0 % at 1 mm (measured)
+        assert row["ratio_3d_closed_form"] == pytest.approx(1.0, abs=0.05)
+    two = r["rows"][1]
+    assert two["ratio_3d_2d"] < 0.2                # two axial pieces keep 17 % of the 2-D loss
+
+
+@pytest.mark.parametrize("topology", ["single", "double_rotor"])
+def test_afpm_mesh_conforms_and_aligned_torque_vanishes(topology):
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    mod = AFPM3D(AFPMMachine(topology=topology), n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008)
+    assert mod.mesh._face_topology[2].max() == 2                       # the seam is closed and conforming
+    th = np.array([-2, 0, 2]) * mod.step
+    c = mod.cogging(th)
+    assert abs(c[1]) < 1e-8 * abs(c[2])                                  # no mesh handedness
+    assert c[0] == pytest.approx(-c[2], rel=1e-8)                        # odd about the aligned rotor
+    W = [mod.solve(x).coenergy for x in (0.0, 4 * mod.step)]
+    assert np.sign(W[1] - W[0]) == np.sign(c[2])                         # torque = + d(co-energy)/d(theta)
+
+
+def test_afpm_quasi3d_slices_tile_the_annulus():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D, AFPMMachine
+
+    mod = AFPM3D(AFPMMachine(), n_theta=192, dr=0.01, dz=0.008, air_r=0.01, air_z=0.008)
+    q = mod.quasi3d_models(2)
+    active = mod.rs[(mod.rs >= 0.05 - 1e-12) & (mod.rs <= 0.09 + 1e-12)]
+    assert np.allclose(np.concatenate([q[0].rs, q[1].rs[1:]]), active)    # same radial nodes as the 3-D grid
+    s3 = mod.solve(0.0)
+    lq = sum(x.tooth_linkage(x.solve(0.0)) for x in q)
+    l3 = mod.tooth_linkage(s3)
+    assert lq == pytest.approx(l3, rel=0.1) and np.sign(lq) == np.sign(l3)
+
+
+# known answers with literal inputs (the Studio smoke-runs these tools with the same inputs)
+def test_square_piece_keeps_the_single_series_share_of_the_strip_loss():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import loss_factor
+
+    n = np.arange(1, 400, 2)
+    single = 1 - 192 / np.pi ** 5 * np.sum(np.tanh(n * np.pi / 2) / n ** 5)    # the one-sum form, a = b
+    assert loss_factor(1.0, 1.0) == pytest.approx(single, rel=1e-6)          # 0.42173
+
+
+def test_strip_loss_is_the_textbook_formula():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import strip_loss
+
+    w = 2 * np.pi * 1000.0
+    expected = 0.004 * 6.7e5 * w ** 2 * 0.05 ** 2 * 0.02 ** 3 * 0.05 / 24      # h sigma w^2 B^2 a^3 b / 24
+    assert strip_loss(0.02, 0.05, 0.004, 6.7e5, 1000.0, 0.05) == pytest.approx(expected, rel=1e-12)   # 4.408 W
+
+
+def test_plate_loss_of_a_square_is_its_share_of_the_strip():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import plate_loss, strip_loss
+
+    p = plate_loss(0.02, 0.02, 0.004, 6.7e5, 1000.0, 0.05)
+    assert p == pytest.approx(0.4217310 * strip_loss(0.02, 0.02, 0.004, 6.7e5, 1000.0, 0.05), rel=1e-6)
+
+
+def test_segmented_block_magnet_volume():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmented_block
+
+    m = segmented_block(0.02, 0.02, 0.004, 1, 2, 0.0002, 0.002)
+    assert m.volumes[m.mask("magnet")].sum() == pytest.approx(0.02 * (0.02 - 0.0002) * 0.004, rel=1e-9)
+
+
+def test_segmentation_study_coarse_block():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmentation_study
+
+    r = segmentation_study(0.02, 0.02, 0.004, 6.7e5, 0.01, [(1, 1)], [100.0], h=0.004)
+    assert r["rows"][0]["ratio_3d_closed_form"] == pytest.approx(1.0, abs=0.08)   # 1.051 at 4 mm (measured)
+
+
+def test_afpm_coarse_grid_builds():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D
+
+    model = AFPM3D(n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008)
+    assert len(model.mesh.tets) == 50688 and model.mesh._face_topology[2].max() == 2

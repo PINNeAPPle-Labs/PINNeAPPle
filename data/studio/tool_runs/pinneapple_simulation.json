@@ -434,6 +434,21 @@
   "recorded": "2026-10-31",
   "seconds": 60.0
  },
+ "pinneapple_simulation.electromagnetics.machines3d.afpm:AFPM3D": {
+  "code_hash": "ce3e718c5e384dfb",
+  "inputs": {
+   "air_r": 0.01,
+   "air_z": 0.008,
+   "dr": 0.02,
+   "dz": 0.008,
+   "n_theta": 192
+  },
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "_Solution",
+  "seconds": 9.22
+ },
  "pinneapple_simulation.electromagnetics.machines3d.endeffects:end_effect_study": {
   "code_hash": "9acdbcf1edf4b47d",
   "error": "the interpreter stopped during this tool: the interpreter ran out of time",
@@ -441,6 +456,91 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": null
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:loss_factor": {
+  "code_hash": "4bcbc1c3eedb96aa",
+  "inputs": {
+   "a": 1.0,
+   "b": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 8.12
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:plate_loss": {
+  "code_hash": "dd1f0d296b24ef2f",
+  "inputs": {
+   "B": 0.05,
+   "a": 0.02,
+   "b": 0.02,
+   "f": 1000.0,
+   "h": 0.004,
+   "sigma": 670000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:segmentation_study": {
+  "code_hash": "b645917272e1dc0b",
+  "inputs": {
+   "B": 0.01,
+   "freqs": [
+    100.0
+   ],
+   "h": 0.002,
+   "length": 0.02,
+   "segments": [
+    [
+     1,
+     1
+    ],
+    [
+     1,
+     2
+    ]
+   ],
+   "sigma": 670000.0,
+   "thickness": 0.004,
+   "width": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 12.6
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:segmented_block": {
+  "code_hash": "d939f25d0205bf9e",
+  "inputs": {
+   "gap": 0.0002,
+   "h": 0.002,
+   "length": 0.02,
+   "n_length": 2,
+   "n_width": 1,
+   "thickness": 0.004,
+   "width": 0.02
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TetMesh",
+  "seconds": 0.03
+ },
+ "pinneapple_simulation.electromagnetics.machines3d.magnet_loss:strip_loss": {
+  "code_hash": "1eb6f537f64efcc7",
+  "inputs": {
+   "B": 1.0,
+   "a": 1.0,
+   "b": 1.0,
+   "f": 1.0,
+   "h": 1.0,
+   "sigma": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
  },
  "pinneapple_simulation.electromagnetics.machines3d.spm:SPM3D": {
   "code_hash": "1f0705a6850e1fc6",

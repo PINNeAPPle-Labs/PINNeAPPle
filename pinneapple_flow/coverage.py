@@ -57,6 +57,8 @@ REASONS: dict[str, str] = {
                           "examples/autolab_aero, not as one flow step",
     "pinneapple_llm": "LLM drafting: used by the LLM planner, problem.generic and twin.auto",
     "pinneapple_app": "a separate web application (not a library package)",
+    "pinneapple_studio": "the Studio itself: it catalogs every library symbol as a tool and runs tools and examples "
+                         "as jobs; a flow calls the tools it lists, not the catalog",
     "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",

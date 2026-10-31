@@ -269,8 +269,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 - The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 
 ### Fixed
-- Colour-bar ticks (`studio.colormap.ticks`, `studio-core.js`): a tick within rounding of zero prints as zero, and
-  Python prints a zero tick as the browser does (the JS parity test passes again).
 - `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
   its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
 - `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,

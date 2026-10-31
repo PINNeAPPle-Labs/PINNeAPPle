@@ -7,6 +7,7 @@ from . import (  # noqa: F401
     body_study,
     cfd_pipeline,
     condense,
+    immersed,
     data,
     methods,
     physics_learning,

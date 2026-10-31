@@ -387,6 +387,21 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.builders.stl_domain_batch_builder:STLDomainBatchBuilder": {
+  "code_hash": "48e33e13ab8d7b63",
+  "inputs": {
+   "cfg": {
+    "device": "cpu",
+    "inside_mode": "voxel_occupancy",
+    "n_bc": 20000,
+    "n_col": 40000
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "STLDomainBatchBuilder",
+  "seconds": 6.44
+ },
  "pinneapple_design.geometry.csg:annulus": {
   "code_hash": "dd85b0eeb4c16ab3",
   "inputs": {
@@ -931,6 +946,22 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 60.01
+ },
+ "pinneapple_design.thermal.heatsink.sizer:size": {
+  "code_hash": "ca558d1f444fe7d5",
+  "inputs": {
+   "req": {
+    "n_candidates": 1500,
+    "n_verify": 6,
+    "power_w": 60,
+    "t_limit_c": 75
+   },
+   "surrogates": {}
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 1.1
  },
  "pinneapple_design.thermal.heatsink.surrogate:load_surrogates": {
   "code_hash": "53290bb11dfecf76",

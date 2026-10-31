@@ -1,4 +1,32 @@
 {
+ "pinneapple_arena.arena:Arena": {
+  "code_hash": "d8e4c41766a7bc1a",
+  "error": "KeyError: \"Dataset 'fake' not found. Use list_datasets() to see available IDs.\\nAvailable: ['channel_with_obstacle', 'cylinder_2d', 'lshape_2d', 'naca0012', 'airfoil_noise', 'allen_cahn_1d', 'burgers_1d', 'cfd_cylinder_drag', 'concrete_strength', 'copernicus_era5_temperature', 'designsafe_seismic_ground_motio",
+  "inputs": {
+   "config": {
+    "dataset": {
+     "dataset_id": "fake",
+     "input_fields": [
+      "x",
+      "y",
+      "z"
+     ],
+     "output_fields": [
+      "u",
+      "v"
+     ]
+    },
+    "models": [],
+    "problem": {
+     "name": "poisson_2d"
+    }
+   },
+   "device": "cpu"
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
+  "seconds": 6.0
+ },
  "pinneapple_arena.dataset_bench:list_benchmarks": {
   "code_hash": "2578daac725ba987",
   "inputs": {},

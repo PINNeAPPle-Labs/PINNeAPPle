@@ -292,6 +292,30 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_systems.process_components.pipe_network_1d:TransientPipe": {
+  "code_hash": "eca7faa5f49b6096",
+  "inputs": {
+   "gas": {
+    "components": [
+     "Methane"
+    ],
+    "mole_fractions": [
+     1.0
+    ]
+   },
+   "spec": {
+    "diameter_m": 0.3,
+    "length_m": 1000.0,
+    "n_cells": 5,
+    "name": "p1",
+    "roughness_m": 4.5e-05
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "TransientPipe",
+  "seconds": 4.58
+ },
  "pinneapple_systems.process_components.pipe_stress_mechanics:constrained_rod_buckling_load": {
   "code_hash": "a91ea2c156b76cee",
   "inputs": {

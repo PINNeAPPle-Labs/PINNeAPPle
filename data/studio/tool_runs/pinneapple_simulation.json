@@ -95,6 +95,21 @@
   "returned": "PODWarmStart",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.antenna.ava:layout": {
+  "code_hash": "0b2c937c7e5d5338",
+  "inputs": {
+   "p": {
+    "dir_a": 12,
+    "dir_b": 5,
+    "dir_x": 190,
+    "nslot": 2
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Layout",
+  "seconds": 6.34
+ },
  "pinneapple_simulation.electromagnetics.antenna.ava:microstrip_width": {
   "code_hash": "2623aa3e7be174b7",
   "inputs": {
@@ -386,6 +401,37 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.reflector.compact_range:evaluate": {
+  "code_hash": "deda82d873259033",
+  "inputs": {
+   "cr": {
+    "eval_factor": 1.2,
+    "mesh_per_wavelength": 6.0,
+    "qz_diameter": 0.3,
+    "qz_step_per_wavelength": 3.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "dict",
+  "seconds": 4.27
+ },
+ "pinneapple_simulation.electromagnetics.reflector.compact_range:scaled": {
+  "code_hash": "eafdd1775cf9284b",
+  "inputs": {
+   "cr": {
+    "eval_factor": 1.2,
+    "mesh_per_wavelength": 6.0,
+    "qz_diameter": 0.3,
+    "qz_step_per_wavelength": 3.0
+   },
+   "side": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "CompactRange",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.reflector.design:agreement_887": {
   "code_hash": "977b7a28662885a6",
   "error": "timeout after 60 s",
@@ -411,6 +457,19 @@
   "recorded": "2026-10-31",
   "returned": "Problem",
   "seconds": 0.02
+ },
+ "pinneapple_simulation.electromagnetics.reflector.study_report:plan": {
+  "code_hash": "6c3921168624a534",
+  "inputs": {
+   "problem": {
+    "qz_diameter": 0.3,
+    "qz_z": 1.5
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "list",
+  "seconds": 2.78
  },
  "pinneapple_simulation.electromagnetics.units:check_equations": {
   "code_hash": "8044e709482bf743",
@@ -456,6 +515,22 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "FluentCaseConfig",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.ansys.journal_builder:build_journal": {
+  "code_hash": "b1ca59ee66a1d787",
+  "inputs": {
+   "config": {
+    "case_file": "/data/inlet_flow.cas.h5",
+    "initialize": true,
+    "iterations": 250,
+    "output_case_file": "/data/out/inlet_flow_solved.cas",
+    "steady": true
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "str",
   "seconds": 0.0
  },
  "pinneapple_simulation.external_solvers.calculix.inp:cantilever_hex_mesh": {
@@ -530,6 +605,32 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.external_solvers.fenics.solver:FEniCSWorkflow": {
+  "code_hash": "963d9fb407a3467e",
+  "error": "ImportError: pinneapple_solvers.fenics_bridge requires FEniCS. Install dolfinx or legacy FEniCS, then reinstall pinneapple_solvers.",
+  "inputs": {
+   "base_config": {
+    "bcs": [],
+    "domain": {
+     "nx": 4,
+     "ny": 4,
+     "type": "rectangle",
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "pde": "heat_equation_steady"
+   }
+  },
+  "ok": false,
+  "recorded": "2026-10-31",
   "seconds": 0.0
  },
  "pinneapple_simulation.external_solvers.fluidx3d:fluidx3d_available": {
@@ -948,6 +1049,45 @@
  "pinneapple_simulation.geophysics.sphere_shallow_water:rossby_haurwitz_speed": {
   "code_hash": "fd811061f3b56703",
   "inputs": {},
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:Windkessel": {
+  "code_hash": "0d008d671e1e5998",
+  "inputs": {
+   "C": 1e-08,
+   "Rd": 1000000000.0,
+   "Rp": 100000000.0
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "Windkessel",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:explicit_coupling_gain": {
+  "code_hash": "d0b44167524df997",
+  "inputs": {
+   "dt": 0.001,
+   "inertance": 1000000.0,
+   "wk": {
+    "C": 1e-08,
+    "Rd": 1000000000.0,
+    "Rp": 100000000.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:vessel_inertance": {
+  "code_hash": "0a397429b48730d3",
+  "inputs": {
+   "diameter": 0.009,
+   "length": 0.05
+  },
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",

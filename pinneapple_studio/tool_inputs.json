@@ -241,6 +241,30 @@
   },
   "source": "tests/test_app_experiment_report.py:45"
  },
+ "pinneapple_arena.arena:Arena": {
+  "inputs": {
+   "config": {
+    "dataset": {
+     "dataset_id": "fake",
+     "input_fields": [
+      "x",
+      "y",
+      "z"
+     ],
+     "output_fields": [
+      "u",
+      "v"
+     ]
+    },
+    "models": [],
+    "problem": {
+     "name": "poisson_2d"
+    }
+   },
+   "device": "cpu"
+  },
+  "source": "tests/test_arena_graph_no_target_leak.py:54"
+ },
  "pinneapple_arena.decision_mode:catalog_family": {
   "inputs": {
    "model_type": "vanilla_pinn"
@@ -580,6 +604,17 @@
   },
   "source": "tests/pinneapple_design/test_surrogate_inverse.py:75"
  },
+ "pinneapple_design.geometry.builders.stl_domain_batch_builder:STLDomainBatchBuilder": {
+  "inputs": {
+   "cfg": {
+    "device": "cpu",
+    "inside_mode": "voxel_occupancy",
+    "n_bc": 20000,
+    "n_col": 40000
+   }
+  },
+  "source": "examples/geometry/05_stl_domain_batchbuilder_inlet_outlet_wall.py:82"
+ },
  "pinneapple_design.geometry.csg:annulus": {
   "inputs": {
    "cx": 0.0,
@@ -648,6 +683,18 @@
    "source_width": 0.03
   },
   "source": "tests/test_heatsink_sizer.py:68"
+ },
+ "pinneapple_design.thermal.heatsink.sizer:size": {
+  "inputs": {
+   "req": {
+    "n_candidates": 1500,
+    "n_verify": 6,
+    "power_w": 60,
+    "t_limit_c": 75
+   },
+   "surrogates": {}
+  },
+  "source": "tests/test_heatsink_sizer.py:96"
  },
  "pinneapple_flow.decisions:edits_to_decisions": {
   "inputs": {
@@ -2163,6 +2210,125 @@
   },
   "source": "tests/test_thin_airfoil.py:25"
  },
+ "pinneapple_problemdesign.elicitation.validators:validate_and_suggest": {
+  "inputs": {
+   "spec": {
+    "data": {
+     "format": "parquet",
+     "known_quality_issues": [
+      "missing points during maintenance",
+      "sensor spikes"
+     ],
+     "labels_available": true,
+     "missingness": "bursty gaps during maintenance windows",
+     "sampling": "10min",
+     "sources": [
+      "s3://plant-data/hex/parquet/"
+     ],
+     "target_variables": [
+      "T_out"
+     ],
+     "train_span": "2023-01-01 .. 2025-01-01",
+     "val_split_policy": "last 3 months as validation (time-based)",
+     "variables_observed": [
+      "T_in",
+      "flow_rate",
+      "T_ambient",
+      "pressure",
+      "T_out"
+     ]
+    },
+    "domain_context": "Industrial heat exchanger. Maintenance causes intermittent missing data. We expect seasonal drift across weeks/months.",
+    "frequency": "10min",
+    "goal": "Forecast outlet temperature 6 hours ahead to optimize energy usage",
+    "horizon": "6h",
+    "input_window": "48 steps (8h)",
+    "inputs": [
+     "T_in (\u00b0C)",
+     "flow_rate (kg/s)",
+     "T_ambient (\u00b0C)",
+     "pressure (bar)"
+    ],
+    "outputs": [
+     "T_out (\u00b0C)"
+    ],
+    "task_type": "forecasting",
+    "title": "Heat Exchanger: Outlet Temperature Forecast",
+    "validation": {
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "primary_metrics": [
+      "MAE"
+     ],
+     "robustness_tests": [
+      "missingness stress",
+      "drift across weeks",
+      "extreme ambient temp"
+     ]
+    }
+   }
+  },
+  "source": "examples/problem_designer/03_offline_spec_to_report.py:63"
+ },
+ "pinneapple_problemdesign.knowledge.mapping:build_plan_fno_first": {
+  "inputs": {
+   "gaps": [],
+   "spec": {
+    "data": {
+     "format": "parquet",
+     "known_quality_issues": [
+      "missing points during maintenance",
+      "sensor spikes"
+     ],
+     "labels_available": true,
+     "missingness": "bursty gaps during maintenance windows",
+     "sampling": "10min",
+     "sources": [
+      "s3://plant-data/hex/parquet/"
+     ],
+     "target_variables": [
+      "T_out"
+     ],
+     "train_span": "2023-01-01 .. 2025-01-01",
+     "val_split_policy": "last 3 months as validation (time-based)",
+     "variables_observed": [
+      "T_in",
+      "flow_rate",
+      "T_ambient",
+      "pressure",
+      "T_out"
+     ]
+    },
+    "domain_context": "Industrial heat exchanger. Maintenance causes intermittent missing data. We expect seasonal drift across weeks/months.",
+    "frequency": "10min",
+    "goal": "Forecast outlet temperature 6 hours ahead to optimize energy usage",
+    "horizon": "6h",
+    "input_window": "48 steps (8h)",
+    "inputs": [
+     "T_in (\u00b0C)",
+     "flow_rate (kg/s)",
+     "T_ambient (\u00b0C)",
+     "pressure (bar)"
+    ],
+    "outputs": [
+     "T_out (\u00b0C)"
+    ],
+    "task_type": "forecasting",
+    "title": "Heat Exchanger: Outlet Temperature Forecast",
+    "validation": {
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "primary_metrics": [
+      "MAE"
+     ],
+     "robustness_tests": [
+      "missingness stress",
+      "drift across weeks",
+      "extreme ambient temp"
+     ]
+    }
+   }
+  },
+  "source": "examples/problem_designer/03_offline_spec_to_report.py:68"
+ },
  "pinneapple_problemdesign.knowledge.physics_knowledge:lookup_phenomenon": {
   "inputs": {
    "name_or_keyword": "NAVIER_STOKES"
@@ -2177,6 +2343,30 @@
    "velocity": 0.05
   },
   "source": "tests/test_method_selection.py:57"
+ },
+ "pinneapple_problemdesign.method_selection:recommend_method_from_spec": {
+  "inputs": {
+   "spec": {
+    "geometry": {
+     "aoa_sweep_deg": [
+      0.0,
+      10.0
+     ],
+     "domain": "external airfoil"
+    },
+    "goal": "Predict lift and drag for an airfoil across an AoA sweep",
+    "physics": {
+     "numerical_method": "LBM",
+     "parameters_known": [
+      "reynolds_number",
+      "kinematic_viscosity"
+     ]
+    },
+    "task_type": "other",
+    "title": "Airfoil AoA sweep"
+   }
+  },
+  "source": "tests/test_method_selection.py:139"
  },
  "pinneapple_problemdesign.preset_authoring:draft_preset": {
   "inputs": {
@@ -2228,6 +2418,17 @@
    "scheme": "scrypt"
   },
   "source": "tests/test_app_security.py:119"
+ },
+ "pinneapple_simulation.electromagnetics.antenna.ava:layout": {
+  "inputs": {
+   "p": {
+    "dir_a": 12,
+    "dir_b": 5,
+    "dir_x": 190,
+    "nslot": 2
+   }
+  },
+  "source": "tests/test_antenna_3d.py:62"
  },
  "pinneapple_simulation.electromagnetics.antenna.ava:microstrip_width": {
   "inputs": {
@@ -2283,11 +2484,43 @@
   },
   "source": "tests/test_motor_magnetics.py:323"
  },
+ "pinneapple_simulation.electromagnetics.reflector.compact_range:evaluate": {
+  "inputs": {
+   "cr": {
+    "eval_factor": 1.2,
+    "mesh_per_wavelength": 6.0,
+    "qz_diameter": 0.3,
+    "qz_step_per_wavelength": 3.0
+   }
+  },
+  "source": "tests/test_reflector_po.py:91"
+ },
+ "pinneapple_simulation.electromagnetics.reflector.compact_range:scaled": {
+  "inputs": {
+   "cr": {
+    "eval_factor": 1.2,
+    "mesh_per_wavelength": 6.0,
+    "qz_diameter": 0.3,
+    "qz_step_per_wavelength": 3.0
+   },
+   "side": 1.0
+  },
+  "source": "tests/test_reflector_po.py:94"
+ },
  "pinneapple_simulation.electromagnetics.reflector.study_report:from_text": {
   "inputs": {
    "text": "3 GHz, focal length 1.5 m, 1.2 m square reflector, 0.6 m quiet zone at 3 m"
   },
   "source": "tests/test_em_study_report.py:82"
+ },
+ "pinneapple_simulation.electromagnetics.reflector.study_report:plan": {
+  "inputs": {
+   "problem": {
+    "qz_diameter": 0.3,
+    "qz_z": 1.5
+   }
+  },
+  "source": "tests/test_em_study_report.py:110"
  },
  "pinneapple_simulation.external_solvers.ansys.journal_builder:FluentCaseConfig": {
   "inputs": {
@@ -2299,11 +2532,45 @@
   },
   "source": "tests/test_ansys_fluent_runner.py:37"
  },
+ "pinneapple_simulation.external_solvers.ansys.journal_builder:build_journal": {
+  "inputs": {
+   "config": {
+    "case_file": "/data/inlet_flow.cas.h5",
+    "initialize": true,
+    "iterations": 250,
+    "output_case_file": "/data/out/inlet_flow_solved.cas",
+    "steady": true
+   }
+  },
+  "source": "tests/test_ansys_fluent_runner.py:44"
+ },
  "pinneapple_simulation.external_solvers.cfd_formats.convert:detect_format": {
   "inputs": {
    "filename": "case.CGNS"
   },
   "source": "tests/test_cfd_formats_convert.py:41"
+ },
+ "pinneapple_simulation.external_solvers.fenics.solver:FEniCSWorkflow": {
+  "inputs": {
+   "base_config": {
+    "bcs": [],
+    "domain": {
+     "nx": 4,
+     "ny": 4,
+     "type": "rectangle",
+     "x": [
+      0,
+      1
+     ],
+     "y": [
+      0,
+      1
+     ]
+    },
+    "pde": "heat_equation_steady"
+   }
+  },
+  "source": "tests/test_breadth_six_packages.py:2932"
  },
  "pinneapple_simulation.external_solvers.modelica.sweep:latin_hypercube": {
   "inputs": {
@@ -2441,6 +2708,33 @@
    ]
   },
   "source": "tests/test_geophysics.py:45"
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:Windkessel": {
+  "inputs": {
+   "C": 1e-08,
+   "Rd": 1000000000.0,
+   "Rp": 100000000.0
+  },
+  "source": "tests/test_biology_inference.py:155"
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:explicit_coupling_gain": {
+  "inputs": {
+   "dt": 0.001,
+   "inertance": 1000000.0,
+   "wk": {
+    "C": 1e-08,
+    "Rd": 1000000000.0,
+    "Rp": 100000000.0
+   }
+  },
+  "source": "tests/test_biology_inference.py:155"
+ },
+ "pinneapple_simulation.hemodynamics.windkessel:vessel_inertance": {
+  "inputs": {
+   "diameter": 0.009,
+   "length": 0.05
+  },
+  "source": "tests/test_biology_inference.py:110"
  },
  "pinneapple_simulation.numerical_solvers.eddy_current_fdm:annular_current_source": {
   "inputs": {
@@ -2979,6 +3273,26 @@
    ]
   },
   "source": "tests/test_non_newtonian_pipe_flow.py:43"
+ },
+ "pinneapple_systems.process_components.pipe_network_1d:TransientPipe": {
+  "inputs": {
+   "gas": {
+    "components": [
+     "Methane"
+    ],
+    "mole_fractions": [
+     1.0
+    ]
+   },
+   "spec": {
+    "diameter_m": 0.3,
+    "length_m": 1000.0,
+    "n_cells": 5,
+    "name": "p1",
+    "roughness_m": 4.5e-05
+   }
+  },
+  "source": "tests/test_breadth_six_packages.py:1389"
  },
  "pinneapple_systems.process_components.pipe_stress_mechanics:constrained_rod_buckling_load": {
   "inputs": {

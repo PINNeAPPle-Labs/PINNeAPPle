@@ -174,3 +174,48 @@ def test_afpm_quasi3d_slices_tile_the_annulus():
     lq = sum(x.tooth_linkage(x.solve(0.0)) for x in q)
     l3 = mod.tooth_linkage(s3)
     assert lq == pytest.approx(l3, rel=0.1) and np.sign(lq) == np.sign(l3)
+
+
+# known answers with literal inputs (the Studio smoke-runs these tools with the same inputs)
+def test_square_piece_keeps_the_single_series_share_of_the_strip_loss():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import loss_factor
+
+    n = np.arange(1, 400, 2)
+    single = 1 - 192 / np.pi ** 5 * np.sum(np.tanh(n * np.pi / 2) / n ** 5)    # the one-sum form, a = b
+    assert loss_factor(1.0, 1.0) == pytest.approx(single, rel=1e-6)          # 0.42173
+
+
+def test_strip_loss_is_the_textbook_formula():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import strip_loss
+
+    w = 2 * np.pi * 1000.0
+    expected = 0.004 * 6.7e5 * w ** 2 * 0.05 ** 2 * 0.02 ** 3 * 0.05 / 24      # h sigma w^2 B^2 a^3 b / 24
+    assert strip_loss(0.02, 0.05, 0.004, 6.7e5, 1000.0, 0.05) == pytest.approx(expected, rel=1e-12)   # 4.408 W
+
+
+def test_plate_loss_of_a_square_is_its_share_of_the_strip():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import plate_loss, strip_loss
+
+    p = plate_loss(0.02, 0.02, 0.004, 6.7e5, 1000.0, 0.05)
+    assert p == pytest.approx(0.4217310 * strip_loss(0.02, 0.02, 0.004, 6.7e5, 1000.0, 0.05), rel=1e-6)
+
+
+def test_segmented_block_magnet_volume():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmented_block
+
+    m = segmented_block(0.02, 0.02, 0.004, 1, 2, 0.0002, 0.002)
+    assert m.volumes[m.mask("magnet")].sum() == pytest.approx(0.02 * (0.02 - 0.0002) * 0.004, rel=1e-9)
+
+
+def test_segmentation_study_coarse_block():
+    from pinneapple_simulation.electromagnetics.machines3d.magnet_loss import segmentation_study
+
+    r = segmentation_study(0.02, 0.02, 0.004, 6.7e5, 0.01, [(1, 1)], [100.0], h=0.004)
+    assert r["rows"][0]["ratio_3d_closed_form"] == pytest.approx(1.0, abs=0.08)   # 1.051 at 4 mm (measured)
+
+
+def test_afpm_coarse_grid_builds():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPM3D
+
+    model = AFPM3D(n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008)
+    assert len(model.mesh.tets) == 50688 and model.mesh._face_topology[2].max() == 2

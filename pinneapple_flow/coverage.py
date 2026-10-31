@@ -22,6 +22,11 @@ REASONS: dict[str, str] = {
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
     "pinneapple_mcp": "the MCP server for coding agents (a protocol front end, like Flow Studio)",
     "pinneapple_flow": "this package",
+    "pinneapple_simulation.cfd_direct": "the runners and verdict rule of one research campaign "
+                                        "(docs/research/cfd_direct_from_stl.md), run by "
+                                        "examples/cfd_direct_from_stl/run.py; the solvers it compares are library "
+                                        "calls of their own (immersed.flow, numerical_solvers.taylor_hood, "
+                                        "lbm_tunnel)",
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",

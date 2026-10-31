@@ -67,6 +67,10 @@ to replace for real use), `ultradian_glucose_insulin`. `examples/biology/pkpd_in
 - design before data: a low-dose study (C far below Km) identifies V and ka only; Vmax and Km are practically
   non-identifiable and the analysis names the combination the data fix (Km / Vmax). Adding a high dose at 24 h makes
   all four identifiable;
+- inference on that design over 20 noise draws (adaptive Metropolis, 3000 steps): the 95 % credible intervals
+  contain the true value in 18, 19, 20 and 19 of 20 draws (Vmax, Km, V, ka), and the posterior medians are within
+  4 % to 6 % of the truth (median over draws); the PD fit with the PK fixed recovers E0, Emax, ke0 within 6 % to 13 %
+  and EC50 within 29 %;
 - PBPK mass balance closes to 1e-15 and the area under the arterial plasma curve matches dose / (CL_ws + CLr) to
   0.2 % (the rest is the truncated tail).
 
@@ -94,7 +98,16 @@ reimplementation of the approach, not a reproduction of its numbers.
 impedance to 5e-4 in amplitude), `split_rcr`, `half_sine_inflow`; `aorta.setup_case` meshes the library's
 `aortic_arch` (inlet and five outlets found as the flat caps of the lumen) with snappyHexMesh and writes a laminar
 pimpleFoam case; `aorta.CoupledRun` couples the outlets to their Windkessels window by window (OpenFOAM v1912 has no
-Windkessel boundary condition). See `examples/biology/aorta_windkessel.py` for the run and its checks.
+Windkessel boundary condition). The coupling is explicit, so the window must be short against the inertia of the
+vessel: `explicit_coupling_gain(wk, vessel_inertance(length, diameter), dt)` is `g = Rp dt / L`, and an error in the
+outlet flow comes back multiplied by `1 - g` one window later (oscillating for g > 1, divergent for g > 2). On the
+library's arch a 10 ms window (g of 1.4 to 4.2 with 5 cm branches) made the outlet pressures flip sign and grow to
+about +-2300 mmHg in 0.12 s; the default is now 1 ms (g of 0.14 to 0.42). See `examples/biology/aorta_windkessel.py`
+for the run and its checks. Measured (`examples/biology/results/aorta_windkessel.json`, reduced-scale: 2 of 4
+cycles, 57k cells, no wall layers): cycle-mean outlet flow fractions within 0.43 % of the 0-D resistance split, mass
+imbalance 1.7e-8 of the mean inflow, inlet pressure 141.5 / 72.2 mmHg in the second cycle. The Windkessels are not
+periodic after two cycles (cycle-mean inlet pressure 106.4 then 100.3 mmHg, against 93 mmHg from the 0-D model), so
+the pressures are a transient, not the periodic state.
 
 ## Paper reproductions
 

@@ -10,6 +10,9 @@ Q in m^3/s, P in Pa, R in Pa s / m^3, C in m^3 / Pa.
 * :func:`split_rcr` sizes one RCR per outlet from a target mean pressure, mean flow, flow fractions, a proximal
   share of the resistance and a total compliance (the usual way RCR outlets are tuned when no patient data are
   available: Q_i fraction by Murray's law ``d^3``, ``R_T,i = P_mean / Q_i``, ``C_i`` proportional to ``Q_i``);
+* :func:`explicit_coupling_gain` is the stability number of an explicit (lagged-pressure) coupling of an RCR to a
+  rigid 3-D vessel, ``g = Rp dt / L``: with the outlet pressure held for a window ``dt``, an error dQ in the outlet
+  flow comes back as (1 - g) dQ one window later, so the coupling oscillates for g > 1 and diverges for g > 2;
 * :func:`half_sine_inflow` is a simple cardiac inflow: a half-sine ejection of ``stroke_volume`` during
   ``systole`` of each period and no flow in diastole.
 """
@@ -21,7 +24,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-__all__ = ["Windkessel", "split_rcr", "half_sine_inflow", "MMHG"]
+__all__ = ["Windkessel", "split_rcr", "half_sine_inflow", "explicit_coupling_gain", "vessel_inertance", "MMHG"]
 
 MMHG = 133.322387415          # Pa
 
@@ -119,3 +122,15 @@ def outlet_flows(Q_in: float, resistances: Sequence[float]) -> np.ndarray:
     """Steady flow split of parallel resistances (the 0-D limit used to check a 3-D coupled run)."""
     g = 1 / np.asarray(resistances, float)
     return Q_in * g / g.sum()
+
+
+def vessel_inertance(length: float, diameter: float, rho: float = 1060.0) -> float:
+    """Inertance ``L = rho l / A`` of a rigid tube [Pa s^2 / m^3]: the pressure drop per unit flow acceleration."""
+    return rho * length / (math.pi * diameter ** 2 / 4)
+
+
+def explicit_coupling_gain(wk: Windkessel, inertance: float, dt: float) -> float:
+    """``g = Rp dt / L`` of a coupling that holds the Windkessel pressure for ``dt`` while the 3-D vessel (inertance
+    ``L`` between its inlet and this outlet) integrates; stable without oscillation for g < 1, divergent for g > 2.
+    An estimate: the 3-D domain is reduced to one inertance, so keep a margin."""
+    return wk.Rp * dt / inertance

@@ -1,0 +1,10 @@
+{
+ "abs_gap_mean": 0.012215233461722062,
+ "abs_gap_p50": 0.008142452514728268,
+ "abs_gap_max": 0.06894571056016385,
+ "abs_gap_p95": 0.04153226824437442,
+ "signed_gap_mean": -0.005959602327873331,
+ "tolerance": 0.04153226824437442,
+ "n_cases": 54,
+ "how": "pressure_drag_from_cp of the CFD Cp on the template vs the CFD CD_pressure, every case; the tolerance is the 95th percentile (the check compares the same quantile of the surrogate)"
+}

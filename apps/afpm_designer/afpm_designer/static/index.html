@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Axial-Flux Motor Designer</title>
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>Axial-Flux Motor Designer</h1>
+  <p class="lede">A quick quasi-3D estimate of an axial-flux PM machine, then <b>Verify in 3-D</b>: the same design
+    solved in full 3-D on the same grid, with what the estimate left out. Edge elements, linear iron, no load.</p>
+</header>
+<main>
+  <section class="card" id="form-card">
+    <h2>Design</h2>
+    <form id="design"></form>
+    <div class="actions">
+      <button id="btn-estimate" type="button">Estimate (quasi-3D)</button>
+      <button id="btn-verify" type="button" class="secondary">Verify in 3-D</button>
+    </div>
+    <p class="meta" id="status"></p>
+  </section>
+  <section class="card">
+    <h2>Results</h2>
+    <table id="results"><thead><tr><th></th><th>Quasi-3D estimate</th><th>3-D check</th><th>Estimate / 3-D</th></tr></thead>
+      <tbody>
+        <tr><td>Cogging, peak to peak (N m)</td><td data-k="e_pkpk">—</td><td data-k="v_pkpk">—</td><td data-k="r_pkpk">—</td></tr>
+        <tr><td>Flux linkage of a tooth coil (mWb)</td><td data-k="e_lam">—</td><td data-k="v_lam">—</td><td data-k="r_lam">—</td></tr>
+        <tr><td>Back-EMF constant per tooth turn (mV s)</td><td data-k="e_ke">—</td><td data-k="v_ke">—</td><td></td></tr>
+        <tr><td>Tetrahedra, time</td><td data-k="e_size">—</td><td data-k="v_size">—</td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="meta">Quasi-3D cuts the active annulus with flux-parallel faces at the inner and outer radius, so it leaves out
+      the fringing there. On the default design it overstated the cogging by 11 to 12 % and the flux linkage by 2 to 3 %
+      (examples/electrodynamics/24_afpm_quasi3d.py); the check measures it for this design.</p>
+    <h3 class="sub">Cogging over one period (rotor angle in degrees; even grid steps)</h3>
+    <div id="cogging" class="chart"></div>
+  </section>
+  <section class="card">
+    <h2>Field in 3-D</h2>
+    <div id="v3d"><p class="meta">Run an estimate or a 3-D check to see |B| on the magnets, the iron and the gap.</p></div>
+  </section>
+</main>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module" src="/shared/fieldview3d.js"></script>
+<script src="/shared/charts.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

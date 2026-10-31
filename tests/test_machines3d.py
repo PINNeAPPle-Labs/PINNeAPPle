@@ -219,3 +219,21 @@ def test_afpm_coarse_grid_builds():
 
     model = AFPM3D(n_theta=192, dr=0.02, dz=0.008, air_r=0.01, air_z=0.008)
     assert len(model.mesh.tets) == 50688 and model.mesh._face_topology[2].max() == 2
+
+
+def test_designer_grid_steps_known_answers():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPMMachine
+    from pinneapple_simulation.electromagnetics.machines3d.afpm_design import grid_for
+
+    assert grid_for(AFPMMachine(slots=12, poles=8))["n_theta"] == 192      # 8 even steps per 15 deg period
+    assert grid_for(AFPMMachine(slots=12, poles=10))["n_theta"] == 480     # period 6 deg
+    with pytest.raises(ValueError, match="576 steps"):
+        grid_for(AFPMMachine(slots=9, poles=8))                             # period 5 deg
+
+
+def test_quasi3d_slices_share_the_radial_nodes_of_the_annulus():
+    from pinneapple_simulation.electromagnetics.machines3d.afpm import AFPMMachine, quasi3d_slices
+
+    q = quasi3d_slices(AFPMMachine(poles=8, slots=12), 2, n_theta=192, dr=0.02, dz=0.008, air_z=0.008)
+    assert [len(x.rs) for x in q] == [2, 2] and q[0].rs[0] == 0.05 and q[1].rs[-1] == 0.09
+    assert q[0].rs[-1] == q[1].rs[0] == pytest.approx(0.07)

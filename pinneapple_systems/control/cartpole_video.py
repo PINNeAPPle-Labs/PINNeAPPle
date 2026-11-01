@@ -40,7 +40,7 @@ def _ffmpeg() -> str | None:
         return None
 
 
-def cartpole_animation(out_dir: str, push: float = -25.0, t_push: float = 12.0, a_swing: float = 3.0,
+def cartpole_animation(out_dir: str = "cartpole_animation", push: float = -25.0, t_push: float = 12.0, a_swing: float = 3.0,
                        t_end: float = 16.0, fps: int = 20, width_px: int = 720, title: str = "Balancing the unbalanceable"
                        ) -> dict[str, Any]:
     """Run the cart-pole study and render it as an animation.
@@ -48,7 +48,7 @@ def cartpole_animation(out_dir: str, push: float = -25.0, t_push: float = 12.0, 
     Parameters
     ----------
     out_dir : str
-        Folder for ``cartpole.mp4`` and ``cartpole_poster.png``.
+        Folder for ``cartpole.mp4`` and ``cartpole_poster.png`` (a job runner passes its own output folder).
     push : float [rad/s^2]
         Angular-acceleration push, 0.1 s long, at ``t_push``.
     t_push : float [s]

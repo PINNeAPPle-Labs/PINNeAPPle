@@ -111,7 +111,7 @@
   "seconds": 10.14
  },
  "pinneapple_systems.control.cartpole_video:cartpole_animation": {
-  "code_hash": "0fa43a14b1a30bc7",
+  "code_hash": "f8a8b12b6fdb50cd",
   "inputs": {
    "fps": 4,
    "out_dir": "cartpole_animation_out",
@@ -123,7 +123,7 @@
   "ok": true,
   "recorded": "2026-11-01",
   "returned": "dict",
-  "seconds": 14.68
+  "seconds": 12.07
  },
  "pinneapple_systems.control.tuning:fit_fopdt": {
   "code_hash": "3dc11936763c99c6",

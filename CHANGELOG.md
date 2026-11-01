@@ -14,14 +14,40 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 
 ## [Unreleased]
 
+
+## [0.8.0] - 2026-11-01
+
 ### Security
 
 - Caddy images (`apps/deploy` proxy and `apps/playground`): the pinned bases still ship `brotli-libs` 1.2.0-r0
   (CVE-2026-111497, critical, fixed in Alpine 1.2.1-r0), and no upstream rebuild has it yet. Both images now upgrade
   that package at build time (`apps/deploy/caddy.Dockerfile`, a build step in the playground Dockerfile), and the
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
+- Web hardening for every app, in the library (`pinneapple_security.web`, `.passwords`, `.archives`) and wired
+  once through `apps/_shared/appkit.py` `install()`: CSP built from each app's own pages (no script
+  `'unsafe-inline'`), HSTS, frame, referrer and permissions policies; request body limit counted while streaming;
+  per-caller rate limits (429 + `Retry-After`); lockout after repeated failed logins; scrypt/argon2id password
+  hashes (`<PREFIX>_PASSWORD_HASH`, `python -m pinneapple_security hash-password`, plain passwords still work);
+  more logins and admin users (`<PREFIX>_USERS_FILE`, `<PREFIX>_ADMIN_USERS`); cross-site POST check; CORS
+  allow-list; `X-Forwarded-For` believed only from trusted proxies; JSON 500s with a reference id; auth and admin
+  events as JSON log lines and in a hash-chained audit trail (`AuditLog` is now safe with several workers).
+  Settings in `apps/_shared/README.md`; findings in `docs/security/audit.md`.
+- Fixed: formula evaluation could reach Python internals (`pinneapple_data.audit` constraints in the Benchmark Arena,
+  `pinneapple check` boundary values in the Validation Lab): both use the `contracts.expressions` interpreter
+  (now with `functions=` and `check()`); Meshless formulas are grammar-checked before `sympify`.
+- Fixed: Campaign Planner OpenFOAM edits could write outside the case; base-case zips are extracted with limits;
+  case templates allow only `{name}` / `{name:spec}`.
+- Fixed: Model Gateway pickled surrogate uploads are off unless `MDL_ALLOW_PICKLE_UPLOAD=1` (and then scanned);
+  remote ModelRefs to non-public addresses need `MDL_REMOTE_ALLOW_HOSTS`.
+- Uploads: zip members checked for traversal, links and size (`pinneapple_security.archives`, used by
+  `cae.upload.expand`, the GUI agent and the Campaign Planner); gzip decompression capped. Validation Lab configs
+  can only point at uploaded files. Jobs: optional `setrlimit` (`<PREFIX>_JOB_MAX_MEMORY_MB`,
+  `<PREFIX>_JOB_MAX_CPU_S`), process-group kill, tracebacks kept out of job logs (`<PREFIX>_JOB_TRACEBACKS=1`
+  restores them). Sensitivity/Uncertainty `?wait=` no longer blocks the event loop; `n_sobol` and `n_boot` capped;
+  the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
 
 ### Added
+
 - `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
   space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
   (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families
@@ -207,8 +233,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   - **Flow node** `condense.package_thermal`.
 - `pinneapple_simulation.meshless.stencils`: RBF-FD and GFDM stencil weights in any dimension (eval, gradient,
   Laplacian), exact on polynomials up to the degree.
-
-### Added
 - `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
   verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
   `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,
@@ -219,115 +243,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 - Apps HeatSink Design AI (`apps/heatsink_inverse_ai`), BrakeCool AI (`apps/brakecool_ai`), PatchDose AI
   (`apps/patchdose_ai`), RideTune AI (`apps/ridetune_ai`) and SoundShape AI (`apps/soundshape_ai`), with Dockerfiles,
   tests and deploy entries (ports 8160-8164).
-
-### Changed
-- **Behavior:** the field-scalar consistency check of the Ahmed study (`ahmed.prediction_checks`,
-  `cp_integral_matches_CD_pressure`) compares, at the 95th percentile over 128 Sobol points, the disagreement
-  between the integrated field and the scalar model with the quadrature sum of the CFD's own template gap (its 95th
-  percentile, no added margin) and the scalar model's calibrated half width, instead of the maximum over 48 points
-  with p95 + 0.01: a maximum against a percentile failed even the CFD's own Cp fields, and the scalar model's error
-  was counted against the field. The raw p95 and maximum stay in the check's reason; the report states the decision
-  and both outcomes.
-- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
-  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
-  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
-  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
-  the last must-pass gate.
-- **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
-  and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
-  `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
-  PDE loss fell and traded data fit for a smaller residual. On the benchmark's inverse Burgers problem (ν from 2000
-  samples with 1 % noise, 5 seeds, 3000 iterations, `benchmarks/vs_frameworks/REPORT.md` track C) the ν relative error
-  was 12.5 [11.0, 13.7] with adaptive weighting and is 3.41 [2.99, 3.90] with the new default (median [min, max]);
-  the field error went from 0.384 to 0.112. The ENSO PINNs in `pinneapple_systems.time_series.enso.pinn` pass
-  `weighting="adaptive"`, so their results are unchanged.
-- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
-  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
-- **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first
-  `pinneapple_hub.library.load_index()` (and at `docker build` of `apps/hub`), `docs/flow_studio/COVERAGE.md` and
-  `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
-  file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
-  gates (AGENTS.md, "Generated files").
-- Presets whose boundaries are named geometry tags now train from their own name. Thirty-two of the forty declare a
-  canonical box or cylinder that the tags map onto without guessing (`pde_environment/presets/tag_geometry.py`, which
-  already existed); `pp.solve(preset, method="pinn")` sends that geometry automatically and records it in
-  `Solution.info["geometry"]`. `get_preset` now stamps the spec with its registry key (`problem_id`, `meta["preset"]`)
-  so a solver can find the fixture and a report can name the case; `ProblemSpec` is frozen, so this is a copy. The
-  eight presets that describe a real airfoil, car body or furnace still raise `TagConditionsUnresolved`, which is the
-  honest answer. `pp.card` prints the geometry a preset uses, and reports "runs here" for the ones this enables.
-- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
-  of the first hour and no longer need `pinneapple[pinn]`.
-- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
-  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
-- `pp.info()` ends with the four commands to try next.
-- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
-  (the registry is lowercase) and had been stale since September.
-- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
-  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
-- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
-  (OpenFOAM, FEniCS).
-- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
-
-### Fixed
-- `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
-  its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
-- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
-  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
-  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
-- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
-  solution; it is now a method-of-lines reference (401 points, second-order convergent).
-- `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
-  `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
-  (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that
-  provably is this module's own format is re-read with `weights_only=False`, so a checkpoint of plain tensors never
-  takes the permissive path. This affected uncompressed `.pt` files too, not just the new compressed option.
-- Bugs found by the cross-framework benchmark (`benchmarks/vs_frameworks/REPORT.md`):
-  - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) early stopping watched the weighted total,
-    which its adaptive PDE/data balancing re-weights every step, so it compared losses under different weights (it
-    stopped while no term got worse, and never stopped on a true plateau). It now watches the unweighted
-    `L_pde + L_data`; `patience=None` turns it off. The last step is now recorded in the history.
-  - **Behavior:** `InversePINN` caught every exception of `residual_fn`, logged it and trained with a zero PDE loss
-    (a silent data-only fit). The exception now propagates.
-  - **Behavior:** `ModelRegistry.build` / `build_with_report` dropped `hidden_dim` / `n_layers` for architectures
-    that name their size differently, so `vanilla_pinn`, `vpinn`, `xpinn`, `inverse_pinn` (`hidden=[...]`) and the
-    `bench_*` MLPs (`width` / `depth`) built their default 4 x 128 net. They are now translated to the class's own
-    arguments (`hidden=[hidden_dim] * n_layers`, `width`, `depth`, `n_hidden`); the class's own size arguments win
-    when given. Through `pp.solve(..., "pinn")` these architectures now get its documented 64 x 4 default.
-  - **Behavior:** `pp.solve(problem, "pinn", ...)` raises `TypeError` on an unknown option (it swallowed any, e.g.
-    `n_epochs=` or a preset parameter, and trained with defaults), and warns when an explicit `hidden_dim` /
-    `n_layers` cannot be applied to the architecture (`elm`, `rbf`, `xtfc`, ...). The other built-in methods warn (`UserWarning`) on options they ignore,
-    except `seed`. Preset parameters go in `preset_kwargs={...}`.
-  - `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym` imported `ModulusConfig`, which
-    nvidia-physicsnemo.sym 2.4.0 does not have, and reported the package as missing. It now uses the 2.4.0 API
-    (`PointwiseConstraint.from_numpy`, `Activation`, a config composed from `physicsnemo_default`, `cuda_graphs`
-    off on CPU), returns `model` and `predict_fn`, and a missing package raises `ImportError` naming it.
-- `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
-  (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
-  `cw_exact_velocity` (its results do not change: it uses vx0 = 0).
-- `examples/benchmark_suite/07_xtfc_1d_ode.py` solved u'' + u = (pi^2 - 1) sin(pi x), whose solution is
-  -sin(pi x), but scored against +sin(pi x), so both methods printed relative L2 = 2.0. The right-hand side is now
-  (1 - pi^2) sin(pi x), which +sin(pi x) solves.
-- `XTFC` no longer reports a formulation it did not run: `extras["tfc_mode"]` is True only when the tfc
-  constrained expression actually produced the output (new `extras["tfc_attached"]` says one is attached). A failing
-  tfc call now warns (`RuntimeWarning`) instead of falling back silently; with every tfc version checked it fails,
-  because tfc has no `cf` method. **Behavior:** `activation` now defaults to `None`, and passing one with the
-  default `rf_kind="rff"` (cos/sin Fourier features, which never used it) raises `ValueError`; with
-  `rf_kind="random_linear"` it is honoured as before (`None` = tanh). Default outputs are unchanged.
-- `pinneapple_physics.solve_pde` computed `model(x_col)` every step and passed it to the compiled loss, which never
-  reads it (the loss evaluates the model on its own gradient-tracking copy): one wasted forward pass per step,
-  removed. Losses are unchanged.
-- `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
-  system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
-  0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
-- `pinneapple_design.aero.panel`: `airfoil_nodes` / `panel_solve(..., close_te=True)` close the blunt CST trailing
-  edge. With the gap open the Kutta condition acts on panels smaller than the gap and Cl does not converge with
-  the panel count (NACA 2412 at 4 deg: 0.728 to 0.706 for 50 to 800 panels per side); closed it converges
-  (0.7296, 0.7292 at 400 and 800). The default is unchanged.
-- `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
-  strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
-  strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
-
-### Added
 - Every `examples/*` study as a flow: domain nodes in `pinneapple_flow/nodes_ext` (`flight.*`, `render.blender_clip` /
   `render.clip_grid`, `em.*`, `examples.compare`), flows in `pinneapple_flow/flows/examples/<domain>/` with a quick
   configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
@@ -710,32 +625,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   `callback`; the result has the loss history.
 - `pinneapple_llm.call_llm`: provider `openai_compatible` with `base_url` (vLLM, LM Studio, llama.cpp, a hosted
   model), `base_url` for `openai`, and `max_tokens`.
-
-### Security
-- Web hardening for every app, in the library (`pinneapple_security.web`, `.passwords`, `.archives`) and wired
-  once through `apps/_shared/appkit.py` `install()`: CSP built from each app's own pages (no script
-  `'unsafe-inline'`), HSTS, frame, referrer and permissions policies; request body limit counted while streaming;
-  per-caller rate limits (429 + `Retry-After`); lockout after repeated failed logins; scrypt/argon2id password
-  hashes (`<PREFIX>_PASSWORD_HASH`, `python -m pinneapple_security hash-password`, plain passwords still work);
-  more logins and admin users (`<PREFIX>_USERS_FILE`, `<PREFIX>_ADMIN_USERS`); cross-site POST check; CORS
-  allow-list; `X-Forwarded-For` believed only from trusted proxies; JSON 500s with a reference id; auth and admin
-  events as JSON log lines and in a hash-chained audit trail (`AuditLog` is now safe with several workers).
-  Settings in `apps/_shared/README.md`; findings in `docs/security/audit.md`.
-- Fixed: formula evaluation could reach Python internals (`pinneapple_data.audit` constraints in the Benchmark Arena,
-  `pinneapple check` boundary values in the Validation Lab): both use the `contracts.expressions` interpreter
-  (now with `functions=` and `check()`); Meshless formulas are grammar-checked before `sympify`.
-- Fixed: Campaign Planner OpenFOAM edits could write outside the case; base-case zips are extracted with limits;
-  case templates allow only `{name}` / `{name:spec}`.
-- Fixed: Model Gateway pickled surrogate uploads are off unless `MDL_ALLOW_PICKLE_UPLOAD=1` (and then scanned);
-  remote ModelRefs to non-public addresses need `MDL_REMOTE_ALLOW_HOSTS`.
-- Uploads: zip members checked for traversal, links and size (`pinneapple_security.archives`, used by
-  `cae.upload.expand`, the GUI agent and the Campaign Planner); gzip decompression capped. Validation Lab configs
-  can only point at uploaded files. Jobs: optional `setrlimit` (`<PREFIX>_JOB_MAX_MEMORY_MB`,
-  `<PREFIX>_JOB_MAX_CPU_S`), process-group kill, tracebacks kept out of job logs (`<PREFIX>_JOB_TRACEBACKS=1`
-  restores them). Sensitivity/Uncertainty `?wait=` no longer blocks the event loop; `n_sobol` and `n_boot` capped;
-  the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
-
-### Added
 - `MultiAdam` trainer: Adam with separate moments per loss term, `opt.step([loss_pde, loss_bc])` (Yao et al.
   2023, arXiv:2306.02816). On Poisson with the boundary term weighted 1e-3 it beats plain Adam on 3 seeds (#573).
 - Agent Workbench (`pinneapple_llm.workbench`, `pinneapple-workbench`, `[workbench]` extra): a team of agents on a
@@ -1966,8 +1855,319 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   `pinneapple_design.aero.verify` (Pareto picks checked in OpenFOAM), `pinneapple_design.aero.case.case_zip` (a
   ready OpenFOAM case with a stand-alone `COEF_SCRIPT`), `pinneapple_design.aero.optimize.infeasibility_reasons`
   and `pinneapple_design.design_optimizer.representatives` (best per objective + balanced pick of a Pareto front).
+- `pinneapple_simulation.electromagnetics.reflector.design` (#965): compact-range quiet zone against feed gain, reflector size and focal length. `qz_report` (one PO solve for both feed polarisations, disk and principal-cut taper / ripple / phase ripple / cross-pol, usable diameter at a `Spec`), `doe` (parallel grid), checks (`facet_convergence`, `power_balance` with the PO near-field H, `agreement_887`), `fit_qz_surrogate` (GP, k-fold RMSE and 95 % coverage), `design_maps`, `pareto_front` / `pareto_figure`, `cuts_figure`, `smallest_reflector` (lower 95 % bound, verified by PO), `run_design_study`; `po.radiate_fields` (several current sets per geometry pass, and H). Flow nodes `antenna.compact_range_design`, `antenna.compact_range_check`; public example `examples/use_cases/antennas/compact_range_2ghz.py` (generic 2 GHz range) with `run_private(config_path)` for geometry kept outside the repository.
+- Axial-Flux Motor Designer app, `apps/afpm_designer` (issue #929, fifth step): a design form, a quasi-3D estimate
+  (cogging, tooth flux linkage, back-EMF constant per tooth turn) and "Verify in 3-D", which solves the same design
+  in full 3-D on the same edge-element grid and gives the estimate / 3-D ratios, with a 3-D view of `|B|`. On the
+  default design (coarse grid) the estimate overstates the cogging by 12.8 % and the flux linkage by 2.1 %; the
+  check takes 34 s. Library: `machines3d.afpm_design` (`estimate`, `verify_3d`, `grid_for`, `field_view_of`,
+  `machine_from`) and `machines3d.afpm.quasi3d_slices`.
+- Axial-flux machine and magnet eddy loss in 3-D (issue #929, fourth step).
+  - `machines3d.magnet_loss`: eddy loss of a segmented magnet in a uniform normal field, 3-D against the
+    closed-form resistance-limited loss (double sine series) and the 2-D strip value. Example
+    `examples/electrodynamics/23_magnet_eddy_segmentation.py`: 3-D matches the closed form within -0.6 to +4.8 %
+    where the loss is resistance-limited; 2-D overestimates short pieces (eight axial pieces keep 1.3 % of the 2-D
+    loss); at 50 kHz the whole magnet is inductance-limited and two axial pieces lose more than one.
+  - `machines3d.afpm`: `AFPM3D`, an axial-flux PM machine (single-sided or double-rotor) on a structured grid
+    closed round the axis, no helical bias (zero torque on the aligned rotor), with quasi-3D radial slices on the
+    same grid. Example `examples/electrodynamics/24_afpm_quasi3d.py`: quasi-3D overestimates the cogging by 11 to
+    12 % and the tooth flux linkage by 2 to 3 %, from the fringing at the inner and outer radius (one and five
+    slices agree within 0.3 %).
+  - Flow nodes `em.magnet_eddy_segmentation` and `em.afpm_quasi3d`.
+- Surrogates of the axial-flux machine in 3-D with calibrated uncertainty and VeriPhysics checks (issue #929, sixth
+  step): `machines3d.afpm_surrogate` (`run`, `simulator`, `space`, `physics_checks`, `certify`) and
+  `examples/electrodynamics/25_afpm_surrogates.py`. 48 designs over magnet arc, slot opening, gap and magnet
+  thickness, each checked in 3-D on the Axial-Flux Motor Designer's grid (54 s each); Gaussian process, MLP ensemble
+  and quadratic surface compared with cross-conformal 90 % intervals and physics checks; each selected surrogate
+  certified into a trust decision and an evidence ledger. Tooth flux linkage and its quasi-3D / 3-D ratio: APPROVED
+  (test and extrapolation `R^2` 0.999 or better); cogging peak-to-peak: REVIEW (extrapolation `R^2` 0.855); the
+  cogging ratio: REJECT (test `R^2` 0.756, a ratio of small numbers near a cogging minimum).
+- `examples/end_to_end/ahmed_body`: the Ahmed-body study end to end (scripts 01-07, 68 OpenFOAM run records with their
+  Cp fields, the dataset, results, evidence report and package, experiment manifest, a README with every measured
+  number) and the app `apps/ahmed_twin` (the twin page with a verifying-CFD button).
+- `examples/end_to_end/ahmed_body/results/visuals`: Blender Cycles stills of the Ahmed-body validation run on a dark
+  stage, a 65 s narrated film in English, a three.js viewer and an OpenUSD stage with the run's trust decision.
+- Bio line, part 2 (`examples/biology`, `examples/reproductions/binns_lagergren2020`): PK/PD inference over 20 noise
+  draws (95 % interval coverage 0.90 to 1.00), the aortic arch with RCR outlets over 2 of 4 cycles (reduced-scale),
+  Porous-FKPP on all six scratch-assay data sets (5 of 6 reproduced) and the BINN / delay model at reduced scale
+  (not reproduced: GLS 647 against 557); resumable runs (`classical.py` per start, `pkpd_inference.py` per seed).
+- Inverted pendulum on a cart, `pinneapple_systems.control.cartpole.cartpole_study()`:
+  - linearisation at upright (unstable pole √(g/l)) and LQR gains;
+  - energy-based swing-up from hanging, LQR catch, push rejection, and the uncontrolled fall for comparison.
+
+  Also: `cartpole_video.cartpole_animation()`, an MP4 and poster of the run with the angle trace and the poles; the Flow node `control.cartpole`, the flow `examples/control/cartpole.json` and `examples/control/cartpole_swing_up.py` (#1050).
+- Control engineering for any dynamic model: `pinneapple_systems.control` provides
+  - linear analysis: trim, linearisation, eigenvalues with doubling times, controllability, gain/phase/delay margins, step metrics;
+  - actuators: range, rate, lag, dead band, delay, integrating;
+  - controllers: PID with derivative on measurement or rate, filter and back-calculation anti-windup; cascade; state feedback;
+  - a closed-loop simulator, and the linearised complete closed loop to compare what the controller commands;
+  - tuning: FOPDT fit, SIMC, IMC, Ziegler–Nichols, pole placement for unstable plants, LQR, optimisation under constraints, Monte Carlo robustness.
+
+  `pinneapple_simulation.naval` adds submarine depth-keeping and ship initial stability:
+  - depth-keeping: hydrostatic instability, trim tank, target-mass vs pump-flow command;
+  - initial stability: GM, free-surface correction, righting arm, roll period.
+
+  Also: Flow nodes `control.linear_analysis`, `control.pid_tuning`, `naval.submarine_depth` and `naval.ship_stability`; `examples/control/submarine_depth.py`; and the guide `docs/guides/control_engineering.md` (#1040).
+- `pinneapple_analysis.dynamics.dimensional`: dimensional analysis and Buckingham pi in exact rational arithmetic,
+  guide `docs/guides/dynamics_dimensional.md`.
+  - `Dimension` (any base system, from unit strings through `pinneapple_data.physical_units`), `PhysicalQuantity`,
+    `DimensionalMatrix` (exact rank, integer null space) and `check_homogeneity`.
+  - `BuckinghamPiAnalyzer`: groups with repeating variables, recognition of named groups (Re, Pe, Fo, Pr, Ra, Nu,
+    ...), `express` to write a known group in the basis, characteristic scales with their ambiguity, the scaling
+    law implied by a single group. Isolated dimensions and targets that cannot be formed are reported as
+    insufficient quantities.
+  - `ScalingLaw`: power laws fitted in log space with t intervals, or exact exponents with a fitted constant.
+  - `TrajectoryNormalizer` (dimensional or empirical, labelled), `CurveCollapseAnalyzer` (collapse measure against
+    the raw curves and a permutation control, degenerate and by-construction flags, exponent fit and stability)
+    and `SimilarityMetrics`.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks dimensional`.
+- `pinneapple_analysis.dynamics.early_warning`: critical slowing down and early-warning indicators, guide
+  `docs/guides/dynamics_early_warning.md`.
+  - `EarlyWarningAnalyzer` / `CriticalSlowingDown`: detrending (local linear by default, Gaussian kernel or linear),
+    rolling variance, CV, skewness, kurtosis, lag autocorrelation (pair-based on irregular grids), AR(1) recovery
+    rate, low-frequency power and spectral exponent.
+  - Kendall trends with a surrogate p-value (fitted AR(1), phase or IAAFT surrogates from
+    `pinneapple_systems.time_series.predictability`), residual-trend and ADF/KPSS checks (statsmodels optional), and
+    window / bandwidth / sampling sensitivity.
+  - `TransitionDiagnostics` keeps indicator and prediction apart.
+  - `ramp_series`: stochastic saddle-node, transcritical, pitchfork and OU ramps, and stable controls.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks early_warning`.
+- `pinneapple_analysis.dynamics.first_passage`: first-passage and hitting times, guide
+  `docs/guides/dynamics_first_passage.md`.
+  - `FirstPassageAnalyzer`: deterministic crossing of a trajectory (irregular grids, gaps, several thresholds,
+    level sets), Kaplan-Meier distributions from observed trajectories with their own censoring windows, and
+    Monte Carlo of an `SDE` with a Brownian-bridge correction and reflecting walls.
+  - `dt_convergence` and `sensitivity`, the latter covering parameters and noise hypotheses with common random
+    numbers.
+  - `HittingTimeDistribution`: survival function with Greenwood bands, `P(tau <= T)` with Wilson or
+    Kaplan-Meier intervals, quantiles, prediction intervals, and a restricted mean labelled as such.
+  - Closed forms: inverse Gaussian, interval exit (probability, mean, survival series) and the
+    Ornstein-Uhlenbeck mean first-passage time.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks first_passage`.
+- `pinneapple_analysis.dynamics.fisher`: Fisher information, Cramér-Rao bounds and experimental design on the
+  `pinneapple_analysis.inverse_problems` forward models (including `ODEForwardModel` sensitivities), guide
+  `docs/guides/dynamics_fisher.md`.
+  - `FisherInformation`: Gaussian (with optional parameter-dependent noise), Poisson, linear Gaussian, and any
+    likelihood by score Monte Carlo (finite differences, PyTorch or JAX, detected at call time).
+  - `CramerRaoBound` on parameters and on targets `g(theta)` (a prediction, a first-passage time), kept apart from
+    the Laplace posterior (with a prior) and from `estimator_performance` (empirical least squares).
+  - `ParameterIdentifiability`: local verdict from the information matrix, with the full analysis delegated to
+    `analyze_identifiability`.
+  - `ExperimentalDesign` / `ObservationScheduler`: D, A, E, c and Bayesian D criteria, greedy selection plus exchange
+    passes.
+  - `InformationGain`, `SamplingStrategy`, `SensitivityAnalyzer`.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks fisher`.
+- `pinneapple_analysis.dynamics`: the shared foundation of the dynamical-systems toolkit. No numerical method
+  is in it yet; each framework arrives in its own pull request with its benchmarks.
+  - A method contract: `MethodCard` (inputs, assumptions, config, outputs, role, failure conditions) and
+    `DynamicsResult` (estimate, uncertainty, checked and unchecked assumptions, diagnostics, convergence,
+    applicability, reproducibility record, `to_study_result()`).
+  - Backend detection that imports nothing (`capabilities`, `require`, `to_numpy`).
+  - `Trajectory` / `TrajectoryEnsemble`: irregular sampling, missing values, right-censored windows, and
+    interpolation that never extrapolates.
+  - Adapters from arrays, tables and CSV files (units read from the headers), `pp.solve` solutions, callables,
+    and PDE / FNO / DeepONet snapshots.
+  - Guide: `docs/guides/dynamics_toolkit.md`.
+- Dynamics toolkit integration:
+  - `pinneapple_analysis.dynamics.first_passage.survival_from_density` and `survival_from_solution`: the
+    hitting-time distribution from a Fokker-Planck density with an absorbing boundary, from an array or a
+    `pp.solve` result (survival, density of tau, hazard, restricted mean, with diagnostics).
+  - `examples/dynamics_toolkit/`: the five frameworks end to end, each against an independent reference
+    (first passage from a `pp.solve` PINN, the Koopman spectrum of a PINN, sensor times by Fisher information,
+    Buckingham pi with curve collapse, early-warning indicators with controls), with `experiment.json`.
+  - Catalog items S42-S46 for the five frameworks; `docs/guides/dynamics_toolkit.md` is now the index, with the
+    example's measured results.
+- `pinneapple_analysis.dynamics.koopman`: Koopman operator and spectral analysis, guide
+  `docs/guides/dynamics_koopman.md`.
+  - `DMD` (exact DMD, TLS debiasing, rank by Gavish-Donoho, an energy fraction or fixed) and `EDMD` on an
+    `ObservableDictionary` (identity, monomials, RBF, Fourier, custom, neural observables from a PyTorch module).
+  - Both return a `KoopmanOperator` with `KoopmanEigenvalues` (discrete and continuous), `KoopmanEigenfunctions`,
+    `DynamicMode`s, ResDMD residuals, stability, prediction and the generator.
+  - Generator EDMD from derivative data.
+  - `KoopmanReconstruction` and `SpectralAnalyzer`: spectrum, noise sensitivity, order selection, and comparison
+    with a nonlinear state-space regression.
+  - Inputs are trajectories, ensembles and PDE snapshots.
+  - This `KoopmanOperator` is a fitted NumPy operator. The trainable
+    `pinneapple_neural.architectures.rom.koopman.KoopmanOperator` is unchanged.
+  - Benchmarks: `python -m pinneapple_analysis.dynamics.benchmarks koopman`.
+- `pinneapple_simulation.electromagnetics.fem3d` (issue #929, first step): 3-D magnetostatics and time-harmonic eddy
+  currents on first-order Nedelec edge elements (tetrahedral `TetMesh`, structured `box_mesh`, gmsh input), nonlinear
+  B-H by Newton, tree gauge or ungauged conjugate gradients with discretely solenoidal sources, energy, co-energy and
+  `source_work` (`dW'/di = psi`); GetDP 3.2 as the reference on the same meshes (`fem3d.getdp3d`). Verified on a
+  permeable sphere in a uniform field (mean-field error 3.9e-2 to 2.2e-3, 6 500 to 494 000 unknowns), agreement with
+  GetDP to 1e-13, a manufactured solution (order 1.00) and a conducting slab (loss within 1.5 %);
+  `examples/electrodynamics/19_edge3d_verification.py`, Flow node `em.edge3d_verification`. TEAM benchmarks not yet
+  compared.
+- `pinneapple_simulation.immersed`: linear elasticity on the immersed discretisation (issue #966, part 2):
+  `solve_elasticity` with Nitsche displacements (all or some components), tractions, pressures and total forces
+  (`Force`, spread over the area the selector finds), ghost-penalty or FCM stabilisation and an equilibrium check;
+  `verification.elastic_manufactured` and `verification.lame_sphere`. Conforming P2 elasticity in
+  `numerical_solvers.tet_fem.solve_elasticity`. `immersed.parts`: a finned heat sink and an L-bracket given only as
+  STL, solved by both methods from the same file and compared with a fine conforming reference.
+- `pinneapple_simulation.immersed.transient`: transient heat by the theta scheme (backward Euler, Crank-Nicolson) on
+  the immersed discretisation, with a mass ghost term for small cuts, time-dependent sources and conditions;
+  `verification.sphere_cooling` (series solution) and `verification.manufactured_transient`. `HeatInput` and `Force`
+  conditions apply an exact total power or force over the area their selector finds.
+- Flow node `immersed.heat` (steady heat with generation and convection on a built-in solid or an STL file, energy
+  balance, cost by phase, mid-plane figure), the guide `docs/guides/immersed_analysis.md` (when immersed analysis
+  is the right tool and when conforming FEM is, from the measured comparison) and the AGENTS.md row (issue #966,
+  part 3).
+- `pinneapple_simulation.immersed`: mesh-free analysis on raw geometry (issue #966, part 1). Immersed / finite cell
+  solver on a uniform Q1 or Q2 background grid; geometry from any signed distance (and CSG), a voxel mask (distance
+  transforms) or an STL (generalised winding number with a dipole tree; pseudonormal signs near watertight
+  surfaces); adaptive octree cut-cell quadrature with simplex clipping at the leaves, compressed per cell by moment
+  fitting; small-cut stabilisation by ghost penalty or the finite cell method's fictitious material, with the
+  condition number reported; Nitsche Dirichlet conditions and surface quadrature for heat flux and convection;
+  steady heat with an energy balance. `immersed.verification`: manufactured solutions on curved domains with
+  measured L2 / H1 rates, sphere and cylinder with convection in closed form, a small-cut conditioning study.
+- `pinneapple_design.geometry.mesh.generate.generate_mesh` makes gmsh triangle / tetrahedral meshes of a primitive (box, cylinder, sphere, rectangle, disk) or a STEP / IGES / STL file, with optional local refinement and wall prism layers. It reports the quality of every element (gmsh SICN and gamma, edge ratio), the volume or area, the edge lengths, and a `.msh` / `.vtu` and glTF quality view. Its outputs and units are declared in `X_OUTPUTS`. The new Flow node `geometry.unstructured_mesh` (port type `unstructured_mesh`) calls it.
+- `pp.potential` (`pinneapple_physics.potential`, issue #928): derivative trees from one potential. `Potential(fn,
+  variables, names=..., responses=...)` in torch or SymPy (`Potential.from_sympy`), `tree(potential, depth, at=...)`
+  by autodiff (scalar or tensor variables, symbolic derivatives alongside for SymPy potentials), `legendre(...)`
+  (symbolic when the conjugate equation has one root, else bracketed Newton with derivatives exact to seventh order)
+  with a convexity check that reports where the transform fails (the van der Waals spinodal region),
+  `maxwell_relations` and `consistency_check` (how far a property-by-property model, a table or grid data is from
+  one potential). Adapters: `thermo` (Helmholtz / Gibbs trees, ideal gas, van der Waals, Peng-Robinson; identities
+  in `(T, v)` and `(T, rho)`), `hyperelastic` (Neo-Hookean, Mooney-Rivlin, major symmetry), `mechanics` (Lagrangian
+  trees, Euler-Lagrange, Hamiltonian, RK4), `machines` (local co-energy potential of a machine from FEA samples).
+  Known-answer tests in `tests/test_potential.py`: closed forms, CoolProp's Peng-Robinson backend (agreement within
+  2e-13 relative where installed), and the surface-PM machine torque from co-energy against Maxwell stress (16.854
+  vs 16.837 N m). Flow nodes `potential.*`; extra `pinneapple[potential]` (SymPy, CoolProp).
+- Potential-based surrogates in `pp.potential` (issue #928): `surrogate.PotentialSurrogate`, a network for the
+  Helmholtz energy whose properties are its derivatives, with an input-convex option in the specific volume
+  (`PICNN`), and `surrogate.DirectSurrogate`, one output per property. Both are trained on mixed data, where each
+  sample carries one property, by the same `surrogate.fit`. The measured CO2 study is in `co2_study` and
+  `examples/potential_co2` (CoolProp Span-Wagner data near the critical point, 3 configurations, 5 or 2 seeds).
+  - The direct surrogate is more accurate in every configuration and region where the paired interval excludes zero.
+    In the training region with all six properties, its error is 0.10 against 1.61 (MLP potential) and 1.24 (ICNN).
+  - The potential surrogates satisfy the Maxwell relation to about 1e-5. The direct surrogate violates it by about
+    0.4, and by 2 to 11 for the second-derivative identities.
+  - With c_p in the mixed data, the MLP potential collapses to near-zero pressure.
+
+  Also adds the Flow node `potential.co2_surrogates` and the example flow `potential_co2/surrogate_study`.
+- Ray tracer, non-axisymmetric emission (`pinneapple_physics.blackhole.raytrace`, #1091):
+  - every sample stores its azimuth;
+  - `render` takes (r, θ, φ) fields or a thin-disc `modulation`, and `camera_azimuth` orbits the camera without a new trace;
+  - `orbiting_clumps` and `keplerian_omega` give hot spots carried at Ω = √(M/r³), sheared by differential rotation;
+  - `render_series` renders many frames of one trace cheaply;
+  - `RayPaths.select` drops samples that never emit.
+- `pinneapple_physics.closed_form.ideal_reactors`: ideal isothermal first-order PFR and CSTR in closed form, with declared input ranges and output units. `pinneapple_autolab.study.verify.verify_against_model` checks a surrogate value at one point against the reference model (pass only when the model ran inside its ranges with matching units; otherwise inconclusive). `pinneapple_autolab.study.scalar_twin.surrogate_twin` writes an offline twin page for one quantity of any model: model evaluations only, grid-bound sliders, an extrapolation mark outside the training hull, a band labelled with its method, and a manifest with the training-set hash and library commit.
+- `pinneapple_neural.architectures.pinns.PINNsFormerPaper`: the PINNsFormer of Zhao, Ding & Prakash (ICLR 2024),
+  following the official code: a pseudo sequence of one point and its k time-shifted copies, an encoder-decoder
+  and WaveAct.
+  - It is pointwise, with 453 561 parameters at the paper's settings.
+  - Registered as `pinnsformer_paper`.
+  - The existing `PINNsFormer` is a different model (attention across collocation points). Its registry capability
+    is now `"sequence"`, and its docs point to the new class.
+- `examples/reproductions/pinnsformer_zhao2024`: the PINNsFormer reproduction, with frozen targets, a checkpointing
+  runner and measured results.
+  - Table 1 at seed 0: 6 of 12 targets reproduced, 3 partially reproduced and 3 not reproduced.
+  - Wave (Table 2) is not attempted because of its CPU cost.
+- `examples/reproductions/sbinn_daneker2022`: SBINN T1 / T4 at reduced scale (100k of 610k epochs), two loss scalings;
+  not reproduced (parameter errors 7 % to 80 % against the paper's 0.1 % to 1.6 %).
+- `pinneapple_simulation.electromagnetics.machines3d` (issue #929, second step): the surface-PM machine in 3-D on the
+  edge-element solver.
+  - `SPM3D` extrudes the polar mesh, with magnet skew and end regions; the mesh has no handedness and one mesh
+    serves every rotor angle and skew. It also gives Arkkio torque and multi-slice 2-D on the same mesh.
+  - `skew.skew_study` compares step and continuous skew in 3-D against multi-slice, with checkpoints.
+  - `examples/electrodynamics/20_spm_skew_3d.py` and Flow node `em.spm_skew_3d`. Against the straight 3-D
+    cogging, multi-slice is within 0.5 % for step skew and 3.8 % for continuous skew. The best skew (continuous
+    over one period) leaves 0.062 N m in 3-D against 0.045 N m in multi-slice.
+- `pinneapple_studio`, the library side of the PINNeAPPle Studio (`pinneapple studio`, `python -m pinneapple_studio`):
+  - every public class and function of the library as a tool, classified from the code as executable, composite or
+    reference, with the reason;
+  - a form generated from the signature (units from the docstring, nested dataclasses, numeric arrays);
+  - status from the tests (verified / tested / discovered, the Engineering API's rules), the Portuguese prose of the
+    map, tasks, areas and products, and related tools from the import graph;
+  - presets and science experiments as tools;
+  - search in Portuguese and English;
+  - a gallery of every example, reproduction and app, with the requirements read from its scripts and the fix for
+    each one that is missing;
+  - a job runner (own process, no credentials in the environment, limits, evidence record) and a FastAPI router.
+
+  `docs/pt/_mapa/inventario.py` now uses `pinneapple_studio.inventory`. The Flow Studio's routes are a reusable
+  `APIRouter` (`create_router`), and `pinneapple_flow.studio.serve` takes extra routers.
+- Studio coverage gate (`python -m pinneapple_studio coverage`, in the `generated` job; the table is a page of the docs
+  site). Every public symbol has a category. Every executable tool has a valid form and one of: a recorded smoke run
+  of its current code, a stated reason, or a line in `pinneapple_studio/coverage_baseline.txt`, a baseline that only
+  shrinks. Every example and reproduction runs from the Studio or says why.
+  - Smoke runs (`pinneapple studio smoke`) run in disposable checkouts with their own `HOME`, no credentials and no
+    network. A tool that writes files is recorded with the files, not excluded.
+  - Example inputs are harvested from calls with literal arguments in the tests, examples and Hub snippets
+    (`pinneapple studio inputs`). The scripts of examples without a flow are run and recorded
+    (`pinneapple studio examples`).
+  - The baseline curve is kept in `data/studio/baseline_history.json`, and a weekly workflow re-records the runs.
+- Studio forms take the input box an author declares for a function (`fn.x_ranges = {"k": (lo, hi)}`, a literal at
+  module level, read without importing): each pair becomes the input's `minimum` / `maximum`, and a name that is not a
+  numeric input or a default outside its range is a form problem.
+- Every Studio tool records its outputs (`outputs`: name, type, unit and description of each value) and where they were
+  read (`outputs_source`: `declared` from a module's `X_OUTPUTS` or a preset card, `annotation` from a `NamedTuple` /
+  dataclass / plain return type, `docstring` from a numpy or Google `Returns` section with the unit in brackets, or
+  `none`).
+- 3-D eddy currents and end effects (issue #929, third step).
+  - `fem3d.team7`: TEAM workshop problem 7 with its measured tables, gmsh mesh, probes and comparison. Example
+    `examples/electrodynamics/21_team7.py` refines the plate from 12 to 5 mm (60 000 to 195 000 unknowns, 44 s
+    and 7.2 GB at the finest). In-phase `Bz` is within 5 to 8 % of the measurements; quadrature `Bz` within 7.5 %
+    at 50 Hz and 40 % at 200 Hz, where the plate has under one element per skin depth. The computed eddy current
+    on the face nearer the coil matches the table of the other face (A4-B4) within 10 to 13 %; both pairings are
+    reported.
+  - `solve_eddy`: the tree gauge now links its root groups (the conductor's floating potential was a null mode:
+    residual 1e-4 before, 2e-14 after), and PARDISO factorises the real symmetric form by LDL^T with iterative
+    refinement (7.7 GB against 13.6 GB on 197 000 unknowns). Factors are freed explicitly (`SPM3D.release()`).
+  - `machines3d.endeffects`: magnet flux linked by a search coil in 3-D against 2-D for L/D from 0.25 to 2
+    (`examples/electrodynamics/22_spm_end_effects_3d.py`), with an exact line integral of `A`. The loss is a fixed
+    length: 0.286 mm of stack from L/D = 0.5 to 2, so `k = 1 - 0.29 mm / L` for this machine (1.4 % at
+    L/D = 0.25, 0.16 % at L/D = 2).
+  - Flow nodes `em.team7` and `em.spm_end_effects_3d`; `TetMesh.locate` is vectorised and caches its search tree.
 
 ### Changed
+
+- **Behavior:** the field-scalar consistency check of the Ahmed study (`ahmed.prediction_checks`,
+  `cp_integral_matches_CD_pressure`) compares, at the 95th percentile over 128 Sobol points, the disagreement
+  between the integrated field and the scalar model with the quadrature sum of the CFD's own template gap (its 95th
+  percentile, no added margin) and the scalar model's calibrated half width, instead of the maximum over 48 points
+  with p95 + 0.01: a maximum against a percentile failed even the CFD's own Cp fields, and the scalar model's error
+  was counted against the field. The raw p95 and maximum stay in the check's reason; the report states the decision
+  and both outcomes.
+- **Behavior:** the rest of the test suite left the push path. It runs in `.github/workflows/full-suite.yml`,
+  nightly and on demand, and fails only when the suite stops being collectable or when the failure count rises above
+  the recorded ceiling (81 today). On a two-core runner it took over an hour, and its result is a count of
+  pre-existing failures, not a verdict on a commit; keeping it in `tests.yml` meant every push waited on it to reach
+  the last must-pass gate.
+- **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) now weighs the PDE and data losses equally
+  and fixed (`weighting="equal"`, 100 each) by default. The previous adaptive rule (PDE weight
+  `100 * clamp(ema_data / ema_pde, 0.01, 100)`) is kept as `weighting="adaptive"`; it raised the PDE weight as the
+  PDE loss fell and traded data fit for a smaller residual. On the benchmark's inverse Burgers problem (ν from 2000
+  samples with 1 % noise, 5 seeds, 3000 iterations, `benchmarks/vs_frameworks/REPORT.md` track C) the ν relative error
+  was 12.5 [11.0, 13.7] with adaptive weighting and is 3.41 [2.99, 3.90] with the new default (median [min, max]);
+  the field error went from 0.384 to 0.112. The ENSO PINNs in `pinneapple_systems.time_series.enso.pinn` pass
+  `weighting="adaptive"`, so their results are unchanged.
+- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
+  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+- **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first
+  `pinneapple_hub.library.load_index()` (and at `docker build` of `apps/hub`), `docs/flow_studio/COVERAGE.md` and
+  `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
+  file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
+  gates (AGENTS.md, "Generated files").
+- Presets whose boundaries are named geometry tags now train from their own name. Thirty-two of the forty declare a
+  canonical box or cylinder that the tags map onto without guessing (`pde_environment/presets/tag_geometry.py`, which
+  already existed); `pp.solve(preset, method="pinn")` sends that geometry automatically and records it in
+  `Solution.info["geometry"]`. `get_preset` now stamps the spec with its registry key (`problem_id`, `meta["preset"]`)
+  so a solver can find the fixture and a report can name the case; `ProblemSpec` is frozen, so this is a copy. The
+  eight presets that describe a real airfoil, car body or furnace still raise `TagConditionsUnresolved`, which is the
+  honest answer. `pp.card` prints the geometry a preset uses, and reports "runs here" for the ones this enables.
+- **Behavior:** `sympy` is a core dependency. `ProblemBuilder` and `SymbolicPDE` ("describe your own PDE") are part
+  of the first hour and no longer need `pinneapple[pinn]`.
+- `pp.quickstart(preset)` prints the preset's name (it was empty), and its next steps are the one-call
+  `pp.solve(...)`, `pp.card(...)`, `pp.compare(...)` and `pp.new(...)` instead of four low-level imports.
+- `pp.info()` ends with the four commands to try next.
+- `QUICKSTART.md` was rewritten around the four commands: its `pp.build_model("VanillaPINN")` raised `KeyError`
+  (the registry is lowercase) and had been stale since September.
+- `OVERVIEW.md` and `OVERVIEW_EN.md` are now short pointers to `START_HERE.md`; the previous text moved to
+  `docs/archive/overview_{en,pt}.md`, unchanged, and is linked from the docs navigation.
+- `docs/getting_started/installation.md` documents the profiles and the two things the package cannot install
+  (OpenFOAM, FEniCS).
+- The `pinneapple` CLI lists the four onboarding commands next to `check`, `benchmark` and `design`.
 - Lab experiment `cylinder_lbm` v2 runs `cylinder_wake.simulate` and measures the Strouhal number from the
   Hann-windowed, peak-refined spectrum. v1 took the raw FFT bin, which read 0.25 for every run (bins 0.025 apart).
 - **Behavior:** every zoo item's Hub `revision` is now `v<version>.post1` (same files, republished with the
@@ -2006,6 +2206,64 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+
+- `pinneapple_autolab.agent.audit_claims`: a run's facts are its params, outputs and predictions only; numbers in
+  its start time, wall time, messages or metadata no longer support a number in the answer by coincidence.
+- `reaction_diffusion_2d` preset compiled as `heat_equation` (no reaction term) from a zero initial and boundary state,
+  so its solution was c = 0; it now uses the compiler's `reaction_diffusion_2d` residual (`D lap c - lambda c`) from
+  `sin(pi x) sin(pi y)`, with the exact solution `reaction_diffusion_2d_exact`.
+- Arena problem `fitzhugh_nagumo_1d`: its "analytical" field was an approximation 64 % (relative L2) off the PDE
+  solution; it is now a method-of-lines reference (401 points, second-order convergent).
+- `pinneapple_data.serialization.load_pt` and `load_hdf5` could not read their own files on PyTorch 2.6+, where
+  `torch.load` defaults to `weights_only=True` and refuses the dicts with numpy/xarray objects this module stores
+  (`Weights only load failed ... Unsupported global`). The safe default is tried first and only a payload that
+  provably is this module's own format is re-read with `weights_only=False`, so a checkpoint of plain tensors never
+  takes the permissive path. This affected uncompressed `.pt` files too, not just the new compressed option.
+- Bugs found by the cross-framework benchmark (`benchmarks/vs_frameworks/REPORT.md`):
+  - **Behavior:** `InversePINN` (`pinneapple_neural.trainer.inverse_pinn`) early stopping watched the weighted total,
+    which its adaptive PDE/data balancing re-weights every step, so it compared losses under different weights (it
+    stopped while no term got worse, and never stopped on a true plateau). It now watches the unweighted
+    `L_pde + L_data`; `patience=None` turns it off. The last step is now recorded in the history.
+  - **Behavior:** `InversePINN` caught every exception of `residual_fn`, logged it and trained with a zero PDE loss
+    (a silent data-only fit). The exception now propagates.
+  - **Behavior:** `ModelRegistry.build` / `build_with_report` dropped `hidden_dim` / `n_layers` for architectures
+    that name their size differently, so `vanilla_pinn`, `vpinn`, `xpinn`, `inverse_pinn` (`hidden=[...]`) and the
+    `bench_*` MLPs (`width` / `depth`) built their default 4 x 128 net. They are now translated to the class's own
+    arguments (`hidden=[hidden_dim] * n_layers`, `width`, `depth`, `n_hidden`); the class's own size arguments win
+    when given. Through `pp.solve(..., "pinn")` these architectures now get its documented 64 x 4 default.
+  - **Behavior:** `pp.solve(problem, "pinn", ...)` raises `TypeError` on an unknown option (it swallowed any, e.g.
+    `n_epochs=` or a preset parameter, and trained with defaults), and warns when an explicit `hidden_dim` /
+    `n_layers` cannot be applied to the architecture (`elm`, `rbf`, `xtfc`, ...). The other built-in methods warn (`UserWarning`) on options they ignore,
+    except `seed`. Preset parameters go in `preset_kwargs={...}`.
+  - `pinneapple_tools.benchmark_suite.backends.physicsnemo_sym` imported `ModulusConfig`, which
+    nvidia-physicsnemo.sym 2.4.0 does not have, and reported the package as missing. It now uses the 2.4.0 API
+    (`PointwiseConstraint.from_numpy`, `Activation`, a config composed from `physicsnemo_default`, `cuda_graphs`
+    off on CPU), returns `model` and `predict_fn`, and a missing package raises `ImportError` naming it.
+- `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
+  (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
+  `cw_exact_velocity` (its results do not change: it uses vx0 = 0).
+- `examples/benchmark_suite/07_xtfc_1d_ode.py` solved u'' + u = (pi^2 - 1) sin(pi x), whose solution is
+  -sin(pi x), but scored against +sin(pi x), so both methods printed relative L2 = 2.0. The right-hand side is now
+  (1 - pi^2) sin(pi x), which +sin(pi x) solves.
+- `XTFC` no longer reports a formulation it did not run: `extras["tfc_mode"]` is True only when the tfc
+  constrained expression actually produced the output (new `extras["tfc_attached"]` says one is attached). A failing
+  tfc call now warns (`RuntimeWarning`) instead of falling back silently; with every tfc version checked it fails,
+  because tfc has no `cf` method. **Behavior:** `activation` now defaults to `None`, and passing one with the
+  default `rf_kind="rff"` (cos/sin Fourier features, which never used it) raises `ValueError`; with
+  `rf_kind="random_linear"` it is honoured as before (`None` = tanh). Default outputs are unchanged.
+- `pinneapple_physics.solve_pde` computed `model(x_col)` every step and passed it to the compiled loss, which never
+  reads it (the loss evaluates the model on its own gradient-tracking copy): one wasted forward pass per step,
+  removed. Losses are unchanged.
+- `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
+  system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
+  0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
+- `pinneapple_design.aero.panel`: `airfoil_nodes` / `panel_solve(..., close_te=True)` close the blunt CST trailing
+  edge. With the gap open the Kutta condition acts on panels smaller than the gap and Cl does not converge with
+  the panel count (NACA 2412 at 4 deg: 0.728 to 0.706 for 50 to 800 panels per side); closed it converges
+  (0.7296, 0.7292 at 400 and 800). The default is unchanged.
+- `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
+  strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
+  strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 - Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
   scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
 - Small scikit-learn fits no longer oversubscribe a loaded machine. `ParametricPOD(regressor="gpr")` fits each
@@ -2163,8 +2421,38 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   aortic arch, KCS, H145, ATR 72). The light STL files and the manifest were regenerated (OBJ / STL / USD hashes;
   glTF and STEP are unchanged); a test rebuilds an entry with NumPy's AVX-512 and AVX2 kernels disabled and requires
   the same bytes.
+- Axial-flux machine in 3-D (issue #929): the Axial-Flux Motor Designer took the magnet arc and the slot opening to
+  whole grid cells and turned the rotor by even grid steps only. On its coarse grid the magnet arc moved in steps of
+  1/12 of the pole pitch (the default design's cogging jumped from 0.52 to 11.67 N m between an arc of 0.79 and
+  0.80) and the cogging was sampled at 4 angles per period, which put its peak-to-peak 29 % low.
+  `AFPM3D(edges="fraction")` puts the tooth edges on node planes that slide with the slot opening, gives the cells
+  on a magnet edge their share of remanence and turns the rotor by any angle; the designer uses it with 16 angles per period. Default design, coarse grid: cogging
+  8.60 N m estimated, 7.63 N m in 3-D (was 11.67 and 10.37 N m), ratio 1.128 (was 1.125); flux linkage 1.063 and
+  1.041 mWb (was 1.083 and 1.060). The guide's comparison of the two grids of the axial-flux study is corrected:
+  they carried different magnet arcs (83.3 % and 79.2 %) and 4 against 8 rotor angles per period.
+- Colour-bar ticks (`studio.colormap.ticks`, `studio-core.js`): a tick within rounding of zero prints as zero (no
+  `-4.44e-16` on a symmetric range), and Python prints a zero tick as the browser does, so the JS parity test passes.
+- `pinneapple_simulation.hemodynamics.aorta.CoupledRun`: **Behavior:** the default coupling window is 1 ms instead
+  of 10 ms, which was unstable on the library's aortic arch (outlet pressures flipping sign and growing every window);
+  `explicit_coupling_gain` and `vessel_inertance` give the stability number `Rp dt / L` of a window.
+- `pinneapple_neural.trainer`: `DataModule` batches of `x` / `y` items no longer lose their keys (the PINN collate
+  is used only for PINN batches). `PreprocessPipeline.fit` fits each step on the output of the steps before it, so a
+  normalizer after a NaN filler no longer computes NaN statistics. Forward fill also fills NaNs before the first
+  value. `inference.load_checkpoint` reads the `Trainer`'s own checkpoints (`model_state`) as well as
+  `ModelCheckpoint`'s (`model`). `pinneapple_tools.visualization.molecular` uses `matplotlib.colormaps`
+  (`cm.get_cmap` was removed in Matplotlib 3.9).
+- Examples that did not run: `examples/trainer` imports `pinneapple_neural.trainer` (not the `pinneapple_train`
+  shim, which never exported `DataModule`), and example 02 takes its target from the clean signal;
+  `examples/pinneapple_cosim` imports `pinneapple_systems.cosimulation` (the `pinneapple_cosim` module does not
+  exist); `examples/visualizations/viz_02_heat_2d.py` uses `plt.colormaps`.
+- The Hub library files every tool in one of its 20 task categories again: the Ahmed study stages (`study.*`), the
+  potential-derivative nodes (`potential.*`) and `immersed.heat` had no category.
+- `mesh_from_surface` now produces tetrahedra with gmsh. It never had: the discrete surface was not created before its nodes were added, the element query was unpacked into three values, and the failure was hidden by the surface-only fallback. It now also keeps edges sharper than `feature_angle` (40°) instead of rounding box corners, falls back to Delaunay when gmsh has no Netgen, and initialises gmsh without a signal handler, so it runs off the main thread.
+- The Studio catalog builds from a source tree in an environment without the `git` program (for example a
+  container image built from a source tarball): the inventory then records an empty commit instead of failing.
 
 ### Documentation
+
 - Validation methods reference: measured behaviour of `crps_gaussian` / `crps_ensemble` (fair score unbiased for
   small ensembles) and of `block_bootstrap` (percentile intervals undercover: 0.93 at a nominal 0.95 for iid n = 100,
   0.90 for a strongly correlated AR(1) series), and first-order residuals of `pinneapple check` on point clouds.
@@ -2175,8 +2463,62 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   these modules onto pass / warn / fail / not-applicable; and how check power is measured (ASME V&V 40 and
   NASA-STD-7009A credibility, mutation testing, metamorphic relations, adversarial robustness of neural operators,
   the arena proposed in #707).
+- Changelog entries now go in one new file per pull request under `changelog.d/` (`<slug>.<category>.md`) instead
+  of the Unreleased section of `CHANGELOG.md`, so parallel pull requests no longer conflict on it.
+  `python scripts/changelog.py check | render | release x.y.z` validates, previews and folds them in at release time.
+- Guide "Derivative trees across physics" (`docs/guides/derivative_trees.md`, issue #928). It covers:
+  - `pp.potential` across thermodynamics, hyperelasticity, electric machines and mechanics;
+  - Legendre transforms and where they fail, and the consistency checks;
+  - the known-answer table and the measured CO2 surrogate study.
+
+  Also adds an AGENTS.md row for `pp.potential`.
+- `docs/pt`: the complete map of the library in Portuguese (overview plus ten volumes) and its sources in
+  `docs/pt/_mapa`: `inventario.py` (static AST inventory of packages, modules, public symbols, tests, catalog, apps
+  and examples), the Portuguese prose per module and symbol (`prosa/*.json`), the glossary and the generators. The
+  inventory JSON and the PDF are generated (`python docs/pt/_mapa/inventario.py`, `python docs/pt/_mapa/pdf.py`)
+  and git-ignored.
+- Output units for `pinneapple_design`: the closed-form ground truths of `surrogate_inverse` (heat sink, brake rotor,
+  reflex port, suspension arm, transdermal patch), the aero helpers (ISA density, Raymer weights in kg, drag
+  coefficients, sweep in degrees, Sutherland viscosity), the panel solution, the surrogate fit and sensitivity records,
+  and the board-cooling mission and fin-cell results. Written in numpy `Returns` / `Attributes`; each unit is taken
+  from the code, the names or the docs, `-` for dimensionless, and left empty when it follows the caller's input.
+- Output units for `pinneapple_simulation.electromagnetics` beyond the tools the examples use (#1020): the statics closed
+  forms (F, F/m, H, H/m, T), waveguide and cavity cut-offs and resonances (Hz), wavelength, Brewster and critical
+  angles, the FDTD Courant limit and numerical wavenumber, the 2-D magnetostatic solution (Wb/m, T, m/H, J/m), the
+  TEAM 7 coil current density, magnet eddy losses, Mie efficiencies, feed gain (dBi) and the periodic-array worst case
+  (dB). The package is SI (`constants`), so each unit holds for lengths in m; values in the units of the caller's
+  inputs (microstrip width, polygon area) stay empty.
+- Output units for the closed-form tools of `pinneapple_physics` (pipe flow, pumps, rocket nozzles, heat and heat
+  exchangers, fins, membranes, resonators, drag, airfoils, fatigue, eddy-current skin depth) and for the
+  `pinneapple_physics` tools the gallery's examples use (the Aliev-Panfilov and FitzHugh-Nagumo runs are
+  dimensionless, the weather scores' ACC is `-`, the first crossing in hours). The units are written in numpy
+  `Returns` / `Attributes` sections, each taken from the code, the argument names (`_pa`, `_m3`, `_hz`) or the
+  docs. Outputs whose unit follows the caller's input (the capital recovery factor, a fitted polynomial, the Lame
+  parameters) stay empty. Closed-form quantitative outputs with a unit: 53 of 55 (6 before).
+- Output units for the `pinneapple_simulation` tools the gallery's examples use, written in the code (numpy
+  `Returns` / `Attributes`, `name : type [unit]`) and read by the Studio. Each unit is taken from the code or
+  its docs, and dimensionless outputs are marked `-`. Outputs whose unit follows the caller's input (grids, mesh
+  points, positions) stay empty. Of these tools' quantitative outputs, 16 of 29 now carry a unit (0 before). The
+  outputs reader (`pinneapple_studio.outputs`) also splits numpy's grouped names (`x, y : float [m]`) into one
+  output per name, sharing type, unit and description.
+- Output units for `pinneapple_systems`. In `process_components`: the real-gas state (Pa, K, J/kg, J/(kg K), m/s, Pa s), heat
+  exchanger, polytropic path, compressor similarity map, valve flow, pipe pressure profile, curved path, Miner damage,
+  torsional stick-slip and water-hammer records, and the scalar helpers (section properties, flows, head, speed,
+  Joukowsky rise, wave period, acid-base fractions). Units come from the field names, their comments or the docs; values
+  in the units of the caller's inputs (the beam's moment and stress, the buckling load, the transient's time axis) stay
+  empty. In `time_series`: the gridded data's latitude and longitude (deg), D20 depths (m), the standardised SOI,
+  ACC, ENSO categories and interval coverage (`-`), the equatorial wind-forcing projections (m/s2) and the Hilbert
+  phase (rad); the synthetic series state no unit and stay empty.
+
+### Known issues
+
+- `PINNsFormer` is not pointwise: it splits a flat batch into sequences of unrelated collocation points and
+  attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
+  up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
+  Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
 
 ### Security (deployment)
+
 - App images run as uid 10001 (`USER 10001:0`, `HOME=/tmp`); Compose adds a read-only root filesystem, `/tmp`
   tmpfs, `cap_drop: ALL`, `no-new-privileges`, pids/CPU limits and log rotation (`x-app-hardening`); only Caddy
   publishes ports. Existing root-owned volumes need a one-time `chown` (docs/security/server.md).
@@ -2185,13 +2527,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   CVEs to none).
 - `apps/deploy/check_server.sh` (read-only host check), fail2ban filters and jail for Caddy and the app auth events,
   host hardening guide `docs/security/server.md`, `tests/test_deploy_security.py`.
-
-### Known issues
-- `PINNsFormer` is not pointwise: it splits a flat batch into sequences of unrelated collocation points and
-  attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
-  up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
-  Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
-
 
 ## [0.7.0] - 2026-10-13
 
@@ -2992,7 +3327,8 @@ Development before the first PyPI release is not itemized. In short: the initial
 PINN Arena and benchmark suite, the refactor into the current mega-modules (2026-05-06), the rename from `pinneaple` to
 `pinneapple` (2026-05-18), and the Physics Synthetic Data Factory and the 9-stage pipeline (2026-06-04).
 
-[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.1...v0.6.2

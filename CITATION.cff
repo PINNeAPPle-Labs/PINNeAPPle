@@ -15,8 +15,8 @@ authors:
     given-names: "Enrico"
     orcid: "https://orcid.org/0000-0002-7882-5913"
     affiliation: "University of Arizona; University of Bologna"
-version: "0.7.0"
-date-released: "2026-10-13"
+version: "0.8.0"
+date-released: "2026-11-01"
 doi: "10.5281/zenodo.23343062"
 identifiers:
   - type: doi

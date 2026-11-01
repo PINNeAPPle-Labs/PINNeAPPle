@@ -5054,6 +5054,14 @@
   },
   "source": "tests/test_control_literal_calls.py:39"
  },
+ "pinneapple_systems.control.tuning:ziegler_nichols": {
+  "inputs": {
+   "kind": "pid",
+   "ku": 6.0,
+   "tu": 4.0
+  },
+  "source": "tests/test_control_literal_calls.py:41"
+ },
  "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
   "inputs": {
    "filt": "plant/+/sensors",

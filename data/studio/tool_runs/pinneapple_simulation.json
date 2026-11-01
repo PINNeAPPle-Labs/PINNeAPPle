@@ -1679,6 +1679,88 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.naval.hydrostatics:box_barge": {
+  "code_hash": "e819609cb6e7b087",
+  "inputs": {
+   "B": 12.0,
+   "L": 60.0,
+   "T": 3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 6.98
+ },
+ "pinneapple_simulation.naval.hydrostatics:free_surface_correction": {
+  "code_hash": "17bb9e3aeb75f793",
+  "inputs": {
+   "tanks": [
+    {
+     "b": 12.0,
+     "l": 10.0,
+     "rho": 1000.0
+    }
+   ],
+   "volume": 2160.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.naval.hydrostatics:initial_stability": {
+  "code_hash": "7a43b21172fb4702",
+  "inputs": {
+   "B": 12.0,
+   "BM": 4.0,
+   "KB": 1.5,
+   "KG": 4.0,
+   "volume": 2160.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.naval.hydrostatics:metacentric_height": {
+  "code_hash": "96b03170f86fcef3",
+  "inputs": {
+   "BM": 4.0,
+   "KB": 1.5,
+   "KG": 4.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.naval.hydrostatics:roll_period": {
+  "code_hash": "b2b95b33211dafee",
+  "inputs": {
+   "B": 12.0,
+   "GM": 1.5
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.naval.submarine:architectures": {
+  "code_hash": "ed52e9a7895795bd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.naval.submarine:depth_study": {
+  "code_hash": "09a6bbe58a698237",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.31
+ },
  "pinneapple_simulation.numerical_solvers.beam_bvp_fdm:solve_euler_bernoulli_beam_1d": {
   "code_hash": "609b774cbd2a958a",
   "inputs": {},

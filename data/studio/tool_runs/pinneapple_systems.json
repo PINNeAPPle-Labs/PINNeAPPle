@@ -7,6 +7,183 @@
   "returned": "ComponentRegistry",
   "seconds": 0.53
  },
+ "pinneapple_systems.control.analysis:controllability": {
+  "code_hash": "01bdbb32678e0985",
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "B": [
+    [
+     0.0
+    ],
+    [
+     1.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 7.38
+ },
+ "pinneapple_systems.control.analysis:observability": {
+  "code_hash": "fa0c483e58061114",
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "C": [
+    [
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.analysis:stability": {
+  "code_hash": "df34c1d12209ecf7",
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     -4.0,
+     -0.8
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.analysis:step_metrics": {
+  "code_hash": "eccc9cf4a59c0cef",
+  "inputs": {
+   "reference": 1.0,
+   "t": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "y": [
+    0.0,
+    0.6,
+    1.1,
+    1.0,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.tuning:fit_fopdt": {
+  "code_hash": "3dc11936763c99c6",
+  "inputs": {
+   "du": 1.0,
+   "t": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    8.0,
+    12.0,
+    20.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    0.787,
+    1.24,
+    1.506,
+    1.75,
+    1.885,
+    1.983,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.control.tuning:imc_pid": {
+  "code_hash": "703679b4d9bd349f",
+  "inputs": {
+   "K": 2.0,
+   "kind": "pi",
+   "lam": 2.0,
+   "tau": 10.0,
+   "theta": 2.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.tuning:place_pid_second_order": {
+  "code_hash": "c4eb66a7e836ed5b",
+  "inputs": {
+   "b": 0.5,
+   "c": 0.0,
+   "k": -3.0,
+   "m": 2.0,
+   "p": 0.4,
+   "wn": 1.5,
+   "zeta": 0.7
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.tuning:simc_pid": {
+  "code_hash": "5427c4b08a9959fa",
+  "inputs": {
+   "K": 2.0,
+   "tau": 10.0,
+   "theta": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.control.tuning:ziegler_nichols": {
+  "code_hash": "c3b18a29e025af03",
+  "error": "ValueError: give ku and tu, or K, tau and theta",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-11-01",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
   "code_hash": "3696e14547454914",
   "inputs": {

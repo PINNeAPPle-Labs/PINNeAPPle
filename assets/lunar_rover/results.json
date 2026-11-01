@@ -1,0 +1,1168 @@
+{
+ "vehicle": {
+  "name": "NASA VIPER",
+  "mass_kg": 450.0,
+  "com_m": [
+   0.05607333837889188,
+   0.010570638958442204,
+   0.8711260627140635
+  ],
+  "inertia_about_com_kg_m2": [
+   162.41122301405971,
+   177.2668645786675,
+   171.65672814788235
+  ],
+  "track_m": 1.3,
+  "wheelbase_m": 1.0,
+  "envelope_m": [
+   1.6924985362282612,
+   1.5390000000000001,
+   2.4995
+  ],
+  "bodies": {
+   "chassis": {
+    "mass_kg": 330.0,
+    "com_m": [
+     0.07646364324394327,
+     0.01441450767060303,
+     1.0291780772982593
+    ]
+   },
+   "arm_FL": {
+    "mass_kg": 10.0,
+    "com_m": [
+     0.5143108213618864,
+     0.38987282497763204,
+     0.619538152506711
+    ]
+   },
+   "steer_FL": {
+    "mass_kg": 8.0,
+    "com_m": [
+     0.4999999999999998,
+     0.5134999999999995,
+     0.44988864414483287
+    ]
+   },
+   "wheel_FL": {
+    "mass_kg": 12.0,
+    "com_m": [
+     0.5000000000000012,
+     0.6110199385725247,
+     0.27499999999999963
+    ]
+   },
+   "arm_FR": {
+    "mass_kg": 10.0,
+    "com_m": [
+     0.5143108213618863,
+     -0.3898728249776319,
+     0.6195381525067101
+    ]
+   },
+   "steer_FR": {
+    "mass_kg": 8.0,
+    "com_m": [
+     0.5,
+     -0.5134999999999998,
+     0.44988864414483254
+    ]
+   },
+   "wheel_FR": {
+    "mass_kg": 11.999999999999998,
+    "com_m": [
+     0.5000000000000012,
+     -0.6110199385725249,
+     0.2749999999999996
+    ]
+   },
+   "arm_RL": {
+    "mass_kg": 10.0,
+    "com_m": [
+     -0.5143108213618863,
+     0.38987282497763187,
+     0.6195381525067104
+    ]
+   },
+   "steer_RL": {
+    "mass_kg": 8.0,
+    "com_m": [
+     -0.5000000000000001,
+     0.5134999999999996,
+     0.4498886441448333
+    ]
+   },
+   "wheel_RL": {
+    "mass_kg": 12.0,
+    "com_m": [
+     -0.4999999999999986,
+     0.6110199385725235,
+     0.2749999999999982
+    ]
+   },
+   "arm_RR": {
+    "mass_kg": 10.0,
+    "com_m": [
+     -0.5143108213618863,
+     -0.38987282497763215,
+     0.619538152506711
+    ]
+   },
+   "steer_RR": {
+    "mass_kg": 8.0,
+    "com_m": [
+     -0.4999999999999998,
+     -0.5134999999999997,
+     0.44988864414483276
+    ]
+   },
+   "wheel_RR": {
+    "mass_kg": 11.999999999999998,
+    "com_m": [
+     -0.4999999999999989,
+     -0.6110199385725237,
+     0.2749999999999982
+    ]
+   }
+  },
+  "sources": {
+   "envelope 1.7 x 1.7 x 2.5 m (L x W x H)": "Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf",
+   "body about 1.5 m long and wide, 2.45 m tall with the mast (golf-cart size)": "VIPER (rover). Wikipedia, infobox (2.45 m tall, 1.53 m long and wide), retrieved 2026. https://en.wikipedia.org/wiki/VIPER_(rover); NASA (2023). NASA VIPER robotic Moon rover team raises its mighty mast. https://www.nasa.gov/general/nasa-viper-robotic-moon-rover-team-raises-its-mighty-mast/ gives 8 ft (about 2.4 m) with the mast",
+   "mass 450 kg": "Francis, P.L., Sobey, A.R. (2025). Design and Test of the VIPER Mobility Actuators. NASA NTRS 20250000568. https://ntrs.nasa.gov/citations/20250000568 ('the four wheeled, 450-kilogram scientific platform'); Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf gives 447 kg roving",
+   "four wheels, one mobility module per corner (actuated suspension, steering and drive)": "Francis, P.L., Sobey, A.R. (2025). Design and Test of the VIPER Mobility Actuators. NASA NTRS 20250000568. https://ntrs.nasa.gov/citations/20250000568",
+   "wheel 50 cm diameter, 20 cm wide, rigid sheet metal with spokes and rim grousers": "Fong, T. (2025). VIPER, NASA NTRS 20250004148. https://ntrs.nasa.gov/api/citations/20250004148/downloads/viper-2025-04-24.pdf; Fong, T. et al. (2022). VIPER mobility, NASA NTRS 20220000441. https://ntrs.nasa.gov/api/citations/20220000441/downloads/viper-mobility-2022-01-27.pdf",
+   "24 grousers, 0.025 m tall": "Hu, W. et al. (2025), J. Field Robotics, doi:10.1002/rob.22597, arXiv:2405.11001 (VIPER-class wheel: radius 0.25 m, width 0.2 m, 24 grousers); grouser height 2.5 cm also in Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf",
+   "steering +/-50 deg (BLDC motor + Harmonic Drive)": "McBryan, Francis, Sobey (2025). Dust Mitigation for the VIPER Mobility System, ICES-2025-147. https://ntrs.nasa.gov/citations/20250005201",
+   "suspension +/-40 deg, 200 N m": "Fong, T. et al. (2022). VIPER mobility, NASA NTRS 20220000441. https://ntrs.nasa.gov/api/citations/20220000441/downloads/viper-mobility-2022-01-27.pdf; Fong, T. (2025). VIPER, NASA NTRS 20250004148. https://ntrs.nasa.gov/api/citations/20250004148/downloads/viper-2025-04-24.pdf",
+   "track about 1.3 m at nominal ride height, wheelbase about 1 m": "Investigating the geotechnical properties of the lunar south pole with NASA VIPER's mobility system. Planetary Science Journal (2025), doi:10.3847/PSJ/add13f",
+   "suspension changes ride height and track; steering changes track and wheelbase": "Investigating the geotechnical properties of the lunar south pole with NASA VIPER's mobility system. Planetary Science Journal (2025), doi:10.3847/PSJ/add13f",
+   "top speed 20 cm/s, prospecting speed 10 cm/s": "Fong, T. et al. (2022). VIPER mobility, NASA NTRS 20220000441. https://ntrs.nasa.gov/api/citations/20220000441/downloads/viper-mobility-2022-01-27.pdf",
+   "mast tip about 2.5 m above the wheel rims; mast head pans ~400 deg, tilts up to 75 deg": "NASA (2023). NASA VIPER robotic Moon rover team raises its mighty mast. https://www.nasa.gov/general/nasa-viper-robotic-moon-rover-team-raises-its-mighty-mast/",
+   "NavCam stereo pair and LED headlights on the mast head": "NASA (2023). NASA VIPER robotic Moon rover team raises its mighty mast. https://www.nasa.gov/general/nasa-viper-robotic-moon-rover-team-raises-its-mighty-mast/",
+   "4 hazard cameras (1 at each wheel), hazard lights on the sides and corners": "Fong, T. et al. (2022). VIPER mobility, NASA NTRS 20220000441. https://ntrs.nasa.gov/api/citations/20220000441/downloads/viper-mobility-2022-01-27.pdf",
+   "gimballed high-gain antenna (gimbal at about 2.3 m) and a fixed low-gain antenna": "Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf",
+   "solar arrays on three sides (left, right, aft); radiator on top": "Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf; Fong, T. et al. (2022). VIPER mobility, NASA NTRS 20220000441. https://ntrs.nasa.gov/api/citations/20220000441/downloads/viper-mobility-2022-01-27.pdf; Andrews, D. (2020). VIPER Mission Overview. NASA NTRS 20205000864. https://ntrs.nasa.gov/api/citations/20205000864/downloads/2020-04-14,%20VIPER%20Mission%20Overview%20(Andrews).pdf (solar array on 3 sides, heat-rejection radiator on top)",
+   "TRIDENT: 1 m class rotary-percussive drill, vertical, 10 cm bites": "Zacny, K. et al. (2021). TRIDENT drill for VIPER and PRIME1 missions to the Moon. LPSC 52, abstract 2400. https://www.hou.usra.edu/meetings/lpsc2021/pdf/2400.pdf; Chu, P. et al. TRIDENT drill for VIPER and PRIME-1 (Honeybee Robotics), LSIC poster. https://lsic.jhuapl.edu/uploadedDocs/posters/401-Poster%20PDF_8-Chu.pdf",
+   "TRIDENT integrated into the rover belly; stows inside the rover and extends 1 m to drill": "NASA (2024). Into the Belly of the Rover: VIPER's Final Science Instrument Installed. https://www.nasa.gov/general/into-the-belly-of-the-rover-vipers-final-science-instrument-installed/",
+   "TRIDENT mass < 20 kg, 200 N maximum weight on bit": "TRIDENT drill, LPSC 2024 (Honeybee Robotics / NASA). NASA NTRS 20240000585. https://ntrs.nasa.gov/citations/20240000585",
+   "TRIDENT parts: deployment linear stage, drill feed linear stage, brush, sample chute, footpad": "Chu, P. et al. TRIDENT drill for VIPER and PRIME-1 (Honeybee Robotics), LSIC poster. https://lsic.jhuapl.edu/uploadedDocs/posters/401-Poster%20PDF_8-Chu.pdf",
+   "cuttings brushed off the auger flutes into a chute, the pile analysed by NIRVSS and MSolo": "NASA Science. VIPER: Rover and Instruments. https://science.nasa.gov/mission/viper/rover-and-instruments/",
+   "NSS on the front; NIRVSS and MSolo under the rover": "Andrews, D. (2020). VIPER Mission Overview. NASA NTRS 20205000864. https://ntrs.nasa.gov/api/citations/20205000864/downloads/2020-04-14,%20VIPER%20Mission%20Overview%20(Andrews).pdf",
+   "design requirement: 15 deg slopes, 15 cm obstacles": "Bluethmann, W. (2024). VIPER Rover Overview and Mobility and Hardware. LSIC Tech Infusion panel, 14 Nov 2024. https://ntrs.nasa.gov/api/citations/20240013903/downloads/LSIC_2024-Tech%20Infusion_Panel-VIPER_Mob-HW.pdf",
+   "suspension arm geometry (pivot, length), steering offset": "estimate: not published; pivots under the chassis and a 0.15 m steering offset chosen so that the nominal track is 1.3 m, the wheelbase 1.0 m and +/-40 deg of arm travel changes ride height and track, as the PSJ paper describes",
+   "body 1.44 x 1.48 x 0.58 m with 0.07 m chamfered vertical and top edges, belly 0.72 m above ground, a 1.20 x 0.40 x 0.15 m keel under it carrying the suspension actuators": "estimate: proportions read from NASA photos and renders of the rover; sized so that with the arrays it fills the 1.5 m published body width and 1.7 m envelope, and the 0.5 m wheels stay clear of it at +/-50 deg steering",
+   "front face white/silver (MLI and radiator), not an array; MLI on the front and belly": "estimate: from NASA photos of the rover (the sources list arrays on three sides only)",
+   "solar array panels 1.26 x 0.50 m (sides), 1.30 x 0.50 m (aft), on the flat body faces": "estimate: panel area not found; each panel covers the flat part of its body face",
+   "radiator 0.92 x 1.24 m on the aft two thirds of the deck, raised rim around the deck": "estimate: not found",
+   "mast at the front left of the deck, 0.09 m square section; head 0.36 x 0.15 x 0.12 m, NavCam baseline 0.24 m, 6 LEDs, an aft-looking camera": "estimate: position and sizes read from NASA photos; dimensions not published",
+   "high-gain dish diameter 0.40 m, pointing low (Earth near the horizon at the pole)": "estimate: diameter not found",
+   "TRIDENT position: tower at the front face, right of centre (y = -0.18 m), footpad 0.36 m above ground, rail top about 1.66 m": "estimate: placement read from NASA renders and integration photos (no published coordinates); the published facts are the belly integration and the 1 m stroke. The bay inside the body is not modelled: the stowed rail stands on the front face and the auger reaches below the belly",
+   "TRIDENT rail 1.30 m, auger 25 mm, flight 42 mm, footpad 0.12 m": "estimate: sized for the 1 m stroke; not published",
+   "NSS box 0.12 x 0.30 x 0.20 m low on the front face; NIRVSS on the keel front near the drill; MSolo under the keel": "estimate: sizes not found; positions follow the published 'front' and 'under the rover'",
+   "mass split (per corner: wheel+drive 12 kg, steering 8 kg, arm 10 kg; chassis 330 kg, of which drill 19.8 kg)": "estimate: only the total (and the < 20 kg drill) is published; the split sets the centre of mass and inertia computed from the CAD",
+   "drive actuator torque limit 80 N m, wheel speed limit 2.5 rad/s": "estimate: not published; 80 N m exceeds the soil torque of the wheel at 90 % slip under the static lunar load on GRC-1, so traction, not the motor, limits climbing",
+   "steering actuator torque limit 60 N m": "estimate: not published",
+   "grouser shape straight (across the tread)": "estimate: the shape (straight or chevron) was not found"
+  }
+ },
+ "testbed_viper": {
+  "GRC-1": {
+   "slip": [
+    0.0,
+    0.025,
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8
+   ],
+   "drawbar_pull": [
+    -10.1315,
+    0.6728,
+    10.8948,
+    20.4461,
+    29.2664,
+    37.3207,
+    44.5968,
+    51.1015,
+    56.8569,
+    61.897,
+    66.2642,
+    70.0059,
+    73.1726,
+    75.8155,
+    77.9851,
+    79.7296,
+    81.0947,
+    82.1227,
+    82.8521,
+    83.3179,
+    83.5514,
+    83.5806,
+    83.43,
+    83.1212,
+    82.6732,
+    82.1024,
+    81.4231,
+    80.6476,
+    79.7865,
+    78.8491,
+    77.8432,
+    76.7756,
+    75.6519
+   ],
+   "torque": [
+    2.9113,
+    6.1199,
+    9.1704,
+    12.0383,
+    14.7072,
+    17.1674,
+    19.4159,
+    21.4547,
+    23.2899,
+    24.9313,
+    26.3906,
+    27.6812,
+    28.817,
+    29.8125,
+    30.6816,
+    31.4379,
+    32.0939,
+    32.6615,
+    33.1514,
+    33.5733,
+    33.9359,
+    34.2471,
+    34.5135,
+    34.7413,
+    34.9357,
+    35.1013,
+    35.2422,
+    35.3618,
+    35.4631,
+    35.5488,
+    35.6211,
+    35.682,
+    35.7333
+   ],
+   "sinkage": [
+    0.013,
+    0.014,
+    0.015,
+    0.0161,
+    0.0173,
+    0.0185,
+    0.0197,
+    0.0209,
+    0.0223,
+    0.0236,
+    0.025,
+    0.0265,
+    0.028,
+    0.0295,
+    0.0311,
+    0.0327,
+    0.0344,
+    0.0361,
+    0.0379,
+    0.0398,
+    0.0417,
+    0.0436,
+    0.0456,
+    0.0477,
+    0.0498,
+    0.0519,
+    0.0542,
+    0.0564,
+    0.0588,
+    0.0611,
+    0.0636,
+    0.0661,
+    0.0686
+   ]
+  },
+  "JSC-1A": {
+   "slip": [
+    0.0,
+    0.025,
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8
+   ],
+   "drawbar_pull": [
+    -0.8067,
+    16.2819,
+    31.8895,
+    46.0159,
+    58.6944,
+    69.9843,
+    79.9636,
+    88.7225,
+    96.3584,
+    102.9713,
+    108.6604,
+    113.5215,
+    117.6454,
+    121.1166,
+    124.0126,
+    126.4038,
+    128.3533,
+    129.9175,
+    131.1459,
+    132.0824,
+    132.7651,
+    133.2272,
+    133.4976,
+    133.6012,
+    133.5594,
+    133.3907,
+    133.1111,
+    132.7341,
+    132.2715,
+    131.7333,
+    131.1282,
+    130.4635,
+    129.7455
+   ],
+   "torque": [
+    6.5669,
+    11.4847,
+    15.9956,
+    20.0998,
+    23.8069,
+    27.1334,
+    30.1011,
+    32.7351,
+    35.0627,
+    37.1115,
+    38.9091,
+    40.4821,
+    41.8557,
+    43.0532,
+    44.0962,
+    45.0041,
+    45.7943,
+    46.4825,
+    47.0823,
+    47.6058,
+    48.0636,
+    48.4648,
+    48.8173,
+    49.1281,
+    49.403,
+    49.6471,
+    49.8649,
+    50.0601,
+    50.236,
+    50.3954,
+    50.5406,
+    50.6738,
+    50.7968
+   ],
+   "sinkage": [
+    0.0181,
+    0.0192,
+    0.0203,
+    0.0214,
+    0.0226,
+    0.0238,
+    0.025,
+    0.0263,
+    0.0276,
+    0.029,
+    0.0304,
+    0.0318,
+    0.0332,
+    0.0347,
+    0.0363,
+    0.0379,
+    0.0395,
+    0.0412,
+    0.0429,
+    0.0446,
+    0.0464,
+    0.0482,
+    0.0501,
+    0.052,
+    0.054,
+    0.056,
+    0.058,
+    0.0601,
+    0.0623,
+    0.0645,
+    0.0667,
+    0.069,
+    0.0713
+   ]
+  }
+ },
+ "validation": {
+  "ding2011 smooth": {
+   "dataset": "ding2011 smooth",
+   "source": "Ding et al. (2011), J. Terramechanics 48(1):27-45, Figs 8/9 (80 N)",
+   "soil": "Ding2011-TYII",
+   "load_N": 80.0,
+   "drawbar_pull_N": {
+    "rmse": 7.66509694210515,
+    "max_abs": 14.401024309714472,
+    "rmse_rel_scale": 0.09581371177631437,
+    "bias": 4.537153030976596
+   },
+   "sinkage_m": {
+    "rmse": 0.004171354797436324,
+    "max_abs": 0.007542863267365755,
+    "rmse_rel_scale": 0.23836313128207562,
+    "bias": -3.990693340670219e-05
+   },
+   "torque_Nm": {
+    "rmse": 0.5799976257649598,
+    "max_abs": 1.034931909759667,
+    "rmse_rel_scale": 0.04607543897084206,
+    "bias": 0.2946810753775619
+   }
+  },
+  "ding2011 grousered": {
+   "dataset": "ding2011 grousered",
+   "source": "Ding et al. (2011), J. Terramechanics 48(1):27-45, Figs 8/9 (80 N)",
+   "soil": "Ding2011-TYII",
+   "load_N": 80.0,
+   "drawbar_pull_N": {
+    "rmse": 4.0016361452700435,
+    "max_abs": 6.361155672800944,
+    "rmse_rel_scale": 0.05002045181587554,
+    "bias": -0.17357920922163453
+   },
+   "sinkage_m": {
+    "rmse": 0.007728943709932137,
+    "max_abs": 0.017052906895534844,
+    "rmse_rel_scale": 0.286257174441931,
+    "bias": -0.0017976164485683582
+   },
+   "torque_Nm": {
+    "rmse": 0.5266564595985306,
+    "max_abs": 0.7837636712794067,
+    "rmse_rel_scale": 0.04183797740693761,
+    "bias": -0.23620587392390294
+   }
+  },
+  "wanghan2016 smooth": {
+   "dataset": "wanghan2016 smooth",
+   "source": "Wang & Han (2016), J. Korean Geotech. Soc. 32(11):97-108, Fig. 14 (58.86 N)",
+   "soil": "KLS-1",
+   "load_N": 58.86,
+   "drawbar_pull_N": {
+    "rmse": 14.379402885873631,
+    "max_abs": 20.937480696228825,
+    "rmse_rel_scale": 0.24429838406173346,
+    "bias": 13.44325320942284
+   },
+   "sinkage_m": {
+    "rmse": 0.016113989134837164,
+    "max_abs": 0.01946785125544359,
+    "rmse_rel_scale": 2.0142486418546457,
+    "bias": 0.015975379292653535
+   },
+   "torque_Nm": {
+    "rmse": 0.8183643480535568,
+    "max_abs": 1.1300901243402266,
+    "rmse_rel_scale": 0.16357145530842016,
+    "bias": 0.7878265739659945
+   }
+  },
+  "wanghan2016 grousered": {
+   "dataset": "wanghan2016 grousered",
+   "source": "Wang & Han (2016), J. Korean Geotech. Soc. 32(11):97-108, Fig. 14 (58.86 N)",
+   "soil": "KLS-1",
+   "load_N": 58.86,
+   "drawbar_pull_N": {
+    "rmse": 9.181785791859145,
+    "max_abs": 16.79490657912976,
+    "rmse_rel_scale": 0.15599364240331542,
+    "bias": 7.222063606856883
+   },
+   "sinkage_m": {
+    "rmse": 0.013645205423936909,
+    "max_abs": 0.01819462304240943,
+    "rmse_rel_scale": 1.01075595732866,
+    "bias": 0.0131024478958634
+   },
+   "torque_Nm": {
+    "rmse": 0.5428443321551226,
+    "max_abs": 0.8638589825230936,
+    "rmse_rel_scale": 0.10850159544185058,
+    "bias": 0.06710925836780932
+   }
+  },
+  "hurrell2025 grousered": {
+   "dataset": "hurrell2025 grousered",
+   "source": "Hurrell et al. (2025), Space Sci. Rev. 221, art. 37, Figs 5/6 (24.5 N)",
+   "soil": "FJS-1/Hurrell2025",
+   "load_N": 24.5,
+   "drawbar_pull_N": {
+    "rmse": 3.000561416282936,
+    "max_abs": 4.172586579909478,
+    "rmse_rel_scale": 0.12247189454216065,
+    "bias": 0.67458744656801
+   },
+   "sinkage_m": {
+    "rmse": 0.004745803227231645,
+    "max_abs": 0.007486507816245321,
+    "rmse_rel_scale": 0.24337452447341767,
+    "bias": -0.0005035199405786159
+   }
+  }
+ },
+ "slip_sinkage_calibration": {
+  "ding2011 smooth": {
+   "params": {
+    "n0": 0.9144160841565707,
+    "n1": 0.6502232772577576,
+    "K": 0.0158546398065306
+   },
+   "at_bound": [],
+   "train_slips": [
+    0.0,
+    0.2,
+    0.4
+   ],
+   "held_out_slips": [
+    0.1,
+    0.3,
+    0.6
+   ],
+   "held_out_before": {
+    "drawbar_pull_N": {
+     "rmse": 9.268914976359323,
+     "max_abs": 14.401024309714472,
+     "rmse_rel_scale": 0.11586143720449153,
+     "bias": 5.318266207905521
+    },
+    "sinkage_m": {
+     "rmse": 0.004928234327317747,
+     "max_abs": 0.007542863267365755,
+     "rmse_rel_scale": 0.28161339013244263,
+     "bias": -0.0013129080309865378
+    },
+    "torque_Nm": {
+     "rmse": 0.6327433133271919,
+     "max_abs": 1.034931909759667,
+     "rmse_rel_scale": 0.05026559527543629,
+     "bias": 0.25678559514496807
+    }
+   },
+   "held_out_after": {
+    "drawbar_pull_N": {
+     "rmse": 8.044213455720268,
+     "max_abs": 10.308273917733143,
+     "rmse_rel_scale": 0.10055266819650335,
+     "bias": 0.28806748596508375
+    },
+    "sinkage_m": {
+     "rmse": 0.0005001993394623376,
+     "max_abs": 0.0007084812864321006,
+     "rmse_rel_scale": 0.028582819397847858,
+     "bias": 0.0003956939438309239
+    },
+    "torque_Nm": {
+     "rmse": 1.1320811096259926,
+     "max_abs": 1.4757262316811643,
+     "rmse_rel_scale": 0.08993335793025045,
+     "bias": -0.41669830431473914
+    }
+   },
+   "train_after": {
+    "drawbar_pull_N": {
+     "rmse": 4.31920145760952,
+     "max_abs": 5.733600608650313,
+     "rmse_rel_scale": 0.05399001822011899,
+     "bias": -0.10454996973675978
+    },
+    "sinkage_m": {
+     "rmse": 0.0003183793297808166,
+     "max_abs": 0.0004500203459286492,
+     "rmse_rel_scale": 0.018193104558903807,
+     "bias": 2.099788739119065e-06
+    },
+    "torque_Nm": {
+     "rmse": 0.7936110018122657,
+     "max_abs": 1.363524413554174,
+     "rmse_rel_scale": 0.06304504304196583,
+     "bias": -0.40368221883193733
+    }
+   }
+  },
+  "ding2011 grousered": {
+   "params": {
+    "n0": 0.8830705475662568,
+    "n1": 0.8360334671464754,
+    "K": 0.010250837397294679
+   },
+   "at_bound": [],
+   "train_slips": [
+    0.0,
+    0.2,
+    0.4
+   ],
+   "held_out_slips": [
+    0.1,
+    0.3,
+    0.6
+   ],
+   "held_out_before": {
+    "drawbar_pull_N": {
+     "rmse": 4.908942220921553,
+     "max_abs": 6.361155672800944,
+     "rmse_rel_scale": 0.06136177776151941,
+     "bias": -0.33196010566948314
+    },
+    "sinkage_m": {
+     "rmse": 0.010191247048394738,
+     "max_abs": 0.017052906895534844,
+     "rmse_rel_scale": 0.3774535943849903,
+     "bias": -0.004488139498685851
+    },
+    "torque_Nm": {
+     "rmse": 0.4497050182755,
+     "max_abs": 0.5457865776201563,
+     "rmse_rel_scale": 0.03572489817886083,
+     "bias": -0.4418715981194124
+    }
+   },
+   "held_out_after": {
+    "drawbar_pull_N": {
+     "rmse": 5.332426036616208,
+     "max_abs": 7.507848067129827,
+     "rmse_rel_scale": 0.0666553254577026,
+     "bias": -0.32248037927316836
+    },
+    "sinkage_m": {
+     "rmse": 0.003132408843260732,
+     "max_abs": 0.005348323749302639,
+     "rmse_rel_scale": 0.11601514234299007,
+     "bias": -0.001421708907330224
+    },
+    "torque_Nm": {
+     "rmse": 0.7008975145094088,
+     "max_abs": 1.10192896400895,
+     "rmse_rel_scale": 0.05567981526131307,
+     "bias": -0.2243226102828757
+    }
+   },
+   "train_after": {
+    "drawbar_pull_N": {
+     "rmse": 3.4606436191087373,
+     "max_abs": 4.491447249183427,
+     "rmse_rel_scale": 0.04325804523885922,
+     "bias": 0.767384005285575
+    },
+    "sinkage_m": {
+     "rmse": 0.00040347655004237384,
+     "max_abs": 0.0005653104601821939,
+     "rmse_rel_scale": 0.014943575927495328,
+     "bias": 3.0894087686142552e-06
+    },
+    "torque_Nm": {
+     "rmse": 0.4927226410324101,
+     "max_abs": 0.7109246234616817,
+     "rmse_rel_scale": 0.03914224984369321,
+     "bias": -0.02085988066653255
+    }
+   }
+  },
+  "wanghan2016 smooth": {
+   "params": {
+    "n0": 0.5302541951613667,
+    "n1": 0.8226104755888578,
+    "K": 0.049999999999923044
+   },
+   "at_bound": [
+    "K"
+   ],
+   "train_slips": [
+    0.1,
+    0.3,
+    0.5
+   ],
+   "held_out_slips": [
+    0.2,
+    0.4
+   ],
+   "held_out_before": {
+    "drawbar_pull_N": {
+     "rmse": 13.680674279644185,
+     "max_abs": 16.406764475962955,
+     "rmse_rel_scale": 0.23242735779212004,
+     "bias": 13.330266694493929
+    },
+    "sinkage_m": {
+     "rmse": 0.015668921825628408,
+     "max_abs": 0.01623623662211216,
+     "rmse_rel_scale": 1.958615228203551,
+     "bias": 0.01565825827504369
+    },
+    "torque_Nm": {
+     "rmse": 0.8079547546844768,
+     "max_abs": 0.8951910061064434,
+     "rmse_rel_scale": 0.16149082662438824,
+     "bias": 0.8026359351946327
+    }
+   },
+   "held_out_after": {
+    "drawbar_pull_N": {
+     "rmse": 2.6327494278701966,
+     "max_abs": 3.1483378475837265,
+     "rmse_rel_scale": 0.04472900828865438,
+     "bias": -2.56798831097617
+    },
+    "sinkage_m": {
+     "rmse": 0.0012581657760009429,
+     "max_abs": 0.0017771818234198853,
+     "rmse_rel_scale": 0.15727072200011785,
+     "bias": -0.0008450392001876587
+    },
+    "torque_Nm": {
+     "rmse": 1.3097215961884527,
+     "max_abs": 1.3219015249224042,
+     "rmse_rel_scale": 0.2617820143887695,
+     "bias": -1.3096644276195444
+    }
+   },
+   "train_after": {
+    "drawbar_pull_N": {
+     "rmse": 2.468837605448941,
+     "max_abs": 3.0627167810160127,
+     "rmse_rel_scale": 0.041944233867634066,
+     "bias": -1.1000969667809477
+    },
+    "sinkage_m": {
+     "rmse": 0.0004596404404891633,
+     "max_abs": 0.0005769423662371027,
+     "rmse_rel_scale": 0.05745505506114541,
+     "bias": 3.8341454066762676e-05
+    },
+    "torque_Nm": {
+     "rmse": 1.2276137226665118,
+     "max_abs": 1.4376970019186075,
+     "rmse_rel_scale": 0.24537061475215602,
+     "bias": -1.2149615013149726
+    }
+   }
+  },
+  "wanghan2016 grousered": {
+   "params": {
+    "n0": 0.6272185139841284,
+    "n1": 0.9405903497741214,
+    "K": 0.03066676346737313
+   },
+   "at_bound": [],
+   "train_slips": [
+    0.1,
+    0.3,
+    0.5
+   ],
+   "held_out_slips": [
+    0.2,
+    0.4
+   ],
+   "held_out_before": {
+    "drawbar_pull_N": {
+     "rmse": 6.424173542715662,
+     "max_abs": 8.074440318026777,
+     "rmse_rel_scale": 0.1091432813917034,
+     "bias": 6.1194920531520625
+    },
+    "sinkage_m": {
+     "rmse": 0.013847832458320958,
+     "max_abs": 0.01614940829701885,
+     "rmse_rel_scale": 1.025765367283034,
+     "bias": 0.013613691854842454
+    },
+    "torque_Nm": {
+     "rmse": 0.31047231141295795,
+     "max_abs": 0.36208135027457544,
+     "rmse_rel_scale": 0.062055987570298,
+     "bias": 0.056860153223070364
+    }
+   },
+   "held_out_after": {
+    "drawbar_pull_N": {
+     "rmse": 6.877258316409438,
+     "max_abs": 8.582076772568154,
+     "rmse_rel_scale": 0.11684094998996666,
+     "bias": -6.579122856479164
+    },
+    "sinkage_m": {
+     "rmse": 0.0003719434381478846,
+     "max_abs": 0.0004045523758734442,
+     "rmse_rel_scale": 0.027551365788732192,
+     "bias": 0.00037036932992776973
+    },
+    "torque_Nm": {
+     "rmse": 1.8370552337593662,
+     "max_abs": 2.2439027605797057,
+     "rmse_rel_scale": 0.36718339304818337,
+     "bias": -1.776635324042129
+    }
+   },
+   "train_after": {
+    "drawbar_pull_N": {
+     "rmse": 7.502353976453939,
+     "max_abs": 9.982930939333514,
+     "rmse_rel_scale": 0.12746099178481038,
+     "bias": -3.3884400182237084
+    },
+    "sinkage_m": {
+     "rmse": 0.0006213208748076496,
+     "max_abs": 0.0008072019887927755,
+     "rmse_rel_scale": 0.04602376850427034,
+     "bias": 2.6266373449374485e-05
+    },
+    "torque_Nm": {
+     "rmse": 1.8341329538231732,
+     "max_abs": 2.5510873444583493,
+     "rmse_rel_scale": 0.3665992991991312,
+     "bias": -1.6194589086648759
+    }
+   }
+  },
+  "hurrell2025 grousered": {
+   "params": {
+    "n0": 0.7744043780298869,
+    "n1": 0.7330807031462486,
+    "K": 0.0246238690170689
+   },
+   "at_bound": [],
+   "train_slips": [
+    0.1,
+    0.3,
+    0.5
+   ],
+   "held_out_slips": [
+    0.2,
+    0.4
+   ],
+   "held_out_before": {
+    "drawbar_pull_N": {
+     "rmse": 2.25315588437162,
+     "max_abs": 3.03335655987126,
+     "rmse_rel_scale": 0.09196554630088245,
+     "bias": 1.0287820667808987
+    },
+    "sinkage_m": {
+     "rmse": 0.0033143135596717843,
+     "max_abs": 0.004062719749486479,
+     "rmse_rel_scale": 0.16996479793188637,
+     "bias": -0.0008626365348568246
+    }
+   },
+   "held_out_after": {
+    "drawbar_pull_N": {
+     "rmse": 3.3974756667964945,
+     "max_abs": 4.561495668111638,
+     "rmse_rel_scale": 0.13867247619577527,
+     "bias": -1.5260228704519685
+    },
+    "sinkage_m": {
+     "rmse": 0.0008353816606712315,
+     "max_abs": 0.0010967763826504814,
+     "rmse_rel_scale": 0.04284008516262726,
+     "bias": -0.0007679369355893416
+    }
+   },
+   "train_after": {
+    "drawbar_pull_N": {
+     "rmse": 4.847114170225211,
+     "max_abs": 7.426614788772701,
+     "rmse_rel_scale": 0.19784139470306986,
+     "bias": -1.6205844776053488
+    },
+    "sinkage_m": {
+     "rmse": 0.0008818153173235622,
+     "max_abs": 0.0010768998408752471,
+     "rmse_rel_scale": 0.04522129832428524,
+     "bias": 0.0001515175522019309
+    }
+   }
+  }
+ },
+ "surrogate": {
+  "n_train": 3600,
+  "n_test": 2000,
+  "epochs": 4000,
+  "box": {
+   "slip": [
+    -0.4,
+    0.9
+   ],
+   "sinkage_m": [
+    0.002,
+    0.06
+   ]
+  },
+  "physics_terms_used": [
+   "fz_monotone",
+   "mohr_coulomb",
+   "torque_coupling"
+  ],
+  "physics_terms_dropped": {
+   "fx_monotone": "reference violates it at 19.4 % of grid points"
+  },
+  "test": {
+   "Fx": {
+    "rmse_N": 0.9155740008042303,
+    "max_abs_N": 5.3401262274286125,
+    "rmse_over_range": 0.0006608675477055604,
+    "r2": 0.9999850700976436
+   },
+   "Fz": {
+    "rmse_N": 1.4725978448052823,
+    "max_abs_N": 13.873102929677316,
+    "rmse_over_range": 0.0010779983258633655,
+    "r2": 0.9999820287269389
+   },
+   "My": {
+    "rmse_Nm": 0.19559628279426242,
+    "max_abs_Nm": 1.1100020836298938,
+    "rmse_over_range": 0.0005189453229455187,
+    "r2": 0.9999885288853806
+   }
+  },
+  "train": {
+   "Fx": {
+    "rmse_N": 0.9372444090922174,
+    "max_abs_N": 11.377930834096333,
+    "rmse_over_range": 0.0006573746447641121,
+    "r2": 0.9999830308874245
+   },
+   "Fz": {
+    "rmse_N": 1.864068631612539,
+    "max_abs_N": 23.009943637646302,
+    "rmse_over_range": 0.0013364228483925384,
+    "r2": 0.9999708675308938
+   },
+   "My": {
+    "rmse_Nm": 0.20892896310374637,
+    "max_abs_Nm": 1.6400804053548654,
+    "rmse_over_range": 0.0005402979017197635,
+    "r2": 0.9999863445677905
+   }
+  }
+ },
+ "grade_sweep": [
+  {
+   "grade_deg": 0.0,
+   "slip_mean": -0.007363314755365375,
+   "speed_m_s": 0.1012195302097229,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 14.777726300430327,
+   "drive_torque_Nm": 4.771671623739231,
+   "max_drive_torque_Nm": 10.051750430687061,
+   "power_W": 7.6600109894217345,
+   "yaw_deg_end": 0.005406744838484145,
+   "travel_reduction": -0.012195302097228966
+  },
+  {
+   "grade_deg": 5.0,
+   "slip_mean": 0.0009942398411928882,
+   "speed_m_s": 0.10048267243498,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 15.183826767356301,
+   "drive_torque_Nm": 9.304952097453887,
+   "max_drive_torque_Nm": 19.001023601835104,
+   "power_W": 14.819089593332631,
+   "yaw_deg_end": 0.0027739782009172298,
+   "travel_reduction": -0.004826724349799916
+  },
+  {
+   "grade_deg": 10.0,
+   "slip_mean": 0.019754124891755716,
+   "speed_m_s": 0.09793970480635503,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 15.963013204519015,
+   "drive_torque_Nm": 13.957495523888657,
+   "max_drive_torque_Nm": 28.309282299248686,
+   "power_W": 22.063770381492464,
+   "yaw_deg_end": 0.005976376419099807,
+   "travel_reduction": 0.020602951936449787
+  },
+  {
+   "grade_deg": 12.5,
+   "slip_mean": 0.031150123567601343,
+   "speed_m_s": 0.09626644143326729,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 16.450482043485653,
+   "drive_torque_Nm": 16.325044013806778,
+   "max_drive_torque_Nm": 35.25946130108345,
+   "power_W": 25.726851197017446,
+   "yaw_deg_end": -0.011870246482574094,
+   "travel_reduction": 0.03733558566732709
+  },
+  {
+   "grade_deg": 15.0,
+   "slip_mean": 0.053866444891706534,
+   "speed_m_s": 0.09333765679296291,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 17.192382769086628,
+   "drive_torque_Nm": 18.832167981560833,
+   "max_drive_torque_Nm": 39.080023005549165,
+   "power_W": 29.714726742431782,
+   "yaw_deg_end": -0.00419023334374686,
+   "travel_reduction": 0.06662343207037091
+  },
+  {
+   "grade_deg": 17.5,
+   "slip_mean": 0.08008077202167974,
+   "speed_m_s": 0.08995081493328766,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 18.225991471639663,
+   "drive_torque_Nm": 21.910460631051688,
+   "max_drive_torque_Nm": 47.91936245624593,
+   "power_W": 34.24291023187853,
+   "yaw_deg_end": 0.006524536237230335,
+   "travel_reduction": 0.1004918506671234
+  },
+  {
+   "grade_deg": 20.0,
+   "slip_mean": 0.12463048032104039,
+   "speed_m_s": 0.08503459620888325,
+   "speed_cmd_m_s": 0.1,
+   "sinkage_mm": 19.97404257350701,
+   "drive_torque_Nm": 25.039983570895583,
+   "max_drive_torque_Nm": 54.35251481808721,
+   "power_W": 39.001944388932586,
+   "yaw_deg_end": -0.004235250493767636,
+   "travel_reduction": 0.1496540379111676
+  }
+ ],
+ "cross_slope_10deg": {
+  "duration_s": 20.0,
+  "distance_m": 1.8768480897969206,
+  "mean_speed_m_s": 0.09384240448984603,
+  "mean_slip": 0.01682856687868626,
+  "max_slip": 0.1047578624604856,
+  "max_sinkage_mm": 22.313063938469906,
+  "mean_sinkage_mm": 14.560384535896246,
+  "energy_J": 160.61342599405035,
+  "energy_per_metre_J_m": 85.57614591569268,
+  "max_load_N": 243.9670585473061,
+  "min_load_N": 28.091137587750207,
+  "max_pitch_deg": 0.4862767357268102,
+  "max_roll_deg": 10.552653154453404,
+  "max_drive_torque_Nm": 11.166777203679937,
+  "max_rock_force_N": 0.0,
+  "slip_angle_deg_mean": [
+   -3.193268968434162,
+   -3.0315449066972247,
+   -5.6654720324975285,
+   -5.5940305812643345
+  ],
+  "lateral_N_mean": [
+   32.38049023548213,
+   45.25470736756334,
+   20.124800154009993,
+   30.124515098639638
+  ],
+  "corners": [
+   "FL",
+   "FR",
+   "RL",
+   "RR"
+  ]
+ },
+ "crater": {
+  "duration_s": 45.0,
+  "distance_m": 8.631995913568629,
+  "mean_speed_m_s": 0.19182213141263618,
+  "mean_slip": 0.01768369933828995,
+  "max_slip": 0.965145512703998,
+  "max_sinkage_mm": 36.6239816952596,
+  "mean_sinkage_mm": 15.56692862703559,
+  "energy_J": 794.1591016857135,
+  "energy_per_metre_J_m": 92.00179305430107,
+  "max_load_N": 299.8018995762687,
+  "min_load_N": 0.0,
+  "max_pitch_deg": 10.47813782398173,
+  "max_roll_deg": 3.780350121199775,
+  "max_drive_torque_Nm": 31.406370213904925,
+  "max_rock_force_N": 490.2834561775085
+ },
+ "surrogate_along_crater_run": {
+  "errors_inside_box": {
+   "Fx": {
+    "rmse_N": 0.7905817251895751,
+    "max_abs_N": 1.6890579263856509,
+    "rmse_over_range": 0.002593427524411107,
+    "r2": 0.9989687006590866
+   },
+   "Fz": {
+    "rmse_N": 2.8286162101560617,
+    "max_abs_N": 8.741402200104517,
+    "rmse_over_range": 0.0054127860686859494,
+    "r2": 0.9970414120458319
+   },
+   "My": {
+    "rmse_Nm": 0.27957336437316793,
+    "max_abs_Nm": 0.5393986192909193,
+    "rmse_over_range": 0.0029303373604938772,
+    "r2": 0.9981342530966829
+   }
+  },
+  "fraction_outside_box": 0.0019482326746451673
+ },
+ "wall_time_s": 1755.4639980793
+}

@@ -1,8 +1,8 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/control",
- "title": "Control engineering: analysis, loop architecture, tuning",
- "description": "Submarine depth-keeping: why the depth equilibrium is unstable, and why what the controller commands matters as much as its gains.",
+ "title": "Control engineering: an inverted pendulum and a submarine",
+ "description": "Two unstable systems and the control that holds them. Inverted pendulum on a cart: the upright pole at +sqrt(g/l), LQR gains from the Riccati equation, an energy swing-up from hanging, the catch and a push. Submarine depth-keeping: why the depth equilibrium is unstable, and why what the controller commands matters as much as its gains.",
  "domain": "control engineering",
  "methods": [
   "LQR",

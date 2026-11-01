@@ -4996,6 +4996,17 @@
   },
   "source": "tests/test_control_literal_calls.py:31"
  },
+ "pinneapple_systems.control.cartpole_video:cartpole_animation": {
+  "inputs": {
+   "fps": 4,
+   "out_dir": "cartpole_animation_out",
+   "push": -25.0,
+   "t_end": 3.0,
+   "t_push": 2.0,
+   "width_px": 360
+  },
+  "source": "tests/test_control_literal_calls.py:93"
+ },
  "pinneapple_systems.control.tuning:fit_fopdt": {
   "inputs": {
    "du": 1.0,

@@ -1,0 +1,12 @@
+{
+ "code_hash": "7a7fbb8703d92e25",
+ "figures": [],
+ "id": "example:examples/control",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Control engineering: analysis, loop architecture, tuning | control engineering | not curated\nopen_loop_doubling_time 146.80932907882882 s\nopen_loop_time_to_limit 642.0 s\ntarget_mass_z_min 99.77488559872776 m\ntarget_mass_z_max 102.39006538837005 m\ntarget_mass_final_tank 18500.00002723524 kg",
+ "timed_out": false
+}

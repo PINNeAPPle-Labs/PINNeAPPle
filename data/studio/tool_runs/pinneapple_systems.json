@@ -103,12 +103,12 @@
   "seconds": 0.0
  },
  "pinneapple_systems.control.cartpole:cartpole_study": {
-  "code_hash": "4caaa55de3407127",
+  "code_hash": "08a8f0efa290a60a",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-01",
   "returned": "dict",
-  "seconds": 12.58
+  "seconds": 10.14
  },
  "pinneapple_systems.control.tuning:fit_fopdt": {
   "code_hash": "3dc11936763c99c6",

@@ -689,6 +689,22 @@
    "status": "done"
   }
  },
+ "control/cartpole": {
+  "full": {
+   "commit": "9f56a5bf",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-01",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-control-cartpole.experiment.json, Lab item manifest/flow/example-control-cartpole",
+   "matched": 0,
+   "nodes": {
+    "cp": "done",
+    "lin": "done"
+   },
+   "seconds": 5.8,
+   "status": "done"
+  }
+ },
  "control/submarine_depth": {
   "full": {
    "commit": "18c8b790",

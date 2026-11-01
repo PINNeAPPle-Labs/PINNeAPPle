@@ -115,8 +115,9 @@ def cartpole_study(params: CartPoleParams | None = None, theta0_deg: float = 177
         ``ln 2 / unstable_pole``.
     controllable : bool
         Rank of the controllability matrix is full.
-    lqr_gain : list of float
-        ``u = -K x`` gains (m/s^2 per m, per m/s, per rad, per rad/s).
+    lqr_gain : dict
+        ``u = -K x`` gains by state: ``position`` (m/s^2 per m), ``velocity`` (1/s), ``angle`` (m/s^2 per rad),
+        ``rate`` (m/s per rad).
     closed_loop_poles : list of complex
         Eigenvalues of ``A - B K`` (1/s).
     catch_time : float [s]
@@ -129,12 +130,22 @@ def cartpole_study(params: CartPoleParams | None = None, theta0_deg: float = 177
         Time after the push to stay within 2 deg.
     max_accel : float [m/s^2]
         Largest cart acceleration used.
-    cart_travel : list of float [m]
-        Minimum and maximum cart position.
+    cart_travel : dict
+        ``min`` and ``max`` cart position (m).
     free_fall_time_to_90deg : float [s]
         Uncontrolled: time from ``free_tilt_deg`` to 90 deg.
-    t, x, u, mode : arrays
-        The controlled trajectory (s; state units; m/s^2; 'swing' or 'lqr' per step).
+    t : ndarray [s]
+        Times of the controlled trajectory.
+    angle_deg : ndarray [deg]
+        Pendulum angle from upright, wrapped to (-180, 180].
+    cart_position : ndarray [m]
+        Cart position.
+    accel : ndarray [m/s^2]
+        Cart acceleration command applied.
+    x : ndarray
+        Full state per step ``[p, v, theta, omega]`` (m, m/s, rad, rad/s).
+    mode : list of str
+        ``'swing'`` or ``'lqr'`` per step.
     """
     P = params or CartPoleParams()
 
@@ -206,9 +217,11 @@ def cartpole_study(params: CartPoleParams | None = None, theta0_deg: float = 177
             break
     mr = st["max_real"]
     return {"params": asdict(P), "unstable_pole": mr, "doubling_time": math.log(2) / mr if mr > 0 else math.inf,
-            "controllable": controllability(A, B)["controllable"], "lqr_gain": K.ravel().tolist(),
+            "controllable": controllability(A, B)["controllable"],
+            "lqr_gain": dict(zip(("position", "velocity", "angle", "rate"), map(float, K.ravel()), strict=True)),
             "closed_loop_poles": [complex(s) for s in cl["s"]], "closed_loop_classification": cl["classification"],
             "catch_time": float(T[catch]) if catch is not None else float("nan"), "settled_time": settled,
             "push_peak_deg": peak, "push_recovery": recovery, "max_accel": float(np.max(np.abs(U))),
-            "cart_travel": [float(X[:, 0].min()), float(X[:, 0].max())], "free_fall_time_to_90deg": fall,
-            "t": T, "x": X, "u": U, "mode": M}
+            "cart_travel": {"min": float(X[:, 0].min()), "max": float(X[:, 0].max())},
+            "free_fall_time_to_90deg": fall, "t": T, "angle_deg": np.degrees(th), "cart_position": X[:, 0],
+            "accel": U, "x": X, "mode": M}

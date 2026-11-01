@@ -2,22 +2,22 @@
  "unstable_pole": 4.429446918033108,
  "doubling_time": 0.15648616935401424,
  "controllable": true,
- "lqr_gain": [
-  -10.0,
-  -11.589181952835297,
-  -70.7836323525907,
-  -14.642394791635898
- ],
+ "lqr_gain": {
+  "position": -10.0,
+  "velocity": -11.589181952835297,
+  "angle": -70.7836323525907,
+  "rate": -14.642394791635898
+ },
  "closed_loop_classification": "stable (oscillatory)",
  "catch_time": 4.32,
  "settled_time": 6.735,
  "push_peak_deg": 15.887368699552981,
  "push_recovery": 1.19,
  "max_accel": 15.0,
- "cart_travel": [
-  -3.2629788079041084,
-  0.04088085705965099
- ],
+ "cart_travel": {
+  "min": -3.2629788079041084,
+  "max": 0.04088085705965099
+ },
  "free_fall_time_to_90deg": 1.185,
  "closed_loop_poles": [
   [
@@ -39,7 +39,7 @@
  ],
  "params": {
   "g": 9.81,
-  "l": 0.5,
+  "length": 0.5,
   "a_balance": 15.0,
   "a_swing": 3.0,
   "k_energy": 6.0,

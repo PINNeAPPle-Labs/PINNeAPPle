@@ -39,12 +39,12 @@ def main() -> None:
           f"no control: 1 -> 90 deg in {r['free_fall_time_to_90deg']:.2f} s")
     print(f"swing-up caught at {r['catch_time']:.2f} s, within 2 deg from {r['settled_time']:.2f} s; push peak "
           f"{r['push_peak_deg']:.1f} deg, recovered in {r['push_recovery']:.2f} s; max |a| {r['max_accel']:.1f} m/s^2")
-    th = np.degrees((r["x"][:, 2] + np.pi) % (2 * np.pi) - np.pi)
+    th = np.array(r["angle_deg"], float)
     th[np.where(np.abs(np.diff(th)) > 180)[0]] = np.nan
     fig, ax = plt.subplots(2, 1, figsize=(8, 5.5), sharex=True)
     ax[0].plot(r["t"], th)
     ax[0].set_ylabel("angle from upright (deg)")
-    ax[1].plot(r["t"], r["u"])
+    ax[1].plot(r["t"], r["accel"])
     ax[1].set_ylabel("cart acceleration (m/s^2)")
     ax[1].set_xlabel("time (s)")
     fig.tight_layout()

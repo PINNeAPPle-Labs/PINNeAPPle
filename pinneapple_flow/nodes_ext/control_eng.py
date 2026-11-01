@@ -229,7 +229,7 @@ def cartpole(ctx, inputs, params):
     ctx.metric("max_accel_m_s2", r["max_accel"], "largest cart acceleration used (m/s^2)")
     ctx.metric("closed_loop", r["closed_loop_classification"])
     ctx.table("closed-loop poles (LQR)", ["pole (1/s)"], [[f"{p.real:.4g}{p.imag:+.4g}j"] for p in r["closed_loop_poles"]])
-    th = np.degrees((r["x"][:, 2] + np.pi) % (2 * np.pi) - np.pi)
+    th = np.array(r["angle_deg"], float)
     th[np.where(np.abs(np.diff(th)) > 180)[0]] = np.nan
     lqr_on = np.array([m == "lqr" for m in r["mode"]])
     fig, ax = plt.subplots(3, 1, figsize=(8, 7.5), sharex=True)
@@ -237,9 +237,9 @@ def cartpole(ctx, inputs, params):
     ax[0].plot(r["t"], np.where(lqr_on, th, np.nan), color="#0a9b86", label="LQR")
     ax[0].set_ylabel("angle from upright (deg)")
     ax[0].legend(fontsize=8)
-    ax[1].plot(r["t"], r["x"][:, 0], color="#4a5d7e")
+    ax[1].plot(r["t"], r["cart_position"], color="#4a5d7e")
     ax[1].set_ylabel("cart position (m)")
-    ax[2].plot(r["t"], r["u"], color="#4a5d7e")
+    ax[2].plot(r["t"], r["accel"], color="#4a5d7e")
     ax[2].set_ylabel("cart acceleration (m/s^2)")
     ax[2].set_xlabel("time (s)")
     for a in ax:

@@ -110,6 +110,21 @@
   "returned": "dict",
   "seconds": 10.14
  },
+ "pinneapple_systems.control.cartpole_video:cartpole_animation": {
+  "code_hash": "0fa43a14b1a30bc7",
+  "inputs": {
+   "fps": 4,
+   "out_dir": "cartpole_animation_out",
+   "push": -25.0,
+   "t_end": 3.0,
+   "t_push": 2.0,
+   "width_px": 360
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "dict",
+  "seconds": 14.68
+ },
  "pinneapple_systems.control.tuning:fit_fopdt": {
   "code_hash": "3dc11936763c99c6",
   "inputs": {

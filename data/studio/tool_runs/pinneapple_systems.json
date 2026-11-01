@@ -178,11 +178,15 @@
  },
  "pinneapple_systems.control.tuning:ziegler_nichols": {
   "code_hash": "c3b18a29e025af03",
-  "error": "ValueError: give ku and tu, or K, tau and theta",
-  "inputs": {},
-  "ok": false,
+  "inputs": {
+   "kind": "pid",
+   "ku": 6.0,
+   "tu": 4.0
+  },
+  "ok": true,
   "recorded": "2026-11-01",
-  "seconds": 0.0
+  "returned": "dict",
+  "seconds": 6.88
  },
  "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
   "code_hash": "3696e14547454914",

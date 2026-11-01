@@ -28,6 +28,7 @@ from .analysis import (
     step_metrics,
     transfer_function,
 )
+from .cartpole import CartPoleParams, cartpole_rhs, cartpole_study
 from .loop import (
     PID,
     Actuator,
@@ -58,4 +59,5 @@ __all__ = [
     "compare_architectures",
     "fit_fopdt", "simc_pid", "imc_pid", "ziegler_nichols", "ultimate_gain", "place_pid_second_order", "lqr", "dlqr",
     "tune_by_optimization", "robustness",
+    "CartPoleParams", "cartpole_rhs", "cartpole_study",
 ]

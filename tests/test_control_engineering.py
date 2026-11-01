@@ -273,3 +273,11 @@ def test_bad_options_are_refused():
         PID(1.0, derivative="bad")
     with pytest.raises(ValueError):
         simulate_loop(first_order_plant(), PID(1.0), Actuator(), 1.0, 1.0, 0.1, method="leapfrog")
+
+
+def test_cascade_loop_eigenvalues_survive_the_length_entry():
+    plant = double_integrator()
+    cas = Cascade(PID(1.0, 0.0, 0.0), PID(2.0, 0.0, 0.0), inner_measurement=lambda x: x[0])
+    le = loop_eigenvalues(plant, cas, Actuator(), x_eq=[0.0, 0.0], u_eq=0.0, reference=0.0, dt=0.01)
+    # outer P on position (1) feeding inner P on velocity (2): s^2 + 2 s + 2, roots -1 +- 1j
+    assert le["stable"] and abs(le["max_real"] + 1.0) < 0.02

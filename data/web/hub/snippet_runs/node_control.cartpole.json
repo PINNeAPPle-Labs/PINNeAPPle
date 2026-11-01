@@ -1,0 +1,12 @@
+{
+ "code_hash": "d24c4446bf630953",
+ "figures": [],
+ "id": "node:control.cartpole",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 7.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverted pendulum on a cart: swing-up, LQR catch, push rejection -> pinneapple_systems.control.cartpole.cartpole_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'l': 0.5, 'a_swing': 3.0, 'a_balance': 15.0, 'q_angle': 100.0, 'r_input': 0.1, 'push': -25.0, 't_push': 12.0, 't_end': 16.0}",
+ "timed_out": false
+}

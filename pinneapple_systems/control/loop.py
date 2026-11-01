@@ -304,7 +304,7 @@ class Cascade:
         return np.concatenate([[a.size], a, b])
 
     def set_state(self, s):
-        n = int(s[0])
+        n = int(round(s[0]))            # the length entry is perturbed too when the loop is linearised
         self.outer.set_state(s[1:1 + n])
         self.inner.set_state(s[1 + n:])
 

@@ -1,16 +1,18 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/control",
- "title": "Control engineering: analysis, loop architecture, tuning",
- "description": "Submarine depth-keeping: why the depth equilibrium is unstable, and why what the controller commands matters as much as its gains.",
+ "title": "Control engineering: an inverted pendulum and a submarine",
+ "description": "Two unstable systems and the control that holds them. Inverted pendulum on a cart: the upright pole at +sqrt(g/l), LQR gains from the Riccati equation, an energy swing-up from hanging, the catch and a push. Submarine depth-keeping: why the depth equilibrium is unstable, and why what the controller commands matters as much as its gains.",
  "domain": "control engineering",
  "methods": [
-  "linearisation",
-  "closed-loop eigenvalues",
-  "PID",
-  "pole placement",
+  "LQR",
+  "Monte Carlo robustness",
   "Nelder-Mead tuning",
-  "Monte Carlo robustness"
+  "PID",
+  "closed-loop eigenvalues",
+  "energy-based swing-up",
+  "linearisation",
+  "pole placement"
  ],
  "modules": [
   "pinneapple_simulation.naval",
@@ -25,6 +27,7 @@
   "parameters": "illustrative (pinneapple_simulation.naval.ILLUSTRATIVE)"
  },
  "scripts": [
+  "cartpole_swing_up.py",
   "submarine_depth.py"
  ],
  "metrics": [
@@ -87,6 +90,30 @@
    "value": 1.0,
    "unit": "-",
    "how": "32 samples, kh +-30 %, drag /3 to x3"
+  },
+  {
+   "name": "cartpole_unstable_pole",
+   "value": 4.429446918033108,
+   "unit": "1/s",
+   "how": "linearised at upright; analytic sqrt(g/l)"
+  },
+  {
+   "name": "cartpole_catch_time",
+   "value": 4.32,
+   "unit": "s",
+   "how": "energy swing-up from 177 deg, cart acceleration <= 3 m/s^2"
+  },
+  {
+   "name": "cartpole_push_recovery",
+   "value": 1.19,
+   "unit": "s",
+   "how": "back within 2 deg after a 0.1 s push of -25 rad/s^2"
+  },
+  {
+   "name": "cartpole_free_fall_time",
+   "value": 1.185,
+   "unit": "s",
+   "how": "no control: 1 deg to 90 deg"
   }
  ],
  "checks": [
@@ -131,15 +158,30 @@
    "detail": "",
    "label": "same PID on the pump flow: linear closed loop unstable",
    "kind": "physical"
+  },
+  {
+   "name": "cartpole_pole_is_sqrt_g_over_l",
+   "passed": true,
+   "value": 4.429446918033108,
+   "reference": 4.4294469180700204,
+   "rtol": null,
+   "atol": 1e-06,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "linearised unstable pole equals sqrt(g/l)",
+   "kind": "physical"
   }
  ],
  "files": {
   "figures": [
+   "results/cartpole.png",
    "results/submarine_depth.png"
   ],
   "videos": [],
   "viewers": [],
   "data": [
+   "results/cartpole.json",
    "results/submarine_depth.json"
   ]
  },

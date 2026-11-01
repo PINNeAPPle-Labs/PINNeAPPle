@@ -2057,6 +2057,27 @@
   },
   "source": "tests/test_astro_ai.py:92"
  },
+ "pinneapple_physics.blackhole.raytrace:keplerian_omega": {
+  "inputs": {
+   "r": 8.0
+  },
+  "source": "tests/test_raytrace_orbiting.py:68"
+ },
+ "pinneapple_physics.blackhole.raytrace:orbiting_clumps": {
+  "inputs": {
+   "n_clumps": 8,
+   "n_phi": 64,
+   "r": [
+    7.0,
+    9.0,
+    12.0,
+    16.0
+   ],
+   "seed": 4,
+   "t": 50.0
+  },
+  "source": "tests/test_raytrace_orbiting.py:134"
+ },
  "pinneapple_physics.closed_form.cantilever_fatigue:basquin_allowable_stress_pa": {
   "inputs": {
    "fatigue_strength_coeff_pa": 1200000000.0,

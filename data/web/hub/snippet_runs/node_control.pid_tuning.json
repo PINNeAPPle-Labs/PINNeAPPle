@@ -1,0 +1,12 @@
+{
+ "code_hash": "e10071c377ef0fb7",
+ "figures": [],
+ "id": "node:control.pid_tuning",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 7.91,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PID tuning rules (SIMC, IMC, Ziegler-Nichols, pole placement) -> pinneapple_systems.control.tuning\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'method': 'simc', 'K': 2.0, 'tau': 10.0, 'theta': 1.0, 'm': 1.0, 'c': 0.0, 'k': -1.0, 'b': 1.0, 'wn': 2.0, 'zeta': 0.7}",
+ "timed_out": false
+}

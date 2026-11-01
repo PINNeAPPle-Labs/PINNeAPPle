@@ -689,6 +689,22 @@
    "status": "done"
   }
  },
+ "control/submarine_depth": {
+  "full": {
+   "commit": "18c8b790",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-01",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-control-submarine-depth.experiment.json, Lab item manifest/flow/example-control-submarine-depth",
+   "matched": 0,
+   "nodes": {
+    "ship": "done",
+    "sub": "done"
+   },
+   "seconds": 4.4,
+   "status": "done"
+  }
+ },
  "design_from_intent/design_from_intent": {
   "full": {
    "commit": "5e891c36",

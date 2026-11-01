@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-control-submarine-depth",
+ "name": "Submarine depth-keeping: instability and what the controller commands",
+ "description": "Illustrative submarine whose hull is more compressible than seawater (depth equilibrium unstable): open loop after a 1500 kg extra mass, a PID commanding the target trim-tank mass (pump as a rate-limited servo) and the same PID commanding the pump flow, each with the eigenvalues of its closed loop, plus gains placed on the linear model (examples/control/submarine_depth.py); and the initial stability of a box barge with a slack tank.",
+ "nodes": [
+  {
+   "id": "sub",
+   "type": "naval.submarine_depth",
+   "params": {},
+   "label": "Submarine depth-keeping",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "ship",
+   "type": "naval.ship_stability",
+   "params": {},
+   "label": "Ship initial stability",
+   "position": {
+    "x": 40.0,
+    "y": 220.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "control",
+  "domain": "control engineering",
+  "scripts": [
+   "submarine_depth.py"
+  ],
+  "quick": {
+   "sub": {
+    "t_end": 300.0
+   }
+  }
+ }
+}

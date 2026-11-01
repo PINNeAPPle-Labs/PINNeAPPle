@@ -61,6 +61,10 @@
   "domain": "heat transfer",
   "reason": "a falsification campaign: dozens of pre-registered studies run in subprocesses (minutes to an hour each, up to 7.6 GB), judged by their kill criteria in run.py; the condensation itself is the Flow node condense.package_thermal (examples/physics_condensation)"
  },
+ "control": {
+  "domain": "control engineering",
+  "notes": "submarine_depth: naval.submarine_depth runs the study of the script (open loop, the two command architectures with their closed-loop eigenvalues, placed gains). The script's optimisation-based tuning and Monte Carlo robustness are in the library (pinneapple_systems.control.tune_by_optimization, robustness) but not in the node, to keep it under a few seconds."
+ },
  "core_primitives": {
   "domain": "core",
   "reason": "demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate)",

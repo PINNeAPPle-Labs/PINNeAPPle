@@ -70,3 +70,14 @@ def test_cartpole_literal():
     assert r["catch_time"] < 6.0 and r["push_recovery"] < 2.0 and r["max_accel"] <= 15.0 + 1e-12
     assert r["free_fall_time_to_90deg"] < 1.5
     assert CartPoleParams().length == 0.5
+
+
+def test_cartpole_animation_literal(tmp_path):
+    import shutil
+
+    from pinneapple_systems.control.cartpole_video import cartpole_animation
+    r = cartpole_animation(out_dir=str(tmp_path), push=-25.0, t_push=2.0, t_end=3.0, fps=4, width_px=360)
+    assert "cartpole_poster.png" in r["files"] and (tmp_path / "cartpole_poster.png").stat().st_size > 0
+    if shutil.which("ffmpeg"):
+        assert "cartpole.mp4" in r["files"] and r["frames"] == 12
+    assert abs(r["unstable_pole"] - math.sqrt(9.81 / 0.5)) < 1e-6

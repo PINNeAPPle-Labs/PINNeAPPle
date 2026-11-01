@@ -123,6 +123,10 @@ upright position unstable.
 
 The Flow node is `control.cartpole`, and the flow is `pinneapple_flow/flows/examples/control/cartpole.json`.
 
+`pinneapple_systems.control.cartpole_video.cartpole_animation(out_dir, push=...)` runs the same study and renders it as
+an MP4 and a poster. The frames show the cart and pendulum with the swing-up and LQR phases, the angle trace and the
+poles, and every number drawn comes from that run. In the Studio app, the video plays in the job result.
+
 ## Flow nodes
 
 - `control.linear_analysis`

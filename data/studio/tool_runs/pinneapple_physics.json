@@ -538,6 +538,35 @@
   "recorded": "2026-10-31",
   "seconds": 60.03
  },
+ "pinneapple_physics.blackhole.raytrace:keplerian_omega": {
+  "code_hash": "0bc0dcc1257e4bf1",
+  "inputs": {
+   "r": 8.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "float64",
+  "seconds": 5.08
+ },
+ "pinneapple_physics.blackhole.raytrace:orbiting_clumps": {
+  "code_hash": "24241e843bfba22a",
+  "inputs": {
+   "n_clumps": 8,
+   "n_phi": 64,
+   "r": [
+    7.0,
+    9.0,
+    12.0,
+    16.0
+   ],
+   "seed": 4,
+   "t": 50.0
+  },
+  "ok": true,
+  "recorded": "2026-11-01",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_physics.blackhole.raytrace:star_field": {
   "code_hash": "fc3ff8c2b0f59dd6",
   "inputs": {},

@@ -1,6 +1,0 @@
-- Ray tracer, non-axisymmetric emission (`pinneapple_physics.blackhole.raytrace`, #1091):
-  - every sample stores its azimuth;
-  - `render` takes (r, θ, φ) fields or a thin-disc `modulation`, and `camera_azimuth` orbits the camera without a new trace;
-  - `orbiting_clumps` and `keplerian_omega` give hot spots carried at Ω = √(M/r³), sheared by differential rotation;
-  - `render_series` renders many frames of one trace cheaply;
-  - `RayPaths.select` drops samples that never emit.

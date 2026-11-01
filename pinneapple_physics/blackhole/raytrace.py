@@ -18,18 +18,31 @@ simulated (or forecast) flow:
 The geodesics do not depend on time, so ``Camera.trace`` runs once and stores, for every ray, the points where it
 crosses the flow; ``render`` then only gathers the fields at those points, which makes rendering a time series cheap.
 
+Non-axisymmetric flows (issue #1091): every sample also carries its azimuth, so ``render`` takes fields of shape
+(nr, ntheta, nphi), periodic in phi, or an azimuthal ``modulation`` (nr, nphi) of a thin disc. Because the metric
+is static and axisymmetric, a camera moved by an azimuth alpha sees the same rays with the flow turned by -alpha:
+``render(..., camera_azimuth=alpha)`` orbits the camera without a new trace (the stars turn with it).
+``orbiting_clumps`` makes such a modulation: hot spots carried round at the circular-orbit angular velocity
+Omega(r) = sqrt(M / r^3) (exact in Schwarzschild coordinate time), so differential rotation shears them into
+spirals. Light-travel-time differences across the disc are neglected ("fast light").
+
     cam = Camera(width=480, height=270, r_cam=120.0, inclination_deg=84.0, fov_deg=32.0)
     paths = cam.trace(grid, r_max=60.0)
     img = render(paths, rho, temperature, velocity)        # (H, W, 3) float in [0, 1]
+    # an orbiting, shearing disc and a camera orbit, from the same trace
+    m = orbiting_clumps(grid["r"], t=150.0)
+    img = render(paths, rho, temperature, velocity, modulation=m, camera_azimuth=0.3)
 """
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
 
-__all__ = ["Camera", "RayPaths", "render", "bloom", "star_field", "blackbody_rgb", "SHADOW_B"]
+__all__ = ["Camera", "RayPaths", "render", "bloom", "star_field", "blackbody_rgb", "SHADOW_B", "keplerian_omega",
+           "orbiting_clumps", "render_series"]
 
 SHADOW_B = 3.0 * math.sqrt(3.0)          # critical impact parameter of a Schwarzschild hole (M = 1)
 
@@ -46,6 +59,14 @@ class RayPaths:
     captured: np.ndarray       # (H*W,) bool
     escape_dir: np.ndarray     # (H*W, 3) float32 final direction of escaped rays
     shape: tuple[int, int]     # (H, W)
+    phi: np.ndarray | None = None   # (S,) float32 azimuth of each sample about the spin axis, camera at phi = 0
+
+    def select(self, keep: np.ndarray) -> RayPaths:
+        """The same rays with only the samples where ``keep`` is true (e.g. drop samples where nothing emits)."""
+        keep = np.asarray(keep, bool)
+        return RayPaths(self.ray[keep], self.ir[keep], self.ith[keep], self.ds[keep], self.kdotv[keep],
+                        self.lapse[keep], self.captured, self.escape_dir, self.shape,
+                        None if self.phi is None else self.phi[keep])
 
 
 @dataclass
@@ -118,7 +139,7 @@ class Camera:
         dlr = math.log(grid["r_faces"][-1] / grid["r_faces"][0]) / (len(grid["r_faces"]) - 1)
         nth = len(grid["theta_faces"]) - 1
         dth = math.pi / nth
-        out = {k: [] for k in ("ray", "ir", "ith", "ds", "k", "lapse")}
+        out = {k: [] for k in ("ray", "ir", "ith", "ds", "k", "lapse", "phi")}
         captured[tiny & inward] = True
         active[tiny] = False
 
@@ -169,6 +190,7 @@ class Camera:
                     out["k"].append(np.stack([(kph * rhat).sum(1), (kph * thhat).sum(1), (kph * phat).sum(1)],
                                              1).astype(np.float32))
                     out["lapse"].append(np.sqrt(1 - 2 / rr).astype(np.float32))
+                    out["phi"].append(np.arctan2(x[:, 1], x[:, 0]).astype(np.float32))
             done = cap | esc
             if done.any():
                 jd = np.nonzero(done)[0]
@@ -191,7 +213,7 @@ class Camera:
         order = np.argsort(ray, kind="stable")                       # ray-major, camera-to-far within a ray
         return RayPaths(ray[order], cat("ir", np.float32)[order], cat("ith", np.float32)[order], cat("ds", np.float32)[order],
                         cat("k", np.float32)[order], cat("lapse", np.float32)[order], captured,
-                        esc_dir.astype(np.float32), (self.height, self.width))
+                        esc_dir.astype(np.float32), (self.height, self.width), cat("phi", np.float32)[order])
 
 
 # ---------------------------------------------------------------------- colour
@@ -255,6 +277,72 @@ def _bilinear(field: np.ndarray, fr: np.ndarray, ft: np.ndarray) -> np.ndarray:
             (1 - a) * b * field[i0, j0 + 1] + a * b * field[i0 + 1, j0 + 1])
 
 
+def _periodic_index(phi: np.ndarray, nphi: int):
+    """Neighbouring cell indices and weight for an azimuth on a periodic grid of nphi cells (centres at k + 1/2)."""
+    fp = np.mod(phi, 2 * math.pi) / (2 * math.pi) * nphi - 0.5
+    f0 = np.floor(fp)
+    k0 = f0.astype(np.int64) % nphi
+    return k0, (k0 + 1) % nphi, fp - f0
+
+
+def _gather(field: np.ndarray, fr: np.ndarray, ft: np.ndarray, phi: np.ndarray | None) -> np.ndarray:
+    """A (nr, ntheta) field bilinearly, or a (nr, ntheta, nphi) field trilinearly (periodic in phi)."""
+    if field.ndim == 2:
+        return _bilinear(field, fr, ft)
+    k0, k1, c = _periodic_index(phi, field.shape[2])
+    return (1 - c) * _bilinear_k(field, fr, ft, k0) + c * _bilinear_k(field, fr, ft, k1)
+
+
+def _bilinear_k(field: np.ndarray, fr: np.ndarray, ft: np.ndarray, k: np.ndarray) -> np.ndarray:
+    i0 = np.minimum(fr.astype(np.int64), field.shape[0] - 2)
+    j0 = np.minimum(ft.astype(np.int64), field.shape[1] - 2)
+    a, b = fr - i0, ft - j0
+    return ((1 - a) * (1 - b) * field[i0, j0, k] + a * (1 - b) * field[i0 + 1, j0, k] +
+            (1 - a) * b * field[i0, j0 + 1, k] + a * b * field[i0 + 1, j0 + 1, k])
+
+
+def _modulation(m: np.ndarray, fr: np.ndarray, phi: np.ndarray) -> np.ndarray:
+    """A (nr, nphi) azimuthal pattern at the samples: linear in the radial cell coordinate, periodic in phi."""
+    i0 = np.minimum(fr.astype(np.int64), m.shape[0] - 2)
+    a = fr - i0
+    k0, k1, c = _periodic_index(phi, m.shape[1])
+    return ((1 - a) * ((1 - c) * m[i0, k0] + c * m[i0, k1]) + a * ((1 - c) * m[i0 + 1, k0] + c * m[i0 + 1, k1]))
+
+
+def keplerian_omega(r: np.ndarray | float) -> np.ndarray:
+    """Angular velocity d(phi)/dt of circular geodesics in Schwarzschild (G = M = c = 1): sqrt(1 / r^3), exact in
+    coordinate time (the time of a distant observer)."""
+    return np.asarray(r, float) ** -1.5
+
+
+def orbiting_clumps(r: Sequence[float], t: float, *, n_phi: int = 512, n_clumps: int = 40, r_range: tuple[float, float] = (6.0, 24.0),
+                    amplitude: float = 2.5, radial_width: float = 0.6, length: float = 2.5, turbulence: float = 0.35,
+                    n_modes: int = 12, seed: int = 0) -> np.ndarray:
+    """Azimuthal modulation (len(r), n_phi) of a thin disc at time t: hot spots and a streaky background, each
+    carried round at its own radius' keplerian_omega, so the inner disc laps the outer one and spots shear into
+    spirals. Mean about 1, never negative; pass it to ``render(..., modulation=...)``.
+
+    r: radial cell centres of the grid; t in units of GM/c^3; length and radial_width in GM/c^2 (the spot size
+    along and across the orbit at t = 0)."""
+    rng = np.random.default_rng(seed)
+    r = np.asarray(r, float)[:, None]
+    phi = (np.arange(n_phi) + 0.5) / n_phi * 2 * math.pi
+    om = keplerian_omega(np.maximum(r, 1e-6))
+    m = np.ones((r.shape[0], n_phi))
+    lo, hi = r_range
+    rk = np.exp(rng.uniform(math.log(lo), math.log(hi), n_clumps))
+    pk = rng.uniform(0, 2 * math.pi, n_clumps)
+    ak = amplitude * rng.uniform(0.4, 1.0, n_clumps)
+    for k in range(n_clumps):
+        dphi = np.angle(np.exp(1j * (phi[None, :] - pk[k] - om * t)))      # wrapped to (-pi, pi]
+        m += ak[k] * np.exp(-0.5 * ((r - rk[k]) / radial_width) ** 2) * np.exp(-0.5 * (r * dphi / length) ** 2)
+    if turbulence > 0:                     # low-order azimuthal modes, phase drifting with radius, also advected
+        for mm in range(2, 2 + n_modes):
+            psi = rng.uniform(0, 2 * math.pi) + rng.normal(0, 1.5) * np.log(r)
+            m += turbulence / math.sqrt(n_modes) * rng.uniform(0.5, 1.0) * np.cos(mm * (phi[None, :] - om * t) + psi)
+    return np.clip(m, 0.0, None)
+
+
 def bloom(img: np.ndarray, strength: float = 0.35, sigma: float = 6.0) -> np.ndarray:
     """Cinematic glow: add a blurred copy of the bright parts."""
     from scipy.ndimage import gaussian_filter
@@ -266,24 +354,35 @@ def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: 
            doppler: bool = True, kappa: float = 0.0, exposure: float = 1.0, scale: float | None = None,
            emissivity_power: float = 2.0, tone: str = "film", r_min: float = 0.0,
            t_color: float = 6500.0, gamma: float = 1.0, sky: np.ndarray | None = None, sky_gain: float = 1.0,
-           return_intensity: bool = False):
+           return_intensity: bool = False, modulation: np.ndarray | None = None, camera_azimuth: float = 0.0):
     """Render one frame.
 
     rho, temperature: (nr, ntheta) fields (temperature ~ p / rho); velocity: (3, nr, ntheta) = (v_r, v_theta, v_phi)
-    in units of c, or None (no Doppler). ``scale``: intensity mapped to white (pass the same value for every frame
-    of an animation; default: the 99.7th percentile of this frame). Returns (H, W, 3) floats in [0, 1].
+    in units of c, or None (no Doppler). Any of them may also carry a last axis over phi, (nr, ntheta, nphi) and
+    (3, nr, ntheta, nphi), periodic. ``modulation``: (nr, nphi) factor on rho, e.g. ``orbiting_clumps``.
+    ``camera_azimuth`` [rad]: the camera moved by that azimuth about the spin axis (no new trace: the flow is turned
+    the other way and the stars with the camera). ``scale``: intensity mapped to white (pass the same value for
+    every frame of an animation; default: the 99.7th percentile of this frame). Returns (H, W, 3) floats in [0, 1].
     """
     H, W = paths.shape
     n = H * W
     fr, ft = paths.ir.astype(np.float64), paths.ith.astype(np.float64)
-    rr = np.maximum(_bilinear(rho, fr, ft), 0.0)
-    TT = np.maximum(_bilinear(temperature, fr, ft), 1e-12)
+    three_d = rho.ndim == 3 or temperature.ndim == 3 or (velocity is not None and velocity.ndim == 4)
+    phi = None
+    if three_d or modulation is not None:
+        if paths.phi is None:
+            raise ValueError("these RayPaths carry no azimuth (traced before #1091): trace them again")
+        phi = paths.phi.astype(np.float64) + camera_azimuth
+    rr = np.maximum(_gather(rho, fr, ft, phi), 0.0)
+    if modulation is not None:
+        rr = rr * np.maximum(_modulation(np.asarray(modulation, float), fr, phi), 0.0)
+    TT = np.maximum(_gather(temperature, fr, ft, phi), 1e-12)
     j = rr ** emissivity_power * np.sqrt(TT)
     if r_min > 0:                                              # optional: leave out the plunging region
         j = j * (paths.lapse >= math.sqrt(1 - 2 / r_min))
     g = paths.lapse.astype(np.float64)
     if doppler and velocity is not None:
-        v = np.stack([_bilinear(velocity[k], fr, ft) for k in range(3)], 1)
+        v = np.stack([_gather(velocity[k], fr, ft, phi) for k in range(3)], 1)
         v2 = np.clip((v * v).sum(1), 0, 0.98)
         vk = (v * paths.kdotv).sum(1)
         g = g * np.sqrt(1 - v2) / (1 - vk)
@@ -302,6 +401,15 @@ def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: 
     gw = np.bincount(paths.ray, weights=contrib * g, minlength=n) / np.maximum(inten, 1e-300)
     if return_intensity:
         return inten.reshape(H, W)
+    return _tone(paths, inten, gw, exposure=exposure, scale=scale, tone=tone, t_color=t_color, gamma=gamma, sky=sky,
+                 sky_gain=sky_gain, camera_azimuth=camera_azimuth)
+
+
+def _tone(paths: RayPaths, inten: np.ndarray, gw: np.ndarray, *, exposure: float, scale: float | None, tone: str,
+          t_color: float, gamma: float, sky: np.ndarray | None, sky_gain: float, camera_azimuth: float) -> np.ndarray:
+    """Intensity and mean redshift per pixel -> (H, W, 3) image, with the lensed sky behind."""
+    H, W = paths.shape
+    n = H * W
     s = scale if scale is not None else (np.percentile(inten[inten > 0], 99.7) if (inten > 0).any() else 1.0)
     x = exposure * (inten / max(s, 1e-300)) ** gamma
     lum = 1 - np.exp(-x) if tone == "film" else np.log1p(30 * x) / np.log1p(30)   # "log": shows faint structure
@@ -310,6 +418,54 @@ def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: 
     if sky is not None:
         escaped = (~paths.captured) & (np.linalg.norm(paths.escape_dir, axis=1) > 0)
         bg = np.zeros((n, 3))
-        bg[escaped] = _sample_sky(sky, paths.escape_dir[escaped].astype(np.float64)) * sky_gain
+        d = paths.escape_dir[escaped].astype(np.float64)
+        if camera_azimuth:                                     # the traced frame turned to the camera's azimuth
+            c, s_ = math.cos(camera_azimuth), math.sin(camera_azimuth)
+            d = np.stack([c * d[:, 0] - s_ * d[:, 1], s_ * d[:, 0] + c * d[:, 1], d[:, 2]], 1)
+        bg[escaped] = _sample_sky(sky, d) * sky_gain
         img = img + bg * (1 - lum[:, None])
     return np.clip(img.reshape(H, W, 3), 0, 1)
+
+
+def render_series(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: np.ndarray | None,
+                  frames: Iterable[tuple[np.ndarray, float]], *, doppler: bool = True, emissivity_power: float = 2.0,
+                  return_intensity: bool = False, **tone_kw):
+    """Render many frames of one trace in which only an azimuthal ``modulation`` and the ``camera_azimuth`` change.
+
+    ``frames`` yields (modulation (nr, nphi), camera_azimuth [rad]). The axisymmetric fields (nr, ntheta) are gathered
+    once; each frame then costs one lookup of the modulation per sample and two sums per pixel. Yields what
+    ``render(paths, rho, temperature, velocity, modulation=m, camera_azimuth=a, ...)`` returns, frame by frame (no
+    absorption: ``kappa`` is not supported here). ``tone_kw``: exposure, scale, tone, t_color, gamma, sky, sky_gain.
+    """
+    if rho.ndim != 2 or temperature.ndim != 2 or (velocity is not None and velocity.ndim != 3):
+        raise ValueError("render_series needs axisymmetric (nr, ntheta) fields; put the azimuthal part in the frames")
+    if paths.phi is None:
+        raise ValueError("these RayPaths carry no azimuth (traced before #1091): trace them again")
+    if tone_kw.get("kappa", 0):
+        raise ValueError("render_series does not do absorption; use render frame by frame")
+    tone_kw.pop("kappa", None)
+    kw = dict(exposure=1.0, scale=None, tone="film", t_color=6500.0, gamma=1.0, sky=None, sky_gain=1.0)
+    unknown = set(tone_kw) - set(kw)
+    if unknown:
+        raise TypeError(f"unknown arguments: {sorted(unknown)}")
+    kw.update(tone_kw)
+    H, W = paths.shape
+    n = H * W
+    fr, ft = paths.ir.astype(np.float64), paths.ith.astype(np.float64)
+    rr = np.maximum(_bilinear(rho, fr, ft), 0.0)
+    TT = np.maximum(_bilinear(temperature, fr, ft), 1e-12)
+    g = paths.lapse.astype(np.float64)
+    if doppler and velocity is not None:
+        v = np.stack([_bilinear(velocity[k], fr, ft) for k in range(3)], 1)
+        g = g * np.sqrt(1 - np.clip((v * v).sum(1), 0, 0.98)) / (1 - (v * paths.kdotv).sum(1))
+    base = rr ** emissivity_power * np.sqrt(TT) * g ** 4 * paths.ds
+    keep = base > 0                                            # samples that can never emit cost nothing per frame
+    base, gk, frk, phk, ray = base[keep], g[keep], fr[keep], paths.phi[keep].astype(np.float64), paths.ray[keep]
+    for m, az in frames:
+        contrib = base * np.maximum(_modulation(np.asarray(m, float), frk, phk + az), 0.0) ** emissivity_power
+        inten = np.bincount(ray, weights=contrib, minlength=n)
+        if return_intensity:
+            yield inten.reshape(H, W)
+            continue
+        gw = np.bincount(ray, weights=contrib * gk, minlength=n) / np.maximum(inten, 1e-300)
+        yield _tone(paths, inten, gw, camera_azimuth=az, **kw)

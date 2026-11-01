@@ -86,6 +86,32 @@ It includes:
 The tests check that the shadow edge sits at the critical impact parameter b = 3√3 M and that a thin disc shows its
 far side lensed above the shadow, as in *Interstellar* (James et al. 2015).
 
+### Orbiting, non-axisymmetric discs (#1091)
+
+Every sample of a trace also stores its azimuth φ, so the emission no longer has to be axisymmetric:
+
+- `render` takes fields of shape (nr, nθ, nφ), periodic in φ, or a thin-disc `modulation` of shape (nr, nφ) that
+  multiplies the density.
+- `orbiting_clumps(r, t)` builds such a modulation: hot spots and a streaky background carried round at
+  `keplerian_omega(r)` = √(M/r³), the exact circular-orbit rate in Schwarzschild coordinate time. The inner disc laps
+  the outer one, so spots shear into spirals and flare on the approaching side (g⁴).
+- `camera_azimuth`: the metric is static and axisymmetric, so moving the camera by α in azimuth is the same trace with
+  the flow turned by −α. The stars turn with the camera. An orbit costs no new trace.
+- `render_series(paths, rho, T, v, frames)` renders many frames of one trace in which only the modulation and the
+  camera azimuth change. It gathers the axisymmetric fields once, so each frame costs one lookup and two sums.
+- `RayPaths.select(mask)` drops samples that can never emit, for example outside a thin disc. This keeps large
+  frames in memory.
+
+Light-travel-time differences across the disc are neglected ("fast light").
+
+The tests check that:
+
+- a φ-constant field renders like the axisymmetric one;
+- the camera orbit equals the flow turned back;
+- a spot returns after 2π/Ω(r) while an outer ring does not;
+- a spot is more than twice as bright on the approaching side, and about equally bright with beaming off;
+- `render_series` matches `render` frame by frame.
+
 The twin also renders in Blender: `Scene.render_blender` / `render_blender_frames` (Cycles, `pip install bpy`).
 
 ## Resolution study, zoo dataset and retrained forecaster

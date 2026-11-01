@@ -160,7 +160,7 @@ def linearize(f: Model, x: Sequence[float], u: Sequence[float] | None = None, d:
     return {"A": A, "B": B, "E": E, "f0": _call(f, x, u, d, t), "jacobian_error": err}
 
 
-def stability(A: np.ndarray, dt: float | None = None, tol: float = 1e-9) -> dict[str, Any]:
+def stability(A: Sequence[Sequence[float]], dt: float | None = None, tol: float = 1e-9) -> dict[str, Any]:
     """Eigen-analysis of a linear(ised) system.
 
     Parameters
@@ -224,7 +224,7 @@ def stability(A: np.ndarray, dt: float | None = None, tol: float = 1e-9) -> dict
             "unstable_directions": unstable}
 
 
-def controllability(A: np.ndarray, B: np.ndarray) -> dict[str, Any]:
+def controllability(A: Sequence[Sequence[float]], B: Sequence[Sequence[float]]) -> dict[str, Any]:
     """Kalman controllability matrix ``[B, AB, ..., A^(n-1) B]``.
 
     Returns
@@ -250,7 +250,7 @@ def controllability(A: np.ndarray, B: np.ndarray) -> dict[str, Any]:
             "condition_number": float(sv[0] / sv[-1]) if sv[-1] > 0 else float("inf")}
 
 
-def observability(A: np.ndarray, C: np.ndarray) -> dict[str, Any]:
+def observability(A: Sequence[Sequence[float]], C: Sequence[Sequence[float]]) -> dict[str, Any]:
     """Kalman observability matrix ``[C; CA; ...; C A^(n-1)]``.
 
     Returns

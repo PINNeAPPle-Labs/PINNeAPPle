@@ -4355,6 +4355,52 @@
   },
   "source": "tests/test_biology_inference.py:110"
  },
+ "pinneapple_simulation.naval.hydrostatics:box_barge": {
+  "inputs": {
+   "B": 12.0,
+   "L": 60.0,
+   "T": 3.0
+  },
+  "source": "tests/test_control_literal_calls.py:18"
+ },
+ "pinneapple_simulation.naval.hydrostatics:free_surface_correction": {
+  "inputs": {
+   "tanks": [
+    {
+     "b": 12.0,
+     "l": 10.0,
+     "rho": 1000.0
+    }
+   ],
+   "volume": 2160.0
+  },
+  "source": "tests/test_control_literal_calls.py:19"
+ },
+ "pinneapple_simulation.naval.hydrostatics:initial_stability": {
+  "inputs": {
+   "B": 12.0,
+   "BM": 4.0,
+   "KB": 1.5,
+   "KG": 4.0,
+   "volume": 2160.0
+  },
+  "source": "tests/test_control_literal_calls.py:23"
+ },
+ "pinneapple_simulation.naval.hydrostatics:metacentric_height": {
+  "inputs": {
+   "BM": 4.0,
+   "KB": 1.5,
+   "KG": 4.0
+  },
+  "source": "tests/test_control_literal_calls.py:21"
+ },
+ "pinneapple_simulation.naval.hydrostatics:roll_period": {
+  "inputs": {
+   "B": 12.0,
+   "GM": 1.5
+  },
+  "source": "tests/test_control_literal_calls.py:22"
+ },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
   "inputs": {
    "D": 8,
@@ -4870,6 +4916,143 @@
    "text": "calor"
   },
   "source": "tests/test_studio.py:183"
+ },
+ "pinneapple_systems.control.analysis:controllability": {
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "B": [
+    [
+     0.0
+    ],
+    [
+     1.0
+    ]
+   ]
+  },
+  "source": "tests/test_control_literal_calls.py:29"
+ },
+ "pinneapple_systems.control.analysis:observability": {
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "C": [
+    [
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  "source": "tests/test_control_literal_calls.py:30"
+ },
+ "pinneapple_systems.control.analysis:stability": {
+  "inputs": {
+   "A": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     -4.0,
+     -0.8
+    ]
+   ]
+  },
+  "source": "tests/test_control_literal_calls.py:28"
+ },
+ "pinneapple_systems.control.analysis:step_metrics": {
+  "inputs": {
+   "reference": 1.0,
+   "t": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "y": [
+    0.0,
+    0.6,
+    1.1,
+    1.0,
+    1.0
+   ]
+  },
+  "source": "tests/test_control_literal_calls.py:31"
+ },
+ "pinneapple_systems.control.tuning:fit_fopdt": {
+  "inputs": {
+   "du": 1.0,
+   "t": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    8.0,
+    12.0,
+    20.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    0.787,
+    1.24,
+    1.506,
+    1.75,
+    1.885,
+    1.983,
+    2.0
+   ]
+  },
+  "source": "tests/test_control_literal_calls.py:36"
+ },
+ "pinneapple_systems.control.tuning:imc_pid": {
+  "inputs": {
+   "K": 2.0,
+   "kind": "pi",
+   "lam": 2.0,
+   "tau": 10.0,
+   "theta": 2.0
+  },
+  "source": "tests/test_control_literal_calls.py:40"
+ },
+ "pinneapple_systems.control.tuning:place_pid_second_order": {
+  "inputs": {
+   "b": 0.5,
+   "c": 0.0,
+   "k": -3.0,
+   "m": 2.0,
+   "p": 0.4,
+   "wn": 1.5,
+   "zeta": 0.7
+  },
+  "source": "tests/test_control_literal_calls.py:42"
+ },
+ "pinneapple_systems.control.tuning:simc_pid": {
+  "inputs": {
+   "K": 2.0,
+   "tau": 10.0,
+   "theta": 1.0
+  },
+  "source": "tests/test_control_literal_calls.py:39"
  },
  "pinneapple_systems.digital_twin.io.mqtt_broker:topic_matches": {
   "inputs": {

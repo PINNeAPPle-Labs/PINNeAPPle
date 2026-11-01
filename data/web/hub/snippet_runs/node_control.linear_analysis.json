@@ -1,0 +1,12 @@
+{
+ "code_hash": "1d279d4e827f3f49",
+ "figures": [],
+ "id": "node:control.linear_analysis",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 7.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Linear analysis: stability, controllability, loop margins -> pinneapple_systems.control.stability / controllability / observability / loop_margins\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'A': [[0.0, 1.0], [-4.0, -0.8]], 'B': [[0.0], [1.0]], 'C': [[1.0, 0.0]], 'loop_num': [1.0], 'loop_den': [1.0, 3.0, 2.0, 0.0], 'delay': 0.0}",
+ "timed_out": false
+}

@@ -1,0 +1,158 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/control",
+ "title": "Control engineering: analysis, loop architecture, tuning",
+ "description": "Submarine depth-keeping: why the depth equilibrium is unstable, and why what the controller commands matters as much as its gains.",
+ "domain": "control engineering",
+ "methods": [
+  "linearisation",
+  "closed-loop eigenvalues",
+  "PID",
+  "pole placement",
+  "Nelder-Mead tuning",
+  "Monte Carlo robustness"
+ ],
+ "modules": [
+  "pinneapple_simulation.naval",
+  "pinneapple_simulation.naval.submarine",
+  "pinneapple_systems.control"
+ ],
+ "params": {
+  "disturbance_kg": 1500.0,
+  "t_disturbance_s": 60.0,
+  "t_end_s": 1800.0,
+  "dt_s": 0.25,
+  "parameters": "illustrative (pinneapple_simulation.naval.ILLUSTRATIVE)"
+ },
+ "scripts": [
+  "submarine_depth.py"
+ ],
+ "metrics": [
+  {
+   "name": "open_loop_doubling_time",
+   "value": 146.80932907882882,
+   "unit": "s",
+   "how": "ln 2 / sqrt(-dB/dz / m_eff) at 100 m"
+  },
+  {
+   "name": "open_loop_time_to_limit",
+   "value": 642.0,
+   "unit": "s",
+   "how": "no control: time to the 600 m study limit"
+  },
+  {
+   "name": "target_mass_z_min",
+   "value": 99.77488559872776,
+   "unit": "m",
+   "how": "PID -> target tank mass, pump as a rate-limited servo"
+  },
+  {
+   "name": "target_mass_z_max",
+   "value": 102.39006538837005,
+   "unit": "m",
+   "how": "same run"
+  },
+  {
+   "name": "target_mass_final_tank",
+   "value": 18500.00002723524,
+   "unit": "kg",
+   "how": "same run"
+  },
+  {
+   "name": "target_mass_max_real",
+   "value": -0.009933524883258181,
+   "unit": "1/s",
+   "how": "largest real part of the linearised closed loop"
+  },
+  {
+   "name": "pump_flow_max_real",
+   "value": 0.009101154180146509,
+   "unit": "1/s",
+   "how": "same PID commanding the pump flow: linearised closed loop"
+  },
+  {
+   "name": "placed_gains_z_max",
+   "value": 101.96635438427445,
+   "unit": "m",
+   "how": "gains placed on the linear model (wn = 8x growth rate, zeta = 0.8)"
+  },
+  {
+   "name": "optimized_iae",
+   "value": 213.29564982667404,
+   "unit": "m s",
+   "how": "Nelder-Mead from the example's gains, pump travel <= 1.2x"
+  },
+  {
+   "name": "robust_fraction_stable",
+   "value": 1.0,
+   "unit": "-",
+   "how": "32 samples, kh +-30 %, drag /3 to x3"
+  }
+ ],
+ "checks": [
+  {
+   "name": "reproduces_illustrative_open_loop",
+   "passed": true,
+   "value": 642.0,
+   "reference": 642.0,
+   "rtol": null,
+   "atol": 0.5,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "open loop reaches 600 m at t = 642 s (illustrative example)",
+   "kind": "physical"
+  },
+  {
+   "name": "reproduces_illustrative_pid_band",
+   "passed": true,
+   "value": [
+    99.77488559872776,
+    102.39006538837005
+   ],
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "target-mass PID holds 99.77-102.39 m (illustrative example)",
+   "kind": "physical"
+  },
+  {
+   "name": "pump_flow_command_unstable",
+   "passed": true,
+   "value": 0.009101154180146509,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.0,
+   "detail": "",
+   "label": "same PID on the pump flow: linear closed loop unstable",
+   "kind": "physical"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/submarine_depth.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/submarine_depth.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/control_engineering.md",
+  "script": "examples/control/submarine_depth.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "a6b526a7"
+ }
+}

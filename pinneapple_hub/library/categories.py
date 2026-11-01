@@ -15,7 +15,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
       "fn:pp.doctor", "fn:pp.recommend", "fn:pp.card", "fn:pp.new",   # the first hour: which preset, what it takes
       "lib:pinneapple_data.formfill")),
     ("geometry", "Geometry and meshing", "Domains, meshes, shapes from parameters, geometry exports",
-     ("node:geometry.", "node:lib.export.geometry", "node:lib.export.usd_validate", "lib:pinneapple_design.geometry",
+     ("node:geometry.", "node:lib.export.geometry", "node:lib.export.usd_validate", "lib:pinneapple_design.geometry", "fn:pinneapple_design.geometry",
       "lib:pinneapple_design.fitmesh", "lib:pinneapple_design.bricks")),
     ("equations", "Equations and PDE environments", "PDE systems, boundary and initial conditions, test environments",
      ("node:equations.", "lib:pinneapple_physics.pde_environment", "lib:pinneapple_physics.non_hermitian")),
@@ -52,7 +52,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
       "fn:pinneapple_design.thermal.board_cooling",
       "lib:pinneapple_design.", "lib:pinneapple_data.process_optimizer", "lib:pinneapple_analysis.cost")),
     ("systems", "Process and system components", "Pumps, valves, fatigue, excitation, controllers",
-     ("node:control.", "lib:pinneapple_systems.")),
+     ("node:control.", "node:naval.", "lib:pinneapple_systems.")),
     ("vehicles", "Vehicles, contact and wear", "Rovers, soils, wheels, take-off, contact and wear",
      ("node:vehicle.", "node:rover.", "node:terramechanics.", "node:flight.", "lib:pinneapple_physics.tribology",
       "node:lib.solver.terramechanics", "lib:pinneapple_simulation.vehicle")),

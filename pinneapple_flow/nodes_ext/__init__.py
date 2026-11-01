@@ -12,6 +12,7 @@ from . import (  # noqa: F401
     benchmarks,
     bricks,
     cfd,
+    control_eng,
     core_ts,
     design,
     electromagnetics,

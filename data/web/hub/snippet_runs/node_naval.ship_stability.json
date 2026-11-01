@@ -1,0 +1,12 @@
+{
+ "code_hash": "bef99fc163be5d58",
+ "figures": [],
+ "id": "node:naval.ship_stability",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 6.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ship initial stability: GM, free surface, righting arm, roll period -> pinneapple_simulation.naval.hydrostatics\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'L': 60.0, 'B': 12.0, 'T': 3.0, 'KG': 4.0, 'tanks': [{'l': 10.0, 'b': 12.0, 'rho': 1000.0}]}",
+ "timed_out": false
+}

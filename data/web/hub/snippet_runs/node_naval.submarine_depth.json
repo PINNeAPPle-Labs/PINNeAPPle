@@ -1,0 +1,12 @@
+{
+ "code_hash": "a80c1d52047b2a8d",
+ "figures": [],
+ "id": "node:naval.submarine_depth",
+ "ok": true,
+ "recorded": "2026-11-01",
+ "seconds": 7.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Submarine depth-keeping: instability, what the controller commands, tuning -> pinneapple_simulation.naval.submarine.depth_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'disturbance_kg': 1500.0, 't_disturbance': 60.0, 't_end': 1800.0, 'kp': 500.0, 'ki': 5.0, 'kd': 27500.0, 'kh': 8e-06, 'kw': 4.6e-06, 'pump': 50.0}",
+ "timed_out": false
+}

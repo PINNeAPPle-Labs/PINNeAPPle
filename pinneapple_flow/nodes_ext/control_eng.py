@@ -195,3 +195,56 @@ def ship_stability(ctx, inputs, params):
     ctx.summary(f"GM {st['GM']:.3f} m ({'stable' if st['stable'] else 'unstable'}); roll period "
                 f"{tp:.1f} s" if math.isfinite(tp) else f"GM {st['GM']:.3f} m: unstable upright")
     return {"metrics": ctx.report["metrics"], "figure": f}
+
+
+@node("control.cartpole", "Inverted pendulum on a cart: swing-up, LQR catch, push rejection", category="Systems",
+      outputs=[Port("metrics", "metrics"), Port("figure", "figure")],
+      params=[Param("l", "float", 0.5, minimum=0.05, help="pivot to centre of mass (m)"),
+              Param("a_swing", "float", 3.0, minimum=0.1, help="cart acceleration limit while pumping energy (m/s^2)"),
+              Param("a_balance", "float", 15.0, minimum=0.1, help="cart acceleration limit while balancing (m/s^2)"),
+              Param("q_angle", "float", 100.0, minimum=0.0, help="LQR weight on the angle"),
+              Param("r_input", "float", 0.1, minimum=1e-6, help="LQR weight on the input"),
+              Param("push", "float", -25.0, help="push as an angular acceleration (rad/s^2), 0.1 s at t_push"),
+              Param("t_push", "float", 12.0, minimum=0.0, help="time of the push (s)"),
+              Param("t_end", "float", 16.0, minimum=1.0, help="duration (s)")],
+      calls="pinneapple_systems.control.cartpole.cartpole_study")
+def cartpole(ctx, inputs, params):
+    """Linearise at upright (unstable pole sqrt(g/l)), LQR gains from the Riccati equation, energy swing-up from
+    hanging, catch, and a push; plus the uncontrolled fall for comparison."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from pinneapple_systems.control.cartpole import CartPoleParams, cartpole_study
+    P = CartPoleParams(length=float(params["l"]), a_swing=float(params["a_swing"]), a_balance=float(params["a_balance"]),
+                       q_angle=float(params["q_angle"]), r_input=float(params["r_input"]))
+    r = cartpole_study(P, t_end=float(params["t_end"]), t_push=float(params["t_push"]), push=float(params["push"]))
+    ctx.metric("unstable_pole_1_per_s", r["unstable_pole"], "open-loop pole at upright, sqrt(g/l) (1/s)")
+    ctx.metric("doubling_time_s", _num(r["doubling_time"]), "doubling time of an error at upright (s)")
+    ctx.metric("free_fall_time_to_90deg_s", _num(r["free_fall_time_to_90deg"]), "no control, from 1 deg to 90 deg (s)")
+    ctx.metric("catch_time_s", _num(r["catch_time"]), "swing-up from hanging until the LQR takes over (s)")
+    ctx.metric("settled_time_s", _num(r["settled_time"]), "within 2 deg of upright from then on (s)")
+    ctx.metric("push_peak_deg", _num(r["push_peak_deg"]), "largest angle after the push (deg)")
+    ctx.metric("push_recovery_s", _num(r["push_recovery"]), "back within 2 deg after the push (s)")
+    ctx.metric("max_accel_m_s2", r["max_accel"], "largest cart acceleration used (m/s^2)")
+    ctx.metric("closed_loop", r["closed_loop_classification"])
+    ctx.table("closed-loop poles (LQR)", ["pole (1/s)"], [[f"{p.real:.4g}{p.imag:+.4g}j"] for p in r["closed_loop_poles"]])
+    th = np.degrees((r["x"][:, 2] + np.pi) % (2 * np.pi) - np.pi)
+    th[np.where(np.abs(np.diff(th)) > 180)[0]] = np.nan
+    lqr_on = np.array([m == "lqr" for m in r["mode"]])
+    fig, ax = plt.subplots(3, 1, figsize=(8, 7.5), sharex=True)
+    ax[0].plot(r["t"], np.where(~lqr_on, th, np.nan), color="#d98a00", label="swing-up")
+    ax[0].plot(r["t"], np.where(lqr_on, th, np.nan), color="#0a9b86", label="LQR")
+    ax[0].set_ylabel("angle from upright (deg)")
+    ax[0].legend(fontsize=8)
+    ax[1].plot(r["t"], r["x"][:, 0], color="#4a5d7e")
+    ax[1].set_ylabel("cart position (m)")
+    ax[2].plot(r["t"], r["u"], color="#4a5d7e")
+    ax[2].set_ylabel("cart acceleration (m/s^2)")
+    ax[2].set_xlabel("time (s)")
+    for a in ax:
+        a.axvline(float(params["t_push"]), color="#d33", lw=0.8, ls=":")
+    f = ctx.figure(fig, "cartpole", "swing-up, LQR catch and the push")
+    ctx.summary(f"pole +{r['unstable_pole']:.2f} 1/s (doubles every {r['doubling_time'] * 1000:.0f} ms); caught at "
+                f"{r['catch_time']:.2f} s; push peak {r['push_peak_deg']:.1f} deg, recovered in {r['push_recovery']:.2f} s")
+    return {"metrics": ctx.report["metrics"], "figure": f}

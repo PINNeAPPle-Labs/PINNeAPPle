@@ -1,0 +1,100 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-control-cartpole",
+ "name": "Inverted pendulum on a cart: swing-up, LQR catch, push rejection",
+ "description": "Linearise the cart-pole at upright (unstable pole sqrt(g/l)), compute LQR gains from the Riccati equation, swing the pendulum up from hanging by energy pumping, catch it with the LQR and reject a push (examples/control/cartpole_swing_up.py).",
+ "nodes": [
+  {
+   "id": "cp",
+   "type": "control.cartpole",
+   "params": {},
+   "label": "Cart-pole: swing-up + LQR",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "lin",
+   "type": "control.linear_analysis",
+   "params": {
+    "A": [
+     [
+      0,
+      1,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      1
+     ],
+     [
+      0,
+      0,
+      19.62,
+      0
+     ]
+    ],
+    "B": [
+     [
+      0
+     ],
+     [
+      1
+     ],
+     [
+      0
+     ],
+     [
+      -2.0
+     ]
+    ],
+    "C": [
+     [
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      1,
+      0
+     ]
+    ],
+    "loop_num": [],
+    "loop_den": []
+   },
+   "label": "Upright linearisation (A, B)",
+   "position": {
+    "x": 40.0,
+    "y": 220.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "control",
+  "domain": "control engineering",
+  "scripts": [
+   "cartpole_swing_up.py"
+  ],
+  "quick": {
+   "cp": {
+    "t_end": 8.0,
+    "t_push": 6.0
+   }
+  }
+ }
+}

@@ -63,7 +63,7 @@
  },
  "control": {
   "domain": "control engineering",
-  "notes": "submarine_depth: naval.submarine_depth runs the study of the script (open loop, the two command architectures with their closed-loop eigenvalues, placed gains). The script's optimisation-based tuning and Monte Carlo robustness are in the library (pinneapple_systems.control.tune_by_optimization, robustness) but not in the node, to keep it under a few seconds."
+  "notes": "submarine_depth: naval.submarine_depth runs the study of the script (open loop, the two command architectures with their closed-loop eigenvalues, placed gains). The script's optimisation-based tuning and Monte Carlo robustness are in the library (pinneapple_systems.control.tune_by_optimization, robustness) but not in the node, to keep it under a few seconds. cartpole: control.cartpole runs the whole study of cartpole_swing_up.py (linearisation, LQR, swing-up, push) with the same numbers; control.linear_analysis shows the upright A matrix's unstable pole."
  },
  "core_primitives": {
   "domain": "core",

@@ -109,11 +109,26 @@ vanishes. The lesson is that the variable the controller commands matters as muc
 `initial_stability` checks the corrected GM against the 0.15 m criterion and explains when a slack tank makes the
 upright position unstable.
 
+## 6. Inverted pendulum on a cart
+
+`pinneapple_systems.control.cartpole.cartpole_study()` runs the cart-pole case. Measured by
+`examples/control/cartpole_swing_up.py`:
+
+- **Linearisation at upright:** a real pole at +4.43 1/s, equal to √(g/l). An error doubles every 156 ms. Without
+  control, 1° becomes 90° in 1.19 s.
+- **LQR:** gains from the Riccati equation (`lqr`) put all four closed-loop poles in the left half-plane.
+- **Energy swing-up** from 3° off hanging, with the cart limited to 3 m/s²: the LQR takes over at 4.32 s, and the
+  pendulum stays within 2° from 6.74 s.
+- **Push at t = 12 s:** peak 15.9°, back within 2° in 1.19 s.
+
+The Flow node is `control.cartpole`, and the flow is `pinneapple_flow/flows/examples/control/cartpole.json`.
+
 ## Flow nodes
 
 - `control.linear_analysis`
 - `control.pid_tuning`
 - `naval.submarine_depth`
 - `naval.ship_stability`
+- `control.cartpole`
 
 The flow is `pinneapple_flow/flows/examples/control/submarine_depth.json`.

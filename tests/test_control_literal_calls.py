@@ -10,8 +10,19 @@ from pinneapple_simulation.naval.hydrostatics import (
     roll_period,
 )
 from pinneapple_simulation.naval.submarine import architectures, depth_study
-from pinneapple_systems.control.analysis import controllability, observability, stability, step_metrics
-from pinneapple_systems.control.tuning import fit_fopdt, imc_pid, place_pid_second_order, simc_pid, ziegler_nichols
+from pinneapple_systems.control.analysis import (
+    controllability,
+    observability,
+    stability,
+    step_metrics,
+)
+from pinneapple_systems.control.tuning import (
+    fit_fopdt,
+    imc_pid,
+    place_pid_second_order,
+    simc_pid,
+    ziegler_nichols,
+)
 
 
 def test_hydrostatics_literal():
@@ -47,3 +58,15 @@ def test_submarine_literal():
     assert set(architectures()) == {"pid_target_mass", "pid_pump_flow"}
     r = depth_study(t_end=120.0, tune=False)
     assert r["linear"]["growth_rate"] > 0
+
+
+def test_cartpole_literal():
+    from pinneapple_systems.control.cartpole import CartPoleParams, cartpole_rhs, cartpole_study
+    dx = cartpole_rhs(x=[0.0, 0.0, 0.1, 0.0], u=0.0, d=0.0, t=0.0)
+    assert abs(dx[3] - 9.81 * math.sin(0.1) / 0.5) < 1e-12
+    r = cartpole_study(t_end=8.0, t_push=6.0)
+    assert abs(r["unstable_pole"] - math.sqrt(9.81 / 0.5)) < 1e-6 and r["controllable"]
+    assert r["closed_loop_classification"].startswith("stable")
+    assert r["catch_time"] < 6.0 and r["push_recovery"] < 2.0 and r["max_accel"] <= 15.0 + 1e-12
+    assert r["free_fall_time_to_90deg"] < 1.5
+    assert CartPoleParams().length == 0.5

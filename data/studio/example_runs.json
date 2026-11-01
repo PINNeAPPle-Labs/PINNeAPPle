@@ -16,6 +16,19 @@
    "examples/condensation_falsification/figures/t1_far_field.png"
   ]
  },
+ "example:control": {
+  "error": "",
+  "hash": "361564856cd71f32",
+  "ok": true,
+  "recorded": "2026-11-01",
+  "scripts": [
+   "examples/control/submarine_depth.py"
+  ],
+  "seconds": 18.4,
+  "writes_files": [
+   "examples/control/results/submarine_depth.png"
+  ]
+ },
  "example:core_primitives": {
   "error": "",
   "hash": "8d1411fe9df3fa34",

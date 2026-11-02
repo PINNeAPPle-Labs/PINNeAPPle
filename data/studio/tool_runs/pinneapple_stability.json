@@ -1,4 +1,61 @@
 {
+ "pinneapple_stability.api:diff": {
+  "code_hash": "bd4892f96bdd4fa3",
+  "inputs": {
+   "new": {
+    "modules": {
+     "m": {
+      "C": {
+       "class": [],
+       "methods": {
+        "run": "(n=2)"
+       }
+      }
+     }
+    },
+    "pp": {
+     "a": "def(x, y)",
+     "c": "def()"
+    }
+   },
+   "old": {
+    "modules": {
+     "m": {
+      "C": {
+       "class": [],
+       "methods": {
+        "run": "(n=1)"
+       }
+      }
+     }
+    },
+    "pp": {
+     "a": "def(x)",
+     "b": "def()"
+    }
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 0.74
+ },
+ "pinneapple_stability.api:repo_root": {
+  "code_hash": "a0eb9d4bc9716bb1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "PosixPath",
+  "seconds": 1.12
+ },
+ "pinneapple_stability.api:snapshot": {
+  "code_hash": "c2b4f8f9f5cb3347",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 2.66
+ },
  "pinneapple_stability:is_core": {
   "code_hash": "dd406d77c794bcd9",
   "inputs": {

@@ -389,7 +389,7 @@ The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh qu
 | **v0.7.0** | Foundations you can trust: one front door, the Experiment record with provenance (PINNeAPPle Lab), benchmark protocol, units, plugins, CI tiers | [#420](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/420) |
 | **v0.8.0** | Surrogates with evidence: validation cards, V&V reports, FMU export, measured cost, active learning, multi-fidelity, law discovery, vision | [#421](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/421) |
 | **v0.9.0** | Twins and discovery at scale: digital twins with real sensors and OpenUSD, equation discovery in the Experiment flow, reproducibility, weather horizons | [#422](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/422) |
-| **v1.0.0** | Stable API: freeze, governance, security and supply chain, agent tool registry | [#423](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/423) |
+| **v1.0.0** | Stable API: a core with guarantees and an experimental rest ([API stability](docs/api_stability.md)), freeze, governance, security and supply chain, agent tool registry | [#423](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/423), plan [#1135](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1135) |
 
 ## Roadmap
 

@@ -32,6 +32,41 @@ stability("pinneapple_arena.pointwise")                 # 'experimental (labs)'
 
 The Studio catalog shows the class of every tool (`stability`) and counts them.
 
+## Changing a core name: deprecation
+
+A core name that is renamed, moved, removed or given an incompatible signature keeps working for at least one
+minor release. During that time it issues a `PinneappleDeprecationWarning`, a `FutureWarning` that Python shows by
+default. The warning names the replacement and the release in which the old name goes away. The change also needs a
+`changed` changelog fragment that starts with `**Deprecated:**`.
+
+```python
+from pinneapple_stability.deprecation import deprecated, deprecated_alias, renamed_kwargs
+
+@deprecated(since="0.9", removed_in="1.1", use="pinneapple_physics.solving.solve")
+def old_solve(...): ...
+
+old_name = deprecated_alias(new_function, "pkg.old_name", since="0.9", removed_in="1.1")
+
+@renamed_kwargs(since="0.9", removed_in="1.1", hidden="hidden_dim")   # build(hidden=...) still works
+def build(hidden_dim=64): ...
+```
+
+## The frozen core API: `api/core.json`
+
+Every public name of the core is committed in `api/core.json`, together with its signature. For the `pp.*` facade,
+the file records where each name comes from. The snapshot is read from the source code and nothing is imported, so
+it comes out the same on every machine. `tests/test_deprecation_and_api.py` regenerates it in PR CI and fails when
+the code no longer matches, so every change to the core shows up as a diff of that file in the pull request:
+
+- **added names** are free;
+- **removed or changed names** need the deprecation above.
+
+```bash
+python -m pinneapple_stability.api --check            # what CI does
+python -m pinneapple_stability.api --write            # after an intended change; commit api/core.json
+python -m pinneapple_stability.api --diff old.json    # added / removed / changed against an older snapshot
+```
+
 ## Nothing is removed
 
 Being experimental is not deprecation:

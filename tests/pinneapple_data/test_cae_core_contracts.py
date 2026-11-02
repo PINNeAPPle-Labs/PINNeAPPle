@@ -173,13 +173,20 @@ def test_dataset_writers_produce_readable_files():
     assert DS.preview(ds)
 
 
-@pytest.mark.parametrize("module, writer, magic", [("h5py", "write_hdf5", b"\x89HDF\r\n\x1a\n"),
-                                                   ("pyarrow", "write_parquet", b"PAR1")])
-def test_binary_dataset_writers_start_with_their_format_signature(module, writer, magic):
-    pytest.importorskip(module)
+def _hex_dataset():
     m = INP.deck_mesh(INP.read_deck(open(os.path.join(EX, "calculix_cantilever_hex.inp")).read()))
     m.point_data["T"] = np.linspace(300.0, 400.0, m.n_points)
-    assert getattr(DS, writer)(DS.build_dataset(m))[:len(magic)] == magic
+    return DS.build_dataset(m)
+
+
+def test_hdf5_writer_starts_with_the_hdf5_signature():
+    pytest.importorskip("h5py")
+    assert DS.write_hdf5(_hex_dataset())[:8] == b"\x89HDF\r\n\x1a\n"
+
+
+def test_parquet_writer_starts_with_the_parquet_signature():
+    pytest.importorskip("pyarrow")
+    assert DS.write_parquet(_hex_dataset())[:4] == b"PAR1"
 
 
 # ------------------------------------------------------------------------------------------------ comparison

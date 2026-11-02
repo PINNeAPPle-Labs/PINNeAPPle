@@ -537,8 +537,8 @@ print("template:", select_template(REQUEST)[:3])
 needs = pp.design(REQUEST, out_dir="text_to_twin", verify=False, n_candidates=5, budget=10)
 print("asks    :", [q.text for q in needs.questions] if hasattr(needs, "questions") else needs)
 
-# this slot is in kelvin: 70 degC = 343.15 K
-design = pp.design(REQUEST, answers={"t_limit": 343.15}, out_dir="text_to_twin",
+# read in the unit the question shows (degC): 70 degC, stored as 343.15 K
+design = pp.design(REQUEST, answers={"t_limit": 70}, out_dir="text_to_twin",
                    verify=False, n_candidates=10, budget=20)
 print("geometry:", design.geometry)
 for q in design.spec.values.values():

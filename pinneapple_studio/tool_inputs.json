@@ -4079,6 +4079,12 @@
   },
   "source": "tests/test_em_particles.py:33"
  },
+ "pinneapple_simulation.electromagnetics.particles:lorentz_factor": {
+  "inputs": {
+   "speed": 179875474.8
+  },
+  "source": "tests/test_em_particles.py:128"
+ },
  "pinneapple_simulation.electromagnetics.particles:loss_cone_angle": {
   "inputs": {
    "B_max": 0.05,

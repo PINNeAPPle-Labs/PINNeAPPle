@@ -88,7 +88,7 @@ class SpectralConvND(nn.Module):
 
         w = torch.view_as_complex(self.weight)  # (Cin, Cout, *modes)
         # a coarse level of a U-shaped network can have fewer frequencies than ``modes``: keep what the grid has
-        m = tuple(min(mi, ni) for mi, ni in zip(self.modes, x_ft.shape[2:]))
+        m = tuple(min(mi, ni) for mi, ni in zip(self.modes, x_ft.shape[2:], strict=True))
 
         # slice low modes
         if self.dim == 1:

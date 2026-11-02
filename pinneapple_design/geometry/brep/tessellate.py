@@ -184,9 +184,74 @@ def _plane_face(f: Any, cache: _EdgeCache) -> tuple[np.ndarray, np.ndarray]:
     pts3 = np.vstack(rings)
     uv = np.stack([(pts3 - o) @ ex, (pts3 - o) @ ey], 1)
     ends = np.cumsum([len(r) for r in rings]).astype(np.uint32)
-    tri = np.asarray(earcut.triangulate_float64(uv, ends), np.int64).reshape(-1, 3)
+    tri = _flip_degenerate(uv, np.asarray(earcut.triangulate_float64(uv, ends), np.int64).reshape(-1, 3))
     normal = np.asarray(list(f.normal_at(f.interior_point())), float)    # outward, as the face sits in the body
     return pts3, _orient(pts3, tri, normal)
+
+
+def _min_angles(uv: np.ndarray, tri: np.ndarray) -> np.ndarray:
+    P = uv[tri]
+    out = np.full(len(tri), np.pi)
+    for i in range(3):
+        u, v = P[:, (i + 1) % 3] - P[:, i], P[:, (i + 2) % 3] - P[:, i]
+        out = np.minimum(out, np.abs(np.arctan2(u[:, 0] * v[:, 1] - u[:, 1] * v[:, 0], (u * v).sum(1))))
+    return out
+
+
+def _flip_degenerate(uv: np.ndarray, tri: np.ndarray, min_angle_deg: float = 1e-4) -> np.ndarray:
+    """Remove the zero-area triangles earcut leaves where ring points are collinear (the tops of holes in a row).
+
+    Lawson edge flips by the max-min angle rule, started at the triangles whose smallest angle is below
+    ``min_angle_deg`` and spreading only to the quads a flip changes. The vertices and the boundary edges do not
+    change, so the body mesh stays watertight; the other triangles are kept as earcut made them (thin ones remain
+    where a large face has only its boundary points: `mesh_quality` reports them)."""
+    if not len(tri):
+        return tri
+    flat = np.where(_min_angles(uv, tri) < np.radians(min_angle_deg))[0]
+    if not len(flat):
+        return tri
+    tri = [list(map(int, t)) for t in tri]
+    edges: dict[tuple[int, int], set[int]] = {}
+
+    def key(a, b):
+        return (a, b) if a < b else (b, a)
+
+    for k, t in enumerate(tri):
+        for i in range(3):
+            edges.setdefault(key(t[i], t[(i + 1) % 3]), set()).add(k)
+
+    def min_angle(t):
+        return float(_min_angles(uv, np.asarray([t]))[0])
+
+    def cross(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+    queue = [key(tri[k][i], tri[k][(i + 1) % 3]) for k in flat for i in range(3)]
+    for _ in range(50 * len(tri)):
+        if not queue:
+            break
+        a, b = queue.pop()
+        ks = edges.get((a, b), set())
+        if len(ks) != 2:
+            continue
+        k1, k2 = ks
+        c = next(v for v in tri[k1] if v != a and v != b)
+        d = next(v for v in tri[k2] if v != a and v != b)
+        A, B, C, D = uv[a], uv[b], uv[c], uv[d]
+        if not (cross(C, D, A) * cross(C, D, B) < 0 and cross(A, B, C) * cross(A, B, D) <= 0):
+            continue                                             # the quad is not strictly convex across cd
+        n1, n2 = [c, d, a], [d, c, b]
+        if min(min_angle(n1), min_angle(n2)) <= min(min_angle(tri[k1]), min_angle(tri[k2])) + 1e-12:
+            continue
+        for k in (k1, k2):
+            for i in range(3):
+                edges[key(tri[k][i], tri[k][(i + 1) % 3])].discard(k)
+        tri[k1], tri[k2] = n1, n2
+        for k in (k1, k2):
+            for i in range(3):
+                edges.setdefault(key(tri[k][i], tri[k][(i + 1) % 3]), set()).add(k)
+        queue += [key(a, c), key(c, b), key(b, d), key(d, a)]
+    return np.asarray(tri, np.int64)
 
 
 def _orient(pts: np.ndarray, tri: np.ndarray, normal: np.ndarray) -> np.ndarray:
@@ -312,20 +377,57 @@ def _fast(body: CadBody, tol: float, angle: float) -> tuple[np.ndarray, np.ndarr
 
 
 def _kernel(body: CadBody, tol: float, angle: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """The kernel's mesh of the whole body, and the body face of each triangle.
+
+    A triangle's face is the one its three vertices share, found by matching them to the vertices of the per-face
+    meshes at the same tolerance. Where that is not one face (a cap triangle with all three vertices on the rim it
+    shares with a band, or vertices the per-face meshes place differently), the face nearest to the centroid by the
+    kernel's exact distance among the faces of its vertices (or, failing those, of the nearest per-face triangles)
+    decides. Centroids alone are not enough: a long thin triangle can have its centroid next to another face."""
     import smlibpy as sm
     from scipy.spatial import cKDTree
     m = sm.tessellate(body.shape, tolerance=tol, angle=angle)
     V, T = np.asarray(m.vertices, float), np.asarray(m.triangles, np.int64)
-    cents, labels = [], []
+    fverts, flab, cents, clab = [], [], [], []
     for cf in body.faces:
         fm = sm.tessellate(cf.shape, tolerance=tol, angle=angle)
         fv, ft = np.asarray(fm.vertices, float), np.asarray(fm.triangles, np.int64)
+        fverts.append(fv)
+        flab.append(np.full(len(fv), cf.index))
         if len(ft):
             cents.append(fv[ft].mean(1))
-            labels.append(np.full(len(ft), cf.index))
-    tree = cKDTree(np.vstack(cents))
-    _, k = tree.query(V[T].mean(1))
-    return V, T, np.concatenate(labels)[k]
+            clab.append(np.full(len(ft), cf.index))
+    fl = np.concatenate(flab)
+    size = float(np.ptp(V, axis=0).max()) if len(V) else 1.0
+    hits = cKDTree(np.vstack(fverts)).query_ball_point(V, 1e-7 * size)
+    nf = len(body.faces)
+    pv = np.repeat(np.arange(len(V)), [len(h) for h in hits])
+    pl = fl[np.concatenate([np.asarray(h, np.int64) for h in hits])] if len(pv) else np.zeros(0, np.int64)
+    known = np.unique(pv * nf + pl)                             # (vertex, face) incidences, encoded
+    # candidates: the faces of each triangle's first vertex that its other two vertices also touch
+    order = np.argsort(pv, kind="stable")
+    pv, pl = pv[order], pl[order]
+    start = np.searchsorted(pv, np.arange(len(V)))
+    count = np.diff(np.r_[start, len(pv)])
+    k = np.repeat(np.arange(len(T)), count[T[:, 0]])
+    off = np.arange(len(k)) - np.repeat(np.cumsum(count[T[:, 0]]) - count[T[:, 0]], count[T[:, 0]])
+    lab = pl[start[T[k, 0]] + off]
+    ok = np.isin(T[k, 1] * nf + lab, known) & np.isin(T[k, 2] * nf + lab, known)
+    n_common = np.bincount(k[ok], minlength=len(T))
+    F = np.full(len(T), -1, np.int64)
+    F[k[ok]] = lab[ok]
+    C = V[T].mean(1)
+    rest = np.where(n_common != 1)[0]
+    if len(rest):
+        vsets = [frozenset(fl[h].tolist()) for h in hits]
+        _, near = cKDTree(np.vstack(cents)).query(C[rest], k=4)
+        clab = np.concatenate(clab)
+        for r, kk in enumerate(rest):
+            a, b, c = T[kk]
+            common = vsets[a] & vsets[b] & vsets[c]
+            cand = common or (vsets[a] | vsets[b] | vsets[c]) or frozenset(clab[near[r]].tolist())
+            F[kk] = min(cand, key=lambda f: body.faces[f].shape.distance_to(C[kk].tolist()))
+    return V, T, F
 
 
 def tessellate(body: CadBody, quality: str = "normal", mesher: str = "auto") -> TessMesh:

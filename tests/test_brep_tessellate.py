@@ -107,3 +107,24 @@ def test_face_ids_of_the_kernel_mesh_add_up_to_the_face_areas():
 def test_circle_segments_literal_call():
     """Plain-number call (also the Studio's smoke input)."""
     assert circle_segments(10.0, 6.283185307179586, 0.01, 15.0) == 71
+
+
+def test_no_zero_area_triangles_where_holes_line_up():
+    """Earcut leaves flat triangles across collinear ring points (the tops of holes in a row); they are flipped away
+    and the mesh stays watertight. Kernel face ids hold for long thin triangles whose centroid sits by a hole."""
+    from pinneapple_design.geometry.brep.tessellate import _min_angles
+
+    b = body(plate_with_holes())
+    for mesher in ("fast", "kernel"):
+        m = tessellate(b, "normal", mesher)
+        V, T = m.vertices, m.triangles
+        area = 0.5 * np.linalg.norm(np.cross(V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]]), axis=1)
+        assert area.min() > 1e-12 and m.is_watertight()
+        n = np.cross(V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]])
+        flat_faces = [f.index for f in b.faces if f.kind == "plane"]
+        on_plane = np.isin(m.face_id, flat_faces)
+        normals = np.array([b.faces[f].params["normal"] for f in m.face_id[on_plane]])
+        cos = (n[on_plane] * normals).sum(1) / np.linalg.norm(n[on_plane], axis=1)
+        assert np.all(cos > 1 - 1e-9)                    # every triangle labelled with a plane lies in that plane
+    uv = np.array([[0.0, 0.0], [1.0, 0.0], [2.0, 0.0], [1.0, 1.0]])
+    assert _min_angles(uv, np.array([[0, 1, 2]]))[0] < 1e-12

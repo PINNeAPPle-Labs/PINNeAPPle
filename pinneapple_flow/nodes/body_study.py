@@ -28,7 +28,10 @@ _STUDY = _ROOT / "examples" / "end_to_end" / "ahmed_body"
 
 def _folders(params):
     base = Path(params.get("folder") or _STUDY)
-    return base, base / "_runs" / "cfd", base / "results"
+    runs = base / "_runs" / "cfd"                 # a local campaign (not committed: .gitignore)
+    if not (runs / "results").is_dir():
+        runs = base / "results" / "cfd_runs"      # the committed records, which source="recorded" promises
+    return base, runs, base / "results"
 
 
 def _png(ctx, path, name):
@@ -212,9 +215,15 @@ def twin(ctx, inputs, params):
 def report(ctx, inputs, params):
     """One HTML page from the JSON files the other stages wrote (a stage without its file reads as not measured),
     the hashed evidence package, the cost table and the summary of measured numbers with units."""
+    import shutil
+
     from pinneapple_autolab.domains import ahmed_study as S
     base, runs, res = _folders(params)
-    summ = S.study_report(S.load_records(str(runs)), str(res), str(Path(ctx.workdir) / "report.html"))
+    # study_report writes summary.json, costs.json and evidence.zip next to the files it reads: work on a copy, so
+    # running the flow never rewrites the committed study (it did, and dropped the twin metrics from its summary)
+    work = Path(ctx.workdir) / "results"
+    shutil.copytree(res, work, dirs_exist_ok=True, ignore=shutil.ignore_patterns("visuals", "report.html"))
+    summ = S.study_report(S.load_records(str(runs)), str(work), str(Path(ctx.workdir) / "report.html"))
     for m in summ["metrics"][:40]:
         ctx.metric(m["name"], m["value"], m["how"])
     if summ["not_measured"]:

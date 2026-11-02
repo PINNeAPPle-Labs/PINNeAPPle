@@ -103,6 +103,11 @@ RULES: dict[str, Rule] = {r.id: r for r in [
     Rule("surrogate.pod_mlp", "POD basis + network for the coefficients (ROM + NN hybrid)",
          cites=("berkooz1993pod", "benner2015pmor"), topic="architecture"),
     Rule("surrogate.mlp", "plain network baseline", uncited="a generic regression baseline", topic="architecture"),
+    Rule("surrogate.selection", "a surrogate family per target: those whose predictions pass every physics check are "
+         "eligible; the lowest cross-validated error wins, and within 5 % of it the narrower cross-conformal 90 % "
+         "interval wins; the test and extrapolation splits never enter the choice",
+         cites=("stone1974crossvalidation", "vovk2015crossconformal", "barber2021jackknifeplus"), topic="architecture",
+         evidence=(("library", "pinneapple_autolab/study/benchmark.py", "SELECTION_RULE and Board.select"),)),
     Rule("surrogate.gnn", "graph network for mesh-based fields", cites=("pfaff2021meshgraphnet",
                                                                         "battaglia2018graphnets"),
          topic="architecture"),

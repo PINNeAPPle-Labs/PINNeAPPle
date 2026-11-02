@@ -325,7 +325,8 @@ class FileRef(_Model):
     def of(cls, path: str | Path, root: str | Path | None = None, **kw) -> FileRef:
         """A reference with the SHA-256, size and format of an existing file (``path`` stored relative to root)."""
         p = Path(path)
-        rel = p.relative_to(root).as_posix() if root is not None else p.as_posix()
+        # resolved on both sides: a relative path and an absolute root (or the reverse) name the same file
+        rel = p.resolve().relative_to(Path(root).resolve()).as_posix() if root is not None else p.as_posix()
         fmt = kw.pop("format", None) or FORMAT_BY_SUFFIX.get(p.suffix.lower(), "other")
         return cls(path=rel, format=fmt, sha256=sha256_file(p), size=p.stat().st_size, **kw)
 

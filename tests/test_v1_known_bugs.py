@@ -168,3 +168,37 @@ def test_fit_trains_without_a_validation_loader(tmp_path):
     out3 = Trainer(torch.nn.Linear(1, 1), loss_fn=loss).fit(loader, loader, cfg)             # old call unchanged
     assert out3["validated"] and out3["history"][0]["val_total"] is not None
     assert Trainer.fit.__doc__ and "loss_fn(model, y_hat, batch)" in Trainer.fit.__doc__
+
+
+def test_arena_builds_xtfc_without_the_default_activation():
+    """#992: the Arena passed NetworkConfig's default activation ("tanh") to X-TFC, whose random Fourier features
+    take none and refuse one, so every Arena run with an X-TFC fell back or failed."""
+    import warnings
+
+    from pinneapple_arena.model_factory import ModelConfig, build_model
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)                                          # no fallback warning
+        for t in ("xtfc", "extreme_tfc"):
+            m = build_model(ModelConfig(name="X", type=t), in_dim=2, out_dim=1)
+            assert type(m).__name__ == "XTFC"
+
+
+def test_file_ref_takes_a_relative_path_under_an_absolute_root(tmp_path, monkeypatch):
+    """#992: FileRef.of compared a relative path with an absolute root (a flow's run folder), so saving a dataset
+    from a flow node raised ValueError; resolved on both sides they name the same file."""
+    from pinneapple_data.contracts import FileRef
+    (tmp_path / "d").mkdir()
+    (tmp_path / "d" / "x.npz").write_bytes(b"abc")
+    monkeypatch.chdir(tmp_path)
+    assert FileRef.of("d/x.npz", root=str(tmp_path / "d")).path == "x.npz"
+    assert FileRef.of(tmp_path / "d" / "x.npz", root="d").path == "x.npz"
+
+
+def test_recorded_cfd_campaign_reads_the_committed_records(tmp_path):
+    """#992: source="recorded" read _runs/cfd, which .gitignore keeps out of every checkout, so the Ahmed-body flow
+    never ran; the committed records are results/cfd_runs."""
+    from pinneapple_flow.nodes.body_study import _folders
+    (tmp_path / "results" / "cfd_runs" / "results").mkdir(parents=True)
+    assert _folders({"folder": str(tmp_path)})[1] == tmp_path / "results" / "cfd_runs"
+    (tmp_path / "_runs" / "cfd" / "results").mkdir(parents=True)                         # a local campaign wins
+    assert _folders({"folder": str(tmp_path)})[1] == tmp_path / "_runs" / "cfd"

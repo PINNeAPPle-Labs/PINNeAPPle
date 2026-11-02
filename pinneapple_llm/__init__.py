@@ -24,6 +24,7 @@ from .twin_draft import draft_digital_twin, build_3d_live_twin, TwinDraftResult
 from .research import search_literature, ResearchReport
 from .org_knowledge import answer_with_context, OrgAnswer
 from .guardrail import PhysicsGuardrail, GuardrailReport, CheckResult
+from .coherence import CoherenceVerdict, check_preset_coherence
 from .conversation_store import ConversationStore, ConversationRecord
 from ._dispatch import call_llm
 from .agent_loop import AgentStep, AgentLoopResult, run_agent_loop
@@ -44,6 +45,7 @@ except Exception:
     FinetuneConfig = prepare_dataset = finetune_lora = None  # type: ignore
 
 __all__ = [
+    "check_preset_coherence", "CoherenceVerdict",
     "draft_problem", "DraftResult", "DraftRejected", "check_kwargs_in_bounds", "draft_preset_kwargs",
     "resolve_problem", "ResolveResult",
     "draft_geometry", "GeometryDraftResult",

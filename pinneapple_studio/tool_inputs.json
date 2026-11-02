@@ -1535,6 +1535,414 @@
   },
   "source": "tests/test_flow_extensions.py:104"
  },
+ "pinneapple_flow.studies:classify_study": {
+  "inputs": {
+   "text": "hello"
+  },
+  "source": "tests/test_flow_studies.py:36"
+ },
+ "pinneapple_flow.studies:role_checks": {
+  "inputs": {
+   "kind": "forecast",
+   "role": "verify"
+  },
+  "source": "tests/test_flow_studies.py:58"
+ },
+ "pinneapple_flow.studies:roles_for_kind": {
+  "inputs": {
+   "kind": "design_optimization"
+  },
+  "source": "tests/test_flow_studies.py:41"
+ },
+ "pinneapple_flow.study_steps:analyze_step": {
+  "inputs": {
+   "series": [
+    0.0,
+    0.0,
+    2.041,
+    0.71,
+    -0.079,
+    -1.262,
+    -2.409,
+    -3.06,
+    -4.989,
+    -5.766,
+    -6.1,
+    -1.824,
+    2.187,
+    4.606,
+    5.339,
+    4.189,
+    1.376,
+    -1.54,
+    -3.083,
+    -3.939,
+    -2.879,
+    -1.655,
+    -0.32,
+    2.358,
+    4.573,
+    4.926,
+    4.04,
+    3.064,
+    3.605,
+    3.048,
+    1.748,
+    1.362,
+    -0.106,
+    -1.551,
+    -1.514,
+    -0.602,
+    0.34,
+    1.696,
+    -0.387,
+    -0.954,
+    -2.177,
+    -4.389,
+    -5.004,
+    -3.794,
+    -2.513,
+    -2.061,
+    -1.262,
+    -0.423,
+    1.739,
+    3.868,
+    4.991,
+    6.003,
+    5.407,
+    2.922,
+    0.934,
+    -0.26,
+    -1.379,
+    -2.781,
+    -3.117,
+    -5.256,
+    -5.227,
+    -3.666,
+    -3.323,
+    -2.323,
+    -2.022,
+    -0.62,
+    -1.408,
+    -2.672,
+    -2.439,
+    -0.608,
+    -1.18,
+    -1.899,
+    -1.767,
+    -1.917,
+    -0.063,
+    0.242,
+    0.792,
+    0.025,
+    0.812,
+    1.258,
+    0.991,
+    -1.139,
+    -0.933,
+    0.17,
+    1.773,
+    3.838,
+    5.072,
+    4.406,
+    2.191,
+    -0.819,
+    -1.693,
+    -3.514,
+    -4.865,
+    -5.293,
+    -4.353,
+    -2.155,
+    -1.214,
+    -1.949,
+    -2.151,
+    -0.67,
+    1.407,
+    3.002,
+    3.361,
+    3.269,
+    2.298,
+    1.879,
+    0.374,
+    -0.771,
+    -1.644,
+    -1.47,
+    -0.812,
+    2.427,
+    6.031,
+    9.205,
+    7.864,
+    4.877,
+    0.904,
+    -1.922,
+    -6.078,
+    -7.013
+   ]
+  },
+  "source": "tests/test_flow_study_steps_literal.py:42"
+ },
+ "pinneapple_flow.study_steps:forecast_step": {
+  "inputs": {
+   "horizon": 3,
+   "series": [
+    0.0,
+    0.0,
+    2.041,
+    0.71,
+    -0.079,
+    -1.262,
+    -2.409,
+    -3.06,
+    -4.989,
+    -5.766,
+    -6.1,
+    -1.824,
+    2.187,
+    4.606,
+    5.339,
+    4.189,
+    1.376,
+    -1.54,
+    -3.083,
+    -3.939,
+    -2.879,
+    -1.655,
+    -0.32,
+    2.358,
+    4.573,
+    4.926,
+    4.04,
+    3.064,
+    3.605,
+    3.048,
+    1.748,
+    1.362,
+    -0.106,
+    -1.551,
+    -1.514,
+    -0.602,
+    0.34,
+    1.696,
+    -0.387,
+    -0.954,
+    -2.177,
+    -4.389,
+    -5.004,
+    -3.794,
+    -2.513,
+    -2.061,
+    -1.262,
+    -0.423,
+    1.739,
+    3.868,
+    4.991,
+    6.003,
+    5.407,
+    2.922,
+    0.934,
+    -0.26,
+    -1.379,
+    -2.781,
+    -3.117,
+    -5.256,
+    -5.227,
+    -3.666,
+    -3.323,
+    -2.323,
+    -2.022,
+    -0.62,
+    -1.408,
+    -2.672,
+    -2.439,
+    -0.608,
+    -1.18,
+    -1.899,
+    -1.767,
+    -1.917,
+    -0.063,
+    0.242,
+    0.792,
+    0.025,
+    0.812,
+    1.258,
+    0.991,
+    -1.139,
+    -0.933,
+    0.17,
+    1.773,
+    3.838,
+    5.072,
+    4.406,
+    2.191,
+    -0.819,
+    -1.693,
+    -3.514,
+    -4.865,
+    -5.293,
+    -4.353,
+    -2.155,
+    -1.214,
+    -1.949,
+    -2.151,
+    -0.67,
+    1.407,
+    3.002,
+    3.361,
+    3.269,
+    2.298,
+    1.879,
+    0.374,
+    -0.771,
+    -1.644,
+    -1.47,
+    -0.812,
+    2.427,
+    6.031,
+    9.205,
+    7.864,
+    4.877,
+    0.904,
+    -1.922,
+    -6.078,
+    -7.013
+   ]
+  },
+  "source": "tests/test_flow_study_steps_literal.py:44"
+ },
+ "pinneapple_flow.study_steps:identify_step": {
+  "inputs": {
+   "bootstrap": 0,
+   "measurements": {
+    "inputs": {
+     "load_n": [
+      200.0,
+      400.0,
+      600.0,
+      800.0,
+      1000.0,
+      1200.0,
+      1400.0,
+      1600.0,
+      1800.0,
+      2000.0
+     ]
+    },
+    "sigma": 2000000.0,
+    "values": [
+     83300000.0,
+     166700000.0,
+     250000000.0,
+     333300000.0,
+     416700000.0,
+     500000000.0,
+     583300000.0,
+     666700000.0,
+     750000000.0,
+     833300000.0
+    ]
+   },
+   "model": {
+    "fixed": {
+     "length_m": 0.5,
+     "width_m": 0.05
+    },
+    "outputs": [
+     "sigma"
+    ],
+    "tool": "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa"
+   },
+   "output": "sigma",
+   "parameters": {
+    "thickness_m": {
+     "initial": 0.008,
+     "lower": 0.002,
+     "unit": "m",
+     "upper": 0.05
+    }
+   }
+  },
+  "source": "tests/test_flow_study_steps_literal.py:34"
+ },
+ "pinneapple_flow.study_steps:model_from_ref": {
+  "inputs": {
+   "ref": {
+    "fixed": {
+     "length_m": 0.5,
+     "thickness_m": 0.01,
+     "width_m": 0.05
+    },
+    "inputs": [
+     "load_n"
+    ],
+    "outputs": [
+     "sigma"
+    ],
+    "tool": "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa"
+   }
+  },
+  "source": "tests/test_flow_study_steps.py:30"
+ },
+ "pinneapple_flow.study_steps:sensitivity_step": {
+  "inputs": {
+   "model": {
+    "call": "array",
+    "inputs": [
+     "x1",
+     "x2",
+     "x3"
+    ],
+    "outputs": [
+     "y"
+    ],
+    "tool": "pinneapple_analysis.sensitivity.testfunctions:ishigami"
+   },
+   "n": 128,
+   "output": "y",
+   "ranges": {
+    "x1": [
+     -3.1416,
+     3.1416
+    ],
+    "x2": [
+     -3.1416,
+     3.1416
+    ],
+    "x3": [
+     -3.1416,
+     3.1416
+    ]
+   }
+  },
+  "source": "tests/test_flow_study_steps_literal.py:30"
+ },
+ "pinneapple_flow.study_steps:uncertainty_step": {
+  "inputs": {
+   "distributions": {
+    "load_n": {
+     "dist": "normal",
+     "mean": 1000.0,
+     "std": 50.0
+    }
+   },
+   "model": {
+    "fixed": {
+     "length_m": 0.5,
+     "thickness_m": 0.01,
+     "width_m": 0.05
+    },
+    "inputs": [
+     "load_n"
+    ],
+    "outputs": [
+     "sigma"
+    ],
+    "tool": "pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa"
+   },
+   "n": 400,
+   "output": "sigma"
+  },
+  "source": "tests/test_flow_study_steps_literal.py:25"
+ },
  "pinneapple_flow.types:compatible": {
   "inputs": {
    "source": "problem",
@@ -1718,9 +2126,9 @@
    "rec": {
     "headline": {
      "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
-     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
-     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
-     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
+     "label_pt": "arrasto vs túnel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs túnel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel · Ahmed, Ramm & Faltin (1984), 25 deg slant"
     }
    }
   },
@@ -3459,18 +3867,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (\u00b0C)",
+     "T_in (°C)",
      "flow_rate (kg/s)",
-     "T_ambient (\u00b0C)",
+     "T_ambient (°C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (\u00b0C)"
+     "T_out (°C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -3519,18 +3927,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (\u00b0C)",
+     "T_in (°C)",
      "flow_rate (kg/s)",
-     "T_ambient (\u00b0C)",
+     "T_ambient (°C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (\u00b0C)"
+     "T_out (°C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -3721,7 +4129,7 @@
  },
  "pinneapple_security.privacy:find_pii": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:22"
  },
@@ -3739,7 +4147,7 @@
  },
  "pinneapple_security.privacy:redact": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:24"
  },
@@ -5712,7 +6120,7 @@
    "date": "January 1, 2026",
    "report_id": "TR-0",
    "subtitle": "Unit test",
-   "title": "A test report with u\u2080 and 10\u207b\u00b3"
+   "title": "A test report with u₀ and 10⁻³"
   },
   "source": "tests/test_paperkit.py:90"
  },

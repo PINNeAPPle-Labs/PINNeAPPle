@@ -1,4 +1,69 @@
 {
+ "ahmed_body_end_to_end": {
+  "flow_hash": "179f43ceac22ce04",
+  "nodes": {
+   "cfd": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.cfd_campaign"
+   },
+   "data": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.dataset"
+   },
+   "geometry": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.ahmed_geometry"
+   },
+   "grid": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.grid_validation"
+   },
+   "inverse": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.inverse"
+   },
+   "models": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.surrogates"
+   },
+   "report": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.report"
+   },
+   "twin": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "study.twin"
+   }
+  },
+  "recorded": "2026-11-02",
+  "seconds": 490.83,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "aircraft_takeoff": {
   "flow_hash": "842ae067669f564f",
   "nodes": {

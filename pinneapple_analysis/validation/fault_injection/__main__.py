@@ -1,6 +1,6 @@
 """``python -m pinneapple_analysis.validation.fault_injection``: regenerate the detection matrix (check power).
 
-Writes ``check_power.md`` (the Markdown tables) and ``check_power.json`` per problem into ``--out``, prints the
+Writes ``check_power_matrix.md`` (the Markdown tables) and ``check_power_<problem>.json`` per problem into ``--out``, prints the
 acceptance verdict and exits 1 when a fault is not caught at its documented magnitude or a check exceeds 1 % false
 alarms. ``--small`` is the CI size (a few cases, seconds per problem).
 """
@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--small", action="store_true", help="CI size")
     ap.add_argument("--n-cases", type=int, help="clean cases per problem (overrides the size)")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", help="folder for check_power.md and check_power.json (default: print only)")
+    ap.add_argument("--out", help="folder for check_power_matrix.md and check_power_<problem>.json (default: print only)")
     a = ap.parse_args(argv)
     size = dict(SIZES["small" if a.small else "full"])
     if a.n_cases:

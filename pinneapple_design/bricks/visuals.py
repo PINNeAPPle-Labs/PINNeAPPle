@@ -384,10 +384,13 @@ def write_mp4(path: str, images: Sequence[np.ndarray], fps: float = 8.0) -> str:
     h2, w2 = h - h % 2, w - w % 2
     imgs = [i[:h2, :w2] for i in imgs]
     try:
+        # imageio without its FFmpeg plugin does not refuse an .mp4: it hands the frames to another plugin
+        # (tifffile, installed with scikit-image), which fails on the video arguments. So use it only with the plugin.
         import imageio.v2 as iio
+        import imageio_ffmpeg  # noqa: F401
         iio.mimsave(path, imgs, fps=fps, codec="libx264", macro_block_size=1, pixelformat="yuv420p")
         return path
-    except (ImportError, ValueError):       # no imageio, or imageio without its FFmpeg plugin
+    except (ImportError, ValueError):       # no imageio or no FFmpeg plugin: use the ffmpeg program
         pass
     import shutil
     import subprocess

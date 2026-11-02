@@ -73,10 +73,12 @@ class SingleBatchDataset(Dataset):
 def dict_collate(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Collate list of PINN dict-batches.
 
-    Delegates to pinneapple_data.collate.collate_pinn_batches when available;
-    falls back to a minimal local implementation.
+    Batches in the ``collocation`` / ``conditions`` / ``data`` layout go to
+    pinneapple_data.collate.collate_pinn_batches; the per-sample dicts of
+    :class:`SingleBatchDataset` (``x_col``, ``x_bc``, ...) are stacked key by key
+    (``collate_pinn_batches`` does not know those keys and returned ``{}`` for them).
     """
-    if _collate_pinn is not None:
+    if _collate_pinn is not None and batch and any(k in batch[0] for k in ("collocation", "conditions", "data")):
         return _collate_pinn(batch)
     out: Dict[str, Any] = {}
     keys = batch[0].keys()

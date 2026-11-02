@@ -366,7 +366,7 @@ def register_powersgd_hook(
     state = powerSGD.PowerSGDState(
         process_group=None,
         matrix_approximation_rank=matrix_approximation_rank,
-        start_powersgd_iter=start_powersgd_iter,
+        start_powerSGD_iter=start_powersgd_iter,          # torch spells it powerSGD
         use_error_feedback=use_error_feedback,
     )
     model.register_comm_hook(state, powerSGD.powerSGD_hook)
@@ -405,7 +405,7 @@ def register_topk_hook(model: nn.Module, *, compression_ratio: float = 0.1) -> N
         tensor.mul_(mask)
         tensor.div_(dist.get_world_size())
         fut = dist.all_reduce(buffer, async_op=True).get_future()
-        return fut.then(lambda f: [f.value()[0]])
+        return fut.then(lambda f: f.value()[0])          # a comm hook returns Future[Tensor]
 
     model.register_comm_hook(None, _topk_hook)
     logger.info(f"TopK hook registered (ratio={compression_ratio:.2%}).")

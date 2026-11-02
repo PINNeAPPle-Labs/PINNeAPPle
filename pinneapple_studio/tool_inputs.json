@@ -735,6 +735,18 @@
   },
   "source": "tests/test_reactor_verify_twin.py:36"
  },
+ "pinneapple_blender.step_extension.core:colours": {
+  "inputs": {
+   "clip_percentile": 100,
+   "mode": "diverging",
+   "values": [
+    -2.0,
+    0.0,
+    2.0
+   ]
+  },
+  "source": "tests/test_blender_step_extension.py:38"
+ },
  "pinneapple_catalog.methods:get_method": {
   "inputs": {
    "method_id": "T18"

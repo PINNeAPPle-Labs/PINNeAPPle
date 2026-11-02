@@ -1,0 +1,84 @@
+{
+ "cyclotron": {
+  "particle": "electron",
+  "gamma": 2.9569511809100053,
+  "speed_over_c": 0.9410792279184589,
+  "radius_m": 0.004743180450198639,
+  "radius_exact_m": 0.004743180450198634,
+  "radius_nonrelativistic_m": 0.0016040780384946765,
+  "frequency_rad_s": 59475968633.35867,
+  "frequency_exact_rad_s": 59480860547.610374,
+  "frequency_nonrelativistic_rad_s": 175882000837.79984,
+  "energy_rel_drift": 1.57557839949577e-15
+ },
+ "drifts": {
+  "exb_drift_m_s": 100000.01603908805,
+  "exb_drift_exact_m_s": 100000.00000000001,
+  "gradb_drift_m_s": 501.66788914063295,
+  "gradb_drift_exact_m_s": 500.00000000000006,
+  "larmor_radius_m": 0.45693949115739524,
+  "grad_scale_m": 20.0,
+  "larmor_over_grad_scale": 0.022846974557869763
+ },
+ "bottle": {
+  "loss_cone_deg": 26.56505117707799,
+  "mirror_ratio": 5.0,
+  "agreement": 1.0,
+  "mu_relative_variation": 0.021055590303211344,
+  "n_particles": 40,
+  "n_escaped": 8
+ },
+ "penning": {
+  "exact_rad_s": {
+   "cyclotron": 95788331.43000986,
+   "axial": 58722908.063892365,
+   "modified_cyclotron": 71761740.87035275,
+   "magnetron": 24026590.55965712
+  },
+  "measured_rad_s": {
+   "axial": 58732812.5892073,
+   "modified_cyclotron": 71669214.63983701,
+   "magnetron": 24031454.685510084
+  }
+ },
+ "mass_spectrometer": {
+  "B_T": 0.5,
+  "energy_eV": 2000.0,
+  "ions": [
+   {
+    "mass_u": 12.0,
+    "radius_exact_m": 0.04460874102790702,
+    "landing_m": 0.08921748487894042,
+    "landing_exact_m": 0.08921748205581403
+   },
+   {
+    "mass_u": 13.0,
+    "radius_exact_m": 0.046430249738391965,
+    "landing_m": 0.09286050241518705,
+    "landing_exact_m": 0.09286049947678393
+   },
+   {
+    "mass_u": 14.0,
+    "radius_exact_m": 0.04818294724738225,
+    "landing_m": 0.0963658975440896,
+    "landing_exact_m": 0.0963658944947645
+   }
+  ],
+  "separation_m": [
+   0.003643017536246629,
+   0.00350539512890255
+  ]
+ },
+ "radiation_belt": {
+  "species": "proton",
+  "gamma": 1.0106578892334883,
+  "B_equator_T": 3.8670268247832915e-06,
+  "gyro_period_s": 0.017143292924883466,
+  "bounce_period_s": 1.16534478736664,
+  "bounce_period_approx_s": 1.197227100722422,
+  "drift_period_s": 153.61172465903297,
+  "drift_period_approx_s": 155.52064830414176,
+  "drift_direction": "westward",
+  "lost": false
+ }
+}

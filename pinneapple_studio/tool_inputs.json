@@ -3994,6 +3994,171 @@
   },
   "source": "tests/test_em_core.py:332"
  },
+ "pinneapple_simulation.electromagnetics.particles:cyclotron_frequency": {
+  "inputs": {
+   "B": 1.0,
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19
+  },
+  "source": "tests/test_em_particles.py:32"
+ },
+ "pinneapple_simulation.electromagnetics.particles:dipole_field_line": {
+  "inputs": {
+   "L_shell": 3.0,
+   "n": 400
+  },
+  "source": "tests/test_em_particles.py:113"
+ },
+ "pinneapple_simulation.electromagnetics.particles:exb_drift": {
+  "inputs": {
+   "B": [
+    0.0,
+    0.0,
+    0.001
+   ],
+   "E": [
+    0.0,
+    100.0,
+    0.0
+   ]
+  },
+  "source": "tests/test_em_particles.py:34"
+ },
+ "pinneapple_simulation.electromagnetics.particles:gradb_drift": {
+  "inputs": {
+   "B": [
+    0.0,
+    0.0,
+    0.001
+   ],
+   "grad_B": [
+    5e-05,
+    0.0,
+    0.0
+   ],
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19,
+   "v_perp": 40000.0
+  },
+  "source": "tests/test_em_particles.py:35"
+ },
+ "pinneapple_simulation.electromagnetics.particles:guiding_center": {
+  "inputs": {
+   "B": [
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19,
+   "v": [
+    [
+     100000.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "x": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "source": "tests/test_em_particles.py:141"
+ },
+ "pinneapple_simulation.electromagnetics.particles:larmor_radius": {
+  "inputs": {
+   "B": 1.0,
+   "m": 9.1093837139e-31,
+   "q": 1.602176634e-19,
+   "v_perp": 1000000.0
+  },
+  "source": "tests/test_em_particles.py:33"
+ },
+ "pinneapple_simulation.electromagnetics.particles:lorentz_factor": {
+  "inputs": {
+   "speed": 179875474.8
+  },
+  "source": "tests/test_em_particles.py:128"
+ },
+ "pinneapple_simulation.electromagnetics.particles:loss_cone_angle": {
+  "inputs": {
+   "B_max": 0.05,
+   "B_min": 0.01
+  },
+  "source": "tests/test_em_particles.py:37"
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_bottle": {
+  "inputs": {
+   "B0": 0.01,
+   "L": 1.0
+  },
+  "source": "tests/test_em_particles.py:77"
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_moment": {
+  "inputs": {
+   "B": [
+    [
+     0.0,
+     0.0,
+     0.5
+    ]
+   ],
+   "m": 1.67262192595e-27,
+   "v": [
+    [
+     30000.0,
+     0.0,
+     40000.0
+    ]
+   ]
+  },
+  "source": "tests/test_em_particles.py:143"
+ },
+ "pinneapple_simulation.electromagnetics.particles:penning_frequencies": {
+  "inputs": {
+   "B": 1.0,
+   "V0": 10.0,
+   "d": 0.005,
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19
+  },
+  "source": "tests/test_em_particles.py:38"
+ },
+ "pinneapple_simulation.electromagnetics.particles:penning_trap": {
+  "inputs": {
+   "V0": 10.0,
+   "d": 0.005
+  },
+  "source": "tests/test_em_particles.py:145"
+ },
+ "pinneapple_simulation.electromagnetics.particles:pitch_velocity": {
+  "inputs": {
+   "b_hat": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "phase_deg": 0.0,
+   "pitch_deg": 30.0,
+   "speed": 1000.0
+  },
+  "source": "tests/test_em_particles.py:124"
+ },
+ "pinneapple_simulation.electromagnetics.particles:uniform": {
+  "inputs": {
+   "vector": [
+    0.3,
+    -0.2,
+    1.0
+   ]
+  },
+  "source": "tests/test_em_particles.py:46"
+ },
  "pinneapple_simulation.electromagnetics.postprocess:classical_eddy_coefficient": {
   "inputs": {
    "density": 7650.0,

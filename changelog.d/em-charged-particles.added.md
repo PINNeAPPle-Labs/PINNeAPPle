@@ -1,0 +1,6 @@
+- Charged particles in E and B fields, `pinneapple_simulation.electromagnetics.particles` (#1106):
+  - relativistic Boris pusher for many particles, with stop conditions;
+  - field models: uniform, magnetic dipole, magnetic bottle, Penning trap;
+  - closed forms: Larmor radius, gyrofrequency, E×B and grad-B drifts, loss cone, Penning frequencies, guiding centre, magnetic moment, dipole field lines;
+  - checked studies: cyclotron, drifts, magnetic bottle, radiation-belt dipole trap, Penning trap, mass spectrometer;
+  - example `examples/electrodynamics/26_charged_particles.py`: a 6-panel figure and radiation-belt MP4s, each case with its measured value next to the exact one.

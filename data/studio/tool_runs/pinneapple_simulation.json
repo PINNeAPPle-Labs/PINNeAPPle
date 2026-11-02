@@ -685,6 +685,283 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.particles:cyclotron_frequency": {
+  "code_hash": "8ff362d7504a35af",
+  "inputs": {
+   "B": 1.0,
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "float",
+  "seconds": 9.03
+ },
+ "pinneapple_simulation.electromagnetics.particles:cyclotron_study": {
+  "code_hash": "221f9738f3fd5462",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 0.19
+ },
+ "pinneapple_simulation.electromagnetics.particles:dipole_field_line": {
+  "code_hash": "f7bb85541f2ecf1d",
+  "inputs": {
+   "L_shell": 3.0,
+   "n": 400
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:dipole_trap_study": {
+  "code_hash": "d53f2b5a21ae306b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 47.61
+ },
+ "pinneapple_simulation.electromagnetics.particles:drift_study": {
+  "code_hash": "5a2c3285cf52593c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 0.63
+ },
+ "pinneapple_simulation.electromagnetics.particles:exb_drift": {
+  "code_hash": "4bd0ea039f53a202",
+  "inputs": {
+   "B": [
+    0.0,
+    0.0,
+    0.001
+   ],
+   "E": [
+    0.0,
+    100.0,
+    0.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:gradb_drift": {
+  "code_hash": "6e90200a995d071d",
+  "inputs": {
+   "B": [
+    0.0,
+    0.0,
+    0.001
+   ],
+   "grad_B": [
+    5e-05,
+    0.0,
+    0.0
+   ],
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19,
+   "v_perp": 40000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:guiding_center": {
+  "code_hash": "e2438d123683b917",
+  "inputs": {
+   "B": [
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19,
+   "v": [
+    [
+     100000.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "x": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:larmor_radius": {
+  "code_hash": "7ea6d5adc5754204",
+  "inputs": {
+   "B": 1.0,
+   "m": 9.1093837139e-31,
+   "q": 1.602176634e-19,
+   "v_perp": 1000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:lorentz_factor": {
+  "code_hash": "6b973a610f6ac7f2",
+  "inputs": {
+   "speed": 179875474.8
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "float",
+  "seconds": 8.31
+ },
+ "pinneapple_simulation.electromagnetics.particles:loss_cone_angle": {
+  "code_hash": "f67effddffb64c19",
+  "inputs": {
+   "B_max": 0.05,
+   "B_min": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_bottle": {
+  "code_hash": "f8ba02929fd2999c",
+  "inputs": {
+   "B0": 0.01,
+   "L": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_bottle_study": {
+  "code_hash": "6bf1606549592923",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 1.01
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_dipole": {
+  "code_hash": "6f7ca151deeea917",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:magnetic_moment": {
+  "code_hash": "ed397ef99e4436bb",
+  "inputs": {
+   "B": [
+    [
+     0.0,
+     0.0,
+     0.5
+    ]
+   ],
+   "m": 1.67262192595e-27,
+   "v": [
+    [
+     30000.0,
+     0.0,
+     40000.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:mass_spectrometer_study": {
+  "code_hash": "7ec92b23a6ee6657",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 0.29
+ },
+ "pinneapple_simulation.electromagnetics.particles:penning_frequencies": {
+  "code_hash": "f3f32a2d0086c6bd",
+  "inputs": {
+   "B": 1.0,
+   "V0": 10.0,
+   "d": 0.005,
+   "m": 1.67262192595e-27,
+   "q": 1.602176634e-19
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:penning_study": {
+  "code_hash": "c7318671176aa4ab",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 16.72
+ },
+ "pinneapple_simulation.electromagnetics.particles:penning_trap": {
+  "code_hash": "03214406778bf354",
+  "inputs": {
+   "V0": 10.0,
+   "d": 0.005
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:pitch_velocity": {
+  "code_hash": "2d0bd818d7e506f6",
+  "inputs": {
+   "b_hat": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "phase_deg": 0.0,
+   "pitch_deg": 30.0,
+   "speed": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.particles:uniform": {
+  "code_hash": "3d43e7d2aff04d45",
+  "inputs": {
+   "vector": [
+    0.3,
+    -0.2,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "function",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.electromagnetics.periodic.tcda:TCDACell": {
   "code_hash": "f985621196b3abe4",
   "inputs": {},

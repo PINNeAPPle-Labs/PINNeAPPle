@@ -23,12 +23,14 @@ Fields, waves and references:
 * :mod:`.mie` -- Mie series for dielectric and conducting spheres.
 * :mod:`.analytic` -- closed-form references of the machine solvers (wire, coax, magnetised cylinder,
   skin effect, subdomain solution of a slotless machine).
+* :mod:`.particles` -- charged particles in E and B fields: relativistic Boris pusher, dipole / bottle / Penning
+  fields, closed forms (Larmor radius, drifts, loss cone, Penning frequencies) and checked studies.
 
 Physics checks of any field (Gauss, Faraday, Ampere-Maxwell, Poynting, reciprocity, passivity) are in
 :mod:`pinneapple_physics.maxwell_checks` and ``pinneapple check`` (``physics = "maxwell"``). See
 docs/guides/electromagnetics.md.
 """
-from . import constants, hysteresis, media, mie, statics, units, waves
+from . import constants, hysteresis, media, mie, particles, statics, units, waves
 from .analytic import (
     Layer,
     RadialLayers,
@@ -60,7 +62,7 @@ __all__ = [
     "MagnetostaticSolution", "Mesh2D", "RadialLayers", "Ring", "TimeHarmonicSolution", "coax_field",
     "constraint_map", "flux_density", "illustrative_steel", "magnetized_cylinder", "mesh_from_gmsh",
     "polar_mesh", "skin_effect_wire", "solve_magnetostatic", "solve_time_harmonic", "wire_field", "zipper",
-    "rect_mesh", "constants", "hysteresis", "media", "mie", "statics", "units", "waves", "C0", "EPS0", "ETA0",
+    "rect_mesh", "constants", "hysteresis", "media", "mie", "particles", "statics", "units", "waves", "C0", "EPS0", "ETA0",
     "ElectrostaticSolution", "capacitance", "solve_electrostatic", "FrohlichKennelly", "JilesAtherton",
     "Anisotropic", "Debye", "Drude", "Lorentz", "Medium",
 ]

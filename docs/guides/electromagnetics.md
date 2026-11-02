@@ -182,6 +182,54 @@ patterns). `examples/electrodynamics/08_fdtd_gallery.py` writes `results/fdtd_cy
 the cylinder's field against the series of cylinder functions (1.7 % at 30 cells per wavelength), the snapshots
 through `maxwell_trust_report` (APPROVED), and the dipole pattern and power against the closed forms.
 
+## Charged particles in E and B fields
+
+`pinneapple_simulation.electromagnetics.particles` moves charged particles through electric and magnetic fields
+(#1106).
+
+**The pusher.** `push(x0, v0, q, m, E=..., B=..., dt=..., n_steps=...)` advances any number of particles with the
+relativistic **Boris** scheme. It advances u = γv, with a half electric kick, then an exact-norm magnetic rotation,
+then a half electric kick. The scheme is second order and time-reversible. In a pure magnetic field it keeps the
+kinetic energy to round-off for any step. A `stop(x, v)` condition freezes particles that leave the region of
+interest (lost through a mirror, hit the planet).
+
+**Fields.** Fields are callables `f(x, t)`:
+- `uniform`;
+- `magnetic_dipole`, Earth-like by default;
+- `magnetic_bottle`, paraxial and divergence-free;
+- `penning_trap`;
+- `add_fields`, which sums any of them.
+
+**Closed forms:**
+- `larmor_radius` and `cyclotron_frequency`, both relativistic;
+- `exb_drift` and `gradb_drift`;
+- `loss_cone_angle` and `penning_frequencies`;
+- `guiding_center`, `magnetic_moment` and `dipole_field_line`.
+
+**Studies.** Each study measures a quantity from the motion and returns it next to its closed form.
+`examples/electrodynamics/26_charged_particles.py` draws all of them and animates the radiation belt. These are
+the numbers of its full run:
+
+| Case | Measured from the motion | Reference |
+|---|---|---|
+| 1 MeV electron in 1 T (γ = 2.957): radius | 4.743180 mm | γmv/(qB) = 4.743180 mm; the non-relativistic value would be 1.604 mm |
+| 1 MeV electron: frequency | 5.94760 × 10¹⁰ rad/s | qB/(γm) = 5.94809 × 10¹⁰ rad/s: a phase error of 8 × 10⁻⁵ at 200 steps per turn, which falls as dt² |
+| 1 MeV electron: kinetic energy drift | 1.6 × 10⁻¹⁵ | 0, exact for Boris |
+| E × B drift (100 V/m, 1 mT) | 100 000.016 m/s | E/B = 100 000 m/s |
+| Grad-B drift (10 eV proton, r_L/L∇B = 0.023) | 501.7 m/s | (m v²/2qB) \|∇B\|/B = 500 m/s (guiding-centre limit) |
+| Magnetic bottle, mirror ratio 5 | 40 of 40 protons escape or stay as the loss cone predicts; μ varies 2.1 % along an orbit | loss cone arcsin √(1/5) = 26.57° |
+| Penning trap (proton, 1 T, 900 V, d = 5 mm) | ω₊, ω_z, ω₋ within 0.13 %, 0.02 %, 0.02 % | closed-form ω_z and ω± = ω_c/2 ± √(ω_c²/4 − ω_z²/2) |
+| Mass spectrometer (2 keV C-12/13/14, 0.5 T) | landing points within 3 × 10⁻⁸ | 2r = 2√(2 m E_k)/(qB); C-12 to C-13 lands 3.64 mm apart |
+| 10 MeV proton at L = 2 in an Earth-like dipole: bounce period | 1.165 s | dipole approximation 1.197 s (Hamlin et al. 1961), itself accurate to a few % |
+| Same proton: drift period | 153.6 s, westward | dipole approximation 155.5 s |
+
+The studies take plain numbers, so they run as forms in the Studio, with smoke runs recorded. The tests in
+`tests/test_em_particles.py` check every row, and also:
+- the second-order phase convergence of the pusher;
+- that the bottle field is divergence-free;
+- that dipole field lines are tangent to the field;
+- that the stop condition freezes particles at the right time.
+
 ## Electric machines
 
 The A_z solver includes a polar ring mesher with a moving band, magnets, coils, (anti-)periodic constraints,

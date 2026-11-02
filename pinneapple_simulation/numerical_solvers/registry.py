@@ -10,10 +10,11 @@ This registry gives the Arena and training pipelines a unified catalog.
 
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
 
-from .base import SolverBase
+from .base import SolverBase, entry_point
 
 
 @dataclass
@@ -65,8 +66,37 @@ class SolverRegistry:
 
     @classmethod
     def build(cls, name: str, **kwargs) -> SolverBase:
+        """Construct a solver. Every solver has ``solve(...)``: see ``describe(name)`` for what it takes."""
         spec = cls.spec(name)
+        try:
+            inspect.signature(spec.cls).bind(**kwargs)
+        except TypeError as e:
+            raise TypeError(f"SolverRegistry.build({name!r}): {e}. The constructor is "
+                            f"{spec.cls.__name__}{inspect.signature(spec.cls)}") from None
         return spec.cls(**kwargs)
+
+    @classmethod
+    def describe(cls, name: str) -> Dict[str, Any]:
+        """How to run a registered solver: its class, constructor, entry point and the call it expects (#957)."""
+        spec = cls.spec(name)
+        ep = entry_point(spec.cls)
+        method = getattr(spec.cls, ep)
+        first_arg = next((p for p in inspect.signature(method).parameters if p != "self"), "")
+        call_sig = str(inspect.signature(method)).replace("(self, ", "(").replace("(self)", "()")
+        if first_arg in ("spec", "problem_spec") and ep != "solve":
+            example = f"SolverCatalog().build({spec.name!r}).solve(problem_spec)"
+        else:
+            example = f"SolverCatalog().build({spec.name!r}).solve{call_sig}"
+        doc = inspect.getdoc(method) or inspect.getdoc(spec.cls) or ""
+        return {
+            "name": spec.name, "family": spec.family,
+            "class": f"{spec.cls.__module__}.{spec.cls.__qualname__}",
+            "constructor": f"{spec.cls.__name__}{inspect.signature(spec.cls)}",
+            "entry_point": ep, "call": f"{ep}{call_sig}",
+            "takes_problem_spec": first_arg in ("spec", "problem_spec"),
+            "description": spec.description or (doc.splitlines()[0] if doc else ""),
+            "example": example,
+        }
 
 
 # --------- register built-ins
@@ -130,7 +160,10 @@ class SolverCatalog:
         return self.registry.list()
 
     def get(self, name: str):
-        return self.registry.get(name)
+        return self.registry.spec(name)
 
     def build(self, name: str, **kwargs):
         return self.registry.build(name, **kwargs)
+
+    def describe(self, name: str) -> Dict[str, Any]:
+        return self.registry.describe(name)

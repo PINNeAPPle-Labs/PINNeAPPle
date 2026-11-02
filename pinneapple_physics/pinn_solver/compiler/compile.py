@@ -2294,6 +2294,7 @@ def compile_problem(
             raise ValueError(f"Unsupported PDE kind: {pde_kind}")
 
         pde_res = torch.cat([r if r.ndim == 2 else r[:, None] for r in res_list], dim=1)
+        _loss_fn.last_pde_residual = pde_res          # point-wise residual of this call (see pointwise_residual)
         l_pde = torch.mean(pde_res ** 2)
 
         total = w.w_pde * l_pde
@@ -2602,3 +2603,18 @@ def compile_problem(
             return _loss_fn(model, y_hat, batch)
 
     return loss_fn
+
+
+def pointwise_residual(spec: ProblemSpec, *, ctx: Optional[Dict[str, Any]] = None
+                       ) -> Callable[[torch.nn.Module, torch.Tensor], torch.Tensor]:
+    """``fn(model, X) -> (N, k)``: the PDE residual of ``spec`` at the points ``X``, the same expression
+    :func:`compile_problem` trains on (so validation checks the equation the model was trained on, not a copy of
+    it). ``ctx`` carries what the residual needs beyond the spec, e.g. ``{"source_fn": f}`` for Poisson."""
+    loss = compile_problem(spec)
+
+    def fn(model: torch.nn.Module, X: torch.Tensor) -> torch.Tensor:
+        loss(model, None, {"x_col": X, "ctx": dict(ctx or {})})
+        return loss.last_pde_residual
+
+    return fn
+

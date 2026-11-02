@@ -95,10 +95,16 @@ class ModifiedMLP(BaseModel):
         n_layers: int = 6,
         n_fourier: int = 32,
         sigma: float = 1.0,
-        activation: Type[nn.Module] = nn.Tanh,
+        activation: Type[nn.Module] | str = nn.Tanh,
         trainable_fourier: bool = False,
     ):
         super().__init__()
+        if isinstance(activation, str):                 # a name, as configs and the Arena give it
+            names = {"tanh": nn.Tanh, "relu": nn.ReLU, "gelu": nn.GELU, "silu": nn.SiLU, "swish": nn.SiLU,
+                     "sigmoid": nn.Sigmoid, "elu": nn.ELU}
+            if activation.lower() not in names:
+                raise ValueError(f"unknown activation {activation!r}; use one of {sorted(names)} or an nn.Module class")
+            activation = names[activation.lower()]
         self.embed = FourierFeatureEmbedding(in_dim, n_fourier, sigma, trainable=trainable_fourier)
         embed_dim = self.embed.out_dim
 

@@ -578,5 +578,48 @@ def kovasznay(re: float = 40.0) -> PINNProblem:
                        scale=1.0, residual_scale=1.0, grid=(64, 64), outputs=("u", "v", "p"), gauge=(2,))
 
 
+def problem_from_spec(spec, model, *, ctx: dict | None = None) -> PINNProblem:
+    """A :class:`PINNProblem` from a PDE ``ProblemSpec`` (``ProblemBuilder(...).build()`` or a preset factory): the
+    box of ``spec.domain_bounds`` and the residual the solver trains on
+    (:func:`pinneapple_physics.pinn_solver.compiler.pointwise_residual`), evaluated with ``model``. ``ctx`` gives what
+    the residual needs beyond the spec (``{"source_fn": f}`` for a Poisson source); without it a source is zero.
+    No exact solution is attached, so the checks that need one report "not applicable"."""
+    from pinneapple_physics.pinn_solver.compiler import pointwise_residual
+    coords = list(spec.coords)
+    missing = [c for c in coords if c not in spec.domain_bounds]
+    if missing:
+        raise ValueError(f"the spec has no bounds for coordinates {missing}")
+    res = pointwise_residual(spec, ctx=ctx)
+    dim = len(coords)
+    bounds = [tuple(map(float, spec.domain_bounds[c])) for c in coords]
+    rscale = 1.0                                      # the residual is reported relative to the forcing, if any
+    f = (ctx or {}).get("source_fn") or (ctx or {}).get("f_fn")
+    if f is not None:
+        lo, hi = np.array(bounds).T
+        Xs = lo + (hi - lo) * np.random.default_rng(0).random((4096, dim))
+        fr = float(np.sqrt(np.mean(np.asarray(f(Xs, ctx), float) ** 2)))
+        rscale = fr if np.isfinite(fr) and fr > 0 else 1.0
+    return PINNProblem(name=getattr(spec, "name", "") or getattr(spec, "problem_id", "") or "problem",
+                       bounds=bounds, residual=lambda u, X: res(model, X), outputs=tuple(spec.fields),
+                       residual_scale=rscale,
+                       time_axis=coords.index("t") if "t" in coords else None,
+                       grid={1: (256,), 2: (64, 64), 3: (16, 16, 16)}.get(dim, (8,) * dim))
+
+
+def resolve_problem(problem, model, *, ctx: dict | None = None) -> PINNProblem:
+    """A preset name, a :class:`PINNProblem` (anything with ``.mesh``) or a PDE ``ProblemSpec`` -> a PINNProblem."""
+    if isinstance(problem, str):
+        if problem not in PROBLEMS:
+            raise ValueError(f"unknown PINN problem {problem!r}; use one of {sorted(PROBLEMS)}, a PINNProblem or a "
+                             "ProblemSpec")
+        return PROBLEMS[problem]()
+    if hasattr(problem, "mesh") and hasattr(problem, "residual"):
+        return problem
+    if all(hasattr(problem, a) for a in ("pde", "coords", "domain_bounds", "fields")):
+        return problem_from_spec(problem, model, ctx=ctx)
+    raise ValueError(f"cannot validate a PINN on {type(problem).__name__}: pass a preset name "
+                     f"({', '.join(sorted(PROBLEMS))}), a PINNProblem or a ProblemSpec")
+
+
 PROBLEMS: dict[str, Callable[[], PINNProblem]] = {"burgers_1d": burgers_1d, "poisson_2d": poisson_2d,
                                                   "kovasznay": kovasznay}

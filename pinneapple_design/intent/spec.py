@@ -14,6 +14,7 @@ form: the template it was matched to, the values of its slots, the objectives an
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, field, replace
 from typing import Any
 
@@ -206,7 +207,9 @@ class RequirementSpec:
         return [q for q in self.values.values() if q.provenance == prov]
 
     def answer(self, template_slots: dict[str, Slot], **answers) -> RequirementSpec:
-        """A new spec with the given answers (``name=(value, unit)`` or ``name=value`` in the slot's SI unit)."""
+        """A new spec with the given answers: ``name=(value, unit)``, ``name="70 degC"`` (a number and a unit), or
+        ``name=value`` in the unit the follow-up question shows (#953: it used to be the slot's SI unit, so the
+        ``70`` a question in degC asked for was read as 70 K)."""
         vals = dict(self.values)
         issues = [i for i in self.issues if not any(i.startswith(template_slots[k].label) for k in answers
                                                     if k in template_slots)]
@@ -214,7 +217,16 @@ class RequirementSpec:
             if k not in template_slots:
                 raise SpecError(f"unknown value {k!r}; this template takes {sorted(template_slots)}")
             sl = template_slots[k]
-            v, u = a if isinstance(a, tuple) else (a, "" if sl.is_choice else sl.unit)
+            if isinstance(a, tuple):
+                v, u = a
+            elif isinstance(a, str) and not sl.is_choice:
+                m = re.fullmatch(r"\s*([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)\s*(.*?)\s*", a)
+                if not m:
+                    raise SpecError(f"{sl.label}: cannot read {a!r}; give a number and a unit, e.g. "
+                                    f"'70 {sl.shown_unit()}'")
+                v, u = float(m.group(1)), m.group(2) or sl.shown_unit()
+            else:
+                v, u = a, ("" if sl.is_choice else sl.shown_unit())
             vals[k] = sl.quantity(v, u, ANSWERED, source="user (follow-up)")
         qs = [q for q in self.questions if q.slot not in answers]
         return replace(self, values=vals, questions=qs, issues=issues)

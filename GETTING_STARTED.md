@@ -592,7 +592,7 @@ REQUEST = "size a heat sink for a 50 W chip in still air, keep it under 60 mm wi
 print(select_template(REQUEST))                    # [('heatsink', 3.7), ...]
 
 needs  = pp.design(REQUEST, out_dir=OUT, verify=False)      # asks what it cannot default
-design = pp.design(REQUEST, answers={"t_limit": 343.15}, out_dir=OUT, verify=False)
+design = pp.design(REQUEST, answers={"t_limit": 70}, out_dir=OUT, verify=False)   # degC, as asked
 
 twin = build_digital_twin(surrogate, field_names=["T"], coord_names=["x", "y", "z", "t"])
 ```
@@ -633,9 +633,9 @@ Three things worth noticing:
 * the step is **offline and rule-based**: `select_template` is a keyword score, no API key,
   no model download. An LLM can replace the parser (`pp.design(..., llm=...)`) but nothing
   in this chain needs one;
-* `t_limit` is in **kelvin** for this slot. `70` means 70 K and is rejected with
-  "outside the range this template covers (30 to 200 °C)"; `343.15` is 70 °C. The follow-up
-  question says °C, which is a trap — [#953](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/953).
+* a follow-up answer is read in the **unit the question shows**: `70` for a question in °C is
+  70 °C, stored as 343.15 K. `"70 degC"` and `(343.15, "K")` give the same value
+  ([#953](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/953), fixed).
 
 ---
 
@@ -726,19 +726,24 @@ all of them cost an hour if you meet them blind.
   preset's boundary condition names a mesh region. Build the batch from a real geometry
   (`STLDomainBatchBuilder`) or select faces explicitly (`on="x_min"`). This is a
   deliberate refusal: fabricating the mask would produce a physically invalid condition.
-* **`pp.validate(net, {"pinn": ...})` wants a preset name**, not a bare `ProblemSpec`
-  (`AttributeError: 'ProblemSpec' object has no attribute 'mesh'`). For a custom problem,
-  use `pp.trust_card` on the field instead. — [#939](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/939)
 * **`Domain(bounds, shape=...)` samples the bounding box**, not the CSG shape — use
   `shape.sample_interior` / `shape.sample_boundary`. — [#938](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/938)
-* **A checkpoint needs the same constructor kwargs** (`hidden_dim`, `n_layers`) to reload;
-  `class_name` is recorded but is the dotted path, not the registry key. — [#941](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/941)
-* **`Arena` cannot build `ModifiedMLP`** in 0.7.0: its factory passes `hidden=`, which
-  `ModifiedMLP.__init__` does not accept (it takes `hidden_dim=` in `build_model`). Other
-  families build fine. — [#940](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/940)
-* **The `reference` method for `burgers_1d` is refused** — the FDM solver returns a grid
-  over `x` only, and comparing a partial grid at the wrong points is worse than failing.
-  Use `method="analytic"` for that preset. — [#942](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/942)
+
+Fixed since 0.7.0 (each has a regression test in `tests/test_v1_known_bugs.py`):
+
+* `pp.validate(net, {"pinn": spec})` takes a `ProblemSpec`, with `"ctx"` for what the residual needs beyond the
+  spec (a source term). — [#939](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/939)
+* `Arena` builds `ModifiedMLP`. — [#940](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/940)
+* `pp.load_checkpoint(path)` rebuilds a model saved with `save_checkpoint`, constructor arguments included.
+  — [#941](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/941)
+* `pp.solve("burgers_1d", "reference")` returns the full `(x, t)` field, from the preset's own initial condition,
+  within 4 % of the Cole-Hopf solution. — [#942](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/942)
+* `pp.quickstart` prints the problem name and one `name (kind)` per condition. — [#945](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/945)
+* A bare answer to a design question is read in the unit the question shows (`70` for a question in °C is
+  70 °C). — [#953](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/953)
+* Every solver in `SolverCatalog` has `solve(...)`; `SolverCatalog().describe(name)` says what it takes.
+  — [#957](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/957)
+* `Trainer.fit(train_loader, cfg=cfg)` trains without a validation loader. — [#958](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/958)
 
 ---
 

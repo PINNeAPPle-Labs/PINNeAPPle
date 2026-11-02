@@ -219,15 +219,20 @@ def _nn(a: np.ndarray, b: np.ndarray | None = None, chunk: int = 512) -> tuple[n
     """Nearest neighbour of each row of ``a`` in ``b`` (in ``a`` itself, excluding the row, when ``b`` is None)."""
     same = b is None
     b = a if same else b
-    b2 = (b ** 2).sum(1)
+    # |a|^2 + |b|^2 - 2 a.b cancels catastrophically: two identical rows can come out ~1e-7 apart (or more, with a
+    # large offset), by an amount that depends on the BLAS and CPU. Centring shrinks the cancellation; the distance
+    # to the chosen neighbour is then recomputed directly, so an exact copy is at exactly 0 on every machine.
+    centre = b.mean(0)
+    ac, bc = a - centre, b - centre
+    b2 = (bc ** 2).sum(1)
     d_out, i_out = np.empty(len(a)), np.empty(len(a), int)
     for s in range(0, len(a), chunk):
-        A = a[s:s + chunk]
-        d2 = (A ** 2).sum(1)[:, None] + b2[None, :] - 2 * A @ b.T
+        A = ac[s:s + chunk]
+        d2 = (A ** 2).sum(1)[:, None] + b2[None, :] - 2 * A @ bc.T
         if same:
             d2[np.arange(len(A)), np.arange(s, s + len(A))] = np.inf
         j = np.argmin(d2, axis=1)
-        d_out[s:s + chunk] = np.sqrt(np.maximum(d2[np.arange(len(A)), j], 0.0))
+        d_out[s:s + chunk] = np.linalg.norm(a[s:s + chunk] - b[j], axis=1)
         i_out[s:s + chunk] = j
     return d_out, i_out
 

@@ -431,6 +431,12 @@ def _solver_output_to_ref(
 
         ref: Dict[str, Any] = {"coords": coords}
         res_np = _np(res)
+        # a solver that reports its own axes (a space-time trajectory, #942): use them, in the array's axis order
+        ec = extras.get("coords") if isinstance(extras, dict) else None
+        if isinstance(ec, dict) and ec and res_np.ndim == len(ec) and \
+                tuple(res_np.shape) == tuple(len(v) for v in ec.values()):
+            field_name = fields[0] if fields else "u"
+            return {"coords": {k: _np(v) for k, v in ec.items()}, field_name: res_np}
         # Map the (potentially trajectory) result to the first field
         if res_np.ndim == 3:
             # FVM trajectory (nt+1, nx, ny) → use last frame

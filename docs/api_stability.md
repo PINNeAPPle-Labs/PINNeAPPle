@@ -108,5 +108,6 @@ The labs packages are:
 `pp.science` is used a lot, but most of its contents are untested. For now it is experimental, and it is the first
 candidate for promotion.
 
-**Status:** this is a proposal under review in #1127. Change the lists in `pinneapple_stability` and this page
-together.
+**Status:** adopted (#1127, approved 2026-11-02). Change the lists in `pinneapple_stability` and this page
+together; `tests/test_deprecation_and_api.py` fails when the core API changes without an update of `api/core.json`
+(`python -m pinneapple_stability.api --write`).

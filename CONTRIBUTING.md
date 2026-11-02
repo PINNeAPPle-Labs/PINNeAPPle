@@ -74,6 +74,12 @@ deploy files) and `examples/` only the narrative of the example. `python scripts
 helper the library already has; [docs/dev/LIBRARY_CONSOLIDATION.md](docs/dev/LIBRARY_CONSOLIDATION.md) is the
 inventory of what is being moved.
 
+## Core and experimental
+The **core** (`pinneapple_stability.CORE` and `CORE_PP`) is covered by semantic versioning. Do not break a core name.
+To rename one, keep the old name working with a deprecation warning for at least one minor release. Everything else is
+**experimental**: it is kept and developed, but carries no compatibility promise. An experimental module is promoted to
+the core when it is fully tested and used. See [docs/api_stability.md](docs/api_stability.md).
+
 ## Pull requests
 - Keep changes focused and well-scoped
 - Add or update tests when possible

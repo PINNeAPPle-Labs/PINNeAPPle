@@ -24,6 +24,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pinneapple_stability import stability
+
 from . import classify as C
 from . import outputs as O
 from . import prose as P
@@ -276,6 +278,7 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                     "pt": prose.symbol(m, sym["name"]), "pt_module": prose.module(m),
                     "category": cat, "category_reason": why, "icon": ICONS[cat],
                     "status": status, "status_reason": status_reason,
+                    "stability": stability(m, sym["name"] if m == "pinneapple" else None),
                     "evidence": ev[:40], "n_tests": sum(e["kind"] != "example" for e in ev), "examples": ex,
                     "pp": pp_names.get(f"{m}.{sym['name']}", ""),
                     "tasks": T.tags(text, T.TASKS), "areas": T.tags(text, T.AREAS),
@@ -302,7 +305,9 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
         t.update(tasks=T.tags(text, T.TASKS), areas=T.tags(text, T.AREAS), products=T.tags(text, T.PRODUCTS))
         tools[t["id"]] = t
     counts: dict[str, Any] = {"tools": len(tools)}
-    for field in ("category", "status", "kind"):
+    for t in tools.values():
+        t.setdefault("stability", stability(t.get("module") or "", None))
+    for field in ("category", "status", "kind", "stability"):
         counts[field] = dict(sorted(_count(tools.values(), field).items()))
     return {"schema": SCHEMA, "commit": inv.get("generated_from_commit", ""), "status_rules": STATUS_RULES,
             "categories": C.CATEGORIES, "tasks": T.labels(T.TASKS), "areas": T.labels(T.AREAS),

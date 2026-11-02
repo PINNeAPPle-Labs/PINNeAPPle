@@ -41,3 +41,8 @@ from . import flows
 from .common import flow_run_manifest, FlowRunManifest
 
 __all__ = ["PREFECT_AVAILABLE", "tasks", "flows", "flow_run_manifest", "FlowRunManifest"]
+
+# experimental (labs): see pinneapple_stability and docs/api_stability.md; nothing here changes behaviour
+from pinneapple_stability import warn_experimental as _warn_experimental  # noqa: E402
+
+_warn_experimental(__name__)

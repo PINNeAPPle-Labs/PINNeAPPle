@@ -1142,6 +1142,13 @@
   },
   "source": "tests/pinneapple_design/test_surrogate_inverse.py:75"
  },
+ "pinneapple_design.geometry.brep.diagnostics:view_direction": {
+  "inputs": {
+   "azim": 0.0,
+   "elev": 90.0
+  },
+  "source": "tests/test_brep_diagnostics.py:124"
+ },
  "pinneapple_design.geometry.brep.tessellate:circle_segments": {
   "inputs": {
    "angle_deg": 15.0,

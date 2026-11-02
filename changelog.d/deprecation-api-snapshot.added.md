@@ -1,0 +1,5 @@
+- Deprecation helpers and a frozen snapshot of the core API (#1128):
+  - `pinneapple_stability.deprecation` provides `deprecated`, `deprecated_alias` and `renamed_kwargs`, with one message format. They emit `PinneappleDeprecationWarning`, which subclasses `FutureWarning` and is therefore shown by default.
+  - `api/core.json` records every public core name with its signature, and the facade origin of each `pp.*` name. It is read from the source, not imported.
+  - `python -m pinneapple_stability.api --check/--write/--diff` checks, rewrites or compares the snapshot.
+  - A new required PR CI step fails when the core API no longer matches the snapshot.

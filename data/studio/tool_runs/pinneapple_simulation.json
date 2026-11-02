@@ -818,6 +818,16 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.particles:lorentz_factor": {
+  "code_hash": "6b973a610f6ac7f2",
+  "inputs": {
+   "speed": 179875474.8
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "float",
+  "seconds": 8.31
+ },
  "pinneapple_simulation.electromagnetics.particles:loss_cone_angle": {
   "code_hash": "f67effddffb64c19",
   "inputs": {

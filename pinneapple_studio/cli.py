@@ -59,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("-o", "--out", default="docs/studio/COVERAGE.md")
     s.add_argument("--write-baseline", action="store_true", help="once, when the gate is introduced")
     s.add_argument("--record-history", action="store_true", help="append today's counts to the baseline curve")
+    s.add_argument("--core", action="store_true",
+                   help="only the stable core's coverage toward 1.0 (#1129); exit 1 while any core tool is discovered")
     s = sub.add_parser("inventory", help="write the static inventory")
     s.add_argument("-o", "--out", default="-")
     a = ap.parse_args(argv)
@@ -88,7 +90,12 @@ def main(argv: list[str] | None = None) -> int:
         from pathlib import Path
 
         from . import catalog, coverage, gallery
-        cat, gal = catalog.load(), gallery.load()
+        cat = catalog.load()
+        if a.core:
+            rep = coverage.core(cat)
+            _print(rep)
+            return 1 if rep["status"].get("discovered") else 0
+        gal = gallery.load()
         if a.write_baseline:
             print(f"baseline: {coverage.write_baseline(cat, gal)} lines", file=sys.stderr)
         if a.record_history:

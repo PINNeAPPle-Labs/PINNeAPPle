@@ -1,0 +1,4 @@
+- `pinneapple_design.geometry.io.sdf_meshing.sdf2d_to_tri_mesh` works again (#1129):
+  - it passed a `meshio.Mesh` to `load_meshio`, which reads a path, so it always raised `TypeError`;
+  - it now drops the repeated closing point of the contour, which made a zero-length segment;
+  - it writes its intermediate `.msh` to a temporary file instead of a fixed `/tmp` path.

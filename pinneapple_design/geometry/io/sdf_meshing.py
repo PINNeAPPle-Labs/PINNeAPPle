@@ -16,6 +16,8 @@ to get boundary point clouds for PINNs.
 """
 from __future__ import annotations
 
+import os
+
 from dataclasses import dataclass
 from typing import Callable, Optional, Tuple
 
@@ -136,6 +138,8 @@ def sdf2d_to_tri_mesh(
         d += np.linalg.norm(p[0] - p[-1])
         return d
     poly = max(polys, key=perim)
+    if len(poly) > 1 and np.allclose(poly[0], poly[-1]):
+        poly = poly[:-1]                         # closed contours repeat their first point: no zero-length segment
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 0)
@@ -161,11 +165,18 @@ def sdf2d_to_tri_mesh(
         gmsh.model.geo.synchronize()
         gmsh.model.mesh.generate(2)
 
-        out_msh = cache_path or "/tmp/pinneapple_sdf2d.msh"
+        if cache_path:
+            out_msh = cache_path
+        else:
+            import tempfile
+            fd, out_msh = tempfile.mkstemp(suffix=".msh", prefix="pinneapple_sdf2d_")
+            os.close(fd)
         gmsh.write(out_msh)
     finally:
         gmsh.finalize()
 
-    import meshio  # type: ignore
-    msh = meshio.read(out_msh)
-    return load_meshio(msh)
+    try:
+        return load_meshio(out_msh)              # load_meshio reads a path (it used to get a meshio.Mesh and fail)
+    finally:
+        if not cache_path:
+            os.remove(out_msh)

@@ -564,14 +564,14 @@
   "seconds": 0.76
  },
  "pinneapple_flow.studies:roles_for_kind": {
-  "code_hash": "45ec6e03450fb154",
+  "code_hash": "ee6589a1a85b52df",
   "inputs": {
    "kind": "design_optimization"
   },
   "ok": true,
   "recorded": "2026-11-02",
   "returned": "list",
-  "seconds": 0.83
+  "seconds": 0.71
  },
  "pinneapple_flow.studio:app_dir": {
   "code_hash": "a085df41d99f8c30",
@@ -969,6 +969,26 @@
   "recorded": "2026-11-02",
   "returned": "dict",
   "seconds": 5.97
+ },
+ "pinneapple_flow.study_steps:twin_step": {
+  "code_hash": "74188a25ae66b2e1",
+  "inputs": {
+   "duration": 300.0,
+   "fault_passage": 2,
+   "fault_time": 150.0,
+   "geometry": "cold_plate",
+   "heat_load": 600.0,
+   "out_dir": "twin_smoke",
+   "pitch": [
+    0.02,
+    0.004,
+    0.002
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "dict",
+  "seconds": 6.11
  },
  "pinneapple_flow.study_steps:uncertainty_step": {
   "code_hash": "9431515b833862b3",

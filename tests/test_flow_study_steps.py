@@ -85,3 +85,8 @@ def test_analysis_tests_a_random_walk_on_its_differences():
     walk = np.cumsum(np.random.default_rng(2).normal(size=2000))                # AR(1) estimate above 0.99
     r = analyze_step(walk)
     assert r["report"]["tested_on"] == "differences" and r["checks"][0]["value"] == "differences"
+
+
+def test_a_constant_series_is_refused_not_divided_by_zero():
+    with pytest.raises(ValueError, match="constant"):
+        forecast_step(np.zeros(200), 3)

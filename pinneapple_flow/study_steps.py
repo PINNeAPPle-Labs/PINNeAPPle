@@ -236,6 +236,8 @@ def forecast_step(series: Sequence[float], horizon: int, *, test_fraction: float
     averaged over the horizons; a series that no baseline beats is reported as such, never as a skilful model."""
     from pinneapple_systems.time_series.predictability import fit_ar
     x = np.asarray(series, float).ravel()
+    if not np.all(np.isfinite(x)) or np.ptp(x) == 0:
+        raise ValueError("the series is constant or has non-finite values: there is nothing to forecast")
     n_train = int(len(x) * (1 - test_fraction))
     if n_train <= max_order + 10 or len(x) - n_train <= horizon:
         raise ValueError("the series is too short for this horizon and test fraction")

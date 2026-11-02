@@ -2,6 +2,7 @@
 the symmetries of the square, scale-free in (a, f)), and the physics the zoo models were trained on."""
 from __future__ import annotations
 
+import importlib.util
 import json
 import warnings
 
@@ -150,7 +151,10 @@ def test_monotonicity_and_invariance_on_closed_forms_and_hypothesis_search():
     rep = check_relations(wrong, rels[1:2], box, n=32, search="hypothesis")
     r = rep["better-conductor-cooler"]
     assert not r.passed and r.counterexample["after"][0] > r.counterexample["before"][0]
-    assert r.search == "random+hypothesis"
+    if importlib.util.find_spec("hypothesis") is not None:
+        assert r.search == "random+hypothesis"
+    else:                                                            # the stated fallback, not a silent one
+        assert r.search == "random" and "hypothesis not installed" in r.note
 
 
 def test_monotonicity_needs_a_direction():

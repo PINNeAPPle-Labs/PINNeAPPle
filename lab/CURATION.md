@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-24 21:17 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-11-02 19:48 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
@@ -9,19 +9,19 @@ Generated 2026-10-24 21:17 UTC. Tiers: **A flagship** (product / paper / marketi
 | `particle_suspension` | **A** flagship | 97.9 | 1/0/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `pipe_flow` | **A** flagship | 97.9 | 2/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `calculix_case` | **A** flagship | 95.7 | 2/3/0/0/0/0 | 100 % | - | - | - | ready | no |
+| `manifest` | **A** flagship | 94.7 | 3/22/0/1/0/0 | 96 % | - | - | - | - | no |
 | `repo_results` | **A** flagship | 94.7 | 3/20/0/1/1/0 | 92 % | - | - | - | - | no |
 | `benchmark_case` | **B** solid | 100.0 | 0/7/0/0/0/0 | 100 % | - | - | - | - | no |
 | `rom_study` | **B** solid | 98.0 | 0/2/0/0/0/0 | 100 % | - | - | - | ready | no |
+| `bricks` | **B** solid | 94.7 | 0/3/0/0/0/0 | 100 % | - | - | - | - | no |
 | `car_lbm` | **B** solid | 94.3 | 0/40/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `vehicle_cfd` | **B** solid | 93.8 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `bar_wear_ranking` | **B** solid | 92.0 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
-| `manifest` | **B** solid | 91.9 | 0/24/0/1/0/0 | 96 % | - | - | - | - | no |
-| `bricks` | **B** solid | 91.2 | 0/3/0/0/0/0 | 100 % | - | - | - | - | no |
+| `em_pinn` | **B** solid | 92.0 | 0/2/0/0/0/2 | 50 % | - | - | - | - | no |
 | `kepler_law` | **B** solid | 89.4 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `lorenz_discovery` | **B** solid | 89.4 | 0/1/0/0/0/0 | 100 % | - | - | - | - | no |
 | `oscillator_discovery` | **B** solid | 89.4 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
-| `em_pinn` | **B** solid | 88.5 | 0/2/0/0/0/2 | 50 % | - | - | - | - | no |
 | `accretion_flow` | **B** solid | 84.9 | 0/6/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `cylinder_lbm` | **B** solid | 84.9 | 0/6/0/1/0/2 | 67 % | - | - | - | ready | no |
 | `bondi_accretion` | **B** solid | 83.6 | 0/6/0/0/0/0 | 100 % | - | - | - | ready | no |
@@ -45,6 +45,9 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `bar_wear/tungsten carbide` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `calculix_case/l_bracket` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `calculix_case/plate_hole` | A | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `manifest/examples/science/electromagnetism/dipole_radiation` | A | ✓ | ✓ | ✓ | ✓ | ? | ~ |
+| `manifest/examples/science/electromagnetism/faraday_induction` | A | ~ | ✓ | ✓ | ✓ | ? | ~ |
+| `manifest/examples/science/electromagnetism/research_fdtd_3d` | A | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `particle_suspension` | A | ✓ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `pipe_flow/bend_90` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `pipe_flow/laminar_pipe` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
@@ -80,6 +83,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `manifest/examples/bricks` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/enso_forecasting` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/flight_dynamics` | B | ✓ | ✓ | ✓ | ? | ~ | ~ |
+| `manifest/examples/freecad_openfoam` | B | ✓ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/ampere_law` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/bench_mu0_solenoid` | B | ~ | ✓ | ✓ | ✓ | ✓ | ~ |
@@ -88,15 +92,12 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `manifest/examples/science/electromagnetism/cavity_resonance` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/circuits_rc_rl_rlc` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/coulomb_superposition` | B | ~ | ✓ | ✓ | ✓ | ? | ~ |
-| `manifest/examples/science/electromagnetism/dipole_radiation` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
-| `manifest/examples/science/electromagnetism/faraday_induction` | B | ~ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/fresnel_snell` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/gauss_law` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/hall_effect` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/lossy_plane_wave` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/mie_scattering` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/parallel_plate_capacitor` | B | ~ | ✓ | ✓ | ✓ | ? | ~ |
-| `manifest/examples/science/electromagnetism/research_fdtd_3d` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/research_inverse_permittivity` | B | ~ | ✓ | ✓ | ✓ | ~ | ~ |
 | `manifest/examples/science/electromagnetism/research_surrogate_hall` | B | ~ | ✓ | ✓ | ✓ | ✓ | ~ |
 | `manifest/examples/science/electromagnetism/research_uq_waveguide` | B | ~ | ✓ | ✓ | ✓ | ~ | ~ |
@@ -167,7 +168,6 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 - `heat_xtfc` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
 - `kepler_law` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
 - `lorenz_discovery` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
-- `manifest` (B): compare with an independent reference (exact solution, experiment, published value); add figures (a movie, a render or a 3-D view for communication); document it (docs page, references)
 - `oscillator` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
 - `oscillator_discovery` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
 - `pendulum_video` (B): show it beats a baseline or satisfies a physical law it was not trained on

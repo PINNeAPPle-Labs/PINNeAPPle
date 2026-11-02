@@ -585,3 +585,30 @@ kovasznay1948:
   kind: article
   topics: [kovasznay, benchmark, validation]
   checked: "text cited in the CFD repository's PINN references; DOI not resolved online"
+
+stone1974crossvalidation:
+  title: "Cross-Validatory Choice and Assessment of Statistical Predictions"
+  authors: [M. Stone]
+  year: 1974
+  venue: "Journal of the Royal Statistical Society: Series B 36(2), 111-147"
+  doi: "10.1111/j.2517-6161.1974.tb00994.x"
+  kind: article
+  topics: [cross-validation, model-selection]
+
+vovk2015crossconformal:
+  title: "Cross-conformal predictors"
+  authors: [V. Vovk]
+  year: 2015
+  venue: "Annals of Mathematics and Artificial Intelligence 74(1-2), 9-28"
+  doi: "10.1007/s10472-013-9368-4"
+  kind: article
+  topics: [conformal-prediction, uncertainty]
+
+barber2021jackknifeplus:
+  title: "Predictive inference with the jackknife+"
+  authors: [R. F. Barber, E. J. Candes, A. Ramdas, R. J. Tibshirani]
+  year: 2021
+  venue: "Annals of Statistics 49(1), 486-507"
+  doi: "10.1214/20-AOS1965"
+  kind: article
+  topics: [conformal-prediction, uncertainty]

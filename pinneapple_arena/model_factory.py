@@ -197,8 +197,13 @@ def build_model(cfg: ModelConfig, in_dim: int = 2, out_dim: int = 1,
         "gnn": "gnn",
         "mgn": "mesh_graph_net",
         "meshgraphnet": "mesh_graph_net",
+        "extreme_tfc": "xtfc",
     }
     registry_key = _ALIASES.get(mtype, mtype)
+    if registry_key == "xtfc" and "activation" not in cfg.network.extra:
+        # X-TFC's random Fourier features (cos/sin) take no activation, and it refuses one rather than ignore it;
+        # the NetworkConfig default ("tanh") is not a choice the user made, so it is not passed on
+        kwargs.pop("activation", None)
 
     # ── 1. Try ModelRegistry (covers all ~80+ models) ────────────────────
     try:

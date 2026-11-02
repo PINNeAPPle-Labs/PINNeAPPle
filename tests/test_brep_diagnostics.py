@@ -105,6 +105,7 @@ def test_zebra_on_a_plane_with_a_distant_eye_is_uniform_and_on_a_sphere_varies()
     top = c["normal"][:, 2] > 0.999
     z = D.zebra(m, c["normal"], eye=(1e5, 2e5, 1e6), axis=(0, 1, 0))
     assert np.ptp(z[top]) < 1e-3                                  # parallel view rays, one normal: one stripe
+    assert np.ptp(D.zebra(m, c["normal"], view=(0.3, 0.2, 1.0))[top]) < 1e-12        # a view at infinity: exact
     s = body(sm.Sphere(10))
     ms = tessellate(s, "fine", "fast")
     zs = D.zebra(ms, D.exact_curvature(s, ms)["normal"], n_stripes=8)

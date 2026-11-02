@@ -45,7 +45,7 @@ def _surface(mesh):
     return Mesh(points=np.asarray(mesh.vertices, float), blocks=[CellBlock("triangle", np.asarray(mesh.triangles))])
 
 
-def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", stripes: int = 16,
+def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", stripes: int = 6,
                refine_view: bool = True, max_faces: int = 150_000, bake_formats: Sequence[str] = ("stl",),
                max_input_mb: float | None = None, name: str | None = None,
                out_dir: str | None = None) -> dict[str, Any]:
@@ -112,7 +112,7 @@ def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", str
         if out is not None:
             from pinneapple_tools.visualization.studio.fieldview import field_view
 
-            z = zebra(view, c["normal"], n_stripes=stripes)
+            z = zebra(view, c["normal"], n_stripes=stripes, view=(1.0, -1.0, 1.0), axis=(0.0, 0.0, 1.0))
             h = highlight_lines(view, c["normal"])
             markers = []
             for level, detail in (("G0", "edges where faces meet at an angle"),
@@ -125,7 +125,7 @@ def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", str
             fv = field_view(_surface(view), [
                 {"name": "H", "values": c["H"], "label": "Mean curvature H", "unit": "1/m"},
                 {"name": "K", "values": c["K"], "label": "Gaussian curvature K", "unit": "1/m2"},
-                {"name": "zebra", "values": z, "label": f"Zebra ({stripes} stripes)"},
+                {"name": "zebra", "values": z, "label": f"Zebra ({stripes} stripes, view along (1, -1, 1))"},
                 {"name": "highlight", "values": h, "label": "Highlight lines"}],
                 markers=markers, max_faces=max_faces, title=f"{row['name']}: surface quality",
                 notes=[f"{q['n_triangles']} triangles ({tm.mesher}, {quality}); watertight {q['watertight']}; "

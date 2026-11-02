@@ -14,3 +14,8 @@ from .core import Answer, Engine, Method, Offer, Planner, Query, condition_key
 from .refs import PhysicalRef, parse_ref
 
 __all__ = ["Answer", "Engine", "Method", "Offer", "Planner", "Query", "PhysicalRef", "condition_key", "parse_ref"]
+
+# experimental (labs): see pinneapple_stability and docs/api_stability.md; nothing here changes behaviour
+from pinneapple_stability import warn_experimental as _warn_experimental  # noqa: E402
+
+_warn_experimental(__name__)

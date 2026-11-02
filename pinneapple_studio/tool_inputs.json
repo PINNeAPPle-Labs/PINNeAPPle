@@ -5072,6 +5072,18 @@
   },
   "source": "tests/test_rover_realism.py:22"
  },
+ "pinneapple_stability:is_core": {
+  "inputs": {
+   "module": "pinneapple_neural.trainer"
+  },
+  "source": "tests/test_stability.py:34"
+ },
+ "pinneapple_stability:stability": {
+  "inputs": {
+   "module": "pinneapple_physics.pinn_solver.compiler"
+  },
+  "source": "tests/test_stability.py:17"
+ },
  "pinneapple_studio.catalog:make_class_finder": {
   "inputs": {
    "inv": {

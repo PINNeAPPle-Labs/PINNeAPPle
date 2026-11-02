@@ -113,3 +113,8 @@ __all__ = [
     "choice_for_objective",
     "problem_from_spec",
 ]
+
+# experimental (labs): see pinneapple_stability and docs/api_stability.md; nothing here changes behaviour
+from pinneapple_stability import warn_experimental as _warn_experimental  # noqa: E402
+
+_warn_experimental(__name__)

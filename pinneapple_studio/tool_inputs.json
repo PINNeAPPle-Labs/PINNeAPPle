@@ -5072,6 +5072,43 @@
   },
   "source": "tests/test_rover_realism.py:22"
  },
+ "pinneapple_stability.api:diff": {
+  "inputs": {
+   "new": {
+    "modules": {
+     "m": {
+      "C": {
+       "class": [],
+       "methods": {
+        "run": "(n=2)"
+       }
+      }
+     }
+    },
+    "pp": {
+     "a": "def(x, y)",
+     "c": "def()"
+    }
+   },
+   "old": {
+    "modules": {
+     "m": {
+      "C": {
+       "class": [],
+       "methods": {
+        "run": "(n=1)"
+       }
+      }
+     }
+    },
+    "pp": {
+     "a": "def(x)",
+     "b": "def()"
+    }
+   }
+  },
+  "source": "tests/test_deprecation_and_api.py:77"
+ },
  "pinneapple_stability:is_core": {
   "inputs": {
    "module": "pinneapple_neural.trainer"

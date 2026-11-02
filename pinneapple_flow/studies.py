@@ -109,7 +109,7 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
               (("fit.residuals", "residuals unstructured and within the measurement noise"),
                ("fit.parameter_uncertainty", "parameter uncertainties reported")), 10),
     StudyRole("verify", "Verification", "Verificação", "verification validation compare error",
-              (("verify.resimulated", "result re-checked with the full model"),), 20),
+              (("verify.rechecked", "result re-checked with the full model"),), 20),
 ]}
 
 STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
@@ -126,7 +126,7 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("physics", "simulate", "verify"),
               ("simulate", "compute", "solve", "calculate", "what is the", "how hot", "how much", "simul", "calcul",
                "resolver", "qual é", "quanto"),
-              (("verify.resimulated", "result re-checked with an independent method or a refined discretisation"),)),
+              (("verify.independent", "result re-checked with an independent method or a refined discretisation"),)),
     StudyKind("surrogate", "Surrogate model", "Modelo substituto",
               "a fast model of a simulation over a range of inputs",
               ("physics", "doe", "simulate", "dataset", "surrogate", "verify"),

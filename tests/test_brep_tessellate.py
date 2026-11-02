@@ -102,3 +102,8 @@ def test_face_ids_of_the_kernel_mesh_add_up_to_the_face_areas():
     assert np.allclose(m.face_areas(), exact, rtol=5e-3)
     r = m.report()
     assert r["watertight"] and r["triangles"] == m.n_triangles
+
+
+def test_circle_segments_literal_call():
+    """Plain-number call (also the Studio's smoke input)."""
+    assert circle_segments(10.0, 6.283185307179586, 0.01, 15.0) == 71

@@ -553,7 +553,7 @@
   "seconds": 0.74
  },
  "pinneapple_flow.studies:role_checks": {
-  "code_hash": "4157919064e4f2a1",
+  "code_hash": "ad460e6a45dc018f",
   "inputs": {
    "kind": "forecast",
    "role": "verify"
@@ -561,17 +561,17 @@
   "ok": true,
   "recorded": "2026-11-02",
   "returned": "tuple",
-  "seconds": 0.81
+  "seconds": 0.76
  },
  "pinneapple_flow.studies:roles_for_kind": {
-  "code_hash": "285ef09f15c4c9a6",
+  "code_hash": "45ec6e03450fb154",
   "inputs": {
    "kind": "design_optimization"
   },
   "ok": true,
   "recorded": "2026-11-02",
   "returned": "list",
-  "seconds": 0.73
+  "seconds": 0.83
  },
  "pinneapple_flow.studio:app_dir": {
   "code_hash": "a085df41d99f8c30",

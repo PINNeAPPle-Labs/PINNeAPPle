@@ -273,3 +273,46 @@ What the build puts in the zip:
   - It bakes to all four formats, keeping the object names.
   - It sends the `MeshData` files, and their face counts match.
   - It passes on Blender 5.0.1 (the `bpy` module).
+
+## 6. One call for the apps (#1120)
+
+```python
+from pinneapple_design.geometry.brep.study import step_study
+
+r = step_study("bracket.step", quality="normal", bake_formats=("stl",), out_dir="out")
+```
+
+`step_study` reads the file, refusing files above `max_input_mb` (100 MB by default) before reading them. It then
+studies every body and returns a plain-JSON report. For each body, the report gives:
+- size, volume and area;
+- face types;
+- the `mesh_quality` report;
+- edges per continuity level;
+- the ranges of H and K.
+
+With `out_dir`, it writes these files per body `k`:
+- `body_<k>.glb` and `body_<k>.json`: a field view in the format of the apps' 3-D viewer
+  (`pinneapple-field-view/v1`). It carries H, K, zebra and highlight lines per vertex on a refined mesh, and the
+  G0, G1 and G2 edges as markers.
+- `body_<k>.npz`: the `MeshData` arrays.
+
+It also writes one baked file per format, for all bodies together.
+
+This is the function the engineering app runs on an uploaded STEP file. The app shows the field views, and the
+`.npz` files are the boundary to hand to a CFD/FEM or PINN study.
+
+**Checked** in `tests/test_brep_study.py`. The test file has a block with G2 vertical fillets and a bore of
+r = 6 mm, plus a torus. The report and files must show:
+
+| Check | Expected |
+|---|---|
+| Edge levels of the block | 18 G0 and 8 G2 |
+| Bore | H = −1/(2r) = −83.3 1/m |
+| Torus | largest H = 120 1/m |
+| Every body's mesh | watertight; chordal error ≤ 1.05× the tolerance |
+| Field views | the schema, the four fields and the edge markers |
+| `.npz` | loads as `MeshData` |
+| OBJ bake | carries both body names |
+
+The test also checks that nothing is written without `out_dir`, and that other file types and files over the size
+limit are refused.

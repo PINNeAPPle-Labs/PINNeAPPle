@@ -1,0 +1,4 @@
+- `pinneapple_design.geometry.brep.study.step_study(path, out_dir=...)` turns a STEP file into what the apps show (#1120):
+  - a plain-JSON report per body;
+  - field views of curvature, zebra and highlight lines, with G0/G1/G2 edge markers;
+  - `MeshData` `.npz` files and the baked mesh files.

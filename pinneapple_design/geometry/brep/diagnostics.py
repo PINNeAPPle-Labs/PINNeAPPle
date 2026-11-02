@@ -147,18 +147,24 @@ def edge_continuity(body: CadBody, samples: int = 16, angle_tolerance_deg: float
 
 
 def zebra(mesh: TessMesh, normals: np.ndarray, *, eye: Sequence[float] | None = None,
-          axis: Sequence[float] = (0.0, 1.0, 0.0), n_stripes: int = 16, sharpness: float = 8.0) -> np.ndarray:
+          axis: Sequence[float] = (0.0, 1.0, 0.0), n_stripes: int = 16, sharpness: float = 8.0,
+          view: Sequence[float] | None = None) -> np.ndarray:
     """Zebra value in [0, 1] per vertex: the reflection of a cylinder of ``n_stripes`` black-and-white stripe pairs
     whose axis is ``axis``, seen from ``eye`` (default: 3 bounding-box sizes in front of the part along +z).
 
     The stripe index is the azimuth of the reflected view ray around ``axis``; ``sharpness`` controls the edge
-    softness (large = hard stripes)."""
+    softness (large = hard stripes). ``view``: a direction from the part towards a distant eye instead of ``eye``
+    (parallel view rays: every planar face is one uniform value, and stripes appear only where the surface bends)."""
     V = mesh.vertices
-    if eye is None:
+    if view is not None:
+        d = -np.asarray(view, float) / np.linalg.norm(view)
+        d = np.broadcast_to(d, V.shape).copy()
+    elif eye is None:
         lo, hi = V.min(0), V.max(0)
         eye = 0.5 * (lo + hi) + np.array([0.0, 0.0, 3.0 * float(np.linalg.norm(hi - lo))])
-    d = V - np.asarray(eye, float)
-    d /= np.linalg.norm(d, axis=1, keepdims=True)
+    if view is None:
+        d = V - np.asarray(eye, float)
+        d /= np.linalg.norm(d, axis=1, keepdims=True)
     n = np.asarray(normals, float)
     r = d - 2 * (d * n).sum(1, keepdims=True) * n
     ax = np.asarray(axis, float)

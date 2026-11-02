@@ -487,6 +487,27 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.brep.step:available_backends": {
+  "code_hash": "a925535feee756b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "list",
+  "seconds": 9.92
+ },
+ "pinneapple_design.geometry.brep.tessellate:circle_segments": {
+  "code_hash": "9331a8b0d51c8e98",
+  "inputs": {
+   "angle_deg": 15.0,
+   "radius": 10.0,
+   "sweep_rad": 6.283185307179586,
+   "tol": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "int",
+  "seconds": 8.93
+ },
  "pinneapple_design.geometry.builders.stl_domain_batch_builder:STLDomainBatchBuilder": {
   "code_hash": "48e33e13ab8d7b63",
   "inputs": {

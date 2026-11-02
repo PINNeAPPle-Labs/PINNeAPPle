@@ -1,0 +1,5 @@
+- Exact B-rep import of STEP files, `pinneapple_design.geometry.brep` (#1115):
+  - `read_step` returns every solid and shell as a `CadBody` in metres, with the kernel's exact volume, area and bounding box, and per-face surface types and parameters (plane, cylinder, cone, sphere, torus, free-form);
+  - `write_step` writes exact STEP AP214;
+  - new extra `pinneapple[brep]` (smlibpy, on SMLib by NVIDIA, Apache-2.0);
+  - guide: `docs/guides/step_brep.md`.

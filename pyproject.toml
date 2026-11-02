@@ -190,6 +190,12 @@ cad = [
   "cadquery>=2.4.0",
 ]
 
+# Exact B-rep from STEP (pinneapple_design.geometry.brep): SMLib (NVIDIA, Apache-2.0) via smlibpy (MIT)
+brep = [
+  "smlibpy>=0.6.2",
+  "mapbox-earcut>=1.0",   # polygon-with-holes triangulation of planar faces (fast mesher), ISC
+]
+
 # Solver backends (FDM / FEM / LBM)
 solvers = [
   "numba>=0.59",
@@ -376,6 +382,8 @@ retrieval = [
 # Everything (convenience install)
 all = [
   "cryptography>=41",
+  "smlibpy>=0.6.2",
+  "mapbox-earcut>=1.0",
   "trimesh>=4.0.0",
   "meshio>=5.3.0",
   "gmsh>=4.11",

@@ -1142,6 +1142,15 @@
   },
   "source": "tests/pinneapple_design/test_surrogate_inverse.py:75"
  },
+ "pinneapple_design.geometry.brep.tessellate:circle_segments": {
+  "inputs": {
+   "angle_deg": 15.0,
+   "radius": 10.0,
+   "sweep_rad": 6.283185307179586,
+   "tol": 0.01
+  },
+  "source": "tests/test_brep_tessellate.py:109"
+ },
  "pinneapple_design.geometry.builders.stl_domain_batch_builder:STLDomainBatchBuilder": {
   "inputs": {
    "cfg": {

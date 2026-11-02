@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           # CPU torch first: the default PyPI wheel pulls ~3 GB of CUDA libraries and fills the runner disk
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry]"
+          pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry,brep]"
           pip install pytest datasets
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
 

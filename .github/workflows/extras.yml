@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        extra: [viz, pyvista, cost, uq, export, serve, geom, timeseries]
+        extra: [viz, pyvista, cost, uq, export, serve, geom, timeseries, brep]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

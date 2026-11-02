@@ -1,0 +1,6 @@
+- Tessellation of exact STEP bodies, `pinneapple_design.geometry.brep.tessellate` (#1116):
+  - draft, normal and fine presets, each with a stated chordal deviation and angle;
+  - a fast analytic mesher for planes, cylinders, cones and spheres, watertight by construction and 4.5 to 9 times faster than the kernel on a plate with 50 holes;
+  - the kernel mesher for any surface, with face IDs;
+  - `auto` picks between them and reports why;
+  - `TessMesh` reports watertightness, Euler characteristic, area, volume and per-face areas.

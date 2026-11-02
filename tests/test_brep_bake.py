@@ -157,3 +157,12 @@ def test_volume_mesh_with_gmsh():
     r = volume_mesh(b, h=3e-3, quality="normal")
     assert r["dim"] == 3 and r["n_elements"] > 0
     assert abs(r["volume"] / b.volume_m3 - 1) < 0.02
+
+
+def test_names_replace_the_body_names(tmp_path):
+    trimesh = pytest.importorskip("trimesh")
+    m = tessellate(body(sm.Box(10, 10, 10)), "normal")
+    p = bake([m, m], str(tmp_path / "n.glb"), names=["left", "right"])["path"]
+    assert set(trimesh.load(p, process=False).geometry) == {"left", "right"}
+    with pytest.raises(ValueError, match="one name per body"):
+        bake([m, m], str(tmp_path / "x.glb"), names=["only"])

@@ -87,18 +87,20 @@ class SpectralConvND(nn.Module):
         out_ft = torch.zeros(out_shape, dtype=torch.cfloat, device=x.device)
 
         w = torch.view_as_complex(self.weight)  # (Cin, Cout, *modes)
+        # a coarse level of a U-shaped network can have fewer frequencies than ``modes``: keep what the grid has
+        m = tuple(min(mi, ni) for mi, ni in zip(self.modes, x_ft.shape[2:]))
 
         # slice low modes
         if self.dim == 1:
-            (m1,) = self.modes
-            out_ft[:, :, :m1] = torch.einsum("bix,iox->box", x_ft[:, :, :m1], w)
+            (m1,) = m
+            out_ft[:, :, :m1] = torch.einsum("bix,iox->box", x_ft[:, :, :m1], w[:, :, :m1])
         elif self.dim == 2:
-            m1, m2 = self.modes
-            out_ft[:, :, :m1, :m2] = torch.einsum("bixy,ioxy->boxy", x_ft[:, :, :m1, :m2], w)
+            m1, m2 = m
+            out_ft[:, :, :m1, :m2] = torch.einsum("bixy,ioxy->boxy", x_ft[:, :, :m1, :m2], w[:, :, :m1, :m2])
         else:
-            m1, m2, m3 = self.modes
+            m1, m2, m3 = m
             out_ft[:, :, :m1, :m2, :m3] = torch.einsum(
-                "bixyz,ioxyz->boxyz", x_ft[:, :, :m1, :m2, :m3], w
+                "bixyz,ioxyz->boxyz", x_ft[:, :, :m1, :m2, :m3], w[:, :, :m1, :m2, :m3]
             )
 
         y = torch.fft.irfftn(out_ft, s=spatial, dim=tuple(range(2, 2 + self.dim)), norm="ortho")

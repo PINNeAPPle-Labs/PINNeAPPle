@@ -487,6 +487,17 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.brep.diagnostics:view_direction": {
+  "code_hash": "7ac50e488c1a9e21",
+  "inputs": {
+   "azim": 0.0,
+   "elev": 90.0
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 10.22
+ },
  "pinneapple_design.geometry.brep.step:available_backends": {
   "code_hash": "a925535feee756b9",
   "inputs": {},

@@ -1917,7 +1917,7 @@
  },
  "pinneapple_flow.study_steps:twin_step": {
   "inputs": {
-   "geometry": "examples/digital_twin/cold_plate_4ch.stl",
+   "geometry": "cold_plate",
    "out_dir": "twin_smoke",
    "heat_load": 600.0,
    "pitch": [

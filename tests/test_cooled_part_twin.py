@@ -13,49 +13,58 @@ import os
 import numpy as np
 import pytest
 
-trimesh = pytest.importorskip("trimesh")
-
-from pinneapple_systems.digital_twin import cooled_part as CP  # noqa: E402
+from pinneapple_systems.digital_twin import cooled_part as CP
 
 L, W, H = 0.20, 0.08, 0.016
-CH_W, CH_H, CH_Y = 0.008, 0.008, (-0.024, -0.008, 0.008, 0.024)
+CH_W, CH_H, CH_Y = 0.008, 0.008, (-0.030, -0.010, 0.010, 0.030)
 
 
 def plate(tmp_path=None):
-    m = trimesh.creation.box(extents=(L, W, H))
-    for y in CH_Y:
-        c = trimesh.creation.box(extents=(L + 0.02, CH_W, CH_H))
-        c.apply_translation((0, y, 0))
-        try:
-            m = m.difference(c)
-        except Exception as e:                       # no boolean engine here
-            pytest.skip(f"trimesh boolean unavailable: {e}")
+    V, F = CP.cold_plate(L, W, H, len(CH_Y), CH_W, CH_H)
     if tmp_path is not None:
+        trimesh = pytest.importorskip("trimesh")
         p = os.path.join(tmp_path, "plate.stl")
-        m.export(p)
+        trimesh.Trimesh(V, F).export(p)
         return p
-    return m
+    return V, F
 
 
-PITCH = (0.02, 0.004, 0.002)
+PITCH = (0.02, 0.002, 0.002)
 
 
 def test_voxels_and_passages_of_a_plate():
     g = CP.voxelize_part(plate(), PITCH)
-    assert g.shape == (10, 20, 8) and g.n_passages == 4 and g.flow_axis == 0
+    assert g.shape == (10, 40, 8) and g.n_passages == 4 and g.flow_axis == 0
     exact = L * W * H - len(CH_Y) * L * CH_W * CH_H
-    assert g.solid_volume() == pytest.approx(exact, rel=1e-6)
+    assert g.solid_volume() == pytest.approx(exact, rel=1e-12)
 
 
 def test_unit_and_errors():
-    m = plate()
-    mm = trimesh.Trimesh(m.vertices * 1000.0, m.faces)
-    g = CP.voxelize_part(mm, PITCH, unit="mm")
+    V, F = plate()
+    g = CP.voxelize_part((V * 1000.0, F), PITCH, unit="mm")
     assert g.n_passages == 4 and g.solid_volume() == pytest.approx(L * W * H - 4 * L * CH_W * CH_H, rel=1e-6)
     with pytest.raises(ValueError, match="unit"):
-        CP.voxelize_part(m, PITCH, unit="ft")
+        CP.voxelize_part((V, F), PITCH, unit="ft")
     with pytest.raises(ValueError, match="no coolant passage"):
-        CP.voxelize_part(trimesh.creation.box(extents=(L, W, H)), PITCH)
+        CP.voxelize_part(_solid_box(), PITCH)
+    with pytest.raises(ValueError, match="do not fit"):
+        CP.cold_plate(channels=4, channel_width=0.03)
+
+
+def _solid_box():
+    import itertools
+    c = np.array(list(itertools.product((-L / 2, L / 2), (-W / 2, W / 2), (-H / 2, H / 2))))
+    tri = [[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6],
+           [0, 6, 4], [1, 5, 7], [1, 7, 3]]
+    return c, np.array(tri)
+
+
+def test_the_built_in_plate_is_a_closed_surface():
+    V, F = plate()
+    a = (np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]]) * V[F[:, 0]]).sum() / 6    # divergence theorem
+    assert a == pytest.approx(L * W * H - 4 * L * CH_W * CH_H, rel=1e-12)
+    g = CP.voxelize_part("cold_plate", PITCH)
+    assert g.n_passages == 4 and g.solid_volume() == pytest.approx(a, rel=1e-12)
 
 
 def test_steady_energy_balance_and_symmetry():

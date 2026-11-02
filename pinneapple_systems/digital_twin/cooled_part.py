@@ -48,8 +48,8 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["PartGrid", "voxelize_part", "CooledPart", "ReducedPart", "simulate_readings", "run_twin", "field_view_of",
-           "ALUMINIUM"]
+__all__ = ["PartGrid", "cold_plate", "voxelize_part", "CooledPart", "ReducedPart", "simulate_readings", "run_twin",
+           "field_view_of", "ALUMINIUM"]
 
 ALUMINIUM = {"k": 167.0, "rho": 2700.0, "cp": 896.0}     # 6061-T6: W/(m K), kg/m3, J/(kg K)
 _LENGTH = {"m": 1.0, "mm": 1e-3, "cm": 1e-2, "in": 0.0254}
@@ -83,7 +83,54 @@ class PartGrid:
         return float(self.solid.sum() * np.prod(self.d))
 
 
+def cold_plate(length: float = 0.20, width: float = 0.08, thickness: float = 0.016, channels: int = 4,
+               channel_width: float = 0.008, channel_height: float = 0.008) -> tuple[np.ndarray, np.ndarray]:
+    """A plate [m] with ``channels`` straight rectangular passages through its length (along x), evenly spaced
+    across its width and centred in its thickness: the closed surface as vertices and triangles (the boundary faces
+    of the solid cells of a grid on the plate's edges)."""
+    pitch = width / channels
+    if channel_width >= pitch or channel_height >= thickness:
+        raise ValueError("the channels do not fit in the plate")
+    ys = sorted({-width / 2, width / 2} | {-width / 2 + pitch * (i + 0.5) + s * channel_width / 2
+                                           for i in range(channels) for s in (-1, 1)})
+    xs, zs = [-length / 2, length / 2], [-thickness / 2, -channel_height / 2, channel_height / 2, thickness / 2]
+    yc = np.diff(ys) / 2 + ys[:-1]
+    wall = np.array([all(abs(y - (-width / 2 + pitch * (i + 0.5))) > channel_width / 2 for i in range(channels))
+                     for y in yc])
+    occ = np.ones((1, len(yc), 3), bool)
+    occ[0, ~wall, 1] = False
+    V, F = [], []
+    g = (np.array(xs), np.array(ys), np.array(zs))
+    for i, j, k in np.argwhere(occ):
+        lo = np.array([g[0][i], g[1][j], g[2][k]])
+        hi = np.array([g[0][i + 1], g[1][j + 1], g[2][k + 1]])
+        for a in range(3):
+            for side in (0, 1):
+                nb = [i, j, k]
+                nb[a] += 1 if side else -1
+                if 0 <= nb[a] < occ.shape[a] and occ[tuple(nb)]:
+                    continue
+                b, c = [x for x in range(3) if x != a]
+                q = []
+                for u, v in ((0, 0), (1, 0), (1, 1), (0, 1)):
+                    pnt = lo.copy()
+                    pnt[a] = hi[a] if side else lo[a]
+                    pnt[b] = hi[b] if u else lo[b]
+                    pnt[c] = hi[c] if v else lo[c]
+                    q.append(pnt)
+                n0 = len(V)
+                V += q
+                tri = [[n0, n0 + 1, n0 + 2], [n0, n0 + 2, n0 + 3]]
+                F += tri if (side == 1) == ((a == 1) is False) else [t[::-1] for t in tri]
+    return np.array(V), np.array(F, np.int64)
+
+
+PRIMITIVES = {"cold_plate": cold_plate}
+
+
 def _load(geometry) -> tuple[np.ndarray, np.ndarray]:
+    if isinstance(geometry, str) and geometry in PRIMITIVES:
+        return PRIMITIVES[geometry]()
     if isinstance(geometry, (str, bytes)) or hasattr(geometry, "__fspath__"):
         import trimesh
         m = trimesh.load(str(geometry), force="mesh")
@@ -127,7 +174,8 @@ def voxelize_part(geometry, pitch: float | Sequence[float], *, unit: str = "m", 
     Parameters
     ----------
     geometry : str or path or trimesh.Trimesh or (V, F)
-        A closed surface: a file trimesh reads (STL, OBJ, PLY...), a mesh, or vertices and triangles.
+        A closed surface: a file trimesh reads (STL, OBJ, PLY...), a mesh, vertices and triangles, or the name of
+        a built-in part (``"cold_plate"``: :func:`cold_plate` with its defaults).
     pitch : float or (3,) [m]
         Cell size per axis (adjusted so a whole number of cells spans the bounding box).
     unit : str

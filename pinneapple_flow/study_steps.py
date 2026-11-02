@@ -294,7 +294,8 @@ def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_loa
     Parameters
     ----------
     geometry : str
-        Path of the part's closed surface (STL, OBJ, PLY).
+        Path of the part's closed surface (STL, OBJ, PLY), or ``"cold_plate"`` (a built-in plate with four
+        channels, :func:`pinneapple_systems.digital_twin.cooled_part.cold_plate`).
     out_dir : str
         Folder for the files: ``twin.glb`` + ``twin.json`` (field view, ``pinneapple-field-view/v1``) and
         ``series.json`` (sensors measured and predicted, coefficients with their bands, alarms).

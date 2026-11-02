@@ -125,7 +125,7 @@ def test_dipole_field_line_is_tangent_to_the_field():
 
 
 def test_small_helpers_literal_calls():
-    assert math.isclose(lorentz_factor(0.6 * 299792458.0), 1.25, rel_tol=1e-12)
+    assert math.isclose(lorentz_factor(179875474.8), 1.25, rel_tol=1e-12)
     v = pitch_velocity(1000.0, 30.0, [0.0, 0.0, 1.0], 0.0)
     assert math.isclose(np.linalg.norm(v), 1000.0) and math.isclose(v[2], 1000.0 * math.cos(math.radians(30)))
 

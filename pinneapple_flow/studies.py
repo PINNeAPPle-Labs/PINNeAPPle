@@ -87,7 +87,8 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
     StudyRole("twin", "Digital twin (assimilation and monitoring)", "Gêmeo digital (assimilação e monitoramento)",
               "digital twin state estimation assimilation kalman monitor anomaly",
               (("twin.tracks", "the twin's state tracks the measurements within their noise"),
-               ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 30),
+               ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 120,
+              "pinneapple_flow.study_steps:twin_step"),
     StudyRole("analyze", "Data analysis", "Análise dos dados", "time series analysis statistics predictability",
               (("analyze.stationarity", "stationarity and trends stated"),
                ("analyze.leakage", "no train/test leakage")), 10, "pinneapple_flow.study_steps:analyze_step"),
@@ -155,7 +156,8 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("physics", "stream", "identify", "surrogate", "twin", "verify"),
               ("digital twin", "twin", "live data", "sensor feed", "stream", "monitor", "real-time data", "mqtt",
                "opc", "gêmeo digital", "gemeo digital", "dados ao vivo", "sensores", "monitorar", "tempo real"),
-              (("verify.replay", "replayed recorded data: alarms on known faults, none on healthy data"),)),
+              (("verify.replay", "replayed recorded data: alarms on known faults, none on healthy data"),),
+              verify_in="twin"),
     StudyKind("forecast", "Forecast", "Previsão",
               "predict the future of a measured time series",
               ("dataset", "analyze", "forecast", "verify"),
@@ -226,11 +228,16 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
                    is_step: bool = False) -> list[str]:
     """The ordered steps of a study kind for this problem: ``cad`` first for a STEP file; ``geometry`` when the physics
     is spatial and no geometry was given (always, for a design optimisation); ``mesh`` when it is spatial; ``dataset`` from the user's file (and the DOE
-    and simulation that would only generate it dropped) when there is data."""
+    and simulation that would only generate it dropped) when there is data. A digital twin of a given part is the
+    one step of the library's part twin."""
     k = STUDY_KINDS[kind]
     roles: list[str] = []
     if is_step:
         roles.append("cad")
+    if kind == "twin" and has_geometry:
+        # the library's twin of a given part (twin_step) does the physics on the part, the data (recorded, or a
+        # simulated replay), the assimilation and the replay check in one step
+        return roles + ["twin"]
     if k.spatial_roles:
         # a parametric geometry when none was given and the physics is spatial; a design optimisation keeps it even
         # without spatial physics, because its design variables are usually dimensions

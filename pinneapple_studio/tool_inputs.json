@@ -1915,6 +1915,21 @@
   },
   "source": "tests/test_flow_study_steps_literal.py:30"
  },
+ "pinneapple_flow.study_steps:twin_step": {
+  "inputs": {
+   "geometry": "examples/digital_twin/cold_plate_4ch.stl",
+   "out_dir": "twin_smoke",
+   "heat_load": 600.0,
+   "pitch": [
+    0.02,
+    0.004,
+    0.002
+   ],
+   "duration": 300.0,
+   "fault_time": 150.0,
+   "fault_passage": 2
+  }
+ },
  "pinneapple_flow.study_steps:uncertainty_step": {
   "inputs": {
    "distributions": {

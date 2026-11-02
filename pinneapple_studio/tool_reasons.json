@@ -1,6 +1,11 @@
 {
  "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit",
  "pinneapple_analysis.dynamics.koopman:KoopmanReconstruction": "a result record: KoopmanReconstruction.evaluate(operator, trajectories) builds it from a fitted KoopmanOperator and its trajectories, which a form cannot hold; building it from its own fields would run nothing",
+ "pinneapple_design.geometry.brep.bake:bake": "takes CadBody or TessMesh objects built from a STEP file, which a form cannot hold, and writes a mesh file; tests/test_brep_bake.py reads every format back (counts and volume)",
+ "pinneapple_design.geometry.brep.bake:mesh_quality": "takes a TessMesh and its CadBody from a STEP file, which a form cannot hold; tests/test_brep_bake.py checks it on a 50-hole plate for both meshers",
+ "pinneapple_design.geometry.brep.bake:self_intersections": "takes a TessMesh, which a form cannot hold; tests/test_brep_bake.py checks one sphere (none) and two overlapping spheres",
+ "pinneapple_design.geometry.brep.bake:to_meshdata": "takes a CadBody or TessMesh from a STEP file, which a form cannot hold; tests/test_brep_bake.py checks the triangles, normals and bounding box",
+ "pinneapple_design.geometry.brep.bake:volume_mesh": "takes a CadBody or TessMesh from a STEP file, which a form cannot hold, and needs gmsh; tests/test_brep_bake.py checks the tetrahedral volume",
  "pinneapple_design.geometry.brep.diagnostics:discrete_curvature": "takes a TessMesh of a STEP body, which a form cannot hold; tests/test_brep_diagnostics.py checks it against the sphere's K = 1/R^2 and H = 1/R",
  "pinneapple_design.geometry.brep.diagnostics:edge_continuity": "takes a CadBody built from a STEP file, which a form cannot hold; tests/test_brep_diagnostics.py checks G0, G1 and G2 on sharp, filleted and curvature-continuous blocks",
  "pinneapple_design.geometry.brep.diagnostics:exact_curvature": "takes a CadBody and its TessMesh, built from a STEP file, which a form cannot hold; tests/test_brep_diagnostics.py checks it against the sphere, cylinder and torus closed forms",

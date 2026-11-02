@@ -117,3 +117,47 @@ characteristic −98 = 2 − 2·50:
 - cone and sphere through the fast mesher, with the sphere's vertices exactly on the sphere;
 - the fallback to the kernel on a torus, with its reason;
 - kernel face IDs whose areas add up to the exact face areas.
+
+## 3. Surface quality (#1117)
+
+```python
+from pinneapple_design.geometry.brep import diagnostics as D
+
+m = D.refine(tessellate(b, "normal"))          # denser mesh, same face ids (planes have corner vertices only)
+c = D.exact_curvature(b, m)                    # k1, k2, K [1/m^2], H [1/m], outward normals, from the exact surface
+d = D.discrete_curvature(m)                    # K and H from the triangles alone
+edges = D.edge_continuity(b)                   # per edge: level G0/G1/G2, gap, angle, curvature jump
+z = D.zebra(m, c["normal"], n_stripes=16)
+h = D.highlight_lines(m, c["normal"])
+D.render(m, c["H"], "mean_curvature.png", colorbar="H [1/m]")
+```
+
+What each one measures:
+- **Exact curvature.** The kernel evaluates the surface derivatives of the face each vertex lies on. Curvature is
+  positive where the surface bends away from its outward normal (a ball seen from outside) and negative in a bore.
+- **Discrete curvature.** The angle deficit gives K and the cotangent Laplacian gives H. Where it departs from the
+  exact value, the mesh is too coarse for the shape. Sharp edges show up as large values, as expected of a discrete
+  estimate there.
+- **Edge continuity.**
+  - G0: the faces meet at an angle.
+  - G1: they are tangent.
+  - G2: they are curvature continuous too.
+  - The tolerances are the kernel's defaults: 0.5° and a 1 % relative curvature jump.
+- **Zebra.** It reflects a cylinder of black and white stripes around the part, seen from an eye point. The stripes
+  run smoothly across G2 joins, kink at G1 and break at G0.
+- **Highlight lines** (Beier & Chen, 1994). They are lit where the line along a surface normal passes near one of a
+  set of parallel straight light lines, so they bend where the surface does.
+- **`render`.** It draws any per-vertex value to a PNG: an orthographic view, back faces culled, triangles painted
+  back to front.
+
+**Checked** in `tests/test_brep_diagnostics.py`:
+
+| Case | Check |
+|---|---|
+| Sphere, R = 10 mm | exact K = 1/R² and H = 1/R within 1e-9; outward normals; discrete K and H within 1 % |
+| Cylinder, r = 5 mm | H = 1/(2r), K = 0 on the side; zero on the caps |
+| Torus, 20 / 5 mm | K and H against the closed forms at every vertex within 1e-6; K < 0 inside, > 0 outside |
+| Block, sharp / filleted r = 5 mm / `continuity=2` | 12 G0 / 16 G0 + 8 G1 / 16 G0 + 8 G2; G1 jump in curvature 1/r = 200 1/m |
+| `refine` | watertight, same Euler characteristic and face areas, edges below the limit |
+| Highlight lines on a plane parallel to the light plane | straight: the value depends on one coordinate only |
+| Zebra on a plane seen from far away | one uniform value; on a sphere, both stripe colours |

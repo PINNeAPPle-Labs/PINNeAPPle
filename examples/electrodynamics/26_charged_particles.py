@@ -211,7 +211,7 @@ def _frame(fig, belt, k, trail):
     ax.set_xlim(-lim, lim)
     ax.set_ylim(-lim, lim)
     ax.set_zlim(-lim * 0.7, lim * 0.7)
-    ax.set_box_aspect((1, 1, 0.7), zoom=1.9)
+    ax.set_box_aspect((1, 1, 0.7), zoom=1.35)
     ax.view_init(elev=22, azim=-60 + 40 * k / max(1, len(x) - 1))
     t = belt["t"][k]
     fig.text(0.03, 0.95, "A proton trapped in Earth's magnetic field", color=FG, fontsize=15, va="top")

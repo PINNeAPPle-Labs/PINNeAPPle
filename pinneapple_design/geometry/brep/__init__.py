@@ -8,6 +8,15 @@ their surface types and parameters, and the kernel's exact volume and area.
 The exact kernel is SMLib (NVIDIA, Apache-2.0) through ``smlibpy`` (MIT): ``pip install "pinneapple[brep]"``.
 For STEP -> mesh without an exact kernel, :func:`pinneapple_design.geometry.io.step.step_to_mesh` (gmsh) remains.
 """
+from .diagnostics import (
+    discrete_curvature,
+    edge_continuity,
+    exact_curvature,
+    highlight_lines,
+    refine,
+    render,
+    zebra,
+)
 from .step import (
     CadBody,
     CadFace,
@@ -17,4 +26,5 @@ from .step import (
 )
 from .tessellate import QUALITY, TessMesh, tessellate
 
-__all__ = ["CadBody", "CadFace", "available_backends", "read_step", "write_step", "QUALITY", "TessMesh", "tessellate"]
+__all__ = ["CadBody", "CadFace", "available_backends", "read_step", "write_step", "QUALITY", "TessMesh", "tessellate",
+           "exact_curvature", "discrete_curvature", "edge_continuity", "zebra", "highlight_lines", "refine", "render"]

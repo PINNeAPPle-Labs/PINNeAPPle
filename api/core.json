@@ -1,0 +1,4523 @@
+{
+ "schema": "pinneapple-core-api/v1",
+ "pp": {
+  "solve": "from pinneapple_physics.solving import solve",
+  "zoo": "lazy 'pinneapple_hub.zoo'",
+  "validate": "lazy ('pinneapple_analysis.validation.validate', 'pp_validate')",
+  "trust_card": "lazy ('pinneapple_analysis.trust.field_card', 'trust_card')",
+  "datasets": "lazy 'pinneapple_hub.zoo.datasets'",
+  "benchmark": "lazy 'pinneapple_analysis.benchmark'",
+  "viz": "lazy 'pinneapple_tools.visualization.studio'",
+  "compare": "from pinneapple_physics.solving import compare",
+  "presets": "lazy 'pinneapple_presets'",
+  "geometries": "lazy 'pinneapple_design.geometry_library'",
+  "design": "lazy ('pinneapple_design.intent', 'design')",
+  "doctor": "from pinneapple_core.onboarding import doctor",
+  "recommend": "from pinneapple_core.onboarding import recommend",
+  "card": "from pinneapple_core.onboarding import card",
+  "new": "def(name, **kwargs)",
+  "closed_form": "lazy 'pinneapple_physics.closed_form'",
+  "uncertainty": "lazy 'pinneapple_analysis.uncertainty'",
+  "build_model": "def(name, **kwargs)",
+  "get_preset": "from pinneapple_physics.pde_environment import get_preset",
+  "list_presets": "from pinneapple_physics.pde_environment import list_presets",
+  "list_methods": "from pinneapple_physics.solving import list_methods",
+  "list_models": "def()",
+  "to_jsonable": "lazy ('pinneapple_core.jsonable', 'to_jsonable')",
+  "__version__": "value"
+ },
+ "modules": {
+  "pinneapple_analysis.trust": {
+   "Check": "from .trust_report import Check",
+   "FieldTrustCard": "from .field_card import FieldTrustCard",
+   "TrustGate": "from .trust_gate import TrustGate",
+   "TrustReport": "from .trust_report import TrustReport",
+   "TrustScore": "from .trust_gate import TrustScore",
+   "annotations": "from __future__ import annotations",
+   "field_checks": "from .field_card import field_checks",
+   "trust_card": "from .field_card import trust_card"
+  },
+  "pinneapple_analysis.trust.field_card": {
+   "FieldCheck": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "line": "()"
+    }
+   },
+   "FieldTrustCard": {
+    "class": [],
+    "methods": {
+     "failed": "()",
+     "to_dict": "()",
+     "to_markdown": "()"
+    }
+   },
+   "field_checks": "def(grid, values, *, pde=None, source=None, alpha=1.0, time_coord='t', dirichlet=None, reference=None, value_range=None, train_bounds=None, query_points=None, tolerances=None)",
+   "trust_card": "def(grid, values, *, name='field', is_ml=True, limitations=(), min_coverage=0.5, **kwargs)"
+  },
+  "pinneapple_analysis.trust.trust_gate": {
+   "TrustGate": {
+    "class": [],
+    "methods": {
+     "__init__": "(*, ood_weight=0.4, residual_weight=0.4, ensemble_weight=0.2, ood_level=0.01)",
+     "fit": "(training_coords)",
+     "fit_from_bounds": "(domain_bounds)",
+     "coord_bounds_from_checkpoint": "(checkpoint)",
+     "ood_p_values": "(x)",
+     "score": "(model, x, *, residual_fn=None, residual_kwargs=None, ensemble=None)"
+    }
+   },
+   "TrustScore": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_analysis.trust.trust_report": {
+   "Check": {
+    "class": [],
+    "methods": {}
+   },
+   "TrustReport": {
+    "class": [],
+    "methods": {
+     "executadas": "()",
+     "cobertura": "()",
+     "score": "()",
+     "decisao": "()",
+     "motivos": "()",
+     "to_dict": "()",
+     "from_dict": "(d)",
+     "to_markdown": "()"
+    }
+   },
+   "checagem_booleana": "def(nome, passou, *, fonte='', critica=False, peso=1.0, motivo_nao_executada='')",
+   "checagem_erro_relativo": "def(nome, erro, limite, *, fonte='', critica=False, peso=1.0, motivo_nao_executada='')",
+   "from_trust_score": "def(ts, *, limite_sub_score=0.7, fonte='TrustGate')"
+  },
+  "pinneapple_analysis.validation": {
+   "BoundaryCheck": "from .boundary import BoundaryCheck",
+   "CheckResult": "from .core import CheckResult",
+   "ConservationCheck": "from .conservation import ConservationCheck",
+   "MetamorphicReport": "from .metamorphic import MetamorphicReport",
+   "PhysicsValidator": "from .validator import PhysicsValidator",
+   "SymmetryCheck": "from .symmetry import SymmetryCheck",
+   "ValidationReport": "from .core import ValidationReport",
+   "annotations": "from __future__ import annotations",
+   "badge": "from .report_artifact import badge",
+   "check_relations": "from .metamorphic import check_relations",
+   "check_report": "from .report_artifact import check_report",
+   "compare_to_analytical": "from .analytical import compare_to_analytical",
+   "diff": "from .report_artifact import diff",
+   "energy_spectrum": "from .spectral import energy_spectrum",
+   "high_wavenumber_bias": "from .spectral import high_wavenumber_bias",
+   "model_card_section": "from .report_artifact import model_card_section",
+   "shields_endpoint": "from .report_artifact import shields_endpoint",
+   "spectral_fidelity": "from .spectral import spectral_fidelity",
+   "structure_functions": "from .spectral import structure_functions",
+   "validate_against_solver": "from .analytical import validate_against_solver",
+   "validate_model": "from .validator import validate_model"
+  },
+  "pinneapple_analysis.validation.analytical": {
+   "compare_to_analytical": "def(model, analytical_fn, coord_names, domain_bounds, n_points=5000, field_names=None, device='cpu')",
+   "validate_against_solver": "def(model, solver_data, coord_names, field_names, device='cpu')"
+  },
+  "pinneapple_analysis.validation.arena": {
+   "ArenaBudget": "from .loop import ArenaBudget",
+   "ArenaReport": "from .loop import ArenaReport",
+   "Defence": "from .blue import Defence",
+   "Finding": "from .red import Finding",
+   "GENERATORS": "from .generators import GENERATORS",
+   "Generator": "from .generators import Generator",
+   "METHODS": "from .search import METHODS",
+   "ModelAudit": "from .loop import ModelAudit",
+   "ReplayResult": "from .cases import ReplayResult",
+   "RoundReport": "from .loop import RoundReport",
+   "SearchResult": "from .search import SearchResult",
+   "annotations": "from __future__ import annotations",
+   "audit_model": "from .loop import audit_model",
+   "builtin_cases": "from .cases import builtin_cases",
+   "calibrate": "from .blue import calibrate",
+   "calibrate_scores": "from .blue import calibrate_scores",
+   "cmaes": "from .search import cmaes",
+   "evasion_search": "from .red import evasion_search",
+   "false_alarm_search": "from .red import false_alarm_search",
+   "generators_for": "from .generators import generators_for",
+   "get_generator": "from .generators import get_generator",
+   "harden": "from .blue import harden",
+   "load_cases": "from .cases import load_cases",
+   "load_defence": "from .cases import load_defence",
+   "minimize": "from .search import minimize",
+   "mutation_escapes": "from .red import mutation_escapes",
+   "mutation_score": "from .red import mutation_score",
+   "replay": "from .cases import replay",
+   "run_arena": "from .loop import run_arena",
+   "save_cases": "from .cases import save_cases",
+   "score_matrix": "from .blue import score_matrix"
+  },
+  "pinneapple_analysis.validation.arena.blue": {
+   "Defence": {
+    "class": [],
+    "methods": {
+     "from_checks": "(checks)",
+     "names": "()",
+     "scores": "(case)",
+     "margins": "(values)",
+     "rejects_values": "(values)",
+     "rejects": "(case)",
+     "statistic": "(values)",
+     "to_dict": "()",
+     "describe": "()"
+    }
+   },
+   "calibrate": "def(checks, clean_cases, alpha=0.01, *, safety=0.5, seed=0, false_alarms=())",
+   "calibrate_scores": "def(checks, values, alpha=0.01, *, safety=0.5, seed=0, false_alarms=None, kind='split-conformal combined test', floor=0.01)",
+   "harden": "def(current, library, clean_cases, *, escapes=(), false_alarms=(), alpha=0.01, safety=0.5, seed=0, clean_values=None)",
+   "score_matrix": "def(checks, cases)"
+  },
+  "pinneapple_analysis.validation.arena.cases": {
+   "ReplayResult": {
+    "class": [],
+    "methods": {
+     "regressions": "()",
+     "ok": "()",
+     "lines": "()"
+    }
+   },
+   "builtin_cases": "def()",
+   "load_cases": "def(path)",
+   "load_defence": "def(path)",
+   "replay": "def(path)",
+   "save_cases": "def(path, problem, defence, findings, meta=None)"
+  },
+  "pinneapple_analysis.validation.arena.generators": {
+   "Generator": {
+    "class": [],
+    "methods": {
+     "dim": "()",
+     "params": "(z)",
+     "apply": "(problem, case, params)"
+    }
+   },
+   "generators_for": "def(problem)",
+   "get_generator": "def(name)"
+  },
+  "pinneapple_analysis.validation.arena.loop": {
+   "ArenaBudget": {
+    "class": [],
+    "methods": {
+     "small": "()",
+     "of": "(budget)"
+    }
+   },
+   "ArenaReport": {
+    "class": [],
+    "methods": {
+     "failures": "()",
+     "passed": "()",
+     "save_cases": "(path)",
+     "check_power": "()",
+     "to_dict": "()",
+     "save": "(path)",
+     "to_markdown": "()"
+    }
+   },
+   "ModelAudit": {
+    "class": [],
+    "methods": {
+     "escapes": "()",
+     "false_alarms": "()",
+     "to_markdown": "()"
+    }
+   },
+   "RoundReport": {
+    "class": [],
+    "methods": {
+     "worst_escape": "()",
+     "worst_false_alarm": "()",
+     "to_dict": "()"
+    }
+   },
+   "audit_model": "def(problem, predict, defence=None, *, n_cases=50, seed=0, min_error=0.1, varied=True, **problem_options)",
+   "run_arena": "def(problem='darcy_2d', checks=None, *, budget=None, rounds=1, alpha=0.01, safety=0.5, min_error=0.1, method='de', seed=0, generators=None, cases_path=None, verbose=False, **problem_options)"
+  },
+  "pinneapple_analysis.validation.arena.red": {
+   "Finding": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "from_dict": "(d)",
+     "case": "(problem)"
+    }
+   },
+   "evasion_search": "def(problem, defence, generator, base, *, budget=200, method='de', seed=0, min_error=0.1)",
+   "false_alarm_search": "def(problem, defence, *, seeds, budget=100, method='de', search_seed=0)",
+   "mutation_escapes": "def(matrix, thresholds, *, seed, min_error=0.1, per_fault=1)",
+   "mutation_score": "def(matrix, thresholds, min_error=0.1)"
+  },
+  "pinneapple_analysis.validation.arena.search": {
+   "SearchResult": {
+    "class": [],
+    "methods": {}
+   },
+   "cmaes": "def(f, dim, budget, seed=0, sigma0=0.3, x0=None)",
+   "differential_evolution": "def(f, dim, budget, seed=0)",
+   "lbfgs": "def(f, dim, budget, seed=0)",
+   "minimize": "def(f, dim, budget, method='de', seed=0)"
+  },
+  "pinneapple_analysis.validation.boundary": {
+   "BoundaryCheck": {
+    "class": [],
+    "methods": {
+     "__init__": "(device='cpu')",
+     "check_dirichlet": "(model, boundary_points, expected_values, field_idx=0, tolerance=0.001, name='dirichlet_bc')",
+     "check_neumann": "(model, boundary_points, normals, expected_flux, field_idx=0, tolerance=0.001, name='neumann_bc')",
+     "check_periodicity": "(model, x_left, x_right, field_idx=0, tolerance=0.001, name='periodicity')"
+    }
+   }
+  },
+  "pinneapple_analysis.validation.conservation": {
+   "ConservationCheck": {
+    "class": [],
+    "methods": {
+     "__init__": "(device='cpu')",
+     "check_mass_conservation": "(model, coord_names, domain_bounds, field_name='u', n_points=10000, tolerance=0.001, spatial_coord_names=None, velocity_indices=None)",
+     "check_energy_conservation": "(model, coord_names, domain_bounds, field_name='u', n_points=10000, tolerance=0.001, velocity_indices=None)",
+     "check_integral_quantity": "(model, coord_names, domain_bounds, integrand_fn, expected_value, tolerance, name, n_points=10000)"
+    }
+   }
+  },
+  "pinneapple_analysis.validation.core": {
+   "CheckResult": {
+    "class": [],
+    "methods": {}
+   },
+   "ValidationReport": {
+    "class": [],
+    "methods": {
+     "create": "(model_name)",
+     "passed": "()",
+     "n_passed": "()",
+     "n_failed": "()",
+     "summary": "()",
+     "to_dict": "()",
+     "save": "(path)"
+    }
+   }
+  },
+  "pinneapple_analysis.validation.error_map": {
+   "ErrorMap": {
+    "class": [],
+    "methods": {
+     "where": "(point)",
+     "summary": "(reported=None)",
+     "to_dict": "(reported=None)"
+    }
+   },
+   "error_by_region": "def(err, regions, *, weights=None)",
+   "error_hotspots": "def(points, err, *, n=5, quantile=0.9, link=None, weights=None)",
+   "error_map": "def(points, pred, ref, *, regions=None, weights=None, n_hotspots=5, quantile=0.9, unit='', label='error')",
+   "grow_region": "def(points, idx, radius)",
+   "pointwise_error": "def(pred, ref)"
+  },
+  "pinneapple_analysis.validation.fault_injection": {
+   "BenchmarkProblem": "from .problems import BenchmarkProblem",
+   "BurgersProblem": "from .problems import BurgersProblem",
+   "Case": "from .problems import Case",
+   "DATA_FAULTS": "from .faults import DATA_FAULTS",
+   "DarcyProblem": "from .problems import DarcyProblem",
+   "Dataset": "from .problems import Dataset",
+   "DetectionMatrix": "from .matrix import DetectionMatrix",
+   "Fault": "from .faults import Fault",
+   "FaultInjectionReport": "from .matrix import FaultInjectionReport",
+   "MODEL_FAULTS": "from .faults import MODEL_FAULTS",
+   "PROBLEMS": "from .problems import PROBLEMS",
+   "annotations": "from __future__ import annotations",
+   "auc": "from .matrix import auc",
+   "check_library": "from .checks import check_library",
+   "data_faults": "from .faults import data_faults",
+   "dataset_checks": "from .checks import dataset_checks",
+   "default_checks": "from .checks import default_checks",
+   "flags": "from .checks import flags",
+   "get_fault": "from .faults import get_fault",
+   "get_problem": "from .problems import get_problem",
+   "model_faults": "from .faults import model_faults",
+   "run_fault_injection": "from .matrix import run_fault_injection",
+   "score": "from .checks import score"
+  },
+  "pinneapple_analysis.validation.fault_injection.checks": {
+   "check_library": "def(problem)",
+   "dataset_checks": "def(problem, case_checks=None)",
+   "default_checks": "def(problem)",
+   "flags": "def(check, case, tolerance=None)",
+   "score": "def(check, case)"
+  },
+  "pinneapple_analysis.validation.fault_injection.faults": {
+   "Fault": {
+    "class": [],
+    "methods": {
+     "documented_for": "(problem)"
+    }
+   },
+   "data_faults": "def(problem=None)",
+   "get_fault": "def(name)",
+   "model_faults": "def(problem=None)"
+  },
+  "pinneapple_analysis.validation.fault_injection.matrix": {
+   "DetectionMatrix": {
+    "class": [],
+    "methods": {
+     "with_tolerances": "(tolerances)",
+     "checks": "()",
+     "detection_rate": "(fault, magnitude, check=None)",
+     "false_alarm_rate": "(check=None)",
+     "minimal_magnitude": "(fault, check=None)",
+     "auc": "(fault, magnitude, check)",
+     "caught_at_documented": "(fault)",
+     "true_error": "(fault, magnitude)",
+     "failures": "()",
+     "to_dict": "()",
+     "to_markdown": "()"
+    }
+   },
+   "FaultInjectionReport": {
+    "class": [],
+    "methods": {
+     "failures": "()",
+     "passed": "()",
+     "check_power": "()",
+     "to_dict": "()",
+     "to_markdown": "()",
+     "save": "(path)"
+    }
+   },
+   "auc": "def(clean, faulty)",
+   "fault_rng": "def(seed, fault, magnitude, case_seed)",
+   "run_fault_injection": "def(problem='darcy_2d', *, checks=None, data_checks=None, model_faults=None, data_faults=None, n_cases=50, n_datasets=20, dataset_size=(16, 8), seed=0, min_rate=0.9, include_data=True, **problem_options)"
+  },
+  "pinneapple_analysis.validation.fault_injection.problems": {
+   "BenchmarkProblem": {
+    "class": [],
+    "methods": {
+     "__init__": "(**options)",
+     "case": "(seed, **variation)",
+     "sample": "(n, seed=0, **variation)",
+     "sample_varied": "(n, seed=0)",
+     "resolve": "(case, **changes)",
+     "predict_reference": "(inputs, params)",
+     "coords": "(case)",
+     "features": "(case)",
+     "input_case": "(seed, **variation)",
+     "envelope": "()",
+     "true_error": "(case, reference)",
+     "describe": "()"
+    }
+   },
+   "BurgersProblem": {
+    "class": [
+     "BenchmarkProblem"
+    ],
+    "methods": {
+     "resolve": "(case, *, u0=None, nu=None)",
+     "coords": "(case)",
+     "features": "(case)"
+    }
+   },
+   "Case": {
+    "class": [],
+    "methods": {
+     "with_field": "(values, **meta)"
+    }
+   },
+   "DarcyProblem": {
+    "class": [
+     "BenchmarkProblem"
+    ],
+    "methods": {
+     "resolve": "(case, *, a=None, f=None, axis_weights=(1.0, 1.0))",
+     "coords": "(case)",
+     "features": "(case)"
+    }
+   },
+   "Dataset": {
+    "class": [],
+    "methods": {
+     "cases": "()"
+    }
+   },
+   "get_problem": "def(problem, **options)"
+  },
+  "pinneapple_analysis.validation.field_metrics": {
+   "FieldErrorReport": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "field_error_metrics": "def(pred, target, *, ndim, bands=(4, 12), eps=1e-12)",
+   "spectral_error_shells": "def(pred, target, ndim)"
+  },
+  "pinneapple_analysis.validation.gallery": {
+   "GalleryResult": {
+    "class": [],
+    "methods": {
+     "summary": "()"
+    }
+   },
+   "conclude": "def(name, good, bad, *, expect, family, physics, out_dir=None)"
+  },
+  "pinneapple_analysis.validation.metamorphic": {
+   "Invariance": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "MetamorphicReport": {
+    "class": [],
+    "methods": {
+     "passed": "()",
+     "failures": "()",
+     "to_dict": "()",
+     "summary": "()"
+    }
+   },
+   "Monotonicity": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "Relation": {
+    "class": [],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "RelationResult": {
+    "class": [],
+    "methods": {
+     "check_id": "()",
+     "to_dict": "()"
+    }
+   },
+   "ResolutionConsistency": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "Similarity": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "Superposition": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "Symmetry": {
+    "class": [
+     "Relation"
+    ],
+    "methods": {
+     "violations": "(model, x)"
+    }
+   },
+   "box_sampler": "def(bounds, fixed=None, log=())",
+   "check_relations": "def(model, relations, sampler, *, n=64, seed=0, search='random', max_examples=50)",
+   "field_sampler": "def(make)",
+   "reflect_field": "def(axis)",
+   "relations_from_spec": "def(spec)",
+   "rotate_field": "def(k=1, axes=(0, 1))"
+  },
+  "pinneapple_analysis.validation.physics_learning": {
+   "Finding": {
+    "class": [],
+    "methods": {
+     "line": "()"
+    }
+   },
+   "VerificationReport": {
+    "class": [],
+    "methods": {
+     "failed": "()",
+     "out_of_scope": "()",
+     "detected": "()",
+     "to_markdown": "()"
+    }
+   },
+   "baselines": "def(model, case=None, *, n_theta=12, n_points=400, seed=1)",
+   "detection_study": "def(severities=(0.25, 0.5, 1.0, 2.0), budgets=(4, 8, 16, 48), *, seed=0, extra_models=None)",
+   "fv_residual": "def(model, case, th, rows)",
+   "intervention_checks": "def(model, case, theta, X, interventions=INTERVENTIONS)",
+   "random_points": "def(case, k, seed=0)",
+   "select_points": "def(case, theta, k=48, seed=0, interventions=INTERVENTIONS, pool=3000)",
+   "structural_checks": "def(model, case, theta, X, probes=True)",
+   "sufficiency": "def(model, case, theta, X)",
+   "verify": "def(model, case=None, theta=None, *, k=48, seed=0, points=None, probes=True)"
+  },
+  "pinneapple_analysis.validation.physics_learning_cases": {
+   "Model": {
+    "class": [],
+    "methods": {}
+   },
+   "Section": {
+    "class": [],
+    "methods": {
+     "dx": "()",
+     "z_edges": "()",
+     "centres": "()",
+     "interfaces": "()",
+     "height": "()",
+     "layer_of": "(z)",
+     "conductivity": "(z, theta)",
+     "source": "(x, theta)",
+     "solve": "(theta)",
+     "evaluate": "(theta, X)",
+     "tmax": "(theta)",
+     "outflow": "(theta)"
+    }
+   },
+   "defective_models": "def(sec, severity=1.0)",
+   "good_models": "def(sec, amplitudes=(0.003,), modes=(1,))",
+   "pinn_model": "def(sec, *, hard_sides=False, adam_steps=3000, lbfgs_steps=500, n_collocation=3000, seed=0, theta=None)",
+   "surrogate_model": "def(sec, n_train=48, *, correlated=True, seed=0)",
+   "training_distribution": "def(n, rng, *, correlated=True)"
+  },
+  "pinneapple_analysis.validation.pinn": {
+   "PINNMonitor": {
+    "class": [],
+    "methods": {
+     "__init__": "(problem, *, every=100, warmup=0, patience=2, stop_on=('pinn.trivial', 'pinn.causality', 'pinn.boundary', 'pinn.initial'), n_points=1024, grid=(32, 32), **kw)"
+    }
+   },
+   "PINNProblem": {
+    "class": [],
+    "methods": {
+     "dim": "()",
+     "mesh": "(grid=None)",
+     "uniform": "(n, rng)"
+    }
+   },
+   "PINNReport": {
+    "class": [],
+    "methods": {
+     "failure_modes": "()",
+     "passed": "()",
+     "summary": "()"
+    }
+   },
+   "burgers_1d": "def(nu=0.05 / math.pi)",
+   "cole_hopf": "def(x, t, nu, n=2001)",
+   "d": "def(u, X, i, order=1)",
+   "kovasznay": "def(re=40.0)",
+   "mlp": "def(n_in, n_out, width=32, depth=4, activation='tanh')",
+   "poisson_2d": "def(kx=1, ky=2, exact=True)",
+   "train_pinn": "def(problem, model=None, *, n_collocation=2000, n_condition=400, adam_steps=1500, lbfgs_steps=1000, lr=0.002, weights=None, monitor=None, seed=0, data=None, callback=None)",
+   "validate_pinn": "def(model, problem, *, n_points=4096, grid=None, train_points=None, tolerances=None, seed=0)"
+  },
+  "pinneapple_analysis.validation.report_artifact": {
+   "ReportDiff": {
+    "class": [],
+    "methods": {
+     "regressed": "()",
+     "to_dict": "()",
+     "to_markdown": "()"
+    }
+   },
+   "as_dict": "def(report)",
+   "badge": "def(report, label='physics-validated')",
+   "check_report": "def(report)",
+   "diff": "def(old, new, *, rtol=0.1)",
+   "hash_data": "def(*objs)",
+   "hash_model": "def(model)",
+   "model_card_section": "def(report, *, title='Physics validation')",
+   "shields_endpoint": "def(report, label='physics-validated')",
+   "sign_report": "def(report, key)",
+   "verify_report": "def(envelope, key)"
+  },
+  "pinneapple_analysis.validation.rollout": {
+   "RolloutReport": {
+    "class": [],
+    "methods": {
+     "passed": "()"
+    }
+   },
+   "divergence_time": "def(pred, ref, ndim, *, dt=1.0, err_tol=0.2, spec_tol=0.25, inv_tol=0.05, periodic=True, invariants=('mass', 'energy'), window=10)",
+   "invariant_drift": "def(pred, ndim, ref=None, *, dt=1.0, invariants=('mass', 'energy'), window=1)",
+   "invariant_series": "def(traj, ndim, invariants=('mass', 'energy'))",
+   "long_run_statistics": "def(pred, ref, ndim, *, dt=1.0, burn_in=0, periodic=True)",
+   "rollout": "def(step, u0, n_steps)",
+   "spectral_drift": "def(pred, ndim, ref=None, *, ref_spectrum=None, periodic=True, window=1, floor=1e-06)",
+   "validate_rollout": "def(pred, ndim, ref=None, *, dt=1.0, conserved=(), invariants=('mass', 'energy'), long_ref=None, burn_in=0, periodic=True, window=10, chaotic=False, tolerances=None)"
+  },
+  "pinneapple_analysis.validation.schema": {
+   "CheckSpec": {
+    "class": [],
+    "methods": {}
+   },
+   "spec_of": "def(check_id)"
+  },
+  "pinneapple_analysis.validation.spectral": {
+   "SpectralComparison": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "SpectralFidelityReport": {
+    "class": [],
+    "methods": {
+     "hf_bias": "()",
+     "passed": "()",
+     "to_dict": "()",
+     "summary": "()"
+    }
+   },
+   "StructureFunctions": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "energy_spectrum": "def(u, ndim=None, *, periodic=True, window='hann', kmax=None)",
+   "fit_power_law": "def(k, E, kmin, kmax)",
+   "gradient_metrics": "def(pred, ref, ndim, spacing=1.0, *, periodic=False, vector_axis=None, walls=(), conductivity=1.0)",
+   "high_wavenumber_bias": "def(pred, ref, ndim, **kw)",
+   "spectral_comparison": "def(pred, ref, ndim, *, periodic=True, window='hann', bands=(1 / 3, 2 / 3), floor=1e-10)",
+   "spectral_fidelity": "def(pred, ref, ndim, *, periodic=True, window='hann', bands=(1 / 3, 2 / 3), tol=0.25, spacing=1.0, vector_axis=None, walls=(), conductivity=1.0)",
+   "structure_functions": "def(u, ndim, *, orders=(2, 3), lags=None, periodic=True)"
+  },
+  "pinneapple_analysis.validation.symmetry": {
+   "SymmetryCheck": {
+    "class": [],
+    "methods": {
+     "__init__": "(device='cpu')",
+     "check_reflection": "(model, x_points, axis=0, field_idx=0, expected_sign=1.0, tolerance=0.001, name='reflection_symmetry', mirror=0.0)",
+     "check_rotational": "(model, x_points, angle, field_idx=0, tolerance=0.001, name='rotational_symmetry', vector_field_idx=None)"
+    }
+   }
+  },
+  "pinneapple_analysis.validation.validate": {
+   "ValidationCheck": {
+    "class": [],
+    "methods": {
+     "spec": "()",
+     "factor": "()",
+     "to_dict": "()"
+    }
+   },
+   "ValidationReport": {
+    "class": [],
+    "methods": {
+     "decision": "()",
+     "verdict": "()",
+     "credibility": "()",
+     "get": "(check_id)",
+     "to_dict": "()",
+     "to_json": "(path=None)",
+     "to_html": "()",
+     "to_trust_report": "()",
+     "to_check_report": "()",
+     "render": "(fmt)"
+    }
+   },
+   "as_field_model": "def(model)",
+   "validate": "def(model, problem=None, data=None, reference=None, level='standard', *, query=None, method=None, tolerances=None, seed=0)"
+  },
+  "pinneapple_analysis.validation.validator": {
+   "PhysicsValidator": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, coord_names, domain_bounds, device='cpu')",
+     "add_conservation_check": "(kind='mass', **kwargs)",
+     "add_boundary_check": "(kind='dirichlet', **kwargs)",
+     "add_symmetry_check": "(kind='reflection', **kwargs)",
+     "add_custom_check": "(fn, name, threshold, **kwargs)",
+     "validate": "(model_name=None)",
+     "validate_from_spec": "(problem_spec)"
+    }
+   },
+   "validate_model": "def(model, spec, coord_names=None, domain_bounds=None, device='cpu')"
+  },
+  "pinneapple_core.jsonable": {
+   "round_sig": "def(x, digits=6, small=0.001)",
+   "to_jsonable": "def(obj, *, digits=None, nonfinite=None, drop_private=False, unknown='keep')"
+  },
+  "pinneapple_core.onboarding": {
+   "Card": "from .catalog import Card",
+   "DoctorReport": "from .doctor import DoctorReport",
+   "Recommendation": "from .recommend import Recommendation",
+   "TEMPLATES": "from .newproject import TEMPLATES",
+   "annotations": "from __future__ import annotations",
+   "card": "from .catalog import card",
+   "describe": "from .catalog import describe",
+   "doctor": "from .doctor import doctor",
+   "format_card": "from .catalog import format_card",
+   "new_project": "from .newproject import new_project",
+   "profiles": "from .doctor import profiles",
+   "recommend": "from .recommend import recommend",
+   "search": "from .catalog import search",
+   "snippet": "from .catalog import snippet"
+  },
+  "pinneapple_core.onboarding.catalog": {
+   "Card": {
+    "class": [],
+    "methods": {
+     "as_dict": "()",
+     "format": "()"
+    }
+   },
+   "best_method": "def(name)",
+   "card": "def(name, *, with_related=True, check=True)",
+   "catalogue": "def()",
+   "default_geometry_note": "def(name)",
+   "describe": "def(name)",
+   "domains": "def()",
+   "format_card": "def(c, width=78)",
+   "needs_geometry_tags": "def(name)",
+   "probe": "def(name)",
+   "runnable": "def(name)",
+   "search": "def(text, top=5, *, min_score=0.0)",
+   "snippet": "def(name, method=None, *, train=False)",
+   "solver_available": "def(solver)",
+   "solver_requirement": "def(solver)",
+   "standalone_snippet": "def(name)",
+   "tag_names": "def(name)",
+   "trainable": "def(name)",
+   "working_method": "def(name)"
+  },
+  "pinneapple_core.onboarding.cli": {
+   "card_main": "def(argv)",
+   "doctor_main": "def(argv)",
+   "main": "def(argv=None)",
+   "new_main": "def(argv)",
+   "recommend_main": "def(argv)"
+  },
+  "pinneapple_core.onboarding.doctor": {
+   "Check": {
+    "class": [],
+    "methods": {
+     "line": "()"
+    }
+   },
+   "DoctorReport": {
+    "class": [],
+    "methods": {
+     "failures": "()",
+     "ok": "()",
+     "as_dict": "()",
+     "format": "()"
+    }
+   },
+   "doctor": "def(profile='start', *, verbose=True)",
+   "profiles": "def()"
+  },
+  "pinneapple_core.onboarding.newproject": {
+   "new_project": "def(name, *, dir=None, template='plain', preset='burgers_1d', verbose=True)",
+   "plan": "def(name, template='plain', preset='burgers_1d')"
+  },
+  "pinneapple_core.onboarding.recommend": {
+   "Recommendation": {
+    "class": [],
+    "methods": {
+     "as_dict": "()",
+     "explain": "()"
+    }
+   },
+   "recommend": "def(text, *, top=3)"
+  },
+  "pinneapple_data.cae": {
+   "CellBlock": "from .model import CellBlock",
+   "FormatError": "from .io import FormatError",
+   "METRICS": "from .quality import METRICS",
+   "Mesh": "from .model import Mesh",
+   "PolyMesh": "from .model import PolyMesh",
+   "courant_number": "from .metrics import courant_number",
+   "element_metrics": "from .quality import element_metrics",
+   "fv_metrics": "from .quality import fv_metrics",
+   "kind_of": "from .io import kind_of",
+   "mesh_courant_number": "from .metrics import mesh_courant_number",
+   "mesh_report": "from .report import build",
+   "mesh_wall_distance": "from .metrics import mesh_wall_distance",
+   "read_any": "from .io import read_any",
+   "read_meshio": "from .io import read_meshio",
+   "read_points": "from .io import read_points",
+   "read_stl": "from .io import read_stl",
+   "surface_checks": "from .quality import surface_checks",
+   "view_payload": "from .report import view_payload",
+   "wall_distance": "from .metrics import wall_distance"
+  },
+  "pinneapple_data.cae.compare": {
+   "Interpolator": {
+    "class": [],
+    "methods": {
+     "__init__": "(src_pts, dst_pts, method='auto')"
+    }
+   },
+   "cell_centres_volumes": "def(m)",
+   "compare": "def(ref, cand, mapping=None, method='auto', fields=None)",
+   "field_value": "def(m, f)",
+   "fields_of": "def(m)",
+   "locations": "def(m, field)",
+   "match_fields": "def(ref, cand, mapping=None)",
+   "surface": "def(m, max_tris=300000)",
+   "tolerance_verdicts": "def(result, tolerance)",
+   "views": "def(ref, res, max_points=60000)"
+  },
+  "pinneapple_data.cae.dataset": {
+   "build_dataset": "def(m, *, unit_system='auto', to_si=False, rho=None, location='auto', files=None)",
+   "describe": "def(ds)",
+   "export": "def(ds, fmt)",
+   "field_scalar": "def(values)",
+   "poly_cells": "def(m)",
+   "preview": "def(ds, max_fields=6, max_tris=200000)",
+   "quantity_of": "def(name)",
+   "write_csv": "def(ds)",
+   "write_hdf5": "def(ds)",
+   "write_json": "def(ds, max_values=2000000)",
+   "write_npz": "def(ds)",
+   "write_parquet": "def(ds)",
+   "write_pinneapple": "def(ds)",
+   "write_vtu": "def(ds)"
+  },
+  "pinneapple_data.cae.foam": {
+   "boundary_conditions": "def(fs, mesh, root='', time=None)",
+   "dims_unit": "def(dims)",
+   "header": "def(text)",
+   "read_boundary": "def(b)",
+   "read_boundary_values": "def(b, mesh, width)",
+   "read_faces": "def(b)",
+   "read_field": "def(b, n_cells)",
+   "read_labels": "def(b)",
+   "read_points": "def(b)",
+   "read_polymesh": "def(fs, root='')",
+   "read_time": "def(fs, mesh, root='', time=None, only=None)",
+   "time_dirs": "def(fs, root='')"
+  },
+  "pinneapple_data.cae.frd": {
+   "read_frd": "def(b)"
+  },
+  "pinneapple_data.cae.geometry": {
+   "FaceMesh": {
+    "class": [],
+    "methods": {
+     "n_faces": "()",
+     "n_internal": "()"
+    }
+   },
+   "cell_adjacency": "def(fm)",
+   "cell_geometry": "def(fm, fg)",
+   "element_adjacency_by_nodes": "def(mesh)",
+   "face_geometry": "def(fm)",
+   "face_mesh": "def(mesh)",
+   "oriented_blocks": "def(mesh)",
+   "regions": "def(adj)",
+   "signed_volume_sign": "def(btype, pts, conn)",
+   "solution_dirs": "def(fm, fg)"
+  },
+  "pinneapple_data.cae.inp": {
+   "Block": {
+    "class": [],
+    "methods": {}
+   },
+   "Deck": {
+    "class": [],
+    "methods": {
+     "find": "(kw)"
+    }
+   },
+   "deck_conditions": "def(deck)",
+   "deck_mesh": "def(deck)",
+   "read_deck": "def(text, name='model.inp', files=None, _depth=0)",
+   "resolve_sets": "def(deck, kind)",
+   "vtk_type": "def(abq)"
+  },
+  "pinneapple_data.cae.io": {
+   "FormatError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "kind_of": "def(fs)",
+   "read_any": "def(fs, fields=True, time=None)",
+   "read_meshio": "def(name, b)",
+   "read_points": "def(name, b)",
+   "read_stl": "def(b)"
+  },
+  "pinneapple_data.cae.metrics": {
+   "courant_number": "def(face_area_vectors, face_owner, face_neighbour, U, cell_volumes, dt, where='auto')",
+   "mesh_courant_number": "def(mesh, U, dt, where='auto')",
+   "mesh_wall_distance": "def(mesh, patches=None, project=True)",
+   "wall_distance": "def(cell_centres, wall_face_centres, wall_face_normals=None)"
+  },
+  "pinneapple_data.cae.model": {
+   "CellBlock": {
+    "class": [],
+    "methods": {
+     "linear": "()",
+     "corners": "()",
+     "dim": "()"
+    }
+   },
+   "Mesh": {
+    "class": [],
+    "methods": {
+     "kind": "()",
+     "dim": "()",
+     "is_surface": "()",
+     "n_cells": "()",
+     "n_points": "()",
+     "bbox": "()",
+     "element_counts": "()",
+     "cell_block_index": "(cell)",
+     "cell_label": "(cell)"
+    }
+   },
+   "PolyMesh": {
+    "class": [],
+    "methods": {
+     "n_faces": "()",
+     "n_internal": "()"
+    }
+   }
+  },
+  "pinneapple_data.cae.quality": {
+   "element_metrics": "def(mesh)",
+   "fv_metrics": "def(mesh)",
+   "surface_checks": "def(mesh)"
+  },
+  "pinneapple_data.cae.report": {
+   "build": "def(mesh, target='auto', max_regions=12)",
+   "view_payload": "def(mesh, rep, max_tris=250000)",
+   "worst_cells": "def(mesh, rep, n=40)"
+  },
+  "pinneapple_data.cae.upload": {
+   "expand": "def(files, max_unzipped=MAX_UNZIPPED)"
+  },
+  "pinneapple_data.contracts": {
+   "CONTRACTS": "from .models import CONTRACTS",
+   "CheckRecord": "from .models import CheckRecord",
+   "Column": "from .models import Column",
+   "Contract": "from .models import Contract",
+   "DatasetRef": "from .models import DatasetRef",
+   "DatasetSpec": "from .models import DatasetSpec",
+   "ExpressionError": "from .expressions import ExpressionError",
+   "FileRef": "from .models import FileRef",
+   "ModelRef": "from .models import ModelRef",
+   "Parameter": "from .models import Parameter",
+   "ParameterSpace": "from .models import ParameterSpace",
+   "Provenance": "from .models import Provenance",
+   "SCHEMA_VERSION": "from .models import SCHEMA_VERSION",
+   "Splits": "from .models import Splits",
+   "StudyResult": "from .models import StudyResult",
+   "Table": "from .models import Table",
+   "Variable": "from .models import Variable",
+   "convert": "from .tables import convert",
+   "export_schemas": "from .models import export_schemas",
+   "from_dict": "from .models import from_dict",
+   "json_schemas": "from .models import json_schemas",
+   "load": "from .models import load",
+   "read_sidecar": "from .tables import read_sidecar",
+   "read_table": "from .tables import read_table",
+   "sha256_file": "from .models import sha256_file",
+   "sidecar_path": "from .tables import sidecar_path",
+   "validate": "from .models import validate",
+   "write_sidecar": "from .tables import write_sidecar",
+   "write_table": "from .tables import write_table"
+  },
+  "pinneapple_data.contracts.models": {
+   "CheckRecord": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "Column": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "Contract": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {
+     "to_dict": "()",
+     "to_json": "(indent=1)",
+     "from_dict": "(data)",
+     "from_json": "(text)",
+     "save": "(path)",
+     "load": "(path)",
+     "json_schema": "()",
+     "content_hash": "()"
+    }
+   },
+   "DatasetRef": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "DatasetSpec": {
+    "class": [
+     "Contract"
+    ],
+    "methods": {
+     "names": "(role)",
+     "inputs": "()",
+     "outputs": "()",
+     "from_table": "(path, *, name=None, outputs=(), ids=(), meta=(), units=None, root=None, **kw)",
+     "verify_files": "(root='.')"
+    }
+   },
+   "FileRef": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {
+     "of": "(path, root=None, **kw)"
+    }
+   },
+   "ModelRef": {
+    "class": [
+     "Contract"
+    ],
+    "methods": {
+     "in_range": "(**inputs)"
+    }
+   },
+   "Parameter": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {
+     "free": "()",
+     "from_unit": "(u)",
+     "to_unit": "(x)",
+     "contains": "(x)"
+    }
+   },
+   "ParameterSpace": {
+    "class": [
+     "Contract"
+    ],
+    "methods": {
+     "names": "()",
+     "free": "()",
+     "dim": "()",
+     "from_unit": "(unit)",
+     "to_unit": "(cases)",
+     "feasible": "(cases)",
+     "from_table": "(path, name=None)",
+     "to_frame": "()"
+    }
+   },
+   "Provenance": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "Splits": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "StudyResult": {
+    "class": [
+     "Contract"
+    ],
+    "methods": {
+     "passed": "()"
+    }
+   },
+   "Table": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {
+     "to_frame": "()",
+     "from_frame": "(df)"
+    }
+   },
+   "Variable": {
+    "class": [
+     "_Model"
+    ],
+    "methods": {}
+   },
+   "export_schemas": "def(directory)",
+   "from_dict": "def(data)",
+   "json_schemas": "def()",
+   "load": "def(path)",
+   "sha256_file": "def(path, chunk=1 << 20)",
+   "validate": "def(data)"
+  },
+  "pinneapple_data.contracts.tables": {
+   "convert": "def(src, dst)",
+   "read_sidecar": "def(path)",
+   "read_table": "def(path)",
+   "sidecar_path": "def(path)",
+   "table_format": "def(path)",
+   "write_sidecar": "def(path, contract)",
+   "write_table": "def(df, path, contract=None)"
+  },
+  "pinneapple_data.physical_sample": {
+   "PhysicalSample": {
+    "class": [],
+    "methods": {
+     "domain_type": "()",
+     "is_grid": "()",
+     "is_mesh": "()",
+     "is_graph": "()",
+     "list_variables": "()",
+     "summary": "()",
+     "to_train_dict": "(*, x_vars, y_vars=None, coords=None, time_dim=None)",
+     "sample_id": "()"
+    }
+   }
+  },
+  "pinneapple_design.geometry.brep": {
+   "CadBody": "from .step import CadBody",
+   "CadFace": "from .step import CadFace",
+   "FORMATS": "from .bake import FORMATS",
+   "QUALITY": "from .tessellate import QUALITY",
+   "TessMesh": "from .tessellate import TessMesh",
+   "available_backends": "from .step import available_backends",
+   "bake": "from .bake import bake",
+   "discrete_curvature": "from .diagnostics import discrete_curvature",
+   "edge_continuity": "from .diagnostics import edge_continuity",
+   "exact_curvature": "from .diagnostics import exact_curvature",
+   "highlight_lines": "from .diagnostics import highlight_lines",
+   "mesh_quality": "from .bake import mesh_quality",
+   "read_step": "from .step import read_step",
+   "refine": "from .diagnostics import refine",
+   "render": "from .diagnostics import render",
+   "self_intersections": "from .bake import self_intersections",
+   "tessellate": "from .tessellate import tessellate",
+   "to_meshdata": "from .bake import to_meshdata",
+   "volume_mesh": "from .bake import volume_mesh",
+   "write_step": "from .step import write_step",
+   "zebra": "from .diagnostics import zebra"
+  },
+  "pinneapple_design.geometry.brep.bake": {
+   "bake": "def(source, path, *, quality='normal', mesher='auto', unit=None, colors=None, names=None)",
+   "mesh_quality": "def(mesh, body=None, *, max_samples=20000, seed=0)",
+   "self_intersections": "def(mesh)",
+   "to_meshdata": "def(source, *, quality='normal', mesher='auto')",
+   "volume_mesh": "def(source, h, *, quality='normal', out_dir=None, **kw)"
+  },
+  "pinneapple_design.geometry.brep.diagnostics": {
+   "discrete_curvature": "def(mesh)",
+   "edge_continuity": "def(body, samples=16, angle_tolerance_deg=0.5, curvature_tolerance=0.01)",
+   "exact_curvature": "def(body, mesh)",
+   "highlight_lines": "def(mesh, normals, *, direction=(0.0, 1.0, 0.0), plane_normal=(0.0, 0.0, 1.0), height=None, spacing=None, width=None)",
+   "refine": "def(mesh, max_edge_m=None, max_triangles=200000)",
+   "render": "def(mesh, values, path, *, cmap='viridis', title='', elev=25.0, azim=-60.0, vmin=None, vmax=None, colorbar=None, shade=0.0)",
+   "vertex_face": "def(mesh)",
+   "view_direction": "def(elev, azim)",
+   "zebra": "def(mesh, normals, *, eye=None, axis=(0.0, 1.0, 0.0), n_stripes=16, sharpness=8.0, view=None)"
+  },
+  "pinneapple_design.geometry.brep.step": {
+   "CadBody": {
+    "class": [],
+    "methods": {
+     "face_counts": "()",
+     "size_m": "()",
+     "summary": "()"
+    }
+   },
+   "CadFace": {
+    "class": [],
+    "methods": {}
+   },
+   "available_backends": "def()",
+   "read_step": "def(path, *, backend='auto', heal=True)",
+   "write_step": "def(shapes, path, *, unit='mm', name=None)"
+  },
+  "pinneapple_design.geometry.brep.study": {
+   "step_study": "def(geometry, quality='normal', mesher='auto', stripes=6, refine_view=True, max_faces=150000, bake_formats=('stl',), max_input_mb=None, name=None, out_dir=None)"
+  },
+  "pinneapple_design.geometry.brep.tessellate": {
+   "TessMesh": {
+    "class": [],
+    "methods": {
+     "n_triangles": "()",
+     "area": "()",
+     "volume": "()",
+     "edge_use": "()",
+     "is_watertight": "()",
+     "euler_characteristic": "()",
+     "face_areas": "()",
+     "report": "()"
+    }
+   },
+   "circle_segments": "def(radius, sweep_rad, tol, angle_deg)",
+   "tessellate": "def(body, quality='normal', mesher='auto')"
+  },
+  "pinneapple_design.geometry.core": {
+   "GeometryAsset": "from .geometry import GeometryAsset",
+   "GeometrySpec": "from .geometry import GeometrySpec",
+   "MeshData": "from .mesh import MeshData",
+   "build_geometry_asset": "from .registry import build_geometry_asset",
+   "load_geometry_asset": "from .registry import load_geometry_asset"
+  },
+  "pinneapple_design.geometry.core.geometry": {
+   "GeometryAsset": {
+    "class": [],
+    "methods": {
+     "bbox_size": "()",
+     "center": "()",
+     "recompute_bounds": "()",
+     "ensure_bounds": "()",
+     "mesh_fingerprint": "(algo='sha256')",
+     "record_fingerprint": "(key='mesh_fingerprint', algo='sha256')",
+     "apply_transform": "(T, record=True)",
+     "translate": "(delta_xyz, record=True)",
+     "scale": "(s, about=None, record=True)",
+     "normalize_to_unit_box": "(target_size=1.0, center_to_origin=True, eps=1e-12, record=True)",
+     "ensure_normals": "(kind='vertex')",
+     "add_boundary_group": "(name, data)",
+     "list_boundary_groups": "()",
+     "get_boundary_group": "(name, default=None)",
+     "manifest": "()",
+     "summary": "()",
+     "from_mesh": "(mesh, units=None, boundary_groups=None, meta=None, record_fp=True)"
+    }
+   },
+   "GeometrySpec": {
+    "class": [],
+    "methods": {
+     "validate": "()",
+     "to_dict": "()",
+     "fingerprint": "(algo='sha256')",
+     "is_file_backed": "()"
+    }
+   }
+  },
+  "pinneapple_design.geometry.core.mesh": {
+   "MeshData": {
+    "class": [],
+    "methods": {
+     "n_vertices": "()",
+     "n_faces": "()",
+     "bounds": "()",
+     "bbox_size": "()",
+     "center": "()",
+     "apply_transform": "(matrix, update_normals=True)",
+     "translate": "(delta)",
+     "scale": "(factor, about=None)",
+     "normalize_to_unit_box": "()",
+     "compute_face_normals": "()",
+     "compute_vertex_normals": "()",
+     "ensure_normals": "(mode='vertex')",
+     "face_areas": "()",
+     "surface_area": "()",
+     "volume_bbox": "()",
+     "sample_surface": "(n, return_face_ids=False)",
+     "sample_bbox": "(n, bounds=None)",
+     "sample_interior": "(n, *, domain='bbox', inside_fn=None, sdf_fn=None, bounds=None, max_tries=50)",
+     "boundary_groups_bbox": "(tol=1e-06, *, names=('xmin', 'xmax', 'ymin', 'ymax', 'zmin', 'zmax'))",
+     "sample_collocation": "(n_interior, n_boundary, *, interior_domain='bbox', inside_fn=None, sdf_fn=None, boundary_mode='surface', boundary_groups=None, bounds=None)",
+     "mc_integral_weights": "(X, *, domain_volume=None, mask=None)",
+     "iter_batches": "(X, batch_size, *, shuffle=True, seed=None)",
+     "fingerprint": "()",
+     "copy": "()"
+    }
+   }
+  },
+  "pinneapple_design.geometry.core.registry": {
+   "build_geometry_asset": "def(spec, *, options=None)",
+   "load_geometry_asset": "def(geom, *, options=None)"
+  },
+  "pinneapple_design.geometry.io": {
+   "annotations": "from __future__ import annotations"
+  },
+  "pinneapple_design.geometry.io.cadquery_bridge": {
+   "cadquery_solid_to_upd": "def(solid, *, tess_linear_deflection=0.2, tess_angular_deflection=0.3, units='mm', meta=None)"
+  },
+  "pinneapple_design.geometry.io.iges": {
+   "IgesImportConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "iges_to_mesh": "def(iges_path, *, cfg=None, cache_dir=None)"
+  },
+  "pinneapple_design.geometry.io.meshio_bridge": {
+   "load_meshio": "def(path, *, require_triangles=True)",
+   "meshio_to_upd": "def(path)",
+   "save_meshio": "def(mesh, path, *, file_format=None, point_data=None, cell_data=None)"
+  },
+  "pinneapple_design.geometry.io.sdf_meshing": {
+   "SDFGrid2D": {
+    "class": [],
+    "methods": {}
+   },
+   "marching_squares_contours": "def(sdf, *, grid=None, level=0.0)",
+   "sample_boundary_points_sdf2d": "def(sdf, *, grid=None, n=2048, rng=None, band=0.01)",
+   "sdf2d_to_tri_mesh": "def(sdf, *, grid=None, mesh_size=0.03, cache_path=None)"
+  },
+  "pinneapple_design.geometry.io.step": {
+   "StepImportConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "step_to_mesh": "def(step_path, *, cfg=None, cache_dir=None)"
+  },
+  "pinneapple_design.geometry.io.stl": {
+   "load_stl": "def(path, *, repair=True, compute_normals=True)"
+  },
+  "pinneapple_design.geometry.io.trimesh_bridge": {
+   "TrimeshBridge": {
+    "class": [],
+    "methods": {
+     "load": "(path, *, repair=True)",
+     "from_trimesh": "(tm, *, compute_normals=True)"
+    }
+   }
+  },
+  "pinneapple_design.geometry.mesh": {
+   "Mesh2D": "from .mesher_2d import Mesh2D",
+   "Mesh3D": "from .mesher_3d import Mesh3D",
+   "PhysicsPointCloud3D": "from .mesher_3d import PhysicsPointCloud3D",
+   "mesh_from_sdf_3d": "from .mesher_3d import mesh_from_sdf_3d",
+   "mesh_from_surface": "from .mesher_3d import mesh_from_surface",
+   "mesh_polygon_2d": "from .mesher_2d import mesh_polygon_2d",
+   "mesh_quality_report": "from .mesher_2d import mesh_quality_report",
+   "mesh_rectangle_structured": "from .mesher_2d import mesh_rectangle_structured",
+   "mesh_sdf_2d": "from .mesher_2d import mesh_sdf_2d",
+   "sample_physics_points": "from .mesher_3d import sample_physics_points",
+   "surface_from_pointcloud": "from .mesher_3d import surface_from_pointcloud"
+  },
+  "pinneapple_design.geometry.mesh.generate": {
+   "estimate_elements": "def(dim, measure, boundary, h, refine, boundary_layer)",
+   "generate_mesh": "def(geometry='box', dimensions=None, h=0.25, scale=1.0, refine=None, boundary_layer=None, out_dir=None, origin=None, max_input_mb=None, max_elements=MAX_ELEMENTS)"
+  },
+  "pinneapple_design.geometry.mesh.mesher_2d": {
+   "Mesh2D": {
+    "class": [],
+    "methods": {
+     "n_vertices": "()",
+     "n_triangles": "()",
+     "triangle_centroids": "()",
+     "triangle_areas": "()",
+     "min_angles": "()",
+     "quality_stats": "()",
+     "sample_interior": "(n, *, seed=0)"
+    }
+   },
+   "mesh_polygon_2d": "def(vertices, *, mesh_size=None, holes=None)",
+   "mesh_quality_report": "def(mesh)",
+   "mesh_rectangle_structured": "def(x_range=(0.0, 1.0), y_range=(0.0, 1.0), nx=20, ny=20)",
+   "mesh_sdf_2d": "def(sdf_fn, bounds_min, bounds_max, *, mesh_size=0.05, mesh_size_boundary=None, boundary_n_points=200, boundary_tol=0.01, algorithm=5, optimize_netgen=True, boundary_region_samplers=None)"
+  },
+  "pinneapple_design.geometry.mesh.mesher_3d": {
+   "Mesh3D": {
+    "class": [],
+    "methods": {
+     "n_vertices": "()",
+     "n_tets": "()",
+     "n_surface_faces": "()",
+     "tet_volumes": "()",
+     "quality_stats": "()",
+     "sample_interior": "(n, *, seed=0)",
+     "sample_boundary": "(n, *, seed=0)"
+    }
+   },
+   "PhysicsPointCloud3D": {
+    "class": [],
+    "methods": {
+     "n_interior": "()",
+     "n_boundary": "()",
+     "all_points": "()",
+     "to_dict": "()"
+    }
+   },
+   "mesh_from_sdf_3d": "def(sdf_fn, bounds_min, bounds_max, *, resolution=64, mesh_size=0.0, clean=True, volume=True)",
+   "mesh_from_surface": "def(surface, *, mesh_size=0.0, mesh_size_boundary=0.0, boundary_layer=False, bl_thickness=0.0, bl_n_layers=3, optimize=True, algorithm_3d=4, feature_angle=40.0)",
+   "sample_physics_points": "def(mesh, *, n_interior=10000, n_boundary=2000, n_near_wall=0, near_wall_thickness=0.0, curvature_refinement=False, seed=42)",
+   "surface_from_pointcloud": "def(points, *, normals=None, method='poisson', depth=8, alpha=0.0, density_quantile=0.05)"
+  },
+  "pinneapple_neural.architectures.neural_operators": {
+   "FNO2d": "from .fno import FNO2d",
+   "FourierNeuralOperator": "from .fno import FourierNeuralOperator",
+   "MLPFNOSurrogate": "from .fno import MLPFNOSurrogate",
+   "NeuralOperatorBase": "from .base import NeuralOperatorBase",
+   "NeuralOperatorCatalog": "from .registry import NeuralOperatorCatalog",
+   "OperatorOutput": "from .base import OperatorOutput",
+   "PhysicsAttention": "from .transolver import PhysicsAttention",
+   "Transolver": "from .transolver import Transolver",
+   "TransolverLite": "from .transolver import TransolverLite"
+  },
+  "pinneapple_neural.architectures.neural_operators.base": {
+   "NeuralOperatorBase": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "()",
+     "mse": "(y_hat, y)"
+    }
+   },
+   "OperatorOutput": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.deeponet": {
+   "DeepONet": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(branch_dim, trunk_dim, out_dim, hidden=128, modes=64, depth=1, trunk_activation=False)",
+     "forward": "(u, coords, *, y_true=None, return_loss=False)"
+    }
+   },
+   "mlp": "def(in_dim, hidden, out_dim, depth=1, act=nn.GELU, last_act=False)"
+  },
+  "pinneapple_neural.architectures.neural_operators.fno": {
+   "FNO2d": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True)",
+     "forward": "(u, *, y_true=None, return_loss=False)"
+    }
+   },
+   "FNO3d": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_channels, out_channels, width=32, modes1=8, modes2=8, modes3=8, layers=4, *, use_grid=True)",
+     "forward": "(u, *, y_true=None, return_loss=False)"
+    }
+   },
+   "FourierNeuralOperator": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_channels, out_channels, width=64, modes=16, layers=4, *, use_grid=False)",
+     "forward": "(u, *, y_true=None, return_loss=False)"
+    }
+   },
+   "MLPFNOSurrogate": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(in_channels, out_channels, fno_width=32, fno_modes=12, fno_layers=4, mlp_hidden=128, mlp_layers=3, coord_dim=2)",
+     "forward": "(context_grid, query_coords)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.fno_export": {
+   "RealSpectralConv2d": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(conv, H, W)",
+     "forward": "(x)"
+    }
+   },
+   "export_onnx": "def(model, example, path, *, grid=None, opset=17, atol=0.0001)",
+   "to_exportable": "def(model, grid)"
+  },
+  "pinneapple_neural.architectures.neural_operators.gno": {
+   "GalerkinNeuralOperator": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, basis_dim=64, basis_hidden=128, op_hidden=128, op_depth=2, orthonormalize_basis=True, eps=1e-12)",
+     "forward": "(u, *, coords, w=None, y_true=None, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.ms_deeponet": {
+   "MultiScaleDeepONet": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(branch_dim, trunk_dim, out_dim, *, hidden=128, scales=(32, 64, 128), scale_factors=None, depth=1)",
+     "forward": "(u, coords, *, y_true=None, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.noether_bridge": {
+   "NoetherABUPT": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherAeroABUPT": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherAeroTransformer": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherAeroTransolver": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherAeroUPT": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherModelConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "NoetherTransformer": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherTransolver": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   },
+   "NoetherUPT": {
+    "class": [
+     "_NoetherWrapper"
+    ],
+    "methods": {
+     "__init__": "(**config_kwargs)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.pino": {
+   "GridSpec": {
+    "class": [],
+    "methods": {}
+   },
+   "PhysicsInformedNeuralOperator": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(operator, *, lambda_pde=1.0, lambda_bc=1.0, lambda_ic=1.0, lambda_physics=1.0, prefix='physics/')",
+     "forward": "(*args, physics_fn=None, physics_data=None, **kw)"
+    }
+   },
+   "ResidualSpec": {
+    "class": [],
+    "methods": {}
+   },
+   "compute_derivatives": "def(u, *, grid, orders=(1, 2), method='spectral')",
+   "fd_derivative": "def(u, *, dim, dx, order=1)",
+   "pino_physics_fn": "def(u, *, grid, spec, params=None, bc_mask=None, bc_value=None, ic_mask=None, ic_value=None, pde_weight=None)",
+   "spectral_derivative": "def(u, *, dim, L, order=1)"
+  },
+  "pinneapple_neural.architectures.neural_operators.registry": {
+   "NeuralOperatorCatalog": {
+    "class": [],
+    "methods": {
+     "list": "()",
+     "get": "(name)",
+     "build": "(name, **kwargs)"
+    }
+   },
+   "register_into_global": "def()"
+  },
+  "pinneapple_neural.architectures.neural_operators.transolver": {
+   "PhysicsAttention": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, heads=8, slices=32, dropout=0.0)",
+     "forward": "(x, return_weights=False)"
+    }
+   },
+   "Transolver": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, dim=128, depth=4, heads=8, slices=32, mlp_ratio=2, dropout=0.0)",
+     "forward": "(x, *, y_true=None, return_loss=False)"
+    }
+   },
+   "TransolverBlock": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, heads, slices, mlp_ratio=2, dropout=0.0)",
+     "forward": "(x)"
+    }
+   },
+   "TransolverLite": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim=5, out_dim=101, d_model=64, n_heads=4, n_slices=8, n_blocks=3, dropout=0.1)",
+     "forward": "(x, *, y_true=None, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.neural_operators.uno": {
+   "DownBlockND": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_ch, out_ch, modes, depth)",
+     "forward": "(x)"
+    }
+   },
+   "OperatorBlockND": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, width, modes)",
+     "forward": "(x)"
+    }
+   },
+   "PointKernelOperator": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_ch, out_ch, hidden=64, k=16)",
+     "forward": "(x, coords)"
+    }
+   },
+   "PointOperatorBlock": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, width, k=16)",
+     "forward": "(x, coords)"
+    }
+   },
+   "SpectralConvND": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_channels, out_channels, modes)",
+     "forward": "(x)"
+    }
+   },
+   "UNONdGrid": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_channels, out_channels, width=64, levels=3, depth_per_level=2, modes=None, add_coords=True)",
+     "forward": "(u)"
+    }
+   },
+   "UNONdPoints": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_channels, out_channels, width=128, levels=3, depth_per_level=2, k=16, pool_ratio=0.5)",
+     "forward": "(x, coords)"
+    }
+   },
+   "UniversalUNO": {
+    "class": [
+     "NeuralOperatorBase"
+    ],
+    "methods": {
+     "__init__": "(dim, in_channels, out_channels, *, mesh_mode='auto', width_grid=64, levels_grid=3, depth_grid=2, modes=None, add_coords_grid=True, width_points=128, levels_points=3, depth_points=2, k_points=16, pool_ratio=0.5)",
+     "forward": "(u, coords=None, *, y_true=None, return_loss=False)"
+    }
+   },
+   "UpBlockND": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim, in_ch, skip_ch, out_ch, modes, depth)",
+     "forward": "(x, skip)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns": {
+   "BPINNConfig": "from .bpinn import BPINNConfig",
+   "BayesianLinear": "from .bpinn import BayesianLinear",
+   "BayesianPINN": "from .bpinn import BayesianPINN",
+   "ComposedGuidance": "from .physics_diffusion import ComposedGuidance",
+   "DSMLoss": "from .physics_diffusion import DSMLoss",
+   "DataConsistencyGuidance": "from .physics_diffusion import DataConsistencyGuidance",
+   "EDMNoiseScheduler": "from .physics_diffusion import EDMNoiseScheduler",
+   "InversePINN": "from .inverse import InversePINN",
+   "MLPDenoiser": "from .physics_diffusion import MLPDenoiser",
+   "PDEResidualGuidance": "from .physics_diffusion import PDEResidualGuidance",
+   "PIDiffConfig": "from .physics_diffusion import PIDiffConfig",
+   "PIELM": "from .pielm import PIELM",
+   "PINNBase": "from .base import PINNBase",
+   "PINNCatalog": "from .registry import PINNCatalog",
+   "PINNLSTM": "from .pinn_lstm import PINNLSTM",
+   "PINNOutput": "from .base import PINNOutput",
+   "PINNsFormer": "from .pinnsformer import PINNsFormer",
+   "PINNsFormerPaper": "from .pinnsformer_paper import PINNsFormerPaper",
+   "PhysicsInformedDiffusion": "from .physics_diffusion import PhysicsInformedDiffusion",
+   "SubnetWrapper": "from .xpinn import SubnetWrapper",
+   "VPINN": "from .vpinn import VPINN",
+   "VPNoiseScheduler": "from .physics_diffusion import VPNoiseScheduler",
+   "VanillaPINN": "from .vanilla import VanillaPINN",
+   "WaveAct": "from .pinnsformer_paper import WaveAct",
+   "XPINN": "from .xpinn import XPINN",
+   "XTFC": "from .xtfc import XTFC",
+   "XTFCConfig": "from .xtfc import XTFCConfig",
+   "annotations": "from __future__ import annotations",
+   "build_xtfc": "from .xtfc import build_xtfc",
+   "tfc_available": "from .xtfc import tfc_available"
+  },
+  "pinneapple_neural.architectures.pinns.base": {
+   "PINNBase": {
+    "class": [
+     "BaseModel"
+    ],
+    "methods": {
+     "__init__": "()",
+     "ensure_requires_grad": "(x)",
+     "grad": "(y, x, *, retain_graph=True, create_graph=True)",
+     "normal_derivative": "(y, x, n_hat)",
+     "predict": "(*inputs, **kwargs)",
+     "physics_loss": "(*, physics_fn=None, physics_data=None, **kwargs)",
+     "export_torchscript": "(path, example_input=None)",
+     "export_onnx": "(path, example_input, input_names=None, output_names=None, opset_version=17, dynamic_axes=None)"
+    }
+   },
+   "PINNOutput": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_neural.architectures.pinns.bpinn": {
+   "BPINNConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "BayesianLinear": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(in_features, out_features, *, prior_std=1.0, init_rho=-3.0, bias=True)",
+     "forward": "(x)",
+     "deterministic": "(x)",
+     "kl": "()"
+    }
+   },
+   "BayesianPINN": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim=2, out_dim=1, hidden=(64, 64, 64), activation='tanh', *, config=None, prior_std=1.0, init_rho=-3.0, noise_pde=0.01, noise_obs=0.01, kl_weight=1.0, inverse_params_names=None, initial_guesses=None)",
+     "forward": "(*inputs, physics_fn=None, physics_data=None, deterministic=False)",
+     "kl_divergence": "()",
+     "elbo_loss": "(inputs, pde_residual_fn=None, obs_inputs=None, obs_targets=None, n_mc=1)",
+     "predict_ensemble": "(inputs, n_samples=100)",
+     "predict_mean": "(inputs)",
+     "predict": "(*inputs, **kwargs)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.inverse": {
+   "InversePINN": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', inverse_params=None, initial_guesses=None)",
+     "as_factory_model": "(*, independent_vars)",
+     "forward": "(x, *, physics_fn=None, physics_data=None)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.physics_diffusion": {
+   "ComposedGuidance": {
+    "class": [
+     "GuidanceBase"
+    ],
+    "methods": {
+     "__init__": "(*guidances)"
+    }
+   },
+   "DSMLoss": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(denoiser, scheduler, loss_weight_fn=None)",
+     "forward": "(x0, cond=None)"
+    }
+   },
+   "DataConsistencyGuidance": {
+    "class": [
+     "GuidanceBase"
+    ],
+    "methods": {
+     "__init__": "(mask, y_obs, weight=0.5)"
+    }
+   },
+   "EDMNoiseScheduler": {
+    "class": [
+     "NoiseSchedulerBase"
+    ],
+    "methods": {
+     "__init__": "(sigma_min=0.002, sigma_max=80.0, rho=7.0)",
+     "sigma_schedule": "(T, device='cpu')",
+     "alpha": "(t)",
+     "sigma": "(t)",
+     "timesteps": "(T)",
+     "add_noise": "(x0, sigma)",
+     "x0_from_pred": "(pred, xt, t)"
+    }
+   },
+   "FiLMLayer": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(feat_dim, cond_dim)",
+     "forward": "(x, cond)"
+    }
+   },
+   "GuidanceBase": {
+    "class": [],
+    "methods": {}
+   },
+   "MLPDenoiser": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(x_dim, t_emb_dim=64, hidden=(256, 256, 256), activation='gelu', predict_x0=False)",
+     "forward": "(xt, t, cond=None)"
+    }
+   },
+   "NoiseSchedulerBase": {
+    "class": [],
+    "methods": {
+     "alpha": "(t)",
+     "sigma": "(t)",
+     "timesteps": "(T)",
+     "add_noise": "(x0, t)",
+     "x0_from_pred": "(pred, xt, t)"
+    }
+   },
+   "PDEResidualGuidance": {
+    "class": [
+     "GuidanceBase"
+    ],
+    "methods": {
+     "__init__": "(residual_fn, weight=0.1)"
+    }
+   },
+   "PIDiffConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "PhysicsInformedDiffusion": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(x_dim=64, hidden=(256, 256, 256), activation='gelu', *, denoiser=None, scheduler=None, config=None, scheduler_type='vp', T=1000)",
+     "forward": "(*inputs, physics_fn=None, physics_data=None, cond=None)",
+     "sample": "(n_samples=1, x_dim=None, n_steps=50, guidance=None, cond=None, eta=0.0, device=None, return_trajectory=False)",
+     "sample_ensemble": "(n_samples=64, x_dim=None, n_steps=50, guidance=None, **kwargs)",
+     "make_loss": "()",
+     "predict": "(*inputs, **kwargs)"
+    }
+   },
+   "SinusoidalEmbedding": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(dim)",
+     "forward": "(t)"
+    }
+   },
+   "VPNoiseScheduler": {
+    "class": [
+     "NoiseSchedulerBase"
+    ],
+    "methods": {
+     "__init__": "(T=1000, beta_min=0.0001, beta_max=0.02)",
+     "register_buffer": "(name, tensor)",
+     "alpha": "(t)",
+     "sigma": "(t)",
+     "timesteps": "(T)",
+     "add_noise": "(x0, t)",
+     "x0_from_pred": "(pred, xt, t)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.pielm": {
+   "PIELM": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, hidden_dim=1024, activation='tanh', freeze_random=True)",
+     "hidden": "(x)",
+     "forward_tensor": "(x)",
+     "fit_ridge": "(x, y, l2=1e-06)",
+     "forward": "(x, *, y_true=None, data_weight=1.0, physics_weight=1.0, physics_fn=None, physics_data=None, data_reduction='mean')"
+    }
+   },
+   "PIELMFactoryAdapter": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(pielm, *, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(*inputs)",
+     "fit_ridge_from_inputs": "(inputs, y, l2=1e-06)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.pinn_lstm": {
+   "PINNLSTM": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, *, seq_len, hidden_dim=128, num_layers=2, dropout=0.0, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(*inputs)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.pinnsformer": {
+   "PINNsFormer": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, *, seq_len=32, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.0, max_len=4096, learnable_pos_emb=True)",
+     "set_masks": "(*, attn_mask=None, key_padding_mask=None)",
+     "forward_tensor": "(x)",
+     "forward": "(x, *, physics_fn=None, physics_data=None)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.pinnsformer_paper": {
+   "PINNsFormerPaper": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim=2, out_dim=1, *, k=5, dt=0.0001, d_model=32, d_hidden=512, num_layers=1, heads=2, d_ff=256, time_dim=-1)",
+     "make_sequence": "(x)",
+     "forward_sequence": "(x)",
+     "forward_tensor": "(x)",
+     "forward": "(x, *, physics_fn=None, physics_data=None)"
+    }
+   },
+   "WaveAct": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "()",
+     "forward": "(x)"
+    }
+   },
+   "init_official": "def(module)"
+  },
+  "pinneapple_neural.architectures.pinns.registry": {
+   "PINNCatalog": {
+    "class": [],
+    "methods": {
+     "list": "()",
+     "get": "(name)",
+     "build": "(name, **kwargs)"
+    }
+   },
+   "register_into_global": "def()"
+  },
+  "pinneapple_neural.architectures.pinns.vanilla": {
+   "VanillaPINN": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', *, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(*inputs, physics_fn=None, physics_data=None)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.vpinn": {
+   "VPINN": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, hidden=(128, 128, 128), activation='tanh', *, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(*inputs, physics_fn=None, physics_data=None, weak_fn=None, weak_data=None, x=None, **kwargs)"
+    }
+   },
+   "pinn_factory_adapter": "def(loss_fn)"
+  },
+  "pinneapple_neural.architectures.pinns.xpinn": {
+   "SubnetWrapper": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh')",
+     "forward": "(*inputs)"
+    }
+   },
+   "XPINN": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(n_subdomains, in_dim, out_dim, hidden=(128, 128, 128, 128), activation='tanh', interface_weight=1.0, interface_flux_weight=1.0, physics_weight=1.0)",
+     "forward": "(x_list, *, interface_pairs=None, physics_fn=None, physics_data_list=None)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.pinns.xtfc": {
+   "TFCConstrainedExpression": {
+    "class": [],
+    "methods": {
+     "__init__": "(tfc_obj, dim=1)",
+     "z": "()",
+     "constrained_expression": "(eta_fn)",
+     "build_1d": "(n, nC, deg, x0=0.0, xf=1.0, basis='CP')",
+     "build_nd": "(n, nC, deg, x0, xf, basis='CP')"
+    }
+   },
+   "XTFC": {
+    "class": [
+     "PINNBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, out_dim, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=None, tfc_ce=None, *, config=None)",
+     "set_tfc": "(tfc_ce)",
+     "set_constraint_fns": "(g_fn, B_fn)",
+     "reset_random_features": "(seed=None)",
+     "fit_ridge": "(x, y_target, *, l2=1e-06)",
+     "forward_tensor": "(x)",
+     "forward": "(x, *, physics_fn=None, physics_data=None, return_parts=False)"
+    }
+   },
+   "XTFCConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "XTFCFactoryModel": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(xtfc, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(x)"
+    }
+   },
+   "build_xtfc": "def(in_dim, out_dim, *, rf_dim=2048, activation=None, freeze_random=True, g_fn=None, B_fn=None, use_tfc=True, tfc_n=100, tfc_deg=10, tfc_nC=2, tfc_x0=None, tfc_xf=None, tfc_basis='CP')",
+   "tfc_available": "def()"
+  },
+  "pinneapple_neural.architectures.rom": {
+   "DMDc": "from .dmd import DMDc",
+   "DeepUQROM": "from .deep_uq_rom import DeepUQROM",
+   "DynamicModeDecomposition": "from .dmd import DynamicModeDecomposition",
+   "HAVOK": "from .havok import HAVOK",
+   "KoopmanAutoencoder": "from .koopman import KoopmanAutoencoder",
+   "NeuralROM": "from .neural_rom import NeuralROM",
+   "OperatorInference": "from .opinf import OperatorInference",
+   "POD": "from .pod import POD",
+   "ParametricPOD": "from .parametric import ParametricPOD",
+   "ROMBase": "from .base import ROMBase",
+   "ROMCatalog": "from .registry import ROMCatalog",
+   "ROMHybrid": "from .rom_hybrid import ROMHybrid",
+   "ROMOutput": "from .base import ROMOutput",
+   "ROMStudyResult": "from .study import ROMStudyResult",
+   "ReducedModel": "from .study import ReducedModel",
+   "SINDy": "from .sindy import SINDy",
+   "TrustedLatentSurrogate": "from .trusted import TrustedLatentSurrogate",
+   "fit_reduced_model": "from .study import fit_reduced_model",
+   "latin_hypercube": "from .parametric import latin_hypercube",
+   "rom_study": "from .study import rom_study",
+   "split_snapshots": "from .study import split_snapshots"
+  },
+  "pinneapple_neural.architectures.rom.base": {
+   "ROMBase": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "()",
+     "mse": "(y_hat, y)"
+    }
+   },
+   "ROMOutput": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_neural.architectures.rom.contracts": {
+   "model_ref": "def(rm, *, name, uri, payload=None, row=None, split='test', dataset_hash='', dataset_name='', app='rom', study_id='', units=None, framework='pinneapple-rom/1')",
+   "rom_checks": "def(res, tolerance)",
+   "study_result": "def(res, *, study_id, title, tolerance, models=(), artifacts=(), limits=(), app='rom', dataset=None)"
+  },
+  "pinneapple_neural.architectures.rom.deep_uq_rom": {
+   "DeepUQROM": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(r, hidden=256, layers=2, dropout=0.0)",
+     "forward": "(a, *, a_true=None, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.dmd": {
+   "DMDc": {
+    "class": [],
+    "methods": {
+     "__init__": "(affine=False)",
+     "fit": "(X, U, Y=None, ridge=0.0)",
+     "predict": "(x, u)",
+     "rollout": "(x0, U)"
+    }
+   },
+   "DynamicModeDecomposition": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(r=64, center='global', l2=0.0)",
+     "fit": "(X)",
+     "fit_pairs": "(X0, X1, *, center=True)",
+     "eig": "()",
+     "explained_variance_ratio_": "()",
+     "frequencies": "(dt=1.0)",
+     "rollout": "(x0, steps)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.havok": {
+   "HAVOK": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(delays=50, r=64, center=True, svd_eps=1e-12, decode_mode='last')",
+     "fit": "(X)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.koopman": {
+   "KoopmanAutoencoder": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, k_dim=128, hidden=128, n_layers=3, activation='tanh', k_structure='full', num_blocks=4, pred_steps=3, w_recon=1.0, w_pred=1.0, w_linear=1.0)",
+     "encode": "(x)",
+     "decode": "(z)",
+     "step": "(z)",
+     "rollout": "(x0, steps)",
+     "rollout_latent": "(z0, steps)",
+     "compute_losses": "(X)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   },
+   "KoopmanOperator": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(k_dim, structure='full', num_blocks=4)",
+     "forward": "(z)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.neural_rom": {
+   "NeuralROM": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(in_dim, r=32, hidden_enc=128, n_layers_enc=3, dynamics='mlp', hidden_dyn=128, n_layers_dyn=2, dropout=0.0, pred_steps=5, w_recon=1.0, w_pred=1.0, activation='tanh')",
+     "encode": "(x)",
+     "decode": "(z)",
+     "rollout": "(x0, steps, *, teacher_forcing=None)",
+     "compute_losses": "(X)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.opinf": {
+   "OperatorInference": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(r, *, use_quadratic=True, use_bias=True, l2_linear=1e-06, l2_quad=1e-06, l2_bias=0.0, center=True, scale=False, eps=1e-08)",
+     "A": "()",
+     "H": "()",
+     "b": "()",
+     "fit": "(a)",
+     "rollout": "(a0, steps)",
+     "fit_continuous": "(a, *, dt, diff='central', drop_ends=True)",
+     "rollout_continuous": "(a0, *, dt, steps, integrator='rk4')",
+     "forward": "(a, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.parametric": {
+   "ParametricPOD": {
+    "class": [],
+    "methods": {
+     "fit": "(P, X)",
+     "to_arrays": "()",
+     "config": "()",
+     "from_arrays": "(arrays, config)",
+     "rank": "()",
+     "energy_captured": "()",
+     "coefficients": "(P, return_std=False)",
+     "predict": "(P, return_std=False)",
+     "projection_error": "(X)",
+     "error": "(P, X)"
+    }
+   },
+   "latin_hypercube": "def(n, bounds, seed=0)"
+  },
+  "pinneapple_neural.architectures.rom.pod": {
+   "POD": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(r=64, center=True, energy=None, randomised=False, random_seed=0)",
+     "fit": "(X)",
+     "fit_incremental": "(X_new, *, weight=0.5)",
+     "encode": "(X)",
+     "decode": "(a, *, shape=None)",
+     "explained_variance_ratio_": "()",
+     "reconstruction_error": "(X)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.registry": {
+   "ROMCatalog": {
+    "class": [],
+    "methods": {
+     "list": "()",
+     "get": "(name)",
+     "build": "(name, **kwargs)"
+    }
+   },
+   "register_into_global": "def()"
+  },
+  "pinneapple_neural.architectures.rom.rom_hybrid": {
+   "ROMHybrid": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(field_dim, r=64, l2=1e-06, use_corrector=True, corrector_hidden=64)",
+     "fit": "(X)",
+     "train_corrector": "(X, *, epochs=500, lr=0.001, device=None)",
+     "forward": "(X, *, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.sindy": {
+   "SINDy": {
+    "class": [
+     "ROMBase"
+    ],
+    "methods": {
+     "__init__": "(r, *, library='poly', poly_degree=2, threshold=0.05, n_iter=10, l2=0.0001, solver='stlsq', integrator='rk4')",
+     "fit": "(a, *, dt=1.0)",
+     "rollout": "(a0, *, dt, steps)",
+     "active_terms": "()",
+     "sparsity": "()",
+     "forward": "(a, *, dt=1.0, return_loss=False)"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.steppers": {
+   "pod_dmd_stepper": "def(snapshots, r=8)",
+   "pod_opinf_stepper": "def(train, energy)"
+  },
+  "pinneapple_neural.architectures.rom.study": {
+   "ROMStudyResult": {
+    "class": [],
+    "methods": {
+     "best": "(tolerance=None)",
+     "pareto": "()",
+     "to_dict": "(tolerance=None)"
+    }
+   },
+   "ReducedModel": {
+    "class": [],
+    "methods": {
+     "predict": "(times=None, params=None)",
+     "manifest": "()",
+     "to_bytes": "()",
+     "from_bytes": "(b)",
+     "onnx_spec": "()",
+     "to_onnx": "()",
+     "in_range": "(times=None, params=None)"
+    }
+   },
+   "Split": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "default_ranks": "def(n_train, n_values, sv=None, max_rank=64)",
+   "field_scales": "def(snaps, train)",
+   "fit_reduced_model": "def(snaps, train, method, rank=None, *, budget_s=5.0, seed=0, mode=None, scale='auto', log_params=(), amplitude_split=False)",
+   "rom_study": "def(snaps, *, methods=None, ranks=None, split='auto', test_fraction=0.2, test_idx=None, budget_s=5.0, seed=0, hf_seconds=None, max_rank=64, timing_repeats=5, scale='auto', log_params=(), amplitude_split=False, progress=None)",
+   "split_snapshots": "def(snaps, *, how='auto', test_fraction=0.2, seed=0, test_idx=None)"
+  },
+  "pinneapple_neural.architectures.rom.toy_systems": {
+   "generate_sequences": "def(B, T, D, A, noise=0.01, seed=123)",
+   "make_linear_system": "def(D, seed=0)"
+  },
+  "pinneapple_neural.architectures.rom.trusted": {
+   "TrustedLatentSurrogate": {
+    "class": [],
+    "methods": {
+     "fit": "(P_train, X_train, P_cal, X_cal)",
+     "predict": "(P)",
+     "assess": "(P, tol, *, with_residual=True)",
+     "trust_report": "(p, tol, *, model='latent surrogate')"
+    }
+   }
+  },
+  "pinneapple_neural.architectures.rom.views": {
+   "prediction_view": "def(snaps, index, pred, *, label='Prediction', note='', reported=None, grow=0.1, max_faces=None, n_hotspots=3, full_label='', reported_by_field=None)",
+   "reconstruction_view": "def(snaps, model, index, *, reported=None, grow=0.1, max_faces=None, n_hotspots=3, full_label='')",
+   "zones": "def(snaps, points, grow=0.1)"
+  },
+  "pinneapple_neural.trainer": {
+   "AMPContext": "from .parallel import AMPContext",
+   "AdaptedSequenceDataset": "from .datamodule import AdaptedSequenceDataset",
+   "AdaptiveCollocationConfig": "from .collocation import AdaptiveCollocationConfig",
+   "AdaptiveCollocationSampler": "from .collocation import AdaptiveCollocationSampler",
+   "AdaptiveSweepConfig": "from .adaptive_sweep import AdaptiveSweepConfig",
+   "AugmentedLagrangian": "from .loss_balancer import AugmentedLagrangian",
+   "AutoBalancer": "from .loss_balancer import AutoBalancer",
+   "AutoBalancerConfig": "from .loss_balancer import AutoBalancerConfig",
+   "AutoBatchSizeFinder": "from .hpc import AutoBatchSizeFinder",
+   "AutoPDEWeightCalibrator": "from .loss_balancer import AutoPDEWeightCalibrator",
+   "CUDAGraphModule": "from .hpc import CUDAGraphModule",
+   "CUDAPrefetcher": "from .parallel import CUDAPrefetcher",
+   "CausalPINNTrainer": "from .causal import CausalPINNTrainer",
+   "CausalWeightScheduler": "from .causal import CausalWeightScheduler",
+   "CombinedLoss": "from .losses import CombinedLoss",
+   "DDPPINNTrainer": "from .distributed import DDPPINNTrainer",
+   "DDPTrainerConfig": "from .distributed import DDPTrainerConfig",
+   "DataModule": "from .datamodule import DataModule",
+   "DiagnosticReport": "from .advisor import DiagnosticReport",
+   "EarlyStopping": "from .callbacks import EarlyStopping",
+   "FSDPConfig": "from .hpc import FSDPConfig",
+   "FnAdapter": "from .datamodule import FnAdapter",
+   "GradAccumConfig": "from .parallel import GradAccumConfig",
+   "GradAccumTrainer": "from .parallel import GradAccumTrainer",
+   "GradNormBalancer": "from .weight_scheduler import GradNormBalancer",
+   "InverseDirichlet": "from .loss_balancer import InverseDirichlet",
+   "ItemAdapter": "from .datamodule import ItemAdapter",
+   "JointAdaptiveWeights": "from .loss_balancer import JointAdaptiveWeights",
+   "LBFGSFinetuneResult": "from .lbfgs_finetune import LBFGSFinetuneResult",
+   "LRAnnealing": "from .loss_balancer import LRAnnealing",
+   "LossRatioBalancer": "from .weight_scheduler import LossRatioBalancer",
+   "Metrics": "from .metrics import Metrics",
+   "MinMaxScaler": "from .normalizers import MinMaxScaler",
+   "ModelCheckpoint": "from .callbacks import ModelCheckpoint",
+   "MultiAdam": "from .multiadam import MultiAdam",
+   "MultiRestartConfig": "from .multistart import MultiRestartConfig",
+   "MultiRestartResult": "from .multistart import MultiRestartResult",
+   "MultiRestartTrainer": "from .multistart import MultiRestartTrainer",
+   "NTKWeightBalancer": "from .weight_scheduler import NTKWeightBalancer",
+   "Normalizer": "from .normalizers import Normalizer",
+   "PCGrad": "from .loss_balancer import PCGrad",
+   "PINNeAPPleProfiler": "from .hpc import PINNeAPPleProfiler",
+   "PhysicsLossHook": "from .losses import PhysicsLossHook",
+   "PreprocessPipeline": "from .preprocess import PreprocessPipeline",
+   "ProfilerConfig": "from .hpc import ProfilerConfig",
+   "ReLoBRaLo": "from .loss_balancer import ReLoBRaLo",
+   "RegressionMetrics": "from .metrics import RegressionMetrics",
+   "RestartResult": "from .multistart import RestartResult",
+   "RunLogger": "from .audit import RunLogger",
+   "SLURMConfig": "from .hpc import SLURMConfig",
+   "SelfAdaptiveWeights": "from .weight_scheduler import SelfAdaptiveWeights",
+   "SelfScaledQuasiNewton": "from .self_scaled_qn import SelfScaledQuasiNewton",
+   "SoftAdapt": "from .loss_balancer import SoftAdapt",
+   "SolverFeatureStep": "from .preprocess import SolverFeatureStep",
+   "SplitSpec": "from .splits import SplitSpec",
+   "StandardScaler": "from .normalizers import StandardScaler",
+   "Suggestion": "from .advisor import Suggestion",
+   "SupervisedLoss": "from .losses import SupervisedLoss",
+   "SweepConfig": "from .parallel import SweepConfig",
+   "ThroughputMonitor": "from .parallel import ThroughputMonitor",
+   "TimeMarchingTrainer": "from .time_marching import TimeMarchingTrainer",
+   "TorchRunConfig": "from .hpc import TorchRunConfig",
+   "TrainConfig": "from .trainer import TrainConfig",
+   "Trainer": "from .trainer import Trainer",
+   "TrainingAdvisor": "from .advisor import TrainingAdvisor",
+   "TwoPhaseConfig": "from .two_phase import TwoPhaseConfig",
+   "TwoPhaseHistory": "from .two_phase import TwoPhaseHistory",
+   "TwoPhaseTrainer": "from .two_phase import TwoPhaseTrainer",
+   "UnnormModel": "from .two_phase import UnnormModel",
+   "WeightScheduler": "from .weight_scheduler import WeightScheduler",
+   "WeightSchedulerConfig": "from .weight_scheduler import WeightSchedulerConfig",
+   "batched_inference": "from .parallel import batched_inference",
+   "best_device": "from .parallel import best_device",
+   "build_metrics_from_cfg": "from .metrics_cfg import build_metrics_from_cfg",
+   "build_slurm_script": "from .hpc import build_slurm_script",
+   "build_torchrun_cmd": "from .hpc import build_torchrun_cmd",
+   "count_gpus": "from .parallel import count_gpus",
+   "default_metrics": "from .metrics import default_metrics",
+   "enable_gradient_checkpointing": "from .parallel import enable_gradient_checkpointing",
+   "estimate_channel_scales": "from .collocation import estimate_channel_scales",
+   "filter_nan_rows": "from .collocation import filter_nan_rows",
+   "get_rank": "from .distributed import get_rank",
+   "get_world_size": "from .distributed import get_world_size",
+   "gpu_info": "from .parallel import gpu_info",
+   "is_distributed": "from .distributed import is_distributed",
+   "maybe_compile": "from .parallel import maybe_compile",
+   "multi_round_lbfgs": "from .lbfgs_finetune import multi_round_lbfgs",
+   "register_powersgd_hook": "from .hpc import register_powersgd_hook",
+   "register_topk_hook": "from .hpc import register_topk_hook",
+   "run_adaptive_sweep": "from .adaptive_sweep import run_adaptive_sweep",
+   "run_parallel_sweep": "from .parallel import run_parallel_sweep",
+   "set_deterministic": "from .audit import set_deterministic",
+   "set_seed": "from .audit import set_seed",
+   "split_indices": "from .splits import split_indices",
+   "unwrap_model": "from .parallel import unwrap_model",
+   "wrap_data_parallel": "from .parallel import wrap_data_parallel",
+   "wrap_fsdp": "from .hpc import wrap_fsdp",
+   "wrap_zero_optimizer": "from .hpc import wrap_zero_optimizer"
+  },
+  "pinneapple_neural.trainer.adaptive_sweep": {
+   "AdaptiveSweepConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "run_adaptive_sweep": "def(trial_fn, cfg)"
+  },
+  "pinneapple_neural.trainer.advisor": {
+   "DiagnosticReport": {
+    "class": [],
+    "methods": {}
+   },
+   "Suggestion": {
+    "class": [],
+    "methods": {}
+   },
+   "TrainingAdvisor": {
+    "class": [],
+    "methods": {
+     "__init__": "(plateau_rel_std_thresh=0.005, divergence_rel_thresh=-0.05, slow_start_thresh=0.05, high_residual_thresh=0.01, oscillation_rel_std=0.1, bc_dominance_ratio=0.8, physics_dominance_ratio=0.95, convergence_still_going=-0.02, max_retrain_epochs_mult=4.0)",
+     "analyse": "(model_name, loss_history, physics_loss_history, bc_loss_history, metrics, current_lr, current_epochs, current_batch_size)",
+     "apply_suggestions": "(suggestions, current_config, max_priority=3)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.audit": {
+   "RunLogger": {
+    "class": [],
+    "methods": {
+     "log": "(record)",
+     "save_config": "(cfg)",
+     "save_artifact": "(name, obj)"
+    }
+   },
+   "env_fingerprint": "def()",
+   "set_deterministic": "def(deterministic=True)",
+   "set_seed": "def(seed)"
+  },
+  "pinneapple_neural.trainer.callbacks": {
+   "EarlyStopping": {
+    "class": [],
+    "methods": {
+     "update": "(logs)"
+    }
+   },
+   "ModelCheckpoint": {
+    "class": [],
+    "methods": {
+     "maybe_save": "(model, extra, logs)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.causal": {
+   "CausalPINNTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, epsilon=1.0, n_time_chunks=50, update_every=100)",
+     "train": "(pde_residual_fn, ic_loss_fn, t_range=(0.0, 1.0), n_epochs=10000, n_col=2000, lr=0.001, bc_loss_fn=None, x_spatial_range=(0.0, 1.0), spatial_dim=1, ic_weight=10.0, bc_weight=10.0, optimizer=None, scheduler=None, print_every=1000, device=None, dtype=torch.float32, seed=0)",
+     "get_causality_metric": "()",
+     "plot_causal_weights": "(t_range=(0.0, 1.0))"
+    }
+   },
+   "CausalWeightScheduler": {
+    "class": [],
+    "methods": {
+     "__init__": "(n_time_chunks=100, epsilon=1.0, update_every=100)",
+     "update_chunk_losses": "(t, residuals)",
+     "compute_weights": "(t, residuals)",
+     "weighted_loss": "(t, residuals)",
+     "causality_metric": "()"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.checkpoint": {
+   "Checkpoint": {
+    "class": [],
+    "methods": {}
+   },
+   "load_checkpoint": "def(path)",
+   "save_checkpoint": "def(path, ckpt)"
+  },
+  "pinneapple_neural.trainer.collocation": {
+   "AdaptiveCollocationConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "AdaptiveCollocationSampler": {
+    "class": [],
+    "methods": {
+     "__init__": "(pool, config=None, residual_fn=None)",
+     "active_points": "()",
+     "record_residuals": "(residuals)",
+     "step": "(epoch, model=None)",
+     "resample_now": "(model=None)",
+     "replace_pool": "(new_pool)",
+     "resample_count": "()",
+     "resample_history": "()",
+     "residual_stats": "()"
+    }
+   },
+   "estimate_channel_scales": "def(Y, quantile=0.95, min_scale=1e-06, channel_names=None)",
+   "filter_nan_rows": "def(*tensors, warn=True)"
+  },
+  "pinneapple_neural.trainer.datamodule": {
+   "AdaptedSequenceDataset": {
+    "class": [
+     "Dataset"
+    ],
+    "methods": {
+     "__init__": "(samples, adapter)"
+    }
+   },
+   "DataModule": {
+    "class": [],
+    "methods": {
+     "setup": "()",
+     "train_dataloader": "()",
+     "val_dataloader": "()",
+     "test_dataloader": "()"
+    }
+   },
+   "FnAdapter": {
+    "class": [
+     "ItemAdapter"
+    ],
+    "methods": {
+     "__init__": "(x_fn, y_fn, meta_fn=None)"
+    }
+   },
+   "ItemAdapter": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_neural.trainer.distributed": {
+   "DDPPINNTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, config=None)",
+     "setup": "(rank, world_size)",
+     "cleanup": "()",
+     "train": "(loss_fn, n_epochs, optimizer=None, scheduler=None)",
+     "spawn_workers": "(train_fn, n_gpus, *args)"
+    }
+   },
+   "DDPTrainerConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "get_rank": "def()",
+   "get_world_size": "def()",
+   "is_distributed": "def()"
+  },
+  "pinneapple_neural.trainer.graybox": {
+   "GrayBoxConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "GrayBoxNet": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(n_in=1, n_out=1, width=32, depth=3)",
+     "forward": "(x)"
+    }
+   },
+   "distill_to_symbolic": "def(graybox_net, coord_bounds, n_samples=2000, var_names=None, n_iterations=40)",
+   "train_graybox": "def(main_model, graybox_nets, known_residual_fn, obs_coords, obs_values, collocation_sampler, learnable_params=None, param_bounds=None, known_params=None, config=None, progress_cb=None)"
+  },
+  "pinneapple_neural.trainer.heteroscedastic": {
+   "HeteroscedasticWrapper": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(base_network, n_out_physical)",
+     "forward_uq": "(x, **forward_kwargs)",
+     "forward": "(x, **forward_kwargs)",
+     "dropout_p": "()"
+    }
+   },
+   "compute_aleatoric_epistemic_uq": "def(model, coords, n_mc=50, forward_kwargs=None)",
+   "heteroscedastic_nll_loss": "def(pred_mean, pred_logvar, target)",
+   "init_logvar_bias": "def(output_layer, n_out_physical, bias_value=-4.6)"
+  },
+  "pinneapple_neural.trainer.hpc": {
+   "AutoBatchSizeFinder": {
+    "class": [],
+    "methods": {
+     "__init__": "(trial_fn, lo=1, hi=8192, verbose=True)",
+     "find": "()"
+    }
+   },
+   "CUDAGraphModule": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(module, warmup_steps=3, device='cuda')",
+     "forward": "(x)",
+     "reset_graph": "()"
+    }
+   },
+   "FSDPConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "PINNeAPPleProfiler": {
+    "class": [],
+    "methods": {
+     "__init__": "(config=None)",
+     "step": "()",
+     "print_summary": "(sort_by='cuda_time_total')",
+     "export_chrome_trace": "(path=None)"
+    }
+   },
+   "ProfilerConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "SLURMConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "TorchRunConfig": {
+    "class": [],
+    "methods": {
+     "world_size": "()"
+    }
+   },
+   "build_slurm_script": "def(torchrun_cmd, slurm, *, output_dir='slurm_logs')",
+   "build_torchrun_cmd": "def(script, cfg, *, script_args='')",
+   "register_powersgd_hook": "def(model, *, matrix_approximation_rank=1, start_powersgd_iter=10, use_error_feedback=True)",
+   "register_topk_hook": "def(model, *, compression_ratio=0.1)",
+   "wrap_fsdp": "def(model, cfg=None, *, process_group=None)",
+   "wrap_zero_optimizer": "def(optimizer_class, params, **optimizer_kwargs)"
+  },
+  "pinneapple_neural.trainer.inference": {
+   "load_checkpoint": "def(model, path, map_location='cpu')",
+   "predict": "def(model, x, device=None)"
+  },
+  "pinneapple_neural.trainer.inverse_pinn": {
+   "InversePINN": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, inverse_params, residual_fn, sensor_points, sensor_values, domain_bounds, n_col=2048, lr=0.001, lr_params=0.01, device='cpu', sampling_method='uniform', patience=300, weighting='equal')",
+     "train": "(n_epochs=3000)",
+     "get_identified_params": "()"
+    }
+   },
+   "InverseParam": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(initial_value, log_space=False, name='param')",
+     "value": "()"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.lbfgs_finetune": {
+   "LBFGSFinetuneResult": {
+    "class": [],
+    "methods": {
+     "final_loss": "()"
+    }
+   },
+   "multi_round_lbfgs": "def(params, closure_builder, n_rounds, n_steps_per_round, lr=1.0, history_size=50, line_search_fn='strong_wolfe', post_round_eval=None, on_round_end=None)"
+  },
+  "pinneapple_neural.trainer.loss_balancer": {
+   "AugmentedLagrangian": {
+    "class": [],
+    "methods": {
+     "__init__": "(loss_names, *, pde_key='pde', rho=0.1, lambda_init=1.0, lambda_min=0.0, lambda_max=10000.0, update_every=1, warmup_steps=100, initial_weights=None)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   },
+   "AutoBalancer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, *, config=None, pde_key='pde')",
+     "step": "(losses, optimizer=None)",
+     "current_method": "()",
+     "current_weights": "()",
+     "switch_log": "()",
+     "history": "()"
+    }
+   },
+   "AutoBalancerConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "AutoPDEWeightCalibrator": {
+    "class": [],
+    "methods": {
+     "__init__": "(target_ratio=0.01, *, once=True, clip_min=1e-20, clip_max=1000000.0)",
+     "calibrate": "(loss_pde, loss_ref)",
+     "weight": "()",
+     "reset": "()"
+    }
+   },
+   "InverseDirichlet": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, *, shared_layer=None, update_every=50, alpha=0.9, clip_min=0.001, clip_max=1000.0, initial_weights=None)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   },
+   "JointAdaptiveWeights": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(loss_names, *, initial_weights=None, sp_beta=1.0, max_raw_init=20.0, scale=None)",
+     "weights": "()",
+     "weight_dict": "()",
+     "weight_params": "()",
+     "forward": "(losses)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   },
+   "LRAnnealing": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, *, reference='pde', update_every=100, alpha=0.1, clip_min=0.001, clip_max=10000.0, initial_weights=None, params=None)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   },
+   "PCGrad": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, *, update_every=1, weights=None)",
+     "step": "(losses, optimizer=None)",
+     "current_weights": "()"
+    }
+   },
+   "ReLoBRaLo": {
+    "class": [],
+    "methods": {
+     "__init__": "(loss_names, *, tau=0.1, alpha=0.999, update_every=1, clip_min=0.001, clip_max=1000.0, initial_weights=None)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   },
+   "SoftAdapt": {
+    "class": [],
+    "methods": {
+     "__init__": "(loss_names, *, tau=0.1, beta=0.0, normalized=True, update_every=1, clip_min=0.001, clip_max=1000.0, initial_weights=None)",
+     "step": "(losses)",
+     "current_weights": "()",
+     "history": "()"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.losses": {
+   "CombinedLoss": {
+    "class": [],
+    "methods": {}
+   },
+   "PhysicsLossHook": {
+    "class": [],
+    "methods": {}
+   },
+   "SupervisedLoss": {
+    "class": [],
+    "methods": {}
+   },
+   "build_loss": "def(*, problem_spec, model_capabilities=None, weights=None, supervised_kind='mse', physics_loss_fn=None)"
+  },
+  "pinneapple_neural.trainer.metrics": {
+   "MAE": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "MSE": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "MaxError": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "Metric": {
+    "class": [],
+    "methods": {}
+   },
+   "MetricBundle": {
+    "class": [
+     "Metrics"
+    ],
+    "methods": {
+     "compute": "(y_hat, y)"
+    }
+   },
+   "Metrics": {
+    "class": [],
+    "methods": {
+     "compute": "(y_hat, y)"
+    }
+   },
+   "R2": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "RMSE": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "RegressionMetrics": {
+    "class": [
+     "Metrics"
+    ],
+    "methods": {
+     "compute": "(y_hat, y)"
+    }
+   },
+   "RelL2": {
+    "class": [
+     "Metric"
+    ],
+    "methods": {}
+   },
+   "default_metrics": "def()",
+   "regression_metrics_bundle": "def()"
+  },
+  "pinneapple_neural.trainer.metrics_cfg": {
+   "build_metrics_from_cfg": "def(cfg)"
+  },
+  "pinneapple_neural.trainer.monotonic": {
+   "monotone_violation_share": "def(model, z, cols, signs, output=0)",
+   "monotonicity_penalty": "def(model, z, cols, signs, *, scale=None, margin=0.0, output=0, create_graph=True)"
+  },
+  "pinneapple_neural.trainer.multiadam": {
+   "MultiAdam": {
+    "class": [
+     "Optimizer"
+    ],
+    "methods": {
+     "__init__": "(params, lr=0.001, betas=(0.99, 0.99), eps=1e-08)",
+     "step": "(losses)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.multistart": {
+   "MultiRestartConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "MultiRestartResult": {
+    "class": [],
+    "methods": {
+     "model": "()",
+     "history": "()",
+     "score": "()"
+    }
+   },
+   "MultiRestartTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model_factory, train_fn, *, config=None, score_fn=None, on_restart_end=None)",
+     "fit": "(*args, **kwargs)"
+    }
+   },
+   "RestartResult": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_neural.trainer.noether_trainer": {
+   "NoetherSurrogateTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, train_loader, val_loader=None, config=None)",
+     "train": "()",
+     "from_hydra_config": "(config_path, overrides=None)"
+    }
+   },
+   "NoetherTrainConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "NoetherTrainResult": {
+    "class": [],
+    "methods": {
+     "summary": "()"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.parallel": {
+   "AMPContext": {
+    "class": [],
+    "methods": {
+     "__init__": "(device='cuda', dtype=torch.bfloat16, enabled=True)",
+     "autocast": "()"
+    }
+   },
+   "CUDAPrefetcher": {
+    "class": [],
+    "methods": {
+     "__init__": "(loader, device='cuda')",
+     "next": "()"
+    }
+   },
+   "GradAccumConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "GradAccumTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, optimizer, cfg=None, amp_ctx=None)",
+     "step": "(batch, loss_fn)"
+    }
+   },
+   "SweepConfig": {
+    "class": [],
+    "methods": {
+     "grid_points": "()"
+    }
+   },
+   "ThroughputMonitor": {
+    "class": [],
+    "methods": {
+     "__init__": "(device_index=0)",
+     "start_epoch": "()",
+     "end_epoch": "(n_samples)",
+     "summary": "()",
+     "print_epoch_table": "()"
+    }
+   },
+   "best_device": "def(prefer_cuda=True, allow_mps=True)",
+   "count_gpus": "def()",
+   "enable_gradient_checkpointing": "def(model)",
+   "gpu_info": "def()",
+   "maybe_compile": "def(model, *, mode='default', fullgraph=False, dynamic=False)",
+   "run_parallel_sweep": "def(trial_fn, cfg)",
+   "unwrap_model": "def(model)",
+   "wrap_data_parallel": "def(model, device_ids=None)"
+  },
+  "pinneapple_neural.trainer.preprocess": {
+   "DifferencingStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "LogStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "MissingValueStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "NormalizeStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "PreprocessPipeline": {
+    "class": [],
+    "methods": {
+     "fit": "(train_batches)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "PreprocessStep": {
+    "class": [
+     "Protocol"
+    ],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)"
+    }
+   },
+   "RobustScaleStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   },
+   "SolverFeatureStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)"
+    }
+   },
+   "WinsorizeStep": {
+    "class": [],
+    "methods": {
+     "fit": "(batch_list)",
+     "apply": "(batch)",
+     "state_dict": "()",
+     "load_state_dict": "(state)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.self_scaled_qn": {
+   "SelfScaledQuasiNewton": {
+    "class": [
+     "Optimizer"
+    ],
+    "methods": {
+     "__init__": "(params, variant='ssbroyden', max_iter=20, tolerance_grad=1e-12, tolerance_change=1e-14, max_eval=None)",
+     "inverse_hessian": "()",
+     "step": "(closure)"
+    }
+   },
+   "self_scaled_parameters": "def(s, y, g, alpha, Hy, n, variant)"
+  },
+  "pinneapple_neural.trainer.time_marching": {
+   "TimeMarchingTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model_factory, t_start, t_end, n_windows=10, epochs_per_window=2000, n_col=1000, ic_weight=10.0, optimizer_kwargs=None)",
+     "march": "(pde_residual_fn, ic_fn, bc_fns=None, x_domain=None, device=None, dtype=torch.float32)",
+     "evaluate": "(x, t)",
+     "plot_spacetime": "(models, window_edges, x_range=(0, 1), t_range=(0, 1), n=100)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.trainer": {
+   "TrainConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "Trainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None)",
+     "fit": "(train_loader, val_loader, cfg)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.two_phase": {
+   "TwoPhaseConfig": {
+    "class": [],
+    "methods": {}
+   },
+   "TwoPhaseHistory": {
+    "class": [],
+    "methods": {}
+   },
+   "TwoPhaseTrainer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, supervised_loss_fn, physics_loss_fn, config=None)",
+     "fit": "(supervised_loader, physics_loader, *, extras=None)"
+    }
+   },
+   "UnnormModel": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(model, Y_mean, Y_std)",
+     "forward": "(x)"
+    }
+   }
+  },
+  "pinneapple_neural.trainer.viz": {
+   "plot_history": "def(history, keys=('train_total', 'val_total'), *, log_scale=True, show=True)"
+  },
+  "pinneapple_neural.trainer.weight_scheduler": {
+   "GradNormBalancer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, shared_layer=None, config=None)",
+     "update_weights": "(losses, step)",
+     "apply": "(losses)",
+     "history": "()"
+    }
+   },
+   "LossRatioBalancer": {
+    "class": [],
+    "methods": {
+     "__init__": "(loss_names, target_ratios=None, config=None)",
+     "update": "(losses, step)",
+     "apply": "(losses, weights=None)",
+     "history": "()"
+    }
+   },
+   "NTKWeightBalancer": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, n_proj=50, config=None)",
+     "compute_weights": "(loss_fns, x_batches)",
+     "apply": "(losses)",
+     "history": "()"
+    }
+   },
+   "SelfAdaptiveWeights": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(loss_names, config)",
+     "weights": "()",
+     "weight_dict": "()",
+     "weight_params": "()",
+     "forward": "(losses)",
+     "history": "()"
+    }
+   },
+   "WeightScheduler": {
+    "class": [],
+    "methods": {
+     "__init__": "(model, loss_names, config=None)",
+     "step": "(losses, step=None, optimizer=None)",
+     "current_weights": "()",
+     "weight_history": "()",
+     "has_weight_optimizer": "()",
+     "joint_weight_params": "()",
+     "weight_params": "()",
+     "optimizer_param_groups": "(lr=None)"
+    }
+   },
+   "WeightSchedulerConfig": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.closed_form": {
+   "annotations": "from __future__ import annotations",
+   "burgers": "from . import burgers",
+   "cantilever_fatigue": "from . import cantilever_fatigue",
+   "compressible": "from . import compressible",
+   "fin_array_conduction": "from . import fin_array_conduction",
+   "heat": "from . import heat",
+   "helmholtz_resonator": "from . import helmholtz_resonator",
+   "ideal_reactors": "from . import ideal_reactors",
+   "membrane_diffusion": "from . import membrane_diffusion",
+   "particle_drag": "from . import particle_drag",
+   "pcb_thermal": "from . import pcb_thermal",
+   "pipe_flow": "from . import pipe_flow",
+   "plate_fin_heatsink": "from . import plate_fin_heatsink",
+   "rocket_nozzle": "from . import rocket_nozzle"
+  },
+  "pinneapple_physics.closed_form.burgers": {
+   "burgers_sine_exact": "def(x, t, nu, n_nodes=120)",
+   "burgers_sine_inviscid_exact": "def(x, t)"
+  },
+  "pinneapple_physics.closed_form.cantilever_fatigue": {
+   "basquin_allowable_stress_pa": "def(target_life_cycles, fatigue_strength_coeff_pa, fatigue_strength_exponent)",
+   "basquin_fatigue_life_cycles": "def(stress_amplitude_pa, fatigue_strength_coeff_pa, fatigue_strength_exponent)",
+   "cantilever_bending_stress_at_position_pa": "def(width_m, thickness_m, load_n, length_m, x_from_root_m)",
+   "cantilever_root_bending_stress_pa": "def(width_m, thickness_m, load_n, length_m)",
+   "stress_from_moment_pa": "def(width_m, thickness_m, moment_n_m)"
+  },
+  "pinneapple_physics.closed_form.compressible": {
+   "cp_max_newtonian": "def(M, gamma=1.4)",
+   "isentropic_ratios": "def(M, gamma=1.4)",
+   "normal_shock": "def(M, gamma=1.4)",
+   "pitot_pressure_ratio": "def(M, gamma=1.4)"
+  },
+  "pinneapple_physics.closed_form.eddy_coil": {
+   "coil_impedance": "def(f, *, r1, r2, l1, l2, turns, sigma, thickness=math.inf)",
+   "skin_depth": "def(f, sigma, mu_r=1.0)"
+  },
+  "pinneapple_physics.closed_form.electromagnetics": {
+   "cylinder_tm_total": "def(x, y, k0, radius, eps_r)",
+   "skin_effect_slab": "def(x, delta, A0=1.0)",
+   "tm_cavity_mode": "def(x, y, t, m, n, Lx, Ly, eps=1.0, mu=1.0)",
+   "two_dielectric_capacitor": "def(y, V, d, d1, eps1, eps2)",
+   "wire_az": "def(x, y, a, J, nu=1.0)"
+  },
+  "pinneapple_physics.closed_form.fin_array_conduction": {
+   "fin_array_base_temperature_c": "def(params, t_ambient_c, power_w)",
+   "fin_array_profile_params": "def(k_material_w_mk, h_conv_w_m2k, n_fins, fin_thickness_m, fin_length_m, transverse_extent_m, spacing_extent_m, base_thickness_m, power_w)",
+   "fin_array_temperature_at_position_c": "def(params, t_ambient_c, x_from_root_m, corrected_length_m=None)"
+  },
+  "pinneapple_physics.closed_form.heat": {
+   "pin_fin_heat": "def(h, k, D, L, T_base, T_inf)",
+   "pin_fin_theta": "def(xi, h, k, D, L)",
+   "slab_transient": "def(x, t, L, alpha, T_left, T_right, T0, n_terms=None)"
+  },
+  "pinneapple_physics.closed_form.heat_exchanger": {
+   "effectiveness": "def(ntu, cr, arrangement='counterflow', n_shell=1)",
+   "gnielinski": "def(re, pr)",
+   "hausen_mean_nusselt": "def(re, pr, d_over_l)",
+   "kern_shell": "def(m_dot, mu, k, cp, *, shell_id, baffle_spacing, tube_od, pitch, layout='triangular')",
+   "lmtd_correction_1_2": "def(t_hot_in, t_hot_out, t_cold_in, t_cold_out)",
+   "mean_nusselt_from_temperatures": "def(re, pr, d_over_l, t_wall, t_in, t_out)",
+   "ntu_from_effectiveness": "def(eps, cr, arrangement='counterflow')",
+   "one_two_exchanger_ode": "def(ntu, cr, n=4001, profiles=False)"
+  },
+  "pinneapple_physics.closed_form.helmholtz_resonator": {
+   "helmholtz_resonant_frequency_hz": "def(port_radius_m, port_length_m, cabinet_volume_l, end_correction_factor=1.7)",
+   "port_volume_m3": "def(port_radius_m, port_length_m)"
+  },
+  "pinneapple_physics.closed_form.ideal_reactors": {
+   "PFRResult": {
+    "class": [
+     "TypedDict"
+    ],
+    "methods": {}
+   },
+   "cstr_conversion_ktau": "def(k, tau)",
+   "pfr_conversion": "def(D, L, k, Q)",
+   "pfr_conversion_ktau": "def(k, tau)",
+   "tube_volume": "def(D, L)"
+  },
+  "pinneapple_physics.closed_form.membrane_diffusion": {
+   "concentration_at_membrane_depth": "def(reservoir_conc_kg_m3, partition_coeff, membrane_thickness_m, z_from_reservoir_m)",
+   "depletion_time_days": "def(diffusion_coeff_m2_s, partition_coeff, membrane_thickness_m, reservoir_thickness_m)",
+   "post_depletion_decay_rate_constant_per_day": "def(diffusion_coeff_m2_s, partition_coeff, membrane_thickness_m, reservoir_thickness_m)",
+   "simulate_release_timeseries": "def(diffusion_coeff_m2_s, partition_coeff, reservoir_conc_kg_m3, area_m2, membrane_thickness_m, reservoir_thickness_m, duration_days=None, n_points=100)",
+   "steady_state_release_rate_mg_day": "def(diffusion_coeff_m2_s, partition_coeff, reservoir_conc_kg_m3, area_m2, membrane_thickness_m)"
+  },
+  "pinneapple_physics.closed_form.particle_drag": {
+   "clift_sphere_cd": "def(re)",
+   "schiller_naumann_cd": "def(re)"
+  },
+  "pinneapple_physics.closed_form.pcb_thermal": {
+   "Environment": {
+    "class": [],
+    "methods": {}
+   },
+   "Layer": {
+    "class": [],
+    "methods": {
+     "k_xy": "()",
+     "k_z": "()"
+    }
+   },
+   "convection_coefficients": "def(width_m, depth_m, t_surface_c, env)",
+   "effective_conductivity": "def(layers)",
+   "stackup": "def(n_copper=4, thickness_mm=1.6, outer_oz=1.0, inner_oz=1.0, outer_coverage=0.3, inner_coverage=0.9)",
+   "via_copper_fraction": "def(n_vias, drill_mm, plating_um, area_m2)"
+  },
+  "pinneapple_physics.closed_form.pipe_flow": {
+   "blasius": "def(Re)",
+   "colebrook": "def(Re, rel_rough=0.0, tol=1e-14, max_iter=100)",
+   "curved_pipe_ratio": "def(De)",
+   "darcy_pressure_drop": "def(f, L, D, rho, U)",
+   "dean_number": "def(Re, D, Rc)",
+   "first_cell_height": "def(y_plus, Re, D, U, nu, f=None, rel_rough=0.0)",
+   "friction_factor": "def(Re, rel_rough=0.0)",
+   "haaland": "def(Re, rel_rough=0.0)",
+   "laminar": "def(Re)",
+   "parallel_plates_pressure_drop": "def(mu, L, h, U)"
+  },
+  "pinneapple_physics.closed_form.pipe_insulation": {
+   "air": "def(t_c)",
+   "crf": "def(rate, years)",
+   "economic_thickness": "def(d_pipe, t_in, t_amb, thicknesses, *, k0, k1, eps, wind, hours, energy_price, efficiency, cost_per_m3, cost_per_m2, rate, years, t_surface_max=float('inf'))",
+   "heat_loss": "def(d_pipe, thickness, t_in, t_amb, *, k0, k1=0.0, eps=0.9, wind=0.0)",
+   "radial_fd": "def(d_pipe, thickness, t_in, t_surface, *, k0, k1=0.0, n=400)",
+   "surface_coefficient": "def(ts, ta, d, eps, wind=0.0)"
+  },
+  "pinneapple_physics.closed_form.plate_fin_heatsink": {
+   "HeatSinkGeometry": {
+    "class": [],
+    "methods": {
+     "fin_gap": "()",
+     "mass_kg": "()"
+    }
+   },
+   "OperatingPoint": {
+    "class": [],
+    "methods": {}
+   },
+   "air_properties": "def(t_c, p_pa=101325.0)",
+   "evaluate": "def(g, op, max_iter=60, h_scale=1.0, t_root_guess_c=None)",
+   "forced_convection": "def(g, v_approach, air)",
+   "geometry_errors": "def(g, op)",
+   "natural_convection": "def(g, dt_k, air)",
+   "spreading_resistance": "def(k, tb, source_area, plate_area, r_conv)"
+  },
+  "pinneapple_physics.closed_form.pump_npsh": {
+   "atmosphere": "def(z_m)",
+   "duty_point": "def(head_coef, h_static, system_loss, q_max)",
+   "fit_quadratic": "def(q, y)",
+   "iapws97_psat": "def(t_c)",
+   "npsh_available": "def(p_surface, t_c, z_suction, h_loss)",
+   "pipe_loss": "def(q, d, length, k_minor, rough, rho, mu)",
+   "water_density": "def(t_c)"
+  },
+  "pinneapple_physics.closed_form.rocket_nozzle": {
+   "area_ratio": "def(M, gamma)",
+   "characteristic_velocity": "def(gamma, R_gas, T0)",
+   "choked_mass_flow": "def(p0, throat_area, gamma, R_gas, T0)",
+   "mach_from_area_ratio": "def(ratio, gamma, *, supersonic=True, tol=1e-12, max_iter=300)",
+   "nozzle_performance": "def(*, gamma, R_gas, T_chamber, p_chamber, area_ratio_exit, p_atm=101325.0)",
+   "pressure_ratio": "def(M, gamma)",
+   "specific_impulse": "def(cf, c_star, g0=G0)",
+   "temperature_ratio": "def(M, gamma)",
+   "thrust_coefficient": "def(p_exit, p0, p_atm, ratio, gamma)"
+  },
+  "pinneapple_physics.closed_form.thin_airfoil": {
+   "hoerner_profile_cd": "def(t_c, reynolds)",
+   "naca4_camber_slope": "def(x, m, p)",
+   "thin_airfoil_cl": "def(m, p, alpha_deg, n_quad=4001)",
+   "turbulent_flat_plate_cf": "def(reynolds)"
+  },
+  "pinneapple_physics.pde_environment": {
+   "ConditionSpec": "from .conditions import ConditionSpec",
+   "DataConstraint": "from .conditions import DataConstraint",
+   "DirichletBC": "from .conditions import DirichletBC",
+   "InitialCondition": "from .conditions import InitialCondition",
+   "KOmegaSSTResiduals": "from .turbulence_presets import KOmegaSSTResiduals",
+   "NeumannBC": "from .conditions import NeumannBC",
+   "PDEFamily": "from .capabilities import PDEFamily",
+   "PDETermSpec": "from .spec import PDETermSpec",
+   "ProblemBuilder": "from .builder import ProblemBuilder",
+   "ProblemSpec": "from .spec import ProblemSpec",
+   "RobinBC": "from .conditions import RobinBC",
+   "SST_CONSTS": "from .turbulence_presets import SST_CONSTS",
+   "ScaleSpec": "from .scales import ScaleSpec",
+   "SpalartAllmarasResiduals": "from .turbulence_presets import SpalartAllmarasResiduals",
+   "WALEResiduals": "from .turbulence_presets import WALEResiduals",
+   "burgers_1d_default": "from .presets.academics import burgers_1d_default",
+   "channel_flow_3d": "from .presets.cfd import channel_flow_3d",
+   "darcy_pressure_only_3d_default": "from .presets.industry import darcy_pressure_only_3d_default",
+   "get_pde_family": "from .capabilities import get_pde_family",
+   "get_preset": "from .presets.registry import get_preset",
+   "get_rans_preset": "from .turbulence_presets import get_rans_preset",
+   "helmholtz_acoustics_3d_default": "from .presets.industry import helmholtz_acoustics_3d_default",
+   "identify_pde": "from .capabilities import identify_pde",
+   "laplace_2d_default": "from .presets.academics import laplace_2d_default",
+   "lid_driven_cavity_3d": "from .presets.cfd import lid_driven_cavity_3d",
+   "linear_elasticity_3d_default": "from .presets.industry import linear_elasticity_3d_default",
+   "list_pde_families": "from .capabilities import list_pde_families",
+   "list_presets": "from .presets.registry import list_presets",
+   "ns_incompressible_2d_default": "from .presets.cfd import ns_incompressible_2d_default",
+   "ns_incompressible_3d_default": "from .presets.cfd import ns_incompressible_3d_default",
+   "pipe_flow_3d": "from .presets.cfd import pipe_flow_3d",
+   "poisson_2d_default": "from .presets.academics import poisson_2d_default",
+   "reaction_diffusion_2d_default": "from .presets.industry import reaction_diffusion_2d_default",
+   "register_preset": "from .presets.registry import register_preset",
+   "steady_heat_conduction_3d_default": "from .presets.industry import steady_heat_conduction_3d_default",
+   "suggest_problem_spec": "from .capabilities import suggest_problem_spec",
+   "transient_heat_3d_default": "from .presets.industry import transient_heat_3d_default",
+   "wave_ultrasound_3d_default": "from .presets.industry import wave_ultrasound_3d_default"
+  },
+  "pinneapple_physics.pde_environment.builder": {
+   "ProblemBuilder": {
+    "class": [],
+    "methods": {
+     "__init__": "(name)",
+     "domain": "(**bounds)",
+     "domain_bounds": "(bounds)",
+     "coords": "(*names)",
+     "fields": "(*names)",
+     "field_range": "(**ranges)",
+     "pde": "(kind, *, fields=None, coords=None, **params)",
+     "param": "(name, value)",
+     "pde_meta": "(**meta)",
+     "bc": "(kind='dirichlet', *, field, value=0.0, on='boundary', weight=10.0, name=None)",
+     "ic": "(*, field, fn=None, value=0.0, weight=10.0, name=None, at_t=0.0)",
+     "data": "(*, field, fn=None, value=0.0, on=None, weight=1.0, name=None)",
+     "add_condition": "(cond)",
+     "boundary_condition": "(name, condition)",
+     "sample": "(**counts)",
+     "solver": "(name='fdm', method='', **params)",
+     "reference": "(*refs)",
+     "build": "()",
+     "register": "(preset_id=None)",
+     "solve": "(model='VanillaPINN', *, epochs=5000, lr=0.001, device='auto', seed=42, n_col=None, n_bc=None, n_ic=None, verbose=True, **train_kwargs)"
+    }
+   }
+  },
+  "pinneapple_physics.pde_environment.capabilities": {
+   "PDEFamily": {
+    "class": [],
+    "methods": {}
+   },
+   "get_pde_family": "def(kind_or_alias)",
+   "identify_pde": "def(description)",
+   "list_pde_families": "def()",
+   "suggest_problem_spec": "def(description)"
+  },
+  "pinneapple_physics.pde_environment.condition_sampling": {
+   "box_face_normals": "def(points, domain_bounds, coords, time_coord='t')",
+   "sample_condition_points": "def(select, domain_bounds, coords, n, rng)"
+  },
+  "pinneapple_physics.pde_environment.conditions": {
+   "ConditionSpec": {
+    "class": [],
+    "methods": {
+     "mask": "(X, ctx)",
+     "values": "(X, ctx)"
+    }
+   },
+   "DataConstraint": "def(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0)",
+   "DirichletBC": "def(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0)",
+   "InitialCondition": "def(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0)",
+   "InterfaceBC": "def(name, fields, selector_type='all', selector=None, value_fn=None, weight=1.0, k_a=1.0, k_b=1.0)",
+   "NeumannBC": "def(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0, order=1, deriv_coord=None, traction_map=None, normal_stress_field=None, thermal_bc=None)",
+   "RobinBC": "def(name, fields=None, selector_type='all', selector=None, value_fn=None, weight=1.0)"
+  },
+  "pinneapple_physics.pde_environment.presets": {
+   "TerramechanicsResiduals": "from .terramechanics import TerramechanicsResiduals",
+   "annotations": "from __future__ import annotations",
+   "bekker_wong_surrogate_2d": "from .terramechanics import bekker_wong_surrogate_2d",
+   "get_preset": "from .registry import get_preset",
+   "list_presets": "from .registry import list_presets",
+   "register_preset": "from .registry import register_preset"
+  },
+  "pinneapple_physics.pde_environment.presets.academics": {
+   "burgers_1d_default": "def(nu=0.01)",
+   "laplace_2d_default": "def()",
+   "poisson_2d_default": "def()"
+  },
+  "pinneapple_physics.pde_environment.presets.astroml_bridge": {
+   "LineFit": {
+    "class": [],
+    "methods": {
+     "slope_err": "()",
+     "intercept_err": "()"
+    }
+   },
+   "Periodogram": {
+    "class": [],
+    "methods": {
+     "omega": "()",
+     "peak_index": "()",
+     "best_frequency": "()",
+     "best_period": "()",
+     "peak_power": "()",
+     "peak_false_alarm": "()",
+     "to_upd": "()"
+    }
+   },
+   "XDResult": {
+    "class": [],
+    "methods": {
+     "sample": "(n, random_state=None)"
+    }
+   },
+   "astroml_available": "def()",
+   "bayesian_block_edges": "def(t, x=None, sigma=None, *, fitness='events', p0=0.05, gamma=None)",
+   "best_period": "def(t, y, dy, *, period_range=None, n_terms=1, oversample=10.0, refine=True)",
+   "bootstrap_peak_distribution": "def(t, y, dy, freq, n_bootstraps=100, random_state=0, generalized=True)",
+   "check_block_step": "def(seed=0, t_step=6.3, p0=0.001)",
+   "check_line_fits": "def(seed=0)",
+   "check_period_recovery": "def(seed=0, period=0.613, n=150, noise=0.15)",
+   "check_xd_means": "def(seed=0, n=600)",
+   "fit_line_tls": "def(x, y, dx, dy, initial=None)",
+   "fit_line_with_errors": "def(x, y, dy)",
+   "frequency_grid": "def(t, period_range=None, f_min=None, f_max=None, oversample=10.0, n_max=200000)",
+   "knuth_histogram": "def(data)",
+   "light_curve_sample": "def(t, y, dy, *, band='', time_unit='d', value_unit='mag', **provenance)",
+   "load_dataset": "def(name, *, data_home=None, download_if_missing=False, **kwargs)",
+   "lomb_scargle_periodogram": "def(t, y, dy, freq=None, *, period_range=None, oversample=10.0, generalized=True, significance=(0.01, 0.001), time_unit='d')",
+   "multiterm_periodogram": "def(t, y, dy, freq=None, *, n_terms=3, period_range=None, oversample=10.0, time_unit='d')",
+   "validate": "def(cases=None, log=print, **kw)",
+   "xd_fit": "def(X, Xerr, n_components, *, max_iter=200, tol=1e-05, random_state=0)"
+  },
+  "pinneapple_physics.pde_environment.presets.astrophysics": {
+   "cr3bp_collinear_lagrange_point": "def(mu, x0, tol=1e-14, max_iter=100)",
+   "cr3bp_lagrange_points": "def(mu)",
+   "cr3bp_omega_gradient": "def(x, y, mu)",
+   "cr3bp_planar_synodic": "def(mu=0.012150585609624, dx0=0.0001, dy0=0.0, n_periods=4.0)",
+   "cw_exact_velocity": "def(t, n, x0, y0, z0, vx0, vy0, vz0)",
+   "kepler_exact_state": "def(t, mu, a, e)",
+   "kepler_two_body_orbit": "def(mu=398600.4418, a=8000.0, e=0.15)",
+   "lane_emden_exact_theta": "def(xi, n)",
+   "lane_emden_polytrope": "def(n=1.0, xi_min=0.001, xi_max=3.0)",
+   "nfw_dark_matter_potential": "def(G=1.0, rho_s=1.0, rs=1.0, r_max=10.0)",
+   "nfw_potential_exact": "def(r, G, rho_s, rs)",
+   "nfw_source_fn": "def(G, rho_s, rs)",
+   "satellite_j2_perturbation": "def(mu=398600.4418, J2=0.00108262668, Re=6378.137, a=7000.0, e=0.001, inclination_deg=98.7)",
+   "schwarzschild_deflection_angle_weak_field": "def(GM, c, b)",
+   "schwarzschild_light_bending_u_exact": "def(phi, m, b)",
+   "schwarzschild_light_bending_weak_field": "def(GM=1.32712440018e+20, c=299792458.0, b=695700000.0)",
+   "shakura_sunyaev_accretion_disk": "def(M_bh_solar=10.0, Mdot_edd_frac=0.1, eta=0.1, r_out_factor=10000.0)",
+   "shakura_sunyaev_flux_exact": "def(r, GM, Mdot, R_in)",
+   "shakura_sunyaev_teff_exact": "def(r, GM, Mdot, R_in, sigma_SB=5.670374419e-08)",
+   "sod_exact_solution": "def(x, t, gamma=1.4, rho_l=1.0, u_l=0.0, p_l=1.0, rho_r=0.125, u_r=0.0, p_r=0.1, x0=0.5)",
+   "sod_shock_tube_astro": "def(gamma=1.4, x0=0.5, t_end=0.2)",
+   "space_debris_cw_relative_motion": "def(n=0.0011, x0=1.0, y0=0.0, z0=0.2, vx0=0.0, vy0=-0.0015, vz0=0.0008)",
+   "spacecraft_attitude_euler_rotation": "def(I1=100.0, I3=150.0, w1_0=0.05, w3_0=0.5)"
+  },
+  "pinneapple_physics.pde_environment.presets.astropy_bridge": {
+   "astro_constant_si": "def(name)",
+   "constant_provenance": "def(name)",
+   "to_si": "def(quantity, target_unit=None)",
+   "transform_coordinates": "def(x, y, z, obstime, frame_in='gcrs', frame_out='itrs', vx=None, vy=None, vz=None, unit='km')",
+   "with_units": "def(value, unit_str=None)"
+  },
+  "pinneapple_physics.pde_environment.presets.cfd": {
+   "channel_flow_3d": "def(Re=100.0, length=2.0, height=1.0, width=1.0, Umax=1.0)",
+   "lid_driven_cavity_3d": "def(Re=100.0, size=1.0, lid_velocity=1.0)",
+   "ns_incompressible_2d_default": "def(Re=100.0, Umax=1.0)",
+   "ns_incompressible_3d_default": "def(Re=100.0, Umax=1.0)",
+   "pipe_flow_3d": "def(Re=100.0, radius=0.5, length=2.0, Umax=1.0)"
+  },
+  "pinneapple_physics.pde_environment.presets.electromagnetics": {
+   "em_cylinder_scattering": "def(k0=2.0 * math.pi, radius=0.25, eps_cyl=4.0, eps_cyl_i=0.0, half_width=1.0)",
+   "em_skin_effect": "def(delta=0.2, omega=1.0, nu=1.0, length=1.0)",
+   "em_tm_cavity": "def(m=1, n=1, periods=0.5)",
+   "em_tm_cavity_integral": "def(m=1, n=1, periods=0.5, h=0.02)",
+   "em_two_dielectric_capacitor": "def(V=1.0, eps1=1.0, eps2=4.0, d1=0.5, h=0.02)",
+   "em_two_dielectric_capacitor_differential": "def(V=1.0, eps1=1.0, eps2=4.0, d1=0.5)",
+   "em_wire_az": "def(a=0.25, J=1.0, nu=1.0)"
+  },
+  "pinneapple_physics.pde_environment.presets.engineering": {
+   "aircraft_wing_aerodynamics": "def(Re=5000000.0, Ma=0.3, alpha_deg=5.0, chord=1.0, rho_inf=1.225, U_inf=102.0, nu_air=1.5e-05, naca_thickness=0.12)",
+   "aircraft_wing_structural": "def(E=70000000000.0, nu=0.33, lift_load=50000.0, span=5.0, thickness=0.1)",
+   "car_brake_thermal": "def(k_disc=55.0, rho_disc=7100.0, cp_disc=500.0, q_friction=2000000.0, T_ambient=293.0, h_conv=80.0, disc_radius=0.16, disc_thickness=0.025, t_braking=5.0)",
+   "car_external_aero": "def(U_inf=33.3, rho=1.225, nu_air=1.5e-05, car_length=4.5, car_height=1.4)",
+   "car_suspension_fatigue": "def(E=210000000000.0, nu=0.3, F_vertical=8000.0, F_lateral=3000.0, arm_length=0.35, arm_width=0.04)",
+   "cpu_heatsink_thermal": "def(k_aluminium=205.0, k_copper=400.0, q_cpu=200.0, T_ambient=293.0, h_fin=50.0, die_area=0.0001, heatsink_length=0.08, heatsink_height=0.05, heatsink_width=0.08)",
+   "datacenter_airflow_2d": "def(U_cold_aisle=2.5, T_cold_air=291.0, T_hot_max=318.0, Q_rack=20000.0, rack_height=2.0, rack_depth=1.0, aisle_width=1.2, n_racks=10, rho_air=1.2, nu_air=1.5e-05, cp_air=1006.0)",
+   "datacenter_cfd_3d": "def(room_length=20.0, room_width=10.0, room_height=3.0, n_racks=20, Q_per_rack=15000.0, T_supply=291.0, U_supply=1.5, rho_air=1.2, nu_air=1.5e-05, cp_air=1006.0)",
+   "datacenter_server_thermal": "def(Q_cpu=250.0, Q_gpu=400.0, Q_ram=20.0, T_inlet_air=295.0, U_fan=3.0, h_forced=120.0, k_board=0.3, server_length=0.6, server_width=0.45)",
+   "fan_cooler_cfd": "def(rpm=2000.0, blade_radius=0.05, hub_radius=0.01, rho=1.225, nu_air=1.5e-05, n_blades=7)",
+   "furnace_combustion_zone": "def(T_flame=2200.0, T_wall=1600.0, rho_flue=0.24, nu_flue=0.0002, U_inlet=5.0, furnace_length=6.0, furnace_height=2.0, Q_combustion=5000000.0)",
+   "industrial_furnace_thermal": "def(T_hot_gas=1600.0, T_ambient=300.0, k_refractory=1.5, k_insulation=0.1, h_hot_gas=50.0, h_ambient=10.0, eps_wall=0.9, sigma_SB=5.67e-08, wall_thickness=0.3, furnace_height=2.0, furnace_width=3.0)",
+   "pcb_thermal": "def(k_pcb=0.3, k_z_pcb=0.25, q_components=None, T_ambient=308.0, h_natural=10.0, board_length=0.2, board_width=0.15, board_thickness=0.0016)",
+   "refractory_lining": "def(layers=None, T_hot=1700.0, T_cold=350.0, total_thickness=0.5)",
+   "rocket_nozzle_cfd": "def(gamma=1.4, R_gas=287.0, T_inlet=3500.0, p_inlet=10000000.0, throat_radius=0.1, exit_radius=0.2, nozzle_length=0.5)",
+   "rocket_structural": "def(E=200000000000.0, nu=0.3, p_internal=10000000.0, T_inner=800.0, T_outer=293.0, alpha_T=1.2e-05, inner_radius=0.2, outer_radius=0.22)"
+  },
+  "pinneapple_physics.pde_environment.presets.industry": {
+   "darcy_pressure_only_3d_default": "def()",
+   "helmholtz_acoustics_3d_default": "def()",
+   "linear_elasticity_3d_default": "def()",
+   "reaction_diffusion_2d_default": "def(D=0.01, lam=0.5)",
+   "reaction_diffusion_2d_exact": "def(X, D=0.01, lam=0.5)",
+   "steady_heat_conduction_3d_default": "def()",
+   "transient_heat_3d_default": "def()",
+   "wave_ultrasound_3d_default": "def()"
+  },
+  "pinneapple_physics.pde_environment.presets.multidisciplinary": {
+   "black_scholes_1d": "def(sigma=0.2, r=0.05, K=100.0, T=1.0)",
+   "climate_atmosphere_2d": "def(g=9.81, f=0.0001, H0=1000.0, U_ref=10.0, lon_min=0.0, lon_max=360.0, lat_min=-90.0, lat_max=90.0)",
+   "climate_ocean_gyre": "def(beta=2e-11, tau0=0.1, r=1e-07, rho0=1025.0, H=500.0, L=1000000.0, W=500000.0)",
+   "crystal_phonon": "def(k=150.0, tau=1e-12, vg=3000.0, T_hot=320.0, T_cold=280.0, L_domain=1e-06)",
+   "drug_diffusion_tissue": "def(D=1e-10, lam=5e-05, C0=1.0, Lx=0.01, Ly=0.005, t_end=3600.0)",
+   "heston_pde_2d": "def(kappa=2.0, theta=0.04, sigma_v=0.3, rho=-0.7, r=0.05, K=100.0, T=1.0, S_max=300.0, v_max=1.0)",
+   "material_fracture_2d": "def(E=210000000000.0, nu=0.3, Gc=2700.0, l0=0.005, Lx=1.0, Ly=1.0)",
+   "opinion_dynamics_2d": "def(D=0.01, alpha=1.0, Lx=1.0, Ly=1.0, t_end=10.0)",
+   "pk_two_compartment": "def(k12=0.5, k21=0.3, kel=0.2, V1=10.0, dose=500.0, t_end=24.0)",
+   "sir_epidemic": "def(beta=0.3, gamma=0.1, N=1000000.0, I0=100.0, t_end=200.0)"
+  },
+  "pinneapple_physics.pde_environment.presets.registry": {
+   "get_preset": "def(name, **kwargs)",
+   "list_presets": "def()",
+   "register_preset": "def(name)"
+  },
+  "pinneapple_physics.pde_environment.presets.solid_mechanics": {
+   "axisymmetric_linear_elasticity_2d_default": "def(r_min=10.0, r_max=50.0, z_min=0.0, z_max=100.0, E=210000000000.0, nu=0.3, p_inner=0.0, p_outer=0.0, traction_z_top=0.0, fix_z_bottom=True, fix_r_inner=False)",
+   "lame_analytical": "def(r, a, b, p_a, p_b, E, nu)",
+   "thick_walled_cylinder_lame_default": "def(a=20.0, b=60.0, L=100.0, p_a=100000000.0, p_b=0.0, E=210000000000.0, nu=0.3)",
+   "threaded_coupling_tc50_box_default": "def(clearance=0.1, thread_height=0.8, offset=1.0, E=210000000000.0, nu=0.3, traction_top=100000000.0)",
+   "threaded_coupling_tc50_pin_default": "def(thread_height=0.8, E=210000000000.0, nu=0.3, traction_top=100000000.0)",
+   "threaded_coupling_tc50_rotating_default": "def(body='BOX', E=210000000000.0, nu=0.3, p_inner=20000000.0, F_axial=500000.0, T_torque=40000.0, rpm=90.0)"
+  },
+  "pinneapple_physics.pde_environment.presets.structural": {
+   "linear_elasticity_3d": "def(E=210000000000.0, nu=0.3)",
+   "plane_strain_2d_default": "def(E=210000000000.0, nu=0.3)",
+   "plane_stress_2d_default": "def(E=210000000000.0, nu=0.3, load_x=0.0, load_y=-1000.0)",
+   "rotary_coupling_torsion_default": "def(E=210000000000.0, nu=0.3, r_inner=0.05, r_outer=0.08, torque=10000.0, axial_force=500000.0, length=1.0)",
+   "thermoelasticity_2d_default": "def(E=70000000000.0, nu=0.33, alpha_T=2.3e-05, dT=100.0)",
+   "von_mises_2d_default": "def(E=210000000000.0, nu=0.3)"
+  },
+  "pinneapple_physics.pde_environment.presets.tag_geometry": {
+   "build_tag_batch": "def(name, spec, *, n_col=20000, n_bc_per_face=3000, seed=7, user_ctx=None)",
+   "default_geometry": "def(spec, *, n_bc_per_face=1000, seed=7)",
+   "default_geometry_report": "def(spec)",
+   "has_default_geometry": "def(spec)",
+   "per_tag_losses": "def(spec, model, batch, *, w_pde=1.0, w_bc=10.0)",
+   "preset_name": "def(spec)",
+   "solve_pde_kwargs_from_batch": "def(batch)",
+   "tag_solve_kwargs": "def(name, spec, *, n_bc_per_face=1000, seed=7)"
+  },
+  "pinneapple_physics.pde_environment.presets.terramechanics": {
+   "TerramechanicsResiduals": {
+    "class": [],
+    "methods": {
+     "__init__": "(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06, n_phys=256, R_factor=0.06, slip_range=(0.0, 0.75), sink_range=(0.002, 0.058))"
+    }
+   },
+   "bekker_wong_surrogate_2d": "def(c_Pa=1400.0, phi_deg=30.0, R_m=0.125, b_m=0.06)"
+  },
+  "pinneapple_physics.pde_environment.presets.turbomachinery": {
+   "axial_compressor_cascade_2d": "def(inlet_mach=0.5, flow_angle_in_deg=50.0, flow_angle_out_deg=20.0, chord=0.1, pitch_to_chord=0.8, gamma=1.4, R_gas=287.0, p_inlet=101325.0, T_inlet=288.15)",
+   "axial_compressor_meanline": "def(num_stages=5, pressure_ratio=3.0, mass_flow_rate=4.37, rpm=10000.0, inlet_total_pressure=101325.0, inlet_total_temperature=288.15, isentropic_efficiency=0.878, hub_to_tip_ratio=0.5, axial_velocity=136.0, gamma=1.4, R_gas=287.0)",
+   "axial_compressor_stage_3d": "def(rpm=10000.0, pressure_ratio_stage=1.4, mass_flow_rate=4.37, hub_radius=0.1, tip_radius=0.2, axial_length=0.15, inlet_total_pressure=101325.0, inlet_total_temperature=288.15, isentropic_efficiency=0.88, gamma=1.4, R_gas=287.0)"
+  },
+  "pinneapple_physics.pde_environment.scales": {
+   "ScaleSpec": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.pde_environment.spec": {
+   "PDETermSpec": {
+    "class": [],
+    "methods": {}
+   },
+   "ProblemSpec": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.pde_environment.turbulence_presets": {
+   "KOmegaSSTResiduals": {
+    "class": [],
+    "methods": {
+     "__init__": "(nu=1e-05, rho=1.0, consts=None)",
+     "eddy_viscosity": "(k, omega, S_mag, F2=1.0)",
+     "channel_residuals": "(y, U, k, omega, u_tau=1.0, delta=1.0, F2=1.0)"
+    }
+   },
+   "SpalartAllmarasResiduals": {
+    "class": [],
+    "methods": {
+     "__init__": "(nu=1e-05)"
+    }
+   },
+   "WALEResiduals": {
+    "class": [],
+    "methods": {
+     "__init__": "(nu=1e-05, cw=0.325, delta=1.0, spatial_indices=(0, 1, 2), t_index=3)"
+    }
+   },
+   "get_rans_preset": "def(model_name='k-omega-sst', **kwargs)"
+  },
+  "pinneapple_physics.pde_environment.turbulence_selector": {
+   "TurbulenceModel": {
+    "class": [
+     "str",
+     "Enum"
+    ],
+    "methods": {}
+   },
+   "get_turbulence_closure": "def(model, dim=3, solver_family='pinn', **kwargs)"
+  },
+  "pinneapple_physics.pinn_solver": {
+   "AdaptiveWeights": "from .compiler import AdaptiveWeights",
+   "CorrelatedLatentField": "from .stochastic import CorrelatedLatentField",
+   "DoMINO": "from .domino import DoMINO",
+   "LatentConditionedModel": "from .stochastic import LatentConditionedModel",
+   "LossWeights": "from .compiler import LossWeights",
+   "OPENFOAM_SYMM_TENSOR_PAIRS": "from .stochastic import OPENFOAM_SYMM_TENSOR_PAIRS",
+   "Subdomain": "from .domino import Subdomain",
+   "SubdomainPINN": "from .domino import SubdomainPINN",
+   "compile_problem": "from .compiler import compile_problem",
+   "ensemble_forward": "from .stochastic import ensemble_forward",
+   "mean_covariance_loss": "from .stochastic import mean_covariance_loss",
+   "sample_latent": "from .stochastic import sample_latent"
+  },
+  "pinneapple_physics.pinn_solver.compiler": {
+   "AdaptiveWeights": "from .loss import AdaptiveWeights",
+   "LossWeights": "from .loss import LossWeights",
+   "SingleBatchDataset": "from .dataset import SingleBatchDataset",
+   "compile_problem": "from .compile import compile_problem",
+   "dict_collate": "from .dataset import dict_collate"
+  },
+  "pinneapple_physics.pinn_solver.compiler.autograd_ops": {
+   "derivative_cache": "def()",
+   "divergence": "def(V, x, coord_indices=None)",
+   "ensure_tensor": "def(y)",
+   "grad": "def(y, x)",
+   "jacobian": "def(Y, x)",
+   "laplacian": "def(y, x, coord_indices=None)",
+   "mse": "def(a, b)",
+   "norm_dot_grad": "def(y, x, normals)",
+   "time_derivative": "def(y, x, t_index)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.compile": {
+   "compile_problem": "def(spec, *, weights=None, cache_derivatives=False)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.dataset": {
+   "SingleBatchDataset": {
+    "class": [
+     "Dataset"
+    ],
+    "methods": {
+     "__init__": "(batch)"
+    }
+   },
+   "dict_collate": "def(batch)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.em_kinds": {
+   "em_residuals": "def(kind, *, fields, xcol, coords, params, ctx, model, field_names, split_fields)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.loss": {
+   "AdaptiveWeights": {
+    "class": [],
+    "methods": {
+     "current": "()",
+     "update": "(raw_values)",
+     "state_dict": "()"
+    }
+   },
+   "LossWeights": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.pinn_solver.domino": {
+   "DoMINO": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(subdomains, model_factory, interface_weight=10.0)",
+     "partition": "(bounds, n_splits, overlap=0.1)",
+     "forward": "(x)",
+     "interface_loss": "(x_interface)",
+     "train_step": "(x_col, residual_fn, x_bc, bc_fn, optimizer)",
+     "train_domino": "(residual_fn, bc_fn, x_col, x_bc, n_epochs=5000, lr=0.001, print_every=500, optimizer_kwargs=None)"
+    }
+   },
+   "Subdomain": {
+    "class": [],
+    "methods": {
+     "__init__": "(bounds, overlap=0.1)",
+     "contains": "(x)",
+     "contains_strict": "(x)",
+     "is_interface": "(x, tol=0.001)"
+    }
+   },
+   "SubdomainPINN": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(subdomain, model)",
+     "forward": "(x)"
+    }
+   }
+  },
+  "pinneapple_physics.pinn_solver.factory": {
+   "CompiledEquation": "from .sympy_backend import CompiledEquation",
+   "DerivativeComputer": "from .autodiff import DerivativeComputer",
+   "NeuralNetwork": "from .pinn_factory import NeuralNetwork",
+   "PINN": "from .pinn_factory import PINN",
+   "PINNFactory": "from .pinn_factory import PINNFactory",
+   "PINNProblemSpec": "from .pinn_factory import PINNProblemSpec",
+   "SympyTorchCompiler": "from .sympy_backend import SympyTorchCompiler",
+   "TabulatedSignal": "from .signals import TabulatedSignal",
+   "VanillaPINN": "from pinneapple_neural.architectures.pinns.vanilla import VanillaPINN",
+   "ensure_requires_grad": "from .autodiff import ensure_requires_grad"
+  },
+  "pinneapple_physics.pinn_solver.factory.autodiff": {
+   "DerivativeComputer": {
+    "class": [],
+    "methods": {
+     "__init__": "(independent_vars, dependent_vars, device, coord_scales=None)",
+     "sympy_derivative_to_key": "(d)",
+     "compute": "(model, inputs, required_derivatives, dep_symbols)"
+    }
+   },
+   "DerivativeKey": {
+    "class": [],
+    "methods": {}
+   },
+   "ensure_requires_grad": "def(inputs)"
+  },
+  "pinneapple_physics.pinn_solver.factory.pinn_factory": {
+   "NeuralNetwork": {
+    "class": [
+     "VanillaPINN"
+    ],
+    "methods": {
+     "__init__": "(num_inputs, num_outputs, num_layers, num_neurons, activation=nn.Tanh())",
+     "forward": "(*inputs)"
+    }
+   },
+   "PINN": {
+    "class": [
+     "VanillaPINN"
+    ],
+    "methods": {
+     "__init__": "(neural_network, inverse_params_names=None, initial_guesses=None, dtype=torch.float32)",
+     "forward": "(*inputs)"
+    }
+   },
+   "PINNFactory": {
+    "class": [],
+    "methods": {
+     "__init__": "(spec)",
+     "generate_loss_function": "()"
+    }
+   },
+   "PINNProblemSpec": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.pinn_solver.factory.signals": {
+   "TabulatedSignal": {
+    "class": [],
+    "methods": {
+     "__init__": "(x, values, *, input_index=0, extrapolate='clamp')"
+    }
+   }
+  },
+  "pinneapple_physics.pinn_solver.factory.sympy_backend": {
+   "CompiledEquation": {
+    "class": [],
+    "methods": {}
+   },
+   "SympyBackend": {
+    "class": [],
+    "methods": {
+     "__init__": "(*, extra_namespace=None)",
+     "make_compiler": "(*, independent_vars, dependent_vars, inverse_params=None)"
+    }
+   },
+   "SympyTorchCompiler": {
+    "class": [],
+    "methods": {
+     "__init__": "(independent_vars, dependent_vars, inverse_params=None, extra_namespace=None)",
+     "compile": "(eq_str, *, constants=None, strict=True)"
+    }
+   }
+  },
+  "pinneapple_physics.pinn_solver.io": {
+   "Batch": "from .upd_dataset import Batch",
+   "ConditionSpec": "from .upd_dataset import ConditionSpec",
+   "CoordMapping": "from .mappings import CoordMapping",
+   "PINNMapping": "from .mappings import PINNMapping",
+   "SamplingSpec": "from .upd_dataset import SamplingSpec",
+   "UPDDataset": "from .upd_dataset import UPDDataset",
+   "UPDItem": "from .upd_dataset import UPDItem",
+   "VarMapping": "from .mappings import VarMapping",
+   "build_default_mapping_atmosphere": "from .mappings import build_default_mapping_atmosphere",
+   "seconds_since": "from .mappings import seconds_since"
+  },
+  "pinneapple_physics.pinn_solver.io.mappings": {
+   "CoordMapping": {
+    "class": [],
+    "methods": {
+     "derivative_scale": "(name)",
+     "derivative_scales": "()",
+     "make_coord_arrays": "(ds, time0=None)"
+    }
+   },
+   "PINNMapping": {
+    "class": [],
+    "methods": {
+     "infer_time0": "(ds)",
+     "independent_vars": "()",
+     "dependent_vars": "()",
+     "derivative_scales": "()"
+    }
+   },
+   "VarMapping": {
+    "class": [],
+    "methods": {
+     "pick_dataset_vars": "(ds)"
+    }
+   },
+   "build_default_mapping_atmosphere": "def(dep_vars, ind_vars=None, use_lev=False, time_transform='seconds_since_start', angle_transform='deg2rad')"
+  },
+  "pinneapple_physics.pinn_solver.io.upd_dataset": {
+   "UPDDataset": {
+    "class": [],
+    "methods": {
+     "__init__": "(item, mapping, device='cpu', dtype=torch.float32)",
+     "sample": "(spec)",
+     "get_problem_dims": "()"
+    }
+   }
+  },
+  "pinneapple_physics.pinn_solver.schemas.schema_adapter": {
+   "SchemaAdapter": {
+    "class": [],
+    "methods": {
+     "__init__": "(mapping, options=None)",
+     "to_pinn_problem": "(schema, *, base_sampling=None, verbose=False)"
+    }
+   },
+   "SchemaAdapterOptions": {
+    "class": [],
+    "methods": {}
+   }
+  },
+  "pinneapple_physics.pinn_solver.stochastic": {
+   "CorrelatedLatentField": {
+    "class": [],
+    "methods": {
+     "__init__": "(bounds, coord_order, spatial_axes, periodic_axes, latent_dim, grid_res=(64, 24, 32), length_scale=0.75)",
+     "sample_field": "(n_fields, device, dtype=torch.float32)",
+     "lookup": "(field, x)",
+     "sample_xi": "(x, n_samples=1)"
+    }
+   },
+   "LatentConditionedModel": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(base, latent_dim)",
+     "forward": "(x, xi=None)"
+    }
+   },
+   "ensemble_forward": "def(model, x, latent_dim, n_samples, latent_sampler=None)",
+   "mean_covariance_loss": "def(model, x, latent_dim, n_samples, mean_target, cov_target=None, cov_index_pairs=None, field_slice=slice(None), latent_sampler=None, ens=None)",
+   "sample_latent": "def(n, latent_dim, device=None, dtype=torch.float32)"
+  },
+  "pinneapple_physics.solving": {
+   "Comparison": {
+    "class": [],
+    "methods": {
+     "best": "(metric='relative_l2')",
+     "to_experiment": "(path, *, title=None, register=False, lab=None)",
+     "to_dict": "()"
+    }
+   },
+   "MethodNotAvailable": {
+    "class": [
+     "RuntimeError"
+    ],
+    "methods": {}
+   },
+   "Solution": {
+    "class": [],
+    "methods": {
+     "metadata": "()",
+     "to_experiment": "(path, *, title=None, register=False, lab=None)",
+     "predict": "(x)",
+     "grid_points": "()"
+    }
+   },
+   "analytic_for": "def(problem)",
+   "as_problem": "def(problem, **preset_kwargs)",
+   "compare": "def(problem, methods, *, reference='reference', options=None, points=None, n_points=4096, seed=0, metric_names=('relative_l2', 'rmse', 'max_abs'), preset_kwargs=None)",
+   "list_analytic": "def()",
+   "list_kinds": "def()",
+   "list_methods": "def(kind=None)",
+   "register_analytic": "def(name, matcher)",
+   "register_method": "def(name, kind='custom')",
+   "solve": "def(problem, method='pinn', *, preset_kwargs=None, **options)"
+  },
+  "pinneapple_presets": {
+   "Output": "from .core import Output",
+   "Param": "from .core import Param",
+   "Preset": "from .core import Preset",
+   "Reference": "from .core import Reference",
+   "Result": "from .core import Result",
+   "SurrogateSpec": "from .core import SurrogateSpec",
+   "check": "from .core import check",
+   "index": "from .registry import index",
+   "list_presets": "from .registry import list_presets",
+   "load": "from .registry import load",
+   "names": "from .registry import names",
+   "register": "from .registry import register",
+   "write_index": "from .registry import write_index"
+  },
+  "pinneapple_presets.cases.airfoil": {
+   "AirfoilSection": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "model": "()",
+     "shape": "(p)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_offset=1.3, noise=0.01, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "PresetCache": {
+    "class": [],
+    "methods": {}
+   },
+   "thin_airfoil_zero_lift": "def(code)"
+  },
+  "pinneapple_presets.cases.eddy_current": {
+   "EddyCurrentInspection": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "fdm": "(p, h, box=0.05)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_t=0.0017, true_lo=0.0006, noise=0.005, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.footbridge": {
+   "SteelFootbridge": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "complete": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(noise=0.005, seed=0, added_mass_kg=6000.0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "section_class_ok": "def(h, b, tf, tw, fy)"
+  },
+  "pinneapple_presets.cases.heatsink": {
+   "PlateFinHeatsink": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "complete": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "references": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_h_scale=0.72, noise_c=0.3, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.insulation": {
+   "SteamLineInsulation": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_factor=1.6, noise_c=0.5, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.ipm_traction": {
+   "IPMTraction": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "complete": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_offset_deg=5.0, noise=0.01, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "machine": "def(n_gap)"
+  },
+  "pinneapple_presets.cases.pcb": {
+   "PowerPCB": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(noise_c=0.3, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.pipe_network": {
+   "WaterNetwork": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "validate": "()",
+     "optimize": "(generations=300, seed=0, **kw)",
+     "invert": "(noise_m=0.05, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.pressure_vessel": {
+   "PressureVessel": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "fem_ring": "(p, P, t_corroded, nr=None, nt=12, nz=1)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_loss=0.0025, noise_ue=5.0, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "lame": "def(p, ri, ro, r, E, nu)",
+   "ring_mesh": "def(ri, ro, h, nr, nt, nz)"
+  },
+  "pinneapple_presets.cases.pump_npsh": {
+   "PumpNPSH": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_k=9.0, noise_kpa=1.0, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.shell_tube": {
+   "ShellTubeCooler": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_rf=0.0007, noise_c=0.2, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.spm_motor": {
+   "SPMMotor": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "machine": "(p)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "complete": "(p, out)",
+     "decide": "(p, out)",
+     "validate": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_br=1.12, noise=0.005, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   }
+  },
+  "pinneapple_presets.cases.water_hammer": {
+   "WaterHammer": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "complete": "(p, out)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "convergence": "()",
+     "optimize": "(**kw)",
+     "invert": "(true_factor=0.82, noise_kpa=5.0, seed=0, **kw)",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "rigid_column_max_head": "def(*, length, diameter, friction_factor, q0, h_reservoir, h_downstream, t_close, closure_exponent=1.0)"
+  },
+  "pinneapple_presets.core": {
+   "Output": {
+    "class": [],
+    "methods": {}
+   },
+   "Param": {
+    "class": [],
+    "methods": {
+     "inside": "(v)"
+    }
+   },
+   "Preset": {
+    "class": [],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "complete": "(p, out)",
+     "convergence": "()",
+     "scene": "(result)",
+     "figures": "(result, out_dir)",
+     "optimize": "(**kw)",
+     "invert": "(**kw)",
+     "variants": "()",
+     "defaults": "()",
+     "param": "(name)",
+     "resolve": "(**kw)",
+     "outside": "(p)",
+     "run": "(fidelity='solver', **kw)",
+     "validate": "()",
+     "card": "()"
+    }
+   },
+   "Reference": {
+    "class": [],
+    "methods": {}
+   },
+   "Result": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "save": "(path)",
+     "summary": "()"
+    }
+   },
+   "SurrogateSpec": {
+    "class": [],
+    "methods": {}
+   },
+   "call_quiet": "def(fn, *a, **kw)",
+   "check": "def(name, ok, value=None, limit=None, source='', reason='', critical=False)",
+   "environment": "def()",
+   "lhs": "def(n, bounds, seed=0, log=())"
+  },
+  "pinneapple_presets.registry": {
+   "index": "def()",
+   "list_presets": "def(sector=None)",
+   "load": "def(name)",
+   "names": "def()",
+   "register": "def(cls)",
+   "write_index": "def(path=INDEX_PATH)"
+  },
+  "pinneapple_presets.report": {
+   "compare_variants": "def(p, variants, res, root, three_d=True)",
+   "readme": "def(p, s)",
+   "write_catalogue": "def(root=None)",
+   "write_report": "def(preset, out_dir=None, *, surrogate='load', three_d=True, lab=True)"
+  },
+  "pinneapple_presets.surrogate": {
+   "ARDGP": {
+    "class": [],
+    "methods": {
+     "fit": "(X, y, restarts=4, seed=0)",
+     "predict": "(Xs)",
+     "to_dict": "()",
+     "from_dict": "(d)"
+    }
+   },
+   "PresetSurrogate": {
+    "class": [],
+    "methods": {
+     "__init__": "(meta, models, test=None)",
+     "predict": "(P)",
+     "out_of_box": "(p)",
+     "predict_one": "(p)"
+    }
+   },
+   "build_surrogate": "def(preset, *, seed=0, save=True, tol=0.05, n_train=None, n_test=None)",
+   "load_surrogate": "def(name)",
+   "serve_spec": "def(name)",
+   "surrogate_path": "def(name)"
+  },
+  "pinneapple_presets.viz3d": {
+   "box": "def(lo, hi, n=(1, 1, 1))",
+   "extrude": "def(section, x)",
+   "field_on": "def(idx, values)",
+   "merge": "def(parts)",
+   "stills": "def(scene, out_dir, name, modes=(), size=(1100, 700), views=None, frame=None)",
+   "tube": "def(path, radius, n_around=16)"
+  },
+  "pinneapple_tools.visualization.studio.fieldview": {
+   "FieldView": {
+    "class": [],
+    "methods": {
+     "glb": "()",
+     "to_dict": "()"
+    }
+   },
+   "colour_range": "def(values, kind='value')",
+   "displacement_factor": "def(name, unit, components, mesh_unit='m')",
+   "field_view": "def(mesh, fields, *, deform=None, markers=(), max_faces=VIEW_MAX_FACES, title='', axes='z_up', notes=(), length_unit='')",
+   "length_factor": "def(unit, to='m')",
+   "subsample": "def(points, n=MAX_MARKER_POINTS)"
+  }
+ }
+}

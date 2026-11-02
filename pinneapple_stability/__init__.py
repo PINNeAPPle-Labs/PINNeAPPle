@@ -92,12 +92,30 @@ def stability(module: str, name: str | None = None) -> str:
 _warned: set[str] = set()
 
 
+def _importer() -> str:
+    """The module that imported the labs package: the first frame outside the import machinery, this module and the
+    package being initialised."""
+    import sys
+    f = sys._getframe(2)
+    while f is not None:
+        name = f.f_globals.get("__name__", "")
+        if not (name.startswith(("importlib", "_frozen_importlib")) or name == __name__
+                or f.f_code.co_filename.endswith("__init__.py") and name.startswith(LABS)):
+            return name
+        f = f.f_back
+    return ""
+
+
 def warn_experimental(package: str) -> None:
-    """Called from a labs package's ``__init__``: one :class:`ExperimentalWarning` per package and process.
+    """Called from a labs package's ``__init__``: one :class:`ExperimentalWarning` per package and process, when user
+    code imports it. An import from inside the library (a core preset that uses a labs package for one case) does not
+    warn: the user did not choose the experimental API.
 
     Silence it with ``PINNEAPPLE_QUIET_EXPERIMENTAL=1`` or
     ``warnings.filterwarnings("ignore", category=ExperimentalWarning)``."""
     if package in _warned or os.environ.get(QUIET_ENV, "").strip() not in ("", "0"):
+        return
+    if _importer().split(".")[0].startswith("pinneapple"):
         return
     _warned.add(package)
     warnings.warn(f"{package} is experimental: it works and is tested where its catalog says so, but its API may "

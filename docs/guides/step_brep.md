@@ -224,3 +224,52 @@ The report found two faults in the meshers of section 2, both fixed here:
   the closed form (Incropera 3.5) within 3e-3 in L2, as the icosphere in `tests/test_immersed.py` does.
 - A plate with a hole meshed into tetrahedra by gmsh has its volume within 2 %. This test is skipped where gmsh
   cannot load.
+
+## 5. Blender (#1119)
+
+`pinneapple_blender/step_extension` is a Blender extension (Blender 4.2 and later) that puts this workflow in a
+**PINNeAPPle** tab of the 3-D viewport sidebar. It is a thin `bpy` layer over this library and was written from
+scratch: no code from BlenderSTEP is used.
+
+```bash
+python -m pinneapple_blender.step_extension.build --out dist --wheels   # dist/pinneapple_step-<version>.zip
+blender --command extension install-file -r user_default dist/pinneapple_step-<version>.zip
+```
+
+What the build puts in the zip:
+- A copy of `pinneapple_design.geometry.brep`, so Blender needs no PINNeAPPle install.
+- With `--wheels`, smlibpy, mapbox-earcut and scipy for Linux, Windows and macOS (arm64 and x64). They are listed in
+  the manifest, and Blender installs the ones for its platform. Blender bundles numpy. The zip is large, mostly
+  because of the four scipy wheels.
+- Without `--wheels`, the extension uses whatever the Python in Blender can import.
+
+| Panel item | What it does |
+|---|---|
+| Import STEP (also File > Import) | One object per body at its real size, in metres. The STEP path and body index are kept on the object, so the exact body can be re-read for re-meshing. |
+| Mesher, Quality, Re-mesh | `tessellate` on the selected objects. When the fast mesher refuses a body, Re-mesh reports a warning and leaves it as it was. |
+| Quality report | `mesh_quality` against the exact body, shown as a report and stored on the object. |
+| Diagnostic shading | Mean or Gaussian curvature, the mesh curvature error, zebra (from the viewport's eye) or highlight lines. Values come from section 3 and are written as a colour attribute shown by an emission material. "Refine" splits triangles first, so planar faces get vertices to colour. |
+| Zebra material | Real time: the stripe index is the azimuth of the reflection vector (Texture Coordinate > Reflection), so the stripes move with the view. |
+| Stripe environment | A world of horizontal light bands, for highlight lines on glossy materials in Material Preview. |
+| Bake to mesh | `bake` to GLB, OBJ, STL or USDA, with the object names and, optionally, the diagnostic colours. |
+| Send to PINNeAPPle | `MeshData` arrays (vertices, faces, normals, face ids) as `.npz`, plus a `.json` summary, one file per object. |
+
+**Checked** in `tests/test_blender_step_extension.py`:
+- The manifest has the extension format's keys and the package version.
+- `core` and `build` import without Blender.
+- The colour maps behave as specified.
+- On a sphere, the diagnostic gives mean curvature H = 1/R exactly, and the exported `.npz` loads as `MeshData`.
+- The built zip holds a byte-for-byte copy of the library's `brep`.
+- **Every operator is run in Blender**, in a Python with `bpy`: either this one, or the one `PINNEAPPLE_BPY_PYTHON`
+  names; the test is skipped otherwise.
+  - The test installs the built zip into a throw-away user folder, with no PINNeAPPle on the path.
+  - It imports a generated STEP with a plate and a torus, at their real sizes; the torus falls back to the kernel
+    mesher.
+  - It re-meshes at fine, which gives more triangles.
+  - The quality report must be watertight, have no self-intersection, and keep the chordal error within 1.05× the
+    tolerance.
+  - It checks all five diagnostics; the torus's largest H matches (R + 2r)/(2r(R + r)) = 120 1/m.
+  - It applies the zebra material and the stripe world.
+  - It bakes to all four formats, keeping the object names.
+  - It sends the `MeshData` files, and their face counts match.
+  - It passes on Blender 5.0.1 (the `bpy` module).

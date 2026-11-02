@@ -1,0 +1,1 @@
+- `bake(..., names=[...])` names the bodies in the file, for meshes that carry no body name.

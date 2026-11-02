@@ -1,0 +1,21 @@
+schema_version = "1.0.0"
+
+id = "pinneapple_step"
+version = "0.8.0"
+name = "PINNeAPPle STEP"
+tagline = "Exact STEP import, fast meshing, surface quality and bake"
+maintainer = "PINNeAPPle Labs"
+type = "add-on"
+website = "https://github.com/PINNeAPPle-Labs/PINNeAPPle"
+tags = ["Import-Export", "Mesh"]
+
+blender_version_min = "4.2.0"
+
+license = ["SPDX:Apache-2.0"]
+
+# Built by `python -m pinneapple_blender.step_extension.build --wheels`: smlibpy (the exact kernel), mapbox-earcut and
+# scipy for each platform. Without --wheels the extension uses whatever the Python in Blender can import.
+# wheels = []
+
+[permissions]
+files = "Import STEP files and export mesh files"

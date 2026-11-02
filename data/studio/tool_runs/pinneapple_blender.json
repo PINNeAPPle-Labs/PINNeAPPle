@@ -6,5 +6,37 @@
   "recorded": "2026-10-31",
   "returned": "bool",
   "seconds": 0.01
+ },
+ "pinneapple_blender.step_extension.core:brep": {
+  "code_hash": "6f89b5044bf27d0b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "module",
+  "seconds": 8.88
+ },
+ "pinneapple_blender.step_extension.core:clear_cache": {
+  "code_hash": "c0b5998796948686",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "NoneType",
+  "seconds": 0.98
+ },
+ "pinneapple_blender.step_extension.core:colours": {
+  "code_hash": "6c4f6e1c436d1afd",
+  "inputs": {
+   "clip_percentile": 100,
+   "mode": "diverging",
+   "values": [
+    -2.0,
+    0.0,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "ndarray",
+  "seconds": 0.83
  }
 }

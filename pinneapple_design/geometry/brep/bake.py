@@ -29,8 +29,10 @@ FORMATS = (".stl", ".obj", ".glb", ".gltf", ".usda", ".usd", ".usdc")
 _UNITS = {"m": 1.0, "mm": 1e3, "cm": 1e2, "inch": 1.0 / 0.0254}
 
 
-def _items(source, quality: str, mesher: str) -> list[tuple[str, TessMesh, CadBody | None]]:
+def _items(source, quality: str, mesher: str, names=None) -> list[tuple[str, TessMesh, CadBody | None]]:
     seq = source if isinstance(source, (list, tuple)) else [source]
+    if names is not None and len(names) != len(seq):
+        raise ValueError("give one name per body")
     out = []
     for i, s in enumerate(seq):
         if isinstance(s, CadBody):
@@ -39,6 +41,8 @@ def _items(source, quality: str, mesher: str) -> list[tuple[str, TessMesh, CadBo
             out.append((f"body_{i}", s, None))
         else:
             raise TypeError(f"bake takes CadBody or TessMesh objects, not {type(s).__name__}")
+    if names is not None:
+        out = [(str(n), m, b) for n, (_, m, b) in zip(names, out, strict=True)]
     return out
 
 
@@ -153,20 +157,22 @@ def _usda(items, cols, meters_per_unit: float, scale: float) -> str:
 
 
 def bake(source: CadBody | TessMesh | Sequence[CadBody | TessMesh], path: str, *, quality: str = "normal",
-         mesher: str = "auto", unit: str | None = None, colors: Any = None) -> dict[str, Any]:
+         mesher: str = "auto", unit: str | None = None, colors: Any = None,
+         names: Sequence[str] | None = None) -> dict[str, Any]:
     """Write bodies (meshed at ``quality`` with ``mesher``) or ready meshes to a mesh file; the format follows the
     suffix of ``path`` (one of :data:`FORMATS`).
 
     ``unit``: length unit of the file, ``m``, ``mm``, ``cm`` or ``inch`` (default: ``mm`` for STL and OBJ, ``m``
     for glTF, which is metres by specification, and for USD, which records it). ``colors``: per-vertex scalars or
-    RGB rows for one body, or a list with one entry (or ``None``) per body; STL has no colours.
+    RGB rows for one body, or a list with one entry (or ``None``) per body; STL has no colours. ``names``: one per body,
+    replacing the body names (meshes have none: ``body_0``, ``body_1``, ...).
 
     Returns the path, format, unit, and the vertex, triangle and body counts."""
     p = Path(path)
     ext = p.suffix.lower()
     if ext not in FORMATS:
         raise ValueError(f"unknown mesh format {ext!r}; use one of {', '.join(FORMATS)}")
-    items = _items(source, quality, mesher)
+    items = _items(source, quality, mesher, names)
     unit = unit or ("mm" if ext in (".stl", ".obj") else "m")
     if unit not in _UNITS:
         raise ValueError(f"unit must be one of {', '.join(_UNITS)}")

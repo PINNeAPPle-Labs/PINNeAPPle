@@ -245,6 +245,21 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
         for i in r.get("imports") or []:
             importers[i].add(m)
 
+    def reexported_as(m: str, name: str) -> set[str]:
+        """Ancestor packages that re-export ``m:name`` (``from .loop import run_arena`` in the package
+        ``__init__``), followed up the chain: a test that imports the name from one of them calls the same
+        object. Only ancestors count, and only an explicit import of the name (or of the package) in the test."""
+        out, frontier = set(), {m}
+        while frontier:
+            nxt = set()
+            for mod in frontier:
+                for p in importers.get(f"{mod}:{name}", ()):
+                    if mod.startswith(p + ".") and p not in out:
+                        out.add(p)
+                        nxt.add(p)
+            frontier = nxt
+        return out
+
     tools: dict[str, dict[str, Any]] = {}
     for m, rec in inv["modules"].items():
         res = resolver(rec)
@@ -255,10 +270,13 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                 cat, why = C.classify(sym, rec, kind, res)
                 names = {sym["name"]} | ({*sym.get("methods", [])} if kind == "class" else set())
                 ev, seen = [], set()
+                via = reexported_as(m, sym["name"])
                 for nm in names:
                     for t in by_call.get(nm, []):
-                        if (m not in t.imports and tid not in t.imports and not any(
-                                i == m or i.startswith(m + ":") for i in t.imports)) or (t.path, t.name) in seen:
+                        direct = m in t.imports or tid in t.imports or any(
+                            i == m or i.startswith(m + ":") for i in t.imports)
+                        reexp = any(p in t.imports or f"{p}:{sym['name']}" in t.imports for p in via)
+                        if not (direct or reexp) or (t.path, t.name) in seen:
                             continue
                         seen.add((t.path, t.name))
                         ev.append({"kind": "reference_test" if t.reference else "test", "path": t.path,

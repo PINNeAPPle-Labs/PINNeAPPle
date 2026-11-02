@@ -551,3 +551,30 @@ def test_inputs_follow_a_module_imported_by_name():
     from pinneapple_studio.inputs import calls_in
     src = "import numpy as np\nfrom pinneapple_x.sub import mod\n\ndef test_a():\n    mod.f(np.array([1.0, 2.0]), k=3)\n"
     assert calls_in(src) == [("pinneapple_x.sub.mod:f", 5, [[1.0, 2.0]], {"k": 3})]
+
+
+def test_a_name_imported_through_the_package_that_re_exports_it_counts(repo):
+    """``from pkg import f`` where ``pkg/__init__`` does ``from .impl import f`` calls the same object as
+    ``from pkg.impl import f``. A module that merely imports the name, without being an ancestor, does not count."""
+    from pinneapple_studio import catalog
+    _w(repo / "pinneapple_demo" / "sub" / "__init__.py", "from .impl import reexported\n")
+    _w(repo / "pinneapple_demo" / "sub" / "impl.py", '''
+        def reexported(x: float) -> float:
+            return 2 * x
+
+
+        def not_reexported(x: float) -> float:
+            return 3 * x
+    ''')
+    _w(repo / "pinneapple_demo" / "other.py", "from pinneapple_demo.sub.impl import not_reexported\n")
+    _w(repo / "tests" / "test_sub.py", '''
+        from pinneapple_demo.sub import reexported
+        from pinneapple_demo.other import not_reexported
+
+
+        def test_both():
+            assert reexported(1.0) == 2.0 and not_reexported(1.0) == 3.0
+    ''')
+    t = catalog.build(repo)["tools"]
+    assert t["pinneapple_demo.sub.impl:reexported"]["status"] == "tested"
+    assert t["pinneapple_demo.sub.impl:not_reexported"]["status"] == "discovered"   # other.py is not an ancestor

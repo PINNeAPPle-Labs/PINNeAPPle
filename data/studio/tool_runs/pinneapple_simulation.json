@@ -2293,12 +2293,12 @@
   "seconds": 0.46
  },
  "pinneapple_simulation.numerical_solvers.fdm:FDMSolver": {
-  "code_hash": "446b5040faed050e",
+  "code_hash": "2f0ef5dd8d60e281",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-02",
   "returned": "FDMSolver",
-  "seconds": 0.0
+  "seconds": 6.78
  },
  "pinneapple_simulation.numerical_solvers.fem:FEMSolver": {
   "code_hash": "9f231f33712f9568",
@@ -2630,20 +2630,20 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.numerical_solvers.registry:SolverCatalog": {
-  "code_hash": "8668454efbcc3328",
+  "code_hash": "d6381a13b7137f8d",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-02",
   "returned": "SolverCatalog",
-  "seconds": 0.21
+  "seconds": 9.88
  },
  "pinneapple_simulation.numerical_solvers.registry:SolverRegistry": {
-  "code_hash": "1ec87078b7eda2f4",
+  "code_hash": "d51750ffa426728c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-02",
   "returned": "SolverRegistry",
-  "seconds": 0.0
+  "seconds": 4.23
  },
  "pinneapple_simulation.numerical_solvers.registry:register_all": {
   "code_hash": "666e2350795622a2",

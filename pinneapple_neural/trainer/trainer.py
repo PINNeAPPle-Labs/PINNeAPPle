@@ -176,7 +176,33 @@ class Trainer:
             drop_last=getattr(loader, "drop_last", False),
         )
 
-    def fit(self, train_loader, val_loader, cfg: TrainConfig) -> Dict[str, Any]:
+    def fit(self, train_loader, val_loader=None, cfg: Optional[TrainConfig] = None) -> Dict[str, Any]:
+        """Train ``self.model`` for ``cfg.epochs`` epochs.
+
+        Args:
+            train_loader: iterable of batches. A batch is a dict (with ``"x"`` or ``"x_col"`` as model input, and
+                optionally ``"y"``) or an ``(x, y)`` tuple, which becomes ``{"x": x, "y": y}``.
+            val_loader: same form as ``train_loader``, or ``None`` (default) to train without validation.
+            cfg: a ``TrainConfig``; ``None`` uses the defaults. ``fit(train_loader, cfg)`` is also accepted.
+
+        The loss callable given to ``Trainer`` is called as ``loss_fn(model, y_hat, batch)``, where ``y_hat`` is
+        the model output for ``batch["x"]`` (or ``batch["x_col"]``) and ``batch`` is the dict above, moved to the
+        device. It returns a scalar tensor, or a dict of tensors with a ``"total"`` entry (the one minimised).
+
+        Returns:
+            dict with ``best_val`` (lowest selection loss seen), ``best_path`` (checkpoint of that epoch when
+            ``cfg.save_best``, else ``None``), ``ddp``, ``rank0``, ``validated`` (whether a validation loader was
+            given) and ``history``: one entry per epoch, ``{"epoch", "train_total", "val_total", **metrics}``.
+
+        Without a validation loader, ``val_total`` is ``None`` in the history, and the training loss takes its
+        place for checkpoint selection (``best_val``) and for ``EarlyStopping``/``ModelCheckpoint`` callbacks that
+        monitor ``"val_total"``: selection then rewards fitting the training data, not generalisation.
+        """
+        if isinstance(val_loader, TrainConfig) and cfg is None:
+            val_loader, cfg = None, val_loader
+        if cfg is None:
+            cfg = TrainConfig()
+        validated = val_loader is not None
         if cfg.seed is not None:
             set_seed(cfg.seed)
         if cfg.deterministic:
@@ -196,7 +222,8 @@ class Trainer:
         # DDP samplers
         if cfg.ddp:
             train_loader = self._maybe_rewrap_loader_ddp(train_loader, shuffle=True)
-            val_loader = self._maybe_rewrap_loader_ddp(val_loader, shuffle=False)
+            if validated:
+                val_loader = self._maybe_rewrap_loader_ddp(val_loader, shuffle=False)
 
         # DDP wrap
         if cfg.ddp:
@@ -289,7 +316,7 @@ class Trainer:
             va_parts: Dict[str, float] = {}
             yhat_acc, y_acc = [], []
 
-            for raw in val_loader:
+            for raw in (val_loader if validated else ()):
                 batch = self._xy_batch(raw)
                 if self.preprocess is not None:
                     batch = self.preprocess.apply(batch)
@@ -331,10 +358,10 @@ class Trainer:
                     yhat_acc.append(y_hat.detach().cpu())
                     y_acc.append(y.detach().cpu())
 
-            val_total = va_total / max(1, n_va)
+            val_total = va_total / max(1, n_va) if validated else None
             val_parts = {k: v / max(1, n_va) for k, v in va_parts.items()}
 
-            if cfg.ddp and dist is not None and dist.is_initialized():
+            if validated and cfg.ddp and dist is not None and dist.is_initialized():
                 t = torch.tensor([val_total], device=device)
                 dist.all_reduce(t, op=dist.ReduceOp.SUM)
                 val_total = float((t / ddp_info["world"]).item())
@@ -358,8 +385,13 @@ class Trainer:
                     }
                 )
 
-            logs = {"val_total": float(val_total), "train_total": float(train_total), **metrics_dict}
+            logs = {"val_total": None if val_total is None else float(val_total), "train_total": float(train_total),
+                    **metrics_dict}
             history.append({"epoch": epoch, **logs})
+            # Without validation the training loss is what selection and the callbacks see (see the docstring).
+            select = float(val_total) if validated else float(train_total)
+            if not validated:
+                logs = {**logs, "val_total": select}
 
             if is_rank0 and self.checkpoint is not None:
                 self.checkpoint.maybe_save(self.model, extra={"epoch": epoch, "cfg": asdict(cfg)}, logs=logs)
@@ -369,8 +401,8 @@ class Trainer:
                 if self.early_stopping.stop:
                     break
 
-            if is_rank0 and cfg.save_best and val_total < best_val:
-                best_val = float(val_total)
+            if is_rank0 and cfg.save_best and select < best_val:
+                best_val = select
                 best_path = os.path.join(cfg.log_dir, f"{cfg.run_name}.best.pt")
                 ckpt = Checkpoint(
                     model_state=self.model.state_dict(),
@@ -394,4 +426,5 @@ class Trainer:
         if cfg.ddp and dist is not None and dist.is_initialized():
             dist.barrier()
 
-        return {"best_val": best_val, "best_path": best_path, "ddp": cfg.ddp, "rank0": is_rank0, "history": history}
+        return {"best_val": best_val, "best_path": best_path, "ddp": cfg.ddp, "rank0": is_rank0,
+                "validated": validated, "history": history}

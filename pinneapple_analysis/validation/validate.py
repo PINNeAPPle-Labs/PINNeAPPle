@@ -558,10 +558,12 @@ def _generative_checks(sampler, cfg: Mapping[str, Any], data: Mapping[str, Any],
 
 def _pinn_checks(model, spec: Mapping[str, Any], data: Mapping[str, Any], level: str, seed: int
                  ) -> list[ValidationCheck]:
-    """``problem={"pinn": "burgers_1d" | PINNProblem, "tolerances": {...}}``, ``data={"train_points": X}``: a trained
-    PINN on fresh points (``validation.pinn``)."""
-    from .pinn import validate_pinn
-    rep = validate_pinn(model, spec["pinn"], n_points=1024 if level == "quick" else 4096,
+    """``problem={"pinn": "burgers_1d" | PINNProblem | ProblemSpec, "ctx": {...}, "tolerances": {...}}``,
+    ``data={"train_points": X}``: a trained PINN on fresh points (``validation.pinn``). ``ctx`` is what a
+    ``ProblemSpec``'s residual needs beyond the spec, as given to ``pp.solve`` (e.g. ``{"source_fn": f}``)."""
+    from .pinn import resolve_problem, validate_pinn
+    problem = resolve_problem(spec["pinn"], model, ctx=spec.get("ctx"))
+    rep = validate_pinn(model, problem, n_points=1024 if level == "quick" else 4096,
                         train_points=data.get("train_points"), tolerances=spec.get("tolerances"), seed=seed)
     return [ValidationCheck(c["id"], c["status"], c["summary"], value=c.get("value"), threshold=c.get("threshold"))
             for c in rep.checks]

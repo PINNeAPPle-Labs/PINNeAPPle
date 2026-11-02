@@ -19,6 +19,7 @@
   "closed_form": "lazy 'pinneapple_physics.closed_form'",
   "uncertainty": "lazy 'pinneapple_analysis.uncertainty'",
   "build_model": "def(name, **kwargs)",
+  "load_checkpoint": "from pinneapple_neural.architectures.base import load_checkpoint",
   "get_preset": "from pinneapple_physics.pde_environment import get_preset",
   "list_presets": "from pinneapple_physics.pde_environment import list_presets",
   "list_methods": "from pinneapple_physics.solving import list_methods",
@@ -627,6 +628,8 @@
    "kovasznay": "def(re=40.0)",
    "mlp": "def(n_in, n_out, width=32, depth=4, activation='tanh')",
    "poisson_2d": "def(kx=1, ky=2, exact=True)",
+   "problem_from_spec": "def(spec, model, *, ctx=None)",
+   "resolve_problem": "def(problem, model, *, ctx=None)",
    "train_pinn": "def(problem, model=None, *, n_collocation=2000, n_condition=400, adam_steps=1500, lbfgs_steps=1000, lr=0.002, weights=None, monitor=None, seed=0, data=None, callback=None)",
    "validate_pinn": "def(model, problem, *, n_points=4096, grid=None, train_points=None, tolerances=None, seed=0)"
   },
@@ -3231,7 +3234,7 @@
     "class": [],
     "methods": {
      "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None)",
-     "fit": "(train_loader, val_loader, cfg)"
+     "fit": "(train_loader, val_loader=None, cfg=None)"
     }
    }
   },
@@ -3851,7 +3854,8 @@
    "LossWeights": "from .loss import LossWeights",
    "SingleBatchDataset": "from .dataset import SingleBatchDataset",
    "compile_problem": "from .compile import compile_problem",
-   "dict_collate": "from .dataset import dict_collate"
+   "dict_collate": "from .dataset import dict_collate",
+   "pointwise_residual": "from .compile import pointwise_residual"
   },
   "pinneapple_physics.pinn_solver.compiler.autograd_ops": {
    "derivative_cache": "def()",
@@ -3865,7 +3869,8 @@
    "time_derivative": "def(y, x, t_index)"
   },
   "pinneapple_physics.pinn_solver.compiler.compile": {
-   "compile_problem": "def(spec, *, weights=None, cache_derivatives=False)"
+   "compile_problem": "def(spec, *, weights=None, cache_derivatives=False)",
+   "pointwise_residual": "def(spec, *, ctx=None)"
   },
   "pinneapple_physics.pinn_solver.compiler.dataset": {
    "SingleBatchDataset": {

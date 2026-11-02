@@ -1039,7 +1039,7 @@ class PhysicsPipeline:
 
         if prob_kind == "preset":
             spec = prob_obj
-            prob_id   = getattr(spec, "problem_id", str(spec))
+            prob_id   = getattr(spec, "problem_id", "") or getattr(spec, "name", "") or str(spec)   # #945: id is often ""
             pde_str   = str(getattr(getattr(spec, "pde", None), "kind", ""))
             coords    = list(spec.coords)
             fields    = list(spec.fields)

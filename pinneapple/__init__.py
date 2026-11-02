@@ -161,6 +161,8 @@ try:
         """Build a model by name from the model registry."""
         return ModelRegistry.build(name, **kwargs)
 
+    from pinneapple_neural.architectures.base import load_checkpoint  # noqa: E402  (#941: one-call reload)
+
 except Exception:  # pragma: no cover
     def list_models():
         return []
@@ -462,7 +464,8 @@ def quickstart(problem_id: str = "burgers_1d", **problem_kwargs):
     print(f"  Fields      : {spec.fields}")
     print(f"  Coordinates : {spec.coords}")
     print(f"  Domain      : {spec.domain_bounds}")
-    print(f"  Conditions  : {list(spec.conditions)}")
+    conds = ", ".join(f"{c.name} ({c.kind})" for c in spec.conditions) or "none"     # not the dataclass reprs (#945)
+    print(f"  Conditions  : {conds}")
     print(f"  Solver      : {spec.solver_spec.get('name', 'N/A')}")
     if spec.meta.get("description"):
         print(f"  Description : {spec.meta['description']}")
@@ -749,7 +752,7 @@ __all__ = [
     # First hour: is this machine ready, what should I run, what does it take, where do I put it
     "doctor", "profiles", "recommend", "card", "new",
     # Models
-    "list_models", "build_model",
+    "list_models", "build_model", "load_checkpoint",
     # Training
     "Trainer", "TrainConfig", "best_device", "count_gpus", "gpu_info",
     "maybe_compile", "batched_inference", "run_parallel_sweep", "SweepConfig",

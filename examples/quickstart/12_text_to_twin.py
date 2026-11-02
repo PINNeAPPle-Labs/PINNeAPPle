@@ -54,8 +54,8 @@ print("\nthe parser needs one thing it cannot default:", type(needs).__name__)
 for q in needs.questions:
     print("  asks:", q.text if hasattr(q, "text") else q)
 
-# The answer is in kelvin for this slot: 70 degC = 343.15 K.
-design = pp.design(REQUEST, answers={"t_limit": 343.15}, out_dir=OUT, verify=False,
+# The answer is read in the unit the question shows (degC): 70 degC, stored as 343.15 K.
+design = pp.design(REQUEST, answers={"t_limit": 70}, out_dir=OUT, verify=False,
                    n_candidates=30, budget=80)
 print("\nstatus  :", design.status if hasattr(design, "status") else "design package")
 print("geometry:", design.geometry)

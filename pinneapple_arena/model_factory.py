@@ -265,9 +265,11 @@ def _build_siren(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module
 def _build_modified_mlp(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
     try:
         from pinneapple_neural.architectures.modified_mlp import ModifiedMLP
-        return ModifiedMLP(in_dim=in_dim, out_dim=out_dim,
-                           hidden=net_cfg.hidden, activation=net_cfg.activation,
-                           **net_cfg.extra)
+        hidden = list(net_cfg.hidden or [])
+        return ModifiedMLP(in_dim=in_dim, out_dim=out_dim,         # takes one width and a depth, not a list (#940)
+                           hidden_dim=max(hidden) if hidden else net_cfg.hidden_dim,
+                           n_layers=len(hidden) if hidden else net_cfg.n_layers,
+                           activation=net_cfg.activation, **net_cfg.extra)
     except Exception as e:
         raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 

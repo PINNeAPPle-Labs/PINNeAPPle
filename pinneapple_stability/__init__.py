@@ -53,7 +53,8 @@ CORE: tuple[str, ...] = (
 # the pp.* names in the core; other pp.* names work as before, without the promise
 CORE_PP: tuple[str, ...] = (
     "solve", "zoo", "validate", "trust_card", "datasets", "benchmark", "viz", "compare", "presets", "geometries",
-    "design", "doctor", "recommend", "card", "new", "closed_form", "uncertainty", "build_model", "get_preset",
+    "design", "doctor", "recommend", "card", "new", "closed_form", "uncertainty", "build_model", "load_checkpoint",
+    "get_preset",
     "list_presets", "list_methods", "list_models", "to_jsonable", "__version__",
 )
 

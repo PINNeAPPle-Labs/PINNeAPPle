@@ -573,6 +573,21 @@ def _leapfrog_wave_1d(
     return np.stack(traj, axis=1)
 
 
+def _initial_values(conditions, coords, axis, x, t0, ctx):
+    """The problem's own initial condition at the grid ``x`` (time ``t0``), from the ``initial`` condition's
+    ``value_fn``; ``None`` when the problem has none (#942: the solver used to impose ``-sin(pi (x - x0)/L)``,
+    a different function from the preset's ``-sin(pi x)`` on [-1, 1])."""
+    for c in conditions or ():
+        if getattr(c, "kind", None) == "initial" and getattr(c, "value_fn", None) is not None:
+            X = np.zeros((len(x), len(coords)), dtype=np.float64)
+            for j, name in enumerate(coords):
+                X[:, j] = x if name == axis else (t0 if name == "t" else 0.0)
+            v = np.asarray(c.value_fn(X, ctx or {}), dtype=np.float64).reshape(len(x), -1)[:, 0]
+            if np.all(np.isfinite(v)):
+                return v
+    return None
+
+
 def _ftcs_burgers_1d(
     u0: np.ndarray,
     nu: float,
@@ -842,13 +857,19 @@ class FDMSolver(SolverBase):
         nu = float(params.get("nu", params.get("viscosity", 0.01)))
         x  = _linspace(x0, x1, self.nx)
         dx = _spacing(x0, x1, self.nx)
-        # Stability: diffusive CFL
-        dt = 0.4 * dx ** 2 / max(nu, 1e-12)
-        nt = min(self.nt, max(1, int((t1 - t0) / dt)))
-
-        u0 = -np.sin(np.pi * (x - x0) / (x1 - x0))
+        u0 = _initial_values(conditions, coords, c0, x, t0, ctx)
+        if u0 is None:                     # no initial condition in the problem: the historical default
+            u0 = -np.sin(np.pi * (x - x0) / (x1 - x0))
+        # Stability of FTCS + upwind with both terms, dt <= 1 / (2 nu / dx^2 + max|u| / dx) (Burgers keeps
+        # max|u| <= max|u0|), with a safety factor of 1/2. The old limit, 0.4 dx^2 / nu, ignored the advection term:
+        # a 1e-8 perturbation of the initial condition grew to O(1) (#942). The steps cover the whole [t0, t1]
+        # (they used to be capped at self.nt, which stopped the run before t1).
+        umax = float(np.max(np.abs(u0))) if u0.size else 0.0
+        dt_max = 0.5 / (2.0 * max(nu, 0.0) / dx ** 2 + umax / dx + 1e-300)
+        nt = max(1, int(np.ceil((t1 - t0) / dt_max)))
+        dt = (t1 - t0) / nt
         traj  = _ftcs_burgers_1d(u0, nu, dx, dt, nt)
-        t_arr = np.linspace(t0, t0 + nt * dt, nt + 1, dtype=np.float32)
+        t_arr = np.linspace(t0, t1, nt + 1, dtype=np.float32)
         return SolverOutput(
             result=torch.from_numpy(traj.astype(np.float32)),
             losses={"residual": torch.tensor(0.0)},

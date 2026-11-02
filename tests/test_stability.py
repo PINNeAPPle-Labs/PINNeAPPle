@@ -66,3 +66,12 @@ def test_the_stability_package_is_light():
                         "print(sorted(m for m in sys.modules if m.startswith(('pinneapple', 'torch', 'numpy'))))"],
                        capture_output=True, text=True, env=_env(), cwd=ROOT, timeout=120)
     assert r.stdout.strip() == "['pinneapple_stability']", r.stdout
+
+
+def test_an_import_from_inside_the_library_does_not_warn():
+    """A core module that uses a labs package for one case must not make its users see an experimental warning."""
+    r = _run("import pinneapple_presets.cases.footbridge")
+    assert r.returncode == 0, r.stderr
+    assert "ExperimentalWarning" not in r.stderr, r.stderr
+    direct = _run("import pinneapple_reason")
+    assert direct.stderr.count("ExperimentalWarning") == 1, direct.stderr

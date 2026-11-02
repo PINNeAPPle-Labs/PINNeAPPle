@@ -496,7 +496,9 @@ def build_recipe(result: CadRecipeResult):
 
         recipe = _normalize_recipe_node(result.recipe)
         _validate_mesh_node(recipe, builder_names=set(list_builders()))
-        return build_mesh(**_node_to_build_mesh_kwargs(recipe))
+        # strict: without a boolean engine a cut would concatenate the hole onto the part (a washer came out at
+        # +526 % volume in PINNeAPPle-apps#5); a part with the wrong dimensions is refused, never delivered
+        return build_mesh(strict_booleans=True, **_node_to_build_mesh_kwargs(recipe))
 
     if result.kind == "cadquery_template":
         if result.name is None:

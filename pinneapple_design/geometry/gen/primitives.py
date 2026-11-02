@@ -317,13 +317,15 @@ def list_builders() -> Tuple[str, ...]:
     return tuple(sorted(_BUILDERS.keys()))
 
 
-def build_mesh(name: str, **params) -> MeshData:
+def build_mesh(name: str, *, strict_booleans: bool = False, **params) -> MeshData:
     """
     General factory:
       - calls a registered builder -> trimesh.Trimesh
       - optional transforms: scale / rotate / translate
       - optional boolean: boolean={op:'cut'|'union'|'intersect', other:{name:'sphere', ...}}
-        -> If no boolean engine exists, it falls back to concatenate (non-watertight).
+        -> If no boolean engine exists, it falls back to concatenate (non-watertight), with a warning;
+           ``strict_booleans=True`` raises instead (a hole "cut" by concatenation adds the hole's volume: a
+           part that must have the requested dimensions cannot take that fallback).
     """
     import trimesh
 
@@ -340,10 +342,10 @@ def build_mesh(name: str, **params) -> MeshData:
         op = str(boolean["op"])
         other_spec = dict(boolean["other"])
         other_name = other_spec.pop("name")
-        other_md = build_mesh(other_name, **other_spec)
+        other_md = build_mesh(other_name, strict_booleans=strict_booleans, **other_spec)
         tm_other = trimesh.Trimesh(vertices=other_md.vertices, faces=other_md.faces, process=False)
 
-        tm = _boolean_or_fallback(tm, tm_other, op, allow_fallback=True)
+        tm = _boolean_or_fallback(tm, tm_other, op, allow_fallback=not strict_booleans)
 
     return _tm_to_meshdata(tm)
 

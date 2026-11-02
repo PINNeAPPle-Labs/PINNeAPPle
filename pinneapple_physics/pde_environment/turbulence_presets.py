@@ -44,7 +44,10 @@ SST_CONSTS: Dict[str, float] = {
 # ---------------------------------------------------------------------------
 
 def _grad1(f: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
-    """Gradient of scalar/vector field f w.r.t. x (same-shape as x)."""
+    """Gradient of scalar/vector field f w.r.t. x (same-shape as x). A field with no graph (the derivative of a field
+    linear in x, or a constant) has zero gradient."""
+    if not f.requires_grad:
+        return torch.zeros_like(x)
     return torch.autograd.grad(
         f, x,
         grad_outputs=torch.ones_like(f),

@@ -11,17 +11,24 @@ from pinneapple_simulation.electromagnetics.particles import (
     Q_E,
     cyclotron_frequency,
     cyclotron_study,
+    dipole_field_line,
+    dipole_trap_study,
     drift_study,
     exb_drift,
     gradb_drift,
+    guiding_center,
     larmor_radius,
+    lorentz_factor,
     loss_cone_angle,
     magnetic_bottle,
     magnetic_bottle_study,
     magnetic_dipole,
+    magnetic_moment,
     mass_spectrometer_study,
     penning_frequencies,
     penning_study,
+    penning_trap,
+    pitch_velocity,
     push,
     uniform,
 )
@@ -109,7 +116,6 @@ def test_stop_freezes_particles_and_reports_time():
 
 
 def test_dipole_field_line_is_tangent_to_the_field():
-    from pinneapple_simulation.electromagnetics.particles import dipole_field_line
     pts = dipole_field_line(3.0, n=400)
     assert np.allclose(np.linalg.norm(pts[[0, -1]], axis=1), 6.371e6, rtol=1e-9)
     tang = np.gradient(pts, axis=0)[50:350]
@@ -119,15 +125,22 @@ def test_dipole_field_line_is_tangent_to_the_field():
 
 
 def test_small_helpers_literal_calls():
-    from pinneapple_simulation.electromagnetics.particles import lorentz_factor, pitch_velocity
     assert math.isclose(lorentz_factor(0.6 * 299792458.0), 1.25, rel_tol=1e-12)
     v = pitch_velocity(1000.0, 30.0, [0.0, 0.0, 1.0], 0.0)
     assert math.isclose(np.linalg.norm(v), 1000.0) and math.isclose(v[2], 1000.0 * math.cos(math.radians(30)))
 
 
 def test_radiation_belt_bounce_and_drift_periods():
-    from pinneapple_simulation.electromagnetics.particles import dipole_trap_study
     d = dipole_trap_study(energy_MeV=10.0, L_shell=2.0, pitch_deg=30.0, species="proton", duration_s=8.0,
                           steps_per_gyration=25, save_every=20)
     assert not d["lost"] and d["drift_direction"] == "westward"            # protons drift west
     assert math.isclose(d["bounce_period_s"], d["bounce_period_approx_s"], rel_tol=0.05)
+
+
+def test_guiding_centre_moment_and_trap_field_literal_calls():
+    gc = guiding_center([[0.0, 0.0, 0.0]], [[1.0e5, 0.0, 0.0]], [[0.0, 0.0, 1.0]], 1.602176634e-19, 1.67262192595e-27)
+    assert np.allclose(gc, [[0.0, -1.0e5 * 1.67262192595e-27 / 1.602176634e-19, 0.0]])
+    mu = magnetic_moment([[3.0e4, 0.0, 4.0e4]], [[0.0, 0.0, 0.5]], 1.67262192595e-27)
+    assert np.allclose(mu, 1.67262192595e-27 * 9.0e8 / (2 * 0.5))
+    E = penning_trap(10.0, 0.005)(np.array([[1e-3, 0.0, 1e-3]]), 0.0)
+    assert np.allclose(E, [[10.0 / (2 * 0.005**2) * 1e-3, 0.0, -2 * 10.0 / (2 * 0.005**2) * 1e-3]])

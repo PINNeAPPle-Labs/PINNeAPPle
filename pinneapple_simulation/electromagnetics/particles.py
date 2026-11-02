@@ -241,14 +241,15 @@ def penning_frequencies(q: float, m: float, B: float, V0: float, d: float) -> di
     return {"cyclotron": wc, "axial": wz, "modified_cyclotron": wc / 2 + r, "magnetron": wc / 2 - r}
 
 
-def guiding_center(x: np.ndarray, v: np.ndarray, B: np.ndarray, q: float, m: float, gamma: Any = 1.0) -> np.ndarray:
+def guiding_center(x: Sequence[Sequence[float]], v: Sequence[Sequence[float]], B: Sequence[Sequence[float]], q: float,
+                   m: float, gamma: float = 1.0) -> np.ndarray:
     """Guiding centre x + gamma m (v x B) / (q |B|^2) of particles at x with velocity v in the local field B."""
     x, v, B = (np.asarray(a, float) for a in (x, v, B))
     g = np.asarray(gamma, float)[..., None] if np.ndim(gamma) else gamma
     return x + g * m * np.cross(v, B) / (q * (B * B).sum(-1, keepdims=True))
 
 
-def magnetic_moment(v: np.ndarray, B: np.ndarray, m: float, gamma: Any = 1.0) -> np.ndarray:
+def magnetic_moment(v: Sequence[Sequence[float]], B: Sequence[Sequence[float]], m: float, gamma: float = 1.0) -> np.ndarray:
     """First adiabatic invariant mu = p_perp^2 / (2 m |B|) [J/T] (gamma m v_perp^2 / 2B non-relativistically scaled)."""
     v, B = np.asarray(v, float), np.asarray(B, float)
     bn = np.linalg.norm(B, axis=-1)

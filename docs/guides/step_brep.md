@@ -64,3 +64,56 @@ so no third-party CAD file is stored.
 | The same part written in mm and in inch | the same body in metres, within 1e-9 |
 | Two named bodies in one file | names and volumes kept |
 | A loft from a square to a circle | reported with a free-form face type |
+
+## 2. Meshing (#1116)
+
+```python
+from pinneapple_design.geometry.brep import tessellate
+
+m = tessellate(b, quality="normal", mesher="auto")     # TessMesh in metres
+m.vertices, m.triangles, m.face_id                       # a body face index per triangle
+m.is_watertight(), m.euler_characteristic(), m.report()
+```
+
+**Quality presets.** Each sets a chordal deviation, as a fraction of the body's bounding-box diagonal D, and the
+largest angle between neighbouring normals on curved faces:
+
+| Preset | Chordal deviation | Angle |
+|---|---|---|
+| draft | 2e-3 D | 30° |
+| normal | 5e-4 D | 15° |
+| fine | 1e-4 D | 7.5° |
+
+**Meshers:**
+- **`fast`** handles bodies made of planes, cylinders, cones and spheres whose curved faces are bands between
+  coaxial full circles, or whole spheres. Typical cases are plates with holes, bosses, tubes and turned parts.
+  - Every edge is sampled once and shared by the two faces on its sides, so the mesh is watertight by
+    construction.
+  - A circle of radius r gets n = ⌈π / arccos(1 − tol/r)⌉ segments (and at least 360°/angle), so its sagitta
+    r(1 − cos(π/n)) stays within the tolerance.
+  - Planar faces, holes included, are triangulated with earcut. Bands are strips between their two rings.
+- **`kernel`** uses the exact kernel's tessellation of the whole body and works for any surface. Face IDs come from
+  the per-face meshes at the same tolerance.
+- **`auto`** uses `fast` when every face qualifies, and otherwise `kernel` for the whole body: mixing the two
+  would leave cracks where their edge samplings differ. `fallback_faces` and `reason` say why.
+
+**Measured** on a 200 × 100 × 5 mm plate with 50 holes of Ø 6 mm. Every mesh is watertight, with Euler
+characteristic −98 = 2 − 2·50:
+
+| Quality | Mesher | Triangles | Volume error | Time |
+|---|---|---|---|---|
+| draft | fast | 2 664 | 3.3e-3 | 0.13 s |
+| draft | kernel | 3 412 | 1.9e-3 | 0.60 s |
+| normal | fast | 5 064 | 8.5e-4 | 0.23 s |
+| normal | kernel | 6 612 | 4.9e-4 | 1.25 s |
+| fine | fast | 9 864 | 2.1e-4 | 0.25 s |
+| fine | kernel | 13 012 | 1.2e-4 | 2.30 s |
+
+**Checked** in `tests/test_brep_tessellate.py`:
+- the sagitta and angle bounds of `circle_segments`;
+- the chord error of every hole edge within the preset tolerance, for all three presets;
+- watertightness and genus for both meshers;
+- volume convergence with quality on a tube;
+- cone and sphere through the fast mesher, with the sphere's vertices exactly on the sphere;
+- the fallback to the kernel on a torus, with its reason;
+- kernel face IDs whose areas add up to the exact face areas.

@@ -15,5 +15,6 @@ from .step import (
     read_step,
     write_step,
 )
+from .tessellate import QUALITY, TessMesh, tessellate
 
-__all__ = ["CadBody", "CadFace", "available_backends", "read_step", "write_step"]
+__all__ = ["CadBody", "CadFace", "available_backends", "read_step", "write_step", "QUALITY", "TessMesh", "tessellate"]

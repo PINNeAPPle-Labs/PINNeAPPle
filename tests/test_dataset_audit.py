@@ -184,3 +184,17 @@ def test_stored_audit_cards_are_current(name):
     assert stored["decision"] == fresh["decision"]
     assert [(c["id"], c["status"]) for c in stored["checks"]] == [(c["id"], c["status"]) for c in fresh["checks"]]
     assert "## Physics audit" in zd.info(name).to_markdown()
+
+
+@pytest.mark.parametrize("offset", [0.0, 1e3, 1e6])
+def test_exact_copies_are_found_whatever_the_rounding(offset):
+    """|a|^2 + |b|^2 - 2 a.b put exact copies of 1000-wide rows up to 1.4 apart (offset 1e6) and, on some CI CPUs,
+    ~1e-7 apart even for small rows, so near_duplicates and leakage missed them when copies were half the set."""
+    rng = np.random.default_rng(1)
+    x = offset + rng.normal(size=(6, 1000))
+    x = np.vstack([x, x[:2], x[:1]])                                  # rows 0 and 1 copied: 5 rows with a copy
+    r = near_duplicates(x)
+    assert r["exact"] == 5 and r["near"] == 5
+    assert all(d == 0.0 for *_, d in r["pairs"])
+    lk = leakage(x[:6], x[:2])
+    assert lk["n_flagged"] == 2 and lk["fraction"] == 1.0

@@ -31,6 +31,7 @@ class StudyRole:
     query: str                                        # catalog search words (English concept words)
     checks: tuple[tuple[str, str], ...] = ()          # (code, what it checks); evaluated on the step's result
     cost_s: float = 10.0                              # heuristic estimate, never presented as measured
+    tool: str = ""                                    # the library's own tool for this step, tried first
 
 
 @dataclass(frozen=True)
@@ -71,15 +72,15 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
     StudyRole("identify", "Parameter identification", "Identificação de parâmetros",
               "inverse problem identify estimate parameters calibrate from measurements",
               (("identify.fits_data", "identified model reproduces the measurements within their noise"),
-               ("identify.identifiable", "parameters identifiable: finite, non-degenerate sensitivity")), 30),
+               ("identify.identifiable", "parameters identifiable: finite, non-degenerate sensitivity")), 30, "pinneapple_flow.study_steps:identify_step"),
     StudyRole("sensitivity", "Sensitivity analysis", "Análise de sensibilidade",
               "sensitivity analysis sobol indices morris",
               (("sensitivity.indices_sum", "first-order indices sum to at most one (within sampling error)"),
-               ("sensitivity.converged", "indices stable when the sample size is doubled")), 30),
+               ("sensitivity.converged", "indices stable when the sample size is doubled")), 30, "pinneapple_flow.study_steps:sensitivity_step"),
     StudyRole("uq", "Uncertainty propagation", "Propagação de incerteza",
               "uncertainty propagation monte carlo confidence interval",
               (("uq.converged", "statistics stable when the sample size is doubled"),
-               ("uq.coverage", "intervals cover held-out cases at their nominal rate")), 30),
+               ("uq.coverage", "intervals cover held-out cases at their nominal rate")), 30, "pinneapple_flow.study_steps:uncertainty_step"),
     StudyRole("stream", "Live data connection", "Conexão a dados ao vivo", "stream sensor live data ingest",
               (("stream.units", "every channel has a unit"), ("stream.gaps", "gaps and outliers flagged")), 5),
     StudyRole("twin", "Digital twin (assimilation and monitoring)", "Gêmeo digital (assimilação e monitoramento)",
@@ -88,9 +89,9 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
                ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 30),
     StudyRole("analyze", "Data analysis", "Análise dos dados", "time series analysis statistics predictability",
               (("analyze.stationarity", "stationarity and trends stated"),
-               ("analyze.leakage", "no train/test leakage")), 10),
+               ("analyze.leakage", "no train/test leakage")), 10, "pinneapple_flow.study_steps:analyze_step"),
     StudyRole("forecast", "Forecast model", "Modelo de previsão", "forecast time series predict",
-              (("forecast.horizon", "skill reported per horizon"),), 30),
+              (("forecast.horizon", "skill reported per horizon"),), 30, "pinneapple_flow.study_steps:forecast_step"),
     StudyRole("linearize", "Plant analysis", "Análise da planta",
               "linearize equilibrium stability controllability observability",
               (("linearize.stability", "open-loop stability stated"),

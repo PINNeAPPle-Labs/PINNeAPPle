@@ -57,3 +57,12 @@ def test_every_role_is_defined_and_verification_means_something_per_kind():
         assert r.title and r.title_pt and r.query and r.checks
     assert role_checks("forecast", "verify")[0][0] == "verify.beats_baseline"
     assert role_checks("inverse", "identify")[0][0] == "identify.fits_data"
+
+
+def test_every_step_tool_named_by_a_role_exists():
+    import importlib
+    named = {r.id: r.tool for r in STUDY_ROLES.values() if r.tool}
+    assert set(named) == {"identify", "sensitivity", "uq", "analyze", "forecast"}
+    for tid in named.values():
+        mod, fn = tid.split(":")
+        assert callable(getattr(importlib.import_module(mod), fn)), tid

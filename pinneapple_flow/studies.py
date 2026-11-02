@@ -12,7 +12,7 @@ the catalog, or leaves a gap with what is missing.
     classify_study("estimate the thermal conductivity of the wall from these temperature measurements")[0]
     # StudyMatch(kind='inverse', score=..., words=['estimate', 'from these ... measurements', ...])
     roles_for_kind("inverse", spatial=True, has_geometry=False, has_data=True)
-    # ['geometry', 'mesh', 'dataset', 'physics', 'simulate', 'identify', 'uq', 'verify']
+    # ['geometry', 'mesh', 'dataset', 'physics', 'simulate', 'identify', 'uq']   (identify_step verifies on held-out rows)
 
 Steps marked ``spatial`` (geometry, mesh) are added only when the physics is spatially resolved; ``dataset`` comes
 from the user's file when there is one, otherwise from a generating step.
@@ -44,6 +44,7 @@ class StudyKind:
     words: tuple[str, ...]                            # English and Portuguese, matched at word starts
     verify_checks: tuple[tuple[str, str], ...] = ()   # what "verified" means for this kind
     spatial_roles: bool = True                        # geometry / mesh may be prepended when the physics is spatial
+    verify_in: str = ""                               # the step whose own tool computes verify_checks (no verify step)
 
 
 STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
@@ -140,7 +141,8 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("identify", "estimate", "unknown", "calibrat", "infer", "inverse", "from measurements", "from data",
                "fit the model", "parameter discovery", "identificar", "estimar", "desconhecid", "calibr", "inferir",
                "inverso", "medições", "medidas", "a partir dos dados", "ajustar o modelo", "measured"),
-              (("verify.held_out", "identified model predicts measurements held out of the identification"),)),
+              (("verify.held_out", "identified model predicts measurements held out of the identification"),),
+              verify_in="identify"),
     StudyKind("uq_sensitivity", "Uncertainty and sensitivity", "Incerteza e sensibilidade",
               "propagate input uncertainty to the outputs and rank the inputs that matter",
               ("physics", "doe", "simulate", "sensitivity", "uq", "verify"),
@@ -159,7 +161,8 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("dataset", "analyze", "forecast", "verify"),
               ("forecast", "predict the next", "time series", "next week", "next month", "demand", "previs",
                "série temporal", "serie temporal", "prever", "próxima semana", "demanda"),
-              (("verify.beats_baseline", "out-of-sample skill compared with naive baselines on a purged split"),)),
+              (("verify.beats_baseline", "out-of-sample skill compared with naive baselines on a purged split"),),
+              verify_in="forecast"),
     StudyKind("control", "Control design", "Projeto de controle",
               "design a controller and check the closed loop",
               ("physics", "linearize", "control", "closed_loop", "verify"),
@@ -240,6 +243,8 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
         body = [r for r in body if r not in ("doe", "simulate")]       # the data replaces the generated campaign
         if "dataset" not in body:
             body.insert(body.index("physics") + 1, "dataset")
+    if k.verify_in:                  # the verification is computed by that step's own tool, held-out data included
+        body = [r for r in body if r != "verify"]
     for r in body:
         if r not in roles:
             roles.append(r)
@@ -247,11 +252,14 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
 
 
 def role_checks(kind: str, role: str) -> tuple[tuple[str, str], ...]:
-    """The checks of a step: the kind's own definition of verification for ``verify``, the role's otherwise."""
-    if role == "verify" and STUDY_KINDS[kind].verify_checks:
-        return STUDY_KINDS[kind].verify_checks
+    """The checks of a step: the kind's own definition of verification for ``verify`` (or, for a kind with
+    ``verify_in``, added to that step's), the role's otherwise."""
+    k = STUDY_KINDS[kind]
+    if role == "verify" and k.verify_checks:
+        return k.verify_checks
     r = STUDY_ROLES.get(role)
-    return r.checks if r else ()
+    own = r.checks if r else ()
+    return own + k.verify_checks if role == k.verify_in else own
 
 
 __all__ = ["STUDY_KINDS", "STUDY_ROLES", "StudyKind", "StudyRole", "StudyMatch", "classify_study", "roles_for_kind",

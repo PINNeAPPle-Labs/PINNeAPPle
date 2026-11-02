@@ -41,9 +41,9 @@ def test_each_kind_has_its_own_steps():
     assert roles_for_kind("design_optimization") == ["geometry", "physics", "doe", "simulate", "dataset", "surrogate",
                                                      "optimize", "verify"]
     assert roles_for_kind("inverse", spatial=True, has_data=True) == ["geometry", "mesh", "dataset", "physics",
-                                                                      "simulate", "identify", "uq", "verify"]
+                                                                      "simulate", "identify", "uq"]
     assert roles_for_kind("control", spatial=True) == ["physics", "linearize", "control", "closed_loop", "verify"]
-    assert roles_for_kind("forecast") == ["dataset", "analyze", "forecast", "verify"]
+    assert roles_for_kind("forecast") == ["dataset", "analyze", "forecast"]   # forecast_step verifies itself
     assert roles_for_kind("surrogate", spatial=True, has_geometry=True, has_data=True) == [
         "mesh", "physics", "dataset", "surrogate", "verify"]                    # data replaces the DOE campaign
     assert roles_for_kind("simulation", is_step=True, has_geometry=True, spatial=True)[:2] == ["cad", "mesh"]
@@ -57,6 +57,12 @@ def test_every_role_is_defined_and_verification_means_something_per_kind():
         assert r.title and r.title_pt and r.query and r.checks
     assert role_checks("forecast", "verify")[0][0] == "verify.beats_baseline"
     assert role_checks("inverse", "identify")[0][0] == "identify.fits_data"
+    # a kind verified inside a step: that step carries the kind's checks, and its tool emits them
+    assert [c for c, _ in role_checks("forecast", "forecast")] == ["forecast.horizon", "verify.beats_baseline"]
+    assert role_checks("inverse", "identify")[-1][0] == "verify.held_out"
+    for k in STUDY_KINDS.values():
+        if k.verify_in:
+            assert k.verify_in in k.roles and STUDY_ROLES[k.verify_in].tool
 
 
 def test_every_step_tool_named_by_a_role_exists():

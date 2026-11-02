@@ -487,6 +487,14 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.brep.step:available_backends": {
+  "code_hash": "a925535feee756b9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "list",
+  "seconds": 9.92
+ },
  "pinneapple_design.geometry.builders.stl_domain_batch_builder:STLDomainBatchBuilder": {
   "code_hash": "48e33e13ab8d7b63",
   "inputs": {

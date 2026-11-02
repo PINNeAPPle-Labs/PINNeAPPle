@@ -141,6 +141,10 @@ from .symbolic_pde import (
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
+BOX_BOUNDARY_TAG = "boundary"
+_TIME_COORDS = {"t", "time", "tau"}
+
+
 class TagConditionsUnresolved(ValueError):
     """Raised by :func:`solve_pde` when *spec* has one or more
     ``selector_type="tag"`` conditions that are not covered by explicit
@@ -243,6 +247,11 @@ def solve_pde(
     condition draws its own domain-wide sample every step and keeps
     whatever ``cond.mask()`` selects.
 
+    One tag is resolved here: ``{"tag": "boundary"}`` is the whole boundary of the spec's box
+    (``spec.domain_bounds``), i.e. its spatial faces, sampled like a ``"callable"`` condition (unless
+    ``x_bc``/``x_ic``/``x_data`` of its kind is passed explicitly). ``laplace_2d``, ``poisson_2d`` and the other
+    box presets use it. Any other tag is not resolved:
+
     ``selector_type="tag"`` conditions are a different, deliberate
     contract, not a lesser version of ``"callable"``: a tag (``"inlet"``,
     ``"outlet"``, ``"wall"``, ``"fixed"``, ...) names a region of *real
@@ -317,9 +326,28 @@ def solve_pde(
     # alongside it. Anything else used to be silently dropped -- trained
     # with zero boundary condition enforced for that tag, indistinguishable
     # from a correctly-constrained run by loss curve alone.
+    # One tag needs no geometry: "boundary" on a ProblemSpec, whose domain IS the box spec.domain_bounds, is the
+    # whole boundary of that box -- its spatial faces (the faces of a time coordinate are the initial and final
+    # instants, not boundary). Those points are sampled like a "callable" condition. Every other tag ("inlet",
+    # "wall", ...) names part of a real geometry and still needs it.
+    spatial_idx = [i for i, c in enumerate(coords) if c.lower() not in _TIME_COORDS]
+
+    def _box_boundary(X):
+        m = np.zeros(len(X), dtype=bool)
+        for i in spatial_idx:
+            lo, hi = bounds[coords[i]]
+            eps = 1e-6 * max(abs(hi - lo), 1e-12)
+            m |= (X[:, i] <= lo + eps) | (X[:, i] >= hi - eps)
+        return m
+
+    box_tagged = {
+        c.name for c in spec.conditions
+        if c.selector_type == "tag" and isinstance(c.selector, dict) and c.selector.get("tag") == BOX_BOUNDARY_TAG
+        and spatial_idx and not explicit[kind_to_suffix.get(c.kind, "data")]
+    }
     unresolved = []
     for cond in spec.conditions:
-        if cond.selector_type != "tag":
+        if cond.selector_type != "tag" or cond.name in box_tagged:
             continue
         suffix = kind_to_suffix.get(cond.kind, "data")
         mask_key = f"mask_{cond.name}"
@@ -353,7 +381,8 @@ def solve_pde(
 
     auto_conditions = [
         c for c in spec.conditions
-        if c.selector_type in ("all", "callable") and not explicit[kind_to_suffix.get(c.kind, "data")]
+        if (c.selector_type in ("all", "callable") and not explicit[kind_to_suffix.get(c.kind, "data")])
+        or c.name in box_tagged
     ]
 
     import warnings
@@ -387,8 +416,8 @@ def solve_pde(
             suffix = kind_to_suffix.get(cond.kind, "data")
             # Boundary/initial selectors pick a face (t == 0, x == x_min); interior-only sampling never hits it
             # and the condition was silently dropped. Candidates include every face of the box.
-            x_sel = sample_condition_points(lambda X, _c=cond: _c.mask(X, ctx), bounds, coords,
-                                            n_condition_points, cond_rng)
+            select = _box_boundary if cond.name in box_tagged else (lambda X, _c=cond: _c.mask(X, ctx))
+            x_sel = sample_condition_points(select, bounds, coords, n_condition_points, cond_rng)
             if x_sel.shape[0] == 0:
                 if _epoch == 0:
                     raise ValueError(

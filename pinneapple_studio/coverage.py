@@ -25,6 +25,7 @@ import ast
 import hashlib
 import json
 import re
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -170,6 +171,21 @@ def problems(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> list[str
         elif live[b] != "baseline":
             out.append(f"{b}: in coverage_baseline.txt but now {live[b]}; remove the line (the baseline only shrinks)")
     return out
+
+
+def core(catalog: dict[str, Any], limit: int = 40) -> dict[str, Any]:
+    """The stable core's coverage toward 1.0 (#1129): tools per status, and the modules with the most tools still
+    "discovered" (no test that runs by default calls them). The target is 0 discovered."""
+    tools = [t for t in catalog["tools"].values() if t.get("stability") == "core"]
+    status: dict[str, int] = defaultdict(int)
+    left: dict[str, list[str]] = defaultdict(list)
+    for t in tools:
+        status[t["status"]] += 1
+        if t["status"] == "discovered":
+            left[t["module"]].append(t["name"])
+    worst = sorted(left.items(), key=lambda kv: (-len(kv[1]), kv[0]))[:limit]
+    return {"tools": len(tools), "status": dict(sorted(status.items())),
+            "discovered_modules": len(left), "worst": {m: sorted(n) for m, n in worst}}
 
 
 def summary(catalog: dict[str, Any], gallery: list[dict[str, Any]]) -> dict[str, Any]:

@@ -1,0 +1,22 @@
+{
+ "pinneapple_stability:is_core": {
+  "code_hash": "dd406d77c794bcd9",
+  "inputs": {
+   "module": "pinneapple_neural.trainer"
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "bool",
+  "seconds": 1.49
+ },
+ "pinneapple_stability:stability": {
+  "code_hash": "4e23ffc9df51ad6b",
+  "inputs": {
+   "module": "pinneapple_physics.pinn_solver.compiler"
+  },
+  "ok": true,
+  "recorded": "2026-11-02",
+  "returned": "str",
+  "seconds": 1.11
+ }
+}

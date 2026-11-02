@@ -578,3 +578,13 @@ def test_a_name_imported_through_the_package_that_re_exports_it_counts(repo):
     t = catalog.build(repo)["tools"]
     assert t["pinneapple_demo.sub.impl:reexported"]["status"] == "tested"
     assert t["pinneapple_demo.sub.impl:not_reexported"]["status"] == "discovered"   # other.py is not an ancestor
+
+
+def test_core_coverage_counts_core_tools_and_lists_what_is_left(cat):
+    from pinneapple_studio import coverage
+    tools = {k: {**v, "stability": "experimental"} for k, v in cat["tools"].items()}
+    tools["pinneapple_demo.heat:fin_heat"] = {**tools["pinneapple_demo.heat:fin_heat"], "stability": "core"}
+    tools["pinneapple_demo.heat:FinStudy"] = {**tools["pinneapple_demo.heat:FinStudy"], "stability": "core"}
+    c = coverage.core({**cat, "tools": tools})
+    assert c["tools"] == 2 and c["status"] == {"discovered": 1, "verified": 1}
+    assert c["discovered_modules"] == 1 and c["worst"] == {"pinneapple_demo.heat": ["FinStudy"]}

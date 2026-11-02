@@ -47,7 +47,8 @@ def _surface(mesh):
 
 def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", stripes: int = 16,
                refine_view: bool = True, max_faces: int = 150_000, bake_formats: Sequence[str] = ("stl",),
-               max_input_mb: float | None = None, out_dir: str | None = None) -> dict[str, Any]:
+               max_input_mb: float | None = None, name: str | None = None,
+               out_dir: str | None = None) -> dict[str, Any]:
     """Read a STEP file and study every body in it (see the module docstring for the files).
 
     Parameters
@@ -68,6 +69,8 @@ def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", str
         mesh files of all bodies: stl, obj, glb, gltf, usda
     max_input_mb : float
         largest STEP file accepted, checked before reading [MB] (default: PINNEAPPLE_STEP_MAX_INPUT_MB, else 100)
+    name : str
+        stem of the baked files (default: the STEP file's; an app passes the uploaded file's name)
     out_dir : str
         folder for the files (nothing is written without it)
 
@@ -140,7 +143,8 @@ def step_study(geometry: str, quality: str = "normal", mesher: str = "auto", str
         rows.append(row)
     if out is not None and meshes:
         for fmt in bake_formats:
-            name = f"{p.stem}.{str(fmt).lower().lstrip('.')}"
-            bake(meshes, str(out / name), names=[r["name"] for r in rows])
-            files.append(name)
+            stem = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in (name or p.stem)) or "part"
+            fname = f"{stem}.{str(fmt).lower().lstrip('.')}"
+            bake(meshes, str(out / fname), names=[r["name"] for r in rows])
+            files.append(fname)
     return {"file": p.name, "units": "m", "quality": quality, "n_bodies": len(rows), "bodies": rows, "files": files}

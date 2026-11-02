@@ -47,6 +47,11 @@ def test_report_and_files(parts, tmp_path):
     assert "o parts_1" in (out / "parts.obj").read_text() and "o parts_2" in (out / "parts.obj").read_text()
 
 
+def test_name_sets_the_stem_of_the_baked_files(parts, tmp_path):
+    r = step_study(str(parts), quality="draft", bake_formats=("stl",), name="my bracket", out_dir=str(tmp_path))
+    assert "my_bracket.stl" in r["files"] and (tmp_path / "my_bracket.stl").exists()
+
+
 def test_without_out_dir_nothing_is_written(parts, tmp_path):
     r = step_study(str(parts), quality="draft", refine_view=False)
     assert r["files"] == [] and all("view" not in b for b in r["bodies"])

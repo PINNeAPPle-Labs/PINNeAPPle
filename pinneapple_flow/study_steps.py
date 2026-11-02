@@ -328,7 +328,9 @@ def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_loa
     -------
     result : dict
         ``h_estimate`` / ``h_band`` per passage [W/(m2 K)], ``alarms``, ``T_max`` [degC], ``innovation_rms`` [K],
-        ``simulated``, ``grid``, ``files`` and ``checks`` (``twin.tracks``, ``twin.alarms``, ``verify.replay``).
+        ``simulated``, ``grid``, ``series`` (at most 300 samples: ``t`` [s], ``h_<p>`` [W/(m2 K)], ``sensor_<j>``
+        measured and ``sensor_<j>_twin`` predicted [degC]), ``files`` and ``checks`` (``twin.tracks``,
+        ``twin.alarms``, ``verify.replay``).
     """
     import json
     import os
@@ -387,12 +389,20 @@ def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_loa
         json.dump(series, fh)
     last = slice(-max(1, len(out["t"]) // 20), None)
     files = [os.path.join(out_dir, n) for n in ("twin.glb", "twin.json", "series.json")]
+    k = np.unique(np.linspace(0, len(out["t"]) - 1, min(len(out["t"]), 300)).round().astype(int))
+    small = {"t": out["t"][k].tolist()}
+    for p in range(P):
+        small[f"h_{p + 1}"] = out["h_mean"][k, p].tolist()
+    for j in range(len(S)):
+        small[f"sensor_{j + 1}"] = out["y"][k, j].tolist()
+        small[f"sensor_{j + 1}_twin"] = out["y_pred"][k, j].tolist()
     return {"h_estimate": out["h_mean"][last].mean(0).tolist(),
             "h_band": [out["h_lo"][-1].tolist(), out["h_hi"][-1].tolist()], "h_nominal": model.h_nominal.tolist(),
             "alarms": out["alarms"], "T_max": float(out["T_mean"].max()), "innovation_rms": out["innovation_rms"],
             "simulated": out["simulated"], "sensors": {"positions_m": S.tolist(), "placed": placed},
             "grid": {"shape": list(grid.shape), "cells": model.n, "passages": P, "pitch_m": grid.d.tolist(),
-                     "heat_in_W": model.heat_in}, "files": files, "checks": out["checks"]}
+                     "heat_in_W": model.heat_in, "modes": out["modes"]}, "series": small, "files": files,
+            "checks": out["checks"]}
 
 
 __all__ = ["model_from_ref", "sensitivity_step", "uncertainty_step", "identify_step", "analyze_step", "forecast_step",

@@ -123,6 +123,8 @@ def test_twin_step_writes_the_field_view_and_the_series(tmp_path):
     assert (tmp_path / "out" / "twin.glb").read_bytes()[:4] == b"glTF"
     s = json.loads((tmp_path / "out" / "series.json").read_text())
     assert len(s["t"]) == 600 and np.array(s["y"]).shape == (600, 4) and s["simulated"] is True
+    small = r["series"]
+    assert len(small["t"]) == 300 and small["t"][-1] == 600.0 and set(small) >= {"h_3", "sensor_4", "sensor_4_twin"}
 
 
 def test_twin_step_reads_a_recording(tmp_path):

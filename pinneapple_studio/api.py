@@ -162,7 +162,10 @@ def router(queue=None) -> APIRouter:
                 raise HTTPException(409, {"detail": "cannot run here", "blocked_by": e["blocked_by"]})
         else:
             raise HTTPException(400, "kind must be tool or gallery")
-        return {"job_id": q().submit(kind, params, owner=str(body.get("owner", "")))}
+        try:
+            return {"job_id": q().submit(kind, params, owner=str(body.get("owner", "")))}
+        except KeyError as e:                                    # the queue does not run this kind of job
+            raise HTTPException(400, str(e.args[0]) if e.args else "unknown job kind") from None
 
     @r.get("/jobs/{job_id}")
     def job(job_id: str) -> dict[str, Any]:

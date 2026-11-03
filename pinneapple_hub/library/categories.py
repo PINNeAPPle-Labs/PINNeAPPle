@@ -80,7 +80,8 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "geometry": ("node:study.ahmed_geometry",),
     "equations": ("node:nonhermitian.", "node:discover.", "node:pde_env.",
                   "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))
-    "inverse": ("node:study.inverse", "node:bio."),
+    "inverse": ("node:study.inverse",),
+    "uq": ("node:bio.",),                                 # Sobol sensitivity and designs under uncertainty
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
                   "node:aero.", "node:md.", "node:newton.", "node:swe.", "node:study.cfd_campaign",
                   "node:immersed.", "node:multiphysics."),

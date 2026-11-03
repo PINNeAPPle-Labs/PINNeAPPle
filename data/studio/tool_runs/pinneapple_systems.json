@@ -1425,7 +1425,7 @@
   "seconds": 0.01
  },
  "pinneapple_systems.time_series.workflow:time_series_workflow": {
-  "code_hash": "0660803d46251cec",
+  "code_hash": "1d737f460616165e",
   "inputs": {
    "models": [
     "persistence",
@@ -1438,6 +1438,6 @@
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "dict",
-  "seconds": 0.63
+  "seconds": 5.61
  }
 }

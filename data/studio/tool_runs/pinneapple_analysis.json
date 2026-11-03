@@ -330,7 +330,7 @@
   "seconds": 1.59
  },
  "pinneapple_analysis.extremes.workflow:extreme_climate_workflow": {
-  "code_hash": "c7125154657b33d2",
+  "code_hash": "50b22928ff75cb6d",
   "inputs": {
    "attribution_bootstrap": 0,
    "calibration_replicates": 0,
@@ -341,7 +341,7 @@
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "dict",
-  "seconds": 2.47
+  "seconds": 4.98
  },
  "pinneapple_analysis.extremes.workflow:load_case": {
   "code_hash": "84a038b9f2ee7c90",

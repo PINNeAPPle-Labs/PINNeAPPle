@@ -196,6 +196,46 @@ def inverse(ctx, inputs, params):
     return {"params": {"median_deg": float(np.median(deg)), "hdi90": iv, "sigma_d": sig}, "figure": f}
 
 
+@node("study.design", "Least-drag body (robust, re-verified)", category="Design",
+      inputs=[Port("runs", "cfd_runs")], outputs=[Port("metrics", "metrics")],
+      params=[Param("speed", "float", 40.0, minimum=20.0, maximum=60.0, help="m/s, inside the sampled range"),
+              Param("CL_max", "float", 0.0, help="largest lift coefficient allowed (0: no limit)"),
+              Param("kappa", "float", 1.0, minimum=0.0, help="weight of the 90 % half width in the objective"),
+              Param("verify_tol", "float", 0.05, minimum=0.0, maximum=1.0, advanced=True,
+                    help="largest unit-cube distance at which a recorded run verifies the design"), _FOLDER],
+      calls="pinneapple_autolab.domains.ahmed_study.design (fit_selected, deployment_dataset)", tags=_TAGS)
+def design(ctx, inputs, params):
+    """The slant and clearance with the least robust drag (selected families refitted on every run, no
+    extrapolation, the drag-crisis band flagged), verified by OpenFOAM or the nearest recorded run, else stated
+    unverified (#1182)."""
+    import shutil
+
+    from pinneapple_autolab.domains import ahmed_study as S
+    base, runs, res = _folders(params)
+    work = Path(ctx.workdir) / "results"                 # never rewrite the committed study
+    work.mkdir(parents=True, exist_ok=True)
+    if (res / "benchmark.json").exists():
+        shutil.copy(res / "benchmark.json", work / "benchmark.json")
+    folder = inputs["runs"]["folder"] if inputs.get("runs") else str(runs)
+    cl = float(params["CL_max"])
+    r = S.design(S.load_records(folder), str(work), speed=float(params["speed"]), CL_max=cl if cl else None,
+                 kappa=float(params["kappa"]), verify_tol=float(params["verify_tol"]))
+    for k, v in r["design"].items():
+        ctx.metric(f"design.{k}", v)
+    for k, v in r["predicted"].items():
+        ctx.metric(f"predicted.{k}", v, f"{r['families']['CD' if k.startswith('CD') else 'CL']} refitted on "
+                                        f"{r['n_runs']} CFD runs")
+    ctx.metric("baseline.CD", r["baseline"]["CD"], "25 deg slant, 0.05 m clearance, same models")
+    ctx.metric("verification", r["verification"]["method"] or "none")
+    ctx.table("checks", ["check", "status", "detail"], [[c["code"], c["status"], c["detail"]] for c in r["checks"]])
+    bad = [c["code"] for c in r["checks"] if c["status"] == "fail"]
+    unv = [c["code"] for c in r["checks"] if c["status"] == "inconclusive"]
+    ctx.summary(f"slant {r['design']['slant_deg']:.1f} deg, clearance {r['design']['clearance']:.3f} m: CD "
+                f"{r['predicted']['CD']:.4f} +- {r['predicted']['CD_half_width_90']:.4f}; "
+                + ("fail: " + ", ".join(bad) if bad else ("unverified: " + ", ".join(unv) if unv else "verified")))
+    return {"metrics": r}
+
+
 @node("study.twin", "Surrogate digital twin (sliders, 3-D Cp, band, trust region)", category="Visualization",
       outputs=[Port("report", "report")], params=[_FOLDER],
       calls="pinneapple_autolab.domains.ahmed_study.twin (pinneapple_autolab.study.twin)", tags=_TAGS)
@@ -233,4 +273,5 @@ def report(ctx, inputs, params):
             "metrics": {m["name"]: m["value"] for m in summ["metrics"]}}
 
 
-__all__ = ["ahmed_geometry", "cfd_campaign", "grid_validation", "dataset", "surrogates", "inverse", "twin", "report"]
+__all__ = ["ahmed_geometry", "cfd_campaign", "grid_validation", "dataset", "surrogates", "inverse", "design", "twin",
+           "report"]

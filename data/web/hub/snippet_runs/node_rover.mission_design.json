@@ -1,0 +1,12 @@
+{
+ "code_hash": "667d9dd7969faa0d",
+ "figures": [],
+ "id": "node:rover.mission_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.46,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rover design for a mission (mobility, power, thermal, traverse re-verified) -> pinneapple_simulation.vehicle.mission_design.rover_workflow (size_rover, grade_capability, drive_power, traverse, published_rover_check; terramechanics.WongReeceModel)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'planet': 'mars', 'soil': '', 'mission': {'distance_m': 100.0, 'payload_kg': 2.0, 'speed_m_s': 0.01, 'drive_hours': 2.0, 'max_slope_deg': 15.0, 'rock_m': 0.1, 'max_sols': 30, 'max_sinkage_m': 0.03}, 'wheels': 6, 'suspension': 'rocker-bogie', 'max_slip': 0.3, 'radius_bounds': [0.05, 0.2], 'width_bounds': [0.04, 0.15], 'grid': 6, 'cell_efficiency': 0.28, 'stability_factor': 1.5, 'assumptions': {}, 'seed': 0}",
+ "timed_out": false
+}

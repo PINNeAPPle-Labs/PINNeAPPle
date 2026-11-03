@@ -19,6 +19,7 @@ from . import (  # noqa: F401
     em_antenna,
     em_fem3d,
     em_prius,
+    equation_discovery,
     examples,
     flight,
     football,

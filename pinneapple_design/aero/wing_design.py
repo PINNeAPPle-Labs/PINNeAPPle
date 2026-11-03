@@ -205,3 +205,11 @@ def design_wing(spec: WingSpec, *, maxiter: int = 30, popsize: int = 10, seed: i
 def _has_openfoam() -> bool:
     import shutil
     return shutil.which("simpleFoam") is not None
+
+
+def wing_performance(aspect_ratio: float = 7.5, taper: float = 0.7, twist: float = -3.0) -> dict[str, float]:
+    """Cruise drag (N), induced drag coefficient, span efficiency, root bending moment (N m) and the largest landing
+    ``cl`` of a wing of the default :class:`WingSpec` (a light four-seat aircraft) with this planform: one vortex
+    lattice solve (about 30 ms)."""
+    y = evaluate(WingSpec(span_max=None), {"aspect_ratio": aspect_ratio, "taper": taper, "twist": twist})
+    return {k: float(y[k]) for k in ("drag_N", "CDi", "e", "M_root_Nm", "cl_local_max_landing")}

@@ -85,11 +85,13 @@ def test_robust_back_off_reaches_the_target_at_a_small_mass_cost():
     assert _status(r)["optimality.kkt"] == "pass"
 
 
-def test_generic_tool_closed_form_optimum_and_multiplier():
+@pytest.mark.parametrize("seed", range(8))
+def test_generic_tool_closed_form_optimum_and_multiplier(seed):
+    # the optimum lies on the active limit, where round-off gives x + y = 2.0000000000000004: it must be kept
     def tool(x, y):
         return {"f": (x - 1) ** 2 + (y - 2) ** 2, "g": x + y}
     r = design_optimization(tool=tool, bounds={"x": [0, 3], "y": [0, 3]}, objective="f",
-                            constraints=[{"name": "g", "upper": 2.0}])
+                            constraints=[{"name": "g", "upper": 2.0}], seed=seed)
     assert r["design"]["x"] == pytest.approx(0.5, abs=2e-3) and r["design"]["y"] == pytest.approx(1.5, abs=2e-3)
     assert r["sensitivity"]["multipliers"]["g"] == pytest.approx(1.0, rel=0.02)   # d f* / d limit = -1
     assert r["verdict"] == "pass"

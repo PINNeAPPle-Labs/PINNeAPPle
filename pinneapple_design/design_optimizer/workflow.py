@@ -211,7 +211,7 @@ def design_optimization(*, tool: str | Callable[..., Any] | None = None,
                 al = surrogate_assisted(prob, ev, method="nsga2" if len(objs) > 1 else "scipy-de",
                                         n_initial=max(8, 4 * len(names)), rounds=2, n_verify=4,
                                         surrogate_budget=max(200, 10 * int(budget)), seed=seed + s, kappa=0.0)
-                b = al.final.best(0) if len(objs) == 1 else None
+                b = _best(al.final) if len(objs) == 1 else None
                 if b is None:
                     runs.append(al.final)
                     continue
@@ -226,7 +226,7 @@ def design_optimization(*, tool: str | Callable[..., Any] | None = None,
     def best_of(runs) -> tuple[int, int] | None:
         best = None
         for i, r in enumerate(runs):
-            b = r.best(0)
+            b = _best(r)
             if b is not None and (best is None or r.evaluations.F[b, 0] < runs[best[0]].evaluations.F[best[1], 0]):
                 best = (i, b)
         return best
@@ -266,8 +266,8 @@ def design_optimization(*, tool: str | Callable[..., Any] | None = None,
         ver = verify(design)
         new = {o: ver["outputs"][o]["value"] / ver["outputs"][o]["coarse"] for o in outs
                if ver["outputs"][o]["coarse"] not in (0.0,)}
-        bests = [float(r.evaluations.F[r.best(0), 0]) * (1 if objs[0].sense == "min" else -1) for r in runs
-                 if r.best(0) is not None]
+        bests = [float(r.evaluations.F[_best(r), 0]) * (1 if objs[0].sense == "min" else -1) for r in runs
+                 if _best(r) is not None]
         change = max((abs(new[o] / scale.get(o, 1.0) - 1) for o in new), default=0.0)
         history.append({"iteration": it, "design": design, "objective_by_start": bests,
                         "n_evals": [r.n_evals for r in runs], "correction": new, "correction_change": change,
@@ -348,8 +348,8 @@ def design_optimization(*, tool: str | Callable[..., Any] | None = None,
             robust_info["objective_cost"] = ver["outputs"][objs[0].name]["value"] / robust_info["nominal_objective"] - 1
             rob = _robustness(g, design, names, tol, cons, n_robust, seed)
             history.append({"iteration": "robust", "design": design, "verification": ver,
-                            "objective_by_start": [float(r.evaluations.F[r.best(0), 0]) for r in runs_r
-                                                   if r.best(0) is not None]})
+                            "objective_by_start": [float(r.evaluations.F[_best(r), 0]) for r in runs_r
+                                                   if _best(r) is not None]})
     out["robust"] = robust_info
     out["design"] = design
     out["verified"] = {o: {k: _num(v) if not isinstance(v, list) else [_num(x) for x in v]
@@ -462,6 +462,23 @@ def _num(v):
     except (TypeError, ValueError):
         return v
     return v if math.isfinite(v) else None
+
+
+FEAS_TOL = 1e-9               # normalised violation treated as round-off (an optimum sits on its active limit)
+
+
+def _best(run) -> int | None:
+    """Index of the best realisable design of a run whose every constraint holds to round-off.
+
+    ``OptimizationResult.best`` demands a violation of exactly 0; a gradient method ends on the active limit, where
+    ``x + y = 2.0000000000000004`` counts as infeasible and the optimum would be discarded for a worse point."""
+    ev = run.evaluations
+    if ev is None or not len(ev):
+        return None
+    viol = ev.G.max(1) if ev.G.size else np.zeros(len(ev))
+    valid = np.asarray(ev.Y.get("_valid", np.ones(len(ev), bool)), dtype=bool)
+    ok = np.where(valid & ~ev.relaxed & (viol <= FEAS_TOL) & np.all(np.isfinite(ev.F), 1))[0]
+    return None if not len(ok) else int(ok[np.argmin(ev.F[ok, 0])])
 
 
 def _spread(vals: Sequence[float]) -> float | None:

@@ -87,6 +87,11 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
     StudyRole("twin", "Digital twin (assimilation and monitoring)", "Gêmeo digital (assimilação e monitoramento)",
               "digital twin state estimation assimilation kalman monitor anomaly",
               (("twin.tracks", "the twin's state tracks the measurements within their noise"),
+               ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 30),
+    StudyRole("part_twin", "Digital twin of the part (3-D field, assimilation, alarms)",
+              "Gêmeo digital da peça (campo 3D, assimilação, alarmes)",
+              "digital twin part geometry thermal field assimilation coolant passage clogging",
+              (("twin.tracks", "the twin's state tracks the measurements within their noise"),
                ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 120,
               "pinneapple_flow.study_steps:twin_step"),
     StudyRole("analyze", "Data analysis", "Análise dos dados", "time series analysis statistics predictability",
@@ -156,8 +161,7 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("physics", "stream", "identify", "surrogate", "twin", "verify"),
               ("digital twin", "twin", "live data", "sensor feed", "stream", "monitor", "real-time data", "mqtt",
                "opc", "gêmeo digital", "gemeo digital", "dados ao vivo", "sensores", "monitorar", "tempo real"),
-              (("verify.replay", "replayed recorded data: alarms on known faults, none on healthy data"),),
-              verify_in="twin"),
+              (("verify.replay", "replayed recorded data: alarms on known faults, none on healthy data"),)),
     StudyKind("forecast", "Forecast", "Previsão",
               "predict the future of a measured time series",
               ("dataset", "analyze", "forecast", "verify"),
@@ -236,8 +240,9 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
         roles.append("cad")
     if kind == "twin" and has_geometry:
         # the library's twin of a given part (twin_step) does the physics on the part, the data (recorded, or a
-        # simulated replay), the assimilation and the replay check in one step
-        return roles + ["twin"]
+        # simulated replay), the assimilation and the replay check in one step; a twin without a part (a machine
+        # watched through its sensors' data) keeps the generic twin steps
+        return roles + ["part_twin"]
     if k.spatial_roles:
         # a parametric geometry when none was given and the physics is spatial; a design optimisation keeps it even
         # without spatial physics, because its design variables are usually dimensions
@@ -258,6 +263,9 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
     return roles
 
 
+_VERIFIES_ITSELF = {"part_twin"}           # roles whose library tool emits the kind's verification checks
+
+
 def role_checks(kind: str, role: str) -> tuple[tuple[str, str], ...]:
     """The checks of a step: the kind's own definition of verification for ``verify`` (or, for a kind with
     ``verify_in``, added to that step's), the role's otherwise."""
@@ -266,7 +274,7 @@ def role_checks(kind: str, role: str) -> tuple[tuple[str, str], ...]:
         return k.verify_checks
     r = STUDY_ROLES.get(role)
     own = r.checks if r else ()
-    return own + k.verify_checks if role == k.verify_in else own
+    return own + k.verify_checks if role == k.verify_in or role in _VERIFIES_ITSELF else own
 
 
 __all__ = ["STUDY_KINDS", "STUDY_ROLES", "StudyKind", "StudyRole", "StudyMatch", "classify_study", "roles_for_kind",

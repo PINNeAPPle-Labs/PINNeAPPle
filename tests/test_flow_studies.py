@@ -68,7 +68,7 @@ def test_every_role_is_defined_and_verification_means_something_per_kind():
 def test_every_step_tool_named_by_a_role_exists():
     import importlib
     named = {r.id: r.tool for r in STUDY_ROLES.values() if r.tool}
-    assert set(named) == {"identify", "sensitivity", "uq", "analyze", "forecast", "twin"}
+    assert set(named) == {"identify", "sensitivity", "uq", "analyze", "forecast", "part_twin"}
     for tid in named.values():
         mod, fn = tid.split(":")
         assert callable(getattr(importlib.import_module(mod), fn)), tid

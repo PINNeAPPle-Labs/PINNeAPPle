@@ -144,10 +144,13 @@ def test_twin_step_reads_a_recording(tmp_path):
 
 def test_the_twin_kind_of_a_given_part_is_the_part_twin_step():
     from pinneapple_flow import studies as ST
-    assert ST.roles_for_kind("twin", spatial=True, has_geometry=True) == ["twin"]
-    assert ST.STUDY_ROLES["twin"].tool == "pinneapple_flow.study_steps:twin_step"
-    assert "verify" not in ST.roles_for_kind("twin")
-    assert [c for c, _ in ST.role_checks("twin", "twin")] == ["twin.tracks", "twin.alarms", "verify.replay"]
+    assert ST.roles_for_kind("twin", spatial=True, has_geometry=True) == ["part_twin"]
+    assert ST.STUDY_ROLES["part_twin"].tool == "pinneapple_flow.study_steps:twin_step"
+    assert [c for c, _ in ST.role_checks("twin", "part_twin")] == ["twin.tracks", "twin.alarms", "verify.replay"]
+    # a machine watched through its sensors' data, with no part: the generic twin steps, not the part's twin
+    data_twin = ST.roles_for_kind("twin", has_data=True)
+    assert "part_twin" not in data_twin and data_twin[-2:] == ["twin", "verify"]
+    assert ST.STUDY_ROLES["twin"].tool == ""
 
 
 def test_the_reduced_model_follows_the_full_one_through_a_blockage():

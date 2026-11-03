@@ -27,6 +27,7 @@ from . import (  # noqa: F401
     lbm,
     learned_sim,
     lithography,
+    model_use,
     non_hermitian,
     pde_env,
     pinn_examples,

@@ -96,8 +96,10 @@ def export_onnx(model: nn.Module, example: torch.Tensor, path: str | Path, *, gr
                 opset: int = 17, atol: float = 1e-4) -> float:
     """Export ``model`` (an FNO, or any module containing 2-D spectral convolutions) to ONNX at ``path`` with a dynamic
     batch axis, check onnxruntime against PyTorch on ``example`` and return the largest absolute difference (raises
-    when it exceeds ``atol`` times the output scale). ``grid`` defaults to the last two axes of ``example``."""
-    grid = grid or tuple(example.shape[-2:])
+    when it exceeds ``atol`` times the output scale). ``grid`` defaults to the last two axes of ``example``, plus the
+    model's ``padding``."""
+    pad = tuple(getattr(model, "padding", (0, 0)))[-2:] or (0, 0)
+    grid = grid or tuple(int(s) + int(p) for s, p in zip(example.shape[-2:], pad))   # the padded grid the layers see
     model = _Plain(model).eval()
     real = to_exportable(model, grid)
     with torch.no_grad():

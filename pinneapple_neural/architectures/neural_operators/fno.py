@@ -1,6 +1,7 @@
 from __future__ import annotations
 """Fourier neural operator for global spectral learning (1D and 2D)."""
 
+from collections.abc import Sequence
 from typing import Optional
 
 import torch
@@ -8,6 +9,36 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .base import NeuralOperatorBase, OperatorOutput
+
+
+def _pad_widths(padding, ndim: int) -> tuple:
+    """Cells appended at the end of each spatial axis: one int for every axis, or one per axis (0 on a periodic
+    axis)."""
+    if isinstance(padding, int):
+        p = (int(padding),) * ndim
+    else:
+        p = tuple(int(v) for v in padding)
+        if len(p) != ndim:
+            raise ValueError(f"padding needs one value per spatial axis ({ndim}), got {len(p)}")
+    if any(v < 0 for v in p):
+        raise ValueError("padding is a number of cells, >= 0")
+    return p
+
+
+def _pad(x: torch.Tensor, p: tuple) -> torch.Tensor:
+    """Zero-pad the end of each spatial axis of ``(B, C, *spatial)`` (F.pad lists the last axis first)."""
+    if not any(p):
+        return x
+    pairs = []
+    for v in reversed(p):
+        pairs += [0, v]
+    return F.pad(x, pairs)
+
+
+def _crop(x: torch.Tensor, p: tuple) -> torch.Tensor:
+    if not any(p):
+        return x
+    return x[(slice(None), slice(None)) + tuple(slice(0, n - v) for n, v in zip(x.shape[2:], p))]
 
 
 class _SpectralConv(nn.Module):
@@ -69,6 +100,8 @@ class FourierNeuralOperator(NeuralOperatorBase):
     Optional:
       - use_grid=True: concatenate 1D coordinate grid as an extra input channel
         (common in FNO literature for better generalization / positional info).
+      - padding: cells of zeros appended after the lifting and removed before the projection, for a
+        non-periodic domain (see ``FNO2d``).
     """
 
     def __init__(
@@ -80,9 +113,11 @@ class FourierNeuralOperator(NeuralOperatorBase):
         layers: int = 4,
         *,
         use_grid: bool = False,
+        padding: int | Sequence[int] = 0,
     ):
         super().__init__()
         self.use_grid = bool(use_grid)
+        self.padding = _pad_widths(padding, 1)
 
         in_c_eff = int(in_channels) + (1 if self.use_grid else 0)
         self.in_proj = nn.Conv1d(in_c_eff, int(width), kernel_size=1)
@@ -113,12 +148,12 @@ class FourierNeuralOperator(NeuralOperatorBase):
             grid = self._make_grid_1d(u)
             x = torch.cat([x, grid], dim=1)  # (B, C+1, L)
 
-        x = self.in_proj(x)
+        x = _pad(self.in_proj(x), self.padding)
 
         for sc, w in zip(self.convs, self.ws):
             x = F.gelu(sc(x) + w(x))
 
-        y = self.out_proj(x)
+        y = self.out_proj(_crop(x, self.padding))
 
         losses = {}
         if return_loss and y_true is not None:
@@ -208,6 +243,12 @@ class FNO2d(NeuralOperatorBase):
     use_grid : bool
         Concatenate 2D normalised coordinate grids (x ∈ [0,1], y ∈ [0,1]) as
         two extra input channels.  Recommended for non-periodic domains.
+    padding : int or sequence of int
+        Cells of zeros appended at the end of each spatial axis after the lifting and removed before the
+        projection, as Li et al. 2021 do for their non-periodic problems. The spectral convolution is a
+        convolution on a periodic domain; on a non-periodic axis (walls, fixed values on the edges) the padding
+        keeps the two opposite edges from interacting through it. 0 on a periodic axis; default 0 (no padding).
+        ``FourierNeuralOperator`` (1-D) and ``FNO3d`` take the same argument.
     """
 
     def __init__(
@@ -220,9 +261,11 @@ class FNO2d(NeuralOperatorBase):
         layers: int = 4,
         *,
         use_grid: bool = True,
+        padding: int | Sequence[int] = 0,
     ):
         super().__init__()
         self.use_grid = bool(use_grid)
+        self.padding = _pad_widths(padding, 2)
 
         in_c_eff = int(in_channels) + (2 if self.use_grid else 0)
         self.in_proj = nn.Conv2d(in_c_eff, int(width), kernel_size=1)
@@ -259,10 +302,10 @@ class FNO2d(NeuralOperatorBase):
             grid = self._make_grid_2d(u)
             x = torch.cat([x, grid], dim=1)
 
-        x = self.in_proj(x)
+        x = _pad(self.in_proj(x), self.padding)
         for sc, w in zip(self.convs, self.ws):
             x = F.gelu(sc(x) + w(x))
-        y = self.out_proj(x)
+        y = self.out_proj(_crop(x, self.padding))
 
         losses = {}
         if return_loss and y_true is not None:
@@ -361,9 +404,11 @@ class FNO3d(NeuralOperatorBase):
         layers: int = 4,
         *,
         use_grid: bool = True,
+        padding: int | Sequence[int] = 0,
     ):
         super().__init__()
         self.use_grid = bool(use_grid)
+        self.padding = _pad_widths(padding, 3)
 
         in_c_eff = int(in_channels) + (3 if self.use_grid else 0)
         self.in_proj = nn.Conv3d(in_c_eff, int(width), kernel_size=1)
@@ -401,10 +446,10 @@ class FNO3d(NeuralOperatorBase):
             grid = self._make_grid_3d(u)
             x = torch.cat([x, grid], dim=1)
 
-        x = self.in_proj(x)
+        x = _pad(self.in_proj(x), self.padding)
         for sc, w in zip(self.convs, self.ws):
             x = F.gelu(sc(x) + w(x))
-        y = self.out_proj(x)
+        y = self.out_proj(_crop(x, self.padding))
 
         losses = {}
         if return_loss and y_true is not None:

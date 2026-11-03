@@ -1,0 +1,12 @@
+{
+ "code_hash": "7f30509ba91bd419",
+ "figures": [],
+ "id": "example:examples/base_workflows/inverse_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse modeling: identifiability, estimate, trust checks | methods | not curated\nrun_seconds_quick 0.1 s\nrun_seconds_full 0.4 s\ninverse.estimate.A 5488802.436868118 \ninverse.estimate.Ea 60290.70543110623 \ninverse.next_measurement.T=320, tau=60 1.928530566982348e-05",
+ "timed_out": false
+}

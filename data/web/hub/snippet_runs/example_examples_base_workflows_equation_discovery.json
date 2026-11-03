@@ -1,0 +1,12 @@
+{
+ "code_hash": "728b01a82c487444",
+ "figures": [],
+ "id": "example:examples/base_workflows/equation_discovery",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Equation discovery: sparse regression checked on held-out data | methods | not curated\nrun_seconds_quick 3.1 s\nrun_seconds_full 3.1 s\ndiscover.savgol_window 41.0 \nreport.decisions 0.0 \nreport.decisions_without_reference 0.0",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "cdd2ec26ff7325d2",
+ "figures": [],
+ "id": "example:examples/industrial/ahmed_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.04,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ahmed body: CFD to surrogate twin | engineering | not curated\nrun_seconds_quick 184.5 s\nrun_seconds_full 346.3 s\ngeometry.volume_m3 0.10958966987187772 \ngeometry.cad_volume_m3 0.10993198241748103 \ncfd.runs_ok 84.0",
+ "timed_out": false
+}

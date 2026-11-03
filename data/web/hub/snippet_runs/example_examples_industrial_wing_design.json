@@ -1,0 +1,12 @@
+{
+ "code_hash": "c9fb64c04fc6b0e9",
+ "figures": [],
+ "id": "example:examples/industrial/wing_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wing design: least cruise drag within the structural and stall limits | engineering | not curated\nrun_seconds_quick 7.6 s\nrun_seconds_full 17.8 s\nwing.design.aspect_ratio 8.88824996524195 \nwing.design.taper 0.3089026796172665 \nwing.design.twist -0.005929367199394964",
+ "timed_out": false
+}

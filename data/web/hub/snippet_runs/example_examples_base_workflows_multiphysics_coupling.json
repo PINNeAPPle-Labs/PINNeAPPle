@@ -1,0 +1,12 @@
+{
+ "code_hash": "a3f0c575261f8281",
+ "figures": [],
+ "id": "example:examples/base_workflows/multiphysics_coupling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multiphysics coupling: one-way, partitioned with Aitken, monolithic, checked | methods | not curated\nrun_seconds_quick 0.1 s\nrun_seconds_full 0.1 s\ncouple.coupling.contraction 0.3506255285027887 \ncouple.one_way_error.T_max_K 0.11884251297497418 \ncouple.one_way_error.voltage_drop_V 0.10652064060488728",
+ "timed_out": false
+}

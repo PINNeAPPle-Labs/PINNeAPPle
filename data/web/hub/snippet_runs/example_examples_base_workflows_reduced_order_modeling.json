@@ -1,0 +1,12 @@
+{
+ "code_hash": "9b6d8dd318fddf5a",
+ "figures": [],
+ "id": "example:examples/base_workflows/reduced_order_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reduced-order modeling: POD-Galerkin, DMD and operator inference checked against the full model | methods | not curated\nrun_seconds_full 3.4 s\nrun_seconds_quick 1.7 s\nreport.decisions 0.0 \nreport.decisions_without_reference 0.0 \nreport.items 1.0",
+ "timed_out": false
+}

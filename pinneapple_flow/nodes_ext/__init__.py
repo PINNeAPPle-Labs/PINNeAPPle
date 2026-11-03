@@ -42,6 +42,7 @@ from . import (  # noqa: F401
     validation,
     validation_gallery,
     viz,
+    wing_design,
     worldmodel,
 )
 

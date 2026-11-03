@@ -20,7 +20,12 @@ else:
     pytest.importorskip("onnxruntime")
 pytest.importorskip("onnx")
 
-from pinneapple_analysis.surrogate.model_source import gate, onnx_function, open_model, use_model  # noqa: E402
+from pinneapple_analysis.surrogate.model_source import (  # noqa: E402
+    gate,
+    onnx_function,
+    open_model,
+    use_model,
+)
 
 ALPHA = 0.1
 

@@ -2,7 +2,7 @@
  "schema": "pinneapple-flow/1",
  "id": "ahmed-body-end-to-end",
  "name": "Ahmed body: CFD to surrogate twin",
- "description": "The Ahmed body from geometry (parametric and OpenCASCADE CAD) through an OpenFOAM campaign (k-omega SST, prism layers, checks per run), grid convergence and validation against Ahmed et al. (1984), a dataset with a held-out region, surrogate families with calibrated intervals and physics checks, the slant angle inferred from a drag measurement, and a digital twin page.",
+ "description": "The Ahmed body from geometry (parametric and OpenCASCADE CAD) through an OpenFOAM campaign (k-omega SST, prism layers, checks per run), grid convergence and validation against Ahmed et al. (1984), a dataset with a held-out region, surrogate families with calibrated intervals and physics checks, the slant angle inferred from a drag measurement, the least-drag slant and clearance re-verified against the CFD (or stated unverified), and a digital twin page.",
  "nodes": [
   {
    "id": "geometry",
@@ -63,6 +63,18 @@
    "label": "Surrogates"
   },
   {
+   "id": "design",
+   "type": "study.design",
+   "params": {
+    "speed": 40.0
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Least-drag design (re-verified)"
+  },
+  {
    "id": "inverse",
    "type": "study.inverse",
    "params": {
@@ -118,6 +130,13 @@
    "target": "models",
    "target_port": "dataset",
    "id": "data.dataset->models.dataset"
+  },
+  {
+   "source": "cfd",
+   "source_port": "runs",
+   "target": "design",
+   "target_port": "runs",
+   "id": "cfd.runs->design.runs"
   }
  ],
  "meta": {

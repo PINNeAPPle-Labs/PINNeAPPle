@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "wing-design-least-cruise-drag-within-the-structu",
+ "name": "Wing design: least cruise drag within the structural and stall limits",
+ "description": "Vortex lattice and friction build-up, a learned model only when its measured cost pays off, the planform optimised for cruise drag within the root-bending, stall and span limits, and the design re-verified (pinneapple_design.aero.wing_design).",
+ "nodes": [
+  {
+   "id": "wing",
+   "type": "aero.wing_design",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Wing design"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Wing design: least cruise drag within the structural and stall limits"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "wing",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "wing.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "industrial",
+  "kind": "closed_loop",
+  "issue": 1181
+ }
+}

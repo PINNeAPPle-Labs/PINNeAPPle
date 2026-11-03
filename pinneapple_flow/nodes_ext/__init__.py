@@ -26,6 +26,7 @@ from . import (  # noqa: F401
     geomechanics,
     lbm,
     learned_sim,
+    lithography,
     non_hermitian,
     pde_env,
     pinn_examples,

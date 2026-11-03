@@ -314,11 +314,16 @@ def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_loa
         **simulated** replay (a finer-grid plant with a blockage of ``fault_passage`` at ``fault_time``).
     noise : float [K]
         Thermocouple noise (standard deviation).
-    fault_passage, fault_time, fault_fraction : int, float [s], float
-        The replay's blockage: passage number (default: the middle one), start (default: half the duration) and
-        the coefficient left at the end of a 60 s ramp, as a fraction of nominal.
-    duration, dt : float [s]
-        Length and sample interval of the replay.
+    fault_passage : int, optional
+        The replay's blocked passage (default: the middle one).
+    fault_time : float, optional [s]
+        Start of the replay's blockage (default: half the duration).
+    fault_fraction : float
+        The blocked passage's coefficient at the end of a 60 s ramp, as a fraction of nominal.
+    duration : float [s]
+        Length of the replay.
+    dt : float [s]
+        Sample interval of the replay.
     pitch : (3,), optional [m]
         Grid cell size per axis of the twin (the replay's plant uses two thirds of it: a finer, different grid).
     members : int

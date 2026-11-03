@@ -60,3 +60,10 @@ def test_bad_inputs_are_refused(tmp_path):
     np.savez(tmp_path / "bad.npz", snapshots=np.zeros((2, 3, 4)))
     with pytest.raises(ValueError, match="times"):
         reduced_order_workflow(snapshots_file=str(tmp_path / "bad.npz"))
+
+
+def test_the_planner_proposes_the_workflow_in_portuguese_and_english():
+    import pinneapple_flow.nodes_ext  # noqa: F401
+    from pinneapple_flow.planner.extensions import match
+    for text in ("quero um modelo de ordem reduzida POD-Galerkin", "build a reduced-order model with operator inference"):
+        assert match(text)[0][1].id == "rom.workflow"

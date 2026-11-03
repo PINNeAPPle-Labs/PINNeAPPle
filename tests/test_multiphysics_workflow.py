@@ -54,3 +54,11 @@ def test_conjugate_channel_energy_balance_and_exact_solution():
 def test_strong_coupling_recommends_monolithic():
     from pinneapple_simulation.multiphysics import recommend_strategy
     assert recommend_strategy(1.3, 0.5, 0.01)[0] == "monolithic"
+
+
+def test_the_planner_proposes_the_workflow_in_portuguese_and_english():
+    import pinneapple_flow.nodes_ext  # noqa: F401
+    from pinneapple_flow.planner.extensions import match
+    for text in ("acoplamento multifísica eletrotérmico com efeito joule",
+                 "thermal stress in a bimetal strip, partitioned coupling with Aitken"):
+        assert match(text)[0][1].id == "multiphysics.couple"

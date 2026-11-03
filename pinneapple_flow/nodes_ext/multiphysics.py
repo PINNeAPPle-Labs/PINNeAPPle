@@ -65,7 +65,7 @@ def _register_capabilities():
                   "aquecimento joule": 3, "efeito joule": 3, "conjugate heat transfer": 3,
                   "transferência de calor conjugada": 3, "bimetal": 3, "bimetálica": 3, "aitken": 3,
                   "partitioned": 2, "particionado": 2, "monolithic": 2, "monolítico": 2,
-                  "fluid-structure": 2, "fluido-estrutura": 2, "electro-thermal": 3, "eletrotérmico": 3},
+                  "electro-thermal": 3, "eletrotérmico": 3},
         min_score=3, nodes=("multiphysics.couple",), build=lambda text, det: build_flow(),
         inputs=("the physics to couple and the interface fields", "the materials and loads",
                 "how close one-way must be to accept it"),

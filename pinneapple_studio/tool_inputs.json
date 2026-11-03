@@ -5171,6 +5171,20 @@
   },
   "source": "tests/test_multiphysics_workflow.py"
  },
+ "pinneapple_simulation.multirotor.rotor:induced_velocity": {
+  "inputs": {
+   "thrust": 10.0,
+   "radius": 0.127
+  },
+  "source": "tests/test_drone_workflow.py"
+ },
+ "pinneapple_simulation.multirotor.rotor:momentum_hover_power": {
+  "inputs": {
+   "thrust": 10.0,
+   "radius": 0.127
+  },
+  "source": "tests/test_drone_workflow.py"
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "inputs": {
    "B": 12.0,

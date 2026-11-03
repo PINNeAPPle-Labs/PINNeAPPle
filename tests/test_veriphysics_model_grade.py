@@ -73,3 +73,23 @@ def test_flow_and_planner():
     assert "veriphysics.grade" in REGISTRY.types()
     assert match("verificar meu modelo externo treinado no physicsnemo com veriphysics")[0][1].id == \
         "veriphysics.grade"
+
+
+def test_the_user_sets_the_approval_rules_and_can_save_them_as_default(tmp_path, monkeypatch):
+    from pinneapple_analysis.trust.trust_report import TrustReport
+    from pinneapple_veriphysics.policy import DEFAULT, GradePolicy, load_policy, save_policy
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.delenv("PINNEAPPLE_VERIPHYSICS_POLICY", raising=False)
+    assert load_policy() == DEFAULT
+    plain = grade_model(exact, SYS, BOX)                       # no reference, no validity: REVIEW by default
+    assert plain["decision"] == "REVIEW" and plain["policy"]["name"] == "pinneapple-default"
+    lenient = GradePolicy(name="lab", inconclusive="ignore", min_coverage=0.0, min_score=0.0)
+    path = save_policy(lenient)
+    assert path.endswith("veriphysics_policy.json") and load_policy().name == "lab"
+    assert grade_model(exact, SYS, BOX)["decision"] == "APPROVED"          # the saved default applies
+    strict = grade_model(exact, SYS, BOX, policy={"residual_tol": 1e-12})  # one field over the saved default
+    assert strict["decision"] == "REJECT" and strict["policy"]["name"] == "lab"
+    assert grade_model(exact, SYS, BOX, policy="pinneapple-default")["decision"] == "REVIEW"
+    assert TrustReport(checks=[]).min_score == 0.0                          # trust reports read it too
+    with pytest.raises(ValueError, match="unknown policy fields"):
+        load_policy({"residual_tolerance": 0.1})

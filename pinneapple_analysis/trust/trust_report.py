@@ -12,7 +12,9 @@ Regras (escolhas de projeto, documentadas e revogáveis, não normas):
 
 1. Qualquer checagem ``critical`` com ``contradicts`` → REJECT.
 2. Qualquer outra ``contradicts`` → REVIEW.
-3. Cobertura (checagens executadas / total) abaixo de ``min_coverage`` → REVIEW.
+3. Cobertura (checagens executadas / total) abaixo de ``min_coverage`` → REVIEW. ``min_coverage`` e ``min_score``
+   vêm da política do usuário (``pinneapple_veriphysics.policy``: a passada, a do ambiente ou a salva como padrão)
+   e, sem nenhuma, dos padrões da biblioteca (0.6 e 0.8).
 4. Score (média ponderada das checagens executadas) abaixo de ``min_score`` → REVIEW.
 5. Caso contrário → APPROVED.
 
@@ -51,11 +53,21 @@ class Check:
             raise ValueError("weight não pode ser negativo")
 
 
+def _policy_value(name: str, default: float) -> float:
+    """``min_coverage`` / ``min_score`` from the user's VeriPhysics policy (pinneapple_veriphysics.policy), else the
+    library default: a team's own approval rules apply to every trust report, not only the ones it builds."""
+    try:
+        from pinneapple_veriphysics.policy import load_policy
+        return float(getattr(load_policy(), name))
+    except (ImportError, OSError, ValueError):
+        return default
+
+
 @dataclass
 class TrustReport:
     checks: List[Check]
-    min_coverage: float = 0.6
-    min_score: float = 0.8
+    min_coverage: float = field(default_factory=lambda: _policy_value("min_coverage", 0.6))
+    min_score: float = field(default_factory=lambda: _policy_value("min_score", 0.8))
     model: str = ""
     details: Dict[str, Any] = field(default_factory=dict)
 

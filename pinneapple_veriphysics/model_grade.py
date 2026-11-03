@@ -19,7 +19,10 @@ Checks, each pass / fail / not applicable with its reason:
 * ``grade.robustness``: the output change for an input perturbation of ``eps`` of the span, against the change of
   the reference (or of the model itself at a finer perturbation: a smooth model scales linearly).
 
-The decision is APPROVED (every applicable check passes), REVIEW (one inconclusive) or REJECT (one fails).
+The decision follows a :class:`~pinneapple_veriphysics.policy.GradePolicy`: the user's (passed, named by
+``PINNEAPPLE_VERIPHYSICS_POLICY`` or saved as their default) or the library's; tolerances passed to the call win
+over the policy's. By default a failed critical check is REJECT, any other failure or a check that could not run
+is REVIEW, and APPROVED needs every check to pass. The result records the policy it used.
 """
 from __future__ import annotations
 
@@ -85,7 +88,8 @@ def _terms(expr):
 def grade_model(model: Callable[[np.ndarray], np.ndarray], system, bounds: Mapping[str, tuple[float, float]], *,
                 reference: tuple[np.ndarray, np.ndarray] | None = None,
                 validity: Mapping[str, tuple[float, float]] | None = None, n_points: int = 2000,
-                residual_tol: float = 0.05, condition_tol: float = 0.02, reference_tol: float = 0.05,
+                residual_tol: float | None = None, condition_tol: float | None = None,
+                reference_tol: float | None = None, policy: Any = None,
                 fd_step: float | None = None, fd_step2: float | None = None, eps: float = 1e-3, seed: int = 0
                 ) -> dict[str, Any]:
     """Grade ``model(X) -> (N, n_fields)`` (``X`` columns in ``system.coords`` order) on the box ``bounds``.
@@ -95,6 +99,12 @@ def grade_model(model: Callable[[np.ndarray], np.ndarray], system, bounds: Mappi
     import sympy as sp
 
     from pinneapple_physics.symbolic_pde.pinn import _plain
+
+    from .policy import decide, load_policy
+    pol = load_policy(policy)
+    residual_tol = pol.residual_tol if residual_tol is None else residual_tol
+    condition_tol = pol.condition_tol if condition_tol is None else condition_tol
+    reference_tol = pol.reference_tol if reference_tol is None else reference_tol
     from pinneapple_physics.symbolic_pde.text import compile_expr, derivative_keys
     rng = np.random.default_rng(seed)
     coords, fields = list(system.coords), list(system.fields)
@@ -196,16 +206,11 @@ def grade_model(model: Callable[[np.ndarray], np.ndarray], system, bounds: Mappi
     d1 = np.abs(f(X + eps * spans * rng.standard_normal(X.shape)) - f(X)).mean()
     d2 = np.abs(f(X + 0.1 * eps * spans * rng.standard_normal(X.shape)) - f(X)).mean()
     ratio = float(d1 / max(d2, 1e-300))
-    chk("grade.robustness", 3.0 <= ratio <= 30.0, f"output change for a {eps:g}-span perturbation is {ratio:.1f}x the "
+    rb_lo, rb_hi = pol.robustness_band
+    chk("grade.robustness", rb_lo <= ratio <= rb_hi, f"output change for a {eps:g}-span perturbation is {ratio:.1f}x the "
                                                  "change for a 10x smaller one (about 10 for a smooth model)", ratio)
-    applicable = [c for c in checks if c["status"] != "inconclusive"]
-    if any(c["status"] == "fail" for c in checks):
-        decision = "REJECT"
-    elif len(applicable) < len(checks):
-        decision = "REVIEW"
-    else:
-        decision = "APPROVED"
-    return {"decision": decision, "checks": checks, "box": {c: list(bounds[c]) for c in coords},
+    decision, reasons = decide(checks, pol)
+    return {"decision": decision, "reasons": reasons, "policy": pol.to_dict(), "checks": checks, "box": {c: list(bounds[c]) for c in coords},
             "n_points": n_points, "method": f"central finite differences, steps {fd_step:g} / {step2:g} of each span"}
 
 

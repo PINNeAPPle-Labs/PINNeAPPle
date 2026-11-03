@@ -41,9 +41,9 @@ def _demo_pinn(problem, steps: int):
               Param("tool", "str", "", help="library tool id model(X) -> (N, fields)"),
               Param("problem", "dict", HEAT, help="pdes, conditions, coords, fields, coefficients, bounds, exact"),
               Param("validity", "dict", {}, help="the model's declared validity box"),
-              Param("residual_tol", "float", 0.05, minimum=1e-6), Param("condition_tol", "float", 0.02, minimum=1e-6),
-              Param("reference_tol", "float", 0.05, minimum=1e-6), Param("steps", "int", 1500, minimum=10,
-                                                                         advanced=True)],
+              Param("policy", "dict", {}, help="the approval rules: GradePolicy fields over your saved default "
+                                               "(empty: your default, else the library's); 'path' names a JSON"),
+              Param("steps", "int", 1500, minimum=10, advanced=True)],
       calls="pinneapple_veriphysics.model_grade.grade_model / grade_predictions")
 def veriphysics_grade(ctx, inputs, params):
     """Grade the model and report the evidence."""
@@ -66,9 +66,11 @@ def veriphysics_grade(ctx, inputs, params):
         ex = sp.lambdify(names, sp.sympify(pb["exact"], locals={n: sp.Symbol(n) for n in names}), "numpy")
         val = ex(*[Xr[:, i] for i in range(len(s.coords))], *(pb.get("coefficients") or {}).values())
         ref = (Xr, np.asarray(val, float).reshape(len(Xr), -1))
+    from pinneapple_veriphysics.policy import load_policy
+    pol = dict(params.get("policy") or {})
+    policy = load_policy(pol.pop("path")) if "path" in pol else load_policy(pol or None)
     kw = dict(reference=ref, validity={k: tuple(v) for k, v in (params.get("validity") or {}).items()} or None,
-              residual_tol=float(params["residual_tol"]), condition_tol=float(params["condition_tol"]),
-              reference_tol=float(params["reference_tol"]))
+              policy=policy)
     kind = str(params["model"])
     if kind == "predictions_csv":
         import csv
@@ -103,7 +105,9 @@ def veriphysics_grade(ctx, inputs, params):
             def model(X):
                 return np.asarray(sess.run(None, {iname: np.asarray(X, np.float32)})[0], float)
         g = grade_model(model, s, bounds, **kw)
-    ctx.metric("decision", g["decision"], g["method"])
+    ctx.metric("decision", g["decision"], "; ".join(g["reasons"]) or "every check passes")
+    ctx.metric("policy", g["policy"]["name"], "the approval rules used (all fields in the report)")
+    ctx.table("policy", ["field", "value"], [[k, str(v)] for k, v in g["policy"].items()])
     ctx.table("checks", ["check", "status", "detail"], [[c["code"], c["status"], c["detail"]] for c in g["checks"]])
     for c in g["checks"]:
         if isinstance(c["value"], (int, float)):

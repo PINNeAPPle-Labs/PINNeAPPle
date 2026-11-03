@@ -299,6 +299,14 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.design_optimization:build_flow": {
+  "code_hash": "a34d1491b976375e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 7.14
+ },
  "pinneapple_flow.nodes_ext.equation_discovery:build_flow": {
   "code_hash": "2af614852789d28a",
   "inputs": {},

@@ -256,6 +256,45 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "drone_design": {
+  "flow_hash": "0f4dcd2e3bba8dd4",
+  "nodes": {
+   "drone": {
+    "error": "",
+    "metrics": {
+     "design.arm_m": 0.15805250773081714,
+     "design.capacity_ah": 2.0,
+     "design.cells": 4,
+     "design.estimated_endurance_min": 15.260687624932455,
+     "design.figure_of_merit": 0.6695907621356902,
+     "design.hover_power_W": 95.35816840317318,
+     "design.mass_kg": 0.9365583751745162,
+     "design.motor_kv": 681.8642567321555,
+     "design.prop_diameter_in": 8.000000000000002,
+     "design.thrust_to_weight": 2.3287369154861755,
+     "mission.max_tracking_error_m": 1.9227887938038097
+    },
+    "status": "done",
+    "summary": "0.937 kg quad, 8.0 in props, 4S 2 A h, Kv 682; flown 15.0 min; verified",
+    "type": "drone.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 106.92,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "elnino_forecast": {
   "error": "StepFailed: ENSO observations unavailable (ModuleNotFoundError: No module named 'netCDF4'); they are downloaded once from the NOAA / ERA5 buckets into the data cache",
   "flow_hash": "feb5ea7b1c064ea5",

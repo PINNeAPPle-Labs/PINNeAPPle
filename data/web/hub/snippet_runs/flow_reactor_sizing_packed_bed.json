@@ -1,0 +1,12 @@
+{
+ "code_hash": "4e9f91f75d674f33",
+ "figures": [],
+ "id": "flow:reactor_sizing_packed_bed",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 12.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reactor sizing: cooled packed bed (o-xylene to phthalic anhydride) - 2 nodes\nissues: []",
+ "timed_out": false
+}

@@ -1363,6 +1363,60 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "reactor_sizing_cstr": {
+  "flow_hash": "17264f74cd684ab9",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "propylene_glycol_cstr: V = 1.864 m^3, X = 0.801, T_max = 330.0 K, verified",
+    "type": "reactor.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 71.77,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "reactor_sizing_packed_bed": {
+  "flow_hash": "b4a0c496960f02f0",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "phthalic_anhydride_bed: V = 0.001073 m^3, X = 0.750, T_max = 673.1 K, verified",
+    "type": "reactor.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 44.91,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "reason_roof": {
   "flow_hash": "c2f01a23265ceeb7",
   "nodes": {

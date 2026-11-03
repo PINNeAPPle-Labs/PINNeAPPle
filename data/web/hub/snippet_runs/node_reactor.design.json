@@ -1,0 +1,12 @@
+{
+ "code_hash": "10b2a39b6f8ad721",
+ "figures": [],
+ "id": "node:reactor.design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 11.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reactor sizing (closed loop, re-verified) -> pinneapple_physics.reactors.design.design_reactor (models.pfr / cstr_series, sizing.*, architecture_recommendation.recommend_architecture)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'phthalic_anhydride_bed', 'X_target': 0.75, 'T_limit': 673.15, 'margin_min': 10.0, 'p_xylene_atm': 0.011, 'tanks': 1, 'force_surrogate': False, 'maxiter': 60, 'popsize': 12, 'seed': 0}",
+ "timed_out": false
+}

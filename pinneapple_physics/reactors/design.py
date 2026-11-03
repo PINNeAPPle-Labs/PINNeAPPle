@@ -27,7 +27,13 @@ import numpy as np
 
 from .kinetics import Feed, Network
 from .models import Bed, Cooling, cstr_series, pfr
-from .sizing import adiabatic_rise, levenspiel, parametric_sensitivity, semenov_number, yield_selectivity
+from .sizing import (
+    adiabatic_rise,
+    levenspiel,
+    parametric_sensitivity,
+    semenov_number,
+    yield_selectivity,
+)
 
 VARIABLES = ("V", "Tc", "Ua", "UA", "T0")
 
@@ -121,13 +127,14 @@ def design_reactor(spec: DesignSpec, *, n_doe: int = 40, maxiter: int = 60, pops
     for _ in range(3):
         evaluate(spec, centre)
     solve_s = (time.perf_counter() - t0) / 3
-    n_g = 1 + (spec.S_min is not None) + (spec.T_limit is not None)
     n_eval = n_doe + popsize * len(names) * (maxiter + 1)
 
     # 2. which model, if any
     rec: dict[str, Any] = {"recommended": ["none"], "reasoning": "recommendation unavailable", "checks": []}
     try:
-        from pinneapple_analysis.verification.architecture_recommendation import recommend_architecture
+        from pinneapple_analysis.verification.architecture_recommendation import (
+            recommend_architecture,
+        )
         try:
             r = recommend_architecture(n_high_fidelity_simulations=n_doe, needs_parameter_generalization=True,
                                        geometry_varies=False, has_analytical_solver=True, solve_seconds=solve_s,
@@ -221,6 +228,7 @@ def design_reactor(spec: DesignSpec, *, n_doe: int = 40, maxiter: int = 60, pops
     checks: list[dict[str, Any]] = []
 
     def chk(code, ok, detail, value=None):
+        ok = None if ok is None else bool(ok)
         checks.append({"code": code, "status": "pass" if ok is True else ("fail" if ok is False else "inconclusive"),
                        "detail": detail, "value": value})
     for name, v in g.items():

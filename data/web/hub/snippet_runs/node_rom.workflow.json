@@ -1,0 +1,12 @@
+{
+ "code_hash": "72d34f7fa044f8d4",
+ "figures": [],
+ "id": "node:rom.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reduced-order modeling: POD-Galerkin, DMD, OpInf checked against the FOM -> pinneapple_analysis.reduced_order.workflow.reduced_order_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'fom': 'burgers', 'mu_range': [0.05, 0.15], 'n_params': 9, 'n': 512, 't_end': 2.0, 'snapshots_file': '', 'train_fraction': 0.75, 'energy': 0.99999, 'max_rank': 40, 'methods': ['pod_galerkin', 'dmd', 'opinf'], 'invariant': 'mass', 'tolerance': 0.02, 'extrapolation_tolerance': 0.05, 'invariant_tolerance': 1e-06, 'repeats': 3}",
+ "timed_out": false
+}

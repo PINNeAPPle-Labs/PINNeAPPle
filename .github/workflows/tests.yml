@@ -99,6 +99,9 @@ jobs:
           sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2
           pytest tests/test_mesh_generation.py -q -p no:warnings
 
+      - name: Design optimization workflow — gmsh cantilever, FEM vs beam theory, refined-mesh re-verification, KKT, robustness, STEP (must pass)
+        run: pytest tests/test_design_optimization_workflow.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn

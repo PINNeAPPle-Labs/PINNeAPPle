@@ -229,6 +229,33 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "design_optimization": {
+  "flow_hash": "6aa878bf80760662",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "mass_kg = 7.91812 at h_root = 0.1512, h_tip = 0.05049, thickness = 0.01; verified",
+    "type": "design.optimization"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 11.7,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "elnino_forecast": {
   "error": "StepFailed: ENSO observations unavailable (ModuleNotFoundError: No module named 'netCDF4'); they are downloaded once from the NOAA / ERA5 buckets into the data cache",
   "flow_hash": "feb5ea7b1c064ea5",
@@ -944,6 +971,33 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "multiphysics_coupling": {
+  "flow_hash": "5aa1e1ed5666e0cd",
+  "nodes": {
+   "couple": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "electro-thermal (joule_wire): rho = 0.351, one-way error 0.119 -> gauss_seidel_aitken; GS+Aitken 9 it (plain 22); closed form 1.1e-05; every check passes",
+    "type": "multiphysics.couple"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 4.72,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "operator_burgers": {
   "flow_hash": "f8cd0986e79d8ac8",
   "nodes": {
@@ -1605,6 +1659,35 @@
   },
   "recorded": "2026-10-25",
   "seconds": 4.24,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "reduced_order_modeling": {
+  "flow_hash": "7a537fb3b3796693",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "rom": {
+    "error": "",
+    "metrics": {
+     "data": "FOM burgers (n = 512, dt = 0.001, 2000 steps): 9 parameter values mu in [0.05, 0.15]"
+    },
+    "status": "done",
+    "summary": "rank 9 (0.99999 energy); pod_galerkin: 0.0011 / 0.021, x2.97; dmd: 0.0029 / 0.025, x120; opinf: 0.00098 / 0.019, x3.41; recommended pod_galerkin",
+    "type": "rom.workflow"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 9.2,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

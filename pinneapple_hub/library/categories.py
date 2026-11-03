@@ -83,7 +83,7 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "inverse": ("node:study.inverse",),
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
                   "node:aero.", "node:md.", "node:newton.", "node:swe.", "node:study.cfd_campaign",
-                  "node:immersed."),
+                  "node:immersed.", "node:multiphysics."),
     "pinn": ("node:architectures.", "node:pinn.", "node:pinn_solver."),
     "surrogates": ("node:core.hybrid_fem", "node:worldmodel.", "node:study.surrogates", "node:potential.co2_surrogates"),
     "zoo": ("node:zoo.", "node:model.use"),

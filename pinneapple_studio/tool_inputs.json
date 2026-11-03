@@ -1179,6 +1179,21 @@
   },
   "source": "tests/test_airfoil_drag_study.py:20"
  },
+ "pinneapple_design.design_optimizer.cantilever:tapered_cantilever": {
+  "inputs": {
+   "h_root": 0.12,
+   "h_tip": 0.04,
+   "n_through": 4
+  },
+  "source": "tests/test_design_optimization_workflow.py"
+ },
+ "pinneapple_design.design_optimizer.cantilever:tapered_cantilever_beam": {
+  "inputs": {
+   "h_root": 0.12,
+   "h_tip": 0.04
+  },
+  "source": "tests/test_design_optimization_workflow.py"
+ },
  "pinneapple_design.design_optimizer.pareto:representatives": {
   "inputs": {
    "names": [
@@ -1198,6 +1213,32 @@
    "name": "heatsink"
   },
   "source": "tests/test_design_studies.py:511"
+ },
+ "pinneapple_design.design_optimizer.workflow:design_optimization": {
+  "inputs": {
+   "budget": 30,
+   "n_starts": 2,
+   "max_corrections": 2,
+   "fidelity": {
+    "param": "n_through",
+    "coarse": 4,
+    "levels": [
+     8,
+     16
+    ]
+   }
+  },
+  "source": "tests/test_design_optimization_workflow.py"
+ },
+ "pinneapple_design.design_optimizer.workflow:richardson": {
+  "inputs": {
+   "values": [
+    1.01,
+    1.0025,
+    1.000625
+   ]
+  },
+  "source": "tests/test_design_optimization_workflow.py"
  },
  "pinneapple_design.fitmesh.context:wall_unit_height": {
   "inputs": {
@@ -5121,6 +5162,14 @@
    "length": 0.05
   },
   "source": "tests/test_biology_inference.py:110"
+ },
+ "pinneapple_simulation.multiphysics.coupling:recommend_strategy": {
+  "inputs": {
+   "contraction": 0.35,
+   "one_way_error": 0.12,
+   "one_way_tolerance": 0.01
+  },
+  "source": "tests/test_multiphysics_workflow.py"
  },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "inputs": {

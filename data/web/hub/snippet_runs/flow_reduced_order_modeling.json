@@ -1,0 +1,12 @@
+{
+ "code_hash": "98133438788bdbb9",
+ "figures": [],
+ "id": "flow:reduced_order_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reduced-order modeling: POD-Galerkin, DMD and operator inference checked against the full model - 2 nodes\nissues: []",
+ "timed_out": false
+}

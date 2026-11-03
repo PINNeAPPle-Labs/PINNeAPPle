@@ -1992,6 +1992,50 @@
   "returned": "Domain2D",
   "seconds": 4.92
  },
+ "pinneapple_simulation.multiphysics.cases:bimetal_strip": {
+  "code_hash": "6ee0d89a852217d3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "CoupledCase",
+  "seconds": 3.56
+ },
+ "pinneapple_simulation.multiphysics.cases:conjugate_channel": {
+  "code_hash": "cd78edcc1e043391",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "CoupledCase",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.multiphysics.cases:joule_wire": {
+  "code_hash": "5b827fd0301ec40b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "CoupledCase",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.multiphysics.coupling:recommend_strategy": {
+  "code_hash": "cdcfe611797b3745",
+  "inputs": {
+   "contraction": 0.35,
+   "one_way_error": 0.12,
+   "one_way_tolerance": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 3.04
+ },
+ "pinneapple_simulation.multiphysics.workflow:multiphysics_workflow": {
+  "code_hash": "a5c249edd1fa012a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.1
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "code_hash": "e819609cb6e7b087",
   "inputs": {

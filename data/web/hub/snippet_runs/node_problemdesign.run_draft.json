@@ -1,0 +1,12 @@
+{
+ "code_hash": "267c6d7b0a77b25e",
+ "figures": [],
+ "id": "node:problemdesign.run_draft",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 4.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Run a drafted model (formulate) on a box: FD or PINN, MMS order, balance -> pinneapple_problemdesign.formulate.formulate + pinneapple_problemdesign.run_draft.run_draft\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'phenomenon': 'battery_cell_thermal', 'dims': 3, 'steady': False, 'values': {'rho': 2500, 'cp': 1000, 'k': 1.0, 'I': 5, 'R0': 0.03, 'EaR': 2000, 'Tref': 298.15, 'dUdT': 0.0001, 'Vc': 1.65e-05, 'h': 10, 'Tamb': 298.15, 'T0': 298.15}, 'box': [0.065, 0.03, 0.0085], 'method': 'auto', 't_end': 600.0, 'n': 11, 'n_t': 100, 'adam_steps': 2000, 'lbfgs_steps': 200, 'n_evaluations': 0}",
+ "timed_out": false
+}

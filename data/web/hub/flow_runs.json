@@ -1691,6 +1691,33 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "run_drafted_model": {
+  "flow_hash": "a7a21879c82b2820",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "run": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "battery_cell_thermal (fd): T in [302.985, 303.924] K at t = 600 s; MMS order 2.02 (expected 2); every check passes or is inconclusive",
+    "type": "problemdesign.run_draft"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 7.05,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "surrogate_modeling": {
   "flow_hash": "7b142f0fbb5bcd61",
   "nodes": {

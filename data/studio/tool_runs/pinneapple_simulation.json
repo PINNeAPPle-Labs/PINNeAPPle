@@ -3158,7 +3158,7 @@
   "seconds": 0.06
  },
  "pinneapple_simulation.vehicle.mission_design:max_step_height": {
-  "code_hash": "000340810de60a6f",
+  "code_hash": "98733c1aa609a2c0",
   "inputs": {
    "cap": 0.15,
    "load": 10.0,
@@ -3169,7 +3169,7 @@
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "float",
-  "seconds": 0.0
+  "seconds": 4.56
  },
  "pinneapple_simulation.vehicle.mission_design:published_rover_check": {
   "code_hash": "333e62a5c0c318ed",
@@ -3202,6 +3202,19 @@
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vehicle.mission_design:step_climb_force": {
+  "code_hash": "566e46f8c5703753",
+  "inputs": {
+   "h": 0.05,
+   "load": 10.0,
+   "mu": 0.6,
+   "radius": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
   "seconds": 0.0
  },
  "pinneapple_simulation.vehicle.mission_design:tip_over_angles": {

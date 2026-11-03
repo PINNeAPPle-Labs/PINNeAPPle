@@ -95,6 +95,9 @@ class PINNProblem:
     # residual conditions (Neumann, Robin): (name, sampler(n, rng) -> X, fn(u, X) -> residual); train_pinn adds
     # weights["constraint"] x their mean square
     constraints: Sequence[tuple[str, Callable, Callable]] = ()
+    # per-output magnitudes for a problem in physical units: train_pinn divides the boundary, initial and data
+    # misfits of each output by its own (a pressure in Pa and a velocity in m/s then weigh alike)
+    output_scales: Sequence[float] | None = None
 
     @property
     def dim(self) -> int:
@@ -423,6 +426,8 @@ def train_pinn(problem: PINNProblem | str, model=None, *, n_collocation: int = 2
     Xc = P.uniform(n_collocation, rng)
     X = torch.tensor(Xc, dtype=torch.float32, requires_grad=True)
     terms = []
+    osc = torch.tensor(np.asarray(P.output_scales if P.output_scales is not None else [1.0] * len(P.outputs),
+                                  float), dtype=torch.float32)
     for key, sampler in (("boundary", P.boundary), ("initial", P.initial)):
         if sampler is not None and w[key] > 0:
             Xb, T = sampler(n_condition, rng)
@@ -441,7 +446,8 @@ def train_pinn(problem: PINNProblem | str, model=None, *, n_collocation: int = 2
     def loss():
         total = (P.residual(_forward(net, X), X) ** 2).mean() / P.residual_scale ** 2
         for Xb, T, m, wk in terms:
-            total = total + wk * ((_forward(net, Xb)[:, :T.shape[1]] - torch.nan_to_num(T)) ** 2)[m].mean()
+            total = total + wk * (((_forward(net, Xb)[:, :T.shape[1]] - torch.nan_to_num(T)) / osc[:T.shape[1]])
+                                  ** 2)[m].mean()
         for Xk, fn in cons:
             total = total + w["constraint"] * (fn(_forward(net, Xk), Xk) ** 2).mean()
         return total

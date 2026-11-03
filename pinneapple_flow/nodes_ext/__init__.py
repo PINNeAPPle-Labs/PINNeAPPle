@@ -32,6 +32,7 @@ from . import (  # noqa: F401
     pinn_solver,
     potential,
     problemdesign,
+    reactors,
     render,
     security,
     solver_registry,

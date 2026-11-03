@@ -1,0 +1,12 @@
+{
+ "code_hash": "9b1d88383e78c411",
+ "figures": [],
+ "id": "example:examples/fno_coldplate",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Cold plate with the library's FNO | heat transfer | not curated\ntest_rel_l2 0.01671807229365039 \nmax_hotspot_error_K 0.24053322860445528 K\nfno_parameters 1184033",
+ "timed_out": false
+}

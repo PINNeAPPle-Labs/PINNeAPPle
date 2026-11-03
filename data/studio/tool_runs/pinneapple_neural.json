@@ -356,6 +356,20 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_neural.physicsnemo_bridge.field_operators:pinneapple_fno": {
+  "code_hash": "f3a1ac2e4fdfd847",
+  "inputs": {
+   "layers": 2,
+   "modes": 4,
+   "n": 16,
+   "padding": 4,
+   "width": 8
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "GridFieldPredictor",
+  "seconds": 6.94
+ },
  "pinneapple_neural.trainer.advisor:TrainingAdvisor": {
   "code_hash": "558b1b6ecbc956b2",
   "inputs": {},

@@ -1,0 +1,41 @@
+{
+ "grid": 32,
+ "train": 400,
+ "test": 100,
+ "epochs": 200,
+ "runs": [
+  {
+   "padding": 0,
+   "rel_l2_test": 0.01939175303034938,
+   "mean_abs_err_boundary_band_rel": 0.012051325664958906,
+   "mean_abs_err_interior_rel": 0.01988363796319733,
+   "train_s": 322.1,
+   "seed": 0
+  },
+  {
+   "padding": 8,
+   "rel_l2_test": 0.017772225866174978,
+   "mean_abs_err_boundary_band_rel": 0.010097632764408655,
+   "mean_abs_err_interior_rel": 0.018414796794841665,
+   "train_s": 298.2,
+   "seed": 0
+  },
+  {
+   "padding": 0,
+   "rel_l2_test": 0.01945218548084857,
+   "mean_abs_err_boundary_band_rel": 0.012233108927665494,
+   "mean_abs_err_interior_rel": 0.01990702932828365,
+   "train_s": 224.7,
+   "seed": 1
+  },
+  {
+   "padding": 8,
+   "rel_l2_test": 0.017677391023044525,
+   "mean_abs_err_boundary_band_rel": 0.01064842285490185,
+   "mean_abs_err_interior_rel": 0.018145578404499995,
+   "train_s": 294.0,
+   "seed": 1
+  }
+ ],
+ "note": "measured with the code of benchmarks/fno_padding_darcy.py (same data seed, model, optimiser and epochs), 2026-11-03, 4 CPU threads"
+}

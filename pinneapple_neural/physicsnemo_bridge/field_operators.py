@@ -14,6 +14,9 @@ NumPy predictor ``predict(a) -> u`` that PINNeAPPle's checks (``pinneapple_physi
     cell, edges to the four neighbours, edge features ``dx, dy, |d|`` in cell units; node features: normalised
     coefficient, cell-centre coordinates, boundary flag). Needs PyTorch Geometric and ``torch_scatter``, as
     PhysicsNeMo's MeshGraphNet does.
+``pinneapple_fno(n, ...)``
+    the library's own ``FNO2d`` (no PhysicsNeMo needed), with domain padding for the non-periodic boundary, behind
+    the same predictor, training and checks, so the two FNOs are compared on equal terms.
 ``GridFieldPredictor``
     the trained model plus its input / output normalisation; ``predict`` takes and returns NumPy arrays
     ``(batch, n, n)``; ``save`` / ``load`` keep the PhysicsNeMo constructor arguments with the weights.
@@ -34,7 +37,7 @@ import torch.nn as nn
 
 from pinneapple_neural.physicsnemo_bridge.adapters import _require_physicsnemo
 
-__all__ = ["grid_graph", "GridFieldPredictor", "physicsnemo_fno", "physicsnemo_meshgraphnet",
+__all__ = ["grid_graph", "GridFieldPredictor", "physicsnemo_fno", "physicsnemo_meshgraphnet", "pinneapple_fno",
            "train_grid_operator", "TrainingResult"]
 
 
@@ -78,6 +81,8 @@ class _GridOperator(nn.Module):
         b = x.shape[0]
         if self.kind == "fno":
             y = self.net(x[:, None])[:, 0]
+        elif self.kind == "pinneapple_fno":
+            y = self.net(x[:, None]).y[:, 0]
         else:
             from torch_geometric.data import Data
             nn_ = self.n * self.n
@@ -146,7 +151,7 @@ class GridFieldPredictor:
         cfg = json.loads(path.with_suffix(".json").read_text())
         name = cfg.pop("name", "")
         kind = cfg.pop("kind")
-        build = physicsnemo_fno if kind == "fno" else physicsnemo_meshgraphnet
+        build = {"fno": physicsnemo_fno, "pinneapple_fno": pinneapple_fno}.get(kind, physicsnemo_meshgraphnet)
         pred = build(**cfg)
         pred.name = name
         pred.module.load_state_dict(torch.load(path.with_suffix(".pt"), weights_only=True))
@@ -166,6 +171,19 @@ def physicsnemo_fno(n: int, *, latent_channels: int = 32, num_fno_layers: int = 
     net = FNO(in_channels=1, out_channels=1, dimension=2, coord_features=True, **cfg)
     return GridFieldPredictor(_GridOperator(net, "fno", n, 0.0, 1.0, 1.0),
                               {"kind": "fno", "n": n, "seed": seed, **cfg}, "PhysicsNeMo FNO")
+
+
+def pinneapple_fno(n: int, *, width: int = 32, modes: int = 12, layers: int = 4, padding: int = 8,
+                   seed: int | None = 0) -> GridFieldPredictor:
+    """The library's ``FNO2d`` (coefficient -> solution, coordinate channels, ``padding`` cells of domain padding
+    for the non-periodic boundary) wrapped as a :class:`GridFieldPredictor`. Needs no PhysicsNeMo."""
+    from pinneapple_neural.architectures.neural_operators.fno import FNO2d
+    if seed is not None:
+        torch.manual_seed(seed)
+    cfg = dict(width=width, modes=modes, layers=layers, padding=padding)
+    net = FNO2d(1, 1, width=width, modes1=modes, modes2=modes, layers=layers, use_grid=True, padding=padding)
+    return GridFieldPredictor(_GridOperator(net, "pinneapple_fno", n, 0.0, 1.0, 1.0),
+                              {"kind": "pinneapple_fno", "n": n, "seed": seed, **cfg}, "PINNeAPPle FNO2d")
 
 
 def physicsnemo_meshgraphnet(n: int, *, processor_size: int = 15, hidden_dim: int = 64,

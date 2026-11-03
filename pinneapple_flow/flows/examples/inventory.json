@@ -122,6 +122,11 @@
   "reason": "already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step",
   "status": "not_convertible"
  },
+ "fno_coldplate": {
+  "domain": "neural operators",
+  "status": "not_convertible",
+  "reason": "the study (layouts, FNO training under a ComputeBudget, the Darcy checks and their decision) is arranged in run.py main(), with no library entry point a node could call; the Studio runs it as example:fno_coldplate and tests/test_fno_coldplate_example.py runs its smoke size"
+ },
  "free_surface": {
   "domain": "CFD",
   "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"

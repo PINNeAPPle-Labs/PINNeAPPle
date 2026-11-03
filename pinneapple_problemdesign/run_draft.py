@@ -781,11 +781,12 @@ def _run_pinn(draft, form: _Form | None, bounds, budget) -> DraftRun:
         ref = _run_fd(draft, form, bounds, {**budget, "n": n}, mms=False)
         T_ref = ref.fields[form.field].ravel()
         off, sc = scales.get(form.field, (0.0, 1.0))
-        span = max(float(T_ref.max() - T_ref.min()), sc)
+        span = max(float(T_ref.max() - T_ref.min()), float(np.max(np.abs(T_ref - off))), sc)
         err = float(np.max(np.abs(first - T_ref))) / span
         run.metrics["reference.fd_max_error_rel"] = err
         run.checks.append({"code": "run.reference_fd", "status": "pass" if err < 0.05 else "fail",
-                           "detail": f"max |PINN - FD| / range = {err:.3g} at t = {t_end:g} s (limit 0.05)"})
+                           "detail": f"max |PINN - FD| = {err * span:.3g} {draft.fields[form.field]}, {err:.3g} of the field's range "
+                                     f"from {off:g} at t = {t_end:g} s (limit 0.05)"})
         run.balance = ref.balance | {"from": "the FD reference solution"}
     run.checks += _draft_checks(draft)
     run.assumptions = _assumption_rows(draft, form, bounds)

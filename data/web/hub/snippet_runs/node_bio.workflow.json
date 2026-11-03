@@ -1,0 +1,12 @@
+{
+ "code_hash": "c913c9f1b7a6f771",
+ "figures": [],
+ "id": "node:bio.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Bio model: checks, sensitivity, identification, design under uncertainty -> pinneapple_physics.biology.workflow.bio_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'model': 'sir', 'sbml': '', 'model_params': {}, 't_end': 0.0, 'identify': [], 'noise': 0.03, 'design': {}, 'uncertainty': {}, 'target_probability': 0.9, 'n_sobol': 32, 'n_design': 32, 'n_reverify': 100, 'sbinn_epochs': 0, 'seed': 0}",
+ "timed_out": false
+}

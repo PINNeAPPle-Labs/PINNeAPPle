@@ -1,0 +1,12 @@
+{
+ "code_hash": "71f5269e36e00fea",
+ "figures": [],
+ "id": "example:examples/industrial/reactor_cstr",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reactor sizing: cooled CSTR (propylene glycol) | engineering | not curated\nrun_seconds_quick 11.9 s\nrun_seconds_full 27.3 s\ndesign.design.V 1.8641453655110714 \ndesign.design.UA 2588.222329780516 \ndesign.model.X 0.8009345854600236",
+ "timed_out": false
+}

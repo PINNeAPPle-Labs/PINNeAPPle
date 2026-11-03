@@ -212,6 +212,17 @@
   "returned": "NoneType",
   "seconds": 0.32
  },
+ "pinneapple_flow.gallery:example_flow": {
+  "code_hash": "2cb7dc592c805c08",
+  "inputs": {
+   "entry": "wing_design",
+   "group": "industrial"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.52
+ },
  "pinneapple_flow.identify:identify": {
   "code_hash": "cde645ccefed1fdc",
   "inputs": {
@@ -520,6 +531,16 @@
   "recorded": "2026-10-31",
   "returned": "str",
   "seconds": 0.0
+ },
+ "pinneapple_flow.planner.extensions:bundled_flow": {
+  "code_hash": "2d190100fe084ba3",
+  "inputs": {
+   "name": "wing_design"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 0.02
  },
  "pinneapple_flow.planner.extensions:capabilities": {
   "code_hash": "4652ef4d7aef3520",

@@ -364,6 +364,276 @@
    "status": "done"
   }
  },
+ "base_workflows/design_optimization": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.design_optimization.experiment.json, Lab item manifest/flow/example.base_workflows.design_optimization",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 7.2,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "b5c5838",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.design_optimization-quick.experiment.json, Lab item manifest/flow/example.base_workflows.design_optimization-quick",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 9.8,
+   "status": "done"
+  }
+ },
+ "base_workflows/equation_discovery": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.equation_discovery.experiment.json, Lab item manifest/flow/example.base_workflows.equation_discovery",
+   "matched": 0,
+   "nodes": {
+    "discover": "done",
+    "report": "done"
+   },
+   "seconds": 3.1,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.equation_discovery-quick.experiment.json, Lab item manifest/flow/example.base_workflows.equation_discovery-quick",
+   "matched": 0,
+   "nodes": {
+    "discover": "done",
+    "report": "done"
+   },
+   "seconds": 3.1,
+   "status": "done"
+  }
+ },
+ "base_workflows/inverse_modeling": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.inverse_modeling.experiment.json, Lab item manifest/flow/example.base_workflows.inverse_modeling",
+   "matched": 0,
+   "nodes": {
+    "inverse": "done",
+    "report": "done"
+   },
+   "seconds": 0.4,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.inverse_modeling-quick.experiment.json, Lab item manifest/flow/example.base_workflows.inverse_modeling-quick",
+   "matched": 0,
+   "nodes": {
+    "inverse": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  }
+ },
+ "base_workflows/model_benchmarking": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.model_benchmarking.experiment.json, Lab item manifest/flow/example.base_workflows.model_benchmarking",
+   "matched": 0,
+   "nodes": {
+    "bench": "done",
+    "report": "done"
+   },
+   "seconds": 10.6,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.model_benchmarking-quick.experiment.json, Lab item manifest/flow/example.base_workflows.model_benchmarking-quick",
+   "matched": 0,
+   "nodes": {
+    "bench": "done",
+    "report": "done"
+   },
+   "seconds": 7.7,
+   "status": "done"
+  }
+ },
+ "base_workflows/multiphysics_coupling": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.multiphysics_coupling.experiment.json, Lab item manifest/flow/example.base_workflows.multiphysics_coupling",
+   "matched": 0,
+   "nodes": {
+    "couple": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.multiphysics_coupling-quick.experiment.json, Lab item manifest/flow/example.base_workflows.multiphysics_coupling-quick",
+   "matched": 0,
+   "nodes": {
+    "couple": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  }
+ },
+ "base_workflows/reduced_order_modeling": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.reduced_order_modeling.experiment.json, Lab item manifest/flow/example.base_workflows.reduced_order_modeling",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "rom": "done"
+   },
+   "seconds": 3.4,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "ca74b8a",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.reduced_order_modeling-quick.experiment.json, Lab item manifest/flow/example.base_workflows.reduced_order_modeling-quick",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "rom": "done"
+   },
+   "seconds": 1.7,
+   "status": "done"
+  }
+ },
+ "base_workflows/surrogate_modeling": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.surrogate_modeling.experiment.json, Lab item manifest/flow/example.base_workflows.surrogate_modeling",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "surrogate": "done"
+   },
+   "seconds": 10.4,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "ca74b8a",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.surrogate_modeling-quick.experiment.json, Lab item manifest/flow/example.base_workflows.surrogate_modeling-quick",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "surrogate": "done"
+   },
+   "seconds": 15.6,
+   "status": "done"
+  }
+ },
+ "base_workflows/use_trained_model": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.use_trained_model.experiment.json, Lab item manifest/flow/example.base_workflows.use_trained_model",
+   "matched": 0,
+   "nodes": {
+    "model": "done",
+    "report": "done"
+   },
+   "seconds": 0.2,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.use_trained_model-quick.experiment.json, Lab item manifest/flow/example.base_workflows.use_trained_model-quick",
+   "matched": 0,
+   "nodes": {
+    "model": "done",
+    "report": "done"
+   },
+   "seconds": 0.2,
+   "status": "done"
+  }
+ },
+ "base_workflows/veriphysics_grade": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.veriphysics_grade.experiment.json, Lab item manifest/flow/example.base_workflows.veriphysics_grade",
+   "matched": 0,
+   "nodes": {
+    "grade": "done",
+    "report": "done"
+   },
+   "seconds": 17.6,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.base_workflows.veriphysics_grade-quick.experiment.json, Lab item manifest/flow/example.base_workflows.veriphysics_grade-quick",
+   "matched": 0,
+   "nodes": {
+    "grade": "done",
+    "report": "done"
+   },
+   "seconds": 6.1,
+   "status": "done"
+  }
+ },
  "benchmark/01_equal_budget": {
   "quick": {
    "commit": "aef34625",
@@ -5747,6 +6017,170 @@
     "val_c4": "done"
    },
    "seconds": 1411.5,
+   "status": "done"
+  }
+ },
+ "industrial/ahmed_design": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.ahmed_design.experiment.json, Lab item manifest/flow/example.industrial.ahmed_design",
+   "matched": 0,
+   "nodes": {
+    "cfd": "done",
+    "data": "done",
+    "design": "done",
+    "geometry": "done",
+    "grid": "done",
+    "inverse": "done",
+    "models": "done",
+    "report": "done",
+    "twin": "done"
+   },
+   "seconds": 346.3,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.ahmed_design-quick.experiment.json, Lab item manifest/flow/example.industrial.ahmed_design-quick",
+   "matched": 0,
+   "nodes": {
+    "cfd": "done",
+    "data": "done",
+    "design": "done",
+    "geometry": "done",
+    "grid": "done",
+    "inverse": "done",
+    "models": "done",
+    "report": "done",
+    "twin": "done"
+   },
+   "seconds": 184.5,
+   "status": "done"
+  }
+ },
+ "industrial/lithography_opc": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.lithography_opc.experiment.json, Lab item manifest/flow/example.industrial.lithography_opc",
+   "matched": 0,
+   "nodes": {
+    "opc": "done",
+    "report": "done"
+   },
+   "seconds": 27.2,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "b5c5838",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.lithography_opc-quick.experiment.json, Lab item manifest/flow/example.industrial.lithography_opc-quick",
+   "matched": 0,
+   "nodes": {
+    "opc": "done",
+    "report": "done"
+   },
+   "seconds": 32.7,
+   "status": "done"
+  }
+ },
+ "industrial/reactor_cstr": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.reactor_cstr.experiment.json, Lab item manifest/flow/example.industrial.reactor_cstr",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 27.3,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.reactor_cstr-quick.experiment.json, Lab item manifest/flow/example.industrial.reactor_cstr-quick",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 11.9,
+   "status": "done"
+  }
+ },
+ "industrial/reactor_packed_bed": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.reactor_packed_bed.experiment.json, Lab item manifest/flow/example.industrial.reactor_packed_bed",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 16.2,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.reactor_packed_bed-quick.experiment.json, Lab item manifest/flow/example.industrial.reactor_packed_bed-quick",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 6.9,
+   "status": "done"
+  }
+ },
+ "industrial/wing_design": {
+  "full": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.wing_design.experiment.json, Lab item manifest/flow/example.industrial.wing_design",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "wing": "done"
+   },
+   "seconds": 17.8,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "d83a70bc",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "manifest": "manifest /tmp/claude-0/-home-user-PINNeAPPle/05394f37-ed46-54e5-9053-86063efdf9b1/scratchpad/gal/example.industrial.wing_design-quick.experiment.json, Lab item manifest/flow/example.industrial.wing_design-quick",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "wing": "done"
+   },
+   "seconds": 7.6,
    "status": "done"
   }
  },

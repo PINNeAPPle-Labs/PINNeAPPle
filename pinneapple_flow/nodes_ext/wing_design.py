@@ -62,7 +62,10 @@ def _register_capabilities():
         id="aero.wing_design", title="Wing planform design (closed loop)", domain="aerospace",
         keywords={"wing": 2, "asa": 1.5, "planform": 3, "aspect ratio": 2, "alongamento": 2, "induced drag": 2,
                   "arrasto induzido": 2, "taper": 1.5, "afilamento": 1.5, "washout": 2, "torção": 1,
-                  "aircraft": 1, "aeronave": 1, "avião": 1},
+                  "aircraft": 1, "aeronave": 1, "avião": 1,
+                  # the goal verbs: "otimizar a asa", "optimise the wing", "design the wing" reach 3 with the noun
+                  "otimiz": 1.5, "optimi": 1.5, "projetar": 1, "projeto da asa": 1.5, "design": 1,
+                  "dimensionar": 1, "size the wing": 1},
         requires_all=(("wing", "asa", "planform", "aspect ratio", "alongamento"),), min_score=3,
         nodes=("aero.wing_design",), build=lambda text, det: build_flow(),
         inputs=("the aircraft weight and wing area", "the cruise and landing speeds", "the section's cl_max",

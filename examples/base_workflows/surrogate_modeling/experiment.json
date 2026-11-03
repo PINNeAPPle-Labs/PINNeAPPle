@@ -1,0 +1,261 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/surrogate_modeling",
+ "title": "Surrogate modeling: recommended family, checked on new solves, exported",
+ "description": "A design of experiments over a tool (or a table), the family recommend_architecture picks or none, the library's families compared on one protocol, checks on new tool calls, and an exported model that refuses to extrapolate (pinneapple_analysis.surrogate.workflow).",
+ "domain": "methods",
+ "methods": [
+  "surrogate_modeling"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_full": 10.4,
+  "seconds_quick": 15.6
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_full",
+   "value": 10.4,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_quick",
+   "value": 15.6,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit ca74b8a"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "surrogate.M_root_Nm.coverage90",
+   "value": 0.955,
+   "unit": "",
+   "how": "full run: share of those solves inside the 90 % interval"
+  },
+  {
+   "name": "surrogate.M_root_Nm.rel_rmse",
+   "value": 0.00010958737093816265,
+   "unit": "",
+   "how": "full run: relative RMSE of the output range on solves never trained on"
+  },
+  {
+   "name": "surrogate.cl_local_max_landing.coverage90",
+   "value": 0.9,
+   "unit": "",
+   "how": "full run: share of those solves inside the 90 % interval"
+  },
+  {
+   "name": "surrogate.cl_local_max_landing.rel_rmse",
+   "value": 0.0038099659990549666,
+   "unit": "",
+   "how": "full run: relative RMSE of the output range on solves never trained on"
+  },
+  {
+   "name": "surrogate.cost.solve_seconds",
+   "value": 0.01985302273333218,
+   "unit": "",
+   "how": "full run: measured: mean over the design of experiments"
+  },
+  {
+   "name": "surrogate.drag_N.coverage90",
+   "value": 0.94,
+   "unit": "",
+   "how": "full run: share of those solves inside the 90 % interval"
+  },
+  {
+   "name": "surrogate.drag_N.rel_rmse",
+   "value": 0.0010858270596288922,
+   "unit": "",
+   "how": "full run: relative RMSE of the output range on solves never trained on"
+  }
+ ],
+ "checks": [
+  {
+   "name": "surrogate.surrogate.drag_N.held_out_error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp: relative RMSE 0.11% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+   "kind": "generalization"
+  },
+  {
+   "name": "surrogate.surrogate.drag_N.coverage",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "90 % interval covers 94.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+   "kind": "sanity"
+  },
+  {
+   "name": "surrogate.surrogate.drag_N.beats_baseline",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp 0.11% vs quadratic response surface 1.48%",
+   "kind": "baseline"
+  },
+  {
+   "name": "surrogate.surrogate.M_root_Nm.held_out_error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp: relative RMSE 0.01% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+   "kind": "generalization"
+  },
+  {
+   "name": "surrogate.surrogate.M_root_Nm.coverage",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "90 % interval covers 95.5% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+   "kind": "sanity"
+  },
+  {
+   "name": "surrogate.surrogate.M_root_Nm.beats_baseline",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp 0.01% vs quadratic response surface 0.22%",
+   "kind": "baseline"
+  },
+  {
+   "name": "surrogate.surrogate.cl_local_max_landing.held_out_error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp: relative RMSE 0.38% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+   "kind": "generalization"
+  },
+  {
+   "name": "surrogate.surrogate.cl_local_max_landing.coverage",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "90 % interval covers 90.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+   "kind": "sanity"
+  },
+  {
+   "name": "surrogate.surrogate.cl_local_max_landing.beats_baseline",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "gp 0.38% vs quadratic response surface 1.77%",
+   "kind": "baseline"
+  },
+  {
+   "name": "surrogate.surrogate.no_extrapolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the exported predictor refuses inputs outside aspect_ratio in [5, 12], taper in [0.3, 1], twist in [-6, 0]",
+   "kind": "generalization"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 10.4 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 15.6 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ca74b8a",
+  "created": "2026-11-03T17:13:24Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "a929d8e53c8d54e6",
+ "figures": [],
+ "id": "example:examples/base_workflows/model_benchmarking",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Model benchmarking: equal data, intervals, a winner only when separated | methods | not curated\nrun_seconds_quick 7.7 s\nrun_seconds_full 10.6 s\nbench.gp.rel_rmse 0.0020171166721008925 \nbench.mlp_ensemble.rel_rmse 0.0055054980730930665 \nbench.quadratic.rel_rmse 0.01467045437425446",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6b6f1be8b3e12d0d",
+ "figures": [],
+ "id": "example:examples/industrial",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Industrial closed-loop flows | engineering | not curated",
+ "timed_out": false
+}

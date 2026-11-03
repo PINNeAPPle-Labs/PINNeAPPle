@@ -1,0 +1,129 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/equation_discovery",
+ "title": "Equation discovery: sparse regression checked on held-out data",
+ "description": "SINDy (ODEs) or PDE-FIND (PDEs): the model chosen on held-out data, bootstrap inclusion and intervals, the discovered system simulated against data it never fitted (pinneapple_analysis.inverse_problems.discovery).",
+ "domain": "methods",
+ "methods": [
+  "equation_discovery"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 3.1,
+  "seconds_full": 3.1
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 3.1,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 3.1,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "discover.savgol_window",
+   "value": 41.0,
+   "unit": "",
+   "how": "full run: chosen by the held-out rollout"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "discover.discover.rollout",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the discovered system integrated from the held-out window's first state over 0.998 time units: RMS error 0.99% of the signal (allowed 10%)",
+   "kind": "generalization"
+  },
+  {
+   "name": "discover.discover.stable_terms",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "every selected term is kept in at least 80 % of the bootstrap refits",
+   "kind": "physics"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 3.1 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 3.1 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:01:03Z",
+  "seconds": 0.004,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

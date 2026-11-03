@@ -1,0 +1,239 @@
+{
+ "entry": "surrogate_modeling",
+ "example_flow": "base_workflows/surrogate_modeling",
+ "flow": "surrogate_modeling",
+ "group": "base_workflows",
+ "quick": {},
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "surrogate.drag_N.held_out_error",
+     "detail": "gp: relative RMSE 0.11% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.drag_N.coverage",
+     "detail": "90 % interval covers 94.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.drag_N.beats_baseline",
+     "detail": "gp 0.11% vs quadratic response surface 1.48%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.held_out_error",
+     "detail": "gp: relative RMSE 0.01% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.coverage",
+     "detail": "90 % interval covers 95.5% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.beats_baseline",
+     "detail": "gp 0.01% vs quadratic response surface 0.22%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.held_out_error",
+     "detail": "gp: relative RMSE 0.38% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.coverage",
+     "detail": "90 % interval covers 90.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.beats_baseline",
+     "detail": "gp 0.38% vs quadratic response surface 1.77%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.no_extrapolation",
+     "detail": "the exported predictor refuses inputs outside aspect_ratio in [5, 12], taper in [0.3, 1], twist in [-6, 0]",
+     "node": "surrogate",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "surrogate.M_root_Nm.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.955
+    },
+    "surrogate.M_root_Nm.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.00010958737093816265
+    },
+    "surrogate.cl_local_max_landing.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.9
+    },
+    "surrogate.cl_local_max_landing.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.0038099659990549666
+    },
+    "surrogate.cost.solve_seconds": {
+     "how": "measured: mean over the design of experiments",
+     "value": 0.01985302273333218
+    },
+    "surrogate.drag_N.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.94
+    },
+    "surrogate.drag_N.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.0010858270596288922
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "surrogate": "done"
+   },
+   "seconds": 10.4,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "surrogate.drag_N.held_out_error",
+     "detail": "gp: relative RMSE 0.11% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.drag_N.coverage",
+     "detail": "90 % interval covers 94.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.drag_N.beats_baseline",
+     "detail": "gp 0.11% vs quadratic response surface 1.48%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.held_out_error",
+     "detail": "gp: relative RMSE 0.01% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.coverage",
+     "detail": "90 % interval covers 95.5% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.M_root_Nm.beats_baseline",
+     "detail": "gp 0.01% vs quadratic response surface 0.22%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.held_out_error",
+     "detail": "gp: relative RMSE 0.38% of the output range on 200 new tool calls (Sobol, seed 1000) (target 5%)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.coverage",
+     "detail": "90 % interval covers 90.0% of 200 new tool calls (Sobol, seed 1000) (at least 85.8%: the binomial band at that size)",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.cl_local_max_landing.beats_baseline",
+     "detail": "gp 0.38% vs quadratic response surface 1.77%",
+     "node": "surrogate",
+     "status": "pass"
+    },
+    {
+     "check": "surrogate.no_extrapolation",
+     "detail": "the exported predictor refuses inputs outside aspect_ratio in [5, 12], taper in [0.3, 1], twist in [-6, 0]",
+     "node": "surrogate",
+     "status": "pass"
+    }
+   ],
+   "commit": "ca74b8a",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "surrogate.M_root_Nm.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.955
+    },
+    "surrogate.M_root_Nm.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.00010958737093816265
+    },
+    "surrogate.cl_local_max_landing.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.9
+    },
+    "surrogate.cl_local_max_landing.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.0038099659990549666
+    },
+    "surrogate.cost.solve_seconds": {
+     "how": "measured: mean over the design of experiments",
+     "value": 0.01774553838333001
+    },
+    "surrogate.drag_N.coverage90": {
+     "how": "share of those solves inside the 90 % interval",
+     "value": 0.94
+    },
+    "surrogate.drag_N.rel_rmse": {
+     "how": "relative RMSE of the output range on solves never trained on",
+     "value": 0.0010858270596288922
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "surrogate": "done"
+   },
+   "seconds": 15.6,
+   "status": "done"
+  }
+ }
+}

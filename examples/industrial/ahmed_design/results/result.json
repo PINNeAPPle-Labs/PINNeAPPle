@@ -1,0 +1,572 @@
+{
+ "entry": "ahmed_design",
+ "example_flow": "industrial/ahmed_design",
+ "flow": "ahmed_body_end_to_end",
+ "group": "industrial",
+ "quick": {
+  "geometry": {
+   "cad": false
+  },
+  "models": {
+   "budget_s": 3.0
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "design.outside_drag_crisis",
+     "detail": "slant 9.78 deg outside the 28-32 deg drag-crisis band",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.no_extrapolation",
+     "detail": "inside the sampled box (slant <= 34 deg, clearance 0.03-0.08 m)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "verify.cfd",
+     "detail": "unverified: no OpenFOAM here and the nearest recorded run (pareto_00) is 0.084 away in the unit cube (> 0.05); run the design case",
+     "node": "design",
+     "status": "inconclusive"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "cfd.cpu_hours": {
+     "how": "wall time x processes, summed over the runs",
+     "value": 48.824951938934454
+    },
+    "cfd.runs_ok": {
+     "how": "run records with ok = true",
+     "value": 84
+    },
+    "design.baseline.CD": {
+     "how": "25 deg slant, 0.05 m clearance, same models",
+     "value": 0.29090139824473704
+    },
+    "design.design.clearance": {
+     "how": "",
+     "value": 0.030027929395435686
+    },
+    "design.design.slant_deg": {
+     "how": "",
+     "value": 9.781385675764929
+    },
+    "design.design.speed": {
+     "how": "",
+     "value": 40.0
+    },
+    "design.predicted.CD": {
+     "how": "mlp_ensemble refitted on 73 CFD runs",
+     "value": 0.2507970909228906
+    },
+    "design.predicted.CD_half_width_90": {
+     "how": "mlp_ensemble refitted on 73 CFD runs",
+     "value": 0.004096473123202238
+    },
+    "design.predicted.CL": {
+     "how": "gp refitted on 73 CFD runs",
+     "value": -0.08597429367396658
+    },
+    "design.predicted.CL_half_width_90": {
+     "how": "gp refitted on 73 CFD runs",
+     "value": 0.15105109497210548
+    },
+    "geometry.cad_volume_m3": {
+     "how": "imported STL of the OpenCASCADE body",
+     "value": 0.10993198241748103
+    },
+    "geometry.volume_m3": {
+     "how": "parametric body, divergence theorem on its triangles",
+     "value": 0.10958966987187772
+    },
+    "grid.CD_error_0deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.07708071855886489
+    },
+    "grid.CD_error_12.5deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.1118555480868698
+    },
+    "grid.CD_error_25deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.04307981980786454
+    },
+    "grid.CD_error_30deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": -0.10640651145572605
+    },
+    "grid.CD_error_35deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.47505500955349184
+    },
+    "grid.CD_error_40deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.20204356480787888
+    },
+    "grid.gci_CD_fine": {
+     "how": "grid convergence index of the finest mesh, Celik et al. 2008",
+     "value": 0.010983516789688657
+    },
+    "inverse.slant_median_deg": {
+     "how": "median of 4000 MDN posterior samples",
+     "value": 18.50787722726348
+    },
+    "report.CD_friction_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 1.0
+    },
+    "report.CD_friction_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.0011313648702502251
+    },
+    "report.CD_friction_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.8
+    },
+    "report.CD_friction_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.0010223555361808779
+    },
+    "report.CD_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.7
+    },
+    "report.CD_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.05490579162829671
+    },
+    "report.CD_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CD_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.0058077897236236955
+    },
+    "report.CD_pressure_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CD_pressure_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.06157521532942428
+    },
+    "report.CD_pressure_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.8
+    },
+    "report.CD_pressure_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.009961853559193186
+    },
+    "report.CL_gp_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.7
+    },
+    "report.CL_gp_extrapolation_rmse": {
+     "how": "gp on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.18406611561935646
+    },
+    "report.CL_gp_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CL_gp_test_rmse": {
+     "how": "gp on the test split, fitted on train + val, measured once after selection",
+     "value": 0.020438322550755707
+    },
+    "report.cad_vs_parametric_cd_rel": {
+     "how": "CD of the imported CAD body over the parametric body, baseline, L1 mesh, OpenFOAM",
+     "value": 0.012767096863239846
+    },
+    "report.cd_baseline_L0": {
+     "how": "OpenFOAM, 84223 cells, window mean of iterations 500-1000",
+     "value": 0.28899965610083705
+    },
+    "report.cd_baseline_L1": {
+     "how": "OpenFOAM, 207080 cells, window mean of iterations 500-1000",
+     "value": 0.29656455281749244
+    },
+    "report.cd_baseline_L2": {
+     "how": "OpenFOAM, 534472 cells, window mean of iterations 500-1000",
+     "value": 0.2707438409326792
+    },
+    "report.cd_baseline_L3": {
+     "how": "OpenFOAM, 1398073 cells, window mean of iterations 500-1000",
+     "value": 0.2639794841992436
+    },
+    "report.cp_pod_gp_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.8336379211878926
+    },
+    "report.cp_pod_gp_extrapolation_rel_l2_mean": {
+     "how": "pod_gp on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.19955394705004226
+    },
+    "report.cp_pod_gp_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.892175899486008
+    },
+    "report.cp_pod_gp_test_rel_l2_mean": {
+     "how": "pod_gp on the test split, fitted on train + val, measured once after selection",
+     "value": 0.09864566942506316
+    },
+    "report.doe_discrepancy": {
+     "how": "centred L2 discrepancy of the 48-point maximin LHS",
+     "value": 0.003926490735626897
+    },
+    "report.doe_discrepancy_random": {
+     "how": "median over 20 random designs of 48 points",
+     "value": 0.014111927749649977
+    },
+    "report.gci_cd_finest": {
+     "how": "grid-convergence index of CD on the finest mesh (Celik 2008)",
+     "value": 0.010983516789688657
+    },
+    "report.pareto_pick0_cd_abs_error": {
+     "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1",
+     "value": 0.0010133748494556283
+    },
+    "report.sobol_total_CD_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.05327907219339082
+    },
+    "report.sobol_total_CD_friction_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.039027944734399765
+    },
+    "report.sobol_total_CD_friction_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.08895820794407246
+    },
+    "report.sobol_total_CD_friction_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9298479677451612
+    },
+    "report.sobol_total_CD_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9617356167204382
+    },
+    "report.sobol_total_CD_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.014496346344442041
+    },
+    "report.sobol_total_CL_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.06049314764729285
+    },
+    "report.sobol_total_CL_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9424178498381871
+    },
+    "report.sobol_total_CL_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 6.8917946376608565e-06
+    },
+    "report.validation_cd_rel_error_max": {
+     "how": "largest of the same",
+     "value": 0.47505500955349184
+    },
+    "report.validation_cd_rel_error_median": {
+     "how": "median |CD_cfd / CD_measured - 1| over the six slant angles of Ahmed et al. (1984), L1 mesh",
+     "value": 0.10913102977129793
+    }
+   },
+   "nodes": {
+    "cfd": "done",
+    "data": "done",
+    "design": "done",
+    "geometry": "done",
+    "grid": "done",
+    "inverse": "done",
+    "models": "done",
+    "report": "done",
+    "twin": "done"
+   },
+   "seconds": 346.3,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "design.outside_drag_crisis",
+     "detail": "slant 9.78 deg outside the 28-32 deg drag-crisis band",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.no_extrapolation",
+     "detail": "inside the sampled box (slant <= 34 deg, clearance 0.03-0.08 m)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "verify.cfd",
+     "detail": "unverified: no OpenFOAM here and the nearest recorded run (pareto_00) is 0.084 away in the unit cube (> 0.05); run the design case",
+     "node": "design",
+     "status": "inconclusive"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "cfd.cpu_hours": {
+     "how": "wall time x processes, summed over the runs",
+     "value": 48.824951938934454
+    },
+    "cfd.runs_ok": {
+     "how": "run records with ok = true",
+     "value": 84
+    },
+    "design.baseline.CD": {
+     "how": "25 deg slant, 0.05 m clearance, same models",
+     "value": 0.29090139824473704
+    },
+    "design.design.clearance": {
+     "how": "",
+     "value": 0.030027929395435686
+    },
+    "design.design.slant_deg": {
+     "how": "",
+     "value": 9.781385675764929
+    },
+    "design.design.speed": {
+     "how": "",
+     "value": 40.0
+    },
+    "design.predicted.CD": {
+     "how": "mlp_ensemble refitted on 73 CFD runs",
+     "value": 0.2507970909228906
+    },
+    "design.predicted.CD_half_width_90": {
+     "how": "mlp_ensemble refitted on 73 CFD runs",
+     "value": 0.004096473123202238
+    },
+    "design.predicted.CL": {
+     "how": "gp refitted on 73 CFD runs",
+     "value": -0.08597429367396658
+    },
+    "design.predicted.CL_half_width_90": {
+     "how": "gp refitted on 73 CFD runs",
+     "value": 0.15105109497210548
+    },
+    "geometry.volume_m3": {
+     "how": "parametric body, divergence theorem on its triangles",
+     "value": 0.10958966987187772
+    },
+    "grid.CD_error_0deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.07708071855886489
+    },
+    "grid.CD_error_12.5deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.1118555480868698
+    },
+    "grid.CD_error_25deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.04307981980786454
+    },
+    "grid.CD_error_30deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": -0.10640651145572605
+    },
+    "grid.CD_error_35deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.47505500955349184
+    },
+    "grid.CD_error_40deg": {
+     "how": "(CFD - measured) / measured, Ahmed 1984",
+     "value": 0.20204356480787888
+    },
+    "grid.gci_CD_fine": {
+     "how": "grid convergence index of the finest mesh, Celik et al. 2008",
+     "value": 0.010983516789688657
+    },
+    "inverse.slant_median_deg": {
+     "how": "median of 4000 MDN posterior samples",
+     "value": 18.568430117238137
+    },
+    "report.CD_friction_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 1.0
+    },
+    "report.CD_friction_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.0011313648702502251
+    },
+    "report.CD_friction_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.8
+    },
+    "report.CD_friction_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.0010223555361808779
+    },
+    "report.CD_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.7
+    },
+    "report.CD_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.05490579162829671
+    },
+    "report.CD_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CD_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.0058077897236236955
+    },
+    "report.CD_pressure_mlp_ensemble_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CD_pressure_mlp_ensemble_extrapolation_rmse": {
+     "how": "mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.06157521532942428
+    },
+    "report.CD_pressure_mlp_ensemble_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.8
+    },
+    "report.CD_pressure_mlp_ensemble_test_rmse": {
+     "how": "mlp_ensemble on the test split, fitted on train + val, measured once after selection",
+     "value": 0.009961853559193186
+    },
+    "report.CL_gp_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.7
+    },
+    "report.CL_gp_extrapolation_rmse": {
+     "how": "gp on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.18406611561935646
+    },
+    "report.CL_gp_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.9
+    },
+    "report.CL_gp_test_rmse": {
+     "how": "gp on the test split, fitted on train + val, measured once after selection",
+     "value": 0.020438322550755707
+    },
+    "report.cad_vs_parametric_cd_rel": {
+     "how": "CD of the imported CAD body over the parametric body, baseline, L1 mesh, OpenFOAM",
+     "value": 0.012767096863239846
+    },
+    "report.cd_baseline_L0": {
+     "how": "OpenFOAM, 84223 cells, window mean of iterations 500-1000",
+     "value": 0.28899965610083705
+    },
+    "report.cd_baseline_L1": {
+     "how": "OpenFOAM, 207080 cells, window mean of iterations 500-1000",
+     "value": 0.29656455281749244
+    },
+    "report.cd_baseline_L2": {
+     "how": "OpenFOAM, 534472 cells, window mean of iterations 500-1000",
+     "value": 0.2707438409326792
+    },
+    "report.cd_baseline_L3": {
+     "how": "OpenFOAM, 1398073 cells, window mean of iterations 500-1000",
+     "value": 0.2639794841992436
+    },
+    "report.cp_pod_gp_extrapolation_coverage90": {
+     "how": "share of extrapolation cases inside the cross-conformal 90 % interval",
+     "value": 0.8336379211878926
+    },
+    "report.cp_pod_gp_extrapolation_rel_l2_mean": {
+     "how": "pod_gp on the extrapolation split, fitted on train + val, measured once after selection",
+     "value": 0.19955394705004226
+    },
+    "report.cp_pod_gp_test_coverage90": {
+     "how": "share of test cases inside the cross-conformal 90 % interval",
+     "value": 0.892175899486008
+    },
+    "report.cp_pod_gp_test_rel_l2_mean": {
+     "how": "pod_gp on the test split, fitted on train + val, measured once after selection",
+     "value": 0.09864566942506316
+    },
+    "report.doe_discrepancy": {
+     "how": "centred L2 discrepancy of the 48-point maximin LHS",
+     "value": 0.003926490735626897
+    },
+    "report.doe_discrepancy_random": {
+     "how": "median over 20 random designs of 48 points",
+     "value": 0.014111927749649977
+    },
+    "report.gci_cd_finest": {
+     "how": "grid-convergence index of CD on the finest mesh (Celik 2008)",
+     "value": 0.010983516789688657
+    },
+    "report.pareto_pick0_cd_abs_error": {
+     "how": "|CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1",
+     "value": 0.0010133748494556283
+    },
+    "report.sobol_total_CD_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.05327907219339082
+    },
+    "report.sobol_total_CD_friction_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.039027944734399765
+    },
+    "report.sobol_total_CD_friction_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.08895820794407246
+    },
+    "report.sobol_total_CD_friction_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9298479677451612
+    },
+    "report.sobol_total_CD_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9617356167204382
+    },
+    "report.sobol_total_CD_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.014496346344442041
+    },
+    "report.sobol_total_CL_clearance": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.06049314764729285
+    },
+    "report.sobol_total_CL_slant_deg": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 0.9424178498381871
+    },
+    "report.sobol_total_CL_speed": {
+     "how": "total Sobol index on the selected surrogate, Saltelli n=4096",
+     "value": 6.8917946376608565e-06
+    },
+    "report.validation_cd_rel_error_max": {
+     "how": "largest of the same",
+     "value": 0.47505500955349184
+    },
+    "report.validation_cd_rel_error_median": {
+     "how": "median |CD_cfd / CD_measured - 1| over the six slant angles of Ahmed et al. (1984), L1 mesh",
+     "value": 0.10913102977129793
+    }
+   },
+   "nodes": {
+    "cfd": "done",
+    "data": "done",
+    "design": "done",
+    "geometry": "done",
+    "grid": "done",
+    "inverse": "done",
+    "models": "done",
+    "report": "done",
+    "twin": "done"
+   },
+   "seconds": 184.5,
+   "status": "done"
+  }
+ }
+}

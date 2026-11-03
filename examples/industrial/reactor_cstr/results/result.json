@@ -1,0 +1,184 @@
+{
+ "entry": "reactor_cstr",
+ "example_flow": "industrial/reactor_cstr",
+ "flow": "reactor_sizing_cstr",
+ "group": "industrial",
+ "quick": {
+  "design": {
+   "maxiter": 8,
+   "popsize": 6
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "design.conversion",
+     "detail": "margin 0.0009346 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.hot_spot",
+     "detail": "margin 0.02775 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.balances",
+     "detail": "mole and energy balances of every tank closed to 8.9e-15 (relative to the feed and its heat flow)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.stoichiometry",
+     "detail": "the flow change lies in the span of the reactions (residual 7.7e-18 of the feed)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "safety.stable_state",
+     "detail": "every tank on a stable steady state (slope condition); steady states per tank: [1]",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: mean of three solves",
+     "value": 0.08740553433335663
+    },
+    "design.design.UA": {
+     "how": "optimum, re-solved by the model",
+     "value": 2588.222329780516
+    },
+    "design.design.V": {
+     "how": "optimum, re-solved by the model",
+     "value": 1.8641453655110714
+    },
+    "design.model.T_max": {
+     "how": "reactor model at the design",
+     "value": 329.9722516596818
+    },
+    "design.model.X": {
+     "how": "reactor model at the design",
+     "value": 0.8009345854600236
+    },
+    "design.model.selectivity": {
+     "how": "reactor model at the design",
+     "value": 1.0
+    },
+    "design.model.yield": {
+     "how": "reactor model at the design",
+     "value": 0.8009345854600235
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 27.3,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "design.conversion",
+     "detail": "margin 0.02138 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.hot_spot",
+     "detail": "margin 0.3148 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.balances",
+     "detail": "mole and energy balances of every tank closed to 1.4e-15 (relative to the feed and its heat flow)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.stoichiometry",
+     "detail": "the flow change lies in the span of the reactions (residual 3.8e-17 of the feed)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "safety.stable_state",
+     "detail": "every tank on a stable steady state (slope condition); steady states per tank: [1]",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: mean of three solves",
+     "value": 0.0627037350000137
+    },
+    "design.design.UA": {
+     "how": "optimum, re-solved by the model",
+     "value": 3062.1837743468623
+    },
+    "design.design.V": {
+     "how": "optimum, re-solved by the model",
+     "value": 2.1820917457774773
+    },
+    "design.model.T_max": {
+     "how": "reactor model at the design",
+     "value": 329.68519959308173
+    },
+    "design.model.X": {
+     "how": "reactor model at the design",
+     "value": 0.8213777914251307
+    },
+    "design.model.selectivity": {
+     "how": "reactor model at the design",
+     "value": 1.0
+    },
+    "design.model.yield": {
+     "how": "reactor model at the design",
+     "value": 0.8213777914251307
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 11.9,
+   "status": "done"
+  }
+ }
+}

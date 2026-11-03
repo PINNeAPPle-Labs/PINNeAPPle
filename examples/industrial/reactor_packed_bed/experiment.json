@@ -1,0 +1,225 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial/reactor_packed_bed",
+ "title": "Reactor sizing: cooled packed bed (o-xylene to phthalic anhydride)",
+ "description": "The smallest reactor meeting the conversion, hot-spot and runaway limits: the reactor model, a learned model only when its measured cost pays off, optimisation, and the design re-verified by the model (pinneapple_physics.reactors.design).",
+ "domain": "engineering",
+ "methods": [
+  "reactor_sizing_packed_bed"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 6.9,
+  "seconds_full": 16.2
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 6.9,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 16.2,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "design.design.V",
+   "value": 0.0010725365114877196,
+   "unit": "",
+   "how": "full run: optimum, re-solved by the model"
+  },
+  {
+   "name": "design.design.Tc",
+   "value": 645.4681145288228,
+   "unit": "",
+   "how": "full run: optimum, re-solved by the model"
+  },
+  {
+   "name": "design.model.X",
+   "value": 0.7500000830928399,
+   "unit": "",
+   "how": "full run: reactor model at the design"
+  },
+  {
+   "name": "design.model.T_max",
+   "value": 673.1499736897324,
+   "unit": "",
+   "how": "full run: reactor model at the design"
+  },
+  {
+   "name": "design.model.P_out",
+   "value": 101325.0,
+   "unit": "",
+   "how": "full run: reactor model at the design"
+  },
+  {
+   "name": "design.model.yield",
+   "value": 0.7500000830928396,
+   "unit": "",
+   "how": "full run: reactor model at the design"
+  },
+  {
+   "name": "design.model.selectivity",
+   "value": 0.9999999999999996,
+   "unit": "",
+   "how": "full run: reactor model at the design"
+  },
+  {
+   "name": "design.cost.solve_seconds",
+   "value": 0.012063771333335657,
+   "unit": "",
+   "how": "full run: measured: mean of three solves"
+  },
+  {
+   "name": "design.safety.runaway_margin_K",
+   "value": 14.0,
+   "unit": "",
+   "how": "full run: Morbidelli-Varma boundary minus the coolant"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "design.design.conversion",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "margin 8.309e-08 at the design, computed by the model",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.design.hot_spot",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "margin 2.631e-05 at the design, computed by the model",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.model.converged",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "conversion changes by 4.5e-09 with a 100x tighter tolerance",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.model.stoichiometry",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the flow change lies in the span of the reactions (residual 2.0e-17 of the feed)",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.model.levenspiel",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "area under F_A0/(-r_A) vs X is 0.0010725 m^3 for a volume of 0.0010725 m^3 (9.2e-06)",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.safety.runaway_margin",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "coolant 14.0 K below the runaway boundary (Morbidelli-Varma), required 10 K",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 6.9 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 16.2 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:02:03Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

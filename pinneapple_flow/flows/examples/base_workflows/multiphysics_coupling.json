@@ -1,0 +1,50 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.base_workflows.multiphysics_coupling",
+ "name": "Multiphysics coupling: one-way, partitioned with Aitken, monolithic, checked",
+ "description": "Two physics participants through named interface fields, coupled one-way, two-way partitioned (Gauss-Seidel with Aitken relaxation) and monolithically; the strategy from the measured coupling strength; convergence, interface balance and a closed-form coupled solution (pinneapple_simulation.multiphysics.workflow).",
+ "nodes": [
+  {
+   "id": "couple",
+   "type": "multiphysics.couple",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Multiphysics coupling"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Multiphysics coupling: one-way, partitioned with Aitken, monolithic, checked"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "couple",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "couple.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1209,
+  "example": "base_workflows",
+  "domain": "methods",
+  "entry": "multiphysics_coupling",
+  "bundled": "multiphysics_coupling",
+  "quick": {},
+  "scripts": []
+ }
+}

@@ -1,0 +1,1 @@
+`pinneapple_flow.study_steps.table_step`: an uploaded table (CSV/TSV) as named columns with the units its header states, and the `series` / `measurements` the time-series and identification steps take (#1171).

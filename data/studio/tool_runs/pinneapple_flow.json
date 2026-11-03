@@ -970,6 +970,16 @@
   "returned": "dict",
   "seconds": 5.97
  },
+ "pinneapple_flow.study_steps:split_header": {
+  "code_hash": "0eaed07e0212e72d",
+  "inputs": {
+   "header": "tensao_MPa"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 0.75
+ },
  "pinneapple_flow.study_steps:twin_step": {
   "code_hash": "588be36b0415b9d1",
   "inputs": {

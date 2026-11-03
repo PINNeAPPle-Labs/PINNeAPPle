@@ -20,8 +20,14 @@ from .metrics import blur
 def optimise_mask(target: np.ndarray, L: float, imager: Callable[[torch.Tensor, float], torch.Tensor], *,
                   corners: list[tuple[float, float]] = ((0.0, 1.0),), threshold: float = 0.3, diffusion: float = 0.0,
                   tone: str = "dark", steps: int = 200, lr: float = 0.3, steepness: float = 50.0,
-                  binary_weight: float = 0.02, init: np.ndarray | None = None) -> dict:
-    """``{"mask" (bool), "mask_continuous", "loss_history"}``; ``corners`` are ``(defocus nm, dose)``."""
+                  binary_weight: float = 0.02, init: np.ndarray | None = None, filter_nm: float = 0.0,
+                  min_feature_nm: float = 0.0) -> dict:
+    """``{"mask" (bool), "mask_continuous", "loss_history", "mrc_changed_px"}``; ``corners`` are ``(defocus nm, dose)``.
+
+    ``filter_nm``: the pixel parameters are Gaussian-filtered before the sigmoid, so the mask cannot hold features
+    much smaller than the filter (a smooth, manufacturable mask). ``min_feature_nm``: the binary mask is then opened
+    and closed with a square of that size, the mask rule check (MRC) every mask shop applies; how many pixels it
+    changed is returned, and the caller verifies the mask after it."""
     t = torch.as_tensor(np.asarray(target, float))
     m0 = np.asarray(init if init is not None else (target if tone == "clear" else ~np.asarray(target, bool)), float)
     # dark-tone target (resist lines) -> the mask is dark (0) on the lines, clear (1) elsewhere
@@ -30,7 +36,7 @@ def optimise_mask(target: np.ndarray, L: float, imager: Callable[[torch.Tensor, 
     hist = []
     for _ in range(int(steps)):
         opt.zero_grad()
-        m = torch.sigmoid(theta)
+        m = torch.sigmoid(blur(theta, L, filter_nm))
         loss = 0.0
         for z, dose in corners:
             J = blur(imager(m, z), L, diffusion) * dose
@@ -40,5 +46,17 @@ def optimise_mask(target: np.ndarray, L: float, imager: Callable[[torch.Tensor, 
         loss.backward()
         opt.step()
         hist.append(float(loss.detach()))
-    mc = torch.sigmoid(theta).detach().numpy()
-    return {"mask": mc >= 0.5, "mask_continuous": mc, "loss_history": hist}
+    mc = torch.sigmoid(blur(theta, L, filter_nm)).detach().numpy()
+    mask = mc >= 0.5
+    changed = 0
+    if min_feature_nm > 0:
+        from scipy import ndimage
+        k = max(1, int(round(min_feature_nm / (L / mask.shape[0]))))
+        st = np.ones((k, k), bool)
+        pad = 2 * k                                   # the cell is periodic: wrap it before the morphology
+        big = np.pad(mask, pad, mode="wrap")
+        big = ndimage.binary_closing(ndimage.binary_opening(big, st), st)
+        cleaned = big[pad:-pad, pad:-pad]
+        changed = int(np.sum(cleaned != mask))
+        mask = cleaned
+    return {"mask": mask, "mask_continuous": mc, "loss_history": hist, "mrc_changed_px": changed}

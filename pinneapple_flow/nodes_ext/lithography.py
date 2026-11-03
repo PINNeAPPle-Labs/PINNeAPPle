@@ -10,7 +10,7 @@ SOURCES = ("annular", "conventional", "dipole_x", "dipole_y")
 
 
 @node("litho.opc", "Mask correction (ILT), re-verified over the process window", category="Design",
-      outputs=[Port("metrics", "metrics")],
+      outputs=[Port("metrics", "metrics"), Port("figure", "figure")],
       params=[Param("wavelength_nm", "float", 193.0, minimum=1.0), Param("NA", "float", 1.35, minimum=0.1,
                                                                         maximum=1.7),
               Param("source", "enum", "annular", choices=list(SOURCES)),

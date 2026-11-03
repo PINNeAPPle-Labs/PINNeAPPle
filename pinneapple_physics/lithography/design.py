@@ -63,7 +63,7 @@ def min_feature(mask: np.ndarray, L: float) -> float:
     return float(best * px)
 
 
-def correct_mask(spec: LithoSpec, *, steps: int = 150, lr: float = 0.3, force_surrogate: bool = False,
+def correct_mask(spec: LithoSpec, *, steps: int = 150, lr: float = 0.5, force_surrogate: bool = False,
                  kernel_energy: float = 0.995, operator: dict | None = None, seed: int = 0) -> dict[str, Any]:
     N = spec.target.shape[0]
     corners_f = sorted(set(spec.focus))
@@ -76,7 +76,7 @@ def correct_mask(spec: LithoSpec, *, steps: int = 150, lr: float = 0.3, force_su
     for _ in range(3):
         aerial_image_socs(no_opc.astype(float), socs[0.0])
     solve_s = (time.perf_counter() - t1) / 3
-    corners = [(z, 1.0) for z in corners_f] + [(0.0, d) for d in spec.doses if d != 1.0]
+    corners = [(z, d) for z in corners_f for d in spec.doses]          # every corner of the process window
     n_eval = spec.clips * steps * len(corners)
 
     rec: dict[str, Any] = {"recommended": ["none"], "reasoning": "recommendation unavailable", "checks": []}
@@ -107,7 +107,8 @@ def correct_mask(spec: LithoSpec, *, steps: int = 150, lr: float = 0.3, force_su
         ilt_corners = corners
     t2 = time.perf_counter()
     res = optimise_mask(spec.target, spec.L, imager, corners=ilt_corners, threshold=spec.threshold,
-                        diffusion=spec.diffusion, tone=spec.tone, steps=steps, lr=lr)
+                        diffusion=spec.diffusion, tone=spec.tone, steps=steps, lr=lr,
+                        filter_nm=spec.min_feature_nm / 2, min_feature_nm=spec.min_feature_nm)
     ilt_s = time.perf_counter() - t2
     mask = res["mask"]
 

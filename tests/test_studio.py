@@ -189,7 +189,8 @@ def test_search_in_portuguese_and_english(cat):
     ("dispersão de CO2 numa sala com ventilação", {"dispersion", "room", "ventilation"}),
     ("trocador casco e tubos com óleo", {"exchanger", "shell", "tubes", "oil"}),
     ("controlador do forno com sobressinal e acomodação", {"controller", "furnace", "overshoot", "settling"}),
-    ("energia de ativação da cinética", {"energy", "activation", "kinetics"}),
+    ("energia de ativação da cinética", {"energy", "activation", "kinetics", "arrhenius"}),
+    ("fator pré-exponencial e constantes de velocidade", {"exponential", "constants"}),
     ("viga em balanço com carga e flecha", {"beam", "cantilever", "load", "deflection"}),
 ])
 def test_portuguese_engineering_goals_reach_english_words(pt, en):

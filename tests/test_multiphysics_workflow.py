@@ -13,7 +13,8 @@ def test_joule_wire_two_way_matches_the_closed_form_and_one_way_is_not_enough():
     assert r["verdict"] == "pass", r["failed"]
     assert _status(r, "closed_form") == "pass"
     assert r["recommended"] == "gauss_seidel_aitken"
-    assert 0 < r["coupling_strength"]["contraction"] < 1
+    # the partitioned map's spectral radius is (m L / pi)^2: the source feedback over the lowest conduction mode
+    assert abs(r["coupling_strength"]["contraction"] - r["params"]["mL_over_pi"] ** 2) < 1e-3
     assert r["one_way_error"]["T_max_K"] > 0.05
     s = r["strategies"]
     assert s["gauss_seidel_aitken"]["iterations"] < s["gauss_seidel"]["iterations"]
@@ -23,6 +24,7 @@ def test_joule_wire_at_low_current_one_way_is_enough():
     r = multiphysics_workflow(case="joule_wire", case_params={"current": 0.5})
     assert r["recommended"] == "one_way"
     assert r["verdict"] == "pass"
+    assert abs(r["coupling_strength"]["contraction"] - r["params"]["mL_over_pi"] ** 2) < 1e-4
 
 
 def test_joule_wire_beyond_runaway_is_refused():

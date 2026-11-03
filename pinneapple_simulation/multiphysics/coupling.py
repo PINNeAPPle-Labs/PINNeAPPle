@@ -114,7 +114,8 @@ def coupling_strength(a: Participant, b: Participant, y0: np.ndarray, n: int = 6
         y = y_new
         if not np.all(np.isfinite(y)):
             break
-    ratios = [steps[i + 1] / steps[i] for i in range(len(steps) - 1) if steps[i] > 1e-14 * max(steps[0], 1e-300)]
+    floor = 1e-11 * max(_norm(y0), 1e-300)          # corrections below this are round-off, not the map
+    ratios = [steps[i + 1] / steps[i] for i in range(len(steps) - 1) if steps[i + 1] > floor]
     rho = float(ratios[-1]) if ratios else 0.0
     feedback = steps[1] / max(_norm(y0), 1e-300) if len(steps) > 1 else 0.0
     return {"contraction": rho, "ratios": ratios, "first_corrections": steps,

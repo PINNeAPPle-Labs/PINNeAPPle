@@ -33,8 +33,17 @@ from typing import Any
 import numpy as np
 
 from .power import Battery, Motor
-from .quad import G, Quad, Segment, fly_mission, hover_power, lqr_hover, loop_margins_per_channel, rotor_table, \
-    simulate
+from .quad import (
+    G,
+    Quad,
+    Segment,
+    fly_mission,
+    hover_power,
+    loop_margins_per_channel,
+    lqr_hover,
+    rotor_table,
+    simulate,
+)
 from .rotor import (
     APC_10X4_7_STATIC,
     APC_SOURCE,

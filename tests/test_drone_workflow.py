@@ -11,7 +11,7 @@ import pytest
 pytest.importorskip("scipy")
 
 from pinneapple_simulation.multirotor.power import Battery, Motor  # noqa: E402
-from pinneapple_simulation.multirotor.quad import lqr_hover, loop_margins_per_channel  # noqa: E402
+from pinneapple_simulation.multirotor.quad import loop_margins_per_channel, lqr_hover  # noqa: E402
 from pinneapple_simulation.multirotor.rotor import (  # noqa: E402
     APC_10X4_7_STATIC,
     apc_10x4_7,

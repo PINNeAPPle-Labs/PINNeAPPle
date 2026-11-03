@@ -26,12 +26,14 @@ from . import (  # noqa: F401
     geomechanics,
     lbm,
     learned_sim,
+    lithography,
     non_hermitian,
     pde_env,
     pinn_examples,
     pinn_solver,
     potential,
     problemdesign,
+    reactors,
     render,
     security,
     solver_registry,
@@ -42,6 +44,7 @@ from . import (  # noqa: F401
     validation,
     validation_gallery,
     viz,
+    wing_design,
     worldmodel,
 )
 

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6252a905c6cc4a40",
+ "figures": [],
+ "id": "node:litho.opc",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Mask correction (ILT), re-verified over the process window -> pinneapple_physics.lithography.design.correct_mask (imaging.aerial_image / socs_kernels, ilt, surrogate.train_operator, architecture_recommendation.recommend_architecture)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'wavelength_nm': 193.0, 'NA': 1.35, 'source': 'annular', 'sigma_out': 0.9, 'sigma_in': 0.6, 'threshold': 0.3, 'diffusion_nm': 5.0, 'focus_nm': 50.0, 'dose': 0.05, 'epe_tol_nm': 2.0, 'min_feature_nm': 16.0, 'clips': 1, 'N': 128, 'steps': 150, 'force_surrogate': False, 'seed': 0}",
+ "timed_out": false
+}

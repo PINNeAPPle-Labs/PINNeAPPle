@@ -1,0 +1,12 @@
+{
+ "code_hash": "d98ad7cc5801504d",
+ "figures": [],
+ "id": "flow:reactor_sizing_cstr",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reactor sizing: cooled CSTR (propylene glycol) - 2 nodes\nissues: []",
+ "timed_out": false
+}

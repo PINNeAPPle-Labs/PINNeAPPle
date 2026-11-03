@@ -317,12 +317,50 @@
   "returned": "PosixPath",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.lithography:build_flow": {
+  "code_hash": "b182bc8fa37177d5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 7.17
+ },
+ "pinneapple_flow.nodes_ext.reactors:build_flow": {
+  "code_hash": "5e021e182ad4bfae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.reactors:spec_for": {
+  "code_hash": "0087fec9eed0a0df",
+  "inputs": {
+   "case": "propylene_glycol_cstr",
+   "params": {
+    "T_limit": 330.0,
+    "X_target": 0.8
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ReactorSpec",
+  "seconds": 8.46
+ },
  "pinneapple_flow.nodes_ext.render_worker:check": {
   "code_hash": "88a29019ebd1aa71",
   "error": "ModuleNotFoundError: No module named 'bpy'",
   "inputs": {},
   "ok": false,
   "recorded": "2026-10-31",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.wing_design:build_flow": {
+  "code_hash": "80a69d2614f959b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
   "seconds": 0.0
  },
  "pinneapple_flow.palette:humanize": {

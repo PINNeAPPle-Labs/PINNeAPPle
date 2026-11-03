@@ -46,6 +46,7 @@ SECTION_OF: dict[str, str] = {
     "study.dataset": "data",
     "study.surrogates": "surrogates",
     "study.inverse": "inverse",
+    "study.design": "optimization",
     "study.twin": "twin",
     "study.report": "export",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",

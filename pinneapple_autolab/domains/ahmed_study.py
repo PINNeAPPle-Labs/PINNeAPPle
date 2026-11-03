@@ -25,13 +25,17 @@ from . import ahmed as A
 __all__ = ["TARGETS", "OUTPUTS", "BOUNDS", "UNITS", "HOLDOUT_DEG", "load_records", "refresh_fields", "grid_and_validation",
            "study_dataset", "deployment_dataset", "template_integral", "benchmark_all", "next_runs",
            "evaluate_more_runs", "fit_selected", "train_slant_mdn", "inverse", "twin", "flow_scene", "visuals",
-           "study_costs", "study_report"]
+           "study_costs", "study_report", "design", "CRISIS_DEG"]
 
 TARGETS = ["CD", "CL", "CD_pressure", "CD_friction"]
 OUTPUTS = TARGETS + ["CD_front", "CD_slant", "CD_base", "CD_roof", "CD_side", "CD_underbody"]
 BOUNDS = {v.name: (v.lower, v.upper) for v in A.VARIABLES}
 UNITS = {v.name: v.unit for v in A.VARIABLES}
 HOLDOUT_DEG = 34.0
+# the drag crisis: near 30 deg the slant flow switches between attached-with-vortices and fully separated, and the
+# drag jumps (Ahmed, Ramm & Faltin 1984, fig. 8; Lienhart & Becker 2003 see a bistable flow there); a steady RANS
+# surrogate across it is not trusted
+CRISIS_DEG = (28.0, 32.0)
 PROVENANCE = ("OpenFOAM simpleFoam k-omega SST, Ahmed body half model, L1 mesh with 5 prism layers, "
               "800 iterations (outputs averaged over 400-800)")
 
@@ -1021,3 +1025,84 @@ def study_report(recs, res: str, out: str | None = None, title: str = "Ahmed bod
                "evidence_zip": "evidence.zip", "evidence_problems": pkg["problems"], "sections": [s["title"] for s in S]}
     _dump(res, "summary.json", summary)
     return summary
+
+
+def design(recs, res: str, *, speed: float = 40.0, CL_max: float | None = None, kappa: float = 1.0,
+           verify_tol: float = 0.05, seed: int = 0) -> dict[str, Any]:
+    """The least-drag body over slant and clearance at ``speed`` (#1182): the selected CD and CL families fitted on
+    every successful run, the robust objective ``CD + kappa * (90 % half width)`` inside the sampled box (slant up to
+    :data:`HOLDOUT_DEG`, no extrapolation), ``CL <= CL_max`` when given; then verified.
+
+    Verification, in order: an OpenFOAM run at the design when the solver is installed (``AhmedAero``); otherwise
+    the recorded run nearest to it in the unit cube, used only when it is within ``verify_tol`` (its CD must fall in
+    the predicted interval); otherwise the design is reported unverified, with the distance. A design inside the
+    drag-crisis band :data:`CRISIS_DEG` is flagged."""
+    from scipy.optimize import NonlinearConstraint, differential_evolution
+    ds = deployment_dataset(recs)
+    sel = (_load(res, "benchmark.json") or {}).get("selection", {})     # the study's selected families
+    fam_cd, fam_cl = sel.get("CD", "gp"), sel.get("CL", "gp")
+    p_cd, p_cl = fit_selected(ds, "CD", fam_cd), fit_selected(ds, "CL", fam_cl)
+    lo_s, hi_s = BOUNDS["slant_deg"][0], HOLDOUT_DEG
+    lo_c, hi_c = BOUNDS["clearance"]
+
+    def unit(z):
+        return A.params_to_unit({"slant_deg": z[0], "clearance": z[1], "speed": speed})
+
+    def robust(z):
+        m, h = p_cd(unit(z))
+        return float(m[0] + kappa * h[0])
+    cons = ()
+    if CL_max is not None:
+        cons = (NonlinearConstraint(lambda z: float(p_cl(unit(z))[0][0]), -np.inf, CL_max),)
+    r = differential_evolution(robust, [(lo_s, hi_s), (lo_c, hi_c)], seed=seed, maxiter=60, popsize=15, tol=1e-9,
+                               polish=False, init="sobol", constraints=cons)
+    x = {"slant_deg": float(r.x[0]), "clearance": float(r.x[1]), "speed": float(speed)}
+    m, h = p_cd(unit(r.x))
+    ml, hl = p_cl(unit(r.x))
+    pred = {"CD": float(m[0]), "CD_half_width_90": float(h[0]), "CL": float(ml[0]), "CL_half_width_90": float(hl[0])}
+    base = {"slant_deg": 25.0, "clearance": 0.05, "speed": float(speed)}
+    mb, hb = p_cd(A.params_to_unit(base))
+    checks: list[dict[str, Any]] = []
+
+    def chk(code, ok, detail, value=None):
+        ok = None if ok is None else bool(ok)
+        checks.append({"code": code, "status": "pass" if ok is True else ("fail" if ok is False else "inconclusive"),
+                       "detail": detail, "value": value})
+    in_crisis = CRISIS_DEG[0] <= x["slant_deg"] <= CRISIS_DEG[1]
+    chk("design.outside_drag_crisis", not in_crisis, f"slant {x['slant_deg']:.2f} deg "
+        + ("inside" if in_crisis else "outside") + f" the {CRISIS_DEG[0]:g}-{CRISIS_DEG[1]:g} deg drag-crisis band")
+    chk("design.no_extrapolation", lo_s <= x["slant_deg"] <= hi_s and lo_c <= x["clearance"] <= hi_c,
+        f"inside the sampled box (slant <= {HOLDOUT_DEG:g} deg, clearance {lo_c:g}-{hi_c:g} m)")
+    if CL_max is not None:
+        chk("design.lift", pred["CL"] <= CL_max + 1e-9, f"predicted CL {pred['CL']:.4f} <= {CL_max:g}", pred["CL"])
+    verification: dict[str, Any] = {"method": None}
+    try:
+        from pinneapple_simulation.numerical_solvers.external_flow import openfoam_available
+        have_foam = bool(openfoam_available())
+    except ImportError:
+        have_foam = False
+    if have_foam:
+        verification = {"method": "openfoam", "note": "run AhmedAero at the design (study.cfd_campaign source=run)"}
+        chk("verify.cfd", None, "OpenFOAM is installed: run the design case and compare (not run by this step)")
+    else:
+        ok_recs = [rr for rr in recs if rr.ok and "CD" in (rr.outputs or {})]
+        U = A.params_to_unit([rr.params for rr in ok_recs])
+        d = np.linalg.norm(U - unit(r.x), axis=1)
+        k = int(np.argmin(d))
+        near = ok_recs[k]
+        verification = {"method": "nearest recorded run", "run": near.id, "distance_unit": float(d[k]),
+                        "params": dict(near.params), "cfd_CD": float(near.outputs["CD"])}
+        if d[k] <= verify_tol:
+            mn, hn = p_cd(A.params_to_unit(near.params))
+            inside = abs(float(near.outputs["CD"]) - float(mn[0])) <= float(hn[0])
+            chk("verify.cfd", inside, f"recorded CFD run {near.id} at distance {d[k]:.3f} (unit cube): CD "
+                                      f"{near.outputs['CD']:.4f} vs predicted {float(mn[0]):.4f} +- {float(hn[0]):.4f}",
+                float(near.outputs["CD"]))
+        else:
+            chk("verify.cfd", None, f"unverified: no OpenFOAM here and the nearest recorded run ({near.id}) is "
+                                    f"{d[k]:.3f} away in the unit cube (> {verify_tol:g}); run the design case")
+    out = {"design": x, "predicted": pred, "families": {"CD": fam_cd, "CL": fam_cl}, "kappa": kappa,
+           "baseline": {"params": base, "CD": float(mb[0]), "CD_half_width_90": float(hb[0])},
+           "verification": verification, "checks": checks, "n_runs": len(ds.ids)}
+    _dump(res, "design.json", out)
+    return out

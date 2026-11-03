@@ -5674,6 +5674,74 @@
   },
   "source": "tests/test_rover_realism.py:22"
  },
+ "pinneapple_simulation.terramechanics.workflow:bekker_pressure": {
+  "inputs": {
+   "width": 0.1,
+   "sinkage": 0.02,
+   "k_c": 1000.0,
+   "k_phi": 500000.0,
+   "n": 1.0
+  },
+  "source": "tests/test_terramechanics_workflow.py"
+ },
+ "pinneapple_simulation.terramechanics.workflow:janosi_shear": {
+  "inputs": {
+   "normal_stress": 10000.0,
+   "displacement": 0.02,
+   "c": 500.0,
+   "phi_deg": 30.0,
+   "K": 0.01
+  },
+  "source": "tests/test_terramechanics_workflow.py"
+ },
+ "pinneapple_simulation.terramechanics.workflow:wheel_mass": {
+  "inputs": {
+   "radius": 0.2,
+   "width": 0.1
+  },
+  "source": "tests/test_terramechanics_workflow.py"
+ },
+ "pinneapple_simulation.vehicle.mission_design:heater_power": {
+  "inputs": {
+   "area": 0.24,
+   "eps_eff": 0.03,
+   "t_inside": 233.0,
+   "t_sink": 180.0,
+   "internal_W": 0.0
+  },
+  "source": "tests/test_rover_mission_design.py"
+ },
+ "pinneapple_simulation.vehicle.mission_design:max_step_height": {
+  "inputs": {
+   "radius": 0.1,
+   "load": 10.0,
+   "push": 5.0,
+   "mu": 0.6,
+   "cap": 0.15
+  },
+  "source": "tests/test_rover_mission_design.py"
+ },
+ "pinneapple_simulation.vehicle.mission_design:solar_array": {
+  "inputs": {
+   "area": 0.22,
+   "efficiency": 0.18,
+   "planet": {
+    "solar_W_m2": 586.2,
+    "transmission": 0.6,
+    "day_s": 88775.0,
+    "daylight_fraction": 0.5
+   }
+  },
+  "source": "tests/test_rover_mission_design.py"
+ },
+ "pinneapple_simulation.vehicle.mission_design:tip_over_angles": {
+  "inputs": {
+   "track": 0.4,
+   "wheelbase": 0.6,
+   "cg_height": 0.2
+  },
+  "source": "tests/test_rover_mission_design.py"
+ },
  "pinneapple_stability.api:diff": {
   "inputs": {
    "new": {

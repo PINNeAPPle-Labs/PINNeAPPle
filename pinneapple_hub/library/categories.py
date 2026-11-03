@@ -90,7 +90,7 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "checks": ("node:gallery.", "node:check.", "node:proof."),
     "verification": ("node:examples.", "node:study.grid_validation"),
     "benchmarks": ("node:arena.",),
-    "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative."),
+    "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative.", "node:study.design"),
     "systems": ("node:systems.",),
     "electromagnetics": ("node:em.", "node:inspection.", "node:antenna.", "node:potential.machine_coenergy"),
     "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin"),

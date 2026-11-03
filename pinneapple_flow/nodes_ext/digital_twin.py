@@ -113,12 +113,14 @@ def _register_capabilities():
     register_capability(Capability(
         id="twin.workflow", title="Digital twin with live data assimilation (standard workflow)",
         domain="digital_twin",
-        keywords={"digital twin": 4, "gêmeo digital": 4, "gemeo digital": 4, "twin digital": 3,
+        keywords={"digital twin": 3, "gêmeo digital": 3, "gemeo digital": 3, "twin digital": 2,
                   "data assimilation": 3, "assimilação de dados": 3, "kalman": 2, "ensemble kalman": 3,
                   "drift detection": 3, "detecção de deriva": 3, "deriva": 1, "recalibration": 2,
                   "recalibração": 2, "anomaly detection": 2, "detecção de anomalias": 2, "live sensor data": 2,
                   "dados de sensores": 2, "sensor stream": 2, "monitoramento": 1, "monitoring": 1},
-        min_score=3, nodes=("twin.workflow",), build=lambda text, det: build_flow(),
+        # 5: "digital twin" alone stays with the planner's PDE / tank twins; with drift, assimilation,
+        # recalibration, Kalman or anomaly words it is this workflow
+        min_score=5, nodes=("twin.workflow",), build=lambda text, det: build_flow(),
         inputs=("the model (states, slow parameters, inputs, outputs)", "the data source and its sampling",
                 "the sensor noise and the anomaly / drift thresholds"),
         uncited="the workflow cites Bishop et al. (2001), Hunt et al. (2007), Burgers et al. (1998), Bar-Shalom et al. "

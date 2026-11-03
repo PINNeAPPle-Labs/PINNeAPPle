@@ -131,3 +131,12 @@ def test_flow_node_runs(tmp_path):
                    spike={"at": 90, "size": 12.0}).flow({})
     res = run(f, workdir=tmp_path)
     assert res.status == "done", res.nodes
+
+
+def test_planner_proposes_the_workflow_in_portuguese_and_english():
+    from pinneapple_flow.planner.extensions import match
+    for text in ("digital twin with live sensor data, drift detection and recalibration",
+                 "gêmeo digital com assimilação de dados e detecção de deriva"):
+        assert match(text)[0][1].id == "twin.workflow"
+    # "digital twin" alone is left to the planner's PDE / tank twins
+    assert not [c for _, c, _ in match("build a digital twin of the rod") if c.id == "twin.workflow"]

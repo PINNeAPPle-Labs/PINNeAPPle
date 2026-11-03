@@ -8,8 +8,14 @@ import pytest
 
 from pinneapple_physics.reactors.kinetics import R_GAS, Feed, Network, Reaction
 from pinneapple_physics.reactors.models import Bed, Cooling, cstr, cstr_startup, pfr
-from pinneapple_physics.reactors.sizing import (cstrs_for, levenspiel, parametric_sensitivity, semenov_number,
-                                                size_cstr, size_pfr)
+from pinneapple_physics.reactors.sizing import (
+    cstrs_for,
+    levenspiel,
+    parametric_sensitivity,
+    semenov_number,
+    size_cstr,
+    size_pfr,
+)
 
 FIRST = Network(("A", "B"), (Reaction({"A": -1, "B": 1}, A=0.1),), cp={"A": 75.0, "B": 75.0})
 LIQ = Feed({"A": 1.0}, 300.0, "liquid", v=1e-3)          # c_A0 = 1000 mol/m^3, tau = V / 1e-3

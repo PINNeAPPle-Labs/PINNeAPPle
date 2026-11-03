@@ -1462,6 +1462,16 @@
   },
   "source": "tests/test_flow_examples.py:59"
  },
+ "pinneapple_flow.nodes_ext.reactors:spec_for": {
+  "inputs": {
+   "case": "propylene_glycol_cstr",
+   "params": {
+    "X_target": 0.8,
+    "T_limit": 330.0
+   }
+  },
+  "source": "pinneapple_flow/flows/reactor_sizing_cstr.json"
+ },
  "pinneapple_flow.palette:humanize": {
   "inputs": {
    "name": "generate_eddy_current_synthetic"

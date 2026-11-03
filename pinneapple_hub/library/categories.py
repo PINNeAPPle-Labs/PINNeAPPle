@@ -80,7 +80,7 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "geometry": ("node:study.ahmed_geometry",),
     "equations": ("node:nonhermitian.", "node:discover.", "node:pde_env.",
                   "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))
-    "inverse": ("node:study.inverse",),
+    "inverse": ("node:study.inverse", "node:bio."),
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
                   "node:aero.", "node:md.", "node:newton.", "node:swe.", "node:study.cfd_campaign",
                   "node:immersed.", "node:multiphysics."),
@@ -90,7 +90,8 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "checks": ("node:gallery.", "node:check.", "node:proof.", "node:veriphysics."),
     "verification": ("node:examples.", "node:study.grid_validation"),
     "benchmarks": ("node:arena.",),
-    "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative.", "node:study.design"),
+    "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative.", "node:study.design",
+               "node:chip.", "node:satellite."),
     "systems": ("node:systems.",),
     "electromagnetics": ("node:em.", "node:inspection.", "node:antenna.", "node:potential.machine_coenergy"),
     "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin"),

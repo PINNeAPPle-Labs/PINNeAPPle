@@ -1041,6 +1041,25 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_physics.lithography.design:clip_lines_and_elbow": {
+  "code_hash": "85e4496494a8d7f5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 4.34
+ },
+ "pinneapple_physics.lithography.imaging:frequencies": {
+  "code_hash": "7fda5ace010cf4ed",
+  "inputs": {
+   "L": 1024.0,
+   "N": 64
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
  "pinneapple_physics.maxwell_checks:check_config_entry": {
   "code_hash": "fd06a81f1e651514",
   "inputs": {
@@ -3006,6 +3025,22 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.reactors.presets:phthalic_anhydride_bed": {
+  "code_hash": "a9fd9bf7f57e26b8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.reactors.presets:propylene_glycol_cstr": {
+  "code_hash": "5be35cc05b5b79e7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_physics.solving:list_analytic": {

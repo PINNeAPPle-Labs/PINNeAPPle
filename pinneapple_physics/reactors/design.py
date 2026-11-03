@@ -39,7 +39,7 @@ VARIABLES = ("V", "Tc", "Ua", "UA", "T0")
 
 
 @dataclass
-class DesignSpec:
+class ReactorSpec:
     network: Network
     feed: Feed
     key: str                                       # the reactant whose conversion is required
@@ -64,7 +64,7 @@ class DesignSpec:
             raise ValueError("reactor is 'pfr' or 'cstr'")
 
 
-def evaluate(spec: DesignSpec, x: dict[str, float], *, rtol: float = 1e-8) -> dict[str, Any]:
+def evaluate(spec: ReactorSpec, x: dict[str, float], *, rtol: float = 1e-8) -> dict[str, Any]:
     """The reactor model at design ``x``: conversion, selectivity and yield, peak temperature, outlet."""
     cool = replace(spec.cooling, **{k: float(x[k]) for k in ("Tc", "Ua", "UA") if k in x})
     feed = replace(spec.feed, T=float(x["T0"])) if "T0" in x else spec.feed
@@ -87,7 +87,7 @@ def evaluate(spec: DesignSpec, x: dict[str, float], *, rtol: float = 1e-8) -> di
     return r
 
 
-def _limits(spec: DesignSpec, y: dict[str, Any]) -> dict[str, float]:
+def _limits(spec: ReactorSpec, y: dict[str, Any]) -> dict[str, float]:
     """Constraint values, feasible when >= 0."""
     g = {"conversion": y["X"] - spec.X_target}
     if spec.S_min is not None:
@@ -115,7 +115,7 @@ def _optimise(objective_and_limits, names, bounds, seed, maxiter, popsize):
     return dict(zip(names, map(float, res.x), strict=True)), len(cache)
 
 
-def design_reactor(spec: DesignSpec, *, n_doe: int = 40, maxiter: int = 60, popsize: int = 12, seed: int = 0,
+def design_reactor(spec: ReactorSpec, *, n_doe: int = 40, maxiter: int = 60, popsize: int = 12, seed: int = 0,
                    force_surrogate: bool = False, active_rounds: int = 6, sensitivity: bool = True) -> dict[str, Any]:
     """Run the closed loop and return a JSON-ready record (see the module docstring)."""
     names = list(spec.bounds)
@@ -291,7 +291,7 @@ def design_reactor(spec: DesignSpec, *, n_doe: int = 40, maxiter: int = 60, pops
             "source": spec.source}
 
 
-def _cstr_balance_residual(spec: DesignSpec, x: dict[str, float]) -> float:
+def _cstr_balance_residual(spec: ReactorSpec, x: dict[str, float]) -> float:
     """Largest relative residual of the mole and energy balances over the tanks of the design."""
     from .kinetics import concentrations
     cool = replace(spec.cooling, **{k: float(x[k]) for k in ("Tc", "Ua", "UA") if k in x})

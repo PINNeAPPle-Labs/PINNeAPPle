@@ -11,16 +11,16 @@ CASES = ("phthalic_anhydride_bed", "propylene_glycol_cstr")
 
 def spec_for(case: str, params: dict):
     from pinneapple_physics.reactors import presets
-    from pinneapple_physics.reactors.design import DesignSpec
+    from pinneapple_physics.reactors.design import ReactorSpec
     if case == "phthalic_anhydride_bed":
         b = presets.phthalic_anhydride_bed(float(params.get("p_xylene_atm", 0.011)))
         V0 = b["V"]
-        return DesignSpec(b["network"], b["feed"], b["key"], float(params["X_target"]),
+        return ReactorSpec(b["network"], b["feed"], b["key"], float(params["X_target"]),
                           {"V": (0.3 * V0, 3 * V0), "Tc": (610.0, 650.0)}, cooling=b["cooling"],
                           desired=b["desired"], T_limit=float(params["T_limit"]),
                           margin_min=float(params["margin_min"]), assumptions=b["assumptions"], source=b["source"])
     c = presets.propylene_glycol_cstr()
-    return DesignSpec(c["network"], c["feed"], c["key"], float(params["X_target"]),
+    return ReactorSpec(c["network"], c["feed"], c["key"], float(params["X_target"]),
                       {"V": (0.2, 5.0), "UA": (0.0, 3e4)}, reactor="cstr", cooling=c["cooling"],
                       desired=c["desired"], T_limit=float(params["T_limit"]), tanks=int(params.get("tanks", 1)),
                       assumptions=["liquid of constant volumetric flow (density change neglected)",

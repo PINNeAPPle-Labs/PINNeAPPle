@@ -102,11 +102,11 @@ def test_the_packed_bed_has_a_runaway_boundary_above_its_operation():
 
 
 def test_closed_loop_design_meets_its_limits_and_says_which_model_it_used():
-    from pinneapple_physics.reactors.design import DesignSpec, design_reactor, to_json
+    from pinneapple_physics.reactors.design import ReactorSpec, design_reactor, to_json
     from pinneapple_physics.reactors.presets import phthalic_anhydride_bed
     b = phthalic_anhydride_bed(0.011)
     V0 = b["V"]
-    spec = DesignSpec(b["network"], b["feed"], "X", 0.7, {"V": (0.3 * V0, 3 * V0), "Tc": (610.0, 645.0)},
+    spec = ReactorSpec(b["network"], b["feed"], "X", 0.7, {"V": (0.3 * V0, 3 * V0), "Tc": (610.0, 645.0)},
                       cooling=b["cooling"], desired="PA", T_limit=673.15, margin_min=5.0,
                       assumptions=b["assumptions"])
     for force in (False, True):

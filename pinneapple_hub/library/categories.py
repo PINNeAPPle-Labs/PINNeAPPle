@@ -93,7 +93,7 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative.", "node:study.design"),
     "systems": ("node:systems.",),
     "electromagnetics": ("node:em.", "node:inspection.", "node:antenna.", "node:potential.machine_coenergy"),
-    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin"),
+    "time-series": ("node:forecast_lab.", "node:ts.", "node:enso.", "node:study.twin", "node:climate."),
     "data": ("node:study.dataset",),
     "reports": ("node:render.", "node:study.report"),
     "automation": ("node:security.",),

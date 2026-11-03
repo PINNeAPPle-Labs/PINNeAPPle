@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "time-series-prediction-analysis-baselines-models",
+ "name": "Time-series prediction: analysis, baselines, models, backtest and calibrated intervals",
+ "description": "Missing values, outliers, seasonality, stationarity, the predictability horizon and leakage checks; persistence / seasonal-naive / mean baselines; ARIMA, ETS, gradient boosting, a TCN and a fitted ODE when one exists, on one rolling-origin backtest with skill against the baselines and split-conformal intervals with their coverage (pinneapple_systems.time_series.workflow).",
+ "nodes": [
+  {
+   "id": "ts",
+   "type": "ts.workflow",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Time-series workflow"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Time-series prediction: analysis, baselines, models, backtest and calibrated intervals"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "ts",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "ts.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1197
+ }
+}

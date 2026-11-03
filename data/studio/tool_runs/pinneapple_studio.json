@@ -1,11 +1,11 @@
 {
  "pinneapple_studio.api:router": {
-  "code_hash": "2df5b2da0634899f",
+  "code_hash": "eaebf129ec711200",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-03",
   "returned": "APIRouter",
-  "seconds": 0.23
+  "seconds": 0.8
  },
  "pinneapple_studio.catalog:build": {
   "code_hash": "c8393058518aa7d8",

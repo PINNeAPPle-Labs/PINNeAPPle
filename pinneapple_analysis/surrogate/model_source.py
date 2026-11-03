@@ -115,17 +115,10 @@ def open_model(source: str, *, path: str | None = None, name: str | None = None,
                 Y = mod(X).numpy().reshape(len(X), -1)
             return {o: Y[:, j] for j, o in enumerate(outputs)}
     elif source == "onnx":
-        try:
-            import onnxruntime as ort
-        except ImportError as e:
-            raise RuntimeError("an ONNX model needs onnxruntime (pip install onnxruntime); "
-                               "TorchScript or a callable work without it") from e
-        sess = ort.InferenceSession(str(path))
-        iname = sess.get_inputs()[0].name
+        run = onnx_function(str(path), inputs, outputs)
 
         def predict(x):
-            X = np.column_stack([np.atleast_1d(x[k]) for k in inputs]).astype(np.float32)
-            Y = np.asarray(sess.run(None, {iname: X})[0]).reshape(len(X), -1)
+            Y = run(np.column_stack([np.atleast_1d(np.asarray(x[k], float)) for k in inputs]))
             return {o: Y[:, j] for j, o in enumerate(outputs)}
     elif source == "callable":
         if fn is None:
@@ -139,6 +132,89 @@ def open_model(source: str, *, path: str | None = None, name: str | None = None,
         raise ValueError(f"unknown source {source!r}: zoo, workflow, torchscript, onnx or callable")
     return Predictor(str(name or path or getattr(fn, "__name__", source)), source, list(inputs), list(outputs),
                      {k: tuple(v) for k, v in dict(bounds).items()}, predict, dict(units or {}), claimed_rel_error)
+
+
+_ONNX_DTYPES = {"tensor(float)": np.float32, "tensor(double)": np.float64, "tensor(float16)": np.float16}
+
+
+def onnx_function(path: str, inputs: Sequence[str], outputs: Sequence[str]
+                  ) -> Callable[[np.ndarray], np.ndarray]:
+    """An ONNX file as ``f(X) -> Y``: ``X`` (N, len(inputs)) in the declared input order, ``Y`` (N, len(outputs))
+    in float64.
+
+    The file's own signature is checked against the declared card when it is opened, and a mismatch is refused with
+    both name lists: one input tensor needs ``len(inputs)`` columns (or one tensor per declared input, by name); one
+    output tensor needs ``len(outputs)`` columns (or one tensor per declared output, by name). Each input is cast to
+    the tensor's own element type (float64 data into a float32 model, and the reverse). A model exported with a
+    fixed batch dimension is run in chunks of that size (the last chunk padded and the padding dropped)."""
+    try:
+        import onnxruntime as ort
+    except ImportError as e:
+        raise RuntimeError("an ONNX model needs onnxruntime (pip install onnxruntime, or the [onnx] extra); "
+                           "TorchScript or a callable work without it") from e
+    inputs, outputs = list(inputs), list(outputs)
+    sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+    ins, outs = sess.get_inputs(), sess.get_outputs()
+
+    def last(shape):
+        return shape[-1] if shape and isinstance(shape[-1], int) else None
+
+    def refuse(what, have, want):
+        raise ValueError(f"the ONNX model's {what} {have} do not match the declared {what} {want}: give the card the "
+                         f"model's own names, or export one tensor with one column per {what[:-1]}")
+    if len(ins) == 1:
+        if len(ins[0].shape) >= 2 and last(ins[0].shape) not in (None, len(inputs)):
+            refuse("inputs", f"[{ins[0].name!r} with {last(ins[0].shape)} columns]", inputs)
+        feed_cols = None
+    else:
+        if sorted(i.name for i in ins) != sorted(inputs):
+            refuse("inputs", [i.name for i in ins], inputs)
+        feed_cols = {i.name: inputs.index(i.name) for i in ins}
+    if len(outs) == 1:
+        n_cols = last(outs[0].shape) if len(outs[0].shape) >= 2 else 1
+        if n_cols not in (None, len(outputs)):
+            refuse("outputs", f"[{outs[0].name!r} with {n_cols} columns]", outputs)
+        out_cols = None
+    else:
+        missing = [o for o in outputs if o not in {t.name for t in outs}]
+        if missing:
+            refuse("outputs", [t.name for t in outs], outputs)
+        out_cols = list(outputs)
+    for i in ins:
+        if i.type not in _ONNX_DTYPES:
+            raise ValueError(f"ONNX input {i.name!r} is {i.type}: only float16/32/64 inputs are supported")
+    batch = ins[0].shape[0] if ins[0].shape and isinstance(ins[0].shape[0], int) else None
+
+    def feed(X):
+        if feed_cols is None:
+            i = ins[0]
+            A = X.astype(_ONNX_DTYPES[i.type])
+            return {i.name: A if len(i.shape) != 1 else A[:, 0]}
+        return {i.name: (X[:, [c]] if len(i.shape) >= 2 else X[:, c]).astype(_ONNX_DTYPES[i.type])
+                for i, c in ((i, feed_cols[i.name]) for i in ins)}
+
+    def run_chunk(X):
+        res = sess.run(out_cols, feed(X))
+        if out_cols is None:
+            return np.asarray(res[0], np.float64).reshape(len(X), -1)
+        return np.column_stack([np.asarray(r, np.float64).reshape(len(X)) for r in res])
+
+    def f(X):
+        X = np.asarray(X, np.float64)
+        X = X.reshape(len(X), -1) if X.ndim > 1 else X.reshape(-1, len(inputs))
+        if X.shape[1] != len(inputs):
+            raise ValueError(f"{X.shape[1]} input columns for the declared inputs {inputs}")
+        if batch is None or batch == len(X):
+            return run_chunk(X)
+        parts = []
+        for s in range(0, len(X), batch):
+            C = X[s:s + batch]
+            pad = batch - len(C)
+            if pad:
+                C = np.vstack([C, np.repeat(C[-1:], pad, axis=0)])
+            parts.append(run_chunk(C)[:batch - pad])
+        return np.vstack(parts)
+    return f
 
 
 # ----------------------------------------------------------------------------------------------- the gate

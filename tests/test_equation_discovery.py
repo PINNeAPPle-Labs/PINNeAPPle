@@ -1,5 +1,6 @@
 """Equation discovery (#1192): Lorenz and a damped oscillator recovered with intervals that hold the truth, Burgers
-by PDE-FIND, and a noisy field whose discovered PDE fails its rollout instead of being reported."""
+by PDE-FIND (and its weak form), a noisy field whose discovered PDE fails its rollout instead of being reported, and
+a slightly noisy field whose spurious term the weak-form check names (#1224)."""
 from __future__ import annotations
 
 import numpy as np
@@ -50,6 +51,38 @@ def test_burgers_by_pde_find_and_a_noisy_field_is_refused():
     assert r["terms"]["u*u_x"]["coefficient"] == pytest.approx(-1.0, rel=0.01)
     noisy = discover_pde(U + 0.01 * np.random.default_rng(0).standard_normal(U.shape), x, t, n_bootstrap=10)
     assert next(c for c in noisy["checks"] if c["code"] == "discover.rollout")["status"] == "fail"
+    assert all(c["status"] == "pass" for c in r["checks"])                   # the weak form agrees
+    weak = discover_pde(U, x, t, n_bootstrap=20, form="weak")
+    assert set(weak["terms"]) == {"u_xx", "u*u_x"} and all(c["status"] == "pass" for c in weak["checks"])
+
+
+@pytest.mark.parametrize("seed", [0, 1, 2])
+def test_burgers_with_small_noise_the_spurious_term_is_named_and_the_weak_form_drops_it(seed):
+    """#1224: with 0.1 % noise the strong form adds a decay term -c*u (c about 0.07 to 0.13) that the held-out fit,
+    the bootstrap and the rollout all accept; the weak-form check names it, and the weak form finds the true
+    equation."""
+    from pinneapple_analysis.validation.pinn import cole_hopf
+    x = np.linspace(-1, 1, 256)
+    t = np.linspace(0, 1, 101)
+    X, T = np.meshgrid(x, t, indexing="ij")
+    U = cole_hopf(X, T, 0.1) + 0.001 * np.random.default_rng(seed).standard_normal((256, 101))
+    strong = discover_pde(U, x, t, n_bootstrap=20)
+    st = {c["code"]: c for c in strong["checks"]}
+    assert "u" in strong["terms"]                                            # the bias is still there in PDE-FIND
+    assert st["discover.weak_form"]["status"] == "fail" and "u" in st["discover.weak_form"]["value"]["extra"]
+    assert "only the strong form selects ['u'" in st["discover.weak_form"]["detail"]
+    weak = discover_pde(U, x, t, n_bootstrap=20, form="weak")
+    assert set(weak["terms"]) == {"u_xx", "u*u_x"}
+    assert weak["terms"]["u_xx"]["coefficient"] == pytest.approx(0.1, rel=0.01)
+    assert weak["terms"]["u*u_x"]["coefficient"] == pytest.approx(-1.0, rel=0.01)
+    assert all(c["status"] == "pass" for c in weak["checks"]), weak["checks"]
+
+
+def test_rollout_reads_powers_of_u():
+    """A library label with a power (``u**2*u_x``) is split on the product only (it used to raise KeyError)."""
+    from pinneapple_analysis.inverse_problems.discovery import _factors, _label_parts
+    assert _factors("u**2*u_x") == ["u**2", "u_x"] and _factors("1") == []
+    assert _label_parts("u**2*u_xx") == (2, 2) and _label_parts("u_xxx") == (0, 3) and _label_parts("u") == (1, 0)
 
 
 def test_flow_and_planner():

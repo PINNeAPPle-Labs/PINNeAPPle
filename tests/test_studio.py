@@ -245,6 +245,7 @@ def test_api_lists_shows_compares_and_runs_a_tool(repo, tmp_path, monkeypatch):
     monkeypatch.setattr(gallery, "_flow_rows", lambda: ({}, [], {}))
     q = JobQueue(tmp_path / "jobs.sqlite", app="studio-test", executor="thread")
     q.register("tool", runner.tool_job)
+    q.register("gallery", runner.gallery_job)                     # the kinds of runner.queue()
     app = FastAPI()
     app.include_router(api.router(q), prefix="/api/studio")
     c = TestClient(app)
@@ -267,6 +268,30 @@ def test_api_lists_shows_compares_and_runs_a_tool(repo, tmp_path, monkeypatch):
     assert any(f["path"] == "result.json" for f in res["result"]["evidence"]["files"])
     blocked = c.post("/api/studio/jobs", json={"kind": "gallery", "params": {"entry": "example:fins"}})
     assert blocked.status_code in (202, 409)
+    bad = c.post("/api/studio/jobs", json={"kind": "shell", "params": {}})
+    assert bad.status_code == 400 and "tool or gallery" in bad.json()["detail"]
+
+
+def test_api_refuses_a_job_kind_its_queue_does_not_run(repo, tmp_path, monkeypatch):
+    """A kind the API knows but the queue was not given is a 400 with the registered kinds, not a 500."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from pinneapple_core.service.jobs import JobQueue
+    from pinneapple_studio import api, gallery
+    monkeypatch.setattr(gallery, "_flow_rows", lambda: ({}, [], {}))
+    q = JobQueue(tmp_path / "jobs.sqlite", app="studio-test", executor="thread")
+    q.register("tool", runner.tool_job)                           # no "gallery"
+    # every module importable (as in CI, where cadquery is installed): example:fins is runnable, so only the
+    # missing job kind can refuse it
+    monkeypatch.setattr(R.importlib.util, "find_spec", lambda name: object())
+    app = FastAPI()
+    app.include_router(api.router(q), prefix="/api/studio")
+    c = TestClient(app, raise_server_exceptions=False)
+    assert c.get("/api/studio/gallery/example:fins").json()["blocked_by"] == []
+    r = c.post("/api/studio/jobs", json={"kind": "gallery", "params": {"entry": "example:fins"}})
+    assert r.status_code == 400, r.text
+    assert "gallery" in r.json()["detail"] and "tool" in r.json()["detail"]
 
 
 # ------------------------------------------------------------------------------------------------- real

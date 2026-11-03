@@ -971,7 +971,7 @@
   "seconds": 5.97
  },
  "pinneapple_flow.study_steps:twin_step": {
-  "code_hash": "74188a25ae66b2e1",
+  "code_hash": "1cedacbc8a63be15",
   "inputs": {
    "duration": 300.0,
    "fault_passage": 2,
@@ -988,7 +988,7 @@
   "ok": true,
   "recorded": "2026-11-02",
   "returned": "dict",
-  "seconds": 6.11
+  "seconds": 6.59
  },
  "pinneapple_flow.study_steps:uncertainty_step": {
   "code_hash": "9431515b833862b3",

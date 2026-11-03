@@ -1,0 +1,12 @@
+{
+ "code_hash": "452039149a90878e",
+ "figures": [],
+ "id": "flow:digital_twin",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 3.5,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin: assimilation, consistency, drift detection and recalibration, forecast - 2 nodes\nissues: []",
+ "timed_out": false
+}

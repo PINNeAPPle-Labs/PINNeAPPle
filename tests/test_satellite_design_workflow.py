@@ -67,6 +67,16 @@ def test_thermal_radiator_and_battery_rules():
     assert B.battery(10, 5800, 0.35, 1)["dod"] > B.battery(10, 5800, 0.35, 5)["dod"]   # more cycles, less DoD
 
 
+def test_long_decay_with_overshooting_steps_reaches_reentry():
+    pytest.importorskip("pymsis")
+    import numpy as np
+
+    from pinneapple_physics.astro.decay import DensityTable, reference_decay
+    tab = DensityTable(f107=70.0, f107a=70.0, ap=15.0, inclination_deg=97.5)
+    t, h = reference_decay(425.0, 0.0335, 100 * 365.25, tab, n=4000)   # raised "math domain error" before the fix
+    assert np.isnan(h).any() and np.nanmin(h) > 140.0
+
+
 def test_unreachable_mission_is_reported():
     pytest.importorskip("pymsis")
     r = satellite_design_workflow(mission={"gsd_max_m": 2.0})

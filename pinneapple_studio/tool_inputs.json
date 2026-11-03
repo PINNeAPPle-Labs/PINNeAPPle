@@ -5122,6 +5122,14 @@
   },
   "source": "tests/test_biology_inference.py:110"
  },
+ "pinneapple_simulation.multiphysics.coupling:recommend_strategy": {
+  "inputs": {
+   "contraction": 0.35,
+   "one_way_error": 0.12,
+   "one_way_tolerance": 0.01
+  },
+  "source": "tests/test_multiphysics_workflow.py"
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "inputs": {
    "B": 12.0,

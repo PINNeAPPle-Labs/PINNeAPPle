@@ -1915,6 +1915,12 @@
   },
   "source": "tests/test_flow_study_steps_literal.py:30"
  },
+ "pinneapple_flow.study_steps:split_header": {
+  "inputs": {
+   "header": "tensao_MPa"
+  },
+  "source": "tests/test_flow_table_step.py"
+ },
  "pinneapple_flow.study_steps:twin_step": {
   "inputs": {
    "geometry": "cold_plate",

@@ -22,11 +22,14 @@ was measured and whether it holds:
 * :func:`analyze_step` - predictability of a time series before any model
   (``pinneapple_systems.time_series.predictability.predictability_report``);
 * :func:`forecast_step` - an autoregressive forecast scored per horizon against persistence and the mean on the
-  last part of the series, which it never sees while fitting.
+  last part of the series, which it never sees while fitting;
+* :func:`table_step` - an uploaded table as named columns with the units its header states, and the ``series`` /
+  ``measurements`` the steps above take.
 """
 from __future__ import annotations
 
 import math
+import re
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
@@ -412,3 +415,95 @@ def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_loa
 
 __all__ = ["model_from_ref", "sensitivity_step", "uncertainty_step", "identify_step", "analyze_step", "forecast_step",
            "twin_step"]
+
+
+# ------------------------------------------------------------------------------------------------ tables
+_UNIT_SUFFIX = {"m": "m", "mm": "mm", "cm": "cm", "km": "km", "s": "s", "min": "min", "h": "h", "d": "d",
+                "k": "K", "c": "°C", "degc": "°C", "pa": "Pa", "kpa": "kPa", "mpa": "MPa", "gpa": "GPa",
+                "bar": "bar", "n": "N", "kn": "kN", "w": "W", "kw": "kW", "mw": "MW", "j": "J", "kj": "kJ",
+                "wh": "Wh", "kwh": "kWh", "mwh": "MWh", "kg": "kg", "hz": "Hz", "rpm": "rpm", "v": "V", "a": "A",
+                "1_s": "1/s", "kg_s": "kg/s", "m_s": "m/s", "m3_s": "m3/s", "m3_h": "m3/h", "pct": "%"}
+# a header that is only a unit ("MWh") or a time count ("dia": one per day)
+_WHOLE_UNIT = {"mwh": "MWh", "kwh": "kWh", "wh": "Wh", "dia": "d", "dias": "d", "day": "d", "days": "d",
+               "hora": "h", "horas": "h", "hour": "h", "hours": "h"}
+
+
+def split_header(header: str) -> tuple[str, str | None]:
+    """``(name, unit)`` of a column header: ``p [Pa]``, ``p (Pa)``, ``p_Pa``, ``k_1_s`` (1/s), ``tensao_MPa``, or a
+    header that is only a unit (``MWh``). The unit is None when the header does not state one."""
+    h = header.strip()
+    m = re.match(r"^(.*?)\s*[\[(]\s*([^\])]+?)\s*[\])]\s*$", h)
+    if m and m.group(1):
+        return m.group(1).strip(), m.group(2).strip()
+    if h.lower() in _WHOLE_UNIT:
+        return h, _WHOLE_UNIT[h.lower()]
+    parts = h.split("_")
+    for n in (2, 1):
+        if len(parts) > n and "_".join(parts[-n:]).lower() in _UNIT_SUFFIX:
+            return "_".join(parts[:-n]), _UNIT_SUFFIX["_".join(parts[-n:]).lower()]
+    return h, None
+
+
+def table_step(path: str, *, x: Sequence[str] | str | None = None, y: str | None = None,
+               sigma: float | None = None) -> dict:
+    """An uploaded table (CSV or TSV with a header row; lines starting with ``#`` are comments) as named columns with the units its header states, for the
+    steps after it to bind to by column.
+
+    ``columns`` maps each header to its numbers (non-numeric columns are left out and listed in ``skipped``);
+    ``units`` maps it to the unit read from the header (``p_Pa``, ``T [K]``, ``k_1_s``), or None. With ``y`` (the
+    measured column) the step also gives ``series`` (that column) and, with ``x`` (the input columns),
+    ``measurements`` = ``{"inputs": {x: [...]}, "values": [...], "sigma": ...}`` as :func:`identify_step` takes it.
+
+    Checks: ``dataset.complete`` (no missing or non-finite value in the columns used) and ``dataset.units`` (each
+    column used has a unit in its header; inconclusive when one does not, since a unit is never guessed)."""
+    import csv
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        text = fh.read()
+    body_text = "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("#"))
+    try:
+        dialect = csv.Sniffer().sniff(body_text[:4096], delimiters=",;\t")
+    except csv.Error:
+        dialect = csv.excel
+    lines = [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]      # comment lines (sources, notes)
+    rows = [r for r in csv.reader(lines, dialect) if any(c.strip() for c in r)]
+    if len(rows) < 2:
+        raise ValueError("the table needs a header row and at least one row of data")
+    header, body = rows[0], rows[1:]
+    columns, units, skipped, missing = {}, {}, [], {}
+    for j, h in enumerate(header):
+        raw = [r[j].strip() if j < len(r) else "" for r in body]
+        vals = []
+        for v in raw:
+            try:
+                vals.append(float(v.replace(",", ".")) if dialect.delimiter != "," else float(v))
+            except ValueError:
+                vals.append(math.nan)
+        if sum(math.isfinite(v) for v in vals) < 0.9 * len(vals):
+            skipped.append(h)
+            continue
+        name = h.strip()
+        columns[name] = vals
+        units[name] = split_header(name)[1]
+        missing[name] = sum(not math.isfinite(v) for v in vals)
+    xs = [x] if isinstance(x, str) else list(x or [])
+    used = [c for c in [*xs, *([y] if y else [])]]
+    unknown = [c for c in used if c not in columns]
+    if unknown:
+        raise ValueError(f"no numeric column {unknown}; the table has {list(columns)}")
+    out: dict[str, Any] = {"columns": columns, "units": units, "rows": len(body), "skipped": skipped}
+    if y:
+        out["series"] = columns[y]
+        if xs:
+            out["measurements"] = {"inputs": {c: columns[c] for c in xs}, "values": columns[y],
+                                   **({"sigma": sigma} if sigma is not None else {})}
+    scope = used or list(columns)
+    gaps = {c: missing[c] for c in scope if missing[c]}
+    no_unit = [c for c in scope if not units[c]]
+    out["checks"] = [
+        _check("dataset.complete", not gaps, gaps or 0,
+               "no missing or non-finite value in the columns used" if not gaps else
+               f"missing or non-finite values: {gaps}"),
+        _check("dataset.units", None if no_unit else True, {c: units[c] for c in scope},
+               "every column used has a unit in its header" if not no_unit else
+               f"no unit in the header of {no_unit}: state it (a unit is never guessed)")]
+    return out

@@ -52,6 +52,21 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:fno_coldplate": {
+  "error": "",
+  "hash": "edeecb3eafdf8dbf",
+  "ok": true,
+  "recorded": "2026-11-03",
+  "scripts": [
+   "examples/fno_coldplate/run.py"
+  ],
+  "seconds": 236.7,
+  "writes_files": [
+   "examples/fno_coldplate/results/checks.png",
+   "examples/fno_coldplate/results/fields.png",
+   "examples/fno_coldplate/results/summary.json"
+  ]
+ },
  "example:latent": {
   "error": "fit\n    self.rom.fit(P_train, X_train)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_neural/architectures/rom/parametric.py\", line 69, in fit\n    from sklearn.gaussian_process import GaussianProcessRegressor\nModuleNotFoundError: No module named 'sklearn'",
   "hash": "f12eec59bc931101",

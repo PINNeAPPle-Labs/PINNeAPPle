@@ -78,7 +78,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
 EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
     "problem": ("node:problemdesign.",),
     "geometry": ("node:study.ahmed_geometry",),
-    "equations": ("node:nonhermitian.", "node:pde_env.",
+    "equations": ("node:nonhermitian.", "node:discover.", "node:pde_env.",
                   "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))
     "inverse": ("node:study.inverse",),
     "classical": ("node:calculix.", "node:cfd.", "node:solvers.", "node:blackhole.", "node:geo.", "node:lbm.",
@@ -86,8 +86,8 @@ EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
                   "node:immersed."),
     "pinn": ("node:architectures.", "node:pinn.", "node:pinn_solver."),
     "surrogates": ("node:core.hybrid_fem", "node:worldmodel.", "node:study.surrogates", "node:potential.co2_surrogates"),
-    "zoo": ("node:zoo.",),
-    "checks": ("node:gallery.", "node:check.", "node:proof."),
+    "zoo": ("node:zoo.", "node:model.use"),
+    "checks": ("node:gallery.", "node:check.", "node:proof.", "node:veriphysics."),
     "verification": ("node:examples.", "node:study.grid_validation"),
     "benchmarks": ("node:arena.",),
     "design": ("node:design.", "node:bricks.", "node:core.torsion_optimizer", "node:qualitative.", "node:study.design"),

@@ -253,6 +253,38 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "failed"
  },
+ "equation_discovery": {
+  "flow_hash": "665fc2767c5e90b6",
+  "nodes": {
+   "discover": {
+    "error": "",
+    "metrics": {
+     "data": "Lorenz (sigma 10, rho 28, beta 8/3), 10000 samples, 1.0% noise (synthetic)",
+     "equation.x_t": "x_t = -9.998*x + 9.999*y",
+     "equation.y_t": "y_t = 28.02*x - 1.007*y - 1*x*z",
+     "equation.z_t": "z_t = -2.666*z + 0.9997*x*y"
+    },
+    "status": "done",
+    "summary": "x_t = -9.998*x + 9.999*y ; y_t = 28.02*x - 1.007*y - 1*x*z ; z_t = -2.666*z + 0.9997*x*y; verified on held-out data",
+    "type": "discover.equations"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 11.9,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "freecad_openfoam_bend": {
   "flow_hash": "13406b26ade330f3",
   "nodes": {
@@ -681,6 +713,35 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "inverse_modeling": {
+  "flow_hash": "1937025821b40327",
+  "nodes": {
+   "inverse": {
+    "error": "",
+    "metrics": {
+     "data": "synthetic: 21 points from {'A': 5000000.0, 'Ea': 60000.0} with sigma 0.01"
+    },
+    "status": "done",
+    "summary": "A = 5.489e+06, Ea = 6.029e+04",
+    "type": "inverse.workflow"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 5.7,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "lithography_opc": {
   "flow_hash": "0453252d54944212",
   "nodes": {
@@ -853,6 +914,33 @@
   },
   "recorded": "2026-10-25",
   "seconds": 47.0,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "model_benchmarking": {
+  "flow_hash": "face9619865d12aa",
+  "nodes": {
+   "bench": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "gp wins (separated from every other candidate)",
+    "type": "benchmark.models"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 25.06,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1517,6 +1605,93 @@
   },
   "recorded": "2026-10-25",
   "seconds": 4.24,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "surrogate_modeling": {
+  "flow_hash": "7b142f0fbb5bcd61",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "surrogate": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "drag_N: gp 0.11%, M_root_Nm: gp 0.01%, cl_local_max_landing: gp 0.38%; verified",
+    "type": "surrogate.modeling"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 27.76,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "use_trained_model": {
+  "flow_hash": "37d1acf40e845128",
+  "nodes": {
+   "model": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "zoo:heatsink_forced_mlp inverse: used, gate passed",
+    "type": "model.use"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 6.46,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "veriphysics_grade": {
+  "flow_hash": "478fe286e6648ecd",
+  "nodes": {
+   "grade": {
+    "error": "",
+    "metrics": {
+     "grade.conditions.dirichlet boundary: u = 0": 0.0008492860936626084,
+     "grade.conditions.initial t_min: u = sin(pi*x)": 0.0010697513654945232,
+     "grade.pde_residual.u_t = alpha*lap(u)": 0.010683953907140897,
+     "grade.reference": 0.0013066240726549245,
+     "grade.robustness": 10.133414275367608
+    },
+    "status": "done",
+    "summary": "demo_pinn: APPROVED",
+    "type": "veriphysics.grade"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 43.59,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

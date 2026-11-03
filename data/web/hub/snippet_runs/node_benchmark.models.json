@@ -1,0 +1,12 @@
+{
+ "code_hash": "d23b33103d3ad8d0",
+ "figures": [],
+ "id": "node:benchmark.models",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 10.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Model benchmarking (equal data, intervals, winner only when separated) -> pinneapple_analysis.surrogate.benchmark_workflow.benchmark_models\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'tool': 'pinneapple_design.aero.wing_design:wing_performance', 'bounds': {'aspect_ratio': [5.0, 12.0], 'taper': [0.3, 1.0], 'twist': [-6.0, 0.0]}, 'output': 'drag_N', 'fixed': {}, 'families': ['gp', 'mlp_ensemble', 'quadratic'], 'zoo': [], 'n_train': 40, 'n_test': 100, 'seeds': [0, 1, 2], 'extrapolate': 0.1}",
+ "timed_out": false
+}

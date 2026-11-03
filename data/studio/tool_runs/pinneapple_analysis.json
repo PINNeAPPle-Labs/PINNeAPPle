@@ -926,6 +926,14 @@
   "returned": "StudyModel",
   "seconds": 0.0
  },
+ "pinneapple_analysis.surrogate.benchmark_workflow:benchmark_models": {
+  "code_hash": "005017b739d47623",
+  "error": "TypeError: 'NoneType' object is not iterable",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-11-03",
+  "seconds": 10.65
+ },
  "pinneapple_analysis.surrogate.examples:airfoil_rans": {
   "code_hash": "93c40da16bf2944f",
   "inputs": {},
@@ -957,6 +965,14 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_analysis.surrogate.workflow:surrogate_modeling": {
+  "code_hash": "a3fc1131ac210845",
+  "error": "ValueError: give a tool (with bounds and outputs) or a table (with inputs and outputs)",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-11-03",
+  "seconds": 0.02
  },
  "pinneapple_analysis.trust.trust_gate:TrustGate": {
   "code_hash": "2347f60f5d9b3b17",

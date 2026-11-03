@@ -136,6 +136,14 @@
   "returned": "ndarray",
   "seconds": 5.93
  },
+ "pinneapple_design.aero.wing_design:wing_performance": {
+  "code_hash": "1be085f756355fc2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 5.3
+ },
  "pinneapple_design.bricks.assembly:Assembly": {
   "code_hash": "61d43a979419262b",
   "inputs": {},
@@ -1252,6 +1260,14 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 1.1
+ },
+ "pinneapple_design.thermal.heatsink.surrogate:forced_reference": {
+  "code_hash": "d24c1b61692e0134",
+  "error": "KeyError: 'n_fins'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-11-03",
+  "seconds": 0.02
  },
  "pinneapple_design.thermal.heatsink.surrogate:load_surrogates": {
   "code_hash": "53290bb11dfecf76",

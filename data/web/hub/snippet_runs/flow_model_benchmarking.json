@@ -1,0 +1,12 @@
+{
+ "code_hash": "125519dbfe6ffd18",
+ "figures": [],
+ "id": "flow:model_benchmarking",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Model benchmarking: equal data, intervals, a winner only when separated - 2 nodes\nissues: []",
+ "timed_out": false
+}

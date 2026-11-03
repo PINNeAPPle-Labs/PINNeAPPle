@@ -3,7 +3,7 @@ the traverse simulated on the mission profile.
 
 * **Mobility** (Wong-Reece wheels, :class:`~pinneapple_simulation.terramechanics.WongReeceModel`): the grade the
   rover climbs at its slip limit (``n DP(s_max, m g cos a / n) = m g sin a``, bisection), the step a front wheel
-  climbs when the other wheels push it (quasi-static, :func:`step_push_force`), static tip-over angles from the track,
+  climbs when the other wheels push it (quasi-static, :func:`step_climb_force`), static tip-over angles from the track,
   wheelbase and centre-of-mass height, static sinkage.
 * **Power**: the electrical drive power at the mission speed on each slope (wheel torque at the slip that gives the
   needed drawbar pull, ``omega = v / (R (1 - s))``, over the drive efficiency), the hotel load, a solar array sized for
@@ -32,7 +32,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["PLANETS", "SOJOURNER", "SOJOURNER_BAND", "ASSUMPTIONS", "step_push_force", "max_step_height",
+__all__ = ["PLANETS", "SOJOURNER", "SOJOURNER_BAND", "ASSUMPTIONS", "step_climb_force", "max_step_height",
            "tip_over_angles", "grade_capability", "drive_power", "solar_array", "heater_power", "size_rover",
            "traverse", "published_rover_check", "rover_workflow"]
 
@@ -83,7 +83,7 @@ ASSUMPTION_NOTES = {
 
 
 # ------------------------------------------------------------------ mobility
-def step_push_force(h: float, radius: float, load: float, mu: float) -> float:
+def step_climb_force(h: float, radius: float, load: float, mu: float) -> float:
     """Horizontal push [N] a driven wheel of ``radius`` carrying ``load`` needs to lift onto a step of height ``h``
     (quasi-static, ground reaction gone, friction ``mu`` at the step edge driven by the wheel's own torque).
     Contact at the edge at angle ``a`` from the vertical (``cos a = 1 - h / R``): ``N = W / (cos a + mu sin a)``,
@@ -99,13 +99,13 @@ def step_push_force(h: float, radius: float, load: float, mu: float) -> float:
 
 
 def max_step_height(radius: float, load: float, push: float, mu: float, cap: float) -> float:
-    """Largest step [m] (up to ``cap``) for which :func:`step_push_force` is within ``push`` [N] (bisection)."""
-    if step_push_force(cap, radius, load, mu) <= push:
+    """Largest step [m] (up to ``cap``) for which :func:`step_climb_force` is within ``push`` [N] (bisection)."""
+    if step_climb_force(cap, radius, load, mu) <= push:
         return float(cap)
     lo, hi = 0.0, float(cap)
     for _ in range(60):
         mid = 0.5 * (lo + hi)
-        lo, hi = (mid, hi) if step_push_force(mid, radius, load, mu) <= push else (lo, mid)
+        lo, hi = (mid, hi) if step_climb_force(mid, radius, load, mu) <= push else (lo, mid)
     return lo
 
 

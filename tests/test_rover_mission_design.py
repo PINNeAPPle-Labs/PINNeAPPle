@@ -17,7 +17,7 @@ from pinneapple_simulation.vehicle.mission_design import (  # noqa: E402
     published_rover_check,
     rover_workflow,
     solar_array,
-    step_push_force,
+    step_climb_force,
     tip_over_angles,
 )
 
@@ -28,17 +28,17 @@ def _status(r):
 
 def test_step_climb_closed_form():
     R, W, mu = 0.1, 10.0, 0.6
-    assert step_push_force(0.0, R, W, mu) == 0.0
-    assert step_push_force(R, R, W, mu) == pytest.approx(W / mu)          # continuous with the vertical face
-    assert step_push_force(R - 1e-9, R, W, mu) == pytest.approx(W / mu, rel=1e-6)
+    assert step_climb_force(0.0, R, W, mu) == 0.0
+    assert step_climb_force(R, R, W, mu) == pytest.approx(W / mu)          # continuous with the vertical face
+    assert step_climb_force(R - 1e-9, R, W, mu) == pytest.approx(W / mu, rel=1e-6)
     a = math.acos(1 - 0.05 / R)                                          # a hand-worked edge contact
     n = W / (math.cos(a) + mu * math.sin(a))
-    assert step_push_force(0.05, R, W, mu) == pytest.approx(n * (math.sin(a) - mu * math.cos(a)))
+    assert step_climb_force(0.05, R, W, mu) == pytest.approx(n * (math.sin(a) - mu * math.cos(a)))
     # a low step the wheel climbs on its own torque: tan a <= mu
     a0 = math.atan(mu)
-    assert step_push_force(R * (1 - math.cos(a0)) * 0.99, R, W, mu) == 0.0
+    assert step_climb_force(R * (1 - math.cos(a0)) * 0.99, R, W, mu) == 0.0
     h = max_step_height(R, W, 5.0, mu, 0.15)
-    assert step_push_force(h, R, W, mu) == pytest.approx(5.0, rel=1e-6)
+    assert step_climb_force(h, R, W, mu) == pytest.approx(5.0, rel=1e-6)
 
 
 def test_tip_over_solar_and_heater_closed_forms():

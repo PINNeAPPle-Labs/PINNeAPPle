@@ -5734,6 +5734,15 @@
   },
   "source": "tests/test_rover_mission_design.py"
  },
+ "pinneapple_simulation.vehicle.mission_design:step_climb_force": {
+  "inputs": {
+   "h": 0.05,
+   "radius": 0.1,
+   "load": 10.0,
+   "mu": 0.6
+  },
+  "source": "tests/test_rover_mission_design.py"
+ },
  "pinneapple_simulation.vehicle.mission_design:tip_over_angles": {
   "inputs": {
    "track": 0.4,

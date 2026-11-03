@@ -459,7 +459,7 @@
   "seconds": 0.0
  },
  "pinneapple_design.design_optimizer.workflow:design_optimization": {
-  "code_hash": "cfc9bf3d1fdd1970",
+  "code_hash": "f7f6839d3ec954e5",
   "inputs": {
    "budget": 30,
    "fidelity": {
@@ -476,7 +476,7 @@
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "dict",
-  "seconds": 3.83
+  "seconds": 9.61
  },
  "pinneapple_design.design_optimizer.workflow:richardson": {
   "code_hash": "7c6d5c260f0feb4c",

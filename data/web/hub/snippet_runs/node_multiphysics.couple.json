@@ -1,0 +1,12 @@
+{
+ "code_hash": "3041f13ff4df5adf",
+ "figures": [],
+ "id": "node:multiphysics.couple",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multiphysics coupling: one-way, partitioned (Aitken), monolithic, checked -> pinneapple_simulation.multiphysics.workflow.multiphysics_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'joule_wire', 'case_params': {}, 'one_way_tolerance': 0.01, 'coupling_tolerance': 1e-10, 'balance_tolerance': 0.001, 'closed_form_tolerance': 0.001, 'max_iter': 200}",
+ "timed_out": false
+}

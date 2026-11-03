@@ -1,0 +1,12 @@
+{
+ "code_hash": "e5a38a34f6aa92a6",
+ "figures": [],
+ "id": "flow:multiphysics_coupling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multiphysics coupling: one-way, partitioned with Aitken, monolithic, checked - 2 nodes\nissues: []",
+ "timed_out": false
+}

@@ -834,6 +834,30 @@
   "returned": "ProofGraph",
   "seconds": 0.12
  },
+ "pinneapple_analysis.reduced_order.fom:PeriodicTransportFOM": {
+  "code_hash": "df4b070d67303ffa",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "PeriodicTransportFOM",
+  "seconds": 3.46
+ },
+ "pinneapple_analysis.reduced_order.fom:make_fom": {
+  "code_hash": "524631658c1660ff",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "PeriodicTransportFOM",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.reduced_order.workflow:reduced_order_workflow": {
+  "code_hash": "96774b6e2c8fee9c",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 4.68
+ },
  "pinneapple_analysis.reproduction:seed_stats": {
   "code_hash": "41ecc1b5ad7ab0df",
   "error": "ValueError: no seeds",

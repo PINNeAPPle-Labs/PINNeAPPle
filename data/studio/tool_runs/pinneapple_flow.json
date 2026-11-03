@@ -334,7 +334,7 @@
   "seconds": 0.0
  },
  "pinneapple_flow.nodes_ext.reactors:spec_for": {
-  "code_hash": "356e8f2595c4a421",
+  "code_hash": "0087fec9eed0a0df",
   "inputs": {
    "case": "propylene_glycol_cstr",
    "params": {
@@ -344,8 +344,8 @@
   },
   "ok": true,
   "recorded": "2026-11-03",
-  "returned": "DesignSpec",
-  "seconds": 0.02
+  "returned": "ReactorSpec",
+  "seconds": 8.46
  },
  "pinneapple_flow.nodes_ext.render_worker:check": {
   "code_hash": "88a29019ebd1aa71",

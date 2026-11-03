@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "design-optimization-geometry-and-parameters-re-v",
+ "name": "Design optimization: geometry and parameters, re-verified on refined meshes",
+ "description": "Geometry dimensions and parameters of a tool (a gmsh-parametrized cantilever solved by plane-stress FEM by default) optimised under constraints; the optimum re-solved on refined meshes (Richardson, grid convergence index), the coarse-mesh error corrected, checks on convergence, constraints, sensitivities, robustness and the known optimum, and the STEP of the optimum (pinneapple_design.design_optimizer.workflow).",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "design.optimization",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Design optimization"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Design optimization: geometry and parameters, re-verified on refined meshes"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "design.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1188
+ }
+}

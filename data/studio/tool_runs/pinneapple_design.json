@@ -343,6 +343,29 @@
   "returned": "dict",
   "seconds": 2.04
  },
+ "pinneapple_design.design_optimizer.cantilever:tapered_cantilever": {
+  "code_hash": "3d5df2012d2e492b",
+  "inputs": {
+   "h_root": 0.12,
+   "h_tip": 0.04,
+   "n_through": 4
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 4.82
+ },
+ "pinneapple_design.design_optimizer.cantilever:tapered_cantilever_beam": {
+  "code_hash": "86557dff5889cfca",
+  "inputs": {
+   "h_root": 0.12,
+   "h_tip": 0.04
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_design.design_optimizer.methods:available_methods": {
   "code_hash": "efbc42d54b908b1e",
   "inputs": {},
@@ -433,6 +456,40 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "Evaluator",
+  "seconds": 0.0
+ },
+ "pinneapple_design.design_optimizer.workflow:design_optimization": {
+  "code_hash": "7a72327a565774d1",
+  "inputs": {
+   "budget": 30,
+   "fidelity": {
+    "coarse": 4,
+    "levels": [
+     8,
+     16
+    ],
+    "param": "n_through"
+   },
+   "max_corrections": 2,
+   "n_starts": 2
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 11.02
+ },
+ "pinneapple_design.design_optimizer.workflow:richardson": {
+  "code_hash": "7c6d5c260f0feb4c",
+  "inputs": {
+   "values": [
+    1.01,
+    1.0025,
+    1.000625
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_design.fitmesh.context:wall_unit_height": {

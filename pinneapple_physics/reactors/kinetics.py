@@ -119,3 +119,11 @@ def concentrations(F: np.ndarray, T: float, P: float, feed: Feed) -> tuple[np.nd
     Ft = max(float(F.sum()), 1e-300)
     y = F / Ft
     return y * P / (R_GAS * T), y * P
+
+
+def first_order_pfr_conversion(T: float, tau: float, A: float, Ea: float) -> dict[str, float]:
+    """Conversion of an isothermal plug-flow reactor with a first-order Arrhenius reaction,
+    ``X = 1 - exp(-A exp(-Ea / (R T)) tau)`` (Levenspiel, 3rd ed., eq. 5.17 with k(T) of Arrhenius): ``T`` in K,
+    ``tau`` residence time in s, ``A`` in 1/s, ``Ea`` in J/mol."""
+    k = A * math.exp(-Ea / (R_GAS * T))
+    return {"X": 1.0 - math.exp(-k * tau), "k": k}

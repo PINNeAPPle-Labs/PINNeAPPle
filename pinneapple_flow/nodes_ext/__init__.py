@@ -24,6 +24,7 @@ from . import (  # noqa: F401
     football,
     forecasting,
     geomechanics,
+    inverse_workflow,
     lbm,
     learned_sim,
     lithography,

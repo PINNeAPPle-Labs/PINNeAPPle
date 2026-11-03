@@ -1,0 +1,12 @@
+{
+ "code_hash": "e7b2b381ec9a19f4",
+ "figures": [],
+ "id": "node:study.design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Least-drag body (robust, re-verified) -> pinneapple_autolab.domains.ahmed_study.design (fit_selected, deployment_dataset)\ninputs: [('runs', 'cfd_runs')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'speed': 40.0, 'CL_max': 0.0, 'kappa': 1.0, 'verify_tol': 0.05, 'folder': ''}",
+ "timed_out": false
+}

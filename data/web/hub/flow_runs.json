@@ -1,6 +1,6 @@
 {
  "ahmed_body_end_to_end": {
-  "flow_hash": "179f43ceac22ce04",
+  "flow_hash": "9dceffc35c8a3f34",
   "nodes": {
    "cfd": {
     "error": "",
@@ -15,6 +15,18 @@
     "status": "done",
     "summary": "",
     "type": "study.dataset"
+   },
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.clearance": 0.030027929395435686,
+     "design.slant_deg": 9.781385675764929,
+     "design.speed": 40.0,
+     "verification": "nearest recorded run"
+    },
+    "status": "done",
+    "summary": "slant 9.8 deg, clearance 0.030 m: CD 0.2508 +- 0.0041; unverified: verify.cfd",
+    "type": "study.design"
    },
    "geometry": {
     "error": "",
@@ -59,8 +71,8 @@
     "type": "study.twin"
    }
   },
-  "recorded": "2026-11-02",
-  "seconds": 490.83,
+  "recorded": "2026-11-03",
+  "seconds": 509.65,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -666,6 +678,37 @@
   },
   "recorded": "2026-10-25",
   "seconds": 84.59,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "lithography_opc": {
+  "flow_hash": "0453252d54944212",
+  "nodes": {
+   "opc": {
+    "error": "",
+    "metrics": {
+     "mask.min_feature_nm": 16.0,
+     "pw.dof_nm": 100.0,
+     "pw.worst_epe_nm": 1.832167832167832
+    },
+    "status": "done",
+    "summary": "EPE 9.96 -> 0.36 nm; verified over the process window",
+    "type": "litho.opc"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 100.99,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1363,6 +1406,60 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "reactor_sizing_cstr": {
+  "flow_hash": "17264f74cd684ab9",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "propylene_glycol_cstr: V = 1.864 m^3, X = 0.801, T_max = 330.0 K, verified",
+    "type": "reactor.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 61.85,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "reactor_sizing_packed_bed": {
+  "flow_hash": "b4a0c496960f02f0",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "phthalic_anhydride_bed: V = 0.001073 m^3, X = 0.750, T_max = 673.1 K, verified",
+    "type": "reactor.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 39.95,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "reason_roof": {
   "flow_hash": "c2f01a23265ceeb7",
   "nodes": {
@@ -1420,6 +1517,33 @@
   },
   "recorded": "2026-10-25",
   "seconds": 4.24,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "wing_design": {
+  "flow_hash": "e4491d38cc889218",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "wing": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "AR 8.89, taper 0.31, twist -0.0 deg: drag 393 N (baseline 418 N); verified",
+    "type": "aero.wing_design"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 37.48,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  }

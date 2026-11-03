@@ -94,16 +94,12 @@ def veriphysics_grade(ctx, inputs, params):
                 with torch.no_grad():
                     return mod(torch.tensor(np.asarray(X), dtype=torch.float32)).numpy().astype(float)
         else:
+            from pinneapple_analysis.surrogate.model_source import onnx_function
             try:
-                import onnxruntime as ort
-            except ImportError as e:
+                model = onnx_function(str(params["path"]), list(s.coords), list(s.fields))
+            except RuntimeError as e:                        # onnxruntime is not installed
                 from pinneapple_core.workflows import StepFailed
-                raise StepFailed("an ONNX model needs onnxruntime (pip install onnxruntime)") from e
-            sess = ort.InferenceSession(str(params["path"]))
-            iname = sess.get_inputs()[0].name
-
-            def model(X):
-                return np.asarray(sess.run(None, {iname: np.asarray(X, np.float32)})[0], float)
+                raise StepFailed(str(e)) from e
         g = grade_model(model, s, bounds, **kw)
     ctx.metric("decision", g["decision"], "; ".join(g["reasons"]) or "every check passes")
     ctx.metric("policy", g["policy"]["name"], "the approval rules used (all fields in the report)")

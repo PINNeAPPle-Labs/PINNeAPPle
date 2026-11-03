@@ -438,7 +438,9 @@ def terramechanics_workflow(*, soil: str = "Ding2011-TYII", identify: str = "syn
         # surrogate: only when it pays off, and only one trained on this physics
         rec = {"recommended": ["none"], "reasoning": "recommendation unavailable"}
         try:
-            from pinneapple_analysis.verification.architecture_recommendation import recommend_architecture
+            from pinneapple_analysis.verification.architecture_recommendation import (
+                recommend_architecture,
+            )
             n_ev = int(n_evaluations or des["calls"])
             rr = recommend_architecture(n_high_fidelity_simulations=0, needs_parameter_generalization=True,
                                         has_analytical_solver=True, solve_seconds=solve_s, n_evaluations=n_ev,

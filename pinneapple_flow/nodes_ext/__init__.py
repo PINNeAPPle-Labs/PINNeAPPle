@@ -15,6 +15,7 @@ from . import (  # noqa: F401
     control_eng,
     core_ts,
     design,
+    design_optimization,
     electromagnetics,
     em_antenna,
     em_fem3d,

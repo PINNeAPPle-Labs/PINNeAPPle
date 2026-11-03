@@ -62,6 +62,25 @@
   "returned": "tuple",
   "seconds": 7.88
  },
+ "pinneapple_problemdesign.formulate:formulate": {
+  "code_hash": "053f48224d49edb0",
+  "inputs": {
+   "dims": 1,
+   "phenomenon": "battery_cell_thermal"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ModelDraft",
+  "seconds": 7.86
+ },
+ "pinneapple_problemdesign.formulate:known": {
+  "code_hash": "ab65f6ef0313af28",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "list",
+  "seconds": 10.24
+ },
  "pinneapple_problemdesign.knowledge.mapping:build_plan_fno_first": {
   "code_hash": "61aa7ea31458f98d",
   "inputs": {

@@ -3922,6 +3922,13 @@
   },
   "source": "examples/problem_designer/03_offline_spec_to_report.py:63"
  },
+ "pinneapple_problemdesign.formulate:formulate": {
+  "inputs": {
+   "phenomenon": "battery_cell_thermal",
+   "dims": 1
+  },
+  "source": "tests/test_problemdesign_formulate.py:59"
+ },
  "pinneapple_problemdesign.knowledge.mapping:build_plan_fno_first": {
   "inputs": {
    "gaps": [],

@@ -45,6 +45,7 @@ from . import (  # noqa: F401
     use_cases,
     validation,
     validation_gallery,
+    veriphysics_grade,
     viz,
     wing_design,
     worldmodel,

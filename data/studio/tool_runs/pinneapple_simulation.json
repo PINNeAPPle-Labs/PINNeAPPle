@@ -1980,6 +1980,18 @@
   "returned": "CoupledCase",
   "seconds": 0.0
  },
+ "pinneapple_simulation.multiphysics.coupling:recommend_strategy": {
+  "code_hash": "cdcfe611797b3745",
+  "inputs": {
+   "contraction": 0.35,
+   "one_way_error": 0.12,
+   "one_way_tolerance": 0.01
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 3.04
+ },
  "pinneapple_simulation.multiphysics.workflow:multiphysics_workflow": {
   "code_hash": "a5c249edd1fa012a",
   "inputs": {},

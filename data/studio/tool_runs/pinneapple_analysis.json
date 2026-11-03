@@ -928,11 +928,38 @@
  },
  "pinneapple_analysis.surrogate.benchmark_workflow:benchmark_models": {
   "code_hash": "005017b739d47623",
-  "error": "TypeError: 'NoneType' object is not iterable",
-  "inputs": {},
-  "ok": false,
+  "inputs": {
+   "bounds": {
+    "T": [
+     330.0,
+     380.0
+    ],
+    "tau": [
+     10.0,
+     120.0
+    ]
+   },
+   "families": [
+    "gp",
+    "quadratic"
+   ],
+   "fixed": {
+    "A": 5000000.0,
+    "Ea": 60000.0
+   },
+   "n_boot": 200,
+   "n_test": 60,
+   "n_train": 30,
+   "output": "X",
+   "seeds": [
+    0
+   ],
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion"
+  },
+  "ok": true,
   "recorded": "2026-11-03",
-  "seconds": 10.65
+  "returned": "dict",
+  "seconds": 12.98
  },
  "pinneapple_analysis.surrogate.examples:airfoil_rans": {
   "code_hash": "93c40da16bf2944f",
@@ -966,13 +993,47 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_analysis.surrogate.model_source:zoo_candidates": {
+  "code_hash": "37c2cc31e34980b0",
+  "inputs": {
+   "outputs": [
+    "r_base_k_w"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "list",
+  "seconds": 0.04
+ },
  "pinneapple_analysis.surrogate.workflow:surrogate_modeling": {
   "code_hash": "a3fc1131ac210845",
-  "error": "ValueError: give a tool (with bounds and outputs) or a table (with inputs and outputs)",
-  "inputs": {},
-  "ok": false,
+  "inputs": {
+   "bounds": {
+    "T": [
+     330.0,
+     380.0
+    ],
+    "tau": [
+     10.0,
+     120.0
+    ]
+   },
+   "fixed": {
+    "A": 5000000.0,
+    "Ea": 60000.0
+   },
+   "n_doe": 20,
+   "n_fresh": 20,
+   "n_uses": 10000,
+   "outputs": [
+    "X"
+   ],
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion"
+  },
+  "ok": true,
   "recorded": "2026-11-03",
-  "seconds": 0.02
+  "returned": "dict",
+  "seconds": 0.37
  },
  "pinneapple_analysis.trust.trust_gate:TrustGate": {
   "code_hash": "2347f60f5d9b3b17",

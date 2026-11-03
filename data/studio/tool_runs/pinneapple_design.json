@@ -1263,11 +1263,24 @@
  },
  "pinneapple_design.thermal.heatsink.surrogate:forced_reference": {
   "code_hash": "d24c1b61692e0134",
-  "error": "KeyError: 'n_fins'",
-  "inputs": {},
-  "ok": false,
+  "inputs": {
+   "air_velocity_m_s": 2.5,
+   "base_depth_mm": 100,
+   "base_thickness_mm": 6,
+   "base_width_mm": 100,
+   "fin_height_mm": 40,
+   "fin_thickness_mm": 1.5,
+   "k_w_mk": 200,
+   "n_fins": 16,
+   "power_w": 150,
+   "source_depth_mm": 50,
+   "source_width_mm": 50,
+   "t_ambient_c": 25
+  },
+  "ok": true,
   "recorded": "2026-11-03",
-  "seconds": 0.02
+  "returned": "dict",
+  "seconds": 9.16
  },
  "pinneapple_design.thermal.heatsink.surrogate:load_surrogates": {
   "code_hash": "53290bb11dfecf76",

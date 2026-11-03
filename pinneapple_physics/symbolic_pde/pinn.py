@@ -12,6 +12,7 @@ scalars (an inverse PINN, with ``train_pinn(..., data=(X, Y))``).
 """
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import numpy as np
@@ -38,14 +39,20 @@ def _module_class():
     class _PINNWithParameters(torch.nn.Module):
         """A network and the trainable coefficients of an inverse problem (``.coefficients[name]``)."""
 
-        def __init__(self, net, unknowns: dict[str, float]):
+        def __init__(self, net, unknowns: dict[str, float], lo=None, span=None, offset=None, scale=None):
             super().__init__()
             self.net = net
             self.coefficients = torch.nn.ParameterDict(
                 {k: torch.nn.Parameter(torch.tensor(float(v))) for k, v in unknowns.items()})
+            # optional affine maps (#1175): inputs to [0, 1] over the box, outputs = offset + scale * network;
+            # derivatives stay with respect to the physical coordinates (autograd goes through the maps)
+            for name, v in (("lo", lo), ("span", span), ("offset", offset), ("scale", scale)):
+                self.register_buffer(name, None if v is None else torch.tensor(v, dtype=torch.float32))
 
         def forward(self, X):
-            return self.net(X)
+            Z = X if self.lo is None else (X - self.lo) / self.span
+            u = self.net(Z)
+            return u if self.offset is None else self.offset + self.scale * u
 
         def estimates(self) -> dict[str, float]:
             return {k: float(v.detach()) for k, v in self.coefficients.items()}
@@ -110,9 +117,15 @@ def _union(samplers):
 
 def pinn_problem(system: EquationSystem, bounds: dict[str, tuple[float, float]], *,
                  coefficients: dict[str, float] | None = None, unknowns: dict[str, float] | None = None,
-                 width: int = 32, depth: int = 4, exact=None, name: str = "flow", grid: tuple[int, ...] | None = None):
+                 width: int = 32, depth: int = 4, exact=None, name: str = "flow", grid: tuple[int, ...] | None = None,
+                 scales: dict[str, tuple[float, float]] | None = None):
     """``(PINNProblem, model)`` for ``system`` on the box ``bounds``. ``unknowns``: coefficient -> initial guess,
-    trained with the network (read back with ``model.estimates()``). ``exact``: optional ``X -> (N, n_fields)``."""
+    trained with the network (read back with ``model.estimates()``). ``exact``: optional ``X -> (N, n_fields)``.
+
+    ``scales`` (field -> ``(offset, scale)``) is for a problem in physical units: the network then sees the
+    coordinates mapped to [0, 1] over ``bounds`` and outputs ``offset + scale * net`` per field (a field not listed
+    keeps ``(0, 1)``), so a temperature near 300 K over a 2 cm cell trains like a unit problem. The equations, the
+    derivatives and the outputs stay in physical units."""
     torch = _torch()
     from pinneapple_analysis.validation.pinn import PINNProblem, mlp
 
@@ -127,9 +140,20 @@ def pinn_problem(system: EquationSystem, bounds: dict[str, tuple[float, float]],
                      - set(coords) - set(unknowns))
     if missing:
         raise ValueError(f"coefficient(s) without a value: {missing}")
-    model = _module_class()(mlp(len(coords), len(fields), width, depth), unknowns)
+    maps = {}
+    if scales:
+        bad = sorted(set(scales) - set(fields))
+        if bad:
+            raise ValueError(f"scales for unknown field(s) {bad}; fields: {fields}")
+        lo = [float(bounds[c][0]) for c in coords]
+        maps = {"lo": lo, "span": [float(bounds[c][1]) - a for c, a in zip(coords, lo, strict=True)],
+                "offset": [float(scales.get(f, (0.0, 1.0))[0]) for f in fields],
+                "scale": [float(scales.get(f, (0.0, 1.0))[1]) for f in fields]}
+    model = _module_class()(mlp(len(coords), len(fields), width, depth), unknowns, **maps)
 
     residuals = [e.residual.xreplace(rep).doit() for e in system.pdes]
+    if scales:                                  # each equation divided by its largest term at the scales (#1175)
+        residuals = [r / _term_scale(r, system, bounds, scales) for r in residuals]
     keys: dict[str, tuple[str, str]] = {}
     for r in residuals:
         keys.update(derivative_keys(r))
@@ -173,6 +197,8 @@ def pinn_problem(system: EquationSystem, bounds: dict[str, tuple[float, float]],
             (initial if c.kind == "initial" else boundary).append(pair)
         else:
             res = (lhs - rhs).doit()
+            if scales:
+                res = res / _term_scale(res, system, bounds, scales)
             ck = derivative_keys(res)
             cf = compile_expr(_plain(res, system), "torch")
 
@@ -185,8 +211,39 @@ def pinn_problem(system: EquationSystem, bounds: dict[str, tuple[float, float]],
         boundary=_union(boundary) if boundary else None, initial=_union(initial) if initial else None,
         exact=exact, time_axis=coords.index(tname) if tname in coords else None,
         grid=tuple(grid) if grid else tuple(64 if len(coords) <= 2 else 16 for _ in coords),
-        outputs=tuple(fields), constraints=tuple(constraints))
+        outputs=tuple(fields), constraints=tuple(constraints),
+        output_scales=tuple(maps["scale"]) if maps else None,
+        scale=float(max(maps["scale"])) if maps else 1.0)
     return P, model
+
+
+def _term_scale(expr: sp.Expr, system: EquationSystem, bounds, scales) -> float:
+    """The largest term of ``expr`` with each field at ``|offset| + scale`` and each derivative at
+    ``scale / span**order`` (the usual order-of-magnitude estimate behind a nondimensional form)."""
+    coords = list(system.coords)
+    span = {c: float(bounds[c][1]) - float(bounds[c][0]) for c in coords}
+    sub = {}
+    for d in expr.atoms(sp.Derivative):
+        f = d.expr.func.__name__
+        mag = scales.get(f, (0.0, 1.0))[1]
+        for v, n in d.variable_count:
+            mag /= span[v.name] ** int(n)
+        sub[d] = sp.Float(abs(mag))
+    e = expr.xreplace(sub)
+    for fn in e.atoms(AppliedUndef):
+        o, sc = scales.get(fn.func.__name__, (0.0, 1.0))
+        e = e.xreplace({fn: sp.Float(abs(o) + abs(sc))})
+    e = e.xreplace({sp.Symbol(c, real=True): sp.Float(max(abs(float(bounds[c][0])), abs(float(bounds[c][1])), 1e-30))
+                    for c in coords})
+    terms = sp.Add.make_args(sp.expand(e)) if e.is_Add or e.is_Mul else (e,)
+    mags = []
+    for t in terms:
+        try:
+            mags.append(abs(float(t)))
+        except TypeError:
+            continue
+    m = max(mags, default=1.0)
+    return m if m > 0 and math.isfinite(m) else 1.0
 
 
 def has_field(expr: sp.Expr) -> bool:

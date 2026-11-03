@@ -1,0 +1,12 @@
+{
+ "code_hash": "5e7ca789f1319924",
+ "figures": [],
+ "id": "flow:terramechanics_workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Terramechanics: soil, wheel performance, wheel design, re-verification - 2 nodes\nissues: []",
+ "timed_out": false
+}

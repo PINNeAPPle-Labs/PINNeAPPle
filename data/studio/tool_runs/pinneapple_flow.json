@@ -291,22 +291,6 @@
   "returned": "_GeneratorContextManager",
   "seconds": 0.0
  },
- "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
-  "code_hash": "c850f9ea1ca71684",
-  "inputs": {},
-  "ok": true,
-  "recorded": "2026-11-03",
-  "returned": "FlowBuilder",
-  "seconds": 7.22
- },
- "pinneapple_flow.nodes_ext.chip_design:build_flow": {
-  "code_hash": "2d61ea073e05508e",
-  "inputs": {},
-  "ok": true,
-  "recorded": "2026-11-03",
-  "returned": "FlowBuilder",
-  "seconds": 0.0
- },
  "pinneapple_flow.nodes_ext.core_ts:regime_series": {
   "code_hash": "d0d075efd4f5062a",
   "inputs": {},
@@ -427,16 +411,24 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
- "pinneapple_flow.nodes_ext.satellite_design:build_flow": {
-  "code_hash": "fe7e8176b61feb1e",
+ "pinneapple_flow.nodes_ext.rover_design:build_flow": {
+  "code_hash": "d58bbd8a468bb6c9",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 6.58
+ },
+ "pinneapple_flow.nodes_ext.surrogate_modeling:build_flow": {
+  "code_hash": "8e7cdfc1bab73bb2",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "FlowBuilder",
   "seconds": 0.0
  },
- "pinneapple_flow.nodes_ext.surrogate_modeling:build_flow": {
-  "code_hash": "8e7cdfc1bab73bb2",
+ "pinneapple_flow.nodes_ext.terramechanics:build_flow": {
+  "code_hash": "5ec8865d0fac5fca",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-03",

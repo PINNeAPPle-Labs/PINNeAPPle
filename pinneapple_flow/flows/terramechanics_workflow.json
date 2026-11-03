@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "terramechanics-soil-wheel-performance-wheel-desi",
+ "name": "Terramechanics: soil, wheel performance, wheel design, re-verification",
+ "description": "Soil parameters from the database or identified from plate and shear tests (inverse workflow), single-wheel sinkage, drawbar pull and torque against slip (Wong-Reece), the wheel radius, width and grouser height for a drawbar pull within slip and sinkage limits at minimum mass, re-verified with the full model, and the model checked against the published single-wheel tests of Ding et al. (2011) (pinneapple_simulation.terramechanics.workflow).",
+ "nodes": [
+  {
+   "id": "terra",
+   "type": "terramechanics.workflow",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Terramechanics workflow"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Terramechanics: soil, wheel performance, wheel design, re-verification"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "terra",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "terra.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1199
+ }
+}

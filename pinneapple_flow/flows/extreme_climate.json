@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "extreme-climate-return-levels-non-stationarity-c",
+ "name": "Extreme climate: return levels, non-stationarity, compound events and attribution",
+ "description": "Block maxima or peaks over a threshold, GEV / GPD by maximum likelihood with profile-likelihood intervals, covariates in the location and scale selected by likelihood ratio, return levels, a copula for compound events, a probability-ratio attribution, QQ / return-level / Anderson-Darling diagnostics and a coverage study (pinneapple_analysis.extremes.workflow).",
+ "nodes": [
+  {
+   "id": "extremes",
+   "type": "climate.extremes",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Extreme-value analysis"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Extreme climate: return levels, non-stationarity, compound events and attribution"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "extremes",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "extremes.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1198
+ }
+}

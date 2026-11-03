@@ -67,6 +67,40 @@
   },
   "source": "tests/test_dynamics_koopman.py:253"
  },
+ "pinneapple_analysis.extremes.models:likelihood_ratio_test": {
+  "inputs": {
+   "nll_small": -43.567,
+   "nll_big": -49.913,
+   "df": 1
+  },
+  "source": "tests/test_extreme_climate_workflow.py"
+ },
+ "pinneapple_analysis.extremes.workflow:coverage_study": {
+  "inputs": {
+   "mu": 10.0,
+   "sigma": 2.0,
+   "xi": 0.1,
+   "n": 50,
+   "replicates": 5
+  },
+  "source": "tests/test_extreme_climate_workflow.py"
+ },
+ "pinneapple_analysis.extremes.workflow:extreme_climate_workflow": {
+  "inputs": {
+   "dataset": "portpirie",
+   "gof_bootstrap": 9,
+   "attribution_bootstrap": 0,
+   "compound_bootstrap": 0,
+   "calibration_replicates": 0
+  },
+  "source": "tests/test_extreme_climate_workflow.py"
+ },
+ "pinneapple_analysis.extremes.workflow:load_case": {
+  "inputs": {
+   "name": "portpirie"
+  },
+  "source": "tests/test_extreme_climate_workflow.py"
+ },
  "pinneapple_analysis.inverse_problems.heat_diffusivity:identifiability_report": {
   "inputs": {
    "alpha": 0.15,
@@ -1585,6 +1619,10 @@
   },
   "source": "tests/test_flow_examples.py:59"
  },
+ "pinneapple_flow.nodes_ext.extreme_climate:build_flow": {
+  "inputs": {},
+  "source": "pinneapple_flow/flows/extreme_climate.json"
+ },
  "pinneapple_flow.nodes_ext.reactors:spec_for": {
   "inputs": {
    "case": "propylene_glycol_cstr",
@@ -1594,6 +1632,10 @@
    }
   },
   "source": "pinneapple_flow/flows/reactor_sizing_cstr.json"
+ },
+ "pinneapple_flow.nodes_ext.time_series_workflow:build_flow": {
+  "inputs": {},
+  "source": "pinneapple_flow/flows/time_series_prediction.json"
  },
  "pinneapple_flow.palette:humanize": {
   "inputs": {
@@ -6192,6 +6234,18 @@
   },
   "source": "tests/test_enso.py:100"
  },
+ "pinneapple_systems.time_series.statistical:arma_sample": {
+  "inputs": {
+   "n": 200,
+   "phi": [
+    0.5
+   ],
+   "theta": [
+    0.3
+   ]
+  },
+  "source": "tests/test_time_series_workflow.py"
+ },
  "pinneapple_systems.time_series.synthetic:oscillator_transition": {
   "inputs": {
    "dt": 0.25,
@@ -6200,6 +6254,24 @@
    "zeta": 0.1
   },
   "source": "tests/test_near_random_forecasting.py:44"
+ },
+ "pinneapple_systems.time_series.workflow:load_series": {
+  "inputs": {
+   "name": "arma"
+  },
+  "source": "tests/test_time_series_workflow.py"
+ },
+ "pinneapple_systems.time_series.workflow:time_series_workflow": {
+  "inputs": {
+   "series": "arma",
+   "models": [
+    "persistence",
+    "mean",
+    "arima"
+   ],
+   "n_folds": 1
+  },
+  "source": "tests/test_time_series_workflow.py"
  },
  "pinneapple_tools.aero_coefficients:compute_cp": {
   "inputs": {

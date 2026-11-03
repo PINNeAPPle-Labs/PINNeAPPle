@@ -111,6 +111,11 @@ jobs:
       - name: Design optimization workflow — gmsh cantilever, FEM vs beam theory, refined-mesh re-verification, KKT, robustness, STEP (must pass)
         run: pytest tests/test_design_optimization_workflow.py -q -p no:warnings
 
+      - name: Time-series and extreme-climate workflows — ARMA order, Lyapunov time, conformal coverage, GEV/GPD against Coles (2001), interval coverage, attribution (must pass)
+        run: |
+          pip install scikit-learn statsmodels
+          pytest tests/test_time_series_workflow.py tests/test_extreme_climate_workflow.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn

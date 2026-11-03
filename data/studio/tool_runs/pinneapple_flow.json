@@ -333,6 +333,14 @@
   "returned": "PosixPath",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.extreme_climate:build_flow": {
+  "code_hash": "978ac1c503f2cdb0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 7.26
+ },
  "pinneapple_flow.nodes_ext.inverse_workflow:build_flow": {
   "code_hash": "c9daa4ed6b4384c8",
   "inputs": {},
@@ -413,6 +421,14 @@
  },
  "pinneapple_flow.nodes_ext.surrogate_modeling:build_flow": {
   "code_hash": "8e7cdfc1bab73bb2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 0.0
+ },
+ "pinneapple_flow.nodes_ext.time_series_workflow:build_flow": {
+  "code_hash": "6750caaffce8d99a",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-03",

@@ -303,6 +303,56 @@
   "returned": "int",
   "seconds": 5.08
  },
+ "pinneapple_analysis.extremes.models:likelihood_ratio_test": {
+  "code_hash": "76e872aaf7373ed9",
+  "inputs": {
+   "df": 1,
+   "nll_big": -49.913,
+   "nll_small": -43.567
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 4.28
+ },
+ "pinneapple_analysis.extremes.workflow:coverage_study": {
+  "code_hash": "0335d105fd3dd79a",
+  "inputs": {
+   "mu": 10.0,
+   "n": 50,
+   "replicates": 5,
+   "sigma": 2.0,
+   "xi": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 1.59
+ },
+ "pinneapple_analysis.extremes.workflow:extreme_climate_workflow": {
+  "code_hash": "50b22928ff75cb6d",
+  "inputs": {
+   "attribution_bootstrap": 0,
+   "calibration_replicates": 0,
+   "compound_bootstrap": 0,
+   "dataset": "portpirie",
+   "gof_bootstrap": 9
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 4.98
+ },
+ "pinneapple_analysis.extremes.workflow:load_case": {
+  "code_hash": "84a038b9f2ee7c90",
+  "inputs": {
+   "name": "portpirie"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.inspection.acoustic:generate_acoustic_synthetic": {
   "code_hash": "cbabc6ef7fdedc3c",
   "inputs": {},

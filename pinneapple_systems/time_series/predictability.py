@@ -136,13 +136,16 @@ def first_acf_zero(x, max_lag: int | None = None) -> int:
 
 
 def rosenstein_lyapunov(x, *, dim: int = 5, delay: int | None = None, dt: float = 1.0,
-                        min_tsep: int | None = None, n_steps: int = 40, fit: tuple = (5, 30),
+                        min_tsep: int | None = None, n_steps: int = 40, fit: tuple | str = (5, 30),
                         max_points: int = 3000) -> dict[str, object]:
     """Largest Lyapunov exponent per unit time from a scalar series.
 
     Each embedded point is paired with its nearest neighbour at least ``min_tsep`` samples away (default: the
     mean period from the power spectrum); the mean log separation over the next ``n_steps`` samples is fitted by
-    a straight line on ``fit`` = (first, last) step. Returns the exponent, the divergence curve and the choices.
+    a straight line on ``fit`` = (first, last) step. ``fit="auto"`` takes the steps where the curve has risen
+    between 20 % and 70 % of its total rise (the linear region between the noise floor and the saturation at the
+    attractor size); give ``n_steps`` long enough to reach the saturation. Returns the exponent, the divergence
+    curve and the choices.
     """
     from scipy.spatial import cKDTree
     x = np.asarray(x, float).ravel()
@@ -171,6 +174,13 @@ def rosenstein_lyapunov(x, *, dim: int = 5, delay: int | None = None, dt: float 
     for s in range(n_steps):
         d = np.linalg.norm(emb[i0 + s] - emb[j0 + s], axis=1)
         curve[s] = np.mean(np.log(d[d > 0]))
+    if isinstance(fit, str):
+        if fit != "auto":
+            raise ValueError("fit must be (first, last) or 'auto'")
+        lo, hi = curve.min(), curve.max()
+        a = int(np.argmax(curve > lo + 0.2 * (hi - lo)))
+        b = max(int(np.argmax(curve > lo + 0.7 * (hi - lo))), a + 2)
+        fit = (a, b)
     a, b = fit
     slope = np.polyfit(np.arange(a, b + 1) * dt, curve[a:b + 1], 1)[0]
     return {"lyapunov": float(slope), "curve": curve, "dim": dim, "delay": delay, "min_tsep": int(min_tsep),

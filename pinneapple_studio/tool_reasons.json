@@ -1,6 +1,8 @@
 {
  "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit",
  "pinneapple_analysis.dynamics.koopman:KoopmanReconstruction": "a result record: KoopmanReconstruction.evaluate(operator, trajectories) builds it from a fitted KoopmanOperator and its trajectories, which a form cannot hold; building it from its own fields would run nothing",
+ "pinneapple_analysis.extremes.plots:diagnostic_figure": "draws the result dict of extreme_climate_workflow (an object a form cannot hold); the climate.extremes node renders it and tests/test_extreme_climate_workflow.py runs the workflow",
+ "pinneapple_analysis.extremes.workflow:as_tables": "formats the result dict of extreme_climate_workflow (an object a form cannot hold); the climate.extremes node shows it as its tables",
  "pinneapple_analysis.inverse_problems.discovery:discover_ode": "takes a sampled trajectory (time array and a state matrix) that a form cannot hold; the Flow Studio node discover.equations runs it on the Lorenz and damped-oscillator demos and tests/test_equation_discovery.py checks the recovered coefficients",
  "pinneapple_analysis.inverse_problems.discovery:discover_pde": "takes a space-time field array u(x, t) that a form cannot hold; the Flow Studio node discover.equations runs it on the Burgers demo and tests/test_equation_discovery.py checks the recovered coefficients",
  "pinneapple_analysis.reduced_order.workflow:as_table": "formats the result dict of reduced_order_workflow (an object a form cannot hold); the rom.workflow node shows it and tests/test_reduced_order_workflow.py runs the workflow",
@@ -73,6 +75,7 @@
  "pinneapple_systems.digital_twin.cooled_part:field_view_of": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file",
  "pinneapple_systems.digital_twin.cooled_part:run_twin": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file",
  "pinneapple_systems.digital_twin.cooled_part:simulate_readings": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file",
+ "pinneapple_systems.time_series.workflow:as_tables": "formats the result dict of time_series_workflow (an object a form cannot hold); the ts.workflow node shows it as its tables",
  "pinneapple_veriphysics.policy:decide": "takes the check records of a grade and a GradePolicy object, which a form cannot hold; grade_model calls it and tests/test_veriphysics_model_grade.py covers the policy rules",
  "pinneapple_veriphysics.policy:save_policy": "writes the user's default policy file under ~/.config, a side effect a smoke run must not have; tests/test_veriphysics_model_grade.py saves to a temporary path and loads it back"
 }

@@ -622,6 +622,17 @@
   "returned": "float",
   "seconds": 0.02
  },
+ "pinneapple_tools.visualization.studio.view_cache:view_paths": {
+  "code_hash": "9fc449beeb386f9f",
+  "inputs": {
+   "directory": "views",
+   "key": "test_0"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 4.19
+ },
  "pinneapple_tools.visualization.studio:render": {
   "code_hash": "77d3531dc556e9d4",
   "error": "TypeError: render() missing 2 required positional arguments: 'scene' and 'out'",

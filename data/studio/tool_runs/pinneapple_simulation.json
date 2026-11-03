@@ -1956,6 +1956,42 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.meshless.domains:domain_from_spec": {
+  "code_hash": "d1a6dbce9fca21b6",
+  "inputs": {
+   "d": {
+    "holes": [
+     [
+      0.5,
+      0.5,
+      0.2
+     ]
+    ],
+    "polygon": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "Domain2D",
+  "seconds": 4.92
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "code_hash": "e819609cb6e7b087",
   "inputs": {

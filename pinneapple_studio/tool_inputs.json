@@ -2333,6 +2333,15 @@
   },
   "source": "tests/test_physicsnemo_field_operators.py:63"
  },
+ "pinneapple_neural.physicsnemo_bridge.field_operators:pinneapple_fno": {
+  "inputs": {
+   "n": 16,
+   "width": 8,
+   "modes": 4,
+   "layers": 2,
+   "padding": 4
+  }
+ },
  "pinneapple_neural.trainer.audit:set_seed": {
   "inputs": {
    "seed": 42

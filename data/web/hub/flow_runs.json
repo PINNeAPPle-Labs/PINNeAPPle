@@ -1691,6 +1691,39 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "rover_mission_design": {
+  "flow_hash": "a88d87f8536a66e1",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "rover": {
+    "error": "",
+    "metrics": {
+     "grade_deg": 18.661921350265846,
+     "heater_W": 0.0,
+     "step_m": 0.15000000000000002,
+     "wheel_radius_m": 0.05,
+     "wheel_width_m": 0.10600000000000001
+    },
+    "status": "done",
+    "summary": "12.73 kg rover, wheels R 0.050 m x 0.106 m, array 0.158 m^2, battery 91 W h; traverse 100 m in 1.24 sols; verified",
+    "type": "rover.mission_design"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 23.84,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "run_drafted_model": {
   "flow_hash": "a7a21879c82b2820",
   "nodes": {
@@ -1714,7 +1747,7 @@
    }
   },
   "recorded": "2026-11-03",
-  "seconds": 7.05,
+  "seconds": 19.01,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1742,6 +1775,40 @@
   },
   "recorded": "2026-11-03",
   "seconds": 27.76,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "terramechanics_workflow": {
+  "flow_hash": "0994b01572e7bd12",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "terra": {
+    "error": "",
+    "metrics": {
+     "soil.K": 0.011222254335262517,
+     "soil.c": 194.12576093396632,
+     "soil.k_c": 15634.149500266147,
+     "soil.k_phi": 2407533.085288492,
+     "soil.n0": 1.1012441517193088,
+     "soil.phi_deg": 32.45324740208726
+    },
+    "status": "done",
+    "summary": "wheel R 0.138 m, b 0.080 m, lugs 0.0 mm, 0.87 kg for 19.9 N at slip 0.3; verified",
+    "type": "terramechanics.workflow"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 15.74,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

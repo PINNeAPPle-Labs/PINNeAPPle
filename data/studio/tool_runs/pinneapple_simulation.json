@@ -3088,6 +3088,147 @@
   "returned": "TestbedData",
   "seconds": 0.01
  },
+ "pinneapple_simulation.terramechanics.workflow:bekker_pressure": {
+  "code_hash": "60565886e26ade44",
+  "inputs": {
+   "k_c": 1000.0,
+   "k_phi": 500000.0,
+   "n": 1.0,
+   "sinkage": 0.02,
+   "width": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 3.93
+ },
+ "pinneapple_simulation.terramechanics.workflow:identify_soil": {
+  "code_hash": "9e08addc1a0d3d93",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.72
+ },
+ "pinneapple_simulation.terramechanics.workflow:janosi_shear": {
+  "code_hash": "81e9701be4a99908",
+  "inputs": {
+   "K": 0.01,
+   "c": 500.0,
+   "displacement": 0.02,
+   "normal_stress": 10000.0,
+   "phi_deg": 30.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.terramechanics.workflow:terramechanics_workflow": {
+  "code_hash": "694290b641f25eb8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 15.7
+ },
+ "pinneapple_simulation.terramechanics.workflow:wheel_mass": {
+  "code_hash": "d09b4a6f7976e2a2",
+  "inputs": {
+   "radius": 0.2,
+   "width": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vehicle.mission_design:heater_power": {
+  "code_hash": "2c151a61385299da",
+  "inputs": {
+   "area": 0.24,
+   "eps_eff": 0.03,
+   "internal_W": 0.0,
+   "t_inside": 233.0,
+   "t_sink": 180.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.06
+ },
+ "pinneapple_simulation.vehicle.mission_design:max_step_height": {
+  "code_hash": "98733c1aa609a2c0",
+  "inputs": {
+   "cap": 0.15,
+   "load": 10.0,
+   "mu": 0.6,
+   "push": 5.0,
+   "radius": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 4.56
+ },
+ "pinneapple_simulation.vehicle.mission_design:published_rover_check": {
+  "code_hash": "333e62a5c0c318ed",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.04
+ },
+ "pinneapple_simulation.vehicle.mission_design:rover_workflow": {
+  "code_hash": "3c3efe61cc4733e1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 18.03
+ },
+ "pinneapple_simulation.vehicle.mission_design:solar_array": {
+  "code_hash": "31b80dc442d12e4a",
+  "inputs": {
+   "area": 0.22,
+   "efficiency": 0.18,
+   "planet": {
+    "day_s": 88775.0,
+    "daylight_fraction": 0.5,
+    "solar_W_m2": 586.2,
+    "transmission": 0.6
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vehicle.mission_design:step_climb_force": {
+  "code_hash": "566e46f8c5703753",
+  "inputs": {
+   "h": 0.05,
+   "load": 10.0,
+   "mu": 0.6,
+   "radius": 0.1
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vehicle.mission_design:tip_over_angles": {
+  "code_hash": "d8d3235be9f9977c",
+  "inputs": {
+   "cg_height": 0.2,
+   "track": 0.4,
+   "wheelbase": 0.6
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.vehicle.scenarios:crater_site": {
   "code_hash": "5633b0e09b56d06e",
   "inputs": {},

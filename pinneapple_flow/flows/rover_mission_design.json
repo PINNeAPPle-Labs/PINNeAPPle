@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "rover-mission-to-mobility-power-and-thermal-rove",
+ "name": "Rover: mission to mobility, power and thermal, rover design, traverse re-verified",
+ "description": "Planet, terrain and mission to the lightest rover: grade and step climbing with Wong-Reece wheels, tip-over, sinkage, drive power, solar array over the day, battery for the night and a survival heater; the mission traverse time-stepped with the battery state of charge, and Sojourner's published power reproduced (pinneapple_simulation.vehicle.mission_design).",
+ "nodes": [
+  {
+   "id": "rover",
+   "type": "rover.mission_design",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Rover mission design"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Rover: mission to mobility, power and thermal, rover design, traverse re-verified"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "rover",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "rover.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1200
+ }
+}

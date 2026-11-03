@@ -1,0 +1,12 @@
+{
+ "code_hash": "33369d3dfe391c97",
+ "figures": [],
+ "id": "node:terramechanics.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Terramechanics workflow (soil -> wheel performance -> wheel design -> re-verify) -> pinneapple_simulation.terramechanics.workflow.terramechanics_workflow (identify_soil -> inverse_problems.workflow.inverse_workflow, WongReeceModel.steady_state, design_wheel, testbed.validate)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'soil': 'Ding2011-TYII', 'identify': 'synthetic', 'plates': {}, 'shear': {}, 'load': 80.0, 'gravity': 9.81, 'wheel': {'radius': 0.25, 'width': 0.2, 'grouser_count': 24, 'grouser_height': 0.01}, 'required_pull': 0.0, 'max_slip': 0.3, 'max_sinkage': 0.03, 'max_torque': 0.0, 'bounds': {'radius': [0.1, 0.4], 'width': [0.08, 0.4], 'grouser_height': [0.0, 0.03]}, 'objective': 'mass', 'grid': 7, 'seed': 0}",
+ "timed_out": false
+}

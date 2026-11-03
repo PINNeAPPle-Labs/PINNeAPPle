@@ -1,0 +1,12 @@
+{
+ "code_hash": "6509ce8528a182e0",
+ "figures": [],
+ "id": "flow:design_optimization",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design optimization: geometry and parameters, re-verified on refined meshes - 2 nodes\nissues: []",
+ "timed_out": false
+}

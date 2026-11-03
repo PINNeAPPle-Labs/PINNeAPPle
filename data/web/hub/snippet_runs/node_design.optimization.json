@@ -1,0 +1,12 @@
+{
+ "code_hash": "1bab8568fa001236",
+ "figures": [],
+ "id": "node:design.optimization",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 5.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design optimization (geometry + parameters, re-verified on refined meshes) -> pinneapple_design.design_optimizer.workflow.design_optimization (methods.run, verify.surrogate_assisted, architecture_recommendation.recommend_architecture, cantilever.tapered_cantilever)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'tool': 'pinneapple_design.design_optimizer.cantilever:tapered_cantilever', 'bounds': {'h_root': [0.04, 0.2], 'h_tip': [0.02, 0.1], 'thickness': [0.01, 0.04]}, 'objective': {'name': 'mass_kg', 'sense': 'min'}, 'constraints': [{'name': 'stress_max_Pa', 'upper': 150000000.0}, {'name': 'tip_deflection_m', 'upper': 0.008}], 'fixed': {}, 'fidelity': {'param': 'n_through', 'coarse': 4, 'levels': [8, 16, 32]}, 'reference': 'pinneapple_design.design_optimizer.cantilever:tapered_cantilever_beam', 'export': 'pinneapple_design.design_optimizer.cantilever:export_step', 'method': 'auto', 'budget': 60, 'n_starts': 2, 'robust': True, 'tolerances': {}, 'seed': 0}",
+ "timed_out": false
+}

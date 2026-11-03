@@ -229,6 +229,33 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "design_optimization": {
+  "flow_hash": "6aa878bf80760662",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "mass_kg = 7.91812 at h_root = 0.1512, h_tip = 0.05049, thickness = 0.01; verified",
+    "type": "design.optimization"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 11.7,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "elnino_forecast": {
   "error": "StepFailed: ENSO observations unavailable (ModuleNotFoundError: No module named 'netCDF4'); they are downloaded once from the NOAA / ERA5 buckets into the data cache",
   "flow_hash": "feb5ea7b1c064ea5",

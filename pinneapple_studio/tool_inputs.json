@@ -1165,6 +1165,92 @@
   },
   "source": "tests/test_bricks.py:50"
  },
+ "pinneapple_design.chip.floorplan:default_floorplan": {
+  "inputs": {},
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.interconnect:elmore_delay": {
+  "inputs": {
+   "R": [
+    100.0,
+    10.0,
+    10.0
+   ],
+   "C": [
+    0.0,
+    1e-13,
+    1e-13
+   ]
+  },
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.interconnect:net_delay": {
+  "inputs": {
+   "length_m": 0.005
+  },
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.interconnect:rc_ladder": {
+  "inputs": {
+   "r_wire": 55.0,
+   "c_wire": 1e-12,
+   "r_driver": 100.0,
+   "c_load": 2e-14
+  },
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.power_grid:uniform_grid_closed_form": {
+  "inputs": {
+   "n": 15,
+   "g": 2.0,
+   "i_node": 0.001
+  },
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.thermal:default_stack": {
+  "inputs": {},
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.workflow:chip_design_workflow": {
+  "inputs": {},
+  "source": "tests/test_chip_design_workflow.py"
+ },
+ "pinneapple_design.chip.workflow:floorplan_from_dict": {
+  "inputs": {
+   "d": {
+    "die_mm": [
+     10.0,
+     10.0
+    ],
+    "slots": [
+     2,
+     1
+    ],
+    "placement": [
+     0,
+     1
+    ],
+    "blocks": [
+     {
+      "name": "cpu",
+      "dynamic_w": 10.0,
+      "leakage_w": 2.0
+     },
+     {
+      "name": "l2",
+      "dynamic_w": 2.0
+     }
+    ],
+    "nets": [
+     [
+      "cpu",
+      "l2"
+     ]
+    ]
+   }
+  },
+  "source": "tests/test_chip_design_workflow.py"
+ },
  "pinneapple_design.design_optimizer.airfoil_drag:airfoil_outline": {
   "inputs": {
    "m": 0.02,
@@ -1400,6 +1486,138 @@
   },
   "source": "examples/nvidia/05_brep_plate_with_hole/run.py:78"
  },
+ "pinneapple_design.satellite.budgets:battery": {
+  "inputs": {
+   "p_ecl_w": 10.0,
+   "period_s": 5900.0,
+   "f_ecl": 0.35,
+   "years": 3.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:beta_angles_sso": {
+  "inputs": {
+   "i_deg": 98.19,
+   "ltan_h": 10.5
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:disturbance_torques": {
+  "inputs": {
+   "h_km": 700.0,
+   "rho_kg_m3": 1e-13,
+   "inertia": [
+    0.1,
+    0.09,
+    0.03
+   ],
+   "area_m2": 0.08,
+   "cp_offset_m": 0.02,
+   "residual_dipole_am2": 0.05
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:eclipse_fraction": {
+  "inputs": {
+   "h_km": 700.0,
+   "beta_deg": 10.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:eclipse_fraction_sampled": {
+  "inputs": {
+   "h_km": 700.0,
+   "beta_deg": 10.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:link_budget": {
+  "inputs": {
+   "p_tx_w": 2.0,
+   "f_hz": 8200000000.0,
+   "h_km": 700.0,
+   "elev_deg": 10.0,
+   "g_tx_dbi": 6.0,
+   "g_over_t_db_k": 18.0,
+   "rate_bps": 5000000.0,
+   "ebn0_req_db": 4.5
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:nodal_rate": {
+  "inputs": {
+   "a": 7078137.0,
+   "e": 0.0,
+   "i_rad": 1.7137
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:revisit": {
+  "inputs": {
+   "h_km": 700.0,
+   "i_deg": 98.19,
+   "fov_deg": 10.0,
+   "ifov_urad": 8.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:slant_range": {
+  "inputs": {
+   "h_km": 700.0,
+   "elev_deg": 10.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:solar_array": {
+  "inputs": {
+   "p_day_w": 14.0,
+   "p_ecl_w": 11.0,
+   "period_s": 5930.0,
+   "f_ecl": 0.35,
+   "years": 3.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:sso_inclination": {
+  "inputs": {
+   "h_km": 700.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.budgets:wheel_and_torquer": {
+  "inputs": {
+   "torque_nm": 2e-06,
+   "period_s": 5930.0,
+   "b_min_t": 2.4e-05,
+   "inertia": [
+    0.1,
+    0.09,
+    0.03
+   ]
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.workflow:contact_time": {
+  "inputs": {
+   "h_km": 700.0,
+   "i_deg": 98.19,
+   "lat_deg": 60.0,
+   "elev_min_deg": 10.0
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.workflow:propagate_j2": {
+  "inputs": {
+   "h_km": 700.0,
+   "i_deg": 98.19,
+   "days": 0.2
+  },
+  "source": "tests/test_satellite_design_workflow.py"
+ },
+ "pinneapple_design.satellite.workflow:satellite_design_workflow": {
+  "inputs": {},
+  "source": "tests/test_satellite_design_workflow.py"
+ },
  "pinneapple_design.surrogate_inverse.core:banded": {
   "inputs": {
    "error": 0.03,
@@ -1579,6 +1797,14 @@
   },
   "source": "tests/test_flow_library_nodes.py:43"
  },
+ "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_flow.nodes_ext.chip_design:build_flow": {
+  "inputs": {},
+  "source": "tests/test_chip_design_workflow.py"
+ },
  "pinneapple_flow.nodes_ext.examples:example_dir": {
   "inputs": {
    "name": "flight_dynamics"
@@ -1594,6 +1820,10 @@
    }
   },
   "source": "pinneapple_flow/flows/reactor_sizing_cstr.json"
+ },
+ "pinneapple_flow.nodes_ext.satellite_design:build_flow": {
+  "inputs": {},
+  "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_flow.palette:humanize": {
   "inputs": {
@@ -2655,6 +2885,65 @@
    "sp": "gG8III"
   },
   "source": "tests/test_astro_ai.py:92"
+ },
+ "pinneapple_physics.biology.standard_models:fitzhugh_nagumo": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.standard_models:hodgkin_huxley": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.standard_models:michaelis_menten": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.standard_models:pk_two_compartment": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.standard_models:seir": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.standard_models:sir": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.workflow:bio_workflow": {
+  "inputs": {
+   "model": "michaelis_menten",
+   "n_sobol": 8
+  },
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.workflow:build_model": {
+  "inputs": {},
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.workflow:fhn_hopf_current": {
+  "inputs": {
+   "a": 0.7,
+   "b": 0.8,
+   "eps": 0.08
+  },
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.workflow:sir_final_size": {
+  "inputs": {
+   "N": 1000000.0,
+   "S0": 999990.0,
+   "R_init": 0.0,
+   "R0": 3.0
+  },
+  "source": "tests/test_bio_workflow.py"
+ },
+ "pinneapple_physics.biology.workflow:wilks_order": {
+  "inputs": {
+   "n": 32,
+   "target": 0.9
+  },
+  "source": "tests/test_bio_workflow.py"
  },
  "pinneapple_physics.blackhole.raytrace:keplerian_omega": {
   "inputs": {

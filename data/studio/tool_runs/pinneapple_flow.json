@@ -357,6 +357,14 @@
   "returned": "FlowBuilder",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.multiphysics:build_flow": {
+  "code_hash": "46c6865102700d88",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 6.48
+ },
  "pinneapple_flow.nodes_ext.reactors:build_flow": {
   "code_hash": "5e021e182ad4bfae",
   "inputs": {},
@@ -378,6 +386,14 @@
   "recorded": "2026-11-03",
   "returned": "ReactorSpec",
   "seconds": 8.46
+ },
+ "pinneapple_flow.nodes_ext.reduced_order:build_flow": {
+  "code_hash": "e5c9c2c181e5472b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 0.0
  },
  "pinneapple_flow.nodes_ext.render_worker:check": {
   "code_hash": "88a29019ebd1aa71",

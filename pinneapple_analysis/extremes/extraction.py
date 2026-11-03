@@ -38,7 +38,7 @@ def decluster_runs(x, threshold: float, run: int = 1) -> dict[str, Any]:
                 "extremal_index": float("nan")}
     starts = np.concatenate([[0], np.nonzero(np.diff(idx) > run)[0] + 1])
     ends = np.concatenate([starts[1:], [len(idx)]])
-    peak_idx = np.array([idx[a:b][np.argmax(x[idx[a:b]])] for a, b in zip(starts, ends)])
+    peak_idx = np.array([idx[a:b][np.argmax(x[idx[a:b]])] for a, b in zip(starts, ends, strict=True)])
     return {"peaks": x[peak_idx], "index": peak_idx, "n_exceed": int(len(idx)), "n_clusters": int(len(peak_idx)),
             "extremal_index": float(len(peak_idx) / len(idx))}
 

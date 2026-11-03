@@ -41,7 +41,7 @@ def _gauss_logpdf(u, v, r):
 def _gauss_cdf(u, v, r):
     a, b = np.atleast_1d(stats.norm.ppf(u)), np.atleast_1d(stats.norm.ppf(v))
     mvn = stats.multivariate_normal(mean=[0, 0], cov=[[1, r], [r, 1]])
-    return np.array([mvn.cdf([p, q]) for p, q in zip(a, b)])
+    return np.array([mvn.cdf([p, q]) for p, q in zip(a, b, strict=True)])
 
 
 def copula_cdf(family: str, u, v, param: float):

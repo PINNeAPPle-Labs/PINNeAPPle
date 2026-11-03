@@ -91,7 +91,7 @@ def _read_csv(path: str) -> dict[str, list[str]]:
     for r in rows[1:]:
         if not r:
             continue
-        for h, v in zip(head, r):
+        for h, v in zip(head, r, strict=False):
             cols[h].append(v.strip())
     return cols
 
@@ -578,7 +578,7 @@ def extreme_climate_workflow(*, dataset: str = "fremantle", csv_path: str = "", 
     checks.append({"code": "fit.shape_range", "status": "pass" if -0.5 < xi < 0.5 else "warn",
                    "detail": f"xi = {xi:.3f}: the MLE's usual asymptotics hold for xi > -0.5; |xi| >= 0.5 is "
                              "unusual for climate maxima"})
-    mono = all(a["level"] < b["level"] for a, b in zip(rl, rl[1:])) if len(rl) > 1 else True
+    mono = all(a["level"] < b["level"] for a, b in zip(rl, rl[1:], strict=False)) if len(rl) > 1 else True
     inside = all(r["profile"][0] <= r["level"] <= r["profile"][1] and r["delta"][0] <= r["level"] <= r["delta"][1]
                  for r in rl)
     checks.append({"code": "return_levels.consistent", "status": "pass" if mono and inside else "fail",

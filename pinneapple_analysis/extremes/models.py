@@ -323,7 +323,7 @@ class GEVFit:
         mu = self._design(self.mu_covariates, self.covariates, self.n) @ self.theta[: self.k_mu]
         sg = np.exp(self._design(self.sigma_covariates, self.covariates, self.n)
                     @ self.theta[self.k_mu: self.k_mu + self.k_sigma])
-        return np.array([_gev_cdf(z, m, s, self.xi) for z, m, s in zip(self.data, mu, sg)], float)
+        return np.array([_gev_cdf(z, m, s, self.xi) for z, m, s in zip(self.data, mu, sg, strict=True)], float)
 
     def gumbel_residuals(self) -> np.ndarray:
         """Observations standardised to the standard Gumbel scale (Coles 2001, §6.2.3): the QQ plot of these

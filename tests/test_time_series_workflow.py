@@ -81,7 +81,7 @@ def test_csv_input_and_bad_inputs(tmp_path):
     y = arma_sample(600, [0.6], [], mu=2.0, rng=np.random.default_rng(0))
     x = np.random.default_rng(1).standard_normal(600)
     p = tmp_path / "s.csv"
-    p.write_text("t,load,temp\n" + "".join(f"{i},{a:.5f},{b:.5f}\n" for i, (a, b) in enumerate(zip(y, x))))
+    p.write_text("t,load,temp\n" + "".join(f"{i},{a:.5f},{b:.5f}\n" for i, (a, b) in enumerate(zip(y, x, strict=True))))
     r = time_series_workflow(csv_path=str(p), value_column="load", covariates=["temp"], models=QUICK)
     assert r["models"]["arima"]["info"]["order"][0] >= 1
     with pytest.raises(ValueError):

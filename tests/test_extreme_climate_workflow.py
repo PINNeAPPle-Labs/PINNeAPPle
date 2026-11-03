@@ -110,7 +110,7 @@ def test_bundled_cases_pass_every_check(case):
     assert r["passed"], [c for c in r["checks"] if c["status"] == "fail"]
     assert any(c["code"].startswith("published.") for c in r["checks"])
     rl = r["return_levels"]
-    assert all(a["level"] < b["level"] for a, b in zip(rl, rl[1:]))
+    assert all(a["level"] < b["level"] for a, b in zip(rl, rl[1:], strict=False))
 
 
 def test_csv_input_daily_dates(tmp_path):
@@ -118,7 +118,7 @@ def test_csv_input_daily_dates(tmp_path):
     days = np.arange("1980-01-01", "2020-01-01", dtype="datetime64[D]")
     x = rng.gumbel(20, 4, len(days))
     p = tmp_path / "daily.csv"
-    p.write_text("date,tmax\n" + "".join(f"{d},{v:.3f}\n" for d, v in zip(days, x)))
+    p.write_text("date,tmax\n" + "".join(f"{d},{v:.3f}\n" for d, v in zip(days, x, strict=True)))
     r = extreme_climate_workflow(csv_path=str(p), value_column="tmax", time_column="date", **FAST)
     assert r["extraction"]["blocks"] == 40
     assert r["fit"]["distribution"] == "GEV"

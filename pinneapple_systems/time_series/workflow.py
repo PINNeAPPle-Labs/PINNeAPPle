@@ -355,7 +355,7 @@ def time_series_workflow(*, series: str = "seasonal", csv_path: str = "", value_
     dev = float(np.max(np.abs(c_rec - level)))
     checks.append({"code": "intervals.coverage", "status": "pass" if dev <= coverage_tolerance else "fail",
                    "detail": f"{rec}: conformal {level:.0%} coverage on the test blocks "
-                             f"{', '.join(f'h{h}: {c:.3f}' for h, c in zip(H, c_rec))} (largest gap {dev:.3f}, "
+                             f"{', '.join(f'h{h}: {c:.3f}' for h, c in zip(H, c_rec, strict=True))} (largest gap {dev:.3f}, "
                              f"allowed {coverage_tolerance})"})
     tr = d.get("truth", {})
     if "order" in tr and "arima" in info:

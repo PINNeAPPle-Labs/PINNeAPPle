@@ -46,6 +46,21 @@ fixed instance well (a function-fitting problem):
         the operator-learning generalization AND a physics-residual loss,
         not supervision alone)
 
+**Whether to learn a model at all** (#1176). With ``solve_seconds`` (the solver's measured cost per solve) and
+``n_evaluations`` (how many evaluations the study needs: a DOE, an optimisation, a Monte Carlo), the first answer
+can be ``none``: call the solver directly. It is when the direct cost ``solve_seconds * n_evaluations`` is within
+``direct_budget_s``, or when the study needs no more evaluations than a surrogate needs training samples (it would
+not save a single solve). The reason states the numbers.
+
+**What the chosen model must pass** before it is used: ``ArchitectureRecommendation.checks`` lists, for the first
+family, the held-out error at ``accuracy_target``, no extrapolation outside the sampled ranges, and what its kind
+adds (a physics residual for physics-informed models, resolution invariance for operators, calibrated
+uncertainty for a Gaussian process, the solver's own checks for ``none``).
+
+``output_kind`` (``scalar`` | ``grid_field`` | ``mesh_field`` | ``time_series``) and ``n_inputs`` describe what the
+model maps: a few smooth scalars over a handful of inputs go to the KPI regressor (a Gaussian process), a field on
+one grid to a grid operator, a field on varying meshes to a graph network.
+
 ``is_inverse_problem=True`` adds ``inverse_pinn``/an ``inverse_params``-
 capable base architecture as a caveat/addition regardless of the other
 axes, since PINNeAPPle's inverse-problem machinery
@@ -184,6 +199,8 @@ class ArchitectureRecommendation:
     decision_path: List[str]
     alternatives: List[Dict[str, Any]]
     caveats: List[str] = field(default_factory=list)
+    # what the first family must pass before it is used: {"code", "what", "limit"} (#1176)
+    checks: List[Dict[str, Any]] = field(default_factory=list)
 
 
 # Below this many real, already-run high-fidelity simulations, "little/no
@@ -196,12 +213,61 @@ class ArchitectureRecommendation:
 # ``has_lots_of_data`` explicitly instead of relying on this default.
 _DEFAULT_DATA_THRESHOLD = 50
 
+# Direct evaluation is the first answer when the whole study costs at most this many seconds of solves
+# (10 minutes, a default the caller overrides with ``direct_budget_s``).
+_DEFAULT_DIRECT_BUDGET_S = 600.0
+_OUTPUT_KINDS = ("scalar", "grid_field", "mesh_field", "time_series")
+
+
+def _training_samples(output_kind: Optional[str], n_inputs: Optional[int]) -> int:
+    """Solves a first surrogate needs: about ten per input for a Gaussian process on scalars (Loeppky, Sacks &
+    Welch 2009, 'Choosing the sample size of a computer experiment'), the operator threshold for fields."""
+    if output_kind == "scalar" and n_inputs:
+        return 10 * n_inputs
+    return _DEFAULT_DATA_THRESHOLD
+
+
+def _checks(key: str, category: str, accuracy_target: Optional[float]) -> List[Dict[str, Any]]:
+    if key == "none":
+        return [{"code": "solver.verified", "what": "the solver's own checks pass on every evaluation",
+                 "limit": None}]
+    out = [{"code": "surrogate.held_out_error", "what": "relative error on held-out solves",
+            "limit": accuracy_target},
+           {"code": "surrogate.no_extrapolation", "what": "every prediction inside the sampled input ranges",
+            "limit": None}]
+    if key in ("pinn", "xpinn", "pino", "inverse_pinn"):
+        out.append({"code": "surrogate.physics_residual",
+                    "what": "PDE, boundary and initial residuals on points never trained on", "limit": None})
+    if category == "neural_operator" and key != "point_cloud_operator":
+        out.append({"code": "surrogate.resolution_invariance",
+                    "what": "error at a finer resolution than training within the held-out limit", "limit": None})
+    if key == "kpi_regressor":
+        out.append({"code": "surrogate.calibrated_uncertainty",
+                    "what": "held-out solves inside the predicted 95 % band at about the nominal rate",
+                    "limit": 0.95})
+    if key == "pod_rom":
+        out.append({"code": "surrogate.energy_captured", "what": "retained POD modes capture the snapshot energy",
+                    "limit": 0.999})
+    return out
+
 
 # Surrogate families that are not ModelRegistry networks. Kept apart from ARCHITECTURE_CATALOG so the
 # registry-key contract of that catalog (every key is a real ModelRegistry entry) stays true. They are
 # only ever recommended when the caller passes the axes that justify them (target_kind, fixed_topology,
 # has_physics_postprocessor); with those left at their defaults the recommendation is unchanged.
 EXTRA_CATALOG: Dict[str, ArchitectureCandidate] = {
+    "none": ArchitectureCandidate(
+        name="No learned model: call the solver directly", registry_key="", category="none",
+        when_to_use="The solver (or closed form) is cheap enough for the number of evaluations the study needs, "
+                    "or the study needs no more evaluations than a surrogate would need training samples.",
+        strengths=["No training data, no approximation error, no extrapolation risk: every number is a solve.",
+                   "The solver's own verification applies to every evaluation."],
+        weaknesses=["Each evaluation pays the full solve cost; reconsider when the study grows."],
+        source="A surrogate pays off only when the solves it replaces cost more than the solves it needs to be "
+               "trained and checked: Forrester, Sobester & Keane (2008), 'Engineering Design via Surrogate "
+               "Modelling', ch. 1.",
+        notes="pinneapple_tools.surrogate_policy measures the cost per solve",
+    ),
     "kpi_regressor": ArchitectureCandidate(
         name="KPI regressor (Gaussian process / small MLP on the parameters)", registry_key="",
         category="kpi_surrogate",
@@ -281,6 +347,12 @@ def recommend_architecture(
     target_kind: Optional[str] = None,
     fixed_topology: Optional[bool] = None,
     has_physics_postprocessor: bool = False,
+    solve_seconds: Optional[float] = None,
+    n_evaluations: Optional[int] = None,
+    direct_budget_s: float = _DEFAULT_DIRECT_BUDGET_S,
+    output_kind: Optional[str] = None,
+    n_inputs: Optional[int] = None,
+    accuracy_target: Optional[float] = None,
 ) -> ArchitectureRecommendation:
     """Recommend which PINNeAPPle neural architecture family to reach for
     first, from the problem's own real characteristics -- see the module
@@ -319,9 +391,23 @@ def recommend_architecture(
         a key some branch resolves to raises ``KeyError`` rather than
         silently falling back, so an incompatible override is caught
         immediately, not at some later, harder-to-trace call site.
+    solve_seconds, n_evaluations, direct_budget_s : the solver's measured cost per solve, the evaluations the
+        study needs and the direct budget; with the first two, ``none`` (call the solver) can be the answer.
+    output_kind : ``scalar``, ``grid_field``, ``mesh_field`` or ``time_series`` (sets ``target_kind``,
+        ``fixed_topology`` and ``geometry_varies`` when they are not given).
+    n_inputs : how many inputs vary.
+    accuracy_target : the relative error the model must reach on held-out solves (its first check's limit).
     """
     catalog = catalog if catalog is not None else ARCHITECTURE_CATALOG
     lookup = {**EXTRA_CATALOG, **catalog}
+    if output_kind is not None and output_kind not in _OUTPUT_KINDS:
+        raise ValueError(f"output_kind is one of {_OUTPUT_KINDS}, not {output_kind!r}")
+    if output_kind == "scalar" and target_kind is None:
+        target_kind = "kpi"
+    elif output_kind in ("grid_field", "mesh_field") and target_kind is None:
+        target_kind = "field"
+        if output_kind == "grid_field" and fixed_topology is None:
+            fixed_topology = True
     if has_lots_of_data is None:
         has_lots_of_data = n_high_fidelity_simulations >= _DEFAULT_DATA_THRESHOLD
 
@@ -431,6 +517,23 @@ def recommend_architecture(
         matches.append("hybrid_surrogate_physics")
     matches = list(dict.fromkeys(matches))
 
+    # whether to learn anything: the direct cost of the study against its budget and the training it would need
+    if solve_seconds is not None and n_evaluations is not None:
+        direct = float(solve_seconds) * int(n_evaluations)
+        need = _training_samples(output_kind, n_inputs)
+        if direct <= direct_budget_s or int(n_evaluations) <= need:
+            why = (f"{solve_seconds:g} s per solve x {n_evaluations} evaluations = {direct:g} s, within the "
+                   f"direct budget of {direct_budget_s:g} s" if direct <= direct_budget_s else
+                   f"the study needs {n_evaluations} evaluations, no more than the ~{need} solves a first "
+                   "surrogate needs to be trained and checked")
+            decision_path.insert(0, f"cost: {why} -> no learned model; call the solver directly. The model "
+                                    "families below are the ones to reach for if the study grows.")
+            matches.insert(0, "none")
+        else:
+            decision_path.insert(0, f"cost: {solve_seconds:g} s per solve x {n_evaluations} evaluations = "
+                                    f"{direct:g} s, beyond the direct budget of {direct_budget_s:g} s and more "
+                                    f"evaluations than the ~{need} training solves -> a surrogate can pay off.")
+
     primary = matches[0]
     reasoning = (
         f"{lookup[primary].name} ({lookup[primary].category}): {lookup[primary].when_to_use} "
@@ -449,4 +552,5 @@ def recommend_architecture(
     return ArchitectureRecommendation(
         recommended=matches, reasoning=reasoning, decision_path=decision_path,
         alternatives=alternatives, caveats=caveats,
+        checks=_checks(primary, lookup[primary].category, accuracy_target),
     )

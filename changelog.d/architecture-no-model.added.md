@@ -1,0 +1,1 @@
+`recommend_architecture` can answer `none` (call the solver) from the measured cost per solve and the study's evaluations, takes `output_kind` / `n_inputs` / `accuracy_target`, and lists the checks the chosen family must pass (#1176).

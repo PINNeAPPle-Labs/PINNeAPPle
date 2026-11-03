@@ -1236,12 +1236,12 @@
   "seconds": 7.26
  },
  "pinneapple_analysis.verification.architecture_recommendation:recommend_architecture": {
-  "code_hash": "f81e42abf9d86b41",
+  "code_hash": "954a507b18fda41f",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-03",
   "returned": "ArchitectureRecommendation",
-  "seconds": 0.0
+  "seconds": 15.28
  },
  "pinneapple_analysis.verification.dimensional_analysis:classify_flow_regime": {
   "code_hash": "a0a9513950125d2c",

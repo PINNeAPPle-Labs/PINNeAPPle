@@ -307,6 +307,14 @@
   "returned": "FlowBuilder",
   "seconds": 7.14
  },
+ "pinneapple_flow.nodes_ext.digital_twin:build_flow": {
+  "code_hash": "8e0270b07f2603d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 3.81
+ },
  "pinneapple_flow.nodes_ext.equation_discovery:build_flow": {
   "code_hash": "2af614852789d28a",
   "inputs": {},

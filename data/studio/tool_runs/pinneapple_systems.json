@@ -326,6 +326,22 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.workflow:digital_twin_workflow": {
+  "code_hash": "b89a7f279e368d9e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 4.65
+ },
+ "pinneapple_systems.digital_twin.workflow:thermal_plant": {
+  "code_hash": "c0d2a4800d305547",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "StateSpaceModel",
+  "seconds": 0.0
+ },
  "pinneapple_systems.operations.anomaly:benchmark_faults": {
   "code_hash": "77089590ba246952",
   "inputs": {},

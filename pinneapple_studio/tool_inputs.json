@@ -5961,6 +5961,30 @@
   },
   "source": "tests/test_river_recession.py:16"
  },
+ "pinneapple_systems.digital_twin.workflow:chi2_band": {
+  "inputs": {
+   "dof": 1,
+   "n": 100
+  },
+  "source": "tests/test_digital_twin_workflow.py:test_statistics_helpers"
+ },
+ "pinneapple_systems.digital_twin.workflow:cusum_arl0": {
+  "inputs": {
+   "k": 0.5,
+   "h": 8.0
+  },
+  "source": "tests/test_digital_twin_workflow.py:test_statistics_helpers"
+ },
+ "pinneapple_systems.digital_twin.workflow:square_wave": {
+  "inputs": {
+   "n": 240,
+   "dt": 5.0,
+   "low": 1000.0,
+   "high": 2000.0,
+   "period": 1200.0
+  },
+  "source": "pinneapple_systems/digital_twin/workflow.py:simulate_plant"
+ },
  "pinneapple_systems.process_components.beam_statics:rectangular_section_properties": {
   "inputs": {
    "height_m": 0.2,

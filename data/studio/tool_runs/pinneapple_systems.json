@@ -1289,6 +1289,22 @@
   "returned": "DataFrame",
   "seconds": 0.03
  },
+ "pinneapple_systems.time_series.statistical:arma_sample": {
+  "code_hash": "1b301f5e661679cb",
+  "inputs": {
+   "n": 200,
+   "phi": [
+    0.5
+   ],
+   "theta": [
+    0.3
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 7.28
+ },
  "pinneapple_systems.time_series.synthetic:double_well": {
   "code_hash": "5d3f4a65029912b9",
   "inputs": {},
@@ -1397,5 +1413,31 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_systems.time_series.workflow:load_series": {
+  "code_hash": "8722a6bca4de7e25",
+  "inputs": {
+   "name": "arma"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_systems.time_series.workflow:time_series_workflow": {
+  "code_hash": "0660803d46251cec",
+  "inputs": {
+   "models": [
+    "persistence",
+    "mean",
+    "arima"
+   ],
+   "n_folds": 1,
+   "series": "arma"
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.63
  }
 }

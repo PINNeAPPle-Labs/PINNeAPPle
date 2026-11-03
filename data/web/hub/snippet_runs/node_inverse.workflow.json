@@ -1,0 +1,12 @@
+{
+ "code_hash": "397f23fb36ca0c24",
+ "figures": [],
+ "id": "node:inverse.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 10.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse modeling: identifiability, estimate, trust checks -> pinneapple_analysis.inverse_problems.workflow.inverse_workflow (identifiability, calibration)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'tool': 'pinneapple_physics.reactors.kinetics:first_order_pfr_conversion', 'output': 'X', 'parameters': {'A': {'lower': 10000.0, 'upper': 1000000000.0, 'initial': 1000000.0, 'unit': '1/s'}, 'Ea': {'lower': 30000.0, 'upper': 100000.0, 'initial': 50000.0, 'unit': 'J/mol'}}, 'fixed': {}, 'measurements_csv': '', 'conditions': ['T', 'tau'], 'synthetic_truth': {'A': 5000000.0, 'Ea': 60000.0}, 'candidates': {'T': [300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400], 'tau': [60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0]}, 'holdout_fraction': 0.2, 'bootstrap': 50, 'n_recovery': 10, 'seed': 0}",
+ "timed_out": false
+}

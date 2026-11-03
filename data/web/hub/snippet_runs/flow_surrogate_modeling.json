@@ -1,0 +1,12 @@
+{
+ "code_hash": "58fa02f00a575cfb",
+ "figures": [],
+ "id": "flow:surrogate_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate modeling: recommended family, checked on new solves, exported - 2 nodes\nissues: []",
+ "timed_out": false
+}

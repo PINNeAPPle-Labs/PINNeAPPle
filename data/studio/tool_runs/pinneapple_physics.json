@@ -3027,6 +3027,19 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion": {
+  "code_hash": "3fe50c601a59a8bd",
+  "inputs": {
+   "A": 5000000.0,
+   "Ea": 60000.0,
+   "T": 350.0,
+   "tau": 60.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 7.56
+ },
  "pinneapple_physics.reactors.presets:phthalic_anhydride_bed": {
   "code_hash": "a9fd9bf7f57e26b8",
   "inputs": {},

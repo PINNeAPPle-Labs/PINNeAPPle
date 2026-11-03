@@ -1,0 +1,12 @@
+{
+ "code_hash": "9c8830af53a7257c",
+ "figures": [],
+ "id": "flow:use_trained_model",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Use a trained model (zoo or yours) instead of training, gated and re-verified - 2 nodes\nissues: []",
+ "timed_out": false
+}

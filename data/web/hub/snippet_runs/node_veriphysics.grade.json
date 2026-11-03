@@ -1,0 +1,12 @@
+{
+ "code_hash": "39a6fc8615f74c59",
+ "figures": [],
+ "id": "node:veriphysics.grade",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "VeriPhysics grade of a model trained elsewhere -> pinneapple_veriphysics.model_grade.grade_model / grade_predictions\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'model': 'demo_pinn', 'path': '', 'tool': '', 'problem': {'pdes': ['u_t = alpha*lap(u)'], 'conditions': [{'kind': 'initial', 'on': 't_min', 'equation': 'u = sin(pi*x)'}, {'kind': 'dirichlet', 'on': 'boundary', 'equation': 'u = 0'}], 'coords': ['x', 't'], 'fields': ['u'], 'coefficients': {'alpha': 0.1}, 'bounds': {'x': [0.0, 1.0], 't': [0.0, 1.0]}, 'exact': 'exp(-alpha*pi**2*t)*sin(pi*x)'}, 'validity': {}, 'policy': {}, 'steps': 1500}",
+ "timed_out": false
+}

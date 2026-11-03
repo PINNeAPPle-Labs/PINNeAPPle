@@ -1,0 +1,12 @@
+{
+ "code_hash": "6c1f109ce9312e10",
+ "figures": [],
+ "id": "flow:veriphysics_grade",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "VeriPhysics grade of a model trained elsewhere - 2 nodes\nissues: []",
+ "timed_out": false
+}

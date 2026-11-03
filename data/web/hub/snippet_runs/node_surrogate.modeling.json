@@ -1,0 +1,12 @@
+{
+ "code_hash": "db0759db55359b41",
+ "figures": [],
+ "id": "node:surrogate.modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 10.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate modeling (recommended family, checked, exported) -> pinneapple_analysis.surrogate.workflow.surrogate_modeling (pinneapple_autolab.study.benchmark, architecture_recommendation.recommend_architecture)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'tool': 'pinneapple_design.aero.wing_design:wing_performance', 'bounds': {'aspect_ratio': [5.0, 12.0], 'taper': [0.3, 1.0], 'twist': [-6.0, 0.0]}, 'outputs': ['drag_N', 'M_root_Nm', 'cl_local_max_landing'], 'fixed': {}, 'table_csv': '', 'inputs': [], 'n_doe': 60, 'n_fresh': 200, 'n_uses': 100000, 'accuracy_target': 0.05, 'force': False, 'seed': 0}",
+ "timed_out": false
+}

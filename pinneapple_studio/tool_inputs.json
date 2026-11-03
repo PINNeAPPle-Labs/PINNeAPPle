@@ -385,6 +385,71 @@
   },
   "source": "tests/test_sensitivity.py:141"
  },
+ "pinneapple_analysis.surrogate.benchmark_workflow:benchmark_models": {
+  "inputs": {
+   "families": [
+    "gp",
+    "quadratic"
+   ],
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion",
+   "bounds": {
+    "T": [
+     330.0,
+     380.0
+    ],
+    "tau": [
+     10.0,
+     120.0
+    ]
+   },
+   "output": "X",
+   "fixed": {
+    "A": 5000000.0,
+    "Ea": 60000.0
+   },
+   "n_train": 30,
+   "n_test": 60,
+   "seeds": [
+    0
+   ],
+   "n_boot": 200
+  },
+  "source": "tests/test_model_benchmark.py"
+ },
+ "pinneapple_analysis.surrogate.model_source:zoo_candidates": {
+  "inputs": {
+   "outputs": [
+    "r_base_k_w"
+   ]
+  },
+  "source": "tests/test_model_source.py"
+ },
+ "pinneapple_analysis.surrogate.workflow:surrogate_modeling": {
+  "inputs": {
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion",
+   "bounds": {
+    "T": [
+     330.0,
+     380.0
+    ],
+    "tau": [
+     10.0,
+     120.0
+    ]
+   },
+   "outputs": [
+    "X"
+   ],
+   "fixed": {
+    "A": 5000000.0,
+    "Ea": 60000.0
+   },
+   "n_doe": 20,
+   "n_fresh": 20,
+   "n_uses": 10000
+  },
+  "source": "tests/test_surrogate_workflow.py"
+ },
  "pinneapple_analysis.trust.trust_report:checagem_booleana": {
   "inputs": {
    "nome": "mass_conservation",
@@ -1371,6 +1436,23 @@
    "surrogates": {}
   },
   "source": "tests/test_heatsink_sizer.py:96"
+ },
+ "pinneapple_design.thermal.heatsink.surrogate:forced_reference": {
+  "inputs": {
+   "base_width_mm": 100,
+   "base_depth_mm": 100,
+   "base_thickness_mm": 6,
+   "n_fins": 16,
+   "fin_thickness_mm": 1.5,
+   "fin_height_mm": 40,
+   "k_w_mk": 200,
+   "source_width_mm": 50,
+   "source_depth_mm": 50,
+   "t_ambient_c": 25,
+   "power_w": 150,
+   "air_velocity_m_s": 2.5
+  },
+  "source": "tests/test_model_source.py"
  },
  "pinneapple_flow.decisions:edits_to_decisions": {
   "inputs": {
@@ -3857,6 +3939,15 @@
    "runs": []
   },
   "source": "examples/potential_co2/01_run_study.py:68"
+ },
+ "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion": {
+  "inputs": {
+   "T": 350.0,
+   "tau": 60.0,
+   "A": 5000000.0,
+   "Ea": 60000.0
+  },
+  "source": "tests/test_inverse_workflow.py"
  },
  "pinneapple_physics.symbolic_pde.text:parse_system": {
   "inputs": {

@@ -331,3 +331,9 @@ if __name__ == "__main__":
                     help="retrain on the saved physics dataset instead of regenerating it")
     a = ap.parse_args()
     main(a.n_forced, a.n_natural, a.workers, a.reuse_dataset)
+
+
+def forced_reference(**params: float) -> dict | None:
+    """:func:`reference_solve` with keyword inputs (the zoo model's input names), forced convection: the solver a
+    flow re-verifies the ``heatsink_forced_mlp`` zoo model with."""
+    return reference_solve(dict(params), "forced")

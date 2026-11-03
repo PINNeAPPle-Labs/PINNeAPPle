@@ -1,0 +1,12 @@
+{
+ "code_hash": "c0a6798fe3c825c1",
+ "figures": [],
+ "id": "node:discover.equations",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 10.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Equation discovery (SINDy / PDE-FIND), checked on held-out data -> pinneapple_analysis.inverse_problems.discovery.discover_ode / discover_pde\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'kind': 'ode', 'csv': '', 'states': [], 'degree': 2, 'noise': 0.01, 'holdout': 0.2, 'n_bootstrap': 50, 'seed': 0}",
+ "timed_out": false
+}

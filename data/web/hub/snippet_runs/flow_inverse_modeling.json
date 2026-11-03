@@ -1,0 +1,12 @@
+{
+ "code_hash": "1ff6b9e48c464d93",
+ "figures": [],
+ "id": "flow:inverse_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 9.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse modeling: identifiability, estimate, trust checks - 2 nodes\nissues: []",
+ "timed_out": false
+}

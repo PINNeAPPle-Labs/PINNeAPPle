@@ -15,6 +15,22 @@
   "returned": "str",
   "seconds": 0.0
  },
+ "pinneapple_veriphysics.policy:load_policy": {
+  "code_hash": "5bbb14c0026f18f0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "GradePolicy",
+  "seconds": 1.2
+ },
+ "pinneapple_veriphysics.policy:user_policy_path": {
+  "code_hash": "ad13851463e75836",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
  "pinneapple_veriphysics.recommend:formulate_and_recommend": {
   "code_hash": "cd25031cfb311c46",
   "error": "ConnectionError: could not reach a local Ollama server at 127.0.0.1:11434 -- call pinneapple_llm.local_llm.start_server() first, or run `ollama serve` yourself.",

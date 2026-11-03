@@ -1,0 +1,12 @@
+{
+ "code_hash": "3ab457fcbd5b9541",
+ "figures": [],
+ "id": "node:model.use",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Use a trained model (zoo / yours), gated and re-verified -> pinneapple_analysis.surrogate.model_source.open_model / gate / use_model\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'source': 'zoo', 'name': 'heatsink_forced_mlp', 'path': '', 'card': {}, 'mode': 'inverse', 'query': {}, 'known': {'base_width_mm': 100.0, 'base_depth_mm': 100.0, 'base_thickness_mm': 6.0, 'n_fins': 16.0, 'fin_thickness_mm': 1.5, 'fin_height_mm': 40.0, 'k_w_mk': 200.0, 'source_width_mm': 50.0, 'source_depth_mm': 50.0, 't_ambient_c': 25.0, 'power_w': 150.0}, 'unknown': ['air_velocity_m_s'], 'observed': {'r_base_k_w': 0.36}, 'reference': 'pinneapple_design.thermal.heatsink.surrogate:forced_reference'}",
+ "timed_out": false
+}

@@ -2000,6 +2000,52 @@
   "returned": "dict",
   "seconds": 0.1
  },
+ "pinneapple_simulation.multirotor.rotor:apc_10x4_7": {
+  "code_hash": "8965284283de3114",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "Rotor",
+  "seconds": 3.43
+ },
+ "pinneapple_simulation.multirotor.rotor:ideal_twist_check": {
+  "code_hash": "ce6dedfdf3b70bae",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.multirotor.rotor:induced_velocity": {
+  "code_hash": "6e4c2af3c2eab499",
+  "inputs": {
+   "radius": 0.127,
+   "thrust": 10.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.multirotor.rotor:momentum_hover_power": {
+  "code_hash": "713e4cd9cd207687",
+  "inputs": {
+   "radius": 0.127,
+   "thrust": 10.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.multirotor.workflow:rotor_verification": {
+  "code_hash": "17306f9bd19563cd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 23.72
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "code_hash": "e819609cb6e7b087",
   "inputs": {

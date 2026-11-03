@@ -424,12 +424,14 @@ def build_plan_cfd_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
                 "whether a RANS closure, LES closure, or laminar LBM run is appropriate.",
             actions=[
                 "Pick a RANS closure (k-omega-SST or Spalart-Allmaras) for attached, "
-                "moderate-Re flow, or WALE LES for transient/separated flow.",
+                "moderate-Re flow, or an LES closure (Smagorinsky, dynamic Smagorinsky, "
+                "WALE) for transient/separated flow.",
                 "Confirm physics.numerical_method (e.g. 'LBM' vs an external finite-volume run).",
             ],
             pinneapple_modules=[
                 "pinneapple_physics.pde_environment.turbulence_presets "
-                "(KOmegaSSTResiduals, SpalartAllmarasResiduals, WALEResiduals)",
+                "(KOmegaSSTResiduals, SpalartAllmarasResiduals, SmagorinskyResiduals, "
+                "DynamicSmagorinskyResiduals, WALEResiduals)",
             ],
             exit_criteria=["Turbulence model and numerical method are recorded in the spec."],
         ),

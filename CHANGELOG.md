@@ -21,6 +21,31 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- **LES closures for the 3D PINN residual path**: `SmagorinskyResiduals` and `DynamicSmagorinskyResiduals` in
+  `pinneapple_physics.pde_environment.turbulence_presets`, completing the subgrid-scale family next to the
+  existing `WALEResiduals`.
+  - All three now share one assembly (`_LESResiduals3D`): the filtered incompressible Navier-Stokes residual,
+    with the effective viscosity `nu + nu_sgs` and the `grad nu_eff` terms a spatially varying eddy viscosity
+    brings. The closures differ only in `sgs_viscosity()`, so they are comparable term by term on the same flow.
+    WALE's residual numbers are unchanged.
+  - `SmagorinskyResiduals`: `nu_sgs = (Cs*Delta)^2 |S|`, `Cs = 0.17` (the same value the LBM solvers here use),
+    with an opt-in Van Driest damping factor (`van_driest`) instead of a hidden default -- damping needs `y+`,
+    which is problem data.
+  - `DynamicSmagorinskyResiduals`: the Germano (1991) / Lilly (1992) dynamic procedure, `C` computed from the
+    resolved field at run time. The test filter, which a point-sampled PINN has no grid for, is built from the
+    collocation point cloud (`filter_stencil`, `apply_stencil`: k nearest neighbours, Gaussian or box weights,
+    normalised, differentiable through the gathered values), with its width following `Delta`. `C` is visible
+    after each call in `.last_germano`, and `clip=True` keeps `nu_sgs >= 0`.
+  - `get_rans_preset` accepts `"smagorinsky"`, `"dynamic-smagorinsky"` (alias `"dsmag"`) and `"wale"`.
+  - `TurbulenceModel.LES_SMAGORINSKY` now has a PINN closure as well as the LBM `Cs` constant it always had, and
+    `TurbulenceModel.LES_DYNAMIC_SMAGORINSKY` is new. **Behavior:** under `solver_family="pinn"`,
+    `LES_SMAGORINSKY` used to raise a ValueError saying it was LBM-native; it now returns
+    `SmagorinskyResiduals` (`dim=2` still raises, 3D only), and `solver_family="lbm"` is unchanged.
+  - Fixed in passing, for every LES closure: a field that is exactly linear in `x` has a constant first
+    derivative, so the second-derivative and `grad nu_eff` calls used to raise "does not have a grad_fn" instead
+    of returning the correct zero. Both cases now evaluate (this is what lets the closures be checked against
+    analytic fields).
+  - Guide: [Large-eddy simulation: the three subgrid closures](docs/guides/les_closures.md).
 - `pinneapple_futures` (`pp.futures`): the Futures Lab, Speculative Physics & Engineering as an application layer
   of the library -- a speculative system written down as physics and investigated with the same checks as
   anything else.

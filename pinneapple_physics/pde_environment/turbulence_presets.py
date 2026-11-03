@@ -1,9 +1,17 @@
 """RANS/LES turbulence closure presets for PINN training.
 
 Implements k-omega SST (Menter 1994) and Spalart-Allmaras (SA, 1992) RANS
-models (2D, steady), and WALE (Nicoud & Ducros, 1999) as an algebraic,
-genuinely 3D, transient LES closure, as PDE residual functions compatible
-with PINNeAPPle's PINNFactory.
+models (2D, steady), and three algebraic subgrid-scale closures for
+large-eddy simulation of filtered incompressible Navier-Stokes in 3D:
+Smagorinsky (1963), dynamic Smagorinsky (Germano 1991, Lilly 1992) and
+WALE (Nicoud & Ducros, 1999), as PDE residual functions compatible with
+PINNeAPPle's PINNFactory.
+
+The three LES closures share one residual assembly (:class:`_LESResiduals3D`)
+and differ only in how the subgrid viscosity is obtained -- the constant
+model, the Germano-identity model that computes its own coefficient from
+the resolved field, and the wall-adapting model that needs neither a
+constant nor a damping function.
 
 Each residual class is callable:
     residuals = KOmegaSSTResiduals(nu=1e-5, rho=1.0)
@@ -12,7 +20,10 @@ Each residual class is callable:
 The dict keys match the equation names and can be directly summed into a
 PINN loss::
 
-    loss = sum(r.pow(2).mean() for r in r_dict.values())
+    loss = sum(r.pow(2).mean() for k, r in r_dict.items() if k != "nu_sgs")
+
+(``nu_sgs`` is the LES closures' diagnostic of the eddy viscosity they
+produced on those points -- not a residual, so it is not part of the loss.)
 """
 from __future__ import annotations
 
@@ -814,15 +825,517 @@ def _laplacian_indices(f: torch.Tensor, x: torch.Tensor, indices) -> torch.Tenso
     gf = _grad1(f, x)
     lap = torch.zeros(f.shape[0], 1, device=x.device, dtype=x.dtype)
     for i in indices:
-        lap = lap + _grad1(gf[:, i : i + 1], x)[:, i : i + 1]
+        g_i = gf[:, i : i + 1]
+        # A field that is exactly linear in x has a *constant* first
+        # derivative, which carries no autograd graph: its second derivative
+        # is zero, but asking autograd for it raises instead of saying so.
+        # Skipping the term is the correct contribution, and keeps the
+        # residual evaluable on an analytic (non-network) field -- which is
+        # how these closures are checked against their closed forms.
+        if g_i.requires_grad:
+            lap = lap + _grad1(g_i, x)[:, i : i + 1]
     return lap
+
+
+# ---------------------------------------------------------------------------
+# LES: one filtered-Navier-Stokes assembly, three algebraic SGS closures
+# ---------------------------------------------------------------------------
+
+def _dev3(A: torch.Tensor) -> torch.Tensor:
+    """Deviatoric (traceless) part of a batch of 3x3 tensors ``(N, 3, 3)``."""
+    tr = (A[:, 0, 0] + A[:, 1, 1] + A[:, 2, 2]) / 3.0
+    eye = torch.eye(3, device=A.device, dtype=A.dtype).unsqueeze(0)
+    return A - tr.view(-1, 1, 1) * eye
+
+
+def filter_stencil(
+    x: torch.Tensor,
+    neighbors: int = 8,
+    kernel: str = "gaussian",
+    bandwidth: Optional[float] = None,
+    spatial_indices=(0, 1, 2),
+):
+    """Neighbour stencil for a mesh-free (scattered-point) spatial filter.
+
+    A PINN is evaluated on scattered collocation points, so the box/Gaussian
+    test filter the dynamic procedure needs cannot be a grid stencil. This
+    builds the equivalent from the point cloud itself: the ``k`` nearest
+    neighbours of every point (in the spatial coordinates only -- the time
+    column, if present, is not part of the distance), weighted by ``kernel``
+    and normalised to sum to one, so a constant field filters to itself on
+    every point.
+
+    Parameters
+    ----------
+    x : torch.Tensor
+        ``(N, D)`` sample points.
+    neighbors : int
+        Stencil size ``k`` (including the point itself). ``k = 1`` is the
+        identity filter, which carries no scale information at all -- the
+        dynamic procedure's ``L_ij`` is then identically zero by
+        construction -- so ``k < 2`` is rejected outright rather than
+        silently returning a zero eddy viscosity.
+    kernel : {"gaussian", "box"}
+        ``"box"`` gives every neighbour the same weight; ``"gaussian"``
+        weights it by ``exp(-r^2 / 2 bandwidth^2)``.
+    bandwidth : float or array-like, optional
+        Gaussian kernel width, in the units of ``x``: one scalar (same
+        width everywhere) or one value per point ``(N,)``. Defaults to the
+        median stencil radius (one filter width); ignored by ``"box"``.
+    spatial_indices : sequence of int
+        Columns of ``x`` that are spatial and therefore enter the distance.
+
+    Returns
+    -------
+    (numpy.ndarray, numpy.ndarray)
+        ``(idx, w)``, both ``(N, k)``: the neighbour indices and their
+        normalised weights. Deliberately returned as numpy (the stencil is a
+        property of the point cloud, not of the network's parameters) and
+        used only to gather/average *values*, so the filter itself stays
+        differentiable through the gathered tensors.
+    """
+    import numpy as np
+
+    pts = np.asarray(x.detach().cpu(), dtype=np.float64)[:, list(spatial_indices)]
+    n = pts.shape[0]
+    k = int(min(max(int(neighbors), 1), n))
+    if k < 2:
+        raise ValueError(
+            "a filter stencil needs at least 2 points (the point itself plus one neighbour); "
+            f"got neighbors={neighbors} on a batch of {n} points"
+        )
+
+    try:
+        from scipy.spatial import cKDTree
+
+        dist, idx = cKDTree(pts).query(pts, k=k)
+    except ImportError:  # pragma: no cover - scipy is a core dependency
+        d = np.linalg.norm(pts[:, None, :] - pts[None, :, :], axis=-1)
+        idx = np.argsort(d, axis=1)[:, :k]
+        dist = np.take_along_axis(d, idx, axis=1)
+    dist = np.asarray(dist, dtype=np.float64).reshape(n, k)
+    idx = np.asarray(idx).reshape(n, k)
+
+    if kernel == "box":
+        w = np.ones_like(dist)
+    elif kernel == "gaussian":
+        if bandwidth is None:
+            sigma = np.full(n, float(np.median(dist[:, -1])))
+        else:
+            bw = bandwidth.detach().cpu().numpy() if hasattr(bandwidth, "detach") else np.asarray(bandwidth)
+            sigma = np.broadcast_to(np.asarray(bw, dtype=np.float64).reshape(-1), (n,))
+        sigma = np.maximum(sigma, np.finfo(np.float64).tiny)
+        w = np.exp(-0.5 * (dist / sigma[:, None]) ** 2)
+    else:
+        raise ValueError(f"kernel must be 'box' or 'gaussian'; got {kernel!r}")
+
+    w = w / w.sum(axis=1, keepdims=True)
+    return idx, w
+
+
+def apply_stencil(F: torch.Tensor, idx, w) -> torch.Tensor:
+    """Filter point values ``F`` (``(N, ...)``) with a ``(N, k)`` stencil.
+
+    Differentiable in ``F``: this is a weighted gather over the *values*
+    already evaluated at every point of the batch, so no extra forward pass
+    through the network is needed and gradients reach the model parameters
+    through the filter.
+    """
+    idx_t = torch.as_tensor(idx, device=F.device)
+    w_t = torch.as_tensor(w, device=F.device, dtype=F.dtype)
+    gathered = F[idx_t]                                        # (N, k, ...)
+    w_t = w_t.reshape(w_t.shape + (1,) * (F.dim() - 1))
+    return (gathered * w_t).sum(dim=1)
+
+
+class _LESResiduals3D:
+    """Shared residual assembly for algebraic 3D large-eddy closures.
+
+    Every algebraic SGS model differs from the others in exactly one place:
+    how the subgrid viscosity ``nu_sgs`` is obtained from the resolved
+    fields. Everything else -- the momentum convection, the pressure
+    gradient, the diffusion by the *effective* viscosity ``nu + nu_sgs``
+    (including the ``grad nu_eff`` terms a spatially varying viscosity
+    brings, which dominate near a wall) and continuity -- is identical.
+    This base class holds that common part once, so :class:`Smagorinsky
+    Residuals`, :class:`DynamicSmagorinskyResiduals` and :class:`WALE
+    Residuals` below stay comparable term by term: same equation, same
+    discretisation (autograd), differing only in the closure.
+
+    Subclasses implement :meth:`sgs_viscosity` and nothing else. The
+    residual returned is that of the *filtered* incompressible
+    Navier-Stokes equations, with the SGS stress model folded into an
+    effective viscosity::
+
+        du_i/dt + u_j du_i/dx_j = -dp/dx_i + d/dx_j[(nu + nu_sgs)
+                                    (du_i/dx_j + du_j/dx_i)] + f_i
+        du_i/dx_i = 0
+
+    with ``p`` understood as pressure over density. That is the standard
+    eddy-viscosity form of the filtered equations, and it is a modelling
+    choice shared by all three closures here -- not the general SGS stress
+    divergence ``d tau_ij/dx_j``, which an eddy-viscosity model happens to
+    write that way.
+    """
+
+    def __init__(
+        self,
+        nu: float = 1e-5,
+        delta: float = 1.0,
+        spatial_indices=(0, 1, 2),
+        t_index: int = 3,
+    ) -> None:
+        self.nu = float(nu)
+        self.delta = delta
+        self.spatial_indices = list(spatial_indices)
+        self.t_index = int(t_index)
+
+    def _delta_at(self, x: torch.Tensor) -> torch.Tensor:
+        if callable(self.delta):
+            return self.delta(x)
+        return torch.full((x.shape[0], 1), float(self.delta), device=x.device, dtype=x.dtype)
+
+    def sgs_viscosity(
+        self,
+        g: torch.Tensor,
+        S: torch.Tensor,
+        U: torch.Tensor,
+        delta: torch.Tensor,
+        x: torch.Tensor,
+    ) -> torch.Tensor:
+        """Subgrid viscosity ``(N, 1)`` from the resolved velocity gradient.
+
+        Parameters
+        ----------
+        g : torch.Tensor
+            ``(N, 3, 3)`` resolved velocity gradient, ``g[:, i, j] = du_i/dx_j``.
+        S : torch.Tensor
+            ``(N, 3, 3)`` symmetric strain-rate tensor, ``S = (g + g^T)/2``.
+        U : torch.Tensor
+            ``(N, 3)`` resolved velocity components.
+        delta : torch.Tensor
+            ``(N, 1)`` filter width at each point (constant or mesh-derived).
+        x : torch.Tensor
+            ``(N, D)`` sample points, for closures that filter (depend on
+            neighbouring points) rather than being purely local.
+        """
+        raise NotImplementedError
+
+    def __call__(self, model, x: torch.Tensor, forcing: torch.Tensor = None) -> Dict[str, torch.Tensor]:
+        sp = self.spatial_indices
+        y = model(x)
+        u, v, w, p = y[:, 0:1], y[:, 1:2], y[:, 2:3], y[:, 3:4]
+        U = torch.cat([u, v, w], dim=1)
+
+        ut = _grad1(u, x)[:, self.t_index : self.t_index + 1]
+        vt = _grad1(v, x)[:, self.t_index : self.t_index + 1]
+        wt = _grad1(w, x)[:, self.t_index : self.t_index + 1]
+
+        g = torch.stack([_grad1(U[:, i : i + 1], x)[:, sp] for i in range(3)], dim=1)  # g[:,i,j]=dU_i/dx_j
+
+        conv = torch.zeros_like(U)
+        for i in range(3):
+            for j in range(3):
+                conv[:, i] = conv[:, i] + U[:, j] * g[:, i, j]
+
+        gp = _grad1(p, x)
+        px, py, pz = gp[:, sp[0] : sp[0] + 1], gp[:, sp[1] : sp[1] + 1], gp[:, sp[2] : sp[2] + 1]
+
+        delta = self._delta_at(x)
+        S = 0.5 * (g + g.transpose(1, 2))
+        nu_sgs = self.sgs_viscosity(g, S, U, delta, x)
+        nu_eff = self.nu + nu_sgs
+
+        # A closure can return a *constant* nu_sgs (e.g. a linear velocity
+        # field, where the strain -- and therefore every algebraic SGS
+        # viscosity -- is spatially uniform). That constant carries no
+        # autograd graph, so differentiating it w.r.t. x raises instead of
+        # returning the zero gradient that is the correct answer; keep the
+        # zero-gradient case explicit rather than turning it into an error
+        # in the middle of a physically valid evaluation.
+        if nu_eff.requires_grad:
+            gnu = _grad1(nu_eff, x)
+        else:
+            gnu = torch.zeros(x.shape, device=x.device, dtype=x.dtype)
+        nu_x, nu_y, nu_z = gnu[:, sp[0] : sp[0] + 1], gnu[:, sp[1] : sp[1] + 1], gnu[:, sp[2] : sp[2] + 1]
+        gdotS_x = nu_x * S[:, 0, 0:1] + nu_y * S[:, 0, 1:2] + nu_z * S[:, 0, 2:3]
+        gdotS_y = nu_x * S[:, 1, 0:1] + nu_y * S[:, 1, 1:2] + nu_z * S[:, 1, 2:3]
+        gdotS_z = nu_x * S[:, 2, 0:1] + nu_y * S[:, 2, 1:2] + nu_z * S[:, 2, 2:3]
+
+        lap_u = _laplacian_indices(u, x, sp)
+        lap_v = _laplacian_indices(v, x, sp)
+        lap_w = _laplacian_indices(w, x, sp)
+
+        diff_u = nu_eff * lap_u + 2.0 * gdotS_x
+        diff_v = nu_eff * lap_v + 2.0 * gdotS_y
+        diff_w = nu_eff * lap_w + 2.0 * gdotS_z
+
+        f = forcing if forcing is not None else torch.zeros(3, device=x.device, dtype=x.dtype)
+        r_mom_u = ut + conv[:, 0:1] + px - diff_u - f[0]
+        r_mom_v = vt + conv[:, 1:2] + py - diff_v - f[1]
+        r_mom_w = wt + conv[:, 2:3] + pz - diff_w - f[2]
+        r_cont = g[:, 0, 0:1] + g[:, 1, 1:2] + g[:, 2, 2:3]
+
+        return {
+            "momentum_x": r_mom_u,
+            "momentum_y": r_mom_v,
+            "momentum_z": r_mom_w,
+            "continuity": r_cont,
+            "nu_sgs": nu_sgs.detach(),
+        }
+
+
+def van_driest(y_plus: torch.Tensor, a_plus: float = 25.0) -> torch.Tensor:
+    """Van Driest wall damping ``D = (1 - exp(-y+/A+))^2``.
+
+    Offered as a composable factor rather than a hidden default: the
+    damping needs the wall distance *and* the friction velocity, which are
+    problem data, not closure data. Pass it as
+    ``damping=lambda x: van_driest(y_plus_fn(x))`` and the closure applies
+    ``D`` to its ``nu_sgs``. ``A+ = 25`` is the classical Van Driest value.
+    """
+    return (1.0 - torch.exp(-y_plus.clamp_min(0.0) / float(a_plus))) ** 2
+
+
+class SmagorinskyResiduals(_LESResiduals3D):
+    """Smagorinsky (1963) subgrid closure for filtered incompressible
+    Navier-Stokes, as a 3D LES residual in the same shape as
+    :class:`WALEResiduals` -- the constant-coefficient model the dynamic
+    procedure below generalises, and the one OpenFOAM spells
+    ``Smagorinsky`` with ``Cs`` in ``constant/turbulenceProperties``.
+
+    ::
+
+        nu_sgs = (Cs*Delta)^2 * |S|,      |S| = sqrt(2 S_ij S_ij)
+
+    ``Cs = 0.17`` is the classical Lilly (1966) value for homogeneous
+    turbulence, and also the default used by this repo's LBM solvers
+    (``LBMSolver``'s ``Cs``, Hou 1994) -- the same number, so a PINN-LES
+    and an LBM-LES of the same flow start from the same closure.
+
+    Two arguments exist because the plain model fails in two well-known
+    places, and both failures are cheap to state explicitly rather than
+    hide:
+
+    * ``damping`` -- the constant model does not vanish at a wall as it
+      must (``nu_sgs ~ y^3``). Pass ``damping=lambda x: van_driest(y_plus(x))``
+      to recover the Van Driest-damped model. Off by default: it needs
+      ``y+``, which only the problem knows.
+    * ``delta`` -- a constant filter width is right only for a uniform
+      mesh. Pass a callable (``delta_fn(x) -> (N, 1)``) for a real mesh,
+      e.g. from ``cubeRootVol`` per-cell sizes read by
+      ``pinneapple_simulation.external_solvers.openfoam.mesh_reader``.
+
+    Usage::
+
+        residuals = SmagorinskyResiduals(nu=1e-5, cs=0.17, delta=0.01)
+        r = residuals(model_uvwp, x_col)          # x_col: (N, 4) = (x, y, z, t)
+        loss = sum(v.pow(2).mean() for k, v in r.items() if k != "nu_sgs")
+
+    ``forcing`` (a length-3 tensor, e.g. a learned
+    ``torch.nn.Parameter``) plays the same role as in
+    :class:`WALEResiduals`: a uniform driving source for a periodic
+    channel/duct held at a target bulk velocity.
+    """
+
+    def __init__(
+        self,
+        nu: float = 1e-5,
+        cs: float = 0.17,
+        delta: float = 1.0,
+        damping: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        spatial_indices=(0, 1, 2),
+        t_index: int = 3,
+    ) -> None:
+        super().__init__(nu=nu, delta=delta, spatial_indices=spatial_indices, t_index=t_index)
+        self.cs = float(cs)
+        self.damping = damping
+
+    def sgs_viscosity(self, g, S, U, delta, x):
+        SS = (S * S).sum(dim=(1, 2))
+        magS = torch.sqrt(2.0 * SS.clamp_min(0.0)).reshape(-1, 1)   # |S| = sqrt(2 S:S)
+        nu_sgs = (self.cs * delta.reshape(-1, 1)) ** 2 * magS
+        if self.damping is not None:
+            nu_sgs = nu_sgs * self.damping(x).reshape(-1, 1)
+        return nu_sgs
+
+
+class DynamicSmagorinskyResiduals(_LESResiduals3D):
+    """Germano-identity (dynamic) Smagorinsky closure -- Germano et al.
+    (1991), least-squares coefficient by Lilly (1992) -- as a 3D LES
+    residual, with the coefficient computed at run time from the resolved
+    field instead of fixed a priori.
+
+    The idea the material calls out for ``Dynamic Smagorinsky``: the same
+    Smagorinsky ansatz at two filter widths, ``Delta`` and the test width
+    ``DeltaHat = test_ratio * Delta``, gives a relation between the
+    test-filtered resolved stresses and the two model stresses that can be
+    solved for ``C = Cs^2``::
+
+        L_ij  = u_i u_j (hat) - u_hat_i u_hat_j
+        M_ij  = (DeltaHat/Delta)^2 |S_hat| S_hat_ij - (|S| S_ij) (hat)
+        C     = -<L_ij M_ij> / (2 Delta^2 <M_ij M_ij>)
+        nu_sgs = C * Delta^2 * |S|
+
+    so the model adapts: it switches itself off where the flow is
+    resolved or laminar (``C -> 0``), and grows in the strained,
+    under-resolved regions, without the constant ``Cs`` ever being fitted
+    to a particular case. This is the property that makes it the default
+    LES closure in production codes.
+
+    **The filter on scattered points.** The test filter is the one part of
+    the dynamic procedure that a point-sampled PINN does not get for free:
+    there is no grid to apply a box filter on. It is built here from the
+    collocation point cloud itself (``filter_stencil``: k nearest
+    neighbours, Gaussian or box weights, normalised), which is exactly the
+    mesh-free analogue and stays differentiable -- filtering happens over
+    *values already evaluated* at every point of the batch, so one forward
+    pass per step is still enough. Its width follows the filter width by
+    default (``bandwidth = test_ratio * Delta``), so ``Delta`` really is
+    the scale being split at, rather than a constant that cancels out of
+    the Germano identity.
+
+    Two approximations are made and are worth stating plainly, because
+    they are the model's, not an implementation shortcut:
+
+    * the test-level strain is taken from the filtered velocity gradient,
+      ``S_hat ~= strain(filter(g))`` -- the usual commutation assumption.
+      It is exact for a uniform filter in a homogeneous direction.
+    * ``<.>`` is a spatial average. ``averaging="batch"`` (default)
+      averages over the whole point batch, i.e. assumes the batch spans
+      homogeneous directions, which is what the dynamic procedure requires
+      and what a plane-averaged channel/duct LES does. ``averaging="none"``
+      computes a pointwise coefficient instead -- admissible, but noisier
+      and prone to the negative-viscosity excursions the averaging exists
+      to suppress.
+
+    ``clip=True`` (Lilly) floors ``C`` at zero: a negative ``nu_sgs`` is
+    anti-diffusive and, in a transient PINN solve, destabilising. Set it
+    to ``False`` to see the unclipped coefficient (useful as a diagnostic
+    of where the model would have backscattered).
+
+    ``stencil=(idx, w)`` (from :func:`filter_stencil`) can be passed once
+    and reused: for a fixed collocation set -- the usual case when the
+    training points are sampled once and held -- this skips rebuilding the
+    neighbour search on every residual evaluation. Leave it ``None`` to
+    build it from ``x`` on each call.
+
+    Usage::
+
+        residuals = DynamicSmagorinskyResiduals(nu=1e-5, delta=0.01, test_ratio=2.0)
+        r = residuals(model_uvwp, x_col)
+        r["nu_sgs"]                      # local eddy viscosity, (N, 1)
+        residuals.last_germano["C"]      # the coefficient actually used
+
+    ``self.last_germano`` keeps the ``L``, ``M`` and ``C`` of the most
+    recent call (detached) for inspection: ``C`` is where you check that
+    the model is not silently clipping everything to zero, and it is what
+    the least-squares optimality test in the test suite checks.
+    """
+
+    def __init__(
+        self,
+        nu: float = 1e-5,
+        delta: float = 1.0,
+        test_ratio: float = 2.0,
+        neighbors: int = 8,
+        kernel: str = "gaussian",
+        bandwidth: Optional[float] = None,
+        averaging: str = "batch",
+        clip: bool = True,
+        cs_max: Optional[float] = None,
+        deviatoric: bool = True,
+        stencil: Optional[tuple] = None,
+        spatial_indices=(0, 1, 2),
+        t_index: int = 3,
+    ) -> None:
+        super().__init__(nu=nu, delta=delta, spatial_indices=spatial_indices, t_index=t_index)
+        if float(test_ratio) <= 1.0:
+            raise ValueError(
+                f"test_ratio must be > 1 (the test filter has to be wider than the grid filter); got {test_ratio}"
+            )
+        if averaging not in ("batch", "none"):
+            raise ValueError(f"averaging must be 'batch' or 'none'; got {averaging!r}")
+        self.test_ratio = float(test_ratio)
+        self.neighbors = int(neighbors)
+        self.kernel = kernel
+        self.bandwidth = bandwidth
+        self.averaging = averaging
+        self.clip = bool(clip)
+        self.cs_max = None if cs_max is None else float(cs_max)
+        self.deviatoric = bool(deviatoric)
+        if stencil is None:
+            self.stencil = None
+        else:
+            import numpy as np
+
+            self.stencil = (np.asarray(stencil[0]), np.asarray(stencil[1]))
+        self.last_germano: Dict[str, Optional[torch.Tensor]] = {"L": None, "M": None, "C": None}
+
+    def sgs_viscosity(self, g, S, U, delta, x):
+        sp = self.spatial_indices
+        d = delta.reshape(-1, 1)
+        # The test filter has to be *wider than the grid filter*, so its
+        # width follows Delta by default (DeltaHat = test_ratio * Delta); an
+        # explicit `bandwidth` overrides it.
+        if self.stencil is not None:
+            idx, w = self.stencil
+        else:
+            bandwidth = self.bandwidth if self.bandwidth is not None else (self.test_ratio * d).reshape(-1)
+            idx, w = filter_stencil(
+                x,
+                neighbors=self.neighbors,
+                kernel=self.kernel,
+                bandwidth=bandwidth,
+                spatial_indices=sp,
+            )
+
+        ratio2 = self.test_ratio ** 2
+
+        # Test-filtered quantities: values only (commutation assumption for S_hat).
+        U_hat = apply_stencil(U, idx, w)                              # (N, 3)
+        uu_hat = apply_stencil(U.unsqueeze(-1) * U.unsqueeze(-2), idx, w)   # (N, 3, 3)
+        g_hat = apply_stencil(g, idx, w)                              # (N, 3, 3)
+        S_hat = 0.5 * (g_hat + g_hat.transpose(1, 2))
+        magS_hat = torch.sqrt(2.0 * (S_hat * S_hat).sum(dim=(1, 2)).clamp_min(0.0)).reshape(-1, 1)
+
+        magS = torch.sqrt(2.0 * (S * S).sum(dim=(1, 2)).clamp_min(0.0)).reshape(-1, 1)
+
+        # L_ij = filter(u_i u_j) - filter(u_i) filter(u_j)
+        L = uu_hat - U_hat.unsqueeze(-1) * U_hat.unsqueeze(-2)
+        # M_ij = (DeltaHat/Delta)^2 |S_hat| S_hat_ij - filter(|S| S_ij)
+        M = ratio2 * magS_hat.unsqueeze(-1) * S_hat - apply_stencil(magS.unsqueeze(-1) * S, idx, w)
+
+        if self.deviatoric:
+            L = _dev3(L)
+            M = _dev3(M)
+
+        LM = (L * M).sum(dim=(1, 2))
+        MM = (M * M).sum(dim=(1, 2))
+        d2 = d.reshape(-1) ** 2
+
+        # Least squares on L_ij = -2 C Delta^2 M_ij  ->  C = -<L:M> / (2 Delta^2 <M:M>)
+        if self.averaging == "batch":
+            denom = d2.mean() * MM.mean()
+            C = (-0.5 * LM.mean() / denom) if float(denom.detach()) != 0.0 else LM.new_zeros(())
+        else:
+            C = torch.where(MM > 0.0, -0.5 * LM / (d2 * MM.clamp_min(1e-300)), torch.zeros_like(LM))
+
+        if self.clip:
+            C = C.clamp_min(0.0)
+        if self.cs_max is not None:
+            C = C.clamp_max(self.cs_max ** 2)
+
+        nu_sgs = (C * d2).reshape(-1, 1) * magS
+        self.last_germano = {"L": L.detach(), "M": M.detach(), "C": C.detach()}
+        return nu_sgs
 
 
 # ---------------------------------------------------------------------------
 # Feature 10c: WALE (Wall-Adapting Local Eddy-viscosity) LES closure, 3D
 # ---------------------------------------------------------------------------
 
-class WALEResiduals:
+class WALEResiduals(_LESResiduals3D):
     """WALE (Wall-Adapting Local Eddy-viscosity) subgrid closure for
     filtered incompressible Navier-Stokes -- Nicoud & Ducros (1999) -- as
     an algebraic (no transport equation) 3D LES residual.
@@ -831,9 +1344,12 @@ class WALEResiduals:
     unknowns: the eddy viscosity is a pointwise algebraic function of the
     resolved velocity-gradient tensor, so the model only maps
     ``(x, y, z, t) -> (u, v, w, p)`` -- and, unlike the 2D-only RANS
-    closures in this module, the residual itself is a genuine 3D one (the
-    only LES/3D-turbulence closure in this module as of this addition;
-    everything else here is 2D steady RANS).
+    closures in this module, the residual itself is a genuine 3D one.
+    It is one of three 3D LES closures here, sharing one assembly
+    (:class:`_LESResiduals3D`) with :class:`SmagorinskyResiduals` and
+    :class:`DynamicSmagorinskyResiduals`, so the three can be compared on
+    the same flow term by term; WALE is the one that needs no ``Cs`` and
+    no damping to give the right ``y^3`` wall behaviour.
 
     ::
 
@@ -871,40 +1387,10 @@ class WALEResiduals:
         spatial_indices=(0, 1, 2),
         t_index: int = 3,
     ) -> None:
-        self.nu = nu
+        super().__init__(nu=nu, delta=delta, spatial_indices=spatial_indices, t_index=t_index)
         self.cw = cw
-        self.delta = delta
-        self.spatial_indices = list(spatial_indices)
-        self.t_index = t_index
 
-    def _delta_at(self, x: torch.Tensor) -> torch.Tensor:
-        if callable(self.delta):
-            return self.delta(x)
-        return torch.full((x.shape[0], 1), float(self.delta), device=x.device, dtype=x.dtype)
-
-    def __call__(self, model, x: torch.Tensor, forcing: torch.Tensor = None) -> Dict[str, torch.Tensor]:
-        sp = self.spatial_indices
-        y = model(x)
-        u, v, w, p = y[:, 0:1], y[:, 1:2], y[:, 2:3], y[:, 3:4]
-        U = torch.cat([u, v, w], dim=1)
-
-        ut = _grad1(u, x)[:, self.t_index : self.t_index + 1]
-        vt = _grad1(v, x)[:, self.t_index : self.t_index + 1]
-        wt = _grad1(w, x)[:, self.t_index : self.t_index + 1]
-
-        g = torch.stack([_grad1(U[:, i : i + 1], x)[:, sp] for i in range(3)], dim=1)  # (N,3,3): g[:,i,j]=dU_i/dx_j
-
-        conv = torch.zeros_like(U)
-        for i in range(3):
-            for j in range(3):
-                conv[:, i] = conv[:, i] + U[:, j] * g[:, i, j]
-
-        gp = _grad1(p, x)
-        px, py, pz = gp[:, sp[0] : sp[0] + 1], gp[:, sp[1] : sp[1] + 1], gp[:, sp[2] : sp[2] + 1]
-
-        delta = self._delta_at(x)
-        gt = g.transpose(1, 2)
-        S = 0.5 * (g + gt)
+    def sgs_viscosity(self, g, S, U, delta, x):
         g2 = torch.einsum("nij,njk->nik", g, g)
         trace_g2 = (g2[:, 0, 0] + g2[:, 1, 1] + g2[:, 2, 2]) / 3.0
         eye = torch.eye(3, device=g.device, dtype=g.dtype).unsqueeze(0)
@@ -913,36 +1399,7 @@ class WALEResiduals:
         SdSd = (Sd * Sd).sum(dim=(1, 2))
         num = (self.cw * delta.reshape(-1)) ** 2 * SdSd.clamp_min(0.0).pow(1.5)
         den = SS.clamp_min(0.0).pow(2.5) + SdSd.clamp_min(0.0).pow(1.25) + 1e-12
-        nu_sgs = (num / den).reshape(-1, 1)
-        nu_eff = self.nu + nu_sgs
-
-        gnu = _grad1(nu_eff, x)
-        nu_x, nu_y, nu_z = gnu[:, sp[0] : sp[0] + 1], gnu[:, sp[1] : sp[1] + 1], gnu[:, sp[2] : sp[2] + 1]
-        gdotS_x = nu_x * S[:, 0, 0:1] + nu_y * S[:, 0, 1:2] + nu_z * S[:, 0, 2:3]
-        gdotS_y = nu_x * S[:, 1, 0:1] + nu_y * S[:, 1, 1:2] + nu_z * S[:, 1, 2:3]
-        gdotS_z = nu_x * S[:, 2, 0:1] + nu_y * S[:, 2, 1:2] + nu_z * S[:, 2, 2:3]
-
-        lap_u = _laplacian_indices(u, x, sp)
-        lap_v = _laplacian_indices(v, x, sp)
-        lap_w = _laplacian_indices(w, x, sp)
-
-        diff_u = nu_eff * lap_u + 2.0 * gdotS_x
-        diff_v = nu_eff * lap_v + 2.0 * gdotS_y
-        diff_w = nu_eff * lap_w + 2.0 * gdotS_z
-
-        f = forcing if forcing is not None else torch.zeros(3, device=x.device, dtype=x.dtype)
-        r_mom_u = ut + conv[:, 0:1] + px - diff_u - f[0]
-        r_mom_v = vt + conv[:, 1:2] + py - diff_v - f[1]
-        r_mom_w = wt + conv[:, 2:3] + pz - diff_w - f[2]
-        r_cont = g[:, 0, 0:1] + g[:, 1, 1:2] + g[:, 2, 2:3]
-
-        return {
-            "momentum_x": r_mom_u,
-            "momentum_y": r_mom_v,
-            "momentum_z": r_mom_w,
-            "continuity": r_cont,
-            "nu_sgs": nu_sgs.detach(),
-        }
+        return (num / den).reshape(-1, 1)
 
 
 # ---------------------------------------------------------------------------
@@ -954,25 +1411,31 @@ def get_rans_preset(model_name: str = "k-omega-sst", **kwargs):
 
     Parameters
     ----------
-    model_name : one of 'k-omega-sst', 'spalart-allmaras', 'sa', 'wale'
+    model_name : one of 'k-omega-sst', 'spalart-allmaras', 'sa',
+        'smagorinsky', 'dynamic-smagorinsky' (alias 'dsmag'), 'wale'
     **kwargs   : forwarded to the residual class constructor
 
     Returns
     -------
-    Callable residual object (KOmegaSSTResiduals, SpalartAllmarasResiduals
-    or WALEResiduals)
+    Callable residual object (KOmegaSSTResiduals, SpalartAllmarasResiduals,
+    SmagorinskyResiduals, DynamicSmagorinskyResiduals or WALEResiduals)
 
     Examples
     --------
     >>> res = get_rans_preset("k-omega-sst", nu=1e-5, rho=1.0)
     >>> res = get_rans_preset("spalart-allmaras", nu=1.5e-5)
+    >>> res = get_rans_preset("smagorinsky", nu=1e-5, cs=0.17, delta=0.01)
+    >>> res = get_rans_preset("dynamic-smagorinsky", nu=1e-5, delta=0.01)
     >>> res = get_rans_preset("wale", nu=1e-5, cw=0.325, delta=0.01)
     """
     _models = {
-        "k-omega-sst":       KOmegaSSTResiduals,
-        "spalart-allmaras":  SpalartAllmarasResiduals,
-        "sa":                SpalartAllmarasResiduals,
-        "wale":              WALEResiduals,
+        "k-omega-sst":          KOmegaSSTResiduals,
+        "spalart-allmaras":     SpalartAllmarasResiduals,
+        "sa":                   SpalartAllmarasResiduals,
+        "smagorinsky":          SmagorinskyResiduals,
+        "dynamic-smagorinsky":  DynamicSmagorinskyResiduals,
+        "dsmag":                DynamicSmagorinskyResiduals,
+        "wale":                 WALEResiduals,
     }
     if model_name not in _models:
         raise ValueError(
@@ -986,6 +1449,11 @@ __all__ = [
     "SST_CONSTS",
     "KOmegaSSTResiduals",
     "SpalartAllmarasResiduals",
+    "SmagorinskyResiduals",
+    "DynamicSmagorinskyResiduals",
     "WALEResiduals",
+    "van_driest",
+    "filter_stencil",
+    "apply_stencil",
     "get_rans_preset",
 ]

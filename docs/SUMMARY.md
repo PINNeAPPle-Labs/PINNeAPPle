@@ -53,6 +53,7 @@
 * [Validation status](validation_status.md)
 * Guides
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
+    * [Large-eddy simulation: the three subgrid closures](guides/les_closures.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)

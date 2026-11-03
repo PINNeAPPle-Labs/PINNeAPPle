@@ -9,7 +9,9 @@ unsupported closure, for every invalid one.
 import pytest
 
 from pinneapple_physics.pde_environment.turbulence_presets import (
+    DynamicSmagorinskyResiduals,
     KOmegaSSTResiduals,
+    SmagorinskyResiduals,
     WALEResiduals,
 )
 from pinneapple_physics.pde_environment.turbulence_selector import (
@@ -63,9 +65,36 @@ def test_pinn_les_wale_rejects_2d():
         get_turbulence_closure(TurbulenceModel.LES_WALE, dim=2, solver_family="pinn")
 
 
-def test_pinn_les_smagorinsky_raises_lbm_native_error():
-    with pytest.raises(ValueError, match="LBM"):
-        get_turbulence_closure(TurbulenceModel.LES_SMAGORINSKY, solver_family="pinn")
+def test_pinn_les_smagorinsky_returns_configured_instance():
+    # LES_SMAGORINSKY exists in two families: the PINN residual
+    # (SmagorinskyResiduals) here, and the LBM scalar Cs below. Under
+    # "pinn" it is the residual object, not the LBM-native error it used
+    # to raise before SmagorinskyResiduals existed.
+    closure = get_turbulence_closure(
+        TurbulenceModel.LES_SMAGORINSKY, dim=3, solver_family="pinn", nu=1e-5, cs=0.12, delta=0.02,
+    )
+    assert isinstance(closure, SmagorinskyResiduals)
+    assert closure.nu == pytest.approx(1e-5)
+    assert closure.cs == pytest.approx(0.12)
+
+
+def test_pinn_les_smagorinsky_rejects_2d():
+    with pytest.raises(ValueError, match="3D"):
+        get_turbulence_closure(TurbulenceModel.LES_SMAGORINSKY, dim=2, solver_family="pinn")
+
+
+def test_pinn_les_dynamic_smagorinsky_returns_configured_instance():
+    closure = get_turbulence_closure(
+        TurbulenceModel.LES_DYNAMIC_SMAGORINSKY, dim=3, solver_family="pinn",
+        nu=1e-5, delta=0.01, test_ratio=2.0,
+    )
+    assert isinstance(closure, DynamicSmagorinskyResiduals)
+    assert closure.test_ratio == pytest.approx(2.0)
+
+
+def test_pinn_les_dynamic_smagorinsky_rejects_2d():
+    with pytest.raises(ValueError, match="3D"):
+        get_turbulence_closure(TurbulenceModel.LES_DYNAMIC_SMAGORINSKY, dim=2, solver_family="pinn")
 
 
 # ---------------------------------------------------------------------------
@@ -96,6 +125,11 @@ def test_lbm_rans_k_omega_sst_raises_pinn_native_error():
 def test_lbm_les_wale_raises_pinn_native_error():
     with pytest.raises(ValueError, match="PINN"):
         get_turbulence_closure(TurbulenceModel.LES_WALE, solver_family="lbm")
+
+
+def test_lbm_les_dynamic_smagorinsky_raises_pinn_native_error():
+    with pytest.raises(ValueError, match="PINN"):
+        get_turbulence_closure(TurbulenceModel.LES_DYNAMIC_SMAGORINSKY, solver_family="lbm")
 
 
 # ---------------------------------------------------------------------------

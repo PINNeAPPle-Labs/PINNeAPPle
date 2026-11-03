@@ -21,8 +21,10 @@ PINNEAPPLE_CAPABILITIES = {
         "Smagorinsky LES, Zou-He inlet/outlet BCs (2D), and arbitrary solid "
         "obstacles via bounce-back (both)",
         "pinneapple_physics.pde_environment.turbulence_presets: RANS closures "
-        "(KOmegaSSTResiduals, SpalartAllmarasResiduals) and WALEResiduals LES as "
-        "PDE-residual functions compatible with PINNFactory",
+        "(KOmegaSSTResiduals, SpalartAllmarasResiduals) and three LES subgrid "
+        "closures (SmagorinskyResiduals, DynamicSmagorinskyResiduals -- the "
+        "Germano/Lilly dynamic procedure with a mesh-free test filter -- and "
+        "WALEResiduals) as PDE-residual functions compatible with PINNFactory",
         "pinneapple_tools.visualization.vortex: Q-criterion / lambda2 / vorticity "
         "post-processing and flow-field visualization (2D and 3D)",
         "pinneapple_simulation.external_solvers.openfoam: bridge to run external "

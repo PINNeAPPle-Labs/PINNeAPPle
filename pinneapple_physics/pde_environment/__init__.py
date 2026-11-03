@@ -43,7 +43,12 @@ except ImportError:
 from .turbulence_presets import (
     KOmegaSSTResiduals,
     SpalartAllmarasResiduals,
+    SmagorinskyResiduals,
+    DynamicSmagorinskyResiduals,
     WALEResiduals,
+    van_driest,
+    filter_stencil,
+    apply_stencil,
     get_rans_preset,
     SST_CONSTS,
 )
@@ -95,6 +100,11 @@ __all__ = [
     "KOmegaSSTResiduals",
     "SpalartAllmarasResiduals",
     "WALEResiduals",
+    "SmagorinskyResiduals",
+    "DynamicSmagorinskyResiduals",
+    "van_driest",
+    "filter_stencil",
+    "apply_stencil",
     "get_rans_preset",
     # PDE family knowledge base
     "PDEFamily",

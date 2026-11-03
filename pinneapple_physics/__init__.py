@@ -4,8 +4,9 @@ Sub-modules
 -----------
 pde_environment  (was pinneapple_environment)
     PDE problem specification: ProblemSpec, boundary/initial conditions,
-    presets (NS, heat, wave, Burgers, elasticity …), RANS turbulence models,
-    and PDE-family knowledge base.
+    presets (NS, heat, wave, Burgers, elasticity …), RANS turbulence models
+    (k-omega SST, Spalart-Allmaras) and LES subgrid closures (Smagorinsky,
+    dynamic Smagorinsky, WALE), and PDE-family knowledge base.
 
 pinn_solver      (was pinneapple_pinn)
     PINN compiler: translates a ProblemSpec into callable loss functions.
@@ -87,7 +88,10 @@ from .pde_environment import (
     # RANS/LES turbulence
     KOmegaSSTResiduals,
     SpalartAllmarasResiduals,
+    SmagorinskyResiduals,
+    DynamicSmagorinskyResiduals,
     WALEResiduals,
+    van_driest,
     get_rans_preset,
     SST_CONSTS,
     # PDE knowledge base
@@ -584,7 +588,9 @@ __all__ = [
     "helmholtz_acoustics_3d_default", "wave_ultrasound_3d_default",
     "reaction_diffusion_2d_default",
     "get_preset", "list_presets", "register_preset",
-    "KOmegaSSTResiduals", "SpalartAllmarasResiduals", "WALEResiduals", "get_rans_preset", "SST_CONSTS",
+    "KOmegaSSTResiduals", "SpalartAllmarasResiduals", "WALEResiduals",
+    "SmagorinskyResiduals", "DynamicSmagorinskyResiduals", "van_driest",
+    "get_rans_preset", "SST_CONSTS",
     "PDEFamily", "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # pinn_solver
     "LossWeights", "AdaptiveWeights", "compile_problem", "Subdomain", "SubdomainPINN", "DoMINO",

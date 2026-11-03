@@ -1,0 +1,249 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/use_trained_model",
+ "title": "Use a trained model (zoo or yours) instead of training, gated and re-verified",
+ "description": "A zoo model, a surrogate-workflow export or a model file with its card; the applicability gate (validity range, units, reference solves) before use; forward or inverse through the model; the result re-verified by the reference solver (pinneapple_analysis.surrogate.model_source).",
+ "domain": "methods",
+ "methods": [
+  "use_trained_model"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 0.2,
+  "seconds_full": 0.2
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 0.2,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 0.2,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "model.estimate.air_velocity_m_s",
+   "value": 2.4931480901435172,
+   "unit": "",
+   "how": "full run: bounded least squares through the model"
+  },
+  {
+   "name": "model.misfit_rel",
+   "value": 4.678095688603889e-09,
+   "unit": "",
+   "how": "full run: relative misfit of the model at the estimate"
+  },
+  {
+   "name": "model.reverified.r_base_k_w.rel_diff",
+   "value": 0.000780442625497128,
+   "unit": "",
+   "how": "full run: reference solver at the estimate vs observed"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "model.gate.inputs",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "every input of the model is given",
+   "kind": "sanity"
+  },
+  {
+   "name": "model.gate.validity_range",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "all 1 query points inside the model's validity range",
+   "kind": "physics"
+  },
+  {
+   "name": "model.gate.units",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the problem's units convert to the model's",
+   "kind": "sanity"
+  },
+  {
+   "name": "model.gate.reference",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "largest relative error against 1 reference solves 0.82% (allowed 2.1%; reference 0.0549 s per solve)",
+   "kind": "reference"
+  },
+  {
+   "name": "model.gate.inputs",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "every input of the model is given",
+   "kind": "sanity"
+  },
+  {
+   "name": "model.gate.validity_range",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "all 1 query points inside the model's validity range",
+   "kind": "physics"
+  },
+  {
+   "name": "model.gate.units",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the problem's units convert to the model's",
+   "kind": "sanity"
+  },
+  {
+   "name": "model.gate.reference",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the card's 8 metrics recomputed on the stored reference: largest change 0.00%",
+   "kind": "reference"
+  },
+  {
+   "name": "model.inverse.misfit",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the model reproduces the observations to 0.00% (allowed 2.1%, twice the model's claimed error)",
+   "kind": "sanity"
+  },
+  {
+   "name": "model.inverse.inside_bounds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the estimate is inside the model's range",
+   "kind": "physics"
+  },
+  {
+   "name": "model.inverse.reverified",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the reference solver at the estimate reproduces the observations to 0.08% (allowed 2.1%)",
+   "kind": "reference"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 0.2 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 0.2 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:00:32Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

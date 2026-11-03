@@ -1,0 +1,54 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.base_workflows.reduced_order_modeling",
+ "name": "Reduced-order modeling: POD-Galerkin, DMD and operator inference checked against the full model",
+ "description": "Snapshots of a full-order model (or a file), the POD rank from the singular-value energy, POD-Galerkin, DMD and operator inference on one protocol, checked on held-out parameters and on extrapolation in time, with stability, the invariant and the measured speed-up (pinneapple_analysis.reduced_order.workflow).",
+ "nodes": [
+  {
+   "id": "rom",
+   "type": "rom.workflow",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Reduced-order modeling"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Reduced-order modeling: POD-Galerkin, DMD and operator inference checked against the full model"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "rom",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "rom.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1208,
+  "example": "base_workflows",
+  "domain": "methods",
+  "entry": "reduced_order_modeling",
+  "bundled": "reduced_order_modeling",
+  "quick": {
+   "rom": {
+    "repeats": 1
+   }
+  },
+  "scripts": []
+ }
+}

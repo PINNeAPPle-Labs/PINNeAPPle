@@ -1,0 +1,219 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/multiphysics_coupling",
+ "title": "Multiphysics coupling: one-way, partitioned with Aitken, monolithic, checked",
+ "description": "Two physics participants through named interface fields, coupled one-way, two-way partitioned (Gauss-Seidel with Aitken relaxation) and monolithically; the strategy from the measured coupling strength; convergence, interface balance and a closed-form coupled solution (pinneapple_simulation.multiphysics.workflow).",
+ "domain": "methods",
+ "methods": [
+  "multiphysics_coupling"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 0.1,
+  "seconds_full": 0.1
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 0.1,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 0.1,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "couple.coupling.contraction",
+   "value": 0.3506255285027887,
+   "unit": "",
+   "how": "full run: spectral radius of the plain partitioned map, measured from its first iterations"
+  },
+  {
+   "name": "couple.one_way_error.T_max_K",
+   "value": 0.11884251297497418,
+   "unit": "",
+   "how": "full run: relative to the two-way solution"
+  },
+  {
+   "name": "couple.one_way_error.voltage_drop_V",
+   "value": 0.10652064060488728,
+   "unit": "",
+   "how": "full run: relative to the two-way solution"
+  },
+  {
+   "name": "couple.one_way_error.resistance_ohm",
+   "value": 0.10652064060488733,
+   "unit": "",
+   "how": "full run: relative to the two-way solution"
+  },
+  {
+   "name": "couple.one_way.iterations",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run: 0.0154 ms"
+  },
+  {
+   "name": "couple.gauss_seidel.iterations",
+   "value": 22.0,
+   "unit": "",
+   "how": "full run: 0.43 ms"
+  },
+  {
+   "name": "couple.gauss_seidel_aitken.iterations",
+   "value": 9.0,
+   "unit": "",
+   "how": "full run: 0.286 ms"
+  },
+  {
+   "name": "couple.monolithic.iterations",
+   "value": 408.0,
+   "unit": "",
+   "how": "full run: 46 ms"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "couple.coupling.convergence",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Gauss-Seidel + Aitken: 9 iterations to an interface residual 3.7e-11 (<= 1e-10); plain Gauss-Seidel: 22 iterations",
+   "kind": "sanity"
+  },
+  {
+   "name": "couple.coupling.monolithic",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "monolithic residual 6.2e-11 (from 4.5), 408 residual evaluations",
+   "kind": "sanity"
+  },
+  {
+   "name": "couple.coupling.partitioned_vs_monolithic",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "largest relative difference of the quantities of interest 2.5e-11 (<= 1e-6)",
+   "kind": "reference"
+  },
+  {
+   "name": "couple.interface.joule_power",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "electric power I dV = 0.740261 W; heat received by the thermal model 0.740261 W; relative imbalance 4.1e-11 (<= 0.001)",
+   "kind": "physics"
+  },
+  {
+   "name": "couple.energy.global",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "heat conducted out of the ends 0.740293 W against I dV = 0.740261 W; relative imbalance 4.3e-05 (<= 0.001)",
+   "kind": "physics"
+  },
+  {
+   "name": "couple.closed_form",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "two-way against T - T0 = (cos(m(x - L/2))/cos(mL/2) - 1)/alpha, dV = rho0 J (2/m) tan(mL/2): field error 1.1e-05, T_max_K 3.7e-06, voltage_drop_V 3.8e-06, resistance_ohm 3.8e-06 (<= 0.001)",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 0.1 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 0.1 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:01:38Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -1,0 +1,345 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/reduced_order_modeling",
+ "title": "Reduced-order modeling: POD-Galerkin, DMD and operator inference checked against the full model",
+ "description": "Snapshots of a full-order model (or a file), the POD rank from the singular-value energy, POD-Galerkin, DMD and operator inference on one protocol, checked on held-out parameters and on extrapolation in time, with stability, the invariant and the measured speed-up (pinneapple_analysis.reduced_order.workflow).",
+ "domain": "methods",
+ "methods": [
+  "reduced_order_modeling"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_full": 3.4,
+  "seconds_quick": 1.7
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_full",
+   "value": 3.4,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_quick",
+   "value": 1.7,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit ca74b8a"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "rom.dmd.extrapolation_error",
+   "value": 0.025127637480224837,
+   "unit": "",
+   "how": "full run: 1.5 < t <= 2"
+  },
+  {
+   "name": "rom.dmd.interpolation_error",
+   "value": 0.0029444841906479274,
+   "unit": "",
+   "how": "full run: held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5"
+  },
+  {
+   "name": "rom.dmd.speedup",
+   "value": 107.81812678503177,
+   "unit": "",
+   "how": "full run: online 0.399 ms, measured"
+  },
+  {
+   "name": "rom.opinf.extrapolation_error",
+   "value": 0.019309681471827947,
+   "unit": "",
+   "how": "full run: 1.5 < t <= 2"
+  },
+  {
+   "name": "rom.opinf.interpolation_error",
+   "value": 0.0009805842391617707,
+   "unit": "",
+   "how": "full run: held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5"
+  },
+  {
+   "name": "rom.opinf.speedup",
+   "value": 4.6552053750073075,
+   "unit": "",
+   "how": "full run: online 8.69 ms, measured"
+  },
+  {
+   "name": "rom.pod_galerkin.extrapolation_error",
+   "value": 0.020875737498341384,
+   "unit": "",
+   "how": "full run: 1.5 < t <= 2"
+  },
+  {
+   "name": "rom.pod_galerkin.interpolation_error",
+   "value": 0.0011251359278275541,
+   "unit": "",
+   "how": "full run: held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5"
+  },
+  {
+   "name": "rom.pod_galerkin.speedup",
+   "value": 3.459700556135816,
+   "unit": "",
+   "how": "full run: online 8.85 ms, measured"
+  },
+  {
+   "name": "rom.projection_error",
+   "value": 0.019261886075677595,
+   "unit": "",
+   "how": "full run: floor of any ROM in this basis on the held-out runs (interpolation window 0.00098)"
+  },
+  {
+   "name": "rom.rank",
+   "value": 9.0,
+   "unit": "",
+   "how": "full run: POD modes 8 (+ the constant mode when the invariant is the mass); energy 0.99999006"
+  }
+ ],
+ "checks": [
+  {
+   "name": "rom.pod_galerkin.interpolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.00113 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.pod_galerkin.extrapolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.0209 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+   "kind": "generalization"
+  },
+  {
+   "name": "rom.pod_galerkin.stability",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = -0.08605; growth of the linearized model over the horizon 0.8419 (<= 1.01)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.pod_galerkin.invariant",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass drift 2.8e-16 (<= 1e-06)",
+   "kind": "physics"
+  },
+  {
+   "name": "rom.pod_galerkin.speedup",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "online 8.85 ms against the FOM: x3.46 (worst held-out parameter, best of 3)",
+   "kind": "generalization"
+  },
+  {
+   "name": "rom.dmd.interpolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.00294 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.dmd.extrapolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.0251 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+   "kind": "generalization"
+  },
+  {
+   "name": "rom.dmd.stability",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max |lambda| (discrete) linearized about the uniform state, fluctuation modes = 1.022; growth of the linearized model over the horizon 76.68 (<= 1.01)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.dmd.invariant",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass drift 1.5e-12 (<= 1e-06)",
+   "kind": "physics"
+  },
+  {
+   "name": "rom.dmd.speedup",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "online 0.399 ms against the FOM: x108 (worst held-out parameter, best of 3)",
+   "kind": "generalization"
+  },
+  {
+   "name": "rom.opinf.interpolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.000981 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.opinf.extrapolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max rel. L2 error 0.0193 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+   "kind": "generalization"
+  },
+  {
+   "name": "rom.opinf.stability",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = 0.3734; growth of the linearized model over the horizon 2.11 (<= 1.01)",
+   "kind": "sanity"
+  },
+  {
+   "name": "rom.opinf.invariant",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass drift 1.5e-11 (<= 1e-06)",
+   "kind": "physics"
+  },
+  {
+   "name": "rom.opinf.speedup",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "online 8.69 ms against the FOM: x4.66 (worst held-out parameter, best of 3)",
+   "kind": "generalization"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 3.4 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 1.7 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ca74b8a",
+  "created": "2026-11-03T17:13:31Z",
+  "seconds": 0.002,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

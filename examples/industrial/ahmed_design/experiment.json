@@ -1,0 +1,465 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial/ahmed_design",
+ "title": "Ahmed body: CFD to surrogate twin",
+ "description": "The Ahmed body from geometry (parametric and OpenCASCADE CAD) through an OpenFOAM campaign (k-omega SST, prism layers, checks per run), grid convergence and validation against Ahmed et al. (1984), a dataset with a held-out region, surrogate families with calibrated intervals and physics checks, the slant angle inferred from a drag measurement, the least-drag slant and clearance re-verified against the CFD (or stated unverified), and a digital twin page.",
+ "domain": "engineering",
+ "methods": [
+  "ahmed_body_end_to_end"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 184.5,
+  "seconds_full": 346.3
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 184.5,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 346.3,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "geometry.volume_m3",
+   "value": 0.10958966987187772,
+   "unit": "",
+   "how": "full run: parametric body, divergence theorem on its triangles"
+  },
+  {
+   "name": "geometry.cad_volume_m3",
+   "value": 0.10993198241748103,
+   "unit": "",
+   "how": "full run: imported STL of the OpenCASCADE body"
+  },
+  {
+   "name": "cfd.runs_ok",
+   "value": 84.0,
+   "unit": "",
+   "how": "full run: run records with ok = true"
+  },
+  {
+   "name": "cfd.cpu_hours",
+   "value": 48.824951938934454,
+   "unit": "",
+   "how": "full run: wall time x processes, summed over the runs"
+  },
+  {
+   "name": "inverse.slant_median_deg",
+   "value": 18.50787722726348,
+   "unit": "",
+   "how": "full run: median of 4000 MDN posterior samples"
+  },
+  {
+   "name": "report.cad_vs_parametric_cd_rel",
+   "value": 0.012767096863239846,
+   "unit": "",
+   "how": "full run: CD of the imported CAD body over the parametric body, baseline, L1 mesh, OpenFOAM"
+  },
+  {
+   "name": "report.cd_baseline_L0",
+   "value": 0.28899965610083705,
+   "unit": "",
+   "how": "full run: OpenFOAM, 84223 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "report.cd_baseline_L1",
+   "value": 0.29656455281749244,
+   "unit": "",
+   "how": "full run: OpenFOAM, 207080 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "report.cd_baseline_L2",
+   "value": 0.2707438409326792,
+   "unit": "",
+   "how": "full run: OpenFOAM, 534472 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "report.cd_baseline_L3",
+   "value": 0.2639794841992436,
+   "unit": "",
+   "how": "full run: OpenFOAM, 1398073 cells, window mean of iterations 500-1000"
+  },
+  {
+   "name": "report.gci_cd_finest",
+   "value": 0.010983516789688657,
+   "unit": "",
+   "how": "full run: grid-convergence index of CD on the finest mesh (Celik 2008)"
+  },
+  {
+   "name": "report.validation_cd_rel_error_median",
+   "value": 0.10913102977129793,
+   "unit": "",
+   "how": "full run: median |CD_cfd / CD_measured - 1| over the six slant angles of Ahmed et al. (1984), L1 mesh"
+  },
+  {
+   "name": "report.validation_cd_rel_error_max",
+   "value": 0.47505500955349184,
+   "unit": "",
+   "how": "full run: largest of the same"
+  },
+  {
+   "name": "report.doe_discrepancy",
+   "value": 0.003926490735626897,
+   "unit": "",
+   "how": "full run: centred L2 discrepancy of the 48-point maximin LHS"
+  },
+  {
+   "name": "report.doe_discrepancy_random",
+   "value": 0.014111927749649977,
+   "unit": "",
+   "how": "full run: median over 20 random designs of 48 points"
+  },
+  {
+   "name": "report.CD_mlp_ensemble_test_rmse",
+   "value": 0.0058077897236236955,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_mlp_ensemble_test_coverage90",
+   "value": 0.9,
+   "unit": "",
+   "how": "full run: share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CD_mlp_ensemble_extrapolation_rmse",
+   "value": 0.05490579162829671,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "",
+   "how": "full run: share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CL_gp_test_rmse",
+   "value": 0.020438322550755707,
+   "unit": "",
+   "how": "full run: gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CL_gp_test_coverage90",
+   "value": 0.9,
+   "unit": "",
+   "how": "full run: share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CL_gp_extrapolation_rmse",
+   "value": 0.18406611561935646,
+   "unit": "",
+   "how": "full run: gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CL_gp_extrapolation_coverage90",
+   "value": 0.7,
+   "unit": "",
+   "how": "full run: share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CD_pressure_mlp_ensemble_test_rmse",
+   "value": 0.009961853559193186,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_pressure_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "",
+   "how": "full run: share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CD_pressure_mlp_ensemble_extrapolation_rmse",
+   "value": 0.06157521532942428,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_pressure_mlp_ensemble_extrapolation_coverage90",
+   "value": 0.9,
+   "unit": "",
+   "how": "full run: share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CD_friction_mlp_ensemble_test_rmse",
+   "value": 0.0010223555361808779,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_friction_mlp_ensemble_test_coverage90",
+   "value": 0.8,
+   "unit": "",
+   "how": "full run: share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.CD_friction_mlp_ensemble_extrapolation_rmse",
+   "value": 0.0011313648702502251,
+   "unit": "",
+   "how": "full run: mlp_ensemble on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.CD_friction_mlp_ensemble_extrapolation_coverage90",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run: share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.cp_pod_gp_test_rel_l2_mean",
+   "value": 0.09864566942506316,
+   "unit": "",
+   "how": "full run: pod_gp on the test split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.cp_pod_gp_test_coverage90",
+   "value": 0.892175899486008,
+   "unit": "",
+   "how": "full run: share of test cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.cp_pod_gp_extrapolation_rel_l2_mean",
+   "value": 0.19955394705004226,
+   "unit": "",
+   "how": "full run: pod_gp on the extrapolation split, fitted on train + val, measured once after selection"
+  },
+  {
+   "name": "report.cp_pod_gp_extrapolation_coverage90",
+   "value": 0.8336379211878926,
+   "unit": "",
+   "how": "full run: share of extrapolation cases inside the cross-conformal 90 % interval"
+  },
+  {
+   "name": "report.sobol_total_CD_slant_deg",
+   "value": 0.9617356167204382,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CD_clearance",
+   "value": 0.05327907219339082,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CD_speed",
+   "value": 0.014496346344442041,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CL_slant_deg",
+   "value": 0.9424178498381871,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CL_clearance",
+   "value": 0.06049314764729285,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CL_speed",
+   "value": 6.8917946376608565e-06,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CD_friction_slant_deg",
+   "value": 0.08895820794407246,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CD_friction_clearance",
+   "value": 0.039027944734399765,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.sobol_total_CD_friction_speed",
+   "value": 0.9298479677451612,
+   "unit": "",
+   "how": "full run: total Sobol index on the selected surrogate, Saltelli n=4096"
+  },
+  {
+   "name": "report.pareto_pick0_cd_abs_error",
+   "value": 0.0010133748494556283,
+   "unit": "",
+   "how": "full run: |CD CFD - CD predicted| at a Pareto pick, OpenFOAM L1"
+  },
+  {
+   "name": "grid.CD_error_0deg",
+   "value": 0.07708071855886489,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.CD_error_12.5deg",
+   "value": 0.1118555480868698,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.CD_error_25deg",
+   "value": 0.04307981980786454,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.CD_error_30deg",
+   "value": -0.10640651145572605,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.CD_error_35deg",
+   "value": 0.47505500955349184,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.CD_error_40deg",
+   "value": 0.20204356480787888,
+   "unit": "",
+   "how": "full run: (CFD - measured) / measured, Ahmed 1984"
+  },
+  {
+   "name": "grid.gci_CD_fine",
+   "value": 0.010983516789688657,
+   "unit": "",
+   "how": "full run: grid convergence index of the finest mesh, Celik et al. 2008"
+  },
+  {
+   "name": "design.design.slant_deg",
+   "value": 9.781385675764929,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "design.design.clearance",
+   "value": 0.030027929395435686,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "design.design.speed",
+   "value": 40.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "design.predicted.CD",
+   "value": 0.2507970909228906,
+   "unit": "",
+   "how": "full run: mlp_ensemble refitted on 73 CFD runs"
+  },
+  {
+   "name": "design.predicted.CD_half_width_90",
+   "value": 0.004096473123202238,
+   "unit": "",
+   "how": "full run: mlp_ensemble refitted on 73 CFD runs"
+  },
+  {
+   "name": "design.predicted.CL",
+   "value": -0.08597429367396658,
+   "unit": "",
+   "how": "full run: gp refitted on 73 CFD runs"
+  },
+  {
+   "name": "design.predicted.CL_half_width_90",
+   "value": 0.15105109497210548,
+   "unit": "",
+   "how": "full run: gp refitted on 73 CFD runs"
+  },
+  {
+   "name": "design.baseline.CD",
+   "value": 0.29090139824473704,
+   "unit": "",
+   "how": "full run: 25 deg slant, 0.05 m clearance, same models"
+  }
+ ],
+ "checks": [
+  {
+   "name": "design.design.outside_drag_crisis",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "slant 9.78 deg outside the 28-32 deg drag-crisis band",
+   "kind": "sanity"
+  },
+  {
+   "name": "design.design.no_extrapolation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "inside the sampled box (slant <= 34 deg, clearance 0.03-0.08 m)",
+   "kind": "generalization"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 184.5 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 346.3 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:12:31Z",
+  "seconds": 0.004,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

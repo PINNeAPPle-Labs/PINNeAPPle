@@ -1,0 +1,89 @@
+{
+ "entry": "model_benchmarking",
+ "example_flow": "base_workflows/model_benchmarking",
+ "flow": "model_benchmarking",
+ "group": "base_workflows",
+ "quick": {
+  "bench": {
+   "n_test": 60
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "bench.gp.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.0020171166721008925
+    },
+    "bench.mlp_ensemble.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.0055054980730930665
+    },
+    "bench.quadratic.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.01467045437425446
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "bench": "done",
+    "report": "done"
+   },
+   "seconds": 10.6,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "bench.gp.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.0020042386344766645
+    },
+    "bench.mlp_ensemble.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.00585585946522563
+    },
+    "bench.quadratic.rel_rmse": {
+     "how": "mean over seeds, inside the box",
+     "value": 0.014753737724971744
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "bench": "done",
+    "report": "done"
+   },
+   "seconds": 7.7,
+   "status": "done"
+  }
+ }
+}

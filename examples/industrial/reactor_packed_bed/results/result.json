@@ -1,0 +1,224 @@
+{
+ "entry": "reactor_packed_bed",
+ "example_flow": "industrial/reactor_packed_bed",
+ "flow": "reactor_sizing_packed_bed",
+ "group": "industrial",
+ "quick": {
+  "design": {
+   "maxiter": 20,
+   "popsize": 8
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "design.conversion",
+     "detail": "margin 8.309e-08 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.hot_spot",
+     "detail": "margin 2.631e-05 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.converged",
+     "detail": "conversion changes by 4.5e-09 with a 100x tighter tolerance",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.stoichiometry",
+     "detail": "the flow change lies in the span of the reactions (residual 2.0e-17 of the feed)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.levenspiel",
+     "detail": "area under F_A0/(-r_A) vs X is 0.0010725 m^3 for a volume of 0.0010725 m^3 (9.2e-06)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "safety.semenov",
+     "detail": "psi = 0.545 against 1/e: above the zeroth-order bound, which is conservative for a reaction that consumes its reactant; the sensitivity margin decides",
+     "node": "design",
+     "status": "inconclusive"
+    },
+    {
+     "check": "safety.runaway_margin",
+     "detail": "coolant 14.0 K below the runaway boundary (Morbidelli-Varma), required 10 K",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: mean of three solves",
+     "value": 0.012063771333335657
+    },
+    "design.design.Tc": {
+     "how": "optimum, re-solved by the model",
+     "value": 645.4681145288228
+    },
+    "design.design.V": {
+     "how": "optimum, re-solved by the model",
+     "value": 0.0010725365114877196
+    },
+    "design.model.P_out": {
+     "how": "reactor model at the design",
+     "value": 101325.0
+    },
+    "design.model.T_max": {
+     "how": "reactor model at the design",
+     "value": 673.1499736897324
+    },
+    "design.model.X": {
+     "how": "reactor model at the design",
+     "value": 0.7500000830928399
+    },
+    "design.model.selectivity": {
+     "how": "reactor model at the design",
+     "value": 0.9999999999999996
+    },
+    "design.model.yield": {
+     "how": "reactor model at the design",
+     "value": 0.7500000830928396
+    },
+    "design.safety.runaway_margin_K": {
+     "how": "Morbidelli-Varma boundary minus the coolant",
+     "value": 14.0
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 16.2,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "design.conversion",
+     "detail": "margin 0.0006709 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "design.hot_spot",
+     "detail": "margin 0.8885 at the design, computed by the model",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.converged",
+     "detail": "conversion changes by 3.5e-09 with a 100x tighter tolerance",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.stoichiometry",
+     "detail": "the flow change lies in the span of the reactions (residual 9.3e-17 of the feed)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "model.levenspiel",
+     "detail": "area under F_A0/(-r_A) vs X is 0.0010955 m^3 for a volume of 0.0010955 m^3 (9.2e-06)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "safety.semenov",
+     "detail": "psi = 0.539 against 1/e: above the zeroth-order bound, which is conservative for a reaction that consumes its reactant; the sensitivity margin decides",
+     "node": "design",
+     "status": "inconclusive"
+    },
+    {
+     "check": "safety.runaway_margin",
+     "detail": "coolant 14.0 K below the runaway boundary (Morbidelli-Varma), required 10 K",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: mean of three solves",
+     "value": 0.010686602000077983
+    },
+    "design.design.Tc": {
+     "how": "optimum, re-solved by the model",
+     "value": 645.1240583071232
+    },
+    "design.design.V": {
+     "how": "optimum, re-solved by the model",
+     "value": 0.0010955343724236642
+    },
+    "design.model.P_out": {
+     "how": "reactor model at the design",
+     "value": 101325.0
+    },
+    "design.model.T_max": {
+     "how": "reactor model at the design",
+     "value": 672.2615489956753
+    },
+    "design.model.X": {
+     "how": "reactor model at the design",
+     "value": 0.750670941515845
+    },
+    "design.model.selectivity": {
+     "how": "reactor model at the design",
+     "value": 0.9999999999999986
+    },
+    "design.model.yield": {
+     "how": "reactor model at the design",
+     "value": 0.7506709415158439
+    },
+    "design.safety.runaway_margin_K": {
+     "how": "Morbidelli-Varma boundary minus the coolant",
+     "value": 14.0
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 6.9,
+   "status": "done"
+  }
+ }
+}

@@ -1,0 +1,335 @@
+{
+ "entry": "reduced_order_modeling",
+ "example_flow": "base_workflows/reduced_order_modeling",
+ "flow": "reduced_order_modeling",
+ "group": "base_workflows",
+ "quick": {
+  "rom": {
+   "repeats": 1
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "pod_galerkin.interpolation",
+     "detail": "max rel. L2 error 0.00113 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.extrapolation",
+     "detail": "max rel. L2 error 0.0209 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.stability",
+     "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = -0.08605; growth of the linearized model over the horizon 0.8419 (<= 1.01)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.invariant",
+     "detail": "mass drift 2.8e-16 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.speedup",
+     "detail": "online 8.85 ms against the FOM: x3.46 (worst held-out parameter, best of 3)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.interpolation",
+     "detail": "max rel. L2 error 0.00294 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.extrapolation",
+     "detail": "max rel. L2 error 0.0251 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.stability",
+     "detail": "max |lambda| (discrete) linearized about the uniform state, fluctuation modes = 1.022; growth of the linearized model over the horizon 76.68 (<= 1.01)",
+     "node": "rom",
+     "status": "fail"
+    },
+    {
+     "check": "dmd.invariant",
+     "detail": "mass drift 1.5e-12 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.speedup",
+     "detail": "online 0.399 ms against the FOM: x108 (worst held-out parameter, best of 3)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.interpolation",
+     "detail": "max rel. L2 error 0.000981 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.extrapolation",
+     "detail": "max rel. L2 error 0.0193 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.stability",
+     "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = 0.3734; growth of the linearized model over the horizon 2.11 (<= 1.01)",
+     "node": "rom",
+     "status": "fail"
+    },
+    {
+     "check": "opinf.invariant",
+     "detail": "mass drift 1.5e-11 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.speedup",
+     "detail": "online 8.69 ms against the FOM: x4.66 (worst held-out parameter, best of 3)",
+     "node": "rom",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "rom.dmd.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.025127637480224837
+    },
+    "rom.dmd.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0029444841906479274
+    },
+    "rom.dmd.speedup": {
+     "how": "online 0.399 ms, measured",
+     "value": 107.81812678503177
+    },
+    "rom.opinf.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.019309681471827947
+    },
+    "rom.opinf.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0009805842391617707
+    },
+    "rom.opinf.speedup": {
+     "how": "online 8.69 ms, measured",
+     "value": 4.6552053750073075
+    },
+    "rom.pod_galerkin.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.020875737498341384
+    },
+    "rom.pod_galerkin.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0011251359278275541
+    },
+    "rom.pod_galerkin.speedup": {
+     "how": "online 8.85 ms, measured",
+     "value": 3.459700556135816
+    },
+    "rom.projection_error": {
+     "how": "floor of any ROM in this basis on the held-out runs (interpolation window 0.00098)",
+     "value": 0.019261886075677595
+    },
+    "rom.rank": {
+     "how": "POD modes 8 (+ the constant mode when the invariant is the mass); energy 0.99999006",
+     "value": 9
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "rom": "done"
+   },
+   "seconds": 3.4,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "pod_galerkin.interpolation",
+     "detail": "max rel. L2 error 0.00113 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.extrapolation",
+     "detail": "max rel. L2 error 0.0209 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.stability",
+     "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = -0.08605; growth of the linearized model over the horizon 0.8419 (<= 1.01)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.invariant",
+     "detail": "mass drift 2.8e-16 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "pod_galerkin.speedup",
+     "detail": "online 9.08 ms against the FOM: x6.92 (worst held-out parameter, best of 1)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.interpolation",
+     "detail": "max rel. L2 error 0.00294 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.extrapolation",
+     "detail": "max rel. L2 error 0.0251 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.stability",
+     "detail": "max |lambda| (discrete) linearized about the uniform state, fluctuation modes = 1.022; growth of the linearized model over the horizon 76.68 (<= 1.01)",
+     "node": "rom",
+     "status": "fail"
+    },
+    {
+     "check": "dmd.invariant",
+     "detail": "mass drift 1.5e-12 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "dmd.speedup",
+     "detail": "online 0.592 ms against the FOM: x90.6 (worst held-out parameter, best of 1)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.interpolation",
+     "detail": "max rel. L2 error 0.000981 on mu = [0.0625, 0.0875, 0.1125, 0.1375], t <= 1.5 (<= 0.02; projection floor 0.00098)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.extrapolation",
+     "detail": "max rel. L2 error 0.0193 for 1.5 < t <= 2 (<= 0.05; projection floor 0.019)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.stability",
+     "detail": "max Re(lambda) linearized about the uniform state, fluctuation modes = 0.3734; growth of the linearized model over the horizon 2.11 (<= 1.01)",
+     "node": "rom",
+     "status": "fail"
+    },
+    {
+     "check": "opinf.invariant",
+     "detail": "mass drift 1.5e-11 (<= 1e-06)",
+     "node": "rom",
+     "status": "pass"
+    },
+    {
+     "check": "opinf.speedup",
+     "detail": "online 7.56 ms against the FOM: x5.19 (worst held-out parameter, best of 1)",
+     "node": "rom",
+     "status": "pass"
+    }
+   ],
+   "commit": "ca74b8a",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "rom.dmd.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.025127637480224837
+    },
+    "rom.dmd.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0029444841906479274
+    },
+    "rom.dmd.speedup": {
+     "how": "online 0.592 ms, measured",
+     "value": 90.59394661046557
+    },
+    "rom.opinf.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.019309681471827947
+    },
+    "rom.opinf.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0009805842391617707
+    },
+    "rom.opinf.speedup": {
+     "how": "online 7.56 ms, measured",
+     "value": 5.191995592498374
+    },
+    "rom.pod_galerkin.extrapolation_error": {
+     "how": "1.5 < t <= 2",
+     "value": 0.020875737498341384
+    },
+    "rom.pod_galerkin.interpolation_error": {
+     "how": "held-out mu [0.0625, 0.0875, 0.11249999999999999, 0.1375], t <= 1.5",
+     "value": 0.0011251359278275541
+    },
+    "rom.pod_galerkin.speedup": {
+     "how": "online 9.08 ms, measured",
+     "value": 6.918387763552763
+    },
+    "rom.projection_error": {
+     "how": "floor of any ROM in this basis on the held-out runs (interpolation window 0.00098)",
+     "value": 0.019261886075677595
+    },
+    "rom.rank": {
+     "how": "POD modes 8 (+ the constant mode when the invariant is the mass); energy 0.99999006",
+     "value": 9
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "rom": "done"
+   },
+   "seconds": 1.7,
+   "status": "done"
+  }
+ }
+}

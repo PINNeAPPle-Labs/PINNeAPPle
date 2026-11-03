@@ -103,3 +103,41 @@ def test_bad_expressions_are_refused():
         Problem("poisson", exact="__import__('os')")
     with pytest.raises(ValueError, match="unknown symbols"):
         Problem("poisson", exact="sin(z)")
+
+
+# ---------------------------------------------------------------- domain helpers used by the Meshless Lab (#1236)
+def test_perimeter_of_a_square_with_a_hole():
+    from pinneapple_simulation.meshless import domain_from_spec
+    d = domain_from_spec({"polygon": [[0, 0], [1, 0], [1, 1], [0, 1]], "holes": [[0.5, 0.5, 0.2]]})
+    assert d.perimeter() == pytest.approx(4 + 2 * np.pi * 0.2, rel=1e-12)
+    assert domain("square").perimeter() == pytest.approx(4.0)
+
+
+@pytest.mark.parametrize("name", ["square", "lshape", "plate_hole", "disk", "annulus"])
+def test_node_estimate_bounds_the_generated_count_and_is_within_ten_percent_when_fine(name):
+    # area/h^2 + perimeter/h counts the lattice up to the boundary, but lattice nodes closer than 0.4 h to it are
+    # dropped: an upper bound (what a node limit needs), measured +1 % .. +24 % from h = diameter/80 to /10
+    d = domain(name)
+    for f in (10, 20, 40, 80):
+        assert d.estimate_nodes(d.diameter / f) >= d.nodes(d.diameter / f).n
+    h = d.diameter / 80
+    assert d.estimate_nodes(h) / d.nodes(h).n - 1 < 0.10
+
+
+def test_default_spacings_and_point_cloud_from_a_table():
+    pd = pytest.importorskip("pandas")
+    from pinneapple_simulation.meshless import (
+        default_spacings,
+        domain_from_spec,
+        point_cloud_from_table,
+    )
+    sq = domain("square")
+    assert default_spacings(sq) == pytest.approx([np.sqrt(2) / 10, np.sqrt(2) / 20, np.sqrt(2) / 40])
+    ns = sq.nodes(0.1)
+    df = pd.DataFrame({"X": ns.X[:, 0], "Y": ns.X[:, 1], "On_Boundary": ns.boundary.astype(int)})
+    pc = point_cloud_from_table(df, name="cloud")
+    assert pc.cloud is not None and pc.name == "cloud" and pc.estimate_nodes(0.1) == pc.cloud.n
+    assert domain_from_spec({"preset": "lshape"}, table=df).cloud is not None      # the table wins
+    assert domain_from_spec({}).name == "square"
+    with pytest.raises(ValueError, match="boundary"):
+        point_cloud_from_table(df.drop(columns=["On_Boundary"]))

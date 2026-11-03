@@ -27,8 +27,9 @@ from pinneapple_simulation.numerical_solvers.heat_fv_reference import (
     plate_2d,
 )
 
-# stored results of the long runs (the 3D block); the Inverse Heat Lab app points here explicitly
-_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+# stored results of the long runs (the 2-D plate and the 3-D block): examples/use_cases/fin_convection_inverse of the
+# source checkout, or $PINNEAPPLE_INVERSE_HEAT_RESULTS
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 EXAMPLE = os.environ.get("PINNEAPPLE_INVERSE_HEAT_RESULTS") or os.path.join(_ROOT, "examples", "use_cases",
                                                                             "fin_convection_inverse")
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import hashlib
 import io
-import json
 import os
 import sys
 import time
@@ -40,6 +39,7 @@ from pinneapple_core.workflows import (
     read_cases,
 )
 from pinneapple_tools.visualization.studio.solver_view import solver_result_view
+from pinneapple_tools.visualization.studio.view_cache import cached_view
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import install, install_runtime, principal  # noqa: E402
@@ -351,17 +351,14 @@ def _step_view(request: Request, run_id: str, step_id: str) -> tuple[dict, Any]:
     if kind not in VIEW_KINDS or st["status"] not in ("done", "skipped") or (st["outputs"] or {}).get("dry_run"):
         raise HTTPException(409, "only finished CalculiX and OpenFOAM steps (not dry runs) have a result to view")
     key = hashlib.sha256(f"{run_id}/{step_id}/{st['hash']}/{st['finished']}/{VIEW_MAX_FACES}".encode()).hexdigest()[:24]
-    d = RUNNER.root / "views"
-    js, glb = d / f"{key}.json", d / f"{key}.glb"
-    if not (js.is_file() and glb.is_file()):
+
+    def build():
         try:
             fv, info = solver_result_view(RUNNER.step_workdir(run_id, step_id), max_faces=VIEW_MAX_FACES)
         except ValueError as e:
             raise HTTPException(422, str(e)) from None
-        d.mkdir(parents=True, exist_ok=True)
-        glb.write_bytes(fv.glb())
-        js.write_text(json.dumps(to_jsonable({"view": fv.meta, "info": info})))
-    return json.loads(js.read_text()), glb
+        return fv, {"view": fv.meta, "info": info}
+    return cached_view(RUNNER.root / "views", key, build)
 
 
 @app.get("/api/runs/{run_id}/steps/{step_id}/view3d")

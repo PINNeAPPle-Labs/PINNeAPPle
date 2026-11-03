@@ -107,6 +107,32 @@ def design(space: ParameterSpace, n: int, method: str = "lhs", *, seed: int = 0,
     return _make(space, unit, method, info)
 
 
+def design_size(space: ParameterSpace, method: str = "lhs", n: int | None = None, levels: int | dict[str, int] = 3,
+                *, feasible: Callable[[Any], np.ndarray] | None = None) -> int:
+    """How many cases :func:`design` (and so :func:`~pinneapple_data.doe.plan_campaign`, before it drops repeats of
+    existing runs) returns for these arguments, without drawing a sampled design.
+
+    ``n`` defaults to ``space.budget`` as in ``plan_campaign``. Sampled methods (``lhs``, ``maximin``, ``sobol``,
+    ``halton``, ``random``, ``infill``) return exactly ``n``. The factorial ones are built (they are cheap and
+    deterministic) and the constraints of ``space`` and ``feasible`` applied, so the count is the planned one: a
+    ``fractional_factorial`` has the 2^(k-p) runs :func:`fractional_factorial_unit` chooses, a ``full_factorial``
+    the product of its levels (integer parameters with fewer values than ``levels`` use each value once).
+    A factorial with no feasible point gives 0 (``design`` raises).
+    """
+    if method not in METHODS:
+        raise ValueError(f"unknown method {method!r}; one of {METHODS}")
+    if space.dim == 0:
+        raise ValueError("the parameter space has no free parameter")
+    n = int(n if n is not None else (space.budget or 0))
+    if method == "full_factorial":
+        unit, _ = _full_factorial_unit(space, levels)
+    elif method == "fractional_factorial":
+        unit, _ = fractional_factorial_unit(space.dim, n)
+    else:
+        return n
+    return int(_mask(space, unit, feasible).sum())
+
+
 def _fill_to(space, n, draw, k, feasible, max_candidates, maximin_select) -> np.ndarray:
     m, unit = n, None
     while True:

@@ -30,6 +30,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from pinneapple_core.series import downsample_indices
+
 from .data_health import _parse_time, _to_numeric, detect_time_column
 from .physical_units import (QUANTITIES, UnitError, dim_str, infer_quantity, parse_unit, split_header,
                              try_parse_unit)
@@ -546,7 +548,7 @@ def _downsample(x: pd.Series, y: pd.Series, k: int) -> Dict[str, list]:
     n = len(x)
     if n == 0:
         return {"x": [], "y": []}
-    idx = np.linspace(0, n - 1, min(k, n)).astype(int)
+    idx = downsample_indices(n, k, "even")
     return {"x": [pd.Timestamp(v).strftime("%Y-%m-%d %H:%M") for v in x.iloc[idx]],
             "y": [None if not np.isfinite(v) else float(v) for v in y.iloc[idx].to_numpy(dtype=float)]}
 

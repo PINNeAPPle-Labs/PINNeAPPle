@@ -17,7 +17,6 @@ import hashlib
 import io
 import json
 import os
-import re
 import sys
 import time
 import uuid
@@ -36,6 +35,7 @@ from pinneapple_data.snapshots import FormatError, load_snapshots
 from pinneapple_neural.architectures.rom.contracts import model_ref, study_result
 from pinneapple_neural.architectures.rom.study import LABELS, METHODS, ReducedModel, rom_study
 from pinneapple_neural.architectures.rom.views import reconstruction_view
+from pinneapple_tools.visualization.studio.view_cache import cached_view
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import install, install_runtime  # noqa: E402
@@ -400,34 +400,29 @@ def reconstruction(request: Request, job_id: str, model: str, snapshot: int = 0,
                         "unit": (snaps.meta.get("units") or {}).get(f["name"], "")})
 
 
-def _view(request: Request, job_id: str, model: str, snapshot: int) -> tuple[Path, Path]:
+def _view(request: Request, job_id: str, model: str, snapshot: int) -> tuple[dict, Path]:
     """The 3-D view of one held-out snapshot (cached in the study folder): description + glTF."""
     d, job = _job_dir(request, job_id)
     res = job["result"]
     test = res["study"]["split"]["test"]
     if not 0 <= snapshot < len(test):
         raise HTTPException(422, f"snapshot is 0 .. {len(test) - 1}")
-    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", model)
-    out = d / "views"
-    js, glb = out / f"{safe}_{snapshot}.json", out / f"{safe}_{snapshot}.glb"
-    if js.is_file() and glb.is_file():
-        return js, glb
-    m = _load_model(d, model)
-    snaps = load_snapshots([("s.npz", Path(_input_of(job)).read_bytes())])
-    row = next((r for r in res["study"]["rows"] if r["key"] == model), {})
-    what = "snapshot" if res["study"]["mode"] == "time" else "design"
-    errs = row.get("errors") or []
-    reported = {f"study error of this {what}, all fields": errs[snapshot] if snapshot < len(errs) else None,
-                f"study mean over {len(test)} held-out {what}s": row.get("error_mean")}
-    try:
-        fv, info = reconstruction_view(snaps, m, test[snapshot], reported=reported)
-    except ValueError as e:
-        raise HTTPException(422, str(e)) from e
-    out.mkdir(exist_ok=True)
-    glb.write_bytes(fv.glb())
-    js.write_text(json.dumps(to_jsonable({"view": fv.meta, **info, "model": model, "snapshot": snapshot,
-                                          "label": row.get("label", m.method), "rank": m.rank})))
-    return js, glb
+
+    def build():
+        m = _load_model(d, model)
+        snaps = load_snapshots([("s.npz", Path(_input_of(job)).read_bytes())])
+        row = next((r for r in res["study"]["rows"] if r["key"] == model), {})
+        what = "snapshot" if res["study"]["mode"] == "time" else "design"
+        errs = row.get("errors") or []
+        reported = {f"study error of this {what}, all fields": errs[snapshot] if snapshot < len(errs) else None,
+                    f"study mean over {len(test)} held-out {what}s": row.get("error_mean")}
+        try:
+            fv, info = reconstruction_view(snaps, m, test[snapshot], reported=reported)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        return fv, {"view": fv.meta, **info, "model": model, "snapshot": snapshot,
+                    "label": row.get("label", m.method), "rank": m.rank}
+    return cached_view(d / "views", f"{model}_{snapshot}", build)
 
 
 @app.get("/api/jobs/{job_id}/view3d")
@@ -435,8 +430,7 @@ def view3d(request: Request, job_id: str, model: str, snapshot: int = 0):
     """3-D view of a held-out snapshot on its mesh: the full-order field, the ROM prediction and |ROM - full-order|
     (deformed when the data has a displacement), the dataset's boundary-condition and load regions, the error
     hotspots and, per field, where the error concentrates. The glTF is at ``view3d.glb`` with the same query."""
-    js, _ = _view(request, job_id, model, snapshot)
-    out = json.loads(js.read_text())
+    out, _ = _view(request, job_id, model, snapshot)
     out["glb"] = f"/api/jobs/{job_id}/view3d.glb?model={quote(model)}&snapshot={snapshot}"
     return out
 

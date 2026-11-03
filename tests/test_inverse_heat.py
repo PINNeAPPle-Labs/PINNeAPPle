@@ -12,7 +12,7 @@ pytest.importorskip("fastapi")
 APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "apps", "inverse_heat"))
 sys.path.insert(0, APP)
 
-from inverse_heat import engine  # noqa: E402
+import pinneapple_analysis.inverse_problems.heat_transfer as engine  # noqa: E402
 
 
 def test_fin_exact_limits():

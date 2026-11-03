@@ -52,6 +52,17 @@ class MeshlessStudy:
                                                "reference", "fields", "skipped", "tolerance", "wall_s")} | \
             {"methods": {k: v for k, v in METHODS.items()}}
 
+    def solutions_csv(self) -> str:
+        """The solution of every method at the evaluation points, with the reference: CSV text with the columns
+        ``x, y, reference, <method>...`` (9 significant digits). Empty header only when no field was kept."""
+        f = self.fields
+        names = list(f.get("methods", {}))
+        lines = ["x,y,reference," + ",".join(names)]
+        for i, (x, y) in enumerate(f.get("points", [])):
+            lines.append(f"{x:.9g},{y:.9g},{f['truth'][i]:.9g},"
+                         + ",".join(f"{f['methods'][m]['values'][i]:.9g}" for m in names))
+        return "\n".join(lines) + "\n"
+
 
 def _run(problem, dom, nodes, method, opts, truth, E, seed):
     disc = discretize(method, dom, nodes, **opts)

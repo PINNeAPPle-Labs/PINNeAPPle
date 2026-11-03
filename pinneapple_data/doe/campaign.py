@@ -59,6 +59,24 @@ class CampaignPlan:
                 if self.coverage_existing["fill_distance"] else None)
         return out
 
+    def view(self, digits: int = 5) -> dict[str, Any]:
+        """The plan in unit-cube coordinates for a scatter view: the free parameter ``names``, ``planned`` cases,
+        ``existing`` runs (when given) and ``dropped`` repeats (when any), rounded to ``digits``; with the axis
+        ``labels`` (name and unit), ``kinds``, the ``values`` of categorical parameters and the ``bounds``
+        (``[low, high, log]``) of the numeric ones."""
+        free = self.space.free
+        view: dict[str, Any] = {"names": [p.name for p in free], "planned": self.unit.round(digits).tolist(),
+                                "labels": {p.name: f"{p.name}" + (f" [{p.unit}]" if p.unit else "") for p in free},
+                                "kinds": {p.name: p.kind for p in free},
+                                "values": {p.name: p.values for p in free if p.kind == "categorical"},
+                                "bounds": {p.name: [p.low, p.high, p.log] for p in free
+                                           if p.kind in ("continuous", "integer")}}
+        if self.existing_unit is not None:
+            view["existing"] = self.existing_unit.round(digits).tolist()
+        if len(self.dropped):
+            view["dropped"] = self.space.to_unit(self.dropped).round(digits).tolist()
+        return view
+
     def checks(self) -> list[CheckRecord]:
         """Checks that ran on this plan, each with its value."""
         feas = self.space.feasible(self.cases[self.space.names]) if len(self.cases) else np.ones(0, bool)

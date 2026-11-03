@@ -1,0 +1,12 @@
+{
+ "code_hash": "10edde044f743bd7",
+ "figures": [],
+ "id": "node:climate.extremes",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Extreme climate: GEV/GPD return levels, non-stationarity, compound events, attribution -> pinneapple_analysis.extremes.workflow.extreme_climate_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'dataset': 'fremantle', 'csv_path': '', 'value_column': '', 'time_column': '', 'covariates': [], 'second_column': '', 'method': 'auto', 'threshold': 0.0, 'run': 1, 'return_periods': [2, 5, 10, 20, 50, 100], 'level': 0.95, 'lr_alpha': 0.05, 'factual': {}, 'counterfactual': {}, 'event': 0.0, 'gof_bootstrap': 199, 'attribution_bootstrap': 300, 'compound_bootstrap': 200, 'calibration_replicates': 100, 'seed': 0}",
+ "timed_out": false
+}

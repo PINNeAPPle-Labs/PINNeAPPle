@@ -312,6 +312,35 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "extreme_climate": {
+  "flow_hash": "81cb5bd90546e4d5",
+  "nodes": {
+   "extremes": {
+    "error": "",
+    "metrics": {
+     "passed": true
+    },
+    "status": "done",
+    "summary": "fremantle: GEV with year + soi in the location, xi = -0.188; 100-year level 2.056 m (profile [1.954, 2.236]); 14/14 checks pass",
+    "type": "climate.extremes"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 75.58,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "freecad_openfoam_bend": {
   "flow_hash": "13406b26ade330f3",
   "nodes": {
@@ -1715,6 +1744,35 @@
   },
   "recorded": "2026-11-03",
   "seconds": 27.76,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "time_series_prediction": {
+  "flow_hash": "0492dc59f1f9cab6",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "ts": {
+    "error": "",
+    "metrics": {
+     "passed": true
+    },
+    "status": "done",
+    "summary": "seasonal: recommended gbm (skill +0.31, +0.46, +0.41, +0.15, +0.15 at h = [1, 2, 4, 8, 16] against the best baseline; 90% conformal coverage 0.914); 7/7 checks pass",
+    "type": "ts.workflow"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 24.56,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

@@ -1,0 +1,12 @@
+{
+ "code_hash": "4a5327f48d679707",
+ "figures": [],
+ "id": "node:ts.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Time series: analysis, baselines, models, rolling backtest, conformal intervals -> pinneapple_systems.time_series.workflow.time_series_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'series': 'seasonal', 'csv_path': '', 'value_column': '', 'covariates': [], 'horizons': [1, 2, 4, 8, 16], 'models': ['persistence', 'seasonal_naive', 'mean', 'arima', 'ets', 'gbm', 'tcn', 'ode'], 'n_folds': 3, 'test_fraction': 0.3, 'period': 0, 'level': 0.9, 'coverage_tolerance': 0.05, 'leak_corr': 0.98, 'epochs': 40, 'seed': 0}",
+ "timed_out": false
+}

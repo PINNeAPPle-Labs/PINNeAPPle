@@ -1,0 +1,12 @@
+{
+ "code_hash": "0dfddf0c002ae4c3",
+ "figures": [],
+ "id": "flow:time_series_prediction",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Time-series prediction: analysis, baselines, models, backtest and calibrated intervals - 2 nodes\nissues: []",
+ "timed_out": false
+}

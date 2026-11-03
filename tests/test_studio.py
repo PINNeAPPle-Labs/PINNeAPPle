@@ -183,6 +183,20 @@ def test_search_in_portuguese_and_english(cat):
     assert "heat" in expand(tokens("calor"))
 
 
+@pytest.mark.parametrize("pt,en", [
+    ("carro na lama, patinagem e afundamento do pneu", {"mud", "slip", "sinkage", "tyre", "tire"}),
+    ("vazamento num duto de água", {"leak", "pipe", "water"}),
+    ("dispersão de CO2 numa sala com ventilação", {"dispersion", "room", "ventilation"}),
+    ("trocador casco e tubos com óleo", {"exchanger", "shell", "tubes", "oil"}),
+    ("controlador do forno com sobressinal e acomodação", {"controller", "furnace", "overshoot", "settling"}),
+    ("energia de ativação da cinética", {"energy", "activation", "kinetics"}),
+    ("viga em balanço com carga e flecha", {"beam", "cantilever", "load", "deflection"}),
+])
+def test_portuguese_engineering_goals_reach_english_words(pt, en):
+    """The words of the Engineer's battery (#1168): a Portuguese goal must reach the English docstrings."""
+    assert en <= set(expand(tokens(pt)))
+
+
 def test_requirements_name_the_fix(repo):
     rows = R.check(R.requirements([repo / "examples" / "fins" / "run_fins.py"], repo))
     cad = next(r for r in rows if r["name"] == "cadquery")

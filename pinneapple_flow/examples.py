@@ -96,14 +96,18 @@ def _git() -> str:
 
 
 def run_example(name: str, *, quick: bool = False, workdir: str | Path | None = None, record: bool = True,
-                on_update=None) -> dict[str, Any]:
-    """Run an example flow (full or quick) and, with ``record``, store its outcome and comparisons in MEASURED."""
+                on_update=None, cache: bool = True, results: list | None = None) -> dict[str, Any]:
+    """Run an example flow (full or quick) and, with ``record``, store its outcome and comparisons in MEASURED.
+    ``cache=False`` recomputes every node (measured seconds); ``results`` (a list) receives the run's
+    :class:`~pinneapple_flow.runtime.FlowRunResult`."""
     from .runtime import run
     doc = json.loads(flow_path(name).read_text())
     if quick:
         doc = with_quick(doc)
     t0 = time.time()
-    res = run(doc, workdir=workdir, on_update=on_update)
+    res = run(doc, workdir=workdir, on_update=on_update, cache=cache)
+    if results is not None:
+        results.append(res)
     rec: dict[str, Any] = {"configuration": "quick" if quick else "full", "status": res.status,
                            "seconds": round(time.time() - t0, 1), "commit": _git(),
                            "date": time.strftime("%Y-%m-%d"), "nodes": {}, "comparisons": [],
@@ -377,7 +381,24 @@ def main(argv: list[str]) -> int:
     d = sub.add_parser("doc")
     d.add_argument("-o", "--out", default=str(ROOT / "docs" / "flow_studio" / "EXAMPLES_AS_FLOWS.md"))
     sub.add_parser("check")
+    g = sub.add_parser("gallery", help="run a gallery group's entries and write examples/<group>/ from the runs")
+    g.add_argument("group", help="a key of pinneapple_flow.gallery.GROUPS (industrial, base_workflows)")
+    g.add_argument("--entries", nargs="*", help="only these entries")
+    g.add_argument("--quick-only", action="store_true", help="only the quick configuration")
+    g.add_argument("--full-only", action="store_true", help="only the full configuration")
+    g.add_argument("--flows-only", action="store_true", help="only write the example flows (no runs)")
+    g.add_argument("--workdir")
     a = ap.parse_args(argv)
+    if a.cmd == "gallery":
+        from . import gallery
+        if a.flows_only:
+            for p in gallery.write_flows(a.group, a.entries):
+                print(p)
+            return 0
+        for p in gallery.write_group(a.group, a.entries, quick=not a.full_only, full=not a.quick_only,
+                                     workdir=a.workdir):
+            print(p)
+        return 0
     if a.cmd == "list":
         for f in flows():
             print(f"{f['name']:<55} {f['nodes']:3d} nodes  {'quick' if f['quick'] else '     '}  {f['title']}")

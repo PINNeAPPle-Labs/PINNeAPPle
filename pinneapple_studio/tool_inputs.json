@@ -1915,6 +1915,22 @@
   },
   "source": "tests/test_flow_study_steps_literal.py:30"
  },
+ "pinneapple_flow.study_steps:split_header": {
+  "inputs": {
+   "header": "tensao_MPa"
+  },
+  "source": "tests/test_flow_table_step.py"
+ },
+ "pinneapple_flow.study_steps:table_step": {
+  "inputs": {
+   "path": "apps/simulation_comparator/examples/ghia1982_cavity_Re100_u_centreline.csv",
+   "x": [
+    "y [m]"
+   ],
+   "y": "Ux [m/s]"
+  },
+  "source": "tests/test_flow_table_step.py"
+ },
  "pinneapple_flow.study_steps:twin_step": {
   "inputs": {
    "geometry": "cold_plate",

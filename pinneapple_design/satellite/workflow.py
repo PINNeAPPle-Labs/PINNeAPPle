@@ -171,10 +171,10 @@ def _evaluate(m: Mission, h_km: float) -> dict[str, Any]:
     mass = 12.0
     a_, b_, c_ = sorted(m.dims_m)
     for _ in range(30):
-        I = tuple(mass / 12 * (y * y + z * z) for y, z in ((b_, c_), (a_, c_), (a_, b_)))
-        dist = B.disturbance_torques(h_km=h_km, rho_kg_m3=rho_hi, inertia=I, area_m2=b_ * c_, cp_offset_m=0.02,
+        inertia = tuple(mass / 12 * (y * y + z * z) for y, z in ((b_, c_), (a_, c_), (a_, b_)))
+        dist = B.disturbance_torques(h_km=h_km, rho_kg_m3=rho_hi, inertia=inertia, area_m2=b_ * c_, cp_offset_m=0.02,
                                      residual_dipole_am2=0.05)
-        ad = B.wheel_and_torquer(dist["total"], T, dist["b_min_t"], I)
+        ad = B.wheel_and_torquer(dist["total"], T, dist["b_min_t"], inertia)
         adcs_w = ad["power_w"]
         p_day = (m.bus_power_w + adcs_w + comms_w + m.payload_power_w * m.payload_duty / (1 - f_e))
         th = None
@@ -209,7 +209,7 @@ def _evaluate(m: Mission, h_km: float) -> dict[str, Any]:
     return {"h_km": h_km, "i_deg": i_deg, "revisit": rv, "beta_range_deg": [float(betas.min()), float(betas.max())],
             "beta_worst_deg": beta_worst, "eclipse_fraction": f_e, "contact": ct, "rate_bps": rate,
             "rate_needed_bps": need_bps, "link": link, "p_tx_w": p_tx, "comms_w": comms_w, "rho_high": rho_hi,
-            "disturbance": dist, "adcs": ad, "inertia": I, "thermal": best_th[1] if best_th else th,
+            "disturbance": dist, "adcs": ad, "inertia": inertia, "thermal": best_th[1] if best_th else th,
             "coating": asdict(best_th[0]) if best_th else None, "heater_w": heater, "p_day_w": p_day,
             "p_ecl_w": p_ecl, "solar_array": sa, "battery": bat, "subsystems_kg": sub, "dry_kg": dry,
             "mass_kg": mass, "ballistic_m2_kg": ballistic, "drag_area_m2": area_mean}

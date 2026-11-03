@@ -31,8 +31,21 @@ import numpy as np
 
 from .floorplan import Block, Floorplan, default_floorplan
 from .interconnect import WireSpec, elmore_delay, net_delay, rc_ladder, transient_step, wire_rc
-from .power_grid import POISSON_SQUARE_MAX, GridSpec, mesh_drop, solve_grid, uniform_grid_closed_form
-from .thermal import DieStack, _Operator, default_stack, slot_responses, solve_thermal, stack_closed_form
+from .power_grid import (
+    POISSON_SQUARE_MAX,
+    GridSpec,
+    mesh_drop,
+    solve_grid,
+    uniform_grid_closed_form,
+)
+from .thermal import (
+    DieStack,
+    _Operator,
+    default_stack,
+    slot_responses,
+    solve_thermal,
+    stack_closed_form,
+)
 
 __all__ = ["chip_design_workflow", "floorplan_from_dict"]
 
@@ -231,7 +244,7 @@ def chip_design_workflow(*, floorplan: Floorplan | Mapping[str, Any] | None = No
                  f"pass, {len(failed)} fail" + (f" ({', '.join(failed)})" if failed else ""))
     strip = lambda d: {k: v for k, v in d.items() if not k.startswith("_") and k not in ("T", "T_junction")}  # noqa: E731
     return {"floorplan": fp.with_placement(placement).to_dict(), "initial_placement": list(fp.placement),
-            "placement": placement, "placements_screened": n_cand, "placements_feasible": len(feas),
+            "placement": placement, "screen_error_k": screen_err, "placements_screened": n_cand, "placements_feasible": len(feas),
             "thermal_initial": strip(th0), "thermal": strip(th), "thermal_refined": strip(fine),
             "stack_closed_form": cf, "junction_map_c": Tj.tolist(),
             "power_grid": {k: v for k, v in r_pg.items() if k != "drop"}, "strap_width_um": width * 1e6,

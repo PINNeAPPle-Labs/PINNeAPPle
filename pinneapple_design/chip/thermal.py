@@ -127,7 +127,9 @@ def solve_thermal(fp: Floorplan, stack: DieStack | None = None, *, nx: int = 24,
     Tj = np.full((nx, ny), t_amb)
     hist, ratios, prev = [], [], None
     t0 = time.perf_counter()
-    for it in range(1, max_iter + 1):
+    it = 0
+    while it < max_iter:
+        it += 1
         with np.errstate(over="ignore"):      # a runaway grows without bound: stopped below and reported
             q = dyn + (leak0 * np.exp(beta * (Tj - tref)) if leakage else leak0)
         T = t_amb + op.rise(q)

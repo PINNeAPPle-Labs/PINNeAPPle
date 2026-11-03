@@ -34,14 +34,14 @@ def _window(t_on: float, t_off: float) -> sp.Expr:
 def sir(*, beta: float = 0.3, gamma: float = 0.1, N: float = 1.0e6, I0: float = 10.0, R0_init: float = 0.0,
         u: float = 0.0, t_on: float = 0.0, t_off: float = 0.0) -> ODESystem:
     """SIR in persons per day; ``u`` is the fractional contact reduction on ``[t_on, t_off)``."""
-    S, I, R = _s("S"), _s("I"), _s("R")
+    S, Inf = _s("S"), _s("I")
     P = {n: _s(n) for n in ("beta", "gamma", "N", "u")}
     b = P["beta"] * (1 - P["u"] * _window(t_on, t_off)) if t_off > t_on else P["beta"]
-    inf = b * S * I / P["N"]
-    rhs = {"S": -inf, "I": inf - P["gamma"] * I, "R": P["gamma"] * I}
+    inf = b * S * Inf / P["N"]
+    rhs = {"S": -inf, "I": inf - P["gamma"] * Inf, "R": P["gamma"] * Inf}
     init = {"S": P["N"] - float(I0) - float(R0_init), "I": float(I0), "R": float(R0_init)}
     return ODESystem("sir", list(rhs), rhs, init, {"beta": beta, "gamma": gamma, "N": N, "u": u},
-                     {"R0": P["beta"] / P["gamma"], "prevalence": I / P["N"]},
+                     {"R0": P["beta"] / P["gamma"], "prevalence": Inf / P["N"]},
                      units={"t": "day", "S": "persons", "I": "persons", "R": "persons", "beta": "1/day",
                             "gamma": "1/day"},
                      meta={"nonnegative": ["S", "I", "R"],
@@ -53,15 +53,15 @@ def sir(*, beta: float = 0.3, gamma: float = 0.1, N: float = 1.0e6, I0: float = 
 def seir(*, beta: float = 0.5, sigma: float = 0.2, gamma: float = 0.1, N: float = 1.0e6, I0: float = 10.0,
          E0: float = 0.0, u: float = 0.0, t_on: float = 0.0, t_off: float = 0.0) -> ODESystem:
     """SEIR (latent period ``1/sigma`` days) with the same intervention as :func:`sir`."""
-    S, E, I, R = _s("S"), _s("E"), _s("I"), _s("R")
+    S, E, Inf = _s("S"), _s("E"), _s("I")
     P = {n: _s(n) for n in ("beta", "sigma", "gamma", "N", "u")}
     b = P["beta"] * (1 - P["u"] * _window(t_on, t_off)) if t_off > t_on else P["beta"]
-    inf = b * S * I / P["N"]
-    rhs = {"S": -inf, "E": inf - P["sigma"] * E, "I": P["sigma"] * E - P["gamma"] * I, "R": P["gamma"] * I}
+    inf = b * S * Inf / P["N"]
+    rhs = {"S": -inf, "E": inf - P["sigma"] * E, "I": P["sigma"] * E - P["gamma"] * Inf, "R": P["gamma"] * Inf}
     init = {"S": P["N"] - float(I0) - float(E0), "E": float(E0), "I": float(I0), "R": 0.0}
     return ODESystem("seir", list(rhs), rhs, init,
                      {"beta": beta, "sigma": sigma, "gamma": gamma, "N": N, "u": u},
-                     {"R0": P["beta"] / P["gamma"], "prevalence": I / P["N"]},
+                     {"R0": P["beta"] / P["gamma"], "prevalence": Inf / P["N"]},
                      units={"t": "day", "S": "persons", "E": "persons", "I": "persons", "R": "persons"},
                      meta={"nonnegative": ["S", "E", "I", "R"],
                            "mass_balance": {"weights": {"S": 1, "E": 1, "I": 1, "R": 1}, "total": "N"},
@@ -164,7 +164,7 @@ def michaelis_menten(*, k1: float = 1.0e-2, km1: float = 1.0, k2: float = 0.5, E
                      S0: float = 1000.0) -> ODESystem:
     """``E + S <-> C -> E + P`` with mass action (concentrations in uM, t in s); ``Km = (km1 + k2) / k1`` and
     ``Vmax = k2 E0`` are the Michaelis-Menten constants of the quasi-steady state."""
-    E, Sb, C, P = _s("E"), _s("S"), _s("C"), _s("P")
+    E, Sb, C = _s("E"), _s("S"), _s("C")
     K = {n: _s(n) for n in ("k1", "km1", "k2")}
     v1, v2, v3 = K["k1"] * E * Sb, K["km1"] * C, K["k2"] * C
     rhs = {"E": -v1 + v2 + v3, "S": -v1 + v2, "C": v1 - v2 - v3, "P": v3}

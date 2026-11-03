@@ -6,8 +6,18 @@ import numpy as np
 import pytest
 
 from pinneapple_physics.biology import read_sbml
-from pinneapple_physics.biology.standard_models import fitzhugh_nagumo, hodgkin_huxley, pk_two_compartment, sir
-from pinneapple_physics.biology.workflow import bio_workflow, fhn_hopf_current, sir_final_size, wilks_order
+from pinneapple_physics.biology.standard_models import (
+    fitzhugh_nagumo,
+    hodgkin_huxley,
+    pk_two_compartment,
+    sir,
+)
+from pinneapple_physics.biology.workflow import (
+    bio_workflow,
+    fhn_hopf_current,
+    sir_final_size,
+    wilks_order,
+)
 
 QUICK = {"n_sobol": 0, "identify": [], "uncertainty": {}}
 

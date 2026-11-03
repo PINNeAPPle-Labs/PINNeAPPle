@@ -85,8 +85,8 @@ def hh_hopf_current(system: ODESystem, lo: float = 0.0, hi: float = 20.0) -> flo
     guess = system.initial_values()
     p = dict(system.parameters)
 
-    def lam(I):
-        y, ev = _equilibrium(system, {**p, "I_ext": I, "amp": 0.0}, guess)
+    def lam(current):
+        y, ev = _equilibrium(system, {**p, "I_ext": current, "amp": 0.0}, guess)
         return float(np.max(ev.real)), y
     a, _ = lam(lo)
     b, _ = lam(hi)

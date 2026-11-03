@@ -6488,5 +6488,44 @@
    "seed": 1
   },
   "source": "tests/test_nvidia_integrations.py:506"
+ },
+ "pinneapple_simulation.meshless.domains:domain_from_spec": {
+  "inputs": {
+   "d": {
+    "polygon": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ],
+    "holes": [
+     [
+      0.5,
+      0.5,
+      0.2
+     ]
+    ]
+   }
+  },
+  "source": "tests/test_meshless.py"
+ },
+ "pinneapple_tools.visualization.studio.view_cache:view_paths": {
+  "inputs": {
+   "directory": "views",
+   "key": "test_0"
+  },
+  "source": "tests/test_october_apps_helpers.py"
  }
 }

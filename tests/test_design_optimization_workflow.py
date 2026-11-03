@@ -16,7 +16,10 @@ from pinneapple_design.design_optimizer.cantilever import (  # noqa: E402
     tapered_cantilever,
     tapered_cantilever_beam,
 )
-from pinneapple_design.design_optimizer.workflow import design_optimization, richardson  # noqa: E402
+from pinneapple_design.design_optimizer.workflow import (  # noqa: E402
+    design_optimization,
+    richardson,
+)
 
 
 def _status(r):

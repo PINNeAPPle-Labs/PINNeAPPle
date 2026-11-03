@@ -184,7 +184,9 @@ def design_optimization(*, tool: str | Callable[..., Any] | None = None,
     n_evals = int(budget) * int(n_starts) * (1 + int(max_corrections))
     rec: dict[str, Any] = {"recommended": ["none"], "reasoning": "recommendation unavailable"}
     try:
-        from pinneapple_analysis.verification.architecture_recommendation import recommend_architecture
+        from pinneapple_analysis.verification.architecture_recommendation import (
+            recommend_architecture,
+        )
         r = recommend_architecture(n_high_fidelity_simulations=0, needs_parameter_generalization=True,
                                    geometry_varies=False, has_analytical_solver=True, solve_seconds=solve_s,
                                    n_evaluations=n_evals, output_kind="scalar", n_inputs=len(names),
@@ -563,7 +565,7 @@ def _sensitivity(g, x, space: DesignSpace, obj: Objective, cons, outs) -> dict[s
         lam, resid = np.array([]), float(np.linalg.norm(Ds @ gf))
     res_rel = float(resid / max(np.linalg.norm(Ds @ gf), 1e-300))
     mult = {}
-    for lab, lv, c in zip(labels, lam, cols, strict=True):
+    for lab, lv in zip(labels, lam, strict=True):
         if lab in [cc.name for cc in cons]:
             cc = next(cc for cc in cons if cc.name == lab)
             bound = cc.upper if cc.upper is not None else cc.lower

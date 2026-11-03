@@ -40,6 +40,7 @@ from . import (  # noqa: F401
     solvers,
     structures,
     surrogate_inverse,
+    surrogate_modeling,
     use_cases,
     validation,
     validation_gallery,

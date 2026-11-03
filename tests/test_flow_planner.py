@@ -166,3 +166,38 @@ def test_sensor_count_read_from_the_text():
     live = next(n for n in flow["nodes"] if n["type"] == "data.stream")
     assert len(live["params"]["sensors"]) == 5
     assert any(d["decided_by"]["id"] == "twin.sensor_layout" for d in flow["meta"]["decisions"])
+
+
+# ------------------------------------------------------------------------------- goals that reach a closed-loop flow
+@pytest.mark.parametrize("text,cap", [
+    ("otimizar a asa", "aero.wing_design"),
+    ("optimise the wing", "aero.wing_design"),
+    ("optimize the wing", "aero.wing_design"),
+    ("size a reactor", "reactor.sizing"),
+    ("reduzir o arrasto do carro", "ahmed.design"),
+    ("reduce the car's drag", "ahmed.design"),
+])
+def test_short_goals_reach_their_flow(text, cap):
+    from pinneapple_flow.planner.extensions import match
+    m = match(text)
+    assert m and m[0][1].id == cap, (text, [(c.id, s) for s, c, _ in m])
+    res = plan(text, backend="heuristic")              # the plan offers it first, and its flow validates
+    first = res["proposals"][0]
+    assert first["flow"]["meta"].get("capability") == cap
+    assert [i for i in pf.validate_flow(first["flow"]) if i.level == "error"] == []
+
+
+@pytest.mark.parametrize("text", [
+    "quero um modelo substituto (surrogate) do arrasto da asa",    # surrogate.modeling, not the car or the wing
+    "comparar modelos: qual modelo é melhor para o arrasto (benchmark)",
+    "design optimization of a bracket geometry for minimum mass",
+    "carga térmica de um galpão",                                   # "carga" is not a car
+    "reduce the drag of a sphere",                                  # drag without a car
+    "the size of a file",                                           # "size" without a reactor
+    "otimizar o custo de uma ponte",                                # optimise without a wing
+    "something completely unrelated to physics",
+])
+def test_the_new_keywords_do_not_capture_unrelated_goals(text):
+    from pinneapple_flow.planner.extensions import match
+    ids = [c.id for _, c, _ in match(text)]
+    assert not {"aero.wing_design", "reactor.sizing", "ahmed.design"} & set(ids), (text, ids)

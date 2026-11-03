@@ -1,0 +1,12 @@
+{
+ "code_hash": "115f3841a1fb0dfe",
+ "figures": [],
+ "id": "node:aero.wing_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 6.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wing planform design (closed loop, re-verified) -> pinneapple_design.aero.wing_design.design_wing (vlm.solve, lifting_line, architecture_recommendation.recommend_architecture)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'weight_N': 10500.0, 'area_m2': 16.2, 'cruise_V': 62.0, 'cruise_rho': 1.007, 'landing_V': 31.0, 'cl_max': 1.6, 'n_load': 3.8, 'M_root_max': 60000.0, 'span_max': 12.0, 'maxiter': 30, 'popsize': 10, 'seed': 0}",
+ "timed_out": false
+}

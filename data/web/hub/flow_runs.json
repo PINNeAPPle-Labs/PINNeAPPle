@@ -1,6 +1,6 @@
 {
  "ahmed_body_end_to_end": {
-  "flow_hash": "179f43ceac22ce04",
+  "flow_hash": "9dceffc35c8a3f34",
   "nodes": {
    "cfd": {
     "error": "",
@@ -15,6 +15,18 @@
     "status": "done",
     "summary": "",
     "type": "study.dataset"
+   },
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.clearance": 0.030027929395435686,
+     "design.slant_deg": 9.781385675764929,
+     "design.speed": 40.0,
+     "verification": "nearest recorded run"
+    },
+    "status": "done",
+    "summary": "slant 9.8 deg, clearance 0.030 m: CD 0.2508 +- 0.0041; unverified: verify.cfd",
+    "type": "study.design"
    },
    "geometry": {
     "error": "",
@@ -59,8 +71,8 @@
     "type": "study.twin"
    }
   },
-  "recorded": "2026-11-02",
-  "seconds": 490.83,
+  "recorded": "2026-11-03",
+  "seconds": 532.67,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1420,6 +1432,33 @@
   },
   "recorded": "2026-10-25",
   "seconds": 4.24,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "wing_design": {
+  "flow_hash": "e4491d38cc889218",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "wing": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "AR 8.89, taper 0.31, twist -0.0 deg: drag 393 N (baseline 418 N); verified",
+    "type": "aero.wing_design"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 37.59,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  }

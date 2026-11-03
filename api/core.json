@@ -1503,7 +1503,7 @@
      "NeuralOperatorBase"
     ],
     "methods": {
-     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True)",
+     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True, padding=0)",
      "forward": "(u, *, y_true=None, return_loss=False)"
     }
    },
@@ -1512,7 +1512,7 @@
      "NeuralOperatorBase"
     ],
     "methods": {
-     "__init__": "(in_channels, out_channels, width=32, modes1=8, modes2=8, modes3=8, layers=4, *, use_grid=True)",
+     "__init__": "(in_channels, out_channels, width=32, modes1=8, modes2=8, modes3=8, layers=4, *, use_grid=True, padding=0)",
      "forward": "(u, *, y_true=None, return_loss=False)"
     }
    },
@@ -1521,7 +1521,7 @@
      "NeuralOperatorBase"
     ],
     "methods": {
-     "__init__": "(in_channels, out_channels, width=64, modes=16, layers=4, *, use_grid=False)",
+     "__init__": "(in_channels, out_channels, width=64, modes=16, layers=4, *, use_grid=False, padding=0)",
      "forward": "(u, *, y_true=None, return_loss=False)"
     }
    },

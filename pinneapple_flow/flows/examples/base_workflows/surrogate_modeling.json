@@ -1,0 +1,50 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.base_workflows.surrogate_modeling",
+ "name": "Surrogate modeling: recommended family, checked on new solves, exported",
+ "description": "A design of experiments over a tool (or a table), the family recommend_architecture picks or none, the library's families compared on one protocol, checks on new tool calls, and an exported model that refuses to extrapolate (pinneapple_analysis.surrogate.workflow).",
+ "nodes": [
+  {
+   "id": "surrogate",
+   "type": "surrogate.modeling",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Surrogate modeling"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Surrogate modeling: recommended family, checked on new solves, exported"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "surrogate",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "surrogate.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1186,
+  "example": "base_workflows",
+  "domain": "methods",
+  "entry": "surrogate_modeling",
+  "bundled": "surrogate_modeling",
+  "quick": {},
+  "scripts": []
+ }
+}

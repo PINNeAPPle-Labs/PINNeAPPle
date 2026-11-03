@@ -1,0 +1,219 @@
+{
+ "entry": "use_trained_model",
+ "example_flow": "base_workflows/use_trained_model",
+ "flow": "use_trained_model",
+ "group": "base_workflows",
+ "quick": {},
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "gate.inputs",
+     "detail": "every input of the model is given",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.validity_range",
+     "detail": "all 1 query points inside the model's validity range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.units",
+     "detail": "the problem's units convert to the model's",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.reference",
+     "detail": "largest relative error against 1 reference solves 0.82% (allowed 2.1%; reference 0.0549 s per solve)",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.inputs",
+     "detail": "every input of the model is given",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.validity_range",
+     "detail": "all 1 query points inside the model's validity range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.units",
+     "detail": "the problem's units convert to the model's",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.reference",
+     "detail": "the card's 8 metrics recomputed on the stored reference: largest change 0.00%",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.misfit",
+     "detail": "the model reproduces the observations to 0.00% (allowed 2.1%, twice the model's claimed error)",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.inside_bounds",
+     "detail": "the estimate is inside the model's range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.reverified",
+     "detail": "the reference solver at the estimate reproduces the observations to 0.08% (allowed 2.1%)",
+     "node": "model",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "model.estimate.air_velocity_m_s": {
+     "how": "bounded least squares through the model",
+     "value": 2.4931480901435172
+    },
+    "model.misfit_rel": {
+     "how": "relative misfit of the model at the estimate",
+     "value": 4.678095688603889e-09
+    },
+    "model.reverified.r_base_k_w.rel_diff": {
+     "how": "reference solver at the estimate vs observed",
+     "value": 0.000780442625497128
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "model": "done",
+    "report": "done"
+   },
+   "seconds": 0.2,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "gate.inputs",
+     "detail": "every input of the model is given",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.validity_range",
+     "detail": "all 1 query points inside the model's validity range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.units",
+     "detail": "the problem's units convert to the model's",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.reference",
+     "detail": "largest relative error against 1 reference solves 0.82% (allowed 2.1%; reference 0.0358 s per solve)",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.inputs",
+     "detail": "every input of the model is given",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.validity_range",
+     "detail": "all 1 query points inside the model's validity range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.units",
+     "detail": "the problem's units convert to the model's",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "gate.reference",
+     "detail": "the card's 8 metrics recomputed on the stored reference: largest change 0.00%",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.misfit",
+     "detail": "the model reproduces the observations to 0.00% (allowed 2.1%, twice the model's claimed error)",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.inside_bounds",
+     "detail": "the estimate is inside the model's range",
+     "node": "model",
+     "status": "pass"
+    },
+    {
+     "check": "inverse.reverified",
+     "detail": "the reference solver at the estimate reproduces the observations to 0.08% (allowed 2.1%)",
+     "node": "model",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "model.estimate.air_velocity_m_s": {
+     "how": "bounded least squares through the model",
+     "value": 2.4931480901435172
+    },
+    "model.misfit_rel": {
+     "how": "relative misfit of the model at the estimate",
+     "value": 4.678095688603889e-09
+    },
+    "model.reverified.r_base_k_w.rel_diff": {
+     "how": "reference solver at the estimate vs observed",
+     "value": 0.000780442625497128
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "model": "done",
+    "report": "done"
+   },
+   "seconds": 0.2,
+   "status": "done"
+  }
+ }
+}

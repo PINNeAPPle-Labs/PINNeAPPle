@@ -1,0 +1,192 @@
+{
+ "entry": "inverse_modeling",
+ "example_flow": "base_workflows/inverse_modeling",
+ "flow": "inverse_modeling",
+ "group": "base_workflows",
+ "quick": {
+  "inverse": {
+   "bootstrap": 20,
+   "n_recovery": 4
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "identify.structural",
+     "detail": "Fisher information rank 2 of 2 at the initial guess (condition number 1.32e+05)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.fits_data",
+     "detail": "reduced chi-square 0.562 against the stated noise (<= 2)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.held_out",
+     "detail": "held-out rows: mean (residual/sigma)^2 1.56 (<= 4)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.inside_bounds",
+     "detail": "every estimate inside its bounds",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.practical",
+     "detail": "every parameter practically identifiable",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.white_residuals",
+     "detail": "runs test of the residual signs along T: p = 0.556 (>= 0.05: no structure left)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.recovery",
+     "detail": "10 synthetic refits at the estimate: the 95 % intervals cover it in A 100%, Ea 100% (>= 81% at that count)",
+     "node": "inverse",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "inverse.estimate.A": {
+     "how": "95 % interval [3201244.5519733867, 9411012.405284008]",
+     "value": 5488802.436868118
+    },
+    "inverse.estimate.Ea": {
+     "how": "95 % interval [58698.9655650849, 61925.60850752983]",
+     "value": 60290.70543110623
+    },
+    "inverse.next_measurement.T=310, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.5420652024040365e-05
+    },
+    "inverse.next_measurement.T=320, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.928530566982348e-05
+    },
+    "inverse.next_measurement.T=330, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.6652438256900384e-05
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "inverse": "done",
+    "report": "done"
+   },
+   "seconds": 0.4,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "identify.structural",
+     "detail": "Fisher information rank 2 of 2 at the initial guess (condition number 1.32e+05)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.fits_data",
+     "detail": "reduced chi-square 0.562 against the stated noise (<= 2)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.held_out",
+     "detail": "held-out rows: mean (residual/sigma)^2 1.56 (<= 4)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.inside_bounds",
+     "detail": "every estimate inside its bounds",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.practical",
+     "detail": "every parameter practically identifiable",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.white_residuals",
+     "detail": "runs test of the residual signs along T: p = 0.556 (>= 0.05: no structure left)",
+     "node": "inverse",
+     "status": "pass"
+    },
+    {
+     "check": "identify.recovery",
+     "detail": "4 synthetic refits at the estimate: the 95 % intervals cover it in A 100%, Ea 100% (>= 73% at that count)",
+     "node": "inverse",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "inverse.estimate.A": {
+     "how": "95 % interval [3201244.5519733867, 9411012.405284008]",
+     "value": 5488802.436868118
+    },
+    "inverse.estimate.Ea": {
+     "how": "95 % interval [58698.9655650849, 61925.60850752983]",
+     "value": 60290.70543110623
+    },
+    "inverse.next_measurement.T=310, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.5420652024040365e-05
+    },
+    "inverse.next_measurement.T=320, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.928530566982348e-05
+    },
+    "inverse.next_measurement.T=330, tau=60": {
+     "how": "D-optimal gain in log det F",
+     "value": 1.6652438256900384e-05
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "inverse": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  }
+ }
+}

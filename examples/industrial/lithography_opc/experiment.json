@@ -1,0 +1,195 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial/lithography_opc",
+ "title": "Computational lithography: ILT mask correction over the process window",
+ "description": "Partially coherent imaging (Abbe / Hopkins SOCS), threshold resist, inverse lithography through the exact model or a learned operator when its measured cost pays off, and the mask re-verified by the full Abbe model over focus and dose (pinneapple_physics.lithography.design).",
+ "domain": "engineering",
+ "methods": [
+  "lithography_opc"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_full": 27.2,
+  "seconds_quick": 32.7
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_full",
+   "value": 27.2,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_quick",
+   "value": 32.7,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit b5c5838"
+  },
+  {
+   "name": "opc.cost.image_seconds",
+   "value": 0.007293249999899369,
+   "unit": "",
+   "how": "full run: measured: one exact image"
+  },
+  {
+   "name": "opc.epe.corrected_nm",
+   "value": 0.36363636363636365,
+   "unit": "",
+   "how": "full run: full Abbe image, best focus and dose"
+  },
+  {
+   "name": "opc.epe.uncorrected_nm",
+   "value": 9.958041958041958,
+   "unit": "",
+   "how": "full run: full Abbe image, best focus and dose"
+  },
+  {
+   "name": "opc.mask.min_feature_nm",
+   "value": 16.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "opc.pw.dof_nm",
+   "value": 100.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "opc.pw.worst_epe_nm",
+   "value": 1.832167832167832,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "opc.litho.epe_nominal",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mean EPE 0.36 nm at best focus and dose (uncorrected mask: 9.96 nm), full Abbe image",
+   "kind": "sanity"
+  },
+  {
+   "name": "opc.litho.process_window",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "worst mean EPE 1.83 nm over focus [-50.0, 0.0, 50.0] nm x dose [0.95, 1.0, 1.05] (uncorrected: 16.52 nm)",
+   "kind": "sanity"
+  },
+  {
+   "name": "opc.litho.improves",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the corrected mask prints closer to the target than the target itself used as the mask",
+   "kind": "sanity"
+  },
+  {
+   "name": "opc.mask.min_feature",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "smallest mask feature or space 16.0 nm, rule 16 nm",
+   "kind": "sanity"
+  },
+  {
+   "name": "opc.model.kernels_vs_abbe",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "largest intensity difference between the 0.995-energy kernels and the full Abbe sum on the mask: 1.12e-03",
+   "kind": "reference"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 27.2 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 32.7 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "b5c5838",
+  "created": "2026-11-03T17:14:53Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

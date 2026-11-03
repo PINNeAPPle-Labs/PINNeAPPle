@@ -1,0 +1,54 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.base_workflows.model_benchmarking",
+ "name": "Model benchmarking: equal data, intervals, a winner only when separated",
+ "description": "Library families trained on the same rows and existing models on the same test points over several seeds, ranked with paired-bootstrap intervals (pinneapple_analysis.surrogate.benchmark_workflow).",
+ "nodes": [
+  {
+   "id": "bench",
+   "type": "benchmark.models",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Benchmark"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Model benchmarking: equal data, intervals, a winner only when separated"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "bench",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "bench.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1191,
+  "example": "base_workflows",
+  "domain": "methods",
+  "entry": "model_benchmarking",
+  "bundled": "model_benchmarking",
+  "quick": {
+   "bench": {
+    "n_test": 60
+   }
+  },
+  "scripts": []
+ }
+}

@@ -1,0 +1,171 @@
+{
+ "entry": "lithography_opc",
+ "example_flow": "industrial/lithography_opc",
+ "flow": "lithography_opc",
+ "group": "industrial",
+ "quick": {},
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "litho.epe_nominal",
+     "detail": "mean EPE 0.36 nm at best focus and dose (uncorrected mask: 9.96 nm), full Abbe image",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "litho.process_window",
+     "detail": "worst mean EPE 1.83 nm over focus [-50.0, 0.0, 50.0] nm x dose [0.95, 1.0, 1.05] (uncorrected: 16.52 nm)",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "litho.improves",
+     "detail": "the corrected mask prints closer to the target than the target itself used as the mask",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "mask.min_feature",
+     "detail": "smallest mask feature or space 16.0 nm, rule 16 nm",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "model.kernels_vs_abbe",
+     "detail": "largest intensity difference between the 0.995-energy kernels and the full Abbe sum on the mask: 1.12e-03",
+     "node": "opc",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "opc.cost.image_seconds": {
+     "how": "measured: one exact image",
+     "value": 0.007293249999899369
+    },
+    "opc.epe.corrected_nm": {
+     "how": "full Abbe image, best focus and dose",
+     "value": 0.36363636363636365
+    },
+    "opc.epe.uncorrected_nm": {
+     "how": "full Abbe image, best focus and dose",
+     "value": 9.958041958041958
+    },
+    "opc.mask.min_feature_nm": {
+     "how": "",
+     "value": 16.0
+    },
+    "opc.pw.dof_nm": {
+     "how": "",
+     "value": 100.0
+    },
+    "opc.pw.worst_epe_nm": {
+     "how": "",
+     "value": 1.832167832167832
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "opc": "done",
+    "report": "done"
+   },
+   "seconds": 27.2,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "litho.epe_nominal",
+     "detail": "mean EPE 0.36 nm at best focus and dose (uncorrected mask: 9.96 nm), full Abbe image",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "litho.process_window",
+     "detail": "worst mean EPE 1.83 nm over focus [-50.0, 0.0, 50.0] nm x dose [0.95, 1.0, 1.05] (uncorrected: 16.52 nm)",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "litho.improves",
+     "detail": "the corrected mask prints closer to the target than the target itself used as the mask",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "mask.min_feature",
+     "detail": "smallest mask feature or space 16.0 nm, rule 16 nm",
+     "node": "opc",
+     "status": "pass"
+    },
+    {
+     "check": "model.kernels_vs_abbe",
+     "detail": "largest intensity difference between the 0.995-energy kernels and the full Abbe sum on the mask: 1.12e-03",
+     "node": "opc",
+     "status": "pass"
+    }
+   ],
+   "commit": "b5c5838",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "opc.cost.image_seconds": {
+     "how": "measured: one exact image",
+     "value": 0.015431346000089738
+    },
+    "opc.epe.corrected_nm": {
+     "how": "full Abbe image, best focus and dose",
+     "value": 0.36363636363636365
+    },
+    "opc.epe.uncorrected_nm": {
+     "how": "full Abbe image, best focus and dose",
+     "value": 9.958041958041958
+    },
+    "opc.mask.min_feature_nm": {
+     "how": "",
+     "value": 16.0
+    },
+    "opc.pw.dof_nm": {
+     "how": "",
+     "value": 100.0
+    },
+    "opc.pw.worst_epe_nm": {
+     "how": "",
+     "value": 1.832167832167832
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "opc": "done",
+    "report": "done"
+   },
+   "seconds": 32.7,
+   "status": "done"
+  }
+ }
+}

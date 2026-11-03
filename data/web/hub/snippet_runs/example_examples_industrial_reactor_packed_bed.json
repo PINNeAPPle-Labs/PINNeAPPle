@@ -1,0 +1,12 @@
+{
+ "code_hash": "df87a64903fa527b",
+ "figures": [],
+ "id": "example:examples/industrial/reactor_packed_bed",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 0.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reactor sizing: cooled packed bed (o-xylene to phthalic anhydride) | engineering | not curated\nrun_seconds_quick 6.9 s\nrun_seconds_full 16.2 s\ndesign.design.V 0.0010725365114877196 \ndesign.design.Tc 645.4681145288228 \ndesign.model.X 0.7500000830928399",
+ "timed_out": false
+}

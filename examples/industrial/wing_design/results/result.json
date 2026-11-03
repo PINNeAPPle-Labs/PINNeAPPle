@@ -1,0 +1,256 @@
+{
+ "entry": "wing_design",
+ "example_flow": "industrial/wing_design",
+ "flow": "wing_design",
+ "group": "industrial",
+ "quick": {
+  "wing": {
+   "maxiter": 12,
+   "popsize": 8
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "design.stall",
+     "detail": "margin 0.3389 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "design.root_bending",
+     "detail": "margin 0.1774 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "design.span",
+     "detail": "margin 0.0004313 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.converged",
+     "detail": "induced drag changes by 0.08% with a lattice 1.6 x finer chordwise and 2 x spanwise",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.munk",
+     "detail": "span efficiency e = 0.9849 <= 1 (Munk)",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.lifting_line",
+     "detail": "lift slope 4.854 /rad against Prandtl's lifting line 5.087 /rad (4.6%; the lattice is lower at low aspect ratio, as lifting-surface theory is)",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "verify.cfd",
+     "detail": "an OpenFOAM polar of the section (pinneapple_design.aero.verify) is the next fidelity; not run: no OpenFOAM in this environment",
+     "node": "wing",
+     "status": "inconclusive"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "wing.baseline.drag_N": {
+     "how": "the library's light aircraft wing (AR 7.5, taper 0.7, -3 deg)",
+     "value": 417.9614890221324
+    },
+    "wing.cost.solve_seconds": {
+     "how": "measured: mean of three lattice solves",
+     "value": 0.018852038666561082
+    },
+    "wing.design.aspect_ratio": {
+     "how": "optimum, re-solved by the lattice",
+     "value": 8.88824996524195
+    },
+    "wing.design.taper": {
+     "how": "optimum, re-solved by the lattice",
+     "value": 0.3089026796172665
+    },
+    "wing.design.twist": {
+     "how": "optimum, re-solved by the lattice",
+     "value": -0.005929367199394964
+    },
+    "wing.model.CD0": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.00846513144736184
+    },
+    "wing.model.CDi": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.004077830916279783
+    },
+    "wing.model.M_root_Nm": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 49355.11321909668
+    },
+    "wing.model.cl_local_max_landing": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 1.1810863771471767
+    },
+    "wing.model.drag_N": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 393.27649219266596
+    },
+    "wing.model.e": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.9848895162845975
+    },
+    "wing.model.span_m": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 11.99956871878817
+    },
+    "wing.model.stall_station": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.6663465779520039
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "wing": "done"
+   },
+   "seconds": 17.8,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "design.stall",
+     "detail": "margin 0.34 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "design.root_bending",
+     "detail": "margin 0.1795 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "design.span",
+     "detail": "margin 0.0117 at the design, from the lattice",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.converged",
+     "detail": "induced drag changes by 0.09% with a lattice 1.6 x finer chordwise and 2 x spanwise",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.munk",
+     "detail": "span efficiency e = 0.9828 <= 1 (Munk)",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "model.lifting_line",
+     "detail": "lift slope 4.852 /rad against Prandtl's lifting line 5.085 /rad (4.6%; the lattice is lower at low aspect ratio, as lifting-surface theory is)",
+     "node": "wing",
+     "status": "pass"
+    },
+    {
+     "check": "verify.cfd",
+     "detail": "an OpenFOAM polar of the section (pinneapple_design.aero.verify) is the next fidelity; not run: no OpenFOAM in this environment",
+     "node": "wing",
+     "status": "inconclusive"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    },
+    "wing.baseline.drag_N": {
+     "how": "the library's light aircraft wing (AR 7.5, taper 0.7, -3 deg)",
+     "value": 417.9614890221324
+    },
+    "wing.cost.solve_seconds": {
+     "how": "measured: mean of three lattice solves",
+     "value": 0.021345130000099743
+    },
+    "wing.design.aspect_ratio": {
+     "how": "optimum, re-solved by the lattice",
+     "value": 8.871567588570484
+    },
+    "wing.design.taper": {
+     "how": "optimum, re-solved by the lattice",
+     "value": 0.3057713876657657
+    },
+    "wing.design.twist": {
+     "how": "optimum, re-solved by the lattice",
+     "value": -0.11813074049461392
+    },
+    "wing.model.CD0": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.00846213912466345
+    },
+    "wing.model.CDi": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.004094193933933969
+    },
+    "wing.model.M_root_Nm": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 49231.782208018805
+    },
+    "wing.model.cl_local_max_landing": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 1.1800077611685094
+    },
+    "wing.model.drag_N": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 393.6957217062326
+    },
+    "wing.model.e": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.9827978834240229
+    },
+    "wing.model.span_m": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 11.988302420895204
+    },
+    "wing.model.stall_station": {
+     "how": "vortex lattice + friction build-up at the design",
+     "value": 0.6663465779520039
+    }
+   },
+   "nodes": {
+    "report": "done",
+    "wing": "done"
+   },
+   "seconds": 7.6,
+   "status": "done"
+  }
+ }
+}

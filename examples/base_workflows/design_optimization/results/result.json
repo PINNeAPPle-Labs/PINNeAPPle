@@ -1,0 +1,291 @@
+{
+ "entry": "design_optimization",
+ "example_flow": "base_workflows/design_optimization",
+ "flow": "design_optimization",
+ "group": "base_workflows",
+ "quick": {},
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "surrogate.decision",
+     "detail": "no surrogate: cost: 0.00780194 s per solve x 480 evaluations = 3.74493 s, within the direct budget of 600 s -> no learned model; call the solver directly. The model families below are the ones to reach for if the study grows.",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "optimizer.converged",
+     "detail": "2 starts agree to 0.000% (at most 1.0%); mesh correction after 2 search(es) changed by 0.008%",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.quality",
+     "detail": "worst element over the search and verification meshes: SICN 0.509 (above 0.1)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.convergence",
+     "detail": "grid convergence index at the optimum, worst tip_deflection_m: 0.260% (at most 5%); observed orders mass_kg n/a, stress_max_Pa 1.95, tip_deflection_m 1.95",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.coarse_error.mass_kg",
+     "detail": "search mesh 7.91812 vs converged 7.91812 (+0.00%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "mesh.coarse_error.stress_max_Pa",
+     "detail": "search mesh 1.3678e+08 vs converged 1.47437e+08 (-7.23%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "mesh.coarse_error.tip_deflection_m",
+     "detail": "search mesh 0.00523237 vs converged 0.00589746 (-11.28%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "constraints.stress_max_Pa",
+     "detail": "stress_max_Pa <= 1.5e+08: verified 1.47437e+08 (mesh band \u00b10.17%); violation 0.000% (at most 0.5%)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "constraints.tip_deflection_m",
+     "detail": "tip_deflection_m <= 0.008: verified 0.00589746 (mesh band \u00b10.26%); violation 0.000% (at most 0.5%)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "optimality.kkt",
+     "detail": "stationarity residual 0.00% of |grad objective| with active stress_max_Pa, thickness at lower bound; multipliers stress_max_Pa 2.686e-08, thickness >= 0.01 397",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "robustness.tolerances",
+     "detail": "95.0% of 200 designs within the tolerances h_root \u00b10.0015, h_tip \u00b10.0005, thickness \u00b10.0001 satisfy every constraint (target 95%); back-off for 95 %: stress_max_Pa 2.505e+06, tip_deflection_m 0.0001401",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "reference.known_optimum",
+     "detail": "nominal mass_kg: 7.85047 vs the reference optimum 7.85 (0.01%, at most 2%); the reference model at that design violates its limits by 0.00% (at most 2%); largest design difference 1.33% of a range (optima need not be unique)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "export.geometry",
+     "detail": "optimum.step read back: volume 0.00100868 m3 vs the design's 0.00100868 m3",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: one tool call at the search mesh",
+     "value": 0.007801940999797807
+    },
+    "design.design.h_root": {
+     "how": "optimum",
+     "value": 0.15124921843459369
+    },
+    "design.design.h_tip": {
+     "how": "optimum",
+     "value": 0.05048622856378174
+    },
+    "design.design.thickness": {
+     "how": "optimum",
+     "value": 0.01
+    },
+    "design.reference.objective": {
+     "how": "SLSQP from 8 seeded starts on the reference model",
+     "value": 7.849999999457978
+    },
+    "design.robust.objective_cost": {
+     "how": "relative objective paid for 95 % feasibility under the tolerances",
+     "value": 0.008616234546673152
+    },
+    "design.verified.mass_kg": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0",
+     "value": 7.918116294686234
+    },
+    "design.verified.stress_max_Pa": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0016837805364138601",
+     "value": 147437458.94392434
+    },
+    "design.verified.tip_deflection_m": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0025981908465616886",
+     "value": 0.005897463627993634
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 7.2,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "surrogate.decision",
+     "detail": "no surrogate: cost: 0.0216784 s per solve x 480 evaluations = 10.4056 s, within the direct budget of 600 s -> no learned model; call the solver directly. The model families below are the ones to reach for if the study grows.",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "optimizer.converged",
+     "detail": "2 starts agree to 0.000% (at most 1.0%); mesh correction after 2 search(es) changed by 0.008%",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.quality",
+     "detail": "worst element over the search and verification meshes: SICN 0.509 (above 0.1)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.convergence",
+     "detail": "grid convergence index at the optimum, worst tip_deflection_m: 0.260% (at most 5%); observed orders mass_kg n/a, stress_max_Pa 1.95, tip_deflection_m 1.95",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "mesh.coarse_error.mass_kg",
+     "detail": "search mesh 7.91812 vs converged 7.91812 (+0.00%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "mesh.coarse_error.stress_max_Pa",
+     "detail": "search mesh 1.3678e+08 vs converged 1.47437e+08 (-7.23%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "mesh.coarse_error.tip_deflection_m",
+     "detail": "search mesh 0.00523237 vs converged 0.00589746 (-11.28%); corrected in the search",
+     "node": "design",
+     "status": "info"
+    },
+    {
+     "check": "constraints.stress_max_Pa",
+     "detail": "stress_max_Pa <= 1.5e+08: verified 1.47437e+08 (mesh band \u00b10.17%); violation 0.000% (at most 0.5%)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "constraints.tip_deflection_m",
+     "detail": "tip_deflection_m <= 0.008: verified 0.00589746 (mesh band \u00b10.26%); violation 0.000% (at most 0.5%)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "optimality.kkt",
+     "detail": "stationarity residual 0.00% of |grad objective| with active stress_max_Pa, thickness at lower bound; multipliers stress_max_Pa 2.686e-08, thickness >= 0.01 397",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "robustness.tolerances",
+     "detail": "95.0% of 200 designs within the tolerances h_root \u00b10.0015, h_tip \u00b10.0005, thickness \u00b10.0001 satisfy every constraint (target 95%); back-off for 95 %: stress_max_Pa 2.505e+06, tip_deflection_m 0.0001401",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "reference.known_optimum",
+     "detail": "nominal mass_kg: 7.85047 vs the reference optimum 7.85 (0.01%, at most 2%); the reference model at that design violates its limits by 0.00% (at most 2%); largest design difference 1.33% of a range (optima need not be unique)",
+     "node": "design",
+     "status": "pass"
+    },
+    {
+     "check": "export.geometry",
+     "detail": "optimum.step read back: volume 0.00100868 m3 vs the design's 0.00100868 m3",
+     "node": "design",
+     "status": "pass"
+    }
+   ],
+   "commit": "b5c5838",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "design.cost.solve_seconds": {
+     "how": "measured: one tool call at the search mesh",
+     "value": 0.021678403000350954
+    },
+    "design.design.h_root": {
+     "how": "optimum",
+     "value": 0.15124921843459369
+    },
+    "design.design.h_tip": {
+     "how": "optimum",
+     "value": 0.05048622856378174
+    },
+    "design.design.thickness": {
+     "how": "optimum",
+     "value": 0.01
+    },
+    "design.reference.objective": {
+     "how": "SLSQP from 8 seeded starts on the reference model",
+     "value": 7.849999999457978
+    },
+    "design.robust.objective_cost": {
+     "how": "relative objective paid for 95 % feasibility under the tolerances",
+     "value": 0.008616234546673152
+    },
+    "design.verified.mass_kg": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0",
+     "value": 7.918116294686234
+    },
+    "design.verified.stress_max_Pa": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0016837805364138601",
+     "value": 147437458.94392434
+    },
+    "design.verified.tip_deflection_m": {
+     "how": "Richardson over the meshes [8, 16, 32]; grid convergence index 0.0025981908465616886",
+     "value": 0.005897463627993634
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 9.8,
+   "status": "done"
+  }
+ }
+}

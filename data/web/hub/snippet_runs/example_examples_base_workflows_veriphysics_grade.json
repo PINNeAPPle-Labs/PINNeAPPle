@@ -1,0 +1,12 @@
+{
+ "code_hash": "930b0faf4e2eb3f3",
+ "figures": [],
+ "id": "example:examples/base_workflows/veriphysics_grade",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "VeriPhysics grade of a model trained elsewhere | methods | not curated\nrun_seconds_quick 6.1 s\nrun_seconds_full 17.6 s\ngrade.grade.pde_residual.u_t = alpha*lap(u) 0.011342526559399073 \ngrade.grade.conditions.initial t_min: u = sin(pi*x) 0.0010255895351148963 \ngrade.grade.conditions.dirichlet boundary: u = 0 0.0010750947045912198",
+ "timed_out": false
+}

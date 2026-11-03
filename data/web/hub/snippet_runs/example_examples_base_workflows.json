@@ -1,0 +1,12 @@
+{
+ "code_hash": "e0a350b2e0bd0ae4",
+ "figures": [],
+ "id": "example:examples/base_workflows",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Base workflows | methods | not curated",
+ "timed_out": false
+}

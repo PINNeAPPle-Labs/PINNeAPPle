@@ -1556,6 +1556,13 @@
   },
   "source": "tests/test_flow_decisions.py:69"
  },
+ "pinneapple_flow.gallery:example_flow": {
+  "inputs": {
+   "group": "industrial",
+   "entry": "wing_design"
+  },
+  "source": "tests/test_flow_gallery.py"
+ },
  "pinneapple_flow.identify:identify": {
   "inputs": {
    "text": "the quarterly sales report of the bakery"
@@ -1612,6 +1619,12 @@
    "text": "``f`` does a thing. More text."
   },
   "source": "tests/test_flow_palette.py:36"
+ },
+ "pinneapple_flow.planner.extensions:bundled_flow": {
+  "inputs": {
+   "name": "wing_design"
+  },
+  "source": "pinneapple_flow/nodes_ext/ahmed_design.py"
  },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "inputs": {

@@ -264,4 +264,151 @@ def forecast_step(series: Sequence[float], horizon: int, *, test_fraction: float
                               "no skill over the naive baselines out of sample")]}
 
 
-__all__ = ["model_from_ref", "sensitivity_step", "uncertainty_step", "identify_step", "analyze_step", "forecast_step"]
+def _default_pitch(lo: np.ndarray, hi: np.ndarray) -> np.ndarray:
+    """About 10 cells across the thinnest axis, at most 50 across the others and 30 along the longest."""
+    ext = hi - lo
+    n = np.clip(np.round(10 * ext / ext.min()), 10, 50)
+    n[int(np.argmax(ext))] = min(n[int(np.argmax(ext))], 30)
+    return ext / n
+
+
+def _read_recording(path: str, n_sensors: int) -> dict:
+    data = np.genfromtxt(path, delimiter=",", names=True, dtype=float, encoding="utf-8")
+    cols = list(data.dtype.names or ())
+    if "t" not in cols or len(cols) - 1 != n_sensors:
+        raise ValueError(f"the recording needs a column t and one column per sensor ({n_sensors}); it has {cols}")
+    t = np.asarray(data["t"], float)
+    return {"t": t, "y": np.column_stack([data[c] for c in cols if c != "t"]), "columns": cols}
+
+
+def twin_step(geometry: str, out_dir: str = "twin", *, unit: str = "m", heat_load: float = 1000.0,
+              T_in: float = 25.0, h: float = 2500.0, sensors: Sequence[Sequence[float]] | None = None,
+              recording: str | None = None, noise: float = 0.05, fault_passage: int | None = None,
+              fault_time: float | None = None, fault_fraction: float = 0.3, duration: float = 900.0,
+              dt: float = 1.0, pitch: Sequence[float] | None = None, members: int = 32, seed: int = 0) -> dict:
+    """A 3-D thermal digital twin of a part cooled by internal passages, from its geometry file
+    (:mod:`pinneapple_systems.digital_twin.cooled_part`): the part on a grid, conduction with convection to each
+    passage, a filter that keeps the field and each passage's coefficient in step with the thermocouples, and an
+    alarm when a passage clogs.
+
+    Parameters
+    ----------
+    geometry : str
+        Path of the part's closed surface (STL, OBJ, PLY), or ``"cold_plate"`` (a built-in plate with four
+        channels, :func:`pinneapple_systems.digital_twin.cooled_part.cold_plate`).
+    out_dir : str
+        Folder for the files: ``twin.glb`` + ``twin.json`` (field view, ``pinneapple-field-view/v1``) and
+        ``series.json`` (sensors measured and predicted, coefficients with their bands, alarms).
+    unit : str
+        Length unit of the file and of ``sensors``: "m", "mm", "cm" or "in".
+    heat_load : float [W]
+        Heat into the loaded face (the top of the part along z).
+    T_in : float [degC]
+        Coolant inlet temperature.
+    h : float [W/(m2 K)]
+        Nominal wall heat-transfer coefficient of every passage.
+    sensors : list of (x, y, z), optional [unit]
+        Thermocouple positions; by default one on the loaded face above each passage, two thirds along it.
+    recording : str, optional
+        CSV with a column ``t`` [s] and one column per sensor [degC]. Without it the twin is checked on a
+        **simulated** replay (a finer-grid plant with a blockage of ``fault_passage`` at ``fault_time``).
+    noise : float [K]
+        Thermocouple noise (standard deviation).
+    fault_passage : int, optional
+        The replay's blocked passage (default: the middle one).
+    fault_time : float, optional [s]
+        Start of the replay's blockage (default: half the duration).
+    fault_fraction : float
+        The blocked passage's coefficient at the end of a 60 s ramp, as a fraction of nominal.
+    duration : float [s]
+        Length of the replay.
+    dt : float [s]
+        Sample interval of the replay.
+    pitch : (3,), optional [m]
+        Grid cell size per axis of the twin (the replay's plant uses two thirds of it: a finer, different grid).
+    members : int
+        Ensemble size of the filter.
+
+    Returns
+    -------
+    result : dict
+        ``h_estimate`` / ``h_band`` per passage [W/(m2 K)], ``alarms``, ``T_max`` [degC], ``innovation_rms`` [K],
+        ``simulated``, ``grid``, ``series`` (at most 300 samples: ``t`` [s], ``h_<p>`` [W/(m2 K)], ``sensor_<j>``
+        measured and ``sensor_<j>_twin`` predicted [degC]), ``files`` and ``checks`` (``twin.tracks``,
+        ``twin.alarms``, ``verify.replay``).
+    """
+    import json
+    import os
+
+    from pinneapple_systems.digital_twin import cooled_part as CP
+    V, F = CP._load(geometry)
+    f = CP._LENGTH.get(unit)
+    if f is None:
+        raise ValueError(f"unit is one of {sorted(CP._LENGTH)}")
+    lo, hi = V.min(0) * f, V.max(0) * f
+    d = np.asarray(pitch, float) if pitch is not None else _default_pitch(lo, hi)
+    grid = CP.voxelize_part((V, F), d, unit=unit)
+    model = CP.CooledPart(grid, h, None, T_in, heat_load=heat_load)
+    P = grid.n_passages
+    if sensors is None:
+        C = grid.centres()
+        top = hi[2] - grid.d[2] / 2
+        S = []
+        for p in range(1, P + 1):
+            c = C[grid.passage == p].mean(0)
+            c[grid.flow_axis] = lo[grid.flow_axis] + (hi - lo)[grid.flow_axis] * 2 / 3
+            c[2] = top
+            S.append(c)
+        S = np.array(S)
+        placed = "one on the loaded face above each passage, two thirds along it (default)"
+    else:
+        S = np.asarray(sensors, float).reshape(-1, 3) * f
+        placed = "as given"
+    if recording:
+        rec = _read_recording(recording, len(S)) | {"sensors": S, "noise": float(noise), "simulated": False}
+        fault = None
+    else:
+        fp = int(fault_passage) if fault_passage else P // 2 + 1
+        if not 1 <= fp <= P:
+            raise ValueError(f"fault_passage is between 1 and {P}")
+        fault = {"passage": fp, "t": float(fault_time) if fault_time is not None else duration / 2, "ramp": 60.0,
+                 "fraction": float(fault_fraction)}
+        plant = CP.CooledPart(CP.voxelize_part((V, F), d / 1.5, unit=unit, flow_axis=grid.flow_axis), h, None,
+                              T_in, heat_load=heat_load)
+        rec = CP.simulate_readings(plant, S, t_end=duration, dt=dt, noise=noise, fault=fault, seed=seed)
+    out = CP.run_twin(model, rec, members=members, seed=seed + 1)
+    os.makedirs(out_dir, exist_ok=True)
+    fv = CP.field_view_of(model, out["T_mean"], out["T_std"], sensors=S, alarms=out["alarms"],
+                          title="Digital twin: temperature of the part")
+    with open(os.path.join(out_dir, "twin.glb"), "wb") as fh:
+        fh.write(fv.glb())
+    with open(os.path.join(out_dir, "twin.json"), "w") as fh:
+        json.dump(fv.meta, fh)
+    series = {"t": out["t"].tolist(), "y": out["y"].tolist(), "y_pred": out["y_pred"].tolist(),
+              "h_mean": out["h_mean"].tolist(), "h_lo": out["h_lo"].tolist(), "h_hi": out["h_hi"].tolist(),
+              "h_nominal": model.h_nominal.tolist(), "alarms": out["alarms"], "sensors_m": S.tolist(),
+              "simulated": out["simulated"], "fault": fault}
+    if fault:
+        series["h_true"] = rec["h_true"].tolist()
+    with open(os.path.join(out_dir, "series.json"), "w") as fh:
+        json.dump(series, fh)
+    last = slice(-max(1, len(out["t"]) // 20), None)
+    files = [os.path.join(out_dir, n) for n in ("twin.glb", "twin.json", "series.json")]
+    k = np.unique(np.linspace(0, len(out["t"]) - 1, min(len(out["t"]), 300)).round().astype(int))
+    small = {"t": out["t"][k].tolist()}
+    for p in range(P):
+        small[f"h_{p + 1}"] = out["h_mean"][k, p].tolist()
+    for j in range(len(S)):
+        small[f"sensor_{j + 1}"] = out["y"][k, j].tolist()
+        small[f"sensor_{j + 1}_twin"] = out["y_pred"][k, j].tolist()
+    return {"h_estimate": out["h_mean"][last].mean(0).tolist(),
+            "h_band": [out["h_lo"][-1].tolist(), out["h_hi"][-1].tolist()], "h_nominal": model.h_nominal.tolist(),
+            "alarms": out["alarms"], "T_max": float(out["T_mean"].max()), "innovation_rms": out["innovation_rms"],
+            "simulated": out["simulated"], "sensors": {"positions_m": S.tolist(), "placed": placed},
+            "grid": {"shape": list(grid.shape), "cells": model.n, "passages": P, "pitch_m": grid.d.tolist(),
+                     "heat_in_W": model.heat_in, "modes": out["modes"]}, "series": small, "files": files,
+            "checks": out["checks"]}
+
+
+__all__ = ["model_from_ref", "sensitivity_step", "uncertainty_step", "identify_step", "analyze_step", "forecast_step",
+           "twin_step"]

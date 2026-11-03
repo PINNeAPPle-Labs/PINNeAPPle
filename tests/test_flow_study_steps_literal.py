@@ -13,8 +13,9 @@ from pinneapple_flow.study_steps import (
 
 def test_kinds_literal():
     assert classify_study("estimate the conductivity from the measurements")[0].kind == "inverse"
-    assert roles_for_kind("forecast")[-1] == "verify"
-    assert role_checks("forecast", "verify")[0][0] == "verify.beats_baseline"
+    assert roles_for_kind("forecast")[-1] == "forecast"                      # verified inside the forecast step
+    assert role_checks("forecast", "forecast")[-1][0] == "verify.beats_baseline"
+    assert roles_for_kind("twin", spatial=True, has_geometry=True) == ["part_twin"]
 
 
 def test_steps_literal():

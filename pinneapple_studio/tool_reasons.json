@@ -31,5 +31,8 @@
  "pinneapple_simulation.electromagnetics.particles:add_fields": "combines field callables (functions of position and time) into one, which a form cannot hold; it is used by the particle studies, which the Studio runs",
  "pinneapple_stability:warn_experimental": "emits a warning from a labs package's __init__ (a side effect, not a result); tests/test_stability.py checks it once per package and silenced by PINNEAPPLE_QUIET_EXPERIMENTAL",
  "pinneapple_studio.catalog:build": "builds the whole Studio catalog from the repository (every public symbol of every package): over the 60 s smoke budget in a fresh worktree (timed out at 60 s on 2026-11-02); tests/test_studio.py builds and checks it",
- "pinneapple_studio.coverage:core": "summarises a whole Studio catalog (the output of catalog.build, itself over the smoke budget): there is no small literal input; tests/test_studio.py checks it on the test catalog"
+ "pinneapple_studio.coverage:core": "summarises a whole Studio catalog (the output of catalog.build, itself over the smoke budget): there is no small literal input; tests/test_studio.py checks it on the test catalog",
+ "pinneapple_systems.digital_twin.cooled_part:field_view_of": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file",
+ "pinneapple_systems.digital_twin.cooled_part:run_twin": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file",
+ "pinneapple_systems.digital_twin.cooled_part:simulate_readings": "takes a CooledPart (or a recording from one), which a form cannot hold; tests/test_cooled_part_twin.py runs it on a four-channel plate, and pinneapple_flow.study_steps:twin_step runs it from a geometry file"
 }

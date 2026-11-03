@@ -553,25 +553,25 @@
   "seconds": 0.74
  },
  "pinneapple_flow.studies:role_checks": {
-  "code_hash": "ad460e6a45dc018f",
+  "code_hash": "807fe6acbfd14165",
   "inputs": {
    "kind": "forecast",
    "role": "verify"
   },
   "ok": true,
-  "recorded": "2026-11-02",
+  "recorded": "2026-11-03",
   "returned": "tuple",
-  "seconds": 0.76
+  "seconds": 0.73
  },
  "pinneapple_flow.studies:roles_for_kind": {
-  "code_hash": "45ec6e03450fb154",
+  "code_hash": "46d6bd37138b992a",
   "inputs": {
    "kind": "design_optimization"
   },
   "ok": true,
-  "recorded": "2026-11-02",
+  "recorded": "2026-11-03",
   "returned": "list",
-  "seconds": 0.83
+  "seconds": 0.0
  },
  "pinneapple_flow.studio:app_dir": {
   "code_hash": "a085df41d99f8c30",
@@ -969,6 +969,26 @@
   "recorded": "2026-11-02",
   "returned": "dict",
   "seconds": 5.97
+ },
+ "pinneapple_flow.study_steps:twin_step": {
+  "code_hash": "588be36b0415b9d1",
+  "inputs": {
+   "duration": 300.0,
+   "fault_passage": 2,
+   "fault_time": 150.0,
+   "geometry": "cold_plate",
+   "heat_load": 600.0,
+   "out_dir": "twin_smoke",
+   "pitch": [
+    0.02,
+    0.004,
+    0.002
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 7.71
  },
  "pinneapple_flow.study_steps:uncertainty_step": {
   "code_hash": "9431515b833862b3",

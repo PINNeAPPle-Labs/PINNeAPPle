@@ -88,6 +88,12 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
               "digital twin state estimation assimilation kalman monitor anomaly",
               (("twin.tracks", "the twin's state tracks the measurements within their noise"),
                ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 30),
+    StudyRole("part_twin", "Digital twin of the part (3-D field, assimilation, alarms)",
+              "Gêmeo digital da peça (campo 3D, assimilação, alarmes)",
+              "digital twin part geometry thermal field assimilation coolant passage clogging",
+              (("twin.tracks", "the twin's state tracks the measurements within their noise"),
+               ("twin.alarms", "anomaly alarms checked on cases with and without a fault")), 120,
+              "pinneapple_flow.study_steps:twin_step"),
     StudyRole("analyze", "Data analysis", "Análise dos dados", "time series analysis statistics predictability",
               (("analyze.stationarity", "stationarity and trends stated"),
                ("analyze.leakage", "no train/test leakage")), 10, "pinneapple_flow.study_steps:analyze_step"),
@@ -226,11 +232,17 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
                    is_step: bool = False) -> list[str]:
     """The ordered steps of a study kind for this problem: ``cad`` first for a STEP file; ``geometry`` when the physics
     is spatial and no geometry was given (always, for a design optimisation); ``mesh`` when it is spatial; ``dataset`` from the user's file (and the DOE
-    and simulation that would only generate it dropped) when there is data."""
+    and simulation that would only generate it dropped) when there is data. A digital twin of a given part is the
+    one step of the library's part twin."""
     k = STUDY_KINDS[kind]
     roles: list[str] = []
     if is_step:
         roles.append("cad")
+    if kind == "twin" and has_geometry:
+        # the library's twin of a given part (twin_step) does the physics on the part, the data (recorded, or a
+        # simulated replay), the assimilation and the replay check in one step; a twin without a part (a machine
+        # watched through its sensors' data) keeps the generic twin steps
+        return roles + ["part_twin"]
     if k.spatial_roles:
         # a parametric geometry when none was given and the physics is spatial; a design optimisation keeps it even
         # without spatial physics, because its design variables are usually dimensions
@@ -251,6 +263,9 @@ def roles_for_kind(kind: str, *, spatial: bool = False, has_geometry: bool = Fal
     return roles
 
 
+_VERIFIES_ITSELF = {"part_twin"}           # roles whose library tool emits the kind's verification checks
+
+
 def role_checks(kind: str, role: str) -> tuple[tuple[str, str], ...]:
     """The checks of a step: the kind's own definition of verification for ``verify`` (or, for a kind with
     ``verify_in``, added to that step's), the role's otherwise."""
@@ -259,7 +274,7 @@ def role_checks(kind: str, role: str) -> tuple[tuple[str, str], ...]:
         return k.verify_checks
     r = STUDY_ROLES.get(role)
     own = r.checks if r else ()
-    return own + k.verify_checks if role == k.verify_in else own
+    return own + k.verify_checks if role == k.verify_in or role in _VERIFIES_ITSELF else own
 
 
 __all__ = ["STUDY_KINDS", "STUDY_ROLES", "StudyKind", "StudyRole", "StudyMatch", "classify_study", "roles_for_kind",

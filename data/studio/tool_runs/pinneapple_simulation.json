@@ -3125,12 +3125,12 @@
   "seconds": 0.0
  },
  "pinneapple_simulation.terramechanics.workflow:terramechanics_workflow": {
-  "code_hash": "ee7e3556162dae38",
+  "code_hash": "694290b641f25eb8",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-03",
   "returned": "dict",
-  "seconds": 11.03
+  "seconds": 15.7
  },
  "pinneapple_simulation.terramechanics.workflow:wheel_mass": {
   "code_hash": "d09b4a6f7976e2a2",

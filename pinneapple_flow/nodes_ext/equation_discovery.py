@@ -26,6 +26,9 @@ def _lorenz(noise: float, seed: int):
               Param("degree", "int", 2, minimum=1, maximum=4, help="ODE: polynomial library degree"),
               Param("noise", "float", 0.01, minimum=0.0, maximum=0.2,
                     help="without data: the demo (Lorenz / Burgers) with this relative noise, stated"),
+              Param("form", "enum", "strong", choices=["strong", "weak"],
+                    help="PDE: strong (PDE-FIND, pointwise derivatives) or weak (test-function integrals, robust "
+                         "to noise); a strong result is always checked against the weak form"),
               Param("holdout", "float", 0.2, minimum=0.05, maximum=0.5), Param("n_bootstrap", "int", 50, minimum=0),
               Param("seed", "int", 0)],
       calls="pinneapple_analysis.inverse_problems.discovery.discover_ode / discover_pde")
@@ -65,8 +68,9 @@ def discover_equations(ctx, inputs, params):
             u = u + float(params["noise"]) * np.random.default_rng(int(params["seed"])).standard_normal(u.shape)
             src = f"viscous Burgers (nu 0.1, Cole-Hopf exact), {u.shape} grid, {params['noise']:.1%} noise (synthetic)"
         r = discover_pde(u, x, t, holdout=float(params["holdout"]), n_bootstrap=int(params["n_bootstrap"]),
-                         seed=int(params["seed"]))
+                         form=str(params.get("form") or "strong"), seed=int(params["seed"]))
         ctx.metric("equation", r["equation"])
+        ctx.metric("weak_form_equation", r["weak_form"]["equation"], "the same library in weak form")
     ctx.metric("data", src)
     ctx.table("checks", ["check", "status", "detail"], [[c["code"], c["status"], c["detail"]] for c in r["checks"]])
     bad = [c["code"] for c in r["checks"] if c["status"] == "fail"]

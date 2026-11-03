@@ -269,6 +269,12 @@ export = [
   "onnxruntime>=1.18",
 ]
 
+# Run ONNX models (CPU) through the trained-model workflows: open_model("onnx"), the model.use and
+# veriphysics.grade nodes, ONNX predictors in benchmark_models (pinneapple_analysis.surrogate.model_source)
+onnx = [
+  "onnxruntime>=1.18",
+]
+
 # Model hub (push_to_hub/from_pretrained on the Hugging Face Hub); Parquet copies of the zoo datasets, safetensors and
 # ONNX copies of the zoo models (pinneapple_hub.zoo.parquet, pinneapple_hub.zoo.export)
 hub = [

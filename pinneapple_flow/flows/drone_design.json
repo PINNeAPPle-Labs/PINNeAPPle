@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "drone-rotor-motor-and-battery-sizing-6-dof-contr",
+ "name": "Drone: rotor, motor and battery, sizing, 6-DOF control, endurance flown",
+ "description": "A quadrotor for a payload and endurance: BEMT rotor checked against momentum theory and the APC 10 x 4.7 published data, motor and LiPo models, propeller / pack / motor / arm sizing at a thrust-to-weight margin, LQR control of the 6-DOF dynamics (margins, step, gust), the mission flown until the battery is empty, and the Phantom 4's published endurance (pinneapple_simulation.multirotor.workflow).",
+ "nodes": [
+  {
+   "id": "drone",
+   "type": "drone.design",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Drone design"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Drone: rotor, motor and battery, sizing, 6-DOF control, endurance flown"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "drone",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "drone.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1201
+ }
+}

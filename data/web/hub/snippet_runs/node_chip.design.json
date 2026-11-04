@@ -1,0 +1,12 @@
+{
+ "code_hash": "2ee4b4359c3740c3",
+ "figures": [],
+ "id": "node:chip.design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Chip design: floorplan thermal, IR drop and EM, Elmore delay, placement, re-verified -> pinneapple_design.chip.workflow.chip_design_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'floorplan': {}, 't_ambient_c': 45.0, 'r_sink_k_w': 0.25, 't_max_c': 105.0, 'vdd': 0.8, 'ir_drop_max': 0.05, 'delay_budget_ps': 200.0, 'metal_fraction_max': 0.3, 'mttf_target_years': 10.0, 'nx': 24, 'refine': 2}",
+ "timed_out": false
+}

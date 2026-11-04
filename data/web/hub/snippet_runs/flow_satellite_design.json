@@ -1,0 +1,12 @@
+{
+ "code_hash": "970ba3559796b3a5",
+ "figures": [],
+ "id": "flow:satellite_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Satellite design: orbit, power, thermal, link, ADCS and lifetime, mass closed and re-verified - 2 nodes\nissues: []",
+ "timed_out": false
+}

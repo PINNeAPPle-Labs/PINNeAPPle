@@ -142,6 +142,41 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "bio_workflow": {
+  "flow_hash": "db0ca4ed1b5b3588",
+  "nodes": {
+   "bio": {
+    "error": "",
+    "metrics": {
+     "closed_form.S_inf_closed_form": 59519.48471006033,
+     "closed_form.S_inf_simulated": 59519.48542874917,
+     "closed_form.error_over_N": 7.18688839697279e-10,
+     "design": "u = 0.608 keeps the peak under 0.05 in 86% of 100 fresh draws",
+     "qoi.attack_rate": 0.9404805727392055,
+     "qoi.peak_prevalence": 0.30045592070856625,
+     "qoi.t_peak": 61.5
+    },
+    "status": "done",
+    "summary": "sir: 3 states, solver RK45; peak_prevalence 0.3005; t_peak 61.5; attack_rate 0.9405; design: u = 0.608 keeps the peak under 0.05 in 86% of 100 fresh draws; 17 checks pass, 0 fail",
+    "type": "bio.workflow"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-04",
+  "seconds": 128.52,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "burgers_1d": {
   "flow_hash": "8d44f18307232a14",
   "nodes": {
@@ -226,6 +261,49 @@
   },
   "recorded": "2026-10-25",
   "seconds": 587.77,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "chip_design": {
+  "flow_hash": "e1e5595d3e10e3f4",
+  "nodes": {
+   "chip": {
+    "error": "",
+    "metrics": {
+     "em_mttf_min_years": 127.74090869677838,
+     "ir_drop_fraction": 0.04996551478641696,
+     "strap_width_um": 2.210573168341491,
+     "theta_ja_k_w": 0.6597213011373909
+    },
+    "status": "done",
+    "summary": "6 blocks, 46.6 W (leakage 7.07 W): placement {'cpu0': 0, 'cpu1': 4, 'gpu': 3, 'npu': 5, 'l3': 2, 'io': 1} peaks at 75.7 C (initial 78.5 C); straps 2.21 um, IR drop 5.00%, EM 128 years; worst net npu-l3 156.9 ps; refined thermal 75.89 C; 13 checks pass, 0 fail",
+    "type": "chip.design"
+   },
+   "litho": {
+    "error": "",
+    "metrics": {
+     "mask.min_feature_nm": 16.0,
+     "pw.dof_nm": 100.0,
+     "pw.worst_epe_nm": 1.832167832167832
+    },
+    "status": "done",
+    "summary": "EPE 9.96 -> 0.36 nm; verified over the process window",
+    "type": "litho.opc"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 2
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-11-04",
+  "seconds": 186.77,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1814,6 +1892,36 @@
   },
   "recorded": "2026-11-03",
   "seconds": 19.01,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "satellite_design": {
+  "flow_hash": "138ff43cdf92333c",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "sat": {
+    "error": "",
+    "metrics": {
+     "lifetime_high_flux_years": 23.95598899724931,
+     "link_margin_db": 3.9484898738580227
+    },
+    "status": "done",
+    "summary": "7.52 kg at 675 km SSO 98.09 deg: GSD 5.40 m, revisit 23.2 d, array 0.135 m^2 (36.3 W BOL), battery 20.8 Wh, 2 W at 5 Mbit/s (margin 3.9 dB), lifetime 24.0 y at high flux; 15 checks pass, 0 fail",
+    "type": "satellite.design"
+   }
+  },
+  "recorded": "2026-11-04",
+  "seconds": 5.95,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

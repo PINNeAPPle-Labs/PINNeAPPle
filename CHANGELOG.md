@@ -48,6 +48,20 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 
 ### Added
 
+- `pinneapple_simulation.electromagnetics.machines.motor3d`: multiphysics 3-D motor design on a pretrained surrogate,
+  so the search calls no FEA. `design.py` declares the eleven design variables once (cross-section, stack length,
+  skew, operating point, coolant flow) and everything else derives from them; `thermal3d.AxialThermalModel` resolves
+  the lumped network along the axis (`k A / dz` links, end-winding node, `flow^0.8` jacket convection) and reduces
+  exactly to `machines.thermal.machine_network` at one segment; `model.Motor3DModel` runs the chain — per-slice
+  magnetostatic FEA, skew by slice averaging with the `sin x / x` fundamental factor, losses, a coupled
+  magnet-temperature fixed point, and a reversible-range guard at 180 degC; `dataset.build_dataset` samples it with a
+  DOE and a geometry filter, in parallel. `MotorSurrogate3D` is an ensemble of MLPs trained in log space with
+  constant-output detection, a held-out card per output, a validity box, an extrapolation measure and SHA-256-checked
+  weights (`data/motor3d-v1`, 774/193 split, mean R2 0.983). `optimize.optimize` runs NSGA-II over the surrogate with
+  constraints on `mean + 1 sigma` and an exact geometry test inside the evaluator (4000 designs in 29 s, zero
+  reference solves); `verify_front` re-checks the front with the reference model. Worked example
+  `examples/motor_magnetics/03_multiphysics3d_surrogate.py`, guide `docs/guides/motor3d_surrogate.md`, report
+  `docs/reports/emotor3d/PINNeAPPle-EMotor3D-Surrogates.pdf`.
 - `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
   space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
   (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families
@@ -166,8 +180,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
 - `tests/test_front_door.py` (the entry pages run, compile, and every `pp.<name>` and preset they mention exists) and
   `tests/test_onboarding.py` (the four commands promise only what they deliver, including a generated project that
   runs from another directory).
-
-
 - `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
   accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
   predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in

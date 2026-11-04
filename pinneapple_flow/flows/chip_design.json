@@ -1,0 +1,61 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "chip-design-floorplan-thermal-ir-drop-and-electr",
+ "name": "Chip design: floorplan thermal, IR drop and electromigration, Elmore delay, lithography",
+ "description": "Floorplan blocks with power densities; a 3-D die and package conduction network to the heat sink with the leakage-temperature loop; power-grid IR drop with electromigration (Black); Elmore delay of the critical nets checked by a trapezoidal transient; block placement and strap width designed and re-verified on a finer thermal model (pinneapple_design.chip.workflow); the critical layer's mask corrected and verified over the process window (litho.opc, #1180).",
+ "nodes": [
+  {
+   "id": "chip",
+   "type": "chip.design",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Chip design"
+  },
+  {
+   "id": "litho",
+   "type": "litho.opc",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 190.0
+   },
+   "label": "Lithography of the critical layer"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Chip design: floorplan thermal, IR drop and electromigration, Elmore delay, lithography"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "chip",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "chip.metrics->report.items"
+  },
+  {
+   "source": "litho",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "litho.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1206
+ }
+}

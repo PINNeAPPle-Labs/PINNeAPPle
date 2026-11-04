@@ -1,0 +1,12 @@
+{
+ "code_hash": "9fbf1c2f1017e716",
+ "figures": [],
+ "id": "example:examples/base_workflows/use_trained_model",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Use a trained model (zoo or yours) instead of training, gated and re-verified | methods | not curated\nrun_seconds_quick 0.2 s\nrun_seconds_full 0.2 s\nmodel.estimate.air_velocity_m_s 2.4931480901435172 \nmodel.misfit_rel 4.678095688603889e-09 \nmodel.reverified.r_base_k_w.rel_diff 0.000780442625497128",
+ "timed_out": false
+}

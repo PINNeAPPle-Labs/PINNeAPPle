@@ -278,8 +278,47 @@
     "type": "twin.workflow"
    }
   },
+  "recorded": "2026-11-04",
+  "seconds": 7.08,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "drone_design": {
+  "flow_hash": "0f4dcd2e3bba8dd4",
+  "nodes": {
+   "drone": {
+    "error": "",
+    "metrics": {
+     "design.arm_m": 0.15805250773081714,
+     "design.capacity_ah": 2.0,
+     "design.cells": 4,
+     "design.estimated_endurance_min": 15.260687624932455,
+     "design.figure_of_merit": 0.6695907621356902,
+     "design.hover_power_W": 95.35816840317318,
+     "design.mass_kg": 0.9365583751745162,
+     "design.motor_kv": 681.8642567321555,
+     "design.prop_diameter_in": 8.000000000000002,
+     "design.thrust_to_weight": 2.3287369154861755,
+     "mission.max_tracking_error_m": 1.9227887938038097
+    },
+    "status": "done",
+    "summary": "0.937 kg quad, 8.0 in props, 4S 2 A h, Kv 682; flown 15.0 min; verified",
+    "type": "drone.design"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
   "recorded": "2026-11-03",
-  "seconds": 3.98,
+  "seconds": 106.92,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
@@ -1718,6 +1757,66 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "rover_mission_design": {
+  "flow_hash": "a88d87f8536a66e1",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "rover": {
+    "error": "",
+    "metrics": {
+     "grade_deg": 18.661921350265846,
+     "heater_W": 0.0,
+     "step_m": 0.15000000000000002,
+     "wheel_radius_m": 0.05,
+     "wheel_width_m": 0.10600000000000001
+    },
+    "status": "done",
+    "summary": "12.73 kg rover, wheels R 0.050 m x 0.106 m, array 0.158 m^2, battery 91 W h; traverse 100 m in 1.24 sols; verified",
+    "type": "rover.mission_design"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 23.84,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "run_drafted_model": {
+  "flow_hash": "a7a21879c82b2820",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "run": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "battery_cell_thermal (fd): T in [302.985, 303.924] K at t = 600 s; MMS order 2.02 (expected 2); every check passes or is inconclusive",
+    "type": "problemdesign.run_draft"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 19.01,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "surrogate_modeling": {
   "flow_hash": "7b142f0fbb5bcd61",
   "nodes": {
@@ -1742,6 +1841,40 @@
   },
   "recorded": "2026-11-03",
   "seconds": 27.76,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "terramechanics_workflow": {
+  "flow_hash": "0994b01572e7bd12",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "terra": {
+    "error": "",
+    "metrics": {
+     "soil.K": 0.011222254335262517,
+     "soil.c": 194.12576093396632,
+     "soil.k_c": 15634.149500266147,
+     "soil.k_phi": 2407533.085288492,
+     "soil.n0": 1.1012441517193088,
+     "soil.phi_deg": 32.45324740208726
+    },
+    "status": "done",
+    "summary": "wheel R 0.138 m, b 0.080 m, lugs 0.0 mm, 0.87 kg for 19.9 N at slip 0.3; verified",
+    "type": "terramechanics.workflow"
+   }
+  },
+  "recorded": "2026-11-03",
+  "seconds": 15.74,
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },

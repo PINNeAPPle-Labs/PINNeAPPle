@@ -1,0 +1,117 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/model_benchmarking",
+ "title": "Model benchmarking: equal data, intervals, a winner only when separated",
+ "description": "Library families trained on the same rows and existing models on the same test points over several seeds, ranked with paired-bootstrap intervals (pinneapple_analysis.surrogate.benchmark_workflow).",
+ "domain": "methods",
+ "methods": [
+  "model_benchmarking"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 7.7,
+  "seconds_full": 10.6
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 7.7,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 10.6,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "bench.gp.rel_rmse",
+   "value": 0.0020171166721008925,
+   "unit": "",
+   "how": "full run: mean over seeds, inside the box"
+  },
+  {
+   "name": "bench.mlp_ensemble.rel_rmse",
+   "value": 0.0055054980730930665,
+   "unit": "",
+   "how": "full run: mean over seeds, inside the box"
+  },
+  {
+   "name": "bench.quadratic.rel_rmse",
+   "value": 0.01467045437425446,
+   "unit": "",
+   "how": "full run: mean over seeds, inside the box"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 7.7 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 10.6 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:01:21Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

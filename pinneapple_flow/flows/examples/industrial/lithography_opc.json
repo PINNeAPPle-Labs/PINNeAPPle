@@ -1,0 +1,50 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial.lithography_opc",
+ "name": "Computational lithography: ILT mask correction over the process window",
+ "description": "Partially coherent imaging (Abbe / Hopkins SOCS), threshold resist, inverse lithography through the exact model or a learned operator when its measured cost pays off, and the mask re-verified by the full Abbe model over focus and dose (pinneapple_physics.lithography.design).",
+ "nodes": [
+  {
+   "id": "opc",
+   "type": "litho.opc",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "ILT mask correction"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Computational lithography: ILT mask correction over the process window"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "opc",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "opc.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "industrial",
+  "kind": "closed_loop",
+  "issue": 1180,
+  "example": "industrial",
+  "domain": "engineering",
+  "entry": "lithography_opc",
+  "bundled": "lithography_opc",
+  "quick": {},
+  "scripts": []
+ }
+}

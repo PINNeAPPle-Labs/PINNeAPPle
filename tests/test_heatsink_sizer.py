@@ -127,8 +127,8 @@ def test_api_endpoints():
 
 def test_sizer_with_trained_surrogate_if_available():
     from pinneapple_design.thermal.heatsink.sizer import SizingRequest, size
-    from heatsink_sizer.surrogate import load_surrogates
-    surs = load_surrogates()
+    from pinneapple_design.thermal.heatsink.surrogate import load_surrogates
+    surs = load_surrogates(os.path.join(APP, "artifacts"))
     if "forced" not in surs:
         pytest.skip("no trained surrogate artifact")
     res = size(SizingRequest(power_w=100, t_limit_c=70, n_candidates=20000, n_verify=8), surs)

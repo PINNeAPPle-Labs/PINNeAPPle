@@ -21,7 +21,6 @@ import time
 from pathlib import Path
 from typing import Annotated
 
-import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
@@ -32,10 +31,10 @@ from pinneapple_simulation.meshless import (
     DOMAINS,
     METHODS,
     Problem,
+    default_spacings,
     domain,
+    domain_from_spec,
     meshless_study,
-    point_cloud_domain,
-    polygon_domain,
 )
 from pinneapple_simulation.meshless.contracts import study_result
 
@@ -146,19 +145,11 @@ def _domain(d: dict, cloud: bytes | None, cloud_name: str = ""):
         try:
             df = pd.read_parquet(io.BytesIO(cloud)) if cloud_name.lower().endswith(".parquet") else \
                 pd.read_csv(io.BytesIO(cloud), sep=None, engine="python")
-            cols = {c.lower(): c for c in df.columns}
-            bcol = next((cols[c] for c in ("boundary", "is_boundary", "b", "on_boundary") if c in cols), None)
-            if "x" not in cols or "y" not in cols or bcol is None:
-                raise ValueError("the point cloud needs columns x, y and boundary (1 on the boundary, 0 inside)")
-            return point_cloud_domain(df[[cols["x"], cols["y"]]].to_numpy(float), df[bcol].to_numpy(float) > 0.5,
-                                      name=cloud_name or "point cloud")
+            return domain_from_spec(d, table=df, name=cloud_name or "point cloud")
         except (ValueError, KeyError) as e:
             raise HTTPException(422, f"point cloud: {e}") from e
     try:
-        if d.get("polygon"):
-            holes = [((float(h[0]), float(h[1])), float(h[2])) for h in d.get("holes", [])]
-            return polygon_domain(d["polygon"], name="polygon", holes=holes)
-        return domain(str(d.get("preset", "square")))
+        return domain_from_spec(d)
     except (ValueError, TypeError, IndexError) as e:
         raise HTTPException(422, f"domain: {e}") from e
 
@@ -171,11 +162,10 @@ def _spec(spec: dict, cloud: bytes | None = None, cloud_name: str = "") -> dict:
     if not methods:
         raise HTTPException(422, f"methods: choose among {list(METHODS)}")
     if dom.cloud is None:
-        hs = sorted({float(h) for h in (spec.get("h") or [dom.diameter / 10 / 2 ** k for k in range(3)])}, reverse=True)
+        hs = sorted({float(h) for h in (spec.get("h") or default_spacings(dom))}, reverse=True)
         if len(hs) > 6 or hs[-1] <= 0:
             raise HTTPException(422, "h: up to six positive spacings")
-        area = dom.area()
-        est = [area / h ** 2 + _perimeter(dom) / h for h in hs]
+        est = [dom.estimate_nodes(h) for h in hs]
         if max(est) > MAX_NODES:
             raise HTTPException(413, f"the finest spacing h = {hs[-1]:g} gives about {int(max(est)):,} nodes; this "
                                      f"server stops at {MAX_NODES:,} per level")
@@ -199,11 +189,6 @@ def _spec(spec: dict, cloud: bytes | None = None, cloud_name: str = "") -> dict:
             "cloud": cloud.decode("utf-8", "replace") if cloud is not None else None, "cloud_name": cloud_name}
 
 
-def _perimeter(dom) -> float:
-    return float(sum(np.linalg.norm(np.asarray(p[2]) - np.asarray(p[1])) if p[0] == "seg" else abs(p[4] - p[3]) * p[2]
-                     for p in dom.pieces))
-
-
 # ------------------------------------------------------------------------------------------------ the job
 def run_study(params: dict, ctx) -> dict:
     t0 = time.perf_counter()
@@ -223,12 +208,7 @@ def run_study(params: dict, ctx) -> dict:
     out_dir = Path(ctx.workdir)
     sr = study_result(res, study_id=ctx.job_id, title=f"Meshless study: {pr.kind} on {dom.name}", limits=LIMITS)
     (out_dir / "study_result.json").write_text(sr.model_dump_json(indent=2))
-    f = d["fields"]
-    names = list(f["methods"])
-    lines = ["x,y,reference," + ",".join(names)]
-    for i, (x, y) in enumerate(f["points"]):
-        lines.append(f"{x:.9g},{y:.9g},{f['truth'][i]:.9g}," + ",".join(f"{f['methods'][m]['values'][i]:.9g}" for m in names))
-    (out_dir / "solutions.csv").write_text("\n".join(lines) + "\n")
+    (out_dir / "solutions.csv").write_text(res.solutions_csv())
     out = {"study": d, "checks": [c.model_dump() for c in sr.checks], "limits": LIMITS, "wall_s": time.perf_counter() - t0,
            "files": ["study_result.json", "solutions.csv", "study.json"], "request": {k_: params[k_] for k_ in
                                                                                       ("problem", "domain", "h", "methods", "tolerance")}}

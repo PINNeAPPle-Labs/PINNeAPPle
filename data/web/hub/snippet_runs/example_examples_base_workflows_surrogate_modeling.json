@@ -1,0 +1,12 @@
+{
+ "code_hash": "0d1566e4be57e609",
+ "figures": [],
+ "id": "example:examples/base_workflows/surrogate_modeling",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surrogate modeling: recommended family, checked on new solves, exported | methods | not curated\nrun_seconds_full 10.4 s\nrun_seconds_quick 15.6 s\nreport.decisions 0.0 \nreport.decisions_without_reference 0.0 \nreport.items 1.0",
+ "timed_out": false
+}

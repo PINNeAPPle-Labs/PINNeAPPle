@@ -1,0 +1,12 @@
+{
+ "code_hash": "85b5bc028b7d0fdf",
+ "figures": [],
+ "id": "example:examples/base_workflows/design_optimization",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design optimization: geometry and parameters, re-verified on refined meshes | methods | not curated\nrun_seconds_full 7.2 s\nrun_seconds_quick 9.8 s\ndesign.cost.solve_seconds 0.007801940999797807 \ndesign.design.h_root 0.15124921843459369 \ndesign.design.h_tip 0.05048622856378174",
+ "timed_out": false
+}

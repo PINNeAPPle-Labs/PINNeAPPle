@@ -1,0 +1,12 @@
+{
+ "code_hash": "aa647ff0fc6c0837",
+ "figures": [],
+ "id": "flow:run_drafted_model",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 4.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Run a drafted model: the formulated laws solved on a box, with the MMS order and the balance - 2 nodes\nissues: []",
+ "timed_out": false
+}

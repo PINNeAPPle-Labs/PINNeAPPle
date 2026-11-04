@@ -13,6 +13,7 @@ Environment (all optional):
 from __future__ import annotations
 
 import dataclasses
+import functools
 import json
 import math
 import os
@@ -40,6 +41,7 @@ from pinneapple_design.aero.optimize3d import Engine3D, summarize3d
 from pinneapple_design.aero.airliner3d import (BOUNDS_AL, LABELS_AL, PLAN as PLAN_AL, Mission, RequirementsAL,
                                                airliner_from, baseline_x_al)
 from pinneapple_design.aero.optimize_airliner import EngineAL, summarize_al
+from pinneapple_core.jsonable import to_jsonable
 from pinneapple_design.design_optimizer.pareto import representatives
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
@@ -120,20 +122,8 @@ def _req(r: RequirementsIn) -> Requirements:
                         max_abs_cm=r.max_abs_cm, max_cruise_cl_ratio=r.max_cruise_cl_ratio)
 
 
-def _clean(o):
-    if isinstance(o, float):
-        if not math.isfinite(o):
-            return None
-        return round(o, 6) if abs(o) >= 1e-3 else float(f"{o:.6g}")   # keep small values (TSFC, Cf) exact
-    if isinstance(o, dict):
-        return {k: _clean(v) for k, v in o.items()}
-    if isinstance(o, (list, tuple)):
-        return [_clean(v) for v in o]
-    if isinstance(o, (np.floating, np.integer, np.bool_)):
-        return _clean(o.item())
-    if isinstance(o, np.ndarray):
-        return _clean(o.tolist())
-    return o
+# JSON answers: 6 decimals, and 6 significant digits below 1e-3 (keeps small values such as TSFC and Cf exact)
+_json = functools.partial(to_jsonable, digits=6)
 
 
 def _detail(rec: Dict[str, Any]) -> Dict[str, Any]:
@@ -202,7 +192,7 @@ def health():
 @app.get("/api/meta")
 def meta():
     refs = {k: {"x": np.r_[v, 16.2].tolist(), "outline": outline(v), "props": properties(v)} for k, v in REFERENCE.items()}
-    return _clean({"params": [{"name": p, "label": LABELS[p], "lo": b[0], "hi": b[1]} for p, b in zip(PARAMS, BOUNDS)],
+    return _json({"params": [{"name": p, "label": LABELS[p], "lo": b[0], "hi": b[1]} for p, b in zip(PARAMS, BOUNDS)],
                    "area_bounds": AREA_BOUNDS, "aircraft": dataclasses.asdict(Aircraft()),
                    "requirements": {"max_stall_speed_kt": 61, "min_thickness": 0.11, "max_abs_cm": 0.10,
                                     "max_cruise_cl_ratio": 0.70},
@@ -214,12 +204,12 @@ def meta():
 @app.get("/api/surrogate")
 def surrogate():
     """Parity data (true vs predicted on unseen airfoils) for both surrogates, and the training history."""
-    return _clean({k: v for k, v in METRICS.items()})
+    return _json({k: v for k, v in METRICS.items()})
 
 
 @app.get("/api/dataset")
 def dataset():
-    return _clean(DATASET)
+    return _json(DATASET)
 
 
 @app.post("/api/optimize")
@@ -236,7 +226,7 @@ def optimize(body: OptimizeIn):
     picks = _picks(D, front)
     keep = set(front) | set(picks.values())
     reasons = infeasibility_reasons(D)
-    return _clean({"designs": [summarize(r) for r in D], "pareto": front, "picks": picks,
+    return _json({"designs": [summarize(r) for r in D], "pareto": front, "picks": picks,
                    "details": {str(i): _detail(D[i]) for i in keep}, "baseline": _detail(base),
                    "evaluations": res["evaluations"], "seconds": res["seconds"],
                    "feasible": sum(1 for r in D if r.get("feasible")), "reasons": reasons,
@@ -276,7 +266,7 @@ def design(body: DesignIn):
                              "mlp": {"cl": float(co["cl"][0][i]), "cd": float(co["cd"][0][i])},
                              "cd_diff_pct": float(100 * (g["cd"][i] - co["cd"][0][i]) / co["cd"][0][i])}
                             for i, a in enumerate((a_cruise, a_high))]
-    return _clean(out)
+    return _json(out)
 
 
 @app.get("/api/openfoam-case")
@@ -383,7 +373,7 @@ def run_search3d(body: Optimize3DIn, progress=None) -> Dict[str, Any]:
     fine = {i: ENGINE_AL.evaluate(np.array(D[i]["x"])[None], mi, req, fine=True)[0] for i in keep}
     base = ENGINE_AL.evaluate(baseline_x_al()[None], mi, req, fine=True)[0]
     reasons = infeasibility_reasons(D)
-    return _clean({"designs": [summarize_al(r) for r in D], "pareto": front, "picks": picks,
+    return _json({"designs": [summarize_al(r) for r in D], "pareto": front, "picks": picks,
                    "details": {str(i): _detail_al(fine[i]) for i in keep}, "baseline": _detail_al(base),
                    "evaluations": res["evaluations"], "seconds": res["seconds"],
                    "feasible": sum(1 for r in D if r.get("feasible")), "reasons": reasons,
@@ -401,7 +391,7 @@ def optimize3d(body: Optimize3DIn):
     import uuid
     global _POOL
     def _norm(o):
-        return json.dumps(_clean(json.loads(json.dumps(o))), sort_keys=True, default=lambda v: float(f"{v:.9g}"))
+        return json.dumps(_json(json.loads(json.dumps(o))), sort_keys=True, default=lambda v: float(f"{v:.9g}"))
     rnd = lambda d: {k: (rnd(v) if isinstance(v, dict) else round(v, 12) if isinstance(v, float) else v) for k, v in d.items()}  # noqa: E731
     if DEFAULT3D and rnd(body.model_dump()) == rnd(Optimize3DIn().model_dump()):
         return {"job": "default", "status": "done", "result": DEFAULT3D}
@@ -442,7 +432,7 @@ def aircraft(body: AircraftDesignIn):
     r = ENGINE_AL.evaluate(x[None], mi, req, fine=True)[0]
     out = _detail_al(r)
     if not r.get("valid"):
-        return _clean(out)
+        return _json(out)
     af = airliner_from(x)
     sol = _vlm.solve(af, r["x_cg"], nc=4, ns_wing=12, ns_tail=5)
     a, it = math.radians(r["cruise_alpha"]), math.radians(r["tail_incidence"])
@@ -459,7 +449,7 @@ def aircraft(body: AircraftDesignIn):
         out["openfoam"] = {k: v[k] for k in ("id", "label", "alpha", "speed", "cells", "CL", "CD", "CD_pressure",
                                              "CD_friction", "patches", "model", "ranges") if k in v}
         out["openfoam"]["fields"] = os.path.exists(_cfd_path(v["id"]))
-    return _clean(out)
+    return _json(out)
 
 
 def _cfd_path(did: str) -> str:
@@ -481,7 +471,7 @@ def cfd3d(did: str):
     v = next((d for d in VERIFY3D.get("designs", []) if d["id"] == did), {})
     wb, sb = z["wake_box"].tolist(), z["sym_box"].tolist()
     rng = lambda a: [float(np.nanpercentile(a, 2)), float(np.nanpercentile(a, 98))]  # noqa: E731
-    return _clean({
+    return _json({
         "id": did, "label": v.get("label"), "alpha": v.get("alpha"), "speed": v.get("speed"),
         "lines": np.round(z["lines"][:, ::2], 3).tolist(), "line_speed": np.round(z["line_speed"][:, ::2], 3).tolist(),
         "wake": {"x": wb[0], "y": wb[1:3], "z": wb[3:5], "speed": _grid(z["wake_speed"]), "vorticity": _grid(z["wake_vort"], 2)},
@@ -531,7 +521,7 @@ def aircraft_stl(x: str):
 
 @app.get("/api/meta3d")
 def meta3d():
-    return _clean({"plan": [{"name": p, "label": LABELS_AL[p], "lo": b[0], "hi": b[1]} for p, b in zip(PLAN_AL, BOUNDS_AL[6:])],
+    return _json({"plan": [{"name": p, "label": LABELS_AL[p], "lo": b[0], "hi": b[1]} for p, b in zip(PLAN_AL, BOUNDS_AL[6:])],
                    "requirements": RequirementsALIn().model_dump(), "mission": MissionIn().model_dump(),
                    "baseline_x": baseline_x_al(), "verification": VERIFY3D,
                    "renders": sorted(os.listdir(os.path.join(MODEL_DIR, "renders")))

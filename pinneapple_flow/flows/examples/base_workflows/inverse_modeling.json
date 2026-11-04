@@ -1,0 +1,55 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.base_workflows.inverse_modeling",
+ "name": "Inverse modeling: identifiability, estimate, trust checks",
+ "description": "Identifiability before the fit, estimation with held-out rows and intervals, and the checks that say whether the estimate can be trusted: fit, held-out, bounds, practical identifiability, white residuals, synthetic recovery (pinneapple_analysis.inverse_problems.workflow).",
+ "nodes": [
+  {
+   "id": "inverse",
+   "type": "inverse.workflow",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Inverse modeling"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Inverse modeling: identifiability, estimate, trust checks"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "inverse",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "inverse.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1189,
+  "example": "base_workflows",
+  "domain": "methods",
+  "entry": "inverse_modeling",
+  "bundled": "inverse_modeling",
+  "quick": {
+   "inverse": {
+    "bootstrap": 20,
+    "n_recovery": 4
+   }
+  },
+  "scripts": []
+ }
+}

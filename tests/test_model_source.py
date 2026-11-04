@@ -81,12 +81,9 @@ def test_a_torchscript_file_with_its_card(tmp_path):
         open_model("torchscript", path=str(path))
 
 
-def test_onnx_without_onnxruntime_says_what_to_install(tmp_path):
-    try:
-        import onnxruntime  # noqa: F401
-        pytest.skip("onnxruntime is installed")
-    except ImportError:
-        pass
+def test_onnx_without_onnxruntime_says_what_to_install(tmp_path, monkeypatch):
+    import sys
+    monkeypatch.setitem(sys.modules, "onnxruntime", None)          # as if not installed: import raises ImportError
     with pytest.raises(RuntimeError, match="onnxruntime"):
         open_model("onnx", path=str(tmp_path / "x.onnx"), inputs=["a"], outputs=["y"], bounds={"a": (0, 1)})
 

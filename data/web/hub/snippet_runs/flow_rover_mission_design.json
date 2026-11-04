@@ -1,0 +1,12 @@
+{
+ "code_hash": "116f9688958594e6",
+ "figures": [],
+ "id": "flow:rover_mission_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rover: mission to mobility, power and thermal, rover design, traverse re-verified - 2 nodes\nissues: []",
+ "timed_out": false
+}

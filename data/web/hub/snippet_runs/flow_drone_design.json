@@ -1,0 +1,12 @@
+{
+ "code_hash": "3b7ef750c6ee0048",
+ "figures": [],
+ "id": "flow:drone_design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Drone: rotor, motor and battery, sizing, 6-DOF control, endurance flown - 2 nodes\nissues: []",
+ "timed_out": false
+}

@@ -52,6 +52,15 @@ jobs:
 
       - name: PINNeAPPle Studio — every symbol as a tool, forms, status, search, gallery, jobs, API (must pass)
         run: pytest tests/test_studio.py -q -p no:warnings
+      - name: ONNX models end to end — open_model("onnx") vs torch, gate, inverse, VeriPhysics grade, benchmark, flow nodes (must pass)
+        # PINNEAPPLE_REQUIRE_ONNXRUNTIME=1: a missing onnxruntime fails here instead of skipping the module
+        env:
+          PINNEAPPLE_REQUIRE_ONNXRUNTIME: "1"
+        run: |
+          pip install -e ".[onnx,export]"
+          pytest tests/test_model_source_onnx.py -q -p no:warnings -rs
+      - name: Equation discovery — SINDy, PDE-FIND and its weak form, the 0.1 % noise Burgers case of #1224 (must pass)
+        run: pytest tests/test_equation_discovery.py -q -p no:warnings
       - name: API stability — core vs experimental, deprecation helpers, the frozen core API snapshot api/core.json (must pass)
         run: pytest tests/test_stability.py tests/test_deprecation_and_api.py -q -p no:warnings
       - name: Core coverage toward 1.0 (#1129) — presets, trainer, front-door catalog, data contracts, CAE readers, diffusion, closed forms, operators, PINO, 2-D mesher, trainer losses/UQ/collocation (must pass)

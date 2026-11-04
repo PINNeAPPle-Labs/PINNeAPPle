@@ -1,0 +1,167 @@
+{
+ "entry": "veriphysics_grade",
+ "example_flow": "base_workflows/veriphysics_grade",
+ "flow": "veriphysics_grade",
+ "group": "base_workflows",
+ "quick": {
+  "grade": {
+   "steps": 400
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "grade.pde_residual",
+     "detail": "u_t = alpha*lap(u): relative RMS residual 1.13e-02 at 2000 fresh points (allowed 0.05)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.conditions",
+     "detail": "initial t_min: u = sin(pi*x): 1.03e-03; dirichlet boundary: u = 0: 1.08e-03 (allowed 0.02)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.reference",
+     "detail": "relative L2 error 1.53e-03 on 400 reference points (allowed 0.05)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.applicability",
+     "detail": "the graded box is inside the model's declared validity",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.robustness",
+     "detail": "output change for a 0.001-span perturbation is 10.1x the change for a 10x smaller one (about 10 for a smooth model)",
+     "node": "grade",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "grade.grade.conditions.dirichlet boundary: u = 0": {
+     "how": "",
+     "value": 0.0010750947045912198
+    },
+    "grade.grade.conditions.initial t_min: u = sin(pi*x)": {
+     "how": "",
+     "value": 0.0010255895351148963
+    },
+    "grade.grade.pde_residual.u_t = alpha*lap(u)": {
+     "how": "",
+     "value": 0.011342526559399073
+    },
+    "grade.grade.reference": {
+     "how": "",
+     "value": 0.0015337565517314772
+    },
+    "grade.grade.robustness": {
+     "how": "",
+     "value": 10.134066047351318
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "grade": "done",
+    "report": "done"
+   },
+   "seconds": 17.6,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "grade.pde_residual",
+     "detail": "u_t = alpha*lap(u): relative RMS residual 1.31e-02 at 2000 fresh points (allowed 0.05)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.conditions",
+     "detail": "initial t_min: u = sin(pi*x): 1.21e-03; dirichlet boundary: u = 0: 7.07e-04 (allowed 0.02)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.reference",
+     "detail": "relative L2 error 1.94e-03 on 400 reference points (allowed 0.05)",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.applicability",
+     "detail": "the graded box is inside the model's declared validity",
+     "node": "grade",
+     "status": "pass"
+    },
+    {
+     "check": "grade.robustness",
+     "detail": "output change for a 0.001-span perturbation is 10.1x the change for a 10x smaller one (about 10 for a smooth model)",
+     "node": "grade",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "grade.grade.conditions.dirichlet boundary: u = 0": {
+     "how": "",
+     "value": 0.0007069271631612632
+    },
+    "grade.grade.conditions.initial t_min: u = sin(pi*x)": {
+     "how": "",
+     "value": 0.0012078086357324854
+    },
+    "grade.grade.pde_residual.u_t = alpha*lap(u)": {
+     "how": "",
+     "value": 0.01307855252247063
+    },
+    "grade.grade.reference": {
+     "how": "",
+     "value": 0.0019364035574119317
+    },
+    "grade.grade.robustness": {
+     "how": "",
+     "value": 10.132608927105967
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "grade": "done",
+    "report": "done"
+   },
+   "seconds": 6.1,
+   "status": "done"
+  }
+ }
+}

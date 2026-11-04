@@ -1,0 +1,99 @@
+{
+ "entry": "equation_discovery",
+ "example_flow": "base_workflows/equation_discovery",
+ "flow": "equation_discovery",
+ "group": "base_workflows",
+ "quick": {
+  "discover": {
+   "n_bootstrap": 20
+  }
+ },
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "discover.rollout",
+     "detail": "the discovered system integrated from the held-out window's first state over 0.998 time units: RMS error 0.99% of the signal (allowed 10%)",
+     "node": "discover",
+     "status": "pass"
+    },
+    {
+     "check": "discover.stable_terms",
+     "detail": "every selected term is kept in at least 80 % of the bootstrap refits",
+     "node": "discover",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "discover.savgol_window": {
+     "how": "chosen by the held-out rollout",
+     "value": 41
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "discover": "done",
+    "report": "done"
+   },
+   "seconds": 3.1,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "discover.rollout",
+     "detail": "the discovered system integrated from the held-out window's first state over 0.998 time units: RMS error 0.99% of the signal (allowed 10%)",
+     "node": "discover",
+     "status": "pass"
+    },
+    {
+     "check": "discover.stable_terms",
+     "detail": "every selected term is kept in at least 80 % of the bootstrap refits",
+     "node": "discover",
+     "status": "pass"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "discover.savgol_window": {
+     "how": "chosen by the held-out rollout",
+     "value": 41
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "discover": "done",
+    "report": "done"
+   },
+   "seconds": 3.1,
+   "status": "done"
+  }
+ }
+}

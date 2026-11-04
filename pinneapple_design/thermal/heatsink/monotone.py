@@ -70,8 +70,8 @@ def split_indices(n: int) -> dict[str, np.ndarray]:
 
 def train_monotone(mode: str = "natural", *, seed: int = 0, epochs: int = 600, lbfgs_rounds: int = 4,
                    lbfgs_steps: int = 200, n_random: int = 20000, lam: float = LAMBDA, margin: float = MARGIN,
-                   log=print) -> dict:
-    """Train the constrained surrogate on the app's dataset; returns the bundle that ``torch.save`` stores (state,
+                   log=print, artifacts: str | None = None) -> dict:
+    """Train the constrained surrogate on the physics dataset in ``artifacts`` (default ``surrogate.ARTIFACTS``); returns the bundle that ``torch.save`` stores (state,
     normalisation, split-conformal quantiles of log R, history, summary metrics)."""
     from pinneapple_neural.trainer import TrainConfig, Trainer
     from pinneapple_neural.trainer.checkpoint import load_checkpoint
@@ -79,7 +79,7 @@ def train_monotone(mode: str = "natural", *, seed: int = 0, epochs: int = 600, l
     from pinneapple_neural.trainer.monotonic import monotonicity_penalty
 
     torch.manual_seed(seed)
-    rows = json.load(gzip.open(_dataset_path(mode)))
+    rows = json.load(gzip.open(_dataset_path(mode, artifacts)))
     X, Y = rows_to_xy(mode, rows)
     Y = Y[:, :1]                                                   # log R only
     sp = split_indices(len(X))

@@ -1,0 +1,12 @@
+{
+ "code_hash": "503a71e2a23bf2cf",
+ "figures": [],
+ "id": "example:examples/industrial/lithography_opc",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 1.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Computational lithography: ILT mask correction over the process window | engineering | not curated\nrun_seconds_full 27.2 s\nrun_seconds_quick 32.7 s\nopc.cost.image_seconds 0.007293249999899369 \nopc.epe.corrected_nm 0.36363636363636365 \nopc.epe.uncorrected_nm 9.958041958041958",
+ "timed_out": false
+}

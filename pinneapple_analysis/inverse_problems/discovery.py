@@ -200,6 +200,12 @@ def discover_ode(t: np.ndarray, Y: np.ndarray, names: Sequence[str], *, degree: 
             "checks": checks, "rollout_rel_error": err}
 
 
+def _factors(label: str) -> list[str]:
+    """``"u**2*u_x"`` -> ``["u**2", "u_x"]``: split on the product ``*`` only, never inside a power ``**``."""
+    import re
+    return [] if label == "1" else [f for f in re.split(r"(?<!\*)\*(?!\*)", label) if f]
+
+
 def _pde_rollout(xi, labels, u, x, t, start, max_deriv) -> float:
     """Solve ``u_t = sum xi_k term_k`` by the method of lines on the data's grid from ``u[:, start]``, the two
     boundary values taken from the data, and return the RMS error over the remaining times relative to the field."""
@@ -218,13 +224,9 @@ def _pde_rollout(xi, labels, u, x, t, start, max_deriv) -> float:
         out = np.zeros_like(v)
         for c, lab in active:
             val = np.ones_like(v)
-            for f in lab.split("*") if lab != "1" else []:
-                if f == "u**2":
-                    val = val * v * v
-                elif f == "u**3":
-                    val = val * v ** 3
-                elif f:
-                    val = val * env[f]
+            for f in _factors(lab):
+                base, _, pw = f.partition("**")
+                val = val * env[base] ** (int(pw) if pw else 1)
             out = out + c * val
         return out
 
@@ -249,13 +251,88 @@ def _pde_rollout(xi, labels, u, x, t, start, max_deriv) -> float:
     return err, persist
 
 
+def _bump(m: int, h: float, p: int, k: int) -> np.ndarray:
+    """The ``k``-th derivative of the test function ``(1 - xi^2)^p`` on ``2m + 1`` grid points of half-width ``h``
+    (``xi`` in [-1, 1]), in physical units. It and its first ``p - 1`` derivatives vanish at both ends, so
+    integration by parts against it leaves no boundary terms."""
+    from numpy.polynomial import Polynomial
+    xi = np.arange(-m, m + 1) / m
+    poly = Polynomial([1.0, 0.0, -1.0]) ** p
+    return (poly.deriv(k)(xi) / h ** k) if k else poly(xi)
+
+
+def _label_parts(label: str) -> tuple[int, int]:
+    """``"u**2*u_xx"`` -> ``(2, 2)``: the power of ``u`` and the order of the x-derivative factor."""
+    pw, k = 0, 0
+    for f in _factors(label):
+        base, _, e = f.partition("**")
+        if base == "u":
+            pw += int(e) if e else 1
+        else:
+            k = len(base) - 2                                  # "u_xx" -> 2
+    return pw, k
+
+
+def _weak_system(u: np.ndarray, us: np.ndarray, x: np.ndarray, t: np.ndarray, labels: Sequence[str],
+                 max_deriv: int, support: tuple[float, float], stride: tuple[int, int] = (4, 2)):
+    """The weak form of ``u_t = sum_k xi_k term_k`` (weak SINDy: Messenger & Bortz, *J. Comput. Phys.* 443 (2021)
+    110525): each row is the equation integrated against one test function ``phi(x, t) = (1 - xi^2)^p (1 - tau^2)^p``
+    on a window of ``support`` (fractions of the x and t extents), the windows sliding over the grid.
+
+    The derivatives move onto ``phi`` by integration by parts, so the regression never uses a derivative of the noisy
+    data for ``u_t`` (``-int phi_t u``), for ``u``-powers, for pure derivatives ``u_x...`` (``(-1)^k int phi^(k) u``)
+    or for ``u^p u_x`` (``-int phi_x u^(p+1)/(p+1)``). The other terms ``u^p u_(kx)`` (p >= 1, k >= 2) are
+    integrated by parts once, so they need derivatives of the (smoothed) field ``us`` up to order ``k - 1`` instead
+    of ``k``. Rows ordered by time, then x; returns ``(Theta, b, (n_x, n_t))``."""
+    from scipy.signal import correlate
+    dx, dt = float(x[1] - x[0]), float(t[1] - t[0])
+    mx = max(max_deriv + 2, int(round(support[0] * (len(x) - 1) / 2)))
+    mt = max(3, int(round(support[1] * (len(t) - 1) / 2)))
+    if 2 * mx + 1 >= len(x) or 2 * mt + 1 >= len(t):
+        raise ValueError(f"the weak form needs more than {2 * mx + 1} x points and {2 * mt + 1} times for test "
+                         f"functions of support {support}; the field is {u.shape}")
+    p = max_deriv + 2
+    bx = [_bump(mx, mx * dx, p, k) for k in range(max_deriv + 1)]
+    bt = [_bump(mt, mt * dt, p, k) for k in range(2)]
+
+    def W(f, a, b):
+        return correlate(f, np.outer(bx[a], bt[b]) * dx * dt, mode="valid")[::stride[0], ::stride[1]]
+    d = [us]
+    for _ in range(max_deriv):
+        d.append(np.gradient(d[-1], dx, axis=0, edge_order=2))
+    cols = []
+    for lab in labels:
+        pw, k = _label_parts(lab)
+        if k == 0:
+            col = W(u ** pw, 0, 0)
+        elif pw == 0:
+            col = (-1) ** k * W(u, k, 0)
+        elif k == 1:
+            col = -W(u ** (pw + 1) / (pw + 1), 1, 0)
+        else:                                              # u^p u_(kx) = (u^p u_((k-1)x))_x - p u^(p-1) u_x u_((k-1)x)
+            col = -W(u ** pw * d[k - 1], 1, 0) - pw * W(u ** (pw - 1) * d[1] * d[k - 1], 0, 0)
+        cols.append(col)
+    b = -W(u, 0, 1)
+    return np.stack([c.T.ravel() for c in cols], 1), b.T.ravel(), b.shape
+
+
 def discover_pde(u: np.ndarray, x: np.ndarray, t: np.ndarray, *, max_power: int = 2, max_deriv: int = 3,
                  holdout: float = 0.2, thresholds: Sequence[float] | None = None, n_bootstrap: int = 50,
-                 trim: int = 5, smooth: int | None = None, seed: int = 0) -> dict[str, Any]:
+                 trim: int = 5, smooth: int | None = None, form: str = "strong",
+                 weak_support: tuple[float, float] = (0.24, 0.3), seed: int = 0) -> dict[str, Any]:
     """Discover ``u_t = f(u, u_x, u_xx, ...)`` from a field ``u`` (nx, nt) on a uniform grid (PDE-FIND).
 
     ``smooth``: a Savitzky-Golay window (cubic) applied along x and t before differentiating; by default it is used
-    when the field's high-frequency content says it is noisy (finite differences of noise grow as 1/dx^k)."""
+    when the field's high-frequency content says it is noisy (finite differences of noise grow as 1/dx^k).
+
+    ``form``: ``"strong"`` regresses ``u_t`` on the library evaluated pointwise (PDE-FIND); ``"weak"`` regresses
+    the equation integrated against test functions (:func:`_weak_system`, of ``weak_support`` fractions of the x
+    and t extents), which removes the bias that noisy derivatives put in the strong form. A strong-form result is
+    also checked against the weak form (``discover.weak_form``): a term that only the strong form selects, or that
+    it drops, is named, because noise in the derivatives (errors in the variables of the regression) can make one
+    term stand in for part of another, e.g. ``-u`` for part of ``u_xx`` on a smooth field."""
+    if form not in ("strong", "weak"):
+        raise ValueError("form is 'strong' (PDE-FIND) or 'weak' (weak SINDy)")
     from scipy.signal import savgol_filter
     u = np.asarray(u, float)
     u_raw = u
@@ -295,18 +372,26 @@ def discover_pde(u: np.ndarray, x: np.ndarray, t: np.ndarray, *, max_power: int 
             seen.add(lab)
             C.append(c)
             L.append(lab)
-    Theta = np.stack([c.T.ravel() for c in C], 1)            # rows ordered by time, then x
-    y = ut[sl].T.ravel()
-    nt_in = u[sl].shape[1]
-    cut = int((1 - holdout) * nt_in) * u[sl].shape[0]
     thresholds = thresholds if thresholds is not None else np.geomspace(1e-4, 0.5, 30)
-    xi, thr, path = _select(Theta[:cut], y[:cut], Theta[cut:], y[cut:], thresholds)
+    Theta_w, y_w, shape_w = _weak_system(u_raw, u, x, t, L, max_deriv, tuple(weak_support))
+    cut_w = int((1 - holdout) * shape_w[1]) * shape_w[0]
+    xi_w, thr_w, path_w = _select(Theta_w[:cut_w], y_w[:cut_w], Theta_w[cut_w:], y_w[cut_w:], thresholds)
+    if form == "weak":
+        Theta, y, cut = Theta_w, y_w, cut_w
+        xi, thr, path = xi_w, thr_w, path_w
+    else:
+        Theta = np.stack([c.T.ravel() for c in C], 1)            # rows ordered by time, then x
+        y = ut[sl].T.ravel()
+        nt_in = u[sl].shape[1]
+        cut = int((1 - holdout) * nt_in) * u[sl].shape[0]
+        xi, thr, path = _select(Theta[:cut], y[:cut], Theta[cut:], y[cut:], thresholds)
     p_in, lo, hi = _bootstrap(Theta[:cut], y[:cut], thr, n_bootstrap, seed)
     eq = _equation("u_t", xi, L)
     rel = float(np.linalg.norm(Theta[cut:] @ xi - y[cut:]) / max(np.linalg.norm(y[cut:]), 1e-300))
     roll, persist = _pde_rollout(xi, L, u_raw, x, t, int((1 - holdout) * len(t)), max_deriv)
+    what = "u_t" if form == "strong" else "the weak-form equation (test-function integrals)"
     checks = [{"code": "discover.held_out_fit", "status": "pass" if rel <= 0.1 else "fail",
-               "detail": f"u_t predicted on the held-out times to {rel:.2%} relative error", "value": rel},
+               "detail": f"{what} predicted on the held-out times to {rel:.2%} relative error", "value": rel},
               {"code": "discover.rollout", "status": "pass" if roll <= min(0.05, 0.25 * persist) else "fail",
                "detail": f"the discovered PDE solved (method of lines, the data's boundary values) over the held-out "
                          f"times from the field at their start: RMS error {roll:.2%} of the field, against "
@@ -315,7 +400,23 @@ def discover_pde(u: np.ndarray, x: np.ndarray, t: np.ndarray, *, max_power: int 
               {"code": "discover.stable_terms", "status": "pass" if all(p_in[i] >= 0.8 for i in np.flatnonzero(xi))
                else "fail", "detail": "every selected term is kept in at least 80 % of the bootstrap refits",
                "value": None}]
-    return {"equation": eq, "latex": _latex(eq), "smoothing": smooth, "roughness": rough,
+    weak = {"equation": _equation("u_t", xi_w, L), "support": list(weak_support), "threshold": thr_w,
+            "terms": {L[i]: float(xi_w[i]) for i in np.flatnonzero(xi_w)}}
+    if form == "strong":
+        extra = [L[i] for i in np.flatnonzero(xi) if xi_w[i] == 0]
+        missing = [L[i] for i in np.flatnonzero(xi_w) if xi[i] == 0]
+        why = "; ".join(([f"only the strong form selects {extra}"] if extra else []) +
+                        ([f"the strong form drops {missing}"] if missing else []))
+        checks.append({"code": "discover.weak_form", "status": "fail" if why else "pass",
+                       "detail": (f"the weak form (test functions; no derivative of the noisy data in the target) "
+                                  f"selects the same terms: {weak['equation']}") if not why else
+                                 (f"{why}: the weak form (test functions; no derivative of the noisy data in the "
+                                  f"target) gives {weak['equation']}. Terms selected by one form only are not "
+                                  f"supported by the data; noisy derivatives let one term stand in for another. "
+                                  f"Use form='weak' for noisy data"),
+                       "value": {"extra": extra, "missing": missing}})
+    return {"equation": eq, "latex": _latex(eq), "smoothing": smooth, "roughness": rough, "form": form,
+            "weak_form": weak,
             "terms": {L[i]: {"coefficient": float(xi[i]),
                                                                    "inclusion": float(p_in[i]),
                                                                    "interval95": [float(lo[i]), float(hi[i])]}

@@ -1,0 +1,189 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/base_workflows/veriphysics_grade",
+ "title": "VeriPhysics grade of a model trained elsewhere",
+ "description": "The equations, conditions and reference data a model claims to satisfy; its residuals by finite differences of its outputs (any framework), applicability and robustness; APPROVED / REVIEW / REJECT with the evidence (pinneapple_veriphysics.model_grade).",
+ "domain": "methods",
+ "methods": [
+  "veriphysics_grade"
+ ],
+ "modules": [
+  "pinneapple_flow"
+ ],
+ "params": {
+  "seconds_quick": 6.1,
+  "seconds_full": 17.6
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "run_seconds_quick",
+   "value": 6.1,
+   "unit": "s",
+   "how": "wall time of the quick configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "run_seconds_full",
+   "value": 17.6,
+   "unit": "s",
+   "how": "wall time of the full configuration, 2026-11-03, commit d83a70bc"
+  },
+  {
+   "name": "grade.grade.pde_residual.u_t = alpha*lap(u)",
+   "value": 0.011342526559399073,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "grade.grade.conditions.initial t_min: u = sin(pi*x)",
+   "value": 0.0010255895351148963,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "grade.grade.conditions.dirichlet boundary: u = 0",
+   "value": 0.0010750947045912198,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "grade.grade.reference",
+   "value": 0.0015337565517314772,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "grade.grade.robustness",
+   "value": 10.134066047351318,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.decisions_without_reference",
+   "value": 0.0,
+   "unit": "",
+   "how": "full run"
+  },
+  {
+   "name": "report.items",
+   "value": 1.0,
+   "unit": "",
+   "how": "full run"
+  }
+ ],
+ "checks": [
+  {
+   "name": "grade.grade.pde_residual",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "u_t = alpha*lap(u): relative RMS residual 1.13e-02 at 2000 fresh points (allowed 0.05)",
+   "kind": "sanity"
+  },
+  {
+   "name": "grade.grade.conditions",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "initial t_min: u = sin(pi*x): 1.03e-03; dirichlet boundary: u = 0: 1.08e-03 (allowed 0.02)",
+   "kind": "sanity"
+  },
+  {
+   "name": "grade.grade.reference",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "relative L2 error 1.53e-03 on 400 reference points (allowed 0.05)",
+   "kind": "reference"
+  },
+  {
+   "name": "grade.grade.applicability",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the graded box is inside the model's declared validity",
+   "kind": "sanity"
+  },
+  {
+   "name": "grade.grade.robustness",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "output change for a 0.001-span perturbation is 10.1x the change for a 10x smaller one (about 10 for a smooth model)",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (quick)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 6.1 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "run (full)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "done in 17.6 s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/result.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "d83a70bc",
+  "created": "2026-11-03T17:00:56Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.18",
+   "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39"
+  }
+ }
+}

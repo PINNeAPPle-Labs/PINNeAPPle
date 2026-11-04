@@ -98,7 +98,9 @@ def _register_capabilities():
         id="reactor.sizing", title="Reactor sizing with safety margins (closed loop)", domain="chemical reactors",
         keywords={"reactor": 2, "reator": 2, "reactor sizing": 3, "dimensionar": 1.5, "dimensionamento": 1.5,
                   "conversion": 1, "conversão": 1, "runaway": 2, "hot spot": 1.5, "packed bed": 2,
-                  "leito fixo": 2, "cstr": 2, "pfr": 2, "plug flow": 2},
+                  "leito fixo": 2, "cstr": 2, "pfr": 2, "plug flow": 2,
+                  # the goal verbs: "size a reactor", "design a reactor", "projetar um reator" reach 3 with the noun
+                  "size": 1.5, "sizing": 1.5, "design": 1, "projetar": 1, "otimiz": 1, "optimi": 1},
         requires_all=(("reactor", "reator", "cstr", "pfr", "packed bed", "leito fixo", "plug flow"),),
         min_score=3, nodes=("reactor.design",), build=_build,
         inputs=("the reaction kinetics and heats of reaction", "the feed", "the conversion target and the "

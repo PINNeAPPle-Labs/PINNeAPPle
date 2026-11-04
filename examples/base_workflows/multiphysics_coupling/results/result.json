@@ -1,0 +1,223 @@
+{
+ "entry": "multiphysics_coupling",
+ "example_flow": "base_workflows/multiphysics_coupling",
+ "flow": "multiphysics_coupling",
+ "group": "base_workflows",
+ "quick": {},
+ "runs": {
+  "full": {
+   "checks": [
+    {
+     "check": "coupling.convergence",
+     "detail": "Gauss-Seidel + Aitken: 9 iterations to an interface residual 3.7e-11 (<= 1e-10); plain Gauss-Seidel: 22 iterations",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "coupling.monolithic",
+     "detail": "monolithic residual 6.2e-11 (from 4.5), 408 residual evaluations",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "coupling.partitioned_vs_monolithic",
+     "detail": "largest relative difference of the quantities of interest 2.5e-11 (<= 1e-6)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "interface.joule_power",
+     "detail": "electric power I dV = 0.740261 W; heat received by the thermal model 0.740261 W; relative imbalance 4.1e-11 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "energy.global",
+     "detail": "heat conducted out of the ends 0.740293 W against I dV = 0.740261 W; relative imbalance 4.3e-05 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "closed_form",
+     "detail": "two-way against T - T0 = (cos(m(x - L/2))/cos(mL/2) - 1)/alpha, dV = rho0 J (2/m) tan(mL/2): field error 1.1e-05, T_max_K 3.7e-06, voltage_drop_V 3.8e-06, resistance_ohm 3.8e-06 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "one_way_vs_two_way",
+     "detail": "one-way error against two-way: T_max_K 0.119, voltage_drop_V 0.107, resistance_ohm 0.107; one-way against the closed form: field error 0.357",
+     "node": "couple",
+     "status": "info"
+    },
+    {
+     "check": "recommendation",
+     "detail": "gauss_seidel_aitken: two-way needed (one-way error 0.119); the plain partitioned map contracts (rho = 0.351 < 1), so Gauss-Seidel with Aitken relaxation converges and reuses each solver as is",
+     "node": "couple",
+     "status": "info"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "full",
+   "date": "2026-11-03",
+   "metrics": {
+    "couple.coupling.contraction": {
+     "how": "spectral radius of the plain partitioned map, measured from its first iterations",
+     "value": 0.3506255285027887
+    },
+    "couple.gauss_seidel.iterations": {
+     "how": "0.43 ms",
+     "value": 22
+    },
+    "couple.gauss_seidel_aitken.iterations": {
+     "how": "0.286 ms",
+     "value": 9
+    },
+    "couple.monolithic.iterations": {
+     "how": "46 ms",
+     "value": 408
+    },
+    "couple.one_way.iterations": {
+     "how": "0.0154 ms",
+     "value": 1
+    },
+    "couple.one_way_error.T_max_K": {
+     "how": "relative to the two-way solution",
+     "value": 0.11884251297497418
+    },
+    "couple.one_way_error.resistance_ohm": {
+     "how": "relative to the two-way solution",
+     "value": 0.10652064060488733
+    },
+    "couple.one_way_error.voltage_drop_V": {
+     "how": "relative to the two-way solution",
+     "value": 0.10652064060488728
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "couple": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  },
+  "quick": {
+   "checks": [
+    {
+     "check": "coupling.convergence",
+     "detail": "Gauss-Seidel + Aitken: 9 iterations to an interface residual 3.7e-11 (<= 1e-10); plain Gauss-Seidel: 22 iterations",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "coupling.monolithic",
+     "detail": "monolithic residual 6.2e-11 (from 4.5), 408 residual evaluations",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "coupling.partitioned_vs_monolithic",
+     "detail": "largest relative difference of the quantities of interest 2.5e-11 (<= 1e-6)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "interface.joule_power",
+     "detail": "electric power I dV = 0.740261 W; heat received by the thermal model 0.740261 W; relative imbalance 4.1e-11 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "energy.global",
+     "detail": "heat conducted out of the ends 0.740293 W against I dV = 0.740261 W; relative imbalance 4.3e-05 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "closed_form",
+     "detail": "two-way against T - T0 = (cos(m(x - L/2))/cos(mL/2) - 1)/alpha, dV = rho0 J (2/m) tan(mL/2): field error 1.1e-05, T_max_K 3.7e-06, voltage_drop_V 3.8e-06, resistance_ohm 3.8e-06 (<= 0.001)",
+     "node": "couple",
+     "status": "pass"
+    },
+    {
+     "check": "one_way_vs_two_way",
+     "detail": "one-way error against two-way: T_max_K 0.119, voltage_drop_V 0.107, resistance_ohm 0.107; one-way against the closed form: field error 0.357",
+     "node": "couple",
+     "status": "info"
+    },
+    {
+     "check": "recommendation",
+     "detail": "gauss_seidel_aitken: two-way needed (one-way error 0.119); the plain partitioned map contracts (rho = 0.351 < 1), so Gauss-Seidel with Aitken relaxation converges and reuses each solver as is",
+     "node": "couple",
+     "status": "info"
+    }
+   ],
+   "commit": "d83a70bc",
+   "configuration": "quick",
+   "date": "2026-11-03",
+   "metrics": {
+    "couple.coupling.contraction": {
+     "how": "spectral radius of the plain partitioned map, measured from its first iterations",
+     "value": 0.3506255285027887
+    },
+    "couple.gauss_seidel.iterations": {
+     "how": "0.399 ms",
+     "value": 22
+    },
+    "couple.gauss_seidel_aitken.iterations": {
+     "how": "0.233 ms",
+     "value": 9
+    },
+    "couple.monolithic.iterations": {
+     "how": "44.8 ms",
+     "value": 408
+    },
+    "couple.one_way.iterations": {
+     "how": "0.014 ms",
+     "value": 1
+    },
+    "couple.one_way_error.T_max_K": {
+     "how": "relative to the two-way solution",
+     "value": 0.11884251297497418
+    },
+    "couple.one_way_error.resistance_ohm": {
+     "how": "relative to the two-way solution",
+     "value": 0.10652064060488733
+    },
+    "couple.one_way_error.voltage_drop_V": {
+     "how": "relative to the two-way solution",
+     "value": 0.10652064060488728
+    },
+    "report.decisions": {
+     "how": "",
+     "value": 0
+    },
+    "report.decisions_without_reference": {
+     "how": "",
+     "value": 0
+    },
+    "report.items": {
+     "how": "",
+     "value": 1
+    }
+   },
+   "nodes": {
+    "couple": "done",
+    "report": "done"
+   },
+   "seconds": 0.1,
+   "status": "done"
+  }
+ }
+}

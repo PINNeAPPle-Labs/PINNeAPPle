@@ -120,11 +120,19 @@ def template_doc(name: str, quick: bool = False) -> dict[str, Any]:
     return with_quick(doc) if quick else doc
 
 
-def _from_template(cap: Capability, text: str, det: dict[str, Any]) -> FlowBuilder:
-    doc = template_doc(cap.template, cap.quick)
-    if cap.adapt is not None:
-        doc = cap.adapt(copy.deepcopy(doc), text, det)
-    fb = FlowBuilder(doc.get("name", cap.title), doc.get("description", ""))
+def bundled_flow(name: str) -> FlowBuilder:
+    """A builder holding a bundled flow (``pinneapple_flow/flows/<name>.json``), for capabilities that propose one of
+    the library's closed-loop flows as it is."""
+    from pathlib import Path
+    p = (Path(__file__).resolve().parents[1] / "flows" / f"{name}.json")
+    if not p.is_file():
+        raise KeyError(f"no bundled flow {name!r}")
+    return builder_of(json.loads(p.read_text()), name)
+
+
+def builder_of(doc: dict[str, Any], title: str = "") -> FlowBuilder:
+    """A :class:`FlowBuilder` with the nodes, edges and gallery metadata of a flow document."""
+    fb = FlowBuilder(doc.get("name", title), doc.get("description", ""))
     for n in doc["nodes"]:
         fb.add(n["id"], n["type"], n.get("params") or {}, label=n.get("label", ""))
     keep = set(fb.nodes)
@@ -133,6 +141,13 @@ def _from_template(cap: Capability, text: str, det: dict[str, Any]) -> FlowBuild
             fb.connect(e["source"], e["source_port"], e["target"], e["target_port"])
     fb.meta = {k: v for k, v in (doc.get("meta") or {}).items() if k in ("example", "domain", "scripts", "quick")}
     return fb
+
+
+def _from_template(cap: Capability, text: str, det: dict[str, Any]) -> FlowBuilder:
+    doc = template_doc(cap.template, cap.quick)
+    if cap.adapt is not None:
+        doc = cap.adapt(copy.deepcopy(doc), text, det)
+    return builder_of(doc, cap.title)
 
 
 def proposal(cap: Capability, text: str, det: dict[str, Any], hits: list[str], s: float) -> dict[str, Any]:
@@ -164,4 +179,4 @@ def describe() -> list[dict[str, Any]]:
 
 
 __all__ = ["Capability", "CAPABILITIES", "register_capability", "capabilities", "match", "proposals", "describe",
-           "score", "template_doc"]
+           "score", "template_doc", "bundled_flow", "builder_of"]

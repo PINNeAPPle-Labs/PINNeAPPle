@@ -115,6 +115,29 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_core.series:bucket_edges": {
+  "code_hash": "bf29f445b863c519",
+  "inputs": {
+   "k": 10,
+   "n": 1000
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 0.9
+ },
+ "pinneapple_core.series:downsample_indices": {
+  "code_hash": "6ac830fb7d805b4e",
+  "inputs": {
+   "k": 50,
+   "method": "even",
+   "n": 1000
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_core.service.metering:current_period": {
   "code_hash": "0c9832b1136ba3cb",
   "inputs": {},

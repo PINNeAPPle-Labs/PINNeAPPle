@@ -21,7 +21,8 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import engine
+import pinneapple_analysis.inverse_problems.heat_transfer as engine
+
 from .snippets import SNIPPETS
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))

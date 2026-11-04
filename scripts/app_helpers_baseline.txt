@@ -1,6 +1,5 @@
 # Existing duplicates of library helpers in apps/ and examples/ (scripts/check_app_helpers.py).
 # This list may only shrink: fix an entry by moving the logic into the library, then delete it.
-apps/aero_optimizer/aero_optimizer/api.py::_clean
 examples/arena_pipelines/06_custom_problem.py::_grad
 examples/arena_pipelines/08_3d_geometry_pipeline.py::_grad
 examples/black_hole_weather/evaluate.py -> examples/black_hole_weather/simulate.py

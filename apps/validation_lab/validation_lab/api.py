@@ -20,7 +20,6 @@ import os
 import re
 import sys
 import tempfile
-import uuid
 from pathlib import Path
 from typing import Annotated
 
@@ -33,6 +32,7 @@ from pinneapple_check import ConfigError
 from pinneapple_check.rules import RULES
 from pinneapple_core.service import data_dir
 from pinneapple_data.cae.upload import expand
+from pinneapple_tools.visualization.studio.view_cache import prune_views, save_view
 from pinneapple_veriphysics.mesh_views import mesh_views
 from pinneapple_veriphysics.validation_lab import (
     CATEGORIES,
@@ -183,13 +183,10 @@ def _views(workdir: str, lab: dict) -> list[dict]:
         return []
     out = []
     for v in views:
-        vid = uuid.uuid4().hex
-        (VIEWS / f"{vid}.glb").write_bytes(v["view"].glb())
+        vid = save_view(VIEWS, v["view"])
         out.append({"id": vid, "target": v["target"], "reference": v["reference"], "meta": v["view"].meta,
                     "errors": v["errors"], "notes": v["notes"], "glb": f"/api/views/{vid}.glb"})
-    old = sorted(VIEWS.glob("*.glb"), key=lambda p: p.stat().st_mtime, reverse=True)[VIEWS_KEPT:]
-    for p in old:
-        p.unlink(missing_ok=True)
+    prune_views(VIEWS, VIEWS_KEPT)
     return out
 
 

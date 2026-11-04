@@ -49,6 +49,10 @@ def foam():
     return leaf("pinneapple_data.cae.foam")
 
 
+def case_root():
+    return leaf("pinneapple_simulation.external_solvers.openfoam.case_root")
+
+
 def cae_io():
     return leaf("pinneapple_data.cae.io")
 

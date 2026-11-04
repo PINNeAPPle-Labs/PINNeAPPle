@@ -16,7 +16,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-__all__ = ["Domain2D", "NodeSet", "domain", "polygon_domain", "point_cloud_domain", "DOMAINS"]
+__all__ = ["Domain2D", "NodeSet", "domain", "polygon_domain", "point_cloud_domain", "DOMAINS", "default_spacings",
+           "point_cloud_from_table", "domain_from_spec"]
 
 
 @dataclass
@@ -63,6 +64,18 @@ class Domain2D:
         g = np.stack(np.meshgrid(np.linspace(self.lo[0], self.hi[0], n), np.linspace(self.lo[1], self.hi[1], n)),
                      -1).reshape(-1, 2)
         return float(self.contains(g).mean() * (self.hi[0] - self.lo[0]) * (self.hi[1] - self.lo[1]))
+
+    def perimeter(self) -> float:
+        """Total length of the boundary pieces (outer boundary and holes); 0 for a point cloud."""
+        return float(sum(np.linalg.norm(np.asarray(p[2], float) - np.asarray(p[1], float)) if p[0] == "seg"
+                         else abs(p[4] - p[3]) * p[2] for p in self.pieces))
+
+    def estimate_nodes(self, h: float) -> float:
+        """Node count of ``nodes(h)`` without building it: ``area / h**2 + perimeter / h`` (lattice plus boundary).
+        A point cloud returns its own node count."""
+        if self.cloud is not None:
+            return float(self.cloud.n)
+        return self.area() / h ** 2 + self.perimeter() / h
 
     def boundary_nodes(self, h: float) -> np.ndarray:
         out = []
@@ -215,3 +228,35 @@ def point_cloud_domain(X: np.ndarray, boundary: np.ndarray, *, eval_fraction: fl
     ns = NodeSet(X[keep], b[keep], h)
     return Domain2D(name, None, [], tuple(X.min(0)), tuple(X.max(0)), f"{len(X)} uploaded points", ns,
                     X[held] if k else None)
+
+
+def default_spacings(dom: Domain2D, levels: int = 3) -> list[float]:
+    """The default refinement ladder of a study: ``diameter / 10 / 2**k`` for ``k < levels``, coarsest first."""
+    return [dom.diameter / 10 / 2 ** k for k in range(levels)]
+
+
+_BOUNDARY_COLUMNS = ("boundary", "is_boundary", "b", "on_boundary")
+
+
+def point_cloud_from_table(df, name: str = "point cloud") -> Domain2D:
+    """A point-cloud domain from a table (a pandas ``DataFrame``) with columns ``x``, ``y`` and a boundary flag
+    (``boundary``, ``is_boundary``, ``b`` or ``on_boundary``; 1 on the boundary, 0 inside). Column names are matched
+    without regard to case. Raises ``ValueError`` when a column is missing."""
+    cols = {str(c).lower(): c for c in df.columns}
+    bcol = next((cols[c] for c in _BOUNDARY_COLUMNS if c in cols), None)
+    if "x" not in cols or "y" not in cols or bcol is None:
+        raise ValueError("the point cloud needs columns x, y and boundary (1 on the boundary, 0 inside)")
+    return point_cloud_domain(df[[cols["x"], cols["y"]]].to_numpy(float), df[bcol].to_numpy(float) > 0.5, name=name)
+
+
+def domain_from_spec(d: dict | None, table=None, name: str = "") -> Domain2D:
+    """The domain a study request describes: a point-cloud ``table`` (see :func:`point_cloud_from_table`) if given,
+    else ``{"polygon": [[x, y], ...], "holes": [[cx, cy, r], ...]}``, else ``{"preset": name}`` (default
+    ``"square"``)."""
+    if table is not None:
+        return point_cloud_from_table(table, name=name or "point cloud")
+    d = d or {}
+    if d.get("polygon"):
+        holes = [((float(h[0]), float(h[1])), float(h[2])) for h in d.get("holes", [])]
+        return polygon_domain(d["polygon"], name="polygon", holes=holes)
+    return domain(str(d.get("preset", "square")))

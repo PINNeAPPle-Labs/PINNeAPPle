@@ -65,6 +65,26 @@ DUPLICATES: dict[str, str] = {
     "_setup_dark": "pinneapple_tools.visualization.style.use_cfd_style(dark=True)",
     "block_bootstrap": "pinneapple_analysis.uncertainty.resampling.block_bootstrap",
     "jackknife": "pinneapple_analysis.uncertainty.resampling.jackknife",
+    # October apps (#1226)
+    "_perimeter": "pinneapple_simulation.meshless.Domain2D.perimeter / estimate_nodes",
+    "point_cloud_from_table": "pinneapple_simulation.meshless.point_cloud_from_table",
+    "domain_from_spec": "pinneapple_simulation.meshless.domain_from_spec",
+    "default_spacings": "pinneapple_simulation.meshless.default_spacings",
+    "solutions_csv": "pinneapple_simulation.meshless.MeshlessStudy.solutions_csv",
+    "cached_view": "pinneapple_tools.visualization.studio.cached_view",
+    "_cached_view": "pinneapple_tools.visualization.studio.cached_view",
+    "save_view": "pinneapple_tools.visualization.studio.save_view",
+    "prune_views": "pinneapple_tools.visualization.studio.prune_views",
+    "downsample": "pinneapple_core.series.downsample",
+    "_downsample": "pinneapple_core.series.downsample",
+    "_downsample_line": "pinneapple_core.series.downsample / bucket_edges",
+    "_down": "pinneapple_core.series.downsample",
+    "find_case_root": "pinneapple_simulation.external_solvers.openfoam.find_case_root",
+    "_find_case_root": "pinneapple_simulation.external_solvers.openfoam.find_case_root",
+    "_case_root": "pinneapple_simulation.external_solvers.openfoam.find_case_root",
+    "_unzip_case": "pinneapple_simulation.external_solvers.openfoam.extract_case",
+    "design_size": "pinneapple_data.doe.design_size",
+    "pack_folder": "pinneapple_simulation.external_solvers.campaign_cases.pack_folder",
 }
 
 

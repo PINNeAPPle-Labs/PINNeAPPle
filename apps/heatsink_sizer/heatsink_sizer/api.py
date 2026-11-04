@@ -20,9 +20,8 @@ from pydantic import BaseModel, Field
 
 from pinneapple_design.thermal.heatsink.engine import H_BAND, DesignInput, OperatingInput, evaluate_design
 from pinneapple_design.thermal.heatsink.sizer import PROCESSES, SizingRequest, size
+from pinneapple_design.thermal.heatsink.surrogate import COMMON_RANGES, MODE_RANGES, load_surrogates
 from pinneapple_physics.closed_form.plate_fin_heatsink import MATERIALS
-
-from .surrogate import COMMON_RANGES, MODE_RANGES, load_surrogates
 
 # apps/_shared: login, busy limiter and the vendored three.js used by every app
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
@@ -30,11 +29,14 @@ from appkit import BusyLimiter, install  # noqa: E402
 
 VERSION = "1.0.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
+# the app's trained surrogates (python -m pinneapple_design.thermal.heatsink.surrogate --artifacts <this dir>)
+ARTIFACTS = os.environ.get("PINNEAPPLE_HEATSINK_ARTIFACTS") or os.path.join(os.path.dirname(__file__), "..",
+                                                                            "artifacts")
 
 app = FastAPI(title="HeatSink Sizer", version=VERSION,
               description="Plate-fin heat sink sizing with verified physics (PINNeAPPle).")
 install(app, prefix="HSS")
-_SURROGATES = load_surrogates()
+_SURROGATES = load_surrogates(ARTIFACTS)
 _SIZING = BusyLimiter("HSS_MAX_SIZING")
 
 MaterialName = Literal[tuple(MATERIALS)]  # type: ignore[valid-type]

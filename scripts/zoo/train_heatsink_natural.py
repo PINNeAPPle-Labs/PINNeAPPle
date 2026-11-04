@@ -19,6 +19,7 @@ from pinneapple_design.thermal.heatsink.monotone import train_monotone  # noqa: 
 
 if __name__ == "__main__":
     out = Path(sys.argv[1])
-    bundle = train_monotone("natural", log=lambda s: print(s, flush=True))
+    bundle = train_monotone("natural", log=lambda s: print(s, flush=True),
+                            artifacts=str(ROOT / "apps" / "heatsink_sizer" / "artifacts"))
     out.mkdir(parents=True, exist_ok=True)
     torch.save(bundle, out / "heatsink_natural.pt")

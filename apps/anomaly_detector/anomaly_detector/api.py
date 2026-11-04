@@ -27,6 +27,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from pinneapple_core.jsonable import to_jsonable
+from pinneapple_core.series import downsample_indices
 from pinneapple_data.contracts import ModelRef, read_table
 from pinneapple_systems.operations.anomaly import (
     METHODS,
@@ -190,9 +191,9 @@ def _analyze_job(params: dict, ctx) -> dict:
                  model_inputs=params.get("model_inputs") or ())
     out = res.to_dict(max_points=1500)
     signals = cfg.sensors or [c for c in cols if c != "t" and np.issubdtype(np.asarray(cols[c]).dtype, np.number)]
-    step = max(1, int(np.ceil(len(df) / 1500)))
-    out["signals"] = {s: np.asarray(cols[s], dtype=float)[::step].tolist() for s in signals[:8]}
-    out["flags"] = res.flags[::step].tolist()
+    idx = downsample_indices(len(df), 1500, "stride")          # the same samples as res.to_dict(max_points=1500)
+    out["signals"] = {s: np.asarray(cols[s], dtype=float)[idx].tolist() for s in signals[:8]}
+    out["flags"] = res.flags[idx].tolist()
     if label and label in df.columns:
         iv = intervals_from_labels(df["t"].to_numpy(), df[label].to_numpy())
         out["score"] = score_events(res, iv)

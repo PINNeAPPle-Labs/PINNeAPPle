@@ -5473,6 +5473,20 @@
   },
   "source": "tests/test_multiphysics_workflow.py"
  },
+ "pinneapple_simulation.multirotor.rotor:induced_velocity": {
+  "inputs": {
+   "thrust": 10.0,
+   "radius": 0.127
+  },
+  "source": "tests/test_drone_workflow.py"
+ },
+ "pinneapple_simulation.multirotor.rotor:momentum_hover_power": {
+  "inputs": {
+   "thrust": 10.0,
+   "radius": 0.127
+  },
+  "source": "tests/test_drone_workflow.py"
+ },
  "pinneapple_simulation.naval.hydrostatics:box_barge": {
   "inputs": {
    "B": 12.0,
@@ -6916,5 +6930,78 @@
    "seed": 1
   },
   "source": "tests/test_nvidia_integrations.py:506"
+ },
+ "pinneapple_simulation.meshless.domains:domain_from_spec": {
+  "inputs": {
+   "d": {
+    "polygon": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ],
+    "holes": [
+     [
+      0.5,
+      0.5,
+      0.2
+     ]
+    ]
+   }
+  },
+  "source": "tests/test_meshless.py"
+ },
+ "pinneapple_tools.visualization.studio.view_cache:view_paths": {
+  "inputs": {
+   "directory": "views",
+   "key": "test_0"
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_core.series:bucket_edges": {
+  "inputs": {
+   "n": 1000,
+   "k": 10
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_core.series:downsample_indices": {
+  "inputs": {
+   "n": 1000,
+   "k": 50,
+   "method": "even"
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_core.series:downsample": {
+  "inputs": {
+   "x": null,
+   "y": [
+    0.0,
+    3.0,
+    1.0,
+    9.0,
+    2.0,
+    4.0,
+    -5.0,
+    1.0,
+    0.5,
+    2.0
+   ],
+   "k": 6
+  },
+  "source": "tests/test_october_apps_helpers.py"
  }
 }

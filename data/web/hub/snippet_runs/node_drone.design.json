@@ -1,0 +1,12 @@
+{
+ "code_hash": "098a70ebccbd73f7",
+ "figures": [],
+ "id": "node:drone.design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 7.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multirotor design (rotor, motor, battery, sizing, 6-DOF control, endurance flown) -> pinneapple_simulation.multirotor.workflow.drone_workflow (rotor.bemt, rotor.calibrate_airfoil, power.Motor, power.Battery, quad.lqr_hover, quad.simulate, quad.fly_mission)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'payload_kg': 0.3, 'endurance_min': 15.0, 'thrust_to_weight': 2.0, 'mission': [{'name': 'hover', 'target': [0, 0, 0], 'duration': 30.0, 'speed': 1.0}, {'name': 'climb', 'target': [0, 0, 20], 'duration': 30.0, 'speed': 2.0}, {'name': 'cruise', 'target': [100, 0, 20], 'duration': 60.0, 'speed': 5.0}, {'name': 'return', 'target': [0, 0, 20], 'duration': 60.0, 'speed': 5.0}, {'name': 'descend', 'target': [0, 0, 0], 'duration': 30.0, 'speed': 1.5}], 'gust_m_s': 3.0, 'calibrate_polar': True, 'published': True, 'mass_model': {}}",
+ "timed_out": false
+}

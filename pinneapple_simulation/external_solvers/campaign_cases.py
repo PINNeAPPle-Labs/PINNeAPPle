@@ -194,8 +194,9 @@ def write_openfoam_from_base(base: str | Path, cases, out_dir: str | Path, edits
         format_template,
         resolve,
     )
+    from .openfoam.case_root import is_case
     base, out_dir = Path(base), Path(out_dir)
-    if not (base / "system" / "controlDict").is_file():
+    if not is_case(base):
         raise ValueError(f"{base} is not an OpenFOAM case (no system/controlDict)")
     names = [c for c in cases.columns if c not in _META_COLUMNS]
     runs, written = [], []
@@ -292,11 +293,12 @@ def write_campaign(plan, out_dir: str | Path, *, outputs: Sequence[str] = (), un
                    openfoam: str | None = None, calculix: str | None = None, openfoam_base: str | Path | None = None,
                    openfoam_edits: Sequence[Mapping[str, str]] = (), openfoam_derived: Mapping[str, str] | None = None,
                    calculix_template: str | None = None, case_limit: int | None = None,
-                   app: str = "campaign") -> dict[str, Any]:
+                   app: str = "campaign", archive: str | Path | None = None) -> dict[str, Any]:
     """Write a :class:`pinneapple_data.doe.CampaignPlan` to ``out_dir``: tables, the Python runner, the contracts and
     the solver cases. ``openfoam``: ``"airfoil"`` or ``"base"`` (with ``openfoam_base`` + ``openfoam_edits``);
     ``calculix``: ``"cantilever"`` or ``"template"`` (with ``calculix_template``). ``case_limit`` caps the number of
-    case directories (the tables and plan always hold every case)."""
+    case directories (the tables and plan always hold every case). ``archive``: also pack ``out_dir`` into this zip
+    (members under ``<out_dir name>/``, sorted; its path is ``files["archive"]``)."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     space = plan.space
@@ -326,7 +328,22 @@ def write_campaign(plan, out_dir: str | Path, *, outputs: Sequence[str] = (), un
         files["calculix"] = [str(p) for p in write_calculix_from_template(calculix_template, sub, out)]
     n_dirs = max(len(files.get("openfoam", [])), len(files.get("calculix", [])))
     (out / "README.txt").write_text(_readme(plan, n_dirs, outputs))
+    if archive is not None:
+        files["archive"] = str(pack_folder(out, archive))
     return files
+
+
+def pack_folder(folder: str | Path, archive: str | Path, prefix: str | None = None) -> Path:
+    """Zip every file under ``folder`` (sorted, deflated) into ``archive`` as ``<prefix>/<relative path>``
+    (``prefix`` defaults to the folder's name). Returns the archive path."""
+    import zipfile
+    folder, archive = Path(folder), Path(archive)
+    top = Path(prefix if prefix is not None else folder.name)
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as z:
+        for p in sorted(folder.rglob("*")):
+            if p.is_file():
+                z.write(p, top / p.relative_to(folder))
+    return archive
 
 
 def _readme(plan, n_dirs: int, outputs: Sequence[str]) -> str:

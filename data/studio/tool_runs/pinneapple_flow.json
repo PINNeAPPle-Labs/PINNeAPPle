@@ -334,6 +334,14 @@
   "returned": "FlowBuilder",
   "seconds": 7.14
  },
+ "pinneapple_flow.nodes_ext.drone_design:build_flow": {
+  "code_hash": "fd4752131dcf94f7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 6.52
+ },
  "pinneapple_flow.nodes_ext.equation_discovery:build_flow": {
   "code_hash": "2af614852789d28a",
   "inputs": {},
@@ -399,6 +407,14 @@
   "recorded": "2026-11-03",
   "returned": "FlowBuilder",
   "seconds": 6.48
+ },
+ "pinneapple_flow.nodes_ext.problemdesign:build_run_draft_flow": {
+  "code_hash": "130113d813ed5be0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "FlowBuilder",
+  "seconds": 5.77
  },
  "pinneapple_flow.nodes_ext.reactors:build_flow": {
   "code_hash": "5e021e182ad4bfae",

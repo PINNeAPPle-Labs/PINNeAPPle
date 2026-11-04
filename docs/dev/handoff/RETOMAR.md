@@ -85,9 +85,15 @@ As sessões paralelas atingiram o limite semanal antes de enviar o trabalho loca
 
 - #1226, lote 2 dos apps de outubro;
 - #1194 (CFD/OpenFOAM) e #1195 (estrutural);
-- #1199, #1200, #1202 e #1203 (terramecânica, rover, braços robóticos, submarinos);
+- #1202 e #1203 (braços robóticos, submarinos);
 - #1196 (imagens de satélite) e #1204 (EM);
 - no app de engenharia, #37 (e o backlog #34, #36, #33).
+
+#1199 (terramecânica) e #1200 (rover) não se perderam: entraram no #1256, em 03/11.
+
+A lista completa e conferida do que ficou aberto, com o passo a passo do physicsnemo, está em
+`docs/pendencias/PENDENCIAS_YAN.md`, no branch
+[`pendencias/yan`](https://github.com/PINNeAPPle-Labs/PINNeAPPle-CFD/tree/pendencias/yan) do PINNeAPPle-CFD (privado).
 
 **Campanha do canal (PINNeAPPle-CFD):** D0 e AV02–AV05 prontos, com o relatório unificado, as animações e os CSVs no
 PR #141. O AV06 foi parado e fica para o seu PC: passo a passo em PINNeAPPle-CFD#144

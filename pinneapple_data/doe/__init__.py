@@ -10,10 +10,11 @@ from .designs import (
     METHODS,
     Design,
     design,
+    design_size,
     fractional_factorial_unit,
     greedy_maximin,
     min_distance,
 )
 
-__all__ = ["METHODS", "Design", "design", "fractional_factorial_unit", "greedy_maximin", "min_distance", "coverage",
+__all__ = ["METHODS", "Design", "design", "design_size", "fractional_factorial_unit", "greedy_maximin", "min_distance", "coverage",
            "redundancy", "prioritize", "CampaignPlan", "plan_campaign"]

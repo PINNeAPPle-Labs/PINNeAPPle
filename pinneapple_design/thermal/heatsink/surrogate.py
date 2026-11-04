@@ -13,8 +13,9 @@ variables and a single model would have to learn a discontinuity at
 
 Run ``python -m pinneapple_design.thermal.heatsink.surrogate`` (``--help`` for the
 sizes) to regenerate the dataset, retrain and write ``surrogate_<mode>.pt`` + its
-trust report into ``ARTIFACTS`` (``apps/heatsink_sizer/artifacts`` unless
-``PINNEAPPLE_HEATSINK_ARTIFACTS`` is set).
+trust report into ``--artifacts`` (default ``ARTIFACTS``: ``$PINNEAPPLE_HEATSINK_ARTIFACTS`` or
+``~/.pinneapple/heatsink``). The HeatSink Sizer app keeps its trained copies in ``apps/heatsink_sizer/artifacts``
+and passes that directory to :func:`load_surrogates`.
 """
 from __future__ import annotations
 
@@ -32,9 +33,9 @@ import torch
 
 from .engine import DesignInput, OperatingInput, physics_resistance
 
-# trained surrogates and datasets; the HeatSink Sizer app points this at apps/heatsink_sizer/artifacts
-ARTIFACTS = os.environ.get("PINNEAPPLE_HEATSINK_ARTIFACTS") or os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "heatsink_sizer", "artifacts"))
+# default directory of the trained surrogates and datasets (the library never reads an app's folder by itself)
+ARTIFACTS = os.environ.get("PINNEAPPLE_HEATSINK_ARTIFACTS") or os.path.join(os.path.expanduser("~"), ".pinneapple",
+                                                                            "heatsink")
 
 # Design space the surrogates are trained (and therefore valid) on. mm, W, C, m/s.
 COMMON_RANGES: Dict[str, Tuple[float, float]] = {
@@ -288,35 +289,38 @@ def train(mode: str, rows: List[Dict[str, float]], seed: int = 0, epochs: int = 
     return sur
 
 
-def load_surrogates() -> Dict[str, Surrogate]:
+def load_surrogates(directory: str | None = None) -> Dict[str, Surrogate]:
+    """The trained surrogates found in ``directory`` (default ``ARTIFACTS``), by cooling mode."""
     out = {}
     for mode in ("forced", "natural"):
-        p = os.path.join(ARTIFACTS, f"surrogate_{mode}.pt")
+        p = os.path.join(directory or ARTIFACTS, f"surrogate_{mode}.pt")
         if os.path.exists(p):
             out[mode] = Surrogate.load(p)
     return out
 
 
-def _dataset_path(mode: str) -> str:
-    return os.path.join(ARTIFACTS, f"dataset_{mode}.json.gz")
+def _dataset_path(mode: str, directory: str | None = None) -> str:
+    return os.path.join(directory or ARTIFACTS, f"dataset_{mode}.json.gz")
 
 
-def main(n_forced: int = 6000, n_natural: int = 5000, workers: int = 4, reuse: bool = False) -> None:
+def main(n_forced: int = 6000, n_natural: int = 5000, workers: int = 4, reuse: bool = False,
+         artifacts: str | None = None) -> None:
     import gzip
-    os.makedirs(ARTIFACTS, exist_ok=True)
+    artifacts = artifacts or ARTIFACTS
+    os.makedirs(artifacts, exist_ok=True)
     for mode, n in (("forced", n_forced), ("natural", n_natural)):
         t = time.time()
-        if reuse and os.path.exists(_dataset_path(mode)):
-            with gzip.open(_dataset_path(mode), "rt") as f:
+        if reuse and os.path.exists(_dataset_path(mode, artifacts)):
+            with gzip.open(_dataset_path(mode, artifacts), "rt") as f:
                 rows = json.load(f)
         else:
             rows = generate_dataset(mode, n, seed={"forced": 1, "natural": 2}[mode], workers=workers)
-            with gzip.open(_dataset_path(mode), "wt") as f:
+            with gzip.open(_dataset_path(mode, artifacts), "wt") as f:
                 json.dump(rows, f)
         print(f"[{mode}] {len(rows)} physics samples in {time.time() - t:.0f}s", flush=True)
         sur = train(mode, rows)
-        sur.save(os.path.join(ARTIFACTS, f"surrogate_{mode}.pt"))
-        with open(os.path.join(ARTIFACTS, f"surrogate_{mode}_report.json"), "w") as f:
+        sur.save(os.path.join(artifacts, f"surrogate_{mode}.pt"))
+        with open(os.path.join(artifacts, f"surrogate_{mode}_report.json"), "w") as f:
             json.dump(sur.report, f, indent=2)
         print(f"[{mode}] verdict: {sur.report['verdict']}", flush=True)
 
@@ -329,8 +333,11 @@ if __name__ == "__main__":
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--reuse-dataset", action="store_true",
                     help="retrain on the saved physics dataset instead of regenerating it")
+    ap.add_argument("--artifacts", default=None,
+                    help="directory of the datasets and trained surrogates (default: ARTIFACTS); the HeatSink Sizer "
+                         "app's copies are in apps/heatsink_sizer/artifacts")
     a = ap.parse_args()
-    main(a.n_forced, a.n_natural, a.workers, a.reuse_dataset)
+    main(a.n_forced, a.n_natural, a.workers, a.reuse_dataset, a.artifacts)
 
 
 def forced_reference(**params: float) -> dict | None:

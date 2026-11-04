@@ -162,7 +162,7 @@ def _case_fs(case: Path) -> dict[str, bytes]:
         for f in sub.iterdir():
             if f.is_file() and not f.name.startswith(".") and f.stat().st_size < 2_000_000_000:
                 fs[f.relative_to(case).as_posix()] = f.read_bytes()
-    if (case / "system" / "controlDict").is_file():
+    if _reuse.case_root().is_case(case):
         fs["system/controlDict"] = (case / "system" / "controlDict").read_bytes()
     return fs
 

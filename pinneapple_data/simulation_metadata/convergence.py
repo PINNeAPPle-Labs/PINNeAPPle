@@ -19,6 +19,8 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
+from pinneapple_core.series import downsample_indices
+
 LABEL = {"converged": "Converged", "still_falling": "Not converged: residuals still falling", "stalled": "Stalled",
          "diverged": "Diverged", "crashed": "Crashed", "incomplete": "Incomplete log", "completed": "Completed",
          "failed": "Failed to converge", "unknown": "No residual history"}
@@ -48,11 +50,7 @@ def _slope(y: np.ndarray, x: np.ndarray) -> float:
 
 
 def downsample(x: List[float], series: Dict[str, List[float]], k: int = 1500) -> Dict[str, Any]:
-    n = len(x)
-    if n <= k:
-        idx = np.arange(n)
-    else:
-        idx = np.unique(np.concatenate([np.linspace(0, n - 1, k).astype(int), [n - 1]]))
+    idx = downsample_indices(len(x), k, "even")
     clean = lambda v: None if v is None or not np.isfinite(v) else float(v)   # noqa: E731
     return {"x": [float(x[i]) for i in idx], "fields": {f: [clean(v[i]) for i in idx] for f, v in series.items()}}
 

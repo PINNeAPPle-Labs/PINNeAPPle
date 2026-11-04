@@ -1,3 +1,4 @@
+from .case_root import extract_case, find_case_root, is_case  # noqa: F401
 from .case_builder import OpenFOAMCaseTemplate, stage_case_for_scenario
 from .runner import OpenFOAMRunConfig, run_openfoam_case
 from .sampling import write_sample_dict_cloud, run_sampling, read_sampled_scalar_field

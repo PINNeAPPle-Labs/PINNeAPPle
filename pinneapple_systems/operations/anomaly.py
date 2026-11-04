@@ -27,6 +27,7 @@ from dataclasses import asdict, dataclass, field
 
 import numpy as np
 
+from pinneapple_core.series import downsample_indices
 from pinneapple_systems.process_components.explicit_equation_system import _names_in_expr, safe_eval
 
 from .plant import Fault, SensorNoise, TankParams, demo_scenario, simulate
@@ -242,8 +243,7 @@ class DetectionResult:
     normal_samples: int
 
     def to_dict(self, max_points: int = 2000) -> dict:
-        step = max(1, int(np.ceil(self.t.size / max_points)))
-        idx = slice(None, None, step)
+        idx = downsample_indices(self.t.size, max_points, "stride")
 
         def clean(a):
             return [None if not np.isfinite(v) else float(v) for v in np.asarray(a, dtype=float)[idx]]

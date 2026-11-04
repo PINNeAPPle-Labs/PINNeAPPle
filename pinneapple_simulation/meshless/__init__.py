@@ -13,10 +13,21 @@
     from pinneapple_simulation.meshless import Problem, domain, meshless_study
     res = meshless_study(Problem("poisson", exact="sin(pi*x)*sin(pi*y)"), domain("lshape"), h=[0.1, 0.05, 0.025])
 """
-from .domains import DOMAINS, Domain2D, NodeSet, domain, point_cloud_domain, polygon_domain
+from .domains import (
+                      DOMAINS,
+                      Domain2D,
+                      NodeSet,
+                      default_spacings,
+                      domain,
+                      domain_from_spec,
+                      point_cloud_domain,
+                      point_cloud_from_table,
+                      polygon_domain,
+)
 from .methods import METHODS, Discretization, discretize, solve
 from .problems import Problem
 from .study import MeshlessStudy, meshless_study
 
-__all__ = ["DOMAINS", "Domain2D", "NodeSet", "domain", "polygon_domain", "point_cloud_domain", "Problem",
+__all__ = ["DOMAINS", "Domain2D", "NodeSet", "domain", "polygon_domain", "point_cloud_domain", "default_spacings",
+           "point_cloud_from_table", "domain_from_spec", "Problem",
            "METHODS", "Discretization", "discretize", "solve", "MeshlessStudy", "meshless_study"]

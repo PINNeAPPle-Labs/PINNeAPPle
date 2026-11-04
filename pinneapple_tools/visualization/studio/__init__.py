@@ -15,10 +15,11 @@ from .fieldview import VIEW_MAX_FACES, FieldView, field_view
 from .lighting import PRESETS as LIGHTING_PRESETS
 from .lighting import LightingPreset
 from .scene import MATERIALS, Lines, Scene, Slice, Surface, read_obj, read_stl, scalar_of
+from .view_cache import cached_view, prune_views, save_view, view_paths
 
 __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_obj", "scalar_of", "JET", "jet",
            "colorbar", "render", "web_viewer", "serve", "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view",
-           "FieldView", "VIEW_MAX_FACES"]
+           "FieldView", "VIEW_MAX_FACES", "cached_view", "view_paths", "save_view", "prune_views"]
 
 
 def __getattr__(name):

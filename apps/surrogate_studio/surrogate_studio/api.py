@@ -43,6 +43,7 @@ from pinneapple_analysis.surrogate.heldout import heldout_report
 from pinneapple_core.jsonable import to_jsonable
 from pinneapple_registry.gateway import ModelGateway, ood_verdict
 from pinneapple_registry.gateway_api import gateway_router
+from pinneapple_tools.visualization.studio.view_cache import cached_view
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import install, install_runtime, principal  # noqa: E402
@@ -386,8 +387,8 @@ def _view(request: Request, job_id: str, split: str, k: int):
     if not 0 <= k < rep["n"]:
         raise HTTPException(422, f"k is 0 .. {rep['n'] - 1}")
     wd = rt.jobs.workdir / job_id
-    js, glb = wd / "views" / f"{split}_{k}.json", wd / "views" / f"{split}_{k}.glb"
-    if not (js.is_file() and glb.is_file()):
+
+    def build():
         from pinneapple_neural.architectures.rom.views import prediction_view
         snaps = _snapshots(job["params"])
         data = S.from_snapshots(snaps)
@@ -406,10 +407,8 @@ def _view(request: Request, job_id: str, split: str, k: int):
                     predict_s=dt, gate=rep["samples"][k].get("gate"), ood_policy=res["heldout3d"].get("ood_policy"),
                     negative={n: rep["samples"][k][f"negative_{n}"] for n in rep["fields"]
                               if f"negative_{n}" in rep["samples"][k]})
-        js.parent.mkdir(exist_ok=True)
-        glb.write_bytes(fv.glb())
-        js.write_text(json.dumps(to_jsonable({"view": fv.meta, **info})))
-    out = json.loads(js.read_text())
+        return fv, {"view": fv.meta, **info}
+    out, glb = cached_view(wd / "views", f"{split}_{k}", build)
     return {**out, "glb": f"/api/studies/{job_id}/view3d.glb?split={split}&k={k}"}, glb
 
 

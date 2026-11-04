@@ -18,7 +18,6 @@ import json
 import os
 import shutil
 import sys
-import zipfile
 from pathlib import Path
 from typing import Any, Literal
 
@@ -29,9 +28,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from pinneapple_data.contracts import ParameterSpace, read_table
-from pinneapple_data.doe import METHODS, plan_campaign
-from pinneapple_security.archives import ArchiveLimits, UnsafeArchive, safe_extract_zip
+from pinneapple_data.doe import METHODS, design_size, plan_campaign
+from pinneapple_security.archives import ArchiveLimits
 from pinneapple_simulation.external_solvers import campaign_cases as cc
+from pinneapple_simulation.external_solvers.openfoam.case_root import extract_case
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import install, install_runtime, principal  # noqa: E402
@@ -164,17 +164,6 @@ def _read_existing(path: Path):
     return df
 
 
-def _unzip_case(zip_path: Path, dest: Path) -> Path:
-    try:
-        safe_extract_zip(zip_path, dest, ArchiveLimits(max_members=5000, max_total_bytes=MAX_CASE_MB * 2**20))
-    except UnsafeArchive as exc:
-        raise ValueError(str(exc)) from None
-    for d in [dest, *sorted(p for p in dest.rglob("*") if p.is_dir())]:
-        if (d / "system" / "controlDict").is_file():
-            return d
-    raise ValueError("the zip holds no OpenFOAM case (system/controlDict)")
-
-
 # --------------------------------------------------------------------------------------------- the job
 def plan_job(params: dict[str, Any], ctx) -> dict[str, Any]:
     """Runs in the job queue: design, redundancy, priorities, case files, archive."""
@@ -206,35 +195,22 @@ def plan_job(params: dict[str, Any], ctx) -> dict[str, Any]:
     limit = min(req["case_limit"], MAX_CASE_DIRS) if req.get("case_limit") is not None else MAX_CASE_DIRS
     base = None
     if req.get("openfoam") == "base":
-        base = _unzip_case(Path(req["openfoam_base_path"]), ctx.workdir / "base_upload")
+        base = extract_case(Path(req["openfoam_base_path"]), ctx.workdir / "base_upload",
+                            ArchiveLimits(max_members=5000, max_total_bytes=MAX_CASE_MB * 2**20))
     template = Path(req["calculix_template_path"]).read_text() if req.get("calculix_template_path") else None
     outs = req.get("outputs") or (preset["outputs"] if preset else [])
+    archive = ctx.workdir / "campaign.zip"
     files = cc.write_campaign(plan, out, outputs=outs, openfoam=req.get("openfoam"), calculix=req.get("calculix"),
                               openfoam_base=base, openfoam_edits=req.get("openfoam_edits") or [],
-                              calculix_template=template, case_limit=limit)
-    ctx.progress(0.85, "packing the archive")
-    archive = ctx.workdir / "campaign.zip"
-    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(out.rglob("*")):
-            if p.is_file():
-                z.write(p, Path("campaign") / p.relative_to(out))
+                              calculix_template=template, case_limit=limit, archive=archive)
+    ctx.progress(0.85, "archive packed")
     rt.meter.record(req["_owner"], "cases_planned", len(plan.cases), ref=ctx.job_id)
     return _result(plan, files, source, archive)
 
 
 def _result(plan, files, source, archive: Path) -> dict[str, Any]:
-    names = [p.name for p in plan.space.free]
     cols = list(plan.cases.columns)
-    view: dict[str, Any] = {"names": names, "planned": plan.unit.round(5).tolist(),
-                            "labels": {p.name: f"{p.name}" + (f" [{p.unit}]" if p.unit else "") for p in plan.space.free},
-                            "kinds": {p.name: p.kind for p in plan.space.free},
-                            "values": {p.name: p.values for p in plan.space.free if p.kind == "categorical"},
-                            "bounds": {p.name: [p.low, p.high, p.log] for p in plan.space.free
-                                       if p.kind in ("continuous", "integer")}}
-    if plan.existing_unit is not None:
-        view["existing"] = plan.existing_unit.round(5).tolist()
-    if len(plan.dropped):
-        view["dropped"] = plan.space.to_unit(plan.dropped).round(5).tolist()
+    view = plan.view()
     summary = plan.summary()
     summary["existing_source"] = source
     return {"summary": summary, "checks": [c.model_dump() for c in plan.checks()],
@@ -277,15 +253,9 @@ def _upload_path(request: Request, upload_id: str | None, suffixes: set[str], wh
 
 
 def _estimate(req: CampaignRequest, space: ParameterSpace) -> int:
-    if req.method == "fractional_factorial":
-        return 2 ** max(1, (req.n or space.budget or 2).bit_length())
-    if req.method == "full_factorial":
-        size = 1
-        for p in space.free:
-            lv = req.levels.get(p.name, 3) if isinstance(req.levels, dict) else req.levels
-            size *= len(p.values) if p.kind == "categorical" else int(lv)
-        return size
-    return int(req.n or space.budget or 0)
+    """The number of cases the job will plan (before repeats of existing runs are dropped), from the real design."""
+    feasible = cc.airfoil_feasible if req.preset == "airfoil" else None
+    return design_size(space, req.method, req.n, req.levels or 3, feasible=feasible)
 
 
 @app.post("/api/campaigns")
@@ -298,7 +268,10 @@ def create_campaign(request: Request, req: CampaignRequest):
         space = _space_for(req.model_dump())
     except Exception as exc:  # noqa: BLE001 - a readable 422 for any invalid space
         raise HTTPException(422, f"invalid parameter space: {exc}") from exc
-    n_est = _estimate(req, space)
+    try:
+        n_est = _estimate(req, space)
+    except ValueError as exc:                    # a design that cannot be built (too large, too few parameters)
+        raise HTTPException(422, str(exc)) from exc
     if n_est < 1:
         raise HTTPException(422, "give the number of cases (n) or a budget in the parameter space")
     if n_est > MAX_CASES:

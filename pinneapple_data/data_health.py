@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 
 from pinneapple_core.jsonable import to_jsonable
+from pinneapple_core.series import bucket_edges
 
 from .physical_units import QUANTITIES, Unit, convert, infer_quantity, split_header, try_parse_unit
 
@@ -821,7 +822,7 @@ def _score(issues: List[Issue], applicable_physics: bool) -> Dict[str, Any]:
 
 def _downsample_line(v: np.ndarray, t: Optional[pd.Series], k: int) -> Dict[str, Any]:
     n = len(v)
-    edges = np.linspace(0, n, min(k, n) + 1).astype(int)
+    edges = bucket_edges(n, k)
     xs, ys = [], []
     for a, b in zip(edges[:-1], edges[1:]):
         seg = v[a:b]
@@ -900,7 +901,7 @@ def _series(numeric: Dict[str, pd.Series], t: Optional[pd.Series], issues: List[
     for c, s in numeric.items():
         v = s.to_numpy()
         n = len(v)
-        edges = np.linspace(0, n, min(k, n) + 1).astype(int)
+        edges = bucket_edges(n, k)
         lo, hi, fl, xs = [], [], [], []
         m = masks.get(c, np.zeros(n, bool))
         for a, b in zip(edges[:-1], edges[1:]):

@@ -26,6 +26,8 @@ REASONS: dict[str, str] = {
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
+                              "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "
                                   "exists, and the solves they print are solve nodes",
     "pinneapple_core.workflows": "the execution engine every flow runs on",

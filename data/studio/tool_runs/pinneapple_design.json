@@ -1295,12 +1295,12 @@
   "seconds": 0.32
  },
  "pinneapple_design.thermal.heatsink.monotone:train_monotone": {
-  "code_hash": "6b4f16d48e2ee0fe",
-  "error": "timeout after 60 s",
+  "code_hash": "4ad89c6ad1fe02e6",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/studio-smoke-5_26u8vw/copy0-home/.pinneapple/heatsink/dataset_natural.json.gz'",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
-  "seconds": 60.01
+  "recorded": "2026-11-03",
+  "seconds": 4.37
  },
  "pinneapple_design.thermal.heatsink.sizer:size": {
   "code_hash": "ca558d1f444fe7d5",
@@ -1340,12 +1340,12 @@
   "seconds": 9.16
  },
  "pinneapple_design.thermal.heatsink.surrogate:load_surrogates": {
-  "code_hash": "53290bb11dfecf76",
+  "code_hash": "665f11ba86c5631c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-03",
   "returned": "dict",
-  "seconds": 0.01
+  "seconds": 0.0
  },
  "pinneapple_design.topology.problems:ThermalCompliance2D": {
   "code_hash": "5cf6197c4832bdb9",

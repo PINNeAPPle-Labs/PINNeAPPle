@@ -178,6 +178,7 @@ def to_study_result(run: RunRecord):
     values become metrics; the workflow's limits are carried over. Inputs, decision, step states and the images go in
     ``metadata``."""
     from pinneapple_data.contracts import CheckRecord, FileRef, Provenance, StudyResult
+    from pinneapple_simulation.external_solvers.openfoam.case_root import is_case
 
     def record(name: str, c: Any, where: str) -> CheckRecord:
         value = _scalar(c.value)
@@ -200,8 +201,8 @@ def to_study_result(run: RunRecord):
     for s in run.steps:
         for a in s.artifacts:
             p = Path(run.folder) / a.path
-            is_case = a.kind == "dir" and (p / "system" / "controlDict").is_file()
-            fmt = "openfoam" if is_case else "other" if a.kind == "dir" else \
+            case = a.kind == "dir" and is_case(p)
+            fmt = "openfoam" if case else "other" if a.kind == "dir" else \
                 {".csv": "csv", ".json": "json", ".vtk": "vtk", ".vtu": "vtk"}.get(p.suffix.lower(), "other")
             artifacts.append(FileRef(path=a.path, format=fmt, sha256=a.sha256, size=a.bytes,
                                      description=f"{s.id}{' (folder)' if a.kind == 'dir' else ''}"))

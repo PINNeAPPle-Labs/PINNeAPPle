@@ -1,0 +1,12 @@
+{
+ "code_hash": "5be33dcb88f03673",
+ "figures": [],
+ "id": "flow:bio_workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 8.47,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Bio model workflow: checks, sensitivity, identification, design re-verified under uncertainty - 2 nodes\nissues: []",
+ "timed_out": false
+}

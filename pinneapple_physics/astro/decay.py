@@ -94,8 +94,11 @@ def ballistic_from_bstar(bstar_per_er: float) -> float:
 
 def _rhs(table, B):
     def f(_t, a):
-        h = (a[0] - R_E) / 1000.0
-        return [-B * table(h) * math.sqrt(MU * a[0])]
+        # a Runge-Kutta trial stage of a long step can overshoot below the surface (seen with SciPy 1.18 over
+        # decades): evaluate it at the surface; the re-entry event ends the integration before any accepted step
+        r = max(float(a[0]), R_E)
+        h = (r - R_E) / 1000.0
+        return [-B * table(h) * math.sqrt(MU * r)]
     return f
 
 

@@ -68,7 +68,10 @@ class SurrogateEvaluator(Evaluator):
     outputs = list(SCALARS) + [f"{k}_ub" for k in CONSTRAINED]
     name = "motor3d-surrogate"
 
-    def __init__(self, surrogate, check_geometry: bool = True, k_std: float = 1.0):
+    def __init__(self, surrogate=None, check_geometry: bool = True, k_std: float = 1.0):
+        if surrogate is None:                    # the shipped artefact, so the default problem needs no argument
+            from .surrogate import load_pretrained
+            surrogate = load_pretrained()
         self.surrogate = surrogate
         self.k_std = float(k_std)
         self.n_calls = 0

@@ -1,0 +1,12 @@
+{
+ "code_hash": "681ae0b96a23a3c5",
+ "figures": [],
+ "id": "node:twin.workflow",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 3.57,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin: assimilation, consistency, drift -> recalibration, forecast -> pinneapple_systems.digital_twin.workflow.digital_twin_workflow (etkf_analysis, inverse_problems.workflow.inverse_workflow)\ninputs: [('stream', 'series')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'model': 'thermal_plant', 'model_params': {}, 'source': 'simulated', 'csv_path': '', 'n_steps': 400, 'dt': 5.0, 'drift': {'param': 'UA', 'at': 200, 'to': 35.0, 'ramp': 0}, 'spike': {'at': 120, 'size': 12.0}, 'plant_params': {'UA': 52.5}, 'members': 200, 'param_walk': 0.0002, 'anomaly_z': 4.0, 'cusum_k': 0.5, 'cusum_h': 8.0, 'max_detection_delay': 20, 'recalibration_window': 60, 'horizon': 120, 'limits': {'T': 80.0}, 'nees_runs': 20, 'seed': 0}",
+ "timed_out": false
+}

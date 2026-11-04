@@ -334,6 +334,33 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "digital_twin": {
+  "flow_hash": "60f79f9bc9943a02",
+  "nodes": {
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "twin": {
+    "error": "",
+    "metrics": {},
+    "status": "done",
+    "summary": "thermal_plant: 400 readings, 1 anomalies, 1 drift alarms, 1 recalibrations; every check passes",
+    "type": "twin.workflow"
+   }
+  },
+  "recorded": "2026-11-04",
+  "seconds": 7.08,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "drone_design": {
   "flow_hash": "0f4dcd2e3bba8dd4",
   "nodes": {

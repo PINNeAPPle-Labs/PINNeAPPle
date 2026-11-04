@@ -19,6 +19,7 @@ from . import (  # noqa: F401
     core_ts,
     design,
     design_optimization,
+    digital_twin,
     drone_design,
     electromagnetics,
     em_antenna,

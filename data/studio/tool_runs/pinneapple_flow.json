@@ -334,6 +334,14 @@
   "returned": "FlowBuilder",
   "seconds": 7.14
  },
+ "pinneapple_flow.nodes_ext.digital_twin:build_flow": {
+  "code_hash": "8e0270b07f2603d8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "FlowBuilder",
+  "seconds": 9.57
+ },
  "pinneapple_flow.nodes_ext.drone_design:build_flow": {
   "code_hash": "fd4752131dcf94f7",
   "inputs": {},

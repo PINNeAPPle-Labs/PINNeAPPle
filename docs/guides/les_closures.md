@@ -130,13 +130,77 @@ The closures are in `pinneapple_physics/pde_environment/turbulence_presets.py`; 
   with the filter width, filter partition of unity and linear reproduction, and gradients flowing through the
   filter to the network.
 
-## 6. What is not here
+The a-priori benchmark is checked in `tests/pinneapple_physics/test_sgs3d_benchmark.py`, where the measurement
+matters as much as the closures: spectral derivatives against analytic ones, a field whose product stays inside
+the cut-off (true stress exactly zero), the filter against an analytic truncation, the metrics against a perfect,
+an inverted and a doubled model, and the ideal viscosity against a known coefficient.
+
+## 6. Which one wins on a real flow (a priori)
+
+A-priori scoring answers the question before any simulation: given a resolved field from a flow whose exact
+subfilter stress is known, how close is each closure's stress to it? `pinneapple_physics.multiscale.sgs3d` runs
+that on a Taylor-Green DNS -- sharp spectral filter, aliasing-free products, the real closures, and a learned
+closure trained on several snapshots and scored on a later one it never saw:
+
+```python
+from pinneapple_physics.multiscale.sgs3d import run_benchmark
+
+report = run_benchmark(n=64, re=1600, t_train=(4, 5, 6, 7), t_test=9.0)
+for name, m in report["table"].items():
+    print(name, m["corr"], m["mag_ratio"], m["transfer_corr"])
+```
+
+or from the shell, `python -m pinneapple_physics.multiscale.sgs3d --n 64 --re 1600`. Read `corr` and `mag_ratio`
+together (either one alone is easy to fake), and `transfer_corr` last: it is the stress component projected on
+the strain, i.e. the energy the filter actually moved.
+
+Two things the numbers will show, and neither is a bug:
+
+- an **eddy-viscosity shape is a limitation, not a coefficient error**. Smagorinsky and WALE correlate only
+  weakly with the true stress per component, and even at the least-squares `Cs` their magnitude stays well under
+  the true one: what the filter removes is not proportional to `S_ij`. `nu_ideal_mean` and
+  `nu_ideal_negative_fraction` in the report say where the difference is -- a large negative fraction means the
+  truth backscatters and no positive-coefficient model can follow it. Note also that `corr` is a property of the
+  closure's *shape* alone: two eddy-viscosity models with different coefficients (Smagorinsky and the dynamic
+  one, when its coefficient is a single averaged number) score exactly the same `corr` and differ only in
+  `mag_ratio`.
+- the **learned closure is only as good as its training set**. Fitted to a single snapshot it scores 1.0 on that
+  snapshot and at chance on the next, which is memorisation, not a closure; `run_benchmark` therefore trains it on
+  the `t_train` snapshots and reports the held-out one.
+
+The reference run (DNS 64³, coarse 32³, `kc = 32/3`, `Δ = 0.295`, Re = 1600, trained on t = 4–7, held out at
+t = 9, `steps = 3000`) gives:
+
+```
+closure                   corr     mag  transfer    nu_ideal
+GradientModel            0.510   0.399     0.340   1.485e-03
+Smagorinsky              0.089   0.252     0.375   1.485e-03
+DynamicSmagorinsky       0.089   0.123     0.375   1.485e-03
+WALE                     0.001   0.177     0.009   1.485e-03
+Learned                  0.086   0.695    -0.046   1.485e-03
+```
+
+Read it as: `GradientModel` is the control -- it uses the same resolved gradient as the others but is not forced
+into the shape `tau ~ S`, and it correlates far better. The gap between it and the eddy-viscosity closures is the
+price of the eddy-viscosity assumption itself, not of any coefficient. WALE is near zero here: it is built for
+walls, and a smooth decaying vortex is not where it earns its keep. The learned closure recovers the magnitude
+the algebraic ones miss, but not the transfer. Numbers this low are what the literature reports for a-priori
+correlations of eddy-viscosity closures; a benchmark that produced 0.9 for them would be measuring itself.
+
+This is an **a-priori** test. A closure that scores well here can still be unstable in an LES, because a-priori
+correlation says nothing about how the error feeds back into the resolved scales. At `n = 48` the same run gives
+markedly poorer correlations throughout: a 48³ DNS of Re = 1600 is under-resolved by t = 9, so the band the filter
+keeps is partly numerical.
+
+## 7. What is not here
 
 - **Wall modelling (WMLES) and detached-eddy simulation (DES)** — not implemented. For a wall-bounded LES at a
   Reynolds number a resolved near-wall layer cannot afford, neither of these closures is enough on its own.
-- **Learning the subgrid stress from DNS.** For 2D spectral turbulence that exists:
-  `pinneapple_physics.multiscale` has a-priori/a-posteriori closure tests (`apriori_test`, `aposteriori_test`,
-  `true_subfilter`) and a closure trained through the solver (`train_closure_aposteriori`). The 3D version on
-  the point-cloud path is not built yet.
+- **A-posteriori testing in 3-D.** The 2-D spectral case has it (`aposteriori_test` in
+  `pinneapple_physics.multiscale`); running an LES with each closure in 3-D and comparing the resolved statistics
+  against a filtered DNS is the missing half of the benchmark above.
+- **Learning the subgrid stress in 3-D beyond the a-priori fit.** `learn_sgs_stress` in `sgs3d` learns from
+  filtered DNS pairs, but it is trained a priori and never run through a solver. For 2-D spectral turbulence a
+  closure trained *through* the solver exists (`train_closure_aposteriori`).
 - **OpenFOAM LES cases.** The bridge in `pinneapple_simulation.external_solvers.openfoam` runs cases and reads
   fields; it does not choose or configure an LES model for you.

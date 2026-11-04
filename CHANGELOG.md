@@ -21,6 +21,29 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Security workflow scans the built images instead of the bare bases, with the same critical/fixed gate.
 
 ### Added
+- `pinneapple_physics.multiscale.sgs3d`: an **a-priori benchmark of the 3-D subgrid closures**, on a real DNS.
+  - `taylor_green_dns(n, re, t_end)` runs the pseudo-spectral Taylor-Green vortex (through
+    `pinneapple_simulation.numerical_solvers.ns3d_spectral`), the standard no-wall LES test case;
+    `taylor_green_snapshots(n, re, times)` takes several snapshots from one continuous run.
+  - `apriori_case(u_fine, n_coarse)` builds the resolved field and its exact subfilter stress
+    `tau_ij = filter(u_i u_j) - filter(u_i) filter(u_j)` with a sharp spectral filter, with the quadratic products
+    formed on a 3n/2 grid so no aliasing reaches the retained band, and spectral (exact) derivatives.
+  - `closure_eddy_viscosity(closure, case)` scores the *real* closures of
+    `pde_environment.turbulence_presets` -- the same `sgs_viscosity` a PINN trains against -- via
+    `apriori_metrics`: correlation (global and per component), magnitude ratio, subfilter-transfer correlation,
+    and the least-squares ideal viscosity, so an error in the closure's *shape* is distinguishable from one in
+    its *coefficient*. `periodic_stencil` gives the dynamic model an exact grid test filter instead of a k-NN
+    approximation.
+  - `learn_sgs_stress(train, test)` fits a small network to the six stress components from the local velocity
+    gradient, with no eddy-viscosity shape imposed, and scores it on a **later snapshot** it never saw -- the
+    split is by time, and `run_benchmark` trains on several snapshots, because a network fitted to one snapshot
+    reproduces it (correlation 1.0) and transfers nothing, which measures memorisation rather than a closure.
+  - `run_benchmark(...)` or `python -m pinneapple_physics.multiscale.sgs3d --n 64 --re 1600` prints the table and
+    returns it with the settings that produced it. Guide:
+    [Large-eddy simulation: the three subgrid closures](docs/guides/les_closures.md#6-which-one-wins-on-a-real-flow-a-priori).
+  - Supporting change: `SpectralNS3D.run()` now leaves the final state on `solver.u` (with `solver.uh` and
+    `solver.t`). It used to return diagnostics only, so a caller had no way to look at -- or continue from -- the
+    field it had just computed. Additive: the returned dict is unchanged.
 - **LES closures for the 3D PINN residual path**: `SmagorinskyResiduals` and `DynamicSmagorinskyResiduals` in
   `pinneapple_physics.pde_environment.turbulence_presets`, completing the subgrid-scale family next to the
   existing `WALEResiduals`.

@@ -20,6 +20,10 @@ module                 contents
                        torus graph and a Fourier-Galerkin PINN for the benchmark surrogates
 :mod:`.turbulence`     decaying 2-D turbulence benchmark: DNS data, filtered pairs, query streams that shift Re
                        and scale, closure benchmark, scale-conditioning study
+:mod:`.sgs3d`          3-D a-priori benchmark of the subgrid closures that pinneapple ships for the PINN path
+                       (Smagorinsky, dynamic Smagorinsky, WALE): Taylor-Green DNS, exact subfilter stress through
+                       an aliasing-free sharp filter, the a-priori metrics, and a learned closure scored on a
+                       held-out snapshot
 :mod:`.comparison`     cached expert evaluation, scale-blind vs scale-aware ensembles on one stream, metrics,
                        tables and the summary figure
 :mod:`.viz`            animation of a run (requested scale, chosen model, spectra, weights)
@@ -75,6 +79,21 @@ from .scales import (
     ScaleRoute,
     scale_compatibility,
 )
+from .sgs3d import (
+    AprioriCase,
+    apriori_case,
+    apriori_metrics,
+    closure_eddy_viscosity,
+    ideal_eddy_viscosity,
+    learn_sgs_stress,
+    modelled_stress,
+    periodic_stencil,
+    run_benchmark,
+    sharp_filter,
+    spectral_gradient,
+    taylor_green_dns,
+    taylor_green_snapshots,
+)
 
 __all__ = [
     "FILTER_KINDS", "Filter", "transfer", "apply_filter", "restrict", "prolong", "post_filter_transfer",
@@ -86,4 +105,7 @@ __all__ = [
     "MultiscaleResidual", "multiscale_residuals", "ns2d_multiscale_residuals",
     "ConsistencyReport", "cross_scale_consistency", "VORTICITY_INTEGRALS",
     "RUNGS", "ScaleProfile", "ScaleQuery", "ScaleCheck", "scale_compatibility", "ScaleRoute", "ScaleAwareRouter",
+    "AprioriCase", "apriori_case", "apriori_metrics", "closure_eddy_viscosity", "ideal_eddy_viscosity",
+    "learn_sgs_stress", "modelled_stress", "periodic_stencil", "run_benchmark", "sharp_filter",
+    "spectral_gradient", "taylor_green_dns", "taylor_green_snapshots",
 ]

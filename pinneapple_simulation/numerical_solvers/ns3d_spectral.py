@@ -74,6 +74,8 @@ class SpectralNS3D:
         hist = {"t": [], "E": [], "Z": [], "eps": [], "wmax": [], "bkm": []}
         bkm, t = 0.0, 0.0
         last_w = None
+        self.t = 0.0
+        self.u = None
         for s in range(n + 1):
             if s % diag_every == 0 or s == n:
                 u = self.inv(uh)
@@ -99,4 +101,11 @@ class SpectralNS3D:
             k4 = self.rhs(E_full * uh + dt * E_half * k3)
             uh = E_full * uh + dt / 6 * (E_full * k1 + 2 * E_half * (k2 + k3) + k4)
             t += dt
+        # Keep the final state: ``run`` used to return diagnostics only, so a
+        # caller had no way to continue the run or to look at the field it
+        # produced -- which is what a downstream a-priori test (filtering a DNS
+        # snapshot) needs. Additive: the returned dict is unchanged.
+        self.uh = uh
+        self.u = self.inv(uh)
+        self.t = t
         return hist

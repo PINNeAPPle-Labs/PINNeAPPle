@@ -1,0 +1,154 @@
+{
+  "names": [
+    "W4",
+    "H3",
+    "H0",
+    "W0",
+    "H1",
+    "L",
+    "skew_deg",
+    "I_peak",
+    "gamma_deg",
+    "rpm",
+    "flow_L_min"
+  ],
+  "created": "2026-11-03T10:45:21",
+  "seed": 20260101,
+  "method": "lhs",
+  "n_requested": 1200,
+  "n_cases": 1201,
+  "n_valid": 967,
+  "rejection_rate": 0.1948376353039134,
+  "model": {
+    "n_gap": 192,
+    "n_positions": 12,
+    "n_segments": 4,
+    "magnet_T_guess": 90.0,
+    "fea_iterations": 1,
+    "coolant_flow_ref": 6.0,
+    "Hcj20": 1989436.788648692,
+    "v_dc": 500.0,
+    "loss_steps": 6
+  },
+  "model_description": "3-D multiphysics: 192-node gap FEA x 12 rotor angles, 4 axial segments (skew and thermal), magnet temperature by 1 field iteration(s)",
+  "seconds": 384.5,
+  "seconds_per_design": 0.32,
+  "fea_solves": 981,
+  "bounds": {
+    "W4": [
+      0.014,
+      0.022
+    ],
+    "H3": [
+      0.0045,
+      0.0075
+    ],
+    "H0": [
+      0.0085,
+      0.0135
+    ],
+    "W0": [
+      0.036,
+      0.045
+    ],
+    "H1": [
+      0.001,
+      0.002
+    ],
+    "L": [
+      0.06,
+      0.11
+    ],
+    "skew_deg": [
+      0.0,
+      15.0
+    ],
+    "I_peak": [
+      80.0,
+      300.0
+    ],
+    "gamma_deg": [
+      10.0,
+      75.0
+    ],
+    "rpm": [
+      500.0,
+      6000.0
+    ],
+    "flow_L_min": [
+      0.5,
+      12.0
+    ]
+  },
+  "units": {
+    "W4": "m",
+    "H3": "m",
+    "H0": "m",
+    "W0": "m",
+    "H1": "m",
+    "L": "m",
+    "skew_deg": "deg",
+    "I_peak": "A",
+    "gamma_deg": "deg",
+    "rpm": "rpm",
+    "flow_L_min": "L/min"
+  },
+  "outputs": {
+    "torque_Nm": {
+      "unit": "N m",
+      "larger_is_better": true
+    },
+    "ripple": {
+      "unit": "-",
+      "larger_is_better": false
+    },
+    "torque_density_Nm_kg": {
+      "unit": "N m/kg",
+      "larger_is_better": true
+    },
+    "efficiency": {
+      "unit": "-",
+      "larger_is_better": true
+    },
+    "iron_loss_W": {
+      "unit": "W",
+      "larger_is_better": false
+    },
+    "magnet_loss_W": {
+      "unit": "W",
+      "larger_is_better": false
+    },
+    "copper_loss_W": {
+      "unit": "W",
+      "larger_is_better": false
+    },
+    "total_loss_W": {
+      "unit": "W",
+      "larger_is_better": false
+    },
+    "T_winding_C": {
+      "unit": "degC",
+      "larger_is_better": false
+    },
+    "T_magnet_C": {
+      "unit": "degC",
+      "larger_is_better": false
+    },
+    "T_end_winding_C": {
+      "unit": "degC",
+      "larger_is_better": false
+    },
+    "demag_ratio": {
+      "unit": "-",
+      "larger_is_better": false
+    },
+    "magnet_mass_kg": {
+      "unit": "kg",
+      "larger_is_better": false
+    },
+    "active_mass_kg": {
+      "unit": "kg",
+      "larger_is_better": false
+    }
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "n_segments": 4,
+  "ensemble_members": [
+    {
+      "seed": 7,
+      "val_loss": 0.01792672462761402,
+      "epochs": 511
+    },
+    {
+      "seed": 108,
+      "val_loss": 0.016547800973057747,
+      "epochs": 511
+    },
+    {
+      "seed": 209,
+      "val_loss": 0.015918966382741928,
+      "epochs": 537
+    },
+    {
+      "seed": 310,
+      "val_loss": 0.016314608976244926,
+      "epochs": 519
+    },
+    {
+      "seed": 411,
+      "val_loss": 0.01666141487658024,
+      "epochs": 515
+    },
+    {
+      "seed": 512,
+      "val_loss": 0.016295190900564194,
+      "epochs": 538
+    },
+    {
+      "seed": 613,
+      "val_loss": 0.016434404999017715,
+      "epochs": 518
+    },
+    {
+      "seed": 714,
+      "val_loss": 0.018429558724164963,
+      "epochs": 559
+    }
+  ],
+  "heldout": {
+    "torque_Nm": {
+      "mae": 2.068146898301353,
+      "r2": 0.998183667050866,
+      "max_rel": 0.23751032520392212,
+      "mean_rel": 0.011472475638171909,
+      "p95_rel": 0.028772322742897344,
+      "unit": "N m"
+    },
+    "ripple": {
+      "mae": 0.014270822515040155,
+      "r2": 0.7882885441783698,
+      "max_rel": 0.6449722298822667,
+      "mean_rel": 0.08862496178037693,
+      "p95_rel": 0.20502365157477118,
+      "unit": "-"
+    },
+    "torque_density_Nm_kg": {
+      "mae": 0.05406646601468666,
+      "r2": 0.998112163005364,
+      "max_rel": 0.14976703301550393,
+      "mean_rel": 0.010751462667695076,
+      "p95_rel": 0.02651129517515546,
+      "unit": "N m/kg"
+    },
+    "efficiency": {
+      "mae": 0.0037425266899470374,
+      "r2": 0.9918419863016406,
+      "max_rel": 0.0703152754748065,
+      "mean_rel": 0.004759460749237986,
+      "p95_rel": 0.01877832400182699,
+      "unit": "-"
+    },
+    "iron_loss_W": {
+      "mae": 35.4524063403498,
+      "r2": 0.9952152252671691,
+      "max_rel": 0.27611613636950216,
+      "mean_rel": 0.040441397800140624,
+      "p95_rel": 0.12989964913381816,
+      "unit": "W"
+    },
+    "copper_loss_W": {
+      "mae": 82.27095355750026,
+      "r2": 0.9993858863535366,
+      "max_rel": 0.08777418014615325,
+      "mean_rel": 0.015080248766196108,
+      "p95_rel": 0.042104753515823656,
+      "unit": "W"
+    },
+    "total_loss_W": {
+      "mae": 90.90695552553487,
+      "r2": 0.9993075262837721,
+      "max_rel": 0.09806417129355448,
+      "mean_rel": 0.013562231632409055,
+      "p95_rel": 0.03683186185862789,
+      "unit": "W"
+    },
+    "T_winding_C": {
+      "mae": 1.3919685406047508,
+      "r2": 0.9973275656880732,
+      "max_rel": 0.08231347611312487,
+      "mean_rel": 0.0091654313884676,
+      "p95_rel": 0.025308944383375366,
+      "unit": "degC"
+    },
+    "T_magnet_C": {
+      "mae": 1.0494197276942616,
+      "r2": 0.9955118980016077,
+      "max_rel": 0.0807087467288222,
+      "mean_rel": 0.008747148635869523,
+      "p95_rel": 0.024434462567824753,
+      "unit": "degC"
+    },
+    "T_end_winding_C": {
+      "mae": 0.7468062180050093,
+      "r2": 0.9991017946615759,
+      "max_rel": 0.032049242386569254,
+      "mean_rel": 0.005888363274093853,
+      "p95_rel": 0.01650824715917536,
+      "unit": "degC"
+    },
+    "demag_ratio": {
+      "mae": 0.020259227440724416,
+      "r2": 0.988780872619037,
+      "max_rel": 0.2394488786147095,
+      "mean_rel": 0.030983314617180867,
+      "p95_rel": 0.08202188543445432,
+      "unit": "-"
+    },
+    "magnet_mass_kg": {
+      "mae": 0.0048904586289640764,
+      "r2": 0.999185827704737,
+      "max_rel": 0.023287918352176352,
+      "mean_rel": 0.004703943839636151,
+      "p95_rel": 0.013468333934124934,
+      "unit": "kg"
+    },
+    "active_mass_kg": {
+      "mae": 0.09837354949397402,
+      "r2": 0.9994702640250928,
+      "max_rel": 0.011613102647103215,
+      "mean_rel": 0.0026480728847362157,
+      "p95_rel": 0.006250048922513297,
+      "unit": "kg"
+    },
+    "torque_slice_Nm": {
+      "mae": 8.401942387035085,
+      "r2": 0.9806995232520473,
+      "max_rel": 0.21328804050041542,
+      "mean_rel": 0.04000376930607939,
+      "p95_rel": 0.09411436974349131,
+      "unit": "N m"
+    },
+    "T_winding_profile_C": {
+      "mae": 1.2865624960989768,
+      "r2": 0.9974644768471195,
+      "max_rel": 0.08800095202047574,
+      "mean_rel": 0.008343725993568392,
+      "p95_rel": 0.02616529115145789,
+      "unit": "degC"
+    },
+    "T_magnet_profile_C": {
+      "mae": 1.0239921649222692,
+      "r2": 0.995574437570881,
+      "max_rel": 0.0846513054041956,
+      "mean_rel": 0.008378982295150316,
+      "p95_rel": 0.023352831859646785,
+      "unit": "degC"
+    }
+  },
+  "worst_output": "ripple",
+  "mean_rel_overall": 0.018972186954313124,
+  "mean_r2": 0.9827157286756807,
+  "worst_r2": 0.7882885441783698,
+  "constant_outputs": {
+    "magnet_loss_W": 2.596253573766281e-19
+  },
+  "version": "motor3d-v1",
+  "n_train": 774,
+  "n_val": 193,
+  "n_total": 967,
+  "config": {
+    "hidden": [
+      128,
+      128,
+      128
+    ],
+    "ensemble": 8,
+    "epochs": 3000,
+    "lr": 0.003,
+    "batch": 64,
+    "weight_decay": 1e-05,
+    "val_fraction": 0.2,
+    "patience": 400,
+    "seed": 7,
+    "activation": "silu"
+  },
+  "inputs": [
+    "W4",
+    "H3",
+    "H0",
+    "W0",
+    "H1",
+    "L",
+    "skew_deg",
+    "I_peak",
+    "gamma_deg",
+    "rpm",
+    "flow_L_min"
+  ],
+  "targets": [
+    "torque_Nm",
+    "ripple",
+    "torque_density_Nm_kg",
+    "efficiency",
+    "iron_loss_W",
+    "magnet_loss_W",
+    "copper_loss_W",
+    "total_loss_W",
+    "T_winding_C",
+    "T_magnet_C",
+    "T_end_winding_C",
+    "demag_ratio",
+    "magnet_mass_kg",
+    "active_mass_kg",
+    "torque_slice_Nm[0]",
+    "torque_slice_Nm[1]",
+    "torque_slice_Nm[2]",
+    "torque_slice_Nm[3]",
+    "T_winding_profile_C[0]",
+    "T_winding_profile_C[1]",
+    "T_winding_profile_C[2]",
+    "T_winding_profile_C[3]",
+    "T_magnet_profile_C[0]",
+    "T_magnet_profile_C[1]",
+    "T_magnet_profile_C[2]",
+    "T_magnet_profile_C[3]"
+  ],
+  "log_outputs": [
+    "iron_loss_W",
+    "magnet_loss_W",
+    "copper_loss_W",
+    "total_loss_W",
+    "demag_ratio",
+    "magnet_mass_kg",
+    "active_mass_kg",
+    "torque_slice_Nm[0]",
+    "torque_slice_Nm[1]",
+    "torque_slice_Nm[2]",
+    "torque_slice_Nm[3]",
+    "T_winding_profile_C[0]",
+    "T_winding_profile_C[1]",
+    "T_winding_profile_C[2]",
+    "T_winding_profile_C[3]",
+    "T_magnet_profile_C[0]",
+    "T_magnet_profile_C[1]",
+    "T_magnet_profile_C[2]",
+    "T_magnet_profile_C[3]"
+  ],
+  "bounds": {
+    "W4": [
+      0.014,
+      0.022
+    ],
+    "H3": [
+      0.0045,
+      0.0075
+    ],
+    "H0": [
+      0.0085,
+      0.0135
+    ],
+    "W0": [
+      0.036,
+      0.045
+    ],
+    "H1": [
+      0.001,
+      0.002
+    ],
+    "L": [
+      0.06,
+      0.11
+    ],
+    "skew_deg": [
+      0.0,
+      15.0
+    ],
+    "I_peak": [
+      80.0,
+      300.0
+    ],
+    "gamma_deg": [
+      10.0,
+      75.0
+    ],
+    "rpm": [
+      500.0,
+      6000.0
+    ],
+    "flow_L_min": [
+      0.5,
+      12.0
+    ]
+  },
+  "dataset_meta": {
+    "created": "2026-11-03T10:45:21",
+    "seed": 20260101,
+    "method": "lhs",
+    "n_requested": 1200,
+    "n_cases": 1201,
+    "n_valid": 967,
+    "rejection_rate": 0.1948376353039134,
+    "model": {
+      "n_gap": 192,
+      "n_positions": 12,
+      "n_segments": 4,
+      "magnet_T_guess": 90.0,
+      "fea_iterations": 1,
+      "coolant_flow_ref": 6.0,
+      "Hcj20": 1989436.788648692,
+      "v_dc": 500.0,
+      "loss_steps": 6
+    },
+    "model_description": "3-D multiphysics: 192-node gap FEA x 12 rotor angles, 4 axial segments (skew and thermal), magnet temperature by 1 field iteration(s)",
+    "seconds": 384.5,
+    "seconds_per_design": 0.32,
+    "fea_solves": 981,
+    "units": {
+      "W4": "m",
+      "H3": "m",
+      "H0": "m",
+      "W0": "m",
+      "H1": "m",
+      "L": "m",
+      "skew_deg": "deg",
+      "I_peak": "A",
+      "gamma_deg": "deg",
+      "rpm": "rpm",
+      "flow_L_min": "L/min"
+    }
+  },
+  "seconds": 38.7,
+  "name": "motor3d-surrogate",
+  "fidelity": "surrogate",
+  "notes": [
+    "errors are on designs held out from training",
+    "the ensemble spread is a proxy for uncertainty, not a calibrated interval",
+    "predictions outside the bounds of the card are extrapolation"
+  ],
+  "sha256": "5f18244613e2765dd2157ac927941344b2a9d2df83f1ecb2642ea8569ad70c7e"
+}

@@ -395,6 +395,142 @@
   "returned": "ParameterSpace",
   "seconds": 0.08
  },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.dataset:build_dataset": {
+  "code_hash": "08a9bc7e0ba62855",
+  "inputs": {
+   "n": 8,
+   "workers": 1
+  },
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "MotorDataset",
+  "seconds": 16.04
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.dataset:parameter_space": {
+  "code_hash": "d7cc47cb2d33a54f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "ParameterSpace",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.design:from_matrix": {
+  "code_hash": "8750075dced64e86",
+  "inputs": {
+   "X": [
+    [
+     0.0189,
+     0.0065,
+     0.01096,
+     0.042,
+     0.0015,
+     0.08382,
+     10.0,
+     250.0,
+     50.0,
+     1500.0,
+     6.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.design:to_matrix": {
+  "code_hash": "eecac150067655dd",
+  "inputs": {
+   "designs": [
+    {
+     "H0": 0.01096,
+     "H1": 0.0015,
+     "H3": 0.0065,
+     "I_peak": 250.0,
+     "L": 0.08382,
+     "W0": 0.042,
+     "W4": 0.0189,
+     "flow_L_min": 6.0,
+     "gamma_deg": 50.0,
+     "rpm": 1500.0,
+     "skew_deg": 10.0
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.model:Motor3DModel": {
+  "code_hash": "b2611e53b99de30b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "Motor3DModel",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.optimize:SurrogateEvaluator": {
+  "code_hash": "872abc547586f7ed",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "SurrogateEvaluator",
+  "seconds": 8.62
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.optimize:design_problem": {
+  "code_hash": "cfadefae61ceacbc",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "DesignProblem",
+  "seconds": 8.67
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.optimize:optimize": {
+  "code_hash": "5799fa8854d900df",
+  "inputs": {
+   "budget": 200
+  },
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "dict",
+  "seconds": 0.72
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.surrogate:MotorSurrogate3D": {
+  "code_hash": "0d2ad240f4ce249a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "MotorSurrogate3D",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.surrogate:load_pretrained": {
+  "code_hash": "059cfa083a34f5a3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "MotorSurrogate3D",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.surrogate:pretrained_path": {
+  "code_hash": "ada856caa104dabe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.workflow:check_temperature_coupling": {
+  "code_hash": "7f9b75e85bcc8b89",
+  "inputs": {
+   "n": 2,
+   "n_gap": 96
+  },
+  "ok": true,
+  "recorded": "2026-11-04",
+  "returned": "dict",
+  "seconds": 1.54
+ },
  "pinneapple_simulation.electromagnetics.machines.robustness:step_offsets": {
   "code_hash": "abfcfd69e2bc034f",
   "inputs": {

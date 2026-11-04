@@ -47,6 +47,7 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
 
 ### Added
+
 - `pinneapple_simulation.electromagnetics.machines.motor3d`: multiphysics 3-D motor design on a pretrained surrogate,
   so the search calls no FEA. `design.py` declares the eleven design variables once (cross-section, stack length,
   skew, operating point, coolant flow) and everything else derives from them; `thermal3d.AxialThermalModel` resolves
@@ -61,8 +62,6 @@ fragments to `changelog.d/`, which a release folds in here. The entries for
   reference solves); `verify_front` re-checks the front with the reference model. Worked example
   `examples/motor_magnetics/03_multiphysics3d_surrogate.py`, guide `docs/guides/motor3d_surrogate.md`, report
   `docs/reports/emotor3d/PINNeAPPle-EMotor3D-Surrogates.pdf`.
-
-
 - `pinneapple_autolab.study`: an end-to-end surrogate study on any `Simulator`, one call per stage: DOE with
   space-filling metrics and resumable, costed runs (`campaign`), grid convergence with Richardson and GCI
   (`mesh_study`), a dataset with provenance and a held-out region as a `DatasetSpec` (`dataset`), surrogate families

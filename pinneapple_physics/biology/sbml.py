@@ -493,6 +493,25 @@ def _to_mathml(e) -> str:
         return f'<cn type="integer">{e}</cn>'
     if e.is_Number:
         return f"<cn>{float(e)!r}</cn>"
+    if isinstance(e, sp.Heaviside):
+        # SBML has no step function: the equivalent piecewise (a dose or a pulse), with the value at the jump kept
+        x = e.args[0]
+        h0 = e.args[1] if len(e.args) > 1 else sp.Rational(1, 2)
+        if h0 == 1:
+            return _to_mathml(sp.Piecewise((sp.Integer(1), sp.GreaterThan(x, 0, evaluate=False)), (sp.Integer(0), True)))
+        if h0 == 0:
+            return _to_mathml(sp.Piecewise((sp.Integer(1), sp.StrictGreaterThan(x, 0, evaluate=False)),
+                                           (sp.Integer(0), True)))
+        return _to_mathml(sp.Piecewise((sp.Integer(1), sp.StrictGreaterThan(x, 0, evaluate=False)),
+                                       (h0, sp.Eq(x, 0, evaluate=False)), (sp.Integer(0), True)))
+    if isinstance(e, sp.Piecewise):
+        body = ""
+        for val, cond in e.args:
+            if cond is sp.true:
+                body += f"<otherwise>{_to_mathml(val)}</otherwise>"
+            else:
+                body += f"<piece>{_to_mathml(val)}{_to_mathml(cond)}</piece>"
+        return f"<piecewise>{body}</piecewise>"
     args = "".join(_to_mathml(a) for a in e.args)
     if isinstance(e, sp.Add):
         return f"<apply><plus/>{args}</apply>"
@@ -502,14 +521,6 @@ def _to_mathml(e) -> str:
         return f"<apply><power/>{args}</apply>"
     if isinstance(e, sp.exp):
         return f"<apply><exp/>{args}</apply>"
-    if isinstance(e, sp.Piecewise):
-        body = ""
-        for val, cond in e.args:
-            if cond is sp.true:
-                body += f"<otherwise>{_to_mathml(val)}</otherwise>"
-            else:
-                body += f"<piece>{_to_mathml(val)}{_to_mathml(cond)}</piece>"
-        return f"<piecewise>{body}</piecewise>"
     for cls, tag in ((sp.And, "and"), (sp.Or, "or"), (sp.Not, "not"), (sp.Xor, "xor"), (sp.Max, "max"),
                      (sp.Min, "min")):
         if isinstance(e, cls):

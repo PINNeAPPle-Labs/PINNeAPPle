@@ -1,0 +1,12 @@
+{
+ "code_hash": "24c28245ecf78830",
+ "figures": [],
+ "id": "node:satellite.design",
+ "ok": true,
+ "recorded": "2026-11-03",
+ "seconds": 9.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Satellite design: orbit, power, thermal, link, ADCS, lifetime; mass closed, re-verified -> pinneapple_design.satellite.workflow.satellite_design_workflow\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'mission': {}, 'altitude_min_km': 400.0, 'altitude_max_km': 800.0, 'altitude_step_km': 25.0, 'propagate_days': 1.0}",
+ "timed_out": false
+}

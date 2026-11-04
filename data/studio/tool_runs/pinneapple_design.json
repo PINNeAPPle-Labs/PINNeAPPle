@@ -313,6 +313,124 @@
   "returned": "bool",
   "seconds": 0.01
  },
+ "pinneapple_design.chip.floorplan:default_floorplan": {
+  "code_hash": "5b563426deadad75",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "Floorplan",
+  "seconds": 7.5
+ },
+ "pinneapple_design.chip.interconnect:elmore_delay": {
+  "code_hash": "db792cff5f64fe1f",
+  "inputs": {
+   "C": [
+    0.0,
+    1e-13,
+    1e-13
+   ],
+   "R": [
+    100.0,
+    10.0,
+    10.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.chip.interconnect:net_delay": {
+  "code_hash": "48f42c476f58f2a1",
+  "inputs": {
+   "length_m": 0.005
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.chip.interconnect:rc_ladder": {
+  "code_hash": "3a1e698b6904daa5",
+  "inputs": {
+   "c_load": 2e-14,
+   "c_wire": 1e-12,
+   "r_driver": 100.0,
+   "r_wire": 55.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.chip.power_grid:uniform_grid_closed_form": {
+  "code_hash": "ecc0cc4f3c1d7645",
+  "inputs": {
+   "g": 2.0,
+   "i_node": 0.001,
+   "n": 15
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_design.chip.thermal:default_stack": {
+  "code_hash": "baafd621038dbb50",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "DieStack",
+  "seconds": 0.0
+ },
+ "pinneapple_design.chip.workflow:chip_design_workflow": {
+  "code_hash": "18b64503f41d0741",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 15.64
+ },
+ "pinneapple_design.chip.workflow:floorplan_from_dict": {
+  "code_hash": "e9285cf844d19f0d",
+  "inputs": {
+   "d": {
+    "blocks": [
+     {
+      "dynamic_w": 10.0,
+      "leakage_w": 2.0,
+      "name": "cpu"
+     },
+     {
+      "dynamic_w": 2.0,
+      "name": "l2"
+     }
+    ],
+    "die_mm": [
+     10.0,
+     10.0
+    ],
+    "nets": [
+     [
+      "cpu",
+      "l2"
+     ]
+    ],
+    "placement": [
+     0,
+     1
+    ],
+    "slots": [
+     2,
+     1
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "Floorplan",
+  "seconds": 0.0
+ },
  "pinneapple_design.design_optimizer.airfoil_drag:airfoil_outline": {
   "code_hash": "ab521a8437062aab",
   "inputs": {
@@ -1127,6 +1245,198 @@
   "recorded": "2026-10-31",
   "returned": "QualitativeModel",
   "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:battery": {
+  "code_hash": "44674beef3e4762a",
+  "inputs": {
+   "f_ecl": 0.35,
+   "p_ecl_w": 10.0,
+   "period_s": 5900.0,
+   "years": 3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.02
+ },
+ "pinneapple_design.satellite.budgets:beta_angles_sso": {
+  "code_hash": "87406281003da125",
+  "inputs": {
+   "i_deg": 98.19,
+   "ltan_h": 10.5
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:disturbance_torques": {
+  "code_hash": "3bbffaee861eb28b",
+  "inputs": {
+   "area_m2": 0.08,
+   "cp_offset_m": 0.02,
+   "h_km": 700.0,
+   "inertia": [
+    0.1,
+    0.09,
+    0.03
+   ],
+   "residual_dipole_am2": 0.05,
+   "rho_kg_m3": 1e-13
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:eclipse_fraction": {
+  "code_hash": "39911cb230957072",
+  "inputs": {
+   "beta_deg": 10.0,
+   "h_km": 700.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:eclipse_fraction_sampled": {
+  "code_hash": "04501570d01db6ea",
+  "inputs": {
+   "beta_deg": 10.0,
+   "h_km": 700.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.05
+ },
+ "pinneapple_design.satellite.budgets:link_budget": {
+  "code_hash": "c90f098196822548",
+  "inputs": {
+   "ebn0_req_db": 4.5,
+   "elev_deg": 10.0,
+   "f_hz": 8200000000.0,
+   "g_over_t_db_k": 18.0,
+   "g_tx_dbi": 6.0,
+   "h_km": 700.0,
+   "p_tx_w": 2.0,
+   "rate_bps": 5000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:nodal_rate": {
+  "code_hash": "7fa982fdc6ccb908",
+  "inputs": {
+   "a": 7078137.0,
+   "e": 0.0,
+   "i_rad": 1.7137
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:revisit": {
+  "code_hash": "30ce20edd59d7cb6",
+  "inputs": {
+   "fov_deg": 10.0,
+   "h_km": 700.0,
+   "i_deg": 98.19,
+   "ifov_urad": 8.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:slant_range": {
+  "code_hash": "72b8c40d6ff41ad3",
+  "inputs": {
+   "elev_deg": 10.0,
+   "h_km": 700.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:solar_array": {
+  "code_hash": "6b5a7f267c5107d9",
+  "inputs": {
+   "f_ecl": 0.35,
+   "p_day_w": 14.0,
+   "p_ecl_w": 11.0,
+   "period_s": 5930.0,
+   "years": 3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:sso_inclination": {
+  "code_hash": "6c5ef0fd1f22b2a1",
+  "inputs": {
+   "h_km": 700.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.budgets:wheel_and_torquer": {
+  "code_hash": "0b36c3298e301b11",
+  "inputs": {
+   "b_min_t": 2.4e-05,
+   "inertia": [
+    0.1,
+    0.09,
+    0.03
+   ],
+   "period_s": 5930.0,
+   "torque_nm": 2e-06
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.satellite.workflow:contact_time": {
+  "code_hash": "959c4aabc28302f6",
+  "inputs": {
+   "elev_min_deg": 10.0,
+   "h_km": 700.0,
+   "i_deg": 98.19,
+   "lat_deg": 60.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_design.satellite.workflow:propagate_j2": {
+  "code_hash": "3410c12e8e570ef7",
+  "inputs": {
+   "days": 0.2,
+   "h_km": 700.0,
+   "i_deg": 98.19
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 0.06
+ },
+ "pinneapple_design.satellite.workflow:satellite_design_workflow": {
+  "code_hash": "e2990420efe585d5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 3.02
  },
  "pinneapple_design.surrogate_inverse.brake_rotor:train_surrogate": {
   "code_hash": "4cd429627979794c",

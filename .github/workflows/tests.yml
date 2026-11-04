@@ -111,6 +111,14 @@ jobs:
       - name: Design optimization workflow — gmsh cantilever, FEM vs beam theory, refined-mesh re-verification, KKT, robustness, STEP (must pass)
         run: pytest tests/test_design_optimization_workflow.py -q -p no:warnings
 
+      - name: Digital twin workflow — drift detected and recalibrated, NIS / NEES chi-square bands, anomalies, forecast, CSV replay (must pass)
+        run: pytest tests/test_digital_twin_workflow.py -q -p no:warnings
+
+      - name: Base workflows — bio (SIR final size, PK AUC, HH threshold, SBML round trip), chip (stack network, IR mesh, Elmore), satellite (SSO, eclipse, link, lifetime) (must pass)
+        run: |
+          pip install "pymsis>=0.10"
+          pytest tests/test_bio_workflow.py tests/test_chip_design_workflow.py tests/test_satellite_design_workflow.py -q -p no:warnings
+
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |
           pip install scikit-learn

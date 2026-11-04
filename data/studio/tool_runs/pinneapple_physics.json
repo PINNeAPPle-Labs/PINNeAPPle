@@ -530,6 +530,109 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_physics.biology.standard_models:fitzhugh_nagumo": {
+  "code_hash": "622cc72d9e343fa4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 4.45
+ },
+ "pinneapple_physics.biology.standard_models:hodgkin_huxley": {
+  "code_hash": "3542f69c55bcc6f8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 0.11
+ },
+ "pinneapple_physics.biology.standard_models:michaelis_menten": {
+  "code_hash": "9cfd01a917cdf6bd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.standard_models:pk_two_compartment": {
+  "code_hash": "74d9fcb4488b2a26",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.standard_models:seir": {
+  "code_hash": "6a2302890e704ef1",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.standard_models:sir": {
+  "code_hash": "174dc8a32abee429",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "ODESystem",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.workflow:bio_workflow": {
+  "code_hash": "5d0f0354614f331a",
+  "inputs": {
+   "model": "michaelis_menten",
+   "n_sobol": 8
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "dict",
+  "seconds": 30.05
+ },
+ "pinneapple_physics.biology.workflow:build_model": {
+  "code_hash": "e33ae34956d20dab",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.workflow:fhn_hopf_current": {
+  "code_hash": "26848fc12aa7e1c6",
+  "inputs": {
+   "a": 0.7,
+   "b": 0.8,
+   "eps": 0.08
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.workflow:sir_final_size": {
+  "code_hash": "0c48dd21b70858fb",
+  "inputs": {
+   "N": 1000000.0,
+   "R0": 3.0,
+   "R_init": 0.0,
+   "S0": 999990.0
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.biology.workflow:wilks_order": {
+  "code_hash": "8fd80997a3ae0427",
+  "inputs": {
+   "n": 32,
+   "target": 0.9
+  },
+  "ok": true,
+  "recorded": "2026-11-03",
+  "returned": "int",
+  "seconds": 0.0
+ },
  "pinneapple_physics.blackhole.dataset:window_volumes": {
   "code_hash": "3ed8d30cbbb34cf8",
   "error": "ArtifactUnavailableError: could not download grid_r.npz of 'blackhole_riaf_density_256': ",

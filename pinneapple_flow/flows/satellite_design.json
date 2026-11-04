@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "satellite-design-orbit-power-thermal-link-adcs-a",
+ "name": "Satellite design: orbit, power, thermal, link, ADCS and lifetime, mass closed and re-verified",
+ "description": "From the mission (GSD, revisit, payload power, data per day, lifetime): sun-synchronous orbit, eclipse and J2 drift, end-of-life array and battery, hot and cold thermal cases, link budget, disturbance torques with wheel and magnetorquer sizing, lifetime under F10.7 scenarios, the mass closed at its least value with margins, re-verified by a J2 orbit propagation and the end-of-life margins (pinneapple_design.satellite.workflow).",
+ "nodes": [
+  {
+   "id": "sat",
+   "type": "satellite.design",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Satellite design"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Satellite design: orbit, power, thermal, link, ADCS and lifetime, mass closed and re-verified"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "sat",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "sat.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "family": "base_workflows",
+  "kind": "closed_loop",
+  "issue": 1207
+ }
+}

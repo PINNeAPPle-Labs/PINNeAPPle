@@ -79,21 +79,23 @@ from .scales import (
     ScaleRoute,
     scale_compatibility,
 )
-from .sgs3d import (
-    AprioriCase,
-    apriori_case,
-    apriori_metrics,
-    closure_eddy_viscosity,
-    ideal_eddy_viscosity,
-    learn_sgs_stress,
-    modelled_stress,
-    periodic_stencil,
-    run_benchmark,
-    sharp_filter,
-    spectral_gradient,
-    taylor_green_dns,
-    taylor_green_snapshots,
-)
+
+# ``sgs3d`` is imported lazily. Eagerly importing it here makes
+# ``python -m pinneapple_physics.multiscale.sgs3d`` (the documented way to run the benchmark) load the module twice
+# and emit a RuntimeWarning about it, which reads like a failure on a command that worked.
+_SGS3D_NAMES = frozenset({
+    "AprioriCase", "apriori_case", "apriori_metrics", "closure_eddy_viscosity", "gradient_model_stress",
+    "ideal_eddy_viscosity", "learn_sgs_stress", "modelled_stress", "periodic_stencil", "run_benchmark",
+    "sharp_filter", "spectral_gradient", "taylor_green_dns", "taylor_green_snapshots",
+})
+
+
+def __getattr__(name):
+    if name in _SGS3D_NAMES:
+        from . import sgs3d
+
+        return getattr(sgs3d, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     "FILTER_KINDS", "Filter", "transfer", "apply_filter", "restrict", "prolong", "post_filter_transfer",

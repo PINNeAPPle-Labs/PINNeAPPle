@@ -39,7 +39,13 @@ from pinneapple_design.design_optimizer.study import (
 from .design import BOUNDS, NAMES, VARIABLES, Motor3DDesign
 from .model import OUTPUTS, SCALARS, Motor3DModel
 
-__all__ = ["Limits", "SurrogateEvaluator", "design_problem", "optimize", "verify_front", "benchmark", "TOP_LEVEL"]
+__all__ = ["Limits", "CONSTRAINED", "SurrogateEvaluator", "design_problem", "optimize", "verify_front", "benchmark",
+           "TOP_LEVEL"]
+
+#: The outputs the search constrains, and therefore the ones for which a design at the limit needs the ensemble
+#: spread on its side: a constraint is not a prediction, and a prediction that is 1 sigma optimistic at the limit is
+#: a design that fails the re-check.
+CONSTRAINED = ("T_winding_C", "T_magnet_C", "demag_ratio", "ripple")
 
 #: The decision limits of the study. They are engineering limits, stated, not tuned to make a front look good: a
 #: class-H winding at 180 degC, a sintered NdFeB magnet at 140 degC (above it the coercivity falls away), a
@@ -59,13 +65,17 @@ class SurrogateEvaluator(Evaluator):
     the profiles flattened to their hottest segment (an optimiser constrains numbers, not curves)."""
 
     fidelity = "surrogate"
-    outputs = list(SCALARS)
+    outputs = list(SCALARS) + [f"{k}_ub" for k in CONSTRAINED]
     name = "motor3d-surrogate"
 
-    def __init__(self, surrogate):
+    def __init__(self, surrogate, check_geometry: bool = True, k_std: float = 1.0):
         self.surrogate = surrogate
+        self.k_std = float(k_std)
         self.n_calls = 0
         self.n_designs = 0
+        #: A surrogate is a map from numbers to numbers: it does not know whether the cross-section can be built.
+        #: The geometry test is exact and costs milliseconds, so it runs here rather than being learned.
+        self.check_geometry = bool(check_geometry)
         self.description = f"{type(surrogate).__name__} ensemble of {len(surrogate.models)} networks"
 
     def evaluate(self, X: np.ndarray) -> dict[str, np.ndarray]:
@@ -76,13 +86,17 @@ class SurrogateEvaluator(Evaluator):
         self.n_calls += 1
         self.n_designs += len(X)
         flat = {k: _hottest(out[k]) for k in SCALARS}
-        flat["_valid"] = np.ones(len(X), bool)
+        # the upper bound a constraint should use: mean + k sigma of the ensemble, per design and per output
+        for k in CONSTRAINED:
+            flat[f"{k}_ub"] = _hottest(out[k]) + self.k_std * _hottest(out[f"{k}_std"])
+        flat["_valid"] = (np.array([not Motor3DDesign.from_vector(x).sector_errors() for x in X], bool)
+                          if self.check_geometry else np.ones(len(X), bool))
         return flat
 
     def spread(self, X) -> dict[str, np.ndarray]:
         """Ensemble spread per output: how much the members disagree, in the output's unit."""
         pred = self.surrogate.predict(X)
-        return {f"{k}_std": (v[1] if np.ndim(v[1]) > 1 else v[1]) for k, v in pred.items()}
+        return {f"{k}_std": _hottest(v[1]) for k, v in pred.items()}
 
 
 def design_problem(evaluator: Evaluator | None = None, *, surrogate=None, limits: dict[str, float] | None = None,
@@ -96,10 +110,12 @@ def design_problem(evaluator: Evaluator | None = None, *, surrogate=None, limits
     unit_of = {o.name: o.unit for o in OUTPUTS}
     spec = objectives or (("torque_density_Nm_kg", "max"), ("efficiency", "max"), ("magnet_mass_kg", "min"))
     objs = [Objective(name, sense, unit_of[name]) for name, sense in spec]
-    cons = [Constraint("T_winding_C", upper=lim["T_winding_max_C"], label="winding temperature [degC]"),
-            Constraint("T_magnet_C", upper=lim["T_magnet_max_C"], label="magnet temperature [degC]"),
-            Constraint("demag_ratio", upper=lim["demag_ratio_max"], label="demagnetisation ratio"),
-            Constraint("ripple", upper=lim["ripple_max"], label="torque ripple (pk-pk / mean)")]
+    # the constraints see the conservative value of the surrogate (mean + k sigma of the ensemble), not its mean:
+    # a front that only satisfies the limits inside the model is not a front
+    cons = [Constraint("T_winding_C_ub", upper=lim["T_winding_max_C"], label="winding temperature [degC]"),
+            Constraint("T_magnet_C_ub", upper=lim["T_magnet_max_C"], label="magnet temperature [degC]"),
+            Constraint("demag_ratio_ub", upper=lim["demag_ratio_max"], label="demagnetisation ratio"),
+            Constraint("ripple_ub", upper=lim["ripple_max"], label="torque ripple (pk-pk / mean)")]
     problem = DesignProblem("3-D multiphysics IPM motor", space, objs, cons, ev,
                             description="rotor cross-section + stack + skew + operating point + coolant flow, "
                                         "evaluated by the pretrained surrogate")
@@ -122,14 +138,13 @@ def optimize(problem: DesignProblem | None = None, *, budget: int = 2000, method
     wall = time.perf_counter() - t0
     idx = res.pareto()
     E = res.evaluations
-    rows = []
-    if len(idx):
-        for i in idx:
-            d = Motor3DDesign.from_vector(E.X[i])
-            row = d.as_dict()
-            row.update({k: float(_hottest(E.Y[k])[i]) for k in SCALARS})
-            row["feasible"] = bool(E.feasible[i])
-            rows.append(row)
+    def row_of(i: int, feasible: bool | None = None) -> dict[str, Any]:
+        row: dict[str, Any] = Motor3DDesign.from_vector(E.X[i]).as_dict()
+        row.update({k: float(_hottest(E.Y[k])[i]) for k in SCALARS})
+        row["feasible"] = bool(E.feasible[i]) if feasible is None else feasible
+        return row
+
+    rows = [row_of(i) for i in idx] if len(idx) else []
     evals = {"X": E.X if E is not None else np.zeros((0, len(NAMES))), "pareto": idx,
              "Y": {k: _hottest(E.Y[k]) for k in SCALARS} if E is not None
              else {k: np.zeros(0) for k in SCALARS},
@@ -138,10 +153,8 @@ def optimize(problem: DesignProblem | None = None, *, budget: int = 2000, method
             "n_evaluations": res.n_evals, "wall_seconds": wall,
             "designs_per_second": res.n_evals / wall if wall > 0 else float("nan"),
             "n_reference_solves": 0, "result": res, "evaluations": evals, "front": rows,
-            "best_efficiency": Motor3DDesign.from_vector(E.X[res.best(1)]).as_dict()
-            if E is not None and res.best(1) is not None else None,
-            "best_torque_density": Motor3DDesign.from_vector(E.X[res.best(0)]).as_dict()
-            if E is not None and res.best(0) is not None else None,
+            "best_efficiency": row_of(res.best(1)) if E is not None and res.best(1) is not None else None,
+            "best_torque_density": row_of(res.best(0)) if E is not None and res.best(0) is not None else None,
             "summary": {o: [float(v) for v in evals["Y"][o][idx]] for o in
                         ("torque_density_Nm_kg", "efficiency", "magnet_mass_kg", "T_winding_C")} if len(idx) else {},
             "limits": dict(getattr(problem, "motor_limits", _limits()))}

@@ -213,12 +213,18 @@ def write_report(folder: str | Path) -> Path:
              f"| verification | {ver['n_checked']} designs of the front re-evaluated with the reference model |\n")
     L.append("\n## Held-out error of the surrogate\n")
     L.append("| output | unit | MAE | R2 | mean rel. | 95th rel. |\n|---|---|---|---|---|---|\n")
+    const = card.get("constant_outputs", {})
     for k in SCALARS:
-        e = card["heldout"][k]
+        e = card["heldout"].get(k)
+        if e is None:
+            L.append(f"| {k} | constant ({const.get(k, 0.0):.3g}) | - | - | - | - |\n")
+            continue
         L.append(f"| {k} | {e.get('unit', '')} | {e['mae']:.4g} | {e['r2']:.4f} | {100 * e['mean_rel']:.2f} % | "
                  f"{100 * e['p95_rel']:.2f} % |\n")
-    L.append(f"\nWorst output by mean relative error: **{card['worst_output']}** "
-             f"({100 * card['mean_rel_overall']:.2f} % averaged over all outputs).\n")
+    L.append(f"\nMean R2 over the outputs that vary: **{card['mean_r2']:.4f}**; the output it explains least is "
+             f"**{card['worst_output']}** (R2 {card['worst_r2']:.3f}). "
+             + (f"Predicted as constants, because they do not move in this design space at these speeds: "
+                f"{', '.join(sorted(const))}.\n" if const else ""))
     L.append("\n## The front\n")
     L.append(f"- designs evaluated: **{opt['n_evaluations']}** at **{opt['designs_per_second']:.0f} designs/s**\n")
     if opt.get("best_torque_density"):

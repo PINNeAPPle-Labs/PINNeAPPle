@@ -85,6 +85,15 @@ def _mlp(n_in: int, hidden: Sequence[int], n_out: int, act: str):
     return torch.nn.Sequential(*layers)
 
 
+def _unit_of(target: str) -> str:
+    """The unit of an output or of one segment of a profile (``T_winding_profile_C[2]`` -> ``degC``)."""
+    base = target.split("[")[0]
+    for o in OUTPUTS:
+        if o.name == base:
+            return o.unit
+    return {"torque_slice_Nm": "N m", "T_winding_profile_C": "degC", "T_magnet_profile_C": "degC"}.get(base, "")
+
+
 def _sha256(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as f:
@@ -275,8 +284,7 @@ class MotorSurrogate3D:
         ``_valid`` (every design is valid for a network; the flag is what the optimiser expects)."""
         pred = self.predict(X)
         out = {k: v[0] for k, v in pred.items()}
-        std = {f"{k}_std": v[1] for k, v in pred.items()}
-        n = len(np.atleast_2d(X))
+        out.update({f"{k}_std": v[1] for k, v in pred.items()})
         return out
 
     def predict_one(self, d: Motor3DDesign) -> tuple[dict[str, float], dict[str, float]]:
@@ -318,7 +326,7 @@ class MotorSurrogate3D:
             rel = np.abs(err) / np.maximum(np.abs(t), 1e-9)
             per[k] = {"mae": float(np.mean(np.abs(err))), "r2": float(1.0 - ss_res / ss_tot),
                       "max_rel": float(np.max(rel)), "mean_rel": float(np.mean(rel)),
-                      "p95_rel": float(np.percentile(rel, 95))}
+                      "p95_rel": float(np.percentile(rel, 95)), "unit": _unit_of(k)}
         # the worst output is the one explaining least of its variance: a relative error is meaningless for an
         # output that is near zero by construction (a loss that does not exist at this speed), its R2 is not
         worst = min(per, key=lambda k: per[k]["r2"]) if per else None

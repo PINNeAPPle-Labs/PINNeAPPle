@@ -1,0 +1,80 @@
+id	title	labels
+A1	ENSO v2: a sealed out-of-sample El Niño forecast, calibrated probabilities and regime-conditional skill	enhancement,experiment,priority: P2,effort: L,data,benchmark,uq
+E1	Scientific cinematic pipeline: every frame of a demonstration video traceable to a solver output	enhancement,experiment,priority: P2,effort: L,visualization,twin3d,interop
+D0	Experiment campaign: reproducible Physics-AI demonstrations, one evidence protocol, and what each one may claim	documentation,experiment,priority: P2,effort: M,roadmap
+B1	MORPH: a machine that learns its own physics and redesigns itself, in simulation	enhancement,experiment,priority: P2,effort: L,design-optimization,neural-operators,agents
+B2	AERIS: an aircraft whose geometry changes in flight, optimised for the conditions it is in	enhancement,experiment,priority: P3,effort: L,design-optimization,geometry,solvers
+B3	XENOFORM: a structure the optimiser grows to carry load and to route flow at the same time	enhancement,experiment,priority: P3,effort: L,design-optimization,geometry,fem,solvers
+B4	LEVITATE: a controller that learns to hold a body in a magnetic field, and what that costs	enhancement,experiment,priority: P3,effort: L,solvers,uq,training
+B5	LIVING MATTER: a cellular structure that becomes stiffer, softer or more conductive region by region	enhancement,experiment,priority: P3,effort: L,design-optimization,fem,geometry
+B6	FLOW GOD: control a channel flow with what the model has learned, not with a hand-tuned schedule	enhancement,experiment,priority: P3,effort: L,solvers,neural-operators,uq
+B7	VORTEX TREE: a 3-D manifold a topology optimiser grows to spread flow evenly at minimum loss	enhancement,experiment,priority: P2,effort: L,design-optimization,solvers,geometry
+B8	THERMAL ORGANISM: a heat sink the optimiser grows, branch by branch	enhancement,experiment,priority: P2,effort: L,design-optimization,solvers,geometry
+B9	AERODYNAMIC EVOLUTION: a body whose shape evolves to cut drag, generation by generation	enhancement,experiment,priority: P2,effort: L,design-optimization,geometry,solvers
+B10	STRESS GARDEN: material migrating to where the load is, in 3-D	enhancement,experiment,priority: P2,effort: L,design-optimization,fem,geometry
+B11	VORTEX ENGINE: a geometry that learns to mix two streams	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+B12	FLUID MACHINE: blades the optimiser finds for a rotor	enhancement,experiment,priority: P3,effort: L,design-optimization,solvers,geometry
+B13	SHAPE-SHIFTING METAMATERIAL: a lattice whose unit cells are chosen for the behaviour it must have	enhancement,experiment,priority: P3,effort: L,fem,geometry,design-optimization
+B14	INVISIBLE WEATHER: a 3-D convection cell, and the scaling law it must reproduce	enhancement,experiment,priority: P3,effort: L,solvers,visualization
+B15	TENTACLE ENGINE: a continuum arm that squeezes through a gap and still lifts	enhancement,experiment,priority: P3,effort: L,fem,design-optimization
+B16	CLIMATE SKIN: a facade whose panels move, and what that does to the wind around a building	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+B17	SKYBRAKE: a capsule that steers its own entry with movable surfaces	enhancement,experiment,priority: P3,effort: L,solvers,uq
+B18	BLOOM TURBINE: a rotor whose blades open as the wind rises	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+B19	VORTEX RIDER: thrust from vortex rings, measured rather than implied	enhancement,experiment,priority: P3,effort: L,solvers,visualization
+B20	MECHAMORPH: a machine that walks into a gap and turns itself into a bridge	enhancement,experiment,priority: P3,effort: L,fem,design-optimization,agents
+B21	VORTEX GATE: can a flow field really deflect a passing object?	enhancement,experiment,priority: P3,effort: M,solvers,uq
+B22	ORBITAL INFLATION: a compact module that expands into a rotating ring	enhancement,experiment,priority: P3,effort: L,fem,uq,visualization
+B23	AEROMORPH: a race car that changes its own aerodynamics for the corner it is in	enhancement,experiment,priority: P2,effort: M,design-optimization,solvers,visualization
+B24	HYDROFLIGHT: a hull that leaves the water and flies on foils	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+B25	INVERTED WORLD: a vehicle that drives on a ceiling, and what holds it there	enhancement,experiment,priority: P3,effort: M,solvers,geometry
+C1	MORPHOGENESIS: units that assemble themselves into a part, take it apart and build another	enhancement,experiment,priority: P2,effort: L,solvers,design-optimization,agents
+C2	NANOSWARM: a gripper that emerges from magnetic particles under an applied field	enhancement,experiment,priority: P3,effort: L,solvers,uq
+C3	LIVING LATTICE: one architecture, several mechanical functions, chosen by topology	enhancement,experiment,priority: P3,effort: L,fem,geometry,design-optimization
+C4	NANOTURBINE: a rotor that assembles itself in a fluid and then pumps	enhancement,experiment,priority: P3,effort: L,solvers,uq
+C5	NANOORIGAMI: a flat sheet that folds itself into a 3-D shape	enhancement,experiment,priority: P2,effort: M,fem,geometry,design-optimization
+C6	FERROFLUID ARCHITECT: shapes a magnetic field can command, and the ones it cannot	enhancement,experiment,priority: P2,effort: M,solvers,uq
+C7	GRANULAR CONSTRUCTOR: a pile of grains that becomes a bridge and then an arch	enhancement,experiment,priority: P3,effort: M,solvers,uq
+C8	SELF-HEALING MACHINE: a truss that breaks, and then repairs itself	enhancement,experiment,priority: P2,effort: M,fem,solvers,uq
+C9	MICROFACTORY: an assembly line inside a channel	enhancement,experiment,priority: P3,effort: M,solvers,design-optimization
+C10	THERMAL MORPH: a part that changes function with temperature	enhancement,experiment,priority: P3,effort: M,fem,solvers
+C11	ACTIVE MATTER: a crowd of units that organises itself, and the parameters where it stops	enhancement,experiment,priority: P3,effort: M,solvers,uq,benchmark
+C12	MOLECULAR LOCK: a cage that closes on a particle and opens on command	enhancement,experiment,priority: P3,effort: L,solvers,uq
+D1	SHAPE-SHIFTING MATTER: one population of modules, several machines	enhancement,experiment,priority: P3,effort: L,design-optimization,agents,fem
+D2	T-1000 LAB: a liquid-metal machine, and the physics that refuses it	enhancement,experiment,priority: P3,effort: L,solvers,uq
+D3	AUTONOMOUS WORLD BUILDER: robots that assemble a station without a foreman	enhancement,experiment,priority: P3,effort: L,agents,orchestration,solvers
+D4	INSTANT EXOSUIT: armour that folds out of a pack and takes the load	enhancement,experiment,priority: P3,effort: L,fem,design-optimization
+D5	OMNIVEHICLE: one machine for air, surface and water, with the trade-off shown	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+D6	FUELLESS DEEP SPACE CRAFT: a sail, its trajectory, and the patience it needs	enhancement,experiment,priority: P3,effort: M,solvers,design-optimization
+D7	GRAVITY-FREE PLATFORM: a stage that holds a load without touching it	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D8	WALKING INDUSTRIAL MEGASTRUCTURE: a factory that steps over the terrain	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization
+D9	ACTIVE CAMOUFLAGE SKIN: a surface that matches what is behind it, from a stated viewpoint	enhancement,experiment,priority: P3,effort: M,visualization,design-optimization
+D10	SONIC CLOAK: an acoustic metamaterial that hides a region at one frequency band	enhancement,experiment,priority: P3,effort: M,solvers,design-optimization,fem
+D11	REGENERATIVE STRUCTURE: a crack, a repair, and how much of the strength comes back	enhancement,experiment,priority: P2,effort: M,fem,uq
+D12	EARTHQUAKE SHIELD: a foundation whose stiffness changes during the shaking	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D13	WORMHOLE LAB: light through a throat that may not exist	enhancement,experiment,priority: P3,effort: M,solvers,visualization
+D14	ARTIFICIAL GRAVITY GENERATOR: a ring that spins, and the comfort it can and cannot buy	enhancement,experiment,priority: P3,effort: M,fem,uq,visualization
+D15	INERTIA CONTROL LAB: making a payload feel less of a manoeuvre	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D16	PORTAL ENGINE: two rooms joined at a boundary, and what the fields do there	enhancement,experiment,priority: P3,effort: M,solvers,visualization
+D17	MATTER TRANSPORTER: what it costs to reconstruct an object from its description	enhancement,experiment,priority: P3,effort: M,data,benchmark
+D18	SPACE FOLDER: a metric that shortens a path, and the price of the deformation	enhancement,experiment,priority: P3,effort: M,solvers,visualization
+D19	QUANTUM TELEPORTER: a state that moves without a particle moving, and its fidelity	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D20	TIME DILATION ENGINE: two clocks, two histories, one number	enhancement,experiment,priority: P2,effort: M,solvers,benchmark
+D21	CAUSALITY LAB: closed timelike curves, and whether the equations admit a consistent history	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D22	TEMPORAL LOOP: a system that returns to its own initial state, and the dynamics that follow	enhancement,experiment,priority: P3,effort: S,solvers
+D23	CHRONOSCOPE: reconstructing a past state from what is left of it	enhancement,experiment,priority: P3,effort: M,uq,solvers
+D24	OMNIMATTER: speak a part, and matter arranges itself into it	enhancement,experiment,priority: P3,effort: L,agents,llm,design-optimization,fem
+D25	BIG HERO SWARM: a swarm that loses a fifth of its units and keeps holding the object	enhancement,experiment,priority: P3,effort: L,agents,solvers,uq
+D26	THOUGHTFORM: from a described object to a structure that can actually be built	enhancement,experiment,priority: P2,effort: M,agents,llm,design-optimization
+D27	REACTIVE ARMOR: a layer that stiffens only where it is hit	enhancement,experiment,priority: P3,effort: L,fem,solvers,uq
+D28	UNIVERSAL TOOL: one module set, three tools, one force budget	enhancement,experiment,priority: P3,effort: M,design-optimization,fem
+D29	BAYMAX ENGINE: a soft body that changes shape to reach and to carry	enhancement,experiment,priority: P3,effort: L,solvers,fem
+D30	SELF-BUILDING CITY: local rules that end in a structure, or in a collapse	enhancement,experiment,priority: P3,effort: L,agents,orchestration,fem
+D31	MEDIBOTS: particles navigating a vessel to a target	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D32	FORCE FIELD LAB: moving an object without touching it, with the mechanism named	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D33	ENERGY SHIELD: a barrier that attenuates a blast or a wave instead of stopping it	enhancement,experiment,priority: P3,effort: L,fem,solvers,uq
+D34	MIRROR DIMENSION: an environment whose geometry is consistent and impossible	enhancement,experiment,priority: P3,effort: M,visualization,solvers
+D35	HARD-LIGHT CONSTRUCTOR: how much force light can actually apply	enhancement,experiment,priority: P3,effort: S,visualization,uq
+D36	VORTEX SHIELD: deflecting dust and droplets with a flow instead of a wall	enhancement,experiment,priority: P3,effort: M,solvers,uq
+D37	CAUSALITY MANIPULATOR: simulate the consequences before choosing the action	enhancement,experiment,priority: P2,effort: M,surrogate,uq,agents
+D38	IMPOSSIBLE ROOM: a room that cannot exist in ordinary geometry, and stays consistent	enhancement,experiment,priority: P3,effort: M,visualization,solvers
+B26	WAVE EATER: a floating structure that changes shape to take energy from the waves	enhancement,experiment,priority: P3,effort: L,solvers,design-optimization

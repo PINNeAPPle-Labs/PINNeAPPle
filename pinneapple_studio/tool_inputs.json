@@ -4499,6 +4499,66 @@
   },
   "source": "tests/test_emachine_drive.py:34"
  },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.dataset:build_dataset": {
+  "inputs": {
+   "n": 8,
+   "workers": 1
+  },
+  "source": "pinneapple_simulation.electromagnetics.machines.motor3d/dataset.py: a small sample of the box (the default n=256 takes minutes)"
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.design:from_matrix": {
+  "inputs": {
+   "X": [
+    [
+     0.0189,
+     0.0065,
+     0.01096,
+     0.042,
+     0.0015,
+     0.08382,
+     10.0,
+     250.0,
+     50.0,
+     1500.0,
+     6.0
+    ]
+   ]
+  },
+  "source": "pinneapple_simulation.electromagnetics.machines.motor3d/design.py: Motor3DDesign.baseline().as_vector()"
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.design:to_matrix": {
+  "inputs": {
+   "designs": [
+    {
+     "W4": 0.0189,
+     "H3": 0.0065,
+     "H0": 0.01096,
+     "W0": 0.042,
+     "H1": 0.0015,
+     "L": 0.08382,
+     "skew_deg": 10.0,
+     "I_peak": 250.0,
+     "gamma_deg": 50.0,
+     "rpm": 1500.0,
+     "flow_L_min": 6.0
+    }
+   ]
+  },
+  "source": "pinneapple_simulation.electromagnetics.machines.motor3d/design.py: the baseline design as its eleven fields"
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.optimize:optimize": {
+  "inputs": {
+   "budget": 200
+  },
+  "source": "pinneapple_simulation.electromagnetics.machines.motor3d/optimize.py: the default problem, 200 surrogate evaluations (the study runs 4000)"
+ },
+ "pinneapple_simulation.electromagnetics.machines.motor3d.workflow:check_temperature_coupling": {
+  "inputs": {
+   "n": 2,
+   "n_gap": 96
+  },
+  "source": "pinneapple_simulation.electromagnetics.machines.motor3d/workflow.py: two designs on a coarse air gap"
+ },
  "pinneapple_simulation.electromagnetics.machines.robustness:step_offsets": {
   "inputs": {
    "step_angle": 0.1,

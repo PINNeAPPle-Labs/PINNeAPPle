@@ -308,7 +308,7 @@
   "ok": true,
   "recorded": "2026-11-05",
   "returned": "FlowBuilder",
-  "seconds": 6.08
+  "seconds": 5.64
  },
  "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
   "code_hash": "c850f9ea1ca71684",

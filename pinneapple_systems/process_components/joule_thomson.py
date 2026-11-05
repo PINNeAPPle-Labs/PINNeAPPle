@@ -55,6 +55,29 @@ _ALIASES = {"Methane": ("methane", "metano", "ch4"), "Ethane": ("ethane", "etano
 BG, FG, MUTED, GRID = "#0b0f17", "#e8edf5", "#8a96a8", "#1c2433"
 AMBER, TEAL, RED, VIOLET, BLUE = "#ffb547", "#2ee6c5", "#ff5d6c", "#9d8cff", "#5aa9ff"
 _EOS_COL = {"GERG-2008": TEAL, "Peng-Robinson": AMBER, "SRK": VIOLET, "ideal gas": RED}
+_PT_WORDS = ("valvula", "gas natural", "pressao", "temperatura", "entrada", "saida", "estou", "simulacao", "efeito",
+             "queda", "meu", "minha")
+# figure texts by language (the request's language, :func:`parse_valve_request`)
+_T = {
+    "en": {"path": "Throttling path: temperature against pressure (grey: isenthalps, GERG-2008)",
+           "ideal gas": "ideal gas", "jet": "coldest point inside the jet (local, Mach 1)", "cfd": "your CFD",
+           "p": "pressure (bar)", "T": "temperature (°C)",
+           "bars": "Joule–Thomson change by equation of state (h2 = h1)", "dT": "outlet − inlet temperature (K)",
+           "kin": "kinetic correction at the pipe velocities (GERG-2008)",
+           "mu": "Joule–Thomson coefficient along the path (GERG-2008)", "p_path": "pressure along the path (bar)",
+           "map": "Temperature drop from {P1:g} bar (GERG-2008, h2 = h1)", "p2": "outlet pressure (bar)",
+           "dT_map": "temperature change (K)", "inlet": "inlet {t:.0f} °C", "grade": "VeriPhysics grade"},
+    "pt": {"path": "Estrangulamento: temperatura × pressão (cinza: isentálpicas, GERG-2008)",
+           "ideal gas": "gás ideal", "jet": "ponto mais frio no jato (local, Mach 1)", "cfd": "seu CFD",
+           "p": "pressão (bar)", "T": "temperatura (°C)",
+           "bars": "Variação de Joule–Thomson por equação de estado (h2 = h1)",
+           "dT": "temperatura de saída − entrada (K)", "kin": "correção cinética nas velocidades do tubo (GERG-2008)",
+           "mu": "Coeficiente de Joule–Thomson ao longo do caminho (GERG-2008)",
+           "p_path": "pressão ao longo do caminho (bar)", "map": "Queda de temperatura a partir de {P1:g} bar "
+                                                              "(GERG-2008, h2 = h1)",
+           "p2": "pressão de saída (bar)", "dT_map": "variação de temperatura (K)", "inlet": "entrada {t:.0f} °C",
+           "grade": "Nota VeriPhysics"},
+}
 
 
 # ------------------------------------------------------------------------------------------------- the request
@@ -160,7 +183,8 @@ def parse_valve_request(text: str) -> dict[str, Any]:
     case.setdefault("xT", DEFAULT_CASE["xT"])
     if not gas:
         defaulted.append("composition")
-    return {"case": case, "gas": gas or dict(DEFAULT_GAS), "found": found, "defaulted": defaulted}
+    lang = "pt" if sum(w in t for w in _PT_WORDS) >= 2 else "en"
+    return {"case": case, "gas": gas or dict(DEFAULT_GAS), "found": found, "defaulted": defaulted, "lang": lang}
 
 
 # ------------------------------------------------------------------------------------------------- thermodynamics
@@ -265,7 +289,7 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
                               T1_C: float | None = None, P2_bar: float | None = None, Cv: float | None = None,
                               pipe_d_mm: float | None = None, xT: float | None = None,
                               cfd_T2_C: float | None = None, composition: dict[str, float] | None = None,
-                              width_px: int = 1280) -> dict[str, Any]:
+                              width_px: int = 1280, lang: str | None = None) -> dict[str, Any]:
     """Joule–Thomson temperature drop of natural gas across a globe valve, from a request in words or from values.
 
     Parameters
@@ -291,6 +315,8 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
         Mole fractions by CoolProp name (Methane, Ethane, ...); default :data:`DEFAULT_GAS` (illustrative).
     width_px : int [px]
         Width of the figures.
+    lang : str, optional
+        "pt" or "en" for the figure texts; by default the request's language.
 
     Returns
     -------
@@ -318,6 +344,8 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
             if k in parsed["defaulted"]:
                 parsed["defaulted"].remove(k)
     gas = dict(composition) if composition else parsed["gas"]
+    T = _T[lang or parsed["lang"]]
+    eos_label = {n: T["ideal gas"] if n == "ideal gas" else n for n in EOS}
     if composition and "composition" in parsed["defaulted"]:
         parsed["defaulted"].remove("composition")
     P1, P2, T1 = case["P1_bar"] * 1e5, case["P2_bar"] * 1e5, case["T1_C"] + 273.15
@@ -444,19 +472,21 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
             pass
     for name, col in _EOS_COL.items():
         if name == "ideal gas":
-            ax.plot([case["P1_bar"], case["P2_bar"]], [case["T1_C"]] * 2, color=col, lw=2, ls="--", label=name)
+            ax.plot([case["P1_bar"], case["P2_bar"]], [case["T1_C"]] * 2, color=col, lw=2, ls="--",
+                    label=eos_label[name])
             continue
         pth = path if name == "GERG-2008" else isenthalpic_path(gas, P1, T1, P2, n=25, eos=name)
-        ax.plot(pth["P"] / 1e5, pth["T"] - 273.15, color=col, lw=2.6 if name == "GERG-2008" else 1.8, label=name)
+        ax.plot(pth["P"] / 1e5, pth["T"] - 273.15, color=col, lw=2.6 if name == "GERG-2008" else 1.8,
+                label=eos_label[name])
     ax.scatter([case["P1_bar"]], [case["T1_C"]], color=FG, zorder=5, s=40)
     ax.scatter([P_jet / 1e5], [s_jet["T"] - 273.15], color=BLUE, zorder=5, s=50, marker="v",
-               label="coldest point inside the jet (local, Mach 1)")
+               label=T["jet"])
     if "cfd_T2_C" in case:
-        ax.scatter([case["P2_bar"]], [case["cfd_T2_C"]], color=RED, marker="X", s=120, zorder=6, label="your CFD")
+        ax.scatter([case["P2_bar"]], [case["cfd_T2_C"]], color=RED, marker="X", s=120, zorder=6, label=T["cfd"])
     ax.invert_xaxis()
-    ax.set_xlabel("pressure (bar)")
-    ax.set_ylabel("temperature (°C)")
-    ax.set_title("Throttling path: temperature against pressure (grey: isenthalps, GERG-2008)", color=FG)
+    ax.set_xlabel(T["p"])
+    ax.set_ylabel(T["T"])
+    ax.set_title(T["path"], color=FG)
     ax.legend(frameon=False, labelcolor=FG, fontsize=9)
     ax.grid(color=GRID, lw=0.6)
     fig.tight_layout()
@@ -467,7 +497,7 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
     fig, axs = plt.subplots(1, 2, figsize=(W, W * 0.33))
     names = list(EOS)
     vals = [static[n]["dT_K"] for n in names]                  # the Joule-Thomson effect alone (h2 = h1)
-    bars = axs[0].bar(names, vals, color=[_EOS_COL[n] for n in names], zorder=3)
+    bars = axs[0].bar([eos_label[n] for n in names], vals, color=[_EOS_COL[n] for n in names], zorder=3)
     lo_y = min(vals) * 1.25
     for b, v in zip(bars, vals, strict=True):
         if abs(v) > 0.05 * abs(lo_y):
@@ -478,16 +508,16 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
                         va="bottom", color=FG, fontsize=11, zorder=4)
     axs[0].set_ylim(lo_y, 0.22 * abs(lo_y))
     axs[0].axhline(0, color=MUTED, lw=1, zorder=2)
-    axs[0].set_ylabel("outlet − inlet temperature (K)")
-    axs[0].set_title("Joule–Thomson change by equation of state (h2 = h1)", color=FG)
-    axs[0].text(0.01, 0.02, f"kinetic correction at the pipe velocities (GERG-2008): "
+    axs[0].set_ylabel(T["dT"])
+    axs[0].set_title(T["bars"], color=FG)
+    axs[0].text(0.01, 0.02, f"{T['kin']}: "
                             f"{g['dT_K'] - static['GERG-2008']['dT_K']:+.2f} K", transform=axs[0].transAxes,
                 color=MUTED, fontsize=10)
     axs[1].plot(path["P"] / 1e5, path["mu_JT"] * 1e5, color=TEAL, lw=2.4)
     axs[1].invert_xaxis()
-    axs[1].set_xlabel("pressure along the path (bar)")
+    axs[1].set_xlabel(T["p_path"])
     axs[1].set_ylabel("μ_JT (K/bar)")
-    axs[1].set_title("Joule–Thomson coefficient along the path (GERG-2008)", color=FG)
+    axs[1].set_title(T["mu"], color=FG)
     axs[0].grid(color=GRID, lw=0.6, axis="y", zorder=0)
     axs[1].grid(color=GRID, lw=0.6)
     fig.tight_layout()
@@ -497,11 +527,11 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
 
     fig, ax = plt.subplots(figsize=(W * 0.55, W * 0.33))
     for t1, row, col in zip(T1_grid, dT_map, (BLUE, TEAL, AMBER), strict=True):
-        ax.plot(P2_grid / 1e5, row, color=col, lw=2.2, label=f"inlet {t1 - 273.15:.0f} °C")
+        ax.plot(P2_grid / 1e5, row, color=col, lw=2.2, label=T["inlet"].format(t=t1 - 273.15))
     ax.axvline(case["P2_bar"], color=MUTED, ls=":", lw=1.2)
-    ax.set_xlabel("outlet pressure (bar)")
-    ax.set_ylabel("temperature change (K)")
-    ax.set_title(f"Temperature drop from {case['P1_bar']:g} bar (GERG-2008, h2 = h1)", color=FG)
+    ax.set_xlabel(T["p2"])
+    ax.set_ylabel(T["dT_map"])
+    ax.set_title(T["map"].format(P1=case["P1_bar"]), color=FG)
     ax.legend(frameon=False, labelcolor=FG)
     ax.grid(color=GRID, lw=0.6)
     fig.tight_layout()
@@ -512,7 +542,7 @@ def valve_joule_thomson_study(request: str = "", out_dir: str = "valve_joule_tho
     fig, ax = plt.subplots(figsize=(W * 0.5, W * 0.3))
     ax.set_axis_off()
     col = {"APPROVED": TEAL, "REVIEW": AMBER, "REJECT": RED}[decision]
-    ax.text(0.0, 0.92, "VeriPhysics grade", color=MUTED, fontsize=15, transform=ax.transAxes)
+    ax.text(0.0, 0.92, T["grade"], color=MUTED, fontsize=15, transform=ax.transAxes)
     ax.text(0.0, 0.70, decision, color=col, fontsize=34, weight="bold", transform=ax.transAxes)
     for k, c in enumerate(checks):
         mark, cc = {"pass": ("✔", TEAL), "fail": ("✘", RED)}.get(c["status"], ("?", AMBER))

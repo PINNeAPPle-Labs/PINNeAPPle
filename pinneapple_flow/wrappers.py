@@ -193,6 +193,35 @@ def newton_validate(solver: Literal["xpbd", "semi_implicit", "featherstone", "mu
     return nwt.validate(solver=solver, cases=list(cases))
 
 
+def pict_cavity(re: float = 100.0, nx: int = 32, engine: Literal["auto", "pict", "local"] = "local",
+                iterations: int = 50) -> dict:
+    """Lid-driven cavity and its checks against Ghia et al. (1982)
+    (``pinneapple_simulation.external_solvers.pict.run_cavity``).
+
+    ``engine="local"`` (the default) runs this repository's CPU vorticity-streamfunction solver, so the node works on
+    any machine; ``"pict"`` runs PICT on CUDA when it is installed (and says what is missing when it is not), and
+    ``"auto"`` picks PICT if it can run. The engine that produced the numbers is in the output.
+    """
+    from pinneapple_simulation.external_solvers.pict import CavityCase, PICTRunConfig, run_cavity
+
+    case = CavityCase(nx=int(nx), ny=int(nx), Re=float(re), refine=False)
+    result = run_cavity(case, PICTRunConfig(iterations=int(iterations)), engine=engine)
+    checks = result.checks()
+    return {
+        "engine": result.engine,
+        "layout": result.layout,
+        "reynolds": float(re),
+        "cells": int(nx),
+        "ghia_u_rms": float(checks["ghia_u"]["rms"]) if "ghia_u" in checks else None,
+        "ghia_v_rms": float(checks["ghia_v"]["rms"]) if "ghia_v" in checks else None,
+        "continuity": float(checks["continuity"]["value"]),
+        "walls": float(checks["walls"]["value"]),
+        "lid": float(checks["lid"]["value"]),
+        "passed": bool(checks["passed"]),
+        "wall_time_s": float(result.wall_time_s),
+    }
+
+
 def openfoam_available() -> dict:
     """Is OpenFOAM installed (blockMesh on PATH)?"""
     return {"openfoam": bool(shutil.which("blockMesh")), "calculix": bool(shutil.which("ccx"))}

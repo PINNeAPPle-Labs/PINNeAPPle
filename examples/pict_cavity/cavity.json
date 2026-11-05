@@ -1,0 +1,32 @@
+{
+ "engine": "local",
+ "rows": [
+  {
+   "Re": 100,
+   "cells": 64,
+   "engine": "local",
+   "layout": "nodes",
+   "passed": true,
+   "ghia_u_rms": 0.0013823290144452077,
+   "ghia_v_rms": 0.0028387343921316725,
+   "continuity": 3.552713678800501e-15,
+   "walls": 0.0,
+   "lid": 0.9692307692307692,
+   "wall_time_s": 0.7227301669918234
+  },
+  {
+   "Re": 1000,
+   "cells": 128,
+   "engine": "local",
+   "layout": "nodes",
+   "passed": true,
+   "ghia_u_rms": 0.00813410589729766,
+   "ghia_v_rms": 0.005314253604830565,
+   "continuity": 7.105427357601002e-15,
+   "walls": 0.0,
+   "lid": 0.9844961240310077,
+   "wall_time_s": 22.49330812500557
+  }
+ ],
+ "passed": true
+}

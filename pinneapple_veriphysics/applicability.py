@@ -179,6 +179,7 @@ def build_applicability_map(
     physical_parameters: Optional[Dict[str, float]],
     guardrail_checks: Sequence[Dict[str, Any]],
     confidence_components: Sequence[Dict[str, Any]],
+    parameter_ranges: Optional[Dict[str, Tuple[float, float]]] = None,
     final_loss: Optional[float] = None,
     loss_history: Optional[Sequence[float]] = None,
     epochs: Optional[int] = None,
@@ -384,12 +385,20 @@ def build_applicability_map(
                 name, "parameter", None, None, bool(lim),
                 f"Surrogate measured usable up to +{lim:.0%} above its base value (upward shifts only)."
                 if lim else "Shifting it was not shown to be safe."))
+    # A parameter the surrogate was trained ACROSS (not at a single operating point): the trained interval is the
+    # verified range, and nothing outside it was checked.
+    for name, rng in (parameter_ranges or {}).items():
+        lo, hi = float(rng[0]), float(rng[1])
+        envelope.append(VariableEnvelope(
+            name, "parameter", (lo, hi), None, False,
+            "Trained across this interval; outside it nothing was checked for this parameter."))
+        unsupported.append(f"{name} outside [{lo:g}, {hi:g}].")
     for f in fields:
         envelope.append(VariableEnvelope(f, "field", None, None, False, "Predicted output; no range claim made."))
     checklist.append(ChecklistItem(
         "variables", "Which variables, and over what range?", INFO, VERIFIED,
-        f"{len(coords)} coordinate(s), {len(physical_parameters or {})} fixed parameter(s), {len(fields)} field(s); "
-        "see the variable envelope."))
+        f"{len(coords)} coordinate(s), {len(physical_parameters or {})} fixed parameter(s), "
+        f"{len(parameter_ranges or {})} parameter range(s), {len(fields)} field(s); see the variable envelope."))
 
     # 6. Weights -------------------------------------------------------
     if weight_sensitivity:

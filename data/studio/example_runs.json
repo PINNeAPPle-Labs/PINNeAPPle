@@ -3,11 +3,11 @@
   "error": "",
   "hash": "8a6db350f39d69ad",
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "scripts": [
    "examples/condensation_falsification/run.py"
   ],
-  "seconds": 3.2,
+  "seconds": 19.8,
   "writes_files": [
    "examples/condensation_falsification/experiment.json",
    "examples/condensation_falsification/figures/cfd_reduction.png",
@@ -33,12 +33,12 @@
   "error": "",
   "hash": "8d1411fe9df3fa34",
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "scripts": [
    "examples/core_primitives/01_poisson_pinn.py",
    "examples/core_primitives/02_operator_poisson_1d.py"
   ],
-  "seconds": 52.1,
+  "seconds": 60.3,
   "writes_files": []
  },
  "example:data_api": {
@@ -121,6 +121,23 @@
   "writes_files": [
    "examples/physics_query/experiment.json",
    "examples/physics_query/figures/latency_vs_error.png"
+  ]
+ },
+ "example:pict_cavity": {
+  "error": "",
+  "hash": "95b53d19529068f2",
+  "ok": true,
+  "recorded": "2026-11-05",
+  "scripts": [
+   "examples/pict_cavity/run.py"
+  ],
+  "seconds": 44.9,
+  "writes_files": [
+   "examples/pict_cavity/cavity.json",
+   "examples/pict_cavity/experiment.json",
+   "examples/pict_cavity/lab/CURATION.md",
+   "examples/pict_cavity/lab/curation.json",
+   "examples/pict_cavity/lab/index.sqlite"
   ]
  },
  "example:pinneapple_benchmark": {

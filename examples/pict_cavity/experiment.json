@@ -1,0 +1,136 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pict_cavity",
+ "title": "Lid-driven cavity vs Ghia et al. (1982)",
+ "description": "A lid-driven cavity solved with PINNeAPPle's local vorticity-streamfunction engine (numpy/scipy, no GPU) and checked against the centreline profiles of Ghia, Ghia & Shin (1982): 64x64 at Re = 100 and 128x128 at Re = 1000, in about 23 s on one CPU core. `--engine pict` runs the same case on PICT (CUDA) when it is installed; the output names the engine that produced the numbers.",
+ "domain": "fluid dynamics",
+ "methods": [
+  "Vorticity-streamfunction FDM (local engine)",
+  "PISO multi-block (PICT, when installed)"
+ ],
+ "modules": [
+  "pinneapple_simulation.external_solvers.pict"
+ ],
+ "params": {
+  "grid_re100": 64,
+  "grid_re1000": 128,
+  "refine": false,
+  "engine": "local"
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "ghia_u_rms_re100",
+   "value": 0.0013823290144452077,
+   "unit": "",
+   "how": "rms of u(x=0.5) against Ghia et al. (1982) Table I at Re=100, 64x64 cells, local engine"
+  },
+  {
+   "name": "ghia_v_rms_re100",
+   "value": 0.0028387343921316725,
+   "unit": "",
+   "how": "rms of v(y=0.5) against Ghia et al. (1982) Table II at Re=100, 64x64 cells, local engine"
+  },
+  {
+   "name": "continuity_re100",
+   "value": 3.552713678800501e-15,
+   "unit": "U/L",
+   "how": "largest discrete du/dx + dv/dy, normalised by the lid velocity over the side"
+  },
+  {
+   "name": "ghia_u_rms_re1000",
+   "value": 0.00813410589729766,
+   "unit": "",
+   "how": "rms of u(x=0.5) against Ghia et al. (1982) Table I at Re=1000, 128x128 cells, local engine"
+  },
+  {
+   "name": "ghia_v_rms_re1000",
+   "value": 0.005314253604830565,
+   "unit": "",
+   "how": "rms of v(y=0.5) against Ghia et al. (1982) Table II at Re=1000, 128x128 cells, local engine"
+  },
+  {
+   "name": "continuity_re1000",
+   "value": 7.105427357601002e-15,
+   "unit": "U/L",
+   "how": "largest discrete du/dx + dv/dy, normalised by the lid velocity over the side"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Re=100: walls and lid are the imposed boundary conditions",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "Re=100: centreline within 0.05 of Ghia et al.",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "{\"ghia_u_rms\": 0.0013823290144452077, \"ghia_v_rms\": 0.0028387343921316725}",
+   "kind": "reference"
+  },
+  {
+   "name": "Re=1000: walls and lid are the imposed boundary conditions",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "Re=1000: centreline within 0.05 of Ghia et al.",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "{\"ghia_u_rms\": 0.00813410589729766, \"ghia_v_rms\": 0.005314253604830565}",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "cavity_profiles.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [
+  "Ghia, Ghia & Shin, High-Re solutions for incompressible flow using the Navier-Stokes equations and a multigrid method, J. Comput. Phys. 48 (1982) 387-411"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "db52c788",
+  "created": "2026-11-05T19:10:58Z",
+  "seconds": 23.325,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

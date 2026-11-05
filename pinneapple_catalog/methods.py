@@ -277,6 +277,35 @@ METHODS: List[Method] = [
                      "operators for dynamical systems, Comm. Pure Appl. Math. 77 (2024) 221-283",
                      "Gavish & Donoho, The optimal hard threshold for singular values is 4/sqrt(3), IEEE Trans. "
                      "Inf. Theory 60 (2014) 5040-5053"]),
+    # ── GPU and external simulation engines (added 2026-11-05) ───────────
+    _m("S47", "NVIDIA Newton rigid-body solvers: XPBD, semi-implicit with penalty contacts, Featherstone, MuJoCo-Warp",
+       ["pinneapple_simulation/external_solvers/newton_physics/runner.py",
+        "pinneapple_simulation/external_solvers/newton_physics/scene.py"],
+       ["newton_physics", "RigidScene", "newton_validate", "newton_simulate"],
+       refs_added=["Newton (newton-physics/newton), Apache-2.0, built on NVIDIA Warp",
+                   "Macklin, Muller & Chentanez, XPBD: position-based simulation of compliant constrained dynamics, "
+                   "MIG 2016",
+                   "Featherstone, Rigid Body Dynamics Algorithms, Springer, 2008"]),
+    _m("S48", "Lid-driven cavity by vorticity-streamfunction (local, CPU/GPU-free engine for the PICT bridge)",
+       ["pinneapple_simulation/external_solvers/pict/local_solver.py"],
+       ["solve_cavity_local", "local_solver", "LocalSolverConfig"],
+       refs_added=["Ghia, Ghia & Shin, High-Re solutions for incompressible flow using the Navier-Stokes equations "
+                   "and a multigrid method, J. Comput. Phys. 48 (1982) 387-411 -- the benchmark it is held to",
+                   "Peyret & Taylor, Computational Methods for Fluid Flow, Springer, 1983"]),
+    _m("S49", "PICT: differentiable multi-block PISO on a structured grid (external, CUDA)",
+       ["pinneapple_simulation/external_solvers/pict/runner.py",
+        "pinneapple_simulation/external_solvers/pict/case.py"],
+       ["run_cavity", "PICTRunConfig", "pict_availability", "pict_available"],
+       refs_added=["Franz, Wei, Guastoni & Thuerey, A differentiable, GPU-accelerated multi-block PISO solver for "
+                   "simulation-coupled learning tasks in fluid dynamics, J. Comput. Phys. 544 (2026) 114433",
+                   "Issa, Solution of the implicitly discretised fluid flow equations by operator-splitting, "
+                   "J. Comput. Phys. 62 (1986) 40-65"]),
+    _m("S50", "NVIDIA Warp kernels: warp.fem weak forms, reverse-mode tape, zero-copy torch buffers",
+       ["pinneapple_tools/compute_backends/warp_backend.py"],
+       # "fem_poisson" is deliberately not a probe: a pre-existing test of the *torch* FEM Poisson carries that
+       # name, and matching it would credit Warp with a reference test it has nothing to do with
+       ["warp_backend", "WarpBackend", "poisson_convergence"],
+       refs_added=["NVIDIA Warp (NVIDIA/warp), Apache-2.0"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],

@@ -135,6 +135,9 @@
  "pinneapple_systems.process_components.valve_cfd:valve_cfd_study": "runs OpenFOAM twice for several minutes each (measured: 130 s ideal gas, 207 s Peng-Robinson on one core), beyond a smoke run; the Colab notebook 07 runs it and reports the measured results",
  "pinneapple_systems.process_components.valve_cfd:write_case": "writes an OpenFOAM case into a folder that already holds a mesh from mesh_valve; run_valve_cfd calls it, and tests/test_valve_cfd.py runs the whole case when OpenFOAM is installed",
  "pinneapple_tools.visualization.studio.view_cache:prune_views": "deletes the oldest view files of a folder on disk (an app's view store); a smoke run must not delete files",
+ "pinneapple_veriphysics.findings:build_findings": "takes a ValidationProfile plus tuples of CheckVerdict / ReferenceComparison / UncertaintyEvidence records, which a form cannot hold; build_findings is exercised through ValidationCase.assess() in tests/pinneapple_veriphysics/test_validation_case.py",
+ "pinneapple_veriphysics.findings:sort_findings": "takes ValidationFinding objects, which a form cannot hold; tests/pinneapple_veriphysics/test_findings.py sorts the findings of a built case and checks the severity order",
  "pinneapple_veriphysics.policy:decide": "takes the check records of a grade and a GradePolicy object, which a form cannot hold; grade_model calls it and tests/test_veriphysics_model_grade.py covers the policy rules",
- "pinneapple_veriphysics.policy:save_policy": "writes the user's default policy file under ~/.config, a side effect a smoke run must not have; tests/test_veriphysics_model_grade.py saves to a temporary path and loads it back"
+ "pinneapple_veriphysics.policy:save_policy": "writes the user's default policy file under ~/.config, a side effect a smoke run must not have; tests/test_veriphysics_model_grade.py saves to a temporary path and loads it back",
+ "pinneapple_veriphysics.validation_case:checks_from_ledger": "takes an EvidenceLedger object, which a form cannot hold; tests/pinneapple_veriphysics/test_validation_case.py builds a ledger, records a passing and a not-run check and reads the records back"
 }

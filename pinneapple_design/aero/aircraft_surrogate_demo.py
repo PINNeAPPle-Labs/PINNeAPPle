@@ -253,17 +253,40 @@ def _filmic(sc) -> None:
         pass
 
 
+def _render_views(row: dict[str, float], dcp: np.ndarray, gamma: np.ndarray, alpha_deg: float, res, spp: int,
+                  views: list) -> list[str]:
+    """Build the Cycles scene once and render it from each ``(direction, margin, path)`` of ``views``."""
+    sc, lo, hi = _cycles_scene(row, dcp, gamma, alpha_deg, res, spp)
+    for direction, margin, path in views:
+        sc.fit_camera(lo, hi, direction=direction, ortho=False, lens=36, margin=margin)
+        sc.render(path)
+    return [v[2] for v in views]
+
+
+def _in_child(fn, *args):
+    """Run ``fn(*args)`` in a fresh (spawned) process: Blender keeps global state and can crash on teardown, and
+    neither may reach the caller's process (a job runner reads a crash at exit as a failed run)."""
+    import multiprocessing as mp
+    from concurrent.futures import ProcessPoolExecutor
+
+    with ProcessPoolExecutor(max_workers=1, mp_context=mp.get_context("spawn")) as ex:
+        return ex.submit(fn, *args).result()
+
+
 def _orbit_dir(k: int, n: int) -> tuple[float, float, float]:
     th = math.radians(-138.0 + 80.0 * k / max(n - 1, 1))          # from the front-left round to the rear-left
     return (math.cos(th), math.sin(th), 0.55 - 0.15 * k / max(n - 1, 1))
 
 
 def cinematic_available() -> bool:
+    """Whether Blender's Python module is installed. Found, not imported: Blender is only ever imported in the child
+    process that renders (:func:`_in_child`); importing it in the caller, often a worker thread, can crash it."""
+    import importlib.util
+
     try:
-        import bpy  # noqa: F401
-    except Exception:  # noqa: BLE001 - any failure to import Blender means no Cycles
+        return importlib.util.find_spec("bpy") is not None
+    except (ImportError, ValueError):
         return False
-    return True
 
 
 # ------------------------------------------------------------------------------------------------- cards
@@ -490,10 +513,9 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
                 sel.insert(len(sel) - 1, (f"round{k}", p, f"{T['round']} {k} · {T['pred']}", R[k - 1]))
             rs = (int(1280 * render_scale), int(720 * render_scale))
             for name, dcp, label, rr in sel:
-                sc, lo, hi = _cycles_scene(design, dcp, _gamma(c.L, dcp), design["alpha"], rs, 24)
-                sc.fit_camera(lo, hi, direction=(-0.9, -0.85, 0.55), ortho=False, lens=36, margin=0.92)
                 raw = os.path.join(out_dir, f"_{name}.png")
-                sc.render(raw)
+                _in_child(_render_views, design, dcp, _gamma(c.L, dcp), design["alpha"], rs, 24,
+                          [((-0.9, -0.85, 0.55), 0.92, raw)])
                 img = plt.imread(raw)
                 fig = plt.figure(figsize=(img.shape[1] / 100, img.shape[0] / 100), dpi=100)
                 fig.figimage(img, 0, 0)
@@ -514,12 +536,11 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
             # the camera move, on the accepted model's field (the last round)
             best = sel[-2] if len(sel) > 1 else sel[0]
             ors = (int(960 * render_scale), int(540 * render_scale))
-            sc, lo, hi = _cycles_scene(design, best[1], _gamma(c.L, best[1]), design["alpha"], ors, 12)
             orbit_dir = os.path.join(out_dir, "_orbit")
             os.makedirs(orbit_dir, exist_ok=True)
-            for k in range(orbit_frames):
-                sc.fit_camera(lo, hi, direction=_orbit_dir(k, orbit_frames), ortho=False, lens=36, margin=0.95)
-                sc.render(os.path.join(orbit_dir, f"f{k:05d}.png"))
+            _in_child(_render_views, design, best[1], _gamma(c.L, best[1]), design["alpha"], ors, 12,
+                      [(_orbit_dir(k, orbit_frames), 0.95, os.path.join(orbit_dir, f"f{k:05d}.png"))
+                       for k in range(orbit_frames)])
         except Exception as e:  # noqa: BLE001 - the renders are an extra; the demo stands without them
             checks.append({"code": "view.cinematic", "status": "inconclusive",
                            "detail": f"Cycles renders not made: {e}", "value": None})

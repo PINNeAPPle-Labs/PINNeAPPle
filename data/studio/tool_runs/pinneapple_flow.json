@@ -1368,6 +1368,14 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_flow.wrappers:pict_cavity": {
+  "code_hash": "90d05865a9594f4f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 17.38
+ },
  "pinneapple_flow.wrappers:rom_compare": {
   "code_hash": "2163477c12dcf776",
   "error": "StepFailed: connect a dataset",

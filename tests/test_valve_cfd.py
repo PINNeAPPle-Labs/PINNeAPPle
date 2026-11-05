@@ -30,7 +30,8 @@ def test_mesh_is_a_wedge_of_hexahedra(tmp_path):
 
 
 def test_pseudo_pure_gas_model():
-    mc = vc.mixture_constants(DEFAULT_GAS, 298.15)
+    mc = vc.mixture_constants({"Methane": 0.90, "Ethane": 0.05, "Propane": 0.02, "Nitrogen": 0.02,
+                               "CarbonDioxide": 0.01}, 298.15)
     assert 190 < mc["Tc"] < 215 and 4.4e6 < mc["Pc"] < 4.8e6 and 17 < mc["W"] < 19
     # ideal gas: no throttling effect at all
     assert abs(vc.model_throttle(mc, 70e5, 298.15, 20e5, eos="ideal") - 298.15) < 1e-6

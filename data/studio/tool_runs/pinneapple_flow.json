@@ -303,12 +303,22 @@
   "seconds": 0.0
  },
  "pinneapple_flow.nodes_ext.aircraft_surrogate:build_flow": {
-  "code_hash": "11085983c6aee9c3",
+  "code_hash": "571d9f79b91843ac",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-05",
   "returned": "FlowBuilder",
-  "seconds": 5.64
+  "seconds": 5.39
+ },
+ "pinneapple_flow.nodes_ext.aircraft_surrogate:wants_renders": {
+  "code_hash": "e4fd08c52bd6af18",
+  "inputs": {
+   "text": "a 3-D aircraft surrogate with Blender renders of the streamlines"
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "bool",
+  "seconds": 0.0
  },
  "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
   "code_hash": "c850f9ea1ca71684",

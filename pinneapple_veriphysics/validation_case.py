@@ -23,12 +23,12 @@ Absence of alerts is never a pass: the checks are not run by this module, and a 
 
 ::
 
-    from pinneapple_veriphysics.validation_case import ValidationCase, ModelRef, ProblemRef, CheckRecord
+    from pinneapple_veriphysics.validation_case import ValidationCase, ModelVersion, ProblemRef, CheckVerdict
 
-    case = ValidationCase.open(profile=profile, model=ModelRef("pinn", "v3", checkpoint_sha256=sha),
+    case = ValidationCase.open(profile=profile, model=ModelVersion("pinn", "v3", checkpoint_sha256=sha),
                                problem=ProblemRef("heat 2-D", pde="poisson"), requested_use="screening at 95 C",
                                actor="analyst")
-    case = case.with_checks([CheckRecord("PDE residual", "verification", True, 3e-3, 1e-2)], actor="analyst")
+    case = case.with_checks([CheckVerdict("PDE residual", "verification", True, 3e-3, 1e-2)], actor="analyst")
     print(case.assess().render())            # findings, maturity on both axes, status and why
 """
 from __future__ import annotations
@@ -36,15 +36,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any, Iterable, Mapping, Sequence
 
-from .findings import FAIL, NOT_RUN, WARNING, Finding, build_findings
+from .findings import FAIL, NOT_RUN, WARNING, ValidationFinding, build_findings
 from .ledger import EvidenceLedger, canonical_json, sha256_json, utc_now
 from .maturity import MaturityAssessment, assess_maturity
 from .usecase import REFERENCE_KINDS, ValidationProfile
 
 __all__ = [
     "STATUSES", "VALIDATED", "REVIEW_REQUIRED", "FAILED", "UNVALIDATED", "CHECK_CATEGORIES", "REVIEW_DECISIONS",
-    "ModelRef", "ProblemRef", "Provenance", "ProcessControls", "CheckRecord", "ReferenceComparison",
-    "UncertaintyReport", "ApplicabilityFacts", "ExpertReview", "Revision", "Assessment", "ValidationCase",
+    "ModelVersion", "ProblemRef", "RunProvenance", "ProcessControls", "CheckVerdict", "ReferenceComparison",
+    "UncertaintyEvidence", "ApplicabilityFacts", "ExpertReview", "Revision", "CaseAssessment", "ValidationCase",
     "ValidationRegistry", "checks_from_lab_report", "checks_from_ledger", "checks_from_trust_card",
     "applicability_facts_from_map", "CASE_SCHEMA",
 ]
@@ -79,7 +79,7 @@ def _dict(pairs: Iterable[tuple[str, Any]]) -> dict[str, Any]:
 
 # ==================================================================================================== references
 @dataclass(frozen=True)
-class ModelRef:
+class ModelVersion:
     """What exactly produced the prediction: a name, a version and an identifiable artefact (checkpoint hash) or the
     configuration that rebuilds it. Without one of the two the case cannot say which model it validated."""
     name: str
@@ -106,7 +106,7 @@ class ModelRef:
                 "preset": self.preset, "configuration": _dict(self.configuration)}
 
     @classmethod
-    def from_dict(cls, d: Mapping[str, Any]) -> ModelRef:
+    def from_dict(cls, d: Mapping[str, Any]) -> ModelVersion:
         return cls(str(d["name"]), str(d.get("version") or ""), str(d.get("checkpoint_sha256") or ""),
                    str(d.get("preset") or ""), _frozen((d.get("configuration") or {}).items()))
 
@@ -132,7 +132,7 @@ class ProblemRef:
 
 
 @dataclass(frozen=True)
-class Provenance:
+class RunProvenance:
     """What reproducing these numbers requires: which tool ran, on which version, over which inputs, with which seeds
     and tolerances. ``problems()`` lists what is missing -- an incomplete record is a finding, never a silent gap."""
     tool: str = ""
@@ -172,7 +172,7 @@ class Provenance:
                 "tolerances": _dict(self.tolerances), "compute": _dict(self.compute)}
 
     @classmethod
-    def from_dict(cls, d: Mapping[str, Any]) -> Provenance:
+    def from_dict(cls, d: Mapping[str, Any]) -> RunProvenance:
         return cls(str(d.get("tool") or ""), str(d.get("tool_version") or ""), str(d.get("python") or ""),
                    str(d.get("platform") or ""), str(d.get("code_sha256") or ""), str(d.get("data_sha256") or ""),
                    tuple(int(s) for s in (d.get("seeds") or ())),
@@ -200,7 +200,7 @@ class ProcessControls:
 
 # ==================================================================================================== evidence
 @dataclass(frozen=True)
-class CheckRecord:
+class CheckVerdict:
     """The verdict of one check, as the tool that ran it recorded it. ``passed is None`` means the check did not run,
     and it stays "not run" -- never a neutral pass."""
     check_id: str
@@ -226,7 +226,7 @@ class CheckRecord:
                 "evidence": self.evidence}
 
     @classmethod
-    def from_dict(cls, d: Mapping[str, Any]) -> CheckRecord:
+    def from_dict(cls, d: Mapping[str, Any]) -> CheckVerdict:
         return cls(str(d["check_id"]), str(d["category"]), d.get("passed"), d.get("value"), d.get("threshold"),
                    str(d.get("message") or ""), bool(d.get("critical")), str(d.get("evidence") or ""))
 
@@ -273,7 +273,7 @@ class ReferenceComparison:
 
 
 @dataclass(frozen=True)
-class UncertaintyReport:
+class UncertaintyEvidence:
     """A measured uncertainty and, explicitly, whether it was calibrated. An uncalibrated spread is a disagreement
     bar (it detects instability); it is not a confidence interval and cannot bound the error."""
     method: str
@@ -294,7 +294,7 @@ class UncertaintyReport:
                 "evidence": self.evidence}
 
     @classmethod
-    def from_dict(cls, d: Mapping[str, Any]) -> UncertaintyReport:
+    def from_dict(cls, d: Mapping[str, Any]) -> UncertaintyEvidence:
         return cls(str(d["method"]), bool(d.get("calibrated")), d.get("spread_pct"), d.get("coverage"),
                    d.get("target_coverage"), str(d.get("limitation") or ""), str(d.get("evidence") or ""))
 
@@ -415,26 +415,26 @@ class Revision:
 
 # ==================================================================================================== assessment
 @dataclass(frozen=True)
-class Assessment:
+class CaseAssessment:
     """The state of a case, computed from its own contents: findings, maturity on both axes, status and the reason."""
     status: str
     reason: str
-    findings: tuple[Finding, ...]
+    findings: tuple[ValidationFinding, ...]
     maturity: MaturityAssessment
     status_source: str = "evidence"          # "technical" | "authorization" | "evidence"
     approved_scope: Mapping[str, Any] | None = None
     notes: tuple[str, ...] = ()
 
     @property
-    def failures(self) -> tuple[Finding, ...]:
+    def failures(self) -> tuple[ValidationFinding, ...]:
         return tuple(f for f in self.findings if f.status == FAIL)
 
     @property
-    def warnings(self) -> tuple[Finding, ...]:
+    def warnings(self) -> tuple[ValidationFinding, ...]:
         return tuple(f for f in self.findings if f.status == WARNING)
 
     @property
-    def not_run(self) -> tuple[Finding, ...]:
+    def not_run(self) -> tuple[ValidationFinding, ...]:
         return tuple(f for f in self.findings if f.status == NOT_RUN)
 
     def render(self) -> str:
@@ -461,14 +461,14 @@ class ValidationCase:
     """One validation case. Immutable: every change returns a new case with a new :class:`Revision` appended."""
     case_id: str
     profile: ValidationProfile
-    model: ModelRef
+    model: ModelVersion
     problem: ProblemRef
     requested_use: str = ""
-    checks: tuple[CheckRecord, ...] = ()
+    checks: tuple[CheckVerdict, ...] = ()
     references: tuple[ReferenceComparison, ...] = ()
-    uncertainty: UncertaintyReport | None = None
+    uncertainty: UncertaintyEvidence | None = None
     applicability: ApplicabilityFacts | None = None
-    provenance: Provenance = field(default_factory=Provenance)
+    provenance: RunProvenance = field(default_factory=RunProvenance)
     controls: ProcessControls = field(default_factory=ProcessControls)
     limitations: tuple[str, ...] = ()
     reviews: tuple[ExpertReview, ...] = ()
@@ -478,7 +478,7 @@ class ValidationCase:
 
     # ------------------------------------------------------------------ creation / evolution
     @classmethod
-    def open(cls, *, profile: ValidationProfile, model: ModelRef, problem: ProblemRef, requested_use: str = "",
+    def open(cls, *, profile: ValidationProfile, model: ModelVersion, problem: ProblemRef, requested_use: str = "",
              actor: str = "", title: str = "") -> ValidationCase:
         """A new case, sealed as revision 1. ``case_id`` derives from the profile, the model and the problem, so the
         same case re-opened with the same inputs is recognisable."""
@@ -511,7 +511,7 @@ class ValidationCase:
     def _evolve(self, action: str, actor: str = "", note: str = "", **changes: Any) -> ValidationCase:
         return replace(self, **changes)._sealed(action, actor, note)
 
-    def with_checks(self, checks: Sequence[CheckRecord], *, action: str = "checks recorded", actor: str = "",
+    def with_checks(self, checks: Sequence[CheckVerdict], *, action: str = "checks recorded", actor: str = "",
                     note: str = "") -> ValidationCase:
         """Attach the verdicts of a verification run (they replace the previous set, which stays in the history)."""
         return self._evolve(action, actor, note, checks=tuple(checks))
@@ -523,13 +523,13 @@ class ValidationCase:
         ref = replace(reference, created_at=reference.created_at or utc_now())
         return self._evolve(f"evidence added: {ref.evidence_id}", actor, note, references=self.references + (ref,))
 
-    def with_uncertainty(self, uncertainty: UncertaintyReport, *, actor: str = "") -> ValidationCase:
+    def with_uncertainty(self, uncertainty: UncertaintyEvidence, *, actor: str = "") -> ValidationCase:
         return self._evolve("uncertainty recorded", actor, "", uncertainty=uncertainty)
 
     def with_applicability(self, applicability: ApplicabilityFacts, *, actor: str = "") -> ValidationCase:
         return self._evolve("applicability recorded", actor, "", applicability=applicability)
 
-    def with_provenance(self, provenance: Provenance, *, actor: str = "") -> ValidationCase:
+    def with_provenance(self, provenance: RunProvenance, *, actor: str = "") -> ValidationCase:
         return self._evolve("provenance recorded", actor, "", provenance=provenance)
 
     def with_controls(self, controls: ProcessControls, *, actor: str = "") -> ValidationCase:
@@ -601,7 +601,7 @@ class ValidationCase:
         }
         return facts
 
-    def assess(self) -> Assessment:
+    def assess(self) -> CaseAssessment:
         """Findings, maturity and status of this case, computed from its contents only."""
         findings = build_findings(
             profile=self.profile, checks=self.checks, references=self.references, uncertainty=self.uncertainty,
@@ -609,10 +609,10 @@ class ValidationCase:
             critical_not_assessed=self.critical_not_assessed())
         maturity = assess_maturity(self.facts())
         status, reason, source, scope, notes = self.decide(findings)
-        return Assessment(status=status, reason=reason, findings=tuple(findings), maturity=maturity,
+        return CaseAssessment(status=status, reason=reason, findings=tuple(findings), maturity=maturity,
                           status_source=source, approved_scope=scope, notes=tuple(notes))
 
-    def decide(self, findings: Sequence[Finding]) -> tuple[str, str, str, Mapping[str, Any] | None, list[str]]:
+    def decide(self, findings: Sequence[ValidationFinding]) -> tuple[str, str, str, Mapping[str, Any] | None, list[str]]:
         """The status policy, in documented precedence order. A reviewer cannot overwrite a technical failure."""
         notes: list[str] = []
         technical = [f for f in findings if f.status == FAIL and f.category in ("verification", "physics", "validation",
@@ -684,16 +684,16 @@ class ValidationCase:
     @classmethod
     def from_dict(cls, d: Mapping[str, Any]) -> ValidationCase:
         case = cls(case_id=str(d["case_id"]), profile=ValidationProfile.from_dict(d["profile"]),
-                   model=ModelRef.from_dict(d["model"]), problem=ProblemRef.from_dict(d["problem"]),
+                   model=ModelVersion.from_dict(d["model"]), problem=ProblemRef.from_dict(d["problem"]),
                    requested_use=str(d.get("requested_use") or ""), title=str(d.get("title") or ""),
                    opened_at=str(d.get("opened_at") or ""),
-                   checks=tuple(CheckRecord.from_dict(c) for c in d.get("checks") or ()),
+                   checks=tuple(CheckVerdict.from_dict(c) for c in d.get("checks") or ()),
                    references=tuple(ReferenceComparison.from_dict(r) for r in d.get("references") or ()),
                    uncertainty=None if not d.get("uncertainty") else
-                   UncertaintyReport.from_dict(d["uncertainty"]),
+                   UncertaintyEvidence.from_dict(d["uncertainty"]),
                    applicability=None if not d.get("applicability") else
                    ApplicabilityFacts.from_dict(d["applicability"]),
-                   provenance=Provenance.from_dict(d.get("provenance") or {}),
+                   provenance=RunProvenance.from_dict(d.get("provenance") or {}),
                    controls=ProcessControls(**{k: str(v) for k, v in (d.get("controls") or {}).items()
                                                if k in ProcessControls.__dataclass_fields__}),
                    limitations=tuple(d.get("limitations") or ()),
@@ -801,9 +801,9 @@ class ValidationRegistry:
 
 
 # ==================================================================================================== converters
-def checks_from_trust_card(card: Any) -> tuple[CheckRecord, ...]:
+def checks_from_trust_card(card: Any) -> tuple[CheckVerdict, ...]:
     """The checks of ``pinneapple_analysis.trust.trust_card`` (a ``FieldTrustCard``, its ``.checks`` list, or their
-    ``to_dict()`` form) as :class:`CheckRecord`."""
+    ``to_dict()`` form) as :class:`CheckVerdict`."""
     checks = getattr(card, "checks", card)
     out = []
     for c in checks:
@@ -815,7 +815,7 @@ def checks_from_trust_card(card: Any) -> tuple[CheckRecord, ...]:
             passed = d.get("passed")
         value = d.get("value")
         threshold = d.get("threshold", d.get("limit"))
-        out.append(CheckRecord(check_id=str(d.get("name") or d.get("check_id") or "check"),
+        out.append(CheckVerdict(check_id=str(d.get("name") or d.get("check_id") or "check"),
                                category=_KIND_TO_CATEGORY.get(str(d.get("kind") or ""), "other"), passed=passed,
                                value=None if value is None else float(value),
                                threshold=None if threshold is None else float(threshold), message=str(detail),
@@ -823,13 +823,13 @@ def checks_from_trust_card(card: Any) -> tuple[CheckRecord, ...]:
     return tuple(out)
 
 
-def checks_from_lab_report(report: Mapping[str, Any] | Any) -> tuple[CheckRecord, ...]:
-    """The outcomes of a Validation Lab run (``LabReport.to_dict()``, or a ``LabReport``) as :class:`CheckRecord`."""
+def checks_from_lab_report(report: Mapping[str, Any] | Any) -> tuple[CheckVerdict, ...]:
+    """The outcomes of a Validation Lab run (``LabReport.to_dict()``, or a ``LabReport``) as :class:`CheckVerdict`."""
     d = report.to_dict() if hasattr(report, "to_dict") else dict(report)
     out = []
     for o in d.get("outcomes", ()):
         cat = str(o.get("category") or "other")
-        out.append(CheckRecord(check_id=str(o.get("check_id") or f"{o.get('rule')}/{o.get('subject')}"),
+        out.append(CheckVerdict(check_id=str(o.get("check_id") or f"{o.get('rule')}/{o.get('subject')}"),
                                category=_KIND_TO_CATEGORY.get(cat, cat if cat in CHECK_CATEGORIES else "other"),
                                passed=bool(o.get("passed")) if o.get("passed") is not None else None,
                                value=_as_float(o.get("value")), threshold=_as_float(o.get("threshold")),
@@ -838,7 +838,7 @@ def checks_from_lab_report(report: Mapping[str, Any] | Any) -> tuple[CheckRecord
     return tuple(out)
 
 
-def checks_from_ledger(ledger: EvidenceLedger) -> tuple[CheckRecord, ...]:
+def checks_from_ledger(ledger: EvidenceLedger) -> tuple[CheckVerdict, ...]:
     """The latest valid entry of every check in an :class:`~pinneapple_veriphysics.ledger.EvidenceLedger`. A check with
     no valid entry is reported once as "not run" -- never dropped."""
     out, seen = [], set()
@@ -847,14 +847,14 @@ def checks_from_ledger(ledger: EvidenceLedger) -> tuple[CheckRecord, ...]:
         if latest is None:
             if e.check_id not in seen:
                 seen.add(e.check_id)
-                out.append(CheckRecord(check_id=e.check_id, category=e.category or "other", passed=None,
+                out.append(CheckVerdict(check_id=e.check_id, category=e.category or "other", passed=None,
                                        message="record invalid: " + "; ".join(e.problems())))
             continue
         if latest.check_id in seen:
             continue
         seen.add(latest.check_id)
         outputs = latest.outputs or {}
-        out.append(CheckRecord(check_id=latest.check_id, category=latest.category or "other", passed=latest.passed,
+        out.append(CheckVerdict(check_id=latest.check_id, category=latest.category or "other", passed=latest.passed,
                                value=_as_float(outputs.get("value")), threshold=_as_float(outputs.get("threshold")),
                                message=str(outputs.get("detail") or outputs.get("message") or ""),
                                evidence=latest.entry_sha256))

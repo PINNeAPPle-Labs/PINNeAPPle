@@ -26,7 +26,7 @@ from typing import Any
 
 from .findings import FAIL, NOT_RUN, PASS, WARNING
 from .maturity import DIMENSIONS
-from .validation_case import Assessment, ValidationCase
+from .validation_case import CaseAssessment, ValidationCase
 
 __all__ = ["DISCLAIMER", "ValidationDossier", "DOSSIER_SCHEMA"]
 
@@ -56,10 +56,10 @@ _STATUS_CLS = {"validated": "pass", "failed": "fail", "review required": "warn",
 class ValidationDossier:
     """The document of one case at its latest revision."""
     case: ValidationCase
-    assessment: Assessment
+    assessment: CaseAssessment
 
     @classmethod
-    def from_case(cls, case: ValidationCase, assessment: Assessment | None = None) -> ValidationDossier:
+    def from_case(cls, case: ValidationCase, assessment: CaseAssessment | None = None) -> ValidationDossier:
         return cls(case=case, assessment=assessment or case.assess())
 
     # ------------------------------------------------------------------ structure
@@ -69,7 +69,7 @@ class ValidationDossier:
 
     def sections(self) -> list[str]:
         return ["Declared use", "Status and findings", "Checks recorded", "Reference evidence", "Applicability",
-                "Uncertainty", "Maturity", "Expert decisions", "Limitations", "Provenance", "Revision history"]
+                "Uncertainty", "Maturity", "Expert decisions", "Limitations", "RunProvenance", "Revision history"]
 
     def to_dict(self) -> dict[str, Any]:
         c = self.case
@@ -161,7 +161,7 @@ class ValidationDossier:
             lines.append("- none recorded: automated checks alone do not authorize use")
         lines += ["", "== Limitations =="]
         lines += [f"- {x}" for x in c.limitations] or ["- none recorded (that is itself a gap, not a clean bill)"]
-        lines += ["", "== Provenance =="]
+        lines += ["", "== RunProvenance =="]
         p = c.provenance
         lines.append(f"- tool: {p.tool or '?'} {p.tool_version}" + (f"; python {p.python}" if p.python else ""))
         lines.append(f"- inputs sha256: {p.data_sha256 or 'not recorded'}")
@@ -326,7 +326,7 @@ class ValidationDossier:
                     + "</ul>")
 
         p = c.provenance
-        rows.append("<h2>Provenance</h2><table>"
+        rows.append("<h2>RunProvenance</h2><table>"
                     + "".join(f"<tr><th>{e(k)}</th><td>{e(str(v))}</td></tr>" for k, v in (
                         ("tool", f"{p.tool} {p.tool_version}".strip()), ("python", p.python),
                         ("platform", p.platform), ("inputs sha256", p.data_sha256), ("code sha256", p.code_sha256),

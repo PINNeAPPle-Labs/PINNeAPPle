@@ -3,21 +3,21 @@ from __future__ import annotations
 
 from pinneapple_veriphysics.dossier import DISCLAIMER, ValidationDossier
 from pinneapple_veriphysics.usecase import PROFILE_PRESETS
-from pinneapple_veriphysics.validation_case import (CheckRecord, ExpertReview, ModelRef, ProblemRef, Provenance,
+from pinneapple_veriphysics.validation_case import (CheckVerdict, ExpertReview, ModelVersion, ProblemRef, RunProvenance,
                                                     ReferenceComparison, ValidationCase)
 
 PROFILE = PROFILE_PRESETS["academic_cfd"].with_changes(decision="report the comparison", target_error_pct=2.0)
 
 
 def _case() -> ValidationCase:
-    case = ValidationCase.open(profile=PROFILE, model=ModelRef("fno_darcy", "v1", checkpoint_sha256="a" * 64),
+    case = ValidationCase.open(profile=PROFILE, model=ModelVersion("fno_darcy", "v1", checkpoint_sha256="a" * 64),
                                problem=ProblemRef("Darcy 2-D", pde="laplace", geometry="unit square"),
                                requested_use="benchmark comparison")
-    case = case.with_checks([CheckRecord("PDE residual", "verification", True, 2e-3, 1e-2),
-                             CheckRecord("boundary conditions", "physics", False, 4e-2, 1e-3, "walls move")])
+    case = case.with_checks([CheckVerdict("PDE residual", "verification", True, 2e-3, 1e-2),
+                             CheckVerdict("boundary conditions", "physics", False, 4e-2, 1e-3, "walls move")])
     case = case.with_reference(ReferenceComparison("ref01", "numerical reference", "flux at the outlet", 3.4,
                                                   source="OpenFOAM, 1e6 cells", artefact_sha256="d" * 64))
-    case = case.with_provenance(Provenance(tool="pinneapple check", tool_version="1.2", data_sha256="c" * 64,
+    case = case.with_provenance(RunProvenance(tool="pinneapple check", tool_version="1.2", data_sha256="c" * 64,
                                           seeds=(0,)))
     return case.with_review(ExpertReview.record("eng. A", "approved", "only for the fixed geometry",
                                                 scope={"uses": ["benchmark comparison"]}))
@@ -33,7 +33,7 @@ def test_the_dossier_says_it_is_not_a_certification():
 def test_the_text_has_every_component_of_the_loop():
     text = ValidationDossier.from_case(_case()).render_text()
     for section in ("Declared use", "Findings", "Checks recorded", "Reference evidence", "Applicability",
-                    "Uncertainty", "Maturity", "Expert decisions", "Limitations", "Provenance", "Revision history"):
+                    "Uncertainty", "Maturity", "Expert decisions", "Limitations", "RunProvenance", "Revision history"):
         assert f"== {section} ==" in text
     assert "3.4 %" in text and "tolerance 2 %" in text           # the measured error against the declared criterion
     assert "boundary conditions" in text and "walls move" in text  # a failing check is listed with its message

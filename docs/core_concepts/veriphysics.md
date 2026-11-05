@@ -15,7 +15,7 @@ analysis modules (`pinneapple_analysis.verification`) already computed into some
 | `ledger` | the evidence ledger: a check reads "passed" only with an intact record that it ran (inputs SHA-256, times, sealed entry) |
 | `scope` | `ScopeOfUse`: which uses a result serves, which it does not and why |
 | `usecase` | `ValidationProfile`: the declared use the evidence is judged against — decision, decision quantity, tolerance, required reference, consequence of being wrong |
-| `findings` | each signal as a `Finding` with four answers: what happened, why it matters, what is still unknown, what to do next (deterministic, no LLM) |
+| `findings` | each signal as a `ValidationFinding` with four answers: what happened, why it matters, what is still unknown, what to do next (deterministic, no LLM) |
 | `maturity` | `assess_maturity`: two independent axes — scientific maturity and industrial readiness — five verifiable levels each, with the gaps and how to close them |
 | `validation_case` | `ValidationCase` with append-only revisions, `ExpertReview`, and `ValidationRegistry` (evidence registry plus improvement tasks) |
 | `dossier` | `ValidationDossier`: the case as text, Markdown or a self-contained HTML document a reviewer signs |
@@ -36,11 +36,11 @@ which use, on which evidence, decided by whom, and what remains unknown?*
 ```python
 from pinneapple_veriphysics.dossier import ValidationDossier
 from pinneapple_veriphysics.usecase import PROFILE_PRESETS
-from pinneapple_veriphysics.validation_case import CheckRecord, ModelRef, ProblemRef, ValidationCase
+from pinneapple_veriphysics.validation_case import CheckVerdict, ModelVersion, ProblemRef, ValidationCase
 
-case = ValidationCase.open(profile=PROFILE_PRESETS["industrial_screening"], model=ModelRef("pinn", "v3", ...),
+case = ValidationCase.open(profile=PROFILE_PRESETS["industrial_screening"], model=ModelVersion("pinn", "v3", ...),
                            problem=ProblemRef("steady heat 2-D", pde="poisson"), requested_use="screening at 95 C")
-case = case.with_checks([CheckRecord("PDE residual", "verification", True, 3e-3, 1e-2)])
+case = case.with_checks([CheckVerdict("PDE residual", "verification", True, 3e-3, 1e-2)])
 case = case.with_review(ExpertReview.record("eng. Silva", "approved with conditions", "...", scope={"uses": [...]}))
 
 print(case.assess().status)          # validated | review required | failed | unvalidated, with the reason

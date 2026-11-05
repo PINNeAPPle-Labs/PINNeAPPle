@@ -5,8 +5,8 @@ import pytest
 
 from pinneapple_veriphysics.findings import RULES, build_findings, sort_findings
 from pinneapple_veriphysics.usecase import PROFILE_PRESETS
-from pinneapple_veriphysics.validation_case import (ApplicabilityFacts, CheckRecord, ExpertReview,
-                                                    ReferenceComparison, UncertaintyReport)
+from pinneapple_veriphysics.validation_case import (ApplicabilityFacts, CheckVerdict, ExpertReview,
+                                                    ReferenceComparison, UncertaintyEvidence)
 
 
 def _build(**kw):
@@ -38,26 +38,26 @@ def test_a_tolerance_set_on_the_comparison_wins_over_the_profile_default():
 
 
 def test_a_check_that_did_not_run_is_never_a_pass():
-    findings = _build(checks=[CheckRecord("boundary conditions", "physics", None, critical=True,
+    findings = _build(checks=[CheckVerdict("boundary conditions", "physics", None, critical=True,
                                           message="no Dirichlet data given")])
     assert not any(f.status == "pass" for f in findings)
     not_run = [f for f in findings if f.status == "not run"]
     assert any("boundary conditions" in f.what_happened for f in not_run)
     # a non-mandatory check that did not run stays in the checks table without becoming a finding
-    optional = _build(checks=[CheckRecord("maximum principle", "physics", None)])
+    optional = _build(checks=[CheckVerdict("maximum principle", "physics", None)])
     assert not any(f.rule == "VP-CHECK-NOT-RUN" for f in optional)
 
 
 def test_a_mandatory_check_missing_from_the_record_is_reported():
     profile = PROFILE_PRESETS["industrial_screening"].with_changes(required_checks=("conservation",))
-    findings = _build(profile=profile, checks=[CheckRecord("PDE residual", "verification", True, 1e-3, 1e-2)])
+    findings = _build(profile=profile, checks=[CheckVerdict("PDE residual", "verification", True, 1e-3, 1e-2)])
     assert any(f.rule == "VP-CHECK-NOT-RUN" and "conservation" in f.what_happened for f in findings)
 
 
 def test_extrapolation_and_uncalibrated_uncertainty_are_warnings_with_their_evidence():
     findings = _build(
         applicability=ApplicabilityFacts(checked=True, requested_condition="95 C", outside_variables=("T_inlet",)),
-        uncertainty=UncertaintyReport("ensemble spread", spread_pct=1.7, limitation="no reference data"))
+        uncertainty=UncertaintyEvidence("ensemble spread", spread_pct=1.7, limitation="no reference data"))
     ex = _by_rule(findings, "VP-EXTRAPOLATION")[0]
     assert ex.status == "warning" and ex.evidence == ("T_inlet",) and "95 C" in ex.what_happened
     uq = _by_rule(findings, "VP-UQ-UNCALIBRATED")[0]

@@ -15,7 +15,7 @@ expert decision with its scope, and an append-only history of all of it.
 | Module | What it adds |
 |---|---|
 | `usecase` | `ValidationProfile`: the declared use -- decision, decision quantity, tolerance, required reference, consequence of being wrong |
-| `findings` | every signal as a `Finding` with four answers: what happened, why it matters, what is still unknown, what to do next (deterministic, no LLM) |
+| `findings` | every signal as a `ValidationFinding` with four answers: what happened, why it matters, what is still unknown, what to do next (deterministic, no LLM) |
 | `maturity` | `assess_maturity`: two independent axes -- scientific maturity and industrial readiness -- five verifiable levels each, with the gaps and how to close them |
 | `validation_case` | `ValidationCase` (append-only revisions), `ExpertReview`, `ValidationRegistry` (evidence registry + improvement tasks) |
 | `dossier` | `ValidationDossier`: the case as text, Markdown or a self-contained HTML document a reviewer signs |
@@ -47,25 +47,25 @@ Everything here converts objects the other modules produced; nothing re-runs a c
 
 ```python
 from pinneapple_veriphysics.validation_case import (
-    CheckRecord, ModelRef, ProblemRef, Provenance, ReferenceComparison, UncertaintyReport, ValidationCase,
+    CheckVerdict, ModelVersion, ProblemRef, RunProvenance, ReferenceComparison, UncertaintyEvidence, ValidationCase,
     ApplicabilityFacts,
 )
 
 case = ValidationCase.open(profile=profile,
-                           model=ModelRef("pinn_heat2d", "v3", checkpoint_sha256="..."),
+                           model=ModelVersion("pinn_heat2d", "v3", checkpoint_sha256="..."),
                            problem=ProblemRef("steady heat conduction, unit square", pde="poisson"),
                            requested_use="screening at 95 C", actor="analyst")
 
 case = case.with_checks([                              # from a trust card, a lab report or a ledger:
-    CheckRecord("PDE residual", "verification", True, 3e-3, 1e-2),
-    CheckRecord("boundary conditions", "physics", True, 1e-7, 1e-5),
+    CheckVerdict("PDE residual", "verification", True, 3e-3, 1e-2),
+    CheckVerdict("boundary conditions", "physics", True, 1e-7, 1e-5),
 ])                                                     # checks_from_trust_card / checks_from_lab_report / checks_from_ledger
 case = case.with_reference(ReferenceComparison("ref01", "analytic solution", "peak wall temperature", 3.2,
                                                source="manufactured exact solution", artefact_sha256="..."))
 case = case.with_applicability(ApplicabilityFacts(checked=True, requested_condition="screening at 95 C",
                                                   outside_variables=("T_inlet",)))   # or applicability_facts_from_map(...)
-case = case.with_uncertainty(UncertaintyReport("ensemble spread", spread_pct=1.7, limitation="uncalibrated"))
-case = case.with_provenance(Provenance(tool="pinneapple check", tool_version="1.2", data_sha256="...",
+case = case.with_uncertainty(UncertaintyEvidence("ensemble spread", spread_pct=1.7, limitation="uncalibrated"))
+case = case.with_provenance(RunProvenance(tool="pinneapple check", tool_version="1.2", data_sha256="...",
                                        code_sha256="...", seeds=(0, 1, 2), tolerances=(("residual", 1e-2),)))
 ```
 

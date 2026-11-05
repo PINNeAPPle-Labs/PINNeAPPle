@@ -25,7 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping
 
-__all__ = ["DIMENSIONS", "LEVELS", "Requirement", "REQUIREMENTS", "AxisAssessment", "MaturityAssessment",
+__all__ = ["DIMENSIONS", "LEVELS", "MaturityRequirement", "REQUIREMENTS", "AxisAssessment", "MaturityAssessment",
            "assess_maturity", "requirements_for", "FACT_DESCRIPTIONS"]
 
 #: The two axes. They are assessed separately on purpose.
@@ -60,7 +60,7 @@ LEVELS: dict[str, dict[int, tuple[str, str]]] = {
 
 
 @dataclass(frozen=True)
-class Requirement:
+class MaturityRequirement:
     """One verifiable requirement of one level of one axis. ``met_by`` is the key of the fact that shows it (see
     :func:`assess_maturity`); ``how_to_meet`` is what produces that fact."""
     key: str
@@ -75,8 +75,8 @@ class Requirement:
                 "met_by": self.met_by, "how_to_meet": self.how_to_meet, "met": None}
 
 
-_R = Requirement
-REQUIREMENTS: tuple[Requirement, ...] = (
+_R = MaturityRequirement
+REQUIREMENTS: tuple[MaturityRequirement, ...] = (
     # ---------------------------------------------------------------- scientific
     _R("sci.model_runs", "scientific", 1, "A prediction was produced and recorded with the model version it came from.",
        "model.prediction_recorded", "record the run, its model version and its outputs"),
@@ -161,7 +161,7 @@ FACT_DESCRIPTIONS: dict[str, str] = {
 }
 
 
-def requirements_for(dimension: str, level: int | None = None) -> tuple[Requirement, ...]:
+def requirements_for(dimension: str, level: int | None = None) -> tuple[MaturityRequirement, ...]:
     """The requirements of one axis (all levels, or one)."""
     if dimension not in DIMENSIONS:
         raise ValueError(f"dimension must be one of {DIMENSIONS}, got {dimension!r}")
@@ -175,8 +175,8 @@ class AxisAssessment:
     level: int                                    # highest level whose requirements (and all below) are met
     next_level: int | None                        # None once level 5 is reached
     met: tuple[str, ...] = ()                     # requirement keys met
-    gaps: tuple[Requirement, ...] = ()            # unmet requirements of the next level
-    total_open: tuple[Requirement, ...] = ()      # every unmet requirement of the axis
+    gaps: tuple[MaturityRequirement, ...] = ()            # unmet requirements of the next level
+    total_open: tuple[MaturityRequirement, ...] = ()      # every unmet requirement of the axis
 
     @property
     def title(self) -> str:
@@ -208,10 +208,10 @@ class MaturityAssessment:
     def level(self, dimension: str) -> int:
         return self.axes[dimension].level
 
-    def gaps(self, dimension: str) -> tuple[Requirement, ...]:
+    def gaps(self, dimension: str) -> tuple[MaturityRequirement, ...]:
         return self.axes[dimension].gaps
 
-    def open_requirements(self) -> tuple[Requirement, ...]:
+    def open_requirements(self) -> tuple[MaturityRequirement, ...]:
         return tuple(r for a in self.axes.values() for r in a.total_open)
 
     def improvement_actions(self) -> list[dict[str, Any]]:

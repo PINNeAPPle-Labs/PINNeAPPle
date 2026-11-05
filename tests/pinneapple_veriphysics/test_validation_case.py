@@ -8,9 +8,9 @@ from pinneapple_veriphysics.findings import FAIL
 from pinneapple_veriphysics.ledger import EvidenceLedger, sha256_bytes
 from pinneapple_veriphysics.usecase import PROFILE_PRESETS, ValidationProfile
 from pinneapple_veriphysics.validation_case import (VALIDATED, FAILED, REVIEW_REQUIRED, UNVALIDATED,
-                                                    ApplicabilityFacts, CheckRecord, ExpertReview, ModelRef,
-                                                    ProblemRef, ProcessControls, Provenance, ReferenceComparison,
-                                                    UncertaintyReport, ValidationCase, ValidationRegistry,
+                                                    ApplicabilityFacts, CheckVerdict, ExpertReview, ModelVersion,
+                                                    ProblemRef, ProcessControls, RunProvenance, ReferenceComparison,
+                                                    UncertaintyEvidence, ValidationCase, ValidationRegistry,
                                                     applicability_facts_from_map, checks_from_lab_report,
                                                     checks_from_ledger, checks_from_trust_card)
 
@@ -20,22 +20,22 @@ PROFILE = PROFILE_PRESETS["industrial_screening"].with_changes(
 
 
 def _case(profile: ValidationProfile | None = None, **kw) -> ValidationCase:
-    return ValidationCase.open(profile=profile or PROFILE, model=ModelRef("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
+    return ValidationCase.open(profile=profile or PROFILE, model=ModelVersion("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
                                problem=ProblemRef("steady heat 2-D", pde="poisson", geometry="unit square"),
                                requested_use="screening at 95 C", actor="analyst", **kw)
 
 
 def _verified(case: ValidationCase) -> ValidationCase:
     """A case whose automated side is complete: checks, an independent reference inside tolerance, domain, UQ."""
-    case = case.with_checks([CheckRecord("PDE residual", "verification", True, 3e-3, 1e-2),
-                             CheckRecord("boundary conditions", "physics", True, 1e-6, 1e-5),
-                             CheckRecord("conservation (net flux = source)", "physics", True, 2e-3, 1e-2)])
+    case = case.with_checks([CheckVerdict("PDE residual", "verification", True, 3e-3, 1e-2),
+                             CheckVerdict("boundary conditions", "physics", True, 1e-6, 1e-5),
+                             CheckVerdict("conservation (net flux = source)", "physics", True, 2e-3, 1e-2)])
     case = case.with_reference(ReferenceComparison("ref01", "analytic solution", "T at the wall", 1.2,
                                                   source="exact solution"))
     case = case.with_applicability(ApplicabilityFacts(checked=True, requested_condition="screening at 95 C",
                                                       verified_ranges=(("T_inlet", 25.0, 80.0),)))
-    case = case.with_uncertainty(UncertaintyReport("ensemble spread", spread_pct=1.7, limitation="uncalibrated"))
-    case = case.with_provenance(Provenance(tool="pinneapple check", tool_version="1.2", python="3.11.9",
+    case = case.with_uncertainty(UncertaintyEvidence("ensemble spread", spread_pct=1.7, limitation="uncalibrated"))
+    case = case.with_provenance(RunProvenance(tool="pinneapple check", tool_version="1.2", python="3.11.9",
                                           platform="darwin", code_sha256="b" * 64, data_sha256="c" * 64, seeds=(0, 1, 2),
                                           tolerances=(("residual", 1e-2),)))
     return case
@@ -51,7 +51,7 @@ def test_a_case_with_no_evidence_is_unvalidated_not_approved():
 
 
 def test_a_missing_independent_reference_blocks_validation_even_when_the_checks_pass():
-    case = _case().with_checks([CheckRecord("PDE residual", "verification", True, 1e-3, 1e-2)])
+    case = _case().with_checks([CheckVerdict("PDE residual", "verification", True, 1e-3, 1e-2)])
     a = case.assess()
     assert a.status == UNVALIDATED and "independent reference" in a.reason
 
@@ -95,8 +95,8 @@ def test_a_rejection_is_recorded_as_an_authorization_decision_not_a_technical_fa
 
 
 def test_a_mandatory_check_that_did_not_run_keeps_the_case_unvalidated():
-    case = _verified(_case()).with_checks([CheckRecord("PDE residual", "verification", True, 1e-3, 1e-2),
-                                           CheckRecord("boundary conditions", "physics", None, critical=True,
+    case = _verified(_case()).with_checks([CheckVerdict("PDE residual", "verification", True, 1e-3, 1e-2),
+                                           CheckVerdict("boundary conditions", "physics", None, critical=True,
                                                        message="no data")])
     a = case.assess()
     assert a.status == UNVALIDATED and "mandatory check" in a.reason
@@ -154,9 +154,9 @@ def test_a_case_round_trips_with_the_same_status_and_history():
 
 
 def test_the_model_version_must_be_identifiable():
-    assert ModelRef("m").problems()
-    assert not ModelRef("m", "v1", configuration=(("epochs", 200),)).problems()
-    assert "version" in ModelRef("m", checkpoint_sha256="a" * 64).problems()[0]
+    assert ModelVersion("m").problems()
+    assert not ModelVersion("m", "v1", configuration=(("epochs", 200),)).problems()
+    assert "version" in ModelVersion("m", checkpoint_sha256="a" * 64).problems()[0]
 
 
 # --------------------------------------------------------------------------- extrapolation from a map
@@ -217,7 +217,7 @@ def test_a_lab_report_and_a_ledger_become_check_records():
 def test_the_registry_keeps_cases_and_turns_gaps_into_tasks():
     reg = ValidationRegistry()
     reg.add(_verified(_case()).with_review(ExpertReview.record("eng. A", "approved", "checked")))
-    other = ValidationCase.open(profile=PROFILE, model=ModelRef("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
+    other = ValidationCase.open(profile=PROFILE, model=ModelVersion("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
                                 problem=ProblemRef("transient heat 2-D", pde="heat"), requested_use="screening at 95 C")
     reg.add(other.with_reference(ReferenceComparison("ref02", "benchmark", "T at the wall", 30.0)))
     assert len(reg.cases) == 2 and reg.by_status(FAILED) and reg.by_status(VALIDATED)
@@ -232,7 +232,7 @@ def test_the_registry_keeps_cases_and_turns_gaps_into_tasks():
 def test_a_case_id_is_stable_for_the_same_model_and_problem():
     a, b = _case(), _case()
     assert a.case_id == b.case_id
-    c = ValidationCase.open(profile=PROFILE, model=ModelRef("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
+    c = ValidationCase.open(profile=PROFILE, model=ModelVersion("pinn_heat2d", "v3", checkpoint_sha256="a" * 64),
                             problem=ProblemRef("another problem"))
     assert c.case_id != a.case_id
 

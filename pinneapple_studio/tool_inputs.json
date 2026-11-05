@@ -7410,6 +7410,19 @@
   },
   "source": "tests/test_torsional_stickslip.py:19"
  },
+ "pinneapple_systems.process_components.valve_cfd:mixture_constants": {
+  "inputs": {
+   "T_K": 298.15,
+   "gas": {
+    "CarbonDioxide": 0.01,
+    "Ethane": 0.05,
+    "Methane": 0.9,
+    "Nitrogen": 0.02,
+    "Propane": 0.02
+   }
+  },
+  "source": "tests/test_valve_cfd.py:33"
+ },
  "pinneapple_systems.process_components.water_hammer:wave_period": {
   "inputs": {
    "length": 1000.0,

@@ -60,6 +60,7 @@ from . import (  # noqa: F401
     use_cases,
     validation,
     validation_gallery,
+    valve_jt,
     veriphysics_grade,
     viz,
     wing_design,

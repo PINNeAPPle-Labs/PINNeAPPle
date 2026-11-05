@@ -536,6 +536,55 @@
   "returned": "ndarray",
   "seconds": 0.0
  },
+ "pinneapple_systems.process_components.joule_thomson:isenthalpic_path": {
+  "code_hash": "e2589350f4ab159c",
+  "inputs": {
+   "P1_Pa": 7000000.0,
+   "P2_Pa": 2000000.0,
+   "T1_K": 298.15,
+   "gas": {
+    "Methane": 1.0
+   },
+   "n": 5
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 7.9
+ },
+ "pinneapple_systems.process_components.joule_thomson:parse_valve_request": {
+  "code_hash": "b3c118d994e05208",
+  "inputs": {
+   "text": "inlet pressure 70 bar, inlet temperature 25 \u00b0C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 \u00b0C. Methane 92 %, ethane 5 %, nitrogen 3 %"
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 7.23
+ },
+ "pinneapple_systems.process_components.joule_thomson:throttle": {
+  "code_hash": "b12a0516ddb6c4f3",
+  "inputs": {
+   "P1_Pa": 7000000.0,
+   "P2_Pa": 2000000.0,
+   "T1_K": 298.15,
+   "gas": {
+    "Methane": 1.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 8.21
+ },
+ "pinneapple_systems.process_components.joule_thomson:valve_joule_thomson_study": {
+  "code_hash": "05af09b50b7a2297",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 11.69
+ },
  "pinneapple_systems.process_components.non_newtonian_pipe_flow:integrate_pressure_profile": {
   "code_hash": "26f63908bcce36b6",
   "inputs": {

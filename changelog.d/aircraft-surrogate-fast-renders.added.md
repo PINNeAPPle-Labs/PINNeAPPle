@@ -1,0 +1,1 @@
+`aircraft_surrogate_demo(cinematic="fast")`: the Cycles renders at a lower cost, so the demo fits a 10-minute real-time run in the engineering app. Measured there: the job took 296 s wall and 377 s CPU, within the 900 s / 840 s default limits. The flow builder picks `fast` when the request asks for renders (#1460).

@@ -141,3 +141,15 @@ def test_the_helpers_on_literal_inputs():
                        "alpha": 4.0})
     assert b["aspect_ratio"][1] > 12.0 and b["sweep_le"][1] > 15.0
     assert request_verdict("APPROVED", True) == "REJECT"
+
+
+def test_the_flow_renders_only_when_the_request_asks():
+    import pinneapple_flow.nodes_ext  # noqa: F401
+    from pinneapple_flow.nodes_ext.aircraft_surrogate import build_flow, wants_renders
+
+    assert wants_renders("a 3-D aircraft surrogate with Blender renders of the streamlines")
+    assert wants_renders("quero ver as linhas de corrente")
+    assert not wants_renders("aircraft surrogate, aspect ratio 12, sweep 15 deg")
+    fast = build_flow("aircraft surrogate with cinematic renders").nodes["surrogate"]["params"]
+    plain = build_flow("aircraft surrogate, aspect ratio 12").nodes["surrogate"]["params"]
+    assert fast["cinematic"] == "fast" and "cinematic" not in plain

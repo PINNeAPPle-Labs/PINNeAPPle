@@ -11,10 +11,10 @@ from ..registry import Param, Port, node
                     help="the problem in words: planform values and angle of attack; no geometry needed"),
               Param("rounds", "int", 3, minimum=1, maximum=3,
                     help="1 quick model, 2 full model on the library's design space, 3 design space extended"),
-              Param("cinematic", "enum", "off", choices=["auto", "on", "off"],
+              Param("cinematic", "enum", "off", choices=["auto", "on", "fast", "off"],
                     help="Cycles renders with streamlines (needs Blender's bpy). Off by default: measured in the "
-                         "engineering app, the three rounds took 186 s without the renders and 1160 s with them, "
-                         "beyond a 900 s job limit"),
+                         "engineering app, the three rounds took 186 s without the renders and 1160 s with full "
+                         "ones, beyond a 900 s job limit; \"fast\" renders them at a lower cost"),
               Param("orbit_frames", "int", 28, minimum=2, maximum=120), Param("map_n", "int", 8, minimum=3,
                                                                                 maximum=16),
               Param("seed", "int", 0)],
@@ -51,12 +51,25 @@ def aircraft_surrogate(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"]}
 
 
+# words of a request that asks to see the flow rendered (PT/EN; matched on the lower-cased text)
+RENDER_WORDS = ("cinematic", "cinemat", "render", "blender", "cycles", "streamline", "linhas de corrente",
+                "visualiza", "visualis", "visualiz")
+
+
+def wants_renders(text: str) -> bool:
+    """Whether a request asks for the rendered flow (then the flow uses the fast Cycles preset)."""
+    t = (text or "").lower()
+    return any(w in t for w in RENDER_WORDS)
+
+
 def build_flow(text: str = "", **params):
     from ..planner.build import FlowBuilder
     title = "3-D aircraft aerodynamics surrogate, graded by VeriPhysics"
     fb = FlowBuilder(title, "From the request in words: the planform is read from the text, the vortex lattice gives "
                             "the training data, the surrogate is graded by VeriPhysics, rejected and then accepted "
                             "once its design space covers the request (pinneapple_design.aero.aircraft_surrogate_demo).")
+    if wants_renders(text):
+        params = {"cinematic": "fast", **params}
     fb.add("surrogate", "aero.aircraft_surrogate", dict(params, request=text), label="Aircraft surrogate")
     fb.add("report", "export.report", {"title": title}, label="Report")
     fb.connect("surrogate", "metrics", "report", "items")

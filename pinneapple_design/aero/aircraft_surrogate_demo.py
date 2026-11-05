@@ -52,6 +52,9 @@ from .aircraft_surrogate import (
 
 __all__ = ["aircraft_surrogate_demo", "parse_request", "extend_bounds", "request_verdict", "acceptance_map"]
 
+# the cheaper renders of cinematic="fast": resolution scale, samples per pixel of the stills and of the camera move,
+# frames of the camera move
+FAST_RENDER = {"scale": 0.6, "spp_still": 12, "spp_orbit": 6, "orbit_frames": 12}
 DEFAULT_REQUEST = {"wing_area": 16.0, "aspect_ratio": 8.0, "taper": 0.7, "sweep_le": 4.0, "twist": -2.0, "alpha": 4.0}
 # the values the vortex lattice and the airframe model can take (not the surrogate's design space)
 PHYSICAL = {"wing_area": (6.0, 40.0), "aspect_ratio": (4.0, 16.0), "taper": (0.3, 1.0), "sweep_le": (0.0, 30.0),
@@ -386,7 +389,9 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
     map_n : int
         Cells per side of the acceptance map (each solved by the lattice).
     cinematic : str
-        "auto" (Cycles renders when ``bpy`` is installed), "on" or "off".
+        "auto" (Cycles renders when ``bpy`` is installed), "on", "fast" or "off". "fast" is the same renders at a
+        lower cost (:data:`FAST_RENDER`: at most 0.6 of the resolution, fewer samples, at most 12 orbit frames), for a
+        run that has to fit a short job limit.
     orbit_frames : int
         Frames of the Cycles camera move.
     render_scale : float
@@ -499,7 +504,12 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
             f"{worst:.4f} (allowed {tol:g}); median error of the rejected cells {rej:.3f}", worst)
 
     # cinematic renders -----------------------------------------------------------------------------------
-    want = cinematic == "on" or (cinematic == "auto" and cinematic_available())
+    spp_still, spp_orbit = 24, 12
+    if cinematic == "fast":
+        render_scale = min(render_scale, FAST_RENDER["scale"])
+        orbit_frames = min(orbit_frames, FAST_RENDER["orbit_frames"])
+        spp_still, spp_orbit = FAST_RENDER["spp_still"], FAST_RENDER["spp_orbit"]
+    want = cinematic in ("on", "fast") or (cinematic == "auto" and cinematic_available())
     stills, orbit_dir, render_s = [], None, 0.0
     if want:
         t = time.perf_counter()
@@ -514,7 +524,7 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
             rs = (int(1280 * render_scale), int(720 * render_scale))
             for name, dcp, label, rr in sel:
                 raw = os.path.join(out_dir, f"_{name}.png")
-                _in_child(_render_views, design, dcp, _gamma(c.L, dcp), design["alpha"], rs, 24,
+                _in_child(_render_views, design, dcp, _gamma(c.L, dcp), design["alpha"], rs, spp_still,
                           [((-0.9, -0.85, 0.55), 0.92, raw)])
                 img = plt.imread(raw)
                 fig = plt.figure(figsize=(img.shape[1] / 100, img.shape[0] / 100), dpi=100)
@@ -538,7 +548,7 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
             ors = (int(960 * render_scale), int(540 * render_scale))
             orbit_dir = os.path.join(out_dir, "_orbit")
             os.makedirs(orbit_dir, exist_ok=True)
-            _in_child(_render_views, design, best[1], _gamma(c.L, best[1]), design["alpha"], ors, 12,
+            _in_child(_render_views, design, best[1], _gamma(c.L, best[1]), design["alpha"], ors, spp_orbit,
                       [(_orbit_dir(k, orbit_frames), 0.95, os.path.join(orbit_dir, f"f{k:05d}.png"))
                        for k in range(orbit_frames)])
         except Exception as e:  # noqa: BLE001 - the renders are an extra; the demo stands without them

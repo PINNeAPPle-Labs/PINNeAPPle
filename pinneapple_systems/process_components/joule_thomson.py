@@ -142,8 +142,9 @@ def parse_valve_request(text: str) -> dict[str, Any]:
             case.setdefault("P1_bar", _pressure_bar(_num(m.group(1)), m.group(2)))
             case.setdefault("P2_bar", _pressure_bar(_num(m.group(3)), m.group(4)))
             found += [k for k in ("P1_bar", "P2_bar") if k not in found]
-    m = re.search(rf"(?:cfd|simulation|simulacao)[^\d\-−]{{0,40}}?temperat\w*[^\d\-−]{{0,16}}?{_NUM}\s*(°\s*c|ºc|c\b|k\b|°\s*f)",
-                  t)
+    U = r"\s*(°\s*c|ºc|c\b|k\b|°\s*f)"
+    m = (re.search(rf"(?:cfd|simulation|simulacao)[^\d\-−]{{0,40}}?temperat\w*[^\d\-−]{{0,16}}?{_NUM}{U}", t)
+         or re.search(rf"temperat\w*[^\d\-−]{{0,30}}?(?:cfd|simulation|simulacao)[^\d\-−]{{0,16}}?{_NUM}{U}", t))
     if m:
         case["cfd_T2_C"] = _temperature_C(_num(m.group(1)), m.group(2))
         found.append("cfd_T2_C")

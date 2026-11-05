@@ -57,3 +57,12 @@ def test_pure_methane_literal_calls():
     assert r["dT_K"] < -10.0 and abs(r["h_residual_J_kg"]) < 1.0
     p = isenthalpic_path({"Methane": 1.0}, 7000000.0, 298.15, 2000000.0, 5)
     assert len(p["T"]) == 5 and abs(p["T"][-1] - r["T2_K"]) < 1e-6
+
+
+def test_parser_reads_cfd_temperature_in_either_order_and_the_language():
+    from pinneapple_systems.process_components.joule_thomson import parse_valve_request
+    pt = parse_valve_request("Estou simulando gás natural numa válvula globo; "
+                             "a temperatura de saída do meu CFD é 24,6 °C")
+    assert pt["case"]["cfd_T2_C"] == 24.6 and pt["lang"] == "pt"
+    en = parse_valve_request("natural gas through a globe valve; my CFD outlet temperature is 24.6 C")
+    assert en["case"]["cfd_T2_C"] == 24.6 and en["lang"] == "en"

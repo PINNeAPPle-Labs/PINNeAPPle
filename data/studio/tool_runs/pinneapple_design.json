@@ -8,14 +8,14 @@
   "seconds": 0.02
  },
  "pinneapple_design.aero.aircraft_surrogate:FieldEnsemble": {
-  "code_hash": "2c50766fa9dd721c",
+  "code_hash": "7e41d021a06618a0",
   "inputs": {
    "n_out": 4
   },
   "ok": true,
   "recorded": "2026-11-05",
   "returned": "FieldEnsemble",
-  "seconds": 4.26
+  "seconds": 3.72
  },
  "pinneapple_design.aero.aircraft_surrogate:dataset": {
   "code_hash": "03b4e4d61934bf16",

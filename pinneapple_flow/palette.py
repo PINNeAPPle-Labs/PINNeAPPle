@@ -58,7 +58,7 @@ SECTION_OF: dict[str, str] = {
     "solver.classical": "solvers", "solver.openfoam": "solvers", "solver.calculix": "solvers", "solver.fmu": "solvers",
     "solver.newton": "solvers", "lib.solve.preset": "solvers", "lib.solver.beam": "solvers",
     "lib.solver.lbm": "solvers", "lib.solver.meshless": "solvers", "lib.solver.terramechanics": "solvers",
-    "lib.solver.xtfc": "solvers", "lib.tools.availability": "solvers", "flight.takeoff": "solvers",
+    "lib.solver.pict_cavity": "solvers", "lib.solver.xtfc": "solvers", "lib.tools.availability": "solvers", "flight.takeoff": "solvers",
     "preset.run": "solvers", "preset.validate": "validation", "science.run": "validation",
     "science.atlas": "validation",
     "vehicle.simulate": "solvers", "rover.learn_planet": "solvers", "terramechanics.wheel_model": "solvers",

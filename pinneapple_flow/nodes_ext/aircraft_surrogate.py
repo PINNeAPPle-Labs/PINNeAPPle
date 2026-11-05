@@ -11,8 +11,10 @@ from ..registry import Param, Port, node
                     help="the problem in words: planform values and angle of attack; no geometry needed"),
               Param("rounds", "int", 3, minimum=1, maximum=3,
                     help="1 quick model, 2 full model on the library's design space, 3 design space extended"),
-              Param("cinematic", "enum", "auto", choices=["auto", "on", "off"],
-                    help="Cycles renders with streamlines (needs Blender's bpy)"),
+              Param("cinematic", "enum", "off", choices=["auto", "on", "off"],
+                    help="Cycles renders with streamlines (needs Blender's bpy). Off by default: measured in the "
+                         "engineering app, the three rounds took 186 s without the renders and 1160 s with them, "
+                         "beyond a 900 s job limit"),
               Param("orbit_frames", "int", 28, minimum=2, maximum=120), Param("map_n", "int", 8, minimum=3,
                                                                                 maximum=16),
               Param("seed", "int", 0)],

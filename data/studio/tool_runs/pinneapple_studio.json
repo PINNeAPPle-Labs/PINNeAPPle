@@ -101,12 +101,12 @@
   "seconds": 0.0
  },
  "pinneapple_studio.gallery:entries": {
-  "code_hash": "ad2b54707834f22c",
+  "code_hash": "41e34711b5c88340",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
-  "seconds": 1.43
+  "seconds": 2.01
  },
  "pinneapple_studio.gallery:load": {
   "code_hash": "bc51adfb8cc4c269",
@@ -193,12 +193,12 @@
   "seconds": 0.0
  },
  "pinneapple_studio.prose:load": {
-  "code_hash": "47873f78475cab61",
+  "code_hash": "7ff6754578cfdfb2",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "Prose",
-  "seconds": 0.11
+  "seconds": 0.06
  },
  "pinneapple_studio.runner:clean_env": {
   "code_hash": "8903947f8c1b4396",

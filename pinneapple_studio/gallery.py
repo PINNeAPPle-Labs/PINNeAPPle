@@ -143,6 +143,10 @@ def entries(root: Path | None = None) -> list[dict[str, Any]]:
                     "pt": prose.folders.get("apps", {}).get(d.name, ""), "state": "app",
                     "start": _app_command(d, root), "requirements": [], "blocked_by": [], "script_needs": [], "flows": [],
                     "measured": [], "scripts": []})
+    for it in out:                    # both languages: the Portuguese title, and English where the source has none
+        it["title_pt"] = prose.titles.get(it["id"], "")
+        it["title"] = prose.en_titles.get(it["id"]) or it["title"]
+        it["description"] = prose.en_descriptions.get(it["id"]) or it["description"]
     return out
 
 

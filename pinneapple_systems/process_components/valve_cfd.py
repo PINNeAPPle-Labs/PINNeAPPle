@@ -453,11 +453,20 @@ def model_throttle(mc: dict[str, float], P1_Pa: float, T1_K: float, P2_Pa: float
 
 # ------------------------------------------------------------------------------------------------- run and read
 def _parse_list(text: str, start: int, ncomp: int):
-    m = re.compile(r"(?:nonuniform\s+List<\w+>\s*(\d+)\s*\(|uniform\s+([^;]+);)").search(text, start)
-    if m.group(2) is not None:
+    m = re.compile(r"(?:nonuniform\s+List<\w+>\s*(\d+)\s*(?:\(|\{([^}]*)\})|uniform\s+([^;]+);)").search(text, start)
+    if m.group(2) is not None:                              # "N{value}": a list of N equal values
         v = np.array(m.group(2).replace("(", " ").replace(")", " ").split(), float)
+        n = int(m.group(1))
+        return ("list", np.tile(v, (n, 1)) if ncomp > 1 else np.full(n, v[0]))
+    if m.group(3) is not None:
+        v = np.array(m.group(3).replace("(", " ").replace(")", " ").split(), float)
         return ("uniform", v)
-    body = text[m.end(): text.index("\n)", m.end())]
+    depth, k = 1, m.end()                                 # the matching ")" of the list (inline or multi-line)
+    while depth:
+        c = text[k]
+        depth += (c == "(") - (c == ")")
+        k += 1
+    body = text[m.end(): k - 1]
     a = np.array(body.replace("(", " ").replace(")", " ").split(), float)
     return ("list", a.reshape(int(m.group(1)), ncomp) if ncomp > 1 else a)
 

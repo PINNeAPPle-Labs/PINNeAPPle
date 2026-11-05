@@ -117,14 +117,42 @@ def test_fem_poisson_solves_the_linear_system_it_assembles():
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.parametrize("precision", ["float64", "float32"])
 @pytest.mark.parametrize("dim", [2, 3])
 @requires_warp
-def test_step_gradients_agree_with_torch(dim):
-    report = wb.WarpBackend(dim).gradients_against_torch(dt=0.02, n_steps=4, n_bodies=3)
-    assert report["gradients_agree_1e_6"], report["gradient_max_rel_diff"]
+def test_step_gradients_agree_with_torch(dim, precision):
+    report = wb.WarpBackend(dim, precision=precision).gradients_against_torch(dt=0.02, n_steps=4, n_bodies=3)
+    assert report["precision"] == precision
+    assert report["gradients_agree"], report["gradient_max_rel_diff"]
+    assert max(report["gradient_max_rel_diff"].values()) < report["tolerance"]
     assert set(report["gradient_max_rel_diff"]) == {"pos0", "vel0", "force", "torque"}
+    # the state itself agrees to machine precision in its own dtype: 1e-9 is a float64 bound, 1e-5 a float32 one
+    bound = 1e-9 if precision == "float64" else 1e-5
     for value in report["value_max_abs_diff"].values():
-        assert value < 1e-9, report["value_max_abs_diff"]
+        assert value < bound, report["value_max_abs_diff"]
+
+
+@requires_warp
+def test_float32_is_a_second_kernel_not_a_cast():
+    backend = wb.WarpBackend(3, precision="float32")
+    wp = backend._wp
+    state = backend.state_arrays(n_bodies=2)
+    assert state["pos"].dtype == wp.vec3f and state["quat"].dtype == wp.quatf
+    assert wb.WarpBackend(3).state_arrays(n_bodies=2)["pos"].dtype == wp.vec3d
+    with pytest.raises(ValueError, match="precision"):
+        wb.WarpBackend(3, precision="float16")
+
+
+@requires_warp
+def test_float32_drift_over_a_run_is_rounding_not_physics():
+    backend = wb.WarpBackend(3, precision="float32")
+    drift = backend.float32_matches_float64(n_steps=20, n_bodies=8)
+    assert set(drift["drift"]) == {"pos", "vel", "omega"}
+    for key, row in drift["drift"].items():
+        assert row["max_abs_diff"] >= 0.0
+        assert row["relative_drift"] < 1e-5, (key, row)          # 20 steps of float32 rounding
+    with pytest.raises(ValueError, match="float32"):
+        wb.WarpBackend(3).float32_matches_float64(n_steps=2)
 
 
 @pytest.mark.parametrize("dim", [2, 3])

@@ -84,10 +84,27 @@ Three traps are worth knowing before writing a kernel of your own, because each 
 - It is **not** a `pp.set_backend("warp")` engine. Warp differentiates through an explicit `wp.Tape`, not through
   the functions you write, so it does not implement the `PhysicsBackend` array/`grad` interface; use it where you
   need kernels with a tape, not as a replacement for the torch/JAX backends.
-- The step kernels are **float64 only** (Warp compiles one kernel per concrete type; float64 is the precision every
-  gradient check here is made at). A CUDA build is selected automatically on an NVIDIA machine; the checks above run
-  on the CPU.
 - The gradient with respect to the **mass** is not provided: the reciprocal is taken on the host.
+
+## Precision: float64 by default, float32 when it has to be fast
+
+Warp compiles one kernel per concrete type, so the step kernels exist twice — `precision="float64"` (the default, the
+precision every gradient check here is made at) and `precision="float32"` (roughly 32x the throughput of float64 on a
+consumer NVIDIA card).
+
+```python
+from pinneapple_tools.compute_backends import WarpBackend
+
+fast = WarpBackend(3, precision="float32")
+report = fast.gradients_against_torch()          # 2.4e-7 relative against torch, bound 1e-4 for float32
+drift = fast.float32_matches_float64(n_steps=20)  # how far a long run moves away from the float64 answer
+print(drift["drift"]["pos"]["relative_drift"])    # 2.8e-7 over 20 steps: rounding, not physics
+```
+
+Measured, 3 bodies, 4 steps, 2-D and 3-D, against `torch.autograd`: the state agrees to 8.7e-19 (float64) and 8.7e-11
+(float32); the gradients to 1.5e-16 and 2.4e-7 relative. The drift over 20 steps is 2.8e-7 relative on position — the
+number that says whether a precision swap is a rounding decision or a different trajectory. A CUDA build is selected
+automatically on an NVIDIA machine; the checks above run on the CPU.
 
 ## Where it is checked
 

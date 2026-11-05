@@ -31,9 +31,10 @@ Every function imports Warp lazily: without ``warp-lang`` installed this module 
 :func:`warp_available` returns ``False``, and the solvers raise :class:`ImportError` with the install line instead of
 an obscure ``ModuleNotFoundError``.
 
-Limitation, stated rather than hidden: the step kernels are float64 only. Warp compiles one kernel per concrete type,
-and float64 is the precision every gradient check in this repository is made at; a float32 build of the same kernels
-would be a copy of them with no test behind it.
+Precision: the step kernels exist in **float64 and float32** -- two real kernels, because Warp compiles one per
+concrete type. float64 is the default (it is the precision every gradient check in this repository is made at);
+float32 is what a consumer NVIDIA GPU is fast at, and `WarpBackend(dim, precision="float32").float32_matches_float64()`
+measures how far the two drift apart over a run instead of assuming it is negligible.
 
 Install: ``pip install warp-lang`` (a CUDA build is selected automatically on an NVIDIA machine; ``warp-lang`` also
 runs on the CPU, which is what the checks below use).
@@ -50,6 +51,7 @@ from typing import Any
 import numpy as np
 
 __all__ = [
+    "PRECISIONS",
     "warp_available",
     "warp_device",
     "to_warp",
@@ -352,26 +354,31 @@ def poisson_convergence(resolutions: Iterable[int] = (8, 16, 32, 64), *, degree:
 # ---------------------------------------------------------------------------
 
 def _build_step_kernels():
-    """Define the kernels once, on first use: one step per dimension, plus the losses a check can be written on.
+    """Define the kernels, once, on first use: a step per dimension in both precisions, and the losses.
 
     Every step kernel is **out of place**: it reads one state and writes another. That is not a style choice.
     Warp's adjoint evaluates the derivative at the values the kernel left in memory, so a kernel that overwrites
     its own input produces a wrong gradient -- measured here, against :class:`torch.autograd`, at 5e-4 relative on
     ``d loss / d omega`` for the gyroscopic term, while the same kernel with a separate output matches to 0.0.
+
+    The float32 kernels are a second copy of the same arithmetic because Warp compiles one kernel per concrete type;
+    there is no precision parameter. They exist for the reason a GPU is used at all: float64 runs at roughly 1/32 of
+    float32 on consumer NVIDIA cards. ``tests/test_warp_backend.py`` measures the agreement between the two.
     """
     global _STEP_KERNELS
     if _STEP_KERNELS is not None:
         return _STEP_KERNELS
     wp = _wp()
 
+    # -- float64 --------------------------------------------------------------------------------------------------
     @wp.kernel
-    def step_2d(pos: wp.array(dtype=wp.vec2d), vel: wp.array(dtype=wp.vec2d),
-                angle: wp.array(dtype=wp.float64), omega: wp.array(dtype=wp.float64),
-                force: wp.array(dtype=wp.vec2d), torque: wp.array(dtype=wp.float64),
-                inv_mass: wp.array(dtype=wp.float64), inv_inertia: wp.array(dtype=wp.float64),
-                dt: wp.float64,
-                pos_out: wp.array(dtype=wp.vec2d), vel_out: wp.array(dtype=wp.vec2d),
-                angle_out: wp.array(dtype=wp.float64), omega_out: wp.array(dtype=wp.float64)):
+    def step_2d_f64(pos: wp.array(dtype=wp.vec2d), vel: wp.array(dtype=wp.vec2d),
+                    angle: wp.array(dtype=wp.float64), omega: wp.array(dtype=wp.float64),
+                    force: wp.array(dtype=wp.vec2d), torque: wp.array(dtype=wp.float64),
+                    inv_mass: wp.array(dtype=wp.float64), inv_inertia: wp.array(dtype=wp.float64),
+                    dt: wp.float64,
+                    pos_out: wp.array(dtype=wp.vec2d), vel_out: wp.array(dtype=wp.vec2d),
+                    angle_out: wp.array(dtype=wp.float64), omega_out: wp.array(dtype=wp.float64)):
         i = wp.tid()
         v_new = vel[i] + dt * (force[i] * inv_mass[i])
         vel_out[i] = v_new
@@ -381,14 +388,14 @@ def _build_step_kernels():
         angle_out[i] = angle[i] + dt * w_new
 
     @wp.kernel
-    def step_3d(pos: wp.array(dtype=wp.vec3d), vel: wp.array(dtype=wp.vec3d),
-                quat: wp.array(dtype=wp.quatd), omega: wp.array(dtype=wp.vec3d),
-                force: wp.array(dtype=wp.vec3d), torque: wp.array(dtype=wp.vec3d),
-                inv_mass: wp.array(dtype=wp.float64),
-                inertia: wp.array(dtype=wp.mat33d), inv_inertia: wp.array(dtype=wp.mat33d),
-                dt: wp.float64,
-                pos_out: wp.array(dtype=wp.vec3d), vel_out: wp.array(dtype=wp.vec3d),
-                quat_out: wp.array(dtype=wp.quatd), omega_out: wp.array(dtype=wp.vec3d)):
+    def step_3d_f64(pos: wp.array(dtype=wp.vec3d), vel: wp.array(dtype=wp.vec3d),
+                    quat: wp.array(dtype=wp.quatd), omega: wp.array(dtype=wp.vec3d),
+                    force: wp.array(dtype=wp.vec3d), torque: wp.array(dtype=wp.vec3d),
+                    inv_mass: wp.array(dtype=wp.float64),
+                    inertia: wp.array(dtype=wp.mat33d), inv_inertia: wp.array(dtype=wp.mat33d),
+                    dt: wp.float64,
+                    pos_out: wp.array(dtype=wp.vec3d), vel_out: wp.array(dtype=wp.vec3d),
+                    quat_out: wp.array(dtype=wp.quatd), omega_out: wp.array(dtype=wp.vec3d)):
         i = wp.tid()
         v_new = vel[i] + dt * (force[i] * inv_mass[i])
         vel_out[i] = v_new
@@ -412,27 +419,27 @@ def _build_step_kernels():
         quat_out[i] = wp.quatd(qq[0] / norm, qq[1] / norm, qq[2] / norm, qq[3] / norm)
 
     @wp.kernel
-    def position_sq_2d(pos: wp.array(dtype=wp.vec2d), out: wp.array(dtype=wp.float64)):
+    def loss_pos_2d_f64(pos: wp.array(dtype=wp.vec2d), out: wp.array(dtype=wp.float64)):
         i = wp.tid()
         p = pos[i]
         wp.atomic_add(out, 0, wp.dot(p, p))
 
     @wp.kernel
-    def position_sq_3d(pos: wp.array(dtype=wp.vec3d), out: wp.array(dtype=wp.float64)):
+    def loss_pos_3d_f64(pos: wp.array(dtype=wp.vec3d), out: wp.array(dtype=wp.float64)):
         i = wp.tid()
         p = pos[i]
         wp.atomic_add(out, 0, wp.dot(p, p))
 
     @wp.kernel
-    def pos_and_angle_sq_2d(pos: wp.array(dtype=wp.vec2d), angle: wp.array(dtype=wp.float64),
-                            out: wp.array(dtype=wp.float64)):
+    def loss_rot_2d_f64(pos: wp.array(dtype=wp.vec2d), angle: wp.array(dtype=wp.float64),
+                        out: wp.array(dtype=wp.float64)):
         i = wp.tid()
         p = pos[i]
         wp.atomic_add(out, 0, wp.dot(p, p) + angle[i] * angle[i])
 
     @wp.kernel
-    def pos_and_quat_sq_3d(pos: wp.array(dtype=wp.vec3d), quat: wp.array(dtype=wp.quatd),
-                           out: wp.array(dtype=wp.float64)):
+    def loss_rot_3d_f64(pos: wp.array(dtype=wp.vec3d), quat: wp.array(dtype=wp.quatd),
+                        out: wp.array(dtype=wp.float64)):
         i = wp.tid()
         p = pos[i]
         q = quat[i]
@@ -440,14 +447,101 @@ def _build_step_kernels():
         # invariant and its gradient with respect to the torque is roundoff (~1e-20) in both engines
         wp.atomic_add(out, 0, wp.dot(p, p) + q[0] * q[0] + q[1] * q[1] + q[2] * q[2])
 
+    # -- float32: the same arithmetic, one kernel per concrete type -------------------------------------------------
+    @wp.kernel
+    def step_2d_f32(pos: wp.array(dtype=wp.vec2f), vel: wp.array(dtype=wp.vec2f),
+                    angle: wp.array(dtype=wp.float32), omega: wp.array(dtype=wp.float32),
+                    force: wp.array(dtype=wp.vec2f), torque: wp.array(dtype=wp.float32),
+                    inv_mass: wp.array(dtype=wp.float32), inv_inertia: wp.array(dtype=wp.float32),
+                    dt: wp.float32,
+                    pos_out: wp.array(dtype=wp.vec2f), vel_out: wp.array(dtype=wp.vec2f),
+                    angle_out: wp.array(dtype=wp.float32), omega_out: wp.array(dtype=wp.float32)):
+        i = wp.tid()
+        v_new = vel[i] + dt * (force[i] * inv_mass[i])
+        vel_out[i] = v_new
+        pos_out[i] = pos[i] + dt * v_new
+        w_new = omega[i] + dt * (torque[i] * inv_inertia[i])
+        omega_out[i] = w_new
+        angle_out[i] = angle[i] + dt * w_new
+
+    @wp.kernel
+    def step_3d_f32(pos: wp.array(dtype=wp.vec3f), vel: wp.array(dtype=wp.vec3f),
+                    quat: wp.array(dtype=wp.quatf), omega: wp.array(dtype=wp.vec3f),
+                    force: wp.array(dtype=wp.vec3f), torque: wp.array(dtype=wp.vec3f),
+                    inv_mass: wp.array(dtype=wp.float32),
+                    inertia: wp.array(dtype=wp.mat33), inv_inertia: wp.array(dtype=wp.mat33),
+                    dt: wp.float32,
+                    pos_out: wp.array(dtype=wp.vec3f), vel_out: wp.array(dtype=wp.vec3f),
+                    quat_out: wp.array(dtype=wp.quatf), omega_out: wp.array(dtype=wp.vec3f)):
+        i = wp.tid()
+        v_new = vel[i] + dt * (force[i] * inv_mass[i])
+        vel_out[i] = v_new
+        pos_out[i] = pos[i] + dt * v_new
+
+        w = omega[i]
+        gyro = wp.cross(w, inertia[i] * w)
+        alpha = inv_inertia[i] * (torque[i] - gyro)
+        w_new = w + dt * alpha
+        omega_out[i] = w_new
+
+        q = quat[i]
+        pure = wp.quatf(w_new[0], w_new[1], w_new[2], wp.float32(0.0))
+        qq = q + wp.float32(0.5) * dt * (q * pure)
+        norm = wp.sqrt(qq[0] * qq[0] + qq[1] * qq[1] + qq[2] * qq[2] + qq[3] * qq[3])
+        quat_out[i] = wp.quatf(qq[0] / norm, qq[1] / norm, qq[2] / norm, qq[3] / norm)
+
+    @wp.kernel
+    def loss_pos_2d_f32(pos: wp.array(dtype=wp.vec2f), out: wp.array(dtype=wp.float32)):
+        i = wp.tid()
+        p = pos[i]
+        wp.atomic_add(out, 0, wp.dot(p, p))
+
+    @wp.kernel
+    def loss_pos_3d_f32(pos: wp.array(dtype=wp.vec3f), out: wp.array(dtype=wp.float32)):
+        i = wp.tid()
+        p = pos[i]
+        wp.atomic_add(out, 0, wp.dot(p, p))
+
+    @wp.kernel
+    def loss_rot_2d_f32(pos: wp.array(dtype=wp.vec2f), angle: wp.array(dtype=wp.float32),
+                        out: wp.array(dtype=wp.float32)):
+        i = wp.tid()
+        p = pos[i]
+        wp.atomic_add(out, 0, wp.dot(p, p) + angle[i] * angle[i])
+
+    @wp.kernel
+    def loss_rot_3d_f32(pos: wp.array(dtype=wp.vec3f), quat: wp.array(dtype=wp.quatf),
+                        out: wp.array(dtype=wp.float32)):
+        i = wp.tid()
+        p = pos[i]
+        q = quat[i]
+        wp.atomic_add(out, 0, wp.dot(p, p) + q[0] * q[0] + q[1] * q[1] + q[2] * q[2])
+
     # A loss has to be a kernel on the tape too: a loss computed in numpy after the tape closes has no adjoint,
-    # and tape.backward() then leaves every gradient at zero (it did, silently, before this kernel existed).
-    _STEP_KERNELS = {2: {"step": step_2d, "loss": position_sq_2d, "loss_rot": pos_and_angle_sq_2d},
-                     3: {"step": step_3d, "loss": position_sq_3d, "loss_rot": pos_and_quat_sq_3d}}
+    # and tape.backward() then leaves every gradient at zero (it did, silently, before these kernels existed).
+    _STEP_KERNELS = {
+        (2, "float64"): {"step": step_2d_f64, "loss": loss_pos_2d_f64, "loss_rot": loss_rot_2d_f64},
+        (3, "float64"): {"step": step_3d_f64, "loss": loss_pos_3d_f64, "loss_rot": loss_rot_3d_f64},
+        (2, "float32"): {"step": step_2d_f32, "loss": loss_pos_2d_f32, "loss_rot": loss_rot_2d_f32},
+        (3, "float32"): {"step": step_3d_f32, "loss": loss_pos_3d_f32, "loss_rot": loss_rot_3d_f32},
+    }
     return _STEP_KERNELS
 
 
-_STEP_KERNELS: dict[int, Any] | None = None
+_STEP_KERNELS: dict[tuple[int, str], Any] | None = None
+
+PRECISIONS = ("float64", "float32")
+
+
+def _dtypes(wp, precision: str) -> dict[str, Any]:
+    """The Warp types one precision maps onto."""
+    if precision not in PRECISIONS:
+        raise ValueError(f"precision must be one of {PRECISIONS}, not {precision!r}")
+    if precision == "float64":
+        return {"scalar": wp.float64, "quat": wp.quatd, "mat": wp.mat33d,
+                "vec": {2: wp.vec2d, 3: wp.vec3d}, "np": np.float64}
+    return {"scalar": wp.float32, "quat": wp.quatf, "mat": wp.mat33,
+            "vec": {2: wp.vec2f, 3: wp.vec3f}, "np": np.float32}
 
 
 def _as_warp(wp, value, dtype, *, device, requires_grad: bool = False):
@@ -474,19 +568,25 @@ class WarpBackend:
     off the new state, without a PyTorch graph in the loop. :meth:`gradients_against_torch` runs both engines on the
     same inputs and returns the disagreement, which is the check this backend is held to.
 
+    ``precision`` is ``"float64"`` (default: what every gradient check in this repository is made at) or
+    ``"float32"`` (what a consumer GPU is fast at). Both are real kernels, not a cast: Warp compiles one kernel per
+    concrete type. ``float32_matches_float64`` measures how far the two drift apart over a run.
+
     :meth:`step` returns a **new** state instead of overwriting the one it is given (see the note on the kernels).
-    The arrays are float64; ``pos``/``vel``/``omega`` (and ``quat`` in 3-D) are Warp vector types, ``force`` and
-    ``torque`` are Warp arrays (``vec2d``/``vec3d``; scalar in 2-D), and the mass and inertia are numpy arrays.
+    ``pos``/``vel``/``omega`` (and ``quat`` in 3-D) are Warp vector types of the chosen precision, ``force`` and
+    ``torque`` are Warp arrays (scalar torque in 2-D), and the mass and inertia are numpy arrays.
     """
 
     name = "warp"
 
-    def __init__(self, dim: int = 2, *, device: str | None = None):
+    def __init__(self, dim: int = 2, *, device: str | None = None, precision: str = "float64"):
         if dim not in (2, 3):
             raise ValueError("dim must be 2 or 3")
         self.dim = int(dim)
+        self.precision = precision
         self._wp = _wp()
-        self._kernels = _build_step_kernels()
+        self._types = _dtypes(self._wp, precision)
+        self._kernels = _build_step_kernels()[(self.dim, precision)]
         self.device = device or self._wp.get_device()
 
     # -- construction helpers -------------------------------------------------
@@ -494,8 +594,7 @@ class WarpBackend:
     def state_arrays(self, *, n_bodies: int, requires_grad: bool = True) -> dict[str, Any]:
         """Zero-initialised state arrays for ``n_bodies`` bodies (identity quaternion in 3-D)."""
         wp = self._wp
-        vec = wp.vec2d if self.dim == 2 else wp.vec3d
-        sca = wp.float64
+        vec, sca = self._types["vec"][self.dim], self._types["scalar"]
         out = {
             "pos": wp.zeros(n_bodies, dtype=vec, device=self.device, requires_grad=requires_grad),
             "vel": wp.zeros(n_bodies, dtype=vec, device=self.device, requires_grad=requires_grad),
@@ -507,7 +606,7 @@ class WarpBackend:
         else:
             # (x, y, z, w) identity, Warp's component order
             out["quat"] = wp.array(np.tile(np.array([[0.0, 0.0, 0.0, 1.0]]), (n_bodies, 1)),
-                                   dtype=wp.quatd, device=self.device, requires_grad=requires_grad)
+                                   dtype=self._types["quat"], device=self.device, requires_grad=requires_grad)
         return out
 
     # -- one step -------------------------------------------------------------
@@ -521,31 +620,33 @@ class WarpBackend:
         and the update needs ``I^-1``. Mass is not differentiable here: the reciprocal is taken on the host.
         """
         wp = self._wp
-        kernel = self._kernels[self.dim]["step"]
+        sca, mat = self._types["scalar"], self._types["mat"]
+        kernel = self._kernels["step"]
         n = state["pos"].shape[0]
+        dt_scalar = sca(float(dt))
         inv_mass = wp.array(np.reciprocal(np.asarray(mass, dtype=np.float64).reshape(-1)),
-                            dtype=wp.float64, device=self.device)
+                            dtype=sca, device=self.device)
         new = {key: _fresh_like(wp, value) for key, value in state.items()}
         if self.dim == 2:
             if inertia_inv is None:
                 if inertia is None:
                     raise ValueError("2-D step needs inertia (or inertia_inv)")
                 inv_inertia = wp.array(np.reciprocal(np.asarray(inertia, dtype=np.float64).reshape(-1)),
-                                       dtype=wp.float64, device=self.device)
+                                       dtype=sca, device=self.device)
             else:
-                inv_inertia = _as_warp(wp, inertia_inv, wp.float64, device=self.device)
+                inv_inertia = _as_warp(wp, inertia_inv, sca, device=self.device)
             wp.launch(kernel, dim=n, inputs=[
                 state["pos"], state["vel"], state["angle"], state["omega"],
-                force, torque, inv_mass, inv_inertia, wp.float64(dt),
+                force, torque, inv_mass, inv_inertia, dt_scalar,
                 new["pos"], new["vel"], new["angle"], new["omega"]], device=self.device)
         else:
             if inertia is None or inertia_inv is None:
                 raise ValueError("3-D step needs both inertia and inertia_inv as (n, 3, 3) arrays")
-            inertia_w = _as_warp(wp, inertia, wp.mat33d, device=self.device)
-            inertia_inv_w = _as_warp(wp, inertia_inv, wp.mat33d, device=self.device)
+            inertia_w = _as_warp(wp, inertia, mat, device=self.device)
+            inertia_inv_w = _as_warp(wp, inertia_inv, mat, device=self.device)
             wp.launch(kernel, dim=n, inputs=[
                 state["pos"], state["vel"], state["quat"], state["omega"],
-                force, torque, inv_mass, inertia_w, inertia_inv_w, wp.float64(dt),
+                force, torque, inv_mass, inertia_w, inertia_inv_w, dt_scalar,
                 new["pos"], new["vel"], new["quat"], new["omega"]], device=self.device)
         return new
 
@@ -556,14 +657,14 @@ class WarpBackend:
         depend on ``angle``/``quat``, and therefore not on the ``omega`` and ``torque`` that feed them: the rotation
         gradients are only exercised with ``rotation=True``.
         """
-        wp = self._wp
-        out = out if out is not None else wp.zeros(1, dtype=wp.float64, device=self.device, requires_grad=True)
+        wp, sca = self._wp, self._types["scalar"]
+        out = out if out is not None else wp.zeros(1, dtype=sca, device=self.device, requires_grad=True)
         if rotation:
             key = "loss_rot"
             inputs = [state["pos"], state["angle" if self.dim == 2 else "quat"], out]
         else:
             key, inputs = "loss", [state["pos"], out]
-        wp.launch(self._kernels[self.dim][key], dim=state["pos"].shape[0], inputs=inputs, device=self.device)
+        wp.launch(self._kernels[key], dim=state["pos"].shape[0], inputs=inputs, device=self.device)
         return out
 
     def step_with_tape(self, state: dict[str, Any], *, force, torque, mass, dt: float, n_steps: int = 1,
@@ -584,119 +685,179 @@ class WarpBackend:
                 loss_value = loss(state) if callable(loss) else loss
         return (tape, state) if loss_value is None else (tape, state, loss_value)
 
-    # -- the check ------------------------------------------------------------
+    # -- the checks -----------------------------------------------------------
+
+    def _seeded_inputs(self, *, dt: float, n_steps: int, n_bodies: int, seed: int, precision: str):
+        """The same random state for both engines, in the dtype of ``precision``."""
+        import torch
+
+        torch_dtype = torch.float64 if precision == "float64" else torch.float32
+        rng = np.random.default_rng(seed)
+        n, dim = int(n_bodies), self.dim
+        out = {
+            "pos0": torch.tensor(rng.normal(size=(n, dim)) * 0.1, dtype=torch_dtype, requires_grad=True),
+            "vel0": torch.tensor(rng.normal(size=(n, dim)), dtype=torch_dtype, requires_grad=True),
+            "force": torch.tensor(rng.normal(size=(n, dim)), dtype=torch_dtype, requires_grad=True),
+            "mass": torch.tensor(rng.uniform(0.5, 2.0, size=n), dtype=torch_dtype),
+        }
+        if dim == 2:
+            out["angle0"] = torch.tensor(rng.normal(size=n) * 0.1, dtype=torch_dtype)
+            out["omega0"] = torch.tensor(rng.normal(size=n), dtype=torch_dtype)
+            out["torque"] = torch.tensor(rng.normal(size=n), dtype=torch_dtype, requires_grad=True)
+            out["inertia"] = torch.tensor(rng.uniform(0.2, 1.0, size=n), dtype=torch_dtype)
+        else:
+            out["angle0"] = None
+            out["omega0"] = torch.tensor(rng.normal(size=(n, 3)) * 0.5, dtype=torch_dtype)
+            out["torque"] = torch.tensor(rng.normal(size=(n, 3)), dtype=torch_dtype, requires_grad=True)
+            out["inertia"] = torch.tensor(np.stack([np.diag(rng.uniform(0.2, 1.0, size=3)) for _ in range(n)]),
+                                          dtype=torch_dtype)
+        return out
+
+    def _torch_trajectory(self, inputs: dict[str, Any], *, dt: float, n_steps: int, precision: str):
+        """The reference: ``RigidBody.step`` from ``particle_dynamics``, one body at a time."""
+        import torch
+
+        from pinneapple_simulation.particle_dynamics.rigid_body import RigidBody, RigidBodyState
+
+        dim = self.dim
+        n = int(inputs["mass"].shape[0])
+        torch_dtype = torch.float64 if precision == "float64" else torch.float32
+        states = []
+        for i in range(n):
+            body = RigidBody(mass=float(inputs["mass"][i]), inertia=inputs["inertia"][i], dim=dim).double()
+            # RigidBody keeps mass and inertia in float32 buffers (``.float()`` in its constructor); ``.double()``
+            # widens a value that was already truncated. Overwrite the buffers with the exact inputs so the two
+            # engines solve the same problem and the comparison is about the kernels, not about a cast. In float32
+            # the buffers are already the right type, but the copy is kept so both paths are written the same way.
+            body.to(torch_dtype)
+            body.mass = inputs["mass"][i].clone().reshape(())
+            body.inertia = inputs["inertia"][i].clone()
+            body.inertia_inv = (1.0 / inputs["inertia"][i]) if dim == 2 else torch.linalg.inv(inputs["inertia"][i])
+            st = RigidBodyState(n_bodies=1, dim=dim, dtype=torch_dtype)
+            st.pos = inputs["pos0"][i:i + 1].clone()
+            st.vel = inputs["vel0"][i:i + 1].clone()
+            st.omega = inputs["omega0"][i:i + 1].clone()
+            if dim == 2:
+                st.angle = inputs["angle0"][i:i + 1].clone()
+            else:
+                st.quat = torch.tensor([[1.0, 0.0, 0.0, 0.0]], dtype=torch_dtype)
+            for _ in range(int(n_steps)):
+                st = body.step(st, inputs["force"][i:i + 1], inputs["torque"][i:i + 1], dt)
+            states.append(st)
+        pos = torch.cat([s.pos for s in states], dim=0)
+        vel = torch.cat([s.vel for s in states], dim=0)
+        omega = torch.cat([s.omega for s in states], dim=0)
+        rotation = [s.angle for s in states] if dim == 2 else [s.quat[:, 1:] for s in states]
+        loss = (pos ** 2).sum() + sum((r ** 2).sum() for r in rotation)
+        grads = torch.autograd.grad(loss, [inputs["pos0"], inputs["vel0"], inputs["force"], inputs["torque"]],
+                                    allow_unused=True)
+        quat = torch.cat([s.quat for s in states], dim=0) if dim == 3 else None
+        return {"pos": pos, "vel": vel, "omega": omega, "quat": quat, "grads": grads}
+
+    def _warp_trajectory(self, inputs: dict[str, Any], *, dt: float, n_steps: int):
+        """The same run through the tape; returns the recorded state, the inputs' adjoints and the loss."""
+        wp, types, dev = self._wp, self._types, self.device
+        vec, sca, mat = types["vec"][self.dim], types["scalar"], types["mat"]
+        force_w = wp.from_torch(inputs["force"].detach().contiguous(), dtype=vec, requires_grad=True)
+        torque_w = wp.from_torch(inputs["torque"].detach().contiguous(),
+                                 dtype=vec if self.dim == 3 else sca, requires_grad=True)
+        state = {
+            "pos": wp.from_torch(inputs["pos0"].detach().contiguous(), dtype=vec, requires_grad=True),
+            "vel": wp.from_torch(inputs["vel0"].detach().contiguous(), dtype=vec, requires_grad=True),
+            "omega": wp.from_torch(inputs["omega0"].detach().contiguous(),
+                                   dtype=vec if self.dim == 3 else sca, requires_grad=True),
+        }
+        inertia_np = inputs["inertia"].numpy()
+        if self.dim == 2:
+            state["angle"] = wp.from_torch(inputs["angle0"].detach().contiguous(), dtype=sca, requires_grad=True)
+            inv_inertia = None
+        else:
+            n = int(inertia_np.shape[0])
+            q = np.zeros((n, 4))
+            q[:, 3] = 1.0                                    # (x, y, z, w) identity
+            state["quat"] = wp.array(q, dtype=types["quat"], device=dev, requires_grad=True)
+            inv_inertia = np.linalg.inv(inertia_np)
+        # the arrays the steps started from: their ``.grad`` is the adjoint of the inputs, while the final state
+        # arrays are outputs of the last step (their adjoint is whatever the loss seeds, not d loss / d input)
+        inputs_w = {"pos0": state["pos"], "vel0": state["vel"], "force": force_w, "torque": torque_w}
+        tape, state, loss = self.step_with_tape(state, force=force_w, torque=torque_w,
+                                                mass=inputs["mass"].numpy(), dt=dt, n_steps=n_steps,
+                                                inertia=inertia_np, inertia_inv=inv_inertia,
+                                                loss=lambda st: self.position_sq_loss(st, rotation=True))
+        tape.backward(loss=loss)
+        return state, inputs_w, mat
 
     def gradients_against_torch(self, *, dt: float = 0.02, n_steps: int = 4, n_bodies: int = 3,
                                 seed: int = 0) -> dict[str, Any]:
         """Run the same steps through Warp (with its tape) and through ``RigidBody.step`` (with autograd).
 
-        The inputs are seeded from ``np.random.default_rng(seed)``; the loss is the sum of the squared final
-        positions **and** of the squared rotation (``angle`` in 2-D, the quaternion vector part in 3-D), so the
-        torque and ``omega`` gradients are exercised too -- with positions only, the rotation is off the path and
-        its gradients would compare two zeros. Returns the largest absolute difference in the final state, the
-        largest relative difference in the gradients, and whether the latter is below ``1e-6``.
+        The inputs are seeded from ``np.random.default_rng(seed)`` in the precision of this backend; the loss is the
+        sum of the squared final positions **and** of the squared rotation (``angle`` in 2-D, the quaternion vector
+        part in 3-D), so the torque and ``omega`` gradients are exercised too -- with positions only, the rotation
+        is off the path and its gradients would compare two zeros.
+
+        Returns the largest absolute difference in the final state, the largest relative difference in the
+        gradients, and whether it is below the bound for this precision (``1e-6`` in float64, ``1e-4`` in float32:
+        the second is what a 24-bit mantissa allows through four steps, and it is measured, not assumed).
         """
-        import torch
-
-        from pinneapple_simulation.particle_dynamics.rigid_body import RigidBody, RigidBodyState
-
-        rng = np.random.default_rng(seed)
-        n, dim, dt_t = int(n_bodies), self.dim, torch.float64
-
-        pos0 = torch.tensor(rng.normal(size=(n, dim)) * 0.1, dtype=dt_t, requires_grad=True)
-        vel0 = torch.tensor(rng.normal(size=(n, dim)), dtype=dt_t, requires_grad=True)
-        force = torch.tensor(rng.normal(size=(n, dim)), dtype=dt_t, requires_grad=True)
-        mass = torch.tensor(rng.uniform(0.5, 2.0, size=n), dtype=dt_t)
-        if dim == 2:
-            angle0 = torch.tensor(rng.normal(size=n) * 0.1, dtype=dt_t)
-            omega0 = torch.tensor(rng.normal(size=n), dtype=dt_t)
-            torque = torch.tensor(rng.normal(size=n), dtype=dt_t, requires_grad=True)
-            inertia = torch.tensor(rng.uniform(0.2, 1.0, size=n), dtype=dt_t)
-        else:
-            angle0 = None
-            omega0 = torch.tensor(rng.normal(size=(n, 3)) * 0.5, dtype=dt_t)
-            torque = torch.tensor(rng.normal(size=(n, 3)), dtype=dt_t, requires_grad=True)
-            inertia = torch.tensor(np.stack([np.diag(rng.uniform(0.2, 1.0, size=3)) for _ in range(n)]),
-                                   dtype=dt_t)                                    # (n, 3, 3), symmetric
-
-        # --- PyTorch: the module the library already ships ---
-        states = []
-        for i in range(n):
-            body = RigidBody(mass=float(mass[i]), inertia=inertia[i], dim=dim).double()
-            # RigidBody keeps mass and inertia in float32 buffers (``.float()`` in its constructor); ``.double()``
-            # widens a value that was already truncated, and that 1e-8 difference in I is what the torque gradient
-            # amplified to ~1e-3. Overwrite the buffers with the exact float64 inputs so the two engines solve the
-            # same problem and the comparison is about the kernels, not about a cast.
-            body.mass = mass[i].clone().reshape(())
-            body.inertia = inertia[i].clone()
-            body.inertia_inv = (1.0 / inertia[i]) if dim == 2 else torch.linalg.inv(inertia[i])
-            st = RigidBodyState(n_bodies=1, dim=dim, dtype=dt_t)
-            st.pos = pos0[i:i + 1].clone()
-            st.vel = vel0[i:i + 1].clone()
-            st.omega = omega0[i:i + 1].clone()
-            if dim == 2:
-                st.angle = angle0[i:i + 1].clone()
-            else:
-                st.quat = torch.tensor([[1.0, 0.0, 0.0, 0.0]], dtype=dt_t)
-            for _ in range(int(n_steps)):
-                st = body.step(st, force[i:i + 1], torque[i:i + 1], dt)
-            states.append(st)
-        torch_pos = torch.cat([s.pos for s in states], dim=0)
-        torch_vel = torch.cat([s.vel for s in states], dim=0)
-        torch_omega = torch.cat([s.omega for s in states], dim=0)
-        rotation = [s.angle for s in states] if dim == 2 else [s.quat[:, 1:] for s in states]
-        torch_loss = (torch_pos ** 2).sum() + sum((r ** 2).sum() for r in rotation)
-        torch_grads = torch.autograd.grad(torch_loss, [pos0, vel0, force, torque], allow_unused=True)
-
-        # --- Warp ---
-        wp, dev = self._wp, self.device
-        vec = wp.vec2d if dim == 2 else wp.vec3d
-        sca = wp.float64
-        force_w = wp.from_torch(force.detach().contiguous(), dtype=vec, requires_grad=True)
-        torque_w = wp.from_torch(torque.detach().contiguous(), dtype=vec if dim == 3 else sca,
-                                 requires_grad=True)
-        state = {
-            "pos": wp.from_torch(pos0.detach().contiguous(), dtype=vec, requires_grad=True),
-            "vel": wp.from_torch(vel0.detach().contiguous(), dtype=vec, requires_grad=True),
-            "omega": wp.from_torch(omega0.detach().contiguous(), dtype=vec if dim == 3 else sca,
-                                   requires_grad=True),
-        }
-        if dim == 2:
-            state["angle"] = wp.from_torch(angle0.detach().contiguous(), dtype=sca, requires_grad=True)
-            inertia_np, inv_inertia = inertia.numpy(), None
-        else:
-            q = np.zeros((n, 4))
-            q[:, 3] = 1.0                                    # (x, y, z, w) identity
-            state["quat"] = wp.array(q, dtype=wp.quatd, device=dev, requires_grad=True)
-            inertia_np = inertia.numpy()
-            inv_inertia = np.linalg.inv(inertia_np)
-        # the arrays the steps started from: their ``.grad`` is the adjoint of the inputs, while the final state
-        # arrays are outputs of the last step (their adjoint is whatever the loss seeds, not d loss / d input)
-        pos_in, vel_in = state["pos"], state["vel"]
-        tape, state, loss = self.step_with_tape(state, force=force_w, torque=torque_w, mass=mass.numpy(), dt=dt,
-                                                n_steps=n_steps, inertia=inertia_np, inertia_inv=inv_inertia,
-                                                loss=lambda st: self.position_sq_loss(st, rotation=True))
-        tape.backward(loss=loss)
+        precision = self.precision
+        dim = self.dim
+        inputs = self._seeded_inputs(dt=dt, n_steps=n_steps, n_bodies=n_bodies, seed=seed, precision=precision)
+        ref = self._torch_trajectory(inputs, dt=dt, n_steps=n_steps, precision=precision)
+        state, inputs_w, _ = self._warp_trajectory(inputs, dt=dt, n_steps=n_steps)
 
         values = {
-            "pos": float(np.abs(state["pos"].numpy() - torch_pos.detach().numpy()).max()),
-            "vel": float(np.abs(state["vel"].numpy() - torch_vel.detach().numpy()).max()),
-            "omega": float(np.abs(state["omega"].numpy().reshape(torch_omega.shape)
-                                  - torch_omega.detach().numpy()).max()),
+            "pos": float(np.abs(state["pos"].numpy() - ref["pos"].detach().numpy()).max()),
+            "vel": float(np.abs(state["vel"].numpy() - ref["vel"].detach().numpy()).max()),
+            "omega": float(np.abs(state["omega"].numpy().reshape(ref["omega"].shape)
+                                  - ref["omega"].detach().numpy()).max()),
         }
         if dim == 3:
             qw = state["quat"].numpy()[:, [3, 0, 1, 2]]      # (x, y, z, w) -> (w, x, y, z)
-            torch_q = torch.cat([s.quat for s in states], dim=0).detach().numpy()
-            values["quat"] = float(np.abs(qw - torch_q).max())
+            values["quat"] = float(np.abs(qw - ref["quat"].detach().numpy()).max())
         grads = {}
-        for label, arr, ref in (("pos0", pos_in, torch_grads[0]), ("vel0", vel_in, torch_grads[1]),
-                                ("force", force_w, torch_grads[2]), ("torque", torque_w, torch_grads[3])):
-            if ref is None:
+        for label, ref_grad in zip(("pos0", "vel0", "force", "torque"), ref["grads"], strict=True):
+            if ref_grad is None:
                 continue
-            ref_np = ref.detach().numpy()
+            arr = inputs_w[label]
+            ref_np = ref_grad.detach().numpy()
             mine = arr.grad.numpy() if arr.grad is not None else np.zeros_like(ref_np)
             scale = max(float(np.abs(ref_np).max()), 1e-12)
             grads[label] = float(np.abs(mine - ref_np).max() / scale)
-        return {"dim": dim, "n_bodies": n, "n_steps": int(n_steps), "dt": float(dt),
+        tol = 1e-6 if precision == "float64" else 1e-4
+        return {"dim": dim, "n_bodies": int(n_bodies), "n_steps": int(n_steps), "dt": float(dt),
+                "precision": precision, "tolerance": tol,
                 "value_max_abs_diff": values, "gradient_max_rel_diff": grads,
-                "gradients_agree_1e_6": bool(grads) and max(grads.values()) < 1e-6}
+                "gradients_agree": bool(grads) and max(grads.values()) < tol}
+
+    def float32_matches_float64(self, *, dt: float = 0.02, n_steps: int = 20, n_bodies: int = 8,
+                                seed: int = 0) -> dict[str, Any]:
+        """Run the same steps in both precisions and report how far the state drifts apart.
+
+        This is what tells you whether dropping to float32 is a rounding decision or a physics one: the drift is a
+        fraction of the state itself, so ``relative_drift`` of 1e-6 over ``n_steps`` is float32 rounding, while 1e-2
+        would be a trajectory that has genuinely diverged (a chaotic system does that, and then the answer is not
+        "more precision", it is "you cannot compare two long runs").
+        """
+        if self.precision != "float32":
+            raise ValueError("call float32_matches_float64 on a backend built with precision='float32'")
+        inputs = self._seeded_inputs(dt=dt, n_steps=n_steps, n_bodies=n_bodies, seed=seed, precision="float64")
+        runs = {}
+        for precision in ("float64", "float32"):
+            backend = WarpBackend(self.dim, device=self.device, precision=precision)
+            cast = {k: (v.to(_torch_dtype(precision)) if hasattr(v, "to") and v is not None else v)
+                    for k, v in inputs.items()}
+            state, _, _ = backend._warp_trajectory(cast, dt=dt, n_steps=n_steps)
+            runs[precision] = {k: state[k].numpy().astype(np.float64) for k in ("pos", "vel", "omega")}
+        out = {}
+        for key, hi in runs["float64"].items():
+            lo = runs["float32"][key]
+            scale = max(float(np.abs(hi).max()), 1e-30)
+            out[key] = {"max_abs_diff": float(np.abs(hi - lo).max()), "relative_drift": float(np.abs(hi - lo).max() / scale)}
+        return {"dim": self.dim, "n_steps": int(n_steps), "n_bodies": int(n_bodies), "dt": float(dt), "drift": out}
+
+
+def _torch_dtype(precision: str):
+    import torch
+
+    return torch.float64 if precision == "float64" else torch.float32

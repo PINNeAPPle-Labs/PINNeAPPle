@@ -29,6 +29,7 @@
   * [Faster implicit pressure solves in OpenFOAM](core_concepts/openfoam_acceleration.md)
   * [Lattice Boltzmann wind tunnel and FluidX3D bridge](core_concepts/lbm_wind_tunnel.md)
   * [Rigid bodies with NVIDIA Newton](core_concepts/newton_rigid_body.md)
+  * [NVIDIA Warp as a compute backend](core_concepts/warp_backend.md)
   * [Lunar rover terramechanics in 3D](core_concepts/lunar_rover_terramechanics.md)
   * [Problem to CAD, fit-for-purpose meshes and one report](core_concepts/fitmesh.md)
   * [Modelica models as Physics AI data](core_concepts/modelica.md)

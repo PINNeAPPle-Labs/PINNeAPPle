@@ -146,6 +146,11 @@ fitmesh = [
   "gmsh>=4.11",
   "trimesh>=4.0",
 ]
+# NVIDIA Warp: GPU kernels with a reverse-mode tape, warp.fem weak forms, zero-copy torch buffers
+warp = [
+  "warp-lang>=1.19",
+]
+
 # NVIDIA Newton rigid-body solvers (pinneapple_simulation.external_solvers.newton_physics)
 newton = [
   "newton>=1.6",

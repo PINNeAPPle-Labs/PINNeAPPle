@@ -335,6 +335,16 @@ def _wrap(text: str, width: int) -> list[str]:
     return textwrap.wrap(" ".join(text.split()), width) or [""]
 
 
+def _fit_text(text: str) -> tuple[float, int, float, int]:
+    """Font size, wrap width, line step and line count that fit ``text`` above the parsed-values table of the title
+    card (the band from y = 0.72 down to 0.45): smaller type for a longer request, cut with an ellipsis beyond."""
+    for size, width, step in ((18, 72, 0.055), (15, 88, 0.045), (13, 102, 0.039), (11, 120, 0.033)):
+        lines = int(0.27 / step) + 1
+        if len(_wrap(text, width)) <= lines:
+            return size, width, step, lines
+    return 11, 120, 0.033, int(0.27 / 0.033) + 1
+
+
 def _write_frames(frames_dir: str, start: int, draw, n: int) -> int:
     """``draw(fig, i)`` for i < n into frame PNGs numbered from ``start``; returns the next number."""
     import matplotlib.pyplot as plt
@@ -582,8 +592,9 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
             fig.text(0.05, 0.88, T["title"], color=FG, fontsize=24, weight="bold")
             fig.text(0.05, 0.78, T["request"], color=AMBER, fontsize=14, weight="bold")
             shown = text[: int(len(text) * min(1.0, (i + 1) / n_type))]
-            for li, line in enumerate(_wrap(shown + ("▌" if i < n_type else ""), 72)):
-                fig.text(0.05, 0.72 - 0.055 * li, line, color=FG, fontsize=18, family="serif", style="italic")
+            size, width, step, lines = _fit_text(text)
+            for li, line in enumerate(_wrap(shown + ("▌" if i < n_type else ""), width)[:lines]):
+                fig.text(0.05, 0.72 - step * li, line, color=FG, fontsize=size, family="serif", style="italic")
             if i >= n_type:
                 y = 0.36
                 fig.text(0.05, y + 0.05, T["read"], color=TEAL, fontsize=14, weight="bold")

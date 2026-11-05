@@ -9,3 +9,12 @@ profiles against Ghia, Ghia and Shin (1982) Tables I-II, with the rms tolerance 
 names the missing part and `run_cavity` raises instead of returning numbers when PICT is absent: nothing here ran the
 solver, which has no CUDA device on this machine, and the docs say so. 20 checks in `tests/test_pict_bridge.py` cover
 everything that does not need the solver. Docs: `docs/core_concepts/pict_piso_solver.md`.
+
+**Local engine** (`pict.local_solver`, `run_cavity(..., engine="auto"|"pict"|"local")`): PICT needs Linux, an NVIDIA
+GPU and its own CUDA extensions, so on a Mac or a CI box the bridge now runs the cavity with this repository's own
+vorticity-streamfunction solver (numpy/scipy) and returns the same `PICTResult` — `engine` says which solver produced
+the numbers, and PICT is never claimed for a run it did not do. Measured against Ghia et al. (1982): rms 4.7e-03 /
+1.4e-03 / 8.1e-03 on 32², 64² (Re=100) and 128² (Re=1000), divergence at machine precision, 0.1 s / 0.7 s / 23 s. The
+engine refuses a wall-refined grid, an off-centre lid and a non-square cavity rather than approximating them, and it
+reports no pressure field (recovering one from the momentum balance was tried; the residual did not close, so zeros
+with an explicit note are shipped instead).

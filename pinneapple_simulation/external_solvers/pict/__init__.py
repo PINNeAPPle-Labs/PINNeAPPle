@@ -15,10 +15,15 @@ returns them as a :class:`PICTResult` and a PINNeAPPle ``PhysicalSample``. It ad
 
 It is **not** a reimplementation and it does not fake a run. PICT needs Linux, an NVIDIA GPU and its own compiled
 extensions (``extensions/setup.py``, CUDA 12.8 as the paper's environment); on a machine without them
-:func:`pict_availability` says which part is missing and :func:`run_cavity` raises instead of returning numbers.
-Nothing in this repository was executed against PICT -- state that plainly when reporting a result from it. What
-*is* checked without the solver is the grid generator, the case validation, the reference data and the reduction of
-a field to the quantities the checks need (``tests/test_pict_bridge.py``).
+``run_cavity(..., engine="pict")`` raises with the missing part named. Nothing in this repository has been executed
+against PICT -- state that plainly when reporting a PICT number. What *is* checked without the solver is the grid
+generator, the case validation, the reference data and the reduction of a field to the quantities the checks need
+(``tests/test_pict_bridge.py``).
+
+``engine="local"`` runs the cavity here instead, with this repository's own vorticity-streamfunction solver
+(:mod:`.local_solver`, numpy/scipy, no GPU): the same case, the same result type, the same Ghia comparison, and a
+result that says ``engine="local"`` so the two are never confused. ``engine="auto"`` (the default) picks PICT when it
+can run and the local engine when it cannot.
 
 Sub-modules
 -----------
@@ -29,7 +34,8 @@ validation — Ghia et al. (1982) centreline reference data, the checks of a cav
 Quick start (on a machine with PICT installed)
 ----------------------------------------------
 >>> from pinneapple_simulation.external_solvers.pict import CavityCase, PICTRunConfig, run_cavity
->>> result = run_cavity(CavityCase(nx=32, ny=32, Re=1000), PICTRunConfig(iterations=100))
+>>> result = run_cavity(CavityCase(nx=32, ny=32, Re=1000), PICTRunConfig(iterations=100), engine="auto")
+>>> result.engine                               # "pict" (CUDA) or "local" (this repository's CPU solver)
 >>> result.velocity.shape                     # (snapshots, 2, ny, nx)
 >>> checks = result.checks()                   # continuity, lid and wall boundary conditions, Ghia profile
 >>> print(checks["ghia_u"]["rms"], checks["ghia_u"]["passed"])
@@ -45,7 +51,8 @@ from .case import (
     pict_available,
     wall_refined_grid,
 )
-from .runner import PICTResult, PICTRunConfig, run_cavity
+from .local_solver import LocalSolverConfig, solve_cavity_local
+from .runner import ENGINES, PICTResult, PICTRunConfig, run_cavity
 from .validation import (
     GHIA,
     cavity_checks,
@@ -59,7 +66,8 @@ from .validation import (
 __all__ = [
     "pict_available", "pict_availability", "PICTAvailability",
     "wall_refined_grid", "CavityCase", "build_cavity_domain",
-    "PICTRunConfig", "PICTResult", "run_cavity",
+    "PICTRunConfig", "PICTResult", "run_cavity", "ENGINES",
+    "LocalSolverConfig", "solve_cavity_local",
     "GHIA", "ghia_profile", "centerline", "compare_to_ghia", "divergence_max",
     "cavity_checks", "validate",
 ]

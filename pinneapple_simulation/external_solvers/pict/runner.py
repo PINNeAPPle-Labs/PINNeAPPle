@@ -7,7 +7,7 @@ import numpy as np
 
 from .case import CavityCase, build_cavity_domain, pict_availability
 
-__all__ = ["PICTRunConfig", "PICTResult", "run_cavity"]
+__all__ = ["PICTRunConfig", "PICTResult", "run_cavity", "ENGINES"]
 
 
 @dataclass
@@ -51,9 +51,18 @@ class PICTRunConfig:
         }
 
 
+# "pict" is the CUDA solver, "local" is this repository's vorticity-streamfunction solver (no GPU needed), "auto"
+# picks PICT when it can run and the local engine when it cannot -- and the result always says which one it was.
+ENGINES = ("auto", "pict", "local")
+
+
 @dataclass
 class PICTResult:
-    """What a PICT run left behind: the recorded velocity and pressure, and the case they came from.
+    """What a cavity run left behind: the recorded velocity and pressure, and the case they came from.
+
+    ``engine`` is ``"pict"`` or ``"local"``: a result always says which solver produced it, and no number here is
+    ever relabelled. The class is the shared currency of both engines, which is what lets
+    :func:`~.validation.cavity_checks` apply to either without knowing which ran.
 
     ``velocity`` is ``(snapshots, 2, ny, nx)`` in the order PICT stores a field (channels first), ``velocity[0]``
     being the x component; ``pressure`` is ``(snapshots, ny, nx)`` and is the pressure PICT reports, whose datum is
@@ -67,11 +76,15 @@ class PICTResult:
     config: dict[str, Any]
     device: str
     wall_time_s: float
+    engine: str = "pict"
+    layout: str = "cells"          # "cells" (values half a cell from the wall) or "nodes" (walls included)
     meta: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if self.velocity.ndim != 4 or self.velocity.shape[1] != 2:
             raise ValueError("velocity must be (snapshots, 2, ny, nx)")
+        if self.layout not in ("cells", "nodes"):
+            raise ValueError(f"layout must be 'cells' or 'nodes', not {self.layout!r}")
 
     # -- what the fields mean -------------------------------------------------
 
@@ -91,8 +104,10 @@ class PICTResult:
             raise KeyError(f"component must be 'u' or 'v', not {name!r}") from None
 
     def cell_centers(self) -> tuple[np.ndarray, np.ndarray]:
-        """Cell-centre coordinates from the case bounds (the recorded fields are cell-centred)."""
+        """Coordinates of the recorded samples: the cell centres, or the nodes when ``layout="nodes"``."""
         x0, y0, x1, y1 = self.case_summary["bounds"]
+        if self.layout == "nodes":
+            return (np.linspace(x0, x1, self.nx), np.linspace(y0, y1, self.ny))
         return (np.linspace(x0, x1, self.nx, endpoint=False) + 0.5 * (x1 - x0) / self.nx,
                 np.linspace(y0, y1, self.ny, endpoint=False) + 0.5 * (y1 - y0) / self.ny)
 
@@ -118,19 +133,32 @@ class PICTResult:
             state=state,
             domain={"type": "grid", "coords": {"time": self.times.astype(np.float32),
                                                "x": x.astype(np.float32), "y": y.astype(np.float32)}},
-            provenance={"version": "0.1", "source": "pict", "case": "lid_driven_cavity",
+            provenance={"version": "0.1", "source": self.engine, "case": "lid_driven_cavity",
+                        "layout": self.layout,
                         **self.case_summary, "config": self.config, "wall_time_s": self.wall_time_s},
             schema={"units": {"u": "m/s", "v": "m/s", "p": "Pa", "time": "s", "x": "m", "y": "m"}},
         )
 
 
-def run_cavity(case: CavityCase, config: PICTRunConfig | None = None) -> PICTResult:
-    """Run ``case`` on PICT and record ``config.record_every`` snapshots of velocity and pressure.
+def run_cavity(case: CavityCase, config: PICTRunConfig | None = None, *, engine: str = "auto") -> PICTResult:
+    """Run ``case`` and record velocity and pressure; ``engine`` selects the solver and the result says which ran.
 
-    Raises :class:`ImportError` naming the missing part when PICT cannot run here: no numbers are invented for a
-    machine without the solver.
+    ``"pict"`` requires PICT and raises :class:`ImportError` naming the missing part when it cannot run -- nothing is
+    invented for a machine without it. ``"local"`` uses this repository's vorticity-streamfunction solver (CPU, no
+    CUDA): see :mod:`.local_solver` for what it is and what it is not. ``"auto"`` is PICT when it is available and the
+    local engine otherwise, and ``result.engine`` always names the one that produced the numbers.
     """
+    if engine not in ENGINES:
+        raise ValueError(f"engine must be one of {ENGINES}, not {engine!r}")
     availability = pict_availability()
+    resolved = engine
+    if engine == "auto":
+        resolved = "pict" if availability.available else "local"
+    if resolved == "local":
+        from .local_solver import LocalSolverConfig, solve_cavity_local
+
+        local_config = config if isinstance(config, LocalSolverConfig) else None
+        return solve_cavity_local(case, local_config)
     if not availability.available:
         raise ImportError(f"PICT cannot run here: {'; '.join(availability.missing)}. {availability.hint}")
 

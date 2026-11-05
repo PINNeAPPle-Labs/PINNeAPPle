@@ -10,6 +10,7 @@ import pytest
 from pinneapple_simulation.external_solvers.pict import (
     GHIA,
     CavityCase,
+    LocalSolverConfig,
     PICTResult,
     PICTRunConfig,
     build_cavity_domain,
@@ -21,6 +22,7 @@ from pinneapple_simulation.external_solvers.pict import (
     pict_availability,
     pict_available,
     run_cavity,
+    solve_cavity_local,
     validate,
     wall_refined_grid,
 )
@@ -40,21 +42,26 @@ def test_availability_is_a_report_not_a_crash():
         assert "PICT" in availability.hint
 
 
-def test_solver_paths_raise_with_the_install_line_when_pict_is_absent():
+def test_the_pict_path_raises_with_the_install_line_when_pict_is_absent():
     if pict_available():
         pytest.skip("PICT is installed here; the refusal path is what this test is about")
-    case = CavityCase(nx=8, ny=8, Re=100)
+    case = CavityCase(nx=8, ny=8, Re=100, refine=False)
     with pytest.raises(ImportError, match="PICT cannot run here"):
         build_cavity_domain(case)
     with pytest.raises(ImportError, match="PICT cannot run here"):
-        run_cavity(case)
+        run_cavity(case, engine="pict")
 
 
-def test_validate_reports_why_it_could_not_run():
-    report = validate(reynolds=(100,), nx=8, ny=8, iterations=1)
+def test_validate_names_the_engine_that_ran():
+    report = validate(reynolds=(100,), nx=24, ny=24, iterations=1)
     if pict_available():
-        assert report["available"] and report["rows"]
+        assert report["available"] and report["engine"] == "pict"
     else:
+        # no CUDA here: validate falls back to the local engine and says so, instead of reporting a PICT number
+        assert report["available"] is True and report["engine"] == "local"
+        assert report["rows"] and report["rows"][0]["engine"] == "local"
+    report = validate(reynolds=(100,), nx=24, ny=24, iterations=1, engine="pict")
+    if not pict_available():
         assert report["available"] is False and report["rows"] == [] and report["reason"]
 
 
@@ -280,3 +287,66 @@ def test_result_exposes_components_centres_and_a_physical_sample():
     sample = result.to_upd()
     assert sample.state["u"].shape == (3, ny * nx)
     assert sample.provenance["source"] == "pict" and sample.schema["units"]["u"] == "m/s"
+
+
+# ---------------------------------------------------------------------------
+# The local engine: the cavity on a machine without CUDA
+# ---------------------------------------------------------------------------
+
+
+def test_local_engine_runs_the_cavity_and_labels_itself():
+    case = CavityCase(nx=24, ny=24, Re=100, refine=False)
+    result = solve_cavity_local(case, LocalSolverConfig(max_steps=4000, max_time_s=60))
+    assert result.engine == "local" and result.layout == "nodes"
+    assert result.velocity.shape == (2, 2, 25, 25)          # initial field and answer, u and v
+    assert result.meta["not_pict"]                          # never presented as a PICT run
+    checks = result.checks()
+    assert checks["continuity"]["value"] < 1e-9              # a streamfunction velocity is divergence-free
+    assert checks["walls"]["value"] < 1e-12                  # the walls are the imposed no-slip values
+    assert checks["lid"]["passed"]
+
+
+def test_local_engine_matches_ghia_at_re_100():
+    """The measurement this engine exists for: 64x64 against Ghia et al. (1982), Re = 100."""
+    case = CavityCase(nx=64, ny=64, Re=100, refine=False)
+    result = solve_cavity_local(case, LocalSolverConfig(max_steps=20000, max_time_s=120))
+    checks = result.checks()
+    assert checks["ghia_u"]["rms"] < 0.01, checks["ghia_u"]
+    assert checks["ghia_v"]["rms"] < 0.01, checks["ghia_v"]
+    assert checks["passed"], checks
+
+
+def test_local_engine_reports_convergence_and_a_sane_velocity():
+    case = CavityCase(nx=24, ny=24, Re=100, refine=False)
+    result = solve_cavity_local(case, LocalSolverConfig(max_steps=4000, max_time_s=60))
+    assert result.meta["steps"] > 1
+    assert result.meta["final_residual"] < 1e-4
+    u = result.component("u")[-1]
+    assert np.all(np.abs(u) <= 1.0 + 1e-9)                   # no velocity above the lid
+    assert np.all(np.isfinite(result.component("v")))
+
+
+def test_local_engine_does_not_invent_a_pressure():
+    case = CavityCase(nx=16, ny=16, Re=100, refine=False)
+    result = solve_cavity_local(case, LocalSolverConfig(max_steps=500, max_time_s=30))
+    assert np.all(result.pressure == 0.0)
+    assert "not computed" in str(result.meta["pressure"])
+
+
+def test_local_engine_refuses_what_it_does_not_implement():
+    with pytest.raises(ValueError, match="uniform grid"):
+        solve_cavity_local(CavityCase(nx=16, ny=16, refine=True))
+    with pytest.raises(ValueError, match="lid_side"):
+        solve_cavity_local(CavityCase(nx=16, ny=16, refine=False, lid_side="+x"))
+    with pytest.raises(ValueError, match="square"):
+        solve_cavity_local(CavityCase(nx=16, ny=24, refine=False))
+    with pytest.raises(ValueError, match="engine must be one of"):
+        run_cavity(CavityCase(nx=16, ny=16, refine=False), engine="openfoam")
+
+
+def test_run_cavity_auto_picks_an_engine_and_says_which():
+    case = CavityCase(nx=16, ny=16, Re=100, refine=False)
+    result = run_cavity(case, LocalSolverConfig(max_steps=300, max_time_s=30))
+    expected = "pict" if pict_available() else "local"
+    assert result.engine == expected
+    assert result.layout in ("cells", "nodes")

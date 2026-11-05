@@ -22,6 +22,9 @@ __all__ = [
     "centerline",
     "compare_to_ghia",
     "divergence_max",
+    "spacing_for",
+    "spacing_from_summary",
+    "stations",
     "cavity_checks",
     "validate",
 ]
@@ -123,11 +126,14 @@ def spacing_from_summary(summary: dict[str, Any]) -> tuple[np.ndarray, np.ndarra
     return dx, dy
 
 
-def divergence_max(u: np.ndarray, v: np.ndarray, dx: np.ndarray, dy: np.ndarray) -> float:
+def divergence_max(u: np.ndarray, v: np.ndarray, dx: np.ndarray, dy: np.ndarray, *,
+                   nodes: bool = False) -> float:
     """``max |du/dx + dv/dy|`` over the whole field, central differences inside and one-sided at the border.
 
-    The border is included on purpose: in a cell-centred field the largest divergence sits right below the moving
-    lid, and an interior-only difference would never look there.
+    ``dx`` and ``dy`` are the distances between consecutive samples along each axis (so they have one entry fewer than
+    the field). ``nodes=False`` means the samples are cell centres and ``dx``/``dy`` are the cell widths; ``nodes=True``
+    means they are the node spacings. The border is included on purpose: in a cell-centred field the largest divergence
+    sits right below the moving lid, and an interior-only difference would never look there.
     """
     u = np.asarray(u, dtype=float)
     v = np.asarray(v, dtype=float)
@@ -135,12 +141,33 @@ def divergence_max(u: np.ndarray, v: np.ndarray, dx: np.ndarray, dy: np.ndarray)
     dy = np.asarray(dy, dtype=float).reshape(-1)
     if u.shape != v.shape:
         raise ValueError(f"u {u.shape} and v {v.shape} must have the same shape")
-    if u.shape != (dy.size, dx.size):
-        raise ValueError(f"fields are {u.shape} but the spacing describes {(dy.size, dx.size)} cells")
-    if min(dx.size, dy.size) < 3:
-        raise ValueError("a divergence needs at least 3 cells per direction")
+    expected = (dy.size + 1, dx.size + 1) if nodes else (dy.size, dx.size)
+    if u.shape != expected:
+        kind = "nodes" if nodes else "cells"
+        raise ValueError(f"{kind} fields are {u.shape} but the spacing describes {expected}")
+    if min(dx.size, dy.size) < 2:
+        raise ValueError("a divergence needs at least 3 samples per direction")
 
-    # cell i uses its neighbours i-1 and i+1, so the step is dx[i-1] + dx[i] for i in 1..n-2
+    if nodes:
+        # A node field carries the boundary conditions in its first and last rows, and the samples next to them come
+        # from a different discretisation (a one-sided derivative of the streamfunction) than the walls do (the imposed
+        # value). A difference taken across that seam is O(1/h) however well the flow satisfies continuity, so the
+        # divergence is taken two nodes in, where every stencil is interior. Written as plain loops on purpose: the
+        # vectorised version of this was wrong for a day (a mis-sized denominator that only showed as a plausible
+        # number), and this runs once per check.
+        hx, hy = np.asarray(dx, float), np.asarray(dy, float)
+        n_y, n_x = u.shape
+        if min(n_y, n_x) < 6:
+            raise ValueError("too few samples to measure a divergence away from the imposed boundary rows")
+        worst = 0.0
+        for i in range(2, n_y - 2):
+            for j in range(2, n_x - 2):
+                du_dx = (u[i, j + 1] - u[i, j - 1]) / (hx[j - 1] + hx[j])
+                dv_dy = (v[i + 1, j] - v[i - 1, j]) / (hy[i - 1] + hy[i])
+                worst = max(worst, abs(du_dx + dv_dy))
+        return float(worst)
+
+    # sample i uses its neighbours i-1 and i+1, so the step is dx[i-1] + dx[i]
     du_dx = np.empty_like(u)
     du_dx[:, 1:-1] = (u[:, 2:] - u[:, :-2]) / (dx[:-2] + dx[1:-1])
     du_dx[:, 0] = (u[:, 1] - u[:, 0]) / dx[0]
@@ -150,6 +177,25 @@ def divergence_max(u: np.ndarray, v: np.ndarray, dx: np.ndarray, dy: np.ndarray)
     dv_dy[0, :] = (v[1, :] - v[0, :]) / dy[0]
     dv_dy[-1, :] = (v[-1, :] - v[-2, :]) / dy[-1]
     return float(np.abs(du_dx + dv_dy).max())
+
+
+def spacing_for(result) -> tuple[np.ndarray, np.ndarray, bool]:
+    """``(dx, dy, nodes)`` matching the field of ``result``: the description of the grid it was recorded on."""
+    summary = result.case_summary
+    x0, y0, x1, y1 = summary["bounds"]
+    if result.layout == "nodes":
+        # the local engine solves on a uniform grid of nodes, so the spacing is the span over the intervals
+        return (np.full(max(result.nx - 1, 2), (x1 - x0) / max(result.nx - 1, 1)),
+                np.full(max(result.ny - 1, 2), (y1 - y0) / max(result.ny - 1, 1)), True)
+    dx, dy = spacing_from_summary(summary)
+    return dx, dy, False
+
+
+def stations(result) -> tuple[np.ndarray, np.ndarray]:
+    """Normalised ``(x, y)`` of the recorded samples, in units of the cavity side."""
+    x0, y0, x1, y1 = result.case_summary["bounds"]
+    xs, ys = result.cell_centers()
+    return (xs - x0) / (x1 - x0), (ys - y0) / (y1 - y0)
 
 
 def cavity_checks(result, *, tol_div: float = 1e-2, tol_wall: float = 5e-2, tol_ghia: float = 0.05,
@@ -163,14 +209,19 @@ def cavity_checks(result, *, tol_div: float = 1e-2, tol_wall: float = 5e-2, tol_
       (a no-slip wall must be still).
     - ``ghia_u`` / ``ghia_v``: the centreline profiles against Ghia et al. (1982) at the run's Reynolds number, when
       the table has one.
+
+    The checks read the field where the engine put it (``result.layout``): a node-based field has the walls in its
+    first and last rows, a cell-centred one has them half a cell outside -- and there the ``lid`` line measures the
+    top *cell centre*, which on a coarse grid is not the lid velocity. That is why a PICT run that reports a low
+    ``lid`` value on a coarse grid is read together with its grid, not as a boundary-condition failure.
     """
     u, v = result.component("u")[snapshot], result.component("v")[snapshot]
     summary = result.case_summary
-    dx, dy = spacing_from_summary(summary)
+    dx, dy, nodes = spacing_for(result)
     lid = float(summary["lid_velocity"])
     length = float(summary["bounds"][2] - summary["bounds"][0])
 
-    div = divergence_max(u, v, dx, dy)
+    div = divergence_max(u, v, dx, dy, nodes=nodes)
     div_normalised = div * length / max(lid, 1e-30)
     # the three closed walls: the bottom row, and the two side columns without their top cell, which belongs to
     # the moving lid and is checked separately
@@ -185,43 +236,42 @@ def cavity_checks(result, *, tol_div: float = 1e-2, tol_wall: float = 5e-2, tol_
         "walls": {"value": float(walls.max()), "tol": tol_wall, "passed": bool(walls.max() <= tol_wall)},
     }
 
-    x0, y0, x1, y1 = summary["bounds"]
-    y_centres = y0 + np.cumsum(dy) - 0.5 * dy
-    x_centres = x0 + np.cumsum(dx) - 0.5 * dx
+    xs, ys = stations(result)
     reynolds = int(summary["Re"])
     if reynolds in GHIA["u"]:
-        out["ghia_u"] = compare_to_ghia(centerline(u, direction="vertical") / lid,
-                                        (y_centres - y0) / (y1 - y0), reynolds=reynolds, component="u",
-                                        tol=tol_ghia)
-        out["ghia_v"] = compare_to_ghia(centerline(v, direction="horizontal") / lid,
-                                        (x_centres - x0) / (x1 - x0), reynolds=reynolds, component="v",
-                                        tol=tol_ghia)
+        out["ghia_u"] = compare_to_ghia(centerline(u, direction="vertical") / lid, ys, reynolds=reynolds,
+                                        component="u", tol=tol_ghia)
+        out["ghia_v"] = compare_to_ghia(centerline(v, direction="horizontal") / lid, xs, reynolds=reynolds,
+                                        component="v", tol=tol_ghia)
     out["passed"] = all(item["passed"] for key, item in out.items() if key != "passed")
     return out
 
 
 def validate(*, reynolds: tuple[int, ...] = (100, 1000), nx: int = 32, ny: int = 32, iterations: int = 100,
-             tol_ghia: float = 0.05) -> dict[str, Any]:
-    """Run the cavity at each Reynolds number and check it; returns the rows, or why it could not run.
+             tol_ghia: float = 0.05, engine: str = "auto") -> dict[str, Any]:
+    """Run the cavity at each Reynolds number and check it; the report says which engine produced the numbers.
 
-    On a machine without PICT this returns ``{"available": False, "reason": ...}`` -- it does not fall back to a
-    different solver and does not report a result it did not compute.
+    ``engine="auto"`` uses PICT when it can run here and this repository's local solver otherwise (a Mac, a CI box,
+    any machine without CUDA). Nothing is relabelled: every row carries the engine that ran, and the report names it
+    at the top. ``nx``/``ny`` must be large enough for the Reynolds number being claimed -- a 32x32 grid at Re = 1000
+    is a smoke test, and the rms against Ghia says so rather than a footnote.
     """
-    from .case import pict_availability
+    from .case import CavityCase, pict_availability
     from .runner import PICTRunConfig, run_cavity
 
     availability = pict_availability()
-    if not availability.available:
-        return {"available": False, "reason": "; ".join(availability.missing),
+    resolved = ("pict" if availability.available else "local") if engine == "auto" else engine
+    if resolved == "pict" and not availability.available:
+        return {"available": False, "engine": resolved, "reason": "; ".join(availability.missing),
                 "hint": availability.hint, "rows": []}
-
-    from .case import CavityCase
 
     rows = []
     for re in reynolds:
-        result = run_cavity(CavityCase(nx=nx, ny=ny, Re=re), PICTRunConfig(iterations=iterations))
+        config = PICTRunConfig(iterations=iterations) if resolved == "pict" else None
+        result = run_cavity(CavityCase(nx=nx, ny=ny, Re=re, refine=False), config, engine=resolved)
         checks = cavity_checks(result, tol_ghia=tol_ghia)
-        rows.append({"Re": int(re), "nx": nx, "ny": ny, "iterations": iterations,
+        rows.append({"Re": int(re), "nx": nx, "ny": ny, "engine": result.engine,
+                     "iterations": iterations if resolved == "pict" else result.meta.get("steps"),
                      "checks": checks, "wall_time_s": result.wall_time_s})
-    return {"available": True, "rows": rows,
+    return {"available": True, "engine": resolved, "rows": rows,
             "passed": all(row["checks"]["passed"] for row in rows)}

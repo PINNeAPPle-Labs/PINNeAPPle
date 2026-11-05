@@ -174,6 +174,7 @@ def solve_cavity_local(case: CavityCase, config: LocalSolverConfig | None = None
 
     initial = None
     steps = 0
+    elapsed = 0.0                      # the physical time actually marched, summed step by step
     residual = np.inf
     u = v = None
     while steps < config.max_steps:
@@ -194,6 +195,7 @@ def solve_cavity_local(case: CavityCase, config: LocalSolverConfig | None = None
         omega_old = omega[interior].copy()
         omega[interior] = omega_old + dt * rhs
         psi = _solve_psi(omega, solve, index, ny=ny, nx=nx)
+        elapsed += dt
         change = np.abs(omega[interior] - omega_old).max() / max(abs(dt), 1e-30)
         residual = float(change)
         steps += 1
@@ -235,11 +237,12 @@ def solve_cavity_local(case: CavityCase, config: LocalSolverConfig | None = None
 
     return PICTResult(
         velocity=velocity, pressure=p_field,
-        times=np.array([0.0, float(steps) * h]),          # time is reported in units of the last stable step * steps
+        times=np.array([0.0, elapsed]),                   # the time actually marched, not steps x h
         case_summary=case.summary(), config=vars(config), device="cpu", wall_time_s=time.perf_counter() - started,
         engine="local", layout="nodes",
         meta={"solver": "vorticity-streamfunction (pinneapple local engine, numpy/scipy)",
-              "grid": f"{nx}x{ny} uniform nodes, h={h:.6g}", "steps": steps, "final_residual": residual,
+              "grid": f"{nx}x{ny} uniform nodes, h={h:.6g}", "steps": steps, "marched_time": elapsed,
+              "final_residual": residual,
               "pressure": "not computed by the local engine (it solves vorticity and streamfunction; use PICT for p)",
               "note": "steady state; the first snapshot is the initial condition, the last is the answer",
               "not_pict": "this run did not use PICT; PICT needs CUDA"},

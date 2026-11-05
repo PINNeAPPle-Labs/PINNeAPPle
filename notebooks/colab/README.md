@@ -1,6 +1,6 @@
 # Colab notebooks
 
-Six self-contained notebooks that run top to bottom on a free Google Colab GPU runtime (Runtime > Change runtime
+Seven self-contained notebooks that run top to bottom on a free Google Colab GPU runtime (Runtime > Change runtime
 type > T4 GPU), or on a CPU (slower). The first cell installs PINNeAPPle from PyPI (`pinneapple>=0.7.0`) and picks the
 GPU when there is one; the parameter cell (`SMOKE`, epochs, grid sizes) sets how big each run is.
 
@@ -12,6 +12,7 @@ GPU when there is one; the parameter cell (`SMOKE`, epochs, grid sizes) sets how
 | [04 Lunar rover terramechanics + dashboard](04_lunar_rover_dashboard.ipynb) | NASA VIPER on lunar regolith (Wong-Reece wheels, multibody, deformable terrain), the testbed validation, a PINN of the wheel-soil contact and the animated dashboard as a GIF | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/04_lunar_rover_dashboard.ipynb) |
 | [05 Verify a model](05_verify_a_model.ipynb) | the trust card catching an under-trained PINN, a harmonic field with the wrong boundary, and extrapolation, without a reference solution | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/05_verify_a_model.ipynb) |
 | [06 Thirteen recipes](06_quickstart_ten_recipes.ipynb) | the notebook version of [`GETTING_STARTED.md`](../../GETTING_STARTED.md): install, solve and compare, the trust card, your own problem and data, an inverse problem, grid prediction and export, an architecture benchmark, uncertainty and validation, an industrial case, a digital twin, visualisation (1-D/2-D/3-D/4-D), a sentence to a live twin, and geometry variants to a verified inverse model — each cell executed, outputs kept | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/06_quickstart_ten_recipes.ipynb) |
+| [07 Joule-Thomson numa válvula globo (PT)](07_valvula_joule_thomson.ipynb) | natural gas through a globe valve: the outlet temperature by GERG-2008, Peng-Robinson, SRK and the ideal gas, the isenthalpic path and μ_JT, the valve flow (IEC 60534-2-1), a CFD outlet temperature checked and graded by VeriPhysics, sensitivity, and what to change in a CFD that shows no cooling; in Portuguese, CPU only | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/07_valvula_joule_thomson.ipynb) |
 
 Files the notebooks read (the airfoil model and CFD results, the trust-card module on releases older than the one
 that ships `pp.trust_card`) come from a local checkout when there is one, otherwise from the repository on GitHub.

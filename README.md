@@ -174,6 +174,7 @@ Or start in the browser, on a free Colab GPU (each notebook installs PINNeAPPle 
 | Equal-budget benchmark of methods | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/03_equal_budget_benchmark.ipynb) |
 | Lunar rover terramechanics and its animated dashboard | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/04_lunar_rover_dashboard.ipynb) |
 | Verify a model: the trust card catching bad predictions | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/05_verify_a_model.ipynb) |
+| Joule-Thomson cooling of natural gas across a globe valve, and a CFD result checked (in Portuguese) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/07_valvula_joule_thomson.ipynb) |
 
 Working with a coding agent (Gemini CLI, Antigravity, Claude Code, Codex, Cursor)? [`AGENTS.md`](AGENTS.md) is the
 guide it should read, and `pip install "pinneapple[mcp]"` adds an MCP server, `pinneapple-mcp`, with tools to solve,

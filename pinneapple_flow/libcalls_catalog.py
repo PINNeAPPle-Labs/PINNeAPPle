@@ -34,6 +34,9 @@ add(
             "Modelica / FMI co-simulation through fmpy", requires=("fmpy",), node_type="solver.fmu"),
     LibCall("solver.newton", f"{W}:newton_validate", "Rigid bodies (NVIDIA Newton)", "Solvers",
             "rigid-body solvers checked against closed forms", requires=("newton",), node_type="solver.newton"),
+    LibCall("solver.pict_cavity", f"{W}:pict_cavity", "Lid-driven cavity (PISO / local)", "Solvers",
+            "a cavity solved and checked against Ghia et al. (1982) -- PICT on CUDA when installed, the local "
+            "vorticity-streamfunction engine otherwise; the output names the engine that ran"),
     LibCall("tools.availability", f"{W}:openfoam_available", "External tools available?", "Solvers",
             "is OpenFOAM / CalculiX on PATH"),
     # ---- models, ROMs, surrogates

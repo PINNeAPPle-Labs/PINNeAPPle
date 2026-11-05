@@ -124,8 +124,8 @@
  },
  "fno_coldplate": {
   "domain": "neural operators",
-  "status": "not_convertible",
-  "reason": "the study (layouts, FNO training under a ComputeBudget, the Darcy checks and their decision) is arranged in run.py main(), with no library entry point a node could call; the Studio runs it as example:fno_coldplate and tests/test_fno_coldplate_example.py runs its smoke size"
+  "reason": "the study (layouts, FNO training under a ComputeBudget, the Darcy checks and their decision) is arranged in run.py main(), with no library entry point a node could call; the Studio runs it as example:fno_coldplate and tests/test_fno_coldplate_example.py runs its smoke size",
+  "status": "not_convertible"
  },
  "free_surface": {
   "domain": "CFD",
@@ -275,6 +275,10 @@
   "domain": "heat transfer",
   "reason": "the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted"
  },
+ "pict_cavity": {
+  "domain": "fluid dynamics",
+  "reason": "run.py drives pinneapple_lab.experiment (metrics and the profile figure) and then compares the centreline profiles with Ghia et al. (1982), which is more than a node returns; the single-node version is the Flow node lib.solver.pict_cavity, whose smoke run is recorded. The script runs everywhere (local engine, no GPU), in 45 s inside the sandbox or 23 s on one core."
+ },
  "pinn_solver": {
   "domain": "PINN",
   "notes": "01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts"
@@ -296,8 +300,8 @@
  },
  "potential_co2": {
   "domain": "thermodynamics",
-  "status": "runs-quick",
-  "notes": "surrogate_study: potential.co2_surrogates at one seed and a reduced budget (no comparison with the committed numbers, which are means over five seeds at 3000 and 9000 steps); the full study (5 seeds x 3 configurations, about 1.5 h on CPU) runs as 01_run_study.py and 02_report.py builds the figures, report and manifest."
+  "notes": "surrogate_study: potential.co2_surrogates at one seed and a reduced budget (no comparison with the committed numbers, which are means over five seeds at 3000 and 9000 steps); the full study (5 seeds x 3 configurations, about 1.5 h on CPU) runs as 01_run_study.py and 02_report.py builds the figures, report and manifest.",
+  "status": "runs-quick"
  },
  "problem_designer": {
   "domain": "design",
@@ -313,13 +317,13 @@
  },
  "quickstart": {
   "domain": "getting started",
-  "status": "not_convertible",
-  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs",
+  "status": "not_convertible"
  },
  "reproductions": {
   "domain": "physics-informed ML",
-  "status": "not_convertible",
-  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run"
+  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run",
+  "status": "not_convertible"
  },
  "rigid_body": {
   "domain": "multibody",

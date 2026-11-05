@@ -1,0 +1,12 @@
+{
+ "code_hash": "e420eb060f91b434",
+ "figures": [],
+ "id": "node:aero.aircraft_surrogate",
+ "ok": true,
+ "recorded": "2026-11-05",
+ "seconds": 5.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "3-D aircraft aerodynamics surrogate (from text, graded) -> pinneapple_design.aero.aircraft_surrogate_demo.aircraft_surrogate_demo (aircraft_surrogate_study, vlm.solve, pinneapple_veriphysics.policy.decide)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'request': '', 'rounds': 3, 'cinematic': 'auto', 'orbit_frames': 28, 'map_n': 8, 'seed': 0}",
+ "timed_out": false
+}

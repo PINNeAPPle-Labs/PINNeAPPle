@@ -9,37 +9,36 @@
  },
  "pinneapple_design.aero.aircraft_surrogate:FieldEnsemble": {
   "code_hash": "2c50766fa9dd721c",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate'",
   "inputs": {
    "n_out": 4
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 3.88
+  "returned": "FieldEnsemble",
+  "seconds": 4.26
  },
  "pinneapple_design.aero.aircraft_surrogate:dataset": {
   "code_hash": "03b4e4d61934bf16",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate'",
   "inputs": {
    "n_alpha": 2,
    "n_designs": 3,
    "seed": 0
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 3.54
+  "returned": "tuple",
+  "seconds": 0.43
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:cinematic_available": {
-  "code_hash": "1c38f82bb94df38c",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate_demo'",
+  "code_hash": "943100fa9b6bd042",
   "inputs": {},
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 3.59
+  "returned": "bool",
+  "seconds": 0.01
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:extend_bounds": {
   "code_hash": "afd92edfaed622cc",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate_demo'",
   "inputs": {
    "bounds": {
     "alpha": [
@@ -76,30 +75,31 @@
     "wing_area": 16.0
    }
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 4.08
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
   "code_hash": "30fa679695f6464a",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate_demo'",
   "inputs": {
    "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 4.07
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:request_verdict": {
   "code_hash": "6c4572f183f21af4",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_design.aero.aircraft_surrogate_demo'",
   "inputs": {
    "flagged": true,
    "model_verdict": "APPROVED"
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-05",
-  "seconds": 3.49
+  "returned": "str",
+  "seconds": 0.0
  },
  "pinneapple_design.aero.airframe:Airframe": {
   "code_hash": "2b590e3f95ace81c",

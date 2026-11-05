@@ -21,6 +21,7 @@ _REACTIONS = {"allen_cahn": lambda u: u - u ** 3, "fisher": lambda u: u * (1.0 -
 
 @dataclass
 class ReactionDiffusion1D:
+    """1D reaction-diffusion system (Allen-Cahn by default): grid, initial state, step and trajectory with ETDRK4."""
     reaction: str = "allen_cahn"
     diffusion: float = 1e-3
     n: int = 128

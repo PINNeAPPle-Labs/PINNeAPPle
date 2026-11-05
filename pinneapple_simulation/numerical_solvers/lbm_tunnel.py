@@ -109,6 +109,7 @@ class Units:
 
 # ------------------------------------------------------------------------------------------------- geometry
 def sphere(shape, center, radius) -> torch.Tensor:
+    """Solid mask of a sphere (grid indices ``center`` and ``radius``) on a grid of ``shape``."""
     x, y, z = np.meshgrid(*[np.arange(n) for n in shape], indexing="ij")
     return torch.as_tensor((x - center[0]) ** 2 + (y - center[1]) ** 2 + (z - center[2]) ** 2 <= radius ** 2)
 

@@ -22,6 +22,9 @@ __all__ = ["FMUDataset", "latin_hypercube", "fmu_sweep"]
 
 @dataclass
 class FMUDataset:
+    """Dataset of an FMU sweep: parameter names, parameters, time, outputs and bounds, with ``split``, ``save`` and
+    ``load``.
+    """
     names: list[str]
     params: np.ndarray
     time: np.ndarray

@@ -75,6 +75,9 @@ def run(names: Sequence[str] | None = None, quick: bool = False) -> list[CaseRes
 
 
 def to_markdown(results: Sequence[CaseResult]) -> str:
+    """The verification results as a Markdown table (case, quantity, reference, error on the finest level, observed
+    order, status).
+    """
     head = ("| Case | Quantity | Reference | Error (finest) | Observed order | Status |\n"
             "|---|---|---|---|---|---|")
     return "\n".join([head] + [r.row() for r in results])

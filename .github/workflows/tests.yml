@@ -269,6 +269,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e . nbclient nbformat ipykernel imageio
+      # the shared libraries gmsh's wheel loads (notebook 07 meshes the valve passage)
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq libglu1-mesa libxcursor1 libxinerama1 libxft2
       - name: Committed notebooks have no outputs
         run: python scripts/run_colab_notebooks.py --check-clean
       - name: Run every notebook in smoke mode

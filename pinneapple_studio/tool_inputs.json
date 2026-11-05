@@ -1246,6 +1246,72 @@
   },
   "source": "tests/test_physics_decision_engine.py:116"
  },
+ "pinneapple_design.aero.aircraft_surrogate:FieldEnsemble": {
+  "inputs": {
+   "n_out": 4
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:60"
+ },
+ "pinneapple_design.aero.aircraft_surrogate:dataset": {
+  "inputs": {
+   "n_alpha": 2,
+   "n_designs": 3,
+   "seed": 0
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:131"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:extend_bounds": {
+  "inputs": {
+   "bounds": {
+    "alpha": [
+     -2.0,
+     8.0
+    ],
+    "aspect_ratio": [
+     6.0,
+     10.0
+    ],
+    "sweep_le": [
+     0.0,
+     10.0
+    ],
+    "taper": [
+     0.45,
+     1.0
+    ],
+    "twist": [
+     -5.0,
+     0.0
+    ],
+    "wing_area": [
+     12.0,
+     20.0
+    ]
+   },
+   "design": {
+    "alpha": 4.0,
+    "aspect_ratio": 12.0,
+    "sweep_le": 15.0,
+    "taper": 0.6,
+    "twist": -2.0,
+    "wing_area": 16.0
+   }
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:134"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
+  "inputs": {
+   "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:75"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:request_verdict": {
+  "inputs": {
+   "flagged": true,
+   "model_verdict": "APPROVED"
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:94"
+ },
  "pinneapple_design.aero.dataset:plan": {
   "inputs": {
    "n_alpha": 4,
@@ -2074,9 +2140,9 @@
  },
  "pinneapple_flow.planner.extensions:match": {
   "inputs": {
-   "text": "otimizar a asa do avi\u00e3o: alongamento e afilamento"
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
   },
-  "source": "tests/test_aero_wing_design.py:55"
+  "source": "tests/test_aero_aircraft_surrogate.py:121"
  },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "inputs": {

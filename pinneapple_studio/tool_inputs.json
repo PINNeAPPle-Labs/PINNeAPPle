@@ -7081,6 +7081,35 @@
   },
   "source": "tests/test_explicit_equation_system.py:38"
  },
+ "pinneapple_systems.process_components.joule_thomson:isenthalpic_path": {
+  "inputs": {
+   "P1_Pa": 7000000.0,
+   "P2_Pa": 2000000.0,
+   "T1_K": 298.15,
+   "gas": {
+    "Methane": 1.0
+   },
+   "n": 5
+  },
+  "source": "tests/test_valve_joule_thomson.py:58"
+ },
+ "pinneapple_systems.process_components.joule_thomson:parse_valve_request": {
+  "inputs": {
+   "text": "inlet pressure 70 bar, inlet temperature 25 \u00b0C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 \u00b0C. Methane 92 %, ethane 5 %, nitrogen 3 %"
+  },
+  "source": "tests/test_valve_joule_thomson.py:10"
+ },
+ "pinneapple_systems.process_components.joule_thomson:throttle": {
+  "inputs": {
+   "P1_Pa": 7000000.0,
+   "P2_Pa": 2000000.0,
+   "T1_K": 298.15,
+   "gas": {
+    "Methane": 1.0
+   }
+  },
+  "source": "tests/test_valve_joule_thomson.py:56"
+ },
  "pinneapple_systems.process_components.non_newtonian_pipe_flow:integrate_pressure_profile": {
   "inputs": {
    "D_h_m": 0.2,

@@ -512,6 +512,14 @@
   "returned": "FlowBuilder",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.valve_jt:build_flow": {
+  "code_hash": "922dbcaa4241e470",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "FlowBuilder",
+  "seconds": 8.95
+ },
  "pinneapple_flow.nodes_ext.veriphysics_grade:build_flow": {
   "code_hash": "ff41119f0e90cae6",
   "inputs": {},

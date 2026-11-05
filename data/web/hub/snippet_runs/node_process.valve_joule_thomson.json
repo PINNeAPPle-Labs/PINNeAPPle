@@ -1,0 +1,12 @@
+{
+ "code_hash": "978bdf81500bad6b",
+ "figures": [],
+ "id": "node:process.valve_joule_thomson",
+ "ok": true,
+ "recorded": "2026-11-05",
+ "seconds": 9.43,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Joule–Thomson cooling across a valve (natural gas, real-gas EOS) -> pinneapple_systems.process_components.joule_thomson.valve_joule_thomson_study (real_gas_eos GERG-2008, control_valve IEC 60534-2-1, pinneapple_veriphysics.policy.decide)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'request': ''}",
+ "timed_out": false
+}

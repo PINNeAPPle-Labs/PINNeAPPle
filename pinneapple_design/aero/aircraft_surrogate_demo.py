@@ -447,8 +447,12 @@ def aircraft_surrogate_demo(request: str = "", out_dir: str = "aircraft_surrogat
                   "checks": res["checks"], "outputs": o, "files": [f"round{k}/{f}" for f in res["files"]],
                   "seconds": o["total_seconds"]})
         models[f"round {k}"] = model
+        last = k == len(plans)
         for f in res["files"]:
-            if f.endswith((".png", ".glb", ".json")) and (k == len(plans) or f == "aircraft_surrogate_poster.png"):
+            # every round's figures, model and cards; the 3-D field view of the last round only
+            keep = f.endswith((".png", ".pt", ".npz")) or f.endswith("_card.json") or (
+                last and f.startswith("aircraft_field."))
+            if keep:
                 dst = f"round{k}_{f}"
                 shutil.copy(os.path.join(d, f), os.path.join(out_dir, dst))
                 files.append(dst)

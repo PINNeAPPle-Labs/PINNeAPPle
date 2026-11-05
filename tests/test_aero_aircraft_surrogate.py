@@ -153,3 +153,31 @@ def test_the_flow_renders_only_when_the_request_asks():
     fast = build_flow("aircraft surrogate with cinematic renders").nodes["surrogate"]["params"]
     plain = build_flow("aircraft surrogate, aspect ratio 12").nodes["surrogate"]["params"]
     assert fast["cinematic"] == "fast" and "cinematic" not in plain
+
+
+def test_the_trained_model_is_delivered_and_loads_back(tmp_path):
+    """#1462: the study writes the model, its card, the dataset and its card; the loaded model predicts what the
+    trained one did, refuses outside the validated design space, and its card carries the run's numbers."""
+    import json
+
+    from pinneapple_design.aero.aircraft_surrogate import _study, load_surrogate
+
+    res, model, _, _ = _study(str(tmp_path), 8, 2, 3, 60, 3, 4, 480, 0, None, None, None)
+    for f in ("surrogate_model.pt", "model_card.json", "dataset.npz", "data_card.json"):
+        assert f in res["files"] and (tmp_path / f).stat().st_size > 0
+    s = load_surrogate(str(tmp_path))
+    design = {"wing_area": 16.0, "aspect_ratio": 8.0, "taper": 0.7, "sweep_le": 4.0, "twist": -2.0, "alpha": 4.0}
+    x = np.array([[design[k] for k in ("wing_area", "aspect_ratio", "taper", "sweep_le", "twist", "alpha")]])
+    out = s.predict(design)
+    np.testing.assert_allclose(out["dcp"], model.predict(x)[0][0], rtol=1e-6, atol=1e-9)
+    assert out["applicability"] == model.ood(x[0])
+    assert np.isfinite(out["CL"]) and np.isfinite(out["CDi"]) and out["dcp_spread"].shape == out["dcp"].shape
+    far = dict(design, aspect_ratio=12.5)
+    refused = s.predict(far)
+    assert refused["accepted"] is False and any("aspect_ratio" in r for r in refused["reasons"])
+    assert "dcp" not in refused and "dcp" in s.predict(far, allow_outside=True)
+    card = json.loads((tmp_path / "model_card.json").read_text())
+    assert card["decision"]["verdict"] == res["decision"]["verdict"]
+    assert card["measured"]["field_error_held_out"] == pytest.approx(res["outputs"]["field_error_held_out"])
+    data = np.load(tmp_path / "dataset.npz")
+    assert data["X"].shape[0] == data["Y"].shape[0] == 10 * 3 and len(data["train_cases"]) == 8

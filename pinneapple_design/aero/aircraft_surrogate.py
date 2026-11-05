@@ -41,9 +41,12 @@ from typing import Any
 import numpy as np
 
 from .aircraft3d import airframe_from, baseline_x
-from .vlm import Lattice, loads_from_circulation, solve
+from .vlm import Lattice, build_lattice, loads_from_circulation, solve
 
-__all__ = ["DESIGN", "BOUNDS", "aircraft_surrogate_study", "dataset", "panel_dcp", "panel_quads"]
+__all__ = ["DESIGN", "BOUNDS", "AircraftSurrogate", "FieldEnsemble", "aircraft_surrogate_study", "dataset",
+           "load_surrogate", "panel_dcp", "panel_quads"]
+
+MODEL_FORMAT = "pinneapple.aero.aircraft_surrogate.FieldEnsemble/1"
 
 DESIGN = ("wing_area", "aspect_ratio", "taper", "sweep_le", "twist", "alpha")
 BOUNDS = {"wing_area": (12.0, 20.0), "aspect_ratio": (6.0, 10.0), "taper": (0.45, 1.0), "sweep_le": (0.0, 10.0),
@@ -166,6 +169,31 @@ class FieldEnsemble:
         self.sd = np.ones(n_out)
         self.Xtrain = np.zeros((0, len(DESIGN)))
         self.bounds = dict(bounds or BOUNDS)
+        self.config = {"n_out": int(n_out), "width": int(width), "depth": int(depth), "heads": int(heads),
+                       "seed": int(seed)}
+
+    def save(self, path: str) -> str:
+        """Write the ensemble to one file: weights, architecture, output scaling, the declared design space and the
+        training inputs (the applicability score is a distance to them). Tensors and plain types only, so
+        :meth:`load` reads it with ``torch.load(weights_only=True)``."""
+        import torch
+        torch.save({"format": MODEL_FORMAT, "design": list(DESIGN), "config": dict(self.config),
+                    "bounds": {k: (float(a), float(b)) for k, (a, b) in self.bounds.items()},
+                    "mu": torch.tensor(self.mu), "sd": torch.tensor(self.sd), "Xtrain": torch.tensor(self.Xtrain),
+                    "state": self.heads.state_dict()}, path)
+        return path
+
+    @classmethod
+    def load(cls, path: str) -> FieldEnsemble:
+        """The ensemble :meth:`save` wrote (read with ``weights_only=True``: no code is executed from the file)."""
+        import torch
+        d = torch.load(path, map_location="cpu", weights_only=True)
+        if d.get("format") != MODEL_FORMAT or list(d.get("design", [])) != list(DESIGN):
+            raise ValueError(f"{path} is not a {MODEL_FORMAT} file for inputs {DESIGN}")
+        m = cls(**d["config"], bounds={k: tuple(v) for k, v in d["bounds"].items()})
+        m.heads.load_state_dict(d["state"])
+        m.mu, m.sd, m.Xtrain = d["mu"].numpy(), d["sd"].numpy(), d["Xtrain"].numpy()
+        return m
 
     def _forward(self, Z):
         import torch
@@ -676,11 +704,121 @@ def _study(out_dir: str, n_train: int, n_test: int, n_alpha: int, epochs: int, f
         "training_seconds": train_s,
         "total_seconds": time.perf_counter() - t0,
     }
+    assumptions = ["vortex lattice of wing + horizontal tail: inviscid, small angles, no fuselage load",
+                   f"design space: {', '.join(f'{k} {B[k][0]:g}–{B[k][1]:g} {UNITS[k]}' for k in DESIGN)}",
+                   "the library's light aircraft (NACA 2412 section, its fuselage and tail) for everything "
+                   "not in the design vector"]
+    files += _write_artifacts(out_dir, model, cases, X, Y, idx, sorted(train_ids), sorted(test_ids), checks,
+                              {"verdict": decision, "reasons": reasons, "policy": pol.name}, outputs, B,
+                              {"n_train": n_train, "n_test": n_test, "n_alpha": n_alpha, "epochs": epochs,
+                               "seed": seed, "solver_seconds": gen_s, "training_seconds": train_s}, assumptions)
     res = {"outputs": outputs, "checks": checks, "decision": {"verdict": decision, "reasons": reasons,
                                                               "policy": pol.name},
-           "history": {k: [float(v) for v in hist[k]] for k in hist}, "files": files,
-           "assumptions": ["vortex lattice of wing + horizontal tail: inviscid, small angles, no fuselage load",
-                           f"design space: {', '.join(f'{k} {B[k][0]:g}–{B[k][1]:g} {UNITS[k]}' for k in DESIGN)}",
-                           "the library's light aircraft (NACA 2412 section, its fuselage and tail) for everything "
-                           "not in the design vector"]}
+           "history": {k: [float(v) for v in hist[k]] for k in hist}, "files": files, "assumptions": assumptions}
     return res, model, show, show_a
+
+
+def _library_version() -> dict[str, str]:
+    import subprocess
+
+    out = {}
+    try:
+        import pinneapple
+        out["pinneapple"] = str(getattr(pinneapple, "__version__", ""))
+    except Exception:  # noqa: BLE001 - a version is informative, never required
+        pass
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        r = subprocess.run(["git", "-C", here, "rev-parse", "HEAD"], capture_output=True, text=True, timeout=10)
+        if r.returncode == 0:
+            out["commit"] = r.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return out
+
+
+def _write_artifacts(out_dir, model, cases, X, Y, idx, train_ids, test_ids, checks, decision, outputs, bounds, run,
+                     assumptions) -> list[str]:
+    """The trained model with its model card, and the solver dataset with its data card (#1462)."""
+    import json
+
+    model.save(os.path.join(out_dir, "surrogate_model.pt"))
+    ver = _library_version()
+    card = {
+        "model": "pinneapple.aero.aircraft_surrogate.FieldEnsemble", "format": MODEL_FORMAT, "file": "surrogate_model.pt",
+        "predicts": "pressure jump dCp on each lattice panel of the wing and horizontal tail (fixed topology: "
+                    f"{Y.shape[1]} panels); CL, CDi and Cm follow from it by the lattice's own post-processing",
+        "inputs": [{"name": k, "unit": UNITS[k]} for k in DESIGN],
+        "validated_design_space": {k: list(v) for k, v in bounds.items()},
+        "architecture": dict(model.config, kind="bagged MLP ensemble (GELU), standardised outputs"),
+        "applicability": "a request is refused outside the validated design space or when its geometry is more than "
+                         "2x farther from the training designs than their usual spacing (FieldEnsemble.ood)",
+        "decision": decision, "checks": checks,
+        "measured": {k: outputs[k] for k in ("field_error_held_out", "field_error_training",
+                                              "lookup_error_held_out_median", "CL_max_abs_error_held_out",
+                                              "CDi_median_rel_error_held_out", "surrogate_ms_per_inference",
+                                              "solver_seconds_per_design", "speedup_vs_solver")},
+        "training": run, "data": "dataset.npz (see data_card.json)", "library": ver, "limits": assumptions,
+        "load": "from pinneapple_design.aero.aircraft_surrogate import load_surrogate; "
+                "s = load_surrogate('surrogate_model.pt'); s.predict({...})",
+    }
+    with open(os.path.join(out_dir, "model_card.json"), "w") as fh:
+        json.dump(card, fh, indent=1, default=float)
+    geo = [k for k in DESIGN if k != "alpha"]
+    np.savez_compressed(os.path.join(out_dir, "dataset.npz"), X=X, Y=Y, case=idx,
+                        geometry=np.array([[c.row[k] for k in geo] for c in cases]),
+                        panel_centres=np.stack([c.L.C for c in cases]),
+                        train_cases=np.array(train_ids, int), test_cases=np.array(test_ids, int))
+    data_card = {
+        "file": "dataset.npz",
+        "arrays": {"X": f"(samples, {len(DESIGN)}) inputs {list(DESIGN)}", "Y": f"(samples, {Y.shape[1]}) dCp per panel",
+                   "case": "(samples,) geometry index of each sample", "geometry": f"(cases, {len(geo)}) {geo}",
+                   "panel_centres": "(cases, panels, 3) panel control points [m]",
+                   "train_cases": "geometries used for training", "test_cases": "held-out geometries"},
+        "samples": int(len(X)), "cases": int(len(cases)), "angles_per_case": run["n_alpha"],
+        "design": "Latin hypercube over the geometry bounds, angles stratified per geometry",
+        "design_space": {k: list(v) for k, v in bounds.items()},
+        "solver": {"method": "vortex lattice (pinneapple_design.aero.vlm.solve)", "chordwise_panels": NC,
+                   "spanwise_wing": NS_WING, "spanwise_tail": NS_TAIL, "seconds_total": run["solver_seconds"]},
+        "seed": run["seed"], "library": ver, "limits": assumptions[:1],
+    }
+    with open(os.path.join(out_dir, "data_card.json"), "w") as fh:
+        json.dump(data_card, fh, indent=1, default=float)
+    return ["surrogate_model.pt", "model_card.json", "dataset.npz", "data_card.json"]
+
+
+class AircraftSurrogate:
+    """A trained aircraft surrogate loaded from disk (:func:`load_surrogate`), with its applicability gate."""
+
+    def __init__(self, model: FieldEnsemble, card: dict[str, Any] | None = None):
+        self.model, self.card = model, card or {}
+
+    def predict(self, design: dict[str, float], allow_outside: bool = False) -> dict[str, Any]:
+        """The dCp field with its ensemble spread and CL, CDi, Cm for ``design`` (the six :data:`DESIGN` values).
+
+        Outside the validated domain the answer is a refusal with the reasons (``accepted`` False, no numbers),
+        unless ``allow_outside`` is set; the flags are returned either way."""
+        missing = [k for k in DESIGN if k not in design]
+        if missing:
+            raise KeyError(f"design is missing {missing}; inputs are {list(DESIGN)}")
+        x = np.array([[float(design[k]) for k in DESIGN]])
+        flag = self.model.ood(x[0])
+        if flag["ood"] and not allow_outside:
+            return {"accepted": False, "reasons": flag["reasons"], "applicability": flag}
+        m, s = self.model.predict(x)
+        af = _airframe({k: design[k] for k in DESIGN if k != "alpha"})
+        x_ref = af.mac_le_x + 0.25 * af.mac
+        L = build_lattice(af, NC, NS_WING, NS_TAIL)
+        loads = loads_from_circulation(L, _gamma(L, m[0]), af.wing_area, af.mac, x_ref)
+        return {"accepted": not flag["ood"], "dcp": m[0], "dcp_spread": s[0], **loads, "applicability": flag}
+
+
+def load_surrogate(path: str) -> AircraftSurrogate:
+    """Load ``surrogate_model.pt`` (or a folder holding it) and its ``model_card.json`` when present."""
+    import json
+
+    p = os.path.join(path, "surrogate_model.pt") if os.path.isdir(path) else path
+    card_p = os.path.join(os.path.dirname(os.path.abspath(p)), os.path.basename(p).replace("surrogate_model.pt",
+                                                                                            "model_card.json"))
+    card = json.load(open(card_p)) if os.path.isfile(card_p) else None
+    return AircraftSurrogate(FieldEnsemble.load(p), card)

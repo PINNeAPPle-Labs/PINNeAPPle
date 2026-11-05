@@ -281,6 +281,78 @@
   "returned": "bool",
   "seconds": 0.0
  },
+ "pinneapple_tools.compute_backends.warp_backend:fem_poisson": {
+  "code_hash": "57000940044292d3",
+  "inputs": {
+   "resolution": 16
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "FemPoissonSolution",
+  "seconds": 12.25
+ },
+ "pinneapple_tools.compute_backends.warp_backend:manufactured_f": {
+  "code_hash": "35fc3744f754ce72",
+  "inputs": {
+   "x": [
+    0.31,
+    0.5,
+    0.77
+   ],
+   "y": [
+    0.22,
+    0.6,
+    0.44
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "ndarray",
+  "seconds": 7.83
+ },
+ "pinneapple_tools.compute_backends.warp_backend:manufactured_u": {
+  "code_hash": "d1403b636d33be6f",
+  "inputs": {
+   "x": [
+    0.31,
+    0.5,
+    0.77
+   ],
+   "y": [
+    0.22,
+    0.6,
+    0.44
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "ndarray",
+  "seconds": 8.69
+ },
+ "pinneapple_tools.compute_backends.warp_backend:poisson_convergence": {
+  "code_hash": "a081d64e9c898847",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "list",
+  "seconds": 12.84
+ },
+ "pinneapple_tools.compute_backends.warp_backend:warp_available": {
+  "code_hash": "19dca22c25c5923d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "bool",
+  "seconds": 8.23
+ },
+ "pinneapple_tools.compute_backends.warp_backend:warp_device": {
+  "code_hash": "8215fb6ea828c764",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "str",
+  "seconds": 8.11
+ },
  "pinneapple_tools.dataset_quality.vlm_curation:build_consistency_prompt": {
   "code_hash": "9ffa7252fae24f12",
   "inputs": {

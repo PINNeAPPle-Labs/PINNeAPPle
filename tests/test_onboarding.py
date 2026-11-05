@@ -208,7 +208,7 @@ def test_doctor_rejects_an_unknown_profile():
 
 
 def test_doctor_profiles_are_the_documented_ones():
-    assert set(doctor_profiles()) == {"start", "cfd", "research", "enterprise", "all"}
+    assert set(doctor_profiles()) == {"start", "cfd", "research", "enterprise", "gpu", "all"}
 
 
 def test_doctor_never_claims_a_check_it_did_not_run():

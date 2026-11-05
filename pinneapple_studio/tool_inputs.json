@@ -344,6 +344,38 @@
   },
   "source": "tests/test_heat_diffusivity.py:23"
  },
+ "pinneapple_analysis.inverse_problems.heat_transfer:fin_exact": {
+  "inputs": {
+   "d": 0.005,
+   "h": 25.0,
+   "k": 16.0,
+   "length": 0.05,
+   "xi": [
+    0.0,
+    0.1,
+    0.2,
+    0.30000000000000004,
+    0.4,
+    0.5,
+    0.6000000000000001,
+    0.7000000000000001,
+    0.8,
+    0.9,
+    1.0
+   ]
+  },
+  "source": "tests/test_inverse_heat.py:21"
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:fin_q_exact": {
+  "inputs": {
+   "d": 0.005,
+   "dt": 55.0,
+   "h": 50.0,
+   "k": 16.0,
+   "length": 0.05
+  },
+  "source": "tests/test_inverse_heat.py:24"
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:run_plate": {
   "inputs": {
    "h_true": 25.0,
@@ -387,11 +419,6 @@
  },
  "pinneapple_analysis.surrogate.benchmark_workflow:benchmark_models": {
   "inputs": {
-   "families": [
-    "gp",
-    "quadratic"
-   ],
-   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion",
    "bounds": {
     "T": [
      330.0,
@@ -402,19 +429,31 @@
      120.0
     ]
    },
-   "output": "X",
+   "families": [
+    "gp",
+    "quadratic"
+   ],
    "fixed": {
     "A": 5000000.0,
     "Ea": 60000.0
    },
-   "n_train": 30,
+   "n_boot": 200,
    "n_test": 60,
+   "n_train": 30,
+   "output": "X",
    "seeds": [
     0
    ],
-   "n_boot": 200
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion"
   },
   "source": "tests/test_model_benchmark.py"
+ },
+ "pinneapple_analysis.surrogate.model_source:open_model": {
+  "inputs": {
+   "name": "heatsink_forced_mlp",
+   "source": "zoo"
+  },
+  "source": "tests/test_model_source.py:18"
  },
  "pinneapple_analysis.surrogate.model_source:zoo_candidates": {
   "inputs": {
@@ -426,7 +465,6 @@
  },
  "pinneapple_analysis.surrogate.workflow:surrogate_modeling": {
   "inputs": {
-   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion",
    "bounds": {
     "T": [
      330.0,
@@ -437,16 +475,17 @@
      120.0
     ]
    },
-   "outputs": [
-    "X"
-   ],
    "fixed": {
     "A": 5000000.0,
     "Ea": 60000.0
    },
    "n_doe": 20,
    "n_fresh": 20,
-   "n_uses": 10000
+   "n_uses": 10000,
+   "outputs": [
+    "X"
+   ],
+   "tool": "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion"
   },
   "source": "tests/test_surrogate_workflow.py"
  },
@@ -482,6 +521,27 @@
    "seed": 0
   },
   "source": "tests/test_uncertainty_study.py:52"
+ },
+ "pinneapple_analysis.validation.arena.generators:get_generator": {
+  "inputs": {
+   "name": "viscosity"
+  },
+  "source": "tests/test_core_contracts_arena_and_faults.py:95"
+ },
+ "pinneapple_analysis.validation.fault_injection.faults:get_fault": {
+  "inputs": {
+   "name": "smoothing"
+  },
+  "source": "tests/test_core_contracts_arena_and_faults.py:63"
+ },
+ "pinneapple_analysis.validation.fault_injection.matrix:fault_rng": {
+  "inputs": {
+   "case_seed": 7,
+   "fault": "bias",
+   "magnitude": 0.05,
+   "seed": 0
+  },
+  "source": "tests/test_core_contracts_last_mile.py:104"
  },
  "pinneapple_analysis.validation.metamorphic:box_sampler": {
   "inputs": {
@@ -684,6 +744,24 @@
   },
   "source": "tests/test_decision_adapter_tree_arena.py:317"
  },
+ "pinneapple_arena.model_factory:build_model": {
+  "inputs": {
+   "cfg": {
+    "name": "ModifiedMLP",
+    "network": {
+     "hidden": [
+      32,
+      32,
+      32
+     ]
+    },
+    "type": "modified_mlp"
+   },
+   "in_dim": 2,
+   "out_dim": 1
+  },
+  "source": "tests/test_v1_known_bugs.py:61"
+ },
  "pinneapple_arena.problems:get_problem": {
   "inputs": {
    "name": "poisson_2d"
@@ -849,6 +927,113 @@
   },
   "source": "tests/test_app_helpers_in_library.py:32"
  },
+ "pinneapple_core.onboarding.catalog:best_method": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:25"
+ },
+ "pinneapple_core.onboarding.catalog:card": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:29"
+ },
+ "pinneapple_core.onboarding.catalog:default_geometry_note": {
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:36"
+ },
+ "pinneapple_core.onboarding.catalog:describe": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:27"
+ },
+ "pinneapple_core.onboarding.catalog:needs_geometry_tags": {
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:34"
+ },
+ "pinneapple_core.onboarding.catalog:probe": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:26"
+ },
+ "pinneapple_core.onboarding.catalog:runnable": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:26"
+ },
+ "pinneapple_core.onboarding.catalog:search": {
+  "inputs": {
+   "text": "burgers equation viscous shock",
+   "top": 3
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:18"
+ },
+ "pinneapple_core.onboarding.catalog:solver_requirement": {
+  "inputs": {
+   "solver": "openfoam"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:38"
+ },
+ "pinneapple_core.onboarding.catalog:standalone_snippet": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:37"
+ },
+ "pinneapple_core.onboarding.catalog:tag_names": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:35"
+ },
+ "pinneapple_core.onboarding.catalog:working_method": {
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:25"
+ },
+ "pinneapple_core.series:bucket_edges": {
+  "inputs": {
+   "k": 10,
+   "n": 1000
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_core.series:downsample": {
+  "inputs": {
+   "k": 6,
+   "x": null,
+   "y": [
+    0.0,
+    3.0,
+    1.0,
+    9.0,
+    2.0,
+    4.0,
+    -5.0,
+    1.0,
+    0.5,
+    2.0
+   ]
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_core.series:downsample_indices": {
+  "inputs": {
+   "k": 50,
+   "method": "even",
+   "n": 1000
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
  "pinneapple_data.cae.compare:tolerance_verdicts": {
   "inputs": {
    "result": {
@@ -874,11 +1059,29 @@
   },
   "source": "tests/test_app_helpers_in_library.py:77"
  },
+ "pinneapple_data.cae.dataset:quantity_of": {
+  "inputs": {
+   "name": "T"
+  },
+  "source": "tests/pinneapple_data/test_cae_core_contracts.py:163"
+ },
+ "pinneapple_data.cae.foam:dims_unit": {
+  "inputs": {
+   "dims": "[0 2 -2 0 0 0 0]"
+  },
+  "source": "tests/pinneapple_data/test_cae_core_contracts.py:67"
+ },
  "pinneapple_data.cae.inp:read_deck": {
   "inputs": {
    "text": "*NODE\n1, 0, 0, 0\n2, 1, 0, 0\n3, 1, 1, 0\n4, 0, 1, 0\n5, 0, 0, 1\n6, 1, 0, 1\n7, 1, 1, 1\n8, 0, 1, 1\n*ELEMENT, TYPE=C3D8, ELSET=E\n1, 1, 2, 3, 4, 5, 6, 7, 8\n*BOUNDARY\n1, 1, 3\n2, 1, 1, 0.001\n*STEP\n*STATIC\n*DLOAD\n1, P2, 1e5\n*DLOAD\nE, GRAV, 9.81, 0, 0, -1\n*END STEP\n"
   },
   "source": "tests/test_solver_view.py:39"
+ },
+ "pinneapple_data.cae.inp:vtk_type": {
+  "inputs": {
+   "abq": "NOT_AN_ELEMENT"
+  },
+  "source": "tests/pinneapple_data/test_cae_core_contracts.py:107"
  },
  "pinneapple_data.collate:collate_pinn_batches": {
   "inputs": {
@@ -1043,6 +1246,72 @@
   },
   "source": "tests/test_physics_decision_engine.py:116"
  },
+ "pinneapple_design.aero.aircraft_surrogate:FieldEnsemble": {
+  "inputs": {
+   "n_out": 4
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:60"
+ },
+ "pinneapple_design.aero.aircraft_surrogate:dataset": {
+  "inputs": {
+   "n_alpha": 2,
+   "n_designs": 3,
+   "seed": 0
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:131"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:extend_bounds": {
+  "inputs": {
+   "bounds": {
+    "alpha": [
+     -2.0,
+     8.0
+    ],
+    "aspect_ratio": [
+     6.0,
+     10.0
+    ],
+    "sweep_le": [
+     0.0,
+     10.0
+    ],
+    "taper": [
+     0.45,
+     1.0
+    ],
+    "twist": [
+     -5.0,
+     0.0
+    ],
+    "wing_area": [
+     12.0,
+     20.0
+    ]
+   },
+   "design": {
+    "alpha": 4.0,
+    "aspect_ratio": 12.0,
+    "sweep_le": 15.0,
+    "taper": 0.6,
+    "twist": -2.0,
+    "wing_area": 16.0
+   }
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:134"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
+  "inputs": {
+   "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:75"
+ },
+ "pinneapple_design.aero.aircraft_surrogate_demo:request_verdict": {
+  "inputs": {
+   "flagged": true,
+   "model_verdict": "APPROVED"
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:94"
+ },
  "pinneapple_design.aero.dataset:plan": {
   "inputs": {
    "n_alpha": 4,
@@ -1099,6 +1368,19 @@
    ]
   },
   "source": "tests/test_aero_train.py:116"
+ },
+ "pinneapple_design.aero.wing_design:evaluate": {
+  "inputs": {
+   "spec": {
+    "span_max": null
+   },
+   "x": {
+    "aspect_ratio": 8.0,
+    "taper": 1.0,
+    "twist": 0.0
+   }
+  },
+  "source": "tests/test_aero_wing_design.py:26"
  },
  "pinneapple_design.bricks.assembly:stack": {
   "inputs": {
@@ -1171,15 +1453,15 @@
  },
  "pinneapple_design.chip.interconnect:elmore_delay": {
   "inputs": {
-   "R": [
-    100.0,
-    10.0,
-    10.0
-   ],
    "C": [
     0.0,
     1e-13,
     1e-13
+   ],
+   "R": [
+    100.0,
+    10.0,
+    10.0
    ]
   },
   "source": "tests/test_chip_design_workflow.py"
@@ -1192,18 +1474,18 @@
  },
  "pinneapple_design.chip.interconnect:rc_ladder": {
   "inputs": {
-   "r_wire": 55.0,
+   "c_load": 2e-14,
    "c_wire": 1e-12,
    "r_driver": 100.0,
-   "c_load": 2e-14
+   "r_wire": 55.0
   },
   "source": "tests/test_chip_design_workflow.py"
  },
  "pinneapple_design.chip.power_grid:uniform_grid_closed_form": {
   "inputs": {
-   "n": 15,
    "g": 2.0,
-   "i_node": 0.001
+   "i_node": 0.001,
+   "n": 15
   },
   "source": "tests/test_chip_design_workflow.py"
  },
@@ -1218,34 +1500,34 @@
  "pinneapple_design.chip.workflow:floorplan_from_dict": {
   "inputs": {
    "d": {
+    "blocks": [
+     {
+      "dynamic_w": 10.0,
+      "leakage_w": 2.0,
+      "name": "cpu"
+     },
+     {
+      "dynamic_w": 2.0,
+      "name": "l2"
+     }
+    ],
     "die_mm": [
      10.0,
      10.0
-    ],
-    "slots": [
-     2,
-     1
-    ],
-    "placement": [
-     0,
-     1
-    ],
-    "blocks": [
-     {
-      "name": "cpu",
-      "dynamic_w": 10.0,
-      "leakage_w": 2.0
-     },
-     {
-      "name": "l2",
-      "dynamic_w": 2.0
-     }
     ],
     "nets": [
      [
       "cpu",
       "l2"
      ]
+    ],
+    "placement": [
+     0,
+     1
+    ],
+    "slots": [
+     2,
+     1
     ]
    }
   },
@@ -1303,16 +1585,16 @@
  "pinneapple_design.design_optimizer.workflow:design_optimization": {
   "inputs": {
    "budget": 30,
-   "n_starts": 2,
-   "max_corrections": 2,
    "fidelity": {
-    "param": "n_through",
     "coarse": 4,
     "levels": [
      8,
      16
-    ]
-   }
+    ],
+    "param": "n_through"
+   },
+   "max_corrections": 2,
+   "n_starts": 2
   },
   "source": "tests/test_design_optimization_workflow.py"
  },
@@ -1488,9 +1770,9 @@
  },
  "pinneapple_design.satellite.budgets:battery": {
   "inputs": {
+   "f_ecl": 0.35,
    "p_ecl_w": 10.0,
    "period_s": 5900.0,
-   "f_ecl": 0.35,
    "years": 3.0
   },
   "source": "tests/test_satellite_design_workflow.py"
@@ -1504,43 +1786,43 @@
  },
  "pinneapple_design.satellite.budgets:disturbance_torques": {
   "inputs": {
+   "area_m2": 0.08,
+   "cp_offset_m": 0.02,
    "h_km": 700.0,
-   "rho_kg_m3": 1e-13,
    "inertia": [
     0.1,
     0.09,
     0.03
    ],
-   "area_m2": 0.08,
-   "cp_offset_m": 0.02,
-   "residual_dipole_am2": 0.05
+   "residual_dipole_am2": 0.05,
+   "rho_kg_m3": 1e-13
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.budgets:eclipse_fraction": {
   "inputs": {
-   "h_km": 700.0,
-   "beta_deg": 10.0
+   "beta_deg": 10.0,
+   "h_km": 700.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.budgets:eclipse_fraction_sampled": {
   "inputs": {
-   "h_km": 700.0,
-   "beta_deg": 10.0
+   "beta_deg": 10.0,
+   "h_km": 700.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.budgets:link_budget": {
   "inputs": {
-   "p_tx_w": 2.0,
-   "f_hz": 8200000000.0,
-   "h_km": 700.0,
+   "ebn0_req_db": 4.5,
    "elev_deg": 10.0,
-   "g_tx_dbi": 6.0,
+   "f_hz": 8200000000.0,
    "g_over_t_db_k": 18.0,
-   "rate_bps": 5000000.0,
-   "ebn0_req_db": 4.5
+   "g_tx_dbi": 6.0,
+   "h_km": 700.0,
+   "p_tx_w": 2.0,
+   "rate_bps": 5000000.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
@@ -1554,26 +1836,26 @@
  },
  "pinneapple_design.satellite.budgets:revisit": {
   "inputs": {
+   "fov_deg": 10.0,
    "h_km": 700.0,
    "i_deg": 98.19,
-   "fov_deg": 10.0,
    "ifov_urad": 8.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.budgets:slant_range": {
   "inputs": {
-   "h_km": 700.0,
-   "elev_deg": 10.0
+   "elev_deg": 10.0,
+   "h_km": 700.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.budgets:solar_array": {
   "inputs": {
+   "f_ecl": 0.35,
    "p_day_w": 14.0,
    "p_ecl_w": 11.0,
    "period_s": 5930.0,
-   "f_ecl": 0.35,
    "years": 3.0
   },
   "source": "tests/test_satellite_design_workflow.py"
@@ -1586,31 +1868,31 @@
  },
  "pinneapple_design.satellite.budgets:wheel_and_torquer": {
   "inputs": {
-   "torque_nm": 2e-06,
-   "period_s": 5930.0,
    "b_min_t": 2.4e-05,
    "inertia": [
     0.1,
     0.09,
     0.03
-   ]
+   ],
+   "period_s": 5930.0,
+   "torque_nm": 2e-06
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.workflow:contact_time": {
   "inputs": {
+   "elev_min_deg": 10.0,
    "h_km": 700.0,
    "i_deg": 98.19,
-   "lat_deg": 60.0,
-   "elev_min_deg": 10.0
+   "lat_deg": 60.0
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
  "pinneapple_design.satellite.workflow:propagate_j2": {
   "inputs": {
+   "days": 0.2,
    "h_km": 700.0,
-   "i_deg": 98.19,
-   "days": 0.2
+   "i_deg": 98.19
   },
   "source": "tests/test_satellite_design_workflow.py"
  },
@@ -1698,18 +1980,18 @@
  },
  "pinneapple_design.thermal.heatsink.surrogate:forced_reference": {
   "inputs": {
-   "base_width_mm": 100,
+   "air_velocity_m_s": 2.5,
    "base_depth_mm": 100,
    "base_thickness_mm": 6,
-   "n_fins": 16,
-   "fin_thickness_mm": 1.5,
+   "base_width_mm": 100,
    "fin_height_mm": 40,
+   "fin_thickness_mm": 1.5,
    "k_w_mk": 200,
-   "source_width_mm": 50,
-   "source_depth_mm": 50,
-   "t_ambient_c": 25,
+   "n_fins": 16,
    "power_w": 150,
-   "air_velocity_m_s": 2.5
+   "source_depth_mm": 50,
+   "source_width_mm": 50,
+   "t_ambient_c": 25
   },
   "source": "tests/test_model_source.py"
  },
@@ -1776,8 +2058,8 @@
  },
  "pinneapple_flow.gallery:example_flow": {
   "inputs": {
-   "group": "industrial",
-   "entry": "wing_design"
+   "entry": "wing_design",
+   "group": "industrial"
   },
   "source": "tests/test_flow_gallery.py"
  },
@@ -1822,8 +2104,8 @@
   "inputs": {
    "case": "propylene_glycol_cstr",
    "params": {
-    "X_target": 0.8,
-    "T_limit": 330.0
+    "T_limit": 330.0,
+    "X_target": 0.8
    }
   },
   "source": "pinneapple_flow/flows/reactor_sizing_cstr.json"
@@ -1855,6 +2137,12 @@
    "name": "wing_design"
   },
   "source": "pinneapple_flow/nodes_ext/ahmed_design.py"
+ },
+ "pinneapple_flow.planner.extensions:match": {
+  "inputs": {
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:121"
  },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "inputs": {
@@ -2299,17 +2587,17 @@
  },
  "pinneapple_flow.study_steps:twin_step": {
   "inputs": {
+   "duration": 300.0,
+   "fault_passage": 2,
+   "fault_time": 150.0,
    "geometry": "cold_plate",
-   "out_dir": "twin_smoke",
    "heat_load": 600.0,
+   "out_dir": "twin_smoke",
    "pitch": [
     0.02,
     0.004,
     0.002
-   ],
-   "duration": 300.0,
-   "fault_time": 150.0,
-   "fault_passage": 2
+   ]
   }
  },
  "pinneapple_flow.study_steps:uncertainty_step": {
@@ -2523,9 +2811,9 @@
    "rec": {
     "headline": {
      "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
-     "label_pt": "arrasto vs túnel de vento (Ahmed, Ramm & Faltin, 1984)",
-     "label_short_pt": "arrasto vs túnel de vento (Ahmed 1984)",
-     "text": "drag vs wind tunnel · Ahmed, Ramm & Faltin (1984), 25 deg slant"
+     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
     }
    }
   },
@@ -2691,6 +2979,38 @@
   },
   "source": "tests/test_mcp_server.py:107"
  },
+ "pinneapple_neural.architectures.neural_operators.deeponet:mlp": {
+  "inputs": {
+   "hidden": [
+    8,
+    5
+   ],
+   "in_dim": 3,
+   "out_dim": 2
+  },
+  "source": "tests/pinneapple_neural/test_neural_operators_core_contracts.py:81"
+ },
+ "pinneapple_neural.architectures.rom.study:default_ranks": {
+  "inputs": {
+   "n_train": 50,
+   "n_values": 5,
+   "sv": [
+    10.0,
+    1.0,
+    0.1,
+    0.01,
+    0.001
+   ]
+  },
+  "source": "tests/pinneapple_neural/test_rom_pieces_core_contracts.py:56"
+ },
+ "pinneapple_neural.architectures.rom.toy_systems:make_linear_system": {
+  "inputs": {
+   "D": 6,
+   "seed": 1
+  },
+  "source": "tests/pinneapple_neural/test_rom_pieces_core_contracts.py:109"
+ },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "inputs": {
    "n": 4
@@ -2717,11 +3037,11 @@
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:pinneapple_fno": {
   "inputs": {
-   "n": 16,
-   "width": 8,
-   "modes": 4,
    "layers": 2,
-   "padding": 4
+   "modes": 4,
+   "n": 16,
+   "padding": 4,
+   "width": 8
   }
  },
  "pinneapple_neural.trainer.audit:set_seed": {
@@ -2729,6 +3049,17 @@
    "seed": 42
   },
   "source": "examples/time_series/07_fft_lstm_hybrid.py:90"
+ },
+ "pinneapple_neural.trainer.metrics_cfg:build_metrics_from_cfg": {
+  "inputs": {
+   "cfg": [
+    "mse",
+    {
+     "name": "MAE"
+    }
+   ]
+  },
+  "source": "tests/pinneapple_neural/test_trainer_hpc_and_utils_core_contracts.py:187"
  },
  "pinneapple_pdb.benchmarks:get_benchmark": {
   "inputs": {
@@ -2945,9 +3276,9 @@
  "pinneapple_physics.biology.workflow:sir_final_size": {
   "inputs": {
    "N": 1000000.0,
-   "S0": 999990.0,
+   "R0": 3.0,
    "R_init": 0.0,
-   "R0": 3.0
+   "S0": 999990.0
   },
   "source": "tests/test_bio_workflow.py"
  },
@@ -3006,6 +3337,13 @@
   },
   "source": "hub:recipe:pinneapple_physics__1"
  },
+ "pinneapple_physics.closed_form.eddy_coil:skin_depth": {
+  "inputs": {
+   "f": 50.0,
+   "sigma": 58000000.0
+  },
+  "source": "tests/test_core_contracts_small_gaps.py:117"
+ },
  "pinneapple_physics.closed_form.fin_array_conduction:fin_array_profile_params": {
   "inputs": {
    "base_thickness_m": 0.003,
@@ -3020,6 +3358,13 @@
   },
   "source": "tests/pinneapple_physics/closed_form/test_fin_array_conduction.py:19"
  },
+ "pinneapple_physics.closed_form.heat_exchanger:gnielinski": {
+  "inputs": {
+   "pr": 5.0,
+   "re": 1000.0
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:119"
+ },
  "pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt": {
   "inputs": {
    "d_over_l": 1e-06,
@@ -3027,6 +3372,27 @@
    "re": 100
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:61"
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:kern_shell": {
+  "inputs": {
+   "baffle_spacing": 0.2,
+   "cp": 2840.0,
+   "k": 0.19,
+   "layout": "square",
+   "m_dot": 10.0,
+   "mu": 0.00034,
+   "pitch": 0.025,
+   "shell_id": 0.5,
+   "tube_od": 0.019
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:129"
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:ntu_from_effectiveness": {
+  "inputs": {
+   "cr": 1.0,
+   "eps": 0.75
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:98"
  },
  "pinneapple_physics.closed_form.helmholtz_resonator:helmholtz_resonant_frequency_hz": {
   "inputs": {
@@ -3161,11 +3527,59 @@
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:57"
  },
+ "pinneapple_physics.closed_form.pipe_flow:friction_factor": {
+  "inputs": {
+   "Re": 100000.0,
+   "rel_rough": 0.0001
+  },
+  "source": "tests/test_core_contracts_small_gaps.py:110"
+ },
  "pinneapple_physics.closed_form.pipe_flow:laminar": {
   "inputs": {
    "Re": 1000.0
   },
   "source": "tests/test_closed_form_flow.py:35"
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:air": {
+  "inputs": {
+   "t_c": 26.85
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:140"
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:crf": {
+  "inputs": {
+   "rate": 0.1,
+   "years": 10
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:146"
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:economic_thickness": {
+  "inputs": {
+   "cost_per_m2": 30.0,
+   "cost_per_m3": 2000.0,
+   "d_pipe": 0.1,
+   "efficiency": 0.9,
+   "energy_price": 0.05,
+   "eps": 0.9,
+   "hours": 8000,
+   "k0": 0.035,
+   "k1": 0.0001,
+   "rate": 0.08,
+   "t_amb": 20.0,
+   "t_in": 180.0,
+   "t_surface_max": 50.0,
+   "thicknesses": [
+    0.0,
+    0.02,
+    0.04,
+    0.06,
+    0.08,
+    0.12
+   ],
+   "wind": 2.0,
+   "years": 10
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:159"
  },
  "pinneapple_physics.closed_form.pipe_insulation:heat_loss": {
   "inputs": {
@@ -3179,6 +3593,15 @@
    "wind": 3.0
   },
   "source": "tests/test_presets.py:222"
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:surface_coefficient": {
+  "inputs": {
+   "d": 0.2,
+   "eps": 0.9,
+   "ta": 20.0,
+   "ts": 60.0
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:151"
  },
  "pinneapple_physics.closed_form.plate_fin_heatsink:air_properties": {
   "inputs": {
@@ -3202,6 +3625,27 @@
   },
   "source": "tests/test_presets.py:211"
  },
+ "pinneapple_physics.closed_form.pump_npsh:iapws97_psat": {
+  "inputs": {
+   "t_c": 26.85
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:21"
+ },
+ "pinneapple_physics.closed_form.pump_npsh:npsh_available": {
+  "inputs": {
+   "h_loss": 0.5,
+   "p_surface": 101325.0,
+   "t_c": 26.85,
+   "z_suction": -3.0
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:45"
+ },
+ "pinneapple_physics.closed_form.pump_npsh:water_density": {
+  "inputs": {
+   "t_c": 20.0
+  },
+  "source": "tests/pinneapple_physics/test_closed_form_core_contracts.py:22"
+ },
  "pinneapple_physics.closed_form.rocket_nozzle:area_ratio": {
   "inputs": {
    "M": 2.0,
@@ -3222,6 +3666,13 @@
    "gamma": 1.4
   },
   "source": "tests/test_closed_form_rocket_nozzle.py:30"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:specific_impulse": {
+  "inputs": {
+   "c_star": 1500.0,
+   "cf": 1.6
+  },
+  "source": "tests/test_core_contracts_small_gaps.py:123"
  },
  "pinneapple_physics.closed_form.rocket_nozzle:temperature_ratio": {
   "inputs": {
@@ -3267,8 +3718,8 @@
  },
  "pinneapple_physics.lithography.imaging:frequencies": {
   "inputs": {
-   "N": 64,
-   "L": 1024.0
+   "L": 1024.0,
+   "N": 64
   },
   "source": "tests/test_physics_lithography.py"
  },
@@ -3313,6 +3764,24 @@
   },
   "source": "tests/pinneapple_core/test_module.py:128"
  },
+ "pinneapple_physics.pde_environment.capabilities:get_pde_family": {
+  "inputs": {
+   "kind_or_alias": "Viscous Burgers"
+  },
+  "source": "tests/test_core_contracts_operators_audit_capabilities.py:90"
+ },
+ "pinneapple_physics.pde_environment.capabilities:identify_pde": {
+  "inputs": {
+   "description": "heat equation in a rod"
+  },
+  "source": "tests/test_core_contracts_operators_audit_capabilities.py:93"
+ },
+ "pinneapple_physics.pde_environment.capabilities:suggest_problem_spec": {
+  "inputs": {
+   "description": "viscous burgers shock"
+  },
+  "source": "tests/test_core_contracts_operators_audit_capabilities.py:98"
+ },
  "pinneapple_physics.pde_environment.conditions:DataConstraint": {
   "inputs": {
    "fields": [
@@ -3335,6 +3804,29 @@
    "name": "u_zero"
   },
   "source": "examples/pinn_solver/02_compiler_poisson_2d.py:99"
+ },
+ "pinneapple_physics.pde_environment.conditions:InitialCondition": {
+  "inputs": {
+   "name": {
+    "u": 0.0
+   }
+  },
+  "source": "tests/pinneapple_physics/test_pinn_solver_pieces_core_contracts.py:185"
+ },
+ "pinneapple_physics.pde_environment.conditions:NeumannBC": {
+  "inputs": {
+   "name": {
+    "u": 1.0
+   }
+  },
+  "source": "tests/pinneapple_physics/test_pinn_solver_pieces_core_contracts.py:184"
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:cr3bp_collinear_lagrange_point": {
+  "inputs": {
+   "mu": 0.012150585,
+   "x0": 0.8
+  },
+  "source": "tests/pinneapple_physics/test_preset_core_contracts.py:164"
  },
  "pinneapple_physics.pde_environment.presets.astrophysics:cr3bp_lagrange_points": {
   "inputs": {
@@ -3401,6 +3893,14 @@
    "rs": 1.0
   },
   "source": "tests/test_astrophysics_validation.py:444"
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:schwarzschild_deflection_angle_weak_field": {
+  "inputs": {
+   "GM": 1.32712440018e+20,
+   "b": 695700000.0,
+   "c": 299792458.0
+  },
+  "source": "tests/pinneapple_physics/test_preset_core_contracts.py:152"
  },
  "pinneapple_physics.pde_environment.presets.astrophysics:sod_exact_solution": {
   "inputs": {
@@ -4269,6 +4769,14 @@
   },
   "source": "tests/test_physics_audit.py:116"
  },
+ "pinneapple_physics.pinn_solver.io.mappings:build_default_mapping_atmosphere": {
+  "inputs": {
+   "dep_vars": [
+    "T"
+   ]
+  },
+  "source": "tests/pinneapple_physics/test_pinn_solver_pieces_core_contracts.py:52"
+ },
  "pinneapple_physics.pinn_solver.stochastic:sample_latent": {
   "inputs": {
    "device": "cpu",
@@ -4285,10 +4793,10 @@
  },
  "pinneapple_physics.reactors.kinetics:first_order_pfr_conversion": {
   "inputs": {
-   "T": 350.0,
-   "tau": 60.0,
    "A": 5000000.0,
-   "Ea": 60000.0
+   "Ea": 60000.0,
+   "T": 350.0,
+   "tau": 60.0
   },
   "source": "tests/test_inverse_workflow.py"
  },
@@ -4313,6 +4821,43 @@
    "code": "2412"
   },
   "source": "tests/test_thin_airfoil.py:25"
+ },
+ "pinneapple_presets.cases.ipm_traction:machine": {
+  "inputs": {
+   "n_gap": 480
+  },
+  "source": "tests/test_core_contracts_last_mile.py:122"
+ },
+ "pinneapple_presets.core:check": {
+  "inputs": {
+   "limit": 2.0,
+   "name": "x",
+   "ok": true,
+   "value": 1.0
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:99"
+ },
+ "pinneapple_presets.core:lhs": {
+  "inputs": {
+   "bounds": [
+    [
+     1.0,
+     1000.0
+    ]
+   ],
+   "log": [
+    true
+   ],
+   "n": 6,
+   "seed": 0
+  },
+  "source": "tests/test_core_contracts_front_door_and_data.py:94"
+ },
+ "pinneapple_presets.surrogate:surrogate_path": {
+  "inputs": {
+   "name": "x"
+  },
+  "source": "tests/test_core_contracts_presets_support.py:150"
  },
  "pinneapple_problemdesign.elicitation.validators:validate_and_suggest": {
   "inputs": {
@@ -4348,18 +4893,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -4375,8 +4920,8 @@
  },
  "pinneapple_problemdesign.formulate:formulate": {
   "inputs": {
-   "phenomenon": "battery_cell_thermal",
-   "dims": 1
+   "dims": 1,
+   "phenomenon": "battery_cell_thermal"
   },
   "source": "tests/test_problemdesign_formulate.py:59"
  },
@@ -4415,18 +4960,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -4617,7 +5162,7 @@
  },
  "pinneapple_security.privacy:find_pii": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:22"
  },
@@ -4635,7 +5180,7 @@
  },
  "pinneapple_security.privacy:redact": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:24"
  },
@@ -4819,17 +5364,17 @@
   "inputs": {
    "designs": [
     {
-     "W4": 0.0189,
-     "H3": 0.0065,
      "H0": 0.01096,
-     "W0": 0.042,
      "H1": 0.0015,
-     "L": 0.08382,
-     "skew_deg": 10.0,
+     "H3": 0.0065,
      "I_peak": 250.0,
+     "L": 0.08382,
+     "W0": 0.042,
+     "W4": 0.0189,
+     "flow_L_min": 6.0,
      "gamma_deg": 50.0,
      "rpm": 1500.0,
-     "flow_L_min": 6.0
+     "skew_deg": 10.0
     }
    ]
   },
@@ -5525,6 +6070,38 @@
   },
   "source": "tests/test_biology_inference.py:110"
  },
+ "pinneapple_simulation.meshless.domains:domain_from_spec": {
+  "inputs": {
+   "d": {
+    "holes": [
+     [
+      0.5,
+      0.5,
+      0.2
+     ]
+    ],
+    "polygon": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   }
+  },
+  "source": "tests/test_meshless.py"
+ },
  "pinneapple_simulation.multiphysics.coupling:recommend_strategy": {
   "inputs": {
    "contraction": 0.35,
@@ -5535,15 +6112,15 @@
  },
  "pinneapple_simulation.multirotor.rotor:induced_velocity": {
   "inputs": {
-   "thrust": 10.0,
-   "radius": 0.127
+   "radius": 0.127,
+   "thrust": 10.0
   },
   "source": "tests/test_drone_workflow.py"
  },
  "pinneapple_simulation.multirotor.rotor:momentum_hover_power": {
   "inputs": {
-   "thrust": 10.0,
-   "radius": 0.127
+   "radius": 0.127,
+   "thrust": 10.0
   },
   "source": "tests/test_drone_workflow.py"
  },
@@ -6052,21 +6629,21 @@
  },
  "pinneapple_simulation.terramechanics.workflow:bekker_pressure": {
   "inputs": {
-   "width": 0.1,
-   "sinkage": 0.02,
    "k_c": 1000.0,
    "k_phi": 500000.0,
-   "n": 1.0
+   "n": 1.0,
+   "sinkage": 0.02,
+   "width": 0.1
   },
   "source": "tests/test_terramechanics_workflow.py"
  },
  "pinneapple_simulation.terramechanics.workflow:janosi_shear": {
   "inputs": {
-   "normal_stress": 10000.0,
-   "displacement": 0.02,
+   "K": 0.01,
    "c": 500.0,
-   "phi_deg": 30.0,
-   "K": 0.01
+   "displacement": 0.02,
+   "normal_stress": 10000.0,
+   "phi_deg": 30.0
   },
   "source": "tests/test_terramechanics_workflow.py"
  },
@@ -6081,19 +6658,19 @@
   "inputs": {
    "area": 0.24,
    "eps_eff": 0.03,
+   "internal_W": 0.0,
    "t_inside": 233.0,
-   "t_sink": 180.0,
-   "internal_W": 0.0
+   "t_sink": 180.0
   },
   "source": "tests/test_rover_mission_design.py"
  },
  "pinneapple_simulation.vehicle.mission_design:max_step_height": {
   "inputs": {
-   "radius": 0.1,
+   "cap": 0.15,
    "load": 10.0,
-   "push": 5.0,
    "mu": 0.6,
-   "cap": 0.15
+   "push": 5.0,
+   "radius": 0.1
   },
   "source": "tests/test_rover_mission_design.py"
  },
@@ -6102,10 +6679,10 @@
    "area": 0.22,
    "efficiency": 0.18,
    "planet": {
-    "solar_W_m2": 586.2,
-    "transmission": 0.6,
     "day_s": 88775.0,
-    "daylight_fraction": 0.5
+    "daylight_fraction": 0.5,
+    "solar_W_m2": 586.2,
+    "transmission": 0.6
    }
   },
   "source": "tests/test_rover_mission_design.py"
@@ -6113,17 +6690,17 @@
  "pinneapple_simulation.vehicle.mission_design:step_climb_force": {
   "inputs": {
    "h": 0.05,
-   "radius": 0.1,
    "load": 10.0,
-   "mu": 0.6
+   "mu": 0.6,
+   "radius": 0.1
   },
   "source": "tests/test_rover_mission_design.py"
  },
  "pinneapple_simulation.vehicle.mission_design:tip_over_angles": {
   "inputs": {
+   "cg_height": 0.2,
    "track": 0.4,
-   "wheelbase": 0.6,
-   "cg_height": 0.2
+   "wheelbase": 0.6
   },
   "source": "tests/test_rover_mission_design.py"
  },
@@ -6175,6 +6752,12 @@
    "module": "pinneapple_physics.pinn_solver.compiler"
   },
   "source": "tests/test_stability.py:17"
+ },
+ "pinneapple_stability:warn_experimental": {
+  "inputs": {
+   "package": "pinneapple_x"
+  },
+  "source": "tests/test_core_contracts_small_gaps.py:38"
  },
  "pinneapple_studio.catalog:make_class_finder": {
   "inputs": {
@@ -6423,17 +7006,17 @@
  },
  "pinneapple_systems.digital_twin.workflow:cusum_arl0": {
   "inputs": {
-   "k": 0.5,
-   "h": 8.0
+   "h": 8.0,
+   "k": 0.5
   },
   "source": "tests/test_digital_twin_workflow.py:test_statistics_helpers"
  },
  "pinneapple_systems.digital_twin.workflow:square_wave": {
   "inputs": {
-   "n": 240,
    "dt": 5.0,
-   "low": 1000.0,
    "high": 2000.0,
+   "low": 1000.0,
+   "n": 240,
    "period": 1200.0
   },
   "source": "pinneapple_systems/digital_twin/workflow.py:simulate_plant"
@@ -6791,7 +7374,7 @@
    "date": "January 1, 2026",
    "report_id": "TR-0",
    "subtitle": "Unit test",
-   "title": "A test report with u₀ and 10⁻³"
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
   },
   "source": "tests/test_paperkit.py:90"
  },
@@ -6857,6 +7440,13 @@
   },
   "source": "tests/test_rover_realism.py:128"
  },
+ "pinneapple_tools.visualization.studio.view_cache:view_paths": {
+  "inputs": {
+   "directory": "views",
+   "key": "test_0"
+  },
+  "source": "tests/test_october_apps_helpers.py"
+ },
  "pinneapple_twin3d.primitives:box": {
   "inputs": {
    "size": [
@@ -6914,6 +7504,17 @@
    "key": "bof_converter"
   },
   "source": "tests/test_twin3d_wear.py:62"
+ },
+ "pinneapple_veriphysics.policy:save_policy": {
+  "inputs": {
+   "policy": {
+    "inconclusive": "ignore",
+    "min_coverage": 0.0,
+    "min_score": 0.0,
+    "name": "lab"
+   }
+  },
+  "source": "tests/test_veriphysics_model_grade.py:87"
  },
  "pinneapple_veriphysics.recommend:formulate_and_recommend": {
   "inputs": {
@@ -7014,78 +7615,5 @@
    "seed": 1
   },
   "source": "tests/test_nvidia_integrations.py:506"
- },
- "pinneapple_simulation.meshless.domains:domain_from_spec": {
-  "inputs": {
-   "d": {
-    "polygon": [
-     [
-      0,
-      0
-     ],
-     [
-      1,
-      0
-     ],
-     [
-      1,
-      1
-     ],
-     [
-      0,
-      1
-     ]
-    ],
-    "holes": [
-     [
-      0.5,
-      0.5,
-      0.2
-     ]
-    ]
-   }
-  },
-  "source": "tests/test_meshless.py"
- },
- "pinneapple_tools.visualization.studio.view_cache:view_paths": {
-  "inputs": {
-   "directory": "views",
-   "key": "test_0"
-  },
-  "source": "tests/test_october_apps_helpers.py"
- },
- "pinneapple_core.series:bucket_edges": {
-  "inputs": {
-   "n": 1000,
-   "k": 10
-  },
-  "source": "tests/test_october_apps_helpers.py"
- },
- "pinneapple_core.series:downsample_indices": {
-  "inputs": {
-   "n": 1000,
-   "k": 50,
-   "method": "even"
-  },
-  "source": "tests/test_october_apps_helpers.py"
- },
- "pinneapple_core.series:downsample": {
-  "inputs": {
-   "x": null,
-   "y": [
-    0.0,
-    3.0,
-    1.0,
-    9.0,
-    2.0,
-    4.0,
-    -5.0,
-    1.0,
-    0.5,
-    2.0
-   ],
-   "k": 6
-  },
-  "source": "tests/test_october_apps_helpers.py"
  }
 }

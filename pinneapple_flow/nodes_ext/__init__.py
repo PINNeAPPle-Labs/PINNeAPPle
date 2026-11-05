@@ -6,6 +6,7 @@ from ..examples import register_hook  # noqa: E402
 from . import (  # noqa: F401
     aero,
     ahmed_design,
+    aircraft_surrogate,
     architectures,
     arena_pipelines,
     astro,

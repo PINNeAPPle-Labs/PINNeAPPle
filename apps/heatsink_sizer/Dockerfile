@@ -1,7 +1,7 @@
 # HeatSink Sizer -- build from the repository root:
 #   docker build -f apps/heatsink_sizer/Dockerfile -t heatsink-sizer .
 #   docker run -p 8080:8080 heatsink-sizer
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
 WORKDIR /srv

@@ -2086,6 +2086,12 @@
   },
   "source": "tests/test_flow_library_nodes.py:43"
  },
+ "pinneapple_flow.nodes_ext.aircraft_surrogate:wants_renders": {
+  "inputs": {
+   "text": "a 3-D aircraft surrogate with Blender renders of the streamlines"
+  },
+  "source": "tests/test_aero_aircraft_surrogate.py:150"
+ },
  "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
   "inputs": {},
   "source": "tests/test_bio_workflow.py"

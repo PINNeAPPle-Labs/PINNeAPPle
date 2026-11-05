@@ -199,6 +199,19 @@ def solve(af, x_ref: float, nc: int = 5, ns_wing: int = 14, ns_tail: int = 6, ta
     Mstrip[L.strip, np.arange(N)] = 1.0
     gam_strip = G @ Mstrip.T                                            # (3, ns)
     cl_strip = 2 * gam_strip / L.chord[None]
+    Wn, ln = trefftz(L)
+    Q = np.einsum("ai,ij,bj,i->ab", gam_strip, -Wn, gam_strip, ln) / (S) * 1.0
+    Q = 0.5 * (Q + Q.T)
+    return VLMSolution(L, G, S, c, b, x_ref, CL, Cm, CLw, cl_strip, Q)
+
+
+def trefftz(L: Lattice) -> tuple[np.ndarray, np.ndarray]:
+    """Trefftz-plane normal wash per unit strip circulation ``Wn`` (ns, ns) and strip edge lengths ``ln`` (ns,).
+
+    Geometry only: the induced drag of any strip circulation ``g`` (per unit free-stream speed) is
+    ``CDi = sum_ij g_i (-Wn_ij) g_j ln_i / S``. :func:`solve` and :func:`loads_from_circulation` use it.
+    """
+    ns = len(L.chord)
     # Trefftz plane: trailing vortices of strength (Gamma_strip difference) at strip edges in the y-z plane
     # induced downwash at strip centres from 2D point vortices at each strip edge
     edges_y, edges_z, wst = [], [], []
@@ -223,9 +236,29 @@ def solve(af, x_ref: float, nc: int = 5, ns_wing: int = 14, ns_tail: int = 6, ta
     ny_, nz_ = -tz / ln, ty / ln
     Wn = (-(vy1 - vy2)) * ny_[:, None] + (-(vz1 - vz2)) * nz_[:, None]   # (ns, ns): normal wash per unit strip Gamma
     # Di = -rho/2 sum Gamma_i w_i ds_i  (w negative for downwash) -> CDi = sum Gamma_i (-w_i) ln_i / (V^2 S)
-    Q = np.einsum("ai,ij,bj,i->ab", gam_strip, -Wn, gam_strip, ln) / (S) * 1.0
-    Q = 0.5 * (Q + Q.T)
-    return VLMSolution(L, G, S, c, b, x_ref, CL, Cm, CLw, cl_strip, Q)
+    return Wn, ln
+
+
+def loads_from_circulation(L: Lattice, gamma: np.ndarray, s_ref: float, c_ref: float, x_ref: float
+                           ) -> dict[str, float]:
+    """CL, Cm (about ``x_ref``) and CDi of one panel circulation ``gamma`` (N,), per unit free-stream speed.
+
+    The same post-processing as :func:`solve`: Kutta-Joukowski on the bound legs with the free stream for lift and
+    moment, the Trefftz plane for induced drag. ``solve(...).coefficients(a, i_t)`` equals this function applied
+    to ``G.T @ [1, a, i_t]``.
+    """
+    g = np.asarray(gamma, float).reshape(-1)
+    ex = np.array([1.0, 0, 0])
+    dl = L.P2 - L.P1
+    mid = 0.5 * (L.P1 + L.P2)
+    F = np.cross(ex, dl)
+    r = mid - [x_ref, 0, 0]
+    My = r[:, 2] * F[:, 0] - r[:, 0] * F[:, 2]
+    ns = len(L.chord)
+    gs = np.bincount(L.strip, weights=g, minlength=ns)
+    Wn, ln = trefftz(L)
+    return {"CL": float(g @ F[:, 2] / (0.5 * s_ref)), "Cm": float(g @ My / (0.5 * s_ref * c_ref)),
+            "CDi": float(np.einsum("i,ij,j,i->", gs, -Wn, gs, ln) / s_ref)}
 
 
 def streamlines(sol: VLMSolution, alpha: float, it: float, seeds: np.ndarray, steps: int = 220, h: float = 0.08,

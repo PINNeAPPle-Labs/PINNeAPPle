@@ -302,6 +302,14 @@
   "returned": "_GeneratorContextManager",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.aircraft_surrogate:build_flow": {
+  "code_hash": "11085983c6aee9c3",
+  "error": "ModuleNotFoundError: No module named 'pinneapple_flow.nodes_ext.aircraft_surrogate'",
+  "inputs": {},
+  "ok": false,
+  "recorded": "2026-11-05",
+  "seconds": 5.68
+ },
  "pinneapple_flow.nodes_ext.bio_workflow:build_flow": {
   "code_hash": "c850f9ea1ca71684",
   "inputs": {},

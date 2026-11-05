@@ -182,15 +182,29 @@ def _PT(a, P: float, T: float) -> dict[str, float]:
             "mu_JT": a.first_partial_deriv(CP.iT, CP.iP, CP.iHmass)}
 
 
+def _flash(a, pair, v1: float, v2: float) -> None:
+    """``a.update(pair, v1, v2)`` with the gas phase imposed; when that flash fails (it does for some pure fluids),
+    again with CoolProp's own phase determination, then the gas phase is imposed back."""
+    import CoolProp.CoolProp as CP
+    try:
+        a.update(pair, v1, v2)
+    except ValueError:
+        a.unspecify_phase()
+        try:
+            a.update(pair, v1, v2)
+        finally:
+            a.specify_phase(CP.iphase_gas)
+
+
 def _Ph(a, P: float, h: float) -> dict[str, float]:
     import CoolProp.CoolProp as CP
-    a.update(CP.HmassP_INPUTS, h, P)
+    _flash(a, CP.HmassP_INPUTS, h, P)
     return _PT(a, P, a.T())
 
 
 def _Ps(a, P: float, s: float) -> dict[str, float]:
     import CoolProp.CoolProp as CP
-    a.update(CP.PSmass_INPUTS, P, s)
+    _flash(a, CP.PSmass_INPUTS, P, s)
     return _PT(a, P, a.T())
 
 

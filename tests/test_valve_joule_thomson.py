@@ -47,3 +47,13 @@ def test_the_valve_flow_capability_matches_the_request():
     best = match("Estou simulando o efeito Joule-Thomson numa válvula globo com gás natural e o CFD não bate")
     assert best and best[0][1].id == "process.valve_joule_thomson"
     assert all(c.id != "process.valve_joule_thomson" for _, c, _ in match("optimise the wing planform"))
+
+
+def test_pure_methane_literal_calls():
+    """Literal calls (the Studio's recorded inputs): pure methane from 70 to 20 bar at 25 °C."""
+    from pinneapple_systems.process_components.joule_thomson import isenthalpic_path, throttle
+
+    r = throttle({"Methane": 1.0}, 7000000.0, 298.15, 2000000.0)
+    assert r["dT_K"] < -10.0 and abs(r["h_residual_J_kg"]) < 1.0
+    p = isenthalpic_path({"Methane": 1.0}, 7000000.0, 298.15, 2000000.0, 5)
+    assert len(p["T"]) == 5 and abs(p["T"][-1] - r["T2_K"]) < 1e-6

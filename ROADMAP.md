@@ -1568,6 +1568,12 @@ diferenciável GPU-nativo, e já conecta nativamente com o backend JAX que
 `pinneapple_tools.compute_backends` já expõe, sem precisar de uma ponte
 nova.
 
+**Estado (2026-11-04): entregue.** `pinneapple_tools.compute_backends.warp_backend` (extra `pinneapple[warp]`):
+`warp.fem` com ordem de convergência medida contra solução manufaturada (Q1 1.97→2.00, Q2 2.91→2.99), tensores
+torch sem cópia por DLPack, e um passo de corpo rígido diferenciável por `wp.Tape` cujos gradientes batem com o
+`torch.autograd` em 1e-16 nas duas dimensões. Warp também passou a ser o motor por baixo do Newton, que já estava
+integrado (`pinneapple_simulation.external_solvers.newton_physics`), e `pp.doctor("gpu")` cobre a pilha NVIDIA.
+
 ### AI for Science — descoberta autônoma já produz resultado real e verificável, não só promessa
 **Achado via busca com trechos reais**: o GNoME da DeepMind já descobriu
 2,2 milhões de estruturas cristalinas novas (52 mil condutores de

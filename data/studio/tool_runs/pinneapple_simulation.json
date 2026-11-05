@@ -1764,6 +1764,226 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_simulation.external_solvers.pict.case:CavityCase": {
+  "code_hash": "0c97480a3818d0b3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "CavityCase",
+  "seconds": 8.0
+ },
+ "pinneapple_simulation.external_solvers.pict.case:pict_availability": {
+  "code_hash": "94d42cad0fcf848d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "PICTAvailability",
+  "seconds": 7.64
+ },
+ "pinneapple_simulation.external_solvers.pict.case:pict_available": {
+  "code_hash": "136dbcd30d9b6f1d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "bool",
+  "seconds": 7.57
+ },
+ "pinneapple_simulation.external_solvers.pict.case:wall_refined_grid": {
+  "code_hash": "01a6cdec7a52b51e",
+  "inputs": {
+   "nx": 8,
+   "ny": 8
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "ndarray",
+  "seconds": 7.76
+ },
+ "pinneapple_simulation.external_solvers.pict.local_solver:LocalSolverConfig": {
+  "code_hash": "8a7d9d3abbb6393a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "LocalSolverConfig",
+  "seconds": 7.74
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:centerline": {
+  "code_hash": "917e323330e2f55e",
+  "inputs": {
+   "direction": "vertical",
+   "field": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     2.0,
+     3.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "ndarray",
+  "seconds": 7.81
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:compare_to_ghia": {
+  "code_hash": "a03d944e7dd962c2",
+  "inputs": {
+   "component": "u",
+   "computed": [
+    0.0,
+    -0.03717,
+    -0.04192,
+    -0.04775,
+    -0.06434,
+    -0.1015,
+    -0.15662,
+    -0.2109,
+    -0.20581,
+    -0.13641,
+    0.00332,
+    0.23151,
+    0.68717,
+    0.73722,
+    0.78871,
+    0.84123,
+    1.0
+   ],
+   "reynolds": 100,
+   "stations": [
+    0.0,
+    0.0547,
+    0.0625,
+    0.0703,
+    0.1016,
+    0.1719,
+    0.2813,
+    0.4531,
+    0.5,
+    0.6172,
+    0.7344,
+    0.8516,
+    0.9531,
+    0.9609,
+    0.9688,
+    0.9766,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 7.87
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:divergence_max": {
+  "code_hash": "a68a790cb42ddd89",
+  "inputs": {
+   "dx": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ],
+   "dy": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ],
+   "u": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "v": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "float",
+  "seconds": 7.97
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:ghia_profile": {
+  "code_hash": "d9c6639fa6ed7265",
+  "inputs": {
+   "component": "u",
+   "reynolds": 100
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "tuple",
+  "seconds": 7.93
+ },
  "pinneapple_simulation.flight.catalog:a320": {
   "code_hash": "c52d3f2e140ed238",
   "inputs": {},

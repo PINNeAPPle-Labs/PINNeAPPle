@@ -5976,6 +5976,174 @@
   },
   "source": "tests/test_openfoam_campaign.py:87"
  },
+ "pinneapple_simulation.external_solvers.pict.case:wall_refined_grid": {
+  "inputs": {
+   "nx": 8,
+   "ny": 8
+  },
+  "source": "tests/test_pict_bridge.py:88"
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:centerline": {
+  "inputs": {
+   "direction": "vertical",
+   "field": [
+    [
+     0.0,
+     1.0
+    ],
+    [
+     2.0,
+     3.0
+    ]
+   ]
+  },
+  "source": "tests/test_pict_bridge.py:196"
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:compare_to_ghia": {
+  "inputs": {
+   "component": "u",
+   "computed": [
+    0.0,
+    -0.03717,
+    -0.04192,
+    -0.04775,
+    -0.06434,
+    -0.1015,
+    -0.15662,
+    -0.2109,
+    -0.20581,
+    -0.13641,
+    0.00332,
+    0.23151,
+    0.68717,
+    0.73722,
+    0.78871,
+    0.84123,
+    1.0
+   ],
+   "reynolds": 100,
+   "stations": [
+    0.0,
+    0.0547,
+    0.0625,
+    0.0703,
+    0.1016,
+    0.1719,
+    0.2813,
+    0.4531,
+    0.5,
+    0.6172,
+    0.7344,
+    0.8516,
+    0.9531,
+    0.9609,
+    0.9688,
+    0.9766,
+    1.0
+   ]
+  },
+  "source": "tests/test_pict_bridge.py:206"
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:divergence_max": {
+  "inputs": {
+   "dx": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ],
+   "dy": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+   ],
+   "u": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "v": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "source": "tests/test_pict_bridge.py:214"
+ },
+ "pinneapple_simulation.external_solvers.pict.validation:ghia_profile": {
+  "inputs": {
+   "component": "u",
+   "reynolds": 100
+  },
+  "source": "tests/test_pict_bridge.py:178"
+ },
  "pinneapple_simulation.flight.catalog:build": {
   "inputs": {
    "name": "light_ga"
@@ -7353,6 +7521,42 @@
    "name": "torch"
   },
   "source": "tests/pinneapple_core/test_backend.py:70"
+ },
+ "pinneapple_tools.compute_backends.warp_backend:fem_poisson": {
+  "inputs": {
+   "resolution": 16
+  },
+  "source": "tests/test_warp_backend.py:108"
+ },
+ "pinneapple_tools.compute_backends.warp_backend:manufactured_f": {
+  "inputs": {
+   "x": [
+    0.31,
+    0.5,
+    0.77
+   ],
+   "y": [
+    0.22,
+    0.6,
+    0.44
+   ]
+  },
+  "source": "tests/test_warp_backend.py:54"
+ },
+ "pinneapple_tools.compute_backends.warp_backend:manufactured_u": {
+  "inputs": {
+   "x": [
+    0.31,
+    0.5,
+    0.77
+   ],
+   "y": [
+    0.22,
+    0.6,
+    0.44
+   ]
+  },
+  "source": "tests/test_warp_backend.py:54"
  },
  "pinneapple_tools.dataset_quality.vlm_curation:build_consistency_prompt": {
   "inputs": {

@@ -92,20 +92,20 @@
   "seconds": 0.02
  },
  "pinneapple_core.onboarding.doctor:doctor": {
-  "code_hash": "19de08536e8ecfe9",
+  "code_hash": "e350794ee6075609",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "returned": "DoctorReport",
-  "seconds": 0.09
+  "seconds": 9.56
  },
  "pinneapple_core.onboarding.doctor:profiles": {
-  "code_hash": "d02f19e917f6561e",
+  "code_hash": "c6ad68e45c38ee82",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "returned": "dict",
-  "seconds": 0.0
+  "seconds": 7.24
  },
  "pinneapple_core.optim:list_methods": {
   "code_hash": "a493600991e8a287",

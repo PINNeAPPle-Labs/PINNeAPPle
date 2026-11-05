@@ -12,6 +12,7 @@ profile        for
 ``research``   PINNs, operators, uncertainty, JAX, publication figures
 ``enterprise`` serving, signatures, the physics linter in CI, the hub and the MCP server
 ``all``        every extra the package declares
+``gpu``        the NVIDIA simulation stack: Newton rigid bodies on Warp, and Warp itself
 =============  ==========================================================================
 
 Every failure prints the exact command that fixes it, and nothing is reported as fine when it was
@@ -29,13 +30,14 @@ import platform
 import shutil
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
 
 __all__ = ["DoctorReport", "Check", "doctor", "profiles", "PROFILES"]
 
 # Distribution names probed per extra; the first that imports decides the extra is present.
-_EXTRA_PROBES: Dict[str, Tuple[str, ...]] = {
+_EXTRA_PROBES: dict[str, tuple[str, ...]] = {
     "cfd": ("manifold3d", "cadquery", "gmsh", "trimesh", "pyvista", "plotly", "meshio"),
     "enterprise": ("fastapi", "cryptography", "huggingface_hub", "mcp", "meshio"),
     "geometry": ("manifold3d", "huggingface_hub"),
@@ -54,12 +56,14 @@ _EXTRA_PROBES: Dict[str, Tuple[str, ...]] = {
     "mcp": ("mcp",),
     "fmi": ("fmpy",),
     "mujoco": ("mujoco",),
+    "newton": ("newton",),
+    "warp": ("warp",),
     "fenics": ("dolfin", "dolfinx"),
     "hub": ("huggingface_hub",),
     "orchestration": ("prefect",),
 }
 
-PROFILES: Dict[str, Dict[str, Any]] = {
+PROFILES: dict[str, dict[str, Any]] = {
     "start": {
         "description": "first week: solve a preset, plot a field, train one small network",
         "extras": (),
@@ -84,6 +88,12 @@ PROFILES: Dict[str, Dict[str, Any]] = {
         "programs": (),
         "base": ("numpy", "scipy", "torch", "pandas"),
     },
+    "gpu": {
+        "description": "NVIDIA simulation: Newton rigid bodies on Warp, and the Warp backend",
+        "extras": ("newton", "warp"),
+        "programs": (),
+        "base": ("numpy", "scipy", "torch"),
+    },
     "all": {
         "description": "every extra the package declares",
         "extras": tuple(k for k in _EXTRA_PROBES if k not in ("start",)),
@@ -93,7 +103,7 @@ PROFILES: Dict[str, Dict[str, Any]] = {
 }
 
 # External programs that the Python side cannot install, with the reason each one matters.
-_PROGRAMS: Dict[str, str] = {
+_PROGRAMS: dict[str, str] = {
     "blockMesh": "OpenFOAM meshing: required by the CFD campaigns",
     "simpleFoam": "OpenFOAM steady solver: required by the CFD campaigns",
     "pimpleFoam": "OpenFOAM transient solver: required by the CFD campaigns",
@@ -110,7 +120,7 @@ class Check:
     """One thing that was checked. ``ok`` is None when the check could not run."""
 
     name: str
-    ok: Optional[bool]
+    ok: bool | None
     detail: str = ""
     fix: str = ""
     required: bool = True
@@ -126,17 +136,17 @@ class Check:
 @dataclass
 class DoctorReport:
     profile: str
-    checks: List[Check] = field(default_factory=list)
+    checks: list[Check] = field(default_factory=list)
 
     @property
-    def failures(self) -> List[Check]:
+    def failures(self) -> list[Check]:
         return [c for c in self.checks if c.ok is False and c.required]
 
     @property
     def ok(self) -> bool:
         return not self.failures
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "profile": self.profile, "ok": self.ok,
             "checks": [{"name": c.name, "ok": c.ok, "detail": c.detail, "fix": c.fix,
@@ -166,7 +176,7 @@ class DoctorReport:
         return self.format()
 
 
-def profiles() -> Dict[str, str]:
+def profiles() -> dict[str, str]:
     """The profiles ``doctor`` accepts, with the sentence that describes each one."""
     return {k: v["description"] for k, v in PROFILES.items()}
 
@@ -198,7 +208,7 @@ def _check_package() -> Check:
         return Check("pinneapple", False, f"import failed: {e}", "pip install pinneapple")
 
 
-def _check_base(base: Sequence[str]) -> List[Check]:
+def _check_base(base: Sequence[str]) -> list[Check]:
     out = []
     for mod in base:
         present = _installed(mod)
@@ -223,7 +233,7 @@ def _check_device() -> Check:
         return Check("compute device", None, f"could not query torch: {e}")
 
 
-def _check_extras(extras: Sequence[str]) -> List[Check]:
+def _check_extras(extras: Sequence[str]) -> list[Check]:
     out = []
     for extra in extras:
         probes = _EXTRA_PROBES.get(extra, ())
@@ -246,7 +256,7 @@ def _check_extras(extras: Sequence[str]) -> List[Check]:
     return out
 
 
-def _check_programs(programs: Sequence[str]) -> List[Check]:
+def _check_programs(programs: Sequence[str]) -> list[Check]:
     out = []
     for prog in programs:
         path = shutil.which(prog)
@@ -308,7 +318,7 @@ def doctor(profile: str = "start", *, verbose: bool = True) -> DoctorReport:
     if key not in PROFILES:
         raise ValueError(f"unknown profile {profile!r}; choose one of: {', '.join(PROFILES)}")
     spec = PROFILES[key]
-    checks: List[Check] = [_check_python(), _check_package(), _check_device(), _check_disk(), _check_memory()]
+    checks: list[Check] = [_check_python(), _check_package(), _check_device(), _check_disk(), _check_memory()]
     checks += _check_base(spec["base"])
     checks += _check_extras(spec["extras"])
     checks += _check_programs(spec["programs"])

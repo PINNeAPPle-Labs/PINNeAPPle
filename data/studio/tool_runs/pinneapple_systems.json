@@ -765,6 +765,47 @@
   "returned": "float64",
   "seconds": 0.0
  },
+ "pinneapple_systems.process_components.valve_cfd:ValveGeometry": {
+  "code_hash": "8163e6981dec0767",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "ValveGeometry",
+  "seconds": 7.63
+ },
+ "pinneapple_systems.process_components.valve_cfd:foam_bashrc": {
+  "code_hash": "a41d09260e68eadb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "str",
+  "seconds": 8.23
+ },
+ "pinneapple_systems.process_components.valve_cfd:mixture_constants": {
+  "code_hash": "e61d1c7936281249",
+  "inputs": {
+   "T_K": 298.15,
+   "gas": {
+    "CarbonDioxide": 0.01,
+    "Ethane": 0.05,
+    "Methane": 0.9,
+    "Nitrogen": 0.02,
+    "Propane": 0.02
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 8.34
+ },
+ "pinneapple_systems.process_components.valve_cfd:openfoam_available": {
+  "code_hash": "445857d09e073268",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "bool",
+  "seconds": 7.92
+ },
  "pinneapple_systems.process_components.water_hammer:wave_period": {
   "code_hash": "f5d512bcb7ac8bd5",
   "inputs": {

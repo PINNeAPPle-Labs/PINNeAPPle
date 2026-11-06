@@ -19,10 +19,11 @@ from .metrics import (
                       score_model,
 )
 from .models import OperatorSetAdapter, available_models, build_model_specs
-from .protocol import FieldDataset, FieldSample, normalize_geometry, run_benchmark, write_report
+from .protocol import FieldDataset, FieldSample, normalize_geometry, run_benchmark, subsample_nodes, write_report
 from .trainer import collate_samples, predict_field_model, train_field_model
 
-__all__ = ["FieldSample", "FieldDataset", "normalize_geometry", "run_benchmark", "write_report",
+__all__ = ["FieldSample", "FieldDataset", "normalize_geometry", "subsample_nodes", "run_benchmark",
+           "write_report",
            "train_field_model", "predict_field_model", "collate_samples",
            "build_model_specs", "available_models", "OperatorSetAdapter",
            "relative_l2_per_geometry", "mean_relative_l2", "pooled_r2", "error_percentiles", "bootstrap_ci",

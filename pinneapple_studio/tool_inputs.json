@@ -921,6 +921,25 @@
   },
   "source": "tests/pinneapple_core/test_backend.py:72"
  },
+ "pinneapple_core.distributed:cpu_count": {
+  "inputs": {},
+  "source": "tests/pinneapple_core/test_distributed.py:69"
+ },
+ "pinneapple_core.distributed:decompose_box": {
+  "inputs": {
+   "hi": [
+    4,
+    1
+   ],
+   "lo": [
+    0,
+    0
+   ],
+   "overlap": 0.5,
+   "parts": 4
+  },
+  "source": "tests/pinneapple_core/test_distributed.py:142"
+ },
  "pinneapple_core.jsonable:round_sig": {
   "inputs": {
    "x": -0.000123456789

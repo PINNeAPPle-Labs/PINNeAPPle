@@ -105,8 +105,9 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
                        u_lattice: float = LB["u"], geometry: str = "",
                        body: Literal["ahmed", "formula"] = "ahmed", wheelbase: float = 3.60,
                        front_wing_aoa: float = 4.0, rear_wing_aoa: float = 6.0, drs_open: bool = False) -> dict:
-    """A road vehicle in a 3-D lattice-Boltzmann wind tunnel (``WindTunnelLBM``, D3Q19, Smagorinsky LES, moving road),
-    from its geometry to drag and lift, the force history and the mean field on three slices.
+    """Simulate a car in a 3-D lattice-Boltzmann wind tunnel (``WindTunnelLBM``, D3Q19, Smagorinsky LES, moving road):
+    a road vehicle, a racing car or the reference Ahmed body, from its geometry to drag and lift, the force history and
+    the mean field on three slices. Simulação 3-D de aerodinâmica externa de carro (arrasto, sustentação, esteira).
 
     **The geometry comes from the request**, three ways, and none of them needs a file to exist first:
 

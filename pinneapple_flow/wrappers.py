@@ -63,6 +63,149 @@ def lbm_channel(nx: int = 64, ny: int = 32, Re: float = 100.0, u_in: float = 0.0
             "mean": float(np.nanmean(r))}
 
 
+AHMED = {"length": 1.044, "width": 0.389, "height": 0.288, "nose_radius": 0.100, "slant_length": 0.222,
+         "reference_cd_25deg": 0.285, "reference_re": 4.3e6}
+TAU_MIN = 0.52                        # below this the BGK collision is at its stability limit and the forces are noise
+LB = {"u": 0.10, "balance_tol": 0.10, "settle_tol": 0.05}
+
+
+def _body_mask(shape, dx: float, x0: float, slant_deg: float, clearance: float,
+               dims: tuple[float, float, float] = (AHMED["length"], AHMED["width"], AHMED["height"])):
+    """The body as LBM solid cells, built from the request: a box ``dims`` = (length, width, height) in metres with its
+    front edges rounded and its rear face slanted by ``slant_deg``, the nose at x = 0 and the lower face ``clearance``
+    above the road (z = 0). With the reference proportions it is the Ahmed body (Ahmed, Ramm & Faltin 1984); with the
+    user's dimensions it is the same family at that size. Written from the definition, so a job needs no mesh file."""
+    import math
+
+    import torch
+
+    L, W, H = (float(d) for d in dims)
+    R = AHMED["nose_radius"] / AHMED["length"] * L          # the reference proportions, scaled to the request
+    Ls = AHMED["slant_length"] / AHMED["length"] * L
+    nx, ny, nz = shape
+    if min(L, W, H) <= 0:
+        raise ValueError(f"the body dimensions must be positive, got {dims}")
+    x = x0 + (np.arange(nx) + 0.5) * dx
+    y = (np.arange(ny) + 0.5 - ny / 2) * dx
+    z = (np.arange(nz) + 0.5) * dx
+    grid_x, grid_y, grid_z = np.meshgrid(x, y, z, indexing="ij")
+    nose = (grid_x >= 0.0) & (grid_x <= R)
+    inset = np.where(nose, R * (1 - np.sin(np.arccos(np.clip(1 - grid_x / R, -1.0, 1.0)))), 0.0)
+    top = np.where(grid_x > L - Ls, clearance + H - (grid_x - (L - Ls)) * math.tan(math.radians(slant_deg)),
+                   clearance + H)
+    inside = ((grid_x >= 0.0) & (grid_x <= L) & (np.abs(grid_y) <= W / 2 - inset)
+              & (grid_z >= clearance + inset) & (grid_z <= top - inset))
+    return torch.as_tensor(inside)
+
+
+def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, clearance_m: float = 0.15,
+                       length_m: float = AHMED["length"], width_m: float = AHMED["width"],
+                       height_m: float = AHMED["height"], cells_per_length: int = 32, Re: float = 250.0,
+                       steps: int = 6000, smagorinsky: float = 0.12, samples: int = 12,
+                       u_lattice: float = LB["u"], geometry: str = "") -> dict:
+    """A road vehicle in a 3-D lattice-Boltzmann wind tunnel (``WindTunnelLBM``, D3Q19, Smagorinsky LES, moving road),
+    from its geometry to drag and lift, the force history and the mean field on three slices.
+
+    **The geometry comes from the request**: ``length_m``, ``width_m``, ``height_m`` and ``slant_deg`` build the body
+    (rounded nose, rear slant, a gap under it above the moving road), so a problem described in words runs with no file
+    at all. A closed surface in ``geometry`` (an STL path) replaces it, scaled so its length is ``cells_per_length``
+    cells and centred where the parametric body sits; that path needs ``trimesh``.
+
+    ``Re`` is clamped to what the lattice can hold at this resolution (``tau >= TAU_MIN``); the value says so in
+    ``re_max``/``re_clamped``. The drag is reported with its regime: the reference coefficient of the Ahmed body (0.285
+    at 25 deg) belongs to Re 4.3e6, which this grid cannot reach, and the same tunnel over-estimates a sphere by about
+    a third at 16 cells — so the number is a coarse-grid result, not the car's.
+    """
+    import torch
+
+    from pinneapple_simulation.numerical_solvers.lbm_tunnel import WindTunnelLBM
+
+    L, W, H = float(length_m), float(width_m), float(height_m)
+    n = max(16, int(cells_per_length))
+    dx = L / n
+    clearance = max(float(clearance_m), 4.0 * dx)      # the gap under the body has to be resolved, or drag is fiction
+    u_lat = float(u_lattice)
+    re_max = u_lat * n * 3.0 / (TAU_MIN - 0.5)         # nu = (tau - 0.5) / 3
+    re = min(float(Re), re_max)
+    nu = u_lat * n / re
+    # the tunnel follows the body: 3.7 lengths long, 4.6 widths wide, three heights above it (the reference
+    # proportions put the Ahmed body where the original study did)
+    x0, x1, y_half = -1.2 * L, 2.5 * L, 2.3 * W
+    shape = (int(round((x1 - x0) / dx)), int(round(2 * y_half / dx)),
+             int(round((clearance + 3.0 * H) / dx)))
+    tunnel = WindTunnelLBM(shape, nu=nu, u_in=(u_lat, 0.0, 0.0), smagorinsky=smagorinsky,
+                           faces={"x-": "inlet", "x+": "outlet", "y-": "wall", "y+": "wall",
+                                  "z-": "moving", "z+": "wall"})
+    if geometry:                                       # the user's own surface, in place of the parametric body
+        import trimesh
+
+        from pinneapple_design.geometry.ops.lbm_bridge import mesh_to_obstacle_mask
+        surface = trimesh.load(str(geometry), force="mesh")
+        lo, hi = surface.bounds
+        surface.apply_scale(L / float(hi[0] - lo[0]))          # its length becomes length_m
+        lo, hi = surface.bounds
+        surface.apply_translation((0.0 - lo[0], -(lo[1] + hi[1]) / 2, clearance - lo[2]))
+        mask = mesh_to_obstacle_mask(surface, {"x": (x0, x0 + shape[0] * dx), "y": (-y_half, y_half),
+                                              "z": (0.0, shape[2] * dx)}, shape)
+        mask = torch.as_tensor(np.asarray(mask, dtype=bool))
+    else:
+        mask = _body_mask(shape, dx, x0, slant_deg, clearance, (L, W, H))
+    tunnel.add_solid(mask)
+    hist: list[tuple[int, float]] = []
+    tunnel.run(int(steps), every=max(1, int(steps) // max(2, int(samples))),
+               callback=lambda m: hist.append((m.t, float(m.force_on_solid()[0]))))
+    force = tunnel.force_on_solid()
+    frontal = float(mask.permute(1, 2, 0).reshape(-1, shape[0]).sum(0).max())   # the most blocked y-z station, cells**2
+    q = 0.5 * 1.0 * u_lat ** 2 * frontal                # lattice units: rho = 1
+    h_cd = [round(f / q, 4) for _, f in hist]
+    tail = h_cd[-max(2, len(h_cd) // 4):]
+    mean_cd = sum(tail) / len(tail)
+    spread = (max(tail) - min(tail)) / abs(mean_cd) if mean_cd else float("inf")
+    fld = tunnel.fields()
+    u = np.moveaxis(fld["u"], 0, -1)                   # (nx, ny, nz, 3)
+    j, k = u.shape[1] // 2, u.shape[2] // 2
+    flux_in, flux_out = float(u[0, :, :, 0].sum()), float(u[-1, :, :, 0].sum())
+    balance = abs(flux_out - flux_in) / abs(flux_in or 1.0)
+    dec = lambda a: np.round(np.asarray(a, float), 4).tolist()     # noqa: E731
+    checks = [
+        {"code": "simulate.converged", "status": "pass" if spread <= LB["settle_tol"] else "fail",
+         "value": round(spread, 4), "limit": LB["settle_tol"],
+         "detail": f"drag coefficient over the last {len(tail)} of {len(h_cd)} samples: mean {mean_cd:.3f}, "
+                   f"spread {spread:.1%}"},
+        {"code": "simulate.balance", "status": "pass" if balance <= LB["balance_tol"] else "fail",
+         "value": round(balance, 4), "limit": LB["balance_tol"],
+         "detail": f"inflow {flux_in:.4g} vs outflow {flux_out:.4g} (relative difference {balance:.2%}; the "
+                   f"lattice is weakly compressible, Ma {u_lat * 3 ** 0.5:.2f})"},
+    ]
+    return {
+        "kind": "cfd3d", "body": "ahmed" if not geometry else str(geometry).rsplit("/", 1)[-1],
+        "geometry": (f"parametric {L:g} x {W:g} x {H:g} m, slant {slant_deg:g} deg" if not geometry
+                     else f"surface {str(geometry).rsplit('/', 1)[-1]} scaled to {L:g} m"),
+        "dims_m": {"length": L, "width": W, "height": H}, "slant_deg": float(slant_deg),
+        "speed_kmh": float(speed_kmh),
+        "Re": round(re, 3), "re_requested": float(Re), "re_max": round(re_max, 3), "re_clamped": re < float(Re),
+        "tau": round(3.0 * nu + 0.5, 4), "cells_per_length": n, "cell_m": round(dx, 5),
+        "clearance_m": round(clearance, 4), "shape": list(shape), "steps": int(steps),
+        "cd": round(float(force[0]) / q, 4), "cl": round(float(force[2]) / q, 4), "cd_mean": round(mean_cd, 4),
+        "cd_history": h_cd, "frontal_area_cells": round(frontal, 2),
+        "mean_streamwise_speed": round(float(np.abs(u[..., 0]).mean()), 5),
+        "fields": {"u (y = mid)": dec(u[:, j, :, 0]), "w (y = mid)": dec(u[:, j, :, 2]),
+                   "u (z = mid)": dec(u[:, :, k, 0])},
+        "checks": checks,
+        "reference": {"cd": AHMED["reference_cd_25deg"], "re": AHMED["reference_re"],
+                      "source": "Ahmed, Ramm & Faltin (1984), SAE 840300",
+                      "note": "the reference is at Re 4.3e6; this run is at the Re the grid can hold"},
+        "limitations": [
+            f"coarse lattice-Boltzmann ({n} cells along the body, Re {re:g}, tau {3.0 * nu + 0.5:.3f}): the drag "
+            f"coefficient of the real body ({AHMED['reference_cd_25deg']} at Re {AHMED['reference_re']:g}) is not "
+            "reproduced, and the same tunnel gives +33 % on a sphere of 16 cells at Re 100 against Schiller-Naumann",
+            "no wheels, no yaw, no rotating flow; the road moves with the free stream and the body is the Ahmed "
+            "reference geometry, not the user's car",
+            f"clearance raised to {clearance:.3f} m so the underbody gap is resolved",
+        ],
+    }
+
+
 def beam_deflection(L_m: float = 1.0, E_Pa: float = 2.0e11, I_m4: float = 8.33e-6, q_N_per_m: float = 1000.0,
                     nx: int = 200, bc_type: int = 0) -> dict:
     """Euler-Bernoulli beam boundary-value problem by finite differences (``beam_bvp_fdm``)."""

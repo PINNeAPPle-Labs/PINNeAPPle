@@ -1280,6 +1280,14 @@
   "returned": "dict",
   "seconds": 0.15
  },
+ "pinneapple_flow.wrappers:car_wind_tunnel_3d": {
+  "code_hash": "e81d537c38951401",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "dict",
+  "seconds": 168.0
+ },
  "pinneapple_flow.wrappers:compare_preset": {
   "code_hash": "1bd441ccb4a69758",
   "inputs": {},

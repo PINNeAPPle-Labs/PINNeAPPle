@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import importlib.util
 import shutil
+import time
 from typing import Literal
 
 import numpy as np
@@ -184,8 +185,10 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
         mask = _body_mask(shape, dx, x0, slant_deg, clearance, (L, W, H))
     tunnel.add_solid(mask)
     hist: list[tuple[int, float]] = []
+    t0 = time.perf_counter()
     tunnel.run(int(steps), every=max(1, int(steps) // max(2, int(samples))),
                callback=lambda m: hist.append((m.t, float(m.force_on_solid()[0]))))
+    wall_s = time.perf_counter() - t0
     force = tunnel.force_on_solid()
     frontal = float(mask.permute(1, 2, 0).reshape(-1, shape[0]).sum(0).max())   # the most blocked y-z station, cells**2
     q = 0.5 * 1.0 * u_lat ** 2 * frontal                # lattice units: rho = 1
@@ -223,7 +226,7 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
         "tau": round(3.0 * nu + 0.5, 4), "cells_per_length": n, "cell_m": round(dx, 5),
         "clearance_m": round(clearance, 4), "shape": list(shape), "steps": int(steps),
         "cd": round(float(force[0]) / q, 4), "cl": round(float(force[2]) / q, 4), "cd_mean": round(mean_cd, 4),
-        "cd_history": h_cd, "frontal_area_cells": round(frontal, 2),
+        "cd_history": h_cd, "frontal_area_cells": round(frontal, 2), "wall_s": round(wall_s, 1),
         "mean_streamwise_speed": round(float(np.abs(u[..., 0]).mean()), 5),
         # the slices as a page draws them: one cell per row, so a row is a height (side view) or a width (plan view)
         "fields": {"u, side view (x→ z↑)": dec(u[:, j, :, 0].T[::-1]), "w, side view (x→ z↑)": dec(u[:, j, :, 2].T[::-1]),

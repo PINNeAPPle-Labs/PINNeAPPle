@@ -26,6 +26,8 @@ import json
 import os
 import sys
 
+import numpy as np
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 
@@ -35,6 +37,7 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     build_model_specs,
     paired_bootstrap,
     run_benchmark,
+    subsample_nodes,
     write_report,
 )
 from pinneapple_arena.fieldbench.tabular import (  # noqa: E402
@@ -58,6 +61,9 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--batch", type=int, default=4)
     ap.add_argument("--n-parts", type=int, default=3)
+    ap.add_argument("--max-nodes", type=int, default=900,
+                    help="nodes kept per design for the field benchmark (the published one also scores on a retained "
+                         "node subset); the dataset itself keeps every node")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--reuse", action="store_true")
@@ -122,6 +128,10 @@ def main() -> None:
 
         # ---------------------------------------------------------------- 3. the fields
         dataset = FieldDataset.load(npz)
+        full_nodes = int(np.mean([s.n_points for s in dataset.samples]))
+        dataset = subsample_nodes(dataset, a.max_nodes, seed=a.seed)
+        ex.log_metric("field_nodes_scored", int(np.mean([s.n_points for s in dataset.samples])), "nodes",
+                      f"retained per design out of {full_nodes} in the mesh, the same subset for every model")
         specs = build_model_specs(transient=True, n_frames=a.frames, n_parts=max(a.n_parts, 4), scale="small")
         result = run_benchmark(specs, dataset, epochs=epochs, batch_size=a.batch, device=None, patience=15,
                                seed=a.seed, verbose=True, n_boot=1000)

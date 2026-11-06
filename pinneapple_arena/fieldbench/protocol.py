@@ -16,7 +16,7 @@ import numpy as np
 
 from .metrics import ModelScore, leaderboard, score_model
 
-__all__ = ["FieldSample", "FieldDataset", "normalize_geometry", "run_benchmark", "write_report"]
+__all__ = ["FieldSample", "FieldDataset", "normalize_geometry", "subsample_nodes", "run_benchmark", "write_report"]
 
 
 @dataclass
@@ -173,6 +173,31 @@ def normalize_geometry(dataset: FieldDataset, scale_coords: bool = True) -> Fiel
                                part_ids=s.part_ids, thickness=s.thickness, times=s.times,
                                meta={**s.meta, "coord_shift": c.tolist(), "coord_scale": span}))
     return FieldDataset(name=dataset.name, samples=out, splits=dataset.splits, normalized=True)
+
+
+def subsample_nodes(dataset: FieldDataset, max_nodes: int, seed: int = 0) -> FieldDataset:
+    """Keep at most ``max_nodes`` nodes per sample, at random but reproducibly, with their part labels and frames.
+
+    A field benchmark on a 3,000-node crash mesh trains a transformer on 3,000 tokens per frame; retaining a node
+    subset is what the published crash benchmark does as well ("the same retained node subset" for every row), so the
+    models are compared on a subset while the dataset keeps every node for anyone who wants the full field."""
+    rng = np.random.default_rng(seed)
+    out = []
+    for s in dataset.samples:
+        n = s.n_points
+        if n <= max_nodes:
+            out.append(s)
+            continue
+        keep = np.sort(rng.choice(n, size=int(max_nodes), replace=False))
+        values = np.asarray(s.values)
+        values = values[:, keep] if values.ndim == 3 else values[keep]
+        out.append(FieldSample(id=s.id, points=np.asarray(s.points)[keep], values=values, category=s.category,
+                               parts=None if s.parts is None else np.asarray(s.parts)[keep],
+                               part_ids=None if s.part_ids is None else np.asarray(s.part_ids)[keep],
+                               thickness=None if s.thickness is None else np.asarray(s.thickness)[keep],
+                               times=s.times, meta={**s.meta, "nodes_kept": int(max_nodes)}))
+    return FieldDataset(name=f"{dataset.name}[{max_nodes} nodes]", samples=out, splits=dataset.splits,
+                        normalized=dataset.normalized)
 
 
 def run_benchmark(specs, dataset: FieldDataset, *, epochs: int = 30, batch_size: int = 2, lr: float = 1e-3,

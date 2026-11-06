@@ -46,11 +46,22 @@ Outputs, in `examples/benchmarks/carbench_surface_pressure/_out/`: `surface_pres
 `pinneapple_arena.fieldbench.FieldDataset`), `coefficients.csv` (Cd, Cl and areas per design), `leaderboard.md` and
 `leaderboard.json`, and the Lab manifest of the run.
 
-**The label is coarser than the published one.** CarBench labels its designs with steady RANS (k-ω SST) on surface
-meshes of ~450,000 points; here the label is a coarse lattice-Boltzmann field on a few thousand wall faces, and the
-campaign records the resolution, the Reynolds number reachable at that resolution (the lattice cannot follow a real
-car's 10⁷) and the tunnel's blockage in its manifest. Absolute error levels are therefore **not** comparable with the
-published table — the protocol, the ranking of families and the cost are.
+**The label is coarser than the published one, and the campaign says how coarse.** CarBench labels its designs with
+steady RANS (k-ω SST) on surface meshes of ~450,000 points; here the label is a lattice-Boltzmann field on ~2,000 wall
+faces, at a resolution where the lattice Reynolds number is O(10²), not the 10⁷ of a car. Three consequences are
+recorded with every dataset instead of being glossed over:
+
+- the **Reynolds number** the grid can hold (`re`, `re_max` per design) and the resolution (`cells_per_length`);
+- the **largest density excursion** of the lattice (`max_density_deviation`): a weakly-compressible solver that reaches
+  20 % in density is telling you its Mach number is not small;
+- the **label's own coefficients** (`cd`, `cl` in `coefficients.csv`): a coarse cascade over a car body over-predicts
+  drag, and a campaign whose mean Cd is far from the physical 0.3 is a campaign whose labels are qualitative.
+
+Because the ground clearance of a road car is one cell at this resolution, the default labels the body **in free air**
+(`road=False`): a one-cell gap between the underbody and the moving road is a staircase nozzle and produces pressure
+spikes that have nothing to do with the car. `road=True` puts the road back — and is only meaningful once the ride
+height is resolved by several cells, which costs roughly the square of the cells per length. Absolute error levels are
+therefore **not** comparable with the published table; the protocol, the ranking of families and the cost are.
 
 ## 2. Pole impact of a bumper-beam coupon
 

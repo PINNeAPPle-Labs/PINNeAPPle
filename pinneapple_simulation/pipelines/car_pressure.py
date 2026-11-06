@@ -101,8 +101,25 @@ def car_surfaces(design: dict):
     return dict(car.cfd_bodies())
 
 
+def _fill_cavities(mask: np.ndarray) -> np.ndarray:
+    """Mark as solid every fluid cell that the inlet cannot reach (a pocket inside the body, under a closed arch).
+
+    A closed surface voxelized on a staircase grid leaves pockets that are hydraulically sealed: the pressure the
+    sampler reads there is meaningless and would dominate a wall-pressure field, so they are filled."""
+    from scipy import ndimage
+
+    fluid = ~mask
+    lab, n = ndimage.label(fluid)
+    if n <= 1:
+        return mask
+    inlet = np.unique(lab[0])                      # labels of the fluid cells on the inlet plane
+    inlet = inlet[inlet > 0]
+    reachable = np.isin(lab, inlet)
+    return mask | (fluid & ~reachable)
+
+
 def _voxelize(bodies: dict, shape, dx: float, origin, road_z: float = 0.0) -> np.ndarray:
-    """Solid mask of the union of the closed surfaces on the tunnel grid."""
+    """Solid mask of the union of the closed surfaces on the tunnel grid, cavities filled."""
     import trimesh
 
     from pinneapple_design.geometry.ops.lbm_bridge import mesh_to_obstacle_mask
@@ -112,13 +129,13 @@ def _voxelize(bodies: dict, shape, dx: float, origin, road_z: float = 0.0) -> np
     for verts, faces in bodies.values():
         mesh = trimesh.Trimesh(vertices=np.asarray(verts, float), faces=np.asarray(faces, int), process=False)
         mask |= np.asarray(mesh_to_obstacle_mask(mesh, bounds, tuple(shape), oracle_supersample=1), dtype=bool)
-    return mask
+    return _fill_cavities(mask)
 
 
 def simulate_pressure(design: dict, *, cells_per_length: int = 40, steps: int = 2500, averaging: int = 3,
-                      Re: float = 400.0, u_lattice: float = 0.06, smagorinsky: float = 0.12,
+                      Re: float = 300.0, u_lattice: float = 0.08, smagorinsky: float = 0.15,
                       shapes: dict | None = None, device: str = "cpu", max_faces: int = 6000,
-                      seed: int = 0) -> dict:
+                      road: bool = False, seed: int = 0) -> dict:
     """Run one design and return its surface samples and its aerodynamic coefficients.
 
     Returns a dict with ``points`` (M, 3) in metres, ``pressure`` (M,) kinematic pressure in lattice units (the cell is
@@ -136,25 +153,29 @@ def simulate_pressure(design: dict, *, cells_per_length: int = 40, steps: int = 
     L = float(hi[0] - lo[0])
     n = max(16, int(cells_per_length))
     dx = L / n
-    clearance = max(float(design.get("clearance", 0.13)), 2.0 * dx)
+    height = float(hi[2] - lo[2])
+    clearance = max(float(design.get("clearance", 0.13)), 2.0 * dx) if road else 1.6 * height
     tau_min = 0.505
     re_max = u_lattice * n * 3.0 / (tau_min - 0.5)
     re = float(min(Re, re_max))
     nu = u_lattice * n / max(re, 1e-9)
-    # tunnel proportions: 0.7 car lengths upstream, 1.5 downstream, three car widths across, 2.6 car heights tall —
+    # tunnel proportions: half a car length upstream, one downstream, three car widths across, 2.6 car heights tall —
     # tight enough that a design is a couple of minutes of lattice time, wide enough that the blockage is a constant
     # bias of the whole campaign rather than a per-design surprise (recorded with every dataset)
-    x0, x1 = lo[0] - 0.7 * L, hi[0] + 1.5 * L
+    x0, x1 = lo[0] - 0.5 * L, hi[0] + 1.0 * L
     y_half = 1.5 * float(hi[1] - lo[1])
-    z_top = clearance + 2.6 * float(hi[2] - lo[2])
+    z_top = clearance + (2.6 * height if road else 2.0 * height)
     shape = (int(round((x1 - x0) / dx)), int(round(2 * y_half / dx)), int(round(z_top / dx)))
     if shapes:
         shape = tuple(int(v) for v in shapes.get("shape", shape))
     origin = (x0, -y_half, 0.0)
     mask = _voxelize(bodies, shape, dx, origin)
 
+    # the floor is a wall (or the moving road) only when the ride height is resolved: with one or two cells of ground
+    # clearance the gap is a staircase nozzle and the label is fiction, so the default is the body in free air
+    floor = "moving" if road else "open"
     tunnel = WindTunnelLBM(shape, nu=nu, u_in=(u_lattice, 0.0, 0.0), smagorinsky=smagorinsky, device=device,
-                           faces={"x-": "inlet", "x+": "outlet", "y-": "wall", "y+": "wall", "z-": "moving",
+                           faces={"x-": "inlet", "x+": "outlet", "y-": "wall", "y+": "wall", "z-": floor,
                                   "z+": "wall"})
     tunnel.add_solid(mask)
     total = int(steps) * max(1, int(averaging))
@@ -179,18 +200,26 @@ def simulate_pressure(design: dict, *, cells_per_length: int = 40, steps: int = 
     pressure = tunnel.surface_pressure(cells, field=averaged["field"])
     face_area = (dx ** 2) * np.maximum(norm, 1.0)
 
-    # coefficients from the momentum-exchange force on the body and its frontal area
+    # coefficients from the momentum-exchange force: it is in lattice units, so the frontal area has to be in lattice
+    # units too (cells^2) — mixing metres into this quotient is how a coefficient comes out 10^3 off
     force = tunnel.force_on_solid()
-    frontal = float(np.max(mask.sum(axis=(1, 2))) * dx ** 2)
+    frontal_cells = float(np.max(mask.sum(axis=(1, 2))))
+    frontal = frontal_cells * dx ** 2
     q = 0.5 * u_lattice ** 2
-    cd = float(force[0] / max(q * frontal, 1e-30))
-    cl = float(force[2] / max(q * frontal, 1e-30))
+    cd = float(force[0] / max(q * frontal_cells, 1e-30))
+    cl = float(force[2] / max(q * frontal_cells, 1e-30))
+    # a weakly-compressible lattice over a staircase car: the density excursion says how far from the incompressible
+    # limit the label is, and it is recorded with every design instead of being hidden
+    rho_far, _ = tunnel.macroscopic()
+    bulk = ~tunnel._all_solid
+    max_drho = float((rho_far[bulk] - 1.0).abs().max())
     if points.shape[0] > max_faces:                          # keep a bounded, reproducible subset of wall faces
         rng = np.random.default_rng(seed)
         keep = rng.choice(points.shape[0], size=int(max_faces), replace=False)
         points, pressure, normal, face_area = points[keep], pressure[keep], normal[keep], face_area[keep]
     return {"points": np.asarray(points, np.float32), "pressure": np.asarray(pressure, np.float32),
             "normal": np.asarray(normal, np.float32), "cd": cd, "cl": cl, "frontal_area": frontal,
+            "max_density_deviation": max_drho, "mach": float(u_lattice * np.sqrt(3.0)),
             "surface_area": float(np.sum(face_area)), "re": re, "re_max": float(re_max),
             "shape": tuple(int(s) for s in shape), "dx": float(dx), "u_lattice": float(u_lattice),
             "steps": int(total), "cells_per_length": n, "design": dict(design)}
@@ -246,11 +275,12 @@ def build_pressure_dataset(n_designs: int, out_dir: str, *, seed: int = 0, paral
                                    category=design_category(d),
                                    meta={"design": d, "cd": res["cd"], "cl": res["cl"], "re": res["re"],
                                          "normal": None}))
-        rows.append({"id": sample_id, "category": sample_id and design_category(d), **d,
+        rows.append({"id": sample_id, "category": design_category(d), **d,
                      "cd": res["cd"], "cl": res["cl"], "frontal_area": res["frontal_area"],
                      "surface_area": res["surface_area"], "n_faces": int(res["points"].shape[0]),
                      "re": res["re"], "re_max": res["re_max"], "cells_per_length": res["cells_per_length"],
-                     "steps": res["steps"]})
+                     "steps": res["steps"], "max_density_deviation": res["max_density_deviation"],
+                     "mach": res["mach"]})
     if not samples:
         raise RuntimeError("no design completed: see the failures listed above")
     dataset = normalize_geometry(FieldDataset(name=f"car_surface_pressure[{len(samples)}]", samples=samples))

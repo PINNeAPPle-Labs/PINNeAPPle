@@ -46,7 +46,10 @@ def main() -> None:
     ap.add_argument("--designs", type=int, default=48)
     ap.add_argument("--parallel", type=int, default=8)
     ap.add_argument("--cells-per-length", type=int, default=40)
-    ap.add_argument("--steps", type=int, default=4000)
+    ap.add_argument("--steps", type=int, default=6000)
+    ap.add_argument("--road", action="store_true",
+                    help="put the road under the car (the ride height has to be resolved by several cells for the "
+                         "ground effect not to be a staircase nozzle; the default labels the body in free air)")
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--batch", type=int, default=4)
     ap.add_argument("--scale", choices=("small", "paper"), default="small")
@@ -82,12 +85,17 @@ def main() -> None:
         else:
             from pinneapple_simulation.pipelines.car_pressure import build_pressure_dataset
             summary = build_pressure_dataset(designs, a.out, seed=a.seed, parallel=a.parallel,
-                                             cells_per_length=cpl, steps=steps, averaging=1, u_lattice=0.09,
-                                             Re=600.0, max_faces=a.max_faces, verbose=True)
+                                             cells_per_length=cpl, steps=steps, averaging=1, u_lattice=0.08,
+                                             Re=300.0, max_faces=a.max_faces, road=bool(a.road), verbose=True)
             dataset = FieldDataset.load(summary["dataset"])
             ex.log_metric("geometries_labelled", summary["n_samples"], "geometries",
                           f"lattice-Boltzmann, {cpl} cells per car length, {steps} steps, "
                           f"Re {summary['re_mean']:.0f}")
+            ex.log_metric("label_max_density_deviation", summary["max_density_deviation"], "fraction of rho",
+                          "largest density excursion of the lattice over the campaign: how far the label is from "
+                          "the incompressible limit")
+            ex.log_metric("label_cd_mean", summary["cd_mean"], "drag coefficient",
+                          "mean over the labelled designs, coarse lattice, front area of every design")
             ex.log_metric("failed_designs", summary["n_failed"], "designs", "listed in failures.json")
         ex.log_metric("wall_faces_per_geometry", int(np.mean([s.n_points for s in dataset.samples])), "faces",
                       "wall faces of the voxelized body, = input points of the surrogate")

@@ -102,14 +102,21 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
                        length_m: float = AHMED["length"], width_m: float = AHMED["width"],
                        height_m: float = AHMED["height"], cells_per_length: int = 32, Re: float = 250.0,
                        steps: int = 6000, smagorinsky: float = 0.12, samples: int = 12,
-                       u_lattice: float = LB["u"], geometry: str = "") -> dict:
+                       u_lattice: float = LB["u"], geometry: str = "",
+                       body: Literal["ahmed", "formula"] = "ahmed", wheelbase: float = 3.60,
+                       front_wing_aoa: float = 4.0, rear_wing_aoa: float = 6.0, drs_open: bool = False) -> dict:
     """A road vehicle in a 3-D lattice-Boltzmann wind tunnel (``WindTunnelLBM``, D3Q19, Smagorinsky LES, moving road),
     from its geometry to drag and lift, the force history and the mean field on three slices.
 
-    **The geometry comes from the request**: ``length_m``, ``width_m``, ``height_m`` and ``slant_deg`` build the body
-    (rounded nose, rear slant, a gap under it above the moving road), so a problem described in words runs with no file
-    at all. A closed surface in ``geometry`` (an STL path) replaces it, scaled so its length is ``cells_per_length``
-    cells and centred where the parametric body sits; that path needs ``trimesh``.
+    **The geometry comes from the request**, three ways, and none of them needs a file to exist first:
+
+    * ``body="ahmed"`` (default): ``length_m``, ``width_m``, ``height_m`` and ``slant_deg`` build a road-car body
+      (rounded nose, rear slant, a gap under it above the moving road); the reference proportions are the Ahmed body;
+    * ``body="formula"``: the library's parametric open-wheel car (``vehicles3d.FormulaCar``: monocoque, floor with
+      diffuser, front and rear wings with DRS, exposed wheels) built from ``wheelbase``, ``front_wing_aoa``,
+      ``rear_wing_aoa`` and ``drs_open`` — the knobs a request in words names;
+    * ``geometry`` (an STL path): the user's own closed surface, scaled so its length is ``length_m`` and centred where
+      the body sits; that path needs ``trimesh``.
 
     ``Re`` is clamped to what the lattice can hold at this resolution (``tau >= TAU_MIN``); the value says so in
     ``re_max``/``re_clamped``. The drag is reported with its regime: the reference coefficient of the Ahmed body (0.285
@@ -120,10 +127,22 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
 
     from pinneapple_simulation.numerical_solvers.lbm_tunnel import WindTunnelLBM
 
+    surfaces = None
     L, W, H = float(length_m), float(width_m), float(height_m)
+    if body == "formula":                              # the library's own parametric car, from the request's knobs
+        from pinneapple_design.geometry.vehicles3d import FormulaCar
+        surfaces = list(FormulaCar(wheelbase=float(wheelbase), front_wing_aoa=float(front_wing_aoa),
+                                   rear_wing_aoa=float(rear_wing_aoa), drs_open=bool(drs_open)).cfd_bodies().values())
+        lo = np.min([np.min(np.asarray(v, float), axis=0) for v, _ in surfaces], axis=0)
+        hi = np.max([np.max(np.asarray(v, float), axis=0) for v, _ in surfaces], axis=0)
+        L, W, H = float(hi[0] - lo[0]), float(hi[1] - lo[1]), float(hi[2] - lo[2])
+        origin = (float(lo[0]), float(lo[1]))
     n = max(16, int(cells_per_length))
     dx = L / n
     clearance = max(float(clearance_m), 4.0 * dx)      # the gap under the body has to be resolved, or drag is fiction
+    if body == "formula" and n < 48:
+        raise ValueError(f"the formula car needs at least 48 cells along its length (wings and wheels are thinner "
+                         f"than a coarser cell), got {n}")
     u_lat = float(u_lattice)
     re_max = u_lat * n * 3.0 / (TAU_MIN - 0.5)         # nu = (tau - 0.5) / 3
     re = min(float(Re), re_max)
@@ -136,18 +155,30 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
     tunnel = WindTunnelLBM(shape, nu=nu, u_in=(u_lat, 0.0, 0.0), smagorinsky=smagorinsky,
                            faces={"x-": "inlet", "x+": "outlet", "y-": "wall", "y+": "wall",
                                   "z-": "moving", "z+": "wall"})
-    if geometry:                                       # the user's own surface, in place of the parametric body
+    if surfaces is None and geometry:                  # the user's own surface, in place of the parametric body
         import trimesh
-
-        from pinneapple_design.geometry.ops.lbm_bridge import mesh_to_obstacle_mask
         surface = trimesh.load(str(geometry), force="mesh")
         lo, hi = surface.bounds
         surface.apply_scale(L / float(hi[0] - lo[0]))          # its length becomes length_m
         lo, hi = surface.bounds
         surface.apply_translation((0.0 - lo[0], -(lo[1] + hi[1]) / 2, clearance - lo[2]))
-        mask = mesh_to_obstacle_mask(surface, {"x": (x0, x0 + shape[0] * dx), "y": (-y_half, y_half),
-                                              "z": (0.0, shape[2] * dx)}, shape)
-        mask = torch.as_tensor(np.asarray(mask, dtype=bool))
+        surfaces = [(np.asarray(surface.vertices), np.asarray(surface.faces))]
+    if surfaces is not None:                           # one voxelization per closed component, united
+        import trimesh
+
+        from pinneapple_design.geometry.ops.lbm_bridge import mesh_to_obstacle_mask
+        bounds = {"x": (x0, x0 + shape[0] * dx), "y": (-y_half, y_half), "z": (0.0, shape[2] * dx)}
+        if body == "formula":                          # its own origin, in metres, to the tunnel's frame (nose at
+            z0 = min(float(np.min(np.asarray(v, float)[:, 2])) for v, _ in surfaces)   # x = 0, road at z = 0 and a
+            surfaces = [(np.c_[np.asarray(v, float)[:, 0] - origin[0], np.asarray(v, float)[:, 1] - origin[1],  # gap the
+                              np.asarray(v, float)[:, 2] - z0 + clearance], f)         # grid can hold)
+                        for v, f in surfaces]
+        mask = np.zeros(shape, dtype=bool)
+        for verts, faces in surfaces:
+            mask |= np.asarray(mesh_to_obstacle_mask(trimesh.Trimesh(vertices=np.asarray(verts, float),
+                                                                     faces=np.asarray(faces), process=False),
+                                                     bounds, shape), dtype=bool)
+        mask = torch.as_tensor(mask)
     else:
         mask = _body_mask(shape, dx, x0, slant_deg, clearance, (L, W, H))
     tunnel.add_solid(mask)
@@ -178,9 +209,13 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
                    f"lattice is weakly compressible, Ma {u_lat * 3 ** 0.5:.2f})"},
     ]
     return {
-        "kind": "cfd3d", "body": "ahmed" if not geometry else str(geometry).rsplit("/", 1)[-1],
-        "geometry": (f"parametric {L:g} x {W:g} x {H:g} m, slant {slant_deg:g} deg" if not geometry
-                     else f"surface {str(geometry).rsplit('/', 1)[-1]} scaled to {L:g} m"),
+        "kind": "cfd3d", "body": ("formula" if body == "formula" else
+                                  "ahmed" if not geometry else str(geometry).rsplit("/", 1)[-1]),
+        "geometry": (f"parametric formula car, {L:g} x {W:g} x {H:g} m (wheelbase {wheelbase:g} m, front wing "
+                     f"{front_wing_aoa:g} deg, rear wing {rear_wing_aoa:g} deg, DRS {'open' if drs_open else 'closed'})"
+                     if body == "formula" else
+                     f"parametric {L:g} x {W:g} x {H:g} m, slant {slant_deg:g} deg" if not geometry else
+                     f"surface {str(geometry).rsplit('/', 1)[-1]} scaled to {L:g} m"),
         "dims_m": {"length": L, "width": W, "height": H}, "slant_deg": float(slant_deg),
         "speed_kmh": float(speed_kmh),
         "Re": round(re, 3), "re_requested": float(Re), "re_max": round(re_max, 3), "re_clamped": re < float(Re),
@@ -189,8 +224,9 @@ def car_wind_tunnel_3d(slant_deg: float = 25.0, speed_kmh: float = 120.0, cleara
         "cd": round(float(force[0]) / q, 4), "cl": round(float(force[2]) / q, 4), "cd_mean": round(mean_cd, 4),
         "cd_history": h_cd, "frontal_area_cells": round(frontal, 2),
         "mean_streamwise_speed": round(float(np.abs(u[..., 0]).mean()), 5),
-        "fields": {"u (y = mid)": dec(u[:, j, :, 0]), "w (y = mid)": dec(u[:, j, :, 2]),
-                   "u (z = mid)": dec(u[:, :, k, 0])},
+        # the slices as a page draws them: one cell per row, so a row is a height (side view) or a width (plan view)
+        "fields": {"u, side view (x→ z↑)": dec(u[:, j, :, 0].T[::-1]), "w, side view (x→ z↑)": dec(u[:, j, :, 2].T[::-1]),
+                   "u, plan view (x→ y↑)": dec(u[:, :, k, 0].T[::-1])},
         "checks": checks,
         "reference": {"cd": AHMED["reference_cd_25deg"], "re": AHMED["reference_re"],
                       "source": "Ahmed, Ramm & Faltin (1984), SAE 840300",

@@ -22,8 +22,9 @@ def test_the_tunnel_reports_checks_a_flow_can_read():
     assert r["tau"] >= W.TAU_MIN - 1e-9                            # never at the BGK stability limit
     assert len(r["cd_history"]) >= 4 and r["cd"] == pytest.approx(r["cd_history"][-1], abs=1e-3)
     nx, ny, nz = r["shape"]
-    assert np_shape(r["fields"]["u (y = mid)"]) == (nx, nz)
-    assert np_shape(r["fields"]["u (z = mid)"]) == (nx, ny)
+    # the slices are stored as a page draws them: rows are heights (side view) or widths (plan view), columns are x
+    assert np_shape(r["fields"]["u, side view (x→ z↑)"]) == (nz, nx)
+    assert np_shape(r["fields"]["u, plan view (x→ y↑)"]) == (ny, nx)
     assert r["limitations"] and r["reference"]["cd"] == pytest.approx(W.AHMED["reference_cd_25deg"])
 
 
@@ -62,3 +63,15 @@ def test_a_surface_file_replaces_the_parametric_body(tmp_path):
     assert surface["body"] == "body.stl" and surface["geometry"].startswith("surface body.stl")
     # once the force settles, the same body through two rasterizations gives about the same drag
     assert surface["cd_mean"] == pytest.approx(parametric["cd_mean"], rel=0.4)
+
+
+def test_the_formula_car_is_generated_from_the_request():
+    """No file: the library's parametric open-wheel car is built from the knobs the request names, and a grid too
+    coarse for its wings is refused instead of reporting nonsense."""
+    with pytest.raises(ValueError, match="at least 48 cells"):
+        W.car_wind_tunnel_3d(body="formula", cells_per_length=32, steps=20, samples=2)
+    r = W.car_wind_tunnel_3d(body="formula", cells_per_length=48, steps=200, samples=4, drs_open=True,
+                             front_wing_aoa=6.0)
+    assert r["body"] == "formula" and "DRS open" in r["geometry"] and "front wing 6 deg" in r["geometry"]
+    assert r["dims_m"]["length"] == pytest.approx(5.57, abs=0.05)      # the car's own size, not a default
+    assert r["frontal_area_cells"] > 60 and len(r["cd_history"]) >= 2

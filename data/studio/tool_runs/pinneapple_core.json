@@ -57,6 +57,33 @@
   "returned": "Sampler",
   "seconds": 0.01
  },
+ "pinneapple_core.distributed:cpu_count": {
+  "code_hash": "a53985ea88abaa81",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-06",
+  "returned": "int",
+  "seconds": 8.06
+ },
+ "pinneapple_core.distributed:decompose_box": {
+  "code_hash": "bf6b45117a0582c2",
+  "inputs": {
+   "hi": [
+    4,
+    1
+   ],
+   "lo": [
+    0,
+    0
+   ],
+   "overlap": 0.5,
+   "parts": 4
+  },
+  "ok": true,
+  "recorded": "2026-11-06",
+  "returned": "list",
+  "seconds": 7.68
+ },
  "pinneapple_core.jsonable:round_sig": {
   "code_hash": "044b215f3e98c321",
   "inputs": {

@@ -5,6 +5,14 @@ import pinneapple as pp
 import pinneapple_core.distributed as dist
 from pinneapple_core import Mesh
 
+try:                                                # loky pickles closures; the stdlib fallback needs importable functions
+    import joblib  # noqa: F401
+    HAVE_LOKY = True
+except ImportError:
+    HAVE_LOKY = False
+
+needs_loky = pytest.mark.skipif(not HAVE_LOKY, reason="closures in worker processes need joblib")
+
 
 def _square(x):
     return x * x
@@ -15,11 +23,17 @@ def test_map_orders_results_and_matches_serial_across_backends():
     serial = dist.map(_square, items, backend="serial")
     assert serial == [i * i for i in items]
     assert dist.map(_square, items, workers=3) == serial
-    assert dist.map(lambda k: k + 1, items, workers=3) == [i + 1 for i in items]      # closures work in processes
     assert dist.map(_square, items, workers=3, backend="thread") == serial
     assert dist.map(_square, [], workers=2) == []
+    assert dist.map(_square, items, workers=64) == serial                             # more workers than items
     with pytest.raises(ValueError):
         dist.map(_square, items, backend="bogus")
+
+
+@needs_loky
+def test_a_closure_runs_in_worker_processes():
+    items = list(range(20))
+    assert dist.map(lambda k: k + 1, items, workers=3) == [i + 1 for i in items]
 
 
 def _flaky(x):
@@ -50,13 +64,16 @@ def _rect(a, b):
 def test_64_way_simulation_sweep_equals_the_serial_run():
     pytest.importorskip("torch")
     grid = {"a": np.linspace(0.5, 2.0, 8), "b": np.linspace(0.5, 2.0, 8)}          # 64 FEM simulations
-    par = dist.sweep(_rect, grid, workers=64)
+    # a worker spends ~2 s importing torch, so asking for one process per configuration spends the whole test starting
+    # interpreters on a laptop; the sweep is still 64 configurations, and the worker count is capped at their number
+    par = dist.sweep(_rect, grid, workers=min(8, dist.cpu_count()))
     ser = dist.sweep(_rect, grid, backend="serial")
     assert len(par) == 64 and par.workers <= 64 and not par.failed
     assert par.results() == pytest.approx(ser.results(), rel=1e-12)
     best = par.best(lambda r: -r)                                                   # largest rigidity: the biggest rectangle
     assert best["params"]["a"] == pytest.approx(2.0) and best["params"]["b"] == pytest.approx(2.0)
     assert par.table()[0]["a"] == pytest.approx(0.5) and "time_s" in par.table()[0]
+    assert dist.sweep(_rect, [{"a": 1.0, "b": 1.0}], workers=64).workers == 1        # more workers than configurations
 
 
 def _sometimes_fails(x, y):
@@ -95,7 +112,7 @@ def test_partitioned_mesh_gradient_equals_the_global_gradient():
     u = np.sin(m.points[:, 0]) * m.points[:, 1] ** 2
     ref = m.gradient(u)[:, 0, :]
     for n_parts in (1, 3, 6):
-        assert np.allclose(dist.map_mesh(_nodal_gradient, m, u, n_parts, workers=2), ref, atol=1e-12)
+        assert np.allclose(dist.map_mesh(_nodal_gradient, m, u, n_parts, workers=1), ref, atol=1e-12)
     parts = dist.partition_mesh(m, 5)
     owned = np.concatenate([p.node_ids[p.owned_nodes] for p in parts])
     assert sorted(owned.tolist()) == list(range(m.n_points))                      # every node owned exactly once
@@ -105,6 +122,13 @@ def test_partitioned_mesh_gradient_equals_the_global_gradient():
     assert max(sizes) - min(sizes) <= 2                                           # balanced
     with pytest.raises(ValueError):
         dist.partition_mesh(m, 0)
+
+
+def test_partitioned_mesh_gradient_matches_the_serial_one_in_parallel():
+    m = Mesh.structured([0, 0], [2, 1], (14, 9))
+    u = np.sin(m.points[:, 0]) * m.points[:, 1] ** 2
+    ref = dist.map_mesh(_nodal_gradient, m, u, 3, workers=1)
+    assert np.allclose(dist.map_mesh(_nodal_gradient, m, u, 3, workers=2), ref, atol=1e-12)
 
 
 def test_map_mesh_3d_integral_per_part():
@@ -123,11 +147,13 @@ def test_decompose_box_geometry():
         dist.decompose_box([0], [1], parts=0)
 
 
+@needs_loky                                                     # the subdomains carry closures into the workers
 def test_domain_decomposed_pinn_training_converges_through_the_module():
     torch = pytest.importorskip("torch")
     nn = torch.nn
     pi = np.pi
-    make = lambda: nn.Sequential(nn.Linear(1, 24), nn.Tanh(), nn.Linear(24, 24), nn.Tanh(), nn.Linear(24, 1))
+    def make():
+        return nn.Sequential(nn.Linear(1, 24), nn.Tanh(), nn.Linear(24, 24), nn.Tanh(), nn.Linear(24, 1))
 
     def residual(model, x):                                                       # -u'' = pi^2 sin(pi x)
         u = model(x)

@@ -316,6 +316,13 @@ orchestration = [
   "prefect>=2.19",
 ]
 
+# Worker pools for pp.distributed (pinneapple_core.distributed). joblib's loky pool runs closures and lambdas in
+# worker processes; without this extra the module falls back to concurrent.futures, whose workers need importable
+# functions -- ensemble and map_mesh still work there, because they hand the workers module-level functions.
+distributed = [
+  "joblib>=1.3",
+]
+
 # Adaptive (Bayesian/TPE) hyperparameter search -- see
 # pinneapple_neural.trainer.adaptive_sweep. A dependency-free random-search
 # fallback is used automatically if this extra is not installed.

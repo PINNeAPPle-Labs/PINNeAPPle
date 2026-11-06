@@ -23,8 +23,9 @@ import itertools
 import os
 import time
 import traceback
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -51,7 +52,7 @@ class TaskError:
         return f"TaskError(index={self.index}, {self.exception}: {self.message})"
 
 
-def _run_one(fn: Callable, index: int, item: Any, collect: bool, star: bool) -> Tuple[Any, float]:
+def _run_one(fn: Callable, index: int, item: Any, collect: bool, star: bool) -> tuple[Any, float]:
     t0 = time.perf_counter()
     try:
         out = fn(**item) if star else fn(item)
@@ -63,7 +64,7 @@ def _run_one(fn: Callable, index: int, item: Any, collect: bool, star: bool) -> 
 
 
 def _dispatch(fn: Callable, items: Sequence[Any], workers: int, backend: str, collect: bool, star: bool,
-              chunksize: int) -> List[Tuple[Any, float]]:
+              chunksize: int) -> list[tuple[Any, float]]:
     if backend not in ("process", "thread", "serial"):
         raise ValueError("backend must be 'process', 'thread' or 'serial'")
     if workers <= 1 or len(items) <= 1 or backend == "serial":
@@ -86,8 +87,8 @@ def _dispatch(fn: Callable, items: Sequence[Any], workers: int, backend: str, co
             return [f.result() for f in futs]
 
 
-def map(fn: Callable[[Any], Any], items: Iterable[Any], workers: Optional[int] = None, *, backend: str = "process",
-        errors: str = "raise", chunksize: int = 1) -> List[Any]:
+def map(fn: Callable[[Any], Any], items: Iterable[Any], workers: int | None = None, *, backend: str = "process",
+        errors: str = "raise", chunksize: int = 1) -> list[Any]:
     """``[fn(x) for x in items]`` on ``workers`` workers (default: the CPU count), in input order.
 
     ``errors="raise"`` re-raises the first failure; ``errors="collect"`` returns a :class:`TaskError` in the failed slots."""
@@ -101,7 +102,7 @@ def map(fn: Callable[[Any], Any], items: Iterable[Any], workers: Optional[int] =
 @dataclass
 class SweepResult:
     """Records of a parameter sweep: one per configuration, in grid order."""
-    records: List[Dict[str, Any]]
+    records: list[dict[str, Any]]
     wall_time_s: float = 0.0
     workers: int = 1
 
@@ -109,36 +110,38 @@ class SweepResult:
         return len(self.records)
 
     @property
-    def ok(self) -> List[Dict[str, Any]]:
+    def ok(self) -> list[dict[str, Any]]:
         return [r for r in self.records if r["error"] is None]
 
     @property
-    def failed(self) -> List[Dict[str, Any]]:
+    def failed(self) -> list[dict[str, Any]]:
         return [r for r in self.records if r["error"] is not None]
 
-    def results(self) -> List[Any]:
+    def results(self) -> list[Any]:
         return [r["result"] for r in self.records]
 
-    def best(self, key: Callable[[Any], float] = lambda r: r, minimize: bool = True) -> Dict[str, Any]:
+    def best(self, key: Callable[[Any], float] = lambda r: r, minimize: bool = True) -> dict[str, Any]:
         """The successful record whose ``key(result)`` is smallest (largest with ``minimize=False``)."""
         if not self.ok:
             raise ValueError("no configuration succeeded")
         return (min if minimize else max)(self.ok, key=lambda r: key(r["result"]))
 
-    def table(self) -> List[Dict[str, Any]]:
+    def table(self) -> list[dict[str, Any]]:
         """Flat rows ``{**params, "result": ..., "error": ..., "time_s": ...}``."""
         return [{**r["params"], "result": r["result"], "error": r["error"], "time_s": r["time_s"]} for r in self.records]
 
 
-def _grid(grid: Union[Mapping[str, Sequence[Any]], Sequence[Mapping[str, Any]]]) -> List[Dict[str, Any]]:
+def _grid(grid: Mapping[str, Sequence[Any]] | Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
     if isinstance(grid, Mapping):
         names = list(grid)
-        return [dict(zip(names, vals)) for vals in itertools.product(*[list(grid[n]) for n in names])]
+        if not names:                      # ``itertools.product()`` yields one empty tuple: an empty grid is no configuration
+            return []
+        return [dict(zip(names, vals, strict=True)) for vals in itertools.product(*[list(grid[n]) for n in names])]
     return [dict(g) for g in grid]
 
 
-def sweep(fn: Callable[..., Any], grid: Union[Mapping[str, Sequence[Any]], Sequence[Mapping[str, Any]]],
-          workers: Optional[int] = None, *, backend: str = "process", chunksize: int = 1) -> SweepResult:
+def sweep(fn: Callable[..., Any], grid: Mapping[str, Sequence[Any]] | Sequence[Mapping[str, Any]],
+          workers: int | None = None, *, backend: str = "process", chunksize: int = 1) -> SweepResult:
     """Run ``fn(**params)`` for every configuration: the Cartesian product of a ``{name: values}`` grid, or an explicit list of
     dicts. Failures are recorded (``record["error"]``), never raised, so one bad configuration does not lose the sweep."""
     configs = _grid(grid)
@@ -148,17 +151,23 @@ def sweep(fn: Callable[..., Any], grid: Union[Mapping[str, Sequence[Any]], Seque
     t0 = time.perf_counter()
     out = _dispatch(fn, configs, w, backend, True, True, chunksize)
     records = []
-    for cfg, (res, dt) in zip(configs, out):
+    for cfg, (res, dt) in zip(configs, out, strict=True):
         failed = isinstance(res, TaskError)
         records.append({"params": cfg, "result": None if failed else res, "error": res if failed else None, "time_s": dt})
     return SweepResult(records, time.perf_counter() - t0, w)
 
 
-def ensemble(fn: Callable[..., Any], n: int, workers: Optional[int] = None, *, seed: int = 0, backend: str = "process") -> List[Any]:
+def ensemble(fn: Callable[..., Any], n: int, workers: int | None = None, *, seed: int = 0, backend: str = "process") -> list[Any]:
     """``n`` independent runs ``fn(seed=s_i)`` with statistically independent seeds spawned from ``seed``
     (``numpy.random.SeedSequence``), reproducible whatever the number of workers."""
     seeds = [int(s.generate_state(1)[0]) for s in np.random.SeedSequence(seed).spawn(n)]
-    return map(lambda s: fn(seed=s), seeds, workers, backend=backend)
+    return map(_seeded, [(fn, s) for s in seeds], workers, backend=backend)
+
+
+def _seeded(job: tuple[Callable[..., Any], int]) -> Any:
+    """``fn(seed=seed)`` for one reforecast; a module-level function so the stdlib process pool can pickle it."""
+    fn, seed = job
+    return fn(seed=seed)
 
 
 # -- mesh parallelism ---------------------------------------------------------------------
@@ -174,24 +183,31 @@ class MeshPart:
     owned_cells: np.ndarray         # local indices of the cells this part owns
 
 
-def partition_mesh(mesh, n_parts: int) -> List[MeshPart]:
-    """Split ``mesh`` into ``n_parts`` by recursive coordinate bisection of the cell centres, adding every cell that shares a node
-    with an owned cell (one halo layer). A nodal operator that needs the cells around a node (gradient recovery, an integral
-    assembled per node) is then exact on the owned nodes of each part."""
+def _bisect(cent: np.ndarray, idx: np.ndarray, n_out: int) -> list[np.ndarray]:
+    """Cut ``idx`` into exactly ``n_out`` groups along the widest coordinate axis, each part getting ``n_out``-proportional a
+    share of the cells. Halving instead (splitting the largest group in two until there are enough) balances only powers of
+    two: 5 parts of a 252-cell mesh come out as 63, 63, 63, 32, 31, half the work on some parts and not others."""
+    if n_out <= 1:
+        return [idx]
+    pts = cent[idx]
+    axis = int(np.argmax(pts.max(axis=0) - pts.min(axis=0)))
+    order = idx[np.argsort(pts[:, axis], kind="stable")]
+    n_left = n_out // 2
+    half = int(round(len(order) * n_left / n_out))
+    half = max(min(half, len(order) - (n_out - n_left)), n_left)     # every side keeps room for its quota
+    return _bisect(cent, order[:half], n_left) + _bisect(cent, order[half:], n_out - n_left)
+
+
+def partition_mesh(mesh, n_parts: int) -> list[MeshPart]:
+    """Split ``mesh`` into ``n_parts`` by recursive coordinate bisection of the cell centres, each part getting close to an
+    equal share of the cells, and adding every cell that shares a node with an owned cell (one halo layer). A nodal operator
+    that needs the cells around a node (gradient recovery, an integral assembled per node) is then exact on the owned nodes
+    of each part."""
     from .mesh import Mesh
 
     if n_parts < 1 or n_parts > mesh.n_cells:
         raise ValueError("n_parts must be between 1 and the number of cells")
-    cent = mesh.cell_centroids
-    groups: List[np.ndarray] = [np.arange(mesh.n_cells)]
-    while len(groups) < n_parts:
-        groups.sort(key=len, reverse=True)
-        big = groups.pop(0)
-        pts = cent[big]
-        axis = int(np.argmax(pts.max(axis=0) - pts.min(axis=0)))
-        order = big[np.argsort(pts[:, axis], kind="stable")]
-        half = len(order) // 2
-        groups += [order[:half], order[half:]]
+    groups = _bisect(mesh.cell_centroids, np.arange(mesh.n_cells), n_parts)
     groups.sort(key=lambda g: int(g.min()))
     owner_cell = np.empty(mesh.n_cells, dtype=int)
     for k, g in enumerate(groups):
@@ -200,7 +216,7 @@ def partition_mesh(mesh, n_parts: int) -> List[MeshPart]:
     owner_node = np.full(mesh.n_points, n_parts, dtype=int)
     for i in range(mesh.dim + 1):
         np.minimum.at(owner_node, mesh.cells[:, i], owner_cell)
-    parts: List[MeshPart] = []
+    parts: list[MeshPart] = []
     for k, g in enumerate(groups):
         touched = np.unique(mesh.cells[g])
         halo = np.flatnonzero(np.isin(mesh.cells, touched).any(axis=1))
@@ -215,17 +231,23 @@ def partition_mesh(mesh, n_parts: int) -> List[MeshPart]:
 
 
 def map_mesh(fn: Callable[[Any, np.ndarray], np.ndarray], mesh, values: np.ndarray, n_parts: int,
-             workers: Optional[int] = None, *, backend: str = "process") -> np.ndarray:
+             workers: int | None = None, *, backend: str = "process") -> np.ndarray:
     """Apply a nodal operator in parallel. ``fn(local_mesh, local_values) -> (n_local_nodes, ...)`` runs on every part (with its
     halo); the rows of the owned nodes are gathered into one global array of shape ``(N, ...)``."""
     values = np.asarray(values)
     parts = partition_mesh(mesh, n_parts)
-    results = map(lambda p: np.asarray(fn(p.mesh, values[p.node_ids])), parts, workers, backend=backend)
+    results = map(_apply_part, [(fn, p, values[p.node_ids]) for p in parts], workers, backend=backend)
     first = results[0]
     out = np.empty((mesh.n_points,) + first.shape[1:], dtype=first.dtype)
-    for p, r in zip(parts, results):
+    for p, r in zip(parts, results, strict=True):
         out[p.node_ids[p.owned_nodes]] = r[p.owned_nodes]
     return out
+
+
+def _apply_part(job: tuple[Callable[[Any, np.ndarray], np.ndarray], MeshPart, np.ndarray]) -> np.ndarray:
+    """Run the nodal operator on one part; module-level so the stdlib process pool can pickle it."""
+    fn, part, vals = job
+    return np.asarray(fn(part.mesh, vals))
 
 
 # -- domain decomposition: additive Schwarz PINNs -------------------------------------------------
@@ -237,11 +259,11 @@ class Subdomain:
     hi: np.ndarray
     core_lo: np.ndarray
     core_hi: np.ndarray
-    left: Optional[int] = None       # neighbour index across the low face of the cut axis
-    right: Optional[int] = None
+    left: int | None = None       # neighbour index across the low face of the cut axis
+    right: int | None = None
 
 
-def decompose_box(lo: Sequence[float], hi: Sequence[float], parts: int, overlap: float = 0.1, axis: int = 0) -> List[Subdomain]:
+def decompose_box(lo: Sequence[float], hi: Sequence[float], parts: int, overlap: float = 0.1, axis: int = 0) -> list[Subdomain]:
     """Cut the box into ``parts`` strips along ``axis``, each extended by ``overlap`` (a fraction of the strip width) into its
     neighbours. Overlap is what lets additive Schwarz converge."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
@@ -262,11 +284,11 @@ def decompose_box(lo: Sequence[float], hi: Sequence[float], parts: int, overlap:
 
 @dataclass
 class DecomposedResult:
-    subdomains: List[Subdomain]
-    states: List[Dict[str, Any]]
+    subdomains: list[Subdomain]
+    states: list[dict[str, Any]]
     make_model: Callable[[], Any]
     axis: int
-    history: List[Dict[str, float]]
+    history: list[dict[str, float]]
     wall_time_s: float
 
     def _model(self, k: int):
@@ -279,7 +301,7 @@ class DecomposedResult:
         import torch
 
         x = np.asarray(x, dtype=np.float64)
-        out: Optional[np.ndarray] = None
+        out: np.ndarray | None = None
         for k, s in enumerate(self.subdomains):
             last = k == len(self.subdomains) - 1
             m = (x[:, self.axis] >= s.core_lo[self.axis]) & ((x[:, self.axis] <= s.core_hi[self.axis]) if last else (x[:, self.axis] < s.core_hi[self.axis]))
@@ -293,7 +315,7 @@ class DecomposedResult:
         return out
 
 
-def _train_subdomain(job: Dict[str, Any]) -> Dict[str, Any]:
+def _train_subdomain(job: dict[str, Any]) -> dict[str, Any]:
     """Train one subdomain network for ``steps`` Adam steps (runs in a worker)."""
     import torch
 
@@ -343,9 +365,9 @@ def _train_subdomain(job: Dict[str, Any]) -> Dict[str, Any]:
 
 def train_decomposed(residual: Callable, boundary: Callable[[np.ndarray], np.ndarray], make_model: Callable[[], Any],
                      lo: Sequence[float], hi: Sequence[float], parts: int = 4, overlap: float = 0.25, iterations: int = 6,
-                     steps: int = 400, workers: Optional[int] = None, *, n_col: int = 256, n_bc: int = 32, lr: float = 3e-3,
+                     steps: int = 400, workers: int | None = None, *, n_col: int = 256, n_bc: int = 32, lr: float = 3e-3,
                      w_bc: float = 20.0, axis: int = 0, seed: int = 0, backend: str = "process",
-                     reference: Optional[Callable[[np.ndarray], np.ndarray]] = None) -> DecomposedResult:
+                     reference: Callable[[np.ndarray], np.ndarray] | None = None) -> DecomposedResult:
     """Train a PINN on a box by additive Schwarz iteration.
 
     Each iteration trains every subdomain network for ``steps`` Adam steps, all subdomains concurrently, against the PDE residual
@@ -354,14 +376,15 @@ def train_decomposed(residual: Callable, boundary: Callable[[np.ndarray], np.nda
     respect to ``x`` (``x.requires_grad`` is set). With ``reference`` the history records the relative L2 error after every iteration."""
     t0 = time.perf_counter()
     subs = decompose_box(lo, hi, parts, overlap, axis)
-    states: List[Optional[Dict[str, Any]]] = [None] * parts
-    history: List[Dict[str, float]] = []
+    states: list[dict[str, Any] | None] = [None] * parts
+    history: list[dict[str, float]] = []
     probe = np.random.default_rng(1).uniform(np.asarray(lo, dtype=float), np.asarray(hi, dtype=float), size=(2000, len(lo)))
     for it in range(iterations):
         prev = DecomposedResult(subs, [s for s in states], make_model, axis, [], 0.0) if it > 0 else None
 
-        def neighbour(k: int) -> Dict[str, Optional[Callable]]:
-            out: Dict[str, Optional[Callable]] = {"left": None, "right": None}
+        def neighbour(k: int, prev=prev, states=states) -> dict[str, Callable | None]:
+            # bound as defaults on purpose: a subdomain meets its neighbours as they were in the *previous* iteration
+            out: dict[str, Callable | None] = {"left": None, "right": None}
             if prev is None:
                 return out
             for name, j in (("left", subs[k].left), ("right", subs[k].right)):
@@ -373,7 +396,7 @@ def train_decomposed(residual: Callable, boundary: Callable[[np.ndarray], np.nda
                  "neighbour_fns": neighbour(k), "steps": steps, "n_col": n_col, "n_bc": n_bc, "lr": lr, "w_bc": w_bc,
                  "axis": axis, "seed": seed + 1000 * it + k} for k in range(parts)]
         states = map(_train_subdomain, jobs, workers or parts, backend=backend)
-        rec: Dict[str, float] = {"iteration": it + 1}
+        rec: dict[str, float] = {"iteration": it + 1}
         if reference is not None:
             cur = DecomposedResult(subs, states, make_model, axis, [], 0.0)
             ref = np.asarray(reference(probe)).reshape(len(probe), -1)
@@ -382,7 +405,7 @@ def train_decomposed(residual: Callable, boundary: Callable[[np.ndarray], np.nda
     return DecomposedResult(subs, states, make_model, axis, history, time.perf_counter() - t0)
 
 
-def _make_predictor(make_model: Callable[[], Any], state: Dict[str, Any]) -> Callable[[np.ndarray], np.ndarray]:
+def _make_predictor(make_model: Callable[[], Any], state: dict[str, Any]) -> Callable[[np.ndarray], np.ndarray]:
     def predict(x: np.ndarray) -> np.ndarray:
         import torch
 

@@ -150,6 +150,8 @@ __all__ = [
     # dataset-backed problems and benchmarks
     "DatasetProblem",
     "DATASET_PRESETS", "benchmark_dataset", "list_benchmarks", "get_benchmark_preset",
+    # field surrogates over many geometries (surface pressure, crash displacement sequences)
+    "fieldbench",
     # architecture + hyperparameter search (NAS-over-a-fixed-catalog)
     "ArchitectureCandidate", "ArchitectureSearchSpace", "DEFAULT_CANDIDATES",
     "NASResult", "search_architecture",

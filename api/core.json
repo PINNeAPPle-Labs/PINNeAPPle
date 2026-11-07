@@ -1681,7 +1681,7 @@
     ],
     "methods": {
      "__init__": "(dim, heads=8, slices=32, dropout=0.0)",
-     "forward": "(x, return_weights=False)"
+     "forward": "(x, return_weights=False, mask=None)"
     }
    },
    "Transolver": {
@@ -1699,7 +1699,7 @@
     ],
     "methods": {
      "__init__": "(dim, heads, slices, mlp_ratio=2, dropout=0.0)",
-     "forward": "(x)"
+     "forward": "(x, mask=None)"
     }
    },
    "TransolverLite": {

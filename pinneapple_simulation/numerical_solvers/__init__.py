@@ -1,6 +1,9 @@
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry, SolverSpec, register_all, SolverCatalog
 from .bekker_wong import BekkerWongSolver
+from .crash_fem import CrashResult, CrashSolver, Material, RigidPole, RigidWall, qoi_from_history
+from .crash_cases import (DESIGN_BOUNDS as CRASH_DESIGN_BOUNDS, Assembly as CrashAssembly,
+                          bumper_beam_assembly, pole_impact, sample_design as sample_crash_design)
 from .problem_runner import generate_pinn_dataset
 from .cfd_pipeline import CFDMesh, NSFlowSolver, CADToCFDPipeline
 from .fdm3d import (
@@ -47,6 +50,9 @@ __all__ = [
     "openfoam_available",
     "fenics_available",
     "BekkerWongSolver",
+    # explicit crash dynamics and the pole-impact coupon
+    "CrashSolver", "CrashResult", "Material", "RigidPole", "RigidWall", "qoi_from_history",
+    "CrashAssembly", "bumper_beam_assembly", "pole_impact", "sample_crash_design", "CRASH_DESIGN_BOUNDS",
     # CAD-to-CFD pipeline (Feature 20)
     "CFDMesh",
     "NSFlowSolver",

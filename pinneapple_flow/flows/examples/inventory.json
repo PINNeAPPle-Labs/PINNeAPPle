@@ -53,6 +53,16 @@
   "domain": "structures",
   "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
+ "carbench_surface_pressure": {
+  "domain": "external aerodynamics",
+  "reason": "a surface-pressure dataset for a parametric car family (three roof lines, open/closed wheel arches, thirteen design variables), labelled by a lattice-Boltzmann sweep of the library's 3-D tunnel and then used to rank six surrogate families: the label is coarser than the published benchmark's RANS (the manifest records the resolution, the reachable Reynolds number and the density excursion), so the protocol and the ranking are what is reproduced. No node wraps a solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
+ "carcrashnet_pole_impact": {
+  "domain": "structural crashworthiness",
+  "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"

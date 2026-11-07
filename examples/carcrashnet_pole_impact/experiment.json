@@ -1,0 +1,102 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/carcrashnet_pole_impact",
+ "title": "Pole-impact crash benchmark: quantities and displacement fields",
+ "description": "A bumper beam on two crash boxes driven into a rigid pole: seven design variables to the crashworthiness quantities, and the undeformed mesh to the displacement sequence of every node. Tabular families and field surrogates are compared on the same campaign, with the part hierarchy the hierarchical surrogate exploits.",
+ "domain": "structural crashworthiness",
+ "methods": [
+  "explicit hexahedral dynamics (J2 plasticity, penalty contact)",
+  "gradient-boosted trees",
+  "physics-attention transformer",
+  "hierarchical part-aware surrogate"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.crash_fem",
+  "pinneapple_simulation.pipelines.pole_impact",
+  "pinneapple_arena.fieldbench"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "designs_simulated",
+   "value": 200.0,
+   "unit": "designs",
+   "how": "explicit hexahedral dynamics, end time 0.0008 s, 2783 nodes"
+  },
+  {
+   "name": "runs_out_of_envelope",
+   "value": 0.0,
+   "unit": "designs",
+   "how": "runs whose elements left the corotational strain envelope"
+  },
+  {
+   "name": "elements_eroded_mean",
+   "value": 0.0,
+   "unit": "elements",
+   "how": "mean per design at the end"
+  },
+  {
+   "name": "tabular_rows",
+   "value": 200.0,
+   "unit": "rows",
+   "how": "0 dropped as out of envelope"
+  },
+  {
+   "name": "tabular_best_r2",
+   "value": 0.9771254637719087,
+   "unit": "R^2",
+   "how": "extra_trees, mean over 5 quantities, 30 held-out rows"
+  },
+  {
+   "name": "importance_pole_radius",
+   "value": 0.1714166141881589,
+   "unit": "relative importance",
+   "how": "permutation importance of the design variables for peak wall force, averaged over the tree models"
+  },
+  {
+   "name": "field_nodes_scored",
+   "value": 900.0,
+   "unit": "nodes",
+   "how": "retained per design out of 2783 in the mesh, the same subset for every model"
+  }
+ ],
+ "checks": [
+  {
+   "name": "no run left the strain envelope",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "0 of 200 designs",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/crash_and_surface_benchmarks.md",
+  "script": "examples/carcrashnet_pole_impact/run.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ef5fdb14a",
+  "created": "2026-11-06T17:52:59Z",
+  "seconds": 2713.602,
+  "error": "ValueError: cannot reshape array of size 24300 into shape (10,900,3)",
+  "environment": {
+   "python": "3.12.13",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

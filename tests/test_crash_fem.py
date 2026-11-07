@@ -199,3 +199,25 @@ def test_the_pole_impact_coupon_reports_no_imbalance_inside_its_verified_window(
     e = {k: float(v[-1]) for k, v in res.energies.items()}
     assert e["external"] > 0
     assert abs(e["kinetic"] + e["internal"] + e["contact"] - e["external"]) < 0.05 * e["external"]
+
+
+def test_the_energy_gate_wants_two_frames_before_it_accuses_a_run():
+    """Where the pulse begins, one frame can lag by a step's work: 11 % of the run's work in a single frame is the
+    onset, not a divergence (the 8e-4 s campaign window drifts 0.02 % -> 1.0 %, and the eroding design jumps to 25 %
+    and then 367 %). The tolerance has to hold twice in a row; a gross imbalance still trips on the first frame."""
+    solver = CrashSolver(BAR, material=ELASTIC, end_time=4e-5, frames=2)
+    solver._check_energy_balance({"kinetic": 100.0, "internal": 900.0, "contact": 0.0, "external": 1000.0})
+    onset = {"kinetic": 100.0, "internal": 1010.0, "contact": 0.0, "external": 1000.0}      # 11 % of the work
+    solver._check_energy_balance(dict(onset))
+    assert solver.out_of_envelope is False
+    solver._check_energy_balance(dict(onset))
+    assert solver.out_of_envelope is True and solver.envelope_reason == "energy_balance"
+
+
+def test_a_conserving_frame_clears_the_count():
+    solver = CrashSolver(BAR, material=ELASTIC, end_time=4e-5, frames=2)
+    onset = {"kinetic": 100.0, "internal": 1010.0, "contact": 0.0, "external": 1000.0}
+    solver._check_energy_balance(dict(onset))
+    solver._check_energy_balance({"kinetic": 100.0, "internal": 900.0, "contact": 0.0, "external": 1000.0})
+    solver._check_energy_balance(dict(onset))
+    assert solver.out_of_envelope is False

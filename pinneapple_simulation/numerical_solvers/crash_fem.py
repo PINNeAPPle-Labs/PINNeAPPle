@@ -50,7 +50,8 @@ _GAUSS = np.array([[a, b, c] for a in (-_GP, _GP) for b in (-_GP, _GP) for c in 
 _XI = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
                 [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], float)     # hexahedron order of HexMesh
 ENVELOPE = 0.35                      # relative length change beyond which the strain measure is out of its range
-ENERGY_TOL = 0.05                    # relative imbalance of kinetic + internal + contact against the external work
+ENERGY_TOL = 0.05                    # imbalance against the external work that has to hold two frames in a row
+ENERGY_TRIP = 0.25                   # imbalance against the external work that one frame is enough to trip
 
 __all__ = ["Material", "RigidPole", "RigidWall", "CrashSolver", "CrashResult", "qoi_from_history",
            "contact_force_on_pole"]
@@ -599,9 +600,13 @@ class CrashSolver:
 
         The scheme conserves that balance (lumped mass, central difference and eight integration points are all
         energy-consistent), so a run that loses it has left the regime this model was verified in — whatever the
-        element stretches say, and however plausible the force pulse looks. Measured on the 200-design pole-impact
-        campaign, the final imbalance is 0.8-1.6 % of the external work; the tolerance is :data:`ENERGY_TOL`.
-        A non-finite state trips it as well."""
+        element stretches say, and however plausible the force pulse looks.
+
+        What the balance looks like, measured: in the campaign's window (pole impact, 8e-4 s, eleven frames) it drifts
+        from 0.02 % to 1.0 % of the work as the crush develops; the thin-wall design that starts eroding jumps from
+        1.0 % to 25 % between two frames and to 367 % by the end. A single frame can lag by one step's work where the
+        pulse begins, so :data:`ENERGY_TOL` has to hold for two frames in a row, while :data:`ENERGY_TRIP` trips at
+        once. A non-finite state trips it as well."""
         if self.out_of_envelope:
             return
         ext = float(frame["external"])
@@ -615,7 +620,10 @@ class CrashSolver:
         # numbers; the check starts once 5 % of the run's work is in
         if self._ext_max <= 0.0 or ext < 0.05 * self._ext_max:
             return
-        if abs(got - ext) > ENERGY_TOL * self._ext_max:
+        imbalance = abs(got - ext)
+        over = imbalance > ENERGY_TOL * self._ext_max
+        self._imbalance_frames = (getattr(self, "_imbalance_frames", 0) + 1) if over else 0
+        if self._imbalance_frames >= 2 or imbalance > ENERGY_TRIP * self._ext_max:
             self.out_of_envelope = True
             self.envelope_reason = "energy_balance"
 
@@ -634,6 +642,7 @@ class CrashSolver:
         # different frame numbers cannot be batched (and reads as one frame per geometry if the axis silently goes).
         out_steps = set(np.unique(np.rint(np.linspace(0, n_steps, n_out))).astype(int).tolist())
         self._ext_max = 0.0
+        self._imbalance_frames = 0
         fr: list[dict] = []
         for k in range(n_steps + 1):
             if k in out_steps:

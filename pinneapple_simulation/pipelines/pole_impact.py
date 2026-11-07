@@ -41,6 +41,7 @@ def run_design(design: dict, *, end_time: float = 1e-3, frames: int = 11, n_part
     return {"design": dict(design), "qoi": qoi, "points": np.asarray(mesh.nodes, np.float32),
             "displacement": np.asarray(res.displacement, np.float32), "times": np.asarray(res.times, np.float32),
             "parts": node_part, "out_of_envelope": bool(res.out_of_envelope),
+            "envelope_reason": res.envelope_reason or "",
             "eroded_end": int(res.eroded[-1].sum()),
             "energies": {k: float(v[-1]) for k, v in res.energies.items()}, "dt": float(res.dt),
             "n_steps": int(len(res.time_history))}
@@ -63,6 +64,7 @@ def quantities_table(rows: list[dict]) -> list[dict]:
         row = dict(r["design"])
         row.update(r["qoi"])
         row["out_of_envelope"] = r["out_of_envelope"]
+        row["envelope_reason"] = r.get("envelope_reason", "")
         row["eroded_elements"] = r["eroded_end"]
         out.append(row)
     return out
@@ -127,6 +129,10 @@ def build_pole_impact_dataset(n_designs: int, out_dir: str, *, seed: int = 0, pa
                "end_time_s": end_time, "frames": frames, "n_parts": n_parts,
                "nodes": int(samples[0].points.shape[0]), "elements_note": "see campaign.json",
                "out_of_envelope": int(sum(bool(r["out_of_envelope"]) for r in rows)),
+               "envelope_reasons": {why: sum(1 for r in rows if r.get("envelope_reason") == why)
+                                    for why in ("stretch", "energy_balance")},
+               "frames_per_design": int(len({len(s.times) for s in dataset.samples}) == 1 and
+                                        len(dataset.samples[0].times)),
                "eroded_mean": float(np.mean([r["eroded_end"] for r in rows])),
                "splits": {k: len(v) for k, v in dataset.splits.items()}}
     with open(os.path.join(out_dir, "campaign.json"), "w") as fh:

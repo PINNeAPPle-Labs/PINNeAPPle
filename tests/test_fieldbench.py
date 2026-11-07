@@ -15,6 +15,7 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     normalize_geometry,
     paired_bootstrap,
     pooled_r2,
+    predict_field_model,
     relative_l2_per_geometry,
     run_benchmark,
     score_model,
@@ -195,3 +196,43 @@ def test_every_spec_builds_and_is_registered_with_a_family():
         model = spec["build"]()
         assert sum(p.numel() for p in model.parameters()) > 0
         assert spec["family"] in ("operator", "point", "point+part", "hierarchical")
+
+
+# --------------------------------------------------------------------------------------------- shapes and padding
+def test_a_dataset_that_mixes_field_shapes_is_refused_at_load_time():
+    """A campaign whose geometries carry different frame counts cannot be batched. The failure used to surface as a
+    bare numpy reshape error at the end of a multi-hour run, so the dataset refuses to exist and names the samples."""
+    steady = [FieldSample(id="a", points=np.zeros((5, 3)), values=np.zeros((5, 1))),
+              FieldSample(id="b", points=np.zeros((6, 3)), values=np.zeros((6, 1)))]
+    FieldDataset("steady", steady)                                            # different nodes are fine
+    with pytest.raises(ValueError, match="mixes field shapes"):
+        FieldDataset("mixed", steady + [FieldSample(id="c", points=np.zeros((5, 3)),
+                                                    values=np.zeros((4, 5, 1)), times=np.linspace(0, 1, 4))])
+    frames = [FieldSample(id=f"f{i}", points=np.zeros((5, 3)), values=np.zeros((n, 5, 1)),
+                          times=np.linspace(0, 1, n)) for i, n in enumerate((10, 10, 9))]
+    with pytest.raises(ValueError, match="9 frames"):
+        FieldDataset("campaign", frames)
+
+
+def test_a_prediction_is_trimmed_to_each_samples_own_point_count():
+    """The batch is padded to the widest geometry, so a model answers with the padded width: scoring that against the
+    reference is the "differ in size (2241 vs 2210)" that killed the surface-pressure campaign, so the prediction is
+    sliced back to each sample before it is returned."""
+    rng = np.random.default_rng(3)
+    samples = [FieldSample(id="small", points=rng.normal(size=(60, 3)).astype("float32"),
+                           values=rng.normal(size=(60, 1)).astype("float32")),
+               FieldSample(id="wide", points=rng.normal(size=(95, 3)).astype("float32"),
+                           values=rng.normal(size=(95, 1)).astype("float32"))]
+    ds = FieldDataset("padded", samples)
+    model = PointNetSurrogate(dim=32, depth=1)
+    preds = predict_field_model(model, ds, ["small", "wide"], device="cpu", batch_size=2)
+    assert [p.shape for p in preds] == [(60,), (95,)]
+    # a transient batch, where a model may also answer with a single-frame axis the sample does not have
+    trans = [FieldSample(id="small", points=rng.normal(size=(60, 3)).astype("float32"),
+                         values=rng.normal(size=(3, 60, 1)).astype("float32"), times=np.linspace(0, 1, 3)),
+             FieldSample(id="wide", points=rng.normal(size=(80, 3)).astype("float32"),
+                         values=rng.normal(size=(3, 80, 1)).astype("float32"), times=np.linspace(0, 1, 3))]
+    ds_t = FieldDataset("padded_transient", trans)
+    preds_t = predict_field_model(CrashSolverModel(hidden=32, local_slices=8, n_frames=3), ds_t, ["small", "wide"],
+                                  device="cpu", batch_size=2)
+    assert [p.shape for p in preds_t] == [(3, 60, 3), (3, 80, 3)]

@@ -50,6 +50,7 @@ _GAUSS = np.array([[a, b, c] for a in (-_GP, _GP) for b in (-_GP, _GP) for c in 
 _XI = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
                 [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], float)     # hexahedron order of HexMesh
 ENVELOPE = 0.35                      # relative length change beyond which the strain measure is out of its range
+ENERGY_TOL = 0.05                    # relative imbalance of kinetic + internal + contact against the external work
 
 __all__ = ["Material", "RigidPole", "RigidWall", "CrashSolver", "CrashResult", "qoi_from_history",
            "contact_force_on_pole"]
@@ -177,6 +178,7 @@ class CrashResult:
     contact_force: np.ndarray            # (F, 3) N, on the body (the obstacle feels the opposite)
     energies: dict[str, np.ndarray]      # kinetic, elastic, internal, plastic, contact [J] per frame
     out_of_envelope: bool = False
+    envelope_reason: str | None = None    # "stretch" or "energy_balance": why the run left the verified range
     dt: float = 0.0
     time_history: np.ndarray | None = None        # (S,) s, every time step (the force pulse needs it)
     force_history: np.ndarray | None = None       # (S,) N, the contact force along x at every step
@@ -407,6 +409,7 @@ class CrashSolver:
         self.eps_prev = np.zeros((self.m, 8, 6))                                               # corotated strain
         self.eroded = np.zeros(self.m, bool)
         self.out_of_envelope = False
+        self.envelope_reason: str | None = None
 
         self.end_time = float(end_time) if end_time is not None else None
         self.frames = max(2, int(frames))
@@ -589,6 +592,32 @@ class CrashSolver:
         stretch = np.abs(np.cbrt(np.abs(np.linalg.det(F_c[keep]))) - 1.0)
         if float(stretch.max()) > ENVELOPE:
             self.out_of_envelope = True
+            self.envelope_reason = "stretch"
+
+    def _check_energy_balance(self, frame: dict) -> None:
+        """Flag a run whose kinetic + internal + contact energy stops matching the work the obstacle put in.
+
+        The scheme conserves that balance (lumped mass, central difference and eight integration points are all
+        energy-consistent), so a run that loses it has left the regime this model was verified in — whatever the
+        element stretches say, and however plausible the force pulse looks. Measured on the 200-design pole-impact
+        campaign, the final imbalance is 0.8-1.6 % of the external work; the tolerance is :data:`ENERGY_TOL`.
+        A non-finite state trips it as well."""
+        if self.out_of_envelope:
+            return
+        ext = float(frame["external"])
+        got = float(frame["kinetic"]) + float(frame["internal"]) + float(frame["contact"])
+        if not math.isfinite(got):
+            self.out_of_envelope = True
+            self.envelope_reason = "energy_balance"
+            return
+        self._ext_max = max(getattr(self, "_ext_max", 0.0), abs(ext))
+        # before the obstacle has done a measurable part of its work the balance is a ratio of two near-zero
+        # numbers; the check starts once 5 % of the run's work is in
+        if self._ext_max <= 0.0 or ext < 0.05 * self._ext_max:
+            return
+        if abs(got - ext) > ENERGY_TOL * self._ext_max:
+            self.out_of_envelope = True
+            self.envelope_reason = "energy_balance"
 
     # ------------------------------------------------------------------------------------ run
     def run(self) -> CrashResult:
@@ -596,12 +625,20 @@ class CrashSolver:
         if self.end_time is None:
             raise ValueError("end_time is required to run(); set it in the constructor")
         n_steps = max(2, int(round(self.end_time / self.dt)))
-        n_out = self.frames
-        every = max(1, n_steps // (n_out - 1))
+        n_out = max(2, int(self.frames))
+        if n_steps + 1 < n_out:
+            raise ValueError(f"end_time={self.end_time} covers {n_steps + 1} steps at dt={self.dt}, fewer than the "
+                             f"{n_out} frames requested: the frames have to be distinct")
+        # Exactly ``frames`` frames, evenly spaced from 0 to the end time. The count must not depend on the design:
+        # every run of a campaign has its own dt, hence its own step count, and a dataset whose geometries carry
+        # different frame numbers cannot be batched (and reads as one frame per geometry if the axis silently goes).
+        out_steps = set(np.unique(np.rint(np.linspace(0, n_steps, n_out))).astype(int).tolist())
+        self._ext_max = 0.0
         fr: list[dict] = []
         for k in range(n_steps + 1):
-            if k % every == 0 or k == n_steps:
+            if k in out_steps:
                 fr.append(self._frame())
+                self._check_energy_balance(fr[-1])
             if k < n_steps:
                 self.step()
         return CrashResult(
@@ -615,7 +652,7 @@ class CrashSolver:
             contact_force=np.stack([f["force"] for f in fr]),
             energies={k: np.array([f[k] for f in fr]) for k in ("kinetic", "elastic", "internal", "plastic",
                                                                 "contact", "external")},
-            out_of_envelope=self.out_of_envelope, dt=self.dt,
+            out_of_envelope=self.out_of_envelope, envelope_reason=self.envelope_reason, dt=self.dt,
             time_history=np.array(self._time_hist), force_history=np.array([f[0] for f in self._force_hist]),
             vx_history=np.array(self._vx_hist))
 

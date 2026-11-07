@@ -73,6 +73,7 @@ class FieldDataset:
     # ---------------------------------------------------------------- access
     def __post_init__(self):
         self._by_id = {s.id: s for s in self.samples}
+        self._check_shape_consistency()
         if not self.splits:
             ids = [s.id for s in self.samples]
             n = len(ids)
@@ -82,6 +83,22 @@ class FieldDataset:
 
     def __len__(self) -> int:
         return len(self.samples)
+
+    def _check_shape_consistency(self) -> None:
+        """Every geometry must carry the same field shape, and a transient one must keep its frame axis.
+
+        A benchmark batches geometries by node and frame index, so a dataset whose samples disagree cannot be trained
+        or scored as one: a transient sample that lost its frame axis reads as a steady field, and the mismatch then
+        surfaces as a bare numpy reshape error hours into a campaign instead of here."""
+        shapes: dict[tuple, list[str]] = {}
+        for s in self.samples:
+            v = np.asarray(s.values)
+            shapes.setdefault((v.ndim, int(v.shape[0]) if v.ndim == 3 else 0, int(v.shape[-1])), []).append(s.id)
+        if len(shapes) > 1:
+            detail = "; ".join(f"{key[0]}-D, {key[1]} frames, {key[2]} channels: {len(ids)} sample(s), e.g. {ids[0]}"
+                               for key, ids in shapes.items())
+            raise ValueError(f"dataset '{self.name}' mixes field shapes ({detail}): every sample of a benchmark has "
+                             f"to share the frame count and the channel count")
 
     def __getitem__(self, key) -> FieldSample:
         if isinstance(key, str):

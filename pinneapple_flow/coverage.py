@@ -35,6 +35,8 @@ REASONS: dict[str, str] = {
                                    "solve / simulation nodes, and a flow step is one process by design",
     "pinneapple_core.artifact": "the container a result travels in, not a computation step: the solve / train nodes "
                                 "produce what pp.save writes, and a flow step returns its result instead of a file",
+    "pinneapple_core.registry": "the name -> object map a plugin registers into, not a step: a registered solver is "
+                                "run by the solve nodes and a registered preset by the problem nodes, exactly as before",
     "pinneapple_problemdesign": "conversational problem design with an external LLM agent; the planner and "
                                 "problem.generic cover the same ground offline",
     "pinneapple_quantum": "needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra",

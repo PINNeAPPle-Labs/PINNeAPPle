@@ -1019,6 +1019,29 @@
   },
   "source": "tests/test_core_contracts_front_door_and_data.py:25"
  },
+ "pinneapple_core.registry:kinds": {
+  "inputs": {},
+  "source": "tests/pinneapple_core/test_registry.py"
+ },
+ "pinneapple_core.registry:registered": {
+  "inputs": {
+   "kind": "solver"
+  },
+  "source": "tests/pinneapple_core/test_registry.py"
+ },
+ "pinneapple_core.registry:resolve": {
+  "inputs": {
+   "kind": "solver",
+   "name": "fem"
+  },
+  "source": "tests/pinneapple_core/test_registry.py"
+ },
+ "pinneapple_core.registry:resolve_kind": {
+  "inputs": {
+   "kind": "solver"
+  },
+  "source": "tests/pinneapple_core/test_registry.py"
+ },
  "pinneapple_core.series:bucket_edges": {
   "inputs": {
    "k": 10,
@@ -1320,7 +1343,7 @@
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
   "inputs": {
-   "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
+   "text": "Quero um surrogate de uma aeronave leve: área de asa 16 m², alongamento 12, afilamento 0,6, enflechamento de 15°, torção de -2° e ângulo de ataque de 4 graus."
   },
   "source": "tests/test_aero_aircraft_surrogate.py:75"
  },
@@ -2165,7 +2188,7 @@
  },
  "pinneapple_flow.planner.extensions:match": {
   "inputs": {
-   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+   "text": "Quero um surrogate da aerodinâmica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
   },
   "source": "tests/test_aero_aircraft_surrogate.py:121"
  },
@@ -2836,9 +2859,9 @@
    "rec": {
     "headline": {
      "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
-     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
-     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
-     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
+     "label_pt": "arrasto vs túnel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs túnel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel · Ahmed, Ramm & Faltin (1984), 25 deg slant"
     }
    }
   },
@@ -4918,18 +4941,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (\u00b0C)",
+     "T_in (°C)",
      "flow_rate (kg/s)",
-     "T_ambient (\u00b0C)",
+     "T_ambient (°C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (\u00b0C)"
+     "T_out (°C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -4985,18 +5008,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (\u00b0C)",
+     "T_in (°C)",
      "flow_rate (kg/s)",
-     "T_ambient (\u00b0C)",
+     "T_ambient (°C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (\u00b0C)"
+     "T_out (°C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -5187,7 +5210,7 @@
  },
  "pinneapple_security.privacy:find_pii": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:22"
  },
@@ -5205,7 +5228,7 @@
  },
  "pinneapple_security.privacy:redact": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:24"
  },
@@ -7282,7 +7305,7 @@
  },
  "pinneapple_systems.process_components.joule_thomson:parse_valve_request": {
   "inputs": {
-   "text": "inlet pressure 70 bar, inlet temperature 25 \u00b0C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 \u00b0C. Methane 92 %, ethane 5 %, nitrogen 3 %"
+   "text": "inlet pressure 70 bar, inlet temperature 25 °C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 °C. Methane 92 %, ethane 5 %, nitrogen 3 %"
   },
   "source": "tests/test_valve_joule_thomson.py:10"
  },
@@ -7645,7 +7668,7 @@
    "date": "January 1, 2026",
    "report_id": "TR-0",
    "subtitle": "Unit test",
-   "title": "A test report with u\u2080 and 10\u207b\u00b3"
+   "title": "A test report with u₀ and 10⁻³"
   },
   "source": "tests/test_paperkit.py:90"
  },

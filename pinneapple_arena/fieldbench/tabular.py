@@ -120,18 +120,24 @@ def probe_family(factory, x, y, timeout_s: float = 120.0) -> str | None:
     proc = ctx.Process(target=_child, args=(child, factory, x, y), daemon=True)
     proc.start()
     child.close()
-    try:
-        if parent.poll(timeout_s):
-            return parent.recv()
-        proc.join(timeout=1.0)
-        return "the fit did not answer in time"
-    finally:
-        parent.close()
-        if proc.is_alive():
-            proc.terminate()
+    why, died = None, False
+    if parent.poll(timeout_s):
+        try:
+            why = parent.recv()
+        except EOFError:                                              # the child died without answering
+            why, died = "the process died before answering", True
+    else:
+        why = "the fit did not answer in time"
+    parent.close()
+    proc.join(timeout=10.0)
+    if proc.is_alive():                                               # it answered nothing and hangs: stop it
+        proc.terminate()
         proc.join(timeout=5.0)
-        if proc.exitcode not in (0, None) and proc.exitcode is not None:
-            return f"the process died with exit code {proc.exitcode} (a crash in the library, not a fit error)"
+        if why is None:
+            why = "the process had to be stopped"
+    if died and proc.exitcode not in (0, None):
+        why = f"the process died with exit code {proc.exitcode} (a crash in the library, not a fit error)"
+    return why
 
 
 def load_table(csv_path: str, *, inputs: list[str], targets: list[str], filter_ok: bool = True) -> dict:

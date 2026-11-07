@@ -296,6 +296,8 @@ def build_pressure_dataset(n_designs: int, out_dir: str, *, seed: int = 0, paral
         json.dump(failures, fh, indent=2)
     summary = {"dataset": npz, "coefficients": csv, "n_samples": len(samples), "n_failed": len(failures),
                "categories": dataset.categories, "re_mean": float(np.mean([r["re"] for r in rows])),
+               "cd_mean": float(np.mean([r["cd"] for r in rows])),
+               "max_density_deviation": float(np.max([r["max_density_deviation"] for r in rows])),
                "splits": {k: len(v) for k, v in dataset.splits.items()}}
     with open(os.path.join(out_dir, "summary.json"), "w") as fh:
         json.dump(summary, fh, indent=2)

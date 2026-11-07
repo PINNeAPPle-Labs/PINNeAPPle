@@ -144,41 +144,41 @@
  },
  "pinneapple_core.registry:kinds": {
   "code_hash": "fcf332969014fc5a",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_core.registry'",
   "inputs": {},
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-07",
-  "seconds": 43.49
+  "returned": "list",
+  "seconds": 39.93
  },
  "pinneapple_core.registry:registered": {
   "code_hash": "4a60294ad5603939",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_core.registry'",
   "inputs": {
    "kind": "solver"
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-07",
-  "seconds": 0.0
+  "returned": "list",
+  "seconds": 12.18
  },
  "pinneapple_core.registry:resolve": {
   "code_hash": "a5c97ff0e13f222d",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_core.registry'",
   "inputs": {
    "kind": "solver",
    "name": "fem"
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-07",
+  "returned": "function",
   "seconds": 0.0
  },
  "pinneapple_core.registry:resolve_kind": {
   "code_hash": "47ab91a6276a82c4",
-  "error": "ModuleNotFoundError: No module named 'pinneapple_core.registry'",
   "inputs": {
    "kind": "solver"
   },
-  "ok": false,
+  "ok": true,
   "recorded": "2026-11-07",
+  "returned": "Registry",
   "seconds": 0.0
  },
  "pinneapple_core.series:bucket_edges": {

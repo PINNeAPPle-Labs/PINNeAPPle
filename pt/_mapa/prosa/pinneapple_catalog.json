@@ -1,0 +1,46 @@
+{
+ "pacote": "pinneapple_catalog",
+ "objetivo": "`pinneapple_catalog` é o catálogo do que o PINNeAPPle conhece, sempre com a fonte. Ele tem duas partes. `resources` lista recursos públicos de Physics AI (datasets, conjuntos de CAD/geometria, modelos pré-treinados e benchmarks hospedados), cada um com licença conferida, classificação de uso e, quando houver, o repositório no Hugging Face. `methods` lista cada solver, método de treino, equação física e problema (preset) da biblioteca, com o caminho do código, as referências bibliográficas e o status de validação.\n\nO problema que o pacote resolve é de rastreabilidade e de licença. Um componente que quer um recurso público pergunta primeiro ao catálogo: `require_allowed` aplica a mesma trava de licença de `pinneapple_neural._licencas` e recusa recursos sem uso comercial (ou com licença não verificada) quando `PINNEAPPLE_COMMERCIAL_MODE=1`. `fetch` baixa o recurso do Hugging Face Hub só depois dessa trava.\n\nNo lado dos métodos, o status de validação não é escrito à mão. O script `scripts/build_method_status.py` varre `tests/` e grava `pinneapple_catalog/method_status.json`. Um item é `validated` quando algum teste o compara com uma referência independente (forma fechada, valor publicado ou solução manufaturada), `tested` quando há testes sem essa comparação, e `untested` caso contrário. `validated_methods()` devolve só os validados; a página pública `docs/validation_status.md` é conferida contra essa varredura por teste. Os caminhos de código apontam para os outros pacotes (`pinneapple_simulation`, `pinneapple_neural`, `pinneapple_physics`, `pinneapple_systems`) e os problemas apontam para os presets de `pinneapple_physics/pde_environment/presets/`.",
+ "submodulos": {
+  "methods": "Inventário de solvers, métodos de treino, equações e problemas, com código, referências e status de validação lido de `method_status.json`.",
+  "resources": "Catálogo de recursos públicos com licença conferida, filtros, trava de licença e download pelo Hugging Face Hub."
+ },
+ "modulos": {
+  "pinneapple_catalog": "Raiz do pacote: reexporta a API de `resources` (`Resource`, `list_resources`, `get_resource`, `require_allowed`, `fetch`); `methods` é importado à parte.",
+  "pinneapple_catalog.methods": "Lista fixa de `Method` (IDs S = solver, T = treino, E = equação, P = problema) com caminho do código, referências citadas no código e referências acrescentadas, e funções para consultar o status de validação.",
+  "pinneapple_catalog.resources": "Lista fixa de `Resource` com licença, uso comercial (`yes`/`no`/`unverified`), classificação (`use_now`, `product`, `reference`, `skip`), filtros, trava de licença e download. [sem teste direto pelo inventário; é exercitado via `tests/test_catalog_resources.py`, que importa pela raiz]"
+ },
+ "simbolos": {
+  "pinneapple_catalog.methods:Method": "Registro imutável de um item do catálogo: id, nome, caminhos de código, termos de busca nos testes (`probes`), referências e, para problemas, as equações usadas; expõe `category` e `references`.",
+  "pinneapple_catalog.methods:get_method": "Devolve o `Method` de um id ou levanta `KeyError` se o id não existe.",
+  "pinneapple_catalog.methods:list_methods": "Lista todos os métodos, ou só os de uma categoria (`solver`, `training`, `equation`, `problem`).",
+  "pinneapple_catalog.methods:method_status": "Lê `method_status.json` e devolve, por id, o status e os testes de referência e outros testes; devolve dict vazio se o arquivo não existe.",
+  "pinneapple_catalog.methods:validated_methods": "Lista oficial: só os métodos cujo status na última varredura é `validated`.",
+  "pinneapple_catalog.resources:Resource": "Registro imutável de um recurso público (tipo, domínio, licença, uso comercial, URL, classificação, artigo, tamanho, repositório HF, notas, tags); `research_only` é verdadeiro sempre que o uso comercial não é `yes`.",
+  "pinneapple_catalog.resources:list_resources": "Filtra os recursos por tipo, domínio e classificação; `commercial_only` mantém só os de uso comercial `yes`.",
+  "pinneapple_catalog.resources:get_resource": "Devolve o `Resource` de um id ou levanta `KeyError` listando os ids conhecidos.",
+  "pinneapple_catalog.resources:require_allowed": "Trava de licença: avisa para recursos só de pesquisa e os recusa em modo comercial, via `require_research_use` de `pinneapple_neural._licencas`.",
+  "pinneapple_catalog.resources:fetch": "Passa pela trava de licença e baixa o recurso com `huggingface_hub.snapshot_download`, devolvendo o caminho local; aceita `allow_patterns` para baixar só parte."
+ },
+ "exemplos": [
+  {
+   "titulo": "Recursos sem licença comercial contam como só pesquisa",
+   "caminho": "tests/test_catalog_resources.py",
+   "codigo": "from pinneapple_catalog import fetch, get_resource, list_resources, require_allowed\nfrom pinneapple_neural._licencas import ResearchOnlyError, ResearchOnlyWarning\n\n\ndef test_unknown_or_missing_license_counts_as_research_only():\n    assert get_resource(\"pressnet\").research_only  # no LICENSE file\n    assert get_resource(\"drivaernet\").research_only  # CC BY-NC\n    assert not get_resource(\"airfrans\").research_only  # ODbL allows commercial use\n\n\ndef test_commercial_only_filter_excludes_research_only():\n    assert all(not r.research_only for r in list_resources(commercial_only=True))"
+  },
+  {
+   "titulo": "Status de validação cobre todo o catálogo de métodos",
+   "caminho": "tests/test_catalog_methods.py",
+   "codigo": "def test_status_covers_every_item_and_validated_is_a_subset():\n    status = method_status()\n    assert {m.id for m in list_methods()} <= set(status)\n    for m in validated_methods():\n        assert status[m.id][\"status\"] == \"validated\"\n        assert status[m.id][\"reference_tests\"], m.id"
+  }
+ ],
+ "limitacoes": [
+  "As listas de recursos e de métodos são fixas no código; incluir um item novo exige editar `resources.py` ou `methods.py`.",
+  "O status de validação depende de rodar `scripts/build_method_status.py`; se `method_status.json` estiver desatualizado, `validated_methods()` também estará. Sem o arquivo, `method_status()` devolve vazio.",
+  "A detecção de testes é por presença de strings (`probes`) nos arquivos de teste, não por execução.",
+  "`fetch` exige o extra `hub` (`huggingface_hub`) e só funciona para recursos com `hf_repo`; os demais levantam `ValueError` apontando a URL de origem.",
+  "Licença não verificada (`unverified`) é tratada como não comercial; em `PINNEAPPLE_COMMERCIAL_MODE=1` esses recursos são recusados.",
+  "Alguns caminhos de código e docstrings citam o repositório irmão `PINNeAPPle-CFD`, que pode não estar presente; o teste pula esses caminhos nesse caso.",
+  "`pinneapple_catalog.methods` não é reexportado pela raiz do pacote; é preciso importar `pinneapple_catalog.methods` diretamente."
+ ]
+}

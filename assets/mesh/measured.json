@@ -1,0 +1,171 @@
+[
+ {
+  "mesh": "box h=0.1",
+  "dim": 3,
+  "n_nodes": 1195,
+  "n_elements": 4943,
+  "element_counts": {
+   "tetra": 4943
+  },
+  "sicn_min": 0.2953841961107155,
+  "sicn_mean": 0.8189638849506694,
+  "gamma_min": 0.2964016312985881,
+  "gamma_mean": 0.7892018752482174,
+  "aspect_ratio_max": 2.4908205316642893,
+  "aspect_ratio_mean": 1.5744969206418398,
+  "volume": 1.0,
+  "area": 6.0,
+  "h_min": 0.07279655668054728,
+  "h_mean": 0.12587690148690944,
+  "h_max": 0.20815708683557246,
+  "backend": "gmsh-occ"
+ },
+ {
+  "mesh": "cylinder + 3 layers",
+  "dim": 3,
+  "n_nodes": 4661,
+  "n_elements": 12744,
+  "element_counts": {
+   "tetra": 6678,
+   "wedge": 6066
+  },
+  "sicn_min": 0.01652067669061362,
+  "sicn_mean": 0.5610465914904829,
+  "gamma_min": 0.003021782091209865,
+  "gamma_mean": 0.7747863035991385,
+  "aspect_ratio_max": 14.104917515707367,
+  "aspect_ratio_mean": 4.200940396744713,
+  "volume": 0.7809798912633583,
+  "area": 4.6995740852626255,
+  "h_min": 0.009999999999999948,
+  "h_mean": 0.07462750989361212,
+  "h_max": 0.16361498975874633,
+  "backend": "gmsh-occ+boundary-layer"
+ },
+ {
+  "mesh": "sphere h=0.08",
+  "dim": 3,
+  "n_nodes": 1139,
+  "n_elements": 5055,
+  "element_counts": {
+   "tetra": 5055
+  },
+  "sicn_min": 0.30249649507389886,
+  "sicn_mean": 0.8070150360552064,
+  "gamma_min": 0.30186928532514135,
+  "gamma_mean": 0.7780430842587245,
+  "aspect_ratio_max": 2.841293378867516,
+  "aspect_ratio_mean": 1.590886512699023,
+  "volume": 0.5187515202784544,
+  "area": 3.1255460393568075,
+  "h_min": 0.04516522875172104,
+  "h_mean": 0.10184554306705511,
+  "h_max": 0.15841854452630919,
+  "backend": "gmsh-occ"
+ },
+ {
+  "mesh": "box + refine ball",
+  "dim": 3,
+  "n_nodes": 1937,
+  "n_elements": 10684,
+  "element_counts": {
+   "tetra": 10684
+  },
+  "sicn_min": 0.2967978770083082,
+  "sicn_mean": 0.807465722618623,
+  "gamma_min": 0.30094849618629566,
+  "gamma_mean": 0.7775866437770894,
+  "aspect_ratio_max": 3.275256937903034,
+  "aspect_ratio_mean": 1.620647806156001,
+  "volume": 1.0,
+  "area": 6.0,
+  "h_min": 0.027636087049209262,
+  "h_mean": 0.07558399136652577,
+  "h_max": 0.2938102615544543,
+  "backend": "gmsh-occ"
+ },
+ {
+  "mesh": "rectangle h=0.05",
+  "dim": 2,
+  "n_nodes": 997,
+  "n_elements": 1872,
+  "element_counts": {
+   "triangle": 1872
+  },
+  "sicn_min": 0.8498557387453328,
+  "sicn_mean": 0.9927267767118932,
+  "gamma_min": 0.8073012202475194,
+  "gamma_mean": 0.9914710711174008,
+  "aspect_ratio_max": 1.4996573609463173,
+  "aspect_ratio_mean": 1.048696467698794,
+  "volume": null,
+  "area": 2.0,
+  "h_min": 0.03600008160632325,
+  "h_mean": 0.04978353031568179,
+  "h_max": 0.06985550048727503,
+  "backend": "gmsh-occ"
+ },
+ {
+  "mesh": "disk h=0.05",
+  "dim": 2,
+  "n_nodes": 410,
+  "n_elements": 755,
+  "element_counts": {
+   "triangle": 755
+  },
+  "sicn_min": 0.8759500272813461,
+  "sicn_mean": 0.9911359212804107,
+  "gamma_min": 0.8421110748381445,
+  "gamma_mean": 0.989692398364756,
+  "aspect_ratio_max": 1.4222679292429832,
+  "aspect_ratio_mean": 1.0691221366991548,
+  "volume": null,
+  "area": 0.7840967919420562,
+  "h_min": 0.03607537905622728,
+  "h_mean": 0.049086578406928205,
+  "h_max": 0.06462665517352426,
+  "backend": "gmsh-occ"
+ },
+ {
+  "mesh": "rectangle + 4 layers",
+  "dim": 2,
+  "n_nodes": 452,
+  "n_elements": 842,
+  "element_counts": {
+   "triangle": 842
+  },
+  "sicn_min": 0.08638657394357777,
+  "sicn_mean": 0.5928991009214607,
+  "gamma_min": 0.07281759588911228,
+  "gamma_mean": 0.5964863747668062,
+  "aspect_ratio_max": 20.024984394501228,
+  "aspect_ratio_mean": 7.390208505154957,
+  "volume": null,
+  "area": 2.0,
+  "h_min": 0.004999999999999893,
+  "h_mean": 0.08439375551140053,
+  "h_max": 0.1223666431104967,
+  "backend": "gmsh-occ+boundary-layer"
+ },
+ {
+  "mesh": "bracket.stl h=0.004",
+  "dim": 3,
+  "n_nodes": 2611,
+  "n_elements": 9564,
+  "element_counts": {
+   "tetra": 9564
+  },
+  "sicn_min": 0.07620086828246489,
+  "sicn_mean": 0.78516624335948,
+  "gamma_min": 0.016693492134906143,
+  "gamma_mean": 0.7512855555778216,
+  "aspect_ratio_max": 3.7490481351185534,
+  "aspect_ratio_mean": 1.7085505412002397,
+  "volume": 9.423426601650568e-05,
+  "area": 0.022502558259319343,
+  "h_min": 0.0015275103700967863,
+  "h_mean": 0.004584084728711724,
+  "h_max": 0.008865046450380701,
+  "backend": "mesh_from_surface (gmsh)"
+ }
+]

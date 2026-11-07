@@ -38,11 +38,11 @@ run to a steady state (and time-averaged where it sheds), and the pressure of ev
 point at its centre.
 
 ```bash
-python examples/benchmarks/carbench_surface_pressure/run.py --designs 40 --parallel 7 \
+python examples/carbench_surface_pressure/run.py --designs 40 --parallel 7 \
     --cells-per-length 44 --steps 3000 --epochs 40
 ```
 
-Outputs, in `examples/benchmarks/carbench_surface_pressure/_out/`: `surface_pressure.npz` (a
+Outputs, in `examples/carbench_surface_pressure/_out/`: `surface_pressure.npz` (a
 `pinneapple_arena.fieldbench.FieldDataset`), `coefficients.csv` (Cd, Cl and areas per design), `leaderboard.md` and
 `leaderboard.json`, and the Lab manifest of the run.
 
@@ -72,7 +72,7 @@ peak internal energy, peak plastic work, kinetic-energy absorption) **and** the 
 frame, so the same campaign feeds a tabular benchmark and a field benchmark.
 
 ```bash
-python examples/benchmarks/carcrashnet_pole_impact/run.py --designs 120 --parallel 7 --end-time 1e-3
+python examples/carcrashnet_pole_impact/run.py --designs 120 --parallel 7 --end-time 1e-3
 ```
 
 Two things are different from the paper and are stated in the campaign manifest as well: the solver is this library's

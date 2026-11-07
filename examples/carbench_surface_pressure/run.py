@@ -15,12 +15,14 @@ What is *not* the same, stated up front: the label is a coarse LBM field, not a 
 not comparable with the published table — what is comparable is the protocol, the ranking of families, and the cost.
 The dataset records its resolution and the Reynolds number reachable at that resolution for that reason.
 
-Run: ``python examples/benchmarks/carbench_surface_pressure/run.py --designs 48 --parallel 8``
+Run: ``python examples/carbench_surface_pressure/run.py --designs 48 --parallel 8``
 (``--smoke``: 4 designs, tiny resolution, 2 epochs — a minute on a laptop).
 """
 from __future__ import annotations
 
 import argparse
+import csv
+import json
 import os
 import sys
 
@@ -39,6 +41,27 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     run_benchmark,
     write_report,
 )
+
+
+def label_quality(csv_path: str, failures_path: str) -> dict:
+    """The label-quality numbers of a campaign, read back from the coefficients table it wrote.
+
+    The table is the campaign's own record (one row per labelled design), so a ``--reuse`` run reports the same
+    resolution, Reynolds number and density excursion as the run that produced the labels."""
+    with open(csv_path) as fh:
+        rows = list(csv.DictReader(fh))
+    if not rows:
+        raise RuntimeError(f"{csv_path} has no labelled design")
+    n_failed = 0
+    if os.path.exists(failures_path):
+        with open(failures_path) as fh:
+            n_failed = len(json.load(fh))
+    return {"n_failed": n_failed,
+            "cd_mean": float(np.mean([float(r["cd"]) for r in rows])),
+            "max_density_deviation": float(np.max([float(r["max_density_deviation"]) for r in rows])),
+            "re_mean": float(np.mean([float(r["re"]) for r in rows])),
+            "cells_per_length": float(np.mean([float(r["cells_per_length"]) for r in rows])),
+            "steps": float(np.mean([float(r["steps"]) for r in rows]))}
 
 
 def main() -> None:
@@ -65,7 +88,7 @@ def main() -> None:
     npz = os.path.join(a.out, "surface_pressure.npz")
 
     with pinneapple_lab.experiment(
-            "examples/benchmarks/carbench_surface_pressure",
+            "examples/carbench_surface_pressure",
             title="Surface-pressure surrogate benchmark over a parametric car family",
             description="Geometry point cloud in, surface kinematic pressure out, over a parametric car family "
                         "(three roof lines, open/closed wheel arches); labels from the library's lattice-Boltzmann "
@@ -77,26 +100,29 @@ def main() -> None:
             modules=["pinneapple_simulation.pipelines.car_pressure", "pinneapple_arena.fieldbench"],
             out_dir=HERE, register=False,
             links={"guide": "docs/guides/crash_and_surface_benchmarks.md",
-                   "script": "examples/benchmarks/carbench_surface_pressure/run.py"}) as ex:
+                   "script": "examples/carbench_surface_pressure/run.py"}) as ex:
         # ---------------------------------------------------------------- 1. the labels
         if a.reuse and os.path.exists(npz):
             dataset = FieldDataset.load(npz)
             print(f"reused {npz}: {len(dataset)} geometries")
         else:
             from pinneapple_simulation.pipelines.car_pressure import build_pressure_dataset
-            summary = build_pressure_dataset(designs, a.out, seed=a.seed, parallel=a.parallel,
-                                             cells_per_length=cpl, steps=steps, averaging=1, u_lattice=0.08,
-                                             Re=300.0, max_faces=a.max_faces, road=bool(a.road), verbose=True)
-            dataset = FieldDataset.load(summary["dataset"])
-            ex.log_metric("geometries_labelled", summary["n_samples"], "geometries",
-                          f"lattice-Boltzmann, {cpl} cells per car length, {steps} steps, "
-                          f"Re {summary['re_mean']:.0f}")
-            ex.log_metric("label_max_density_deviation", summary["max_density_deviation"], "fraction of rho",
-                          "largest density excursion of the lattice over the campaign: how far the label is from "
-                          "the incompressible limit")
-            ex.log_metric("label_cd_mean", summary["cd_mean"], "drag coefficient",
-                          "mean over the labelled designs, coarse lattice, front area of every design")
-            ex.log_metric("failed_designs", summary["n_failed"], "designs", "listed in failures.json")
+            build_pressure_dataset(designs, a.out, seed=a.seed, parallel=a.parallel,
+                                   cells_per_length=cpl, steps=steps, averaging=1, u_lattice=0.08,
+                                   Re=300.0, max_faces=a.max_faces, road=bool(a.road), verbose=True)
+            dataset = FieldDataset.load(npz)
+        # the label-quality numbers are read back from the campaign's own coefficients table, so they are recorded by
+        # a --reuse run as well (the labels are the same run's: the table is written next to the dataset)
+        labels = label_quality(os.path.join(a.out, "coefficients.csv"), os.path.join(a.out, "failures.json"))
+        ex.log_metric("geometries_labelled", len(dataset), "geometries",
+                      f"lattice-Boltzmann, {labels['cells_per_length']:.0f} cells per car length, "
+                      f"{labels['steps']:.0f} steps, Re {labels['re_mean']:.0f}")
+        ex.log_metric("label_max_density_deviation", labels["max_density_deviation"], "fraction of rho",
+                      "largest density excursion of the lattice over the campaign: how far the label is from "
+                      "the incompressible limit")
+        ex.log_metric("label_cd_mean", labels["cd_mean"], "drag coefficient",
+                      "mean over the labelled designs, coarse lattice, front area of every design")
+        ex.log_metric("failed_designs", labels["n_failed"], "designs", "listed in failures.json")
         ex.log_metric("wall_faces_per_geometry", int(np.mean([s.n_points for s in dataset.samples])), "faces",
                       "wall faces of the voxelized body, = input points of the surrogate")
         ex.log_metric("categories", len(dataset.categories), "categories", ", ".join(sorted(dataset.categories)))

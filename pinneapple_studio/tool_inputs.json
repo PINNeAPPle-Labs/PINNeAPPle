@@ -744,6 +744,18 @@
   },
   "source": "tests/test_decision_adapter_tree_arena.py:317"
  },
+ "pinneapple_arena.fieldbench.models:available_models": {
+  "inputs": {},
+  "source": "tests/test_fieldbench.py:189"
+ },
+ "pinneapple_arena.fieldbench.models:build_model_specs": {
+  "inputs": {},
+  "source": "tests/test_fieldbench.py:189"
+ },
+ "pinneapple_arena.fieldbench.tabular:available_regressors": {
+  "inputs": {},
+  "source": "tests/test_fieldbench_tabular.py:141"
+ },
  "pinneapple_arena.model_factory:build_model": {
   "inputs": {
    "cfg": {
@@ -6176,6 +6188,93 @@
   },
   "source": "tests/test_control_literal_calls.py:22"
  },
+ "pinneapple_simulation.numerical_solvers.crash_cases:bumper_beam_assembly": {
+  "inputs": {},
+  "source": "tests/test_crash_fem.py:128"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:cross_section_scaled_material": {
+  "inputs": {
+   "base": {
+    "E": 210000000000.0,
+    "erosion_strain": 0.3,
+    "hardening": 400000000.0,
+    "nu": 0.3,
+    "rho": 7800.0,
+    "yield_stress": 390000000.0
+   },
+   "thickness": 0.002
+  },
+  "source": "tests/test_crash_fem.py:22"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:pole_impact": {
+  "inputs": {
+   "design": {},
+   "end_time": 0.0001,
+   "frames": 2
+  },
+  "source": "tests/test_crash_fem.py:145"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:sample_design": {
+  "inputs": {
+   "n": 3
+  },
+  "source": "pinneapple_simulation/pipelines/pole_impact.py:83"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_fem:qoi_from_history": {
+  "inputs": {
+   "contact_force": [
+    0.0,
+    0.0,
+    400000.0,
+    1200000.0,
+    300000.0,
+    0.0
+   ],
+   "energies": {
+    "contact": [
+     0.0,
+     0.0,
+     0.1,
+     0.3,
+     0.2,
+     0.0
+    ],
+    "internal": [
+     0.0,
+     20.0,
+     80.0,
+     280.0,
+     480.0,
+     600.0
+    ],
+    "kinetic": [
+     980.0,
+     960.0,
+     900.0,
+     700.0,
+     500.0,
+     380.0
+    ],
+    "plastic": [
+     0.0,
+     10.0,
+     40.0,
+     200.0,
+     400.0,
+     500.0
+    ]
+   },
+   "times": [
+    0.0,
+    0.0002,
+    0.0004,
+    0.0006,
+    0.0008,
+    0.001
+   ]
+  },
+  "source": "tests/test_crash_fem.py:104"
+ },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
   "inputs": {
    "D": 8,
@@ -6412,6 +6511,22 @@
   },
   "source": "tests/test_lbm_naca4_mask.py:11"
  },
+ "pinneapple_simulation.numerical_solvers.lbm_tunnel:WindTunnelLBM": {
+  "inputs": {
+   "nu": 0.05,
+   "shape": [
+    24,
+    16,
+    16
+   ],
+   "u_in": [
+    0.05,
+    0.0,
+    0.0
+   ]
+  },
+  "source": "tests/test_lbm_wall_pressure.py:34"
+ },
  "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem:cantilever_frequency_roots": {
   "inputs": {
    "n": 1
@@ -6596,6 +6711,57 @@
   },
   "source": "tests/test_geo_mpm.py:22"
  },
+ "pinneapple_simulation.pipelines.car_pressure:car_surfaces": {
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "source": "pinneapple_simulation/pipelines/car_pressure.py:1"
+ },
+ "pinneapple_simulation.pipelines.car_pressure:design_category": {
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "source": "pinneapple_simulation/pipelines/car_pressure.py:1"
+ },
+ "pinneapple_simulation.pipelines.car_pressure:sample_designs": {
+  "inputs": {
+   "n": 3,
+   "seed": 0
+  },
+  "source": "tests/test_aero_field_dataset.py:1"
+ },
  "pinneapple_simulation.pipelines.freecad_openfoam.cad:rule_eval": {
   "inputs": {
    "expr": "plane and abs(cx + L) < 1e-3 * D",
@@ -6625,6 +6791,43 @@
    ]
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:157"
+ },
+ "pinneapple_simulation.pipelines.pole_impact:quantities_table": {
+  "inputs": {
+   "rows": [
+    {
+     "design": {
+      "velocity": 16.0
+     },
+     "eroded_end": 2,
+     "out_of_envelope": false,
+     "qoi": {
+      "ke_absorption": 0.9,
+      "peak_wall_force": 1000000.0
+     }
+    },
+    {
+     "design": {
+      "velocity": 15.0
+     },
+     "eroded_end": 0,
+     "out_of_envelope": true,
+     "qoi": {
+      "ke_absorption": 0.8,
+      "peak_wall_force": 900000.0
+     }
+    }
+   ]
+  },
+  "source": "pinneapple_simulation/pipelines/pole_impact.py:57"
+ },
+ "pinneapple_simulation.pipelines.pole_impact:run_design": {
+  "inputs": {
+   "design": {},
+   "end_time": 0.0001,
+   "frames": 2
+  },
+  "source": "tests/test_crash_fem.py:145"
  },
  "pinneapple_simulation.terramechanics.testbed:load_dataset": {
   "inputs": {

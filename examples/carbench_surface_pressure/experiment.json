@@ -1,0 +1,135 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/carbench_surface_pressure",
+ "title": "Surface-pressure surrogate benchmark over a parametric car family",
+ "description": "Geometry point cloud in, surface kinematic pressure out, over a parametric car family (three roof lines, open/closed wheel arches); labels from the library's lattice-Boltzmann tunnel; six surrogate families ranked with per-geometry relative L2, bootstrap intervals and the paired significance test.",
+ "domain": "external aerodynamics",
+ "methods": [
+  "lattice Boltzmann (D3Q19, Smagorinsky)",
+  "physics-attention transformer",
+  "PointNet",
+  "EdgeConv",
+  "hierarchical part-aware surrogate"
+ ],
+ "modules": [
+  "pinneapple_simulation.pipelines.car_pressure",
+  "pinneapple_arena.fieldbench"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "geometries_labelled",
+   "value": 24.0,
+   "unit": "geometries",
+   "how": "lattice-Boltzmann, 40 cells per car length, 6000 steps, Re 300"
+  },
+  {
+   "name": "label_max_density_deviation",
+   "value": 0.12014263868331909,
+   "unit": "fraction of rho",
+   "how": "largest density excursion of the lattice over the campaign: how far the label is from the incompressible limit"
+  },
+  {
+   "name": "label_cd_mean",
+   "value": 19.0758220354716,
+   "unit": "drag coefficient",
+   "how": "mean over the labelled designs, coarse lattice, front area of every design"
+  },
+  {
+   "name": "failed_designs",
+   "value": 0.0,
+   "unit": "designs",
+   "how": "listed in failures.json"
+  },
+  {
+   "name": "wall_faces_per_geometry",
+   "value": 2082.0,
+   "unit": "faces",
+   "how": "wall faces of the voxelized body, = input points of the surrogate"
+  },
+  {
+   "name": "categories",
+   "value": 6.0,
+   "unit": "categories",
+   "how": "estateback/closed, estateback/open, fastback/closed, fastback/open, notchback/closed, notchback/open"
+  },
+  {
+   "name": "best_rel_l2",
+   "value": 0.9759488135792935,
+   "unit": "relative L2",
+   "how": "crash_solver, mean over 3 held-out geometries, 95% CI (0.9759488135792935, 0.9759488135792935)"
+  },
+  {
+   "name": "best_r2",
+   "value": 0.001041963937937096,
+   "unit": "R^2",
+   "how": "crash_solver, pooled over all test points"
+  },
+  {
+   "name": "pair_gap",
+   "value": -0.0007176073131586932,
+   "unit": "relative L2",
+   "how": "crash_solver minus transolver_lite, paired bootstrap, win rate 1.00, p_perm 0.247"
+  },
+  {
+   "name": "subsampled_rel_l2",
+   "value": 0.9757926950950507,
+   "unit": "relative L2",
+   "how": "crash_solver scored on every second wall face only"
+  }
+ ],
+ "checks": [
+  {
+   "name": "a surrogate beats the mean field",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "best crash_solver Rel L2 0.976",
+   "kind": "regression"
+  },
+  {
+   "name": "labels are physical",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "drag coefficient of every geometry is positive",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/leaderboard.md",
+   "_out/coefficients.csv"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/crash_and_surface_benchmarks.md",
+  "script": "examples/carbench_surface_pressure/run.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ef5fdb14a",
+  "created": "2026-11-07T01:53:10Z",
+  "seconds": 137.529,
+  "error": null,
+  "environment": {
+   "python": "3.12.13",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

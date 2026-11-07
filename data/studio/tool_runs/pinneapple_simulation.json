@@ -2316,6 +2316,113 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_simulation.numerical_solvers.crash_cases:bumper_beam_assembly": {
+  "code_hash": "317b3a7bd40fcc1b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "Assembly",
+  "seconds": 33.03
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:cross_section_scaled_material": {
+  "code_hash": "b0520b0197f61e47",
+  "inputs": {
+   "base": {
+    "E": 210000000000.0,
+    "erosion_strain": 0.3,
+    "hardening": 400000000.0,
+    "nu": 0.3,
+    "rho": 7800.0,
+    "yield_stress": 390000000.0
+   },
+   "thickness": 0.002
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "Material",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:pole_impact": {
+  "code_hash": "57ea32042103637c",
+  "inputs": {
+   "design": {},
+   "end_time": 0.0001,
+   "frames": 2
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "CrashResult",
+  "seconds": 8.64
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:sample_design": {
+  "code_hash": "ec9dc894d2b2d46b",
+  "inputs": {
+   "n": 3
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.numerical_solvers.crash_fem:qoi_from_history": {
+  "code_hash": "ce9bf938f15cd703",
+  "inputs": {
+   "contact_force": [
+    0.0,
+    0.0,
+    400000.0,
+    1200000.0,
+    300000.0,
+    0.0
+   ],
+   "energies": {
+    "contact": [
+     0.0,
+     0.0,
+     0.1,
+     0.3,
+     0.2,
+     0.0
+    ],
+    "internal": [
+     0.0,
+     20.0,
+     80.0,
+     280.0,
+     480.0,
+     600.0
+    ],
+    "kinetic": [
+     980.0,
+     960.0,
+     900.0,
+     700.0,
+     500.0,
+     380.0
+    ],
+    "plastic": [
+     0.0,
+     10.0,
+     40.0,
+     200.0,
+     400.0,
+     500.0
+    ]
+   },
+   "times": [
+    0.0,
+    0.0002,
+    0.0004,
+    0.0006,
+    0.0008,
+    0.001
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
   "code_hash": "b3b2ecdf6f41b0ac",
   "inputs": {
@@ -3093,6 +3200,69 @@
   "returned": "tuple",
   "seconds": 0.0
  },
+ "pinneapple_simulation.pipelines.car_pressure:car_surfaces": {
+  "code_hash": "a6fe91df842f1161",
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "dict",
+  "seconds": 4.71
+ },
+ "pinneapple_simulation.pipelines.car_pressure:design_category": {
+  "code_hash": "851bb38dac5f4df4",
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.car_pressure:sample_designs": {
+  "code_hash": "e793b0debb6d2fd2",
+  "inputs": {
+   "n": 3,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.pipelines.freecad_openfoam.cad:FakeFreeCAD": {
   "code_hash": "fde58075db1bc70b",
   "inputs": {},
@@ -3198,6 +3368,51 @@
   "recorded": "2026-10-31",
   "returned": "PipelineSpec",
   "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.pole_impact:quantities_table": {
+  "code_hash": "0952172f88cf6b7a",
+  "inputs": {
+   "rows": [
+    {
+     "design": {
+      "velocity": 16.0
+     },
+     "eroded_end": 2,
+     "out_of_envelope": false,
+     "qoi": {
+      "ke_absorption": 0.9,
+      "peak_wall_force": 1000000.0
+     }
+    },
+    {
+     "design": {
+      "velocity": 15.0
+     },
+     "eroded_end": 0,
+     "out_of_envelope": true,
+     "qoi": {
+      "ke_absorption": 0.8,
+      "peak_wall_force": 900000.0
+     }
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.pipelines.pole_impact:run_design": {
+  "code_hash": "630af12dea0e77f2",
+  "inputs": {
+   "design": {},
+   "end_time": 0.0001,
+   "frames": 2
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "dict",
+  "seconds": 8.67
  },
  "pinneapple_simulation.robot_sim.checks:arm_pick_and_place": {
   "code_hash": "872f3cec436b3b7a",

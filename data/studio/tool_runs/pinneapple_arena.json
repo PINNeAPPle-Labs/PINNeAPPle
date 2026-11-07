@@ -284,6 +284,30 @@
   "returned": "dict",
   "seconds": 0.3
  },
+ "pinneapple_arena.fieldbench.models:available_models": {
+  "code_hash": "7a73e139aac300bf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 33.1
+ },
+ "pinneapple_arena.fieldbench.models:build_model_specs": {
+  "code_hash": "2acc806ba70f2f3f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_arena.fieldbench.tabular:available_regressors": {
+  "code_hash": "bdf42c293ee40515",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "dict",
+  "seconds": 0.01
+ },
  "pinneapple_arena.pointwise.architectures:catalog_status": {
   "code_hash": "1b572fbd0867b539",
   "inputs": {},

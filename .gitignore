@@ -71,7 +71,6 @@ examples/openfoam_campaign/_out/
 examples/lbm/_out/
 examples/carbench_surface_pressure/_out/
 examples/carcrashnet_pole_impact/_out/
-examples/benchmarks/*/_out/
 examples/geometry_library/_out/
 dist/geometries/
 

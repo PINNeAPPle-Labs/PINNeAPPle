@@ -16,7 +16,7 @@ one mesh, one split, a field surrogate and a tabular one on the same campaign â€
 equal terms. The run records the solver, the mesh, the design box and any run that left the solver's strain envelope,
 so no number here can be read as an OpenRadioss result.
 
-Run: ``python examples/benchmarks/carcrashnet_pole_impact/run.py --designs 120 --parallel 8``
+Run: ``python examples/carcrashnet_pole_impact/run.py --designs 120 --parallel 8``
 (``--smoke``: 6 designs, short event, 2 epochs).
 """
 from __future__ import annotations
@@ -76,7 +76,7 @@ def main() -> None:
     csv = os.path.join(a.out, "pole_impact_quantities.csv")
 
     with pinneapple_lab.experiment(
-            "examples/benchmarks/carcrashnet_pole_impact",
+            "examples/carcrashnet_pole_impact",
             title="Pole-impact crash benchmark: quantities and displacement fields",
             description="A bumper beam on two crash boxes driven into a rigid pole: seven design variables to the "
                         "crashworthiness quantities, and the undeformed mesh to the displacement sequence of every "
@@ -89,7 +89,7 @@ def main() -> None:
                      "pinneapple_simulation.pipelines.pole_impact", "pinneapple_arena.fieldbench"],
             out_dir=HERE, register=False,
             links={"guide": "docs/guides/crash_and_surface_benchmarks.md",
-                   "script": "examples/benchmarks/carcrashnet_pole_impact/run.py"}) as ex:
+                   "script": "examples/carcrashnet_pole_impact/run.py"}) as ex:
         # ---------------------------------------------------------------- 1. the campaign
         if a.reuse and os.path.exists(npz) and os.path.exists(csv):
             print(f"reused {npz} and {csv}")

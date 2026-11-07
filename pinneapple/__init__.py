@@ -654,6 +654,7 @@ _SUBMODULES = {
     "transforms": "pinneapple_core.transforms",
     "distributed": "pinneapple_core.distributed",
     "artifact":   "pinneapple_core.artifact",
+    "registry":   "pinneapple_core.registry",
     "func":       "pinneapple_core.func",
     # positional astronomy, satellites, small bodies, space weather, stellar ML, orbit PINNs (validated vs JPL/USNO)
     "astro":      "pinneapple_physics.astro",
@@ -695,6 +696,12 @@ _LAZY_ATTRS = {
     "save": ("pinneapple_core.artifact", "save"),
     "load": ("pinneapple_core.artifact", "load"),
     "verify_artifact": ("pinneapple_core.artifact", "verify"),
+    # one registry protocol for every extensible object type (X16, #200)
+    "register": ("pinneapple_core.registry", "register"),
+    "unregister": ("pinneapple_core.registry", "unregister"),
+    "registered": ("pinneapple_core.registry", "registered"),
+    "resolve": ("pinneapple_core.registry", "resolve"),
+    "Registry": ("pinneapple_core.registry", "Registry"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
@@ -786,6 +793,8 @@ __all__ = [
     "export_torchscript", "export_onnx", "export_csv", "export_npz",
     # The .ppx container: a result with its problem, units, environment and provenance, reproducible elsewhere
     "Artifact", "save", "load", "verify_artifact",
+    # One registry protocol for every extensible object type (X16)
+    "register", "unregister", "registered", "resolve", "Registry",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

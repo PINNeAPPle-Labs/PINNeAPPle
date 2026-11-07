@@ -1,0 +1,12 @@
+{
+ "code_hash": "1fe62b09003bf19e",
+ "figures": [],
+ "id": "example:examples/carbench_surface_pressure",
+ "ok": true,
+ "recorded": "2026-11-07",
+ "seconds": 3.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Surface-pressure surrogate benchmark over a parametric car family | external aerodynamics | not curated\ngeometries_labelled 24.0 geometries\nlabel_max_density_deviation 0.12014263868331909 fraction of rho\nlabel_cd_mean 19.0758220354716 drag coefficient\nfailed_designs 0.0 designs\nwall_faces_per_geometry 2082.0 faces",
+ "timed_out": false
+}

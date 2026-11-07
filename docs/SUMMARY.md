@@ -16,6 +16,7 @@
   * [Geometry & Domain](core_concepts/geometry_domain.md)
   * [Core primitives](core_concepts/core_primitives.md)
   * [Distributed physics: sweeps, partitioned meshes, decomposed training](core_concepts/distributed.md)
+  * [The .ppx container: a result that reproduces elsewhere](core_concepts/artifact.md)
   * [PhysicsOptimizer](core_concepts/physics_optimizer.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)

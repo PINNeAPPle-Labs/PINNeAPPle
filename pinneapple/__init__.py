@@ -653,6 +653,7 @@ _SUBMODULES = {
     "loss":       "pinneapple_core.loss",
     "transforms": "pinneapple_core.transforms",
     "distributed": "pinneapple_core.distributed",
+    "artifact":   "pinneapple_core.artifact",
     "func":       "pinneapple_core.func",
     # positional astronomy, satellites, small bodies, space weather, stellar ML, orbit PINNs (validated vs JPL/USNO)
     "astro":      "pinneapple_physics.astro",
@@ -689,6 +690,11 @@ _LAZY_ATTRS = {
     # (also the old pp.validate namespace: pp.validate.PhysicsValidator still resolves)
     "validate": ("pinneapple_analysis.validation.validate", "pp_validate"),
     "PhysicsOptimizer": ("pinneapple_core.optim", "PhysicsOptimizer"),
+    # the .ppx container: one file carrying a result, its problem, units, environment and provenance
+    "Artifact": ("pinneapple_core.artifact", "Artifact"),
+    "save": ("pinneapple_core.artifact", "save"),
+    "load": ("pinneapple_core.artifact", "load"),
+    "verify_artifact": ("pinneapple_core.artifact", "verify"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
@@ -778,6 +784,8 @@ __all__ = [
     "PhysicsValidator", "validate_model",
     # Export
     "export_torchscript", "export_onnx", "export_csv", "export_npz",
+    # The .ppx container: a result with its problem, units, environment and provenance, reproducible elsewhere
+    "Artifact", "save", "load", "verify_artifact",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

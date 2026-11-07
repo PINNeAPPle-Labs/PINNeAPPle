@@ -33,6 +33,8 @@ REASONS: dict[str, str] = {
     "pinneapple_core.workflows": "the execution engine every flow runs on",
     "pinneapple_core.distributed": "parallel execution around the steps that already have nodes: a sweep runs many "
                                    "solve / simulation nodes, and a flow step is one process by design",
+    "pinneapple_core.artifact": "the container a result travels in, not a computation step: the solve / train nodes "
+                                "produce what pp.save writes, and a flow step returns its result instead of a file",
     "pinneapple_problemdesign": "conversational problem design with an external LLM agent; the planner and "
                                 "problem.generic cover the same ground offline",
     "pinneapple_quantum": "needs a quantum SDK (Qiskit / PennyLane), not installed by the flow extra",

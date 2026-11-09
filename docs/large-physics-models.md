@@ -62,3 +62,47 @@ HPC scheduling, physics-residual PINO training or native registry publishing is
 claimed. The graph implementation uses O(N²) neighbor searches. Numerical
 convergence, conservation, mesh/time refinement, expert review, and independent
 physical reference comparisons remain required for a validated release.
+
+## Native training and engineering review (integration branch)
+
+The campaign pipeline now delegates optimization and best-checkpoint selection
+to `pinneapple_neural.trainer.Trainer`. FNO and graph architectures delegate
+to existing `pinneapple_neural` implementations. OpenFOAM field parsing
+delegates to the native binary/ASCII reader.
+
+A native `ValidationCase` is persisted at `veriphysics_case.json`.
+An independent reference and authorized human decision must be attached
+before the checkpoint can be promoted:
+
+```bash
+python -m pinneapple.lpm.review runs/lpm-cfd01 reference \
+  --artifact /path/to/independent-measurements.csv \
+  --kind "experimental data" --metric relative_l2 \
+  --value-pct 4.0 --tolerance-pct 5.0 \
+  --description "Independently measured cavity velocity profile"
+python -m pinneapple.lpm.review runs/lpm-cfd01 review \
+  --reviewer "Engineer Name" --role "Responsible Engineer" \
+  --decision approved --scope "engineering screening, subject to independent verification" \
+  --justification "Reviewed the evidence and applicability limits"
+```
+
+**Important:** The CLI records supplied claims; it does not verify that the
+reference is truly independent, that the reviewer is authorized, or that the
+reported comparison was computed correctly. It must be placed behind an
+authenticated, audited review service before any production deployment.
+A local `approved_model.pt` file is not a production authorization token.
+
+## Production release gates
+
+- Run actual OpenFOAM, CalculiX and legacy FEniCS cases in pinned containers.
+- Verify field ordering, mesh connectivity, dimensions, solver convergence and
+  independent conservation/equilibrium checks.
+- Execute unit, integration, security and performance tests in CI.
+- Authenticate and authorize expert reviewers; audit evidence ingestion and
+  independent metric computation rather than trusting CLI-supplied numbers.
+- Harden inference with identity, authorization, resource limits, request-size
+  limits, checkpoint provenance/signature, observability and rollback.
+- Resolve the remaining duplicated solver invocation paths, version
+  compatibility and numerical-convergence validation.
+
+This PR is an integration implementation, **not a certified production release**.

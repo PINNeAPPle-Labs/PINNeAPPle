@@ -38,7 +38,7 @@ def veriphysics_audit(spec,root,records,metrics):
 
 def report(root,records,metrics,config):
     data=data_audit(records);model=model_audit(metrics,config.gates)
-    try:veriphysics=veriphysics_audit(config.gates.get("veriphysics_adapter"),root,records,metrics)
+    try:\n        adapter=config.gates.get("veriphysics_adapter")\n        if adapter:\n            veriphysics=veriphysics_audit(adapter,root,records,metrics)\n        else:\n            from .native_validation import evaluate\n            veriphysics=evaluate(root,records,metrics,config)
     except Exception as exc:
         veriphysics=dict(status="error",passed=False,reason=f"{type(exc).__name__}: {exc}")
     required=bool(config.gates.get("require_veriphysics",True))

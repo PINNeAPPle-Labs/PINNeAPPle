@@ -88,6 +88,7 @@ SECTION_OF: dict[str, str] = {
     "lib.worldmodel.arm_camera": "surrogates",
     "condense.package_thermal": "solvers",
     "immersed.heat": "solvers",
+    "vortex.cylinder": "solvers", "vortex.spoiler": "solvers",
     "cfd.study": "solvers", "cfd.geometry": "solvers", "cfd.run": "solvers", "cfd.sweep": "data",
     "cfd.surrogate": "surrogates",
     "analysis.physics_learning": "validation",

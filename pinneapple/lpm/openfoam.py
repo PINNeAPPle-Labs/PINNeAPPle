@@ -68,14 +68,12 @@ boundaryField { movingWall { type zeroGradient; } fixedWalls { type zeroGradient
     return dict(nx=nx,ny=ny,width=lx,height=ly,lid_speed=u,nu=nu,re=u*lx/nu)
 
 def _field(path,n,dim):
-    s=Path(path).read_text()
-    m=re.search(r"\binternalField\s+nonuniform\s+List<\w+>\s+(\d+)\s*\(\s*(.*?)\s*\)\s*;",s,re.S)
-    if not m:raise ValueError(f"Missing nonuniform internalField: {path}")
-    if int(m.group(1))!=n:raise ValueError(f"Wrong cell count in {path}")
-    raw=m.group(2)
-    if dim==1:out=np.fromstring(raw,sep=" ").reshape(-1,1)
-    else:out=np.array([np.fromstring(v,sep=" ") for v in re.findall(r"\(([^()]*)\)",raw)])
-    if out.shape!=(n,dim) or not np.isfinite(out).all():raise ValueError(f"Invalid field: {path}")
+    """Use PINNeAPPLe's native ASCII/binary OpenFOAM field parser."""
+    from pinneapple_simulation.external_solvers.openfoam.field_reader import _read_internal_field
+    values=_read_internal_field(str(path),n_cells_hint=n)
+    out=values.detach().cpu().numpy().reshape(n,-1)
+    if out.shape!=(n,dim) or not np.isfinite(out).all():
+        raise ValueError(f"Invalid OpenFOAM field {path}: {out.shape}")
     return out
 
 def collect(root,d,meta):

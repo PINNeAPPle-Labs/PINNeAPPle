@@ -650,6 +650,12 @@ def finetune_mujoco_mjx(params: dict) -> ModelResult:
     gate = _heavy_gate("mujoco-mjx", params)
     if gate:
         return gate
+    if not is_installed("mujoco.mjx"):
+        # MuJoCo 4.0 moved MJX out of the `mujoco` wheel into the separate `mujoco-mjx` package
+        spec = MODELS_BY_SLUG["mujoco-mjx"]
+        return not_installed(spec.name, spec.slug, spec.arch, list(spec.domains), spec.repo,
+                             pip_hint="pip install mujoco-mjx jax",
+                             local_command=local_command_for(spec, action="finetune"))
     n_steps = int(params.get("n_steps", 10))
     with Timer() as t:
         try:

@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        extra: [viz, pyvista, cost, uq, export, serve, geom, timeseries, brep]
+        extra: [viz, pyvista, cost, uq, export, serve, geom, timeseries, brep, mujoco]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -37,3 +37,21 @@ jobs:
           print(out)
           assert "import failed" not in out, "pp.info() reports a package that does not import"
           PY
+
+  # The MuJoCo layer has its own analytic checks: run them against a real MuJoCo wheel, so a
+  # breaking change in 4.x is seen in CI instead of leaving the tests skipped.
+  mujoco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install MuJoCo and pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[mujoco]" pytest
+      - name: Report the MuJoCo version
+        run: python -c "import mujoco; print('MuJoCo', mujoco.__version__)"
+      - name: Run the MuJoCo integration tests
+        run: python -m pytest tests/test_mujoco_integration.py -q

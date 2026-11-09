@@ -576,7 +576,7 @@ samples = wf.sweep({"pressure_ratio": [2.0, 3.0, 4.0]}, as_upd=True)
 |--------|-------------------|
 | MATLAB | `matlab.engine` |
 | OpenModelica / FMU | `fmpy`, `OMPython` |
-| MuJoCo | `mujoco >= 3.0` |
+| MuJoCo | `mujoco >= 4.0` (3.17 no Python 3.10) |
 | Genesis AI | `genesis-world` |
 
 ---

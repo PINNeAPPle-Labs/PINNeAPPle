@@ -12,3 +12,6 @@ python examples/data_pipeline/01_physical_sample_basics.py
   PhysicsNeMo parity scripts) and its optional dependencies.
 - [`studio/`](studio/): any result in 3D (glTF/USD, Blender renders, browser viewer) and external flow in OpenFOAM;
   guide in [`docs/core_concepts/studio.md`](../docs/core_concepts/studio.md).
+- [`mujoco/`](mujoco/README.md): MuJoCo 4.0 — a recorded trajectory and its UPD export, the six analytic checks, a
+  batch campaign with domain randomisation, and a robot held by PINNeAPPle's own multibody tree; guide in
+  [`docs/guides/mujoco.md`](../docs/guides/mujoco.md).

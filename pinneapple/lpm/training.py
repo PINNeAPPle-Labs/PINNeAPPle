@@ -87,7 +87,7 @@ def predict(model_path,x,device="cpu"):
     model.load_state_dict(state["state_dict"]);model.to(device).eval()
     arr=np.asarray(x)
     if not np.isfinite(arr).all():raise ValueError("Nonfinite input")
-    xx=torch.tensor(((arr-state["input_mean"])/state["input_scale"]).astype("float32"),device=device)
+    xx=(torch.as_tensor(arr,dtype=torch.float32,device=device)-state["input_mean"].to(device)) / state["input_scale"].to(device)\n    xx=xx.float()
     if xx.ndim==2:xx=xx[None]
-    with torch.no_grad():out=model(xx,state["grid_shape"]).cpu().numpy()*state["output_scale"]+state["output_mean"]
+    with torch.no_grad():out=model(xx,state["grid_shape"]).cpu().numpy()*state["output_scale"].cpu().numpy()+state["output_mean"].cpu().numpy()
     return out

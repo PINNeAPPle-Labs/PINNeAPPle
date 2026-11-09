@@ -1,0 +1,12 @@
+{
+ "code_hash": "07495adf09851170",
+ "figures": [],
+ "id": "example:examples/vortex_domains",
+ "ok": true,
+ "recorded": "2026-11-09",
+ "seconds": 0.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Viscous vortex domains: 2-D Navier-Stokes without a mesh | cfd | not curated\npanel_influence_relative_error 4.9e-10 \npotential_flow_cp_error 4.4e-15 \nspinning_cylinder_sheet_error 0.009 \ndiffusion_drift_relative_error 0.37 \ncylinder_cd_re40 0.839",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "2b9055eb68625da5",
+ "figures": [],
+ "id": "node:vortex.cylinder",
+ "ok": true,
+ "recorded": "2026-11-09",
+ "seconds": 9.0,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Cylinder in a stream (viscous vortex domains) -> pinneapple_simulation.vortex_domains.study.run_study + cases.cylinder_case\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'re': 40.0, 'panels': 64, 't_end': 2.0}",
+ "timed_out": false
+}

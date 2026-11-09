@@ -59,6 +59,7 @@
 * Guides
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
+    * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
     * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)

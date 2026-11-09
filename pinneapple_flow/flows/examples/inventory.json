@@ -386,6 +386,11 @@
   "reason": "hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows",
   "status": "not_convertible"
  },
+ "vortex_domains": {
+  "domain": "CFD",
+  "reason": "the scripts are solver runs of minutes whose verification is a set of physics checks against published references (panel integrals against a quadrature, potential flow past a cylinder, the drag against Dennis & Chang, the shedding against Williamson & Brown), reported by run_study and by pinneapple_simulation.vortex_domains.verification; the reduced version of the cylinder and of the spoiler is already a node (vortex.cylinder, vortex.spoiler), and the full runs stay in the example folder so the checks are what is measured",
+  "status": "not_convertible"
+ },
  "vs_physicsnemo": {
   "domain": "validation",
   "notes": "the flow replays 07's committed predictions through pinneapple check against check/expected.json; training (07 run.py train) needs NVIDIA PhysicsNeMo and a dataset download; 01-06 hold their models and training loops in the scripts (02 uses no library call at all)"

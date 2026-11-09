@@ -1,0 +1,73 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/vortex_domains",
+ "title": "Viscous vortex domains: 2-D Navier-Stokes without a mesh",
+ "description": "The mesh-free Lagrangian vorticity solver: the panel integrals against a 20000-point quadrature, the potential flow past a cylinder against Cp = 1 - 4 sin^2(theta), the attached sheet of a spinning cylinder against its surface speed, the diffusion drift against 2 nu r / sigma^2, a cylinder at Re = 40 against Dennis & Chang (1970), and a NACA 0012 at zero incidence with a spoiler that deploys to 90 degrees at Re = 4e4.",
+ "domain": "cfd",
+ "methods": [
+  "viscous vortex domains (VVD)",
+  "regularised Biot-Savart (Lamb kernel)",
+  "source and vortex panel sheets",
+  "Lighthill's wall vorticity flux",
+  "deterministic diffusion drift"
+ ],
+ "modules": [
+  "pinneapple_simulation.vortex_domains"
+ ],
+ "params": {},
+ "scripts": [
+  "cylinder_verification.py",
+  "naca0012_spoiler.py"
+ ],
+ "metrics": [
+  {
+   "name": "panel_influence_relative_error",
+   "value": 4.9e-10,
+   "unit": "",
+   "how": "closed-form source and vortex panels against a 20000-point quadrature of the point kernels (verification.check_panel_influence)"
+  },
+  {
+   "name": "potential_flow_cp_error",
+   "value": 4.4e-15,
+   "unit": "",
+   "how": "largest |Cp - (1 - 4 sin^2 theta)| on an 80-panel cylinder in a uniform stream (verification.check_potential_flow)"
+  },
+  {
+   "name": "spinning_cylinder_sheet_error",
+   "value": 0.009,
+   "unit": "",
+   "how": "relative error of the uniform attached sheet of a 64-panel cylinder spinning at 1 rad/s against its surface speed 0.5 (verification.check_spinning_cylinder)"
+  },
+  {
+   "name": "diffusion_drift_relative_error",
+   "value": 0.37,
+   "unit": "",
+   "how": "radial drift of a Gaussian patch at r = sigma against 2 nu / sigma (verification.check_diffusion)"
+  },
+  {
+   "name": "cylinder_cd_re40",
+   "value": 0.839,
+   "unit": "",
+   "how": "32 panels, t_end = 0.6, mean over the last third (cylinder_verification.py); 0.55 at 96 panels and t = 1.9. Dennis & Chang 1970 give 1.3375, so the drag is 37 % low at 32 panels and 59 % low at 96: no slip is not enforced at the wall"
+  },
+  {
+   "name": "cylinder_cl_re40",
+   "value": 5e-05,
+   "unit": "",
+   "how": "the same run: a symmetric body at zero incidence must have no lift, and it has none"
+  },
+  {
+   "name": "spoiler_cl_flush",
+   "value": -0.00039,
+   "unit": "",
+   "how": "NACA 0012 at zero incidence with the spoiler flush, 180 section panels and 24 spoiler panels, t = 0.4 (naca0012_spoiler.py); a symmetric section owes an observer zero lift"
+  },
+  {
+   "name": "spoiler_cd_flush",
+   "value": 0.02,
+   "unit": "",
+   "how": "the same run, wall pressure plus wall shear over the panels, normalised on 0.5 rho U^2 c"
+  }
+ ],
+ "notes": "The panel machinery and the potential flow are exact; the cylinder drag is not (no no-slip condition at the wall) and the spoiler's deployment is the case the current wall model does not survive -- the guide says why. The flush state before the deployment is reproducible and physical."
+}

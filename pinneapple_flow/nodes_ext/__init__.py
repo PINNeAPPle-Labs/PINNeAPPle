@@ -63,6 +63,7 @@ from . import (  # noqa: F401
     valve_jt,
     veriphysics_grade,
     viz,
+    vortex,
     wing_design,
     worldmodel,
 )

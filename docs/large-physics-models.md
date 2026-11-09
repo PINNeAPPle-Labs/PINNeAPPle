@@ -1,42 +1,64 @@
-# Large Physics Models (LPM): native integration
+# PINNeAPPLe Large Physics Models (LPM)
 
-This is the **first integration slice**, not a completed solver-backed LPM release.
-The original experimental patch includes OpenFOAM, CalculiX and FEniCS
-adapters, campaign orchestration, model training, and a configurable
-VeriPhysics hook. Those components require adaptation to existing PINNeAPPLe
-APIs before they can be considered natively integrated.
+The LPM workflow is integrated as `pinneapple.lpm` in the existing
+PINNeAPPLe repository. It is a **reference campaign system**, not a pretrained
+large foundation model or a production-validated physical simulator.
 
-## Native boundary
+## Supported workflows
 
-- Import campaign configuration from `pinneapple.lpm`.
-- Reuse `pinneapple_simulation` for physical solver execution and
-  `pinneapple_solvers` compatibility paths, rather than introducing
-  an independent solver runtime.
-- Reuse `pinneapple_neural` for model architectures and training.
-- Integrate with `pinneapple_veriphysics` using an explicitly tested
-  adapter. Do not equate a configurable hook with completed validation.
-- Use existing registry and orchestration facilities before adding
-  duplicate model stores or schedulers.
+| Solver | Physics | Generator | Field extraction |
+| --- | --- | --- | --- |
+| OpenFOAM | 2D laminar lid-driven cavity | blockMesh + icoFoam | ASCII cell-centred U/p |
+| CalculiX | 3D linear-elastic cantilever | C3D8 deck + ccx | nodal displacement .dat |
+| Legacy FEniCS (dolfin) | 3D linear-elastic cantilever | generated dolfin script | vertex displacement .npz |
 
-## Example
+Campaigns sample a deterministic Latin hypercube and split by complete
+simulation case (not mesh node). The reference trainers support pointwise MLP,
+2D FNO, and small k-NN graph message passing. Data artifacts are compressed
+NPZ files, with train-only normalization, held-out metrics, and checkpoints.
 
-```python
-from pinneapple.lpm import Campaign
+## Run
 
-campaign = Campaign.load("examples/lpm/cfd01_cavity_lowRe.json")
-campaign.validate()
+```bash
+python -m pinneapple.lpm examples/lpm/cfd01_cavity_lowRe.json --out runs/lpm-cfd01 --stage prepare
+python -m pinneapple.lpm examples/lpm/cfd01_cavity_lowRe.json --out runs/lpm-cfd01 --stage simulate
+python -m pinneapple.lpm examples/lpm/cfd01_cavity_lowRe.json --out runs/lpm-cfd01 --stage train
+# Or simulate and train in a single run:
+python -m pinneapple.lpm examples/lpm/fea06_beam_force.json --out runs/lpm-fea06 --stage all
 ```
 
-## Outstanding work
+The ten JSON campaigns are under `examples/lpm/`, each with 24 planned
+samples: 5 CFD, 3 CalculiX, 2 FEniCS. `prepare` writes input decks without
+running the physical solver. `simulate` requires solver executables installed
+on the machine. `train` rejects incomplete simulations. `all` does both.
 
-1. Migrate the three solver adapters into the native simulation integration layer.
-2. Adapt the restartable campaign runner, deterministic splits, and provenance.
-3. Wire the training families (MLP, 2-D FNO, graph) to native model APIs.
-4. Wire data-quality and holdout gates to native VeriPhysics.
-5. Port the ten reference campaign configurations and tests.
-6. Run actual solver-based integration tests and publish measured results.
+## Validation and deployment
 
-**Evidence boundary:** The experimental package generated 240 case
-inputs, but this is not evidence of 240 completed physical simulations.
-Do not publish performance or physical-validity claims until real
-solver runs and independent checks are recorded.
+- The data audit rejects missing, nonfinite or shape-inconsistent samples.
+- Holdout validation checks relative L2 against the configured threshold.
+- The optional `gates.veriphysics_adapter` uses the explicit contract
+  `module:function(root, records, metrics) -> {"passed": bool, ...}`.
+- The native `pinneapple_veriphysics` package is available in the same
+  repository, **but a verified case-specific native validation adapter is
+  still required** to supply physics and independent reference evidence.
+  A user-provided hook is not a substitute for physical validation.
+- `require_veriphysics` defaults to true and publication fails closed
+  without an executed, passing adapter.
+- The local FastAPI service can be constructed with
+  `pinneapple.lpm.service.create_app("runs/lpm-cfd01/deployment")`.
+  Only gate-approved checkpoints are served. Do not expose this prototype
+  publicly without authentication, limits and hardened checkpoint handling.
+
+## Evidence and limitations
+
+Generated case inputs are not completed simulations. The uploaded prototype
+reported 240 planned case inputs, not 240 verified physical solutions.
+No OpenFOAM/CalculiX/dolfin solver runs or complete-repository CI execution
+have been performed in this integration session.
+
+The physical families are deliberately narrow. No CAD-generalized geometry,
+turbulent CFD, plasticity, contact, DOLFINx, arbitrary mesh topology, distributed
+HPC scheduling, physics-residual PINO training or native registry publishing is
+claimed. The graph implementation uses O(N²) neighbor searches. Numerical
+convergence, conservation, mesh/time refinement, expert review, and independent
+physical reference comparisons remain required for a validated release.

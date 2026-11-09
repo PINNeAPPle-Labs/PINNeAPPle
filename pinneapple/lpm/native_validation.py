@@ -54,5 +54,6 @@ def evaluate(root, records, metrics, campaign):
     result=dict(passed=status=="validated",status=status,case_id=case.case_id,
                 reason=case.assess().reason,
                 revisions=[r.to_dict() for r in case.history])
-    (root/"veriphysics_case.json").write_text(json.dumps(case.to_dict(),indent=2,default=str))\n    (root/"veriphysics_assessment.json").write_text(json.dumps(result,indent=2,default=str))
+    (root/"veriphysics_case.json").write_text(json.dumps(case.to_dict(),indent=2,default=str))
+    (root/"veriphysics_assessment.json").write_text(json.dumps(result,indent=2,default=str))
     return result

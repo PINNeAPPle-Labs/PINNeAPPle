@@ -106,3 +106,29 @@ A local `approved_model.pt` file is not a production authorization token.
   compatibility and numerical-convergence validation.
 
 This PR is an integration implementation, **not a certified production release**.
+
+## Production hardening changes (latest)
+
+- `pinneapple.lpm.service.create_app` now refuses to start without a
+  production-approved model card, matching SHA-256 checkpoint digest, and a
+  configured `PINNEAPPLE_LPM_API_KEY` (minimum 32 characters). Prediction
+  requests require `X-API-Key`; node count is bounded by
+  `PINNEAPPLE_LPM_MAX_NODES` (default 50,000).
+- Model checkpoint inference uses tensor-only deserialization.
+- **The local expert-review CLI is explicitly NOT an authorization authority.**
+  Its self-attested review identity and supplied metric values can never
+  promote a checkpoint; the model card stays blocked.
+- The `lpm-integration.yml` CI workflow adds Python compilation, schema
+  checks, preparation of all 240 planned cases, and an OpenFOAM solver smoke
+  job. CI results must be inspected; creating a workflow is not evidence
+  that it passed.
+
+### Still required for an actual production release
+
+A trusted authenticated review backend with independently computed metrics
+and immutable evidence is not implemented. Solver backends must be executed
+against pinned versions, validated numerically, and reviewed for mesh and
+field consistency. A real deployment additionally needs TLS at ingress,
+network controls, audit logs, rate limiting, resource budgets, observability,
+model rollback, and documented operating procedures. Until then the
+approval pathway is deliberately fail-closed and the PR must remain draft.

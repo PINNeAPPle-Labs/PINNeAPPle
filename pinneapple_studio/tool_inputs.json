@@ -6920,6 +6920,119 @@
   },
   "source": "tests/test_rover_mission_design.py"
  },
+ "pinneapple_simulation.vortex_domains.bodies:cylinder": {
+  "inputs": {
+   "n": 32
+  },
+  "source": "tests/test_vortex_domains.py:93"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:deploying_spoiler": {
+  "inputs": {
+   "n": 12,
+   "length": 0.1
+  },
+  "source": "tests/test_vortex_domains.py:114"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:ellipse": {
+  "inputs": {
+   "n": 32
+  },
+  "source": "tests/test_vortex_domains.py:93"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:fixed": {
+  "inputs": {},
+  "source": "tests/test_vortex_domains.py:114"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:naca0012": {
+  "inputs": {
+   "n": 60
+  },
+  "source": "tests/test_vortex_domains.py:93"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:naca4": {
+  "inputs": {
+   "n": 60
+  },
+  "source": "tests/test_vortex_domains.py:93"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:plate": {
+  "inputs": {},
+  "source": "tests/test_vortex_domains.py:205"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:rotating": {
+  "inputs": {
+   "center": [
+    0.0,
+    0.0
+   ],
+   "rate": 2.0
+  },
+  "source": "tests/test_vortex_domains.py:205"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:spoiler_hinge": {
+  "inputs": {},
+  "source": "tests/test_vortex_domains.py:114"
+ },
+ "pinneapple_simulation.vortex_domains.bodies:translating": {
+  "inputs": {
+   "velocity": [
+    1.0,
+    0.0
+   ]
+  },
+  "source": "tests/test_vortex_domains.py:205"
+ },
+ "pinneapple_simulation.vortex_domains.cases:cylinder_case": {
+  "inputs": {
+   "panels": 24,
+   "t_end": 0.3
+  },
+  "source": "tests/test_vortex_domains.py:143"
+ },
+ "pinneapple_simulation.vortex_domains.cases:naca0012_spoiler_case": {
+  "inputs": {
+   "panels": 60,
+   "spoiler_panels": 8,
+   "t_end": 0.05
+  },
+  "source": "tests/test_vortex_domains.py:195"
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_cylinder_drag": {
+  "inputs": {
+   "re": 40.0,
+   "panels": 24,
+   "t_end": 0.3
+  },
+  "source": "tests/test_vortex_domains.py:143"
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_diffusion": {
+  "inputs": {
+   "n": 800
+  },
+  "source": "tests/test_vortex_domains.py:55"
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_panel_influence": {
+  "inputs": {},
+  "source": "tests/test_vortex_domains.py:40"
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_potential_flow": {
+  "inputs": {
+   "panels": 48
+  },
+  "source": "tests/test_vortex_domains.py:45"
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_spinning_cylinder": {
+  "inputs": {
+   "panels": 48
+  },
+  "source": "tests/test_vortex_domains.py:50"
+ },
+ "pinneapple_simulation.vortex_domains.verification:run": {
+  "inputs": {
+   "quick": true
+  },
+  "source": "tests/test_vortex_domains.py:40"
+ },
  "pinneapple_stability.api:diff": {
   "inputs": {
    "new": {

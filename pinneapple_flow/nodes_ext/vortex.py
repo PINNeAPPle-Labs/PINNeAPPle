@@ -45,13 +45,18 @@ def cylinder(ctx, inputs, params):
 @node("vortex.spoiler", "NACA 0012 with a deploying spoiler (viscous vortex domains)",
       category="Viscous vortex domains", outputs=[Port("metrics", "metrics")],
       params=[Param("re", "float", 40000.0, minimum=1.0),
-              Param("panels", "int", 120, minimum=40, maximum=400, help="panels on the section"),
-              Param("t_end", "float", 0.6, minimum=0.05),
+              Param("panels", "int", 100, minimum=40, maximum=400, help="panels on the section"),
+              Param("t_end", "float", 0.5, minimum=0.05,
+                    help="end time; past ~0.55 the deployment leaves the stable envelope (issue #1515)"),
               Param("deploy_angle_deg", "float", 90.0, minimum=0.0, maximum=90.0),
               Param("deploy_start", "float", 0.4, minimum=0.0)],
       calls="pinneapple_simulation.vortex_domains.cases.naca0012_spoiler_case + solver.VVD2D")
 def spoiler(ctx, inputs, params):
-    """Deploy the spoiler and report how the loads change: mean lift and drag before and after it stands up."""
+    """Run the section with its hinged spoiler and report the loads before and after the motion starts.
+
+    The default window stops at `t = 0.5`, where the run is still inside its stable envelope; a full deployment
+    (``t_end`` above ``1.0``) is what issue #1515 is about, and the example script is where it is exercised.
+    """
     from pinneapple_simulation.vortex_domains.cases import naca0012_spoiler_case
 
     case = naca0012_spoiler_case(re=float(params["re"]), panels=int(params["panels"]),

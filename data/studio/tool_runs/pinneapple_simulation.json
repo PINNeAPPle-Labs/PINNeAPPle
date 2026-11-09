@@ -3690,5 +3690,190 @@
   "recorded": "2026-10-31",
   "returned": "VehicleSpec",
   "seconds": 0.05
+ },
+ "pinneapple_simulation.vortex_domains.bodies:cylinder": {
+  "code_hash": "c6398b6f9962c52c",
+  "inputs": {
+   "n": 32
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 7.95
+ },
+ "pinneapple_simulation.vortex_domains.bodies:deploying_spoiler": {
+  "code_hash": "f475b090e7c2568d",
+  "inputs": {
+   "length": 0.1,
+   "n": 12
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:ellipse": {
+  "code_hash": "90c6a5bb85c0480b",
+  "inputs": {
+   "n": 32
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:fixed": {
+  "code_hash": "bcd18635f6eeaacd",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Motion",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:naca0012": {
+  "code_hash": "ab0463c2be092942",
+  "inputs": {
+   "n": 60
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:naca4": {
+  "code_hash": "e2e0a5cea482a225",
+  "inputs": {
+   "n": 60
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:plate": {
+  "code_hash": "5d6113032c62a43e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Body",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:rotating": {
+  "code_hash": "eb11d870a64a7351",
+  "inputs": {
+   "center": [
+    0.0,
+    0.0
+   ],
+   "rate": 2.0
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Motion",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.bodies:translating": {
+  "code_hash": "63f29dfdf269c442",
+  "inputs": {
+   "velocity": [
+    1.0,
+    0.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Motion",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.cases:cylinder_case": {
+  "code_hash": "2f7963cf7c75becf",
+  "inputs": {
+   "panels": 24,
+   "t_end": 0.3
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Case",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.cases:naca0012_spoiler_case": {
+  "code_hash": "e9a280eb2ab97df2",
+  "inputs": {
+   "panels": 60,
+   "spoiler_panels": 8,
+   "t_end": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "Case",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.cases:spoiler_hinge": {
+  "code_hash": "fcbaa294378e2981",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_cylinder_drag": {
+  "code_hash": "3a987fde7d98cde8",
+  "inputs": {
+   "panels": 24,
+   "re": 40.0,
+   "t_end": 0.3
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_diffusion": {
+  "code_hash": "815a3a17e1c336b2",
+  "inputs": {
+   "n": 800
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_panel_influence": {
+  "code_hash": "8e0c52261f0ac56f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 0.17
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_potential_flow": {
+  "code_hash": "632ea289556e3900",
+  "inputs": {
+   "panels": 48
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.verification:check_spinning_cylinder": {
+  "code_hash": "f7805ae885cc5331",
+  "inputs": {
+   "panels": 48
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.vortex_domains.verification:run": {
+  "code_hash": "e9a4397a20b37d43",
+  "inputs": {
+   "quick": true
+  },
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "list",
+  "seconds": 0.24
  }
 }

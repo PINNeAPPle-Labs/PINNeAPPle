@@ -1,0 +1,12 @@
+{
+ "code_hash": "8420dd3930717b03",
+ "figures": [],
+ "id": "example:examples/mujoco",
+ "ok": true,
+ "recorded": "2026-11-09",
+ "seconds": 0.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MuJoCo 4.0 quickstart | robotics | not curated\nfree-fall relative error 0.00263 \npendulum period relative error 0.00035 \narm hold drift 4.1e-10 rad\narm energy drift 1e-08 J",
+ "timed_out": false
+}

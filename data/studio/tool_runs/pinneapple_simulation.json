@@ -1165,6 +1165,14 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_simulation.electromagnetics.reflector.planar2d:validate_circle": {
+  "code_hash": "a11a681a2a8bb33e",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-09",
+  "returned": "dict",
+  "seconds": 9.25
+ },
  "pinneapple_simulation.electromagnetics.reflector.po:q_from_gain": {
   "code_hash": "f9d57687db67107f",
   "inputs": {

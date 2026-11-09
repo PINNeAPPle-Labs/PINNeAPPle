@@ -25,10 +25,10 @@ def evaluate(root, records, metrics, campaign):
     threshold=float(campaign.gates.get("max_relative_l2",0.5))
     profile=ValidationProfile(
         name=campaign.name,
-        objective="prediction",
+        objective="industrial",
         primary_metric="relative_l2",
         target_error_pct=max(0.001,min(99.0,100*threshold)),
-        reference_evidence=("experiment",),
+        reference_evidence=("experimental data",),
         required_checks=("holdout_relative_l2",),
         decision="surrogate-assisted engineering screening",
     )

@@ -27,7 +27,7 @@ import numpy as np
 from . import planar2d as P
 
 __all__ = ["METRICS", "paired_sweep", "load_rows", "ResidualModel", "fit_residual", "leave_out_validation",
-           "objective", "compare_strategies", "cost_summary"]
+           "coverage_analysis", "design_surface", "objective", "compare_strategies", "cost_summary"]
 
 METRICS = ("amp_pp_dB", "taper_dB", "ripple_pp_dB", "phase_ripple_pp_deg", "usable_width")
 
@@ -215,15 +215,90 @@ def leave_out_validation(rows: Sequence[Mapping[str, Any]], metric: str = "rippl
     return base
 
 
+# ---------------------------------------------------------------------------------------- coverage and the map
+def coverage_analysis(rows: Sequence[Mapping[str, Any]], metric: str = "usable_width", *, folds: int = 5,
+                      seeds: Sequence[int] = (0, 1, 2, 3, 4)) -> dict[str, Any]:
+    """Do the design variables we chose cover the residual, or does the edge profile carry it?
+
+    Solves the same held-out problem with two models: a Gaussian process on ``(size, q)`` alone -- the two levers
+    asked for, reflector size and feed illumination -- and one on all five variables, the profile included. If the
+    two recover the same fraction of the PO error, the 18 profiles are redundant and the size/illumination grid is
+    enough; if the five-variable model is far ahead, the profile is a direction of the space that has to be in the
+    training set. The residual is also broken down per level of each lever, so a lever that only matters in part of
+    its range shows up.
+    """
+    X = _features(rows)
+    truth = np.array([r[f"direct_{metric}"] for r in rows], float)
+    po = np.array([r[f"po_{metric}"] for r in rows], float)
+    resid = truth - po
+
+    def cv_rmse(cols: Sequence[int]) -> float:
+        preds = []
+        for s in seeds:
+            fold = np.random.default_rng(s).permutation(len(rows)) % folds
+            out = np.full(len(rows), np.nan)
+            for f in range(folds):
+                tr, te = fold != f, fold == f
+                m = ResidualModel(metric).fit(X[tr][:, cols], resid[tr])
+                mu, _ = m.predict(X[te][:, cols])
+                out[te] = po[te] + mu
+            preds.append(out)
+        p = np.nanmean(np.stack(preds), 0)
+        ok = np.isfinite(p)
+        return float(np.sqrt(np.mean((p[ok] - truth[ok]) ** 2)))
+
+    po_rmse = float(np.sqrt(np.mean(resid ** 2)))
+    size_q = cv_rmse([0, 1])
+    full = cv_rmse([0, 1, 2, 3, 4])
+
+    def by(lever: str) -> list[dict[str, Any]]:
+        v = np.array([r[lever] for r in rows], float)
+        return [{"level": float(u), "n": int((v == u).sum()),
+                 "residual_mean_abs": float(np.mean(np.abs(resid[v == u]))),
+                 "residual_bias": float(np.mean(resid[v == u]))} for u in np.unique(v)]
+
+    return {"metric": metric, "po_rmse": po_rmse, "rmse_size_q": size_q, "rmse_all": full,
+            "removed_size_q": float(1 - size_q / max(po_rmse, 1e-12)),
+            "removed_all": float(1 - full / max(po_rmse, 1e-12)),
+            "profile_share": float((size_q - full) / max(po_rmse - full, 1e-12)),
+            "by_size": by("size"), "by_q": by("q"), "by_roll_factor": by("roll_factor"),
+            "by_blend": by("blend"), "by_aspect": by("aspect")}
+
+
+def design_surface(rows: Sequence[Mapping[str, Any]], quantity: str = "usable_width",
+                   profile: tuple[float, float, float] = (1.0, 0.7, 1.0)) -> dict[str, Any]:
+    """One metric over the ``size x q`` grid at a fixed edge profile, for PO and for the direct solve, plus the
+    difference -- the trade the campaign actually turns on, on a rectangle that a chart can hold."""
+    sel = [r for r in rows if (r["roll_factor"], r["blend"], r["aspect"]) == profile]
+    if not sel:
+        raise KeyError(f"no rows for edge profile {profile}")
+    sizes = sorted({r["size"] for r in sel})
+    qs = sorted({r["q"] for r in sel})
+    grid = {(r["size"], r["q"]): r for r in sel}
+    out: dict[str, Any] = {"quantity": quantity, "profile": list(profile), "sizes": sizes, "qs": qs}
+    for src in ("po", "direct"):
+        out[src] = [[grid[(s, q)][f"{src}_{quantity}"] for q in qs] for s in sizes]
+    out["difference"] = [[grid[(s, q)][f"direct_{quantity}"] - grid[(s, q)][f"po_{quantity}"] for q in qs]
+                         for s in sizes]
+    return out
+
+
 # ----------------------------------------------------------------------------------- the optimization study
-def objective(row: Mapping[str, Any], source: str, *, amp_limit: float = 3.0, penalty: float = 0.1) -> float:
+def objective(row: Mapping[str, Any], source: str, *, amp_limit: float = 3.0, penalty: float = 0.1,
+              phase_limit: float | None = None, phase_penalty: float = 5e-3) -> float:
     """What the strategies maximize: the usable quiet-zone width, discounted for the peak-to-peak amplitude ripple
-    above ``amp_limit`` dB -- a zone that holds a tolerance only where the ripple is small."""
-    return float(row[f"{source}_usable_width"]) - penalty * max(0.0, float(row[f"{source}_amp_pp_dB"]) - amp_limit)
+    above ``amp_limit`` dB and -- when ``phase_limit`` is given, in degrees of peak-to-peak phase ripple -- for the
+    phase ripple above it. Both tolerances are the quiet-zone spec the zone is quoted against; a design that breaks
+    them holds its width only where the field is quiet, so the discount is in metres per unit of violation."""
+    v = float(row[f"{source}_usable_width"]) - penalty * max(0.0, float(row[f"{source}_amp_pp_dB"]) - amp_limit)
+    if phase_limit is not None:
+        v -= phase_penalty * max(0.0, float(row[f"{source}_phase_ripple_pp_deg"]) - phase_limit)
+    return float(v)
 
 
 def compare_strategies(rows: Sequence[Mapping[str, Any]], *, n_direct: int = 12, seeds: Sequence[int] = (0, 1, 2, 3),
-                       amp_limit: float = 3.0, log: Callable[[str], None] | None = None) -> dict[str, Any]:
+                       amp_limit: float = 3.0, phase_limit: float | None = None,
+                       log: Callable[[str], None] | None = None) -> dict[str, Any]:
     """Four strategies at ``n_direct`` exact solves each, repeated over ``seeds``.
 
     The exact result of every design is already in ``rows``, so a strategy's exact solves are *revealed* to it;
@@ -237,11 +312,11 @@ def compare_strategies(rows: Sequence[Mapping[str, Any]], *, n_direct: int = 12,
     * ``sequential`` -- refits the residual model on every design already solved exactly and spends each further
       solve on the best-predicted un-solved design, one at a time (the workflow a campaign actually runs).
     """
-    truth = np.array([objective(r, "direct", amp_limit=amp_limit) for r in rows])
-    po = np.array([objective(r, "po", amp_limit=amp_limit) for r in rows])
+    truth = np.array([objective(r, "direct", amp_limit=amp_limit, phase_limit=phase_limit) for r in rows])
+    po = np.array([objective(r, "po", amp_limit=amp_limit, phase_limit=phase_limit) for r in rows])
     X = _features(rows)
     out: dict[str, Any] = {"n_designs": len(rows), "n_direct": n_direct, "amp_limit": amp_limit,
-                           "oracle": float(truth.max()), "po_best": float(po.max()),
+                           "phase_limit": phase_limit, "oracle": float(truth.max()), "po_best": float(po.max()),
                            "po_regret_of_best": float(truth.max() - truth[int(np.argmax(po))]),
                            "po_rank_of_oracle": int((po > po[int(np.argmax(truth))]).sum()) + 1, "runs": []}
     for s in seeds:

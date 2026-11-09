@@ -5767,6 +5767,10 @@
   },
   "source": "tests/test_reflector_po.py:94"
  },
+ "pinneapple_simulation.electromagnetics.reflector.planar2d:validate_circle": {
+  "inputs": {},
+  "source": "tests/test_reflector_exact.py:9"
+ },
  "pinneapple_simulation.electromagnetics.reflector.po:q_from_gain": {
   "inputs": {
    "gain_dbi": 12.0

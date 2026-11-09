@@ -55,7 +55,7 @@ def fit_native(records,config,outdir):
     # Native trainer checkpoint format is owned by PINNeAPPLe; restore the
     # selected state through the native checkpoint reader before exporting.
     from pinneapple_neural.trainer.checkpoint import load_checkpoint
-    restored=load_checkpoint(best_path,model=wrapper)
+    restored=load_checkpoint(best_path)\n    wrapper.load_state_dict(restored.model_state)
     wrapper.eval().to("cpu")
     state=dict(state_dict=wrapper.model.state_dict(),model=kind,
         in_features=train_x.shape[-1],out_features=train_y.shape[-1],options=opts,

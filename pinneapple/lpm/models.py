@@ -81,21 +81,36 @@ class NativeFNO2D(nn.Module):
         return out.permute(0,2,3,1).reshape(x.shape[0],ny*nx,-1)
 
 class NativeMeshGraphNet(nn.Module):
-    """Fixed structured-topology adapter around PINNeAPPle's MeshGraphNet."""
+    """PINNeAPPLe MeshGraphNet with explicit structured-mesh connectivity."""
     def __init__(self,inp,out,opts):
         super().__init__()
         from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
         self.core=MeshGraphNet(node_in_dim=inp,out_dim=out,hidden_dim=int(opts.get("width",64)),
                                n_message_passing=int(opts.get("steps",3)))
-        self.edge_index=None
+        self._cached_shape=None
+        self._edge_index=None
+
     def forward(self,x,shape=None):
         from pinneapple_neural.architectures.graphnn.base import GraphBatch
-        n=x.shape[1]
-        if self.edge_index is None or self.edge_index.shape[1]!=2*(n-1):
-            ids=torch.arange(n,device=x.device)
-            self.edge_index=torch.stack([torch.cat([ids[:-1],ids[1:]]),
-                                         torch.cat([ids[1:],ids[:-1]])])
-        return self.core(GraphBatch(x=x,edge_index=self.edge_index.to(x.device))).y
+        if shape is None or len(shape) not in (2,3):
+            raise ValueError("Native MeshGraphNet requires a structured 2D or 3D grid shape")
+        if int(torch.tensor(shape).prod())!=x.shape[1]:
+            raise ValueError("Graph node count and grid shape differ")
+        shape=tuple(shape)
+        if self._cached_shape!=shape or self._edge_index is None:
+            import itertools
+            import numpy as np
+            ids=np.arange(x.shape[1]).reshape(shape)
+            pairs=[]
+            for axis in range(len(shape)):
+                lo=[slice(None)]*len(shape);hi=[slice(None)]*len(shape)
+                lo[axis]=slice(None,-1);hi[axis]=slice(1,None)
+                left=ids[tuple(lo)].ravel();right=ids[tuple(hi)].ravel()
+                pairs.extend(zip(left.tolist(),right.tolist()))
+                pairs.extend(zip(right.tolist(),left.tolist()))
+            self._edge_index=torch.tensor(pairs,dtype=torch.long).T.contiguous()
+            self._cached_shape=shape
+        return self.core(GraphBatch(x=x,edge_index=self._edge_index.to(x.device))).y
 
 def make_model(kind,inp,out,opts):
     if kind=="mlp":return PointMLP(inp,out,int(opts.get("width",96)),int(opts.get("depth",4)))

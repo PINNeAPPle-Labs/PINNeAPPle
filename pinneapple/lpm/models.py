@@ -62,8 +62,43 @@ class GraphModel(nn.Module):
             h=self.update(messages.reshape(-1,h.shape[-1]),h.reshape(-1,h.shape[-1])).reshape(B,N,-1)
         return self.decoder(h)
 
+class NativeFNO2D(nn.Module):
+    """Channel-layout adapter around PINNeAPPle's existing FNO2d."""
+    def __init__(self,inp,out,opts):
+        super().__init__()
+        from pinneapple_neural.architectures.neural_operators.fno import FNO2d
+        modes=int(opts.get("modes",8))
+        self.core=FNO2d(in_channels=inp,out_channels=out,width=int(opts.get("width",48)),
+                        modes1=modes,modes2=modes,layers=int(opts.get("depth",4)),
+                        use_grid=False,padding=int(opts.get("padding",0)))
+    def forward(self,x,shape=None):
+        if shape is None:raise ValueError("FNO requires (ny,nx)")
+        ny,nx=shape
+        if x.shape[1]!=ny*nx:raise ValueError("FNO grid shape mismatch")
+        inp=x.reshape(x.shape[0],ny,nx,x.shape[-1]).permute(0,3,1,2)
+        result=self.core(inp)
+        out=result.y if hasattr(result,"y") else result
+        return out.permute(0,2,3,1).reshape(x.shape[0],ny*nx,-1)
+
+class NativeMeshGraphNet(nn.Module):
+    """Fixed structured-topology adapter around PINNeAPPle's MeshGraphNet."""
+    def __init__(self,inp,out,opts):
+        super().__init__()
+        from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
+        self.core=MeshGraphNet(node_in_dim=inp,out_dim=out,hidden_dim=int(opts.get("width",64)),
+                               n_message_passing=int(opts.get("steps",3)))
+        self.edge_index=None
+    def forward(self,x,shape=None):
+        from pinneapple_neural.architectures.graphnn.base import GraphBatch
+        n=x.shape[1]
+        if self.edge_index is None or self.edge_index.shape[1]!=2*(n-1):
+            ids=torch.arange(n,device=x.device)
+            self.edge_index=torch.stack([torch.cat([ids[:-1],ids[1:]]),
+                                         torch.cat([ids[1:],ids[:-1]])])
+        return self.core(GraphBatch(x=x,edge_index=self.edge_index.to(x.device))).y
+
 def make_model(kind,inp,out,opts):
     if kind=="mlp":return PointMLP(inp,out,int(opts.get("width",96)),int(opts.get("depth",4)))
-    if kind=="fno":return FNO2D(inp,out,int(opts.get("width",48)),int(opts.get("modes",8)),int(opts.get("depth",4)))
-    if kind=="graph":return GraphModel(inp,out,int(opts.get("width",64)),int(opts.get("steps",3)),int(opts.get("neighbors",6)))
+    if kind=="fno":return NativeFNO2D(inp,out,opts)
+    if kind=="graph":return NativeMeshGraphNet(inp,out,opts)
     raise ValueError(f"Unknown LPM architecture: {kind}")

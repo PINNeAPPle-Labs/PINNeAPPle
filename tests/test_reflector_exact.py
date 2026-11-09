@@ -94,3 +94,49 @@ def test_cost_summary_reports_the_measured_ratio():
     assert c["ratio_median"] == pytest.approx(0.06 / 0.02, rel=1e-6)
     assert c["n_designs"] == len(rows)
     assert c["segments"]["median"] == 200
+
+
+def _factorial_rows(residual=lambda d: 0.02 * (d.size - 1.0)):
+    """A full factorial (size x feed) grid at two edge profiles, shaped like the paired checkpoint."""
+    rows = []
+    for s in (0.6, 0.8, 1.0, 1.2, 1.4):
+        for q in (1.0, 3.0, 5.0, 8.0, 12.0, 17.0, 23.0):
+            for rf, bl, asp in ((0.6, 0.7, 1.0), (1.4, 0.4, 0.7)):
+                d = P.Design(s, q, rf, bl, asp)
+                uw = 0.05 + 0.35 * (s - 0.6) / 0.8
+                r = residual(d)
+                rows.append({"tag": d.tag, **d.inputs(), "n_segments": 200, "t_po_s": 0.02, "t_direct_s": 0.06,
+                             "mom_s": 0.03, "condition": 100.0, "po_distance": 0.3,
+                             "po_usable_width": uw, "direct_usable_width": uw + r,
+                             "po_amp_pp_dB": 3.0, "direct_amp_pp_dB": 3.0,
+                             "po_phase_ripple_pp_deg": 5.0, "direct_phase_ripple_pp_deg": 5.0,
+                             "residual_usable_width": r})
+    return rows
+
+
+def test_the_objective_holds_the_phase_ripple_only_when_asked():
+    row = {"direct_usable_width": 0.40, "direct_amp_pp_dB": 2.0, "direct_phase_ripple_pp_deg": 45.0}
+    assert paired.objective(row, "direct") == pytest.approx(0.40)             # amplitude inside, phase not asked
+    assert paired.objective(row, "direct", phase_limit=20.0) < 0.40           # the phase term now bites
+    flat = {**row, "direct_amp_pp_dB": 6.0, "direct_phase_ripple_pp_deg": 4.0}
+    assert paired.objective(flat, "direct", phase_limit=20.0) == pytest.approx(0.40 - 0.1 * 3.0)
+
+
+def test_coverage_tells_the_levers_apart():
+    size_only = _factorial_rows(lambda d: 0.02 * (d.size - 1.0) + 0.003 * (d.q - 5.0) / 10)
+    c = paired.coverage_analysis(size_only, "usable_width", folds=3, seeds=(0, 1))
+    assert c["removed_all"] > 0.5                                             # the residual is learnable
+    assert c["profile_share"] < 0.25                                          # and it lives in size and illumination
+    profile_only = _factorial_rows(lambda d: 0.02 * (d.aspect - 1.0) + 0.02 * (d.roll_factor - 1.0))
+    c2 = paired.coverage_analysis(profile_only, "usable_width", folds=3, seeds=(0, 1))
+    assert c2["profile_share"] > 0.5                                          # this one needs the edge profile
+
+
+def test_the_surface_is_one_cell_per_size_and_illumination():
+    rows = _factorial_rows()
+    s = paired.design_surface(rows, "usable_width", profile=(0.6, 0.7, 1.0))
+    assert s["sizes"] == [0.6, 0.8, 1.0, 1.2, 1.4] and s["qs"] == [1.0, 3.0, 5.0, 8.0, 12.0, 17.0, 23.0]
+    assert np.array(s["direct"]).shape == (5, 7)
+    assert np.allclose(np.array(s["difference"]), np.array(s["direct"]) - np.array(s["po"]))
+    with pytest.raises(KeyError):
+        paired.design_surface(rows, "usable_width", profile=(0.9, 0.9, 0.9))

@@ -113,6 +113,19 @@ def _kernel_cost_3d(n_triangles: int, k: float, rng) -> dict:
             "pairs": n_triangles ** 2}
 
 
+def _fit_power(ns, ts) -> float:
+    """The measured exponent of ``t = c N^alpha`` (log-log least squares), so the cost at a mesh this machine cannot
+    afford is extrapolated from the sizes it can, not assumed."""
+    A = np.polyfit(np.log(np.asarray(ns, float)), np.log(np.asarray(ts, float)), 1)
+    return float(A[0])
+
+
+def _extrapolate(ns, ts, target: float) -> float:
+    """``t`` at ``target`` from the same log-log fit -- the value at a size the machine cannot run."""
+    A = np.polyfit(np.log(np.asarray(ns, float)), np.log(np.asarray(ts, float)), 1)
+    return float(np.exp(np.polyval(A, np.log(target))))
+
+
 def step_baseline(out: str) -> dict:
     from pinneapple_simulation.electromagnetics.reflector import (
         CompactRange,
@@ -135,7 +148,7 @@ def step_baseline(out: str) -> dict:
     ft = 0.3048
     probe = []
     g3 = np.random.default_rng(0)
-    for mesh in (6.0, 8.0):
+    for mesh in (2.0, 4.0, 6.0, 8.0):
         cr = CompactRange(freq_hz=3.0e9, feed_gain_dbi=12.0,
                           reflector=OffsetReflector(focal=1.5, half_x=0.6, half_y=0.6, centre_y=0.9, n=6.0, roll=0.15),
                           qz_z=3.0, qz_diameter=0.6, mesh_per_wavelength=mesh, qz_step_per_wavelength=6.0)
@@ -144,12 +157,30 @@ def step_baseline(out: str) -> dict:
         t_po = time.perf_counter() - t0
         cost = _kernel_cost_3d(int(m["n_triangles"]), 2 * np.pi / cr.wavelength, g3)
         probe.append({"f_GHz": 3.0, "mesh_per_wavelength": mesh, "n_triangles": m["n_triangles"],
-                      "po_seconds": t_po, "operator_application_seconds": cost["seconds_per_application"],
-                      "applications_for_a_solve": 40,
-                      "direct_seconds_estimate": 40 * cost["seconds_per_application"]})
+                      "po_seconds": t_po, "operator_application_seconds": cost["seconds_per_application"]})
         log(f"  3-D lambda/{mesh:g}: {m['n_triangles']} triangles -- PO {t_po:.1f} s, one operator application "
-            f"{cost['seconds_per_application']:.2f} s, 40 of them {40 * cost['seconds_per_application']:.0f} s")
-    res = {"range_2d": rows, "range_3d": probe, "ft": ft}
+            f"{cost['seconds_per_application']:.2f} s")
+    log("baseline: the operator at four mesh densities, so its growth is measured rather than assumed, and the")
+    log("          one number a 3-D solve needs that no measurement here can supply: how many applications it takes")
+    apps = (10, 40, 100)
+    alpha_app = _fit_power([d["n_triangles"] for d in probe],
+                           [d["operator_application_seconds"] for d in probe])
+    prod = probe[-1]
+    dense_gb = prod["n_triangles"] ** 2 * 16 / 1e9           # complex128, one dense matrix
+    dense_flops = prod["n_triangles"] ** 3 * (8 / 3) / 1e12  # a dense LU, in TFLOP
+    solve_h = {str(a): a * prod["operator_application_seconds"] / 3600 for a in apps}
+    per_shift = {str(a): 8 * 3600 / (a * prod["operator_application_seconds"]) for a in apps}
+    log(f"  application ~ N^{alpha_app:.2f}; at {prod['n_triangles']} triangles one application is "
+        f"{prod['operator_application_seconds']:.0f} s; the matrix would need {dense_gb:.0f} GB and a dense "
+        f"factorisation {dense_flops:.0f} TFLOP")
+    for a in apps:
+        log(f"  {a:3d} applications per solve: {solve_h[str(a)]:.1f} h per design, "
+            f"{per_shift[str(a)]:.2f} designs per 8 h")
+    res = {"range_2d": rows, "range_3d": probe, "ft": ft,
+           "scaling": {"alpha_application": alpha_app, "dense_matrix_GB": dense_gb,
+                       "dense_factorisation_TFLOP": dense_flops,
+                       "applications_per_solve": list(apps), "solve_hours": solve_h,
+                       "designs_per_8h": per_shift}}
     _json(os.path.join(out, "baseline.json"), res)
     return res
 
@@ -172,12 +203,40 @@ def step_analyse(out: str, rows: list[dict]) -> dict:
         log(f"  {m:22s}: PO RMSE {v['po_rmse']:.4f}; learned {v['random']['rmse']:.4f} "
             f"({100 * v['random']['fraction_removed']:+.0f} % of the PO error removed, random split), "
             f"{v['profile']['rmse']:.4f} ({100 * v['profile']['fraction_removed']:+.0f} %, profile held out)")
-    log("analyse: the three strategies at equal budget")
-    runs = [paired.compare_strategies(rows, n_direct=n, seeds=(0, 1, 2, 3), log=log) for n in (6, 12, 24)]
+    log("analyse: coverage -- does the residual live in size and illumination, or in the edge profile?")
+    cover = {m: paired.coverage_analysis(rows, m) for m in ("usable_width", "ripple_pp_dB")}
+    for m, c in cover.items():
+        log(f"  {m:14s}: PO RMSE {c['po_rmse']:.4f}; size+illumination alone recovers "
+            f"{100 * c['removed_size_q']:.0f} %, the five variables {100 * c['removed_all']:.0f} % "
+            f"(the profile carries {100 * c['profile_share']:.0f} % of what is left)")
+    log("analyse: the size x illumination trade at the reference edge profile")
+    surf = paired.design_surface(rows, "usable_width")
+    worst = max((surf["difference"][i][j], surf["sizes"][i], surf["qs"][j])
+                 for i in range(len(surf["sizes"])) for j in range(len(surf["qs"])))
+    log(f"  largest PO miss on usable width: {worst[0] * 1e3:+.0f} mm at size {worst[1]:g}, feed q {worst[2]:.2f}")
+    log("analyse: the strategies at equal budget, with the phase ripple held to 20 deg p-p as well")
+    runs_phase = [paired.compare_strategies(rows, n_direct=n, seeds=(0, 1, 2, 3), amp_limit=3.0,
+                                            phase_limit=20.0, log=log) for n in (3, 6, 12, 24)]
+    log("analyse: the same, amplitude only (the objective of the first run)")
+    runs_amp = [paired.compare_strategies(rows, n_direct=n, seeds=(0, 1, 2, 3), amp_limit=3.0) for n in (3, 6, 12, 24)]
+    ph = np.array([r["direct_phase_ripple_pp_deg"] for r in rows])
+    am = np.array([r["direct_amp_pp_dB"] for r in rows])
+    bound = {"phase_over_20": int((ph > 20.0).sum()), "amp_over_3": int((am > 3.0).sum()), "n": len(rows),
+             "oracle_phase": float(np.array([r["direct_phase_ripple_pp_deg"] for r in
+                                             sorted(rows, key=lambda r: -paired.objective(r, "direct"))])[0]),
+             "oracle_amp": float(np.array([r["direct_amp_pp_dB"] for r in
+                                           sorted(rows, key=lambda r: -paired.objective(r, "direct"))])[0]),
+             "identical": all(abs(a[f"{k}_percent_mean"] - b[f"{k}_percent_mean"]) < 1e-9
+                              for a, b in zip(runs_phase, runs_amp, strict=True)
+                              for k in ("direct", "po", "multi", "sequential"))}
+    log(f"  the phase term applies to {bound['phase_over_20']} of {bound['n']} designs; the winner of the space is at "
+        f"{bound['oracle_amp']:.1f} dB and {bound['oracle_phase']:.1f} deg, inside both tolerances; the four "
+        f"strategies score {'identically' if bound['identical'] else 'differently'} under the two objectives")
     cost = paired.cost_summary(rows)
     log(f"  cost: PO {1e3 * cost['po_seconds']['median']:.0f} ms, direct {1e3 * cost['direct_seconds']['median']:.0f}"
         f" ms per design (x{cost['ratio_median']:.1f})")
-    res = {"validation": val, "strategies": runs, "cost": cost}
+    res = {"validation": val, "coverage": cover, "surface": surf, "strategies": runs_phase,
+           "strategies_amplitude_only": runs_amp, "objective_phase": bound, "cost": cost}
     _json(os.path.join(out, "analysis.json"), res)
     return res
 
@@ -278,7 +337,7 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
         plt.close(fig)
         paths.append(p)
         # 5. strategies
-        fig, ax = plt.subplots(figsize=(6.6, 3.4))
+        fig, ax = plt.subplots(figsize=(6.8, 3.9))
         budgets = [r["n_direct"] for r in ana["strategies"]]
         names = [("direct", alt, "direct sampling"), ("po", muted, "PO ranking"), ("multi", accent, "multi-fidelity"),
                  ("sequential", "#0d7a4a", "sequential multi-fidelity")]
@@ -290,10 +349,10 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
         ax.set_xticks(np.arange(len(budgets)))
         ax.set_xticklabels([f"{b} direct solves" for b in budgets])
         ax.set_ylabel("% of the best design in the space")
-        ax.set_title("Best objective reached at equal budget (mean of 4 seeds)")
+        ax.set_title("Best objective reached at equal budget (mean of 4 seeds)", pad=34)
         ax.set_ylim(min(85, min(100 * r[f"{k}_worst"] / r["oracle"] for r in ana["strategies"]
                                for k, _, _ in names) - 3), 101)
-        ax.legend(frameon=False, fontsize=8, ncol=4, loc="lower left", bbox_to_anchor=(0.0, 1.02))
+        ax.legend(frameon=False, fontsize=8, ncol=2, loc="lower left", bbox_to_anchor=(0.0, 1.005))
         fig.tight_layout()
         p = os.path.join(figdir, "strategies.png")
         fig.savefig(p, dpi=160)
@@ -313,16 +372,69 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
         ax[0].legend(frameon=False, fontsize=8)
         b3 = base["range_3d"]
         ax[1].plot([d["n_triangles"] for d in b3], [d["po_seconds"] for d in b3], "o-", color=alt, label="PO")
-        ax[1].plot([d["n_triangles"] for d in b3], [d["direct_seconds_estimate"] for d in b3], "o--", color=accent,
-                   label="direct operator x40")
+        ax[1].plot([d["n_triangles"] for d in b3], [d["operator_application_seconds"] for d in b3], "o-",
+                   color=accent, label="one operator application")
         ax[1].set_xscale("log")
         ax[1].set_yscale("log")
         ax[1].set_xlabel("triangles on the 3-D reflector")
-        ax[1].set_ylabel("seconds per design")
-        ax[1].set_title("3-D production geometry: measured")
+        ax[1].set_ylabel("seconds")
+        ax[1].set_title(f"3-D: measured, application ~ N^{base['scaling']['alpha_application']:.1f}")
         ax[1].legend(frameon=False, fontsize=8)
         fig.tight_layout()
         p = os.path.join(figdir, "cost.png")
+        fig.savefig(p, dpi=160)
+        plt.close(fig)
+        paths.append(p)
+        # 7. the size x illumination trade at the reference edge profile
+        surf = ana["surface"]
+        fig, ax = plt.subplots(1, 2, figsize=(9.6, 3.5))
+        for a, M, title, cmap, fmt in (
+                (ax[0], surf["direct"], f"Usable quiet-zone width, direct solve ({surf['quantity']})", "Blues",
+                 lambda v: f"{v * 1e3:.0f}"),
+                (ax[1], surf["difference"], "Where PO misses it: direct − PO (mm)", "RdBu_r",
+                 lambda v: f"{v * 1e3:+.0f}")):
+            M = np.array(M, float)
+            lim = max(abs(M).max(), 1e-12)
+            im = a.imshow(M, cmap=cmap, vmin=(0 if cmap == "Blues" else -lim), vmax=lim, aspect="auto",
+                          origin="lower")
+            a.set_xticks(range(len(surf["qs"])), [f"{q:.0f}" for q in surf["qs"]])
+            a.set_yticks(range(len(surf["sizes"])), [f"{s:g}" for s in surf["sizes"]])
+            a.set_xlabel("feed illumination q")
+            a.set_ylabel("aperture size (x reference)")
+            a.set_title(title)
+            for i in range(M.shape[0]):
+                for j in range(M.shape[1]):
+                    a.text(j, i, fmt(M[i, j]), ha="center", va="center", fontsize=7.5,
+                           color="#111110" if abs(M[i, j]) < 0.6 * lim else "#ffffff")
+            fig.colorbar(im, ax=a, fraction=0.045, pad=0.02)
+        fig.suptitle(f"Edge profile {tuple(surf['profile'])} held fixed; the trade the campaign turns on", y=1.02,
+                     fontsize=10)
+        fig.tight_layout()
+        p = os.path.join(figdir, "trade.png")
+        fig.savefig(p, dpi=160, bbox_inches="tight")
+        plt.close(fig)
+        paths.append(p)
+        # 8. coverage: what each group of design variables carries
+        cov = ana["coverage"]["usable_width"]
+        fig, ax = plt.subplots(1, 3, figsize=(10.6, 3.1))
+        ax[0].bar([f"{d['level']:g}" for d in cov["by_size"]], [1e3 * d["residual_mean_abs"] for d in cov["by_size"]],
+                  color=accent)
+        ax[0].set_title("|residual| by aperture size")
+        ax[0].set_ylabel("mm")
+        ax[1].bar([f"{d['level']:.0f}" for d in cov["by_q"]], [1e3 * d["residual_mean_abs"] for d in cov["by_q"]],
+                  color=accent)
+        ax[1].set_title("|residual| by feed illumination q")
+        ax[1].set_xlabel("q")
+        vals = [1e3 * cov["po_rmse"], 1e3 * cov["rmse_size_q"], 1e3 * cov["rmse_all"]]
+        ax[2].bar(["PO\nalone", "GP on\nsize, q", "GP on all\nfive"], vals, color=[muted, "#6b9bd2", accent])
+        for i, v in enumerate(vals):
+            ax[2].text(i, v, f"{v:.0f}", ha="center", va="bottom", fontsize=8)
+        ax[2].set_title("RMSE on held-out designs (mm)")
+        ax[2].set_ylim(0, max(vals) * 1.18)
+        for a in ax:
+            a.tick_params(labelsize=8)
+        fig.tight_layout()
+        p = os.path.join(figdir, "coverage.png")
         fig.savefig(p, dpi=160)
         plt.close(fig)
         paths.append(p)
@@ -354,9 +466,11 @@ h2 .n{color:var(--muted);font-weight:500;margin-right:9px}
 h3{font-size:14px;font-weight:640;margin:20px 0 4px}
 .lede{color:var(--ink2);font-size:13.5px;margin:0 0 14px;max-width:74ch}
 p{margin:0 0 10px;max-width:78ch;color:var(--ink2);font-size:13.5px}
-figure{margin:16px 0 18px}figure img{width:100%;border:1px solid var(--line);border-radius:3px}
+figure{margin:16px 0 18px;break-inside:avoid;page-break-inside:avoid}
+figure img{width:100%;border:1px solid var(--line);border-radius:3px}
 figcaption{font-size:11.5px;color:var(--muted);margin-top:6px;max-width:80ch}
-table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 14px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 14px;break-inside:avoid}
+h2,h3{break-after:avoid;page-break-after:avoid}
 th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
 th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -379,10 +493,24 @@ def step_report(out: str, val: dict, base: dict, rows: list[dict], ana: dict, fi
     v = ana["validation"]
     cost = ana["cost"]
     st = {r["n_direct"]: r for r in ana["strategies"]}
+    st_amp = {r["n_direct"]: r for r in ana["strategies_amplitude_only"]}
+    ident = all(abs(st[b][f"{k}_percent_mean"] - st_amp[b][f"{k}_percent_mean"]) < 1e-9 for b in st
+                for k in ("direct", "po", "multi", "sequential"))
+    cov, surf, pobj = ana["coverage"], ana["surface"], ana["objective_phase"]
+    sc = base["scaling"]
+    cells = [(surf["direct"][i][j], surf["po"][i][j], surf["difference"][i][j], surf["sizes"][i], surf["qs"][j])
+             for i in range(len(surf["sizes"])) for j in range(len(surf["qs"]))]
+    d_best = max(cells)
+    po_pick = max(cells, key=lambda c: c[1])
+    d_worst = max(cells, key=lambda c: abs(c[2]))
+    flat_po = [c[1] for c in cells]
+    c_use, c_rip = cov["usable_width"], cov["ripple_pp_dB"]
     ripple, usable, phase, amp = v["ripple_pp_dB"], v["usable_width"], v["phase_ripple_pp_deg"], v["amp_pp_dB"]
     b3 = base["range_3d"]
     probe = b3[-1]
-    r3_ratio = probe["direct_seconds_estimate"] / max(probe["po_seconds"], 1e-6)
+    apps_lo, apps_hi = sc["applications_per_solve"][0], sc["applications_per_solve"][-1]
+    apps_mid = sc["applications_per_solve"][len(sc["applications_per_solve"]) // 2]
+    r3_ratio = apps_mid * probe["operator_application_seconds"] / max(probe["po_seconds"], 1e-6)
     mom_err = max(c["max_rel_error_mom"] for c in val["circles"])
     po_err = min(c["max_rel_error_po"] for c in val["circles"])
 
@@ -396,7 +524,7 @@ def step_report(out: str, val: dict, base: dict, rows: list[dict], ana: dict, fi
         if r["random"]["fraction_removed"] > 0.15 and r["profile"]["fraction_removed"] > 0.0:
             return "partly learnable, but it does not transfer cleanly to an unseen edge profile"
         if r["random"]["fraction_removed"] > 0.15:
-            return "learnable inside the family, not transferable across profiles"
+            return "learnable inside the family, but not transferable across profiles"
         return "not learnable from these inputs"
 
     def split_row(m, label):
@@ -410,6 +538,15 @@ def step_report(out: str, val: dict, base: dict, rows: list[dict], ana: dict, fi
     labels = {"amp_pp_dB": "amplitude p-p [dB]", "taper_dB": "taper [dB]", "ripple_pp_dB": "amplitude ripple p-p [dB]",
               "phase_ripple_pp_deg": "phase ripple p-p [deg]", "usable_width": "usable width [m]"}
     table_metrics = "".join(split_row(m, labels[m]) for m in paired.METRICS)
+    prof_txt = "; ".join(f"{labels[m]} {100 * v[m]['profile']['fraction_removed']:+.0f}%" for m in paired.METRICS)
+    surv = [labels[m] for m in paired.METRICS if v[m]["profile"]["fraction_removed"] > 0.1]
+    lost = [labels[m] for m in paired.METRICS if v[m]["profile"]["fraction_removed"] <= 0.1]
+    prof_sentence = (("Only " + " and ".join(surv) + " keep a real part of the gain; ") if surv
+                     else "Nothing keeps a real part of the gain; ") + \
+                    ((", ".join(lost) + " do not.") if lost else "every quantity survives.")
+    lam_mm = 1e3 * (P2.C0 / 3.0e9)
+    uw = sorted(r["direct_usable_width"] for r in rows)
+    uw_best, uw_med = uw[-1], uw[len(uw) // 2]
     best = {k: st[12][f"{k}_percent_mean"] for k in ("direct", "po", "multi", "sequential")}
     rows_html = "".join(
         f"<tr><td>{b} direct solves</td><td class='n'>{st[b]['direct_percent_mean']:.1f} %</td>"
@@ -418,6 +555,11 @@ def step_report(out: str, val: dict, base: dict, rows: list[dict], ana: dict, fi
         f"<td class='n'>{100 * st[b]['sequential_worst'] / st[b]['oracle']:.1f} %</td></tr>" for b in sorted(st))
     gain_multi = best["multi"] - best["po"]
     gain_seq = best["sequential"] - best["po"]
+    td_rows = "".join(
+        f"<tr><td>{a} applications</td><td class='n'>{sc['solve_hours'][str(a)]:.1f} h</td>"
+        f"<td class='n'>{sc['designs_per_8h'][str(a)]:.2f}</td>"
+        f"<td class='n'>{sc['solve_hours'][str(a)] * 3600 / max(probe['po_seconds'], 1e-9):.0f} x</td></tr>"
+        for a in sc["applications_per_solve"])
 
     html = f"""<!doctype html><html lang='en'><head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
@@ -433,8 +575,9 @@ def step_report(out: str, val: dict, base: dict, rows: list[dict], ana: dict, fi
 <div class='verdict'><b>Answer to the two questions.</b> <i>Is a direct solve affordable?</i> In two dimensions
 yes, at {cost['ratio_median']:.1f}x the cost of PO ({1e3 * cost['direct_seconds']['median']:.0f} ms against
 {1e3 * cost['po_seconds']['median']:.0f} ms per design); in three, no &mdash; at the production mesh one
-application of the direct operator alone takes {probe['operator_application_seconds']:.0f} s, so a solve of a few
-tens of applications is hours and a few hundred designs is weeks (Section&nbsp;2).
+application of the direct operator alone takes {probe['operator_application_seconds']:.0f} s, growing as
+N<sup>{sc['alpha_application']:.1f}</sup>, so a solve of tens of applications is hours and a few hundred designs is
+weeks (Section&nbsp;2 states the term that still needs one measured run).
 <i>Is the PO-to-direct residual meaningfully large?</i> Yes on the metrics that decide a range: PO misses the
 amplitude ripple by {ripple['po_rmse']:.2f} dB RMS and the phase ripple by {phase['po_rmse']:.2f}&deg; RMS, and the
 usable width by {1e3 * usable['po_rmse']:.0f} mm &mdash; comparable with the +-0.5 dB tolerance the zone is specified
@@ -483,6 +626,19 @@ closed-form series of a conducting circle to {100 * mom_err:.2f}% and costs tens
 physics being measured &mdash; the edge current PO truncates, the multiple reflections it omits, the shadow-side
 current it assumes away &mdash; is the same in both dimensions; the absolute numbers are not, and the summary says
 what transfers.</p>
+<p><b>What was asked, and where each answer is.</b></p>
+<ul>
+<li>the two levers the brief named &mdash; reflector size and feed illumination &mdash; plus the 18 existing edge
+profiles, {len(rows)} designs each solved twice (this section, and Section&nbsp;7);</li>
+<li>PO against the direct solve on the quiet-zone numbers: the zone size, the amplitude ripple and the phase ripple
+(Section&nbsp;3);</li>
+<li>whether that difference survives configurations excluded from training, including a whole unseen edge profile
+(Section&nbsp;3), and whether the 18 profiles cover the size/illumination space at all (Section&nbsp;6);</li>
+<li>the size &times; illumination trade on its own, one edge profile held fixed (Section&nbsp;5);</li>
+<li>four strategies at the same number of direct solves, scored against the best design in the space, with a
+tolerance on the amplitude <i>and</i> on the phase ripple (Section&nbsp;4);</li>
+<li>the measured cost of each solver, 2-D and 3-D, and the one number a 3-D benchmark still needs (Section&nbsp;2).</li>
+</ul>
 <figure><img src='{_img(figs[0])}'><figcaption><b>Figure 1.</b> Left: the direct solver against the exact series
 of a perfectly conducting circle in a cylindrical wave, at four mesh densities; PO's error on the same points is
 larger by two orders of magnitude. Right: the quiet-zone metrics of the range against the mesh density &mdash; the
@@ -493,18 +649,32 @@ PO-to-direct difference is stable from {val['mesh_convergence'][0]['n_segments']
 <p class='lede'>Measure the thing a surrogate would replace, before assuming the surrogate is needed.</p>
 <p>In two dimensions PO takes {1e3 * cost['po_seconds']['median']:.0f} ms per design and the direct solve
 {1e3 * cost['direct_seconds']['median']:.0f} ms, a factor of {cost['ratio_median']:.1f}. In three dimensions the
-same comparison is not close. At the production mesh (8 elements per wavelength) the reflector carries
+operator itself is the cost. At the production mesh (8 elements per wavelength) the reflector carries
 {probe['n_triangles']} triangles, PO takes {probe['po_seconds']:.0f} s, and <i>one application</i> of the dense
 integral-equation operator &mdash; the inner loop of any iterative direct solve &mdash; takes
-{probe['operator_application_seconds']:.0f} s, measured on this machine. A solve needs tens of them: hours per
-design. A few hundred designs is weeks.</p>
-<p>That number is why this study is not a 3-D campaign, and it is also the useful finding: <b>the 3-D direct solve
-is not a small increment on PO, it is a different tool</b> (a fast multipole or hierarchical code, with proper
-near-singular quadrature, on a machine built for it). Any workflow that wants a direct number per design in 3-D has
-to spend it where it changes a decision &mdash; which is exactly what Experiment&nbsp;2 measures.</p>
-<figure><img src='{_img(figs[5])}'><figcaption><b>Figure 2.</b> Measured cost per design. Left: the 2-D model, PO
-and direct on the same mesh. Right: the 3-D production geometry &mdash; PO in full against one dense operator
-application times the tens a solve needs.</figcaption></figure>
+{probe['operator_application_seconds']:.0f} s, measured on this machine. That growth is measured too, not assumed:
+over four mesh densities the application time follows N<sup>{sc['alpha_application']:.2f}</sup>, and forming the
+matrix instead of applying it matrix-free would need {sc['dense_matrix_GB']:.0f} GB at the production mesh, and a
+dense factorisation about {sc['dense_factorisation_TFLOP']:.0f} TFLOP of work. An
+iterative solve is therefore the only route, and the number of applications it needs is the one term this study
+cannot measure without a 3-D code.</p>
+<p>So the 3-D cost is stated as a range, with the term that is not measured shown explicitly:</p>
+<table><thead><tr><th>applications per solve</th><th>hours per design</th><th>designs per 8-hour run</th>
+<th>relative to one PO design</th></tr></thead><tbody>{td_rows}</tbody></table>
+<p>Every conclusion in Experiment&nbsp;2 is in <i>solves</i>, not in hours, so it does not depend on that term; what
+depends on it is how many solves a campaign can buy. The rule that closes it is one number: <b>a 3-D solve that
+takes T seconds corresponds to T/{probe['operator_application_seconds']:.0f} applications of the operator measured
+here.</b> If an existing code does the 3&nbsp;ft case in minutes, that number is small, the ratio to PO is small, and
+the campaign should be direct solves in 3-D; if it takes hours, the workflow measured in Experiment&nbsp;2 is the
+affordable one. That comparison is the benchmark this study does not settle on its own &mdash; it needs one measured
+run from the solver we would actually use.</p>
+<p>What the numbers already rule out is the middle ground: <b>the 3-D direct solve is not a small increment on PO, it
+is a different tool</b> (a fast multipole or hierarchical code, with proper near-singular quadrature, on a machine
+built for it). Any workflow that wants a direct number per design in 3-D has to spend it where it changes a
+decision &mdash; which is exactly what Experiment&nbsp;2 measures.</p>
+<figure><img src='{_img(figs[5])}'><figcaption><b>Figure 2.</b> Measured cost. Left: the 2-D model, PO and direct
+on the same mesh. Right: the 3-D production geometry &mdash; PO in full against one dense operator application, at
+four mesh densities; the slope is the measured exponent.</figcaption></figure>
 
 <h2><span class='n'>3</span>Experiment 1: how far PO is, and whether the gap is learnable</h2>
 <p class='lede'>PO against the direct solve over all {len(rows)} designs, then a Gaussian process on the residual,
@@ -520,13 +690,15 @@ correction removes {100 * ripple['random']['fraction_removed']:.0f}% of the PO e
 on the amplitude peak-to-peak and {100 * v['taper_dB']['random']['fraction_removed']:.0f}% on the taper.</p>
 <p>The honest test is the harder split: hold one entire edge profile out (every size, every feed of one
 roll/blend/depth triple), so the model has to interpolate to a shape it has never seen. The verdict there is
-blunt &mdash; the correction {verdict_learn('ripple_pp_dB')}. The ripple and the usable width keep most of the gain
-({100 * ripple['profile']['fraction_removed']:.0f}%, {100 * usable['profile']['fraction_removed']:.0f}%), the taper
-{100 * v['taper_dB']['profile']['fraction_removed']:+.0f}%, while the amplitude peak-to-peak
-({100 * amp['profile']['fraction_removed']:+.0f}%) and the phase ripple
-({100 * phase['profile']['fraction_removed']:+.0f}%) gain nothing or lose ground. The rule that follows is simple
-and worth more than the model itself: <b>correct only the metrics whose residual is systematic across the family,
-and check that on a held-out profile before believing it.</b></p>
+blunt &mdash; the correction is {verdict_learn('ripple_pp_dB')}. What it recovers on that split, quantity by quantity:
+{prof_txt}. {prof_sentence} The rule that follows is simple and worth more than the model itself: <b>correct only
+the metrics whose residual is systematic across the family, and check that on a held-out profile before believing
+it.</b></p>
+<p class='small'>The quiet-zone <i>size</i> in this model is the usable width along the quiet-zone line: at 3 GHz
+(&lambda; = {lam_mm:.0f} mm) the best design in the space holds {uw_best / (lam_mm / 1e3):.1f}&lambda;
+({1e3 * uw_best:.0f} mm) and the median design {uw_med / (lam_mm / 1e3):.1f}&lambda; ({1e3 * uw_med:.0f} mm). That
+is the 2-D analogue of the quiet-zone diameter the brief asks about; the diameter itself only exists in the 3-D
+geometry, and the number that transfers is the ratio of size to wavelength, not the millimetres.</p>
 <figure><img src='{_img(figs[1])}'><figcaption><b>Figure 3.</b> PO against the direct solve, design by design,
 coloured by feed <code>q</code>. The amplitude ripple is systematically under-predicted at wide illumination; the
 usable width is the metric with the most structure, and it is the objective of Experiment 2.</figcaption></figure>
@@ -539,31 +711,89 @@ is, which is why five design variables carry it.</figcaption></figure>
 
 <h2><span class='n'>4</span>Experiment 2: four strategies at equal budget</h2>
 <p class='lede'>Objective: the usable quiet-zone width, discounted for peak-to-peak amplitude ripple above
-{st[12]['amp_limit']:.1f} dB. Each strategy receives the same number of direct solves and knows the PO value of
-every design, because PO is cheap. Repeated over four seeds; the spread is reported.</p>
+{st[12]['amp_limit']:.1f} dB <i>and</i> for peak-to-peak phase ripple above {st[12]['phase_limit']:.0f}&deg;. Both
+are quiet-zone tolerances: a zone that breaks either holds its width only where the field is quiet. Each strategy
+receives the same number of direct solves and knows the PO value of every design, because PO is cheap. Repeated
+over four seeds; the spread is reported.</p>
 <table><thead><tr><th>budget</th><th>direct sampling</th><th>PO ranking</th><th>multi-fidelity<br>(one batch)</th>
 <th>multi-fidelity<br>(sequential)</th><th>sequential,<br>worst seed</th></tr></thead><tbody>{rows_html}</tbody></table>
 <p>The best of the {st[12]['n_designs']} designs reaches {st[12]['oracle']:.3f} m of objective. At 12 direct solves
 the sequential multi-fidelity search averages {best['sequential']:.1f}% of it, the one-batch multi-fidelity
 {best['multi']:.1f}%, trusting the PO ranking {best['po']:.1f}% and blind sampling {best['direct']:.1f}%.</p>
+<p><b>The phase term is in the objective and it does not change a single decision.</b> It binds for
+{pobj['phase_over_20']} of the {pobj['n']} designs and the amplitude term binds for {pobj['amp_over_3']}, so it moves the
+score of a large part of the space — but the designs that reach the widest usable zone are at
+{pobj['oracle_amp']:.1f} dB and {pobj['oracle_phase']:.1f}&deg;, comfortably inside both tolerances, so the four
+strategies score {'identically with and without it' if ident else 'differently with and without it'} at every budget
+(the amplitude-only run is in <code>analysis.json</code> under <code>strategies_amplitude_only</code>). The tolerance
+is not what decides this space; the zone width is. A tighter phase spec would matter for a design that is fast
+without being flat, which these are not.</p>
 <p>Three things stand out. First, <b>PO is a strong baseline</b>: ranking by the cheap model is worth far more than
 spending the same solves at random, which means the first thing to get right is not the correction but using PO to
 choose. Second, <b>the correction adds to it</b>, by {gain_multi:+.0f} (one batch) and {gain_seq:+.0f} (sequential)
 percentage points at 12 solves: the model moves the search to designs whose PO value is misleading, which is where
 the PO ranking loses the best design (it sits at rank {st[12]['po_rank_of_oracle']}). Third, <b>the gain is small
-in absolute terms and it does not grow with budget</b> at 24 solves, because by then every strategy has found the
-neighbourhood of the optimum. The honest reading: at this budget and this space, the correction is worth a few
-points, not a factor.</p>
+in absolute terms and it does not grow with budget</b> beyond 12 solves, because by then every strategy has found
+the neighbourhood of the optimum. The honest reading: at these budgets and this space, the correction is worth a
+few points, not a factor — and the crossover is at the first solve, as the smallest budget in the table shows.</p>
 <figure><img src='{_img(figs[4])}'><figcaption><b>Figure 6.</b> Best objective reached, as a percentage of the best
-design in the space, at three budgets, mean of four seeds with the spread over seeds as the error bar. The
-sequential strategy is the one a real campaign can run: refit, choose, solve, repeat.</figcaption></figure>
+design in the space, at four budgets, mean of four seeds with the spread over seeds as the error bar. The sequential
+strategy is the one a real campaign can run: refit, choose, solve, repeat.</figcaption></figure>
 
-<h2><span class='n'>5</span>What this changes for the campaign</h2>
+<h2><span class='n'>5</span>The size and illumination trade, on its own</h2>
+<p class='lede'>The simplest version of the question — reflector size against feed illumination, one edge profile,
+nothing else moving — read off the same 630 designs.</p>
+<p>At the reference edge profile {tuple(surf['profile'])} the usable quiet-zone width runs from
+{1e3 * min(flat_po):.0f} mm to {1e3 * d_best[0]:.0f} mm across the {len(surf['sizes'])} x {len(surf['qs'])} grid, so
+the trade is not a detail: the aperture sets the ceiling and the illumination decides whether the zone fills it. The
+widest zone in the grid is at size {d_best[3]:g}x the reference aperture and q&nbsp;=&nbsp;{d_best[4]:.1f}
+({1e3 * d_best[0]:.0f} mm); the narrowest is at the opposite corner. The map is not separable — size alone does not
+order the designs, because at the small aperture a wide feed is the worst choice and at the large one it is the best
+— which is why the campaign cannot be run as two one-dimensional sweeps.</p>
+<p><b>And this is where PO loses the choice.</b> PO reproduces the shape of the map but not its winner: ranking the
+same grid by PO picks size {po_pick[3]:g}x with q&nbsp;=&nbsp;{po_pick[4]:.1f} ({1e3 * po_pick[1]:.0f} mm predicted),
+not the true best. The largest disagreement is at size {d_worst[3]:g}x, q&nbsp;=&nbsp;{d_worst[4]:.1f}, where PO
+under-predicts the usable width by {1e3 * abs(d_worst[2]):.0f} mm — larger than the width of most zones in the space.
+So the size/illumination trade is exactly the trade that a cheap model alone gets wrong, and it is also the one where
+the direct solve is affordable to check: in 2-D a full grid of 35 designs costs a few seconds.</p>
+<figure><img src='{_img(figs[6])}'><figcaption><b>Figure 7.</b> The same trade twice: the direct solve on the left,
+and on the right where PO differs from it. The corner PO mis-reads is the corner that holds the best designs.</figcaption></figure>
+
+<h2><span class='n'>6</span>Coverage: do the 18 edge profiles cover the space?</h2>
+<p class='lede'>The question asked before using the existing profiles: do size and illumination carry the residual,
+or does the edge profile carry a direction of its own?</p>
+<p>Two models, same held-out protocol: a Gaussian process on size and illumination alone — the two levers the brief
+named — and one on all five variables, the profile included. On the usable width, PO alone is
+{1e3 * c_use['po_rmse']:.0f} mm RMSE; the size-and-illumination model recovers
+{100 * c_use['removed_size_q']:.0f}% of that error and the five-variable model {100 * c_use['removed_all']:.0f}%,
+which means <b>the profile carries {100 * c_use['profile_share']:.0f}% of what is left after size and
+illumination</b>. On the ripple the split is the same in sign and larger in size:
+{100 * c_rip['removed_size_q']:.0f}% against {100 * c_rip['removed_all']:.0f}%, with the profile carrying
+{100 * c_rip['profile_share']:.0f}% of the remainder.</p>
+<p>The residual is not uniform in the space either, which is what makes a single coverage number misleading: by
+aperture it grows from {1e3 * c_use['by_size'][0]['residual_mean_abs']:.0f} mm at the smallest reflector to
+{1e3 * c_use['by_size'][-1]['residual_mean_abs']:.0f} mm at the largest, and by illumination it falls from
+{1e3 * max(d['residual_mean_abs'] for d in c_use['by_q']):.0f} mm at the widest feed to
+{1e3 * min(d['residual_mean_abs'] for d in c_use['by_q']):.0f} mm at the narrowest. The corner that the trade above
+identified as decisive is the same corner where the residual is largest — the two results are the same result seen
+from two sides.</p>
+<p>The answer to the coverage question, then, is the one Section&nbsp;3 already gave from the other direction: the
+profiles are <b>enough to train inside the family and not enough to extrapolate out of it</b>. Size and illumination
+explain most of the learnable residual; the profile adds the rest, and holding one out costs the correction all of
+its value on the ripple, the phase ripple and the usable width. So the 18 profiles are sufficient coverage of the
+design directions, and not a model of the edge.</p>
+<figure><img src='{_img(figs[7])}'><figcaption><b>Figure 8.</b> The residual by lever and what each group of inputs
+recovers: PO alone, a Gaussian process on size and illumination, and one on all five variables, on held-out
+designs.</figcaption></figure>
+
+<h2><span class='n'>7</span>What this changes for the campaign</h2>
 <ul>
 <li><b>Do not assume the correction is needed; measure the ratio first.</b> The decision is not "PO or full wave" but
-"how many direct solves per campaign, and where". In 2-D that ratio is {cost['ratio_median']:.1f}; in 3-D, at
-production mesh and with a dense operator, it is {r3_ratio:.0f} &mdash; and that is the number that decides whether
-a learned correction, a faster solver, or a smaller design space is the right investment.</li>
+"how many direct solves per campaign, and where". In 2-D that ratio is {cost['ratio_median']:.1f}. In 3-D, with
+{apps_mid} operator applications per solve, one design costs {sc['solve_hours'][str(apps_mid)]:.1f} h, which is
+{r3_ratio:.0f}x a PO design &mdash; and that is the number that decides whether a learned correction, a faster solver,
+or a smaller design space is the right investment. The applications term is a property of the 3-D code we do not
+have; the cost of one application is measured (Section&nbsp;2).</li>
 <li><b>PO first, everywhere.</b> Using PO to rank a design space is the cheapest large win: it dominates blind
 sampling by {best['po'] - best['direct']:.0f} points at 12 solves. Any correction is an increment on top of that.</li>
 <li><b>Correct the metrics whose residual is systematic</b> (ripple, usable width) and check the transfer on a
@@ -572,12 +802,19 @@ ripple in this family).</li>
 <li><b>Fit where it will be used.</b> The correction transferred to an unseen profile of the same family; a
 geometry outside it &mdash; a serrated edge, a cap, a different junction &mdash; is an extrapolation and needs its
 own direct solve before it is trusted.</li>
+<li><b>Spend the direct solves where PO is wrong, and that is measurable.</b> The size/illumination map
+(Section&nbsp;5) shows where: the corner with the largest aperture and the widest feed, where PO under-predicts the
+usable width by {1e3 * abs(d_worst[2]):.0f} mm and picks a different winner from the exact one. A shortlist of
+solves spent there buys more than the same solves spread over the grid.</li>
+<li><b>Treat the profile family as training coverage, not as physics.</b> Size and illumination carry most of the
+learnable residual ({100 * c_use['removed_size_q']:.0f}% of it on the usable width) and the profile adds the rest;
+that is why the correction transfers to a new size and not to a new edge (Section&nbsp;6).</li>
 <li><b>In 3-D, buy the direct numbers where a decision turns on them</b>: a shortlist of a handful of designs, the
 top of the corrected ranking, and the geometry as built. That is what the budget allows, and it is what the
 strategies above say is worth spending.</li>
 </ul>
 
-<h2><span class='n'>6</span>Limits, stated plainly</h2>
+<h2><span class='n'>8</span>Limits, stated plainly</h2>
 <ul>
 <li><b>Two dimensions.</b> A line source and a parabolic cylinder; the metrics are relative (taper, ripple, phase
 ripple, usable width), not the 3-D quiet-zone diameter. The method and the structure of PO's error transfer; the
@@ -591,11 +828,24 @@ number in Section 3 is a real held-out number, including the ones that came out 
 <li><b>The optimisation comparison reveals the exact value of a design when a strategy spends a solve on it</b>, so
 it measures <i>where</i> solves go, not how noisy they are; a real campaign is noisier and smaller, which would
 favour the multi-fidelity strategies slightly more, not less.</li>
+<li><b>The 3-D direct solve is not run.</b> What is measured is one application of the dense operator on the
+production mesh (and its growth over four mesh densities); the number of applications a solve needs is a property of
+a 3-D code this study does not build. Section 2 gives the rule that closes it from one measured run
+(T seconds &rarr; T/{probe['operator_application_seconds']:.0f} applications) and the cost of each assumption
+({apps_lo}&ndash;{apps_hi} applications). Every comparison in Section 4 is in solves, so none of it depends on that
+term.</li>
+<li><b>The objective is a decision, not a physical quantity.</b> Usable width in metres, minus 0.1 m per dB of
+amplitude ripple above 3 dB p-p and 0.005 m per degree of phase ripple above 20&deg; p-p. Those tolerances are the
+quiet-zone spec; the weights are a choice, and Section 4 reports the sensitivity that matters &mdash; the phase term
+binds on {pobj['phase_over_20']} designs and changes no decision, because the designs that win are inside both
+tolerances.</li>
+<li><b>The quiet-zone size is a width, not a diameter.</b> In 2-D the zone is a line; the diameter is a property of
+the 3-D geometry. What transfers is the size in wavelengths (Section 3), not the millimetres.</li>
 <li><b>Costs are wall-clock on a shared workstation, one thread per process</b>: read them as orders of magnitude,
 not as benchmarks.</li>
 </ul>
 
-<h2><span class='n'>7</span>Reproducing it</h2>
+<h2><span class='n'>9</span>Reproducing it</h2>
 <p class='small'>Solver: <code>electromagnetics/reflector/planar2d.py</code> (model, physical optics, direct solve,
 metrics) and <code>.../paired.py</code> (sweep, residual, strategies); driver
 <code>examples/use_cases/antennas/compact_range_two_fidelity.py --out &lt;dir&gt;</code>; <code>--render-only</code>

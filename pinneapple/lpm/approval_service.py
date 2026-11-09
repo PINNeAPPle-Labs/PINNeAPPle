@@ -91,7 +91,7 @@ def approve(root: str | Path, reference_path: str | Path, authorization: str,
     root=Path(root).resolve()
     evidence=Path(reference_path).resolve()
     # Evidence must be independently supplied and immutable at approval time.
-    values=compute_reference(evidence)
+    checkpoint=root/"training"/"model.pt"\n    values=compute_reference(evidence,checkpoint)
     if not expected_reference_sha256 or values["sha256"]!=expected_reference_sha256:
         raise ValueError("Independent reference digest mismatch")
     card_path=root/"deployment"/"model_card.json"

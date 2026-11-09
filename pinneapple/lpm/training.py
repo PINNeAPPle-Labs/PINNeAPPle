@@ -29,8 +29,8 @@ def fit(records,config,outdir):
     tx,ty=_load(records,"train");vx,vy=_load(records,"val");sx,sy=_load(records,"test")
     opts=config.training;kind=opts.get("model","mlp")
     if kind=="fno" and config.domain!="cfd":raise ValueError("2D FNO requires CFD")
-    shape=(int(config.numerical["ny"]),int(config.numerical["nx"])) if kind=="fno" else None
-    if shape and tx.shape[1]!=shape[0]*shape[1]:raise ValueError("FNO grid size mismatch")
+    shape=(int(config.numerical["ny"]),int(config.numerical["nx"])) if kind=="fno" else ((int(config.numerical["ny"]),int(config.numerical["nx"])) if config.domain=="cfd" else (int(config.numerical["nz"])+1,int(config.numerical["ny"])+1,int(config.numerical["nx"])+1)) if kind=="graph" else None
+    if shape and tx.shape[1]!=int(np.prod(shape)):raise ValueError("Structured grid size mismatch")
     im=tx.reshape(-1,tx.shape[-1]).astype("float64").mean(0)
     isd=tx.reshape(-1,tx.shape[-1]).astype("float64").std(0)
     isd=np.where(isd<1e-12,1.,isd)

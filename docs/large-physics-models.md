@@ -132,3 +132,31 @@ field consistency. A real deployment additionally needs TLS at ingress,
 network controls, audit logs, rate limiting, resource budgets, observability,
 model rollback, and documented operating procedures. Until then the
 approval pathway is deliberately fail-closed and the PR must remain draft.
+
+## Authenticated approval service (experimental)
+
+`pinneapple.lpm.approval_service.create_app(campaign_root)` provides an
+OIDC-protected approval endpoint. Configure:
+`PINNEAPPLE_LPM_OIDC_ISSUER`,
+`PINNEAPPLE_LPM_OIDC_AUDIENCE`,
+`PINNEAPPLE_LPM_OIDC_JWKS_URL` (HTTPS),
+and `PINNEAPPLE_LPM_REVIEWER_SUBJECTS` (comma-separated allowlist of
+authorized OIDC subject identifiers). Install `PyJWT[crypto]` and FastAPI
+in the approval-service environment.
+
+`POST /approve` requires a Bearer JWT and a JSON object containing
+`reference_path`, `reference_sha256`, `justification` and `scope`.
+The independent evidence NPZ must contain exactly `features` and
+`reference` arrays. The service runs the checkpoint on the supplied
+features and computes RMSE, MAE and relative L2 itself. It checks
+checkpoint/evidence SHA-256 and the native VeriPhysics decision. It never
+accepts a caller-supplied measured error.
+
+**Deployment security note:** The approval service currently accepts a
+server-side file path. Do not expose it to untrusted tenants or deploy it
+as a public service without an immutable evidence store, path allowlist,
+audited upload workflow, reviewer-to-campaign authorization, transaction
+locking, and a second independent evidence provenance check. An authenticated
+reviewer can still submit non-independent or fabricated reference arrays;
+OIDC authentication does not certify scientific independence. This is an
+integration foundation, not production certification.

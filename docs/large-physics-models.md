@@ -160,3 +160,40 @@ locking, and a second independent evidence provenance check. An authenticated
 reviewer can still submit non-independent or fabricated reference arrays;
 OIDC authentication does not certify scientific independence. This is an
 integration foundation, not production certification.
+
+## Immutable evidence, campaign authorization, audit and concurrency
+
+The approval service now requires:
+
+- `PINNEAPPLE_LPM_APPROVAL_DB`: a durable SQLite database path on a
+  single shared host/volume (not ephemeral container storage).
+- `PINNEAPPLE_LPM_EVIDENCE_BUCKET`: an S3 bucket with versioning and
+  **Object Lock COMPLIANCE** enabled, with a retention policy of at least
+  365 days. The service verifies Object Lock and version IDs.
+- `PINNEAPPLE_LPM_CAMPAIGN_ACL`: a server-controlled JSON map, for example
+  `{"alice-sub":{"cfd01":["ingest"]},"bob-sub":{"cfd01":["approve"]}}`.
+  The reviewer must not be the uploader of the same evidence.
+- OIDC issuer, audience and HTTPS JWKS configuration described above.
+
+`POST /evidence` accepts an authenticated multipart `file` upload and
+returns an immutable `evidence_id`. `POST /approve` takes
+`{"evidence_id":"...","justification":"...","scope":"..."}` and uses
+only the registered, version-pinned S3 object, never a caller-supplied
+server file path. The model computes the comparison metric itself.
+
+`BEGIN IMMEDIATE` serializes approval operations in the SQLite database;
+the `approvals.campaign` primary key prevents concurrent duplicate
+promotions. A hash-chained audit table records successful evidence
+ingestion and approval decisions. `EvidenceStore.verify_audit_chain()`
+detects modifications within that chain.
+
+**Operational caveats:** Hash chaining is tamper-evident, not an immutable
+audit sink; copy audit records to a separate WORM log system for adversarial
+tamper resistance. SQLite coordination is only suitable for a single shared
+database filesystem with correct locking; a multi-host production service
+should use PostgreSQL transactions and unique constraints. Failed approval
+attempts must also be forwarded to a centralized access/security log.
+Approval file publication and the SQLite transaction are not a distributed
+atomic transaction; recovery and reconciliation are required after crashes.
+Scientific provenance of externally uploaded reference data must be
+verified by the organization. These remain release requirements.

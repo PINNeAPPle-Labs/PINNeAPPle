@@ -56,8 +56,8 @@ def review(root,reviewer,decision,justification,role,scope):
         raise RuntimeError("Checkpoint changed since validation; cannot approve")
     data=card.get("validation",{}).get("data",{})
     model=card.get("validation",{}).get("model",{})
-    eligible=status.status=="validated" and data.get("passed") is True and model.get("passed") is True
-    card["status"]="approved" if eligible else "blocked"
+    # The CLI does not authenticate reviewer identity or independently calculate\n    # reference errors. Never authorize deployment from self-attested evidence.\n    eligible=False
+    card["status"]="blocked"\n    card["production_blocker"]="Unverified reviewer identity and independently uncomputed reference metric"
     card["native_veriphysics_status"]=status.status
     card["checkpoint_sha256"]=original
     deployment.mkdir(parents=True,exist_ok=True)

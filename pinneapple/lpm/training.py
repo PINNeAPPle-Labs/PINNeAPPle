@@ -68,7 +68,7 @@ def fit(records,config,outdir):
             bad+=1
             if bad>=patience:break
     # Only load a checkpoint created locally during this invocation.
-    state=torch.load(outdir/"model.pt",map_location=device,weights_only=False)
+    state=torch.load(outdir/"model.pt",map_location=device,weights_only=True)
     model.load_state_dict(state["state_dict"]);model.eval()
     def evaluate(x,y):
         with torch.no_grad():pred=model(x.to(device),shape).cpu().numpy()*osd+om
@@ -82,7 +82,7 @@ def fit(records,config,outdir):
 
 def predict(model_path,x,device="cpu"):
     """Load only trusted locally generated checkpoints (torch.load uses pickle)."""
-    state=torch.load(model_path,map_location=device,weights_only=False)
+    state=torch.load(model_path,map_location=device,weights_only=True)
     model=make_model(state["model"],state["in_features"],state["out_features"],state["options"])
     model.load_state_dict(state["state_dict"]);model.to(device).eval()
     arr=np.asarray(x)

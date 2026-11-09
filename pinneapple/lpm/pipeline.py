@@ -10,7 +10,7 @@ import numpy as np
 from .schema import Campaign
 from .sampling import designs,assign_splits,fingerprint
 from . import openfoam,calculix,fenics
-from .training import fit
+from .native_training import fit_native
 from .gates import report
 
 BACKENDS={"openfoam":openfoam,"calculix":calculix,"fenics":fenics}
@@ -52,7 +52,7 @@ def orchestrate(config,root,stage="all",resume=True):
     if stage in {"train","all"}:
         incomplete=[r for r in records if r["status"]!="ok" or not Path(r["path"]).is_file()]
         if incomplete:raise RuntimeError(f"{len(incomplete)} simulations missing; refusing incomplete campaign")
-        metrics=fit(records,c,root/"training")
+        metrics=fit_native(records,c,root/"training")
         review=report(root,records,metrics,c)
         registry=root/"deployment";registry.mkdir(exist_ok=True)
         card=dict(model=c.training.get("model","mlp"),campaign=c.name,

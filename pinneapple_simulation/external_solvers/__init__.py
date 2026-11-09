@@ -6,7 +6,8 @@ openfoam  — case staging, execution, field sampling, and UPD packaging
 matlab    — MATLAB Engine API wrapper, subprocess runner, .mat I/O
 modelica  — FMU simulation (fmpy) and OpenModelica (OMPython)
 fenics    — workflow layer on top of pinneapple_solvers.fenics_bridge
-mujoco    — MuJoCo (google-deepmind/mujoco) trajectory collection + MJX parallel rollouts
+mujoco    — MuJoCo 4.0 (google-deepmind/mujoco): trajectories + UPD, analytic checks, mujoco.batch
+            thread-pool rollouts, MJX (mujoco-mjx) and a robot backend for pinneapple_simulation.robot_sim
 genesis   — Genesis AI (Genesis-Embodied-AI/Genesis) multi-physics robotics simulation
 newton_physics — NVIDIA Newton rigid-body solvers (XPBD, Featherstone, MuJoCo-Warp) with analytic checks
 pict      — PICT (tum-pbs), a differentiable multi-block PISO solver on CUDA: cavity case, runner, Ghia checks
@@ -109,24 +110,42 @@ except Exception:
     dof_to_upd = None         # type: ignore
     FEniCSWorkflow = None     # type: ignore
 
-# MuJoCo (optional: mujoco >= 3.0)
+# MuJoCo (optional: mujoco >= 3.17, or 4.0 on Python >= 3.11; MJX needs mujoco-mjx)
 try:
     from .mujoco import (
+        MUJOCO_CASES,
+        BatchRunner,
         MJXParallelRunner,
         MuJoCoConfig,
+        MuJoCoRobotSim,
         MuJoCoRunner,
+        MuJoCoTrajectory,
+        has_batch as mujoco_has_batch,
+        has_mjx as mujoco_has_mjx,
         load_model,
         make_data,
+        mujoco_version,
+        summary as mujoco_summary,
         trajectories_to_upd,
         trajectory_to_upd,
+        validate as validate_mujoco,
     )
 except Exception:
     MuJoCoConfig = None           # type: ignore
     load_model = None             # type: ignore
     make_data = None              # type: ignore
     MuJoCoRunner = None           # type: ignore
+    MuJoCoTrajectory = None       # type: ignore
+    BatchRunner = None            # type: ignore
+    MuJoCoRobotSim = None         # type: ignore
     trajectory_to_upd = None      # type: ignore
     trajectories_to_upd = None    # type: ignore
+    validate_mujoco = None        # type: ignore
+    mujoco_summary = None         # type: ignore
+    MUJOCO_CASES = None           # type: ignore
+    mujoco_version = None         # type: ignore
+    mujoco_has_batch = None       # type: ignore
+    mujoco_has_mjx = None         # type: ignore
     MJXParallelRunner = None      # type: ignore
 
 # TurboDesigner (optional: turbodesigner; falls back to built-in analytical solver)

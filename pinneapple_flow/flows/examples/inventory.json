@@ -206,6 +206,12 @@
   "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
   "status": "needs"
  },
+ "mujoco": {
+  "domain": "robotics",
+  "needs": "MuJoCo (pip install \"pinneapple[mujoco]\")",
+  "reason": "quickstart.py runs four MuJoCo sessions in about two seconds (a trajectory and its UPD export, validate(), a BatchRunner campaign, and an arm held by the multibody tree), but MuJoCo is an optional wheel the Flow Studio image does not install and no flow node wraps the backend yet",
+  "status": "needs"
+ },
  "motor_magnetics": {
   "domain": "electromagnetics"
  },

@@ -231,15 +231,20 @@ fenics = [
   "petsc4py>=3.20",
 ]
 
-# MuJoCo physics simulation (google-deepmind/mujoco)
+# MuJoCo physics simulation (google-deepmind/mujoco). 4.0 dropped Python 3.10 and split the
+# distribution (mujoco-core, mujoco-studio, mujoco-mjx); 3.17 is the last line that installs on 3.10.
 mujoco = [
-  "mujoco>=3.0",
+  "mujoco>=3.17,<4; python_version < '3.11'",
+  "mujoco>=4.0; python_version >= '3.11'",
 ]
 
-# MuJoCo MJX backend — JAX-based GPU/TPU parallel rollouts
+# MuJoCo MJX backend — JAX-based GPU/TPU parallel rollouts. MJX left the `mujoco` wheel in 4.0:
+# Python >= 3.11 installs the separate `mujoco-mjx` (import path is still `mujoco.mjx`).
 mujoco_mjx = [
-  "mujoco>=3.0",
-  "jax[cuda12]>=0.4.25",
+  "mujoco>=3.17,<4; python_version < '3.11'",
+  "mujoco>=4.0; python_version >= '3.11'",
+  "mujoco-mjx>=4.0; python_version >= '3.11'",
+  "jax>=0.4.25",
 ]
 
 # Genesis AI multi-physics robotics simulation (Genesis-Embodied-AI/Genesis)
@@ -418,7 +423,8 @@ all = [
   "sentence-transformers>=3.0",
   "statsmodels>=0.14",
   "requests>=2.31",
-  "mujoco>=3.0",
+  "mujoco>=3.17,<4; python_version < '3.11'",
+  "mujoco>=4.0; python_version >= '3.11'",
   "fmpy>=0.3.20",
   "genesis-world>=0.2.0",
   "emmiai-noether>=2026.4.0",

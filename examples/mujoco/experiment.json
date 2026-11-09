@@ -1,0 +1,84 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/mujoco",
+ "title": "MuJoCo 4.0 quickstart",
+ "description": "Four MuJoCo sessions in about two seconds, with no model or data file: a recorded trajectory and its UPD export, the six analytic checks, a batch campaign with per-environment mass randomisation, and a two-link arm held at a pose by PINNeAPPle's own multibody tree.",
+ "domain": "robotics",
+ "methods": [
+  "rigid-body dynamics (MuJoCo MJCF)",
+  "domain randomisation",
+  "cross-engine verification"
+ ],
+ "modules": [
+  "pinneapple_simulation.external_solvers.mujoco",
+  "pinneapple_simulation.multibody",
+  "pinneapple_simulation.robot_sim.arms"
+ ],
+ "params": {
+  "dt": 0.001,
+  "n_envs": 64
+ },
+ "scripts": [
+  "quickstart.py"
+ ],
+ "metrics": [
+  {
+   "name": "free-fall relative error",
+   "value": 0.00263,
+   "unit": "",
+   "how": "validate(dt=1e-3) against z0 - g t^2 / 2 and v = -g t"
+  },
+  {
+   "name": "pendulum period relative error",
+   "value": 0.00035,
+   "unit": "",
+   "how": "validate(dt=1e-3), zero crossings against 2*pi*sqrt(L/g)"
+  },
+  {
+   "name": "arm hold drift",
+   "value": 4.1e-10,
+   "unit": "rad",
+   "how": "largest joint deviation over 0.3 s with torques from pinneapple_simulation.multibody"
+  },
+  {
+   "name": "arm energy drift",
+   "value": 1.0e-08,
+   "unit": "J",
+   "how": "largest change of the total energy over the same 0.3 s hold"
+  }
+ ],
+ "checks": [
+  {
+   "name": "analytic cases (free fall, pendulum, friction, torque, spin, resting contact)",
+   "passed": true
+  },
+  {
+   "name": "two independent engines agree (MuJoCo vs the multibody tree)",
+   "passed": true
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/mujoco/quickstart.py",
+  "guide": "docs/guides/mujoco.md",
+  "pr": [
+   1513
+  ]
+ },
+ "references": [
+  "Todorov, Erez & Tassa, MuJoCo: A physics engine for model-based control, IROS 2012",
+  "MuJoCo 4.0.0 release notes, google-deepmind/mujoco, 2026-11-06"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "7dff18407"
+ }
+}

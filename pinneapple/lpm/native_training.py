@@ -60,7 +60,7 @@ def fit_native(records,config,outdir):
     state=dict(state_dict=wrapper.model.state_dict(),model=kind,
         in_features=train_x.shape[-1],out_features=train_y.shape[-1],options=opts,
         grid_shape=shape if kind in ("fno","graph") else None,
-        input_mean=im,input_scale=isd,output_mean=om,output_scale=osd,
+        input_mean=torch.as_tensor(im,dtype=torch.float64),input_scale=torch.as_tensor(isd,dtype=torch.float64),\n        output_mean=torch.as_tensor(om,dtype=torch.float64),output_scale=torch.as_tensor(osd,dtype=torch.float64),
         source_config=config.to_dict())
     torch.save(state,outdir/"model.pt")
     def evaluate(x,y):

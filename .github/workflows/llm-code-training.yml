@@ -1,0 +1,31 @@
+name: LLM code-training offline checks
+
+on:
+  pull_request:
+    paths:
+      - "pinneapple_llm/**"
+      - "tests/pinneapple_llm/**"
+      - ".github/workflows/llm-code-training.yml"
+  workflow_dispatch:
+
+jobs:
+  dataset-and-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install local testing dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run focused tests
+        run: python -m pytest -q tests/pinneapple_llm/test_code_training.py tests/pinneapple_llm/test_verified_examples.py
+      - name: Compile pipeline modules
+        run: python -m py_compile pinneapple_llm/code_training.py pinneapple_llm/verified_examples.py pinneapple_llm/finetune.py
+      - name: Generate source dataset and validate manifest
+        run: |
+          python -m pinneapple_llm.code_training generate --root . --output-dir /tmp/pinneapple-llm-sft --package pinneapple_llm --validation-fraction 0.1
+          python -c 'import json,pathlib; p=pathlib.Path("/tmp/pinneapple-llm-sft/manifest.json"); m=json.loads(p.read_text()); assert m["counts"]["train"]>0; print(m["counts"])'

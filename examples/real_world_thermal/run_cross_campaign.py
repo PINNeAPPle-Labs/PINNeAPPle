@@ -70,24 +70,36 @@ def run(train_csv, test_csv, mapping, outdir, seeds, epochs, device):
     for seed in seeds:
         for name, physics in (("data_only",False),("rc_regularized",True)):
             prior_train = rc_predict(training["x"],coefficients)
-            _,history,_ = train_network(training["x"],training["y"],split,
-                                        prior_train,physics,epochs,seed,device)
-            # Train_network returns predictions on the supplied x. To prevent
-            # test-campaign leakage, a transferable model API is required.
-            # Explicitly mark as not evaluated rather than reporting in-sample scores.
-            rows.append({"model":name,"seed":seed,"status":"transferable_predictor_pending",
-                         "validation_epochs":len(history)})
-        # The continuous model is currently trained on the training campaign;
-        # its current API does not expose a transferable model checkpoint.
-        _,hist,physical = train_continuous_pinn(
+            _,history,_,predict_external = train_network(
+                training["x"],training["y"],split,prior_train,physics,
+                epochs,seed,device,return_predictor=True)
+            prediction = predict_external(testing["x"])
+            predictions[f"{name}_seed{seed}"] = prediction
+            rows.append({"model":name,"seed":seed,
+                         "validation_epochs":len(history),
+                         **score(observed,prediction)})
+        _,hist,physical,model = train_continuous_pinn(
             training["frame"]["time"].to_numpy(dtype=float),
             training["ambient"],training["heat_w"],training["temperature"],
             np.arange(cut+1),np.arange(cut+1,len(training["temperature"])),
-            seed=seed,epochs=epochs,device=device)
+            seed=seed,epochs=epochs,device=device,return_model=True)
+        import torch
+        # This is *elapsed-time extrapolation*, not an initialized autonomous
+        # trajectory. Time coordinates reset to the test campaign origin.
+        elapsed = testing["frame"]["time"].to_numpy(dtype=float)
+        elapsed = elapsed - elapsed[0]
+        with torch.no_grad():
+            continuous = model(
+                torch.tensor(elapsed[:,None],dtype=torch.float32,device=device),
+                torch.tensor(testing["ambient"][:,None],dtype=torch.float32,device=device),
+                torch.tensor(testing["heat_w"][:,None],dtype=torch.float32,device=device)
+            ).cpu().numpy().ravel()[1:]
+        predictions[f"continuous_ode_pinn_seed{seed}"] = continuous
         rows.append({"model":"continuous_ode_pinn","seed":seed,
-                     "status":"cross_campaign_inference_pending",
                      "validation_epochs":len(hist),
-                     "physical_parameters":physical})
+                     "evaluation":"elapsed_time_transfer_without_test_initial_condition",
+                     "physical_parameters":json.dumps(physical),
+                     **score(observed,continuous)})
     import pandas as pd
     pd.DataFrame(rows).to_csv(outdir/"metrics.csv",index=False)
     pd.DataFrame(predictions).to_csv(outdir/"predictions.csv",index=False)
@@ -97,9 +109,9 @@ def run(train_csv, test_csv, mapping, outdir, seeds, epochs, device):
         "train_rows":len(training["temperature"]),
         "test_rows":len(testing["temperature"]),
         "split":"first 80% train campaign for fitting, final 20% validation; separate held-out campaign",
-        "seeds":seeds,"epochs":epochs,"model_status":"incomplete cross-campaign neural inference",
+        "seeds":seeds,"epochs":epochs,"model_status":"implemented, execution and validation pending",
         "limitations":["RC rollout is autonomous; RC one-step uses observed lag",
-                       "Neural model test predictions not yet available; no claim of superiority"],
+                       "Continuous model evaluated by elapsed-time transfer, not an initialized rollout; no claim of superiority"],
     }
     (outdir/"provenance.json").write_text(json.dumps(provenance,indent=2)+"\n")
     fig,ax=plt.subplots(figsize=(12,4))
@@ -113,9 +125,9 @@ def run(train_csv, test_csv, mapping, outdir, seeds, epochs, device):
     plt.close(fig)
     (outdir/"README.md").write_text(
         "# KIT cross-campaign benchmark\n\n"
-        "This is a partial experimental report. Neural cross-campaign inference "
-        "is not yet implemented; missing values must not be interpreted as failures "
-        "or successes. See metrics.csv and provenance.json.\n")
+        "Cross-campaign inference is implemented but must be run and validated. "
+        "Continuous model uses elapsed-time transfer, not initialized rollout. "
+        "See metrics.csv and provenance.json.\n")
     return provenance
 
 

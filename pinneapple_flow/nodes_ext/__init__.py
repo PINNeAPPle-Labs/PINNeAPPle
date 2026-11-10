@@ -16,6 +16,7 @@ from . import (  # noqa: F401
     bricks,
     cfd,
     chip_design,
+    compressible_passage,
     control_eng,
     core_ts,
     design,

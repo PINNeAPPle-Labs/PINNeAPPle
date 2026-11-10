@@ -71,3 +71,16 @@ def test_multiple_lods_are_declared_for_field_backed_mesh(tmp_path):
     result = build_visual_lods(sc, tmp_path, ratios=(0.5, 0.2))
     assert len(result["levels"]) == 2
     assert all(x["parts"][0]["reason"] == "field_topology" for x in result["levels"])
+
+
+def test_adaptive_viewer_lod_has_hysteresis_cache_and_physics_guard():
+    from pathlib import Path
+    js = (Path(__file__).resolve().parents[1] /
+          "pinneapple_twin3d" / "viewer" / "viewer.js").read_text()
+    assert 'params.get("lod") === "auto"' in js
+    assert 'autoLod && !m.fields.length' in js
+    assert 'async function updateVisualLod()' in js
+    assert 'lod.cache.set(entry.level, geometries)' in js
+    assert 'lod.failed.add(target)' in js
+    assert 'distance > 5 * Math.pow(2, target) * 1.15' in js
+    assert 'distance < 5 * Math.pow(2, target - 1) * 0.85' in js

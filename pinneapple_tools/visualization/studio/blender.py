@@ -373,7 +373,7 @@ _BLENDER_PATHS = ("/Applications/Blender.app/Contents/MacOS/Blender",           
 
 # Blender's own Python has numpy and nothing else: importing ``pinneapple_tools`` would pull the matplotlib-based
 # visualisation package, so the bootstrap registers the three packages with their paths only (no ``__init__`` body
-# runs) and imports this module directly. ``os.umask`` keeps the temporary scene readable for the Blender process.
+# runs) and imports this module directly.
 _BOOT = r'''
 import json, os, sys, types
 cfg = json.load(open(sys.argv[sys.argv.index("--") + 1], encoding="utf-8"))

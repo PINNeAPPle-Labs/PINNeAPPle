@@ -29,6 +29,8 @@ KINDS = {
     "rover_telemetry": ("timeseries",), "comparison": ("field", "table"),
     "spectrum": ("timeseries",), "phase_portrait": ("points",),
     "timeseries": ("timeseries",), "map": ("geo",),
+    "geometry_variants": ("mesh",), "inference_monitor": ("timeseries",),
+    "twin_state": ("timeseries",),
 }
 SOURCES = ("job", "training", "simulation", "pipeline", "model", "sensor", "artifact", "rover")
 KEY = re.compile(r"^[a-zA-Z][a-zA-Z0-9_.:-]{0,127}$")
@@ -121,6 +123,18 @@ def template(name: str, resource_id: str) -> Dashboard:
                      ("pipeline_progress", "Node progress", "pipeline", "progress"),
                      ("resource_usage", "Compute usage", "pipeline", "resources"),
                      ("table", "Produced datasets", "pipeline", "datasets")],
+        "digital_twin": [("digital_twin", "Twin geometry", "simulation", "geometry"),
+                         ("twin_state", "Measured vs predicted", "model", "state"),
+                         ("inference_monitor", "Inference and latency", "model", "inference"),
+                         ("physics_checks", "Physical consistency", "model", "checks")],
+        "geometry": [("geometry_variants", "Geometry variations", "simulation", "geometry"),
+                     ("mesh3d", "Selected geometry", "simulation", "mesh"),
+                     ("comparison", "Design comparison", "simulation", "comparison"),
+                     ("solver_residuals", "Solver residuals", "simulation", "residuals")],
+        "inference": [("inference_monitor", "Inference metrics", "model", "inference"),
+                      ("twin_state", "Predicted vs measured", "model", "state"),
+                      ("drift", "Input drift", "model", "drift"),
+                      ("ood", "Out-of-domain checks", "model", "ood")],
         "blender": [("blender_scene", "Rendered simulation", "artifact", "scene"),
                     ("mesh3d", "Interactive geometry", "simulation", "mesh"),
                     ("contour", "Physical field", "simulation", "field"),

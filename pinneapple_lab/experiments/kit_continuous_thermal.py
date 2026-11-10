@@ -34,8 +34,8 @@ class LumpedThermalPINN(nn.Module):
 
     def physical_parameters(self):
         return {
-            "capacity_j_per_k": F.softplus(self.log_c) + 1e-6,
-            "conductance_w_per_k": F.softplus(self.log_h) + 1e-6,
+            "capacity_j_per_k": torch.exp(self.log_c),
+            "conductance_w_per_k": torch.exp(self.log_h),
             "heating_efficiency": torch.sigmoid(self.log_eta),
             "bias_w": self.bias_w,
         }

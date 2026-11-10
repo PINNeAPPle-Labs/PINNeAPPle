@@ -61,7 +61,7 @@ class LumpedThermalPINN(nn.Module):
 
 def train_continuous_pinn(time_s, ambient_c, heat_w, measured_c,
                           train_idx, val_idx, *, seed=0, epochs=400,
-                          device="cpu", physics_weight=1.0):
+                          device="cpu", physics_weight=1.0, return_model=False):
     """Fit only training observations; select checkpoint on validation.
 
     Residual is scaled to kelvin/hour to balance against Celsius data loss.
@@ -108,4 +108,6 @@ def train_continuous_pinn(time_s, ambient_c, heat_w, measured_c,
     with torch.no_grad():
         pred = model(t,a,q).cpu().numpy().ravel()
         params = {k:float(v.item()) for k,v in model.physical_parameters().items()}
+    if return_model:
+        return pred, np.asarray(hist), params, model
     return pred, np.asarray(hist), params

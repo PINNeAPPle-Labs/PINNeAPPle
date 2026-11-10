@@ -78,8 +78,10 @@ def _table_material(bpy, name: str, st: dict):
         _set_input(b, ("Transmission Weight", "Transmission"), float(st["transmission"]))
     if st.get("alpha", 1.0) < 1.0:
         b.inputs["Alpha"].default_value = float(st["alpha"])
-        if hasattr(m, "blend_method"):
+        if hasattr(m, "blend_method"):                     # <= 4.1
             m.blend_method = "BLEND"
+        if hasattr(m, "surface_render_method"):            # 4.2+
+            m.surface_render_method = "BLENDED"
     if st.get("emissive"):
         _set_input(b, ("Emission Color", "Emission"), (*[c ** 2.2 for c in st["emissive"]], 1.0))
         _set_input(b, ("Emission Strength",), 4.0)
@@ -134,7 +136,8 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
            background: str = "studio", samples: int = 96, size: Tuple[int, int] = (1600, 900),
            title: Optional[str] = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
            sun_elevation: float = 40.0, ghost: Optional[bool] = None,
-           surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False) -> str:
+           surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False,
+           exposure: Optional[float] = None) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
     field: colour the surfaces by this per-vertex field (surfaces without it are grey). lines: True (all) or the
@@ -145,7 +148,8 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     shown). surface_fields: {surface name: (field, lo, hi, cmap, title)} colours that surface by its own field
     on ``cmap`` (one of :data:`.compose.CMAPS`: "jet", or a diverging "rdbu" / "coolwarm" / "bwr") and adds a
     second colour bar (bottom left) for it. cmap: the colour map of ``field`` (one of :data:`.compose.CMAPS`).
-    floor: a glossy floor under the geometry (its reflection; with "dark")."""
+    floor: a glossy floor under the geometry (its reflection; with "dark"). exposure: the AgX exposure in stops
+    (default: 0 on the light stage, -0.5 on "dark"); lower it when a bright colour map blows out under the key light."""
     import bpy
     from mathutils import Vector
 
@@ -165,7 +169,9 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     names = [i.identifier for i in bs.view_settings.bl_rna.properties["view_transform"].enum_items]
     bs.view_settings.view_transform = "Standard" if studio else ("AgX" if "AgX" in names else "Filmic")
     bs.view_settings.look = "None"
-    bs.view_settings.exposure = 0.0 if (studio and (field or slice)) else (-0.5 if studio else -0.3)
+    exp = (0.0 if (studio and (field or slice)) else (-0.5 if studio else -0.3)) if exposure is None \
+        else float(exposure)
+    bs.view_settings.exposure = exp
 
     objs = _build_objects(bpy, bs, sc.surfaces, axes, getattr(sc, "materials", None))
     _smooth(objs)
@@ -303,6 +309,7 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         _dark_stage(bpy, bs, centre, size_l, mins.z if floor else None)
     else:
         _world(bpy, bs, studio, sun_elevation)
+    bs.view_settings.exposure = exp                      # the stage sets its own; the caller has the last word
 
     d = _to_blender(np.asarray(VIEWS[view] if isinstance(view, str) else view, float)[None], axes)[0]
     d = d / np.linalg.norm(d)
@@ -356,6 +363,88 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
                  dark=background == "dark")
     if bar2 and colorbar_on:
         colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3], dark=background == "dark")
+    return out
+
+
+# ------------------------------------------------------------------ rendering without bpy: the Blender binary
+_BLENDER_PATHS = ("/Applications/Blender.app/Contents/MacOS/Blender",           # macOS app bundle
+                  "/usr/bin/blender", "/usr/local/bin/blender", "/snap/bin/blender",
+                  r"C:\Program Files\Blender Foundation\Blender\blender.exe")
+
+# Blender's own Python has numpy and nothing else: importing ``pinneapple_tools`` would pull the matplotlib-based
+# visualisation package, so the bootstrap registers the three packages with their paths only (no ``__init__`` body
+# runs) and imports this module directly. ``os.umask`` keeps the temporary scene readable for the Blender process.
+_BOOT = r'''
+import json, os, sys, types
+cfg = json.load(open(sys.argv[sys.argv.index("--") + 1], encoding="utf-8"))
+root = cfg["root"]
+for name in ("pinneapple_tools", "pinneapple_tools.visualization", "pinneapple_tools.visualization.studio"):
+    pkg = types.ModuleType(name)
+    pkg.__path__ = [os.path.join(root, *name.split("."))]
+    sys.modules[name] = pkg
+from pinneapple_tools.visualization.studio.blender import render
+from pinneapple_tools.visualization.studio.scene import Scene
+sc = Scene.from_file(cfg["scene"])
+sc.materials, sc.labels = cfg["materials"], cfg["labels"]     # the glb keeps geometry and fields, not these
+render(sc, cfg["out"], **cfg["kwargs"])
+'''
+
+
+def blender_executable() -> Optional[str]:
+    """The Blender executable: ``$BLENDER``, then ``blender`` on ``PATH``, then the usual install locations
+    (macOS app bundle, ``/usr/bin``, ``/snap``, ``C:\\Program Files\\Blender Foundation``). ``None`` if there is
+    none, in which case :func:`render` needs ``pip install bpy`` and :func:`render_headless` cannot run."""
+    import shutil
+    for cand in (os.environ.get("BLENDER"), shutil.which("blender"), *_BLENDER_PATHS):
+        if cand and os.path.exists(cand):
+            return cand
+    return None
+
+
+def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: float = 3600.0, **kwargs) -> str:
+    """:func:`render` on a machine where ``bpy`` is not importable: the scene goes to a ``.glb``, Blender renders it
+    from the command line, and ``out`` is written and returned.
+
+    ``kwargs`` go to :func:`render` (``field``, ``field_range``, ``background``, ``floor``, ``view``, ``lens``,
+    ``size``, ``samples``, ``cmap``, ...) and must be JSON-serialisable. A colour bar needs Pillow, which Blender's
+    own Python does not ship: draw it afterwards (:func:`~.colormap.colorbar`) or pass ``colorbar_on=False``.
+    ``scene`` is a :class:`~.scene.Scene` or a path ``render`` can read.
+    """
+    import json as _json
+    import subprocess
+
+    from .scene import Scene
+
+    if exe is None:
+        exe = blender_executable()
+    if exe is None:                                       # no binary: bpy itself, if this process has it
+        try:
+            import bpy  # noqa: F401
+        except ImportError:
+            raise RuntimeError(
+                "render_headless needs Blender: set $BLENDER, put `blender` on PATH, or `pip install bpy`"
+            ) from None
+        return render(scene, out, **kwargs)
+
+    work = tempfile.mkdtemp(prefix="pinneapple-render-")
+    glb = os.path.join(work, "scene.glb")
+    sc = scene if isinstance(scene, Scene) else Scene.from_file(scene)
+    sc.save(glb)
+    cfg_path = os.path.join(work, "render.json")
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    out = os.path.abspath(out)
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    with open(cfg_path, "w", encoding="utf-8") as fh:
+        _json.dump({"root": root, "scene": glb, "out": out, "kwargs": kwargs,
+                    "materials": sc.materials, "labels": dict(getattr(sc, "labels", {}) or {})}, fh)
+    script = os.path.join(work, "render_bootstrap.py")
+    with open(script, "w", encoding="utf-8") as fh:
+        fh.write(_BOOT)
+    proc = subprocess.run([exe, "--background", "--python", script, "--", cfg_path],
+                          capture_output=True, text=True, timeout=timeout)
+    if proc.returncode != 0 or not os.path.exists(out):
+        tail = "\n".join((proc.stderr or proc.stdout or "").strip().splitlines()[-8:])
+        raise RuntimeError(f"Blender failed on {os.path.basename(out)} (exit {proc.returncode}):\n{tail}")
     return out
 
 

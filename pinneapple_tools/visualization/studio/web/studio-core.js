@@ -12,6 +12,9 @@ export const COOLWARM = [[0, [59, 76, 192]], [0.25, [141, 176, 254]], [0.5, [221
 export const BWR = [[0, [0, 0, 255]], [0.5, [255, 255, 255]], [1, [255, 0, 0]]];
 export const RDBU = [[0, [33, 102, 172]], [0.25, [103, 169, 207]], [0.5, [247, 247, 247]], [0.75, [239, 138, 98]], [1, [178, 24, 43]]];
 
+// perceptual, black to cream: reads on a dark background and survives being printed small (matplotlib magma)
+export const MAGMA = [[0, [0, 0, 4]], [0.1, [14, 9, 44]], [0.2, [50, 15, 84]], [0.3, [89, 21, 105]], [0.4, [131, 38, 105]], [0.5, [177, 57, 89]], [0.6, [221, 88, 66]], [0.7, [253, 138, 53]], [0.8, [254, 191, 74]], [0.9, [252, 233, 145]], [1, [252, 253, 191]]];
+
 // errors: sequential, white = no error, dark red = largest (YlOrRd); used for |prediction - reference|
 export const ERR = [[0, [255, 255, 229]], [0.2, [255, 237, 160]], [0.4, [254, 178, 76]], [0.6, [252, 78, 42]], [0.8, [189, 0, 38]], [1, [103, 0, 13]]];
 
@@ -24,6 +27,7 @@ export function ramp(stops, t) {
   return stops[stops.length - 1][1].map((c) => c / 255);
 }
 export const jet = (t) => ramp(JET, t);
+export const magma = (t) => ramp(MAGMA, t);                    // perceptually uniform: sequential fields on a dark stage
 export const lin = (c) => Math.pow(c, 2.2);              // vertex colours are linear in three.js
 
 // percentile q (0..1) of the finite values
@@ -211,8 +215,8 @@ export function hudLine(h, v) {
   return `${h.label}: ${s}${h.unit ? " " + h.unit : ""}`;
 }
 
-// colour map stops by name ("jet", "coolwarm", "bwr", "rdbu"; anything else: jet)
-export const CMAPS = { jet: JET, coolwarm: COOLWARM, bwr: BWR, rdbu: RDBU };
+// colour map stops by name ("jet", "coolwarm", "bwr", "rdbu", "magma"; anything else: jet)
+export const CMAPS = { jet: JET, coolwarm: COOLWARM, bwr: BWR, rdbu: RDBU, magma: MAGMA };
 export const cmapStops = (name) => CMAPS[name] || JET;
 
 // first point index of a trail shown at frame `last` (its last `seconds`; null: all) and the opacity factor of point

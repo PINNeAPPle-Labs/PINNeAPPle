@@ -140,3 +140,36 @@ def test_the_surface_is_one_cell_per_size_and_illumination():
     assert np.allclose(np.array(s["difference"]), np.array(s["direct"]) - np.array(s["po"]))
     with pytest.raises(KeyError):
         paired.design_surface(rows, "usable_width", profile=(0.9, 0.9, 0.9))
+
+
+def test_the_quiet_zone_line_is_centred_on_the_section_and_reaches_the_aperture():
+    rng = P.Range2D()
+    line = rng.qz_line()
+    assert line.shape == (rng.qz_points, 2)
+    assert np.allclose(line[:, 1], rng.qz_z)                                  # all of it on the plane z = qz_z
+    assert line[:, 0].max() - line[:, 0].min() == pytest.approx(rng.qz_width)
+    centre = 0.5 * (rng.section.y_low + rng.section.y_high)
+    assert line[:, 0].mean() == pytest.approx(centre)                         # default centre: the section's own
+    shifted = P.Range2D(qz_centre_y=centre + 0.1)
+    assert shifted.qz_line()[:, 0].mean() == pytest.approx(centre + 0.1)
+
+
+def test_near_field_map_pairs_the_two_solvers_on_one_grid():
+    rng = P.Range2D(per_wavelength=8.0)
+    m = P.near_field_map(rng, n_y=40, n_z=32, grid=rng.grid)
+    assert m["po_db"].shape == m["direct_db"].shape == m["diff_db"].shape == (40, 32)
+    assert len(m["y"]) == 40 and len(m["z"]) == 32
+    assert m["qz_z"] == pytest.approx(P.Range2D().qz_z)
+    assert len(m["qz_s"]) == len(m["cut_po_db"]) == len(m["cut_direct_db"]) > 8
+    pct = m["diff_db_percentiles"]
+    assert set(pct) == {"50", "90", "99"}                                    # string keys: it is JSON-ready
+    assert pct["50"] < pct["90"] < pct["99"]
+    # PO is close to the exact field on the illuminated body and wrong at the rim: the map must show both
+    assert np.isfinite(m["po_db"]).all() and np.isfinite(m["direct_db"]).all()
+    assert max(m["po_db"].max(), m["direct_db"].max()) == pytest.approx(0.0, abs=1e-9)   # one shared scale
+    assert m["diff_db"].min() >= -20.0 and m["diff_db"].max() <= 10.0         # clipped to the requested window
+    assert m["n_segments"] == P.po_metrics(rng)["n_segments"]
+    assert m["seconds"] > 0
+    # a coarser contour is cheaper and still solves the same problem
+    coarse = P.near_field_map(P.Range2D(per_wavelength=6.0), n_y=20, n_z=16)
+    assert coarse["n_segments"] < m["n_segments"]

@@ -1,0 +1,60 @@
+name: Independent reproduction of a PINNeAPPle experiment
+description: Report an independently executed benchmark, including failed attempts
+title: "[External reproduction] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reproducing an experiment. Negative results are welcome.
+        Only report what you ran; a GitHub star, screenshot, or author-run benchmark is not independent reproduction.
+  - type: input
+    id: experiment
+    attributes:
+      label: Exact experiment and version
+      description: Path, git commit SHA or release tag; link to the experiment protocol.
+      placeholder: examples/fno_coldplate/external_validation.py @ <commit SHA>
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Exact commands and environment
+      description: Commands, Python/dependency versions, OS, CPU/GPU and relevant configuration.
+      placeholder: python examples/fno_coldplate/external_validation.py --out results/
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Outcome
+      options:
+        - Reproduced the documented observations
+        - Executed but observed different metrics
+        - Failed to install or execute
+        - Incomplete / blocked
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and observations
+      description: Upload or link JSON logs, data hashes, CI run and exact measured metrics (not only screenshots).
+    validations:
+      required: true
+  - type: textarea
+    id: problems
+    attributes:
+      label: Failures, limitations and methodological concerns
+      description: What did not work? Were results scientifically meaningful? Were any controls incorrectly accepted?
+    validations:
+      required: false
+  - type: checkboxes
+    id: independence
+    attributes:
+      label: Independence and transparency
+      options:
+        - label: This report describes an actual execution (not only an inspection or an author claim).
+          required: true
+        - label: I disclosed any assistance from the PINNeAPPle authors and any material deviations from the protocol.
+          required: true

@@ -1,7 +1,7 @@
 """KIT LLEC measured thermal dynamics benchmark, no synthetic data fallback.
 
-One-step prediction only. The physics-informed network is a *discrete RC
-regularized model*, not a continuous-time PDE PINN. Source: Zenodo 21157950.
+Includes one-step RC-regularized comparison and an optional continuous-time
+lumped ODE PINN. Neither model solves a spatial PDE. Source: Zenodo 21157950.
 """
 from __future__ import annotations
 import hashlib
@@ -132,12 +132,12 @@ class KITRealThermal(Experiment):
     references = [URL, DOI]
     limitations = [
         "One-step prediction with observed lagged room temperature, not autonomous rollout",
-        "Discrete RC prior, NOT a complete strong-form PINN or spatial PDE",
+        "RC regularization is discrete; optional continuous model is a lumped ODE, not a spatial PDE",
         "Requires matching delivered heating power and zone temperature, not electric input power",
         "Only chronological within-campaign split; independent campaign test pending",
         "Single seed, no uncertainty estimates or error-conservation assessment",
     ]
-    params = {"csv": "", "mapping_json": "", "epochs": 400, "seed": 0, "device": "cpu"}
+    params = {"csv": "", "mapping_json": "", "epochs": 400, "seed": 0, "device": "cpu", "continuous_pinn": True, "physics_weight": 1.0}
 
     def run(self, ctx):
         p = ctx.params
@@ -168,6 +168,26 @@ class KITRealThermal(Experiment):
                                                   int(p["epochs"]), int(p["seed"]), p["device"])
                 timing[name] = {"seconds": time.perf_counter()-start, "steps": steps}
                 predictions[name], history[name] = pred, hist
+        if p.get("continuous_pinn", True):
+            from .kit_continuous_thermal import train_continuous_pinn
+            with ctx.stage("train_continuous_ode_pinn"):
+                start = time.perf_counter()
+                # Observed temperature is supervised on training indices only.
+                # The full time series is used as an inference grid, not labels.
+                full_split = chronological(len(t))
+                continuous_pred, continuous_hist, physical = train_continuous_pinn(
+                    a["time"].to_numpy(dtype=float),
+                    ambient, a["heat_w"].to_numpy(dtype=float), t,
+                    full_split["train"], full_split["val"],
+                    seed=int(p["seed"]), epochs=int(p["epochs"]),
+                    device=p["device"], physics_weight=float(p["physics_weight"]))
+                # y[i] is the observation at original time i+1.
+                predictions["continuous_ode_pinn"] = continuous_pred[1:]
+                history["continuous_ode_pinn"] = continuous_hist[:,[0,2]]
+                timing["continuous_ode_pinn"] = {
+                    "seconds": time.perf_counter()-start,
+                    "steps": len(continuous_hist)}
+                ctx.output("continuous_ode_physical_parameters", physical)
         for model, pred in predictions.items():
             for partition, indices in split.items():
                 for metric, val in score(y[indices],pred[indices]).items():

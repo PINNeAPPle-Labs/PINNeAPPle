@@ -100,6 +100,26 @@ def run(train_csv, test_csv, mapping, outdir, seeds, epochs, device):
                      "evaluation":"elapsed_time_transfer_without_test_initial_condition",
                      "physical_parameters":json.dumps(physical),
                      **score(observed,continuous)})
+    from pinneapple_lab.experiments.kit_scientific_metrics import (
+        write_summary, energy_balance,
+    )
+    write_summary(rows,predictions,outdir)
+    # The RC Euler parameters map to a physical capacity only if heating
+    # efficiency is specified independently; report an assumption explicitly.
+    # With eta=1, b_step = dt*1000/C, a_step = dt*H/C.
+    a_step,b_kw,c_step = coefficients
+    if b_kw > 0:
+        capacity = testing["dt"]*1000/b_kw
+        conductance = a_step*capacity/testing["dt"]
+        bias = c_step*capacity/testing["dt"]
+        balance = energy_balance(
+            testing["temperature"],testing["ambient"],testing["heat_w"],
+            testing["dt"],capacity_j_per_k=capacity,
+            conductance_w_per_k=conductance,heating_efficiency=1.0,bias_w=bias)
+        (outdir/"rc_energy_balance.json").write_text(json.dumps({
+            "assumption":"heating efficiency fixed to 1; capacity is not separately identifiable",
+            "capacity_j_per_k":capacity,"conductance_w_per_k":conductance,
+            "bias_w":bias,**balance},indent=2)+"\\n")
     import pandas as pd
     pd.DataFrame(rows).to_csv(outdir/"metrics.csv",index=False)
     pd.DataFrame(predictions).to_csv(outdir/"predictions.csv",index=False)

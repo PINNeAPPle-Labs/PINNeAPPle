@@ -225,3 +225,8 @@ from .csg import (
     channel_with_hole,
     t_junction,
 )
+
+# Rampa do canal de corrida (família Capture02): parâmetros em coordenadas globais e sólido fechado
+from .runner_ramp import CASOS as rampa_casos, Rampa, parametros as rampa_parametros, perfil as rampa_perfil, \
+    solido as rampa_solido, validar as rampa_validar, PUBLICADO as rampa_publicado
+from .runner_ramp import dentro as rampa_dentro

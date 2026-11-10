@@ -30,9 +30,10 @@ class InferenceMonitor:
                    latency_ms: float | None = None,
                    uncertainty: Mapping[str, float] | None = None,
                    observed: Mapping[str, float] | None = None):
-        self.emitter.emit("inference", step, **_finite(predictions))
+        metrics = _finite(predictions)
         if latency_ms is not None:
-            self.emitter.emit("latency", step, latency_ms=_finite({"latency_ms": latency_ms})["latency_ms"])
+            metrics["latency_ms"] = _finite({"latency_ms": latency_ms})["latency_ms"]
+        self.emitter.emit("inference", step, **metrics)
         if uncertainty is not None:
             self.emitter.emit("uncertainty", step, **_finite(uncertainty))
         if observed is not None:

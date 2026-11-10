@@ -52,8 +52,11 @@ def surrogate_modeling(*, tool: str | Callable[..., Any] | None = None, bounds: 
                        table: Mapping[str, Sequence[float]] | None = None, inputs: Sequence[str] | None = None,
                        n_doe: int = 80, n_fresh: int = 200, n_uses: int = 10_000, accuracy_target: float = 0.05,
                        force: bool = False, seed: int = 0, out_dir: str | None = None,
-                       units: Mapping[str, str] | None = None) -> dict[str, Any]:
+                       units: Mapping[str, str] | None = None,
+                       export_format: str = "pickle") -> dict[str, Any]:
     """Run the workflow; returns a JSON-ready record (``model_path`` when ``out_dir`` is given)."""
+    if export_format not in ("pickle", "safe_json"):
+        raise ValueError("unsupported surrogate export format")
     from scipy.stats import qmc
 
     from pinneapple_autolab.study import benchmark as B
@@ -164,12 +167,21 @@ def surrogate_modeling(*, tool: str | Callable[..., Any] | None = None, bounds: 
                protocol=board.protocol)
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
-        path = os.path.join(out_dir, "surrogate.pkl")
-        payload = {"inputs": inputs, "outputs": outputs, "bounds": dict(bounds),
-                   "models": {o: board.models[f"{o}/{per[o]['family']}"] for o in per},
-                   "q": {o: board.q[f"{o}/{per[o]['family']}"] for o in per}}
-        with open(path, "wb") as f:
-            pickle.dump(payload, f)
+        if export_format == "safe_json":
+            from .safe_native_export import export_native_scalar
+            path = os.path.join(out_dir, "surrogate.safe.json")
+            export_native_scalar(
+                {o: board.models[f"{o}/{per[o]['family']}"] for o in per},
+                {o: per[o]["family"] for o in per},
+                {o: board.q[f"{o}/{per[o]['family']}"] for o in per},
+                inputs, outputs, bounds, path)
+        else:
+            path = os.path.join(out_dir, "surrogate.pkl")
+            payload = {"inputs": inputs, "outputs": outputs, "bounds": dict(bounds),
+                       "models": {o: board.models[f"{o}/{per[o]['family']}"] for o in per},
+                       "q": {o: board.q[f"{o}/{per[o]['family']}"] for o in per}}
+            with open(path, "wb") as f:
+                pickle.dump(payload, f)
         card = {k: out[k] for k in ("source", "inputs", "outputs", "bounds", "results", "checks", "recommendation")}
         card["units"] = dict(units or {})
         with open(os.path.join(out_dir, "model_card.json"), "w") as f:

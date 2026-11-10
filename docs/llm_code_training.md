@@ -108,3 +108,44 @@ recomputation is integrated. Review the exported JSONL before using it in
 training. The training command currently accepts the source-code dataset
 directory; mixing execution and code samples into one versioned manifest is
 still a follow-up.
+
+
+## Assemble mixed corpus (no model or GPU needed)
+
+```bash
+python -m pinneapple_llm.code_training assemble \
+  --code-dataset-dir artifacts/llm_code_dataset \
+  --evidence-jsonl artifacts/verified_training.jsonl \
+  --output-dir artifacts/llm_mixed_dataset
+python -m pinneapple_llm.code_training train \
+  --dataset-dir artifacts/llm_mixed_dataset \
+  --base-model YOUR_ACCESSIBLE_HF_CAUSAL_MODEL \
+  --output-dir artifacts/llm_mixed_adapter
+```
+
+The assembler verifies the original code-dataset checksums, rejects duplicate
+prompt/response pairs, preserves code split assignments and groups execution
+examples by evidence path and source revision. Its manifest contains counts,
+input hashes and train/validation checksums. The assembler trusts provenance
+from the reviewed-example importer: independent solver/VeriPhysics
+recalculation and a cross-source semantic leakage audit are future validation
+tasks. Do not redistribute generated datasets without license/security review.
+
+## Offline model comparison proxy
+
+Prepare two JSONL files containing the same task IDs: a task file with
+`id`, `prompt`, `reference`, `required_api` and a predictions file
+with `id`, `response`. Run this command once for base-model
+predictions and once for adapted-model predictions:
+
+```bash
+python -m pinneapple_llm.code_training benchmark \
+  --tasks artifacts/benchmark/tasks.jsonl \
+  --predictions artifacts/benchmark/adapter_predictions.jsonl \
+  --report artifacts/benchmark/adapter_report.json
+```
+
+The resulting exact-match and required-API-coverage numbers are **proxies**.
+This command does not generate model predictions, execute generated code,
+check physics or assert that the adapter is better. Record model IDs, prompts,
+decoding configuration and hardware separately when running real comparisons.

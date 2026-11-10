@@ -41,7 +41,7 @@ def assemble_training_corpus(code_dataset_dir: str, evidence_jsonl: str,
     source = Path(code_dataset_dir).resolve()
     evidence = Path(evidence_jsonl).resolve()
     target = Path(output_dir).resolve()
-    if source == target or target == evidence.parent:
+    if source == target or target / "train.jsonl" == evidence or target / "validation.jsonl" == evidence:
         raise ValueError("Output must be separate from source inputs")
     manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema_version") != 1:

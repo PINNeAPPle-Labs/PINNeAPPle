@@ -35,7 +35,7 @@ class PINNTrainingCallback:
     def on_epoch_end(self, epoch: int, *, losses: Mapping[str, Any],
                      optimizer: Any | None = None,
                      gradients: Mapping[str, Any] | None = None) -> None:
-        self.emitter.training_step(epoch, {k: _scalar(v) for k, v in losses.items()})
+        self.emitter.emit("loss", epoch, **{k: _scalar(v) for k, v in losses.items()})
         if optimizer is not None:
             for group in optimizer.param_groups[:1]:
                 self.emitter.emit("lr", epoch, learning_rate=_scalar(group["lr"]))

@@ -39,7 +39,7 @@ from .physics import Conditions, Gas, resolve_gas
 from .post import FlowResult, read_case, write_tables
 
 __all__ = ["StudySpec", "CaseOutcome", "solve_once", "solve_to_pressure_drop", "run_study",
-           "initial_mass_flow"]
+           "assemble_study", "initial_mass_flow"]
 
 
 def initial_mass_flow(spec: StudySpec, p_in_target_bar: float | None = None) -> float:
@@ -161,7 +161,6 @@ def run_study(spec: StudySpec, folder: str, *, sweep_values: list[float] | None 
     """The nominal case, an optional sweep, the checks, the figures and the pictures."""
     say = log or (lambda m: None)
     os.makedirs(folder, exist_ok=True)
-    gas = spec.resolved_gas
     kind = spec.passage.meta.get("kind", "passage")
 
     say(f"[{kind}] caso nominal")
@@ -193,6 +192,18 @@ def run_study(spec: StudySpec, folder: str, *, sweep_values: list[float] | None 
         else:
             curve = [one(v) for v in sweep_values]
 
+    return assemble_study(spec, folder, nominal, curve)
+
+
+def assemble_study(spec: StudySpec, folder: str, nominal: CaseOutcome,
+                   curve: list[CaseOutcome]) -> dict[str, Any]:
+    """The report of a study whose cases were already solved — the same dict :func:`run_study` returns.
+
+    Separate from :func:`run_study` so a caller can solve the cases its own way (in parallel, or in
+    several machines) and still get the checks, the figures, the pictures and the file list.
+    """
+    gas = spec.resolved_gas
+    kind = spec.passage.meta.get("kind", "passage")
     aggregate = _write_curve(folder, curve)
     figures = _figures(folder, nominal, curve, gas)
 

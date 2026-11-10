@@ -223,10 +223,48 @@ functions
         libs            (fieldFunctionObjects);
         writeControl    writeTime;
     }}
+    averages
+    {{
+        type            fieldAverage;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+        timeStart       {int(cond.iterations * 0.6)};
+        fields
+        (
+            U
+            {{
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }}
+            p
+            {{
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }}
+            T
+            {{
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }}
+            rho
+            {{
+                mean        on;
+                prime2Mean  off;
+                base        time;
+            }}
+        );
+    }}
 }}""")
 
-    conv = {"linearUpwind": "bounded Gauss linearUpwind grad(U)", "upwind": "bounded Gauss upwind"}[cond.scheme]
-    turb_sc = "bounded Gauss linearUpwind grad(U)" if cond.scheme == "linearUpwind" else "bounded Gauss upwind"
+    conv = {"linearUpwind": "bounded Gauss linearUpwind grad(U)",
+            "limitedLinear": "bounded Gauss limitedLinear 1",
+            "upwind": "bounded Gauss upwind"}[cond.scheme]
+    turb_sc = ("bounded Gauss limitedLinear 1" if cond.scheme == "limitedLinear" else
+               "bounded Gauss linearUpwind grad(U)" if cond.scheme == "linearUpwind" else
+               "bounded Gauss upwind")
     _dict(os.path.join(case_dir, "system", "fvSchemes"), "fvSchemes", f"""
 ddtSchemes      {{ default steadyState; }}
 
@@ -304,7 +342,7 @@ SIMPLE
 relaxationFactors
 {
     fields      { p 1; }
-    equations   { p 1; U 0.7; h 0.7; k 0.7; omega 0.7; }
+    equations   { p 1; U 0.5; h 0.5; k 0.5; omega 0.5; }
 }""")
 
     wall_T = ("    {\n        type            zeroGradient;\n    }" if cond.wall_thermal == "adiabatic"

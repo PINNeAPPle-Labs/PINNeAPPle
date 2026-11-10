@@ -294,8 +294,16 @@ def read_case(case: str, passage, conditions, gas, *, time_dir: str | None = Non
                  "T_in_K": float(conditions.T_in_K)}
     base = os.path.join(case, t)
     p_text, T_text = _strip(os.path.join(base, "p")), _strip(os.path.join(base, "T"))
+    # a steady RANS on a valve does not always reach a machine-level residual: the shear layer over
+    # the plug keeps a limit cycle. When OpenFOAM's fieldAverage is running, the time mean is the
+    # answer and the KPI is not whatever the last iteration happened to hold.
+    mean = {k: os.path.join(base, k) for k in ("UMean", "pMean", "TMean", "rhoMean")}
+    if os.path.exists(mean["pMean"]):
+        p_text = _strip(mean["pMean"])
+        T_text = _strip(mean["TMean"]) if os.path.exists(mean["TMean"]) else T_text
     p, T = _scalar_field(p_text), _scalar_field(T_text)
-    U = _vector_field(_strip(os.path.join(base, "U")))
+    U = _vector_field(_strip(mean["UMean"])) if os.path.exists(mean["UMean"]) \
+        else _vector_field(_strip(os.path.join(base, "U")))
     ma = _scalar_field(_strip(os.path.join(base, "Ma"))) if os.path.exists(os.path.join(base, "Ma")) \
         else np.zeros_like(p)
 
@@ -323,7 +331,7 @@ def read_case(case: str, passage, conditions, gas, *, time_dir: str | None = Non
     T_out, _ = weighted("outlet", T_text, np.abs(_patch_values(phi_text, "outlet"))
                         if phi_text else patches["outlet"]["area_m2"])
 
-    rho_path = os.path.join(base, "rho")
+    rho_path = mean["rhoMean"] if os.path.exists(mean["rhoMean"]) else os.path.join(base, "rho")
     if os.path.exists(rho_path):
         rho_patch = _patch_values(_strip(rho_path), "inlet")
         rho_in = float(np.mean(rho_patch)) if rho_patch.size else float(np.mean(_scalar_field(_strip(rho_path))))

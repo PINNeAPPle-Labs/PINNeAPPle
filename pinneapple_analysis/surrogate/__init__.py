@@ -26,6 +26,9 @@ from .data import (
            read_table,
            snapshot_values,
 )
+from .calibration import CalibrationResult, fine_tune_real
+from .hybrid import ENCODERS, HybridDeepONet, RBFKANLayer
+from .search import HybridSearchResult, hybrid_search, real_data_splits
 from .limits import OODGate, limitations
 from .methods import CANDIDATES, applicable, candidate_ids
 from .model import MODEL_KIND, SurrogateModel
@@ -36,4 +39,5 @@ from .study import DEFAULT_TARGETS, StudyResult, evaluate, run_study
 __all__ = ["SurrogateData", "read_table", "from_table", "from_arrays", "field_columns", "inspect_table", "grid_coords",
            "from_snapshots", "snapshot_values", "Splits", "make_splits",
            "CANDIDATES", "applicable", "candidate_ids", "PDE_TYPES", "parse_pde", "OODGate", "limitations",
-           "SurrogateModel", "MODEL_KIND", "run_study", "StudyResult", "evaluate", "DEFAULT_TARGETS", "examples"]
+           "SurrogateModel", "MODEL_KIND", "run_study", "StudyResult", "evaluate", "DEFAULT_TARGETS", "examples", "ENCODERS", "HybridDeepONet", "RBFKANLayer",
+           "HybridSearchResult", "hybrid_search", "real_data_splits", "CalibrationResult", "fine_tune_real"]

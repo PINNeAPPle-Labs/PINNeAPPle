@@ -586,9 +586,10 @@ def _blender_compose(dish_png: str, range_png: str, out_png: str) -> None:
     import matplotlib.image as mpimg
     import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap, Normalize
+
+    from pinneapple_tools.visualization import studio
     ramp = LinearSegmentedColormap.from_list("render_magma", [
-        (0.001, 0.000, 0.014), (0.316, 0.071, 0.485), (0.716, 0.215, 0.475),
-        (0.987, 0.535, 0.382), (0.987, 0.991, 0.749)])
+        (t, (r / 255.0, g / 255.0, b / 255.0)) for t, (r, g, b) in studio.stops("magma")])
     fig = plt.figure(figsize=(9.6, 5.1))
     gs = fig.add_gridspec(2, 2, width_ratios=[1.42, 1.0], height_ratios=[1.0, 0.05],
                           wspace=0.04, hspace=0.14)
@@ -673,9 +674,17 @@ def _range3d_flat(views: dict, cr, out_png: str) -> None:
     plt.close(fig)
 
 
+_MAP_KEYS = ("y", "z", "po_db", "di_db", "diff_db", "qz_s", "cut_po", "cut_di", "qz_z")
+
+
 def _field_maps(out: str) -> dict:
-    """PO and the direct solve on the same near-field grid, and the quiet-zone cut, cached in ``fields.json``."""
+    """PO and the direct solve on the same near-field grid, and the quiet-zone cut: the measured summary in
+    ``fields.json`` and the maps themselves in ``fields.npz``, so a re-render draws them without solving again."""
     path = os.path.join(out, "fields.json")
+    maps = os.path.join(out, "fields.npz")
+    if os.path.exists(maps) and os.path.exists(path):
+        with np.load(maps) as z:
+            return {k: z[k] for k in _MAP_KEYS}
     m = P2.near_field_map(P2.Range2D(per_wavelength=MESH))
     _json(path, {"segments": m["n_segments"], "y": [float(m["y"][0]), float(m["y"][-1])],
                  "z": [float(m["z"][0]), float(m["z"][-1])], "qz_z": m["qz_z"],
@@ -683,8 +692,10 @@ def _field_maps(out: str) -> dict:
                  "cut_po_db_range": [float(m["cut_po_db"].min()), float(m["cut_po_db"].max())],
                  "cut_direct_db_range": [float(m["cut_direct_db"].min()), float(m["cut_direct_db"].max())],
                  "seconds": m["seconds"]})
-    return {"y": m["y"], "z": m["z"], "po_db": m["po_db"], "di_db": m["direct_db"], "diff_db": m["diff_db"],
-            "qz_s": m["qz_s"], "cut_po": m["cut_po_db"], "cut_di": m["cut_direct_db"], "qz_z": m["qz_z"]}
+    drawn = {"y": m["y"], "z": m["z"], "po_db": m["po_db"], "di_db": m["direct_db"], "diff_db": m["diff_db"],
+             "qz_s": m["qz_s"], "cut_po": m["cut_po_db"], "cut_di": m["cut_direct_db"], "qz_z": m["qz_z"]}
+    np.savez_compressed(maps, **drawn)
+    return drawn
 
 
 # ------------------------------------------------------------------------------------------------- 6. report

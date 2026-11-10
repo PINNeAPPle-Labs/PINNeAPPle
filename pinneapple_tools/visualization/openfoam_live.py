@@ -82,6 +82,9 @@ def main(argv=None):
         parser.error("PINNEAPPLE_DASHBOARD_API_KEY is required")
     publisher = http_publisher(args.endpoint, key)
     emitter = TelemetryEmitter("simulation", args.case_id, publisher)
+    # Distinct process restarts must not reuse (source, resource_id, sequence).
+    # Current Unix nanoseconds fit a signed 64-bit SQL integer.
+    emitter.sequence = time.time_ns()
     follow_openfoam(args.log, emitter, interval=args.interval, start_at_end=args.from_end)
 
 

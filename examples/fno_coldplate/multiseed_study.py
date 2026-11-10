@@ -37,7 +37,7 @@ def run_study(out: str | Path, seeds=(0, 1, 2, 3, 4), *, smoke=False,
             "hotspot_error_K": summary["max_hotspot_error_K"],
             "infer_ms_per_layout": summary["infer_ms_per_layout"],
             "solver_ms_per_layout": summary["solver_ms_per_layout"],
-            "checks": summary["checks"],
+            "checks": summary["checks"], "ood": summary["ood"],
         })
     fields = ("relative_l2", "hotspot_error_K", "infer_ms_per_layout", "solver_ms_per_layout")
     stats = {}

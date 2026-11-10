@@ -22,6 +22,9 @@ import argparse
 import json
 import os
 import time
+import hashlib
+import platform
+import sys
 
 import numpy as np
 
@@ -56,21 +59,39 @@ def main(smoke: bool = False, base: str | None = None, steps: int | None = None,
     if train_seed == test_seed:
         raise ValueError("train_seed and test_seed must differ for held-out evaluation")
     a_tr, a_te = layouts(n_train, n, train_seed), layouts(n_test, n, test_seed)                   # the layouts of example 07
+    data_t0 = time.perf_counter()
     u_tr = np.stack([ob.darcy_2d(a) for a in a_tr])
     u_te = np.stack([ob.darcy_2d(a) for a in a_te])
+    data_generation_s = time.perf_counter() - data_t0
     t0 = time.time()
     for a in a_te:                                                               # the solver's own cost per layout
         ob.darcy_2d(a)
     solver_s = (time.time() - t0) / n_test
     pred = pinneapple_fno(n, width=8 if smoke else 32, modes=4 if smoke else 12, layers=2 if smoke else 4,
                           padding=padding)
+    train_t0 = time.perf_counter()
     res = train_grid_operator(pred, a_tr, u_tr, ComputeBudget(steps=steps), batch_size=4 if smoke else 8, lr=2e-3)
+    training_s = time.perf_counter() - train_t0
     t0 = time.time()
     u_hat = pred.predict(a_te)
     infer_s = (time.time() - t0) / n_test
     env = dc.CoefficientEnvelope.fit(a_tr)
     report, checks = dc.darcy_trust_report(a_te, u_hat, 1.0, model="PINNeAPPle FNO2d", reference=u_te,
                                            envelope=env)
+    # Transparent non-ML baselines: training-mean temperature field and
+    # nearest-neighbour conductivity layout (both exclude held-out labels).
+    baseline_t0 = time.perf_counter()
+    flat_train = a_tr.reshape(n_train, -1).astype(np.float64)
+    flat_test = a_te.reshape(n_test, -1).astype(np.float64)
+    train_norm = np.sum(flat_train**2, axis=1)
+    nearest = np.argmin(np.maximum(0.0, np.sum(flat_test**2, axis=1)[:, None]
+                     + train_norm[None, :] - 2 * flat_test @ flat_train.T), axis=1)
+    nn_pred = u_tr[nearest]
+    mean_pred = np.broadcast_to(u_tr.mean(axis=0), u_te.shape)
+    def _relative_l2(y):
+        return float(np.mean(np.linalg.norm((y-u_te).reshape(n_test, -1), axis=1)
+                    / np.linalg.norm(u_te.reshape(n_test, -1), axis=1)))
+    baseline_s = time.perf_counter() - baseline_t0
     rel = float(np.mean(np.linalg.norm((u_hat - u_te).reshape(n_test, -1), axis=1)
                         / np.linalg.norm(u_te.reshape(n_test, -1), axis=1)))
     hotspot = float(np.max(np.abs(u_hat.max((1, 2)) - u_te.max((1, 2)))) * DT)
@@ -88,11 +109,18 @@ def main(smoke: bool = False, base: str | None = None, steps: int | None = None,
         np.linalg.norm((u_ood_hat - u_ood_ref).reshape(len(a_ood), -1), axis=1)
         / np.linalg.norm(u_ood_ref.reshape(len(a_ood), -1), axis=1)
     ))
+    provenance = {"python": sys.version.split()[0], "platform": platform.platform(),
+                  "numpy": np.__version__, "grid": n, "n_train": n_train,
+                  "n_test": n_test, "source_forcing": 1.0}
     summary = {"model": "pinneapple_neural FNO2d", "padding": padding, "decision": report.decisao,
                "test_rel_l2": rel, "max_hotspot_error_K": hotspot, "fno_parameters": pred.n_parameters(),
                "training": res.to_dict() | {"history": None}, "train_steps": steps,
                "train_seed": train_seed, "test_seed": test_seed, "model_seed": model_seed,
                "infer_ms_per_layout": infer_s * 1e3, "solver_ms_per_layout": solver_s * 1e3,
+               "data_generation_s": data_generation_s, "training_wall_s": training_s,
+               "baseline_wall_s": baseline_s, "provenance": provenance,
+               "baselines": {"training_mean_relative_l2": _relative_l2(mean_pred),
+                             "nearest_layout_relative_l2": _relative_l2(nn_pred)},
                "same_data_as": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
                "checks": [c.to_dict() for c in checks],
                "ood": {"shift": "multiply held-out conductivity by 2",

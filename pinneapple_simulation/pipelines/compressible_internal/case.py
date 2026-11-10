@@ -117,6 +117,30 @@ class RunResult:
                 "mesh_ok": self.mesh_ok, "times": self.times, "note": self.note}
 
 
+def _restart_field(old: str, new: str) -> None:
+    """Warm start a field: take the *internal* field from the previous solve, keep the boundary
+    conditions just written.
+
+    Copying the file whole would carry the previous solve's boundary conditions too -- including the
+    inlet's ``massFlowRate`` -- and the pressure-drop loop would then run every pass at the same flow
+    while printing a new one. That is what happened the first time the loop ran, and every pass after
+    the first was silently the first.
+    """
+    with open(old, encoding="utf-8", errors="replace") as f:
+        old_text = f.read()
+    with open(new, encoding="utf-8", errors="replace") as f:
+        new_text = f.read()
+    try:
+        a0 = old_text.index("internalField")
+        a1 = old_text.index("boundaryField", a0)
+        b0 = new_text.index("internalField")
+        b1 = new_text.index("boundaryField", b0)
+    except ValueError:
+        return
+    with open(new, "w", encoding="utf-8") as f:
+        f.write(new_text[:b0] + old_text[a0:a1] + new_text[b1:])
+
+
 def _last_time(folder: str) -> str | None:
     """The most recent time directory of a finished run, if there is one to restart from."""
     if not os.path.isdir(folder):
@@ -475,7 +499,7 @@ relaxationFactors
             for name in ("p", "U", "T", "k", "omega", "nut", "alphat"):
                 old, new = os.path.join(restart_from, src, name), os.path.join(case_dir, "0", name)
                 if os.path.exists(old) and os.path.exists(new):
-                    shutil.copy(old, new)
+                    _restart_field(old, new)
 
     return {"case_dir": case_dir, "mesh": mesh.as_dict(), "passage": passage.summary(),
             "mass_flow_kg_s": round(m_total, 6),
@@ -519,7 +543,11 @@ def run_case(case_dir: str, *, timeout: float = 7200.0, check: bool = True,
     times = sorted((d for d in os.listdir(case_dir)
                     if re.fullmatch(r"[0-9.eE+-]+", d) and os.path.isdir(os.path.join(case_dir, d))),
                    key=float)
-    converged = "SIMPLE solution converged" in text
+    # the solver prints its verdict when every residualControl floor is met; when a run stops at
+    # ``endTime`` with the fields already below them it is converged all the same, and saying
+    # otherwise would call a good answer "inconclusive" for stopping one iteration early
+    converged = ("SIMPLE solution converged" in text
+                 or (residuals.get("p", 1.0) < 1e-3 and residuals.get("Ux", 1.0) < 1e-4))
     note = ""
     if rc != 0 or "FOAM FATAL" in text:
         note = "the solver reported a fatal error"

@@ -358,7 +358,7 @@ def read_case(case: str, passage, conditions, gas, *, time_dir: str | None = Non
         if len(centres) != len(p):
             centres = np.zeros((0, 3))
     fields = {"p": p, "T": T, "U": U, "Ma": ma, "centres": centres, "patches": patches,
-              "Um": umag}
+              "Um": umag, "case_dir": case, "time_dir": t}
     return res, fields
 
 

@@ -130,8 +130,12 @@ def solve_to_pressure_drop(spec: StudySpec, folder: str, *, tol: float = 0.01, m
         previous = sub
         out.solves = k + 1
         p_in_bar = out.result.p_in_pa / 1e5
-        if not math.isfinite(p_in_bar) or not out.run.ok:
-            # the run did not hold together: back off rather than trust a number that is not one
+        if not (math.isfinite(p_in_bar) and math.isfinite(out.result.mdot_kg_s)
+                and out.result.mdot_kg_s > 0.0):
+            # the run did not hold together: back off rather than trust a number that is not one.
+            # A plateau is *not* this case: a bounded field with a residual that stops falling still
+            # gives a usable mean (``sensibleEnthalpy`` runs on this geometry do exactly that), and it
+            # is the ``converged`` check that says so, not the loop throwing the answer away.
             say(f"  ciclo {k + 1}: mdot {m:.5f} kg/s não convergiu ({out.run.note or 'sem resultado'}); "
                 f"reduzindo a vazão")
             m *= 0.4
@@ -144,13 +148,16 @@ def solve_to_pressure_drop(spec: StudySpec, folder: str, *, tol: float = 0.01, m
         if abs(err) <= tol:
             best = out
             break
+        # on a throttling passage the flow goes as sqrt(dP), so the update is the full square-root
+        # step. The first guess comes from a Cd of 0.6 and the real coefficient of a 0.5 mm curtain is
+        # nearer 0.1, i.e. the first solve lands an order of magnitude low -- clipping the step to a
+        # factor of two (the safe-looking choice) then needs four passes instead of two.
         dp_measured = max(out.result.dp_pa, 1.0)
         dp_target = max((target - spec.conditions.p_out_bar) * 1e5, 1.0)
         factor = math.sqrt(dp_target / dp_measured)
-        factor = float(np.clip(factor, 0.5, 2.0))
-        m *= factor ** 0.7
-        m = float(np.clip(m, 1e-4, 50.0))
-    assert best is not None
+        m = float(np.clip(m * float(np.clip(factor, 0.3, 8.0)), 1e-4, 50.0))
+    if best is None:
+        raise RuntimeError(f"no solve of {spec.passage.title} produced a usable field at {target:g} bar")
     return best
 
 
@@ -336,7 +343,7 @@ def _cut_figure(nominal: CaseOutcome, path: str) -> bool:
 
     try:
         v, t, cell = patch_triangles(nominal.case_dir, "sym0")
-    except Exception:
+    except (OSError, ValueError, KeyError):
         return False
     if len(t) == 0:
         return False
@@ -345,13 +352,17 @@ def _cut_figure(nominal: CaseOutcome, path: str) -> bool:
     fields = {"p [bar]": nominal.fields["p"][cell] / 1e5,
               "Ma": nominal.fields["Ma"][cell] if len(nominal.fields["Ma"]) else np.zeros(len(cell)),
               "T [K]": nominal.fields["T"][cell]}
-    fig, axes = plt.subplots(1, 3, figsize=(15, 3.8), constrained_layout=True)
-    for ax, (name, val) in zip(axes, fields.items(), strict=False):
-        tpc = ax.tripcolor(tri, val, shading="gouraud", cmap="viridis")
-        fig.colorbar(tpc, ax=ax, shrink=.9)
-        ax.set_title(name), ax.set_xlabel("x [mm]"), ax.set_ylabel("r [mm]"), ax.set_aspect("equal")
-    fig.savefig(path, dpi=140)
-    plt.close(fig)
+    try:
+        fig, axes = plt.subplots(1, 3, figsize=(15, 3.8), constrained_layout=True)
+        for ax, (name, val) in zip(axes, fields.items(), strict=False):
+            # per-face values (one per cell) need flat shading: gouraud wants them at the vertices
+            tpc = ax.tripcolor(tri, val, shading="flat", cmap="viridis")
+            fig.colorbar(tpc, ax=ax, shrink=.9)
+            ax.set_title(name), ax.set_xlabel("x [mm]"), ax.set_ylabel("r [mm]"), ax.set_aspect("equal")
+        fig.savefig(path, dpi=140)
+        plt.close(fig)
+    except (ValueError, RuntimeError):
+        return False
     return True
 
 

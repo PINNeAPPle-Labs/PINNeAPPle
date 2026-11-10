@@ -75,6 +75,24 @@ the whole start-up imbalance. On the 73 cm³ valve of CFD-08 the pressure jumped
 iteration and the run died. With the flow imposed and the inlet pressure read back, the same case
 converges in about a thousand iterations and the loop lands on the pressure drop that was asked for.
 
+## What a steady RANS does not do on a valve
+
+Two things showed up on the valve case and are worth knowing before reading a result, because both
+look like physics and are numerics:
+
+* **the pressure equation's transonic branch.** With `transonic yes` (the setting the shipped
+  tutorial uses) the continuity error at 2 kg/s through a DN20 port sits around 3·10³ kg/s and the
+  residuals never fall; with `transonic no` it drops to 10⁻² and the run then diverges on the
+  relaxation instead. Neither setting is converged here, and the `conservacao.de.massa` check is what
+  says so — a result whose inlet and outlet flows differ by 25 % is not a result.
+* **time averaging is not conservation.** `fieldAverage` gives a stable mean for a field in a limit
+  cycle, but the mean of a field that does not conserve mass does not conserve mass either. The
+  averaging is reported; it does not rescue the run.
+
+The honest way out on a geometry this throttled is a transient run (`rhoPimpleFoam`) averaged over
+physical time, or a mesh that resolves the curtain with several cells across. The checks are built to
+refuse the answer until then, which is the point of having them.
+
 ## The checks
 
 | check | compares | passes when |

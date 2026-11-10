@@ -32,18 +32,26 @@ def load_real(path, mapping):
         raise ValueError("Unrecognized sensor column; inspect Zenodo Metadata.json")
     a = data[[mapping[k] for k in REQUIRED]].copy()
     a.columns = list(REQUIRED)
-    a["time"] = pd.to_datetime(a["time"], utc=True, errors="coerce")
+    # KIT CSVW time is numeric hours, not necessarily an ISO timestamp.
+    numeric_time = pd.to_numeric(a["time"], errors="coerce")
+    if numeric_time.notna().all():
+        a["time"] = numeric_time.astype(float) * 3600.0
+    else:
+        parsed = pd.to_datetime(a["time"], utc=True, errors="coerce")
+        if parsed.isna().any():
+            raise ValueError("Invalid timestamp values")
+        a["time"] = parsed.astype("int64") / 1e9
     for k in REQUIRED[1:]:
         a[k] = pd.to_numeric(a[k], errors="coerce")
     if a.isna().any().any() or len(a) < 301:
         raise ValueError("Missing/non-numeric measurements or too few samples")
-    t = a["time"].astype("int64").to_numpy() / 1e9
+    t = a["time"].to_numpy(dtype=float)
     dt = np.diff(t)
-    if np.any(dt <= 0) or not np.allclose(dt, dt[0], atol=1e-4, rtol=0):
+    if np.any(dt <= 0) or not np.allclose(dt, np.median(dt), atol=0.25, rtol=0):
         raise ValueError("Temporal gaps, duplicate timestamps or irregular sampling")
     if not (10 <= dt[0] <= 3600):
         raise ValueError("Unexpected sampling interval")
-    return a, float(dt[0]), hashlib.sha256(path.read_bytes()).hexdigest()
+    return a, float(np.median(dt)), hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def chronological(n):

@@ -438,7 +438,410 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
         fig.savefig(p, dpi=160)
         plt.close(fig)
         paths.append(p)
+        # 9. the 3-D range the cost is measured on: PO current on the production mesh, and the whole range to scale
+        views = _views(out)
+        cr = _range_3d()
+        p = os.path.join(figdir, "range3d.png")
+        if not _blender_views(out, views, cr, p):
+            _range3d_flat(views, cr, p)       # no Blender on this machine: the same views, drawn with matplotlib
+        paths.append(p)
+        # 10. the near field the two solvers produce, and where they part company
+        fld = _field_maps(out)
+        yg, zg, po_db, di_db, d_db = fld["y"], fld["z"], fld["po_db"], fld["di_db"], fld["diff_db"]
+        fig, axs = plt.subplots(2, 2, figsize=(9.4, 6.4))
+        for a, d, title in zip((axs[0, 0], axs[0, 1]), (po_db, di_db),
+                               ("physical optics", "direct solve (integral equation)"), strict=True):
+            im = a.pcolormesh(yg, zg, d.T, cmap="viridis", vmin=-28, vmax=0, shading="auto")
+            a.set_title(title, fontsize=9)
+            a.set_ylabel("z [m]")
+            fig.colorbar(im, ax=a, fraction=0.046, pad=0.02, label="dB re max")
+        im = axs[1, 0].pcolormesh(yg, zg, d_db.T, cmap="magma", vmin=-20, vmax=6, shading="auto")
+        axs[1, 0].set_title("|PO - direct| re the local field", fontsize=9)
+        axs[1, 0].set_xlabel("y [m]")
+        axs[1, 0].set_ylabel("z [m]")
+        fig.colorbar(im, ax=axs[1, 0], fraction=0.046, pad=0.02, label="dB (+6 dB = error equals the field)")
+        a = axs[1, 1]
+        a.plot(fld["qz_s"], fld["cut_po"], "-", color=alt, lw=1.6, label="PO")
+        a.plot(fld["qz_s"], fld["cut_di"], "-", color=accent, lw=1.6, label="direct")
+        a.set_title(f"the quiet-zone line at z = {fld['qz_z']:.1f} m", fontsize=9)
+        a.set_xlabel("position across the zone [m]")
+        a.set_ylabel("amplitude [dB re max]")
+        a.legend(frameon=False, fontsize=8)
+        a.grid(alpha=0.25)
+        for a in axs.ravel():
+            a.tick_params(labelsize=8)
+        fig.tight_layout()
+        p = os.path.join(figdir, "fields.png")
+        fig.savefig(p, dpi=160)
+        plt.close(fig)
+        paths.append(p)
     return paths
+
+
+def _range_3d():
+    """The 3-D compact range of the baseline: the geometry the 20 s PO and the 391 s operator are measured on."""
+    from pinneapple_simulation.electromagnetics.reflector import CompactRange, OffsetReflector
+    return CompactRange(freq_hz=3.0e9, feed_gain_dbi=12.0,
+                        reflector=OffsetReflector(focal=1.5, half_x=0.6, half_y=0.6, centre_y=0.9, n=6.0, roll=0.15),
+                        qz_z=3.0, qz_diameter=0.6, mesh_per_wavelength=8.0)
+
+
+def _views(out: str) -> dict:
+    """The 3-D surface of the range with its PO current, cached in ``views.json`` beside the other step outputs."""
+    path = os.path.join(out, "views.json")
+    from pinneapple_simulation.electromagnetics.reflector import mesh_reflector
+    from pinneapple_simulation.electromagnetics.reflector.po import (
+        cosq_feed,
+        po_currents,
+        wavenumber,
+    )
+    cr = _range_3d()
+    mesh = mesh_reflector(cr.reflector, cr.wavelength / cr.mesh_per_wavelength)
+    feed = cr.reflector.focus
+    _, H = cosq_feed(mesh.centres, wavenumber(cr.freq_hz), position=feed, axis=cr.reflector.centre - feed,
+                     q=q_from_gain(cr.feed_gain_dbi), pol=(0.0, 1.0, 0.0))
+    Jm = np.linalg.norm(po_currents(mesh.normals, mesh.centres, H, source=feed), axis=1)
+    J = np.clip(20 * np.log10(np.maximum(Jm, 1e-300) / Jm.max()), -12, 0)
+    roll = float(np.mean(Jm[mesh.roll] / Jm.max())) if mesh.roll.any() else 0.0
+    _json(path, {"n_triangles": int(len(mesh.faces)), "n_roll_triangles": int(mesh.roll.sum()),
+                 "roll_mean_current_db": float(20 * np.log10(max(roll, 1e-300))),
+                 "current_db_range": [float(J.min()), float(J.max())], "feed": [float(v) for v in feed],
+                 "qz": [float(v) for v in cr.qz_centre], "qz_diameter": cr.qz_diameter,
+                 "mesh_per_wavelength": cr.mesh_per_wavelength})
+    return {"mesh": mesh, "J": J, "feed": feed}
+
+
+# The surface render below is a Blender scene: the same triangles the PO solve uses, coloured by the current they
+# carry, lit as a studio object. It needs Blender (``blender --background``); without it the figure falls back to
+# matplotlib. Kept as a string so the driver stays one file and the render can be regenerated with one command.
+_BLENDER_PY = r'''
+import sys
+import numpy as np
+import bpy
+from mathutils import Vector
+
+argv = sys.argv[sys.argv.index("--") + 1:]
+work, view, out_png = argv[0], argv[1], argv[2]
+d = np.load(work + "/cr_view.npz")
+V, F, J = d["vertices"], d["faces"], d["j_db"]
+FEED, QZC, QZD = d["feed"], d["qz_centre"], float(d["qz_diameter"])
+
+stops = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
+magma = np.array([[0.001, 0.000, 0.014], [0.316, 0.071, 0.485], [0.716, 0.215, 0.475],
+                  [0.987, 0.535, 0.382], [0.987, 0.991, 0.749]])
+t = (np.clip(J, -6, 0) + 6) / 6
+rgb = np.stack([np.interp(t, stops, magma[:, i]) for i in range(3)], axis=1)
+
+bpy.ops.wm.read_factory_settings(use_empty=True)
+scene = bpy.context.scene
+scene.render.engine = "CYCLES"
+scene.cycles.device = "CPU"
+scene.cycles.samples = 96
+scene.cycles.use_denoising = True
+scene.render.image_settings.file_format = "PNG"
+scene.view_settings.view_transform = "AgX"
+scene.view_settings.look = "AgX - Medium High Contrast"
+scene.view_settings.exposure = -1.5
+
+world = bpy.data.worlds.new("W")
+scene.world = world
+world.use_nodes = True
+bg = world.node_tree.nodes["Background"]
+bg.inputs[0].default_value = (0.070, 0.080, 0.098, 1.0)
+bg.inputs[1].default_value = 1.05
+
+mesh = bpy.data.meshes.new("reflector")
+mesh.from_pydata([tuple(v) for v in V], [], [tuple(int(i) for i in f) for f in F])
+mesh.update()
+
+vert_col = np.zeros((len(V), 3), float)
+vert_n = np.zeros(len(V), float)
+for fi, f in enumerate(F):
+    for vi in f:
+        vert_col[vi] += rgb[fi]
+        vert_n[vi] += 1
+vert_col /= np.maximum(vert_n, 1)[:, None]
+col = mesh.color_attributes.new(name="J", type="FLOAT_COLOR", domain="CORNER")
+loops_v = np.zeros(len(mesh.loops), int)
+mesh.loops.foreach_get("vertex_index", loops_v)
+cv = vert_col[loops_v]
+flat = np.empty(len(mesh.loops) * 4, float)
+flat[0::4], flat[1::4], flat[2::4], flat[3::4] = cv[:, 0], cv[:, 1], cv[:, 2], 1.0
+col.data.foreach_set("color", flat)
+mesh.color_attributes.active_color = col
+for poly in mesh.polygons:
+    poly.use_smooth = True
+obj = bpy.data.objects.new("reflector", mesh)
+scene.collection.objects.link(obj)
+
+mat = bpy.data.materials.new("po_current")
+mat.use_nodes = True
+nt = mat.node_tree
+bsdf = nt.nodes["Principled BSDF"]
+vc = nt.nodes.new("ShaderNodeVertexColor")
+vc.layer_name = "J"
+nt.links.new(vc.outputs["Color"], bsdf.inputs["Base Color"])
+bsdf.inputs["Metallic"].default_value = 0.30
+bsdf.inputs["Roughness"].default_value = 0.30
+bsdf.inputs["Coat Weight"].default_value = 0.05
+obj.data.materials.append(mat)
+
+bpy.ops.mesh.primitive_plane_add(size=20, location=(0.0, 0.9, -0.02))
+floor = bpy.context.object
+fm = bpy.data.materials.new("floor")
+fm.use_nodes = True
+fb = fm.node_tree.nodes["Principled BSDF"]
+fb.inputs["Base Color"].default_value = (0.030, 0.032, 0.036, 1.0)
+fb.inputs["Roughness"].default_value = 0.5
+floor.data.materials.append(fm)
+
+bpy.ops.mesh.primitive_uv_sphere_add(radius=0.045, location=tuple(FEED))
+feed_obj = bpy.context.object
+fmat = bpy.data.materials.new("feed")
+fmat.use_nodes = True
+fb2 = fmat.node_tree.nodes["Principled BSDF"]
+fb2.inputs["Base Color"].default_value = (0.10, 0.42, 0.85, 1.0)
+fb2.inputs["Emission Color"].default_value = (0.20, 0.55, 1.0, 1.0)
+fb2.inputs["Emission Strength"].default_value = 6.0
+feed_obj.data.materials.append(fmat)
+
+a, b = Vector(FEED), Vector(QZC)
+bpy.ops.mesh.primitive_cylinder_add(radius=0.005, depth=(b - a).length, location=tuple((a + b) / 2))
+rod = bpy.context.object
+rod.rotation_mode = "QUATERNION"
+rod.rotation_quaternion = (b - a).to_track_quat("Z", "Y")
+rmat = bpy.data.materials.new("axis")
+rmat.use_nodes = True
+rb = rmat.node_tree.nodes["Principled BSDF"]
+rb.inputs["Base Color"].default_value = (0.36, 0.38, 0.42, 1.0)
+rb.inputs["Emission Color"].default_value = (0.35, 0.42, 0.52, 1.0)
+rb.inputs["Emission Strength"].default_value = 0.15
+rod.data.materials.append(rmat)
+
+bpy.ops.mesh.primitive_cylinder_add(radius=QZD / 2, depth=0.004, location=tuple(QZC))
+qz = bpy.context.object
+qmat = bpy.data.materials.new("qz")
+qmat.use_nodes = True
+qb = qmat.node_tree.nodes["Principled BSDF"]
+qb.inputs["Base Color"].default_value = (0.16, 0.55, 0.95, 1.0)
+qb.inputs["Alpha"].default_value = 0.16
+qb.inputs["Roughness"].default_value = 0.15
+qmat.surface_render_method = "BLENDED"
+qz.data.materials.append(qmat)
+bpy.ops.mesh.primitive_torus_add(major_radius=QZD / 2, minor_radius=0.006, location=tuple(QZC))
+ring = bpy.context.object
+gmat = bpy.data.materials.new("rim")
+gmat.use_nodes = True
+gb = gmat.node_tree.nodes["Principled BSDF"]
+gb.inputs["Base Color"].default_value = (0.30, 0.68, 1.0, 1.0)
+gb.inputs["Emission Color"].default_value = (0.30, 0.68, 1.0, 1.0)
+gb.inputs["Emission Strength"].default_value = 2.5
+ring.data.materials.append(gmat)
+
+
+def area(loc, size, energy, color=(1, 1, 1), target=(0.0, 0.9, 0.9)):
+    bpy.ops.object.light_add(type="AREA", location=loc)
+    lamp = bpy.context.object
+    lamp.data.size = size
+    lamp.data.energy = energy
+    lamp.data.color = color
+    lamp.rotation_mode = "QUATERNION"
+    lamp.rotation_quaternion = (Vector(target) - Vector(loc)).to_track_quat("-Z", "Y")
+    return lamp
+
+
+area((-2.8, 2.2, 3.0), 2.4, 300, (1.0, 0.97, 0.92), target=(0.0, 0.9, 0.6))
+area((3.0, 3.0, 1.8), 2.2, 130, (0.85, 0.9, 1.0), target=(0.0, 1.0, 1.2))
+area((0.8, -1.4, 2.4), 2.0, 80, (0.9, 0.95, 1.0), target=(0.0, 1.0, 0.3))
+area((0.4, 1.4, 4.2), 3.0, 220, (0.85, 0.9, 1.0), target=(0.0, 0.9, 2.4))
+
+cams = {
+    "dish": dict(loc=(-2.85, -2.55, 1.95), look=(0.0, 0.95, 0.75), lens=58, res=(1400, 1200)),
+    "range": dict(loc=(-2.95, -3.45, 2.05), look=(0.0, 0.9, 1.30), lens=46, res=(1350, 1600)),
+}
+cam = cams[view]
+bpy.ops.object.camera_add(location=cam["loc"])
+C = bpy.context.object
+C.data.lens = cam["lens"]
+C.rotation_mode = "QUATERNION"
+C.rotation_quaternion = (Vector(cam["look"]) - Vector(cam["loc"])).to_track_quat("-Z", "Y")
+scene.camera = C
+scene.render.resolution_x, scene.render.resolution_y = cam["res"]
+scene.render.resolution_percentage = 100
+scene.render.filepath = out_png
+bpy.ops.render.render(write_still=True)
+'''
+
+
+def _blender_binary() -> str | None:
+    """The Blender executable, if this machine has one."""
+    import shutil
+    for cand in (os.environ.get("BLENDER"), shutil.which("blender"),
+                 "/Applications/Blender.app/Contents/MacOS/Blender"):
+        if cand and os.path.exists(cand):
+            return cand
+    return None
+
+
+def _blender_views(out: str, views: dict, cr, png: str) -> bool:
+    """Render the two studio views of the range with Blender and compose them into ``png``.
+
+    Returns False when Blender is not installed or the render does not produce both images, so the caller can draw the
+    same two views with matplotlib instead."""
+    exe = _blender_binary()
+    if exe is None:
+        return False
+    work = os.path.join(out, "render")
+    os.makedirs(work, exist_ok=True)
+    mesh = views["mesh"]
+    np.savez(os.path.join(work, "cr_view.npz"), vertices=mesh.vertices, faces=mesh.faces, j_db=views["J"],
+             feed=views["feed"], qz_centre=cr.qz_centre, qz_diameter=cr.qz_diameter)
+    script = os.path.join(work, "render_range.py")
+    with open(script, "w", encoding="utf-8") as fh:
+        fh.write(_BLENDER_PY)
+    shots = {}
+    for view in ("dish", "range"):
+        target = os.path.join(work, f"{view}.png")
+        shots[view] = target
+        if os.path.exists(target):
+            continue
+        try:
+            subprocess.run([exe, "--background", "--python", script, "--", work, view, target],
+                           check=True, capture_output=True, timeout=1800)
+        except (subprocess.SubprocessError, OSError) as exc:      # pragma: no cover - depends on the machine
+            print(f"  blender view '{view}' failed: {exc}", file=sys.stderr)
+            return False
+    if not all(os.path.exists(s) for s in shots.values()):
+        return False
+    _blender_compose(shots["dish"], shots["range"], png)
+    return True
+
+
+def _blender_compose(dish_png: str, range_png: str, out_png: str) -> None:
+    """Put the two renders side by side with a bar for the current ramp the render used."""
+    import matplotlib.image as mpimg
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LinearSegmentedColormap, Normalize
+    ramp = LinearSegmentedColormap.from_list("render_magma", [
+        (0.001, 0.000, 0.014), (0.316, 0.071, 0.485), (0.716, 0.215, 0.475),
+        (0.987, 0.535, 0.382), (0.987, 0.991, 0.749)])
+    fig = plt.figure(figsize=(9.6, 5.1))
+    gs = fig.add_gridspec(2, 2, width_ratios=[1.42, 1.0], height_ratios=[1.0, 0.05],
+                          wspace=0.04, hspace=0.14)
+    a = fig.add_subplot(gs[0, 0])
+    a.imshow(mpimg.imread(dish_png))
+    a.set_axis_off()
+    a.set_title("(a) the reflector, coloured by the PO current it carries", fontsize=8.5, loc="left")
+    b = fig.add_subplot(gs[0, 1])
+    full = mpimg.imread(range_png)
+    h, w = full.shape[:2]
+    b.imshow(full[:, int(0.22 * w):int(0.78 * w)])       # cropped to the column of the beam: dish, feed, zone
+    b.set_axis_off()
+    b.set_title("(b) feed, beam axis and quiet zone", fontsize=8.5, loc="left")
+    cax = fig.add_subplot(gs[1, 0])
+    cb = fig.colorbar(plt.cm.ScalarMappable(norm=Normalize(vmin=-6, vmax=0), cmap=ramp), cax=cax,
+                      orientation="horizontal")
+    cb.set_label("PO surface current |J| [dB re the maximum]", fontsize=7.5)
+    cb.ax.tick_params(labelsize=6.5)
+    fig.savefig(out_png, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _range3d_flat(views: dict, cr, out_png: str) -> None:
+    """The same 3-D views drawn with matplotlib, used when Blender is not available."""
+    import matplotlib
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    muted, accent = "#7c7b75", "#1c5cab"
+    mesh, J, feed = views["mesh"], views["J"], views["feed"]
+    fig = plt.figure(figsize=(9.6, 3.9))
+    cmap = plt.get_cmap("magma")
+    norm = matplotlib.colors.Normalize(vmin=-12, vmax=0)
+
+    def surface(a, keep, lims, aspect, view, title):
+        a.add_collection3d(Poly3DCollection(mesh.vertices[mesh.faces[keep]], facecolors=cmap(norm(J[keep])),
+                                            linewidths=0))
+        (x0, x1), (y0, y1), (z0, z1) = lims
+        a.set_xlim(x0, x1)
+        a.set_ylim(y0, y1)
+        a.set_zlim(z0, z1)
+        a.set_box_aspect(aspect)
+        a.view_init(elev=view[0], azim=view[1])
+        a.set_title(title, fontsize=8.5)
+        a.tick_params(labelsize=6)
+        a.set_xlabel("x [m]", fontsize=7)
+        a.set_ylabel("y [m]", fontsize=7)
+        a.set_zlabel("z [m]", fontsize=7)
+
+    ax = fig.add_subplot(131, projection="3d")
+    surface(ax, np.ones(len(mesh.faces), bool), ((-0.7, 0.7), (0.2, 1.6), (0, 1.6)), (1.4, 1.4, 1.6), (21, -68),
+            "the range, PO current")
+    ax.plot([feed[0], feed[0]], [feed[1], feed[1]], [feed[2], 0.0], ":", color="#1c5cab", lw=1)
+    ax.scatter(*feed, color="#1c5cab", s=12, depthshade=False)
+    ax2 = fig.add_subplot(132, projection="3d")
+    edge = (mesh.centres[:, 0] > 0.42) & (mesh.centres[:, 1] > 1.25)
+    surface(ax2, edge, ((0.42, 0.68), (1.25, 1.62), (0, 0.46)), (1, 1, 0.9), (26, -104),
+            "the rolled edge, where PO stops")
+    ax3 = fig.add_subplot(133)
+    cut = mesh.vertices[np.abs(mesh.vertices[:, 0]) < 0.02]
+    cut = cut[np.argsort(cut[:, 1])]
+    ax3.plot(cut[:, 1], cut[:, 2], "-", color="#111110", lw=1.4)
+    ax3.scatter([feed[1]], [feed[2]], color="#1c5cab", s=22, zorder=5)
+    qc = cr.qz_centre
+    ax3.plot([feed[1], qc[1]], [feed[2], qc[2]], ":", color=muted, lw=1)
+    ax3.plot([qc[1] - 0.3, qc[1] + 0.3], [qc[2], qc[2]], "-", color=accent, lw=3, solid_capstyle="butt")
+    ax3.annotate(f"quiet zone\n{cr.qz_diameter:.1f} m at z = {qc[2]:.1f} m", (qc[1] + 0.05, qc[2]),
+                 (qc[1] + 0.25, qc[2] - 0.7), fontsize=7, color=accent,
+                 arrowprops=dict(arrowstyle="-", color=accent, lw=0.8))
+    ax3.set_xlim(0.0, 1.7)
+    ax3.set_ylim(-0.2, 3.5)
+    ax3.set_aspect("equal")
+    ax3.set_xlabel("y [m]", fontsize=7)
+    ax3.set_ylabel("z [m]", fontsize=7)
+    ax3.set_title("side elevation, to scale", fontsize=8.5)
+    ax3.tick_params(labelsize=6)
+    ax3.grid(alpha=0.25)
+    cax = fig.add_axes([0.33, 0.04, 0.12, 0.03])
+    cb = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax, orientation="horizontal")
+    cb.set_label("PO current |J| [dB re max]", fontsize=7)
+    cb.ax.tick_params(labelsize=6)
+    fig.savefig(out_png, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _field_maps(out: str) -> dict:
+    """PO and direct near fields of one design on the same grid, and the quiet-zone cut, cached in ``fields.json``."""
+    path = os.path.join(out, "fields.json")
+    rng = P2.Range2D(per_wavelength=MESH)
+    g = rng.grid
+    y = np.linspace(g.mid[:, 0].min() - 0.05, g.mid[:, 0].max() + 0.05, 300)
+    z = np.linspace(0.0, rng.qz_z + 0.25, 280)
+    YZ = np.stack(np.meshgrid(y, z, indexing="ij"), axis=-1).reshape(-1, 2)
+    feed = rng.feed()
+    rho_po = P2.po_density(g, feed, rng.k)
+    E_po = P2.incident(YZ, feed, rng.k) + P2.radiate_2d(g.mid, g.length, rho_po, YZ, rng.k)
+    E_di = P2.incident(YZ, feed, rng.k) + P2.radiate_2d(g.mid, g.length, P2.mom_solve(g, feed, rng.k)["rho"], YZ,
+                                                        rng.k)
+    A_po, A_di = np.abs(E_po).reshape(300, 280), np.abs(E_di).reshape(300, 280)
+    ref = float(A_di.max())
+    po_db, di_db = 20 * np.log10(np.maximum(A_po / ref, 1e-300)), 20 * np.log10(np.maximum(A_di / ref, 1e-300))
+    rel_db = 20 * np.log10(np.maximum(np.abs(E_po - E_di).reshape(300, 280) / np.maximum(A_di, 1e-300), 1e-300))
+    d_db = np.clip(rel_db, -20.0, 6.0)                    # +6 dB: the error is as large as the local field
+    obs = np.asarray(rng.qz_line())                       # the points of the quiet-zone line, in absolute (y, z)
+    s = obs[:, 0] - obs[:, 0].mean()                      # and the same line as a centred coordinate
+    cut_po = P2.incident(obs, feed, rng.k) + P2.radiate_2d(g.mid, g.length, rho_po, obs, rng.k)
+    cut_di = P2.incident(obs, feed, rng.k) + P2.radiate_2d(g.mid, g.length,
+                                                          P2.mom_solve(g, feed, rng.k)["rho"], obs, rng.k)
+    cut_po_db = 20 * np.log10(np.maximum(np.abs(cut_po) / ref, 1e-300))
+    cut_di_db = 20 * np.log10(np.maximum(np.abs(cut_di) / ref, 1e-300))
+    _json(path, {"segments": int(len(g.mid)), "y": [float(y[0]), float(y[-1])], "z": [float(z[0]), float(z[-1])],
+                 "qz_z": rng.qz_z, "qz_width": rng.qz_width, "reference_field": ref,
+                 "diff_db_percentiles": {str(q): float(v) for q, v in
+                                         zip((50, 90, 99), np.percentile(rel_db, (50, 90, 99)), strict=True)},
+                 "cut_po_db_range": [float(cut_po_db.min()), float(cut_po_db.max())],
+                 "cut_di_db_range": [float(cut_di_db.min()), float(cut_di_db.max())]})
+    return {"y": y, "z": z, "po_db": po_db, "di_db": di_db, "diff_db": d_db, "qz_s": s,
+            "cut_po": cut_po_db, "cut_di": cut_di_db, "qz_z": rng.qz_z, "qz_width": rng.qz_width}
 
 
 # ------------------------------------------------------------------------------------------------- 6. report
@@ -672,7 +1075,12 @@ run from the solver we would actually use.</p>
 is a different tool</b> (a fast multipole or hierarchical code, with proper near-singular quadrature, on a machine
 built for it). Any workflow that wants a direct number per design in 3-D has to spend it where it changes a
 decision &mdash; which is exactly what Experiment&nbsp;2 measures.</p>
-<figure><img src='{_img(figs[5])}'><figcaption><b>Figure 2.</b> Measured cost. Left: the 2-D model, PO and direct
+<figure><img src='{_img(figs[8])}'><figcaption><b>Figure 2.</b> The range the cost is measured on, as a studio
+render of the production mesh: the offset reflector coloured by the PO surface current it carries (a), and the whole
+range to scale (b) &mdash; feed, beam axis and the quiet-zone plane at {_range_3d().qz_centre[2]:.1f} m. The dark
+edge is where the current falls to the floor of the colour scale: the rolled rim, which is exactly where PO stops
+being a good approximation.</figcaption></figure>
+<figure><img src='{_img(figs[5])}'><figcaption><b>Figure 3.</b> Measured cost. Left: the 2-D model, PO and direct
 on the same mesh. Right: the 3-D production geometry &mdash; PO in full against one dense operator application, at
 four mesh densities; the slope is the measured exponent.</figcaption></figure>
 
@@ -684,7 +1092,7 @@ scored on designs it never saw.</p>
 <tbody>{table_metrics}</tbody></table>
 <p>The PO error is <b>systematic, not noise</b>: the bias on the amplitude peak-to-peak is {amp['po_bias']:+.2f} dB
 and on the usable width {1e3 * usable['po_bias']:+.0f} mm, and the residual tracks the design variables
-(Figure&nbsp;5) rather than scattering. That is what makes it learnable at all. On a random five-fold split the
+(Figure&nbsp;7) rather than scattering. That is what makes it learnable at all. On a random five-fold split the
 correction removes {100 * ripple['random']['fraction_removed']:.0f}% of the PO error on the amplitude ripple,
 {100 * usable['random']['fraction_removed']:.0f}% on the usable width, {100 * amp['random']['fraction_removed']:.0f}%
 on the amplitude peak-to-peak and {100 * v['taper_dB']['random']['fraction_removed']:.0f}% on the taper.</p>
@@ -699,13 +1107,14 @@ it.</b></p>
 ({1e3 * uw_best:.0f} mm) and the median design {uw_med / (lam_mm / 1e3):.1f}&lambda; ({1e3 * uw_med:.0f} mm). That
 is the 2-D analogue of the quiet-zone diameter the brief asks about; the diameter itself only exists in the 3-D
 geometry, and the number that transfers is the ratio of size to wavelength, not the millimetres.</p>
-<figure><img src='{_img(figs[1])}'><figcaption><b>Figure 3.</b> PO against the direct solve, design by design,
+<figure><img src='{_img(figs[1])}'><figcaption><b>Figure 4.</b> PO against the direct solve, design by design,
 coloured by feed <code>q</code>. The amplitude ripple is systematically under-predicted at wide illumination; the
 usable width is the metric with the most structure, and it is the objective of Experiment 2.</figcaption></figure>
-<figure><img src='{_img(figs[2])}'><figcaption><b>Figure 4.</b> The same designs predicted without the direct
+<figure><img src='{_img(figs[9])}'><figcaption><b>Figure 5.</b> The near field the two solvers produce on the same geometry, and where they part company: PO (top left), the direct solve (top right), the difference as a fraction of the local field (bottom left, +6 dB meaning the error is as large as the field itself), and the quiet-zone line itself (bottom right). Inside the reflector footprint the two agree; behind it and along the rolled rim PO carries current where the exact solution carries almost none, and that is the error the surrogate is asked to learn.</figcaption></figure>
+<figure><img src='{_img(figs[2])}'><figcaption><b>Figure 6.</b> The same designs predicted without the direct
 solve: PO alone (left) and PO plus the learned residual (right), random five-fold. The correction moves the cloud
 onto the diagonal for the ripple and the usable width.</figcaption></figure>
-<figure><img src='{_img(figs[3])}'><figcaption><b>Figure 5.</b> The usable-width residual against the design levers.
+<figure><img src='{_img(figs[3])}'><figcaption><b>Figure 7.</b> The usable-width residual against the design levers.
 It is not noise: it grows with the aperture scale and depends on the feed exponent and on how deep the rolled edge
 is, which is why five design variables carry it.</figcaption></figure>
 
@@ -736,7 +1145,7 @@ the PO ranking loses the best design (it sits at rank {st[12]['po_rank_of_oracle
 in absolute terms and it does not grow with budget</b> beyond 12 solves, because by then every strategy has found
 the neighbourhood of the optimum. The honest reading: at these budgets and this space, the correction is worth a
 few points, not a factor — and the crossover is at the first solve, as the smallest budget in the table shows.</p>
-<figure><img src='{_img(figs[4])}'><figcaption><b>Figure 6.</b> Best objective reached, as a percentage of the best
+<figure><img src='{_img(figs[4])}'><figcaption><b>Figure 8.</b> Best objective reached, as a percentage of the best
 design in the space, at four budgets, mean of four seeds with the spread over seeds as the error bar. The sequential
 strategy is the one a real campaign can run: refit, choose, solve, repeat.</figcaption></figure>
 
@@ -756,7 +1165,7 @@ not the true best. The largest disagreement is at size {d_worst[3]:g}x, q&nbsp;=
 under-predicts the usable width by {1e3 * abs(d_worst[2]):.0f} mm — larger than the width of most zones in the space.
 So the size/illumination trade is exactly the trade that a cheap model alone gets wrong, and it is also the one where
 the direct solve is affordable to check: in 2-D a full grid of 35 designs costs a few seconds.</p>
-<figure><img src='{_img(figs[6])}'><figcaption><b>Figure 7.</b> The same trade twice: the direct solve on the left,
+<figure><img src='{_img(figs[6])}'><figcaption><b>Figure 9.</b> The same trade twice: the direct solve on the left,
 and on the right where PO differs from it. The corner PO mis-reads is the corner that holds the best designs.</figcaption></figure>
 
 <h2><span class='n'>6</span>Coverage: do the 18 edge profiles cover the space?</h2>
@@ -782,7 +1191,7 @@ profiles are <b>enough to train inside the family and not enough to extrapolate 
 explain most of the learnable residual; the profile adds the rest, and holding one out costs the correction all of
 its value on the ripple, the phase ripple and the usable width. So the 18 profiles are sufficient coverage of the
 design directions, and not a model of the edge.</p>
-<figure><img src='{_img(figs[7])}'><figcaption><b>Figure 8.</b> The residual by lever and what each group of inputs
+<figure><img src='{_img(figs[7])}'><figcaption><b>Figure 10.</b> The residual by lever and what each group of inputs
 recovers: PO alone, a Gaussian process on size and illumination, and one on all five variables, on held-out
 designs.</figcaption></figure>
 

@@ -34,6 +34,7 @@ from . import (  # noqa: F401
     pde,
     pipes,
     repo_results,
+    real_world_thermal,
     rom,
     structures,
     vehicles3d,

@@ -189,7 +189,8 @@ def finetune_code_dataset(dataset_dir: str, *, base_model: str, output_dir: str,
         base_model=base_model, output_dir=output_dir,
         num_train_epochs=epochs, learning_rate=learning_rate
     )
-    return finetune_lora(str(directory / "train.jsonl"), config)
+    validation_path = str(directory / "validation.jsonl") if manifest["counts"]["validation"] else None
+    return finetune_lora(str(directory / "train.jsonl"), config, validation_jsonl=validation_path)
 
 
 def main(argv: list[str] | None = None) -> int:

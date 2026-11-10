@@ -1,0 +1,14 @@
+{
+ "models": [
+  "airfoil_cst_rans_mlp",
+  "heatsink_forced_mlp",
+  "rover_contact_grc1_viper"
+ ],
+ "geometry": "cst_geometry.json",
+ "fixtures": "fixtures.json",
+ "runtime": [
+  "onnx.js",
+  "zoo.js"
+ ],
+ "generator": "python -m pinneapple_hub.zoo.web"
+}

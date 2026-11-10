@@ -1,0 +1,817 @@
+{
+ "card": {
+  "name": "airfoil_cst_rans_mlp",
+  "description": "Ensemble of 5 MLPs (8 -> 96 -> 96 -> 96 -> 3, SiLU, bootstrap) mapping a 6-weight CST airfoil and the angle of attack to lift, drag and quarter-chord moment coefficients of a fully turbulent, incompressible 2-D RANS solution at Re = 4e6. The ensemble spread is returned as an uncertainty.",
+  "task": "Airfoil aerodynamic coefficients (Cl, Cd, Cm) from shape and angle of attack, 2-D steady RANS",
+  "version": "1.0.0",
+  "inputs": [
+   {
+    "name": "T0",
+    "unit": "-",
+    "description": "CST thickness weight, leading edge"
+   },
+   {
+    "name": "T1",
+    "unit": "-",
+    "description": "CST thickness weight, mid chord"
+   },
+   {
+    "name": "T2",
+    "unit": "-",
+    "description": "CST thickness weight, aft"
+   },
+   {
+    "name": "M0",
+    "unit": "-",
+    "description": "CST camber weight, front"
+   },
+   {
+    "name": "M1",
+    "unit": "-",
+    "description": "CST camber weight, mid chord"
+   },
+   {
+    "name": "M2",
+    "unit": "-",
+    "description": "CST camber weight, aft"
+   },
+   {
+    "name": "alpha_deg",
+    "unit": "deg",
+    "description": "angle of attack"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "Cl",
+    "unit": "-",
+    "description": "lift coefficient (per unit span, chord 1)"
+   },
+   {
+    "name": "Cd",
+    "unit": "-",
+    "description": "drag coefficient"
+   },
+   {
+    "name": "Cm",
+    "unit": "-",
+    "description": "pitching-moment coefficient about c/4"
+   }
+  ],
+  "validity_range": {
+   "T0": [
+    0.1,
+    0.24
+   ],
+   "T1": [
+    0.08,
+    0.22
+   ],
+   "T2": [
+    0.08,
+    0.22
+   ],
+   "M0": [
+    -0.03,
+    0.08
+   ],
+   "M1": [
+    -0.02,
+    0.14
+   ],
+   "M2": [
+    -0.04,
+    0.12
+   ],
+   "alpha_deg": [
+    -2.0,
+    14.0
+   ],
+   "reynolds": 4000000.0,
+   "mach": "incompressible",
+   "geometry_family": "2nd-order Bernstein CST, upper = M + T, lower = M - T, trailing-edge thickness 0.25 % chord",
+   "regime": "fully turbulent (k-omega SST), attached to mildly separated; deep stall (Cl swing > 0.1 over the last 500 iterations) was excluded from training"
+  },
+  "known_limitations": [
+   "Drag at high lift reads ~14 % high on the campaign grid (20k cells) compared with finer grids/XFOIL; the surrogate inherits the solver's bias, it does not correct it.",
+   "Not valid in deep stall, at other Reynolds numbers, compressible flow or outside the CST bounds.",
+   "Accuracy is against the same solver and grid that generated the training data (interpolation error); the solver's own error against experiment is the larger term."
+  ],
+  "architecture": "MLPEnsemble",
+  "equations": [
+   "steady incompressible RANS, k-omega SST (OpenFOAM v1912 simpleFoam)"
+  ],
+  "training_config": {
+   "epochs": 6000,
+   "optimizer": "Adam lr 3e-3, cosine, weight decay 1e-6",
+   "loss": "MSE on standardised (Cl, log Cd, Cm), weights (1, 2, 1)",
+   "bootstrap": true,
+   "train_runs": 386,
+   "train_shapes": 91,
+   "extra_verification_runs": 54,
+   "script": "apps/aero_optimizer/tools/train_surrogate.py"
+  },
+  "data_lineage": {
+   "dataset": "airfoil_rans_cst_re4e6",
+   "split": "by shape (seed 3, 15 % of LHS shapes held out)",
+   "source": "examples/handoff_cases/airfoil_ld (campaign), apps/aero_optimizer/model/surrogate.pt"
+  },
+  "validation_metrics": {
+   "test/Cl_mae": 0.0028476636,
+   "test/Cl_max_abs": 0.019326576,
+   "test/Cd_mae": 9.1159754e-05,
+   "test/Cd_max_abs": 0.0011104397,
+   "test/Cd_mape_pct": 0.54474626,
+   "test/Cd_p90_pct": 1.0353616,
+   "test/Cm_mae": 0.00045394378,
+   "test/Cm_max_abs": 0.002545108,
+   "test/n": 60.0,
+   "naca_reference/Cl_mae": 0.0032313964,
+   "naca_reference/Cl_max_abs": 0.028683418,
+   "naca_reference/Cd_mae": 0.0001351138,
+   "naca_reference/Cd_max_abs": 0.0013729081,
+   "naca_reference/Cd_mape_pct": 0.61563188,
+   "naca_reference/Cd_p90_pct": 1.1373014,
+   "naca_reference/Cm_mae": 0.00022242697,
+   "naca_reference/Cm_max_abs": 0.0019696525,
+   "naca_reference/n": 36.0,
+   "xfoil_naca2412/Cl_mae": 0.010092481,
+   "xfoil_naca2412/Cl_max_abs": 0.020171094,
+   "xfoil_naca2412/Cd_mae": 0.00028128565,
+   "xfoil_naca2412/Cd_max_abs": 0.00090613475,
+   "xfoil_naca2412/Cd_mape_pct": 2.8127209,
+   "xfoil_naca2412/Cd_p90_pct": 6.8724403,
+   "xfoil_naca2412/Cm_mae": 0.00098002368,
+   "xfoil_naca2412/Cm_max_abs": 0.0012370982,
+   "xfoil_naca2412/n": 9.0
+  },
+  "reference_source": "Held-out OpenFOAM RANS runs on 15 airfoil shapes never seen in training (60 runs) and 36 NACA 0012/2412/4412/4415 runs excluded from training. The solver is verified: 3-grid study on NACA 2412 at alpha 4 deg (Cd GCI 1.9 %, observed order 2.4; Cl within 0.02 %), XFOIL 6.99 tripped (Cl -2.3 %, Cd +4.5 %), lift slope 0.110/deg vs 0.110/deg thin-airfoil theory, NASA TMR NACA 0012 SST (Cd 0.00812 vs 0.0081).",
+  "citation": "PINNeAPPle contributors (2026). Airfoil RANS campaign (OpenFOAM v1912 simpleFoam, k-omega SST, Re 4e6, 436 runs) and MLP-ensemble surrogate. PINNeAPPle model zoo, https://github.com/PINNeAPPle-Labs/PINNeAPPle",
+  "license": "apache-2.0",
+  "trust_report": {
+   "modelo": "airfoil_cst_rans_mlp v1.0.0",
+   "decisao": "APPROVED",
+   "score": 1.0,
+   "cobertura": 1.0,
+   "motivos": [],
+   "checagens": [
+    {
+     "name": "card metrics reproduced on the stored reference (max relative difference)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0,
+     "limit": 0.001,
+     "source": "Held-out OpenFOAM RANS runs on 15 airfoil shapes never seen in training (60 runs) and 36 NACA 0012/2412/4412/4415 runs e",
+     "reason": ""
+    },
+    {
+     "name": "held-out test/Cl_mae within the zoo acceptance limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0028476636,
+     "limit": 0.01,
+     "source": "independent reference",
+     "reason": ""
+    },
+    {
+     "name": "held-out test/Cd_mape_pct within the zoo acceptance limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.54474626,
+     "limit": 2.0,
+     "source": "independent reference",
+     "reason": ""
+    },
+    {
+     "name": "held-out test/Cm_mae within the zoo acceptance limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.00045394378,
+     "limit": 0.002,
+     "source": "independent reference",
+     "reason": ""
+    },
+    {
+     "name": "held-out naca_reference/Cl_mae within the zoo acceptance limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0032313964,
+     "limit": 0.01,
+     "source": "independent reference",
+     "reason": ""
+    },
+    {
+     "name": "held-out naca_reference/Cd_mape_pct within the zoo acceptance limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.61563188,
+     "limit": 2.0,
+     "source": "independent reference",
+     "reason": ""
+    },
+    {
+     "name": "lift slope vs thin-airfoil 2 pi/rad (alpha -2..6, held-out shapes)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.048757505,
+     "limit": 0.15,
+     "source": "thin-airfoil theory; viscous RANS slopes sit ~5-10 % below",
+     "reason": ""
+    },
+    {
+     "name": "Cl increases with alpha below stall (alpha -2..10, held-out shapes)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "attached-flow lift curve",
+     "reason": ""
+    },
+    {
+     "name": "symmetric airfoil: |Cl(0)| and |Cl(2)+Cl(-2)| (NACA 0012)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.00090187948,
+     "limit": 0.01,
+     "source": "symmetry",
+     "reason": ""
+    },
+    {
+     "name": "Cd > 0 and finite outputs on 2000 random in-range inputs",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "second law (drag is dissipative)",
+     "reason": ""
+    }
+   ],
+   "min_coverage": 0.6,
+   "min_score": 0.8
+  }
+ },
+ "onnx": {
+  "file": "airfoil_cst_rans_mlp.onnx",
+  "bytes": 516266,
+  "sha256": "2254b508daa8140d509be235e5c69f81f2dd85650c63f4ab83e5e4c8221d2cee",
+  "opset": 17,
+  "inputs": [
+   "x",
+   "query"
+  ],
+  "input_columns": [
+   "T0",
+   "T1",
+   "T2",
+   "M0",
+   "M1",
+   "M2",
+   "alpha_deg"
+  ],
+  "outputs": {
+   "mean": [
+    "Cl",
+    "Cd",
+    "Cm"
+   ],
+   "std": [
+    "Cl_std",
+    "Cd_std",
+    "Cm_std"
+   ],
+   "ld": [
+    "LD",
+    "LD_std"
+   ],
+   "checks": "query checks",
+   "aux": "check details"
+  },
+  "parity": 5.1362588e-07,
+  "checks_parity": {
+   "max_value_diff": 3.5762787e-07,
+   "status_flips": 0
+  }
+ },
+ "checks": {
+  "checks": [
+   {
+    "id": "range:T0",
+    "rule": "PC601",
+    "name": "T0 inside 0.1 … 0.24",
+    "op": "in",
+    "limit": [
+     0.09999994277954102,
+     0.24000005722045897
+    ],
+    "bounds": [
+     0.1,
+     0.24
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "T0 = {value:.4g} (range 0.1 … 0.24)"
+   },
+   {
+    "id": "range:T1",
+    "rule": "PC601",
+    "name": "T1 inside 0.08 … 0.22",
+    "op": "in",
+    "limit": [
+     0.0799999475479126,
+     0.2200000524520874
+    ],
+    "bounds": [
+     0.08,
+     0.22
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "T1 = {value:.4g} (range 0.08 … 0.22)"
+   },
+   {
+    "id": "range:T2",
+    "rule": "PC601",
+    "name": "T2 inside 0.08 … 0.22",
+    "op": "in",
+    "limit": [
+     0.0799999475479126,
+     0.2200000524520874
+    ],
+    "bounds": [
+     0.08,
+     0.22
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "T2 = {value:.4g} (range 0.08 … 0.22)"
+   },
+   {
+    "id": "range:M0",
+    "rule": "PC601",
+    "name": "M0 inside -0.03 … 0.08",
+    "op": "in",
+    "limit": [
+     -0.030000019073486327,
+     0.08000001907348633
+    ],
+    "bounds": [
+     -0.03,
+     0.08
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "M0 = {value:.4g} (range -0.03 … 0.08)"
+   },
+   {
+    "id": "range:M1",
+    "rule": "PC601",
+    "name": "M1 inside -0.02 … 0.14",
+    "op": "in",
+    "limit": [
+     -0.020000033378601074,
+     0.1400000333786011
+    ],
+    "bounds": [
+     -0.02,
+     0.14
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "M1 = {value:.4g} (range -0.02 … 0.14)"
+   },
+   {
+    "id": "range:M2",
+    "rule": "PC601",
+    "name": "M2 inside -0.04 … 0.12",
+    "op": "in",
+    "limit": [
+     -0.04000002861022949,
+     0.12000002861022949
+    ],
+    "bounds": [
+     -0.04,
+     0.12
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": "cst-range",
+    "detail": "M2 = {value:.4g} (range -0.04 … 0.12)"
+   },
+   {
+    "id": "range:alpha_deg",
+    "rule": "PC601",
+    "name": "Angle of attack inside −2…14°",
+    "op": "in",
+    "limit": [
+     -2.0000033378601074,
+     14.000003337860107
+    ],
+    "bounds": [
+     -2.0,
+     14.0
+    ],
+    "severity": "fail",
+    "kind": "trust",
+    "group": null,
+    "detail": "alpha_deg = {value:.4g} (range -2 … 14)"
+   },
+   {
+    "id": "geometry:thickness",
+    "rule": "PC402",
+    "name": "Surfaces do not cross",
+    "op": ">",
+    "limit": 0.0,
+    "severity": "fail",
+    "kind": "trust",
+    "group": null,
+    "detail": "smallest interior thickness {value:.4g}"
+   },
+   {
+    "id": "geometry:wavy",
+    "rule": "PC402",
+    "name": "No wavy surface (|y''| ≤ 40)",
+    "op": "<=",
+    "limit": 40.0,
+    "severity": "fail",
+    "kind": "trust",
+    "group": null,
+    "detail": "max |y''| = {value:.3g}"
+   },
+   {
+    "id": "finite",
+    "rule": "PC403",
+    "name": "Outputs finite, drag positive",
+    "op": ">",
+    "limit": 0.0,
+    "severity": "fail",
+    "kind": "trust",
+    "group": null,
+    "detail": "Cd = {value:.5f}"
+   },
+   {
+    "id": "spread:Cl",
+    "rule": "PC602",
+    "name": "Ensemble agrees on Cl as well as on held-out shapes",
+    "op": "<=",
+    "limit": 0.013319878,
+    "severity": "warn",
+    "kind": "trust",
+    "group": null,
+    "detail": "σ(Cl) {value:.2g} (held-out p99 {limit:.2g})"
+   },
+   {
+    "id": "spread:Cd",
+    "rule": "PC602",
+    "name": "Ensemble agrees on Cd as well as on held-out shapes",
+    "op": "<=",
+    "limit": 0.03146427,
+    "severity": "warn",
+    "kind": "trust",
+    "group": null,
+    "detail": "σ(Cd)/Cd {value:.2%} (held-out p99 {limit:.2%})"
+   },
+   {
+    "id": "slope",
+    "rule": "PC302",
+    "name": "Lift slope within 15 % of thin-airfoil 2π/rad",
+    "op": "<=",
+    "limit": 0.15,
+    "severity": "warn",
+    "kind": "trust",
+    "group": null,
+    "detail": "dCl/dα = {slope:.4f}/deg ({value:.1%} from 0.1097/deg)"
+   },
+   {
+    "id": "monotonic",
+    "rule": "PC302",
+    "name": "Cl rises with α below stall (−2…10°)",
+    "op": ">",
+    "limit": 0.0,
+    "severity": "warn",
+    "kind": "trust",
+    "group": null,
+    "detail": "smallest Cl step {value:.3g}"
+   },
+   {
+    "id": "design:thickness",
+    "rule": "",
+    "name": "Thickness t/c ≥ 11%",
+    "op": ">=",
+    "limit": 0.11,
+    "severity": "warn",
+    "kind": "design",
+    "group": null,
+    "detail": "t/c = {value:.1%} at x/c {thickness_at:.2f}"
+   },
+   {
+    "id": "design:moment",
+    "rule": "",
+    "name": "|Cm| ≤ 0.1",
+    "op": "<=",
+    "limit": 0.1,
+    "severity": "warn",
+    "kind": "design",
+    "group": null,
+    "detail": "|Cm| = {value:.4f}"
+   }
+  ],
+  "aux": [
+   "slope",
+   "thickness_at",
+   "Cl_std",
+   "Cd",
+   "Cm"
+  ],
+  "groups": {
+   "cst-range": {
+    "name": "Shape inside the CST bounds the model was trained on",
+    "rule": "PC601"
+   }
+  },
+  "verdicts": {
+   "pass": {
+    "title": "Trusted for this query",
+    "text": "Inside the validity range; every live check passes."
+   },
+   "warn": {
+    "title": "Use with caution",
+    "text": "Inside the range, but a check flags this query."
+   },
+   "fail": {
+    "title": "Outside the validity range",
+    "text": "This is an extrapolation: the number is not backed by the model's evidence."
+   }
+  },
+  "templates": "Python str.format fields {value}, {limit}, and the aux names; formats .Ng .Nf .N%"
+ },
+ "reference": {
+  "polars": [
+   {
+    "preset": "NACA 2412",
+    "source": "OpenFOAM RANS, not trained on",
+    "split": "naca_reference",
+    "alpha": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0,
+     14.0,
+     -2.0
+    ],
+    "Cl": [
+     0.22062594,
+     0.44297416,
+     0.66246983,
+     0.87705529,
+     1.0824658,
+     1.2748007,
+     1.4463501,
+     1.5750944,
+     -0.0023402951
+    ],
+    "Cd": [
+     0.0088469439,
+     0.0092771799,
+     0.010142987,
+     0.011505162,
+     0.013431058,
+     0.016105955,
+     0.019842675,
+     0.0261584,
+     0.0088464404
+    ],
+    "Cm": [
+     -0.04717944,
+     -0.047386253,
+     -0.047279321,
+     -0.046667232,
+     -0.044988496,
+     -0.041908539,
+     -0.036655926,
+     -0.0286482,
+     -0.046782647
+    ]
+   },
+   {
+    "preset": "NACA 4412",
+    "source": "OpenFOAM RANS, not trained on",
+    "split": "naca_reference",
+    "alpha": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0,
+     14.0,
+     -2.0
+    ],
+    "Cl": [
+     0.43881309,
+     0.65861397,
+     0.87387563,
+     1.0816076,
+     1.2765323,
+     1.4528991,
+     1.6052985,
+     1.7039728,
+     0.21680088
+    ],
+    "Cd": [
+     0.0093047416,
+     0.0099768042,
+     0.011097469,
+     0.012709953,
+     0.01492218,
+     0.018013585,
+     0.022530532,
+     0.0304978,
+     0.0090923819
+    ],
+    "Cm": [
+     -0.093746379,
+     -0.09372923,
+     -0.093176063,
+     -0.091805651,
+     -0.088871288,
+     -0.083828064,
+     -0.076942854,
+     -0.0668438,
+     -0.093426134
+    ]
+   },
+   {
+    "preset": "NACA 0012",
+    "source": "OpenFOAM RANS, not trained on",
+    "split": "naca_reference",
+    "alpha": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0,
+     14.0,
+     -2.0
+    ],
+    "Cl": [
+     -2.7674068e-05,
+     0.22320304,
+     0.44500065,
+     0.66318133,
+     0.87530153,
+     1.0766975,
+     1.2623722,
+     1.3744158,
+     -0.22319168
+    ],
+    "Cd": [
+     0.0087067873,
+     0.0089020186,
+     0.0095496545,
+     0.010686094,
+     0.012420033,
+     0.014913879,
+     0.018459394,
+     0.025937,
+     0.0089011142
+    ],
+    "Cm": [
+     2.8464426e-06,
+     -0.00034558548,
+     -0.00044302575,
+     -0.00016280734,
+     0.00072300138,
+     0.002708883,
+     0.0060448944,
+     0.0147228,
+     0.0003409918
+    ]
+   },
+   {
+    "preset": "NACA 4415",
+    "source": "OpenFOAM RANS, not trained on",
+    "split": "naca_reference",
+    "alpha": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0,
+     14.0,
+     -2.0
+    ],
+    "Cl": [
+     0.43228735,
+     0.6481706,
+     0.85896802,
+     1.0602025,
+     1.2480516,
+     1.4197854,
+     1.5647346,
+     1.6618236,
+     0.21346069
+    ],
+    "Cd": [
+     0.0099579647,
+     0.010679164,
+     0.011857371,
+     0.013488142,
+     0.015755444,
+     0.018981845,
+     0.023657828,
+     0.0318224,
+     0.0096853131
+    ],
+    "Cm": [
+     -0.090399591,
+     -0.089583199,
+     -0.088227599,
+     -0.085706361,
+     -0.081769786,
+     -0.076613251,
+     -0.06958284,
+     -0.0606948,
+     -0.090812832
+    ]
+   },
+   {
+    "preset": "NACA 2412",
+    "source": "XFOIL 6.99, independent solver",
+    "split": "xfoil_naca2412",
+    "alpha": [
+     -2.0,
+     -1.0,
+     0.0,
+     1.0,
+     2.0,
+     3.0,
+     4.0,
+     5.0,
+     6.0
+    ],
+    "Cl": [
+     -0.0017,
+     0.1123,
+     0.2262,
+     0.3397,
+     0.4528,
+     0.5651,
+     0.6766,
+     0.7871,
+     0.8962
+    ],
+    "Cd": [
+     0.0088,
+     0.00878,
+     0.00883,
+     0.00894,
+     0.00913,
+     0.00939,
+     0.00972,
+     0.01012,
+     0.01061
+    ],
+    "Cm": [
+     -0.0474,
+     -0.0477,
+     -0.0479,
+     -0.0482,
+     -0.0483,
+     -0.0484,
+     -0.0484,
+     -0.0483,
+     -0.0479
+    ]
+   }
+  ]
+ },
+ "hub": "https://huggingface.co/PINNeAPPle-Labs/airfoil-cst-rans-mlp",
+ "code": {
+  "adapter": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_hub/zoo/_models.py",
+  "checks": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_hub/zoo/checks.py",
+  "export": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_hub/zoo/export.py"
+ }
+}

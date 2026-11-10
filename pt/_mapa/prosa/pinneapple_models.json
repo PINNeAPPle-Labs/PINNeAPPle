@@ -1,0 +1,34 @@
+{
+ "pacote": "pinneapple_models",
+ "objetivo": "`pinneapple_models` é um shim de compatibilidade. Ele não implementa nenhum modelo: só reexporta, de `pinneapple_neural.architectures`, o registro (`ModelRegistry`), o catálogo (`ModelCatalog`), a classe base `BaseModel` e algumas arquiteturas (`VanillaPINN`, `SIREN`, `ModifiedMLP`, `FourierNeuralOperator`, `FNO2d`, `DeepONet`, `MeshGraphNet`, `GraphBatch`, `GraphOutput`).\n\nO problema que resolve é manter código antigo funcionando. Exemplos e scripts escritos com `from pinneapple_models import ...` continuam rodando depois que as arquiteturas foram para `pinneapple_neural`. O próprio docstring diz que código novo deve importar direto de `pinneapple_neural.architectures`.\n\nAlém dos nomes planos, o pacote cria pseudo-namespaces antigos (`pinns`, `neural_operators`, `graphnn`), um alias `catalog = ModelCatalog`, uma função `registry()` e tenta importar `register_all` do catálogo de `pinneapple_neural` (se falhar, vira uma função vazia). O submódulo `pinneapple_models.registry` existe só para que o caminho `pinneapple_models.registry.ModelRegistry` funcione, como em `pinneapple_train` e `pinneapple_solvers`.",
+ "submodulos": {
+  "registry": "Submódulo de compatibilidade que reexporta `ModelRegistry` de `pinneapple_neural.architectures.registry`."
+ },
+ "modulos": {
+  "pinneapple_models": "[shim] Reexporta registro, catálogo e arquiteturas de `pinneapple_neural.architectures` para código legado; marcado como obsoleto (use `pinneapple_neural.architectures`). [sem teste direto]",
+  "pinneapple_models.registry": "[shim] Expõe `ModelRegistry` no caminho antigo `pinneapple_models.registry`, criado porque `tests/pinneapple_models/test_registry.py` não coletava sem ele."
+ },
+ "simbolos": {
+  "pinneapple_models:registry": "Função legada que devolve a classe `ModelRegistry` de `pinneapple_neural` (não cria registro novo)."
+ },
+ "exemplos": [
+  {
+   "titulo": "Teste de fumaça do registro pelo caminho antigo",
+   "caminho": "tests/pinneapple_models/test_registry.py",
+   "codigo": "def test_models_registry_smoke():\n    from pinneapple_models.registry import ModelRegistry\n\n    try:\n        from pinneapple_models.register_all import register_all\n        register_all()\n    except Exception:\n        pass\n\n    names = ModelRegistry.list()\n    assert isinstance(names, list)"
+  },
+  {
+   "titulo": "Tour do registro via imports legados",
+   "caminho": "examples/architectures/00_registry_tour.py",
+   "codigo": "from pinneapple_models import ModelCatalog\nfrom pinneapple_models import register_all\nfrom pinneapple_models import ModelRegistry\n\n\ndef _short(s: str, n: int = 90) -> str:\n    s = (s or \"\").strip().replace(\"\\n\", \" \")\n    return s if len(s) <= n else s[: n - 1] + \"…\"\n\n\ndef main() -> None:\n    register_all()\n\n    print(\"\\n=== Families ===\")\n    print(ModelRegistry.families())"
+  }
+ ],
+ "limitacoes": [
+  "É só um shim: todo o comportamento vem de `pinneapple_neural.architectures`; qualquer mudança lá afeta este pacote.",
+  "Marcado como obsoleto no docstring; código novo deve importar de `pinneapple_neural.architectures`.",
+  "Se `pinneapple_neural.architectures._catalog.register_all` não puder ser importado, `register_all` vira uma função que não faz nada, em silêncio.",
+  "`XTFC` no namespace `pinns` fica `None` se o import de `pinneapple_neural.architectures.pinns.xtfc` falhar.",
+  "O teste existente tenta importar `pinneapple_models.register_all` como módulo, que não existe; o erro é engolido por `try/except`.",
+  "O `__init__` não tem teste direto; só o submódulo `registry` é coberto, por um teste de fumaça."
+ ]
+}

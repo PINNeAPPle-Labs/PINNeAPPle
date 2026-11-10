@@ -1,0 +1,78 @@
+{
+ "pacote": "pinneapple_mcp",
+ "objetivo": "`pinneapple_mcp` expõe o PINNeAPPle como servidor MCP (Model Context Protocol) via stdio. Qualquer agente de código que fale MCP pode resolver, comparar e validar problemas físicos com a biblioteca, e cada resultado volta com suas verificações físicas e um cartão de confiança (APPROVED / REVIEW / REJECT).\n\nAs ferramentas ficam em `pinneapple_mcp.tools` como funções Python comuns, com argumentos e retornos em JSON, utilizáveis sem MCP. Elas chamam o resto da biblioteca: `pp.solve` e `pp.list_methods` (em `pinneapple_physics.solving`), o catálogo de métodos, os presets de problemas, `pp.zoo` e `pp.datasets`, o design por intenção (`pinneapple_design.intent`) e a cadeia de porquês (`pinneapple_reason`). Um problema pode ser um preset ou um 'problema em caixa' descrito campo a campo em JSON, com expressões das coordenadas analisadas por `ast` (nunca `eval`).\n\nO servidor tem padrões seguros (`config`): trabalho longo (`solve`, `benchmark`, `design`, `reason`) roda como job num processo separado com limite de tempo, limite de memória e rede desligada; resultados vão para um diretório de trabalho e só se leem arquivos de raízes permitidas. `import pinneapple_mcp` não importa o SDK MCP; ele só é carregado por `server` (SDK 1.x `FastMCP` ou 2.x `MCPServer`).",
+ "submodulos": {
+  "__main__": "Permite rodar o servidor com `python -m pinneapple_mcp`.",
+  "config": "Limites e locais do servidor (diretório de trabalho, tempo, memória, jobs, épocas, pontos, rede, raízes) com variáveis de ambiente.",
+  "expressions": "Compila expressões aritméticas seguras das coordenadas em funções NumPy, sem `eval`.",
+  "jobs": "Executa trabalho longo como jobs em processos separados, com estado gravado em disco.",
+  "problems": "Monta um problema físico a partir de JSON: preset ou problema em caixa com condições de contorno.",
+  "server": "Servidor MCP stdio que registra todas as ferramentas com assinaturas tipadas.",
+  "tools": "As ferramentas MCP como funções puras com entrada e saída JSON."
+ },
+ "modulos": {
+  "pinneapple_mcp": "Ponto de entrada do pacote; `build_server` e `main` importam `server` só quando chamados, para não exigir o SDK MCP no import.",
+  "pinneapple_mcp.__main__": "Chama `server.main()` para `python -m pinneapple_mcp`. [sem teste direto]",
+  "pinneapple_mcp.config": "`Config` com padrões seguros, cada um sobrescrevível por variável de ambiente `PINNEAPPLE_MCP_*`; `get_config`/`set_config` mantêm a configuração global.",
+  "pinneapple_mcp.expressions": "Analisa texto com `ast` aceitando só números, nomes de coordenadas, `pi`/`e`, operadores aritméticos e uma lista fixa de funções NumPy; qualquer outra coisa levanta `ValueError`.",
+  "pinneapple_mcp.jobs": "Cada job roda num processo filho com `RLIMIT_AS`, conexões de rede não locais bloqueadas e diretório próprio com `request.json`, `status.json` e `log.txt`; o estado sobrevive a reinícios (job sem processo vira `lost`). [sem teste direto pelo inventário; exercitado por `tests/test_mcp_server.py` via `tools`]",
+  "pinneapple_mcp.problems": "Constrói `BuiltProblem` a partir de JSON: preset com `preset_kwargs` ou problema em caixa (domínio, campos, EDP, fonte, condições de Dirichlet, solução exata). [sem teste direto pelo inventário]",
+  "pinneapple_mcp.server": "Monta o servidor MCP (SDK 2.x `MCPServer` ou 1.x `FastMCP`) com todas as ferramentas e CLI `pinneapple-mcp` com opções de limites.",
+  "pinneapple_mcp.tools": "Implementa as ferramentas: capacidades, catálogo de métodos, presets, `trust_card`, `solve` e `benchmark` como jobs, zoo, jobs, `design` e as ferramentas de `pinneapple_reason`."
+ },
+ "simbolos": {
+  "pinneapple_mcp:build_server": "Importa `server` sob demanda e devolve o objeto servidor MCP.",
+  "pinneapple_mcp:main": "Importa `server` sob demanda e roda o servidor stdio.",
+  "pinneapple_mcp.config:Config": "Configuração do servidor: diretório, tempo e memória por job, jobs simultâneos, épocas, pontos, tamanho de arquivo, rede e raízes de leitura.",
+  "pinneapple_mcp.config:get_config": "Devolve a configuração ativa.",
+  "pinneapple_mcp.config:set_config": "Define a configuração ativa e a devolve.",
+  "pinneapple_mcp.expressions:compile_expression": "Compila o texto numa função `f(X) -> (N,)` das coordenadas, ou levanta `ValueError`.",
+  "pinneapple_mcp.expressions:value": "Mantém números e compila strings como expressão.",
+  "pinneapple_mcp.jobs:running": "Ids dos jobs com processo ainda vivo.",
+  "pinneapple_mcp.jobs:submit": "Inicia um job de um tipo de `tools.JOB_KINDS` num novo processo e devolve o id.",
+  "pinneapple_mcp.jobs:status": "Estado de um job, seu resultado quando pronto e os arquivos do diretório, podendo esperar até `wait_seconds`.",
+  "pinneapple_mcp.jobs:cancel": "Mata o processo de um job em execução.",
+  "pinneapple_mcp.jobs:list_jobs": "Lista os jobs mais recentes com estado.",
+  "pinneapple_mcp.problems:BuiltProblem": "Problema montado: `PhysicalProblem`, contexto, solução exata, condições de Dirichlet e fonte; `check_pde` diz qual EDP estacionária pode ser verificada.",
+  "pinneapple_mcp.problems:build_problem": "Monta um `BuiltProblem` a partir do JSON, ou levanta `ValueError` com o motivo.",
+  "pinneapple_mcp.server:build_server": "Cria o objeto servidor MCP com todas as ferramentas do PINNeAPPle.",
+  "pinneapple_mcp.server:main": "CLI do servidor: lê opções de limites, ajusta a configuração e roda em stdio.",
+  "pinneapple_mcp.tools:capabilities": "Informa versão, APIs opcionais presentes, dispositivo, limites e diretório de trabalho.",
+  "pinneapple_mcp.tools:list_methods": "Métodos de `solve` agrupados por tipo e o catálogo de métodos com status de validação.",
+  "pinneapple_mcp.tools:describe_method": "Descreve um método de `solve` com suas opções, ou um item do catálogo com código, referências e testes.",
+  "pinneapple_mcp.tools:list_presets": "Lista os presets de problema utilizáveis em `solve` e `benchmark`.",
+  "pinneapple_mcp.tools:trust_card": "Verificações físicas de um campo em grade (inline ou arquivo) e o cartão de confiança com decisão.",
+  "pinneapple_mcp.tools:solve": "Resolve um problema com um método num job; o resultado traz métricas, verificações, cartão de confiança e arquivos.",
+  "pinneapple_mcp.tools:benchmark": "Roda vários métodos num problema com o mesmo orçamento de treino e pontua na mesma grade, num job.",
+  "pinneapple_mcp.tools:zoo_list": "Lista modelos pré-treinados verificados do zoo e datasets do hub.",
+  "pinneapple_mcp.tools:zoo_predict": "Previsões de um modelo do zoo, marcando as linhas fora da faixa de validade.",
+  "pinneapple_mcp.tools:zoo_validate": "Relatório de confiança de um modelo do zoo, opcionalmente checando se entradas estão na faixa válida.",
+  "pinneapple_mcp.tools:job_status": "Estado de um job e, quando pronto, o resultado com os caminhos dos arquivos.",
+  "pinneapple_mcp.tools:list_jobs": "Jobs mais recentes com estado.",
+  "pinneapple_mcp.tools:cancel_job": "Para um job em execução matando o processo.",
+  "pinneapple_mcp.tools:design": "Design a partir de um objetivo em linguagem natural: responde na hora `out_of_scope` ou `needs_input`, senão inicia um job que gera o pacote de design.",
+  "pinneapple_mcp.tools:reason": "Roda a cadeia de porquês de `pinneapple_reason` num job, aplicando contramedidas até cada requisito passar.",
+  "pinneapple_mcp.tools:reason_library": "Lista os modos de falha por domínio físico, as contramedidas e os casos resolvidos de `pinneapple_reason`.",
+  "pinneapple_mcp.tools:reason_check": "Avalia um modo de falha nos parâmetros dados (SI): demanda, capacidade, margem, mecanismo e fontes."
+ },
+ "exemplos": [
+  {
+   "titulo": "Problema em caixa resolvido por FEM via ferramenta MCP",
+   "caminho": "tests/test_mcp_server.py",
+   "codigo": "PLATE = {\"name\": \"plate\", \"domain\": {\"x\": [0, 1], \"y\": [0, 1]}, \"fields\": [\"T\"], \"pde\": \"laplace\",\n         \"bcs\": [{\"kind\": \"dirichlet\", \"field\": \"T\", \"on\": \"y_max\", \"value\": \"sin(pi*x)\"},\n                 {\"kind\": \"dirichlet\", \"field\": \"T\", \"on\": \"y_min\", \"value\": 0},\n                 {\"kind\": \"dirichlet\", \"field\": \"T\", \"on\": \"x_boundary\", \"value\": 0}],\n         \"exact\": \"sin(pi*x)*sinh(pi*y)/sinh(pi)\"}\n...\ndef test_solve_job_fem_with_checks(cfg):\n    st = tools.solve(PLATE, \"fem\", {\"n\": 24}, grid_points_per_axis=25, wait_seconds=180)\n    assert st[\"status\"] == \"done\", st\n    res = st[\"result\"]\n    assert res[\"reference\"] == \"exact\" and res[\"metrics\"][\"relative_l2\"][\"T\"] < 0.02\n    assert res[\"decision\"] == \"APPROVED\", res[\"trust_cards\"]"
+  },
+  {
+   "titulo": "Instalação e execução do servidor",
+   "caminho": "docs/guides/mcp_server.md",
+   "codigo": "pip install \"pinneapple[mcp]\"\npinneapple-mcp --help            # or: python -m pinneapple_mcp"
+  }
+ ],
+ "limitacoes": [
+  "O servidor precisa do extra `pinneapple[mcp]` (SDK MCP 1.x ou 2.x e `pydantic`); as ferramentas em `tools` funcionam sem ele.",
+  "Limites padrão por job: 600 s, 8192 MB de espaço de endereçamento, 2 jobs simultâneos, 20000 épocas, 250000 pontos e arquivos de até 200 MB; o limite de memória usa `resource` e é ignorado em plataformas sem ele.",
+  "A rede dentro dos jobs fica desligada substituindo `socket.connect` (só conexões locais e Unix passam), a menos que `PINNEAPPLE_MCP_ALLOW_NETWORK=1`.",
+  "Expressões aceitam só aritmética das coordenadas e uma lista fixa de funções NumPy; qualquer outra construção é recusada.",
+  "`problems.BuiltProblem.check_pde` só verifica resíduo para EDPs estacionárias `laplace`, `poisson` e `heat_equation`.",
+  "`jobs`, `problems` e `__main__` não têm teste direto pelo inventário (são exercitados indiretamente por `tests/test_mcp_server.py`)."
+ ]
+}

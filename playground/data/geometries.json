@@ -1,0 +1,1471 @@
+{
+ "version": 1,
+ "geometries": [
+  {
+   "name": "airliner_a320",
+   "title": "Single-aisle airliner (A320 class)",
+   "category": "aircraft",
+   "description": "Circular fuselage with cabin and cockpit windows and a livery, low swept wing with dihedral, washout and sharklets, two under-wing turbofans on pylons, swept tails sized by volume coefficient; in cruise (gear up). Wraps pinneapple_design.aero.airliner.Airliner.",
+   "dimensions_m": {
+    "height_z": 10.2327,
+    "length_x": 38.7469,
+    "width_y": 35.4256
+   },
+   "triangles": 34560,
+   "glb": "geometries/airliner_a320.light.glb",
+   "glb_repo": "data/geometries/airliner_a320/airliner_a320.light.glb",
+   "glb_bytes": 886628,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/airliner_a320/airliner_a320.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the nose, z = 0 on the fuselage axis",
+   "physics": [
+    "external aerodynamics (RANS, cruise lift/drag, high-lift studies)",
+    "vortex-lattice / panel methods",
+    "wake-vortex and contrail studies",
+    "aero-structural wing optimisation"
+   ],
+   "tags": [
+    "transport aircraft",
+    "turbofan",
+    "swept wing"
+   ],
+   "sources": [
+    {
+     "what": "length 37.57 m, span 35.80 m with sharklets (34.10 m without), fuselage width 3.95 m, wing area 122.6 m^2, height 11.76 m on the gear",
+     "ref": "Airbus (2023). A320 Aircraft Characteristics - Airport and Maintenance Planning, Rev. 41, section 2-2 (general dimensions). https://aircraft.airbus.com/en/customer-care/fleet-wide-care/airport-operations-and-technical-data/aircraft-characteristics",
+     "estimate": false
+    },
+    {
+     "what": "LE sweep, dihedral, washout, tail volume coefficients, airfoil (NACA 2412 stand-in for the supercritical section)",
+     "ref": "engineering estimates from public three-views",
+     "estimate": true
+    },
+    {
+     "what": "bounding box of the model: 38.75 m long (the swept horizontal-tail tips end 1.2 m behind the 37.57 m tail cone), 35.43 m span over the sharklets, 10.2 m high in cruise with the gear retracted (11.76 m on the gear)",
+     "ref": "model geometry",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "length",
+     "default": 37.57,
+     "unit": "m"
+    },
+    {
+     "name": "wing_area",
+     "default": 122.6,
+     "unit": "m^2"
+    },
+    {
+     "name": "aspect_ratio",
+     "default": 9.5,
+     "unit": "-"
+    },
+    {
+     "name": "taper",
+     "default": 0.24,
+     "unit": "-"
+    },
+    {
+     "name": "sweep_le",
+     "default": 28.6,
+     "unit": "deg"
+    },
+    {
+     "name": "dihedral",
+     "default": 5.0,
+     "unit": "deg"
+    },
+    {
+     "name": "twist",
+     "default": -4.0,
+     "unit": "deg"
+    },
+    {
+     "name": "fan_diameter",
+     "default": 1.95,
+     "unit": "m"
+    },
+    {
+     "name": "engine_station",
+     "default": 0.34,
+     "unit": "-"
+    },
+    {
+     "name": "sharklets",
+     "default": true,
+     "unit": ""
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/legacy.py#L31",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"airliner_a320\", lod=\"light\")\ng.export(\"airliner_a320.glb\")"
+  },
+  {
+   "name": "aortic_arch",
+   "title": "Human thoracic aorta (arch)",
+   "category": "biomedical",
+   "description": "Adult human thoracic aorta lumen: aortic root with three-lobed sinus of Valsalva, ascending aorta, arch and descending thoracic aorta with the brachiocephalic trunk, left common carotid and left subclavian arteries, fused (manifold3d union) into one watertight lumen with flat-capped inlet and outlets.",
+   "dimensions_m": {
+    "height_z": 0.3113,
+    "length_x": 0.113,
+    "width_y": 0.0766
+   },
+   "triangles": 14338,
+   "glb": "geometries/aortic_arch.light.glb",
+   "glb_repo": "data/geometries/aortic_arch/aortic_arch.light.glb",
+   "glb_bytes": 345424,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/aortic_arch/aortic_arch.light.glb",
+   "frame": "right-handed patient frame, metres: x towards the patient's left, y posterior, z cranial; origin at the centre of the aortic-root inlet (annulus plane)",
+   "physics": [
+    "hemodynamics: pulsatile blood flow, wall shear stress, secondary flow in the arch",
+    "aneurysm / coarctation and stent-graft planning studies",
+    "fluid-structure interaction of the aortic wall",
+    "particle (embolus) transport into the supra-aortic branches"
+   ],
+   "tags": [
+    "cardiovascular",
+    "aorta",
+    "hemodynamics"
+   ],
+   "sources": [
+    {
+     "what": "thoracic aortic diameters by segment (sinus ~33-36 mm, ascending ~29-32 mm, arch ~26-28 mm, descending ~23-26 mm in adults)",
+     "ref": "Hager, A., Kaemmerer, H., Rapp-Bernhardt, U., Bluecher, S., Rapp, K., Bernhardt, T.M., Galanski, M., Hess, J. (2002). Diameters of the thoracic aorta throughout life as measured with helical computed tomography. J. Thorac. Cardiovasc. Surg. 123(6), 1060-1066. https://doi.org/10.1067/mtc.2002.122310",
+     "estimate": false
+    },
+    {
+     "what": "arch geometry (arch width / height, curvature radius ~30-35 mm)",
+     "ref": "Redheuil, A., Yu, W.C., Mousseaux, E., et al. (2011). Age-related changes in aortic arch geometry: relationship with proximal aortic function and left ventricular mass and remodeling. J. Am. Coll. Cardiol. 58(12), 1262-1270. https://doi.org/10.1016/j.jacc.2011.06.012",
+     "estimate": false
+    },
+    {
+     "what": "chosen defaults within the published ranges, branch diameters 12 / 8 / 10 mm, branch take-off angles, lengths, sinus lobing, arch plane rotation and the centreline shape",
+     "ref": "anatomical estimate",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "ascending_diameter",
+     "default": 0.03,
+     "unit": "m"
+    },
+    {
+     "name": "sinus_diameter",
+     "default": 0.034,
+     "unit": "m"
+    },
+    {
+     "name": "arch_diameter",
+     "default": 0.026,
+     "unit": "m"
+    },
+    {
+     "name": "descending_diameter",
+     "default": 0.023,
+     "unit": "m"
+    },
+    {
+     "name": "arch_radius",
+     "default": 0.032,
+     "unit": "m"
+    },
+    {
+     "name": "ascending_length",
+     "default": 0.07,
+     "unit": "m"
+    },
+    {
+     "name": "descending_length",
+     "default": 0.2,
+     "unit": "m"
+    },
+    {
+     "name": "arch_plane_deg",
+     "default": 40.0,
+     "unit": "deg"
+    },
+    {
+     "name": "bct_diameter",
+     "default": 0.012,
+     "unit": "m"
+    },
+    {
+     "name": "lcca_diameter",
+     "default": 0.008,
+     "unit": "m"
+    },
+    {
+     "name": "lsa_diameter",
+     "default": 0.01,
+     "unit": "m"
+    },
+    {
+     "name": "bct_angle_deg",
+     "default": -28.0,
+     "unit": "deg"
+    },
+    {
+     "name": "lcca_angle_deg",
+     "default": 6.0,
+     "unit": "deg"
+    },
+    {
+     "name": "lsa_angle_deg",
+     "default": 35.0,
+     "unit": "deg"
+    },
+    {
+     "name": "bct_bifurcation",
+     "default": true,
+     "unit": ""
+    },
+    {
+     "name": "rsa_diameter",
+     "default": 0.009,
+     "unit": "m"
+    },
+    {
+     "name": "rcca_diameter",
+     "default": 0.007,
+     "unit": "m"
+    },
+    {
+     "name": "fused",
+     "default": true,
+     "unit": ""
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/industrial_bio.py#L525",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"aortic_arch\", lod=\"light\")\ng.export(\"aortic_arch.glb\")"
+  },
+  {
+   "name": "caarc_building",
+   "title": "CAARC standard tall building",
+   "category": "civil",
+   "description": "The CAARC standard tall building for wind-loading comparisons: a 30.48 x 45.72 x 182.88 m (100 x 150 x 600 ft) prism with a 50-storey curtain-wall facade, in a deterministic urban block of lower buildings on a 300 m-radius turntable ground (top at z = 0).",
+   "dimensions_m": {
+    "height_z": 183.88,
+    "length_x": 600.0,
+    "width_y": 600.0
+   },
+   "triangles": 16636,
+   "glb": "geometries/caarc_building.light.glb",
+   "glb_repo": "data/geometries/caarc_building/caarc_building.light.glb",
+   "glb_bytes": 752200,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/caarc_building/caarc_building.light.glb",
+   "frame": "right-handed, metres, full scale: x the wind direction at 0 deg incidence (normal to the 45.72 m wide face), y across, z up; origin at the tower base centre on the ground (z = 0 is the ground top; the ground disc is 1 m thick)",
+   "physics": [
+    "mean and fluctuating wind pressures on a tall building (CAARC benchmark)",
+    "along / across-wind base moments and vortex shedding",
+    "LES of the atmospheric boundary layer with urban roughness",
+    "pedestrian-level wind comfort around the tower"
+   ],
+   "tags": [
+    "wind engineering",
+    "tall building",
+    "CAARC",
+    "urban"
+   ],
+   "sources": [
+    {
+     "what": "100 x 150 x 600 ft (30.48 x 45.72 x 182.88 m) CAARC tall-building model, wind normal to the wide face at 0 deg",
+     "ref": "Melbourne, W.H. (1980). Comparison of measurements on the CAARC standard tall building model in simulated model wind flows. J. Wind Eng. Ind. Aerodyn. 6(1-2), 73-88. https://doi.org/10.1016/0167-6105(80)90023-9",
+     "estimate": false
+    },
+    {
+     "what": "50 storeys of 12 ft, curtain-wall bays, spandrel bands (visual facade only)",
+     "ref": "engineering estimate",
+     "estimate": true
+    },
+    {
+     "what": "surrounding urban block (55 m street grid, 12-45 m buildings, density 0.7), 300 m ground disc",
+     "ref": "generic, generated (not a published configuration)",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "height",
+     "default": 182.88,
+     "unit": "m"
+    },
+    {
+     "name": "width",
+     "default": 45.72,
+     "unit": "m"
+    },
+    {
+     "name": "depth",
+     "default": 30.48,
+     "unit": "m"
+    },
+    {
+     "name": "orientation_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "surroundings",
+     "default": true,
+     "unit": ""
+    },
+    {
+     "name": "density",
+     "default": 0.7,
+     "unit": ""
+    },
+    {
+     "name": "seed",
+     "default": 1980,
+     "unit": ""
+    },
+    {
+     "name": "ground_radius",
+     "default": 300.0,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/industrial_bio.py#L352",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"caarc_building\", lod=\"light\")\ng.export(\"caarc_building.glb\")"
+  },
+  {
+   "name": "centrifugal_impeller",
+   "title": "Closed centrifugal pump impeller",
+   "category": "turbomachinery",
+   "description": "Closed (shrouded) centrifugal pump impeller of the ERCOFTAC test-case size: D2 = 420 mm, 7 backward-curved log-spiral blades between inlet angle beta1 and outlet angle beta2, hub with keyed bore, back shroud and front shroud with suction eye and wear-ring neck. Blades are separate bodies penetrating both shrouds.",
+   "dimensions_m": {
+    "height_z": 0.166,
+    "length_x": 0.42,
+    "width_y": 0.42
+   },
+   "triangles": 13744,
+   "glb": "geometries/centrifugal_impeller.light.glb",
+   "glb_repo": "data/geometries/centrifugal_impeller/centrifugal_impeller.light.glb",
+   "glb_bytes": 336868,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/centrifugal_impeller/centrifugal_impeller.light.glb",
+   "frame": "right-handed, metres: z the rotation axis pointing into the suction eye (upstream), origin on the axis in the hub-side plane of the outlet (back-shroud inner face); the impeller rotates in +theta about +z, blades are backward-curved",
+   "physics": [
+    "pump performance (head, efficiency) with frozen-rotor / sliding-mesh CFD",
+    "impeller-diffuser interaction and unsteady blade loading",
+    "cavitation at the blade leading edge",
+    "rotordynamic and structural (FEA) analysis of the impeller"
+   ],
+   "tags": [
+    "pump",
+    "impeller",
+    "turbomachinery",
+    "ERCOFTAC"
+   ],
+   "sources": [
+    {
+     "what": "outlet diameter D2 = 420 mm and 7 blades of the ERCOFTAC centrifugal-pump test impeller (recalled from the published description; check against the paper before quantitative use)",
+     "ref": "Ubaldi, M., Zunino, P., Barigozzi, G., Cattanei, A. (1996). An experimental investigation of stator induced unsteadiness on centrifugal impeller outflow. J. Turbomach. 118(1), 41-54. https://doi.org/10.1115/1.2836604 (ERCOFTAC centrifugal pump test case)",
+     "estimate": true
+    },
+    {
+     "what": "b2 = 40 mm, eye 200 mm, beta1 = 20 deg, beta2 = 22.5 deg, blade thickness 6 mm, shroud / hub contours, wrap angle: generic design within the usual ranges",
+     "ref": "Gulich, J.F. (2014). Centrifugal Pumps, 3rd ed. Springer. https://doi.org/10.1007/978-3-642-40114-5 (impeller design: blade angles, log-spiral blades, shroud / hub contours)",
+     "estimate": true
+    },
+    {
+     "what": "keyway 14 mm wide, 3.8 mm deep in the hub for a 50 mm shaft",
+     "ref": "DIN 6885-1 (1968). Parallel keys, keyways, deep pattern (shaft 44-50 mm: key 14 x 9, hub depth 3.8 mm)",
+     "estimate": false
+    }
+   ],
+   "parameters": [
+    {
+     "name": "outlet_diameter",
+     "default": 0.42,
+     "unit": "m"
+    },
+    {
+     "name": "outlet_width",
+     "default": 0.04,
+     "unit": "m"
+    },
+    {
+     "name": "eye_diameter",
+     "default": 0.2,
+     "unit": "m"
+    },
+    {
+     "name": "blade_count",
+     "default": 7,
+     "unit": ""
+    },
+    {
+     "name": "beta1_deg",
+     "default": 20.0,
+     "unit": "deg"
+    },
+    {
+     "name": "beta2_deg",
+     "default": 22.5,
+     "unit": "deg"
+    },
+    {
+     "name": "blade_thickness",
+     "default": 0.006,
+     "unit": "m"
+    },
+    {
+     "name": "bore_diameter",
+     "default": 0.05,
+     "unit": "m"
+    },
+    {
+     "name": "keyway",
+     "default": true,
+     "unit": ""
+    },
+    {
+     "name": "keyway_width",
+     "default": 0.014,
+     "unit": "m"
+    },
+    {
+     "name": "keyway_depth",
+     "default": 0.0038,
+     "unit": "m"
+    },
+    {
+     "name": "front_shroud",
+     "default": true,
+     "unit": ""
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/industrial_bio.py#L200",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"centrifugal_impeller\", lod=\"light\")\ng.export(\"centrifugal_impeller.glb\")"
+  },
+  {
+   "name": "container_ship_kcs",
+   "title": "KRISO Container Ship (KCS), full scale",
+   "category": "marine",
+   "description": "3600-TEU class container ship at full scale (Lpp 230 m, B 32.2 m, T 10.8 m, Cb ~0.65) with bulbous bow, transom stern, skeg, 5-blade propeller and rudder, aft deckhouse with bridge windows and wings, funnel, hatch covers and stacked containers. The hull form is a parametric approximation of the KCS lines (the official offsets are not reproduced); draft, trim and container tiers are parameters.",
+   "dimensions_m": {
+    "height_z": 47.0,
+    "length_x": 241.1425,
+    "width_y": 32.2
+   },
+   "triangles": 16060,
+   "glb": "geometries/container_ship_kcs.light.glb",
+   "glb_repo": "data/geometries/container_ship_kcs/container_ship_kcs.light.glb",
+   "glb_bytes": 448440,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/container_ship_kcs/container_ship_kcs.light.glb",
+   "frame": "right-handed, metres: x aft from the forward perpendicular (FP at x = 0, AP at x = 230), y to starboard, z up; z = 0 on the calm waterline (the keel at midships is at z = -draft)",
+   "physics": [
+    "calm-water resistance and nominal / effective wake (RANS, free surface)",
+    "self-propulsion with the 5-blade propeller and rudder (SIMMAN / Tokyo 2015 cases)",
+    "seakeeping and added resistance in waves; trim optimisation",
+    "wind loads on the superstructure and container stacks"
+   ],
+   "tags": [
+    "ship hydrodynamics",
+    "container ship",
+    "benchmark hull"
+   ],
+   "sources": [
+    {
+     "what": "KCS: Lpp 230 m, B 32.2 m, T 10.8 m, D 19.0 m, Cb 0.651, bulbous bow and transom stern",
+     "ref": "Kim, W.J., Van, S.H., Kim, D.H. (2001). Measurement of flows around modern commercial ship models. Experiments in Fluids 31(5), 567-578. https://doi.org/10.1007/s003480100332",
+     "estimate": false
+    },
+    {
+     "what": "KCS full-scale data and propeller (D = 7.9 m, 5 blades, P/D ~ 1.0)",
+     "ref": "Hino, T., Stern, F., Larsson, L., Visonneau, M., Hirata, N., Kim, J. (eds.) (2021). Numerical Ship Hydrodynamics: An Assessment of the Tokyo 2015 Workshop. Lecture Notes in Applied and Computational Mechanics 94, Springer. https://doi.org/10.1007/978-3-030-47572-7 (KCS: Lpp 230 m, B 32.2 m, T 10.8 m, D 19.0 m, Cb 0.6505, propeller D 7.9 m, 5 blades, scale 1:31.6)",
+     "estimate": false
+    },
+    {
+     "what": "KCS manoeuvring definition (rudder, propeller)",
+     "ref": "SIMMAN 2008 / 2014 workshop on verification and validation of ship manoeuvring simulation methods: KCS geometry and conditions. http://www.simman2014.dk/ship-data/moeri-container-ship-kcs/",
+     "estimate": false
+    },
+    {
+     "what": "hull form: super-ellipse sections on parametric waterlines tuned to Cb ~ 0.65, stem rake, forefoot, skeg and counter; the official KCS offsets are NOT reproduced",
+     "ref": "parametric approximation",
+     "estimate": true
+    },
+    {
+     "what": "bulb, rudder (5.3-6.0 m chord, NACA 0018), propeller blade outline and skew, deckhouse, bridge, funnel, lifeboats, hatch covers, 13-row container stowage (40-ft ISO boxes 12.19 x 2.44 x 2.59 m), propeller centre 4.4 m above the keel",
+     "ref": "estimates for a 3600-TEU class ship (the KCS was conceived without superstructure)",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "draft",
+     "default": 10.8,
+     "unit": "m"
+    },
+    {
+     "name": "trim",
+     "default": 0.0,
+     "unit": "m"
+    },
+    {
+     "name": "container_tiers",
+     "default": 4,
+     "unit": "-"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/marine_rail_space.py#L748",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"container_ship_kcs\", lod=\"light\")\ng.export(\"container_ship_kcs.glb\")"
+  },
+  {
+   "name": "f1_car",
+   "title": "Open-wheel racing car (Formula 1 style)",
+   "category": "ground_vehicle",
+   "description": "Monocoque with sidepods and engine cover, floor with diffuser, two-element front and rear wings with endplates (DRS open or closed), driver helmet, halo and four exposed wheels. In the spirit of the 2022+ regulations, not any team's car. Wraps pinneapple_design.geometry.vehicles3d.FormulaCar.",
+   "dimensions_m": {
+    "height_z": 1.03,
+    "length_x": 5.57,
+    "width_y": 1.968
+   },
+   "triangles": 23612,
+   "glb": "geometries/f1_car.light.glb",
+   "glb_repo": "data/geometries/f1_car/f1_car.light.glb",
+   "glb_bytes": 588980,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/f1_car/f1_car.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the front-wing leading edge, z = 0 on the ground for ground vehicles",
+   "physics": [
+    "ground-effect aerodynamics (downforce, floor and diffuser)",
+    "wake / dirty-air studies for following",
+    "DRS open / closed drag delta",
+    "tyre-wake interaction"
+   ],
+   "tags": [
+    "motorsport",
+    "ground effect"
+   ],
+   "sources": [
+    {
+     "what": "max wheelbase 3.6 m, width 2.0 m, height 0.95 m above the reference plane, 18-inch wheels (tyre diameter ~0.72 m)",
+     "ref": "FIA (2022). Formula 1 Technical Regulations, articles 3 and 10",
+     "estimate": false
+    },
+    {
+     "what": "wing chords, sidepod and engine-cover shapes",
+     "ref": "estimates from broadcast imagery",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "wheelbase",
+     "default": 3.6,
+     "unit": "m"
+    },
+    {
+     "name": "ride_height",
+     "default": 0.035,
+     "unit": "m"
+    },
+    {
+     "name": "front_wing_aoa",
+     "default": 4.0,
+     "unit": "deg"
+    },
+    {
+     "name": "front_flap_aoa",
+     "default": 22.0,
+     "unit": "deg"
+    },
+    {
+     "name": "rear_wing_aoa",
+     "default": 6.0,
+     "unit": "deg"
+    },
+    {
+     "name": "rear_flap_aoa",
+     "default": 32.0,
+     "unit": "deg"
+    },
+    {
+     "name": "drs_open",
+     "default": false,
+     "unit": ""
+    },
+    {
+     "name": "diffuser_angle",
+     "default": 13.0,
+     "unit": "deg"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/legacy.py#L148",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"f1_car\", lod=\"light\")\ng.export(\"f1_car.glb\")"
+  },
+  {
+   "name": "falcon9_booster",
+   "title": "Two-stage launcher (Falcon 9 Block 5 class)",
+   "category": "space",
+   "description": "Two-stage medium-lift launcher: 3.7 m core with a white first stage, black interstage carrying four titanium lattice grid fins, white second stage and a 5.2 m x 13.1 m ogive payload fairing; nine Merlin-class bells in an octaweb and four folding carbon landing legs. Grid-fin angle, leg deployment and fairing on / off for ascent and booster-return aerodynamics.",
+   "dimensions_m": {
+    "height_z": 70.0,
+    "length_x": 5.2,
+    "width_y": 5.2
+   },
+   "triangles": 11356,
+   "glb": "geometries/falcon9_booster.light.glb",
+   "glb_repo": "data/geometries/falcon9_booster/falcon9_booster.light.glb",
+   "glb_bytes": 281560,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/falcon9_booster/falcon9_booster.light.glb",
+   "frame": "right-handed, metres: z up along the vehicle axis, x / y lateral; origin on the axis in the plane of the first-stage nozzle exits; legs and grid fins at 45 / 135 / 225 / 315 deg azimuth",
+   "physics": [
+    "ascent aerodynamics (axial force, transonic buffet on the fairing / boattail)",
+    "booster re-entry and landing burn: grid-fin control authority, base heating of the octaweb",
+    "supersonic retro-propulsion plume-body interaction",
+    "structural loads: wind / max-q bending"
+   ],
+   "tags": [
+    "rocket",
+    "reusable booster",
+    "grid fins"
+   ],
+   "sources": [
+    {
+     "what": "height 70 m, core diameter 3.7 m, nine first-stage engines, black interstage, grid fins and four landing legs",
+     "ref": "SpaceX (2024). Falcon 9 vehicle overview (height 70 m, diameter 3.7 m, nine Merlin engines on the first stage, one Merlin Vacuum on the second). https://www.spacex.com/vehicles/falcon-9/",
+     "estimate": false
+    },
+    {
+     "what": "payload fairing outer diameter 5.2 m, height 13.1 m",
+     "ref": "SpaceX (2021). Falcon User's Guide, sections 1-3 and 5 (fairing 5.2 m outer diameter, 13.1 m height; vehicle configuration). https://www.spacex.com/media/falcon-users-guide-2021-09.pdf",
+     "estimate": false
+    },
+    {
+     "what": "stage break-down (first stage to 42.6 m, interstage to 47.3 m, second stage to 56.9 m), ogive shape, bell contour (exit diameter 0.86 m), octaweb ring radius 1.2 m",
+     "ref": "estimates from published photographs and the overall dimensions",
+     "estimate": true
+    },
+    {
+     "what": "grid fin 1.5 x 1.3 x 0.22 m with a 45-deg lattice, leg length 9.6 m, deployed leg angle 115 deg, leg / fin azimuths",
+     "ref": "estimates from photographs",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "grid_fin_angle",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "legs_deployed",
+     "default": false,
+     "unit": ""
+    },
+    {
+     "name": "fairing",
+     "default": true,
+     "unit": ""
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/marine_rail_space.py#L236",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"falcon9_booster\", lod=\"light\")\ng.export(\"falcon9_booster.glb\")"
+  },
+  {
+   "name": "helicopter_h145",
+   "title": "Light twin helicopter (H145 class)",
+   "category": "rotorcraft",
+   "description": "Light twin-engine helicopter: pod-and-boom fuselage with wrap-around glazing and a livery, engine cowling with exhausts, four-blade bearingless main rotor (NACA 0012/1312-type sections, -10 deg linear twist, collective, coning, azimuth), ducted Fenestron-type tail rotor with ten unevenly spaced blades in a shroud with fin and ventral fin, horizontal stabiliser with endplates and a skid landing gear; standing on the skids.",
+   "dimensions_m": {
+    "height_z": 3.945,
+    "length_x": 13.635,
+    "width_y": 10.99
+   },
+   "triangles": 12148,
+   "glb": "geometries/helicopter_h145.light.glb",
+   "glb_repo": "data/geometries/helicopter_h145/helicopter_h145.light.glb",
+   "glb_bytes": 338300,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/helicopter_h145/helicopter_h145.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the nose, z = 0 on the ground under the skids; length includes the main rotor turning (blade 1 over the nose at azimuth 0)",
+   "physics": [
+    "rotor aerodynamics in hover and forward flight (BEM, actuator disc, blade-resolved CFD)",
+    "rotor-fuselage interaction and download on the stabiliser",
+    "ducted tail-rotor (Fenestron) performance and acoustics",
+    "brown-out / downwash near the ground",
+    "ground resonance on skids"
+   ],
+   "tags": [
+    "helicopter",
+    "rotor",
+    "fenestron",
+    "EMS"
+   ],
+   "sources": [
+    {
+     "what": "main-rotor diameter 11.00 m, length rotors turning 13.64 m, fuselage length 11.64 m, height 3.95 m",
+     "ref": "Airbus Helicopters (2023). H145 technical data / H145 Technical Information brochure: main rotor diameter 11.00 m, length (rotors turning) 13.64 m, fuselage length 11.64 m, height 3.95 m. https://www.airbus.com/en/products-services/helicopters/civil-helicopters/h145",
+     "estimate": false
+    },
+    {
+     "what": "four-blade bearingless main rotor, Fenestron tail rotor",
+     "ref": "EASA (2023). Type-Certificate Data Sheet R.010 (MBB-BK 117 / H145): four-blade bearingless main rotor, ducted (Fenestron) tail rotor on the D-3 / H145 variants",
+     "estimate": false
+    },
+    {
+     "what": "blade chord 0.31 m, -10 deg twist, NACA 0012/1312 stand-ins (the actual DM-H3/H4 sections are not reproduced), Fenestron ~1.1 m duct with 10 blades, rotor-hub height 3.28 m, cabin width 1.74 m, skid track 2.2 m, stabiliser span 2.76 m",
+     "ref": "estimates from photographs and three-views",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "rotor_diameter",
+     "default": 11.0,
+     "unit": "m"
+    },
+    {
+     "name": "collective_deg",
+     "default": 6.0,
+     "unit": "deg"
+    },
+    {
+     "name": "rotor_azimuth_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "coning_deg",
+     "default": 2.5,
+     "unit": "deg"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/aircraft_new.py#L526",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"helicopter_h145\", lod=\"light\")\ng.export(\"helicopter_h145.glb\")"
+  },
+  {
+   "name": "high_speed_train",
+   "title": "High-speed train (ICE 3 / CRH3 class)",
+   "category": "rail",
+   "description": "Streamlined head car with a long nose, wrap-around windscreen and headlights, passenger window band and red livery stripe, bogies with 920 mm wheelsets behind fairings, gangway in the inter-car gap, a lowered pantograph on the roof and a trailing end car, on two rails and sleepers (top of rail z = 0). Nose length and number of cars (1-3) as parameters, zero yaw.",
+   "dimensions_m": {
+    "height_z": 5.067,
+    "length_x": 51.95,
+    "width_y": 2.95
+   },
+   "triangles": 12912,
+   "glb": "geometries/high_speed_train.light.glb",
+   "glb_repo": "data/geometries/high_speed_train/high_speed_train.light.glb",
+   "glb_bytes": 353884,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/high_speed_train/high_speed_train.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the nose, z = 0 at the top of rail (EN 14067 reference plane); rails and sleepers lie below z = 0",
+   "physics": [
+    "train aerodynamics: drag, slipstream and the nose pressure pulse (EN 14067)",
+    "crosswind stability (side force and roll moment; yaw by rotating the inflow)",
+    "tunnel entry micro-pressure waves and passing-train loads",
+    "pantograph aero-acoustics and under-body / ballast flow"
+   ],
+   "tags": [
+    "high-speed rail",
+    "train aerodynamics",
+    "slipstream"
+   ],
+   "sources": [
+    {
+     "what": "car width 2.95 m, height 3.89 m above top of rail, end car 25.675 m, intermediate car 24.775 m, bogie-centre distance 17.375 m, wheel diameter 0.92 m",
+     "ref": "Siemens Mobility (2018). Velaro D / ICE 3 (BR 407) and Velaro China (CRH3) technical data: car body width 2,950 mm, height above top of rail 3,890 mm, end-car length 25,675 mm, intermediate-car length 24,775 mm, bogie-centre distance 17,375 mm, wheel diameter 920 mm (new). Velaro product data sheets, https://www.mobility.siemens.com/global/en/portfolio/rail/rolling-stock/high-speed-and-intercity-trains/velaro.html",
+     "estimate": false
+    },
+    {
+     "what": "top of rail as the aerodynamic reference plane, standard gauge 1.435 m",
+     "ref": "CEN (2018). EN 14067-4: Railway applications - Aerodynamics - Part 4: Requirements and test procedures for aerodynamics on open track (top of rail as the reference plane, standard gauge 1435 mm)",
+     "estimate": false
+    },
+    {
+     "what": "rail profile (60E1-like, 172 mm high, 72 mm head, 150 mm foot)",
+     "ref": "CEN (2017). EN 13674-1: Railway applications - Track - Rail - Vignole railway rails 46 kg/m and above (60E1)",
+     "estimate": false
+    },
+    {
+     "what": "nose profile and plan-form curves, windscreen extent, window pitch 1.45 m, inter-car gap 0.6 m, bogie wheelbase 2.5 m, pantograph geometry, sleeper 2.6 x 0.26 x 0.22 m at 0.6 m",
+     "ref": "estimates from photographs of ICE 3 / CRH3 trains",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "nose_length",
+     "default": 10.0,
+     "unit": "m"
+    },
+    {
+     "name": "n_cars",
+     "default": 2,
+     "unit": "-"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/marine_rail_space.py#L517",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"high_speed_train\", lod=\"light\")\ng.export(\"high_speed_train.glb\")"
+  },
+  {
+   "name": "launch_vehicle_two_stage",
+   "title": "Two-stage launch vehicle with fins",
+   "category": "space",
+   "description": "Two-stage launcher with a tangent-ogive payload fairing, interstage, four tail fins in + configuration and a cluster of engine bells (plume off). Wraps pinneapple_design.geometry.vehicles3d.LaunchVehicle (Barrowman stability included there).",
+   "dimensions_m": {
+    "height_z": 7.8,
+    "length_x": 43.5,
+    "width_y": 7.8
+   },
+   "triangles": 34368,
+   "glb": "geometries/launch_vehicle_two_stage.light.glb",
+   "glb_repo": "data/geometries/launch_vehicle_two_stage/launch_vehicle_two_stage.light.glb",
+   "glb_bytes": 842796,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/launch_vehicle_two_stage/launch_vehicle_two_stage.light.glb",
+   "frame": "metres; x along the axis from the nose tip toward the engines (the free-stream direction in ascent), y and z across, fins in the x-y and x-z planes",
+   "physics": [
+    "ascent aerodynamics (transonic / supersonic drag, Cp)",
+    "static stability (Barrowman)",
+    "fin flutter / aeroelastic surrogates"
+   ],
+   "tags": [
+    "rocket",
+    "slender body"
+   ],
+   "sources": [
+    {
+     "what": "proportions of medium-lift launchers (fineness 12-15, fairing 1.2 x core)",
+     "ref": "generic; not a specific vehicle",
+     "estimate": true
+    },
+    {
+     "what": "fin aerodynamics",
+     "ref": "Barrowman, J. (1967). The practical calculation of the aerodynamic characteristics of slender finned vehicles. NASA Goddard",
+     "estimate": false
+    }
+   ],
+   "parameters": [
+    {
+     "name": "length",
+     "default": 42.0,
+     "unit": "m"
+    },
+    {
+     "name": "diameter",
+     "default": 3.0,
+     "unit": "m"
+    },
+    {
+     "name": "fin_span",
+     "default": 2.4,
+     "unit": "m"
+    },
+    {
+     "name": "n_engines",
+     "default": 7,
+     "unit": "-"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/legacy.py#L202",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"launch_vehicle_two_stage\", lod=\"light\")\ng.export(\"launch_vehicle_two_stage.glb\")"
+  },
+  {
+   "name": "pin_fin_heatsink",
+   "title": "Pin-fin heat sink",
+   "category": "thermal",
+   "description": "Electronics pin-fin heat sink: a 60 x 60 x 5 mm aluminium base plate carrying an in-line (or staggered) array of circular, square or elliptic pin fins set by diameter, height and pitch, with a copper heat-source pad under the base. Flow along x for forced-convection studies.",
+   "dimensions_m": {
+    "height_z": 0.0265,
+    "length_x": 0.06,
+    "width_y": 0.06
+   },
+   "triangles": 12924,
+   "glb": "geometries/pin_fin_heatsink.light.glb",
+   "glb_repo": "data/geometries/pin_fin_heatsink/pin_fin_heatsink.light.glb",
+   "glb_bytes": 317668,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/pin_fin_heatsink/pin_fin_heatsink.light.glb",
+   "frame": "right-handed, metres: x along the base length (cooling-air flow direction), y across, z up along the pins; origin at the centre of the base plate's underside (the heat-source pad lies below, z < 0)",
+   "physics": [
+    "conjugate heat transfer (pins + base, heat source)",
+    "forced convection and pressure drop across pin arrays (inline vs staggered)",
+    "flow bypass and fin-efficiency studies",
+    "thermal design optimisation (pin diameter / pitch / height)"
+   ],
+   "tags": [
+    "electronics cooling",
+    "pin fin",
+    "heat sink"
+   ],
+   "sources": [
+    {
+     "what": "pin-fin heat-sink family and test configuration (square base with in-line pin arrays, bypass flow, pin diameter / height / pitch as the design variables)",
+     "ref": "Jonsson, H., Moshfegh, B. (2001). Modeling of the thermal and hydraulic performance of plate fin, strip fin, and pin fin heat sinks - influence of flow bypass. IEEE Trans. Compon. Packag. Technol. 24(2), 142-149. https://doi.org/10.1109/6144.926376",
+     "estimate": false
+    },
+    {
+     "what": "in-line versus staggered pin-fin array arrangement",
+     "ref": "Sparrow, E.M., Ramsey, J.W., Altemani, C.A.C. (1980). Experiments on in-line pin fin arrays and performance comparisons with staggered arrays. J. Heat Transfer 102(1), 44-50. https://doi.org/10.1115/1.3244247",
+     "estimate": false
+    },
+    {
+     "what": "base 60 x 60 x 5 mm, pins d = 3 mm, h = 20 mm, pitch 6 mm (10 x 10), 25 mm heat-source pad: representative of the tested heat sinks, not the exact published specimens",
+     "ref": "engineering estimate",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "base_length",
+     "default": 0.06,
+     "unit": "m"
+    },
+    {
+     "name": "base_width",
+     "default": 0.06,
+     "unit": "m"
+    },
+    {
+     "name": "base_thickness",
+     "default": 0.005,
+     "unit": "m"
+    },
+    {
+     "name": "pin_diameter",
+     "default": 0.003,
+     "unit": "m"
+    },
+    {
+     "name": "pin_height",
+     "default": 0.02,
+     "unit": "m"
+    },
+    {
+     "name": "pitch",
+     "default": 0.006,
+     "unit": "m"
+    },
+    {
+     "name": "pin_shape",
+     "default": "circular",
+     "unit": ""
+    },
+    {
+     "name": "pin_aspect",
+     "default": 1.6,
+     "unit": ""
+    },
+    {
+     "name": "layout",
+     "default": "inline",
+     "unit": ""
+    },
+    {
+     "name": "heat_source",
+     "default": true,
+     "unit": ""
+    },
+    {
+     "name": "source_size",
+     "default": 0.025,
+     "unit": "m"
+    },
+    {
+     "name": "source_thickness",
+     "default": 0.0015,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/industrial_bio.py#L80",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"pin_fin_heatsink\", lod=\"light\")\ng.export(\"pin_fin_heatsink.glb\")"
+  },
+  {
+   "name": "quadrotor_drone",
+   "title": "Quadcopter drone (F450 frame class)",
+   "category": "aircraft",
+   "description": "X-configuration quadcopter on its landing legs: 450 mm diagonal frame with PCB centre plates, red front / white rear arms, 2212-class outrunner motors, four counter-rotating two-blade 10 x 4.5 in propellers (constant geometric pitch, cambered sections, swept tips), canopy, GPS mast, battery and a two-axis camera gimbal.",
+   "dimensions_m": {
+    "height_z": 0.2699,
+    "length_x": 0.5586,
+    "width_y": 0.4981
+   },
+   "triangles": 7960,
+   "glb": "geometries/quadrotor_drone.light.glb",
+   "glb_repo": "data/geometries/quadrotor_drone/quadrotor_drone.light.glb",
+   "glb_bytes": 239776,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/quadrotor_drone/quadrotor_drone.light.glb",
+   "frame": "right-handed, metres: x aft (the nose is between the two red arms, at -x), y to starboard, z up; origin on the ground below the frame centre (feet on z = 0)",
+   "physics": [
+    "multirotor aerodynamics (rotor-rotor and rotor-frame interaction, hover / forward flight)",
+    "propeller noise",
+    "ground effect and downwash",
+    "flight-dynamics / control surrogates"
+   ],
+   "tags": [
+    "drone",
+    "multirotor",
+    "UAV",
+    "propeller"
+   ],
+   "sources": [
+    {
+     "what": "450 mm diagonal wheelbase, 10 x 4.5 in propellers, 2212-class motors",
+     "ref": "DJI (2013). Flame Wheel F450 user manual / specifications: diagonal wheelbase 450 mm, frame weight 282 g, recommended 10 x 4.5 in propellers and 2212 motors. https://www.dji.com/flame-wheel-arf",
+     "estimate": false
+    },
+    {
+     "what": "constant geometric pitch: blade angle atan(P / (2 pi r))",
+     "ref": "standard propeller nomenclature (e.g. McCormick, B.W. (1995). Aerodynamics, Aeronautics and Flight Mechanics, 2nd ed., Wiley)",
+     "estimate": false
+    },
+    {
+     "what": "plate size, arm section, motor 28 x 26 mm, blade chord / thickness distribution, landing legs, 3S battery 135 x 43 x 26 mm, gimbal and camera sizes",
+     "ref": "estimates from hobby-grade parts",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "arm_diagonal",
+     "default": 0.45,
+     "unit": "m"
+    },
+    {
+     "name": "prop_diameter",
+     "default": 0.254,
+     "unit": "m"
+    },
+    {
+     "name": "prop_pitch",
+     "default": 0.1143,
+     "unit": "m"
+    },
+    {
+     "name": "rotor_azimuth_deg",
+     "default": 0.0,
+     "unit": "deg"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/aircraft_new.py#L723",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"quadrotor_drone\", lod=\"light\")\ng.export(\"quadrotor_drone.glb\")"
+  },
+  {
+   "name": "road_car",
+   "title": "Four-door road car (fastback / notchback)",
+   "category": "ground_vehicle",
+   "description": "Mid-size four-door saloon: super-elliptic body with glazing, lights, trim and wheel arches, four tyres with rims, slant / rear-window angle as the main aerodynamic parameter (Ahmed-body physics on a realistic shape). Wraps pinneapple_design.geometry.vehicles3d.RoadCar.",
+   "dimensions_m": {
+    "height_z": 1.392,
+    "length_x": 4.6,
+    "width_y": 1.86
+   },
+   "triangles": 21760,
+   "glb": "geometries/road_car.light.glb",
+   "glb_repo": "data/geometries/road_car/road_car.light.glb",
+   "glb_bytes": 553284,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/road_car/road_car.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the nose, z = 0 on the ground for ground vehicles",
+   "physics": [
+    "external aerodynamics with moving ground (drag, lift, wake)",
+    "slant-angle / rear-wake studies",
+    "aero-acoustics around the A-pillar",
+    "vehicle soiling and cooling-drag surrogates"
+   ],
+   "tags": [
+    "automotive",
+    "bluff body"
+   ],
+   "sources": [
+    {
+     "what": "D-segment saloon envelope (length 4.6-4.9 m, width 1.82-1.87 m, height 1.40-1.45 m)",
+     "ref": "manufacturer data of mid-size saloons; generic shape, not a specific model",
+     "estimate": true
+    },
+    {
+     "what": "slant-angle drag physics",
+     "ref": "Ahmed, S.R., Ramm, G., Faltin, G. (1984), SAE 840300",
+     "estimate": false
+    }
+   ],
+   "parameters": [
+    {
+     "name": "length",
+     "default": 4.6,
+     "unit": "m"
+    },
+    {
+     "name": "width",
+     "default": 1.86,
+     "unit": "m"
+    },
+    {
+     "name": "roof_height",
+     "default": 1.36,
+     "unit": "m"
+    },
+    {
+     "name": "clearance",
+     "default": 0.13,
+     "unit": "m"
+    },
+    {
+     "name": "windshield_deg",
+     "default": 28.0,
+     "unit": "deg"
+    },
+    {
+     "name": "slant_deg",
+     "default": 22.0,
+     "unit": "deg"
+    },
+    {
+     "name": "style",
+     "default": "fastback",
+     "unit": ""
+    },
+    {
+     "name": "wheelbase",
+     "default": 2.8,
+     "unit": "m"
+    },
+    {
+     "name": "wheel_radius",
+     "default": 0.35,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/legacy.py#L93",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"road_car\", lod=\"light\")\ng.export(\"road_car.glb\")"
+  },
+  {
+   "name": "turboprop_atr72",
+   "title": "Regional twin turboprop (ATR 72-600 class)",
+   "category": "aircraft",
+   "description": "High-wing regional twin turboprop on its gear: fuselage with cabin windows, cockpit glazing and a livery, untapered inner / tapered outer wing with a morphing plain flap and leading-edge de-icing boots, two nacelles with chin intakes and spinners, six-blade propellers lofted with constant geometric pitch, T-tail with dorsal fin, main-gear sponsons with twin wheels and a twin nose wheel.",
+   "dimensions_m": {
+    "height_z": 7.6485,
+    "length_x": 27.17,
+    "width_y": 27.05
+   },
+   "triangles": 18776,
+   "glb": "geometries/turboprop_atr72.light.glb",
+   "glb_repo": "data/geometries/turboprop_atr72/turboprop_atr72.light.glb",
+   "glb_bytes": 529684,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/turboprop_atr72/turboprop_atr72.light.glb",
+   "frame": "right-handed, metres: x aft from the nose (the free-stream direction), y to starboard (right), z up; origin on the centre plane at the nose, z = 0 on the ground (aircraft on its gear, tyres touching z = 0)",
+   "physics": [
+    "external aerodynamics of a high-wing turboprop (RANS, take-off / landing flap settings)",
+    "propeller-wing interaction and slipstream (actuator disc / sliding-mesh blades)",
+    "propeller aero-acoustics and cabin noise sources",
+    "icing on the wing and tail leading edges",
+    "ground effect and crosswind on the gear"
+   ],
+   "tags": [
+    "regional aircraft",
+    "turboprop",
+    "propeller",
+    "high wing",
+    "T-tail"
+   ],
+   "sources": [
+    {
+     "what": "overall length 27.17 m, span 27.05 m, height 7.65 m, wing area 61.0 m^2, wheel track 4.10 m, wheelbase 10.77 m, six-blade propellers of 3.93 m",
+     "ref": "ATR (2014). ATR 72-600 Aircraft Characteristics for Airport Planning (ATR 72 AC/AP), section 2 general dimensions; and ATR, 'ATR 72-600' product data sheet. https://www.atr-aircraft.com/our-aircraft/atr-72-600/",
+     "estimate": false
+    },
+    {
+     "what": "propeller diameter 3.93 m, six composite blades",
+     "ref": "Collins Aerospace (Hamilton Sundstrand) 568F six-blade composite propeller, diameter 3.93 m, as fitted to the ATR 72-600 (EASA Type-Certificate Data Sheet P.009 for 568F propellers; ATR 72 TCDS EASA.A.084)",
+     "estimate": false
+    },
+    {
+     "what": "fuselage maximum width 2.77 m and height 2.62 m (published external diameter quoted 2.77-2.87 m; 2.77 m used)",
+     "ref": "estimate from ATR 72 airport-planning cross-section",
+     "estimate": true
+    },
+    {
+     "what": "wing planform: constant chord to 4.6 m, taper 0.55 outboard, 3.1 deg LE sweep, 2 deg outer dihedral, NACA 3418 -> 3413 stand-ins for the ATR sections, 1 deg -> -2 deg twist",
+     "ref": "engineering estimates from public three-views",
+     "estimate": true
+    },
+    {
+     "what": "nacelle, sponson, fin / dorsal fillet, tailplane chords, blade chord / thickness / sweep, main tyre 0.82 m and nose tyre 0.45 m diameters, gear position",
+     "ref": "estimates from photographs and three-views",
+     "estimate": true
+    },
+    {
+     "what": "tailplane span 7.31 m",
+     "ref": "ATR 72 three-view dimension (published in Jane's All the World's Aircraft; treated as approximate)",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "wing_span",
+     "default": 27.05,
+     "unit": "m"
+    },
+    {
+     "name": "wing_area",
+     "default": 61.0,
+     "unit": "m^2"
+    },
+    {
+     "name": "flap_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "prop_diameter",
+     "default": 3.93,
+     "unit": "m"
+    },
+    {
+     "name": "blade_pitch_deg",
+     "default": 32.0,
+     "unit": "deg"
+    },
+    {
+     "name": "prop_azimuth_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "htail_span",
+     "default": 7.31,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/aircraft_new.py#L261",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"turboprop_atr72\", lod=\"light\")\ng.export(\"turboprop_atr72.glb\")"
+  },
+  {
+   "name": "viper_rover",
+   "title": "NASA VIPER lunar rover",
+   "category": "space",
+   "description": "Volatiles Investigating Polar Exploration Rover from public NASA figures: chassis with side and aft solar arrays, deck radiator, mast with camera head, high- and low-gain antennas, TRIDENT drill, four active-suspension corner modules with spoked, grousered wheels. Wraps pinneapple_simulation.vehicle.viper.viper().cad.",
+   "dimensions_m": {
+    "height_z": 2.4995,
+    "length_x": 1.6925,
+    "width_y": 1.539
+   },
+   "triangles": 24804,
+   "glb": "geometries/viper_rover.light.glb",
+   "glb_repo": "data/geometries/viper_rover/viper_rover.light.glb",
+   "glb_bytes": 918644,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/viper_rover/viper_rover.light.glb",
+   "frame": "right-handed, metres: x forward, y to the left, z up; origin on the ground below the chassis centre",
+   "physics": [
+    "terramechanics (wheel-soil, slip, sinkage)",
+    "multibody dynamics",
+    "thermal (lunar night, radiator)",
+    "lighting / perception at the lunar south pole"
+   ],
+   "tags": [
+    "planetary rover",
+    "terramechanics"
+   ],
+   "sources": [
+    {
+     "what": "1.5 m x 1.5 m x 2.5 m (mast up), ~450 kg, wheels ~0.5 m diameter, active suspension",
+     "ref": "NASA VIPER fact sheets and NTRS papers listed in pinneapple_simulation.vehicle.viper.VIPER_SOURCES",
+     "estimate": false
+    },
+    {
+     "what": "detail placement (antennas, hazcams, instruments)",
+     "ref": "estimates from NASA imagery",
+     "estimate": true
+    },
+    {
+     "what": "bounding box of the model: 1.69 m long (the front instruments and bumpers stand proud of the 1.5 m chassis), 1.54 m wide over the wheels, 2.50 m to the top of the mast",
+     "ref": "model geometry",
+     "estimate": false
+    }
+   ],
+   "parameters": [
+    {
+     "name": "wheel_radius",
+     "default": 0.25,
+     "unit": "m"
+    },
+    {
+     "name": "wheel_width",
+     "default": 0.2,
+     "unit": "m"
+    },
+    {
+     "name": "grouser_count",
+     "default": 24,
+     "unit": "-"
+    },
+    {
+     "name": "grouser_height",
+     "default": 0.025,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/legacy.py#L239",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"viper_rover\", lod=\"light\")\ng.export(\"viper_rover.glb\")"
+  },
+  {
+   "name": "wigley_hull",
+   "title": "Wigley parabolic hull",
+   "category": "marine",
+   "description": "The analytic Wigley hull y = (B/2)(1 - (2x/L)^2)(1 - (z/T)^2) below the waterline, continued wall-sided up to a flat deck at the freeboard: a closed solid (Cb = 4/9). The classic ITTC benchmark for wave resistance, sinkage / trim and potential-flow / RANS free-surface codes.",
+   "dimensions_m": {
+    "height_z": 0.1025,
+    "length_x": 1.0,
+    "width_y": 0.1
+   },
+   "triangles": 3958,
+   "glb": "geometries/wigley_hull.light.glb",
+   "glb_repo": "data/geometries/wigley_hull/wigley_hull.light.glb",
+   "glb_bytes": 103668,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/wigley_hull/wigley_hull.light.glb",
+   "frame": "right-handed, metres: x aft, y to starboard, z up; origin at midships on the centre plane in the calm waterline (bow at x = -L/2, stern at x = +L/2, keel at z = -T)",
+   "physics": [
+    "wave resistance and wave pattern (Michell thin-ship theory, Rankine panels)",
+    "RANS / VOF free-surface CFD validation (resistance, sinkage and trim)",
+    "seakeeping: heave / pitch response in head waves",
+    "mesh-convergence benchmark for hull CFD"
+   ],
+   "tags": [
+    "ship hydrodynamics",
+    "benchmark",
+    "analytic hull"
+   ],
+   "sources": [
+    {
+     "what": "parabolic waterlines and frames y = (B/2)(1-(2x/L)^2)(1-(z/T)^2)",
+     "ref": "Wigley, W.C.S. (1934). A comparison of experiment and calculated wave-profiles and wave-resistances for a form having parabolic waterlines. Proc. Royal Society of London A 144(851), 144-159. https://doi.org/10.1098/rspa.1934.0040",
+     "estimate": false
+    },
+    {
+     "what": "benchmark proportions L/B = 10, B/T = 1.6",
+     "ref": "Kajitani, H., Miyata, H., Ikehata, M., Tanaka, H., Adachi, H., Namimatsu, M., Ogiwara, S. (1983). The summary of the cooperative experiment on Wigley parabolic model in Japan. Proc. 2nd DTNSRDC Workshop on Ship Wave-Resistance Computations, Bethesda, 5-35 (ITTC Resistance Committee benchmark, L/B = 10, B/T = 1.6)",
+     "estimate": false
+    },
+    {
+     "what": "default L = 1 m (non-dimensional reference) and freeboard 0.04 L, wall-sided above the waterline",
+     "ref": "choice for a normalised closed solid",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "length",
+     "default": 1.0,
+     "unit": "m"
+    },
+    {
+     "name": "beam",
+     "default": 0.1,
+     "unit": "m"
+    },
+    {
+     "name": "draft",
+     "default": 0.0625,
+     "unit": "m"
+    },
+    {
+     "name": "freeboard",
+     "default": 0.04,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/marine_rail_space.py#L109",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"wigley_hull\", lod=\"light\")\ng.export(\"wigley_hull.glb\")"
+  },
+  {
+   "name": "wind_turbine_nrel5mw",
+   "title": "NREL 5-MW reference wind turbine",
+   "category": "energy",
+   "description": "Three-bladed upwind 5-MW turbine: blades lofted through the published chord / twist table with a cylinder-to-airfoil root transition, 2.5 deg precone, 5 deg shaft tilt, hub with spinner, nacelle and tapered tower (onshore, base at z = 0). Rotor azimuth, blade pitch and yaw-free geometry for rotor CFD (actuator line / sliding mesh), wake and loads studies.",
+   "dimensions_m": {
+    "height_z": 152.465,
+    "length_x": 24.4935,
+    "width_y": 109.2903
+   },
+   "triangles": 16816,
+   "glb": "geometries/wind_turbine_nrel5mw.light.glb",
+   "glb_repo": "data/geometries/wind_turbine_nrel5mw/wind_turbine_nrel5mw.light.glb",
+   "glb_bytes": 413848,
+   "glb_hub": "https://huggingface.co/datasets/PINNeAPPle-Labs/geometry-library/resolve/main/wind_turbine_nrel5mw/wind_turbine_nrel5mw.light.glb",
+   "frame": "right-handed, metres: x downwind, y lateral, z up; origin at the tower base on the ground; rotor upwind of the tower (x < 0)",
+   "physics": [
+    "rotor aerodynamics (BEM, actuator line, blade-resolved CFD)",
+    "wake and wind-farm interaction",
+    "aeroelastic blade loads",
+    "tower shadow, icing, erosion of the leading edge"
+   ],
+   "tags": [
+    "wind energy",
+    "rotor",
+    "reference turbine"
+   ],
+   "sources": [
+    {
+     "what": "rotor 126 m, hub 3 m, hub height 90 m, precone 2.5 deg, shaft tilt 5 deg, overhang 5 m, blade chord / twist / airfoil table, tower 6 m -> 3.87 m over 87.6 m",
+     "ref": "Jonkman, J., Butterfield, S., Musial, W., Scott, G. (2009). Definition of a 5-MW Reference Wind Turbine for Offshore System Development. NREL/TP-500-38060. https://doi.org/10.2172/947422",
+     "estimate": false
+    },
+    {
+     "what": "airfoil shapes: the DU 40/35/30/25/21 and NACA 64-618 sections are approximated by NACA 4-digit sections with the same thickness ratio and 2-4 % camber",
+     "ref": "approximation (coordinates of the DU sections are not reproduced)",
+     "estimate": true
+    },
+    {
+     "what": "bounding box: 109.3 m wide because at azimuth 0 the blades point up and at +-120 deg (2 R sin 120 deg), 152.5 m high (hub 90 m + R cos(precone))",
+     "ref": "model geometry",
+     "estimate": false
+    },
+    {
+     "what": "nacelle 14 x 3.8 x 3.9 m and spinner shape",
+     "ref": "estimates from 5-MW-class nacelles",
+     "estimate": true
+    }
+   ],
+   "parameters": [
+    {
+     "name": "rotor_diameter",
+     "default": 126.0,
+     "unit": "m"
+    },
+    {
+     "name": "hub_diameter",
+     "default": 3.0,
+     "unit": "m"
+    },
+    {
+     "name": "hub_height",
+     "default": 90.0,
+     "unit": "m"
+    },
+    {
+     "name": "pitch_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "rotor_azimuth_deg",
+     "default": 0.0,
+     "unit": "deg"
+    },
+    {
+     "name": "precone_deg",
+     "default": -2.5,
+     "unit": "deg"
+    },
+    {
+     "name": "shaft_tilt_deg",
+     "default": 5.0,
+     "unit": "deg"
+    },
+    {
+     "name": "overhang",
+     "default": 5.0,
+     "unit": "m"
+    },
+    {
+     "name": "nacelle_length",
+     "default": 14.0,
+     "unit": "m"
+    }
+   ],
+   "code": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_design/geometry_library/entries/wind_turbine.py#L81",
+   "regenerate": "import pinneapple as pp\ng = pp.geometries.build(\"wind_turbine_nrel5mw\", lod=\"light\")\ng.export(\"wind_turbine_nrel5mw.glb\")"
+  }
+ ]
+}

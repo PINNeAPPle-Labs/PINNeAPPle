@@ -1,0 +1,45 @@
+{
+ "pacote": "pinneapple_query",
+ "objetivo": "`pinneapple_query` é o motor genérico de consultas físicas (Physics Query Engine). A ideia: pedir uma grandeza física (por exemplo `T`) num lugar físico estável (por exemplo `die@0.3,0.7`), sob certas condições (por exemplo um mapa de potência), com uma precisão-alvo. A resposta traz o valor, a unidade, a incerteza, o domínio de validade, a proveniência e o método que a produziu, e diz se o valor foi *lido* de um estado já resolvido (`read`), *previsto* para condições não resolvidas (`predicted`) ou obtido por uma nova solução (`solved`).\n\nO problema que resolve é escolher, a cada pergunta, o caminho mais barato que ainda cumpre a precisão pedida. Um `Planner` pergunta a cada `Method` registrado por uma `Offer` (se pode responder, a que custo esperado, com que limite de erro, dentro de que validade) e escolhe a oferta válida mais barata cujo limite atende o alvo; se nenhuma atende, fica com a de menor limite de erro; um método de último recurso (`fallback`, tipicamente uma solução completa) só entra quando ninguém oferece. O `Engine` guarda um log de cada resposta (método, tipo, latência) para auditoria e aceita ganchos (`hooks`).\n\nO pacote é pequeno e só tem a parte genérica: `core` (consulta, ofertas, planejador, respostas) e `refs` (referências físicas independentes de malha, como `ubump[12,40]`, `interface:die/tim` ou `lid:top`). Os métodos de uma física concreta ficam junto dela: para o encapsulamento de chips, `pinneapple_condense.query.package_engine` registra os métodos `cached`, `superposition`, `bound`, `condensed` e `reference`. No resto da plataforma, o nó `query.package` de `pinneapple_flow` expõe isso como um passo de fluxo, e `examples/physics_query/run_demo.py` é a demonstração medida (resultado gravado em `examples/physics_query/results/query_demo.json`). É uma linha de pesquisa (\"track 2\" no CHANGELOG), não uma API estável de `pp.*`.",
+ "submodulos": {
+  "core": "Consulta (`Query`), oferta (`Offer`), resposta (`Answer`), interface de método (`Method`), planejador (`Planner`) e motor (`Engine`).",
+  "refs": "Referências físicas estáveis (`PhysicalRef`) e o parser das suas formas em texto (`parse_ref`)."
+ },
+ "modulos": {
+  "pinneapple_query": "Fachada do pacote: reexporta `Engine`, `Planner`, `Method`, `Offer`, `Answer`, `Query`, `condition_key`, `PhysicalRef` e `parse_ref`; o docstring mostra o uso com `pinneapple_condense.query.package_engine`.",
+  "pinneapple_query.core": "Motor de consultas: o `Planner` coleta ofertas dos métodos e escolhe a mais barata que cumpre a precisão; o `Engine` executa, mede o tempo, registra as ofertas e grava um log de auditoria. `Method` é só interface (levanta NotImplementedError); [sem teste direto] — coberto por `tests/test_query.py` via `pinneapple_condense.query`.",
+  "pinneapple_query.refs": "Referências físicas independentes de malha (componente + coordenada fracionária local, índice de bloco, faixa de blocos, interface ou face) e o parser das formas de texto. [sem teste direto] — `tests/test_query.py` testa `parse_ref` pela fachada do pacote."
+ },
+ "simbolos": {
+  "pinneapple_query.core:Query": "Uma consulta: grandeza, referência física (`where`), tempo, condições, precisão absoluta desejada e se só valem métodos com limite rigoroso; `key` é o hash das condições.",
+  "pinneapple_query.core:Offer": "Oferta de um método para uma consulta: custo esperado em segundos, limite de erro esperado, se é válida, se o limite é rigoroso e o porquê.",
+  "pinneapple_query.core:Answer": "Resposta: valor, unidade, incerteza, tipo (`read`, `predicted` ou `solved`), método, validade, proveniência, tempo gasto, ofertas consideradas e, se rigorosa, o intervalo.",
+  "pinneapple_query.core:Method": "Interface de um modo de responder: `offer` decide barato se pode responder e `answer` calcula; ambos levantam NotImplementedError na classe base.",
+  "pinneapple_query.core:Planner": "Escolhe o método: a oferta válida mais barata que atende a precisão; senão a de menor limite de erro; o `fallback` só quando nenhum método oferece (sem fallback, levanta LookupError).",
+  "pinneapple_query.core:Engine": "Ponto de entrada `query(quantity, where, ...)`: aplica a precisão padrão por grandeza, consulta o `Planner`, mede a latência, anexa as ofertas, chama os ganchos e grava o log de auditoria.",
+  "pinneapple_query.core:condition_key": "Hash SHA-256 estável (16 caracteres) das condições de uma consulta; arrays entram pelos seus bytes.",
+  "pinneapple_query.refs:PhysicalRef": "Referência física imutável: componente, coordenadas locais fracionárias, índice de feature repetida, faixa de blocos e tipo (`point`, `feature`, `region`, `interface` ou `face:...`); `str()` volta à forma de texto.",
+  "pinneapple_query.refs:parse_ref": "Converte textos como `die@0.31,0.72`, `ubump[12,40]`, `interface:die/tim[3:9,0:4]`, `region:die[...]` ou `lid:top` em `PhysicalRef`; rejeita coordenadas locais fora de [0, 1]."
+ },
+ "exemplos": [
+  {
+   "titulo": "Referências físicas e seus tipos",
+   "caminho": "tests/test_query.py",
+   "codigo": "def test_physical_references():\n    r = parse_ref(\"die@0.25,0.5\")\n    assert (r.component, r.local, r.kind) == (\"die\", (0.25, 0.5), \"point\")\n    assert parse_ref(\"ubump[3,4]\").index == (3, 4) and parse_ref(\"ubump[3,4]\").kind == \"feature\"\n    i = parse_ref(\"interface:die/tim[0:2,1:3]\")\n    assert i.kind == \"interface\" and i.span == ((0, 2), (1, 3)) and i.component == \"die/tim\"\n    assert parse_ref(\"lid:top\").kind == \"face:top\"\n    assert str(parse_ref(\"die@0.25,0.5,1\")) == \"die@0.25,0.5,1\"\n    with pytest.raises(ValueError):\n        parse_ref(\"die@1.5,0.2\")                                   # local coordinates are fractions"
+  },
+  {
+   "titulo": "Resolver uma vez, depois ler do estado resolvido",
+   "caminho": "tests/test_query.py",
+   "codigo": "def test_solved_then_read_with_physical_points(engine):\n    pkg, eng, model = engine\n    a = eng.query(\"Tj_max\", \"region:die\", accuracy=1e-9)          # nothing solved: the reference solves\n    assert a.kind == \"solved\" and a.method == \"reference\"\n    b = eng.query(\"T\", \"die@0.4,0.6\")\n    c = eng.query(\"T\", \"die@0.4,0.6,0.5\")\n    assert b.kind == c.kind == \"read\" and b.method == \"cached\""
+  }
+ ],
+ "limitacoes": [
+  "O pacote só traz a parte genérica: sem métodos concretos ele não responde nada. Hoje os únicos métodos estão em `pinneapple_condense.query` (encapsulamento de chips).",
+  "`Method.offer` e `Method.answer` levantam NotImplementedError: cada física precisa implementar sua própria subclasse.",
+  "Os módulos `core` e `refs` não têm teste que os importe diretamente; a cobertura vem de `tests/test_query.py`, que passa pelos métodos de `pinneapple_condense`.",
+  "As formas de referência (`die@...`, `ubump[...]`, `tsv[...]`, `c4[...]`, `lid:top`) foram pensadas para encapsulamento de chips; outra geometria precisa definir seus próprios nomes de componente.",
+  "A escolha do `Planner` confia nos custos e limites de erro que cada método declara na oferta; o motor não verifica se esses limites são verdadeiros.",
+  "Sem precisão-alvo (nem na consulta nem em `default_accuracy`), o planejador escolhe a oferta de menor limite de erro, que pode ser a mais cara.",
+  "É linha de pesquisa (\"track 2\" no CHANGELOG), sem entrada em `pp.*`."
+ ]
+}

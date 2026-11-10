@@ -42,13 +42,20 @@ def layouts(n_samples, n, seed):
     return ob.threshold_coefficient(ob.periodic_grf(n_samples, (n, n), alpha=2.0, tau=3.0, seed=seed))
 
 
-def main(smoke: bool = False, base: str | None = None, steps: int | None = None, padding: int = 8) -> dict:
+def main(smoke: bool = False, base: str | None = None, steps: int | None = None, padding: int = 8,
+         train_seed: int = 0, test_seed: int = 1, model_seed: int | None = None) -> dict:
     """``base``: folder for results/ (default: this folder; tests pass a temporary one)."""
     out = os.path.join(base or HERE, "results")
     os.makedirs(out, exist_ok=True)
     n, n_train, n_test = (16, 24, 8) if smoke else (32, 400, 50)
     steps = steps or (6 if smoke else 2700)
-    a_tr, a_te = layouts(n_train, n, 0), layouts(n_test, n, 1)                   # the layouts of example 07
+    if model_seed is not None:
+        import torch
+        torch.manual_seed(int(model_seed))
+        np.random.seed(int(model_seed))
+    if train_seed == test_seed:
+        raise ValueError("train_seed and test_seed must differ for held-out evaluation")
+    a_tr, a_te = layouts(n_train, n, train_seed), layouts(n_test, n, test_seed)                   # the layouts of example 07
     u_tr = np.stack([ob.darcy_2d(a) for a in a_tr])
     u_te = np.stack([ob.darcy_2d(a) for a in a_te])
     t0 = time.time()
@@ -70,6 +77,7 @@ def main(smoke: bool = False, base: str | None = None, steps: int | None = None,
     summary = {"model": "pinneapple_neural FNO2d", "padding": padding, "decision": report.decisao,
                "test_rel_l2": rel, "max_hotspot_error_K": hotspot, "fno_parameters": pred.n_parameters(),
                "training": res.to_dict() | {"history": None}, "train_steps": steps,
+               "train_seed": train_seed, "test_seed": test_seed, "model_seed": model_seed,
                "infer_ms_per_layout": infer_s * 1e3, "solver_ms_per_layout": solver_s * 1e3,
                "same_data_as": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
                "checks": [c.to_dict() for c in checks]}
@@ -104,5 +112,9 @@ if __name__ == "__main__":
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--steps", type=int, default=None)
     ap.add_argument("--padding", type=int, default=8)
+    ap.add_argument("--train-seed", type=int, default=0)
+    ap.add_argument("--test-seed", type=int, default=1)
+    ap.add_argument("--model-seed", type=int, default=None)
     a = ap.parse_args()
-    main(a.smoke, steps=a.steps, padding=a.padding)
+    main(a.smoke, steps=a.steps, padding=a.padding, train_seed=a.train_seed,
+         test_seed=a.test_seed, model_seed=a.model_seed)

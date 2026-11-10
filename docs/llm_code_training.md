@@ -53,10 +53,11 @@ by the package. The train command does not upload data to any LLM API.
   The built-in secret check is a limited pattern-based safeguard, not a full audit.
 - Current code samples teach explanation of available APIs, not verified
   engineering problem solving or agent tool use.
-- The existing LoRA backend trains on the train split but does not yet score
-  the held-out validation split. Do not claim a benchmark score from its loss.
-- The current backend also computes language-model loss over the prompt; a
-  completion-only masking improvement is planned separately.
+- The LoRA backend evaluates the held-out validation split when nonempty,
+  recording metrics in `pinneapple_finetune_metrics.json`. These are language-model
+  metrics, not independent physics benchmark scores.
+- The backend masks instruction tokens (`-100`) so supervised loss is computed
+  on responses, and masks padding as well.
 - The generator's file-level split is weaker than held-out tasks/projects.
   For scientific reasoning claims, benchmark held-out PDE families, physical
   invariants, API/tool usage and refusal behavior.
@@ -69,3 +70,41 @@ by the package. The train command does not upload data to any LLM API.
 Add a verified execution-example generator, prompt/completion-only loss
 masking, validation evaluation, vulnerability/secret audits and held-out
 Physics AI benchmarks. Keep these gates separate from code extraction.
+
+
+## Import actual executed examples
+
+Evidence-backed examples are intentionally separate from docstring-derived data.
+First run and review the real PINNeAPPle experiments, preserving a text or JSON
+artifact with solver results and physics checks. Then create a JSONL of entries
+with the fields below (the hash must be calculated from the real evidence file):
+
+```json
+{
+  "prompt": "Explain the measured residual of this verified experiment",
+  "response": "Measured result from the attached execution evidence",
+  "command": "python examples/my_experiment.py",
+  "exit_code": 0,
+  "evidence_path": "artifacts/run-001/metrics.json",
+  "evidence_sha256": "<64-character actual SHA-256>",
+  "reviewed": true,
+  "physics_checks": ["residual", "boundary_conditions"],
+  "source_revision": "<actual Git commit>"
+}
+```
+
+```bash
+python -m pinneapple_llm.code_training ingest-evidence \
+  --input artifacts/reviewed_executions.jsonl \
+  --output artifacts/verified_training.jsonl \
+  --root .
+```
+
+The importer checks review flags, successful exit codes, file containment,
+content checksums, and duplicates, and emits a rejection report. It does not
+run commands or independently recompute PDE residuals. The recorded checks
+remain assertions from the supplied evidence until a separate VeriPhysics
+recomputation is integrated. Review the exported JSONL before using it in
+training. The training command currently accepts the source-code dataset
+directory; mixing execution and code samples into one versioned manifest is
+still a follow-up.

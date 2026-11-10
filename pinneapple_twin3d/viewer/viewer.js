@@ -13,6 +13,7 @@
 //   &theme=dark|light           colour theme
 //   &range=min,max              fixed colour range
 //   &speed=ms                   playback interval per time step (default 250)
+//   &lod=1|2|...                explicit visual LOD (field-free scenes only)
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -94,11 +95,19 @@ async function load() {
     (m.source ? ` · fonte: ${m.source}` : "");
 
   const base = new URL(".", sceneUrl);
+  // LOD GLBs are visual-only. Never substitute one when physical vertex fields
+  // exist: fields.bin is indexed by vertices of the authoritative geometry.
+  const requestedLod = Number(params.get("lod") || 0);
+  const visualLod = Number.isInteger(requestedLod) && requestedLod > 0 && !m.fields.length
+    ? (m.visual_lods || []).find((level) => level.level === requestedLod)
+    : null;
+  const geometryFile = visualLod ? visualLod.file : m.geometry;
   const [gltf, buf] = await Promise.all([
-    new GLTFLoader().loadAsync(new URL(m.geometry, base).href),
+    new GLTFLoader().loadAsync(new URL(geometryFile, base).href),
     (m.fields.length || (m.motions || []).length || (m.visibility || []).length) ? fetch(new URL(m.fields_file, base)).then((r) => r.arrayBuffer()) : Promise.resolve(new ArrayBuffer(0)),
   ]);
   state.fields = buf;
+  if (visualLod) $("meta").textContent += ` · visual LOD ${visualLod.level}`;
 
   const byName = new Map();
   gltf.scene.traverse((o) => { if (o.isMesh) byName.set(o.name, o); });

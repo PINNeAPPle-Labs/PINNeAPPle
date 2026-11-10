@@ -34,3 +34,34 @@ Outputs: numerical parameter calibration, SHA256 provenance, held-out RMSE/MAE/m
 Before scientific or commercial claims, validate the new continuous-time ODE PINN on the actual data, check multi-campaign train/test separation, free-running rollouts, parameter calibration fairness, repeated seeds, uncertainty and energy-conservation metrics described in #1592.
 
 The KIT B3/R1 column mapping is verified against the [official CSVW metadata](https://zenodo.org/records/21157950/files/Metadata.json?download=1). Verify completeness and physical meaning on the actual measurements before interpreting the resulting metrics.
+
+## Independent-campaign, multi-seed evaluation
+
+The cross-campaign runner fits on the first 80% of the training campaign,
+selects neural checkpoints using the remaining 20%, and scores all candidates
+on a separate held-out campaign. It produces `metrics.csv`,
+`predictions.csv`, `seed_summary.json`, `ensemble_intervals.csv`,
+`rc_energy_balance.json`, `provenance.json` and a comparison plot.
+
+```bash
+python examples/real_world_thermal/run_cross_campaign.py \
+  --train data/kit_thermal/Exp1_tot.csv \
+  --test data/kit_thermal/Exp2_tot.csv \
+  --mapping examples/real_world_thermal/kit_b3_r1_mapping.json \
+  --seeds 0,1,2,3,4 --epochs 400 \
+  --output reports/kit_exp1_to_exp2
+```
+
+**Interpretation constraints:** one-step networks and the RC one-step baseline
+use observed lagged temperatures. The RC autonomous rollout does not.
+The continuous ODE PINN is evaluated on a reset elapsed-time coordinate, not
+an initialized physical rollout. Ensemble intervals are across-seed quantiles,
+**not calibrated predictive confidence intervals**. RC energy-balance parameters
+assume heating efficiency equals 1; capacity and efficiency cannot generally
+be identified independently from these measurements alone. Check campaign
+sensor compatibility before interpreting any metric.
+
+Execution and validation follow-ups: #1622 (CI), #1623 (real data),
+#1624 (five-seed cross-campaign fairness), #1625 (physical checks and report),
+#1626 (review/merge). None of these are considered complete by the existence
+of this code alone.

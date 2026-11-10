@@ -178,9 +178,11 @@ def patch_triangles(case: str, patch: str) -> tuple[np.ndarray, np.ndarray, np.n
         f = faces[fid]
         base = len(verts)
         verts.extend(pts[v] for v in f)
+        # one cell index per *vertex*: the caller paints vertices with the field of the cell the
+        # face bounds, and a quad contributes four of them
+        per_face.extend([int(owner[fid])] * len(f))
         for j in range(1, len(f) - 1):
             tris.append([base, base + j, base + j + 1])
-            per_face.append(int(owner[fid]))
     return np.array(verts), np.array(tris, dtype=np.int64), np.array(per_face, dtype=np.int64)
 
 

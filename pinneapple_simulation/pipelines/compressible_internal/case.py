@@ -34,7 +34,8 @@ from typing import Any
 from .passage import MeshSummary, PassageSpec, build_mesh
 from .physics import Conditions, Gas, peng_robinson, sutherland_mu
 
-__all__ = ["write_case", "run_case", "RunResult", "case_ready", "inlet_area_m2"]
+__all__ = ["write_case", "run_case", "read_run", "RunResult", "case_ready", "inlet_area_m2",
+           "estimate_mass_flow", "resolved_mass_flow"]
 
 _HEADER = ("/*--------------------------------*- C++ -*----------------------------------*\\\n"
            "| =========                 |                                                 |\n"
@@ -518,6 +519,40 @@ def _openfoam(cmd: str, cwd: str, timeout: float) -> tuple[int, str]:
         return 127, "openfoam not on PATH: install the native OpenFOAM app, or use the docker image"
     proc = subprocess.run([exe, "-c", cmd], cwd=cwd, capture_output=True, text=True, timeout=timeout)
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+def read_run(case_dir: str, *, solver: str = "rhoSimpleFoam") -> RunResult:
+    """The verdict of a run that already happened, from its logs — nothing is executed.
+
+    ``run_case`` runs the solver; this reads what it left behind, which is what a study being
+    re-assembled (or a monitor) needs. Re-running the solver to "read" a case would silently
+    overwrite the very result being read.
+    """
+    log_path = os.path.join(case_dir, f"log.{solver}")
+    text = ""
+    if os.path.exists(log_path):
+        with open(log_path, encoding="utf-8", errors="replace") as f:
+            text = f.read()
+    residuals: dict[str, float] = {}
+    for m in re.finditer(r"Solving for (\w+), Initial residual = ([-+0-9.eE]+)", text):
+        residuals[m.group(1)] = float(m.group(2))
+    check_log = os.path.join(case_dir, "log.checkMesh")
+    checkmesh_log = ""
+    if os.path.exists(check_log):
+        with open(check_log, encoding="utf-8", errors="replace") as f:
+            checkmesh_log = f.read()[-2000:]
+    mesh_ok = "Mesh OK" in checkmesh_log
+    converged = ("SIMPLE solution converged" in text
+                 or (residuals.get("p", 1.0) < 1e-3 and residuals.get("Ux", 1.0) < 1e-4))
+    times = sorted((d for d in os.listdir(case_dir)
+                    if re.fullmatch(r"[0-9.eE+-]+", d) and os.path.isdir(os.path.join(case_dir, d))),
+                   key=float)
+    return RunResult(case_dir=case_dir, ok=bool(converged and mesh_ok),
+                     elapsed_s=0.0, n_iter=len(re.findall(r"^Time = ", text, flags=re.M)),
+                     residuals=residuals, mesh_ok=mesh_ok, checkmesh_log=checkmesh_log,
+                     solver_log=log_path, times=times,
+                     note="" if converged else "o log termina com os resíduos no patamar",
+                     converged=converged)
 
 
 def run_case(case_dir: str, *, timeout: float = 7200.0, check: bool = True,

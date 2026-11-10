@@ -70,7 +70,8 @@ def iec_flow_coefficient(mdot_kg_s: float, p_in_pa: float, p_out_pa: float, rho_
     dp_bar = max(p_in_pa - p_out_pa, 0.0) / 1e5
     q_m3h = mdot_kg_s / rho_in * 3600.0
     # IEC 60534-2-1's compressible form, rearranged for the coefficient the flow implies
-    kv = q_m3h / max(Y * math.sqrt((rho_in / 998.2) / dp_bar), 1e-30) if dp_bar > 0 else float("nan")
+    # Q = Kv Y sqrt(dP / rho_rel)  =>  Kv = Q sqrt(rho_rel / dP) / Y
+    kv = (q_m3h * math.sqrt((rho_in / 998.2) / dp_bar) / Y) if dp_bar > 0 else float("nan")
     return {"Kv_iec": kv, "Y": Y, "choked": bool(choked), "x": x, "x_choked": x_choked}
 
 
@@ -206,7 +207,8 @@ def run_checks(result, fields, passage, gas: Gas, conditions, run, *, cfd_report
                       "afogado_esperado": choked_expected, "Ma_max": round(ma, 4)}, detail))
 
     # ------------------------------------------------------------------ Joule-Thomson
-    rows.append(_joule_thomson_row(gas, conditions, result))
+    rows.append(_joule_thomson_row(gas, conditions, result,
+                                   passage.spans[-1].radii[-1] * 1e-3))
 
     # ------------------------------------------------------------------ real gas vs ideal
     rho_pr = peng_robinson(gas, p_in, result.T_in_K)["rho"]
@@ -238,7 +240,7 @@ def run_checks(result, fields, passage, gas: Gas, conditions, run, *, cfd_report
     return rows
 
 
-def _joule_thomson_row(gas: Gas, conditions, result) -> dict[str, Any]:
+def _joule_thomson_row(gas: Gas, conditions, result, passage_radius: float = 0.01) -> dict[str, Any]:
     """The outlet temperature against the library's isenthalpic path (GERG-2008 when it can)."""
     reference, how = None, ""
     try:                                             # the library's own real-gas reference
@@ -260,13 +262,22 @@ def _joule_thomson_row(gas: Gas, conditions, result) -> dict[str, Any]:
                     f"a referência isentálpica não pôde ser calculada ({how}); dT do CFD = "
                     f"{result.dT_K:+.3f} K")
     dT_ref = reference - result.T_in_K
-    err = abs(result.T_out_K - reference)
+    # static against static, with the kinetic energy: the reference is a gas brought to rest, the run
+    # leaves at 100+ m/s, and T + u^2/(2 Cp) is what a throttle conserves. Without this the check
+    # blames the CFD for a drop that is the flow accelerating out of the port.
+    rho_out = peng_robinson(gas, result.p_out_pa, result.T_out_K)["rho"]
+    u_out = result.mdot_kg_s / max(rho_out * math.pi * passage_radius ** 2, 1e-12)
+    t_corrected = result.T_out_K + 0.5 * u_out ** 2 / gas.Cp_ig
+    err = abs(t_corrected - reference)
     ideal = 0.0
     status = "pass" if err < 1.0 else ("fail" if err > 3.0 else "inconclusive")
     return _row("joule.thomson", status,
                 {"T_saida_cfd_K": round(result.T_out_K, 3), "T_saida_referencia_K": round(reference, 3),
                  "dT_cfd_K": round(result.dT_K, 3), "dT_referencia_K": round(dT_ref, 3),
-                 "dT_gas_ideal_K": ideal, "diferenca_K": round(result.T_out_K - reference, 3)},
-                f"a laminação é isentálpica: referência {how:35s} dá {dT_ref:+.3f} K, o CFD dá "
-                f"{result.dT_K:+.3f} K (diferença {result.T_out_K - reference:+.3f} K, critério 1 K); "
-                f"um gás ideal daria 0,000 K")
+                 "u_saida_m_s": round(u_out, 2),
+                 "correcao_cinetica_K": round(t_corrected - result.T_out_K, 3),
+                 "dT_gas_ideal_K": ideal, "diferenca_com_correcao_K": round(t_corrected - reference, 3)},
+                f"a laminação é isentálpica: referência {how:35s} dá {dT_ref:+.3f} K; o CFD mede "
+                f"{result.dT_K:+.3f} K, que com a energia cinética de saída ({u_out:.0f} m/s, "
+                f"{t_corrected - result.T_out_K:+.3f} K) vira {t_corrected - result.T_in_K:+.3f} K "
+                f"(diferença {t_corrected - reference:+.3f} K, critério 1 K); um gás ideal daria 0,000 K")

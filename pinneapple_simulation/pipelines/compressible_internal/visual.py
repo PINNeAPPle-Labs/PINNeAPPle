@@ -44,7 +44,10 @@ ply, out_dir, frames, orbit, samples, res, title = (args[0], args[1], int(args[2
                                                     int(args[4]), int(args[5]), args[6])
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
-bpy.ops.import_mesh.ply(filepath=ply)
+try:
+    bpy.ops.wm.ply_import(filepath=ply)          # Blender 4.x and later
+except (AttributeError, RuntimeError):
+    bpy.ops.import_mesh.ply(filepath=ply)        # Blender 3.x
 ob = bpy.context.object
 me = ob.data
 attr = me.color_attributes[0] if len(me.color_attributes) else None
@@ -67,16 +70,16 @@ r = max(max(xs)-min(xs), max(ys)-min(ys), max(zs)-min(zs))
 bpy.ops.object.camera_add()
 cam = bpy.context.object
 sc.camera = cam
-cam.data.lens = 60
+cam.data.lens = 70
 bpy.ops.object.empty_add(location=(cx, cy, cz))
 pivot = bpy.context.object
 cam.parent = pivot
-cam.location = (1.35*r, -1.15*r, 0.85*r)
-cam.rotation_euler = (math.radians(63), 0, math.radians(46))
+cam.location = (0.95*r, -0.80*r, 0.62*r)
+cam.rotation_euler = (math.radians(65), 0, math.radians(48))
 # three-point lighting
-for loc, energy, size in (((1.6*r, -1.2*r, 1.9*r), 1600, 2.2*r),
-                          ((-1.9*r, -0.6*r, 1.1*r), 600, 2.0*r),
-                          ((0.2*r, 1.9*r, 1.4*r), 500, 1.8*r)):
+for loc, energy, size in (((0.9*r, -0.9*r, 1.6*r), 260, 1.0*r),
+                          ((-1.3*r, -0.7*r, 1.0*r), 90, 0.9*r),
+                          ((0.1*r, 1.4*r, 1.2*r), 70, 0.9*r)):
     bpy.ops.object.light_add(type='AREA', location=(cx+loc[0], cy+loc[1], cz+loc[2]))
     lamp = bpy.context.object
     lamp.data.energy = energy

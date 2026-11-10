@@ -38,6 +38,11 @@ def run_study(out: str | Path, seeds=(0, 1, 2, 3, 4), *, smoke=False,
             "infer_ms_per_layout": summary["infer_ms_per_layout"],
             "solver_ms_per_layout": summary["solver_ms_per_layout"],
             "checks": summary["checks"], "ood": summary["ood"],
+            "data_generation_s": summary.get("data_generation_s"),
+            "training_wall_s": summary.get("training_wall_s"),
+            "mean_baseline_relative_l2": summary.get("baselines", {}).get("training_mean_relative_l2"),
+            "nearest_baseline_relative_l2": summary.get("baselines", {}).get("nearest_layout_relative_l2"),
+            "provenance": summary.get("provenance"),
         })
     fields = ("relative_l2", "hotspot_error_K", "infer_ms_per_layout", "solver_ms_per_layout")
     stats = {}
@@ -61,6 +66,8 @@ def run_study(out: str | Path, seeds=(0, 1, 2, 3, 4), *, smoke=False,
         "summary_stats": stats, "runs": rows,
     }
     (out / "study.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    from report_study import generate_report
+    generate_report(out)
     return report
 
 

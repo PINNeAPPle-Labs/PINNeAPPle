@@ -242,7 +242,7 @@ def step_analyse(out: str, rows: list[dict]) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ 5. figures
-def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -> list[str]:
+def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict, *, reuse: bool = False) -> list[str]:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -446,7 +446,7 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
             _range3d_flat(views, cr, p)       # no Blender on this machine: the same views, drawn with matplotlib
         paths.append(p)
         # 10. the near field the two solvers produce, and where they part company
-        fld = _field_maps(out)
+        fld = _field_maps(out, reuse=reuse)
         yg, zg, po_db, di_db, d_db = fld["y"], fld["z"], fld["po_db"], fld["di_db"], fld["diff_db"]
         fig, axs = plt.subplots(2, 2, figsize=(9.4, 6.4))
         for a, d, title in zip((axs[0, 0], axs[0, 1]), (po_db, di_db),
@@ -677,12 +677,13 @@ def _range3d_flat(views: dict, cr, out_png: str) -> None:
 _MAP_KEYS = ("y", "z", "po_db", "di_db", "diff_db", "qz_s", "cut_po", "cut_di", "qz_z")
 
 
-def _field_maps(out: str) -> dict:
+def _field_maps(out: str, *, reuse: bool = False) -> dict:
     """PO and the direct solve on the same near-field grid, and the quiet-zone cut: the measured summary in
-    ``fields.json`` and the maps themselves in ``fields.npz``, so a re-render draws them without solving again."""
+    ``fields.json`` and the maps themselves in ``fields.npz``. ``reuse`` draws them from that cache instead of
+    solving again (a re-render); a full run always solves and overwrites it."""
     path = os.path.join(out, "fields.json")
     maps = os.path.join(out, "fields.npz")
-    if os.path.exists(maps) and os.path.exists(path):
+    if reuse and os.path.exists(maps) and os.path.exists(path):
         with np.load(maps) as z:
             return {k: z[k] for k in _MAP_KEYS}
     m = P2.near_field_map(P2.Range2D(per_wavelength=MESH))
@@ -1148,7 +1149,7 @@ def main():
         base = step_baseline(out)
         rows = step_sweep(out, a.workers)
         ana = step_analyse(out, rows)
-    figs = step_figures(out, val, base, rows, ana)
+    figs = step_figures(out, val, base, rows, ana, reuse=a.render_only)
     html = step_report(out, val, base, rows, ana, figs)
     pdf = render_pdf(html)
     log(f"report: {html}" + (f" and {pdf}" if pdf else ""))

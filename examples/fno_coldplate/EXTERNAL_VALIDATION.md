@@ -49,9 +49,11 @@ accuracy**, and the training envelope is intentionally narrow.
 ## Next experiment
 
 The full FNO experiment is already at `examples/fno_coldplate/run.py`.
-To establish scientific generalization, add 5 repeated seeds, a declared
-budget, OOD coefficient controls, bootstrapped uncertainty and strong
-non-ML baselines. Keep this separate from the quick falsification controls.
+The five-seed study, model OOD checks, training-mean/nearest-layout baselines,
+and descriptive report are now implemented in this branch. **Their full
+execution and independent verification remain pending**. A confidence interval
+and stronger engineering baselines are not claimed. Keep scientific claims
+separate from the quick falsification controls.
 
 ## Five-seed learned-model study
 
@@ -80,3 +82,19 @@ study, remain *author-run* measurements until an independent team reproduces
 them. An OOD check rejecting a correct field is a safeguard, not proof that a
 learned model extrapolates well. Data-generation and training costs must
 be reported before making end-to-end speedup claims.
+
+## Reporting and execution backlog
+
+`multiseed_study.py` writes `study.json` and invokes `report_study.py`, which
+creates `metrics.csv`, `REPORT.md`, `heldout_error.png`, and `hotspot_error.png`
+(plots require Matplotlib). Each seed's original FNO `results/` directory
+contains the physics-check figures. Training and dataset-generation wall times
+are reported separately; **none of these timings are an end-to-end speedup**.
+
+Deferred execution tasks (not evidence of completed runs):
+
+- [#1611](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1611): run CI and verify integration before merging.
+- [#1612](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1612): execute five-seed study and inspect report.
+- [#1613](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1613): obtain external reproductions.
+
+The code is in [draft PR #1603](https://github.com/PINNeAPPle-Labs/PINNeAPPle/pull/1603).

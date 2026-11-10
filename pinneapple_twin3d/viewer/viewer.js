@@ -128,7 +128,7 @@ async function load() {
   if (autoLod && !m.fields.length && (m.visual_lods || []).length) {
     const levels = [{ level: 0, file: m.geometry }, ...m.visual_lods].sort((a, b) => a.level - b.level);
     const radius = Math.max(new THREE.Vector3(...m.bounds[1]).sub(new THREE.Vector3(...m.bounds[0])).length() / 2, 1e-6);
-    state.lod = { levels, radius, current: 0, desired: 0, loading: false,
+    state.lod = { levels, radius, current: 0, desired: 0, loading: false, failed: new Set(),
       cache: new Map([[0, new Map([...state.parts].map(([name, p]) => [name, p.mesh.geometry]))]]) };
   }
   for (const f of m.fields) {
@@ -435,8 +435,8 @@ async function updateVisualLod() {
   const distance = camera.position.distanceTo(controls.target) / lod.radius;
   // Increasing distance permits lower detail. Hysteresis avoids oscillation.
   let target = lod.current;
-  while (target < lod.levels.length - 1 && distance > 5 * Math.pow(2, target) * 1.15) target++;
-  while (target > 0 && distance < 5 * Math.pow(2, target - 1) * 0.85) target--;
+  while (target < lod.levels.length - 1 && distance > 5 * Math.pow(2, target) * 1.15 && !lod.failed.has(target + 1)) target++;
+  while (target > 0 && distance < 5 * Math.pow(2, target - 1) * 0.85 && !lod.failed.has(target - 1)) target--;
   if (target === lod.current) return;
   const entry = lod.levels[target];
   lod.loading = true;
@@ -447,13 +447,13 @@ async function updateVisualLod() {
       const geometries = new Map();
       gltf.scene.traverse((o) => { if (o.isMesh) geometries.set(o.name, o.geometry); });
       // Reject incomplete LOD files instead of showing missing parts.
-      if ([...state.parts.keys()].some((name) => !geometries.has(name) && !geometries.has(name.replace(/\\s/g, "_"))))
+      if ([...state.parts.keys()].some((name) => !geometries.has(name) && !geometries.has(name.replace(/\s/g, "_"))))
         throw new Error("LOD asset is missing a required part");
       lod.cache.set(entry.level, geometries);
     }
     const geometries = lod.cache.get(entry.level);
     for (const [name, p] of state.parts) {
-      const geometry = geometries.get(name) || geometries.get(name.replace(/\\s/g, "_"));
+      const geometry = geometries.get(name) || geometries.get(name.replace(/\s/g, "_"));
       p.mesh.geometry = geometry;
       if (!geometry.getAttribute("color"))
         geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
@@ -463,8 +463,7 @@ async function updateVisualLod() {
   } catch (err) {
     console.warn("Visual LOD unavailable, keeping previous level:", err);
     // Avoid repeated network requests on each animation frame.
-    lod.levels.splice(target, 1);
-    if (!lod.levels.length) state.lod = null;
+    lod.failed.add(target);
   } finally {
     lod.loading = false;
   }

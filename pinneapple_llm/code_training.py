@@ -208,6 +208,10 @@ def main(argv: list[str] | None = None) -> int:
     train.add_argument("--output-dir", default="artifacts/llm_code_adapter")
     train.add_argument("--epochs", type=float, default=3)
     train.add_argument("--learning-rate", type=float, default=2e-4)
+    ingest = commands.add_parser("ingest-evidence", help="Import reviewed, hashed execution examples")
+    ingest.add_argument("--input", required=True)
+    ingest.add_argument("--output", required=True)
+    ingest.add_argument("--root", default=".")
     args = parser.parse_args(argv)
     if args.command == "generate":
         cfg = CodeDatasetConfig(
@@ -216,6 +220,9 @@ def main(argv: list[str] | None = None) -> int:
             validation_fraction=args.validation_fraction, seed=args.seed
         )
         print(json.dumps(generate_code_dataset(cfg), indent=2))
+    elif args.command == "ingest-evidence":
+        from .verified_examples import import_verified_examples
+        print(json.dumps(import_verified_examples(args.input, args.output, root=args.root), indent=2))
     else:
         print(finetune_code_dataset(
             args.dataset_dir, base_model=args.base_model, output_dir=args.output_dir,

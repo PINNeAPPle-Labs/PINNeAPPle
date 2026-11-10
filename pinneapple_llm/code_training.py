@@ -170,7 +170,7 @@ def finetune_code_dataset(dataset_dir: str, *, base_model: str, output_dir: str,
     """Verify dataset integrity, then reuse PINNeAPPle's existing LoRA trainer.
 
     GPU/CPU allocation and base-model license/access are the caller's responsibility.
-    The existing trainer currently fits only the train split; evaluation is separate.
+    Held-out validation loss is recorded when the validation split is nonempty.
     """
     from .finetune import FinetuneConfig, finetune_lora
 
@@ -212,6 +212,16 @@ def main(argv: list[str] | None = None) -> int:
     ingest.add_argument("--input", required=True)
     ingest.add_argument("--output", required=True)
     ingest.add_argument("--root", default=".")
+    assemble = commands.add_parser("assemble", help="Combine source and reviewed execution examples")
+    assemble.add_argument("--code-dataset-dir", required=True)
+    assemble.add_argument("--evidence-jsonl", required=True)
+    assemble.add_argument("--output-dir", required=True)
+    assemble.add_argument("--validation-fraction", type=float, default=0.1)
+    assemble.add_argument("--seed", type=int, default=42)
+    benchmark = commands.add_parser("benchmark", help="Score offline model predictions")
+    benchmark.add_argument("--tasks", required=True)
+    benchmark.add_argument("--predictions", required=True)
+    benchmark.add_argument("--report", required=True)
     args = parser.parse_args(argv)
     if args.command == "generate":
         cfg = CodeDatasetConfig(
@@ -223,6 +233,15 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "ingest-evidence":
         from .verified_examples import import_verified_examples
         print(json.dumps(import_verified_examples(args.input, args.output, root=args.root), indent=2))
+    elif args.command == "assemble":
+        from .corpus import assemble_training_corpus
+        print(json.dumps(assemble_training_corpus(
+            args.code_dataset_dir, args.evidence_jsonl, args.output_dir,
+            seed=args.seed, validation_fraction=args.validation_fraction
+        ), indent=2))
+    elif args.command == "benchmark":
+        from .benchmark import evaluate_predictions
+        print(json.dumps(evaluate_predictions(args.tasks, args.predictions, args.report), indent=2))
     else:
         print(finetune_code_dataset(
             args.dataset_dir, base_model=args.base_model, output_dir=args.output_dir,

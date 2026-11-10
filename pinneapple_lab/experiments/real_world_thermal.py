@@ -77,7 +77,7 @@ def score(y, pred):
             "max_abs_c": float(np.max(np.abs(e)))}
 
 
-def train_network(x, y, split, prior, physics, epochs, seed, device):
+def train_network(x, y, split, prior, physics, epochs, seed, device, return_predictor=False):
     import pinneapple as pp
     torch.manual_seed(seed)
     net = pp.build_model("vanilla_pinn", in_dim=3, out_dim=1,
@@ -120,6 +120,13 @@ def train_network(x, y, split, prior, physics, epochs, seed, device):
     net.eval()
     with torch.no_grad():
         result = evaluate(xt).cpu().numpy().ravel()+x[:,0]
+    if return_predictor:
+        def predict_external(external_x):
+            values = torch.tensor((np.asarray(external_x)-mean)/std,
+                                  dtype=torch.float32,device=device)
+            with torch.no_grad():
+                return evaluate(values).cpu().numpy().ravel()+np.asarray(external_x)[:,0]
+        return result, np.asarray(hist), epoch+1, predict_external
     return result, np.asarray(hist), epoch+1
 
 

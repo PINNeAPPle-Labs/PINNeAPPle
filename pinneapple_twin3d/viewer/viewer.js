@@ -14,6 +14,7 @@
 //   &range=min,max              fixed colour range
 //   &speed=ms                   playback interval per time step (default 250)
 //   &lod=1|2|...                explicit visual LOD (field-free scenes only)
+//   &lod=auto                   camera-distance LOD with hysteresis (field-free scenes)
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -46,7 +47,7 @@ function lut(table) {
 const CMAPS = { turbo, viridis: lut(VIRIDIS), coolwarm: lut(COOLWARM), inferno: lut(INFERNO) };
 
 // ── state ──────────────────────────────────────────────────────────────
-const state = { manifest: null, fields: null, parts: new Map(), sensors: [], step: 0, playing: null,
+const state = { manifest: null, fields: null, parts: new Map(), sensors: [], lod: null, step: 0, playing: null,
   field: "", cmap: "turbo", live: new Map(), clipPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0) };
 
 // ── three.js setup ─────────────────────────────────────────────────────
@@ -97,6 +98,7 @@ async function load() {
   const base = new URL(".", sceneUrl);
   // LOD GLBs are visual-only. Never substitute one when physical vertex fields
   // exist: fields.bin is indexed by vertices of the authoritative geometry.
+  const autoLod = params.get("lod") === "auto";
   const requestedLod = Number(params.get("lod") || 0);
   const visualLod = Number.isInteger(requestedLod) && requestedLod > 0 && !m.fields.length
     ? (m.visual_lods || []).find((level) => level.level === requestedLod)
@@ -122,6 +124,13 @@ async function load() {
     state.parts.set(p.name, { meta: p, mesh, base, fields: new Map() });
   }
   scene3.add(gltf.scene);
+  // LOD swaps change only visual geometry; physics fields require stable vertices.
+  if (autoLod && !m.fields.length && (m.visual_lods || []).length) {
+    const levels = [{ level: 0, file: m.geometry }, ...m.visual_lods].sort((a, b) => a.level - b.level);
+    const radius = Math.max(new THREE.Vector3(...m.bounds[1]).sub(new THREE.Vector3(...m.bounds[0])).length() / 2, 1e-6);
+    state.lod = { levels, radius, current: 0, desired: 0, loading: false,
+      cache: new Map([[0, new Map([...state.parts].map(([name, p]) => [name, p.mesh.geometry]))]]) };
+  }
   for (const f of m.fields) {
     const part = state.parts.get(f.part);
     if (part) part.fields.set(f.name, new Float32Array(buf, f.offset, f.steps * f.count));
@@ -418,10 +427,54 @@ function probe(px, py) {
   el.style.top = `${py + 14}px`;
 }
 
+// Camera-distance LOD: conservative thresholds, hysteresis and one in-flight
+// fetch at a time. No topology changes are allowed for vertex-field scenes.
+async function updateVisualLod() {
+  const lod = state.lod;
+  if (!lod || lod.loading) return;
+  const distance = camera.position.distanceTo(controls.target) / lod.radius;
+  // Increasing distance permits lower detail. Hysteresis avoids oscillation.
+  let target = lod.current;
+  while (target < lod.levels.length - 1 && distance > 5 * Math.pow(2, target) * 1.15) target++;
+  while (target > 0 && distance < 5 * Math.pow(2, target - 1) * 0.85) target--;
+  if (target === lod.current) return;
+  const entry = lod.levels[target];
+  lod.loading = true;
+  try {
+    if (!lod.cache.has(entry.level)) {
+      const base = new URL(".", sceneUrl);
+      const gltf = await new GLTFLoader().loadAsync(new URL(entry.file, base).href);
+      const geometries = new Map();
+      gltf.scene.traverse((o) => { if (o.isMesh) geometries.set(o.name, o.geometry); });
+      // Reject incomplete LOD files instead of showing missing parts.
+      if ([...state.parts.keys()].some((name) => !geometries.has(name) && !geometries.has(name.replace(/\\s/g, "_"))))
+        throw new Error("LOD asset is missing a required part");
+      lod.cache.set(entry.level, geometries);
+    }
+    const geometries = lod.cache.get(entry.level);
+    for (const [name, p] of state.parts) {
+      const geometry = geometries.get(name) || geometries.get(name.replace(/\\s/g, "_"));
+      p.mesh.geometry = geometry;
+      if (!geometry.getAttribute("color"))
+        geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count * 3), 3));
+    }
+    lod.current = target;
+    $("meta").dataset.lod = String(entry.level);
+  } catch (err) {
+    console.warn("Visual LOD unavailable, keeping previous level:", err);
+    // Avoid repeated network requests on each animation frame.
+    lod.levels.splice(target, 1);
+    if (!lod.levels.length) state.lod = null;
+  } finally {
+    lod.loading = false;
+  }
+}
+
 // ── render loop ────────────────────────────────────────────────────────
 const tmp = new THREE.Vector3();
 function frame() {
   controls.update();
+  if (state.lod) void updateVisualLod();
   renderer.render(scene3, camera);
   const w = viewport.clientWidth, h = viewport.clientHeight;
   for (const s of state.sensors) {

@@ -51,3 +51,23 @@ def test_simplification_requires_real_backend(tmp_path, monkeypatch):
     monkeypatch.setattr(lod, "_simplify", fail)
     with pytest.raises(ImportError, match="backend missing"):
         build_visual_lods(sc, tmp_path, ratios=(0.5,))
+
+
+def test_viewer_lod_is_opt_in_and_never_replaces_field_geometry():
+    from pathlib import Path
+    js = (Path(__file__).resolve().parents[1] /
+          "pinneapple_twin3d" / "viewer" / "viewer.js").read_text()
+    assert 'params.get("lod")' in js
+    assert '!m.fields.length' in js
+    assert 'visualLod ? visualLod.file : m.geometry' in js
+
+
+def test_multiple_lods_are_declared_for_field_backed_mesh(tmp_path):
+    v, f = _grid()
+    sc = Scene("field-backed")
+    sc.add_part("plate", v, f)
+    sc.add_field("plate", "temperature", v[:, 0])
+    sc.export(str(tmp_path), with_viewer=False)
+    result = build_visual_lods(sc, tmp_path, ratios=(0.5, 0.2))
+    assert len(result["levels"]) == 2
+    assert all(x["parts"][0]["reason"] == "field_topology" for x in result["levels"])

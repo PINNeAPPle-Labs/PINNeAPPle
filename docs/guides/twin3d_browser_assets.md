@@ -33,3 +33,13 @@ A production implementation must measure both silhouette and per-vertex field
 errors, support per-part switching, test VRAM / bandwidth / frame times on
 real devices, record source provenance and asset licenses, and never treat a
 rendering LOD as a physics simulation mesh.
+
+
+### Adaptive browser LOD (experimental)
+
+Use `?lod=auto` to select a visual LOD according to camera distance.
+The viewer uses hysteresis, caches successfully loaded geometries and
+keeps a previously loaded level if a later request fails. This is available
+only for scenes with **no per-vertex physical fields**. `?lod=1` remains
+available for manual selection. This does not yet implement progressive
+streaming, frame-budget adaptation or validated GPU memory/FPS benchmarks.

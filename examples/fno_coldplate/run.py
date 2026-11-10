@@ -74,13 +74,30 @@ def main(smoke: bool = False, base: str | None = None, steps: int | None = None,
     rel = float(np.mean(np.linalg.norm((u_hat - u_te).reshape(n_test, -1), axis=1)
                         / np.linalg.norm(u_te.reshape(n_test, -1), axis=1)))
     hotspot = float(np.max(np.abs(u_hat.max((1, 2)) - u_te.max((1, 2)))) * DT)
+    # Shift both conductivity levels by x2. Because the model was trained on
+    # coefficients {3, 12}, this changes the range to {6, 24}, outside the
+    # pre-fitted training envelope. Do not silently approve extrapolation.
+    a_ood = a_te[:4] * 2.0
+    u_ood_ref = np.stack([ob.darcy_2d(a) for a in a_ood])
+    u_ood_hat = pred.predict(a_ood)
+    ood_report, ood_checks = dc.darcy_trust_report(
+        a_ood, u_ood_hat, 1.0, model="PINNeAPPle FNO2d OOD",
+        reference=u_ood_ref, envelope=env,
+    )
+    ood_rel = float(np.mean(
+        np.linalg.norm((u_ood_hat - u_ood_ref).reshape(len(a_ood), -1), axis=1)
+        / np.linalg.norm(u_ood_ref.reshape(len(a_ood), -1), axis=1)
+    ))
     summary = {"model": "pinneapple_neural FNO2d", "padding": padding, "decision": report.decisao,
                "test_rel_l2": rel, "max_hotspot_error_K": hotspot, "fno_parameters": pred.n_parameters(),
                "training": res.to_dict() | {"history": None}, "train_steps": steps,
                "train_seed": train_seed, "test_seed": test_seed, "model_seed": model_seed,
                "infer_ms_per_layout": infer_s * 1e3, "solver_ms_per_layout": solver_s * 1e3,
                "same_data_as": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
-               "checks": [c.to_dict() for c in checks]}
+               "checks": [c.to_dict() for c in checks],
+               "ood": {"shift": "multiply held-out conductivity by 2",
+                       "relative_l2": ood_rel, "decision": ood_report.decisao,
+                       "checks": [c.to_dict() for c in ood_checks]}}
     if not smoke:
         _figures(out, a_te, u_te, u_hat, checks, report.decisao)
     with open(os.path.join(out, "summary.json"), "w") as f:

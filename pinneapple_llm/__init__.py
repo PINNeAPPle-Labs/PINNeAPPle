@@ -28,6 +28,7 @@ from .coherence import CoherenceVerdict, check_preset_coherence
 from .conversation_store import ConversationStore, ConversationRecord
 from ._dispatch import call_llm
 from .agent_loop import AgentStep, AgentLoopResult, run_agent_loop
+from .code_training import CodeDatasetConfig, generate_code_dataset, finetune_code_dataset
 
 # Quality-assurance pipeline (spec -> static/sandbox/scientific validation ->
 # reference comparison -> bounded repair -> Q0-Q4). Additive: nothing above
@@ -57,6 +58,7 @@ __all__ = [
     "ConversationStore", "ConversationRecord",
     "call_llm", "local_llm",
     "AgentStep", "AgentLoopResult", "run_agent_loop",
+    "CodeDatasetConfig", "generate_code_dataset", "finetune_code_dataset",
     "FinetuneConfig", "prepare_dataset", "finetune_lora",
     "qa",
 ]

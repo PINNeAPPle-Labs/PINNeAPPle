@@ -27,7 +27,7 @@ from .data import (
            snapshot_values,
 )
 from .calibration import CalibrationResult, fine_tune_real
-from .hybrid import ENCODERS, HybridDeepONet, RBFKANLayer
+ENCODERS = ("mlp", "rbf_kan", "fourier")
 from .search import HybridSearchResult, hybrid_search, real_data_splits
 from .limits import OODGate, limitations
 from .methods import CANDIDATES, applicable, candidate_ids
@@ -41,3 +41,11 @@ __all__ = ["SurrogateData", "read_table", "from_table", "from_arrays", "field_co
            "CANDIDATES", "applicable", "candidate_ids", "PDE_TYPES", "parse_pde", "OODGate", "limitations",
            "SurrogateModel", "MODEL_KIND", "run_study", "StudyResult", "evaluate", "DEFAULT_TARGETS", "examples", "ENCODERS", "HybridDeepONet", "RBFKANLayer",
            "HybridSearchResult", "hybrid_search", "real_data_splits", "CalibrationResult", "fine_tune_real"]
+
+
+def __getattr__(name: str):
+    """Keep PyTorch optional for table inspection and classical ML workflows."""
+    if name in ("HybridDeepONet", "RBFKANLayer"):
+        from .hybrid import HybridDeepONet, RBFKANLayer
+        return {"HybridDeepONet": HybridDeepONet, "RBFKANLayer": RBFKANLayer}[name]
+    raise AttributeError(name)

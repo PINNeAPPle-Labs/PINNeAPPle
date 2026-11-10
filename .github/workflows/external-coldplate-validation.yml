@@ -31,10 +31,13 @@ jobs:
       - name: Train existing FNO smoke and run native checks
         run: |
           python examples/fno_coldplate/external_validation.py --fno-smoke --out artifacts/external_validation/coldplate
+      - name: Run two-seed FNO integration smoke (not scientific accuracy)
+        run: |
+          python examples/fno_coldplate/multiseed_study.py --smoke --seeds 0 1 --out artifacts/external_validation/coldplate_multiseed
       - name: Upload evidence even after failures
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coldplate-external-validation
-          path: artifacts/external_validation/coldplate/
+          path: artifacts/external_validation/
           if-no-files-found: warn

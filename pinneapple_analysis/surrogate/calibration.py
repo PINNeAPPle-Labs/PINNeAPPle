@@ -6,8 +6,6 @@ to held-out observations. The old validity domain is not silently expanded.
 from __future__ import annotations
 
 import copy
-import hashlib
-import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -95,6 +93,9 @@ def fine_tune_real(model: SurrogateModel, observations: SurrogateData, *, split:
     old = copy.deepcopy(f.module).eval()
     for p in old.parameters():
         p.requires_grad_(False)
+    for side in freeze:
+        if not any(name.startswith(side + ".") for name, _ in f.module.named_parameters()):
+            raise ValueError(f"model has no {side} subnetwork to freeze")
     for name, p in f.module.named_parameters():
         if any(name.startswith(side + ".") for side in freeze):
             p.requires_grad_(False)
@@ -133,6 +134,8 @@ def fine_tune_real(model: SurrogateModel, observations: SurrogateData, *, split:
     new_fitted = NonNegative(f, original.mask) if nonnegative else f
     card = dict(model.card)
     card.pop("model_sha256", None)
+    card.pop("metrics", None)
+    card.pop("baseline_metrics", None)
     card["parent_model_sha256"] = model.card.get("model_sha256")
     card["dataset_sha256"] = observations.sha256()
     card["real_data_calibration"] = {"seed": seed, "best_epoch": best_epoch, "lr": lr, "batch": batch,
@@ -154,6 +157,6 @@ def fine_tune_real(model: SurrogateModel, observations: SurrogateData, *, split:
                                scale, observations.output_names)
         baseline[name] = evaluate(observations.kind, original.predict(observations.X[ids]), Y,
                                   scale, observations.output_names)
-    card["metrics"] = final
-    card["baseline_metrics"] = baseline
+    adapted.card["metrics"] = final
+    adapted.card["baseline_metrics"] = baseline
     return CalibrationResult(adapted, hist, final, baseline, sp)

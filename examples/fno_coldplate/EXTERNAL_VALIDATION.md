@@ -52,3 +52,31 @@ The full FNO experiment is already at `examples/fno_coldplate/run.py`.
 To establish scientific generalization, add 5 repeated seeds, a declared
 budget, OOD coefficient controls, bootstrapped uncertainty and strong
 non-ML baselines. Keep this separate from the quick falsification controls.
+
+## Five-seed learned-model study
+
+The existing `run.py` now accepts `--train-seed`, `--test-seed` and
+`--model-seed`. To train and evaluate five independent runs with distinct
+training/test GRF seeds and model initializations:
+
+```bash
+python examples/fno_coldplate/multiseed_study.py --seeds 0 1 2 3 4
+```
+
+Each run writes its original PINNeAPPle `results/summary.json`, containing
+in-distribution model accuracy, trust decision, measured training/inference
+fields and an **out-of-distribution** evaluation where conductivity is doubled.
+The final `study.json` records median, minimum and maximum, not an
+unsupported confidence interval. Full runs are not included in the quick CI.
+
+To check integration without making accuracy claims:
+
+```bash
+python examples/fno_coldplate/multiseed_study.py --smoke --seeds 0 1
+```
+
+**Interpretation:** The FNO's learned predictions, even in this multi-seed
+study, remain *author-run* measurements until an independent team reproduces
+them. An OOD check rejecting a correct field is a safeguard, not proof that a
+learned model extrapolates well. Data-generation and training costs must
+be reported before making end-to-end speedup claims.

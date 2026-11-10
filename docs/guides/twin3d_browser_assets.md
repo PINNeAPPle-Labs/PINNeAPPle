@@ -22,9 +22,10 @@ producing an unoptimized file. Ratios are targets, not compression guarantees.
 A bounding-box guard prevents obvious scale/extent changes; it is **not** a
 Hausdorff or engineering-accuracy certificate.
 
-**Current boundary:** the bundled viewer still renders the authoritative
-`geometry.glb`. The generated `visual_lods` metadata is for compatible consumers
-and future viewer integration. No Draco, Meshopt, KTX2, texture packing, automatic
+**Current boundary:** the bundled viewer supports explicit `?lod=1` or `?lod=2`
+selection for scenes **without any per-vertex fields**. It defaults to the
+original `geometry.glb`; scenes with fields always use the authoritative mesh.
+This is manual selection, not adaptive LOD switching or progressive streaming. No Draco, Meshopt, KTX2, texture packing, automatic
 camera-distance switching, draw-call deduplication or asset-library ingestion is
 claimed in this initial change. Those require a separate verified pipeline.
 

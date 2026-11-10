@@ -6,6 +6,7 @@ import time
 import numpy as np
 from scipy.interpolate import RBFInterpolator
 from pinneapple_veriphysics.design_harness import DesignVerificationHarness
+from pinneapple_veriphysics.design_evaluation import evaluate_arm, summarize_paired_runs
 
 BASE=np.array([.5,.5,.5])
 BOUNDS=np.array([[0.,1.]]*3)
@@ -50,11 +51,10 @@ def one(seed,train_size,budget,threshold,out):
     for i in screened:
         h.check(candidates[i],float(predictions[i]),error,reference=reference,
                 reference_baseline=f0,check_id=f"seed{seed}/candidate{int(i)}/reference")
-    def confirmation(ids,truth):
-        if not len(ids): return None
-        promised=predictions[ids]-p0>=threshold
-        if not np.any(promised): return None
-        return float(np.mean((truth-f0)[promised]>=threshold))
+    baseline_metrics=evaluate_arm(baseline,predictions,f_base,
+        predicted_baseline=p0,reference_baseline=f0,threshold=threshold)
+    screened_metrics=evaluate_arm(screened,predictions,f_screen,
+        predicted_baseline=p0,reference_baseline=f0,threshold=threshold)
     out.mkdir(parents=True,exist_ok=True)
     (out/f"seed_{seed}.json").write_text(json.dumps(h.ledger.to_dict(),indent=2))
     return {"seed":seed,"reference":"manufactured_synthetic_not_CFD",
@@ -64,10 +64,12 @@ def one(seed,train_size,budget,threshold,out):
             "escalated_without_reference":escalated,
             "baseline_indices":[int(i) for i in baseline],
             "screened_indices":screened,
-            "baseline_confirmation_rate":confirmation(baseline,f_base),
-            "screened_confirmation_rate":confirmation(screened,f_screen),
-            "baseline_best_actual_gain":float(max(f_base-f0)),
-            "screened_best_actual_gain":float(max(f_screen-f0)) if len(f_screen) else None,
+            "baseline_confirmation_rate":baseline_metrics.confirmation_rate,
+            "baseline_metrics":baseline_metrics.to_dict(),
+            "screened_confirmation_rate":screened_metrics.confirmation_rate,
+            "screened_metrics":screened_metrics.to_dict(),
+            "baseline_best_actual_gain":baseline_metrics.best_actual_gain,
+            "screened_best_actual_gain":screened_metrics.best_actual_gain,
             "test_mae":float(np.mean(abs(model(test)-reference(test)))),
             "nominal_calibration_error_95":error,
             "blind_coverage_95":float(np.mean(abs(model(test)-reference(test))<=error))}
@@ -85,6 +87,7 @@ def main():
     start=time.perf_counter()
     rows=[one(s,a.train,a.budget,a.threshold,a.out/"evidence") for s in range(a.seeds)]
     result={"experiment":"optimizer_curse_synthetic_pilot",
+            "paired_statistics":summarize_paired_runs(rows),
             "warning":"NOT CFD; 43%/88%/+37% not replicated",
             "seconds":time.perf_counter()-start,"runs":rows}
     (a.out/"results.json").write_text(json.dumps(result,indent=2))
@@ -112,6 +115,13 @@ def main():
             "Reference used only AFTER both selections freeze; screening multiplier "
             "is a heuristic, NOT calibrated prediction-interval coverage. "
             "Local ledger is tamper-evident, not externally immutable.\n")
+    stats=result["paired_statistics"]["result"]
+    if stats is not None:
+        report+=(f"\nPaired confirmation difference (screened minus baseline): "
+                 f"{stats[\x27mean_difference\x27]:+.2%}; bootstrap "
+                 f"{stats[\x27confidence\x27]:.0%} interval "
+                 f"[{stats[\x27interval\x27][0]:+.2%}, {stats[\x27interval\x27][1]:+.2%}]. "
+                 "Exploratory seed-level interval, not proof of improvement.\n")
     (a.out/"REPORT.md").write_text(report)
     print(report)
 if __name__=="__main__": main()

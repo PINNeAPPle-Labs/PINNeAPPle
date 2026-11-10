@@ -242,7 +242,7 @@ def step_analyse(out: str, rows: list[dict]) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ 5. figures
-def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -> list[str]:
+def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict, *, reuse: bool = False) -> list[str]:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -446,7 +446,7 @@ def step_figures(out: str, val: dict, base: dict, rows: list[dict], ana: dict) -
             _range3d_flat(views, cr, p)       # no Blender on this machine: the same views, drawn with matplotlib
         paths.append(p)
         # 10. the near field the two solvers produce, and where they part company
-        fld = _field_maps(out)
+        fld = _field_maps(out, reuse=reuse)
         yg, zg, po_db, di_db, d_db = fld["y"], fld["z"], fld["po_db"], fld["di_db"], fld["diff_db"]
         fig, axs = plt.subplots(2, 2, figsize=(9.4, 6.4))
         for a, d, title in zip((axs[0, 0], axs[0, 1]), (po_db, di_db),
@@ -511,205 +511,69 @@ def _views(out: str) -> dict:
     return {"mesh": mesh, "J": J, "feed": feed}
 
 
-# The surface render below is a Blender scene: the same triangles the PO solve uses, coloured by the current they
-# carry, lit as a studio object. It needs Blender (``blender --background``); without it the figure falls back to
-# matplotlib. Kept as a string so the driver stays one file and the render can be regenerated with one command.
-_BLENDER_PY = r'''
-import sys
-import numpy as np
-import bpy
-from mathutils import Vector
-
-argv = sys.argv[sys.argv.index("--") + 1:]
-work, view, out_png = argv[0], argv[1], argv[2]
-d = np.load(work + "/cr_view.npz")
-V, F, J = d["vertices"], d["faces"], d["j_db"]
-FEED, QZC, QZD = d["feed"], d["qz_centre"], float(d["qz_diameter"])
-
-stops = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
-magma = np.array([[0.001, 0.000, 0.014], [0.316, 0.071, 0.485], [0.716, 0.215, 0.475],
-                  [0.987, 0.535, 0.382], [0.987, 0.991, 0.749]])
-t = (np.clip(J, -6, 0) + 6) / 6
-rgb = np.stack([np.interp(t, stops, magma[:, i]) for i in range(3)], axis=1)
-
-bpy.ops.wm.read_factory_settings(use_empty=True)
-scene = bpy.context.scene
-scene.render.engine = "CYCLES"
-scene.cycles.device = "CPU"
-scene.cycles.samples = 96
-scene.cycles.use_denoising = True
-scene.render.image_settings.file_format = "PNG"
-scene.view_settings.view_transform = "AgX"
-scene.view_settings.look = "AgX - Medium High Contrast"
-scene.view_settings.exposure = -1.5
-
-world = bpy.data.worlds.new("W")
-scene.world = world
-world.use_nodes = True
-bg = world.node_tree.nodes["Background"]
-bg.inputs[0].default_value = (0.070, 0.080, 0.098, 1.0)
-bg.inputs[1].default_value = 1.05
-
-mesh = bpy.data.meshes.new("reflector")
-mesh.from_pydata([tuple(v) for v in V], [], [tuple(int(i) for i in f) for f in F])
-mesh.update()
-
-vert_col = np.zeros((len(V), 3), float)
-vert_n = np.zeros(len(V), float)
-for fi, f in enumerate(F):
-    for vi in f:
-        vert_col[vi] += rgb[fi]
-        vert_n[vi] += 1
-vert_col /= np.maximum(vert_n, 1)[:, None]
-col = mesh.color_attributes.new(name="J", type="FLOAT_COLOR", domain="CORNER")
-loops_v = np.zeros(len(mesh.loops), int)
-mesh.loops.foreach_get("vertex_index", loops_v)
-cv = vert_col[loops_v]
-flat = np.empty(len(mesh.loops) * 4, float)
-flat[0::4], flat[1::4], flat[2::4], flat[3::4] = cv[:, 0], cv[:, 1], cv[:, 2], 1.0
-col.data.foreach_set("color", flat)
-mesh.color_attributes.active_color = col
-for poly in mesh.polygons:
-    poly.use_smooth = True
-obj = bpy.data.objects.new("reflector", mesh)
-scene.collection.objects.link(obj)
-
-mat = bpy.data.materials.new("po_current")
-mat.use_nodes = True
-nt = mat.node_tree
-bsdf = nt.nodes["Principled BSDF"]
-vc = nt.nodes.new("ShaderNodeVertexColor")
-vc.layer_name = "J"
-nt.links.new(vc.outputs["Color"], bsdf.inputs["Base Color"])
-bsdf.inputs["Metallic"].default_value = 0.30
-bsdf.inputs["Roughness"].default_value = 0.30
-bsdf.inputs["Coat Weight"].default_value = 0.05
-obj.data.materials.append(mat)
-
-bpy.ops.mesh.primitive_plane_add(size=20, location=(0.0, 0.9, -0.02))
-floor = bpy.context.object
-fm = bpy.data.materials.new("floor")
-fm.use_nodes = True
-fb = fm.node_tree.nodes["Principled BSDF"]
-fb.inputs["Base Color"].default_value = (0.030, 0.032, 0.036, 1.0)
-fb.inputs["Roughness"].default_value = 0.5
-floor.data.materials.append(fm)
-
-bpy.ops.mesh.primitive_uv_sphere_add(radius=0.045, location=tuple(FEED))
-feed_obj = bpy.context.object
-fmat = bpy.data.materials.new("feed")
-fmat.use_nodes = True
-fb2 = fmat.node_tree.nodes["Principled BSDF"]
-fb2.inputs["Base Color"].default_value = (0.10, 0.42, 0.85, 1.0)
-fb2.inputs["Emission Color"].default_value = (0.20, 0.55, 1.0, 1.0)
-fb2.inputs["Emission Strength"].default_value = 6.0
-feed_obj.data.materials.append(fmat)
-
-a, b = Vector(FEED), Vector(QZC)
-bpy.ops.mesh.primitive_cylinder_add(radius=0.005, depth=(b - a).length, location=tuple((a + b) / 2))
-rod = bpy.context.object
-rod.rotation_mode = "QUATERNION"
-rod.rotation_quaternion = (b - a).to_track_quat("Z", "Y")
-rmat = bpy.data.materials.new("axis")
-rmat.use_nodes = True
-rb = rmat.node_tree.nodes["Principled BSDF"]
-rb.inputs["Base Color"].default_value = (0.36, 0.38, 0.42, 1.0)
-rb.inputs["Emission Color"].default_value = (0.35, 0.42, 0.52, 1.0)
-rb.inputs["Emission Strength"].default_value = 0.15
-rod.data.materials.append(rmat)
-
-bpy.ops.mesh.primitive_cylinder_add(radius=QZD / 2, depth=0.004, location=tuple(QZC))
-qz = bpy.context.object
-qmat = bpy.data.materials.new("qz")
-qmat.use_nodes = True
-qb = qmat.node_tree.nodes["Principled BSDF"]
-qb.inputs["Base Color"].default_value = (0.16, 0.55, 0.95, 1.0)
-qb.inputs["Alpha"].default_value = 0.16
-qb.inputs["Roughness"].default_value = 0.15
-qmat.surface_render_method = "BLENDED"
-qz.data.materials.append(qmat)
-bpy.ops.mesh.primitive_torus_add(major_radius=QZD / 2, minor_radius=0.006, location=tuple(QZC))
-ring = bpy.context.object
-gmat = bpy.data.materials.new("rim")
-gmat.use_nodes = True
-gb = gmat.node_tree.nodes["Principled BSDF"]
-gb.inputs["Base Color"].default_value = (0.30, 0.68, 1.0, 1.0)
-gb.inputs["Emission Color"].default_value = (0.30, 0.68, 1.0, 1.0)
-gb.inputs["Emission Strength"].default_value = 2.5
-ring.data.materials.append(gmat)
-
-
-def area(loc, size, energy, color=(1, 1, 1), target=(0.0, 0.9, 0.9)):
-    bpy.ops.object.light_add(type="AREA", location=loc)
-    lamp = bpy.context.object
-    lamp.data.size = size
-    lamp.data.energy = energy
-    lamp.data.color = color
-    lamp.rotation_mode = "QUATERNION"
-    lamp.rotation_quaternion = (Vector(target) - Vector(loc)).to_track_quat("-Z", "Y")
-    return lamp
-
-
-area((-2.8, 2.2, 3.0), 2.4, 300, (1.0, 0.97, 0.92), target=(0.0, 0.9, 0.6))
-area((3.0, 3.0, 1.8), 2.2, 130, (0.85, 0.9, 1.0), target=(0.0, 1.0, 1.2))
-area((0.8, -1.4, 2.4), 2.0, 80, (0.9, 0.95, 1.0), target=(0.0, 1.0, 0.3))
-area((0.4, 1.4, 4.2), 3.0, 220, (0.85, 0.9, 1.0), target=(0.0, 0.9, 2.4))
-
-cams = {
-    "dish": dict(loc=(-2.85, -2.55, 1.95), look=(0.0, 0.95, 0.75), lens=58, res=(1400, 1200)),
-    "range": dict(loc=(-2.95, -3.45, 2.05), look=(0.0, 0.9, 1.30), lens=46, res=(1350, 1600)),
+# The surface render is a studio scene: the same triangles the PO solve uses, coloured by the current they carry,
+# lit as an object on a dark stage, through the Blender binary (no ``bpy`` in this process). Without Blender the
+# figure falls back to matplotlib.
+_VIEWS = {   # camera direction from the centre (x, y, z), lens, frame and exposure of the two shots
+    "dish": dict(view=(-0.62, -0.76, 0.26), lens=58, size=(1400, 1200), exposure=-1.4),
+    "range": dict(view=(-0.55, -0.81, 0.14), lens=46, size=(1350, 1600), exposure=-1.4),
 }
-cam = cams[view]
-bpy.ops.object.camera_add(location=cam["loc"])
-C = bpy.context.object
-C.data.lens = cam["lens"]
-C.rotation_mode = "QUATERNION"
-C.rotation_quaternion = (Vector(cam["look"]) - Vector(cam["loc"])).to_track_quat("-Z", "Y")
-scene.camera = C
-scene.render.resolution_x, scene.render.resolution_y = cam["res"]
-scene.render.resolution_percentage = 100
-scene.render.filepath = out_png
-bpy.ops.render.render(write_still=True)
-'''
 
 
-def _blender_binary() -> str | None:
-    """The Blender executable, if this machine has one."""
-    import shutil
-    for cand in (os.environ.get("BLENDER"), shutil.which("blender"),
-                 "/Applications/Blender.app/Contents/MacOS/Blender"):
-        if cand and os.path.exists(cand):
-            return cand
-    return None
+def _range_scene(views: dict, cr, parts: tuple[str, ...] = ("reflector", "feed", "beam axis", "quiet zone")):
+    """The 3-D range as a studio :class:`Scene`: the mesh carrying its PO current, the feed, the beam axis and the
+    quiet-zone plane, each with its own material (the plane translucent, the feed emitting)."""
+    from pinneapple_tools.visualization import studio
+
+    mesh, J = views["mesh"], np.asarray(views["J"], float)
+    feed, qzc = np.asarray(views["feed"], float), np.asarray(cr.qz_centre, float)
+    vj = np.zeros(len(mesh.vertices))                  # per-vertex current: the mean over the touching faces
+    cnt = np.zeros(len(mesh.vertices))
+    np.add.at(vj, mesh.faces.ravel(), np.repeat(J, 3))
+    np.add.at(cnt, mesh.faces.ravel(), 1.0)
+    vj /= np.maximum(cnt, 1.0)
+
+    made = {
+        "reflector": lambda: studio.Surface("reflector", mesh.vertices, mesh.faces, "metal", fields={"J": vj}),
+        "feed": lambda: studio.sphere_surface(feed, 0.045, name="feed", material="feed"),
+        "beam axis": lambda: studio.rod_surface(feed, qzc, 0.005, name="beam axis"),
+        "quiet zone": lambda: studio.disc_surface(qzc, cr.qz_diameter / 2, name="quiet zone",
+                                                  material="quiet_zone"),
+    }
+    return studio.Scene(surfaces=[made[p]() for p in parts],
+                        labels={"J": "PO surface current |J| (dB re the maximum)"},
+                        materials={"quiet_zone": {"color": [0.16, 0.55, 0.95], "alpha": 0.30, "roughness": 0.15,
+                                           "emissive": [0.20, 0.55, 1.0]},
+                            "feed": {"color": [0.10, 0.42, 0.85], "emissive": [0.20, 0.55, 1.0],
+                                     "roughness": 0.3}})
 
 
 def _blender_views(out: str, views: dict, cr, png: str) -> bool:
-    """Render the two studio views of the range with Blender and compose them into ``png``.
+    """Render the two studio views of the range and compose them into ``png``.
 
-    Returns False when Blender is not installed or the render does not produce both images, so the caller can draw the
-    same two views with matplotlib instead."""
-    exe = _blender_binary()
-    if exe is None:
+    Returns False when this machine has no Blender or the render does not produce both images, so the caller can draw
+    the same two views with matplotlib instead."""
+    from pinneapple_tools.visualization import studio
+
+    if studio.blender_executable() is None:
         return False
     work = os.path.join(out, "render")
     os.makedirs(work, exist_ok=True)
-    mesh = views["mesh"]
-    np.savez(os.path.join(work, "cr_view.npz"), vertices=mesh.vertices, faces=mesh.faces, j_db=views["J"],
-             feed=views["feed"], qz_centre=cr.qz_centre, qz_diameter=cr.qz_diameter)
-    script = os.path.join(work, "render_range.py")
-    with open(script, "w", encoding="utf-8") as fh:
-        fh.write(_BLENDER_PY)
     shots = {}
-    for view in ("dish", "range"):
-        target = os.path.join(work, f"{view}.png")
-        shots[view] = target
+    for name, cam in _VIEWS.items():
+        target = os.path.join(work, f"{name}.png")
+        shots[name] = target
         if os.path.exists(target):
             continue
+        scene = _range_scene(views, cr, ("reflector",) if name == "dish" else
+                             ("reflector", "feed", "beam axis", "quiet zone"))
         try:
-            subprocess.run([exe, "--background", "--python", script, "--", work, view, target],
-                           check=True, capture_output=True, timeout=1800)
-        except (subprocess.SubprocessError, OSError) as exc:      # pragma: no cover - depends on the machine
-            print(f"  blender view '{view}' failed: {exc}", file=sys.stderr)
+            studio.render_headless(
+                scene, target, field=None, surface_fields={"reflector": ("J", -6.0, 0.0, "magma",
+                                                                         "PO surface current |J| (dB re max)")},
+                background="dark", floor=True, samples=96, cmap="magma", colorbar_on=False, **cam)
+        except (RuntimeError, OSError, subprocess.SubprocessError) as exc:   # pragma: no cover - machine dependent
+            print(f"  studio view '{name}' failed: {exc}", file=sys.stderr)
             return False
     if not all(os.path.exists(s) for s in shots.values()):
         return False
@@ -722,9 +586,10 @@ def _blender_compose(dish_png: str, range_png: str, out_png: str) -> None:
     import matplotlib.image as mpimg
     import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap, Normalize
+
+    from pinneapple_tools.visualization import studio
     ramp = LinearSegmentedColormap.from_list("render_magma", [
-        (0.001, 0.000, 0.014), (0.316, 0.071, 0.485), (0.716, 0.215, 0.475),
-        (0.987, 0.535, 0.382), (0.987, 0.991, 0.749)])
+        (t, (r / 255.0, g / 255.0, b / 255.0)) for t, (r, g, b) in studio.stops("magma")])
     fig = plt.figure(figsize=(9.6, 5.1))
     gs = fig.add_gridspec(2, 2, width_ratios=[1.42, 1.0], height_ratios=[1.0, 0.05],
                           wspace=0.04, hspace=0.14)
@@ -809,39 +674,29 @@ def _range3d_flat(views: dict, cr, out_png: str) -> None:
     plt.close(fig)
 
 
-def _field_maps(out: str) -> dict:
-    """PO and direct near fields of one design on the same grid, and the quiet-zone cut, cached in ``fields.json``."""
+_MAP_KEYS = ("y", "z", "po_db", "di_db", "diff_db", "qz_s", "cut_po", "cut_di", "qz_z")
+
+
+def _field_maps(out: str, *, reuse: bool = False) -> dict:
+    """PO and the direct solve on the same near-field grid, and the quiet-zone cut: the measured summary in
+    ``fields.json`` and the maps themselves in ``fields.npz``. ``reuse`` draws them from that cache instead of
+    solving again (a re-render); a full run always solves and overwrites it."""
     path = os.path.join(out, "fields.json")
-    rng = P2.Range2D(per_wavelength=MESH)
-    g = rng.grid
-    y = np.linspace(g.mid[:, 0].min() - 0.05, g.mid[:, 0].max() + 0.05, 300)
-    z = np.linspace(0.0, rng.qz_z + 0.25, 280)
-    YZ = np.stack(np.meshgrid(y, z, indexing="ij"), axis=-1).reshape(-1, 2)
-    feed = rng.feed()
-    rho_po = P2.po_density(g, feed, rng.k)
-    E_po = P2.incident(YZ, feed, rng.k) + P2.radiate_2d(g.mid, g.length, rho_po, YZ, rng.k)
-    E_di = P2.incident(YZ, feed, rng.k) + P2.radiate_2d(g.mid, g.length, P2.mom_solve(g, feed, rng.k)["rho"], YZ,
-                                                        rng.k)
-    A_po, A_di = np.abs(E_po).reshape(300, 280), np.abs(E_di).reshape(300, 280)
-    ref = float(A_di.max())
-    po_db, di_db = 20 * np.log10(np.maximum(A_po / ref, 1e-300)), 20 * np.log10(np.maximum(A_di / ref, 1e-300))
-    rel_db = 20 * np.log10(np.maximum(np.abs(E_po - E_di).reshape(300, 280) / np.maximum(A_di, 1e-300), 1e-300))
-    d_db = np.clip(rel_db, -20.0, 6.0)                    # +6 dB: the error is as large as the local field
-    obs = np.asarray(rng.qz_line())                       # the points of the quiet-zone line, in absolute (y, z)
-    s = obs[:, 0] - obs[:, 0].mean()                      # and the same line as a centred coordinate
-    cut_po = P2.incident(obs, feed, rng.k) + P2.radiate_2d(g.mid, g.length, rho_po, obs, rng.k)
-    cut_di = P2.incident(obs, feed, rng.k) + P2.radiate_2d(g.mid, g.length,
-                                                          P2.mom_solve(g, feed, rng.k)["rho"], obs, rng.k)
-    cut_po_db = 20 * np.log10(np.maximum(np.abs(cut_po) / ref, 1e-300))
-    cut_di_db = 20 * np.log10(np.maximum(np.abs(cut_di) / ref, 1e-300))
-    _json(path, {"segments": int(len(g.mid)), "y": [float(y[0]), float(y[-1])], "z": [float(z[0]), float(z[-1])],
-                 "qz_z": rng.qz_z, "qz_width": rng.qz_width, "reference_field": ref,
-                 "diff_db_percentiles": {str(q): float(v) for q, v in
-                                         zip((50, 90, 99), np.percentile(rel_db, (50, 90, 99)), strict=True)},
-                 "cut_po_db_range": [float(cut_po_db.min()), float(cut_po_db.max())],
-                 "cut_di_db_range": [float(cut_di_db.min()), float(cut_di_db.max())]})
-    return {"y": y, "z": z, "po_db": po_db, "di_db": di_db, "diff_db": d_db, "qz_s": s,
-            "cut_po": cut_po_db, "cut_di": cut_di_db, "qz_z": rng.qz_z, "qz_width": rng.qz_width}
+    maps = os.path.join(out, "fields.npz")
+    if reuse and os.path.exists(maps) and os.path.exists(path):
+        with np.load(maps) as z:
+            return {k: z[k] for k in _MAP_KEYS}
+    m = P2.near_field_map(P2.Range2D(per_wavelength=MESH))
+    _json(path, {"segments": m["n_segments"], "y": [float(m["y"][0]), float(m["y"][-1])],
+                 "z": [float(m["z"][0]), float(m["z"][-1])], "qz_z": m["qz_z"],
+                 "reference_field": m["reference"], "diff_db_percentiles": m["diff_db_percentiles"],
+                 "cut_po_db_range": [float(m["cut_po_db"].min()), float(m["cut_po_db"].max())],
+                 "cut_direct_db_range": [float(m["cut_direct_db"].min()), float(m["cut_direct_db"].max())],
+                 "seconds": m["seconds"]})
+    drawn = {"y": m["y"], "z": m["z"], "po_db": m["po_db"], "di_db": m["direct_db"], "diff_db": m["diff_db"],
+             "qz_s": m["qz_s"], "cut_po": m["cut_po_db"], "cut_di": m["cut_direct_db"], "qz_z": m["qz_z"]}
+    np.savez_compressed(maps, **drawn)
+    return drawn
 
 
 # ------------------------------------------------------------------------------------------------- 6. report
@@ -1294,7 +1149,7 @@ def main():
         base = step_baseline(out)
         rows = step_sweep(out, a.workers)
         ana = step_analyse(out, rows)
-    figs = step_figures(out, val, base, rows, ana)
+    figs = step_figures(out, val, base, rows, ana, reuse=a.render_only)
     html = step_report(out, val, base, rows, ana, figs)
     pdf = render_pdf(html)
     log(f"report: {html}" + (f" and {pdf}" if pdf else ""))

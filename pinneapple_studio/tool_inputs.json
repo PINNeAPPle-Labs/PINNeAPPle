@@ -7804,6 +7804,10 @@
   },
   "source": "tests/test_molecular_viz.py:57"
  },
+ "pinneapple_tools.visualization.studio.blender:blender_executable": {
+  "inputs": {},
+  "source": "tests/test_studio_headless.py:16"
+ },
  "pinneapple_tools.visualization.studio.colormap:decimals": {
   "inputs": {
    "hi": 1,
@@ -7816,6 +7820,12 @@
    "t": 0
   },
   "source": "tests/test_studio_external_flow.py:178"
+ },
+ "pinneapple_tools.visualization.studio.colormap:magma": {
+  "inputs": {
+   "t": 0.5
+  },
+  "source": "tests/test_studio_scene_geometry.py:61"
  },
  "pinneapple_tools.visualization.studio.colormap:ticks": {
   "inputs": {
@@ -7857,6 +7867,10 @@
    "key": "test_0"
   },
   "source": "tests/test_october_apps_helpers.py"
+ },
+ "pinneapple_tools.visualization.studio:blender_executable": {
+  "inputs": {},
+  "source": "tests/test_studio_headless.py:36"
  },
  "pinneapple_twin3d.primitives:box": {
   "inputs": {

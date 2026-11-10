@@ -24,6 +24,7 @@ absolute level of a 2-D feed has no 3-D meaning and nothing here quotes it.
 * :class:`Feed` -- the incident field of a directive line source at the focus: ``cos^q`` amplitude about an axis,
   ``H0^(2)(kR)`` phase, and its normal derivative (what the PO density is);
 * :func:`po_metrics` / :func:`direct_metrics` -- quiet-zone metrics of the PO density and of the exact one;
+* :func:`near_field_map` -- the near field both densities produce on a grid, and where they disagree;
 * :func:`metrics_1d` -- the 1-D quiet-zone numbers: taper, ripple, phase ripple and usable width;
 * :func:`mom_solve` -- the exact current by point-matched pulse expansion of the single-layer equation, with the
   self term integrated analytically over the log singularity;
@@ -42,7 +43,8 @@ ETA0 = 376.730313412
 EULER = 0.5772156649015329
 
 __all__ = ["Section", "Feed", "Grid", "metrics_1d", "mom_solve", "po_density", "radiate_2d", "incident",
-           "po_metrics", "direct_metrics", "validate_circle", "EDGE_FAMILY", "Design", "design_space"]
+           "po_metrics", "direct_metrics", "near_field_map", "validate_circle", "EDGE_FAMILY", "Design",
+           "design_space"]
 
 #: the 18 plausible rolled-edge profiles of the 2 GHz study: roll radius factor x blend x depth of the roll
 EDGE_FAMILY = tuple((f, b, a) for f in (0.6, 1.0, 1.4) for b in (0.4, 0.7) for a in (0.7, 1.0, 1.4))
@@ -318,8 +320,11 @@ class Range2D:
         return Feed(q=self.q, position=tuple(pos), axis=tuple(c - pos), amp=self.feed_amp)
 
     def qz_line(self) -> np.ndarray:
+        """The points of the quiet-zone line, ``(qz_points, 2)`` in absolute ``(y, z)``, centred on
+        ``qz_centre_y`` (the section centre by default)."""
         s = np.linspace(-self.qz_width / 2, self.qz_width / 2, self.qz_points)
-        return np.c_[s, np.full_like(s, self.qz_z)]
+        y_c = 0.5 * (self.section.y_low + self.section.y_high) if self.qz_centre_y is None else self.qz_centre_y
+        return np.c_[s + y_c, np.full_like(s, self.qz_z)]
 
 
 def _qz_metrics(rng: Range2D, E_qz: np.ndarray, s: np.ndarray, **kw) -> dict:
@@ -359,9 +364,66 @@ def direct_metrics(rng: Range2D, *, grid: Grid | None = None, **kw) -> dict:
 
 
 def _qz(rng: Range2D):
-    s = np.linspace(-rng.qz_width / 2, rng.qz_width / 2, rng.qz_points)
-    y_c = 0.5 * (rng.section.y_low + rng.section.y_high) if rng.qz_centre_y is None else rng.qz_centre_y
-    return s, np.c_[s + y_c, np.full_like(s, rng.qz_z)]
+    obs = rng.qz_line()
+    return obs[:, 0] - obs[:, 0].mean(), obs
+
+
+def near_field_map(rng: Range2D, *, n_y: int = 300, n_z: int = 280, pad: float = 0.05,
+                   floor_db: float = -20.0, ceiling_db: float = 10.0, grid: Grid | None = None,
+                   solution: dict | None = None) -> dict:
+    """``|E|`` on a ``(y, z)`` grid from the PO density and from the exact one, and where the two part company.
+
+    The grid spans the aperture plus ``pad`` (m) in ``y`` and ``0 .. qz_z + 0.25`` m in ``z``; the quiet-zone plane
+    sits inside it. Fields are returned as ``(n_y, n_z)`` arrays indexed ``[y, z]`` (transpose to plot with ``z`` up).
+
+    Returns a dict:
+
+    * ``y``, ``z`` -- the grid axes (m);
+    * ``po_db``, ``direct_db`` -- ``20 log10 |E|`` re the larger of the two maxima, so both maps share one scale;
+    * ``diff_db`` -- ``20 log10(|E_po - E_direct| / |E_direct|)``, clipped to ``[floor_db, ceiling_db]``: where the
+      two solvers disagree, in dB of the local field (0 dB = the error is as large as the field);
+    * ``diff_db_percentiles`` -- the 50th, 90th and 99th percentile of ``diff_db`` over the whole grid, keyed
+      ``"50"``, ``"90"``, ``"99"`` so the dict writes to JSON as it stands;
+    * ``qz_s``, ``cut_po_db``, ``cut_direct_db`` -- the quiet-zone line cut (``qz_s`` centred), each solver re its
+      own maximum; ``qz_z``, ``qz_width`` -- where that line is;
+    * ``reference`` (the amplitude of ``po_db``/``direct_db``), ``n_segments``, ``seconds``.
+
+    ``grid`` and ``solution`` reuse an already built mesh and exact current (the sweep solves each design once).
+    """
+    t0 = time.perf_counter()
+    g = grid or rng.grid
+    feed = rng.feed()
+    y = np.linspace(g.mid[:, 0].min() - pad, g.mid[:, 0].max() + pad, n_y)
+    z = np.linspace(0.0, rng.qz_z + 0.25, n_z)
+    pts = np.stack(np.meshgrid(y, z, indexing="ij"), axis=-1).reshape(-1, 2)
+
+    rho_po = po_density(g, feed, rng.k)
+    rho_di = (solution or mom_solve(g, feed, rng.k))["rho"]
+    e_po = incident(pts, feed, rng.k) + radiate_2d(g.mid, g.length, rho_po, pts, rng.k)
+    e_di = incident(pts, feed, rng.k) + radiate_2d(g.mid, g.length, rho_di, pts, rng.k)
+
+    a_po, a_di = np.abs(e_po), np.abs(e_di)
+    ref = max(a_di.max(), a_po.max(), 1e-300)
+    with np.errstate(divide="ignore"):
+        rel_db = 20 * np.log10(np.maximum(np.abs(e_po - e_di) / np.maximum(a_di, 1e-300), 1e-300))
+        shape = (n_y, n_z)
+        d_db = np.clip(rel_db, floor_db, ceiling_db).reshape(shape)
+
+    s, obs = _qz(rng)
+    cut_po = np.abs(incident(obs, feed, rng.k) + radiate_2d(g.mid, g.length, rho_po, obs, rng.k))
+    cut_di = np.abs(incident(obs, feed, rng.k) + radiate_2d(g.mid, g.length, rho_di, obs, rng.k))
+    return {
+        "y": y, "z": z,
+        "po_db": (20 * np.log10(np.maximum(a_po, 1e-300) / ref)).reshape(shape),
+        "direct_db": (20 * np.log10(np.maximum(a_di, 1e-300) / ref)).reshape(shape),
+        "diff_db": d_db,
+        "diff_db_percentiles": {str(p): float(np.percentile(rel_db, p)) for p in (50, 90, 99)},
+        "qz_s": s, "qz_z": rng.qz_z, "qz_width": rng.qz_width,
+        "cut_po_db": 20 * np.log10(np.maximum(cut_po, 1e-300) / max(cut_po.max(), 1e-300)),
+        "cut_direct_db": 20 * np.log10(np.maximum(cut_di, 1e-300) / max(cut_di.max(), 1e-300)),
+        "reference": float(ref), "n_segments": int(len(g.mid)),
+        "seconds": round(time.perf_counter() - t0, 4),
+    }
 
 
 # ----------------------------------------------------------------------------------------------- validation

@@ -603,6 +603,14 @@
   "returned": "bool",
   "seconds": 0.03
  },
+ "pinneapple_tools.visualization.studio.blender:blender_executable": {
+  "code_hash": "4d72ae4ad860c9c6",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-10",
+  "returned": "str",
+  "seconds": 18.09
+ },
  "pinneapple_tools.visualization.studio.colormap:decimals": {
   "code_hash": "3736e2cfb3e7164a",
   "inputs": {
@@ -623,6 +631,16 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.colormap:magma": {
+  "code_hash": "5970f7dd85898861",
+  "inputs": {
+   "t": 0.5
+  },
+  "ok": true,
+  "recorded": "2026-11-10",
+  "returned": "tuple",
+  "seconds": 14.97
  },
  "pinneapple_tools.visualization.studio.colormap:ticks": {
   "code_hash": "75ed5f504e740ffd",
@@ -704,6 +722,14 @@
   "recorded": "2026-11-03",
   "returned": "tuple",
   "seconds": 4.19
+ },
+ "pinneapple_tools.visualization.studio:blender_executable": {
+  "code_hash": "3db9d7bb3d91efb3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-10",
+  "returned": "str",
+  "seconds": 18.72
  },
  "pinneapple_tools.visualization.studio:render": {
   "code_hash": "77d3531dc556e9d4",

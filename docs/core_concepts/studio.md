@@ -50,6 +50,22 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
 - **Backgrounds:** `background="studio"` gives a light gradient with true colours; `"sky"` gives a physical sky
   with filmic tone mapping, for the realistic materials.
 
+Without `bpy` — the usual case, Blender installed as an application — `pp.viz.render_headless(scene, out, **kw)`
+takes the same keyword arguments and renders with the Blender binary: the scene goes to a temporary `.glb` (with its
+`scene.materials` and labels carried alongside, so a material only the scene knows about still renders as written),
+Blender runs it with `--background`, and the PNG is written to `out`. `pp.viz.blender_executable()` says which binary
+it found: `$BLENDER`, then `blender` on `PATH`, then the macOS app bundle, `/usr/bin`, `/snap` or
+`C:\Program Files\Blender Foundation`. A colour bar needs Pillow, which Blender's own Python does not ship, so draw it
+afterwards (`pp.viz.colorbar`) or pass `colorbar_on=False`. Both paths accept `exposure` (EV) to take a dark stage
+down or up.
+
+Annotation geometry for a figure is built from three helpers, each returning a `Surface` you can put in a scene next
+to the model: `pp.viz.sphere_surface(centre, r, material="led")` for a source, sensor or probe (an emissive material
+reads on a dark stage), `pp.viz.rod_surface(a, b, r)` for a ray, beam axis or support, and
+`pp.viz.disc_surface(centre, r, normal=...)` for an aperture or measurement plane (give the material an `alpha` in
+`scene.materials` to see through it). The colour maps are `pp.viz.CMAPS` (`jet`, `coolwarm`, `bwr`,
+`rdbu`, `magma`; `pp.viz.stops(name)` gives the table), the same ones the browser viewer draws from.
+
 ## Browser viewer
 
 `pp.viz.web_viewer(scene, folder)` writes `index.html`, `viewer.js`, `studio-core.js`, `scene.glb`, `scene.json` and

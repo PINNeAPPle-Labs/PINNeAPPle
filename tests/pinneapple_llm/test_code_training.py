@@ -70,7 +70,7 @@ def test_finetune_verifies_checksums_before_training(tmp_path, monkeypatch):
     import pinneapple_llm.finetune as backend
 
     calls = []
-    def fake_train(path, config):
+    def fake_train(path, config, validation_jsonl=None):
         calls.append((path, config.base_model, config.output_dir))
         return config.output_dir
 
@@ -82,3 +82,34 @@ def test_finetune_verifies_checksums_before_training(tmp_path, monkeypatch):
         f.write("{}\n")
     with pytest.raises(ValueError, match="checksum mismatch"):
         finetune_code_dataset(str(tmp_path / "out"), base_model="test/local", output_dir="adapter")
+
+
+def test_response_only_masking_and_truncation():
+    from pinneapple_llm.finetune import tokenize_supervised_example
+
+    class FakeTokenizer:
+        eos_token_id = 99
+        def __call__(self, value, add_special_tokens=False):
+            return {"input_ids": [ord(c) for c in value]}
+
+    token = FakeTokenizer()
+    row = tokenize_supervised_example(token, "question", "answer", 40)
+    assert row["labels"][:len("question\n\n")] == [-100] * len("question\n\n")
+    assert row["labels"][-1] == 99
+    assert row["labels"][len("question\n\n"):-1] == [ord(c) for c in "answer"]
+    small = tokenize_supervised_example(token, "very long prompt", "answer", 4)
+    assert len(small["input_ids"]) == 4
+    assert small["labels"] == small["input_ids"]
+
+
+def test_collator_masks_padding():
+    torch = pytest.importorskip("torch")
+    from pinneapple_llm.finetune import collate_supervised_batch
+    rows = [
+        {"input_ids": [1, 2], "attention_mask": [1, 1], "labels": [-100, 2]},
+        {"input_ids": [3], "attention_mask": [1], "labels": [3]},
+    ]
+    batch = collate_supervised_batch(rows, pad_token_id=0)
+    assert batch["input_ids"].tolist() == [[1, 2], [3, 0]]
+    assert batch["attention_mask"].tolist() == [[1, 1], [1, 0]]
+    assert batch["labels"].tolist() == [[-100, 2], [3, -100]]

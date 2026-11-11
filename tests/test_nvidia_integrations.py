@@ -178,6 +178,28 @@ def test_example_02_plume_smoke(tmp_path):
     assert os.path.exists(tmp_path / "results" / "rollout_checks.png")
 
 
+@needs_pnemo
+def test_example_19_head_to_head_smoke(tmp_path):
+    s = _example("19_physicsnemo_vs_pinneapple")["main"](True, str(tmp_path))
+    assert set(s["models"]) == {"PhysicsNeMo FNO", "PINNeAPPle FNO2d"}
+    for lab in s["models"].values():
+        assert lab["decision_in_band"] in ("APPROVED", "REVIEW", "REJECT")
+        assert lab["rel_l2_in_band"]["mean"] > 0.0
+    for f in ("head_to_head.png", "fields.png", "training.png"):
+        assert os.path.exists(tmp_path / "results" / f)
+
+
+@needs_pxr
+@needs_pnemo
+def test_example_20_usd_is_the_dataset_smoke(tmp_path):
+    s = _example("20_usd_is_the_dataset")["main"](True, str(tmp_path))
+    assert s["stage_valid"] and s["round_trip"] == 0.0        # the file holds exactly the float32 the solver wrote
+    assert all(v["decision_on_the_prim"] == v["decision"] for v in s["variants"].values())
+    assert os.path.exists(tmp_path / "dataset" / "v10_line_y50_heldout.usda")
+    for f in ("usd_timeline.gif", "stage_readback.png", "prediction.png"):
+        assert os.path.exists(tmp_path / "results" / f)
+
+
 # ------------------------------------------------------------------------------------------------ robot sim (stack I)
 HAS_NEWTON = importlib.util.find_spec("newton") is not None
 needs_newton = pytest.mark.skipif(not HAS_NEWTON, reason="NVIDIA Newton not installed (pip install newton)")

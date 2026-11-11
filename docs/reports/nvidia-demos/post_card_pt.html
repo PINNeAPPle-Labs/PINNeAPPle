@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Card — Mesmo orçamento</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #0b0c0e;
+    --fg: #f2f1ee;
+    --muted: #969ba4;
+    --rule: #2a2c31;
+    --nv: #a6cd6d;
+    --pn: #e0a93b;
+    --bad: #ff8578;
+    --pad: 78px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    width: 100vw; height: 100vh; overflow: hidden;
+    color: var(--fg); font-family: "Inter", system-ui, sans-serif;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(900px 520px at 18% 6%, rgba(224,169,59,.13), transparent 62%),
+      radial-gradient(760px 480px at 96% 92%, rgba(111,179,216,.10), transparent 60%),
+      var(--bg);
+  }
+  .heat { height: 8px; flex: 0 0 auto; background: linear-gradient(90deg, #000004 0%, #420a68 22%, #932667 42%, #dd513a 62%, #fca50a 82%, #fcffa4 100%); }
+  .card { flex: 1 1 auto; padding: var(--pad); display: flex; flex-direction: column; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: 17px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0; display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--nv); box-shadow: 0 0 0 5px rgba(166,205,109,.14); }
+
+  h1 {
+    font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 78px; line-height: 1.02;
+    letter-spacing: -.028em; margin: 34px 0 0; text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--pn); }
+
+  .metrics { display: flex; gap: 40px; margin-top: 46px; }
+  .metric { flex: 1 1 0; min-width: 0; border-top: 1px solid var(--rule); padding-top: 16px; }
+  .metric .label {
+    font-family: "IBM Plex Mono", monospace; font-size: 16px; letter-spacing: .04em; color: var(--muted);
+    display: block; margin-bottom: 8px;
+  }
+  .metric .value {
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 92px; line-height: .95;
+    letter-spacing: -.035em; display: block; font-variant-numeric: tabular-nums;
+  }
+  .metric.nv .value { color: var(--nv); }
+  .metric.pn .value { color: var(--pn); }
+  .metric.bound .value { color: var(--bad); font-size: 74px; }
+  .metric .sub { font-size: 17px; color: var(--muted); margin-top: 10px; display: block; line-height: 1.4; }
+  .metric.bound .sub { color: #b9bcc2; }
+
+  .punch { margin-top: auto; padding-top: 34px; }
+  .rule { height: 1px; background: var(--rule); margin: 0 0 26px; }
+  .line { font-size: 29px; line-height: 1.38; color: #dfe1e5; max-width: 30ch; margin: 0; }
+  .line b { color: var(--fg); font-weight: 500; }
+
+  .verdicts { display: flex; align-items: center; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 17px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--bad); border: 1.5px solid var(--bad); border-radius: 4px; padding: 8px 14px 7px;
+  }
+  .chip.neutral { color: var(--muted); border-color: var(--rule); }
+  .foot {
+    display: flex; justify-content: space-between; gap: 24px; margin-top: 34px;
+    font-family: "IBM Plex Mono", monospace; font-size: 15px; color: var(--muted); letter-spacing: .02em;
+  }
+  /* 4:5 — mais respiro vertical, números um pouco maiores */
+  .metricsp { display: flex; flex-direction: column; gap: 34px; }
+  body.tall { --pad: 96px; }
+  body.tall .metricsp { gap: 62px; }
+  body.tall h1 { font-size: 88px; }
+  body.tall .metrics { margin-top: 82px; }
+  body.tall .metric .value { font-size: 106px; }
+  body.tall .metric.bound .value { font-size: 86px; }
+  body.tall .line { font-size: 34px; max-width: 26ch; }
+</style>
+</head>
+<body>
+  <div class="heat"></div>
+  <div class="card">
+    <p class="eyebrow"><span class="dot"></span>PhysicsNeMo × PINNeAPPle — Darcy, mesmo orçamento</p>
+
+    <h1>Meio ponto de diferença.<br>Mesmo <em>veredito</em>.</h1>
+
+    <div class="metricsp">
+    <div class="metrics">
+      <div class="metric nv">
+        <span class="label">PhysicsNeMo FNO</span>
+        <span class="value">2,30%</span>
+        <span class="sub">erro relativo L2 fora da amostra</span>
+      </div>
+      <div class="metric pn">
+        <span class="label">PINNeAPPle FNO2d</span>
+        <span class="value">1,89%</span>
+        <span class="sub">mesmo dado, mesmo orçamento</span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric bound">
+        <span class="label">PhysicsNeMo · limite certificado</span>
+        <span class="value">42%</span>
+        <span class="sub">contra um limite de 10%</span>
+      </div>
+      <div class="metric bound">
+        <span class="label">PINNeAPPle · limite certificado</span>
+        <span class="value">29%</span>
+        <span class="sub">contra um limite de 10%</span>
+      </div>
+    </div>
+    </div>
+
+    <div class="punch">
+      <div class="rule"></div>
+      <p class="line">Os dois <b>REJECT</b>. Um erro de 2% no campo não é um <b>erro de 2% na física</b>.</p>
+      <div class="verdicts">
+        <span class="chip">Reject</span>
+        <span class="chip neutral">examples/nvidia/19 — código, números, checagens</span>
+      </div>
+      <div class="foot">
+        <span>2,37M parâmetros · 1500 passos · 400 pares · sementes 0–1</span>
+        <span>só CPU</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

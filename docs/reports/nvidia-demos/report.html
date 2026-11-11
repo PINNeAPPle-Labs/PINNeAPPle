@@ -1,0 +1,481 @@
+<title>PINNeAPPle × NVIDIA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* layout: uma coluna de 1040 px; seções de demo com figuras em grade de 2 colunas; faixas sem cor cheia */
+  :root {
+    --paper: #f6f5f1;
+    --surface: #ffffff;
+    --ink: #16171a;
+    --muted: #5b5e66;
+    --rule: #dcd9d2;
+    --pn: #9a6f00;          /* PINNeAPPle (âmbar do diagrama) */
+    --nv: #3f6800;          /* PhysicsNeMo (verde do diagrama) */
+    --usd: #17607f;         /* OpenUSD (azul do diagrama) */
+    --ok: #2f6b46;
+    --bad: #a8342a;
+    --chipbg: #ebe8e1;
+    --shadow: 0 1px 2px rgba(20, 20, 24, .06), 0 8px 24px rgba(20, 20, 24, .05);
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #131315;
+      --surface: #1b1b1f;
+      --ink: #eceae4;
+      --muted: #a2a2ac;
+      --rule: #2e2e34;
+      --pn: #e0a93b;
+      --nv: #a6cd6d;
+      --usd: #74b6d8;
+      --ok: #82c79b;
+      --bad: #ff8578;
+      --chipbg: #26262c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #131315;
+    --surface: #1b1b1f;
+    --ink: #eceae4;
+    --muted: #a2a2ac;
+    --rule: #2e2e34;
+    --pn: #e0a93b;
+    --nv: #a6cd6d;
+    --usd: #74b6d8;
+    --ok: #82c79b;
+    --bad: #ff8578;
+    --chipbg: #26262c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  header { padding-block: 56px 28px; border-bottom: 1px solid var(--rule); }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600; font-size: clamp(34px, 6vw, 56px);
+    line-height: 1.05; letter-spacing: -.02em; margin: 0 0 18px; text-wrap: balance;
+  }
+  h1 .x { color: var(--pn); }
+  .lede { font-size: clamp(17px, 2.2vw, 20px); max-width: 46ch; color: var(--ink); margin: 0 0 8px; }
+  .lede + p { color: var(--muted); max-width: 62ch; margin: 0; }
+
+  .strip {
+    display: flex; flex-wrap: wrap; gap: 10px 26px; padding-block: 18px; border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  }
+  .strip b { color: var(--ink); font-weight: 500; }
+
+  section { padding-block: 52px; border-bottom: 1px solid var(--rule); }
+  h2 {
+    font-family: var(--display); font-weight: 600; font-size: clamp(24px, 3.4vw, 32px); letter-spacing: -.01em;
+    margin: 0 0 6px; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500; margin: 34px 0 12px;
+  }
+  p { max-width: 68ch; margin: 0 0 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11.5px;
+    letter-spacing: .06em; text-transform: uppercase; padding: 4px 9px; border-radius: 3px;
+    border: 1px solid currentColor;
+  }
+  .badge.ok { color: var(--ok); }
+  .badge.bad { color: var(--bad); }
+
+  .figures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 20px; }
+  .figures.one { grid-template-columns: minmax(0, 1fr); }
+  figure { margin: 0; min-width: 0; }
+  figure img {
+    width: 100%; max-width: 100%; height: auto; display: block; background: #fff;
+    border: 1px solid var(--rule); border-radius: 4px;
+  }
+  figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+  .numbers {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 14px; margin: 24px 0 8px;
+  }
+  .num {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 5px; padding: 16px 16px 14px;
+    box-shadow: var(--shadow);
+  }
+  .num .v { font-family: var(--display); font-size: 27px; font-weight: 600; letter-spacing: -.02em; display: block; }
+  .num .k { font-size: 13px; color: var(--muted); display: block; margin-top: 4px; line-height: 1.45; }
+  .num.pn .v { color: var(--pn); }
+  .num.nv .v { color: var(--nv); }
+  .num.bad .v { color: var(--bad); }
+  .num.ok .v { color: var(--ok); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .tablewrap { overflow-x: auto; margin-top: 18px; }
+  th, td { text-align: left; padding: 11px 14px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  td.tool { font-weight: 600; white-space: nowrap; }
+  td.st { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+  td.st.run { color: var(--ok); }
+  td.st.part { color: var(--pn); }
+  td.st.idea { color: var(--muted); }
+
+  .posts { display: grid; gap: 20px; margin-top: 22px; }
+  .post {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 5px; box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .post header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--rule); border-top: 0;
+  }
+  .post header .t { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .post pre {
+    margin: 0; padding: 16px; white-space: pre-wrap; word-wrap: break-word; font-family: var(--body);
+    font-size: 15px; line-height: 1.62; color: var(--ink);
+  }
+  button.copy {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink); background: var(--chipbg); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 5px 10px; cursor: pointer;
+  }
+  button.copy:hover { border-color: var(--muted); }
+  button.copy:focus-visible { outline: 2px solid var(--usd); outline-offset: 2px; }
+  button.copy[data-done="1"] { color: var(--ok); border-color: var(--ok); }
+
+  code { font-family: var(--mono); font-size: .9em; background: var(--chipbg); padding: 1px 5px; border-radius: 3px; }
+  .paths { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  footer { padding-block: 44px 64px; color: var(--muted); font-size: 14px; }
+  footer p { max-width: 72ch; }
+  .note {
+    border-left: 3px solid var(--pn); padding: 2px 0 2px 16px; color: var(--muted); font-size: 14.5px; margin: 20px 0;
+  }
+
+  @media (max-width: 720px) {
+    .figures { grid-template-columns: minmax(0, 1fr); }
+    header { padding-block: 36px 22px; }
+    section { padding-block: 38px; }
+  }
+
+  /* impressão / PDF: a mesma página, sem os botões, e o GIF trocado por uma tira estática */
+  .printonly { display: none; }
+  @media print {
+    @page { size: A4; margin: 14mm 13mm; }
+    :root {
+      --paper: #ffffff; --surface: #ffffff; --ink: #16171a; --muted: #55585f; --rule: #cfccc4;
+      --pn: #8a6400; --nv: #385b00; --usd: #14556f; --ok: #2a6040; --bad: #97302a; --chipbg: #eeece6;
+      color-scheme: light;
+    }
+    body { font-size: 10.8pt; line-height: 1.55; }
+    .wrap { max-width: none; }
+    .screenonly { display: none !important; }
+    .printonly { display: block; }
+    button.copy { display: none !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    header { padding-block: 0 14px; }
+    h1 { font-size: 30pt; }
+    .lede { font-size: 13pt; }
+    section { padding-block: 22px; }
+    figure, .num, .post, .tablewrap { break-inside: avoid; }
+    h2, h3, .eyebrow { break-after: avoid; }
+    .figures { gap: 12px; }
+    .shadowless, .num, .post { box-shadow: none; }
+    .post pre { font-size: 10pt; }
+    /* a tabela do mapa precisa de colunas com largura fixa no papel, e de nenhuma linha partida */
+    .tablewrap { overflow: visible; }
+    table { table-layout: fixed; font-size: 9.2pt; }
+    th:nth-child(1), td:nth-child(1) { width: 17%; }
+    th:nth-child(2), td:nth-child(2) { width: 39%; }
+    th:nth-child(3), td:nth-child(3) { width: 20%; }
+    th:nth-child(4), td:nth-child(4) { width: 24%; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    td, th { padding: 7px 9px 7px 0; }
+    td.tool, td.st { white-space: normal; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Demos rodadas · PhysicsNeMo · OpenUSD · camada de confiança</p>
+    <h1>PINNeAPPle <span class="x">×</span> NVIDIA</h1>
+    <p class="lede">Duas demos que põem o ecossistema NVIDIA dentro da camada de confiança do PINNeAPPle — e mostram
+      onde cada um manda.</p>
+    <p>Nada aqui é mockup: os dois exemplos rodam, gravam figura, gravam <code>summary.json</code> e passam no CI.
+      O que eles mostram não é que "integra com PhysicsNeMo". É que a parte difícil de um operador neural não é
+      treinar — é decidir.</p>
+  </header>
+
+  <div class="strip">
+    <span><b>2</b> exemplos novos</span>
+    <span><b>4</b> treinos igual-orçamento</span>
+    <span><b>12</b> stages OpenUSD</span>
+    <span><b>0</b> GPU — tudo em CPU</span>
+    <span><b>2</b> vereditos gravados dentro do .usda</span>
+  </div>
+
+  <section id="demo1">
+    <p class="eyebrow">Demo 1 · PhysicsNeMo</p>
+    <h2>Mesmo problema, mesmo dado, mesmo orçamento</h2>
+    <p>O FNO do <code>physicsnemo.models.fno</code> e o <code>FNO2d</code> do próprio PINNeAPPle treinados nos mesmos
+      400 pares de <code>-div(a grad u) = 1</code>, com o mesmo número de passos de Adam, o mesmo batch, a mesma
+      semente e contagem de parâmetros casada em 1,1 % (2 366 305 contra 2 341 306). Depois, os dois passam pelo
+      mesmo portão: os checks de Darcy do PINNeAPPle, que não precisam do gabarito — limite certificado do resíduo,
+      condição de contorno, balanço de fluxo, positividade e envelope de coeficientes.</p>
+
+    <div class="numbers">
+      <div class="num nv"><span class="v">2,30 %</span><span class="k">PhysicsNeMo FNO — erro L2 fora da amostra, dentro da banda</span></div>
+      <div class="num pn"><span class="v">1,89 %</span><span class="k">PINNeAPPle FNO2d — mesmo dado, mesmo orçamento</span></div>
+      <div class="num bad"><span class="v">56,9 % / 54,3 %</span><span class="k">fora da banda de treino, os dois desabam</span></div>
+      <div class="num bad"><span class="v">REJECT</span><span class="k">os dois, com 2 % de erro no campo</span></div>
+    </div>
+
+    <div class="figures">
+      <figure>
+        <img src="figures/d19_head_to_head.png" alt="Barras do erro relativo L2 dentro e fora da banda de treino, por semente">
+        <figcaption>Dentro da banda: meio ponto de diferença. Fora: os dois perdem a mão, e só o envelope de
+          coeficientes avisa antes.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/d19_fields.png" alt="Coeficiente, solução de referência, as duas predições e os dois mapas de erro">
+        <figcaption>Amostra de validação mediana: coeficiente, volumes finitos (referência), as duas predições e os
+          dois mapas de erro, na mesma escala.</figcaption>
+      </figure>
+    </div>
+
+    <div class="figures">
+      <figure>
+        <img src="figures/d19_checks_physicsnemo.png" alt="Cartão de checagens do FNO do PhysicsNeMo">
+        <figcaption>PhysicsNeMo: limite de energia certificado em 42,2 % (limite 10 %), L2 em 125 %, fluxo 15,2 %,
+          contorno 2,16 %.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/d19_checks_pinneapple.png" alt="Cartão de checagens do FNO do PINNeAPPle">
+        <figcaption>PINNeAPPle: 28,8 %, 83 %, 6,8 % e um contorno que passa. Os dois terminam em REJECT — este é o
+          resultado interessante.</figcaption>
+      </figure>
+    </div>
+
+    <p class="note">Um erro de campo de 2 % não é um erro de física de 2 %. Os limites certificados pelo resíduo
+      ficam de 15 a 54 vezes acima do erro real: são conservadores por construção. Os campos de volumes finitos
+      passam no mesmo portão (APPROVED), então o portão é rigoroso, não quebrado. É o tipo de coisa que só se
+      descobre rodando a checagem.</p>
+  </section>
+
+  <section id="demo2">
+    <p class="eyebrow">Demo 2 · OpenUSD</p>
+    <h2>O arquivo é o dataset, a entrada e o recibo</h2>
+    <p>Doze varreduras de uma fonte de calor móvel numa chapa de aço, resolvidas pelo solver imerso transiente do
+      PINNeAPPle — sem malha conforme da chapa. Cada varredura vira um stage OpenUSD com <b>dois</b> primvars na mesma
+      linha do tempo: a energia depositada até aquele quadro e a temperatura alcançada. A pasta de <code>.usda</code>
+      <i>é</i> o dataset: os pares de treino são lidos de volta dos arquivos com <code>pxr</code>. A predição de uma
+      varredura nunca vista volta para <b>o mesmo arquivo</b>, como segunda malha, com o veredito no prim.</p>
+
+    <div class="numbers">
+      <div class="num ok"><span class="v">APPROVED</span><span class="k">varredura do mesmo tipo, não vista: 1,10 % de erro, 1ª lei em 1,05 %</span></div>
+      <div class="num bad"><span class="v">REJECT</span><span class="k">varredura de outro tipo: 3,83 % — dentro da tolerância — mas 1ª lei em 6,3 %</span></div>
+      <div class="num"><span class="v">0,0</span><span class="k">diferença entre o campo no arquivo e o que o solver calculou</span></div>
+      <div class="num"><span class="v">45</span><span class="k">time samples no stage de validação: 2 malhas, 4 prims, 0 erro de validação</span></div>
+    </div>
+
+    <div class="figures one">
+      <figure>
+        <img class="screenonly" src="figures/d20_timeline.gif" alt="Animação: referência e predição do operador lado a lado no tempo">
+        <img class="printonly" src="figures/d20_timeline_strip.png" alt="Tira estática: referência e predição em três instantes">
+        <figcaption>Referência e predição quadro a quadro, com o erro relativo no título — a mesma comparação que o
+          timeline do USD Composer reproduz (no PDF, três instantes em vez da animação).</figcaption>
+      </figure>
+    </div>
+
+    <div class="figures">
+      <figure>
+        <img src="figures/d20_prediction.png" alt="Energia depositada, temperatura de referência, predição e diferença">
+        <figcaption>Último quadro da varredura de validação. A energia vem do próprio <code>.usda</code>; a predição
+          do FNO fica a 4,4 mm do pico da referência.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/d20_stage_readback.png" alt="O stage lido de volta com OpenUSD: referência à esquerda, predição à direita">
+        <figcaption>O arquivo lido de volta com OpenUSD: à esquerda a referência, à direita a predição que foi escrita
+          nele. O que abre no USD Composer é o número em que a checagem rodou.</figcaption>
+      </figure>
+    </div>
+
+    <div class="figures">
+      <figure>
+        <img src="figures/d20_verdict_approved.png" alt="Checagens da varredura aprovada">
+        <figcaption>Varredura do mesmo tipo: tudo à esquerda da linha, veredito APPROVED.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/d20_verdict_rejected.png" alt="Checagens da varredura rejeitada">
+        <figcaption>Varredura ondulada: o erro de referência passa, a 1ª lei e a temperatura não. REJECT.</figcaption>
+      </figure>
+    </div>
+
+    <p class="note">Este é o argumento a favor de carregar os números e o veredito no arquivo: o erro contra a
+      referência (3,83 %) diria "pode usar". A física, na mesma execução, disse que não — o campo previsto afunda
+      2,8 K abaixo da temperatura inicial, num problema em que só entra calor.</p>
+  </section>
+
+  <section id="mapa">
+    <p class="eyebrow">O resto do ecossistema</p>
+    <h2>O que já roda e o que é próxima fronteira</h2>
+    <p>Estas duas demos são a ponta do que o repositório já cobre. O mapa abaixo é o que está de pé hoje e o que
+      faz sentido em seguida, com o que cada peça compraria de verdade.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Peça NVIDIA</th><th>O que o PINNeAPPle faz com ela</th><th>Estado</th><th>O que compra</th></tr></thead>
+        <tbody>
+          <tr><td class="tool">PhysicsNeMo</td><td>gera o dado, adapta o modelo, checa a física e assina o veredito</td><td class="st run">rodando · 8 exemplos</td><td>o operador sai da NVIDIA, a decisão sai daqui</td></tr>
+          <tr><td class="tool">OpenUSD</td><td>stage como saída, como dataset e como recibo; validação com UsdValidation</td><td class="st run">rodando · 7 exemplos</td><td>o resultado vira um arquivo revisável</td></tr>
+          <tr><td class="tool">USD Physics / PhysX</td><td>exporta corpos rígidos, colliders e materiais validados com o parser oficial</td><td class="st run">rodando</td><td>o que o Omniverse simula é o que foi verificado</td></tr>
+          <tr><td class="tool">USD BRep</td><td>CAD exato (NURBS) no stage, tesselação com erro de corda medido</td><td class="st run">rodando · 4 exemplos</td><td>geometria exata, não aproximada</td></tr>
+          <tr><td class="tool">Omniverse Kit (RTX)</td><td>abre o stage no viewport e captura a imagem</td><td class="st part">script pronto, não rodado</td><td>a cena com RTX — precisa de GPU</td></tr>
+          <tr><td class="tool">Isaac Sim / Newton</td><td>robô validado estruturalmente no simulador</td><td class="st part">Newton em CPU; Isaac com adapter</td><td>o mesmo gêmeo, no simulador da NVIDIA</td></tr>
+          <tr><td class="tool">NIM</td><td>serviços no formato NIM com veredito por resposta</td><td class="st part">local rodando; NIM com chave</td><td>servir com o mesmo portão</td></tr>
+          <tr><td class="tool">Cosmos</td><td>world model consistente com a física</td><td class="st part">adapter escrito, não rodado</td><td>vídeo sintético que obedece à física</td></tr>
+          <tr><td class="tool">Warp</td><td>levar solver imerso e volumes finitos para GPU</td><td class="st idea">próxima</td><td>geração de dado 10–100× mais rápida</td></tr>
+          <tr><td class="tool">TensorRT / Triton</td><td>servir o operador exportado com os mesmos checks</td><td class="st idea">próxima</td><td>latência de produção</td></tr>
+          <tr><td class="tool">PhysicsNeMo Datapipes</td><td>ler stages USD direto no carregador de dados</td><td class="st idea">próxima</td><td>a versão GPU da demo 2</td></tr>
+          <tr><td class="tool">Extensão de Kit</td><td>painel do PINNeAPPle dentro do USD Composer: seleciona o prim, roda a checagem, pinta pela decisão</td><td class="st idea">próxima</td><td>o revisor não sai do viewport</td></tr>
+          <tr><td class="tool">cuML / RAPIDS</td><td>incerteza e conformal em escala</td><td class="st idea">próxima</td><td>UQ sobre ensembles grandes</td></tr>
+          <tr><td class="tool">NeMo / NIM (LLM)</td><td><code>pp.recommend</code> apontando para endpoint NIM</td><td class="st idea">próxima</td><td>problema → setup, on-premise</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="posts">
+    <p class="eyebrow">Para postar</p>
+    <h2>Texto pronto, em português e em inglês</h2>
+    <p>Quatro blocos: dois posts, cada um em duas línguas. Copie o que servir. As figuras para anexar são as das
+      seções acima; para um post só, a <code>d20_timeline.gif</code> e a <code>d19_head_to_head.png</code> são as que
+      carregam o argumento sozinhas.</p>
+
+    <div class="posts">
+      <div class="post">
+        <header><span class="t">Post 1 · PhysicsNeMo · PT</span><button class="copy" type="button">Copiar</button></header>
+        <pre>Coloquei o FNO do PhysicsNeMo (NVIDIA) e o FNO do PINNeAPPle no mesmo problema de Darcy: mesmos 400 pares de treino, mesmo orçamento de computação, contagem de parâmetros casada em 1,1%.
+
+Resultado dentro da banda: 2,30% de erro contra 1,89%. Meio ponto. Os dois tomam REJECT nos checks de física — com 2% de erro no campo.
+
+Esse é o ponto. O limite certificado pelo resíduo dá 42% no PhysicsNeMo e 29% no nosso, contra um limite de 10%. Um erro de 2% no campo não é um erro de 2% na física, e é a física que decide se o operador pode ir para produção.
+
+Fora da banda de treino os dois desabam para ~55%, e o envelope de coeficientes aponta cada amostra. Nenhum dos dois extrapola em contraste — o que muda o jogo é saber disso antes, não depois.
+
+Tudo em CPU, num laptop, com as checagens no CI. Código no exemplo 19 de examples/nvidia.
+
+#PhysicsAI #PINN #OpenUSD #HPC</pre>
+      </div>
+
+      <div class="post">
+        <header><span class="t">Post 1 · PhysicsNeMo · EN</span><button class="copy" type="button">Copiar</button></header>
+        <pre>I put NVIDIA's PhysicsNeMo FNO and PINNeAPPle's own FNO on the same Darcy problem: same 400 training pairs, same compute budget, parameter counts matched to 1.1%.
+
+In-band: 2.30% relative L2 against 1.89%. Half a point. Both come back REJECT from the physics checks, at a 2% field error.
+
+That is the point. The certified bound from the residual reads 42% for PhysicsNeMo and 29% for ours, against a 10% limit. A 2% field error is not a 2% physics error, and the physics is what decides whether an operator ships.
+
+Outside the training band both collapse to ~55%, and the coefficient envelope flags every sample. Neither extrapolates in contrast — knowing that early is the whole game.
+
+All on CPU, on a laptop, with the checks in CI. Code in example 19 under examples/nvidia.
+
+#PhysicsAI #NeuralOperators #HPC</pre>
+      </div>
+
+      <div class="post">
+        <header><span class="t">Post 2 · OpenUSD · PT</span><button class="copy" type="button">Copiar</button></header>
+        <pre>Um arquivo .usda pode ser o dataset, a entrada do modelo e o recibo — ao mesmo tempo.
+
+Montei uma demo em que 12 varreduras de uma fonte de calor numa chapa de aço são resolvidas pelo solver imerso do PINNeAPPle (sem malha conforme) e gravadas como stages OpenUSD. Cada stage carrega dois primvars na mesma linha do tempo: a energia depositada e a temperatura.
+
+Os pares de treino são lidos de volta dos arquivos com pxr. O FNO do PhysicsNeMo aprende energia → temperatura com 90 pares. A predição de uma varredura que ele nunca viu volta para o mesmo arquivo, como segunda malha, com o veredito no prim.
+
+Numa varredura do mesmo tipo: 1,10% de erro, primeira lei em 1,05%, APPROVED.
+Numa varredura ondulada, de outro tipo: 3,83% de erro — dentro da tolerância de 5% — mas a primeira lei fecha em 6,3% e o campo afunda 2,8 K abaixo da inicial. REJECT.
+
+O erro contra a referência teria liberado. A física não deixou. E o veredito está escrito dentro do arquivo, não num notebook.
+
+#OpenUSD #Omniverse #PhysicsAI</pre>
+      </div>
+
+      <div class="post">
+        <header><span class="t">Post 2 · OpenUSD · EN</span><button class="copy" type="button">Copiar</button></header>
+        <pre>A .usda file can be the dataset, the model's input and the receipt — all at once.
+
+In this demo, 12 scans of a moving heat source on a steel plate are solved by PINNeAPPle's immersed solver (no conforming mesh) and written as OpenUSD stages. Each stage carries two primvars on the same timeline: deposited energy and temperature.
+
+The training pairs are read back out of the files with pxr. A PhysicsNeMo FNO learns energy → temperature from 90 pairs. The prediction for a scan it has never seen goes back into that same file as a second mesh, with the verdict on the prim.
+
+Same-kind scan: 1.10% error, first law at 1.05%, APPROVED.
+Wavy scan, different kind: 3.83% — inside the 5% tolerance — but the first law closes at 6.3% and the field dips 2.8 K below the initial temperature. REJECT.
+
+The reference error would have let it through. The physics did not. And the verdict lives in the file, not in a notebook.
+
+#OpenUSD #Omniverse #PhysicsAI</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="rodar">
+    <p class="eyebrow">Reproduzir</p>
+    <h2>Como rodar</h2>
+    <p class="paths">examples/nvidia/19_physicsnemo_vs_pinneapple/run.py<br>examples/nvidia/20_usd_is_the_dataset/run.py</p>
+    <p style="margin-top:14px">Os dois instalam com <code>pip install nvidia-physicsnemo usd-core</code> e rodam em CPU.
+      Cada um tem <code>--smoke</code> para o CI em segundos, <code>experiment.json</code> com métricas e checagens, e
+      um <code>README</code> com os números desta execução e o que <b>não</b> rodou aqui.</p>
+  </section>
+
+  <footer>
+    <p>Execução: macOS arm64, CPU apenas, com outras cargas dividindo a máquina — por isso os tempos de parede não
+      são um comparativo entre as duas bibliotecas. O que foi controlado: os passos de Adam, o batch, a semente e o
+      dado, garantidos pelo <code>ComputeBudget</code>. O que não rodou: render RTX no Omniverse Kit, Isaac Sim,
+      Cosmos e NIM — os adapters existem, os resultados não vêm deles.</p>
+    <p style="margin-top:12px">PINNeAPPle · exemplos 19 e 20 de <code>examples/nvidia</code>.</p>
+  </footer>
+</div>
+
+<script>
+  document.querySelectorAll("button.copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.closest(".post").querySelector("pre");
+      var text = pre.textContent;
+      var done = function () {
+        btn.dataset.done = "1";
+        btn.textContent = "Copiado";
+        setTimeout(function () { btn.dataset.done = "0"; btn.textContent = "Copiar"; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { select(); });
+      } else {
+        select();
+      }
+      function select() {
+        var range = document.createRange();
+        range.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        btn.textContent = "Selecionado";
+        setTimeout(function () { btn.textContent = "Copiar"; }, 1600);
+      }
+    });
+  });
+</script>

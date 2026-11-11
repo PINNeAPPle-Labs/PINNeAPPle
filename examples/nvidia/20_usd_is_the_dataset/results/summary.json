@@ -1,0 +1,179 @@
+{
+ "variants": {
+  "v10_line_y50_heldout": {
+   "kind": "line",
+   "held_out_reason": "same kind of path",
+   "relative_l2": [
+    0.00021989386044347475,
+    0.000961453121721774,
+    0.0011700541381926427,
+    0.0016978966230141578,
+    0.002401221463287229,
+    0.003632685957205552,
+    0.005402900422711013,
+    0.003505147439121489,
+    0.011002340507410542
+   ],
+   "relative_l2_last_frame": 0.011002340507410542,
+   "first_law_prediction": 0.010525009358133313,
+   "decision": "APPROVED",
+   "decision_on_the_prim": "APPROVED",
+   "peak_drift_m": 0.004419417382415923,
+   "checks": [
+    {
+     "name": "first law on the prediction (stored vs deposited)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.010525009358133313,
+     "limit": 0.05,
+     "source": "physics, no reference",
+     "reason": "rho c (T_pred - T0) must account for the energy the file says was deposited"
+    },
+    {
+     "name": "prediction never below the initial temperature",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.4005126953125,
+     "limit": 0.5,
+     "source": "physics, no reference",
+     "reason": "0.5 K allows the Crank-Nicolson undershoot of the solver's own field"
+    },
+    {
+     "name": "relative L2 at the last frame",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.011002340507410542,
+     "limit": 0.05,
+     "source": "reference",
+     "reason": ""
+    },
+    {
+     "name": "hot-spot drift at the last frame",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.004419417382415923,
+     "limit": 0.006,
+     "source": "reference",
+     "reason": "distance between the two maxima [m]"
+    },
+    {
+     "name": "prediction round trip (written and read back)",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.0,
+     "limit": 0.0,
+     "source": "OpenUSD",
+     "reason": ""
+    }
+   ]
+  },
+  "v11_wave_y50_heldout": {
+   "kind": "wave",
+   "held_out_reason": "different kind of path (wave)",
+   "relative_l2": [
+    0.00021989386044347475,
+    0.003384734679654746,
+    0.00630267666630289,
+    0.00748071667623781,
+    0.013869511519620568,
+    0.0201056482111656,
+    0.02649343292656114,
+    0.032421306085212986,
+    0.038264843467263505
+   ],
+   "relative_l2_last_frame": 0.038264843467263505,
+   "first_law_prediction": 0.06296664408234709,
+   "decision": "REJECT",
+   "decision_on_the_prim": "REJECT",
+   "peak_drift_m": 0.004419417382415923,
+   "checks": [
+    {
+     "name": "first law on the prediction (stored vs deposited)",
+     "status": "contradicts",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.06296664408234709,
+     "limit": 0.05,
+     "source": "physics, no reference",
+     "reason": "rho c (T_pred - T0) must account for the energy the file says was deposited"
+    },
+    {
+     "name": "prediction never below the initial temperature",
+     "status": "contradicts",
+     "critical": true,
+     "weight": 1.0,
+     "value": 2.758209228515625,
+     "limit": 0.5,
+     "source": "physics, no reference",
+     "reason": "0.5 K allows the Crank-Nicolson undershoot of the solver's own field"
+    },
+    {
+     "name": "relative L2 at the last frame",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.038264843467263505,
+     "limit": 0.05,
+     "source": "reference",
+     "reason": ""
+    },
+    {
+     "name": "hot-spot drift at the last frame",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.004419417382415923,
+     "limit": 0.006,
+     "source": "reference",
+     "reason": "distance between the two maxima [m]"
+    },
+    {
+     "name": "prediction round trip (written and read back)",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.0,
+     "limit": 0.0,
+     "source": "OpenUSD",
+     "reason": ""
+    }
+   ]
+  }
+ },
+ "vrange_K": [
+  299.9815986403539,
+  610.4671159336108
+ ],
+ "reference_first_law": 0.004442466125453177,
+ "round_trip": 0.0,
+ "stage_valid": true,
+ "fno_parameters": 2366305,
+ "training": {
+  "epochs": 124.44444444444444,
+  "final_loss": 0.0015709743602201343,
+  "steps": 1400,
+  "wall_s": 361.9057693714276,
+  "flops": 0.0,
+  "flops_per_step": 0.0,
+  "stopped_by": "steps",
+  "budget": {
+   "wall_s": null,
+   "flops": null,
+   "steps": 1400
+  },
+  "history": null,
+  "eval_wall_s": 2.3443169170059264
+ },
+ "usd": {
+  "ok": true,
+  "problems": [],
+  "meshes": 2,
+  "prims": 4,
+  "time_samples": 45
+ }
+}

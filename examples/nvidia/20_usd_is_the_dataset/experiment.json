@@ -1,0 +1,213 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/20_usd_is_the_dataset",
+ "title": "OpenUSD as dataset, model input and receipt (moving heat source)",
+ "description": "",
+ "domain": "heat transfer",
+ "methods": [
+  "FNO (PhysicsNeMo)",
+  "immersed finite cell (transient)"
+ ],
+ "modules": [
+  "pinneapple_tools.nvidia.omniverse",
+  "pinneapple_neural.physicsnemo_bridge",
+  "pinneapple_simulation.immersed.transient"
+ ],
+ "params": {
+  "n_grid": 32,
+  "n_steps": 96,
+  "record_every": 12,
+  "dt_s": 0.02,
+  "budget": {
+   "wall_s": null,
+   "flops": null,
+   "steps": 1400
+  },
+  "held_out": [
+   "v10_line_y50_heldout",
+   "v11_wave_y50_heldout"
+  ],
+  "variants": [
+   "v00_line_y30",
+   "v01_line_y50",
+   "v02_line_y70",
+   "v03_line_y40",
+   "v04_line_y60",
+   "v05_line_y30_fast",
+   "v06_line_y60_slow",
+   "v07_line_y45",
+   "v08_line_y55",
+   "v09_line_y35",
+   "v10_line_y50_heldout",
+   "v11_wave_y50_heldout"
+  ],
+  "rho_c_J_m3K": 3800000.0,
+  "k_W_mK": 45.0
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_l2_last_frame__v10_line_y50_heldout",
+   "value": 0.011002340507410542,
+   "unit": "",
+   "how": "relative L2 of the prediction against the reference field, last frame"
+  },
+  {
+   "name": "first_law__v10_line_y50_heldout",
+   "value": 0.010525009358133313,
+   "unit": "",
+   "how": "worst-frame relative residual of rho c (T_pred - T0) against the deposited energy"
+  },
+  {
+   "name": "rel_l2_last_frame__v11_wave_y50_heldout",
+   "value": 0.038264843467263505,
+   "unit": "",
+   "how": "relative L2 of the prediction against the reference field, last frame"
+  },
+  {
+   "name": "first_law__v11_wave_y50_heldout",
+   "value": 0.06296664408234709,
+   "unit": "",
+   "how": "worst-frame relative residual of rho c (T_pred - T0) against the deposited energy"
+  }
+ ],
+ "checks": [
+  {
+   "name": "reference: first law holds (stored vs deposited energy, worst frame)",
+   "passed": true,
+   "value": 0.004442466125453177,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "rho c (T - T0) integrated over the plate against the integrated source",
+   "kind": "reference"
+  },
+  {
+   "name": "the stage holds the solver's fields (float32 round trip)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "90 (energy, temperature) pairs read from 10 stages",
+   "kind": "sanity"
+  },
+  {
+   "name": "v10_line_y50_heldout: the decision read back from the file is the one written",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED on /World/Prediction",
+   "kind": "sanity"
+  },
+  {
+   "name": "v10_line_y50_heldout: prediction read back equals what was written",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "v11_wave_y50_heldout: the decision read back from the file is the one written",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "REJECT on /World/Prediction",
+   "kind": "sanity"
+  },
+  {
+   "name": "v11_wave_y50_heldout: prediction read back equals what was written",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "OpenUSD stage valid (reference, energy and prediction primvars)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 meshes, 45 time samples",
+   "kind": "sanity"
+  },
+  {
+   "name": "the prediction is in the same file as the reference and its energy",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pinneapple:trust:decision on /World/Prediction",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/checks_v10_line_y50_heldout.png",
+   "results/checks_v11_wave_y50_heldout.png",
+   "results/stage_readback.png",
+   "results/prediction.png",
+   "results/training.png",
+   "results/checks_curves.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f000.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f001.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f002.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f003.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f004.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f005.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f006.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f007.png",
+   "../../../../../../../../../var/folders/7s/g0cqkfnx1z52w08y4_1t8ntr0000gn/T/frames_2u32lz6n/f008.png"
+  ],
+  "videos": [
+   "results/usd_timeline.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "dataset/v10_line_y50_heldout.usda"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "7ffd902c7",
+  "created": "2026-11-11T17:03:54Z",
+  "seconds": 444.904,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

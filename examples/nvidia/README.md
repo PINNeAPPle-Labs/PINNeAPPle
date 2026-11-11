@@ -35,6 +35,8 @@ hardware, timings, which components ran).
 | 16 | O + P + B | [Verified heat sink with its temperature field in USD](16_omniverse_physicsnemo_brep_heatsink/README.md) | APPROVED | done |
 | 17 | O + I + C | [Robot perception from synthetic camera data](17_omniverse_robotsim_worldmodel_perception/README.md) | REVIEW (exact labels; CNN 13 deg RMS) | done |
 | 18 | all six | [Heat-sink work cell: design, serve, handle, see, one USD scene](18_all_stacks_heatsink_cell/README.md) | APPROVED (200.6 g part, 0.5 s move) | done |
+| 19 | P | [Equal budget: PhysicsNeMo FNO vs PINNeAPPle's own FNO2d](19_physicsnemo_vs_pinneapple/README.md) | REJECT for both (a 2 % field error does not pass the certified physics gate) | done |
+| 20 | O + P | [One OpenUSD stage: dataset, model input and receipt](20_usd_is_the_dataset/README.md) | APPROVED on a same-kind held-out scan, REJECT on a wavy path | done |
 
 What runs where: PINNeAPPle, PhysicsNeMo (CPU), OpenUSD (`usd-core`) and USD BRep run on a laptop and were run for
 the numbers in each README. Omniverse Kit RTX rendering, Isaac Sim, NVIDIA Cosmos and NVIDIA NIM need an NVIDIA GPU

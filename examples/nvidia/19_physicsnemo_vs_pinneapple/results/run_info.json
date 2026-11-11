@@ -1,0 +1,78 @@
+{
+ "name": "19_physicsnemo_vs_pinneapple",
+ "started": "2026-11-11T16:05:16Z",
+ "wall_s": 4118.166,
+ "steps_s": {
+  "data (PINNeAPPle finite volumes)": 4.784,
+  "train (PhysicsNeMo FNO, seed 0)": 936.59,
+  "train (PhysicsNeMo FNO, seed 1)": 901.501,
+  "train (PINNeAPPle FNO2d, seed 0)": 1708.85,
+  "train (PINNeAPPle FNO2d, seed 1)": 516.214,
+  "checks (PINNeAPPle, no reference)": 2.142,
+  "figures": 4.478
+ },
+ "components": [
+  {
+   "component": "PINNeAPPle finite volumes (data)",
+   "ran": true,
+   "why": "",
+   "how": "400 solves, 32x32"
+  },
+  {
+   "component": "PhysicsNeMo FNO training (seed 0)",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 1500 steps, 30.0 epochs, 919 s"
+  },
+  {
+   "component": "PhysicsNeMo FNO training (seed 1)",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 1500 steps, 30.0 epochs, 883 s"
+  },
+  {
+   "component": "PINNeAPPle FNO2d training (seed 0)",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 1500 steps, 30.0 epochs, 1684 s"
+  },
+  {
+   "component": "PINNeAPPle FNO2d training (seed 1)",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 1500 steps, 30.0 epochs, 508 s"
+  },
+  {
+   "component": "figures",
+   "ran": true,
+   "why": "",
+   "how": "matplotlib, from the same numbers in summary.json"
+  }
+ ],
+ "environment": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "cpu": "arm",
+  "cpu_count": 10,
+  "gpu": null,
+  "packages": {
+   "pinneapple": null,
+   "torch": "2.15.0",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": null,
+   "newton-usd-schemas": null,
+   "warp-lang": "1.19.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": null,
+   "torch_scatter": null,
+   "requests": "2.34.2"
+  }
+ }
+}

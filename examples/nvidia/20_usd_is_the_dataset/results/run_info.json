@@ -1,0 +1,77 @@
+{
+ "name": "20_usd_is_the_dataset",
+ "started": "2026-11-11T17:03:51Z",
+ "wall_s": 447.808,
+ "steps_s": {
+  "solve the scans (PINNeAPPle immersed transient heat)": 29.711,
+  "author one OpenUSD stage per scan": 6.745,
+  "read the dataset back out of the .usda files": 0.625,
+  "train (PhysicsNeMo FNO, energy -> temperature)": 393.073,
+  "predict, write back, check (held-out scans)": 5.683,
+  "validate the stages and draw the results": 0.942
+ },
+ "components": [
+  {
+   "component": "PINNeAPPle immersed transient heat",
+   "ran": true,
+   "why": "",
+   "how": "12 scans, 96 steps of 0.02 s, 2-D cut-cell grid h = 2.50 mm"
+  },
+  {
+   "component": "first law on the reference",
+   "ran": true,
+   "why": "",
+   "how": "worst frame 0.44% of the deposited energy"
+  },
+  {
+   "component": "OpenUSD stages written",
+   "ran": true,
+   "why": "",
+   "how": "12 .usda files in dataset/"
+  },
+  {
+   "component": "dataset read back with pxr",
+   "ran": true,
+   "why": "",
+   "how": "90 pairs, max |file - solver| = 0"
+  },
+  {
+   "component": "PhysicsNeMo FNO training",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 1400 steps, 362 s"
+  },
+  {
+   "component": "prediction written back into the stage",
+   "ran": true,
+   "why": "",
+   "how": "pxr, same .usda, new time samples"
+  }
+ ],
+ "environment": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "cpu": "arm",
+  "cpu_count": 10,
+  "gpu": null,
+  "packages": {
+   "pinneapple": null,
+   "torch": "2.15.0",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": null,
+   "newton-usd-schemas": null,
+   "warp-lang": "1.19.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": null,
+   "torch_scatter": null,
+   "requests": "2.34.2"
+  }
+ }
+}

@@ -12,6 +12,8 @@ animation), a static PNG and a dashboard GIF/MP4.
 Chart kinds: ``"series"`` (one value per frame, cursor line, scrub to seek) and ``"phase"`` (fixed curves with
 markers that move with the frames). See ``docs/core_concepts/dashboard.md``.
 """
+from .field_frames import Table, cor_por_valor, frames_from_field
 from .spec import PALETTE_DARK, THEME, Chart, ColorBar, Dashboard, Marker, Param, Series, Tile
 
-__all__ = ["Dashboard", "Chart", "Series", "Marker", "Tile", "Param", "ColorBar", "PALETTE_DARK", "THEME"]
+__all__ = ["Dashboard", "Chart", "Series", "Marker", "Tile", "Param", "ColorBar", "PALETTE_DARK", "THEME",
+           "Table", "frames_from_field", "cor_por_valor"]

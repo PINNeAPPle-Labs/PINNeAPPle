@@ -147,3 +147,21 @@ slip-sinkage was added (n1 = 0), erred by 11.3 N RMS on the same run and by up t
 loadable as a superseded release (see the [model zoo guide](../guides/model_zoo.md)).
 
 ![One rendered frame](../assets/studio/rover-frame.png)
+
+## Quadros de um campo salvo e tabelas de relatório
+
+Duas peças para um painel ou relatório montado com o `Dashboard`:
+
+```python
+from pinneapple_tools.visualization.dashboard import Dashboard, Chart, Series, Tile, Table, frames_from_field
+
+t, quadros = frames_from_field("resultados/campos/R0.npz", campo="corte")   # ou campo="superficie"
+db = Dashboard("Canal", t, quadros, charts=[Chart("k", "k [m²/s²]", "t [s]", [Series("LEdir", k)])])
+db.to_html("painel.html")
+print(Table("Casos", ["caso", "t [s]"], [["R0", 30.0]]).to_html())
+```
+
+`frames_from_field` projeta os pontos no plano longitudinal (y, z) e colore por k com **escala comum a todos os
+quadros** — o que muda de um quadro para o outro é o campo, nunca a escala. Onde não há ponto a imagem fica branca
+(não é k = 0). `Table` é a tabela de relatório (cabeçalho, alinhamento por coluna, destaque, nota), para o que o
+`Dashboard` não cobre: comparação linha a linha, panorama de casos.

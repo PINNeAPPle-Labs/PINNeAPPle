@@ -236,3 +236,25 @@ def test_a_prediction_is_trimmed_to_each_samples_own_point_count():
     preds_t = predict_field_model(CrashSolverModel(hidden=32, local_slices=8, n_frames=3), ds_t, ["small", "wide"],
                                   device="cpu", batch_size=2)
     assert [p.shape for p in preds_t] == [(3, 60, 3), (3, 80, 3)]
+
+
+def test_standardized_labels_round_trip_and_are_what_the_trainer_fits():
+    """``collate_samples(standardize=...)`` must apply the statistics it is given.
+
+    It accepted them and ignored them once, so the trainer fitted physical targets while ``predict_field_model``
+    un-standardised on the way back: every prediction came out with the training mean added to it. The two halves have
+    to agree, and the check is that their composition is the identity."""
+    from pinneapple_arena.fieldbench import collate_samples
+
+    ds = _dataset(n=4, points=50, seed=7)
+    stats = {"mean": np.array([0.3], np.float32), "std": np.array([2.0], np.float32)}
+    batch = collate_samples(ds, ds.splits["train"], standardize=stats)
+    y = batch["y"].numpy()
+    mean, std = stats["mean"].reshape(-1), stats["std"].reshape(-1)
+    for row, sample_id in enumerate(ds.splits["train"]):
+        np.testing.assert_allclose(y[row, :ds[sample_id].n_points] * std + mean, ds[sample_id].values, rtol=1e-5,
+                                   atol=1e-6)
+    assert float(np.abs(y).max()) < 50.0                     # centred, not the raw field
+    assert np.all(y[~batch["mask"].numpy()] == 0.0)          # padding is not a target
+    with pytest.raises(ValueError):                          # statistics for the wrong channel count are refused
+        collate_samples(ds, ds.splits["train"], standardize={"mean": np.zeros(2), "std": np.ones(2)})

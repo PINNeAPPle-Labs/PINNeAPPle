@@ -63,6 +63,15 @@ def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts
             y[i, :, :n] = v
         else:
             y[i, :n] = v
+    if standardize is not None:                            # the labels the trainer fits, in its units; the metrics are
+        mean = np.asarray(standardize["mean"], np.float32).reshape(-1)   # always reported in physical ones
+        std = np.asarray(standardize["std"], np.float32).reshape(-1)
+        if mean.shape != (channels,) or std.shape != (channels,):
+            raise ValueError(f"standardize statistics must hold one mean and one std per field channel ({channels}), "
+                             f"got {mean.shape} and {std.shape}")
+        y = (y - mean) / std
+        if mask.any():                                     # padded rows are not a target: keep them at zero, not at a
+            y[~np.broadcast_to(mask[:, None, :, None] if transient else mask[:, :, None], y.shape)] = 0.0
     out = {"x": torch.from_numpy(x), "mask": torch.from_numpy(mask), "y": torch.from_numpy(y),
            "channels": channels, "transient": transient, "lengths": [s.n_points for s in samples]}
     if uses_parts:

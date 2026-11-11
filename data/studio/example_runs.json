@@ -52,6 +52,20 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:fluidsbench_airfrans": {
+  "error": "",
+  "hash": "29e4dd0e93a9f53c",
+  "ok": true,
+  "recorded": "2026-11-06",
+  "scripts": [
+   "examples/fluidsbench_airfrans/run.py"
+  ],
+  "seconds": 83.0,
+  "writes_files": [
+   "examples/fluidsbench_airfrans/_out/rehearsal.json",
+   "examples/fluidsbench_airfrans/_out/leaderboard.md"
+  ]
+ },
  "example:fno_coldplate": {
   "error": "",
   "hash": "edeecb3eafdf8dbf",

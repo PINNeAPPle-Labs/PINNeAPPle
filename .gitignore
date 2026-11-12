@@ -51,6 +51,12 @@ examples/studio/_out/**
 examples/studio/_out/**/viewer/
 examples/studio/_out/**/case_*/
 
+# cinematic flow example: keep the small film and the summary, not the snapshots, the VDBs or the frames
+examples/cinematic_flow/_out/**
+!examples/cinematic_flow/_out/**/
+!examples/cinematic_flow/_out/summary.json
+!examples/cinematic_flow/_out/**/*.mp4
+
 # PINNeAPPle Lab database: metadata, metrics, validation, figures and dataset cards are versioned;
 # arrays, dataset shards and the SQLite index (rebuilt with `python -m pinneapple_lab reindex`) are not
 !lab/runs/

@@ -1,0 +1,42 @@
+{
+  "checks": [
+    {
+      "name": "Q-criterion: solid rotation u=(-y, x, 0)",
+      "kind": "reference",
+      "value": 1.0,
+      "reference": 1.0,
+      "rtol": 0.001,
+      "passed": true,
+      "detail": "Q normalised by the solid-rotation value, so the check is scale free"
+    },
+    {
+      "name": "Q-criterion: pure shear u=(y, 0, 0)",
+      "kind": "reference",
+      "value": 0.0,
+      "reference": 0.0,
+      "rtol": 0.001,
+      "passed": true,
+      "detail": "Q normalised by the solid-rotation value, so the check is scale free"
+    },
+    {
+      "name": "Q-criterion: pure strain u=(x, -y, 0)",
+      "kind": "reference",
+      "value": -1.0,
+      "reference": -1.0,
+      "rtol": 0.001,
+      "passed": true,
+      "detail": "Q normalised by the solid-rotation value, so the check is scale free"
+    }
+  ],
+  "malha": [
+    300,
+    46,
+    40
+  ],
+  "celulas": 552000,
+  "dx_m": 0.07700000000000005,
+  "re_lattice": 2879.9999999999973,
+  "re_fisico": 9240000.000000007,
+  "passos": 700,
+  "video": "carro.mp4"
+}

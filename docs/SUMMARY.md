@@ -57,6 +57,8 @@
     * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
+    * [PINNeAPPle in Unity: twins, OpenUSD and a live bridge](guides/unity_integration.md)
+    * [An OpenUSD asset, CalculiX and a PhysicsNeMo FNO](guides/usd_structural_surrogate.md)
     * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)
     * [Pre-trained models and datasets (pp.zoo)](guides/model_zoo.md)
     * [Zoo catalogue](guides/zoo_catalogue.md)

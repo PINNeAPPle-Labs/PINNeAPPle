@@ -64,7 +64,9 @@
  "links": {
   "guide": "docs/guides/cinematic_flow.md",
   "script": "examples/cinematic_flow/run.py",
-  "pr": []
+  "pr": [
+   1649
+  ]
  },
  "references": [],
  "status": "not curated",

@@ -375,6 +375,15 @@
   "reason": "demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch",
   "status": "not_convertible"
  },
+ "unity": {
+  "domain": "3-D visualisation and interoperability",
+  "reason": "the three scripts drive pinneapple_unity as a whole: 01 builds a scene and exports a twin folder (Scene.export writes glb + fields.bin), 02 writes and reads a Unity export folder and a USD layer, and 03 starts an HTTP server; none of that is a library call a node can hold, and a flow may not open a port. The lanes themselves are covered by tests/test_unity_integration.py and tests/test_unity_csharp.py"
+ },
+ "usd_structural_surrogate": {
+  "domain": "structural mechanics",
+  "reason": "the run is an external-tool campaign, not a data flow: it fetches an asset over the network, meshes it with gmsh, runs one CalculiX job per design for minutes, trains a PhysicsNeMo FNO under a ComputeBudget and then serves a dashboard that keeps the trained operator in memory. No node wraps a campaign of that shape (calculix.deck/solve/results handle one deck), and the dashboard's forward pass is stateful by construction, so there is nothing to convert to a flow without inventing a node the library does not have",
+  "status": "not_convertible"
+ },
  "use_cases": {
   "domain": "use cases",
   "notes": "fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas: compact_range_qz (#887) is a flow (antenna.compact_range over pinneapple_simulation.electromagnetics.reflector) compared with results/compact_range/summary.json; unit_cell_benchmark (#887) and the Vivaldi full-wave runs need EMerge (pip install emerge, not installed here); the Vivaldi limits are the bundled flow antenna_vivaldi_limits (lib.antenna.limits)"

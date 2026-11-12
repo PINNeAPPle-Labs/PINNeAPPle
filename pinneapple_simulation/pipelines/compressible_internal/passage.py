@@ -193,7 +193,22 @@ def _newell(pts: np.ndarray) -> np.ndarray:
 
 
 def build_mesh(passage: PassageSpec, case_dir: str, *, write: bool = True) -> MeshSummary:
-    """Build the sector mesh of ``passage`` and (by default) write it into ``case_dir``."""
+    """Build the mesh of ``passage`` and (by default) write it into ``case_dir``.
+
+    Two backends, chosen by the spec and not by the caller: a **solid of revolution** (this module,
+    hexahedra, one meridian profile revolved) and, when ``meta["solid_builder"]`` names one, a real
+    **3-D domain** meshed with gmsh — the only way to have a bonnet branch on a perpendicular axis.
+    """
+    if passage.meta.get("solid_builder"):
+        from .solid3d import build_solid_mesh
+
+        summary = build_solid_mesh(passage, case_dir)
+        return MeshSummary(n_points=summary["points"], n_cells=summary["cells"],
+                           n_faces=0, n_internal=0,
+                           patch_faces={k: 0 for k in summary["patches"]},
+                           cell_size_mm=float(summary["mesh_size_mm"]),
+                           sector_deg=360.0)
+
     blocks = passage.blocks()
     n_t = int(passage.n_theta)
     dtheta = math.radians(passage.sector_deg) / n_t

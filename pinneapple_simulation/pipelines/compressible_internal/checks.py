@@ -27,6 +27,7 @@ CFD.
 from __future__ import annotations
 
 import math
+import os
 from typing import Any
 
 from .physics import Gas, peng_robinson
@@ -155,13 +156,21 @@ def run_checks(result, fields, passage, gas: Gas, conditions, run, *, cfd_report
     # ``inconclusive`` -- not "failed" (the field is bounded and the mean is stable) and not "passed"
     # (the solver did not declare convergence) -- and the KPIs are the mean over the second half of
     # the pseudo-time (OpenFOAM's fieldAverage), with the oscillation quoted where it matters.
+    _solver = "rhoPimpleFoam" if os.path.exists(os.path.join(run.case_dir, "log.rhoPimpleFoam")) \
+        else "rhoSimpleFoam"
+    _transiente = _solver.startswith("rhoPimple")
     rows.append(_row("converged", "pass" if run.converged else "inconclusive",
                      {"iteracoes": run.n_iter, "residuos": {k: round(v, 8) for k, v in run.residuals.items()},
-                      "media_em_pseudotempo": True},
-                     "rhoSimpleFoam " + ("convergiu" if run.converged else
-                                         f"parou em {run.n_iter} iterações no patamar "
-                                         f"(p = {run.residuals.get('p', float('nan')):.1e}); os indicadores são a "
-                                         f"média sobre a segunda metade do pseudo-tempo")))
+                      ("media_em_tempo_fisico" if _transiente else "media_em_pseudotempo"): True},
+                     _solver + ((" chegou ao fim do tempo físico" if run.converged else
+                                 f" parou em {run.n_iter} passos no patamar "
+                                 f"(p = {run.residuals.get('p', float('nan')):.1e}); os indicadores são a "
+                                 f"média no tempo sobre a segunda metade da janela")
+                                if _transiente else
+                                (" convergiu" if run.converged else
+                                 f" parou em {run.n_iter} iterações no patamar "
+                                 f"(p = {run.residuals.get('p', float('nan')):.1e}); os indicadores são a "
+                                 f"média sobre a segunda metade do pseudo-tempo"))))
 
     # ------------------------------------------------------------------ mass conservation
     imb = result.mass_imbalance
@@ -241,17 +250,26 @@ def run_checks(result, fields, passage, gas: Gas, conditions, run, *, cfd_report
 
 
 def _joule_thomson_row(gas: Gas, conditions, result, passage_radius: float = 0.01) -> dict[str, Any]:
-    """The outlet temperature against the library's isenthalpic path (GERG-2008 when it can)."""
+    """The outlet temperature against the library's isenthalpic path (GERG-2008 when it can).
+
+    The comparison is **stagnation against stagnation**. A throttle conserves h0 = h + u²/2, and
+    this passage enters at ~140 m/s: comparing a static temperature with a reference that starts
+    from the static inlet state leaves the *inlet* kinetic energy (+4.4 K here) on one side only and
+    biases the check by that much. Both ends are brought to rest before comparing.
+    """
+    rho_in = peng_robinson(gas, result.p_in_pa, result.T_in_K)["rho"]
+    u_in = result.mdot_kg_s / max(rho_in * math.pi * passage_radius ** 2, 1e-12)
+    t0_in = result.T_in_K + 0.5 * u_in ** 2 / gas.Cp_ig
+    p0_in = conditions.p_in_target_bar * 1e5 if getattr(conditions, "p_in_target_bar", None) else result.p_in_pa
     reference, how = None, ""
     try:                                             # the library's own real-gas reference
         from pinneapple_systems.process_components.joule_thomson import throttle
-        r = throttle({gas.name.capitalize(): 1.0}, result.p_in_pa, result.T_in_K, result.p_out_pa,
-                     eos="GERG-2008")
+        r = throttle({gas.name.capitalize(): 1.0}, p0_in, t0_in, result.p_out_pa, eos="GERG-2008")
         reference, how = float(r["T2_K"]), "GERG-2008 (ISO 20765-2), via Pinneapple"
     except Exception as exc:                          # CoolProp missing, or the gas has no GERG entry
         try:
             from pinneapple_systems.process_components.joule_thomson import throttle
-            r = throttle({gas.name.capitalize(): 1.0}, result.p_in_pa, result.T_in_K, result.p_out_pa,
+            r = throttle({gas.name.capitalize(): 1.0}, p0_in, t0_in, result.p_out_pa,
                          eos="Peng-Robinson")
             reference, how = float(r["T2_K"]), f"Peng-Robinson (GERG indisponível: {type(exc).__name__})"
         except Exception as exc2:
@@ -261,7 +279,7 @@ def _joule_thomson_row(gas: Gas, conditions, result, passage_radius: float = 0.0
         return _row("joule.thomson", "inconclusive", {"dT_cfd": round(result.dT_K, 3)},
                     f"a referência isentálpica não pôde ser calculada ({how}); dT do CFD = "
                     f"{result.dT_K:+.3f} K")
-    dT_ref = reference - result.T_in_K
+    dT_ref = reference - t0_in
     # static against static, with the kinetic energy: the reference is a gas brought to rest, the run
     # leaves at 100+ m/s, and T + u^2/(2 Cp) is what a throttle conserves. Without this the check
     # blames the CFD for a drop that is the flow accelerating out of the port.
@@ -276,8 +294,10 @@ def _joule_thomson_row(gas: Gas, conditions, result, passage_radius: float = 0.0
                  "dT_cfd_K": round(result.dT_K, 3), "dT_referencia_K": round(dT_ref, 3),
                  "u_saida_m_s": round(u_out, 2),
                  "correcao_cinetica_K": round(t_corrected - result.T_out_K, 3),
-                 "dT_gas_ideal_K": ideal, "diferenca_com_correcao_K": round(t_corrected - reference, 3)},
+                 "dT_gas_ideal_K": ideal, "diferenca_com_correcao_K": round(t_corrected - reference, 3),
+                 "u_entrada_m_s": round(u_in, 2), "T0_entrada_K": round(t0_in, 3)},
                 f"a laminação é isentálpica: referência {how:35s} dá {dT_ref:+.3f} K; o CFD mede "
                 f"{result.dT_K:+.3f} K, que com a energia cinética de saída ({u_out:.0f} m/s, "
                 f"{t_corrected - result.T_out_K:+.3f} K) vira {t_corrected - result.T_in_K:+.3f} K "
-                f"(diferença {t_corrected - reference:+.3f} K, critério 1 K); um gás ideal daria 0,000 K")
+                f"(diferença {t_corrected - reference:+.3f} K, critério 1 K); um gás ideal daria 0,000 K; "
+                f"a entrada já traz {u_in:.0f} m/s, que valem {0.5 * u_in ** 2 / gas.Cp_ig:+.3f} K de estagnação")

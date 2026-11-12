@@ -166,8 +166,57 @@ function designTabs() {
   if (!exists(design)) design = exists("best") ? "best" : "baseline";
   return `<span class="tabs">${Object.keys(names).map((d) => `<button data-d="${d}" class="${d === design ? "on" : ""}" ${exists(d) ? "" : 'disabled title="not simulated yet" style="opacity:.35"'}>${names[d]}${exists(d) ? "" : " (not yet)"}</button>`).join("")}</span>`;
 }
+function simpleGallery(keys, labels) {
+  const ks = (keys || []).filter((k) => CFG.figures && CFG.figures[k]);
+  if (!ks.length) return `<div class="empty">nenhuma figura nesta seção</div>`;
+  return `<div style="display:flex;flex-direction:column;gap:14px">` +
+    ks.map((k) => `<figure style="margin:0"><img class="fig" data-zoom="${esc(k)}" src="${CFG.figures[k]}" ` +
+      `alt="${esc(k)}" style="width:100%;cursor:zoom-in">` +
+      `<figcaption style="opacity:.7;font-size:12px;margin-top:4px">${esc((labels || {})[k] || k)}</figcaption></figure>`).join("") +
+    `</div>`;
+}
+function zoomOverlay(src) {
+  let d = document.getElementById("zoom");
+  if (!d) {
+    d = document.createElement("div");
+    d.id = "zoom";
+    d.style.cssText = "position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;z-index:99;cursor:zoom-out";
+    d.onclick = () => d.remove();
+    d.innerHTML = `<img style="max-width:96vw;max-height:94vh" >`;
+    document.body.appendChild(d);
+  }
+  d.querySelector("img").src = src;
+}
+function wireZoom(root) {
+  (root || document).querySelectorAll("[data-zoom]").forEach((im) => {
+    im.onclick = () => zoomOverlay(im.src);
+  });
+}
+function simpleTable(r) {
+  const outs = CFG.outputs || [];
+  if (!outs.length || !r) return "";
+  return `<table style="margin-top:10px"><tr><th>grandeza</th><th>valor</th><th>unidade</th></tr>` +
+    outs.map((o) => `<tr><td>${esc(o.label)}</td><td>${fmt(r.outputs[o.key])}</td><td>${esc(o.unit || "")}</td></tr>`).join("") +
+    `</table>`;
+}
 function renderGeometry() {
   const host = document.getElementById("geo-body"), view = document.getElementById("geo-view");
+  if (CFG.views) {
+    const vis = Object.keys(CFG.viewers || {});
+    const opts = [...vis, "figuras"];
+    if (!opts.includes(geoView)) geoView = opts[0];
+    const rotulo = (o) => (o === "figuras" ? "figuras" : "3-D · " + o.replace(/^v4-/, ""));
+    const tabs = opts.length > 1 ? `<span class="tabs">` +
+      opts.map((o) => `<button data-g="${esc(o)}" class="${o === geoView ? "on" : ""}">${esc(rotulo(o))}</button>`).join("") + `</span>` : "";
+    view.innerHTML = tabs + (geoView === "figuras"
+      ? simpleGallery(CFG.views.geo, CFG.views.labels)
+      : `<iframe src="${esc(CFG.viewers[geoView])}" title="3-D" style="width:100%;height:70vh;border:0"></iframe>`);
+    view.querySelectorAll("[data-g]").forEach((bt) => (bt.onclick = () => { geoView = bt.dataset.g; renderAll(); }));
+    wireZoom(view);
+    document.getElementById("geo-sub").textContent = (CFG.views.geo_sub) || "geometria do caso";
+    host.innerHTML = simpleTable(selRun());
+    return;
+  }
   const names = Object.keys(CFG.viewers || {}).filter((n) => exists(n));
   const r = selRun(), b = baseline(), best = bestRun();
   const vars = r ? Object.keys(r.params) : [];
@@ -215,6 +264,12 @@ function parallel(vars) {
 
 // ---------------------------------------------------------------- physics
 function renderPhysics() {
+  if (CFG.views) {
+    document.getElementById("phy-body").innerHTML = simpleGallery(CFG.views.phy, CFG.views.labels);
+    wireZoom(document.getElementById("phy-body"));
+    document.getElementById("phy-sub").textContent = (CFG.views.phy_sub) || "campos resolvidos";
+    return;
+  }
   const host = document.getElementById("phy-body");
   const r = selRun(), b = baseline();
   if (!r) { host.innerHTML = `<div class="empty">no simulation finished yet${S.status?.running ? " — " + esc(S.status.running.id) + " is running" : ""}</div>`; return; }

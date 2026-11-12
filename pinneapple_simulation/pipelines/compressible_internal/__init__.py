@@ -24,7 +24,7 @@ numbers, is ``PINNeAPPle-CFD/casos/cfd08-valvula-globo``.
 """
 from __future__ import annotations
 
-from .case import RunResult, run_case, write_case
+from .case import RunResult, acoustic_transit_s, run_case, solver_for, write_case
 from .checks import critical_pressure_ratio, run_checks, stagnation_enthalpy
 from .passage import MeshSummary, PassageSpec, Ring, Span, build_mesh
 from .physics import GASES, Conditions, Gas, blend, peng_robinson, resolve_gas, sutherland_mu
@@ -36,7 +36,11 @@ __all__ = [
     "PassageSpec", "Span", "Ring", "MeshSummary", "build_mesh",
     "Gas", "Conditions", "GASES", "resolve_gas", "blend", "peng_robinson", "sutherland_mu",
     "write_case", "run_case", "RunResult", "read_case", "write_tables", "FlowResult", "axial_profile",
+    "acoustic_transit_s", "solver_for",
     "run_checks", "critical_pressure_ratio", "stagnation_enthalpy",
     "StudySpec", "CaseOutcome", "solve_once", "solve_to_pressure_drop", "run_study",
     "globe_valve", "orifice_plate", "converging_nozzle", "STUDIES",
 ]
+
+
+from .experiment import globe_valve_experiment  # noqa: E402,F401  (o experimento, um só para a lib e o app)

@@ -1,0 +1,119 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/cfd_valvula_globo",
+ "title": "Válvula globo com gás real, 80 → 60 bar",
+ "description": "Válvula globo de metano, disco a 4 mm da sede, 80 bar de estagnação na entrada e 60 bar na saída, paredes adiabáticas: o caso inteiro pelo pipeline compressível, do domínio 3-D ao relatório. O corpo tem o pescoço da haste num eixo perpendicular ao escoamento, então o domínio é um sólido mesclado em hexa-dominante e não um sólido de revolução. O gás real se resfria por laminação isentálpica (−7,15 K medidos contra −7,45 K da referência GERG-2008); um gás ideal daria 0 K.",
+ "domain": "fluid dynamics",
+ "methods": [
+  "finite volumes",
+  "RANS k-omega SST",
+  "Peng-Robinson",
+  "snappyHexMesh",
+  "transient PIMPLE"
+ ],
+ "modules": [
+  "pinneapple_simulation.pipelines.compressible_internal",
+  "pinneapple_simulation.pipelines.compressible_internal.solid3d"
+ ],
+ "params": {},
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "mdot_kg_s",
+   "value": 2.0419,
+   "unit": "kg/s",
+   "how": "média no tempo do fluxo nas faces de entrada e saída, rhoPimpleFoam, 27,5 ms de tempo físico"
+  },
+  {
+   "name": "kv_m3_h",
+   "value": 7.9488,
+   "unit": "m3/h",
+   "how": "IEC 60534-2-1 sobre a vazão e o Δp medidos"
+  },
+  {
+   "name": "dt_joule_thomson_K",
+   "value": -7.15,
+   "unit": "K",
+   "how": "temperatura de saída menos a de entrada, média no tempo; a referência GERG-2008 do próprio PINNeapple dá -7.45 K"
+  },
+  {
+   "name": "ma_max",
+   "value": 0.525,
+   "unit": "-",
+   "how": "máximo do campo de número de Mach"
+  },
+  {
+   "name": "desbalanco_massico",
+   "value": 0.0022,
+   "unit": "-",
+   "how": "|entrada - saída| / entrada sobre os campos médios; critério da checagem: 1e-3"
+  }
+ ],
+ "checks": [
+  {
+   "name": "conservação de massa (entrada contra saída)",
+   "passed": false,
+   "kind": "invariant",
+   "detail": "0,22 % de desbalanceamento; o critério do pipeline é 0,1 % (fica registrado como reprovado, não como aprovado por tolerância)",
+   "value": 0.0022,
+   "reference": 0.001,
+   "rtol": 0.0
+  },
+  {
+   "name": "regime não afogado (p2/p1 contra a razão crítica do metano)",
+   "passed": true,
+   "kind": "reference",
+   "detail": "0,797 contra 0,545",
+   "value": 0.797,
+   "reference": 0.5446,
+   "rtol": 0.0
+  },
+  {
+   "name": "efeito Joule–Thomson contra a referência isentálpica GERG-2008",
+   "passed": false,
+   "kind": "reference",
+   "detail": "−7,15 K medidos contra −7,45 K da referência; a tolerância do pipeline é 1 K, e o teste a classifica como sem referência pela correção de energia cinética",
+   "value": -7.15,
+   "reference": -7.45,
+   "rtol": 0.04
+  },
+  {
+   "name": "densidade de gás real contra Peng-Robinson",
+   "passed": true,
+   "kind": "reference",
+   "detail": "56,12 kg/m3, igual à equação de estado a 0,10 %",
+   "value": 56.12,
+   "reference": 56.06,
+   "rtol": 0.02
+  },
+  {
+   "name": "coeficiente de vazão contra IEC 60534-2-1",
+   "passed": true,
+   "kind": "reference",
+   "detail": "Kv 7,95 contra 8,84 da correlação (Cd 0,497); a checagem passa com desvio de 10 %",
+   "value": 7.9488,
+   "reference": 8.839,
+   "rtol": 0.1
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/cfd_valvula_globo/run.py",
+  "guide": "docs/guides/compressible_passages.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "158914109"
+ }
+}

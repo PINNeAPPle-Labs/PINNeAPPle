@@ -128,14 +128,42 @@ class Conditions:
     turbulence: str = "kOmegaSST"
     iterations: int = 3000
     write_interval: int = 1000
+    #: the pressure equation's transonic branch. It is what the shipped tutorial uses and it is
+    #: unstable at M ~ 0.5 in a throttling gap (measured on CFD-08: the continuity error went from
+    #: 3e3 kg/s in one iteration to 1e-2 with it off).
+    transonic: bool = True
+    #: relaxation for U, h, k and omega (the pressure is relaxed by ``consistent`` when on)
+    relaxation: float = 0.9
+    n_non_orth: int = 1
     wall_thermal: str = "adiabatic"          # adiabatic | isothermal
     T_wall_K: float | None = None
+    #: Solve in **physical time** (``rhoPimpleFoam``) instead of pseudo-time (``rhoSimpleFoam``).
+    #: The steady formulation is the cheaper answer for a passage whose flow is steady; when it is
+    #: not -- a throttling curtain at M ~ 0.5 with a shear layer that will not settle -- the steady
+    #: run has no answer to converge to and this is the honest one: march in time for several
+    #: acoustic transits and average over the last part of it.
+    transient: bool = False
+    #: physical end time, s. ``None`` means ``end_time_transits`` acoustic transits of the passage.
+    end_time_s: float | None = None
+    end_time_transits: float = 15.0
+    max_co: float = 1.0
+    #: faixa em que a correção de pressão do PIMPLE pode levar p a cada iteração. Um salto grande
+    #: sobre um domínio parado faz a primeira correção sub-expandir o gás a 37 bar (medido), e com
+    #: Peng-Robinson a inversão T(h) morre; apertar a faixa é o que segura a partida.
+    p_min_factor: float = 0.1
+    p_max_factor: float = 2.0
+    n_outer: int = 2
+    #: fraction of the run after which the time mean is accumulated (OpenFOAM ``fieldAverage``)
+    average_from: float = 0.6
 
     def as_dict(self) -> dict[str, Any]:
         return {"p_out_bar": self.p_out_bar, "T_in_K": self.T_in_K,
                 "mass_flow_kg_s": self.mass_flow_kg_s, "p_in_target_bar": self.p_in_target_bar,
                 "turbulence_intensity": self.turbulence_intensity, "scheme": self.scheme,
-                "turbulence": self.turbulence, "wall_thermal": self.wall_thermal, "iterations": self.iterations}
+                "turbulence": self.turbulence, "wall_thermal": self.wall_thermal, "iterations": self.iterations,
+                "transonic": self.transonic, "relaxation": self.relaxation, "n_non_orth": self.n_non_orth,
+                "transient": self.transient, "end_time_s": self.end_time_s, "max_co": self.max_co,
+                "p_min_factor": self.p_min_factor, "p_max_factor": self.p_max_factor}
 
 
 def resolve_gas(gas: Gas | str | None) -> Gas:

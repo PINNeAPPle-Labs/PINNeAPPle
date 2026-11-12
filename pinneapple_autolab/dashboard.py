@@ -95,7 +95,10 @@ def _embed(obj: Any) -> str:
 
 def build_dashboard(folder: str, out_dir: str, *, scenes: Mapping[str, Any] | None = None, title: str = "",
                     state: Mapping[str, Any] | None = None, live: bool = False, replay: bool = False,
-                    figures: Mapping[str, str] | None = None, figure_runs: Mapping[str, str] | None = None) -> str:
+                    figures: Mapping[str, str] | None = None, figure_runs: Mapping[str, str] | None = None,
+                    views: Mapping[str, Any] | None = None,
+                    viewer_paths: Mapping[str, str] | None = None,
+                    outputs: list[Mapping[str, Any]] | None = None) -> str:
     """Write ``out_dir/index.html``: the dashboard with the current state embedded (``live=True``: it also polls
     ``state.json`` next to it, see :func:`serve`; ``replay=True``: a slider and a play button step through the
     recorded events, every number the recorded one). ``scenes``: name -> studio Scene (e.g. "baseline", "best"),
@@ -105,7 +108,7 @@ def build_dashboard(folder: str, out_dir: str, *, scenes: Mapping[str, Any] | No
     from pinneapple_tools.visualization.studio.web import web_viewer
     os.makedirs(out_dir, exist_ok=True)
     st = dict(state or live_state(folder, out_dir, tail=100000 if replay else 120))
-    viewers = {}
+    viewers = dict(viewer_paths or {})     # viewers já escritos por quem chamou (ex.: uma série temporal)
     for name, sc in (scenes or {}).items():
         web_viewer(sc, out_dir, single_file=True, filename=f"viewer_{name}.html")
         viewers[name] = f"viewer_{name}.html"
@@ -121,6 +124,10 @@ def build_dashboard(folder: str, out_dir: str, *, scenes: Mapping[str, Any] | No
     if not designs["baseline"]:
         designs["baseline"] = next((r["id"] for r in (st.get("ledger") or {}).get("runs", []) if r.get("purpose") == "baseline"), None)
     cfg = {"title": title or "PINNeAPPle Autonomous Physics Lab", "viewers": viewers, "figures": imgs, "live": live,
+           # um estudo que não é uma campanha de otimização declara as suas próprias views e
+           # indicadores; sem eles a página cai no template de design space (carro, drag/downforce)
+           "views": dict(views) if views else None,
+           "outputs": list(outputs) if outputs else None,
            "replay": replay, "designs": designs,   # renders and viewers belong to these runs; shown once they exist
            "figure_runs": dict(figure_runs or {})}
     m = summ.get("mission") or {}

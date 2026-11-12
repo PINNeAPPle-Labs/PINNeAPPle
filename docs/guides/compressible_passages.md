@@ -20,6 +20,26 @@ print(out["decision"])         # what failed, what had no reference
 `run_study` writes the CSV tables, the figures, a Blender render and a video, and returns the
 `checks` list the Flow node `cfd.compressible_passage` turns into evidence.
 
+## When the part is not a solid of revolution
+
+The passage above revolves one meridian profile around the flow axis. That covers a nozzle, an
+orifice plate and a straight-through valve, and it cannot cover a **globe valve**: the body has the
+bonnet branch on an axis perpendicular to the flow, and a body of revolution has no such branch.
+Those cases take the 3-D backend — the domain built as a solid and meshed in hexa-dominantly:
+
+```python
+spec = StudySpec(globe_valve(lift=4.0, solid=True, mesh_size=2.0), gas="methane",
+                 conditions=Conditions(p_out_bar=60.0, T_in_K=300.0, p_in_target_bar=80.0,
+                                       transient=True, end_time_s=3.5e-3))
+```
+
+A full worked case — the geometry, the staged pressure ramp, the time-mean and the numbers — is
+[`examples/cfd_valvula_globo`](../../examples/cfd_valvula_globo/README.md). Two things it settles
+that are worth knowing before any 3-D run: **tetrahedra do not work** for this (71° of
+non-orthogonality stalls the pressure equation at 1000 iterations, and the polyhedral dual leaves
+67 mis-oriented faces), and the inlet of a stagnation-pressure boundary needs **`totalTemperature`**,
+not a fixed static temperature, or the passage quietly loses stagnation enthalpy.
+
 ## What the pipeline is made of
 
 | module | what it holds | why it is separate |

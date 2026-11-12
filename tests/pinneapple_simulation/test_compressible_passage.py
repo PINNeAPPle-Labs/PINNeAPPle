@@ -181,3 +181,35 @@ def test_the_flow_capability_is_registered_with_the_words_a_person_writes():
                  "compressible flow through a globe valve with a 10 bar pressure drop"):
         score, hits = X.score(cap, text)
         assert score >= cap.min_score, (text, score, sorted(hits))
+
+
+def test_globe_valve_solid_has_the_body_the_bonnet_and_two_ports():
+    """O domínio 3-D: um corpo arredondado com pescoço — o que um sólido de revolução não faz.
+
+    A válvula globo do documento tem o pescoço num eixo perpendicular ao escoamento. Nenhuma malha
+    de revolução em torno do eixo do escoamento tem esse ramo, então o caso do cliente só pode ser
+    resolvido neste backend. O teste confere o que o construtor promete: um único volume de fluido,
+    com dois bocais identificados e o resto como parede.
+    """
+    pytest.importorskip("gmsh")
+    from pinneapple_simulation.pipelines.compressible_internal.solid3d import globe_valve_domain
+
+    p = globe_valve(lift=4.0, solid=True)
+    assert p.meta["solid_builder"] == "globe_valve"
+    assert p.sector_deg == 360.0
+
+    import gmsh
+
+    gmsh.initialize()
+    try:
+        gmsh.option.setNumber("General.Terminal", 0)
+        tag, groups = globe_valve_domain(dict(p.meta["solid"], lift=4.0))
+        volume_cm3 = gmsh.model.occ.getMass(3, tag) / 1e3
+        bbox = gmsh.model.getBoundingBox(3, tag)
+    finally:
+        gmsh.finalize()
+
+    assert 80.0 < volume_cm3 < 250.0, volume_cm3          # o volume de fluido de uma válvula DN20
+    assert len(groups["inlet"]) == 1 and len(groups["outlet"]) == 1
+    assert len(groups["wall"]) >= 3
+    assert bbox[4] > 60.0, "o pescoço tem de subir acima do corpo"     # y_max, mm

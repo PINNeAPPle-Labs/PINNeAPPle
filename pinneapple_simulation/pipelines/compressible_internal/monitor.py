@@ -201,12 +201,79 @@ def _figures(folder: str) -> dict[str, str]:
     return out
 
 
+#: o que a página mostra: um estudo de passagem não tem design space nem arrasto, tem figuras de
+#: campo e indicadores — declarados aqui para o dashboard não cair no template de campanha
+_VIEWS = {
+    "geo": ["geometria_3d"],
+    "phy": ["corte", "perfil_axial", "render_blender", "render_blender_p_bar", "render_blender_T_K",
+            "render_blender_U_m_s"],
+    "labels": {"geometria_3d": "domínio 3-D contra o CAD",
+               "corte": "plano meridiano: p, Ma e T",
+               "perfil_axial": "perfil ao longo do eixo (p, T, Ma)",
+               "render_blender": "render 3-D, número de Mach",
+               "render_blender_p_bar": "render 3-D, pressão estática",
+               "render_blender_T_K": "render 3-D, temperatura",
+               "render_blender_U_m_s": "render 3-D, velocidade"},
+    "geo_sub": "geometria: domínio construído e conferido contra o STEP",
+    "phy_sub": "campos da solução",
+}
+
+_OUTPUTS = [{"key": "mdot_kg_s", "label": "vazão mássica", "unit": "kg/s"},
+            {"key": "p_in_bar", "label": "pressão na entrada", "unit": "bar"},
+            {"key": "dp_bar", "label": "queda de pressão", "unit": "bar"},
+            {"key": "T_out_K", "label": "temperatura na saída", "unit": "K"},
+            {"key": "dT_K", "label": "variação de temperatura", "unit": "K"},
+            {"key": "Ma_max", "label": "número de Mach máximo", "unit": "-"},
+            {"key": "Kv_m3_h", "label": "coeficiente de vazão Kv", "unit": "m³/h"}]
+
+
 def build(folder: str, out_dir: str, *, title: str = "") -> str:
     """Rebuild the page with the current state and the figures that exist now."""
     from pinneapple_autolab.dashboard import build_dashboard
     write_session(folder)
+    scenes = _scenes(folder, out_dir)
+    keys = set(_figures(folder))
+    view = dict(_VIEWS)
+    view["geo"] = [k for k in _VIEWS["geo"] if k in keys]
+    view["phy"] = [k for k in _VIEWS["phy"] if k in keys]
     return build_dashboard(folder, out_dir, live=True, title=title or "PINNeAPPle — simulações",
-                           figures=_figures(folder))
+                           figures=_figures(folder), views=view, outputs=_OUTPUTS, viewer_paths=scenes)
+
+
+def _scenes(folder: str, out_dir: str = "") -> dict:
+    """One interactive 3-D scene per run, for the page to rotate and zoom.
+
+    A run whose case saved several time directories becomes an **animated** scene: the page gets a
+    time slider, which is the "ver segundo por segundo" the figures cannot give.
+    """
+    from .post import read_fields
+    from .visual import build_scene_from_case
+
+    out: list = []
+    for case in _case_dirs(folder):
+        try:
+            # ``0`` é o campo inicial: numa série longa ele fica a dezenas de ms do resto e o
+            # controle de tempo vira um salto — a animação começa no primeiro instante gravado
+            tempos = sorted((d for d in os.listdir(case) if d[0].isdigit()
+                             and os.path.isdir(os.path.join(case, d))), key=float)
+            if len(tempos) > 3:
+                tempos = [t for t in tempos if float(t) > 0.0]
+            leituras = [read_fields(case, time_dir=t) for t in tempos]
+            # a chave vira nome de arquivo do visualizador: sem separador de caminho
+            chave = os.path.basename(os.path.dirname(case)) + "-" + os.path.basename(case)
+            sc = build_scene_from_case(case, leituras, f"resultado — {chave}",
+                                       times=[float(t) for t in tempos] if len(leituras) > 1 else None)
+            # o dashboard mostra cenas do Studio; o Scene do twin3d converte com to_studio
+            # o visualizador do próprio twin3d é o que entende tempo: ele exporta scene.json + glb
+            # + fields.bin (uma série por campo) e uma página com o controle de tempo
+            destino = os.path.join(out_dir or "", f"viewer_{chave}")
+            sc.export(destino, with_viewer=True)
+            out.append((len(tempos), chave, f"viewer_{chave}/index.html"))
+        except Exception:                                  # noqa: BLE001
+            continue
+    # a série temporal primeiro: é a que a página abre
+    out.sort(key=lambda x: -x[0])
+    return {k: p for _n, k, p in out}
 
 
 def serve(folder: str, out_dir: str | None = None, *, port: int = 8130, host: str = "127.0.0.1",

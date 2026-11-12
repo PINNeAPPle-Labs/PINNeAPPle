@@ -47,6 +47,12 @@ def _passage(preset: str, parameter: float, malha: str):
               Param("iterations", "int", 900, minimum=100, maximum=8000),
               Param("solves", "int", 3, minimum=1, maximum=5,
                     help="pressure-drop loop passes (fewer is faster, more is closer to the target)"),
+              Param("modo", "text", "permanente",
+                    help="permanente (rhoSimpleFoam, 2-D passage) | transiente_3d (o caso do "
+                         "experimento da válvula: domínio 3-D com o pescoço, rampa e média no tempo)"),
+              Param("malha_mm", "float", 2.0, minimum=0.6, maximum=8.0,
+                    help="célula na parede do domínio 3-D (modo transiente_3d)"),
+              Param("rapido", "bool", False, help="modo transiente_3d com malha grossa e janela curta"),
               Param("varredura", "bool", False, help="also sweep the opening (3 points)"),
               Param("render", "bool", False, help="Blender render + video (needs Blender; slow)"),
               Param("request", "text", "", max_length=2000)],
@@ -61,6 +67,27 @@ def compressible_passage(ctx, inputs, params):
         StudySpec,
         run_study,
     )
+
+    modo = str(params.get("modo") or "permanente").strip().lower()
+    if modo in ("transiente_3d", "transiente", "3d"):
+        # **o mesmo experimento** que `examples/cfd_valvula_globo` roda: uma função, dois chamadores
+        from pinneapple_simulation.pipelines.compressible_internal import globe_valve_experiment
+        from pinneapple_simulation.pipelines.compressible_internal.experiment import (
+            QUICK_STAGES,
+            STAGES,
+        )
+
+        out = globe_valve_experiment(
+            os.path.join(str(ctx.workdir), "experimento"),
+            malha_mm=float(params.get("malha_mm") or 2.0),
+            p_in_bar=float(params.get("p_in_bar") or 80.0),
+            p_out_bar=float(params.get("p_out_bar") or 60.0),
+            T_in_K=float(params.get("T_in_K") or 300.0),
+            gas=str(params.get("gas") or "methane"),
+            stages=QUICK_STAGES if params.get("rapido") else STAGES,
+            render=bool(params.get("render")), video=bool(params.get("render")),
+            log=lambda m: ctx.log(m) if hasattr(ctx, "log") else None)
+        return _report(ctx, out)
 
     preset = str(params.get("preset") or "globe_valve").strip().lower()
     if preset not in PRESETS:
@@ -88,6 +115,13 @@ def compressible_passage(ctx, inputs, params):
                     builder=lambda v: _passage(preset, v, str(params.get("malha") or "media")),
                     max_solves=int(params.get("solves") or 3),
                     log=lambda m: ctx.log(m) if hasattr(ctx, "log") else None)
+
+    return _report(ctx, out)
+
+
+def _report(ctx, out):
+    """Metrics, the checks table, the assumptions, the curve and the figures — one shape for both modes."""
+    import os
 
     n = out["nominal"]
     for key in ("mdot_kg_s", "mdot_kg_h", "p_in_bar", "dp_bar", "T_out_K", "dT_K", "Ma_max", "Kv_m3_h",

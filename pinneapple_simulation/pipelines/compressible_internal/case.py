@@ -35,7 +35,7 @@ from .passage import MeshSummary, PassageSpec, build_mesh
 from .physics import Conditions, Gas, peng_robinson, sutherland_mu
 
 __all__ = ["write_case", "run_case", "read_run", "RunResult", "case_ready", "inlet_area_m2",
-           "estimate_mass_flow", "resolved_mass_flow"]
+           "estimate_mass_flow", "resolved_mass_flow", "acoustic_transit_s", "solver_for"]
 
 _HEADER = ("/*--------------------------------*- C++ -*----------------------------------*\\\n"
            "| =========                 |                                                 |\n"
@@ -74,12 +74,39 @@ def inlet_area_m2(passage: PassageSpec) -> float:
     return full * passage.sector_deg / 360.0
 
 
+def acoustic_transit_s(passage: PassageSpec, gas: Gas, T_K: float) -> float:
+    """How long a pressure wave needs to cross the passage, s.
+
+    ``L / a`` with ``a = sqrt(gamma R T)``. It is the yardstick a transient has to be measured
+    against, and the one the reference document fails: 300 steps of 1e-7 s on a 180 mm body is 4 %
+    of one transit, so its pressure field never crossed the valve.
+    """
+    length_m = abs(passage.spans[-1].x1 - passage.spans[0].x0) * 1e-3
+    a = math.sqrt(gas.gamma_ig * gas.Rs * T_K)
+    return length_m / a
+
+
+def solver_for(cond: Conditions) -> str:
+    """The OpenFOAM solver this case is written for."""
+    return "rhoPimpleFoam" if cond.transient else "rhoSimpleFoam"
+
+
 def _dict(path: str, obj: str, body: str, cls: str = "dictionary", location: str = "") -> None:
     loc = f'    location    "{location}";\n' if location else ""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(_HEADER + "FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
                 f"    class       {cls};\n{loc}    object      {obj};\n}}\n\n{body}\n")
+
+
+_SYM_BLOCK = ("    axis\n    {\n        type            symmetry;\n    }\n"
+              "    sym0\n    {\n        type            symmetryPlane;\n    }\n"
+              "    sym1\n    {\n        type            symmetryPlane;\n    }\n")
+
+#: patches appended to every ``0/`` field. A revolved mesh has the axis core and two symmetry
+#: planes; a 3-D mesh has none of them, and OpenFOAM refuses a boundaryField for a patch that the
+#: mesh does not have — so :func:`write_case` empties this for the 3-D backend.
+_SYM = _SYM_BLOCK
 
 
 def _field(path: str, name: str, dims: str, value, boundary: str, *,
@@ -92,9 +119,7 @@ def _field(path: str, name: str, dims: str, value, boundary: str, *,
     else:
         internal, cls = f"uniform {value}", cls or "volScalarField"
     body = (f"dimensions      {dims};\n\ninternalField   {internal};\n\nboundaryField\n{{{boundary}\n"
-            "    axis\n    {\n        type            symmetry;\n    }\n"
-            "    sym0\n    {\n        type            symmetryPlane;\n    }\n"
-            "    sym1\n    {\n        type            symmetryPlane;\n    }\n}")
+            f"{_SYM}}}")
     _dict(path, name, body, cls=cls, location="0")
 
 
@@ -164,7 +189,10 @@ def write_case(passage: PassageSpec, case_dir: str, gas: Gas, cond: Conditions, 
     """
     if clear and os.path.isdir(case_dir):
         shutil.rmtree(case_dir)
-    mesh = mesh or build_mesh(passage, case_dir)
+    global _SYM
+    _SYM = "" if passage.meta.get("solid_builder") else _SYM_BLOCK
+    # a malha é construída **depois** dos dicionários: o gmshToFoam e o polyDualMesh leem
+    # system/controlDict e system/fvSchemes, que só existem a partir daqui
     rho_in = peng_robinson(gas, cond.p_out_bar * 1e5, cond.T_in_K)["rho"]
     m_total = resolved_mass_flow(passage, gas, cond)
     m_sector = m_total * passage.sector_deg / 360.0
@@ -217,12 +245,58 @@ mixture
           f"    turbulence      on;\n    printCoeffs     on;\n}}" if turbulence != "laminar"
           else "simulationType  laminar;")
 
+    # A steady SIMPLE run in a throttling gap wanders through unphysical states before it settles:
+    # the pressure correction overshoots, and at p = 4 bar with the enthalpy of 7 bar the
+    # Peng-Robinson h->T inversion fails (measured: "Maximum number of iterations exceeded: 100 when
+    # starting from T0:293.31 old T:166.33"). A temperature limiter keeps the run alive through those
+    # excursions; it does not touch the answer, which stays inside [T_in - 20, T_in + 5] here.
+    _dict(os.path.join(case_dir, "constant", "fvOptions"), "fvOptions", f"""
+limitTemperature
+{{
+    type            limitTemperature;
+    selectionMode   all;
+    min             {cond.T_in_K - 120.0:g};
+    max             {cond.T_in_K + 120.0:g};
+}}""")
+
     _dict(os.path.join(case_dir, "constant", "g"), "g",
           "dimensions      [0 1 -2 0 0 0 0];\nvalue           (0 -9.81 0);",
           cls="uniformDimensionedVectorField")
 
-    _dict(os.path.join(case_dir, "system", "controlDict"), "controlDict", f"""
-application     rhoSimpleFoam;
+    trip = acoustic_transit_s(passage, gas, cond.T_in_K)
+    end_time = float(cond.end_time_s) if cond.end_time_s else cond.end_time_transits * trip
+    # o passo inicial cresce com Co; começar muito pequeno custa centenas de passos inúteis
+    dt0 = max(end_time / 2000.0, 1e-9)
+    solver = solver_for(cond)
+    if cond.transient:
+        # physical time: the Courant number sets the step, and the transits set the end. Averaging
+        # starts where ``average_from`` says, so the start-up wave is not part of the answer.
+        time_block = f"""
+application     {solver};
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         {end_time:.6g};
+deltaT          {dt0:.6g};
+adjustTimeStep  yes;
+maxCo           {cond.max_co:g};
+maxDeltaT       {end_time / 100.0:.6g};
+
+writeControl    runTime;
+writeInterval   {end_time / 20.0:.6g};
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+"""
+        average_start = cond.average_from * end_time
+    else:
+        time_block = f"""
+application     {solver};
 
 startFrom       startTime;
 startTime       0;
@@ -239,7 +313,14 @@ writeCompression off;
 timeFormat      general;
 timePrecision   6;
 runTimeModifiable false;
+"""
+        average_start = cond.iterations * 0.6
 
+    # The inlet pressure is the *total* pressure the customer states (70 bar); the run measures
+    # what the passage passes at that condition, so the mass flow is an output and no outer loop
+    # is needed. ``totalPressure`` would have to be limped through a pressure jump otherwise, which
+    # is what makes the steady formulation fragile here.
+    _dict(os.path.join(case_dir, "system", "controlDict"), "controlDict", time_block + f"""
 functions
 {{
     machNo
@@ -253,7 +334,7 @@ functions
         type            fieldAverage;
         libs            (fieldFunctionObjects);
         writeControl    writeTime;
-        timeStart       {int(cond.iterations * 0.6)};
+        timeStart       {average_start:.6g};
         fields
         (
             U
@@ -291,7 +372,7 @@ functions
                "bounded Gauss linearUpwind grad(U)" if cond.scheme == "linearUpwind" else
                "bounded Gauss upwind")
     _dict(os.path.join(case_dir, "system", "fvSchemes"), "fvSchemes", f"""
-ddtSchemes      {{ default steadyState; }}
+ddtSchemes      {{ default {'Euler' if cond.transient else 'steadyState'}; }}
 
 gradSchemes
 {{
@@ -319,65 +400,115 @@ interpolationSchemes {{ default linear; }}
 snGradSchemes   {{ default corrected; }}
 wallDist        {{ method meshWave; }}""")
 
-    _dict(os.path.join(case_dir, "system", "fvSolution"), "fvSolution", """
-solvers
-{
-    p
-    {
-        solver          GAMG;
-        tolerance       1e-09;
-        relTol          0.01;
-        smoother        GaussSeidel;
-        nCellsInCoarsestLevel 20;
-    }
-    "(U|k|omega)"
-    {
-        solver          GAMG;
-        tolerance       1e-09;
-        relTol          0.1;
-        smoother        GaussSeidel;
-        nCellsInCoarsestLevel 20;
-    }
-    "(h|e)"
-    {
-        solver          PBiCGStab;
-        preconditioner  DILU;
-        tolerance       1e-09;
-        relTol          0.1;
-    }
-}
+    if cond.transient:
+        algo = f"""
+PIMPLE
+{{
+    nOuterCorrectors {cond.n_outer};
+    nCorrectors      2;
+    nNonOrthogonalCorrectors {max(cond.n_non_orth, 1)};
+    pMinFactor      {cond.p_min_factor:g};
+    pMaxFactor      {cond.p_max_factor:g};
+    transonic       {'yes' if cond.transonic else 'no'};
+}}
 
+relaxationFactors
+{{
+    equations       {{ "(U|h|k|omega)" 1; }}
+}}"""
+    else:
+        algo = f"""
 SIMPLE
-{
-    nNonOrthogonalCorrectors 1;
-    pMinFactor      0.1;
-    pMaxFactor      2;
-    transonic       yes;
+{{
+    nNonOrthogonalCorrectors {cond.n_non_orth};
+    pMinFactor      {cond.p_min_factor:g};
+    pMaxFactor      {cond.p_max_factor:g};
+    transonic       {'yes' if cond.transonic else 'no'};
     consistent      yes;
 
     residualControl
-    {
+    {{
         p               1e-3;
         U               1e-5;
         h               1e-5;
         "(k|omega)"     1e-5;
-    }
-}
+    }}
+}}
 
 relaxationFactors
-{
-    fields      { p 1; }
-    equations   { p 1; U 0.5; h 0.5; k 0.5; omega 0.5; }
-}""")
+{{
+    fields      {{ p 1; }}
+    equations   {{ p 1; U {cond.relaxation}; h {cond.relaxation}; k {cond.relaxation}; omega {cond.relaxation}; }}
+}}"""
+    p_block = ("        solver          GAMG;\n"
+               "        tolerance       1e-09;\n"
+               "        relTol          0.01;\n"
+               "        smoother        GaussSeidel;\n"
+               "        nCellsInCoarsestLevel 20;")
+    _dict(os.path.join(case_dir, "system", "fvSolution"), "fvSolution", f"""
+solvers
+{{
+    rho
+    {{
+        solver          diagonal;
+    }}
+    rhoFinal
+    {{
+        $rho;
+    }}
+    p
+    {{
+{p_block}
+    }}
+    pFinal
+    {{
+        $p;
+        relTol          0;
+    }}
+    "(U|k|omega)"
+    {{
+        solver          GAMG;
+        tolerance       1e-09;
+        relTol          0.1;
+        smoother        GaussSeidel;
+        nCellsInCoarsestLevel 20;
+    }}
+    "(U|k|omega)Final"
+    {{
+        $U;
+        relTol          0;
+    }}
+    "(h|e)"
+    {{
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-09;
+        relTol          0.1;
+    }}
+    "(h|e)Final"
+    {{
+        $h;
+        relTol          0;
+    }}
+}}
+{algo}""")
 
     wall_T = ("    {\n        type            zeroGradient;\n    }" if cond.wall_thermal == "adiabatic"
               else f"    {{\n        type            fixedValue;\n        value           uniform "
                    f"{cond.T_wall_K or cond.T_in_K};\n    }}")
+    p_in_bar = cond.p_in_target_bar if cond.p_in_target_bar is not None else cond.p_out_bar * 1.15
+    # In physical time the inlet carries the *total* pressure the customer states and the velocity
+    # follows the flux: the two together are what a pressurised upstream really is, and the flow is
+    # then a measured output. In pseudo-time the same pair is what makes the pressure correction
+    # overshoot, so the steady case keeps the mass-flow inlet.
+    p_inlet = (f"        type            totalPressure;\n        p0              uniform "
+               f"{p_in_bar * 1e5:.6g};\n        value           uniform {p_in_bar * 1e5:.6g};"
+               if cond.transient else "        type            zeroGradient;")
     _field(os.path.join(case_dir, "0", "p"), "p", "[1 -1 -2 0 0 0 0]", cond.p_out_bar * 1e5,
            f"""
     inlet
     {{
-        type            zeroGradient;
+{p_inlet}
     }}
     outlet
     {{
@@ -389,14 +520,17 @@ relaxationFactors
         type            zeroGradient;
     }}""")
 
-    _field(os.path.join(case_dir, "0", "U"), "U", "[0 1 -1 0 0 0 0]", (round(u_in, 6), 0.0, 0.0),
+    u_inlet = ("""        type            pressureInletVelocity;
+        value           uniform (0 0 0);""" if cond.transient else f"""        type            flowRateInletVelocity;
+        massFlowRate    constant {m_sector:.8e};
+        rhoInlet        {rho_in:.6f};
+        value           uniform ({u_in:.6f} 0 0);""")
+    _field(os.path.join(case_dir, "0", "U"), "U", "[0 1 -1 0 0 0 0]",
+           (0.0, 0.0, 0.0) if cond.transient else (round(u_in, 6), 0.0, 0.0),
            f"""
     inlet
     {{
-        type            flowRateInletVelocity;
-        massFlowRate    constant {m_sector:.8e};
-        rhoInlet        {rho_in:.6f};
-        value           uniform ({u_in:.6f} 0 0);
+{u_inlet}
     }}
     outlet
     {{
@@ -407,11 +541,18 @@ relaxationFactors
         type            noSlip;
     }}""")
 
+    # a entrada em ``totalPressure`` pede a temperatura de **estagnação**: impor a estática junto com
+    # a pressão total deixa a energia cinética de fora de um dos lados e vaza entalpia de estagnação
+    # (medido: +1,93 % numa passagem adiabática, que deveria conservar h0)
+    _tin = (f"""        type            totalTemperature;
+        T0              uniform {cond.T_in_K};
+        gamma           {gas.gamma_ig:.4f};""" if cond.transient else
+            f"""        type            fixedValue;
+        value           uniform {cond.T_in_K};""")
     _field(os.path.join(case_dir, "0", "T"), "T", "[0 0 0 1 0 0 0]", cond.T_in_K, f"""
     inlet
     {{
-        type            fixedValue;
-        value           uniform {cond.T_in_K};
+{_tin}
     }}
     outlet
     {{
@@ -502,10 +643,13 @@ relaxationFactors
                 if os.path.exists(old) and os.path.exists(new):
                     _restart_field(old, new)
 
+    mesh = mesh or build_mesh(passage, case_dir)
     return {"case_dir": case_dir, "mesh": mesh.as_dict(), "passage": passage.summary(),
             "mass_flow_kg_s": round(m_total, 6),
             "gas": {"name": gas.name, "rho_in": round(rho_in, 3), "mu_in": sutherland_mu(gas, cond.T_in_K)},
-            "conditions": cond.as_dict(), "u_in_m_s": round(u_in, 4)}
+            "conditions": cond.as_dict(), "u_in_m_s": round(u_in, 4),
+            "solver": solver, "acoustic_transit_s": round(trip, 9), "end_time_s": round(end_time, 9),
+            "end_time_transits": round(end_time / trip, 2) if trip else None}
 
 
 def case_ready(case_dir: str) -> bool:
@@ -519,6 +663,27 @@ def _openfoam(cmd: str, cwd: str, timeout: float) -> tuple[int, str]:
         return 127, "openfoam not on PATH: install the native OpenFOAM app, or use the docker image"
     proc = subprocess.run([exe, "-c", cmd], cwd=cwd, capture_output=True, text=True, timeout=timeout)
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+def _time_reached(case_dir: str, text: str) -> bool:
+    """Did a transient run get to its ``endTime``? That, not a residual, is what "done" means here."""
+    end = None
+    path = os.path.join(case_dir, "system", "controlDict")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8", errors="replace") as f:
+            m = re.search(r"^endTime\s+([0-9.eE+-]+)", f.read(), flags=re.M)
+        end = float(m.group(1)) if m else None
+    times = [float(t) for t in re.findall(r"^Time = ([0-9.eE+-]+)", text, flags=re.M)]
+    return bool(times) and end is not None and times[-1] >= end * 0.999
+
+
+def _verdict(case_dir: str, text: str, solver: str, residuals: dict[str, float]) -> bool:
+    if solver.startswith("rhoPimple"):
+        # physical time: there is no residual floor to reach. The run is complete when it got to
+        # ``endTime``, and the answer is the time mean OpenFOAM accumulated over the last part of it.
+        return _time_reached(case_dir, text) and "FOAM FATAL" not in text
+    return ("SIMPLE solution converged" in text
+            or (residuals.get("p", 1.0) < 1e-3 and residuals.get("Ux", 1.0) < 1e-4))
 
 
 def read_run(case_dir: str, *, solver: str = "rhoSimpleFoam") -> RunResult:
@@ -542,8 +707,7 @@ def read_run(case_dir: str, *, solver: str = "rhoSimpleFoam") -> RunResult:
         with open(check_log, encoding="utf-8", errors="replace") as f:
             checkmesh_log = f.read()[-2000:]
     mesh_ok = "Mesh OK" in checkmesh_log
-    converged = ("SIMPLE solution converged" in text
-                 or (residuals.get("p", 1.0) < 1e-3 and residuals.get("Ux", 1.0) < 1e-4))
+    converged = _verdict(case_dir, text, solver, residuals)
     times = sorted((d for d in os.listdir(case_dir)
                     if re.fullmatch(r"[0-9.eE+-]+", d) and os.path.isdir(os.path.join(case_dir, d))),
                    key=float)
@@ -581,8 +745,7 @@ def run_case(case_dir: str, *, timeout: float = 7200.0, check: bool = True,
     # the solver prints its verdict when every residualControl floor is met; when a run stops at
     # ``endTime`` with the fields already below them it is converged all the same, and saying
     # otherwise would call a good answer "inconclusive" for stopping one iteration early
-    converged = ("SIMPLE solution converged" in text
-                 or (residuals.get("p", 1.0) < 1e-3 and residuals.get("Ux", 1.0) < 1e-4))
+    converged = _verdict(case_dir, text, solver, residuals)
     note = ""
     if rc != 0 or "FOAM FATAL" in text:
         note = "the solver reported a fatal error"

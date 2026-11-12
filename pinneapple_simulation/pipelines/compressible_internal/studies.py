@@ -59,11 +59,17 @@ def globe_valve(lift: float = 4.0, *, r_bore: float = 10.0, r_chamber: float = 3
                 x_bowl_in: float = -68.0, x_bowl_out: float = 8.0, drag: float = 7.0,
                 h_pipe: float = 1.8, h_bowl: float = 1.4, h_gap: float = 0.6,
                 n_theta: int = 20, radial_cells: tuple[int, int, int] = (10, 9, 6),
-                r_core: float = 0.5, sector_deg: float = 90.0, xT: float = 0.72) -> PassageSpec:
-    """The globe valve of the reference document, as a passage in the meridian plane.
+                r_core: float = 0.5, sector_deg: float = 90.0, xT: float = 0.72,
+                solid: bool = False, mesh_size: float = 2.5) -> PassageSpec:
+    """The globe valve of the reference document, as a passage.
 
     ``lift`` is the distance from the disc face to the seat plane along the axis: the parameter the
     study sweeps. Everything else defaults to the dimensions measured on the customer's CAD.
+
+    ``solid=True`` selects the **3-D domain** (:mod:`.solid3d`) instead of the revolved sector: the
+    real body has a bonnet branch on an axis perpendicular to the flow, which a solid of revolution
+    around the flow axis cannot represent at all. The span list is still returned, because the
+    figures and the inlet area read it — but the mesh comes from the 3-D builder.
     """
     x_disc_up = x_seat - lift - disc_thickness
     x_disc_down = x_seat - lift
@@ -84,14 +90,28 @@ def globe_valve(lift: float = 4.0, *, r_bore: float = 10.0, r_chamber: float = 3
     curtain = 2.0 * 3.141592653589793 * 0.5 * (r_bore + r_disc) * lift if lift > 0 else 0.0
     port = 3.141592653589793 * r_bore ** 2
     throat = min(curtain, port)
+    meta = {"kind": "globe_valve", "parameter_name": "lift_mm", "parameter_value": lift,
+            "lift_mm": lift, "open_fraction": throat / port, "throttling_area_mm2": throat,
+            "curtain_area_mm2": curtain, "port_area_mm2": port, "xT": xT,
+            "x_seat_mm": x_seat, "r_bore_mm": r_bore, "r_chamber_mm": r_chamber,
+            "r_disc_mm": r_disc, "disc_thickness_mm": disc_thickness}
+    if solid:
+        # as medidas da seção meridiana do CAD, em mm (ver CAD_MEASUREMENTS e solid3d)
+        meta["solid_builder"] = "globe_valve"
+        meta["frame_x_mm"] = -28.0        # eixo do corpo e do pescoço
+        meta["frame_y_mm"] = 12.0         # entre o fundo do corpo e o topo do pescoço
+        meta["frame_r_mm"] = 95.0
+        meta["solid"] = {"x_in": -118.5, "x_out": 61.5, "y_port": -4.7, "r_bore": r_bore,
+                         "x_body": -28.0, "r_body": 29.0, "r_bonnet": 11.0, "y_bonnet": 92.0,
+                         "x_seat": -27.0, "seat_thickness": 5.0, "r_disc": r_disc,
+                         "disc_thickness": disc_thickness, "r_stem": 5.0, "mesh_size": mesh_size,
+                         # refino onde o escoamento se decide: a cortina da sede
+                         "refine_box": (-45.0, -15.0, -18.0, 14.0, -16.0, 16.0),
+                         "refine_size": 0.8}
     return PassageSpec(
-        spans=spans, sector_deg=sector_deg, n_theta=n_theta, r_core=r_core,
+        spans=spans, sector_deg=360.0 if solid else sector_deg, n_theta=n_theta, r_core=r_core,
         title=f"Válvula globo, abertura {lift:g} mm",
-        meta={"kind": "globe_valve", "parameter_name": "lift_mm", "parameter_value": lift,
-              "lift_mm": lift, "open_fraction": throat / port, "throttling_area_mm2": throat,
-              "curtain_area_mm2": curtain, "port_area_mm2": port, "xT": xT,
-              "x_seat_mm": x_seat, "r_bore_mm": r_bore, "r_chamber_mm": r_chamber,
-              "r_disc_mm": r_disc, "disc_thickness_mm": disc_thickness},
+        meta=meta,
     )
 
 

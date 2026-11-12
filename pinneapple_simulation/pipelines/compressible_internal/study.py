@@ -32,7 +32,7 @@ from typing import Any
 
 import numpy as np
 
-from .case import RunResult, estimate_mass_flow, run_case, write_case
+from .case import RunResult, estimate_mass_flow, run_case, solver_for, write_case
 from .checks import critical_pressure_ratio, run_checks
 from .passage import PassageSpec
 from .physics import Conditions, Gas, resolve_gas
@@ -92,7 +92,7 @@ def solve_once(spec: StudySpec, folder: str, *, timeout: float = 7200.0,
     """One case: write, run, read, tabulate."""
     gas = spec.resolved_gas
     write_case(spec.passage, folder, gas, spec.conditions, restart_from=restart_from)
-    run = run_case(folder, timeout=timeout, check=spec.check_solver)
+    run = run_case(folder, timeout=timeout, check=spec.check_solver, solver=solver_for(spec.conditions))
     result, fields = read_case(folder, spec.passage, spec.conditions, gas)
     tables = write_tables(os.path.join(folder, "csv"), result, fields)
     value = float(spec.passage.meta.get("parameter_value", 0.0))
@@ -111,6 +111,12 @@ def solve_to_pressure_drop(spec: StudySpec, folder: str, *, tol: float = 0.01, m
     target = spec.conditions.p_in_target_bar
     say = log or (lambda m: None)
     if target is None:
+        return solve_once(spec, folder, timeout=timeout)
+    if spec.conditions.transient:
+        # In physical time the inlet carries total pressure and the outlet static pressure, so the
+        # flow is what the run measures. There is nothing to iterate: one march, one answer.
+        say(f"  transiente: {spec.conditions.end_time_transits:g} travessias acústicas, "
+            f"p0 = {target:g} bar na entrada, {spec.conditions.p_out_bar:g} bar na saída")
         return solve_once(spec, folder, timeout=timeout)
 
     best: CaseOutcome | None = None
@@ -332,34 +338,100 @@ def _figures(folder: str, nominal: CaseOutcome, curve: list[CaseOutcome], gas: G
     return out
 
 
+def _meridian_figure(nominal: CaseOutcome, path: str) -> bool:
+    """The same three panels for a **3-D** mesh, which has no symmetry plane to cut along.
+
+    The slice is built by projecting the cells onto the meridian and averaging them into bins: the
+    flow is axisymmetric everywhere except the bonnet, and that is exactly where a reader looks.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from .visual import frame_on_passage
+
+    c = nominal.fields.get("centres")
+    if c is None or not len(c):
+        return False
+    (xc, _cy, _cz), radius = frame_on_passage(nominal.passage)
+    half_x = 2.4 * radius * 1000.0
+    lim = radius * 1000.0
+    # fatia de verdade: só as células encostadas no plano z = 0, não a projeção do domínio inteiro
+    dz = float(np.median(np.abs(np.diff(np.unique(np.round(c[:, 2], 6)))))) if len(c) > 10 else 2e-3
+    band = np.abs(c[:, 2]) < max(1.5 * dz, 1e-3)
+    if band.sum() < 200:
+        band = np.ones(len(c), dtype=bool)
+    x, y = c[band, 0] * 1000.0, c[band, 1] * 1000.0
+    nx, ny = 150, 95
+    xe = np.linspace(xc * 1000.0 - half_x, xc * 1000.0 + half_x, nx + 1)
+    ye = np.linspace(-lim, lim, ny + 1)
+    ix = np.clip(np.digitize(x, xe) - 1, 0, nx - 1)
+    iy = np.clip(np.digitize(y, ye) - 1, 0, ny - 1)
+    flat = ix * ny + iy
+    panels = {"pressão estática [bar]": nominal.fields["p"][band] / 1e5,
+              "número de Mach [-]": nominal.fields["Ma"][band] if len(nominal.fields["Ma"])
+              else np.zeros(int(band.sum())),
+              "temperatura estática [K]": nominal.fields["T"][band]}
+    try:
+        fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.4), constrained_layout=True)
+        for ax, (name, val) in zip(axes, panels.items(), strict=False):
+            total = np.bincount(flat, weights=val, minlength=nx * ny)
+            count = np.bincount(flat, minlength=nx * ny)
+            img = np.where(count > 0, total / np.maximum(count, 1), np.nan).reshape(nx, ny).T
+            im = ax.imshow(img, origin="lower", cmap="viridis", aspect="equal",
+                           extent=[xe[0], xe[-1], ye[0], ye[-1]], interpolation="nearest")
+            fig.colorbar(im, ax=ax, shrink=.92, pad=.02)
+            ax.set_title(name, fontsize=10), ax.set_xlabel("x [mm]"), ax.set_ylabel("r [mm]")
+        fig.suptitle(f"{nominal.passage.title} — plano meridiano (malha 3-D, eixo em x = "
+                     f"{xc * 1000:.0f} mm)", fontsize=11)
+        fig.savefig(path, dpi=150), plt.close(fig)
+    except Exception:                                     # noqa: BLE001
+        return False
+    return True
+
+
 def _cut_figure(nominal: CaseOutcome, path: str) -> bool:
-    """p and Ma on the meridian cut, as filled triangles."""
+    """p, Ma and T on the meridian cut, framed on the throttling region.
+
+    A passage is 0.35 m of straight pipe around a 70 mm valve, so a picture of the whole domain is a
+    picture of two pipes with a stub in the middle: the frames are set to the body, which is where
+    every gradient in the case lives.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.tri import Triangulation
 
     from .post import patch_triangles
+    from .visual import frame_on_passage
 
     try:
         v, t, cell = patch_triangles(nominal.case_dir, "sym0")
     except (OSError, ValueError, KeyError):
-        return False
+        return _meridian_figure(nominal, path)
     if len(t) == 0:
-        return False
+        return _meridian_figure(nominal, path)      # malha 3-D: não há plano de simetria
     x, y = v[:, 0] * 1000.0, v[:, 1] * 1000.0
     tri = Triangulation(x, y, t)
-    fields = {"p [bar]": nominal.fields["p"][cell] / 1e5,
-              "Ma": nominal.fields["Ma"][cell] if len(nominal.fields["Ma"]) else np.zeros(len(cell)),
-              "T [K]": nominal.fields["T"][cell]}
+    fields = {"pressão estática [bar]": nominal.fields["p"][cell] / 1e5,
+              "número de Mach [-]": nominal.fields["Ma"][cell] if len(nominal.fields["Ma"])
+              else np.zeros(len(cell)),
+              "temperatura estática [K]": nominal.fields["T"][cell]}
+    (xc, _cy, _cz), radius = frame_on_passage(nominal.passage)
+    half_x, xc_mm, r_mm = 2.4 * radius * 1000.0, xc * 1000.0, radius * 1000.0
     try:
-        fig, axes = plt.subplots(1, 3, figsize=(15, 3.8), constrained_layout=True)
+        fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.4), constrained_layout=True)
         for ax, (name, val) in zip(axes, fields.items(), strict=False):
             # per-face values (one per cell) need flat shading: gouraud wants them at the vertices
             tpc = ax.tripcolor(tri, val, shading="flat", cmap="viridis")
-            fig.colorbar(tpc, ax=ax, shrink=.9)
-            ax.set_title(name), ax.set_xlabel("x [mm]"), ax.set_ylabel("r [mm]"), ax.set_aspect("equal")
-        fig.savefig(path, dpi=140)
+            fig.colorbar(tpc, ax=ax, shrink=.92, pad=.02)
+            ax.set_title(name, fontsize=10), ax.set_xlabel("x [mm]"), ax.set_ylabel("r [mm]")
+            ax.set_xlim(xc_mm - half_x, xc_mm + half_x)
+            ax.set_ylim(-r_mm * 0.85, r_mm * 0.85)
+            ax.set_aspect("equal")
+        fig.suptitle(f"{nominal.passage.title} — corte meridiano (eixo da válvula em x = "
+                     f"{xc_mm:.0f} mm)", fontsize=11)
+        fig.savefig(path, dpi=150)
         plt.close(fig)
     except (ValueError, RuntimeError):
         return False
@@ -370,19 +442,25 @@ def _pictures(folder: str, nominal: CaseOutcome, spec: StudySpec) -> dict[str, s
     """The Blender render and the video, if Blender is installed."""
     out: dict[str, str] = {}
     try:
-        from .visual import build_scene, render, render_video
+        from .visual import FIELDS, build_scene, frame_on_passage, render, render_video
         scene = build_scene(nominal.passage, nominal.fields, title=spec.title or nominal.passage.title)
+        frame = frame_on_passage(nominal.passage)
     except Exception as exc:
         return {"erro": f"a cena 3-D não pôde ser montada: {type(exc).__name__}: {exc}"}
     png = os.path.join(folder, "render_blender.png")
-    try:
-        out["render"] = render(scene, png, field="Ma", samples=64, resolution=1200)
-    except Exception as exc:
-        out["render_erro"] = f"{type(exc).__name__}: {exc}"
+    # uma imagem por campo: o relatório precisa do mesmo 3-D para p, U, Ma e T, não só para um deles
+    for campo in FIELDS:
+        alvo = png if campo == "Ma" else os.path.join(folder, f"render_blender_{campo}.png")
+        try:
+            out["render" if campo == "Ma" else f"render_{campo}"] = render(
+                scene, alvo, field=campo, samples=64, resolution=1200, frame=frame)
+        except Exception as exc:
+            out[f"render_erro_{field}"] = f"{type(exc).__name__}: {exc}"
     if spec.video:
         mp4 = os.path.join(folder, "simulacao.mp4")
         try:
-            out["video"] = render_video(scene, mp4, field="Ma", frames=36, samples=14, resolution=720)
+            out["video"] = render_video(scene, mp4, field="Ma", frames=36, samples=14,
+                                        resolution=720, frame=frame)
         except Exception as exc:
             out["video_erro"] = f"{type(exc).__name__}: {exc}"
     return out

@@ -141,8 +141,11 @@ def read_patch_geometry(case: str) -> dict[str, dict[str, Any]]:
     faces = _faces(os.path.join(mesh, "faces"))
     bnd = _strip(os.path.join(mesh, "boundary"))
     out: dict[str, dict[str, Any]] = {}
+    # entre ``type`` e ``nFaces`` pode haver ``inGroups`` (o snappyHexMesh escreve um): o bloco é
+    # lido com ``.*?`` em vez de só espaços, senão nenhum patch da malha 3-D é encontrado
     for name, _kind, n, start in re.findall(
-            r"(\w+)\s*\{\s*type\s+(\w+);\s*nFaces\s+(\d+);\s*startFace\s+(\d+);", bnd):
+            r"(\w+)\s*\{\s*type\s+(\w+);.*?nFaces\s+(\d+);\s*startFace\s+(\d+);",
+            bnd, flags=re.S):
         ids = list(range(int(start), int(start) + int(n)))
         area = np.zeros(len(ids))
         centre = np.zeros((len(ids), 3))
@@ -197,9 +200,22 @@ def cell_centres(case: str) -> np.ndarray:
     faces = _faces(os.path.join(mesh, "faces"))
     owner_text = _strip(os.path.join(mesh, "owner"))
     n = int(re.match(r"\s*(\d+)", owner_text).group(1))
-    owner = np.array([int(v) for v in re.findall(r"^\s*(\d+)\s*$", owner_text, flags=re.M)][:n])
+    # a lista vem como ``n`` na primeira linha, ``(``, um índice por linha, ``)``: o número do
+    # cabeçalho não é um índice, e contá-lo desloca a atribuição de face para célula em um
+    body = owner_text[owner_text.index("(") + 1:] if "(" in owner_text else owner_text
+    owner = np.array([int(v) for v in re.findall(r"\d+", body)][:n], dtype=int)
     centre = np.array([pts[f].mean(axis=0) for f in faces])
+    # o número de células não vem do ``owner``: a última célula pode aparecer só como ``neighbour``
+    # (todas as faces dela são internas e ela é a de índice maior), e aí ``max(owner)+1`` erra por um
     n_cells = int(owner.max()) + 1
+    neigh_path = os.path.join(mesh, "neighbour")
+    if os.path.exists(neigh_path):
+        neigh_text = _strip(neigh_path)
+        m_neigh = int(re.match(r"\s*(\d+)", neigh_text).group(1))
+        nbody = neigh_text[neigh_text.index("(") + 1:] if "(" in neigh_text else neigh_text
+        neigh = np.array([int(v) for v in re.findall(r"\d+", nbody)][:m_neigh], dtype=int)
+        if len(neigh):
+            n_cells = max(n_cells, int(neigh.max()) + 1)
     acc = np.zeros((n_cells, 3))
     cnt = np.zeros(n_cells)
     np.add.at(acc, owner, centre)
@@ -287,6 +303,33 @@ class FlowResult:
         }
 
 
+def read_fields(case: str, *, time_dir: str | None = None) -> dict[str, np.ndarray]:
+    """The field values at the latest time, without the KPI result — what a viewer needs.
+
+    The mean fields win when ``fieldAverage`` ran: the page and the render must show the same thing,
+    and the same rule is used by :func:`read_case`.
+    """
+    t = time_dir or _first_time(case)
+    base = os.path.join(case, t)
+    p_text = _strip(os.path.join(base, "p"))
+    T_text = _strip(os.path.join(base, "T"))
+    p_mean = os.path.join(base, "pMean")
+    if os.path.exists(p_mean):
+        p_text = _strip(p_mean)
+        if os.path.exists(os.path.join(base, "TMean")):
+            T_text = _strip(os.path.join(base, "TMean"))
+    p, T = _scalar_field(p_text), _scalar_field(T_text)
+    u_mean = os.path.join(base, "UMean")
+    U = _vector_field(_strip(u_mean if os.path.exists(u_mean) else os.path.join(base, "U")))
+    ma_path = os.path.join(base, "Ma")
+    ma = _scalar_field(_strip(ma_path)) if os.path.exists(ma_path) else np.zeros_like(p)
+    centres = cell_centres(case)
+    if len(centres) != len(p):
+        centres = np.zeros((0, 3))
+    return {"p": p, "T": T, "U": U, "Um": np.linalg.norm(U, axis=1), "Ma": ma,
+            "centres": centres, "case_dir": case, "time_dir": t}
+
+
 def read_case(case: str, passage, conditions, gas, *, time_dir: str | None = None) -> tuple[FlowResult, dict[str, np.ndarray]]:
     """Read ``case`` into a :class:`FlowResult` plus the raw fields, for the tables and the 3D scene."""
     t = time_dir or _first_time(case)
@@ -322,6 +365,12 @@ def read_case(case: str, passage, conditions, gas, *, time_dir: str | None = Non
         w = weights if weights.size == a.size else a
         return float((vals * w).sum() / max(w.sum(), 1e-30)), float(a.sum())
 
+    faltando = [n for n in ("inlet", "outlet") if n not in patches]
+    if faltando:
+        # acontece com malha grossa: o disco do bocal cai dentro de uma célula do fundo e o
+        # snappyHexMesh não gera faces para ele. Sem a patch não há vazão nem Δp para medir.
+        raise ValueError(f"a malha de {case} não tem a(s) patch(es) {', '.join(faltando)}: refine a "
+                         f"malha (a célula na parede tem de ser menor que o raio do bocal)")
     p_in, _ = weighted("inlet", p_text, patches["inlet"]["area_m2"])
     p_out, _ = weighted("outlet", p_text, patches["outlet"]["area_m2"])
 

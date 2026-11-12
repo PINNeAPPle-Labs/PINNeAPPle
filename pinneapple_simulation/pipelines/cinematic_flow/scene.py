@@ -70,12 +70,13 @@ def write_vdb(npz_path: str, vdb_path: str, *, voxel: float, smoke: dict) -> str
     import openvdb as vdb
 
     z = np.load(npz_path)
-    speed, vort = z["speed"].astype(np.float32), z["vorticity"].astype(np.float32)
+    speed, q = z["speed"].astype(np.float32), z["q"].astype(np.float32)
     fluid = speed > 1e-6
-    ref = max(float(np.percentile(vort[fluid], smoke.get("percentile", 99.5))) if fluid.any() else 1.0, 1e-12)
-    on = np.clip(vort / ref, 0.0, 1.0) ** float(smoke.get("power", 1.15))
+    pos = np.maximum(q, 0.0)
+    ref = max(float(np.percentile(pos[fluid], smoke.get("percentile", 99.0))) if fluid.any() else 1.0, 1e-12)
+    on = np.clip(pos / ref, 0.0, 1.0) ** float(smoke.get("power", 1.0))
     deficit = np.clip(1.0 - speed, 0.0, 1.0)
-    d = float(smoke.get("vort_weight", 0.95)) * on + float(smoke.get("deficit_weight", 0.45)) * deficit
+    d = float(smoke.get("vort_weight", 1.0)) * on + float(smoke.get("deficit_weight", 0.35)) * deficit
     floor = float(smoke.get("floor", 0.18))
     d = np.clip((d - floor) / max(1.0 - floor, 1e-9), 0.0, 1.0) * fluid
     d *= float(smoke.get("gain", 1.0))

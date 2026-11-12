@@ -114,39 +114,46 @@ def voxelize(case: Case, tunnel: Tunnel) -> np.ndarray:
     return _fill_sealed(mask)
 
 
-def _vorticity(u: np.ndarray, dx: float) -> np.ndarray:
-    """|curl u| from the three velocity components, on the same grid."""
-    duz_dy = np.gradient(u[2], dx, axis=1)
-    duy_dz = np.gradient(u[1], dx, axis=2)
-    dux_dz = np.gradient(u[0], dx, axis=2)
-    duz_dx = np.gradient(u[2], dx, axis=0)
-    duy_dx = np.gradient(u[1], dx, axis=0)
-    dux_dy = np.gradient(u[0], dx, axis=1)
-    wx = duz_dy - duy_dz
-    wy = dux_dz - duz_dx
-    wz = duy_dx - dux_dy
-    return np.sqrt(wx * wx + wy * wy + wz * wz)
+def q_criterion(u: np.ndarray, dx: float) -> np.ndarray:
+    """``Q = (|Ω|² - |S|²)/2`` of the velocity gradient, positive inside a vortex core.
+
+    Vorticity magnitude alone will not do here: at a wall it is the boundary layer, and the road under a car
+    carries more of it than the wake does, so a picture built on |ω| paints the floor and leaves the wake empty.
+    Q is zero for pure shear and positive only where the rotation beats the strain, which is exactly the
+    structure a flow picture is trying to show.
+    """
+    g = [[np.gradient(u[i], dx, axis=j) for j in range(3)] for i in range(3)]   # g[i][j] = du_i/dx_j
+    s2 = 0.0
+    w2 = 0.0
+    for i in range(3):
+        for j in range(3):
+            s = 0.5 * (g[i][j] + g[j][i])
+            w = 0.5 * (g[i][j] - g[j][i])
+            s2 = s2 + s * s
+            w2 = w2 + w * w
+    return 0.5 * (w2 - s2)
 
 
-def density_from(speed: np.ndarray, vorticity: np.ndarray, *, percentile: float = 99.5, floor: float = 0.18,
-                 vorticity_weight: float = 0.95, deficit_weight: float = 0.45) -> np.ndarray:
+def density_from(speed: np.ndarray, q: np.ndarray, *, percentile: float = 99.0, floor: float = 0.15,
+                 vorticity_weight: float = 1.0, deficit_weight: float = 0.35) -> np.ndarray:
     """The scalar the smoke shows, from the two stored fields (both already normalised).
 
-    ``speed`` is |u|/U∞ (1 in the free stream) and ``vorticity`` is |curl u|·dx/U∞, a dimensionless strain.
-    The reference is a high percentile of the vorticity over the fluid, and everything below ``floor`` is cut:
-    a coarse lattice leaves a low-level noise floor in the free stream, and without the cut the whole tunnel
-    turns into fog. What survives is where the flow is actually doing something.
+    ``speed`` is |u|/U∞ (1 in the free stream) and ``q`` is the Q-criterion in units of (U/dx)². Only the
+    positive part of Q is used — negative Q is strain, which is the wall, not the vortex — and the reference is
+    a high percentile over the fluid, because a lattice leaves a low-level floor of Q everywhere and without the
+    cut the whole tunnel renders as fog.
     """
     fluid = speed > 1e-6
-    ref = float(np.percentile(vorticity[fluid], percentile)) if fluid.any() else 1.0
-    on = np.clip(vorticity / max(ref, 1e-12), 0.0, 1.0) ** 1.15
+    pos = np.maximum(q, 0.0)
+    ref = float(np.percentile(pos[fluid], percentile)) if fluid.any() else 1.0
+    on = np.clip(pos / max(ref, 1e-12), 0.0, 1.0)
     deficit = np.clip(1.0 - speed, 0.0, 1.0)
     d = vorticity_weight * on + deficit_weight * deficit
     d = np.clip((d - floor) / max(1.0 - floor, 1e-9), 0.0, 1.0)
     return (d * fluid).astype(np.float32)
 
 
-def run_tunnel(case: Case, tunnel: Tunnel, *, device: str = "mps", snapshots: int = 12, stride: int = 2,
+def run_tunnel(case: Case, tunnel: Tunnel, *, device: str = "mps", snapshots: int = 12, stride: int = 1,
                out_dir: str | None = None, verbose: bool = True) -> dict:
     """Run the flow and write ``snap_XXX.npz`` (density, speed, vorticity) plus ``meta.json``.
 
@@ -182,9 +189,10 @@ def run_tunnel(case: Case, tunnel: Tunnel, *, device: str = "mps", snapshots: in
                 f"ou aumente a viscosidade; os instantes já escritos em {out_dir} não servem")
         sub = (slice(None, None, stride),) * 3
         speed = (np.linalg.norm(u, axis=0)[sub] / tunnel.u_lattice).astype(np.float32)
-        vort = (_vorticity(u, tunnel.dx)[sub] * (tunnel.dx / tunnel.u_lattice)).astype(np.float32)
+        # Q in the same units as the speed: Q (dx/U)^2, so a threshold reads the same on every case
+        q = (q_criterion(u, tunnel.dx) * (tunnel.dx / tunnel.u_lattice) ** 2)[sub].astype(np.float32)
         path = os.path.join(out_dir, f"snap_{k:03d}.npz")
-        np.savez_compressed(path, speed=speed, vorticity=vort)
+        np.savez_compressed(path, speed=speed, q=q)
         written.append(path)
         if verbose:
             el = time.time() - t0

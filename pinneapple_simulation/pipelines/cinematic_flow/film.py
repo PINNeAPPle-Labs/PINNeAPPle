@@ -27,13 +27,14 @@ CAMERA = {
 # "that look": a deep navy body, a blue-white smoke, and a dark studio with two strip lights
 STYLE = {
     "paint": [0.014, 0.030, 0.080],
-    "tint": [0.45, 0.70, 1.0],
-    "emission": 0.9,
+    "tint": [0.34, 0.62, 0.98],
+    "hot": [0.86, 0.93, 1.0],
+    "emission": 0.7,
     "noise_scale": 6.5,
     "fiber": 0.5,
-    # what reads as smoke: the vorticity cut, and how much of the speed deficit is added to it
-    "smoke": {"percentile": 99.5, "floor": 0.20, "power": 1.15, "vort_weight": 0.95,
-              "deficit_weight": 0.45, "gain": 0.9},
+    # what reads as smoke: the Q-criterion cut, and how much of the speed deficit is added to it
+    "smoke": {"percentile": 99.0, "floor": 0.22, "power": 1.0, "vort_weight": 1.0,
+              "deficit_weight": 0.35, "gain": 0.55},
 }
 
 
@@ -91,7 +92,7 @@ def _assemble(frames_dir: str, out_mp4: str, fps: int) -> str | None:
 
 
 def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int = 140, steps: int = 2400,
-              snapshots: int = 10, stride: int = 2, device: str = "mps", frames: int = 144, fps: int = 24,
+              snapshots: int = 10, stride: int = 1, device: str = "mps", frames: int = 144, fps: int = 24,
               res_x: int = 1920, res_y: int = 1080, samples: int = 64, camera: dict | None = None,
               style: dict | None = None, force_solve: bool = False) -> dict:
     """Solve ``case`` if it is not solved yet, render it, and write the film plus its record."""
@@ -142,13 +143,15 @@ def render_still(case: str | Case = "carro", *, out_dir: str, frame: int = 1, **
     kw.setdefault("frames", max(frame, 2))
     case = build(case) if isinstance(case, str) else case
     os.makedirs(out_dir, exist_ok=True)
-    tunnel = plan_tunnel(case, cells_per_length=kw.get("cells_per_length", 140), steps=kw.get("steps", 2400))
     with open(os.path.join(out_dir, "meta.json"), encoding="utf-8") as f:
         meta = json.load(f)
+    # the voxel size and the origin come from the run that is on disk, not from a fresh plan: a still of a
+    # 120-cell solve must not be placed as if it were the 140-cell one
     bodies = _write_bodies(case, os.path.join(out_dir, "corpo"))
     cfg = {
         "out_dir": out_dir, "bodies": bodies, "snapshots": meta["snapshots"],
-        "voxel_size": tunnel.dx * meta["stride"], "origin": list(tunnel.origin), "ground": case.ground,
+        "voxel_size": float(meta["tunnel"]["dx"]) * meta["stride"],
+        "origin": list(meta["tunnel"]["origin"]), "ground": case.ground,
         "frame": _frame(case),
         "camera": {**CAMERA.get(case.name, CAMERA["carro"]), **(kw.get("camera") or {})},
         "style": {**STYLE, **(kw.get("style") or {})},

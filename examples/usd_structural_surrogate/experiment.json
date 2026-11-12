@@ -1,0 +1,108 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/usd_structural_surrogate",
+ "title": "Structural surrogate of an OpenUSD asset: CalculiX + PhysicsNeMo FNO",
+ "description": "The UR10 mounting pedestal of NVIDIA's OpenUSD content, read with OpenUSD and measured for its mounting interface, a four-variable design family solved by CalculiX, a 3-D FNO trained on the grid, the physics checks it passes, and a dashboard that answers the sliders live.",
+ "domain": "structural mechanics",
+ "methods": [
+  "FEM (CalculiX)",
+  "FNO (PhysicsNeMo)",
+  "OpenUSD"
+ ],
+ "modules": [
+  "pinneapple_simulation.pipelines.usd_structural_surrogate"
+ ],
+ "params": {
+  "n_designs": 256,
+  "element_size_m": 0.022,
+  "grid": [
+   40,
+   40,
+   56
+  ],
+  "reference_load_n": 1000.0
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "designs solved",
+   "value": 256.0,
+   "unit": "",
+   "how": "campaign manifest, one CalculiX job per design"
+  },
+  {
+   "name": "campaign wall time",
+   "value": 318.0,
+   "unit": "s",
+   "how": "campaign manifest, six jobs at a time on a 10-core laptop"
+  },
+  {
+   "name": "relative L2 displacement, p90",
+   "value": 0.4615817165395756,
+   "unit": "",
+   "how": "predicted vs CalculiX on the held-out designs, on the part's grid cells"
+  },
+  {
+   "name": "relative L2 von Mises, p90",
+   "value": 0.3846964051450073,
+   "unit": "",
+   "how": "predicted vs CalculiX on the held-out designs, on the part's grid cells"
+  },
+  {
+   "name": "relative peak von Mises, p90",
+   "value": 0.3537739690802066,
+   "unit": "",
+   "how": "99.5th percentile of von Mises over the part, predicted vs CalculiX, held-out designs"
+  },
+  {
+   "name": "clamped face displacement",
+   "value": 0.3362947657215407,
+   "unit": "",
+   "how": "largest predicted displacement on the bolted face over the largest displacement of the design"
+  },
+  {
+   "name": "training steps",
+   "value": 2000.0,
+   "unit": "",
+   "how": "ComputeBudget steps summed over the initial run and its continuation chunks"
+  },
+  {
+   "name": "mounting plate diameter",
+   "value": 271.9,
+   "unit": "mm",
+   "how": "measured on Props/Mounts/ur10_mount.usd by usd_asset.mount_interface"
+  }
+ ],
+ "checks": [
+  {
+   "name": "no check failed on the held-out designs",
+   "passed": false
+  },
+  {
+   "name": "field trust card (REJECT, tier None)",
+   "passed": false
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [
+  "USD: NVIDIA Isaac Sim asset Props/Mounts/ur10_mount.usd (omniverse-content-production)",
+  "CalculiX User's Manual, G. Dhondt",
+  "Li et al., Fourier Neural Operator for parametric PDEs"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "scenes": "/Users/yanbarros/Documents/GitHub/pinneapple-runs/usd_pedestal/viz",
+  "campaign": "/Users/yanbarros/Documents/GitHub/pinneapple-runs/usd_pedestal/campaign",
+  "surrogate": "/Users/yanbarros/Documents/GitHub/pinneapple-runs/usd_pedestal/surrogate"
+ }
+}

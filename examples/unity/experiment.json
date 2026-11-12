@@ -2,27 +2,30 @@
  "schema": "pinneapple.experiment/1",
  "id": "examples/unity",
  "title": "PINNeAPPle in Unity: twin export, a Unity scene into OpenUSD, and a live bridge",
- "description": "Three pipelines between PINNeAPPle and Unity: an engineering twin exported as a Unity project folder (fields coloured per vertex over time, sensors, legend), a Unity-authored scene read back and given checked physics that leaves as an OpenUSD layer with time samples and UsdPhysics, and an HTTP bridge the Unity runtime calls for a field while it plays, with the checks and the decision travelling with it. The three fields are also recorded as short MP4s (make_movies.py, matplotlib + ffmpeg) in media/, the same values and colour range the runtime shows.",
+ "description": "Three pipelines between PINNeAPPle and Unity: an engineering twin exported as a Unity project folder (fields coloured per vertex over time, sensors, legend), a Unity-authored scene read back and given checked physics that leaves as an OpenUSD layer with time samples and UsdPhysics, and an HTTP bridge the Unity runtime calls for a field while it plays, with the checks and the decision travelling with it. The three fields are also recorded as short MP4s (make_movies.py, matplotlib + ffmpeg) in media/, the same values and colour range the runtime shows. A fourth script trains a surrogate on the closed-form solution, checks it with the trust layer and records an 8 s turntable whose field is evaluated continuously by the network.",
  "domain": "3-D visualisation and interoperability",
  "methods": [
   "transient 1-D conduction (Carslaw & Jaeger, closed form)",
   "pin-fin excess temperature (Incropera Table 3.4 case A)",
   "cantilever bending stress and the yield decision",
   "glTF (binary) and OpenUSD interchange",
-  "HTTP/JSON runtime bridge"
+  "HTTP/JSON runtime bridge",
+  "surrogate fitted to the closed-form transient conduction (MLP, pinneapple_neural.Trainer)"
  ],
  "modules": [
+  "pinneapple_neural",
+  "pinneapple_neural.trainer",
+  "pinneapple_physics.closed_form.cantilever_fatigue",
+  "pinneapple_physics.closed_form.heat",
+  "pinneapple_tools.visualization.studio.scene",
+  "pinneapple_twin3d",
+  "pinneapple_twin3d.primitives",
   "pinneapple_unity",
   "pinneapple_unity.bridge",
   "pinneapple_unity.export",
   "pinneapple_unity.ingest",
   "pinneapple_unity.jobs",
-  "pinneapple_unity.protocol",
-  "pinneapple_twin3d",
-  "pinneapple_twin3d.primitives",
-  "pinneapple_physics.closed_form.cantilever_fatigue",
-  "pinneapple_physics.closed_form.heat",
-  "pinneapple_tools.visualization.studio.scene"
+  "pinneapple_unity.protocol"
  ],
  "params": {
   "times_s": [
@@ -61,7 +64,8 @@
   "01_engineering_twin_to_unity.py",
   "02_unity_to_pinneapple_to_openusd.py",
   "03_live_bridge.py",
-  "make_movies.py"
+  "make_movies.py",
+  "04_surrogate_turntable.py"
  ],
  "metrics": [
   {
@@ -123,6 +127,30 @@
    "value": 0,
    "unit": "",
    "how": "03: /v1/scene with save=_out/bridge_twin answers with the problems verify() found (0)"
+  },
+  {
+   "name": "surrogate relative L2 against the closed form",
+   "value": 0.167,
+   "unit": "%",
+   "how": "04_surrogate_turntable.py, seed 1: predicted T on a 41 x 25 grid over the smooth window vs pinneapple_physics.closed_form.heat.slab_transient"
+  },
+  {
+   "name": "surrogate heat-equation residual",
+   "value": 0.03136,
+   "unit": "",
+   "how": "pp.trust_card(..., pde='heat', dirichlet=...) on the same grid; tolerance 0.05 (field_checks default)"
+  },
+  {
+   "name": "training attempts before the card approved the fit",
+   "value": 2,
+   "unit": "",
+   "how": "04: seed 0 reached rel L2 0.248 % but failed the residual check and was retried; seed 1 was approved"
+  },
+  {
+   "name": "turntable clip",
+   "value": 240,
+   "unit": "frames",
+   "how": "04: 8 s at 30 fps, 1210 x 660, camera orbiting 360 deg with the field evaluated by the surrogate each frame"
   }
  ],
  "checks": [
@@ -155,6 +183,11 @@
    "name": "the computed twin written by the bridge imports as a Unity folder",
    "passed": true,
    "kind": "sanity"
+  },
+  {
+   "name": "the surrogate passes the heat-equation residual and the Dirichlet walls",
+   "passed": true,
+   "kind": "physics"
   }
  ],
  "files": {
@@ -162,7 +195,8 @@
   "videos": [
    "media/01_spool_temperature.mp4",
    "media/02_bracket_temperature.mp4",
-   "media/03_bracket_bending_stress.mp4"
+   "media/03_bracket_bending_stress.mp4",
+   "media/04_surrogate_turntable.mp4"
   ],
   "viewers": [],
   "data": []

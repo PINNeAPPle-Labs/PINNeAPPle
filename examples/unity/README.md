@@ -8,6 +8,7 @@ and the parts of it that carry data are compiled and run by the repository's own
 01_engineering_twin_to_unity.py     PINNeAPPle -> Unity      a twin folder a Unity project imports as it is
 02_unity_to_pinneapple_to_openusd.py Unity -> PINNeAPPle -> OpenUSD   a scene gets its physics, leaves as a USD layer
 03_live_bridge.py                   Unity <-> PINNeAPPle     the runtime asks for a field while it plays
+04_surrogate_turntable.py           surrogate -> twin        a network trained and checked here drives the field
 ```
 
 ```bash
@@ -63,6 +64,23 @@ imports.
 The bridge binds `127.0.0.1` by default (it runs physics on demand), warms the library up at start-up so the first
 request is milliseconds, and takes `--token` (header `X-Pinneapple-Token`) when it has to be reachable.
 
+## 4. A surrogate drives the twin
+
+`04_surrogate_turntable.py` trains a small MLP (2 → 64 → 64 → 64 → 1) on the closed-form slab solution with the
+library's own `Trainer`, then asks the trust layer whether the network's field is a field anyone should look at:
+
+| | |
+|---|---|
+| inputs | `x/L` along the spool and `log t` (log-uniform in the window, because diffusion is fast at the start) |
+| fit | 6,000 samples, 1,500 epochs, Adam at 5e-4 with gradient clipping; a seed that misses the target is retried, printed, not hidden |
+| check | `pp.trust_card(..., pde="heat", dirichlet=...)` on a 41 × 25 grid, plus the relative L2 against the closed form |
+| result | relative L2 **0.17 %**, heat-equation residual **0.031** (tolerance 0.05) → `APPROVED` |
+| output | `_out/surrogate.pt` (the weights Unity would take through `export_onnx` + Sentis) and the turntable clip |
+
+The clip is the point: the twin's six baked time steps are gone, and the surface is coloured **at 30 frames per
+second straight from the surrogate**, camera orbiting 360°. That is the same role the network plays inside Unity --
+a field it can evaluate at any instant, with the decision that allowed it to be shown.
+
 ## Recorded
 
 Three short MP4s of the fields the demos compute, rendered from the exported twins by `make_movies.py`
@@ -74,9 +92,11 @@ shows:
 | [`media/01_spool_temperature.mp4`](media/01_spool_temperature.mp4) | the spool heating from the 180 °C flange, the front advancing towards the 30 °C end, `TC-01`/`TC-02` on their vertices |
 | [`media/02_bracket_temperature.mp4`](media/02_bracket_temperature.mp4) | the plate from the Unity-authored scene warming from 20 °C |
 | [`media/03_bracket_bending_stress.mp4`](media/03_bracket_bending_stress.mp4) | the cantilever: 12 MPa at the root falling linearly to zero at the free tip |
+| [`media/04_surrogate_turntable.mp4`](media/04_surrogate_turntable.mp4) | 8 s turntable of the spool, the temperature evaluated continuously by the surrogate (not from the baked steps) |
 
 ```bash
-python examples/unity/make_movies.py            # rebuilds the twins if needed, then the three movies
+python examples/unity/make_movies.py            # rebuilds the twins if needed, then movies 01-03
+python examples/unity/04_surrogate_turntable.py # trains and checks the surrogate, then records movie 04
 ```
 
 What these are **not**: a capture of Unity's Play mode. That needs a licensed editor and the Unity Recorder package

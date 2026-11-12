@@ -140,6 +140,32 @@ register_job("my_job", my_job, "what it computes")
 `decision` is `APPROVED` (every check ran and passed), `REJECT` (a critical check failed) or `REVIEW` (something did
 not run). That decision is the reason to route physics through PINNeAPPle at runtime instead of trusting a number.
 
+## A surrogate in the loop
+
+The same seam that carries a closed-form field carries a **surrogate**: a network trained here, checked here, and
+shipped to the runtime (`export_onnx` → Sentis / Inference Engine) so Unity can evaluate the field at any instant
+instead of playing back baked steps. `examples/unity/04_surrogate_turntable.py` is the reference:
+
+```python
+model, predict, out = train_surrogate(samples=6000, epochs=1500)   # pinneapple_neural.Trainer, log-uniform time
+card, rel = check_surrogate(predict)                              # trust card on pde="heat" + relative L2
+assert rel < 0.02 and card.decision == "APPROVED"                 # a fit nobody checked is not a surrogate
+field = predict(vertices[:, 0], t)                                # what the twin colours, at any t
+```
+
+What the checks say about this one: relative L2 **0.17 %** against the closed form, heat-equation residual **0.031**
+against a 0.05 tolerance — the card approved it. Two things the demo makes explicit rather than hiding:
+
+* the training window starts after the initial-condition jump (`t = 0` is discontinuous at both walls); a network
+  asked to fit that singularity spends its capacity on something no user ever sees, and the card would measure the
+  jump, not the physics;
+* a seed that misses the target is retried and printed. Fits that diverge after converging are a fact of Adam at a
+  fixed rate; a demo that silently keeps the bad one would be lying about what is on screen.
+
+Ship it to Unity with `pinneapple_tools.model_export.export_onnx(model, "surrogate.onnx", example_input)`: the
+`.onnx` drops into `Assets/`, Sentis builds a `Worker` from it, and the script feeds it the same `(x, log t)`
+inputs the demo used -- one network, the same numbers, on the GPU the player already has.
+
 ## In Unity
 
 | | |

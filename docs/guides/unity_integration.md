@@ -270,6 +270,12 @@ and with `com.unity.usd-toolkit#v0.8.1-exp.1` in `Packages/manifest.json`:
 # PINNeAPPle USD: scene.usda -- 4 mesh(es), 4288 triangle(s), up axis Z
 ```
 
+One runtime bug the editor exposed, which no amount of reading would have caught: the view picked the field shader
+by looking for the URP one first, and a Built-in project that has the URP shader *file* imported then draws **nothing**
+(a URP shader has no pass the Built-in pipeline can run, and the console stays clean). It now asks
+`GraphicsSettings.currentRenderPipeline` and picks the matching shader, verified headless: `material=PINNeAPPle/Field`
+in a Built-in project.
+
 Three things the real compiler settled, which the documentation alone would have got wrong:
 
 * `UsdImportOptions.VariantSelections` is a `List<UsdVariantSelection>` (`primPath, variantSet, variant`), not a

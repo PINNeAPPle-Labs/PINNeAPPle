@@ -159,13 +159,26 @@ namespace PinNeAPPle.Unity
             Debug.Log($"PINNeAPPle twin: camera framed at {distance:G3} m from {bounds.center}", this);
         }
 
+        /// <summary>The field shader that matches the active render pipeline.
+        ///
+        /// Picking "whichever exists" is wrong: a project with the URP shader imported but the Built-in pipeline
+        /// active silently draws nothing (a URP shader has no pass the Built-in pipeline can run, and the console
+        /// stays clean). Ask the pipeline, not the project's file list.
+        /// </summary>
         static Shader FieldShader()
         {
-            Shader s = Shader.Find("PINNeAPPle/Field URP");
-            if (s == null) s = Shader.Find("PINNeAPPle/Field");
+            RenderPipelineAsset pipeline = GraphicsSettings.currentRenderPipeline;
+            bool urp = pipeline != null && pipeline.GetType().Name.ToLowerInvariant().Contains("universal");
+            if (pipeline != null && !urp)
+                Debug.LogWarning("PINNeAPPle: this project runs " + pipeline.GetType().Name +
+                                 " (only URP and Built-in are supported) -- the parts are drawn with a plain unlit " +
+                                 "colour, without the field");
+            string wanted = urp ? "PINNeAPPle/Field URP" : "PINNeAPPle/Field";
+            Shader s = Shader.Find(wanted);
             if (s == null)
-                Debug.LogWarning("PINNeAPPle: the field shaders are missing (PINNeAPPle/Field URP, PINNeAPPle/Field) -- " +
-                                 "the parts are drawn with a plain unlit colour, without the field");
+                Debug.LogWarning("PINNeAPPle: '" + wanted + "' is missing for this project (" +
+                                 (urp ? "URP" : "Built-in") + ") -- the parts are drawn with a plain unlit colour, " +
+                                 "without the field");
             return s;
         }
 

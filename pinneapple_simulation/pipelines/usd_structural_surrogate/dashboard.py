@@ -39,10 +39,10 @@ __all__ = ["Predictor", "serve", "main"]
 
 YIELD_STEEL_PA = 250e6
 # every design variable is a length the sliders show in millimetres and the model works in metres
-SLIDER = {"t": ("espessura da base", "mm", 1e3, 1),
-          "dc": ("diâmetro da coluna", "mm", 1e3, 1),
-          "r": ("raio do gume", "mm", 1e3, 1),
-          "h": ("altura da carga", "mm", 1e3, 0)}
+SLIDER = {"t": ("plate thickness", "mm", 1e3, 1),
+          "dc": ("column diameter", "mm", 1e3, 1),
+          "r": ("flare radius", "mm", 1e3, 1),
+          "h": ("load height", "mm", 1e3, 0)}
 
 
 class Predictor:
@@ -263,23 +263,23 @@ button:hover{background:#223040}button:disabled{opacity:.45;cursor:default}
 .legend{height:8px;border-radius:4px;margin-top:5px;
 background:linear-gradient(90deg,#2c5fb8,#20b2aa,#8fd14f,#ffd93d,#ff8b3d,#d7263d)}
 .ok{color:var(--acc)}.no{color:var(--bad)}
-</style></head><body><div id="app"><div id="view"><div id="bar">arraste para girar · roda para zoom</div></div>
+</style></head><body><div id="app"><div id="view"><div id="bar">drag to orbit · scroll to zoom</div></div>
 <div id="panel">
-<h1>UR10 pedestal · surrogate estrutural</h1>
-<div class="sub">geometria do asset OpenUSD da NVIDIA · CalculiX · FNO (PhysicsNeMo)</div>
+<h1>UR10 pedestal · structural surrogate</h1>
+<div class="sub">geometry from NVIDIA's OpenUSD asset · CalculiX · FNO (PhysicsNeMo)</div>
 <div id="sliders"></div>
-<label>carga <b><span id="vload">1000</span> N</b></label>
+<label>load <b><span id="vload">1000</span> N</b></label>
 <input id="load" type="range" min="200" max="2000" step="50" value="1000">
 <div class="grid">
-<div class="stat"><span>σ<sub>vm</sub> pico</span><b id="svm">–</b></div>
-<div class="stat"><span>deslocam. topo</span><b id="stip">–</b></div>
-<div class="stat"><span>massa</span><b id="smass">–</b></div>
-<div class="stat"><span>utilização (σ/σy)</span><b id="sutil">–</b></div>
+<div class="stat"><span>σ<sub>vm</sub> peak</span><b id="svm">–</b></div>
+<div class="stat"><span>tip deflection</span><b id="stip">–</b></div>
+<div class="stat"><span>mass</span><b id="smass">–</b></div>
+<div class="stat"><span>utilisation (σ/σy)</span><b id="sutil">–</b></div>
 </div>
 <div class="legend"></div>
-<button id="bopt">otimizar (mais leve sob σ ≤ 0.6 σy)</button>
-<button id="bsolve">resolver com ccx de verdade</button>
-<button id="brefine" disabled>refinar o modelo com este caso</button>
+<button id="bopt">optimise (lightest under σ ≤ 0.6 σy)</button>
+<button id="bsolve">solve with the real ccx</button>
+<button id="brefine" disabled>refine the model on this case</button>
 <div id="log"></div>
 </div></div>
 <script type="importmap">{"imports":{"three":"https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"}}</script>
@@ -373,34 +373,34 @@ async function boot(){
   const r=await fetch('/api/spec'); const spec=await r.json(); buildSliders(spec); resize(); loop();
   await fetchPredict();
   document.getElementById('bopt').onclick=async()=>{
-    log('otimizando no surrogate…'); const r=await fetch('/api/optimize?'+slidersQuery());
+    log('optimising on the surrogate…'); const r=await fetch('/api/optimize?'+slidersQuery());
     const o=await r.json();
     for(const s of SPEC.variables){ const el=document.getElementById('sl_'+s.name);
       if(o.design[s.name]!==undefined){ const mm=o.design[s.name]*1000;   // the model answers in metres
         el.value=mm; document.getElementById('v_'+s.name).textContent=mm.toFixed(s.decimals);} }
-    await fetchPredict(); log('proposta: massa '+o.mass.toFixed(2)+' kg, utilização '+
-      (100*o.util).toFixed(0)+'%  ('+o.steps+' passos no surrogate)'); };
+    await fetchPredict(); log('proposal: mass '+o.mass.toFixed(2)+' kg, utilisation '+
+      (100*o.util).toFixed(0)+'%  ('+o.steps+' steps on the surrogate)'); };
   document.getElementById('bsolve').onclick=async()=>{
-    log('rodando ccx…'); const b=document.getElementById('bsolve'); b.disabled=true;
+    log('running ccx…'); const b=document.getElementById('bsolve'); b.disabled=true;
     try{ const r=await fetch('/api/solve?'+slidersQuery()); const o=await r.json();
       if(o.error){ log('ccx: '+o.error); } else {
         lastReal=o; const p=lastPayload;
         const dp=100*(Math.abs(p.stats.peak_vm_pa-o.peak_vm_pa)/o.peak_vm_pa);
         const du=100*(Math.abs(p.stats.tip_mm-o.tip_mm)/Math.max(o.tip_mm,1e-9));
-        log('ccx: σ='+o.peak_vm_mpa.toFixed(1)+' MPa, topo='+o.tip_mm.toFixed(3)+' mm, '+
-            o.n_nodes+' nós\nsurrogate: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa (diferença '+dp.toFixed(1)+
-            '%), topo='+p.stats.tip_mm.toFixed(3)+' mm ('+du.toFixed(1)+'%)');
+        log('ccx: σ='+o.peak_vm_mpa.toFixed(1)+' MPa, tip='+o.tip_mm.toFixed(3)+' mm, '+o.n_nodes+' nodes\n'+
+            'surrogate: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa ('+dp.toFixed(1)+'% off), tip='+
+            p.stats.tip_mm.toFixed(3)+' mm ('+du.toFixed(1)+'%)');
         document.getElementById('brefine').disabled=false; } }
     finally{ b.disabled=false; } };
   document.getElementById('brefine').onclick=async()=>{
-    log('ajustando o modelo com o caso resolvido…'); const b=document.getElementById('brefine'); b.disabled=true;
+    log('fine-tuning the model on the solved case…'); const b=document.getElementById('brefine'); b.disabled=true;
     try{ const r=await fetch('/api/refine?'+slidersQuery()); const o=await r.json();
-      if(o.error){ log('refino: '+o.error); } else {
+      if(o.error){ log('refine: '+o.error); } else {
         await fetchPredict();
         const p=lastPayload, rr=o.solved;
         const dp=100*(Math.abs(p.stats.peak_vm_pa-rr.peak_vm_pa)/rr.peak_vm_pa);
-        log('refinado em '+o.steps+' passos (loss '+o.first_loss.toExponential(1)+' → '+
-            o.last_loss.toExponential(1)+')\nagora: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa vs ccx '+
+        log('refined in '+o.steps+' steps (loss '+o.first_loss.toExponential(1)+' → '+
+            o.last_loss.toExponential(1)+')\nnow: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa vs ccx '+
             rr.peak_vm_mpa.toFixed(1)+' MPa ('+dp.toFixed(1)+'%)'); } }
     finally{ b.disabled=false; } };
 }
@@ -451,8 +451,8 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _spec(self) -> dict[str, Any]:
         space = self.predictor.s.space
-        labels = {"t": ("espessura da base", "mm", 1e3, 1), "dc": ("diâmetro da coluna", "mm", 1e3, 1),
-                  "r": ("raio do gume", "mm", 1e3, 1), "h": ("altura da carga", "mm", 1e3, 0)}
+        labels = {"t": ("plate thickness", "mm", 1e3, 1), "dc": ("column diameter", "mm", 1e3, 1),
+                  "r": ("flare radius", "mm", 1e3, 1), "h": ("load height", "mm", 1e3, 0)}
         nominal = space.denormalized([0.5] * len(space.bounds))
         variables = []
         for k, (a, b) in space.bounds.items():

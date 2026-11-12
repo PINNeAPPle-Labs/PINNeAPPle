@@ -316,7 +316,7 @@ def build_studio(cfg):
     bpy.ops.mesh.primitive_plane_add(size=30 * radius, location=(center[0], center[1], z_floor))
     floor = bpy.context.object
     floor.name = "floor"
-    floor.data.materials.append(_mat("floor", base=(0.010, 0.013, 0.021), rough=0.16, metallic=0.35))
+    floor.data.materials.append(_mat("floor", base=(0.010, 0.013, 0.021), rough=0.26, metallic=0.30))
     # two strip lights overhead, the long white lines of the reference, angled across the body so they reflect
     light = cfg["style"].get("light", {})
     strip_gain = float(light.get("strip", 45.0))

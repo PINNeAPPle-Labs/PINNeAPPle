@@ -1,0 +1,77 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/cinematic_flow",
+ "title": "Cinematic flow films: a real 3-D wake, lit",
+ "description": "A 3-D lattice Boltzmann solve of a body, rendered as smoke. The pipeline is three separable steps — solve (WindTunnelLBM, D3Q19 with Smagorinsky LES, snapshots of speed and the Q-criterion written to disk), render (Blender EEVEE with the field written as an OpenVDB density grid) and assemble (ffmpeg, plus a caption drawn outside the camera) — so the look can be retuned against the same solve. Three cases ship: the parametric RoadCar with a moving road, a NACA 2412 wing at 16 degrees, and a two-stage launcher. The volume is the simulated Q-criterion, not a texture. Every film writes ficha.json with the mesh, the lattice Reynolds number, the physical Reynolds number it stands for and the step count.",
+ "domain": "fluid dynamics",
+ "methods": [
+  "lattice Boltzmann",
+  "render (Blender)"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.lbm_tunnel",
+  "pinneapple_simulation.pipelines.cinematic_flow.cases",
+  "pinneapple_simulation.pipelines.cinematic_flow.film",
+  "pinneapple_simulation.pipelines.cinematic_flow.scene",
+  "pinneapple_simulation.pipelines.cinematic_flow.solve",
+  "pinneapple_design.geometry.vehicles3d",
+  "pinneapple_design.geometry.ops.lbm_bridge"
+ ],
+ "params": {},
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [],
+ "checks": [
+  {
+   "name": "Q-criterion: solid rotation u=(-y, x, 0)",
+   "passed": true,
+   "kind": "reference",
+   "detail": "Q normalised by the solid-rotation value, so the check is scale free",
+   "value": 1.0,
+   "reference": 1.0,
+   "rtol": 0.001
+  },
+  {
+   "name": "Q-criterion: pure shear u=(y, 0, 0)",
+   "passed": true,
+   "kind": "reference",
+   "detail": "vorticity magnitude is maximal here and Q must be exactly zero: this is why the film is built on Q",
+   "value": 0.0,
+   "reference": 0.0,
+   "rtol": 0.001
+  },
+  {
+   "name": "Q-criterion: pure strain u=(x, -y, 0)",
+   "passed": true,
+   "kind": "reference",
+   "detail": "Q normalised by the solid-rotation value, so the check is scale free",
+   "value": -1.0,
+   "reference": -1.0,
+   "rtol": 0.001
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [
+   "_out/carro/carro.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "_out/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/cinematic_flow.md",
+  "script": "examples/cinematic_flow/run.py",
+  "pr": []
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "d8865202"
+ }
+}

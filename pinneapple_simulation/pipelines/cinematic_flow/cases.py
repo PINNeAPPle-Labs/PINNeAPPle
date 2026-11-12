@@ -129,7 +129,7 @@ def build(name: str) -> Case:
             if mat in ("car_paint", "car_trim"):
                 continue
             if mat in ("car_glass", "headlight", "taillight"):
-                v = centre + (np.asarray(part.vertices, float) - centre) * 1.003
+                v = centre + (np.asarray(part.vertices, float) - centre) * 1.004
                 visual[part.name] = (v, np.asarray(part.faces, int))
                 kinds[part.name] = {"car_glass": "glass", "headlight": "lamp", "taillight": "tail"}[mat]
             elif mat in ("tyre", "rim"):

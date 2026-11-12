@@ -19,9 +19,11 @@ __all__ = ["make_film", "render_still"]
 
 # per-case camera: azimuth in degrees around the body, starting and ending, elevation, distance in radii
 CAMERA = {
-    "carro": dict(az0=-62.0, az1=-30.0, elev0=9.0, elev1=14.0, dist0=2.50, dist1=2.20, lens=42.0, fstop=5.0),
-    "asa": dict(az0=-42.0, az1=18.0, elev0=15.0, elev1=11.0, dist0=3.1, dist1=2.7, lens=48.0, fstop=2.4),
-    "foguete": dict(az0=-50.0, az1=-12.0, elev0=10.0, elev1=15.0, dist0=3.2, dist1=2.8, lens=46.0, fstop=2.4),
+    "carro": dict(az0=-60.0, az1=-34.0, elev0=9.0, elev1=13.0, dist0=2.95, dist1=2.75, lens=40.0, fstop=5.0),
+    # the wing is a chord along x and a span along y, so a camera on the -y side looks straight down the span and
+    # sees a tip; the shot is from ahead and to the side, where the suction surface and the tip vortex are
+    "asa": dict(az0=-152.0, az1=-118.0, elev0=17.0, elev1=12.0, dist0=3.40, dist1=3.00, lens=50.0, fstop=4.5),
+    "foguete": dict(az0=-58.0, az1=-26.0, elev0=8.0, elev1=13.0, dist0=2.90, dist1=2.60, lens=48.0, fstop=5.0),
 }
 
 # "that look": a deep navy body, a blue-white smoke, and a dark studio with two strip lights

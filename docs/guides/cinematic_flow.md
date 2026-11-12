@@ -16,7 +16,10 @@ Each film is six seconds at 24 fps and 1920×1080, and each ships with its recor
 (`docs/assets/cinematic/<caso>.json`): the mesh, the lattice Reynolds number reached, the physical Reynolds
 number the film stands for and the step count. The volume in every frame is the simulated field of that solve.
 
-![RoadCar in the wind tunnel](../assets/cinematic/carro.png)
+| | |
+|---|---|
+| [![RoadCar](../assets/cinematic/carro.png)](../assets/cinematic/carro.mp4) | [![NACA 2412](../assets/cinematic/asa.png)](../assets/cinematic/asa.mp4) |
+| [![Launcher](../assets/cinematic/foguete.png)](../assets/cinematic/foguete.mp4) | |
 
 ## The three steps
 

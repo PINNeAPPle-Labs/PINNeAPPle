@@ -22,8 +22,8 @@ comparação entre duas equipes.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Mapping, Sequence
 
 import numpy as np
 
@@ -88,6 +88,57 @@ def pico(k: np.ndarray, t, dabs, janela_t: tuple[float, float] | None = None):
         raise ValueError(f"perfil com {prof.size} pontos e {dabs.size} distâncias")
     i = int(np.argmax(prof))
     return float(prof[i]), float(dabs[i]), i
+
+
+def plato(k: np.ndarray, t, dabs, janela_t: tuple[float, float] | None = None, fracao: float = 0.85) -> dict:
+    """O quanto "a posição do pico" vale: a faixa em torno do máximo que fica dentro de ``fracao`` dele.
+
+    Devolve ``{"pico": {"k", "s", "i"}, "s_ini", "s_fim", "largura", "margem", "segundo", "passo"}``:
+
+    - ``s_ini``/``s_fim``/``largura``: a faixa contígua em torno do máximo com perfil ≥ ``fracao`` × máximo;
+    - ``margem``: quanto o segundo maior valor fica abaixo do maior, em fração (0,004 = 0,4 %);
+    - ``segundo``: ``(k, s)`` do segundo ponto mais alto da linha;
+    - ``passo``: o passo de amostragem da linha (m), que é a resolução da própria métrica.
+
+    Serve para não comparar posições de pico ao milímetro entre estudos: quando a margem é menor que o ruído do
+    campo, um passo de amostragem move o argmax, e a posição deixa de ser um número com significado.
+    """
+    dabs = np.asarray(dabs, dtype=float)
+    prof = perfil_medio(k, t, janela_t)
+    if prof.size != dabs.size:
+        raise ValueError(f"perfil com {prof.size} pontos e {dabs.size} distâncias")
+    i = int(np.argmax(prof))
+    ordem = np.argsort(prof)[::-1]
+    seg = int(ordem[1]) if ordem.size > 1 else i
+    lim = fracao * prof[i]
+    lo = hi = i
+    while lo - 1 >= 0 and prof[lo - 1] >= lim:
+        lo -= 1
+    while hi + 1 < prof.size and prof[hi + 1] >= lim:
+        hi += 1
+    passo = float(np.median(np.diff(dabs))) if dabs.size > 1 else 0.0
+    return {"pico": {"k": float(prof[i]), "s": float(dabs[i]), "i": i},
+            "s_ini": float(dabs[lo]), "s_fim": float(dabs[hi]), "largura": float(dabs[hi] - dabs[lo]),
+            "margem": float(1.0 - prof[seg] / prof[i]) if prof[i] else None,
+            "segundo": (float(prof[seg]), float(dabs[seg])), "passo": passo}
+
+
+def joelho(k: np.ndarray, t, dabs, s_ref: float, fator: float = 2.0,
+           janela_t: tuple[float, float] | None = None) -> float | None:
+    """Onde o perfil médio cruza ``fator`` × o valor em ``s_ref`` (m).
+
+    Num caso de jato entrando num banho, o perfil de k sobe em degrau quando o jato toca a superfície; o ponto em que
+    ele dobra em relação ao nível de montante marca esse toque com mais fidelidade do que a geometria, porque inclui o
+    freio do ar. Devolve ``None`` se o perfil não cruza.
+    """
+    dabs = np.asarray(dabs, dtype=float)
+    prof = perfil_medio(k, t, janela_t)
+    i0 = int(np.argmin(np.abs(dabs - s_ref)))
+    alvo = fator * prof[i0]
+    for i in range(i0, prof.size - 1):
+        if prof[i] < alvo <= prof[i + 1]:
+            return float(dabs[i] + (dabs[i + 1] - dabs[i]) * (alvo - prof[i]) / (prof[i + 1] - prof[i]))
+    return None
 
 
 def media_faixa(k: np.ndarray, t, dabs, s0: float, s1: float,

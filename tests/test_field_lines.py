@@ -2,8 +2,18 @@
 import numpy as np
 import pytest
 
-from pinneapple_simulation.pipelines.field_lines import (Linha, comparar_picos, desvio_mediano_passos, janela,
-                                                        media_faixa, perfil_medio, pico, picos_por_linha)
+from pinneapple_simulation.pipelines.field_lines import (
+    Linha,
+    comparar_picos,
+    desvio_mediano_passos,
+    janela,
+    joelho,
+    media_faixa,
+    perfil_medio,
+    pico,
+    picos_por_linha,
+    plato,
+)
 
 
 def _serie(pico_em=20, valor=0.8, base=0.1, n_t=300, n_p=101, t_ini_pico=20.0):
@@ -60,3 +70,43 @@ def test_comparacao_com_referencia_e_passos():
     assert c[0]["razao_k"] == pytest.approx(0.8 / 0.7)
     assert desvio_mediano_passos(c) == pytest.approx(2.0)
     assert comparar_picos({}, ref, passo=0.22734)[0]["passos"] is None   # linha ausente não inventa número
+
+
+def _perfil(alturas, n_t=30):
+    """Série com o perfil espacial dado, constante no tempo (para testar forma do perfil, não transiente)."""
+    k = np.tile(np.asarray(alturas, float), (n_t, 1))
+    return k, np.arange(1, n_t + 1) * 1.0
+
+
+def test_plato_mede_a_faixa_e_a_margem():
+    """Dois pontos quase empatados no topo: a margem é pequena e a faixa cobre os dois."""
+    s = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+    k, t = _perfil([0.1, 0.2, 0.9, 0.902, 0.5, 0.2])
+    r = plato(k, t, s, fracao=0.85)
+    assert r["pico"]["s"] == pytest.approx(3.0)
+    assert r["margem"] == pytest.approx(1 - 0.9 / 0.902, rel=1e-6)      # 0,2 % de margem
+    assert r["s_ini"] == pytest.approx(2.0) and r["s_fim"] == pytest.approx(3.0)
+    assert r["largura"] == pytest.approx(1.0)
+    assert r["passo"] == pytest.approx(1.0)
+
+
+def test_plato_de_perfil_estreito_tem_largura_de_um_ponto():
+    s = np.arange(6, dtype=float)
+    k, t = _perfil([0.1, 0.1, 0.1, 5.0, 0.1, 0.1])
+    r = plato(k, t, s, fracao=0.85)
+    assert r["largura"] == pytest.approx(0.0)
+    assert r["margem"] == pytest.approx(1 - 0.1 / 5.0)
+
+
+def test_joelho_acha_o_degrau_do_perfil():
+    """Perfil que sobe em degrau: o joelho é onde k alcança o dobro do nível de montante (s_ref = 1 m)."""
+    s = np.arange(0.0, 8.1, 1.0)
+    k, t = _perfil([0.10, 0.10, 0.10, 0.20, 0.40, 0.60, 0.30, 0.20, 0.10])
+    r = joelho(k, t, s, s_ref=1.0, fator=2.0)
+    assert r == pytest.approx(3.0, abs=0.05)         # 0,20 é o dobro de 0,10, e o perfil o alcança em s = 3 m
+
+
+def test_joelho_sem_cruzamento_devolve_none():
+    s = np.arange(0.0, 5.0, 1.0)
+    k, t = _perfil([1.0, 0.9, 0.8, 0.7, 0.6])        # perfil decrescente: nunca dobra
+    assert joelho(k, t, s, s_ref=0.0, fator=2.0) is None

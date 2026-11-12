@@ -20,9 +20,10 @@ __all__ = ["make_film", "render_still"]
 # per-case camera: azimuth in degrees around the body, starting and ending, elevation, distance in radii
 CAMERA = {
     "carro": dict(az0=-60.0, az1=-34.0, elev0=9.0, elev1=13.0, dist0=2.95, dist1=2.75, lens=40.0, fstop=5.0),
-    # the wing is a chord along x and a span along y, so a camera on the -y side looks straight down the span and
-    # sees a tip; the shot is from ahead and to the side, where the suction surface and the tip vortex are
-    "asa": dict(az0=-152.0, az1=-118.0, elev0=17.0, elev1=12.0, dist0=3.40, dist1=3.00, lens=50.0, fstop=4.5),
+    # the wing is a chord along x and a span along y. A camera on the -y side looks down the span and sees a tip;
+    # one on the +x side looks along the chord. Slightly downstream of broadside is the shot that keeps the span
+    # across the frame and brings the wake toward the lens.
+    "asa": dict(az0=-56.0, az1=-38.0, elev0=30.0, elev1=24.0, dist0=3.60, dist1=3.30, lens=48.0, fstop=4.5),
     "foguete": dict(az0=-58.0, az1=-26.0, elev0=8.0, elev1=13.0, dist0=2.90, dist1=2.60, lens=48.0, fstop=5.0),
 }
 
@@ -126,6 +127,16 @@ def _caption_png(text: str, sub: str, path: str, size: tuple[int, int]) -> str |
     return path
 
 
+def _sci(v: float, digits: int = 1) -> str:
+    """``9,2×10⁶`` — the caption is read, not parsed, so it gets a number a reader formats."""
+    if v <= 0:
+        return "0"
+    e = int(np.floor(np.log10(abs(v))))
+    m = v / 10.0 ** e
+    sup = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
+    return f"{m:.{digits}f}×10{str(e).translate(sup)}".replace(".", ",")
+
+
 def _assemble(frames_dir: str, out_mp4: str, fps: int, caption: str | None = None) -> str | None:
     ff = shutil.which("ffmpeg")
     if ff is None:
@@ -134,9 +145,12 @@ def _assemble(frames_dir: str, out_mp4: str, fps: int, caption: str | None = Non
             "-i", os.path.join(frames_dir, "frame_%04d.png")]
     tail = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-movflags", "+faststart", out_mp4]
     if caption and os.path.exists(caption):
-        cmd = base + ["-i", caption, "-filter_complex",
-                      "[1:v]format=rgba,fade=t=in:st=0.5:d=0.9:alpha=1[c];[0:v][c]overlay=0:0:format=auto,"
-                      "format=yuv420p"] + tail
+        # the overlay is a single image, so it has to be looped: fed once, it exists only at t=0, the fade holds
+        # it transparent there, and the caption never appears — the film renders and silently loses its text.
+        # Looped, it never ends on its own, so the overlay is told to end the output when the frames do.
+        cmd = base + ["-loop", "1", "-i", caption, "-filter_complex",
+                      "[1:v]format=rgba,fade=t=in:st=0.5:d=0.9:alpha=1[c];"
+                      "[0:v][c]overlay=0:0:format=auto:eof_action=endall,format=yuv420p"] + tail
     else:
         cmd = base + tail
     subprocess.run(cmd, capture_output=True, text=True, check=False)
@@ -179,16 +193,17 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
     }
     _run_blender(cfg)
     rep = meta["report"]
-    sub = (f"{rep['malha'][0]}×{rep['malha'][1]}×{rep['malha'][2]} células · "
-           f"Re {rep['re_fisico']:.1e} · Q-criterion · WindTunnelLBM")
-    cap = _caption_png(case.caption.split("—")[0].strip(), sub,
-                       os.path.join(out_dir, "legenda.png"), (res_x, res_y))
+    nx, ny, nz = rep["malha"]
+    sub = (f"{nx}×{ny}×{nz} células · Re {_sci(rep['re_fisico'])} · Q-criterion · WindTunnelLBM")
+    cap = _caption_png(case.caption, sub, os.path.join(out_dir, "legenda.png"), (res_x, res_y))
     mp4 = _assemble(os.path.join(out_dir, "frames"), os.path.join(out_dir, f"{case.name}.mp4"), fps, cap)
     ficha = {
         **meta["report"],
         "render": {"res": [res_x, res_y], "frames": frames, "fps": fps, "samples": samples,
                    "engine": "EEVEE", "segundos": frames / fps},
-        "video": mp4,
+        # the film's name relative to the folder that holds it, not an absolute path: the record travels with the
+        # film into a repository, and the machine it was rendered on is nobody's business
+        "video": os.path.basename(mp4) if mp4 else None,
         "fontes": {"campo": "WindTunnelLBM (D3Q19, Smagorinsky LES)",
                    "volume": "densidade = critério Q (rotação menos deformação)",
                    "motor": "Blender EEVEE + OpenVDB"},

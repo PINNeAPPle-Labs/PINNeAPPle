@@ -18,7 +18,7 @@ __all__ = ["Case", "CASES", "build", "wing_bodies"]
 CASES = {
     "carro": "RoadCar — fastback de rua, rodas abertas",
     "asa": "NACA 2412 a 16°, ponta de asa livre",
-    "foguete": "Lançador de duas etapas, quatro aletas em +",
+    "foguete": "Lançador de duas etapas, quatro aletas em cruz",
 }
 
 
@@ -85,7 +85,7 @@ def _loft(rings: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
 
 
 def wing_bodies(span: float = 3.0, chord: float = 1.0, aoa_deg: float = 16.0, taper: float = 0.55,
-                m: float = 0.04, t: float = 0.12, n: int = 72, stations: int = 9) -> dict:
+                m: float = 0.04, t: float = 0.12, n: int = 110, stations: int = 25) -> dict:
     """A straight tapered wing on a NACA 4-digit section, at incidence ``aoa_deg``, as one closed body.
 
     The section is the library's own :func:`pinneapple_design.geometry.vehicles3d.naca4`; the twist about the

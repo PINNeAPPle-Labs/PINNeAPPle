@@ -328,6 +328,9 @@ def build_studio(cfg):
         strip.scale = (3.4 * radius, 0.035 * radius, 1)
         strip.rotation_euler = (math.radians(ang), 0, math.radians(12))
         strip.data.materials.append(_emissive("strip", (1.0, 0.98, 0.95), strength))
+        # the strips exist to be reflected in the paint. Seen directly — and a low camera looking up at a wing
+        # sees them as a white bar across the frame — they are not a light, they are a mistake.
+        _set(strip, "visible_camera", False)
     # a soft box above and a key/rim pair, all scaled with the subject
     gain = float(light.get("area", 520.0)) * radius * radius
     for loc, energy, size, color in (
@@ -453,6 +456,7 @@ def main():
     bpy.context.scene.render.filepath = os.path.join(frames_dir, "frame_")
     bpy.ops.render.render(animation=True)
     print("FRAMES_DONE", frames_dir, flush=True)
+
 
 if __name__ == "__main__":
     main()

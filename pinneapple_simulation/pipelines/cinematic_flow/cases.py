@@ -41,6 +41,7 @@ class Case:
     visual: dict[str, tuple[np.ndarray, np.ndarray]] = field(default_factory=dict)
     visual_paint: dict[str, str] = field(default_factory=dict)
     field_label: str = "Q-criterion"                   # what the smoke shows, named on the frame
+    caption_en: str = ""                                 # the same description, for an English caption
 
     @property
     def render_parts(self) -> tuple[dict, dict]:
@@ -138,14 +139,16 @@ def build(name: str) -> Case:
                 kinds[part.name] = mat
         return Case("carro", dict(car.cfd_bodies()), ground=0.0,
                     paint={"body": "paint", "wheels": "tyre"},
-                    caption=CASES["carro"], visual=visual, visual_paint=kinds)
+                    caption=CASES["carro"], visual=visual, visual_paint=kinds,
+                    caption_en="RoadCar — road-going fastback, open wheels")
     if name == "asa":
         bodies = wing_bodies()
         # the box is measured on the span, which is three chords: the wing is thin, so ``overhead`` and
         # ``lateral`` are read against its own 0.29 m height and would leave the wake no room at all
         return Case("asa", bodies, ground=None, upstream=1.0, downstream=2.0, lateral=0.5, overhead=2.5,
                     paint={"wing": "paint"}, caption=CASES["asa"],
-                    field_label="Q + déficit de velocidade")
+                    field_label="Q + déficit de velocidade",
+                    caption_en="NACA 2412 at 16°, free wingtip")
     if name == "foguete":
         from pinneapple_design.geometry.vehicles3d import LaunchVehicle
 
@@ -154,5 +157,6 @@ def build(name: str) -> Case:
         # sides only need to clear the fin tips
         return Case("foguete", dict(r.cfd_bodies()), ground=None, upstream=0.8, downstream=2.0,
                     lateral=0.25, overhead=0.35, paint={"rocket": "paint", "fins": "paint"},
-                    caption=CASES["foguete"], field_label="Q + déficit de velocidade")
+                    caption=CASES["foguete"], field_label="Q + déficit de velocidade",
+                    caption_en="Two-stage launcher, four cruciform fins")
     raise KeyError(f"caso desconhecido: {name!r} (há {sorted(CASES)})")

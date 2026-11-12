@@ -15,7 +15,7 @@ import numpy as np
 from .cases import Case, build
 from .solve import plan_tunnel, run_tunnel
 
-__all__ = ["make_film", "render_still"]
+__all__ = ["make_film", "render_still", "caption_lines"]
 
 # per-case camera: azimuth in degrees around the body, starting and ending, elevation, distance in radii
 CAMERA = {
@@ -144,14 +144,28 @@ def _caption_png(text: str, sub: str, path: str, size: tuple[int, int]) -> str |
     return path
 
 
-def _sci(v: float, digits: int = 1) -> str:
+def _sci(v: float, digits: int = 1, sep: str = ",") -> str:
     """``9,2×10⁶`` — the caption is read, not parsed, so it gets a number a reader formats."""
     if v <= 0:
         return "0"
     e = int(np.floor(np.log10(abs(v))))
     m = v / 10.0 ** e
     sup = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
-    return f"{m:.{digits}f}×10{str(e).translate(sup)}".replace(".", ",")
+    return f"{m:.{digits}f}×10{str(e).translate(sup)}".replace(".", sep)
+
+
+def caption_lines(case: Case, rep: dict, lang: str = "pt") -> tuple[str, str]:
+    """The two lines drawn on the frame: what the body is, then the numbers the picture stands for."""
+    en = lang.startswith("en")
+    title = (case.caption_en or case.caption) if en else case.caption
+    nx, ny, nz = rep["malha"]
+    field = case.field_label if not en else {"Q-criterion": "Q-criterion",
+                                             "Q + déficit de velocidade": "Q + velocity deficit"}.get(
+        case.field_label, case.field_label)
+    cells = "cells" if en else "células"
+    sub = (f"{nx}×{ny}×{nz} {cells} · Re {_sci(rep['re_fisico'], sep='.' if en else ',')} · "
+           f"{field} · WindTunnelLBM")
+    return title, sub
 
 
 def _assemble(frames_dir: str, out_mp4: str, fps: int, caption: str | None = None) -> str | None:
@@ -177,7 +191,7 @@ def _assemble(frames_dir: str, out_mp4: str, fps: int, caption: str | None = Non
 def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int = 140, steps: int = 2400,
               snapshots: int = 10, stride: int = 1, device: str = "mps", frames: int = 144, fps: int = 24,
               res_x: int = 1920, res_y: int = 1080, samples: int = 32, camera: dict | None = None,
-              style: dict | None = None, force_solve: bool = False) -> dict:
+              style: dict | None = None, force_solve: bool = False, lang: str = "pt") -> dict:
     """Solve ``case`` if it is not solved yet, render it, and write the film plus its record."""
     case = build(case) if isinstance(case, str) else case
     os.makedirs(out_dir, exist_ok=True)
@@ -210,9 +224,8 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
     }
     _run_blender(cfg)
     rep = meta["report"]
-    nx, ny, nz = rep["malha"]
-    sub = (f"{nx}×{ny}×{nz} células · Re {_sci(rep['re_fisico'])} · {case.field_label} · WindTunnelLBM")
-    cap = _caption_png(case.caption, sub, os.path.join(out_dir, "legenda.png"), (res_x, res_y))
+    title, sub = caption_lines(case, rep, lang)
+    cap = _caption_png(title, sub, os.path.join(out_dir, f"legenda_{lang[:2]}.png"), (res_x, res_y))
     mp4 = _assemble(os.path.join(out_dir, "frames"), os.path.join(out_dir, f"{case.name}.mp4"), fps, cap)
     ficha = {
         **meta["report"],

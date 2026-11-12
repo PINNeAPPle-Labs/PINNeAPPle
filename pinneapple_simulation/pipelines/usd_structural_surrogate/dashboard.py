@@ -54,15 +54,18 @@ class Predictor:
         self.lock = threading.Lock()
 
     def design_from_query(self, q: dict[str, str]) -> dict[str, float]:
+        """The query's design in **metres**: the sliders carry millimetres, the model does not."""
         space = self.s.space
         names = list(space.bounds)
         if all(k in q for k in names):
-            return {k: float(q[k]) for k in names}
+            return {k: float(q[k]) / SLIDER.get(k, (0, "", 1.0, 0))[2] for k in names}
         u = [float(q.get(f"u{i}", 0.5)) for i in range(len(names))]
         return space.denormalized(u)
 
     def payload(self, design: dict[str, float], load_n: float = REFERENCE_LOAD_N, *,
-                scale: float = 60.0) -> dict[str, Any]:
+                scale: float | None = None) -> dict[str, Any]:
+        if not self.s.valid(design):
+            raise ValueError(f"design outside the trained envelope {sorted(self.s.space.bounds)}: {design}")
         V, F = revolve_surface(design, self.s.space.plate_diameter, self.n_theta)
         occ = self._occupancy(design, V)
         feats = self._features(occ)

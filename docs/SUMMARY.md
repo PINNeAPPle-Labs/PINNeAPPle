@@ -70,6 +70,7 @@
     * [Design studies: optimisers and verified candidates](guides/design_studies.md)
     * [Colab notebooks](guides/colab_notebooks.md)
     * [PINNeAPPle from coding agents (MCP server)](guides/mcp_server.md)
+    * [Cinematic flow films: a real wake, lit](guides/cinematic_flow.md)
     * [Agent Workbench: coding and engineering agents on a local model](guides/agent_workbench.md)
     * [Physics checks in CI](guides/physics_checks_in_ci.md)
     * [Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence](guides/engineering_gui_agent.md)

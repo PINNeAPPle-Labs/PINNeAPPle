@@ -14,6 +14,8 @@ markers that move with the frames). See ``docs/core_concepts/dashboard.md``.
 """
 from .field_frames import Table, cor_por_valor, frames_from_field
 from .spec import PALETTE_DARK, THEME, Chart, ColorBar, Dashboard, Marker, Param, Series, Tile
+from .surface3d import Cena3D, animacao_de_campos, contorno_de_step, gerar as gerar_animacao3d, quadros_de_campos
 
 __all__ = ["Dashboard", "Chart", "Series", "Marker", "Tile", "Param", "ColorBar", "PALETTE_DARK", "THEME",
-           "Table", "frames_from_field", "cor_por_valor"]
+           "Table", "frames_from_field", "cor_por_valor",
+           "Cena3D", "contorno_de_step", "quadros_de_campos", "gerar_animacao3d", "animacao_de_campos"]

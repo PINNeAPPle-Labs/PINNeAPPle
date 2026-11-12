@@ -137,8 +137,13 @@ namespace PinNeAPPle.Unity
             Camera cam = Camera.main;
             if (cam == null)
             {
-                Debug.Log("PINNeAPPle twin: no Main Camera to frame (the parts are there, just not in view)", this);
-                return;
+                // A scene without a camera shows "No cameras rendering" and the twin is invisible for no visible
+                // reason. Make one instead of asking the user to read the Game view's message.
+                var go = new GameObject("PINNeAPPle camera");
+                go.transform.SetParent(transform, false);
+                cam = go.AddComponent<Camera>();
+                go.tag = "MainCamera";
+                Debug.Log("PINNeAPPle twin: the scene had no Main Camera, added one over the twin", this);
             }
             var bounds = new Bounds();
             bool any = false;

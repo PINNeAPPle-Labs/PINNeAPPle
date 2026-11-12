@@ -1,7 +1,9 @@
 {
     "name": "PinNeAPPleTwin.Runtime",
     "rootNamespace": "PinNeAPPle",
-    "references": [],
+    "references": [
+        "Unity.USDToolkit"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -39,7 +39,6 @@ from __future__ import annotations
 
 __version__ = "1.0.0"          # of the pinneapple-unity protocol package
 
-from . import usd  # noqa: E402  (the native OpenUSD lane: stage_summary, validate, from_usd, write_manifest)
 from .bridge import Bridge, serve_bridge  # noqa: E402
 from .export import (  # noqa: E402
     UnityExport,
@@ -77,6 +76,17 @@ from .protocol import (  # noqa: E402
     y_up_to_z_up,
     z_up_to_y_up,
 )
+
+
+def __getattr__(name: str):
+    """``pinneapple_unity.usd`` (the native OpenUSD lane) loads on first use, so ``python -m pinneapple_unity.usd``
+    does not import it twice."""
+    if name == "usd":
+        import importlib
+
+        return importlib.import_module(f"{__name__}.usd")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     # file lane

@@ -30,7 +30,7 @@ namespace PinNeAPPle.Unity
         public bool importPhysics = true;
         [Tooltip("The toolkit applies the stage's up axis and metersPerUnit to the import root.")]
         public bool applyStageUpAxisAndUnits = true;
-        [Tooltip("Leave empty for a stage that composes everything; list variants to pick a configuration.")]
+        [Tooltip("Optional variant selections, one per entry: \"VariantSet=Variant\" or \"primPath:VariantSet=Variant\".")]
         public string[] variantSelections = new string[0];
 
         [Header("Export")]
@@ -46,19 +46,18 @@ namespace PinNeAPPle.Unity
         public long importedTriangles;
         public string lastMessage = "";
 
-        public UsdImportPreviewInfo Preview()
+        /// <summary>What the import will bring in, before building anything (mesh and triangle counts, up axis).</summary>
+        public void Preview()
         {
 #if PINNEAPPLE_USD_TOOLKIT
             string path = Resolve(usdPath);
             UsdImportPreviewInfo preview = UsdImporter.GetPreviewInfo(path);
-            Debug.Log($"PINNeAPPle USD: {Path.GetFileName(path)} -- {preview.MeshCount} mesh(es), " +
-                      $"{preview.TriangleCount} triangle(s), up axis {preview.UpAxis}", this);
             importedMeshes = preview.MeshCount;
             importedTriangles = preview.TriangleCount;
-            return preview;
+            Debug.Log($"PINNeAPPle USD: {Path.GetFileName(path)} -- {preview.MeshCount} mesh(es), " +
+                      $"{preview.TriangleCount} triangle(s), up axis {preview.UpAxis}", this);
 #else
             Missing();
-            return default;
 #endif
         }
 
@@ -84,7 +83,7 @@ namespace PinNeAPPle.Unity
                 ImportTextures = importTextures,
                 ImportPhysics = importPhysics,
                 ApplyStageUpAxisAndUnits = applyStageUpAxisAndUnits,
-                VariantSelections = variantSelections,
+                VariantSelections = ParseVariants(variantSelections),
                 LoadPayloads = true,
             });
             await result.TexturesReady;                        // textures keep streaming in after the meshes
@@ -101,7 +100,7 @@ namespace PinNeAPPle.Unity
         public void Export()
         {
 #if PINNEAPPLE_USD_TOOLKIT
-            Transform root = exportRoot != null ? exportRoot : transform;
+            GameObject root = exportRoot != null ? exportRoot.gameObject : gameObject;
             string path = string.IsNullOrEmpty(exportPath)
                 ? Path.Combine(Application.persistentDataPath, "pinneapple_scene.usda")
                 : Resolve(exportPath);
@@ -122,6 +121,45 @@ namespace PinNeAPPle.Unity
         void Start()
         {
             if (importOnStart) Import();
+        }
+
+#if PINNEAPPLE_USD_TOOLKIT
+        /// <summary>"VariantSet=Variant" (root prim) or "primPath:VariantSet=Variant" as the toolkit's selection.
+        /// </summary>
+        static System.Collections.Generic.List<UsdVariantSelection> ParseVariants(string[] entries)
+        {
+            var list = new System.Collections.Generic.List<UsdVariantSelection>();
+            foreach (string entry in entries ?? new string[0])
+            {
+                string text = (entry ?? "").Trim();
+                if (text.Length == 0) continue;
+                string prim = "";
+                int colon = text.IndexOf(':');
+                if (colon > 0) { prim = text.Substring(0, colon); text = text.Substring(colon + 1); }
+                int eq = text.IndexOf('=');
+                if (eq <= 0) continue;
+                list.Add(new UsdVariantSelection(prim, text.Substring(0, eq).Trim(), text.Substring(eq + 1).Trim()));
+            }
+            return list;
+        }
+#endif
+
+        /// <summary>What the toolkit makes of a stage, without building anything (also callable headless).</summary>
+        public static void PreviewStage(string path)
+        {
+#if PINNEAPPLE_USD_TOOLKIT
+            if (!File.Exists(path))
+            {
+                Debug.LogError("PINNeAPPle USD: no stage at " + path);
+                return;
+            }
+            UsdImportPreviewInfo preview = UsdImporter.GetPreviewInfo(path);
+            Debug.Log($"PINNeAPPle USD: {Path.GetFileName(path)} -- {preview.MeshCount} mesh(es), " +
+                      $"{preview.TriangleCount} triangle(s), up axis {preview.UpAxis}");
+#else
+            Debug.LogError("PINNeAPPle USD: this project has no USD Toolkit (Unity 6.4+, " +
+                           "https://github.com/Unity-Technologies/com.unity.usd-toolkit.git#v0.8.1-exp.1)");
+#endif
         }
 
         /// <summary>A path as written is project-relative (Assets/...), not process-relative.</summary>

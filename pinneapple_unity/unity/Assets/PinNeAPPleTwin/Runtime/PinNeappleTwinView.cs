@@ -31,6 +31,11 @@ namespace PinNeAPPle.Unity
         [Header("Look")]
         [Range(0f, 0.2f)] public float legendHeight = 0.06f;
 
+        [Header("Camera")]
+        [Tooltip("Frame the scene's main camera on the twin when it loads: a 0.4 m part in a default scene otherwise "
+                 + "reads as a line at 10 m.")]
+        public bool frameCamera = true;
+
         TwinData _data;
         Transform _root;
         readonly List<MeshRenderer> _renderers = new List<MeshRenderer>();
@@ -122,7 +127,36 @@ namespace PinNeAPPle.Unity
                 _renderers.Add(mr);
             }
             AddSensorMarks();
+            if (frameCamera) FrameMainCamera();
             ShowStep(0);
+        }
+
+        /// <summary>Put the main camera in a three-quarter view at the distance that fits the twin.</summary>
+        void FrameMainCamera()
+        {
+            Camera cam = Camera.main;
+            if (cam == null)
+            {
+                Debug.Log("PINNeAPPle twin: no Main Camera to frame (the parts are there, just not in view)", this);
+                return;
+            }
+            var bounds = new Bounds();
+            bool any = false;
+            foreach (MeshRenderer r in _renderers)
+            {
+                if (r == null) continue;
+                if (!any) { bounds = r.bounds; any = true; }
+                else bounds.Encapsulate(r.bounds);
+            }
+            if (!any) return;
+            float radius = Mathf.Max(bounds.extents.magnitude, 0.01f);
+            float distance = radius / Mathf.Sin(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * 0.8f;
+            Vector3 direction = new Vector3(1.0f, 1.15f, -1.6f).normalized;
+            cam.transform.position = bounds.center + direction * distance;
+            cam.transform.LookAt(bounds.center);
+            cam.nearClipPlane = Mathf.Max(0.01f, distance * 0.02f);
+            cam.farClipPlane = Mathf.Max(20f, distance * 20f);
+            Debug.Log($"PINNeAPPle twin: camera framed at {distance:G3} m from {bounds.center}", this);
         }
 
         static Shader FieldShader()

@@ -53,6 +53,12 @@ namespace PinNeAPPle.Unity.EditorTools
             else Debug.LogWarning("PINNeAPPle: " + DATA + " does not exist");
         }
 
+        [MenuItem("PINNeAPPle/USD/Check Assets/TwinData stage")]
+        public static void UsdStageCheck()
+        {
+            PinneappleUsdStage.PreviewStage(ProjectPath("Assets/TwinData/scene.usda"));
+        }
+
         [MenuItem("PINNeAPPle/USD/Preview Selected Stage")]
         public static void UsdPreview()
         {

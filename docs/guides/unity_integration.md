@@ -249,6 +249,41 @@ grep -nE "error CS|PINNeAPPle:" /tmp/unity-check.log
 `exit=0` plus a `PINNeAPPle: ... every file checks out` line means the scripts compiled **and** the editor menu read
 the twin. A compile error shows up as `error CS` with file and line, and makes the exit code non-zero.
 
+## What the editor verified (Unity 6000.6.8f1, macOS)
+
+Run headless on this checkout's output, with the project created by `-createProject` and the twin copied into
+`Assets/`:
+
+```bash
+UNITY="/Applications/Unity/Hub/Editor/6000.6.8f1/Unity.app/Contents/MacOS/Unity"
+"$UNITY" -batchmode -quit -nographics -projectPath ~/PinneappleUnityTest \
+         -executeMethod PinNeAPPle.Unity.EditorTools.PinneappleMenu.CheckTwinData -logFile /tmp/u3.log
+# exit=0, 0 error CS
+# PINNeAPPle: Heat-exchanger spool with a cooling fin: 2 part(s), 2 field(s), 6 step(s) -- every file checks out
+```
+
+and with `com.unity.usd-toolkit#v0.8.1-exp.1` in `Packages/manifest.json`:
+
+```bash
+"$UNITY" ... -executeMethod PinNeAPPle.Unity.EditorTools.PinneappleMenu.UsdStageCheck -logFile /tmp/u6.log
+# exit=0, 0 error CS
+# PINNeAPPle USD: scene.usda -- 4 mesh(es), 4288 triangle(s), up axis Z
+```
+
+Three things the real compiler settled, which the documentation alone would have got wrong:
+
+* `UsdImportOptions.VariantSelections` is a `List<UsdVariantSelection>` (`primPath, variantSet, variant`), not a
+  `string[]`; `UsdExporter.ExportGameObjectWithResult` takes a **GameObject**, not a `Transform`.
+* our assembly declaration must reference the toolkit's assembly by name (`"references": ["Unity.USDToolkit"]`) --
+  the package's `autoReferenced` only reaches `Assembly-CSharp`, not another asmdef.
+* Unity 6 does **not** define `UNITY_2023_1_OR_NEWER`; the version guard for `FindFirstObjectByType` needs
+  `|| UNITY_6000_0_OR_NEWER`.
+
+Removing the toolkit from the manifest and compiling again gives 0 errors too (the `#if PINNEAPPLE_USD_TOOLKIT`
+guard and the `versionDefines` entry keep the unreferenced assembly harmless), so the package works in a project
+with and without it. What is still not exercised here: Play mode, the camera/lighting look, and the actual
+`ImportAsync`/`ExportGameObjectWithResult` calls (only `GetPreviewInfo` was run headless).
+
 ## What is checked, and what is not
 
 | | how |

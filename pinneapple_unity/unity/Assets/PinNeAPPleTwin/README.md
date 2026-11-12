@@ -56,7 +56,10 @@ chains from the stage's `UsdPhysics`), and exports a hierarchy back to a stage w
 (`PreserveHierarchy`, composition preserved). Without the package the component logs the install line and the rest of
 this package keeps working: the asmdef only defines `PINNEAPPLE_USD_TOOLKIT` when the toolkit is present.
 
-Add it to a project from Python: `python -m pinneapple_unity.usd manifest <project>`.
+Add it to a project from Python: `python -m pinneapple_unity.usd manifest <project>`. The runtime assembly
+references `Unity.USDToolkit` by name, so the toolkit's types are compile-checked (against 0.8.1 here); without the
+package the `#if`-guarded code is skipped and the assembly still compiles. `PINNeAPPle > USD > Check
+Assets/TwinData stage` prints what the importer sees, and works headless with `-executeMethod`.
 
 ## Menu
 

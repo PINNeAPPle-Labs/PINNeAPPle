@@ -8,9 +8,15 @@ it came from.
 
 | Case | Body | Mesh | Re (lattice) | Film |
 |---|---|---|---|---|
-| `carro` | RoadCar fastback, moving road | 600×92×80 = 4.4 M | 1200 | `docs/assets/cinematic/carro.mp4` |
-| `asa` | NACA 2412 at 16°, free tip | 299×135×52 = 2.1 M | 1200 | `docs/assets/cinematic/asa.mp4` |
-| `foguete` | two-stage launcher, four fins | 380×60×82 = 1.9 M | 1200 | `docs/assets/cinematic/foguete.mp4` |
+| `carro` | RoadCar fastback, moving road | 600×92×80 = 4.4 M | 1200 | [mp4](../assets/cinematic/carro.mp4) |
+| `asa` | NACA 2412 at 16°, free tip | 299×135×52 = 2.1 M | 1200 | [mp4](../assets/cinematic/asa.mp4) |
+| `foguete` | two-stage launcher, four fins | 380×60×82 = 1.9 M | 1200 | [mp4](../assets/cinematic/foguete.mp4) |
+
+Each film is six seconds at 24 fps and 1920×1080, and each ships with its record next to it
+(`docs/assets/cinematic/<caso>.json`): the mesh, the lattice Reynolds number reached, the physical Reynolds
+number the film stands for and the step count. The volume in every frame is the simulated field of that solve.
+
+![RoadCar in the wind tunnel](../assets/cinematic/carro.png)
 
 ## The three steps
 

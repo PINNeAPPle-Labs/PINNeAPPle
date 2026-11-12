@@ -40,6 +40,7 @@ class Case:
     # the detailed surfaces the render shows (glass, rims, lamps); the solve keeps the closed bodies above
     visual: dict[str, tuple[np.ndarray, np.ndarray]] = field(default_factory=dict)
     visual_paint: dict[str, str] = field(default_factory=dict)
+    field_label: str = "Q-criterion"                   # what the smoke shows, named on the frame
 
     @property
     def render_parts(self) -> tuple[dict, dict]:
@@ -143,7 +144,8 @@ def build(name: str) -> Case:
         # the box is measured on the span, which is three chords: the wing is thin, so ``overhead`` and
         # ``lateral`` are read against its own 0.29 m height and would leave the wake no room at all
         return Case("asa", bodies, ground=None, upstream=1.0, downstream=2.0, lateral=0.5, overhead=2.5,
-                    paint={"wing": "paint"}, caption=CASES["asa"])
+                    paint={"wing": "paint"}, caption=CASES["asa"],
+                    field_label="Q + déficit de velocidade")
     if name == "foguete":
         from pinneapple_design.geometry.vehicles3d import LaunchVehicle
 

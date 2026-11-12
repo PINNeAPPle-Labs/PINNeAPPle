@@ -52,6 +52,20 @@ STYLE = {
 }
 
 
+# A lifting surface is a different picture: its Q lives in the boundary layer a cell thick and renders as a rim
+# around the planform, while the wake it leaves is a momentum deficit. On a bluff body the deficit fills the whole
+# tunnel and would be a fog, so the weight is per case and the caption names what is being shown.
+SMOKE_BY_CASE = {
+    "asa": {"vort_weight": 0.5, "deficit_weight": 1.0, "floor": 0.50, "power": 1.3},
+}
+
+
+def _style_for(case: Case, style: dict | None = None) -> dict:
+    st = {**STYLE, **(style or {})}
+    st["smoke"] = {**STYLE["smoke"], **SMOKE_BY_CASE.get(case.name, {}), **(style or {}).get("smoke", {})}
+    return st
+
+
 def _write_bodies(case: Case, folder: str) -> list:
     import trimesh
 
@@ -175,7 +189,7 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
         print(f"[{case.name}] solve reaproveitado de {meta_path}", flush=True)
 
     bodies = _write_bodies(case, os.path.join(out_dir, "corpo"))
-    st = {**STYLE, **(style or {})}
+    st = _style_for(case, style)
     cfg = {
         "out_dir": out_dir,
         "bodies": bodies,
@@ -194,7 +208,7 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
     _run_blender(cfg)
     rep = meta["report"]
     nx, ny, nz = rep["malha"]
-    sub = (f"{nx}×{ny}×{nz} células · Re {_sci(rep['re_fisico'])} · Q-criterion · WindTunnelLBM")
+    sub = (f"{nx}×{ny}×{nz} células · Re {_sci(rep['re_fisico'])} · {case.field_label} · WindTunnelLBM")
     cap = _caption_png(case.caption, sub, os.path.join(out_dir, "legenda.png"), (res_x, res_y))
     mp4 = _assemble(os.path.join(out_dir, "frames"), os.path.join(out_dir, f"{case.name}.mp4"), fps, cap)
     ficha = {
@@ -205,7 +219,7 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
         # film into a repository, and the machine it was rendered on is nobody's business
         "video": os.path.basename(mp4) if mp4 else None,
         "fontes": {"campo": "WindTunnelLBM (D3Q19, Smagorinsky LES)",
-                   "volume": "densidade = critério Q (rotação menos deformação)",
+                   "volume": f"densidade = {case.field_label}",
                    "motor": "Blender EEVEE + OpenVDB"},
     }
     with open(os.path.join(out_dir, "ficha.json"), "w", encoding="utf-8") as f:
@@ -224,7 +238,7 @@ def render_still(case: str | Case = "carro", *, out_dir: str, frame: int = 1, **
     # the voxel size and the origin come from the run that is on disk, not from a fresh plan: a still of a
     # 120-cell solve must not be placed as if it were the 140-cell one
     bodies = _write_bodies(case, os.path.join(out_dir, "corpo"))
-    st = {**STYLE, **(kw.get("style") or {})}
+    st = _style_for(case, kw.get("style"))
     cfg = {
         "out_dir": out_dir, "bodies": bodies, "snapshots": meta["snapshots"],
         "voxel_size": float(meta["tunnel"]["dx"]) * meta["stride"],

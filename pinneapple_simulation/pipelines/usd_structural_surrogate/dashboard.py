@@ -134,7 +134,7 @@ class Predictor:
 
     # ------------------------------------------------------------------ optimisation
     def optimise(self, start: dict[str, float], *, load_n: float = REFERENCE_LOAD_N, target: float = 0.6,
-                 steps: int = 60, lr: float = 0.35) -> dict[str, Any]:
+                 steps: int = 16, lr: float = 0.35) -> dict[str, Any]:
         """Lightest design whose predicted peak von Mises stays under ``target`` x yield, by projected descent.
 
         The objective is mass; the constraint is the predicted peak. The descent is on the surrogate, so it costs a
@@ -156,12 +156,16 @@ class Predictor:
                 d2 = self.s.space.denormalized(du)
                 probes.append(d2)
                 masses.append(self._mass(d2))
-            feats = []
+            feats, occs = [], []
             for d in probes:
                 occ_d = self._occupancy(d, revolve_surface(d, self.s.space.plate_diameter, 32)[0])
+                occs.append(occ_d)
                 feats.append(features(occ_d, _sdf(occ_d, self.s.grid), self.s.grid))
             out = self.s.predict_batch(feats)
-            utils = [float(o["vm"].max()) * load_n / REFERENCE_LOAD_N / YIELD_STEEL_PA for o in out]
+            # the peak over the solid's cells, which is what the payload reports and what the checks score --
+            # a maximum over the whole box would read the filled cells outside the part too
+            utils = [float(o["vm"][occ_d].max()) * load_n / REFERENCE_LOAD_N / YIELD_STEEL_PA
+                     for o, occ_d in zip(out, occs, strict=True)]
             util, m = utils[0], masses[0]
             trace.append({"step": i, "mass_kg": m, "util": util,
                           **{k: float(v) for k, v in design.items()}})
@@ -286,6 +290,7 @@ let SPEC=null, lastPayload=null, lastReal=null;
 const view=document.getElementById('view');
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0e1013);
 const cam=new THREE.PerspectiveCamera(38,1,0.01,100);
+cam.up.set(0,0,1);                       // the part is Z-up, as it is in the USD asset
 const rnd=new THREE.WebGLRenderer({antialias:true}); rnd.setPixelRatio(devicePixelRatio);
 view.appendChild(rnd.domElement);
 scene.add(new THREE.HemisphereLight(0xffffff,0x223044,1.15));
@@ -311,13 +316,15 @@ function draw(p){
   const mx=Math.max(...p.vm), mn=Math.min(...p.vm);
   for(let i=0;i<p.vm.length;i++){const c=cmap((p.vm[i]-mn)/Math.max(mx-mn,1e-12));
     col.array[3*i]=c[0];col.array[3*i+1]=c[1];col.array[3*i+2]=c[2];}
-  pos.needsUpdate=true; col.needsUpdate=true; g.computeBoundingSphere();
+  pos.needsUpdate=true; col.needsUpdate=true; g.computeBoundingSphere(); fit(Vd);
   lastPayload=p; renderStats(p);
 }
 function fit(Vd){ let lo=[1e9,1e9,1e9],hi=[-1e9,-1e9,-1e9];
   for(let i=0;i<Vd.length;i+=3)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],Vd[i+k]);hi[k]=Math.max(hi[k],Vd[i+k]);}
   target.set((lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2);
-  dist=1.25*Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]); }
+  const span=Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]);
+  dist=0.88*span/Math.tan(0.5*cam.fov*Math.PI/180);  // room for the rotated view, not just the AABB
+  cam.near=0.01*dist; cam.far=10*dist; cam.updateProjectionMatrix(); }
 function renderStats(p){ const s=p.stats;
   document.getElementById('svm').textContent=s.peak_vm_mpa.toFixed(1)+' MPa';
   document.getElementById('stip').textContent=s.tip_mm.toFixed(3)+' mm';
@@ -372,7 +379,7 @@ async function boot(){
       if(o.design[s.name]!==undefined){ const mm=o.design[s.name]*1000;   // the model answers in metres
         el.value=mm; document.getElementById('v_'+s.name).textContent=mm.toFixed(s.decimals);} }
     await fetchPredict(); log('proposta: massa '+o.mass.toFixed(2)+' kg, utilização '+
-      (100*o.util).toFixed(0)+'%  ('+o.trace.length+' passos no surrogate)'); };
+      (100*o.util).toFixed(0)+'%  ('+o.steps+' passos no surrogate)'); };
   document.getElementById('bsolve').onclick=async()=>{
     log('rodando ccx…'); const b=document.getElementById('bsolve'); b.disabled=true;
     try{ const r=await fetch('/api/solve?'+slidersQuery()); const o=await r.json();
@@ -381,8 +388,8 @@ async function boot(){
         const dp=100*(Math.abs(p.stats.peak_vm_pa-o.peak_vm_pa)/o.peak_vm_pa);
         const du=100*(Math.abs(p.stats.tip_mm-o.tip_mm)/Math.max(o.tip_mm,1e-9));
         log('ccx: σ='+o.peak_vm_mpa.toFixed(1)+' MPa, topo='+o.tip_mm.toFixed(3)+' mm, '+
-            o.n_nodes+' nós\nsurrogate: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa ('+dp.toFixed(1)+
-            '% acima/abaixo), topo='+p.stats.tip_mm.toFixed(3)+' mm ('+du.toFixed(1)+'%)');
+            o.n_nodes+' nós\nsurrogate: σ='+p.stats.peak_vm_mpa.toFixed(1)+' MPa (diferença '+dp.toFixed(1)+
+            '%), topo='+p.stats.tip_mm.toFixed(3)+' mm ('+du.toFixed(1)+'%)');
         document.getElementById('brefine').disabled=false; } }
     finally{ b.disabled=false; } };
   document.getElementById('brefine').onclick=async()=>{
@@ -430,7 +437,8 @@ class _Handler(BaseHTTPRequestHandler):
             if u.path == "/api/optimize":
                 out = self.predictor.optimise(design, load_n=load)
                 return self._send(200, json.dumps({"design": out["design"], "mass": out["mass"],
-                                                   "util": out["util"], "trace": out["trace"][-8:]}).encode())
+                                                   "util": out["util"], "trace": out["trace"][-8:],
+                                                   "steps": len(out["trace"])}).encode())
             if u.path == "/api/solve":
                 out = self.predictor.solve_real(design, self.workdir, load_n=load)
                 out.pop("fields", None)

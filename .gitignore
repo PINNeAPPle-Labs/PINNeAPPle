@@ -69,7 +69,9 @@ examples/free_surface/_out/
 examples/geomechanics/_out/
 examples/openfoam_campaign/_out/
 examples/lbm/_out/
+examples/fluidsbench_airfrans/_out/
 examples/geometry_library/_out/
+examples/unity/_out/
 dist/geometries/
 
 # brick experiment: heavy outputs (viewer copies three.js, frames)

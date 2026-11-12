@@ -11,7 +11,9 @@ using System.IO;
 using System.Text;
 using PinNeAPPle;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace PinNeAPPle.Unity.EditorTools
 {
@@ -19,6 +21,20 @@ namespace PinNeAPPle.Unity.EditorTools
     {
         const string DATA = "Assets/TwinData";
         const string LINK = "Assets/TwinLink";
+
+        [MenuItem("PINNeAPPle/Create Twin Scene")]
+        public static void CreateTwinScene()
+        {
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            var go = new GameObject("PINNeAPPle twin");
+            var view = go.AddComponent<PinneappleTwinView>();
+            view.twinFolder = DATA;
+            Directory.CreateDirectory(ProjectPath("Assets/Scenes"));
+            string path = ProjectPath("Assets/Scenes/Twin.unity");
+            EditorSceneManager.SaveScene(scene, path);
+            AssetDatabase.Refresh();
+            Debug.Log("PINNeAPPle: wrote Assets/Scenes/Twin.unity (twin view + camera + light) -- open it and press Play");
+        }
 
         [MenuItem("PINNeAPPle/Check Twin Data")]
         public static void CheckTwinData()

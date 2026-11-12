@@ -49,6 +49,9 @@ property of the mesh, and the whole point of the exercise is that the peak stres
 5. **viz** — Twin3D scene to the browser viewer, to Blender and to `.usda` (`viz.py`).
 6. **dashboard** — sliders, `ccx` on demand, and a fine-tuning step on the solved case (`dashboard.py`).
 
+The dashboard in use, 72 s — the four sliders, CalculiX on the same design, and the optimiser on the operator:
+[`media/dashboard.mp4`](media/dashboard.mp4).
+
 ## What the geometry enters as, and why a grid
 
 Every sample has to live on the same lattice, so the box is fixed for the whole family and the geometry enters as a

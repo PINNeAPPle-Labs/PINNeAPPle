@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The data layer of the Unity package, compiled and run outside Unity.
+       `dotnet run` with this project and a twin folder as argument reads a folder exported by
+       pinneapple_unity.export_for_unity and fails (exit 1) on any inconsistency, which is the check that Unity will
+       read what Python wrote.
+       The Unity glue (PinneappleTwinView, PinneappleBridgeClient, the editor menu) is not part of this build: it
+       needs UnityEngine. tests/test_unity_csharp.py runs this when `dotnet` is installed. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net$(NETCoreAppMaximumVersion)</TargetFramework>
+    <LangVersion>9.0</LangVersion>            <!-- what Unity 2021.3 compiles: keep the package inside it -->
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>PinNeappleDataTests</AssemblyName>
+    <RootNamespace>PinNeAPPle.Tests</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>CS0168;CS0219</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Assets/PinNeAPPleTwin/Runtime/PinNeappleJson.cs" />
+    <Compile Include="../Assets/PinNeAPPleTwin/Runtime/PinNeappleGlb.cs" />
+    <Compile Include="../Assets/PinNeAPPleTwin/Runtime/PinNeappleTwinData.cs" />
+    <Compile Include="../Assets/PinNeAPPleTwin/Runtime/PinNeappleColormap.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+</Project>

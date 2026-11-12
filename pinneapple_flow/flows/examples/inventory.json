@@ -410,5 +410,9 @@
  "worldmodel": {
   "domain": "world model",
   "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
+ },
+ "unity": {
+  "domain": "3-D visualisation and interoperability",
+  "reason": "the three scripts drive pinneapple_unity as a whole: 01 builds a scene and exports a twin folder (Scene.export writes glb + fields.bin), 02 writes and reads a Unity export folder and a USD layer, and 03 starts an HTTP server; none of that is a library call a node can hold, and a flow may not open a port. The lanes themselves are covered by tests/test_unity_integration.py and tests/test_unity_csharp.py"
  }
 }

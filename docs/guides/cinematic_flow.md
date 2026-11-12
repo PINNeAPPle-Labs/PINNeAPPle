@@ -56,6 +56,12 @@ example checks all three cases before it renders anything (`examples/cinematic_f
 | pure shear `u = (y, 0, 0)` | 0.0 | 0 |
 | pure strain `u = (x, −y, 0)` | −1.0 | −1 |
 
+The wing is the exception that proves the rule. The Q of a lifting surface lives in a boundary layer one cell
+thick: cut above the ninety-ninth percentile it leaves a rim around the planform and an empty wake, because the
+wake a wing actually leaves is a *momentum deficit*, not a vortex. So the wing's density is the deficit with Q
+added at half weight, the bluff bodies use Q alone, and the caption on each film names what is on screen rather
+than asserting one formula everywhere (`SMOKE_BY_CASE` in `film.py`).
+
 ## Four things that are easy to get wrong
 
 - **The volume march.** EEVEE marches the volume a fixed number of samples between two distances from the

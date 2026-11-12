@@ -47,6 +47,17 @@ a coroutine: the frame never waits, and nothing is written to disk: a computed f
 `r.Checks` carries the same residual / boundary-condition / design checks the library reports, and `r.Decision` is
 the verdict on them.
 
+## Native USD (optional, Unity 6.4+)
+
+With Unity's [USD Toolkit](https://github.com/Unity-Technologies/com.unity.usd-toolkit) installed, the component
+**PINNeAPPle → USD Stage** (`PinneappleUsdStage`) imports `Assets/TwinData/scene.usda` through `UsdImporter`
+(materials, textures, animation and — with *Import Physics* on — rigid bodies, colliders and `ArticulationBody`
+chains from the stage's `UsdPhysics`), and exports a hierarchy back to a stage with `UsdExporter`
+(`PreserveHierarchy`, composition preserved). Without the package the component logs the install line and the rest of
+this package keeps working: the asmdef only defines `PINNEAPPLE_USD_TOOLKIT` when the toolkit is present.
+
+Add it to a project from Python: `python -m pinneapple_unity.usd manifest <project>`.
+
 ## Menu
 
 | Item | What it does |
@@ -55,6 +66,8 @@ the verdict on them.
 | `PINNeAPPle > Open Twin Data Folder` | opens the data folder |
 | `PINNeAPPle > Export Selection as Scene Link` | writes `Assets/TwinLink/scene.glb` + `pinneapple_link.json` for the selection, with a job template — the Unity → PINNeAPPle → OpenUSD lane (`python -m pinneapple_unity ingest Assets/TwinLink --out out/twin`) |
 | `PINNeAPPle > Copy Bridge Command` | puts the bridge command on the clipboard |
+| `PINNeAPPle > USD > Preview / Import Selected Stage` | `UsdImporter.GetPreviewInfo` and `ImportAsync` on the stage of the selected object |
+| `PINNeAPPle > USD > Export Selection As USD` | `UsdExporter.ExportGameObjectWithResult` with the hierarchy preserved |
 
 ## What is checked here, and what is not
 

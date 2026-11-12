@@ -140,6 +140,56 @@ register_job("my_job", my_job, "what it computes")
 `decision` is `APPROVED` (every check ran and passed), `REJECT` (a critical check failed) or `REVIEW` (something did
 not run). That decision is the reason to route physics through PINNeAPPle at runtime instead of trusting a number.
 
+## OpenUSD, natively: Unity's USD Toolkit
+
+Since Unity 6.4 there is a first-party way to move stages in and out of the editor and of built players:
+[`com.unity.usd-toolkit`](https://github.com/Unity-Technologies/com.unity.usd-toolkit) wraps Pixar's OpenUSD 26.05
+through P/Invoke. It reads and writes the same `.usd/.usda/.usdc/.usdz` files Isaac Sim and Omniverse use, turns
+`UsdPhysics` into rigidbodies, colliders and `ArticulationBody` chains, keeps references, payloads and variants
+through a round trip, plays `UsdSkel`/point-cache animation, and ships the Live Sync samples. That is the target the
+`scene.usda` PINNeAPPle writes was built for, so the two lanes meet on one file:
+
+```
+PINNeAPPle twin  --scene.usda (time-sampled primvars + UsdPhysics + provenance)-->  Unity USD Toolkit import
+Unity scene      --UsdExporter.ExportGameObjectWithResult-->  stage  --from_usd-->  jobs, checks  -->  .usda
+```
+
+Installing it in a project (Unity 6.4+; the package is experimental, pin a tag):
+
+```bash
+python -m pinneapple_unity.usd manifest ~/PinneappleUnityTest      # writes the line below into Packages/manifest.json
+# "com.unity.usd-toolkit": "https://github.com/Unity-Technologies/com.unity.usd-toolkit.git#v0.8.1-exp.1"
+```
+
+Then the component **PINNeAPPle → USD Stage** (`PinneappleUsdStage.cs`) imports `Assets/TwinData/scene.usda` in
+Play mode or in the editor (`PINNeAPPle > USD > Preview / Import Selected Stage`), with *Import Physics* on to get
+the colliders and rigid bodies the stage declares, and exports any hierarchy back out
+(`PINNeAPPle > USD > Export Selection As USD`). The file compiles with or without the package: the runtime asmdef
+declares a `versionDefines` entry for `com.unity.usd-toolkit`, so without it the component tells you what to install
+instead of breaking the build.
+
+What the import will find is printed before anything is built — the same summary on both sides of the seam:
+
+```bash
+python -m pinneapple_unity.usd summary out/bracket_twin/scene.usda
+# #usda 1.0   up axis Z   1.0 m per unit   frames 0.0..5.0
+# prims: Material x1, Mesh x2, PhysicsScene x1, Scope x1, Sphere x1, Xform x1
+# apiSchemas: MaterialBindingAPI x2, PhysicsCollisionAPI x2, PhysicsMassAPI x1, PhysicsMaterialAPI x1,
+#             PhysicsMeshCollisionAPI x2, PhysicsRigidBodyAPI x1, PhysicsScene x1
+# time-sampled: primvars:bending_stress, primvars:temperature
+# primvars: primvars:displayColor, primvars:temperature [C], primvars:bending_stress [MPa]
+# provenance: {"pinneapple_format": "pinneapple-twin3d/1", ...}
+```
+
+And it is checked against OpenUSD itself, not only against this repository's reader: `pinneapple_unity.usd.validate`
+opens the stage with `usd-core` (the library the toolkit wraps) and lists dead rels, meshes without points and time
+samples outside the layer's range — our exported layers return an empty list. `pinneapple_unity.usd.from_usd` is the
+inverse: a stage authored in Unity or Isaac Sim becomes a `pinneapple_twin3d.Scene` (meshes, time-sampled primvars as
+fields, `UsdPhysics` as colliders, the stage's units and up axis), so the jobs run on someone else's stage and the
+result goes back out as USD.
+
+Both `validate` and `from_usd` need `pip install usd-core`; the text summary does not.
+
 ## A surrogate in the loop
 
 The same seam that carries a closed-form field carries a **surrogate**: a network trained here, checked here, and

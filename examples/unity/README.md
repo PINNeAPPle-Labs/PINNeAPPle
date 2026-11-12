@@ -9,6 +9,7 @@ and the parts of it that carry data are compiled and run by the repository's own
 02_unity_to_pinneapple_to_openusd.py Unity -> PINNeAPPle -> OpenUSD   a scene gets its physics, leaves as a USD layer
 03_live_bridge.py                   Unity <-> PINNeAPPle     the runtime asks for a field while it plays
 04_surrogate_turntable.py           surrogate -> twin        a network trained and checked here drives the field
+05_blender_turntable.py             twin, at quality         the same twin through the library's Cycles renderer
 ```
 
 ```bash
@@ -81,6 +82,23 @@ The clip is the point: the twin's six baked time steps are gone, and the surface
 second straight from the surrogate**, camera orbiting 360°. That is the same role the network plays inside Unity --
 a field it can evaluate at any instant, with the decision that allowed it to be shown.
 
+## 5. The same twin, at product quality
+
+The matplotlib clips show the data; they do not look like a product shot. `05_blender_turntable.py` renders the twin
+through the path the repository already ships for Blender — `pinneapple_tools.visualization.studio.blender.render`
+with `background="dark"`: key, rim and fill area lights, AgX, a glossy floor, Cycles with denoising — while the
+camera orbits the part and the field at each frame is one evaluation of the surrogate from demo 04 (or the twin's own
+steps when its weights are absent).
+
+```bash
+pip install bpy                                   # ~220 MB; Cycles then runs on the CPU
+python examples/unity/05_blender_turntable.py --frames 96 --samples 16
+```
+
+What this is *not*: Unity. The Unity look — the URP setup the toolkit's *Reference Look* sample tunes towards Isaac
+Sim's RTX renderer — is the same field, in the engine, once a licensed editor is available. The USD lane above is how
+that scene arrives there.
+
 ## Recorded
 
 Three short MP4s of the fields the demos compute, rendered from the exported twins by `make_movies.py`
@@ -93,11 +111,23 @@ shows:
 | [`media/02_bracket_temperature.mp4`](media/02_bracket_temperature.mp4) | the plate from the Unity-authored scene warming from 20 °C |
 | [`media/03_bracket_bending_stress.mp4`](media/03_bracket_bending_stress.mp4) | the cantilever: 12 MPa at the root falling linearly to zero at the free tip |
 | [`media/04_surrogate_turntable.mp4`](media/04_surrogate_turntable.mp4) | 8 s turntable of the spool, the temperature evaluated continuously by the surrogate (not from the baked steps) |
+| [`media/05_blender_turntable.mp4`](media/05_blender_turntable.mp4) | the same field through Cycles: dark studio, area lights, glossy floor, the camera orbiting the part |
+| [`media/05_blender_still.png`](media/05_blender_still.png) | one 1600 x 900 frame of that render, for a README or a slide |
 
 ```bash
 python examples/unity/make_movies.py            # rebuilds the twins if needed, then movies 01-03
 python examples/unity/04_surrogate_turntable.py # trains and checks the surrogate, then records movie 04
 ```
+
+## Interactive, in any browser
+
+[`twin_viewer.html`](twin_viewer.html) is the same twin as one self-contained page: orbit the part with the mouse,
+scrub or play the time steps, switch between the spool and the bracket, and read beside the model the checks every
+field was approved by and the summary of the OpenUSD stage a Unity USD Toolkit import would find. No server, no
+Unity, nothing to install — open the file.
+
+Its data is not typed in: `python examples/unity/make_viewer.py` reruns the jobs on the exported twins, re-reads the
+stages and rewrites the embedded JSON, so the page cannot drift from the library.
 
 What these are **not**: a capture of Unity's Play mode. That needs a licensed editor and the Unity Recorder package
 (*Package Manager → Recorder → Movie*, 30 fps) with `PINNeAPPle Twin View` playing the steps.

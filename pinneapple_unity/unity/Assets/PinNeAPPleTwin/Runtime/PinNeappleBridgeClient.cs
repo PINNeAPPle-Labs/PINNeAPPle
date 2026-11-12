@@ -86,7 +86,11 @@ namespace PinNeAPPle.Unity
         void Start()
         {
             if (view == null) view = GetComponent<PinneappleTwinView>();
+#if UNITY_2023_1_OR_NEWER
+            if (view == null) view = FindFirstObjectByType<PinneappleTwinView>();
+#else
             if (view == null) view = FindObjectOfType<PinneappleTwinView>();
+#endif
             if (runOnStart) StartCoroutine(RunAndApply(response => { }));
         }
 

@@ -39,6 +39,7 @@ from __future__ import annotations
 
 __version__ = "1.0.0"          # of the pinneapple-unity protocol package
 
+from . import usd  # noqa: E402  (the native OpenUSD lane: stage_summary, validate, from_usd, write_manifest)
 from .bridge import Bridge, serve_bridge  # noqa: E402
 from .export import (  # noqa: E402
     UnityExport,
@@ -87,6 +88,8 @@ __all__ = [
     "serve_bridge", "Bridge",
     # jobs
     "JOBS", "JobRequest", "JobResult", "register_job", "unregister_job", "list_jobs", "run_job",
+    # native OpenUSD
+    "usd",
     # wire format
     "PROTOCOL", "encode_field", "decode_field", "z_up_to_y_up", "y_up_to_z_up", "Z_UP_TO_Y_UP",
     "__version__",

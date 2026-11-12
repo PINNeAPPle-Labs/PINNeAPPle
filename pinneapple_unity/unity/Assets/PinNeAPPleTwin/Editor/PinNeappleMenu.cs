@@ -53,6 +53,46 @@ namespace PinNeAPPle.Unity.EditorTools
             else Debug.LogWarning("PINNeAPPle: " + DATA + " does not exist");
         }
 
+        [MenuItem("PINNeAPPle/USD/Preview Selected Stage")]
+        public static void UsdPreview()
+        {
+            PinneappleUsdStage stage = UsdStageOnSelection();
+            if (stage != null) stage.Preview();
+        }
+
+        [MenuItem("PINNeAPPle/USD/Import Selected Stage")]
+        public static void UsdImport()
+        {
+            PinneappleUsdStage stage = UsdStageOnSelection();
+            if (stage != null) stage.Import();
+        }
+
+        [MenuItem("PINNeAPPle/USD/Export Selection As USD")]
+        public static void UsdExport()
+        {
+            PinneappleUsdStage stage = UsdStageOnSelection();
+            if (stage != null)
+            {
+                if (stage.exportRoot == null && Selection.activeGameObject != null)
+                    stage.exportRoot = Selection.activeGameObject.transform;
+                stage.Export();
+            }
+        }
+
+        /// <summary>The USD component on the selected object (added when missing); the twin root otherwise.</summary>
+        static PinneappleUsdStage UsdStageOnSelection()
+        {
+            GameObject go = Selection.activeGameObject;
+            if (go == null)
+            {
+                Debug.LogWarning("PINNeAPPle USD: select the object that holds the twin first");
+                return null;
+            }
+            PinneappleUsdStage stage = go.GetComponent<PinneappleUsdStage>();
+            if (stage == null) stage = go.AddComponent<PinneappleUsdStage>();
+            return stage;
+        }
+
         [MenuItem("PINNeAPPle/Copy Bridge Command")]
         public static void CopyBridgeCommand()
         {

@@ -98,7 +98,7 @@ def main() -> None:
             print(f"        {note}")
 
     # 4. the Unity folder
-    exp = export_for_unity(scene, OUT)
+    exp = export_for_unity(scene, OUT, usd=True)          # the stage travels with the twin
     print(f"\nexported: {exp.summary()}")
     print("verify():", exp.problems or "every file checks out (glb, field offsets, package)")
     print("\nfiles:")

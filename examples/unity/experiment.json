@@ -65,7 +65,9 @@
   "02_unity_to_pinneapple_to_openusd.py",
   "03_live_bridge.py",
   "make_movies.py",
-  "04_surrogate_turntable.py"
+  "04_surrogate_turntable.py",
+  "05_blender_turntable.py",
+  "make_viewer.py"
  ],
  "metrics": [
   {
@@ -151,6 +153,36 @@
    "value": 240,
    "unit": "frames",
    "how": "04: 8 s at 30 fps, 1210 x 660, camera orbiting 360 deg with the field evaluated by the surrogate each frame"
+  },
+  {
+   "name": "vertices in the interactive viewer",
+   "value": 1476,
+   "unit": "",
+   "how": "make_viewer.py: 1148 (spool twin) + 328 (bracket twin) embedded with their fields, checks and stages"
+  },
+  {
+   "name": "Cycles turntable frames",
+   "value": 96,
+   "unit": "frames",
+   "how": "05_blender_turntable.py: 4 s at 24 fps, 1280x720, 16 samples with denoising, CPU Cycles; camera orbits 360 deg"
+  },
+  {
+   "name": "Cycles still",
+   "value": 128,
+   "unit": "samples",
+   "how": "05 --still: 1600x900, AgX, dark studio with area lights and a glossy floor"
+  },
+  {
+   "name": "VeriPhysics: load where the bracket verdict leaves APPROVED",
+   "value": 835,
+   "unit": "N",
+   "how": "make_viewer.py sweeps 10..1000 N through cantilever_stress; the job's yield check flips at 835 N (the analytic yield load of the section is 833 N)"
+  },
+  {
+   "name": "VeriPhysics: alpha where the surrogate leaves its 2% band",
+   "value": 2.0,
+   "unit": "1e-6 m2/s",
+   "how": "make_viewer.py sweeps the true alpha 2..8e-6 against the closed form; the surrogate trained at 4e-6 crosses 2 % relative L2 at 2.0e-6"
   }
  ],
  "checks": [
@@ -191,14 +223,19 @@
   }
  ],
  "files": {
-  "figures": [],
+  "figures": [
+   "media/05_blender_still.png"
+  ],
   "videos": [
    "media/01_spool_temperature.mp4",
    "media/02_bracket_temperature.mp4",
    "media/03_bracket_bending_stress.mp4",
-   "media/04_surrogate_turntable.mp4"
+   "media/04_surrogate_turntable.mp4",
+   "media/05_blender_turntable.mp4"
   ],
-  "viewers": [],
+  "viewers": [
+   "twin_viewer.html"
+  ],
   "data": []
  },
  "links": {

@@ -9,6 +9,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.usd-toolkit",
+            "expression": "0.8",
+            "define": "PINNEAPPLE_USD_TOOLKIT"
+        }
+    ],
     "noEngineReferences": false
 }

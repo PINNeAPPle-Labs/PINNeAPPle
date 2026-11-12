@@ -1,0 +1,151 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/fluidsbench_airfrans",
+ "title": "FluidsBench submission rehearsed on an exact reference (AirfRANS-shaped supports)",
+ "description": "The FluidsBench participant path end to end - contract read from a checkout of the benchmark's submission repository, a benchmark-owned scoring support verified by its digest chain, native predictions mapped onto the canonical entities, the published relative-L2 reductions with additive sufficient statistics, the composite score, a schema-v3 result package rebuilt from its own numbers, and a submit/review trust decision - on potential flow around a cylinder, whose closed-form solution makes every number on the way checkable. Three angles of attack are trained on, one is held out inside the training range and two outside it (the AoA extrapolation protocol).",
+ "domain": "external aerodynamics / benchmark evaluation",
+ "methods": [
+  "Transolver",
+  "TransolverLite",
+  "PointNet",
+  "wide residual PointNet",
+  "EdgeConv",
+  "part-aware PointNet",
+  "hierarchical part-attention model",
+  "exact potential flow around a cylinder (zero-parameter reference)"
+ ],
+ "modules": [
+  "pinneapple_arena.fluidsbench",
+  "pinneapple_arena.fieldbench"
+ ],
+ "params": {
+  "train_angles_deg": [
+   -4.0,
+   0.0,
+   8.0
+  ],
+  "holdout_angle_deg": 4.0,
+  "extrapolation_angles_deg": [
+   12.0,
+   20.0
+  ],
+  "budget": {
+   "epochs": 60,
+   "batch_size": 2,
+   "lr": 0.002
+  }
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "submissions_written",
+   "value": 14.0,
+   "unit": "result packages",
+   "how": "one package per model family per split, each validated by recomputing its digest chain, its relative L2 from its own sufficient statistics, its macro-average and its composite"
+  },
+  {
+   "name": "packages_validating",
+   "value": 14.0,
+   "unit": "result packages",
+   "how": "pinneapple_arena.fluidsbench.validate_package on every package, no problems reported"
+  },
+  {
+   "name": "oracle_relative_l2",
+   "value": 0.0,
+   "unit": "%",
+   "how": "the reference field scored against itself through the full path; must be zero for the mapping, the reductions and the composite to be consistent"
+  },
+  {
+   "name": "oracle_overall_score",
+   "value": 100.0,
+   "unit": "",
+   "how": "the published composite of the oracle package: every component error is zero"
+  },
+  {
+   "name": "best_overall_score_holdout",
+   "value": 67.528,
+   "unit": "",
+   "how": "composite of the best package on the hold-out angle 4.0 deg (transolver, 60 epochs)"
+  },
+  {
+   "name": "best_surface_pressure_rel_l2_holdout",
+   "value": 7.1528,
+   "unit": "%",
+   "how": "length-weighted relative L2 on the wall curve, macro-averaged over the hold-out case (transolver)"
+  },
+  {
+   "name": "best_velocity_rel_l2_holdout",
+   "value": 8.0537,
+   "unit": "%",
+   "how": "unweighted relative L2 of the velocity vector on the 2-D domain, macro-averaged over the hold-out case (transolver)"
+  },
+  {
+   "name": "extrapolation_reviewed",
+   "value": 7.0,
+   "unit": "submissions",
+   "how": "trust decisions of the AoA-extrapolation split: cases outside the training range are reported as review, never as submit"
+  },
+  {
+   "name": "holdout_submitted",
+   "value": 7.0,
+   "unit": "submissions",
+   "how": "trust decisions of the hold-out split, whose case lies inside the training range"
+  },
+  {
+   "name": "stagnation_pressure",
+   "value": 0.5,
+   "unit": "m^2/s^2",
+   "how": "p at the stagnation point of the reference, asserted equal to half the squared freestream speed"
+  },
+  {
+   "name": "wall_speed_max",
+   "value": 2.0,
+   "unit": "m/s",
+   "how": "largest wall speed of the reference, asserted equal to twice the freestream speed"
+  },
+  {
+   "name": "wall_time_seconds",
+   "value": 47.6,
+   "unit": "s",
+   "how": "the whole rehearsal on this machine"
+  },
+  {
+   "name": "best_overall_score_extrapolation",
+   "value": 7.634,
+   "unit": "",
+   "how": "composite of the best package on the AoA-extrapolation split (12 and 20 deg, outside the training range): the same models degrade there"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the reference scored against itself gives zero relative L2 and overall_score 100",
+   "passed": true
+  },
+  {
+   "name": "every result package validates against its own numbers",
+   "passed": true
+  },
+  {
+   "name": "the support release digest chain verifies against the contract it was read with",
+   "passed": true
+  },
+  {
+   "name": "stagnation pressure equals half the squared freestream speed",
+   "passed": true
+  },
+  {
+   "name": "maximum wall speed equals twice the freestream speed",
+   "passed": true
+  },
+  {
+   "name": "the extrapolation split is reported as review, the hold-out split as submit",
+   "passed": true
+  },
+  {
+   "name": "nothing here is a FluidsBench submission: the support is a rehearsal this example writes",
+   "passed": true
+  }
+ ]
+}

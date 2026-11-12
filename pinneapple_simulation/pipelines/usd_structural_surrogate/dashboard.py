@@ -75,6 +75,10 @@ class Predictor:
         u = np.stack([sample_field(pred[c], self.s.grid, V) for c in ("ux", "uy", "uz")], axis=-1) * k
         vm = sample_field(pred["vm"], self.s.grid, V) * k
         mag = np.linalg.norm(u, axis=1)
+        # the peak is read over the solid's cells, not over the drawn surface: the stress concentration's hottest
+        # cell is an interior one, and a maximum over surface vertices reports 7.65 MPa where the grid says 10.11
+        # and ccx 13.30 -- a display under-report that made the surrogate look better than it is.
+        peak_grid = float(pred["vm"][occ].max()) * k
         # the display exaggeration, as in an FEA post-processor: 6 % of the part's height at the largest displacement
         k_vis = scale if scale is not None else 0.06 * float(np.ptp(V[:, 2])) / max(float(mag.max()), 1e-12)
         deformed = V + k_vis * u
@@ -87,10 +91,10 @@ class Predictor:
             "vm": vm.astype(float).tolist(),
             "u": mag.astype(float).tolist(),
             "exaggeration": float(k_vis),
-            "stats": {"peak_vm_pa": float(vm.max()), "peak_vm_mpa": float(vm.max()) / 1e6,
+            "stats": {"peak_vm_pa": peak_grid, "peak_vm_mpa": peak_grid / 1e6,
                       "tip_mm": float(mag.max()) * 1e3,
                       "mass_kg": self._mass(design),
-                      "utilisation": float(vm.max()) / YIELD_STEEL_PA,
+                      "utilisation": peak_grid / YIELD_STEEL_PA,
                       "yield_pa": YIELD_STEEL_PA},
             "envelope_ok": self.s.valid(design),
         }

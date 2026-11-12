@@ -23,7 +23,7 @@ number the film stands for and the step count. The volume in every frame is the 
 | Step | Module | Writes | Cost |
 |---|---|---|---|
 | Solve | `solve.py` | `snap_*.npz`, `meta.json` | 8–30 min on MPS |
-| Render | `scene.py` (inside Blender) | `frames/*.png` | ~11 s a frame at 1080p |
+| Render | `scene.py` (inside Blender) | `frames/*.png` | 7–19 s a frame at 1080p, by how much of the frame the volume covers |
 | Assemble | `film.py` | `<caso>.mp4`, `ficha.json` | seconds |
 
 They are separate on purpose. The stored field is the two scalars the picture needs — speed and Q — and the

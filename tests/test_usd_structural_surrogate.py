@@ -291,3 +291,25 @@ def test_the_dashboard_occupancy_matches_the_revolved_solid():
     # is inside it at all -- the outer cells touching it carry no value of their own
     assert not ((C[..., 2] > 0.0) & (C[..., 2] < NOMINAL["t"])
                 & (np.hypot(C[..., 0], C[..., 1]) < space.plate_diameter / 2)).any()
+
+
+def test_the_sliders_speak_millimetres_and_the_model_metres():
+    """The slider values are mm; a missing conversion made every design 1000x too big and out of envelope."""
+    pytest.importorskip("torch")
+    pytest.importorskip("physicsnemo")
+    from pinneapple_simulation.pipelines.usd_structural_surrogate.dashboard import Predictor
+    from pinneapple_simulation.pipelines.usd_structural_surrogate.surrogate import (
+        GeometryFNO,
+        Surrogate,
+    )
+
+    space = DesignSpace.from_interface()
+    g = GridSpec([-0.15, -0.15, 0.0], [0.30, 0.30, 0.51], [8, 8, 8])
+    net = GeometryFNO(g.n, latent_channels=4, num_fno_layers=1, num_fno_modes=3, padding=2)
+    pred = Predictor(Surrogate(net=net, grid=g, space=space, out_scale=np.ones(4)))
+    query = {"t": "11.0", "dc": "70", "r": "20", "h": "420"}
+    design = pred.design_from_query(query)
+    assert design == pytest.approx({"t": 0.011, "dc": 0.070, "r": 0.020, "h": 0.420})
+    assert space.contains(design), "the sliders' own nominal must land inside the envelope"
+    with pytest.raises(ValueError):
+        pred.payload({**design, "t": 11.0})          # a metre value passed where millimetres belong

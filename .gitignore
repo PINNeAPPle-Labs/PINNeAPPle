@@ -71,7 +71,12 @@ examples/openfoam_campaign/_out/
 examples/lbm/_out/
 examples/carbench_surface_pressure/_out/
 examples/carcrashnet_pole_impact/_out/
+examples/fluidsbench_airfrans/_out/
 examples/geometry_library/_out/
+examples/unity/_out/
+# dotnet artifacts of the C# harness (the test builds into a temp folder)
+pinneapple_unity/unity/tests/obj/
+pinneapple_unity/unity/tests/bin/
 dist/geometries/
 
 # brick experiment: heavy outputs (viewer copies three.js, frames)

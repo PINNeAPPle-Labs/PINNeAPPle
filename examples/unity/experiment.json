@@ -1,0 +1,257 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/unity",
+ "title": "PINNeAPPle in Unity: twin export, a Unity scene into OpenUSD, and a live bridge",
+ "description": "Three pipelines between PINNeAPPle and Unity: an engineering twin exported as a Unity project folder (fields coloured per vertex over time, sensors, legend), a Unity-authored scene read back and given checked physics that leaves as an OpenUSD layer with time samples and UsdPhysics, and an HTTP bridge the Unity runtime calls for a field while it plays, with the checks and the decision travelling with it. The three fields are also recorded as short MP4s (make_movies.py, matplotlib + ffmpeg) in media/, the same values and colour range the runtime shows. A fourth script trains a surrogate on the closed-form solution, checks it with the trust layer and records an 8 s turntable whose field is evaluated continuously by the network.",
+ "domain": "3-D visualisation and interoperability",
+ "methods": [
+  "transient 1-D conduction (Carslaw & Jaeger, closed form)",
+  "pin-fin excess temperature (Incropera Table 3.4 case A)",
+  "cantilever bending stress and the yield decision",
+  "glTF (binary) and OpenUSD interchange",
+  "HTTP/JSON runtime bridge",
+  "surrogate fitted to the closed-form transient conduction (MLP, pinneapple_neural.Trainer)"
+ ],
+ "modules": [
+  "pinneapple_neural",
+  "pinneapple_neural.trainer",
+  "pinneapple_physics.closed_form.cantilever_fatigue",
+  "pinneapple_physics.closed_form.heat",
+  "pinneapple_tools.visualization.studio.scene",
+  "pinneapple_twin3d",
+  "pinneapple_twin3d.primitives",
+  "pinneapple_unity",
+  "pinneapple_unity.bridge",
+  "pinneapple_unity.export",
+  "pinneapple_unity.ingest",
+  "pinneapple_unity.jobs",
+  "pinneapple_unity.protocol"
+ ],
+ "params": {
+  "times_s": [
+   0,
+   30,
+   120,
+   600,
+   1800,
+   3600
+  ],
+  "spool": {
+   "length_m": 0.4,
+   "radius_m": 0.03,
+   "t_hot_c": 180,
+   "t_cold_c": 30
+  },
+  "fin": {
+   "length_m": 0.06,
+   "h_w_m2k": 60,
+   "k_w_mk": 205
+  },
+  "bracket": {
+   "length_m": 0.25,
+   "width_m": 0.05,
+   "thickness_m": 0.01,
+   "load_n": 40,
+   "yield_mpa": 250
+  },
+  "bridge": {
+   "host": "127.0.0.1",
+   "port": 0,
+   "protocol": "pinneapple-unity/1"
+  }
+ },
+ "scripts": [
+  "01_engineering_twin_to_unity.py",
+  "02_unity_to_pinneapple_to_openusd.py",
+  "03_live_bridge.py",
+  "make_movies.py",
+  "04_surrogate_turntable.py",
+  "05_blender_turntable.py",
+  "make_viewer.py"
+ ],
+ "metrics": [
+  {
+   "name": "checks passed on the exported twin",
+   "value": 10,
+   "unit": "",
+   "how": "01_engineering_twin_to_unity.py: the checks of the two jobs (slab_transient 6, fin_temperature 4), all PASS"
+  },
+  {
+   "name": "problems reported by verify() on the exported folder",
+   "value": 0,
+   "unit": "",
+   "how": "01: verify_unity_folder re-reads scene.json, the GLB structure, the fields.bin offsets and the C# package"
+  },
+  {
+   "name": "vertices re-read by the C# data layer",
+   "value": 1148,
+   "unit": "",
+   "how": "dotnet run --project pinneapple_unity/unity/tests on the folder 01 wrote (984 spool + 164 fin)"
+  },
+  {
+   "name": "checks on the Unity-authored scene",
+   "value": 10,
+   "unit": "",
+   "how": "02: slab_transient 6 + cantilever_stress 4, every one PASS"
+  },
+  {
+   "name": "OpenUSD layer size",
+   "value": 34,
+   "unit": "kB",
+   "how": "02: scene.usda written by unity_to_usd from the emulated Unity export"
+  },
+  {
+   "name": "time-sampled attributes in the USD layer",
+   "value": 3,
+   "unit": "",
+   "how": "02: count of 'timeSamples' in scene.usda (temperature, bending_stress, the sensor value)"
+  },
+  {
+   "name": "bridge round trip for one job (median of 5)",
+   "value": 23.1,
+   "unit": "ms",
+   "how": "03: HTTP POST /v1/run, slab_transient on 41 vertices x 6 steps, median of 5 calls after the start-up warm-up; macOS laptop, loopback (3-40 ms across runs here, the first call of a session pays the thread start-up)"
+  },
+  {
+   "name": "peak stress of the refused design",
+   "value": 300,
+   "unit": "MPa",
+   "how": "03: cantilever_stress at a 1000 N tip load, against the 250 MPa yield in the job's parameters"
+  },
+  {
+   "name": "fields in the Unity folder written back from the USD twin",
+   "value": 2,
+   "unit": "",
+   "how": "02: export_for_unity(scene_from_twin(out/bracket_twin)) writes _out/bracket_back_in_unity (temperature, bending_stress), verify() reports 0 problems"
+  },
+  {
+   "name": "problems in the twin the bridge saved",
+   "value": 0,
+   "unit": "",
+   "how": "03: /v1/scene with save=_out/bridge_twin answers with the problems verify() found (0)"
+  },
+  {
+   "name": "surrogate relative L2 against the closed form",
+   "value": 0.167,
+   "unit": "%",
+   "how": "04_surrogate_turntable.py, seed 1: predicted T on a 41 x 25 grid over the smooth window vs pinneapple_physics.closed_form.heat.slab_transient"
+  },
+  {
+   "name": "surrogate heat-equation residual",
+   "value": 0.03136,
+   "unit": "",
+   "how": "pp.trust_card(..., pde='heat', dirichlet=...) on the same grid; tolerance 0.05 (field_checks default)"
+  },
+  {
+   "name": "training attempts before the card approved the fit",
+   "value": 2,
+   "unit": "",
+   "how": "04: seed 0 reached rel L2 0.248 % but failed the residual check and was retried; seed 1 was approved"
+  },
+  {
+   "name": "turntable clip",
+   "value": 240,
+   "unit": "frames",
+   "how": "04: 8 s at 30 fps, 1210 x 660, camera orbiting 360 deg with the field evaluated by the surrogate each frame"
+  },
+  {
+   "name": "vertices in the interactive viewer",
+   "value": 1476,
+   "unit": "",
+   "how": "make_viewer.py: 1148 (spool twin) + 328 (bracket twin) embedded with their fields, checks and stages"
+  },
+  {
+   "name": "Cycles turntable frames",
+   "value": 96,
+   "unit": "frames",
+   "how": "05_blender_turntable.py: 4 s at 24 fps, 1280x720, 16 samples with denoising, CPU Cycles; camera orbits 360 deg"
+  },
+  {
+   "name": "Cycles still",
+   "value": 128,
+   "unit": "samples",
+   "how": "05 --still: 1600x900, AgX, dark studio with area lights and a glossy floor"
+  },
+  {
+   "name": "VeriPhysics: load where the bracket verdict leaves APPROVED",
+   "value": 835,
+   "unit": "N",
+   "how": "make_viewer.py sweeps 10..1000 N through cantilever_stress; the job's yield check flips at 835 N (the analytic yield load of the section is 833 N)"
+  },
+  {
+   "name": "VeriPhysics: alpha where the surrogate leaves its 2% band",
+   "value": 2.0,
+   "unit": "1e-6 m2/s",
+   "how": "make_viewer.py sweeps the true alpha 2..8e-6 against the closed form; the surrogate trained at 4e-6 crosses 2 % relative L2 at 2.0e-6"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the exported twin folder verifies (GLB, field offsets, package)",
+   "passed": true,
+   "kind": "sanity"
+  },
+  {
+   "name": "every job of the demo scene is APPROVED",
+   "passed": true,
+   "kind": "physics"
+  },
+  {
+   "name": "the Unity link reads back with the up-axis conversion",
+   "passed": true,
+   "kind": "sanity"
+  },
+  {
+   "name": "the USD layer carries the fields as time samples with UsdPhysics",
+   "passed": true,
+   "kind": "sanity"
+  },
+  {
+   "name": "the overloaded bracket is refused (300 MPa vs 250 MPa yield)",
+   "passed": true,
+   "kind": "design"
+  },
+  {
+   "name": "the computed twin written by the bridge imports as a Unity folder",
+   "passed": true,
+   "kind": "sanity"
+  },
+  {
+   "name": "the surrogate passes the heat-equation residual and the Dirichlet walls",
+   "passed": true,
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "media/05_blender_still.png"
+  ],
+  "videos": [
+   "media/01_spool_temperature.mp4",
+   "media/02_bracket_temperature.mp4",
+   "media/03_bracket_bending_stress.mp4",
+   "media/04_surrogate_turntable.mp4",
+   "media/05_blender_turntable.mp4"
+  ],
+  "viewers": [
+   "twin_viewer.html"
+  ],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/unity_integration.md",
+  "readme": "examples/unity/README.md",
+  "package": "pinneapple_unity/README.md"
+ },
+ "references": [
+  "Carslaw & Jaeger, Conduction of Heat in Solids, 2nd ed. (1959) §3.3-3.4",
+  "Incropera et al., Fundamentals of Heat and Mass Transfer, Table 3.4 case A",
+  "glTF 2.0 specification (Khronos), binary .glb container",
+  "OpenUSD: UsdPhysics schema (PhysicsRigidBodyAPI, PhysicsCollisionAPI, PhysicsMaterialAPI)",
+  "Unity: UnityWebRequest, VertexHelper/COLOR vertex attribute, Assembly Definition files"
+ ],
+ "status": "not curated",
+ "provenance": {
+  "source": "written by hand for this folder (metrics measured by running the three scripts)"
+ }
+}

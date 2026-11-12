@@ -24,7 +24,7 @@ def main(argv=None) -> int:
     p.add_argument("--frames", type=int, default=144, help="quadros do vídeo (padrão: 144)")
     p.add_argument("--fps", type=int, default=24)
     p.add_argument("--res", default="1920x1080")
-    p.add_argument("--samples", type=int, default=64)
+    p.add_argument("--samples", type=int, default=32)
     p.add_argument("--device", default="mps", help="cpu | mps | cuda")
     p.add_argument("--still", action="store_true", help="só um quadro (para olhar o look antes do vídeo)")
     p.add_argument("--frame", type=int, default=1, help="quadro do --still")

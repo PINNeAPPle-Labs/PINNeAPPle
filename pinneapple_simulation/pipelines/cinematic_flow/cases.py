@@ -115,25 +115,42 @@ def build(name: str) -> Case:
                       windshield_deg=27.0, slant_deg=21.0, style="fastback", boat_tail=0.07, diffuser_deg=7.0,
                       wheel_radius=0.345, wheel_width=0.245, wheelbase=2.82, front_overhang=0.92,
                       n_x=200, n_ring=112)
-        # the render shows the body as it is drawn, not as it is meshed: glass, lamps and rims separate
-        visual, kinds = {}, {}
+        # The render shows the body as it is drawn, not as it is meshed — but the drawn shell is an open surface:
+        # its boundary runs along the sills and the arches, and at film scale those free edges read as a sawtooth
+        # silhouette. So the paint is the closed CFD body, and the detail parts sit a tenth of a percent outside
+        # it, which is enough to keep them out of a depth fight with the paint they are laid on.
+        closed = dict(car.cfd_bodies())
+        body_v = np.asarray(closed["body"][0], float)
+        centre = 0.5 * (body_v.min(axis=0) + body_v.max(axis=0))
+        visual = {"body": closed["body"]}
+        kinds = {"body": "paint"}
         for part in car.parts():
-            kind = {"car_trim": "paint", "car_glass": "glass", "headlight": "lamp",
-                    "taillight": "tail", "tyre": "tyre", "rim": "rim"}.get(part.material, "paint")
-            visual[part.name] = (np.asarray(part.vertices, float), np.asarray(part.faces, int))
-            kinds[part.name] = kind
+            mat = part.material
+            if mat in ("car_paint", "car_trim"):
+                continue
+            if mat in ("car_glass", "headlight", "taillight"):
+                v = centre + (np.asarray(part.vertices, float) - centre) * 1.003
+                visual[part.name] = (v, np.asarray(part.faces, int))
+                kinds[part.name] = {"car_glass": "glass", "headlight": "lamp", "taillight": "tail"}[mat]
+            elif mat in ("tyre", "rim"):
+                visual[part.name] = (np.asarray(part.vertices, float), np.asarray(part.faces, int))
+                kinds[part.name] = mat
         return Case("carro", dict(car.cfd_bodies()), ground=0.0,
                     paint={"body": "paint", "wheels": "tyre"},
                     caption=CASES["carro"], visual=visual, visual_paint=kinds)
     if name == "asa":
         bodies = wing_bodies()
-        return Case("asa", bodies, ground=None, upstream=1.6, downstream=3.2, lateral=1.1, overhead=1.1,
+        # the box is measured on the span, which is three chords: the wing is thin, so ``overhead`` and
+        # ``lateral`` are read against its own 0.29 m height and would leave the wake no room at all
+        return Case("asa", bodies, ground=None, upstream=1.0, downstream=2.0, lateral=0.5, overhead=2.5,
                     paint={"wing": "paint"}, caption=CASES["asa"])
     if name == "foguete":
         from pinneapple_design.geometry.vehicles3d import LaunchVehicle
 
         r = LaunchVehicle(length=12.0, diameter=1.0)   # a sounding rocket: the fins stay resolvable
-        return Case("foguete", dict(r.cfd_bodies()), ground=None, upstream=1.6, downstream=4.0,
-                    lateral=1.0, overhead=1.0, paint={"rocket": "paint", "fins": "paint"},
+        # a launcher is 12 m long and 5.8 m across the fins, so the room behind it is measured in lengths and the
+        # sides only need to clear the fin tips
+        return Case("foguete", dict(r.cfd_bodies()), ground=None, upstream=0.8, downstream=2.0,
+                    lateral=0.25, overhead=0.35, paint={"rocket": "paint", "fins": "paint"},
                     caption=CASES["foguete"])
     raise KeyError(f"caso desconhecido: {name!r} (há {sorted(CASES)})")

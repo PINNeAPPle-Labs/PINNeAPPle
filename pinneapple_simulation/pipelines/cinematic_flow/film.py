@@ -19,7 +19,7 @@ __all__ = ["make_film", "render_still"]
 
 # per-case camera: azimuth in degrees around the body, starting and ending, elevation, distance in radii
 CAMERA = {
-    "carro": dict(az0=-58.0, az1=-22.0, elev0=11.0, elev1=17.0, dist0=3.15, dist1=2.75, lens=45.0, fstop=2.4),
+    "carro": dict(az0=-62.0, az1=-30.0, elev0=9.0, elev1=14.0, dist0=2.50, dist1=2.20, lens=42.0, fstop=5.0),
     "asa": dict(az0=-42.0, az1=18.0, elev0=15.0, elev1=11.0, dist0=3.1, dist1=2.7, lens=48.0, fstop=2.4),
     "foguete": dict(az0=-50.0, az1=-12.0, elev0=10.0, elev1=15.0, dist0=3.2, dist1=2.8, lens=46.0, fstop=2.4),
 }
@@ -27,14 +27,25 @@ CAMERA = {
 # "that look": a deep navy body, a blue-white smoke, and a dark studio with two strip lights
 STYLE = {
     "paint": [0.014, 0.030, 0.080],
-    "tint": [0.34, 0.62, 0.98],
-    "hot": [0.86, 0.93, 1.0],
-    "emission": 0.7,
-    "noise_scale": 6.5,
-    "fiber": 0.5,
-    # what reads as smoke: the Q-criterion cut, and how much of the speed deficit is added to it
-    "smoke": {"percentile": 99.0, "floor": 0.22, "power": 1.0, "vort_weight": 1.0,
-              "deficit_weight": 0.35, "gain": 0.55},
+    "tint": [0.28, 0.55, 0.95],
+    "hot": [0.92, 0.97, 1.0],
+    "emission": 2.0,
+    "noise_scale": 26.0,
+    "fiber": 0.6,
+    "fiber_floor": 0.0,
+    # what reads as smoke: the Q-criterion cut, and how much of the speed deficit is added to it. The emission
+    # is what makes it glow, so the field is kept sparse and bright instead of wide and dense — a dense field
+    # integrates along the ray into a white slab that hides the body.
+    "smoke": {"percentile": 99.0, "floor": 0.45, "power": 1.3, "vort_weight": 1.0,
+              "deficit_weight": 0.0, "gain": 1.0, "resample": 2, "taper": 0.14},
+    "light": {"strip": 45.0, "area": 420.0},
+    "paint_rough": 0.30,
+    "coat_rough": 0.10,
+    "motion_blur": False,
+    # measured on this machine at 1920x1080: these give the same picture as tile 2 / 256 samples for a third of
+    # the time (23 s a frame against 57 s), because the field is smooth and the volume is what costs the frame
+    "volumetric_samples": 160,
+    "volumetric_tile": "4",
 }
 
 
@@ -81,19 +92,58 @@ def _run_blender(cfg: dict, timeout: int = 6 * 3600) -> None:
         raise RuntimeError(f"o Blender não terminou o render (log em {log})")
 
 
-def _assemble(frames_dir: str, out_mp4: str, fps: int) -> str | None:
+CAPTION_FONTS = ("/System/Library/Fonts/HelveticaNeue.ttc", "/System/Library/Fonts/Helvetica.ttc",
+                 "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+
+
+def _caption_png(text: str, sub: str, path: str, size: tuple[int, int]) -> str | None:
+    """The short caption, drawn once as a transparent overlay.
+
+    It is drawn here rather than burned by the renderer so that the text never goes through the camera's focus
+    and its own motion blur — a caption that blurs with the subject reads as a mistake. ``ffmpeg``'s drawtext is
+    not in every build, so the picture is an image and the assembly is an overlay.
+    """
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return None
+    font_path = next((f for f in CAPTION_FONTS if os.path.exists(f)), None)
+    if font_path is None:
+        return None
+    w, h = size
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    big = ImageFont.truetype(font_path, max(14, int(h * 0.032)))
+    small = ImageFont.truetype(font_path, max(11, int(h * 0.0155)))
+    x, y = int(w * 0.065), int(h * 0.795)
+    for dx, dy, title_col, sub_col in ((2, 3, (0, 0, 0, 150), (0, 0, 0, 140)),
+                                       (0, 0, (255, 255, 255, 232), (176, 206, 240, 210))):
+        draw.text((x + dx, y + dy), text, font=big, fill=title_col)
+        draw.text((x + dx, y + int(h * 0.052) + dy), sub, font=small, fill=sub_col)
+    img.save(path)
+    return path
+
+
+def _assemble(frames_dir: str, out_mp4: str, fps: int, caption: str | None = None) -> str | None:
     ff = shutil.which("ffmpeg")
     if ff is None:
         return None
-    subprocess.run([ff, "-y", "-framerate", str(fps), "-i", os.path.join(frames_dir, "frame_%04d.png"),
-                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-movflags", "+faststart",
-                    out_mp4], capture_output=True, text=True, check=False)
+    base = [ff, "-y", "-framerate", str(fps), "-start_number", "1",
+            "-i", os.path.join(frames_dir, "frame_%04d.png")]
+    tail = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-movflags", "+faststart", out_mp4]
+    if caption and os.path.exists(caption):
+        cmd = base + ["-i", caption, "-filter_complex",
+                      "[1:v]format=rgba,fade=t=in:st=0.5:d=0.9:alpha=1[c];[0:v][c]overlay=0:0:format=auto,"
+                      "format=yuv420p"] + tail
+    else:
+        cmd = base + tail
+    subprocess.run(cmd, capture_output=True, text=True, check=False)
     return out_mp4 if os.path.exists(out_mp4) else None
 
 
 def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int = 140, steps: int = 2400,
               snapshots: int = 10, stride: int = 1, device: str = "mps", frames: int = 144, fps: int = 24,
-              res_x: int = 1920, res_y: int = 1080, samples: int = 64, camera: dict | None = None,
+              res_x: int = 1920, res_y: int = 1080, samples: int = 32, camera: dict | None = None,
               style: dict | None = None, force_solve: bool = False) -> dict:
     """Solve ``case`` if it is not solved yet, render it, and write the film plus its record."""
     case = build(case) if isinstance(case, str) else case
@@ -109,27 +159,36 @@ def make_film(case: str | Case = "carro", *, out_dir: str, cells_per_length: int
         print(f"[{case.name}] solve reaproveitado de {meta_path}", flush=True)
 
     bodies = _write_bodies(case, os.path.join(out_dir, "corpo"))
+    st = {**STYLE, **(style or {})}
     cfg = {
         "out_dir": out_dir,
         "bodies": bodies,
         "snapshots": meta["snapshots"],
-        "voxel_size": tunnel.dx * meta["stride"],
-        "origin": list(tunnel.origin),
+        "voxel_size": float(meta["tunnel"]["dx"]) * meta["stride"],
+        "origin": list(meta["tunnel"]["origin"]),
+        "shape": list(meta["shape_sub"]),
         "ground": case.ground,
         "frame": _frame(case),
         "camera": {**CAMERA.get(case.name, CAMERA["carro"]), **(camera or {})},
-        "style": {**STYLE, **(style or {})},
-        "render": {"res_x": res_x, "res_y": res_y, "samples": samples, "frames": frames, "fps": fps},
+        "style": st,
+        "render": {"res_x": res_x, "res_y": res_y, "samples": samples, "frames": frames, "fps": fps,
+                   "volumetric_samples": st["volumetric_samples"], "volumetric_tile": st["volumetric_tile"],
+                   "motion_blur": st.get("motion_blur", True)},
     }
     _run_blender(cfg)
-    mp4 = _assemble(os.path.join(out_dir, "frames"), os.path.join(out_dir, f"{case.name}.mp4"), fps)
+    rep = meta["report"]
+    sub = (f"{rep['malha'][0]}×{rep['malha'][1]}×{rep['malha'][2]} células · "
+           f"Re {rep['re_fisico']:.1e} · Q-criterion · WindTunnelLBM")
+    cap = _caption_png(case.caption.split("—")[0].strip(), sub,
+                       os.path.join(out_dir, "legenda.png"), (res_x, res_y))
+    mp4 = _assemble(os.path.join(out_dir, "frames"), os.path.join(out_dir, f"{case.name}.mp4"), fps, cap)
     ficha = {
         **meta["report"],
         "render": {"res": [res_x, res_y], "frames": frames, "fps": fps, "samples": samples,
                    "engine": "EEVEE", "segundos": frames / fps},
         "video": mp4,
         "fontes": {"campo": "WindTunnelLBM (D3Q19, Smagorinsky LES)",
-                   "volume": "densidade = vorticidade + déficit de velocidade",
+                   "volume": "densidade = critério Q (rotação menos deformação)",
                    "motor": "Blender EEVEE + OpenVDB"},
     }
     with open(os.path.join(out_dir, "ficha.json"), "w", encoding="utf-8") as f:
@@ -148,15 +207,20 @@ def render_still(case: str | Case = "carro", *, out_dir: str, frame: int = 1, **
     # the voxel size and the origin come from the run that is on disk, not from a fresh plan: a still of a
     # 120-cell solve must not be placed as if it were the 140-cell one
     bodies = _write_bodies(case, os.path.join(out_dir, "corpo"))
+    st = {**STYLE, **(kw.get("style") or {})}
     cfg = {
         "out_dir": out_dir, "bodies": bodies, "snapshots": meta["snapshots"],
         "voxel_size": float(meta["tunnel"]["dx"]) * meta["stride"],
         "origin": list(meta["tunnel"]["origin"]), "ground": case.ground,
+        "shape": list(meta["shape_sub"]),
         "frame": _frame(case),
         "camera": {**CAMERA.get(case.name, CAMERA["carro"]), **(kw.get("camera") or {})},
-        "style": {**STYLE, **(kw.get("style") or {})},
+        "style": st,
         "render": {"res_x": kw.get("res_x", 1920), "res_y": kw.get("res_y", 1080),
-                   "samples": kw.get("samples", 48), "frames": kw["frames"], "fps": 24, "only_frame": frame},
+                   "samples": kw.get("samples", 48), "frames": kw["frames"], "fps": 24, "only_frame": frame,
+                   "volumetric_samples": st["volumetric_samples"],
+                   "volumetric_tile": st["volumetric_tile"],
+                   "motion_blur": st.get("motion_blur", True)},
     }
     _run_blender(cfg)
-    return os.path.join(out_dir, "frames", f"frame_{frame - 1:04d}.png")
+    return os.path.join(out_dir, "frames", f"frame_{frame:04d}.png")

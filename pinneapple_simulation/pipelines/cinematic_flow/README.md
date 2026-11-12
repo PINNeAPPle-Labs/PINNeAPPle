@@ -19,20 +19,35 @@ python -m pinneapple_simulation.pipelines.cinematic_flow carro --out filmes/carr
 | Render | `scene.py` (inside Blender) | `frames/*.png` | minutes |
 | Assemble | `film.py` | `<caso>.mp4`, `ficha.json` | seconds |
 
-The look is tuned on the render side only: the stored fields are the two the picture needs (speed deficit and
-vorticity, both dimensionless), and the scalar that becomes density is built at render time. Changing the
+The look is tuned on the render side only: the stored fields are the two the picture needs (speed and the
+Q-criterion, both dimensionless), and the scalar that becomes density is built at render time. Changing the
 threshold that decides what reads as smoke does not cost another solve.
 
 ## What is on screen
 
-- **The smoke** is `density = vorticity + speed deficit`, cut below a percentile. Vorticity is what draws the
-  filaments and the shear layers; the deficit is what fills the wake. A coarse lattice leaves a low-level noise
-  floor in the free stream, so the cut is not optional — without it the whole tunnel turns into fog.
+- **The smoke** is the Q-criterion, `Q = (|Ω|² − |S|²)/2`, cut above a high percentile of the fluid. Vorticity
+  magnitude will not do here: the road under a car is a moving wall, and its boundary layer carries more
+  vorticity than the wake does, so a picture built on `|ω|` paints the floor and leaves the wake empty. Q is
+  zero for pure shear and positive only where rotation beats strain, which is the structure the picture wants.
+- **The volume is tapered into the walls.** The field is a box and a box has edges: where the wake still has
+  density at the boundary the render shows a straight cut, and that cut reads as a box rather than as air. A
+  raised cosine over the outer 14 % of each axis takes the field to zero before it reaches the wall.
+- **The grid is refined before it is written.** The stored field is subsampled to keep the files small; a
+  trilinear pass to twice the resolution adds no detail, but it removes the stair-step of an 8 cm voxel along a
+  curved surface, which is what makes a volume read as blocks instead of smoke.
 - **The colour** walks from the tint of the thin wake to white where the field is dense, which is what reads as
   depth in a cloud. There is no colour map: the picture is not a plot, and `ficha.json` carries the numbers.
 - **The glow** is an emission node multiplied by the density itself. `Principled Volume`'s own emission is
   emitted through the volume's whole bounding box whatever the density is, which turns a sparse field into a
-  solid slab — the reason the shader here is built by hand.
+  solid slab — the reason the shader here is built by hand. For the same reason the texture that breaks up the
+  cloud multiplies the field down to zero instead of down to a fraction of itself.
+- **The snapshots crossfade on overlapping windows.** Keyed end to end, the outgoing and the incoming grid are
+  both at zero on the same frame and the smoke blinks out once per snapshot — a fault that exists only in the
+  animation, never in a still.
+
+The caption on the finished film is drawn as a transparent overlay at assembly time, not burned by the
+renderer: text rendered inside the scene goes through the camera's focus and its motion blur, and a caption
+that blurs with the subject reads as a mistake.
 
 ## Recorded with every film
 

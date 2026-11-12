@@ -56,11 +56,13 @@ example checks all three cases before it renders anything (`examples/cinematic_f
 | pure shear `u = (y, 0, 0)` | 0.0 | 0 |
 | pure strain `u = (x, −y, 0)` | −1.0 | −1 |
 
-The wing is the exception that proves the rule. The Q of a lifting surface lives in a boundary layer one cell
-thick: cut above the ninety-ninth percentile it leaves a rim around the planform and an empty wake, because the
-wake a wing actually leaves is a *momentum deficit*, not a vortex. So the wing's density is the deficit with Q
-added at half weight, the bluff bodies use Q alone, and the caption on each film names what is on screen rather
-than asserting one formula everywhere (`SMOKE_BY_CASE` in `film.py`).
+Q alone is right for the car and wrong for the other two. On a thin or a lifting body, Q lives in a boundary
+layer one cell thick: cut above the ninety-ninth percentile it leaves a rim around the planform and an empty
+wake, because the wake those bodies actually leave is a *momentum deficit*, not a vortex. So the wing and the
+launcher add the deficit (at weights 1.0 and 1.2, with Q at 0.5 and 0.2), the car uses Q alone, and the caption
+on each film names what is on screen instead of asserting one formula everywhere (`SMOKE_BY_CASE` in
+`film.py`). The traffic is one-way: the deficit is what a viewer reads as smoke, and on a bluff body it fills the
+whole tunnel with fog, which is why it is not simply added everywhere.
 
 ## Four things that are easy to get wrong
 

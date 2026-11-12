@@ -154,5 +154,5 @@ def build(name: str) -> Case:
         # sides only need to clear the fin tips
         return Case("foguete", dict(r.cfd_bodies()), ground=None, upstream=0.8, downstream=2.0,
                     lateral=0.25, overhead=0.35, paint={"rocket": "paint", "fins": "paint"},
-                    caption=CASES["foguete"])
+                    caption=CASES["foguete"], field_label="Q + déficit de velocidade")
     raise KeyError(f"caso desconhecido: {name!r} (há {sorted(CASES)})")

@@ -24,7 +24,9 @@ CAMERA = {
     # one on the +x side looks along the chord. Slightly downstream of broadside is the shot that keeps the span
     # across the frame and brings the wake toward the lens.
     "asa": dict(az0=-56.0, az1=-38.0, elev0=30.0, elev1=24.0, dist0=3.60, dist1=3.30, lens=48.0, fstop=4.5),
-    "foguete": dict(az0=-58.0, az1=-26.0, elev0=8.0, elev1=13.0, dist0=2.90, dist1=2.60, lens=48.0, fstop=5.0),
+    # a launcher is 12 m long and 5.8 m across the fins: from behind the fins fill the frame and hide the body.
+    # Broadside with a slow arc keeps the length across the frame and the wake in view beside it.
+    "foguete": dict(az0=-104.0, az1=-84.0, elev0=20.0, elev1=25.0, dist0=3.70, dist1=3.45, lens=48.0, fstop=5.0),
 }
 
 # "that look": a deep navy body, a blue-white smoke, and a dark studio with two strip lights
@@ -57,6 +59,7 @@ STYLE = {
 # tunnel and would be a fog, so the weight is per case and the caption names what is being shown.
 SMOKE_BY_CASE = {
     "asa": {"vort_weight": 0.5, "deficit_weight": 1.0, "floor": 0.50, "power": 1.3},
+    "foguete": {"vort_weight": 0.2, "deficit_weight": 1.2, "floor": 0.45, "power": 1.2},
 }
 
 

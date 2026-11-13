@@ -25,7 +25,7 @@ Both are the smallest honest version of their family (a reduced budget on a CPU)
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from dataclasses import field as _dc_field
 from typing import Any
@@ -93,6 +93,7 @@ class BenchReport:
     config: BenchConfig = _dc_field(default_factory=BenchConfig)
     results: dict[str, ModelResult] = _dc_field(default_factory=dict)
     gates: dict[str, Any] = _dc_field(default_factory=dict)
+    model_gates: dict[str, Any] = _dc_field(default_factory=dict)
     n_train: int = 0
     n_test: int = 0
     summary: str = ""
@@ -112,7 +113,7 @@ class BenchReport:
         return {"bundle_id": self.bundle_id, "field": self.field, "config": self.config.to_dict(),
                 "n_train": self.n_train, "n_test": self.n_test, "leader": self.leader(), "ok": self.ok,
                 "results": {k: r.to_dict() for k, r in self.results.items()}, "gates": self.gates,
-                "summary": self.summary}
+                "model_gates": self.model_gates, "summary": self.summary}
 
     def to_markdown(self) -> str:
         cfg = self.config
@@ -134,8 +135,12 @@ class BenchReport:
         if leader:
             lines += ["", f"Leader: **{leader}** (lowest held-out relative L2, tolerance {cfg.tolerance:.1e})."]
         if self.gates:
-            lines += ["", "## Verification gates", "", "| gate | status | value | detail |", "|---|---|---:|---|"]
+            lines += ["", "## Data gates", "", "| gate | status | value | detail |", "|---|---|---:|---|"]
             for gate in self.gates.get("gates", []):
+                lines.append(f"| {gate['check_id']} | {gate['status']} | {gate.get('value')} | {gate.get('detail','')} |")
+        if self.model_gates:
+            lines += ["", "## Model gates", "", "| gate | status | value | detail |", "|---|---|---:|---|"]
+            for gate in self.model_gates.get("gates", []):
                 lines.append(f"| {gate['check_id']} | {gate['status']} | {gate.get('value')} | {gate.get('detail','')} |")
         if self.summary:
             lines += ["", self.summary]
@@ -349,11 +354,18 @@ def run_model(bundle: PhysicsDataBundle, config: BenchConfig, model: str, *,
 
 def run_benchmark(bundle: PhysicsDataBundle, config: BenchConfig | None = None, *,
                   models: Sequence[str] = ("pinn", "fno"), residual: Callable[..., Any] | None = None,
-                  ledger=None) -> BenchReport:
+                  equation: str = "", parameters: Mapping[str, float] | None = None,
+                  conserved: str | None = None, ledger=None) -> BenchReport:
     """Train every model on the same split, score them the same way, and gate the best prediction.
 
-    With ``ledger`` (an ``pinneapple_veriphysics.ledger.EvidenceLedger``) each model's held-out score is sealed
-    with the bundle digest as its input hash, so the words "the FNO reached 3e-2" have a record behind them."""
+    Two sets of gates come back with the ranking: the **data** gates over the winning prediction
+    (:mod:`pinneapple_data.schema.gates`) and the **model** gates from
+    :mod:`pinneapple_veriphysics.surrogate_gates` -- accuracy, conservation and the PDE residual when ``equation=``
+    names one this library discretises (``"advection"``, ``"burgers"``, ``"diffusion"``, ``"wave"``). A gate that
+    cannot be asked reads "not run".
+
+    With ``ledger`` (a ``pinneapple_veriphysics.ledger.EvidenceLedger``) each model's held-out score is sealed with
+    the bundle digest as its input hash, so the words "the FNO reached 3e-2" have a record behind them."""
     cfg = config or BenchConfig()
     report = BenchReport(bundle_id=bundle.manifest.id, field=cfg.field, config=cfg)
     data = prepare(bundle, cfg)
@@ -384,6 +396,15 @@ def run_benchmark(bundle: PhysicsDataBundle, config: BenchConfig | None = None, 
         report.gates = gates.to_dict()
         report.gates["gates"].insert(0, {**run_gates(bundle, gates=("integrity",)).to_dict()["gates"][0],
                                          "detail": "the data bundle's own digest"})
+        from pinneapple_veriphysics.surrogate_gates import run_surrogate_gates
+
+        model_gates = run_surrogate_gates(
+            predicted, reference=bundle, field=cfg.field, model=best[0], conserved=conserved,
+            equation=equation, parameters=parameters, region=slice(len(data.train), None),
+            tolerance=cfg.tolerance)
+        report.model_gates = model_gates.to_dict()
+        if ledger is not None:
+            model_gates.record(ledger, inputs_sha256=predicted.digest())
     report.summary = (
         f"Leader {report.leader() or 'n/a'} on {report.n_test} held-out time steps; "
         f"tolerance {cfg.tolerance:.1e} -> {'within' if report.ok else 'outside'}. "

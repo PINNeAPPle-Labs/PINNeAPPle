@@ -68,7 +68,7 @@ def test_the_reference_gate_measures_the_prediction_against_the_data():
 def test_the_markdown_report_says_what_was_run():
     text = run_benchmark(travelling_wave(), TINY).to_markdown()
     assert "| model | parameters | rel-L2" in text
-    assert "Leader" in text and "Verification gates" in text
+    assert "Leader" in text and "Data gates" in text and "Model gates" in text
 
 
 def test_a_ledger_seals_each_model_score():

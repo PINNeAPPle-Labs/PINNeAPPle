@@ -54,6 +54,7 @@ from .models import (
     SCHEMA_VERSION,
     ArrayRef,
     AxisSpec,
+    Block,
     BoundaryCondition,
     BundleManifest,
     CheckResult,
@@ -65,14 +66,16 @@ from .models import (
     Material,
     Mesh,
     Parameter,
+    Patch,
     Physics,
+    Polyhedral,
     Provenance,
     Region,
     Verification,
 )
 
 __all__ = [
-    "SCHEMA_VERSION", "ArrayRef", "AxisSpec", "BoundaryCondition", "BundleManifest", "CheckResult", "Field",
-    "Fields", "FileRef", "Geometry", "InitialCondition", "Material", "Mesh", "Parameter", "Physics",
+    "SCHEMA_VERSION", "ArrayRef", "AxisSpec", "Block", "BoundaryCondition", "BundleManifest", "CheckResult", "Field",
+    "Fields", "FileRef", "Geometry", "InitialCondition", "Material", "Mesh", "Parameter", "Patch", "Physics", "Polyhedral",
     "Provenance", "Region", "Verification", "PhysicsDataBundle", "save", "load", "GateReport", "run_gates",
 ]

@@ -40,6 +40,9 @@ from ..physical_units import UnitError, parse_unit
 
 SCHEMA_VERSION = "1.0"
 DIMENSIONLESS = frozenset({"1", "-", "", "dimensionless", "[-]"})
+#: A unit that is known to be *some* unit but was not recorded (a CalculiX deck in "model units"). It is a real
+#: value, and the `units` gate fails it: it must not be confused with dimensionless, which is a measurement.
+UNKNOWN_UNIT = "unknown"
 
 Location = Literal["nodal", "cell"]
 Kind = Literal["grid", "unstructured", "point-cloud", "none"]
@@ -50,13 +53,17 @@ def _now() -> str:
 
 
 def unit_or_dimensionless(text: str) -> str:
-    """Return ``text`` if it parses as a unit or means dimensionless; raise otherwise.
+    """Return ``text`` if it parses as a unit, means dimensionless, or is ``"unknown"``; raise otherwise.
 
-    ``"1"`` and ``"-"`` are the two spellings of dimensionless that appear in practice (NASA CFL3D and
-    OpenFOAM respectively); both are normalised to ``"1"`` so a bundle has exactly one of them."""
+    ``"1"`` and ``"-"`` are the two spellings of dimensionless that appear in practice (NASA CFL3D and OpenFOAM
+    respectively); both are normalised to ``"1"`` so a bundle has exactly one of them. ``"unknown"`` is accepted
+    because a solver deck in "model units" genuinely has a unit nobody wrote down -- and the ``units`` gate fails
+    it, which is the difference between "I do not know" and "it is dimensionless"."""
     raw = (text or "").strip()
     if raw.lower() in DIMENSIONLESS:
         return "1"
+    if raw.lower() == UNKNOWN_UNIT:
+        return UNKNOWN_UNIT
     try:
         parse_unit(raw)
     except UnitError as exc:
@@ -126,13 +133,67 @@ class AxisSpec(_Model):
     _unit = field_validator("unit")(lambda cls, v: unit_or_dimensionless(v))
 
 
+class Block(_Model):
+    """One group of cells of the same element type: the connectivity of a mixed mesh, block by block.
+
+    A CAE mesh is mixed by nature -- a volume of hexahedra or tetrahedra plus a surface of triangles and quads --
+    so a single connectivity array with a single cell type cannot describe it without dropping the boundary. Each
+    block names its VTK element type (``hexahedron``, ``tetra``, ``triangle``, ...) and holds ``(n_cells, nodes)``
+    indices into :attr:`Mesh.nodes`. ``name`` keeps the group name the source gave it (an OpenFOAM patch, an
+    Abaqus ELSET) so it can be found again.
+    """
+
+    type: str = PField(min_length=1)
+    data: ArrayRef
+    name: str = ""
+    boundary: bool = False
+
+    @property
+    def nodes_per_cell(self) -> int:
+        return int(self.data.shape[1]) if len(self.data.shape) > 1 else 0
+
+
+class Patch(_Model):
+    """One boundary patch of a face-based (polyhedral) mesh: its name, its type and where its faces start."""
+
+    name: str = PField(min_length=1)
+    type: str = ""
+    start_face: int = PField(ge=0)
+    n_faces: int = PField(ge=0)
+
+
+class Polyhedral(_Model):
+    """A face-based finite-volume mesh, the shape OpenFOAM writes: faces, owner/neighbour and boundary patches.
+
+    Faces are stored the way the case stores them -- a flat node list with offsets -- because a polyhedron has no
+    fixed number of nodes and no canonical ordering to expand it into, and expanding it would be a lossy translation
+    of what the solver actually solved on. The derived quantities (cell volumes, face areas, non-orthogonality)
+    are the mesh-quality tools' job, not the schema's.
+    """
+
+    face_nodes: ArrayRef                 # flat node indices, concatenated per face
+    face_offsets: ArrayRef               # (n_faces + 1,)
+    owner: ArrayRef                      # (n_faces,)
+    neighbour: ArrayRef                  # (n_internal,)
+    n_cells: int = PField(ge=0)
+    patches: list[Patch] = PField(default_factory=list)
+
+    @property
+    def n_faces(self) -> int:
+        return int(self.owner.shape[0])
+
+    @property
+    def n_internal(self) -> int:
+        return int(self.neighbour.shape[0])
+
+
 class Mesh(_Model):
     """The discretisation a field lives on: a structured grid (axis by axis) or an unstructured one.
 
-    ``kind="grid"`` uses :attr:`axes` and needs no connectivity; ``kind="unstructured"`` uses :attr:`nodes`
-    ``(n_nodes, dim)`` and :attr:`cells` ``(n_cells, nodes_per_cell)`` plus :attr:`cell_types`; ``kind="none"``
-    is a dataset of independent samples (a table of parametric results) that still wants a unit-bearing
-    contract.
+    ``kind="grid"`` uses :attr:`axes` and needs no connectivity. ``kind="unstructured"`` uses :attr:`nodes`
+    ``(n_nodes, dim)`` plus either :attr:`cells` ``(n_cells, nodes_per_cell)`` with one :attr:`cell_types` entry
+    (a homogeneous mesh) or :attr:`blocks` (a mixed one, which is what CAE files hand you). ``kind="none"`` is a
+    dataset of independent samples (a table of parametric results) that still wants a unit-bearing contract.
     """
 
     kind: Kind = "grid"
@@ -141,6 +202,8 @@ class Mesh(_Model):
     nodes: ArrayRef | None = None
     cells: ArrayRef | None = None
     cell_types: list[str] = PField(default_factory=list)
+    blocks: list[Block] = PField(default_factory=list)
+    poly: Polyhedral | None = None
     physical_groups: dict[str, list[str]] = PField(default_factory=dict)
     quality: dict[str, float] = PField(default_factory=dict)
 
@@ -150,12 +213,14 @@ class Mesh(_Model):
             raise ValueError("a grid mesh declares at least one axis (with its coordinates)")
         if self.kind == "grid" and len({a.name for a in self.axes}) != len(self.axes):
             raise ValueError("axis names must be unique")
-        if self.kind == "unstructured" and (self.nodes is None or self.cells is None):
-            raise ValueError("an unstructured mesh needs nodes and cells")
-        if self.kind == "unstructured" and self.cell_types and len(self.cell_types) != 1:
-            # a mixed-element mesh is allowed, but then every cell has to say which type it is
-            raise ValueError("a non-empty cell_types must have exactly one entry (homogeneous mesh); "
-                             "per-cell types belong in the bundle's metadata")
+        if self.kind == "unstructured":
+            if self.nodes is None:
+                raise ValueError("an unstructured mesh needs nodes")
+            if self.cells is None and not self.blocks and self.poly is None:
+                raise ValueError("an unstructured mesh needs cells, or the blocks that hold them")
+            if self.cells is not None and self.cell_types and len(self.cell_types) != 1:
+                raise ValueError("a non-empty cell_types must have exactly one entry (homogeneous mesh); a mixed "
+                                 "mesh declares its connectivities in `blocks`")
         return self
 
     @property
@@ -180,9 +245,30 @@ class Mesh(_Model):
 
     @property
     def n_cells(self) -> int | None:
+        """The cells a *cell field* is indexed by: the rows of ``cells``, or of the non-boundary blocks.
+
+        Boundary blocks (a patch of triangles around a volume) are geometry, not cells of the volume, so counting
+        them here would tell a cell field it has more entries than it has."""
+        if self.poly is not None:
+            return int(self.poly.n_cells)
+        if self.blocks:
+            return int(sum(b.data.shape[0] for b in self.blocks if not b.boundary))
         if self.cells is not None:
             return int(self.cells.shape[0])
         return None
+
+    def all_cells(self) -> list[tuple[str, str, ArrayRef, bool]]:
+        """``(name, element type, reference, is_boundary)`` per block, or one entry for a homogeneous mesh.
+
+        A polyhedral mesh has no expansion into fixed connectivities here -- use :attr:`poly`, whose faces are what
+        the solver used."""
+        if self.poly is not None:
+            return []
+        if self.blocks:
+            return [(b.name, b.type, b.data, b.boundary) for b in self.blocks]
+        if self.cells is not None:
+            return [("", self.cell_types[0] if self.cell_types else "", self.cells, False)]
+        return []
 
 
 class Region(_Model):

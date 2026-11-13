@@ -90,7 +90,8 @@ class PhysicsDataBundle:
     @classmethod
     def from_arrays(cls, arrays: Mapping[str, np.ndarray], *, fields: Sequence[Field] = (),
                     axes: Sequence[AxisSpec] = (), physics: Physics | None = None, source: str,
-                    license: str = "", title: str = "", id: str | None = None, mesh: Mesh | None = None,
+                    license: str = "unknown", title: str = "", id: str | None = None,
+                    mesh: Mesh | None = None,
                     geometry: Geometry | None = None, verification: Verification | None = None,
                     inputs: Sequence[FileRef] = (), adapter: str = "", adapter_version: str = "",
                     kind: str = "dataset",
@@ -125,7 +126,7 @@ class PhysicsDataBundle:
                               axes=axis_specs),
             physics=physics or Physics(),
             fields=Fields(variables=list(fields)),
-            provenance=Provenance(source=source, license=license or "unknown", kind=kind, inputs=list(inputs),
+            provenance=Provenance(source=source, license=_licence(license), kind=kind, inputs=list(inputs),
                                   adapter=adapter, adapter_version=adapter_version, url=url, citation=citation,
                                   config=dict(config or {})),
             verification=verification or Verification(),
@@ -215,10 +216,14 @@ class PhysicsDataBundle:
                 yield ax.data
         for f in self.manifest.fields.variables:
             yield f.data
-        if self.manifest.mesh.nodes is not None:
-            yield self.manifest.mesh.nodes
-        if self.manifest.mesh.cells is not None:
-            yield self.manifest.mesh.cells
+        for ref in (self.manifest.mesh.nodes, self.manifest.mesh.cells):
+            if ref is not None:
+                yield ref
+        for block in self.manifest.mesh.blocks:
+            yield block.data
+        poly = self.manifest.mesh.poly
+        if poly is not None:
+            yield from (poly.face_nodes, poly.face_offsets, poly.owner, poly.neighbour)
 
     # ── persistence ────────────────────────────────────────────────────────────────────────────────────────
     def save(self, directory: str | os.PathLike[str]) -> Path:
@@ -344,6 +349,11 @@ def _manifest_refs(manifest: BundleManifest) -> Iterator[ArrayRef]:
     for ref in (manifest.mesh.nodes, manifest.mesh.cells):
         if ref is not None:
             yield ref
+    for block in manifest.mesh.blocks:
+        yield block.data
+    if manifest.mesh.poly is not None:
+        poly = manifest.mesh.poly
+        yield from (poly.face_nodes, poly.face_offsets, poly.owner, poly.neighbour)
 
 
 def _spatial_dim(axes: Sequence[AxisSpec]) -> int:
@@ -356,6 +366,15 @@ def _slug(text: str) -> str:
     while "--" in slug:
         slug = slug.replace("--", "-")
     return slug or "bundle"
+
+
+def _licence(text: str) -> str:
+    """A licence of "" is a caller who forgot, not a dataset without one: say so instead of writing "unknown"."""
+    value = (text or "").strip()
+    if not value:
+        raise ValueError("license is required: give the source's licence, or the literal 'unknown' to record that it "
+                         "is not known (the provenance gate then fails it, which is the point)")
+    return value
 
 
 def content_digest(arrays: Mapping[str, np.ndarray]) -> str:

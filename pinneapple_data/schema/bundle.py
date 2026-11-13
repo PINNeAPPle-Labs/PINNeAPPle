@@ -6,10 +6,11 @@ Layout of a saved bundle::
         bundle.json      the BundleManifest (schema pinneapple.physics-data/1), digest included
         arrays.npz       one array per key the manifest references
 
-``bundle.json`` is indented and sorted so it diffs and reads well; ``arrays.npz`` is written by ``numpy.savez``.
-The digest is the SHA-256 of the canonical manifest plus, in sorted key order, the SHA-256 of every array's
-bytes; :meth:`PhysicsDataBundle.load` recomputes it and refuses a bundle that does not match, which is what turns
-"the file says it passed" into "the file is the one that was checked".
+``bundle.json`` is indented and sorted so it diffs and reads well; ``arrays.npz`` holds one ``.npy`` per key. Both
+are written with fixed timestamps, so saving the same bundle twice produces the same bytes -- a digest is only
+useful if the bytes behind it are reproducible. The digest is the SHA-256 of the canonical manifest plus, in sorted
+key order, the SHA-256 of every array's bytes; :meth:`PhysicsDataBundle.load` recomputes it and refuses a bundle that
+does not match, which is what turns "the file says it passed" into "the file is the one that was checked".
 
 Why a directory and not a single file: a bundle is meant to be read by other tools (h5py, xarray, ParaView), and
 keeping the manifest as plain JSON is what lets them read the metadata without this library. A single ``.zip``
@@ -30,6 +31,7 @@ is available through :meth:`PhysicsDataBundle.pack` for shipping.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import tempfile
@@ -236,7 +238,7 @@ class PhysicsDataBundle:
             encoding="utf-8")
         tmp = target / (ARRAYS_NAME + ".tmp")
         with open(tmp, "wb") as fh:
-            np.savez_compressed(fh, **{k: np.ascontiguousarray(v) for k, v in self.arrays.items()})
+            _write_npz(fh, self.arrays)
         os.replace(tmp, target / ARRAYS_NAME)
         return target
 
@@ -267,7 +269,7 @@ class PhysicsDataBundle:
             here = self.save(tmp)
             with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as zf:
                 for name in (MANIFEST_NAME, ARRAYS_NAME):
-                    zf.write(here / name, arcname=name)
+                    _add(zf, name, (here / name).read_bytes())
         return target
 
     @classmethod
@@ -383,6 +385,27 @@ def content_digest(arrays: Mapping[str, np.ndarray]) -> str:
     for key in sorted(arrays):
         h.update(_array_digest(key, arrays[key]).encode("utf-8"))
     return h.hexdigest()
+
+
+#: The timestamp every entry of a saved archive carries: a fixed date, so the bytes depend on the data and nothing
+#: else. It is the earliest a zip can represent, which is what reproducible-build tools use for the same reason.
+_EPOCH = (1980, 1, 1, 0, 0, 0)
+
+
+def _add(archive: zipfile.ZipFile, name: str, payload: bytes) -> None:
+    info = zipfile.ZipInfo(name, date_time=_EPOCH)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = 0o644 << 16
+    archive.writestr(info, payload)
+
+
+def _write_npz(fh, arrays: Mapping[str, Any]) -> None:
+    """``arrays.npz`` with the sorted keys and a fixed timestamp per member (``numpy.savez`` stamps the clock)."""
+    with zipfile.ZipFile(fh, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for key in sorted(arrays):
+            buffer = io.BytesIO()
+            np.lib.format.write_array(buffer, np.ascontiguousarray(arrays[key]), allow_pickle=False)
+            _add(archive, f"{key}.npy", buffer.getvalue())
 
 
 def save(bundle: PhysicsDataBundle, directory: str | os.PathLike[str]) -> Path:

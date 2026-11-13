@@ -210,12 +210,20 @@ the VeriPhysics evidence ledger.
   so it is cast; and because the schema's cell fields carry one value per axis entry and not one per cell, such a
   field lands as point data **with a note in the file** instead of being misindexed.
 * **Serving (INT-013)** — `pinneapple_arena.serving_bench.benchmark_model` times eager PyTorch (p50/p95, warm-up,
-  throughput), exports ONNX, and measures `onnxruntime` on the same input, reporting the max absolute difference
-  between the two backends as a serving smoke check. Measured limitation: an FNO's spectral convolution is an
-  `aten::fft_rfft`, which PyTorch does not lower to ONNX at opset 17 — the export fails, the partial file is deleted
-  and the report says which model and which op. A pointwise surrogate (a PINN MLP) exports and serves normally: on a
-  throwaway environment with `onnxruntime` installed, 0.147 ms in PyTorch vs 0.085 ms served, agreeing to 1.2e-07.
-  The `onnxruntime` leg is not measured on a machine without it, and the report says that too.
+  throughput), exports ONNX and measures `onnxruntime` on the same input, reporting the max absolute difference
+  between the two backends as a serving smoke check. It tries **three exports in order**, because they do not cover
+  the same models: the TorchScript exporter; the graph (dynamo) exporter, which needs `onnxscript`; and, when both
+  refuse, the model rewritten in real arithmetic by
+  `pinneapple_neural.architectures.neural_operators.fno_export.to_exportable`.
+  The spectral case is why: an FNO's convolution keeps **complex tensors**, which the TorchScript exporter never
+  lowers (`aten::fft_rfft`) and the graph exporter lowers only while the output is real
+  (`No decompositions registered for the complex-valued input` otherwise). The rewrite replaces the FFT with dense
+  cosine/sine transforms -- the same weights, the same function to **1.5e-08** (1-D) and **3.0e-08** (2-D) in
+  PyTorch, and to 2.98e-08 through onnxruntime, measured on a small 1-D FNO at **0.190 ms in PyTorch vs 0.144 ms
+  served**. `ServingReport.exporter` says which attempt produced the graph, and the report says what that means: the
+  graph is the real-arithmetic copy, not the FFT one, and its input size is fixed.
+  A pointwise surrogate (a PINN MLP) takes the first attempt and serves normally. The `onnxruntime` leg is not
+  measured on a machine without it, and the report says that too.
 
 ## 8. PhysicsNeMo bridge (INT-014) — the dictionary, not the package
 
@@ -267,12 +275,13 @@ refuses rather than storing a bundle it cannot describe.
 | INT-010 | UQ + design optimisation | **done** — `bundle_uq.seed_ensemble`, `bundle_uq.design_optimize` |
 | INT-011 | Scientific visualisation adapters | **done** — `schema.view` (PyVista, VTU, PVD) |
 | INT-012 | Digital twin telemetry bridge | **done** — telemetry routes in the API, bundles through the same storage path |
-| INT-013 | ONNX serving benchmarks | **done, with a measured limit** — pointwise models export and serve; an FNO's `fft_rfft` does not lower at opset 17 |
+| INT-013 | ONNX serving benchmarks | **done** — three export attempts; an FNO's complex tensors are served from the real-arithmetic copy of its spectral layers (agreement 3e-08) |
 | INT-014 | PhysicsNeMo training bridge | **done for the data contract** — `schema.physicsnemo`; the package itself is not installed here |
 
 What is *not* done, said plainly: no pretrained PhysicsNeMo model runs in this repository, the ONNX runtime leg is
-measured only where `onnxruntime` is installed, and none of the imported archives is redistributed — the adapters
-read them where they live.
+measured only where `onnxruntime` is installed, an FNO is served from the real-arithmetic copy of its spectral layers
+rather than from its own FFT graph (same outputs, fixed input size), and none of the imported archives is
+redistributed — the adapters read them where they live.
 
 ## 11. Limitations of this page
 

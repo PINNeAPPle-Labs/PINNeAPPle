@@ -6,22 +6,28 @@ API is latency at a realistic batch size and how it scales with it, so this modu
 * **PyTorch** on CPU (and CUDA when it is there), after a warm-up, reporting p50 / p95 milliseconds and throughput;
 * **ONNX** through ``onnxruntime``, when the package is installed, on the same inputs -- and the agreement between
   the two outputs, because a silently different ONNX graph is a serving bug that a latency table alone would hide;
-* the **export** itself, when ``onnx`` can be written.
+* the **export** itself, when ``onnx`` can be written, by whichever of PyTorch's two exporters can lower the model.
 
 Every missing piece is reported as a note in the result rather than crashing: a machine without ``onnxruntime`` still
 gets the PyTorch numbers and a line saying what is not measured. The benchmark is CPU-first and single-stream, which
 is the shape of the API this platform serves; a throughput number from a batched GPU run would answer a different
 question.
 
+**Three export attempts, in this order.** The TorchScript exporter (``dynamo=False``) is tried first: it is quick and
+it covers the pointwise architectures most of this platform's surrogates have. When it refuses an operator, the graph
+exporter (``dynamo=True``, opset 18, needs ``onnxscript``) is tried, because the two do not support the same set. When
+both refuse -- which is what a spectral model does, since the FNO's convolution keeps **complex tensors** and neither
+exporter lowers them (the graph exporter reports ``No decompositions registered for the complex-valued input``) -- the
+model is rewritten in real arithmetic by
+:func:`pinneapple_neural.architectures.neural_operators.fno_export.to_exportable` and exported like any other module.
+That rewrite is a dense cosine/sine transform instead of an FFT, so the graph it produces is not the graph PyTorch
+runs; ``max_abs_difference`` is what says whether the substitution was faithful, and it is reported for exactly that
+reason. Which attempt produced the graph is in ``ServingReport.exporter``: "it exported" and "which exporter" are
+different facts about a serving stack.
+
     >>> from pinneapple_arena.serving_bench import benchmark_model
     >>> report = benchmark_model(model, example_input, path="surrogate.onnx")
     >>> print(report.to_markdown())
-
-    Measured limitation (2026-11): the FNO's spectral convolution is an ``aten::fft_rfft``, which PyTorch does not
-    lower to ONNX at opset 17 (ONNX has a ``DFT`` op; the lowering does not exist). Exporting an FNO therefore fails
-    with ``UnsupportedOperatorError``, the partial file is removed, and the report says so. Pointwise architectures
-    (a PINN MLP, a surrogate head) export and serve normally -- which is the shape most of this platform's
-    surrogates have.
 """
 from __future__ import annotations
 
@@ -58,6 +64,7 @@ class ServingReport:
     batch_size: int = 1
     latencies: list[Latency] = _dc_field(default_factory=list)
     onnx_path: str = ""
+    exporter: str = ""
     max_abs_difference: float | None = None
     notes: list[str] = _dc_field(default_factory=list)
 
@@ -75,7 +82,8 @@ class ServingReport:
     def to_dict(self) -> dict[str, Any]:
         return {"model": self.model, "batch_size": self.batch_size,
                 "latencies": [latency.to_dict() for latency in self.latencies], "onnx_path": self.onnx_path,
-                "max_abs_difference": self.max_abs_difference, "speedup": self.speedup, "notes": self.notes}
+                "exporter": self.exporter, "max_abs_difference": self.max_abs_difference, "speedup": self.speedup,
+                "notes": self.notes}
 
     def to_markdown(self) -> str:
         lines = [f"# Serving benchmark: {self.model or 'a model'} (batch {self.batch_size})", "",
@@ -83,6 +91,8 @@ class ServingReport:
         for latency in self.latencies:
             lines.append(f"| {latency.backend} | {latency.p50_ms:.3f} | {latency.p95_ms:.3f} | "
                          f"{latency.throughput_per_s:.1f} |")
+        if self.exporter:
+            lines += ["", f"The ONNX graph came from the {self.exporter} exporter."]
         if self.max_abs_difference is not None:
             lines += ["", f"ONNX and PyTorch agree to {self.max_abs_difference:.2e} (max abs difference) on the "
                           "same input."]
@@ -111,9 +121,22 @@ def benchmark_callable(fn, make_input, *, n: int = 30, warmup: int = 5, backend:
 
 
 def export_onnx(model: Any, example_input: Any, path: str | os.PathLike[str], *, opset: int = 17,
-                input_name: str = "x", output_name: str = "y") -> Path:
-    """Write the model as an ONNX graph. Raises ``ImportError`` when ``onnx`` is not installed (it is not a
-    dependency of this library, and pretending the export worked would be worse than saying it cannot)."""
+                input_name: str = "x", output_name: str = "y",
+                exporter: str = "auto") -> Path:
+    """Write the model as an ONNX graph and return the path.
+
+    ``exporter="auto"`` tries the TorchScript exporter at ``opset`` and, if it refuses an operator, the graph
+    (dynamo) exporter at ``opset + 1``, which needs ``onnxscript``. ``"torchscript"`` and ``"graph"`` pin one. Raises
+    whatever the last attempt raised, so the caller reports the real reason instead of a generic failure -- and never
+    leaves a truncated file behind."""
+    return _export(model, example_input, path, opset=opset, input_name=input_name, output_name=output_name,
+                   exporter=exporter)[0]
+
+
+def _export(model: Any, example_input: Any, path: str | os.PathLike[str], *, opset: int = 17,
+            input_name: str = "x", output_name: str = "y",
+            exporter: str = "auto") -> tuple[Path, str]:
+    """``(path, which exporter produced it)`` -- the name is what :meth:`ServingReport.exporter` records."""
     import torch
     from torch import nn
 
@@ -133,10 +156,49 @@ def export_onnx(model: Any, example_input: Any, path: str | os.PathLike[str], *,
             out = self.inner(x)
             return out.y if hasattr(out, "y") else out
 
-    with torch.no_grad():
-        torch.onnx.export(_Serve(model), (example_input,), str(target), opset_version=opset,
-                          input_names=[input_name], output_names=[output_name], dynamo=False)
-    return target
+    wrapped = _Serve(model)
+    attempts = {"torchscript": (False, opset), "graph": (True, max(opset, 18)), "real-arithmetic": (False, opset)}
+    if exporter == "auto":
+        order = ["torchscript", "graph", "real-arithmetic"]
+    elif exporter in attempts:
+        order = [exporter]
+    else:
+        raise ValueError(f"unknown exporter '{exporter}'; use 'auto', 'torchscript', 'graph' or 'real-arithmetic'")
+
+    first: Exception | None = None
+    for name in order:
+        dynamo, version = attempts[name]
+        try:
+            with torch.no_grad():
+                if name == "real-arithmetic":
+                    # a spectral model keeps complex tensors, which neither exporter lowers; the real-arithmetic
+                    # copy of the same layer does, and its agreement with the original is checked by the caller
+                    from pinneapple_neural.architectures.neural_operators.fno_export import (
+                        spatial_shape,
+                        to_exportable,
+                    )
+                    grid = spatial_shape(model, example_input)
+                    if grid is None:
+                        raise ValueError("no spectral convolution to rewrite in real arithmetic")
+                    torch.onnx.export(to_exportable(wrapped, grid), (example_input,), str(target),
+                                      opset_version=version, input_names=[input_name],
+                                      output_names=[output_name], dynamic_axes={input_name: {0: "batch"}},
+                                      dynamo=dynamo)
+                else:
+                    torch.onnx.export(wrapped, (example_input,), str(target), opset_version=version,
+                                      input_names=[input_name], output_names=[output_name], dynamo=dynamo)
+            return target, name
+        except ImportError as exc:
+            if first is None:
+                first = exc
+            if name == order[-1]:
+                break
+        except Exception as exc:                               # try the other exporter, remember the reason
+            first = first or exc
+            if target.exists():                                # torch writes as it traces: a failed export leaves
+                target.unlink()                                # a truncated graph, worse than no graph at all
+    assert first is not None
+    raise first
 
 
 def benchmark_model(model: Any, example_input: Any, *, path: str | os.PathLike[str] | None = None,
@@ -163,7 +225,7 @@ def benchmark_model(model: Any, example_input: Any, *, path: str | os.PathLike[s
         return report
     target = Path(path)
     try:
-        target = export_onnx(model, example_input, path)
+        target, report.exporter = _export(model, example_input, path)
     except ImportError as exc:
         report.notes.append(f"ONNX export skipped: {exc}")
         return report
@@ -173,6 +235,13 @@ def benchmark_model(model: Any, example_input: Any, *, path: str | os.PathLike[s
         report.notes.append(f"ONNX export failed for {type(model).__name__}: {type(exc).__name__}: {exc}")
         return report
     report.onnx_path = str(target)
+    if report.exporter == "graph":
+        report.notes.append("the TorchScript exporter refused this model; the graph exporter (dynamo, opset 18) did "
+                            "it, and onnxscript is needed to re-export, not to serve")
+    elif report.exporter == "real-arithmetic":
+        report.notes.append("both exporters refused the complex tensors of this spectral model, so the graph is the "
+                            "real-arithmetic copy of its spectral convolutions on the grid of this example: same "
+                            "weights, dense cos/sin transforms instead of FFTs, fixed input size")
 
     try:
         import onnxruntime as ort

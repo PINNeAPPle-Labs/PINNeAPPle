@@ -36,3 +36,11 @@
 - **PhysicsNeMo bridge** (`pinneapple_data.schema.physicsnemo`, INT-014): a bundle as the dictionary of named
   tensors its datapipes yield, plus the inverse; the `Datapipe` subclass is built only when the package is
   installed, and its absence is an `ImportError` that names what to install.
+- **An FNO reaches ONNX after all** (`pinneapple_neural.architectures.neural_operators.fno_export`,
+  `pinneapple_arena.serving_bench`): a spectral model keeps complex tensors, which neither PyTorch exporter lowers --
+  the TorchScript one refuses `aten::fft_rfft`, the graph one refuses the complex-valued input once the spectrum is
+  multiplied. `RealSpectralConv1d` joins the 2-D equivalent, so `to_exportable` rewrites either FFT as dense
+  cosine/sine transforms with the same weights, and `benchmark_model` now tries TorchScript, then the graph exporter,
+  then that rewrite, saying which one produced the graph. Measured: the copy agrees with the model to 1.5e-08 (1-D)
+  and 3.0e-08 (2-D) in PyTorch and to 2.98e-08 through onnxruntime, where a 1-D FNO serves at 0.144 ms against
+  0.190 ms in PyTorch.

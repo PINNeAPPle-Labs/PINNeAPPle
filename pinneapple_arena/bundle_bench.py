@@ -371,7 +371,7 @@ def run_benchmark(bundle: PhysicsDataBundle, config: BenchConfig | None = None, 
                                    "epochs": result.epochs_run, "field": cfg.field},
                           started_at=_iso(time.time() - result.seconds), finished_at=_iso(time.time()),
                           name=f"{name} on {bundle.manifest.id}", category="validation", tool="pinneapple_arena.bundle_bench")
-    if best is not None:
+    if best is not None and np.isfinite(report.results[best[0]].rel_l2):
         _, pred, ref = best
         # the gates check the prediction, not the data it came from: a bundle whose field is the model's answer
         # on the held-out block, so `reference` measures the model and every other gate measures the same

@@ -196,7 +196,7 @@ class TheWellFile:
             return None
         dataset = self._f["dimensions"][name]
         varying = bool(dataset.attrs.get("sample_varying", False))
-        values = np.asarray(dataset[index] if varying else dataset[()], dtype=np.float64)
+        values = np.asarray(dataset[index] if varying else dataset[()])   # the stored dtype
         return values
 
     def boundary_conditions(self, index: int) -> list[dict[str, Any]]:

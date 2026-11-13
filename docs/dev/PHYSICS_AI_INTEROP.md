@@ -95,13 +95,18 @@ the file, so the reader decides it arithmetically from the coordinate lengths, k
 | `integrity` | do the references resolve and does the digest match? | SHA-256 over the manifest and every array |
 | `units` | is every declaration present and dimensionally consistent? | 0 problems; spatial axes must share a dimension |
 | `location` | does every field's shape fit its node/cell declaration? | count of misfits |
-| `frame` | are the axes strictly monotonic and uniformly spaced? | `max|dx-mean| / mean`, tolerance 1e-5 |
+| `frame` | are the axes strictly monotonic and uniformly spaced? | `max|dx-mean| / mean`, tolerance 1e-5 **or the dtype's own rounding, whichever is larger** |
 | `provenance` | source, licence, citation and input hashes? | count of missing pieces |
 | `conservation` | does the integral of a conserved field drift? | `max_t|I(t)-I(0)| / max|I|` |
 | `reference` | how far is the field from a reference array? | relative L2 |
 
-The 1e-5 on `frame` is measured, not guessed: PDEBench stores coordinates as float32, and a 64-point linspace in
-float32 already differs from perfectly uniform by ~2e-6. A gate that fired on every real dataset would be noise.
+The `frame` tolerance is measured, not guessed, and it follows the storage precision rather than a constant:
+PDEBench stores coordinates as float32, and rounding a coordinate to float32 moves each neighbour difference by
+~2·eps·|x|, which is 1.2e-4 of the spacing for `Sod6.hdf5`'s x on [-1, 1] (measured deviation: 1.1e-5). A fixed 1e-5
+— the value the first version used — failed the real file for a reason that is the file format, not the geometry.
+The gate now applies `max(1e-5, 2·eps·max|x| / mean(spacing))` for the axis's own dtype and says which of the two
+it used. A float64 axis is still held to 1e-5; a genuinely stretched or shuffled axis fails in either dtype
+(`tests/pinneapple_data/test_frame_gate_precision.py`).
 
 A gate that cannot be asked — no time axis for conservation, no reference array, a sign-changing field whose
 integral is zero to rounding — reports **"not run"**, and `gate.passed` is `None`. `GateReport.record(ledger)` seals

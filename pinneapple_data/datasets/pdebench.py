@@ -398,7 +398,7 @@ class PDEBenchFile:
         coords: dict[str, np.ndarray] = {}
         for short, full in self._coord_datasets().items():
             try:
-                coords[short] = np.asarray(self._f[full][()], dtype=np.float64)
+                coords[short] = np.asarray(self._f[full][()])      # the stored dtype, not an upcast
             except (KeyError, ValueError):                        # pragma: no cover - malformed coordinate
                 continue
         return coords

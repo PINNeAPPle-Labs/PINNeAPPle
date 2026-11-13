@@ -98,3 +98,30 @@ def test_solver_comparison_rejects_half_documented_metadata():
             lambda x: x, {"x": [0.0], "k": [1.0]}, ["x"], ["k"],
             prediction_protocol=protocol(),
         )
+
+
+def test_normalized_fields_compare_only_aligned_samples():
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField, compare_fields
+    args = dict(name="k", units="m2/s2", components=("k",),
+                coordinates_m=((1.364,), (1.819,)), protocol=protocol(),
+                provenance={"solver": "openfoam"})
+    ref = PhysicalField(**args, values=((2.0,), (4.0,)))
+    pred = PhysicalField(**args, values=((2.0,), (5.0,)))
+    result = compare_fields(pred, ref)
+    assert result["rmse"] == pytest.approx(2 ** -0.5)
+    assert result["scientifically_validated"] is False
+    shifted = PhysicalField(**(args | {"coordinates_m": ((0.0,), (0.455,))}),
+                            values=((2.0,), (5.0,)))
+    with pytest.raises(ValueError, match="Sampling coordinates"):
+        compare_fields(shifted, ref)
+
+
+def test_normalized_fields_reject_invalid_components_and_units():
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    args = dict(name="k", units="m2/s2", components=("k",),
+                coordinates_m=((1.364,),), values=((2.0,),),
+                protocol=protocol(), provenance={})
+    with pytest.raises(ValueError, match="units mismatch"):
+        PhysicalField(**(args | {"units": "Pa"}))
+    with pytest.raises(ValueError, match="shape mismatch"):
+        PhysicalField(**(args | {"values": ((2.0, 3.0),)}))

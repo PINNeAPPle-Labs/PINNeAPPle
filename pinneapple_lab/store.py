@@ -4,6 +4,8 @@ from __future__ import annotations
 import glob
 import json
 import os
+import shutil
+import socket
 import sqlite3
 import time
 from collections.abc import Iterator
@@ -31,11 +33,32 @@ def default_root() -> str:
     return os.environ.get("PINNEAPPLE_LAB", os.path.abspath("lab"))
 
 
+def _pid_alive(pid: int) -> bool:
+    if os.name == "nt":
+        import ctypes
+        kernel = ctypes.windll.kernel32
+        handle = kernel.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if handle:
+            code = ctypes.c_ulong()
+            alive = bool(kernel.GetExitCodeProcess(handle, ctypes.byref(code)) and code.value == 259)
+            kernel.CloseHandle(handle)
+            return alive
+        return kernel.GetLastError() == 5  # access denied still means the process exists
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
 class LabStore:
     """Experiment database rooted at ``root`` (runs in ``root/runs/<experiment>/<run_id>``, index ``root/index.sqlite``)."""
 
-    def __init__(self, root: str | None = None):
+    def __init__(self, root: str | None = None, *, heartbeat_timeout: float = 1800):
         self.root = os.path.abspath(root or default_root())
+        self.heartbeat_timeout = heartbeat_timeout
         os.makedirs(os.path.join(self.root, "runs"), exist_ok=True)
         self.db = os.path.join(self.root, "index.sqlite")
         with closing(self._conn()) as c:
@@ -70,6 +93,7 @@ class LabStore:
 
     def reindex(self) -> int:
         """Rebuild the index from the run folders (e.g. after copying runs from another machine)."""
+        self.reap()
         n = 0
         for p in glob.glob(os.path.join(self.root, "runs", "*", "*", "run.json")):
             d = os.path.dirname(p)
@@ -85,8 +109,67 @@ class LabStore:
             n += 1
         return n
 
+    def reap(self, *, delete: bool = False) -> list[dict[str, str]]:
+        """Mark runs with dead owners as interrupted; optionally remove their run folders."""
+        with closing(self._conn()) as c:
+            rows = [dict(r) for r in c.execute("SELECT run_id, experiment FROM runs WHERE status = 'running'")]
+        reaped = []
+        now = time.time()
+        for row in rows:
+            folder = self.run_dir(row["experiment"], row["run_id"])
+            path = os.path.join(folder, "run.json")
+            try:
+                with open(path) as f:
+                    record = json.load(f)
+            except (OSError, ValueError):
+                continue
+            owner = record.get("owner", {})
+            if owner.get("host") == socket.gethostname():
+                try:
+                    alive = _pid_alive(int(owner["pid"]))
+                except (ValueError, KeyError, TypeError):
+                    alive = False
+            else:
+                heartbeat = owner.get("heartbeat", record.get("started", now))
+                alive = now - heartbeat <= self.heartbeat_timeout
+            if alive:
+                continue
+            reaped.append({"run_id": row["run_id"], "experiment": row["experiment"]})
+            if delete:
+                shutil.rmtree(folder, ignore_errors=True)
+                with closing(self._conn()) as c, c:
+                    c.execute("DELETE FROM runs WHERE run_id = ?", (row["run_id"],))
+                    c.execute("DELETE FROM metrics WHERE run_id = ?", (row["run_id"],))
+                    c.execute("DELETE FROM datasets WHERE run_id = ?", (row["run_id"],))
+                continue
+            record.update(status="interrupted", finished=now,
+                          seconds=round(now - record.get("started", now), 3))
+            for stage in record.get("stages", []):
+                if stage.get("status") == "running":
+                    stage["status"] = "interrupted"
+            tmp = path + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump(record, f, indent=1)
+            os.replace(tmp, path)
+            progress_path = os.path.join(folder, "progress.json")
+            if os.path.exists(progress_path):
+                with open(progress_path) as f:
+                    progress = json.load(f)
+                for stage in progress.get("stages", []):
+                    if stage.get("status") == "running":
+                        stage["status"] = "interrupted"
+                progress["updated"] = now
+                with open(progress_path + ".tmp", "w") as f:
+                    json.dump(progress, f, indent=1)
+                os.replace(progress_path + ".tmp", progress_path)
+            with closing(self._conn()) as c, c:
+                c.execute("UPDATE runs SET status = ?, finished = ?, seconds = ? WHERE run_id = ?",
+                          ("interrupted", now, record["seconds"], row["run_id"]))
+        return reaped
+
     # -- reading -----------------------------------------------------------
     def runs(self, experiment: str | None = None, status: str | None = None) -> list[dict[str, Any]]:
+        self.reap()
         q, args = "SELECT * FROM runs WHERE 1=1", []
         if experiment:
             q += " AND experiment = ?"
@@ -123,6 +206,7 @@ class LabStore:
         return pd.DataFrame(rows)
 
     def status(self) -> dict[str, dict[str, int]]:
+        self.reap()
         out: dict[str, dict[str, int]] = {}
         with closing(self._conn()) as c:
             for r in c.execute("SELECT experiment, status, COUNT(*) n FROM runs GROUP BY experiment, status"):

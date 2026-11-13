@@ -76,3 +76,25 @@ def test_unknown_backend_and_unsafe_job(tmp_path):
         get_adapter("unknown")
     with pytest.raises(ValueError):
         simulate(SimulationSpec("calculix", tmp_path, case="../evil"))
+
+
+def test_solver_comparison_blocks_mismatched_metadata_before_model_call():
+    from pinneapple_analysis.validation.analytical import validate_against_solver
+    class ShouldNotRun:
+        def __call__(self, *_args):
+            raise AssertionError("Model must not be evaluated on incompatible data")
+    with pytest.raises(IncompatibleComparison):
+        validate_against_solver(
+            ShouldNotRun(), {"x": [0.0], "k": [1.0]}, ["x"], ["k"],
+            prediction_protocol=protocol(),
+            reference_protocol=protocol(window_s=(0, 30)),
+        )
+
+
+def test_solver_comparison_rejects_half_documented_metadata():
+    from pinneapple_analysis.validation.analytical import validate_against_solver
+    with pytest.raises(ValueError, match="Both"):
+        validate_against_solver(
+            lambda x: x, {"x": [0.0], "k": [1.0]}, ["x"], ["k"],
+            prediction_protocol=protocol(),
+        )

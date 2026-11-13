@@ -186,6 +186,8 @@ def test_reads_one_sample_of_a_large_file_without_downloading_it():
         one = np.asarray(f["tensor"][0])
         f.close()
         assert one.shape == (1, 128, 128)
-        assert handle.bytes_read < 200 << 20                       # far below the file size
+        # measured on 2026-11-13: 68 kB over 10 range requests, against 1311 MB of file
+        assert handle.bytes_read < 4 << 20
+        assert handle.requests < 200
     finally:
         handle.close()

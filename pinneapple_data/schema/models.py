@@ -418,9 +418,13 @@ class Verification(_Model):
 
     @property
     def passed(self) -> bool:
-        """True only when every required check ran and passed; an unrequired missing check never fails it."""
-        return all(self.status(c) == "passed" for c in self.required) if self.required else all(
-            c.passed is True for c in self.checks)
+        """True only when every required check ran and passed.
+
+        No checks at all is **not** a pass: a bundle nobody checked has no verdict, and reporting one would be the
+        vacuous truth this whole layer exists to avoid."""
+        if self.required:
+            return all(self.status(c) == "passed" for c in self.required)
+        return bool(self.checks) and all(c.passed is True for c in self.checks)
 
     @property
     def missing(self) -> list[str]:

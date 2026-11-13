@@ -1,0 +1,35 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_data_schema",
+ "title": "PDEBench -> the universal physics data schema -> verification gates, end to end",
+ "description": "PDEBench -> the universal physics data schema -> verification gates, end to end. What it shows ------------- 1. a PDEBench file in the archive's root-dataset layout is opened through the adapter (a local file here, so the example runs offline; the same call takes a DaRUS URL and range-reads it); 2. the reader reports what it found -- layout, which leading axis is samples and which is time, the fie",
+ "domain": "numerical methods",
+ "methods": [],
+ "modules": [
+  "pinneapple_data.datasets",
+  "pinneapple_data.schema"
+ ],
+ "params": {},
+ "scripts": [
+  "01_pdebench_bundle.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/physics_data_schema/01_pdebench_bundle.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "45f6d063a"
+ }
+}

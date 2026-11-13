@@ -1,6 +1,7 @@
 """The universal physics data schema: what it refuses, what it keeps, and what the gates decide."""
 from __future__ import annotations
 
+import hashlib
 import json
 import zipfile
 from pathlib import Path
@@ -276,3 +277,20 @@ def test_array_ref_rejects_an_impossible_shape():
 def test_verification_requires_the_named_gates():
     verification = Verification(required=["units", "reference"])
     assert not verification.passed and verification.missing == ["units", "reference"]
+
+
+def test_saving_and_packing_the_same_bundle_twice_gives_the_same_bytes(tmp_path):
+    """A digest over an archive is only meaningful if the archive is reproducible: numpy stamps the clock into
+    ``arrays.npz`` and zipfile stamps the file's mtime, so both are written with a fixed timestamp."""
+    bundle = make_bundle()
+    digests = []
+    for i in range(2):
+        bundle.pack(tmp_path / f"ship{i}.zip")
+        digests.append(hashlib.sha256((tmp_path / f"ship{i}.zip").read_bytes()).hexdigest())
+    assert digests[0] == digests[1]
+
+    first = bundle.save(tmp_path / "one")
+    second = bundle.save(tmp_path / "two")
+    assert (first / "arrays.npz").read_bytes() == (second / "arrays.npz").read_bytes()
+    assert (first / "bundle.json").read_bytes() == (second / "bundle.json").read_bytes()
+    assert PhysicsDataBundle.unpack(tmp_path / "ship0.zip").digest() == bundle.digest()

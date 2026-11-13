@@ -7,6 +7,7 @@ import math
 import os
 import platform
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -135,14 +136,23 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     if os.path.isdir(d):
         shutil.rmtree(d)
     os.makedirs(d)
+    owner = {"pid": os.getpid(), "host": socket.gethostname(), "heartbeat": time.time()}
     record = {"run_id": rid, "experiment": cls.name, "version": cls.version, "params": _jsonable(p),
-              "status": "running", "started": time.time(), "tags": list(tags or []) + list(cls.tags),
+              "status": "running", "started": time.time(), "owner": owner,
+              "tags": list(tags or []) + list(cls.tags),
               "git": _git(), "environment": _env(), "description": cls.description,
               "code": _snapshot_code(cls, d, p)}
     with open(rj, "w") as f:
         json.dump(record, f, indent=1)
     store.index_run(record, {}, {})
-    ctx = RunContext(d, p, cls.name, rid)
+    def heartbeat():
+        owner["heartbeat"] = time.time()
+        tmp = rj + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(record, f, indent=1)
+        os.replace(tmp, rj)
+
+    ctx = RunContext(d, p, cls.name, rid, heartbeat=heartbeat)
     error = None
     try:
         cls().run(ctx)

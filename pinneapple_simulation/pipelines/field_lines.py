@@ -211,8 +211,26 @@ def picos_por_linha(series: Mapping[str, tuple[np.ndarray, np.ndarray, np.ndarra
     return out
 
 
+def origem_da_linha(centros, inicio: float = 0.0) -> float:
+    """Quanto o **primeiro ponto efetivamente amostrado** está adiante do início nominal da linha.
+
+    Uma linha amostrada em centros de célula começa onde existe célula, não onde a linha começa: no caso do canal, os
+    primeiros 1,36 m das linhas de escória e 1,82 m das de gusa não têm ponto válido. Quem zera a distância no primeiro
+    ponto (uma convenção comum) publica posições 1,36 m menores que quem conta do início do domínio — e a diferença some
+    da análise, virando "divergência física" de mais de um metro.
+
+    Devolve ``primeiro_ponto - inicio``.
+    """
+    import numpy as np
+
+    c = np.asarray(centros, dtype=float)
+    if c.size == 0:
+        raise ValueError("linha sem pontos")
+    return float(c.min() - inicio)
+
+
 def comparar_picos(picos: Mapping[str, Mapping[str, float]], referencia: Mapping[str, Mapping[str, Sequence[float]]],
-                   passo: float | None = None) -> list[dict]:
+                   passo: float | None = None, deslocamento_ref: Mapping[str, float] | float | None = None) -> list[dict]:
     """Compara os picos com uma referência publicada, linha a linha.
 
     ``picos``: ``{linha: {"k": ..., "s": ...}}`` (o que sai de :func:`picos_por_linha`).
@@ -220,6 +238,9 @@ def comparar_picos(picos: Mapping[str, Mapping[str, float]], referencia: Mapping
     ``passo`` (m): se dado, também devolve o desvio em número de pontos de amostragem, que é a unidade útil quando as
     duas malhas usam a mesma grade de y (todo Δs múltiplo do passo é o sinal de que a diferença é de trajetória, não
     de eixo).
+    ``deslocamento_ref`` (m): soma à posição da referência antes de comparar. Serve para pôr as duas tabelas na mesma
+    origem de distância quando uma delas conta do primeiro ponto amostrado e a outra do início da linha — ver
+    :func:`origem_da_linha`. Pode ser um número (todas as linhas) ou ``{linha: valor}``.
 
     Devolve uma lista de dicionários com ``linha``, ``k``, ``s``, ``k_ref``, ``s_ref``, ``ds``, ``razao_k`` e,
     quando ``passo`` é dado, ``passos``. Linha que falta de um dos lados entra com ``None`` nos campos ausentes.
@@ -230,6 +251,9 @@ def comparar_picos(picos: Mapping[str, Mapping[str, float]], referencia: Mapping
         p = picos.get(nome) or {}
         ref = referencia.get(nome)
         k_ref, s_ref = (float(ref[0]), float(ref[1])) if ref else (None, None)
+        if s_ref is not None and deslocamento_ref is not None:
+            s_ref += (float(deslocamento_ref[nome]) if isinstance(deslocamento_ref, Mapping)
+                      else float(deslocamento_ref))
         s = p.get("s")
         ds = (float(s) - s_ref) if (s is not None and s_ref is not None) else None
         out.append({"linha": nome, "k": p.get("k"), "s": s, "k_ref": k_ref, "s_ref": s_ref, "ds": ds,

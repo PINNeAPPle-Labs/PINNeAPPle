@@ -161,3 +161,24 @@ def test_pico_em_liquido_recusa_alpha_de_outro_formato():
     k, t, d, _ = _linha_com_ar()
     with pytest.raises(ValueError):
         pico_em_liquido(k, t, d, np.ones((3, 4)))
+
+
+# --- origem da distância -------------------------------------------------------------------------------------------
+def test_origem_da_linha_mede_o_primeiro_ponto_amostrado():
+    """No canal, a linha começa em 0 mas o primeiro ponto amostrado está 1,36 m adiante."""
+    from pinneapple_simulation.pipelines.field_lines import origem_da_linha
+    assert origem_da_linha(np.array([1.364, 1.591, 1.819])) == pytest.approx(1.364)
+
+
+def test_deslocamento_ref_põe_as_duas_tabelas_na_mesma_origem():
+    picos = {"LEdir": {"k": 1.0, "s": 6.820}}
+    ref = {"LEdir": (0.6, 5.683)}
+    sem = comparar_picos(picos, ref, passo=0.22734)[0]
+    com = comparar_picos(picos, ref, passo=0.22734, deslocamento_ref={"LEdir": 1.364})[0]
+    assert sem["ds"] == pytest.approx(1.137) and com["ds"] == pytest.approx(-0.227, abs=1e-6)
+    assert com["passos"] == pytest.approx(-1.0, abs=1e-2)
+
+
+def test_deslocamento_ref_aceita_um_numero_para_todas_as_linhas():
+    r = comparar_picos({"A": {"k": 1.0, "s": 2.0}}, {"A": (1.0, 1.0)}, deslocamento_ref=1.0)[0]
+    assert r["ds"] == pytest.approx(0.0)

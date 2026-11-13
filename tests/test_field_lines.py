@@ -11,6 +11,7 @@ from pinneapple_simulation.pipelines.field_lines import (
     media_faixa,
     perfil_medio,
     pico,
+    pico_em_liquido,
     picos_por_linha,
     plato,
     quantizacao,
@@ -132,3 +133,31 @@ def test_quantizacao_de_linha_regular():
 
 def test_quantizacao_de_um_ponto_nao_inventa_passo():
     assert quantizacao(np.array([1.0]))["passo_max"] is None
+
+
+# --- pico por fase -------------------------------------------------------------------------------------------------
+def _linha_com_ar():
+    """Quatro pontos: o maior k está em ar (alpha 0); em líquido o maior é o último."""
+    k = np.tile(np.array([0.1, 0.2, 9.0, 0.5]), (10, 1))
+    a = np.tile(np.array([1.0, 1.0, 0.0, 1.0]), (10, 1))
+    return k, np.arange(1, 11.0), np.array([0.0, 1.0, 2.0, 3.0]), a
+
+
+def test_pico_em_liquido_ignora_o_maximo_que_caiu_em_ar():
+    k, t, d, a = _linha_com_ar()
+    r = pico_em_liquido(k, t, d, a)
+    assert r["filtrado"] and r["s"] == 3.0 and r["k"] == pytest.approx(0.5)
+    assert r["s_sem_filtro"] == 2.0 and r["k_sem_filtro"] == pytest.approx(9.0)
+    assert r["pontos_liquido"] == 3
+
+
+def test_pico_em_liquido_sem_liquido_devolve_o_da_linha_e_diz_por_que():
+    k, t, d, _ = _linha_com_ar()
+    r = pico_em_liquido(k, t, d, np.zeros_like(k))
+    assert r["filtrado"] is False and r["s"] == 2.0 and "ar" in r["motivo"]
+
+
+def test_pico_em_liquido_recusa_alpha_de_outro_formato():
+    k, t, d, _ = _linha_com_ar()
+    with pytest.raises(ValueError):
+        pico_em_liquido(k, t, d, np.ones((3, 4)))

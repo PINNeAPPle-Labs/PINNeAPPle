@@ -90,9 +90,43 @@ def pico(k: np.ndarray, t, dabs, janela_t: tuple[float, float] | None = None):
     return float(prof[i]), float(dabs[i]), i
 
 
+def pico_em_liquido(k: np.ndarray, t, dabs, alpha: np.ndarray, janela_t: tuple[float, float] | None = None,
+                    alpha_min: float = 0.9) -> dict:
+    """Pico da média temporal de k **restrito ao líquido** — a mesma linha amostrada em duas fases não se compara.
+
+    Onde uma linha de amostragem cruza a superfície livre, o máximo de k passa a cair em ar: o jato em voo produz k de
+    outra ordem de grandeza (sem a dissipação do banho), e o argmax salta para a superfície. Isso não é física nova, é
+    a métrica mudando de fase — e basta o nível do banho mudar alguns centímetros para a linha inteira trocar de lado.
+
+    Devolve ``{"s", "k", "i", "alpha", "filtrado", "pontos_liquido", "s_sem_filtro", "k_sem_filtro",
+    "alpha_sem_filtro", "motivo"}``. Se nenhum ponto for líquido na janela, ``filtrado`` é ``False`` e o pico volta a
+    ser o da linha inteira, com o motivo dito.
+    """
+    k, m = _conferir(k, t, janela_t)
+    dabs = np.asarray(dabs, dtype=float)
+    a = np.asarray(alpha, dtype=float)
+    if a.shape != np.shape(k):
+        raise ValueError(f"alpha com formato {a.shape} e k com {np.shape(k)}")
+    prof = k[m].mean(0)
+    if prof.size != dabs.size:
+        raise ValueError(f"perfil com {prof.size} pontos e {dabs.size} distâncias")
+    a_med = a[m].mean(0)
+    i = int(np.argmax(prof))
+    out = {"s": float(dabs[i]), "k": float(prof[i]), "i": i, "alpha": float(a_med[i]),
+           "filtrado": False, "pontos_liquido": int((a_med >= alpha_min).sum()),
+           "s_sem_filtro": float(dabs[i]), "k_sem_filtro": float(prof[i]), "alpha_sem_filtro": float(a_med[i]),
+           "motivo": None}
+    liq = a_med >= alpha_min
+    if not liq.any():
+        out["motivo"] = f"nenhum ponto com alpha ≥ {alpha_min} nesta janela: a linha está em ar"
+        return out
+    j = int(np.argmax(np.where(liq, prof, -np.inf)))
+    out.update({"s": float(dabs[j]), "k": float(prof[j]), "i": j, "alpha": float(a_med[j]), "filtrado": True})
+    return out
+
+
 def plato(k: np.ndarray, t, dabs, janela_t: tuple[float, float] | None = None, fracao: float = 0.85) -> dict:
     """O quanto "a posição do pico" vale: a faixa em torno do máximo que fica dentro de ``fracao`` dele.
-
     Devolve ``{"pico": {"k", "s", "i"}, "s_ini", "s_fim", "largura", "margem", "segundo", "passo"}``:
 
     - ``s_ini``/``s_fim``/``largura``: a faixa contígua em torno do máximo com perfil ≥ ``fracao`` × máximo;

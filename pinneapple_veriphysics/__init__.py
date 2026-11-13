@@ -16,6 +16,7 @@ of its own):
 ``validation_lab``         ``pinneapple check`` grouped into numerical verification, validation against data and
                            physical consistency, with a ledger entry per outcome (the Validation Lab app)
 ``evidence_package``       engineering evidence report (HTML, PDF) and zip package from other tools' outputs
+``surrogate_gates``        accuracy, conservation, boundary conditions and the PDE residual of a *trained model*
 =========================  ==============================================================================================
 
 Veriphysics (the product) keeps the job queue, the HTTP API, billing and the web app, and imports this package.
@@ -25,7 +26,7 @@ from __future__ import annotations
 import importlib as _importlib
 
 __all__ = ["decision", "evidence_report", "applicability", "scope", "robustness", "recommend", "execution_log", "example_cases",
-           "ledger", "validation_lab", "evidence_package"]
+           "ledger", "validation_lab", "evidence_package", "surrogate_gates"]
 
 
 def __getattr__(name: str):

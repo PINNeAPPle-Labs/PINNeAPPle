@@ -40,7 +40,7 @@
   * [Geomechanics with the material point method](core_concepts/geomechanics_mpm.md)
   * [Security (pinneapple_security)](core_concepts/security.md)
   * [Verification and evidence (pinneapple_veriphysics)](core_concepts/veriphysics.md)
-  * [Physics data: the universal schema, PDEBench and The Well](dev/PHYSICS_AI_INTEROP.md)
+  * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)

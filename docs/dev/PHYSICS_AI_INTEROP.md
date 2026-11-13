@@ -8,9 +8,9 @@ the homepage so the next step is a choice rather than a discovery.
 Every claim below is checkable in this checkout:
 
 ```bash
-pytest tests/pinneapple_data/test_schema_bundle.py tests/pinneapple_data/test_dataset_catalog.py \
-       tests/pinneapple_data/test_pdebench.py tests/pinneapple_data/test_the_well.py \
-       tests/test_arena_bundle_bench.py -q
+pytest tests/pinneapple_data tests/test_arena_bundle_bench.py tests/test_arena_bundle_uq.py \
+       tests/test_arena_serving_bench.py -q
+pytest tests/pinneapple_veriphysics/test_surrogate_gates.py -q   # the model-side gates of section 6
 PINNEAPPLE_NETWORK_TESTS=1 pytest tests/pinneapple_data/test_pdebench.py -q -k "real_file or large_file"
 python examples/physics_data_schema/01_pdebench_bundle.py
 ```
@@ -137,46 +137,149 @@ equation), the budget is CPU-sized, and the result compares the two families on 
 numbers. The winner's field then goes through the same gates against the reference, so the report carries the
 verification with the ranking.
 
-## 5. Engineering API (INT-006) — catalogue and schema served
+## 5. CAE ⇄ bundle (INT-004) — a solver's result leaves as data
+
+`pinneapple_data.schema.cae` closes the loop the CAE readers left open. `bundle_from_mesh(mesh, source=, license=)`
+turns the neutral `pinneapple_data.cae.model.Mesh` that OpenFOAM, CalculiX, Abaqus, VTU and Gmsh readers already
+produce into a bundle; `bundle_to_mesh` goes back; `export_bundle` writes VTU, HDF5, NPZ, Parquet, CSV, JSON or the
+`.zip` bundle with the exporters that already exist.
+
+What the reader had and the bundle now carries: the **licence** (asked for, never defaulted to `unknown`), the unit
+per field, the point/cell split, the named patches and ELSETs as `physical_groups`, and the input files with their
+SHA-256.
+
+Two mesh shapes are kept as they are, because flattening either one loses the case:
+
+* **mixed-cell meshes** — a volume of hexahedra beside a surface of triangles is the normal CalculiX result, so
+  `Mesh` in the schema holds a list of `Block`s, each with its own element type, and `n_cells` counts only the
+  non-boundary blocks (counting them made a hexahedron + two triangles report three volume cells);
+* **polyhedral OpenFOAM meshes** — faces, owner/neighbour and patches survive as `Polyhedral`, not as an invented
+  connectivity; the cavity case round-trips at 400 cells with its `movingWall`/`fixedWalls` patches and kinematic
+  pressure (`p`, m²/s²) intact.
+
+A unit the reader can only report as "model units (length)" (CalculiX without a deck-level unit) becomes the schema's
+`unknown` sentinel and **fails the `units` gate with a message naming the field** — a verdict a reviewer needs,
+rather than a conversion nobody declared. `bundle_from_mesh(units={"DISP": "mm"})` passes the override.
+
+## 6. Model-side gates (INT-005, second half) — a surrogate asked the same questions
+
+`pinneapple_veriphysics.surrogate_gates.run_surrogate_gates(predicted, ...)` takes a trained model's output and
+decides four gates with a number each:
+
+| Gate | Question | Decided on |
+|---|---|---|
+| `accuracy` | how far is it from the reference? | relative L2 against a tolerance (default 5e-2) |
+| `conservation` | does the integral drift against the reference? | `max|I-I_ref| / max|I_ref|`, 1e-2 |
+| `boundary` | does it satisfy the declared Dirichlet values on `x_low`/`x_high`? | max deviation from the boundary value, 5e-2 |
+| `residual` | does it satisfy the PDE? | the residual of `advection`/`burgers`/`diffusion`/`wave` by finite differences, **normalised by the size of the operator's own terms**, 1e-1 |
+
+The residual normalisation is the point: a raw residual of 1e-2 means nothing until it is divided by the terms the
+equation is made of. Measured on a 200×400 grid with an exact solution, the finite-difference truncation alone
+leaves a residual of 1.3e-3, which is why the default tolerance is 1e-1 and not 1e-6 — a tolerance tighter than the
+discretisation's own error would fail correct models. Every gate that cannot be asked (no reference, no equation, a
+model that returns only a field) reports **not run**, and `record(ledger, inputs_sha256=...)` seals what did run into
+the VeriPhysics evidence ledger.
+
+## 7. Operators, graphs, UQ, visualisation, serving (INT-008 … INT-011, INT-013)
+
+* **Operator datasets (INT-008)** — `pinneapple_data.datasets.operator` turns bundles into
+  `(initial condition, trajectory, parameters)` with `split()` **by trajectory**, which is the split that matters for
+  an operator: splitting by time step leaks the answer into the training set. `leakage()` proves the three sides are
+  disjoint; `channels()` adds one constant channel per parameter, which is how an FNO sees a varying coefficient.
+  `from_pdebench(path, params=("Nu",))` builds one from the archive file directly.
+* **Geometry → graph (INT-009)** — `pinneapple_data.graph.grid_graph` gives a structured bundle its nearest
+  neighbours along each axis at one step; `mesh_graph` gives an unstructured one the unique edges of its element
+  connectivity. The edges come from a per-element table (`hexahedron` 12, `tetra` 6, …), not from a closed ring:
+  the first version connected `i` to `i+1` modulo the element and silently missed a hexahedron's four vertical
+  edges, which a graph network would have had to rediscover. `to_torch_geometric` is the only function that imports
+  PyG, so the graph is usable without it.
+* **UQ and design search (INT-010)** — `pinneapple_arena.bundle_uq.seed_ensemble` trains the same architecture on
+  the same split with different seeds and reports the held-out relative L2 per seed, the agreement between them and
+  the pointwise spread divided by the field's own standard deviation. The report says what it is: a **disagreement
+  between seeds, not a posterior**. `design_optimize` samples an input box by Latin hypercube, evaluates an
+  objective and ranks the inputs by rank correlation — a rank statistic, so it measures monotonicity, not magnitude,
+  and the note says so.
+  The Latin hypercube had the bug the test now pins: one permutation shared by every column lines the strata up and
+  makes the inputs correlated by construction, so an input the objective ignores still came back correlated. Each
+  column gets its own permutation (`test_an_input_the_objective_ignores_has_no_rank_correlation`).
+* **Visualisation (INT-011)** — `pinneapple_data.schema.view.to_pyvista` gives a `StructuredGrid` for a grid and an
+  `UnstructuredGrid` for a mesh, with nodal fields as point data and cell fields as cell data; `save_vtu` writes one
+  snapshot, `save_series` writes the `.pvd` + per-step `.vtu` pair ParaView opens as an animation. Without PyVista
+  the unstructured path still writes a VTU through the CAE exporter — the fallback is tested with `available()`
+  forced to false, because a fallback nobody runs does not work. A structured grid cannot write `.vtu` (only `.vts`),
+  so it is cast; and because the schema's cell fields carry one value per axis entry and not one per cell, such a
+  field lands as point data **with a note in the file** instead of being misindexed.
+* **Serving (INT-013)** — `pinneapple_arena.serving_bench.benchmark_model` times eager PyTorch (p50/p95, warm-up,
+  throughput), exports ONNX, and measures `onnxruntime` on the same input, reporting the max absolute difference
+  between the two backends as a serving smoke check. Measured limitation: an FNO's spectral convolution is an
+  `aten::fft_rfft`, which PyTorch does not lower to ONNX at opset 17 — the export fails, the partial file is deleted
+  and the report says which model and which op. A pointwise surrogate (a PINN MLP) exports and serves normally: on a
+  throwaway environment with `onnxruntime` installed, 0.147 ms in PyTorch vs 0.085 ms served, agreeing to 1.2e-07.
+  The `onnxruntime` leg is not measured on a machine without it, and the report says that too.
+
+## 8. PhysicsNeMo bridge (INT-014) — the dictionary, not the package
+
+PhysicsNeMo's datapipes yield a plain dictionary of named tensors (`yield {"permeability": ..., "darcy": ...}`,
+read from its own `Darcy2D` datapipe), so `pinneapple_data.schema.physicsnemo.to_dict(bundle)` returns exactly that,
+one key per field plus `pos` when coordinates are wanted, and `from_dict` goes back. `BundleDictDataset` is the
+iterable a loop consumes (torch tensors when torch is installed).
+
+`to_physicsnemo_dataset` returns a real `Datapipe` subclass **when the package is installed** and raises an
+`ImportError` naming `nvidia-physicsnemo` when it is not. PhysicsNeMo is a multi-gigabyte CUDA-first dependency; this
+repository converts the data and tests the conversion, and does not claim to have run a training loop it did not run.
+
+## 9. Engineering API (INT-006, INT-012) — catalogue, schema, capability records, telemetry
 
 In `pinneapple-engineering-api` (branch `feat/physics-data-interop`):
 
-* `GET /v1/platform/workspaces/{workspace_id}/physics-data/external-catalog` — the catalogue, filtered by
-  `priority`, `domain`, `readable`, with the library identity it was read from;
-* `GET /v1/platform/workspaces/{workspace_id}/physics-data/schema` — the JSON Schema of a bundle and the gates
-  with their default tolerances.
+* `GET .../physics-data/external-catalog` — the catalogue, filtered by `priority`, `domain`, `readable`, with the
+  library identity it was read from;
+* `GET .../physics-data/schema` — the JSON Schema of a bundle and the gates with their default tolerances;
+* **one capability record per catalogued dataset** (INT-006), merged into `registry.capabilities()`: status is
+  `tested` where an adapter exists and `discovered` otherwise, `executable` is always `false` and the evidence names
+  the adapter path. A catalogue entry never becomes `validated` because a record exists;
+* `POST .../physics-data/telemetry/{twin_id}` and `GET` on the same path (INT-012) — a batch of sensor readings of a
+  digital twin becomes a bundle (the union of the timestamps as the time axis, one field per sensor, **missing
+  readings as NaN**), is published to immutable storage and registered as a dataset version through the code that
+  already does that. Two digests come back and mean different things: `digest` is what is stored (SHA-256 of the
+  `.zip`), `bundle_digest` is the content digest of the numbers. A reading is provenance `kind="experiment"`, not
+  `simulation`. Two sensors that disagree about their unit are a 422, a repeated `(sensor, timestamp)` is a 422, and
+  the same batch sent twice returns the first version instead of a conflict. An API pinned to a PINNeAPPle older than
+  the schema answers `503` with the reason.
 
-Two behaviours are tested on purpose: an older pin answers `available: false` **with the reason** (an empty list
-would read as "there are no datasets"), and an unverified licence is passed through unchanged.
+Three behaviours are tested on purpose: an older pin answers `available: false` **with the reason** (an empty list
+would read as "there are no datasets"), an unverified licence is passed through unchanged, and the telemetry route
+refuses rather than storing a bundle it cannot describe.
 
-## 6. Backlog status
+## 10. Backlog status
 
 | ID | Item | Status |
 |---|---|---|
 | INT-001 | Universal physics data schema | **done** — `pinneapple_data.schema` |
 | INT-002 | Dataset registry + PDEBench | **done** — `datasets.catalog`, `datasets.pdebench` |
 | INT-003 | The Well adapter | **done** — `datasets.the_well` (layout reproduced in tests; licence per scenario) |
-| INT-004 | CAE universal exporter | not started — `pinneapple_data.cae.io` (OpenFOAM/FRD/INP readers) is the natural source of bundles |
-| INT-005 | VeriPhysics integration gates | **data gates done**; the model-side gates remain in `pinneapple_veriphysics` |
-| INT-006 | Capability registry sync | **partly** — catalogue + schema endpoints; no registry entry per dataset yet |
+| INT-004 | CAE universal exporter | **done** — `schema.cae` (mixed-cell and polyhedral meshes, OpenFOAM and CalculiX cases) |
+| INT-005 | VeriPhysics integration gates | **done** — `schema.gates` (data) + `pinneapple_veriphysics.surrogate_gates` (model) |
+| INT-006 | Capability registry sync | **done** — one record per catalogued dataset, never above `tested` |
 | INT-007 | Benchmark harness | **done** — `pinneapple_arena.bundle_bench` |
-| INT-008 | NeuralOperator adapter | not started — the bundle is the input contract it would consume |
-| INT-009 | Geometry → graph pipeline | not started — FlowBench (triangulated domains) is the dataset it needs |
-| INT-010 | UQ + design optimisation | not started |
-| INT-011 | Scientific visualisation adapters | not started — `to_xarray()` is the first half |
-| INT-012 | Digital twin telemetry bridge | not started |
-| INT-013 | ONNX serving benchmarks | not started |
-| INT-014 | PhysicsNeMo training bridge | not started |
+| INT-008 | NeuralOperator adapter | **done for the data side** — `datasets.operator`; the FNO itself is the arena's |
+| INT-009 | Geometry → graph pipeline | **done for grids and meshes** — `pinneapple_data.graph`; a triangulated-domain dataset (FlowBench) is still catalogued only |
+| INT-010 | UQ + design optimisation | **done** — `bundle_uq.seed_ensemble`, `bundle_uq.design_optimize` |
+| INT-011 | Scientific visualisation adapters | **done** — `schema.view` (PyVista, VTU, PVD) |
+| INT-012 | Digital twin telemetry bridge | **done** — telemetry routes in the API, bundles through the same storage path |
+| INT-013 | ONNX serving benchmarks | **done, with a measured limit** — pointwise models export and serve; an FNO's `fft_rfft` does not lower at opset 17 |
+| INT-014 | PhysicsNeMo training bridge | **done for the data contract** — `schema.physicsnemo`; the package itself is not installed here |
 
-The sequence the mapping recommends (INT-001 → INT-002 → INT-007 → INT-005 → INT-006) is the one that is done; the
-next honest step is INT-004, because every solver in this repository already produces fields that cannot yet leave
-it as a bundle.
+What is *not* done, said plainly: no pretrained PhysicsNeMo model runs in this repository, the ONNX runtime leg is
+measured only where `onnxruntime` is installed, and none of the imported archives is redistributed — the adapters
+read them where they live.
 
-## 7. Limitations of this page
+## 11. Limitations of this page
 
 Licences were verified only where `license_verified` says so. The Well's reader is exercised on a file written to
 the layout its own loader reads, not on a downloaded multi-gigabyte scenario. The benchmark numbers are a reduced
-CPU budget. No adapter here re-implements a solver: they read what the archive published.
+CPU budget. The `onnxruntime` comparison was measured in a throwaway environment, not in this checkout's default
+interpreter. No adapter here re-implements a solver: they read what the archive published.
 
 ## References
 
@@ -189,3 +292,8 @@ CPU budget. No adapter here re-implements a solver: they read what the archive p
 - Li et al. (2021), *Fourier Neural Operator for Parametric Partial Differential Equations*, ICLR — the family used
   in the harness.
 - HDF5 file driver `fileobj`: <https://docs.h5py.org/en/stable/high/file.html>.
+- Krumbiegel et al. (2024), *PhysicsNeMo* (formerly Modulus), NVIDIA — the datapipe contract the bridge follows:
+  <https://github.com/NVIDIA/physicsnemo>.
+- PyVista and the VTK XML formats (`UnstructuredGrid`, `.vtu`, `.pvd`): <https://docs.pyvista.org>.
+- ONNX export of PyTorch models and the opset operator list: <https://pytorch.org/docs/stable/onnx.html>.
+- PyTorch Geometric `Data`, the object `to_torch_geometric` produces: <https://pytorch-geometric.readthedocs.io>.

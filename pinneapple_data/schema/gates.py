@@ -203,9 +203,15 @@ def _units(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateRes
     problems: list[str] = []
     notes: list[str] = []
     length_units: set[str] = set()
+    from .models import UNKNOWN_UNIT
+
     for ax in bundle.manifest.mesh.axes:
         if not ax.unit:
             problems.append(f"axis '{ax.name}' has no unit")
+            continue
+        if ax.unit == UNKNOWN_UNIT:          # an imported case whose length unit nobody recorded: a verdict, not a
+            problems.append(f"axis '{ax.name}' has an unknown unit")      # crash from the unit parser
+            continue
         if ax.name != "t":
             from ..physical_units import parse_unit
             length_units.add(str(parse_unit(ax.unit).dim))
@@ -226,9 +232,6 @@ def _units(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateRes
         elif f.unit == "unknown":
             problems.append(f"field '{f.name}' has an unknown unit: the source did not record one (a solver deck in "
                             "model units), so no conversion or comparison is possible until it is given")
-    for ax in bundle.manifest.mesh.axes:
-        if ax.unit == "unknown":
-            problems.append(f"axis '{ax.name}' has an unknown unit")
     detail = "; ".join(problems) if problems else (
         "every declaration is present and consistent" + (f" ({'; '.join(notes)})" if notes else ""))
     return GateResult("units", not problems, float(len(problems)), tol["units"], "1", detail), {}

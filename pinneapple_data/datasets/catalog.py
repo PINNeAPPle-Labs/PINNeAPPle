@@ -17,7 +17,7 @@ Two fields carry the honesty of the catalogue:
     >>> [e.id for e in entries(priority="P0")]
     ['cfdbench', 'nasa_tmr', 'pdebench', 'spe10', 'the_well']
     >>> [e.id for e in implemented()]           # the ones with a working reader in this library
-    ['pdebench', 'the_well']
+    ['cfdbench', 'flowbench', 'pdebench', 'spe10', 'the_well']
 """
 from __future__ import annotations
 
@@ -98,21 +98,30 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         related=("pdebench",)),
     CatalogEntry(
         id="cfdbench", title="CFDBench: incompressible 2D CFD benchmark", domain=_CFD, priority="P0",
-        formats=("HDF5", "NumPy"), homepage="https://github.com/luo-yining/CFDBench",
-        license="unverified", access="open", adapter=None,
+        formats=("NumPy",), homepage="https://huggingface.co/datasets/chen-yingfa/CFDBench",
+        license="Apache-2.0 (the dataset card's licence field, which is what covers the data; the repository's own "
+                "LICENSE file covers its code)",
+        license_verified=True, access="open", adapter="pinneapple_data.datasets.cfdbench",
         use=("CFD surrogates", "generalisation across geometry and Reynolds"),
-        citation="Luo et al. (2023), CFDBench: A Large-Scale Benchmark for Machine Learning Methods in Fluid "
-                 "Dynamics",
-        notes="No adapter yet. Fields are cylinder/other obstacle flows in the lid-driven and channel families; "
-              "the reader is a pdebench-shaped job once a sample file is inspected."),
+        size="~2.3 GB in four zips (cavity 786 MB, dam 1.35 GB, tube 213 MB, cylinder split by its three subsets)",
+        citation="Luo, Chen & Zhang (2023), CFDBench: A Large-Scale Benchmark for Machine Learning Methods in Fluid "
+                 "Dynamics, arXiv:2310.05963",
+        notes="Read from the archive: cavity/tube/dam/cylinder, each with bc/geo/prop subsets, one directory per case "
+              "holding u.npy and v.npy shaped (time, 64, 64), a mask.npy where the case has one, and case.json with "
+              "the case's parameters. The archive states no units -- the reader records that as unknown and takes "
+              "units={...} when the caller knows them.",),
     CatalogEntry(
         id="spe10", title="SPE10: heterogeneous reservoir model", domain=_GEO, priority="P0",
-        formats=("GRDECL", "text"), homepage="https://www.spe.org/web/csp/datasets/set02.htm",
-        license="unverified", access="registration", adapter=None,
+        formats=("text",), homepage="https://www.spe.org/web/csp/datasets/set02.htm",
+        license="not stated: the SPE page links the archive (por_perm_case2a.zip) without terms",
+        license_verified=False, access="open", adapter="pinneapple_data.datasets.spe10",
         use=("Darcy flow", "FNO/PINN permeability upscaling"),
+        size="77 MB (spe_perm.dat 58 MB, spe_phi.dat 19 MB)",
         citation="Christie & Blunt (2001), Tenth SPE Comparative Solution Project, SPE Reservoir Evaluation",
-        notes="The canonical heterogeneous-permeability test case (60 x 220 x 85 cells). The permeability array "
-              "is what an adapter would export; no reader here yet."),
+        notes="The fine grid of model 2 (60 x 220 x 85 cells, 20 x 10 x 2 ft, Tarbert over Upper Ness) read from the "
+              "archive itself: six values per line, three permeability components per cell, i varying fastest -- "
+              "checked against the model's own layer structure, which flips at the Tarbert/Upper Ness boundary. The "
+              "licence is the caller's: the download requires no registration but states no terms."),
     CatalogEntry(
         id="nasa_tmr", title="NASA Turbulence Modeling Resource", domain=_CFD, priority="P0",
         formats=("CGNS", "Plot3D", "text"), homepage="https://turbmodels.larc.nasa.gov/",
@@ -120,7 +129,9 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         use=("numerical verification", "turbulence model validation"),
         citation="NASA Langley Research Center, Turbulence Modeling Resource",
         notes="Verification cases with published reference quantities (flat plate, bump, cylinder) -- the natural "
-              "reference half of INT-007. No reader here yet.",
+              "reference half of a benchmark. No reader here: on 2026-11-13 the legacy host answered every path with "
+              "the same HTML page (its validation files are no longer served) and the nasa.gov landing page the old "
+              "URLs redirect to is the generic site shell, so there is no file whose layout could be checked.",
         related=("nrel_wind",)),
     CatalogEntry(
         id="pdearena", title="PDEArena: PDE operator learning benchmark", domain=_BENCHMARK, priority="P1",
@@ -129,11 +140,19 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         use=("operator benchmark", "time-dependent PDEs"),
         notes="Shares the 1D/2D PDE families of PDEBench; a cross-check rather than a second format."),
     CatalogEntry(
-        id="flowbench", title="FlowBench: complex 2D/3D geometry flows", domain=_CFD, priority="P1",
-        formats=("HDF5", "NumPy"), homepage="https://github.com/erizmr/FlowBench",
-        license="unverified", access="open", adapter=None,
-        use=("graph neural networks", "geometry generalisation"),
-        notes="Nodal fields on triangulated domains: the target of the geometry-to-graph pipeline (INT-009)."),
+        id="flowbench", title="FlowBench: complex geometry flows", domain=_CFD, priority="P1",
+        formats=("NumPy", "npz"), homepage="https://huggingface.co/datasets/BGLab/FlowBench",
+        license="CC-BY-NC-4.0 (stated on the dataset card and in the paper; non-commercial)",
+        license_verified=True, access="open", adapter="pinneapple_data.datasets.flowbench",
+        use=("neural simulators on complex geometry", "geometry generalisation"),
+        size="over 10 000 samples; the FPO families are ~1.4 GB per sample",
+        citation="Tali et al. (2024), FlowBench: A Large Scale Benchmark for Flow Simulation over Complex Geometries, "
+                 "arXiv:2409.18032",
+        notes="Read from the archive: the LDC families store X/Y tensors shaped (n_samples, n_channels, height, width) "
+              "whose channel lists are the paper's Table 12, and an FPO sample stores (n_time, height, width, 3) with "
+              "u, v, p last plus an input_geometry.npz. The repository the catalogue used to name "
+              "(github.com/erizmr/FlowBench) is gone; the data now lives on HuggingFace. NC: verified is not "
+              "redistributable in a product."),
     CatalogEntry(
         id="jhtdb", title="Johns Hopkins Turbulence Database", domain=_CFD, priority="P1",
         formats=("web service", "HDF5"), homepage="https://turbulence.pha.jhu.edu/",
@@ -191,7 +210,9 @@ def redistributable(dataset_id: str) -> bool:
     """Whether the dataset's licence is *known* to allow redistribution.
 
     ``False`` is not a legal opinion: it means the licence has not been verified here, which is the only safe
-    answer to give before someone ships the data inside a product."""
+    answer to give before someone ships the data inside a product. ``True`` is not a commercial clearance either:
+    a non-commercial licence (FlowBench's CC-BY-NC-4.0) grants redistribution and still forbids the product, so the
+    entry's ``license`` text is what the decision is made on."""
     return get(dataset_id).license_verified
 
 

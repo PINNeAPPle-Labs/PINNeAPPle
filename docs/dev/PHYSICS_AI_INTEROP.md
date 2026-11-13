@@ -42,20 +42,50 @@ Two decisions worth knowing:
 * **The licence is a required field.** A bundle whose licence is `unknown` fails the `provenance` gate, because that
   is exactly the bundle that cannot be redistributed.
 
-## 2. Datasets (INT-002, INT-003) — two integrated, the rest catalogued
+## 2. Datasets (INT-002, INT-003) — five integrated, the rest catalogued
 
 `pinneapple_data.datasets.catalog` holds the twelve public datasets of the mapping with domain, priority, formats,
 access route, licence and — the field that matters — whether this library can read it:
 
 ```python
 from pinneapple_data.datasets.catalog import entries, implemented, missing
-[e.id for e in implemented()]      # ['pdebench', 'the_well']
-[e.id for e in missing("P0")]      # ['cfdbench', 'spe10', 'nasa_tmr']
+[e.id for e in implemented()]      # ['cfdbench', 'flowbench', 'pdebench', 'spe10', 'the_well']
+[e.id for e in missing("P0")]      # ['nasa_tmr']
 ```
 
 `license_verified` is `True` only where the licence was read on the distribution page and checked: PDEBench's data
-(CC BY 4.0, on the DaRUS record). The Well's package is BSD-3-Clause but its *data* terms are per scenario, so the
-adapter refuses to build a bundle without an explicit `license=` and says where to look.
+(CC BY 4.0, on the DaRUS record), CFDBench's (Apache-2.0 on the HuggingFace dataset card, which is what covers the
+data) and FlowBench's (CC-BY-NC-4.0, on the card and in the paper — verified is **not** a commercial clearance). The
+Well's package is BSD-3-Clause but its *data* terms are per scenario, so the adapter refuses to build a bundle without
+an explicit `license=` and says where to look; SPE10 states no terms at all, so its reader requires the licence as an
+argument.
+
+### SPE10, CFDBench and FlowBench: three layouts, each checked against the real file
+
+* **SPE10** — `spe_perm.dat` gives six values per line, three permeability components per cell, and no index at all.
+  The reader's claim that ``i`` varies fastest is checked against the model's own structure: read that way the mean
+  permeability per layer jumps by a factor of two at layer 36, where the Tarbert formation ends; read the other way
+  the layers are statistically indistinguishable. Which of the three values is *kx*, *ky* or *kz* cannot be recovered
+  from the numbers (the three columns have the same median, mean and spread), so the bundle names them in the SPE
+  convention and says in its metadata that the order is a convention. The axes are cell centres in feet, top at
+  12 000 ft, from the dataset's description.
+* **CFDBench** — one directory per case with `u.npy` and `v.npy` shaped `(time, 64, 64)`, a `mask.npy` where the case
+  has one, and `case.json` with the case's parameters (measured on the published `tube.zip`: `(107, 64, 64)` and
+  `{height, width, vel_in, density, viscosity}`). The archive states **no units**, so every field is `unknown` and the
+  `units` gate says so until the caller passes `units={...}`; the coordinates come from `case.json`'s extent when it
+  has one and are the cell index otherwise, and the bundle's metadata says which.
+* **FlowBench** — the LDC families store `X`/`Y` tensors shaped `(n_samples, n_channels, height, width)` whose channel
+  lists are Table 12 of the paper, and an FPO sample stores `(n_time, height, width, 3)` with `u, v, p` **last**
+  (measured: `(242, 256, 1024, 3)` for a 1.4 GB sample, `(1000, 3, 128, 128)` and `(1000, 4, 128, 128)` for the
+  128 x 128 LDC pair). The reader names channels by their count and refuses a count the paper does not document,
+  because the 128 x 128 file has the 3-channel input of one family and the 4-channel output of another.
+* **NASA TMR** — no reader, and the reason is in the catalogue: on 2026-11-13 the legacy host answered every path
+  with the same HTML page and the nasa.gov landing page the old URLs redirect to is the generic site shell, so there
+  is no file whose layout could be checked. The entry says that instead of pointing at a link that looks alive.
+
+A finding from turning on the three readers: the `units` gate **crashed** on an axis declared `unknown` (it parsed the
+unit before deciding the axis had none). It now reports it as a problem, which is what an imported case with no
+recorded length unit deserves.
 
 ### Reading a 1.3 GB file to get 65 kB of it
 
@@ -271,7 +301,7 @@ refuses rather than storing a bundle it cannot describe.
 | INT-006 | Capability registry sync | **done** — one record per catalogued dataset, never above `tested` |
 | INT-007 | Benchmark harness | **done** — `pinneapple_arena.bundle_bench` |
 | INT-008 | NeuralOperator adapter | **done for the data side** — `datasets.operator`; the FNO itself is the arena's |
-| INT-009 | Geometry → graph pipeline | **done for grids and meshes** — `pinneapple_data.graph`; a triangulated-domain dataset (FlowBench) is still catalogued only |
+| INT-009 | Geometry → graph pipeline | **done** — `pinneapple_data.graph`; FlowBench, read here, turned out to be structured grids (its "triangulated domains" were a wrong note in the catalogue, now corrected), so the graph adapters cover everything the archives publish |
 | INT-010 | UQ + design optimisation | **done** — `bundle_uq.seed_ensemble`, `bundle_uq.design_optimize` |
 | INT-011 | Scientific visualisation adapters | **done** — `schema.view` (PyVista, VTU, PVD) |
 | INT-012 | Digital twin telemetry bridge | **done** — telemetry routes in the API, bundles through the same storage path |

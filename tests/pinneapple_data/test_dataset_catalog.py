@@ -29,8 +29,23 @@ def test_entries_are_sorted_by_priority_then_id():
 
 
 def test_only_the_adapters_that_exist_are_readable():
-    assert {e.id for e in catalog.implemented()} == {"pdebench", "the_well"}
-    assert "cfdbench" in {e.id for e in catalog.missing("P0")}
+    assert {e.id for e in catalog.implemented()} == {"pdebench", "the_well", "cfdbench", "spe10", "flowbench"}
+    assert [e.id for e in catalog.missing("P0")] == ["nasa_tmr"], (
+        "the TMR validation files are no longer served (2026-11-13), so it is the one P0 dataset with no reader")
+
+
+def test_a_reader_exists_for_every_dataset_it_claims():
+    import importlib
+
+    for entry in catalog.implemented():
+        assert importlib.import_module(entry.adapter) is not None
+
+
+def test_a_dead_link_is_recorded_as_one():
+    """The catalogue used to point at a repository that no longer exists, which is worse than saying so."""
+    tmr = catalog.get("nasa_tmr")
+    assert tmr.adapter is None and "no longer served" in tmr.notes
+    assert catalog.get("flowbench").homepage.startswith("https://huggingface.co/")
 
 
 def test_redistribution_is_only_claimed_where_the_licence_was_checked():

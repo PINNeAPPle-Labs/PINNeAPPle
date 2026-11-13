@@ -44,3 +44,14 @@
   then that rewrite, saying which one produced the graph. Measured: the copy agrees with the model to 1.5e-08 (1-D)
   and 3.0e-08 (2-D) in PyTorch and to 2.98e-08 through onnxruntime, where a 1-D FNO serves at 0.144 ms against
   0.190 ms in PyTorch.
+- **SPE10, CFDBench and FlowBench read from their own archives** (`pinneapple_data.datasets.spe10`, `.cfdbench`,
+  `.flowbench`), each layout checked against the published files rather than a description of them: SPE10's
+  `spe_perm.dat` (six values per line, `i` fastest — verified by the permeability jump at layer 36 where the Tarbert
+  formation ends) with the caveat that which component is kx/ky/kz cannot be recovered from the numbers; CFDBench's
+  `caseNNNN/{u,v}.npy` plus `case.json`, with units recorded as unknown because the archive states none; FlowBench's
+  `X`/`Y` tensors whose channels are named by count from the paper's Table 12 (a count it does not document is
+  refused) and its 1.4 GB per-sample FPO files, whose `(time, height, width, 3)` layout was read off one.
+  NASA TMR stays without a reader and the catalogue now says why: its validation files are no longer served, and the
+  nasa.gov redirect lands on the generic site shell.
+- The `units` gate no longer crashes on an axis declared `unknown` — it reports it, which is what an imported case
+  with no recorded length unit deserves. Permeability gained its unit: `D` and `mD` (1 D = 9.869233e-13 m²).

@@ -126,6 +126,10 @@ report = run_benchmark(bundle, BenchConfig(field="density", epochs=200))
 print(report.to_markdown())
 ```
 
+Measured on the real archive (`python -m benchmarks.pinn_vs_fno_pdebench`, Sod6.hdf5 read over HTTP, 150 epochs,
+201 snapshots, last 20 % held out): FNO **4.02e-3** vs PINN **1.48e-2** relative L2, 390 s and 70 s respectively, all
+gates passed. `benchmarks/_out/pinn_vs_fno_pdebench-sod-0000.{md,json}` holds the report.
+
 The protocol is a surrogate's real question — the first 80 % of the record in, the last 20 % scored — not a random
 shuffle a smooth field would pass by interpolation. Three limits are written into the report: the PINN is
 data-supervised unless a `residual=` callable is supplied (the library cannot turn `physics.governing` prose into an

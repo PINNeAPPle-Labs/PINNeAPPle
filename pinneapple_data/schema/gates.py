@@ -266,16 +266,37 @@ def _location(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[Gate
     return GateResult("location", not problems, float(len(problems)), tol["location"], "1", detail), {}
 
 
+def _float32_noise(coords: np.ndarray, dtype: np.dtype) -> float | None:
+    """How non-uniform a *perfectly* uniform axis in this dtype can look.
+
+    A coordinate stored as float32 is rounded to ~eps*|x|, so its neighbour differences differ from the true
+    spacing by ~2*eps*|x|; relative to the spacing that is ``2 * eps * max|x| / mean(spacing)``. Comparing a float32
+    axis against a tolerance below that reports the storage format as a geometry error."""
+    if np.dtype(dtype).itemsize >= 8 or coords.size < 2:
+        return None
+    spacing = abs(float(np.mean(np.diff(coords.astype(np.float64)))))
+    if spacing == 0.0:
+        return None
+    return 2.0 * float(np.finfo(dtype).eps) * float(np.max(np.abs(coords))) / spacing
+
+
 def _frame(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateResult, dict]:
+    """Strictly monotonic axes, uniformly spaced to the precision their dtype can hold."""
     worst = 0.0
+    noise_max = 0.0
     problems: list[str] = []
     notes: list[str] = []
     for name in bundle.axes:
-        coords = np.asarray(bundle.axis_array(name), dtype=np.float64)
+        ref = bundle.manifest.mesh.axis(name).data
+        if ref is None:
+            problems.append(f"axis '{name}' has no coordinates")
+            continue
+        coords = np.asarray(bundle.array(ref.key))
         if coords.ndim != 1 or coords.size < 2:
             problems.append(f"axis '{name}' has {coords.shape}: expected a 1-D coordinate array of length >= 2")
             continue
-        diffs = np.diff(coords)
+        values = coords.astype(np.float64)
+        diffs = np.diff(values)
         if not (np.all(diffs > 0) or np.all(diffs < 0)):
             problems.append(f"axis '{name}' is not strictly monotonic: a flipped or shuffled axis changes every "
                             "spatial comparison downstream")
@@ -284,10 +305,17 @@ def _frame(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateRes
             notes.append(f"'{name}' decreases")
         mean = abs(float(diffs.mean()))
         worst = max(worst, float(np.max(np.abs(np.abs(diffs) - mean)) / mean))
+        noise = _float32_noise(values, coords.dtype)
+        if noise:
+            noise_max = max(noise_max, noise)
+            notes.append(f"'{name}' is {coords.dtype}, which alone accounts for {noise:.1e}")
+    effective = max(float(tol["frame_uniformity"]), noise_max)
+    passed = not problems and worst <= effective
     detail = "; ".join(problems) if problems else (
-        "axes strictly monotonic and uniformly spaced" + (f" ({', '.join(notes)})" if notes else ""))
-    return GateResult("frame", not problems and worst <= tol["frame_uniformity"], worst,
-                      tol["frame_uniformity"], "1", detail), {}
+        f"axes strictly monotonic and uniformly spaced within {effective:.1e} "
+        f"(tolerance {tol['frame_uniformity']:.1e} or the dtype's own rounding, whichever is larger)"
+        + (f": {', '.join(notes)}" if notes else ""))
+    return GateResult("frame", passed, worst, effective, "1", detail), {}
 
 
 def _provenance(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateResult, dict]:
@@ -329,7 +357,10 @@ def _reference(bundle: PhysicsDataBundle, tol: Mapping[str, float], reference: n
     values = bundle.field_array(field_name)
     if reference_slice is not None:
         values = values[reference_slice]
-    err = relative_l2(values, reference)
+    try:
+        err = relative_l2(values, reference)
+    except ValueError as exc:
+        raise GateNotApplicable(f"'{field_name}' cannot be scored against this reference: {exc}") from None
     return GateResult("reference", err <= tol["reference"], err, tol["reference"], "1",
                       f"relative L2 error of '{field_name}' against the reference"), {"field": field_name}
 

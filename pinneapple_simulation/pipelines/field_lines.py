@@ -141,6 +141,21 @@ def joelho(k: np.ndarray, t, dabs, s_ref: float, fator: float = 2.0,
     return None
 
 
+def quantizacao(dabs) -> dict:
+    """O quanto a linha consegue representar: ``{"pontos", "passo_medio", "passo_max", "fracao_em_passos_grandes"}``.
+
+    A posição do pico é lida numa sequência de pontos amostrados (centros de célula), então o maior vão entre pontos
+    consecutivos é a **resolução da métrica**: uma diferença de posição menor que isso não é distinguível do nada. Sai
+    do próprio arquivo de resultados — não precisa de rodada nova.
+    """
+    d = np.sort(np.asarray(dabs, dtype=float))
+    if d.size < 2:
+        return {"pontos": int(d.size), "passo_medio": None, "passo_max": None, "fracao_em_passos_grandes": None}
+    p = np.diff(d)
+    return {"pontos": int(d.size), "passo_medio": float(p.mean()), "passo_max": float(p.max()),
+            "fracao_em_passos_grandes": float((p > 2.0 * np.median(p)).mean())}
+
+
 def media_faixa(k: np.ndarray, t, dabs, s0: float, s1: float,
                 janela_t: tuple[float, float] | None = None) -> float | None:
     """k médio na faixa de distância ``[s0, s1]`` e na janela de tempo (``None`` se a faixa não tem ponto)."""

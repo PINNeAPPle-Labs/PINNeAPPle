@@ -13,6 +13,7 @@ from pinneapple_simulation.pipelines.field_lines import (
     pico,
     picos_por_linha,
     plato,
+    quantizacao,
 )
 
 
@@ -110,3 +111,24 @@ def test_joelho_sem_cruzamento_devolve_none():
     s = np.arange(0.0, 5.0, 1.0)
     k, t = _perfil([1.0, 0.9, 0.8, 0.7, 0.6])        # perfil decrescente: nunca dobra
     assert joelho(k, t, s, s_ref=0.0, fator=2.0) is None
+
+
+def test_quantizacao_mede_o_maior_vao():
+    """Linha com um vão grande no meio: a resolução é o maior vão, não a média."""
+    d = np.array([0.0, 0.2, 0.4, 1.6, 1.8])
+    q = quantizacao(d)
+    assert q["pontos"] == 5
+    assert q["passo_max"] == pytest.approx(1.2, abs=1e-9)
+    assert q["passo_medio"] == pytest.approx(0.45, abs=1e-9)
+    assert q["fracao_em_passos_grandes"] == pytest.approx(0.25)
+
+
+def test_quantizacao_de_linha_regular():
+    d = np.arange(101) * 0.227
+    q = quantizacao(d)
+    assert q["passo_max"] == pytest.approx(0.227, abs=1e-9)
+    assert q["fracao_em_passos_grandes"] == 0.0
+
+
+def test_quantizacao_de_um_ponto_nao_inventa_passo():
+    assert quantizacao(np.array([1.0]))["passo_max"] is None

@@ -223,6 +223,12 @@ def _units(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateRes
     for f in bundle.manifest.fields.variables:
         if not f.unit:
             problems.append(f"field '{f.name}' has no unit")
+        elif f.unit == "unknown":
+            problems.append(f"field '{f.name}' has an unknown unit: the source did not record one (a solver deck in "
+                            "model units), so no conversion or comparison is possible until it is given")
+    for ax in bundle.manifest.mesh.axes:
+        if ax.unit == "unknown":
+            problems.append(f"axis '{ax.name}' has an unknown unit")
     detail = "; ".join(problems) if problems else (
         "every declaration is present and consistent" + (f" ({'; '.join(notes)})" if notes else ""))
     return GateResult("units", not problems, float(len(problems)), tol["units"], "1", detail), {}
@@ -282,6 +288,9 @@ def _float32_noise(coords: np.ndarray, dtype: np.dtype) -> float | None:
 
 def _frame(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[GateResult, dict]:
     """Strictly monotonic axes, uniformly spaced to the precision their dtype can hold."""
+    if not bundle.axes:
+        raise GateNotApplicable("this mesh has no coordinate axes (an unstructured mesh): frame is a property of a "
+                                "structured grid, so there is nothing to check rather than something that passed")
     worst = 0.0
     noise_max = 0.0
     problems: list[str] = []
@@ -325,8 +334,9 @@ def _provenance(bundle: PhysicsDataBundle, tol: Mapping[str, float]) -> tuple[Ga
         problems.append("no source")
     if not p.license or p.license.strip().lower() in ("", "unknown"):
         problems.append(f"licence is '{p.license or 'empty'}': the data cannot be redistributed until it is known")
-    if not p.citation and not p.url:
-        problems.append("no citation and no url")
+    if p.kind == "dataset" and not p.citation and not p.url:
+        # an external dataset has a place and a paper; a case this machine solved has a path and a solver
+        problems.append("no citation and no url: an external dataset has to say where it came from")
     if p.kind in ("dataset", "experiment") and not p.inputs:
         problems.append("no input file hash recorded: a bundle that came from a file has to name the file's hash")
     for ref in p.inputs:

@@ -1,0 +1,242 @@
+"""Regression tests for solver-neutral contract and canal sampling methodology."""
+from pathlib import Path
+import pytest
+
+from pinneapple_analysis.spatial_sampling import (
+    SpatialReference, SamplingProtocol, IncompatibleComparison,
+    absolute_distance, compare_protocols, require_compatible, liquid_peak,
+)
+from pinneapple_simulation.external_solvers.generic_contract import (
+    SimulationSpec, SimulationError, UnsupportedSimulation, get_adapter, simulate,
+)
+
+
+def protocol(**changes):
+    ref = SpatialReference("inlet", (-7.429,), ("y",))
+    base = dict(reference=ref, field="k", field_units="m2/s2", statistic="peak",
+                window_s=(20, 30), phase="liquid", phase_alpha_min=0.9)
+    base.update(changes)
+    return SamplingProtocol(**base)
+
+
+@pytest.mark.parametrize("offset", [1.364, 1.819, 3.637])
+def test_absolute_origin_is_not_first_cell(offset):
+    inlet = -7.429
+    assert absolute_distance(inlet + offset, inlet) == pytest.approx(offset)
+    assert absolute_distance(inlet, inlet) == 0
+
+
+def test_compatible_comparison():
+    assert compare_protocols(protocol(), protocol()).allowed
+    require_compatible(protocol(), protocol())
+
+
+@pytest.mark.parametrize("change", [
+    {"statistic": "mean"}, {"window_s": (0, 30)},
+    {"phase": "air"}, {"phase_alpha_min": None},
+    {"field_units": "Pa"}, {"spatial_interval_m": (2, 8)},
+    {"reference": SpatialReference("first_sample", (0,), ("y",))},
+    {"reference": SpatialReference("inlet", (-7.429,), ("y",), location="node")},
+])
+def test_incompatible_sampling_is_blocked(change):
+    decision = compare_protocols(protocol(), protocol(**change))
+    assert not decision.allowed and decision.reasons
+    with pytest.raises(IncompatibleComparison):
+        require_compatible(protocol(), protocol(**change))
+
+
+def test_peak_ignores_air_and_nonfinite():
+    assert liquid_peak([2, 100, 4, float("nan")], [1, 0.1, 0.95, 1]) == (2, 4.0)
+    with pytest.raises(IncompatibleComparison):
+        liquid_peak([100], [0.1])
+
+
+def test_fenicsx_requires_trusted_callable(tmp_path):
+    spec = SimulationSpec("fenicsx", tmp_path)
+    with pytest.raises(UnsupportedSimulation):
+        simulate(spec)
+    result = simulate(spec, fenicsx_solve=lambda s: [1.0])
+    assert result.status == "completed" and result.backend == "fenicsx"
+    with pytest.raises(SimulationError):
+        simulate(spec, fenicsx_solve=lambda s: None)
+
+
+def test_openfoam_fails_closed_without_case(tmp_path):
+    with pytest.raises(SimulationError, match="controlDict"):
+        simulate(SimulationSpec("openfoam", tmp_path))
+
+
+def test_calculix_fails_closed_without_deck(tmp_path):
+    with pytest.raises(SimulationError, match="input deck"):
+        simulate(SimulationSpec("calculix", tmp_path, case="beam"))
+
+
+def test_unknown_backend_and_unsafe_job(tmp_path):
+    with pytest.raises(UnsupportedSimulation):
+        get_adapter("unknown")
+    with pytest.raises(ValueError):
+        simulate(SimulationSpec("calculix", tmp_path, case="../evil"))
+
+
+def test_solver_comparison_blocks_mismatched_metadata_before_model_call():
+    from pinneapple_analysis.validation.analytical import validate_against_solver
+    class ShouldNotRun:
+        def __call__(self, *_args):
+            raise AssertionError("Model must not be evaluated on incompatible data")
+    with pytest.raises(IncompatibleComparison):
+        validate_against_solver(
+            ShouldNotRun(), {"x": [0.0], "k": [1.0]}, ["x"], ["k"],
+            prediction_protocol=protocol(),
+            reference_protocol=protocol(window_s=(0, 30)),
+        )
+
+
+def test_solver_comparison_rejects_half_documented_metadata():
+    from pinneapple_analysis.validation.analytical import validate_against_solver
+    with pytest.raises(ValueError, match="Both"):
+        validate_against_solver(
+            lambda x: x, {"x": [0.0], "k": [1.0]}, ["x"], ["k"],
+            prediction_protocol=protocol(),
+        )
+
+
+def test_normalized_fields_compare_only_aligned_samples():
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField, compare_fields
+    args = dict(name="k", units="m2/s2", components=("k",),
+                coordinates_m=((1.364,), (1.819,)), protocol=protocol(),
+                provenance={"solver": "openfoam"})
+    ref = PhysicalField(**args, values=((2.0,), (4.0,)))
+    pred = PhysicalField(**args, values=((2.0,), (5.0,)))
+    result = compare_fields(pred, ref)
+    assert result["rmse"] == pytest.approx(2 ** -0.5)
+    assert result["scientifically_validated"] is False
+    shifted = PhysicalField(**(args | {"coordinates_m": ((0.0,), (0.455,))}),
+                            values=((2.0,), (5.0,)))
+    with pytest.raises(ValueError, match="Sampling coordinates"):
+        compare_fields(shifted, ref)
+
+
+def test_normalized_fields_reject_invalid_components_and_units():
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    args = dict(name="k", units="m2/s2", components=("k",),
+                coordinates_m=((1.364,),), values=((2.0,),),
+                protocol=protocol(), provenance={})
+    with pytest.raises(ValueError, match="units mismatch"):
+        PhysicalField(**(args | {"units": "Pa"}))
+    with pytest.raises(ValueError, match="shape mismatch"):
+        PhysicalField(**(args | {"values": ((2.0, 3.0),)}))
+
+
+def test_export_structured_array_and_vtk_with_metadata(tmp_path):
+    import json
+    np = pytest.importorskip("numpy")
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    from pinneapple_simulation.external_solvers.field_export import export_field
+    field = PhysicalField(
+        name="k", units="m2/s2", components=("k",),
+        coordinates_m=((1.364,), (1.819,)), values=((2.0,), (4.0,)),
+        protocol=protocol(), provenance={"solver": "openfoam"},
+    )
+    array_paths = export_field(field, tmp_path / "sample", format="structured_array")
+    records = np.load(array_paths["data"], allow_pickle=False)
+    assert records.dtype.names == ("y", "k")
+    assert records["y"].tolist() == pytest.approx([1.364, 1.819])
+    vtk_paths = export_field(field, tmp_path / "sample", format="vtk")
+    vtk = Path(vtk_paths["data"]).read_text()
+    assert "DATASET POLYDATA" in vtk
+    assert "VERTICES 2 4" in vtk
+    assert "POINT_DATA 2" in vtk
+    assert "FIELD FieldData 1" in vtk
+    meta = json.loads(Path(vtk_paths["metadata"]).read_text())
+    assert meta["reference"]["origin_m"] == [-7.429]
+    assert meta["provenance"]["solver"] == "openfoam"
+
+
+def test_export_rejects_unknown_format(tmp_path):
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    from pinneapple_simulation.external_solvers.field_export import export_field
+    field = PhysicalField(
+        name="k", units="m2/s2", components=("k",),
+        coordinates_m=((1.364,),), values=((2.0,),),
+        protocol=protocol(), provenance={},
+    )
+    with pytest.raises(ValueError, match="Supported formats"):
+        export_field(field, tmp_path / "sample", format="invalid")
+
+
+def test_unstructured_vtk_export_preserves_topology(tmp_path):
+    import json
+    from pinneapple_simulation.external_solvers.mesh_export import (
+        MeshDataset, MeshField, export_mesh,
+    )
+    mesh = MeshDataset(
+        points_m=((0., 0.), (1., 0.), (0., 1.)),
+        cells=(("triangle", (0, 1, 2)),),
+        fields={"pressure": MeshField(((101325.,),), "Pa", "cell", ("p",))},
+        provenance={"solver": "openfoam"},
+    )
+    out = export_mesh(mesh, tmp_path / "triangle", format="vtk")
+    content = Path(out["data"]).read_text()
+    assert "DATASET UNSTRUCTURED_GRID" in content
+    assert "CELLS 1 4" in content
+    assert "CELL_TYPES 1" in content
+    assert "CELL_DATA 1" in content
+    assert json.loads(Path(out["metadata"]).read_text())["fields"]["pressure"]["units"] == "Pa"
+
+
+def test_unstructured_npz_preserves_connectivity(tmp_path):
+    np = pytest.importorskip("numpy")
+    from pinneapple_simulation.external_solvers.mesh_export import MeshDataset, export_mesh
+    mesh = MeshDataset(
+        points_m=((0., 0.), (1., 0.)), cells=(("line", (0, 1)),),
+        fields={}, provenance={},
+    )
+    out = export_mesh(mesh, tmp_path / "line", format="structured_array")
+    with np.load(out["data"], allow_pickle=False) as archive:
+        assert archive["cell_connectivity"].tolist() == [0, 1]
+        assert archive["cell_offsets"].tolist() == [0, 2]
+
+
+def test_mesh_export_rejects_invalid_connectivity():
+    from pinneapple_simulation.external_solvers.mesh_export import MeshDataset
+    with pytest.raises(ValueError, match="outside mesh"):
+        MeshDataset(points_m=((0., 0.),), cells=(("line", (0, 4)),),
+                    fields={}, provenance={})
+
+
+def test_native_ingest_rejects_missing_or_wrong_solver_output(tmp_path):
+    from pinneapple_simulation.external_solvers.native_ingest import (
+        ingest_native_output, NativeOutputError,
+    )
+    with pytest.raises(NativeOutputError, match="not found"):
+        ingest_native_output("openfoam", tmp_path / "absent.vtk", field_units={})
+    file = tmp_path / "case.inp"
+    file.write_text("*HEADING\n")
+    with pytest.raises(NativeOutputError, match="supported exported file"):
+        ingest_native_output("openfoam", file, field_units={})
+
+
+def test_openfoam_converter_requires_valid_case(tmp_path):
+    from pinneapple_simulation.external_solvers.native_ingest import (
+        convert_openfoam_case, NativeOutputError,
+    )
+    with pytest.raises(NativeOutputError, match="controlDict"):
+        convert_openfoam_case(tmp_path)
+
+
+def test_meshio_native_roundtrip(tmp_path):
+    np = pytest.importorskip("numpy")
+    meshio = pytest.importorskip("meshio")
+    from pinneapple_simulation.external_solvers.native_ingest import ingest_native_output
+    mesh = meshio.Mesh(
+        points=np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]]),
+        cells=[("triangle", np.array([[0, 1, 2]]))],
+        point_data={"pressure": np.array([1., 2., 3.])},
+    )
+    path = tmp_path / "sample.vtu"
+    meshio.write(path, mesh)
+    out = ingest_native_output("fenicsx", path, field_units={"pressure": "Pa"})
+    assert out.cells == (("triangle", (0, 1, 2)),)
+    assert out.fields["pressure"].values == ((1.,), (2.,), (3.,))
+    with pytest.raises(Exception, match="explicit physical units"):
+        ingest_native_output("fenicsx", path, field_units={})

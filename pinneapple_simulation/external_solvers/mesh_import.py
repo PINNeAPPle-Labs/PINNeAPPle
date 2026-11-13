@@ -7,6 +7,7 @@ separate native-field readers and scientific validation.
 from __future__ import annotations
 
 from pathlib import Path
+import math
 
 from .mesh_export import MeshDataset, MeshField
 
@@ -17,7 +18,7 @@ SUPPORTED = {"vertex", "line", "triangle", "quad", "tetra", "hexahedron",
 def read_meshio(path: str | Path, *, coordinate_scale_to_m: float = 1.0,
                 field_units: dict[str, str] | None = None,
                 provenance: dict[str, str] | None = None) -> MeshDataset:
-    if not (0 < coordinate_scale_to_m < float("inf")):
+    if not (math.isfinite(coordinate_scale_to_m) and coordinate_scale_to_m > 0):
         raise ValueError("Explicit finite positive coordinate scale required")
     try:
         import meshio

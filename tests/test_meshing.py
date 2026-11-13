@@ -198,4 +198,5 @@ def test_snappy_dict_e_lido_pelo_openfoam(tmp_path):
     assert r.returncode == 0, r.stdout[-500:]
     assert "canal" in r.stdout and "level" in r.stdout
     r2 = _foam(caso, "foamDictionary system/snappyHexMeshDict -entry castellatedMeshControls/locationInMesh")
-    assert r2.returncode == 0 and "(-2.1 0 -2)" in r2.stdout
+    # o foamDictionary reimprime o vetor com espaços dentro dos parênteses: "( -2.1 0 -2 )"
+    assert r2.returncode == 0 and "(-2.1 0 -2)" in r2.stdout.replace("( ", "(").replace(" )", ")")

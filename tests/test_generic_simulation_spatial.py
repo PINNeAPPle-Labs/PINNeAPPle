@@ -202,3 +202,41 @@ def test_mesh_export_rejects_invalid_connectivity():
     with pytest.raises(ValueError, match="outside mesh"):
         MeshDataset(points_m=((0., 0.),), cells=(("line", (0, 4)),),
                     fields={}, provenance={})
+
+
+def test_native_ingest_rejects_missing_or_wrong_solver_output(tmp_path):
+    from pinneapple_simulation.external_solvers.native_ingest import (
+        ingest_native_output, NativeOutputError,
+    )
+    with pytest.raises(NativeOutputError, match="not found"):
+        ingest_native_output("openfoam", tmp_path / "absent.vtk", field_units={})
+    file = tmp_path / "case.inp"
+    file.write_text("*HEADING\n")
+    with pytest.raises(NativeOutputError, match="supported exported file"):
+        ingest_native_output("openfoam", file, field_units={})
+
+
+def test_openfoam_converter_requires_valid_case(tmp_path):
+    from pinneapple_simulation.external_solvers.native_ingest import (
+        convert_openfoam_case, NativeOutputError,
+    )
+    with pytest.raises(NativeOutputError, match="controlDict"):
+        convert_openfoam_case(tmp_path)
+
+
+def test_meshio_native_roundtrip(tmp_path):
+    np = pytest.importorskip("numpy")
+    meshio = pytest.importorskip("meshio")
+    from pinneapple_simulation.external_solvers.native_ingest import ingest_native_output
+    mesh = meshio.Mesh(
+        points=np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]]),
+        cells=[("triangle", np.array([[0, 1, 2]]))],
+        point_data={"pressure": np.array([1., 2., 3.])},
+    )
+    path = tmp_path / "sample.vtu"
+    meshio.write(path, mesh)
+    out = ingest_native_output("fenicsx", path, field_units={"pressure": "Pa"})
+    assert out.cells == (("triangle", (0, 1, 2)),)
+    assert out.fields["pressure"].values == ((1.,), (2.,), (3.,))
+    with pytest.raises(Exception, match="explicit physical units"):
+        ingest_native_output("fenicsx", path, field_units={})

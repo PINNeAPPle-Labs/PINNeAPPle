@@ -17,6 +17,8 @@ on:
       - "tests/test_assurance_policy.py"
       - "tests/test_assurance_runner.py"
       - "tests/test_solver_field_adapters.py"
+      - "pinneapple_analysis/verification/brainstorm_mvp.py"
+      - "tests/test_brainstorm_mvp.py"
       - ".github/workflows/physics-assurance.yml"
   push:
     branches: [feat/physics-assurance-pipeline]
@@ -42,4 +44,5 @@ jobs:
             tests/test_diagnostic_engine.py \
             tests/test_assurance_policy.py \
             tests/test_assurance_runner.py \
-            tests/test_solver_field_adapters.py
+            tests/test_solver_field_adapters.py \
+            tests/test_brainstorm_mvp.py

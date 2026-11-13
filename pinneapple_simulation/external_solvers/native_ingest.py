@@ -11,6 +11,7 @@ from pathlib import Path
 import math
 import shutil
 import subprocess
+import time
 
 from .mesh_import import read_meshio
 from .mesh_export import MeshDataset
@@ -80,6 +81,7 @@ def convert_openfoam_case(
     args = [exe, "-case", str(case)]
     if latest_time:
         args.append("-latestTime")
+    started_at = time.time()
     try:
         result = subprocess.run(args, cwd=case, capture_output=True,
                                 text=True, timeout=timeout_s, check=False)
@@ -87,7 +89,8 @@ def convert_openfoam_case(
         raise NativeOutputError(f"foamToVTK failed: {exc}") from exc
     if result.returncode:
         raise NativeOutputError(f"foamToVTK exit {result.returncode}: {result.stderr[-2000:]}")
-    files = sorted((case / "VTK").rglob("*.vtk")) if (case / "VTK").is_dir() else []
+    files = sorted(p for p in (case / "VTK").rglob("*.vtk")
+                   if p.stat().st_mtime >= started_at - 2) if (case / "VTK").is_dir() else []
     if not files:
         raise NativeOutputError("foamToVTK finished but produced no .vtk files")
     return files

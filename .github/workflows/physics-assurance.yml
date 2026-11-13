@@ -1,0 +1,45 @@
+name: Physics Assurance targeted tests
+
+on:
+  pull_request:
+    paths:
+      - "pinneapple_analysis/verification/pipeline_assurance.py"
+      - "pinneapple_analysis/verification/physics_ai_checks.py"
+      - "pinneapple_analysis/verification/artifact_contracts.py"
+      - "pinneapple_analysis/verification/diagnostic_engine.py"
+      - "pinneapple_analysis/verification/assurance_policy.py"
+      - "pinneapple_analysis/verification/assurance_runner.py"
+      - "pinneapple_analysis/verification/solver_field_adapters.py"
+      - "tests/test_pipeline_assurance.py"
+      - "tests/test_physics_ai_checks.py"
+      - "tests/test_artifact_contracts.py"
+      - "tests/test_diagnostic_engine.py"
+      - "tests/test_assurance_policy.py"
+      - "tests/test_assurance_runner.py"
+      - "tests/test_solver_field_adapters.py"
+      - ".github/workflows/physics-assurance.yml"
+  push:
+    branches: [feat/physics-assurance-pipeline]
+  workflow_dispatch:
+
+jobs:
+  targeted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install pytest numpy
+      - name: Run isolated assurance tests
+        run: |
+          python -m pytest -q \
+            tests/test_pipeline_assurance.py \
+            tests/test_physics_ai_checks.py \
+            tests/test_artifact_contracts.py \
+            tests/test_diagnostic_engine.py \
+            tests/test_assurance_policy.py \
+            tests/test_assurance_runner.py \
+            tests/test_solver_field_adapters.py

@@ -26,10 +26,12 @@ import shutil
 from pathlib import Path
 
 from .blockmesh import Caixa, dict_blockmesh
+from .refine import RefinoCaixa, aplicar_refino, dict_refinemesh, dict_toposet
 from .registry import CATALOGO, FerramentaMalha, bashrc_padrao, detectar, disponiveis, tem
 from .snappy import Geometria, Refino, SnappyConfig
 
 __all__ = ["Caixa", "dict_blockmesh", "Geometria", "Refino", "SnappyConfig", "FerramentaMalha", "CATALOGO",
+           "RefinoCaixa", "dict_toposet", "dict_refinemesh", "aplicar_refino",
            "detectar", "disponiveis", "tem", "bashrc_padrao", "estudo_de_refino", "nivel_para_resolver"]
 
 

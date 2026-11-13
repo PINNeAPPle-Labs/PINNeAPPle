@@ -7,9 +7,13 @@ from pinneapple_simulation.meshing import (
     Caixa,
     Geometria,
     Refino,
+    RefinoCaixa,
     SnappyConfig,
+    aplicar_refino,
     detectar,
     dict_blockmesh,
+    dict_refinemesh,
+    dict_toposet,
     estudo_de_refino,
     nivel_para_resolver,
     tem,
@@ -165,6 +169,14 @@ def _caso_foam(tmp_path, dict_txt: str, nome="blockMeshDict"):
         "application blockMesh;\nstartFrom startTime;\nstartTime 0;\nstopAt endTime;\nendTime 1;\n"
         "deltaT 1;\nwriteControl timeStep;\nwriteInterval 1;\n")
     (caso / "system" / nome).write_text(dict_txt)
+    (caso / "system" / "fvSchemes").write_text(
+        "FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }\n"
+        "ddtSchemes { default steadyState; }\ngradSchemes { default Gauss linear; }\n"
+        "divSchemes { default none; }\nlaplacianSchemes { default Gauss linear corrected; }\n"
+        "interpolationSchemes { default linear; }\nsnGradSchemes { default corrected; }\n")
+    (caso / "system" / "fvSolution").write_text(
+        "FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }\n"
+        "solvers { p { solver PCG; preconditioner DIC; tolerance 1e-6; relTol 0; } }\n")
     return caso
 
 
@@ -200,3 +212,53 @@ def test_snappy_dict_e_lido_pelo_openfoam(tmp_path):
     r2 = _foam(caso, "foamDictionary system/snappyHexMeshDict -entry castellatedMeshControls/locationInMesh")
     # o foamDictionary reimprime o vetor com espaços dentro dos parênteses: "( -2.1 0 -2 )"
     assert r2.returncode == 0 and "(-2.1 0 -2)" in r2.stdout.replace("( ", "(").replace(" )", ")")
+
+
+# --- refino local (topoSet + refineMesh) ----------------------------------------------------------------------------
+def test_refino_caixa_recusa_o_que_nao_e_caixa():
+    with pytest.raises(ValueError):
+        RefinoCaixa("x", (1, 0, 0), (0, 1, 1)).validar()
+    with pytest.raises(ValueError):
+        RefinoCaixa("x", (0, 0, 0), (1, 1, 1), nivel=-1).validar()
+    with pytest.raises(ValueError):
+        RefinoCaixa("nome com espaço", (0, 0, 0), (1, 1, 1)).validar()
+
+
+def test_toposet_poe_todas_as_caixas_no_mesmo_conjunto():
+    t = dict_toposet(RefinoCaixa("a", (0, 0, 0), (1, 1, 1)), RefinoCaixa("b", (2, 2, 2), (3, 3, 3)))
+    assert t.count("boxToCell") == 2 and t.count("action  add") == 1
+    assert "box     (0 0 0) (1 1 1);" in t and "box     (2 2 2) (3 3 3);" in t
+    assert t.count("(") == t.count(")")
+
+
+def test_refinemesh_e_isotropico_por_padrao():
+    t = dict_refinemesh()
+    assert "set             refino;" in t          # a partir do v2506 o nome do conjunto vai no dicionário
+    assert t.count("    tan1") >= 2 and "    normal" in t and "useHexTopology  true" in t
+    assert "directions\n(\n    tan1\n    tan2\n    normal\n);" in t
+    with pytest.raises(ValueError):
+        dict_refinemesh(direcoes=(2, 0, 0))
+
+
+def _caso_com_malha(tmp_path):
+    """Caso mínimo com malha de 2×2×2 células, construída pelo próprio blockMesh."""
+    caso = _caso_foam(tmp_path, dict_blockmesh(Caixa(x=(0, 1), y=(0, 1), z=(0, 1), nx=2, ny=2, nz=2)))
+    r = _foam(caso, "blockMesh")
+    assert r.returncode == 0, r.stdout[-500:]
+    return caso
+
+
+def _celulas(caso) -> int:
+    """O número de células que o próprio OpenFOAM conta no checkMesh."""
+    saida = _foam(caso, "checkMesh -noZero").stdout
+    return int([ln for ln in saida.splitlines() if "cells:" in ln][0].split(":")[1])
+
+
+@pytest.mark.skipif(not tem("refineMesh"), reason="OpenFOAM não instalado nesta máquina")
+def test_aplicar_refino_divide_as_celulas_da_caixa(tmp_path):
+    """Integração: duas passadas de refineMesh numa caixa central, conferidas no polyMesh resultante."""
+    caso = _caso_com_malha(tmp_path)
+    antes = _celulas(caso)
+    r = aplicar_refino(caso, RefinoCaixa("centro", (0.2, 0.2, 0.2), (0.8, 0.8, 0.8), nivel=2))
+    assert r["ok"], open(r["log"]).read()[-800:]
+    assert _celulas(caso) > antes

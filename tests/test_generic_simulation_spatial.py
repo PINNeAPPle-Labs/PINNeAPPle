@@ -162,3 +162,43 @@ def test_export_rejects_unknown_format(tmp_path):
     )
     with pytest.raises(ValueError, match="Supported formats"):
         export_field(field, tmp_path / "sample", format="invalid")
+
+
+def test_unstructured_vtk_export_preserves_topology(tmp_path):
+    import json
+    from pinneapple_simulation.external_solvers.mesh_export import (
+        MeshDataset, MeshField, export_mesh,
+    )
+    mesh = MeshDataset(
+        points_m=((0., 0.), (1., 0.), (0., 1.)),
+        cells=(("triangle", (0, 1, 2)),),
+        fields={"pressure": MeshField(((101325.,),), "Pa", "cell", ("p",))},
+        provenance={"solver": "openfoam"},
+    )
+    out = export_mesh(mesh, tmp_path / "triangle", format="vtk")
+    content = Path(out["data"]).read_text()
+    assert "DATASET UNSTRUCTURED_GRID" in content
+    assert "CELLS 1 4" in content
+    assert "CELL_TYPES 1" in content
+    assert "CELL_DATA 1" in content
+    assert json.loads(Path(out["metadata"]).read_text())["fields"]["pressure"]["units"] == "Pa"
+
+
+def test_unstructured_npz_preserves_connectivity(tmp_path):
+    np = pytest.importorskip("numpy")
+    from pinneapple_simulation.external_solvers.mesh_export import MeshDataset, export_mesh
+    mesh = MeshDataset(
+        points_m=((0., 0.), (1., 0.)), cells=(("line", (0, 1)),),
+        fields={}, provenance={},
+    )
+    out = export_mesh(mesh, tmp_path / "line", format="structured_array")
+    with np.load(out["data"], allow_pickle=False) as archive:
+        assert archive["cell_connectivity"].tolist() == [0, 1]
+        assert archive["cell_offsets"].tolist() == [0, 2]
+
+
+def test_mesh_export_rejects_invalid_connectivity():
+    from pinneapple_simulation.external_solvers.mesh_export import MeshDataset
+    with pytest.raises(ValueError, match="outside mesh"):
+        MeshDataset(points_m=((0., 0.),), cells=(("line", (0, 4)),),
+                    fields={}, provenance={})

@@ -182,3 +182,31 @@ def test_deslocamento_ref_põe_as_duas_tabelas_na_mesma_origem():
 def test_deslocamento_ref_aceita_um_numero_para_todas_as_linhas():
     r = comparar_picos({"A": {"k": 1.0, "s": 2.0}}, {"A": (1.0, 1.0)}, deslocamento_ref=1.0)[0]
     assert r["ds"] == pytest.approx(0.0)
+
+
+# --- descoberta do deslocamento de origem ---------------------------------------------------------------------------
+def _gauss(s, centro=7.0, largura=2.0):
+    return np.exp(-((np.asarray(s) - centro) ** 2) / largura)
+
+
+def test_deslocamento_de_origem_acha_o_metro_zero_entre_duas_tabelas():
+    """É o teste que separou 'duas convenções' de 'dois escoamentos' no caso do canal."""
+    from pinneapple_simulation.pipelines.field_lines import deslocamento_de_origem
+    s = np.arange(0, 20, 0.22734)
+    r = deslocamento_de_origem(s, _gauss(s), s - 1.364, _gauss(s), passo=0.22734)
+    assert r["deslocamento"] == pytest.approx(1.364, abs=0.05)
+    assert r["e_o_mesmo_perfil"] is True
+    assert r["erro_rms"] < 0.05 * r["erro_sem_deslocar"]
+
+
+def test_deslocamento_de_origem_nao_chama_de_convencao_um_caso_diferente():
+    from pinneapple_simulation.pipelines.field_lines import deslocamento_de_origem
+    s = np.arange(0, 20, 0.22734)
+    r = deslocamento_de_origem(s, _gauss(s, 7.0, 2.0), s, _gauss(s, 8.5, 0.8), passo=0.22734)
+    assert r["e_o_mesmo_perfil"] is False
+
+
+def test_deslocamento_de_origem_recusa_perfil_curto_demais():
+    from pinneapple_simulation.pipelines.field_lines import deslocamento_de_origem
+    with pytest.raises(ValueError):
+        deslocamento_de_origem([0, 1], [1, 2], [0, 1], [1, 2])

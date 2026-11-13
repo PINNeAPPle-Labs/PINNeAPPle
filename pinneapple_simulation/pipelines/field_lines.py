@@ -19,6 +19,16 @@ Convenção de distância: ``dabs`` é o eixo longitudinal medido do plano de en
 relatórios chamam de "distância a partir do inlet". A janela de tempo é sempre explícita — o mesmo campo dá posições
 de pico diferentes se uma pessoa lê a média de 0–30 s e outra a de 20–30 s, e essa ambiguidade já custou uma
 comparação entre duas equipes.
+
+**A lição que custou mais caro, e que este módulo agora carrega explicitamente.** Duas equipes compararam a posição do
+pico de k no mesmo caso e uma encontrou 5,68 m, a outra 7,27 m. Não havia erro em nenhuma das duas simulações nem nas
+medições: uma contava a distância do plano de entrada e a outra **do primeiro ponto que a linha efetivamente amostra** —
+que, numa linha avaliada em centros de célula, fica 1,36 m adiante. O desvio de 1,6 m era o metro zero. Três coisas
+resolvem esse tipo de armadilha, e estão aqui: :func:`origem_da_linha` mede o deslocamento a partir dos pontos,
+:func:`comparar_picos` aceita ``deslocamento_ref`` para pôr as duas tabelas na mesma origem, e
+:func:`deslocamento_de_origem` **descobre** o deslocamento a partir de dois perfis, quando não se sabe qual convenção o
+outro lado usou. A regra prática: antes de chamar de divergência física uma diferença de posição, verifique se ela não é
+um múltiplo exato do passo de amostragem e se os dois perfis não são o mesmo perfil deslocado.
 """
 from __future__ import annotations
 
@@ -227,6 +237,54 @@ def origem_da_linha(centros, inicio: float = 0.0) -> float:
     if c.size == 0:
         raise ValueError("linha sem pontos")
     return float(c.min() - inicio)
+
+
+def deslocamento_de_origem(s_a, k_a, s_b, k_b, faixa: tuple[float, float] | None = None,
+                          passo: float | None = None) -> dict:
+    """Quanto o perfil **b** está deslocado em relação ao perfil **a** — o metro zero de cada tabela, medido dos dados.
+
+    Recebe dois perfis já médios no tempo (``s``, ``k``) e procura o deslocamento que sobrepõe um ao outro. É o teste
+    que distingue "os dois escoamentos diferem" de "as duas tabelas contam a distância de pontos diferentes": no segundo
+    caso, um único deslocamento alinha os perfis com erro pequeno, e esse deslocamento é a diferença de convenção.
+
+    ``faixa`` limita a busca (padrão: ±10 % da extensão do perfil); ``passo``, se dado, arredonda o resultado para a
+    grade de amostragem — o deslocamento entre duas convenções é sempre um número inteiro de passos.
+
+    Devolve ``{"deslocamento", "erro_rms", "erro_sem_deslocar", "sobreposicao", "e_o_mesmo_perfil"}``. ``sobreposicao``
+    é a fração do perfil que cai dentro dos dois trechos depois de deslocar; ``e_o_mesmo_perfil`` é ``True`` quando o
+    deslocamento reduz o erro pela metade e sobra pouco erro — o sinal de que os dois lados mediram a mesma coisa.
+    """
+    s_a, k_a = np.asarray(s_a, float), np.asarray(k_a, float)
+    s_b, k_b = np.asarray(s_b, float), np.asarray(k_b, float)
+    if s_a.size != k_a.size or s_b.size != k_b.size:
+        raise ValueError("cada perfil precisa do mesmo número de distâncias e de valores")
+    if s_a.size < 3 or s_b.size < 3:
+        raise ValueError("perfil com menos de três pontos: não dá para alinhar")
+    extensao = float(min(s_a.max() - s_a.min(), s_b.max() - s_b.min()))
+    lo, hi = faixa if faixa else (-0.1 * extensao, 0.1 * extensao)
+    # os dois perfis precisam estar definidos no mesmo trecho depois de deslocar
+    ini = max(s_a.min(), s_b.min() + lo)
+    fim = min(s_a.max(), s_b.max() + hi)
+    if fim <= ini:
+        raise ValueError("os perfis não se sobrepõem: nenhum deslocamento na faixa os alinha")
+    grade = np.linspace(ini, fim, 400)
+    a_grade = np.interp(grade, s_a, k_a)
+
+    def _erro(desloc: float) -> float:
+        return float(np.sqrt(np.mean((np.interp(grade - desloc, s_b, k_b) - a_grade) ** 2)))
+
+    grade_desl = np.arange(lo, hi + 1e-12, max((hi - lo) / 800, 1e-4))
+    erros = np.array([_erro(d) for d in grade_desl])
+    i = int(np.argmin(erros))
+    desloc = float(grade_desl[i])
+    if passo:
+        desloc = round(desloc / passo) * passo
+    sem = _erro(0.0)
+    com = _erro(desloc)
+    escala = float(np.std(a_grade)) or 1.0
+    return {"deslocamento": desloc, "erro_rms": com, "erro_sem_deslocar": sem,
+            "sobreposicao": float((fim - ini) / extensao) if extensao else 0.0,
+            "e_o_mesmo_perfil": bool(com <= 0.5 * sem and com / escala <= 0.1)}
 
 
 def comparar_picos(picos: Mapping[str, Mapping[str, float]], referencia: Mapping[str, Mapping[str, Sequence[float]]],

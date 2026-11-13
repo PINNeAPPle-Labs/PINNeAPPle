@@ -86,14 +86,14 @@ def export_field(field: PhysicalField, path: str | Path, *,
             f"POINTS {n} double",
         ]
         for point in field.coordinates_m:
-            lines.append(" ".join(format(v, ".17g") for v in (*point, *((0.0,) * (3 - ndim)))))
+            lines.append(" ".join(f"{v:.17g}" for v in (*point, *((0.0,) * (3 - ndim)))))
         lines.append(f"VERTICES {n} {2 * n}")
         lines.extend(f"1 {i}" for i in range(n))
         lines.append(f"POINT_DATA {n}")
         lines.append(f"FIELD FieldData {len(field.components)}")
         for j, component in enumerate(field.components):
             lines.append(f"{component} 1 {n} double")
-            lines.extend(format(values[j], ".17g") for values in field.values)
+            lines.extend(f"{values[j]:.17g}" for values in field.values)
         path.write_text("\n".join(lines) + "\n", encoding="ascii")
     sidecar = path.with_suffix(path.suffix + ".metadata.json")
     sidecar.write_text(json.dumps(_metadata(field), indent=2, sort_keys=True, allow_nan=False) + "\n",

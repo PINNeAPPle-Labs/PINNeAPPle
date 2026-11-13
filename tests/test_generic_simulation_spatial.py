@@ -125,3 +125,40 @@ def test_normalized_fields_reject_invalid_components_and_units():
         PhysicalField(**(args | {"units": "Pa"}))
     with pytest.raises(ValueError, match="shape mismatch"):
         PhysicalField(**(args | {"values": ((2.0, 3.0),)}))
+
+
+def test_export_structured_array_and_vtk_with_metadata(tmp_path):
+    import json
+    np = pytest.importorskip("numpy")
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    from pinneapple_simulation.external_solvers.field_export import export_field
+    field = PhysicalField(
+        name="k", units="m2/s2", components=("k",),
+        coordinates_m=((1.364,), (1.819,)), values=((2.0,), (4.0,)),
+        protocol=protocol(), provenance={"solver": "openfoam"},
+    )
+    array_paths = export_field(field, tmp_path / "sample", format="structured_array")
+    records = np.load(array_paths["data"], allow_pickle=False)
+    assert records.dtype.names == ("y", "k")
+    assert records["y"].tolist() == pytest.approx([1.364, 1.819])
+    vtk_paths = export_field(field, tmp_path / "sample", format="vtk")
+    vtk = Path(vtk_paths["data"]).read_text()
+    assert "DATASET POLYDATA" in vtk
+    assert "VERTICES 2 4" in vtk
+    assert "POINT_DATA 2" in vtk
+    assert "FIELD FieldData 1" in vtk
+    meta = json.loads(Path(vtk_paths["metadata"]).read_text())
+    assert meta["reference"]["origin_m"] == [-7.429]
+    assert meta["provenance"]["solver"] == "openfoam"
+
+
+def test_export_rejects_unknown_format(tmp_path):
+    from pinneapple_simulation.external_solvers.field_contract import PhysicalField
+    from pinneapple_simulation.external_solvers.field_export import export_field
+    field = PhysicalField(
+        name="k", units="m2/s2", components=("k",),
+        coordinates_m=((1.364,),), values=((2.0,),),
+        protocol=protocol(), provenance={},
+    )
+    with pytest.raises(ValueError, match="Supported formats"):
+        export_field(field, tmp_path / "sample", format="invalid")

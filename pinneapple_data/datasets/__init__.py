@@ -130,6 +130,7 @@ __all__ = [
     "DesignSafeClient",
     "OpenFOAMClient",
     "SU2Client",
+    "DestinEClient",
 ]
 
 try:
@@ -138,6 +139,7 @@ try:
         CopernicusClient,
         CPTECClient,
         DesignSafeClient,
+        DestinEClient,
         MaterialsProjectClient,
         NASAClient,
         NOAAClient,

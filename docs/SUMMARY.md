@@ -64,6 +64,7 @@
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
+    * [Granular DEM: volume-based contact, breakage, mills and wear](granular_dem.md)
     * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)
     * [Pre-trained models and datasets (pp.zoo)](guides/model_zoo.md)
     * [Zoo catalogue](guides/zoo_catalogue.md)

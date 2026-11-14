@@ -1,0 +1,35 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/granular_dem",
+ "title": "A tumbling mill: power draw against speed, liner wear, and the fragments of a breakage run",
+ "description": "A tumbling mill: power draw against speed, liner wear, and the fragments of a breakage run. This is the process picture the granular solver exists for. Three measurements come out of one drum: * **power draw** -- the torque the charge exerts on the shell times the rotation rate, measured from the contacts rather than from a correlation, and rising with speed as the charge is carried higher; * **li",
+ "domain": "general",
+ "methods": [],
+ "modules": [
+  "pinneapple_simulation.granular",
+  "pinneapple_simulation.granular.equipment"
+ ],
+ "params": {},
+ "scripts": [
+  "01_mill_power_and_wear.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/granular_dem/01_mill_power_and_wear.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "e9682774b"
+ }
+}

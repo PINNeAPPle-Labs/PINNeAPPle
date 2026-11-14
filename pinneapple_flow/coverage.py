@@ -104,6 +104,9 @@ REASONS: dict[str, str] = {
                                     "Koopman) used as a Python API; its flow nodes come with the toolkit's "
                                     "integration pull request",
     "pinneapple_physics.biology": "SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)",
+    "pinneapple_simulation.granular": "a discrete element solver stepped in a python loop (thousands of steps per "
+                                      "case): examples/granular_dem runs the mill, the wear calibration and the "
+                                      "breakage test, and tests/test_granular_*.py check each layer",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",

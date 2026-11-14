@@ -100,6 +100,7 @@ the few low-`alpha` experiments whose crystals barely grow, where any `alpha` be
 python examples/reproductions/lamb2026_icenode/run.py --quick        # 20 epochs: plumbing, ~10 min
 python examples/reproductions/lamb2026_icenode/run.py               # the full run: 4 models, 500 epochs each
 python examples/reproductions/lamb2026_icenode/run.py --model weak  # one model into results/checkpoints
+python examples/reproductions/lamb2026_icenode/report.py            # the HTML report of the committed run
 ```
 
 The four models take tens of minutes each on one CPU thread, so a run can be split across processes
@@ -119,6 +120,7 @@ Open follow-ups, with the evidence for each: #1683 (the AIDA comparison), #1687 
 | `synthetic.py` | synthetic series with a known `alpha` (the paper's Figure 2 validation) and the SSA noise |
 | `symbolic.py` | the genetic-programming symbolic regression and the Pareto front |
 | `run.py` | the paper's Table 1, both NODEs, the synthetic check, the symbolic step, figures, results |
+| `report.py` | one self-contained HTML page built from `results/*.json`, every number read from the file |
 
 ## References
 

@@ -186,6 +186,11 @@
   "domain": "fluid dynamics",
   "notes": "lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here"
  },
+ "lpm_design_space": {
+  "domain": "fluid mechanics (potential flow)",
+  "reason": "the study trains a Large Physics Model (pinneapple_neural.lpm.LargePhysicsModel with the query-to-surface attention blocks) on a whole design space in batched PyTorch, and every number it reports comes from that fit(); no flow node wraps batched design-space training, and the default run is two minutes of training rather than a form call",
+  "status": "not_convertible"
+ },
  "meshgraphnet": {
   "domain": "neural operators",
   "notes": "02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"

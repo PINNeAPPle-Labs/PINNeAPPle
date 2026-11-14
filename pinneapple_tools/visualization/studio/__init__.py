@@ -5,6 +5,8 @@
     sc.save("result.glb")                               # glTF with the fields, also .usda (Omniverse) and .stl
     pp.viz.render(sc, "stress.jpg", field="STRESS")     # Blender Cycles, jet colour scale, colour bar
     pp.viz.render_headless(sc, "stress.png", field="STRESS")   # same, through the Blender binary (no bpy needed)
+    pp.viz.export_unreal(sc, "ue/out", field="STRESS")  # folder Unreal imports: glb with the field in COLOR_0 + camera
+    pp.viz.cinematic_page(sc, "site/demo", field="STRESS")     # scroll-driven hero page for a client
     pp.viz.web_viewer(sc, "viewer/")                    # interactive three.js page: surfaces, streamlines, slices
     pp.viz.LIGHTING_PRESETS["lunar_south_pole"]         # black sky, low hard Sun (also: studio, lunar_low_sun, ...)
     pp.viz.field_view(mesh, fields, deform=..., markers=...)   # fields, errors and deformed shapes for the apps' views
@@ -33,7 +35,7 @@ from .view_cache import cached_view, prune_views, save_view, view_paths
 
 __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_obj", "scalar_of", "JET", "jet",
            "magma", "CMAPS", "stops", "colorbar", "render", "render_headless", "blender_executable",
-           "web_viewer", "serve",
+           "web_viewer", "serve", "export_unreal", "cinematic_page",
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface"]
@@ -75,3 +77,15 @@ def serve(*a, **kw):
     """Write the viewer to a temporary folder and serve it; see :func:`.web.serve`."""
     from .web import serve as _s
     return _s(*a, **kw)
+
+
+def export_unreal(*a, **kw):
+    """A folder Unreal Engine imports, the field as vertex colours; see :func:`.unreal.export_unreal`."""
+    from .unreal import export_unreal as _u
+    return _u(*a, **kw)
+
+
+def cinematic_page(*a, **kw):
+    """A scroll-driven cinematic page for one result; see :func:`.cinematic.cinematic_page`."""
+    from .cinematic import cinematic_page as _c
+    return _c(*a, **kw)

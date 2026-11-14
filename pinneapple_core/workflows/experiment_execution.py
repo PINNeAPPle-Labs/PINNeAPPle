@@ -55,7 +55,7 @@ def executable_workflow(blueprint: Workflow) -> Workflow:
     steps = [
         Step(id=s.id, kind="experiment_stage",
              params={**s.params, "stage": s.id},
-             needs=list(s.needs) + (["simulate"] if s.id == "verify" else []) + (["verify"] if s.id == "report" else []), retries=0)
+             needs=list(dict.fromkeys(list(s.needs) + (["simulate"] if s.id == "verify" else []) + (["verify"] if s.id in {"optimize", "report"} else []))), retries=0)
         for s in blueprint.steps
     ]
     return Workflow(

@@ -112,3 +112,6 @@ docs/studio/COVERAGE.md
 
 # Ahmed study: generated pages (05_twin.py, 06_visuals.py write them; the app writes its own copy)
 examples/end_to_end/ahmed_body/results/twin/
+
+# Ascent example: the viewer pages and the mission-control frames are rebuilt by the scripts
+examples/rocket_launch/_out/

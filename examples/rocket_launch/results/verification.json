@@ -1,0 +1,582 @@
+{
+ "pass": true,
+ "groups": {
+  "atmosphere": {
+   "checks": [
+    {
+     "name": "T@0km",
+     "value": 288.15,
+     "reference": 288.15,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@0km",
+     "value": 101325.0,
+     "reference": 101325.0,
+     "unit": "Pa",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@0km",
+     "value": 1.2249991558877122,
+     "reference": 1.225,
+     "unit": "kg/m^3",
+     "abs_error": 8.441122878455332e-07,
+     "rel_error": 6.890712553841087e-07,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@11km",
+     "value": 216.64999999999998,
+     "reference": 216.65,
+     "unit": "K",
+     "abs_error": 2.842170943040401e-14,
+     "rel_error": 1.3118721177200095e-16,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@11km",
+     "value": 22632.063973462926,
+     "reference": 22632.06,
+     "unit": "Pa",
+     "abs_error": 0.003973462924477644,
+     "rel_error": 1.7556788575488241e-07,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@11km",
+     "value": 0.3639177759115579,
+     "reference": 0.363918,
+     "unit": "kg/m^3",
+     "abs_error": 2.2408844213561707e-07,
+     "rel_error": 6.157663048698253e-07,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@20km",
+     "value": 216.65,
+     "reference": 216.65,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@20km",
+     "value": 5474.887708463323,
+     "reference": 5474.889,
+     "unit": "Pa",
+     "abs_error": 0.0012915366769448156,
+     "rel_error": 2.3590189261276631e-07,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@20km",
+     "value": 0.08803478819102331,
+     "reference": 0.0880349,
+     "unit": "kg/m^3",
+     "abs_error": 1.1180897668827683e-07,
+     "rel_error": 1.2700528618567958e-06,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@32km",
+     "value": 228.65000000000003,
+     "reference": 228.65,
+     "unit": "K",
+     "abs_error": 2.842170943040401e-14,
+     "rel_error": 1.2430224985962827e-16,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@32km",
+     "value": 868.0186999999988,
+     "reference": 868.0187,
+     "unit": "Pa",
+     "abs_error": 1.1368683772161603e-12,
+     "rel_error": 1.309727978459635e-15,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@32km",
+     "value": 0.013224999876374816,
+     "reference": 0.013225,
+     "unit": "kg/m^3",
+     "abs_error": 1.2362518474196005e-10,
+     "rel_error": 9.347840056102839e-09,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@47km",
+     "value": 270.65,
+     "reference": 270.65,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@47km",
+     "value": 110.9063075027829,
+     "reference": 110.9063,
+     "unit": "Pa",
+     "abs_error": 7.502782892743198e-06,
+     "rel_error": 6.764974480929576e-08,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@47km",
+     "value": 0.0014275325371357964,
+     "reference": 0.00142753,
+     "unit": "kg/m^3",
+     "abs_error": 2.5371357963762525e-09,
+     "rel_error": 1.7772907023854157e-06,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@51km",
+     "value": 270.65,
+     "reference": 270.65,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@51km",
+     "value": 66.93886976591894,
+     "reference": 66.93887,
+     "unit": "Pa",
+     "abs_error": 2.3408105676026025e-07,
+     "rel_error": 3.4969376800095412e-09,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@51km",
+     "value": 0.0008616048693853338,
+     "reference": 0.000861603,
+     "unit": "kg/m^3",
+     "abs_error": 1.8693853338132976e-09,
+     "rel_error": 2.169659731701605e-06,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@71km",
+     "value": 214.65,
+     "reference": 214.65,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@71km",
+     "value": 3.95642,
+     "reference": 3.95642,
+     "unit": "Pa",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@71km",
+     "value": 6.421097977312751e-05,
+     "reference": 6.42105e-05,
+     "unit": "kg/m^3",
+     "abs_error": 4.797731275034845e-10,
+     "rel_error": 7.471879638119692e-06,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "T@84.852km",
+     "value": 186.946,
+     "reference": 186.946,
+     "unit": "K",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "temperature"
+    },
+    {
+     "name": "p@84.852km",
+     "value": 0.3734,
+     "reference": 0.3734,
+     "unit": "Pa",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.0005,
+     "pass": true,
+     "note": "pressure"
+    },
+    {
+     "name": "rho@84.852km",
+     "value": 6.958184456049411e-06,
+     "reference": 6.958e-06,
+     "unit": "kg/m^3",
+     "abs_error": 1.844560494107769e-10,
+     "rel_error": 2.6509923744003578e-05,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "density"
+    },
+    {
+     "name": "a@0km",
+     "value": 340.2941077869353,
+     "reference": 340.294,
+     "unit": "m/s",
+     "abs_error": 0.00010778693530255623,
+     "rel_error": 3.1674650538227603e-07,
+     "tolerance": 0.001,
+     "pass": true,
+     "note": "speed of sound"
+    },
+    {
+     "name": "a@11km",
+     "value": 295.06959735390427,
+     "reference": 295.07,
+     "unit": "m/s",
+     "abs_error": 0.0004026460957220479,
+     "rel_error": 1.364578221174799e-06,
+     "tolerance": 0.001,
+     "pass": true,
+     "note": "speed of sound"
+    }
+   ],
+   "pass": true,
+   "worst_rel_error": 2.6509923744003578e-05
+  },
+  "rotation": {
+   "checks": [
+    {
+     "name": "pad speed",
+     "value": 400.7071581847719,
+     "reference": 400.70715818477186,
+     "unit": "m/s",
+     "abs_error": 5.684341886080802e-14,
+     "rel_error": 1.4185775746635576e-16,
+     "tolerance": 1e-12,
+     "pass": true,
+     "note": "omega R cos(latitude)"
+    },
+    {
+     "name": "launch inclination",
+     "value": 30.4,
+     "reference": 30.4,
+     "unit": "deg",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 0.002,
+     "pass": true,
+     "note": "azimuth 90.00 deg"
+    }
+   ],
+   "pass": true,
+   "azimuth_deg": 90.0
+  },
+  "flight": {
+   "checks": [
+    {
+     "name": "perigee",
+     "value": 487.041269048498,
+     "reference": 500.0,
+     "unit": "km",
+     "abs_error": 12.958730951501991,
+     "rel_error": 0.025917461903003983,
+     "tolerance": 0.05,
+     "pass": true,
+     "note": "target altitude"
+    },
+    {
+     "name": "apogee",
+     "value": 500.56526177699027,
+     "reference": 500.0,
+     "unit": "km",
+     "abs_error": 0.565261776990269,
+     "rel_error": 0.0011305235539805381,
+     "tolerance": 0.05,
+     "pass": true,
+     "note": "target altitude"
+    },
+    {
+     "name": "eccentricity",
+     "value": 0.0009850240571810211,
+     "reference": 0.0,
+     "unit": "",
+     "abs_error": 0.0009850240571810211,
+     "rel_error": 0.0009850240571810211,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "e < 0.005 is a near-circular insertion"
+    },
+    {
+     "name": "closure",
+     "value": 4.858411087378045,
+     "reference": 9942.759358450636,
+     "unit": "m/s",
+     "abs_error": 4.858411087378045,
+     "rel_error": 0.0004886381045970646,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "velocity bookkeeping: relative to the thrust velocity"
+    },
+    {
+     "name": "max q",
+     "value": 36833.40265116825,
+     "reference": 30000.0,
+     "unit": "Pa",
+     "abs_error": 6833.402651168253,
+     "rel_error": 0.22778008837227512,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "band 15-45 kPa"
+    },
+    {
+     "name": "max acceleration",
+     "value": 5.538882318504385,
+     "reference": 4.0,
+     "unit": "g",
+     "abs_error": 1.5388823185043847,
+     "rel_error": 0.3847205796260962,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "band 2.5-6.5 g"
+    },
+    {
+     "name": "semi-major axis (independent)",
+     "value": 6864.803265412744,
+     "reference": 6864.803265412745,
+     "unit": "km",
+     "abs_error": 9.094947017729282e-13,
+     "rel_error": 1.3248663750573558e-16,
+     "tolerance": 1e-09,
+     "pass": true,
+     "note": "pinneapple_physics.astro.orbits"
+    },
+    {
+     "name": "eccentricity (independent)",
+     "value": 0.0009850240571810211,
+     "reference": 0.0009850240571808674,
+     "unit": "",
+     "abs_error": 1.5373986805844453e-16,
+     "rel_error": 1.5607727236474514e-13,
+     "tolerance": 1e-06,
+     "pass": true,
+     "note": "astro.orbits"
+    },
+    {
+     "name": "inclination (independent)",
+     "value": 30.400778638994886,
+     "reference": 30.4007786389949,
+     "unit": "deg",
+     "abs_error": 1.4210854715202004e-14,
+     "rel_error": 4.674503532937088e-16,
+     "tolerance": 1e-06,
+     "pass": true,
+     "note": "astro.orbits"
+    },
+    {
+     "name": "period vs Kepler",
+     "value": 5660.47822168073,
+     "reference": 5660.47822168073,
+     "unit": "s",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 1e-09,
+     "pass": true,
+     "note": "2 pi sqrt(a^3 / mu)"
+    },
+    {
+     "name": "circular speed at the target",
+     "value": 7616.560806262885,
+     "reference": 7616.560806262885,
+     "unit": "m/s",
+     "abs_error": 0.0,
+     "rel_error": 0.0,
+     "tolerance": 1e-12,
+     "pass": true,
+     "note": "sqrt(mu / r)"
+    }
+   ],
+   "pass": true,
+   "orbit": {
+    "a_m": 6864803.265412744,
+    "e": 0.0009850240571810211,
+    "inclination_deg": 30.400778638994886,
+    "raan_deg": 40.970845231661876,
+    "perigee_km": 487.041269048498,
+    "apogee_km": 500.56526177699027,
+    "perigee_radius_m": 6858041.269048498,
+    "apogee_radius_m": 6871565.26177699,
+    "period_s": 5660.47822168073,
+    "specific_energy_j_kg": -29032182.452211488,
+    "specific_angular_momentum_m2_s": 52309759696.38976,
+    "radius_m": 6871541.413452955,
+    "speed_m_s": 7612.521955069057
+   }
+  },
+  "coast": {
+   "checks": [
+    {
+     "name": "energy drift",
+     "value": 7.82310962677002e-08,
+     "reference": 29032182.452211488,
+     "unit": "J/kg",
+     "abs_error": 7.82310962677002e-08,
+     "rel_error": 2.694633667188911e-15,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "relative to |E|: tolerance below"
+    },
+    {
+     "name": "angular momentum drift",
+     "value": 8.53844806121803e-05,
+     "reference": 52309759696.38976,
+     "unit": "m^2/s",
+     "abs_error": 8.53844806121803e-05,
+     "rel_error": 1.632285850819407e-15,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "absolute, tolerance below"
+    },
+    {
+     "name": "position after one period",
+     "value": 6.1756120709455885e-09,
+     "reference": 0.0,
+     "unit": "km",
+     "abs_error": 6.1756120709455885e-09,
+     "rel_error": 8.996051062468842e-13,
+     "tolerance": 1.0,
+     "pass": true,
+     "note": "closure of the orbit"
+    }
+   ],
+   "pass": true,
+   "period_s": 5660.47822168073,
+   "energy_drift_rel": 2.694633667188911e-15,
+   "momentum_drift_rel": 1.632285850819407e-15
+  }
+ },
+ "n_checks": 42,
+ "n_failed": 0,
+ "failed": [],
+ "flight": {
+  "site": "Tanegashima",
+  "azimuth_deg": 90.0,
+  "target_altitude_km": 500.0,
+  "cutoff_time_s": 747.7477049639191,
+  "max_q_pa": 36833.40265116825,
+  "max_q_time_s": 57.00000000000054,
+  "max_q_altitude_km": 10.500480040697381,
+  "max_mach": 11.356311521055252,
+  "max_acceleration_g": 5.538882318504385,
+  "perigee_km": 487.041269048498,
+  "apogee_km": 500.56526177699027,
+  "eccentricity": 0.0009850240571810211,
+  "inclination_deg": 30.400778638994886,
+  "period_s": 5660.47822168073,
+  "losses_m_s": {
+   "dv_thrust_m_s": 9942.759358450636,
+   "dv_gravity_m_s": 1808.5347946432707,
+   "dv_drag_m_s": 73.96959599078362,
+   "dv_steering_m_s": 840.2241038323854,
+   "dv_achieved_m_s": 7215.172452896818,
+   "closure_m_s": 4.858411087378045
+  },
+  "events": {
+   "liftoff_s": 0.0,
+   "liftoff_mass_kg": 12286.68411385568,
+   "meco_s": [
+    122.51262862769352,
+    376.04770496383463,
+    747.7477049639191
+   ],
+   "separation_s": [
+    122.51262862769352,
+    376.04770496383463
+   ],
+   "ignition_s": [
+    122.51262862769352,
+    672.8477049639021
+   ],
+   "guides": [
+    [
+     0.0,
+     "pitch program"
+    ],
+    [
+     672.848,
+     "circularisation"
+    ]
+   ],
+   "max_q_s": 57.20000000000054,
+   "max_q_pa": 36835.40690899616,
+   "max_q_altitude_km": 10.586762238904834,
+   "max_q_mach": 1.4742241352118084,
+   "meco_altitude_km": 500.54133982762227,
+   "meco_speed_m_s": 7615.87961108159,
+   "fairing_jettison_s": 137.81262862769265,
+   "fairing_jettison_altitude_km": 105.15300505752023,
+   "coast_start_s": 376.04770496383463,
+   "apogee_s": 672.8477049639021,
+   "apogee_altitude_km": 502.62076456760803,
+   "coast_s": 296.8000000000674,
+   "cutoff_s": 747.7477049639191,
+   "cutoff_altitude_km": 500.54133982762227,
+   "cutoff_speed_m_s": 7615.87961108159,
+   "cutoff_reason": "cut-off with the orbit circular",
+   "propellant_left_kg": 8.493573024528885,
+   "propellant_fraction_left": 0.0768137239258151,
+   "max_accel_g": 5.538882318504385,
+   "stopped": "cut-off"
+  },
+  "downrange_km": 2881.5738303337484
+ }
+}

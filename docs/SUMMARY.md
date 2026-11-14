@@ -127,6 +127,7 @@
     * [Design reports without an LLM: Datasheet and the self-planning study](guides/design_report.md)
     * [Periodic unit cell: FNO vs Bayesian optimisation at equal budget](guides/unit_cell_benchmark.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
+    * [Ascent to orbit: a launcher to a 500 km near-circular orbit](guides/launch_ascent.md)
     * [Topology optimisation](guides/topology_optimization.md)
     * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)
     * [Engineering Evidence Report (day 30)](apps/evidence_report.md)

@@ -410,5 +410,10 @@
  "worldmodel": {
   "domain": "world model",
   "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
+ },
+ "rocket_launch": {
+  "domain": "flight dynamics",
+  "status": "not_convertible",
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
  }
 }

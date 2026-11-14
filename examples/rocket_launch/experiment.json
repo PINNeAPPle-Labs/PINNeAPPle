@@ -1,0 +1,114 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/rocket_launch",
+ "title": "Ascent to orbit: 200 kg to a 500 km near-circular orbit from Tanegashima",
+ "description": "A three-degree-of-freedom ascent of a concept launcher from a pad at Tanegashima to a near-circular 500 km orbit: the US Standard Atmosphere 1976, thrust, drag, staging, a pitch schedule in altitude, a coast to apogee and a circularisation burn. The vehicle is sized by a design closure run on the simulation itself (inverse Tsiolkovsky per stage, the velocity budget scaled until the transfer apogee is the target altitude). Verified against the published atmosphere tables, the rotation of the pad, an independent element solver, one revolution of the inserted orbit and the velocity bookkeeping of the flight; displayed as a globe, a chase view and a mission-control page.",
+ "domain": "flight dynamics",
+ "methods": [
+  "3-DOF ascent integration (RK4)",
+  "US Standard Atmosphere 1976",
+  "inverse Tsiolkovsky sizing",
+  "design closure on the simulation",
+  "three.js viewer",
+  "mission-control dashboard"
+ ],
+ "modules": [
+  "pinneapple_simulation.launch",
+  "pinneapple_simulation.launch.ascent",
+  "pinneapple_simulation.launch.atmosphere",
+  "pinneapple_simulation.launch.sizing",
+  "pinneapple_simulation.launch.vehicle",
+  "pinneapple_simulation.launch.verification",
+  "pinneapple_simulation.launch.visuals",
+  "pinneapple_physics.astro.orbits",
+  "pinneapple_physics.weather.viz",
+  "pinneapple_tools.visualization.dashboard",
+  "pinneapple_tools.visualization.studio.web"
+ ],
+ "params": {
+  "site": "Tanegashima, 30.400 N 130.969 E",
+  "azimuth_deg": 90.0,
+  "target_altitude_km": 500.0,
+  "payload_kg": 200.0,
+  "integration_step_s": 0.05,
+  "lead_vehicle": "concept: 12 287 kg at lift-off, three stages, ideal velocity 9 733 m/s (all coefficients assumptions)"
+ },
+ "scripts": [
+  "01_verification.py",
+  "02_mission.py",
+  "03_flight_views.py",
+  "04_mission_control.py"
+ ],
+ "metrics": [
+  {"name": "perigee_km", "value": 487.041, "unit": "km",
+   "how": "osculating elements at engine cut-off of the nominal flight (02_mission.py, step 0.05 s), results/mission.json"},
+  {"name": "apogee_km", "value": 500.565, "unit": "km",
+   "how": "osculating elements at engine cut-off of the nominal flight, results/mission.json"},
+  {"name": "eccentricity", "value": 0.000985, "unit": "",
+   "how": "osculating eccentricity of the inserted orbit, results/mission.json"},
+  {"name": "inclination_deg", "value": 30.4008, "unit": "deg",
+   "how": "inclination of the inserted orbit: the site's latitude, as a due-east launch gives", "note": "results/mission.json"},
+  {"name": "orbit_period_min", "value": 94.34, "unit": "min",
+   "how": "2 pi sqrt(a^3/mu) of the inserted orbit, results/mission.json"},
+  {"name": "liftoff_mass_kg", "value": 12287.0, "unit": "kg",
+   "how": "sum of the three stages, the payload and the fairing of the converged design (sizing.close)"},
+  {"name": "payload_fraction", "value": 0.0163, "unit": "",
+   "how": "payload over lift-off mass of the converged design"},
+  {"name": "ideal_velocity_m_s", "value": 9733.0, "unit": "m/s",
+   "how": "sum of the stage Tsiolkovsky velocities at the vacuum impulse, converged design"},
+  {"name": "gravity_loss_m_s", "value": 1808.0, "unit": "m/s",
+   "how": "minus the integral of g along the inertial velocity over the whole flight, results/mission.json"},
+  {"name": "drag_loss_m_s", "value": 74.0, "unit": "m/s",
+   "how": "integral of D/m along the inertial velocity over the whole flight, results/mission.json"},
+  {"name": "steering_loss_m_s", "value": 840.0, "unit": "m/s",
+   "how": "integral of (T/m)(1 - cos alpha) against the inertial velocity, results/mission.json"},
+  {"name": "bookkeeping_closure_m_s", "value": 4.86, "unit": "m/s",
+   "how": "dv_thrust - gravity - drag - steering - (|v_cutoff| - |v_liftoff|), the quadrature error at step 0.1 s"},
+  {"name": "max_dynamic_pressure_kpa", "value": 36.83, "unit": "kPa",
+   "how": "peak of 0.5 rho v_air^2 on the flight, at 10.5 km, results/mission.json"},
+  {"name": "max_acceleration_g", "value": 5.54, "unit": "g",
+   "how": "peak of (T + D)/m over the flight, results/mission.json"},
+  {"name": "atmosphere_worst_relative_error", "value": 2.65e-05, "unit": "",
+   "how": "largest relative error of T, p and rho against the published US Standard Atmosphere 1976 at eight altitudes"},
+  {"name": "checks_passed", "value": 42.0, "unit": "",
+   "how": "number of checks that pass in results/verification.json (42 of 42)"}
+ ],
+ "checks": [
+  {"name": "atmosphere vs US Standard Atmosphere 1976", "passed": true, "kind": "reference",
+   "detail": "temperature, pressure and density at eight geopotential altitudes, worst relative error 2.7e-5"},
+  {"name": "pad speed and launch inclination", "passed": true, "kind": "analytic",
+   "detail": "omega R cos(lat) = 400.707 m/s and a 90 deg azimuth gives the site's latitude, to machine precision"},
+  {"name": "elements against pinneapple_physics.astro.orbits", "passed": true, "kind": "cross-impl",
+   "detail": "a, e and i agree to 1e-13 relative with the astro module checked against JPL Horizons"},
+  {"name": "energy and angular momentum over one revolution", "passed": true, "kind": "conservation",
+   "detail": "relative drift 2.7e-15 and 1.6e-15 over one period of the inserted orbit"},
+  {"name": "velocity bookkeeping closes", "passed": true, "kind": "conservation",
+   "detail": "thrust - gravity - drag - steering = |v_cutoff| - |v_liftoff| to 4.9 m/s of 9 943 m/s (4.9e-4)"},
+  {"name": "orbital period against Kepler", "passed": true, "kind": "analytic",
+   "detail": "period of the inserted orbit against 2 pi sqrt(a^3/mu), machine precision"},
+  {"name": "target orbit reached", "passed": true, "kind": "requirement",
+   "detail": "487 x 501 km at the target 500 km, e = 1e-3"}
+ ],
+ "files": {
+  "figures": ["../../docs/assets/rocket_launch/ascent_profile.png", "../../docs/assets/rocket_launch/ascent_angles.png"],
+  "videos": [],
+  "viewers": ["_out/globe/index.html", "_out/vehicle/index.html", "_out/mission_control.html"],
+  "data": ["results/verification.json", "results/mission.json", "results/design.json"]
+ },
+ "links": {
+  "guide": "docs/guides/launch_ascent.md",
+  "readme": "examples/rocket_launch/README.md"
+ },
+ "references": [
+  "US Standard Atmosphere 1976, NASA-TM-X-74335 (seven-layer table and the 86-1000 km upper table)",
+  "Tsiolkovsky rocket equation (ideal velocity per stage)",
+  "Battin, An Introduction to the Mathematics and Methods of Astrodynamics (1999): velocity-to-be-gained",
+  "Natural Earth 1:110m coastlines (public domain, bundled with the weather module)",
+  "WGS84 gravitational parameter and equatorial rotation rate"
+ ],
+ "status": "curated",
+ "provenance": {
+  "source": "examples/rocket_launch/01_verification.py + 02_mission.py + 03_flight_views.py + 04_mission_control.py",
+  "seconds": 240
+ }
+}

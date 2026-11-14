@@ -18,6 +18,7 @@
   * [Distributed physics: sweeps, partitioned meshes, decomposed training](core_concepts/distributed.md)
   * [The .ppx container: a result that reproduces elsewhere](core_concepts/artifact.md)
   * [One registry for every extensible object type](core_concepts/registry.md)
+  * [The analysis contract: what a calculation takes and how it words its finding](core_concepts/analysis_contract.md)
   * [PhysicsOptimizer](core_concepts/physics_optimizer.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)

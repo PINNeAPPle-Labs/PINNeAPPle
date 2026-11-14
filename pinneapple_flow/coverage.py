@@ -61,6 +61,7 @@ REASONS: dict[str, str] = {
     "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
                                            "(seconds to minutes of MLP training); served by the apps/*_ai apps",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
+    "pinneapple_core.analysis": "the analysis contract itself (registry, result envelope, wording): a flow reaches an analysis through pp.run_analysis, and the analyses the library ships are declared in pinneapple_physics.closed_form.analyses",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "
                           "examples/autolab_aero, not as one flow step",

@@ -9,6 +9,8 @@ capability-registry workers, not to the LLM.
 from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
+import math
+import re
 from typing import Any
 
 SCHEMA_VERSION = "1.0"
@@ -49,7 +51,7 @@ def _evidence(source: str, quote: str) -> bool:
     return bool(quote.strip()) and quote.strip() in source
 
 
-def compile_reproduction(source: str, extraction: dict[str, Any],
+def _value_in_quote(value: float, quote: str) -> bool:\n    for token in re.findall(r"(?<![\\w.])[-+]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+)(?:[eE][-+]?\\d+)?", quote):\n        try:\n            if math.isclose(float(token.replace(",", ".")), float(value), rel_tol=1e-9, abs_tol=1e-12):\n                return True\n        except ValueError:\n            continue\n    return False\n\n\ndef compile_reproduction(source: str, extraction: dict[str, Any],
                          *, source_type: str = "text",
                          supplied_artifacts: dict[str, str] | None = None) -> dict:
     if source_type not in {"text", "paper", "pdf_text"}:
@@ -67,7 +69,7 @@ def compile_reproduction(source: str, extraction: dict[str, Any],
             rejected.append({"item": q, "reason": "invalid_quantity"})
             continue
         quote = q.get("evidence", "")
-        if not isinstance(quote, str) or not _evidence(source, quote):
+        if not isinstance(quote, str) or not _evidence(source, quote) or not _value_in_quote(q["value"], quote):
             rejected.append({"item": q, "reason": "missing_verbatim_source_evidence"})
             continue
         accepted.append({**q, "origin": "source_quote", "verified": "quote_present_only"})

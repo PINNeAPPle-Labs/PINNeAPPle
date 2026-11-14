@@ -452,6 +452,10 @@ class PhysicsAIPipeline:
         )
         curriculum = PhysicsCurriculum(cur_cfg)
         model = curriculum.run()
+        # curriculum.run() returns the trained PhysicsWorldModel; surface it on the result
+        # (meta_model is the result's PhysicsWorldModel slot) instead of discarding it, which
+        # used to hand back a result whose every stage was empty.
+        self._result.meta_model = model
 
         self._result.elapsed_s = time.time() - t0
         if cfg.verbose:

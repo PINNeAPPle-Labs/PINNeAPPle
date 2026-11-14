@@ -1,0 +1,172 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lpm_design_space",
+ "title": "One model for a whole design space (Large Physics Model)",
+ "description": "A single trained model covers the ellipse family of potential flow: held-out Cp on unseen geometries, an ensemble spread per prediction and an out-of-distribution flag on geometries outside the family, all against the exact Milne-Thomson answer.",
+ "domain": "fluid mechanics (potential flow)",
+ "methods": [
+  "Large Physics Model (geometry code, multi-scale neighbourhoods, ensemble heads, OOD)",
+  "query-to-surface cross-attention",
+  "batched design-space training"
+ ],
+ "modules": [
+  "pinneapple_neural.lpm"
+ ],
+ "params": {
+  "train_designs": 200,
+  "held_out_designs": 20,
+  "surface_points": 48,
+  "epochs": 150,
+  "batch_designs": 32,
+  "backbone": "attention"
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "train_rel_l2_mean",
+   "value": 0.050474409898743036,
+   "unit": "1",
+   "how": "relative L2 of Cp over the training designs"
+  },
+  {
+   "name": "heldout_rel_l2_mean",
+   "value": 0.0672220978885889,
+   "unit": "1",
+   "how": "relative L2 of Cp on designs drawn with a different seed, exact analytic reference"
+  },
+  {
+   "name": "heldout_rel_l2_p90",
+   "value": 0.11513315886259079,
+   "unit": "1",
+   "how": "90th percentile over the held-out designs"
+  },
+  {
+   "name": "ensemble_spread_mean",
+   "value": 0.01615161094814539,
+   "unit": "Cp",
+   "how": "mean of the ensemble std over the held-out predictions"
+  },
+  {
+   "name": "constant_field_baseline_rel_l2",
+   "value": 0.3846978837624192,
+   "unit": "1",
+   "how": "relative L2 of predicting the training-average Cp at every point, same held-out designs"
+  },
+  {
+   "name": "train_seconds",
+   "value": 160.2919111251831,
+   "unit": "s",
+   "how": "wall time of fit() on this machine"
+  },
+  {
+   "name": "seconds_per_epoch",
+   "value": 1.068612740834554,
+   "unit": "s",
+   "how": "wall time divided by the epochs run"
+  },
+  {
+   "name": "epochs_to_final_loss",
+   "value": 0.008829690515995026,
+   "unit": "1",
+   "how": "MSE of the bagged training loss"
+  }
+ ],
+ "checks": [
+  {
+   "name": "heldout_matches_the_exact_answer",
+   "passed": true,
+   "value": 0.0672220978885889,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "",
+   "label": "held-out Cp within 10% of the Milne-Thomson potential-flow answer",
+   "kind": "reference"
+  },
+  {
+   "name": "beats_the_constant_field",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "held-out error 0.067 against 0.385 for the constant-field baseline",
+   "kind": "reference"
+  },
+  {
+   "name": "ood_square",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "square flagged as outside the trained family (score 5.89)",
+   "kind": "reference"
+  },
+  {
+   "name": "ood_circle_r3",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "circle_r3 flagged as outside the trained family (score 57.28)",
+   "kind": "reference"
+  },
+  {
+   "name": "ood_thin_ellipse_a025",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "thin_ellipse_a025 flagged as outside the trained family (score 4.26)",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/lpm_worst_heldout_cp.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "benchmark": "benchmarks/lpm_scale.py",
+  "guide": "benchmarks/lpm_ellipse_design_space.py"
+ },
+ "references": [
+  "Milne-Thomson, Theoretical Hydrodynamics, 5th ed. (1968), \u00a79.61: surface speed of potential flow past an ellipse",
+  "Wu et al., Transolver, ICML 2024, arXiv:2402.02366 (geometry-aware attention over the surface points)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ad4311253",
+  "created": "2026-11-14T11:07:43Z",
+  "seconds": 0.976,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

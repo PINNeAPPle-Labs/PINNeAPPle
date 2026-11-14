@@ -1,0 +1,12 @@
+{
+ "code_hash": "d0ba0dc10918d233",
+ "figures": [],
+ "id": "example:lpm_design_space",
+ "ok": true,
+ "recorded": "2026-11-14",
+ "seconds": 4.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "One model for a whole design space (Large Physics Model) | fluid mechanics (potential flow) | not curated\ntrain_rel_l2_mean 0.050474409898743036 1\nheldout_rel_l2_mean 0.0672220978885889 1\nheldout_rel_l2_p90 0.11513315886259079 1\nensemble_spread_mean 0.01615161094814539 Cp\nconstant_field_baseline_rel_l2 0.3846978837624192 1",
+ "timed_out": false
+}

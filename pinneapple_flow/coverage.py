@@ -15,6 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # package or package.module -> why there is no node (or "covered by <node types>" when the coverage is indirect)
 REASONS: dict[str, str] = {
+    "pinneapple_atlas": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.cli": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.connectors": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.core": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.extra_sources": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.inventory": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.ontology": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.reconcile": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.store": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
+    "pinneapple_atlas.sync": "scientific metadata index and provenance infrastructure; read-only discovery, not an executable physics flow node",
     # compatibility shims and infrastructure
     "pinneapple_models": "shim: re-exports pinneapple_neural.architectures (covered there)",
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",

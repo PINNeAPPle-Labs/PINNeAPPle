@@ -23,16 +23,16 @@ Quick start
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional
-
 import numpy as np
 
-from .registry import DatasetInfo, DatasetRegistry
-
 # Trigger registration of all datasets
-from . import physics     # noqa: F401
-from . import geometry    # noqa: F401
-from . import timeseries  # noqa: F401
+from . import (
+    catalog,
+    geometry,  # noqa: F401
+    physics,  # noqa: F401
+    timeseries,  # noqa: F401
+)
+from .registry import DatasetInfo, DatasetRegistry
 
 try:
     from . import real_world  # noqa: F401  (optional: requires network / optional libs)
@@ -45,7 +45,7 @@ except Exception:
     pass
 
 
-def load_dataset(dataset_id: str, **kwargs) -> Dict[str, np.ndarray]:
+def load_dataset(dataset_id: str, **kwargs) -> dict[str, np.ndarray]:
     """Load a pre-built dataset by ID.
 
     Parameters
@@ -63,8 +63,8 @@ def load_dataset(dataset_id: str, **kwargs) -> Dict[str, np.ndarray]:
     return DatasetRegistry.load(dataset_id, **kwargs)
 
 
-def list_datasets(category: Optional[str] = None,
-                  verbose: bool = True) -> List[DatasetInfo]:
+def list_datasets(category: str | None = None,
+                  verbose: bool = True) -> list[DatasetInfo]:
     """Print and return all registered datasets.
 
     Parameters
@@ -105,7 +105,7 @@ def dataset_info(dataset_id: str) -> DatasetInfo:
     return DatasetRegistry.get_info(dataset_id)
 
 
-def dataset_ids(category: Optional[str] = None) -> List[str]:
+def dataset_ids(category: str | None = None) -> list[str]:
     """Return list of all registered dataset IDs."""
     return DatasetRegistry.ids(category)
 
@@ -130,22 +130,38 @@ __all__ = [
     "DesignSafeClient",
     "OpenFOAMClient",
     "SU2Client",
+    "DestinEClient",
 ]
 
 try:
     from .external_sources import (
+        BrazilDataCubeClient,
+        CopernicusClient,
+        CPTECClient,
+        DesignSafeClient,
+        DestinEClient,
         MaterialsProjectClient,
-        NOMADClient,
         NASAClient,
         NOAAClient,
-        CopernicusClient,
-        BrazilDataCubeClient,
-        CPTECClient,
-        ONSClient,
+        NOMADClient,
         NRELClient,
-        DesignSafeClient,
+        ONSClient,
         OpenFOAMClient,
         SU2Client,
     )
 except Exception:
     pass
+
+
+# The external-dataset catalogue (INT-002) and its adapters: imported lazily so that a machine without h5py can
+# still use the built-in datasets.
+__all__ = [name for name in dir() if not name.startswith("_")] + ["catalog", "pdebench", "the_well", "remote_hdf5"]
+
+
+def __getattr__(name: str):
+    import importlib
+    if name in ("pdebench", "the_well", "remote_hdf5"):
+        module = importlib.import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

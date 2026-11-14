@@ -107,6 +107,9 @@ The four models take tens of minutes each on one CPU thread, so a run can be spl
 `results/icenode_seed<k>.json` (every number below), `figures/*.png`, and the metrics registered in the folder's
 `experiment.json`.
 
+Open follow-ups, with the evidence for each: #1683 (the AIDA comparison), #1687 (the four raw chamber files),
+#1688 (whether the weak model's advantage is memorisation), #1690 (parity with the paper's PySR front).
+
 ## Files
 
 | file | what it is |

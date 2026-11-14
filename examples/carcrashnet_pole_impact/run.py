@@ -116,7 +116,7 @@ def surface_figure(sample, prediction, path: str, model: str, sample_id: str) ->
         k = min(4, n_sub)
         nearest = np.argpartition(d2, k - 1, axis=1)[:, :k]                # four nearest retained nodes, IDW weight
         w = 1.0 / np.maximum(np.take_along_axis(d2, nearest, axis=1), 1e-12)
-        pred = (pred_sub[nearest] * w[..., None]).sum(1) / w.sum(1)
+        pred = (pred_sub[nearest] * w[..., None]).sum(1) / w.sum(1)[:, None]
     mag_ref, mag_pred = np.linalg.norm(ref, axis=1), np.linalg.norm(pred, axis=1)
     vmax = float(max(mag_ref.max(), mag_pred.max()))
     Q = np.asarray(bumper_beam_assembly(**design).mesh.boundary_faces())

@@ -65,17 +65,18 @@ def peak_figure(kpi: dict, test_ids: list, path: str, model: str, conditioning: 
     hi = max(ref.max(), got.max()) + 0.10 * span
     ax.plot([lo, hi], [lo, hi], color="#8b949e", lw=0.9, ls="--", label="perfect prediction")
     sc = ax.scatter(ref, got, c=kpi["relative"] * 100, cmap="magma_r", s=42, edgecolor="k", linewidth=0.4, zorder=3)
-    cb = fig.colorbar(sc, ax=ax, pad=0.02)
+    fig.subplots_adjust(right=0.84)
+    cb = fig.colorbar(sc, ax=ax, pad=0.03, fraction=0.05)
     cb.set_label("relative error of the peak (%)")
     bias = float(np.mean(got - ref))
     ax.set_xlabel("reference peak displacement (mm), explicit FE")
     ax.set_ylabel(f"predicted peak displacement (mm), {model}")
     ax.set_title(f"{kpi['n']} held-out designs — conditioning: {conditioning}\n"
-                 f"mean error {kpi['mean_relative']:.1%}  ·  median {kpi['median_relative']:.1%}  ·  "
-                 f"worst {kpi['max_relative']:.1%}  ·  signed bias {bias:+.2f} mm", fontsize=9.5)
+                 f"mean {kpi['mean_relative']:.1%}  ·  median {kpi['median_relative']:.1%}  ·  "
+                 f"worst {kpi['max_relative']:.1%}  ·  signed bias {bias:+.2f} mm", fontsize=9)
     ax.annotate(f"the cloud sits {abs(bias):.2f} mm above the diagonal:\nthe surrogate under-predicts the peak",
-                xy=(float(np.mean(ref)), float(np.mean(got))), xytext=(0.04, 0.72), textcoords="axes fraction",
-                fontsize=8, color="#5a626d",
+                xy=(float(np.mean(ref)), float(np.mean(got))), xytext=(0.36, 0.74), textcoords="axes fraction",
+                fontsize=8, color="#5a626d", ha="left",
                 arrowprops={"arrowstyle": "->", "color": "#5a626d", "lw": 0.8})
     ax.grid(alpha=0.25)
     ax.legend(loc="lower right", fontsize=8)

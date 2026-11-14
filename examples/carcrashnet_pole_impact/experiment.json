@@ -22,7 +22,7 @@
    "name": "designs_simulated",
    "value": 200.0,
    "unit": "designs",
-   "how": "explicit hexahedral dynamics, end time 0.0008 s, 2783 nodes"
+   "how": "explicit hexahedral dynamics, end time 0.0008003092953003943 s, 2783 nodes"
   },
   {
    "name": "runs_out_of_envelope",
@@ -59,6 +59,42 @@
    "value": 900.0,
    "unit": "nodes",
    "how": "retained per design out of 2783 in the mesh, the same subset for every model"
+  },
+  {
+   "name": "field_design_channels",
+   "value": 7.0,
+   "unit": "channels",
+   "how": "the seven design variables, mapped to [0, 1] inside their own box and broadcast to every node"
+  },
+  {
+   "name": "field_best_rel_l2",
+   "value": 0.2761145420618281,
+   "unit": "relative L2",
+   "how": "transolver, mean over 30 held-out designs, 95% CI (0.26736362814136544, 0.28570294905741594)"
+  },
+  {
+   "name": "field_best_r2",
+   "value": 0.9201467733354615,
+   "unit": "R^2",
+   "how": "transolver, pooled over every node and frame"
+  },
+  {
+   "name": "kpi_peak_displacement_mean_rel_error",
+   "value": 0.24388389588446416,
+   "unit": "relative error",
+   "how": "transolver, peak displacement along the impact direction (min u_x), mean over 30 held-out designs, 95% CI (0.23789894116220558, 0.2503302948093645)"
+  },
+  {
+   "name": "kpi_peak_displacement_median_rel_error",
+   "value": 0.24465451840838215,
+   "unit": "relative error",
+   "how": "transolver, median over the same 30 designs"
+  },
+  {
+   "name": "kpi_peak_displacement_max_rel_error",
+   "value": 0.30039821946963535,
+   "unit": "relative error",
+   "how": "transolver, worst held-out design (pole0198)"
   }
  ],
  "checks": [
@@ -73,13 +109,44 @@
    "min": null,
    "detail": "0 of 200 designs",
    "kind": "physics"
+  },
+  {
+   "name": "a field surrogate beats the mean field",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "best transolver Rel L2 0.276",
+   "kind": "regression"
+  },
+  {
+   "name": "the surrogate tracks the peak displacement of held-out designs",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "transolver, mean relative error 24.39% over 30 designs",
+   "kind": "regression"
   }
  ],
  "files": {
-  "figures": [],
+  "figures": [
+   "_out/figures/peak_displacement_parity.png"
+  ],
   "videos": [],
   "viewers": [],
-  "data": []
+  "data": [
+   "_out/kpi_peak_displacement.json",
+   "_out/predictions.npz",
+   "_out/tabular_leaderboard.md",
+   "_out/field_leaderboard.md"
+  ]
  },
  "links": {
   "guide": "docs/guides/crash_and_surface_benchmarks.md",
@@ -90,10 +157,10 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "ef5fdb14a",
-  "created": "2026-11-06T17:52:59Z",
-  "seconds": 2713.602,
-  "error": "ValueError: cannot reshape array of size 24300 into shape (10,900,3)",
+  "git": "d5c95ffc9",
+  "created": "2026-11-14T12:10:01Z",
+  "seconds": 1050.575,
+  "error": "ValueError: operands could not be broadcast together with shapes (2783,3) (2783,) ",
   "environment": {
    "python": "3.12.13",
    "platform": "macOS-26.5.2-arm64-arm-64bit"

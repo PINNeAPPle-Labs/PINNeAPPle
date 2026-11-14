@@ -15,6 +15,11 @@ symbolic_pde     (was pinneapple_symbolic)
     SymPy-to-autograd compiler: define PDE residuals as SymPy expressions,
     get a PyTorch-differentiable residual function. HardBC / SoftBC support.
 
+cloud
+    Cloud microphysics: the capacitance growth law of a single ice crystal with surface kinetics, the
+    saturation/diffusivity/conductivity fits it needs, and its integration (see
+    ``examples/reproductions/lamb2026_icenode``).
+
 closed_form
     Real, closed-form (non-PDE) engineering physics: fin-array
     conduction, cantilever bending/fatigue, membrane diffusion,
@@ -38,6 +43,7 @@ Usage
 from __future__ import annotations
 
 # ── sub-modules (new descriptive names) ───────────────────────────────────────
+from . import cloud
 from . import closed_form
 from . import pde_environment
 from . import pinn_solver

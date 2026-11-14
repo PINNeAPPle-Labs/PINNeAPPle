@@ -320,26 +320,32 @@ did not run.
 | `heat_step_2d(u; nx, ny, alpha, dt, steps)` | `steps` explicit steps of `u_t = alpha * laplacian(u)` on the unit square | zero Dirichlet; the scheme's limit is enforced, not blown up |
 | `jacobi_2d(u0, f; nx, ny, h, steps, omega)` | `steps` damped-Jacobi sweeps for `-laplacian(u) = f` | zero Dirichlet; `omega` in `(0, 1]` |
 
-Measured on this machine (`python -m benchmarks.native_backend`, best of 7, Apple clang 21 / arm64, NumPy 2.4.6,
-Python 3.11.16) — `benchmarks/_out/native_backend.{md,json}` holds the run and every sample behind it:
+Measured on this machine (`python -m benchmarks.native_backend`, 11 pairs per row, Apple clang 21 / arm64, NumPy
+2.4.6, Python 3.11.16) — `benchmarks/_out/native_backend.{md,json}` holds the run and every sample behind it:
 
-| grid | operation | C (ms) | NumPy (ms) | speedup | max abs difference |
-|---|---|---|---|---|---|
-| 129 × 129 | `laplacian_2d` | 0.035 | 0.105 | 3.0× | 0.0 |
-| 129 × 129 | `heat_step_2d` (50 steps) | 0.979 | 8.169 | 8.3× | 3.3e-16 |
-| 129 × 129 | `jacobi_2d` (200 sweeps) | 4.854 | 160.539 | 33.1× | 6.2e-17 |
-| 513 × 513 | `laplacian_2d` | 0.198 | 1.453 | 7.3× | 0.0 |
-| 513 × 513 | `heat_step_2d` (50 steps) | 14.841 | 597.507 | 40.3× | 4.4e-16 |
-| 513 × 513 | `jacobi_2d` (200 sweeps) | 402.921 | 3057.864 | 7.6× | 3.9e-18 |
+| grid | operation | C median (ms) | NumPy median (ms) | speedup | ratio range | max abs difference |
+|---|---|---|---|---|---|---|
+| 129 × 129 | `laplacian_2d` | 0.034 | 0.104 | 3.1× | 2.5–3.5× | 0.0 |
+| 129 × 129 | `heat_step_2d` (50 steps) | 1.224 | 56.257 | 15.7× | 1.4–99.3× | 3.3e-16 |
+| 129 × 129 | `jacobi_2d` (200 sweeps) | 12.500 | 189.303 | 14.8× | 0.7–54.5× | 6.2e-17 |
+| 513 × 513 | `laplacian_2d` | 0.267 | 1.447 | 5.8× | 0.2–48.0× | 0.0 |
+| 513 × 513 | `heat_step_2d` (50 steps) | 101.733 | 724.641 | 7.6× | 4.6–20.3× | 4.4e-16 |
+| 513 × 513 | `jacobi_2d` (200 sweeps) | 404.707 | 2242.726 | 5.6× | 4.0–8.2× | 3.9e-18 |
+
+The method matters more than the digits here, and it took two attempts. The first version timed the C block and
+the NumPy block separately, and on a host that is also running other work each block got a different share of the
+interference: the same row came out at 8× and at 40× in consecutive runs. The harness now times **the two backends
+back to back and alternates which goes first**, and reports the median of the per-pair ratios, because a pair is a
+measurement of the same machine state. The `ratio range` column is the rest of that story: on a shared machine the
+individual pairs still spread by an order of magnitude, so a single speedup number claims a precision this
+measurement does not have.
 
 **Read the agreement column, not the speedup column.** The agreement is a property of the code: 0.0 for the Laplacian
-(the same expression, in the same order, so the two backends produce identical bits) and machine epsilon elsewhere. The
-speedup is a property of this machine at this moment, and it moved by factors of two to three between the runs
-recorded in the report — the C column repeated to within tens of percent while NumPy's own time swung further, because
-other work was running on the machine. The number worth keeping is the shape of it: **single-digit speedup on the
-one-pass kernel, one to two orders of magnitude on the iterated ones**, and the Jacobi sweep falls from 33× to 7.6×
-between the two grids because at 513 × 513 each sweep touches three 2 MB arrays and the kernel stops being
-compute-bound. No amount of C changes that.
+(the same expression, in the same order, so the two backends produce identical bits) and machine epsilon elsewhere.
+The speedup is a property of a machine at a moment. What survives every run is the shape: **single-digit speedup on
+the one-pass kernel, and roughly an order of magnitude on the iterated ones until the grid stops fitting in cache** —
+the 513 × 513 Jacobi sweep touches three 2 MB arrays per pass and is memory-bound by then, which no amount of C
+changes.
 
 **Refusals, each one a way a native layer goes wrong:**
 

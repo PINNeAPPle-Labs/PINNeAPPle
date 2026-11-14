@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import statistics
 import time
 from pathlib import Path
 
@@ -39,22 +40,34 @@ def _stable_dt(n: int, alpha: float = 1.0, fraction: float = 0.45) -> float:
     return fraction * 0.5 / (alpha * (1.0 / (h * h) + 1.0 / (h * h)))
 
 
-def _times(call, kernel, reps: int) -> list:
-    """Every run of ``call(kernel)`` in ms — the kernel is passed in, so no closure captures a loop variable.
+def _one(call, kernel) -> float:
+    start = time.perf_counter()
+    call(kernel)
+    return (time.perf_counter() - start) * 1e3
 
-    All the runs are kept, not only the best: on this machine the C side repeats to within a few percent while
-    the NumPy side swings by a factor of two between runs, and a table that printed only the best of each would
-    hide exactly the part a reader needs to know before quoting a speedup.
+
+def _pairs(call, native, reference, reps: int) -> list:
+    """``(native_ms, numpy_ms)`` timed **back to back**, alternating which goes first.
+
+    Timing the two backends in separate blocks was the first version, and on a machine that is also running
+    other work it produced speedups that disagreed with themselves by a factor of four between runs: the C block
+    and the NumPy block each got a different share of the interference. Interleaving them pairs every C
+    measurement with an adjacent NumPy one, so the ratio of a pair is a comparison of the same machine state,
+    and the median of those ratios is the number that survives a noisy host.
     """
     samples = []
-    for _ in range(reps):
-        start = time.perf_counter()
-        call(kernel)
-        samples.append((time.perf_counter() - start) * 1e3)
+    for rep in range(reps):
+        if rep % 2 == 0:
+            native_ms = _one(call, native)
+            numpy_ms = _one(call, reference)
+        else:
+            numpy_ms = _one(call, reference)
+            native_ms = _one(call, native)
+        samples.append((native_ms, numpy_ms))
     return samples
 
 
-def run(sizes=(129, 513), reps: int = 5, heat_steps: int = 50, jacobi_steps: int = 200) -> dict:
+def run(sizes=(129, 513), reps: int = 11, heat_steps: int = 50, jacobi_steps: int = 200) -> dict:
     native = NativeKernels()
     reference = NativeKernels(force_reference=True)
     rows = []
@@ -68,17 +81,25 @@ def run(sizes=(129, 513), reps: int = 5, heat_steps: int = 50, jacobi_steps: int
                 np.zeros((n, n)), f, h=h, steps=jacobi_steps, omega=2.0 / 3.0)),
         ]
         for name, call in cases:
-            reference_result = call(reference)
+            reference_result = call(reference)          # warm-up, and the reference every difference is against
             row = {"grid": f"{n}x{n}", "op": name}
             if native.is_native:
                 native_result = call(native)
                 row["max_abs_difference"] = float(np.max(np.abs(native_result - reference_result)))
-                row["native_ms"] = _times(call, native, reps)
-            row["numpy_ms"] = _times(call, reference, reps)
-            if "native_ms" in row:
-                row["speedup"] = float(np.min(row["numpy_ms"])) / float(np.min(row["native_ms"]))
-                row["native_spread"] = float(np.max(row["native_ms"])) / float(np.min(row["native_ms"]))
-            row["numpy_spread"] = max(row["numpy_ms"]) / min(row["numpy_ms"])
+                pairs = _pairs(call, native, reference, reps)
+                ratios = [numpy / native_ms for native_ms, numpy in pairs]
+                row["pairs_ms"] = [{"native": c, "numpy": m} for c, m in pairs]
+                row["native_ms"] = [c for c, _ in pairs]
+                row["numpy_ms"] = [m for _, m in pairs]
+                row["speedup"] = float(statistics.median(ratios))
+                row["speedup_min"] = float(min(ratios))
+                row["speedup_max"] = float(max(ratios))
+            else:
+                row["numpy_ms"] = [_one(call, reference) for _ in range(reps)]
+            row["native_spread"] = (
+                float(max(row["native_ms"])) / float(min(row["native_ms"])) if "native_ms" in row else None
+            )
+            row["numpy_spread"] = float(max(row["numpy_ms"])) / float(min(row["numpy_ms"]))
             rows.append(row)
     return {
         "machine": {
@@ -110,32 +131,31 @@ def to_markdown(report: dict) -> str:
     else:
         lines += [f"**Native backend not available:** {native['reason']}", ""]
         lines += ["The table below is the reference alone; there is no speedup to report.", ""]
-    header = ("| grid | operation | C best (ms) | NumPy best (ms) | speedup | C spread | NumPy spread | "
-              "max abs difference |")
-    lines += [header, "|---|---|---|---|---|---|---|---|"]
+    header = ("| grid | operation | C median (ms) | NumPy median (ms) | speedup (median of paired ratios) | "
+              "ratio range | max abs difference |")
+    lines += [header, "|---|---|---|---|---|---|---|"]
     for row in report["rows"]:
-        numpy = row["numpy_ms"]
+        has_native = "native_ms" in row
         lines.append(
-            "| {grid} | `{op}` | {native} | {numpy} | {speedup} | {cspread} | {spread} | {difference} |".format(
+            "| {grid} | `{op}` | {native} | {numpy} | {speedup} | {rng} | {difference} |".format(
                 grid=row["grid"],
                 op=row["op"],
-                native=f"{min(row['native_ms']):.3f}" if "native_ms" in row else "—",
-                numpy=f"{min(numpy):.3f}",
-                speedup=f"{row['speedup']:.1f}×" if "speedup" in row else "—",
-                cspread=f"{row['native_spread']:.2f}×" if "native_spread" in row else "—",
-                spread=f"{row['numpy_spread']:.2f}×",
-                difference=f"{row['max_abs_difference']:.1e}" if "max_abs_difference" in row else "—",
+                native=f"{statistics.median(row['native_ms']):.3f}" if has_native else "—",
+                numpy=f"{statistics.median(row['numpy_ms']):.3f}",
+                speedup=f"{row['speedup']:.1f}×" if has_native else "—",
+                rng=f"{row['speedup_min']:.1f}–{row['speedup_max']:.1f}×" if has_native else "—",
+                difference=f"{row['max_abs_difference']:.1e}" if has_native else "—",
             )
         )
     lines += [
         "",
-        f"Each cell is the best of {report['reps']} runs on the kernels as written — not a microbenchmark of the "
-        f"loop: the heat and Jacobi rows carry {report['heat_steps']} and {report['jacobi_steps']} steps "
-        "respectively, and the speedup compares those two bests. The spread columns are (slowest run / fastest "
-        "run) for each backend, and they are large on a loaded machine -- for both sides, not only NumPy's -- so "
-        "a single speedup number here would claim a precision the measurement does not have. Quote the C column "
-        "and the order of magnitude of the speedup; rerun on an idle machine for anything tighter. The difference column is the two backends' agreement, so a fast row that "
-        "disagreed would be visible rather than reported as a win.",
+        f"{report['reps']} pairs per row, the two backends timed back to back and the order alternated, on the "
+        f"kernels as written — the heat and Jacobi rows carry {report['heat_steps']} and "
+        f"{report['jacobi_steps']} steps respectively. The speedup is the median of the per-pair ratios and the "
+        "range is the smallest and largest of those same ratios: on a host that is also running other work the "
+        "range is wide for both backends, and a paired ratio is the only comparison that survives it. The "
+        "difference column is the two backends' agreement, so a fast row that disagreed would be visible rather "
+        "than reported as a win.",
         "",
     ]
     return "\n".join(lines)
@@ -144,7 +164,7 @@ def to_markdown(report: dict) -> str:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sizes", type=int, nargs="+", default=[129, 513])
-    parser.add_argument("--reps", type=int, default=5)
+    parser.add_argument("--reps", type=int, default=11)
     args = parser.parse_args(argv)
     report = run(sizes=tuple(args.sizes), reps=args.reps)
     OUT.mkdir(parents=True, exist_ok=True)

@@ -10,6 +10,9 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     PatchwiseProtocol,
     bootstrap_ci,
     build_model_specs,
+    collate_samples,
+    extreme_errors,
+    extreme_of_field,
     leaderboard,
     mean_relative_l2,
     normalize_geometry,
@@ -19,6 +22,8 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     relative_l2_per_geometry,
     run_benchmark,
     score_model,
+    subsample_nodes,
+    train_field_model,
 )
 from pinneapple_neural.architectures.crash_solver import CrashSolverModel  # noqa: E402
 from pinneapple_neural.architectures.point_surrogates import PointNetSurrogate  # noqa: E402
@@ -233,6 +238,94 @@ def test_a_prediction_is_trimmed_to_each_samples_own_point_count():
              FieldSample(id="wide", points=rng.normal(size=(80, 3)).astype("float32"),
                          values=rng.normal(size=(3, 80, 1)).astype("float32"), times=np.linspace(0, 1, 3))]
     ds_t = FieldDataset("padded_transient", trans)
-    preds_t = predict_field_model(CrashSolverModel(hidden=32, local_slices=8, n_frames=3), ds_t, ["small", "wide"],
-                                  device="cpu", batch_size=2)
-    assert [p.shape for p in preds_t] == [(3, 60, 3), (3, 80, 3)]
+    preds_t = predict_field_model(CrashSolverModel(hidden=32, local_slices=8, n_frames=3, out_dim=1), ds_t,
+                                  ["small", "wide"], device="cpu", batch_size=2)
+    assert [p.shape for p in preds_t] == [(3, 60), (3, 80)]      # a one-component field comes back squeezed
+
+
+# --------------------------------------------------------------------------------------------- design channels
+def test_extra_channels_reach_the_model_and_round_trip_through_npz(tmp_path):
+    """A parametric benchmark needs the design vector inside the sample, not in a side file: it is batched with the
+    points, saved with them, and every transform of the dataset carries it."""
+    rng = np.random.default_rng(5)
+    samples = []
+    for i in range(4):
+        design = np.repeat(rng.random((1, 7)).astype("float32"), 30, axis=0)
+        samples.append(FieldSample(id=f"d{i}", points=rng.normal(size=(30, 3)).astype("float32"),
+                                   values=rng.normal(size=(3, 30, 3)).astype("float32"), extra=design,
+                                   times=np.linspace(0, 1e-3, 3).astype("float32")))
+    ds = FieldDataset("designs", samples)
+    assert ds[0].inputs()["extra"].shape == (1, 30, 7)
+    batch = collate_samples(ds, ["d0", "d1"])
+    assert batch["extra"].shape == (2, 30, 7)
+    assert np.allclose(batch["extra"][0, 0].numpy(), samples[0].extra[0])
+
+    path = ds.save(str(tmp_path / "designs.npz"))
+    back = FieldDataset.load(path)
+    assert np.allclose(back["d0"].extra, samples[0].extra)
+    assert np.allclose(normalize_geometry(back)["d0"].extra, samples[0].extra)   # not a coordinate
+    assert np.allclose(subsample_nodes(back, 10, seed=0)["d0"].extra.shape, (10, 7))
+
+
+def test_a_dataset_that_mixes_the_extra_width_is_refused():
+    """A model is built for one input width; a sample without the design channels cannot be batched with the rest."""
+    rng = np.random.default_rng(6)
+    samples = [FieldSample(id="a", points=rng.normal(size=(20, 3)).astype("float32"),
+                           values=rng.normal(size=(20, 1)).astype("float32"),
+                           extra=np.zeros((20, 7), "float32")),
+               FieldSample(id="b", points=rng.normal(size=(20, 3)).astype("float32"),
+                           values=rng.normal(size=(20, 1)).astype("float32"))]
+    with pytest.raises(ValueError, match="extra-channel width"):
+        FieldDataset("mixed", samples)
+
+
+def test_extreme_of_field_reads_the_kpi_a_crash_report_quotes():
+    """Peak displacement along the impact direction is the most negative u_x, not the largest magnitude: the two
+    differ by the sign and, on a structure that recoils, by the frame they happen in."""
+    t = np.zeros((3, 4, 3), "float64")
+    t[0, :, 0] = [0.0, -1.0, 0.0, 0.0]
+    t[1, :, 0] = [0.0, -3.0, 0.0, 0.0]                  # the peak of the event
+    t[2, :, 0] = [0.0, -2.0, 0.0, 0.0]
+    assert extreme_of_field(t, mode="min") == pytest.approx(-3.0)
+    assert extreme_of_field(t, mode="min", frames="last") == pytest.approx(-2.0)
+    assert extreme_of_field(t, mode="min", frames=0) == pytest.approx(-1.0)
+    assert extreme_of_field(t, mode="absmax") == pytest.approx(3.0)
+    assert np.isnan(extreme_of_field(np.full((3, 4, 3), np.nan)))
+
+
+def test_extreme_errors_report_the_quantity_error_next_to_the_field_error():
+    """A model can shade every point and still miss the peak: the two numbers are reported from the same prediction."""
+    rng = np.random.default_rng(7)
+    truths = [np.stack([np.zeros((50, 3)), -np.abs(rng.normal(size=(50, 3))) * 1e-2]) for _ in range(6)]
+    preds = [t * 1.1 for t in truths]                   # 10 % on every point, so 10 % on the peak as well
+    kpi = extreme_errors(preds, truths, channel=0, mode="min", n_boot=200)
+    assert kpi["n"] == 6
+    assert kpi["mean_relative"] == pytest.approx(0.1, rel=1e-6)
+    assert kpi["max_relative"] == pytest.approx(0.1, rel=1e-6)
+    lo, hi = kpi["mean_relative_ci95"]
+    assert lo <= kpi["mean_relative"] <= hi
+
+
+def test_a_row_built_for_one_channel_is_refused_on_a_three_component_field():
+    """The bug this guards: a displacement field has three components, a row built with ``out_dim=1`` predicts one, torch
+    broadcasts it against the other two, and the benchmark then reports a plausible error for a model that never
+    predicted the field. Both the loss and the prediction refuse it now."""
+    rng = np.random.default_rng(11)
+    samples = [FieldSample(id=f"v{i}", points=rng.normal(size=(40, 3)).astype("float32"),
+                           values=rng.normal(size=(3, 40, 3)).astype("float32"),
+                           times=np.linspace(0, 1e-3, 3).astype("float32")) for i in range(4)]
+    ds = FieldDataset("vectors", samples)
+    scalar = PointNetSurrogate(dim=16, depth=1)                     # one output channel
+    with pytest.raises(ValueError, match="channel"):
+        train_field_model(scalar, ds, train_ids=["v0", "v1"], val_ids=["v2"], epochs=1, batch_size=1, device="cpu")
+    with pytest.raises(ValueError, match="channel|component"):
+        predict_field_model(scalar, ds, ["v3"], device="cpu")
+    vector = PointNetSurrogate(dim=16, depth=1, out_dim=3)          # the same row, built for the field it is scored on
+    preds = predict_field_model(vector, ds, ["v3"], device="cpu")
+    assert preds[0].shape == (1, 40, 3)     # the raw point model answers one frame; the benchmark rows add the time
+
+
+def test_relative_l2_refuses_a_prediction_of_another_shape_even_when_the_values_add_up():
+    """Equal counts are not equal fields: 60 points of one channel against 20 points of three has the same size."""
+    with pytest.raises(ValueError, match="shape"):
+        relative_l2_per_geometry([np.zeros(60)], [np.zeros((20, 3))])

@@ -78,7 +78,10 @@ def build_model_specs(*, in_dim: int = 3, out_dim: int = 1, transient: bool = Fa
 
     def add(name, family, build, notes):
         specs.append({"name": name, "family": family, "build": build, "notes": notes,
-                      "uses_parts": family in ("hierarchical", "point+part")})
+                      "uses_parts": family in ("hierarchical", "point+part"),
+                      # a row built without the extra channels must not be handed a sample that carries them: the
+                      # geometry-only ablation reads the same dataset as the parametric row
+                      "uses_extra": extra_dim > 0})
 
     time_dim = 8                                                               # Fourier features of the time channel
     # coordinates + extra channels + tau, plus the time encoding when the field is transient

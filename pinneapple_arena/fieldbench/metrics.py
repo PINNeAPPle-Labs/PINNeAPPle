@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 __all__ = ["relative_l2_per_geometry", "mean_relative_l2", "pooled_r2", "absolute_errors", "error_percentiles",
+           "extreme_of_field", "extreme_errors",
            "bootstrap_ci", "paired_bootstrap", "model_cost", "leaderboard", "score_model", "ModelScore",
            "PatchwiseProtocol"]
 
@@ -31,12 +32,23 @@ def _flatten(a) -> np.ndarray:
 
 
 def relative_l2_per_geometry(preds, truths) -> np.ndarray:
-    """Relative L2 of every geometry: ``||pred - true||_2 / ||true||_2`` over its points and channels."""
+    """Relative L2 of every geometry: ``||pred - true||_2 / ||true||_2`` over its points and channels.
+
+    The shapes have to agree, not only the number of values: a one-component prediction flattened against a
+    three-component field has a third of the entries, and an equal *count* (a wider mesh, say) would let that pass and
+    score two different things against each other."""
     out = []
     for p, t in zip(preds, truths, strict=False):
-        p, t = _flatten(p), _flatten(t)
+        p, t = np.asarray(p, dtype=np.float64), np.asarray(t, dtype=np.float64)
         if p.shape != t.shape:
-            raise ValueError(f"prediction and reference differ in size ({p.size} vs {t.size})")
+            # a single-component field is returned squeezed (N,) against a (N, 1) reference, by design
+            if t.shape[-1] == 1 and p.shape == t.shape[:-1]:
+                p = p[..., None]
+            elif p.shape[-1] == 1 and t.shape == p.shape[:-1]:
+                t = t[..., None]
+            else:
+                raise ValueError(f"prediction and reference differ in shape ({p.shape} vs {t.shape})")
+        p, t = _flatten(p), _flatten(t)
         out.append(float(np.linalg.norm(p - t) / max(np.linalg.norm(t), 1e-12)))
     return np.asarray(out, dtype=float)
 
@@ -68,6 +80,59 @@ def error_percentiles(preds, truths) -> dict:
     return {"median_relative": float(np.median(rel)),
             "p50": float(np.percentile(abs_err, 50)), "p90": float(np.percentile(abs_err, 90)),
             "p95": float(np.percentile(abs_err, 95)), "p99": float(np.percentile(abs_err, 99))}
+
+
+def extreme_of_field(field, channel: int = 0, mode: str = "min", frames: str = "all") -> float:
+    """The extreme of one channel over the points (and the frames) of a single field — the KPI a crash report quotes.
+
+    ``mode="min"`` is how a crash result reads the displacement along the impact direction (the structure travels
+    *into* the obstacle, so the peak is the most negative value); ``mode="max"`` is the same for a magnitude or a
+    pressure. ``frames="all"`` takes the extreme over every stored frame, ``"last"`` only the final one, and an int
+    picks that frame. An empty or all-padded field returns ``nan`` instead of a silent zero."""
+    a = np.asarray(field, dtype=np.float64)
+    if a.ndim == 1:                                        # a single-component field, squeezed
+        a = a[:, None]
+    if a.ndim == 3:                                        # (T, N, C)
+        if frames == "all":
+            a = a[:, :, int(channel)]
+        else:
+            idx = -1 if frames == "last" else int(frames)
+            a = a[idx, :, int(channel)][None, :]
+    elif a.ndim == 2:                                      # (N, C)
+        a = a[None, :, int(channel)]
+    else:
+        raise ValueError(f"a field is (N, C) or (T, N, C), got shape {a.shape}")
+    if a.size == 0 or not np.isfinite(a).any():
+        return float("nan")
+    a = np.where(np.isfinite(a), a, np.nan)
+    if mode == "min":
+        return float(np.nanmin(a))
+    if mode == "max":
+        return float(np.nanmax(a))
+    if mode == "absmax":
+        return float(np.nanmax(np.abs(a)))
+    raise ValueError("mode must be 'min', 'max' or 'absmax'")
+
+
+def extreme_errors(preds, truths, *, channel: int = 0, mode: str = "min", frames: str = "all",
+                   n_boot: int = 2000) -> dict:
+    """Score a surrogate on the extremes of the fields — the quantity-level KPI, next to the field-level metrics.
+
+    A field surrogate can be compared to the reference twice, and the papers report the first while the engineer asks
+    the second: the mean relative L2 over the whole field (``mean_relative_l2``), and the relative error of the one
+    number the design was run for (peak displacement, peak force). They are computed from the same predictions and
+    are not substitutes — a model can shade every point by 5 % and still get the peak wrong, or the other way round.
+
+    Returns the per-geometry reference and prediction, their absolute and relative errors, and the mean/median/max
+    relative error with a bootstrap interval on the mean."""
+    ref = np.asarray([extreme_of_field(t, channel=channel, mode=mode, frames=frames) for t in truths], float)
+    got = np.asarray([extreme_of_field(p, channel=channel, mode=mode, frames=frames) for p in preds], float)
+    rel = np.abs(got - ref) / np.maximum(np.abs(ref), 1e-12)
+    lo, hi = bootstrap_ci(rel, n_boot=n_boot)
+    return {"reference": ref, "prediction": got, "absolute": np.abs(got - ref), "relative": rel,
+            "mean_relative": float(np.mean(rel)), "median_relative": float(np.median(rel)),
+            "max_relative": float(np.max(rel)), "mean_relative_ci95": (float(lo), float(hi)),
+            "n": int(rel.size), "mode": mode, "channel": int(channel), "frames": frames}
 
 
 def bootstrap_ci(values, n_boot: int = 2000, alpha: float = 0.05, strata=None, rng=None) -> tuple[float, float]:

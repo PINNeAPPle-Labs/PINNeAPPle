@@ -32,12 +32,15 @@ def _best_device() -> str:
         return "cpu"
 
 
-def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts: bool = True) -> dict:
+def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts: bool = True,
+                    uses_extra: bool = True) -> dict:
     """Pad a list of samples into one batch.
 
-    Returns a dict with ``x`` (B, N, 3), ``mask`` (B, N), the optional ``part``/``part_id``/``thickness``/``time``
-    channels, ``y`` (B, N, C) or (B, T, N, C) standardised when ``standardize`` is given, ``channels``, and the
-    point count of every sample (to slice the padded prediction back)."""
+    Returns a dict with ``x`` (B, N, 3), ``mask`` (B, N), the optional ``part``/``part_id``/``thickness``/``extra``
+    /``time`` channels, ``y`` (B, N, C) or (B, T, N, C) standardised when ``standardize`` is given, ``channels``, and
+    the point count of every sample (to slice the padded prediction back). ``extra`` is the sample's own per-node
+    channels — the design vector of a parametric benchmark, broadcast to its nodes — padded with zeros like the rest,
+    and left out entirely when ``uses_extra`` is false (the geometry-only ablation reads the same dataset)."""
     samples = [dataset[i] for i in ids]
     n_max = max(s.n_points for s in samples)
     b = len(samples)
@@ -50,6 +53,9 @@ def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts
     part = np.zeros((b, n_max), np.int64)
     part_id = np.zeros((b, n_max), np.int64)
     thick = np.ones((b, n_max), np.float32)
+    with_extra = next((s for s in samples if s.extra is not None), None) if uses_extra else None
+    extra = None if with_extra is None else np.zeros((b, n_max, int(np.asarray(with_extra.extra).shape[-1])),
+                                                     np.float32)
     y = np.zeros((b, n_frames, n_max, channels) if transient else (b, n_max, channels), np.float32)
     for i, s in enumerate(samples):
         n = s.n_points
@@ -58,6 +64,11 @@ def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts
         part[i, :n] = np.asarray(s.parts, np.int64) if s.parts is not None else 1
         part_id[i, :n] = np.asarray(s.part_ids, np.int64) if s.part_ids is not None else part[i, :n]
         thick[i, :n] = np.asarray(s.thickness, np.float32) if s.thickness is not None else 1.0
+        if extra is not None:
+            if s.extra is None:
+                raise ValueError(f"sample {s.id} carries no extra channels while the rest of the batch does: the "
+                                 f"design vector of a parametric benchmark is either on every sample or on none")
+            extra[i, :n] = np.asarray(s.extra, np.float32).reshape(n, extra.shape[-1])
         v = np.asarray(s.values, np.float32).reshape((n_frames, n, channels) if transient else (n, channels))
         if transient:
             y[i, :, :n] = v
@@ -69,13 +80,19 @@ def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts
         out["part"] = torch.from_numpy(part)
     out["part_id"] = torch.from_numpy(part_id)
     out["thickness"] = torch.from_numpy(thick)
+    if extra is not None:
+        out["extra"] = torch.from_numpy(extra)
     if samples[0].times is not None:
         out["time"] = torch.from_numpy(np.stack([np.asarray(s.times, np.float32) for s in samples]))
     return out
 
 
 def _masked_mse(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-    """Mean squared error over the valid points (and frames) only."""
+    """Mean squared error over the valid points (and frames) only.
+
+    A prediction with fewer channels than the target does not raise on its own: torch broadcasts it, the loss comes out
+    finite, and the benchmark then scores a one-component field against a three-component displacement — which is how a
+    row built for the wrong ``out_dim`` reported a plausible error for a model that never predicted the field."""
     if pred.ndim == 4:                                     # (B, T, N, C)
         if target.ndim == 3:
             target = target.unsqueeze(1).expand(-1, pred.shape[1], -1, -1)
@@ -84,19 +101,22 @@ def _masked_mse(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) ->
         if target.ndim == 4:
             target = target[:, 0]
         m = mask[:, :, None].to(pred.dtype)
+    if pred.shape[-1] != target.shape[-1]:
+        raise ValueError(f"the model predicts {pred.shape[-1]} channel(s) and the field has {target.shape[-1]}: build "
+                         f"the row for the field it is scored on (build_model_specs(out_dim=...))")
     m = m.expand_as(pred)
     return (((pred - target) ** 2) * m).sum() / m.sum().clamp(min=1.0)
 
 
 def _inputs_of(batch: dict, device: str) -> dict:
     return {k: v.to(device) for k, v in batch.items()
-            if k in ("x", "part", "part_id", "thickness", "time", "mask")}
+            if k in ("x", "part", "part_id", "thickness", "extra", "time", "mask")}
 
 
 def train_field_model(model, dataset, *, train_ids, val_ids, epochs: int = 30, batch_size: int = 2,
                       lr: float = 1e-3, weight_decay: float = 1e-5, device: str | None = None, patience: int = 10,
                       seed: int = 0, standardize: bool = True, grad_clip: float = 1.0, uses_parts: bool = True,
-                      verbose: bool = False) -> dict:
+                      uses_extra: bool = True, verbose: bool = False) -> dict:
     """Train one surrogate on the training split, early-stop on the validation split, restore the best weights."""
     torch.manual_seed(int(seed))
     np.random.seed(int(seed))
@@ -116,7 +136,7 @@ def train_field_model(model, dataset, *, train_ids, val_ids, epochs: int = 30, b
     n_train = len(train_ids)
 
     def loss_of(ids) -> float:
-        batch = collate_samples(dataset, ids, standardize=stats, uses_parts=uses_parts)
+        batch = collate_samples(dataset, ids, standardize=stats, uses_parts=uses_parts, uses_extra=uses_extra)
         with torch.no_grad():
             pred = model(**_inputs_of(batch, device))
             return float(_masked_mse(pred, batch["y"].to(device), batch["mask"].to(device)))
@@ -127,7 +147,7 @@ def train_field_model(model, dataset, *, train_ids, val_ids, epochs: int = 30, b
         running, seen = 0.0, 0
         for start in range(0, n_train, batch_size):
             ids = [train_ids[k] for k in order[start:start + batch_size]]
-            batch = collate_samples(dataset, ids, standardize=stats, uses_parts=uses_parts)
+            batch = collate_samples(dataset, ids, standardize=stats, uses_parts=uses_parts, uses_extra=uses_extra)
             pred = model(**_inputs_of(batch, device))
             loss = _masked_mse(pred, batch["y"].to(device), batch["mask"].to(device))
             opt.zero_grad(set_to_none=True)
@@ -155,7 +175,8 @@ def train_field_model(model, dataset, *, train_ids, val_ids, epochs: int = 30, b
     model._pinneapple_standardize = stats                                       # noqa: SLF001  (undone in predict)
     # the cost of one geometry (batch of one, the whole test point set) — measured, not estimated
     sample = dataset[val_ids[0] if val_ids else train_ids[0]]
-    inputs = {k: torch.from_numpy(np.ascontiguousarray(v)) for k, v in sample.inputs(with_parts=uses_parts).items()}
+    inputs = {k: torch.from_numpy(np.ascontiguousarray(v))
+              for k, v in sample.inputs(with_parts=uses_parts, with_extra=uses_extra).items()}
     with torch.no_grad():
         for _ in range(2):
             model(**{k: v.to(device) for k, v in inputs.items()})
@@ -170,7 +191,7 @@ def train_field_model(model, dataset, *, train_ids, val_ids, epochs: int = 30, b
 
 
 def predict_field_model(model, dataset, ids, *, device: str = "cpu", uses_parts: bool = True,
-                        batch_size: int = 2) -> list[np.ndarray]:
+                        uses_extra: bool = True, batch_size: int = 2) -> list[np.ndarray]:
     """Predict every sample of ``ids``; returns one array per sample with the field's own shape (physical units)."""
     model = model.to(device).eval()
     out = []
@@ -179,9 +200,9 @@ def predict_field_model(model, dataset, ids, *, device: str = "cpu", uses_parts:
     std = None if not stats else np.asarray(stats["std"], np.float32)
     for start in range(0, len(ids), batch_size):
         chunk = ids[start:start + batch_size]
-        batch = collate_samples(dataset, chunk, standardize=None, uses_parts=uses_parts)
+        batch = collate_samples(dataset, chunk, standardize=None, uses_parts=uses_parts, uses_extra=uses_extra)
         inputs = {k: v.to(device) for k, v in batch.items()
-                  if k in ("x", "part", "part_id", "thickness", "time", "mask")}
+                  if k in ("x", "part", "part_id", "thickness", "extra", "time", "mask")}
         with torch.no_grad():
             pred = model(**inputs).cpu().numpy()
         if mean is not None:                                   # back to physical units
@@ -200,5 +221,9 @@ def predict_field_model(model, dataset, ids, *, device: str = "cpu", uses_parts:
                 if p.ndim == 2:
                     p = p[None]
                 p = p[:, :n, :]
+            channels = int(np.asarray(s.values).shape[-1])
+            if p.shape[-1] != channels:
+                raise ValueError(f"sample {s.id} has a {channels}-component field and the model answered with "
+                                 f"{p.shape[-1]}: the row was built for another field")
             out.append(p[..., 0] if p.shape[-1] == 1 else p)
     return out

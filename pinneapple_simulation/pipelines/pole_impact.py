@@ -12,6 +12,11 @@ Both are written from the same runs, so a design cannot be in one and not the ot
 which solver produced them (this library's explicit hexahedral crash solver, not OpenRadioss), the end time, the
 frame count, the mesh size and the design box.
 
+Every field sample also carries the **design vector** as a per-node channel (``FieldSample.extra``, normalised to
+``[0, 1]`` by :func:`design_vector`), which is what makes the field benchmark *parametric*: a surrogate that reads it
+can be asked about a design it was never trained on. A campaign written before these channels existed is brought
+forward by :func:`with_design_channels`, which rebuilds them from the design stored in each sample's ``meta``.
+
     from pinneapple_simulation.pipelines.pole_impact import build_pole_impact_dataset
     summary = build_pole_impact_dataset(120, "runs/pole_impact", parallel=8)
     print(summary["quantities"], summary["n_samples"])
@@ -23,7 +28,18 @@ import os
 
 import numpy as np
 
-__all__ = ["build_pole_impact_dataset", "quantities_table", "run_design"]
+__all__ = ["build_pole_impact_dataset", "quantities_table", "run_design", "design_vector", "with_design_channels"]
+
+
+def design_vector(design: dict) -> np.ndarray:
+    """The design vector as the surrogate reads it: every variable mapped to ``[0, 1]`` inside its own box.
+
+    Seven variables in metres, pascals and metres per second do not share a scale, and a network fed raw values
+    spends its capacity on the units. The map is affine and fixed by :data:`DESIGN_BOUNDS`, so it is invertible and
+    it is the same for every design in every split — nothing is standardised on the corpus mean."""
+    from pinneapple_simulation.numerical_solvers.crash_cases import DESIGN_BOUNDS
+
+    return np.array([(float(design[k]) - lo) / (hi - lo) for k, (lo, hi) in DESIGN_BOUNDS.items()], np.float32)
 
 
 def run_design(design: dict, *, end_time: float = 1e-3, frames: int = 11, n_parts: int = 3) -> dict:
@@ -38,9 +54,10 @@ def run_design(design: dict, *, end_time: float = 1e-3, frames: int = 11, n_part
             if node_part[node] == 0:
                 node_part[node] = int(p)
     qoi = {k: float(v) for k, v in res.qoi().items()}
+    extra = np.repeat(design_vector(design)[None], len(mesh.nodes), axis=0)   # the design, on every node
     return {"design": dict(design), "qoi": qoi, "points": np.asarray(mesh.nodes, np.float32),
             "displacement": np.asarray(res.displacement, np.float32), "times": np.asarray(res.times, np.float32),
-            "parts": node_part, "out_of_envelope": bool(res.out_of_envelope),
+            "parts": node_part, "extra": extra, "out_of_envelope": bool(res.out_of_envelope),
             "envelope_reason": res.envelope_reason or "",
             "eroded_end": int(res.eroded[-1].sum()),
             "energies": {k: float(v[-1]) for k, v in res.energies.items()}, "dt": float(res.dt),
@@ -53,6 +70,31 @@ def _worker(args):
         return run_design(design, **kwargs)
     except Exception as exc:
         return {"error": f"{type(exc).__name__}: {exc}", "design": dict(design)}
+
+
+def with_design_channels(dataset):
+    """The same dataset with the design vector attached to every node that does not carry it yet.
+
+    A campaign written before the design channels existed (or any field dataset that kept its design only in
+    ``meta``) can be made parametric without re-running the solver: the design is read back from ``meta["design"]``
+    and mapped by :func:`design_vector`, which is the same affine map a fresh campaign applies. Samples that already
+    carry ``extra`` are left exactly as they are, so a partially migrated dataset is not silently rewritten."""
+    from pinneapple_arena.fieldbench.protocol import FieldDataset, FieldSample
+
+    samples = []
+    for s in dataset.samples:
+        if s.extra is not None:
+            samples.append(s)
+            continue
+        design = (s.meta or {}).get("design")
+        if not design:
+            raise ValueError(f"sample {s.id} has neither an extra channel nor a design in its meta: a field "
+                             f"benchmark that cannot tell its designs apart cannot be scored on a held-out one")
+        extra = np.repeat(design_vector(design)[None], s.n_points, axis=0)
+        samples.append(FieldSample(id=s.id, points=s.points, values=s.values, category=s.category, parts=s.parts,
+                                   part_ids=s.part_ids, thickness=s.thickness, extra=extra, times=s.times,
+                                   meta=s.meta))
+    return FieldDataset(name=dataset.name, samples=samples, splits=dataset.splits, normalized=dataset.normalized)
 
 
 def quantities_table(rows: list[dict]) -> list[dict]:
@@ -109,7 +151,7 @@ def build_pole_impact_dataset(n_designs: int, out_dir: str, *, seed: int = 0, pa
         n_nodes = res["points"].shape[0]
         samples.append(FieldSample(id=sid, points=res["points"], values=res["displacement"],
                                    category="pole_impact", parts=res["parts"], part_ids=res["parts"],
-                                   thickness=np.ones(n_nodes, np.float32), times=res["times"],
+                                   thickness=np.ones(n_nodes, np.float32), extra=res["extra"], times=res["times"],
                                    meta={"design": res["design"], "dt": res["dt"], "energies": res["energies"]}))
         rows.append({**res, "id": sid})
     if not samples:

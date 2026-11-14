@@ -89,6 +89,21 @@ how the published ablations sweep the part information: `crash_box_left`, `bumpe
 The hierarchical surrogate (`CrashSolverModel`) uses those labels as its decomposition, and `PartPointNetSurrogate`
 uses them as one more input channel — the difference between the two is exactly what the ablation measures.
 
+### The design vector, and the quantity-level KPI
+
+The coupon has a **fixed mesh**, which is what lets designs be compared node by node and is also why the geometry
+alone cannot identify a design: every sample has the same points, the same part labels and the same wall thickness.
+The design reaches the model as data — `FieldSample.extra`, the seven variables mapped to `[0, 1]` by
+`pinneapple_simulation.pipelines.pole_impact.design_vector` and broadcast to every node — and `run.py --conditioning
+design` feeds it to the rows (`build_model_specs(extra_dim=7)`). Without it a field surrogate can only reproduce the
+average of the training designs; with it, a design held out of the split is a legitimate question.
+
+The benchmark scores the field, so it is easy to forget what the design was run for. `extreme_errors` scores the
+**other** quantity from the same predictions: the extreme of one channel over the points and frames — the peak
+displacement along the impact direction, the number a crash report quotes. Both are logged: `field_best_rel_l2` for the
+field and `kpi_peak_displacement_*` for the quantity, and the figures of the run are the parity plot of the peak and the
+deformed beam drawn as a surface (reference and surrogate on the same colour scale).
+
 ## The metrics, and why they are reported the way they are
 
 `pinneapple_arena.fieldbench.metrics` keeps two aggregations apart, as both benchmarks do:

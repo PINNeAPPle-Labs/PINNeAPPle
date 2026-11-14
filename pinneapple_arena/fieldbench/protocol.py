@@ -25,7 +25,10 @@ class FieldSample:
 
     ``points`` (N, 3); ``values`` (N, C) for a steady field or (T, N, C) for a transient one; ``parts`` (N,) semantic
     part labels when the structure has them; ``part_ids`` (N,) dense ids; ``thickness`` (N,) a wall thickness or any
-    per-node scalar; ``times`` (T,) the frame times of a transient field."""
+    per-node scalar; ``extra`` (N, D) the remaining per-node channels a surrogate may read — a design vector broadcast
+    to every node is the case this exists for, and it is what makes a benchmark *parametric*: without it a model can
+    only interpolate between the geometries it was trained on, never answer for a design it has not seen; ``times``
+    (T,) the frame times of a transient field. ``meta`` is for the record, never for the model."""
     id: str
     points: np.ndarray
     values: np.ndarray
@@ -33,6 +36,7 @@ class FieldSample:
     parts: np.ndarray | None = None
     part_ids: np.ndarray | None = None
     thickness: np.ndarray | None = None
+    extra: np.ndarray | None = None
     times: np.ndarray | None = None
     meta: dict = field(default_factory=dict)
 
@@ -44,7 +48,7 @@ class FieldSample:
     def transient(self) -> bool:
         return np.asarray(self.values).ndim == 3
 
-    def inputs(self, *, with_parts: bool = True) -> dict:
+    def inputs(self, *, with_parts: bool = True, with_extra: bool = True) -> dict:
         """The keyword arguments a surrogate's ``forward`` takes for this sample (batch of one)."""
         out = {"x": np.asarray(self.points, dtype=np.float32)[None]}
         if with_parts and self.parts is not None:
@@ -53,6 +57,8 @@ class FieldSample:
             out["part_id"] = np.asarray(self.part_ids, dtype=np.int64)[None]
         if self.thickness is not None:
             out["thickness"] = np.asarray(self.thickness, dtype=np.float32)[None]
+        if self.extra is not None and with_extra:
+            out["extra"] = np.asarray(self.extra, dtype=np.float32)[None]
         if self.times is not None:
             out["time"] = np.asarray(self.times, dtype=np.float32)[None]
         return out
@@ -99,6 +105,16 @@ class FieldDataset:
                                for key, ids in shapes.items())
             raise ValueError(f"dataset '{self.name}' mixes field shapes ({detail}): every sample of a benchmark has "
                              f"to share the frame count and the channel count")
+        extras: dict[int, list[str]] = {}
+        for s in self.samples:
+            extras.setdefault(0 if s.extra is None else int(np.asarray(s.extra).reshape(len(s.points), -1).shape[1]),
+                              []).append(s.id)
+        if len(extras) > 1:
+            detail = "; ".join(f"{d} extra channel(s): {len(ids)} sample(s), e.g. {ids[0]}"
+                               for d, ids in extras.items())
+            raise ValueError(f"dataset '{self.name}' mixes the extra-channel width ({detail}): a model is built for "
+                             f"one input width, so a sample without the design channels cannot be batched with the "
+                             f"others — broadcast the vector to every node of every sample, or drop it everywhere")
 
     def __getitem__(self, key) -> FieldSample:
         if isinstance(key, str):
@@ -146,7 +162,7 @@ class FieldDataset:
                                       "transient": bool(s.transient)})
             arrays[f"{key}_points"] = np.asarray(s.points, np.float32)
             arrays[f"{key}_values"] = np.asarray(s.values, np.float32)
-            for name in ("parts", "part_ids", "thickness", "times"):
+            for name in ("parts", "part_ids", "thickness", "extra", "times"):
                 v = getattr(s, name)
                 if v is not None:
                     arrays[f"{key}_{name}"] = np.asarray(v)
@@ -163,7 +179,7 @@ class FieldDataset:
             key = entry["key"]
             s = FieldSample(id=entry["id"], points=data[f"{key}_points"], values=data[f"{key}_values"],
                             category=entry.get("category", ""), meta=entry.get("meta", {}))
-            for name in ("parts", "part_ids", "thickness", "times"):
+            for name in ("parts", "part_ids", "thickness", "extra", "times"):
                 if f"{key}_{name}" in data:
                     setattr(s, name, data[f"{key}_{name}"])
             samples.append(s)
@@ -187,7 +203,7 @@ def normalize_geometry(dataset: FieldDataset, scale_coords: bool = True) -> Fiel
     for s in dataset.samples:
         p = (np.asarray(s.points, float) - c) / (span if scale_coords else 1.0)
         out.append(FieldSample(id=s.id, points=p, values=s.values, category=s.category, parts=s.parts,
-                               part_ids=s.part_ids, thickness=s.thickness, times=s.times,
+                               part_ids=s.part_ids, thickness=s.thickness, extra=s.extra, times=s.times,
                                meta={**s.meta, "coord_shift": c.tolist(), "coord_scale": span}))
     return FieldDataset(name=dataset.name, samples=out, splits=dataset.splits, normalized=True)
 
@@ -212,6 +228,7 @@ def subsample_nodes(dataset: FieldDataset, max_nodes: int, seed: int = 0) -> Fie
                                parts=None if s.parts is None else np.asarray(s.parts)[keep],
                                part_ids=None if s.part_ids is None else np.asarray(s.part_ids)[keep],
                                thickness=None if s.thickness is None else np.asarray(s.thickness)[keep],
+                               extra=None if s.extra is None else np.asarray(s.extra)[keep],
                                times=s.times, meta={**s.meta, "nodes_kept": int(max_nodes)}))
     return FieldDataset(name=f"{dataset.name}[{max_nodes} nodes]", samples=out, splits=dataset.splits,
                         normalized=dataset.normalized)
@@ -222,7 +239,9 @@ def run_benchmark(specs, dataset: FieldDataset, *, epochs: int = 30, batch_size:
                   verbose: bool = False, n_boot: int = 2000) -> dict:
     """Train and score every model spec on the dataset's splits; returns scores, predictions and the leaderboard.
 
-    A spec is ``{"name", "family", "build": callable -> nn.Module, "uses_parts": bool, "notes": str}``. Nothing about
+    A spec is ``{"name", "family", "build": callable -> nn.Module, "uses_parts": bool, "uses_extra": bool,
+    "notes": str}``; a row that does not read the extra channels is built without them and the trainer leaves them
+    out of the batch, so a geometry-only row can be scored on a dataset that carries the design vector. Nothing about
     the architecture lives here: the caller builds the model (from the registry, or its own class), so a benchmark row
     is never a stand-in for another architecture."""
     from .trainer import predict_field_model, train_field_model
@@ -237,9 +256,11 @@ def run_benchmark(specs, dataset: FieldDataset, *, epochs: int = 30, batch_size:
         hist = train_field_model(model, dataset, train_ids=dataset.splits["train"], val_ids=dataset.splits["val"],
                                  epochs=epochs, batch_size=batch_size, lr=lr, device=device, patience=patience,
                                  seed=seed, standardize=standardize, verbose=verbose,
-                                 uses_parts=spec.get("uses_parts", True))
+                                 uses_parts=spec.get("uses_parts", True),
+                                 uses_extra=spec.get("uses_extra", True))
         preds = predict_field_model(model, dataset, ids_test, device=hist["device"],
-                                    uses_parts=spec.get("uses_parts", True))
+                                    uses_parts=spec.get("uses_parts", True),
+                                    uses_extra=spec.get("uses_extra", True))
         predictions[spec["name"]] = preds
         histories[spec["name"]] = hist
         cost = {"params_m": hist["params_m"], "latency_ms": hist["latency_ms"],

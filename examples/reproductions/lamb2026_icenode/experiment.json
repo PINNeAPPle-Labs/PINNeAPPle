@@ -1,0 +1,147 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lamb2026_icenode",
+ "title": "Ice crystals grow: neural ODE and symbolic regression",
+ "description": "Lamb et al. (2026): the depositional ice growth law learned from 286 levitation diffusion chamber mass-ratio series with a neural ODE, the strongly- and weakly-constrained models of its Table 1, and a closed form for the transfer coefficient from symbolic regression.",
+ "domain": "atmospheric physics",
+ "methods": [
+  "neural ODE",
+  "symbolic regression",
+  "RK4"
+ ],
+ "modules": [
+  "pinneapple_physics.cloud"
+ ],
+ "params": {
+  "epochs": 500,
+  "dt": 5.0,
+  "seed": 0,
+  "quick": false,
+  "synthetic_epochs": 500
+ },
+ "scripts": [
+  "bel.py",
+  "node.py",
+  "symbolic.py",
+  "synthetic.py",
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "sse_500s_none",
+   "value": 41481.8,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 series, t<500 s"
+  },
+  {
+   "name": "sse_1000s_none",
+   "value": 222940.0,
+   "unit": "",
+   "how": "same, t<1000 s"
+  },
+  {
+   "name": "sse_500s_nelson_baker",
+   "value": 41424.5,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 series, t<500 s"
+  },
+  {
+   "name": "sse_1000s_nelson_baker",
+   "value": 222464.3,
+   "unit": "",
+   "how": "same, t<1000 s"
+  },
+  {
+   "name": "sse_500s_strong",
+   "value": 27333.9,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 series, t<500 s"
+  },
+  {
+   "name": "sse_1000s_strong",
+   "value": 180523.0,
+   "unit": "",
+   "how": "same, t<1000 s"
+  },
+  {
+   "name": "sse_500s_weak",
+   "value": 7236.3,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 series, t<500 s"
+  },
+  {
+   "name": "sse_1000s_weak",
+   "value": 83003.0,
+   "unit": "",
+   "how": "same, t<1000 s"
+  },
+  {
+   "name": "sse_500s_eq6",
+   "value": 24304.0,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 series, t<500 s"
+  },
+  {
+   "name": "sse_1000s_eq6",
+   "value": 206360.2,
+   "unit": "",
+   "how": "same, t<1000 s"
+  },
+  {
+   "name": "synthetic_alpha_median_rel_error",
+   "value": 0.0163,
+   "unit": "",
+   "how": "median |alpha_NN/alpha_NB - 1| on synthetic series"
+  },
+  {
+   "name": "symbolic_rmse_ratio",
+   "value": 0.14186,
+   "unit": "",
+   "how": "rmse of the discovered closed form for G/Gc"
+  },
+  {
+   "name": "paper_eq6_rmse_ratio",
+   "value": 0.2682,
+   "unit": "",
+   "how": "rmse of the paper's Eq. 6 on the same G samples"
+  }
+ ],
+ "checks": [],
+ "files": {
+  "figures": [
+   "figures/mass_ratio_fits.png",
+   "figures/training_loss.png",
+   "figures/learned_G.png",
+   "figures/alpha_synthetic.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/icenode_seed0.json"
+  ]
+ },
+ "links": {
+  "targets": "examples/reproductions/lamb2026_icenode/TARGETS.md",
+  "readme": "examples/reproductions/lamb2026_icenode/README.md"
+ },
+ "references": [
+  "Lamb et al., Science Advances 12(39) eaee6174 (2026), arXiv:2510.17935",
+  "Harrington et al., JAS 76, 1609 (2019)",
+  "Nelson & Baker, JAS 53, 2853 (1996)",
+  "Murphy & Koop, QJRMS 131, 1539 (2005)",
+  "Pokrifka et al. 2018 doi:10.26208/z7bf-nq20, 2023 doi:10.26208/htw5-q166"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "95546096f",
+  "created": "2026-11-14T10:57:51Z",
+  "seconds": 0.061,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

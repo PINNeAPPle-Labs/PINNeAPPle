@@ -5,10 +5,12 @@
  "description": "Reproductions of published physics-ML papers: targets quoted and frozen in TARGETS.md before any run, measured with the neutral evaluator (pinneapple_analysis.reproduction). One folder per paper. Biology: BINNs (Lagergren et al. 2020) and SBINN (Daneker et al. 2022).",
  "domain": "physics-informed ML",
  "methods": [
+  "BINN",
+  "SBINN",
   "generalized least squares",
   "method of lines",
-  "SBINN",
-  "BINN"
+  "neural ODE",
+  "symbolic regression"
  ],
  "modules": [
   "pinneapple_physics.biology.cell_migration",
@@ -18,8 +20,9 @@
  ],
  "params": {},
  "scripts": [
-  "binns_lagergren2020/classical.py",
   "binns_lagergren2020/binn.py",
+  "binns_lagergren2020/classical.py",
+  "lamb2026_icenode/run.py",
   "sbinn_daneker2022/run.py"
  ],
  "metrics": [
@@ -76,6 +79,42 @@
    "value": 0.1053,
    "unit": "",
    "how": "G with the inferred parameters vs the true model on [1800, 3000] min (meal at 2000 min)"
+  },
+  {
+   "name": "icenode_sse_500s_no_kinetics",
+   "value": 41481.8,
+   "unit": "",
+   "how": "sum of squared m/m0 errors over 286 chamber series, t<500 s (paper Table 1: 41396)"
+  },
+  {
+   "name": "icenode_sse_500s_nelson_baker",
+   "value": 41424.5,
+   "unit": "",
+   "how": "same loss with the Nelson & Baker (1996) deposition coefficient (paper: 40751)"
+  },
+  {
+   "name": "icenode_sse_500s_strong_node",
+   "value": 27333.9,
+   "unit": "",
+   "how": "strongly-constrained NODE, alpha = f(S_i, T), 500 epochs (paper: 30714)"
+  },
+  {
+   "name": "icenode_sse_500s_weak_node",
+   "value": 7236.3,
+   "unit": "",
+   "how": "weakly-constrained NODE, G/Gc = f(S_i, T, m), 500 epochs (paper: 16495)"
+  },
+  {
+   "name": "icenode_synthetic_alpha_median_rel_error",
+   "value": 0.0163,
+   "unit": "",
+   "how": "median |alpha_NN/alpha_NB - 1| with the strong NODE trained on synthetic series of known alpha"
+  },
+  {
+   "name": "icenode_symbolic_rmse_ratio",
+   "value": 0.1419,
+   "unit": "",
+   "how": "RMSE of the discovered closed form for G/Gc against the trained network (target spread 0.2033)"
   }
  ],
  "checks": [],
@@ -91,9 +130,10 @@
  },
  "links": {},
  "references": [
-  "Lagergren et al. PLoS Comput Biol 2020 (arXiv:2005.13073)",
   "Daneker et al. arXiv:2202.01723",
-  "Jin et al. J Theor Biol 2016"
+  "Jin et al. J Theor Biol 2016",
+  "Lagergren et al. PLoS Comput Biol 2020 (arXiv:2005.13073)",
+  "Lamb et al. Sci Adv 2026 (arXiv:2510.17935) -- ice growth NODE"
  ],
  "status": "not curated",
  "lab": {},

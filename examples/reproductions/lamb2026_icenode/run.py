@@ -33,6 +33,7 @@ import sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, HERE)
 
 import bel  # noqa: E402
@@ -54,9 +55,9 @@ ORDER = ("none", "nelson_baker", "strong", "weak")
 EQ6 = {"a0": 688.267, "a1": 1.3153, "a2": 0.85601, "a3": 2.6606e-12, "a4": 0.1123e-9}
 
 
-def paper_eq6(rhs, r, m):
-    """``G = a0 Gc^a1 (a2 + a3/m)^-1 + a4`` (paper Eq. 6), as torch, for the same solver."""
-    Gc = node._Gc(r, rhs.T, rhs.P)
+def paper_eq6(r, T, p, m):
+    """``G = a0 Gc^a1 (a2 + a3/m)^-1 + a4`` (paper Eq. 6) as a kinetics callable for the same RK4 solver."""
+    Gc = node._Gc(r, T, p)
     return EQ6["a0"] * Gc ** EQ6["a1"] / (EQ6["a2"] + EQ6["a3"] / m.clamp_min(1e-20)) + EQ6["a4"]
 
 
@@ -151,7 +152,7 @@ def main(argv=None) -> int:
 
     print("4/5 symbolic regression on the trained networks")
     sym_result = _symbolic(samples, args)
-    fig_paths = _figures(out, data, models, preds, samples, synth_result)
+    fig_paths = _figures(out, data, models, preds, samples, synth_result, args.dt)
 
     print("5/5 results")
     best_model = min(("strong", "weak", "eq6"), key=lambda k: scores[k]["sse_short"])
@@ -251,7 +252,7 @@ def _symbolic(samples, args) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------------- figures
-def _figures(out, data, models, preds, samples, synth):
+def _figures(out, data, models, preds, samples, synth, dt=1.0):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -266,7 +267,8 @@ def _figures(out, data, models, preds, samples, synth):
         n = int(data.length()[i])
         ax.plot(t[i, :n], data.mass_ratio[i, :n], "k.", ms=2.5, label="measured")
         for k, style in (("none", ":"), ("nelson_baker", "--"), ("strong", "-."), ("weak", "-")):
-            ax.plot(np.arange(n), preds[k][i, :n], style, lw=1.4, label=k)
+            y = preds[k][i]
+            ax.plot(np.arange(y.size) * dt, y, style, lw=1.4, label=k)      # the RK4 grid, step dt
         ax.set_title(f"experiment {i}: T={data.T[i] - 273.15:.1f} C, S_i={data.Si[i]:.3f}", fontsize=9)
         ax.set_xlabel("time (s)")
         ax.set_ylabel("m/m0")
@@ -313,8 +315,8 @@ def _figures(out, data, models, preds, samples, synth):
         ax.plot(lim, lim, "k--", lw=1, label="alpha_NN = alpha_NB")
         ax.set_xlim(lim)
         ax.set_ylim(lim)
-        ax.set_xlabel("alpha used to generate the synthetic series (Nelson & Baker 1996)")
-        ax.set_ylabel("alpha learned by the strongly-constrained NODE")
+        ax.set_xlabel("alpha that generated the synthetic series (Nelson & Baker)")
+        ax.set_ylabel("alpha learned by the strong NODE")
         ax.set_title(f"synthetic data: median |error| {synth['median_rel_error']:.1%}")
         ax.legend(frameon=False, fontsize=8)
         fig.tight_layout()
@@ -359,6 +361,22 @@ def _manifest(result, out):
                           "rmse of the discovered closed form for G/Gc")
             ex.log_metric("paper_eq6_rmse_ratio", round(result["symbolic"]["paper_eq6"]["rmse_ratio"], 5), "",
                           "rmse of the paper's Eq. 6 on the same G samples")
+        from pinneapple_lab import manifest as M
+        m = M.load(out)                                     # fill in what the run itself knows
+        m.description = ("Lamb et al. (2026): the depositional ice growth law learned from 286 levitation diffusion "
+                         "chamber mass-ratio series with a neural ODE, the strongly- and weakly-constrained models of "
+                         "its Table 1, and a closed form for the transfer coefficient from symbolic regression.")
+        m.modules = ["pinneapple_physics.cloud"]
+        m.scripts = ["bel.py", "node.py", "symbolic.py", "synthetic.py", "run.py"]
+        m.files["figures"] = [f for f in result["figures"] if os.path.exists(os.path.join(out, f))]
+        m.files["data"] = [f"results/icenode_seed{result['config']['seed']}.json"]
+        m.links = {"targets": os.path.join(os.path.relpath(os.path.abspath(out), REPO), "TARGETS.md"),
+                   "readme": os.path.join(os.path.relpath(os.path.abspath(out), REPO), "README.md")}
+        m.references = ["Lamb et al., Science Advances 12(39) eaee6174 (2026), arXiv:2510.17935",
+                        "Harrington et al., JAS 76, 1609 (2019)", "Nelson & Baker, JAS 53, 2853 (1996)",
+                        "Murphy & Koop, QJRMS 131, 1539 (2005)",
+                        "Pokrifka et al. 2018 doi:10.26208/z7bf-nq20, 2023 doi:10.26208/htw5-q166"]
+        M.save(m, out)
     except Exception as e:                                                     # pragma: no cover - optional
         print(f"    (manifest not written: {e})")
 

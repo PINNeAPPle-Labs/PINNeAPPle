@@ -40,7 +40,7 @@ __all__ = ["KineticsMLP", "IceGrowthODE", "KINETICS", "integrate", "train", "sco
            "TrainConfig", "TrainHistory"]
 
 KINETICS = ("none", "nelson_baker", "strong", "weak")
-#: Recognised by :class:`IceGrowthODE`: the four above, or any callable ``G(r, m) -> G`` in s/m.
+#: Recognised by :class:`IceGrowthODE`: the four names above, or a callable ``G(r, T, p, m) -> G`` in s/m.
 
 RHO_ICE = 910.0
 
@@ -128,7 +128,7 @@ class IceGrowthODE:
 
     def G(self, r, m=None):
         if callable(self.kinetics):                       # a closed form to test, e.g. the paper's Eq. 6
-            return self.kinetics(r, m)
+            return self.kinetics(r, self.T, self.P, m)
         if self.kinetics == "none":
             return _Gc(r, self.T, self.P)
         if self.kinetics == "nelson_baker":

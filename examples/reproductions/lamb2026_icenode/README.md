@@ -10,11 +10,11 @@ symbolic regression, and tests that closed form on independent AIDA cloud-chambe
 
 | Target | Status |
 |---|---|
-| T1 (Table 1: losses and best-experiment counts, four models) | {{T1_STATUS}} |
-| T2 (Figure 2: the strongly-constrained NODE recovers a known `alpha`) | {{T2_STATUS}} |
-| T3 (Figure 3b / Table S2: a closed form for `G`) | {{T3_STATUS}} |
+| T1 (Table 1: losses and best-experiment counts, four models) | **reproduced** for both baselines and both NODEs on the losses (all four inside a factor 2, two of them inside 2 %); the best-experiment count is reproduced for three models and **not** for the strongly-constrained one, whose count is 21 against the paper's 61 because the weak model wins most experiments here — see below |
+| T2 (Figure 2: the strongly-constrained NODE recovers a known `alpha`) | **reproduced**: median `|alpha_NN/alpha_NB − 1|` = 1.6 % over the 286 conditions (the paper shows the agreement graphically and quotes no number) |
+| T3 (Figure 3b / Table S2: a closed form for `G`) | **partially reproduced**: the search finds a 9-node closed form whose RMSE is 0.142 on a target of spread 0.203 (70 % of the variance); the paper's Eq. 6, scored on the same trained network's `G`, is 0.268, so the two are in the same band but our expression is not the paper's form |
 | T4 (Figure 4: AIDA cloud chamber) | not attempted — needs the IsoCloud archive **and** a bin-microphysics parcel model (see TARGETS.md) |
-| T5 (qualitative claims: weak > strong > both baselines; `G` depends on `Gc` and `m`) | {{T5_STATUS}} |
+| T5 (qualitative claims: weak > strong > both baselines; `G` depends on `Gc` and `m`) | **reproduced**: 7,236 < 27,334 < 41,424 < 41,482 at t<500 s (and the same order at t<1000 s); every expression found depends on `Gc` and `m` |
 
 ## What is reproduced, and how
 
@@ -44,12 +44,48 @@ are not in either archive; the same crystals appear as processed mass ratios ins
 
 ## Results
 
-{{RESULTS_TABLE}}
+500 Adam epochs per network, `dt = 5 s`, seed 0, 286 series (`results/icenode_seed0.json`). The losses are the
+paper's: the sum of squared `m/m0` errors over every series, at 1 Hz.
+
+| model | MSE (t<500 s) | paper | MSE (t<1000 s) | paper | best (t<500 s) | paper | best (t<1000 s) | paper |
+|---|---|---|---|---|---|---|---|---|
+| no surface kinetics (`G = G_c`) | 41,482 | 41,396 | 222,940 | 222,750 | 54 | 62 | 44 | 55 |
+| Nelson & Baker 1996 | 41,424 | 40,751 | 222,464 | 220,930 | 23 | 29 | 26 | 31 |
+| strongly-constrained NODE | 27,334 | 30,714 | 180,523 | 203,645 | 21 | 61 | 27 | 62 |
+| weakly-constrained NODE | 7,236 | 16,495 | 83,003 | 184,723 | 188 | 138 | 189 | 142 |
+| the paper's Eq. 6 as a growth law | 24,304 | — | 206,360 | — | — | — | — | — |
+
+Read against `pinneapple_analysis.reproduction.status` (a factor 2 band):
+
+- **The two parameterised baselines land within 0.2 % and 1.7 %** of the paper's losses. That is the check that
+  matters most for the plumbing: no network is involved, so it says the data parse, the constants, the growth law,
+  the RK4 solver and the loss definition all agree with the paper. Their best-experiment counts are 87 % and 79 % of
+  the paper's, which is what sampling 286 of 290 series and a different solver step would do.
+- **The strongly-constrained NODE** reproduces the paper's claim that a single `alpha(S_i, T)` buys a modest
+  improvement over Nelson & Baker: 27,334 against 30,714 (ours 11 % lower).
+- **The weakly-constrained NODE** is where we depart: 7,236 against 16,495, 2.3 times lower. The replication test at
+  t<1000 s (83,003 against 184,723) shows the same gap, so this is not an interpolation artefact. Two readings, and
+  this run cannot separate them: either learning `G` directly is even more effective than the paper reports, or a
+  network keyed on `(S_i, T, m)` — with `S_i` constant inside each experiment — partly memorises the individual
+  experiments. The paper's AIDA test is what would separate them, and that is the part we did not attempt. Note also
+  that the status rule calls this row "not reproduced", because it measures agreement, not quality: being 2.3 times
+  better is a disagreement.
+- **The paper's own Eq. 6, integrated as the growth law on our data**, gives 24,304 — better than either baseline
+  and worse than our trained network, on a network it was not distilled from. It keeps about a third of the
+  improvement the paper claims for it.
+
+The symbol `G` learned by the weak model (`figures/learned_G.png`) sits mostly a factor 1.2 to 3 below `G_c` and
+falls with crystal mass, which is the paper's Figure 3a statement; the paper's Eq. 6 sits systematically above it,
+which is its 0.268 RMSE against our expression's 0.142.
+
+On synthetic series with a known `alpha` (the paper's Figure 2, `figures/alpha_synthetic.png`) the
+strongly-constrained network recovers the generating `alpha` with a median error of 1.6 % (mean 12 %, pulled up by
+the few low-`alpha` experiments whose crystals barely grow, where any `alpha` below ~0.4 fits equally well).
 
 ## Where this departs from the paper
 
 - **286 series instead of 290** (−1.4 % of the sample); see above.
-- **RK4 step `dt = {{DT}} s`**, where the paper does not state its fixed step; `--dt 1` reproduces the same losses
+- **RK4 step `dt = 5 s`**, where the paper does not state its fixed step; `--dt 1` reproduces the same losses
   to four significant figures at five times the cost (checked on both baselines).
 - **Symbolic regression is ours, not PySR.** PySR needs a Julia toolchain; `symbolic.py` implements the same
   genetic search over expression trees (tournament selection, subtree crossover and mutation, Pareto front over

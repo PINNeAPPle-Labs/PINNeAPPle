@@ -660,7 +660,10 @@ class PhysicsFoundationModel(nn.Module):
 
     @classmethod
     def load(cls, path: str, map_location: str = "cpu") -> "PhysicsFoundationModel":
-        ckpt = torch.load(path, map_location=map_location)
+        # weights_only=False: the checkpoint carries the FoundationConfig dataclass next to
+        # the weights, and torch>=2.6 defaults weights_only to True, which refuses to
+        # unpickle any class it has not been told to trust (UnpicklingError on load).
+        ckpt = torch.load(path, map_location=map_location, weights_only=False)
         model = cls(ckpt["config"], n_fields=ckpt["n_fields"],
                     grid_shape=ckpt["grid_shape"])
         model.load_state_dict(ckpt["model_state"])

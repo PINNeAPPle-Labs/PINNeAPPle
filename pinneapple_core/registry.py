@@ -376,12 +376,12 @@ def _bridge_analysis(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 
     if str(getattr(obj, "id", name)) != name:
         raise ValueError(f"an analysis is registered under its own id ({getattr(obj, 'id', '')!r}), not {name!r}")
-    unregister_analysis_if_present(obj.id)
+    _unregister_analysis_if_present(obj.id)
     register_analysis(obj)
     return "pinneapple_core.analysis (pp.run_analysis)"
 
 
-def unregister_analysis_if_present(name: str) -> None:
+def _unregister_analysis_if_present(name: str) -> None:
     """Drop ``name`` from the analysis registry when it is there (the bridge re-registers on ``replace=True``)."""
     from .analysis import AnalysisError, unregister_analysis
 

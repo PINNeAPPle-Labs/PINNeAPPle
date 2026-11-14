@@ -60,19 +60,25 @@ def peak_figure(kpi: dict, test_ids: list, path: str, model: str, conditioning: 
 
     ref, got = kpi["reference"] * 1e3, kpi["prediction"] * 1e3           # mm, signed (the beam travels into the pole)
     fig, ax = plt.subplots(figsize=(6.4, 6.0))
-    lo = min(ref.min(), got.min()) - 0.08 * abs(min(ref.min(), got.min()))
-    hi = max(ref.max(), got.max()) * 1.06
+    span = max(ref.max() - ref.min(), got.max() - got.min(), 1e-9)
+    lo = min(ref.min(), got.min()) - 0.10 * span
+    hi = max(ref.max(), got.max()) + 0.10 * span
     ax.plot([lo, hi], [lo, hi], color="#8b949e", lw=0.9, ls="--", label="perfect prediction")
     sc = ax.scatter(ref, got, c=kpi["relative"] * 100, cmap="magma_r", s=42, edgecolor="k", linewidth=0.4, zorder=3)
     cb = fig.colorbar(sc, ax=ax, pad=0.02)
     cb.set_label("relative error of the peak (%)")
+    bias = float(np.mean(got - ref))
     ax.set_xlabel("reference peak displacement (mm), explicit FE")
     ax.set_ylabel(f"predicted peak displacement (mm), {model}")
     ax.set_title(f"{kpi['n']} held-out designs — conditioning: {conditioning}\n"
                  f"mean error {kpi['mean_relative']:.1%}  ·  median {kpi['median_relative']:.1%}  ·  "
-                 f"worst {kpi['max_relative']:.1%}", fontsize=10)
+                 f"worst {kpi['max_relative']:.1%}  ·  signed bias {bias:+.2f} mm", fontsize=9.5)
+    ax.annotate(f"the cloud sits {abs(bias):.2f} mm above the diagonal:\nthe surrogate under-predicts the peak",
+                xy=(float(np.mean(ref)), float(np.mean(got))), xytext=(0.04, 0.72), textcoords="axes fraction",
+                fontsize=8, color="#5a626d",
+                arrowprops={"arrowstyle": "->", "color": "#5a626d", "lw": 0.8})
     ax.grid(alpha=0.25)
-    ax.legend(loc="upper left", fontsize=8)
+    ax.legend(loc="lower right", fontsize=8)
     ax.set_aspect("equal")
     fig.tight_layout()
     fig.savefig(path, dpi=160, facecolor="white")
@@ -84,8 +90,8 @@ def surface_figure(sample, prediction, path: str, model: str, sample_id: str) ->
     """The deformed bumper beam as a *surface*: reference and surrogate side by side, same colour scale.
 
     The benchmark is scored on a retained node subset, so the surrogate's field is carried back to the full mesh by
-    nearest retained node before it is drawn — the shape and the numbers of the left panel are the solver's, and the
-    right panel is the surrogate deformed and coloured by its own prediction."""
+    inverse-distance weighting of its four nearest retained nodes before it is drawn — the shape and the numbers of the
+    left panel are the solver's, and the right panel is the surrogate deformed and coloured by its own prediction."""
     import matplotlib.pyplot as plt
     from matplotlib import cm
     from matplotlib.colors import Normalize
@@ -100,14 +106,17 @@ def surface_figure(sample, prediction, path: str, model: str, sample_id: str) ->
     n_sub = prediction.shape[1]
     if n_sub == ref.shape[0]:
         pred = np.asarray(prediction)[-1] * 1e3
-    else:                                                                # nearest retained node, on the full mesh
+    else:                                                                # interpolate back to the full mesh
         sub_xyz = np.asarray(sample.points)[:n_sub] * 1e3
         if "coord_scale" in sample.meta:                                 # stored coordinates are normalised
             sub_xyz = (np.asarray(sample.points)[:n_sub] * float(sample.meta["coord_scale"])
                        + np.asarray(sample.meta["coord_shift"])) * 1e3
         pred_sub = np.asarray(prediction)[-1] * 1e3
-        nearest = np.argmin(((nodes[:, None, :] - sub_xyz[None, :, :]) ** 2).sum(-1), axis=1)
-        pred = pred_sub[nearest]
+        d2 = ((nodes[:, None, :] - sub_xyz[None, :, :]) ** 2).sum(-1)
+        k = min(4, n_sub)
+        nearest = np.argpartition(d2, k - 1, axis=1)[:, :k]                # four nearest retained nodes, IDW weight
+        w = 1.0 / np.maximum(np.take_along_axis(d2, nearest, axis=1), 1e-12)
+        pred = (pred_sub[nearest] * w[..., None]).sum(1) / w.sum(1)
     mag_ref, mag_pred = np.linalg.norm(ref, axis=1), np.linalg.norm(pred, axis=1)
     vmax = float(max(mag_ref.max(), mag_pred.max()))
     Q = np.asarray(bumper_beam_assembly(**design).mesh.boundary_faces())
@@ -295,6 +304,12 @@ def main() -> None:
                        "max_relative": kpi["max_relative"],
                        "mean_relative_ci95": list(map(float, kpi["mean_relative_ci95"]))}, fh, indent=2)
         ex.add_file(os.path.join(a.out, "kpi_peak_displacement.json"))
+        # the predictions themselves, so a figure can be redrawn without training again
+        predictions_npz = os.path.join(a.out, "predictions.npz")
+        np.savez_compressed(predictions_npz, ids=np.array(list(test_ids)),
+                            predicted=np.stack(result["predictions"][str(best.name)]).astype(np.float32),
+                            reference=np.stack(truths).astype(np.float32), model=str(best.name))
+        ex.add_file(predictions_npz)
         for name in ("tabular_leaderboard.md", "field_leaderboard.md"):
             ex.add_file(os.path.join(a.out, name))
         figures = os.path.join(a.out, "figures")

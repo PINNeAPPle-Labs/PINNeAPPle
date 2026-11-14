@@ -60,7 +60,7 @@
  },
  "carcrashnet_pole_impact": {
   "domain": "structural crashworthiness",
-  "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
+  "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh plus the design vector to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign, with the design kept as a per-node channel so a held-out design can be asked about and its peak displacement scored. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
   "status": "not_convertible"
  },
  "chain_of_whys": {

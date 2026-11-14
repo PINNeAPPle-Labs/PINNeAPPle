@@ -329,3 +329,23 @@ def test_relative_l2_refuses_a_prediction_of_another_shape_even_when_the_values_
     """Equal counts are not equal fields: 60 points of one channel against 20 points of three has the same size."""
     with pytest.raises(ValueError, match="shape"):
         relative_l2_per_geometry([np.zeros(60)], [np.zeros((20, 3))])
+
+
+def test_the_target_is_standardised_with_the_statistics_the_prediction_undoes():
+    """The trainer passes training statistics to the batch and the prediction multiplies by the same std to come back
+    to physical units. When only the second half ran, the loss was in raw units and every prediction came back scaled
+    by the std — a field 1e-3 in size against a reference of 1."""
+    rng = np.random.default_rng(13)
+    samples = [FieldSample(id=f"s{i}", points=rng.normal(size=(30, 3)).astype("float32"),
+                           values=(rng.normal(size=(2, 30, 3)) * 5e-3 + 1e-3).astype("float32"),
+                           times=np.linspace(0, 1e-3, 2).astype("float32")) for i in range(4)]
+    ds = FieldDataset("scaled", samples)
+    mean = np.array([1e-3, 1e-3, 1e-3], "float32")
+    std = np.array([5e-3, 5e-3, 5e-3], "float32")
+    stats = {"mean": mean, "std": std}
+    batch = collate_samples(ds, ["s0", "s1"], standardize=stats)
+    valid = batch["mask"][:, None, :, None].expand_as(batch["y"])
+    raw = torch.from_numpy(np.stack([np.asarray(ds[i].values) for i in ("s0", "s1")]).astype("float32"))
+    expected = (raw - torch.from_numpy(mean).view(1, 1, 1, -1)) / torch.from_numpy(std).view(1, 1, 1, -1)
+    assert torch.allclose(batch["y"][valid], expected[valid], atol=1e-6)
+    assert float(batch["y"].std()) > 0.5                        # O(1) targets, not 1e-3 ones

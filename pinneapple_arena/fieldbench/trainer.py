@@ -74,6 +74,14 @@ def collate_samples(dataset, ids, *, standardize: dict | None = None, uses_parts
             y[i, :, :n] = v
         else:
             y[i, :n] = v
+    if standardize:
+        # the target is standardised with the training statistics, the padding set back to zero; the
+        # de-standardisation in ``predict_field_model`` multiplies by the same std, so the two have to agree — when
+        # only one of them ran, the loss was in raw units and the prediction came back scaled by 1e-3
+        mean = np.asarray(standardize["mean"], np.float32).reshape(-1)
+        std = np.asarray(standardize["std"], np.float32).reshape(-1)
+        valid = mask[:, None, :, None] if transient else mask[:, :, None]
+        y = np.where(valid, (y - mean) / std, 0.0).astype(np.float32)
     out = {"x": torch.from_numpy(x), "mask": torch.from_numpy(mask), "y": torch.from_numpy(y),
            "channels": channels, "transient": transient, "lengths": [s.n_points for s in samples]}
     if uses_parts:

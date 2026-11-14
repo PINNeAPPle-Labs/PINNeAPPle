@@ -1,11 +1,12 @@
-"""Any simulation result in 3D, with three calls: load, export, render.
+"""Any simulation result in 3D, with four calls: load, export, view, render (plus the Unreal folder).
 
     python examples/studio/01_any_result_in_3d.py [result file]      (default: a CalculiX cantilever)
 
 Works for anything ``pinneapple_data.cae`` reads (OpenFOAM case or zip, CalculiX .frd, Abaqus .inp, Gmsh, VTK) and for
 STL/OBJ geometry. Vectors are shown as magnitude, stress tensors as von Mises.
-Writes into examples/studio/_out/beam/: .glb (Blender, Unreal, Unity, three.js), .usda (Omniverse), an interactive
-viewer, and a Blender render if ``bpy`` is installed (pip install bpy).
+Writes into examples/studio/_out/beam/: .glb (Blender, Unity, three.js), .usda (Omniverse), an interactive viewer,
+the folder Unreal imports (``unreal/``: geometry with the field as vertex colours, a sidecar and the editor script)
+and a Blender render if ``bpy`` is installed (pip install bpy).
 """
 import os
 import sys
@@ -33,4 +34,5 @@ try:                                                                   # 3. rend
     print("render:", os.path.join(out, "beam_stress.jpg"))
 except ImportError:
     print("pip install bpy for the Blender render")
+print("unreal:", pp.viz.export_unreal(scene, os.path.join(out, "unreal"), field="STRESS"))   # 4. Unreal Engine
 os._exit(0)                                                            # bpy can crash while tearing down

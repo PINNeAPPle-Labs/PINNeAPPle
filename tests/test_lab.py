@@ -1,6 +1,10 @@
 """PINNeAPPle Lab: runs, caching, validation status, failures, sweeps, datasets, export and catalogue."""
 import json
 import os
+import socket
+import subprocess
+import sys
+import time
 
 import numpy as np
 import pytest
@@ -60,6 +64,77 @@ def test_failed_validation_and_crash_are_recorded(tmp_path):
     assert st == {"failed_validation": 1, "failed": 1}
     with pytest.raises(KeyError):
         run("_test_square", {"b": 1}, root=root)
+
+
+@register
+class _Restartable(Experiment):
+    name = "_test_interrupted"
+
+    def run(self, ctx):
+        ctx.metric("restarted", 1)
+
+
+def test_killed_run_is_interrupted_and_same_parameters_restart(tmp_path):
+    code = f"""
+import time
+from pinneapple_lab import Experiment, register, run
+@register
+class Waiting(Experiment):
+    name = "_test_interrupted"
+    def run(self, ctx):
+        with ctx.stage("waiting"):
+            print("READY", flush=True)
+            time.sleep(60)
+run("_test_interrupted", root={str(tmp_path)!r})
+"""
+    proc = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, text=True)
+    try:
+        assert proc.stdout.readline().strip() == "READY"
+    finally:
+        proc.kill()
+        proc.wait(timeout=10)
+
+    store = LabStore(str(tmp_path))
+    record = json.load(open(os.path.join(store.run_dir("_test_interrupted", _Restartable.run_id({})),
+                                 "run.json")))
+    assert record["owner"]["pid"] > 0 and record["owner"]["host"] == socket.gethostname()
+    assert record["owner"]["heartbeat"] >= record["started"]
+    interrupted = store.runs("_test_interrupted")[0]
+    assert interrupted["status"] == "interrupted"
+    progress = json.load(open(os.path.join(store.run_dir("_test_interrupted", interrupted["run_id"]),
+                                           "progress.json")))
+    assert progress["stages"][0]["status"] == "interrupted"
+    restarted = run("_test_interrupted", root=str(tmp_path))
+    assert restarted.status == "completed" and restarted.metrics["restarted"] == 1
+
+
+def test_live_owner_is_not_reaped_and_remote_stale_owner_can_be_deleted(tmp_path):
+    store = LabStore(str(tmp_path), heartbeat_timeout=30)
+    now = time.time()
+    for run_id, owner in (
+        ("live", {"pid": os.getpid(), "host": socket.gethostname(), "heartbeat": now}),
+        ("stale", {"pid": 12, "host": "other-host", "heartbeat": now - 31}),
+    ):
+        folder = store.run_dir("_test_owners", run_id)
+        os.makedirs(folder)
+        record = {"run_id": run_id, "experiment": "_test_owners", "status": "running", "started": now - 60,
+                  "owner": owner, "params": {}}
+        with open(os.path.join(folder, "run.json"), "w") as f:
+            json.dump(record, f)
+        store.index_run(record, {}, {})
+    assert store.reap() == [{"run_id": "stale", "experiment": "_test_owners"}]
+    assert store.runs("_test_owners", status="running")[0]["run_id"] == "live"
+    assert store.runs("_test_owners", status="interrupted")[0]["run_id"] == "stale"
+    record = {"run_id": "stale-delete", "experiment": "_test_owners", "status": "running",
+              "started": now - 60, "owner": {"pid": 12, "host": "other-host", "heartbeat": now - 31},
+              "params": {}}
+    folder = store.run_dir("_test_owners", "stale-delete")
+    os.makedirs(folder)
+    with open(os.path.join(folder, "run.json"), "w") as f:
+        json.dump(record, f)
+    store.index_run(record, {}, {})
+    assert store.reap(delete=True) == [{"run_id": "stale-delete", "experiment": "_test_owners"}]
+    assert not os.path.exists(folder)
 
 
 def test_sweep_grid_and_samples_export_and_catalog(tmp_path):

@@ -29,7 +29,7 @@ class BracketDeepONet(nn.Module):
         self.trunk = mlp(8)
         self.head = nn.Sequential(nn.Linear(128, 64), nn.Tanh(), nn.Linear(64, 1))
 
-    def forward(self, case_features: torch.Tensor, point_features: torch.Tensor) -> torch.Tensor:
+    def forward(self, case_features: torch.Tensor, point_features: torch.Tensor,\n                stress_scale: torch.Tensor | None = None) -> torch.Tensor:
         if case_features.ndim != 2 or case_features.shape[-1] != 31:
             raise ValueError("case_features must have shape [B, 31]")
         if point_features.ndim != 3 or point_features.shape[-1] != 8:
@@ -38,7 +38,7 @@ class BracketDeepONet(nn.Module):
             raise ValueError("Batch sizes must match")
         branch = self.branch(case_features).unsqueeze(1)
         trunk = self.trunk(point_features)
-        return self.head(branch * trunk).squeeze(-1)
+        output = self.head(branch * trunk).squeeze(-1)\n        if stress_scale is not None:\n            if stress_scale.shape not in ((case_features.shape[0],), (case_features.shape[0], 1)):\n                raise ValueError("stress_scale must have shape [B] or [B,1]")\n            output = output * stress_scale.reshape(-1, 1)\n        return output
 
 
 def relative_l2(prediction: torch.Tensor, reference: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
@@ -52,7 +52,7 @@ def relative_l2(prediction: torch.Tensor, reference: torch.Tensor, eps: float = 
 def stress_weighted_mse(
     prediction: torch.Tensor, reference: torch.Tensor, alpha: float = 0.7, eps: float = 1e-12
 ) -> torch.Tensor:
-    """Emphasize high-stress regions; weights are detached and normalized per case."""
+    """Paper-style w_i = (1-alpha) + alpha*t_i/mean(t), per case.\n\n    This loss uses nonnegative von Mises stress targets; the original\n    normalization conventions are not fully specified in the source.\n    """
     if prediction.shape != reference.shape or prediction.ndim != 2:
         raise ValueError("Expected matching [B, N] tensors")
     if not 0 <= alpha <= 1:

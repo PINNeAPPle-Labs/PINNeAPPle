@@ -97,6 +97,6 @@ def compile_reproduction(source: str, extraction: dict[str, Any],
         "quantities": accepted, "methods": methods, "rejected_claims": rejected,
         "missing_information": missing, "stages": tasks,
         "reproduction_level": "source_extracted_not_executed",
-        "exact_reproduction_ready": not any(gates.values()) and not rejected,
+        "exact_reproduction_ready": False,  # requires independent runtime and scientific validation
         "warning": "Source quote presence does not verify physical meaning; no simulation or training was run.",
     }

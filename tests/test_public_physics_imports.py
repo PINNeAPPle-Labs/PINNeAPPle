@@ -12,7 +12,7 @@ def test_curated_sources_are_distinct_and_not_preapproved():
     assert len(sources) == 10
     assert len({s["id"] for s in sources}) == 10
     assert all(s["role"] == "discovery_only" for s in sources)
-    assert len(list_public_physics_sources(domain="astrophysics")) == 3
+    assert len(list_public_physics_sources(domain="astrophysics")) == 4
 
 
 def test_pipe_laminar_hagen_poiseuille_exact():

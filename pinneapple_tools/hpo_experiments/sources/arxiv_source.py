@@ -23,7 +23,7 @@ class ArxivSource:
     """
     Minimal arXiv Atom API search.
     """
-    API = "http://export.arxiv.org/api/query"
+    API = "https://export.arxiv.org/api/query"
 
     def search(
         self,

@@ -1,0 +1,33 @@
+experiment:
+  id: rocket_landing_001
+  seed: 42
+  units: SI
+  fidelity: planar_2d
+  architecture: hybrid
+initial_conditions:
+  x_m: 0.0
+  altitude_m: 1500.0
+  vx_m_s: 0.0
+  vz_m_s: -60.0
+  mass_kg: 18000.0
+  wind_m_s: 8.0
+vehicle:
+  dry_mass_kg: 13000.0
+  max_thrust_N: 400000.0
+  isp_s: 300.0
+  gravity_m_s2: 9.80665
+solver:
+  method: rk4
+  dt_s: 0.02
+  max_time_s: 180.0
+validation:
+  max_touchdown_vz_m_s: 2.0
+  max_touchdown_vx_m_s: 2.0
+  max_touchdown_x_m: 5.0
+surrogate:
+  baseline: extra_trees_trajectory_summary
+  train_seed: 42
+  test_seed: 2026
+  train_cases: 240
+  test_cases: 80
+  ood_policy: reject_or_fallback

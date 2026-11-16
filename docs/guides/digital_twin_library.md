@@ -1,8 +1,8 @@
-# Digital Twin Library: five systems, each with its own conservation laws
+# Digital Twin Library: seven systems, each with its own conservation laws
 
-`pinneapple_systems.digital_twin.library` holds reference models of five engineering systems —
-an FPSO with its subsea well, a blast furnace, a chemical synthesis loop, a reusable booster and a
-lunar base. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
+`pinneapple_systems.digital_twin.library` holds reference models of seven engineering systems —
+an FPSO with its subsea well, a blast furnace, a chemical synthesis loop, a reusable booster, a
+lunar base, a gas pipeline network and a compression station. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
 describe: cheap enough to run in a test suite, explicit about their assumptions, and the source of
 the solver data a trained surrogate would later be fitted to.
 
@@ -32,6 +32,8 @@ conservation laws **twice, by different routes**, and reports the residual:
 | `chemical_plant` | A atoms, B atoms, energy | make-up against product plus purge, at the steady state the loop solves for |
 | `reusable_booster` | mass, momentum, energy | acceleration integrated along the path against the endpoint velocity; specific power against kinetic plus potential energy |
 | `lunar_base` | energy, oxygen, water | generation against day load plus storage; regolith yield against crew consumption |
+| `pipeline_network` | mass, energy, linepack | the stations' polytropic shaft work against `cp` times the temperature rise it produces; the closed-form linepack integral against a 200-node quadrature of the pressure profile |
+| `compression_station` | mass, energy, cooling | the shaft work from `cp ΔT` against the integral of `v dp` along the polytropic path, stage by stage; the intercoolers against the enthalpy the previous stage added |
 
 A residual above the declared tolerance fails the run, and `result.ok` is `False`. `run.require()`
 raises `BalanceFailed` with every failing line named.
@@ -49,6 +51,8 @@ night is half a synodic month, a wet blast runs the raceway colder.
 | `chemical_plant` | 80 bar, 480 K inlet, `A + 2B ⇌ C` | 20 % per pass, 93 % per mole of make-up, 611 K at the bed outlet |
 | `reusable_booster` | 400 t stage, 1 900 m/s at MECO, return to launch site | 139 km apex, 1 697 m/s of boostback, 1.1 m/s touchdown, 17 t of propellant left |
 | `lunar_base` | 4 crew, 1 200 m² of array, 28 kW at night | 354 h of night, 11.7 MWh of storage, 37 m² of radiator, 3 t of regolith per lunar day |
+| `pipeline_network` | 120 km of 0.9 m line, two stations at 1.35, 95 bar in and 60 bar out | 2 210 t/h, 63 MW of compression, 69 °C discharge, 5 175 t of linepack |
+| `compression_station` | 120 kg/s of 0.65-gravity gas, 30 to 90 bar in two stages | 22.4 MW of shaft work, 82 °C hottest discharge, 20.2 MW of cooling, 1 784 kg/h of fuel |
 
 The numbers are engineering-plausible and *not* plant records: every system carries a
 `not_verified` list that says exactly that. The reactor's enthalpy and entropy of reaction are
@@ -67,7 +71,11 @@ The interesting part of each model is what it solves rather than computes:
 * the booster's boostback burn is solved so the stage lands on its own pad — the burn is commanded
   in velocity, and the last step of the burn is trimmed to it, because a burn that always ends on
   a whole time step quantises downrange to hundreds of metres;
-* the lunar base is sized by its night, and the night comes from the synodic month.
+* the lunar base is sized by its night, and the night comes from the synodic month;
+* the pipeline's throughput is the flow at which the pressure the line needs at its inlet is exactly
+  the pressure the supply offers — the stations are set to a ratio and the line takes what it can;
+* the compression station *proves* the equal-ratio split instead of asserting it: it searches the
+  split and checks that no other division of the same total ratio costs less work.
 
 ## Ranges, extrapolation and honesty
 
@@ -92,8 +100,8 @@ for entry in catalogue():
     print(entry.slug, entry.fidelity, entry.status)
 ```
 
-The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1777`,
-`#1779`, `#1784`, `#1801`). What comes above them — 1D transients, 2D/3D solvers, trained
+The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1772`,
+`#1774`, `#1777`, `#1779`, `#1784`, `#1801`). What comes above them — 1D transients, 2D/3D solvers, trained
 surrogates with an OOD domain, VeriPhysics gates, the Engineering API workers and the Studio
 scenes — is tracked in those issues, and none of it is claimed here.
 
@@ -105,4 +113,7 @@ reproduces answers computed by hand in the test: Vogel's published curve, a stra
 productivity index as its zero-exponent special case, LMTD for a line with no Joule-Thomson
 cooling, the raceway balance from published enthalpies, Gibbs energy for the equilibrium constant,
 van't Hoff on the function actually used, the exponential atmosphere's scale height, Stefan-Boltzmann
-for the radiator and the FeO oxygen yield.
+for the radiator and the FeO oxygen yield, the isothermal line equation written out factor by factor,
+the linepack integral collapsed both to `p V / Z R T` at a flat pressure and to the mean of a
+parabolic pressure profile, the polytropic stage work for one stage and the hand sum for three, and
+Colebrook-White solved for the friction factor the run reports.

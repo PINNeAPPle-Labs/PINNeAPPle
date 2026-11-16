@@ -1,12 +1,11 @@
-"""The Digital Twin Library: five systems, each one closing its own conservation laws.
+"""The Digital Twin Library: seven systems, each one closing its own conservation laws.
 
-FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster and a
-lunar base — the five systems selected for the first implementation wave of the Digital Twin
-Library. Each is a reference model: SI parameters with declared ranges, a machine-readable result
+FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster, a lunar
+base, a gas pipeline network and a compression station. Each is a reference model: SI parameters with declared ranges, a machine-readable result
 that carries two independent routes to every conservation law, invariants that must hold for any
 parameter set, and its own list of what it does not verify.
 
-Run: ``python examples/digital_twin_library/01_five_systems.py [--smoke] [--out DIR]``
+Run: ``python examples/digital_twin_library/01_reference_systems.py [--smoke] [--out DIR]``
 Outputs in ``examples/digital_twin_library/_out/``.
 """
 from __future__ import annotations
@@ -28,15 +27,17 @@ def main() -> None:
     os.makedirs(a.out, exist_ok=True)
 
     with pinneapple_lab.experiment(
-            "examples/digital_twin_library", title="Digital Twin Library: five reference systems",
+            "examples/digital_twin_library", title="Digital Twin Library: seven reference systems",
             description="FPSO and subsea production, blast furnace, chemical synthesis loop, reusable "
-                        "booster and lunar base, each a 0D reference model with its conservation laws "
-                        "computed twice by independent routes and its own stated limits.",
+                        "booster, lunar base, gas pipeline network and compression station, each a 0D/1D "
+                        "reference model with its conservation laws computed twice by independent routes "
+                        "and its own stated limits.",
             domain="digital twins", methods=["material balance", "stoichiometry", "thermodynamic equilibrium",
-                                             "point-mass flight", "radiative balance"],
+                                             "point-mass flight", "radiative balance",
+                                             "isothermal compressible flow", "polytropic compression"],
             modules=["pinneapple_systems.digital_twin.library"], out_dir=HERE, register=False,
             links={"guide": "docs/guides/digital_twin_library.md",
-                   "script": "examples/digital_twin_library/01_five_systems.py"}) as ex:
+                   "script": "examples/digital_twin_library/01_reference_systems.py"}) as ex:
         print(compare())
         for entry in catalogue():
             print(f"  {entry.slug:<18s} {entry.fidelity:<7s} {entry.status}")
@@ -56,7 +57,8 @@ def main() -> None:
             ex.check(f"{slug}: every invariant holds", result.invariants_hold,
                      detail=", ".join(c.name for c in result.checks), kind="physics")
         ex.log_metric("worst_balance_residual", worst, "relative", f"{len(slugs)} systems, all their balances")
-        ex.log_metric("systems_in_the_catalogue", float(len(TWINS)), "systems", "the first implementation wave")
+        ex.log_metric("systems_in_the_catalogue", float(len(TWINS)), "systems",
+                      "every system registered in the library")
         print(f"\nworst balance residual over the library: {worst:.2e}")
 
 

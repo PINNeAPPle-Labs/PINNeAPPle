@@ -1,11 +1,11 @@
-# Digital Twin Library — five reference systems
+# Digital Twin Library — seven reference systems
 
-The first implementation wave of the Digital Twin Library: FPSO and subsea production, a blast
-furnace, a chemical synthesis loop, a reusable booster and a lunar base.
+FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster, a
+lunar base, a gas pipeline network and a compression station.
 
 ```
-python examples/digital_twin_library/01_five_systems.py           # all five, full report
-python examples/digital_twin_library/01_five_systems.py --smoke   # two of them, quick
+python examples/digital_twin_library/01_reference_systems.py           # all seven, full report
+python examples/digital_twin_library/01_reference_systems.py --smoke   # two of them, quick
 ```
 
 Each system prints its outputs, its conservation balances with their residuals, the invariants it

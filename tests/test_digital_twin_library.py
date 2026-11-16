@@ -1,4 +1,4 @@
-"""Tests of the Digital Twin Library: five reference models, each checked against its own physics.
+"""Tests of the Digital Twin Library: seven reference models, each checked against its own physics.
 
 The tests are of two kinds, and they are labelled in their names:
 
@@ -35,6 +35,12 @@ from pinneapple_systems.digital_twin.library.chemical_plant import (
     ChemicalPlant,
     equilibrium_constant,
 )
+from pinneapple_systems.digital_twin.library.compression_station import (
+    CompressionStation,
+    polytropic_exponent,
+    stage_discharge_temperature,
+    stage_work,
+)
 from pinneapple_systems.digital_twin.library.fpso import (
     FPSOSubsea,
     ipr_rate,
@@ -47,12 +53,19 @@ from pinneapple_systems.digital_twin.library.lunar_base import (
     night_factor,
     regolith_oxygen_yield,
 )
+from pinneapple_systems.digital_twin.library.pipeline_network import (
+    PipelineNetwork,
+    compressor_discharge,
+    linepack_of_segment,
+    segment_pressure_square_drop,
+)
 from pinneapple_systems.digital_twin.library.reusable_booster import (
     ReusableBooster,
     atmosphere,
 )
 
-SLUGS = ("blast_furnace", "chemical_plant", "fpso_subsea", "lunar_base", "reusable_booster")
+SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "fpso_subsea", "lunar_base",
+         "pipeline_network", "reusable_booster")
 
 
 # ---------------------------------------------------------------------------
@@ -363,3 +376,225 @@ def test_more_crew_needs_more_oxygen_and_more_regolith():
     six = LunarBase().simulate(crew=6.0)
     assert six.value("oxygen_per_day") == pytest.approx(3.0 * two.value("oxygen_per_day"), rel=1e-12)
     assert six.value("regolith_per_lunar_day") == pytest.approx(3.0 * two.value("regolith_per_lunar_day"), rel=1e-12)
+
+
+# ---------------------------------------------------------------------------
+# The pipeline network: isothermal compressible flow and linepack
+# ---------------------------------------------------------------------------
+
+def test_the_segment_relation_is_the_hand_formula():
+    # p1^2 - p2^2 = f (L/D) m_dot^2 Z R T / A^2, every factor written out here.
+    mass_flow, length, diameter, friction = 600.0, 40_000.0, 0.9, 0.0125
+    temperature, r_specific = 288.15, 8.314_462_618 / (0.65 * 28.96e-3)
+    area = math.pi * diameter ** 2 / 4.0
+    expected = friction * (length / diameter) * mass_flow ** 2 * r_specific * temperature / area ** 2
+    got = segment_pressure_square_drop(mass_flow=mass_flow, length=length, diameter=diameter,
+                                       friction_factor=friction, temperature=temperature,
+                                       specific_gas_constant=r_specific)
+    assert got == pytest.approx(expected, rel=1e-12)
+
+
+def test_the_linepack_integral_reduces_to_p_times_v_when_the_pressure_is_flat():
+    # With no pressure gradient the exact integral must collapse to the ideal-gas mass in the pipe.
+    length, diameter, temperature = 30_000.0, 0.9, 288.15
+    r_specific = 8.314_462_618 / (0.65 * 28.96e-3)
+    volume = math.pi * diameter ** 2 / 4.0 * length
+    p = 7.0e6
+    got = linepack_of_segment(p_upstream=p, p_downstream=p, length=length, diameter=diameter,
+                              specific_gas_constant=r_specific, temperature=temperature)
+    assert got == pytest.approx(p * volume / (r_specific * temperature), rel=1e-12)
+
+
+def test_the_linepack_integral_is_the_mean_pressure_of_a_parabola():
+    # <p> = (2/3) (p1^3 - p2^3) / (p1^2 - p2^2) for p^2 linear in x; checked against a quadrature.
+    length, diameter, temperature = 50_000.0, 0.8, 300.0
+    r_specific, p1, p2 = 470.0, 9.0e6, 6.0e6
+    nodes = 20_000
+    integral = 0.0
+    for k in range(nodes):
+        xa, xb = k / nodes, (k + 1) / nodes
+        integral += 0.5 * (math.sqrt(p1 ** 2 - (p1 ** 2 - p2 ** 2) * xa)
+                           + math.sqrt(p1 ** 2 - (p1 ** 2 - p2 ** 2) * xb)) / nodes
+    volume = math.pi * diameter ** 2 / 4.0 * length
+    expected = integral * length * volume / length / (r_specific * temperature)
+    got = linepack_of_segment(p_upstream=p1, p_downstream=p2, length=length, diameter=diameter,
+                              specific_gas_constant=r_specific, temperature=temperature)
+    assert got == pytest.approx(expected, rel=1e-5)
+
+
+def test_the_compressor_discharge_is_the_polytropic_relation():
+    got = compressor_discharge(suction_temperature=300.0, pressure_ratio=1.35, gamma=1.3,
+                               polytropic_efficiency=0.78)
+    assert got == pytest.approx(300.0 * 1.35 ** (0.3 / (1.3 * 0.78)), rel=1e-12)
+
+
+def test_the_solved_throughput_reproduces_the_inlet_pressure_it_was_found_from():
+    # March the reported answer backwards by hand: drop over the last segment, the station's
+    # ratio, and so on to the inlet. It has to arrive at the pressure the line says it needs.
+    result = PipelineNetwork().simulate()
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    flow = result.value("throughput") / 3.6                         # t/h -> kg/s
+    stations = int(round(p["n_stations"]))
+    length = p["length"] / (stations + 1)
+    drop = segment_pressure_square_drop(mass_flow=flow, length=length, diameter=p["diameter"],
+                                       friction_factor=result.value("friction_factor"),
+                                       temperature=p["temperature"],
+                                       specific_gas_constant=r_specific)
+    downstream = p["delivery_pressure"]
+    for _ in range(stations):
+        downstream = math.sqrt(downstream ** 2 + drop) / p["station_ratio"]
+    inlet = math.sqrt(downstream ** 2 + drop)
+    assert inlet / 1e5 == pytest.approx(result.value("required_inlet_pressure"), rel=1e-9)
+
+
+def test_the_friction_factor_solves_colebrook_white_at_the_reported_reynolds():
+    result = PipelineNetwork().simulate()
+    p = result.parameters
+    reynolds = result.value("reynolds")
+    friction = result.value("friction_factor")
+    relative = p["roughness"] / p["diameter"]
+    residual = 1.0 / math.sqrt(friction) + 2.0 * math.log10(relative / 3.7 + 2.51 / (reynolds * math.sqrt(friction)))
+    assert abs(residual) < 1e-9
+
+
+def test_the_line_reports_velocity_and_residence_time_it_can_be_checked_on():
+    result = PipelineNetwork().simulate()
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    area = math.pi * p["diameter"] ** 2 / 4.0
+    flow = result.value("throughput") / 3.6
+    mean_pressure = 0.5 * (p["inlet_pressure"] + p["delivery_pressure"])
+    rho = mean_pressure / (r_specific * p["temperature"])
+    assert result.value("gas_velocity") == pytest.approx(flow / (rho * area), rel=1e-12)
+    assert result.value("residence_time") == pytest.approx(result.value("linepack") * 1e3 / flow, rel=1e-12)
+    assert result.value("specific_power") == pytest.approx(
+        result.value("total_power") * 1e6 / flow / 1e3, rel=1e-12)
+
+
+def test_a_longer_line_carries_less_gas():
+    short = PipelineNetwork().simulate(length=60_000.0)
+    long = PipelineNetwork().simulate(length=240_000.0)
+    assert long.value("throughput") < short.value("throughput")
+    # the stations are set to the same ratio, so the work per kilogram is identical and the
+    # longer line simply carries less: the power falls with the throughput it no longer has
+    assert long.value("specific_power") == pytest.approx(short.value("specific_power"), rel=1e-12)
+    assert long.value("total_power") < short.value("total_power")
+
+
+def test_heat_capacity_is_not_free_for_an_ideal_gas():
+    # cp = gamma R / (gamma - 1) and cv = cp / gamma must differ by exactly the gas constant.
+    result = PipelineNetwork().simulate()
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    cp = result.value("heat_capacity")
+    assert cp - cp / p["gamma"] == pytest.approx(r_specific, rel=1e-12)
+
+
+def test_a_lower_delivery_pressure_moves_more_gas_and_stores_less():
+    tight = PipelineNetwork().simulate(delivery_pressure=6.0e6)
+    loose = PipelineNetwork().simulate(delivery_pressure=4.0e6)
+    assert loose.value("throughput") > tight.value("throughput")
+    assert loose.value("linepack") < tight.value("linepack")
+
+
+# ---------------------------------------------------------------------------
+# The compression station: stage split, polytropic work and fuel
+# ---------------------------------------------------------------------------
+
+def test_one_stage_is_the_closed_form_polytropic_work():
+    result = CompressionStation().simulate(stages=1.0)
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    cp = p["gamma"] * r_specific / (p["gamma"] - 1.0)
+    ratio = p["discharge_pressure"] / p["suction_pressure"]
+    exponent = (p["gamma"] - 1.0) / (p["gamma"] * p["polytropic_efficiency"])
+    expected = p["mass_flow"] * cp * p["suction_temperature"] * (ratio ** exponent - 1.0)
+    assert result.value("shaft_power") * 1e6 == pytest.approx(expected, rel=1e-12)
+
+
+def test_two_stages_with_intercooling_cost_less_than_the_same_ratio_in_one():
+    one = CompressionStation().simulate(stages=1.0)
+    two = CompressionStation().simulate(stages=2.0)
+    assert two.value("shaft_power") < one.value("shaft_power")
+    assert two.value("discharge_temperature") < one.value("discharge_temperature")
+
+
+def test_three_stages_sum_the_work_of_a_cold_first_stage_and_two_warm_ones():
+    # Stage one starts at the suction temperature; every later stage starts at the intercooler
+    # temperature. Each takes a third of the ratio.
+    result = CompressionStation().simulate(stages=3.0)
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    cp = p["gamma"] * r_specific / (p["gamma"] - 1.0)
+    ratio_one_third = (p["discharge_pressure"] / p["suction_pressure"]) ** (1.0 / 3.0)
+    exponent = polytropic_exponent(p["gamma"], p["polytropic_efficiency"])
+    rise = ratio_one_third ** exponent - 1.0
+    expected = p["mass_flow"] * cp * rise * (p["suction_temperature"] + 2.0 * p["intercooler_outlet"])
+    assert result.value("shaft_power") * 1e6 == pytest.approx(expected, rel=1e-12)
+
+
+def test_the_stage_helpers_agree_with_the_run():
+    station = CompressionStation().defaults()
+    exponent = polytropic_exponent(station["gamma"], station["polytropic_efficiency"])
+    r_specific = 8.314_462_618 / (station["gas_gravity"] * 28.96e-3) * station["compressibility"]
+    cp = station["gamma"] * r_specific / (station["gamma"] - 1.0)
+    ratio = (station["discharge_pressure"] / station["suction_pressure"]) ** 0.5
+    t2 = stage_discharge_temperature(suction_temperature=station["suction_temperature"],
+                                     ratio=ratio, gamma=station["gamma"],
+                                     polytropic_efficiency=station["polytropic_efficiency"])
+    assert t2 == pytest.approx(station["suction_temperature"] * ratio ** exponent, rel=1e-12)
+    work_first = stage_work(mass_flow=station["mass_flow"],
+                            suction_temperature=station["suction_temperature"], ratio=ratio,
+                            gamma=station["gamma"], heat_capacity=cp,
+                            polytropic_efficiency=station["polytropic_efficiency"])
+    work_second = stage_work(mass_flow=station["mass_flow"],
+                             suction_temperature=station["intercooler_outlet"], ratio=ratio,
+                             gamma=station["gamma"], heat_capacity=cp,
+                             polytropic_efficiency=station["polytropic_efficiency"])
+    two = CompressionStation().simulate()
+    assert work_first + work_second == pytest.approx(two.value("shaft_power") * 1e6, rel=1e-12)
+
+
+def test_a_better_polytropic_efficiency_costs_less_shaft_work():
+    poor = CompressionStation().simulate(polytropic_efficiency=0.70)
+    good = CompressionStation().simulate(polytropic_efficiency=0.88)
+    assert good.value("shaft_power") < poor.value("shaft_power")
+    assert good.value("isentropic_efficiency") < 1.0
+
+
+def test_the_fuel_is_the_shaft_power_over_the_driver_efficiency_and_the_lhv():
+    result = CompressionStation().simulate()
+    p = result.parameters
+    expected = result.value("shaft_power") * 1e6 / (p["driver_efficiency"] * p["fuel_lhv"] * 1e6)
+    assert result.value("fuel_flow") / 3_600.0 == pytest.approx(expected, rel=1e-12)
+
+
+def test_the_cooling_is_the_enthalpy_the_stages_added():
+    result = CompressionStation().simulate()
+    p = result.parameters
+    r_specific = 8.314_462_618 / (p["gas_gravity"] * 28.96e-3) * p["compressibility"]
+    cp = p["gamma"] * r_specific / (p["gamma"] - 1.0)
+    exponent = polytropic_exponent(p["gamma"], p["polytropic_efficiency"])
+    ratio = (p["discharge_pressure"] / p["suction_pressure"]) ** 0.5
+    first = p["suction_temperature"] * ratio ** exponent
+    second = p["intercooler_outlet"] * ratio ** exponent
+    expected = p["mass_flow"] * cp * ((first - p["intercooler_outlet"]) + (second - p["intercooler_outlet"]))
+    assert result.value("cooling_duty") * 1e6 == pytest.approx(expected, rel=1e-9)
+
+
+def test_a_machine_asked_for_more_gas_than_it_was_bought_for_reports_surge():
+    undersized = CompressionStation().simulate(design_inlet_flow=20.0)
+    assert undersized.value("inlet_flow_margin") < 0.55
+    failing = [c.name for c in undersized.checks if not c.passed]
+    assert "above_the_surge_floor" in failing
+
+
+def test_a_discharge_below_the_suction_pressure_is_refused():
+    with pytest.raises(ParameterError, match="discharge pressure"):
+        CompressionStation().simulate(discharge_pressure=2.0e6)
+
+
+def test_an_intercooler_colder_than_the_suction_needs_refrigeration_the_model_lacks():
+    with pytest.raises(ParameterError, match="refrigeration"):
+        CompressionStation().simulate(intercooler_outlet=295.0)

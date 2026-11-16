@@ -1,15 +1,17 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/digital_twin_library",
- "title": "Digital Twin Library: five reference systems",
- "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster and lunar base, each a 0D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
+ "title": "Digital Twin Library: seven reference systems",
+ "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network and compression station, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
  "domain": "digital twins",
  "methods": [
   "material balance",
   "stoichiometry",
   "thermodynamic equilibrium",
   "point-mass flight",
-  "radiative balance"
+  "radiative balance",
+  "isothermal compressible flow",
+  "polytropic compression"
  ],
  "modules": [
   "pinneapple_systems.digital_twin.library"
@@ -21,13 +23,13 @@
    "name": "worst_balance_residual",
    "value": 0.00019079846226366986,
    "unit": "relative",
-   "how": "5 systems, all their balances"
+   "how": "7 systems, all their balances"
   },
   {
    "name": "systems_in_the_catalogue",
-   "value": 5.0,
+   "value": 7.0,
    "unit": "systems",
-   "how": "the first implementation wave"
+   "how": "every system registered in the library"
   }
  ],
  "checks": [
@@ -80,6 +82,30 @@
    "kind": "physics"
   },
   {
+   "name": "compression_station: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass +0.0e+00; energy -1.9e-07; cooling +5.5e-16",
+   "kind": "physics"
+  },
+  {
+   "name": "compression_station: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "equal_split_is_the_minimum, isentropic_below_one, discharge_below_the_limit, above_the_surge_floor, more_stages_cost_less",
+   "kind": "physics"
+  },
+  {
    "name": "fpso_subsea: every conservation law closes",
    "passed": true,
    "value": null,
@@ -128,6 +154,30 @@
    "kind": "physics"
   },
   {
+   "name": "pipeline_network: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass +0.0e+00; energy -3.6e-16; linepack +2.7e-07",
+   "kind": "physics"
+  },
+  {
+   "name": "pipeline_network: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "stations_within_their_ratio, discharge_cool_enough, gas_slower_than_a_third_of_sound, inlet_pressure_within_supply, linepack_positive",
+   "kind": "physics"
+  },
+  {
    "name": "reusable_booster: every conservation law closes",
    "passed": true,
    "value": null,
@@ -160,16 +210,16 @@
  },
  "links": {
   "guide": "docs/guides/digital_twin_library.md",
-  "script": "examples/digital_twin_library/01_five_systems.py"
+  "script": "examples/digital_twin_library/01_reference_systems.py"
  },
  "references": [],
  "status": "not curated",
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "b83d02ee8",
-  "created": "2026-11-16T18:13:04Z",
-  "seconds": 2.71,
+  "git": "2681efb28",
+  "created": "2026-11-16T19:02:22Z",
+  "seconds": 0.985,
   "error": null,
   "environment": {
    "python": "3.11.16",

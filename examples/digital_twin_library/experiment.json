@@ -1,0 +1,185 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/digital_twin_library",
+ "title": "Digital Twin Library: five reference systems",
+ "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster and lunar base, each a 0D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
+ "domain": "digital twins",
+ "methods": [
+  "material balance",
+  "stoichiometry",
+  "thermodynamic equilibrium",
+  "point-mass flight",
+  "radiative balance"
+ ],
+ "modules": [
+  "pinneapple_systems.digital_twin.library"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "worst_balance_residual",
+   "value": 0.00019079846226366986,
+   "unit": "relative",
+   "how": "5 systems, all their balances"
+  },
+  {
+   "name": "systems_in_the_catalogue",
+   "value": 5.0,
+   "unit": "systems",
+   "how": "the first implementation wave"
+  }
+ ],
+ "checks": [
+  {
+   "name": "blast_furnace: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "iron +0.0e+00; carbon +0.0e+00; oxygen +0.0e+00; mass +1.9e-04; energy +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "blast_furnace: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "flame_temperature_in_band, gas_utilisation_in_band, direct_reduction_plausible, carbon_rate_industrial, slag_basicity_met, metal_hotter_than_blast",
+   "kind": "physics"
+  },
+  {
+   "name": "chemical_plant: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "atoms_A +0.0e+00; atoms_B +0.0e+00; energy +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "chemical_plant: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "equilibrium_constant_from_gibbs, vant_hoff_holds, pressure_raises_conversion, temperature_lowers_conversion, loop_converged, product_leaves_the_system, inerts_held_down",
+   "kind": "physics"
+  },
+  {
+   "name": "fpso_subsea: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "oil +2.7e-15; gas +0.0e+00; lift +1.5e-11; energy -2.0e-16",
+   "kind": "physics"
+  },
+  {
+   "name": "fpso_subsea: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "ipr_closes_at_zero_drawdown, maximum_rate_at_zero_bhp, inflow_slope_equals_productivity_index, well_declines, line_only_cools, cooling_bounded_by_expansion, tank_stops_at_separator, recovery_below_one",
+   "kind": "physics"
+  },
+  {
+   "name": "lunar_base: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "energy +0.0e+00; oxygen +0.0e+00; water +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "lunar_base: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "night_from_the_synodic_month, storage_covers_the_night, arrays_carry_only_the_day, radiator_area_finite, oxygen_yield_physical, water_loop_closes_with_makeup",
+   "kind": "physics"
+  },
+  {
+   "name": "reusable_booster: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "mass -1.7e-15; momentum -2.7e-17; energy -9.7e-05",
+   "kind": "physics"
+  },
+  {
+   "name": "reusable_booster: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "soft_landing, returns_to_the_pad, propellant_fits, velocity_below_the_rocket_equation, climbs_before_it_descends, dynamic_pressure_bounded",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/blast_furnace.json",
+   "_out/chemical_plant.json",
+   "_out/fpso_subsea.json",
+   "_out/lunar_base.json",
+   "_out/reusable_booster.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/digital_twin_library.md",
+  "script": "examples/digital_twin_library/01_five_systems.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "8aacf1199",
+  "created": "2026-11-16T18:03:13Z",
+  "seconds": 2.451,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

@@ -7314,6 +7314,136 @@
   },
   "source": "tests/test_operations_anomaly_control.py:157"
  },
+ "pinneapple_systems.digital_twin.library.base:Parameter": {
+  "inputs": {
+   "name": "thickness",
+   "unit": "m",
+   "default": 0.01,
+   "lo": 0.001,
+   "hi": 0.1,
+   "meaning": "a wall thickness"
+  },
+  "source": "tests/test_digital_twin_library.py:60"
+ },
+ "pinneapple_systems.digital_twin.library.base:close": {
+  "inputs": {
+   "name": "mass",
+   "inflow": 1.0,
+   "outflow": 1.0,
+   "unit": "kg"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.base:relative_error": {
+  "inputs": {
+   "computed": 1.0,
+   "reference": 1.0
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:raceway_flame_temperature": {
+  "inputs": {
+   "carbon_burnt": 20.0,
+   "o2_blast": 9.8,
+   "h2o_blast": 0.5,
+   "n2_blast": 37.0,
+   "blast_temperature": 1473.15
+  },
+  "source": "tests/test_digital_twin_library.py:193"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:top_gas": {
+  "inputs": {
+   "carbon_in": 31.0,
+   "oxygen_in": 40.0,
+   "flux_carbon": 2.0,
+   "flux_oxygen": 2.0,
+   "ore_oxygen": 25.5
+  },
+  "source": "tests/test_digital_twin_library.py:205"
+ },
+ "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
+  "inputs": {
+   "temperature": 450.0,
+   "delta_h": -90000.0,
+   "delta_s": -220.0
+  },
+  "source": "tests/test_digital_twin_library.py:232"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
+  "inputs": {
+   "bottom_hole_pressure": 10000000.0,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0,
+   "exponent": 0.8
+  },
+  "source": "tests/test_digital_twin_library.py:120"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:line_pressure_drop": {
+  "inputs": {
+   "oil_rate": 0.015,
+   "gor": 120.0,
+   "water_cut": 0.15,
+   "oil_density": 850.0,
+   "gas_specific_gravity": 0.7,
+   "diameter": 0.15,
+   "length": 6000.0,
+   "rise": 300.0,
+   "pressure": 30000000.0,
+   "temperature_k": 330.0,
+   "oil_viscosity": 0.005
+  },
+  "source": "tests/test_digital_twin_library.py:129"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:vogel_qmax": {
+  "inputs": {
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0,
+   "exponent": 0.8
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:night_factor": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:330"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:regolith_oxygen_yield": {
+  "inputs": {
+   "oxygen_rich_fraction": 0.15
+  },
+  "source": "tests/test_digital_twin_library.py:338"
+ },
+ "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
+  "inputs": {
+   "altitude": 1000.0
+  },
+  "source": "tests/test_digital_twin_library.py:295"
+ },
+ "pinneapple_systems.digital_twin.library:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
  "pinneapple_systems.digital_twin.monitoring.anomaly:ThresholdDetector": {
   "inputs": {
    "thresholds": {

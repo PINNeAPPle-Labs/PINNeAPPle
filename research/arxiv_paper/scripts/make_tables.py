@@ -313,7 +313,7 @@ def figures(a1, a2, b, c) -> list[Path]:
         ax.set_title(title, fontsize=7)
         ax.legend(fontsize=5.5, ncol=2, frameon=False)
         f = FIGURES / f"{name.lower()}_rel_l2.pdf"
-        fig.savefig(f)
+        fig.savefig(f, metadata={"CreationDate": None})  # deterministic bytes
         plt.close(fig)
         written.append(f)
 
@@ -331,7 +331,7 @@ def figures(a1, a2, b, c) -> list[Path]:
     ax.set_ylabel("test relative $L^2$ (mean of samples)")
     ax.set_title("B: FNO on Darcy $64\\times64$, 12 epochs", fontsize=7)
     f = FIGURES / "b_darcy.pdf"
-    fig.savefig(f)
+    fig.savefig(f, metadata={"CreationDate": None})  # deterministic bytes
     plt.close(fig)
     written.append(f)
 
@@ -356,7 +356,7 @@ def figures(a1, a2, b, c) -> list[Path]:
     ax.set_yscale("symlog", linthresh=1e-3)
     ax.set_title("C: identified viscosity, 3000 iterations", fontsize=7)
     f = FIGURES / "c_nu.pdf"
-    fig.savefig(f)
+    fig.savefig(f, metadata={"CreationDate": None})  # deterministic bytes
     plt.close(fig)
     written.append(f)
     return written

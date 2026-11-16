@@ -348,7 +348,7 @@ def figures(payload: dict, floors: dict, out_dir: Path) -> list[Path]:
     ax.set_ylabel(r"relative PDE residual $\rho$")
     ax.legend(fontsize=6, loc="upper center", bbox_to_anchor=(0.5, -0.28), ncol=3, frameon=False)
     f = out_dir / "residual_calibration.pdf"
-    fig.savefig(f)
+    fig.savefig(f, metadata={"CreationDate": None})  # deterministic bytes
     plt.close(fig)
     written.append(f)
 
@@ -372,7 +372,7 @@ def figures(payload: dict, floors: dict, out_dir: Path) -> list[Path]:
         ax.set_ylabel(r"reference residual $\rho_0$")
         ax.legend(fontsize=6, loc="upper center", bbox_to_anchor=(0.5, -0.28), ncol=3, frameon=False)
         f = out_dir / "residual_floor.pdf"
-        fig.savefig(f)
+        fig.savefig(f, metadata={"CreationDate": None})  # deterministic bytes
         plt.close(fig)
         written.append(f)
 

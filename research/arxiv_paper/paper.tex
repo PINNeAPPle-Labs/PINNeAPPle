@@ -513,9 +513,11 @@ the grid has to be chosen for it.
 \begin{table}[t]
 \centering\small
 \fit{\input{tables/verification_floors.tex}}
-\caption{The residual floor: the exact reference's own relative residual on the case grid, with the
-terms of the equation as the scale. A check whose tolerance is not well above this number cannot
-discriminate anything on that grid.}
+\caption{Calibration of the residual check. $\rho_0$ is the exact reference's own relative residual on
+the case grid; $\rho/\mathrm{rel.\,L2}$ is how much a controlled field error is magnified into a
+residual; the last column is the smallest valid-approximation level at which the residual passes a
+5\% tolerance. A check whose tolerance is not well above $\rho_0$ cannot discriminate anything on that
+grid, which is the case for Burgers at every resolution tried.}
 \label{tab:floors}
 \end{table}
 

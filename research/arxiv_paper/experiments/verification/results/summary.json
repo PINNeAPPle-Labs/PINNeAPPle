@@ -1131,12 +1131,12 @@
   }
  ],
  "first_crossing": {
-  "allen_cahn": "0.03",
-  "burgers": "1.0e-4",
-  "heat2d": "0.01",
-  "helmholtz": "0.10",
-  "poisson": "0.01",
-  "steady_heat": "0.01"
+  "allen_cahn": "$0.03$",
+  "burgers": "$10^{-4}$",
+  "heat2d": "$0.01$",
+  "helmholtz": "$0.10$",
+  "poisson": "$0.01$",
+  "steady_heat": "$0.01$"
  },
  "floors": {
   "allen_cahn": {

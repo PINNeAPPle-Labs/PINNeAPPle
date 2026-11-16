@@ -231,11 +231,12 @@ def _spec(cls) -> tuple:
 
 
 # --------------------------------------------------------------------------- LaTeX
-def _fmt(x: float, digits: int = 2) -> str:
+def _fmt(x: float, digits: int = 2, sci_below: float = 1e-3) -> str:
     if x is None or (isinstance(x, float) and not math.isfinite(x)):
         return "--"
-    if x != 0 and (abs(x) >= 1e4 or abs(x) < 1e-3):
-        return f"{x:.{digits - 1}e}".replace("e+0", "e").replace("e-0", "e-")
+    if x != 0 and (abs(x) >= 1e4 or abs(x) < sci_below):
+        mantissa, exponent = f"{x:.{max(digits, 1) - 1}e}".split("e")
+        return f"${mantissa}\\times10^{{{int(exponent)}}}$"
     return f"{x:.{digits}f}"
 
 
@@ -294,27 +295,21 @@ def latex_detection_rates(rates: dict) -> str:
     return "\n".join(lines)
 
 
-def latex_floor(floors: dict) -> str:
-    lines = [r"\begin{tabular}{lrr}", r"\toprule",
-             r"Problem & grid step & reference residual $\rho_0$ \\", r"\midrule"]
+def latex_floor(floors: dict, amp: dict) -> str:
+    """One table for the residual check's calibration: the floor, the amplification, and the level at
+    which a valid prediction starts to be rejected."""
+    lines = [r"\begin{tabular}{lrrrr}", r"\toprule",
+             r"Problem & grid step $h$ & $\rho_0$ & $\rho/\mathrm{rel.\,L2}$ (median) & "
+             r"first level with $\rho>5\%$ \\", r"\midrule"]
     for p in PROBLEM_ORDER:
         if p not in floors:
             continue
         f = floors[p]
-        lines.append(f"{PROBLEM_LABEL[p]} & {_fmt(f['step'], 1)} & {_fmt(f['floor'])} \\\\")
-    lines += [r"\bottomrule", r"\end{tabular}"]
-    return "\n".join(lines)
-
-
-def latex_amplification(amp: dict) -> str:
-    lines = [r"\begin{tabular}{lrr}", r"\toprule",
-             r"Problem & $\rho/\mathrm{rel.\,L2}$ (median) & level where $\rho>5\%$ \\", r"\midrule"]
-    for p in PROBLEM_ORDER:
-        if p not in amp:
-            continue
-        a = amp[p]
-        lines.append(f"{PROBLEM_LABEL[p]} & {_fmt(a['median'])} & "
-                     f"{_first_crossing(p)} \\\\")
+        floor = f["floor"]
+        crossing = (r"never: $\rho_0>5\%$" if floor >= 0.05 else _first_crossing(p))
+        ratio = _fmt((amp.get(p) or {}).get("median"))
+        lines.append(f"{PROBLEM_LABEL[p]} & {_fmt(f['step'], 2, sci_below=5e-2)} & "
+                     f"{_fmt(floor, 2, sci_below=2e-2)} & {ratio} & {crossing} \\\\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines)
 
@@ -395,7 +390,7 @@ def main() -> int:
     for p, pts in residual_calibration(payload).items():
         for rel, rho, _ in pts:
             if rho > 0.05:
-                _CROSS[p] = _fmt(rel)
+                _CROSS[p] = f"${_fmt(rel)}$" if rel >= 1e-3 else r"$10^{-4}$"
                 break
 
     summary = {
@@ -424,8 +419,9 @@ def main() -> int:
         r"calibration: a rule that fires there is either badly declared or amplifying a small error into a "
         r"large one.", "tab:verification-matrix") + "\n")
     (tables / "verification_rates.tex").write_text(latex_detection_rates(summary["detection_rates"]) + "\n")
-    (tables / "verification_floors.tex").write_text(latex_floor(floors) + "\n")
-    (tables / "verification_amplification.tex").write_text(latex_amplification(summary["amplification"]) + "\n")
+    (tables / "verification_floors.tex").write_text(
+        latex_floor(floors, summary["amplification"]) + "\n")
+
     print(f"-> {tables}/verification_*.tex")
 
     figs = PAPER / "figures"

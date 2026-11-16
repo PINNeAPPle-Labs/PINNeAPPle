@@ -1,12 +1,12 @@
-\begin{tabular}{lrr}
+\begin{tabular}{lrrrr}
 \toprule
-Problem & grid step & reference residual $\rho_0$ \\
+Problem & grid step $h$ & $\rho_0$ & $\rho/\mathrm{rel.\,L2}$ (median) & first level with $\rho>5\%$ \\
 \midrule
-steady heat, constant source & 0.0 & 6.5e-14 \\
-transient heat, 2-D & 0.0 & 0.00 \\
-Poisson 2-D & 0.0 & 0.00 \\
-Helmholtz 2-D & 0.0 & 0.04 \\
-Burgers 1-D & 0.0 & 0.92 \\
-Allen-Cahn 1-D & 0.0 & 0.00 \\
+steady heat, constant source & $1.0\times10^{-2}$ & $6.5\times10^{-14}$ & 12.47 & $0.01$ \\
+transient heat, 2-D & $5.0\times10^{-3}$ & $4.1\times10^{-3}$ & 8.14 & $0.01$ \\
+Poisson 2-D & $1.0\times10^{-2}$ & $3.5\times10^{-3}$ & 6.49 & $0.01$ \\
+Helmholtz 2-D & $2.0\times10^{-2}$ & 0.04 & -- & $0.10$ \\
+Burgers 1-D & $7.8\times10^{-3}$ & 0.92 & -- & never: $\rho_0>5\%$ \\
+Allen-Cahn 1-D & $3.9\times10^{-3}$ & $3.7\times10^{-3}$ & 3.97 & $0.03$ \\
 \bottomrule
 \end{tabular}

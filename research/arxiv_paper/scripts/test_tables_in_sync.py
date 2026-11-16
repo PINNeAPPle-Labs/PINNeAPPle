@@ -50,8 +50,7 @@ def test_every_committed_table_matches_a_fresh_one(regenerated):
 
 
 def test_the_verification_tables_exist_and_are_not_hand_written():
-    owned = ("verification_matrix.tex", "verification_rates.tex", "verification_floors.tex",
-             "verification_amplification.tex")
+    owned = ("verification_matrix.tex", "verification_rates.tex", "verification_floors.tex")
     for name in owned:
         path = make_tables.TABLES / name
         assert path.is_file(), name

@@ -12,7 +12,7 @@ class AnalyticalReferenceTests(unittest.TestCase):
         self.assertAlmostEqual(forcing(0.5), math.pi ** 2, places=12)
 
     def test_residual_convergence(self):
-        coarse = evaluate(n=101, h=1e-2)["rms_residual"]
+        coarse = evaluate(n=101, h=5e-3)["rms_residual"]
         fine = evaluate(n=101, h=1e-3)["rms_residual"]
         self.assertLess(fine, coarse / 50)
 

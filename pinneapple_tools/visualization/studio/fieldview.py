@@ -18,6 +18,7 @@ docs/core_concepts/studio.md (interactive up to about 500 k triangles; the defau
 """
 from __future__ import annotations
 
+import copy
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -27,8 +28,8 @@ import numpy as np
 
 from .scene import AXES, Scene
 
-__all__ = ["FieldView", "field_view", "VIEW_MAX_FACES", "colour_range", "subsample", "length_factor",
-           "displacement_factor"]
+__all__ = ["FieldView", "field_view", "from_scene", "VIEW_MAX_FACES", "colour_range", "subsample",
+           "length_factor", "displacement_factor"]
 
 VIEW_MAX_FACES = 250_000        # 260 k triangles: 7.3 MB glTF, 0.5 s field switch in the size guide's worst case
 MAX_MARKER_POINTS = 400
@@ -94,6 +95,37 @@ class FieldView:
 
     def to_dict(self) -> dict[str, Any]:
         return self.meta
+
+
+def from_scene(scene: Scene, *, labels: Mapping[str, str] | None = None, lang: str | None = None) -> FieldView:
+    """A :class:`Scene` the library already built (a preset's own ``scene(result)``) as a field view the apps mount.
+
+    The scene's fields are renamed ``f0``, ``f1``, ... — the vertex attributes the page's viewer reads — and each one
+    carries its label, unit and colour range. ``labels`` overrides the scene's labels for the fields named in it (the
+    English ones, say), and ``labels`` is read per field, so a scene with one field the caller does not name keeps its
+    own label. ``lang`` picks ``scene.labels_en`` over ``scene.labels`` for every field the caller did not override.
+    """
+    names = scene.field_names()
+    drawn = copy.deepcopy(scene)
+    key = {n: f"f{i}" for i, n in enumerate(names)}
+    for s in drawn.surfaces:
+        s.fields = {key[k]: v for k, v in s.fields.items() if k in key}
+    english = getattr(scene, "labels_en", None) or {}
+    fields = []
+    for n in names:
+        vals = np.concatenate([np.asarray(s.fields[key[n]], float) for s in drawn.surfaces if key[n] in s.fields])
+        said = (labels or {}).get(n) or (english.get(n) if lang in ("en", None) and english else None) or \
+            scene.labels.get(n) or n
+        label = str(said)
+        m = re.search(r"\[([^\[\]]+)\]\s*$", label)          # "von Mises [MPa]" -> the unit apart
+        fields.append({"key": key[n], "name": n, "label": (label[:m.start()].strip() if m else label),
+                       "unit": (m.group(1) if m else ""), "kind": "value", "group": n,
+                       **colour_range(vals, "value")})
+    lo, hi = drawn.bounds()
+    meta = {"schema": "pinneapple-field-view/v1", "title": drawn.title, "axes": drawn.axes, "fields": fields,
+            "deform": {}, "markers": [], "bounds": {"min": _r(lo), "max": _r(hi), "size": float(np.max(hi - lo)) or 1.0},
+            "faces": drawn.n_faces()}
+    return FieldView(drawn, meta)
 
 
 def _r(a, nd: int = 6) -> list:

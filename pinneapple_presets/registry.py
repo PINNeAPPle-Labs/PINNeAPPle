@@ -28,6 +28,7 @@ _BUILTIN: dict[str, str] = {
     "spm_servo_motor": "pinneapple_presets.cases.spm_motor:SPMMotor",
     "ipm_traction_motor": "pinneapple_presets.cases.ipm_traction:IPMTraction",
     "eddy_current_skin_inspection": "pinneapple_presets.cases.eddy_current:EddyCurrentInspection",
+    "pipe_bend_erosion": "pinneapple_presets.cases.pipe_bend_erosion:PipeBendErosion",
 }
 _EXTRA: dict[str, type] = {}
 
@@ -54,7 +55,8 @@ def load(name: str) -> Preset:
         near = difflib.get_close_matches(name, names(), n=3)
         raise KeyError(f"no preset {name!r}" + (f"; did you mean {near}?" if near else f"; presets: {names()}"))
     mod, cls = _BUILTIN[name].split(":")
-    return getattr(importlib.import_module(mod), cls)()
+    from .i18n import english
+    return english(getattr(importlib.import_module(mod), cls)())
 
 
 def list_presets(sector: str | None = None) -> list[dict]:

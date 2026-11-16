@@ -4876,6 +4876,46 @@
   },
   "source": "tests/test_core_contracts_last_mile.py:122"
  },
+ "pinneapple_presets.cases.pipe_bend_erosion:bend_mesh": {
+  "inputs": {
+   "d_inner": 0.08,
+   "r_over_d": 1.5
+  },
+  "source": "tests/test_presets.py:98 (o caso do preset pipe_bend_erosion)"
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:dnv_bend_screening": {
+  "inputs": {
+   "d_inner": 0.08,
+   "r_over_d": 1.5,
+   "u_gas": 15.0,
+   "sand_rate": 0.0002314814814814815,
+   "d_particle": 0.00015,
+   "rho_particle": 2650.0,
+   "rho_gas": 50.0,
+   "mu_gas": 1.5e-05
+  },
+  "source": "tests/test_presets.py:98 (o caso do preset pipe_bend_erosion)"
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:stokes_time": {
+  "inputs": {
+   "rho_particle": 2650.0,
+   "d_particle": 0.00015,
+   "mu_gas": 1.5e-05
+  },
+  "source": "tests/test_presets.py:98 (o caso do preset pipe_bend_erosion)"
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:track_particles": {
+  "inputs": {
+   "d_inner": 0.08,
+   "r_over_d": 1.5,
+   "u_gas": 15.0,
+   "rho_particle": 2650.0,
+   "d_particle": 0.00015,
+   "mu_gas": 1.5e-05,
+   "n_particles": 4000
+  },
+  "source": "tests/test_presets.py:98, com 4 mil partículas para o smoke"
+ },
  "pinneapple_presets.core:check": {
   "inputs": {
    "limit": 2.0,
@@ -8057,5 +8097,11 @@
    "seed": 1
   },
   "source": "tests/test_nvidia_integrations.py:506"
+ },
+ "preset:pipe_bend_erosion": {
+  "inputs": {
+   "n_particles": 5000
+  },
+  "source": "tests/test_presets.py:98, com 5 mil partículas para o smoke"
  }
 }

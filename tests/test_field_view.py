@@ -169,3 +169,29 @@ def test_length_units_and_displacement_detection():
     assert displacement_factor("D", "", 3) == 1.0 and displacement_factor("D", None, 1) is None
     assert displacement_factor("U", "m/s", 3) is None                 # a velocity is not a displacement
     assert displacement_factor("T", "", 3) is None
+
+
+def test_a_preset_scene_mounts_as_a_field_view_with_english_labels():
+    """``from_scene``: a scene the library built (a preset's own) becomes the view the apps mount — the fields renamed
+    to the vertex attributes the page reads, with the label, unit and colour range of each, in the page's language."""
+    import pinneapple_presets as P
+    from pinneapple_presets.i18n import scene_labels
+    from pinneapple_tools.visualization.studio.fieldview import from_scene
+
+    preset = P.load("steel_footbridge_pedestrian")
+    result = preset.run()
+    scene = preset.scene(result)
+    scene.labels_en = scene_labels(preset, result)
+    view = from_scene(scene, lang="en")
+    meta = view.to_dict()
+    assert meta["schema"] == "pinneapple-field-view/v1"
+    fields = {f["name"]: f for f in meta["fields"]}
+    assert list(fields) == ["sigma", "mode1"]
+    assert fields["sigma"]["label"] == "design bending stress" and fields["sigma"]["unit"] == "MPa"
+    assert fields["sigma"]["lo"] <= fields["sigma"]["hi"] and fields["sigma"]["key"] == "f0"
+    assert fields["mode1"]["label"].startswith("1st mode")          # the callable label reads the run's own number
+    # the GLB carries the fields as _F0, _F1: what fieldview3d.js reads
+    buf = view.glb()
+    n = struct.unpack("<I", buf[12:16])[0]
+    attrs = json.loads(buf[20:20 + n])["meshes"][0]["primitives"][0]["attributes"]
+    assert {"_F0", "_F1"} <= set(attrs)

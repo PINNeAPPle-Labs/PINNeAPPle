@@ -36,23 +36,42 @@ Legend: `[x]` done and verified · `[~]` done but needs a human decision or sign
       did not resolve to the papers claimed.
 - [x] **Reproduction instructions** (`REPRODUCE.md`) and a `Makefile` with `results`, `verification`,
       `check` and `bundle` targets.
-- [x] **arXiv source bundle** (`arxiv/pinneapple-preprint.tar.gz`) built from the sources only.
+- [x] **arXiv source bundle** (`arxiv/pinneapple-preprint.tar.gz`, 120 KB, 38 files) built from the
+      sources plus `paper.bbl`, and verified to compile from a clean extraction both with the `.bbl`
+      and without it (the BibTeX path).
+- [x] **Current arXiv rules checked against the live pages**, not from memory: the `cs.LG` and
+      `physics.comp-ph` descriptions, the endorsement requirement, the figure-format guidance
+      (vector PDF is the preferred format) and the `.bib`/`.bbl` guidance. All of it is recorded in
+      `arxiv/METADATA.md` with the URL each point came from.
+- [x] **`make check` proven end to end** (about a minute): regenerate every table from the records,
+      rebuild the PDF, no overfull boxes. Fixed on the way: the Makefile drove the generators with a
+      bare `python3`, which on this machine has no numpy, so it failed with a traceback from inside a
+      generator; it now prints one line saying which interpreter to pass and puts the repository root
+      on `PYTHONPATH` itself.
+- [x] **Related-work and scope section added** (Section 2), which also removed nine bibliography
+      entries that were in the file but never cited. Every one of the 21 entries is now cited, and
+      every DOI resolves.
 
 ## Needs a human decision — do these before submitting
 
 - [ ] **Author consent and order.** Both authors must approve authorship, order and scope, and confirm
       the manuscript is what they agreed to. The paper states where PINNeAPPle is worse than the
       alternatives; that is deliberate and both authors should be comfortable with it.
-- [ ] **Affiliations and identifiers.** The paper uses the affiliations and ORCIDs of the JOSS
-      submission (`paper/paper.md`): PINNeAPPle Labs (Brazil); University of Arizona and University of
-      Bologna. Confirm these are current, and confirm who is the corresponding author.
+- [~] **Affiliations and identifiers.** Printed on the title page from the repository's own
+      `CITATION.cff` and `paper/paper.md`: PINNeAPPle Labs (Brazil), and University of Arizona /
+      University of Bologna. Both ORCID records were resolved through the public ORCID API and each
+      returns the right name, so the identifiers are real. What remains is the human part: confirm the
+      affiliations are still current and that Yan Barros is the corresponding author.
 - [ ] **Funding, competing interests, acknowledgements.** None are declared in the manuscript. Add any
       that apply, or state explicitly that there are none.
-- [ ] **Software licence and preprint policy.** Confirm the repository licence covers the code the
-      artifacts point to, and that no employer or institutional policy restricts posting.
-- [ ] **Independent review.** At least one reader expert in scientific ML who is not an author should
-      read the draft, with the two specific questions: are any claims stronger than the data, and is
-      the CPU-only framing clear enough that no reader transfers the cost ratios to a GPU.
+- [~] **Software licence and preprint policy.** The repository is Apache-2.0, which permits both the
+      preprint and redistribution of the code the artifacts point to. What remains is the part no
+      licence can answer: whether an employer or institution restricts posting.
+- [~] **Independent review.** An adversarial pass has been made against the committed records, with
+      the instructions "find where the manuscript claims more than its data supports". That is a first
+      filter, not independence: a human expert in scientific ML who is not an author must still read
+      it, with the two specific questions: are any claims stronger than the data, and is the CPU-only
+      framing clear enough that no reader transfers the cost ratios to a GPU.
 
 ## Open at submission time
 

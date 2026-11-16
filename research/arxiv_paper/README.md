@@ -14,7 +14,7 @@ the paper (the verification corpus). The cross-framework benchmark it reports on
 
 | file | what it is |
 |---|---|
-| `paper.tex` | the manuscript; every table and figure is `\input`/`\includegraphics` from generated files |
+| `paper.tex` | the manuscript (19 pages); every table and figure is `\input`/`\includegraphics` from generated files |
 | `refs.bib` | bibliography; every DOI was resolved against Crossref or DataCite when it was added |
 | `protocol.md` | the preregistered protocol, including the verification corpus that was added to it |
 | `tables/`, `figures/` | **generated**, never edited by hand |
@@ -27,9 +27,10 @@ the paper (the verification corpus). The cross-framework benchmark it reports on
 ## Build
 
 ```bash
-make            # tables and figures are committed; this only builds the PDF
-make results    # regenerate every table and figure from the records
-make bundle     # the arXiv source bundle
+make                                  # tables and figures are committed; this only builds the PDF
+make results PY=/path/to/python3      # regenerate every table and figure from the records
+make check PY=/path/to/python3        # regenerate, rebuild, and prove the two agree
+make bundle                           # the arXiv source bundle
 ```
 
 `make` needs [tectonic](https://tectonic-typesetting.github.io) and nothing else; it fetches the LaTeX

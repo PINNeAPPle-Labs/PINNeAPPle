@@ -32,9 +32,10 @@
 
 \title{Reproducible cross-framework evaluation\\ of physics-informed learning\\[4pt]
        {\large matched numerics, divergent defaults, and the limits of\\ physics-based error detection}}
-\author{Yan Barros\thanks{PINNeAPPle Labs, Brazil. Corresponding author.} \and
+\author{Yan Barros\thanks{PINNeAPPle Labs, Brazil. Corresponding author.
+        ORCID \href{https://orcid.org/0009-0001-8507-8602}{0009-0001-8507-8602}.} \and
         Enrico Schiassi\thanks{University of Arizona, Tucson, AZ, United States; and University of
-        Bologna, Bologna, Italy.}}
+        Bologna, Bologna, Italy. ORCID \href{https://orcid.org/0000-0002-7882-5913}{0000-0002-7882-5913}.}}
 \date{Draft of \today}
 
 \begin{document}
@@ -125,6 +126,41 @@ known by construction, and report which failures it catches, which it misses, an
         calibration of the residual check against the finite-difference floor, and the measured
         boundary of what the checker can express (\S\ref{sec:detection}).
 \end{enumerate}
+
+\section{Related work and scope}\label{sec:related}
+
+\paragraph{Physics-informed learning.} Training a network against the residual of a differential
+equation, rather than against solutions of it, was established by \citet{raissi2019pinn} and has since
+become a field of its own \citep{karniadakis2021piml}. The approach has documented failure modes that
+are relevant to this paper because they are what a benchmark has to be able to expose: stiff or
+multi-scale problems where the residual is easy to reduce without reducing the error
+\citep{krishnapriyan2021failure}, and loss-weighting or gradient-flow pathologies that make the
+outcome depend on the balance between data and equation terms \citep{wang2021gradient}. The defect
+found in Section~\ref{sec:inverse} is of the second kind.
+
+\paragraph{Operator learning.} Instead of solving one instance, a neural operator learns the map from
+a coefficient or a source to the solution, so that a new instance is an inference. DeepONet
+\citep{lu2021deeponet} and the Fourier neural operator \citep{li2021fno} are the two families compared
+most often; graph networks on meshes \citep{pfaff2021meshgraphnets} are a third and are not evaluated
+here. Track~B compares three independent implementations of the same Fourier block, which is a
+narrower question than which operator family is better.
+
+\paragraph{Other libraries and other constructions.} Several libraries address overlapping ground and
+are not in this study: a Keras/TensorFlow wrapper \citep{haghighat2021sciann}, a Julia package
+\citep{zubov2021neuralpde}, an interface-driven library \citep{peng2021idrlnet}, and a
+research-oriented framework with its own PINN variants \citep{coscia2023pina}. Constructions that
+impose the boundary and initial conditions exactly, such as the theory of functional connections and
+its extreme variant \citep{schiassi2021xtfc}, change the loss surface rather than the library around
+it, and DeepXDE uses the same idea in its own examples; that is why track~A2 lets each framework use
+its documented hard constraints. All five frameworks considered here run on PyTorch
+\citep{ansel2024pytorch2}, which is what makes the comparison one of libraries rather than of
+numerical backends.
+
+\paragraph{Scope.} This paper evaluates three PINN libraries (PINNeAPPle, DeepXDE and
+PhysicsNeMo-Sym) plus the FNO implementations of three libraries, on five problems, on one CPU, with
+three to five seeds. It does not evaluate GPU performance, distributed training, or the accuracy each
+library reaches with a tuned configuration. Those are stated as threats to validity in
+Section~\ref{sec:threats}, not left implicit.
 
 \section{Software under test}\label{sec:software}
 

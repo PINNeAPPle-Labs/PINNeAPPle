@@ -85,12 +85,12 @@
   "seconds": 0.0
  },
  "pinneapple_studio.extras:preset_tools": {
-  "code_hash": "1f3535277923627c",
+  "code_hash": "b022ba71662282d8",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-16",
   "returned": "list",
-  "seconds": 0.19
+  "seconds": 27.84
  },
  "pinneapple_studio.extras:science_tools": {
   "code_hash": "5ff02c0b126f3c7d",

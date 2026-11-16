@@ -1881,11 +1881,8 @@ pinneapple_physics.weather.viz:upsample_sphere
 pinneapple_physics:define_problem
 pinneapple_physics:identify
 pinneapple_physics:pipeline
-pinneapple_presets.cases.ipm_traction:machine
 pinneapple_presets.cases.pressure_vessel:lame
 pinneapple_presets.cases.pressure_vessel:ring_mesh
-pinneapple_presets.core:check
-pinneapple_presets.core:lhs
 pinneapple_presets.registry:load
 pinneapple_presets.report:compare_variants
 pinneapple_presets.report:readme
@@ -1893,7 +1890,6 @@ pinneapple_presets.report:write_report
 pinneapple_presets.surrogate:PresetSurrogate
 pinneapple_presets.surrogate:build_surrogate
 pinneapple_presets.surrogate:load_surrogate
-pinneapple_presets.surrogate:surrogate_path
 pinneapple_presets.viz3d:merge
 pinneapple_presets.viz3d:stills
 pinneapple_problemdesign.autonomy:ApprovalGate

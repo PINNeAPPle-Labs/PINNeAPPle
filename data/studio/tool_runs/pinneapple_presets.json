@@ -57,6 +57,16 @@
   "returned": "IPMTraction",
   "seconds": 0.0
  },
+ "pinneapple_presets.cases.ipm_traction:machine": {
+  "code_hash": "ecf4ffacdb42ca7e",
+  "inputs": {
+   "n_gap": 480
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "IPMMachine",
+  "seconds": 4.59
+ },
  "pinneapple_presets.cases.pcb:PowerPCB": {
   "code_hash": "b121feee2fba20e9",
   "inputs": {},
@@ -64,6 +74,70 @@
   "recorded": "2026-10-31",
   "returned": "PowerPCB",
   "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:PipeBendErosion": {
+  "code_hash": "90c0b69fb443680b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "PipeBendErosion",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:bend_mesh": {
+  "code_hash": "121d59e9771e320a",
+  "inputs": {
+   "d_inner": 0.08,
+   "r_over_d": 1.5
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:dnv_bend_screening": {
+  "code_hash": "fb528c08a5ffb1fb",
+  "inputs": {
+   "d_inner": 0.08,
+   "d_particle": 0.00015,
+   "mu_gas": 1.5e-05,
+   "r_over_d": 1.5,
+   "rho_gas": 50.0,
+   "rho_particle": 2650.0,
+   "sand_rate": 0.0002314814814814815,
+   "u_gas": 15.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:stokes_time": {
+  "code_hash": "cc33c11cbde82810",
+  "inputs": {
+   "d_particle": 0.00015,
+   "mu_gas": 1.5e-05,
+   "rho_particle": 2650.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.cases.pipe_bend_erosion:track_particles": {
+  "code_hash": "6e442c97217c97af",
+  "inputs": {
+   "d_inner": 0.08,
+   "d_particle": 0.00015,
+   "mu_gas": 1.5e-05,
+   "n_particles": 4000,
+   "r_over_d": 1.5,
+   "rho_particle": 2650.0,
+   "u_gas": 15.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.32
  },
  "pinneapple_presets.cases.pipe_network:WaterNetwork": {
   "code_hash": "1b880ac850c8a7af",
@@ -114,11 +188,24 @@
   "seconds": 0.0
  },
  "pinneapple_presets.core:Preset": {
-  "code_hash": "0e4ccd2139ab02c2",
+  "code_hash": "f4651fd757d866ba",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-16",
   "returned": "Preset",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.core:check": {
+  "code_hash": "08135406d818b394",
+  "inputs": {
+   "limit": 2.0,
+   "name": "x",
+   "ok": true,
+   "value": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Check",
   "seconds": 0.0
  },
  "pinneapple_presets.core:environment": {
@@ -128,6 +215,26 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.01
+ },
+ "pinneapple_presets.core:lhs": {
+  "code_hash": "180b4e5a5c065a6e",
+  "inputs": {
+   "bounds": [
+    [
+     1.0,
+     1000.0
+    ]
+   ],
+   "log": [
+    true
+   ],
+   "n": 6,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ndarray",
+  "seconds": 0.0
  },
  "pinneapple_presets.registry:index": {
   "code_hash": "0d7646f5566801c6",
@@ -180,6 +287,16 @@
   "returned": "ARDGP",
   "seconds": 0.0
  },
+ "pinneapple_presets.surrogate:surrogate_path": {
+  "code_hash": "17356e3555356a81",
+  "inputs": {
+   "name": "x"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.02
+ },
  "preset:airfoil_section_re4e6": {
   "code_hash": "",
   "inputs": {},
@@ -203,6 +320,16 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 1.79
+ },
+ "preset:pipe_bend_erosion": {
+  "code_hash": "",
+  "inputs": {
+   "n_particles": 5000
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 66.41
  },
  "preset:plate_fin_heatsink_forced": {
   "code_hash": "",

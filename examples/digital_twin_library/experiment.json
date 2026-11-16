@@ -156,13 +156,7 @@
   "figures": [],
   "videos": [],
   "viewers": [],
-  "data": [
-   "_out/blast_furnace.json",
-   "_out/chemical_plant.json",
-   "_out/fpso_subsea.json",
-   "_out/lunar_base.json",
-   "_out/reusable_booster.json"
-  ]
+  "data": []
  },
  "links": {
   "guide": "docs/guides/digital_twin_library.md",
@@ -173,9 +167,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "8aacf1199",
-  "created": "2026-11-16T18:03:13Z",
-  "seconds": 2.451,
+  "git": "b83d02ee8",
+  "created": "2026-11-16T18:13:04Z",
+  "seconds": 2.71,
   "error": null,
   "environment": {
    "python": "3.11.16",

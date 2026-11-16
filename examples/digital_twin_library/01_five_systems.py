@@ -47,8 +47,8 @@ def main() -> None:
             result = run(slug)
             print()
             print(result.report())
-            path = result.save(os.path.join(a.out, f"{slug}.json"))
-            ex.add_file(path)
+            # The runs go to _out/ (git-ignored): the manifest carries their numbers, not the files.
+            result.save(os.path.join(a.out, f"{slug}.json"))
             for balance in result.balances:
                 worst = max(worst, abs(balance.residual))
             ex.check(f"{slug}: every conservation law closes", result.balanced,

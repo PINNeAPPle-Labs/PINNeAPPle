@@ -52,6 +52,19 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:digital_twin_library": {
+  "error": "",
+  "hash": "a44629a5c65262e8",
+  "ok": true,
+  "recorded": "2026-11-16",
+  "scripts": [
+   "examples/digital_twin_library/01_five_systems.py"
+  ],
+  "seconds": 24.9,
+  "writes_files": [
+   "examples/digital_twin_library/experiment.json"
+  ]
+ },
  "example:fno_coldplate": {
   "error": "",
   "hash": "edeecb3eafdf8dbf",
